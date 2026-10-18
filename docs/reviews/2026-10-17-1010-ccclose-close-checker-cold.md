@@ -779,3 +779,183 @@ principal's to decide (rule 3); counsel is beneath each.
 - [ ] CL11–CL20 — as counselled; CL16/CL17 are record fixes.
 - [ ] CL18 — tests for `--no-optional-locks` (assert no `index.lock` write), unknown
       conclusions, the window bound, a skewed history, and claims with no window.
+
+### Reconcile
+
+Phase 2, 2026-10-18 UTC, after phase 1 landed as `96e9a58`. Opened now, in this order: the
+sibling; the queue pointer `160/870`; the commissioning item `020/180`; the intent record
+(its `020/180`, `cea247e` and close sections); the head of the neighbouring item `210/250`;
+`160/500`'s claim line (regex-shape check only); and, by grep, the lines of two prior
+verdicts the sibling names — `2026-10-16-1551-git-quoted-paths-cold.md` (QP5) and
+`2026-10-16-1510-expected-toolbox-cold.md` (TB1). Phase-1 text above is unrevised. Two
+findings are formed here and marked as such.
+
+**Against the seeded questions.**
+
+1. *Claim regexes against the board's real lines.* CL4, formed in phase 1 from the masked
+   probe and fixture S4, is confirmed on the text: the pointer's claim reads
+   `[~]` **CLAIMED 2026-10-17 2319 UTC for the review run** on a continuation line, marker
+   in a code span, word in capitals, space-separated stamp; `160/500`'s claim has the same
+   shape (`CLAIM_LINE` false; `CLAIM_TIME` matches only case-insensitively). So at HEAD the
+   board carries two live claims and check 7 sees neither. The fixtures used neither form.
+   No change to CL4.
+2. *The row's authority recorded where the row sits?* No. The TOOLBOX row carries the name
+   only; the answer ("Install it", 2026-10-16) is recorded on `020/180` and in the intent
+   record. The table carries provenance for no row, and whether such a list may carry an
+   install grant at all is `160/500`'s TB1 (MAJOR there). **CL25 — note (formed at
+   reconcile).** Recorded so the row's answer-not-ruling status is findable from this
+   verdict; whatever `160/500` rules binds this row, and I add no second home for TB1.
+3. *Caps and comparable fields.* Answered, no finding: the text form prints "… and N more"
+   (test), `--json` carries `itemsTotal`, and the field set is stable run to run (test).
+   §10's "with the number not shown" reads as the man page's "followed by the number not
+   shown".
+4. *`skipped`/`neutral`; `--limit 50`.* CL11 covers the first. On the second, `gh` lists
+   newest first per sha, so the latest run of each workflow survives truncation, and a
+   re-run after the window on the same sha is exactly the evidence `RECORD.md` asks for.
+   No finding.
+5. *Which date; a peer's rebase.* Committer time throughout (`%ct` and `--since` both). A
+   rebase or cherry-pick takes a new committer date, so a peer re-landing old work during
+   the window is credited to the session — the admitted heuristic. The date defect that
+   bites is the opposite shape: a committer date *behind* the window on a commit *above*
+   it (CL1).
+6. *board.py: read-only, and executing the checked repo's code.* CL10 covers both.
+7. *Asks volume on a long session.* CL6 covers the shape; the volume was not measured —
+   no real transcript may be read in this container and none was. Fixture evidence: four
+   code-tidying sentences list (S12); expect every "update X and push" prompt of a build
+   session to list. Relayed.
+8. *✅ overall while the session left uncommitted work.* Yes. **CL26 — minor (formed at
+   reconcile).** Fixture: a linked worktree created before the window holding an untracked
+   file; from the primary checkout, ✅ *Worktrees put away — none created in the window
+   remain · 1 other(s) not attributed* and ✅ *Working tree clean — clean*. Check 11 runs
+   `git status` in `--root` only; a linked worktree's tree is never read, and a worktree the
+   session re-used rather than created is "another's" to check 1. *Counsel:* run
+   `status --porcelain` in each linked worktree `worktree list --porcelain` names and report
+   per worktree, ⚠️ as now.
+9. *`CCCLOSE_GH` versus ccarchive's simulate flag.* Different classes: the simulate flag
+   changes what is believed, `CCCLOSE_GH` changes what runs — PATH-class trust. The man
+   page documents it; design §12's analogy understates it. Covered under lens 4 (c) and
+   CL8's counsel for a §8 trust paragraph; no separate severity.
+10. *Prompts quoted into public records.* CL8.
+
+**Against the intent record and the commissioning item.**
+
+- `020/180` says "Read-only, with `--no-optional-locks` on every git call. An absent input
+  prints 'not applicable', never a pass." CL10 qualifies the first (bytecode is written);
+  CL3 and CL11 qualify the second (a ✅ where the input could not be read).
+- The record says the orchestrator's live run "listed the open claim" — so the queue run's
+  claim on the work item was in a shape check 7 reads (a checkbox-line `[~]`), while the
+  review-pointer claims use the body-line form. Two claim grammars are in live use; CL4
+  stands as the doctrine question it already is.
+- The merge body (sibling summary) and the record both say "three NZ-local dates corrected
+  to UTC" at the merge; the brief's "(checked)" claim contradicted a body its writer had
+  read. CL16 stands, sharpened: a transcription error in the brief, not in the record.
+- `4eda680`'s "five mutations each fail the suite" holds: the sweep kills those five
+  classes (M2, M6, M8, M12, M20) and adds the six survivors in CL18.
+- The record's first live run caught a `git reset --hard` and two open PRs — the bypass
+  list and the PR check worked in the field, consistent with S11 and S15.
+- `cea247e` (pass `160/880`'s subject): none of my findings sits in its hunks; the parity
+  tests across the shared classifier hold. Nothing is charged to that pass.
+- Prior verdict QP5 (`2026-10-16-1551`, minor, open) already records that check 9's
+  `--name-only` read misses git-quoted paths — a different defect on the same check from
+  CL5 and CL12; noted, not duplicated. TB1 (`2026-10-16-1510`, MAJOR there) is the grant
+  question behind CL25.
+
+**Overall, restated.** FAIL — 2 MAJOR · 7 MODERATE · 12 minor · 5 note (CL26 minor and
+CL25 note added at reconcile; nothing in phase 1 changed). The headline stands: CL1 and
+CL2 make the tool's ✅ false on this repository's own history and in `RECORD.md`'s grounded
+floor case, so its pass cannot yet be cited as the evidence the close declaration requires.
+
+## Deferred material — folded in at the verdict
+
+*The sibling `2026-10-17-1010-ccclose-close-checker-cold.deferred.md`, verbatim, folded in
+here at phase 2 and deleted from the tree.*
+
+# Sibling to the ccclose cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-1010-ccclose-close-checker-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the
+brief are committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the
+brief's provenance; it forms no finding. Fold this file in below the reconcile and
+delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md` —
+  **not opened by the brief-writer**.
+- Commissioning board item (name only, never opened): `020/180` (the mechanisable form
+  of it). Neighbouring item filed by the merge: `210/250` (cctranscript counts harness
+  text as prompts), the subject of pass 160/880.
+- The landing commits' message bodies (read by the brief-writer), in summary:
+  - `ef3673a`: first-of-kind, so the design landed before any code; it settles home
+    (instruments/, per ADR 0006's purpose rule), streaming reuse of cctranscript's
+    classifiers, the window heuristic "stated in every run", the eleven checks and why
+    three can only warn.
+  - `4eda680`: "a session declared its close from memory, the thing that drifts most";
+    dogfooding added the live window and stripping the browser extension's injected
+    instructions; "Tests: 22 … five mutations (cancelled passes, short sha, merged
+    branch ok, meta prompts counted, gh-missing passes) each fail the suite".
+  - `6ccbc7a` (merge): Mike answered "Build it"; "read and run by the orchestrator on
+    its own live session before the merge; three NZ-local dates corrected to UTC here";
+    "not installed onto the path: whether a session may add a tool to the expected
+    toolbox is open, so that is Mike's"; files 210/250 and queues 160/870.
+  - `09a61b4` (close commit): Mike answered "install it"; the TOOLBOX row names ccclose
+    and `instruments/install` was run (symlinks only); "the toolbox edit joins 160/870's
+    delta in this commit". The same commit records an unrelated answer on 115/090.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-10-16-1551-git-quoted-paths-cold.md` — the only verdict whose text
+  names ccclose; it was being written in the review worktree when this brief was
+- `docs/reviews/2026-10-16-1510-expected-toolbox-cold.md` — the TOOLBOX install rule
+- `docs/reviews/2026-08-15-1032-cctranscript-search-cold.md` — the reused module
+- `docs/reviews/2026-10-16-1550-ccarchive-hardening-cold.md` — the env-seam precedent the
+  design note cites
+- `docs/reviews/2026-07-11-instruments-test-floor-code-review.md`
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only; it names the TOOLBOX row as part of the delta.
+
+## Overlap with sibling passes of this batch
+
+- 160/880 (`cea247e`) rewrote ccclose's record classification, its wrapper list and
+  design-note §6 twenty minutes after this delta merged. Its brief tells its runner to
+  review ccclose's use of the shared classifier; this brief tells its runner to leave
+  `cea247e`'s hunks to 160/880. Expect both verdicts to touch `readTranscript`.
+- 160/500's pointer records a MAJOR, TB1, on the install grant riding on a list any
+  session may extend in the same commit that uses it. The ccclose row was added to that
+  list after the merge held it back on exactly that question, on Mike's answer.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. `CLAIM_LINE` wants a line that begins with a list bullet and `[~]`; `CLAIM_TIME`
+   matches lower-case `claimed` with no case flag. The claim lines this board carries
+   at HEAD (160/500 is one) sit on a continuation line, with the marker inside a code
+   span and the word in capitals. Does check 7 see any real claim on this repo, and did
+   the fixtures use the board's real form?
+2. The row went into the toolbox list after the merge said adding it was an open
+   question for Mike, and TB1 questions that list's grant. Is the row's authority (an
+   answer, not a ruling) recorded where the row sits?
+3. The design says listed items are capped at 25 "with the number not shown". Does the
+   text form say a list was cut, and is that consistent with the house rule that a
+   report's fields stay comparable run to run?
+4. `GREEN` holds `skipped` and `neutral`. Is a skipped floor workflow a pass under
+   `RECORD.md`'s floor-at-head rule? `gh run list --limit 50` per sha: can the latest run
+   of a workflow fall outside the window?
+5. Window membership compares committer time to the transcript; the `--since` pre-filter
+   subtracts a day. A cherry-pick or rebase keeps its author date. Which date does each
+   check use, and does a peer's rebase onto this session's window get credited here?
+6. `boardTool` prefers the checked repo's own `tools/board.py` and runs it with
+   `python3`. Is that read-only (byte-code caches), and is executing a checked repo's
+   code consistent with "read-only by contract"?
+7. The asks heuristic lists a sentence for a cue plus an object; the cue set includes
+   bare "close", "record", "log" and "update", the object set "board", "reviews" and
+   "memory", and the strong set "clean up". How many lines would a normal long session
+   list, and does a high count train sessions to skim it?
+8. Three checks can never fail. A dirty tree at close is ⚠️ because a peer may have
+   made it. Is there any input under which ccclose prints ✅ overall while the session
+   itself left uncommitted work?
+9. `CCCLOSE_GH` is honoured outside tests. Is an env var choosing which binary runs the
+   same seam shape as ccarchive's simulate flag, which only changes what is believed?
+10. The asks list quotes the principal's prompts into output the design says "gets
+    pasted into records". Some of those records are in public repos.

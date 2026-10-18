@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccclose`, the close-out checker
+- [ ] 🛑 **Rule-4 cold pass queued: `ccclose`, the close-out checker
       (`020/180`).** The run authored this itself (its dispatched worker's
       output counts as the run's authorship). It is queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -36,3 +36,23 @@
       forms every finding and severity. The sibling, the intent record and
       prior verdicts stay unopened by the reviewer until its phase-1 findings
       are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-18 UTC and the cycle stays OPEN — the
+            verdict is FAIL, two MAJORs stand.** The rule-4 Fable cold pass
+            (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` cloud orchestrator — the shape disclosed in the
+            claim above; the sibling, the intent record and prior verdicts
+            opened only after the phase-1 findings were committed, `96e9a58`)
+            returned FAIL — 2 MAJOR · 7 MODERATE · 12 minor · 5 note →
+            [`2026-10-17-1010-ccclose-close-checker-cold.md`](../../reviews/2026-10-17-1010-ccclose-close-checker-cold.md)
+            (sibling folded in and deleted). CL1 (MAJOR): `ccclose`'s
+            `git log --since` walk stops at the first older commit, so on this
+            repository's own history (a back-dated insert sits above the
+            2026-10-16 landing) every window check answered on a truncated walk
+            — "0 commits in the window", a false ❌ on the session record and a
+            false ✅ on reviews queued, with no hint in the output. CL2
+            (MAJOR): the floor check passes on a peer's green sha in exactly
+            the cancelled-run scenario `RECORD.md` grounds the rule on. CL25
+            (note) and CL26 (minor) formed at reconcile. The instrument was
+            driven only against fixtures; no live transcript store was read.
+            Findings are the principal's to decide (rule 3); nothing was
+            applied.
