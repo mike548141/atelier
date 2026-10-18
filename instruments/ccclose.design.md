@@ -301,11 +301,17 @@ The field set is stable (§10): an empty field prints `none`, a field the tool
 cannot derive prints `by hand — <why>` and never a guess, and `Other repos`
 always prints the by-hand line, because nothing here can see another repo.
 
-- **Commits.** The window's commits on this repo (the §4 heuristic), oldest
-  first, as short shas. The range shows only when each commit's one parent is
-  the commit before it, and is written `first^..last` because a git range
-  excludes its left end. A session that interleaved with another, or merged,
-  prints the list and no range, which is the honest answer.
+- **Commits.** Three tiers, because the window alone credits a concurrent
+  session's work as the session's own (§15.1). *Credited*, oldest first, as
+  short shas: a commit whose subject is a subject the session, or one of its
+  subagents, gave a `git commit` command, or the squash merge of a PR the
+  session ran `gh pr merge` on. The range shows only when each credited commit's
+  one parent is the credited commit before it, and is written `first^..last`
+  because a git range excludes its left end; a peer's commit between two of
+  them breaks it, which is the honest answer. *Unconfirmed, dated in the window
+  only*: the rest of the window's commits, listed on their own line with "check
+  before pasting as fact". *Left out*: squash merges of PRs the session did not
+  merge. Both sub-lines print on every run (`none` when empty).
 - **Pull requests.** The repo alone cannot name a merged PR, so the union of
   three sources: `gh pr create` results (the PR URL in the output),
   `gh pr merge <n>` commands, and the open PRs check 4 already credits. Each
@@ -313,13 +319,15 @@ always prints the by-hand line, because nothing here can see another repo.
   `gh pr view`. A command whose result is an error counts for nothing, a
   merge with no number or `--repo` is skipped, and a created PR whose URL names
   another repo is counted and left to hand.
-- **Board.** From one `git log -p -U0` over the item store, per commit in the
-  window: an added item file is *created*; a first line that becomes `- [x]` is
-  *completed*; one that becomes `- [~]` is *claimed*, listed only if it is
-  still claimed at the end (a claim released inside the window is not owed);
-  a `⏳` line added to an item file marks a *review item created*. Ids come from
-  the path's two numeric prefixes. A hand-kept board has no item store and
-  prints by hand.
+- **Board.** From one `git log -p -U0` over the item store, reduced once per
+  commit tier: an added item file is *created*; a first line that becomes
+  `- [x]` is *completed*; one that becomes `- [~]` is *claimed*, listed only if
+  it is still claimed at the end (a claim released inside the window is not
+  owed); a state line that gains `⏳` marks a *review item created*. Ids come
+  from the path's two numeric prefixes. The four lines follow the credited
+  commits only; a fifth lists what the unconfirmed commits add on top. A
+  left-out squash merge contributes to neither. A hand-kept board has no item
+  store and prints by hand.
 - **Worktrees and branches.** A worktree put away and its deleted branch leave
   no trace in git, so the creations are read from the transcript: `git worktree
   add` commands (path, and `-b` or the path's name for the branch) and
@@ -332,8 +340,59 @@ always prints the by-hand line, because nothing here can see another repo.
 
 The shell parsing is deliberately small (the first segment of a command, the
 common option forms). A form it cannot read is missed, not guessed, and the
-block's last line repeats the §4 attribution heuristic in italics.
+block's last line says in italics how commits and board movement were
+attributed (§15.1).
 
 Not done: the commits of workers' other repos, a PR opened from a checkout of
 another repo (counted, listed by hand), and a `gh pr merge` that names no
 number.
+
+### 15.1 Attribution of commits and board movement (210/290)
+
+The first real block listed 115 commits where the session's own were 88: a
+concurrent session's branch commits and the squash merge of a PR the session
+never merged were dated inside the window, so the window credited them. The same
+block credited that session's board item as created, and listed an item as a
+review item only because its close note mentioned `⏳`. The block is pasted into
+records as fact, so the window is no longer enough for it. (Checks 1 to 12 keep
+the window; they report owing, where over-crediting errs towards a look, not
+towards a false claim.)
+
+Options weighed:
+
+- *First-parent commits on the integration branch only.* Rejected as the rule.
+  It drops the work of a session that committed on a branch or worktree (a
+  worker, this very item) and of one whose branch was merged `--no-ff`, and it
+  does not remove a peer's direct commits to the integration branch, which are
+  first-parent too. It survives in one place: a squash merge is recognised by
+  sitting on the integration branch's first-parent line (local and
+  remote-tracking), so a branch commit whose subject merely ends `(#N)` is not
+  mistaken for one.
+- *Leave out squash merges of PRs the session did not run `gh pr merge` on.*
+  Taken. The merge is read from the session's and its subagents' commands, a
+  failed command counting for nothing. Cost: a `gh pr merge` with no number
+  (current branch) is not read, so that session's own squash merge is listed as
+  left out, visibly, and not silently lost.
+- *Positive evidence of authorship.* Taken as the main rule. This house commits
+  with `git commit -q`, so a SHA never reaches the transcript, but the message
+  does, in `-m` or in a heredoc (`-m "$(cat <<'EOF'` or `-F - <<'EOF'`). A git
+  subject equal (whitespace-collapsed) to a subject found in a `git commit` or
+  `git merge` command of the session, or of any of its subagents (the same
+  directory check 12 reads), is credited. A repeated subject cannot cross
+  sessions in practice because the window still bounds the candidates. A
+  message in a variable or file is unreadable and its commit lands as
+  unconfirmed, never as credited.
+- *Time window only.* Kept as the fallback, but never as fact: what only the
+  window supports is printed as *unconfirmed* with an instruction to check it.
+  Over-listing an unconfirmed commit costs a glance; crediting a peer's work
+  costs a false record.
+
+Board movement is reduced once from the same log per tier, so a board line
+cannot credit what the commit line does not. The `⏳` marker follows board.py's
+grammar: the file's first line, after the `- [ ]`, `- [~]`, `- [x]` or bare
+`- ⏳` form, outside backtick code spans, and *gained* by the commit.
+
+Not solved: a session whose commit messages are all unreadable (`-F file`,
+variables) gets an empty credited list and everything unconfirmed, which is
+honest but unhelpful; a commit made by a tool on the session's behalf (a script
+that commits) is unconfirmed too.

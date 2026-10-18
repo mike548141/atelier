@@ -309,12 +309,34 @@ and says why, never a guess.
 The session id, the models its transcript shows, and its window in UTC.
 .TP
 .B Commits
-The commits dated inside the window on this repo, as short shas, oldest
-first.
-When each commit's only parent is the one before it (an unbroken run on one
-branch) the range follows, written
+The commits the session made, as short shas, oldest first.
+A commit is credited as fact only on evidence:
+its subject is one the session, or one of its subagents, gave a
+.B git commit
+command (this house commits with
+.BR \-q ,
+so the message is in the transcript but the sha is not;
+.B \-m
+and heredoc messages are read, one held in a file or a variable is not), or
+it is the squash merge of a PR the session ran
+.B gh pr merge
+on.
+When each credited commit's only parent is the one before it (an unbroken run
+on one branch) the range follows, written
 .IR first ^.. last
 so that it is a git range over exactly those commits.
+A commit from a session that overlapped breaks the run, so no range prints.
+Two sub-lines follow, on every run.
+.B unconfirmed
+lists commits dated inside the window that no commit command of the session
+matches: they may be a concurrent session's, so check them before pasting.
+.B left out
+lists squash merges (a subject ending
+.BR (#N) ,
+or
+.BR "Merge pull request #N" )
+on the default branch's first-parent line whose PR the session did not merge;
+they repeat someone else's branch commits.
 .TP
 .B Pull requests
 Every PR the session's own commands opened
@@ -342,9 +364,14 @@ Read from the commits' own diffs of the item store, one line per group:
 .BR "\- [~]" ,
 and still is at the end of the window) and the
 .B \[u23F3]
-review items created (an item that gained a
+review items created (an item whose state line, the first line of its file,
+gained a
 .B \[u23F3]
-line).
+outside a code span: the body of an item, or its close note, never counts).
+These four lines follow the credited commits only.
+A fifth line,
+.BR unconfirmed ,
+lists what only the unconfirmed commits changed, to check before pasting.
 Items are named by section and item number, such as 180/060.
 A hand-kept board has no item store to diff and prints by hand.
 .TP
@@ -369,7 +396,8 @@ The list is whole, not capped.
 .B Other repos
 Not read by ccclose; always prints a fill-in-by-hand line.
 .PP
-The last line is an italic note of the attribution heuristic.
+The last line is an italic note of how commits and board movement were
+attributed.
 .SH OUTPUT
 The field set is the same on every run: every check prints, zeros print, and a
 figure the tool could not read prints
