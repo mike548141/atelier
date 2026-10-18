@@ -26,6 +26,16 @@ loaded the skill as it stood before `180/090` landed.
   pair whole before landing it, because it is a privacy pass on a public repo. The
   `920` brief was skimmed, not read whole. The orchestrator added a channel-contact
   disclosure to both.
+- **Briefs for `160/900` (QK), `160/910` (DS) and `160/930` (BF), none run
+  (`71dc4ff`).** These came from the second Opus brief-writer. `900` is scoped to
+  the pointer as widened to `12e6d9b`. The writer flagged, as facts without
+  judgement: the authoring session's record ends its window at 04:14 UTC but
+  records work after it; `bdb1aba` touches `RECORD.md` outside the `900` delta;
+  and the `CHANGELOG.md` edits in `998c35f` and `140a190` are not in the pointer.
+  The orchestrator read the `900` brief's provenance section before landing. The
+  `910` and `930` briefs were landed on the writer's scanner-clean report and were
+  not read whole. All five `⏳` pointers from `160/900` to `940` now carry a
+  written brief, and none of their passes has run.
 
 ## Recorded against itself
 
