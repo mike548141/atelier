@@ -201,7 +201,8 @@ action across every parallel session.
   grep for failure markers that matches nothing is indistinguishable from a
   command that produced nothing, so filtering output is not reading it. The
   costliest case is close-out: *"nothing of mine is outstanding"* is measured
-  at that moment — `git status`, `git worktree list`, a claim grep — never
+  at that moment — `git status`, `git worktree list`, a claim grep, the live
+  agent list — never
   recalled from what the session believes it did, because a close-out miss is
   the one nobody is left to catch. (Three sessions in one private child, one
   evening, 2026-09-06: two `index.lock` collisions, an untracked-path commit
