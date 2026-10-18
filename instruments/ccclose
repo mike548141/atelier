@@ -226,6 +226,14 @@ function shellWords(s) {
   return words;
 }
 
+// The block is pasted into records that may be public, so a path under the
+// home directory prints as ~/… and the account name stays out (RECORD.md,
+// the record is public). --json keeps the absolute path.
+const tildePath = (p) => {
+  const h = os.homedir();
+  return p === h ? '~' : p.startsWith(h + path.sep) ? '~' + p.slice(h.length) : p;
+};
+
 const unquote = (x) => x.replace(/^(["'])(.*)\1$/, '$2');
 function resolveFrom(base, p) {
   const q = p.startsWith('~') ? path.join(os.homedir(), p.slice(1)) : p;
@@ -1157,7 +1165,7 @@ function renderIdentifiers(r) {
   else if (!wt.items.length) o.push('- **Worktrees and branches**: none');
   else {
     list(`- **Worktrees and branches** (${wt.items.length}):`, wt.items.map((x) => {
-      const where = x.path ? `${x.path}${x.branch ? ` (branch ${x.branch})` : ' (detached)'}` : `branch ${x.branch}`;
+      const where = x.path ? `${tildePath(x.path)}${x.branch ? ` (branch ${x.branch})` : ' (detached)'}` : `branch ${x.branch}`;
       const state = [x.worktree === null ? null : `worktree ${x.worktree}`, x.branch || x.path === null ? `branch ${x.branchState}` : null].filter(Boolean);
       return `${where} — ${state.join('; ')}`;
     }));
