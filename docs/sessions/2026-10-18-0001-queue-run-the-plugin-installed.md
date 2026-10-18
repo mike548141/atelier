@@ -71,6 +71,18 @@ questions until you have done all the work"*.
   end next to it that needed no ruling. Most of the rest of the board needs
   a ruling or a Fable reviewer.
 
+## After the first close
+
+- The session hit the plan's five-hour limit right after the close commit
+  and was resumed. Before the cut it had landed hand-up PR #121 (`115/340`
+  addendum, opened by a peer during the window). On resume it acted on that
+  addendum's own lesson and re-ran both suites on merged `main`: instruments
+  458/458, tools 1930 OK. The floor at `5bdc71f` is green. The intermediate
+  `main` runs (`7b4b466`, `d2ca04c`) were cancelled by cancel-in-progress,
+  which is exactly the gap #121 records.
+- `020/420`'s close first said `ccclose` was not on the path. It is, as a
+  link into the checkout, so check 12 is live. Corrected on the item.
+
 ## Recorded against itself
 
 - Twice a commit was refused by the hook while the output was filtered

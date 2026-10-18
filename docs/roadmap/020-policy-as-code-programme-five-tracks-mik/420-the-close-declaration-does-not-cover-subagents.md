@@ -70,5 +70,7 @@
   `finished` field some real `.meta.json` files carry is ignored, because this
   item defines "finished" from the agent's own transcript. (2) `RECORD.md` and
   (3) `CONCURRENCY.md`, commit `089fcdc`. Cold pass queued at `160/920`.
-  `ccclose` is still not on the machine's path; installing it there is the
-  principal's.
+  `ccclose` was already on the machine's path as a link into the primary
+  checkout (installed 2026-10-17), so check 12 is live there from this merge.
+  *(Corrected the same day: this close first said it was not installed. A
+  look at the link would have settled it before writing.)*
