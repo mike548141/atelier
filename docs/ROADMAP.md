@@ -333,8 +333,8 @@ then `python3 tools/board.py rebuild`.
 - ✅ [RESTORED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/040-four-prompt-lines-come-back.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/050-the-public-plugin-tracks-every-commit.md)
 - [~] (claimed 2026-10-18-0215, wt: atelier-qr-180-060) [(untitled)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/060-the-opening-prompt-template-history-from-the-transcripts.md)
-- [~] (claimed 2026-10-18-0425, wt: atelier-qr-180-070) [(untitled)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/070-session-id-at-open-and-no-date-line.md)
-- [~] (claimed 2026-10-18-0425, wt: atelier-qr-180-070) [(untitled)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/080-the-useful-identifiers-at-the-tail.md)
+- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/070-session-id-at-open-and-no-date-line.md)
+- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/080-the-useful-identifiers-at-the-tail.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
@@ -387,6 +387,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [cctranscript counts some harness text as the principal's prompts](roadmap/210-instruments-open-features/250-cctranscript-counts-harness-text-as-prompts.md)
 - [ ] 🔎 [A harness notification reads two ways depending on its record](roadmap/210-instruments-open-features/260-notification-records-read-two-ways.md)
 - ✅ [ccmail sent the operator to ccmail --auth, a client-ID setup he](roadmap/210-instruments-open-features/270-ccmail-sent-the-operator-to-a-setup-he-did-not-need.md)
+- [ ] [ccclose prints the identifiers block, ready to paste.](roadmap/210-instruments-open-features/280-ccclose-prints-the-identifiers-block.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

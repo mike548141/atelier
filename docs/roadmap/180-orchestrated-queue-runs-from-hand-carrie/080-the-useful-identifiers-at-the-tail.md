@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-18-0425, wt: atelier-qr-180-070)
+- [x] **DONE 2026-10-18** (wt: atelier-qr-180-070)
       **The useful identifiers at the tail of the session log and the close.**
       Mike, 2026-10-18, mid-run: *"In the session log and at the end of a
       transcript at close out it should write the useful identifiers at the
@@ -7,3 +7,12 @@
       fixed identifiers block that `RECORD.md` asks of every session detail
       record and of the closing message, with the set chosen and justified.
       The prompt and the skill point at it.
+
+  **Closed 2026-10-18.** `RECORD.md` § *The session log* gains the
+  identifiers block. Mike named the session id and the commits; the agent
+  recommended adding model and window, PRs, board items and reviews queued,
+  worktrees and branches, agents, and other repos written to. The prompt's
+  close item 1, `CONCURRENCY.md`'s report list and the skill point at the
+  block. The tool half is filed at `210/280`: `ccclose --identifiers`, so the
+  block is copied rather than recalled. Cold pass: `160/900` widens to this
+  commit.

@@ -17,7 +17,9 @@
       `main`, 2026-10-18, which closes `180/020`; and commit `140a190`
       (`180/040`, `180/050`: the restored prompt lines in the prompt,
       `CONCURRENCY.md` and the skill; the version field dropped from both
-      plugin manifests; README).
+      plugin manifests; README); and commit `1adf398` (`180/070`, `180/080`:
+      the session id first, the identifiers block in `RECORD.md` § *The
+      session log*, and the prompt, `CONCURRENCY.md` and skill pointers).
       *Intent record:*
       [`../180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md`](../180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md)
       ,
