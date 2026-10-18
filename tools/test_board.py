@@ -323,6 +323,167 @@ class ClaimInTheFallbackTitle(unittest.TestCase):
         self.assertIn("(claimed 2026-08-23-1259, wt: x)", line)
 
 
+class LogicalFirstParagraph(unittest.TestCase):
+    """010/170 (from 320/450 §1) — the index projects an item's LOGICAL first
+    paragraph, not its first physical line, so a bold title or a claim that
+    wraps onto line two still reaches the index. Synthetic fixtures only."""
+
+    def setUp(self):
+        self._td = tempfile.TemporaryDirectory()
+        self.root = Path(self._td.name)
+        self.sec = make_board(self.root)
+
+    def tearDown(self):
+        self._td.cleanup()
+
+    def line_for(self, name: str, body: str) -> str:
+        (self.sec / name).write_text(body, encoding="utf-8")
+        board.run_check(self.root, fix=True)
+        text = (self.root / board.INDEX_REL).read_text(encoding="utf-8")
+        return next(l for l in text.splitlines() if name in l)
+
+    def test_a_wrapped_title_projects_whole(self):
+        line = self.line_for(
+            "20-wrapped.md",
+            "- [ ] 🎯 **A synthetic title long enough that it\n"
+            "      wraps onto a second line** — and then the body\n")
+        self.assertIn("[A synthetic title long enough that it wraps onto a "
+                      "second line]", line)
+
+    def test_a_wrapped_claim_projects(self):
+        line = self.line_for(
+            "30-claimed.md",
+            "- [~] **A claimed item whose title fills the first\n"
+            "      line** (claimed 2026-01-02-0304, wt: example-wt)\n"
+            "      and more prose after it.\n")
+        self.assertTrue(line.startswith(
+            "- [~] (claimed 2026-01-02-0304, wt: example-wt) [A claimed item "
+            "whose title fills the first line]("), line)
+
+    def test_the_allow_marker_still_propagates(self):
+        # On the state line, as before, and from the continuation line the
+        # wrapped title ends on — the text it exempts now reaches the index.
+        line = self.line_for(
+            "40-marked.md",
+            "- [ ] **Verbatim (15/7/26) title** "
+            "<!-- datescan:allow: verbatim --> — body\n")
+        self.assertIn("<!-- datescan:allow: verbatim -->", line)
+        line = self.line_for(
+            "50-wrapped-marked.md",
+            "- [ ] **A wrapped title that ends on line two with a\n"
+            "      date (15/7/26)** <!-- datescan:allow: quoted -->\n")
+        self.assertIn("<!-- datescan:allow: quoted -->", line)
+
+    def test_a_marker_deep_in_the_paragraph_does_not_travel(self):
+        line = self.line_for(
+            "60-deep.md",
+            "- [ ] **A one-line title** — body\n"
+            "      more body\n"
+            "      a far line <!-- pathscan:allow: about the prose -->\n")
+        self.assertNotIn("pathscan:allow", line)
+
+    def test_the_paragraph_ends_at_a_blank_line_or_a_new_block(self):
+        line = self.line_for(
+            "70-stops.md",
+            "- [~] **Title**\n"
+            "      - (claimed 2026-01-02-0304, wt: in-a-sub-bullet)\n")
+        self.assertNotIn("claimed", line)
+        line = self.line_for(
+            "80-blank.md",
+            "- [~] **Title**\n\n"
+            "      (claimed 2026-01-02-0304, wt: after-a-blank)\n")
+        self.assertNotIn("claimed", line)
+
+    def test_a_flag_in_continuation_prose_is_a_mention(self):
+        line = self.line_for(
+            "90-mention.md",
+            "- [ ] **A plain item**\n"
+            "      whose prose talks about the 🎯 glyph\n")
+        self.assertTrue(line.startswith("- [ ] [A plain item]("), line)
+
+    def test_a_backticked_claim_is_a_mention(self):
+        line = self.line_for(
+            "95-about-claims.md",
+            "- [~] **About the `(claimed …)` fragment**\n")
+        # Nothing between the glyph and the link: no claim was surfaced.
+        self.assertTrue(line.startswith("- [~] [About the"), line)
+
+
+class LegacyGrace(unittest.TestCase):
+    """010/170's grace period: `--check` accepts an index rendered by the
+    PREVIOUS projection until `LEGACY_INDEX_ACCEPTED_UNTIL`, says so when it
+    does, and refuses it from that date. Synthetic fixtures only."""
+
+    BEFORE = board.LEGACY_INDEX_ACCEPTED_UNTIL.fromordinal(
+        board.LEGACY_INDEX_ACCEPTED_UNTIL.toordinal() - 1)
+    ON = board.LEGACY_INDEX_ACCEPTED_UNTIL
+
+    def setUp(self):
+        self._td = tempfile.TemporaryDirectory()
+        self.root = Path(self._td.name)
+        self.sec = make_board(self.root)
+        # An item the two projections render differently: a wrapped claim.
+        (self.sec / "20-wrapped.md").write_text(
+            "- [~] **A claimed item whose title fills the first\n"
+            "      line** (claimed 2026-01-02-0304, wt: example-wt)\n",
+            encoding="utf-8")
+        self.board = self.root / board.BOARD_DIR
+        self.index = self.root / board.INDEX_REL
+        self.new, _ = board.build_index(self.board)
+        self.old, _ = board.build_index(self.board,
+                                        _entry=board._index_entry_v1)
+        self.assertNotEqual(self.new, self.old, "fixture must discriminate")
+
+    def tearDown(self):
+        self._td.cleanup()
+
+    def check(self, today) -> tuple[int, str]:
+        import contextlib
+        import io
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = board.run_check(self.root, fix=False, today=today)
+        return rc, buf.getvalue()
+
+    def test_check_passes_on_a_new_form_index(self):
+        self.index.write_text(self.new, encoding="utf-8")
+        for today in (self.BEFORE, self.ON):
+            rc, out = self.check(today)
+            self.assertEqual(rc, 0, out)
+            self.assertNotIn("PREVIOUS projection", out)
+
+    def test_check_passes_on_an_old_form_index_before_the_date(self):
+        self.index.write_text(self.old, encoding="utf-8")
+        rc, out = self.check(self.BEFORE)
+        self.assertEqual(rc, 0, out)
+        self.assertIn("PREVIOUS projection", out)
+        self.assertIn("rebuild", out)
+        self.assertIn(self.ON.isoformat(), out)
+
+    def test_check_fails_on_an_old_form_index_from_the_date(self):
+        self.index.write_text(self.old, encoding="utf-8")
+        rc, out = self.check(self.ON)
+        self.assertEqual(rc, 1, out)
+        self.assertIn("stale", out)
+        self.assertNotIn("PREVIOUS projection", out)
+
+    def test_check_fails_on_an_index_that_matches_neither(self):
+        self.index.write_text(self.new.replace("example-wt", "other-wt"),
+                              encoding="utf-8")
+        rc, out = self.check(self.BEFORE)
+        self.assertEqual(rc, 1, out)
+        self.assertIn("stale", out)
+
+    def test_rebuild_always_writes_the_new_form(self):
+        self.index.write_text(self.old, encoding="utf-8")
+        board.run_check(self.root, fix=True, today=self.BEFORE)
+        self.assertEqual(self.index.read_text(encoding="utf-8"), self.new)
+
+    def test_the_legacy_renderer_reads_the_first_line_only(self):
+        self.assertIn("- [~] [A claimed item whose title fills the first](",
+                      self.old)
+
+
 class BoundedMemory(unittest.TestCase):
     """020/380 — measured, not fixed. `board` is one of the two tools
     (alongside `pointerscan`) the item's own brief names as a legitimate
@@ -595,6 +756,35 @@ class StagedPlane(unittest.TestCase):
                          board.run_check(self.root, fix=False,
                                          source=board.INDEX))
         self.assertEqual(board.main(argv_rebuild), 0)
+
+
+    def test_the_grace_holds_on_the_staged_plane(self):
+        """010/170: `--staged` reads the same comparison, so an old-form
+        STAGED index passes with the notice before the date, and fails from
+        it, exactly as the worktree plane does."""
+        import contextlib
+        import io
+        (self.sec / "20-wrapped.md").write_text(
+            "- [~] **A claimed item whose title fills the first\n"
+            "      line** (claimed 2026-01-02-0304, wt: example-wt)\n",
+            encoding="utf-8")
+        old, _ = board.build_index(self.root / board.BOARD_DIR,
+                                   _entry=board._index_entry_v1)
+        (self.root / board.INDEX_REL).write_text(old, encoding="utf-8")
+        _git(self.root, "add", "-A")
+        until = board.LEGACY_INDEX_ACCEPTED_UNTIL
+        before = until.fromordinal(until.toordinal() - 1)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = board.run_check(self.root, fix=False, source=board.INDEX,
+                                 today=before)
+        self.assertEqual(rc, 0, buf.getvalue())
+        self.assertIn("PREVIOUS projection", buf.getvalue())
+        self.assertIn("--from-index", buf.getvalue())
+        with contextlib.redirect_stdout(io.StringIO()):
+            rc = board.run_check(self.root, fix=False, source=board.INDEX,
+                                 today=until)
+        self.assertEqual(rc, 1)
 
 
 if __name__ == "__main__":

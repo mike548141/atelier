@@ -105,7 +105,9 @@ import re
 import subprocess
 import sys
 import unicodedata
+from datetime import date, datetime, timezone
 from pathlib import Path
+from typing import Callable, NamedTuple
 
 # `harvestscan` already named and solved this exact problem (HV4): which
 # version of a tracked file a check should read — the WORKTREE (what's on
@@ -185,19 +187,67 @@ def slug(text: str, limit: int = 46) -> str:
     return text[:limit].rstrip("-") or "item"
 
 
-def item_state(text: str) -> tuple[str, str] | None:
-    """(marker, rest-of-line) from an item file's first item line, else None.
+class ItemState(NamedTuple):
+    """An item's state line as the index projects it.
+
+    `head` is the rest of the FIRST PHYSICAL line after the marker. `lines` is
+    the LOGICAL first paragraph, one stripped entry per physical line: `head`
+    (when it is not empty) and then its indented continuation lines. `rest`
+    joins them with single spaces. Title and claim read `rest`; flags read
+    `head`; allow-markers read the lines the title and claim came from.
+    """
+    marker: str
+    head: str
+    lines: tuple[str, ...]
+
+    @property
+    def rest(self) -> str:
+        return " ".join(self.lines)
+
+
+# A continuation line that opens a new Markdown block ends the paragraph, the
+# way it does in the renderer: a sub-bullet or numbered step, a blockquote, a
+# comment, a fence, a heading, a table row. Without this stop the "first
+# paragraph" of an item with sub-bullets is the whole item — measured on this
+# board at 010/170, where 458 indented sub-bullets sat directly under a state
+# line with no blank line between, and 45 items carried a flag glyph only in
+# that continuation prose, as a mention, never a flag.
+_BLOCK_START_RE = re.compile(r"([-*+]|\d+[.)])(\s|$)|>|<!--|```|~~~|#|\|")
+
+
+def item_state(text: str) -> ItemState | None:
+    """The item's state, read from its LOGICAL first paragraph, else None.
 
     Leading HTML comments and blank lines are tolerated — an item file may open
     with an allow-marker — but prose before the state line is a defect the
     check reports: state must be findable without reading the body.
+
+    WHY THE PARAGRAPH, NOT THE LINE (010/170, from 320/450 §1). This read only
+    the first physical line until 2026-10-18. `wrapscan`'s house width makes a
+    wrapped first line the NORMAL shape once a bold title and a claim share
+    it, so a title wrapped onto line two rendered truncated, and a
+    `(claimed …)` fragment on line two never reached the index at all — a
+    child's board carried four live claims and an index showing none of them.
+    The paragraph is the state line plus every INDENTED continuation up to the
+    first blank line, unindented line, or line that opens a new block
+    (`_BLOCK_START_RE`).
     """
-    for line in text.splitlines():
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
         s = line.strip()
         if not s or s.startswith("<!--"):
             continue
         m = STATE_RE.match(line)
-        return (m.group(1), m.group(2)) if m else None
+        if not m:
+            return None
+        head = m.group(2)
+        parts = [head.strip()] if head.strip() else []
+        for cont in lines[i + 1:]:
+            c = cont.strip()
+            if not c or not cont[0].isspace() or _BLOCK_START_RE.match(c):
+                break
+            parts.append(c)
+        return ItemState(m.group(1), head, tuple(parts))
     return None
 
 
@@ -222,12 +272,39 @@ def index_title(rest: str) -> str:
     return raw or "(untitled)"
 
 
-def index_line(marker: str, rest: str, rel_link: str) -> str:
-    """One generated index line for an item. `[x]` renders ✅ by design."""
+def _mask_code(text: str) -> str:
+    """`text` with each code span blanked to spaces of the same length, so a
+    match position in the result is the same position in `text`."""
+    return CODE_SPAN_RE.sub(lambda m: " " * len(m.group(0)), text)
+
+
+def index_line(marker: str, rest: str, rel_link: str,
+               head: str | None = None,
+               markers: list[str] | None = None) -> str:
+    """One generated index line for an item. `[x]` renders ✅ by design.
+
+    `rest` is the logical first paragraph (`ItemState.rest`), `head` the first
+    physical line (`ItemState.head`; defaults to `rest` for a one-line item),
+    `markers` the allow-markers to carry (default: every one in `rest`).
+    What reads which, and why:
+
+      * FLAGS read `head` only. A flag is an eye-signal placed before the
+        title on the state line; the same glyph in continuation prose is a
+        mention, and lifting it would put a false flag on the index line.
+      * THE TITLE reads `rest`, so a bold title that wraps renders whole — but
+        only a bold span that OPENS on the state line is the title. A head
+        with no `**` takes the plain-text fallback over the whole paragraph,
+        so a bold word deep in the prose is never promoted to the title.
+      * THE CLAIM reads `rest` with code spans blanked, so a claim wrapped onto
+        line two projects, and a backticked `(claimed …)` MENTION in the prose
+        is never mistaken for one.
+    """
+    if head is None:
+        head = rest
     glyph = {"[ ]": "- [ ]", "[~]": "- [~]", "[x]": "- ✅", "⏳": "- ⏳"}[marker]
-    bare = CODE_SPAN_RE.sub(" ", rest)
+    bare = CODE_SPAN_RE.sub(" ", head)
     flags = "".join(f for f in FLAGS if f in bare and f != marker)
-    title = index_title(rest)
+    title = index_title(rest if "**" in head else rest.replace("**", ""))
 
     # Flags and the claim fragment go BEFORE the link, and the reason is
     # mechanical, not taste. wrapscan exempts a line whose overflow is one
@@ -243,13 +320,127 @@ def index_line(marker: str, rest: str, rel_link: str) -> str:
     if flags:
         line += f" {flags}"
     if marker == "[~]":
-        m = CLAIM_RE.search(rest)
+        m = CLAIM_RE.search(_mask_code(rest))
         if m:
             line += f" {m.group(0)}"
     line += f" [{title}]({rel_link})"
+    if markers is None:
+        markers = ALLOW_COMMENT_RE.findall(rest)
+    for c in markers:
+        line += f" {c}"
+    return line
+
+
+def projected_markers(state: ItemState) -> list[str]:
+    """The allow-markers that travel to this item's index line.
+
+    The projection reproduces text from the state line, the title and the
+    claim, so it inherits the exemptions written on THOSE lines — the state
+    line always, and each continuation line up to the one where the title or
+    the claim ends. A marker further down the paragraph exempts prose the
+    index never shows, and carrying it would exempt the index line (its link
+    included) for nothing; a marker inside a code span is a mention.
+    """
+    rest = state.rest
+    masked = _mask_code(rest)
+    end = len(state.lines[0]) if state.head.strip() else 0
+    if "**" in state.head:
+        m = TITLE_RE.search(rest)
+        if m:
+            end = max(end, m.end())
+    if state.marker == "[~]":
+        m = CLAIM_RE.search(masked)
+        if m:
+            end = max(end, m.end())
+    out: list[str] = []
+    start = 0
+    for ln in state.lines:
+        if start >= max(end, 1):
+            break
+        for c in ALLOW_COMMENT_RE.findall(masked[start:start + len(ln)]):
+            if c not in out:
+                out.append(c)
+        start += len(ln) + 1
+    return out
+
+
+def index_entry(text: str, rel_link: str) -> str | None:
+    """The index line for one item file, or None if it has no state line."""
+    state = item_state(text)
+    if state is None:
+        return None
+    return index_line(state.marker, state.rest, rel_link, head=state.head,
+                      markers=projected_markers(state))
+
+
+# ---------------------------------------------------------------------------
+# LEGACY PROJECTION — the grace period for children (010/170).
+#
+# `board --check` blocks in every child's CI (`floor.yml@main`) and has no
+# advisory form, so the projection change above would have turned every
+# child's committed index stale at its next run, with nothing changed in the
+# child. Mike, 2026-10-18, agreeing to the queue run's recommendation: "build
+# it with a one-release grace period, where the check accepts both the old and
+# the new index, and tell the children".
+#
+# So `--check` also accepts an index rendered by the PREVIOUS projection —
+# first physical line only — until LEGACY_INDEX_ACCEPTED_UNTIL, and says so
+# when it does. From that date the old form is stale like any other mismatch.
+#
+# The SPAN (30 days from 2026-10-18) was the queue-run orchestrator's choice,
+# not a ruling: nothing in the repo grounds a pin-bump cadence to size it by.
+#
+# TO REMOVE THE GRACE: delete this block, down to END LEGACY (the constant,
+# the two `_v1` functions, `_legacy_accepted`), and the one branch in
+# `run_check` that calls `_legacy_accepted`.
+LEGACY_INDEX_ACCEPTED_UNTIL = date(2026, 11, 18)  # first day it is refused
+
+
+def _item_state_v1(text: str) -> tuple[str, str] | None:
+    """LEGACY (grace only): (marker, rest-of-FIRST-LINE), the pre-010/170 read."""
+    for line in text.splitlines():
+        s = line.strip()
+        if not s or s.startswith("<!--"):
+            continue
+        m = STATE_RE.match(line)
+        return (m.group(1), m.group(2)) if m else None
+    return None
+
+
+def _index_entry_v1(text: str, rel_link: str) -> str | None:
+    """LEGACY (grace only): the pre-010/170 index line, kept verbatim so the
+    old rendering is reproduced byte for byte — every field off line one."""
+    state = _item_state_v1(text)
+    if state is None:
+        return None
+    marker, rest = state
+    glyph = {"[ ]": "- [ ]", "[~]": "- [~]", "[x]": "- ✅", "⏳": "- ⏳"}[marker]
+    bare = CODE_SPAN_RE.sub(" ", rest)
+    line = glyph
+    flags = "".join(f for f in FLAGS if f in bare and f != marker)
+    if flags:
+        line += f" {flags}"
+    if marker == "[~]":
+        m = CLAIM_RE.search(rest)
+        if m:
+            line += f" {m.group(0)}"
+    line += f" [{index_title(rest)}]({rel_link})"
     for c in ALLOW_COMMENT_RE.findall(rest):
         line += f" {c}"
     return line
+
+
+def _legacy_accepted(board: Path, source: str,
+                     read: tuple[bool, list[_Section]] | None,
+                     have: str, today: date | None) -> bool:
+    """LEGACY (grace only): does `have` equal the OLD projection's rendering,
+    on a day the old form is still accepted?"""
+    if (today or _today_utc()) >= LEGACY_INDEX_ACCEPTED_UNTIL:
+        return False
+    old, _ = build_index(board, source=source, _read=read,
+                         _entry=_index_entry_v1)
+    return have == old
+# --------------------------------------------------------------- END LEGACY
 
 
 def section_title(readme_text: str, fallback: str) -> str:
@@ -452,6 +643,7 @@ def build_index(
     board: Path,
     source: str = WORKTREE,
     _read: tuple[bool, list[_Section]] | None = None,
+    _entry: Callable[[str, str], str | None] = index_entry,
 ) -> tuple[str, list[str]]:
     """(index text, problems). Deterministic: sorted dirs, sorted files.
 
@@ -462,6 +654,8 @@ def build_index(
     already paid for the read (`run_check`'s scope check) hand its result in
     rather than paying for a second `git ls-files`/`git show` pass per item —
     internal only, no test or caller outside this module should pass it.
+    `_entry` is the per-item renderer: `index_entry`, or the LEGACY
+    `_index_entry_v1` that `run_check`'s grace compares against.
     """
     problems: list[str] = []
     parts: list[str] = [GENERATED_LINE, ""]
@@ -510,16 +704,14 @@ def build_index(
             parts.append("")
         wrote = False
         for fname, text in items:
-            state = item_state(text)
-            if state is None:
+            entry = _entry(text, f"roadmap/{sec_name}/{fname}")
+            if entry is None:
                 problems.append(
                     f"{BOARD_DIR}/{sec_name}/{fname}: no state line — an item "
                     "file opens with its checkbox line (`- [ ] …`), before any "
                     "prose")
                 continue
-            marker, rest = state
-            parts.append(index_line(marker, rest,
-                                    f"roadmap/{sec_name}/{fname}"))
+            parts.append(entry)
             wrote = True
         if wrote:
             parts.append("")
@@ -534,12 +726,21 @@ def _is_git_repo(root: Path) -> bool:
     return r.returncode == 0 and r.stdout.strip() == "true"
 
 
-def run_check(root: Path, fix: bool, source: str = WORKTREE) -> int:
+def _today_utc() -> date:
+    return datetime.now(timezone.utc).date()
+
+
+def run_check(root: Path, fix: bool, source: str = WORKTREE,
+              today: date | None = None) -> int:
     """`source=INDEX` is the hook's plane (`--staged` / `--from-index`): the
     scope check, the built `want`, and (when not fixing) the `have` it is
     compared against are ALL read from the git index rather than the disk —
     reading the index for one side and the disk for the other would just move
-    the plane confusion this item exists to close, not close it."""
+    the plane confusion this item exists to close, not close it.
+
+    `today` (UTC; injectable for tests) decides whether the LEGACY projection
+    is still accepted — see LEGACY_INDEX_ACCEPTED_UNTIL. The grace sits in the
+    one comparison every `--check` makes, so it holds on both planes alike."""
     if source == INDEX and not _is_git_repo(root):
         print(f"✗ board: --staged/--from-index needs a git repository at "
               f"{root} — it reads the git index, which does not exist "
@@ -558,6 +759,9 @@ def run_check(root: Path, fix: bool, source: str = WORKTREE) -> int:
         print(f"✓ board not in scope — no {BOARD_DIR}/ directory "
               "(this repo does not use the split board).")
         return 0
+    else:
+        # Read once: the grace below renders the same items a second time.
+        read = _worktree_sections(board)
     want, problems = build_index(board, source=source, _read=read)
     for p in problems:
         print(f"✗ board: {p}")
@@ -587,16 +791,23 @@ def run_check(root: Path, fix: bool, source: str = WORKTREE) -> int:
         have = harvestscan.git_show(root, "", INDEX_REL) or ""
     else:
         have = index.read_text(encoding="utf-8") if index.is_file() else ""
+    remedy = rebuild_cmd(root)
+    if source == INDEX:
+        # The safe remedy at THIS plane is the matching source flag: a
+        # plain `rebuild` would read the worktree, which is exactly the
+        # plane that may be dirty with a sibling's unrelated edit
+        # (BS1's slip (b)) — the failure this check just caught the
+        # hook-side symptom of.
+        remedy += " --from-index"
+    plane = "the staged " if source == INDEX else ""
+    if have != want and _legacy_accepted(board, source, read, have, today):
+        until = LEGACY_INDEX_ACCEPTED_UNTIL.isoformat()
+        print(f"⚠️ board: {INDEX_REL} matches {plane}{BOARD_DIR}/ under the "
+              "PREVIOUS projection (each item's first physical line only), "
+              f"which is accepted until {until} — from {until} it is stale. "
+              f"Run: {remedy}   and commit the index, any time before then.")
+        return 1 if problems else 0
     if have != want:
-        remedy = rebuild_cmd(root)
-        if source == INDEX:
-            # The safe remedy at THIS plane is the matching source flag: a
-            # plain `rebuild` would read the worktree, which is exactly the
-            # plane that may be dirty with a sibling's unrelated edit
-            # (BS1's slip (b)) — the failure this check just caught the
-            # hook-side symptom of.
-            remedy += " --from-index"
-        plane = "the staged " if source == INDEX else ""
         print(f"✗ board: {INDEX_REL} is stale against {plane}{BOARD_DIR}/ — "
               f"run: {remedy}   (then stage the index; "
               "after a merge conflict on the index, rebuilding IS the "
@@ -636,6 +847,9 @@ def selftest() -> int:
         (sec / "30-claimed.md").write_text(
             "- [~] **Mid-flight** … (claimed 2026-08-15-0610, wt: b) more\n",
             encoding="utf-8")
+        (sec / "35-wrapped.md").write_text(
+            "- [~] **A title that wraps\n      onto line two** "
+            "(claimed 2026-08-15-0611, wt: c)\n", encoding="utf-8")
         (sec / "40-pointer.md").write_text(
             "- ⏳ Rule-4 review queued — delta abc..def\n", encoding="utf-8")
         (sec / "50-marked.md").write_text(
@@ -711,6 +925,10 @@ def selftest() -> int:
         check("claim fragment surfaced",
               "(claimed 2026-08-15-0610, wt: b)" in text)
         check("pointer glyph kept", "- ⏳ [" in text)
+        # 010/170: the LOGICAL first paragraph projects, not line one alone.
+        check("a wrapped title and its line-two claim both project",
+              "- [~] (claimed 2026-08-15-0611, wt: c) "
+              "[A title that wraps onto line two](" in text)
         check("a backticked glyph is a mention, never a lifted flag (130/020)",
               "- [ ] 🔎 [What a" in text)
         check("allow-marker travels to the generated line",

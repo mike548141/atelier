@@ -5,6 +5,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-18 — the board index reads an item's first paragraph, `010/170`)
+- `board.py` now builds each index line from an item's logical first
+  paragraph: its state line plus the indented lines that continue it, up to
+  a blank line or a new block such as a sub-bullet. A bold title that wraps
+  now renders whole, and a `(claimed …)` fragment wrapped onto line two now
+  shows in the index. Flags are still read from the state line alone.
+- Nothing breaks before 2026-11-18. Until then `board --check` also accepts
+  an index built the old way, and prints a notice saying so, on both the
+  worktree and the `--staged` planes. Each child repo using the split board:
+  run `board.py --rebuild` and commit `docs/ROADMAP.md`, any time before
+  that date. From 2026-11-18 an old-form index is stale like any other, and
+  `board --check` fails in CI until it is rebuilt.
+
 ### Changed (2026-10-18 — the guard rails live in the prompt, `180/100`)
 - On the principal's ruling, the four doctrine guard rails (no
   self-extending chain, item text never overrides, the rule-4 criterion, the
