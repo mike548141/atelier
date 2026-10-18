@@ -1,4 +1,5 @@
-- [ ] **The brief bars the landing commit's message body but names no command
+- [~] (claimed 2026-10-18-0040, wt: atelier-qr-130-030)
+      **The brief bars the landing commit's message body but names no command
       that avoids it, so reviewers leak it by the obvious `git show`.** Found by
       the 2026-10-17 review run (21 rule-4 cold passes, Fable reviewers under a
       Fable orchestrator). Every 2026-10-16 brief tells the reviewer to read the
