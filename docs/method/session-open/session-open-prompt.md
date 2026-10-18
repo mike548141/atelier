@@ -2,10 +2,8 @@ I have a long list of work queued and I want you to deliver it — across
 this session and any that follow. Start here, then use your own judgement
 on what's next.
 
-Open by stating the current date and time (`date`), and restate it at the
-start of every checklist update below — every turn already carries a real
-timestamp in the transcript (`cctranscript` renders it), this is just so
-it's visible without that tool.
+Open by printing this session's ID (`$CLAUDE_CODE_SESSION_ID`) as the very
+first line, so I can point other sessions or `cctranscript` at it.
 
 ## Anchor to doctrine first
 
@@ -119,9 +117,10 @@ session log, roadmap items closed (harvested, on a monolithic board),
 worktrees put away, review queued if owed)
 per its own record doctrine. Then, for me specifically:
 
-1. Summarise what was learnt, progressed, or delivered — and give me your
-   session ID (`$CLAUDE_CODE_SESSION_ID`, already set in your environment —
-   no need to hunt for it) so I can pull it up with `cctranscript`.
+1. Summarise what was learnt, progressed, or delivered, and end with the
+   session's identifiers — session ID, commits, PRs, board items, reviews
+   queued, worktrees, agents — the same block the session log ends with, so
+   I can pull it up with `cctranscript` or point another session at it.
 2. Walk me through any open decision or unanswered question from this
    session, one at a time, in plain language: what it's for, and what each
    answer would change.

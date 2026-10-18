@@ -944,8 +944,9 @@ the report would have summarised (2026-07-23, QR8).
 The same run brief fixed three things the report carries (homed 2026-10-18,
 `180/030`):
 
-- **The session's id**, so the principal can pull the transcript up
-  (`cctranscript`, `ccclose`).
+- **The identifiers block** (`RECORD.md`): the session id, so the principal
+  can pull the transcript up (`cctranscript`, `ccclose`), and the commits,
+  pull requests, board items, worktrees and agents the run touched.
 - **Each open decision, one at a time, in plain language**: what it is for and
   what each answer would change (`COMMUNICATION.md` for the decision device;
   `00-APEX.md` for what an informed ruling needs).
@@ -958,16 +959,17 @@ The same run brief fixed three things the report carries (homed 2026-10-18,
 
 The brief also sets how the run talks to the principal while it works
 (restored 2026-10-18 on his pick, `180/040`; the shapes came from an
-evidence-audited pass over his archived prompts, 2026-09-16). The run opens
-by stating the date and time, and restates it at each progress update. A
-progress update is a checklist of the concrete work items, one line each,
-tagged done, in flight, blocked or queued. An answer to "what's left on the
-board" is a bullet list, ranked when the ask is a ranking. A claim the run
-could check is checked, and an assumption it chose not to check is named as
-one (`EVIDENCE.md`). The all-clear also confirms that any other live session
-has what it needs from this one, that branches are put away as well as
-worktrees, and says plainly when the run is not ready rather than claiming
-it is.
+evidence-audited pass over his archived prompts, 2026-09-16). The run's first
+line is its session id, so another session or `cctranscript` can find it
+(Mike, 2026-10-18, `180/070`; the date and time are no longer asked for, since
+the harness now stamps each turn). A progress update is a checklist of the
+concrete work items, one line each, tagged done, in flight, blocked or queued.
+An answer to "what's left on the board" is a bullet list, ranked when the ask
+is a ranking. A claim the run could check is checked, and an assumption it
+chose not to check is named as one (`EVIDENCE.md`). The all-clear also
+confirms that any other live session has what it needs from this one, that
+branches are put away as well as worktrees, and says plainly when the run is
+not ready rather than claiming it is.
 
 **Taking a `⏳` review item — the rule-4 synergy.** A chain of fresh sessions
 naturally throws up sessions eligible to review the `⏳` queue's self-authored-

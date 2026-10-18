@@ -92,6 +92,27 @@ stopped instead of re-deriving it:
     grep it, find nothing, and read the work with no intent record. (Grounded
     2026-07-28: a cold pass followed exactly that pointer, found the named file
     empty of the record, and reached its verdict before the addendum surfaced.)
+  - **A detail record ends with an identifiers block, and so does the closing
+    message.** These are the handles a later session, a peer or the principal
+    uses to find this session's work without reading the narrative. Each is
+    read fresh at close (`ccclose` prints most of them), never recalled:
+    - **Session**: the session id (what `cctranscript` and `ccclose` take),
+      the model it ran on, and its window in UTC.
+    - **Commits**: every commit the session landed, its workers' included, as
+      short SHAs in order, with the range when they run unbroken. The record's
+      own commit cannot name itself; the closing message adds it.
+    - **Pull requests**: numbers opened, merged or landed.
+    - **Board**: items filed, claimed and closed, and the `⏳` review items
+      queued, by number.
+    - **Worktrees and branches** it used, each put away.
+    - **Agents**: how many it launched and how each ended.
+    - **Other repos** it wrote to, with their commits. A private repo is named
+      generically in a public record (§ *The record is public*); the closing
+      message to the principal names it.
+    Asked for by Mike, 2026-10-18 (`180/080`): *"the useful identifiers at the
+    tail of the session. I am thinking things like commit ID's created by the
+    session, the session ID and any others you recommend"*. The rest of the
+    set is the agent's recommendation.
 - **Finish the sequence, then *declare* the close.** When the agent judges a
   **sequence of work** done, it does the full tidy-up **unprompted** and *says
   the session is ready to close* — the principal closes on the agent's signal,

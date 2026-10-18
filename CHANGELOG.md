@@ -5,6 +5,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-18 — session id first, identifiers last, `180/070`, `180/080`)
+- A queue run's first line is now its session id, so another session or
+  `cctranscript` can find it. The date-and-time line is dropped: the harness
+  now stamps each turn.
+- `RECORD.md`: a session's detail record and its closing message end with an
+  identifiers block: session id, model and window; commits; PRs; board items
+  and reviews queued; worktrees and branches; agents; other repos written to.
+
 ### Changed (2026-10-18 — the plugin versions by commit; four prompt lines back, `180/040`, `180/050`)
 - `.claude-plugin/plugin.json` and the marketplace entry no longer carry a
   `version`, so each commit is its own plugin version. A GitHub install

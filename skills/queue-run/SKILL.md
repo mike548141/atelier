@@ -121,8 +121,8 @@ on the record before taking it (`CONCURRENCY.md` § Orchestrated queue runs).
 
 ## Talking to the principal while it runs
 
-Open by stating the date and time, and restate it at each progress update. A
-progress update is a checklist of the concrete work items — one line each,
+Make the session id (`$CLAUDE_CODE_SESSION_ID`) the first line of the opening
+report. A progress update is a checklist of the concrete work items — one line each,
 tagged done ✅, in flight, blocked or queued — not prose with a tick dropped
 in. "What's left on the board" is answered as a bullet list, ranked when
 asked. Check what you could check; name what you assumed instead
@@ -137,9 +137,10 @@ of the report it never got to give. End with a **report** that surfaces every **
 blocked item** the run could not progress, and why — never silently skipped —
 alongside what it closed. This is `RECORD.md`'s evidence-carrying all-clear
 applied to a run: the principal cannot unblock what the report hid. The report
-also gives the session's id, walks each open decision one at a time in plain
-language, and comes after a re-read of every prompt the principal gave and
-every ask the run put to him, each one done or named open. It confirms any
+walks each open decision one at a time in plain language, comes after a
+re-read of every prompt the principal gave and every ask the run put to him,
+each one done or named open, and ends with the identifiers block (`RECORD.md`:
+session id, commits, PRs, board items, worktrees, agents). It confirms any
 other live session has what it needs from this one and that branches, not
 just worktrees, are put away — and if any of that is not yet true, it says so
 instead of declaring ready (`CONCURRENCY.md`, what the report carries).
