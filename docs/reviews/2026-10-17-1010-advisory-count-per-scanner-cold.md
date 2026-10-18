@@ -577,3 +577,167 @@ itself, this reads as FAIL on the same evidence; I have given my reading and the
 - [ ] AV5 — fix the ordinal at `tools/README.md:485`.
 - [ ] AV6 — dated pointer under ADR 0008 AP2, or an explicit decision to leave it.
 - [ ] AV7 — pin the rejection reason and the C1 spelling in the door test.
+
+### Reconcile
+
+Written 2026-10-18 00:24 UTC, after the orchestrator committed phase 1 as `51679e6` and
+placed the sibling in the tree. Phase-1 text above is unrevised. Opened at this step, and
+nothing barred before it: the sibling; the queue pointer (160/860); the intent record
+`docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md` (its 115/320 section,
+its close, and every line naming this delta, by grep); the commissioning items 115/320 and
+115/290 whole; ADR 0008 lines 55–70 (Decision 2 as written); and, of the prior verdicts the
+sibling names, only `docs/reviews/2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md`,
+lines 226–247 plus grep hits, to reconcile its AB5 against AV1. No other barred file was
+opened.
+
+**Against the pointer and the intent record.** The pointer's claim line states the same
+reviewer-plus-orchestrator shape my provenance states; no discrepancy. The intent record
+says what the pointer and 115/320 say, and adds one fact that bears on the evidence trail:
+`dc0ed0e` reached `main` by cherry-pick, which skips the pre-commit hook (115/340), so the
+landing's own proof was the CI floor run, not a local hook — consistent with R15, where the
+CI plane is the honest plane here too. 115/320's "Suite: 1,922, OK" was true at its commit;
+R11's 1,916 reflects tree movement since (115/270 c removed tests), not this delta.
+
+**Against the seeded questions** (a floor, not a fence; every answer below was reached in
+phase 1 unless marked):
+
+1. *Does every `advisory_count=True` scanner run through the capturing branch, on both
+   planes?* Yes. Both planes share `run`; the only exits that bypass the capture are the
+   guard blocks (scope outside the repo, scope resolving to nothing, not executable), each
+   appending a `Result` with `rc 1` and the default `advisory 0`, which renders ❌ — and the
+   `disabled`/`skipped` states, where no scanner ran and nothing should be read. No path
+   prints straight through and reads nothing. Discharged.
+2. *Does anything print after either `advisory_count_line` site, and can it carry a path?*
+   Yes and yes — the writer table, fact (ii): the whole 🟡 advisory block, one path per
+   finding, prints after the count line in both writers, on both render paths. → AV1.
+3. *A newline-named file with a contract-shaped line after the real count — does it win
+   under last-match where first-match read the real one?* Yes; this is AV1 exactly, formed
+   and probed before this file was opened (P1, P1b, P1l2, P2, P4; R5 records the old
+   reader reading the true 2 on the same output). Agreement between a seeded suspicion and
+   a cold finding is recorded as a fact about the two, not as extra weight: the evidence
+   for AV1 is the probes.
+4. *Does anything stop a new boundary scanner entering the registry with an advisory form
+   and in neither list?* Nothing mechanical, and the two halves differ. A new scanner with
+   `advisory=None` left out of the hand lists is the omission P5b demonstrates and the AV2
+   equality pin would catch. A boundary scanner *given* an advisory form at creation is a
+   ruling, not a drift — the registry entry's comment is where the house records it
+   (publishscan is the worked precedent); no list can know a new name's class in advance.
+5. *ADR 0008 still says only the prose-hygiene checks may re-baseline — record or live
+   statement?* Decision 2 stands as written at lines 63–66 and is amended beneath (AP2,
+   2026-08-23), which is this repo's own convention for ADRs (the 2026-10-16 amendment says
+   so in terms). It is a dated record, not a live statement; the live statement is the
+   registry, which AP2 itself names as authority. What is now wrong is AP2's own six-name
+   snapshot, one short since 2026-09-18 → AV6, unchanged. One thing learned here and added
+   to AV4's account: the test module's "a botched harvest" is Decision 2's own phrase (line
+   65–66), copied forward; `floor.py`'s docstring departed from it to "a broken link" when
+   AP2 corrected that paragraph, and the test docstring did not.
+6. *One source for the contract wording, or three copies kept equal by tests?* Three copies
+   kept equal by tests, by design (self-contained scanners run as subprocesses) — V4 above.
+   The tests are the equality; there is no single source, and the registry name is the
+   fourth thing that must agree (`Scanner.name` versus each `ADVISORY_COUNT_PREFIX`),
+   pinned end to end by the same tests.
+
+**Against the prior verdict AB5 (2026-08-09, a note).** AB5 named this surface: "a
+hostile filename could spoof the parsed count", and judged it of no impact *because* the
+old reader took the first match and the only finding lines printed before the count were
+blocking ones, so "such a run already exits 1 and ❌ outranks the count". It suggested
+matching the full prefix or anchoring to line start when next touched. This delta is that
+hardening — and in choosing the *last* match it inverted the premise AB5's "no impact"
+rested on: the forgeable position moved from before the count (blocking lines, run ❌
+anyway) to after it (advisory lines, run exit 0, board green). AV1 is AB5's residue made
+live by the delta's own choice. This sharpens AV1's account; it does not change its
+severity, which was set on the probes.
+
+**Finding formed at reconcile:**
+
+**AV8 — note (formed at reconcile). The four-name "can re-baseline" list is the same
+one-directional shape as AV2's, and the author said so.** 115/320's close records "left out
+of scope: publishscan is in neither 'can re-baseline' list though it has an advisory form";
+pointerscan, harvestscan, pathscan and indexscan are likewise absent from
+`test_hygiene_checks_can_re_baseline` and the selftest's `can re-baseline` loop. Disclosed
+by the author, so not an overclaim; recorded so the AV2 remedy, if taken, is applied to
+both lists in one edit rather than to one.
+
+**Overall, restated:** **PASS-WITH-FINDINGS — 1 MAJOR · 0 MODERATE · 4 minor · 3 note**
+(AV8 added at reconcile; nothing else moved).
+
+## Deferred material — folded in at the verdict
+
+The sibling `docs/reviews/2026-10-17-1010-advisory-count-per-scanner-cold.deferred.md`,
+folded in verbatim at phase 2 and deleted from the tree, per `REVIEW.md` rule 1 ("split
+for the duration, merged at rest").
+
+# Sibling to the advisory-count-per-scanner cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-1010-advisory-count-per-scanner-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the
+brief are committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the
+brief's provenance; it forms no finding. Fold this file in below the reconcile and
+delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md` —
+  **not opened by the brief-writer**.
+- Commissioning board items (single grep lines seen, never read whole):
+  `115/320` (three small floor test and contract gaps; one line seen says the old
+  pattern matches any `advisory: N finding(s)` text) and `115/290` (three guards
+  describe a response tier their code lacks; lines seen name the four-name selftest pin
+  and floor.py's "no advisory form by design" wording naming publishscan's exception).
+- The landing commit's message body (read by the brief-writer), in summary: three gaps
+  "from the 115/290 worker, checked before changing anything" — (1) `test_floor.py`'s
+  head comment still said only prose-hygiene checks may re-baseline, rewritten to
+  mirror `floor.py`'s docstring with the registry as authority; (2) conflictscan and
+  board were pinned nowhere and licenscan only inside the count tests, now all three in
+  both pinned sets plus a config-error test, "mutation-checked: giving conflictscan an
+  advisory form fails both"; (3) cross-scanner attribution "cannot happen" because each
+  scanner's output is captured separately, but a file named like the count line made
+  the board read 77 off a blocking finding, "reproduced against the real secretscan".
+  Trailer: a Sonnet model.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md` — the only verdict
+  whose text names the count contract (`AdvisoryCountContract` or the old pattern)
+- `docs/reviews/2026-07-28-1204-c1-advisory-cold.md`
+- `docs/reviews/2026-08-06-0903-licenscan-e1e2-cold.md`
+- `docs/reviews/2026-07-26-2215-floor-local-seam-cold.md`
+- `docs/reviews/2026-08-09-0823-floor-render-batch-cold.md`
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only.
+
+## Overlap with sibling passes of this batch
+
+- 160/840 (licenscan's advisory tier) and 160/850 (sizescan's size advisory removed)
+  have briefs written this batch by another brief-writer; both touch the advisory
+  vocabulary and licenscan or sizescan's softenability. Their briefs were seen only as
+  filenames (and the first 50 lines of the 160/850 brief). A runner should not charge
+  this delta with what those commits changed.
+- The publishscan exception named in `floor.py`'s docstring is outside this delta's
+  hunks but inside the claim the test docstring now makes.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. The body says cross-scanner attribution "cannot happen" because output is captured
+   per scanner. Is every `advisory_count=True` scanner run through the capturing branch
+   in `run`, on both planes, or does any path print straight to the child's stdout and
+   then read nothing?
+2. The last-match rule rests on "the count is printed after every finding line". The
+   two writers each call `advisory_count_line` at two sites. Does anything print after
+   either site (a stale-marker summary, an over-cap note, a remedy line), and can that
+   later text carry a path?
+3. A file name containing a newline followed by a full contract-shaped line: printed
+   after the real count (for example in a trailing section), would it now win under the
+   last-match rule where the old first-match rule would have read the real one?
+4. The two unsoftenable lists are hand-written on purpose ("so making one of them
+   softenable fails a test instead of quietly redefining the list"). Does anything stop
+   a new boundary scanner being added to the registry with an advisory form and to
+   neither list?
+5. ADR 0008 still says only the prose-hygiene checks may re-baseline, and the new test
+   docstring says the registry, not prose, is the authority. Is an ADR a record that
+   stays, or a live statement that is now wrong?
+6. The whole-line pattern hard-codes the em dash and "reported, not blocking." in a
+   third file. The comment calls it the scanners' own wording; is there one source for
+   that wording, or three copies kept equal by tests?
