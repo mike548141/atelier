@@ -144,6 +144,11 @@ Asked at the close, one decision at a time, through the decision device:
   brief-writers. It loaded the skill as it stood before `180/090`. Sent it a
   file-set notice: `ccclose` changed under its `210/290` worker.
 
+- **The guard rails (`180/100`).** Asked where the four doctrine safety
+  lines should live, Mike chose *"Move them into my prompt"*. They are in his
+  prompt now, and the skill holds only the pointer, so the command is exactly
+  the file. The pins test both together. Full suite run before the merge.
+
 ## Recorded against itself
 - **Main's floor went red for about 20 minutes.** That was `12e6d9b`
   (`180/090`) through `74c5420`. The skill rewrite dropped five phrases that
@@ -165,12 +170,12 @@ Asked at the close, one decision at a time, through the decision device:
 
 ## Identifiers
 - **Session**: e1d4097c-51e0-4103-8dc4-2c361166237b · Opus 5.5 · 2026-10-17 23:59 to 2026-10-18 04:14 UTC
-- **Commits** (98 on `main`, this session's own, hand-corrected because the tool over-credits a parallel session (`210/290`)): `b12c76d` to `88a5dc8` on the first-parent line, then `4839fd8` and `880334a`. Excluded are `b6be263` (PR #119, a parallel cloud session's) and `f0d6238` (the parallel queue-run `8e498ef1`'s claim). 50 of the 96 are the template history, author-dated to each version's first use. This record's own commit follows `88a5dc8`.
+- **Commits** (101 on `main`, this session's own, hand-corrected because the tool over-credits a parallel session (`210/290`)): `b12c76d` to `88a5dc8` on the first-parent line, then `4839fd8`, `880334a`, `bed4a95`, `41355e3` and `9d65b6a`. Excluded are `b6be263` (PR #119, a parallel cloud session's) and `f0d6238` (the parallel queue-run `8e498ef1`'s claim). 50 of the 96 are the template history, author-dated to each version's first use. This record's own commit follows `88a5dc8`.
 - **Pull requests** (2):
   - #120 merge run — now merged
   - #121 merge run — now merged
 - **Board**:
-  - completed: 020/420, 130/030, 180/010, 180/020, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 180/090, 210/280, 210/300, 320/720
+  - completed: 020/420, 130/030, 180/010, 180/020, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 180/090, 180/100, 210/280, 210/300, 320/720
   - created: 160/900, 160/910, 160/920, 160/930, 160/940, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 210/290, 210/300, 180/090, 320/720 (320/720 arrived as PR #120, landed here)
   - claimed (still open): none
   - ⏳ review items created: 160/900, 160/910, 160/920, 160/930, 160/940
@@ -183,6 +188,8 @@ Asked at the close, one decision at a time, through the decision device:
   - ~/worktrees/atelier-qr-210-280 (branch qr-210-280) — worktree put away; branch deleted
   - ~/worktrees/atelier-qr-180-060 (branch qr-180-060) — worktree put away; branch deleted
   - ~/worktrees/atelier-qr-180-090 (branch qr-180-090) — worktree put away; branch deleted
+  - ~/worktrees/atelier-qr-180-090-fix (branch qr-180-090-fix) — worktree put away; branch deleted
+  - ~/worktrees/atelier-qr-180-100 (branch qr-180-100) — worktree put away; branch deleted
 - **Agents**: 6 · 6 reported · 0 stopped on purpose · 0 result never consumed · 0 cut mid-flight
   - a61c42c Build ccclose --identifiers — reported (completed notification)
   - a6ede35 Mine opening-prompt template versions — reported (completed notification)
