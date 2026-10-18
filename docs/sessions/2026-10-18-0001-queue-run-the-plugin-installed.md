@@ -141,7 +141,7 @@ Asked at the close, one decision at a time, through the decision device:
   - #121 merge run — now merged
 - **Board**:
   - completed: 020/420, 130/030, 180/010, 180/020, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 320/720
-  - created: 160/900, 160/910, 160/920, 160/930, 160/940, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 320/720
+  - created: 160/900, 160/910, 160/920, 160/930, 160/940, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 210/290, 320/720 (320/720 arrived as PR #120, landed here)
   - claimed (still open): none
   - ⏳ review items created: 160/900, 160/910, 160/920, 160/930, 160/940
 - **Worktrees and branches** (7):
