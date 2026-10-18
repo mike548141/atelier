@@ -9,7 +9,9 @@
       *Delta, scoped to paths:* `instruments/ccclose`,
       `instruments/ccclose.test.js`, `instruments/ccclose.design.md`
       (§15.1), `instruments/man/ccclose.1` and `instruments/README.md`,
-      commits `0462173` and `621d18b` on `main`, 2026-10-18. `160/920`
+      commits `0462173` and `621d18b` on `main`, 2026-10-18, and, widened
+      by the same session (AW6), commit `e78b6f1` (`210/310`: a message read
+      from a file the session wrote). `160/920`
       reviews the earlier commits to the same files; this pass does not.
       *Intent record:*
       [`../210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md`](../210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md).

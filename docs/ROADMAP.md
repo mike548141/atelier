@@ -395,7 +395,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [BUILT 2026-10-18](roadmap/210-instruments-open-features/280-ccclose-prints-the-identifiers-block.md)
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md)
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/300-plain-ccclose-ends-with-the-identifiers-block.md)
-- [~] 🔎 [ccclose --identifiers marks a session's own commit](roadmap/210-instruments-open-features/310-ccclose-cannot-read-a-commit-message-from-a-file.md)
+- ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/310-ccclose-cannot-read-a-commit-message-from-a-file.md)
 - [ ] 🔎 [ccclose --identifiers misses a session's commits whose author](roadmap/210-instruments-open-features/320-ccclose-misses-author-backdated-commits.md)
 
 ## Observability of the collaboration itself (2026-07-30)
