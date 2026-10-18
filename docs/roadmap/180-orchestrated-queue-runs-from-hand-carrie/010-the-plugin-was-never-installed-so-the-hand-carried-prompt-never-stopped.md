@@ -1,4 +1,4 @@
-- [ ] **The delivery vehicle shipped but was never installed — the hand-carried
+- [~] (claimed 2026-10-18-0001, wt: atelier-qr-180-plugin) **The delivery vehicle shipped but was never installed — the hand-carried
       prompt this section retired never actually stopped.** This section's own
       README records the pattern as built 2026-07-22 and its executor trial
       concluded 2026-08-03: `CONCURRENCY.md` § *Orchestrated queue runs*,
