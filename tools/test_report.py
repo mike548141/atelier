@@ -321,6 +321,10 @@ class TestScannerLinePins(unittest.TestCase):
         t = m.Tally()
         self.assertEqual(t.summary(), "  suppressed: 0 by allow-marker · 0 file(s) by "
                                       ".leakscanignore · 0 rule(s) disabled · "
+                                      "0 binary file(s) by .leakscanbinaries · "
+                                      "0 untracked binary file(s) not gated · "
+                                      "0 G3 finding(s) warned, not blocking, before "
+                                      f"{m.BINARY_GRACE_UNTIL.isoformat()} · "
                                       f"0 beyond {CAP}")
         self.assertEqual(m.render_human([], None, True, t).splitlines()[0],
                          "✓ leakscan clean (structural + local).")

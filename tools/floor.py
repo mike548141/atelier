@@ -132,8 +132,9 @@ a reason, in the same object spelling `advisory` uses:
                           content in a networking repo"}}
 
 Reason required because the effect is the same as a partial disable and the
-route is quieter: `flags` refuses the four mode-changing arguments by blocklist
-(`FORBIDDEN_FLAGS`), and a blocklist underblocks — a rule switched off by name,
+route is quieter: `flags` refuses the five mode-changing arguments, and any
+abbreviation argparse would expand to one, by blocklist (`FORBIDDEN_FLAGS`;
+a `scope` path may not start with `-` either), and a blocklist underblocks — a rule switched off by name,
 or a positional matching no staged path, shrinks cover without touching it
 (ADR 0008 cold pass, EP1; `scope` ruled 2026-07-28, `flags` 2026-08-04). On a
 SOFTENABLE check both keys stay reason-free: narrowing a prose check to the
@@ -706,7 +707,33 @@ SCANNERS: tuple[Scanner, ...] = (
 # MEANS rather than where it looks — and would do it invisibly, which is the one
 # thing this design refuses. Softening has exactly one declared spelling
 # (`advisory`), and it is validated against the scanner's own advisory form.
-FORBIDDEN_FLAGS = {"--warn", "--check", "--selftest", "--json"}
+#
+# `--binary-entries` (leakscan, G3) is a listing mode that prints manifest
+# lines and exits 0 without scanning anything. Passed through `flags` it would
+# turn the CI plane's personal-data boundary into a guaranteed pass. On the
+# hook plane leakscan refuses it beside `--staged`, but the CI plane carries
+# no such pairing.
+FORBIDDEN_FLAGS = {"--warn", "--check", "--selftest", "--json", "--binary-entries"}
+
+
+def forbidden_flags(args: list[str]) -> list[str]:
+    """The arguments in `args` that ARE, or that argparse would expand to, a
+    `FORBIDDEN_FLAGS` member. Every scanner parses with argparse's default
+    `allow_abbrev=True`, so an exact-match test let `--binary` (or `--self`,
+    `--war`) through as the very mode it forbids — and leakscan's listing
+    mode or `--selftest` exits 0 without scanning. That would also be the
+    route around the G3 adoption grace's cut-off: the grace has no flag, so
+    the only way to skip the gate it ends is a mode that never runs it. A
+    `--name=value` spelling is judged by its name. No legitimate flag of any
+    atelier scanner is a strict prefix of a forbidden one (checked when this
+    was written), so the prefix test refuses nothing real."""
+    bad = []
+    for a in args:
+        name = a.split("=", 1)[0]
+        if len(name) > 2 and name.startswith("--") \
+                and any(f.startswith(name) for f in FORBIDDEN_FLAGS):
+            bad.append(a)
+    return bad
 
 BY_NAME = {s.name: s for s in SCANNERS}
 
@@ -1054,6 +1081,17 @@ def _reject_escaping_scope(where: str, path: str) -> None:
     this nor the resolved half, which is the asymmetry TA1 named inside a
     single diff. The resolved half lives at the run guard, where a root to
     resolve against exists."""
+    # A scope path renders as a positional, and a positional that starts with
+    # `-` is parsed by the scanner as an OPTION: `--binary` would be leakscan's
+    # listing mode, which exits 0 without scanning — `flags`' refusal, walked
+    # around by the other key (found building the G3 grace, 2026-10-18). A real
+    # directory with a leading dash is spelled `./-name`.
+    if path.startswith("-"):
+        raise ConfigError(
+            f"{CONFIG_NAME}: `{where}` path {path!r} starts with '-', so the "
+            "check would read it as an option, not a path. Spell a directory "
+            "with a leading dash as './-name'."
+        )
     p = PurePosixPath(path)
     if p.is_absolute() or ".." in p.parts:
         raise ConfigError(
@@ -1391,7 +1429,7 @@ class Config:
         # must not be reachable by this route: `--warn` here would be a silent
         # advisory downgrade that bypasses every guard on `advisory` above.
         for name, fl in self.flags.items():
-            bad = sorted(FORBIDDEN_FLAGS.intersection(fl.args))
+            bad = sorted(forbidden_flags(fl.args))
             if bad:
                 raise ConfigError(
                     f"{CONFIG_NAME}: `flags.{name}` may not contain "
@@ -2192,7 +2230,20 @@ def _selftest() -> int:
     # bypasses every guard on `advisory`, on a scanner that has no advisory form.
     rejects("softening flag smuggled in", {"flags": {"secretscan": ["--warn"]}})
     rejects("mode flag smuggled in", {"flags": {"sizescan": ["--json"]}})
-    # EP1(b). The blocklist above stops four known arguments; this is what
+    # G3: leakscan's listing mode exits 0 without scanning — a reasoned
+    # override must not be able to turn the boundary into a listing.
+    rejects("listing mode smuggled in",
+            {"flags": {"leakscan": {"args": ["--binary-entries"], "why": "w"}}})
+    # …and abbreviated, which argparse expands to the same mode. The G3
+    # grace has no flag of its own, so this is the only route around its
+    # cut-off: a mode that never runs the gate.
+    rejects("abbreviated listing mode smuggled in",
+            {"flags": {"leakscan": {"args": ["--binary"], "why": "w"}}})
+    rejects("abbreviated selftest smuggled in",
+            {"flags": {"leakscan": {"args": ["--self"], "why": "w"}}})
+    rejects("listing mode smuggled in as a scope path",
+            {"scope": {"leakscan": {"paths": ["--binary-entries"], "why": "w"}}})
+    # EP1(b). The blocklist above stops five known arguments; this is what
     # stops the rest going unremarked on a check nobody may soften.
     rejects("reasonless flags on an unsoftenable check",
             {"flags": {"leakscan": {"args": ["--disable", "ipv4"]}}})
