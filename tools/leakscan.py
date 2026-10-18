@@ -1092,13 +1092,11 @@ def _main(argv: list[str] | None = None) -> int:
         # that found nothing wrong. Refuse it — this is the subtree-scoping
         # entry point for private repos with a shareable subtree, so a silent
         # miss here is precisely the case that matters.
-        rc = report.refuse_absolute_staged("leakscan", args.paths, "tiki/")
+        # `report.scope_staged` also normalises the spelling (`.`, `./x`) and
+        # refuses one that escapes the repo (roadmap 115/360).
+        rc, staged = report.scope_staged("leakscan", staged, args.paths, "tiki/")
         if rc is not None:
             return rc
-        prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
-        if prefixes:
-            staged = {path: lines for path, lines in staged.items()
-                      if path.startswith(prefixes) or path in args.paths}
         # .leakscanignore applies in staged mode too, so an exemption means the
         # same thing whether you scan the tree or a commit.
         globs = load_ignore_globs(root)

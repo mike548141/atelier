@@ -598,13 +598,11 @@ def _main(argv: list[str] | None = None) -> int:
         # git reports, so the filter silently empties and the scan covers
         # nothing while still exiting 0 — the same silent-success class
         # `secretscan`/`linkscan` already close. Refuse it rather than pass.
-        rc = report.refuse_absolute_staged("conflictscan", args.paths, "src/")
+        # `report.scope_staged` also normalises the spelling (`.`, `./x`) and
+        # refuses one that escapes the repo (roadmap 115/360).
+        rc, staged = report.scope_staged("conflictscan", staged, args.paths, "src/")
         if rc is not None:
             return rc
-        prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
-        if prefixes:
-            staged = {path: lines for path, lines in staged.items()
-                      if path.startswith(prefixes) or path in args.paths}
         globs = load_ignore_globs(root)
         findings = []
         for path, lines in staged.items():

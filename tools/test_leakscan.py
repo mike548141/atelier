@@ -1539,5 +1539,71 @@ class GatesAreNecessary(unittest.TestCase):
         self.assertEqual([f.rule for f in fs], ["local-term"])
 
 
+class StagedPositionalScope(unittest.TestCase):
+    """115/360 — a staged positional is a repo-relative scope, and its
+    spelling must not decide whether the scan runs. A bare `.` became the
+    prefix `./`, matched no git path, emptied the set and printed clean over a
+    planted finding. `.` now means no restriction, `./docs` means `docs`, and
+    a path leaving the repo is refused. A scope that merely excludes every
+    staged file is NOT refused: the hook plane passes the check's declared
+    scope, and a commit touching only files outside it is a legitimate pass.
+    """
+
+    # Assembled so this file does not itself carry the shape it plants.
+    BAD = "-----BEGIN " + "RSA PRIVATE KEY-----"
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        subprocess.run(["git", "-C", str(self.repo), "init", "-q"], check=True)
+        empty = self.repo / "no-terms.txt"      # untracked; never staged
+        empty.write_text("")
+        env = unittest.mock.patch.dict(
+            os.environ, {"ATELIER_LEAKSCAN_TERMS": str(empty)})
+        env.start()
+        self.addCleanup(env.stop)
+        old = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, old)
+        (self.repo / "docs").mkdir()
+        (self.repo / "src").mkdir()
+        (self.repo / "docs" / "a.txt").write_text(self.BAD + "\n")
+        subprocess.run(["git", "-C", str(self.repo), "add", "--", "docs/a.txt"],
+                       check=True)
+
+    def _main(self, *paths):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = ls.main(["--staged", "--root", str(self.repo), *paths])
+        return code, err.getvalue()
+
+    def test_bare_dot_scans_the_staged_set(self):
+        self.assertEqual(1, self._main(".")[0])
+        self.assertEqual(1, self._main("./")[0])
+
+    def test_dot_slash_prefix_means_the_same_path_without_it(self):
+        self.assertEqual(1, self._main("./docs")[0])
+        self.assertEqual(1, self._main("./docs/")[0])
+        self.assertEqual(1, self._main("docs//")[0])
+        self.assertEqual(1, self._main("docs")[0])
+
+    def test_no_positional_still_scans(self):
+        self.assertEqual(1, self._main()[0])
+
+    def test_a_path_leaving_the_repo_is_refused(self):
+        for p in ("..", "../x", "./../x", "docs/../../x"):
+            with self.subTest(p=p):
+                code, err = self._main(p)
+                self.assertEqual(2, code, "an environment error, not a pass")
+                self.assertIn("outside the repo", err)
+
+    def test_empty_by_scope_is_not_refused(self):
+        """The hook plane's shape: a declared scope that no staged file falls
+        under. Filtering to nothing here is scope, not spelling."""
+        self.assertEqual(0, self._main("src")[0])
+        self.assertEqual(0, self._main("./src")[0])
+        self.assertEqual(0, self._main("no-such-dir")[0])
+
+
 if __name__ == "__main__":
     unittest.main()

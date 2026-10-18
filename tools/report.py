@@ -142,6 +142,52 @@ def refuse_absolute_staged(name: str, paths: Iterable[str],
     return None
 
 
+def scope_staged(name: str, staged: dict, paths: Iterable[str],
+                 example: str) -> tuple[int | None, dict]:
+    """Restrict the staged set to the positional `paths`; (rc, staged).
+
+    The one reader the three staged-diff guards share (roadmap 115/360).
+    git lists staged paths repo-relative (`docs/x.md`), so each positional is
+    normalised to that spelling first: `.` is the repo root and restricts
+    nothing, `./docs` and `docs//` mean `docs`. Without this `.` became the
+    prefix `./`, matched nothing, and the scan printed clean over a staged
+    conflict marker and a live-shaped key.
+
+    Two refusals (rc 2), both spelling errors that would empty the set:
+    an absolute path (`refuse_absolute_staged`), and one that normalises to
+    `..` or `../x`, which names something outside the repo and so can never
+    match a repo-relative path.
+
+    Deliberately NOT a refusal: a positional that leaves the set empty. The
+    hook plane renders the check's declared scope as the positionals, and a
+    commit staging only files outside that scope legitimately filters to
+    nothing, and so does a scope naming a directory this repo lacks. Once
+    spelling is normalised, emptiness left over is scope, not spelling.
+    """
+    paths = list(paths)
+    rc = refuse_absolute_staged(name, paths, example)
+    if rc is not None:
+        return rc, staged
+    norm = [os.path.normpath(p) for p in paths]
+    escaping = [p for p, n in zip(paths, norm)
+                if n == ".." or n.startswith("../")]
+    if escaping:
+        return broken(
+            name,
+            f"--staged path(s) outside the repo: {', '.join(escaping)}\n"
+            "  git lists staged paths relative to the repo root, so a path "
+            "that leaves it matches nothing\n"
+            "  and the scan would pass while covering nothing. Pass e.g. "
+            f"'{example}' instead."), staged
+    if "." in norm:
+        return None, staged          # the repo root: no restriction
+    prefixes = tuple(n + "/" for n in norm)
+    if prefixes:
+        staged = {path: lines for path, lines in staged.items()
+                  if path.startswith(prefixes) or path in norm}
+    return None, staged
+
+
 def clean_head(name: str, detail: str) -> str:
     """`✓ <name> clean — <detail>`."""
     return f"✓ {name} clean — {detail}"

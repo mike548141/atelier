@@ -128,6 +128,24 @@ class TestBrokenScanLines(unittest.TestCase):
             "'sub/' instead.\n"))
 
 
+    def test_scope_staged_normalises_and_refuses_only_spelling(self):
+        """115/360 — `.` is no restriction, `./x` is `x`, a path leaving the
+        repo is refused, and an empty-by-scope result is NOT a refusal."""
+        staged = {"docs/a.md": [(1, "x")], "src/b.py": [(1, "y")], "top.md": []}
+        scope = lambda *p: report.scope_staged("d", staged, p, "src/")
+        self.assertEqual((None, staged), scope("."))
+        self.assertEqual((None, staged), scope("./"))
+        self.assertEqual((None, staged), scope())
+        self.assertEqual((None, {"docs/a.md": [(1, "x")]}), scope("./docs"))
+        self.assertEqual((None, {"top.md": []}), scope("./top.md"))
+        self.assertEqual((None, {}), scope("nowhere"))   # scope, not spelling
+        for bad in ("..", "../x", "./../x", "docs/../../x"):
+            (rc, _), err = _stderr_of(report.scope_staged, "d", staged,
+                                      [bad], "src/")
+            self.assertEqual(2, rc, bad)
+            self.assertIn("outside the repo", err)
+
+
 class TestReportLines(unittest.TestCase):
     def test_heads(self):
         self.assertEqual(report.clean_head("d", "all good."), "✓ d clean — all good.")
