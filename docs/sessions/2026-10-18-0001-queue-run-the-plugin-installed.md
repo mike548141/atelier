@@ -175,6 +175,15 @@ Asked at the close, one decision at a time, through the decision device:
   literal star. He was asked again with that corrected, and chose the
   folder-list form.
 
+- **The watched run closed** (Mike closed `8e498ef1` at about 01:15 UTC on
+  2026-10-19). Its final claims were checked, not taken on trust: its
+  scratchpad was empty, its last commit `68692fd` was on `main` with CI
+  green, and no worktree of its own was left. On Mike's correction it also
+  landed `020/440`: one specific reason may now keep several named metadata
+  kinds. It recorded its reading of "fields" (the metadata kinds the scanner
+  can tell apart) on the item. It raised that question in prose, the
+  `180/150` gap again.
+
 ## Recorded against itself
 - **Records committed from the primary checkout while a peer was live.**
   The peer's `git pull` there was refused because this session's session-log
