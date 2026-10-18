@@ -289,8 +289,12 @@ Exit status is 0: the block is a record, not a verdict.
 .BR \-h ", " \-\-help
 A one-screen summary.
 .SH IDENTIFIERS
+A plain run prints this block after the verdict, so a session that runs
+.B ccclose
+at close has it in hand;
 .B ccclose \-\-identifiers
-prints a paste-ready markdown block, headed
+prints the block alone.
+It is a paste-ready markdown block, headed
 .BR "## Identifiers" ,
 with seven fields in the order
 .I RECORD.md

@@ -792,6 +792,19 @@ test('--identifiers prints only the block, in RECORD order, with every field (th
   assert.match(r.out.trimEnd().split('\n').pop(), /^\*Attribution: "this session's" = dated inside the window/);
 });
 
+test('a plain run ends with the identifiers block after the verdict; --json keeps the checks alone (210/300)', () => {
+  const { w, root } = boardWorld();
+  transcript(w, 'sess-id-1');
+  const r = ccclose(w, root, ['--session', 'sess-id-1']);
+  const at = r.out.indexOf('\n## Identifiers\n');
+  assert.ok(at > 0, 'the block is printed');
+  assert.match(r.out.slice(0, at), /(ready to close|not ready to close|some need a look)/);
+  assert.deepEqual(headings(r.out.slice(at + 1)), FIELDS);
+  const j = ccclose(w, root, ['--session', 'sess-id-1', '--json']);
+  assert.doesNotMatch(j.out, /## Identifiers/);
+  assert.ok(Array.isArray(JSON.parse(j.out).checks));
+});
+
 test('--identifiers commits: oldest first, short shas, and first^..last when unbroken', () => {
   const { w, root } = boardWorld();
   transcript(w, 'sess-id-2');

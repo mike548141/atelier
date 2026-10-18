@@ -54,8 +54,8 @@ OPTIONS
 
 Checks worktrees, branches, pushes, PRs, the session record, the board, live
 claims, the floor at the pushed head, review pointers, workaround-shaped
-commands, the working tree and the session's subagents, then lists the
-principal's close-out asks.
+commands, the working tree and the session's subagents, lists the principal's
+close-out asks, and ends with the identifiers block.
 Read-only. Exit 0 when no check fails.  Full manual: man ccclose`;
 
 // The cap on every listed set. Counts stay whole; only the lists are cut.
@@ -1215,8 +1215,8 @@ async function gather(opts) {
   return { sid, source, file, t, readErr, live, w, sessionId, repo, b, gh, branches };
 }
 
-async function collect(opts) {
-  const g = await gather(opts);
+async function collect(opts, gathered) {
+  const g = gathered || await gather(opts);
   const { sid, source, file, t, readErr, live, w, sessionId, repo, b, gh, branches } = g;
   const checks = [
     checkWorktrees(repo, w),
@@ -1320,8 +1320,13 @@ async function main() {
     console.log(opts.json ? JSON.stringify(id, null, 2) : renderIdentifiers(id));
     process.exit(0);
   }
-  const r = await collect(opts);
-  console.log(opts.json ? JSON.stringify(r, null, 2) : render(r));
+  // The plain run ends with the identifiers block too (210/300), so a session
+  // that runs ccclose at close has the block in hand without being told to
+  // ask for it. One gather serves both; --json keeps the checks alone.
+  const g = await gather(opts);
+  const r = await collect(opts, g);
+  if (opts.json) console.log(JSON.stringify(r, null, 2));
+  else console.log(render(r) + '\n\n' + renderIdentifiers(await collectIdentifiers(g)));
   process.exit(r.verdict.fail ? 1 : 0);
 }
 

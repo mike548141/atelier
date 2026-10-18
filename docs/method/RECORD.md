@@ -95,7 +95,9 @@ stopped instead of re-deriving it:
   - **A detail record ends with an identifiers block, and so does the closing
     message.** These are the handles a later session, a peer or the principal
     uses to find this session's work without reading the narrative. Each is
-    read fresh at close (`ccclose` prints most of them), never recalled:
+    read fresh at close, never recalled: `ccclose` prints the block after its
+    checks (`ccclose --identifiers` prints it alone), and a field it cannot
+    derive says so, to be filled by hand:
     - **Session**: the session id (what `cctranscript` and `ccclose` take),
       the model it ran on, and its window in UTC.
     - **Commits**: every commit the session landed, its workers' included, as
