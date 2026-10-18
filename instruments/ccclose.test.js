@@ -754,6 +754,12 @@ const headings = (out) => out.split('\n').filter((l) => l.startsWith('- **')).ma
 const bashUse = (id, command, cwd) => ({ type: 'assistant', cwd, message: { model: 'claude-opus-5-5', content: [{ type: 'tool_use', id, name: 'Bash', input: { command } }] } });
 const useResult = (id, text, isError = false) => ({ type: 'user', message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: id, content: text, is_error: isError }] }, toolUseResult: { stdout: text } });
 
+// The session's own `git commit` commands, one per message: the house form
+// (`git commit -q -m`), so the transcript carries the message and never a SHA.
+const commitCmd = (id, msg) => bashUse(id, `git add -- x && git commit -q -m ${JSON.stringify(msg)}`);
+const committed = (...msgs) => msgs.map((m, i) => commitCmd(`c${i}-${m.length}`, m));
+const BOARD_MSGS = ['board: seed', 'board: file a, b, c, f', 'board: claim c and f; close d', 'board: close b; release f; queue review on a'];
+
 function boardWorld() {
   const w = world();
   const root = repo(w);
@@ -774,14 +780,14 @@ function boardWorld() {
   commit(w, root, 'board: claim c and f; close d', NOW - 35 * MIN);
   item('010', '020', '- [x] **DONE** b');
   item('010', '060', '- [ ] **f** released');
-  write(root, 'docs/roadmap/010-demo-section/010-item.md', '- [ ] **a** filed\n      body of the item\n      ⏳ cold review queued\n');
+  write(root, 'docs/roadmap/010-demo-section/010-item.md', '- [ ] ⏳ **a** filed\n      body of the item\n');
   commit(w, root, 'board: close b; release f; queue review on a', NOW - 30 * MIN);
   return { w, root };
 }
 
 test('--identifiers prints only the block, in RECORD order, with every field (the stable field set)', () => {
   const { w, root } = boardWorld();
-  transcript(w, 'sess-id-1');
+  transcript(w, 'sess-id-1', committed(...BOARD_MSGS));
   const r = idRun(w, root, 'sess-id-1');
   assert.equal(r.code, 0);
   assert.ok(r.out.startsWith('## Identifiers\n'));
@@ -789,7 +795,7 @@ test('--identifiers prints only the block, in RECORD order, with every field (th
   assert.doesNotMatch(r.out, /close-out check|Checks\n|verdict/);
   assert.match(r.out, /- \*\*Session\*\*: sess-id-1 · Opus 5\.5 · \d{4}-\d\d-\d\d \d\d:\d\d to \d{4}-\d\d-\d\d \d\d:\d\d UTC\n/);
   assert.match(r.out, /- \*\*Other repos\*\*: not read by ccclose — fill in by hand\n/);
-  assert.match(r.out.trimEnd().split('\n').pop(), /^\*Attribution: "this session's" = dated inside the window/);
+  assert.match(r.out.trimEnd().split('\n').pop(), /^\*Attribution: commits and board movement above the unconfirmed lines are matched to commit commands/);
 });
 
 test('a plain run ends with the identifiers block after the verdict; --json keeps the checks alone (210/300)', () => {
@@ -807,7 +813,7 @@ test('a plain run ends with the identifiers block after the verdict; --json keep
 
 test('--identifiers commits: oldest first, short shas, and first^..last when unbroken', () => {
   const { w, root } = boardWorld();
-  transcript(w, 'sess-id-2');
+  transcript(w, 'sess-id-2', committed(...BOARD_MSGS));
   const log = sh(w, root, ['log', '--reverse', '--format=%h', '-3']).split('\n');
   const j = JSON.parse(ccclose(w, root, ['--session', 'sess-id-2', '--identifiers', '--json']).out);
   assert.equal(j.commits.total, 3);
@@ -828,7 +834,7 @@ test('--identifiers commits: a broken chain lists the shas and shows no range', 
   write(root, 'b.txt', 'b'); commit(w, root, 'on side', NOW - 35 * MIN);
   sh(w, root, ['checkout', '-q', 'main']);
   write(root, 'c.txt', 'c'); commit(w, root, 'on main again', NOW - 30 * MIN);
-  transcript(w, 'sess-id-3');
+  transcript(w, 'sess-id-3', committed('on main', 'on side', 'on main again'));
   const j = JSON.parse(ccclose(w, root, ['--session', 'sess-id-3', '--identifiers', '--json']).out);
   assert.equal(j.commits.total, 3);
   assert.equal(j.commits.unbroken, false);
@@ -854,7 +860,7 @@ test('--identifiers with no commits in the window prints zeros and none, not abs
 
 test('--identifiers board: completed, created and claimed groups, and the ⏳ items', () => {
   const { w, root } = boardWorld();
-  transcript(w, 'sess-id-5');
+  transcript(w, 'sess-id-5', committed(...BOARD_MSGS));
   const j = JSON.parse(ccclose(w, root, ['--session', 'sess-id-5', '--identifiers', '--json']).out);
   assert.equal(j.board.known, true);
   // 020 (created claimed, then closed) and 040 (claimed before the window, closed in it).
@@ -864,7 +870,9 @@ test('--identifiers board: completed, created and claimed groups, and the ⏳ it
   // 030 is claimed and still open; 060 was claimed then released; 020 closed.
   assert.deepEqual(j.board.claimed, ['010/030']);
   assert.deepEqual(j.board.review, ['010/010']);
+  assert.deepEqual(j.board.unconfirmed, { completed: [], created: [], claimed: [], review: [], reviewElsewhere: [] });
   const out = idRun(w, root, 'sess-id-5').out;
+  assert.match(out, /  - unconfirmed, from window-only commits: none\n/);
   assert.match(out, /  - completed: 010\/020, 010\/040\n/);
   assert.match(out, /  - created: 010\/010, 010\/020, 010\/030, 010\/060\n/);
   assert.match(out, /  - claimed \(still open\): 010\/030\n/);
@@ -1039,6 +1047,144 @@ test('--identifiers --json carries the same fields', () => {
   transcript(w, 'sess-id-15');
   const j = JSON.parse(ccclose(w, root, ['--session', 'sess-id-15', '--identifiers', '--json']).out);
   assert.equal(j.form, 'identifiers');
+  assert.deepEqual(Object.keys(j.commits), ['known', 'total', 'items', 'unbroken', 'range', 'unconfirmed', 'leftOut']);
   assert.deepEqual(Object.keys(j), ['tool', 'form', 'session', 'commits', 'pullRequests', 'board', 'worktrees', 'agents', 'otherRepos', 'heuristic']);
   assert.equal(j.session.id, 'sess-id-15');
+});
+
+// --- --identifiers: who made the commits (210/290) -------------------------
+
+const parseId = (w, root, sid, env = {}) => JSON.parse(ccclose(w, root, ['--session', sid, '--identifiers', '--json'], env).out);
+const subjectsOf = (xs) => xs.map((x) => x.subject);
+const item = (root, sec, n, text) => write(root, `docs/roadmap/${sec}-demo-section/${n}-item.md`, text);
+
+test('commitSubjectsIn reads -m, a -m heredoc and -F - from the command, and nothing it cannot read', () => {
+  const f = cc.commitSubjectsIn;
+  assert.deepEqual(f('git commit -q -m "tools: add the thing"'), ['tools: add the thing']);
+  assert.deepEqual(f("git -C /x commit -qm 'a: b' -m 'body line'"), ['a: b']);
+  assert.deepEqual(f('git commit --message="c: d"'), ['c: d']);
+  assert.deepEqual(f('git add -- x && git commit -q -m "one" && git commit -q -m "two"'), ['one', 'two']);
+  assert.deepEqual(f('git commit -q -m "$(cat <<\'EOF\'\nheredoc: subject\n\nbody\n\nCo-Authored-By: T\nEOF\n)"'), ['heredoc: subject']);
+  assert.deepEqual(f('git commit -q -F - <<\'EOF\'\nstdin: subject\n\nbody\nEOF'), ['stdin: subject']);
+  assert.deepEqual(f('git merge --no-ff side -m "merge: side"'), ['merge: side']);
+  // Unreadable forms are missed, never guessed.
+  assert.deepEqual(f('git commit -q -F /tmp/msg.txt'), []);
+  assert.deepEqual(f('git commit -q -m "$MSG"').length, 1);   // the variable's name, which no commit will carry
+  assert.deepEqual(f('git status && git log -3'), []);
+});
+
+test('--identifiers commits: the session\'s own commit commands confirm its commits, heredocs and subagents included', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'plain: own commit', NOW - 40 * MIN);
+  write(root, 'b.txt', 'b'); commit(w, root, 'heredoc: own commit', NOW - 35 * MIN);
+  write(root, 'c.txt', 'c'); commit(w, root, 'agent: made by a subagent', NOW - 30 * MIN);
+  agent(w, 'sess-id-20', 'aa111111', { turns: [
+    { type: 'assistant', timestamp: at(-31), message: { content: [{ type: 'tool_use', id: 'g1', name: 'Bash', input: { command: 'git commit -q -m "agent: made by a subagent"' } }] } },
+    ...finishedTurns] });
+  transcript(w, 'sess-id-20', [
+    commitCmd('k1', 'plain: own commit'),
+    bashUse('k2', 'git commit -q -m "$(cat <<\'EOF\'\nheredoc: own commit\n\nwhy\nEOF\n)"'),
+    viaAttachment('aa111111', 'completed'),
+  ]);
+  const j = parseId(w, root, 'sess-id-20');
+  assert.deepEqual(subjectsOf(j.commits.items), ['plain: own commit', 'heredoc: own commit', 'agent: made by a subagent']);
+  assert.equal(j.commits.total, 3);
+  assert.equal(j.commits.unbroken, true);
+  assert.equal(j.commits.unconfirmed.total, 0);
+  assert.equal(j.commits.leftOut.total, 0);
+  const out = idRun(w, root, 'sess-id-20').out;
+  assert.match(out, /- \*\*Commits\*\* \(3\): \w+ \w+ \w+ · unbroken, `\w+\^\.\.\w+`\n  - unconfirmed, dated in the window only \(0\): none\n  - left out \(0\): none\n/);
+});
+
+test('--identifiers commits: a peer\'s commits in the window are unconfirmed, not credited, and break the range', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'mine: first', NOW - 40 * MIN);
+  write(root, 'p.txt', 'p'); commit(w, root, 'peer: on main', NOW - 38 * MIN);
+  write(root, 'b.txt', 'b'); commit(w, root, 'mine: second', NOW - 36 * MIN);
+  sh(w, root, ['checkout', '-q', '-b', 'peer-branch']);
+  write(root, 'q.txt', 'q'); commit(w, root, 'peer: on a branch', NOW - 34 * MIN);
+  sh(w, root, ['checkout', '-q', 'main']);
+  transcript(w, 'sess-id-21', committed('mine: first', 'mine: second'));
+  const j = parseId(w, root, 'sess-id-21');
+  assert.deepEqual(subjectsOf(j.commits.items), ['mine: first', 'mine: second']);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items).sort(), ['peer: on a branch', 'peer: on main']);
+  // The peer's commit sits between the two, so first^..last would name three.
+  assert.equal(j.commits.unbroken, false);
+  assert.equal(j.commits.range, null);
+  const out = idRun(w, root, 'sess-id-21').out;
+  assert.match(out, /- \*\*Commits\*\* \(2\): \w+ \w+\n  - unconfirmed, dated in the window only \(2\): .* — no commit command of the session matches them; check before pasting as fact\n/);
+});
+
+test('--identifiers commits: a squash merge the session did not run is left out; one it ran is counted', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'mine: change', NOW - 40 * MIN);
+  write(root, 'b.txt', 'b'); commit(w, root, 'Add widget (#12)', NOW - 38 * MIN);
+  write(root, 'c.txt', 'c'); commit(w, root, 'Add gadget (#13)', NOW - 36 * MIN);
+  write(root, 'd.txt', 'd'); commit(w, root, 'Merge pull request #14 from peer/topic', NOW - 35 * MIN);
+  // A "(#15)" subject off the integration line is not a merge into it.
+  sh(w, root, ['checkout', '-q', '-b', 'topic']);
+  write(root, 'e.txt', 'e'); commit(w, root, 'Topic work (#15)', NOW - 34 * MIN);
+  sh(w, root, ['checkout', '-q', 'main']);
+  sh(w, root, ['remote', 'set-url', 'origin', 'https://github.com/example/demo.git']);
+  transcript(w, 'sess-id-22', [
+    ...committed('mine: change'),
+    bashUse('m1', 'gh pr merge 13 --squash', root), useResult('m1', 'merged'),
+    bashUse('m2', 'gh pr merge 14 --squash', root), useResult('m2', 'not mergeable', true),
+  ]);
+  const j = parseId(w, root, 'sess-id-22', { CCCLOSE_GH: ghStub(w, { views: { 13: 'MERGED' } }) });
+  assert.deepEqual(subjectsOf(j.commits.items), ['mine: change', 'Add gadget (#13)']);
+  assert.deepEqual(j.commits.leftOut.items.map((x) => [x.subject, x.pr]), [['Add widget (#12)', 12], ['Merge pull request #14 from peer/topic', 14]]);
+  assert.match(j.commits.leftOut.items[0].reason, /squash merge of PR #12, merge not run by this session/);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['Topic work (#15)']);
+  const out = idRun(w, root, 'sess-id-22').out;
+  assert.match(out, /  - left out \(2\): \w+ \(PR #12 squash merge, merge not run by this session\), \w+ \(PR #14 squash merge/);
+});
+
+test('--identifiers board: items from a peer\'s commits are unconfirmed, and a left-out squash merge counts for nothing', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'docs/ROADMAP.md', '<!-- GENERATED by board.py -->\n');
+  item(root, '010', '010', '- [ ] **mine** filed\n');
+  commit(w, root, 'board: file mine', NOW - 40 * MIN);
+  item(root, '010', '020', '- [ ] **peer** filed\n');
+  commit(w, root, 'board: file the peer item', NOW - 38 * MIN);
+  item(root, '010', '030', '- [x] **peer merge** filed and done\n');
+  commit(w, root, 'Peer feature (#30)', NOW - 36 * MIN);
+  item(root, '010', '010', '- [x] **mine** done\n');
+  commit(w, root, 'board: close mine', NOW - 34 * MIN);
+  transcript(w, 'sess-id-23', committed('board: file mine', 'board: close mine'));
+  const j = parseId(w, root, 'sess-id-23');
+  assert.deepEqual(j.board.created, ['010/010']);
+  assert.deepEqual(j.board.completed, ['010/010']);
+  // The peer's item shows only as unconfirmed; the squash merge shows nowhere.
+  assert.deepEqual(j.board.unconfirmed.created, ['010/020']);
+  assert.deepEqual(j.board.unconfirmed.completed, []);
+  const out = idRun(w, root, 'sess-id-23').out;
+  assert.match(out, /  - created: 010\/010\n/);
+  assert.match(out, /  - unconfirmed, from window-only commits: created 010\/020 — check before pasting as fact\n/);
+  assert.doesNotMatch(out, /010\/030/);
+});
+
+test('--identifiers board: the ⏳ marker counts on an item\'s state line only, never in its body', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'docs/ROADMAP.md', '<!-- GENERATED by board.py -->\n');
+  item(root, '010', '010', '- [ ] ⏳ **flagged** on the state line\n      body\n');
+  item(root, '010', '020', '- [ ] **plain**\n      ⏳ only the body mentions it\n');
+  item(root, '010', '030', '- [x] **closed**\n      Close note: the ⏳ pointer was taken.\n');
+  item(root, '010', '040', '- [ ] **about the `⏳` glyph** in a code span\n');
+  item(root, '010', '050', '- ⏳ **pointer form** with no checkbox\n');
+  commit(w, root, 'board: file five items', NOW - 40 * MIN);
+  // Touching a body afterwards, or adding a mention there, changes nothing.
+  item(root, '010', '010', '- [~] ⏳ **flagged** on the state line\n      body\n      ⏳ again in the body\n');
+  item(root, '010', '020', '- [ ] **plain**\n      ⏳ only the body mentions it\n      ⏳ a second mention\n');
+  commit(w, root, 'board: touch bodies', NOW - 35 * MIN);
+  transcript(w, 'sess-id-24', committed('board: file five items', 'board: touch bodies'));
+  const j = parseId(w, root, 'sess-id-24');
+  assert.deepEqual(j.board.review, ['010/010', '010/050']);
+  assert.deepEqual(j.board.created, ['010/010', '010/020', '010/030', '010/040', '010/050']);
+  assert.match(idRun(w, root, 'sess-id-24').out, /  - ⏳ review items created: 010\/010, 010\/050\n/);
 });
