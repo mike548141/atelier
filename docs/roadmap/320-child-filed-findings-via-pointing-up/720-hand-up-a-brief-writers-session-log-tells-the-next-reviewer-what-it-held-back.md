@@ -1,4 +1,5 @@
-- [ ] 🔎 **Hand-up: a brief-writer's session log tells the next reviewer what it
+- [~] (claimed 2026-10-18-0025, wt: atelier-qr-180-plugin)
+      🔎 **Hand-up: a brief-writer's session log tells the next reviewer what it
       held back** `[doctrine]`. Handed up from a private child on 2026-10-18
       under `PROPAGATION.md` § *Pointing up*: one finding, from a rule-4 cold
       pass run that day (its review record is dated 2026-10-17 2235 UTC; a Fable
