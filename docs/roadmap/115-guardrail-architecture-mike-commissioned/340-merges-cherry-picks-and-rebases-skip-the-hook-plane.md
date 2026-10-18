@@ -56,3 +56,17 @@
         - **A clean revert exposes no `REVERT_HEAD`** while
           `prepare-commit-msg` runs, so a hook cannot use that file to tell
           a revert from an ordinary commit at that point.
+      🔎 **A measured instance from the same child, 2026-10-17** (its queue
+        run's integration check). Two worker branches, each green on both
+        suites alone, were merged to main: one added a code comment naming
+        a command spelling that does not exist, the other widened a test
+        that rejects such names to read source files. Main then failed that
+        test (1 failed, 5299 passed), found only because the run started
+        re-running the full suites on merged main. CI did not catch it
+        either: the run landed merges minutes apart, and the CI workflow's
+        cancel-in-progress setting cancelled every run on the intermediate
+        heads, so no plane completed on the broken state. Two lessons the
+        item can carry: a queue run should re-run the suites on its merged
+        head every few landings; and cancel-in-progress on a busy main
+        means CI's verdict covers only the newest head, never the states
+        between.
