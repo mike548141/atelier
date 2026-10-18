@@ -149,6 +149,19 @@ Asked at the close, one decision at a time, through the decision device:
   prompt now, and the skill holds only the pointer, so the command is exactly
   the file. The pins test both together. Full suite run before the merge.
 
+- **The first real run reviewed (`180/110`).** On Mike's ask, after
+  `8e498ef1` closed: its whole transcript, every tool call and all five
+  dispatch prompts, checked against the skill it loaded. It mostly ran as
+  specified. Five gaps are filed at `180/120`–`160`:
+  - dispatch prompts without a scratch directory or terminal marker;
+  - three briefs landed unread;
+  - a stop by judgement, with the remaining items untriaged;
+  - a decision written as prose instead of asked through the device;
+  - same-shape worktree names that led to a wrong rule-4 refusal.
+
+  Its one handed-up decision (`320/450`) was put to Mike through the device.
+  He answered in that session instead: build it with the grace period.
+
 ## Recorded against itself
 - **Main's floor went red for about 20 minutes.** That was `12e6d9b`
   (`180/090`) through `74c5420`. The skill rewrite dropped five phrases that
@@ -175,8 +188,8 @@ Asked at the close, one decision at a time, through the decision device:
   - #120 merge run — now merged
   - #121 merge run — now merged
 - **Board**:
-  - completed: 020/420, 130/030, 180/010, 180/020, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 180/090, 180/100, 210/280, 210/300, 320/720
-  - created: 160/900, 160/910, 160/920, 160/930, 160/940, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 210/290, 210/300, 180/090, 180/100, 320/720 (320/720 arrived as PR #120, landed here)
+  - completed: 020/420, 130/030, 180/010, 180/020, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 180/090, 180/100, 180/110, 210/280, 210/300, 320/720
+  - created: 160/900, 160/910, 160/920, 160/930, 160/940, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 210/290, 210/300, 180/090, 180/100, 180/110, 180/120, 180/130, 180/140, 180/150, 180/160, 320/720 (320/720 arrived as PR #120, landed here)
   - claimed (still open): none
   - ⏳ review items created: 160/900, 160/910, 160/920, 160/930, 160/940
 - **Worktrees and branches** (7):
