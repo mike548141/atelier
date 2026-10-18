@@ -79,7 +79,7 @@ failed, so `160/890`'s "the commit that landed PR #108" describes re-authored co
   refusal's sibling hole, measured with a staged conflict marker and a staged live-shaped key.
   The real hook plane is not affected (`floor.py` expands the scope to declared paths or
   none); a hand run with the natural spelling is.
-- Commit identity: author `Mike Clements` per the house convention; committer the harness's
+- Commit identity: author `Mike Clements` per the house convention; committer the harness's <!-- leakscan:allow:local-term: author's own published attribution, the CLAUDE.md convention (ADR 0005); added by the full-cover run 115/350 owed -->
   own identity — the no-reply address the CCR signing key is registered to, the same one every
   Co-Authored-By trailer in this repo carries — because the ruleset requires GitHub-verified
   commits on `main`; the claim commit was amended once (`274ff9c` → `911827f`) to make that so,

@@ -47,3 +47,11 @@
       ruled, not defaulted into.
       - review: not owed until the fix lands; it touches the floor registry,
         which is doctrine by function, so it queues its own ⏳ at landing.
+      ✅ **The owed full-cover run happened 2026-10-18,** from a machine
+      that holds the list, at `main` head `11fd0e1` and after. It found
+      one finding, `local-term` ×1: the principal's published author name
+      in that session's record, on the line describing commit identity.
+      That name is a declared exception, but this line carried no marker.
+      The marker was added, with the CLAUDE.md convention's reason. Then
+      tree-wide leakscan with `--require-terms` exits 0. The item's fix
+      itself (a cloud session's term cover) remains open.
