@@ -1618,6 +1618,17 @@ import hashlib as _hashlib  # noqa: E402
 import struct as _struct  # noqa: E402
 import subprocess as _subprocess  # noqa: E402
 import zlib as _zlib  # noqa: E402
+import datetime as _dt  # noqa: E402
+
+# The G3 adoption grace ends on `BINARY_GRACE_UNTIL`. Gate tests that pin the
+# BUILT behaviour run on that day (blocking); grace tests pick their own day.
+_CUTOFF = ls.BINARY_GRACE_UNTIL
+_BEFORE = _CUTOFF - _dt.timedelta(days=1)
+
+
+def _on(day):
+    """Run as if the UTC date were `day` — the only way to move the grace."""
+    return unittest.mock.patch.object(ls, "_utc_today", return_value=day)
 
 
 def _chunk(ctype, data):
@@ -1725,7 +1736,7 @@ class BinaryGate(_TreeCase):
             ls.load_binary_manifest(self.tmp)
         msg = str(cm.exception)
         self.assertIn("3 problem(s)", msg)
-        self.assertIn("unknown scope everything", msg)
+        self.assertIn("unknown metadata set everything", msg)
         self.assertIn("already listed at line 4", msg)
 
     def test_a_text_file_is_unaffected(self):
@@ -1780,12 +1791,16 @@ class BinaryStaleEntries(_TreeCase):
 
 
 class BinaryMetadata(_TreeCase):
-    """Text metadata is read; opaque metadata blocks until an entry names the
-    `binary-metadata` scope."""
+    """Every metadata set present blocks until its own reasoned line keeps it
+    (Mike, 2026-10-18: "only keep the metadata it has a need for"); text
+    sets are scanned whether or not they are kept."""
 
-    def _listed(self, rel, data, scope=""):
+    def _listed(self, rel, data, *sets):
         self.put(rel, data)
-        self.manifest(f"{_sha(data)}{scope}  {rel}  # synthetic test image, reviewed\n")
+        d = _sha(data)
+        self.manifest(f"{d}  {rel}  # synthetic test image, reviewed\n"
+                      + "".join(f"{d}:{s}  {rel}  # test needs the {s} set\n"
+                                for s in sets))
 
     def test_png_exif_blocks_even_when_the_pixels_are_listed(self):
         self._listed("i.png", _png((b"eXIf", b"MM\x00\x2a\x00\x00\x00\x08")))
@@ -1793,8 +1808,8 @@ class BinaryMetadata(_TreeCase):
         self.assertEqual(["binary-metadata"], [f.rule for f in fs])
         self.assertIn("eXIf", fs[0].excerpt)
 
-    def test_the_metadata_scope_accepts_it(self):
-        self._listed("i.png", _png((b"eXIf", b"MM\x00\x2a")), ":binary-metadata")
+    def test_a_line_keeping_the_set_accepts_it(self):
+        self._listed("i.png", _png((b"eXIf", b"MM\x00\x2a")), "exif")
         self.assertEqual([], self.scan())
 
     def test_an_unlisted_metadata_image_reports_both(self):
@@ -1803,23 +1818,28 @@ class BinaryMetadata(_TreeCase):
 
     def test_png_text_metadata_is_scanned_and_markers_inside_are_ignored(self):
         data = _png((b"tEXt", b"Author\x00a.b@example.com  # leakscan:allow: hidden"))
-        self._listed("i.png", data)
+        self._listed("i.png", data, "png-text")
         fs = self.scan()
         self.assertEqual(["email"], [f.rule for f in fs])
         self.assertEqual("metadata PNG tEXt 'Author'", fs[0].where)
 
-    def test_harmless_text_metadata_passes(self):
-        self._listed("i.png", _png((b"tEXt", b"Software\x00www.inkscape.org")))
+    def test_harmless_text_metadata_passes_only_once_its_set_is_kept(self):
+        data = _png((b"tEXt", b"Software\x00www.inkscape.org"))
+        self._listed("i.png", data)
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertTrue(fs[0].excerpt.startswith("png-text:"), fs[0].excerpt)
+        self._listed("i.png", data, "png-text")
         self.assertEqual([], self.scan())
 
     def test_compressed_text_chunks_are_inflated_and_scanned(self):
         z = _png((b"zTXt", b"Comment\x00\x00" + _zlib.compress(b"call a.b@example.com")))
-        self._listed("z.png", z)
+        self._listed("z.png", z, "png-text")
         self.assertEqual(["email"], self.rules())
         itxt = (b"XML:com.adobe.xmp\x00\x01\x00\x00\x00"
                 + _zlib.compress(b"<dc:creator>a.b@example.com</dc:creator>"))
         self.put("z.png", b"plain text now\n")
-        self._listed("x.png", _png((b"iTXt", itxt)))
+        self._listed("x.png", _png((b"iTXt", itxt)), "xmp")
         self.assertEqual(["email"], self.rules())
 
     def test_a_decompression_bomb_reads_as_opaque(self):
@@ -1848,7 +1868,7 @@ class BinaryMetadata(_TreeCase):
 
     def test_jpeg_xmp_and_comments_are_read(self):
         self._listed("x.jpg", _jpeg((0xE1, b"http://ns.adobe.com/xap/1.0/\x00<x>a.b@example.com</x>"),
-                                    (0xFE, b"plain comment")))
+                                    (0xFE, b"plain comment")), "xmp", "jpeg-comment")
         self.assertEqual(["email"], self.rules())
 
     def test_jpeg_without_metadata_needs_only_its_entry(self):
@@ -1860,7 +1880,8 @@ class BinaryMetadata(_TreeCase):
         self.assertEqual(["binary-metadata"], self.rules())
 
     def test_webp_xmp_is_read(self):
-        self._listed("x.webp", _webp((b"VP8 ", b"\x00" * 10), (b"XMP ", b"<x>a.b@example.com</x>")))
+        self._listed("x.webp", _webp((b"VP8 ", b"\x00" * 10), (b"XMP ", b"<x>a.b@example.com</x>")),
+                     "xmp")
         self.assertEqual(["email"], self.rules())
 
     def test_inspect_media_ignores_other_formats(self):
@@ -1901,11 +1922,14 @@ class BinaryGitTracking(_TreeCase):
 
     # --- the staged plane (the pre-commit hook) -----------------------------
 
-    def staged(self):
-        r = _subprocess.run([sys.executable, str(TOOLS_DIR / "leakscan.py"), "--staged",
-                             "--root", ".", "--terms", str(self.terms)],
-                            cwd=self.tmp, capture_output=True, text=True)
-        return r.returncode, r.stdout + r.stderr
+    def staged(self, day=_CUTOFF):
+        # In-process, so the date can be patched; `--staged` reads git from
+        # the working directory, hence the chdir.
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.chdir(self.tmp), _on(day), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ls.main(["--staged", "--root", ".", "--terms", str(self.terms)])
+        return rc, out.getvalue() + err.getvalue()
 
     def test_staged_binary_blocks_and_its_name_is_now_read(self):
         # Before G3 the staged plane never saw a binary at all — not even the
@@ -1954,6 +1978,16 @@ class BinaryGitTracking(_TreeCase):
         self.assertEqual(1, rc, out)
         self.assertIn("ipv4", out)
 
+    def test_staged_unlisted_binary_warns_before_the_cutoff_and_blocks_after(self):
+        # The hook plane honours the same G3 grace, on the same date.
+        self.put("img.bin", b"\x00\x01staged")
+        self.git("add", ".")
+        rc, out = self.staged(_BEFORE)
+        self.assertEqual(0, rc, out)
+        self.assertIn(f"blocks from {_CUTOFF}", out)
+        rc, out = self.staged(_CUTOFF)
+        self.assertEqual(1, rc, out)
+
     def test_staged_text_hidden_by_a_binary_attribute_is_read(self):
         self.put(".gitattributes", "*.cfg binary\n")
         self.put("app.cfg", "owner a.b@example.com\n")
@@ -1980,14 +2014,24 @@ class BinaryEntriesListing(_TreeCase):
         rc, out, err = self.listing()
         self.assertEqual(0, rc)
         self.assertEqual(sorted(out.splitlines()),
-                         sorted([f"{_sha(a)}  a.bin", f"{_sha(b)}  b.png"]))
+                         sorted([f"{_sha(a)}  a.bin", f"{_sha(b)}  b.png",
+                                 f"{_sha(b)}:exif  b.png"]))
         self.assertNotIn("#", out)
-        self.assertIn("opaque metadata", err)
+        self.assertIn("metadata set(s) exif", err)
         self.manifest(out)
         with self.assertRaises(ls.BinaryManifestError):
             self.scan()
+        # One comment over every line is one blanket reason: refused, because
+        # the exif line's need must be its own (Mike, 2026-10-18).
         self.manifest("# synthetic fixtures, reviewed\n" + out)
-        self.assertEqual(["binary-metadata"], self.rules())
+        with self.assertRaises(ls.BinaryManifestError) as cm:
+            self.scan()
+        self.assertIn("needs its own reason", str(cm.exception))
+        self.manifest("".join(
+            line + ("  # test fixture needs its exif block\n" if ":" in line
+                    else "  # synthetic fixture, reviewed\n")
+            for line in out.splitlines()))
+        self.assertEqual([], self.rules())
 
     def test_only_unaccepted_files_are_listed_and_a_change_is_named(self):
         a = self.put("a.bin", b"\x00a")
@@ -2000,6 +2044,240 @@ class BinaryEntriesListing(_TreeCase):
 
     def test_refuses_json(self):
         self.assertEqual(2, ls.main(["--root", str(self.tmp), "--binary-entries", "--json"]))
+
+
+class BinaryGrace(_TreeCase):
+    """The G3 adoption grace (Mike's answer on 020/150, 2026-10-18): before
+    `BINARY_GRACE_UNTIL` the four gate rules warn, naming the date and the
+    remedy, and do not fail the exit code; on and after it they block. Every
+    other rule is untouched by it."""
+
+    BLOB = b"\x00\x01 grace fixture"
+
+    def run_main(self, day, *extra):
+        out, err = io.StringIO(), io.StringIO()
+        with _on(day), contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ls.main(["--root", str(self.tmp), str(self.tmp),
+                          "--terms", str(self.terms), *extra])
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_the_cutoff_is_one_iso_date_and_grace_is_strictly_before_it(self):
+        self.assertIsInstance(_CUTOFF, _dt.date)
+        self.assertTrue(ls.in_binary_grace(_BEFORE))
+        self.assertFalse(ls.in_binary_grace(_CUTOFF))
+        self.assertFalse(ls.in_binary_grace(_CUTOFF + _dt.timedelta(days=400)))
+
+    def test_before_the_cutoff_an_unlisted_binary_warns_and_exits_0(self):
+        self.put("img.bin", self.BLOB)
+        rc, out, _err = self.run_main(_BEFORE)
+        self.assertEqual(0, rc, out)
+        warn = [l for l in out.splitlines() if "binary-unlisted" in l]
+        self.assertEqual(1, len(warn), out)
+        self.assertIn(_CUTOFF.isoformat(), warn[0])
+        self.assertIn("--binary-entries", warn[0])
+        self.assertIn("WARNING ONLY", out)
+        self.assertIn(f"1 G3 finding(s) warned, not blocking, before {_CUTOFF}", out)
+        self.assertIn(f"block from {_CUTOFF}", out)
+
+    def test_on_the_cutoff_the_same_tree_blocks(self):
+        self.put("img.bin", self.BLOB)
+        rc, out, _err = self.run_main(_CUTOFF)
+        self.assertEqual(1, rc, out)
+        self.assertNotIn("WARNING ONLY", out)
+        self.assertIn("binary-unlisted", out)
+        self.assertIn(f"0 G3 finding(s) warned, not blocking, before {_CUTOFF}", out)
+
+    def test_every_gate_rule_is_graced_and_names_its_remedy(self):
+        self.put("changed.bin", self.BLOB + b"!")
+        self.put("meta.png", _png((b"eXIf", b"MM\x00\x2a")))
+        self.manifest(f"{_sha(self.BLOB)}  changed.bin  # reviewed fixture\n"
+                      f"{_sha(self.BLOB)}  gone.bin  # was a fixture\n")
+        rc, out, _err = self.run_main(_BEFORE)
+        self.assertEqual(0, rc, out)
+        for rule, remedy in (("binary-changed", "--binary-entries"),
+                             ("binary-metadata", "strip the set"),
+                             ("binary-unlisted", "--binary-entries"),
+                             ("binary-stale-entry", "delete or re-path")):
+            lines = [l for l in out.splitlines() if f"] {rule} →" in l]
+            self.assertTrue(lines, f"{rule} missing:\n{out}")
+            for l in lines:
+                self.assertIn(f"blocks from {_CUTOFF}", l)
+                self.assertIn(remedy, l)
+        self.assertEqual(1, self.run_main(_CUTOFF)[0])
+
+    def test_non_binary_rules_are_untouched_by_the_grace(self):
+        self.put("notes.md", "write to a.b@example.com\n")
+        rc, out, _err = self.run_main(_BEFORE)
+        self.assertEqual(1, rc, out)
+        self.assertIn("email", out)
+
+    def test_a_text_metadata_hit_still_blocks_during_the_grace(self):
+        # The hit is an ordinary rule's (email), read out of the image: it is
+        # what the scan already did, so the grace does not reach it.
+        data = _png((b"tEXt", b"Author\x00a.b@example.com"))
+        self.put("i.png", data)
+        rc, out, _err = self.run_main(_BEFORE)
+        self.assertEqual(1, rc, out)
+        blocking = out.split("commit blocked.")[1]
+        self.assertIn("email", blocking)
+        self.assertNotIn("binary-unlisted →", blocking)
+
+    def test_json_keeps_graced_findings_out_of_the_blocking_list(self):
+        self.put("img.bin", self.BLOB)
+        rc, out, _err = self.run_main(_BEFORE, "--json")
+        self.assertEqual(0, rc)
+        doc = json.loads(out)
+        self.assertTrue(doc["clean"])
+        self.assertEqual([], doc["findings"])
+        self.assertEqual({"until": _CUTOFF.isoformat(), "active": True},
+                         {k: doc["binary_grace"][k] for k in ("until", "active")})
+        self.assertEqual(["leakscan:binary-unlisted"],
+                         [w["id"] for w in doc["binary_grace"]["warnings"]])
+        rc, out, _err = self.run_main(_CUTOFF, "--json")
+        self.assertEqual(1, rc)
+        doc = json.loads(out)
+        self.assertFalse(doc["binary_grace"]["active"])
+        self.assertEqual(["binary-unlisted"], [f["rule"] for f in doc["findings"]])
+
+    def test_no_command_line_route_moves_the_cutoff(self):
+        # Nothing to pass, so nothing a child's floor overrides could pass.
+        for argv in (["--grace-until", "2099-01-01"], ["--grace"], ["--today", "2026-01-01"]):
+            with self.subTest(argv=argv), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as cm:
+                    ls.main(["--root", str(self.tmp), *argv])
+                self.assertEqual(2, cm.exception.code)
+
+
+class BinaryNamedSets(_TreeCase):
+    """Per-set acceptance: an entry names every metadata set it keeps, each
+    on its own line with its own need; a set present and not named blocks,
+    naming the set. All images are synthetic, built from bytes here."""
+
+    ICC = _zlib.compress(b"synthetic colour profile bytes")
+
+    def png_icc(self, *extra):
+        return _png((b"iCCP", b"test profile\x00\x00" + self.ICC), *extra)
+
+    def keep(self, rel, data, *sets, file_reason="synthetic image, reviewed"):
+        self.put(rel, data)
+        d = _sha(data)
+        self.manifest(f"{d}  {rel}  # {file_reason}\n"
+                      + "".join(f"{d}:{s}  {rel}  # needs {s} for this test\n"
+                                for s in sets))
+
+    def test_inspect_media_names_each_set(self):
+        import io as _io
+        cases = {
+            "icc": [self.png_icc(),
+                    _jpeg((0xE2, b"ICC_PROFILE\x00\x01\x01" + self.ICC)),
+                    _webp((b"VP8X", bytes(10)), (b"ICCP", self.ICC))],
+            "exif": [_png((b"eXIf", b"MM\x00\x2a"))],
+            "iptc": [_jpeg((0xED, b"Photoshop 3.0\x008BIM")),
+                     _png((b"tEXt", b"Raw profile type iptc\x00\n  4\n1c02"))],
+            "xmp": [_png((b"iTXt", b"XML:com.adobe.xmp\x00\x00\x00\x00\x00<x/>"))],
+            "png-text": [_png((b"tEXt", b"Title\x00a diagram"))],
+            "jpeg-comment": [_jpeg((0xFE, b"a comment"))],
+            "unknown": [_jpeg((0xE1, b"NotExif\x00")), _png()[:-12]],
+        }
+        for want, images in cases.items():
+            for data in images:
+                with self.subTest(set=want, head=data[:4]):
+                    _f, _t, found = ls.inspect_media(_io.BytesIO(data))
+                    self.assertEqual([want], list(ls.metadata_sets(found)))
+        self.assertEqual(set(ls.METADATA_SETS), set(cases))
+
+    def test_naming_only_icc_passes_an_icc_only_image(self):
+        self.keep("c.png", self.png_icc(), "icc")
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        self.assertEqual(1, tally.binaries_by_manifest)
+
+    def test_naming_only_icc_blocks_an_image_that_also_carries_exif(self):
+        data = self.png_icc((b"eXIf", b"MM\x00\x2a"))
+        self.keep("c.png", data, "icc")
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertTrue(fs[0].excerpt.startswith("exif:"), fs[0].excerpt)
+        self.assertNotIn("icc", fs[0].excerpt)
+
+    def test_an_unkept_icc_profile_blocks_too(self):
+        self.keep("c.png", self.png_icc())
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertTrue(fs[0].excerpt.startswith("icc:"))
+
+    def test_each_missing_set_is_its_own_finding(self):
+        data = _jpeg((0xE1, b"Exif\x00\x00MM"), (0xED, b"Photoshop 3.0\x008BIM"),
+                     (0xFE, b"plain"))
+        self.keep("p.jpg", data, "jpeg-comment")
+        self.assertEqual(["exif", "iptc"],
+                         sorted(f.excerpt.split(":")[0] for f in self.scan()))
+
+    def test_a_set_the_file_lacks_is_a_stale_line(self):
+        # Chosen: stale, so blocking (warning during the grace). The digest
+        # binds the bytes, so the line was wrong when written; and a line per
+        # set "just in case" is the blanket acceptance the answer forbids.
+        data = self.png_icc()
+        self.keep("c.png", data, "icc", "exif")
+        fs = self.scan()
+        self.assertEqual(["binary-stale-entry"], [f.rule for f in fs])
+        self.assertEqual((ls.BINARY_MANIFEST, 3), (fs[0].path, fs[0].line))
+        self.assertIn("keeps exif, which these bytes do not carry", fs[0].excerpt)
+
+    def test_kept_text_sets_are_still_scanned(self):
+        self.keep("t.png", _png((b"tEXt", b"Author\x00a.b@example.com")), "png-text")
+        self.assertEqual(["email"], self.rules())
+
+    def _refused(self, text, needle):
+        self.manifest(text)
+        with self.assertRaises(ls.BinaryManifestError) as cm:
+            ls.load_binary_manifest(self.tmp)
+        self.assertIn(needle, str(cm.exception))
+
+    def test_set_line_grammar_is_strict(self):
+        d = _sha(b"x")
+        e = _sha(b"y")
+        self._refused(f"{d}:icc  a.png  # colour accuracy\n", "no file line")
+        self._refused(f"{d}  a.png  # ok\n{d}:icc,exif  a.png  # both\n",
+                      "one metadata set per line")
+        self._refused(f"{d}  a.png  # ok\n{e}:icc  a.png  # colour\n",
+                      "different digest")
+        self._refused(f"{d}  a.png  # ok\n{d}:icc  a.png  # colour\n"
+                      f"{d}:icc  a.png  # again\n", "already kept at line 2")
+        self._refused(f"{d}:binary-metadata  a.png  # the old scope\n",
+                      "unknown metadata set binary-metadata")
+        self._refused(f"{d}  a.png  # ok\n{d}:icc  a.png\n",
+                      "keeping icc in 'a.png' has no stated reason")
+
+    def test_a_shared_reason_is_one_blanket_line_and_refused(self):
+        d = _sha(b"x")
+        self._refused(f"# logo, reviewed\n{d}  a.png\n{d}:icc  a.png\n",
+                      "needs its own reason")
+        self._refused(f"{d}  a.png  # ok\n{d}:icc  a.png  # needed\n"
+                      f"{d}:exif  a.png  # needed\n", "repeats line 2")
+        # The same need for the same set in two files is not a blanket.
+        self.manifest(f"{d}  a.png  # a\n{d}:icc  a.png  # brand colours\n"
+                      f"{d}  b.png  # b\n{d}:icc  b.png  # brand colours\n")
+        self.assertEqual({"a.png", "b.png"}, set(ls.load_binary_manifest(self.tmp)))
+
+    def test_binary_entries_prints_reasonless_per_set_lines(self):
+        data = self.png_icc((b"eXIf", b"MM\x00\x2a"))
+        self.put("c.png", data)
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            self.assertEqual(0, ls.main(["--root", str(self.tmp), "--binary-entries"]))
+        d = _sha(data)
+        self.assertEqual([f"{d}  c.png", f"{d}:exif  c.png", f"{d}:icc  c.png"],
+                         out.getvalue().splitlines())
+        self.assertIn("strip every set you have no need for", err.getvalue())
+
+    def test_binary_entries_lists_only_the_sets_still_missing(self):
+        data = self.png_icc((b"eXIf", b"MM\x00\x2a"))
+        self.keep("c.png", data, "icc")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            ls.main(["--root", str(self.tmp), "--binary-entries"])
+        self.assertEqual([f"{_sha(data)}:exif  c.png"], out.getvalue().splitlines())
 
 
 if __name__ == "__main__":

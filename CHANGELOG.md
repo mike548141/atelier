@@ -5,6 +5,37 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-10-18 — leakscan gates binary files, warning only until 2026-11-18, `020/150`)
+- **What G3 checks.** `leakscan` no longer skips a tracked binary in
+  silence. A binary (an image, PDF, font, archive) needs an entry in
+  `.leakscanbinaries` at the repo root that matches its exact bytes, by a
+  SHA-256 prefix, with a reason. A changed file needs listing again. PNG,
+  JPEG and WebP metadata is sorted into named sets (`exif`, `iptc`, `xmp`,
+  `icc`, `png-text`, `jpeg-comment`, `unknown`). Every set the file carries
+  needs its own `<digest>:<set>` line, reasoned with the need for keeping
+  that set; one blanket reason is refused (Mike's answer, 2026-10-18). Text
+  metadata is still scanned by the normal rules. An entry for a file or set
+  that is not there is stale. The staged hook now also reads the names of
+  binaries, empty new files and pure renames.
+- **Nothing blocks before 2026-11-18.** Until then the four G3 findings
+  (`binary-unlisted`, `binary-changed`, `binary-metadata`,
+  `binary-stale-entry`) print as warnings naming that date and their remedy,
+  and the exit code is unchanged. Mike chose a grace period of about 30
+  days; the exact date was the queue run's pick. Every other leakscan rule
+  still blocks today, including a personal-data hit in an image's text
+  metadata.
+- **What each child does, before the cut-off.** Run
+  `python3 <atelier>/tools/leakscan.py --root . --binary-entries`. It prints
+  reasonless lines: one per unlisted file, one per metadata set it carries.
+  Look at each file. Strip every metadata set you have no need for (for
+  example `exiftool -all= file`) and re-run, because stripping changes the
+  hash. Then write a reason per file and a need-specific reason per set you
+  keep, and commit `.leakscanbinaries`.
+- **After 2026-11-18** the same findings block CI and the hook exactly as a
+  leak does. The date cannot be moved or skipped: there is no flag for it,
+  and `floor.py` now refuses a mode flag in `flags` even when abbreviated
+  (`--binary`, `--self`), and any `scope` path that starts with `-`.
+
 ### Changed (2026-10-18 — the board index reads an item's first paragraph, `010/170`)
 - `board.py` now builds each index line from an item's logical first
   paragraph: its state line plus the indented lines that continue it, up to

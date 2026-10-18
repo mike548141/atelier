@@ -280,42 +280,69 @@ leakscan can't read the body of a binary file: the pixels of an image, a
 PDF, an archive, a font. Until G3 it skipped them in silence. Now a **tracked**
 binary blocks (Mike ruled this 2026-08-04, funded 2026-08-09). It passes once
 a reasoned entry in **`.leakscanbinaries`** at the repo root accepts its exact
-bytes:
+bytes, and a reasoned line keeps each metadata set it carries:
 
 ```
-# Project logo and two docs diagrams, drawn for this repo. Looked at: no
+# Project logo and a docs diagram, drawn for this repo. Looked at: no
 # people, screenshots or personal data.
 3f1c9a0d5e7b2a64  docs/img/logo.png
 9b04e6d1c2a8f357  docs/img/flow.webp
-c81d07a2e4f9b613:binary-metadata  docs/img/site.jpg  # our own photo; Exif checked: camera model only
+
+c81d07a2e4f9b613  docs/img/site.jpg  # our own photo of the product; looked at
+c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-gamut screens
 ```
 
-- **Format.** Each line is the first 16 or more hex characters of the file's
-  SHA-256, then the repo-relative path. The reason uses the same grammar as
-  `.leakscanignore` (`allowmarker.read_reasoned_lines`): a comment stanza above
-  the line, or a trailing `# reason`. An entry with no reason is a config
-  error (exit 2). So is a malformed line, an unknown scope or a duplicate path.
-  A path can't contain `#`.
+- **Format.** A file line is the first 16 or more hex characters of the
+  file's SHA-256, then the repo-relative path. A set line is the same digest,
+  `:<set>`, then the path, one set per line. The reason uses the same grammar
+  as `.leakscanignore` (`allowmarker.read_reasoned_lines`): a comment stanza
+  above the line, or a trailing `# reason`. A line with no reason is a config
+  error (exit 2). So is a malformed line, an unknown set, a path or set listed
+  twice, and a set line with no file line or a different digest. A path can't
+  contain `#`.
 - **One-time, because the entry is tied to the hash.** If the file changes it
   blocks again as `binary-changed`, and whoever re-lists it is looking at the
   new bytes. 16 hex characters (64 bits) is the printed form because
   secretscan's entropy net reports every 32+ character run as advisory, which
   would add one advisory per listed binary. A full 64-character digest also
   parses (sha256sum's ` *path` binary-mode form too).
-- **Metadata.** Read for PNG, JPEG and WebP using only the standard library,
-  with every read size-capped. Text metadata (PNG `tEXt`/`zTXt`/`iTXt`, XMP,
-  JPEG comments) is decoded and run through the normal rules and term list. A
-  `Software` tag passes; an author's email does not. Allow-markers inside
-  metadata are ignored, because nobody reviews text hidden in a binary.
-  *Opaque* metadata can't be read as text: Exif, IPTC, ImageMagick hex
-  profiles, an unrecognised APP1 segment, a segment over the 1 MiB cap, or a
-  structure that can't be walked. It blocks as `binary-metadata` even when the
-  pixels are listed. Strip it (for example `exiftool -all= file`), or add
-  `:binary-metadata` to the digest once you've checked what it holds.
+- **Metadata, set by set.** Read for PNG, JPEG and WebP using only the
+  standard library, with every read size-capped. Each segment found belongs to
+  one named set:
+
+  | Set | What it is |
+  |---|---|
+  | `exif` | Exif (camera, time, place): PNG `eXIf`, JPEG APP1 Exif, WebP `EXIF`, ImageMagick's raw exif profile |
+  | `iptc` | IPTC / Photoshop resources: JPEG APP13, ImageMagick's raw iptc/8bim profile |
+  | `xmp` | XMP packet: JPEG APP1 (and extended), WebP `XMP `, PNG `XML:com.adobe.xmp` |
+  | `icc` | ICC colour profile: PNG `iCCP`, JPEG APP2 `ICC_PROFILE`, WebP `ICCP` |
+  | `png-text` | PNG `tEXt`/`zTXt`/`iTXt` text chunks other than XMP |
+  | `jpeg-comment` | JPEG `COM` segments |
+  | `unknown` | what the walker can't identify or read: an unrecognised APP1, a segment over the 1 MiB cap or undecodable, a structure it can't walk |
+
+  Mike, 2026-10-18: *"that reason for the image metadata must be specific to
+  the sets of metadata it wants to keep. It should only keep the metadata it
+  has a need for"*. So every set present in the file blocks as
+  `binary-metadata`, naming the set, until its own line keeps it. Keeping
+  `icc` never keeps the `exif` beside it. A set line's reason must be its
+  own: one that repeats the file line's reason, or another set's for the
+  same file, is refused, so one comment over a file and its sets (a blanket)
+  does not load. The same need for the same set in two files is fine. Strip
+  what you don't need (for example `exiftool -all= file`, or
+  `exiftool -all= -tagsfromfile @ -icc_profile file` to keep only the colour
+  profile). A set line for a set the file doesn't carry is stale and blocks:
+  the hash binds the bytes, so the line was wrong when it was written.
+- **Text sets are still scanned.** `png-text`, `xmp` and `jpeg-comment` are
+  decoded and run through the normal rules and term list, kept or not.
+  Keeping a set states a need; it doesn't stop the scan. Allow-markers
+  inside metadata are ignored, because nobody reviews text hidden in a
+  binary.
 - **What it can't see.** The pixels: no OCR, so the reason *is* the human
   check. Metadata in any other format (GIF, TIFF, HEIC/AVIF, PDF, Office files,
-  fonts, archives), where the entry accepts the whole file, metadata included.
-  JPEG segments after the first start-of-scan, ICC profiles, and bytes after a
+  fonts, archives), where the file line accepts the whole file, metadata
+  included. The contents of an Exif, IPTC or ICC block, which are named by
+  presence and never read. JPEG segments after the first start-of-scan, JPEG
+  APPn segments other than APP1, APP2 (ICC) and APP13, and bytes after a
   format's end marker.
 - **Which files are gated.** In a git work tree, a whole-tree scan gates the
   files `git ls-files` lists. It counts untracked binaries such as `.DS_Store`
@@ -328,26 +355,43 @@ c81d07a2e4f9b613:binary-metadata  docs/img/site.jpg  # our own photo; Exif check
   `binary-stale-entry`. That covers a file that's gone, untracked, read as
   text, or removed or renamed by the staged commit. A renamed file's finding
   names its old entry ("same bytes as the entry for …"), so the fix is
-  re-pathing one line.
+  re-pathing its lines.
 - **`.leakscanignore` still runs first.** A glob-ignored tree, such as
   vendored fonts, is not gated. `--disable` can't turn the gate off, because
   the binary rules aren't structural rules. Every accepted binary is counted
   in the `suppressed:` line.
 
-**Adopting it: one commit.** At the first floor run after the pin bump, the
-CI plane goes red with one `binary-unlisted` per tracked binary.
+**The adoption grace, until 2026-11-18.** Mike chose to land G3 with a grace
+period (2026-10-18, on roadmap 020/150): *"unlisted files print a warning
+naming a cut-off date (~30 days), then start blocking. No child goes red
+today; each lists its files when convenient."* So until
+`BINARY_GRACE_UNTIL` (2026-11-18, UTC; the exact day was the queue run's
+pick on that "~30 days", not a ruling) the four gate findings,
+`binary-unlisted`, `binary-changed`, `binary-metadata` and
+`binary-stale-entry`, print as warnings. Each names the date and its remedy,
+and none fails the exit code. From that date they block exactly as above.
+Nothing else is graced: every other rule, including a hit in an image's text
+metadata, blocks today. This is the one exception to leakscan having no
+advisory form (E6a). It is dated and has no flag, env var or config key, so
+nothing can move it. floor.py refuses any `flags` argument that is, or
+abbreviates, a mode flag (`--binary-entries`, `--selftest`, `--warn`,
+`--json`, `--check`), and any `scope` path starting with `-`. Those were the
+only ways to skip the gate. leakscan's floor entry still has no advisory form.
+
+**Adopting it: one commit, before the cut-off.**
 
 ```sh
 python3 <atelier>/tools/leakscan.py --root . --binary-entries   # prints the lines
 ```
 
-`--binary-entries` prints an entry for every tracked binary that no entry
-accepts yet (new, or changed since listed). It writes **no reason**, and the
-scan refuses the file until a person adds one. Its notes go to stderr: which
-entries replace a changed line, and which files also carry opaque metadata.
-Look at each file, append the lines under a true reason, and commit with the
-pin bump. There is no advisory or deferred form. leakscan has none (E6a), and
-its floor entry can't be softened.
+`--binary-entries` prints a file line for every tracked binary that no entry
+accepts yet (new, or changed since listed), and one `<digest>:<set>` line for
+each metadata set it carries that no line keeps. It writes **no reason**, and
+the scan refuses the lines until a person adds one. Its notes go to stderr:
+which entries replace a changed line, and which sets each file carries. Look
+at each file. Strip every set you have no need for, then re-run, because
+stripping changes the bytes. Append the lines with a true reason per file and
+a need-specific reason per set kept, and commit.
 
 ### Networking repos & scanning a subtree
 
