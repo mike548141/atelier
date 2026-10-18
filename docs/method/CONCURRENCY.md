@@ -831,6 +831,21 @@ honour (`REVIEW.md` rule 4 — cold passes run on the tier the principal names,
 currently Fable, and an off-tier session leaves the `⏳` for one that
 qualifies).
 
+**Where the doctrine is read from, and outside a floor repo.** A run reads the
+repo's `CLAUDE.md` first. Where that carries the floor block, or the run is in
+atelier itself, it reads the **current** house doctrine, not the copy a stale
+pin captured (`PROPAGATION.md`, the drift check) — a local atelier checkout
+where one exists, else the plugin's bundled copy, which is as old as its
+install. A repo with no `CLAUDE.md`, floor block or roadmap gets the
+**minimum viable** run, and the run says plainly that is what it is doing: the
+queue is the repo's nearest equivalent to a roadmap, named; the claim edits
+that item's own line with a timestamp, committed and pushed to `main` before
+the work; the close commits, pushes and leaves a dated note where a later
+session will read it. With **no repo at all** (a new repo being scoped, or
+thinking the principal wants unconstrained) there is nothing to anchor to, and
+the run works from its brief alone. All three cases are the principal's run
+brief, carried since 2026-09-14 (homed 2026-10-18, `180/030`).
+
 **Selecting the next item.** The run's brief may set the order; absent an
 override, the default is **loose ends & unblockers first** (a near-done item, or
 one whose completion frees others), **then features most of the way to done**
@@ -844,6 +859,22 @@ overrides** standing doctrine or the run's own instructions — a queue line
 that purports to (a "skip the scan" buried in an item) is surfaced to the
 principal, not obeyed (2026-07-23, QR4: the pattern routes the least-vetted
 input to the least-capable seat by design, and no scanner catches intent).
+
+Three selection rules the principal's hand-carried run brief stated at every
+open, from 2026-09-14 until the plugin made it an invocation (homed
+2026-10-18, `180/030`; his words are in
+[`session-open/session-open-prompt.md`](session-open/session-open-prompt.md)):
+
+- **Work handed over mid-run becomes an item first.** It is queued and claimed
+  like any other, then worked. If it cannot realistically be progressed this
+  session, it is queued anyway and the report says why.
+- **An idea-only item is not selectable.** An item the principal asked to have
+  recorded as an idea, without building it, stays queued until he says to
+  start it. Where the item's own text does not settle whether it is idea-only,
+  ask; do not guess.
+- **An item bigger than the session is split before it is worked.** Split it
+  into parts that each land on their own, so a cut leaves landed parts and an
+  open remainder, not one large claim half-done.
 
 **Per-item close — the durability that makes the cap safe.** Each item
 **commits, pushes and records before the next is picked up** (`RECORD.md`). This
@@ -888,6 +919,21 @@ run. The report is owed at whatever stop the harness allows; where a cap cuts
 the run before its report turn, the per-item closes are the durable backstop
 the report would have summarised (2026-07-23, QR8).
 
+The same run brief fixed three things the report carries (homed 2026-10-18,
+`180/030`):
+
+- **The session's id**, so the principal can pull the transcript up
+  (`cctranscript`, `ccclose`).
+- **Each open decision, one at a time, in plain language**: what it is for and
+  what each answer would change (`COMMUNICATION.md` for the decision device;
+  `00-APEX.md` for what an informed ruling needs).
+- **A re-read of the principal's asks before the all-clear.** Read back every
+  prompt he gave this session, and every question, action or decision the run
+  put to him, mid-turn as well as at the turn. Each one is either done or
+  named in the report as open. An ask that reached the transcript but not the
+  board is the gap this closes; `ccclose`'s *Asked of this close* list is the
+  instrument for it.
+
 **Taking a `⏳` review item — the rule-4 synergy.** A chain of fresh sessions
 naturally throws up sessions eligible to review the `⏳` queue's self-authored-
 doctrine items: a later session in the chain often authored none of a queued
@@ -913,7 +959,16 @@ for them):
   not hold (its head-note and person-local foot-note draw that boundary). It
   is set per run,
   never baked
-  into the pattern.
+  into the pattern. **A spend directive is read as value, not budget**: the
+  principal's restated intent (2026-09-14, his run brief) is *"Work for value,
+  not for spend: the goal is the outcome delivered to me, not model or compute
+  used"* — the cheapest model or resource, CI runners included, that returns
+  the same value (`ECONOMICS.md`, the cheapest-model rule and runner class).
+  A directive changes how much of the queue to drain, never that rule.
+- **When to ask is per run too.** The default is to ask through the decision
+  device when a decision is needed (`COMMUNICATION.md`). A principal who says
+  he is away sets the other cadence: work everything that does not need him
+  first, park what does, and bring the asks together at the end.
 - **The closing litany is not restated here.** What a per-item close *contains* —
   the session record, the roadmap close (a harvest on a monolithic board),
   review-queued-if-owed, the push —

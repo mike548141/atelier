@@ -82,6 +82,13 @@ the scanners and docs are referenced in place, never copied):
 /plugin install atelier@atelier
 ```
 
+Installed from GitHub, the plugin is a copy frozen at its `version` number, and
+new commits reach you only when that number moves. If you keep a local clone
+and want the doctrine current, add the marketplace from the clone's path
+instead (`/plugin marketplace add /path/to/atelier`). A local-path marketplace
+loads the plugin in place, so every session start reads the clone's files as
+they are.
+
 What you get:
 
 - **`/atelier:scan`** — run the four publish-safety scanners (secret · leak ·
@@ -98,6 +105,7 @@ What you get:
 - **`queue-run`** skill — orchestrate a queue run: drain the shared queue as an
   orchestrator, execute via workers in worktrees, close records per item so a
   session cap loses at most the item in flight.
+  `/atelier:queue-run <the run's brief>` replaces a hand-carried run prompt.
 - **`create-repo`** skill — scaffold a new repo (or standardise an existing one)
   to the house standard, stamped from **your own** instance profile
   (`~/.atelier/instance.yaml`, filled interactively on first run, never
