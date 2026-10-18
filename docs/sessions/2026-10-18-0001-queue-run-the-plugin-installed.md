@@ -145,6 +145,14 @@ Asked at the close, one decision at a time, through the decision device:
   file-set notice: `ccclose` changed under its `210/290` worker.
 
 ## Recorded against itself
+- **Main's floor went red for about 20 minutes.** That was `12e6d9b`
+  (`180/090`) through `74c5420`. The skill rewrite dropped five phrases that
+  `tools/test_templates.py` pins, and only the new single-source test had
+  run before the merge. Fixed at `880334a`, which restores the guard rails as
+  doctrine below the pointer, with the full tools suite at 1933 OK and the
+  floor green. The parallel queue-run session landed three commits on the
+  red `main` and was told. This is the same lesson as hand-up #121, an hour
+  after this session landed it.
 
 - Twice a commit was refused by the hook while the output was filtered
   through `grep`, so the refusal showed only as a missing commit: the
@@ -157,7 +165,7 @@ Asked at the close, one decision at a time, through the decision device:
 
 ## Identifiers
 - **Session**: e1d4097c-51e0-4103-8dc4-2c361166237b · Opus 5.5 · 2026-10-17 23:59 to 2026-10-18 04:14 UTC
-- **Commits** (96 on `main`, this session's own, hand-corrected because the tool over-credits a parallel session (`210/290`)): `b12c76d` to `88a5dc8` on the first-parent line. Excluded are `b6be263` (PR #119, a parallel cloud session's) and `f0d6238` (the parallel queue-run `8e498ef1`'s claim). 50 of the 96 are the template history, author-dated to each version's first use. This record's own commit follows `88a5dc8`.
+- **Commits** (98 on `main`, this session's own, hand-corrected because the tool over-credits a parallel session (`210/290`)): `b12c76d` to `88a5dc8` on the first-parent line, then `4839fd8` and `880334a`. Excluded are `b6be263` (PR #119, a parallel cloud session's) and `f0d6238` (the parallel queue-run `8e498ef1`'s claim). 50 of the 96 are the template history, author-dated to each version's first use. This record's own commit follows `88a5dc8`.
 - **Pull requests** (2):
   - #120 merge run — now merged
   - #121 merge run — now merged
