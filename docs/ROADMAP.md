@@ -332,6 +332,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/030-the-canonical-session-open-prompt-is-not-the-one-in-use.md)
 - ✅ [RESTORED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/040-four-prompt-lines-come-back.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/050-the-public-plugin-tracks-every-commit.md)
+- [~] (claimed 2026-10-18-0215, wt: atelier-qr-180-060) [(untitled)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/060-the-opening-prompt-template-history-from-the-transcripts.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
