@@ -1,4 +1,5 @@
-- [ ] **E7 residue — G3 (binary media): FUNDED as its own item, soon
+- [~] **E7 residue — G3 (binary media): FUNDED as its own item, soon
+      (claimed 2026-10-18-0725, wt: atelier-qr-020-150)
       (Mike ruled 2026-08-09; shape unchanged from 2026-08-04).** A
       deliberate landing, not a rider: the build session designs the
       blast-radius half deliberately — marker ergonomics for legitimate
@@ -39,3 +40,13 @@
       coverage claim. `floor.py`'s flag blocklist would also have missed the
       new listing mode, the "a blocklist underblocks" class again. The
       doctrine gap it exposed is filed as `410`.
+      🎯 **Mike answered both decisions, 2026-10-18** (through the decision
+      device, choosing the queue run's recommended options). First, land
+      G3 with a grace period: *"Grace period (Recommended)"*. The option
+      read: unlisted files print a warning naming a cut-off date (~30
+      days), then start blocking. Second, keep the reasoned acceptance of
+      opaque metadata as built: *"Allow with reason (Recommended)"*. 🚩
+      The grace is a dated, self-expiring warning inside leakscan's binary
+      rules only. That stands against E6a's no-advisory-form decision, and
+      Mike's answer is the authority for this one exception. Recorded so
+      the next reader does not read it as E6a quietly loosened.
