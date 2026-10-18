@@ -560,6 +560,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: a scanner's --selftest prints its fixture findings in the…](roadmap/320-child-filed-findings-via-pointing-up/690-a-scanner-selftest-prints-fixture-findings-in-the-floors-own-shape.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - [ ] 🔎 [Hand-up: the process table is a shared surface, so a pattern kill](roadmap/320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md)
 - [ ] 🔎 [rpi hand-up: a rollout row backwards; wrapscan blind to split boards](roadmap/320-child-filed-findings-via-pointing-up/710-rpi-hand-up-a-rollout-row-backwards-wrapscan-blind-to-split-boards.md)
+- [ ] 🔎 [Hand-up: a brief-writer's session log tells the next reviewer what it](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
