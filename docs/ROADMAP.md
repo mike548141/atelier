@@ -340,7 +340,12 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/080-the-useful-identifiers-at-the-tail.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/090-one-text-for-the-command-and-the-hand-copy.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/100-the-four-guard-rails-move-into-the-prompt.md)
-- [~] (claimed 2026-10-18-0700, from session e1d4097c) [(untitled)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/110-review-the-first-real-queue-run.md)
+- ✅ [REVIEWED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/110-review-the-first-real-queue-run.md)
+- [ ] 🔎 [Dispatch prompts drop two doctrine obligations: the worker's own](roadmap/180-orchestrated-queue-runs-from-hand-carrie/120-dispatch-prompts-drop-the-scratch-and-marker-obligations.md)
+- [ ] 🔎 [Three of five review briefs were landed on scanner results, not](roadmap/180-orchestrated-queue-runs-from-hand-carrie/130-briefs-landed-on-scanner-results-not-read.md)
+- [ ] 🔎 [The run stopped "by judgement" with work on the board and the](roadmap/180-orchestrated-queue-runs-from-hand-carrie/140-the-run-stopped-by-judgement-with-work-untriaged.md)
+- [ ] 🔎 [The run's open decision went into the close message as prose,](roadmap/180-orchestrated-queue-runs-from-hand-carrie/150-close-decisions-not-put-through-the-device.md)
+- [ ] 🔎 [Worktree names do not say which session made them, and a](roadmap/180-orchestrated-queue-runs-from-hand-carrie/160-worktree-names-do-not-say-which-session.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
