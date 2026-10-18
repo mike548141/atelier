@@ -680,3 +680,199 @@ close rule a MAJOR keeps the cycle open.
 - [ ] MA8 — reject `--fallback` without `--auth`.
 - [ ] MA10 — correct the landing account in the record that carries it.
 - [ ] MA11, MA13 — tests for the observed rows; one home for the predicate.
+
+### Reconcile
+
+**Written:** 2026-10-18 00:40 UTC, after the orchestrator committed phase 1 as `ad920ce`
+and placed the sibling in the tree. Opened in this order, none before: the sibling; the
+queue pointer (`160/890`); the intent record (`210/270`); the message bodies of `019157c`,
+`c7f5b73` and the PR head `7be5b3f`; the earlier ccmail verdict
+(`docs/reviews/2026-09-25-0715-ccmail-build-cold.md`), read at the passages its grep for
+the fallback and `--auth` surfaced (lines 280–290, 450–486, 565–580, 622–640), not whole;
+and `docs/method/PROPAGATION.md` § *Pointing up* with its three hand-up passages, for
+seeded question 7. Phase-1 text above is unrevised. Two findings are formed here and are
+marked as such.
+
+**Against the seeded questions.** Five of the eight landed on findings already formed cold:
+
+- *Q1* (the e2e test reaching a real CLI, login or signing call) → **MA3**, with the
+  answer the question wanted: real CLI **yes**, demonstrated (P1 executed the installed
+  SDK wrapper); real login **no here** — `HOME` is redirected so stored credentials are
+  out of reach, but an environment-supplied token is inherited through `...process.env`;
+  signing call **not here** — the wrapper died before Python; reachable by construction
+  on a host whose gcloud survives an empty `PATH`. Severity unchanged (MODERATE: the
+  egress is constructed, not observed).
+- *Q2* (`gcloud auth login` for every non-expired failure) → **MA2**, including the
+  network-error case, which the table shows escaping as a bare exception (N1).
+- *Q3* ("not needed" directly under a delegation failure, read as reassurance) → **MA1**.
+  The cold pass found the same line and went further than "does it read as reassurance":
+  it contradicts ADR 0006's recorded re-ruling and three doctrine sites. MAJOR stands.
+- *Q4* (`--fallback` accepted in every mode) → **MA8**: `--status --fallback` is silent
+  (F2); `ccmail --fallback` alone prints help and exits 0 (F1).
+- *Q6* (README still describes `--auth` as the one-time setup) → **MA6**. One addition
+  the question prompts: the README's flag-vocabulary table has **no ccmail column at
+  all** (pre-existing), and `--fallback` is unique to ccmail, so the flags-follow-
+  operation rule does not demand a row; the ccmail sections, not the table, are the
+  unswept sites.
+
+Three were not findings in phase 1 and are answered here:
+
+- *Q5* (a gendered reference and an incident count from a private child, in a public
+  repo) → **MA14 — note, formed at reconcile.** The man page's grounding sentence and the
+  code comment say the operator was sent through the setup "more than once" / "twice",
+  and the man page says "he". Phase 1 discharged this as no leak: the operator is the
+  published author and no child, mailbox or person is named. On reconcile that holds, and
+  the public intent record (`210/270`, in this repo) already states the same facts in the
+  same words ("he had been sent through it at least twice"), so the delta adds no new
+  exposure. What remains is a narrowest-form question of style, the principal's to
+  decide: "the operator" ungendered, and "repeatedly" in place of a count, would carry
+  the grounding with less. Not a defect; recorded because the question was asked.
+- *Q7* (does § *Pointing up* describe a child delivering a code change?) → **MA15 —
+  minor, formed at reconcile.** It does not. § *Pointing up* and § *The route* describe a
+  child **reporting**: "file it in the parent's board", "carry the class, never the
+  child's specifics", a `report-` branch that "touch[es] nothing but your own item", the
+  consequence kept by the child and the remediation atelier's. This delta used that
+  route to deliver **code** — three instrument files and a board item — to a public
+  parent, with its rule-4 review queued behind the landing. The intent record calls it
+  "filed and fixed … from a private child's session". Nothing in the doctrine forbids it
+  and nothing describes it, so the gate it should pass is unstated — and MA4 shows what
+  an unstated gate does: the parent landed the child's content while the PR's own floor
+  was red. The lesson the intent record offers is sound; the route it travelled is
+  undescribed. *Counsel:* a board item under `docs/roadmap/` per this repo's own
+  "report your problems with the doctrine" rule, asking the principal to say either (a)
+  a child may hand up a fix to the parent's instruments, with the gate named (the
+  parent lands it only through its own PR with the floor green, and the rule-4 pointer
+  in the landing commit as here), or (b) a child files the finding and the house builds
+  the fix. Minor, not note: the gap had a consequence this run.
+- *Q8* (the lander dispatched the brief-writer; does rule 4 need more than "not started
+  or instructed by the author"?) → no finding. Rule 4 tests the reviewer's spawn against
+  the **author** — the entity whose judgement produced the work. The lander did not
+  author the work: the instrument trees of `019157c` and the child's PR head are
+  byte-identical (MA10), so the lander's judgement produced the landing, not the delta.
+  The brief-writer was dispatched by the lander; the reviewer (this session) was spawned
+  by a different, Mike-opened cloud session; neither was started or instructed by the
+  child. The criterion holds as written. The residual interest the question points at is
+  real but lies in the **landing**, not the work — and the brief did not fence it off:
+  MA4 was formed cold, from the public CI record. If the principal wants the rule to say
+  that a party with an interest in how work *landed* should not commission its brief,
+  that is a doctrine refinement for the board, not a defect in this pass.
+
+**Against the intent record (`210/270`).** It says the no-route error now "offers only
+`gcloud auth login`": true for the lapse class; for every other delegation failure it
+offers nothing (R3m) — MA2 as found. It says the empty keychain route "prints as `➖ not set
+up — not needed`, with no fix offered" and calls that neutral: "not needed" is a claim, not
+neutrality, and it is the claim MA1 is about. It says "the man page's case for a
+lapse-proof fallback is kept, not removed" **in the same record** that has the tool call
+the fallback not needed when the login has lapsed — the contradiction MA1 names is present
+in the author's own account, which raises my confidence in the finding, not the severity.
+"Help text and man page updated": the help text yes; the man page in one paragraph of
+four that needed it (MA5). "4 tests (30 pass)": re-run, true. The record's lesson — an
+optional route's absence should print as neutral, not as a failure with a fix — is right,
+and counsel (a) under MA1 is the wording that actually delivers it. The record carries
+`review: owed`; this pass is that review.
+
+**Against the commit bodies.** `019157c` and the PR head carry the same body, which
+mirrors the intent record ("an optional route's absence prints neutrally"; reconciled
+above). `c7f5b73`'s body adds a fact phase 1 inferred from the plane mismatch: "every local
+lint ran at the warning level and missed the STYLE class" — the local `mandoc` runs used
+`-W warning` while CI's `-T lint` implies the style level. So MA4's recurrence step is
+sharper than "a lint on the hook plane": the local lint must run **at CI's level**
+(`-T lint`), or it will pass what CI fails. The body also confirms the duration phase 1
+re-drove from the API ("the pushed floor has been red … since").
+
+**Against the queue pointer (`160/890`).** Its claim line matches the provenance stated
+above (cloud session, no worktree, reviewer-plus-orchestrator, both seats Fable, the
+sibling held outside the checkout). Its delta list was widened with `c7f5b73` at claim, as
+the dispatch said. It repeats the brief's "the commit that landed PR #108 on `main`": MA10's
+correction applies to the pointer's wording as well (`pointerscan` is warn-only on "stays
+true"; a one-line fix when the pointer is ticked).
+
+**Against the earlier ccmail verdict (2026-09-25, `CC`).** Its CC10 (MODERATE) found, on
+2026-09-26, exactly the state MA1 concerns: delegation lapsed, Keychain "nothing stored
+yet", the tool dark, and the ADR's "cannot be dark for a day" guarantee unmet because the
+fallback had never been minted; its CC13 noted the build record saying the fallback "is
+still owed". Three weeks on, the intent record shows the principal's lived stance — he
+does not want the client-ID setup — and this delta has the tool say the fallback is "not
+needed". So the house has carried both positions since September: doctrine says owed,
+practice says unwanted, and the code has now picked practice without the doctrine
+moving. That is why MA1 is a MAJOR with a fork rather than a wording nit, and why counsel
+(b) is a live option, not a strawman. (That verdict carries no `[fixed]`/`[backlog]`/
+`[rejected]` tags in-file; where its decisions were recorded is outside this pass.) No
+finding here repeats a decided one: nothing in that file touches the empty-keychain
+wording's predicate, `CCMAIL_GCLOUD`, the man-page guards or the landing.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR · 4 MODERATE · 4 minor · 6 note**
+(MA1–MA15; MA14 and MA15 formed at reconcile). The MAJOR stands as found; nothing in the
+deferred material or the records lowers it, and the intent record's own text supports it.
+
+## Deferred material — folded in at the verdict
+
+*The sibling `docs/reviews/2026-10-17-1010-ccmail-auth-advice-cold.deferred.md`, folded
+in verbatim at phase 2 on 2026-10-18 and deleted, per rule 1's "split for the duration,
+merged at rest".*
+
+# Sibling to the ccmail auth-advice cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-1010-ccmail-auth-advice-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the
+brief are committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the
+brief's provenance; it forms no finding. Fold this file in below the reconcile and
+delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record:
+  `docs/roadmap/210-instruments-open-features/270-ccmail-sent-the-operator-to-a-setup-he-did-not-need.md`
+  (the filing session's account; the child's own record stays private) — **not opened
+  by the brief-writer**. It was added by the landing commit itself.
+- The landing commit's message body (read by the brief-writer), in summary: with
+  delegation configured a lapsed login needs only `gcloud auth login`, but `--status`
+  printed the empty keychain route as a failure with the `--auth` fix, "and sessions
+  relayed that as a step"; now an optional route's absence prints neutrally, plain
+  `--auth` checks delegation first and prompts for nothing, and the fallback stays
+  reachable "deliberately" with `--auth --fallback`; "four tests added (30 pass); man
+  page and help updated". Trailer: an Opus model.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-09-25-0715-ccmail-build-cold.md` — the only verdict whose text
+  names ccmail
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only.
+
+## Overlap with sibling passes of this batch
+
+None found: no other pass in this batch names `instruments/ccmail`. Two earlier commits
+on the same file (`fd345ff`, which adopted the existing estate identity and added
+ccpdf, and `5b0acf5`) are not this delta; their subjects only were seen.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. The end-to-end test sets `CCMAIL_GCLOUD` to a missing path and `PATH` to nothing, but
+   `gcloudBin` falls through to fixed install locations under the user's home (now the
+   temporary one) and two system prefixes. On a machine with the CLI at one of those
+   prefixes, does the test run the real CLI, read the real login and attempt a real
+   signing call for a synthetic service account?
+2. `--auth` with delegation configured now dies with "Delegation failed (…) — try gcloud
+   auth login" for every non-expired failure, including a missing CLI, a refused
+   signing call and a network error. Is "try a fresh login" the right instruction for
+   each, or a new version of the misdirection the change removes?
+3. When both routes fail, `resolveToken` lists the keychain route as "not set up — not
+   needed, the delegation route is configured" directly under a delegation failure. Does
+   that read as reassurance at the moment there is no way in?
+4. `--fallback` is accepted by the parser in every mode. Is `ccmail --status --fallback`
+   silent, and should an unknown pairing be a usage error as other flags are?
+5. The man page's grounding note and the code comment cite what happened in a private
+   child ("relayed to the operator, twice", "he did not need"). Is a gendered reference
+   to the operator, and a count of incidents from a private repo, the narrowest form for
+   a public repo?
+6. The README's flag vocabulary and its ccmail sections still describe `--auth` as the
+   one-time setup. The delta did not touch the README.
+7. A hand-up landed code into atelier's instruments with its rule-4 review queued
+   rather than run. Does `PROPAGATION.md` § *Pointing up* describe a child delivering a
+   code change, or only a finding that atelier then acts on?
+8. The lander is the orchestrator of the session that dispatched this brief-writer. Does
+   rule 4's criterion, read strictly, need anything more for the taker than "not started
+   or instructed by the author"?
