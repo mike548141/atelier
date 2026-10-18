@@ -157,7 +157,7 @@ Asked at the close, one decision at a time, through the decision device:
 
 ## Identifiers
 - **Session**: e1d4097c-51e0-4103-8dc4-2c361166237b · Opus 5.5 · 2026-10-17 23:59 to 2026-10-18 04:14 UTC
-- **Commits** (88 to the first close, then 9 more through `055b326`; this session's own; hand-corrected from the tool's 115, `210/290`): `b12c76d` to `ec37c6b` on the first-parent line, excluding `b6be263` (PR #119, a parallel cloud session's). 50 of them are the template history, author-dated to each version's first use.
+- **Commits** (96 on `main`, this session's own, hand-corrected because the tool over-credits a parallel session (`210/290`)): `b12c76d` to `88a5dc8` on the first-parent line. Excluded are `b6be263` (PR #119, a parallel cloud session's) and `f0d6238` (the parallel queue-run `8e498ef1`'s claim). 50 of the 96 are the template history, author-dated to each version's first use. This record's own commit follows `88a5dc8`.
 - **Pull requests** (2):
   - #120 merge run — now merged
   - #121 merge run — now merged
