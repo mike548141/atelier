@@ -1,4 +1,5 @@
-- [ ] **`ccclose` prints the identifiers block, ready to paste.** `RECORD.md`
+- [~] (claimed 2026-10-18-0440, wt: atelier-qr-210-280)
+      **`ccclose` prints the identifiers block, ready to paste.** `RECORD.md`
       now asks every session's detail record and closing message to end with
       an identifiers block (`180/080`, 2026-10-18): session id, model and
       window; commits; PRs; board items and reviews queued; worktrees and
