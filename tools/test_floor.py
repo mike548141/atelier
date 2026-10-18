@@ -1875,5 +1875,70 @@ class SoftenableListsPinnedToRegistry(unittest.TestCase):
         self.assertEqual(names, self._no_advisory_names())
 
 
+class G3GraceCannotBeExtendedTest(unittest.TestCase):
+    """The G3 adoption grace (leakscan `BINARY_GRACE_UNTIL`) is time-bounded
+    inside leakscan, with no flag, env var or config key that moves it. So a
+    child "extends" it only by running leakscan in a mode that never reaches
+    the gate, or by switching the gate's rules off. Each route is refused
+    here, and leakscan's floor entry keeps no advisory form."""
+
+    def assertRefused(self, payload, needle):
+        with self.assertRaises(floor.ConfigError) as cm:
+            _cfg(payload)
+        self.assertIn(needle, str(cm.exception))
+
+    def test_listing_mode_is_refused_however_it_is_spelled(self):
+        # argparse expands an unambiguous prefix, so each of these IS
+        # `--binary-entries` (exit 0, nothing scanned) to leakscan.
+        for arg in ("--binary-entries", "--binary-entr", "--binary", "--bin",
+                    "--binary-entries=yes"):
+            with self.subTest(arg=arg):
+                self.assertRefused(
+                    {"flags": {"leakscan": {"args": [arg], "why": "later"}}},
+                    "may not contain")
+
+    def test_abbreviated_selftest_and_warn_are_refused(self):
+        for arg in ("--self", "--sel", "--war", "--js", "--chec"):
+            with self.subTest(arg=arg):
+                self.assertRefused(
+                    {"flags": {"leakscan": {"args": [arg], "why": "later"}}},
+                    "may not contain")
+
+    def test_a_scope_path_cannot_carry_a_mode_flag(self):
+        # A scope path renders as a positional, and a dash-led positional is
+        # parsed as an option: the same listing mode by the other key.
+        self.assertRefused(
+            {"scope": {"leakscan": {"paths": ["--binary-entries"], "why": "w"}}},
+            "starts with '-'")
+        self.assertRefused(
+            {"scope": {"leakscan": {"paths": ["--bin"], "why": "w"}}},
+            "starts with '-'")
+
+    def test_legitimate_tuning_still_parses(self):
+        cfg = _cfg({"flags": {"leakscan": {"args": ["--disable", "ipv4"],
+                                           "why": "networking repo"}},
+                    "scope": {"leakscan": {"paths": ["./-odd-dir", "src"],
+                                           "why": "only these are shareable"}}})
+        self.assertEqual(cfg.flags["leakscan"].args, ("--disable", "ipv4"))
+
+    def test_disabling_a_g3_rule_breaks_the_scan_rather_than_passing(self):
+        # Through `flags` this is accepted with a `why` (a structural rule
+        # by name is a legitimate cover decision), so leakscan itself must
+        # refuse a binary rule: exit 2, a broken scan, never a pass.
+        import leakscan
+        with tempfile.TemporaryDirectory() as td:
+            for rule in leakscan.BINARY_RULES:
+                with self.subTest(rule=rule):
+                    rc = leakscan.main(["--root", td, td, "--disable", rule])
+                    self.assertEqual(2, rc)
+
+    def test_leakscan_still_has_no_advisory_form(self):
+        self.assertIsNone(floor.BY_NAME["leakscan"].advisory)
+        self.assertRefused(
+            {"advisory": {"leakscan": {"why": "until the grace ends",
+                                       "review-by": "2026-12-01"}}},
+            "may not be softened")
+
+
 if __name__ == "__main__":
     unittest.main()
