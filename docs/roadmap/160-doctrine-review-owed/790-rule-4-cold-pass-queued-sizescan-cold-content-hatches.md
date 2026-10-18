@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: no hatch silences sizescan's cold-content
+- [ ] 🎯 **Rule-4 cold pass queued: no hatch silences sizescan's cold-content
       gate, and the gate lists the items (`115/270` parts a and b).** The run
       authored this itself (its dispatched worker's output counts as the
       run's authorship). It is queued at landing, and the run neither takes
@@ -33,3 +33,24 @@
       forms every finding and severity. The sibling, the intent record and
       prior verdicts stay unopened by the reviewer until its phase-1 findings
       are committed. Provenance and exposure go in the verdict.
+      - [ ] 🎯 **The pass RAN 2026-10-17/18 UTC; the cycle CLOSES on this pass
+            (no MAJOR) — what remains is decided into the backlog.** The rule-4
+            Fable cold pass (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` cloud orchestrator — the shape disclosed in the
+            claim above; the sibling, the intent record and prior verdicts
+            opened only after the phase-1 findings were committed, `7bbb5c2`)
+            returned PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 4 minor ·
+            4 note →
+            [`2026-10-17-0930-sizescan-cold-hatches-cold.md`](../../reviews/2026-10-17-0930-sizescan-cold-hatches-cold.md)
+            (sibling folded in and deleted). HX1 (MODERATE): "nothing silences
+            the cold-content gate" is true at the scanner for every marker
+            spelling and the glob, but false at the floor — `floor.py` gives
+            sizescan an `advisory` form, a child may `disable` it, and the
+            house `floor.yml` template tells adopters to declare hygiene checks
+            advisory — a fork the delta neither names nor surfaces, and the
+            commissioning record shows the ruling was taken on an account that
+            did not mention the floor lane. HX10 and HX11 (minor) formed at
+            reconcile: this repo's own `.sizescanignore` entry no longer does
+            what its comment says, and the 30-repo blast-radius claim compared
+            exit codes rather than findings. Findings are the principal's to
+            decide (rule 3); nothing was applied.

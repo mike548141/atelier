@@ -645,3 +645,206 @@ has been applied.
 - [ ] HX9 — note for commit hygiene; nothing to change.
 - [ ] Phase 2 — check the ruling's date and words against `115/270`; verify the intent record's
       account against the table; reconcile with the sibling's seeded questions.
+
+### Reconcile
+
+**Written 2026-10-18 00:04–00:20 UTC**, after the orchestrator committed phase 1 as `7bbb5c2` and
+released the sibling. Opened at this step, in this order: the sibling; the queue pointer
+`160/790`; the commissioning item `115/270`; the message bodies of `f9ccba8` and `ccfad42`; the
+intent record `docs/sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md`; the board
+commit `fd63df8` (subject, body, stat); the session record that received the ruling,
+`docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md` (its headings and close); the
+prior verdicts the sibling names, by grep and short excerpt only (`2026-07-14-2048` F2/F3 and
+`2026-07-20-2040` SR1), to reconcile, never to anchor; `docs/method/EVIDENCE.md` §13 whole. No
+phase-1 text above is revised. Two findings are formed here and marked as such.
+
+**Against the intent record and the commit bodies.** The author's account matches what the
+table shows for the two mechanisms it names: marker and glob stop exempting cold content, the
+hatch is named, items are listed, the `files_by_glob` zero was a pre-existing bug fixed inside
+the delta (the body says "it now counts every ignored candidate" — which is the relabel HX4
+records). Neither the record, the item, nor either body mentions the floor's `advisory`/
+`disabled` lane or the ignore file's doctrinal meaning, so HX1 and HX3 are not pre-empted by the
+author's framing and were not seeded by it. The item's history adds one fact that bears on HX1:
+the question put to the principal offered "allow it, with a reason" or "never allow it" — the
+floor lane was not in the account he ruled on, and he added, in the same answer, that he was
+"not sure what other files / content sizescan is used for". Under `00-APEX.md` the ruling stands
+and is open to challenge on the briefing, raised to him by re-briefing: HX1's counsel (b) is
+that re-brief. The principal may weigh HX1 above MODERATE on that ground; its recorded severity
+is not revised here. Genealogy worth one line: the "none of which silences the cold-content
+gate" sentence that item `270` found contradicting the code was first written into the README by
+a review-fix (SR1, 2026-07-20) while the code kept exempting — the prose outran the mechanism
+once already on this exact sentence; HX1 is the same shape one plane up.
+
+**Against the seeded questions.**
+
+1. *Nested worktree `ROADMAP.md` under `.claude/worktrees/`.* Probed with a real git fixture in
+   three variants at landing and HEAD (`/home/user/scratch/HX/probe_worktree.py`). (A) the real
+   harness shape — gitignored and carrying a `.git` *file* — is never walked: clean, `0 file(s)
+   by .sizescanignore`, `0 inert`, both versions. (B) `.git` file only, tracked: pruned by the
+   linked-worktree skip, clean. (C) a plain nested directory, tracked, no `.git` file: **read
+   and gated** (exit 1) at both versions — at landing with `1 file(s) by .sizescanignore` printed
+   beneath the gated finding (HX4's shape), at HEAD with the glob named inert. So the repo's own
+   `.sizescanignore` entry protects this repo's commit in no variant: the protection is
+   `.gitignore` plus the `.git`-file prune, and the entry's comment ("lets another session's
+   mid-flight tree gate this one's commit") describes a guarantee the glob no longer gives for
+   `ROADMAP.md`. New finding **HX10** below.
+2. *Slots spent and `cold_over_cap` charged before a file is dropped.* No, by construction at
+   both versions: `_scan_file_metrics` counts cold items and fills slots only when the basename
+   is in `COLD_CHECKBOX_FILES` (`ROADMAP.md`), so an archive store — blanket-marked or not — and
+   every other hot-path file return `cold = 0`, `items = []`; and a `ROADMAP.md` with `cold > 0`
+   always yields a finding (landing: `if cold or over`, and `reference_for` is never `None` for
+   a basename in `SIZE_REFERENCE`, which `ROADMAP.md` is; HEAD: `elif cold:`). The cap probe's
+   sums agree: 60,003 counted across the three findings, exactly 50,000 listed.
+3. *`files_by_glob` claiming a suppression that did not happen.* Yes at landing — HX4, with the
+   table rows; resolved at HEAD by `72a68cc`.
+4. *The ruling's date.* The ruling was the "last device question" at the close of the queue run
+   that opened 2026-10-05 11:20 UTC (its session record says so); the board commit that recorded
+   it verbatim, `fd63df8`, is 2026-10-06 03:49 UTC. The item, the session record, the CHANGELOG,
+   `RECORD.md` and the docstring all say 2026-10-05, so the house's records agree with
+   themselves. Whether the device answer itself arrived before 2026-10-06 00:00 UTC no artefact I
+   can read pins — the record gives no clock time for the answer — so I cannot say whether the
+   date at rest is the UTC date `CONVENTIONS.md` asks for or the local one; the principal knows.
+   Not a finding: consistent across every home, with one residual named.
+5. *The README paraphrase beside the quote.* Two shifts. The paraphrase turns a want about the
+   principal's repos ("I don't want any of my repo's to run a flat running log") into a universal
+   ("no repo keeps a flat running log") — a widening on a public tool other estates adopt. And
+   both the docstring's quotation and the paraphrase stop at "standalone file": the answer on the
+   item continues with the declared uncertainty about what else sizescan covers, the
+   fail-noisily sentence (built as part b) and the no-arbitrary-limits sentence (built as part c
+   and quoted separately in the HEAD docstring). The omission that matters is the uncertainty
+   sentence — the one that bears on HX1 and HX3's scope questions. Folded into HX1's reconcile
+   note above; no separate finding.
+6. *Exit-code-only blast radius versus `EVIDENCE.md` §13.* §13 does say it: "a scanner delta
+   compares per-finding output, never totals — identical counts can hide one finding swapped for
+   another (the principal's ruling, 2026-08-23)". The commit body compares exit codes over 30
+   repos ("29 stay 0; 1 was already 1 under both"), a total of totals, and the one repo already
+   red is precisely where a swap would hide. New finding **HX11** below.
+7. *Escape sequences and bidi controls reaching the log.* HX2 — formed and probed before the
+   sibling was opened; the sibling asked the same question. The house's answer, by its own lens-4
+   rule, is yes: the surface is new, the fix is a line, and the class reaches every scanner that
+   echoes tracked text.
+8. *A template, skill or child-facing doc still teaching `sizescan:allow` for a flat log.* None
+   found (lens 3; sweep). The 2026-07-14 origin verdict's F3 shows the hatch *was* designed for
+   exactly that case (a child whose session log was "flat-by-declared-design"), so a child that
+   still kept one would be the child this delta reds; the author's 29/30-repo measurement says
+   none did at the time — relayed, not re-driven (HX11 on the measurement's rung).
+
+**Overlap with sibling passes.** `160/850` (`72a68cc`) rewrote this surface the same day: HX4 is
+this delta's and is resolved by that commit; HX1, HX2, HX3, HX5, HX7 and HX8 survive it unchanged
+and therefore bear on `160/850`'s delta as well (HEAD's `sizescan.py` is that commit's); HX9 is
+this delta's alone. `160/750` (`115/080`): the `covers` rule under which an unknown scope is a
+blanket is what this delta names as a hatch and HEAD names inert — consistent. `160/730`:
+`report.cap_part` and `report.over_cap_line` are called correctly; the cap *number* is each
+scanner's own copy (HX7). The prior verdicts named in the sibling raise neither the floor lane nor
+the ignore-glob meaning (grep), so HX1 and HX3 are new.
+
+**Findings formed at reconcile.**
+
+**HX10 — minor (formed at reconcile) — this repo's own `.sizescanignore` entry no longer does
+what its comment says.** The entry `.claude/worktrees/**` is commented as the thing that stops a
+sibling session's mid-flight `ROADMAP.md` from gating this repo's commit. Since this delta a glob
+cannot stop a `ROADMAP.md` from gating (seeded Q1, variant C: read and gated at both versions);
+the real protection is `.gitignore` plus `filewalk`'s `.git`-file prune (variants A and B), both
+older than the entry's claim. At HEAD the entry is not even named inert, because the walk never
+reaches a file it matches, so no run will ever tell a reader. An instance of HX3 in atelier's own
+tree, and of V1 (a comment stronger than its mechanism). *Counsel:* reword the comment to say the
+entry covers archive stores only and that `.gitignore` and the worktree prune are what keep a
+sibling's tree out — or remove the entry.
+
+**HX11 — minor (formed at reconcile) — the blast-radius claim stopped a rung short of the one
+the doctrine names for a scanner delta.** `EVIDENCE.md` §13: "a scanner delta compares
+per-finding output, never totals". The landing commit's body, the item and the intent record
+compare exit codes over 30 repos, and the one repo "already 1 under both" is exactly where a
+swapped finding — a hatch-exempted roadmap newly gated beside an already-gated one — would leave
+the code at 1 and the claim intact. The per-finding comparison was cheap (`--json` ids per file,
+old versus new) and the output change the delta makes is in the listing lines, not in which
+files or kinds fire, so the comparison would not have been noisy. Not re-driven here (no sibling
+repos). *Counsel:* record the rung stopped at per §1, or re-run the comparison per file and kind
+and record it on the item; nothing in this verdict depends on the claim.
+
+**Overall line, restated:** **PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 4 minor · 4 note**
+(HX1–HX3 MODERATE; HX4, HX5, HX10, HX11 minor; HX6–HX9 note). The headline stands: "nothing
+silences the cold-content gate" is true at the scanner and false at the floor, the fork was not
+surfaced, and the principal ruled "never" on an account that did not name the floor lane.
+
+## Deferred material — folded in at the verdict
+
+*The sibling `docs/reviews/2026-10-17-0930-sizescan-cold-hatches-cold.deferred.md`, verbatim,
+folded in here on 2026-10-18 and deleted from the tree, per `REVIEW.md` rule 1 "split for the
+duration, merged at rest".*
+
+# Sibling to the sizescan cold-content hatches cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-0930-sizescan-cold-hatches-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md` —
+  **not opened by the brief-writer**.
+- Commissioning board item (head line seen, never read whole): `115/270` (three defects found
+  while adding finding IDs, found 2026-10-05 by the `080` finding-ID worker). The pointer scopes
+  this pass to its parts (a) and (b); part (c) is 160/850's subject.
+- A neighbouring board commit, subject only: `fd63df8` (2026-10-06 03:49 UTC) — "board: Mike's
+  ruling on sizescan, verbatim, on 115/270 — three builds owed".
+- The landing commit's message body (read by the brief-writer): it restates the ruling as
+  "nothing may exempt the cold-content gate, since no repo should keep a flat running log" and
+  "a check which finds done work must report the specific items"; describes (a) and (b) as the
+  brief's *What the work is* lists them; reports a side effect found on the way (`files_by_glob`
+  always printed 0 because `iter_candidates` never appended to the list it was handed); and
+  gives a blast radius: `sizescan --check` run old and new over every git repo on the authoring
+  machine, one at a time, with no repo changing exit code and one already failing under both.
+- The merge's message body: the orchestrator read the diff and re-ran the targeted tests before
+  merging; the work was rebuilt fresh after a 07:35 UTC crash.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-07-14-2048-lean-files-sizescan-cold.md` — sizescan's origin
+- `docs/reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`
+- `docs/reviews/2026-07-20-2040-size-rebalance-cold.md`
+- `docs/reviews/2026-07-22-0819-harvest-integrity-gate-cold.md`
+- `docs/reviews/2026-10-03-0357-shared-allow-marker-grammar-cold.md` — the marker grammar
+- `docs/reviews/2026-10-16-1551-marker-kinds-finding-ids-cold.md` — an unrun 2026-10-16 brief on
+  the scoped kinds this delta changes (another pass's framing)
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only.
+
+## Overlap with sibling passes of this batch
+
+- 160/850 (size advisory removed, `72a68cc`) rewrote this delta's surface the same day. Findings
+  on code that 160/850 replaced belong to the landed delta here, and to 160/850 only if they
+  survive its change; say which.
+- 160/750 (marker kinds and finding IDs, `115/080`) introduced the scoped kinds, including the
+  `cold-content` scope this delta makes inert.
+- 160/730 (the shared report contract) owns `report.over_cap_line` and `report.cap_part`, which
+  this delta calls.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. This repo's own `.sizescanignore` matches the harness worktrees nested under `.claude/`, with
+   a comment saying their roadmap copies must not gate this repo's commit. With
+   `evaluate_ignored`, a glob no longer skips a hot-path file. Does a nested worktree's
+   `ROADMAP.md` (or another metered file) now get read and gated from this repo's root, unless
+   the file walk excludes it on its own? Probe it with a fixture.
+2. In `scan_paths`, slots are spent and `cold_over_cap` is charged before the checks that drop a
+   file (a blanket-marked archive store, a file with no reference). Can the over-cap count and
+   the spent slots include items of files that produce no finding?
+3. `files_by_glob` now counts ignored hot-path files that are still gated. Does "N file(s) by
+   .sizescanignore" on the suppressed line now claim a suppression that did not happen?
+4. The docstring dates the ruling 2026-10-05; the board commit that recorded it verbatim is
+   timestamped 2026-10-06 03:49 UTC. Is the docstring's date a local date stored at rest
+   (CONVENTIONS: UTC at rest)?
+5. The README paraphrase ("no repo keeps a flat running log; the board is a list of work and its
+   state, and the detail lives in a standalone file") sits beside the verbatim quote in the
+   module. Does either narrow or widen the quote?
+6. The blast radius was measured on exit codes only. `EVIDENCE.md` §13 says a scanner delta
+   compares per-finding output, never totals. Does an exit-code-only comparison meet that?
+7. Item text is printed raw into hook output and CI logs. A completed item carrying a terminal
+   escape sequence, or a bidirectional-control character, would reach the log unaltered. Is that
+   the house's concern for a tool whose input is the repo's own tracked text?
+8. Does any template, onboarding skill or child-facing doc still tell a repo it may keep a flat
+   log behind `sizescan:allow`, now that the hatch exempts nothing from the gate?
