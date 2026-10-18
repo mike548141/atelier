@@ -28,7 +28,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [CF3's dirty-sibling stop is now stricter than its cause requires —…](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
 - ✅ [DONE 2026-10-18](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
 - [ ] 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
-- [ ] ⏳ [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
+- [ ] [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 

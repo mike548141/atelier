@@ -1,4 +1,4 @@
-- [ ] ⏳ **Remove the two adoption graces once 2026-11-18 has passed.**
+- [ ] **Remove the two adoption graces once 2026-11-18 has passed.**
       Two grace periods were landed on 2026-10-18, both on Mike's answers
       that day, and both end on 2026-11-18. In `tools/board.py` it is the
       LEGACY block (`LEGACY_INDEX_ACCEPTED_UNTIL`, `_item_state_v1`,
