@@ -1,4 +1,5 @@
-- [ ] 🔎 **`ccclose --identifiers` marks a session's own commit
+- [~] 🔎 **`ccclose --identifiers` marks a session's own commit
+      (claimed 2026-10-18-0600, wt: atelier-qr-210-310)
       "unconfirmed" when the message came from a file.** Found 2026-10-18
       by the worker that built `210/290`, measured on that run's own close.
       The evidence tier reads commit subjects from the command text (`-m`, a
