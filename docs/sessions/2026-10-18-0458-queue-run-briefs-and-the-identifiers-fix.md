@@ -1,8 +1,8 @@
 # 2026-10-18 · 0458 UTC — Queue run: five cold-pass briefs, and the identifiers over-credit
 
 **Session:** `8e498ef1-c673-4bc6-a4ff-de0afec2e811`.
-**Tier:** Opus 5.5 orchestrating; two Opus 5.5 brief-writers; one Sonnet 5.5 worker.
-Worktrees `atelier-qr-210-290`, `atelier-qr-briefs-1018`, `atelier-qr-records-1018`.
+**Tier:** Opus 5.5 orchestrating; two Opus 5.5 brief-writers; three Sonnet 5.5 workers.
+Worktrees `atelier-qr-210-290`, `-briefs-1018`, `-115-360`, `-210-310`, `-records-1018`.
 Machine load about 3 on 12 cores at open; three agents at most.
 
 **The brief.** Mike invoked `/atelier:queue-run` bare, so the run took the defaults:
@@ -56,6 +56,64 @@ loaded the skill as it stood before `180/090` landed.
   were correctly kept out, and one of this run's own was unconfirmed because the
   worker committed from a file. 58 ccclose tests green on the rebased head. That
   limit is filed at `210/310`, and the cold pass is queued at `160/960`.
+
+- **`210/310` closed (`e78b6f1`): a commit message read from a file now
+  counts.** This is the residue the `210/290` close filed, taken while the tool
+  was fresh. When a session writes its own message file and commits with
+  `-F <path>`, the commit is credited. `160/960` widens to cover it, since it
+  is the same files and the same authoring session. On this run's final close
+  the tool credited all 15 of its commits, and put the 12 from the parallel
+  session on the unconfirmed line.
+- **Filed `210/330`.** The identifiers block listed a worktree under a path
+  with the literal `$W` in it, a path that never existed.
+
+## Stopping
+
+The run stopped with the queue not drained, which matches none of the four
+named stop conditions exactly. It is recorded as a judgement, not a condition.
+The items it could have taken next are hand-up findings that propose new house
+rules "for the house to weigh", or that need a ruling first. Each would start
+from a fresh read of doctrine this run had not loaded. Those items were not
+triaged one by one, so "everything left is blocked" is not claimed. A further
+run starts from the board as it stands.
+
+## For the principal
+
+- 🎯 **`320/450` part 1 needs a ruling before it is built.** `board.py` reads
+  only an item's first physical line, so a wrapped title or claim does not show
+  in the index. This run's own claims hit it. The fix is small. But every child
+  runs `board.py` from atelier's `main`, so changing the generated index makes
+  every child's committed `ROADMAP.md` read stale at its next CI run, until that
+  child rebuilds. Recommended: build it with a one-release grace, in which
+  `--check` accepts both the old and the new projection, and say so in the
+  fleet notice.
+- ⏳ **Seven `⏳` cold passes are queued: `160/900`–`960`.** Five are briefed,
+  and `950` and `960` are not. Each needs a cold Fable session that this run
+  neither starts nor instructs. Starting one is the principal's call.
+- 🚩 **`115/360` deliberately did not build the item's own proposed refusal**
+  (see its close note). This is a judgement the cold pass at `160/950` can
+  overturn.
+- PR #97 is open and held for the principal, as before. This run did not touch
+  it.
+
+## Identifiers
+
+- **Session**: `8e498ef1-c673-4bc6-a4ff-de0afec2e811` · Opus 5.5 · 2026-10-18
+  04:58 to about 06:50 UTC.
+- **Commits** (on `main`, from `ccclose`, credited on evidence): `f0d6238`
+  `a9f11ff` `aee205b` `217ff58` `71dc4ff` `5a19f32` `74c5420` `692c04a`
+  `d6e80c1` `0462173` `621d18b` `a66f583` `bddad8e` `e78b6f1` `95585c7`, and
+  this close commit.
+- **Pull requests**: none.
+- **Board**: completed `115/360`, `210/290`, `210/310`. Created `160/950`,
+  `160/960`, `210/310`, `210/330`. Briefs written for `160/900`, `910`, `920`,
+  `930`, `940`. Nothing is left claimed.
+- **Worktrees** (all removed, branches deleted): `atelier-qr-210-290`,
+  `atelier-qr-briefs-1018`, `atelier-qr-115-360`, `atelier-qr-210-310`, and
+  `atelier-qr-records-1018`, which is removed after this commit.
+- **Agents** (5, all reported): two Opus 5.5 brief-writers, three Sonnet 5.5
+  workers.
+- **Other repos**: none touched.
 
 ## Recorded against itself
 

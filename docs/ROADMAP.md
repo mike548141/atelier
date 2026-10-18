@@ -397,6 +397,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/300-plain-ccclose-ends-with-the-identifiers-block.md)
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/310-ccclose-cannot-read-a-commit-message-from-a-file.md)
 - [ ] 🔎 [ccclose --identifiers misses a session's commits whose author](roadmap/210-instruments-open-features/320-ccclose-misses-author-backdated-commits.md)
+- [ ] 🔎 [ccclose lists a worktree whose path held a shell variable](roadmap/210-instruments-open-features/330-ccclose-lists-a-worktree-path-with-an-unexpanded-variable.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
