@@ -303,7 +303,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: no hatch silences sizescan's cold-content](roadmap/160-doctrine-review-owed/790-rule-4-cold-pass-queued-sizescan-cold-content-hatches.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the staged diff read by its structure](roadmap/160-doctrine-review-owed/800-rule-4-cold-pass-queued-staged-diff-structural-reader.md)
 - [ ] ⏳ [Rule-4 cold pass queued: indexscan's date rule (320/430).](roadmap/160-doctrine-review-owed/810-rule-4-cold-pass-queued-indexscan-date-rule.md)
-- [ ] ⏳ [Rule-4 cold pass queued: ADR 0008's boundary amendment and the](roadmap/160-doctrine-review-owed/820-rule-4-cold-pass-queued-adr-0008-boundary-amendment.md)
+- [ ] 🛑 [Rule-4 cold pass queued: ADR 0008's boundary amendment and the](roadmap/160-doctrine-review-owed/820-rule-4-cold-pass-queued-adr-0008-boundary-amendment.md)
 - [ ] 🎯 [Rule-4 cold pass queued: staged findings at their real line](roadmap/160-doctrine-review-owed/830-rule-4-cold-pass-queued-staged-real-line-numbers.md)
 - [ ] ⏳ [Rule-4 cold pass queued: licenscan's warn tier made real](roadmap/160-doctrine-review-owed/840-rule-4-cold-pass-queued-licenscan-advisory-tier.md)
 - [ ] ⏳ [Rule-4 cold pass queued: sizescan's size advisory removed](roadmap/160-doctrine-review-owed/850-rule-4-cold-pass-queued-size-advisory-removed.md)

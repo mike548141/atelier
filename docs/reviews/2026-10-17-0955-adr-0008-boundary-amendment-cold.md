@@ -589,3 +589,165 @@ plus the sweep it should have carried.
       documented behaviour for web-flow signing under required signatures from a host that can
       reach the docs; exercise "unsigned push is refused" on a **scratch** repo carrying the same
       ruleset — never on atelier's `main`.
+
+### Reconcile — after receiving the sibling (2026-10-18T00:00Z)
+
+Phase-1 text above is unrevised. Opened at phase 2, in this order: the sibling (now in the tree
+at the path the brief names), the queue pointer `160/820`, the intent record
+`docs/sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md`, the commissioning
+section `140` (README, `140/010`, `140/020`), the earlier pass's pointer `160/090`, the landing
+commit's message body, the board's `420/020`, and — because the section's cross-references
+resolve nowhere else — the AR verdict `docs/reviews/2026-09-25-0715-ap-rulings-applied-cold.md`
+at its AR1, AR2, AR4 and AR8 passages and its reconcile. Not opened: `docs/SESSIONS.md`,
+`docs/ROADMAP-DONE.md`, the other prior verdicts the sibling lists by filename. Peer activity in
+the shared checkout (another pass's sibling deleted and brief modified) was left alone.
+
+**Cross-references, closed out.** `AR1`, `AR2` and `AR8` resolve to the 2026-09-25 verdict and
+say what the section attributes to them: AR1 (MAJOR) is the false "no ruleset" amendment; AR2
+(MODERATE) is the boundary row that cites the stale sentence and never reads the bypass; AR8
+(MAJOR, formed at that pass's reconcile) is the 2026-08-23 ruling taken on a stale briefing.
+`140/010` records the build on 2026-09-18 (`15bc1e7`) and "Noticed" the ADR's stale sentence;
+`140/020` carries the pre-change draft, the three options put to Mike, his pick ("Land draft +
+drop bypass"), and records it as an **answer, not a ruling** — the `420/020` discipline, kept.
+The ADR's own "on Mike's answer … after he was re-briefed" uses the same word. The intent record
+and the commit body agree with the ADR on every fact I re-drove (ruleset read back, bypass `[]`,
+30 of 30 verified first, pass queued at `160/820`).
+
+**Per finding, against the seeded questions and the records:**
+
+- **BY1 — anticipated by the sibling's Q2, Q3 and Q7 in part; the mechanism is new.** Q3 asked
+  whether platform-signed merges pass the trust list and whether the hand-up path still works;
+  the answer (they do not and it does, by GitHub signing the merge) is one half of BY1. The other
+  half — that `required_signatures` accepts *any* GitHub-verified key, shown live by `911827f` —
+  no seeded question reached. The records sharpen the finding rather than soften it: the
+  pre-change draft in `140/020` said the signing leg "does **not** guard against a compromise of
+  the owner's own token"; dropping the bypass turned that sentence into "forces that attacker to
+  hold the signing key too", and the commit body and intent record both say "signed commits bind
+  every account". The inference — no bypass, therefore the owner's key is required — is the step
+  that is wrong, and it was made in three records at once. AR1's own recurrence-prevention
+  counsel (carry the API read verbatim beside the prose) was followed only as far as endpoint
+  names and a date. **BY1 stands at MAJOR, unchanged.**
+- **BY2 — repeats AR2 in part, as the sibling's overlap note predicted; say so.** AR2 (still the
+  principal's to rule, per `160/090`) already found that the row's docstring cites the stale
+  sentence as its authority and never reads the bypass. What is new at this landing is that the
+  ADR now says the *opposite* of the sentence the code quotes, so the staleness became a
+  contradiction in the same commit that could have swept it. Q1 (the snapshot that nothing
+  re-reads; the AR8 shape one layer down) is answered by the same facts: the leg this amendment
+  strengthened has no machine tie, and the amendment says so. **Stands at MODERATE**, recorded as
+  a restatement of AR2's second half plus the sweep miss, not a re-raise.
+- **BY3 — not anticipated.** No seeded question or record touches `SIGNING.md`'s account of the
+  two planes' strengths. **Stands.**
+- **BY4 — not anticipated.** The intent record notes "CHANGELOG entries were written for all
+  three guard changes" of that run and none for `140/020`; the omission is confirmed, not
+  explained. **Stands.**
+- **BY5 — repeats AR4 (the `review:` line, minor, still open) and adds the present-tense
+  sentence.** AR1's counsel also asked for "a one-line forward pointer" at the superseded site;
+  the landing chose "left above as written" and took no header-level marker either. Say so rather
+  than re-raise: **stands at minor**, as AR4's restatement plus the new surface.
+- **BY6, BY7 — not anticipated; code-altitude harvest, untouched by the records.** Stand.
+- **BY8 — AR1's counsel asked for exactly this ("Correct `115/180`'s close note the same way")**
+  and the answer did not include it. Stands as a note.
+- **Q5 (is "30 of 30" evidence that enforcement was safe to switch on?)** Yes, for the question it
+  answers: whether the active committers' pushes would be refused. The predicate it uses —
+  GitHub-verified — is exactly the one the platform applies, so it is the right check for that
+  purpose, and the right check for nothing stronger (BY1). Older history is outside the rule's
+  reach (it binds new pushes), and the ruleset's condition is the default branch only, so other
+  refs are unprotected and unaffected; the section does not say either, and need not.
+- **Q6 (answer or ruling?)** The records keep the distinction: `140/020` says "That is his
+  *answer* to the question, recorded as such", the ADR says "answer", the commit body says "He
+  answered". The ADR's "which Mike ruled for on 2026-08-09" matches `140/README`'s "Mike's
+  ruling, 2026-08-09"; whether that one was a ruling or an answer is outside my evidence. No
+  finding.
+
+#### Finding formed at reconcile
+
+**BY9 — minor (formed at reconcile, from the sibling's Q4 and Q7) — two of the things the
+section calls legs or controls are detection after the fact, and it does not say so.** "Review
+on the registry — post-hoc" is kept as a *leg* of the control the Consequences clause names, and
+"public visibility, under which every push is published and can be inspected" is listed among the
+owner account's *controls*. Both are honest as far as they go ("post-hoc", "can be inspected"),
+and both detect only after every child's CI has already run the pushed code — the exposure the
+clause is about. Neither prevents anything. The section's framing ("three legs, three strengths")
+lets a reader count them as strengths of the control; one sentence stating that their preventive
+strength against the supply-chain exposure is nil, and that they are the record by which a
+compromise would later be found, would state them at true strength. Minor because the words used
+are not false; it is the category that is generous. *Counsel:* name them as detection, not
+control.
+
+#### Overall, restated
+
+**PASS-WITH-FINDINGS — MAJOR 1 · MODERATE 3 · minor 4 · note 1** (BY9 added at reconcile; no
+phase-1 severity moved). The headline stands: the signing leg's residual-exposure sentence
+overstates what `required_signatures` buys, shown live on `main`; the records show the overclaim
+entering three places in the same close.
+
+- [ ] BY9 — state post-hoc review and public visibility as detection, not control.
+
+## Deferred material — folded in at the verdict
+
+# Sibling to the ADR 0008 boundary-amendment cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-0955-adr-0008-boundary-amendment-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md` —
+  **not opened by the brief-writer**.
+- Commissioning board items (single grep lines seen, never read whole): `140/020` (ADR 0008's
+  clause is now closer to true), the `140` section README (the platform half of AP1 applied on
+  2026-08-09), `140/010` (the machine-check half), and `160/090` — the pointer of the earlier pass
+  whose findings AR1, AR2 and AR8 this delta answers; one of its lines records AR1 answered on
+  2026-10-16 and AR2 to AR7 still standing.
+- The landing commit's message body (read by the brief-writer): it says Mike was re-briefed on
+  AR1 and AR8 (the 2026-08-23 amendment denied a ruleset active since 2026-08-09), quotes his
+  answer as "land draft and drop bypass", says the ruleset now has no bypass actor, read back, so
+  signed commits bind every account, and that AP1 stays open because the owner can still edit the
+  ruleset.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md`
+- `docs/reviews/withdrawn/2026-07-26-0647-adr0008-called-not-copied-cold.md`
+- `docs/reviews/2026-07-28-0123-track-a-application-cold.md`
+- `docs/reviews/2026-08-09-0824-ep-application-cold.md` — names AP1
+- `docs/reviews/2026-09-25-0715-ap-rulings-applied-cold.md` — names AR1; the likely source of
+  AR1, AR2 and AR8
+
+## The pointer's own lens hints
+
+"with a live platform read" in the pass type, and the delta naming the ruleset's
+`bypass_actors` beside the ADR section. Otherwise refs-only.
+
+## Overlap with sibling passes of this batch
+
+None of this run's other passes touches ADR 0008 or the ruleset. AR2 (the boundary row does not
+read the bypass list) is open on 160/090's cycle and is restated in the delta as "still open";
+a finding here that repeats it should say so rather than re-raise it.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. The section is a snapshot of platform state written as doctrine. Nothing in git re-reads
+   `bypass_actors`, and the machine check explicitly does not. If the owner re-adds a bypass
+   later, which surface goes false, and what notices? Is this the same "stale sentence as
+   authority" shape AR8 recorded, rebuilt one layer down?
+2. "In force for every account, the owner's included" sits beside "the owner account can still
+   edit or delete the ruleset". Is the first phrase true in any sense an attacker cares about, and
+   does a reader of the leg list alone come away with the right strength?
+3. With `required_signatures` and no bypass, which write paths to `main` now fail? Platform-merged
+   PRs are signed by the platform's key, not the trust list in `SIGNING.md`; does `signscan`'s
+   trust list accept those, and does the hand-up-PR landing path still work?
+4. "Review on the registry — post-hoc" is listed as a leg of the control. Is a review that never
+   gates the push a control on supply-chain exposure, or a record of it? Does the section's own
+   word "post-hoc" do enough?
+5. "Before the change, 30 of the 30 latest commits on `main` were verified": a window chosen at
+   the time of writing, with no re-run recorded. Is it evidence that turning on enforcement was
+   safe, and what about older history and other refs?
+6. The section says it was landed "on Mike's answer … after he was re-briefed". Is that answer a
+   ruling or an answer (see the board's 420/020 discipline), and does the ADR's wording claim
+   more than the quoted words carry?
+7. "Public visibility, under which every push is published and can be inspected" is offered as a
+   control on the owner account. Does publication detect anything before every child's CI has
+   already run the pushed code?
