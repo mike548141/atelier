@@ -95,6 +95,19 @@ governing who may spawn it:
    the one arrangement that may honestly be called structural. Call the rest
    what it is: a strong default with an audit trail.
 
+   **The deferral has side doors: every record a reviewer reads before the
+   brief.** A reviewer's onramp reads the tail of the session log, the board
+   pointer and recent commit subjects before it opens the brief. So any of
+   those, written by the author or brief-writer while the review is pending,
+   names deferred material **by file and count only, never by topic**: "a
+   held-back sibling with four questions and two facts", not what they are
+   about. Grounded in a child, 2026-10-18 (`320/720`): a brief-writer's close
+   entry gave the headlines of the two facts it had held back, and the cold
+   reviewer read them at onramp, before the brief, and disclosed it. Neither
+   steered a finding, but the leak ran through a door this rule did not
+   watch. No scanner checks this: a topic is meaning, not a pattern. The
+   commit-message door is `130/030`'s.
+
    **Split for the duration, merged at rest.** When the verdict lands, the
    deferred file is folded into the brief below the verdict and deleted, so
    the durable record keeps the one-file property (`EVIDENCE` §9) and the

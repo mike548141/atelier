@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-18-0025, wt: atelier-qr-180-plugin)
+- [x] **FIXED 2026-10-18** (wt: atelier-qr-180-plugin)
       🔎 **Hand-up: a brief-writer's session log tells the next reviewer what it
       held back** `[doctrine]`. Handed up from a private child on 2026-10-18
       under `PROPAGATION.md` § *Pointing up*: one finding, from a rule-4 cold
@@ -33,3 +33,11 @@
       carries.
       review: not warranted — a hand-up of one finding; the cold pass that
       formed it is itself the review, and the fix is atelier's to decide.
+
+  **Closed 2026-10-18** by a Mike-opened Opus 5.5 queue run. Taken as
+  suggested, minus the scanner. `REVIEW.md` rule 1 gains *side doors*: any
+  record a reviewer reads before the brief (session-log tail, board pointer,
+  commit subjects) names deferred material by file and count only, never by
+  topic. `RECORD.md`'s `SESSIONS.md` bullet points at it. No `reviewscan`
+  line, because a topic is meaning and no pattern can tell "two facts" from
+  what the facts say. Rule-4 cold pass queued at `160/910`.

@@ -63,7 +63,10 @@ stopped instead of re-deriving it:
   (Mike's ruling, 2026-10-05: no arbitrary line or size limits) — so a regression
   back to a flat log is caught at review, not by a number. (Grounded 2026-07-14:
   the cold review found the append-only rule and the budget colliding with no
-  sanctioned move for an index that had already done the split.)
+  sanctioned move for an index that had already done the split.) An entry
+  written while a review is pending names any deferred material by file and
+  count only, because the reviewer reads this tail before the brief
+  (`REVIEW.md` rule 1, *side doors*).
 - **Detail lives on demand** — when a session is substantial, its full detail
   goes in a `docs/sessions/<date>-<HHMM>-<slug>.md` file and the index carries
   a one-line pointer. (`HHMM` is the session's start time, 24-hour, in UTC —
