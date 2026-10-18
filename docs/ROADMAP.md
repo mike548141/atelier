@@ -73,7 +73,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Parallel workers in one run share a scratchpad path, and one](roadmap/020-policy-as-code-programme-five-tracks-mik/390-parallel-workers-share-one-scratchpad-path.md)
 - ✅ 🔥 [harvestscan's vanished-item check is quadratic in the number of](roadmap/020-policy-as-code-programme-five-tracks-mik/400-harvestscans-similarity-pass-is-quadratic.md)
 - [ ] 🔎 [GUARDS.md § Adoption assumes every guard can install](roadmap/020-policy-as-code-programme-five-tracks-mik/410-adoption-assumes-advisory-first.md)
-- [~] (claimed 2026-10-18-0035, wt: atelier-qr-020-420) [(untitled)](roadmap/020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md)
+- ✅ [BUILT 2026-10-18](roadmap/020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -313,6 +313,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ccmail stops sending the operator to](roadmap/160-doctrine-review-owed/890-rule-4-cold-pass-queued-ccmail-auth-advice.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the queue-run skill carries the whole](roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the deferral's side doors (320/720).](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the close declaration covers subagents](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
 
 ## build/ layer — open strands
 

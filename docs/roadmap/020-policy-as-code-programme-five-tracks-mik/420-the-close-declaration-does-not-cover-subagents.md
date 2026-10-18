@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-18-0035, wt: atelier-qr-020-420)
+- [x] **BUILT 2026-10-18** (wt: atelier-qr-020-420)
       🔎 **The close declaration does not cover subagents: nothing checks that
       every agent a session launched has finished before "ready to close", and
       closing the tab kills a running agent silently** Filed 2026-10-16 (UTC)
@@ -57,3 +57,18 @@
       **Not in scope:** making the harness refuse to close a tab with agents
       running; that is not ours to build. Doctrine for children follows by
       the usual propagation once atelier's text lands.
+
+  **Closed 2026-10-18** by a Mike-opened Opus 5.5 queue run; all three parts.
+  (1) `ccclose` check 12, *Subagents finished* (commit `a738f85`), built by a
+  Sonnet worker to this item's spec and read by the orchestrator before the
+  merge. It reads the three notification carriers and the foreground
+  `tool_result`. A killed or stopped agent passes and is named. Problems are
+  listed first, so the cap cannot hide one. Instruments suite 458/458 at the
+  rebased head, man page lint-clean. Run live against the orchestrating
+  session while its two workers ran, it reported both as ❌ cut mid-flight,
+  which is the right answer for a live agent. One judgement noted: the
+  `finished` field some real `.meta.json` files carry is ignored, because this
+  item defines "finished" from the agent's own transcript. (2) `RECORD.md` and
+  (3) `CONCURRENCY.md`, commit `089fcdc`. Cold pass queued at `160/920`.
+  `ccclose` is still not on the machine's path; installing it there is the
+  principal's.
