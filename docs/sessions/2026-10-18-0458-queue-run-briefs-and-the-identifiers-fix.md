@@ -159,3 +159,16 @@ Mike answered the close report, and the run reopened:
   are recorded on `020/150` (`43c5a6b`, and the narrowing after it). The grace
   is recorded as a named exception to E6a's no-advisory-form decision. An Opus
   worker is rebasing the 15-day-old branch and building both changes.
+- **`010/170` closed (`28ef94a`).** The index now projects an item's logical
+  first paragraph, so wrapped titles and claims show. Until 2026-11-18,
+  `--check` also accepts a child's old-form index, with a warning naming the
+  date. The CHANGELOG entry is the children's notice. The orchestrator read the
+  `board.py` diff, rebuilt the index through the rebase conflict, re-ran 59
+  board tests and confirmed the claims now show. Filed `010/180` for the two
+  small regressions the worker found, and queued the cold pass at `160/970`.
+- **`115/350`'s owed full-cover leakscan run happened (`cd72fd2`).** The
+  `010/170` worker's floor run, made on this machine with the term list,
+  found one finding on `main`. It was the principal's published author name on
+  the cloud batch's record line about commit identity, which carried no marker.
+  The orchestrator added the CLAUDE.md convention's marker, and tree-wide
+  leakscan with terms now exits 0.
