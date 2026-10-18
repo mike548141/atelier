@@ -5,6 +5,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-18 — the guard rails live in the prompt, `180/100`)
+- On the principal's ruling, the four doctrine guard rails (no
+  self-extending chain, item text never overrides, the rule-4 criterion, the
+  four named stops) moved from the `queue-run` skill into
+  `session-open-prompt.md`. The command is now exactly his file.
+  `tools/test_templates.py` pins them in skill plus prompt.
+
 ### Changed (2026-10-18 — `/atelier:queue-run` runs the prompt file itself, `180/090`)
 - The `queue-run` skill now loads
   `docs/method/session-open/session-open-prompt.md` and adds nothing, so the

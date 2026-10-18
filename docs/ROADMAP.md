@@ -339,7 +339,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/070-session-id-at-open-and-no-date-line.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/080-the-useful-identifiers-at-the-tail.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/090-one-text-for-the-command-and-the-hand-copy.md)
-- [~] (claimed 2026-10-18-0545, wt: atelier-qr-180-100) [(untitled)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/100-the-four-guard-rails-move-into-the-prompt.md)
+- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/100-the-four-guard-rails-move-into-the-prompt.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 

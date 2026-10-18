@@ -486,6 +486,7 @@ class LensRosterParityTest(unittest.TestCase):
 
 
 QUEUE_RUN_SKILL = ROOT / "skills" / "queue-run" / "SKILL.md"
+QUEUE_RUN_PROMPT = ROOT / "docs" / "method" / "session-open" / "session-open-prompt.md"
 CONCURRENCY = ROOT / "docs" / "method" / "CONCURRENCY.md"
 
 
@@ -513,7 +514,11 @@ class QueueRunSkillTest(unittest.TestCase):
     shipped twice; 2026-07-23 QR6 ruled the pin mandatory at birth)."""
 
     def setUp(self):
-        self.text = QUEUE_RUN_SKILL.read_text()
+        # The command is the skill plus the prompt file it loads (180/090);
+        # the safety pins live in the prompt on Mike's ruling (180/100), so
+        # they are checked in the two together, as a session receives them.
+        self.text = (QUEUE_RUN_SKILL.read_text() + "\n"
+                     + QUEUE_RUN_PROMPT.read_text())
         self.flat = " ".join(self.text.split())
 
     def test_marked_as_stamped_copy(self):
