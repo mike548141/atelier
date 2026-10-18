@@ -324,7 +324,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md)*
 
 - ✅ [INSTALLED AND CARRIED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md)
-- [ ] [HAND-UP from a private child (faves) — a clean worktree plus a pushed](roadmap/180-orchestrated-queue-runs-from-hand-carrie/020-teardown-inferred-from-git-is-not-the-same-as-stopped.md)
+- [~] (claimed 2026-10-18-0016, wt: atelier-qr-180-plugin) [(untitled)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/020-teardown-inferred-from-git-is-not-the-same-as-stopped.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/030-the-canonical-session-open-prompt-is-not-the-one-in-use.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)

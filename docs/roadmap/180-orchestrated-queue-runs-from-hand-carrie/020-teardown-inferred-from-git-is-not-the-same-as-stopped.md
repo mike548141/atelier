@@ -1,4 +1,5 @@
-- [ ] **HAND-UP from a private child (faves) — a clean worktree plus a pushed
+- [~] (claimed 2026-10-18-0016, wt: atelier-qr-180-plugin)
+      **HAND-UP from a private child (faves) — a clean worktree plus a pushed
       HEAD says "nothing unpushed", not "the agent has stopped", and reading it
       as the latter can destroy a live worker's working directory.**
 
