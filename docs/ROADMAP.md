@@ -301,7 +301,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Estate survey: which repos hold Fable-dependent work, and which](roadmap/160-doctrine-review-owed/770-estate-survey-fable-work-and-unwritten-briefs.md)
 - [ ] 🛑 [Rule-4 cold pass queued: agreement is not corroboration, minted in](roadmap/160-doctrine-review-owed/780-rule-4-cold-pass-queued-agreement-is-not-corroboration.md)
 - [ ] ⏳ [Rule-4 cold pass queued: no hatch silences sizescan's cold-content](roadmap/160-doctrine-review-owed/790-rule-4-cold-pass-queued-sizescan-cold-content-hatches.md)
-- [ ] ⏳ [Rule-4 cold pass queued: the staged diff read by its structure](roadmap/160-doctrine-review-owed/800-rule-4-cold-pass-queued-staged-diff-structural-reader.md)
+- [ ] 🎯 [Rule-4 cold pass queued: the staged diff read by its structure](roadmap/160-doctrine-review-owed/800-rule-4-cold-pass-queued-staged-diff-structural-reader.md)
 - [ ] ⏳ [Rule-4 cold pass queued: indexscan's date rule (320/430).](roadmap/160-doctrine-review-owed/810-rule-4-cold-pass-queued-indexscan-date-rule.md)
 - [ ] 🛑 [Rule-4 cold pass queued: ADR 0008's boundary amendment and the](roadmap/160-doctrine-review-owed/820-rule-4-cold-pass-queued-adr-0008-boundary-amendment.md)
 - [ ] 🎯 [Rule-4 cold pass queued: staged findings at their real line](roadmap/160-doctrine-review-owed/830-rule-4-cold-pass-queued-staged-real-line-numbers.md)

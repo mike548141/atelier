@@ -586,3 +586,174 @@ fragile to editors; the `" "` escape would be safer.
 - [ ] SX6 — stream the staged diff; bound per line; a `BoundedMemory` test for the staged plane.
 - [ ] SX7 — one home for the filter and 115/280 rationale; refresh secretscan's docstring.
 - [ ] SX8–SX10 — record; no action required unless the principal wants `--no-relative` for free.
+
+### Reconcile
+
+**Written:** 2026-10-18T00:30Z, after phase 1 was committed as `5f3e3b8` and the orchestrator
+released the sibling. Opened at this step, in this order: the sibling; the queue pointer
+(`160/800`); the commissioning item `115/280`; the intent record
+`docs/sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md`; the landing and merge
+message bodies; and, of the prior verdicts the sibling names, the three that have *run*
+(`2026-09-25-0715-staged-plane-check-cold`, `2026-09-25-0715-secretscan-stream-pathscan-roots-cold`,
+`2026-10-04-2215-linear-line-reader-cold`), read by grep for the surfaces my findings touch and
+then at the passages found. The three `2026-10-16-1551-*` files the sibling lists are **unrun
+briefs of live sibling passes**; I left them closed — they hold no verdict to reconcile with, and
+their asks are another pass's framing. Phase-1 text above is unrevised.
+
+**Against the seeded questions.**
+
+1. *textconv not pinned* → **SX4** found it independently and drove it: an upper-casing driver
+   reached the parser under `--no-ext-diff`. The sibling's sharper framing — a hostile tracked
+   `.gitattributes` plus local config — is right that the attribute alone cannot name a textconv
+   command (that lives in config), but the attribute alone *can* hide a file outright with
+   `-diff`, which is the stageable half and the one I rate.
+2. *`diff.relative`* → **SX8**: inert at the hook because git runs hooks from the work-tree root
+   (driven at the root: both files present); a hand run from a subdirectory would narrow silently;
+   `--no-relative` is free.
+3. *`T` filtered* → **SX3**, driven in both directions, through a real commit, with the remedy
+   verified. The sibling's parenthesis ("the filter predates this delta; the reader carries it")
+   is the severity reasoning I used.
+4. *lossy path decode* → **SX8**: the U+FFFD path is a dict key and a glob input only; no caller
+   passes a parsed path back to git (checked all three `_main`s), so the only effect is an ignore
+   glob for that exact name failing to match while the content is still scanned.
+5. *legitimate shapes refused* → the three the sibling names are all fine (unmerged paths are
+   filtered and `git commit` refuses before hooks anyway; a submodule prints one `Subproject` line
+   or, under `diff.submodule=diff`, a well-formed nested diff; function context on `@@` is matched
+   by the anchored prefix). The refusal that *is* reachable is **SX1**, which the seeded list did
+   not reach: a presentation setting, not a repository state.
+6. *callers feeding non-`STAGED_DIFF_CMD` text* → none in production; the only other feeders are
+   `test_report.raw_diff` (the same command minus the filter, same prefixes) and the six
+   hand-typed refusal fixtures. Discharged.
+7. *the equivalence claim's change set* → the record does not list it (the commit body says "a
+   realistic change set"; the item says "a realistic scratch change set"); I re-ran my own
+   (four files, five shapes, three planted findings): byte-identical. It does not and cannot cover
+   the brief's whole shape list, and for the shapes in SX3–SX5 "identical" means identically
+   absent on both sides — a true statement that is not cover.
+
+**Against the intent record and the commissioning item.** The record's `115/280` entry matches
+what I found: the shared reader had the hole; the orchestrator reproduced old-clean/new-blocked
+(so did I, on all three guards); `115/300` was filed from the same probe (I describe `f4afb7a`'s
+effect above). Its **memory note** — "the reader holds the staged diff in memory, as the old code
+did, so this is no regression against the bounded-memory rule. Streaming that plane would be a
+separate item" — agrees with SX6's measurement and reasoning on both counts; SX6 stands at
+MODERATE because the plane, not the delta, is what a committer meets. The item's "1,859 Python and
+411 Node tests pass" has become 1916 and 447 at HEAD, all passing. The commissioning item's ask
+("check whether the shared reader has the same hole inside a hunk") was answered; nothing in it
+asked about the filter or the attribute surface, so SX3–SX5 are harvest, not scope-miss.
+
+**Against the commit bodies.** Both are accurate accounts. The landing body's "the command pins
+`--src-prefix=a/ --dst-prefix=b/ --no-ext-diff` so a user's `diff.noprefix` / `mnemonicPrefix`
+cannot change the header shape" is true and is exactly the breadth it claims; what it does not
+claim (and SX4/SX1 cover) is the rest of the configuration surface. Its test list ("multi-file,
+rename, quoted and non-ASCII paths, new, deleted, binary, mode change, no newline, CRLF") is
+what `ParseAddedLinesTest` drives — confirmed, and the posed-header tests fail on the old code as
+it says.
+
+**Against the prior verdicts.** The 2026-10-04 linear-line-reader pass's **LN1 (MAJOR)** — the
+staged plane never scanned lines after a separator because `splitlines` split on CR, FF, NEL and
+the Unicode separators — carried the counsel "decode the diff as bytes … split on LF only … treat
+`+++ ` as a header only before the first hunk header of a file; pin each separator … with a
+staged-plane test". This delta is that counsel built, and my shape table re-drives every
+separator LN1 named: all kept on one line. Its **LN5 (minor)** — a staged file that is not valid
+UTF-8 crashes all three guards — is the "improvement the delta did not claim" in lens 2: closed
+here by `errors="replace"`. Neither closure is recorded against LN1/LN5 in the records I opened;
+that bookkeeping is the principal's and the applier's, noted for the follow-ups. The 2026-09-25
+passes concern the whole-tree bound (26.3 MB measured there) and the board/harvest planes; nothing
+in them contradicts SX6, which measures the *staged* plane the bound never covered.
+
+**Against the sibling's overlap list.** `160/760` owns `diff_header_path`/`unquote_c`: I drove
+every quoted shape through them and found no defect, so nothing here reaches that pass. `160/830`
+(`f4afb7a`): described in lens 2; HEAD's two callers are byte-for-byte its output. `160/720`/`730`
+share files; no finding of mine is about the gates or the report contract.
+
+**Finding formed at reconcile.**
+
+**SX11 — note (formed at reconcile) — The unbounded staged plane was known and not filed.** The
+intent record says "streaming that plane would be a separate item", and the run's close lists what
+it filed (`115/290`, `115/300`) — no such item. A lesson that changes nothing was not harvested
+(`00-APEX.md`, *Harvest, then encode*). SX6 is where it should land; this note records that the
+author saw it first.
+
+**Overall line, restated:** PASS-WITH-FINDINGS — 0 MAJOR · 5 MODERATE · 2 minor · 4 note (SX11
+added at reconcile). Headline unchanged: SX1.
+
+## Deferred material — folded in at the verdict
+
+*The sibling `2026-10-17-0930-staged-diff-structure-cold.deferred.md`, verbatim (its own H1 kept),
+folded here at phase 2 and deleted from the tree, per `REVIEW.md` rule 1 (split for the duration,
+merged at rest).*
+
+# Sibling to the staged-diff structural reader cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-0930-staged-diff-structure-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md` —
+  **not opened by the brief-writer**.
+- Commissioning board item (head line seen, never read whole): `115/280` (an added line can pose
+  as a diff header in secretscan's staged plane, found 2026-10-05 by the `260` worker).
+- The landing commit's message body (read by the brief-writer): it describes the hole (an added
+  line whose text begins `++ ` prints as `+++ …`, moved attribution of later lines to a posed
+  name and was itself dropped, so a posed ignored name hid real lines on a blocking guard); says
+  `diff_header_path` narrowed *what* counts as a header but not *where*, so conflictscan and
+  leakscan had the hole too; gives the counts-based design and its reason ("the counts are what
+  git used to write the body"); lists the fail-closed cases; says two further forging inputs were
+  closed (byte split on newline only; prefixes and `--no-ext-diff` pinned against a user's
+  `diff.noprefix` or `mnemonicPrefix`, noting secretscan used to accept any prefix as written);
+  and claims old-against-new staged output byte-identical on "a realistic change set" except for
+  the posed case, with the whole-tree planes identical.
+- The merge's message body: the orchestrator read the diff, re-ran the four test files and
+  reproduced the hole independently (old clean, new blocked) before merging; rebuilt fresh after
+  a 07:35 UTC crash.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-09-25-0715-staged-plane-check-cold.md`
+- `docs/reviews/2026-09-25-0715-secretscan-stream-pathscan-roots-cold.md`
+- `docs/reviews/2026-10-04-2215-linear-line-reader-cold.md`
+- `docs/reviews/2026-10-16-1551-git-quoted-paths-cold.md` — an unrun 2026-10-16 brief on
+  `diff_header_path`, which this reader calls (another pass's framing)
+- `docs/reviews/2026-10-16-1551-shared-report-contract-cold.md` and
+  `docs/reviews/2026-10-16-1551-scanner-rule-gates-cold.md` — unrun 2026-10-16 briefs on the same
+  files; the brief-writer read the latter's ask half as a template (disclosed in the brief)
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only.
+
+## Overlap with sibling passes of this batch
+
+- 160/760 (git-quoted paths, `115/260`) owns `diff_header_path` and `unquote_c`; this reader
+  depends on both.
+- 160/830 (staged findings at their real line, `f4afb7a`) changed how conflictscan and leakscan
+  use this reader's line numbers.
+- 160/720 (scanner gates) and 160/730 (report contract) share `leakscan.py`, `secretscan.py` and
+  `report.py`.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. `STAGED_DIFF_CMD` pins `--no-ext-diff` but not `--no-textconv`. A `.gitattributes` diff
+   driver with a text conversion configured would change what `git diff --cached` prints for a
+   file's added lines. Can a committer, or a hostile tracked `.gitattributes` plus local config,
+   make a guard scan converted text instead of the bytes being committed?
+2. `diff.relative` in git config restricts `git diff` to the current directory and makes paths
+   relative to it. The command does not pass `--no-relative`. If the hook or a caller runs from a
+   subdirectory, are files outside it silently absent from the scan?
+3. `--diff-filter=ACMR` leaves out `T` (type change). Is a file changed from a symlink to a
+   regular file with new content scanned? (The filter predates this delta; the reader carries it.)
+4. Headers and lines are decoded with `errors="replace"`. With `core.quotePath=false`, a path
+   holding an invalid UTF-8 byte arrives raw and is decoded lossily: does the attributed path
+   still match ignore globs, path filters and later `git` arguments?
+5. Every `DiffReadError` is exit 2 on a blocking guard. Is there any legitimate staged change git
+   prints in a shape the reader refuses (unmerged paths mid-merge, a submodule, a hunk header
+   with unusual function context), so that every commit of that shape is refused until someone
+   edits the tool?
+6. The old secretscan accepted any header prefix "as written"; the new reader refuses a header
+   that is not `b/…` or `/dev/null`. The pin makes that safe for git's own output. Is any caller
+   or test feeding the parser text not produced by `STAGED_DIFF_CMD`?
+7. The equivalence claim rests on one "realistic change set". What did it contain, and does it
+   cover the header and hunk shapes listed in the brief's *Scope*?
