@@ -560,3 +560,201 @@ All commands run from `/home/user/atelier` at HEAD `0aff4d8`; exit codes read ex
 - [ ] **EC9** — for the brief template, not the delta.
 - [ ] **Phase 2** — open the sibling, `200/090`, the queue pointer, the landing commit's body and
       the kept transcript; reconcile beneath this verdict; fold the sibling in; delete it.
+
+### Reconcile
+
+**Written:** begun 2026-10-17 23:57 UTC, completed 2026-10-17 23:59 UTC, at HEAD `994176f`
+(phase 1 committed unrevised; the delta still identical at HEAD). Nothing above this heading was
+edited. The sibling was removed with `rm` at 23:59 UTC; the floor (CI plane), `reviewscan` and
+`datescan` were re-run on the folded file after that and are clean.
+
+**Provenance of this step.** The orchestrator committed phase 1 as `994176f`, pushed, placed the
+sibling in the tree and released it by message; it formed no finding. It also reported a
+`git fetch --unshallow` on the checkout — verified: `.git/shallow` absent, `git rev-list --count
+HEAD` → 1779, `b572594` now an ordinary ancestor of HEAD. Opened, in this order and nothing else:
+the sibling; the queue pointer `160/780`; the commissioning item `200/090`; the landing commit's
+body (`git show -s --format=%B b572594`); the intent record
+`docs/sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md`; the kept transcript
+`docs/sessions/2026-08-17-0343-cross-session-channel-transcript.md`; the two prior verdicts the
+sibling names for these surfaces — `docs/reviews/2026-08-17-1000-channel-doctrine-cold.md` and
+`docs/reviews/2026-07-26-2215-evidence-escalation-rung-cold.md` (rule 2's reconcile step, to
+reconcile and never to anchor); `git blame` on `CONCURRENCY.md` lines 542–544 and 816–817; and
+CHANGELOG and board greps for the class EC10 names. Not opened: the 2026-10-16 brief the sibling
+names (another pass's framing, barred by the house rule in both phases), the three older
+concurrency verdicts (they predate and do not touch this paragraph), `docs/SESSIONS.md`,
+`docs/ROADMAP-DONE.md`. Still no git write command; still only this file edited; the scratch
+directory still empty.
+
+#### Per-finding notes
+
+- **EC1 (MAJOR — stands; strengthened).** Seeded question 1 is the same observation, reached
+  independently — the context partition held (the sibling's bytes reached me after `994176f`).
+  Against the record: `200/090` (a) states the rule as "when a second voice agrees, ask which
+  artefact it opened", and the transcript § 3 as "when the second never opened the source";
+  neither carries the counting clause "only if it opened something the first party did not".
+  That sentence was added at `b572594` and has no grounding instance behind it — none of the
+  three episodes involved a same-artefact or derived-artefact case. The intent record says only
+  "minted … beside the corroboration rung, with all three instances cited". Seeded question 2 (a
+  re-run) is my case-table row 8: covered by the example list ("the API answer"), not by the
+  rule's verb; the ladder's top rung already names reproduction, and one clause could say so.
+  The prior §13 verdict (EE2) reads the rungs as ordered by evidential strength — the vocabulary
+  the counsel uses. Severity unchanged.
+- **EC2 (MODERATE — stands; sharpened).** Seeded question 4 is the same. `git blame`: line 542
+  landed in `b0f202d` (2026-08-17, the channel extraction); line 816 in `df2d4e7` (2026-09-20,
+  "correct the scratchpad clause — the attribution was wrong") — the second statement was
+  written by the session that made the error, inside its own correction, so the rule was
+  restated at the point of its breach before it was minted. The intent record says both rules
+  "were already written, but only in `CONCURRENCY.md` § *The channel*" — inexact: the second
+  statement sits in § *Orchestrated queue runs*, which the same record cites as the third
+  instance. The 2026-08-17 channel verdict reviewed line 542 when it was the only statement; it
+  was not a second original then. Severity unchanged.
+- **EC3 (MODERATE — stands; grounded).** Not anticipated by the sibling, the intent record or
+  `200/090`. The transcript shows the corrective in the first episode as "a peer went and re-read
+  your source rather than taking my claim on trust" — someone opened the artefact; the
+  receiver-side "ask which artefact it opened" is `200/090`'s framing (the filing session's
+  words, not the child's). Severity unchanged.
+- **EC4 (MODERATE → minor — corrected at reconcile).** Phase 1 said the rung test was "not on
+  the record" and that rungs 2 and 3 were "not considered on the record". The barred
+  commissioning item shows otherwise: `200/090` lines 25–31 place the rule on rung 1 with a
+  reason — "the prose scanners cannot see either — this is a reasoning defect, not a text
+  defect — so if anything catches it, it is framing at the point of use rather than a check" —
+  which considers and rejects rung 2. Written 2026-08-17 by the filing session, before the third
+  instance. My phase-1 argument that findability "was not what failed" is also weaker than
+  written: the point of use for this rule is where a session grades an agreement (§13), and on
+  2026-09-20 the rule lived only in the channel section, so a rung-1 move to §13 is coherent
+  with that occurrence. What survives: the would-have-prevented test was not re-run at minting
+  after the third instance (the ✅ note counts and stops); rung 3 was never considered; the
+  paragraph does not point at the rung reasoning, so a reader of §13 sees a count where the
+  record holds an argument; and the rung-1 fix "framing at the point of use" was executed as a
+  third original rather than as the home with pointers — which is EC2. Phase-1 text stands as
+  written; this note records the error and the re-grade. The counsel narrows to: point the
+  grounding note at `200/090`'s rung reasoning, and record the post-third-instance test there.
+- **EC5 (minor — stands; confirmed).** The intent record says CHANGELOG entries "were written
+  for all three guard changes" and names none for the minting; the omission is an omission, not
+  a policy.
+- **EC6 (minor — stands; confirmed).** `200/090`'s ✅ note already holds the sibling-rule
+  decision in full ("(b) has one instance. It stays in `CONCURRENCY.md` § *Re-run, don't
+  reason*, not promoted. Its second instance is the trigger to re-open it."). The two EVIDENCE
+  sentences duplicate a decision already in its proper home.
+- **EC7 (minor — stands; narrowed).** Seeded question 3 is the same probe. (ii) is now verified
+  against the transcript § 3: "I asserted `faves` had mistranslated CF3. A second session backed
+  it and added supporting evidence. A third read `CONCURRENCY.md` and found we were both
+  wrong." The narrative holds; `200/090` (a) carries it, so the citation is right in aggregate,
+  with the CONCURRENCY half holding the class only. One wording defect is confirmed rather than
+  suspected: the asserting sessions and the child alleged to have mistranslated were the
+  **same** child — the paragraph's "a child's sessions agreed that a child had mistranslated"
+  reads as two. (i) stands.
+- **EC8 (note — stands; strengthened).** Seeded question 5 is the same. `200/090` itself
+  classifies `115/060` as "same mechanism, different surface — a claim gaining authority from
+  repetition rather than from anyone re-opening the source". That is the class stated at the
+  level that covers all three; the paragraph's heading narrows it to "a second voice".
+- **EC9 (note — stands; confirmed by the unshallow).** After `git fetch --unshallow`:
+  `.git/shallow` absent, 1779 commits, `git log --oneline b572594..HEAD --
+  docs/method/EVIDENCE.md` empty. The brief's confirm-step is correct on a full clone and
+  misfires on the shallow clone this container shipped with.
+
+#### Seeded question 6 — answered, no finding
+
+The grounding bracket runs 12 of the paragraph's 20 lines; the rule's test precedes it (lines
+191–198), so a reader finds the test without reading the grounding. `EVIDENCE.md` §15 uses the
+identical shape (an 11-line bracketed grounding), so the convention has precedent in the same
+file. EC6 names the part of the bracket that does not belong in doctrine at all.
+
+#### Formed at reconcile
+
+- **EC10 — note (formed at reconcile) — the CHANGELOG-omission class has a second noticed
+  occurrence.** The 2026-08-17 channel verdict's CH12 recorded no CHANGELOG entry for a
+  ~155-line doctrine section; EC5 records none for this minting. `PROPAGATION.md § When a rule
+  keeps breaking`: "treat a *second* occurrence you *happen* to notice as the trigger" for the
+  ladder. Rung 2 is plausible — a co-change check that a commit touching `docs/method/*.md`
+  also touches `CHANGELOG.md`, the shape `blockscan --against HEAD^` already runs in CI,
+  advisory. By my greps no board item proposes it, and the channel section still has no entry
+  (`grep -n -i 'the channel' CHANGELOG.md` returns one unrelated line). *Counsel:* a board
+  item, not a doctrine edit.
+
+#### Prior verdicts' standing claims, checked
+
+- `2026-07-26-2215` (EE1–EE6, the §13 ladder): EE2's reading — the rungs are ordered by
+  evidential strength and the principal's recollection is reported-tier — is consistent with my
+  case-table row on the principal and with EC1's counsel. EE3 (the rule may not bind where the
+  choice is faced) is the same point-of-use argument `200/090` makes for rung 1. Nothing in EE
+  conflicts with EC1–EC9.
+- `2026-08-17-1000` (CH1–CH16, the channel section): CH12 feeds EC10. The verdict carries no
+  decisions section I could find; its findings' status is not this pass's to establish.
+
+#### Overall after reconcile
+
+**PASS-WITH-FINDINGS — 1 MAJOR · 2 MODERATE · 4 minor · 3 note** (EC4 re-graded MODERATE →
+minor at reconcile; EC10 added at note; phase-1 counts left as written above). The headline is
+unchanged and sharper: the paragraph's operative counting sentence was added at minting with no
+grounding instance behind it and contradicts its own lead on the paradigm cases. Findings remain
+the principal's to decide (rule 3); nothing applied.
+
+## Deferred material — folded in at the verdict
+
+# Sibling to the agreement-is-not-corroboration cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-0930-agreement-not-corroboration-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md` —
+  **not opened by the brief-writer**.
+- Commissioning board item (head lines and one grep line seen, never read whole): `200/090`
+  (two corroboration failures worth minting, offered upward by a child session as method; now
+  `[x]`). Its grep line says the episode, `115/060` and a third instance meet the >2 promotion
+  rule.
+- The landing commit's message body (read by the brief-writer): it counts three recorded
+  instances (a child's episode, a coined paraphrase cited as a source, a 2026-09-20 attribution
+  two sessions agreed on and a transcript falsified), says the rule "lived only as a lesson of
+  the channel" until now, and says the sibling rule (a symptom count locates existence, not site)
+  has one instance and stays unpromoted. The same commit released another item's claim
+  (`140/020`) and held a drafted re-wording there, unlanded; that part is not this delta.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-07-26-2215-evidence-escalation-rung-cold.md` — the §13 ladder itself
+- `docs/reviews/2026-08-17-1000-channel-doctrine-cold.md` — the `CONCURRENCY.md` channel passage
+- `docs/reviews/2026-07-11-concurrency-put-away.md`,
+  `docs/reviews/2026-07-13-concurrency-claiming-work.md`,
+  `docs/reviews/2026-07-20-1355-concurrency-flip-cold.md` — older `CONCURRENCY.md` passes
+- `docs/reviews/2026-10-16-1551-standing-checklist-test-rule-cold.md` — an unrun 2026-10-16 brief
+  whose delta includes earlier `EVIDENCE.md` commits (another pass's framing)
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only.
+
+## Overlap with sibling passes of this batch
+
+No other pass in the 2026-10-16 or 2026-10-17 batches has this paragraph as its delta. The
+160/710 pass (checklist and test rule) has `EVIDENCE.md` in its delta, from `90c42ec` to
+`be9a3ae` (which added §15), all before `b572594`. The 160/820 pass shares this pass's intent
+record and authoring run.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. "Count the agreement as corroboration only if it opened something the first party did not."
+   Read literally, two parties who each opened the *same* primary file are not corroboration.
+   Is that intended, or does "independent route" (the paragraph's own first sentence) mean
+   something else? The two sentences may set different tests.
+2. The ladder already put *reproduce it yourself* above *independent corroboration*. A party
+   that re-runs a probe opens no artefact in the paragraph's sense (file, transcript, API
+   answer). Does the new test classify a re-run as corroboration, or leave it out?
+3. The first grounding instance cites `200/090` "and the kept exchange in `CONCURRENCY.md`
+   § *Re-run, don't reason*". At HEAD that section records the agreement failure as "two-of-three
+   agreement felt like confirmation"; check the paragraph's retelling ("a third read the doctrine
+   and found both wrong") against it.
+4. `CONCURRENCY.md` keeps its two statements of the rule, with slightly different wording ("the
+   second party never opened" vs "neither party opened"). Was a pointer from those sites to the
+   new home owed under one-fact-one-home, and is "a lesson of the channel" now a second original?
+5. Is a three-instance count that includes one item from a child (`200/090`) and one coined
+   paraphrase (`115/060`, itself a quotation defect rather than an agreement failure) three
+   instances of *this* rule, or of a neighbouring one? The >2 rule's threshold is a non-goal;
+   whether these instances meet it is not.
+6. The paragraph is a long parenthetical (16 lines inside brackets) carrying the grounding. Does
+   that shape meet the house's prose conventions, and would a reader find the rule's test without
+   reading the grounding?

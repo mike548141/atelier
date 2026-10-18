@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: agreement is not corroboration, minted in
+- [ ] 🛑 **Rule-4 cold pass queued: agreement is not corroboration, minted in
       EVIDENCE (`200/090`).** The run authored this itself. It is queued at
       landing, and the run neither takes it nor spawns a reviewer for it.
       *Tier:* Fable, the principal-named review tier, checked at selection.
@@ -30,3 +30,20 @@
       forms every finding and severity. The sibling, the intent record and
       prior verdicts stay unopened by the reviewer until its phase-1 findings
       are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-17/18 UTC and the cycle stays OPEN — a
+            MAJOR stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` cloud
+            orchestrator — the shape disclosed in the claim above; the sibling,
+            the intent record and prior verdicts opened only after the phase-1
+            findings were committed, `994176f`) returned PASS-WITH-FINDINGS —
+            1 MAJOR · 2 MODERATE · 4 minor · 3 note →
+            [`2026-10-17-0930-agreement-not-corroboration-cold.md`](../../reviews/2026-10-17-0930-agreement-not-corroboration-cold.md)
+            (sibling folded in and deleted). EC1 (MAJOR): the paragraph's
+            operative counting sentence ("only if it opened something the first
+            party did not") was added at minting with no grounding instance
+            behind it and contradicts its own lead on the paradigm cases —
+            denying the rung to an independent read of the same artefact while
+            granting it to a subagent re-reading its parent's quote. EC10 (note)
+            formed at reconcile; EC4 re-graded MODERATE → minor at reconcile,
+            phase-1 text left standing. Findings are the principal's to decide
+            (rule 3); nothing was applied.
