@@ -8,7 +8,7 @@
       from git history, and carry them where `/atelier:queue-run` reads them,
       so the invocation still replaces the paste.
 
-  **Closed 2026-10-18** (commit `8903560`). The four lines are back in the
+  **Closed 2026-10-18** (commit `140a190`). The four lines are back in the
   prompt verbatim from `998c35f^`, and `CONCURRENCY.md` and the `queue-run`
   skill carry them. Not offered to him, so left out: four smaller 2026-09-16
   phrases (value, urgency and dependencies when ordering; "leave the repo

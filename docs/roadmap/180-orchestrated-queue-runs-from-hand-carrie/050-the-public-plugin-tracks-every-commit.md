@@ -8,7 +8,7 @@
       entry, so Claude Code versions the plugin by commit, and correct the
       README caveat that installs are frozen.
 
-  **Closed 2026-10-18** (commit `8903560`). No `version` in either manifest.
+  **Closed 2026-10-18** (commit `140a190`). No `version` in either manifest.
   `claude plugin validate` passes with one warning (no version), which is
   the chosen trade. The README explains updating and notes that installed
   hooks must be re-run after every update. The principal's own install is

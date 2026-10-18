@@ -14,7 +14,7 @@
       session (AW6), the *teardown* rule (`CONCURRENCY.md` § *Orchestrated
       queue runs* and the worktree bullet in § *Integration hygiene*, plus
       one sentence in `skills/queue-run/SKILL.md`), commit `1487e9c` on
-      `main`, 2026-10-18, which closes `180/020`; and commit `8903560`
+      `main`, 2026-10-18, which closes `180/020`; and commit `140a190`
       (`180/040`, `180/050`: the restored prompt lines in the prompt,
       `CONCURRENCY.md` and the skill; the version field dropped from both
       plugin manifests; README).
