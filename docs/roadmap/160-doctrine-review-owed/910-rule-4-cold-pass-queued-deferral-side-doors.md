@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the deferral's side doors (`320/720`).**
+- [~] ⏳ **Rule-4 cold pass queued: the deferral's side doors (`320/720`).**
+      (claimed 2026-10-18-0503, wt: atelier-qr-briefs-1018)
       Doctrine text, so the authoring session (a Mike-opened Opus 5.5 queue
       run, 2026-10-18, wt atelier-qr-180-plugin) queues this and does not
       take it.

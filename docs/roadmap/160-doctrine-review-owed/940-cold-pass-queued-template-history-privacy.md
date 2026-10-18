@@ -1,4 +1,5 @@
-- [ ] ⏳ **Cold pass queued: the opening prompt's template history, for
+- [~] ⏳ **Cold pass queued: the opening prompt's template history, for
+      (claimed 2026-10-18-0503, wt: atelier-qr-briefs-1018)
       privacy and specific work (`180/060`).** Text mined from the principal's
       private session transcripts landed in this public repo, and the only
       check so far is the session that landed it. A cold reader should test

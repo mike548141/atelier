@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the body-free commit read (`130/030`).**
+- [~] ⏳ **Rule-4 cold pass queued: the body-free commit read (`130/030`).**
+      (claimed 2026-10-18-0503, wt: atelier-qr-briefs-1018)
       The `review-brief` skill's text is doctrine by function, and `coldsweep`
       is a guard whose clean output is read as "nothing barred was seen". So
       the authoring session (a Mike-opened Opus 5.5 queue run, 2026-10-18, wt

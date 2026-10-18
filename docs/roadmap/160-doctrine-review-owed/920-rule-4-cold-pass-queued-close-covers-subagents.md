@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the close declaration covers subagents
+- [~] ⏳ **Rule-4 cold pass queued: the close declaration covers subagents
+      (claimed 2026-10-18-0503, wt: atelier-qr-briefs-1018)
       (`020/420`).** Doctrine text and a check whose green is read as "safe to
       close the tab", so the authoring session (a Mike-opened Opus 5.5 queue
       run, 2026-10-18, wt atelier-qr-020-420, which dispatched the Sonnet

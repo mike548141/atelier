@@ -1,4 +1,5 @@
-- [ ] 🔎 **`ccclose --identifiers` over-credits work from overlapping
+- [~] 🔎 **`ccclose --identifiers` over-credits work from overlapping
+      (claimed 2026-10-18-0503, wt: atelier-qr-210-290)
       sessions, and reads ⏳ anywhere in an item.** Found by the session that
       shipped it (2026-10-18, `210/280`), on its own close. Its first real
       block listed 115 commits; the session's own commits on `main` were 88.

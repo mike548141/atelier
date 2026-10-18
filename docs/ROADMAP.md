@@ -313,10 +313,10 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: cctranscript's harness classification](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
 - [ ] 🛑 [Rule-4 cold pass queued: ccmail stops sending the operator to](roadmap/160-doctrine-review-owed/890-rule-4-cold-pass-queued-ccmail-auth-advice.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the queue-run skill carries the whole](roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md)
-- [ ] ⏳ [Rule-4 cold pass queued: the deferral's side doors (320/720).](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
-- [ ] ⏳ [Rule-4 cold pass queued: the close declaration covers subagents](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
-- [ ] ⏳ [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
-- [ ] ⏳ [Cold pass queued: the opening prompt's template history, for](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
+- [~] ⏳ [Rule-4 cold pass queued: the deferral's side doors (320/720).](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
+- [~] ⏳ [Rule-4 cold pass queued: the close declaration covers subagents](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
+- [~] ⏳ [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
+- [~] ⏳ [Cold pass queued: the opening prompt's template history, for](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
 
 ## build/ layer — open strands
 
@@ -390,7 +390,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A harness notification reads two ways depending on its record](roadmap/210-instruments-open-features/260-notification-records-read-two-ways.md)
 - ✅ [ccmail sent the operator to ccmail --auth, a client-ID setup he](roadmap/210-instruments-open-features/270-ccmail-sent-the-operator-to-a-setup-he-did-not-need.md)
 - ✅ [BUILT 2026-10-18](roadmap/210-instruments-open-features/280-ccclose-prints-the-identifiers-block.md)
-- [ ] 🔎 [ccclose --identifiers over-credits work from overlapping](roadmap/210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md)
+- [~] 🔎 [ccclose --identifiers over-credits work from overlapping](roadmap/210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
