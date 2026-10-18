@@ -45,6 +45,17 @@ loaded the skill as it stood before `180/090` landed.
   declared scope, and the worker proved that case still passes. The orchestrator
   read the guard diff and re-ran the four touched test files (458 OK) before
   landing. The cold pass is queued at `160/950`.
+- **`210/290` closed (`0462173`, `621d18b`): `ccclose --identifiers` credits on
+  evidence.** A Sonnet worker built it, and rebased twice under it: onto the
+  peer's `210/300` changes to the same files, and onto the floor fix
+  `880334a`. A commit counts as fact only when its subject appears in a commit
+  command of the session or one of its subagents, or when it is the squash merge
+  of a PR the session merged. The rest print as "unconfirmed". The ⏳ marker is
+  read from the state line only. The orchestrator read the code diff and ran
+  the tool on this very session: 10 commits credited and 9 unconfirmed. The peer's 8
+  were correctly kept out, and one of this run's own was unconfirmed because the
+  worker committed from a file. 58 ccclose tests green on the rebased head. That
+  limit is filed at `210/310`, and the cold pass is queued at `160/960`.
 
 ## Recorded against itself
 
