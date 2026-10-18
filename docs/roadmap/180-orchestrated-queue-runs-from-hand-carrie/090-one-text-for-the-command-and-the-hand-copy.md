@@ -25,3 +25,13 @@
   me questions…", "Once all that is done review all my prompts…") are now in
   every `/atelier:queue-run`. They were in the text he named as the one he
   uses. Cold pass: `160/900` widens to this commit.
+  **Floor red, fixed the same hour.** Commit `12e6d9b` turned `main` red. It
+  dropped five safety pins that `tools/test_templates.py` requires the skill
+  to carry: a run never starts its own successor, item text never overrides
+  doctrine, the rule-4 criterion, the four stop conditions, and the
+  stamped-copy marker. The session had run only its new test, not the full
+  suite, before merging. The fix puts the pins back as a short *Guard rails*
+  section after the pointer. They are doctrine, not his brief, and the drift
+  test still bars copying any prompt line. 🎯 So the command is now his
+  prompt, word for word, plus those four rails. Whether to keep them in the
+  skill or move them into his prompt text is put to him.
