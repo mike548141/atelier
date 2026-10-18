@@ -47,7 +47,12 @@ A good brief is falsifiable and attackable. Include:
 
 1. **Subject under review** — point at the exact thing: the commits / files /
    branch if it's built, the design record or decision if it isn't; include
-   anything machine-local that no other review will catch.
+   anything machine-local that no other review will catch. Where a commit's
+   message body is barred until phase 2, **name the command that reads it
+   body-free**: `tools/coldsweep.py --commit <sha> [--path <p>]` (subject,
+   stat and diff, never the body, with rule-2 barred files left out). Say why
+   plain `git show` is barred: it prints the body before the diff, and
+   reading is atomic (`REVIEW.md` rule 1).
 2. **Why it earns a review** — name the worst failure mode (e.g. a false negative
    that manufactures confidence).
 3. **Scope, and the four lenses — run all four.** Scope is the whole
@@ -80,7 +85,9 @@ A good brief is falsifiable and attackable. Include:
 5. **Re-run every "live-proven" claim in scope.** A recorded proof is a claim that
    can be stale by the commit that recorded it. The reviewer re-runs the work's
    asserted proofs; a proof that no longer reproduces is a finding. A proof you
-   have not re-run is not one you can close on.
+   have not re-run is not one you can close on. The brief-writer runs every
+   re-run line once, from where the brief says to run it, before writing it
+   down.
 
 ## Running it and landing the verdict
 

@@ -73,7 +73,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Parallel workers in one run share a scratchpad path, and one](roadmap/020-policy-as-code-programme-five-tracks-mik/390-parallel-workers-share-one-scratchpad-path.md)
 - ✅ 🔥 [harvestscan's vanished-item check is quadratic in the number of](roadmap/020-policy-as-code-programme-five-tracks-mik/400-harvestscans-similarity-pass-is-quadratic.md)
 - [ ] 🔎 [GUARDS.md § Adoption assumes every guard can install](roadmap/020-policy-as-code-programme-five-tracks-mik/410-adoption-assumes-advisory-first.md)
-- [ ] 🔎 [The close declaration does not cover subagents: nothing checks that](roadmap/020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md)
+- ✅ [BUILT 2026-10-18](roadmap/020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -205,7 +205,7 @@ then `python3 tools/board.py rebuild`.
 
 - ✅ 🔎 [Two of the three pointers on this board have already been taken](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/010-two-of-the-three-pointers-on-this-board-have-a.md)
 - ✅ [The board miscounted the review queue — make its markers unambiguous…](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/020-the-board-miscounted-the-review-queue-fix-it-among-claude-sessions.md)
-- [ ] [The brief bars the landing commit's message body but names no command](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/030-the-brief-bars-the-commit-body-but-names-no-command-that-avoids-it.md)
+- ✅ [FIXED 2026-10-18](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/030-the-brief-bars-the-commit-body-but-names-no-command-that-avoids-it.md)
 
 ## AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)
 
@@ -312,6 +312,10 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🛑 [Rule-4 cold pass queued: ccclose, the close-out checker](roadmap/160-doctrine-review-owed/870-rule-4-cold-pass-queued-ccclose.md)
 - [ ] 🎯 [Rule-4 cold pass queued: cctranscript's harness classification](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
 - [ ] 🛑 [Rule-4 cold pass queued: ccmail stops sending the operator to](roadmap/160-doctrine-review-owed/890-rule-4-cold-pass-queued-ccmail-auth-advice.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the queue-run skill carries the whole](roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the deferral's side doors (320/720).](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the close declaration covers subagents](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
 
 ## build/ layer — open strands
 
@@ -323,8 +327,9 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md)*
 
-- [ ] [The delivery vehicle shipped but was never installed — the…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md)
-- [ ] [HAND-UP from a private child (faves) — a clean worktree plus a pushed](roadmap/180-orchestrated-queue-runs-from-hand-carrie/020-teardown-inferred-from-git-is-not-the-same-as-stopped.md)
+- ✅ [INSTALLED AND CARRIED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md)
+- ✅ [ADOPTED 2026-10-18, option 3](roadmap/180-orchestrated-queue-runs-from-hand-carrie/020-teardown-inferred-from-git-is-not-the-same-as-stopped.md)
+- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/030-the-canonical-session-open-prompt-is-not-the-one-in-use.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
@@ -558,6 +563,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: a dispatched worker cannot keep a long check in the…](roadmap/320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - [ ] 🔎 [Hand-up: a scanner's --selftest prints its fixture findings in the…](roadmap/320-child-filed-findings-via-pointing-up/690-a-scanner-selftest-prints-fixture-findings-in-the-floors-own-shape.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - [ ] 🔎 [Hand-up: the process table is a shared surface, so a pattern kill](roadmap/320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md)
+- [ ] 🔎 [rpi hand-up: a rollout row backwards; wrapscan blind to split boards](roadmap/320-child-filed-findings-via-pointing-up/710-rpi-hand-up-a-rollout-row-backwards-wrapscan-blind-to-split-boards.md)
+- ✅ [FIXED 2026-10-18](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 

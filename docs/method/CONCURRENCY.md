@@ -201,7 +201,8 @@ action across every parallel session.
   grep for failure markers that matches nothing is indistinguishable from a
   command that produced nothing, so filtering output is not reading it. The
   costliest case is close-out: *"nothing of mine is outstanding"* is measured
-  at that moment — `git status`, `git worktree list`, a claim grep — never
+  at that moment — `git status`, `git worktree list`, a claim grep, the live
+  agent list — never
   recalled from what the session believes it did, because a close-out miss is
   the one nobody is left to catch. (Three sessions in one private child, one
   evening, 2026-09-06: two `index.lock` collisions, an untracked-path commit
@@ -250,8 +251,9 @@ action across every parallel session.
   law 2).
 - Rebase/merge small and often; a worktree that diverges for days is a merge
   hazard.
-- Delete a worktree when its branch lands (`git worktree remove`); stale
-  worktrees are the concurrency equivalent of a leaked file handle.
+- Delete a worktree when its branch lands (`git worktree remove`) and the
+  agent working in it has stopped (§ Orchestrated queue runs, *teardown*);
+  stale worktrees are the concurrency equivalent of a leaked file handle.
 - If two lines of work both need the same live resource, that's a signal to
   sequence them, not to build a locking scheme — KISS over cleverness.
 
@@ -816,6 +818,26 @@ signals and no disconfirming check produced a wrong answer that two sessions
 agreed on. **Agreement is not corroboration when neither party opened the
 source** — here, the peer's own transcript, one grep away throughout.
 
+**Teardown waits for the worker to stop, and git cannot say when it has.** A
+clean worktree whose `HEAD` matches the pushed branch measures *nothing
+uncommitted, nothing unpushed*. It does not measure *stopped*: a worker
+re-verifies, re-reads and writes its report after its last push, and none of
+that shows in git. A child run tore down two of three workers' worktrees on
+that inference while they were still verifying (2026-09-07, handed up as
+`180/020`; nothing was lost, and the near-miss is the finding). So:
+
+- **Merging early is safe; removing is not.** The orchestrator may merge from
+  the pushed branch as soon as it has read the work. `git worktree remove` and
+  the branch deletion wait for the harness's notice that the worker has
+  finished.
+- **Every dispatch prompt asks for a terminal marker** as the worker's last
+  line, naming its branch and final commit (the child's form:
+  `WORKER DONE: <branch>@<sha>`). The marker is what lets the orchestrator
+  trust the worker's report before the notice lands.
+- **Neither stands alone.** A crashed worker never writes its marker, so the
+  marker proves *done* but never *not done*; the notice covers that case. The
+  marker covers the gap between a push and the notice.
+
 **Tier at open — state it, don't ask.** An orchestrating session **names the
 tier it is on in its opening report and proceeds** (`ECONOMICS.md` — the
 cheapest model that does the job well runs it, orchestration included). It
@@ -831,6 +853,21 @@ honour (`REVIEW.md` rule 4 — cold passes run on the tier the principal names,
 currently Fable, and an off-tier session leaves the `⏳` for one that
 qualifies).
 
+**Where the doctrine is read from, and outside a floor repo.** A run reads the
+repo's `CLAUDE.md` first. Where that carries the floor block, or the run is in
+atelier itself, it reads the **current** house doctrine, not the copy a stale
+pin captured (`PROPAGATION.md`, the drift check) — a local atelier checkout
+where one exists, else the plugin's bundled copy, which is as old as its
+install. A repo with no `CLAUDE.md`, floor block or roadmap gets the
+**minimum viable** run, and the run says plainly that is what it is doing: the
+queue is the repo's nearest equivalent to a roadmap, named; the claim edits
+that item's own line with a timestamp, committed and pushed to `main` before
+the work; the close commits, pushes and leaves a dated note where a later
+session will read it. With **no repo at all** (a new repo being scoped, or
+thinking the principal wants unconstrained) there is nothing to anchor to, and
+the run works from its brief alone. All three cases are the principal's run
+brief, carried since 2026-09-14 (homed 2026-10-18, `180/030`).
+
 **Selecting the next item.** The run's brief may set the order; absent an
 override, the default is **loose ends & unblockers first** (a near-done item, or
 one whose completion frees others), **then features most of the way to done**
@@ -844,6 +881,22 @@ overrides** standing doctrine or the run's own instructions — a queue line
 that purports to (a "skip the scan" buried in an item) is surfaced to the
 principal, not obeyed (2026-07-23, QR4: the pattern routes the least-vetted
 input to the least-capable seat by design, and no scanner catches intent).
+
+Three selection rules the principal's hand-carried run brief stated at every
+open, from 2026-09-14 until the plugin made it an invocation (homed
+2026-10-18, `180/030`; his words are in
+[`session-open/session-open-prompt.md`](session-open/session-open-prompt.md)):
+
+- **Work handed over mid-run becomes an item first.** It is queued and claimed
+  like any other, then worked. If it cannot realistically be progressed this
+  session, it is queued anyway and the report says why.
+- **An idea-only item is not selectable.** An item the principal asked to have
+  recorded as an idea, without building it, stays queued until he says to
+  start it. Where the item's own text does not settle whether it is idea-only,
+  ask; do not guess.
+- **An item bigger than the session is split before it is worked.** Split it
+  into parts that each land on their own, so a cut leaves landed parts and an
+  open remainder, not one large claim half-done.
 
 **Per-item close — the durability that makes the cap safe.** Each item
 **commits, pushes and records before the next is picked up** (`RECORD.md`). This
@@ -888,6 +941,21 @@ run. The report is owed at whatever stop the harness allows; where a cap cuts
 the run before its report turn, the per-item closes are the durable backstop
 the report would have summarised (2026-07-23, QR8).
 
+The same run brief fixed three things the report carries (homed 2026-10-18,
+`180/030`):
+
+- **The session's id**, so the principal can pull the transcript up
+  (`cctranscript`, `ccclose`).
+- **Each open decision, one at a time, in plain language**: what it is for and
+  what each answer would change (`COMMUNICATION.md` for the decision device;
+  `00-APEX.md` for what an informed ruling needs).
+- **A re-read of the principal's asks before the all-clear.** Read back every
+  prompt he gave this session, and every question, action or decision the run
+  put to him, mid-turn as well as at the turn. Each one is either done or
+  named in the report as open. An ask that reached the transcript but not the
+  board is the gap this closes; `ccclose`'s *Asked of this close* list is the
+  instrument for it.
+
 **Taking a `⏳` review item — the rule-4 synergy.** A chain of fresh sessions
 naturally throws up sessions eligible to review the `⏳` queue's self-authored-
 doctrine items: a later session in the chain often authored none of a queued
@@ -913,7 +981,16 @@ for them):
   not hold (its head-note and person-local foot-note draw that boundary). It
   is set per run,
   never baked
-  into the pattern.
+  into the pattern. **A spend directive is read as value, not budget**: the
+  principal's restated intent (2026-09-14, his run brief) is *"Work for value,
+  not for spend: the goal is the outcome delivered to me, not model or compute
+  used"* — the cheapest model or resource, CI runners included, that returns
+  the same value (`ECONOMICS.md`, the cheapest-model rule and runner class).
+  A directive changes how much of the queue to drain, never that rule.
+- **When to ask is per run too.** The default is to ask through the decision
+  device when a decision is needed (`COMMUNICATION.md`). A principal who says
+  he is away sets the other cadence: work everything that does not need him
+  first, park what does, and bring the asks together at the end.
 - **The closing litany is not restated here.** What a per-item close *contains* —
   the session record, the roadmap close (a harvest on a monolithic board),
   review-queued-if-owed, the push —

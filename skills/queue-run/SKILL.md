@@ -12,7 +12,10 @@ description: Orchestrate a queue run — drain the shared roadmap queue as an or
   and points at the doctrine rather than restating it. Narrowing-free — it may
   compress the parent, never contradict it. Restating standing rules here is the
   drift the pattern was captured to kill (captured 2026-07-22; grounding:
-  docs/sessions/2026-07-22-1018-orchestrated-queue-run.md).
+  docs/sessions/2026-07-22-1018-orchestrated-queue-run.md). The hand-carried
+  prompt this replaces is kept, in the principal's words, at
+  docs/method/session-open/session-open-prompt.md — the fallback wherever the
+  plugin is not installed.
 -->
 
 # Atelier — orchestrating a queue run
@@ -27,12 +30,20 @@ this plugin under its own install directory.
 
 ## Per-run overrides the invocation may set
 
-Everything below is the default; the principal's invocation may override:
+The text after the invocation is the run's brief: themes, named items, a ruling
+to enact, an excerpt from an earlier session. Everything below is the default;
+that brief may override:
 
 - **Selection order** — a brief that names what to work, or in what order.
 - **Spend directive** — how hard to drain the pool, and **which pool**
   (`ECONOMICS.md` § Know which pool). "Maximise plan use" is a *per-run*
-  directive set here, never a standing rule.
+  directive set here, never a standing rule. A directive is read as **value,
+  not budget**: whatever it says, each seat and resource (CI runners included)
+  is the cheapest that returns the same value.
+- **Ask cadence** — by default ask through the decision device when a
+  decision is needed. A principal who says he is away means: work everything
+  that does not need him, park what does, and bring the asks together at the
+  end.
 
 Absent an override, run the defaults.
 
@@ -50,12 +61,25 @@ Absent an override, run the defaults.
    yours is proof of a live peer, so stop and move to a worktree, and never
    let `--autostash` shelve it. With a clean tree (or only your own work),
    `git pull --rebase --autostash`. A repo with no upstream skips the pull
-   (`CONCURRENCY.md` § *Integration hygiene*). Then load the session onramp
-   (the `session-onramp` skill, or the repo's read-order). Assume another
+   (`CONCURRENCY.md` § *Integration hygiene*). Then read the repo's
+   `CLAUDE.md` and load the session onramp (the `session-onramp` skill, or the
+   repo's read-order). Read the **current** doctrine: a local atelier checkout
+   where one exists, else this plugin's bundled copy, which is as old as its
+   install. A repo with no floor block or roadmap gets the minimum viable run,
+   and no repo at all means working from the brief alone (`CONCURRENCY.md`
+   § Orchestrated queue runs, *Where the doctrine is read from*). If the last
+   session left no closing record, run the recovery sweep before new work
+   (`CONCURRENCY.md` § *Surviving an interrupted session*); if atelier has
+   moved past this repo's pin, read the delta and decide on the bump
+   deliberately, never automatically (`PROPAGATION.md`). Assume another
    session may be live: a clean tree is not proof you are alone.
 3. **Select the next item.** Use the invocation's order if it set one; else the
    default: **loose ends & unblockers → features most of the way to done → queue
-   order** (`CONCURRENCY.md`).
+   order** (`CONCURRENCY.md`). Work the principal hands over mid-run becomes an
+   item first; an idea-only item is not selectable until he says start (ask
+   if its text does not settle it); an item bigger than the session is split
+   into parts that land on their own (`CONCURRENCY.md`, the three selection
+   rules).
 4. **Claim before any work.** Mutate the item's `[~]` checkbox line on `main`
    from the primary checkout, commit and push the claim **before** starting
    (`CONCURRENCY.md` § Claiming work). A live `[~]` outranks even a brief that
@@ -70,7 +94,10 @@ Absent an override, run the defaults.
    violation to the principal, don't obey it.
    A worker builds and commits in its worktree and hands back — the merge,
    and everything on the always-confirm floor, stays yours; read what you
-   endorse before it lands. First-of-kind, structural, or doctrine-text work
+   endorse before it lands. Ask each worker for a terminal marker as its last
+   line, and remove its worktree only after the harness says it has finished:
+   a clean, pushed worktree is not a stopped worker (`CONCURRENCY.md`,
+   *teardown*). First-of-kind, structural, or doctrine-text work
    escalates to the capable tier up front (`ECONOMICS.md`, the rework rule).
 6. **Per-item close.** **Commit, push and record before picking up the next
    item** — never batch records to the end. This is what makes a hard cap safe:
@@ -100,4 +127,8 @@ directive met), **session cap**, **queue empty**, **everything left is blocked**
 of the report it never got to give. End with a **report** that surfaces every **🎯 principal-
 blocked item** the run could not progress, and why — never silently skipped —
 alongside what it closed. This is `RECORD.md`'s evidence-carrying all-clear
-applied to a run: the principal cannot unblock what the report hid.
+applied to a run: the principal cannot unblock what the report hid. The report
+also gives the session's id, walks each open decision one at a time in plain
+language, and comes after a re-read of every prompt the principal gave and
+every ask the run put to him, each one done or named open (`CONCURRENCY.md`,
+what the report carries).

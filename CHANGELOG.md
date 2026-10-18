@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-18 — `/atelier:queue-run` carries the whole run brief, `180/010`, `180/030`)
+- The `queue-run` skill now carries every clause of the hand-carried run
+  prompt it replaces. The text after the invocation is the run's brief. New
+  defaults: read `CLAUDE.md` and the current doctrine first; a minimum viable
+  run outside a floor repo; mid-run hand-overs become items; idea-only items
+  wait; big items are split; a spend directive is read as value; a per-run
+  ask cadence; and a close report with the session id, one decision at a time,
+  and a re-read of every ask. `CONCURRENCY.md` § *Orchestrated queue runs*
+  holds the rules; the skill points at them.
+- `docs/method/session-open/session-open-prompt.md` is now the prompt text in
+  use, with two lines brought back into line with later rulings (state the
+  tier and proceed; roadmap close on a split board).
+- The README says how to install from a local clone so the doctrine stays
+  current: a local-path marketplace loads the plugin in place.
+
 ### Changed (2026-10-16 — harness text is not the principal's, `210/250`)
 - `cctranscript` no longer counts harness text in user records as your
   prompts. A background task's notification, a meta record and a slash

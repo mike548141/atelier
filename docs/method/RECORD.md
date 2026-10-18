@@ -63,7 +63,10 @@ stopped instead of re-deriving it:
   (Mike's ruling, 2026-10-05: no arbitrary line or size limits) — so a regression
   back to a flat log is caught at review, not by a number. (Grounded 2026-07-14:
   the cold review found the append-only rule and the budget colliding with no
-  sanctioned move for an index that had already done the split.)
+  sanctioned move for an index that had already done the split.) An entry
+  written while a review is pending names any deferred material by file and
+  count only, because the reviewer reads this tail before the brief
+  (`REVIEW.md` rule 1, *side doors*).
 - **Detail lives on demand** — when a session is substantial, its full detail
   goes in a `docs/sessions/<date>-<HHMM>-<slug>.md` file and the index carries
   a one-line pointer. (`HHMM` is the session's start time, 24-hour, in UTC —
@@ -117,6 +120,16 @@ stopped instead of re-deriving it:
     deliberately left open. The test: the principal reads it and closes without
     a nagging "did it really capture everything?" (Grounded 2026-07-20, Mike:
     the declare-the-close signal is only worth the evidence under it.)
+    - **The evidence names every agent the session launched, and how each
+      ended**: reported back, or stopped on purpose and said so. It is read
+      from the agent list at that moment, never from memory, and `ccclose`'s
+      *Subagents finished* check reads it. A declaration made with an agent
+      still running is not a declaration: closing the tab kills that agent
+      silently, and the harness's "didn't finish" notice only appears if the
+      session is resumed. (Grounded 2026-10-16, `020/420`: a read of 30
+      sessions found every close made with no agent still running, but eleven
+      agents cut by a host crash survived only because their sessions were
+      resumed.)
     - **When the close pushes, the evidence is the *floor at head*, not the
       local scan.** "Scanners green locally" is not "floor green at head": CI
       runs checks a local scan does not — reviewscan over what the push itself

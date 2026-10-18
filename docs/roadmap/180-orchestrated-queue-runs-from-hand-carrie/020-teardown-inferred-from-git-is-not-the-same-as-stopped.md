@@ -1,4 +1,5 @@
-- [ ] **HAND-UP from a private child (faves) — a clean worktree plus a pushed
+- [x] **ADOPTED 2026-10-18, option 3** (wt: atelier-qr-180-plugin)
+      **HAND-UP from a private child (faves) — a clean worktree plus a pushed
       HEAD says "nothing unpushed", not "the agent has stopped", and reading it
       as the latter can destroy a live worker's working directory.**
 
@@ -66,3 +67,13 @@
      merging. Risk: the *destroy-while-running* failure mode is the same one
      that already hit two of three workers in one run; leaving it says nothing
      changed the odds.
+
+  **Closed 2026-10-18 — option 3, both.** Weighed by a Mike-opened Opus 5.5
+  queue run. Option 1 alone leans on a notice the orchestrator cannot see
+  for a worker still mid-verify. Option 2 alone cannot prove *not done*.
+  The child already runs both, and the house text was one sentence short of
+  saying so. `CONCURRENCY.md` gains a *teardown* rule in § *Orchestrated queue
+  runs*: merge early, remove only after the harness's finished notice, and
+  ask every worker for a terminal marker. The line-250 bullet now says
+  "and the agent working in it has stopped". The `queue-run` skill points at
+  both. The rule-4 pass at `160/900` widens to this commit.

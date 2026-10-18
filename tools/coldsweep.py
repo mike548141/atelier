@@ -36,9 +36,29 @@ USAGE
     python3 tools/coldsweep.py --also-exclude docs/roadmap/160-x 'PATTERN'
     python3 tools/coldsweep.py --list-barred            # what would be excluded
     python3 tools/coldsweep.py --include-barred 'PAT'   # the exception, loudly
+    python3 tools/coldsweep.py --commit SHA             # a landing commit, body-free
+    python3 tools/coldsweep.py --commit SHA --path tools/x.py   # scoped diff
 
 Exit codes follow grep so it drops into a pipeline: 0 matched, 1 no match,
-2 the search itself failed. A broken sweep is not a clean one.
+2 the search itself failed. A broken sweep is not a clean one. `--commit` exits
+0 when it printed the commit and 2 when it could not (unknown sha, not a repo).
+
+READING A LANDING COMMIT (`--commit`). A cold brief says to read the landing
+commit's "subject, stat and diff only" and bars its message body until phase 2,
+because the body is the author's account of the work (rule 2 again). The natural
+commands all print the body: `git show <sha> -- <paths>` puts it before the
+diff and `git show --stat` prints it above the stat. Four of twenty-one
+reviewers in one batch read it that way, each by the obvious command, so the
+bar was unfollowable as written. `--commit` prints exactly the allowed view and
+nothing else: `<short sha> <subject>`, then `git diff --stat`, then `git diff`,
+against the commit's first parent (a root commit is diffed against the empty
+tree). The body is never requested from git, so it cannot be printed.
+
+The rule-2 barred set applies to the diff as it does to the tree search: a
+landing commit usually edits `docs/SESSIONS.md`, which IS the author's account,
+so those hunks are left out and the run says which files it dropped, by name
+only. `--also-exclude` adds to the set; `--include-barred` lifts it with the
+same disclosure banner. `--path` scopes the diff to given paths (repeatable).
 
 DISCLOSURE. Every run prints the exclusion set it used, in a form that can be
 pasted into a verdict's provenance. `--include-barred` prints a banner saying
@@ -50,6 +70,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -130,6 +151,84 @@ def search(root: Path, pattern: str, files: list[Path],
     return hits
 
 
+def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["git", "-C", str(root), *args], capture_output=True, text=True,
+        encoding="utf-8", errors="replace")
+
+
+def _pathspec(paths: list[str], barred: tuple[str, ...]) -> list[str]:
+    """`-- <positive> <exclusions>` for git. Exclusions are anchored at the
+    repo top so no spelling of a barred path can fail to match (the same
+    defect `is_barred` exists for, kept out of git's own matching too)."""
+    positive = list(paths) if paths else [":/"]
+    out = ["--", *positive]
+    for entry in barred:
+        parts = _parts(entry)
+        if parts:
+            out.append(":(top,exclude)" + "/".join(parts))
+    return out
+
+
+def show_commit(root: Path, rev: str, paths: list[str],
+                barred: tuple[str, ...]) -> int:
+    """Print a commit's subject, stat and diff — never its message body."""
+    top = _git(root, "rev-parse", "--show-toplevel")
+    if top.returncode != 0:
+        print(f"coldsweep: --root is not inside a git repository: {root}",
+              file=sys.stderr)
+        return 2
+    res = _git(root, "rev-parse", "--verify", "--quiet", "--end-of-options",
+               rev + "^{commit}")
+    sha = res.stdout.strip()
+    if res.returncode != 0 or not sha:
+        print(f"coldsweep: not a commit in this repository: {rev}",
+              file=sys.stderr)
+        return 2
+
+    parent = _git(root, "rev-parse", "--verify", "--quiet", sha + "^1")
+    if parent.returncode == 0:
+        base = parent.stdout.strip()
+        basis = "first parent"
+    else:
+        base = _git(root, "hash-object", "-t", "tree", "/dev/null").stdout.strip()
+        basis = "empty tree (root commit)"
+
+    subject = _git(root, "log", "-1", "--no-notes", "--format=%h %s", sha)
+    spec = _pathspec(paths, barred)
+    flags = ["--no-ext-diff", "--no-textconv", "--no-color"]
+    stat = _git(root, "diff", "--stat", *flags, base, sha, *spec)
+    diff = _git(root, "diff", *flags, base, sha, *spec)
+    names = _git(root, "diff", "--name-only", base, sha, "--", ":/")
+    kept = _git(root, "diff", "--name-only", base, sha, *spec)
+    for r in (subject, stat, diff, names, kept):
+        if r.returncode != 0:
+            print(f"coldsweep: git failed: {r.stderr.strip()}", file=sys.stderr)
+            return 2
+
+    print(subject.stdout.rstrip("\n"))
+    print()
+    print(stat.stdout.rstrip("\n") or "(no changes in scope)")
+    print()
+    print(diff.stdout.rstrip("\n"))
+
+    shown = set(kept.stdout.splitlines())
+    dropped = [n for n in names.stdout.splitlines()
+               if n not in shown and is_barred(Path(n), barred)]
+    print()
+    if not barred:
+        print("⚠️  coldsweep: --include-barred — the rule-2 barred paths were "
+              "NOT left out of this diff.")
+        print("    Disclose this exposure in your verdict.")
+    else:
+        print(f"✓ coldsweep: commit {sha[:12]} read against its {basis}; "
+              "message body not read.")
+        print(f"  {len(dropped)} file(s) left out as rule-2 barred "
+              f"({', '.join(barred)}): "
+              f"{', '.join(dropped) if dropped else 'none touched'}.")
+    return 0
+
+
 def _main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="coldsweep",
@@ -146,6 +245,14 @@ def _main(argv: list[str] | None = None) -> int:
     ap.add_argument("--list-barred", action="store_true",
                     help="print the exclusion set and the files it covers, "
                          "then exit")
+    ap.add_argument("--commit", metavar="SHA",
+                    help="print a landing commit's subject, stat and diff "
+                         "and NEVER its message body (plain `git show` and "
+                         "`git show --stat` print the body, which the cold "
+                         "brief bars). Barred paths are left out of the diff")
+    ap.add_argument("--path", action="append", default=[], metavar="PATH",
+                    help="with --commit: scope the diff to this path; "
+                         "repeatable")
     ap.add_argument("--selftest", action="store_true")
     args = ap.parse_args(argv)
 
@@ -158,6 +265,17 @@ def _main(argv: list[str] | None = None) -> int:
         return 2
 
     barred = () if args.include_barred else BARRED + tuple(args.also_exclude)
+
+    if args.commit is not None:
+        if args.pattern or args.list_barred:
+            print("coldsweep: --commit takes no PATTERN and no --list-barred",
+                  file=sys.stderr)
+            return 2
+        return show_commit(root, args.commit, args.path, barred)
+    if args.path:
+        print("coldsweep: --path only applies with --commit", file=sys.stderr)
+        return 2
+
     kept, skipped = walk(root, barred)
 
     if args.list_barred:
