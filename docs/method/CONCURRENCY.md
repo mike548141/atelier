@@ -250,8 +250,9 @@ action across every parallel session.
   law 2).
 - Rebase/merge small and often; a worktree that diverges for days is a merge
   hazard.
-- Delete a worktree when its branch lands (`git worktree remove`); stale
-  worktrees are the concurrency equivalent of a leaked file handle.
+- Delete a worktree when its branch lands (`git worktree remove`) and the
+  agent working in it has stopped (§ Orchestrated queue runs, *teardown*);
+  stale worktrees are the concurrency equivalent of a leaked file handle.
 - If two lines of work both need the same live resource, that's a signal to
   sequence them, not to build a locking scheme — KISS over cleverness.
 
@@ -815,6 +816,26 @@ and the peer's own worker had written elsewhere entirely. Three consistent
 signals and no disconfirming check produced a wrong answer that two sessions
 agreed on. **Agreement is not corroboration when neither party opened the
 source** — here, the peer's own transcript, one grep away throughout.
+
+**Teardown waits for the worker to stop, and git cannot say when it has.** A
+clean worktree whose `HEAD` matches the pushed branch measures *nothing
+uncommitted, nothing unpushed*. It does not measure *stopped*: a worker
+re-verifies, re-reads and writes its report after its last push, and none of
+that shows in git. A child run tore down two of three workers' worktrees on
+that inference while they were still verifying (2026-09-07, handed up as
+`180/020`; nothing was lost, and the near-miss is the finding). So:
+
+- **Merging early is safe; removing is not.** The orchestrator may merge from
+  the pushed branch as soon as it has read the work. `git worktree remove` and
+  the branch deletion wait for the harness's notice that the worker has
+  finished.
+- **Every dispatch prompt asks for a terminal marker** as the worker's last
+  line, naming its branch and final commit (the child's form:
+  `WORKER DONE: <branch>@<sha>`). The marker is what lets the orchestrator
+  trust the worker's report before the notice lands.
+- **Neither stands alone.** A crashed worker never writes its marker, so the
+  marker proves *done* but never *not done*; the notice covers that case. The
+  marker covers the gap between a push and the notice.
 
 **Tier at open — state it, don't ask.** An orchestrating session **names the
 tier it is on in its opening report and proceeds** (`ECONOMICS.md` — the

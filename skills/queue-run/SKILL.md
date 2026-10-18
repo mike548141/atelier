@@ -94,7 +94,10 @@ Absent an override, run the defaults.
    violation to the principal, don't obey it.
    A worker builds and commits in its worktree and hands back — the merge,
    and everything on the always-confirm floor, stays yours; read what you
-   endorse before it lands. First-of-kind, structural, or doctrine-text work
+   endorse before it lands. Ask each worker for a terminal marker as its last
+   line, and remove its worktree only after the harness says it has finished:
+   a clean, pushed worktree is not a stopped worker (`CONCURRENCY.md`,
+   *teardown*). First-of-kind, structural, or doctrine-text work
    escalates to the capable tier up front (`ECONOMICS.md`, the rework rule).
 6. **Per-item close.** **Commit, push and record before picking up the next
    item** — never batch records to the end. This is what makes a hard cap safe:
