@@ -19,7 +19,7 @@ drives Chrome via Playwright); each documents its own runtime.
 |-----------------|-----------|---------------------------------------------------------------------|
 | `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage), plus how large sessions' context windows got. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. `--search <term>` asks the other question: which turns, across every session in scope, match a term or a `--regex`. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
-| `ccclose`       | observe   | The close-out checker. From a fresh read of the repo, GitHub and the session's own transcript, says whether a close left anything owing (worktrees, branches, pushes, PRs, the session record, the board, live claims, the floor at the pushed head, review pointers, workaround-shaped commands) and lists the principal's close-out asks for the session to answer. Read-only. |
+| `ccclose`       | observe   | The close-out checker. From a fresh read of the repo, GitHub and the session's own transcript, says whether a close left anything owing (worktrees, branches, pushes, PRs, the session record, the board, live claims, the floor at the pushed head, review pointers, workaround-shaped commands, subagents still running) and lists the principal's close-out asks for the session to answer. Read-only. |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `ccmail`        | extend    | Open the Gmail attachments the mailbox connector can only *name* — it lists filenames and attachment ids but has no call that returns bytes. Fetches them to disk with its own read-only grant so the ordinary Read tool can open them. |
 | `ccpdf`         | extend    | A PDF page renderer built on macOS's own PDFKit, installed as `pdftoppm` — the binary Claude Code's file reader shells out to. Without it, a PDF on disk is still unreadable. |
@@ -373,7 +373,7 @@ usage records — the opposite treatment, for the opposite reason.
 tidy-up is done, and that "nothing is owed" must carry its evidence. `ccclose`
 is that evidence, read from the repo, from GitHub through `gh`, and from the
 session's own transcript, never from the session's memory. It prints the
-session id, transcript and window, eleven checks in a fixed order (✅ pass ·
+session id, transcript and window, twelve checks in a fixed order (✅ pass ·
 ❌ fail · ⚠️ partial or unknown · ➖ not applicable, with the reason), the
 principal's close-out asks found in the transcript under *Asked of this close —
 answer each*, and a verdict line. It exits 0 only when no check fails.

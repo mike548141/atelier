@@ -127,7 +127,39 @@ esac
 }
 
 const ID_ORDER = ['worktrees', 'branches', 'pushed', 'prs', 'session-record', 'board', 'claims',
-  'floor', 'reviews', 'bypasses', 'tree'];
+  'floor', 'reviews', 'bypasses', 'tree', 'subagents'];
+
+
+// --- subagent fixtures ---------------------------------------------------
+//
+// The agents of a session sit beside its transcript:
+//   <project>/<session-id>/subagents/agent-<id>.jsonl + agent-<id>.meta.json
+// Ids, descriptions and tool-use ids here are synthetic.
+
+const at = (m) => new Date(NOW + m * MIN).toISOString();
+const asst = (m, stop, blocks) => ({ type: 'assistant', timestamp: at(m), message: { stop_reason: stop, content: blocks.map((b) => ({ type: b })) } });
+// Finished: streamed partials (stop_reason null) and then the final end_turn.
+const finishedTurns = [asst(-50, null, ['thinking']), asst(-49, null, ['tool_use']),
+  { type: 'user', timestamp: at(-48), message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'x' }] } },
+  asst(-47, 'end_turn', ['text'])];
+// Cut: the last assistant record is a tool_use with no result after it.
+const cutTurns = [asst(-50, null, ['thinking']), asst(-49, null, ['tool_use'])];
+
+function agent(w, sid, id, { turns, description = `job ${id}`, shape = 'background', toolUseId = `toolu_${id}` }) {
+  const dir = path.join(w.home, '.claude', 'projects', 'proj', sid, 'subagents');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, `agent-${id}.jsonl`), turns.map((r) => JSON.stringify(r)).join('\n') + '\n');
+  fs.writeFileSync(path.join(dir, `agent-${id}.meta.json`), JSON.stringify({ agentType: 'general-purpose', description, toolUseId, requestShape: shape, model: 'sonnet' }));
+}
+
+// The three shapes a background agent's end takes in the parent transcript.
+const noteText = (id, status) => `<task-notification>\n<task-id>${id}</task-id>\n<tool-use-id>toolu_${id}</tool-use-id>\n<status>${status}</status>\n<summary>Agent done</summary>\n</task-notification>`;
+const viaAttachment = (id, status) => ({ type: 'attachment', attachment: { type: 'queued_command', commandMode: 'task-notification', prompt: noteText(id, status) } });
+const viaQueue = (id, status) => ({ type: 'queue-operation', operation: 'enqueue', content: noteText(id, status) });
+const viaUser = (id, status) => ({ type: 'user', message: { role: 'user', content: noteText(id, status) } });
+const toolResult = (toolUseId) => ({ type: 'user', message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: toolUseId, content: 'done' }] } });
+
+const agentLines = (j) => Object.fromEntries(j.by.subagents.agents.map((a) => [a.id, a]));
 
 // --- pure functions ------------------------------------------------------
 
@@ -251,7 +283,7 @@ test('a tidy close passes every check that applies and exits 0', () => {
   const j = json(w, root, ['--session', 'sess-tidy']);
   assert.deepEqual(j.checks.map((c) => c.id), ID_ORDER);
   const want = { worktrees: 'pass', branches: 'pass', pushed: 'pass', prs: 'na', 'session-record': 'pass',
-    board: 'na', claims: 'na', floor: 'na', reviews: 'na', bypasses: 'pass', tree: 'pass' };
+    board: 'na', claims: 'na', floor: 'na', reviews: 'na', bypasses: 'pass', tree: 'pass', subagents: 'na' };
   for (const [id, st] of Object.entries(want)) assert.equal(j.by[id].status, st, `${id}: ${j.by[id].summary}`);
   assert.equal(j.code, 0);
   assert.equal(j.verdict.status, 'pass');
@@ -506,6 +538,180 @@ test('the field set is stable: every check prints on every run, in one order', (
   assert.match(text, /Asked of this close — answer each/);
   assert.match(text, /keyword heuristic/);
   assert.match(text, /Heuristic +"this session's" = dated inside the window/);
+});
+
+// --- check 12: subagents finished ---------------------------------------
+
+test('taskNotifications reads the id and status of each block, and only a text that opens with the tag', () => {
+  assert.deepEqual(cc.taskNotifications(noteText('a1', 'completed')), [{ id: 'a1', status: 'completed' }]);
+  assert.deepEqual(cc.taskNotifications(`${noteText('a1', 'killed')}\n${noteText('b2', 'stopped')}`),
+    [{ id: 'a1', status: 'killed' }, { id: 'b2', status: 'stopped' }]);
+  assert.deepEqual(cc.taskNotifications('I saw ' + noteText('a1', 'completed')), []);   // a mention, not a notification
+  assert.deepEqual(cc.taskNotifications('<task-notification>\n<task-id>a1</task-id>\n</task-notification>'), []);  // no status
+  assert.deepEqual(cc.taskNotifications(''), []);
+});
+
+test('readTranscript records a notification from each of its three carrier shapes, and ignores a mention', async () => {
+  const w = world();
+  const p = transcript(w, 'sess-carriers', [
+    viaAttachment('aaa1', 'completed'), viaQueue('bbb2', 'killed'), viaUser('ccc3', 'stopped'),
+    // Not carriers: an assistant quoting the tag, and a tool_result (a record with toolUseResult) carrying it.
+    { type: 'assistant', message: { content: [{ type: 'text', text: noteText('ddd4', 'completed') }] } },
+    { type: 'user', toolUseResult: {}, message: { role: 'user', content: noteText('eee5', 'completed') } },
+    // A dequeue is not an arrival.
+    { type: 'queue-operation', operation: 'remove', content: noteText('fff6', 'completed') },
+  ]);
+  const t = await cc.readTranscript(p);
+  assert.deepEqual([...t.notes.keys()].sort(), ['aaa1', 'bbb2', 'ccc3']);
+  assert.equal(t.notes.get('bbb2').status, 'killed');
+});
+
+test('check 12 sorts every agent into its state, with each carrier and the foreground tool_result', () => {
+  const w = world();
+  const root = repo(w);
+  const sid = 'sess-agents';
+  // ✅ finished, notified: one agent per carrier shape.
+  agent(w, sid, 'a1111111', { turns: finishedTurns, description: 'via attachment' });
+  agent(w, sid, 'b2222222', { turns: finishedTurns, description: 'via queue enqueue' });
+  agent(w, sid, 'c3333333', { turns: finishedTurns, description: 'via user record' });
+  // ✅ stopped on purpose: cut mid-turn, but the parent saw it stopped.
+  agent(w, sid, 'd4444444', { turns: cutTurns, description: 'duplicate, stopped' });
+  // ✅ foreground: ended by the tool_result on its launch.
+  agent(w, sid, 'e5555555', { turns: finishedTurns, description: 'foreground job', shape: 'foreground', toolUseId: 'toolu_fg' });
+  // ⚠️ finished, never notified. Its launch's tool_result must not count as its end.
+  agent(w, sid, 'f6666666', { turns: finishedTurns, description: 'result never read' });
+  // ❌ cut mid-flight, no notification.
+  agent(w, sid, 'a7777777', { turns: cutTurns, description: 'cut by a closed tab' });
+  transcript(w, sid, [
+    viaAttachment('a1111111', 'completed'), viaQueue('b2222222', 'completed'), viaUser('c3333333', 'completed'),
+    viaQueue('d4444444', 'stopped'), toolResult('toolu_fg'), toolResult('toolu_f6666666'),
+  ]);
+  const j = json(w, root, ['--session', sid]);
+  const c = j.by.subagents;
+  assert.equal(c.status, 'fail', c.summary);
+  assert.equal(j.code, 1);
+  assert.deepEqual(c.counts, { agents: 7, reported: 4, stopped: 1, unconsumed: 1, cut: 1 });
+  assert.match(c.summary, /7 agent\(s\) · 4 reported · 1 stopped on purpose · 1 finished, result never consumed · 1 cut mid-flight/);
+  const a = agentLines(j);
+  for (const id of ['a1111111', 'b2222222', 'c3333333']) {
+    assert.equal(a[id].status, 'pass', id);
+    assert.match(a[id].end, /completed notification/);
+  }
+  assert.equal(a.d4444444.status, 'pass');
+  assert.match(a.d4444444.end, /stopped on purpose \(stopped notification\)/);
+  assert.equal(a.e5555555.status, 'pass');
+  assert.match(a.e5555555.end, /tool_result/);
+  assert.equal(a.f6666666.status, 'warn');
+  assert.match(a.f6666666.end, /never consumed/);
+  assert.equal(a.a7777777.status, 'fail');
+  assert.match(a.a7777777.end, /cut mid-flight: last turn is a tool_use with no result/);
+  assert.equal(a.a7777777.short, 'a777777');
+  assert.equal(a.a7777777.description, 'cut by a closed tab');
+  // Problems list first, then each agent by short id, description and end.
+  assert.match(c.items[0], /^❌ a777777 cut by a closed tab — cut mid-flight/);
+  assert.match(c.items[1], /^⚠️ f666666 result never read — finished, but the parent has no notification/);
+  assert.ok(c.items.some((x) => /^✅ d444444 duplicate, stopped — stopped on purpose/.test(x)));
+  const text = ccclose(w, root, ['--session', sid]).out;
+  assert.match(text, /❌ Subagents finished +7 agent\(s\)/);
+  assert.match(text, /- ✅ e555555 foreground job — reported \(tool_result/);
+});
+
+test('check 12 passes when every agent was reported or stopped on purpose', () => {
+  const w = world();
+  const root = repo(w);
+  agent(w, 'sess-agents-ok', 'a1111111', { turns: finishedTurns });
+  agent(w, 'sess-agents-ok', 'd4444444', { turns: cutTurns });
+  transcript(w, 'sess-agents-ok', [viaAttachment('a1111111', 'completed'), viaUser('d4444444', 'killed')]);
+  const j = json(w, root, ['--session', 'sess-agents-ok']);
+  assert.equal(j.by.subagents.status, 'pass', j.by.subagents.summary);
+  assert.deepEqual(j.by.subagents.counts, { agents: 2, reported: 1, stopped: 1, unconsumed: 0, cut: 0 });
+  assert.match(j.by.subagents.items.join('\n'), /stopped on purpose \(killed notification\)/);
+});
+
+test('check 12 warns, and does not fail the close, for a finished agent whose result was never consumed', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'docs/SESSIONS.md', '# Sessions\n- [today](sessions/today.md)\n');
+  write(root, 'docs/sessions/today.md', '# today\n');
+  commit(w, root, 'records: session close', NOW - 30 * MIN);
+  sh(w, root, ['push', '-q', 'origin', 'main']);
+  agent(w, 'sess-agents-warn', 'a1111111', { turns: finishedTurns });
+  transcript(w, 'sess-agents-warn');
+  const j = json(w, root, ['--session', 'sess-agents-warn']);
+  assert.equal(j.by.subagents.status, 'warn');
+  assert.deepEqual(j.by.subagents.counts, { agents: 1, reported: 0, stopped: 0, unconsumed: 1, cut: 0 });
+  assert.equal(j.code, 0);
+  assert.equal(j.verdict.status, 'warn');
+});
+
+test('a mention of the notification is not one: an agent only talked about stays unconsumed', () => {
+  const w = world();
+  const root = repo(w);
+  agent(w, 'sess-agents-mention', 'a1111111', { turns: finishedTurns });
+  transcript(w, 'sess-agents-mention', [
+    { type: 'assistant', message: { content: [{ type: 'text', text: noteText('a1111111', 'completed') }] } },
+  ]);
+  const j = json(w, root, ['--session', 'sess-agents-mention']);
+  assert.equal(j.by.subagents.status, 'warn');
+});
+
+test('an agent resumed after its completed notification and cut again is a fail, not a pass', () => {
+  const w = world();
+  const root = repo(w);
+  // Notified at -20 min (transcript() stamps extras there); the agent worked on at -10.
+  agent(w, 'sess-agents-resume', 'a1111111', { turns: [...finishedTurns, asst(-10, null, ['tool_use'])] });
+  transcript(w, 'sess-agents-resume', [viaAttachment('a1111111', 'completed')]);
+  const j = json(w, root, ['--session', 'sess-agents-resume']);
+  assert.equal(j.by.subagents.status, 'fail');
+  assert.match(j.by.subagents.items[0], /resumed after its completed notification and cut mid-flight/);
+});
+
+test('a resumed agent that finished again is judged by its LAST turn', () => {
+  const w = world();
+  const root = repo(w);
+  agent(w, 'sess-agents-resume2', 'a1111111', { turns: [...cutTurns, asst(-40, null, ['thinking']), asst(-39, 'end_turn', ['text'])] });
+  transcript(w, 'sess-agents-resume2', [viaQueue('a1111111', 'completed')]);
+  assert.equal(json(w, root, ['--session', 'sess-agents-resume2']).by.subagents.status, 'pass');
+});
+
+test('check 12 is not applicable with no subagents/ directory, and says so rather than pass', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-no-agents');
+  const j = json(w, root, ['--session', 'sess-no-agents']);
+  assert.equal(j.by.subagents.status, 'na');
+  assert.match(j.by.subagents.summary, /^not applicable — no subagents\/ directory/);
+  assert.deepEqual(j.by.subagents.counts, { agents: 0, reported: 0, stopped: 0, unconsumed: 0, cut: 0 });  // known zeros print
+  assert.match(ccclose(w, root, ['--session', 'sess-no-agents']).out, /➖ Subagents finished +not applicable/);
+  // With no transcript at all it is also not applicable, and the counts are unknown rather than zero.
+  const none = json(w, root, ['--session', 'nothing-here']);
+  assert.equal(none.by.subagents.status, 'na');
+  assert.equal(none.by.subagents.counts, null);
+});
+
+test('an empty subagents/ directory is a known zero, not a skipped check', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-empty-agents');
+  fs.mkdirSync(path.join(w.home, '.claude', 'projects', 'proj', 'sess-empty-agents', 'subagents'), { recursive: true });
+  const j = json(w, root, ['--session', 'sess-empty-agents']);
+  assert.equal(j.by.subagents.status, 'pass');
+  assert.match(j.by.subagents.summary, /^0 agent\(s\) · 0 reported · 0 stopped on purpose · 0 finished, result never consumed · 0 cut mid-flight/);
+});
+
+test('check 12 list is capped and the cut counted, with problems listed first', () => {
+  const w = world();
+  const root = repo(w);
+  const n = cc.CAP + 4;
+  for (let i = 0; i < n; i++) agent(w, 'sess-many-agents', `aa${String(i).padStart(6, '0')}`, { turns: finishedTurns });
+  agent(w, 'sess-many-agents', 'zz999999', { turns: cutTurns, description: 'the one that matters' });
+  transcript(w, 'sess-many-agents', Array.from({ length: n }, (_, i) => viaAttachment(`aa${String(i).padStart(6, '0')}`, 'completed')));
+  const j = json(w, root, ['--session', 'sess-many-agents']);
+  assert.equal(j.by.subagents.items.length, cc.CAP);
+  assert.equal(j.by.subagents.itemsTotal, n + 1);
+  assert.equal(j.by.subagents.counts.agents, n + 1);
+  assert.match(j.by.subagents.items[0], /^❌ zz99999 the one that matters/);
+  assert.match(ccclose(w, root, ['--session', 'sess-many-agents']).out, /… and 5 more/);
 });
 
 // --- documentation convention (REPO-STANDARD: concise --help + a man page) --

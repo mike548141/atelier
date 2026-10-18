@@ -7,7 +7,7 @@
  * owed" is a claim that must carry its evidence. This is that evidence, read
  * from the repo, the host and the session's own transcript rather than from the
  * session's memory, which is the thing that drifts in a long session. It prints
- * the standard outputs (session id, transcript, window), eleven checks in a
+ * the standard outputs (session id, transcript, window), twelve checks in a
  * fixed order, the principal's close-out asks found in the transcript, and a
  * one-line verdict. The design of record is instruments/ccclose.design.md.
  *
@@ -52,7 +52,8 @@ OPTIONS
 
 Checks worktrees, branches, pushes, PRs, the session record, the board, live
 claims, the floor at the pushed head, review pointers, workaround-shaped
-commands and the working tree, then lists the principal's close-out asks.
+commands, the working tree and the session's subagents, then lists the
+principal's close-out asks.
 Read-only. Exit 0 when no check fails.  Full manual: man ccclose`;
 
 // The cap on every listed set. Counts stay whole; only the lists are cut.
@@ -164,11 +165,41 @@ function bypassesIn(command) {
   return BYPASSES.filter(([, re]) => re.test(command)).map(([label]) => label);
 }
 
-// Stream the log once: window, prompt counts, asks, models, bypasses.
+// The ends of background agents, as the parent transcript records them: a
+// <task-notification> block with a <task-id> (the agent's id) and a <status>.
+// The harness writes the same block in three shapes (census of the live store,
+// 2026-10-18): an `attachment` record of type queued_command (the text in
+// attachment.prompt), a `queue-operation` enqueue (the text in content), and a
+// plain `user` record (the text in message.content). A record that merely
+// MENTIONS the tag (an assistant discussing it, a prompt quoting it) is none of
+// the three, and a user text counts only when it opens with the tag.
+const NOTE_BLOCK = /<task-notification>([\s\S]*?)<\/task-notification>/g;
+function notificationText(o) {
+  if (o.type === 'attachment' && o.attachment && o.attachment.type === 'queued_command') {
+    return cct.extractText(o.attachment.prompt);
+  }
+  if (o.type === 'queue-operation' && o.operation === 'enqueue') return cct.extractText(o.content);
+  if (o.type === 'user' && !o.toolUseResult && o.message) return cct.extractText(o.message.content);
+  return '';
+}
+function taskNotifications(text) {
+  if (!text || !text.trimStart().startsWith('<task-notification>')) return [];
+  const out = [];
+  for (const m of text.matchAll(NOTE_BLOCK)) {
+    const id = (m[1].match(/<task-id>\s*([^<\s]+)\s*<\/task-id>/) || [])[1];
+    const status = (m[1].match(/<status>\s*([^<\s]+)\s*<\/status>/) || [])[1];
+    if (id && status) out.push({ id, status });
+  }
+  return out;
+}
+
+// Stream the log once: window, prompt counts, asks, models, bypasses, and what
+// the parent saw of its agents (notifications by task id; tool_result ids).
 async function readTranscript(file) {
   const t = {
     first: null, last: null, turn: 0, midTurn: 0, models: new Set(),
     asks: [], asksTotal: 0, bypasses: [], bypassesTotal: 0,
+    notes: new Map(), toolResults: new Map(),
   };
   let n = 0, k = 0;
   const rl = readline.createInterface({ input: fs.createReadStream(file), crlfDelay: Infinity });
@@ -179,6 +210,19 @@ async function readTranscript(file) {
     if (Number.isFinite(ms)) {
       if (t.first === null || ms < t.first) t.first = ms;
       if (t.last === null || ms > t.last) t.last = ms;
+    }
+    if (ln.includes('<task-notification>')) {
+      // The latest notification for an agent governs (a resume ends again).
+      for (const x of taskNotifications(notificationText(o))) {
+        t.notes.set(x.id, { status: x.status, ts: Number.isFinite(ms) ? ms : null });
+      }
+    }
+    if (o.type === 'user' && ln.includes('tool_result') && o.message && Array.isArray(o.message.content)) {
+      for (const b of o.message.content) {
+        if (b && b.type === 'tool_result' && b.tool_use_id) {
+          t.toolResults.set(b.tool_use_id, Number.isFinite(ms) ? ms : null);
+        }
+      }
     }
     let text = null, ref = null, channel = null, principal = false;
     if (o.type === 'user' && !o.toolUseResult) {
@@ -609,6 +653,105 @@ function checkBypasses(t) {
     t.bypasses.map((x) => `${x.ts ? utc(Date.parse(x.ts)) + ' UTC' : 'unknown time'} [${x.kinds.join(', ')}] ${x.command}`), t.bypassesTotal);
 }
 
+// --- check 12: subagents finished -----------------------------------------
+//
+// A tab closed on "ready to close" kills a running agent silently, so the
+// close declaration has to cover them. The agents of a session live beside its
+// transcript: <project>/<session-id>/subagents/agent-<id>.jsonl, with an
+// agent-<id>.meta.json (description, toolUseId, requestShape, model). The
+// directory is derived from the transcript's own path, so a fixture transcript
+// carries its own agents and nothing reads the real store.
+
+const SHORT = 7;
+const STOP_STATUS = new Set(['killed', 'stopped']);
+
+// One agent's own transcript: the last assistant record's stop_reason (the
+// streamed partials before it carry null) and what that record held. A SendMessage
+// resume appends to the same file, so the LAST assistant record is the final turn.
+async function readAgent(file) {
+  const a = { stop: null, blocks: [], lastTs: null, assistants: 0 };
+  const rl = readline.createInterface({ input: fs.createReadStream(file), crlfDelay: Infinity });
+  for await (const ln of rl) {
+    if (!ln.trim()) continue;
+    let o; try { o = JSON.parse(ln); } catch { continue; }
+    const ms = o.timestamp ? Date.parse(o.timestamp) : NaN;
+    if (Number.isFinite(ms) && (a.lastTs === null || ms > a.lastTs)) a.lastTs = ms;
+    if (o.type !== 'assistant' || !o.message) continue;
+    a.assistants++;
+    a.stop = o.message.stop_reason === undefined ? null : o.message.stop_reason;
+    a.blocks = Array.isArray(o.message.content) ? o.message.content.map((b) => b && b.type) : [];
+  }
+  return a;
+}
+
+// The verdict on one agent, from its own transcript and the parent's record.
+function judgeAgent(a, parent) {
+  const finished = a.stop === 'end_turn';
+  const note = parent.notes.get(a.id) || null;
+  const foreground = a.meta.requestShape === 'foreground';
+  const hasResult = foreground && !!a.meta.toolUseId && parent.toolResults.has(a.meta.toolUseId);
+  if (note && STOP_STATUS.has(note.status)) {
+    return { state: 'stopped', status: 'pass', end: `stopped on purpose (${note.status} notification)` };
+  }
+  if (hasResult) {
+    return { state: 'reported', status: 'pass',
+      end: `reported (tool_result on the launch${finished ? '' : '; its own transcript stops short of end_turn'})` };
+  }
+  if (note && note.status === 'completed') {
+    if (finished) return { state: 'reported', status: 'pass', end: 'reported (completed notification)' };
+    // Notified complete, yet the file does not end on end_turn. Records after
+    // the notification mean a resume that was then cut.
+    const resumed = note.ts !== null && a.lastTs !== null && a.lastTs > note.ts;
+    return resumed
+      ? { state: 'cut', status: 'fail', end: 'resumed after its completed notification and cut mid-flight' }
+      : { state: 'unconsumed', status: 'warn', end: 'a completed notification, but its own transcript stops short of end_turn' };
+  }
+  if (note) {
+    return { state: 'unconsumed', status: 'warn', end: `notified with status "${note.status}", which ccclose does not know` };
+  }
+  if (finished) {
+    return { state: 'unconsumed', status: 'warn',
+      end: `finished, but the parent has no ${foreground ? 'tool_result' : 'notification'} (result never consumed)` };
+  }
+  const last = a.blocks.includes('tool_use') ? 'last turn is a tool_use with no result after it'
+    : a.assistants ? `last turn has stop_reason ${a.stop === null ? 'null' : a.stop}` : 'no assistant turn yet';
+  return { state: 'cut', status: 'fail', end: `cut mid-flight: ${last}` };
+}
+
+async function checkSubagents(file, t) {
+  const L = 'Subagents finished';
+  const zero = { reported: 0, stopped: 0, unconsumed: 0, cut: 0 };
+  if (!file) return { ...check('subagents', L, 'na', 'not applicable — no transcript, so no subagents/ directory to read'), counts: null, agents: [] };
+  const dir = path.join(path.dirname(file), path.basename(file, '.jsonl'), 'subagents');
+  if (!isDir(dir)) return { ...check('subagents', L, 'na', 'not applicable — no subagents/ directory beside the transcript'), counts: { agents: 0, ...zero }, agents: [] };
+  if (!t) return { ...check('subagents', L, 'warn', 'unknown — the transcript could not be read, so no agent\'s end can be matched to a notification'), counts: null, agents: [] };
+  let names = [];
+  try { names = fs.readdirSync(dir).filter((n) => /^agent-.+\.jsonl$/.test(n)).sort(); } catch {}
+  const agents = [];
+  for (const n of names) {
+    const id = n.slice('agent-'.length, -'.jsonl'.length);
+    let meta = {};
+    try { meta = JSON.parse(fs.readFileSync(path.join(dir, `agent-${id}.meta.json`), 'utf8')) || {}; } catch {}
+    let own;
+    try { own = await readAgent(path.join(dir, n)); } catch { own = { stop: null, blocks: [], lastTs: null, assistants: 0 }; }
+    const a = { id, meta, ...own };
+    const j = judgeAgent(a, t);
+    agents.push({
+      id, short: id.slice(0, SHORT), description: typeof meta.description === 'string' ? meta.description : null,
+      requestShape: meta.requestShape || null, model: meta.model || null, ...j,
+    });
+  }
+  const counts = { agents: agents.length, ...zero };
+  for (const a of agents) counts[a.state]++;
+  const order = { fail: 0, warn: 1, pass: 2 };
+  const listed = [...agents].sort((x, y) => order[x.status] - order[y.status]);
+  const items = listed.map((a) => `${ICON[a.status]} ${a.short} ${clip(a.description || '(no description)', 60)} — ${a.end}`);
+  const status = counts.cut ? 'fail' : counts.unconsumed ? 'warn' : 'pass';
+  const summary = `${counts.agents} agent(s) · ${counts.reported} reported · ${counts.stopped} stopped on purpose`
+    + ` · ${counts.unconsumed} finished, result never consumed · ${counts.cut} cut mid-flight`;
+  return { ...check('subagents', L, status, summary, items), counts, agents: listed.slice(0, CAP) };
+}
+
 function checkTree(repo) {
   const L = 'Working tree clean';
   if (!repo.isGit) return check('tree', L, 'na', NOT_GIT);
@@ -655,6 +798,7 @@ async function collect(opts) {
     checkReviews(repo, w, b),
     checkBypasses(t),
     checkTree(repo),
+    await checkSubagents(file, t),
   ];
   const commitsIn = repo.isGit && w ? windowCommits(repo, w, ['--branches', '--remotes']) : null;
   const unpushed = repo.isGit && w && repo.remotes.length ? windowCommits(repo, w, ['--branches', '--not', '--remotes']) : null;
@@ -746,4 +890,4 @@ async function main() {
 
 if (require.main === module) main();
 
-module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, readTranscript, locateTranscript, collect, render, CAP };
+module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, taskNotifications, readTranscript, locateTranscript, collect, render, CAP };

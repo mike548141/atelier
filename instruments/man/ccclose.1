@@ -16,8 +16,8 @@ A session that finishes a sequence of work does the tidy-up and then declares
 that it is ready to close.
 That declaration is a claim, and it needs evidence: worktrees and branches put
 away, commits pushed, pull requests merged, the session record written, the
-board rebuilt, no claim left live, the floor green on what was pushed, and
-reviews queued where they are owed.
+board rebuilt, no claim left live, the floor green on what was pushed, reviews
+queued where they are owed, and every subagent finished.
 A session that answers those from its own memory is answering from the thing
 that drifts most in a long session.
 .PP
@@ -27,7 +27,7 @@ through
 .BR gh (1),
 and of the session's own transcript.
 It prints the standard outputs (the session id, its transcript, its time
-window, the repo and its head), eleven checks in a fixed order, the
+window, the repo and its head), twelve checks in a fixed order, the
 principal's close-out asks found in the transcript, and a one-line verdict.
 It changes nothing.
 .SS The session and its window
@@ -178,6 +178,54 @@ answer.
 Uncommitted changes warn.
 They cannot be attributed: changes a session did not make are the sign that
 another session is live.
+.TP
+.B Subagents finished
+Closing a tab kills a running agent silently, so the close has to cover them.
+The session's agents are read from
+.IR "<project>/<session-id>/subagents/" ,
+beside the transcript:
+.I agent-<id>.jsonl
+and
+.I agent-<id>.meta.json
+for each.
+An agent is finished when its last assistant record has
+.B stop_reason end_turn ;
+a resume appends to the same file, so the last record is the final turn.
+.B ccclose
+matches each agent to the parent transcript's record of its end: a
+.B <task-notification>
+with the agent's task id and a status of
+.BR completed ", " killed " or " stopped ,
+carried in a queued-command attachment, a queue enqueue or a plain user
+record (all three occur), or, for a foreground agent, the
+.B tool_result
+on its launch.
+.RS
+.IP "pass"
+Finished and reported, or stopped on purpose (a
+.B killed
+or
+.B stopped
+notification).
+A stopped agent is named in the list, never hidden.
+.IP "warn"
+Finished by its own transcript, but the parent has no notification: the
+result was never consumed.
+.IP "fail"
+No finished final turn and no completed, killed or stopped notification:
+the agent was cut mid-flight.
+An agent resumed after its completed notification and cut again fails too.
+.IP "not applicable"
+No transcript, or no
+.I subagents/
+directory.
+.RE
+.IP
+The line counts every state, zeros included, and each agent is listed with
+its short id, description and end, problems first.
+The session running
+.B ccclose
+is live, so its own agents still working show as cut until they end.
 .SS Asked of this close \(em answer each
 After the checks,
 .B ccclose
@@ -243,6 +291,11 @@ The last line is the verdict, for example:
 .TP
 .IR ~/.claude/projects/ * / id .jsonl
 Session transcripts, read only and a line at a time.
+.TP
+.IR ~/.claude/projects/ * / id /subagents/agent\- * .jsonl
+The session's subagent transcripts and their
+.I .meta.json
+files, read only.
 .TP
 .I docs/SESSIONS.md \fRor\fP SESSIONS.md
 The session log, with its
