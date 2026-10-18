@@ -1,5 +1,5 @@
-- [~] **E7 residue — G3 (binary media): FUNDED as its own item, soon
-      (claimed 2026-10-18-0725, wt: atelier-qr-020-150)
+- [x] **DONE 2026-10-18** (wt: atelier-qr-020-150)
+      **E7 residue — G3 (binary media): FUNDED as its own item, soon
       (Mike ruled 2026-08-09; shape unchanged from 2026-08-04).** A
       deliberate landing, not a rider: the build session designs the
       blast-radius half deliberately — marker ergonomics for legitimate
@@ -56,3 +56,21 @@
       single opaque-metadata scope is not enough as built. An entry names
       each metadata set it keeps (for example a colour profile) with its
       own need, and any set it does not name still blocks.
+      ✅ **LANDED 2026-10-18 as PR #97, squash `b5a2c53`, on Mike's two
+      answers.** Rebased onto `main` after 15 days, with the board-claim
+      commit dropped. The staged plane now goes through
+      `report.scope_staged`. **Grace:** `BINARY_GRACE_UNTIL = 2026-11-18`
+      (UTC). Before it the four G3 rules warn, naming the date and the
+      remedy; from it they block. No flag, env var or config key moves it.
+      The span was the queue run's choice on "~30 days", not a ruling.
+      **Metadata by set:** `exif`, `iptc`, `xmp`, `icc`, `png-text`,
+      `jpeg-comment` and `unknown`. Each kept set needs its own line with
+      its own reason, and a copied reason is refused. An unnamed set
+      blocks, and a named set the file lacks is stale. A judgement call:
+      text metadata now needs a line too, read as following "only keep the
+      metadata it has a need for". **Floor hardening found on the way:**
+      `flags` refuses abbreviations of forbidden mode flags (`--binary`,
+      `--self` had expanded to modes that scan nothing), and `scope`
+      refuses dash-led paths. This covers every scanner run through the
+      floor. 2,031 Python and 489 node tests green, PR checks green. Cold
+      pass queued at `160/980`; the removal of both graces is `010/190`.

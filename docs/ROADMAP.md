@@ -28,6 +28,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [CF3's dirty-sibling stop is now stricter than its cause requires —…](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
 - ✅ [DONE 2026-10-18](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
 - [ ] 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
+- [ ] ⏳ [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
@@ -47,7 +48,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [D3 — signscan cannot fail CI.](roadmap/020-policy-as-code-programme-five-tracks-mik/120-d3-signscan-cannot-fail-ci.md)
 - [ ] [D4 — the repo-local seam has no adopters.](roadmap/020-policy-as-code-programme-five-tracks-mik/130-d4-the-repo-local-seam-has-no-adopters.md)
 - [ ] 🎯 [E6 — the floor's posture, and the dial that makes it reachable. RULED…](roadmap/020-policy-as-code-programme-five-tracks-mik/140-e6-the-floor-s-posture-and-the-dial-that-makes.md)
-- [~] (claimed 2026-10-18-0725, wt: atelier-qr-020-150) [E7 residue — G3 (binary media): FUNDED as its own item, soon (claimed…](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
+- ✅ [DONE 2026-10-18](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
 - ✅ [E9 — every scanner walks gitignored nested worktrees, and counts the…](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
 - [ ] 🎯 [F1 — rebuild the block-vs-advise model from base. REBUILT 2026-08-05…](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md)
 - [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
@@ -322,6 +323,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the staged-positional reader the three…](roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose --identifiers credits commits on…](roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
+- [ ] ⏳ [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
 
 ## build/ layer — open strands
 
