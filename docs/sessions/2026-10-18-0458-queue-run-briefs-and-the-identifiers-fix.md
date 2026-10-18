@@ -172,3 +172,31 @@ Mike answered the close report, and the run reopened:
   the cloud batch's record line about commit identity, which carried no marker.
   The orchestrator added the CLAUDE.md convention's marker, and tree-wide
   leakscan with terms now exits 0.
+- **`020/150` closed: G3 landed as PR #97 (squash `b5a2c53`).** An Opus worker
+  rebased the 15-day-old branch and built both of Mike's answers.
+  - **Grace:** the gate only warns until 2026-11-18, then blocks.
+  - **Metadata:** each metadata set a file keeps needs its own line and its
+    own reason, and a set not named blocks.
+  - **Floor routes closed:** it found and closed two routes round any gate
+    run through the floor. Abbreviated mode flags had expanded to modes that
+    scan nothing, and a scope path could start with a dash.
+  - **Before merging:** the orchestrator read the `floor.py` diff, rewrote
+    the PR description to match, marked it ready, and waited for green checks.
+  - **Queued and filed:** the cold pass is queued at `160/980`. It covers the
+    whole PR, because the 2026-10-03 build was never reviewed. `010/190` owns
+    removing both graces after the date.
+- 🚩 **`010/190` was filed with a `⏳` to mean "time-sensitive", and that was
+  wrong.** On this board `⏳` means a review is queued, so `ccclose` listed it
+  as a review item created. It was corrected in the next commit.
+- **The close checker's two workaround-shaped commands, answered.** The
+  "hooks skipped" flag fell on the `cd72fd2` command, which adds a
+  `leakscan:allow` marker. That commit ran the hook plane, and the marker
+  declares a recorded exception. The force push was `--force-with-lease` to
+  PR #97's own branch, after its rebase. No hook was bypassed.
+- **Identifiers, resumed work** (the block above covers the first part):
+  commits `e1ce2a1` `43c5a6b` `ee68aba` `58c0094` `cd72fd2` `28ef94a` `63720eb`
+  `4afe5ea` `b5a2c53` (PR #97, merge run by this session) `0dad7ca` `85955bd`,
+  and this close. Board: completed `010/170` and `020/150`. Created `010/170`,
+  `010/180`, `010/190`, `160/970` and `160/980`. Worktrees `atelier-qr-010-170`,
+  `-020-150` and `-records-1018b`, all removed. Two more Opus workers ran, and
+  all 7 agents reported.
