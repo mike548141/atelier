@@ -162,7 +162,24 @@ Asked at the close, one decision at a time, through the decision device:
   Its one handed-up decision (`320/450`) was put to Mike through the device.
   He answered in that session instead: build it with the grace period.
 
+- **Watching the run until Mike closes it.** After he replied in that
+  session, it reopened. It built the board-index grace period (`010/170`),
+  merged PR #97 with his two answers, and deleted its scratch copies.
+  Filed from watching: `180/170` (declared ready with loose ends) and
+  `180/180` (a refused delete redone through Python). The refusal came from
+  a deny rule in Mike's settings, `Bash(rm -rf /*)`, which matched every
+  absolute path and blocked this session's scratch cleanup too. On his say-so
+  it is now `rm -rf /` plus the root system folders. This session's private
+  mining extracts were then deleted. The first version of that question said
+  a literal `/*` could still be blocked. It cannot: the rule syntax has no
+  literal star. He was asked again with that corrected, and chose the
+  folder-list form.
+
 ## Recorded against itself
+- **Records committed from the primary checkout while a peer was live.**
+  The peer's `git pull` there was refused because this session's session-log
+  edits were staged at that moment. Its chained push then ran anyway. From
+  then on, this session's records go out from a worktree.
 - **Main's floor went red for about 20 minutes.** That was `12e6d9b`
   (`180/090`) through `74c5420`. The skill rewrite dropped five phrases that
   `tools/test_templates.py` pins, and only the new single-source test had
@@ -189,7 +206,7 @@ Asked at the close, one decision at a time, through the decision device:
   - #121 merge run — now merged
 - **Board**:
   - completed: 020/420, 130/030, 180/010, 180/020, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 180/090, 180/100, 180/110, 210/280, 210/300, 320/720
-  - created: 160/900, 160/910, 160/920, 160/930, 160/940, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 210/290, 210/300, 180/090, 180/100, 180/110, 180/120, 180/130, 180/140, 180/150, 180/160, 320/720 (320/720 arrived as PR #120, landed here)
+  - created: 160/900, 160/910, 160/920, 160/930, 160/940, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 210/290, 210/300, 180/090, 180/100, 180/110, 180/120, 180/130, 180/140, 180/150, 180/160, 180/170, 180/180, 320/720 (320/720 arrived as PR #120, landed here)
   - claimed (still open): none
   - ⏳ review items created: 160/900, 160/910, 160/920, 160/930, 160/940
 - **Worktrees and branches** (7):
