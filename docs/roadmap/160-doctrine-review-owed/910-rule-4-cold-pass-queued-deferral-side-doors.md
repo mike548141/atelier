@@ -6,7 +6,7 @@
       *Pass type:* doctrine cold pass, per `method/REVIEW.md` rule 4.
       *Delta, scoped to paths:* `docs/method/REVIEW.md` (rule 1, the *side
       doors* paragraph) and `docs/method/RECORD.md` (one sentence in the
-      `SESSIONS.md` bullet), the commit on `main` on 2026-10-18 that closes
+      `SESSIONS.md` bullet), commit `adf75a4` on `main`, 2026-10-18, which closes
       `320/720`.
       *Intent record:*
       [`../320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md`](../320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md).
