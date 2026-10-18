@@ -314,9 +314,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🛑 [Rule-4 cold pass queued: ccmail stops sending the operator to](roadmap/160-doctrine-review-owed/890-rule-4-cold-pass-queued-ccmail-auth-advice.md)
 - [~] ⏳ [Rule-4 cold pass queued: the queue-run skill carries the whole](roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md)
 - [~] ⏳ [Rule-4 cold pass queued: the deferral's side doors (320/720).](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
-- [~] ⏳ [Rule-4 cold pass queued: the close declaration covers subagents](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the close declaration covers subagents](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
 - [~] ⏳ [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
-- [~] ⏳ [Cold pass queued: the opening prompt's template history, for](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
+- [ ] ⏳ [Cold pass queued: the opening prompt's template history, for](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
 
 ## build/ layer — open strands
 

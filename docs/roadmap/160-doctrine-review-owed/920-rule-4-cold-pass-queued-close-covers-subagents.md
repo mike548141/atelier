@@ -1,5 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the close declaration covers subagents
-      (claimed 2026-10-18-0503, wt: atelier-qr-briefs-1018)
+- [ ] ⏳ **Rule-4 cold pass queued: the close declaration covers subagents
       (`020/420`).** Doctrine text and a check whose green is read as "safe to
       close the tab", so the authoring session (a Mike-opened Opus 5.5 queue
       run, 2026-10-18, wt atelier-qr-020-420, which dispatched the Sonnet
@@ -17,4 +16,9 @@
       (`210/300`, the plain run ends with the block).
       *Intent record:*
       [`../020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md`](../020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md).
-      No brief written.
+      **Brief WRITTEN 2026-10-18, review NOT run** —
+      `docs/reviews/2026-10-18-0506-close-covers-subagents-cold.md` with a
+      `.deferred.md` sibling. Written by an Opus brief-writer that authored
+      none of the delta (dispatched by the Mike-opened Opus 5.5 queue run, wt
+      atelier-qr-briefs-1018); its exposure is disclosed in the brief. The
+      pass stays queued for a criterion-passing cold Fable session.
