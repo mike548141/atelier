@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-18-0450, wt: atelier-qr-180-090)
+- [x] **DONE 2026-10-18** (wt: atelier-qr-180-090)
       **One text for `/atelier:queue-run` and the hand copy, with no drift.**
       Mike, 2026-10-18: *"I would like the latest version of the prompt that
       "/atelier:queue-run <this run's brief>" uses to be in a text file
@@ -13,3 +13,15 @@
       make the prompt file the single source that the command loads, guard
       that by test, and make the file principal-owned text. Then delete the
       loose copy, as he authorised.
+
+  **Closed 2026-10-18** (commit `12e6d9b`). The `queue-run` skill now loads
+  `docs/method/session-open/session-open-prompt.md` and adds nothing, so the
+  command runs exactly the file he can open and paste.
+  `tools/test_queue_run_single_source.py` fails if the skill stops pointing
+  at the file or copies its lines; a planted copied sentence made it fail.
+  The file is principal-owned text: an agent changes it only on his say-so,
+  quoted in the commit. One sentence of it changed on this ask, to say the
+  command runs it. 🚩 The file's two closing lines ("Try not to stop and ask
+  me questions…", "Once all that is done review all my prompts…") are now in
+  every `/atelier:queue-run`. They were in the text he named as the one he
+  uses. Cold pass: `160/900` widens to this commit.

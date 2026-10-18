@@ -22,7 +22,9 @@
       session log*, and the prompt, `CONCURRENCY.md` and skill pointers),
       with its two same-day `RECORD.md` sharpenings, commit `46320f8` and the
       one after it (PRs, worktrees created, board items completed and
-      created).
+      created); and commit `12e6d9b` (`180/090`: the skill now loads the
+      prompt file and adds nothing, with
+      `tools/test_queue_run_single_source.py`).
       *Intent record:*
       [`../180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md`](../180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md)
       ,

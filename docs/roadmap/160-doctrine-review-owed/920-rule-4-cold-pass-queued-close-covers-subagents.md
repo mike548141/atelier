@@ -13,7 +13,8 @@
       `instruments/man/ccclose.1` and `instruments/README.md`, commit
       `a738f85`; both on `main`, 2026-10-18; and, widened by the same session
       (AW6), `ccclose --identifiers` in the same four instrument files,
-      commits `4142efb` and `8b30ee6` (`210/280`).
+      commits `4142efb` and `8b30ee6` (`210/280`); and commit `bdb1aba`
+      (`210/300`, the plain run ends with the block).
       *Intent record:*
       [`../020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md`](../020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md).
       No brief written.

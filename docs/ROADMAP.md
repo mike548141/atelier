@@ -336,7 +336,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [LANDED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/060-the-opening-prompt-template-history-from-the-transcripts.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/070-session-id-at-open-and-no-date-line.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/080-the-useful-identifiers-at-the-tail.md)
-- [~] (claimed 2026-10-18-0450, wt: atelier-qr-180-090) [(untitled)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/090-one-text-for-the-command-and-the-hand-copy.md)
+- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/090-one-text-for-the-command-and-the-hand-copy.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
@@ -391,7 +391,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [ccmail sent the operator to ccmail --auth, a client-ID setup he](roadmap/210-instruments-open-features/270-ccmail-sent-the-operator-to-a-setup-he-did-not-need.md)
 - ✅ [BUILT 2026-10-18](roadmap/210-instruments-open-features/280-ccclose-prints-the-identifiers-block.md)
 - [~] 🔎 [ccclose --identifiers over-credits work from overlapping](roadmap/210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md)
-- [~] (claimed 2026-10-18-0505, wt: atelier-qr-180-090) [(untitled)](roadmap/210-instruments-open-features/300-plain-ccclose-ends-with-the-identifiers-block.md)
+- ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/300-plain-ccclose-ends-with-the-identifiers-block.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
