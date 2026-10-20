@@ -1177,3 +1177,46 @@ test('drift guard: every flag --help prints appears in the man page (superset re
     assert.ok(pageFlat.includes(flag), `man page must document ${flag} (--help is the digest, the page the superset)`);
   }
 });
+
+// --- the repo label survives a renamed checkout ----------------------------
+// A checkout renamed after sessions ran in it leaves transcripts whose cwd names
+// the old path; copied into the new project folder, the first one read used to
+// label the whole folder with the old name, in every run and in the ledger.
+
+test('cwdLabelFor takes a cwd only when it encodes to the folder name', () => {
+  assert.equal(r.cwdLabelFor('-home-dev-new-name', '/home/dev/new-name'), 'new-name');
+  assert.equal(r.cwdLabelFor('-home-dev-new-name', '/home/dev/old-name'), null);
+  assert.equal(r.cwdLabelFor('-home-dev--dot-repo', '/home/dev/.dot-repo'), '.dot-repo');
+  assert.equal(r.cwdLabelFor('-home-dev-new-name', null), null);
+});
+
+test('ledgerLabelFits keeps a label the folder name ends with, drops one it does not', () => {
+  assert.equal(r.ledgerLabelFits('-home-dev-new-name', 'new-name'), true);
+  assert.equal(r.ledgerLabelFits('-home-dev-new-name', 'old-name'), false);
+  assert.equal(r.ledgerLabelFits('-home-dev-new-name', ''), false);
+});
+
+test('contract: a transcript copied from a renamed checkout does not relabel the repo', () => {
+  const dest = fs.mkdtempSync(pathMod.join(os.tmpdir(), 'ccrepo-renamed-'));
+  const repoDir = pathMod.join(dest, '-home-dev-new-name');
+  fs.mkdirSync(repoDir, { recursive: true });
+  const write = (uuid, cwd, ts) => fs.writeFileSync(pathMod.join(repoDir, `${uuid}.jsonl.gz`),
+    zlib.gzipSync([
+      JSON.stringify({ type: 'summary', cwd }),
+      JSON.stringify({
+        type: 'assistant', sessionId: uuid, timestamp: ts, requestId: 'req-' + uuid,
+        message: { id: 'msg-' + uuid, model: 'claude-opus-4-8',
+          usage: { input_tokens: 1000000, output_tokens: 1000000 } },
+      }),
+    ].join('\n') + '\n'));
+  // The copied (old-path) transcript sorts first, so it is the first one read.
+  write('00000000-0000-4000-8000-000000000001', '/home/dev/old-name', '2026-05-01T12:00:00.000Z');
+  write('ffffffff-0000-4000-8000-000000000002', '/home/dev/new-name', '2026-05-02T12:00:00.000Z');
+  const args = ['--from-archive', '--dest', dest, '-g', 'repo'];
+  const led = tmpLedger();
+  for (const j of [runCcrepoJson(dest, args, { CCREPO_ROLLUP: led }),     // cold: builds the ledger
+                   runCcrepoJson(dest, args, { CCREPO_ROLLUP: led })]) {  // warm: label from the ledger
+    assert.deepEqual(j.rows.map((x) => x.repo), ['new-name']);
+    assert.ok(Math.abs(j.rows[0].cost - 60) < 1e-9);
+  }
+});

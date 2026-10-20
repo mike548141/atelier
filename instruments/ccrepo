@@ -705,6 +705,20 @@ function cwdFromLog(file) {
   if (!m) return null;
   try { return JSON.parse(`"${m[1]}"`); } catch { return null; }
 }
+// Claude Code names a project folder after the session's cwd, with every
+// character outside [A-Za-z0-9] replaced by '-'.
+function encodeProjectDir(cwd) { return String(cwd).replace(/[^A-Za-z0-9]/g, '-'); }
+// A logged cwd names this folder's repo only when it encodes to the folder's own
+// name. A transcript copied in from a checkout that was since renamed or moved
+// still carries the old cwd, and must not label the folder with the old name.
+function cwdLabelFor(encoded, cwd) {
+  return cwd && encodeProjectDir(cwd) === encoded ? path.basename(cwd) : null;
+}
+// A ledger label is trusted only when the folder's name ends with it, encoded —
+// so a label a copied transcript planted before this check is re-derived.
+function ledgerLabelFits(encoded, lab) {
+  return Boolean(lab) && String(encoded).endsWith('-' + encodeProjectDir(lab));
+}
 // Prefer the exact logged name; else dash-decode the folder's last segment.
 function label(encoded, labels) {
   if (labels.has(encoded)) return labels.get(encoded);
@@ -867,8 +881,10 @@ function readAllEvents(covers, pricing, rollup) {
     if (!isDir(dir)) continue;
     // Seed the label from the ledger when we have it — a cached dir then needs no
     // main-file read at all. cwd is written once at session start, so the cached
-    // label stays valid for the life of the file.
+    // label stays valid for the life of the file. A ledger label that does not
+    // fit the folder's name is dropped and re-derived (see ledgerLabelFits).
     let lab = (rootEntry && rootEntry.labels[enc]) || null;
+    if (lab !== null && !ledgerLabelFits(enc, lab)) lab = null;
     for (const { full, session, sub } of walkSessionFiles(dir, null)) {
       // An evicted archive mirror is skipped, not read: ccrepo reads every file,
       // so reading it would fault its bytes back from iCloud. Counted as a gap;
@@ -876,6 +892,11 @@ function readAllEvents(covers, pricing, rollup) {
       // before the cache so eviction handling is byte-identical with the ledger
       // on or off (a dataless file is a gap either way, never served from cache).
       if (fromArchive && !materialise && isDataless(full)) { evicted++; continue; }
+
+      // Repo label from a main (non-subagent) file's cwd — a subagent may run in
+      // a worktree whose basename isn't the repo's. Read on a cache hit too, but
+      // only while the label is unknown, so a settled ledger reads nothing.
+      if (lab === null && !sub) lab = cwdLabelFor(enc, cwdFromLog(full));
 
       let fileEvents;
       if (rollup) {
@@ -887,16 +908,12 @@ function readAllEvents(covers, pricing, rollup) {
           fileEvents = cached.events;          // hit — no gunzip, no parse
           hits++;
         } else {
-          // Miss: repo label from a main (non-subagent) file's cwd — a subagent
-          // may run in a worktree whose basename isn't the repo's.
-          if (lab === null && !sub) { const cwd = cwdFromLog(full); if (cwd) lab = path.basename(cwd); }
           fileEvents = parseFileEvents(full, enc, session, sub, covers, pricing);
           rootEntry.files[path.relative(root, full)] = { fp, events: fileEvents };
           dirty = true;
           misses++;
         }
       } else {
-        if (lab === null && !sub) { const cwd = cwdFromLog(full); if (cwd) lab = path.basename(cwd); }
         fileEvents = parseFileEvents(full, enc, session, sub, covers, pricing);
       }
 
@@ -1671,7 +1688,7 @@ if (require.main === module) {
 module.exports = {
   symbolFor, shortModel, timeBucket, isoWeek,
   PRICING, priceBase, priceEntry, baseAt, messageCost, loadPricing,
-  zeroAgg, addTo, cacheHitRate, label,
+  zeroAgg, addTo, cacheHitRate, label, cwdLabelFor, ledgerLabelFits,
   quantile, contextStats, bumpPeak, fmtTokens,
   parseContextAmount, parseContextRange, sessionPeaks, buildContextFilter,
   DIMS, TIME_DIMS, globMatch, buildDimFilter,

@@ -6,6 +6,9 @@
       channel*, where the rule is not. (`hitchbots_guide` carries a
       `CLAUDE.md` and none of the block; whether it is a child at all is a
       separate question and not assumed here.)
+      🚩 **`cbom`'s checkout has since been renamed** (2026-09-30); its
+      current path is in the estate root's inventory, and the package and
+      command inside it are still called `cbom`.
       **`shed` is the least exposed and still mis-pointed** — its variant names
       the command rather than the lossy phrase, though in the old path-blind
       form (`-U0 | grep '^@@'`, which strips the file paths — the PU-1

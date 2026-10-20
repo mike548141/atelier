@@ -8,6 +8,9 @@
       *Stay in your lane*). Mike was offered the faster route — this session
       reverting `cbom/CLAUDE.md` directly as a recorded exception — and ruled
       for the queue. A `cbom` session does the edit.
+      🚩 **`cbom`'s checkout has since been renamed** (2026-09-30); its
+      current path is in the estate root's inventory, and the package and
+      command inside it are still called `cbom`.
       **What the finding must carry**, so the taker is not re-deriving it:
       - **Nothing was owed upstream.** Both authored rules are already in
         atelier's `CONCURRENCY.md` — the claiming rule verbatim in § *Claiming
