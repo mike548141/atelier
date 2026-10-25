@@ -1,5 +1,8 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the queue-run skill carries the whole
+- [~] ⏳ **Rule-4 cold pass queued: the queue-run skill carries the whole
       run brief (`180/010`, `180/030`), and worker teardown (`180/020`).**
+      (claimed 2026-10-25-2016, wt: atelier-cold-160-900; cold pass: a Fable 5.1
+      reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
+      the context partition, forms no finding and writes no severity)
       Doctrine text, so the authoring session (a Mike-opened Opus 5.5 queue
       run, 2026-10-18, wt atelier-qr-180-plugin) queues this and does not
       take it.

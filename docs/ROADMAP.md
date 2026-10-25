@@ -317,7 +317,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🛑 [Rule-4 cold pass queued: ccclose, the close-out checker (020/180).](roadmap/160-doctrine-review-owed/870-rule-4-cold-pass-queued-ccclose.md)
 - [ ] 🎯 [Rule-4 cold pass queued: cctranscript's harness classification…](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
 - [ ] 🛑 [Rule-4 cold pass queued: ccmail stops sending the operator to --auth…](roadmap/160-doctrine-review-owed/890-rule-4-cold-pass-queued-ccmail-auth-advice.md)
-- [ ] ⏳ [Rule-4 cold pass queued: the queue-run skill carries the whole run…](roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md)
+- [~] ⏳ (claimed 2026-10-25-2016, wt: atelier-cold-160-900; cold pass: a Fable 5.1 reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds the context partition, forms no finding and writes no severity) [Rule-4 cold pass queued: the queue-run skill carries the whole run…](roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the deferral's side doors (320/720).](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the close declaration covers subagents…](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
