@@ -1,8 +1,18 @@
-- [~] ⏳ **Rule-4 cold pass queued: the queue-run skill carries the whole
+- [ ] 🎯 **Rule-4 cold pass queued: the queue-run skill carries the whole
       run brief (`180/010`, `180/030`), and worker teardown (`180/020`).**
       (claimed 2026-10-25-2016, wt: atelier-cold-160-900; cold pass: a Fable 5.1
       reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
       the context partition, forms no finding and writes no severity)
+      ✅ **PASS RAN 2026-10-25 (UTC)**, acts 1 and 2, by a Fable 5.1 reviewer
+      under that orchestrator, which held the deferred sibling out of the tree
+      until act 1 was saved, then folded it below the verdict.
+      [`reviews/2026-10-18-0517-queue-run-carries-the-brief-cold.md`](../../reviews/2026-10-18-0517-queue-run-carries-the-brief-cold.md).
+      **PASS-WITH-FINDINGS — 1 MAJOR / 6 MODERATE / 4 minor / 3 notes
+      (QK1–QK14).** The cycle stays OPEN while QK1 stands: the command runs
+      the local clone's working tree, so uncommitted prompt text executes
+      with no commit, hook, test or review having seen it.
+      🎯 **Mike to rule (rule 3, doctrine):** all fourteen; the brief's
+      *Follow-up checklist* lists them. Nothing applied.
       Doctrine text, so the authoring session (a Mike-opened Opus 5.5 queue
       run, 2026-10-18, wt atelier-qr-180-plugin) queues this and does not
       take it.
