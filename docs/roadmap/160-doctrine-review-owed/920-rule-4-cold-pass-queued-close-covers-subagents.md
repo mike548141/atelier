@@ -1,8 +1,11 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the close declaration covers subagents
+- [~] ⏳ **Rule-4 cold pass queued: the close declaration covers subagents
       (`020/420`).** Doctrine text and a check whose green is read as "safe to
       close the tab", so the authoring session (a Mike-opened Opus 5.5 queue
       run, 2026-10-18, wt atelier-qr-020-420, which dispatched the Sonnet
       worker that wrote the code) queues this and does not take it.
+      (claimed 2026-10-25-2151, wt: atelier-cold-160-920; cold pass: a Fable 5.1
+      reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
+      the context partition, forms no finding and writes no severity)
       *Tier:* Fable, the principal-named review tier, checked at selection.
       *Pass type:* doctrine and code cold pass, per `method/REVIEW.md` rule 4.
       *Delta, scoped to paths:* `docs/method/RECORD.md` (the agents bullet
