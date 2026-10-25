@@ -1,4 +1,7 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the deferral's side doors (`320/720`).**
+- [~] ⏳ **Rule-4 cold pass queued: the deferral's side doors (`320/720`).**
+      (claimed 2026-10-25-2135, wt: atelier-cold-160-910; cold pass: a Fable 5.1
+      reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
+      the context partition, forms no finding and writes no severity)
       Doctrine text, so the authoring session (a Mike-opened Opus 5.5 queue
       run, 2026-10-18, wt atelier-qr-180-plugin) queues this and does not
       take it.
