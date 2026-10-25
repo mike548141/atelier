@@ -1,7 +1,16 @@
-- [~] ⏳ **Rule-4 cold pass queued: the deferral's side doors (`320/720`).**
+- [ ] 🎯 **Rule-4 cold pass queued: the deferral's side doors (`320/720`).**
       (claimed 2026-10-25-2135, wt: atelier-cold-160-910; cold pass: a Fable 5.1
       reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
       the context partition, forms no finding and writes no severity)
+      ✅ **PASS RAN 2026-10-25 (UTC)**, acts 1 and 2, by a Fable 5.1 reviewer
+      under that orchestrator, which held the deferred sibling out of the tree
+      until act 1 was saved, then folded it below the verdict.
+      [`reviews/2026-10-18-0508-deferral-side-doors-cold.md`](../../reviews/2026-10-18-0508-deferral-side-doors-cold.md).
+      **PASS-WITH-FINDINGS — 1 MAJOR / 4 MODERATE / 5 minor / 2 notes
+      (DS1–DS12).** The cycle stays OPEN while DS1 stands: the paragraph
+      answers a reader-side sequencing defect with a writer-side duty on every
+      repo, and never weighs a one-line carve-out in the reviewer's read order.
+      🎯 **Mike to rule (rule 3, doctrine):** all twelve. Nothing applied.
       Doctrine text, so the authoring session (a Mike-opened Opus 5.5 queue
       run, 2026-10-18, wt atelier-qr-180-plugin) queues this and does not
       take it.
