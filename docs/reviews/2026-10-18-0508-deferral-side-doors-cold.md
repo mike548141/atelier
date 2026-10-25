@@ -5,7 +5,7 @@
 whoever takes this pass.
 **Status:** RAN 2026-10-25 UTC, both phases — PASS-WITH-FINDINGS: 1 MAJOR, 4 MODERATE,
 5 minor, 2 notes (DS1–DS12; DS11–DS12 formed at reconcile), by a Fable 5.1 reviewer under session
-52e11d15's context partition. Sibling fold-in owed. Brief written 2026-10-18 UTC by an Opus
+52e11d15's context partition. Sibling folded at the foot. Brief written 2026-10-18 UTC by an Opus
 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md`.
