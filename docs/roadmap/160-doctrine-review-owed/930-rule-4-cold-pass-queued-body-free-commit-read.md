@@ -1,4 +1,7 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the body-free commit read (`130/030`).**
+- [~] ⏳ **Rule-4 cold pass queued: the body-free commit read (`130/030`).**
+      (claimed 2026-10-25-2233, wt: atelier-cold-160-930; cold pass: a Fable 5.1
+      reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
+      the context partition, forms no finding and writes no severity)
       The `review-brief` skill's text is doctrine by function, and `coldsweep`
       is a guard whose clean output is read as "nothing barred was seen". So
       the authoring session (a Mike-opened Opus 5.5 queue run, 2026-10-18, wt
