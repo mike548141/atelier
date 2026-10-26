@@ -1,4 +1,7 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits
+- [~] ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits
+      (claimed 2026-10-26-0908, wt: atelier-briefs-160-20261026-0907; BRIEF-WRITING
+      ONLY by session 5070f22b, Opus 5.5, which authored none of this delta and
+      will not run the pass)
       commits on evidence, not the window (`210/290`).** A block designed
       to be pasted into records as fact, so the authoring session (a
       Mike-opened Opus 5.5 queue run, session 8e498ef1, 2026-10-18, wt

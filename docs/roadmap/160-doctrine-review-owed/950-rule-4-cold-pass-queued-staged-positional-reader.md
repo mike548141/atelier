@@ -1,4 +1,7 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the staged-positional reader the three
+- [~] ⏳ **Rule-4 cold pass queued: the staged-positional reader the three
+      (claimed 2026-10-26-0908, wt: atelier-briefs-160-20261026-0907; BRIEF-WRITING
+      ONLY by session 5070f22b, Opus 5.5, which authored none of this delta and
+      will not run the pass)
       staged-diff guards share (`115/360`).** Guard code, doctrine by
       function: a clean `--staged` scan is read as "nothing barred was
       staged". So the authoring session (a Mike-opened Opus 5.5 queue run,

@@ -1,4 +1,7 @@
-- [ ] ⏳ **Rule-4 cold pass queued: G3 lands with a dated grace, metadata
+- [~] ⏳ **Rule-4 cold pass queued: G3 lands with a dated grace, metadata
+      (claimed 2026-10-26-0908, wt: atelier-briefs-160-20261026-0907; BRIEF-WRITING
+      ONLY by session 5070f22b, Opus 5.5, which authored none of this delta and
+      will not run the pass)
       is kept set by set, and floor refuses abbreviated mode flags
       (`020/150`).** This is the personal-data boundary of every child, and
       it adds the one stated exception to E6a. So the authoring session (a
