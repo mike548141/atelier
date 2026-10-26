@@ -597,6 +597,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [rpi hand-up: a rollout row backwards; wrapscan blind to split boards](roadmap/320-child-filed-findings-via-pointing-up/710-rpi-hand-up-a-rollout-row-backwards-wrapscan-blind-to-split-boards.md)
 - ✅ [FIXED 2026-10-18](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
 - [ ] 🔎 [Hand-up: the paragraph projection joins a wrapped claim into one…](roadmap/320-child-filed-findings-via-pointing-up/730-hand-up-the-paragraph-projection-joins-a-claim-into-an-index-line-wrapscan-refuses.md)
+- [ ] 🔎 [Hand-up: a one-line claim still overruns the index line, so 320/730's…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
