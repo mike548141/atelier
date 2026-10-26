@@ -324,8 +324,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Cold pass queued: the opening prompt's template history, for privacy…](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the staged-positional reader the three…](roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose --identifiers credits commits on…](roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md)
-- [~] ⏳ (claimed 2026-10-26-0908, wt: atelier-briefs-160-20261026-0907; BRIEF-WRITING ONLY by session 5070f22b, Opus 5.5, which authored none of this delta and will not run the pass) [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
-- [~] ⏳ (claimed 2026-10-26-0908, wt: atelier-briefs-160-20261026-0907; BRIEF-WRITING ONLY by session 5070f22b, Opus 5.5, which authored none of this delta and will not run the pass) [Rule-4 cold pass queued: G3 lands with a dated grace, metadata…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
+- [ ] ⏳ [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
 
 ## build/ layer — open strands
 
