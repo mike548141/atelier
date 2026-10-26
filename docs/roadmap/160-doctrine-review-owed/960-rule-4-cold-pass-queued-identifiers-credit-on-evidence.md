@@ -1,7 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits
-      (claimed 2026-10-26-0908, wt: atelier-briefs-160-20261026-0907; BRIEF-WRITING
-      ONLY by session 5070f22b, Opus 5.5, which authored none of this delta and
-      will not run the pass)
+- [ ] ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits
       commits on evidence, not the window (`210/290`).** A block designed
       to be pasted into records as fact, so the authoring session (a
       Mike-opened Opus 5.5 queue run, session 8e498ef1, 2026-10-18, wt
@@ -18,4 +15,10 @@
       reviews the earlier commits to the same files; this pass does not.
       *Intent record:*
       [`../210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md`](../210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md).
-      No brief written.
+      📝 BRIEF WRITTEN 2026-10-26 by session 5070f22b (Opus 5.5):
+      `docs/reviews/2026-10-26-0917-identifiers-credit-on-evidence-cold.md`,
+      with its `.deferred.md` sibling; this session may not run the pass.
+      Written by an Opus 5.5 subagent of that headless brief-writing session,
+      which authored none of the delta; review NOT run. The pass waits for a
+      criterion-passing cold Fable session and the principal's explicit
+      permission for Fable work.

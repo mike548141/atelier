@@ -1,7 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the staged-positional reader the three
-      (claimed 2026-10-26-0908, wt: atelier-briefs-160-20261026-0907; BRIEF-WRITING
-      ONLY by session 5070f22b, Opus 5.5, which authored none of this delta and
-      will not run the pass)
+- [ ] ⏳ **Rule-4 cold pass queued: the staged-positional reader the three
       staged-diff guards share (`115/360`).** Guard code, doctrine by
       function: a clean `--staged` scan is read as "nothing barred was
       staged". So the authoring session (a Mike-opened Opus 5.5 queue run,
@@ -17,4 +14,10 @@
       any child's declared scope relied on the old exact-spelling match.
       *Intent record:*
       [`../115-guardrail-architecture-mike-commissioned/360-a-bare-dot-scope-makes-the-staged-plane-scan-nothing.md`](../115-guardrail-architecture-mike-commissioned/360-a-bare-dot-scope-makes-the-staged-plane-scan-nothing.md).
-      No brief written.
+      📝 BRIEF WRITTEN 2026-10-26 by session 5070f22b (Opus 5.5):
+      `docs/reviews/2026-10-26-0912-staged-positional-reader-cold.md`, with
+      its `.deferred.md` sibling; this session may not run the pass. Written
+      by an Opus 5.5 subagent of that headless brief-writing session, which
+      authored none of the delta; review NOT run. The pass waits for a
+      criterion-passing cold Fable session and the principal's explicit
+      permission for Fable work.
