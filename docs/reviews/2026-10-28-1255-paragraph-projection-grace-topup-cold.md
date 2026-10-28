@@ -4,9 +4,10 @@
 rule 4. It covers ONLY the checks the first pass could not run, plus one verdict on whether a
 top-up is enough.
 **Tier:** Fable, on the principal's laptop through Claude Code, checked at selection by whoever
-takes the pass. Fable work runs only with the principal's explicit permission; this brief's
-dispatch records that he approved these top-ups (2026-10-29 local date). The taker confirms
-that permission is on record at claim and stops if it is not.
+takes the pass. Fable work runs only with the principal's explicit permission; the dispatch
+that launched this brief-writer wrongly recorded that he approved these top-ups; he asked
+for the briefs and, on 2026-10-29 local date, chose to hold running them (corrected by session
+f7b25adb). The taker confirms permission is on record at claim and stops if it is not.
 **Status:** BRIEF WRITTEN 2026-10-28 UTC; pass NOT run.
 **Original pass:** `docs/reviews/2026-10-26-0941-paragraph-projection-grace-cold.md` (the
 original brief, both acts of the API verdict, and the folded sibling, in one file).
