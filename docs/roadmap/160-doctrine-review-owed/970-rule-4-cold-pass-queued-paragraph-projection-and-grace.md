@@ -32,3 +32,12 @@
       disclosure, re-titling 78 index lines across the children, and the
       marker carry did not follow it. 🎯 **The principal's:** every finding
       (`board` is doctrine by function).
+      ⏳ **TOP-UP BRIEF WRITTEN 2026-10-28** by session `29af7e91` (Opus 5.5,
+      off-tier, forms no finding): the API pass could not complete the full
+      suite or the floor, ran `test_board.py` only with signing overridden,
+      reasoned PP5 without a real CI log, and had no `/security-review`.
+      `docs/reviews/2026-10-28-1255-paragraph-projection-grace-topup-cold.md`,
+      with its `.deferred.md` sibling; Fable on the laptop, checked at
+      selection; ends with a TOP-UP SUFFICES or FULL RE-RUN verdict. Barred:
+      `8e498ef1` and its workers, `5070f22b` and its subagents, `f7b25adb`
+      (built the harness; may not orchestrate), `29af7e91`.
