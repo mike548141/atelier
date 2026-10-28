@@ -322,7 +322,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: the close declaration covers subagents…](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
 - [ ] ⏳ [Cold pass queued: the opening prompt's template history, for privacy…](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
-- [ ] ⏳ [Rule-4 cold pass queued: the staged-positional reader the three…](roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md)
+- [ ] 🎯 [Rule-4 cold pass queued: the staged-positional reader the three…](roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose --identifiers credits commits on…](roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
 - [ ] ⏳ [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)

@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the staged-positional reader the three
+- [ ] 🎯 **Rule-4 cold pass queued: the staged-positional reader the three
       staged-diff guards share (`115/360`).** Guard code, doctrine by
       function: a clean `--staged` scan is read as "nothing barred was
       staged". So the authoring session (a Mike-opened Opus 5.5 queue run,
@@ -21,3 +21,17 @@
       authored none of the delta; review NOT run. The pass waits for a
       criterion-passing cold Fable session and the principal's explicit
       permission for Fable work.
+      ✅ **PASS RAN 2026-10-28** (Fable 5.1 xhigh through the Claude Platform
+      API on the principal's monthly credit, approved 2026-10-28;
+      orchestrator session `f7b25adb`, which formed no finding).
+      **PASS-WITH-FINDINGS — 1 MAJOR · 2 MODERATE · 3 minor · 5 notes**,
+      in the brief with the folded sibling. **QS1 (MAJOR):** a committed
+      scope whose spelling differs from git's by case or Unicode
+      normalisation renders, passes every floor guard, and the boundary
+      guards print clean over a staged live-shaped secret (reproduced on a
+      probe repo); counsel at reconcile: let git resolve the positional
+      (`git ls-files -z -- <normalised>`), which closes QS1 and QS2
+      together. Answers the author's open question: no child on this
+      machine changes behaviour. 🎯 **The principal's:** every finding;
+      QS11 asks that the `115/360` record carry the narrower truth beside
+      the ruling.
