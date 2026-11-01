@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the staged-positional reader the three
+- [ ] 🎯 **Rule-4 cold pass queued: the staged-positional reader the three
       staged-diff guards share (`115/360`).** Guard code, doctrine by
       function: a clean `--staged` scan is read as "nothing barred was
       staged". So the authoring session (a Mike-opened Opus 5.5 queue run,
@@ -55,3 +55,28 @@
       hold on running the top-ups is lifted by the principal for this drain,
       2026-11-02, verbatim: *"lift it and any others where I said to do it
       later"*.
+      🎯 **TOP-UP PASS RAN 2026-11-01-1404 — PASS-WITH-FINDINGS, 1 MAJOR · 2
+      MODERATE · 3 minor · 8 notes** (original plus top-up, QS1–QS11 and
+      QU1–QU3; verdict and reconcile in the top-up brief, the deferred
+      sibling folded below them). **TOP-UP SUFFICES**, the reviewer's answer
+      to the principal's 2026-10-28 ask: every sandbox limit under a finding
+      was re-driven on the laptop and each attribution held (four delta files
+      green, full suite 2032 OK, floor green with the real term list, signing
+      works). No severity changed, no API finding refuted. **QS1 (MAJOR)
+      stands, now on real `git commit`s at the real gate:** a scope spelt by
+      case or Unicode normalisation differently from git lets a staged
+      live-shaped secret through the hook; CI reds only after the push, which
+      detects but does not prevent. New notes: QU1 the per-guard test copies
+      do not pin the exact-file positional; QU2 warn-only ci-plane findings
+      outside the delta (this pointer's own glyph, cleared by this flip);
+      QU3, formed at reconcile, `test_pins.py`'s 60 s wall-clock bound makes
+      the full suite load-sensitive.
+      *Owed to the principal (rule 3), all recorded, none applied:* a ruling
+      on each finding, QS1 first, then QS2–QS11 and QU1–QU3; plus one ask
+      the drain put here rather than asking: (a) accept TOP-UP SUFFICES, or
+      still order a full laptop re-run (his 2026-10-28 default for degraded
+      passes; the reviewer recommends the top-up suffices).
+      *Routing:* code fixes in `tools/` here (QS1, QS4 with QU1, QS9, QU3);
+      QS11's narrower truth on the `115/360` record; QU2's other two
+      findings belong to the `970` pointer and the 2026-10-03 exception
+      register's record.

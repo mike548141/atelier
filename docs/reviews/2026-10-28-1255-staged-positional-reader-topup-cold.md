@@ -10,7 +10,9 @@ for the briefs and, on 2026-10-29 local date, chose to hold running them (correc
 f7b25adb). The taker confirms permission is on record at claim and stops if it is not.
 **Status:** BRIEF WRITTEN 2026-10-28 UTC; act 1 written 2026-11-01 UTC — top-up ran on the
 laptop (Fable 5.1), PASS-WITH-FINDINGS, 1 MAJOR · 2 MODERATE · 3 minor · 7 notes (QS1–QS11 plus
-QU1–QU2), TOP-UP SUFFICES; act 2 (reconcile) pending.
+QU1–QU2), TOP-UP SUFFICES; act 2 (reconcile) written 2026-11-01 UTC, one note added (QU3): 1 MAJOR
+· 2 MODERATE · 3 minor · 8 notes. Sibling folded in below the verdict by the orchestrator,
+2026-11-01 UTC.
 **Original pass:** `docs/reviews/2026-10-26-0912-staged-positional-reader-cold.md` (the
 original brief, both acts of the API verdict, and the folded sibling, in one file).
 **Queue pointer:**
@@ -462,3 +464,154 @@ Tally: original 11 findings (QS1–QS11) plus 2 top-up notes (QU1–QU2) — 1 M
 3 minor, 7 notes. Overall PASS-WITH-FINDINGS. TOP-UP SUFFICES.
 
 ACT 1 SAVED
+
+---
+
+*Act 2 run by Fable 5.1 on the principal's laptop through Claude Code, the same subagent of
+orchestrator session `4610c607`, 2026-11-01 UTC.*
+
+### Reconcile
+
+**Written:** 2026-11-01 UTC, after act 1 was committed by the orchestrator (`4eba23b`) and the
+held sibling's path was released to me. Opened at this step: the sibling, one file, and nothing
+else. Not opened: the queue pointer, `docs/SESSIONS.md`, `docs/sessions/`,
+`docs/ROADMAP-DONE.md`, any other verdict. Act-1 text above is unrevised. The folding of the
+sibling below this section and its deletion are the orchestrator's to do.
+
+**Against the sibling's held-back re-run results** (brief-writer, 2026-10-28, worktree at
+`16c6511`, code identical to `0a2b7a7`, load about 14–53):
+
+- *QU-a, QU-b, QU-h:* identical to mine (3.14 on PATH, 3.9 at `/usr/bin`, hook calls bare
+  `python3`, signed scratch commit good; 71 / 219 / 174 / 56 OK; CPython 3.12.15 on the latest
+  floor run). Agreed on every point.
+- *QU-c:* the brief-writer's suite ran 1197 s and **exited 1** on one failure,
+  `test_pins.BoundedMemory.test_peak_memory_does_not_scale_with_sibling_count` ("scan did not
+  finish in time"), at load 14–53, and left open whether it reproduces at normal load. Mine
+  answers that: 2032 OK in 442 s at load about 5. The test's helper bounds the scan at 60 s of
+  wall clock (`test_pins.py` line 308) beside a memory limit, so the pin is load-sensitive by
+  construction. Formed at reconcile as **QU3** below; outside the delta, and it changes no
+  per-finding answer.
+- *QU-d, M7 over a `git archive` extract:* the brief-writer saw the same five
+  `StagedAbsolutePathTest` failures unmutated and mutated, from the extract not being a repo,
+  and `test_report` 71 OK both ways. My clone run removes that confound (all green unmutated)
+  and gives the same answer: M7 is caught by nothing. The other eight, which the sibling did
+  not re-run, are in my QU-d table; M6's one-file spread (QU1) is the only thing they added.
+- *QU-f:* the sibling's ci plane carried `pathscan` 3 warn-only findings and leakscan 🟡 (no
+  `--require-terms` on the ci plane); mine carried `pathscan` 1 and `pointerscan` 2. The
+  pathscan difference is two findings fixed in records between `16c6511` and `2b55622`,
+  outside the delta; the two pointerscan findings arose after the sibling was written, when the
+  `950` and `970` passes ran (QU2). Both runs exit 0 on both planes. The leakscan 🟡 is the
+  registry's own choice (`ci=[... no --require-terms]`, registry line 473) and I read it as the
+  ci plane's design, not a finding.
+
+**Against the sibling's hypotheses.**
+
+1. *QS4 stands; a clean-clone re-run should agree.* It does (QU-d). Confirmed.
+2. *QS9 narrows to a host whose first `python3` is the system 3.9; open question a stripped
+   `PATH`.* Agreed, and that is how my per-finding answer reads. The hook's own text already
+   warns that git runs hooks with a login-shell PATH; a login shell here resolves 3.14 too
+   (`zsh -l`). A GUI git client with a stripped PATH remains a hypothesis I did not test; no
+   finding.
+3. *The API ledger's attribution holds; the QU-c failure is a different, load-bound test the
+   API pass never reached.* Confirmed on both halves (QU-b; QU3).
+4. *QS1 reproduces through a real commit; CI reds on push; severity stands.* Confirmed and
+   sharpened: the brief's two-guard shape is masked for secrets by leakscan's overlapping rules
+   and open for a conflict marker; all three scoped lets a key header through; NFD likewise.
+   The CI reasoning matches mine, with the `Dcos` demonstration for the case-sensitive runner
+   and the tree-mode catch on this folding filesystem. MAJOR unchanged.
+5. *`/security-review` adds little.* Agreed; discharged with grounds and a hand read (QU-g).
+6. *Top-up suffices unless QU-e or the remaining mutations turn something up; the one limit
+   that may have shaped judgement is the lost suite summary.* QU-e turned up a sharpening of
+   QS1, not a change; the remaining mutations turned up one note (QU1). The summary is now
+   read, and on this machine at normal load the suite is green; the sibling's red is QU3's
+   load-sensitivity, which the API pass could not have seen either way. TOP-UP SUFFICES stands.
+
+**QU3 — note (formed at reconcile; outside the delta).** `test_pins.py`'s bounded-memory pins
+fail with "scan did not finish in time" when the machine is heavily loaded: the brief-writer's
+run reds at load 14–53 (1197 s), mine passes at load about 5 (442 s), and the helper's 60 s
+wall-clock bound (line 308) is what trips. A time bound in a memory pin makes the full suite's
+exit depend on what else the machine is doing, which is the kind of red a session learns to
+re-run rather than read. *Counsel:* either lift the wall-clock bound well above the worst
+observed load-inflated run or make the pin memory-only and time it advisory; and say in the
+test's message that a timeout under load is not the memory defect it guards.
+
+**Overall line, restated:** PASS-WITH-FINDINGS — 1 MAJOR · 2 MODERATE · 3 minor · 8 notes
+(QS1–QS11, QU1–QU3; QU3 added at reconcile). No severity changed; QS1 stands on a real commit.
+**TOP-UP SUFFICES**, for the act-1 reasons, which the sibling's own results and hypotheses
+support rather than disturb.
+
+The sibling is to be folded in below this section and deleted by the orchestrator.
+
+ACT 2 SAVED
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-01)
+
+*Released to the reviewer only after its act-1 findings were committed (`4eba23b`); folded here
+verbatim (headings demoted two levels to sit under this one) and the sibling file removed, per
+the brief. The orchestrator (session `4610c607`, Claude Opus 5.5, started by session
+`c87c4ee0`) formed no finding and wrote no severity.*
+
+### Sibling to the staged-positional reader top-up — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-28-1255-staged-positional-reader-topup-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the top-up's phase-1 findings are
+committed.** Written 2026-10-28 UTC by session `29af7e91`, the brief-writer named in the brief's
+provenance; it forms no finding and writes no severity. Fold this file in below the reconcile
+and delete it at phase 2.
+
+#### Re-run results held back from the brief
+
+Run once each by the brief-writer, 2026-10-28 between 12:54 and 13:40 UTC, from its worktree
+root at `16c6511` (code identical to the API pass's `0a2b7a7`), on the principal's laptop, in
+the foreground or watched to completion. Load averages were between about 14 and 53 throughout;
+other sessions were live.
+
+- **QU-a.** `python3` on `PATH` is 3.14; `/usr/bin/python3` is 3.9. The tracked hook calls
+  `python3` from `PATH` (fail-closed if absent). A throwaway signed commit in a scratch repo
+  succeeded with a good signature: the sandbox's signing limit is absent here.
+- **QU-b.** The four delta test files, as given: `test_report` 71 OK, `test_leakscan` 219 OK,
+  `test_secretscan` 174 OK, `test_conflictscan` 56 OK, each exit 0.
+- **QU-c.** Full suite under `nice -n 10`: 2032 tests in 1197 s, **exit 1, one failure**:
+  `test_pins.BoundedMemory.test_peak_memory_does_not_scale_with_sibling_count`, "scan did not
+  finish in time". It is outside the delta and timing-bound; the machine's load was very high.
+  Whether it reproduces at normal load was not checked.
+- **QU-d, M7 only.** Run over a `git archive` extract (not a clone), whole files, no `-k`:
+  unmutated and M7-mutated give the **same** result, five failures in the
+  `StagedAbsolutePathTest` classes of the three guards, which come from the extract not being a
+  git repo. `test_report` was 71 OK both ways. With the git-backed classes running this time,
+  M7 is still caught by nothing. The other eight mutations were not re-run.
+- **QU-f.** Floor at HEAD with the real term list: ci plane exit 0 (`leakscan` 🟡 because the
+  ci plane does not pass `--require-terms`; `secretscan` 25 advisories; `pathscan` 3 warn-only
+  missing-path findings in files outside the delta); hook plane exit 0.
+- **QU-h.** The latest five `floor` runs on atelier's GitHub copy are all `success`; the most
+  recent set up CPython 3.12.15.
+- **Not run by the brief-writer:** QU-e (QS1 through a real commit), QU-g
+  (`/security-review`; a headless brief-writer cannot aim it usefully), and the other eight
+  mutations.
+
+#### Hypotheses (the brief-writer's suspicions, a floor not a fence)
+
+1. **QS4 stands.** M7 survived the whole delta files with every git-backed class running, so
+   the API pass's conclusion did not depend on the errors in its baseline. A clean-clone
+   re-run should agree.
+2. **QS9 narrows.** Its first half (the suite needs 3.10 or 3.11+) is real but bites only a
+   host whose first `python3` is the system 3.9. On this laptop the shell's is 3.14 and CI's
+   is 3.12. The open question is a git client or hook run with a stripped `PATH`, where
+   `/usr/bin/python3` would come first. Its second half (fixtures inherit the host's signing
+   config) is real wherever signing is unreachable, and here it is reachable.
+3. **The API ledger's error attribution holds.** Every error and failure it charged to the
+   sandbox is absent in QU-b. The full-suite failure in QU-c is a different, load-bound test
+   that the API pass never reached.
+4. **QS1 reproduces through a real commit.** The hook calls `floor.py --plane hook`, the same
+   path the API pass drove, so a real `git commit` should let the staged key through when the
+   scope is case-folded. On a case-sensitive CI runner the floor's existence check should block
+   that scope, so the CI plane reds on push. But a push to a public remote already publishes
+   what the hook let through, so the severity should stand.
+5. **`/security-review` adds little.** The delta adds no subprocess or filesystem call driven
+   by input, so it should find nothing beyond lens 4.
+6. **Top-up or full re-run.** The API pass's judgement-forming work (the spelling table, the
+   cwd probes, the child counts, the reading) was local and unaffected by its limits, and the
+   missing checks so far confirm rather than change. That points to TOP-UP SUFFICES, unless
+   QU-e or the remaining mutations turn something up. The one place a limit may have shaped
+   judgement is truncation: the full suite's output was lost, and the reviewer did not chase
+   it.
