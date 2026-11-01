@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits
+- [~] ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits
       commits on evidence, not the window (`210/290`).** A block designed
       to be pasted into records as fact, so the authoring session (a
       Mike-opened Opus 5.5 queue run, session 8e498ef1, 2026-10-18, wt
@@ -22,3 +22,10 @@
       which authored none of the delta; review NOT run. The pass waits for a
       criterion-passing cold Fable session and the principal's explicit
       permission for Fable work.
+      `[~]` **CLAIMED 2026-11-01-1246** (wt: atelier-160-960-1245; cold pass: a Fable 5.1
+      reviewer under an Opus 5.5 headless orchestrator, session 0d67673f,
+      itself started by session c87c4ee0; both are rule-4 off-tier
+      orchestrators that hold the context partition, form no finding and
+      write no severity; neither authored the delta or the brief, nor was
+      started or instructed by session 8e498ef1 or 5070f22b). Runs under the
+      principal's 2026-11-02 drain approval for Fable work.
