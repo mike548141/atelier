@@ -60,3 +60,6 @@
         and picked up, so pausing is the easy route.
       **Review.** This is doctrine about review written by sessions that
       run reviews, so its wording earns a rule-4 pass before it binds.
+      This item as captured (the reading, the account of the house and
+      the options) has its own design pass queued at `160/990`, brief
+      written 2026-11-01 UTC.
