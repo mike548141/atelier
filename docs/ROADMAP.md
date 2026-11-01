@@ -413,6 +413,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/310-ccclose-cannot-read-a-commit-message-from-a-file.md)
 - [ ] 🔎 [ccclose --identifiers misses a session's commits whose author date…](roadmap/210-instruments-open-features/320-ccclose-misses-author-backdated-commits.md)
 - [ ] 🔎 [ccclose lists a worktree whose path held a shell variable under a…](roadmap/210-instruments-open-features/330-ccclose-lists-a-worktree-path-with-an-unexpanded-variable.md)
+- [ ] 🔎 [ccapple looks for the store before it checks that a filter was given,…](roadmap/210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

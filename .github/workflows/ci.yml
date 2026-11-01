@@ -7,6 +7,7 @@ name: floor
 # are zero-dep stdlib Python, so a runner needs nothing but Python to run them.
 # The instruments/ layer (ADR 0006) adds a zero-dep Node surface — its tests use
 # node:test/node:assert, so a runner needs only Node, nothing from npm.
+# One instrument (ccapple) is stdlib Python, so its tests run under unittest.
 #
 # HONEST SCOPE. This gate proves what it can prove in CI, not everything the
 # local hooks prove:
@@ -112,6 +113,13 @@ jobs:
       # works on every Node this job might pin.)
       - name: instrument test suite
         run: node --test instruments/*.test.js
+
+      # ccapple is the layer's one Python instrument (ADR 0006, 2026-11-01
+      # addendum), so its tests are unittest, not node:test. Discovery scoped to
+      # instruments/ and test_*.py picks up a future Python instrument's tests
+      # without an edit here, and cannot collide with the tools/ suite above.
+      - name: instrument test suite (python)
+        run: python3 -m unittest discover -s instruments -p 'test_*.py' -v
 
       # mandoc isn't preinstalled on ubuntu runners, so install it — seconds,
       # free public-repo minutes. The guarded fall-through form shipped first

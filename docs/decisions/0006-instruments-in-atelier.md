@@ -243,3 +243,52 @@ What it stretches, recorded in the layer's own practice of naming each stretch:
   estate. It passes on purpose all the same, by the same test `browser-fetch`
   passes: the operator opens PDFs in Preview and has no use for this whatsoever.
   It exists solely so the teammate can read a document it otherwise cannot.
+
+## Addendum (2026-11-01) — a Python instrument that reads other apps' private stores
+
+**Decision (the principal):** admit **`ccapple`**, a read-only search of the
+Apple apps' local stores on a Mac — Contacts, Messages, Calendar, Reminders,
+Notes, Photos and the Home layout.
+
+It exists because a session can name what the operator keeps in those apps and
+cannot look at any of it: the apps are GUI-only and Apple's frameworks ask the
+user for permission app by app, which no session can answer. The stores
+themselves are SQLite files iCloud already syncs onto the Mac, so a reader
+needs no account, no API grant and no third-party tool.
+
+What it stretches, in the layer's practice of naming each stretch:
+
+- **It is the first Python instrument.** The first addendum said membership is
+  purpose, not runtime, and `ccpdf` already stretched the runtime to Swift. The
+  `tools/` layer stays the place Python *checks that gate a commit* live; this
+  is Python because the standard library has `sqlite3`, `zlib` and `struct`,
+  which is the whole of what is needed. Its tests are `unittest`, run by CI
+  beside the Node suite (`python3 -m unittest discover -s instruments -p
+  'test_*.py'`).
+- **It is the first instrument whose output is other people's private content**
+  (their messages, their numbers), not the operator's own logs or an
+  attachment the operator asked for. So the controls are properties of the
+  code and are pinned by tests, which a future instrument that reads a personal
+  store inherits as the precedent to meet or argue against: every store is
+  opened `mode=ro&immutable=1` with `query_only` on, through one function;
+  every search requires a filter and is capped; a locked note is listed and
+  never read or decrypted; every query names its columns, and the credential-
+  shaped columns in the Home store are never among them (a test fails if one
+  appears in the code, and another plants sentinel values in them and checks
+  no output carries one). It has no write path at all: sending a message,
+  creating an event or controlling a home would each need the operator's
+  explicit approval first, and a different design.
+- **It needs a permission no session can grant.** macOS withholds these files
+  from a terminal until the operator grants it Full Disk Access. Like
+  `ccmail --auth`, that is a human step and a stated limit, not a defect;
+  `ccapple status` reports which stores open and why any does not.
+- **It is arguably a general utility.** It passes on purpose, by the test
+  `browser-fetch`, `ccmail` and `ccpdf` pass: the operator has the Apple apps
+  and no use for this whatsoever. It exists solely so the teammate can look up
+  what the operator can already see.
+
+**Rejected:** copying the stores before reading them (they can be gigabytes,
+and a copy is a second place the private data lives); a version that can send
+or edit (a different risk class, and nothing here asked for it); and shelling
+out to the apps with AppleScript (it opens GUI applications and prompts the
+operator, the opposite of unattended).

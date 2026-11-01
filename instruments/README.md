@@ -1,6 +1,6 @@
 # instruments/ — tools for working with Claude as a teammate
 
-<!-- indexscan:maps dir=. match=* exclude=*.test.js,*.design.md,fixtures,man -->
+<!-- indexscan:maps dir=. match=* exclude=*.test.js,*.design.md,test_*.py,fixtures,man -->
 
 Where `tools/` **enforces** the doctrine (checks that gate a commit),
 `instruments/` serve the collaboration itself — they **observe** it (what it
@@ -13,7 +13,8 @@ that widened the layer to capability tools).
 Most are small zero-dependency **Node** CLIs that read the local Claude Code logs
 under `~/.claude/projects/` **read-only**. The capability tools are the honest
 exception — they act on the world and may carry pinned dependencies (browser-fetch
-drives Chrome via Playwright); each documents its own runtime.
+drives Chrome via Playwright) or another runtime (`ccpdf` is Swift, `ccapple` is
+standard-library Python); each documents its own runtime.
 
 | Instrument      | Verb      | What it does                                                         |
 |-----------------|-----------|---------------------------------------------------------------------|
@@ -23,6 +24,7 @@ drives Chrome via Playwright); each documents its own runtime.
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `ccmail`        | extend    | Open the Gmail attachments the mailbox connector can only *name* — it lists filenames and attachment ids but has no call that returns bytes. Fetches them to disk with its own read-only grant so the ordinary Read tool can open them. |
 | `ccpdf`         | extend    | A PDF page renderer built on macOS's own PDFKit, installed as `pdftoppm` — the binary Claude Code's file reader shells out to. Without it, a PDF on disk is still unreadable. |
+| `ccapple`       | extend    | Read-only search of the Apple apps' local stores on a Mac — Contacts, Messages, Calendar, Reminders, Notes, Photos and the Home layout — which a session otherwise cannot reach, because the apps are GUI-only. Opens each SQLite store read-only and immutable, refuses to run without a filter, caps every search, never decrypts a locked note and never selects a credential column. Standard-library Python. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
 The Node CLIs are converging on a concise `-h`/`--help` digest plus a fuller
@@ -41,18 +43,20 @@ three `--help` texts, man pages and argument parsers end to end — the tools
 were already consistent; this table is the standing reference so they stay
 that way. Re-verified 2026-08-09, when `cctranscript --search` landed and moved
 three of the rows below. `ccclose` took a column on 2026-10-16. It shares only
-`--json` and `-h`; each dash in its column says why the operation is absent.
+`--json` and `-h`; each dash in its column says why the operation is absent. `ccapple` took a column on 2026-11-01: it shares
+`--since`/`--until` (and takes the compact `YYYYMMDD` spelling so the word means one
+thing), `--json` and `-h`; its result cap is `--limit`, as in `ccmail --search`.
 
-| Flag | Meaning | `ccarchive` | `cctranscript` | `ccrepo` | `ccclose` |
-|------|---------|:-----------:|:---------------:|:--------:|:---------:|
-| `--dest <dir>` | Where the archive lives (default iCloud Drive, or `$CCARCHIVE_DEST`) | write target | read target (implies `--from-archive`) | read target (implies `--from-archive`) | — |
-| `--from-archive` | Read `ccarchive`'s mirror instead of the live logs | — (it *is* the archive) | ✅ | ✅ | — (a session being closed is live) |
-| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | ✅ (`--search`) | ✅ | — |
-| `--since` / `--until` | Bound to a local date range (`YYYYMMDD`), judged on each message's own timestamp | — | ✅ (`--search`) | ✅ | — (its window is the session's own) |
-| `--top <n>` | Keep only the first n rows per level, after ordering | — | ✅ (`--search`) | ✅ | — (lists are capped at 25, the cut counted) |
-| `--json` | Machine-readable output; never styled | ✅ | ✅ | ✅ | ✅ |
-| `--repo` | The repo dimension | — | `--repo <name>` selects one repo to read | `--repo <list>` filters/groups (comma = OR, `!` excludes, `*` globs) | — (`--root <dir>` names the checkout to check, as the `tools/` scanners spell it) |
-| `-h`, `--help` | One-screen usage summary | ✅ | ✅ | ✅ | ✅ |
+| Flag | Meaning | `ccarchive` | `cctranscript` | `ccrepo` | `ccclose` | `ccapple` |
+|------|---------|:-----------:|:---------------:|:--------:|:---------:|:---------:|
+| `--dest <dir>` | Where the archive lives (default iCloud Drive, or `$CCARCHIVE_DEST`) | write target | read target (implies `--from-archive`) | read target (implies `--from-archive`) | — | — (it reads the Apple apps' fixed store locations; `--db <path>` overrides one store) |
+| `--from-archive` | Read `ccarchive`'s mirror instead of the live logs | — (it *is* the archive) | ✅ | ✅ | — (a session being closed is live) | — (it reads the live Apple stores; there is no mirror) |
+| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | ✅ (`--search`) | ✅ | — | — (it opens databases only, never an evicted file's bytes) |
+| `--since` / `--until` | Bound to a local date range (`YYYYMMDD`), judged on each message's own timestamp | — | ✅ (`--search`) | ✅ | — (its window is the session's own) | ✅ (local days, `--until` inclusive; `YYYY-MM-DD` or `YYYYMMDD`) |
+| `--top <n>` | Keep only the first n rows per level, after ordering | — | ✅ (`--search`) | ✅ | — (lists are capped at 25, the cut counted) | — (`--limit <n>` caps a filtered search's results, the word `ccmail --search` uses) |
+| `--json` | Machine-readable output; never styled | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `--repo` | The repo dimension | — | `--repo <name>` selects one repo to read | `--repo <list>` filters/groups (comma = OR, `!` excludes, `*` globs) | — (`--root <dir>` names the checkout to check, as the `tools/` scanners spell it) | — (no repo dimension) |
+| `-h`, `--help` | One-screen usage summary | ✅ | ✅ | ✅ | ✅ | ✅ (per subcommand) |
 
 **Note — `--materialise` is the worked example, and it now has a second act.**
 Until 2026-08-09 this note explained why `cctranscript` carried **no**
@@ -107,7 +111,8 @@ It symlinks each CLI into `~/.local/bin` and each `man/*.1` page into
 `~/.local/share/man/man1` (auto-found by `man` because `~/.local/bin` is on
 `PATH`), so `man ccarchive` works after install.
 
-Requirements: `node` on `PATH` (any recent LTS) for all of them. `ccrepo`
+Requirements: `node` on `PATH` (any recent LTS) for all of them except `ccapple`,
+which needs `python3` (3.8 or later) and nothing else. `ccrepo`
 computes cost itself from the logs, but uses `ccusage` (`npx ccusage` or a global
 install) for its reconciliation cross-check — skip it with `--no-reconcile` if
 ccusage isn't present. If `~/.local/bin` isn't on your `PATH`, the installer
@@ -124,6 +129,11 @@ a renderer answering to any other name closes nothing. `instruments/ccpdf/setup`
 builds it with `swiftc` against macOS's own PDFKit (no dependency, no package
 manager), **refuses to shadow a real poppler** if one is present, and proves the
 binary renders before installing it. `rm ~/.local/bin/pdftoppm` uninstalls.
+
+`ccapple` needs no build step but one macOS permission: the terminal (or the editor
+hosting it) must hold **Full Disk Access** (System Settings → Privacy & Security),
+or macOS will refuse to let it open the Apple apps' stores. `ccapple status`
+reports which stores open and, for any that do not, why. It only ever reads.
 
 `ccarchive` needs no extra step: it is run by hand, and installs no schedule unless
 you ask (`ccarchive --install-schedule` sets up a daily calendar schedule: launchd on
