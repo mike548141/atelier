@@ -1,4 +1,4 @@
-- [ ] ⏳ **Cold pass queued: the opening prompt's template history, for
+- [~] ⏳ **Cold pass queued: the opening prompt's template history, for
       privacy and specific work (`180/060`).** Text mined from the principal's
       private session transcripts landed in this public repo, and the only
       check so far is the session that landed it. A cold reader should test
@@ -21,3 +21,8 @@
       none of the delta (dispatched by the Mike-opened Opus 5.5 queue run, wt
       atelier-qr-briefs-1018); its exposure is disclosed in the brief. The
       pass stays queued for a criterion-passing cold Fable session.
+      `[~]` **CLAIMED 2026-11-01-1159** (wt: atelier-160-940-1158; cold pass: a Fable 5.1
+      reviewer under an Opus 5.5 headless orchestrator, session 5b6884f2,
+      itself started by session c87c4ee0; both are rule-4 off-tier
+      orchestrators that hold the context partition, form no finding and
+      write no severity; neither authored the delta or the brief)
