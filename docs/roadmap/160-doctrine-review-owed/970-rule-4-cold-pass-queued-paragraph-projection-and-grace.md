@@ -1,4 +1,4 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the index projects the logical first
+- [~] ⏳ **Rule-4 cold pass queued: the index projects the logical first
       paragraph, with a dated grace for children (`010/170`).** `board`
       blocks in every child's CI and cannot be softened, and this change
       both alters what every child's index must contain and adds a dated
@@ -41,3 +41,14 @@
       selection; ends with a TOP-UP SUFFICES or FULL RE-RUN verdict. Barred:
       `8e498ef1` and its workers, `5070f22b` and its subagents, `f7b25adb`
       (built the harness; may not orchestrate), `29af7e91`.
+      `[~]` **TOP-UP CLAIMED 2026-11-01-1321** (wt: atelier-160-970-1321; cold pass: a Fable 5.1
+      reviewer under an Opus 5.5 headless orchestrator, session f8e61647,
+      itself started by session c87c4ee0; both are rule-4 off-tier
+      orchestrators that hold the context partition, form no finding and
+      write no severity; neither authored the delta, the original brief, the
+      API harness or the top-up brief, nor was started or instructed by
+      session 8e498ef1, 5070f22b, f7b25adb or 29af7e91). Runs under the
+      principal's 2026-11-02 drain approval for Fable work. The 2026-10-29
+      hold on running the top-ups is lifted by the principal for this drain,
+      2026-11-02, verbatim: *"lift it and any others where I said to do it
+      later"*.
