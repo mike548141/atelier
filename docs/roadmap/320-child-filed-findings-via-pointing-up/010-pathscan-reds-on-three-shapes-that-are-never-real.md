@@ -129,7 +129,11 @@
       **What still closes this item:** the re-measurement the item already
       demands — a lower count *and* a non-zero true-positive rate. Classes B
       and C remain unruled.
-      *review: queued as a code cold pass, `160/350`.*
+      *review: ran — part (1)'s code cold pass `160/350` ran 2026-09-26
+      (PASS-WITH-FINDINGS, 0 MAJOR, cycle closed); the class C fix below had
+      its own pass, `160/490` (PASS-WITH-FINDINGS, 0 MAJOR). This line read
+      "queued" until 2026-11-01, corrected by a non-author brief-writing
+      session.*
       ---
       ⚖️ **2026-10-03: a class C fix was BUILT and HELD, not merged, as draft
       PR #96 (branch `qr-pathscan-fp`).** A queue run built it before reading

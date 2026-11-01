@@ -2,11 +2,13 @@
 
 **Status**: draft • **Date**: 2026-07-19
 
-**review**: ⏳ queued — extends the open cycle on
-`2026-07-18-0820-review-the-design-not-only-the-build.md` (`30c9cd9`), whose
-cold pass has not yet run. Self-authored doctrine, and this delta's author is
-also the prior delta's applier ⇒ REVIEW rule 4 binds: pointer queued, **no brief
-written**, the non-author taker writes it and reviews both deltas as one.
+**review**: ran — both deltas reviewed as one in the combined rule-4 cold pass
+[`2026-07-19-0407-review-trigger-sizescan-combined-cold.md`](../reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md)
+(PASS-WITH-FINDINGS, 3 MAJOR; F1–F9 applied `9d95644`), then
+`2026-07-19-0544-combined-applied-batch-cold.md` (G1–G3) and the terminal
+no-MAJOR pass `2026-07-19-0629-g1g3-application-cold.md`; cycle closed
+2026-07-19. This line read `⏳ queued` until 2026-11-01, when a non-author
+brief-writing session found the cycle closed and corrected it.
 
 ## Context
 

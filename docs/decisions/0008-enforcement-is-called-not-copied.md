@@ -2,10 +2,16 @@
 
 **Status**: accepted • **Date**: 2026-07-26
 
-review: queued — `docs/reviews/` pointer owed; the author of this change may not
-review it (REVIEW.md rule 4). The sharpest thing to aim a reviewer at: whether
-moving every repo onto a floating `@main` caller trades a slow, silent failure
-for a fast, loud, estate-wide one — and whether that trade is right.
+review: ran — rule-4 cold pass 2026-07-26,
+[`2026-07-26-2215-adr0008-enforcement-propagation-cold.md`](../reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md)
+(PASS-WITH-FINDINGS, 3 MAJOR); the 2026-10-16 boundary amendment's own pass
+2026-10-17,
+[`2026-10-17-0955-adr-0008-boundary-amendment-cold.md`](../reviews/2026-10-17-0955-adr-0008-boundary-amendment-cold.md)
+(PASS-WITH-FINDINGS, MAJOR 1, verdict closed 2026-10-18). This line read
+`review: queued — pointer owed` until 2026-11-01, when a non-author
+brief-writing session found both passes run and corrected it. The original
+aim, kept: whether moving every repo onto a floating `@main` caller trades a
+slow, silent failure for a fast, loud, estate-wide one.
 
 ## Context
 

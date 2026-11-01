@@ -2,11 +2,12 @@
 
 **Status**: accepted • **Date**: 2026-07-21
 
-**review**: ⏳ queued — doctrine-substantive (it changes the provenance model of
-`PROPAGATION.md` / ADR 0002 for adopters who hold only the plugin), self-authored,
-so REVIEW rule 4 binds: pointer queued, **no brief written here**, a non-author
-taker writes it and reviews this decision together with the build it authorises.
-The build lands via PR, reviewed before merge (the v1-bundle path).
+**review**: ran — rule-4 cold pass on this decision and its build as one,
+[`2026-07-22-1215-v2-plugin-deinstance-cold.md`](../reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md)
+(PASS-WITH-FINDINGS, 2 MAJOR; VP1–VP8 rulings applied `ff8a07f`, 2026-07-23 —
+see the amendment below). Doctrine-substantive and self-authored, so rule 4
+bound it. This line read `⏳ queued` until 2026-11-01, when a non-author
+brief-writing session found the pass run and corrected it.
 
 ## Context
 
