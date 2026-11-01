@@ -8,7 +8,11 @@ takes the pass. Fable work runs only with the principal's explicit permission; t
 that launched this brief-writer wrongly recorded that he approved these top-ups; he asked
 for the briefs and, on 2026-10-29 local date, chose to hold running them (corrected by session
 f7b25adb). The taker confirms permission is on record at claim and stops if it is not.
-**Status:** BRIEF WRITTEN 2026-10-28 UTC; pass NOT run.
+**Status:** pass RAN 2026-11-01 UTC, act 1 written below — TOP-UP SUFFICES; overall
+PASS-WITH-FINDINGS, 0 MAJOR · 2 MODERATE · 5 minor · 6 notes (PP1–PP11 plus PQ1, PQ2);
+act 2 (reconcile) follows the sibling's release. Run on Fable 5.1 on the laptop under the
+principal's 2026-11-02 drain approval, orchestrated off-tier by sessions `f8e61647` and
+`c87c4ee0`.
 **Original pass:** `docs/reviews/2026-10-26-0941-paragraph-projection-grace-cold.md` (the
 original brief, both acts of the API verdict, and the folded sibling, in one file).
 **Queue pointer:**
@@ -192,3 +196,225 @@ sibling in below the reconcile and delete it.
 
 `board` is doctrine by function (rule 3): record all findings and apply nothing; the principal
 decides.
+
+---
+
+## Verdict — act 1 (phase 1), run 2026-11-01 UTC
+
+### Provenance (rule 4, V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), on the principal's laptop through Claude Code;
+  tier checked at selection. Permission on record: the principal's 2026-11-02 drain approval
+  for Fable work, under which he also lifted his 2026-10-29 hold on running these top-ups.
+- **Orchestrators, off-tier and disclosed:** I was spawned by session `f8e61647`, a headless
+  Opus 5.5 orchestrator, itself started by session `c87c4ee0` (Opus 5.5). Both hold the
+  context partition, form no finding and write no severity; neither authored the delta, the
+  original brief, the API harness or this brief.
+- **Independence:** not started or instructed by session `8e498ef1` or its workers,
+  `5070f22b` or its subagents, `f7b25adb` or anything it dispatched, or `29af7e91`.
+- **Worktree:** `atelier-160-970-1321`, HEAD `36b9e68`, read-only to me except this file.
+  `git log --oneline 0a2b7a7..HEAD -- tools/ .githooks/ .github/` prints nothing: the code is
+  the API pass's. `010/190` has not landed; the grace is at HEAD.
+- **Run date:** 2026-11-01, 13:23–13:57 UTC, 17 days before the grace end.
+- **Partition:** the sibling was removed from the worktree before I started (`git status`
+  shows it deleted); I did not look for it elsewhere, and ran no unscoped `git diff` in the
+  worktree, which would have printed the deleted file.
+
+### Disclosure — what I read before writing
+
+This brief; the original pass file whole (brief, both API acts, folded sibling);
+`docs/method/REVIEW.md` rules 1–4, the lenses, the checklist and the lifecycle; the first 12
+lines of `010/190`; `tools/board.py` lines 380–445 and 642–830 and the code diff of `28ef94a`
+(`tools/board.py`, `tools/test_board.py`); `tools/floor.py` lines 1850–1930 and its `--list`;
+`.githooks/pre-commit`; `.github/workflows/floor.yml` lines 120–150; the `--help` of `board`,
+`pins`, `floorfleet` and the five prose gates; item `160/195` whole, because it bears on
+PQ-e. Not opened: the queue pointer, `docs/SESSIONS.md`, `docs/sessions/`,
+`docs/ROADMAP-DONE.md`, any other verdict. Incidental: the `git log` subjects of the five
+commits above the API pass's HEAD at onramp (claim commits and one other pass's act-1 commit;
+nothing opened); child repository slugs and run metadata passed through my context for PQ-d
+and are not written here. The harness loaded user-level and repo instruction files and a
+memory index that hold private context this verdict does not carry.
+
+### Interpreters, stated first
+
+`/usr/bin/python3` on this machine is Python 3.9.6; the `python3` on PATH is
+`/usr/local/bin/python3`, 3.14.6; CI pins 3.12. PQ-a and PQ-c ran clean under 3.9. PQ-b under
+3.9 reports 18 errors in four modules (`X | None` in a class body, `write_text(newline=)`,
+`contextlib.chdir`), all interpreter age and none the delta's; under 3.14 it is green. Both
+runs are in the ledger; the gap is PQ2.
+
+### Per-check results
+
+**PQ-a — `test_board.py` as given, no override.** Exit 0, 59 tests OK, with the machine's
+normal git config (`commit.gpgsign=true`, ssh format, key reachable). PP9 is the portability
+note it framed itself as.
+
+**PQ-b — the full suite, once.** Under `nice -n 10`, in two foreground pieces by module-name
+pattern (`test_[a-l]*`, `test_[m-z]*`) so each fitted the harness timeout: 1028 OK in 189 s
+and 1004 OK in 276 s, exit 0 both — 2032 tests, the count the sibling reported on 2026-10-26.
+V2 for the suite is discharged by a run, not a read.
+
+**PQ-c — the floor at HEAD with the real term list.** Hook plane exit 0; CI plane exit 0.
+`leakscan` reads "structural + local" on both planes: `✅ enforced` on the hook plane, `🟡
+enforced (cover not guaranteed)` on the CI plane by wiring, since that plane does not pass
+`--require-terms`; `board` `✅ enforced` on both, index current; `secretscan` 25 advisory on
+the CI plane, 0 blocking; the four warn-only guards unchanged. The API ledger's floor row
+(exit 1, `leakscan` only) was the sandbox, not the repo.
+
+**PQ-d — the grace notice in real CI logs, by count.**
+
+- Split boards under the repositories directory on 2026-11-01: **12** children, each with a
+  first `docs/ROADMAP.md` commit before 2026-10-28. The API pass's 11 was its reach, not the
+  fleet; its own limits section said checkouts elsewhere were unreachable.
+- `board` check mode, both planes, no date injected: **11** current, **1** accepted only under
+  the grace (⚠️ line, exit 0 on both planes), **0** stale. The API pass counted 2 under the
+  grace on 2026-10-28; one has rebuilt since.
+- The remaining old-form child's `floor` runs: 15 listed; **7** started a job (all on
+  2026-10-17, before the delta: 2 green, 5 red); **8** started no job (1 on 2026-10-21, 7 on
+  2026-10-26, each with 0 steps and no log; the latest carries an account-billing annotation
+  from GitHub). Its last green log (2026-10-17) shows `board` inside a collapsed
+  `##[group]board (enforced)` group under `✅ board enforced`; no run of its own after the
+  delta has a log. So **the CI plane assumed in lens 1 (C) is not running for this child**:
+  both planes flip together in the code, but only its hook can say so on 2026-11-18.
+- Every post-delta green `floor` log readable across the fleet: **115** runs over **10**
+  children (of the other 2, one has no GitHub origin resolvable from its checkout; one is the
+  child above). **10** of the 115, in **3** children, carry the ⚠️ grace line — so at least 4
+  children passed through the grace, 3 of which have rebuilt. In all 10 the line sits
+  **inside the collapsed `board` group**; **0** `::warning::` annotations (`##[warning]` in
+  the rendered log) carry it; the summary line reads `✅ board enforced`. Two further
+  children's latest runs are red on `secretscan`, with `board` current.
+- The hook plane, the brief's fallback, run as well: a synthetic two-item board (one wrapped
+  bold title with a line-two claim) with its index rendered by `_index_entry_v1`, committed
+  through a copy of the tracked `.githooks/pre-commit` with `ATELIER_TOOLS` at the
+  worktree's `tools/`. Commit exit 0; the ⚠️ line is line 15 of 54 lines of hook output, the
+  summary `✅ board enforced` is line 46, no annotation. A first attempt without the board
+  preamble reproduced the "old form plus a problem" case: `✗` problem first, then the ⚠️
+  "accepted" line, then `BLOCKED by: board` — PP8's last point, live on the hook plane.
+- Which tool each hook runs: **11** of 12 children set `hooks.atelierTools` to a `tools/`
+  whose `board.py` is byte-identical to HEAD's; **1** leaves it unset, so its hook, where
+  installed, fails closed on "floor.py not found". All 12 set `core.hooksPath`; a rough test
+  (relative paths only, not verified further, outside this brief) found an executable
+  `pre-commit` at that path in **5**.
+
+**PQ-e — `/security-review`.** Not invoked, with grounds: its prompt, read from the installed
+Claude Code build, runs `git status`, `git diff --name-only origin/HEAD...`, `git log
+origin/HEAD...` and `git diff origin/HEAD...` in the *session's* cwd — this worktree, whose
+commits above `origin/main` are claims and another pass's act-1 verdict, and whose pending
+change is the partition's deletion (`160/195` records the same mechanism). Instead I ran the
+prompt's four commands verbatim over a scratch clone, on a branch at `28ef94a^` carrying the
+delta as its one commit: status clean, files `tools/board.py` and `tools/test_board.py`, one
+commit, and the diff byte-identical to `git diff 28ef94a^ 28ef94a` on those paths. Read
+against the prompt's categories and exclusions (test files and documentation excluded;
+confidence below 0.7 unreported): the delta adds no subprocess, file open, eval,
+deserialiser, shell string or new argument; the new regexes run over already-committed item
+text; `today` is injectable only from Python and `_today_utc()` reads the clock. **No
+finding at any confidence.** Lens 4 as the API pass discharged it stands.
+
+### The verdict items
+
+**1. Per API finding, PP1 to PP11.**
+
+- **PP1, PP2, PP3, PP4, PP6, PP7, PP10, PP11 — untouched.** No missing check bears on them;
+  PQ-b shows the suite green, which PP3 never doubted.
+- **PP5 — CONFIRMED live, severity unchanged (minor).** 10 CI logs in 3 children carry the
+  line inside a collapsed group, with no annotation and a green summary; the hook plane
+  prints it under the same green summary. The counsel stands and the counts give it weight.
+- **PP8 — CONFIRMED on its last point** (the ⚠️ "accepted" line beside exit 1, live on the
+  hook plane); the rest untouched.
+- **PP9 — CONFIRMED as framed.** On a host whose signing key is reachable the class passes
+  as given (59/59): a portability note, not a defect of the delta.
+
+Nothing REFUTED; no severity CHANGED.
+
+**2. New findings.**
+
+**PQ1 — note (an estate fact, not the delta's).** The one child still on the old form on
+2026-11-01 has had no CI job start since 2026-10-21 (an account-billing annotation), and its
+last green floor run predates the delta. For it the grace's CI-plane notice (PP5) has never
+run and cannot run; on 2026-11-18 its hook reds, where installed, and its CI stays unstarted,
+so the red the notice was meant to pre-empt arrives from a plane that never showed the
+notice.
+*Counsel (not applied):* at `010/190`'s "which children have not yet rebuilt" step, take the
+list from `board` check mode on each checkout, not from `fleet-pins` and "each child's latest
+floor run" alone: a child with no running CI is the one that step would miss.
+
+**PQ2 — note (pre-existing, outside the delta).** The suite needs Python 3.11 or later
+(`contextlib.chdir` in `test_leakscan.py`; `X | None` in class bodies in `test_floor.py` and
+`test_floorfleet.py`; `write_text(newline=)` in `test_allowmarker.py`) while `floor.py`,
+`board.py` and `test_board.py` run on 3.9, and no file states the floor: `tools/README.md`
+and `README.md` name no version, the hook's remedy text says "Python 3, stdlib only", CI
+pins 3.12. A contributor on the macOS system interpreter meets 18 errors that read as broken
+tests.
+*Counsel (not applied):* one line in `tools/README.md` naming the version floor, and a
+`sys.version_info` guard with a plain message at the top of the test modules that need it.
+
+**3. The overall line, original plus top-up.** **PASS-WITH-FINDINGS** — 0 MAJOR · 2 MODERATE
+(PP1, PP2) · 5 minor (PP3–PP6, PP11) · 6 notes (PP7–PP10, PQ1, PQ2). `board` is doctrine by
+function (rule 3): nothing applied; the principal decides.
+
+**4. TOP-UP SUFFICES.** Against the principal's bar — a comparable quality outcome to a
+laptop run — the API pass holds. Reasons:
+
+- Each of its five stated limits was environmental and is closed by a run: the suite is
+  green, the floor is green with the real term list, the signing class passes as given, the
+  grace line is seen in 10 real CI logs and one real hook run, and the security prompt was
+  run by hand over the exact delta. None of the five changed a severity or refuted a finding.
+- Did the limits reach a judgement beyond the five? Three places to look. *What it chose to
+  probe:* its probe set exceeded the brief's re-run list (eight assumptions, ten mutations, a
+  2,305-item census, a 20-shape matrix, both planes on four dates, two reconcile probes) and
+  agrees with the sibling's independent results where they overlap. *What it could not see:*
+  one child — it counted 11 of the 12 that existed; by count and by class the missed child
+  adds nothing (current on both planes; no grace line in its 45 green runs). *What truncation
+  cut:* its census figures (300/278 lines, 12/12 identity, 9/2 under the grace) agree with
+  the author's, the sibling's and my 11/1 after a fleet that moved; no figure reads as a
+  head-only artefact.
+- The one new fact (PQ1) came from the `gh` check the brief listed as missing, not from a
+  judgement the sandbox formed wrongly; it is a note on the estate, not on the delta.
+- Residual, stated: a top-up cannot re-choose what the first reviewer chose to probe; I
+  re-drove none of the projection census and formed no view of the children's item shapes
+  beyond `board`'s exit and notice. Were a MAJOR in play I would say full re-run; on 0 MAJOR
+  and 2 MODERATE, both formed from live probes the sandbox did not limit, a full re-run buys a
+  second opinion, not a missing one.
+
+### Standing checklist, where a missing check bears
+
+- **V1** — the hook's "Python 3, stdlib only" is weaker than what the suite needs (PQ2);
+  nothing else new.
+- **V2** — the suite, the floor on both planes, the signing class and the grace line in CI
+  all re-run live; the author's "1963 Python tests green" and the sibling's 2032 reconcile as
+  2032 at HEAD.
+- **V3, V4, V5** — discharged: no missing check touches a mirror, a second home or a
+  contradiction beyond what the API pass recorded.
+- **V6** — PQ-e above.
+- **V7** — provenance above and in the brief.
+
+### Re-run ledger (worktree root; exit codes read explicitly; `uptime` before each heavy step)
+
+| command | result |
+|---|---|
+| `git log --oneline 0a2b7a7..HEAD -- tools/ .githooks/ .github/` | nothing |
+| `/usr/bin/python3 -m unittest discover -s tools -p test_board.py -v` (3.9, signing on) | 0; 59 OK |
+| `nice -n 10 /usr/bin/python3 -m unittest discover -s tools -p 'test_[a-l]*.py'` (3.9) | 1; 762 run, 18 errors, interpreter age |
+| `nice -n 10 /usr/local/bin/python3 -m unittest discover -s tools -p 'test_[a-l]*.py'` (3.14) | 0; 1028 OK, 189 s |
+| `nice -n 10 /usr/local/bin/python3 -m unittest discover -s tools -p 'test_[m-z]*.py'` (3.14) | 0; 1004 OK, 276 s |
+| `/usr/bin/python3 tools/floor.py --plane hook --root .` | 0; every enforced check ✅; `leakscan` structural + local |
+| `nice -n 10 /usr/bin/python3 tools/floor.py --plane ci --root .` | 0; `secretscan` 🟡 25 advisory; `leakscan` 🟡 by wiring; `board` ✅ |
+| `board --check` and `--check --staged` per child, 12 children, HEAD's `board.py` by path | 11 current, 1 grace, 0 stale, both planes |
+| `gh run list` / `gh run view --json jobs`, the old-form child, 15 runs | 7 started (pre-delta), 8 not started (0 steps) |
+| `gh run view --log`, 115 post-delta green runs, 10 children | 10 logs in 3 children carry ⚠️; all in-group; 0 annotations; ✅ summary |
+| synthetic old-form board through a copy of the tracked hook, `git commit` | 0; ⚠️ at line 15 of 54, ✅ board at line 46; without the preamble: ✗, ⚠️, BLOCKED |
+| `hooks.atelierTools` per child, `cmp` against HEAD's `board.py` | 11 identical, 1 unset |
+| the skill prompt's four git commands over the scratch clone branch | clean; 2 files; 1 commit; diff identical to the delta; 0 findings |
+
+Scratch (the clone, the hook repository, the hook copy, logs and outputs) lived under my
+scratchpad with the prefix `pq` and was deleted at the end of the act; no live capture kept.
+
+### Follow-up checklist (for the principal's decision; nothing applied)
+
+- [ ] PP1–PP11 — as the API pass listed them; unchanged.
+- [ ] PQ1 — take `010/190`'s not-yet-rebuilt list from `board` on each checkout, not from CI.
+- [ ] PQ2 — state the Python floor in `tools/README.md`; guard the three test modules.
+- [ ] Orchestrator — the API verdict's closing line ("the full suite and `leakscan` need a run
+      outside this sandbox before close") is discharged by PQ-b and PQ-c.
+
+ACT 1 SAVED
