@@ -326,7 +326,6 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose --identifiers credits commits on…](roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
 - [ ] ⏳ [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
-- [ ] ⏳ [Design cold pass queued: the commission that a review is never cut…](roadmap/160-doctrine-review-owed/990-design-cold-pass-queued-review-never-thinned-for-budget.md)
 
 ## build/ layer — open strands
 

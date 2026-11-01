@@ -60,6 +60,7 @@
         and picked up, so pausing is the easy route.
       **Review.** This is doctrine about review written by sessions that
       run reviews, so its wording earns a rule-4 pass before it binds.
-      This item as captured (the reading, the account of the house and
-      the options) has its own design pass queued at `160/990`, brief
-      written 2026-11-01 UTC.
+      🚫 2026-11-02: a design-pass brief on this item was written and
+      WITHDRAWN by Mike the same night, before any pass ran: the line above
+      asks only for a pass on the wording once it exists. Kept at
+      [withdrawn/2026-11-01-1154-review-never-thinned-for-budget-cold](../../reviews/withdrawn/2026-11-01-1154-review-never-thinned-for-budget-cold.md).

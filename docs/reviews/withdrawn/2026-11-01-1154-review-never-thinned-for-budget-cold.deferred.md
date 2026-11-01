@@ -1,3 +1,15 @@
+> # ⛔ WITHDRAWN — NEVER RUN, NOT A REVIEW
+>
+> **Withdrawn by Mike on 2026-11-02, before any pass ran.** The item's own
+> review line asks only for a later pass on wording that does not exist yet; a
+> design pass now went beyond what it asked for.
+> Asked whether these briefs were needed, his words were *"Do those things
+> actually need a fable review or are you just randomly writing briefs?"*;
+> on the account that followed he chose *"Keep 6, withdraw 7"*, and this
+> brief is one of the withdrawn. Nothing below is a finding, a verdict or a
+> queued pass. Kept, not deleted, so the record shows it was written and why
+> it was dropped; it lives here so no queue pointer meets it.
+
 # Sibling to the review-never-thinned-for-budget cold pass — held under rule 1's split
 
 Sibling of `docs/reviews/2026-11-01-1154-review-never-thinned-for-budget-cold.md`, held under

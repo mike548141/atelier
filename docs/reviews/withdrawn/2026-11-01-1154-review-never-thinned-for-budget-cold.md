@@ -1,3 +1,15 @@
+> # ⛔ WITHDRAWN — NEVER RUN, NOT A REVIEW
+>
+> **Withdrawn by Mike on 2026-11-02, before any pass ran.** The item's own
+> review line asks only for a later pass on wording that does not exist yet; a
+> design pass now went beyond what it asked for.
+> Asked whether these briefs were needed, his words were *"Do those things
+> actually need a fable review or are you just randomly writing briefs?"*;
+> on the account that followed he chose *"Keep 6, withdraw 7"*, and this
+> brief is one of the withdrawn. Nothing below is a finding, a verdict or a
+> queued pass. Kept, not deleted, so the record shows it was written and why
+> it was dropped; it lives here so no queue pointer meets it.
+
 # Cold pass — the commission that a review is never cut down to fit a budget (`430/010`)
 
 **Pass type:** design cold pass on a captured feature, per `docs/method/REVIEW.md` § *Review
