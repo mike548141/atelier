@@ -5,9 +5,10 @@
 whoever takes this pass. The principal's current standing ruling is that no Fable work runs
 without his explicit permission, so this pass waits for that permission as well as for a
 reviewer.
-**Status:** PHASE 1 RAN 2026-11-01 UTC — **PASS-WITH-FINDINGS, 13 findings: 1 MAJOR · 7 MODERATE
-· 4 minor · 1 note** (verdict below the divider; phase 2 reconcile pending the orchestrator's
-release of the sibling). Reviewer: Fable 5.1 under off-tier Opus 5.5 orchestrators (sessions
+**Status:** PASS RAN 2026-11-01 UTC, phases 1 and 2 — **PASS-WITH-FINDINGS, 14 findings: 1 MAJOR
+· 7 MODERATE · 5 minor · 1 note** (verdict and `### Reconcile` below the divider; the sibling
+was released to the reviewer after act 1 was committed and is folded in by the orchestrator).
+Reviewer: Fable 5.1 under off-tier Opus 5.5 orchestrators (sessions
 `0d67673f` and `c87c4ee0`), disclosed in the verdict's provenance. Brief written 2026-10-26 UTC
 by an Opus 5.5 brief-writer subagent of session 5070f22b; the pass was taken by a cold Fable
 session that neither the delta's authors nor session 5070f22b (nor any of its subagents) started
@@ -634,3 +635,267 @@ All from the worktree root at `947d86f`, foreground, `nice -n 10` for the suites
 - [ ] IE9–IE13: the minor items and the note, as one follow-ups item if taken.
 - [ ] Phase 2: reconcile against the sibling, the two intent records, the three commit bodies
       and `160/920`'s verdict (orchestrator releases them).
+
+### Reconcile — phase 2, 2026-11-01 UTC
+
+Opened after act 1 was committed (`9a13262`): the sibling (released by the orchestrator from
+its held copy; 16 seeded questions, 9 held re-run results, two intent-record summaries), the two
+intent records `210/290` and `210/310` whole, the three commit message bodies (plain `git show
+-s --format=%B`), the `160/920` verdict (`docs/reviews/2026-10-18-0506-close-covers-subagents-
+cold.md`, lines 455–543, 642–661 and 795–895) and both pointers. Phase-1 text above is
+unrevised. Four further probes ran under my scratchpad for questions 4, 5, 8 and 12 and were
+deleted with their worlds.
+
+**The sibling's re-run results against mine.** All nine reproduce: coldsweep exit 0 ×3; 65/65;
+492/492 (the authors' 489 at `e78b6f1` differs by one later commit to another instrument's test
+file, `5139d68`, outside this delta — now checked, not assumed); mandoc both forms exit 0 and the
+same one 143-byte line blamed outside the delta; the same six wrapscan lines, all outside the
+delta; spellscan and leakscan exit 0; the empty later-commit list; floor exit 0; `--help` exit 0;
+and the live re-drive by path gives the same counts to the unit (34 / 21 / 0; board 6, 11, 0, 5;
+unconfirmed 4, 12; 7 agents reported). I did not run the id-prefix form the brief-writer found
+wanting (result 9, "no transcript found" from a worktree root): `locateTranscript` predates this
+delta, so it is out of scope here, but it decides whether a session following `RECORD.md` from a
+worktree gets any block at all, and no finding of mine or `160/920`'s names it — carried to the
+follow-ups as a question for the `160/920` or a `210/` item, not charged here.
+
+**The seeded questions, one by one.**
+
+1. Yes and yes: IE1 (S1). Two commits with one subject are both credited and the range spans
+   the peer's.
+2. Yes: IE2 (S2), and it is an over-credit path only in combination with 1 or 3.
+3. Yes for a heredoc body, a grep pattern and an echo: IE4 (S7, S12). A commit message's own
+   text is not scanned (subjects come from git), so that half is clean.
+4. The first-paragraph fold: yes, under-credit, IE10 (S8). Probed now in addition: leading
+   whitespace is fine (git strips, `normSubject` trims); a `#` first line given by `-m` is kept
+   by git and read the same way, so it matches; `$'…'` quoting is not understood by `shellWords`
+   and yields a subject with a leading `$` that no commit carries — one more under-credit form
+   for IE10's list.
+5. Probed now: with the pre-rebase copy still on a ref, both copies are credited (`Commits (4)`
+   for two pieces of work, no range). Every one of the four SHAs is the session's, so this is
+   not an over-credit of a peer; it is a count a reader may misread. Note, not a finding.
+6. Yes: IE6 (S9 #7, #11). `--auto` completing later and `gh api` were not driven; they take the
+   same path as the web UI (no `gh pr merge <n>` command), so the reason line reads as fact for
+   them too.
+7. Yes: IE6 (S9 #9) — and the brief-writer's framing is the sharper one: it is an under-credit
+   hidden behind a stated reason, because "left out" is terminal where "unconfirmed" invites a
+   check.
+8. Probed now and yes: an item created on the session's branch, squash-merged by a peer who
+   deleted the branch, appears on no board line at all — not created, not unconfirmed — with
+   only the commit tier's "left out" entry as a trace. IE14 below, formed at reconcile.
+9. Yes: IE8 (S15), and the doctrine's queue-run shape does make it the common case.
+10. Yes: IE7 (S11), exactly as suspected.
+11. The regex and the code-span strip match `board.py`'s (A6 holds there); the where-to-look
+    differs (IE13). A re-queued ⏳ (flag on both old and new first line) is not counted, by the
+    design's own "gained" rule; agreed, no finding.
+12. Probed now: a Write, then an Edit tool change to the file's first line, then `-F` leaves the
+    stale draft as the evidence and the real commit unconfirmed. The design's "Not solved" names
+    `sed -i` but not the Edit tool, which is this house's usual editor — added to IE10.
+13. Yes: IE9 (S13).
+14. Both discharged in lens 4: the nested quantifier's alternatives are disjoint at each boundary
+    (linear); the resolved path is compared, never opened.
+15. The three docs agree with each other on what they state; the README's "the squash merge of a
+    PR the session merged" omits the first-parent condition the man page and §15.1 state, and
+    "a peer's squash merges as left out" is the assumption IE6 falsifies. V5 as recorded.
+16. Pre-delta; carried as a question above, not charged.
+
+**Against the authors' accounts.** `210/290`'s close note is faithful to what was built: first-
+parent rejected as the rule and kept to recognise squash merges, positive evidence taken, the
+window demoted. Its probe on its own session (10 credited, 9 unconfirmed: the peer's 8 and one of
+its own committed by a worker with `-F`) is the honest shape and already shows IE8's class — a
+worker's commit the orchestrator could not confirm — which `210/310` then narrowed to the `-F`
+form and fixed for subagents only. `210/310`'s "this errs the safe way: nothing is
+over-credited" is true of the `-F` gap it describes; phase 1 shows the subject tier beneath it
+does not err the safe way (IE1–IE4). The record's "shapes to weigh" named "resolve a literal
+`-F <path>`", "say so on the unconfirmed line" and "prefer `-F -` with a heredoc"; the first was
+built, the second is the attribution-line sentence, the third is doctrine not taken. Neither
+record considers binding evidence to the command's time, cwd or result, which is where my
+counsel sits. The 290 note's "the session's own SHAs cannot come from its transcript when it
+commits with `-q`" is true and is the premise the whole design rests on; the timestamps can.
+
+**Against the commit bodies.** `0462173`'s body matches §15.1 and the code; its "as board.py
+reads it" is true of the regex and not of the line looked for (IE13). `621d18b`'s body says the
+man page and README were brought "into line with the three commit tiers"; they were, and they
+inherited the overclaims (IE6's "a peer's", IE5's "failed command"). `e78b6f1`'s body states the
+same limits as §15.1, names the one-line `S=… && cat > $S/m` fix with its test, and says "the
+JSON field set is unchanged" — relative to `0462173`, which had already changed it; no
+contradiction with phase 1. None of the three bodies mentions worker sessions, failed commit
+commands, repo scoping or quoted text.
+
+**Against `160/920` (CV1–CV19; CL1–CL24 through it).**
+
+- *Which of mine it already holds:* none as a finding. Its CL18 line ("test gaps by mutation —
+  the pattern continues") is the class IE11 adds one more member to. Its CV15 (a `[x]` → `[x]`
+  first-line rewrite guard unprotected) is a board test gap beside IE7's board defect; S11 did
+  not drive CV15's shape, so it stands untested by me.
+- *Which of its this delta bears on:* **CV19 / CL1** (the `--since` walk truncates, MAJOR under
+  `160/870`, undecided). This delta adds a third `--since` walk, `firstParentShas`, beside
+  `windowCommits` and `boardLog`. A first-parent walk is linear, so it truncates only when a
+  back-dated commit sits on the first-parent line inside the window — rarer than CL1's case but
+  the same mechanism, and a truncated first-parent set would move a squash merge from "left
+  out" to "unconfirmed" silently. On the live window there is no truncation to see: the
+  `--branches --remotes` count is 55 with and without `--since`, and origin/main's first-parent
+  count is 236 both ways. Not charged here: the root is open at MAJOR and `160/920` already
+  charged the identifiers form once; recorded so the fix to CL1 is swept to all three call
+  sites.
+- CV2 (descriptions pasted), CV3 (`gh` timeout read as absence), CV12 (`0 · none launched` for
+  two facts) sit in the block's other fields; not this delta's hunks, unchanged, no overlap.
+- `160/920`'s reconcile notes that at HEAD its CL1 throwaway repo printed `(0): none` because
+  this delta "now credits commits only on transcript evidence" and left that unassessed; phase
+  1 assesses it (IE1–IE4, IE10).
+
+**Findings formed at reconcile (marked as such).**
+
+**IE14 — minor (formed at reconcile; seeded question 8). Board movement that reaches the
+integration branch only through a left-out squash merge is dropped from the block entirely.**
+Probed: an item file added on the session's branch, squash-merged by a peer who deleted the
+branch; the block prints `created: none` and `unconfirmed … : none`, and the only trace is the
+commit tier's "left out" entry, whose reason (IE6) says the work is someone else's. §15.1 says a
+left-out squash "contributes to neither" by design, written for the case where the peer's branch
+commits are still on a ref; when they are not, the movement is gone with no line saying so.
+*Counsel:* when a left-out squash merge is the only reachable carrier of a board diff, list that
+movement on the unconfirmed board line with "via a squash merge this session did not run".
+
+**IE10 widened (not re-charged):** `$'…'`-quoted messages (question 4) and a Write followed by an
+Edit tool change before `-F` (question 12) join the under-credit forms §15.1 does not name.
+
+**Note (reconcile; question 5):** a rebase whose pre-rebase copy survives on a ref credits both
+copies; all are the session's, so no over-credit, but the count doubles. Worth a sentence in
+§15.1 beside the amend case.
+
+### Overall, restated
+
+**PASS-WITH-FINDINGS — 14 findings: 1 MAJOR (IE1) · 7 MODERATE (IE2–IE8) · 5 minor (IE9–IE12,
+IE14) · 1 note (IE13).** Changes from act 1, all stated above: IE14 new; IE10 widened at the
+same severity; no phase-1 finding contradicted by the sibling, the authors' accounts, the commit
+bodies or `160/920`. Every finding is on a tool whose output is pasted into records as fact, so
+all are the principal's to decide (rule 3); counsel sits beneath each and nothing was applied.
+
+**Follow-up checklist, act 2 additions**
+
+- [ ] IE14: a left-out squash's board movement on the unconfirmed line.
+- [ ] CL1/CV19 sweep: when the `--since` walk is fixed, fix `firstParentShas` with
+      `windowCommits` and `boardLog`.
+- [ ] Question 16 (pre-delta): does `--session <id>` find the transcript from a worktree root?
+      For the `160/920` follow-ups or a `210/` item.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-01)
+
+*Released to the reviewer only after its act-1 findings were committed; folded here
+verbatim (headings demoted two levels to sit under this one) and the sibling file removed,
+per the brief. The orchestrator (session `0d67673f`, Claude Opus 5.5, started by session
+`c87c4ee0`) formed no finding and wrote no severity.*
+
+### Sibling to the identifiers credit-on-evidence cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-26-0917-identifiers-credit-on-evidence-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-26 UTC by the Opus 5.5 brief-writer named in the brief's
+provenance; it forms no finding and writes no severity. Fold this file in below the reconcile
+and delete it at phase 2.
+
+#### Intent records
+
+Both read in full by the brief-writer. Neither quotes the principal.
+
+- `docs/roadmap/210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md`
+  — lines 2–16: the problem as found by the session that shipped the identifiers block (counts
+  from its first real block against its own commits, a concurrent cloud session's branch
+  commits and squash merge, a board item wrongly credited, a `⏳` read from a close note), and
+  the shapes to weigh. Lines 17–31: the authors' closing account (what was built, one shape
+  weighed differently and why first-parent was rejected, the probe on its own session with
+  counts, the test count, the residue filed as `210/310`).
+- `docs/roadmap/210-instruments-open-features/310-ccclose-cannot-read-a-commit-message-from-a-file.md`
+  — lines 2–15: the `-F <path>` gap, said to err the safe way, with shapes to weigh. Lines
+  16–27: the closing account (the write-matching rule, path equality, the `$VAR` rule, latest
+  write wins, the stated limits, one commit moved by the probe, test counts).
+- The three commit bodies — not read by the brief-writer.
+
+#### Re-run results held back from the brief
+
+Run once by the brief-writer, 2026-10-26, from its worktree root at `2f6dbf6`, in the
+foreground, on this machine (12 cores, load near 7 at the time):
+
+1. `coldsweep --commit` on each of the three commits: exit 0 each, closing "message body not
+   read" line present, 0 barred files touched.
+2. `node --test instruments/ccclose.test.js`: exit 0, 65 tests, 65 pass.
+3. `node --test instruments/*.test.js`: exit 0, 492 tests, 492 pass. (The `210/310` record
+   gives 489 at `e78b6f1`; later instruments commits outside this delta may account for the
+   difference. Not checked.)
+4. `mandoc -T lint -W style instruments/man/ccclose.1`: exit 0, no output. The CI form at
+   default level: exit 0. `awk 'length > 80'` prints one line (line 418, 143 bytes, inside a
+   `.nf` example block); `git log -L418,418` names `4eda680` as its last change, outside the
+   delta.
+5. wrapscan over the five paths: exit 1, 6 findings (2 in `instruments/README.md`, 4 in
+   `instruments/ccclose.design.md`); `git blame` puts all 6 on commits outside the delta.
+   spellscan: exit 0. leakscan `--require-terms`: exit 0, local term list present.
+6. `git log --oneline e78b6f1..HEAD -- <five paths>`: empty.
+7. Floor, ci plane: exit 0 (secretscan 23 advisories, leakscan cover not guaranteed on this
+   plane, four warn-only scanners), as designed.
+8. `ccclose --help`: exit 0.
+9. Live re-drive on the authoring session's transcript, counts only:
+   - by id prefix (`--session 8e498ef1`) from the worktree root: exit 0, but "no transcript
+     found", so every field fell to "by hand";
+   - by the transcript's path: exit 0. Commits confirmed 34 (not unbroken), unconfirmed 21,
+     left out 0. Board, confirmed: completed 6, created 11, claimed 0, `⏳` review 5.
+     Board, unconfirmed only: completed 4, created 12. Agents 7, all reported.
+   The authoring session's window covers its whole queue run, not only this delta's work.
+   The brief-writer derived no ground truth and forms no view on these counts.
+
+#### Prior verdicts on nearby surfaces (named by filename, not opened, not exhaustive)
+
+- `docs/reviews/2026-10-18-0506-close-covers-subagents-cold.md` — `160/920`, the earlier
+  commits to the same files.
+- `docs/reviews/2026-10-17-1010-ccclose-close-checker-cold.md` — named in a shape example; the
+  name suggests the original close checker.
+
+#### The pointer's own lens hints
+
+It names the worst failure (a block pasted as fact) and the boundary against `160/920`.
+Nothing else.
+
+#### Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. Subject equality is the whole key. House subjects recur (`board: …`, `docs: session
+   record …`). Does a peer's commit with a subject the session also used get credited, and
+   are two commits with one subject both credited?
+2. A commit command that made no commit (hook refusal, nothing to commit) still adds its
+   subject to the evidence. Combined with question 1, is that an over-credit path?
+3. The command regex scans the whole command string. Does `git commit -m "x"` inside an
+   `echo`, a heredoc being written to a file, a `grep` pattern or a commit message's own text
+   yield evidence?
+4. Git's `%s` is the first *paragraph* joined with spaces, while the tool takes the first
+   *line* of the message. A message whose first paragraph spans two lines would then never
+   match: an under-credit the "errs the safe way" framing does not cover. Same question for
+   leading whitespace, comment cleanup, `$'…'` quoting and escaped quotes.
+5. Rebased or cherry-picked copies carry the same subject. With a pre-rebase branch still in
+   `--branches --remotes`, are both copies credited?
+6. Merge routes other than `gh pr merge` (`gh pr merge --auto` completing later, `gh api`, the
+   web UI, a separate worker session): are their squash merges left out with a reason line
+   that reads as fact ("merge not run by this session")?
+7. A session commit whose subject ends `(#n)` for another reason, on the first-parent line and
+   without readable evidence, is "left out" as a squash merge rather than "unconfirmed". Is
+   that an under-credit hidden behind a stated reason?
+8. A left-out squash merge counts for nothing on the board, even on the unconfirmed line. If
+   the peer's branch commits are gone from all refs, is that board movement dropped from the
+   block entirely, with no line saying so?
+9. `RECORD.md` asks for commits "its workers' included". Workers dispatched as separate
+   sessions, not subagents, leave no subagents-directory evidence. Do their commits fall to
+   unconfirmed, and does the doctrine's queue-run shape make that the common case?
+10. The confirmed-only board reduce computes the final state from confirmed commits only. An
+    item the session claimed and a peer then closed would read as "claimed and left open".
+11. The `⏳` reading: `STATE_LINE` and code-span stripping against `tools/board.py`'s
+    `STATE_RE` and `CODE_SPAN_RE`, and a re-queued `⏳` (flag on both old and new first line)
+    not counted.
+12. The file tier ignores Edit-tool changes and `sed` rewrites after the last Write, and the
+    "parent's unordered use" of a subagent's file credits regardless of time order.
+13. Silent paths: the subagent reader's `catch {}` and skipped unparseable lines shrink the
+    evidence with no note in the block.
+14. Security: whether `GIT_MSG`'s nested quantifier can be driven to long backtracking by a
+    crafted command, and whether a path the file tier resolves from a transcript (it expands
+    `$VAR` from literal assignments) is ever used to read from disk.
+15. The README says a squash merge counts when "the session merged" it; the code also requires
+    the first-parent line and treats a true `Merge pull request #n` commit the same way. Do the
+    three docs agree with each other and with the code on that?
+16. The id-prefix lookup found no transcript from a worktree root (result 9). Pre-delta
+    behaviour, probably, but it decides whether a session following `RECORD.md` from a
+    worktree gets any block at all.

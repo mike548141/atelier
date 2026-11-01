@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits
+- [ ] 🎯 **Rule-4 cold pass queued: `ccclose --identifiers` credits
       commits on evidence, not the window (`210/290`).** A block designed
       to be pasted into records as fact, so the authoring session (a
       Mike-opened Opus 5.5 queue run, session 8e498ef1, 2026-10-18, wt
@@ -29,3 +29,28 @@
       write no severity; neither authored the delta or the brief, nor was
       started or instructed by session 8e498ef1 or 5070f22b). Runs under the
       principal's 2026-11-02 drain approval for Fable work.
+      🎯 **PASS RAN 2026-11-01-1332 — PASS-WITH-FINDINGS, 1 MAJOR · 7
+      MODERATE · 5 minor · 1 note** (verdict and reconcile in the brief
+      `docs/reviews/2026-10-26-0917-identifiers-credit-on-evidence-cold.md`,
+      the deferred sibling folded below them). *Standing MAJOR:* IE1, subject
+      equality credits a concurrent session's same-subject commit as fact,
+      the silent over-credit the brief names as worst. MODERATE: IE2 a failed
+      commit command still counts as evidence; IE3 evidence is not scoped to
+      this repo; IE4 command text that runs no commit counts; IE5 a subagent's
+      failed `gh pr merge` confirms a peer's squash; IE6 the "left out" reason
+      is printed as fact and is false in three probed cases; IE7 "claimed
+      (still open)" is wrong after a peer's close; IE8 worker sessions are
+      structurally unconfirmed and no doc says so. Minor: IE9 silent evidence
+      shrinkage; IE10 undocumented under-credit forms; IE11 no identical-
+      subject test; IE12 `CHANGELOG.md` entry owed; IE14 (formed at
+      reconcile) a left-out squash's board movement vanishes. Note: IE13 line 1
+      against `board.py`'s first non-comment line.
+      *Owed to the principal (rule 3):* a ruling on each of IE1–IE14, MAJOR
+      first; the load-bearing one is IE1–IE4 together: bind the commit tier
+      to command execution (time, cwd, result), as counselled, or keep it
+      subject-only with its limits written into §15.1 and the block's own
+      attribution line. Counsel sits beneath each finding; nothing applied.
+      *Routing:* IE1–IE14 are `instruments/ccclose` code, test and doc fixes
+      in this repo (a `210/` item once ruled); the reconcile also records a
+      third `--since` walk for the open `160/920` sweep and a pre-delta
+      `--session` question for its follow-ups.
