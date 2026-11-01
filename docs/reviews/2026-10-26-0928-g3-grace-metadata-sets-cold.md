@@ -4,11 +4,12 @@
 **Tier:** Fable (the principal-named review tier, ruling 2026-08-04), checked at selection by
 whoever takes the pass. The principal's current standing ruling is that no Fable work runs
 without his explicit permission, so this pass waits for that permission as well.
-**Status:** PASS-WITH-FINDINGS, phase 1 — 0 MAJOR · 5 MODERATE · 5 minor · 4 note. Ran
-2026-11-01 UTC on Fable 5.1 under an off-tier orchestrator (session 358c8aa0); reconcile
-(phase 2) owed. Brief written 2026-10-26 UTC by an Opus 5.5 brief-writer subagent of session
-5070f22b; the pass was taken by a cold Fable session that neither the delta's authors nor
-session 5070f22b (nor any of its subagents) started or instructed.
+**Status:** PASS-WITH-FINDINGS, reconciled — 0 MAJOR · 6 MODERATE · 4 minor · 5 note (phase 1:
+0 · 5 · 5 · 4). Both phases ran 2026-11-01 UTC on Fable 5.1 under an off-tier orchestrator
+(session 358c8aa0); the sibling is folded in below the verdict by the orchestrator. Brief
+written 2026-10-26 UTC by an Opus 5.5 brief-writer subagent of session 5070f22b; the pass
+was taken by a cold Fable session that neither the delta's authors nor session 5070f22b (nor
+any of its subagents) started or instructed.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md`.
 **Why it earns a review:** `leakscan` is the personal-data boundary of every adopting child
@@ -811,3 +812,231 @@ scratchpad and are deleted at the end of act 2.
       per his 2026-10-03 words, or the reason-only form stands (GM5).
 - [ ] `010/190` removes the grace after the date; this pass found nothing that changes that.
 - [ ] Trace the 2026-08-04 ruling's verbatim words at phase 2 (none in the open tree).
+
+### Reconcile
+
+Phase 2, 2026-11-01 UTC, after act 1 was committed (`69d35a0`) and the orchestrator released
+the held sibling from its held store. Read for this act: the sibling whole; `020/150`,
+`020/440`, `020/450` and `010/190` whole; the queue pointer; the six commit bodies; PR 97's
+body (it has no comments and no reviews); `docs/SESSIONS.md` index lines naming G3 or PR 97;
+`docs/sessions/2026-08-03-2016-orchestrated-queue-run.md` lines 26–40 (the 2026-08-04
+sitting); `docs/sessions/2026-10-03-0357-…` line 42; and the prior verdict
+`2026-10-04-2215-exception-register-design-cold.md` lines 455–470 (XR11). Phase-1 text above
+is unrevised; every change of weight is recorded here.
+
+**The 2026-08-04 ruling, traced.** No verbatim record of the words that made G3 blocking
+exists in the tree. `020/150` paraphrases ("Mike ruled G3 BLOCKING (2026-08-04): an
+unscannable or metadata-bearing binary blocks, a legitimate image carries a one-time reasoned
+marker"), and the sitting's session record paraphrases further ("binaries skipped silently …
+All queued for Mike"). The delta's "Mike ruled this 2026-08-04, funded 2026-08-09" therefore
+rests on paraphrase; the shape is uncontested, the words are not on record.
+
+**The sibling's twelve questions, against the findings.**
+
+1. *Option text as his words* — GM1 confirmed, MODERATE stands. `020/150` itself is careful:
+   it italic-quotes only the label *"Grace period (Recommended)"* and then says "The option
+   read: …" in plain text. The README, the `leakscan.py` grace block and commit `10b0bf6`'s
+   body all promote that plain text to his quoted words; the commit body is immutable, so the
+   two live sites are the remedy.
+2. *One home for the E6a exception* — GM2 confirmed, MODERATE stands. `020/150` says the grace
+   "stands against E6a's no-advisory-form decision … Recorded so the next reader does not read
+   it as E6a quietly loosened" — recorded on the board item, which is the shape `SECRETS.md`
+   itself asks for ("the roadmap or an ADR"), so the board side is met; the doctrine home and
+   its mirrors are still unqualified, which is what GM2 records.
+3. *The exception register and the `110/100` hold* — GM5 confirmed, no longer provisional:
+   **MODERATE stands.** Neither `020/150`, the PR body, any commit body, `SESSIONS.md`,
+   `ROADMAP-DONE.md` nor the session records mention the register ADR's consequence ("G3 (PR
+   #97) is reworked onto this register as `file` entries") or the `110/100` hold ("held until
+   it meets (1) and (2)"). The two decisions put to the principal on 2026-10-18 were the
+   grace and the opaque-metadata hatch; his *"Allow with reason (Recommended)"* answered the
+   hatch, not who-and-when. So the hold was neither lifted nor put to him: the register plan
+   was contradicted silently. The prior register pass (XR11) had already flagged that the ADR
+   cites G3 behaviour "a reader of this tree cannot check"; the landed G3 then diverged from
+   the ADR without either record noting it. Under rule 3 his landing stands as his word and the
+   challenge goes to the briefing: the owed ask (c) below is sharpened accordingly.
+4. *`flags` routes that never run the gate* — answered no, with GM8 unchanged (minor). Probed
+   at phase 2 in addition to act 1: a bare positional through `flags` (an existing empty
+   directory, and an absolute directory elsewhere) is additive — the CI template renders
+   `--root <R> <R> <extra>`, so the repo stays a target and the warning block still prints.
+   `--` followed by a dash-led flag is refused on the flag token. `--root` and `--terms`
+   displace the template's values (Q2) and gate more. No route found turns the CI plane into a
+   pass.
+5. *A reasoned `.leakscanignore` glob as a route around G3* — **GM9 revised at reconcile:
+   minor → MODERATE.** The sibling asks whether the ruling admits it; the author's own account
+   answers: `e72c142`'s body says "A `.leakscanignore` glob was rejected as the hatch: it is
+   path-wide, rule-wide and blind to content", and `020/150` paraphrases the ruling as "a
+   legitimate image carries a one-time reasoned marker". The delta then runs the ignore file
+   *before* the gate, so a child's reasoned `docs/img/  # our screenshots` passes every present
+   and future image under it unread and unbound to any hash — the replaced-image case the
+   commit body names as the reason the glob cannot be the hatch. It is visible and counted,
+   which is why act 1 rated it a wording overclaim; read against the ruling's "one-time", it
+   is an open route the ruling does not admit and the delta does not disclose as such. His
+   call: owed ask (d) below. *Counsel:* run the gate before the ignore file for binaries, or
+   state in the README that a glob is a sanctioned, hash-unbound exception to G3.
+6. *Blanket refusal as string equality* — answered in lens 2 and GM14 (note stands). After
+   `34dc0f0` nothing stops one generic reason on every set line of every file; `020/440`
+   records that as the reading of his 2026-10-19 words, and the commit body says "naming the
+   sets is what makes the reason specific". Specificity is the human's; the text should say
+   so (GM14's counsel).
+7. *Data-type sets presented as his "fields"* — GM3 confirmed, MODERATE stands. `020/440` is
+   honest on its own face ("🚩 The reading of 'fields' above was wrong") and `020/450` is open
+   with the field-level build and a migration note; the delta's README, CHANGELOG and code are
+   what children read, and none carries the correction.
+8. *Decompression caps and termination* — answered in lens 4: capped at 1 MiB per segment,
+   bombs opaque, zero-length and oversize lengths terminate (48 inputs).
+9. *Who reads a warning in a green CI run* — **GM15, note, formed at reconcile.** The floor
+   relays the block (assumption B), but on the CI plane it lands in a green run's log, and on
+   the hook plane it prints only when a commit stages a binary; a child with existing binaries
+   and no new image commits sees nothing but a green tick until the day it blocks.
+   `010/190`'s pre-removal step (count the unlisted children and take the list to the
+   principal) is the control that makes the cut-off reds expected rather than a surprise,
+   and the counts show the signal does travel: 5 children owed lines on 2026-10-26 and 3 on
+   2026-11-01. E6a's own test — an advisory nobody reads is cover, not coverage — applies to
+   the grace for the 31 days it is open; the control is adequate if `010/190` runs before
+   2026-11-18.
+10. *Reasons describing private images in public text* — answered in lens 4: the design, not
+    a defect; the README's examples model the register, and the file is scanned.
+11. *Partially staged, attribute-hidden and submodule changes on the hook* — a binary cannot be
+    partially staged (git has no binary hunks), so the index copy is whole; a `binary`
+    attribute over text is read in full (delta test, re-run); a submodule change is a text
+    diff (`Subproject commit …`) and is scanned as text, with nothing to gate.
+12. *README example digests and fixture strings* — the sample digests are illustrative 16-hex
+    strings; with 0 tracked binaries in atelier there is no file they could accept. No fixture
+    beyond the reserved-domain addresses carries metadata text (assumption 12).
+
+**The brief-writer's held re-runs against this pass's.** Every result the sibling held
+reproduced here six days later: all four modules and the full suite green (2,032), both
+selftests, 0 tracked binaries, 0 `--binary-entries` lines for atelier, and the grace boundary
+on the same three days. Children: the sibling counted 20 wired children (22 rows, 1 absent),
+5 owed 179 file and 111 set lines; this pass counted 21 wired of 23 rows, 3 owed 125 and 43
+(the repos beside the main checkout changed in between, and two children listed or stripped).
+Leakscan tuning through the floor: the sibling counted 1 child with `flags` and 2 with
+`scope`; this pass counts 3 and 2, none disabled; every such entry carries a `why`, and none
+reaches the grace (assumption 2).
+
+**The authors' account, screened (commit bodies, PR body).** The bodies agree with the diffs
+and with `020/150`; two claims need the notes above: `10b0bf6` quotes the option text as his
+("He chose … : "unlisted files print …"", GM1), and `e72c142` rejects the ignore glob as the
+hatch while the code leaves it open (GM9). `378399f`'s body confirms the blocklist grew "from
+four to five, and the prose that counts it follows" — the line-1441 comment did not (GM10).
+The PR body's "recorded verbatim on `020/150`" is true of the labels and the PS. PR 97 carries
+no review and no comment: it was merged by the queue run on the principal's two answers.
+
+**Overall line, restated after reconcile:**
+**PASS-WITH-FINDINGS — 0 MAJOR · 6 MODERATE · 4 minor · 5 note (15).** Changes from phase 1:
+GM5 confirmed at MODERATE (no longer provisional); GM9 revised minor → MODERATE; GM15 added
+as a note. Still no MAJOR, so the cycle closes on the principal's decisions.
+
+**Owed asks for the principal, after reconcile** (on the board, not asked mid-drain):
+(a) unchanged — is 2026-11-18 a mandate or a default for the children (GM7);
+(b) unchanged — decode or declare-opaque for the raw `xmp` profile (GM4);
+(c) sharpened — the 2026-10-18 landing was put to him without the `110/100` hold ("held until
+it meets (1) and (2)") or the register ADR's consequence in the briefing; under rule 3 that is
+a re-brief, not a void: does `.leakscanbinaries` stand reason-only, or must it record who and
+when per his 2026-10-03 words (GM5);
+(d) new — does the 2026-08-04 ruling admit a reasoned `.leakscanignore` glob over images as a
+hash-unbound way past G3, or must the gate run before the ignore file for binaries (GM9).
+
+Scratch artefacts (the scratch repo, extracted diffs, mutant trees, probe scripts and outputs)
+were deleted at the end of this act.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-01)
+
+*Released to the reviewer only after its act-1 findings were committed; folded here
+verbatim (headings demoted two levels to sit under this one) and the sibling file removed,
+per the brief. The orchestrator (session `358c8aa0`, Claude Opus 5.5, started by session
+`c87c4ee0`) formed no finding and wrote no severity.*
+
+### Sibling to the G3 grace and metadata-sets cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-26-0928-g3-grace-metadata-sets-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-26 UTC by the Opus 5.5 brief-writer subagent of session 5070f22b
+named in the brief's provenance; it forms no finding and assigns no severity. Fold this file in
+below the reconcile and delete it at phase 2.
+
+#### Intent records
+
+- `020/150` (`docs/roadmap/020-policy-as-code-programme-five-tracks-mik/`) — read in full by the
+  brief-writer. Lines 1–18 are the funding and the 2026-08-04 blocking ruling, paraphrased, not
+  quoted. Lines 20–42 are the 2026-10-03 build's account: why it was held as a draft PR (the
+  child CI reds it would cause, with counts), the two decisions put to the principal, and what
+  the build found on the staged plane and in the floor's flag blocklist (filed as `020/410`).
+  Lines 43–58 record his answers, and say the grace "stands against E6a's no-advisory-form
+  decision" with his answer as the authority. Lines 59–76 are the landing account: the grace
+  date "was the queue run's choice on '~30 days', not a ruling"; text metadata needing a line
+  is called "a judgement call"; test counts; the removal at `010/190`.
+- `020/440` — read in full. The author's reading of "fields" as the scanner's named sets, the
+  build account, and its own flag (lines 23–26) that the reading was wrong, with the principal's
+  correction and the follow-up at `020/450`.
+- `020/450` lines 1–12 and `010/190` whole — read by the brief-writer. `010/190` asks that,
+  before removal, the children still unlisted be counted and the list taken to the principal.
+- No commit message body, PR body, PR comment or PR review was read.
+
+#### Re-run results held back from the brief
+
+Run once by the brief-writer, 2026-10-26 UTC (before the cut-off), from the worktree root at
+`6f78d85`, in the foreground, local term list present:
+
+- `test_leakscan.py`: 219 tests, OK. `test_floor.py`: 150, OK. `test_allowmarker.py`: 31, OK.
+  `test_report.py`: 71, OK. All exit 0.
+- `leakscan --selftest` exit 0; `floor --selftest` exit 0.
+- Full suite: 2,032 tests, OK, exit 0 (about 8.5 minutes under load).
+- `floor.py --plane ci --root .`: exit 0. `--plane hook`: exit 0, with nothing staged in the
+  worktree (so it exercised no staged binary).
+- `leakscan --root . --binary-entries` on atelier: 0 lines, exit 0;
+  `git ls-files --eol` shows 0 tracked binaries.
+- Grace boundary, one synthetic tracked PNG with one harmless text chunk: day before the
+  cut-off exit 0; cut-off exit 1; a day after exit 1; real clock (2026-10-26) exit 0, with two
+  G3 warnings counted in the `suppressed:` line.
+- Children, read-only, count only: `floorfleet` found 22 rows, 21 `wired` and 1 `absent`; 20
+  wired children other than the parent. `--binary-entries` exited 0 in all 20; 5 of them would
+  be asked for lines, 179 file lines and 111 set lines in total; 1 already has a
+  `.leakscanbinaries`. 1 child passes leakscan `flags` and 2 pass leakscan `scope` through the
+  floor. `floor.py --list` exited 0 on both planes for all 20.
+- `exiftool`: not on `PATH` or in the usual install places; nothing run.
+
+#### Prior verdicts on nearby surfaces (named by filename, not opened, not exhaustive)
+
+- `2026-07-29-1243-e6-intent-cold.md`, `2026-08-05-1253-e6-application-cold.md` — names suggest
+  E6, the posture this delta excepts.
+- `2026-08-09-0826-e7-leakscan-build-cold.md` — the build G3 was the residue of.
+- `2026-08-17-1321-posture-cold.md`, `2026-10-04-2215-exception-register-design-cold.md`.
+
+#### Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. `tools/README.md` presents the decision device's option text ("unlisted files print a
+   warning naming a cut-off date (~30 days) … each lists its files when convenient") as the
+   principal's quoted words; the intent record calls it the option text he picked. Is that an
+   attribution overclaim?
+2. E6a's doctrine home, `SECRETS.md` § *The boundary's posture*, still says leakscan "gains no
+   advisory form". The exception is stated in `tools/README.md`, code comments and the
+   changelog only. Is that one home, or a doctrine edit made at tool altitude, the failure
+   shape `020/140` itself names?
+3. ADR `2026-10-03-0641` (the exception register) says G3 (PR #97) "is reworked onto this
+   register as `file` entries", and `110/100` says PR #97 "is held until it meets (1) and (2)".
+   The landed gate uses its own `.leakscanbinaries`. Was that decision superseded on the record,
+   or contradicted silently?
+4. `forbidden_flags` refuses mode flags, but a reasoned `flags` entry may still carry other
+   arguments. Can `--root <elsewhere>`, `--terms`, a positional path, or `--` followed by a
+   dash-led argument turn the CI plane into a pass that never runs the gate, without the grace
+   being "moved"?
+5. `.leakscanignore` runs before the gate. Is a reasoned glob over a child's images a sanctioned
+   route around G3, and does the principal's blocking ruling admit it?
+6. The blanket-reason refusal compares reasons. Is it string equality, defeated by one changed
+   character, and after `34dc0f0` does anything stop one generic reason being copied onto every
+   set line of every file?
+7. 34dc0f0's README text still quotes "fields A, B, and C" as satisfied by data-type sets after
+   the principal said that reading was wrong. Does any landed text claim more than the set-level
+   design delivers?
+8. The walker decompresses `zTXt`/`iTXt` and walks length-prefixed segments. Is decompressed
+   size capped, and do zero-length or self-referencing lengths terminate?
+9. Before the cut-off the warnings print but exit 0. In a child's CI, who reads them? If nobody,
+   the cut-off reds the 5 children above with no prior signal, which `010/190` assumes away.
+10. The required reasons are committed in each child, often public. Does the gate push children
+    to describe private images in public text?
+11. The staged hook reads the index copy. Does a partially staged binary, a binary with
+    `-diff`/`binary` attributes that is really text, or a submodule change slip through?
+12. The README's example digests in its sample manifest — are they real digests of any file, and
+    do any fixtures in `test_report.py` or the selftest carry metadata strings beyond the
+    `example.com` address the brief-writer saw?
