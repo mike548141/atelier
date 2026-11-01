@@ -3,11 +3,12 @@
 **Pass type:** records and privacy cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable (the principal-named review tier, ruling 2026-08-04), checked at
 selection by whoever takes the pass.
-**Status:** PHASE 1 RUN — act 1 (the verdict) is appended below the divider, written
-2026-11-01 UTC by a cold Fable 5.1 reviewer; phase 2 (reconcile against the sibling)
-is pending. Brief written 2026-10-18 UTC by an Opus brief-writer; the pass waited for a
-further cold Fable session that neither the delta's author nor this brief-writer (nor
-its orchestrator) started or instructed.
+**Status:** REVIEW RUN, both phases — act 1 (the verdict) and act 2 (`### Reconcile`)
+are appended below the divider, written 2026-11-01 UTC by a cold Fable 5.1 reviewer;
+the deferred sibling is folded in verbatim below the reconcile.
+Brief written 2026-10-18 UTC by an Opus brief-writer; the pass waited for a further cold
+Fable session that neither the delta's author nor this brief-writer (nor its
+orchestrator) started or instructed.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md`.
 **Why it earns a review:** text mined from the principal's private session transcripts
@@ -619,3 +620,189 @@ published history) and how the rule reads for new versions.
       two barred bodies, append `### Reconcile`, restate the overall line.
 - [ ] Orchestrator: commit act 1 unrevised before act 2 opens; tick the `160/940` pointer
       when phase 2 lands.
+
+### Reconcile (phase 2, 2026-11-01)
+
+Opened after act 1 was committed (`0965466`): the held sibling, at the one copy the
+orchestrator named; the intent record from line 14 (unchanged between `ec37c6b` and
+HEAD); the queue pointer `160/940`; the bodies of `7033378` and `ec37c6b`; and the head
+and overall line of the one prior verdict the sibling names
+(`2026-10-16-1550-first-prompt-prefix-cold.md`, a code pass on `cctranscript`, which does
+not touch this delta). Phase-1 text above is unrevised.
+
+**The two barred bodies, screened for privacy.** Clean. `7033378` names the principal
+by the first name the repo already declares and nothing else private; `ec37c6b` is one
+line. Through leakscan and secretscan: only the co-author trailer's address, as before.
+One fact in `7033378` bears on TH4: the ignore entry was added "for one US spelling of
+his", so a path-wide hole was cut for one word (counsel under TH4 unchanged: the path
+shape is still the honest one if the principal confirms it, because his verbatim text
+should not be edited to suit a scanner).
+
+**The author's account against the findings.**
+
+- The account restates "author date is the version's first use" and the 946 / 934 / 228
+  figures. TH1 and TH2 stand as written; the account adds that a Sonnet worker mined 86
+  raw versions and the orchestrator collapsed re-pastes to 50, which does not move either
+  figure (collapsing re-pastes loses no session from the counts).
+- It says nine flagged units were dropped, each recurring but one run's themed work, five
+  of them also naming private repos, tools or devices; one name replaced by the
+  placeholder; six borderline units kept as "generic selection wording, no named work".
+  Consistent with the README and with what the reviewer found. The six are not listed in
+  the account; see seeded question 2 below for the reviewer's own identification.
+- It does not mention version 31 (TH3), markers for removals (TH5) or single-use versions
+  (TH6). All three stand.
+- It says the scanners are clean on every version and names the `catalog` exemption
+  under the 2026-07-23 ruling in the same words as the README. TH4 stands: the account
+  adds no ruling text, only the same claim.
+
+**The seeded questions.**
+
+1. *Does the placeholder's role label let a reader infer what it replaced?* No. The
+   role ("the private estate-root repo") is already named in those words across the
+   public doctrine (lens 1, point 3), and the frame says only that a parent repo exists.
+   No finding.
+2. *Which are the six borderline units, and does each pass exclusion 2 on its own text?*
+   By the reviewer's read, the "start with work that: (a) …" clauses of versions 25, 26,
+   41 and 42; the "work that I give you in my next message, copied from a catalogue" unit
+   of version 39 (line 4–5); and the "specific items … in the following message mid-turn"
+   unit of version 45 (lines 42–43). Each names no task, feature, item, theme or
+   deadline, and each recurs in two or more sessions on the live store. All pass on their
+   own text.
+3. *Did a reworded or partial form of a dropped private unit survive elsewhere?* None
+   found. Across the 50 versions the only named repo is this one, the only tool name is
+   a public instrument of this repo, and the only device-like strings are a harness
+   environment variable and a public tool name. No finding.
+4. *Is naming the removed classes more than a public reader needs?* No. The classes
+   (private repo and tool names, device names, a credential store) are the same classes
+   `REPO-STANDARD.md` already lists as PII-by-default, and a reader cannot trust a
+   redacted record without knowing what kinds of thing were taken out. No finding.
+5. *Do the dated author dates and counts publish personal information?* Weighed in lens
+   4 (metadata) and recorded as a note under TH1's counsel, not a finding: the repo's
+   own commit log already carries the same timestamps in class, and the README's
+   946-session figure already gives the volume. Day-level dates would serve the stated
+   aim; the seconds are a precision the aim does not need, and the principal may choose
+   to leave them.
+6. *Was the 2026-07-23 ruling about text already in a repo, and does it reach newly
+   mined text?* It was about the frozen record stores already in this repo (the
+   queue-run-0959 spellscan apply; text at `.atelier-floor.json` line 11). Reaching a
+   new file on the live doctrine surface is the author's extension. TH4.
+7. *The `nz-phone` hit.* Reproduced from the brief-writer's exact command: the hit is
+   on a 40-hex commit id line that the `%H` format itself writes (the 25th of 52 from
+   the newest), not in any message body. Its digits happen to shape like a phone number.
+   Noise from the scan's own rendering; no finding.
+8. *Does the recurrence count distinguish sessions the principal opened from sessions a
+   run spawned?* It cannot: the store lists sessions, not who typed the first prompt,
+   and the author's account does not say. For the most re-pasted versions the live store
+   shows the same opener in 49 sessions across 9 repos over 15 days (version 47) and 21
+   sessions across 6 repos over 6 days (version 49), eleven on the busiest day in each
+   case — a pattern a run spawning workers would also produce. It changes no finding:
+   the units in those versions are generic however many sessions ran them. It is a
+   limit of the method worth one README sentence, folded into TH6's counsel.
+
+**Formed at reconcile.**
+
+#### TH7 — minor, formed at reconcile · the earlier reconstruction's history was never audited
+
+**Where:** the intent record, lines 14–17 (the V1–V9 reconstruction folded in by subtree
+merge `0a949b4` "not audited for the two exclusions"); the sibling's *Overlap* note; the
+queued passes under `160/` that name `session-open-prompt.md` (`330`, `540`, `900`),
+each for a doctrine change to it, none for its history's privacy.
+**What:** the current prompt file's own public history holds an earlier reconstruction
+of the same material, by version, that the intent record says was never tested against
+the principal's two exclusions. This pass did not read it (out of delta; the brief's
+non-goal) and no pass is queued to. The gap is the same class this pass exists for, on a
+file this delta's README points readers at.
+**Counsel:** queue a privacy cold pass on `session-open-prompt.md`'s history, scoped to
+the commits from `0a949b4` to its first commit after `2026-10-18`, with the same two
+exclusions as the test. The orchestrator can queue it; the reviewer forms no view on
+what it will find.
+
+**Overall line, restated:** PASS-WITH-FINDINGS · 0 MAJOR · 0 MODERATE · 5 minor ·
+2 notes. Clear on the acceptance test; the findings are on the framing record, one
+version's recurrence, and a neighbouring history that is owed its own pass.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-01)
+
+*Released to the reviewer only after its act-1 findings were committed; folded here
+verbatim and the sibling file removed, per the brief. The orchestrator (session `5b6884f2`,
+Claude Opus 5.5, started by session `c87c4ee0`) formed no finding and wrote no severity.*
+
+### Sibling to the template-history privacy cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-18-0511-template-history-privacy-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the
+brief are committed.** Written 2026-10-18 UTC by the Opus brief-writer named in the
+brief's provenance; it forms no finding. Fold this file in below the reconcile and
+delete it at phase 2.
+
+#### Intent record
+
+- `docs/roadmap/180-orchestrated-queue-runs-from-hand-carrie/060-the-opening-prompt-template-history-from-the-transcripts.md`
+  — read in full by the brief-writer. Lines 3–13 are the principal's words (the
+  brief's acceptance test). Lines 14–21 say what existed before (an earlier
+  reconstruction folded in by subtree merge, `0a949b4`, by version and "not audited for
+  the two exclusions") and what was owed. Lines 23–40 are the author's closing account:
+  sources and counts, who mined and who checked, how many units were dropped and why,
+  one name replaced by a placeholder, some borderline units kept, scanners clean, one
+  spelling exemption, what could not be recovered. Read it now as the author's claims
+  to reconcile against.
+- The bodies of `7033378` and `ec37c6b` — not read by the brief-writer.
+
+#### Re-run results held back from the brief
+
+Run once by the brief-writer, 2026-10-18, from its worktree root, on this machine,
+with the local term list present:
+
+- The 50 extracted versions: leakscan `--require-terms` exit 0, secretscan exit 0,
+  datescan exit 0.
+- The 52 delta messages (`7033378^..ec37c6b`): secretscan exit 0; **leakscan exit 1**.
+  By rule name only: `email` ×52 and `nz-phone` ×1. The file holds 52 Co-Authored-By
+  trailers, which matches the email count; the brief-writer did not look at any
+  matched text, including the `nz-phone` hit, and forms no view on it.
+
+#### Prior verdicts on nearby surfaces (named by filename, not opened, not exhaustive)
+
+- `docs/reviews/2026-10-16-1550-first-prompt-prefix-cold.md` — name suggests the
+  session-open prompt; not opened.
+
+#### Overlap with other surfaces
+
+- The current prompt file `docs/method/session-open/session-open-prompt.md` carries the
+  earlier reconstruction's history (V1–V9, subtree merge `0a949b4`), which the intent
+  record says was never audited for the two exclusions. It is outside this pointer's
+  delta. A grep of `docs/roadmap/160-doctrine-review-owed/` found three queued passes
+  naming that file (330, 540, 900), each for a doctrine change to it, none (by grep
+  for "privacy") for its history's privacy. Whether one is owed is a reconcile
+  question.
+
+#### The pointer's own lens hints
+
+It asks for every one of the 50 versions to be tested against the two exclusions
+quoted in the intent record. Nothing else.
+
+#### Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. One unit keeps its frame with a private repo's name replaced by a placeholder. Does
+   the frame, or the placeholder's role label, still let a reader infer what it
+   replaced, given what else in this public repo names roles in the estate?
+2. The author kept some borderline units as "generic selection wording". Which are
+   they, and does each pass exclusion 2 on its own text rather than on the author's
+   description of it?
+3. Dropped units named private repos, tools or devices. Did a reworded or partial form
+   of any of them survive in a different version, where an exact-match recurrence
+   filter would treat it as a separate unit?
+4. The README's *What was taken out* bullet names classes of private detail it removed.
+   Is naming the classes (with their kinds of object) itself more than a public reader
+   needs?
+5. Author dates set to each version's first use, plus usage and re-paste counts in the
+   bodies, publish a dated timeline of how often the principal opened sessions with
+   this prompt. Is that within his stated aim, or personal information in the sense of
+   exclusion 1?
+6. The `.spellscanignore` entry cites a 2026-07-23 ruling that historical text is not
+   retro-spelled. Was that ruling about text already in a repo, and does it reach text
+   newly mined from private transcripts?
+7. The `nz-phone` hit above: what does it match, and is it in a version commit's body
+   or in one of the two author bodies?
+8. A unit that recurred in two or more sessions can still be specific work if one run
+   pasted it into its own workers. Does the recurrence count distinguish sessions the
+   principal opened from sessions a run spawned?

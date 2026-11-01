@@ -1,4 +1,4 @@
-- [~] ⏳ **Cold pass queued: the opening prompt's template history, for
+- [ ] 🎯 **Cold pass queued: the opening prompt's template history, for
       privacy and specific work (`180/060`).** Text mined from the principal's
       private session transcripts landed in this public repo, and the only
       check so far is the session that landed it. A cold reader should test
@@ -26,3 +26,20 @@
       itself started by session c87c4ee0; both are rule-4 off-tier
       orchestrators that hold the context partition, form no finding and
       write no severity; neither authored the delta or the brief)
+      🎯 **PASS RAN 2026-11-01-1220 — PASS-WITH-FINDINGS, 0 MAJOR · 0
+      MODERATE · 5 minor · 2 notes** (verdict and reconcile in the brief, the
+      deferred sibling folded below them). No MAJOR stands: none of the 50
+      versions, their messages or metadata carries private detail or one
+      session's specific work. The findings sit on the framing record: TH1
+      versions 1–4 author dates twelve hours early; TH2 the README's family
+      count does not reconcile with the messages; TH3 one unit of version 31
+      traced to a single session; TH4 the `.spellscanignore` entry extends a
+      ruling the README presents as covering it; TH5 (note) removed units
+      leave no mark; TH6 (note) a version can itself be single-use; TH7
+      (formed at reconcile) the earlier reconstruction's history in
+      `session-open-prompt.md` was never audited against the two exclusions.
+      *Owed to the principal (rule 3):* a ruling on each of TH1–TH7, all
+      counselled, none applied; rewriting published history is his call
+      alone. *Routing:* TH1, TH2, TH4–TH6 are README or metadata fixes here;
+      TH3 a recurrence re-check; TH7's counsel is a new queued privacy pass on
+      the prompt file's history, which waits for his word.
