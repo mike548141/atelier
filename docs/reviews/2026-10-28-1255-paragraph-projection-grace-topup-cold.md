@@ -9,10 +9,11 @@ that launched this brief-writer wrongly recorded that he approved these top-ups;
 for the briefs and, on 2026-10-29 local date, chose to hold running them (corrected by session
 f7b25adb). The taker confirms permission is on record at claim and stops if it is not.
 **Status:** pass RAN 2026-11-01 UTC, act 1 written below — TOP-UP SUFFICES; overall
-PASS-WITH-FINDINGS, 0 MAJOR · 2 MODERATE · 5 minor · 6 notes (PP1–PP11 plus PQ1, PQ2);
-act 2 (reconcile) follows the sibling's release. Run on Fable 5.1 on the laptop under the
-principal's 2026-11-02 drain approval, orchestrated off-tier by sessions `f8e61647` and
-`c87c4ee0`.
+PASS-WITH-FINDINGS, 0 MAJOR · 2 MODERATE · 5 minor · 7 notes (PP1–PP11 plus PQ1–PQ3);
+act 2 (reconcile) written 2026-11-01 UTC after the sibling's release;
+sibling folded below the verdict by the orchestrator, 2026-11-01 UTC. Run on Fable 5.1 on the
+laptop under the principal's 2026-11-02 drain approval, orchestrated off-tier by sessions
+`f8e61647` and `c87c4ee0`.
 **Original pass:** `docs/reviews/2026-10-26-0941-paragraph-projection-grace-cold.md` (the
 original brief, both acts of the API verdict, and the folded sibling, in one file).
 **Queue pointer:**
@@ -174,8 +175,7 @@ from `PATH`.
 ## Deferred reading — do not open before your findings are durably written
 <!-- reviewscan:allow:deferral: this section BARS reading and carries no deferred content — the deferred material lives in the sibling .deferred.md under the rule-1 split, opened only after the reviewer's phase-1 findings are committed -->
 
-Rule 2 bars until phase 2: this brief's sibling
-`docs/reviews/2026-10-28-1255-paragraph-projection-grace-topup-cold.deferred.md`, the queue
+Rule 2 bars until phase 2: this brief's sibling (now folded at the end of this file), the queue
 pointer, `docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`, and every verdict in
 `docs/reviews/` other than the original pass file named above. The original pass file is open
 to you from the start.
@@ -418,3 +418,137 @@ scratchpad with the prefix `pq` and was deleted at the end of the act; no live c
       outside this sandbox before close") is discharged by PQ-b and PQ-c.
 
 ACT 1 SAVED
+
+### Reconcile (act 2, 2026-11-01 UTC)
+
+Opened for this act, after act 1 was committed unrevised at `d230cc0` by session `f8e61647`:
+the sibling, released from the orchestrator's hold. The other phase-2 bars lifted with it; I
+opened none of them, since nothing in the sibling needed them. Three small read-only probes
+were run to answer it (the timing bound in `test_pins.py`, the identity and birth dates of
+the 12 child checkouts, and the pin of the remaining old-form child); nothing in act 1 is
+revised.
+
+#### Against the sibling's five re-run results (2026-10-28, load 14–53)
+
+1. *PQ-a: 59 OK, signing on.* Agrees with act 1.
+2. *PQ-b: 2032 tests, exit 1, one failure in `test_pins.BoundedMemory`, "scan did not finish
+   in time".* Act 1 ran the same 2032 green at load 5–10 in 465 s against the sibling's
+   1197 s. The test runs `pins` as a subprocess with a 60 s wall-clock timeout over 200
+   synthetic siblings (`test_pins.py` lines 306–309), so at the sibling's load it timed out
+   and at mine it did not. The sibling's reading — timing-bound, outside the delta — holds,
+   and the un-checked half ("whether it reproduces at normal load") is answered: it does
+   not. Recorded as **PQ3 (note, formed at reconcile)** below.
+3. *PQ-c: both planes exit 0; `pathscan` 3 warn-only findings outside the delta.* Agrees on
+   every exit and state; act 1 did not count `pathscan`'s findings and does not now.
+4. *PQ-d: 11 split boards, 2 under the grace, both with their last ten runs failing without
+   a job starting.* Partly superseded by three days: act 1 counts 12 boards, 1 under the
+   grace. The 12 are 12 distinct repositories (no linked worktree, no shared git directory),
+   each with a first `docs/ROADMAP.md` commit and a checkout directory older than
+   2026-10-28 — so the API pass and the brief-writer both missed the same one, for a reason I
+   cannot see from here; by class it adds nothing (current on both planes, no grace line in
+   45 green runs). Of the sibling's 2, one has rebuilt; the remaining one's unstarted CI is
+   what act 1 saw (8 runs, 0 steps). The sibling could read no grace line in CI because it
+   looked only at those 2; act 1 widened the read to every post-delta green run and found the
+   line in 10 logs across 3 other children, which had been on the old form with CI running
+   and have since rebuilt. So the grace reached at least 5 children: 3 told by CI inside a
+   collapsed group, 2 whose CI never started.
+5. *PQ-e not run.* Act 1's hand-run of the prompt over the exact delta: 0 findings.
+
+#### Against the sibling's six hypotheses
+
+1. *PP9 is a portability note only.* Confirmed (PQ-a).
+2. *The floor and suite gaps hide nothing about the delta.* Confirmed; the one suite failure
+   is load-bound and did not reproduce (PQ3).
+3. *Lens 1 (C) needs a qualification the API pass could not see; PP5 sharpens.* Confirmed
+   and formed independently in act 1 as PQ1, before reading this. Two refinements from act
+   1's wider read: the qualification bites on 1 child on 2026-11-01, not 2; and the "CHANGELOG
+   at a pin bump is the only channel" clause has been exercised — the remaining old-form
+   child's pin is at or past the delta (`pins`, read-only, by count), so by the house's own
+   channel it has been told, and is still on the old form 17 days before the cut-off. That
+   is a fact for `010/190`'s list, not a new finding against the delta.
+4. *The fallback hook run confirms the notice wording.* Confirmed: ⚠️ line, exit 0, the
+   staged remedy carrying `--from-index`, printed under a green summary (act 1, PQ-d).
+5. *`/security-review` finds nothing.* Confirmed by the hand-run.
+6. *TOP-UP SUFFICES.* Agrees with act 1's reasoning and adds nothing it did not weigh; the
+   live-CI fact (its hypothesis 3) is the PQ1 act 1 carried.
+
+#### Findings formed at reconcile
+
+- **PQ3 — note (pre-existing, outside the delta).** `test_pins.BoundedMemory` bounds its
+  subprocess at 60 s of wall clock, so the full suite reds under machine load (the sibling's
+  run, load 14–53) and is green at normal load (act 1, load 5–10). A suite whose exit depends
+  on the host's load is the class board section `120` already names for another test.
+  *Counsel (not applied):* scale the timeout by a measured baseline, or mark the memory
+  bound as the assertion and the timeout as a skip with reason.
+
+#### Overall, restated
+
+**PASS-WITH-FINDINGS** — 0 MAJOR · 2 MODERATE (PP1, PP2) · 5 minor (PP3–PP6, PP11) · 7 notes
+(PP7–PP10, PQ1–PQ3). Act 1's text and severities are unchanged; the reconcile added one note.
+**TOP-UP SUFFICES**, restated: the sibling's own laptop results and act 1's agree on every
+check, and the only divergence (one load-bound test) is answered. `board` is doctrine by
+function (rule 3): nothing applied; the principal decides. The sibling is not folded here;
+the orchestrator folds it.
+
+ACT 2 SAVED
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-01)
+
+*Released to the reviewer only after its act-1 findings were committed; folded here
+verbatim (headings demoted two levels) and the sibling file removed, per the brief. The
+orchestrator (session `f8e61647`, Claude Opus 5.5, started by session `c87c4ee0`) formed no
+finding and wrote no severity.*
+
+### Sibling to the paragraph-projection and grace top-up — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-28-1255-paragraph-projection-grace-topup-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the top-up's phase-1 findings are
+committed.** Written 2026-10-28 UTC by session `29af7e91`, the brief-writer named in the brief's
+provenance; it forms no finding and writes no severity. Fold this file in below the reconcile
+and delete it at phase 2.
+
+#### Re-run results held back from the brief
+
+Run once each by the brief-writer, 2026-10-28 between 12:54 and 13:45 UTC, from its worktree
+root at `16c6511` (code identical to the API pass's `0a2b7a7`), on the principal's laptop.
+Load averages were between about 14 and 53; other sessions were live.
+
+- **PQ-a.** `test_board.py -v` as given, with signing on and reachable: 59 tests OK, exit 0.
+- **PQ-b.** Full suite under `nice -n 10`: 2032 tests in 1197 s, **exit 1, one failure**:
+  `test_pins.BoundedMemory.test_peak_memory_does_not_scale_with_sibling_count`, "scan did not
+  finish in time". It is outside the delta and timing-bound, at very high load; whether it
+  reproduces at normal load was not checked.
+- **PQ-c.** Floor at HEAD with the real term list: ci plane exit 0 (`board` ✅; `leakscan` 🟡,
+  no `--require-terms` on the ci plane; `pathscan` 3 warn-only missing-path findings outside
+  the delta); hook plane exit 0.
+- **PQ-d.** Children by count, `board --check` from the worktree's copy, read-only: 11 split
+  boards; 11 exit 0; **2** pass only under the grace, which agrees with the API pass. For both
+  of those 2, the latest ten GitHub runs ended `failure` **without a job starting**: the CI
+  provider refused to start them for an account-level reason outside the repos. No log exists
+  to read, and the grace line could not be observed in CI. Atelier's own floor runs, a public
+  repo, are green. The hook-plane fallback (a real `git commit` over a synthetic old-form
+  board) was **not run** by the brief-writer.
+- **PQ-e.** Not run (a headless brief-writer cannot aim `/security-review` usefully).
+
+#### Hypotheses (the brief-writer's suspicions, a floor not a fence)
+
+1. **PP9 is a portability note only.** On a host whose key is reachable, `StagedPlane` passes
+   as given; the note stands as written.
+2. **The API pass's floor and suite gaps hide nothing about the delta.** The floor is green and
+   the one suite failure is a load-bound test elsewhere.
+3. **Lens 1 (C) needs a qualification the API pass could not see.** It counted "CI →
+   `floor.yml@main`, 11/11" from the committed workflows. For the 2 children still on the old
+   form, the CI plane is not running at all at present. So "both planes flip together" on
+   2026-11-18 is true of the code and false of what those children will see: until their CI
+   jobs start again, only the hook will red. The same fact sharpens PP5. For those 2, the
+   CHANGELOG at a pin bump is the only channel. The ⚠️ line cannot reach a CI log that is
+   never written, and one of the two has not bumped its pin.
+4. **The fallback hook run confirms the notice wording.** Through a real `git commit`, the
+   hook should print the ⚠️ line and exit 0 before 2026-11-18, with the staged remedy carrying
+   `--from-index`, as the API pass saw through the CLI.
+5. **`/security-review` finds nothing.** The delta adds no subprocess and no new input path.
+6. **Top-up or full re-run.** Every judgement-forming probe the API pass ran (the census, the
+   identity check, the boundary table, the mutations with signing switched off) was local and
+   disclosed, and the missing checks so far confirm it. That points to TOP-UP SUFFICES. The
+   live-CI fact in hypothesis 3 is new evidence the API pass could not reach, but a top-up
+   carries it without a full re-run.

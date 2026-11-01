@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the index projects the logical first
+- [ ] 🎯 **Rule-4 cold pass queued: the index projects the logical first
       paragraph, with a dated grace for children (`010/170`).** `board`
       blocks in every child's CI and cannot be softened, and this change
       both alters what every child's index must contain and adds a dated
@@ -52,3 +52,19 @@
       hold on running the top-ups is lifted by the principal for this drain,
       2026-11-02, verbatim: *"lift it and any others where I said to do it
       later"*.
+      ✅ **TOP-UP PASS RAN 2026-11-01** (Fable 5.1 on the laptop, under the
+      off-tier orchestrator session `f8e61647`, which formed no finding;
+      acts 1 and 2 with the folded sibling in
+      `docs/reviews/2026-10-28-1255-paragraph-projection-grace-topup-cold.md`).
+      **TOP-UP SUFFICES** (every API limit was environmental and is closed by
+      a laptop run). Overall, original plus top-up: **PASS-WITH-FINDINGS —
+      0 MAJOR · 2 MODERATE · 5 minor · 7 notes**. No standing MAJOR. PP5 and
+      PP9 confirmed live as framed; nothing refuted, no severity changed. New
+      notes: **PQ1** the one child still on the old form has no running CI,
+      so `010/190`'s not-yet-rebuilt list must come from `board` on each
+      checkout, not CI; **PQ2** the suite needs Python 3.11+ and no file
+      states the floor; **PQ3** (at reconcile) `test_pins.BoundedMemory`'s
+      60 s wall-clock bound makes the suite's exit depend on host load.
+      🎯 **The principal's (rule 3, `board` is doctrine by function):** every
+      finding, PP1 and PP2 (MODERATE) first; nothing applied. Recommended
+      routing: PQ1 to `010/190`; PQ2 and PQ3 to their own board items.
