@@ -5,9 +5,13 @@
 whoever takes this pass. The principal's current standing ruling is that no Fable work runs
 without his explicit permission, so this pass waits for that permission as well as for a
 reviewer.
-**Status:** BRIEF ONLY — the review has NOT run. Written 2026-10-26 UTC by an Opus 5.5
-brief-writer subagent of session 5070f22b; the pass waits for a cold Fable session that neither
-the delta's authors nor session 5070f22b (nor any of its subagents) started or instructed.
+**Status:** PHASE 1 RAN 2026-11-01 UTC — **PASS-WITH-FINDINGS, 13 findings: 1 MAJOR · 7 MODERATE
+· 4 minor · 1 note** (verdict below the divider; phase 2 reconcile pending the orchestrator's
+release of the sibling). Reviewer: Fable 5.1 under off-tier Opus 5.5 orchestrators (sessions
+`0d67673f` and `c87c4ee0`), disclosed in the verdict's provenance. Brief written 2026-10-26 UTC
+by an Opus 5.5 brief-writer subagent of session 5070f22b; the pass was taken by a cold Fable
+session that neither the delta's authors nor session 5070f22b (nor any of its subagents) started
+or instructed.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md`.
 **Why it earns a review:** the identifiers block is designed to be pasted into session records
@@ -278,3 +282,355 @@ restated. Never revise phase-1 text. Then fold the sibling in below the reconcil
 The pass was queued as a doctrine pass, and the block it reviews is pasted into records as fact:
 record all findings and apply nothing (rule 3); the principal decides. Counsel per finding is
 welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict — phase 1, cold pass ran 2026-11-01 UTC
+
+**Overall: PASS-WITH-FINDINGS — 13 findings: 1 MAJOR · 7 MODERATE · 4 minor · 1 note.** The
+delta does what its headline says on the suite's own cases and on the live re-drive, and both
+mutants die. It does not hold on the case the design dismissed: a concurrent session that
+commits with the same subject is credited as fact (IE1), and three further ways the evidence
+set grows larger than the commits actually made compound it (IE2–IE4). Nothing is applied
+(rule 3); counsel sits beneath each finding.
+
+### Provenance (V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), tier checked at selection, the principal-named
+  review tier. I run under the principal's 2026-11-02 drain approval for Fable work.
+- **Spawned by** session `0d67673f`, a headless Opus 5.5 orchestrator, itself started by
+  session `c87c4ee0` (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold the context
+  partition, form no finding and write no severity. This arrangement is disclosed here, in the
+  claim and in the pointer.
+- **Not** started or instructed by the barred sessions: `8e498ef1` and its workers (the
+  delta's authors), or `5070f22b` and its subagents (the brief-writer).
+- **Worktree:** `atelier-160-960-1245`, HEAD `947d86f`. The sibling `.deferred.md` was removed
+  from the worktree by the orchestrator before I started (it shows as a deleted file); I did
+  not look for it anywhere. I made no git write.
+- **Onramp exposure, disclosed:** the recent commit subjects at session start carried the
+  headline verdicts of `160/940` ("PASS-WITH-FINDINGS (0 MAJOR)") and `160/970` ("0 MAJOR").
+  Neither is `160/920`'s, and neither steered a finding. My harness also loaded user-level and
+  repo instruction files and a memory index, as the brief-writer's did.
+- **What I read:** this brief whole; `docs/method/REVIEW.md` (rules, checklist, lifecycle);
+  `docs/method/RECORD.md` lines 93–125; the three commits body-free through
+  `tools/coldsweep.py --commit` (no message body read); `instruments/ccclose` whole at HEAD,
+  `instruments/ccclose.test.js` helpers and the delta's tests, `instruments/ccclose.design.md`
+  lines 340–425, `instruments/man/ccclose.1` lines 270–300, 309–400 and 475–495,
+  `instruments/README.md` lines 384–400; `tools/board.py` lines 150–175, 218–250, 270–310,
+  399–425; `.github/workflows/ci.yml` lines 108–132; `CHANGELOG.md` lines 1–22, 74–90 and its
+  `ccclose` entries; `docs/method/CONCURRENCY.md` lines 944–952; `skills/review-brief/SKILL.md`
+  lines 98–110. I did **not** open `docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`,
+  any prior verdict, the two pointers or the two intent records.
+- **The one live read:** `ccclose --identifiers --json` on the authoring session's transcript,
+  read through the tool only; aggregate counts below, no text quoted. Its JSON was deleted from
+  my scratch at the end of the pass.
+
+### Lens 1 — approach and assumptions, mine first
+
+My own load-bearing assumptions, named before the brief's list:
+
+- **M1. A `git commit` string in a Bash tool_use is a commit the session made.** False in
+  three ways the code does not distinguish: the command may have failed (IE2), run in another
+  repo (IE3), or never run at all because the text is a heredoc body, a grep pattern or an
+  echo (IE4). The regex reads text, not execution.
+- **M2. Equal subject ⇒ same commit.** False whenever a peer in the window uses the same
+  subject. This house's subjects are templated (`board: rebuild`, `board: claim …`,
+  `records: session close`); the public repo's own history since 2026-09-01 has 806 commits,
+  8 subjects used more than once, and 5 of those repeated within 8 hours of a prior use
+  (IE1).
+- **M3. Evidence that is absent is absent for a benign reason.** Not always: an unreadable
+  subagent file (IE9) and a worker session's separate transcript (IE8) both leave commits
+  unconfirmed with nothing on the Commits line saying why.
+- **M4. The "left out" tier is a peer's work.** The reason line asserts it; three probed cases
+  show it false (IE6).
+
+**Is matching on command text the right evidence at all?** It is the right *kind* (positive
+evidence from the session's own record) but the wrong *binding*. A session leaves stronger
+evidence the tool already holds and does not use: each `git commit` tool_use has a timestamp,
+its tool_result has a timestamp and an `is_error` flag, and the record carries a `cwd`. A
+window commit whose committer time falls between the tool_use and its result, from a command
+whose cwd (or `-C`) resolves into this repo, and whose result is not an error, is the
+session's with near certainty; subject equality then disambiguates the rare collision rather
+than carrying the whole claim. With `git commit -q` the result text is empty, but its
+timestamp is not. Counsel, not applied.
+
+### Ground truth, by table
+
+Throwaway repos and synthetic transcripts under my scratchpad (`IE-probe.js`, deleted with
+its worlds at the end of the pass); the worktree's `node instruments/ccclose` run read-only.
+Truth is what I built; "printed" is the tier the block gave.
+
+| scenario | truth rows | over-credit | under-credit |
+|---|---|---|---|
+| S1 two sessions, same subject on main, peer branch commit | 3 | 1 | 0 |
+| S2 commit command failed (`is_error`), peer used the subject | 1 | 1 | 0 |
+| S3 session committed the subject in another repo (cwd there) | 1 | 1 | 0 |
+| S4 amend by `-m`, amend `--no-edit` | 2 | 0 | 0 |
+| S5 rebase of the session's branch onto a peer's main commit | 3 | 0 | 0 |
+| S6 cherry-pick, revert, default-message `--no-ff` merge | 6 | 0 | 3 |
+| S8 multi-line first paragraph (git folds it into one subject) | 1 | 0 | 1 |
+| S9 squash routes: peer-merged own PR, issue-number subjects, own no-number merge | 4 | 0 | 2 |
+| S10 subagent's failed `gh pr merge 14` (+ parent control) | 2 | 1 | 0 |
+| S11 board: confirmed claim, peer's unconfirmed close | board only | — | — |
+| S12 heredoc body quoting a commit command, peer made the commit | 1 | 1 | 0 |
+| S13 unreadable subagent transcript | 1 | 0 | 1 |
+| S14 `-F` tier: Write, heredoc + `git -C`, printf, `/tmp` vs `/private/tmp` | 4 | 0 | 2 |
+| S15 separately dispatched worker session (own transcript) | 2 | 0 | 1 |
+| **totals** | **31** | **5** | **10** |
+
+S7 (unit, `commitSubjectsIn`, 14 forms): 9 read correctly; 5 missed (`git -C "/path with
+space"`, an alias, `-qmfoo`, `--file=-` heredoc, `--git-dir=`); 3 produced evidence from text
+that runs no commit (a heredoc body, a grep pattern, an echo).
+
+**Live re-drive** (aggregate only): window 2026-10-18 04:58–12:20 UTC; 34 credited (range
+broken), 21 unconfirmed, 0 left out; board credited: 6 completed, 11 created, 0 claimed, 5
+⏳; board unconfirmed: 4 completed, 12 created. Git's own count of window commits across
+`--branches --remotes` is 55 = 34 + 21 + 0; the three tiers partition it with no overlap;
+the one first-parent `(#N)` commit in the window is credited; the three delta commits are
+credited; no two credited commits share a subject. Which of the 21 unconfirmed were the
+session's, git cannot say and I did not read the transcript to find out.
+
+### Assumptions A1–A8
+
+- **A1 — damaged.** S1: a peer's same-subject commit two minutes later is credited, and the
+  range `first^..last` then spans the peer's commit. §15.1's "a repeated subject cannot cross
+  sessions in practice" is contradicted by this repo's history (5 repeats within 8 h since
+  2026-09-01). IE1.
+- **A2 — damaged, with the gaps undocumented.** S6/S8/S7: cherry-pick, revert, a default
+  merge message, a folded multi-line subject, `--git-dir`, a `-C` path with a space, an alias
+  and `-qmfoo` all leave no readable subject; §15.1 names only variables, files written other
+  ways and script commits. IE10.
+- **A3 — damaged.** S9: a direct commit whose subject ends `(#9)` is "left out" as a "squash
+  merge of PR #9"; the session's own branch work, squash-merged by a peer who deleted the
+  branch, is left out as repeating "someone else's" commits. IE6.
+- **A4 — damaged.** S10: a subagent's failed `gh pr merge` confirms a peer's squash merge; the
+  parent control leaves it out. IE5. And a session's own no-number merge (S9 #11) is left out
+  with a reason that states the opposite of what happened. IE6.
+- **A5 — damaged.** S11: a claim the session confirmed and a peer closed prints as "claimed
+  (still open)" and as "unconfirmed: completed" at once. IE7.
+- **A6 — holds live, latent gap.** The regex mirrors `STATE_RE` and code spans are stripped as
+  `board.py` does; all 444 item files in this repo have the state line on line 1. But
+  `board.py`'s `item_state` skips leading blank and `<!-- -->` lines and ccclose reads line 1
+  only: probed, `board.py` read `[x]` and the ⏳ flag from line 2, ccclose read neither. IE13.
+- **A7 — damaged.** S13: an unreadable subagent file drops its commits to unconfirmed with
+  nothing on the Commits line; the agents line misdescribes the cause. IE9. S2/S10: a failed
+  command is not silent in the transcript, but the tool does not read the failure.
+- **A8 — partly false.** §15.1 says a failed merge counts for nothing (false for subagents,
+  IE5); the README says *a peer's* squash merges are left out (the session's own can be, IE6);
+  the "Not solved" list omits the S6/S8 forms (IE10). The man page, README and §15.1 agree
+  with each other on what they do say.
+
+### Lens 2 — correctness and quality
+
+Diffed all three commits body-free. The window/evidence split, the `-F` tier's ordering rule
+(latest earlier write wins; cross-transcript writes unordered and accepted), path resolution
+against cwd and `git -C`, variable literals, appends skipped, the state-line ⏳ read and the
+per-tier board reduce all behave as the comments say on the suite's cases and on mine (S4, S5,
+S14 first two rows). Overclaims against the text that makes them: §15.1 "cannot cross sessions
+in practice" (IE1); §15.1 "a failed command counting for nothing" (IE5); the rendered reason
+"squash merge of PR #N, merge not run by this session" (IE6); the rendered "claimed (still
+open)" (IE7). The `(#N)` heuristic and the "left out" tier are printed as fact with no
+"heuristic" marker on the line, while the unconfirmed lines do carry "check before pasting".
+
+### Lens 3 — completeness and harvest
+
+Message forms: the house forms (`-m`, repeated `-m`, `--message=`, `-m "$(cat <<EOF`,
+`-F - <<EOF`, `-F path` by Write or heredoc) are read. Not read: `--file=-`, `-qmfoo`, a
+folded multi-line subject (S8), `--git-dir`, a `-C` path with spaces, aliases. Merge routes:
+`gh pr merge <n>` is read; a no-number merge, a web-UI merge and a peer's merge of the
+session's PR all land as "left out" (IE6). Worker sessions are not read at all (IE8). Surfaces
+that document the block: §15.1, man page, README and `--help` are consistent with each other;
+`RECORD.md` (not a delta path) still defines Commits as "every commit the session landed, its
+workers' included", which the block cannot now meet for the queue-run pattern (IE8).
+`CHANGELOG.md` records the 2026-10-18 identifiers block but not this change to what it credits
+(IE12). No stamped copy exists; the README names the design note as the record.
+
+### Lens 4 — security and privacy (V6)
+
+Checked by hand against the OWASP catalogue. **A03 injection:** no transcript-supplied string
+reaches a git argument: `attributeCommits`, `firstParentShas` and `boardLog` take refs and
+paths from `repoFacts` and the board config; subjects and resolved `-F` paths are compared in
+memory only. **Filesystem:** `resolvePath` output is matched against other resolved paths and
+never opened; the only files read are the transcript, its `subagents/` directory and the
+repo. **ReDoS:** every new regex (`GIT_MSG`, `LITERAL_ASSIGN`, `HEREDOC_AT`, `REDIRECT_OUT`,
+`TEE_OUT`, the heredoc and variable patterns) has disjoint alternatives at each repetition
+boundary (`\S+` against `\s+`, character classes that exclude the delimiter), so backtracking
+is linear; `fileSubjects` is quadratic in writes × file commits per transcript, bounded by the
+transcript. **What reaches the block from the transcript:** nothing new; subjects come from
+git, PR numbers from git subjects, reasons are templated. **Fixtures:** a one-letter local
+part on the reserved `.invalid` domain, assembled from a character code so no address string
+sits in the source, name `T`, `example/demo.git`; no real identity. **`/security-review`:**
+discharged — it reads the session's pending diff, which in this worktree is this brief and
+the removed sibling, not the delta; the hand check above stands in for it.
+
+### Standing checklist V1–V7
+
+- **V1** — bites: IE1, IE5, IE6, IE7 (claims stronger than their evidence, two of them printed
+  as fact into records).
+- **V2** — re-run ledger below; every claim the brief listed reproduced except the design
+  note's "cannot cross sessions in practice" (IE1) and "failed command counting for nothing"
+  (IE5).
+- **V3** — the block's definition lives in `RECORD.md`; the delta changed the block's meaning
+  without a sweep there or in `CHANGELOG.md` (IE8, IE12). `CONCURRENCY.md` line 947 names the
+  block generically and needs nothing.
+- **V4** — discharged: §15.1 is named as the record by the README; the man page is the
+  reference by convention for instruments; no second home states a different rule.
+- **V5** — bites: §15.1 vs subagent merges (IE5); README "a peer's squash merges" vs code
+  (IE6); the printed reason vs §15.1's own no-number cost (IE6).
+- **V6** — lens 4 above; no finding.
+- **V7** — provenance above and in the brief; the brief-writer's and the orchestrators'
+  arrangements are disclosed at the top of both.
+
+### Findings
+
+**IE1 — MAJOR. Subject equality credits a concurrent session's same-subject commit as fact
+(A1 false).** S1: the session committed `board: rebuild index` once; a peer committed the same
+subject two minutes later on `main`; the block credited both and printed an unbroken range
+spanning the peer's commit. §15.1 dismisses this ("a repeated subject cannot cross sessions in
+practice because the window still bounds the candidates"), but the window is exactly where
+concurrent sessions meet, and this repo's own history shows 5 subjects repeated within 8 h of
+a prior use since 2026-09-01, four of them templated board hand-ups. The failure is the one
+the brief names as worst: silent over-credit pasted into a record as fact.
+*Counsel:* bind each confirmed commit to a specific commit command: committer time within the
+command's tool_use→tool_result span (the record has both timestamps), cwd or `-C` resolving
+into this repo, result not an error; at minimum, credit no more commits per subject than
+matching commands, and demote the surplus to unconfirmed with "subject reused in the window".
+
+**IE2 — MODERATE. A `git commit` command whose result is an error still counts as evidence
+(A7).** S2: the session's only commit command failed ("nothing to commit", `is_error`); a peer's
+commit with that subject was credited. The same file checks `is_error` for worktree adds and
+PR merges through `pend`/`resolvePending`; commit subjects are added at command time and
+never resolved. *Counsel:* route commit subjects through `pend` like merges, so a failed
+command adds nothing.
+
+**IE3 — MODERATE. Evidence is not scoped to this repo.** S3: a commit command run with cwd in
+another repo (the record's `cwd`; a `git -C other` would do the same) confirmed a peer's
+same-subject commit here. The block is per repo and its "Other repos" line says sessions write
+to several; a session's own `board: rebuild` elsewhere is routine. *Counsel:* keep a command's
+subject only when its `-C` or cwd resolves under `repo.root` (or a linked worktree of it).
+
+**IE4 — MODERATE. Command text that runs no commit is evidence.** `GIT_MSG` matches anywhere
+in the command string. S12: a `cat > notes.md <<'EOF'` body quoting `git commit -q -m "docs:
+example subject"` credited a peer's commit of that subject; S7: a grep pattern and an echo
+string yield subjects too. *Counsel:* skip heredoc bodies and quoted strings that are not the
+`-m` argument of a `git commit` in command position (after a line start, `;`, `&&`, `||`, `|`
+or `(`), the way `GH_PR` already anchors `gh pr`.
+
+**IE5 — MODERATE. A subagent's failed `gh pr merge` confirms a peer's squash merge (A4; V5).**
+S10: the subagent's `gh pr merge 14 --squash` returned an error; the peer's `Peer work (#14)`
+was credited "merge run"; the parent control with the same failed command left it out. §15.1
+says "a failed command counting for nothing"; `commitEvidence` reads subagent merges straight
+from `ghPrCommands` with no result check. *Counsel:* apply the parent's pend/resolve path to
+subagent transcripts, or say in §15.1 that subagent merges are not result-checked.
+
+**IE6 — MODERATE. The "left out" reason is printed as fact and is false in three probed cases
+(A3, A4; V1).** The line reads `(PR #N squash merge, merge not run by this session)`. S9: (#7)
+the session's own branch work, squash-merged by a peer who deleted the branch — the content is
+the session's, the branch commits are unreachable, and the session's whole contribution now
+appears nowhere credited; (#9) a direct commit whose subject names an issue is not a squash
+merge at all; (#11) the session ran the merge itself (no number, a cost §15.1 acknowledges)
+and the block says it did not. The README's "a peer's squash merges as left out" assumes the
+same. *Counsel:* print the tier as the heuristic it is ("on the first-parent line with a PR
+number; this session ran no numbered merge for it") and, before leaving one out, check whether
+its subject minus the `(#N)` suffix is one of the session's own subjects — the house's squash
+title is usually the PR's first commit — and credit it "via squash of own PR".
+
+**IE7 — MODERATE. "claimed (still open)" is judged over confirmed commits only, so a claim a
+peer closed prints as open (A5).** S11: the session claimed `010/010`, the orchestrator closed
+it in a commit this session did not make; the block prints "claimed (still open): 010/010"
+and "unconfirmed, from window-only commits: completed 010/010" — the same item on two lines,
+and the first is false (the file is `[x]` at the end of the window). The pre-delta window read
+got this case right. The worker-claims, orchestrator-closes pattern is this house's queue-run
+shape. *Counsel:* compute "still claimed at the end" over the whole window's final state
+(`both`), and list a confirmed claim whose release or close is unconfirmed as "claimed; closed
+by an unconfirmed commit".
+
+**IE8 — MODERATE. Separately dispatched worker sessions are structurally unconfirmed, and no
+doc says so.** `RECORD.md` lines 101–102 define Commits as "every commit the session landed,
+its workers' included". The evidence is read from the parent transcript and its `subagents/`
+directory only; a worker dispatched as its own headless session has its own transcript in the
+same store. S15: the worker's commit prints unconfirmed. Every orchestrator's block under the
+queue-run pattern will list its workers' commits as "check before pasting", with no way to
+confirm them, and §15.1, the man page and the README do not mention worker sessions.
+*Counsel:* either read the transcripts the parent launched (a `claude -p … --session-id` or
+`--resume` command, or an `Agent` tool_use, names them) as further evidence transcripts, or
+state the limit in §15.1 and `RECORD.md` so the reader knows the unconfirmed line is expected
+there.
+
+**IE9 — minor. Evidence shrinkage is silent on the Commits line (A7).** S13: a subagent
+transcript that cannot be read (`EISDIR`; a permissions error would do the same) is swallowed
+by `catch {}` in `commitEvidence`; its commit prints unconfirmed, and the agents line says
+"stops short of end_turn", which is not the cause. *Counsel:* count unreadable evidence files
+and print "evidence incomplete: N subagent transcript(s) unreadable" beside the unconfirmed
+line.
+
+**IE10 — minor. Under-credit forms the docs do not name (A2, A8).** S6: cherry-pick, revert and
+a default-message `--no-ff` merge made by the session are unconfirmed; S8: a `-m` message whose
+first paragraph spans two lines is folded by git into one subject (`%s`) while the reader keeps
+the first line only; S7: `--git-dir=`, `git -C "/path with space"`, aliases, `-qmfoo`,
+`--file=-`. Each errs towards under-credit, which the design accepts, but §15.1's "Not solved"
+list names none of them, so a reader cannot predict the unconfirmed line. *Counsel:* add them
+to "Not solved"; fold the first paragraph as git does (join lines up to the first blank).
+
+**IE11 — minor. No test has a peer commit with an identical or near-identical subject.** The
+prefix mutant (match on the first 8 characters) kills 2 of 65 tests and survives "a peer's
+commits in the window are unconfirmed", whose subjects differ from the first character. The
+"credit everything" mutant kills 7. *Counsel:* add S1's shape to the suite: a peer commit whose
+subject equals the session's, expected unconfirmed, range broken.
+
+**IE12 — minor. `CHANGELOG.md` entry owed.** The log records the identifiers block (2026-10-18)
+and `ccclose` itself (2026-10-16); the change to what the Commits and Board lines credit, and
+the two new sub-lines a reader will meet in every block, have no entry. No commit in
+`0462173^..e78b6f1` touched the file for this change.
+
+**IE13 — note. ccclose reads the item's line 1; `board.py` reads the first non-blank,
+non-comment line (A6).** Probed: an item whose line 1 is an allow-marker comment and whose
+state line is line 2 — `board.py` read `[x]` and the ⏳ flag; ccclose read neither (created
+only). No live file in this repo has that shape today (444 of 444 start on the state line),
+so this is latent, and the code comment's "board.py's own grammar" is true of the regex, not
+of where the line is looked for.
+
+**Notes against out-of-delta surfaces** (for the `160/920` reconcile, not findings here):
+commits are windowed on committer time across `--branches --remotes`, so a commit in a
+detached-HEAD worktree is invisible to every tier; the window's `--since` slack and `%ct`
+filter behave as commented. Nothing in the delta changes them.
+
+### Re-run ledger
+
+All from the worktree root at `947d86f`, foreground, `nice -n 10` for the suites; load averages
+8–14 throughout, one heavy process at a time.
+
+| command | result |
+|---|---|
+| `python3 tools/coldsweep.py --root . --commit 0462173` / `621d18b` / `e78b6f1` | exit 0 each; 604 / 209 / 455 lines; "message body not read" |
+| `git log --oneline e78b6f1..HEAD -- <five paths>` | empty |
+| `nice -n 10 node --test instruments/ccclose.test.js` | exit 0 · 65 pass · 0 fail · 104.6 s |
+| `nice -n 10 node --test instruments/*.test.js` (CI form) | exit 0 · 492 pass · 0 fail |
+| mutant A, credit every window commit, same suite on a scratch copy | exit 1 · 58 pass · 7 fail |
+| mutant B, 8-char prefix match, same suite on a scratch copy | exit 1 · 63 pass · 2 fail |
+| `mandoc -T lint -W style instruments/man/ccclose.1` | exit 0, no output |
+| `mandoc -T lint instruments/man/ccclose.1` (CI form) | exit 0, no output |
+| `awk 'length > 80' instruments/man/ccclose.1` | one line, 418 (143 bytes); blame `4eda680`, 2026-10-17, not this delta |
+| `python3 tools/wrapscan.py --root . <five paths>` | exit 1, 6 findings (README 338, 454; design 83, 97, 220, 267); blame `cea247e`, `dcdf40b`, `4142efb`, `cea247e`, `4eda680`, `a738f85` — none this delta; `instruments/` is outside the floor's wrapscan path |
+| `python3 tools/spellscan.py --root . <five paths>` | exit 0, clean |
+| `python3 tools/leakscan.py --require-terms --root . <five paths>` | exit 0, clean |
+| `nice -n 10 python3 tools/floor.py --plane ci --root .` | exit 0, every enforced check green |
+| `node instruments/ccclose --help` | exit 0; lists `--identifiers` |
+| live re-drive, `--identifiers --json --session <store path> --root .` | exit 0; counts in *Ground truth* above |
+| ground-truth harness, 14 scenarios + 14 unit forms | 31 rows · 5 over · 10 under (table above) |
+| A6 probe, comment on line 1 | `board.py` reads the state; ccclose does not |
+| item files' line 1 vs `STATE_RE`, this repo, barred four excluded | 444 read, 0 not a state line |
+| repeated subjects, this repo, `--all --since=2026-09-01` | 806 commits, 8 repeated subjects, 5 within 8 h |
+
+### Follow-up checklist (for the principal; nothing applied)
+
+- [ ] IE1–IE4: decide whether the commit tier binds to command execution (time, cwd, result)
+      or stays subject-only with its limits written into §15.1 and the block's attribution line.
+- [ ] IE5: result-check subagent merges, or document that they are not.
+- [ ] IE6: reword the "left out" line as a heuristic; consider the own-PR squash check.
+- [ ] IE7: judge "still open" over the whole window's final state.
+- [ ] IE8: worker sessions — read them as evidence, or say in `RECORD.md` and §15.1 that the
+      block cannot confirm them.
+- [ ] IE9–IE13: the minor items and the note, as one follow-ups item if taken.
+- [ ] Phase 2: reconcile against the sibling, the two intent records, the three commit bodies
+      and `160/920`'s verdict (orchestrator releases them).
