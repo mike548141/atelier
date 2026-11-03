@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0759, wt: atelier-qr-4c65-doctrine2) 🔎 **§ *Pointing up* names one shape of deciding a house question locally,
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-doctrine2) 🔎 **§ *Pointing up* names one shape of deciding a house question locally,
       and there are two — the second one closes the question instead of opening
       it** `[XS][docs]` — raised from faves 2026-08-19 after exercising the
       route cold. Filed rather than patched; see the note at the end, which is
@@ -52,3 +52,12 @@
       version here is that **the reviewer should see the gap as evidence, not
       as already-fixed text**. If the cold pass agrees, the wording lands with
       its finding attached.
+      ✅ **Landed 2026-11-03.** The hold above has lapsed: `310/050`'s cold
+      pass ran and was ruled on 2026-08-22, and neither its five findings nor
+      its backlog items cover this shape. `PROPAGATION.md` § *Check the
+      parent's file first*, after the bullets: the check covers both
+      inventing a rule and closing an open house question as settled; a
+      house question is closed by the house, and an adjacent-looking ruling
+      is not a ruling on yours. The second shape is named as worse because
+      it leaves a citable artefact wearing the principal's authority.
+      Grounded on this item, `080` and `060`. Review owed: `160/999`.

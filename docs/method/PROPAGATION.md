@@ -474,6 +474,19 @@ So the check that comes first, before any of the route below:
   valuable finding, and it lands in a different place than a new rule would.
 - **Only if the parent genuinely does not own it** does the route below apply.
 
+**The check covers both shapes of deciding a house question locally.** One is
+inventing the rule; the other is closing an open house question as settled,
+and the check binds it identically: a house question is closed by the house,
+and a ruling that looks adjacent is not a ruling on your question. The second
+shape is the worse one. An invented rule is visible text a reviewer can find
+and challenge; a wrong closure leaves a citable artefact wearing the
+principal's authority, so the next session reads a ruling instead of an open
+question and cites it. Grounding: a child that tried both (`310/090`,
+2026-08-19); a capture recording an assistant's proposal as the
+principal's, quoted back at him as his own position (`310/080`); and a
+ruling on whether the bracket carries a disposition, read as refusing the
+indexing question nobody had put (`310/060`).
+
 ### The test — whose rule is it
 
 **Would this rule be true in a repo that shares none of this repo's stack?** If

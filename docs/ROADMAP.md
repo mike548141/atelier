@@ -331,6 +331,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose resolves a shell variable in a…](roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the dispatch brief, the pathspec and…](roadmap/160-doctrine-review-owed/995-rule-4-cold-pass-queued-dispatch-brief-and-shared-surfaces.md)
 - [ ] ⏳ [Rule-4 cold pass queued: pathscan skips a child's inlined floor…](roadmap/160-doctrine-review-owed/997-rule-4-cold-pass-queued-floor-region-skip-and-markup-rule.md)
+- [ ] ⏳ [Rule-4 cold pass queued: disclosed contact with a review chain, the…](roadmap/160-doctrine-review-owed/999-rule-4-cold-pass-queued-disclosed-contact-scalar-allowlist-closed-questions.md)
 
 ## build/ layer — open strands
 
@@ -519,7 +520,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The board's state vocabulary is too narrow to index work by](roadmap/310-pointing-up-the-child-to-parent-route/060-the-board-state-vocabulary-is-too-narrow-to-index-by.md)
 - [ ] [Two board markers mean different things in a child than they do here,…](roadmap/310-pointing-up-the-child-to-parent-route/070-two-markers-mean-different-things-in-a-child.md)
 - [ ] 🔎 [2cd4730 attributes a proposal to Mike that he did not make, and it…](roadmap/310-pointing-up-the-child-to-parent-route/080-a-capture-attributes-a-proposal-to-mike-that-he-did-not-make.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-doctrine2) [§ Pointing up names one shape…](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
 - ✅ [The route's three shapes — WRITTEN 2026-08-23](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
 - ✅ ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
 - [ ] 🎯 [§ Pointing up only names atelier as a parent — Mike commissioned,…](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
