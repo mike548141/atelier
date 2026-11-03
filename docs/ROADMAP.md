@@ -362,6 +362,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/160-worktree-names-do-not-say-which-session.md)
 - [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-closeche…) [The run declared "ready to…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
 - [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-closeche…) [A denied delete was worked…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
+- [ ] 🔎 [A worker's review pointer cites its own branch or pre-merge hashes,…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/190-worker-pointers-cite-a-branch-the-merge-deletes.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
