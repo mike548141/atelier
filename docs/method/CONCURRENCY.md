@@ -599,6 +599,9 @@ makes that a rule rather than a preference.
 - **It is not a channel for work.** Findings cross as claims-with-repro;
   changes do not cross at all (§ Stay in your lane — work lands in the repo it
   changes). Queue, never deliver, in both directions.
+- **It is not a side door into a review.** A message from a delta's author to
+  a session in that delta's review chain is disclosed contact, recorded by the
+  receiver in the review's provenance (`REVIEW.md` rule 4).
 
 *Bearing:* the public child `faves`, 2026-08-13 to 2026-08-17 — up to five
 sessions on one repo, whose committed session records name the double-held

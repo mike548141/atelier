@@ -483,7 +483,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [The channel as a concurrency primitive — a new section in…](roadmap/280-cross-session-channel-mike-commissioned/010-the-channel-as-a-concurrency-primitive.md)
 - [ ] [The floor clause has to reach 11 children, and each child adopts it…](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
 - [ ] 🎯 [The channel-section cycle CLOSED 2026-08-17 (0 MAJOR); CH1–CH16 await…](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
-- [~] (claimed 2026-11-03, wt: atelier-qr-4c65-doctrine2) [The channel can contaminate…](roadmap/280-cross-session-channel-mike-commissioned/040-the-channel-can-contaminate-review-independence.md)
+- ✅ [DONE 2026-11-03](roadmap/280-cross-session-channel-mike-commissioned/040-the-channel-can-contaminate-review-independence.md)
 - [ ] 🎯 [Talk first — the channel as a session's first preference, with git…](roadmap/280-cross-session-channel-mike-commissioned/050-talk-first-the-channel-as-first-preference.md)
 
 ## Ruling round 2026-08-17 — the cold-run findings (Mike)

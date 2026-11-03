@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0759, wt: atelier-qr-4c65-doctrine2) 🚩 **The channel can contaminate review independence, and § The channel
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-doctrine2) 🚩 **The channel can contaminate review independence, and § The channel
       does not say so** `[S][docs]` — found by using it, 2026-08-17, within the
       hour of the section landing.
       **What happened.** The author of a landed doctrine delta messaged the
@@ -32,3 +32,12 @@
       queued under at `030`. An author widening the rule that governs its own
       pending review is the exact shape rule 4 exists to prevent, whatever the
       merits.
+      ✅ **Landed 2026-11-03.** `REVIEW.md` rule 4, after the provenance
+      sentence: contact between a delta's author and any session in its
+      review chain (brief-writer, reviewer, reconciler) is permitted only as
+      disclosed contact, recorded by the receiving session in the review's
+      provenance with what was said and what changed; grounded on this
+      item's instance. `CONCURRENCY.md` § *What the channel is not* gains a
+      one-line pointer to it. Written by a dispatched worker of queue run
+      4c65083c, which authored neither § The channel nor this item, so the
+      conflict above does not bind it. Review owed: `160/999`.

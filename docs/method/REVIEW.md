@@ -220,6 +220,22 @@ governing who may spawn it:
    states its spawn provenance — who spawned the review and the
    author's non-involvement — and the verdict repeats it; a rule-4 pass with
    no provenance trail is unauditable, and unauditable is non-compliant.
+   **Contact after the spawn is disclosed contact, recorded by the receiver**
+   (2026-08-17, `280/040`). The criterion asks who started or instructed a
+   session; it is silent on a session the author merely talks to afterwards,
+   and the cross-session channel puts that contact one message away. So
+   contact between a delta's author and any session in that delta's review
+   chain — brief-writer, reviewer, reconciler — is permitted only as
+   disclosed contact: the **receiving** session records it in the review's
+   provenance, what was said and what changed as a result. Disclosure is the
+   rule because a factual correction and a framing ("you'll want to look at
+   X") cannot be told apart from outside without it; the receiver records it
+   because the author is the interested party, and a self-report is the
+   weaker artefact. Grounding: within the hour of the channel's section
+   landing, an author messaged the brief-writer of its own delta's pass with
+   one factual note and no instruction; the brief-writer changed nothing and
+   disclosed the contact in the brief's provenance on its own initiative,
+   which is the evidence the rule is workable.
    Routine, non-doctrine work keeps the warm-spawn-plus-deferral pattern of
    *When to review* below; the ban lands only where it pays.
 
