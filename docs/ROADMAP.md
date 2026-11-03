@@ -29,7 +29,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
 - [ ] 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
 - [ ] [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
-- [~] (claimed 2026-11-03, wt: atelier-qr-deea-boardsort) [A four-digit item number sorts…](roadmap/010-board-store-migration-per-item-files-mik/200-a-four-digit-item-number-sorts-out-of-order.md)
+- ✅ 🔎 [A four-digit item number sorts out of order, and the review section…](roadmap/010-board-store-migration-per-item-files-mik/200-a-four-digit-item-number-sorts-out-of-order.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
@@ -330,6 +330,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the claimed index line fitted to wrapscan,…](roadmap/160-doctrine-review-owed/985-rule-4-cold-pass-queued-claimed-index-line-fit.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the orchestrator writes the review pointer…](roadmap/160-doctrine-review-owed/986-rule-4-cold-pass-queued-orchestrator-writes-the-pointer.md)
+- [ ] ⏳ [Rule-4 cold pass queued: board.py sorts item and section numbers as…](roadmap/160-doctrine-review-owed/987-rule-4-cold-pass-queued-board-sorts-numbers-as-numbers.md)
 - [ ] ⏳ [Rule-4 cold pass queued: datescan's blockquoted lines report their…](roadmap/160-doctrine-review-owed/988-rule-4-cold-pass-queued-datescan-reports-what-it-let-pass.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccapple, a read-only search of the Apple…](roadmap/160-doctrine-review-owed/989-rule-4-cold-pass-queued-ccapple.md)
 - [ ] ⏳ [Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS, IPTC,…](roadmap/160-doctrine-review-owed/990-rule-4-cold-pass-queued-g3-field-level-and-nz-phone-digest-guard.md)

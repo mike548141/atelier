@@ -75,6 +75,26 @@ class Index(unittest.TestCase):
         self.assertIn("- ✅ [Shipped]", text)
         self.assertNotIn("- [x]", text)
 
+    def test_numbers_sort_as_numbers_not_text(self):
+        """010/200: a `1000-` item sorted before `130-` as text. Items and
+        sections now sort by their leading number."""
+        for n in ("130", "990", "1000"):
+            (self.sec / f"{n}-item.md").write_text(
+                f"- [ ] **Item {n}** — numbered\n", encoding="utf-8")
+        sec9 = self.root / board.BOARD_DIR / "9-track-early"
+        sec9.mkdir()
+        (sec9 / "README.md").write_text("# Track early\n\nWhy.\n",
+                                        encoding="utf-8")
+        text = self.rebuild()
+        order = [text.index(f"Item {n}") for n in ("130", "990", "1000")]
+        self.assertEqual(order, sorted(order))
+        self.assertLess(text.index("Track early"), text.index("Track A"))
+
+    def test_board_order_puts_unnumbered_names_last(self):
+        names = ["notes.md", "1000-b.md", "20-a.md", "130-c.md"]
+        self.assertEqual(sorted(names, key=board.board_order),
+                         ["20-a.md", "130-c.md", "1000-b.md", "notes.md"])
+
     def test_claim_fragment_surfaces_in_index(self):
         (self.sec / "30-claimed.md").write_text(
             "- [~] **Mid-flight** work (claimed 2026-08-15-0610, wt: b)\n",
@@ -628,6 +648,18 @@ class StagedPlane(unittest.TestCase):
         self.assertEqual(staged, disk)
         self.assertIn("Quoted item", staged)
         self.assertIn("Tabbed item", staged)
+
+    def test_staged_plane_sorts_numbers_as_numbers(self):
+        """010/200 on the INDEX plane: both planes order a four-digit item
+        after a three-digit one, so they still agree."""
+        for n in ("130", "1000"):
+            (self.sec / f"{n}-item.md").write_text(
+                f"- [ ] **Item {n}** — numbered\n", encoding="utf-8")
+        _git(self.root, "add", "-A")
+        staged, _ = board.build_index(self.root / board.BOARD_DIR, board.INDEX)
+        disk, _ = board.build_index(self.root / board.BOARD_DIR, board.WORKTREE)
+        self.assertEqual(staged, disk)
+        self.assertLess(staged.index("Item 130"), staged.index("Item 1000"))
 
     def test_environment_error_outside_a_git_repo(self):
         with tempfile.TemporaryDirectory() as bare:

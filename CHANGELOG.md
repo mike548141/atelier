@@ -5,6 +5,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-03 — board: item and section numbers sort as numbers, `010/200`)
+- **Children: no index changes.** `board.py` sorted section and item file
+  names as text, so a `1000-` item would have sorted before `130-` in the
+  generated index. It now sorts by the leading number, then the name, on both
+  the worktree and the staged plane. Every board today numbers its items at
+  one width per directory, so every current index is byte for byte the same;
+  the first four-digit number will now land at the end of its section.
+
 ### Changed (2026-11-03 — datescan: blockquoted lines report their dating without blocking, `115/090`)
 - **Children: no child goes red from this, and some will see a new count.**
   A blockquoted (`>`) line used to be skipped whole, so a relative date in one

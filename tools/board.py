@@ -600,6 +600,17 @@ def rebuild_cmd(root: Path) -> str:
 _LEADING_NUMBER = re.compile(r"^(\d+)-")
 
 
+def board_order(name: str) -> tuple[int, int, str]:
+    """Sort key for section and item names: the leading number as a NUMBER,
+    then the name. Sorting the names as text put a `1000-` item before
+    `130-`, and section 160's pointers reach 999 (010/200). A name with no
+    leading number sorts after every numbered one, by name. Every current
+    number has the same width within its directory, so no existing index
+    changes order."""
+    m = _LEADING_NUMBER.match(name)
+    return (0, int(m.group(1)), name) if m else (1, 0, name)
+
+
 def number_collisions(names: list[str], where: str, kind: str) -> list[str]:
     """Problems for every leading number used more than once in `names`.
 
@@ -648,11 +659,12 @@ def _worktree_sections(board: Path) -> tuple[bool, list[_Section]]:
     process-spawning cost."""
     readme_present = (board / "README.md").is_file()
     sections: list[_Section] = []
-    for sec in sorted(p for p in board.iterdir() if p.is_dir()):
+    for sec in sorted((p for p in board.iterdir() if p.is_dir()),
+                      key=lambda p: board_order(p.name)):
         readme = sec / "README.md"
         rtext = readme.read_text(encoding="utf-8") if readme.is_file() else None
         items: list[tuple[str, str]] = []
-        for f in sorted(sec.glob("*.md")):
+        for f in sorted(sec.glob("*.md"), key=lambda f: board_order(f.name)):
             if f.name == "README.md":
                 continue
             items.append((f.name, f.read_text(encoding="utf-8")))
@@ -698,10 +710,10 @@ def _index_sections(root: Path) -> tuple[bool, list[_Section]]:
         # stray nested path is silently outside both planes' scope alike.
 
     sections: list[_Section] = []
-    for sec_name in sorted(by_section.keys()):
+    for sec_name in sorted(by_section.keys(), key=board_order):
         rtext = harvestscan.git_show(root, "", f"{prefix}{sec_name}/README.md")
         items = [(fname, harvestscan.git_show(root, "", f"{prefix}{sec_name}/{fname}") or "")
-                 for fname in sorted(by_section[sec_name])]
+                 for fname in sorted(by_section[sec_name], key=board_order)]
         sections.append((sec_name, rtext, items))
     return top_readme, sections
 
