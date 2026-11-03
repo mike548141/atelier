@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0840, wt: atelier-qr-4c65-staged2) 🔎 **Hand-up: a scanner's `--selftest` prints its fixture findings in the floor's own shape, and a red run was diagnosed from them** `[S][tools]`. Handed up by a private child on 2026-10-17, under `PROPAGATION.md` § *Pointing up*. One measured misdiagnosis, with the job log as evidence; the fix is atelier's to choose. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [x] 🔎 **Hand-up: a scanner's `--selftest` prints its fixture findings in the floor's own shape, and a red run was diagnosed from them** `[S][tools]`. Handed up by a private child on 2026-10-17, under `PROPAGATION.md` § *Pointing up*. One measured misdiagnosis, with the job log as evidence; the fix is atelier's to choose. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 
       **What happened.** The child's floor workflow — the thin caller of
       atelier's reusable `floor.yml` — has been red on every push since its
@@ -54,3 +54,22 @@
       that the child's own red is atelier's — it is a floating scanner
       tightening and finding a latent item in a child's tree, which ADR 0008
       says is the design, not drift.
+
+      ✅ **Landed 2026-11-03: a selftest prints only its verdict.** The first
+      shape listed: the selftest's output is captured and only the verdict is
+      printed. One shared helper, `report.quiet_selftest`, wraps each scanner's
+      selftest body at the `--selftest` dispatch (stdout and stderr both, so the
+      argparse usage errors `board` provokes on purpose go too): a pass prints
+      `selftest OK — <scanner>` and nothing else; a failure prints `selftest
+      FAILED — <scanner>` and then what it captured, each line prefixed
+      `selftest (<scanner>):`, since that output is the evidence the failure
+      needs. Exit codes are unchanged. The six named (`board`, `datescan`,
+      `pathscan`, `spellscan`, `wrapscan`, `conflictscan`) are done, and so are
+      `sizescan` (`⚠ sizescan: N file(s) flagged`) and `stampscan` (`✗ stampscan:
+      N drift finding(s)`), which the same sweep found printing the same shape.
+      `tools/test_selftest_quiet.py` runs each of the eight as a real subprocess
+      and asserts its whole output is the one verdict line, with no finding-shaped
+      text; a second class pins the helper's pass, failure and exception paths.
+      **Not changed:** `coldsweep --selftest` prints a bad-pattern error and hit
+      lines, but not in the floor's finding shape, and it is not in the floor
+      registry, so no CI log carries it.

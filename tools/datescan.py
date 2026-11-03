@@ -795,7 +795,7 @@ def _main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     if args.selftest:
-        return _selftest()
+        return report.quiet_selftest("datescan", _selftest)
 
     root = Path(args.root).resolve()
     rc = report.refuse_missing_root("datescan", root, args.root)

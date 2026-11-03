@@ -7,6 +7,13 @@
 Doctrine informs; a *check* enforces. These are the checks. Zero third-party
 dependencies — run them with the system `python3`.
 
+**A scanner's `--selftest` prints one verdict line and nothing else**
+(`320/690`). It proves the engine against deliberate fixtures, whose findings
+are not the floor's: a passing run prints `selftest OK — <scanner>`, a failing
+one prints `selftest FAILED — <scanner>` and then what it captured, each line
+prefixed `selftest (<scanner>):`. So a CI log never holds a fixture's
+`✗ <scanner>: N finding(s)` beside a real one.
+
 ## What these scans cannot see (read this before trusting a clean run)
 
 A clean scan means **"no known shape matched"**, not "safe to publish". Per

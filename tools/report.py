@@ -46,11 +46,12 @@ next run.
 
 from __future__ import annotations
 
+import io
 import os
 import re
 import subprocess
 import sys
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import asdict
 from pathlib import Path
 from typing import Callable, Iterable, Iterator, Sequence
@@ -118,6 +119,43 @@ def refuse_missing_paths(name: str, targets: Sequence[Path]) -> int | None:
 def cannot_read(name: str, e: OSError) -> int:
     """Exit 2 for a file the scan could not open."""
     return broken(name, f"cannot read {e.filename}: {e.strerror}")
+
+
+def quiet_selftest(name: str, fn: Callable[[], int]) -> int:
+    """Run a scanner's `--selftest` body with its output CAPTURED, and print
+    only the verdict (roadmap 320/690).
+
+    A selftest proves the engine by running it against deliberate fixtures,
+    and the engine's reports about those fixtures are, by design, findings:
+    `✗ conflictscan: 7 finding(s) — commit blocked.` over `docs/broken.md`.
+    Printed, they sit in a CI log in the floor's own shape, in the same stream
+    and with the same glyph as a real finding, and a red run was once
+    diagnosed from them (the report lying while the work was fine, `370`).
+    So the passing run prints one line and nothing else. A FAILING run prints
+    the verdict and then what it captured, each line prefixed
+    `selftest (<name>):`, because the captured output is the evidence the
+    failure needs, and the prefix and the red verdict say whose it is.
+
+    `fn` returns the exit code (0 = the engine proved itself)."""
+    buf = io.StringIO()
+
+    def replay() -> None:
+        for line in buf.getvalue().splitlines():
+            print(f"selftest ({name}): {line}")
+
+    try:
+        with redirect_stdout(buf), redirect_stderr(buf):
+            rc = fn()
+    except BaseException:
+        print(f"selftest FAILED — {name} raised")
+        replay()
+        raise
+    if rc == 0:
+        print(f"selftest OK — {name}")
+    else:
+        print(f"selftest FAILED — {name}")
+        replay()
+    return rc
 
 
 def staged_added_by_path() -> dict[str, set[int]]:

@@ -269,6 +269,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 # A line carrying this marker (anywhere inside a stamped block) exempts that
 # whole block from comparison. Same word-boundary + non-empty-reason
@@ -1046,7 +1047,7 @@ def _main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     if args.selftest:
-        return _selftest()
+        return report.quiet_selftest("stampscan", _selftest)
 
     root = Path(args.root).resolve()
     if not root.is_dir():

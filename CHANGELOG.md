@@ -28,6 +28,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   - New shared helper in `report.py`: `staged_paths` (every path the staged
     change adds, copies, modifies or renames to, whether or not it adds a line).
 
+### Changed (2026-11-03 — a scanner's `--selftest` prints only its verdict, `320/690`)
+- **Children: no action.** `board`, `datescan`, `pathscan`, `spellscan`,
+  `wrapscan`, `conflictscan`, `sizescan` and `stampscan` ran their engine over
+  deliberate fixtures and printed the engine's reports in the floor's own
+  shape (`✗ conflictscan: 7 finding(s) — commit blocked.` over
+  `docs/broken.md`). A CI log then held fixture findings beside real ones, in
+  the same stream and with the same glyph, and a child's red run was diagnosed
+  from them. The selftest step now prints `selftest OK — <scanner>` and
+  nothing else; a failing selftest prints `selftest FAILED — <scanner>` then
+  its captured output, each line prefixed `selftest (<scanner>):`. The exit
+  codes are unchanged. Shared helper: `report.quiet_selftest`. A test per
+  scanner (`tools/test_selftest_quiet.py`) runs the real subprocess and
+  asserts the output is that one line.
+
 ### Added (2026-11-03 — ccclose counts the scratch folder and flags a refused delete re-routed, `180/170`, `180/180`)
 - **A thirteenth check, *Scratch folder empty*.** ccclose reads the session's
   scratch folder from the transcript's environment record and counts the

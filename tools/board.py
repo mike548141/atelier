@@ -1184,7 +1184,7 @@ def main(argv: list[str] | None = None) -> int:
     if unknown_opts:
         ap.error("unrecognized arguments: " + " ".join(unknown_opts))
     if args.selftest:
-        return selftest()
+        return report.quiet_selftest("board", selftest)
 
     want_check = args.check or legacy_action == "check"
     want_rebuild = args.rebuild or legacy_action == "rebuild"
