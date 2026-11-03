@@ -647,6 +647,27 @@ exemption: a doc that legitimately quotes a marker at the START of a line
 needs the ordinary allow-marker, the same route this scanner's own grounding
 item needs for the lines it quotes.
 
+### A fifth shape, advisory: tool-call markup saved into a file (`320/490`)
+
+Files written with the harness's file-write tool sometimes end in the call's
+own closing markup (a last line of just the content tag's closer, then the
+invoke block's), saved into the body. It silently corrupts a record, a doc or
+an agent memory, and no scanner saw it. A line at column 0 that is exactly
+either closing tag (an allow-marker may trail it), or that starts with an
+opening `invoke name=` or `parameter name=` tag, is a `tool-markup` finding.
+
+It uses the **advisory tier** `secretscan` and `licenscan` already have, not
+the blocking one: it is reported (`🟡 ADVISORY FINDINGS`), counted on the
+always-printed line `conflictscan advisory: N finding(s) — reported, not
+blocking.`, carried onto the `floor.py` board, and never moves the exit code.
+Why advisory: the estate holds frozen instances this scan had not met, and
+a blocking rule would red a child on its next CI run for a file it may not
+touch. The flip to blocking is one edit once the estate is clean. Escape
+hatches are the shared two: `conflictscan:allow: <reason>` on the line (a
+comment after the tag, for a doc that quotes it on purpose) and a reasoned
+glob in `.conflictscanignore` (this repo exempts its two frozen session
+records that carry the leak; a record is history and is not rewritten).
+
 ### Usage
 
 ```sh
@@ -657,8 +678,9 @@ python3 tools/conflictscan.py --json          # machine-readable, for CI/composi
 python3 tools/conflictscan.py --selftest      # prove the engine on this box
 ```
 
-Exit codes: `0` clean · `1` findings, commit blocked · `2` usage/config error
-— no `--warn`, since this check has no advisory form. Escape hatches mirror
+Exit codes: `0` clean, or advisory tool-markup findings only · `1` conflict-marker
+findings, commit blocked · `2` usage/config error — no `--warn`, since the
+conflict markers have no soft form. Escape hatches mirror
 the others: `# conflictscan:allow: <reason>` per line (a doc quoting the
 markers at line start) and a glob in `.conflictscanignore` per path.
 

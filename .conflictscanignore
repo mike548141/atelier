@@ -1,0 +1,15 @@
+# Paths exempt from conflictscan (gitignore-style globs, one per line).
+# Keep this list SHORT and reasoned — every entry is a hole in the boundary.
+# Both entries below exempt a path from the tool-markup advisory (320/490);
+# each also stops it being checked for merge-conflict markers, which is the
+# cost of exempting a whole path rather than a line.
+
+# Frozen session record: its last two lines are the write tool's own closing
+# markup, saved into the file when it was written. Records are history and
+# are not rewritten (roadmap 320/490; the finding is the evidence this rule
+# was built on), and the line cannot carry an allow-marker without changing it.
+docs/sessions/2026-07-22-0245-interruption-resilience-doctrine.md
+
+# Frozen session record, same leak at its tail (320/490, and 200/110 for this
+# record's other stale statements). Not rewritten, for the same reason.
+docs/sessions/2026-07-22-1036-invariant-candidates.md

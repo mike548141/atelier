@@ -329,6 +329,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the claimed index line fitted to wrapscan,…](roadmap/160-doctrine-review-owed/985-rule-4-cold-pass-queued-claimed-index-line-fit.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose resolves a shell variable in a…](roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the dispatch brief, the pathspec and…](roadmap/160-doctrine-review-owed/995-rule-4-cold-pass-queued-dispatch-brief-and-shared-surfaces.md)
+- [ ] ⏳ [Rule-4 cold pass queued: pathscan skips a child's inlined floor…](roadmap/160-doctrine-review-owed/997-rule-4-cold-pass-queued-floor-region-skip-and-markup-rule.md)
 
 ## build/ layer — open strands
 
@@ -576,7 +577,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [MISSING HOUSE RULE — what a review pointer becomes when its verdict…](roadmap/320-child-filed-findings-via-pointing-up/460-missing-rule-what-a-review-pointer-becomes-when-its-verdict-lands.md)
 - [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-leakscan) [Hand-up from faves: leakscan's…](roadmap/320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the doctrine's own sync command (git pull…](roadmap/320-child-filed-findings-via-pointing-up/480-a-rebase-pull-after-a-local-merge-flattens-it-and-orphans-cited-hashes.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-scanners) [Hand-up: tool-call markup…](roadmap/320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md)
 - ✅ [PROPOSAL, hand-up from a private child — sessions cannot find tools…](roadmap/320-child-filed-findings-via-pointing-up/500-sessions-cannot-find-installed-tools-toolbox-has-no-locator.md)
 - ✅ 🔎 [Sessions kept placing the tool list in a private repo and crediting…](roadmap/320-child-filed-findings-via-pointing-up/510-sessions-credited-mike-with-a-private-tool-list.md)
 - [ ] 🔎 [Hand-up: nothing at session open, or before "verified", reads the…](roadmap/320-child-filed-findings-via-pointing-up/520-nothing-reads-the-published-ci-conclusion.md)

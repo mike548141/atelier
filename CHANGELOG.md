@@ -5,6 +5,22 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-03 — `conflictscan` reports tool-call markup saved into a file, as an advisory, `320/490`)
+- **A new advisory finding, `tool-markup`.** A file written by the harness's
+  write tool sometimes ends in the call's own closing markup (a last line of
+  just the content tag's closer, then the invoke block's). `conflictscan` now
+  reports a column-0 line that is exactly either closing tag, or that starts
+  with an opening `invoke name=` or `parameter name=` tag. **Children: read
+  this at your pin bump.** It is advisory, not blocking, because the estate
+  holds frozen instances (three children carry one or more): it prints
+  `conflictscan advisory: N finding(s) — reported, not blocking.` on every run
+  (a known zero included), the floor board shows the count, and the exit code
+  does not move. A doc that quotes the markup on purpose takes
+  `conflictscan:allow: <reason>` after the tag; a frozen record that carries
+  the leak takes a reasoned glob in `.conflictscanignore`. This repo exempts
+  its two session records that end that way; records are not rewritten.
+  The `--json` output gains `blocked`, `counts` and `advisory_over_cap`.
+
 ### Fixed (2026-11-03 — `pathscan` no longer reads a child's inlined floor as the child's own tree, `320/610`)
 - **Children: no more `[missing-path] method/TOOLBOX.md` on a verbatim floor
   copy.** The floor region names atelier's `method/TOOLBOX.md`, which no child

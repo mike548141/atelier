@@ -20,8 +20,9 @@ warn-first because their corpus wasn't clean yet), a committed conflict
 marker is never correct — the same severity class as `secretscan`
 (`advisory=None` in `tools/floor.py`'s registry): there is no "adopting the
 check, N findings to clear" state for a marker that fences broken content.
-It has no `--warn` flag and no advisory form; see the module's exit-code
-contract below.
+It has no `--warn` flag and no advisory form for the conflict markers; see the
+module's exit-code contract below (the one advisory tier is the tool-markup
+shape, further down).
 
 THE CHECK — four marker shapes, one deliberately gated on the other three:
 
@@ -79,6 +80,25 @@ THE CHECK — four marker shapes, one deliberately gated on the other three:
   to catch, so treating everything after an unclosed opener as suspect is the
   safer of the two directions, not a bug to fix.
 
+A FIFTH SHAPE, ADVISORY — TOOL-CALL MARKUP (roadmap `320/490`, filed by a
+child 2026-10-02). Files written with the harness's file-write tool sometimes
+end in the call's own closing markup, saved into the body: a last line of just
+the content parameter's closing tag, then one of just the invoke block's. It
+corrupts a record, a doc or an agent memory silently, and no scanner saw it.
+Flagged, anchored at column 0: a line that is exactly that closing tag or the
+invoke block's (an allow-marker may trail it), or one that starts with an
+opening `invoke name=` or `parameter name=` tag. This is the scanner's second
+response, the advisory tier `secretscan` and `licenscan` already use: reported
+and counted (`conflictscan advisory: N finding(s) — reported, not blocking.`,
+read by `tools/floor.py` onto the board) but NEVER gating, because the estate
+holds real, frozen instances this scan had not met, and a blocking rule would
+red a child on its next CI run for a file it may not touch. Everything above
+about the four conflict shapes is unchanged and still blocks. The flip to
+blocking is one edit (the `blocks=False` arguments in
+`_tool_markup_finding`) once the estate is clean. A frozen record that carries the leak is exempted by a
+reasoned glob in `.conflictscanignore`, never rewritten. Exemption routes are
+the shared ones: the per-line allow-marker and the ignore glob.
+
 SCOPE — ALL tracked text files, not Markdown-only (unlike `datescan`/
 `wrapscan`/`spellscan`/`pathscan`). A conflict marker can land in any file a
 bad merge touches — source, config, JSON, YAML — so this scanner matches
@@ -131,8 +151,8 @@ EXEMPTIONS, same contract as every sibling scanner:
 
 Exit codes (fail-safe, no `--warn` — this check has no advisory form, so
 there is nothing to soften to):
-  0  clean
-  1  findings — the commit is blocked
+  0  clean, or advisory (tool-markup) findings only — reported, never a gate
+  1  conflict-marker findings — the commit is blocked
   2  usage / config error (a broken scan is NOT a pass)
 
 Zero third-party dependencies; stdlib only, so a peer who adopts atelier can
@@ -199,21 +219,27 @@ class Tally:
     # 020/380 — see MAX_MATERIALIZED_FINDINGS above. Every finding here
     # blocks (conflictscan has no advisory tier), so one counter is enough.
     findings_over_cap: int = 0
+    # The advisory tier's share of the same budget (see TOOL MARKUP below):
+    # findings past the cap that would not have blocked.
+    advisory_over_cap: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
     def marker_total(self) -> int:
         return sum(self.by_marker.values())
 
-    def take_finding_slot(self) -> bool:
+    def take_finding_slot(self, blocks: bool = True) -> bool:
         """True if a finding may still be fully materialized (built and
         held); False once the run-wide cap is reached, in which case the
-        caller counts it via `findings_over_cap` instead of building a
-        `Finding` for it."""
+        caller counts it via `findings_over_cap` (blocking) or
+        `advisory_over_cap` instead of building a `Finding` for it."""
         if self._materialized < MAX_MATERIALIZED_FINDINGS:
             self._materialized += 1
             return True
-        self.findings_over_cap += 1
+        if blocks:
+            self.findings_over_cap += 1
+        else:
+            self.advisory_over_cap += 1
         return False
 
     def note_marker(self, kind: str) -> None:
@@ -224,7 +250,8 @@ class Tally:
         return report.suppressed_line(
             [f"{self.marker_total} by allow-marker",
              f"{self.files_by_glob} file(s) by .conflictscanignore",
-             report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS)],
+             report.cap_part(self.findings_over_cap + self.advisory_over_cap,
+                             MAX_MATERIALIZED_FINDINGS)],
             breakdown=self.by_marker)
 
 
@@ -246,6 +273,30 @@ CLOSER_RX = re.compile(r"^>{7} ")
 BASE_RX = re.compile(r"^\|{7} ")
 SEPARATOR_TEXT = "=" * 7
 
+# TOOL MARKUP (roadmap `320/490`). The harness's file-write call sometimes
+# saves its own closing markup into the body of the file it writes: a last
+# line that is just the closing tag of the content parameter, then the closing
+# tag of the invoke block. The same leak can carry an opening line of a
+# call. Three shapes, all anchored at column 0:
+#   * a CLOSING line: `</content>` or `</invoke>` and nothing else (an
+#     allow-marker may trail it, since that is the only way a doc that quotes
+#     the line on purpose can say so);
+#   * an OPENING line starting `<invoke name=`;
+#   * an OPENING line starting `<parameter name=`.
+# ADVISORY BY CONSTRUCTION, for now: the estate holds real instances of the
+# leak (frozen records in more than one repo) that no scan has met, so a
+# blocking rule would red a child on its next CI run for a file it may not
+# touch. It uses the scanner's second response (`Finding.blocks` False): the
+# finding is reported, never gates, and its count reaches the board through
+# `floor.py`'s advisory-count read, as `secretscan`'s and `licenscan`'s do.
+# The flip to blocking is one line (`blocks=True` at the call site) once the
+# estate is clean. Unlike a merge-conflict marker this has no
+# open-region state: a stray line is a finding wherever it is.
+TOOL_MARKUP_KIND = "tool-markup"
+TOOL_CLOSE_RX = re.compile(r"^</(?:content|invoke)>(?P<rest>.*)$")
+TOOL_OPEN_RX = re.compile(r"^<(?:invoke|parameter) name=")
+ADVISORY_COUNT_PREFIX = "conflictscan advisory:"
+
 
 def _strip_cr(line: str) -> str:
     """Drop one trailing `\\r`, so a CRLF-saved file's separator line (which
@@ -258,9 +309,10 @@ def _strip_cr(line: str) -> str:
 class Finding:
     path: str          # the flagged file (repo-relative)
     line: int
-    kind: str           # "opener" | "closer" | "base" | "separator"
+    kind: str           # "opener" | "closer" | "base" | "separator" | "tool-markup"
     match: str          # the matched line, as written (trimmed for length)
     detail: str        # human hint at the fix
+    blocks: bool = True  # False: advisory tier — reported, never gates
 
 
 def _excerpt(line: str) -> str:
@@ -268,12 +320,41 @@ def _excerpt(line: str) -> str:
     return stripped if len(stripped) <= 100 else stripped[:97] + "..."
 
 
+def advisory_count_line(n: int) -> str:
+    """The one line that always says how many advisory findings this run made,
+    zero included, so a count that vanishes is a defect somebody can see
+    (the reasoning is `secretscan.advisory_count_line`'s; `floor.py` reads
+    this line off the run)."""
+    return f"  {ADVISORY_COUNT_PREFIX} {n} finding(s) — reported, not blocking."
+
+
+def _tool_markup_finding(path: str, lineno: int, window: str,
+                         is_final_window: bool) -> "Finding | None":
+    m = TOOL_CLOSE_RX.match(window)
+    if m is not None and is_final_window:
+        rest = m.group("rest")
+        # Bare (`</content>` with only whitespace after it) or carrying the
+        # allow-marker's name — which parse_allow then exempts if reasoned.
+        if not rest.strip() or ALLOW_MARKER in rest:
+            return Finding(
+                path, lineno, TOOL_MARKUP_KIND, _excerpt(window),
+                "the write tool's closing markup saved into the file — "
+                "delete the line, and check the file's tail for more",
+                blocks=False)
+    if TOOL_OPEN_RX.match(window):
+        return Finding(
+            path, lineno, TOOL_MARKUP_KIND, _excerpt(window),
+            "a tool call's opening markup saved into the file — delete "
+            "the line, and check the lines around it", blocks=False)
+    return None
+
+
 def _record(findings: list[Finding], tally: "Tally | None", finding: Finding) -> None:
     """Append `finding` unless the run-wide materialization cap (020/380,
     `MAX_MATERIALIZED_FINDINGS`) has been reached — in which case
     `tally.take_finding_slot` has already counted it. Same choke-point shape
     as `secretscan._record` (020/370)."""
-    if tally is None or tally.take_finding_slot():
+    if tally is None or tally.take_finding_slot(finding.blocks):
         findings.append(finding)
 
 
@@ -310,7 +391,7 @@ def _line_finding(path: str, lineno: int, window: str, is_final_window: bool,
             path, lineno, "separator", _excerpt(window),
             "merge-conflict separator inside an open conflict — resolve "
             "the merge and remove the marker"), in_conflict
-    return None, in_conflict
+    return _tool_markup_finding(path, lineno, window, is_final_window), in_conflict
 
 
 def scan_lines(path: str, numbered_lines: "list[tuple[int, str]]",
@@ -536,30 +617,66 @@ def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
     return files
 
 
+def _render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
+    """The advisory detail block. Shares no wording with the blocking block —
+    not the head, not "commit blocked" — so a reader skimming two adjacent
+    lists can tell which one stopped the commit, and it states its own
+    exit-code consequence rather than leaving it to be inferred."""
+    lines = ["",
+             "🟡 ADVISORY FINDINGS — none of these blocked anything.",
+             "   Tool-call markup saved into a file's body (roadmap 320/490): "
+             "a leak of the",
+             "   write tool's own syntax into a record, doc or memory."]
+    for f in sorted(advisory, key=lambda x: (x.path, x.line)):
+        lines.append(f"     {f.path}:{f.line}  [advisory/{f.kind}] "
+                     f"{f.match!r} → {f.detail}")
+    if over_cap:
+        lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS,
+                                          noun="advisory finding(s)", indent="   "))
+    lines.append("   A real leak: delete the line. A frozen record that must "
+                 "stay as written:")
+    lines.append(f"   a reasoned glob in .conflictscanignore. A doc quoting the "
+                 f"markup on purpose:")
+    lines.append(f"   '{ALLOW_MARKER}: <reason>' on the same line (a comment "
+                 f"after the tag).")
+    return lines
+
+
 def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     # 020/380 — a capped run's TRUE total lives on the tally, never on
     # `len(findings)`: everything past `MAX_MATERIALIZED_FINDINGS` was
     # counted there instead of being built as a `Finding` at all — see
     # `Tally.take_finding_slot`.
+    blocking = [f for f in findings if f.blocks]
+    advisory = [f for f in findings if not f.blocks]
     over_cap = tally.findings_over_cap if tally is not None else 0
-    if not findings and not over_cap:
+    advisory_over = tally.advisory_over_cap if tally is not None else 0
+    count_line = advisory_count_line(len(advisory) + advisory_over)
+    if not blocking and not over_cap:
         out = report.clean_head("conflictscan", "no conflict markers found.")
-        return out + ("\n" + tally.summary() if tally is not None else "")
-    lines = [report.findings_head("conflictscan", len(findings) + over_cap,
+        out += ("\n" + tally.summary() if tally is not None else "")
+        out += "\n" + count_line
+        if advisory:
+            out += "\n" + "\n".join(_render_advisory(advisory, advisory_over))
+        return out
+    lines = [report.findings_head("conflictscan", len(blocking) + over_cap,
                                   tail=" — commit blocked.")]
-    for f in sorted(findings, key=lambda x: (x.path, x.line)):
+    for f in sorted(blocking, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.match!r} → {f.detail}")
     if over_cap:
         lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS))
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+    lines.append(count_line)
     lines.append("\n  A real conflict marker: finish resolving the merge and remove it —")
     lines.append("  there is no correct commit that keeps one.")
     lines.append(f"  A deliberate quote (docs *about* conflict markers): append "
                  f"'<!-- {ALLOW_MARKER}: <reason> -->'")
     lines.append("  to the line, or add a path glob to .conflictscanignore.")
     lines.append("  A marker with no reason exempts nothing.")
+    if advisory:
+        lines.extend(_render_advisory(advisory, advisory_over))
     return "\n".join(lines)
 
 
@@ -623,11 +740,20 @@ def _main(argv: list[str] | None = None) -> int:
         except OSError as e:
             return report.cannot_read("conflictscan", e)
 
+    blocking_total = (sum(1 for f in findings if f.blocks)
+                      + tally.findings_over_cap)
+    advisory_total = (sum(1 for f in findings if not f.blocks)
+                      + tally.advisory_over_cap)
     if args.json:
         print(json.dumps({
-            "clean": not findings and not tally.findings_over_cap,
+            # `clean` keeps its meaning — nothing found at all — and
+            # `blocked` tracks the exit code, as in `secretscan`'s output.
+            "clean": not findings and not blocking_total and not advisory_total,
+            "blocked": bool(blocking_total),
+            "counts": {"blocking": blocking_total, "advisory": advisory_total},
             "findings": [asdict(f) for f in findings],
             "findings_over_cap": tally.findings_over_cap,
+            "advisory_over_cap": tally.advisory_over_cap,
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
@@ -637,7 +763,7 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, tally))
 
-    return report.exit_code(len(findings) + tally.findings_over_cap)
+    return report.exit_code(blocking_total)
 
 
 def _selftest() -> int:
@@ -685,7 +811,10 @@ def _selftest() -> int:
         "<<<<<<< HEAD  <!-- conflictscan:allow: selftest fixture -->\n",
         encoding="utf-8",
     )
-    findings = scan_paths([tmp / "docs"], tmp)
+    (tmp / "docs" / "leak.md").write_text(
+        "body\n" + "</" + "content>\n" + "</" + "invoke>\n",       # advisory
+        encoding="utf-8")
+    findings = [f for f in scan_paths([tmp / "docs"], tmp) if f.blocks]
     got = sorted((f.path, f.kind) for f in findings)
     expected = sorted([
         ("docs/broken.md", "opener"),
@@ -699,6 +828,12 @@ def _selftest() -> int:
     ok = got == expected
     if not ok:
         print(f"FAIL: got {got}, expected {expected}")
+
+    advisory = [f for f in scan_paths([tmp / "docs" / "leak.md"], tmp)]
+    if [f.kind for f in advisory] != ["tool-markup"] * 2 \
+            or any(f.blocks for f in advisory):
+        print(f"FAIL: tool markup should be two advisory findings, got {advisory}")
+        ok = False
 
     if main(["--root", str(tmp), str(tmp / "docs")]) != 1:
         print("FAIL: findings should exit 1")

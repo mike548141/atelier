@@ -485,6 +485,12 @@ SCANNERS: tuple[Scanner, ...] = (
         ci=["--root", "{root}", "{scope}"],
         advisory=None,  # a committed conflict marker is never right, at any repo's stage of cleanup
         why="no unresolved merge-conflict marker reaches git history",
+        # Like secretscan and licenscan, NOT a softening: `advisory=None` above
+        # still says a child may never soften the conflict-marker check. This
+        # is conflictscan's own second response (320/490): the write tool's
+        # markup saved into a file is REPORTED and never blocks, and its count
+        # reaches the board rather than scrolling past in its own output.
+        advisory_count=True,
     ),
     Scanner(
         "linkscan",

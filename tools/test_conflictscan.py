@@ -226,6 +226,131 @@ class WholeTree(unittest.TestCase):
         self.assertEqual("opener", payload["findings"][0]["kind"])
 
 
+class ToolMarkupAdvisory(unittest.TestCase):
+    """320/490 — the write tool's own markup saved into a file's body. The
+    scanner's advisory tier: reported, counted, never gating."""
+
+    CLOSE_C = "</content>"
+    CLOSE_I = "</invoke>"
+    OPEN_I = '<invoke name="Write">'
+    OPEN_P = '<parameter name="content">'
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def _run(self, *extra):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            code = cs.main(["--root", str(self.tmp), *extra])
+        return code, out.getvalue()
+
+    def test_each_shape_is_an_advisory_finding(self):
+        for line in (self.CLOSE_C, self.CLOSE_I, self.OPEN_I, self.OPEN_P,
+                     '<invoke name=', self.CLOSE_C + "  ", self.CLOSE_C + "\r"):
+            with self.subTest(line=line):
+                got = scan("body\n" + line + "\n")
+                self.assertEqual(["tool-markup"], [f.kind for f in got])
+                self.assertEqual([False], [f.blocks for f in got])
+                self.assertEqual([2], [f.line for f in got])
+
+    def test_the_real_tail_is_two_findings(self):
+        got = scan("text\n" + self.CLOSE_C + "\n" + self.CLOSE_I + "\n")
+        self.assertEqual([2, 3], [f.line for f in got])
+
+    def test_anything_not_exactly_the_shape_is_clean(self):
+        for line in ("see " + self.CLOSE_C + " here",         # mid-line prose
+                     "  " + self.CLOSE_C,                      # indented: quoted
+                     self.CLOSE_C + " and then prose",         # more after the tag
+                     "<invoke>", "</invoke >", "<content>",
+                     "<invoke name",                           # no `=`
+                     "x " + self.OPEN_I):
+            with self.subTest(line=line):
+                self.assertEqual([], scan(line + "\n"))
+
+    def test_reasoned_allow_marker_exempts_and_is_counted(self):
+        t = cs.Tally()
+        line = self.CLOSE_C + " <!-- conflictscan:allow: the page quotes the tag on purpose -->\n"
+        self.assertEqual([], cs.scan_text("t", line, t))
+        self.assertEqual({"tool-markup": 1}, t.by_marker)
+
+    def test_marker_without_reason_does_not_exempt(self):
+        got = scan(self.CLOSE_C + " <!-- conflictscan:allow: -->\n")
+        self.assertEqual(["tool-markup"], [f.kind for f in got])
+
+    def test_opening_line_carries_its_marker_in_the_line_itself(self):
+        line = self.OPEN_I + "  <!-- conflictscan:allow: quoted example -->\n"
+        self.assertEqual([], scan(line))
+
+    def test_it_never_blocks_but_is_reported_and_counted(self):
+        self._write("docs/rec.md", "text\n" + self.CLOSE_C + "\n" + self.CLOSE_I + "\n")
+        code, out = self._run()
+        self.assertEqual(0, code)
+        self.assertIn("conflictscan advisory: 2 finding(s) — reported, not blocking.", out)
+        self.assertIn("ADVISORY FINDINGS", out)
+        self.assertIn("docs/rec.md:2", out)
+        self.assertIn("clean", out)          # the blocking verdict is still clean
+
+    def test_clean_tree_prints_the_known_zero(self):
+        self._write("a.md", "fine\n")
+        code, out = self._run()
+        self.assertEqual(0, code)
+        self.assertIn("conflictscan advisory: 0 finding(s) — reported, not blocking.", out)
+        self.assertNotIn("ADVISORY FINDINGS", out)
+
+    def test_blocking_and_advisory_findings_together(self):
+        self._write("a.md", "<<<<<<< HEAD\n" + self.CLOSE_C + "\n")
+        code, out = self._run()
+        self.assertEqual(1, code)
+        self.assertIn("1 finding", out.replace("finding(s)", "finding"))
+        self.assertIn("conflictscan advisory: 1 finding(s)", out)
+        self.assertIn("[advisory/tool-markup]", out)
+
+    def test_reasoned_ignore_glob_exempts_a_frozen_record(self):
+        self._write("docs/sessions/old.md", "x\n" + self.CLOSE_C + "\n")
+        self._write(".conflictscanignore",
+                    "# a frozen record, not rewritten\ndocs/sessions/old.md\n")
+        code, out = self._run()
+        self.assertEqual(0, code)
+        self.assertIn("conflictscan advisory: 0 finding(s)", out)
+
+    def test_every_file_type_is_scanned(self):
+        self._write("notes/memory.txt", "x\n" + self.CLOSE_I + "\n")
+        self.assertIn("advisory: 1 finding(s)", self._run()[1])
+
+    def test_json_shape_carries_blocking_and_advisory_counts(self):
+        self._write("a.md", self.CLOSE_C + "\n")
+        code, out = self._run("--json")
+        payload = json.loads(out)
+        self.assertEqual(0, code)
+        self.assertFalse(payload["clean"])
+        self.assertFalse(payload["blocked"])
+        self.assertEqual({"blocking": 0, "advisory": 1}, payload["counts"])
+        self.assertFalse(payload["findings"][0]["blocks"])
+
+    def test_cap_counts_advisory_overflow_separately(self):
+        t = cs.Tally()
+        old = cs.MAX_MATERIALIZED_FINDINGS
+        cs.MAX_MATERIALIZED_FINDINGS = 2
+        try:
+            cs.scan_text("t", (self.CLOSE_C + "\n") * 5, t)
+            cs.scan_text("t", "<<<<<<< HEAD\n", t)
+        finally:
+            cs.MAX_MATERIALIZED_FINDINGS = old
+        self.assertEqual(3, t.advisory_over_cap)
+        self.assertEqual(1, t.findings_over_cap)
+
+    def test_staged_added_markup_is_advisory_too(self):
+        text = "kept\n" + self.CLOSE_C + "\n"
+        got = cs.scan_lines("f.md", list(enumerate(text.splitlines(), start=7)))
+        self.assertEqual([8], [f.line for f in got])
+
+
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(0, cs._selftest())

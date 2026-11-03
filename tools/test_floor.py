@@ -1313,8 +1313,12 @@ class AdvisoryCountContract(unittest.TestCase):
         # tests below. Not a softening either.
         self.assertTrue(floor.BY_NAME["licenscan"].advisory_count)
         self.assertIsNone(floor.BY_NAME["licenscan"].advisory)
+        # conflictscan too (320/490): its tool-markup tier, contract tests below.
+        self.assertTrue(floor.BY_NAME["conflictscan"].advisory_count)
+        self.assertIsNone(floor.BY_NAME["conflictscan"].advisory)
         others = [s.name for s in floor.SCANNERS
-                  if s.advisory_count and s.name not in ("secretscan", "licenscan")]
+                  if s.advisory_count
+                  and s.name not in ("secretscan", "licenscan", "conflictscan")]
         self.assertEqual([], others, "a new count-carrying check needs its own "
                                      "contract test, not this one by accident")
 
@@ -1366,6 +1370,55 @@ class AdvisoryCountContract(unittest.TestCase):
             r = self._run("--plane", "ci", "--root", str(root))
         self.assertEqual(1, r.returncode, r.stderr)
         self.assertRegex(r.stderr, r"❌ licenscan\s+enforced")
+
+    def _markup_repo(self, td: str, blocking: bool = False) -> Path:
+        """A tiny repo whose one doc ends in the write tool's closing markup
+        (320/490): one advisory conflictscan finding, nothing blocking."""
+        root = Path(td)
+        (root / "docs").mkdir()
+        body = "text\n" + "</" + "content>\n"
+        if blocking:
+            body = "<" * 7 + " HEAD\n" + body
+        (root / "docs" / "rec.md").write_text(body, encoding="utf-8")
+        return root
+
+    def test_floors_pattern_matches_conflictscans_real_output(self):
+        """The seam, exercised end to end for the third count-carrier."""
+        with tempfile.TemporaryDirectory() as td:
+            root = self._markup_repo(td)
+            out = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "conflictscan.py"),
+                 "--root", str(root), str(root)],
+                capture_output=True, text=True)
+            clean = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "conflictscan.py"),
+                 "--root", str(root), str(root / "nothing-here-yet")],
+                capture_output=True, text=True)
+            (root / "docs" / "ok.md").write_text("fine\n", encoding="utf-8")
+            zero = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "conflictscan.py"),
+                 "--root", str(root), str(root / "docs" / "ok.md")],
+                capture_output=True, text=True)
+        self.assertEqual(0, out.returncode, "an advisory finding must not block")
+        self.assertEqual(1, floor._read_advisory_count(out.stdout, "conflictscan"))
+        self.assertEqual(2, clean.returncode, "a missing path is a broken scan")
+        # A zero is read as zero, never as silence.
+        self.assertEqual(0, floor._read_advisory_count(zero.stdout, "conflictscan"))
+
+    def test_the_board_carries_conflictscans_count(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = self._markup_repo(td)
+            r = self._run("--plane", "ci", "--root", str(root))
+        self.assertEqual(0, r.returncode, r.stderr)
+        self.assertIn("1 advisory finding(s) — reported, not blocking", r.stderr)
+        self.assertRegex(r.stderr, r"🟡 conflictscan\s+enforced")
+
+    def test_a_conflict_marker_still_fails_the_floor_beside_the_advisory(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = self._markup_repo(td, blocking=True)
+            r = self._run("--plane", "ci", "--root", str(root))
+        self.assertEqual(1, r.returncode, r.stderr)
+        self.assertRegex(r.stderr, r"❌ conflictscan\s+enforced")
 
     def test_floors_pattern_matches_the_scanners_real_output(self):
         """The seam itself, exercised end to end — no fixture string."""
