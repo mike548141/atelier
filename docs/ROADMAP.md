@@ -369,7 +369,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/160-worktree-names-do-not-say-which-session.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
-- [ ] 🔎 [A worker's review pointer cites its own branch or pre-merge hashes,…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/190-worker-pointers-cite-a-branch-the-merge-deletes.md)
+- [~] (claimed 2026-11-03-1130, wt: atelier-qr-deea-inline) [A worker's review pointer…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/190-worker-pointers-cite-a-branch-the-merge-deletes.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
@@ -428,9 +428,9 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/310-ccclose-cannot-read-a-commit-message-from-a-file.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/320-ccclose-misses-author-backdated-commits.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/330-ccclose-lists-a-worktree-path-with-an-unexpanded-variable.md)
-- [ ] 🔎 [ccapple looks for the store before it checks that a filter was given,…](roadmap/210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md)
+- [~] (claimed 2026-11-03, wt: atelier-qr-deea-ccapple) [ccapple looks for the store before…](roadmap/210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md)
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
-- [ ] 🔎 [ccclose --identifiers drops a worktree made in a shell loop, and the…](roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md)
+- [~] (claimed 2026-11-03, wt: atelier-qr-deea-ccclose) [ccclose --identifiers drops a…](roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
@@ -616,7 +616,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [FIXED 2026-10-18](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
 - ✅ 🔎 [Hand-up: the paragraph projection joins a wrapped claim into one…](roadmap/320-child-filed-findings-via-pointing-up/730-hand-up-the-paragraph-projection-joins-a-claim-into-an-index-line-wrapscan-refuses.md)
 - [ ] 🔎 [Hand-up: a peer's relayed ruling can override an order the principal…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)
-- [ ] 🔎 [Hand-up: a one-line claim still overruns the index line, so 320/730's…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
+- [~] (claimed 2026-11-03-1130, wt: atelier-qr-deea-inline) [Hand-up: a one-line claim…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
 - [ ] 🔎 [Hand-up: REVIEW.md has no shape for a live-only top-up of a degraded…](roadmap/320-child-filed-findings-via-pointing-up/760-hand-up-review-md-has-no-shape-for-a-live-only-top-up-of-a-degraded-pass.md)
 - [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
 - [ ] [Turn conflictscan's tool-markup rule from advisory to blocking once…](roadmap/320-child-filed-findings-via-pointing-up/780-the-tool-markup-advisory-goes-blocking-once-the-estate-is-clean.md)

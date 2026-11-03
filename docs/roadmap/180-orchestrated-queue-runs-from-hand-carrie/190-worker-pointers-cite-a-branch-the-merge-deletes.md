@@ -1,4 +1,5 @@
-- [ ] 🔎 **A worker's review pointer cites its own branch or pre-merge
+- [~] (claimed 2026-11-03-1130, wt: atelier-qr-deea-inline)
+      🔎 **A worker's review pointer cites its own branch or pre-merge
       hashes, which the orchestrator's merge then rewrites or deletes.**
       Found 2026-11-03 by queue run 4c65083c at its own merges. Five
       workers each wrote the `⏳` pointer for their lane in their last

@@ -1,4 +1,5 @@
-- [ ] 🔎 **`ccapple` looks for the store before it checks that a filter was
+- [~] (claimed 2026-11-03-1130, wt: atelier-qr-deea-ccapple)
+      🔎 **`ccapple` looks for the store before it checks that a filter was
       given, so a no-filter run on a Mac without that store exits 1, not 2.**
       Found 2026-11-01 while writing the process-level tests. For `messages`,
       `calendar`, `notes`, `photos` and `home`, the command resolves the one

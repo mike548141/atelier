@@ -1,4 +1,5 @@
-- [ ] 🔎 **`ccclose --identifiers` drops a worktree made in a shell loop,
+- [~] (claimed 2026-11-03-1130, wt: atelier-qr-deea-ccclose)
+      🔎 **`ccclose --identifiers` drops a worktree made in a shell loop,
       and the block does not say it dropped anything.** Found 2026-11-03 on
       queue run 4c65083c's own close, hours after `210/330` landed. The run
       made eight worktrees with `for n in a b; do git worktree add …

@@ -1,4 +1,5 @@
-- [ ] 🔎 **Hand-up: a one-line claim still overruns the index line, so
+- [~] (claimed 2026-11-03-1130, wt: atelier-qr-deea-inline)
+      🔎 **Hand-up: a one-line claim still overruns the index line, so
       320/730's "keep claims short" option does not work** `[tool]`.
       Handed up from a private child on 2026-10-26 under `PROPAGATION.md`
       § *Pointing up*, measured at a pin bump to `0a2b7a7` (Opus 5.5, no
