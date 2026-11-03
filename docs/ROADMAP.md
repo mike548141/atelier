@@ -343,6 +343,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: pathscan skips a child's inlined floor…](roadmap/160-doctrine-review-owed/997-rule-4-cold-pass-queued-floor-region-skip-and-markup-rule.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the pre-merge-commit hook, the repo-local…](roadmap/160-doctrine-review-owed/998-rule-4-cold-pass-queued-merge-hook-and-staged-content-scanners.md)
 - [ ] ⏳ [Rule-4 cold pass queued: disclosed contact with a review chain, the…](roadmap/160-doctrine-review-owed/999-rule-4-cold-pass-queued-disclosed-contact-scalar-allowlist-closed-questions.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccapple checks the filter before it looks…](roadmap/160-doctrine-review-owed/1000-rule-4-cold-pass-queued-ccapple-checks-the-filter-first.md)
 
 ## build/ layer — open strands
 
@@ -431,7 +432,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/310-ccclose-cannot-read-a-commit-message-from-a-file.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/320-ccclose-misses-author-backdated-commits.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/330-ccclose-lists-a-worktree-path-with-an-unexpanded-variable.md)
-- [~] (claimed 2026-11-03, wt: atelier-qr-deea-ccapple) [ccapple looks for the store before…](roadmap/210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md)
+- ✅ [ccapple looks for the store before it checks that a filter was given,…](roadmap/210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md)
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
 - [~] (claimed 2026-11-03, wt: atelier-qr-deea-ccclose) [ccclose --identifiers drops a…](roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md)
 

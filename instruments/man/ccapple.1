@@ -135,7 +135,8 @@ a store, copies one, sends a message, or drives a GUI app (no AppleScript, no
 .TP
 .B Search, never dump
 Every search subcommand refuses to run without at least one filter (exit
-status 2), and every search is capped by
+status 2, checked before any store is looked for, so it is 2 even on a Mac that
+has no such store), and every search is capped by
 .B \-\-limit
 (default 20). Whole\-store extraction is not offered.
 .TP

@@ -5,6 +5,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-03 — ccapple: a missing filter is always exit 2, `210/340`)
+- **`ccapple` now checks the filter before it looks for a store.** A search run
+  with no filter on a Mac that lacks the store (`messages`, `calendar`,
+  `notes`, `photos`) used to exit 1 and name the missing store, when the real
+  fault was the missing filter. It now exits 2 and names the filters it needs,
+  the same as `contacts`, `reminders` and `home` already did. One shared check,
+  `require_filter`, runs in `main()` before any store is resolved, and each
+  search function still carries it as its own guard, so the "search, never
+  dump" gate is unchanged. A search that does have a filter but no store still
+  exits 1. `instruments/test_ccapple.py` runs all seven subcommands under an
+  empty `HOME` to pin both statuses (121 cases); the manual's "Search, never
+  dump" paragraph says the check comes first.
+
 ### Fixed (2026-11-03 — board: item and section numbers sort as numbers, `010/200`)
 - **Children: no index changes.** `board.py` sorted section and item file
   names as text, so a `1000-` item would have sorted before `130-` in the

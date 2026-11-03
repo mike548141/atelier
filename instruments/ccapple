@@ -306,6 +306,23 @@ class UsageError(Exception):
     """A bad invocation (exit 2): no filter given, bad date, unknown person."""
 
 
+def require_filter(app: str, *flags) -> None:
+    """The "search, never dump" gate, in one place: raise UsageError unless at
+    least one of the (flag, value) pairs holds a value. `main()` calls it before
+    any store is resolved, so a missing filter is always exit 2 and the message
+    names the filter, never a store; each search function calls it again as its
+    own guard, so the gate holds when the function is used without `main()`."""
+    if not any(value for _, value in flags):
+        raise UsageError("%s needs at least one of %s" % (app, ", ".join(flag for flag, _ in flags)))
+
+
+def require_home_mode(modes) -> None:
+    """The home subcommand's required filter: exactly one kind of thing to list."""
+    if len(modes or []) != 1:
+        raise UsageError("home needs exactly one of %s (at least one is required)"
+                         % ", ".join("--" + m for m in HOME_MODES))
+
+
 # ---------------------------------------------------------------- opening ----
 
 def open_ro(path: str) -> sqlite3.Connection:
@@ -514,8 +531,7 @@ def _name_matches(person: dict, query: str) -> bool:
 
 
 def search_contacts(paths, name=None, phone=None, email=None, org=None, limit=DEFAULT_LIMIT) -> List[dict]:
-    if not any((name, phone, email, org)):
-        raise UsageError("contacts needs at least one of --name, --phone, --email, --org")
+    require_filter("contacts", ("--name", name), ("--phone", phone), ("--email", email), ("--org", org))
     out: List[dict] = []
     want_phone = digits(phone)
     if phone and not want_phone:
@@ -572,8 +588,7 @@ def resolve_person(person: str, contact_paths: Sequence[str]) -> List[str]:
 
 def search_messages(path, contact_paths=(), person=None, since=None, until=None, text=None,
                     limit=DEFAULT_LIMIT) -> List[dict]:
-    if not any((person, since, until, text)):
-        raise UsageError("messages needs at least one of --person, --since, --until, --text")
+    require_filter("messages", ("--person", person), ("--since", since), ("--until", until), ("--text", text))
     lo = datetime_to_apple(parse_day(since)) if since else None
     hi = datetime_to_apple(parse_day(until, end_of_day=True)) if until else None
     keys = set(resolve_person(person, contact_paths)) if person else None
@@ -645,8 +660,7 @@ def search_messages(path, contact_paths=(), person=None, since=None, until=None,
 # ---------------------------------------------------------------- calendar ----
 
 def search_calendar(path, since=None, until=None, calendar=None, text=None, limit=DEFAULT_LIMIT) -> List[dict]:
-    if not any((since, until, calendar, text)):
-        raise UsageError("calendar needs at least one of --since, --until, --calendar, --text")
+    require_filter("calendar", ("--since", since), ("--until", until), ("--calendar", calendar), ("--text", text))
     lo = datetime_to_apple(parse_day(since)) if since else None
     hi = datetime_to_apple(parse_day(until, end_of_day=True)) if until else None
     base = ("SELECT ci.ROWID AS id, ci.summary, ci.description, ci.start_date, ci.end_date, ci.all_day, "
@@ -727,8 +741,7 @@ def _event(r, start, end, repeats: bool) -> dict:
 # --------------------------------------------------------------- reminders ----
 
 def search_reminders(paths, list_name=None, text=None, open_only=False, limit=DEFAULT_LIMIT) -> List[dict]:
-    if not (list_name or text or open_only):
-        raise UsageError("reminders needs at least one of --list, --text, --open-only")
+    require_filter("reminders", ("--list", list_name), ("--text", text), ("--open-only", open_only))
     sql = ("SELECT r.Z_PK AS id, r.ZTITLE, r.ZNOTES, r.ZCOMPLETED, r.ZCOMPLETIONDATE, r.ZDUEDATE, r.ZALLDAY, "
            "r.ZPRIORITY, r.ZFLAGGED, l.ZNAME AS list_name "
            "FROM ZREMCDREMINDER r LEFT JOIN ZREMCDBASELIST l ON l.Z_PK=r.ZLIST "
@@ -917,8 +930,8 @@ def search_notes(path, title=None, text=None, folder=None, since=None, until=Non
     when their title/folder/date match, but a --text search leaves them out
     (they cannot be searched; `locked_count` lets the caller say so).
     --full needs exactly one match; it fills `text` with the whole note."""
-    if not any((title, text, folder, since, until, note_id)):
-        raise UsageError("notes needs at least one of --title, --text, --folder, --since, --until, --id")
+    require_filter("notes", ("--title", title), ("--text", text), ("--folder", folder), ("--since", since),
+                   ("--until", until), ("--id", note_id))
     lo = datetime_to_apple(parse_day(since)) if since else None
     hi = datetime_to_apple(parse_day(until, end_of_day=True)) if until else None
     n_title, n_text, n_folder = (fold(x) if x else None for x in (title, text, folder))
@@ -1077,8 +1090,8 @@ def search_photos(path, text=None, since=None, until=None, near=None, album=None
     (<library>/database/search/psi.sqlite, <library>/originals, <library>/resources)
     unless `psi_path` / `library` say otherwise. Paths come back as plain strings:
     nothing is converted, copied or opened here."""
-    if not any((text, since, until, near, album, uuid)):
-        raise UsageError("photos needs at least one of --text, --since, --until, --near, --album, --uuid")
+    require_filter("photos", ("--text", text), ("--since", since), ("--until", until), ("--near", near),
+                   ("--album", album), ("--uuid", uuid))
     library = library or os.path.dirname(os.path.dirname(os.path.abspath(path)))
     psi_path = psi_path or os.path.join(os.path.dirname(os.path.abspath(path)), "search", "psi.sqlite")
     lo = datetime_to_apple(parse_day(since)) if since else None
@@ -1633,6 +1646,30 @@ def _one(app, override):
     return paths[0]
 
 
+def check_filters(args) -> None:
+    """Refuse a search that names no filter, before any store is looked for."""
+    if args.cmd == "contacts":
+        require_filter("contacts", ("--name", args.name), ("--phone", args.phone), ("--email", args.email),
+                       ("--org", args.org))
+    elif args.cmd == "messages":
+        require_filter("messages", ("--person", args.person), ("--since", args.since), ("--until", args.until),
+                       ("--text", args.text))
+    elif args.cmd == "calendar":
+        require_filter("calendar", ("--since", args.since), ("--until", args.until), ("--calendar", args.calendar),
+                       ("--text", args.text))
+    elif args.cmd == "reminders":
+        require_filter("reminders", ("--list", args.list_name), ("--text", args.text),
+                       ("--open-only", args.open_only))
+    elif args.cmd == "notes":
+        require_filter("notes", ("--title", args.title), ("--text", args.text), ("--folder", args.folder),
+                       ("--since", args.since), ("--until", args.until), ("--id", args.note_id))
+    elif args.cmd == "photos":
+        require_filter("photos", ("--text", args.text), ("--since", args.since), ("--until", args.until),
+                       ("--near", args.near), ("--album", args.album), ("--uuid", args.uuid))
+    elif args.cmd == "home":
+        require_home_mode(args.home_mode)
+
+
 def _glue_negative_near(argv: Sequence[str]) -> List[str]:
     """argparse reads `--near -41.2,174.7` as a flag; southern latitudes are
     negative, so glue the value on as `--near=-41.2,174.7`."""
@@ -1654,6 +1691,7 @@ def main(argv: Optional[Sequence[str]] = None, out=None) -> int:
             return 0 if all(e["opens_read_only"] for e in report) else 1
         if args.limit < 1:
             raise UsageError("--limit must be at least 1")
+        check_filters(args)
         if args.cmd == "contacts":
             rows = search_contacts(resolve_paths("contacts", args.db), args.name, args.phone, args.email, args.org, args.limit)
         elif args.cmd == "messages":
@@ -1668,11 +1706,8 @@ def main(argv: Optional[Sequence[str]] = None, out=None) -> int:
             if args.text and (n := locked_count(store)):
                 print("ccapple: %d locked note(s) cannot be searched and were skipped" % n, file=sys.stderr)
         elif args.cmd == "home":
-            modes = args.home_mode or []
-            if len(modes) != 1:
-                raise UsageError("home needs exactly one of %s (at least one is required)" % ", ".join("--" + m for m in HOME_MODES))
             store = _one("home", args.db)
-            rows = search_home(store, modes[0], args.home, args.room, args.text, args.limit)
+            rows = search_home(store, args.home_mode[0], args.home, args.room, args.text, args.limit)
             if wal := pending_wal_bytes(store):
                 print("ccapple: %s has %d KB of uncommitted changes in its write-ahead log that this read-only open "
                       "cannot see; a device or room changed in the last few days may be missing"

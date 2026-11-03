@@ -1411,6 +1411,35 @@ class AsAProcess(TmpCase):
         self.assertEqual((rc, out), (2, ""))
         self.assertIn("ccapple: reminders needs at least one of", err)
 
+    def test_no_filter_is_exit_2_naming_the_filter_even_with_no_store(self):
+        """The filter is checked before any store is looked for: under an empty
+        HOME, every search subcommand given no filter exits 2 and says which
+        filter is missing, never that a store is."""
+        wanted = {
+            "contacts": "--name, --phone, --email, --org",
+            "messages": "--person, --since, --until, --text",
+            "calendar": "--since, --until, --calendar, --text",
+            "reminders": "--list, --text, --open-only",
+            "notes": "--title, --text, --folder, --since, --until, --id",
+            "photos": "--text, --since, --until, --near, --album, --uuid",
+            "home": "exactly one of --homes, --rooms, --zones, --accessories, --scenes, --automations",
+        }
+        for cmd, flags in wanted.items():
+            with self.subTest(cmd=cmd):
+                rc, out, err = self.run_script(cmd)
+                self.assertEqual((rc, out), (2, ""))
+                self.assertIn("ccapple: %s needs " % cmd, err)
+                self.assertIn(flags, err)
+                self.assertNotIn("store", err)
+                self.assertNotIn("Traceback", err)
+
+    def test_a_filter_with_no_store_is_still_exit_1(self):
+        for cmd, flag in (("messages", "--text"), ("notes", "--text"), ("photos", "--text"), ("home", "--rooms")):
+            with self.subTest(cmd=cmd):
+                rc, out, err = self.run_script(cmd, flag, *(["x"] if cmd != "home" else []))
+                self.assertEqual((rc, out), (1, ""))
+                self.assertIn("cannot read store", err)
+
     def test_missing_store_is_exit_1_not_a_traceback(self):
         rc, out, err = self.run_script("calendar", "--text", "x")
         self.assertEqual((rc, out), (1, ""))
