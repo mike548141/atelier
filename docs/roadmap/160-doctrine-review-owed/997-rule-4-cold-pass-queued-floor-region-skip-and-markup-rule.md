@@ -9,8 +9,8 @@
       *Delta, scoped to paths:* `tools/pathscan.py`, `tools/test_pathscan.py`,
       `tools/conflictscan.py`, `tools/test_conflictscan.py`, `tools/floor.py`,
       `tools/test_floor.py`, `tools/README.md`, `.conflictscanignore`,
-      `CHANGELOG.md` (the two commits that close `320/610` and `320/490`, on
-      the `qr-4c65-scanners` branch, 2026-11-03).
+      `CHANGELOG.md` (the two commits that close `320/610` and `320/490`:
+      `24ac5b8`, `92dd817`, on `main`, 2026-11-03).
       *Intent records:*
       [`../320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md`](../320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md),
       [`../320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md`](../320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md).

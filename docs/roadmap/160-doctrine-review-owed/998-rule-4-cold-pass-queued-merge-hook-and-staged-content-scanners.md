@@ -14,8 +14,8 @@
       `tools/spellscan.py`, `tools/test_spellscan.py`, `tools/wrapscan.py`,
       `tools/test_wrapscan.py`, `tools/floor.py`, `tools/README.md`,
       `docs/method/GUARDS.md`, `commands/install-hook.md`,
-      `skills/create-repo/SKILL.md`, `CHANGELOG.md` (the three commits on the
-      `qr-4c65-floorhooks` branch, 2026-11-03).
+      `skills/create-repo/SKILL.md`, `CHANGELOG.md` (commits `b5e6ead`, `625f29a`
+      and `7673da1`, on `main`, 2026-11-03).
       *Intent records:*
       [`../115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md`](../115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md),
       [`../320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md`](../320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md),
