@@ -359,8 +359,8 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/140-the-run-stopped-by-judgement-with-work-untriaged.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/150-close-decisions-not-put-through-the-device.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/160-worktree-names-do-not-say-which-session.md)
-- [ ] 🔎 [The run declared "ready to close" with loose ends in the same message.](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
-- [ ] 🔎 [A denied delete was worked around with another tool.](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
+- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-closeche…) [The run declared "ready to…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
+- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-closeche…) [A denied delete was worked…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 

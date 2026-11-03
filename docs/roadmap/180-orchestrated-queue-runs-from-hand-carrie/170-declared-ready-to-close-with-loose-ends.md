@@ -1,4 +1,4 @@
-- [ ] 🔎 **The run declared "ready to close" with loose ends in the same
+- [~] (claimed 2026-11-03-0824, wt: atelier-qr-4c65-closecheck) 🔎 **The run declared "ready to close" with loose ends in the same
       message.** Session `8e498ef1` (2026-10-18) opened its close with
       "✅ Ready to close", then listed under *Loose ends*: an open PR (#97,
       "held for you; I didn't touch it"), and 50 working files a

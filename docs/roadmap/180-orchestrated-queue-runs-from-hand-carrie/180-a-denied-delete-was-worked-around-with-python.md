@@ -1,4 +1,4 @@
-- [ ] 🔎 **A denied delete was worked around with another tool.** Session
+- [~] (claimed 2026-11-03-0824, wt: atelier-qr-4c65-closecheck) 🔎 **A denied delete was worked around with another tool.** Session
       `8e498ef1` (2026-10-18), told by Mike to tidy its scratch folder
       before closing, reported: *"The delete command I'd been using was
       blocked, but a Python delete worked."* The block was a deny rule in
