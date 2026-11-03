@@ -1320,10 +1320,14 @@ class AdvisoryCountContract(unittest.TestCase):
         # tests below. Still no advisory form a child may select.
         self.assertTrue(floor.BY_NAME["leakscan"].advisory_count)
         self.assertIsNone(floor.BY_NAME["leakscan"].advisory)
+        # datescan too (115/090): the dating on blockquoted lines, contract
+        # tests below. It keeps the advisory form it already had.
+        self.assertTrue(floor.BY_NAME["datescan"].advisory_count)
+        self.assertIsNotNone(floor.BY_NAME["datescan"].advisory)
         others = [s.name for s in floor.SCANNERS
                   if s.advisory_count
                   and s.name not in ("secretscan", "licenscan", "conflictscan",
-                                     "leakscan")]
+                                     "leakscan", "datescan")]
         self.assertEqual([], others, "a new count-carrying check needs its own "
                                      "contract test, not this one by accident")
 
@@ -1462,6 +1466,48 @@ class AdvisoryCountContract(unittest.TestCase):
             r = self._run("--plane", "ci", "--root", str(root))
         self.assertEqual(1, r.returncode, r.stderr)
         self.assertRegex(r.stderr, r"❌ leakscan\s+enforced")
+
+    def _callout_repo(self, td: str, blocking: bool = False) -> Path:
+        """A tiny repo with a relative date in a `>` callout (115/090): one
+        datescan report-only finding, nothing blocking."""
+        root = Path(td)
+        (root / "docs").mkdir()
+        body = "> 🎯 Decide this by next week.\n"
+        if blocking:
+            body += "It landed last week.\n"
+        (root / "docs" / "note.md").write_text(body, encoding="utf-8")
+        return root
+
+    def test_floors_pattern_matches_datescans_real_output(self):
+        """The seam, exercised end to end for the fifth count-carrier."""
+        with tempfile.TemporaryDirectory() as td:
+            root = self._callout_repo(td)
+            out = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "datescan.py"), "--root",
+                 str(root), str(root / "docs")], capture_output=True, text=True)
+            (root / "docs" / "note.md").write_text("Stamped 2026-07-23.\n",
+                                                   encoding="utf-8")
+            zero = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "datescan.py"), "--root",
+                 str(root), str(root / "docs")], capture_output=True, text=True)
+        self.assertEqual(0, out.returncode, "a report-only finding must not block")
+        self.assertEqual(1, floor._read_advisory_count(out.stdout, "datescan"))
+        self.assertEqual(0, zero.returncode, zero.stdout)
+        self.assertEqual(0, floor._read_advisory_count(zero.stdout, "datescan"))
+
+    def test_the_board_carries_datescans_count(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = self._callout_repo(td)
+            r = self._run("--plane", "ci", "--root", str(root))
+        self.assertEqual(0, r.returncode, r.stderr)
+        self.assertRegex(r.stderr, r"🟡 datescan\s+enforced")
+
+    def test_a_dating_slip_still_fails_the_floor_beside_the_count(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = self._callout_repo(td, blocking=True)
+            r = self._run("--plane", "ci", "--root", str(root))
+        self.assertEqual(1, r.returncode, r.stderr)
+        self.assertRegex(r.stderr, r"❌ datescan\s+enforced")
 
     def test_a_conflict_marker_still_fails_the_floor_beside_the_advisory(self):
         with tempfile.TemporaryDirectory() as td:

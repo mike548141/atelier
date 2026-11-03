@@ -1182,7 +1182,8 @@ commit **adds** are kept. CI keeps the whole-tree read.
 
 Exemptions, deliberately generous (a false positive costs a comment; a noisy
 scanner trains itself away): a fenced code block or blockquoted line (quoted
-external text), an inline `` `code span` ``, and — the hard case — a
+external text; a blockquoted line now reports, below), an inline
+`` `code span` ``, and — the hard case — a
 relative-time word immediately flanked by a matching quote pair (`"today"`)
 is read as a MENTION (prose *about* the word) rather than a USE, exactly the
 shape the rule's own worked examples use. This is a punctuation heuristic,
@@ -1201,10 +1202,29 @@ python3 tools/datescan.py --json           # machine-readable
 python3 tools/datescan.py --selftest       # prove the engine offline
 ```
 
-Exit codes: `0` clean, or `--warn` given · `1` findings without `--warn` · `2`
-usage/config error. Escape hatches mirror the sibling scanners:
-`<!-- datescan:allow: <reason> -->` per line, a glob in `.datescanignore` per
-path.
+Exit codes: `0` clean, report-only findings only, or `--warn` given · `1`
+blocking findings without `--warn` · `2` usage/config error. Escape hatches
+mirror the sibling scanners: `<!-- datescan:allow: <reason> -->` per line, a
+glob in `.datescanignore` per path.
+
+### Blockquoted lines report, and never block (115/090)
+
+A blockquoted (`>`) line never blocks, because it may be a quoted source's own
+words. It is also the house's own callout style, so its dating used to pass
+unseen. Now every check runs on it; each hit is listed in a `🟡 REPORT-ONLY
+FINDINGS` block, counted on a line printed on every run, zero included
+(`datescan advisory: N finding(s) — reported, not blocking.`), and carried on
+the floor board as `🟡 datescan enforced`. None of them moves the exit code.
+Code inside or beside a blockquote stays exempt, and an allow-marker or a
+`.datescanignore` glob exempts a report-only hit as it does a blocking one.
+
+Nothing that blocks stops blocking: `test_datescan.BlockingSetPinned` pins
+every check that blocked. A bare "today" with no date cue still passes
+unreported: across the estate it is about 2,650 hits, nearly all the
+"currently" sense, so a report of it would be a flood. `--json` keeps `clean`
+and `findings` for blocking findings and adds `blocked`, `counts` and
+`advisory`. Built on Mike's answer of 2026-11-03 ("Carry on to datescan").
+Design and residuals: `datescan.off-rules.design.md`.
 
 ## `wrapscan.py` — line-wrap / column hygiene (enforced; shipped first-of-kind)
 

@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-03 — datescan: blockquoted lines report their dating without blocking, `115/090`)
+- **Children: no child goes red from this, and some will see a new count.**
+  A blockquoted (`>`) line used to be skipped whole, so a relative date in one
+  of your own `>` callouts passed unseen. Every check now runs on it, and each
+  hit is listed in a `🟡 REPORT-ONLY FINDINGS` block, never in the exit code.
+  The board shows `🟡 datescan enforced` with the count. No action is needed;
+  read the list, and fix a callout's date the way you would any other.
+- **Nothing that blocked stops blocking.** `test_datescan.BlockingSetPinned`
+  pins every check that blocked. datescan prints
+  `datescan advisory: N finding(s) — reported, not blocking.` on every run,
+  zero included, and its floor entry now carries `advisory_count`. `--json`
+  keeps `clean` and `findings` for blocking findings, and adds `blocked`,
+  `counts` and `advisory`. Measured before landing across the estate: no exit
+  code or blocking count moved. A bare "today" with no date cue still passes
+  unreported, because as a report it would be a flood; the design note says
+  why. Mike's answer of 2026-11-03 ("Carry on to datescan").
+  Design: `tools/datescan.off-rules.design.md`.
+
 ### Changed (2026-11-03 — leakscan: rules that are off report without blocking, `115/090`)
 - **Children: no child goes red from this, and some will see a new count.**
   A rule you turn off with `--disable` (the `flags` entry for leakscan in

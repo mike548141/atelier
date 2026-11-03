@@ -27,7 +27,17 @@ def scan(text):
 
 
 def kinds(text):
-    return [f.kind for f in scan(text)]
+    """The kinds that BLOCK. A report-only finding (115/090: a blockquoted
+    line) never blocks, so it is not here; see `advisory`."""
+    return [f.kind for f in scan(text) if f.blocks]
+
+
+def blocking(text):
+    return [f for f in scan(text) if f.blocks]
+
+
+def advisory(text):
+    return [f for f in scan(text) if not f.blocks]
 
 
 class RelativeTimeWords(unittest.TestCase):
@@ -157,11 +167,12 @@ class CodeAndQuoteExemptions(unittest.TestCase):
         self.assertIn(
             "relative-time-word", kinds("   shipped tomorrow, only 3 spaces in"))
 
+    # 115/090: a blockquoted line still never BLOCKS; it now reports.
     def test_blockquote_exempt(self):
-        self.assertEqual([], scan("> this happened yesterday, quoted verbatim"))
+        self.assertEqual([], blocking("> this happened yesterday, quoted verbatim"))
 
     def test_blockquote_with_leading_space_exempt(self):
-        self.assertEqual([], scan("   > indented quote says yesterday"))
+        self.assertEqual([], blocking("   > indented quote says yesterday"))
 
 
 class AllowMarker(unittest.TestCase):
@@ -533,6 +544,168 @@ class BoundedMemory(unittest.TestCase):
             "input size again (020/380).")
 
 
+# --- 115/090: the report-only tier ------------------------------------------
+
+# Every check that BLOCKED when the report-only tier was built, one fixture
+# each. A check leaving this list is a narrowing of the gate, and that is the
+# principal's decision, never a refactor's: the tier was granted on the
+# condition that nothing that blocks today stops blocking (Mike's answer of
+# 2026-11-03 on 115/090, "Carry on to datescan").
+RELATIVE_TERMS_AT_115_090 = (
+    "tonight", "tomorrow", "yesterday",
+    "last night", "last week", "last month", "last year",
+    "next week", "next month", "next year",
+    "this week", "this month", "this year",
+    "the other day", "a few days ago", "a few weeks ago", "a few months ago",
+)
+BLOCKING_AT_115_090 = (
+    *(("relative-time-word", f"It happened {t} here.") for t in RELATIVE_TERMS_AT_115_090),
+    ("relative-time-word", "Dated today, all fields correct."),
+    ("relative-time-word", "Stamped today, all fields correct."),
+    ("relative-time-word", "The figures as of today hold."),
+    ("relative-time-word", "Today (2026-07-23) it shipped."),
+    ("non-iso-date", "Filed on 23/07/2026 by hand."),
+    ("non-iso-date", "Filed on 23-07-2026 by hand."),
+    ("non-iso-date", "Filed on July 23, 2026 by hand."),
+    ("non-iso-date", "Filed on 23 July 2026 by hand."),
+    ("invalid-iso-date", "Bogus date 2026-13-40 here."),
+)
+
+
+class _Cli(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        (self.tmp / "docs").mkdir()
+
+    def run_cli(self, text, *extra):
+        import contextlib
+        import io
+        (self.tmp / "docs" / "a.md").write_text(text + "\n", encoding="utf-8")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+            rc = ds.main(["--root", str(self.tmp), *extra])
+        return rc, out.getvalue()
+
+    def run_json(self, text, *extra):
+        import json
+        rc, out = self.run_cli(text, "--json", *extra)
+        return rc, json.loads(out)
+
+
+class BlockingSetPinned(_Cli):
+    """The blocking set cannot shrink (115/090)."""
+
+    def test_every_relative_term_that_blocked_is_still_on_the_list(self):
+        self.assertEqual(set(RELATIVE_TERMS_AT_115_090), set(ds.RELATIVE_TIME_TERMS))
+
+    def test_every_pinned_check_blocks_its_fixture(self):
+        for kind, text in BLOCKING_AT_115_090:
+            with self.subTest(text=text):
+                self.assertIn(kind, kinds(text))
+                rc, out = self.run_json(text)
+                self.assertEqual(1, rc)
+                self.assertIn(kind, {f["kind"] for f in out["findings"]})
+                self.assertEqual(0, out["counts"]["advisory"])
+                self.assertTrue(out["blocked"])
+
+    def test_a_finding_that_does_not_say_blocks(self):
+        self.assertTrue(ds.Finding("p", 1, "relative-time-word", "x", "d").blocks)
+
+    def test_only_a_blockquoted_line_builds_a_report_only_finding(self):
+        # Every pinned fixture, written as prose, blocks and reports nothing;
+        # the same fixture behind `>` reports and blocks nothing.
+        for kind, text in BLOCKING_AT_115_090:
+            with self.subTest(text=text):
+                self.assertEqual([], advisory(text))
+                quoted = scan("> " + text)
+                self.assertEqual([], [f for f in quoted if f.blocks])
+                self.assertEqual([(kind, ds.WHERE_BLOCKQUOTE)],
+                                 [(f.kind, f.where) for f in quoted])
+
+
+class BlockquoteReports(_Cli):
+    """A blockquoted line reports its dating without blocking (115/090)."""
+
+    def test_alone_it_exits_clean_and_is_listed(self):
+        rc, out = self.run_cli("> 🎯 Decide this by next week.")
+        self.assertEqual(0, rc)
+        self.assertIn("✓ datescan clean", out)
+        self.assertIn("  datescan advisory: 1 finding(s) — reported, not blocking.", out)
+        self.assertIn("🟡 REPORT-ONLY FINDINGS", out)
+        self.assertRegex(out, r"docs/a\.md:1  \[advisory/blockquote\] "
+                              r"\[relative-time-word\] 'next week' .*"
+                              r"\[datescan:relative-time-word\]")
+
+    def test_the_count_line_prints_its_zero(self):
+        rc, out = self.run_cli("Stamped 2026-07-23.")
+        self.assertEqual(0, rc)
+        self.assertIn("  datescan advisory: 0 finding(s) — reported, not blocking.", out)
+        self.assertNotIn("REPORT-ONLY", out)
+
+    def test_beside_a_blocking_finding_the_scan_still_blocks(self):
+        rc, out = self.run_cli("> quoted 23/07/2026\nIt landed last week.")
+        self.assertEqual(1, rc)
+        self.assertIn("✗ datescan: 1 finding(s).", out)
+        self.assertIn("  datescan advisory: 1 finding(s) — reported, not blocking.", out)
+
+    def test_json_keeps_blocking_and_report_only_apart(self):
+        rc, out = self.run_json("> quoted 23/07/2026\nIt landed last week.")
+        self.assertEqual(1, rc)
+        self.assertFalse(out["clean"])
+        self.assertTrue(out["blocked"])
+        self.assertEqual({"blocking": 1, "advisory": 1}, out["counts"])
+        self.assertEqual(["relative-time-word"], [f["kind"] for f in out["findings"]])
+        adv = out["advisory"]["findings"]
+        self.assertEqual(["non-iso-date"], [f["kind"] for f in adv])
+        self.assertEqual(("advisory", "blockquote"), (adv[0]["response"], adv[0]["where"]))
+        self.assertEqual("datescan:non-iso-date", adv[0]["id"])
+
+    def test_clean_keeps_its_meaning_on_a_report_only_run(self):
+        rc, out = self.run_json("> it shipped yesterday")
+        self.assertEqual(0, rc)
+        self.assertTrue(out["clean"])
+        self.assertFalse(out["blocked"])
+        self.assertEqual([], out["findings"])
+
+    def test_warn_still_exits_zero_and_still_counts(self):
+        rc, out = self.run_cli("> it shipped yesterday\nfiled tomorrow", "--warn")
+        self.assertEqual(0, rc)
+        self.assertIn("datescan advisory: 1 finding(s)", out)
+
+    def test_an_allow_marker_exempts_a_report_only_hit_and_is_counted(self):
+        rc, out = self.run_cli(
+            "> yesterday  <!-- datescan:allow:relative-time-word: quoted source -->")
+        self.assertEqual(0, rc)
+        self.assertIn("datescan advisory: 0 finding(s)", out)
+        self.assertIn("1 by allow-marker", out)
+
+    def test_a_marker_for_another_kind_leaves_it_reported(self):
+        rc, out = self.run_cli(
+            "> yesterday  <!-- datescan:allow:non-iso-date: quoted source -->")
+        self.assertIn("datescan advisory: 1 finding(s)", out)
+
+    def test_an_ignore_glob_exempts_it(self):
+        (self.tmp / ".datescanignore").write_text(
+            "# a quoted source, kept as written\ndocs/a.md\n", encoding="utf-8")
+        rc, out = self.run_cli("> it shipped yesterday")
+        self.assertIn("datescan advisory: 0 finding(s)", out)
+
+    def test_code_stays_exempt_inside_and_beside_a_blockquote(self):
+        for text in ("> the `yesterday` token", "    > yesterday, indented code",
+                     "```\n> yesterday\n```"):
+            with self.subTest(text=text):
+                self.assertEqual([], scan(text))
+
+    def test_a_quoted_mention_stays_exempt_in_a_blockquote(self):
+        self.assertEqual([], scan('> the rule bans "yesterday" and "last week"'))
+
+    def test_a_bare_today_is_not_reported_in_a_blockquote_either(self):
+        # Left out on purpose: see datescan.off-rules.design.md § 3.
+        self.assertEqual([], scan("> Filed today."))
+        self.assertEqual([], scan("Filed today."))
+
+
 def _git(repo, *args):
     import os
     import subprocess
@@ -665,6 +838,20 @@ class StagedPlane(StagedPlaneBase):
         rc, out = self._run("docs", "--json")
         self.assertEqual(1, rc)
         self.assertEqual("docs/j.md", json.loads(out)["findings"][0]["path"])
+
+    def test_a_report_only_hit_on_an_added_line_reports_and_passes(self):
+        # 115/090: the hook plane reports a blockquoted hit the commit adds,
+        # and only an added one, without blocking.
+        self._write("docs/q.md", "> old callout, due next week\n")
+        self._commit("docs/q.md")
+        self._write("docs/q.md", "> old callout, due next week\n"
+                                 "> new callout, due next month\n")
+        self._add("docs/q.md")
+        rc, out = self._run("docs")
+        self.assertEqual(0, rc, out)
+        self.assertIn("datescan advisory: 1 finding(s)", out)
+        self.assertIn("docs/q.md:2", out)
+        self.assertNotIn("docs/q.md:1", out)
 
     def test_a_large_staged_file_is_streamed_whole(self):
         # More than a pipe buffer, with the defect on the last line: the blob

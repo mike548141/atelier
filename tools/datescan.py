@@ -53,8 +53,9 @@ same shape as the sibling scanners:
     `_strip_inline_code`), so a literal `` `today` `` in a code example
     never fires.
 
-    A blockquoted line (`>` at the start, after leading whitespace) is
-    skipped whole. STATED HONESTLY, NOT ROUNDED UP (DSR1 finding on the
+    A blockquoted line (`>` at the start, after leading whitespace) never
+    BLOCKS; since 115/090 it is read and REPORTED (see REPORT-ONLY below).
+    STATED HONESTLY, NOT ROUNDED UP (DSR1 finding on the
     original wording): `>` is not only how a quoted external source's words
     read in Markdown — it is ALSO this house's own callout-block style (see
     COMMUNICATION.md; `AUTONOMY.md`'s own `>` blocks; the `> 🎯 S1…` seam
@@ -69,8 +70,10 @@ same shape as the sibling scanners:
     icon not on its list, trading one silent-miss class for another instead
     of removing it. This scanner picks the honest, simpler statement over a
     heuristic that would look more precise than it is: **every** `>` line is
-    exempt, house callouts included, and that is a real gap, not a stated
-    limit that turned out narrower in practice.
+    exempt from blocking, house callouts included, and that is a real gap,
+    not a stated limit that turned out narrower in practice. What closed the
+    SILENT half of it is the report-only tier below: the gap still cannot
+    block, but it can no longer pass unseen.
 
   * PROSE *ABOUT* RELATIVE TIME — the hard exemption, because "this rule bans
     the word today" and "the meeting is today" are structurally identical to
@@ -99,6 +102,19 @@ same shape as the sibling scanners:
     no colon-and-reason after it — does not silently exempt the line. A glob
     in `.datescanignore` at the scan root exempts a path wholesale (mirrors
     every sibling scanner's ignore file).
+
+REPORT-ONLY (115/090, Mike's answer 2026-11-03: "Carry on to datescan", the
+leakscan tier built the same way: nothing that blocks today stops blocking).
+A blockquoted line gets every check a prose line gets; each hit is listed in
+a report-only block, counted on a `datescan advisory: N finding(s)` line
+printed on every run (zero included, the floor board reads it), and never
+moves the exit code. A finding's `response` defaults to block, so a finding
+built without saying fails safe into the gate. An allow-marker or a
+`.datescanignore` glob exempts a report-only hit exactly as a blocking one.
+The bare "today" below is NOT reported: measured across the estate it is
+~2,650 hits, overwhelmingly the "currently" sense, a flood rather than a
+reading. `test_datescan.BlockingSetPinned` pins what blocks. Design and
+residuals: `datescan.off-rules.design.md`.
 
 STATED RESIDUAL, HONESTLY (do not round this to "solved"):
 
@@ -139,8 +155,9 @@ STATED RESIDUAL, HONESTLY (do not round this to "solved"):
     code comments, commit messages, and non-Markdown prose are out of scope.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero, UNLESS --warn):
-  0  clean; or --warn was given (report-only mode — never blocks)
-  1  findings, and --warn was NOT given
+  0  clean, or report-only findings only; or --warn was given (report-only
+     mode — never blocks)
+  1  blocking findings, and --warn was NOT given
   2  usage / config error (a broken scan is NOT a pass)
 
 Zero third-party dependencies; stdlib only, so a peer who adopts atelier can
@@ -369,6 +386,21 @@ _QUOTE_PAIRS = {'"': '"', "'": "'", "“": "”", "‘": "’"}
 
 _FENCE = re.compile(r"^(`{3,}|~{3,})")
 
+# --- the report-only tier (115/090) --------------------------------------
+#
+# A finding's response. Defaulted to block on `Finding`, so a finding built
+# anywhere without saying fails SAFE, into the gate (secretscan's and
+# leakscan's shape). Only a hit on a blockquoted line builds an advisory one.
+RESPONSE_BLOCK = "block"
+RESPONSE_ADVISORY = "advisory"
+# `Finding.where` for a hit on a blockquoted (`>`) line: the one surface this
+# scanner exempts from blocking that is ALSO the house's own callout style.
+WHERE_BLOCKQUOTE = "blockquote"
+# The line `render_human` prints on EVERY run, zero included, so a reader and
+# `tools/floor.py`'s board read the count off one run (the advisory-count
+# contract, `floor.advisory_count_rx`).
+ADVISORY_COUNT_PREFIX = "datescan advisory:"
+
 
 @dataclass
 class Finding:
@@ -377,6 +409,15 @@ class Finding:
     kind: str          # "relative-time-word" | "non-iso-date" | "invalid-iso-date"
     match: str          # the matched text, as written
     detail: str        # human hint at the fix
+    # 115/090: "block" | "advisory". Defaulted to block (fails safe).
+    response: str = RESPONSE_BLOCK
+    # "" for a prose line; WHERE_BLOCKQUOTE for a hit on a `>` line, which
+    # reports and never blocks.
+    where: str = ""
+
+    @property
+    def blocks(self) -> bool:
+        return self.response == RESPONSE_BLOCK
 
 
 def _content_lines(text: str):
@@ -608,6 +649,43 @@ def scan_file(path: Path, rel: str, tally: "Tally | None" = None) -> list[Findin
         return []
 
 
+_RELATIVE_DETAIL = ("relative to the reader's 'now', not an absolute date — "
+                    "replace with an ISO-8601 date stamped from `date -u`")
+
+
+def _line_hits(line: str):
+    """Yield `(kind, match, detail)` for every check's hit on one content
+    line (inline code already blanked). The checks are the same on every
+    line; whether a hit blocks is the caller's decision (115/090)."""
+    for m in RELATIVE_TIME_RX.finditer(line):
+        if _is_quoted_mention(line, m.start(), m.end()):
+            continue
+        yield "relative-time-word", m.group(0), _RELATIVE_DETAIL
+
+    for m in TODAY_RX.finditer(line):
+        if _is_quoted_mention(line, m.start(), m.end()):
+            continue
+        if not _is_date_adjacent_today(line, m.start(), m.end()):
+            continue
+        yield "relative-time-word", m.group(0), _RELATIVE_DETAIL
+
+    for kind, rx, validator in NON_ISO_PATTERNS:
+        for m in rx.finditer(line):
+            if validator is not None:
+                a, b = int(m.group(1)), int(m.group(2))
+                if not validator(a, b):
+                    continue
+            yield "non-iso-date", m.group(0), f"not ISO-8601 ({kind}) — write YYYY-MM-DD"
+
+    for m in ISO_DATE_RX.finditer(line):
+        y, mo, d = (int(g) for g in m.groups())
+        try:
+            date(y, mo, d)
+        except ValueError:
+            yield ("invalid-iso-date", m.group(0),
+                   "ISO-8601-shaped but not a real calendar date")
+
+
 def _scan_numbered_lines(path: str, numbered_lines, tally: "Tally | None" = None) -> list[Finding]:
     findings: list[Finding] = []
     # Line -> allowance scope. Recorded, not acted on: the finding forms first
@@ -617,48 +695,21 @@ def _scan_numbered_lines(path: str, numbered_lines, tally: "Tally | None" = None
         scope = parse_allow(raw_line)
         if scope is not None:
             allow_by_line[lineno] = scope
-        if _is_blockquote(raw_line):
-            continue
+        # Indented code first: a line that is both code and `>`-led is code,
+        # exempt whole, exactly as before (it was skipped either way).
         if _is_indented_code(raw_line):
             continue
+        # 115/090: a blockquoted line is read like any other and its hits
+        # REPORT, never block. Every check is the same; only the response
+        # differs, so the blocking set below is untouched.
+        if _is_blockquote(raw_line):
+            response, where = RESPONSE_ADVISORY, WHERE_BLOCKQUOTE
+        else:
+            response, where = RESPONSE_BLOCK, ""
         line = _strip_inline_code(raw_line)
-
-        for m in RELATIVE_TIME_RX.finditer(line):
-            if _is_quoted_mention(line, m.start(), m.end()):
-                continue
-            findings.append(Finding(
-                path, lineno, "relative-time-word", m.group(0),
-                "relative to the reader's 'now', not an absolute date — replace "
-                "with an ISO-8601 date stamped from `date -u`"))
-
-        for m in TODAY_RX.finditer(line):
-            if _is_quoted_mention(line, m.start(), m.end()):
-                continue
-            if not _is_date_adjacent_today(line, m.start(), m.end()):
-                continue
-            findings.append(Finding(
-                path, lineno, "relative-time-word", m.group(0),
-                "relative to the reader's 'now', not an absolute date — replace "
-                "with an ISO-8601 date stamped from `date -u`"))
-
-        for kind, rx, validator in NON_ISO_PATTERNS:
-            for m in rx.finditer(line):
-                if validator is not None:
-                    a, b = int(m.group(1)), int(m.group(2))
-                    if not validator(a, b):
-                        continue
-                findings.append(Finding(
-                    path, lineno, "non-iso-date", m.group(0),
-                    f"not ISO-8601 ({kind}) — write YYYY-MM-DD"))
-
-        for m in ISO_DATE_RX.finditer(line):
-            y, mo, d = (int(g) for g in m.groups())
-            try:
-                date(y, mo, d)
-            except ValueError:
-                findings.append(Finding(
-                    path, lineno, "invalid-iso-date", m.group(0),
-                    "ISO-8601-shaped but not a real calendar date"))
+        for kind, match, detail in _line_hits(line):
+            findings.append(Finding(path, lineno, kind, match, detail,
+                                    response=response, where=where))
     # SUBTRACT SECOND, scoped by finding kind so a marker written for a
     # relative-time word does not also exempt a non-ISO date on the line.
     kept: list[Finding] = []
@@ -753,11 +804,50 @@ def scan_staged(added: dict[str, set[int]], root: Path,
     return findings
 
 
+def advisory_count_line(n: int) -> str:
+    """The one line that always says how many findings this run reported
+    without blocking (115/090). ALWAYS printed, zero included, for the reason
+    `secretscan.advisory_count_line` gives: a line printed only when non-zero
+    makes "no line" mean both "nothing found" and "the wording drifted", and
+    `tools/floor.py` reads this line for its board."""
+    return f"  {ADVISORY_COUNT_PREFIX} {n} finding(s) — reported, not blocking."
+
+
+def render_advisory(advisory: list[Finding]) -> list[str]:
+    """The report-only block (115/090). It shares no wording with the blocking
+    block (not the ✗, not the remediation paragraph), so a reader can tell at
+    a glance which list stopped the commit."""
+    if not advisory:
+        return []
+    lines = ["",
+             "🟡 REPORT-ONLY FINDINGS — none of these blocked anything.",
+             "   A blockquoted (>) line never blocks: it may be a quoted "
+             "source's own words.",
+             "   It is also the house's callout style, so its dates are "
+             "still read and shown here."]
+    for f in sorted(advisory, key=lambda x: (x.path, x.line)):
+        lines.append(report.with_id(
+            f"     {f.path}:{f.line}  [advisory/{f.where}] [{f.kind}] "
+            f"{f.match!r} → {f.detail}", "datescan", f.kind))
+    lines.append("   Your own callout: fix it like any dating slip. A quoted "
+                 "source's words:")
+    lines.append(f"   leave them, or exempt the line with "
+                 f"'<!-- {ALLOW_MARKER}:<kind>: <reason> -->'.")
+    return lines
+
+
 def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
+    # 115/090: `findings` may carry report-only findings (blockquoted lines);
+    # they are listed in their own block and never counted as blocking.
+    advisory = [f for f in findings if not f.blocks]
+    findings = [f for f in findings if f.blocks]
+    tail = [advisory_count_line(len(advisory)), *render_advisory(advisory)]
     if not findings:
-        out = report.clean_head("datescan",
-                                "no relative-time words or non-ISO dates found.")
-        return out + ("\n" + tally.summary() if tally is not None else "")
+        out = [report.clean_head("datescan",
+                                 "no relative-time words or non-ISO dates found.")]
+        if tally is not None:
+            out.append(tally.summary())
+        return "\n".join(out + tail)
     lines = [report.findings_head("datescan", len(findings))]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(report.with_id(
@@ -766,7 +856,7 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     lines.append("\n  A real dating slip: fix the word/date (stamp from `date -u`, ISO-8601).")
     lines.append(f"  A deliberate exemption: append '<!-- {ALLOW_MARKER}: <reason> -->'")
     lines.append("  to the line, or add a path glob to .datescanignore.")
-    return "\n".join(lines)
+    return "\n".join(lines + tail)
 
 
 def _main(argv: list[str] | None = None) -> int:
@@ -838,12 +928,26 @@ def _main(argv: list[str] | None = None) -> int:
         except OSError as e:
             return report.cannot_read("datescan", e)
 
+    # 115/090: report-only findings (blockquoted lines) are kept out of
+    # `blocking`, which alone feeds the exit code.
+    blocking = [f for f in findings if f.blocks]
+    advisory = [f for f in findings if not f.blocks]
     if args.json:
         print(json.dumps({
-            "clean": not findings,
+            # `clean` and `findings` keep their meaning: BLOCKING findings
+            # only, which before 115/090 was every finding. Report-only ones
+            # are under `advisory`, so a consumer that gated on `clean` gates
+            # on exactly what it did.
+            "clean": not blocking,
+            "blocked": bool(blocking) and not args.warn,
+            "counts": {"blocking": len(blocking), "advisory": len(advisory)},
             "warn": args.warn,
-            "findings": report.finding_dicts("datescan", findings,
+            "findings": report.finding_dicts("datescan", blocking,
                                              lambda f: f.kind),
+            "advisory": {
+                "findings": report.finding_dicts("datescan", advisory,
+                                                 lambda f: f.kind),
+            },
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
@@ -852,10 +956,10 @@ def _main(argv: list[str] | None = None) -> int:
         }, indent=2))
     else:
         print(render_human(findings, tally))
-        if findings and args.warn:
+        if blocking and args.warn:
             print(report.WARN_NOTICE)
 
-    return report.exit_code(len(findings), warn=args.warn)
+    return report.exit_code(len(blocking), warn=args.warn)
 
 
 def _selftest() -> int:
@@ -878,14 +982,15 @@ def _selftest() -> int:
         "The rule bans relative-time words like \"today\" and \"yesterday\".\n"  # quoted mentions, exempt
         "Banned phrases include \"new this year\" in the doc's own list.\n"  # DSR4: multi-word quoted mention, exempt
         "`tomorrow` is just an example in code.\n"                        # code span, exempt
-        "> quoted external text says it happened yesterday.\n"           # blockquote, exempt
+        "> quoted external text says it happened yesterday.\n"           # blockquote: reports, never blocks
         "```\nshipped tomorrow in this fenced block\n```\n"               # fenced, exempt
         "    shipped tomorrow in this indented code block\n"              # DSR6: indented code, exempt
         "reduced scope by 3/4 of the work.\n"                             # fraction, not a date
         "Stamped today, all fields correct.\n"                            # DSR3: date-adjacent "today", flagged
         "allowed today  <!-- datescan:allow: selftest fixture -->\n"     # allow marker (with reason), exempt
     )
-    findings = scan_paths([tmp / "docs"], tmp)
+    found = scan_paths([tmp / "docs"], tmp)
+    findings = [f for f in found if f.blocks]
     kinds = sorted((f.kind, f.match.lower()) for f in findings)
     expected = sorted([
         ("relative-time-word", "last week"),
@@ -898,6 +1003,12 @@ def _selftest() -> int:
     ok = kinds == expected
     if not ok:
         print(f"FAIL: got {kinds}, expected {expected}")
+    # 115/090: the blockquoted line reports, and only it.
+    advisory = sorted((f.kind, f.match.lower(), f.where)
+                      for f in found if not f.blocks)
+    if advisory != [("relative-time-word", "yesterday", WHERE_BLOCKQUOTE)]:
+        print(f"FAIL: report-only findings {advisory}")
+        ok = False
 
     # main() plumbing: --warn always exits 0 even with findings; without it,
     # findings exit 1 and a clean scan exits 0.

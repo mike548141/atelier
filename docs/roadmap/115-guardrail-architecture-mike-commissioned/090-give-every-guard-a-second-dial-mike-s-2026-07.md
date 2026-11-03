@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-1015, wt: atelier-qr-4c65-datedial) **Give every guard a second dial — the standing consequence of Mike's
+- [ ] **Give every guard a second dial — the standing consequence of Mike's
       2026-07-28 correction, carried across the whole fleet.** The
       scanner-precision track was opened on the premise that a false positive on
       a correct line trains someone to write an allow-marker, and that is how a
@@ -149,3 +149,18 @@
       datescan, or stop at leakscan. That is his *answer*, recorded as such.
       It covers datescan, built the same way: nothing that blocks today stops
       blocking. harvestscan is not covered by it and still needs its own go.
+      ✅ **datescan landed 2026-11-03 (queue run 4c65083c): what a
+      blockquoted line let pass now reports without blocking.** Built to the
+      answer above, the same way as leakscan. Every check now runs on a `>`
+      line; each hit is listed and counted on every run, the board carries
+      the count, and none moves the exit code. Nothing was demoted, and
+      `test_datescan.BlockingSetPinned` pins every check that blocked. The
+      bare "today" with no date cue is **left out**: about 2,650 hits across
+      the estate, nearly all the "currently" sense, so as a report it would
+      be a flood. Design note: `tools/datescan.off-rules.design.md`, which
+      also names a hook-plane-only report of it as an untried option. Blast
+      radius, measured before landing over the estate's 30 repos (31 runs):
+      no exit code or blocking count moved; new report-only counts in 5
+      repos, the largest 28. The rule-4 pass is queued as `160/988`.
+      **Still open here: harvestscan, which waits for Mike's own go.** The
+      2026-11-03 answer did not cover it.

@@ -81,8 +81,9 @@ they are not the same fact:
 
   🟡 secretscan  enforced   (🟡 21 advisory finding(s) — reported, not blocking)
         a BLOCKING check that also reported findings it deliberately passed on
-        (E6b; licenscan does the same with its `medium` findings, 115/290, and
-        leakscan with the hits of rules that are off, 115/090).
+        (E6b; licenscan does the same with its `medium` findings, 115/290,
+        leakscan with the hits of rules that are off, and datescan with the
+        dating on blockquoted lines, both 115/090).
         This check still gates; these particular findings did not.
   👁️ pathscan    warn-only  (warn-only wiring — reports findings, can never
                              block this build)
@@ -361,7 +362,8 @@ class Scanner:
     That is a different thing from a check's OWN advisory findings
     (`advisory_count`, below): secretscan, licenscan and leakscan have no
     advisory FORM a child may select, and still report some findings without
-    blocking.
+    blocking. datescan has both: an advisory form, and (115/090) findings it
+    reports without blocking in its enforced form.
 
     `{scope}` is the tree the check reads. `default_scope` says what that is when
     the child declares nothing: the whole repo, or its records subtree.
@@ -594,6 +596,10 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory=["--warn", "--root", "{root}", "{scope}"],
         why="records date in absolute UTC, never a drifting 'today'",
         default_scope="docs",
+        # 115/090: the dating on a blockquoted (`>`) line, which never blocks,
+        # reports instead of passing unseen, and that count reaches the board.
+        # Nothing that blocked stops blocking.
+        advisory_count=True,
     ),
     Scanner(
         "wrapscan",
