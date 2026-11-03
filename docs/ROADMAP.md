@@ -427,6 +427,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/320-ccclose-misses-author-backdated-commits.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/330-ccclose-lists-a-worktree-path-with-an-unexpanded-variable.md)
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
+- [ ] 🔎 [ccclose --identifiers drops a worktree made in a shell loop, and the…](roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
