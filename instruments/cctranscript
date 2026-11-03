@@ -56,7 +56,10 @@
  * model answers it, and dropping the number would shift every ref already quoted
  * — and ccclose numbers it the same way. A browser-extension <browser_instruction>
  * block prepended to a real prompt is removed from that prompt's text. See
- * classifyUserRecord.
+ * classifyUserRecord. The same notification arriving as an attachment ·
+ * queued_command record (commandMode "task-notification") reads as harness too,
+ * but takes no exchange number — that channel was unread before, so numbering
+ * it would shift refs already quoted. See isNotificationQueuedCommand.
  *
  * A message typed while a turn is still in flight ("mid-turn") never becomes a
  * type:"user" record — it logs as type:"attachment" · attachment.type:
@@ -533,6 +536,25 @@ function isHumanQueuedCommand(att) {
   return att.origin === undefined || att.origin === null;
 }
 
+// The harness's own task notification, as it reaches the log in the
+// attachment channel: type:"attachment" · attachment.type:"queued_command" with
+// commandMode:"task-notification" and the <task-notification> text in
+// attachment.prompt. Census of ~980 such records in the live store (2026-11-03):
+// every one has commandMode "task-notification", the origin is either absent or
+// {kind:"task-notification"}, and the prompt is always a string opening with the
+// tag. It is the same event a user-type record carries (classifyUserRecord reads
+// that shape as harness), so it is read as harness too. Deliberately NOT
+// included: a peer's <cross-session-message> (origin.kind "peer"; a message from
+// another agent, not a harness event), any other attachment type, and an
+// unrecognised commandMode or origin — see isHumanQueuedCommand for why guessing
+// is the mistake this family of items exists to undo.
+function isNotificationQueuedCommand(att) {
+  if (!att || att.type !== 'queued_command') return false;
+  if (att.commandMode !== 'task-notification') return false;
+  const kind = att.origin && att.origin.kind;
+  return att.origin === undefined || att.origin === null || kind === 'task-notification';
+}
+
 // `utc` defaults to the --utc global; passed explicitly by tests. Same output
 // as before for every real caller (which relies on the default).
 const fmtTime = (iso, utc = useUtc) => {
@@ -707,6 +729,13 @@ function readTurns(file, opts = {}) {
       // records. What changes is only whose it is — role 'harness', not 'you'.
       const c = classifyUserRecord(o);
       if (c) turns.push({ role: c.kind === 'harness' ? 'harness' : 'you', ts, text: c.text });
+    } else if (o.type === 'attachment' && isNotificationQueuedCommand(o.attachment)) {
+      // The same harness event as a user-type notification, arriving by the
+      // attachment channel. Read as harness, but flagged `inline`: it does NOT
+      // open an exchange (numberTurns), because this channel was never read
+      // before and an existing session's N/N.M refs must not shift for it.
+      const text = extractText(o.attachment.prompt).trim();
+      if (text) turns.push({ role: 'harness', inline: true, ts, text });
     } else if (o.type === 'attachment' && isHumanQueuedCommand(o.attachment)) {
       // Typed while a turn was already in flight: genuine fresh principal
       // text, but it does NOT open a new exchange (numberTurns gives it its
@@ -753,6 +782,10 @@ function readTurns(file, opts = {}) {
 // takes its N exactly as a prompt does. It is NOT the principal's, and every
 // count of "your prompts" excludes it, but the replies that follow it are
 // answers to it, and dropping its number would shift every later ref.
+// An `inline` harness turn (a notification that arrived as an attachment
+// record, not a user record) is harness text too but does NOT open an exchange
+// and carries no ref of its own: the replies after it keep numbering under the
+// exchange it sits in, exactly as before the channel was read.
 // A mid-turn message ('you-mid') does NOT open a new exchange and does NOT
 // bump N — it gets its own ref N+K (K resets to 1 at each new prompt, and
 // counts only mid-turn messages within that exchange). This is deliberate,
@@ -774,7 +807,7 @@ function readTurns(file, opts = {}) {
 function numberTurns(turns) {
   let n = 0, m = 0, k = 0;
   for (const t of turns) {
-    if (t.role === 'you' || t.role === 'harness') { n++; m = 0; k = 0; t.ref = String(n); }
+    if (t.role === 'you' || (t.role === 'harness' && !t.inline)) { n++; m = 0; k = 0; t.ref = String(n); }
     else if (t.role === 'you-mid') { k++; t.ref = `${n}+${k}`; }
     else if (t.role === 'claude') { m++; t.ref = `${n}.${m}`; }
     t.encl = String(n);
@@ -1420,7 +1453,7 @@ function runTranscript() {
     prevTs = t.ts || prevTs;
     console.log();
     if (side === 'right') console.log(exchangeRule(t.ref));
-    else if (t.role === 'harness') console.log(exchangeRule(t.ref, true));
+    else if (t.role === 'harness' && !t.inline) console.log(exchangeRule(t.ref, true));
     console.log(turnHeader(role, t.model, fmtTime(t.ts), deltaMs, side, t.ref));
     const body = t.role === 'harness' ? harnessLine(t.text, CW - 2) : t.text;
     for (const line of renderBody(body, role, CW, side)) console.log(line);
@@ -1450,5 +1483,5 @@ module.exports = {
   readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord, statFlagsBatch, gunzipHead,
   firstUserPromptText, FIRST_PROMPT_PREFIX,
   subagentDir, finishedAgents, escapeRegex, rawForms, scanText, excerptAround,
-  isHumanQueuedCommand, classifyUserRecord, stripElements, HARNESS_TAGS, COMMAND_TAGS,
+  isHumanQueuedCommand, isNotificationQueuedCommand, classifyUserRecord, stripElements, HARNESS_TAGS, COMMAND_TAGS,
 };

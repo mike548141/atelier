@@ -273,6 +273,28 @@ test('harness text and ccclose agree turn for turn: cctranscript calls it harnes
   assert.equal(t.asks[0].quote, 'Before you finish, update the session log.');
 });
 
+test('an attachment notification (210/260) leaves ccclose numbering and cctranscript refs unchanged', async () => {
+  const w = world();
+  const ask1 = { type: 'user', message: { role: 'user', content: 'Please tidy the board.' } };
+  const reply = { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: 'On it.' }] } };
+  const ask2 = { type: 'user', message: { role: 'user', content: 'Before you finish, update the session log.' } };
+  const plain = transcript(w, 'sess-plain', [ask1, reply, ask2]);
+  const noted = transcript(w, 'sess-noted', [ask1, viaAttachment('a1', 'completed'), reply, viaAttachment('a2', 'failed'), ask2]);
+  const a = await cc.readTranscript(plain);
+  const b = await cc.readTranscript(noted);
+  // Same exchange count, same asks, same refs: the notifications take no number.
+  assert.equal(b.turn, a.turn);
+  assert.equal(b.asksTotal, a.asksTotal);
+  assert.deepEqual(b.asks.map((x) => [x.ref, x.quote]), a.asks.map((x) => [x.ref, x.quote]));
+  // cctranscript reads the notifications as harness, and its prompt refs are ccclose's.
+  const ctOf = (f) => JSON.parse(execFileSync('node', [CCTRANSCRIPT, '--json', f], { encoding: 'utf8', env: w.env }));
+  const ct = ctOf(noted);
+  const youRefs = (j) => j.turns.filter((x) => x.role === 'you').map((x) => x.ref);
+  assert.deepEqual(youRefs(ct), youRefs(ctOf(plain)));
+  assert.equal(b.asks[b.asks.length - 1].ref, youRefs(ct)[youRefs(ct).length - 1]);
+  assert.deepEqual(ct.turns.filter((x) => x.role === 'harness').map((x) => x.ref), [null, null]);
+});
+
 // --- whole runs over throwaway repos -------------------------------------
 
 test('a tidy close passes every check that applies and exits 0', () => {

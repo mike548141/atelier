@@ -5,6 +5,23 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-03 — `cctranscript` reads a task notification the same way whichever record carries it, `210/260`)
+- **Children: no action.** A background-task notification that the harness
+  writes as an `attachment` · `queued_command` record (command mode
+  `task-notification`) now shows in `cctranscript` as a grey `harness` turn,
+  counted in the header's harness chip and found by `--search` as harness. It
+  was invisible before, while the same notification as a user record was shown.
+  - It opens **no exchange** and has no ref (`null` in `--json`): this channel
+    was never read, so numbering it would shift refs already quoted. Replies
+    after it keep counting under the exchange they sit in. The user-record
+    notification keeps its number, as `210/250` ruled.
+  - Included: only `queued_command` with command mode `task-notification` and
+    origin absent or its own. Excluded: a peer's cross-session message, a typed
+    prompt, any other attachment type, and any unrecognised mode or origin.
+  - `ccclose` needed no code change: it never numbered these, and a new test
+    pins that its exchange numbers and ask refs are identical with and without
+    such records.
+
 ### Changed (2026-11-03 — `datescan`, `reviewscan` and `sizescan` read the staged index at the hook, `320/600` second slice)
 - **Children: no action, and one behaviour change at the hook.** On the hook
   plane the last three scanners that read the working tree now run `--staged`,

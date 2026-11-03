@@ -726,19 +726,19 @@ test('readTurns: a pre-origin-tag mid-turn message is read the same way', () => 
   assert.equal(turns[1].text, 'older-shaped mid-turn text');
 });
 
-test('readTurns: a peer cross-session message and a harness task notification are never read as the principal', () => {
+test('readTurns: a peer cross-session message is not read, and a task notification is harness, never the principal', () => {
   const file = midTurnFile([
     you('ask'), peerMsg('another session handing off work'), taskNotif(), claude('reply'),
   ]);
   const { turns } = cc.readTurns(file);
-  // Neither the peer message nor the task notification appears at all — not as
-  // 'you', not as 'you-mid', not under any role. This is the defect's Third
-  // channel warning turned into a guard: a fix that widens the net must not
-  // also widen it onto text the principal never typed.
-  assert.deepEqual(turns.map((t) => t.role), ['you', 'claude']);
+  // The peer message appears under no role at all. The task notification is
+  // harness text (210/260) — never 'you' or 'you-mid'. This is the defect's
+  // Third channel warning turned into a guard: a fix that widens the net must
+  // not also widen it onto text the principal never typed.
+  assert.deepEqual(turns.map((t) => t.role), ['you', 'harness', 'claude']);
   const allText = turns.map((t) => t.text).join('\n');
   assert.ok(!allText.includes('handing off work'));
-  assert.ok(!allText.includes('task-id'));
+  assert.ok(turns.every((t) => t.role !== 'you-mid'));
 });
 
 test('numberTurns: a mid-turn message gets its own ref WITHOUT opening a new exchange or bumping N', () => {
@@ -826,12 +826,14 @@ test('search: a mid-turn message is found by default, with no --tools needed', (
   assert.deepEqual(j.meta.layersSearched, ['prompts', 'replies']);   // no widening needed
 });
 
-test('search: a peer message or task notification never produces a hit, even on its own distinctive text', () => {
+test('search: a peer message never produces a hit, and a task notification only as harness', () => {
   const home = makeStore([[UUID(1), [
     you('ask'), peerMsg('the term shelfscan is peer-only text'), taskNotif(), claude('reply'),
   ]]]);
   assert.equal(searchJson(home, '--search', 'shelfscan').meta.hits, 0);
-  assert.equal(searchJson(home, '--search', 'task-id').meta.hits, 0);
+  const tn = searchJson(home, '--search', 'task-id');
+  assert.equal(tn.sessions[0].hits.length, 1);
+  assert.equal(tn.sessions[0].hits[0].role, 'harness');
 });
 
 test('--list: a session whose only prompt-shaped text is a mid-turn message still shows one', () => {
@@ -935,6 +937,93 @@ test('CLI: the human render shows harness text on the left, labelled and clipped
   assert.match(lines[at + 1], /first line second line/);       // collapsed to one line
   assert.match(lines[at + 1], /…/);
   assert.doesNotMatch(out, new RegExp(long));                  // not the whole 400 characters
+});
+
+// --- the same notification arriving as an attachment (board item 210/260) ---
+// One event, one reading: a task notification reads as harness whether the
+// harness wrote it as a user record or as an attachment · queued_command.
+
+const noteAtt = (id, extra = {}, ts = '2026-01-02T03:04:16.000Z') => ({
+  type: 'attachment', timestamp: ts, cwd: '/home/dev/synthetic-repo',
+  attachment: {
+    type: 'queued_command', commandMode: 'task-notification',
+    prompt: `<task-notification>\n<task-id>${id}</task-id>\n<status>completed</status>\n<summary>Synthetic job ${id} finished</summary>\n</task-notification>`,
+    ...extra,
+  },
+});
+
+test('isNotificationQueuedCommand: only a task-notification queued_command, origin absent or its own', () => {
+  const qc = (x) => ({ type: 'queued_command', commandMode: 'task-notification', prompt: '<task-notification>x</task-notification>', ...x });
+  assert.equal(cc.isNotificationQueuedCommand(qc({})), true);
+  assert.equal(cc.isNotificationQueuedCommand(qc({ origin: { kind: 'task-notification', producer: 'session-task' } })), true);
+  // Not claimed: a peer's message, a typed prompt, an unknown mode or origin, another attachment type.
+  assert.equal(cc.isNotificationQueuedCommand(qc({ commandMode: 'prompt', origin: { kind: 'peer' } })), false);
+  assert.equal(cc.isNotificationQueuedCommand(qc({ commandMode: 'prompt', origin: { kind: 'human' } })), false);
+  assert.equal(cc.isNotificationQueuedCommand(qc({ origin: { kind: 'robot' } })), false);
+  assert.equal(cc.isNotificationQueuedCommand(qc({ commandMode: 'bulletin' })), false);
+  assert.equal(cc.isNotificationQueuedCommand({ type: 'total_tokens_reminder', commandMode: 'task-notification' }), false);
+  assert.equal(cc.isNotificationQueuedCommand(null), false);
+});
+
+test('readTurns: an attachment notification reads as harness, inline, never as you or mid-turn', () => {
+  const file = midTurnFile([
+    you('first ask'), claude('first reply'),
+    noteAtt('aaa', { origin: { kind: 'task-notification', producer: 'session-task' } }),
+    claude('noted'),
+    noteAtt('bbb'),
+  ]);
+  const { turns } = cc.readTurns(file);
+  assert.deepEqual(turns.map((t) => t.role), ['you', 'claude', 'harness', 'claude', 'harness']);
+  assert.equal(turns[2].inline, true);
+  assert.match(turns[2].text, /^<task-notification>/);
+});
+
+test('numberTurns: an attachment notification opens no exchange, so every existing ref stays put', () => {
+  const plain = [you('first ask'), claude('a'), you('second ask'), claude('b')];
+  const withNote = [you('first ask'), claude('a'), noteAtt('aaa'), claude('a2'), you('second ask'), noteAtt('bbb'), claude('b')];
+  const before = cc.numberTurns(cc.readTurns(midTurnFile(plain)).turns);
+  const after = cc.numberTurns(cc.readTurns(midTurnFile(withNote)).turns);
+  assert.deepEqual(before.map((t) => t.ref), ['1', '1.1', '2', '2.1']);
+  // Notifications carry no ref; the prompts keep 1 and 2, and replies keep counting under their exchange.
+  assert.deepEqual(after.map((t) => t.ref), ['1', '1.1', undefined, '1.2', '2', undefined, '2.1']);
+  assert.deepEqual(after.filter((t) => t.role === 'you').map((t) => t.ref), ['1', '2']);
+  assert.deepEqual(after.filter((t) => t.inline).map((t) => t.encl), ['1', '2']);
+});
+
+test('numberTurns: a user-record notification still takes its number beside an attachment one', () => {
+  const file = midTurnFile([you('ask'), claude('a'), taskNotifUser(), noteAtt('aaa'), claude('b'), you('next')]);
+  const turns = cc.numberTurns(cc.readTurns(file).turns);
+  assert.deepEqual(turns.map((t) => t.ref), ['1', '1.1', '2', undefined, '2.1', '3']);
+});
+
+test('--list: a peer message and an attachment notification do not become the first prompt', () => {
+  const file = midTurnFile([noteAtt('aaa'), you('the real first ask'), claude('r')]);
+  const out = JSON.parse(execFileSync('node', [SCRIPT, '--json', '--list', file], { encoding: 'utf8' }));
+  assert.equal(out[0].firstPrompt, 'the real first ask');
+});
+
+test('CLI: an attachment notification is a grey Harness line without a rule, counted as harness, null ref in --json', () => {
+  const file = midTurnFile([you('ask'), claude('a'), noteAtt('aaa'), claude('b')]);
+  const j = JSON.parse(execFileSync('node', [SCRIPT, '--json', file], { encoding: 'utf8' }));
+  assert.deepEqual(j.turns.map((t) => [t.role, t.ref]), [['you', '1'], ['claude', '1.1'], ['harness', null], ['claude', '1.2']]);
+  assert.match(j.turns[2].text, /Synthetic job aaa finished/);
+  const out = execFileSync('node', [SCRIPT, '--no-color', '--width', '80', file], { encoding: 'utf8' });
+  assert.match(out, /1 you · 2 Claude · 1 harness/);
+  const lines = out.split('\n');
+  const at = lines.findIndex((l) => l.includes('Harness'));
+  assert.ok(at > 0, 'a Harness label is printed');
+  assert.match(lines[at], /^ ◦ Harness /);
+  assert.doesNotMatch(lines[at - 1], /◦ \d+ ──$/);            // no exchange rule above it
+  assert.doesNotMatch(out, /◦ 2 ──/);
+});
+
+test('search: an attachment notification is found as harness and reported against the exchange it sits in', () => {
+  const home = makeStore([[UUID(1), [you('ask'), claude('a'), noteAtt('zzz9'), claude('b')]]]);
+  const j = searchJson(home, '--search', 'job zzz9');
+  assert.equal(j.meta.hits, 1);
+  assert.equal(j.sessions[0].hits[0].role, 'harness');
+  assert.equal(j.sessions[0].hits[0].ref, '1');
+  assert.equal(j.sessions[0].hits[0].cited, false);
 });
 
 test('CLI: the human render strips a joined browser instruction from the prompt it came with', () => {

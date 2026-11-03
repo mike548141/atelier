@@ -93,8 +93,9 @@ keeps counting exactly as if it weren't there. Not every
 .I queued_command
 record is yours, though: the identical wrapper also carries a harness task
 notification and a cross-session message from a peer agent's session, and
-those are never rendered as if you had typed them \(em see NOTES for how the
-three are told apart. A header chip,
+neither is ever rendered as if you had typed it \(em see NOTES for how the
+three are told apart. The task notification is shown as harness text (below);
+the peer's message is not shown. A header chip,
 .BR "N mid-turn" ,
 appears only when the session holds at least one.
 .PP
@@ -118,7 +119,17 @@ an exchange and takes its number, because the replies that follow it answer it,
 and dropping the number would shift every
 .I N
 already quoted in committed records; it is simply not counted, or shown, as
-your prompt. A
+your prompt. The same notification can reach the log as an
+.I attachment
+record (a
+.I queued_command
+whose command mode is
+.IR task-notification )
+instead of a user record. It reads the same way, as one grey harness line, but
+that channel was never read before, so it opens no exchange: it has no rule and
+no reference of its own (\fBnull\fP in
+.BR \-\-json ),
+and the replies after it keep numbering under the exchange it sits in. A
 .I <browser_instruction>
 block that a browser extension prepends to a real prompt is removed from that
 prompt's text. Your own slash commands
@@ -355,9 +366,11 @@ is
 or, with the gates that reveal them,
 .BR think ,
 .BR tool " or " result ;
-a harness turn carries its
+a harness turn carries its full, unclipped text, and its
 .I ref
-like a prompt and its full, unclipped text.
+like a prompt unless it came as an attachment record, when the
+.I ref
+is null.
 .SH OPTIONS
 .TP
 .I session
