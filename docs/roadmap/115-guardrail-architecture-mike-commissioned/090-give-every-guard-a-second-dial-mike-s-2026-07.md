@@ -1,4 +1,4 @@
-- [ ] **Give every guard a second dial — the standing consequence of Mike's
+- [~] (claimed 2026-11-03-1015, wt: atelier-qr-4c65-datedial) **Give every guard a second dial — the standing consequence of Mike's
       2026-07-28 correction, carried across the whole fleet.** The
       scanner-precision track was opened on the premise that a false positive on
       a correct line trains someone to write an allow-marker, and that is how a
@@ -141,3 +141,11 @@
       queued as `160/994`. **Still open here: datescan and harvestscan,**
       which the first 2026-10-16 answer said follow. Not started. Their
       order and posture have not been put to Mike.
+      ✅ **Answered 2026-11-03, through the decision device at queue run
+      4c65083c's close: "Carry on to datescan".** The question said this run
+      had built leakscan's tier, and asked whether the 2026-10-16 "leakscan
+      first" answer carries on to datescan and harvestscan or each needs its
+      own go; the options were each its own go (recommended), carry on to
+      datescan, or stop at leakscan. That is his *answer*, recorded as such.
+      It covers datescan, built the same way: nothing that blocks today stops
+      blocking. harvestscan is not covered by it and still needs its own go.
