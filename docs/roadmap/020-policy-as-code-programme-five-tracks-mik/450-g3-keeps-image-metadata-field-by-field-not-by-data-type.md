@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0809, wt: atelier-qr-4c65-g3part2) **G3 keeps image metadata field by field, not by data type.** Mike,
+- [x] (done 2026-11-03: Exif and GPS in part 1, IPTC, XMP and PNG text in part 2; the G3 field-level reader is complete) **G3 keeps image metadata field by field, not by data type.** Mike,
       2026-10-19, correcting how `020/440` read his word "fields": *"I did
       mean fields as in GPS versus the camera model. Things like exif, iptc,
       xmp are data types, nto fields. Put it on the board to do in a future
@@ -52,4 +52,28 @@
         set blocks until fields are named. `--binary-entries` lists the field
         lines that replace a type-level line. Other sets are unaffected.
       - *Not done.* IPTC datasets, XMP properties, PNG text keywords, and the
-        type-level cut-off for those sets (they have none yet).
+        type-level cut-off for those sets (they have none yet). Done in part 2
+        below.
+
+      **Part 2 landed 2026-11-03: IPTC, XMP and PNG text. The item is done.**
+      - *Decisions.* Same design as part 1, same helpers. IPTC fields are the
+        IIM dataset names (`iptc:By-line`), `iptc:<record>:<number>` for one
+        the table lacks, `iptc:8BIM-0x03ED` for another Photoshop resource in
+        the APP13. XMP fields are `xmp:<prefix:property>`, the top-level
+        properties of the packet's `rdf:Description` (attribute or element
+        form), written in full each time because a prefix can equal a set's
+        name; a property's value, structure included, is one field. PNG text
+        fields are the chunk keyword with `%XX` for bytes outside
+        `A-Za-z0-9_.-`, so each is one manifest token. `<set>:unknown` is what
+        cannot be read, and blocks until named. Names only, never values.
+      - *Reader.* IPTC by lengths, XMP by stdlib expat as a start-tag stream
+        with no DOCTYPE or entity accepted, both inside the 1 MiB segment cap,
+        with caps on datasets, resources and properties; JPEG extended XMP is
+        joined first.
+      - *Migration.* The same `TYPE_LEVEL_UNTIL` (2026-12-18) now covers
+        `iptc`, `xmp` and `png-text`: type-level lines warn, naming the
+        fields, until then. `icc` and `jpeg-comment` have no fields to name.
+      - *Left over.* A JPEG comment is one text field with no name, and an ICC
+        profile is read by presence; neither is a data type holding fields, so
+        both stay by set. The type-level warning path is deleted after
+        2026-12-18 (a later cleanup, not owed here).
