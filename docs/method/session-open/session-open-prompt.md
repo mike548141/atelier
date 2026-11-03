@@ -146,7 +146,10 @@ per its own record doctrine. Then, for me specifically:
 Try not to stop and ask me questions until you have done all the work. I
 won't be here to answer for several hours and I want you to get as much of
 this work done as you can
-Once all that is done review all my prompts in this session and your replies
-and questions/actions/decisions you asked of me, both at the turn and mid-
-turn, and make sure you have done everything I asked and everything is ready
-to close this session
+
+Once all that is done review all my prompts in this session, both at the
+turn and mid-turn, and make sure you have done everything I asked fully.
+Review your replies to capture open actions, questions, decisions you asked
+of me.
+Make sure everything is ready to close this session. This includes recording
+decisions, evidence, learnings, and questions to ask me later.
