@@ -1,4 +1,4 @@
-- [ ] 🔎 **The run's open decision went into the close message as prose,
+- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **The run's open decision went into the close message as prose,
       not through the decision device.** Session `8e498ef1` (2026-10-18,
       `180/110`) parked `320/450` "for your decision at the end of the run".
       Then it wrote the decision as a 🎯 list item in its final message, with

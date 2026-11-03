@@ -1,4 +1,4 @@
-- [ ] 🔎 **The run stopped "by judgement" with work on the board and the
+- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **The run stopped "by judgement" with work on the board and the
       rest untriaged.** Session `8e498ef1` (2026-10-18, `180/110`) ran 1h54m,
       closed three items and wrote five briefs, then stopped. It said plainly
       that the stop matched none of the four named conditions. The items it

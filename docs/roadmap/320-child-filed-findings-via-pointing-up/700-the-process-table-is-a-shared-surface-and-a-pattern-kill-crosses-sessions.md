@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: the process table is a shared surface, so a pattern kill
+- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **Hand-up: the process table is a shared surface, so a pattern kill
       crosses sessions, and a run's wave size is judged by memory when CPU load
       binds first** `[S][doctrine]`. Handed up by a private child's
       orchestrated queue run on 2026-10-17, under `PROPAGATION.md`

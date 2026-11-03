@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: a peer can stage into the shared index DURING your commit,
+- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **Hand-up: a peer can stage into the shared index DURING your commit,
       so "read `git diff --cached` before every commit" cannot close the hole
       it is written to close — and the orchestrator seat is the one most
       exposed.** Filed from a private child 2026-09-20 via § *Pointing up*, by

@@ -1,4 +1,4 @@
-- [ ] 🔎 **Three of five review briefs were landed on scanner results, not
+- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **Three of five review briefs were landed on scanner results, not
       read.** Session `8e498ef1` (2026-10-18, `180/110`) said so itself: it
       read the privacy brief and one authorship section, and landed the other
       three "on the writers' clean scanner reports, without reading them in

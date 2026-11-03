@@ -1,4 +1,4 @@
-- [ ] 🔎 **Worktree names do not say which session made them, and a
+- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **Worktree names do not say which session made them, and a
       brief-writer misread authorship because of it.** Two queue runs were
       live at once on 2026-10-18 (`e1d4097c`, `8e498ef1`). Both named
       worktrees `atelier-qr-<item>`. A brief-writer dispatched by `8e498ef1`

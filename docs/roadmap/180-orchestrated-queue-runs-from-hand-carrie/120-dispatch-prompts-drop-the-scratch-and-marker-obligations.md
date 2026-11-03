@@ -1,4 +1,4 @@
-- [ ] 🔎 **Dispatch prompts drop two doctrine obligations: the worker's own
+- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **Dispatch prompts drop two doctrine obligations: the worker's own
       scratch directory, and the terminal marker.** Found reviewing the first
       real `/atelier:queue-run` (session `8e498ef1`, 2026-10-18, `180/110`).
       Of its five dispatches, four named no scratch directory
