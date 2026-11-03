@@ -604,7 +604,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-staged2) [Hand-up: a scanner's --selftest…](roadmap/320-child-filed-findings-via-pointing-up/690-a-scanner-selftest-prints-fixture-findings-in-the-floors-own-shape.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md)
-- [~] 🔎 (claimed 2026-11-03-0902, wt: none) [rpi hand-up: a rollout row backwards; wrapscan…](roadmap/320-child-filed-findings-via-pointing-up/710-rpi-hand-up-a-rollout-row-backwards-wrapscan-blind-to-split-boards.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/710-rpi-hand-up-a-rollout-row-backwards-wrapscan-blind-to-split-boards.md)
 - ✅ [FIXED 2026-10-18](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
 - ✅ 🔎 [Hand-up: the paragraph projection joins a wrapped claim into one…](roadmap/320-child-filed-findings-via-pointing-up/730-hand-up-the-paragraph-projection-joins-a-claim-into-an-index-line-wrapscan-refuses.md)
 - [ ] 🔎 [Hand-up: a peer's relayed ruling can override an order the principal…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)

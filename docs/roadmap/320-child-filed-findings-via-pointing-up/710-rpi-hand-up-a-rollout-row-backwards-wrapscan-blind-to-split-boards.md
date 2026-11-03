@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0902, wt: none) 🔎 **rpi hand-up: a rollout row backwards; wrapscan blind to split boards**
+- [x] **DONE 2026-11-03** (was claimed 2026-11-03-0902, wt: none) 🔎 **rpi hand-up: a rollout row backwards; wrapscan blind to split boards**
       `[doctrine][tool]`. Handed up from `rpi` (a public repo, so named) on
       2026-10-17 under `PROPAGATION.md` § *Pointing up*: two findings, RB7 and
       RB8, from the rule-4 cold pass on that repo's board split (its review
@@ -41,3 +41,11 @@
       index projects from a split item).
       review: not warranted — a hand-up of two findings; the cold pass that
       formed them is itself the review, and the fixes are atelier's to decide.
+      ✅ **Done 2026-11-03, inline by queue run 4c65083c.** §1: re-measured in
+      the child (`4bd429c` deletes a 245-line root `ROADMAP.md`); `010/030`'s
+      row and the inference on it corrected, struck through rather than
+      overwritten, and the glyph-grammar case added as the counter-example.
+      §2: took the second shape, the record states that the exemption is
+      systematic, so a width ruling reads the raw count; `wrapscan` itself is
+      unchanged, since counting list continuations would raise every split
+      child's count at once.

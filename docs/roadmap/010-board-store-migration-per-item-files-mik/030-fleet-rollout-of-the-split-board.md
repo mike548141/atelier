@@ -24,7 +24,7 @@
       | `tuhura` | `78e31b1` | 173 → 58 | |
       | `stewart-drive` | `a3c1c4a` | 98 → 66 | |
       | `derry-hill` | `4c67be9` | 74 → 69 | |
-      | `rpi` | `4bd429c` | — → 69 | **born split** — no prior `ROADMAP.md` |
+      | `rpi` | `4bd429c` | 245 → 69 | monolith at the repo **root**; see the correction below |
 
       **Still monolithic:** `docker-heap` 302 lines (tree not clean at the
       reading, last commit 2026-08-15) and `nova` 274 lines (clean, last
@@ -36,11 +36,17 @@
       🚩 **Two readings the table does not make on its own.** `cbom` has no
       remote and no remote-tracking branch, so "pushed" is not a category
       there — its split exists on a local `main` and is *not* equivalent to
-      the others for anything that depends on origin. And `rpi` never
+      the others for anything that depends on origin. ~~And `rpi` never
       migrated: it had no `ROADMAP.md` before `4bd429c`, so its board was
-      *written* in the store form from nothing. That is the stronger evidence
-      for the form — it is adoptable without a monolith to convert, which no
-      migration could have shown.
+      *written* in the store form from nothing.~~ **Corrected 2026-11-03
+      (`320/710`, the child's hand-up, re-measured here):** `4bd429c` deletes
+      a 245-line `ROADMAP.md` at the repo root, which a method that looked
+      only for `docs/ROADMAP.md` at the parent commit could not see, and
+      inferred birth from. The inference built on it ("adoptable without a
+      monolith to convert") is withdrawn. The truth is the opposite case: none
+      of that monolith's 27 bullets used the checkbox grammar, so a mechanical
+      cut would have produced zero items, and every state was a judgement read
+      off prose glyphs.
       ⚠️ *One figure is not a correction.* `faves`' index reads 268 lines at
       `672ad17` under the definition above; this item previously recorded 271
       under a definition it did not state. Three lines, and which point in
@@ -51,7 +57,8 @@
       recurs: a rollout record adjusted by intuition rather than swept.
       *What `faves` proved, so no later child rediscovers it:* the cut needs
       no judgement — an item is a column-0 checkbox plus its indented
-      continuations, which is the grammar the monolith was already written in;
+      continuations, which is the grammar the monolith was already written in
+      (and only then: `rpi`'s board, above, is the counter-example);
       verify losslessness as a **multiset over every non-heading source
       line**, not by eye; **the links are the real work** — every
       `ROADMAP.md` link is relative to `docs/` and breaks two directories
@@ -74,3 +81,13 @@
       items using `[~]` for *partially delivered*, Mike's to rule) and `110`
       (a relative path argument scanned against cwd while `--root`'s rules
       apply — 🔥, four tools).
+      🚩 **A split board's item bodies are invisible to `wrapscan`, by
+      construction** (`320/710` §2, 2026-11-03). `wrapscan` exempts a line
+      indented four or more columns as code, and a split item's continuation
+      lines are indented four or more by the board's grammar, so every item
+      body in every split board is exempt. A child's reviewer measured raw
+      over-width lines rising 180 → 208 across its split while the flagged
+      count fell 133 → 38. So a width ruling that reads `wrapscan`'s count on
+      a split board reads the state lines and legend only; read the raw count
+      instead. Changing the exemption would raise every split child's count
+      at once, and is not taken here.
