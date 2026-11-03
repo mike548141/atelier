@@ -1,4 +1,4 @@
-- [ ] 🔎 **A harness notification reads two ways depending on its record
+- [~] (claimed 2026-11-03-0920, wt: atelier-qr-4c65-notify) 🔎 **A harness notification reads two ways depending on its record
       type** `[S][instruments]`. Found 2026-10-16 by the `250` worker, not
       fixed there. Since `250`, a background-task notification that arrives
       as a user-type record shows in cctranscript as a grey `harness` turn.

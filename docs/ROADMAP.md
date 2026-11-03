@@ -415,7 +415,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [ccarchive: bring back a schedule, as a real calendar schedule, not a…](roadmap/210-instruments-open-features/230-ccarchive-a-real-calendar-schedule.md)
 - [ ] 🔎 [ccarchive's design charter, in Mike's words, checked against the tool](roadmap/210-instruments-open-features/240-ccarchive-design-charter.md)
 - ✅ 🔎 [cctranscript counts some harness text as the principal's prompts](roadmap/210-instruments-open-features/250-cctranscript-counts-harness-text-as-prompts.md)
-- [ ] 🔎 [A harness notification reads two ways depending on its record type](roadmap/210-instruments-open-features/260-notification-records-read-two-ways.md)
+- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-notify) [A harness notification reads…](roadmap/210-instruments-open-features/260-notification-records-read-two-ways.md)
 - ✅ [ccmail sent the operator to ccmail --auth, a client-ID setup he…](roadmap/210-instruments-open-features/270-ccmail-sent-the-operator-to-a-setup-he-did-not-need.md)
 - ✅ [BUILT 2026-10-18](roadmap/210-instruments-open-features/280-ccclose-prints-the-identifiers-block.md)
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md)
@@ -601,7 +601,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: a cross-estate question gets answered from one repo's tree,…](roadmap/320-child-filed-findings-via-pointing-up/640-a-question-about-the-estate-is-answered-from-one-tree.md)
 - [ ] 🔎 [Hand-up: an estate fact learned in a child has no rule sending it up…](roadmap/320-child-filed-findings-via-pointing-up/650-an-estate-fact-learned-in-a-child-has-no-rule-to-travel-up.md)
 - [ ] 🔎 [Hand-up: the house assumes every repo is a direct sibling of the…](roadmap/320-child-filed-findings-via-pointing-up/660-grouping-children-into-folders-breaks-the-sibling-convention.md)
-- [ ] 🔎 [Hand-up: the session-open prompt's "restore" left a net change that…](roadmap/320-child-filed-findings-via-pointing-up/670-the-session-open-restore-left-a-net-change-that-reverses-a-ruling.md)
+- ✅ 🔎 [SUPERSEDED 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/670-the-session-open-restore-left-a-net-change-that-reverses-a-ruling.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - ✅ 🔎 [Hand-up: a scanner's --selftest prints its fixture findings in the…](roadmap/320-child-filed-findings-via-pointing-up/690-a-scanner-selftest-prints-fixture-findings-in-the-floors-own-shape.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md)

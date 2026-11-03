@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: the session-open prompt's "restore" left a net change
+- [x] **SUPERSEDED 2026-11-03** 🔎 **Hand-up: the session-open prompt's "restore" left a net change
       that reverses the 2026-09-19 tier ruling** `[S][doctrine]`. Handed up by
       a private child on 2026-10-17 at its drift check, under `PROPAGATION.md`
       § *Pointing up*. **Evidence, measured on `origin/main`:**
@@ -23,3 +23,9 @@
       restore missed, is atelier's to judge; the child only reports that the
       commit message and the tree disagree. Reproduce with
       `git diff 170c3b9 6a0ac93 -- docs/method/session-open/session-open-prompt.md`.
+      ✅ **No work owed, checked 2026-11-03 by queue run 4c65083c.** Both
+      hunks are back at HEAD: the prompt's line 20 reads "don't ask me which
+      tier to use", and line 128 reads "roadmap items closed (harvested, on a
+      monolithic board)". `998c35f` (2026-10-18) reconciled them, and its
+      commit body names this exact reversal (`6a0ac93` had put back the
+      pre-2026-09-20 tier line and the pre-2026-10-03 harvest wording).
