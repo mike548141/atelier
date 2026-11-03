@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0759, wt: atelier-qr-4c65-doctrine2) **Proposal: a response-field allowlist leaks through non-scalar fields —
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-doctrine2) **Proposal: a response-field allowlist leaks through non-scalar fields —
       the output side of exposure wants a sentence in `SECRETS.md`.** Filed
       from a private child via § *Pointing up*, 2026-08-22.
       **The incident, as class:** a session reading a provider API's
@@ -26,3 +26,9 @@
       provider whose read APIs expand related objects in place (ORM-style
       embedding); the child can supply a redacted transcript shape over the
       cross-session channel on request.
+      ✅ **Landed 2026-11-03.** `SECRETS.md` § *Exposure — watch, roll,
+      never scrub*, at the section's end: a session that allowlists the
+      fields it keeps from a provider read treats a non-scalar value under a
+      kept field as un-allowlisted, dropping it or recursing the allowlist
+      into it, never printing it whole. Class only; no provider named.
+      Review owed: `160/999`.

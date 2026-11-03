@@ -538,7 +538,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [PROPOSAL for the floor + GUARDS.md — where siblings exist, require a…](roadmap/320-child-filed-findings-via-pointing-up/060-proposal-the-floor-requires-a-path-scoped-commit.md)
 - [ ] 🎯 [PROPOSAL — a transcript has three principal-authored channels, and a…](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal…](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
-- [~] (claimed 2026-11-03, wt: atelier-qr-4c65-doctrine2) [Proposal: a response-field…](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
+- ✅ [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
 - [ ] 🎯 [PROPOSAL — the damaging attribution carries NO QUOTATION MARKS, so…](roadmap/320-child-filed-findings-via-pointing-up/100-unquoted-attribution-is-invisible-to-quotescan-and-a-corroboration-for-070.md)
 - [ ] 🎯 [PROPOSAL — § Asking for a ruling tells a session HOW to ask and never…](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
 - [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the…](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)

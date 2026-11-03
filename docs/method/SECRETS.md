@@ -296,6 +296,17 @@ routine hygiene, not a scrub; and residue no roll can kill (personal data; a
 key whose captured past traffic lacks forward secrecy) is not "dead text" —
 that class is `DATA-PROTECTION.md`'s problem, handled there.
 
+**On the output side, a field allowlist is only as strong as the kept values'
+types.** A session reading a provider API that allowlists the fields it keeps
+before printing treats any non-scalar value under a kept field as
+un-allowlisted: drop it, or recurse the allowlist into it, and never print it
+whole. A kept field holding an object is an unfiltered surface wearing an
+allowlisted name. Grounding: a child's read of a certificate listing kept a
+field whose value had always been a scalar label; for objects signed by the
+provider's own internal CA, that field carried the whole issuing-CA object,
+private key included, and the allowlist passed it into the session transcript
+(handed up 2026-08-22, `320/090`).
+
 ## Grounding in public practice
 
 The rules above are Mike's decided practice, but they are also deliberately
