@@ -1336,6 +1336,10 @@ function boardLog(repo, w, b) {
   return r.ok ? { dir, text: r.out } : null;
 }
 
+// Board ids in board order: each digit run compares as a number, so
+// 160/986 comes before 160/1000 (210/370; board.py's own sort, 010/200).
+const boardOrder = (a, b) => a.localeCompare(b, 'en', { numeric: true });
+
 function boardReduce({ dir, text }, pick) {
   const itemRe = new RegExp(`^${escapeRe(dir)}/(\\d+)-[^/]+/(\\d+)-[^/]+\\.md$`);
   const created = new Set(), completed = new Set(), claimed = new Set(), review = new Set(), reviewElsewhere = new Set();
@@ -1387,7 +1391,7 @@ function boardReduce({ dir, text }, pick) {
     }
   }
   finish();
-  const sorted = (x) => [...x].sort();
+  const sorted = (x) => [...x].sort(boardOrder);
   return {
     completed: sorted(completed), created: sorted(created),
     claimed: sorted([...claimed].filter((id) => final.get(id) === '~')),
@@ -1843,4 +1847,4 @@ async function main() {
 if (require.main === module) main();
 
 module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
-  worktreeAdds, ghPrCommands, commitSubjectsIn, messageFilesIn, heredocWritesIn, render, CAP };
+  worktreeAdds, ghPrCommands, commitSubjectsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };

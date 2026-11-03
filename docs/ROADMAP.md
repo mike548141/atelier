@@ -345,6 +345,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: disclosed contact with a review chain, the…](roadmap/160-doctrine-review-owed/999-rule-4-cold-pass-queued-disclosed-contact-scalar-allowlist-closed-questions.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccapple checks the filter before it looks…](roadmap/160-doctrine-review-owed/1000-rule-4-cold-pass-queued-ccapple-checks-the-filter-first.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose expands a for loop's literal word…](roadmap/160-doctrine-review-owed/1010-rule-4-cold-pass-queued-ccclose-loop-made-worktrees.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccclose lists board ids in number order…](roadmap/160-doctrine-review-owed/1020-rule-4-cold-pass-queued-ccclose-board-order.md)
 
 ## build/ layer — open strands
 
@@ -436,7 +437,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [ccapple looks for the store before it checks that a filter was given,…](roadmap/210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md)
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
 - ✅ [ccclose --identifiers drops a worktree made in a shell loop, and the…](roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md)
-- [~] (claimed 2026-11-03, wt: atelier-qr-deea-ccclosesort) [ccclose --identifiers lists…](roadmap/210-instruments-open-features/370-ccclose-sorts-board-ids-as-text.md)
+- ✅ 🔎 [ccclose --identifiers lists board items in text order, so 160/1000…](roadmap/210-instruments-open-features/370-ccclose-sorts-board-ids-as-text.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

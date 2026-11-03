@@ -5,6 +5,11 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-03 — ccclose: board ids in board order, `210/370`)
+- **`ccclose --identifiers` lists board items in number order.** The lists
+  sorted their ids as text, so `160/1000` printed before `160/986`. Each digit
+  run now compares as a number, as `board.py` does since `010/200`.
+
 ### Fixed (2026-11-03 — ccapple: a missing filter is always exit 2, `210/340`)
 - **`ccapple` now checks the filter before it looks for a store.** A search run
   with no filter on a Mac that lacks the store (`messages`, `calendar`,

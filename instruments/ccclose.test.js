@@ -1640,3 +1640,8 @@ test('--identifiers board: the ⏳ marker counts on an item\'s state line only, 
   assert.deepEqual(j.board.created, ['010/010', '010/020', '010/030', '010/040', '010/050']);
   assert.match(idRun(w, root, 'sess-id-24').out, /  - ⏳ review items created: 010\/010, 010\/050\n/);
 });
+
+test('board ids sort as numbers, so a four-digit pointer follows 999 (210/370)', () => {
+  assert.deepEqual(['160/1000', '160/986', '010/200', '160/1010', '210/370'].sort(cc.boardOrder),
+    ['010/200', '160/986', '160/1000', '160/1010', '210/370']);
+});
