@@ -172,6 +172,14 @@ TITLE_RE = re.compile(r"\*\*(.+?)\*\*")
 LINK_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 TITLE_MAX = 70
 
+# The width at which `wrapscan` stops reading a line as prose (its LINE_LIMIT),
+# and the least link text a CLAIMED index line is squeezed down to (320/730).
+# wrapscan exempts a line whose overflow is one unbreakable token, and every
+# index line ends in a store path, so the line passes while no whitespace sits
+# past this column. The path itself may run as long as it likes.
+WRAP_COLS = 85
+TITLE_MIN = 24
+
 # Allow-markers on the source state line travel to the generated line: the
 # projection reproduces the exempted text (a verbatim title can carry a
 # non-ISO date), so it inherits the exemption — found live on day one, when
@@ -251,7 +259,18 @@ def item_state(text: str) -> ItemState | None:
     return None
 
 
-def index_title(rest: str) -> str:
+def _escape_link_text(text: str) -> str:
+    """`text` with `[` and `]` as character references, safe inside `[...]`.
+
+    A bare `]` closes the generated link early and a `](` opens a different
+    one, so a bracket in a bold title broke the line (320/450 §2). A backslash
+    escape is not enough: `linkscan` still reads `\\](x)` as a link. A
+    character reference renders as the bracket on GitHub and gives no scanner
+    a bracket to read."""
+    return text.replace("[", "&#91;").replace("]", "&#93;")
+
+
+def index_title(rest: str, escape: bool = True) -> str:
     """The index line's link text: the item's bold title, links flattened.
 
     The fallback strips the claim first. `TITLE_RE` wants a CLOSED `**…**` span
@@ -259,7 +278,10 @@ def index_title(rest: str) -> str:
     lines — so the state line carries an opening `**` and no closing one, the
     fallback takes the head of `rest`, and `rest` begins with the claim. The
     result rendered the claim twice on one line, once from `index_line` and
-    once swallowed into the title (reported by a child, 2026-08-17)."""
+    once swallowed into the title (reported by a child, 2026-08-17).
+
+    `[` and `]` come out as character references (`escape`; 320/450 §2). Only
+    the LEGACY projection passes `escape=False`, to stay byte-identical."""
     m = TITLE_RE.search(rest)
     raw = m.group(1) if m else CLAIM_RE.sub("", rest)
     raw = LINK_RE.sub(r"\1", raw)
@@ -269,7 +291,49 @@ def index_title(rest: str) -> str:
     raw = " ".join(raw.split())
     if len(raw) > TITLE_MAX:
         raw = raw[:TITLE_MAX].rsplit(" ", 1)[0] + "…"
-    return raw or "(untitled)"
+    raw = raw or "(untitled)"
+    return _escape_link_text(raw) if escape else raw
+
+
+def _fit_title(title: str, room: int) -> str:
+    """`title` cut at a word boundary so no space of it lies past `room` columns
+    of link text, with `…` marking the cut. One word is always kept: a long last
+    word is a single token, which is exactly what wrapscan lets through."""
+    words = title.rstrip("…").split(" ")
+    kept, used = [words[0]], len(words[0])
+    for w in words[1:]:
+        if used + 1 > room:          # the space before `w` would be past the limit
+            break
+        kept.append(w)
+        used += 1 + len(w)
+    if len(kept) < len(words) or title.endswith("…"):
+        kept[-1] += "…"
+    return " ".join(kept)
+
+
+def _claim_for_index(claim: str, fixed: int) -> str:
+    """The claim fragment as the index shows it, shortened only as far as the
+    line needs (320/730).
+
+    `fixed` is the width of everything on the line ahead of the claim, and the
+    claim must leave `TITLE_MIN` columns of link text before `WRAP_COLS`. In
+    order: the whole fragment; the date without the time; the date with the
+    worktree name cut to fit. "Who has it" stays on the line: the full fragment
+    is in the item file, one click away. A name too long to cut to 8 columns is
+    left whole and the line overruns; it is rare and stated, not hidden."""
+    def room(c: str) -> int:
+        return WRAP_COLS - fixed - len(c) - 3     # two spaces, and the `[`
+    if room(claim) >= TITLE_MIN:
+        return claim
+    m = re.match(r"\(claimed (\d{4}-\d\d-\d\d)(?:-\d{4})?, wt: ([^)]*)\)$", claim)
+    if not m:
+        return claim
+    date, name = m.groups()
+    short = f"(claimed {date}, wt: {name})"
+    if room(short) >= TITLE_MIN:
+        return short
+    keep = max(8, len(name) - (TITLE_MIN - room(short)) - 1)
+    return f"(claimed {date}, wt: {name[:keep]}…)" if keep < len(name) else short
 
 
 def _mask_code(text: str) -> str:
@@ -322,7 +386,10 @@ def index_line(marker: str, rest: str, rel_link: str,
     if marker == "[~]":
         m = CLAIM_RE.search(_mask_code(rest))
         if m:
-            line += f" {m.group(0)}"
+            line += f" {_claim_for_index(m.group(0), len(line))}"
+    # Squeeze the title to the room the prefix leaves (320/730). A no-op for an
+    # unclaimed line, whose prefix is short; it bites when a claim is present.
+    title = _fit_title(title, WRAP_COLS - len(line) - 2)
     line += f" [{title}]({rel_link})"
     if markers is None:
         markers = ALLOW_COMMENT_RE.findall(rest)
@@ -424,7 +491,7 @@ def _index_entry_v1(text: str, rel_link: str) -> str | None:
         m = CLAIM_RE.search(rest)
         if m:
             line += f" {m.group(0)}"
-    line += f" [{index_title(rest)}]({rel_link})"
+    line += f" [{index_title(rest, escape=False)}]({rel_link})"
     for c in ALLOW_COMMENT_RE.findall(rest):
         line += f" {c}"
     return line

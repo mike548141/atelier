@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-board) 🔎 **A wrapped claim does not project into the index, a `]` in a title
+- [ ] 🔎 **A wrapped claim does not project into the index, a `]` in a title
       breaks its generated link, and the §10 declaration's home is ambiguous
       between GUARDS and practice** `[tool][doctrine]` — three findings handed
       up from a private child 2026-09-26 via § *Pointing up*, out of four
@@ -105,3 +105,10 @@
       `docs/sessions/` were not opened by the reviewer.
       review: not warranted — a hand-up of three findings; the passes that
       produced them are each already a review.
+
+      **Progress 2026-11-03.** §1 is done (`28ef94a`). §2 is done in the
+      commit that carries this note: `index_title` now writes `[` and `]` as
+      character references in the generated link text, because a backslash
+      escape still leaves a `](` that `linkscan` reads as a link. The legacy
+      grace projection is unchanged. §3 awaits the principal's ruling and
+      is the only part still open.

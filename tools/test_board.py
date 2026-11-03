@@ -356,9 +356,11 @@ class LogicalFirstParagraph(unittest.TestCase):
             "- [~] **A claimed item whose title fills the first\n"
             "      line** (claimed 2026-01-02-0304, wt: example-wt)\n"
             "      and more prose after it.\n")
+        # The whole claim stays; the title is squeezed to the room it leaves
+        # (320/730), so the wrapped title ends at a word boundary with `…`.
         self.assertTrue(line.startswith(
             "- [~] (claimed 2026-01-02-0304, wt: example-wt) [A claimed item "
-            "whose title fills the first line]("), line)
+            "whose title fills the…]("), line)
 
     def test_the_allow_marker_still_propagates(self):
         # On the state line, as before, and from the continuation line the
@@ -785,6 +787,124 @@ class StagedPlane(unittest.TestCase):
             rc = board.run_check(self.root, fix=False, source=board.INDEX,
                                  today=until)
         self.assertEqual(rc, 1)
+
+
+LONG_PATH = ("roadmap/320-child-filed-findings-via-pointing-up/"
+             "730-an-item-whose-slug-runs-on-and-on-for-a-long-while-yes.md")
+
+
+class ClaimedLineFitsWrapscan(unittest.TestCase):
+    """320/730 (and 750) — a claimed item's index line must pass `wrapscan`,
+    which reads a line over 85 columns as prose unless its overflow is one
+    unbreakable token. Every index line ends in a store path, so the line
+    passes while no space of it sits past column 85. The real scanner judges
+    here, not a re-statement of its rule."""
+
+    TITLE = ("**Hand-up: the paragraph projection joins a wrapped claim into "
+             "one index line which a child refuses**")
+
+    def scan(self, line: str):
+        import wrapscan
+        return wrapscan.scan_text("x.md", line + "\n")
+
+    def test_the_hand_up_case_passes_wrapscan(self):
+        # 750's measured case: the shortest one-line claim, a long path.
+        rest = f"🔎 {self.TITLE} (claimed 2026-10-26-1010, wt: doctrine-0a2b7a7)"
+        line = board.index_line("[~]", rest, LONG_PATH, head=rest)
+        self.assertGreater(len(line), 85, "fixture should overrun the width")
+        self.assertEqual([], self.scan(line), line)
+        self.assertIn("wt: doctrine-0a2b7a7", line)
+
+    def test_a_long_worktree_name_is_cut_not_the_title_alone(self):
+        rest = (f"🔎 {self.TITLE} (claimed 2026-11-03-0638, "
+                "wt: atelier-qr-4c65-a-worktree-with-a-very-long-name)")
+        line = board.index_line("[~]", rest, LONG_PATH, head=rest)
+        self.assertEqual([], self.scan(line), line)
+        self.assertIn("(claimed 2026-11-03, wt: atelier-qr-4c65-a-", line)
+        self.assertIn("…)", line)
+
+    def test_the_claim_drops_its_time_before_it_drops_the_title(self):
+        rest = (f"🔎 {self.TITLE} "
+                "(claimed 2026-11-03-0638, wt: atelier-qr-4c65-board)")
+        line = board.index_line("[~]", rest, LONG_PATH, head=rest)
+        self.assertTrue(line.startswith(
+            "- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-board) [Hand-up"),
+            line)
+        self.assertEqual([], self.scan(line), line)
+
+    def test_a_short_claim_is_untouched(self):
+        rest = "**Short title here** (claimed 2026-08-15-0610, wt: b)"
+        line = board.index_line("[~]", rest, "roadmap/a/b.md", head=rest)
+        self.assertEqual("- [~] (claimed 2026-08-15-0610, wt: b) "
+                         "[Short title here](roadmap/a/b.md)", line)
+
+    def test_an_unclaimed_line_is_unchanged_at_the_longest_title(self):
+        title = "word " * 30
+        rest = f"🎯🔥🛑🔎🤔 **{title.strip()}**"
+        line = board.index_line("[ ]", rest, LONG_PATH, head=rest)
+        self.assertTrue(line.startswith("- [ ] 🎯🔥🛑🔎🤔 [word word"), line)
+        self.assertEqual([], self.scan(line), line)
+
+    def test_no_claim_fragment_cannot_reach_the_wrapscan_wall_on_a_real_board(self):
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        root = Path(td.name)
+        sec = make_board(root)
+        (sec / "30-claimed.md").write_text(
+            f"- [~] {self.TITLE}\n      (claimed 2026-10-26-1010, wt: x-y)\n",
+            encoding="utf-8")
+        board.run_check(root, fix=True)
+        text = (root / board.INDEX_REL).read_text(encoding="utf-8")
+        self.assertEqual([], self.scan(next(
+            l for l in text.splitlines() if "30-claimed" in l)))
+
+
+class BracketsInATitle(unittest.TestCase):
+    """320/450 §2 — `index_title` never escaped `]`, so a bracket in a bold
+    title closed the generated link early or opened another one."""
+
+    def test_a_bare_bracket_pair_is_neutralised(self):
+        t = board.index_title("**Fix the [~] marker**")
+        self.assertNotIn("[", t)
+        self.assertNotIn("]", t)
+        self.assertEqual("Fix the &#91;~&#93; marker", t)
+
+    def test_a_close_bracket_then_paren_is_not_a_link(self):
+        # The probe shape, built here rather than written out in this file's
+        # records: a `]` directly followed by `(`.
+        t = board.index_title("**Bad " + "]" + "(elsewhere) title**")
+        self.assertNotIn("](", t)
+        line = board.index_line("[ ]", "**Bad " + "]" + "(elsewhere) title**",
+                                "roadmap/a/b.md")
+        self.assertEqual("- [ ] [Bad &#93;(elsewhere) title](roadmap/a/b.md)",
+                         line)
+
+    def test_the_generated_line_has_exactly_one_link(self):
+        import re
+        line = board.index_line("[ ]", "**A [x] and [y](z) title**",
+                                "roadmap/a/b.md")
+        self.assertEqual(1, len(re.findall(r"\]\(", line)), line)
+        self.assertIn("[A &#91;x&#93; and y title](roadmap/a/b.md)", line)
+
+    def test_linkscan_sees_one_link_only(self):
+        import linkscan
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        root = Path(td.name)
+        (root / "roadmap" / "a").mkdir(parents=True)
+        (root / "roadmap" / "a" / "b.md").write_text("x\n", encoding="utf-8")
+        line = board.index_line("[ ]", "**Bad " + "]" + "(nowhere.md) [t]**",
+                                "roadmap/a/b.md")
+        (root / "ROADMAP.md").write_text(line + "\n", encoding="utf-8")
+        self.assertEqual([], linkscan.scan_paths([root / "ROADMAP.md"], root))
+
+    def test_the_legacy_projection_is_byte_identical(self):
+        # The grace accepts a child's committed old-form index exactly; escaping
+        # must not reach it.
+        self.assertEqual(
+            "- [ ] [Fix the [~] marker](roadmap/a/b.md)",
+            board._index_entry_v1("- [ ] **Fix the [~] marker**\n",
+                                  "roadmap/a/b.md"))
 
 
 if __name__ == "__main__":

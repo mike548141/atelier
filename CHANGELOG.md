@@ -5,6 +5,34 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-03 — a claimed item's index line fits `wrapscan`, and a bracket in a title no longer breaks its link, `320/730` · `320/450` §2)
+- **Children: read this at your pin bump.** `board.py` used to print a whole
+  `(claimed …, wt: …)` fragment ahead of a 70-column title on the index line,
+  so a claimed item's line came out at 170 to 320 columns and a child that
+  runs `wrapscan` over its generated `ROADMAP.md` was refused at the commit.
+  Children met it (`320/730`, `320/750`); the stopgap (rebuild with the pinned `board.py`)
+  only works until the grace ends on 2026-11-18. Now the title is cut at a
+  word boundary, with `…`, so no space of the line lies past column 85, and a
+  long claim is shown as the date without the time, then with the worktree
+  name cut. A short claim is unchanged. The full fragment stays in the item
+  file.
+- **The line is still over 85 columns, and that is expected.** Every index line
+  ends in a store path, and `wrapscan` passes a line whose overflow is one
+  unbreakable token. Fitting the spaces is what makes the line pass; the path
+  cannot be shortened. If your `wrapscan` scope or version lacks that
+  exemption, the line will still be reported, and the choices are yours:
+  exempt the generated index from `wrapscan`, or scope `wrapscan` as this repo
+  does (`docs/method`, `docs/build`, `docs/decisions`). A worktree name that
+  cannot be cut to 8 columns leaves its line over; none is known.
+- **Brackets in a bold title** (`320/450` §2). `[` and `]` in a title come out
+  as `&#91;` and `&#93;` in the generated link text, which GitHub renders as the
+  brackets. Before this, a `]` closed the link early and a `]` followed by `(`
+  opened a second link that `linkscan` reported as missing. A rebuild changes
+  the index line of any item whose title carries a bracket.
+- **Rebuild once after the bump.** `board --check` goes stale on every claimed
+  item and every bracketed title until `board --rebuild` is run and staged. The
+  grace to 2026-11-18 still accepts the previous projection byte for byte.
+
 ### Changed (2026-10-19 — one reason may keep several named metadata sets, `020/440`)
 - **A `.leakscanbinaries` set line may name several metadata sets under one
   reason:** `<digest>:icc,xmp  path  # why these sets are kept`. Each set is
