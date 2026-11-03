@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0840, wt: atelier-qr-4c65-dial) **Give every guard a second dial — the standing consequence of Mike's
+- [ ] **Give every guard a second dial — the standing consequence of Mike's
       2026-07-28 correction, carried across the whole fleet.** The
       scanner-precision track was opened on the premise that a false positive on
       a correct line trains someone to write an allow-marker, and that is how a
@@ -126,3 +126,18 @@
       § *The boundary's posture* is amended in the same landing to state
       the narrowed asymmetry, and that landing queues its own rule-4 pass.
       Measure the blast radius across the children before landing.
+
+      ✅ **leakscan landed 2026-11-03 (queue run 4c65083c): rules that are
+      off report without blocking.** Built to the re-briefed answer above. A
+      rule a repo turns off with `--disable`, and the withdrawn
+      `diagnosis-key`, still run; each hit is listed and counted on every
+      run, the board carries the count, and none moves the exit code.
+      Nothing was demoted, and `test_leakscan.BlockingSetPinned` pins every
+      rule that blocked. Design note: `tools/leakscan.off-rules.design.md`.
+      `SECRETS.md` § *The boundary's posture* is amended in the same
+      landing. Blast radius, measured before landing over the estate's 30
+      repos (34 runs): no exit code or blocking count moved; new
+      report-only counts in 6 repos, the largest 2,662. The rule-4 pass is
+      queued as `160/994`. **Still open here: datescan and harvestscan,**
+      which the first 2026-10-16 answer said follow. Not started. Their
+      order and posture have not been put to Mike.
