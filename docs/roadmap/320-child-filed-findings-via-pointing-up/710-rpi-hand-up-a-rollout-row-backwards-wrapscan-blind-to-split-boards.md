@@ -1,4 +1,4 @@
-- [ ] 🔎 **rpi hand-up: a rollout row backwards; wrapscan blind to split boards**
+- [~] (claimed 2026-11-03-0902, wt: none) 🔎 **rpi hand-up: a rollout row backwards; wrapscan blind to split boards**
       `[doctrine][tool]`. Handed up from `rpi` (a public repo, so named) on
       2026-10-17 under `PROPAGATION.md` § *Pointing up*: two findings, RB7 and
       RB8, from the rule-4 cold pass on that repo's board split (its review
