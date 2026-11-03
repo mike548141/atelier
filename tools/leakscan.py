@@ -45,12 +45,21 @@ bytes; PNG/JPEG/WebP metadata is walked, text metadata scanned, and every
 named metadata set it carries (Exif, IPTC, XMP, ICC, text chunks, comments)
 blocking until a reasoned line keeps that set. Until `BINARY_GRACE_UNTIL`
 (2026-11-18) these G3 findings warn and do not block — the one, dated
-exception to "no advisory form". See the G3 block below and the leakscan
-section of `tools/README.md`.
+exception to "no advisory form" for a rule that blocks. See the G3 block below
+and the leakscan section of `tools/README.md`.
+
+Rules that are OFF report without blocking (115/090, Mike's answer
+2026-10-16: "Report-only for off rules"). A rule a repo turns off with
+`--disable`, and a rule withdrawn from the blocking set for noise
+(`WITHDRAWN`), still run: each hit is listed in a report-only block, counted on
+a `leakscan advisory: N finding(s)` line printed on every run, and never moves
+the exit code. Nothing that blocks today stops blocking; `test_leakscan.
+BlockingSetPinned` holds that. Design: `leakscan.off-rules.design.md`.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero):
-  0  clean (G3 grace warnings, before the cut-off, do not change this)
-  1  findings (blocks the commit)
+  0  clean, or report-only findings only (G3 grace warnings, before the
+     cut-off, do not change this either)
+  1  blocking findings (blocks the commit)
   2  usage / config error (a broken scan is NOT a pass)
 
 Zero third-party dependencies; stdlib only, so a peer who adopts atelier can run
@@ -197,7 +206,7 @@ SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv", "venv",
 @dataclass(frozen=True)
 class Pattern:
     name: str
-    severity: str  # "high" | "medium" — advisory only; any hit still blocks
+    severity: str  # "high" | "medium" — confidence only, never the response
     regex: "re.Pattern[str]"
 
 
@@ -316,6 +325,45 @@ STRUCTURAL: list[Pattern] = [
     _p("nz-ird", "medium", r"\b\d{2,3}-\d{3}-\d{3}\b"),
 ]
 
+# --- rules that are OFF report without blocking (115/090) ---------------
+#
+# Mike's answer, 2026-10-16, re-briefed on the EI6 ruling it narrows: "Report-
+# only for off rules". A rule that is off today comes back as REPORT-ONLY: it
+# runs, its hits are listed and counted on every run, and none of them moves
+# the exit code. Nothing that blocks today stops blocking. Two kinds of off:
+#
+#   * WITHDRAWN below: a rule taken out of the blocking set for noise and kept
+#     out. It has no blocking form at all, so `--disable` has nothing to switch.
+#   * DISABLED: a STRUCTURAL rule a repo turns off with `--disable` (the floor
+#     config's `flags`). It still runs; its hits report instead of blocking.
+#
+# A rule NARROWED for noise (ipv6's D2 shape, nz-address's D4 suffix guard) is
+# not off: it blocks on its narrower shape, and the shapes it excludes are
+# not reported. The design note is `leakscan.off-rules.design.md`.
+#
+# The diagnosis/diagnoses key was the withdrawn member of the G1 vocabulary
+# (see the note above PII_KEY_RX): a genuine health key that is also how
+# root-cause paragraphs open. Here it reads exactly as `pii-key-context` would
+# read it, placeholder suppression included.
+WITHDRAWN: list[Pattern] = [
+    _p("diagnosis-key", "medium",
+       r"(?i)" + _KEY_LEAD + r"(?P<key>diagnos[ie]s)"
+       r"\b\s*[:=]\s*[\"']?(?P<value>[^\s\"'`,;:]{2,})"),
+]
+WITHDRAWN_NAMES = frozenset(p.name for p in WITHDRAWN)
+# Every rule the engine runs, in report order: STRUCTURAL first, unchanged.
+ALL_RULES: tuple[Pattern, ...] = (*STRUCTURAL, *WITHDRAWN)
+
+# A finding's response. Defaulted to block on `Finding`, so a new rule that
+# forgets to say fails SAFE, into the gate (secretscan's shape).
+RESPONSE_BLOCK = "block"
+RESPONSE_ADVISORY = "advisory"
+
+# The line `render_human` prints on EVERY run, zero included, so a reader and
+# `tools/floor.py`'s board read the count off one run (the advisory-count
+# contract, `floor.advisory_count_rx`).
+ADVISORY_COUNT_PREFIX = "leakscan advisory:"
+
 # D5 (ruled 2026-08-04): one span, one finding. A MAC address is six colon-
 # separated hex pairs, which is also a valid four-plus-group IPv6 shape, so the
 # same twelve characters reported twice — cosmetic, but a duplicated finding
@@ -357,10 +405,13 @@ class Tally:
     by_marker: dict[str, int] = field(default_factory=dict)   # rule name -> hits
     files_by_glob: int = 0
     disabled_rules: tuple[str, ...] = ()
-    # 020/380 — see MAX_MATERIALIZED_FINDINGS above. Every finding is BLOCKING
-    # here (leakscan has no advisory tier), so one counter is enough — unlike
-    # secretscan's blocking/advisory split.
+    # 020/380 — see MAX_MATERIALIZED_FINDINGS above. `findings_over_cap`
+    # counts BLOCKING findings past the cap and feeds the exit code; since
+    # 115/090 a reporting finding past the cap is counted apart, in
+    # `advisory_over_cap`, so it can never move the exit code (secretscan's
+    # blocking/advisory split).
     findings_over_cap: int = 0
+    advisory_over_cap: int = 0
     # G3: tracked binaries whose body the scan could not read and a reasoned,
     # hash-bound `.leakscanbinaries` entry accepted; and binaries the
     # full-tree walk met that git does not track, which the gate does not
@@ -382,15 +433,18 @@ class Tally:
     def marker_total(self) -> int:
         return sum(self.by_marker.values())
 
-    def take_finding_slot(self) -> bool:
+    def take_finding_slot(self, blocking: bool = True) -> bool:
         """True if a finding may still be fully materialized (built and
-        held); False once the run-wide cap is reached, in which case the
-        caller counts it via `findings_over_cap` instead of building a
-        `Finding` for it."""
+        held); False once the run-wide cap is reached, in which case it is
+        counted instead — in `findings_over_cap` if it blocks, in
+        `advisory_over_cap` if it only reports."""
         if self._materialized < MAX_MATERIALIZED_FINDINGS:
             self._materialized += 1
             return True
-        self.findings_over_cap += 1
+        if blocking:
+            self.findings_over_cap += 1
+        else:
+            self.advisory_over_cap += 1
         return False
 
     def note_marker(self, rule: str) -> None:
@@ -427,6 +481,14 @@ class Finding:
     # "metadata <segment>" for a hit in an image's text metadata (then `line`
     # counts within that segment). Empty for ordinary text and path findings.
     where: str = ""
+    # 115/090: "block" | "advisory". Defaulted to block so a finding built
+    # anywhere without saying fails SAFE, into the gate. Only a rule that is
+    # off (withdrawn, or disabled by the repo) builds an advisory one.
+    response: str = RESPONSE_BLOCK
+
+    @property
+    def blocks(self) -> bool:
+        return self.response == RESPONSE_BLOCK
 
 
 def redact(match: str) -> str:
@@ -566,6 +628,7 @@ VALIDATORS: dict[str, "object"] = {
     "iban": lambda m: _iban_ok(m.group(0)),
     "nz-phone": lambda m: not _phone_inside_hex_digest(m),
     "pii-key-context": lambda m: not _is_placeholder(m.group("value")),
+    "diagnosis-key": lambda m: not _is_placeholder(m.group("value")),
 }
 
 
@@ -640,7 +703,7 @@ def load_local_terms(path: Path | None) -> tuple[list[tuple[str, "re.Pattern[str
     return terms, None
 
 
-BY_NAME: dict[str, Pattern] = {p.name: p for p in STRUCTURAL}
+BY_NAME: dict[str, Pattern] = {p.name: p for p in ALL_RULES}
 
 
 # --- per-rule pre-filters (roadmap 110/130, lever 4) ---------------------
@@ -678,6 +741,8 @@ _ADDRESS_SUFFIX_RX = re.compile(
 # names no key. (The `[:=]` first means the regex engine only wakes at a colon
 # or equals sign, not at every word.)
 _PII_TAIL_RX = re.compile(r"""[:=]\s*["']?[^\s"'`,;:]{2}""")
+# diagnosis-key: its key alternatives all contain these letters, any case.
+_DIAGNOS_RX = re.compile(r"(?i)diagnos")
 
 GATES: dict[str, "object"] = {
     # `-----BEGIN [..] PRIVATE KEY-----` ends in this literal.
@@ -701,31 +766,47 @@ GATES: dict[str, "object"] = {
     "nz-address": lambda ln: _ADDRESS_SUFFIX_RX.search(ln) is not None,
     "coordinates": lambda ln: "," in ln and ln.count(".") >= 2,
     "nz-ird": lambda ln: ln.count("-") >= 2,
+    # diagnosis-key: the key-context tail, and the key's own letters.
+    "diagnosis-key": lambda ln: (_DIAGNOS_RX.search(ln) is not None
+                                 and _PII_TAIL_RX.search(ln) is not None),
 }
-# One entry per rule, in STRUCTURAL's order: (pattern, gate-or-None).
+# One entry per rule, in ALL_RULES' order: (pattern, gate-or-None).
 _GATED: tuple[tuple[Pattern, "object"], ...] = tuple(
-    (p, GATES.get(p.name)) for p in STRUCTURAL)
+    (p, GATES.get(p.name)) for p in ALL_RULES)
 _ACTIVE_CACHE: dict[frozenset[str], tuple] = {}
 
 
+def blocks(rule: str, disabled: frozenset[str] = frozenset()) -> bool:
+    """Does a hit of `rule` block, with `disabled` turned off? (115/090.)
+    A withdrawn rule never blocks; a disabled one reports instead; every
+    other rule blocks exactly as it did before off rules began reporting."""
+    return rule not in disabled and rule not in WITHDRAWN_NAMES
+
+
 def _active_rules(disabled: frozenset[str]) -> tuple:
-    """`_GATED` minus the disabled rules, memoised per disabled-set so the
-    per-line loop does not re-test every name against it."""
+    """Every rule in `_GATED`, each with whether its hits block (115/090: a
+    disabled rule runs and reports rather than being skipped), memoised per
+    disabled-set so the per-line loop does not re-test every name."""
     if not isinstance(disabled, frozenset):   # a plain set worked before
         disabled = frozenset(disabled)
     got = _ACTIVE_CACHE.get(disabled)
     if got is None:
         got = _ACTIVE_CACHE[disabled] = tuple(
-            (p, g) for p, g in _GATED if p.name not in disabled)
+            (p, g, blocks(p.name, disabled)) for p, g in _GATED)
     return got
 
 
 def _shadow_spans(line: str, disabled: frozenset[str]) -> dict[str, list[tuple[int, int]]]:
-    """D5 — per shadowed rule, the spans another rule has already claimed."""
+    """D5 — per shadowed rule, the spans another rule has already claimed.
+
+    115/090: every rule runs now, but a shadow may never cost a BLOCKING
+    finding. A blocking shadowed rule is shadowed only by blocking shadowers,
+    exactly as before (a disabled shadower casts no shadow, so `--disable
+    mac-address` still leaves ipv6 blocking a MAC). A reporting shadowed rule
+    is shadowed by every shadower: one span, one finding."""
     out: dict[str, list[tuple[int, int]]] = {}
     for shadowed, shadowers in SHADOWED_BY.items():
-        if shadowed in disabled:
-            continue
+        shadowed_blocks = blocks(shadowed, disabled)
         # 110/130: a shadow only ever suppresses a match of the SHADOWED rule,
         # and a shadower casts a span only where its own regex matches — so if
         # the shadowed rule's gate fails there is nothing to suppress, and if a
@@ -735,7 +816,8 @@ def _shadow_spans(line: str, disabled: frozenset[str]) -> dict[str, list[tuple[i
         if gate is not None and not gate(line):
             continue
         spans = [m.span()
-                 for name in shadowers if name not in disabled
+                 for name in shadowers
+                 if not shadowed_blocks or blocks(name, disabled)
                  if GATES.get(name) is None or GATES[name](line)
                  for m in BY_NAME[name].regex.finditer(line)]
         if spans:
@@ -750,7 +832,7 @@ def _record(findings: list[Finding], tally: Tally | None, finding: Finding) -> N
     left for the caller to hold. The single choke point every finding in
     `scan_lines` passes through, so the cap cannot be forgotten at a new
     call site — the same shape as `secretscan._record` (020/370)."""
-    if tally is None or tally.take_finding_slot():
+    if tally is None or tally.take_finding_slot(finding.blocks):
         findings.append(finding)
 
 
@@ -777,7 +859,7 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
         allow_scope = (parse_allow(line)
                        if honour_markers and ALLOW_MARKER in line else None)
         shadows = _shadow_spans(line, disabled)
-        for pat, gate in rules:
+        for pat, gate, blocking in rules:
             if gate is not None and not gate(line):
                 continue
             validator = VALIDATORS.get(pat.name)
@@ -798,8 +880,10 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
                     if tally is not None:
                         tally.note_marker(pat.name)
                     continue
-                _record(findings, tally, Finding(path, lineno, pat.name, "structural",
-                                                 pat.severity, redact(span)))
+                _record(findings, tally, Finding(
+                    path, lineno, pat.name, "structural", pat.severity,
+                    redact(span),
+                    response=RESPONSE_BLOCK if blocking else RESPONSE_ADVISORY))
         # D1: the term list runs on EVERY line — the unscoped marker never
         # reaches it. The ONE exemption is a scope naming `local-term`
         # explicitly (ruled 2026-08-09): deliberate, reasoned, counted.
@@ -842,7 +926,8 @@ def scan_path_name(rel: str,
     A path cannot carry an inline allow-marker, so the only hatch here is
     `.leakscanignore` — which callers apply before this runs, so a path already
     exempted by a glob never reaches it."""
-    return [Finding(rel, 0, f.rule, f.kind, f.severity, f.excerpt)
+    return [Finding(rel, 0, f.rule, f.kind, f.severity, f.excerpt,
+                    response=f.response)
             for f in scan_text(rel, rel, local_terms, disabled, tally)]
 
 
@@ -871,7 +956,8 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 # its owner and where it was taken, passed as "clean". The ruling: a tracked
 # binary that is unscannable, or that carries metadata, BLOCKS; a legitimate
 # one carries a one-time REASONED marker; leakscan keeps no advisory form
-# (E6a), with ONE dated exception, the adoption grace below. This is the build
+# for a rule that blocks (E6a; rules that are off report, 115/090), with ONE
+# dated exception, the adoption grace below. This is the build
 # of that ruling:
 #
 #   * THE MARKER is an entry in `.leakscanbinaries` at the scan root —
@@ -965,8 +1051,9 @@ _ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9
 
 # THE ADOPTION GRACE — the one exception to E6a, and dated.
 #
-# E6a: leakscan has no advisory form; every finding blocks. Mike's answer on
-# 020/150, 2026-10-18, chose to land G3 with a grace period: "unlisted files
+# E6a: leakscan has no advisory form for a rule that blocks; every finding of
+# one blocks (rules that are off report, and never blocked, 115/090). Mike's
+# answer on 020/150, 2026-10-18, chose to land G3 with a grace period: "unlisted files
 # print a warning naming a cut-off date (~30 days), then start blocking. No
 # child goes red today; each lists its files when convenient." That answer is
 # the authority for this exception, and it is the ONLY one: it covers the
@@ -2509,10 +2596,54 @@ def render_type_level(warns: list[Finding]) -> list[str]:
     return lines
 
 
+def advisory_count_line(n: int) -> str:
+    """The one line that always says how many findings this run reported
+    without blocking (115/090). ALWAYS printed, zero included, for the reason
+    `secretscan.advisory_count_line` gives: a line printed only when non-zero
+    makes "no line" mean both "nothing found" and "the wording drifted", and
+    `tools/floor.py` reads this line for its board."""
+    return f"  {ADVISORY_COUNT_PREFIX} {n} finding(s) — reported, not blocking."
+
+
+def render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
+    """The report-only block (115/090). It shares no wording with the blocking
+    block (not the ✗, not "commit blocked", not the remediation paragraph), so
+    a reader can tell at a glance which list stopped the commit."""
+    if not advisory and not over_cap:
+        return []
+    lines = ["",
+             "🟡 REPORT-ONLY FINDINGS — none of these blocked anything.",
+             "   Rules that are off: one this repo turns off with --disable, or "
+             "one withdrawn",
+             "   from the blocking set for noise. They still run, so what they "
+             "see is shown",
+             "   rather than dropped."]
+    for f in sorted(advisory, key=lambda x: (x.path, x.line, x.rule)):
+        lines.append(report.with_id(
+            f"     {_where(f)}  [advisory/{f.kind}] {f.rule} → {f.excerpt}",
+            "leakscan", f.rule))
+    if over_cap:
+        lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS,
+                                          noun="report-only finding(s)",
+                                          indent="   "))
+    lines.append("   Real personal data here: remove it. No rotation undoes a "
+                 "leak of it, and")
+    lines.append("   report-only describes this rule's noise, never the "
+                 "value's safety. Otherwise")
+    lines.append(f"   leave it, or exempt the line with '# {ALLOW_MARKER}:<rule>: "
+                 "<reason>'.")
+    return lines
+
+
 def render_human(findings: list[Finding], warning: str | None,
                  scanned_local: bool, tally: Tally | None = None,
                  grace: list[Finding] | None = None,
                  typewarn: list[Finding] | None = None) -> str:
+    # 115/090: `findings` may carry report-only findings from rules that are
+    # off; they are listed in their own block and never counted as blocking.
+    advisory = [f for f in findings if not f.blocks]
+    findings = [f for f in findings if f.blocks]
+    advisory_over = tally.advisory_over_cap if tally is not None else 0
     # 020/380 — a capped run's TRUE total lives on the tally, never on
     # `len(findings)`: everything past `MAX_MATERIALIZED_FINDINGS` was
     # counted there instead of being built as a `Finding` at all (see
@@ -2534,6 +2665,8 @@ def render_human(findings: list[Finding], warning: str | None,
                         f"{TYPE_LEVEL_UNTIL.isoformat()}." if typewarn else ""))
         if tally is not None:
             lines.append(tally.summary())
+        lines.append(advisory_count_line(len(advisory) + advisory_over))
+        lines.extend(render_advisory(advisory, advisory_over))
         return "\n".join(lines)
     lines.append(report.findings_head("leakscan", len(findings) + over_cap,
                                       tail=" — commit blocked.\n"))
@@ -2546,6 +2679,7 @@ def render_human(findings: list[Finding], warning: str | None,
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+    lines.append(advisory_count_line(len(advisory) + advisory_over))
     lines.append("\n  A true positive: remove the data (and rotate if it's a secret).")
     lines.append(f"  A false positive: append '# {ALLOW_MARKER}: <reason>' to the line")
     lines.append(f"  (or '# {ALLOW_MARKER}:<rule>: <reason>' to exempt just one rule —")
@@ -2558,6 +2692,7 @@ def render_human(findings: list[Finding], warning: str | None,
         lines.append("  need; keep one only on its own '<digest>:<set>' or '<digest>:<set>:<Field>'")
         lines.append("  line, reasoned with that need.")
         lines.append("  A stale entry: delete or re-path it.")
+    lines.extend(render_advisory(advisory, advisory_over))
     return "\n".join(lines)
 
 
@@ -2578,9 +2713,11 @@ def _main(argv: list[str] | None = None) -> int:
                          "from a full one.")
     ap.add_argument("--root", default=".", help="repo root for relative paths/.leakscanignore")
     ap.add_argument("--disable", default="",
-                    help="comma-separated structural rules to skip (e.g. "
-                         "ipv4,ipv6,mac-address for a networking repo where those "
-                         "shapes are unavoidable noise). Local terms always run.")
+                    help="comma-separated structural rules that report instead "
+                         "of blocking (e.g. ipv4,ipv6,mac-address for a networking "
+                         "repo where those shapes are unavoidable noise). Their "
+                         "hits are still listed and counted, never in the exit "
+                         "code. Local terms always run and always block.")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--binary-entries", action="store_true",
                     help=f"print the {BINARY_MANIFEST} lines still needed and exit 0: "
@@ -2634,6 +2771,13 @@ def _main(argv: list[str] | None = None) -> int:
     scanned_local = terms_path is not None
 
     disabled = frozenset(r.strip() for r in args.disable.split(",") if r.strip())
+    withdrawn = disabled & WITHDRAWN_NAMES
+    if withdrawn:
+        return report.broken(
+            "leakscan", f"--disable {', '.join(sorted(withdrawn))}: a withdrawn "
+            "rule already reports without blocking, and --disable never silences "
+            "a report. Exempt a line with an allow-marker, or a path with "
+            ".leakscanignore.")
     unknown = disabled - {p.name for p in STRUCTURAL}
     if unknown:
         return report.broken(
@@ -2641,7 +2785,9 @@ def _main(argv: list[str] | None = None) -> int:
     # A scope reduction taken at invocation is itself an allowance, and rule (b)
     # says a reduction nobody can see is a reduction nobody reviewed — so
     # `--disable` now reports itself in the output instead of narrowing the scan
-    # silently from a flag nobody reading the result will ever see.
+    # silently from a flag nobody reading the result will ever see. Since
+    # 115/090 it narrows nothing at all: a disabled rule still runs, and its
+    # hits report without blocking.
     tally = Tally(disabled_rules=tuple(sorted(disabled)))
 
     if args.staged:
@@ -2737,15 +2883,32 @@ def _main(argv: list[str] | None = None) -> int:
         grace = [f for f in findings if f.rule in BINARY_RULES]
         findings = [f for f in findings if f.rule not in BINARY_RULES]
         tally.binary_grace_warnings = len(grace)
+    # 115/090: findings from rules that are off report without blocking. They
+    # are kept out of `blocking`, which alone feeds the exit code.
+    blocking = [f for f in findings if f.blocks]
+    advisory = [f for f in findings if not f.blocks]
+    blocking_total = len(blocking) + tally.findings_over_cap
+    advisory_total = len(advisory) + tally.advisory_over_cap
 
     if args.json:
         print(json.dumps({
-            "clean": not findings and not tally.findings_over_cap,
+            # `clean` and `findings` keep their meaning: BLOCKING findings
+            # only, which before 115/090 was every finding. Report-only ones
+            # are under `advisory`, so a consumer that gated on `clean` gates
+            # on exactly what it did.
+            "clean": not blocking_total,
+            "blocked": bool(blocking_total),
+            "counts": {"blocking": blocking_total, "advisory": advisory_total},
             "scanned_local_terms": scanned_local,
             "warning": warning,
-            "findings": report.finding_dicts("leakscan", findings,
+            "findings": report.finding_dicts("leakscan", blocking,
                                              lambda f: f.rule),
             "findings_over_cap": tally.findings_over_cap,
+            "advisory": {
+                "findings": report.finding_dicts("leakscan", advisory,
+                                                 lambda f: f.rule),
+                "over_cap": tally.advisory_over_cap,
+            },
             "binary_grace": {
                 "until": BINARY_GRACE_UNTIL.isoformat(),
                 "active": in_binary_grace(),
@@ -2770,7 +2933,7 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, warning, scanned_local, tally, grace, typewarn))
 
-    return report.exit_code(len(findings) + tally.findings_over_cap)
+    return report.exit_code(blocking_total)
 
 
 def _selftest() -> int:

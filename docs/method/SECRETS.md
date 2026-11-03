@@ -231,14 +231,31 @@ shrinks** — while context-free entropy hits report and exit clean, so coverage
 can widen into the noisy path without weakening the gate. It is not built, and
 it may not be built until its design names where advisory findings surface
 durably and whether they must be acknowledged (2026-07-29): an advisory finding
-nobody reads is cover, not coverage. `leakscan` gains no advisory form, and
-that asymmetry is now decided rather than incidental — the fit being that a
-leak of personal data is the one exposure no rotation undoes.
+nobody reads is cover, not coverage. `leakscan` gains no advisory form for
+anything that blocks, and that asymmetry is decided rather than incidental —
+the fit being that a leak of personal data is the one exposure no rotation
+undoes.
+
+**Narrowed 2026-10-16: in `leakscan`, rules that are off report without
+blocking.** A rule withdrawn from the blocking set for noise, and a rule a repo
+turns off with `--disable`, used to see nothing at all. Each now still runs:
+its hits are listed and counted on every run, the floor board carries the
+count, and none of them moves the exit code. Nothing that blocks stops
+blocking, and a test pins that, so the blocking set cannot shrink. The
+asymmetry above still holds for every rule that blocks; what changes is that a
+rule that is off is no longer blind. This is Mike's answer of 2026-10-16
+("Report-only for off rules"), given after he was re-briefed on the EI6
+ruling of 2026-07-29 that it narrows, and it lifts that ruling for this case
+only. The same question offered demoting noisy rules that block today, which
+would shrink the blocking set, and he did not choose it.
 
 Grounding: [`../ROADMAP.md`](../ROADMAP.md) § *Track E — E6*, ruled by Mike
 2026-07-28, and the intent cold pass
 [`../reviews/2026-07-29-1243-e6-intent-cold.md`](../reviews/2026-07-29-1243-e6-intent-cold.md)
-(EI5, EI6), ruled 2026-07-29.
+(EI5, EI6), ruled 2026-07-29. The narrowing: roadmap `115/090`
+([`../roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md`](../roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)),
+answered 2026-10-16, and its design note
+[`../../tools/leakscan.off-rules.design.md`](../../tools/leakscan.off-rules.design.md).
 
 ## Rotation cadence bounds the undetected window
 

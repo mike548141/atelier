@@ -220,23 +220,34 @@ class LocalTerms(unittest.TestCase):
         self.assertNotIn("local-term", rules("Bart here", []))
 
 
-class Disable(unittest.TestCase):
-    def test_disabled_rule_skipped(self):
-        self.assertIn("ipv4", rules("gateway 10.0.0.5 here"))  # baseline: enabled
-        fs = ls.scan_text("t", "gateway 10.0.0.5 here", [], frozenset({"ipv4"}))
-        self.assertEqual([], fs)
+def blocking(fs):
+    return {f.rule for f in fs if f.blocks}
 
-    def test_disable_keeps_other_rules(self):
+
+def reporting(fs):
+    return {f.rule for f in fs if not f.blocks}
+
+
+class Disable(unittest.TestCase):
+    """115/090: a disabled rule REPORTS instead of being skipped. Before it,
+    `--disable` dropped the rule's hits unseen."""
+
+    def test_disabled_rule_reports_without_blocking(self):
+        self.assertIn("ipv4", blocking(scan("gateway 10.0.0.5 here")))  # baseline
+        fs = ls.scan_text("t", "gateway 10.0.0.5 here", [], frozenset({"ipv4"}))
+        self.assertEqual((set(), {"ipv4"}), (blocking(fs), reporting(fs)))
+
+    def test_disable_keeps_other_rules_blocking(self):
         fs = ls.scan_text("t", "10.0.0.1 and a.b@c.com", [], frozenset({"ipv4"}))
-        got = {f.rule for f in fs}
-        self.assertNotIn("ipv4", got)
-        self.assertIn("email", got)
+        self.assertEqual({"email"}, blocking(fs))
+        self.assertEqual({"ipv4"}, reporting(fs))
 
     def test_local_terms_survive_disable(self):
         terms = [("Acme", re.compile(r"\bAcme\b", re.IGNORECASE))]
         fs = ls.scan_text("t", "Acme at 10.0.0.1", terms,
                           frozenset({"ipv4", "email", "mac-address"}))
-        self.assertEqual({"local-term"}, {f.rule for f in fs})
+        self.assertEqual({"local-term"}, blocking(fs))
+        self.assertEqual({"ipv4"}, reporting(fs))
 
 
 class Allow(unittest.TestCase):
@@ -1049,10 +1060,19 @@ class MacIPv6Dedupe(unittest.TestCase):
 
     def test_disabling_the_shadowing_rule_leaves_no_blind_spot(self):
         # If mac-address is off, the ipv6 rule must step back in rather than
-        # the span vanishing from both.
+        # the span vanishing from both. Since 115/090 the MAC also reports
+        # (the residual the design note names): the span still BLOCKS as ipv6,
+        # exactly as before.
         fs = ls.scan_text("t", "bssid aa:bb:cc:dd:ee:ff", [],
                           frozenset({"mac-address"}))
-        self.assertEqual(["ipv6"], [f.rule for f in fs])
+        self.assertEqual({"ipv6"}, blocking(fs))
+        self.assertEqual({"mac-address"}, reporting(fs))
+
+    def test_a_reporting_ipv6_is_shadowed_by_any_mac(self):
+        # One span, one finding, among report-only rules too.
+        for off in (frozenset({"ipv6"}), frozenset({"ipv6", "mac-address"})):
+            fs = ls.scan_text("t", "bssid aa:bb:cc:dd:ee:ff", [], off)
+            self.assertEqual(["mac-address"], [f.rule for f in fs], off)
 
     def test_an_exempted_mac_is_not_re_reported_as_ipv6(self):
         # The marker was written for the MAC; the ipv6 rule must not undo it.
@@ -1494,6 +1514,7 @@ class GatesAreNecessary(unittest.TestCase):
         "+6421 123 4567", "at 12 Cuba Street", "5 Oak Tce", "7a Kent Terrace",
         "loc -41.2865, 174.7762 pin", "ird 123-456-789 x",
         "medication: Foobarol", "home_address = 5-Main-Rd",
+        "diagnosis: Foobaritis", "Diagnoses = 'Foo-bar'",
     )
     NOISE = (
         "d", "-", ":", "::", "=", " = ", ": ", "\"", "'", " ", "\t", ".", ",",
@@ -1522,12 +1543,12 @@ class GatesAreNecessary(unittest.TestCase):
 
     def test_every_gate_names_a_real_rule(self):
         # A typo'd name would be a rule silently running ungated forever.
-        self.assertLessEqual(set(ls.GATES), {p.name for p in ls.STRUCTURAL})
+        self.assertLessEqual(set(ls.GATES), {p.name for p in ls.ALL_RULES})
 
     def test_a_rule_that_matches_always_passes_its_gate(self):
         exercised = set()
         for line in self.lines():
-            for pat in ls.STRUCTURAL:
+            for pat in ls.ALL_RULES:
                 gate = ls.GATES.get(pat.name)
                 if gate is None or not pat.regex.search(line):
                     continue
@@ -1546,7 +1567,7 @@ class GatesAreNecessary(unittest.TestCase):
             t_gated = ls.Tally(disabled_rules=tuple(sorted(disabled)))
             gated = ls.scan_lines("p", lines, [], disabled, t_gated)
             with mock.patch.object(ls, "GATES", {}), \
-                    mock.patch.object(ls, "_GATED", tuple((p, None) for p in ls.STRUCTURAL)), \
+                    mock.patch.object(ls, "_GATED", tuple((p, None) for p in ls.ALL_RULES)), \
                     mock.patch.object(ls, "_ACTIVE_CACHE", {}):
                 t_plain = ls.Tally(disabled_rules=tuple(sorted(disabled)))
                 plain = ls.scan_lines("p", lines, [], disabled, t_plain)
@@ -3224,6 +3245,219 @@ class BinaryNamedSets(_TreeCase):
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
             ls.main(["--root", str(self.tmp), "--binary-entries"])
         self.assertEqual([f"{_sha(data)}:exif:unknown  c.png"], out.getvalue().splitlines())
+
+
+
+# ===========================================================================
+# 115/090 — rules that are OFF report without blocking.
+#
+# CONTRACT: Mike's answer (2026-10-16, "Report-only for off rules") lifted the
+# EI6 ruling for rules that are off and nothing else: NOTHING THAT BLOCKS
+# TODAY STOPS BLOCKING. `BlockingSetPinned` enumerates the rules that blocked
+# when the answer was built and asserts each still blocks. A rule leaving this
+# list, or one of them starting to report, is a narrowing of the personal-data
+# boundary and is the principal's decision (SECRETS.md § The boundary's
+# posture), never an edit to make this suite green. Adding a rule is welcome.
+# Every fixture is synthetic.
+# ===========================================================================
+BLOCKING_AT_115_090 = (
+    ("private-key-header", "-----BEGIN RSA PRIVATE KEY-----"),
+    ("aws-access-key-id", "key AKIAABCDEFGHIJKLMNOP here"),
+    ("jwt", "tok eyJhbGciOiJI.eyJzdWIiOiIx.abcdefghij"),
+    ("email", "mail jane.doe@example.org now"),
+    ("pii-key-context", "dob = 1984-02-29"),
+    ("payment-card", "card 4111111111111111 on file"),
+    ("iban", "iban GB82WEST12345698765432 x"),
+    ("mac-address", "mac aa:bb:cc:dd:ee:ff end"),
+    ("ipv4", "gateway 172.16.31.7 is the igw"),
+    ("ipv6", "uplink fd00:1234:5678::abcd up"),
+    ("nz-bank-account", "acct 12-3456-1234567-00 ok"),
+    ("nz-phone", "call 021 123 4567"),
+    ("nz-address", "at 12 Cuba Street"),
+    ("coordinates", "loc -41.2865, 174.7762 pin"),
+    ("nz-ird", "ird 123-456-789 x"),
+)
+TERM = ("zzzterm", re.compile(r"\bzzzterm\b", re.IGNORECASE))
+
+
+class _CliCase(unittest.TestCase):
+    """A temp tree and an in-process `main`, with a term list kept OUTSIDE the
+    tree so the list cannot hit itself."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        cfg = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, cfg, ignore_errors=True)
+        self.terms = cfg / "terms.txt"
+        self.terms.write_text("zzzterm\n")
+
+    def run_cli(self, text, *argv):
+        (self.tmp / "f.txt").write_text(text + "\n")
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ls.main(["--root", str(self.tmp), str(self.tmp),
+                          "--terms", str(self.terms), *argv])
+        return rc, out.getvalue()
+
+    def run_json(self, text, *argv):
+        rc, out = self.run_cli(text, "--json", *argv)
+        return rc, json.loads(out)
+
+
+class BlockingSetPinned(_CliCase):
+    """The blocking set cannot shrink (115/090)."""
+
+    def test_every_rule_that_blocked_is_still_a_blocking_rule(self):
+        names = {p.name for p in ls.STRUCTURAL}
+        for rule, _text in BLOCKING_AT_115_090:
+            self.assertIn(rule, names, f"{rule} left the structural rule set")
+            self.assertNotIn(rule, ls.WITHDRAWN_NAMES)
+            self.assertTrue(ls.blocks(rule), rule)
+        self.assertTrue(ls.blocks("local-term"))
+        # A withdrawn rule is a NEW, report-only rule; it never takes the
+        # place of one that blocked.
+        self.assertFalse(names & ls.WITHDRAWN_NAMES)
+        self.assertEqual(set(ls.BINARY_RULES) & ls.WITHDRAWN_NAMES, set())
+
+    def test_every_pinned_rule_blocks_its_fixture(self):
+        for rule, text in BLOCKING_AT_115_090:
+            with self.subTest(rule=rule):
+                fs = scan(text)
+                self.assertIn(rule, blocking(fs))
+                rc, out = self.run_json(text)
+                self.assertEqual(1, rc)
+                self.assertIn(rule, {f["rule"] for f in out["findings"]})
+                self.assertEqual(0, out["counts"]["advisory"])
+
+    def test_disabling_every_other_rule_leaves_each_one_blocking(self):
+        every = [r for r, _t in BLOCKING_AT_115_090]
+        for rule, text in BLOCKING_AT_115_090:
+            with self.subTest(rule=rule):
+                others = ",".join(r for r in every if r != rule)
+                rc, out = self.run_json(text, "--disable", others)
+                self.assertEqual(1, rc)
+                self.assertIn(rule, {f["rule"] for f in out["findings"]})
+
+    def test_the_term_list_blocks_with_every_structural_rule_disabled(self):
+        every = ",".join(r for r, _t in BLOCKING_AT_115_090)
+        rc, out = self.run_json("zzzterm at 172.16.31.7", "--disable", every)
+        self.assertEqual(1, rc)
+        self.assertEqual(["local-term"], [f["rule"] for f in out["findings"]])
+
+    def test_a_binary_gate_finding_is_built_blocking(self):
+        (self.tmp / "b.bin").write_bytes(b"\x00\x01binary")
+        fs = ls.scan_paths([self.tmp], self.tmp, [])
+        self.assertTrue(fs)
+        self.assertTrue(all(f.blocks for f in fs if f.rule in ls.BINARY_RULES))
+
+    def test_a_finding_that_does_not_say_blocks(self):
+        self.assertTrue(ls.Finding("p", 1, "email", "structural", "high", "x").blocks)
+
+
+class DisabledClassReports(_CliCase):
+    """A class a repo turns off with `--disable` reports without blocking."""
+
+    def test_a_disabled_class_alone_exits_clean_and_is_listed(self):
+        rc, out = self.run_cli("gateway 172.16.31.7 here", "--disable", "ipv4")
+        self.assertEqual(0, rc)
+        self.assertIn("✓ leakscan clean", out)
+        self.assertIn("  leakscan advisory: 1 finding(s) — reported, not blocking.", out)
+        self.assertIn("🟡 REPORT-ONLY FINDINGS", out)
+        self.assertRegex(out, r"f\.txt:1  \[advisory/structural\] ipv4 → .*\[leakscan:ipv4\]")
+
+    def test_json_keeps_blocking_and_report_only_apart(self):
+        rc, out = self.run_json("172.16.31.7 and a.b@example.org", "--disable", "ipv4")
+        self.assertEqual(1, rc)
+        self.assertEqual(["email"], [f["rule"] for f in out["findings"]])
+        self.assertEqual(["ipv4"], [f["rule"] for f in out["advisory"]["findings"]])
+        self.assertEqual({"blocking": 1, "advisory": 1}, out["counts"])
+        self.assertFalse(out["clean"])
+        self.assertTrue(out["blocked"])
+        self.assertEqual("advisory", out["advisory"]["findings"][0]["response"])
+
+    def test_clean_keeps_its_meaning_on_a_report_only_run(self):
+        rc, out = self.run_json("gateway 172.16.31.7 here", "--disable", "ipv4")
+        self.assertEqual(0, rc)
+        self.assertTrue(out["clean"])
+        self.assertFalse(out["blocked"])
+        self.assertEqual([], out["findings"])
+
+    def test_the_count_line_prints_its_zero(self):
+        rc, out = self.run_cli("nothing here")
+        self.assertEqual(0, rc)
+        self.assertIn("  leakscan advisory: 0 finding(s) — reported, not blocking.", out)
+        self.assertNotIn("REPORT-ONLY", out)
+
+    def test_a_blocking_run_still_counts_report_only_findings(self):
+        rc, out = self.run_cli("172.16.31.7 and a.b@example.org", "--disable", "ipv4")
+        self.assertEqual(1, rc)
+        self.assertIn("✗ leakscan: 1 finding(s) — commit blocked.", out)
+        self.assertIn("  leakscan advisory: 1 finding(s) — reported, not blocking.", out)
+
+    def test_a_marker_exempts_a_report_only_hit_and_is_counted(self):
+        tally = ls.Tally(disabled_rules=("ipv4",))
+        fs = ls.scan_text("t", "172.16.31.7  # leakscan:allow:ipv4: fixture", [],
+                          frozenset({"ipv4"}), tally)
+        self.assertEqual([], fs)
+        self.assertEqual({"ipv4": 1}, tally.by_marker)
+
+    def test_path_names_report_too(self):
+        (self.tmp / "host-172.16.31.7.txt").write_text("x\n")
+        fs = ls.scan_paths([self.tmp], self.tmp, [], frozenset({"ipv4"}))
+        self.assertEqual([("ipv4", "advisory", 0)],
+                         [(f.rule, f.response, f.line) for f in fs])
+
+    def test_report_only_findings_past_the_cap_never_move_the_exit_code(self):
+        from unittest import mock
+        text = "\n".join(f"10.0.0.{i}" for i in range(1, 6))
+        with mock.patch.object(ls, "MAX_MATERIALIZED_FINDINGS", 2):
+            rc, out = self.run_json(text, "--disable", "ipv4")
+        self.assertEqual(0, rc)
+        self.assertEqual(0, out["findings_over_cap"])
+        self.assertEqual(3, out["advisory"]["over_cap"])
+        self.assertEqual({"blocking": 0, "advisory": 5}, out["counts"])
+
+    def test_floor_reads_the_count(self):
+        import floor
+        _rc, out = self.run_cli("10.0.0.1\n10.0.0.2", "--disable", "ipv4")
+        self.assertEqual(2, floor._read_advisory_count(out, "leakscan"))
+
+
+class WithdrawnRuleReports(_CliCase):
+    """A withdrawn rule (the G1 diagnosis key) reports without blocking."""
+
+    def test_the_diagnosis_key_reports(self):
+        for text in ("diagnosis: Foobaritis", "Diagnoses = 'Foo-bar'",
+                     "patientDiagnosis: Foobaritis"):
+            with self.subTest(text=text):
+                fs = scan(text)
+                self.assertEqual((set(), {"diagnosis-key"}),
+                                 (blocking(fs), reporting(fs)))
+
+    def test_placeholders_are_suppressed_as_for_the_key_context_rule(self):
+        self.assertEqual([], scan("diagnosis: <redacted>"))
+        self.assertEqual([], scan("diagnosis: example"))
+
+    def test_prose_without_a_key_shape_is_not_a_hit(self):
+        self.assertEqual([], scan("the diagnosis was a stale cache"))
+
+    def test_it_exits_clean_and_is_counted(self):
+        rc, out = self.run_cli("diagnosis: Foobaritis")
+        self.assertEqual(0, rc)
+        self.assertIn("  leakscan advisory: 1 finding(s) — reported, not blocking.", out)
+        self.assertIn("diagnosis-key", out)
+
+    def test_disable_cannot_name_a_withdrawn_rule(self):
+        rc, _out = self.run_cli("x", "--disable", "diagnosis-key")
+        self.assertEqual(2, rc)
+
+    def test_a_scoped_marker_exempts_it(self):
+        tally = ls.Tally()
+        self.assertEqual([], ls.scan_text(
+            "t", "diagnosis: Foobaritis  # leakscan:allow:diagnosis-key: fixture",
+            [], frozenset(), tally))
+        self.assertEqual({"diagnosis-key": 1}, tally.by_marker)
 
 
 if __name__ == "__main__":

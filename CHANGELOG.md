@@ -5,6 +5,30 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-03 — leakscan: rules that are off report without blocking, `115/090`)
+- **Children: no child goes red from this, and some will see a new count.**
+  A rule you turn off with `--disable` (the `flags` entry for leakscan in
+  `.atelier-floor.json`) used to drop its hits unseen. It now still runs, and
+  each hit is listed in a `🟡 REPORT-ONLY FINDINGS` block, never in the exit
+  code. A child that disables a class will start seeing that class's hits, and
+  the board shows `🟡 leakscan enforced` with the count. No action is needed;
+  read the list, and remove anything that is real personal data.
+- **A withdrawn rule reports too.** `diagnosis-key`, the diagnosis/diagnoses
+  key withdrawn from the key-context vocabulary for noise, now runs on every
+  scan as report-only. `--disable diagnosis-key` is refused (exit 2): it has
+  no blocking form to switch off. Exempt a line with
+  `leakscan:allow:diagnosis-key: <reason>` if it is noise worth silencing.
+- **Nothing that blocked stops blocking.** No rule is demoted, and
+  `test_leakscan.BlockingSetPinned` pins every rule that blocked. leakscan
+  prints `leakscan advisory: N finding(s) — reported, not blocking.` on every
+  run, zero included, and its floor entry now carries `advisory_count`, as
+  secretscan's, licenscan's and conflictscan's do. `--json` keeps `clean` and
+  `findings` for blocking findings, and adds `blocked`, `counts` and
+  `advisory`. Measured before landing across the estate: no exit code moved.
+  Mike's answer of 2026-10-16 ("Report-only for off rules") narrows the EI6
+  ruling for this case only; `SECRETS.md` § *The boundary's posture* is amended
+  to say so. Design: `tools/leakscan.off-rules.design.md`.
+
 ### Changed (2026-11-03 — `cctranscript` reads a task notification the same way whichever record carries it, `210/260`)
 - **Children: no action.** A background-task notification that the harness
   writes as an `attachment` · `queued_command` record (command mode

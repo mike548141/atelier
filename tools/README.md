@@ -247,8 +247,32 @@ python3 tools/leakscan.py --binary-entries  # print .leakscanbinaries lines to r
 python3 tools/leakscan.py --selftest      # prove the engine on this box
 ```
 
-Exit codes (fail-safe — only a clean scan is zero): `0` clean · `1` findings
-(blocks the commit) · `2` usage/config error.
+Exit codes (fail-safe — only a clean scan is zero): `0` clean, or report-only
+findings only · `1` blocking findings (blocks the commit) · `2` usage/config
+error.
+
+### Rules that are off report, and never block (115/090)
+
+A rule that is off still runs. Its hits are listed in a `🟡 REPORT-ONLY
+FINDINGS` block, counted on a line printed on every run, zero included
+(`leakscan advisory: N finding(s) — reported, not blocking.`), and carried on
+the floor board as `🟡 leakscan enforced`. None of them moves the exit code.
+Two kinds of rule are off:
+
+- **A rule a repo turns off** with `--disable` (in a child, the `flags` entry
+  in `.atelier-floor.json`). Before this, its hits were dropped unseen.
+- **A withdrawn rule**, taken out of the blocking set for noise:
+  `diagnosis-key`, the diagnosis/diagnoses key G1 tried and withdrew. It has
+  no blocking form, so `--disable` refuses its name.
+
+Nothing that blocks stops blocking: no rule that blocked is demoted, and
+`test_leakscan.BlockingSetPinned` pins every one. This narrows the EI6 ruling
+(leakscan gains no advisory form) for rules that are off only, on Mike's
+answer of 2026-10-16 (`SECRETS.md` § *The boundary's posture*). An allow-marker
+or a `.leakscanignore` glob exempts a report-only hit as it does a blocking
+one. `--json` keeps `clean` and `findings` for blocking findings, as before,
+and adds `blocked`, `counts` and `advisory`. Design and residuals:
+`leakscan.off-rules.design.md`.
 
 ### The local term list
 
@@ -455,7 +479,8 @@ pick on that "~30 days", not a ruling) the four gate findings,
 and none fails the exit code. From that date they block exactly as above.
 Nothing else is graced: every other rule, including a hit in an image's text
 metadata, blocks today. This is the one exception to leakscan having no
-advisory form (E6a). It is dated and has no flag, env var or config key, so
+advisory form for a rule that blocks (E6a; rules that are off report, above).
+It is dated and has no flag, env var or config key, so
 nothing can move it. floor.py refuses any `flags` argument that is, or
 abbreviates, a mode flag (`--binary-entries`, `--selftest`, `--warn`,
 `--json`, `--check`), and any `scope` path starting with `-`. Those were the
@@ -485,9 +510,11 @@ A networking codebase is *full* of IPs and MACs by nature — scanning it whole
 buries the real signal (leaked names, addresses, subnets) under thousands of
 legitimate structural hits. Two levers handle this:
 
-- **`--disable ipv4,ipv6,mac-address`** silences the network-shape rules while
-  keeping the PII/secret catches (email, address, coordinates, private keys, AWS
-  keys) and *all* local-term matching. Unknown rule names are a usage error.
+- **`--disable ipv4,ipv6,mac-address`** stops the network-shape rules blocking
+  while keeping the PII/secret catches (email, address, coordinates, private
+  keys, AWS keys) and *all* local-term matching blocking. Their hits still
+  report, counted and listed, without blocking (115/090). Unknown rule names
+  are a usage error.
 - **Positional paths in `--staged` mode** restrict the scan to a subtree — so a
   mostly-private repo can guard only its shareable part. `leakscan --staged
   tiki/` scans only staged additions under `tiki/`; the private inventory/secrets

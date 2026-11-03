@@ -1316,9 +1316,14 @@ class AdvisoryCountContract(unittest.TestCase):
         # conflictscan too (320/490): its tool-markup tier, contract tests below.
         self.assertTrue(floor.BY_NAME["conflictscan"].advisory_count)
         self.assertIsNone(floor.BY_NAME["conflictscan"].advisory)
+        # leakscan too (115/090): the hits of rules that are off, contract
+        # tests below. Still no advisory form a child may select.
+        self.assertTrue(floor.BY_NAME["leakscan"].advisory_count)
+        self.assertIsNone(floor.BY_NAME["leakscan"].advisory)
         others = [s.name for s in floor.SCANNERS
                   if s.advisory_count
-                  and s.name not in ("secretscan", "licenscan", "conflictscan")]
+                  and s.name not in ("secretscan", "licenscan", "conflictscan",
+                                     "leakscan")]
         self.assertEqual([], others, "a new count-carrying check needs its own "
                                      "contract test, not this one by accident")
 
@@ -1412,6 +1417,51 @@ class AdvisoryCountContract(unittest.TestCase):
         self.assertEqual(0, r.returncode, r.stderr)
         self.assertIn("1 advisory finding(s) — reported, not blocking", r.stderr)
         self.assertRegex(r.stderr, r"🟡 conflictscan\s+enforced")
+
+    def _off_rule_repo(self, td: str, blocking: bool = False) -> Path:
+        """A tiny repo that turns leakscan's ipv4 rule off in `flags`, with one
+        address in a doc (115/090): one report-only finding, nothing blocking."""
+        root = Path(td)
+        (root / "docs").mkdir()
+        body = "gateway 172.16.31.7\n"  # leakscan:allow: synthetic fixture
+        if blocking:
+            body += "mail jane.doe@example.org\n"  # leakscan:allow: synthetic fixture
+        (root / "docs" / "net.md").write_text(body, encoding="utf-8")
+        (root / floor.CONFIG_NAME).write_text(json.dumps({"flags": {"leakscan": {
+            "args": ["--disable", "ipv4"], "why": "a synthetic networking repo"}}}),
+            encoding="utf-8")
+        return root
+
+    def test_floors_pattern_matches_leakscans_real_output(self):
+        """The seam, exercised end to end for the fourth count-carrier."""
+        with tempfile.TemporaryDirectory() as td:
+            root = self._off_rule_repo(td)
+            out = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "leakscan.py"), "--root",
+                 str(root), str(root), "--disable", "ipv4"],
+                capture_output=True, text=True)
+            zero = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "leakscan.py"), "--root",
+                 str(root), str(root / floor.CONFIG_NAME)],
+                capture_output=True, text=True)
+        self.assertEqual(0, out.returncode, "a report-only finding must not block")
+        self.assertEqual(1, floor._read_advisory_count(out.stdout, "leakscan"))
+        self.assertEqual(0, zero.returncode, zero.stdout)
+        self.assertEqual(0, floor._read_advisory_count(zero.stdout, "leakscan"))
+
+    def test_the_board_carries_leakscans_count(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = self._off_rule_repo(td)
+            r = self._run("--plane", "ci", "--root", str(root))
+        self.assertEqual(0, r.returncode, r.stderr)
+        self.assertRegex(r.stderr, r"🟡 leakscan\s+enforced")
+
+    def test_a_blocking_leak_still_fails_the_floor_beside_the_count(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = self._off_rule_repo(td, blocking=True)
+            r = self._run("--plane", "ci", "--root", str(root))
+        self.assertEqual(1, r.returncode, r.stderr)
+        self.assertRegex(r.stderr, r"❌ leakscan\s+enforced")
 
     def test_a_conflict_marker_still_fails_the_floor_beside_the_advisory(self):
         with tempfile.TemporaryDirectory() as td:

@@ -81,7 +81,8 @@ they are not the same fact:
 
   🟡 secretscan  enforced   (🟡 21 advisory finding(s) — reported, not blocking)
         a BLOCKING check that also reported findings it deliberately passed on
-        (E6b; licenscan does the same with its `medium` findings, 115/290).
+        (E6b; licenscan does the same with its `medium` findings, 115/290, and
+        leakscan with the hits of rules that are off, 115/090).
         This check still gates; these particular findings did not.
   👁️ pathscan    warn-only  (warn-only wiring — reports findings, can never
                              block this build)
@@ -358,8 +359,9 @@ class Scanner:
     as a severity tier; its registry entry says why).
 
     That is a different thing from a check's OWN advisory findings
-    (`advisory_count`, below): secretscan and licenscan have no advisory FORM a
-    child may select, and still report some findings without blocking.
+    (`advisory_count`, below): secretscan, licenscan and leakscan have no
+    advisory FORM a child may select, and still report some findings without
+    blocking.
 
     `{scope}` is the tree the check reads. `default_scope` says what that is when
     the child declares nothing: the whole repo, or its records subtree.
@@ -472,6 +474,12 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory=None,  # the personal-data boundary is not a re-baselining matter
         why="no personal/estate data enters a repo that can go public",
         full_cover_flag="--require-terms",
+        # 115/090: rules that are off (a rule this child names in `flags`
+        # `--disable`, and a rule withdrawn for noise) report without
+        # blocking, and that count reaches the board. NOT a softening:
+        # `advisory=None` above still says a child may never soften this
+        # check, and nothing that blocked stops blocking.
+        advisory_count=True,
     ),
     Scanner(
         "conflictscan",
