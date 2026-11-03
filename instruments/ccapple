@@ -1,0 +1,1696 @@
+#!/usr/bin/env python3
+"""ccapple -- read-only search of the Apple apps' local stores on this Mac:
+Contacts, Messages, Calendar, Reminders, Notes, Photos and Home.
+
+Why it exists: the data a person keeps in the Apple apps (the address book, the
+calendar, reminders, notes, messages, the photo library) is reachable only
+through the GUI apps or Apple's privacy-gated frameworks, neither of which a
+Claude Code session can drive. The stores themselves are plain SQLite files that
+iCloud already syncs onto the Mac, so a small reader needs no account, no new
+API grant and no third-party tool -- only the Full Disk Access macOS already
+makes the operator give a terminal before it will let that terminal open them
+(System Settings > Privacy & Security > Full Disk Access). Without it `status`
+reports each store as "CANNOT OPEN" and says why; nothing else fails obscurely.
+
+THE FLOOR, IN PLAIN WORDS. These stores hold other people's messages and the
+operator's private material, so:
+  * READ-ONLY, BY CONSTRUCTION. Every store is opened with the SQLite URI
+    `file:<path>?mode=ro&immutable=1` plus `PRAGMA query_only=ON`. `mode=ro`
+    refuses writes; `immutable=1` also takes no lock and never touches the
+    -wal/-shm files, so the app that owns the store is never disturbed. Nothing
+    here writes, copies a store, or drives a GUI app (no osascript, no `open`).
+  * SEARCH, NEVER DUMP. Every search subcommand refuses to run with no filter,
+    and every search is capped by --limit (default 20). Whole-store extraction
+    is not a feature.
+  * `immutable=1` reads the main database file only and skips the uncommitted
+    write-ahead log, so the newest few rows (the last few messages, an edit
+    made seconds ago) can be missing. It can in principle also read a torn page
+    if the app is mid-write. Fine for search; re-check a value that matters.
+  * Sending a message, or writing to any Apple app, is not here. It would need
+    the operator's explicit approval first, on a briefing of what would change.
+  * What a search prints goes wherever the caller's output goes -- into a
+    session transcript, for a Claude Code session. Filter narrowly, and keep
+    the output out of any repo, document or message shared with other people.
+
+Usage:
+  ccapple status                       # per store: path, opens read-only?, row counts only
+  ccapple contacts  [--name N] [--phone P] [--email E] [--org O]
+  ccapple messages  [--person NAME|HANDLE] [--since D] [--until D] [--text T]
+  ccapple calendar  [--since D] [--until D] [--calendar C] [--text T]
+  ccapple reminders [--list L] [--text T] [--open-only]
+  ccapple notes     [--title T] [--text T] [--folder F] [--since D] [--until D] [--id N]
+                    [--include-deleted] [--full]
+  ccapple photos    [--text T] [--since D] [--until D] [--near LAT,LON[,KM]] [--album A]
+                    [--uuid U] [--include-deleted]
+  ccapple home      (--homes | --rooms | --zones | --accessories | --scenes | --automations)
+                    [--home H] [--room R] [--text T]
+  common: --limit N (default 20)  --json  --db PATH (override the store; repeatable
+  for contacts and reminders; for photos it is Photos.sqlite inside the .photoslibrary)
+  messages also takes --contacts-db PATH.
+  Dates are YYYY-MM-DD (or YYYYMMDD) in local time; --until is inclusive of that day.
+  Runtime: Python 3.8 or later (exercised on 3.9 and 3.14), standard library only.
+  Full manual: man ccapple.
+
+HOW EACH STORE IS READ (observed on macOS 26, not assumed; the layouts are
+Apple's private business and can change, so a reader must fail loudly, never
+guess -- every decoder below returns None or raises rather than invent a value)
+  Contacts   ~/Library/Application Support/AddressBook/Sources/*/AddressBook-v22.abcddb
+             (every source; one is often empty). ZABCDRECORD + ZABCDPHONENUMBER +
+             ZABCDEMAILADDRESS. Names match accent- and case-insensitively, so
+             "maori" finds "Māori". Phones match on digits, never on spaces.
+  Messages   ~/Library/Messages/chat.db. Dates are Apple-epoch NANOSECONDS on
+             modern macOS and seconds on old rows; ts_to_datetime() detects
+             which by magnitude. The body is usually NULL in `text` and held in
+             `attributedBody`, a typedstream blob (NSAttributedString archive).
+             decode_attributed_body() pulls the plain NSString out of it
+             BEST-EFFORT: it finds the "NSString" class marker, then the '+'
+             (0x2b) string tag, then Apple's variable-length length prefix (one
+             byte, or 0x81/0x82/0x83 followed by a 2/4/8 byte little-endian
+             length). It ignores attributes (links, mentions, formatting), and
+             returns None rather than guess when the shape is not as expected.
+             Because most bodies live in the blob, --text cannot be a SQL LIKE:
+             rows are decoded in Python while scanning newest first.
+             --person is resolved through Contacts to phone/email handles; a
+             value containing '@' or mostly digits is used as a handle as-is.
+             One-to-one chats plus that person's own messages in groups are
+             returned; other people's messages in a group are not.
+             Handles match on the last 9 digits of a phone number (so +44 20...
+             and 020... agree) and on a lowercased email.
+  Calendar   ~/Library/Group Containers/group.com.apple.calendar/Calendar.sqlitedb.
+             CalendarItem (entity_type 2 = event) + Calendar + Location. Times
+             are Apple-epoch seconds, UTC; all-day events are stored at UTC
+             midnight and shown as plain dates. RECURRING events are not
+             expanded by this tool: inside a date range they appear only for
+             occurrences in Calendar's own OccurrenceCache (a rolling window),
+             and with no date filter they appear once, as the series master,
+             flagged "repeats".
+  Reminders  ~/Library/Group Containers/group.com.apple.reminders/Container_v1/
+             Stores/Data-*.sqlite. Several stores exist; usually only one holds
+             reminders (the others have the tables but no rows).
+             ZREMCDREMINDER joined to ZREMCDBASELIST (the list). Rows marked for
+             deletion are skipped.
+
+  Notes      ~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite.
+             SCHEMA (read from sqlite_master and Z_PRIMARYKEY): one table,
+             ZICCLOUDSYNCINGOBJECT, holds notes, folders and accounts, told
+             apart by Z_ENT. The Z_ENT numbers are not stable between macOS
+             versions, so they are looked up by name in Z_PRIMARYKEY ('ICNote',
+             'ICFolder'), never hard-coded. For a note:
+             ZTITLE1 = title, ZMODIFICATIONDATE1 = modified (Apple-epoch
+             seconds), ZFOLDER = its folder row, ZNOTEDATA = its ZICNOTEDATA
+             row, ZISPASSWORDPROTECTED = locked. For a folder: ZTITLE2 = name,
+             ZPARENT = parent folder, ZFOLDERTYPE (0 normal, 1 'Recently
+             Deleted', 2 and 3 smart folders, which have ZSMARTFOLDERQUERYJSON
+             set and are not counted as folders). A note is TRASHED when its
+             folder has ZFOLDERTYPE=1 (or ZMARKEDFORDELETION=1).
+             BODY: ZICNOTEDATA.ZDATA is a gzip stream holding a protobuf
+             message. Path to the text, as field numbers:
+                 root . 2 (Document) . 3 (Note) . 2 (string, UTF-8)
+             i.e. decode root, take its length-delimited field 2, inside that
+             take field 3, inside that take field 2: the whole note as plain
+             text, first line = the title. Siblings seen under field 3 are
+             repeated field-3 attribute runs (formatting spans, not text);
+             attachments appear in the text as U+FFFC, shown here as
+             "[attachment]". Every other field is ignored. The reader
+             (_proto_fields) is a minimal stdlib wire-format walker: varint (0),
+             fixed64 (1), length-delimited (2), fixed32 (5); a group wire type
+             or a truncated field raises ProtoError and the note decodes to
+             None, which search reports as "body not decoded", never as a guess.
+             The gunzip is size-capped (MAX_NOTE_BYTES) against a decompression
+             bomb. No third-party protobuf library is used or wanted.
+             LOCKED NOTES (ZISPASSWORDPROTECTED=1): their ZDATA is encrypted.
+             This tool never reads it and never attempts to decrypt: a locked
+             note is listed (title, folder, date) flagged `locked`, with no
+             text, and a --text search cannot see inside it.
+             Search is by title, text, folder, modified date or --id. Each needs
+             a filter; the default output is a snippet around the match, not
+             the note. --full prints one note's whole text and only when the
+             search matches exactly one note (or --id names it).
+
+  Photos     ~/Pictures/Photos Library.photoslibrary (Photos.sqlite in database/,
+             the search index in database/search/psi.sqlite, files under
+             originals/ and resources/derivatives/). IN PLACE: both databases
+             are opened with open_ro() and NOTHING is copied (Photos.sqlite can
+             be gigabytes); the Photos app, PhotoKit and osascript are never
+             involved.
+             SEARCH INDEX (psi.sqlite). `groups` holds one row per searchable
+             string: `category` says what kind (1203 = text Photos recognised
+             inside the image, one word per row; 1202 = captions/descriptions
+             the user typed, whole phrases; many other categories are places,
+             people, scenes and are NOT used here) and `normalized_string` is
+             the folded form, TERMINATED BY A NUL BYTE (so '= word' never
+             matches; a LIKE '%word%' does). `ga(groupid, assetid)` links a
+             group's rowid to `assets`' rowid, and `assets.uuid_0/uuid_1` are
+             the asset's UUID as two signed 64-bit integers: the UUID's 16
+             bytes are struct.pack('<qq', uuid_0, uuid_1), little-endian, i.e.
+             uuid.UUID(bytes=...) upper-cased equals ZASSET.ZUUID (verified
+             against every asset in a large library; big-endian matched none).
+             psi's own `creationDate` is not Apple-epoch seconds, so dates come
+             from Photos.sqlite instead. --text is a substring match on every
+             word given, ALL words required, so "x9000" also finds "x9000b".
+             ASSETS (Photos.sqlite). ZASSET: ZUUID, ZDATECREATED (Apple-epoch
+             seconds, UTC), ZLATITUDE/ZLONGITUDE (-180 means "no location"),
+             ZTRASHEDSTATE (1 = Recently Deleted), ZDIRECTORY + ZFILENAME (the
+             stored original, relative to originals/), and the camera-roll
+             name the user sees (IMG_1234.HEIC) in
+             ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME (joined on ZASSET).
+             "Has recognised text" = a ZCHARACTERRECOGNITIONATTRIBUTES row with
+             ZCHARACTERRECOGNITIONDATA, reached through
+             ZMEDIAANALYSISASSETATTRIBUTES.ZASSET. Albums: ZGENERICALBUM (entity
+             'Album', ZTITLE) and the join table Z_<album>ASSETS with columns
+             Z_<album>ALBUMS and Z_<asset>ASSETS; those numbers move between
+             macOS versions, so they are read from Z_PRIMARYKEY by name.
+             FILES. With optimised storage most originals live in iCloud, not
+             on the Mac: originals/<ZDIRECTORY>/<ZFILENAME> exists for only a
+             small share of assets, so "original on disk" is a real per-asset
+             question. The viewable fallback is the LARGEST image among the
+             UUID's derivatives, which sit in three places, each in a sub-folder
+             named for the UUID's first hex digit (upper case):
+               resources/derivatives/<D>/<UUID>_1_105_c.jpeg   (about 768x1024; the common one)
+               resources/derivatives/<D>/<UUID>_1_102_o.jpeg   (a bigger render, some assets)
+               resources/derivatives/masters/<D>/<UUID>_4_5005_c.jpeg   (a small master thumbnail)
+               resources/derivatives/cvt/<D>/<UUID>/<UUID>_cvt_t*.jpeg   (video frames)
+             .THM files (video stills) and non-images are ignored. Assets that
+             live in a shared-library scope (ZDIRECTORY is "<n>/<UUID>") have
+             no derivatives here and report no viewable file. Converting
+             HEIC/HEIF for viewing is the caller's job (sips); paths only.
+             TRASHED assets are skipped unless --include-deleted. Edits made in
+             Photos (adjusted renders) are not followed: the original or the
+             stock derivative is what is returned.
+             --near LAT,LON[,KM] (KM defaults to 1) takes a bounding box in SQL
+             and an exact great-circle distance in Python.
+
+  Home       ~/Library/HomeKit/core.sqlite: the Core Data store homed (HomeKit's
+             daemon) keeps. LAYOUT ONLY, AND READ-ONLY: this reads what is in
+             the home (homes, rooms, zones, accessories, scenes, automations),
+             never CONTROLS anything; turning a light on or running a scene is
+             out of scope here and would need the operator's explicit approval
+             (no homed, no Home app, no `shortcuts`, no osascript, no `open`).
+             WHICH FILE. HomeKit holds several stores. core.sqlite is the one
+             with the data (ZMKF* tables). core-cloudkit*.sqlite hold CloudKit
+             sync metadata and ZMKFCK* mirror rows (a different, partial copy:
+             ANSCK* tables are sync bookkeeping); core-local.sqlite is local
+             bulletin/notification state, and datastore*.sqlite are the
+             pre-2023 store. Only core.sqlite is read here.
+             TABLES (entity per Z_PRIMARYKEY, table name stable):
+               ZMKFHOME        ZNAME, ZOWNED (0 = a home shared with the user),
+                               ZDEFAULTROOM (its unnamed default room)
+               ZMKFROOM        ZNAME (blank on the default room), ZHOME
+               ZMKFZONE        ZNAME, ZHOME. A zone groups rooms through the
+                               many-to-many join table Z_<room>ZONES_ with
+                               columns Z_<room>ROOMS_ and Z_<zone>ZONES_ (the
+                               <room>/<zone> numbers are entity numbers: they
+                               move between macOS versions, so the tool finds
+                               the join table by those column names)
+               ZMKFACCESSORY   one row per device; Z_ENT subclasses (HAP,
+                               Media, AirPlay, AppleMedia) named in Z_PRIMARYKEY.
+                               ZCONFIGUREDNAME (the user's name for it) else
+                               ZPROVIDEDNAME; ZMANUFACTURER, ZMODEL,
+                               ZSERIALNUMBER, ZFIRMWAREVERSION (text),
+                               ZACCESSORYCATEGORY (the HAP category number:
+                               1-23 are the published ones; other numbers are
+                               shown as numbers),
+                               ZROOM, ZHOME, ZHOSTACCESSORY (the bridge or hub
+                               a bridged device sits behind)
+               ZMKFSERVICE     ZACCESSORY, ZNAME / ZPROVIDEDNAME, ZSERVICETYPE
+                               = the 16-byte HAP UUID, big-endian; the HAP ones
+                               end in the HAP base 0000-1000-8000-
+                               0026BB765291 and the first four bytes are the
+                               short type (0x3E accessory information, 0x43
+                               lightbulb ...). Only well-known types are
+                               named here; any other is shown as 0xNNN
+               ZMKFCHARACTERISTIC  types, formats, ranges: NO live values are
+                               stored, so the store cannot say whether a light
+                               is on. Not read.
+               ZMKFACTIONSET   scenes: ZNAME, ZTYPE ('HMActionSetTypeHomeArrival',
+                               ...Departure, Sleep, WakeUp are the built-in
+                               ones, 'UserDefined' are the user's own, and
+                               'TriggerOwned' is the hidden scene an automation
+                               runs and is not listed as a scene), ZHOME,
+                               ZLASTEXECUTIONDATE
+               ZMKFTRIGGER     automations: ZNAME, ZACTIVE, ZHOME, ZFIREDATE,
+                               ZMOSTRECENTFIREDATE; kind from the entity
+                               (EventTrigger / TimerTrigger). Linked to its
+                               scene by the join table Z_<actionset>TRIGGERS_
+                               (columns Z_<actionset>ACTIONSETS_, Z_<trigger>
+                               TRIGGERS_), found by column name as above.
+               ZMKFACTION      WHAT A SCENE DOES (its actions) has had 0 rows in
+                               every store observed, so scenes are listed by
+                               name and type only. Not a tool gap: the data is
+                               not there.
+             DATES are Apple-epoch seconds (UTC) like the other stores.
+             CREDENTIAL-SHAPED COLUMNS EXIST in the same tables and are NEVER
+             SELECTed: every query names the columns it keeps (no `SELECT *`),
+             and none of these is among them. ZMKFACCESSORY: ZPASSWORD,
+             ZWIFIUNIQUEPRESHAREDKEY, ZPUBLICKEY, ZPAIRINGIDENTITY*,
+             ZPAIRINGSTOREMOVE*, ZBROADCASTKEY, ZMATCRED* / ZPREEXISTINGMATCRED*
+             (Matter credentials), ZMATTERPAIRINGS, ZACCESSORYSETUPHASH,
+             ZDEVICEIRKDATA, ZSMARTBULLETINBOARDNOTIFICATIONDATA; ZMKFHOME:
+             ZOWNERPUBLICKEY, ZNFCREADERKEY, ZMATCREDGRK, ZTHREADOPERATIONALDATASET,
+             ZPRIMARYWIFISSID; ZMKFCHARACTERISTIC: ZAUTHORIZATIONDATA. A new
+             column is never exposed by accident, because nothing is selected
+             by wildcard. Serial numbers and names ARE shown (they are what a
+             caller needs): the output is a security map of the home, so it is
+             for the operator's own use, never for pasting into a repo or a
+             document shared with others.
+             STALENESS. core.sqlite is checkpointed only now and then (its
+             newest row can be days older than its -wal file), and
+             immutable=1 skips the -wal. When a non-empty -wal sits beside the
+             store the CLI says so on stderr; a device added in the last few
+             days can be missing.
+
+Exit codes: 0 ok, 1 store unreadable, 2 usage (including "no filter given").
+"""
+
+from __future__ import annotations
+
+import argparse
+import glob
+import json
+import math
+import os
+import re
+import sqlite3
+import struct
+import sys
+import unicodedata
+import uuid as _uuid
+import zlib
+from datetime import datetime, timedelta, timezone
+from typing import Dict, List, Optional, Sequence
+from urllib.parse import quote
+
+HOME = os.path.expanduser("~")
+APPLE_EPOCH = datetime(2001, 1, 1, tzinfo=timezone.utc)
+DEFAULT_LIMIT = 20
+TEXT_WIDTH = 400  # plain-text output truncates a body to this many characters
+
+DEFAULT_PATTERNS = {
+    "contacts": [os.path.join(HOME, "Library/Application Support/AddressBook/Sources/*/AddressBook-v22.abcddb")],
+    "messages": [os.path.join(HOME, "Library/Messages/chat.db")],
+    "calendar": [os.path.join(HOME, "Library/Group Containers/group.com.apple.calendar/Calendar.sqlitedb")],
+    "reminders": [os.path.join(HOME, "Library/Group Containers/group.com.apple.reminders/Container_v1/Stores/Data-*.sqlite")],
+    "notes": [os.path.join(HOME, "Library/Group Containers/group.com.apple.notes/NoteStore.sqlite")],
+    "photos": [os.path.join(HOME, "Pictures/Photos Library.photoslibrary/database/Photos.sqlite")],
+    "home": [os.path.join(HOME, "Library/HomeKit/core.sqlite")],
+}
+MAX_NOTE_BYTES = 64 * 1024 * 1024  # cap on one note's gunzipped body
+SNIPPET_CONTEXT = 80  # characters either side of a text match
+PSI_TEXT_CATEGORIES = (1202, 1203)  # psi.sqlite: 1203 recognised text, 1202 captions
+NEAR_DEFAULT_KM = 1.0
+NO_LOCATION = -180.0  # Photos stores "no GPS" as -180, not NULL
+IMAGE_SUFFIXES = (".jpeg", ".jpg", ".heic", ".png", ".tiff", ".gif")  # what counts as a viewable derivative
+
+
+class UsageError(Exception):
+    """A bad invocation (exit 2): no filter given, bad date, unknown person."""
+
+
+# ---------------------------------------------------------------- opening ----
+
+def open_ro(path: str) -> sqlite3.Connection:
+    """Open a store read-only, no lock, no WAL. The single door to every store."""
+    uri = "file:%s?mode=ro&immutable=1" % quote(os.path.abspath(path), safe="/")
+    con = sqlite3.connect(uri, uri=True)
+    con.execute("PRAGMA query_only=ON")
+    con.row_factory = sqlite3.Row
+    return con
+
+
+def resolve_paths(app: str, override: Optional[Sequence[str]] = None) -> List[str]:
+    """The store files for one app: --db if given, else the default glob."""
+    if override:
+        return list(override)
+    found: List[str] = []
+    for pattern in DEFAULT_PATTERNS[app]:
+        found.extend(sorted(glob.glob(pattern)))
+    return found
+
+
+def _tables(con: sqlite3.Connection) -> set:
+    return {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+
+
+# ------------------------------------------------------------------ times ----
+
+def ts_to_datetime(value) -> Optional[datetime]:
+    """Apple-epoch value -> aware UTC datetime. Seconds, or nanoseconds if the
+    magnitude says so (Messages switched to ns; 1e11 s is year 5000, so any
+    larger number is not seconds)."""
+    if value is None:
+        return None
+    v = float(value)
+    if abs(v) >= 1e11:
+        v /= 1e9
+    try:
+        return APPLE_EPOCH + timedelta(seconds=v)
+    except OverflowError:
+        return None
+
+
+def datetime_to_apple(dt: datetime) -> float:
+    return (dt - APPLE_EPOCH).total_seconds()
+
+
+def parse_day(text: str, end_of_day: bool = False) -> datetime:
+    """YYYY-MM-DD in LOCAL time -> aware datetime at that midnight (or the next
+    one, for an inclusive --until). YYYYMMDD is accepted too: ccrepo and
+    cctranscript spell their --since/--until that way, and one word should mean
+    one thing across the instruments."""
+    try:
+        d = datetime.strptime(text, "%Y%m%d" if re.fullmatch(r"\d{8}", text) else "%Y-%m-%d")
+    except ValueError:
+        raise UsageError("bad date %r (want YYYY-MM-DD or YYYYMMDD)" % text) from None
+    if end_of_day:
+        d += timedelta(days=1)
+    return d.astimezone()  # naive -> local
+
+
+def fmt_when(value, all_day: bool = False) -> Optional[str]:
+    dt = ts_to_datetime(value)
+    if dt is None:
+        return None
+    if all_day:
+        return dt.strftime("%Y-%m-%d")
+    return dt.astimezone().strftime("%Y-%m-%d %H:%M")
+
+
+# ----------------------------------------------------------------- helpers ----
+
+def fold(text: Optional[str]) -> str:
+    """Case- and accent-insensitive form, so 'maori' finds 'Māori'."""
+    if not text:
+        return ""
+    nfd = unicodedata.normalize("NFD", text)
+    return "".join(c for c in nfd if not unicodedata.combining(c)).casefold()
+
+
+def digits(text: Optional[str]) -> str:
+    return re.sub(r"\D", "", text or "")
+
+
+def handle_key(handle: Optional[str]) -> str:
+    """Normalise a phone number or email so Contacts and Messages agree.
+    Phones compare on their last 9 digits (country code and trunk zero vary);
+    emails on lower case."""
+    if not handle:
+        return ""
+    if "@" in handle:
+        return handle.strip().lower()
+    d = digits(handle)
+    return d[-9:] if len(d) >= 9 else d
+
+
+def looks_like_handle(person: str) -> bool:
+    if "@" in person:
+        return True
+    d = digits(person)
+    letters = re.sub(r"[\d\s+()\-.]", "", person)
+    return len(d) >= 5 and not letters
+
+
+def clip(text: Optional[str], width: int = TEXT_WIDTH) -> Optional[str]:
+    if text is None:
+        return None
+    text = " ".join(text.split())
+    return text if len(text) <= width else text[: width - 1] + "…"
+
+
+def decode_attributed_body(blob: Optional[bytes]) -> Optional[str]:
+    """Best-effort plain text from a Messages `attributedBody` typedstream.
+
+    Layout (observed on modern macOS): ... "NSString" 0x01 0x94/0x95 0x84 0x01
+    '+' <length> <utf-8 bytes> ... where <length> is one byte (< 0x80), or
+    0x81 + u16 LE, 0x82 + u32 LE, 0x83 + u64 LE. Returns None when the marker
+    or a sane length is not found, rather than returning garbage."""
+    if not blob:
+        return None
+    blob = bytes(blob)
+    start = blob.find(b"NSString")
+    if start < 0:
+        return None
+    i = start + len(b"NSString")
+    plus = blob.find(b"\x2b", i, i + 12)  # the string tag follows within a few bytes
+    if plus < 0:
+        return None
+    i = plus + 1
+    if i >= len(blob):
+        return None
+    first = blob[i]
+    if first == 0x81:
+        width = 2
+    elif first == 0x82:
+        width = 4
+    elif first == 0x83:
+        width = 8
+    else:
+        width = 0
+    if width:
+        i += 1
+        if i + width > len(blob):
+            return None
+        length = int.from_bytes(blob[i:i + width], "little")
+        i += width
+    else:
+        length = first
+        i += 1
+    if length <= 0 or i + length > len(blob):
+        return None
+    return blob[i:i + length].decode("utf-8", errors="replace").strip("\x00") or None
+
+
+# ---------------------------------------------------------------- contacts ----
+
+def _display_name(first, middle, last, nick, org) -> str:
+    name = " ".join(p for p in (first, last) if p)
+    return name or nick or org or ""
+
+
+def _clean_label(label: Optional[str]) -> Optional[str]:
+    """Apple stores labels as '_$!<Mobile>!$_'."""
+    if not label:
+        return None
+    m = re.match(r"_\$!<(.*)>!\$_$", label)
+    return m.group(1) if m else label
+
+
+def load_contacts(paths: Sequence[str]) -> List[dict]:
+    """Every named record across all address-book sources, with phones/emails.
+    Only used internally: the search functions filter it before anything is shown."""
+    people: List[dict] = []
+    for path in paths:
+        con = open_ro(path)
+        try:
+            if "ZABCDRECORD" not in _tables(con):
+                continue
+            phones: Dict[int, list] = {}
+            for r in con.execute("SELECT ZOWNER, ZFULLNUMBER, ZLABEL FROM ZABCDPHONENUMBER"):
+                phones.setdefault(r["ZOWNER"], []).append({"label": _clean_label(r["ZLABEL"]), "number": r["ZFULLNUMBER"]})
+            emails: Dict[int, list] = {}
+            for r in con.execute("SELECT ZOWNER, ZADDRESS, ZLABEL FROM ZABCDEMAILADDRESS"):
+                emails.setdefault(r["ZOWNER"], []).append({"label": _clean_label(r["ZLABEL"]), "address": r["ZADDRESS"]})
+            for r in con.execute(
+                "SELECT Z_PK, ZFIRSTNAME, ZMIDDLENAME, ZLASTNAME, ZNICKNAME, ZORGANIZATION, ZJOBTITLE "
+                "FROM ZABCDRECORD WHERE ZFIRSTNAME IS NOT NULL OR ZLASTNAME IS NOT NULL "
+                "OR ZORGANIZATION IS NOT NULL OR ZNICKNAME IS NOT NULL"
+            ):
+                people.append({
+                    "name": _display_name(r["ZFIRSTNAME"], r["ZMIDDLENAME"], r["ZLASTNAME"], r["ZNICKNAME"], r["ZORGANIZATION"]),
+                    "nickname": r["ZNICKNAME"],
+                    "organisation": r["ZORGANIZATION"],
+                    "job_title": r["ZJOBTITLE"],
+                    "phones": phones.get(r["Z_PK"], []),
+                    "emails": emails.get(r["Z_PK"], []),
+                    "_haystack": fold(" ".join(p for p in (
+                        r["ZFIRSTNAME"], r["ZMIDDLENAME"], r["ZLASTNAME"], r["ZNICKNAME"], r["ZORGANIZATION"]) if p)),
+                })
+        finally:
+            con.close()
+    return people
+
+
+def _name_matches(person: dict, query: str) -> bool:
+    return all(word in person["_haystack"] for word in fold(query).split())
+
+
+def search_contacts(paths, name=None, phone=None, email=None, org=None, limit=DEFAULT_LIMIT) -> List[dict]:
+    if not any((name, phone, email, org)):
+        raise UsageError("contacts needs at least one of --name, --phone, --email, --org")
+    out: List[dict] = []
+    want_phone = digits(phone)
+    if phone and not want_phone:
+        raise UsageError("--phone needs some digits")
+    for p in load_contacts(paths):
+        if name and not _name_matches(p, name):
+            continue
+        if org and fold(org) not in fold(p["organisation"]):
+            continue
+        if want_phone and not any(want_phone in digits(x["number"]) or handle_key(x["number"]) == handle_key(phone)
+                                  for x in p["phones"] if digits(x["number"])):
+            continue
+        if email and not any(email.lower() in (x["address"] or "").lower() for x in p["emails"]):
+            continue
+        out.append({k: v for k, v in p.items() if not k.startswith("_")})
+        if len(out) >= limit:
+            break
+    return out
+
+
+def contact_index(paths: Sequence[str]) -> Dict[str, str]:
+    """handle_key -> display name, for turning Messages handles into names."""
+    index: Dict[str, str] = {}
+    for p in load_contacts(paths):
+        for x in p["phones"]:
+            k = handle_key(x["number"])
+            if k:
+                index.setdefault(k, p["name"])
+        for x in p["emails"]:
+            k = handle_key(x["address"])
+            if k:
+                index.setdefault(k, p["name"])
+    return index
+
+
+# ---------------------------------------------------------------- messages ----
+
+def resolve_person(person: str, contact_paths: Sequence[str]) -> List[str]:
+    """A name or handle -> handle keys. A name must match at least one contact
+    with at least one phone/email, or it is a usage error (never a silent
+    'no messages')."""
+    if looks_like_handle(person):
+        return [handle_key(person)]
+    keys: List[str] = []
+    for p in load_contacts(contact_paths):
+        if _name_matches(p, person):
+            keys.extend(handle_key(x["number"]) for x in p["phones"])
+            keys.extend(handle_key(x["address"]) for x in p["emails"])
+    keys = sorted({k for k in keys if k})
+    if not keys:
+        raise UsageError("no contact with a phone or email matches %r" % person)
+    return keys
+
+
+def search_messages(path, contact_paths=(), person=None, since=None, until=None, text=None,
+                    limit=DEFAULT_LIMIT) -> List[dict]:
+    if not any((person, since, until, text)):
+        raise UsageError("messages needs at least one of --person, --since, --until, --text")
+    lo = datetime_to_apple(parse_day(since)) if since else None
+    hi = datetime_to_apple(parse_day(until, end_of_day=True)) if until else None
+    keys = set(resolve_person(person, contact_paths)) if person else None
+    names: Dict[str, str] = {}
+    if contact_paths:
+        try:
+            names = contact_index(contact_paths)
+        except sqlite3.Error:
+            names = {}
+    needle = fold(text) if text else None
+
+    con = open_ro(path)
+    try:
+        handles = {r["ROWID"]: r["id"] for r in con.execute("SELECT ROWID, id FROM handle")}
+        sql = ("SELECT m.ROWID, m.date, m.text, m.attributedBody, m.is_from_me, m.handle_id, m.service, "
+               "m.cache_has_attachments, "
+               "(SELECT c.display_name FROM chat_message_join j JOIN chat c ON c.ROWID=j.chat_id "
+               " WHERE j.message_id=m.ROWID LIMIT 1) AS chat_name, "
+               "(SELECT c.chat_identifier FROM chat_message_join j JOIN chat c ON c.ROWID=j.chat_id "
+               " WHERE j.message_id=m.ROWID LIMIT 1) AS chat_ident "
+               "FROM message m")
+        where, args = [], []
+        if keys is not None:
+            ids = [rid for rid, h in handles.items() if handle_key(h) in keys]
+            if not ids:
+                return []
+            marks = ",".join("?" * len(ids))
+            # their own messages anywhere, plus every message in one-to-one chats with them
+            where.append(
+                "(m.handle_id IN (%s) OR m.ROWID IN (SELECT j.message_id FROM chat_message_join j "
+                "WHERE j.chat_id IN (SELECT chj.chat_id FROM chat_handle_join chj WHERE chj.handle_id IN (%s) "
+                "AND (SELECT COUNT(*) FROM chat_handle_join x WHERE x.chat_id=chj.chat_id)=1)))" % (marks, marks))
+            args += ids + ids
+        # dates in a message row may be seconds or nanoseconds; compare both forms
+        if lo is not None:
+            where.append("((m.date < 1e11 AND m.date >= ?) OR (m.date >= 1e11 AND m.date >= ?))")
+            args += [lo, lo * 1e9]
+        if hi is not None:
+            where.append("((m.date < 1e11 AND m.date < ?) OR (m.date >= 1e11 AND m.date < ?))")
+            args += [hi, hi * 1e9]
+        if where:
+            sql += " WHERE " + " AND ".join(where)
+        sql += " ORDER BY m.date DESC"
+
+        rows: List[dict] = []
+        for r in con.execute(sql, args):
+            body = r["text"] or decode_attributed_body(r["attributedBody"])
+            if needle is not None and needle not in fold(body):
+                continue
+            h = handles.get(r["handle_id"])
+            who = "me" if r["is_from_me"] else (names.get(handle_key(h)) or h or "unknown")
+            rows.append({
+                "id": r["ROWID"],
+                "when": fmt_when(r["date"]),
+                "from": who,
+                "service": r["service"],
+                "chat": r["chat_name"] or names.get(handle_key(r["chat_ident"])) or r["chat_ident"],
+                "attachments": bool(r["cache_has_attachments"]),
+                "text": body,
+            })
+            if len(rows) >= limit:
+                break
+        rows.reverse()  # newest N, shown oldest first so a thread reads in order
+        return rows
+    finally:
+        con.close()
+
+
+# ---------------------------------------------------------------- calendar ----
+
+def search_calendar(path, since=None, until=None, calendar=None, text=None, limit=DEFAULT_LIMIT) -> List[dict]:
+    if not any((since, until, calendar, text)):
+        raise UsageError("calendar needs at least one of --since, --until, --calendar, --text")
+    lo = datetime_to_apple(parse_day(since)) if since else None
+    hi = datetime_to_apple(parse_day(until, end_of_day=True)) if until else None
+    base = ("SELECT ci.ROWID AS id, ci.summary, ci.description, ci.start_date, ci.end_date, ci.all_day, "
+            "ci.has_recurrences, c.title AS calendar, l.title AS location "
+            "FROM CalendarItem ci LEFT JOIN Calendar c ON c.ROWID=ci.calendar_id "
+            "LEFT JOIN Location l ON l.ROWID=ci.location_id WHERE ci.entity_type=2")
+    plain, args = [base], []
+    if calendar:
+        plain.append("AND c.title LIKE ? ESCAPE '\\'")
+        args.append("%" + calendar.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%")
+    con = open_ro(path)
+    try:
+        events: List[dict] = []
+        # one-off events: overlap the window directly
+        q, a = list(plain), list(args)
+        q.append("AND ci.has_recurrences=0")
+        if hi is not None:
+            q.append("AND ci.start_date < ?")
+            a.append(hi)
+        if lo is not None:
+            q.append("AND COALESCE(ci.end_date, ci.start_date) >= ?")
+            a.append(lo)
+        for r in con.execute(" ".join(q), a):
+            events.append(_event(r, r["start_date"], r["end_date"], repeats=False))
+        # recurring series: occurrences from Calendar's own cache when a window is given,
+        # else the master once
+        if lo is None and hi is None:
+            q, a = list(plain) + ["AND ci.has_recurrences=1"], list(args)
+            for r in con.execute(" ".join(q), a):
+                events.append(_event(r, r["start_date"], r["end_date"], repeats=True))
+        elif "OccurrenceCache" in _tables(con):
+            q = [base.replace("ci.start_date, ci.end_date", "oc.occurrence_start_date AS start_date, "
+                              "oc.occurrence_end_date AS end_date")
+                 .replace("FROM CalendarItem ci", "FROM OccurrenceCache oc JOIN CalendarItem ci ON ci.ROWID=oc.event_id"),
+                 "AND ci.has_recurrences=1"]
+            a = []
+            if calendar:
+                q.append("AND c.title LIKE ? ESCAPE '\\'")
+                a.append(args[0])
+            if hi is not None:
+                q.append("AND oc.occurrence_start_date < ?")
+                a.append(hi)
+            if lo is not None:
+                q.append("AND COALESCE(oc.occurrence_end_date, oc.occurrence_start_date) >= ?")
+                a.append(lo)
+            for r in con.execute(" ".join(q), a):
+                events.append(_event(r, r["start_date"], r["end_date"], repeats=True))
+    finally:
+        con.close()
+    if text:
+        n = fold(text)
+        events = [e for e in events if n in fold(e["title"]) or n in fold(e["notes"]) or n in fold(e["location"])]
+    events.sort(key=lambda e: e["_sort"])
+    if lo is None and hi is None:
+        events.reverse()  # no window: show the most recent matches
+    out = events[:limit]
+    for e in out:
+        e.pop("_sort")
+    return out
+
+
+def _event(r, start, end, repeats: bool) -> dict:
+    all_day = bool(r["all_day"])
+    return {
+        "id": r["id"],
+        "title": r["summary"],
+        "calendar": r["calendar"],
+        "start": fmt_when(start, all_day),
+        "end": fmt_when(end, all_day),
+        "all_day": all_day,
+        "location": r["location"],
+        "repeats": repeats,
+        "notes": clip(r["description"]),
+        "_sort": start if start is not None else 0,
+    }
+
+
+# --------------------------------------------------------------- reminders ----
+
+def search_reminders(paths, list_name=None, text=None, open_only=False, limit=DEFAULT_LIMIT) -> List[dict]:
+    if not (list_name or text or open_only):
+        raise UsageError("reminders needs at least one of --list, --text, --open-only")
+    sql = ("SELECT r.Z_PK AS id, r.ZTITLE, r.ZNOTES, r.ZCOMPLETED, r.ZCOMPLETIONDATE, r.ZDUEDATE, r.ZALLDAY, "
+           "r.ZPRIORITY, r.ZFLAGGED, l.ZNAME AS list_name "
+           "FROM ZREMCDREMINDER r LEFT JOIN ZREMCDBASELIST l ON l.Z_PK=r.ZLIST "
+           "WHERE COALESCE(r.ZMARKEDFORDELETION,0)=0")
+    args: list = []
+    if open_only:
+        sql += " AND COALESCE(r.ZCOMPLETED,0)=0"
+    if list_name:
+        sql += " AND l.ZNAME LIKE ? ESCAPE '\\'"
+        args.append("%" + list_name.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%")
+    rows: List[dict] = []
+    for path in paths:
+        con = open_ro(path)
+        try:
+            if "ZREMCDREMINDER" not in _tables(con):
+                continue
+            for r in con.execute(sql, args):
+                rows.append({
+                    "id": r["id"],
+                    "title": r["ZTITLE"],
+                    "list": r["list_name"],
+                    "done": bool(r["ZCOMPLETED"]),
+                    "due": fmt_when(r["ZDUEDATE"], bool(r["ZALLDAY"])) if r["ZDUEDATE"] is not None else None,
+                    "completed_on": fmt_when(r["ZCOMPLETIONDATE"]) if r["ZCOMPLETIONDATE"] is not None else None,
+                    "priority": r["ZPRIORITY"] or 0,
+                    "flagged": bool(r["ZFLAGGED"]),
+                    "notes": clip(r["ZNOTES"]),
+                    "_due": r["ZDUEDATE"],
+                })
+        finally:
+            con.close()
+    if text:
+        n = fold(text)
+        rows = [x for x in rows if n in fold(x["title"]) or n in fold(x["notes"])]
+    # open ones by due date (undated last); completed after
+    rows.sort(key=lambda x: (x["done"], x["_due"] is None, x["_due"] or 0))
+    for x in rows:
+        x.pop("_due")
+    return rows[:limit]
+
+
+# ------------------------------------------------------------------- notes ----
+
+class ProtoError(Exception):
+    """The bytes are not a well-formed protobuf message (truncated, bad tag)."""
+
+
+def _varint(buf: bytes, i: int):
+    result = shift = 0
+    while True:
+        if i >= len(buf) or shift > 63:
+            raise ProtoError("bad varint")
+        b = buf[i]
+        i += 1
+        result |= (b & 0x7F) << shift
+        if not b & 0x80:
+            return result, i
+        shift += 7
+
+
+def _proto_fields(buf: bytes):
+    """Yield (field_number, wire_type, value) for each top-level field of a
+    protobuf message. value is an int for varints, else raw bytes. Groups
+    (wire types 3/4) are not used by Notes and raise ProtoError."""
+    i = 0
+    while i < len(buf):
+        key, i = _varint(buf, i)
+        field, wire = key >> 3, key & 7
+        if field == 0:
+            raise ProtoError("field number 0")
+        if wire == 0:
+            value, i = _varint(buf, i)
+        elif wire == 2:
+            n, i = _varint(buf, i)
+            if i + n > len(buf):
+                raise ProtoError("truncated field")
+            value, i = buf[i:i + n], i + n
+        elif wire in (1, 5):
+            n = 8 if wire == 1 else 4
+            if i + n > len(buf):
+                raise ProtoError("truncated field")
+            value, i = buf[i:i + n], i + n
+        else:
+            raise ProtoError("unsupported wire type %d" % wire)
+        yield field, wire, value
+
+
+def _first_bytes(buf: bytes, field: int) -> Optional[bytes]:
+    for f, w, v in _proto_fields(buf):
+        if f == field and w == 2:
+            return v
+    return None
+
+
+def decode_note_body(zdata: Optional[bytes]) -> Optional[str]:
+    """Plain text of one note from ZICNOTEDATA.ZDATA, or None if it cannot be
+    decoded (empty, not gzip, not protobuf, path absent). Path: gunzip, then
+    root.2.3.2 (see the module docstring). Never called on a locked note."""
+    if not zdata:
+        return None
+    try:
+        gz = zlib.decompressobj(wbits=31)  # 16+15: a gzip wrapper, nothing else
+        raw = gz.decompress(bytes(zdata), MAX_NOTE_BYTES)
+        if gz.unconsumed_tail:
+            return None  # over the cap: refuse rather than hold it all
+        doc = _first_bytes(raw, 2)
+        note = _first_bytes(doc, 3) if doc is not None else None
+        text = _first_bytes(note, 2) if note is not None else None
+    except (zlib.error, ProtoError):
+        return None
+    if text is None:
+        return None
+    return text.decode("utf-8", errors="replace").replace("￼", "[attachment]")
+
+
+def _find_folded(text: str, needle: str):
+    """(start, end) of the first case- and accent-insensitive match of `needle`
+    in `text`, as indexes into the ORIGINAL text; None if absent. Folding is done
+    per character so positions survive 'ā' -> 'a' and similar."""
+    folded: List[str] = []
+    owner: List[int] = []
+    for idx, ch in enumerate(text):
+        f = fold(ch)
+        folded.append(f)
+        owner.extend([idx] * len(f))
+    flat = "".join(folded)
+    pos = flat.find(needle)
+    if pos < 0 or not needle:
+        return None
+    return owner[pos], owner[pos + len(needle) - 1] + 1
+
+
+def _snippet(body: Optional[str], title: Optional[str], needle: Optional[str]) -> Optional[str]:
+    """A short extract: context around the first text match, else the opening
+    of the body (minus a first line that just repeats the title)."""
+    if not body:
+        return None
+    hit = _find_folded(body, needle) if needle else None
+    if hit:
+        lo, hi = max(0, hit[0] - SNIPPET_CONTEXT), min(len(body), hit[1] + SNIPPET_CONTEXT)
+        return ("…" if lo else "") + " ".join(body[lo:hi].split()) + ("…" if hi < len(body) else "")
+    first, _, rest = body.partition("\n")
+    if title and first.strip() == title.strip() and rest.strip():
+        body = rest
+    return clip(body, 2 * SNIPPET_CONTEXT)
+
+
+def _note_tables(con: sqlite3.Connection) -> dict:
+    """Z_ENT numbers for notes and folders, by name (they differ by macOS version)."""
+    ents = {r[0]: r[1] for r in con.execute("SELECT Z_NAME, Z_ENT FROM Z_PRIMARYKEY WHERE Z_NAME IN ('ICNote','ICFolder')")}
+    if "ICNote" not in ents or "ICFolder" not in ents:
+        raise sqlite3.DatabaseError("not a Notes store (no ICNote/ICFolder entity)")
+    return ents
+
+
+def _folder_paths(con, folder_ent: int) -> Dict[int, dict]:
+    """folder pk -> {'path': 'Parent/Child', 'trash': bool}."""
+    raw = {r["Z_PK"]: r for r in con.execute(
+        "SELECT Z_PK, ZTITLE2, ZPARENT, ZFOLDERTYPE FROM ZICCLOUDSYNCINGOBJECT WHERE Z_ENT=?", (folder_ent,))}
+    out: Dict[int, dict] = {}
+    for pk, r in raw.items():
+        parts, seen, cur = [], set(), r
+        while cur is not None and cur["Z_PK"] not in seen:
+            seen.add(cur["Z_PK"])
+            parts.append(cur["ZTITLE2"] or "?")
+            cur = raw.get(cur["ZPARENT"])
+        out[pk] = {"path": "/".join(reversed(parts)), "trash": r["ZFOLDERTYPE"] == 1}
+    return out
+
+
+def locked_count(path) -> int:
+    """How many locked notes exist: a count, no content."""
+    con = open_ro(path)
+    try:
+        return con.execute("SELECT COUNT(*) FROM ZICCLOUDSYNCINGOBJECT WHERE Z_ENT=? AND ZISPASSWORDPROTECTED=1",
+                           (_note_tables(con)["ICNote"],)).fetchone()[0]
+    finally:
+        con.close()
+
+
+def search_notes(path, title=None, text=None, folder=None, since=None, until=None, note_id=None,
+                 include_deleted=False, full=False, limit=DEFAULT_LIMIT) -> List[dict]:
+    """Notes matching ALL the filters given, newest first.
+
+    Locked notes are never opened: they come back flagged `locked` with no text
+    when their title/folder/date match, but a --text search leaves them out
+    (they cannot be searched; `locked_count` lets the caller say so).
+    --full needs exactly one match; it fills `text` with the whole note."""
+    if not any((title, text, folder, since, until, note_id)):
+        raise UsageError("notes needs at least one of --title, --text, --folder, --since, --until, --id")
+    lo = datetime_to_apple(parse_day(since)) if since else None
+    hi = datetime_to_apple(parse_day(until, end_of_day=True)) if until else None
+    n_title, n_text, n_folder = (fold(x) if x else None for x in (title, text, folder))
+    con = open_ro(path)
+    try:
+        ents = _note_tables(con)
+        folders = _folder_paths(con, ents["ICFolder"])
+        sql = ("SELECT n.Z_PK AS id, n.ZTITLE1 AS title, n.ZMODIFICATIONDATE1 AS modified, n.ZFOLDER AS folder, "
+               "n.ZISPASSWORDPROTECTED AS locked, n.ZMARKEDFORDELETION AS marked, d.ZDATA AS data "
+               "FROM ZICCLOUDSYNCINGOBJECT n LEFT JOIN ZICNOTEDATA d ON d.Z_PK=n.ZNOTEDATA WHERE n.Z_ENT=?")
+        args: list = [ents["ICNote"]]
+        if note_id is not None:
+            sql += " AND n.Z_PK=?"
+            args.append(note_id)
+        if lo is not None:
+            sql += " AND n.ZMODIFICATIONDATE1 >= ?"
+            args.append(lo)
+        if hi is not None:
+            sql += " AND n.ZMODIFICATIONDATE1 < ?"
+            args.append(hi)
+        sql += " ORDER BY n.ZMODIFICATIONDATE1 DESC"
+        rows: List[dict] = []
+        for r in con.execute(sql, args):
+            f = folders.get(r["folder"])
+            trashed = bool(r["marked"]) or bool(f and f["trash"])
+            if trashed and not include_deleted:
+                continue
+            if n_folder and n_folder not in fold(f["path"] if f else ""):
+                continue
+            if n_title and n_title not in fold(r["title"]):
+                continue
+            locked = bool(r["locked"])
+            if locked and n_text:
+                continue  # cannot be searched, so it cannot be a hit; main() says how many were skipped
+            body = None if locked else decode_note_body(r["data"])  # a locked ZDATA is never touched
+            if n_text and (body is None or _find_folded(body, n_text) is None):
+                continue
+            row = {
+                "id": r["id"],
+                "title": r["title"],
+                "folder": f["path"] if f else None,
+                "modified": fmt_when(r["modified"]),
+                "locked": locked,
+                "deleted": trashed,
+                "decoded": locked or body is not None,
+            }
+            if full:
+                row["text"] = body
+            else:
+                row["snippet"] = _snippet(body, r["title"], n_text)
+            rows.append(row)
+            if len(rows) >= (2 if full else limit):  # --full only needs to know "one, or more than one"
+                break
+        if full:
+            if len(rows) != 1:
+                raise UsageError("--full prints one note: this search matched %d (narrow it, or use --id)" % len(rows))
+            if rows[0]["locked"]:
+                raise UsageError("that note is locked; it is never decrypted here")
+        return rows[:limit]
+    finally:
+        con.close()
+
+
+# ------------------------------------------------------------------ photos ----
+
+def psi_uuid(uuid_0: int, uuid_1: int) -> str:
+    """psi.sqlite's two signed 64-bit halves -> the asset UUID string. The 16 bytes
+    are little-endian (measured: ZASSET.ZUUID matches this and not big-endian)."""
+    return str(_uuid.UUID(bytes=struct.pack("<qq", uuid_0, uuid_1))).upper()
+
+
+def psi_search_uuids(psi_path: str, text: str) -> set:
+    """UUIDs of assets whose recognised text or caption contains EVERY word of
+    `text` (substring, case- and accent-insensitive; psi stores folded strings)."""
+    words = fold(text).split()
+    if not words:
+        raise UsageError("--text is empty")
+    cats = ",".join(str(c) for c in PSI_TEXT_CATEGORIES)  # integers from our own constant
+    con = open_ro(psi_path)
+    try:
+        found: Optional[set] = None
+        for w in words:
+            pat = "%" + w.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+            hit = {psi_uuid(a, b) for a, b in con.execute(
+                "SELECT DISTINCT a.uuid_0, a.uuid_1 FROM groups g JOIN ga ON ga.groupid=g.rowid "
+                "JOIN assets a ON a.rowid=ga.assetid WHERE g.category IN (%s) AND g.normalized_string LIKE ? ESCAPE '\\'" % cats,
+                (pat,))}
+            found = hit if found is None else found & hit
+            if not found:
+                break
+        return found or set()
+    finally:
+        con.close()
+
+
+def parse_near(text: str):
+    """'LAT,LON' or 'LAT,LON,KM' -> (lat, lon, km)."""
+    try:
+        parts = [float(x) for x in text.split(",")]
+    except ValueError:
+        raise UsageError("bad --near %r (want LAT,LON or LAT,LON,KM)" % text) from None
+    if len(parts) == 2:
+        parts.append(NEAR_DEFAULT_KM)
+    if len(parts) != 3:
+        raise UsageError("bad --near %r (want LAT,LON or LAT,LON,KM)" % text)
+    lat, lon, km = parts
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180 and km > 0):
+        raise UsageError("bad --near %r (latitude -90..90, longitude -180..180, KM above 0)" % text)
+    return lat, lon, km
+
+
+def haversine_km(lat1, lon1, lat2, lon2) -> float:
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    a = math.sin((p2 - p1) / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(math.radians(lon2 - lon1) / 2) ** 2
+    return 6371.0088 * 2 * math.asin(min(1.0, math.sqrt(a)))
+
+
+def _has_gps(lat, lon) -> bool:
+    return (lat is not None and lon is not None and lat != NO_LOCATION and lon != NO_LOCATION
+            and -90 <= lat <= 90 and -180 <= lon <= 180)
+
+
+def _photo_ents(con: sqlite3.Connection) -> Dict[str, int]:
+    """Entity numbers for Asset and Album, by name (they move between macOS versions)."""
+    ents = {r[0]: int(r[1]) for r in con.execute("SELECT Z_NAME, Z_ENT FROM Z_PRIMARYKEY WHERE Z_NAME IN ('Asset','Album')")}
+    if len(ents) != 2:
+        raise sqlite3.OperationalError("Photos entity table not as expected (no Asset/Album in Z_PRIMARYKEY)")
+    return ents
+
+
+def best_viewable(library: str, uuid: str) -> Optional[str]:
+    """The largest image among an asset's derivatives, or None."""
+    d = uuid[:1].upper()
+    root = os.path.join(library, "resources", "derivatives")
+    found: List[str] = []
+    for pat in (os.path.join(glob.escape(root), d, glob.escape(uuid) + "*"),
+                os.path.join(glob.escape(root), "masters", d, glob.escape(uuid) + "*"),
+                os.path.join(glob.escape(root), "cvt", d, glob.escape(uuid), "*")):
+        found.extend(f for f in glob.glob(pat) if f.lower().endswith(IMAGE_SUFFIXES))
+    best, best_size = None, -1
+    for f in found:
+        try:
+            size = os.path.getsize(f)
+        except OSError:
+            continue
+        if size > best_size:
+            best, best_size = f, size
+    return best
+
+
+def search_photos(path, text=None, since=None, until=None, near=None, album=None, uuid=None,
+                  include_deleted=False, limit=DEFAULT_LIMIT, psi_path=None, library=None) -> List[dict]:
+    """Photos assets matching ALL the filters given, newest first.
+
+    `path` is Photos.sqlite; the search index and the files are found beside it
+    (<library>/database/search/psi.sqlite, <library>/originals, <library>/resources)
+    unless `psi_path` / `library` say otherwise. Paths come back as plain strings:
+    nothing is converted, copied or opened here."""
+    if not any((text, since, until, near, album, uuid)):
+        raise UsageError("photos needs at least one of --text, --since, --until, --near, --album, --uuid")
+    library = library or os.path.dirname(os.path.dirname(os.path.abspath(path)))
+    psi_path = psi_path or os.path.join(os.path.dirname(os.path.abspath(path)), "search", "psi.sqlite")
+    lo = datetime_to_apple(parse_day(since)) if since else None
+    hi = datetime_to_apple(parse_day(until, end_of_day=True)) if until else None
+    centre = parse_near(near) if near else None
+    wanted = psi_search_uuids(psi_path, text) if text else None
+    if wanted is not None and not wanted:
+        return []
+    want_uuid = uuid.strip("{} ").upper() if uuid else None
+    con = open_ro(path)
+    try:
+        sql = ("SELECT a.Z_PK AS pk, a.ZUUID AS uuid, a.ZDATECREATED AS created, a.ZDIRECTORY AS dir, a.ZFILENAME AS stored, "
+               "a.ZLATITUDE AS lat, a.ZLONGITUDE AS lon, a.ZTRASHEDSTATE AS trashed, x.ZORIGINALFILENAME AS filename "
+               "FROM ZASSET a LEFT JOIN ZADDITIONALASSETATTRIBUTES x ON x.ZASSET=a.Z_PK WHERE 1=1")
+        args: list = []
+        if not include_deleted:
+            sql += " AND COALESCE(a.ZTRASHEDSTATE,0)=0"
+        if want_uuid:
+            sql += " AND a.ZUUID=?"
+            args.append(want_uuid)
+        if lo is not None:
+            sql += " AND a.ZDATECREATED >= ?"
+            args.append(lo)
+        if hi is not None:
+            sql += " AND a.ZDATECREATED < ?"
+            args.append(hi)
+        if centre:
+            lat, lon, km = centre
+            dlat = km / 111.0
+            dlon = km / (111.0 * max(math.cos(math.radians(lat)), 0.01))
+            sql += " AND a.ZLATITUDE BETWEEN ? AND ? AND a.ZLONGITUDE BETWEEN ? AND ?"
+            args += [lat - dlat, lat + dlat, lon - dlon, lon + dlon]
+        if album:
+            ents = _photo_ents(con)
+            n_album = fold(album)
+            pks = [r["Z_PK"] for r in con.execute(
+                "SELECT Z_PK, ZTITLE FROM ZGENERICALBUM WHERE Z_ENT=? AND COALESCE(ZTRASHEDSTATE,0)=0", (ents["Album"],))
+                if r["ZTITLE"] and n_album in fold(r["ZTITLE"])]
+            if not pks:
+                return []
+            sql += (" AND a.Z_PK IN (SELECT j.Z_%dASSETS FROM Z_%dASSETS j WHERE j.Z_%dALBUMS IN (%s))"
+                    % (ents["Asset"], ents["Album"], ents["Album"], ",".join("?" * len(pks))))
+            args += pks
+        sql += " ORDER BY a.ZDATECREATED DESC"
+        rows: List[dict] = []
+        for r in con.execute(sql, args):
+            if wanted is not None and r["uuid"] not in wanted:
+                continue
+            gps = _has_gps(r["lat"], r["lon"])
+            dist = None
+            if centre:
+                if not gps:
+                    continue
+                dist = haversine_km(centre[0], centre[1], r["lat"], r["lon"])
+                if dist > centre[2]:
+                    continue
+            original = os.path.join(library, "originals", r["dir"], r["stored"]) if r["dir"] and r["stored"] else None
+            on_disk = bool(original) and os.path.isfile(original)
+            viewable, kind = (original, "original") if on_disk else (best_viewable(library, r["uuid"]), "derivative")
+            row = {
+                "uuid": r["uuid"],
+                "date": fmt_when(r["created"]),
+                "filename": r["filename"] or r["stored"],
+                "original_on_disk": on_disk,
+                "viewable_path": viewable,
+                "viewable_kind": kind if viewable else None,
+                "gps": {"lat": round(r["lat"], 6), "lon": round(r["lon"], 6)} if gps else None,
+                "deleted": bool(r["trashed"]),
+            }
+            if dist is not None:
+                row["distance_km"] = round(dist, 3)
+            rows.append(row)
+            if len(rows) >= limit:
+                break
+        return rows
+    finally:
+        con.close()
+
+
+def photos_extra_counts(path) -> Dict[str, Optional[int]]:
+    """Counts that need the filesystem or the second database: originals present
+    on disk, and assets in the search index. Numbers only."""
+    library = os.path.dirname(os.path.dirname(os.path.abspath(path)))
+    out: Dict[str, Optional[int]] = {"originals_on_disk": None, "indexed_assets": None}
+    try:
+        con = open_ro(path)
+        try:
+            out["originals_on_disk"] = sum(
+                1 for d, f in con.execute("SELECT ZDIRECTORY, ZFILENAME FROM ZASSET WHERE COALESCE(ZTRASHEDSTATE,0)=0")
+                if d and f and os.path.isfile(os.path.join(library, "originals", d, f)))
+        finally:
+            con.close()
+    except sqlite3.Error:
+        pass
+    try:
+        con = open_ro(os.path.join(os.path.dirname(os.path.abspath(path)), "search", "psi.sqlite"))
+        try:
+            out["indexed_assets"] = _count(con, "SELECT COUNT(*) FROM assets")
+        finally:
+            con.close()
+    except sqlite3.Error:
+        pass
+    return out
+
+
+# ------------------------------------------------------------------- home ----
+
+HAP_BASE_TAIL = bytes.fromhex("0000100080000026bb765291")  # HAP UUIDs: <4-byte short type> + this
+# Only the short types we are sure of; anything else is shown as 0xNNN.
+HAP_SERVICES = {
+    0x3E: "AccessoryInformation", 0x40: "Fan", 0x41: "GarageDoorOpener", 0x43: "Lightbulb",
+    0x44: "LockManagement", 0x45: "LockMechanism", 0x47: "Outlet", 0x49: "Switch",
+    0x4A: "Thermostat", 0x7E: "SecuritySystem", 0x80: "ContactSensor", 0x82: "HumiditySensor",
+    0x85: "MotionSensor", 0x87: "LightSensor", 0x89: "ProgrammableSwitch", 0x8A: "TemperatureSensor",
+    0x8C: "WindowCovering", 0x96: "Battery", 0x110: "CameraStream", 0x112: "Microphone",
+    0x113: "Speaker", 0x121: "Doorbell", 0xD8: "Television", 0xD9: "InputSource",
+}
+HAP_CATEGORIES = {
+    1: "Other", 2: "Bridge", 3: "Fan", 4: "GarageDoorOpener", 5: "Lightbulb", 6: "DoorLock", 7: "Outlet",
+    8: "Switch", 9: "Thermostat", 10: "Sensor", 11: "SecuritySystem", 12: "Door", 13: "Window",
+    14: "WindowCovering", 15: "ProgrammableSwitch", 16: "RangeExtender", 17: "IPCamera", 18: "VideoDoorbell",
+    19: "AirPurifier", 20: "Heater", 21: "AirConditioner", 22: "Humidifier", 23: "Dehumidifier", 31: "Television",
+}
+HOME_MODES = ("homes", "rooms", "zones", "accessories", "scenes", "automations")
+DEFAULT_ROOM = "Default Room"
+TRIGGER_OWNED = "HMActionSetTypeTriggerOwned"  # the hidden scene an automation runs; not a scene the user sees
+
+
+def hap_service_label(blob) -> str:
+    """16-byte HAP service UUID -> a name, or 0xNNN, or 'custom' for a non-HAP UUID."""
+    if not blob or len(blob) != 16 or bytes(blob[4:]) != HAP_BASE_TAIL:
+        return "custom"
+    short = int.from_bytes(bytes(blob[:4]), "big")
+    return HAP_SERVICES.get(short, "0x%X" % short)
+
+
+def _entity_kind(name: Optional[str]) -> Optional[str]:
+    """MKFHAPAccessory -> 'HAP', MKFAirPlayAccessory -> 'AirPlay', MKFEventTrigger -> 'Event'."""
+    if not name:
+        return None
+    name = re.sub(r"^MKF", "", name)
+    return re.sub(r"(Accessory|Trigger)$", "", name) or name
+
+
+def _join_table(con, a_ent: int, a_tag: str, b_ent: int, b_tag: str):
+    """Core Data names a many-to-many join table and its two columns from ENTITY
+    NUMBERS (Z_<a_ent><a_tag>..., Z_<b_ent><b_tag>...), and those numbers move
+    between macOS versions. Find it by looking for the table whose two columns
+    carry exactly those prefixes. Returns (table, a_column, b_column) or None."""
+    pa, pb = "Z_%d%s" % (a_ent, a_tag), "Z_%d%s" % (b_ent, b_tag)
+    for (name,) in con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'Z\\_%' ESCAPE '\\'"):
+        cols = [r[1] for r in con.execute('PRAGMA table_info("%s")' % name.replace('"', ""))]
+        a = [c for c in cols if c.startswith(pa)]
+        b = [c for c in cols if c.startswith(pb)]
+        if len(cols) == 2 and len(a) == 1 and len(b) == 1:
+            return name, a[0], b[0]
+    return None
+
+
+def _ent(con, name: str) -> Optional[int]:
+    row = con.execute("SELECT Z_ENT FROM Z_PRIMARYKEY WHERE Z_NAME=?", (name,)).fetchone()
+    return row[0] if row else None
+
+
+def _links(con, a_name, a_tag, b_name, b_tag) -> List[tuple]:
+    """Pairs (a_pk, b_pk) from the join table between two entities, [] if there is none."""
+    a_ent, b_ent = _ent(con, a_name), _ent(con, b_name)
+    found = _join_table(con, a_ent, a_tag, b_ent, b_tag) if a_ent and b_ent else None
+    if not found:
+        return []
+    table, ca, cb = found
+    return [(r[0], r[1]) for r in con.execute('SELECT "%s", "%s" FROM "%s"' % (ca, cb, table))]
+
+
+def _home_names(con) -> Dict[int, str]:
+    return {r["Z_PK"]: r["ZNAME"] or "(unnamed home)" for r in con.execute("SELECT Z_PK, ZNAME FROM ZMKFHOME")}
+
+
+def _room_names(con) -> Dict[int, str]:
+    """Room pk -> name; a home's blank default room is called what Home calls it."""
+    default = {r[0] for r in con.execute("SELECT ZDEFAULTROOM FROM ZMKFHOME WHERE ZDEFAULTROOM IS NOT NULL")}
+    return {r["Z_PK"]: r["ZNAME"] or (DEFAULT_ROOM if r["Z_PK"] in default else "(unnamed room)")
+            for r in con.execute("SELECT Z_PK, ZNAME FROM ZMKFROOM")}
+
+
+def _hits(needle: Optional[str], *fields) -> bool:
+    if not needle:
+        return True
+    n = fold(needle)
+    return any(n in fold(f) for f in fields if f)
+
+
+def search_home(path, mode, home=None, room=None, text=None, limit=DEFAULT_LIMIT) -> List[dict]:
+    """One kind of thing from the Home layout: homes, rooms, zones, accessories,
+    scenes or automations. The mode is the required filter (never a whole-house
+    dump); --home / --room / --text narrow it. Every SELECT names its columns,
+    so credential-shaped columns beside them are never read."""
+    if mode not in HOME_MODES:
+        raise UsageError("home mode must be one of %s" % ", ".join("--" + m for m in HOME_MODES))
+    con = open_ro(path)
+    try:
+        homes, rooms = _home_names(con), _room_names(con)
+        rows: List[dict] = []
+        if mode == "homes":
+            counts = {t: dict(con.execute("SELECT ZHOME, COUNT(*) FROM %s GROUP BY ZHOME" % t).fetchall())
+                      for t in ("ZMKFROOM", "ZMKFZONE", "ZMKFACCESSORY", "ZMKFTRIGGER")}
+            counts["ZMKFACTIONSET"] = dict(con.execute(
+                "SELECT ZHOME, COUNT(*) FROM ZMKFACTIONSET WHERE COALESCE(ZTYPE,'')<>? GROUP BY ZHOME", (TRIGGER_OWNED,)).fetchall())
+            for r in con.execute("SELECT Z_PK, ZNAME, ZOWNED, ZCREATIONDATE FROM ZMKFHOME ORDER BY ZNAME"):
+                if not _hits(home, r["ZNAME"]):
+                    continue
+                n = lambda t: counts[t].get(r["Z_PK"], 0)
+                rows.append({"name": homes[r["Z_PK"]], "owned": bool(r["ZOWNED"]), "created": fmt_when(r["ZCREATIONDATE"]),
+                             "rooms": n("ZMKFROOM"), "zones": n("ZMKFZONE"), "accessories": n("ZMKFACCESSORY"),
+                             "scenes": n("ZMKFACTIONSET"), "automations": n("ZMKFTRIGGER")})
+        elif mode in ("rooms", "zones"):
+            zone_names = {r["Z_PK"]: r["ZNAME"] or "(unnamed zone)" for r in con.execute("SELECT Z_PK, ZNAME FROM ZMKFZONE")}
+            links = _links(con, "MKFRoom", "ROOMS", "MKFZone", "ZONES")
+            acc_in_room: Dict[int, int] = dict(con.execute("SELECT ZROOM, COUNT(*) FROM ZMKFACCESSORY GROUP BY ZROOM").fetchall())
+            if mode == "rooms":
+                zones_of: Dict[int, List[str]] = {}
+                for room_pk, zone_pk in links:
+                    zones_of.setdefault(room_pk, []).append(zone_names.get(zone_pk, "?"))
+                for r in con.execute("SELECT Z_PK, ZHOME FROM ZMKFROOM"):
+                    if _hits(home, homes.get(r["ZHOME"])) and _hits(room, rooms[r["Z_PK"]]) and _hits(text, rooms[r["Z_PK"]]):
+                        rows.append({"name": rooms[r["Z_PK"]], "home": homes.get(r["ZHOME"]),
+                                     "zones": sorted(zones_of.get(r["Z_PK"], [])), "accessories": acc_in_room.get(r["Z_PK"], 0)})
+            else:
+                rooms_of: Dict[int, List[str]] = {}
+                for room_pk, zone_pk in links:
+                    rooms_of.setdefault(zone_pk, []).append(rooms.get(room_pk, "?"))
+                for r in con.execute("SELECT Z_PK, ZNAME, ZHOME FROM ZMKFZONE"):
+                    if _hits(home, homes.get(r["ZHOME"])) and _hits(text, r["ZNAME"]):
+                        member = sorted(rooms_of.get(r["Z_PK"], []))
+                        if _hits(room, *member):
+                            rows.append({"name": zone_names[r["Z_PK"]], "home": homes.get(r["ZHOME"]), "rooms": member})
+        elif mode == "accessories":
+            kinds = {r[0]: _entity_kind(r[1]) for r in con.execute("SELECT Z_ENT, Z_NAME FROM Z_PRIMARYKEY")}
+            by_acc: Dict[int, List[dict]] = {}
+            for r in con.execute("SELECT ZACCESSORY, ZNAME, ZPROVIDEDNAME, ZSERVICETYPE FROM ZMKFSERVICE ORDER BY Z_PK"):
+                by_acc.setdefault(r["ZACCESSORY"], []).append(
+                    {"name": r["ZNAME"] or r["ZPROVIDEDNAME"], "type": hap_service_label(r["ZSERVICETYPE"])})
+            names = {r[0]: r[1] or r[2] for r in con.execute("SELECT Z_PK, ZCONFIGUREDNAME, ZPROVIDEDNAME FROM ZMKFACCESSORY")}
+            for r in con.execute("SELECT Z_PK, Z_ENT, ZCONFIGUREDNAME, ZPROVIDEDNAME, ZMANUFACTURER, ZMODEL, ZSERIALNUMBER, "
+                                 "ZFIRMWAREVERSION, ZACCESSORYCATEGORY, ZROOM, ZHOME, ZHOSTACCESSORY FROM ZMKFACCESSORY "
+                                 "ORDER BY ZHOME, ZROOM, Z_PK"):
+                name = r["ZCONFIGUREDNAME"] or r["ZPROVIDEDNAME"]
+                room_name = rooms.get(r["ZROOM"])
+                if not (_hits(home, homes.get(r["ZHOME"])) and _hits(room, room_name)
+                        and _hits(text, name, r["ZMANUFACTURER"], r["ZMODEL"], r["ZSERIALNUMBER"], room_name)):
+                    continue
+                cat = r["ZACCESSORYCATEGORY"]
+                rows.append({"name": name or "(unnamed)", "kind": kinds.get(r["Z_ENT"]), "manufacturer": r["ZMANUFACTURER"],
+                             "model": r["ZMODEL"], "serial": r["ZSERIALNUMBER"], "firmware": r["ZFIRMWAREVERSION"],
+                             "category": cat, "category_name": HAP_CATEGORIES.get(cat), "room": room_name,
+                             "home": homes.get(r["ZHOME"]), "bridged_by": names.get(r["ZHOSTACCESSORY"]),
+                             "services": by_acc.get(r["Z_PK"], [])})
+        else:  # scenes, automations
+            sets = {r["Z_PK"]: r for r in con.execute("SELECT Z_PK, ZNAME, ZTYPE, ZHOME, ZLASTEXECUTIONDATE FROM ZMKFACTIONSET")}
+            links = _links(con, "MKFActionSet", "ACTIONSETS", "MKFTrigger", "TRIGGERS")
+            if mode == "scenes":
+                autos_of: Dict[int, List[str]] = {}
+                trig_names = {r[0]: r[1] for r in con.execute("SELECT Z_PK, ZNAME FROM ZMKFTRIGGER")}
+                for set_pk, trig_pk in links:
+                    autos_of.setdefault(set_pk, []).append(trig_names.get(trig_pk) or "?")
+                for pk, r in sets.items():
+                    if r["ZTYPE"] != TRIGGER_OWNED and _hits(home, homes.get(r["ZHOME"])) and _hits(text, r["ZNAME"]):
+                        rows.append({"name": r["ZNAME"] or "(unnamed)", "type": re.sub(r"^HMActionSetType", "", r["ZTYPE"] or "") or None,
+                                     "home": homes.get(r["ZHOME"]), "last_run": fmt_when(r["ZLASTEXECUTIONDATE"]),
+                                     "automations": sorted(autos_of.get(pk, []))})
+            else:
+                scenes_of: Dict[int, List[str]] = {}
+                for set_pk, trig_pk in links:
+                    if set_pk in sets:
+                        scenes_of.setdefault(trig_pk, []).append(sets[set_pk]["ZNAME"] or "?")
+                kinds = {r[0]: _entity_kind(r[1]) for r in con.execute("SELECT Z_ENT, Z_NAME FROM Z_PRIMARYKEY")}
+                for r in con.execute("SELECT Z_PK, Z_ENT, ZNAME, ZACTIVE, ZHOME, ZFIREDATE, ZMOSTRECENTFIREDATE FROM ZMKFTRIGGER ORDER BY ZNAME"):
+                    if _hits(home, homes.get(r["ZHOME"])) and _hits(text, r["ZNAME"]):
+                        rows.append({"name": r["ZNAME"] or "(unnamed)", "kind": kinds.get(r["Z_ENT"]), "active": bool(r["ZACTIVE"]),
+                                     "home": homes.get(r["ZHOME"]), "next_fire": fmt_when(r["ZFIREDATE"]),
+                                     "last_fired": fmt_when(r["ZMOSTRECENTFIREDATE"]), "scenes": sorted(scenes_of.get(r["Z_PK"], []))})
+        return rows[:limit]
+    finally:
+        con.close()
+
+
+def pending_wal_bytes(path: str) -> int:
+    """Size of a non-empty write-ahead log beside the store, which immutable=1 does not read."""
+    try:
+        return os.path.getsize(path + "-wal")
+    except OSError:
+        return 0
+
+
+# ------------------------------------------------------------------ status ----
+
+def _count(con, sql) -> Optional[int]:
+    try:
+        return con.execute(sql).fetchone()[0]
+    except sqlite3.Error:
+        return None
+
+
+# counts for Notes: rows of the ICNote entity joined to their folder; nothing but COUNT(*)
+_NOTE_Q = ("SELECT COUNT(*) FROM ZICCLOUDSYNCINGOBJECT n LEFT JOIN ZICCLOUDSYNCINGOBJECT f ON f.Z_PK=n.ZFOLDER "
+           "WHERE n.Z_ENT=(SELECT Z_ENT FROM Z_PRIMARYKEY WHERE Z_NAME='ICNote') %s")
+
+STATUS_COUNTS: Dict[str, Dict[str, str]] = {
+    "contacts": {
+        "contacts": "SELECT COUNT(*) FROM ZABCDRECORD WHERE ZFIRSTNAME IS NOT NULL OR ZLASTNAME IS NOT NULL "
+                    "OR ZORGANIZATION IS NOT NULL OR ZNICKNAME IS NOT NULL",
+        "phone_numbers": "SELECT COUNT(*) FROM ZABCDPHONENUMBER",
+        "emails": "SELECT COUNT(*) FROM ZABCDEMAILADDRESS",
+    },
+    "messages": {
+        "messages": "SELECT COUNT(*) FROM message",
+        "chats": "SELECT COUNT(*) FROM chat",
+        "handles": "SELECT COUNT(*) FROM handle",
+    },
+    "calendar": {
+        "calendars": "SELECT COUNT(*) FROM Calendar",
+        "events": "SELECT COUNT(*) FROM CalendarItem WHERE entity_type=2",
+    },
+    "reminders": {
+        "reminders": "SELECT COUNT(*) FROM ZREMCDREMINDER WHERE COALESCE(ZMARKEDFORDELETION,0)=0",
+        "open": "SELECT COUNT(*) FROM ZREMCDREMINDER WHERE COALESCE(ZMARKEDFORDELETION,0)=0 AND COALESCE(ZCOMPLETED,0)=0",
+        "lists": "SELECT COUNT(*) FROM ZREMCDBASELIST WHERE COALESCE(ZMARKEDFORDELETION,0)=0 "
+                 "AND ZSMARTLISTTYPE IS NULL AND COALESCE(ZISGROUP,0)=0",
+    },
+    "notes": {
+        "notes": _NOTE_Q % "AND COALESCE(n.ZMARKEDFORDELETION,0)=0 AND COALESCE(f.ZFOLDERTYPE,0)<>1",
+        "recently_deleted": _NOTE_Q % "AND (n.ZMARKEDFORDELETION=1 OR f.ZFOLDERTYPE=1)",
+        "locked": _NOTE_Q % "AND n.ZISPASSWORDPROTECTED=1",
+        "folders": "SELECT COUNT(*) FROM ZICCLOUDSYNCINGOBJECT WHERE Z_ENT=(SELECT Z_ENT FROM Z_PRIMARYKEY WHERE Z_NAME='ICFolder') "
+                   "AND COALESCE(ZFOLDERTYPE,0)<>1 AND ZSMARTFOLDERQUERYJSON IS NULL",
+    },
+    "photos": {
+        "assets": "SELECT COUNT(*) FROM ZASSET WHERE COALESCE(ZTRASHEDSTATE,0)=0",
+        "with_recognised_text": "SELECT COUNT(DISTINCT a.Z_PK) FROM ZCHARACTERRECOGNITIONATTRIBUTES c "
+                                "JOIN ZMEDIAANALYSISASSETATTRIBUTES m ON m.Z_PK=c.ZMEDIAANALYSISASSETATTRIBUTES "
+                                "JOIN ZASSET a ON a.Z_PK=m.ZASSET "
+                                "WHERE c.ZCHARACTERRECOGNITIONDATA IS NOT NULL AND COALESCE(a.ZTRASHEDSTATE,0)=0",
+    },
+    "home": {
+        "homes": "SELECT COUNT(*) FROM ZMKFHOME",
+        "rooms": "SELECT COUNT(*) FROM ZMKFROOM",
+        "zones": "SELECT COUNT(*) FROM ZMKFZONE",
+        "accessories": "SELECT COUNT(*) FROM ZMKFACCESSORY",
+        "services": "SELECT COUNT(*) FROM ZMKFSERVICE",
+        "scenes": "SELECT COUNT(*) FROM ZMKFACTIONSET WHERE COALESCE(ZTYPE,'')<>'%s'" % TRIGGER_OWNED,
+        "automations": "SELECT COUNT(*) FROM ZMKFTRIGGER",
+    },
+}
+
+
+def status(overrides: Optional[Dict[str, Sequence[str]]] = None) -> List[dict]:
+    """Per store: path, whether it opens read-only, row counts. No content."""
+    overrides = overrides or {}
+    report: List[dict] = []
+    for app in ("contacts", "messages", "calendar", "reminders", "notes", "photos", "home"):
+        paths = resolve_paths(app, overrides.get(app))
+        if not paths:
+            report.append({"app": app, "path": None, "opens_read_only": False, "error": "store not found", "counts": {}})
+        for path in paths:
+            entry = {"app": app, "path": path, "opens_read_only": False, "counts": {}}
+            try:
+                con = open_ro(path)
+                try:
+                    con.execute("SELECT 1 FROM sqlite_master LIMIT 1").fetchone()
+                    entry["opens_read_only"] = True
+                    entry["counts"] = {k: _count(con, q) for k, q in STATUS_COUNTS[app].items()}
+                    if app == "photos":
+                        entry["counts"].update(photos_extra_counts(path))
+                finally:
+                    con.close()
+            except sqlite3.Error as exc:
+                entry["error"] = str(exc)
+            report.append(entry)
+    return report
+
+
+# ------------------------------------------------------------------ output ----
+
+def render_text(app: str, rows: List[dict]) -> str:
+    if not rows:
+        return "(no matches)"
+    lines: List[str] = []
+    for r in rows:
+        if app == "contacts":
+            head = r["name"] + (" (%s)" % r["organisation"] if r["organisation"] and r["organisation"] != r["name"] else "")
+            lines.append(head)
+            if r["job_title"]:
+                lines.append("  title:  %s" % r["job_title"])
+            for x in r["phones"]:
+                lines.append("  phone:  %s%s" % (x["number"], " [%s]" % x["label"] if x["label"] else ""))
+            for x in r["emails"]:
+                lines.append("  email:  %s%s" % (x["address"], " [%s]" % x["label"] if x["label"] else ""))
+        elif app == "messages":
+            body = clip(r["text"]) if r["text"] else ("[attachment]" if r["attachments"] else "[no text decoded]")
+            lines.append("%s  %s  (%s)  %s" % (r["when"], r["from"], r["chat"] or "?", body))
+        elif app == "calendar":
+            span = r["start"] if r["start"] == r["end"] or not r["end"] else "%s -> %s" % (r["start"], r["end"])
+            extra = "".join((" @ %s" % r["location"] if r["location"] else "", " [repeats]" if r["repeats"] else ""))
+            lines.append("%s  %s  [%s]%s" % (span, r["title"], r["calendar"], extra))
+            if r["notes"]:
+                lines.append("    %s" % r["notes"])
+        elif app == "reminders":
+            mark = "x" if r["done"] else " "
+            due = "  due %s" % r["due"] if r["due"] else ""
+            flag = "  !" if r["flagged"] else ""
+            lines.append("[%s] %s  (%s)%s%s" % (mark, r["title"], r["list"], due, flag))
+            if r["notes"]:
+                lines.append("    %s" % r["notes"])
+        elif app == "notes":
+            flags = "".join((" [locked]" if r["locked"] else "", " [deleted]" if r["deleted"] else "",
+                             "" if r["decoded"] else " [body not decoded]"))
+            lines.append("#%s  %s  %s  (%s)%s" % (r["id"], r["modified"], r["title"] or "(untitled)", r["folder"] or "no folder", flags))
+            if "text" in r:
+                lines.append(r["text"] if r["text"] is not None else "    (no text)")
+            elif r["snippet"]:
+                lines.append("    %s" % r["snippet"])
+        elif app == "photos":
+            flags = " [deleted]" if r["deleted"] else ""
+            lines.append("%s  %s  %s%s" % (r["date"], r["filename"] or "(no name)", r["uuid"], flags))
+            lines.append("    original: %s" % ("on disk" if r["original_on_disk"] else "not on disk"))
+            lines.append("    view:     %s" % ("%s  [%s]" % (r["viewable_path"], r["viewable_kind"]) if r["viewable_path"]
+                                                else "(no file on disk)"))
+            if r["gps"]:
+                dist = "  (%s km)" % r["distance_km"] if "distance_km" in r else ""
+                lines.append("    gps:      %s, %s%s" % (r["gps"]["lat"], r["gps"]["lon"], dist))
+        elif app == "home":
+            lines.extend(_render_home_row(r))
+    return "\n".join(lines)
+
+
+def _render_home_row(r: dict) -> List[str]:
+    if "owned" in r:  # a home
+        return ["%s%s  rooms=%d zones=%d accessories=%d scenes=%d automations=%d" % (
+            r["name"], "" if r["owned"] else " [shared]", r["rooms"], r["zones"], r["accessories"],
+            r["scenes"], r["automations"])]
+    if "services" in r:  # an accessory
+        make = " ".join(x for x in (r["manufacturer"], r["model"]) if x)
+        head = "%s  (%s)  %s%s" % (r["name"], r["room"] or "no room", make or "unknown make",
+                                   "  %s" % r["category_name"] if r["category_name"] else "")
+        out = [head]
+        bits = ["home: %s" % r["home"], "kind: %s" % r["kind"]]
+        if r["serial"]:
+            bits.append("serial: %s" % r["serial"])
+        if r["firmware"]:
+            bits.append("firmware: %s" % r["firmware"])
+        if r["bridged_by"]:
+            bits.append("via: %s" % r["bridged_by"])
+        out.append("    " + "  ".join(bits))
+        kinds: Dict[str, int] = {}
+        for sv in r["services"]:
+            kinds[sv["type"]] = kinds.get(sv["type"], 0) + 1
+        if kinds:
+            out.append("    services: " + ", ".join("%s x%d" % kv if kv[1] > 1 else kv[0] for kv in sorted(kinds.items())))
+        return out
+    if "last_run" in r:  # a scene
+        return ["%s  [%s]  (%s)%s%s" % (r["name"], r["type"] or "?", r["home"],
+                                         "  last run %s" % r["last_run"] if r["last_run"] else "",
+                                         "  automations: %s" % ", ".join(r["automations"]) if r["automations"] else "")]
+    if "active" in r:  # an automation
+        return ["%s  [%s, %s]  (%s)%s%s%s" % (
+            r["name"], r["kind"] or "?", "on" if r["active"] else "off", r["home"],
+            "  next %s" % r["next_fire"] if r["next_fire"] else "", "  last %s" % r["last_fired"] if r["last_fired"] else "",
+            "  scenes: %s" % ", ".join(r["scenes"]) if r["scenes"] else "")]
+    if "rooms" in r:  # a zone
+        return ["%s  (%s)  rooms: %s" % (r["name"], r["home"], ", ".join(r["rooms"]) or "none")]
+    return ["%s  (%s)  accessories=%d%s" % (r["name"], r["home"], r["accessories"],
+                                          "  zones: %s" % ", ".join(r["zones"]) if r["zones"] else "")]
+
+
+def render_status(report: List[dict]) -> str:
+    lines = []
+    for e in report:
+        state = "opens read-only" if e["opens_read_only"] else "CANNOT OPEN (%s)" % e.get("error", "?")
+        lines.append("%-9s %s" % (e["app"], e["path"] or "-"))
+        lines.append("          %s" % state)
+        if e["counts"]:
+            lines.append("          " + ", ".join("%s=%s" % kv for kv in e["counts"].items()))
+    return "\n".join(lines)
+
+
+# --------------------------------------------------------------------- CLI ----
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="ccapple",
+        description="Read-only search of Apple Contacts, Messages, Calendar, Reminders, Notes, Photos and Home.",
+        epilog="Every search needs at least one filter. Dates are YYYY-MM-DD (or YYYYMMDD), local time. "
+               "Full manual: man ccapple")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    def common(sp, many_db=False):
+        sp.add_argument("--limit", type=int, default=DEFAULT_LIMIT, help="max results (default %d)" % DEFAULT_LIMIT)
+        sp.add_argument("--json", action="store_true", help="JSON output")
+        if many_db:
+            sp.add_argument("--db", action="append", help="store path override (repeatable)")
+        else:
+            sp.add_argument("--db", help="store path override")
+
+    sp = sub.add_parser("status", help="per store: path, opens read-only?, row counts only")
+    sp.add_argument("--json", action="store_true")
+    sp = sub.add_parser("contacts", help="find people by name / phone / email / organisation")
+    sp.add_argument("--name"); sp.add_argument("--phone"); sp.add_argument("--email"); sp.add_argument("--org")
+    common(sp, many_db=True)
+    sp = sub.add_parser("messages", help="search iMessage/SMS by person, dates and text")
+    sp.add_argument("--person", help="a contact name, or a phone/email handle")
+    sp.add_argument("--since", help="YYYY-MM-DD"); sp.add_argument("--until", help="YYYY-MM-DD (inclusive)")
+    sp.add_argument("--text", help="words to find in the message body")
+    sp.add_argument("--contacts-db", action="append", help="Contacts store override (repeatable)")
+    common(sp)
+    sp = sub.add_parser("calendar", help="search events by dates, calendar and text")
+    sp.add_argument("--since", help="YYYY-MM-DD"); sp.add_argument("--until", help="YYYY-MM-DD (inclusive)")
+    sp.add_argument("--calendar", help="calendar name contains"); sp.add_argument("--text")
+    common(sp)
+    sp = sub.add_parser("reminders", help="search reminders by list, text, open state")
+    sp.add_argument("--list", dest="list_name"); sp.add_argument("--text")
+    sp.add_argument("--open-only", action="store_true")
+    common(sp, many_db=True)
+    sp = sub.add_parser("notes", help="search Apple Notes by title, text, folder, dates")
+    sp.add_argument("--title", help="title contains"); sp.add_argument("--text", help="words to find in the note body")
+    sp.add_argument("--folder", help="folder name contains")
+    sp.add_argument("--since", help="modified on/after YYYY-MM-DD"); sp.add_argument("--until", help="modified up to YYYY-MM-DD (inclusive)")
+    sp.add_argument("--id", type=int, dest="note_id", help="a note id from an earlier search")
+    sp.add_argument("--include-deleted", action="store_true", help="also search Recently Deleted")
+    sp.add_argument("--full", action="store_true", help="print one note's whole text (the search must match exactly one)")
+    common(sp)
+    sp = sub.add_parser("photos", help="search Photos by recognised text/caption, dates, place, album (paths, not images)")
+    sp.add_argument("--text", help="words in the recognised text or caption (all required)")
+    sp.add_argument("--since", help="taken on/after YYYY-MM-DD"); sp.add_argument("--until", help="taken up to YYYY-MM-DD (inclusive)")
+    sp.add_argument("--near", help="LAT,LON[,KM] (KM defaults to %g)" % NEAR_DEFAULT_KM)
+    sp.add_argument("--album", help="album name contains")
+    sp.add_argument("--uuid", help="an asset UUID from an earlier search")
+    sp.add_argument("--include-deleted", action="store_true", help="also match Recently Deleted")
+    common(sp)
+    sp = sub.add_parser("home", help="read the Apple Home layout: homes, rooms, zones, accessories, scenes, automations (no control)")
+    for m in HOME_MODES:
+        sp.add_argument("--" + m, dest="home_mode", action="append_const", const=m, help="list the %s" % m)
+    sp.add_argument("--home", help="home name contains"); sp.add_argument("--room", help="room name contains")
+    sp.add_argument("--text", help="name, make, model, serial or room contains")
+    common(sp)
+    return p
+
+
+def _one(app, override):
+    paths = resolve_paths(app, [override] if override else None)
+    if not paths:
+        raise sqlite3.OperationalError("%s store not found" % app)
+    return paths[0]
+
+
+def _glue_negative_near(argv: Sequence[str]) -> List[str]:
+    """argparse reads `--near -41.2,174.7` as a flag; southern latitudes are
+    negative, so glue the value on as `--near=-41.2,174.7`."""
+    argv = list(argv)
+    for i in range(len(argv) - 1):
+        if argv[i] == "--near" and argv[i + 1].startswith("-"):
+            argv[i:i + 2] = ["--near=" + argv[i + 1]]
+            break
+    return argv
+
+
+def main(argv: Optional[Sequence[str]] = None, out=None) -> int:
+    out = out or sys.stdout
+    args = build_parser().parse_args(_glue_negative_near(sys.argv[1:] if argv is None else argv))
+    try:
+        if args.cmd == "status":
+            report = status()
+            print(json.dumps(report, indent=2) if args.json else render_status(report), file=out)
+            return 0 if all(e["opens_read_only"] for e in report) else 1
+        if args.limit < 1:
+            raise UsageError("--limit must be at least 1")
+        if args.cmd == "contacts":
+            rows = search_contacts(resolve_paths("contacts", args.db), args.name, args.phone, args.email, args.org, args.limit)
+        elif args.cmd == "messages":
+            rows = search_messages(_one("messages", args.db), resolve_paths("contacts", args.contacts_db),
+                                   args.person, args.since, args.until, args.text, args.limit)
+        elif args.cmd == "calendar":
+            rows = search_calendar(_one("calendar", args.db), args.since, args.until, args.calendar, args.text, args.limit)
+        elif args.cmd == "notes":
+            store = _one("notes", args.db)
+            rows = search_notes(store, args.title, args.text, args.folder, args.since, args.until,
+                                args.note_id, args.include_deleted, args.full, args.limit)
+            if args.text and (n := locked_count(store)):
+                print("ccapple: %d locked note(s) cannot be searched and were skipped" % n, file=sys.stderr)
+        elif args.cmd == "home":
+            modes = args.home_mode or []
+            if len(modes) != 1:
+                raise UsageError("home needs exactly one of %s (at least one is required)" % ", ".join("--" + m for m in HOME_MODES))
+            store = _one("home", args.db)
+            rows = search_home(store, modes[0], args.home, args.room, args.text, args.limit)
+            if wal := pending_wal_bytes(store):
+                print("ccapple: %s has %d KB of uncommitted changes in its write-ahead log that this read-only open "
+                      "cannot see; a device or room changed in the last few days may be missing"
+                      % (os.path.basename(store), wal // 1024), file=sys.stderr)
+        elif args.cmd == "photos":
+            rows = search_photos(_one("photos", args.db), args.text, args.since, args.until, args.near,
+                                 args.album, args.uuid, args.include_deleted, args.limit)
+        else:
+            rows = search_reminders(resolve_paths("reminders", args.db), args.list_name, args.text, args.open_only, args.limit)
+    except UsageError as exc:
+        print("ccapple: %s" % exc, file=sys.stderr)
+        return 2
+    except sqlite3.Error as exc:
+        print("ccapple: cannot read store: %s" % exc, file=sys.stderr)
+        return 1
+    print(json.dumps(rows, indent=2, ensure_ascii=False) if args.json else render_text(args.cmd, rows), file=out)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

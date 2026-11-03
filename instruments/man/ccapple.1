@@ -1,0 +1,519 @@
+.TH CCAPPLE 1 "2026-11-01" "atelier instruments" "User Commands"
+.SH NAME
+ccapple \- read\-only search of the Apple apps' local stores on a Mac
+.SH SYNOPSIS
+.B ccapple status
+.RI [ \-\-json ]
+.br
+.B ccapple contacts
+.RI [ \-\-name
+.IR text ]
+.RI [ \-\-phone
+.IR digits ]
+.RI [ \-\-email
+.IR text ]
+.RI [ \-\-org
+.IR text ]
+.br
+.B ccapple messages
+.RI [ \-\-person
+.IR name\-or\-handle ]
+.RI [ \-\-since
+.IR date ]
+.RI [ \-\-until
+.IR date ]
+.RI [ \-\-text
+.IR words ]
+.br
+.B ccapple calendar
+.RI [ \-\-since
+.IR date ]
+.RI [ \-\-until
+.IR date ]
+.RI [ \-\-calendar
+.IR name ]
+.RI [ \-\-text
+.IR words ]
+.br
+.B ccapple reminders
+.RI [ \-\-list
+.IR name ]
+.RI [ \-\-text
+.IR words ]
+.RI [ \-\-open\-only ]
+.br
+.B ccapple notes
+.RI [ \-\-title
+.IR text ]
+.RI [ \-\-text
+.IR words ]
+.RI [ \-\-folder
+.IR name ]
+.RI [ \-\-since
+.IR date ]
+.RI [ \-\-until
+.IR date ]
+.RI [ \-\-id
+.IR n ]
+.RI [ \-\-include\-deleted ]
+.RI [ \-\-full ]
+.br
+.B ccapple photos
+.RI [ \-\-text
+.IR words ]
+.RI [ \-\-since
+.IR date ]
+.RI [ \-\-until
+.IR date ]
+.RI [ \-\-near
+.IR lat,lon[,km] ]
+.RI [ \-\-album
+.IR name ]
+.RI [ \-\-uuid
+.IR uuid ]
+.RI [ \-\-include\-deleted ]
+.br
+.B ccapple home
+.RB ( \-\-homes " | " \-\-rooms " | " \-\-zones " | " \-\-accessories " | " \-\-scenes " | " \-\-automations )
+.RI [ \-\-home
+.IR name ]
+.RI [ \-\-room
+.IR name ]
+.RI [ \-\-text
+.IR words ]
+.PP
+Every search subcommand also takes
+.RI [ \-\-limit
+.IR n ]
+.RI [ \-\-json ]
+.RI [ \-\-db
+.IR path ].
+.SH DESCRIPTION
+The data a person keeps in the Apple apps \(em the address book, the calendar,
+reminders, notes, messages, the photo library \(em is reachable only through the
+GUI apps or through frameworks that ask the user for permission app by app. A
+Claude Code session can drive neither. So a session asked "when did the supplier
+last write to me?" or "which photo has the serial number on it?" has to say it
+cannot look.
+.PP
+.B ccapple
+closes that gap without a new grant, account or dependency. The apps keep their
+data in ordinary SQLite files that iCloud already syncs onto the Mac, and a
+terminal that has been given Full Disk Access can open them. The tool opens each
+one
+.B read\-only
+and prints the few rows a filter selects. It is standard\-library Python and has
+no network access.
+.PP
+Six of the subcommands each read one app: contacts, messages, calendar,
+reminders, notes and photos.
+.B home
+reads the layout of the Apple Home (HomeKit) configuration.
+.B status
+reads none of their content: it reports, per store, where the file is,
+whether it
+opens, and row counts.
+.SH THE SAFETY FLOOR
+These stores hold other people's messages and the operator's private material,
+so the limits below are properties of the code, not conventions.
+.TP
+.B Read\-only, by construction
+Every store is opened through one function, with the SQLite URI
+.IR "file:<path>?mode=ro&immutable=1" ,
+followed by
+.IR "PRAGMA query_only=ON" .
+.B mode=ro
+refuses writes. The
+.B immutable=1
+option takes no lock and never touches the store's
+.I \-wal
+and
+.I \-shm
+files, so the app that owns the store is never disturbed. Nothing here writes to
+a store, copies one, sends a message, or drives a GUI app (no AppleScript, no
+.IR open ).
+.TP
+.B Search, never dump
+Every search subcommand refuses to run without at least one filter (exit
+status 2), and every search is capped by
+.B \-\-limit
+(default 20). Whole\-store extraction is not offered.
+.TP
+.B Locked notes stay locked
+A password\-protected note's body is encrypted. The tool never reads it and
+never tries to decrypt it. Such a note is listed, flagged
+.IR locked ,
+with no text, and a
+.B \-\-text
+search cannot see inside one (it says how many it skipped).
+.TP
+.B Credentials are never selected
+The Home store holds credential\-shaped columns beside the ones the tool keeps
+(passwords, pre\-shared keys, pairing keys, Matter credentials, a Wi\-Fi
+name). Every
+query names the columns it wants and none of those is among them; there is no
+.IR "SELECT *" ,
+so a column a future macOS adds is not exposed by accident. A test fails if any
+of the known credential columns appears in the Home code, and another plants
+sentinel values in them and checks that no output carries one.
+.TP
+.B A stale view, said plainly
+Because
+.B immutable=1
+does not read the write\-ahead log, the newest rows (the last few messages, an
+edit made seconds ago) can be missing, and in principle a page can be torn
+if the
+app is mid\-write. That is acceptable for search; re\-check a value that
+matters.
+For Home, which is checkpointed only now and then, the tool warns on standard
+error when a non\-empty log sits beside the store.
+.PP
+What a search prints goes wherever the caller's output goes \(em into the
+session
+transcript, for a Claude Code session. Filter narrowly, and keep the output out
+of any repository, document or message shared with other people.
+.SH SUBCOMMANDS
+.SS status
+Per store: its path, whether it opens read\-only, and row counts only \(em never
+content. The first thing to run on a new machine: a store that cannot be opened
+is reported as
+.I CANNOT OPEN
+with the reason (usually that the terminal lacks Full Disk Access), and the exit
+status is 1 if any store cannot be.
+.SS contacts
+Finds people by
+.BR \-\-name ,
+.BR \-\-phone ,
+.B \-\-email
+or
+.BR \-\-org .
+Every address\-book source is searched. Names match case\- and
+accent\-insensitively (\(lqmaori\(rq finds \(lqMāori\(rq) and all words
+must be present. A phone number matches on its digits, so spacing and
+punctuation do not matter. Records with no
+name or organisation are never listed.
+.SS messages
+Searches iMessage and SMS by
+.B \-\-person
+(a contact name, resolved through Contacts, or a phone number or email used as
+given),
+.B \-\-since
+/
+.BR \-\-until ,
+and
+.B \-\-text
+(words in the body). A person's one\-to\-one chat is returned, plus that
+person's
+own messages in group chats; other people's group messages are not. A name that
+matches no contact with a phone number or email is a usage error, never a silent
+\(lqno messages\(rq. Phone numbers match on their last nine digits, so
+\fB+44 20 7946 0101\fR
+and \fB020 7946 0101\fR agree.
+.PP
+Modern Messages keeps most bodies in a binary archive rather than the plain text
+column. The tool decodes that archive on a best\-effort basis: it ignores
+formatting and links, and where the shape is not what it expects it reports the
+body as not decoded rather than guess. Because of this,
+.B \-\-text
+is matched in the tool, newest messages first, not in the database.
+.SS calendar
+Searches events by
+.BR \-\-since / \-\-until ,
+.B \-\-calendar
+(name contains) and
+.B \-\-text
+(title, notes or location). Times are shown in local time; all\-day events
+as plain
+dates. Recurring events are
+.B not
+expanded by this tool: inside a date range they appear only for the occurrences
+Calendar itself has cached (a rolling window), and with no date range they
+appear
+once, as the series, flagged
+.IR repeats .
+.SS reminders
+Searches by
+.B \-\-list
+(name contains),
+.B \-\-text
+and
+.B \-\-open\-only
+(skip completed ones). Open reminders come first, soonest due first, undated
+last.
+Reminders marked for deletion are skipped.
+.SS notes
+Searches Apple Notes by
+.B \-\-title
+(contains),
+.B \-\-text
+(in the body),
+.B \-\-folder
+(path contains, e.g.\& \fIWork/Projects\fR),
+.B \-\-since
+/
+.B \-\-until
+(date modified) or
+.B \-\-id
+(a number from an earlier search). The default output is a snippet around the
+match, not the note. Notes in Recently Deleted are left out unless
+.B \-\-include\-deleted
+is given.
+.PP
+.B \-\-full
+prints one note's whole text, and only when the search matches exactly one note
+(otherwise exit status 2: narrow the search or use
+.BR \-\-id ).
+Attachments appear in the text as
+.IR [attachment] .
+Note bodies are stored as a compressed protobuf message; the tool reads it
+with a
+small built\-in decoder, caps the decompressed size, and reports a body it
+cannot
+decode as such.
+.SS photos
+Searches the Photos library in place \(em nothing is copied \(em and returns
+.B paths, not images
+(converting HEIC for viewing is the caller's job, for example with
+.BR sips (1)).
+.B \-\-text
+matches text Photos has recognised inside images and captions the user typed;
+every word must match, as a substring. The other filters are
+.BR \-\-since / \-\-until
+(date taken),
+.B \-\-near
+.I LAT,LON[,KM]
+(within KM kilometres, default 1; a leading minus on a southern latitude is
+fine),
+.B \-\-album
+(name contains) and
+.B \-\-uuid
+(an asset from an earlier search). Trashed assets are left out unless
+.B \-\-include\-deleted
+is given.
+.PP
+Each result says whether the original file is on this Mac (with optimised
+storage
+most are only in iCloud) and gives the best viewable file: the original if
+present,
+otherwise the largest cached image derivative, otherwise none.
+.SS home
+Reads the Apple Home layout: one of
+.BR \-\-homes ,
+.BR \-\-rooms ,
+.BR \-\-zones ,
+.BR \-\-accessories ,
+.B \-\-scenes
+or
+.B \-\-automations
+is required (exactly one), and
+.BR \-\-home ,
+.B \-\-room
+and
+.B \-\-text
+narrow it. It never controls anything: it cannot switch a light or run a
+scene, and
+the store holds no live state, so it cannot say whether a light is on.
+Scenes are
+listed by name and type only; what a scene does is not in the store. Accessories
+show make, model, serial number, room, bridge and service types.
+.PP
+The output is a map of a home's devices. Keep it for the operator's own use.
+.SH OPTIONS
+.TP
+.B \-\-limit \fIn\fR
+Maximum results (default 20, at least 1). Applies to every search.
+.TP
+.B \-\-json
+Machine\-readable output: a JSON array of result objects (for
+.BR status ,
+an array of per\-store reports). Never styled.
+.TP
+.B \-\-db \fIpath\fR
+Read this store file instead of the default location. Repeatable for
+.B contacts
+and
+.BR reminders ,
+which span several files. For
+.B photos
+it is the
+.I Photos.sqlite
+inside the
+.I .photoslibrary
+package; the search index and image files are found beside it.
+.TP
+.B \-\-contacts\-db \fIpath\fR
+(messages) Contacts store to resolve names against. Repeatable.
+.TP
+.B \-\-since \fIdate\fR, \-\-until \fIdate\fR
+Dates are
+.I YYYY\-MM\-DD
+(or
+.IR YYYYMMDD ,
+as ccrepo and cctranscript spell them) in local time.
+.B \-\-until
+includes that whole day.
+.TP
+.B \-\-name \fItext\fR, \-\-phone \fIdigits\fR, \-\-email \fItext\fR, \-\-org \fItext\fR
+(contacts) Filters. All given must match.
+.TP
+.B \-\-person \fIname-or-handle\fR, \-\-text \fIwords\fR
+(messages) See above.
+.TP
+.B \-\-calendar \fIname\fR, \-\-list \fIname\fR, \-\-folder \fIname\fR, \-\-album \fIname\fR, \-\-title \fItext\fR
+Name filters: case\- and accent\-insensitive \(lqcontains\(rq.
+.TP
+.B \-\-open\-only
+(reminders) Skip completed reminders.
+.TP
+.B \-\-id \fIn\fR
+(notes) One note, by the id an earlier search printed.
+.TP
+.B \-\-full
+(notes) The whole text of the one matching note.
+.TP
+.B \-\-include\-deleted
+(notes, photos) Also search Recently Deleted.
+.TP
+.B \-\-uuid \fIuuid\fR, \-\-near \fILAT,LON[,KM]\fR
+(photos) See above.
+.TP
+.B \-\-homes, \-\-rooms, \-\-zones, \-\-accessories, \-\-scenes, \-\-automations
+(home) Which kind of thing to list; exactly one.
+.TP
+.B \-\-home \fIname\fR, \-\-room \fIname\fR
+(home) Narrow by home or room name.
+.TP
+.B \-h, \-\-help
+Print the one\-screen digest (also available per subcommand).
+.SH FILES
+Default store locations, all under the home directory of the user running the
+tool:
+.PP
+.RS
+.nf
+~/Library/Application Support/AddressBook/Sources/*/AddressBook\-v22.abcddb
+~/Library/Messages/chat.db
+~/Library/Group Containers/group.com.apple.calendar/Calendar.sqlitedb
+~/Library/Group
+Containers/group.com.apple.reminders/Container_v1/Stores/Data\-*.sqlite
+~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite
+~/Pictures/Photos Library.photoslibrary/database/Photos.sqlite
+~/Library/HomeKit/core.sqlite
+.fi
+.RE
+.PP
+These are Apple's private layouts. They were observed on macOS 26 and can change
+between releases; where the tool reads an entity number or a join table it finds
+it by name rather than assuming, but a larger change will make a subcommand fail
+with a store error (exit status 1) rather than return a wrong answer.
+.SH EXAMPLES
+Check, once, that every store is reachable:
+.PP
+.RS
+.nf
+ccapple status
+.fi
+.RE
+.PP
+A phone number for a person:
+.PP
+.RS
+.nf
+ccapple contacts \-\-name 'alex example'
+.fi
+.RE
+.PP
+The last messages with someone that mention an invoice:
+.PP
+.RS
+.nf
+ccapple messages \-\-person 'alex example' \-\-text invoice \-\-limit 5
+.fi
+.RE
+.PP
+What is on the calendar next week, as JSON:
+.PP
+.RS
+.nf
+ccapple calendar \-\-since 2026\-11\-09 \-\-until 2026\-11\-15 \-\-json
+.fi
+.RE
+.PP
+Open reminders on one list:
+.PP
+.RS
+.nf
+ccapple reminders \-\-list errands \-\-open\-only
+.fi
+.RE
+.PP
+Find a note, then read the one you want in full:
+.PP
+.RS
+.nf
+ccapple notes \-\-text 'spare batteries'
+ccapple notes \-\-id 1234 \-\-full
+.fi
+.RE
+.PP
+Photos taken within 2 km of a point in a date range, then convert one to
+JPEG so it
+can be viewed:
+.PP
+.RS
+.nf
+ccapple photos \-\-near \-33.87,151.21,2 \-\-since 2026\-01\-01
+sips \-s format jpeg "<viewable path>" \-\-out /tmp/photo.jpg
+.fi
+.RE
+.PP
+The accessories in one room:
+.PP
+.RS
+.nf
+ccapple home \-\-accessories \-\-room kitchen
+.fi
+.RE
+.SH EXIT STATUS
+.TP
+.B 0
+Success (including \(lqno matches\(rq).
+.TP
+.B 1
+A store could not be read: missing, locked by macOS privacy (no Full Disk
+Access),
+or not the layout the tool expects. For
+.BR status ,
+at least one store cannot be opened.
+.TP
+.B 2
+Usage: no filter given, a bad date or coordinate, an unknown person, a
+.B \-\-full
+that did not match exactly one note, or a
+.B home
+call without exactly one kind.
+.SH NOTES
+.B ccapple
+is a capability instrument under
+.IR docs/decisions/0006\-instruments\-in\-atelier.md :
+its value is wholly the working relationship with Claude. The operator can
+open the
+Apple apps themselves; it exists so that the teammate can look up what the
+operator is already able to see, with the narrowest reach that works. It is the
+layer's first Python instrument, and needs only a Python 3.8 or later on
+.B PATH
+(it has been exercised on 3.9 and 3.14).
+.PP
+Full Disk Access is granted to the application that runs the command (the
+terminal, or the editor hosting it), in System Settings under Privacy &
+Security.
+The tool cannot grant it, and does not try to.
+.PP
+Sending a message, creating an event or reminder, editing a note and
+controlling a
+home are deliberately absent. Each would need the operator's explicit approval
+first, and a different design.
+.SH SEE ALSO
+.BR ccmail (1),
+.BR sqlite3 (1),
+.BR sips (1)

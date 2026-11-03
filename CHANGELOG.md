@@ -269,6 +269,38 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   item and every bracketed title until `board --rebuild` is run and staged. The
   grace to 2026-11-18 still accepts the previous projection byte for byte.
 
+### Added (2026-11-01 — `ccapple`, a read-only reader for the Apple apps' local stores)
+- **A session can now look things up in the Apple apps.** `instruments/ccapple`
+  searches Contacts, Messages, Calendar, Reminders, Notes, Photos and the Home
+  layout on a Mac, through the SQLite files iCloud already syncs there. Before,
+  a session could name what the operator keeps in those apps and could not open
+  any of it. Subcommands: `status`, `contacts`, `messages`, `calendar`,
+  `reminders`, `notes`, `photos`, `home`. Manual: `man ccapple` (installed by
+  `instruments/install`, with the other pages).
+- **The limits are in the code, and tests pin them.** Every store is opened
+  read-only and immutable (`mode=ro&immutable=1`, `PRAGMA query_only=ON`) through
+  one function. Every search refuses to run without a filter and is capped by
+  `--limit` (default 20). A password-protected note is listed and never read or
+  decrypted. The Home reader names its columns and never selects the
+  credential-shaped ones sitting beside them. There is no write path.
+- **First Python instrument, and the first to read other people's private
+  content.** Standard-library Python 3.8 or later (exercised on 3.9 and 3.14).
+  ADR 0006 has a new addendum recording both stretches and the controls a later
+  reader of a personal store should meet. It needs one thing no session can
+  grant: Full Disk Access for the terminal, set by the operator in System
+  Settings. `ccapple status` says which stores open and why any does not.
+- **Tests and CI.** `instruments/test_ccapple.py`, 119 `unittest` cases on
+  synthetic stores (no real data), run in CI by a new step beside the Node
+  suite: `python3 -m unittest discover -s instruments -p 'test_*.py'`. One test
+  pins the `--help`/man-page relation REPO-STANDARD asks for: every flag any
+  `--help` prints appears in `man/ccapple.1`.
+- **Vocabulary.** `--since`/`--until` take `YYYY-MM-DD` or the compact
+  `YYYYMMDD` that `ccrepo` and `cctranscript` use, so the word means one thing;
+  `instruments/README.md`'s flag table has a `ccapple` column. Its result cap is
+  `--limit`, as in `ccmail --search`.
+- **Found while building, not fixed:** a no-filter run on a Mac that lacks the
+  store exits 1 rather than 2 (`210/340`).
+
 ### Changed (2026-10-19 — one reason may keep several named metadata sets, `020/440`)
 - **A `.leakscanbinaries` set line may name several metadata sets under one
   reason:** `<digest>:icc,xmp  path  # why these sets are kept`. Each set is
