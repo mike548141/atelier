@@ -1,4 +1,4 @@
-- [ ] **G3 keeps image metadata field by field, not by data type.** Mike,
+- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-leakscan) **G3 keeps image metadata field by field, not by data type.** Mike,
       2026-10-19, correcting how `020/440` read his word "fields": *"I did
       mean fields as in GPS versus the camera model. Things like exif, iptc,
       xmp are data types, nto fields. Put it on the board to do in a future

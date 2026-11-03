@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: tool-call markup leaks into files an agent writes, and
+- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-scanners) 🔎 **Hand-up: tool-call markup leaks into files an agent writes, and
       no floor scanner sees it** `[S][tooling]`. Filed by a private child on
       2026-10-02 via § *Pointing up*, by direct write into the parent's tree,
       with the PR opened before stopping. The child is not named, and the

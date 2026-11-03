@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: the paragraph projection joins a wrapped claim into one
+- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-board) 🔎 **Hand-up: the paragraph projection joins a wrapped claim into one
       index line, which a child that runs wrapscan on its index refuses**
       `[tool]`. Handed up from a private child on 2026-10-18 under
       `PROPAGATION.md` § *Pointing up*, measured at a queue run's landing

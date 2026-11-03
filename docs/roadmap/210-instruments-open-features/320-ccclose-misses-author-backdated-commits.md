@@ -1,4 +1,4 @@
-- [ ] 🔎 **`ccclose --identifiers` misses a session's commits whose author
+- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-ccclose) 🔎 **`ccclose --identifiers` misses a session's commits whose author
       date predates its window.** Seen 2026-10-18 by the session that landed
       the opening prompt's template history (`180/060`). That history is 50
       commits whose author dates are set to each version's first use, in

@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: the floor region now names a path no child can resolve,
+- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-scanners) 🔎 **Hand-up: the floor region now names a path no child can resolve,
       so `pathscan` flags every verbatim child copy** `[XS][doctrine][tools]`.
       Handed up by a public child's queue run on 2026-10-16 under
       `PROPAGATION.md` § *Pointing up*, found while bumping its pin to

@@ -1,4 +1,4 @@
-- [ ] 🔎 **`ccclose` lists a worktree whose path held a shell variable
+- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-ccclose) 🔎 **`ccclose` lists a worktree whose path held a shell variable
       under a made-up path.** Found 2026-10-18 on a queue run's own close.
       The run created a worktree with `W=<abs path> && git worktree add
       --detach $W origin/main`. The identifiers block listed it as

@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up from faves: leakscan's `nz-phone` matches digit runs
+- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-leakscan) 🔎 **Hand-up from faves: leakscan's `nz-phone` matches digit runs
       inside hex digests** `[XS][tools]` — filed 2026-10-02 by faves session
       `faves-4f`, from a measured instance. Offered with options; the remedy
       is atelier's.

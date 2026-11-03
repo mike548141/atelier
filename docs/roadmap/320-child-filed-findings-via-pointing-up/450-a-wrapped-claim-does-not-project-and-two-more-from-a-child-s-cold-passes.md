@@ -1,4 +1,4 @@
-- [ ] 🔎 **A wrapped claim does not project into the index, a `]` in a title
+- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-board) 🔎 **A wrapped claim does not project into the index, a `]` in a title
       breaks its generated link, and the §10 declaration's home is ambiguous
       between GUARDS and practice** `[tool][doctrine]` — three findings handed
       up from a private child 2026-09-26 via § *Pointing up*, out of four
