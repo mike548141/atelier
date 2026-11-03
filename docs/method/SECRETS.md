@@ -222,16 +222,19 @@ beside the pattern that does the narrowing, is how a gap becomes invisible:
 it happened here in the credential scan, and it took a review to find. Name the
 narrowing and its cost in prose; never let the code comment be the record.
 
-**The dial that makes the intent affordable — decided, not yet built.** While a
-scan's only response is *block*, widening detection buys coverage at the price
-of crying wolf, and that price is what drove the narrowing above. The decided
+**The dial that makes the intent affordable — decided 2026-07-28, built
+2026-08-07.** While a scan's only response is *block*, widening detection buys
+coverage at the price of crying wolf, and that price is what drove the
+narrowing above. The decided
 direction (2026-07-28) is an advisory tier in the credential scan:
 high-confidence hits block exactly as they do today — **the blocking set never
 shrinks** — while context-free entropy hits report and exit clean, so coverage
-can widen into the noisy path without weakening the gate. It is not built, and
-it may not be built until its design names where advisory findings surface
-durably and whether they must be acknowledged (2026-07-29): an advisory finding
-nobody reads is cover, not coverage. `leakscan` gains no advisory form for
+can widen into the noisy path without weakening the gate. It was held until its
+design named where advisory findings surface durably and whether they must be
+acknowledged (2026-07-29): an advisory finding nobody reads is cover, not
+coverage. It was built once that consumer was named (`dcb57fa`, 2026-08-07;
+corrected here 2026-11-03, `115/370`, after this lead had still said "not yet
+built" for three months). `leakscan` gains no advisory form for
 anything that blocks, and that asymmetry is decided rather than incidental —
 the fit being that a leak of personal data is the one exposure no rotation
 undoes.

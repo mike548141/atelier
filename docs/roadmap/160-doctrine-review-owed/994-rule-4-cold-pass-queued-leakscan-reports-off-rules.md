@@ -12,7 +12,8 @@
       `tools/test_leakscan.py`, `tools/leakscan.off-rules.design.md`,
       `tools/floor.py`, `tools/test_floor.py`, `tools/README.md`,
       `docs/method/SECRETS.md`, `CHANGELOG.md` (the commits that land
-      `115/090`'s leakscan build, on `main`, 2026-11-03).
+      `115/090`'s leakscan build, on `main`, 2026-11-03; widened by the
+      commit that closes `115/370`, the same section's stale lead).
       *Intent records:*
       [`../115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md`](../115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md),
       [`../../reviews/2026-07-29-1243-e6-intent-cold.md`](../../reviews/2026-07-29-1243-e6-intent-cold.md).
