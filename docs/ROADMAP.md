@@ -197,7 +197,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md)
 - [ ] 🔎 [A cloud session cannot satisfy the hook plane's leakscan term…](roadmap/115-guardrail-architecture-mike-commissioned/350-a-cloud-session-cannot-satisfy-the-hook-planes-term-requirement.md)
 - ✅ [DONE 2026-10-18](roadmap/115-guardrail-architecture-mike-commissioned/360-a-bare-dot-scope-makes-the-staged-plane-scan-nothing.md)
-- [ ] 🔎 [SECRETS.md § The boundary's posture heads its dial paragraph…](roadmap/115-guardrail-architecture-mike-commissioned/370-secrets-posture-heading-says-the-dial-is-not-yet-built.md)
+- [~] 🔎 (claimed 2026-11-03-0941, wt: none) [SECRETS.md § The boundary's posture heads…](roadmap/115-guardrail-architecture-mike-commissioned/370-secrets-posture-heading-says-the-dial-is-not-yet-built.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 

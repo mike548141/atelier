@@ -1,4 +1,4 @@
-- [ ] 🔎 **`SECRETS.md` § *The boundary's posture* heads its dial paragraph
+- [~] (claimed 2026-11-03-0941, wt: none) 🔎 **`SECRETS.md` § *The boundary's posture* heads its dial paragraph
       "decided, not yet built", and the dial is built.** Found 2026-11-03 by
       the queue-run worker that built `leakscan`'s off-rule tier (`115/090`),
       not fixed there because a doctrine defect goes on the board. The bold
