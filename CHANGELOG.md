@@ -5,6 +5,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-03 — the repo-local check seam is now in the README and the hook sample, `320/560`)
+- **Children: a check of your own already has a home.** `local` in
+  `.atelier-floor.json` names a script your repo ships, and the floor runs it in
+  your hook and your CI (add-only, fail-closed, visible on the board). It was
+  documented only in `floor.py`'s docstring and `REPO-STANDARD.md`, and a child
+  filed a hand-up for a capability it already had. `tools/README.md` now carries
+  a section with a one-declaration example, and the hook sample's header points
+  at it. Documentation only; no behaviour changes.
+
 ### Added (2026-11-03 — a `pre-merge-commit` hook, so a clean `git merge --no-ff` runs the hook plane, `115/340`)
 - **Children: copy the merge hook beside your `pre-commit`.** Git never ran
   `pre-commit` for the commit a clean `git merge --no-ff` writes, so a queue

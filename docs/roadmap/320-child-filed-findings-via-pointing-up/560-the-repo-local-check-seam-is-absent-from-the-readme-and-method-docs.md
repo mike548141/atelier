@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0759, wt: atelier-qr-4c65-floorhooks) 🔎 **Hand-up: the repo-local check seam (`local` in
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-floorhooks) 🔎 **Hand-up: the repo-local check seam (`local` in
       `.atelier-floor.json`) is absent from the README and the method docs, and
       a child recorded a hand-up for a capability that already existed**
       `[S][doctrine]` — filed 2026-10-11 from a private child repo via
@@ -50,3 +50,15 @@
         tools/README.md; GUARDS.md only points at the file. The hook sample
         header omits local. Repro: a hook-only local check blocked a staged
         duplicate key (exit 1).
+      ✅ **Closed 2026-11-03.** `tools/README.md` gains a section, "`local` in
+      `.atelier-floor.json`", with a one-declaration example, the keys, and the
+      three properties (adds only, fails closed, visible), grounded in
+      `floor.py`'s docstring and `REPO-STANDARD.md`; the hook sample's header,
+      which every child reads, says where a repo's own check goes (tracked copy
+      `.githooks/pre-commit` kept equal; the drift test pins it). The README
+      section also tells a reader to check the seam before filing "wire my
+      checker into the hook" as a hand-up. Not done: the second offered
+      change, a line in `PROPAGATION.md` § *Pointing up* asking the reporter
+      to grep `floor.py` first, which is doctrine text and wants its own
+      decision. The CI-plane dependency question for a local check that needs a
+      third-party library (the item's `020/130` D4 data point) is unchanged.

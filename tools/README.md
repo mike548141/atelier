@@ -1626,6 +1626,46 @@ complete. Each module's docstring is its full manual.
   running atelier's floor. It enumerates conformance rather than assuming it
   (ADR 0008; `docs/method/PROPAGATION.md`).
 
+## `local` in `.atelier-floor.json` — a repo adds a check of its own
+
+The hook set is atelier's, and that reads as "a child cannot add one". It can: a
+`local` block in the repo's `.atelier-floor.json` names a script the repo ships,
+and the floor runs it on the planes you choose, in the same hook and the same CI
+that already run the shared checks. Reach for it before filing a hand-up for
+"wire my checker into the hook" (the seam is older than most such requests).
+
+```json
+{
+  "local": {
+    "config-loads": {
+      "run": "tools/check_config.py",
+      "why": "a duplicate key in the service config must never be committed",
+      "planes": ["hook"],
+      "args": ["--staged", "--root", "{root}"],
+      "scope": ["config"]
+    }
+  }
+}
+```
+
+- **Keys.** `run` (repo-relative, inside the repo, invoked directly, never
+  through a shell) and `why` (one line) are required. `planes` defaults to both
+  `hook` and `ci`; hook-only is legitimate for a check CI cannot run, such as one
+  that needs a machine-local list or a library CI does not install. `args` takes
+  the same `{root}` templates as the shared checks, and `scope` narrows the tree.
+- **It only adds.** A local name that collides with a shared scanner is a config
+  error, so the seam cannot replace or weaken a fleet check. Softening one of your
+  own checks uses the ordinary `advisory` / `disabled` keys.
+- **It fails closed.** A declared script that is missing blocks, as a missing
+  shared scanner does.
+- **It is visible.** Local checks show in `floor.py --list`, in `--json`, in the
+  render (tagged `local`) and on the `floorfleet` board.
+
+The full contract is the docstring of `tools/floor.py` (§ *The repo-local seam*)
+and the `.atelier-floor.json` bullet in `docs/build/REPO-STANDARD.md`. Check the
+hook with `python3 tools/floor.py --list --plane hook`, then stage a deliberate
+defect and watch the commit block.
+
 ## `report.py` — the shared exit-code contract and report lines
 
 Not a check. Fourteen floor scanners import it for the parts of their output
