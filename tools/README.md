@@ -768,6 +768,16 @@ links and are out of scope by design. A deliberately dangling pointer is exempte
 with `<!-- linkscan:allow: <reason> -->` on the line, or a glob in
 `.linkscanignore`.
 
+**A child's inlined floor is not scanned** (`320/610`): in a repo that does not
+hold `docs/method/PROPAGATION.md`, the text between `stamp:begin
+source=docs/method/PROPAGATION.md region=floor` and `stamp:end` is atelier's
+floor copied word for word. `stampscan` checks it against the canonical copy;
+the child's tree cannot resolve the atelier-relative paths it names
+(`method/TOOLBOX.md`), and the child cannot add an allow-marker without
+drifting from the canonical text. So `pathscan` skips that block there. The
+same path anywhere else in the file still reports, and where the canonical
+source is in the tree (atelier itself) the stamped copy is scanned as before.
+
 **Bounded on any single file** (`110/120`): a file is streamed line by line, not
 held whole; no more than `MAX_MATERIALIZED_FINDINGS` (50,000) findings are built,
 and every one past that is **counted** and printed (`…and N more broken link(s)`,

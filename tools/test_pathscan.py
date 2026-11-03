@@ -1140,6 +1140,110 @@ class StreamingReader(unittest.TestCase):
         self.assertEqual(got, ["ok"])
 
 
+class FloorRegionSkipped(unittest.TestCase):
+    """320/610 — a `stamp:begin … region=floor` block in a repo that does not
+    hold the canonical source is atelier's floor copied verbatim, checked by
+    stampscan, not by this tree. Its atelier-relative paths must not report;
+    the same path outside the block still must; where the canonical source
+    IS in the tree (atelier itself) the block is scanned as before."""
+
+    BEGIN = "<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor -->"
+    END = "<!-- stamp:end -->"
+    FLOOR = "The expected toolbox is atelier's: `method/TOOLBOX.md`.\n"
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="pathscan-floor-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+
+    def _scan(self, text, canonical_here=False, via_file=False):
+        if canonical_here:
+            (self.tmp / "docs" / "method").mkdir(parents=True)
+            (self.tmp / "docs" / "method" / "PROPAGATION.md").write_text("x\n")
+        md = self.tmp / "CLAUDE.md"
+        if via_file:
+            md.write_text(text)
+            return ps.scan_file(md, self.tmp)
+        return ps.scan_text(md, self.tmp, text)
+
+    def _child(self, outside=""):
+        return (self.BEGIN + "\n## Doctrine\n" + self.FLOOR + self.END
+                + "\n" + outside)
+
+    def test_child_floor_region_names_unresolvable_path_clean(self):
+        for via_file in (False, True):
+            self.assertEqual([], self._scan(self._child(), via_file=via_file))
+
+    def test_same_path_outside_the_region_still_reports(self):
+        for via_file in (False, True):
+            got = self._scan(self._child("see `method/TOOLBOX.md` here\n"),
+                             via_file=via_file)
+            self.assertEqual([("missing-path", "method/TOOLBOX.md", 5)],
+                             [(f.kind, f.target, f.line) for f in got])
+
+    def test_path_before_the_region_still_reports(self):
+        got = self._scan("see `method/TOOLBOX.md`\n" + self._child())
+        self.assertEqual([1], [f.line for f in got])
+
+    def test_canonical_source_in_tree_means_region_is_scanned(self):
+        for via_file in (False, True):
+            got = self._scan(self._child(), canonical_here=True, via_file=via_file)
+            self.assertEqual(["method/TOOLBOX.md"], [f.target for f in got])
+            shutil.rmtree(self.tmp / "docs")
+
+    def test_other_region_or_source_is_not_skipped(self):
+        for begin in (
+            "<!-- stamp:begin source=docs/method/PROPAGATION.md region=other -->",
+            "<!-- stamp:begin source=docs/OTHER.md region=floor -->",
+        ):
+            text = begin + "\n" + self.FLOOR + self.END + "\n"
+            self.assertEqual(["method/TOOLBOX.md"],
+                             [f.target for f in self._scan(text)])
+
+    def test_narrow_attribute_and_trailing_allow_comment_still_a_floor_stamp(self):
+        text = ("<!-- stamp:begin source=docs/method/PROPAGATION.md "
+                "region=floor narrow=x --> <!-- wrapscan:allow: one line -->\n"
+                + self.FLOOR + self.END + "\n")
+        self.assertEqual([], self._scan(text))
+
+    def test_marker_inside_a_fence_is_not_a_stamp(self):
+        text = "```\n" + self.BEGIN + "\n```\nsee `method/TOOLBOX.md`\n"
+        self.assertEqual([4], [f.line for f in self._scan(text)])
+
+    def test_fence_inside_the_region_does_not_end_it_early(self):
+        text = (self.BEGIN + "\n```\n" + self.END + "\n```\n" + self.FLOOR
+                + self.END + "\nsee `method/TOOLBOX.md`\n")
+        got = self._scan(text)
+        self.assertEqual([7], [f.line for f in got])
+
+    def test_unterminated_begin_skips_to_eof(self):
+        self.assertEqual([], self._scan(self.BEGIN + "\n" + self.FLOOR))
+
+    def test_regexes_and_floor_identity_match_stampscan(self):
+        import stampscan
+        self.assertEqual(stampscan._STAMP_BEGIN_RX.pattern, ps._STAMP_BEGIN_RX.pattern)
+        self.assertEqual(stampscan._STAMP_END_RX.pattern, ps._STAMP_END_RX.pattern)
+        self.assertEqual(stampscan.FLOOR_SOURCE, ps.FLOOR_SOURCE)
+        self.assertEqual(stampscan.FLOOR_REGION, ps.FLOOR_REGION)
+
+    def test_whole_tree_scan_applies_it_end_to_end(self):
+        (self.tmp / "CLAUDE.md").write_text(self._child())
+        (self.tmp / "NOTES.md").write_text("see `method/TOOLBOX.md`\n")
+        got = ps.scan_paths([self.tmp], self.tmp)
+        self.assertEqual([("NOTES.md", "method/TOOLBOX.md")],
+                         [(f.path, f.target) for f in got])
+
+    def test_continuation_window_of_an_overlong_region_line_is_skipped(self):
+        f = self.tmp / "CLAUDE.md"
+        f.write_text(self.BEGIN + "\n" + "x" * 500 + " `method/TOOLBOX.md`\n"
+                     + self.END + "\nok\n")
+        with mock.patch.object(ps, "READ_CHUNK_BYTES", 30), \
+                mock.patch.object(ps, "LINE_WINDOW_BYTES", 100), \
+                mock.patch.object(ps, "LINE_WINDOW_OVERLAP", 10):
+            got = [line for _n, line, _a, _b in
+                   ps._iter_file_content_lines(f, skip_floor=True)]
+        self.assertEqual(got, ["ok"])
+
+
 class WindowedLinesInventNothing(unittest.TestCase):
     """A token cut by a window edge is whole in the neighbouring window; the
     cut halves must not become findings, and the whole token must be judged

@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-scanners) 🔎 **Hand-up: the floor region now names a path no child can resolve,
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-scanners) 🔎 **Hand-up: the floor region now names a path no child can resolve,
       so `pathscan` flags every verbatim child copy** `[XS][doctrine][tools]`.
       Handed up by a public child's queue run on 2026-10-16 under
       `PROPAGATION.md` § *Pointing up*, found while bumping its pin to
@@ -29,3 +29,11 @@
       method/TOOLBOX.md`; an allow-marker clears it but stampscan then
       reports drift. One detail off: *Source & drift* reads `<atelier-path>`
       (a skipped placeholder), not `../atelier`. Overlaps `320/010`, `170`.
+      ✅ **Closed 2026-11-03 by option (3).** `pathscan` skips the text inside
+      a `stamp:begin source=docs/method/PROPAGATION.md region=floor` …
+      `stamp:end` block in a repo that does not hold
+      `docs/method/PROPAGATION.md` (reusing stampscan's marker grammar,
+      copied and pinned by a test). Where the canonical source is in the tree
+      (atelier) the copy is still scanned, and the same path outside the block
+      still reports. Probed read-only over the estate: one finding fewer in
+      every child that stamps the floor, none added. See `CHANGELOG.md`.

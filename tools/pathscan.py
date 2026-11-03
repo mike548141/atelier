@@ -39,6 +39,16 @@ sharp honest one):
      because step 1's rationale ("a fenced block is an illustrative example")
      would otherwise read as if example-exemption were general.
 
+  1b. In a repo that does NOT hold `docs/method/PROPAGATION.md`, also skip a
+     `<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor -->` …
+     `<!-- stamp:end -->` block (320/610). That text is atelier's floor copied
+     word for word; `stampscan` checks it against the canonical copy, and the
+     child's tree cannot resolve the atelier-relative paths it names
+     (`method/TOOLBOX.md`). Where the canonical source IS in the tree
+     (atelier itself), the stamped copy is scanned like any other text.
+     Markers count only outside a fence; an unterminated begin skips to end
+     of file (stampscan reports that as malformed).
+
   2. Blank out two things that are NOT this scanner's job before hunting for
      candidates, so their content can't seed a false one:
        - ANGLE-BRACKET PLACEHOLDERS, `<...>` — `<repo>/docs/foo.md` is an
@@ -634,6 +644,33 @@ class Finding:
     detail: str        # human hint at what's missing
 
 
+# The inlined-floor stamp pair (child/copy side), COPIED from
+# `tools/stampscan.py` (`_STAMP_BEGIN_RX`/`_STAMP_END_RX`, `FLOOR_SOURCE`/
+# `FLOOR_REGION`) so this tool stays copyable alone — a test pins the two
+# in step. Same anchoring as stampscan: the marker opens the (stripped) line.
+_STAMP_BEGIN_RX = re.compile(
+    r"^<!--\s*stamp:begin\s+source=(?P<source>\S+)\s+region=(?P<region>\S+)"
+    r"(?:\s+narrow=(?P<narrow>.+?))?\s*-->"
+)
+_STAMP_END_RX = re.compile(r"^<!--\s*stamp:end\s*-->")
+FLOOR_SOURCE = "docs/method/PROPAGATION.md"
+FLOOR_REGION = "floor"
+
+
+def floor_region_skipped(root: Path) -> bool:
+    """True when a `stamp:begin … region=floor` block in a scan of `root`
+    should be skipped (320/610). That text is a verbatim copy of atelier's
+    floor, checked by `stampscan` against the canonical copy, NOT by the
+    copying repo's own tree — it names atelier-relative paths
+    (`method/TOOLBOX.md`) no child can resolve, and the child cannot silence
+    the finding without drifting from the canonical text. So the skip applies
+    exactly where the canonical source is NOT in the tree: if `root` holds
+    `docs/method/PROPAGATION.md` it IS atelier (or a repo carrying the
+    canonical source), the stamped copy there can be checked against the
+    tree, and it still is."""
+    return not (root / FLOOR_SOURCE).is_file()
+
+
 class _FenceState:
     """Fence-tracking state, shared by the in-memory reader (`_content_lines`)
     and the streaming file reader (`_iter_file_content_lines`) so the two can
@@ -643,12 +680,43 @@ class _FenceState:
     on the closer. A fence DELIMITER is a handful of characters, so it always
     fits in a line's FIRST read window; the streaming reader therefore calls
     `is_content` only there, and a continuation window just inherits
-    `in_fence`."""
+    `skipping`.
 
-    def __init__(self):
+    With `skip_floor` the state also tracks a `stamp:begin … region=floor` …
+    `stamp:end` block (320/610, see `floor_region_skipped`): every line from
+    the begin marker to the end marker, markers included, is not content.
+    Markers are recognised only OUTSIDE a fence, as stampscan does (a fenced
+    EXAMPLE of the markers is not a stamp), and fence state keeps tracking
+    inside the region, so a fence opened in the region is still closed the
+    same way it always was. An unterminated begin skips to end of file;
+    stampscan reports that as a malformed stamp, so it is not silent."""
+
+    def __init__(self, skip_floor: bool = False):
         self.in_fence = False
         self.fence_char = ""
         self.fence_len = 0
+        self.skip_floor = skip_floor
+        self.in_region = False
+
+    @property
+    def skipping(self) -> bool:
+        """What a continuation window of an overlong line inherits."""
+        return self.in_fence or self.in_region
+
+    def _in_floor_region(self, line: str) -> bool:
+        """Advance the floor-region state on a line seen OUTSIDE a fence;
+        True when the line is a region marker or inside the region."""
+        stripped = line.strip()
+        if not self.in_region:
+            m = _STAMP_BEGIN_RX.match(stripped)
+            if m and m.group("source") == FLOOR_SOURCE \
+                    and m.group("region") == FLOOR_REGION:
+                self.in_region = True
+                return True
+            return False
+        if _STAMP_END_RX.match(stripped):
+            self.in_region = False
+        return True
 
     def is_content(self, line: str) -> bool:
         stripped = line.lstrip()
@@ -658,19 +726,20 @@ class _FenceState:
                     and stripped.rstrip() == m.group(1):
                 self.in_fence = False
             return False
+        skipped = self.skip_floor and self._in_floor_region(line)
         if m:
             self.in_fence = True
             self.fence_char = m.group(1)[0]
             self.fence_len = len(m.group(1))
             return False
-        return True
+        return not skipped
 
 
-def _content_lines(text: str):
+def _content_lines(text: str, skip_floor: bool = False):
     """Yield (lineno, line) for lines outside fenced code blocks, from an
     in-memory string (what `scan_text` and direct tests use). Real files go
     through `_iter_file_content_lines` instead (110/120)."""
-    state = _FenceState()
+    state = _FenceState(skip_floor)
     for lineno, line in enumerate(text.splitlines(), start=1):
         if state.is_content(line):
             yield lineno, line
@@ -724,7 +793,7 @@ def _iter_physical_segments(path: Path):
             yield pending, True
 
 
-def _iter_file_content_lines(path: Path):
+def _iter_file_content_lines(path: Path, skip_floor: bool = False):
     """Yield `(lineno, line, first_window, final_window)` for lines outside
     fenced code, streaming `path` (110/120). Replaces `read_text()` +
     `splitlines()`, which held the file whole. Line numbers and fence state
@@ -732,7 +801,7 @@ def _iter_file_content_lines(path: Path):
     `str.splitlines()` (so `\r`, `\x0c`, U+2028… still break lines, as they
     did on the whole text), and an overlong line's windows are ONE line
     number whose fence verdict is taken on its first window."""
-    state = _FenceState()
+    state = _FenceState(skip_floor)
     lineno = 1
     first = True
     for seg, final in _iter_physical_segments(path):
@@ -742,7 +811,7 @@ def _iter_file_content_lines(path: Path):
                     yield lineno, line, True, True
                 lineno += 1
             continue
-        content = state.is_content(seg) if first else not state.in_fence
+        content = state.is_content(seg) if first else not state.skipping
         if content:
             yield lineno, seg, first, final
         if final:
@@ -1084,21 +1153,30 @@ def _scan_content_lines(md_file: Path, root: Path, lines, tally: "Tally | None",
 
 def scan_text(md_file: Path, root: Path, text: str,
               tally: "Tally | None" = None,
-              declared_roots: "tuple[str, ...] | list[str]" = ()) -> list[Finding]:
+              declared_roots: "tuple[str, ...] | list[str]" = (),
+              skip_floor: "bool | None" = None) -> list[Finding]:
     """Scan an in-memory string as if it were `md_file`'s content (direct
-    tests, small callers). Real files use `scan_file`."""
+    tests, small callers). Real files use `scan_file`. `skip_floor=None`
+    derives the floor-region skip from `root` (`floor_region_skipped`)."""
+    if skip_floor is None:
+        skip_floor = floor_region_skipped(root)
     return _scan_content_lines(
         md_file, root,
-        ((n, line, True, True) for n, line in _content_lines(text)),
+        ((n, line, True, True) for n, line in _content_lines(text, skip_floor)),
         tally, declared_roots)
 
 
 def scan_file(md_file: Path, root: Path, tally: "Tally | None" = None,
-              declared_roots: "tuple[str, ...] | list[str]" = ()) -> list[Finding]:
+              declared_roots: "tuple[str, ...] | list[str]" = (),
+              skip_floor: "bool | None" = None) -> list[Finding]:
     """Scan `md_file` from disk, streaming — peak memory is bounded by a
-    constant however large the file or its longest line (110/120)."""
-    return _scan_content_lines(md_file, root, _iter_file_content_lines(md_file),
-                               tally, declared_roots)
+    constant however large the file or its longest line (110/120).
+    `skip_floor=None` derives the floor-region skip from `root`."""
+    if skip_floor is None:
+        skip_floor = floor_region_skipped(root)
+    return _scan_content_lines(
+        md_file, root, _iter_file_content_lines(md_file, skip_floor),
+        tally, declared_roots)
 
 
 IgnoreFileError = allowmarker.IgnoreFileError

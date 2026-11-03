@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-03 — `pathscan` no longer reads a child's inlined floor as the child's own tree, `320/610`)
+- **Children: no more `[missing-path] method/TOOLBOX.md` on a verbatim floor
+  copy.** The floor region names atelier's `method/TOOLBOX.md`, which no child
+  can resolve, and an allow-marker in the child's copy reads as drift to the
+  hand stamp check. `pathscan` now skips the text between `stamp:begin
+  source=docs/method/PROPAGATION.md region=floor` and `stamp:end` in a repo
+  that does not hold `docs/method/PROPAGATION.md`; `stampscan` is what checks
+  that text. The same path elsewhere in the file still reports, and atelier's
+  own tree (which holds the source) is scanned as before. Measured over the
+  estate's repos: exactly one finding fewer in each child that stamps the floor.
+
 ### Fixed (2026-11-03 — `ccclose --identifiers`: an unexpanded worktree path, `210/330`)
 - **A worktree path held in a shell variable is no longer invented.**
   `W=/abs/path && git worktree add --detach $W origin/main` was listed as
