@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up from a private child: at the hook plane the content
+- [~] (claimed 2026-11-03-0840, wt: atelier-qr-4c65-staged2) 🔎 **Hand-up from a private child: at the hook plane the content
       scanners (`spellscan`, `wrapscan`, and by registry `datescan`,
       `reviewscan`, `sizescan`) read the WORKING TREE, not the staged index,
       so one writer's unstaged draft blocks everyone else's commit, and the

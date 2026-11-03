@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: a scanner's `--selftest` prints its fixture findings in the floor's own shape, and a red run was diagnosed from them** `[S][tools]`. Handed up by a private child on 2026-10-17, under `PROPAGATION.md` § *Pointing up*. One measured misdiagnosis, with the job log as evidence; the fix is atelier's to choose. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [~] (claimed 2026-11-03-0840, wt: atelier-qr-4c65-staged2) 🔎 **Hand-up: a scanner's `--selftest` prints its fixture findings in the floor's own shape, and a red run was diagnosed from them** `[S][tools]`. Handed up by a private child on 2026-10-17, under `PROPAGATION.md` § *Pointing up*. One measured misdiagnosis, with the job log as evidence; the fix is atelier's to choose. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 
       **What happened.** The child's floor workflow — the thin caller of
       atelier's reusable `floor.yml` — has been red on every push since its

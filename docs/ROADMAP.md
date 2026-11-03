@@ -170,7 +170,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child repo's…](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped…](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
 - ✅ [Single-source the scanner harness, re-grounded on Mike's own upstream…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
-- [ ] [Give every guard a second dial — the standing consequence of Mike's…](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
+- [~] (claimed 2026-11-03-0840, wt: atelier-qr-4c65-dial) [Give every guard a second dial…](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of…](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at…](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
 - [ ] 🎯 [Every guard declares the purpose it answers to, and proves it fires…](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
@@ -592,7 +592,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [MISSING HOUSE RULE — a "this cannot work" built only from reading is…](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
 - [ ] 🎯 [MISSING HOUSE RULE — the house has no method for splitting one repo…](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
 - [ ] 🔎 [Hand-up: the floor's Estate resources bullet covers facts — don't…](roadmap/320-child-filed-findings-via-pointing-up/590-the-estate-resources-bullet-covers-facts-not-access-or-write-back.md)
-- [ ] 🔎 [Hand-up from a private child: at the hook plane the content scanners…](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
+- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-staged2) [Hand-up from a private child:…](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md)
 - [ ] 🔎 [Hand-up: a child's own visibility fact sits inside its verbatim floor…](roadmap/320-child-filed-findings-via-pointing-up/620-a-childs-own-visibility-fact-sits-inside-the-verbatim-floor.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md)
@@ -601,7 +601,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: the house assumes every repo is a direct sibling of the…](roadmap/320-child-filed-findings-via-pointing-up/660-grouping-children-into-folders-breaks-the-sibling-convention.md)
 - [ ] 🔎 [Hand-up: the session-open prompt's "restore" left a net change that…](roadmap/320-child-filed-findings-via-pointing-up/670-the-session-open-restore-left-a-net-change-that-reverses-a-ruling.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
-- [ ] 🔎 [Hand-up: a scanner's --selftest prints its fixture findings in the…](roadmap/320-child-filed-findings-via-pointing-up/690-a-scanner-selftest-prints-fixture-findings-in-the-floors-own-shape.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-staged2) [Hand-up: a scanner's --selftest…](roadmap/320-child-filed-findings-via-pointing-up/690-a-scanner-selftest-prints-fixture-findings-in-the-floors-own-shape.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md)
 - [ ] 🔎 [rpi hand-up: a rollout row backwards; wrapscan blind to split boards](roadmap/320-child-filed-findings-via-pointing-up/710-rpi-hand-up-a-rollout-row-backwards-wrapscan-blind-to-split-boards.md)
 - ✅ [FIXED 2026-10-18](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
