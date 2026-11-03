@@ -5,6 +5,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-03 — leakscan `nz-phone` no longer reads digit runs inside hex digests, `320/470`)
+- **A digit run inside a 16+ character hex run is not a phone number.** The
+  rule's `(?<!\d)`/`(?!\d)` lookarounds accepted a hex letter beside the
+  digits, so a committed SHA-256 could trip `nz-phone` on a nine-digit run
+  between two hex letters. A separator-free match inside such a run is now
+  skipped; spaced, dashed, `+64` and bracketed phones are never skipped, so
+  prose keeps its reach. A child that dropped all leakscan cover on a digest file with a
+  `.leakscanignore` glob can remove the glob.
+
 ### Added (2026-11-03 — `conflictscan` reports tool-call markup saved into a file, as an advisory, `320/490`)
 - **A new advisory finding, `tool-markup`.** A file written by the harness's
   write tool sometimes ends in the call's own closing markup (a last line of

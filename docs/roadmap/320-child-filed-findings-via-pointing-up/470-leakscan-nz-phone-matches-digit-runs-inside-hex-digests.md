@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0638, wt: atelier-qr-4c65-leakscan) 🔎 **Hand-up from faves: leakscan's `nz-phone` matches digit runs
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-leakscan) 🔎 **Hand-up from faves: leakscan's `nz-phone` matches digit runs
       inside hex digests** `[XS][tools]` — filed 2026-10-02 by faves session
       `faves-4f`, from a measured instance. Offered with options; the remedy
       is atelier's.
@@ -28,3 +28,15 @@
      reason`), so a child can drop one rule on one file instead of all rules.
   3. Leave the rule; document file-level ignore as the answer for digest
      stores.
+
+  ✅ **Built 2026-11-03: option 1, the digest-context guard.** `nz-phone`
+  gains a post-match validator (`_phone_inside_hex_digest`): a
+  separator-free digit match is not a phone when the unbroken run of hex
+  characters around it is 16 or more long. A spaced, dashed, `+64` or
+  bracketed phone is never skipped (a digest holds no separator), so the
+  rule keeps its reach on prose, including beside a long hex run. The regex
+  and its gate are unchanged. Fixture pair in `test_leakscan.py`
+  (`PhoneInsideHexDigest`): a digest carrying a phone-shaped run does not
+  fire; real-shaped NZ phones in prose, beside a short hex word, and beside
+  a long hex run still do. Options 2 and 3 not taken: the guard removes the
+  cause, so the child's file-wide `.leakscanignore` glob can be dropped.

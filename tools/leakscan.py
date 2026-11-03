@@ -521,6 +521,32 @@ def _iban_ok(text: str) -> bool:
     return int(numeric) % 97 == 1
 
 
+_HEX_RUN_MIN = 16   # a hex run this long is a digest or id, not prose
+
+
+def _phone_inside_hex_digest(m: "re.Match[str]") -> bool:
+    r"""Roadmap 320/470 (option 1, a digest-context guard). The phone rule's
+    `(?<!\d)`/`(?!\d)` lookarounds accept a hex LETTER beside the digits, so a
+    nine-digit run between two hex letters inside a SHA digest read as a phone. A
+    separator-free digit match is not a phone when the unbroken run of hex
+    characters around it is 16+ long. A spaced, dashed or bracketed phone is
+    never skipped — a digest holds no separator, so prose keeps full reach."""
+    text = m.group(0)
+    if not text.isdigit():
+        return False
+    s, line = m.start(), m.string
+    lo = s
+    while lo > 0 and line[lo - 1] in _HEX_CHARS:
+        lo -= 1
+    hi = m.end()
+    while hi < len(line) and line[hi] in _HEX_CHARS:
+        hi += 1
+    return hi - lo >= _HEX_RUN_MIN
+
+
+_HEX_CHARS = frozenset("0123456789abcdefABCDEF")
+
+
 # Per-rule post-match validators: the regex says "this is the right SHAPE", the
 # validator says "and it is not one of the shapes we ruled out". Keeping them
 # beside the patterns means a rule's exclusions are readable in one place
@@ -530,6 +556,7 @@ VALIDATORS: dict[str, "object"] = {
     "ipv4": lambda m: not _ipv4_is_safe(m.group(0)),
     "payment-card": lambda m: _luhn_ok(m.group(0)),
     "iban": lambda m: _iban_ok(m.group(0)),
+    "nz-phone": lambda m: not _phone_inside_hex_digest(m),
     "pii-key-context": lambda m: not _is_placeholder(m.group("value")),
 }
 

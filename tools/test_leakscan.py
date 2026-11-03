@@ -1136,6 +1136,41 @@ class BracketedPhone(unittest.TestCase):
                 self.assertIn("nz-phone", rules(f"ring {line} now"))
 
 
+class PhoneInsideHexDigest(unittest.TestCase):
+    """Roadmap 320/470 — a digit run inside a 16+ character hex run is part of
+    a digest, not a phone; a phone in prose keeps flagging."""
+
+    SHA = ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+    # A digest whose interior holds a phone-shaped digit run between hex
+    # letters, which the old lookarounds accepted.
+    DIGEST = "9f86d081884c7d65" + "a031234567b" + "9a2ce5d1c6e4f0b3"
+
+    def test_digit_run_inside_a_digest_is_not_a_phone(self):
+        self.assertNotIn("nz-phone", rules(f'"sha256": "{self.DIGEST}"'))
+        self.assertNotIn("nz-phone", rules(f"sha256 {self.DIGEST} done"))
+
+    def test_the_old_behaviour_is_the_regression(self):
+        # Without the guard the same line matched; pin that the shape does.
+        m = [x for x in ls.STRUCTURAL if x.name == "nz-phone"][0]
+        self.assertIsNotNone(m.regex.search(self.DIGEST))
+
+    def test_real_digest_stays_clean(self):
+        self.assertNotIn("nz-phone", rules(f"sha256 {self.SHA}"))
+
+    def test_phone_in_prose_still_flags(self):
+        self.assertIn("nz-phone", rules("ring 031234567 today"))
+        self.assertIn("nz-phone", rules("ring 03 123 4567 today"))
+        self.assertIn("nz-phone", rules("ring +64 21 555 1234 today"))
+
+    def test_phone_beside_a_short_hex_word_still_flags(self):
+        # `dead` / `beef` are hex words but nowhere near 16 characters.
+        self.assertIn("nz-phone", rules("dead 031234567 beef"))
+        self.assertIn("nz-phone", rules("id a031234567b is the line"))
+
+    def test_spaced_phone_next_to_a_long_hex_run_still_flags(self):
+        self.assertIn("nz-phone", rules(f"{self.SHA} 021 555 1234"))
+
+
 class PathScanning(unittest.TestCase):
     """G2 (ruled 2026-08-04) — the repo-relative PATH runs through the same
     rule set, reported at line 0. Measured cost when proposed: zero findings
