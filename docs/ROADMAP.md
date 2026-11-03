@@ -328,6 +328,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
 - [ ] 🎯 [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the claimed index line fitted to wrapscan,…](roadmap/160-doctrine-review-owed/985-rule-4-cold-pass-queued-claimed-index-line-fit.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the orchestrator writes the review pointer…](roadmap/160-doctrine-review-owed/986-rule-4-cold-pass-queued-orchestrator-writes-the-pointer.md)
 - [ ] ⏳ [Rule-4 cold pass queued: datescan's blockquoted lines report their…](roadmap/160-doctrine-review-owed/988-rule-4-cold-pass-queued-datescan-reports-what-it-let-pass.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccapple, a read-only search of the Apple…](roadmap/160-doctrine-review-owed/989-rule-4-cold-pass-queued-ccapple.md)
 - [ ] ⏳ [Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS, IPTC,…](roadmap/160-doctrine-review-owed/990-rule-4-cold-pass-queued-g3-field-level-and-nz-phone-digest-guard.md)
@@ -369,7 +370,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/160-worktree-names-do-not-say-which-session.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
-- [~] (claimed 2026-11-03-1130, wt: atelier-qr-deea-inline) [A worker's review pointer…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/190-worker-pointers-cite-a-branch-the-merge-deletes.md)
+- ✅ 🔎 [A worker's review pointer cites its own branch or pre-merge hashes,…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/190-worker-pointers-cite-a-branch-the-merge-deletes.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
@@ -616,7 +617,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [FIXED 2026-10-18](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
 - ✅ 🔎 [Hand-up: the paragraph projection joins a wrapped claim into one…](roadmap/320-child-filed-findings-via-pointing-up/730-hand-up-the-paragraph-projection-joins-a-claim-into-an-index-line-wrapscan-refuses.md)
 - [ ] 🔎 [Hand-up: a peer's relayed ruling can override an order the principal…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)
-- [~] (claimed 2026-11-03-1130, wt: atelier-qr-deea-inline) [Hand-up: a one-line claim…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
+- ✅ 🔎 [Hand-up: a one-line claim still overruns the index line, so 320/730's…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
 - [ ] 🔎 [Hand-up: REVIEW.md has no shape for a live-only top-up of a degraded…](roadmap/320-child-filed-findings-via-pointing-up/760-hand-up-review-md-has-no-shape-for-a-live-only-top-up-of-a-degraded-pass.md)
 - [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
 - [ ] [Turn conflictscan's tool-markup rule from advisory to blocking once…](roadmap/320-child-filed-findings-via-pointing-up/780-the-tool-markup-advisory-goes-blocking-once-the-estate-is-clean.md)

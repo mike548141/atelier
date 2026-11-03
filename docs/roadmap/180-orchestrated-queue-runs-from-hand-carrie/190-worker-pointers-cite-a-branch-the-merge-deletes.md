@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-03-1130, wt: atelier-qr-deea-inline)
-      🔎 **A worker's review pointer cites its own branch or pre-merge
+- [x] 🔎 **A worker's review pointer cites its own branch or pre-merge
       hashes, which the orchestrator's merge then rewrites or deletes.**
       Found 2026-11-03 by queue run 4c65083c at its own merges. Five
       workers each wrote the `⏳` pointer for their lane in their last
@@ -14,3 +13,9 @@
       never by branch or hash; or the orchestrator writes every pointer at
       the merge, where the final hashes exist. The second matches landing
       = queuing better, since the merge is the landing.
+      **DONE 2026-11-03** (queue run deeac927): both shapes, as one rule.
+      `CONCURRENCY.md` § *Orchestrated queue runs* now says the orchestrator
+      writes the pointer in the landing and names the delta by path and by
+      the item it closes; the dispatch skeleton
+      (`method/session-open/dispatch-brief.md`) tells the worker to write
+      none. Cold pass queued as `160/986`.

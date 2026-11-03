@@ -893,6 +893,20 @@ pointing at the rule here that grounds it, and a dispatch starts from it.
 scratch directory and four asked for no marker, and a brief-writer left 50
 files in the orchestrator's scratchpad. Both rules lived only in this prose.)
 
+**The orchestrator writes the review pointer, at the landing.** `REVIEW.md`
+rule 4 puts a `⏳` pointer in the commit that lands the work, and in this
+shape the landing is the orchestrator's merge, not the worker's last commit.
+A worker that writes its own pointer can only name what it can see: its
+branch and its worktree hashes. A rebase landing rewrites those hashes and
+teardown deletes the branch, so the pointer a cold reviewer meets first
+cites refs that no longer resolve. So the worker writes no pointer, and the
+orchestrator writes it in the landing itself. The pointer names its delta
+by path and by the item the work closes ("the commit that closes
+`NNN/NNN`"), which no rebase or teardown can move; a hash it cites must
+already be the one on `main`. (2026-11-03, `180/190`: four of five worker
+pointers in one run named a deleted branch or a pre-rebase hash, and were
+corrected by hand the same hour.)
+
 **Tier at open — state it, don't ask.** An orchestrating session **names the
 tier it is on in its opening report and proceeds** (`ECONOMICS.md` — the
 cheapest model that does the job well runs it, orchestration included). It

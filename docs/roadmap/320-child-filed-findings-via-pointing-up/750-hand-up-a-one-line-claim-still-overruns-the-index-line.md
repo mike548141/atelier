@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-03-1130, wt: atelier-qr-deea-inline)
-      🔎 **Hand-up: a one-line claim still overruns the index line, so
+- [x] 🔎 **Hand-up: a one-line claim still overruns the index line, so
       320/730's "keep claims short" option does not work** `[tool]`.
       Handed up from a private child on 2026-10-26 under `PROPAGATION.md`
       § *Pointing up*, measured at a pin bump to `0a2b7a7` (Opus 5.5, no
@@ -19,3 +18,9 @@
       `wrapscan`, or a projection that caps or wraps the claim fragment.
       review: not warranted — a hand-up of one measured finding; the fix is
       atelier's to decide.
+      **DONE 2026-11-03** (queue run deeac927): answered by the fix that
+      closed `320/730`, which cuts the title and shortens the claim on the
+      index line. Re-measured: the child's exact claim, `(claimed
+      2026-10-26-1010, wt: doctrine-0a2b7a7)`, on one line of `320/660`,
+      one of this board's longest paths, projects to a line `wrapscan`
+      passes. No code change.

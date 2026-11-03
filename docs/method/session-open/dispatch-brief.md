@@ -28,6 +28,9 @@ carries bounds only, never a relaxation of standing doctrine.
   hand back.
 - Stop only processes you launched, by their PID or by your own worktree's
   cwd. Never kill by name pattern (`pkill -f`): it reaches other sessions.
+- Write no review pointer: the orchestrator writes it when it lands your
+  work. Where your item or report names your change, cite it by path and
+  by the item it closes, never by branch name or commit hash.
 - End your final reply with the line: WORKER DONE: <branch>@<final sha>
 ```
 
@@ -39,8 +42,9 @@ carries bounds only, never a relaxation of standing doctrine.
 | Explicit staging, pathspec commit | § *The trigger*: the index is a shared surface too (`320/350`); § *Claiming work*: one worktree per worker, or forbid `git add -A` |
 | No push or merge | § *Orchestrated queue runs*: what a worker inherits is bounded (QR3) |
 | Kill scope | § *Orchestrated queue runs*: the machine is shared too (`320/700`) |
+| No pointer; cite by path and item | § *Orchestrated queue runs*: the orchestrator writes the review pointer, at the landing (`180/190`) |
 | Terminal marker | § *Orchestrated queue runs*: teardown waits for the worker to stop |
 
 What the block leaves to each dispatch: the item and its evidence, the
-reading the worker owes first, the checks the change must pass, the board and
-review bookkeeping, and what the report back holds.
+reading the worker owes first, the checks the change must pass, the board
+bookkeeping, and what the report back holds.
