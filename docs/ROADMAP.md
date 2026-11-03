@@ -331,6 +331,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose resolves a shell variable in a…](roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the dispatch brief, the pathspec and…](roadmap/160-doctrine-review-owed/995-rule-4-cold-pass-queued-dispatch-brief-and-shared-surfaces.md)
 - [ ] ⏳ [Rule-4 cold pass queued: pathscan skips a child's inlined floor…](roadmap/160-doctrine-review-owed/997-rule-4-cold-pass-queued-floor-region-skip-and-markup-rule.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the pre-merge-commit hook, the repo-local…](roadmap/160-doctrine-review-owed/998-rule-4-cold-pass-queued-merge-hook-and-staged-content-scanners.md)
 - [ ] ⏳ [Rule-4 cold pass queued: disclosed contact with a review chain, the…](roadmap/160-doctrine-review-owed/999-rule-4-cold-pass-queued-disclosed-contact-scalar-allowlist-closed-questions.md)
 
 ## build/ layer — open strands
