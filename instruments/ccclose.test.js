@@ -925,6 +925,64 @@ test('worktreeAdds reads path and branch from the common forms of git worktree a
   assert.deepEqual(cc.worktreeAdds('git worktree list', '/r'), []);
 });
 
+// 210/330: a shell variable in the path is read from a literal assignment, and a
+// path that cannot be resolved is dropped, never listed under a made-up name.
+test('worktreeAdds expands a variable from a literal assignment in the same command', () => {
+  assert.deepEqual(cc.worktreeAdds('W=/w/var-one && git worktree add --detach $W origin/main', '/r'),
+    [{ path: '/w/var-one', branch: null }]);
+  assert.deepEqual(cc.worktreeAdds('W="/w/var two"; git worktree add -b br ${W}/sub', '/r'),
+    [{ path: '/w/var two/sub', branch: 'br' }]);
+  assert.deepEqual(cc.worktreeAdds('R=/repo && cd $R && git worktree add -b b2 ../rel', '/x'),
+    [{ path: '/rel', branch: 'b2' }]);
+  assert.deepEqual(cc.worktreeAdds('A=/w/a && A=/w/b && git worktree add $A', '/r'), [{ path: '/w/b', branch: 'b' }]);
+});
+
+test('worktreeAdds expands a variable assigned earlier in the transcript', () => {
+  const vars = new Map([['W', '/w/earlier']]);
+  assert.deepEqual(cc.worktreeAdds('git worktree add --detach $W origin/main', '/r', vars),
+    [{ path: '/w/earlier', branch: null }]);
+  // A later assignment in the command wins over the transcript's.
+  assert.deepEqual(cc.worktreeAdds('W=/w/later && git worktree add --detach $W', '/r', vars),
+    [{ path: '/w/later', branch: null }]);
+});
+
+test('worktreeAdds drops a path it cannot resolve rather than invent one', () => {
+  assert.deepEqual(cc.worktreeAdds('git worktree add --detach $W origin/main', '/r'), []);
+  assert.deepEqual(cc.worktreeAdds('git worktree add --detach "${NOPE}/x"', '/r'), []);
+  assert.deepEqual(cc.worktreeAdds('git worktree add -b b "$(mktemp -d)"', '/r'), []);
+  assert.deepEqual(cc.worktreeAdds('git worktree add -b b `mktemp -d`', '/r'), []);
+  // A prefix assignment is not seen by the same command's own expansion.
+  assert.deepEqual(cc.worktreeAdds('W=/w/prefix git worktree add --detach $W', '/r'), []);
+  // An unknown directory only matters to a relative path.
+  assert.deepEqual(cc.worktreeAdds('cd $UNSET && git worktree add -b b rel', '/r'), []);
+  assert.deepEqual(cc.worktreeAdds('cd $UNSET && git worktree add -b b /w/abs', '/r'), [{ path: '/w/abs', branch: 'b' }]);
+  // The other adds in the same command survive.
+  assert.deepEqual(cc.worktreeAdds('git worktree add --detach $W && git worktree add -b ok /w/ok', '/r'),
+    [{ path: '/w/ok', branch: 'ok' }]);
+});
+
+test('worktreeAdds leaves a plain literal path as it was', () => {
+  assert.deepEqual(cc.worktreeAdds('git worktree add -b plain /w/plain origin/main', '/r'), [{ path: '/w/plain', branch: 'plain' }]);
+  assert.deepEqual(cc.worktreeAdds('git worktree add "/w/with space" topic', '/r'), [{ path: '/w/with space', branch: 'topic' }]);
+});
+
+test('--identifiers worktrees: a $VAR path is listed as resolved, and an unresolvable one is not listed at all (210/330)', () => {
+  const w = world();
+  const root = repo(w);
+  const good = path.join(w.base, 'wt-var-good');
+  const early = path.join(w.base, 'wt-var-early');
+  transcript(w, 'sess-id-13', [
+    bashUse('v1', `W=${good} && git worktree add --detach $W origin/main`, root), useResult('v1', 'Preparing worktree'),
+    bashUse('v2', `E=${early}`, root), useResult('v2', ''),
+    bashUse('v3', 'git worktree add --detach $E origin/main', root), useResult('v3', 'Preparing worktree'),
+    bashUse('v4', 'git worktree add --detach $NEVER_SET origin/main', root), useResult('v4', 'Preparing worktree'),
+  ]);
+  const j = JSON.parse(ccclose(w, root, ['--session', 'sess-id-13', '--identifiers', '--json']).out);
+  assert.deepEqual(j.worktrees.items.map((x) => x.path).sort(), [early, good].sort());
+  const out = idRun(w, root, 'sess-id-13').out;
+  assert.doesNotMatch(out, /\$W|\$E|NEVER_SET/);
+});
+
 test('ghPrCommands reads merge numbers and ignores other repos, flag values and quoted mentions', () => {
   assert.deepEqual(cc.ghPrCommands('gh pr merge 12 --squash'), { creates: 0, merges: [12] });
   assert.deepEqual(cc.ghPrCommands('gh pr merge --squash --body 5 #13'), { creates: 0, merges: [13] });

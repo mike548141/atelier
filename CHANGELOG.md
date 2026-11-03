@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-03 — `ccclose --identifiers`: an unexpanded worktree path, `210/330`)
+- **A worktree path held in a shell variable is no longer invented.**
+  `W=/abs/path && git worktree add --detach $W origin/main` was listed as
+  `<cwd>/$W`, a worktree that never existed. `worktreeAdds` now expands
+  `$NAME` / `${NAME}` from a literal assignment earlier in the same command or
+  the transcript, as the message-file reader does, and drops an add whose path
+  (or `cd` / `-C` directory, for a relative path) it cannot resolve. A prefix
+  assignment (`W=/p git worktree add $W`) is not seen by that command's own
+  expansion and does not count.
+
 ### Fixed (2026-11-03 — `ccclose --identifiers`: backdated commits, `210/320`)
 - **Backdated commits: pinned, not changed.** The window already judged a commit
   by its committer date; the reported gap was commits made by a script, which

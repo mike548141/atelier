@@ -414,7 +414,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/300-plain-ccclose-ends-with-the-identifiers-block.md)
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/310-ccclose-cannot-read-a-commit-message-from-a-file.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/320-ccclose-misses-author-backdated-commits.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-ccclose) [ccclose lists a worktree whose…](roadmap/210-instruments-open-features/330-ccclose-lists-a-worktree-path-with-an-unexpanded-variable.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/330-ccclose-lists-a-worktree-path-with-an-unexpanded-variable.md)
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
 
 ## Observability of the collaboration itself (2026-07-30)

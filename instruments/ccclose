@@ -248,9 +248,19 @@ function resolveFrom(base, p) {
 // branch checked out); else the path's basename, which git creates. --detach
 // has no branch. A relative path resolves against a preceding `cd`, a -C, or
 // the record's own cwd.
+//
+// A `$NAME` / `${NAME}` in the path (or in the `cd` / `-C` it resolves against)
+// is expanded from a literal assignment made earlier in the same command, or
+// before it in the transcript (`vars`, the same reading the message-file
+// evidence uses, 210/310). A variable with no such assignment, or any other
+// expansion ($(...), backticks), leaves the path unknown, and the add is
+// DROPPED: a made-up path would be pasted as fact (210/330). An assignment
+// that only prefixes the git command itself (`W=/p git worktree add $W`) is
+// not seen by that command's own expansion, so it does not count either.
 const WT_ADD = /\bgit\s+((?:-[Cc]\s+\S+\s+)*)worktree\s+add\b/g;
-function worktreeAdds(command, cwd) {
+function worktreeAdds(command, cwd, vars = new Map()) {
   const out = [];
+  const assigns = command.includes('=') ? assignmentsIn(command) : [];
   for (const m of command.matchAll(WT_ADD)) {
     const words = shellWords(command.slice(m.index + m[0].length));
     let branch = null, detach = false;
@@ -264,14 +274,31 @@ function worktreeAdds(command, cwd) {
       else pos.push(x);
     }
     if (!pos.length) continue;
-    let base = cwd || null;
+    // Variables as they stand when this add runs.
+    const env = new Map(vars);
+    for (const a of assigns) {
+      const from = command.indexOf(a.name + '=', a.at);
+      if (a.at < m.index && /[;&|\n]/.test(command.slice(from, m.index))) env.set(a.name, a.value);
+    }
+    const expand = (word) => (/[$`]/.test(word) ? expandVars(word, env) : word);
+    const target = expand(pos[0]);
+    if (target === null || target === '') continue;
+    let base = cwd || null, baseKnown = true;
     const cds = [...command.slice(0, m.index).matchAll(/\bcd\s+("[^"]*"|'[^']*'|[^\s;&|]+)/g)];
-    if (cds.length) base = resolveFrom(base, unquote(cds[cds.length - 1][1]));
-    for (const c of m[1].matchAll(/-C\s+(\S+)/g)) base = resolveFrom(base, unquote(c[1]));
-    const wtPath = resolveFrom(base, pos[0]);
+    const dirs = [];
+    if (cds.length) dirs.push(unquote(cds[cds.length - 1][1]));
+    for (const c of m[1].matchAll(/-C\s+(\S+)/g)) dirs.push(unquote(c[1]));
+    for (const d of dirs) {
+      const x = expand(d);
+      if (x === null) { baseKnown = false; break; }
+      base = resolveFrom(base, x);
+    }
+    // An unknown directory only matters to a relative path.
+    if (!baseKnown && !path.isAbsolute(target) && !target.startsWith('~')) continue;
+    const wtPath = resolveFrom(base, target);
     out.push({
       path: wtPath,
-      branch: detach ? null : (branch || pos[1] || path.basename(wtPath)),
+      branch: detach ? null : (branch || (pos[1] !== undefined ? expand(pos[1]) : null) || path.basename(wtPath)),
     });
   }
   return out;
@@ -482,9 +509,9 @@ function fileSubjects(evs) {
   return out;
 }
 
-function notePending(t, id, command, cwd) {
+function notePending(t, id, command, cwd, vars) {
   if (!id || !command) return;
-  const adds = command.includes('worktree') ? worktreeAdds(command, cwd) : [];
+  const adds = command.includes('worktree') ? worktreeAdds(command, cwd, vars) : [];
   const pr = command.includes('gh') ? ghPrCommands(command) : { creates: 0, merges: [] };
   if (adds.length || pr.creates || pr.merges.length) t.pend.set(id, { adds, ...pr });
 }
@@ -586,10 +613,13 @@ async function readTranscript(file) {
       for (const b of content) {
         if (b.type !== 'tool_use') continue;
         if (b.name === 'EnterWorktree' && b.id) t.pend.set(b.id, { enter: true });
+        // Variables as they stood BEFORE this command: its own assignments are
+        // read in order by worktreeAdds, and noteMessageSources folds them in.
+        const varsBefore = new Map(t.msg.vars);
         if (b.name === 'Write' || b.name === 'Bash') noteMessageSources(t.msg, b.name, b.input, o.cwd);
         if (b.name !== 'Bash') continue;
         const cmd = b.input && typeof b.input.command === 'string' ? b.input.command : '';
-        notePending(t, b.id, cmd, o.cwd);
+        notePending(t, b.id, cmd, o.cwd, varsBefore);
         if (cmd.includes('git')) for (const x of commitSubjectsIn(cmd)) t.commitSubjects.add(x);
         const hit = bypassesIn(cmd);
         if (!hit.length) continue;

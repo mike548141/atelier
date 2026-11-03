@@ -333,7 +333,10 @@ always prints the by-hand line, because nothing here can see another repo.
 - **Worktrees and branches.** A worktree put away and its deleted branch leave
   no trace in git, so the creations are read from the transcript: `git worktree
   add` commands (path, and `-b` or the path's name for the branch) and
-  `EnterWorktree` results saying "Created worktree at ...". Each is then
+  `EnterWorktree` results saying "Created worktree at ...". A `$VAR` in the path
+  is expanded from a literal assignment earlier in the command or the
+  transcript (the same reading as message files); a path that cannot be resolved
+  is dropped, not guessed (`210/330`). Each is then
   checked now: directory present or put away, branch deleted or kept (merged
   or not). Worktrees born in the window and branches with a tip in it are
   added, since those still exist and the repo can show them.

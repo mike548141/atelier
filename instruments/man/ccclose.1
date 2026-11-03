@@ -395,6 +395,9 @@ results, because a worktree put away and its deleted branch leave no trace in
 git.
 Each prints whether the worktree is still present or put away, and whether the
 branch is deleted or kept, merged or not.
+A path with a shell variable is read from a literal assignment earlier in the
+same command or the transcript; a path that cannot be resolved is left out, not
+guessed.
 Worktrees born inside the window and branches with a tip inside it are added.
 .TP
 .B Agents
