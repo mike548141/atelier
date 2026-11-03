@@ -436,6 +436,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [ccapple looks for the store before it checks that a filter was given,…](roadmap/210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md)
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
 - ✅ [ccclose --identifiers drops a worktree made in a shell loop, and the…](roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md)
+- [~] (claimed 2026-11-03, wt: atelier-qr-deea-ccclosesort) [ccclose --identifiers lists…](roadmap/210-instruments-open-features/370-ccclose-sorts-board-ids-as-text.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
