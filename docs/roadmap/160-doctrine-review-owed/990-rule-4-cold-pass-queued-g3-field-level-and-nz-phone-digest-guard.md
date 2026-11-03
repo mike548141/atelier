@@ -10,11 +10,9 @@
       *Tier:* Fable, the principal-named review tier, checked at selection.
       *Pass type:* code cold pass, per `method/REVIEW.md` rule 4.
       *Delta, scoped to paths:* `tools/leakscan.py`, `tools/test_leakscan.py`,
-      `tools/test_report.py`, `tools/README.md`, `CHANGELOG.md` (the two
-      commits that close `320/470` and land `020/450` part 1, on `main`,
-      2026-11-03; widened by the `020/450` part 2 commits `f9f8c8f` (code,
-      tests, README, CHANGELOG) and the records commit on top of it, branch
-      `qr-4c65-g3part2`, 2026-11-03).
+      `tools/test_report.py`, `tools/README.md`, `CHANGELOG.md` (commits
+      `7bc0f87` and `29021b9`, which close `320/470` and land `020/450`
+      part 1, widened by `1297df4`, part 2; all on `main`, 2026-11-03).
       *Intent records:*
       [`../020-policy-as-code-programme-five-tracks-mik/450-g3-keeps-image-metadata-field-by-field-not-by-data-type.md`](../020-policy-as-code-programme-five-tracks-mik/450-g3-keeps-image-metadata-field-by-field-not-by-data-type.md),
       [`../320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md`](../320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md).

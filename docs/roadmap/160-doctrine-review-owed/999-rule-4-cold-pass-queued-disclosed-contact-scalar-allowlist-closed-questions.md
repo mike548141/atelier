@@ -10,7 +10,7 @@
       *Delta, scoped to paths:* `docs/method/REVIEW.md`,
       `docs/method/CONCURRENCY.md`, `docs/method/SECRETS.md`,
       `docs/method/PROPAGATION.md` (the three commits that close the three
-      items below, on the `qr-4c65-doctrine2` branch, 2026-11-03).
+      items below: `ef9e975`, `ba4e95b`, `3b1cb23`, on `main`, 2026-11-03).
       *Intent records:*
       [`../280-cross-session-channel-mike-commissioned/040-the-channel-can-contaminate-review-independence.md`](../280-cross-session-channel-mike-commissioned/040-the-channel-can-contaminate-review-independence.md),
       [`../320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md`](../320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md),
