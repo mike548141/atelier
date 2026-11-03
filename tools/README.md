@@ -336,10 +336,10 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   `exiftool -all= -tagsfromfile @ -icc_profile file` to keep only the colour
   profile). A set line for a set the file doesn't carry is stale and blocks:
   the hash binds the bytes, so the line was wrong when it was written.
-- **Fields, for Exif and GPS.** Mike, 2026-10-19: *"I did mean fields as in
+- **Fields, for Exif, GPS, IPTC, XMP and PNG text.** Mike, 2026-10-19: *"I did mean fields as in
   GPS versus the camera model. Things like exif, iptc, xmp are data types,
-  nto fields"*. So the Exif block is read tag by tag (tag numbers only, never
-  the values), and a line keeps named fields, not the whole set:
+  nto fields"*. So each of these blocks is read field by field (names only,
+  never the values), and a line keeps named fields, not the whole set:
 
   ```
   c81d07a2e4f9b613:exif:Make,Model,LensModel  docs/img/site.jpg  # the shop shows which camera
@@ -360,17 +360,52 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   an offset outside the block, more than 16 directories) is the field
   `exif:unknown`, which blocks until it is named. `MakerNote` is one field:
   naming it keeps the camera maker's whole opaque block, so say so in the
-  reason. IPTC, XMP, PNG text and JPEG comments are still kept by set; their
-  fields are the next part of `020/450`.
+  reason.
+
+  The other three sets follow the same rules, and each has an `unknown` field
+  for what the reader cannot walk, which blocks until it is named:
+
+  ```
+  c81d07a2e4f9b613:iptc:By-line,Credit  photo.jpg  # the credit line the licence needs
+  c81d07a2e4f9b613:xmp:dc:creator,xmp:dc:rights  photo.jpg  # same, in the XMP copy
+  c81d07a2e4f9b613:png-text:Author,Creation%20Time  chart.png  # the tool's own stamp
+  ```
+
+  - **IPTC**: `iptc:<dataset>`, the IPTC IIM names of the Photoshop 8BIM
+    resource 0x0404 (`iptc:By-line`, `iptc:City`, `iptc:Caption-Abstract`). A
+    dataset the table does not name is `iptc:<record>:<number>`
+    (`iptc:2:250`); another Photoshop resource in the same APP13 is
+    `iptc:8BIM-0x03ED`. Bare `2:090` continues the same set; names are
+    case-sensitive.
+  - **XMP**: `xmp:<prefix>:<Property>` (`xmp:dc:creator`,
+    `xmp:exif:GPSLatitude`), one field per top-level property of the packet's
+    `rdf:Description` elements, attribute or element form. A property's value,
+    structure included, is one field. Well-known namespaces use their usual
+    prefix whatever the packet declares; another uses the prefix it declares.
+    Write every XMP field in full: `xmp:dc:creator,xmp:dc:rights`, not
+    `xmp:dc:creator,dc:rights` (a prefix could be a set's name, and
+    `xmp:dc:creator,exif:Make` keeps the Exif field `Make`). A packet with a
+    DOCTYPE or entity, an element outside the xmpmeta / RDF / Description
+    skeleton, a property with no prefix, or over 1,024 properties is
+    `xmp:unknown`. JPEG extended XMP is joined before it is read.
+  - **PNG text**: `png-text:<keyword>` for a tEXt, zTXt or iTXt chunk (XMP in
+    iTXt is XMP). A byte outside `A-Z a-z 0-9 _ . -` is written `%XX`, so
+    `Creation Time` is `png-text:Creation%20Time`. A keyword that is itself
+    `unknown` is `png-text:%75nknown`; an empty or over-long keyword is
+    `png-text:unknown`.
+
+  A set with over 1,024 distinct fields adds `<set>:unknown`. JPEG comments
+  and ICC profiles have no fields to name and stay kept by set.
 - **Type-level lines, accepted with a warning until 2026-12-18.** A line
-  written before fields were read (`<digest>:exif  path`) keeps the whole Exif
-  set, GPS included. Until `TYPE_LEVEL_UNTIL` (2026-12-18, UTC) it still does,
-  and each scan prints a warning that names the fields the file carries and
-  asks for field-level lines. From that day it keeps nothing: the set blocks
-  as `binary-metadata` until fields are named. A month after the grace
-  ends, so a child that listed by type before 2026-11-18 has time to migrate.
-  Other sets (`icc`, `iptc`, `xmp`, `png-text`, `jpeg-comment`, `unknown`)
-  are unaffected. Like the grace, no flag or setting moves the date.
+  written before fields were read (`<digest>:exif  path`, or `:iptc`, `:xmp`,
+  `:png-text`) keeps the whole set, GPS included for Exif. Until
+  `TYPE_LEVEL_UNTIL` (2026-12-18, UTC) it still does, and each scan prints a
+  warning that names the fields the file carries and asks for field-level
+  lines. From that day it keeps nothing: the set blocks as `binary-metadata`
+  until fields are named. A month after the grace ends, so a child that listed
+  by type before 2026-11-18 has until 2026-12-18 to move to field-level lines.
+  `icc`, `jpeg-comment` and `unknown` have no fields and are unaffected. Like
+  the grace, no flag or setting moves the date.
 - **Text sets are still scanned.** `png-text`, `xmp` and `jpeg-comment` are
   decoded and run through the normal rules and term list, kept or not.
   Keeping a set states a need; it doesn't stop the scan. Allow-markers
@@ -379,9 +414,10 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
 - **What it can't see.** The pixels: no OCR, so the reason *is* the human
   check. Metadata in any other format (GIF, TIFF, HEIC/AVIF, PDF, Office files,
   fonts, archives), where the file line accepts the whole file, metadata
-  included. The values of Exif tags, which are named and never read (the human
-  who writes the reason reads them in the file). The contents of an IPTC or
-  ICC block, which are named by presence and never read. JPEG segments after the first start-of-scan, JPEG
+  included. The values of Exif and IPTC fields, which are named and never read
+  (the human who writes the reason reads them in the file); XMP and PNG text
+  values are matched by the text rules, which do not understand them. The
+  contents of an ICC block, which are named by presence and never read. JPEG segments after the first start-of-scan, JPEG
   APPn segments other than APP1, APP2 (ICC) and APP13, and bytes after a
   format's end marker.
 - **Which files are gated.** In a git work tree, a whole-tree scan gates the
@@ -426,9 +462,9 @@ python3 <atelier>/tools/leakscan.py --root . --binary-entries   # prints the lin
 
 `--binary-entries` prints a file line for every tracked binary that no entry
 accepts yet (new, or changed since listed), and one `<digest>:<set>` line for
-each metadata set it carries that no line keeps, or one `<digest>:exif:<Field>`
-line for each Exif or GPS field. A type-level `exif` line is listed again as
-its field lines, with a note that it is replaced. Merge the fields that share
+each metadata set it carries that no line keeps, or one `<digest>:<set>:<Field>`
+line for each Exif, GPS, IPTC, XMP or PNG text field. A type-level line on one
+of those sets is listed again as its field lines, with a note that it is replaced. Merge the fields that share
 one need into one line. It writes **no reason**, and
 the scan refuses the lines until a person adds one. Its notes go to stderr:
 which entries replace a changed line, and which sets each file carries. Look

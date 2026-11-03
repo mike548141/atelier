@@ -2025,12 +2025,12 @@ class ExifFieldParsing(unittest.TestCase):
 
     def test_every_table_name_is_valid_where_it_is_used(self):
         for name in ("Model", "LensModel", "unknown", "0x9999"):
-            self.assertTrue(ls.exif_field_valid("exif", name), name)
+            self.assertTrue(ls.field_valid("exif", name), name)
         for name in ("GPSLatitude", "0x0040"):
-            self.assertTrue(ls.exif_field_valid("gps", name), name)
+            self.assertTrue(ls.field_valid("gps", name), name)
         for fs, name in (("exif", "model"), ("exif", "GPSLatitude"), ("gps", "Model"),
                          ("gps", "unknown"), ("iptc", "Model"), ("exif", "0x99")):
-            self.assertFalse(ls.exif_field_valid(fs, name), (fs, name))
+            self.assertFalse(ls.field_valid(fs, name), (fs, name))
 
 
 class BinaryFieldLevel(_TreeCase):
@@ -2288,6 +2288,522 @@ class BinaryFieldLevel(_TreeCase):
         self.assertNotIn(f"{d}  p.png", lines)         # the file line still stands
         self.assertIn("type-level line for exif (line 2)", err)
         self.assertIn(ls.TYPE_LEVEL_UNTIL.isoformat(), err)
+
+
+def _iim(*datasets):
+    """IPTC IIM datasets `(record, dataset, value)` as bytes."""
+    return b"".join(b"\x1c" + bytes([r, d]) + _struct.pack(">H", len(v)) + v
+                    for r, d, v in datasets)
+
+
+def _app13(iim, *other):
+    """A Photoshop 3.0 APP13 payload: IPTC resource 0x0404 holding `iim`, then
+    `other` `(resource id, bytes)` resources."""
+    def res(rid, data):
+        return (b"8BIM" + _struct.pack(">H", rid) + b"\x00\x00"
+                + _struct.pack(">I", len(data)) + data + (b"\x00" if len(data) % 2 else b""))
+    return b"Photoshop 3.0\x00" + res(0x0404, iim) + b"".join(res(i, d) for i, d in other)
+
+
+_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+
+def _xmp(body="", attrs="", ns=""):
+    """An XMP packet with one rdf:Description holding `attrs` (attribute-form
+    properties) and `body` (element-form properties); `ns` adds declarations.
+    dc and exif are always declared."""
+    return (f'<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>'
+            f'<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="{_RDF}">'
+            f'<rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/" '
+            f'xmlns:exif="http://ns.adobe.com/exif/1.0/" {ns} {attrs}>{body}'
+            f'</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>').encode()
+
+
+class IptcFieldParsing(unittest.TestCase):
+    """020/450 part 2 — IPTC datasets read by name, lengths only, bounded."""
+
+    IIM = _iim((2, 80, b"Jane Q"), (2, 90, b"Springfield"), (2, 25, b"k1"), (2, 25, b"k2"))
+
+    def test_datasets_are_named_once_each(self):
+        self.assertEqual(["iptc:By-line", "iptc:City", "iptc:Keywords"],
+                         ls.iptc_fields(_app13(self.IIM)))
+
+    def test_bare_8bim_and_bare_iim_read_alike(self):
+        want = ls.iptc_fields(_app13(self.IIM))
+        self.assertEqual(want, ls.iptc_fields(_app13(self.IIM)[len(b"Photoshop 3.0\x00"):]))
+        self.assertEqual(want, ls.iptc_fields(self.IIM))
+
+    def test_an_unnamed_dataset_is_written_record_colon_number(self):
+        self.assertEqual(["iptc:2:250"], ls.iptc_fields(_iim((2, 250, b"x"))))
+        self.assertEqual(["iptc:3:010"], ls.iptc_fields(_iim((3, 10, b"x"))))
+
+    def test_another_photoshop_resource_is_named_by_its_id(self):
+        got = ls.iptc_fields(_app13(self.IIM, (0x03ED, b"abcd"), (0x0425, b"x" * 16)))
+        self.assertIn("iptc:8BIM-0x03ED", got)
+        self.assertIn("iptc:8BIM-0x0425", got)
+        self.assertNotIn("iptc:unknown", got)
+
+    def test_a_photoshop_block_with_no_iptc_has_no_dataset(self):
+        self.assertEqual(["iptc:8BIM-0x03ED"],
+                         ls.iptc_fields(b"Photoshop 3.0\x00" + _app13(b"")[14:][:0]
+                                        + b"8BIM\x03\xed\x00\x00\x00\x00\x00\x02ab"))
+
+    def test_an_extended_length_dataset_is_walked(self):
+        ext = b"\x1c\x02\x78" + _struct.pack(">H", 0x8004) + _struct.pack(">I", 3) + b"abc"
+        self.assertEqual(["iptc:Caption-Abstract"], ls.iptc_fields(ext))
+
+    def test_trailing_zero_padding_is_not_an_error(self):
+        self.assertEqual(["iptc:City"], ls.iptc_fields(_iim((2, 90, b"x")) + b"\x00\x00"))
+
+    def test_what_cannot_be_walked_is_unknown(self):
+        good = _app13(self.IIM)
+        for name, blob in (("empty", b""), ("junk", b"not iptc"),
+                           ("truncated dataset", good[:-3]),
+                           ("bad marker", b"\x1c\x02\x5a\x00\x01x\x07"),
+                           ("record 0", _iim((0, 1, b"x"))),
+                           ("record 10", _iim((10, 1, b"x"))),
+                           ("resource overruns", good[:20]),
+                           ("garbage after a resource", good + b"zzzz"),
+                           ("length field too long",
+                            b"\x1c\x02\x78" + _struct.pack(">H", 0x8009) + b"x" * 9)):
+            with self.subTest(name):
+                self.assertIn("iptc:unknown", ls.iptc_fields(blob))
+
+    def test_a_truncated_block_still_names_what_it_did_hold(self):
+        got = ls.iptc_fields(_iim((2, 80, b"a"), (2, 90, b"b"))[:-3])
+        self.assertIn("iptc:By-line", got)
+        self.assertIn("iptc:unknown", got)
+
+    def test_too_many_datasets_fail_closed(self):
+        many = _iim(*[(2, 25, b"")] * (ls._IPTC_MAX_DATASETS + 1))
+        self.assertIn("iptc:unknown", ls.iptc_fields(many))
+
+    def test_too_many_resources_fail_closed(self):
+        res = b"8BIM\x03\xed\x00\x00\x00\x00\x00\x00"
+        self.assertIn("iptc:unknown", ls.iptc_fields(
+            b"Photoshop 3.0\x00" + res * (ls._IPTC_MAX_RESOURCES + 1)))
+
+    def test_every_dataset_name_is_valid_and_unique(self):
+        names = list(ls.IPTC_DATASETS.values())
+        self.assertEqual(len(names), len(set(names)))
+        for n in names + ["unknown", "2:999", "8BIM-0x03ED"]:
+            self.assertTrue(ls.field_valid("iptc", n), n)
+        for n in ("by-line", "2:99", "22:099", "Model", "8BIM-0x3ed", ""):
+            self.assertFalse(ls.field_valid("iptc", n), n)
+
+
+class XmpFieldParsing(unittest.TestCase):
+    """020/450 part 2 — XMP properties read by name from the RDF skeleton,
+    stdlib expat, no entity expansion, bounded."""
+
+    def test_element_and_attribute_properties_are_named(self):
+        got = ls.xmp_fields(_xmp(
+            body="<dc:creator><rdf:Seq><rdf:li>Jane</rdf:li></rdf:Seq></dc:creator>"
+                 "<dc:title>T</dc:title>",
+            attrs='exif:GPSLatitude="41,24N"'))
+        self.assertEqual(["xmp:dc:creator", "xmp:dc:title", "xmp:exif:GPSLatitude"], got)
+
+    def test_a_structure_is_one_field_not_its_members(self):
+        got = ls.xmp_fields(_xmp(
+            body='<exif:Flash rdf:parseType="Resource"><exif:Fired>True</exif:Fired>'
+                 '</exif:Flash>'))
+        self.assertEqual(["xmp:exif:Flash"], got)
+
+    def test_rdf_syntax_attributes_and_xml_lang_are_not_properties(self):
+        self.assertEqual(["xmp:dc:title"], ls.xmp_fields(_xmp(
+            body='<dc:title xml:lang="en">T</dc:title>', attrs='xml:lang="en"')))
+
+    def test_well_known_namespaces_use_their_usual_prefix(self):
+        pkt = _xmp(ns='xmlns:zz="http://purl.org/dc/elements/1.1/" '
+                      'xmlns:co="http://example.invalid/ns/"',
+                   body="<zz:creator>a</zz:creator><co:Thing>b</co:Thing>")
+        self.assertEqual(["xmp:co:Thing", "xmp:dc:creator"], ls.xmp_fields(pkt))
+
+    def test_an_empty_packet_has_no_properties(self):
+        self.assertEqual([], ls.xmp_fields(_xmp()))
+
+    def test_a_utf8_byte_order_mark_is_accepted(self):
+        self.assertEqual(["xmp:dc:title"],
+                         ls.xmp_fields(b"\xef\xbb\xbf" + _xmp(body="<dc:title>t</dc:title>")))
+
+    def test_what_cannot_be_read_is_unknown(self):
+        good = _xmp(body="<dc:title>t</dc:title>")
+        for name, blob in (
+                ("empty", b""),
+                ("not xml", b"just text"),
+                ("truncated", good[:90]),
+                ("no rdf", b'<x:xmpmeta xmlns:x="adobe:ns:meta/"/>'),
+                ("wrong root", b"<a><b/></a>"),
+                ("doctype", b'<!DOCTYPE a>' + good),
+                ("entity declared", b'<!DOCTYPE a [<!ENTITY e "x">]>' + good),
+                ("undefined entity", good.replace(b">t<", b">&e;<")),
+                ("stray element under xmpmeta",
+                 good.replace(b"</x:xmpmeta>", b"<x:other/></x:xmpmeta>")),
+                ("non-Description under RDF",
+                 good.replace(b"</rdf:RDF>", b"<dc:x/></rdf:RDF>")),
+                ("unqualified attribute", _xmp(attrs='plain="1"')),
+                ("default-namespace property",
+                 _xmp(ns='xmlns="http://example.invalid/d"', body="<Thing>1</Thing>")),
+                ("odd name", _xmp(ns='xmlns:q="http://example.invalid/q"',
+                                  body="<q:caf\u00e9>1</q:caf\u00e9>".encode("utf-8").decode()))):
+            with self.subTest(name):
+                self.assertEqual(["xmp:unknown"], ls.xmp_fields(blob))
+
+    def test_an_entity_bomb_is_refused_before_any_expansion(self):
+        bomb = (b'<!DOCTYPE b [<!ENTITY a "aaaaaaaaaa"><!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;">'
+                b'<!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;">]>' + _xmp(body="<dc:title>&c;</dc:title>"))
+        self.assertEqual(["xmp:unknown"], ls.xmp_fields(bomb))
+
+    def test_too_many_properties_fail_closed(self):
+        n = ls._XMP_MAX_PROPERTIES + 1
+        pkt = _xmp(body="".join(f"<dc:p{i}>x</dc:p{i}>" for i in range(n)))
+        self.assertEqual(["xmp:unknown"], ls.xmp_fields(pkt))
+
+    def test_field_names(self):
+        for n in ("dc:creator", "exif:GPSLatitude", "Iptc4xmpExt:LocationShown", "unknown"):
+            self.assertTrue(ls.field_valid("xmp", n), n)
+        for n in ("creator", "dc:", ":creator", "dc:a:b", "1dc:x", "dc:caf\u00e9"):
+            self.assertFalse(ls.field_valid("xmp", n), n)
+
+
+class PngTextKeys(unittest.TestCase):
+    def test_keywords_become_one_manifest_token(self):
+        for kw, want in ((b"Author", "png-text:Author"),
+                         (b"Creation Time", "png-text:Creation%20Time"),
+                         (b"a:b,c", "png-text:a%3Ab%2Cc"),
+                         (b"100%", "png-text:100%25"),
+                         (b"caf\xe9", "png-text:caf%E9"),
+                         (b"unknown", "png-text:%75nknown"),
+                         (b"", "png-text:unknown"),
+                         (b"x" * 80, "png-text:unknown")):
+            with self.subTest(kw):
+                self.assertEqual(want, ls.png_text_field(kw))
+                self.assertTrue(ls.field_valid("png-text", want.split(":", 1)[1]), want)
+
+    def test_a_keyword_cannot_pass_as_the_parse_failure_field(self):
+        self.assertNotEqual(ls.png_text_field(b"unknown"), "png-text:unknown")
+
+    def test_names(self):
+        for n in ("Author", "Creation%20Time", "unknown", "a.b-c_d"):
+            self.assertTrue(ls.field_valid("png-text", n), n)
+        for n in ("Creation Time", "a:b", "%2", "", "x" * 300):
+            self.assertFalse(ls.field_valid("png-text", n), n)
+
+
+class BinaryFieldLevelOtherSets(_TreeCase):
+    """020/450 part 2 — IPTC, XMP and PNG text kept field by field, with the
+    same blocking, stale, type-level and listing behaviour as Exif."""
+
+    SECRET = "ZEBRA-QUOKKA-VALUE"           # a value: it must never be printed
+
+    def setUp(self):
+        super().setUp()
+        self.iim = _iim((2, 80, self.SECRET.encode()), (2, 90, b"Springfield"))
+        self.jpg = _jpeg((0xED, _app13(self.iim)))
+        self.xmp = _xmp(body=f"<dc:creator>{self.SECRET}</dc:creator>",
+                        attrs='exif:GPSLatitude="41,24N"')
+        self.png = _png((b"tEXt", b"Author\x00" + self.SECRET.encode()),
+                        (b"tEXt", b"Creation Time\x002026-01-01"))
+
+    def keep(self, data, *scopes, rel="p.bin"):
+        self.put(rel, data)
+        d = _sha(data)
+        self.manifest(f"{d}  {rel}  # synthetic photo, reviewed\n"
+                      + "".join(f"{d}:{s}  {rel}  # test needs {s}\n" for s in scopes))
+
+    def run_main(self, day, *extra):
+        out, err = io.StringIO(), io.StringIO()
+        with _on(day), contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ls.main(["--root", str(self.tmp), str(self.tmp),
+                          "--terms", str(self.terms), *extra])
+        return rc, out.getvalue(), err.getvalue()
+
+    # -- IPTC ----------------------------------------------------------------
+
+    def test_iptc_unkept_fields_are_named_in_the_block(self):
+        self.keep(self.jpg, rel="p.jpg")
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertIn("iptc:By-line", fs[0].excerpt)
+        self.assertIn("iptc:City", fs[0].excerpt)
+
+    def test_iptc_one_kept_field_leaves_the_other_blocking(self):
+        self.keep(self.jpg, "iptc:City", rel="p.jpg")
+        fs = self.scan()
+        self.assertEqual(1, len(fs))
+        self.assertIn("iptc:By-line", fs[0].excerpt)
+        self.assertNotIn("iptc:City", fs[0].excerpt)
+
+    def test_iptc_naming_every_field_accepts_it(self):
+        self.keep(self.jpg, "iptc:By-line,City", rel="p.jpg")
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        self.assertEqual([], tally.type_level_warnings)
+
+    def test_iptc_an_unnamed_dataset_blocks_until_kept_by_number(self):
+        data = _jpeg((0xED, _app13(_iim((2, 90, b"x"), (2, 250, b"y")))))
+        self.keep(data, "iptc:City", rel="p.jpg")
+        self.assertIn("iptc:2:250", self.scan()[0].excerpt)
+        self.keep(data, "iptc:City,2:250", rel="p.jpg")
+        self.assertEqual([], self.scan())
+
+    def test_iptc_an_unwalkable_block_is_unknown_until_named(self):
+        data = _jpeg((0xED, b"Photoshop 3.0\x008BIM"))
+        self.keep(data, rel="p.jpg")
+        self.assertIn("iptc:unknown", self.scan()[0].excerpt)
+        self.keep(data, "iptc:unknown", rel="p.jpg")
+        self.assertEqual([], self.scan())
+
+    def test_iptc_in_an_imagemagick_raw_profile(self):
+        raw = ("\nIPTC\n  %d\n" % len(self.iim)) + self.iim.hex()
+        data = _png((b"tEXt", b"Raw profile type iptc\x00" + raw.encode()))
+        self.keep(data, rel="r.png")
+        self.assertIn("iptc:By-line", self.scan()[0].excerpt)
+        self.keep(data, "iptc:By-line,City", rel="r.png")
+        self.assertEqual([], self.scan())
+
+    def test_iptc_a_dataset_the_file_lacks_is_stale(self):
+        self.keep(self.jpg, "iptc:By-line,City", "iptc:Headline", rel="p.jpg")
+        fs = self.scan()
+        self.assertEqual(["binary-stale-entry"], [f.rule for f in fs])
+        self.assertIn("keeps iptc:Headline", fs[0].excerpt)
+
+    # -- XMP -----------------------------------------------------------------
+
+    def test_xmp_unkept_properties_are_named_in_the_block(self):
+        self.keep(_png((b"iTXt", b"XML:com.adobe.xmp\x00\x00\x00\x00\x00" + self.xmp)),
+                  rel="x.png")
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertIn("xmp:dc:creator", fs[0].excerpt)
+        self.assertIn("xmp:exif:GPSLatitude", fs[0].excerpt)
+
+    def test_xmp_the_gps_property_is_the_only_one_left_blocking(self):
+        data = _jpeg((0xE1, b"http://ns.adobe.com/xap/1.0/\x00" + self.xmp))
+        self.keep(data, "xmp:dc:creator", rel="x.jpg")
+        fs = self.scan()
+        self.assertEqual(1, len(fs))
+        self.assertIn("xmp:exif:GPSLatitude", fs[0].excerpt)
+        self.assertNotIn("dc:creator", fs[0].excerpt)
+        self.keep(data, "xmp:dc:creator,xmp:exif:GPSLatitude", rel="x.jpg")
+        self.assertEqual([], self.scan())
+
+    def test_xmp_an_unparseable_packet_is_unknown_until_named(self):
+        data = _webp((b"VP8 ", b"\x00" * 10), (b"XMP ", b"<x>not xmp</x>"))
+        self.keep(data, rel="x.webp")
+        self.assertIn("xmp:unknown", self.scan()[0].excerpt)
+        self.keep(data, "xmp:unknown", rel="x.webp")
+        self.assertEqual([], self.scan())
+
+    def test_xmp_webp_and_raw_profile_read_alike(self):
+        raw = ("\nxmp\n  %d\n" % len(self.xmp)) + self.xmp.hex()
+        for rel, data in (
+                ("x.webp", _webp((b"VP8 ", b"\x00" * 10), (b"XMP ", self.xmp))),
+                ("r.png", _png((b"tEXt", b"Raw profile type xmp\x00" + raw.encode())))):
+            with self.subTest(rel):
+                one = [self.tmp / rel]
+                self.keep(data, "xmp:dc:creator", rel=rel)
+                self.assertIn("xmp:exif:GPSLatitude", self.scan(paths=one)[0].excerpt)
+                self.keep(data, "xmp:dc:creator,xmp:exif:GPSLatitude", rel=rel)
+                self.assertEqual([], self.scan(paths=one))
+
+    def test_xmp_extended_packets_are_joined_before_they_are_read(self):
+        half = self.xmp[:len(self.xmp) // 2]
+        rest = self.xmp[len(self.xmp) // 2:]
+        guid = b"0123456789ABCDEF0123456789ABCDEF"
+
+        def piece(off, body):
+            return (ls._XMP_EXT_NS + guid + _struct.pack(">II", len(self.xmp), off) + body)
+        data = _jpeg((0xE1, piece(len(half), rest)), (0xE1, piece(0, half)))
+        self.keep(data, rel="e.jpg")
+        got = self.scan()[0].excerpt
+        self.assertIn("xmp:dc:creator", got)
+        self.assertNotIn("xmp:unknown", got)
+
+    def test_xmp_a_short_extended_header_is_unknown(self):
+        data = _jpeg((0xE1, ls._XMP_EXT_NS + b"short"))
+        self.keep(data, rel="e.jpg")
+        self.assertIn("xmp:unknown", self.scan()[0].excerpt)
+
+    def test_xmp_text_is_still_scanned_whether_or_not_it_is_kept(self):
+        pkt = _xmp(body="<dc:creator>a.b@example.com</dc:creator>")
+        self.keep(_webp((b"VP8 ", b"\x00" * 10), (b"XMP ", pkt)), "xmp:dc:creator",
+                  rel="x.webp")
+        self.assertEqual(["email"], self.rules())
+
+    # -- PNG text ------------------------------------------------------------
+
+    def test_png_text_unkept_keywords_are_named_in_the_block(self):
+        self.keep(self.png, rel="t.png")
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertIn("png-text:Author", fs[0].excerpt)
+        self.assertIn("png-text:Creation%20Time", fs[0].excerpt)
+
+    def test_png_text_keeping_one_keyword_leaves_the_other_blocking(self):
+        self.keep(self.png, "png-text:Author", rel="t.png")
+        fs = self.scan()
+        self.assertEqual(1, len(fs))
+        self.assertIn("png-text:Creation%20Time", fs[0].excerpt)
+        self.keep(self.png, "png-text:Author,Creation%20Time", rel="t.png")
+        self.assertEqual([], self.scan())
+
+    def test_png_text_compressed_and_international_chunks_are_named_alike(self):
+        data = _png((b"zTXt", b"Comment\x00\x00" + _zlib.compress(b"hello")),
+                    (b"iTXt", b"Title\x00\x00\x00\x00\x00hello"))
+        self.keep(data, "png-text:Comment,Title", rel="t.png")
+        self.assertEqual([], self.scan())
+
+    def test_png_text_an_overlong_keyword_is_unknown(self):
+        data = _png((b"tEXt", b"x" * 90 + b"\x00v"))
+        self.keep(data, rel="t.png")
+        self.assertIn("png-text:unknown", self.scan()[0].excerpt)
+
+    def test_png_text_a_keyword_called_unknown_is_not_the_parse_failure(self):
+        data = _png((b"tEXt", b"unknown\x00v"))
+        self.keep(data, "png-text:unknown", rel="t.png")
+        self.assertEqual(["binary-metadata", "binary-stale-entry"], self.rules())
+        self.keep(data, "png-text:%75nknown", rel="t.png")
+        self.assertEqual([], self.scan())
+
+    def test_png_text_past_the_field_cap_adds_unknown(self):
+        chunks = [(b"tEXt", b"k%d\x00v" % i) for i in range(ls._FIELDS_PER_SET_CAP + 5)]
+        self.keep(_png(*chunks), rel="t.png")
+        self.assertIn("png-text:unknown", self.scan()[0].excerpt)
+
+    # -- type-level lines: accepted with a warning, then refused -------------
+
+    def test_a_type_level_line_warns_naming_the_fields_for_each_set(self):
+        for rel, data, whole, want in (
+                ("p.jpg", self.jpg, "iptc", ("iptc:By-line", "iptc:City")),
+                ("x.webp", _webp((b"VP8 ", b"\x00" * 10), (b"XMP ", self.xmp)), "xmp",
+                 ("xmp:dc:creator", "xmp:exif:GPSLatitude")),
+                ("t.png", self.png, "png-text",
+                 ("png-text:Author", "png-text:Creation%20Time"))):
+            with self.subTest(whole):
+                one = [self.tmp / rel]
+                self.keep(data, whole, rel=rel)
+                tally = ls.Tally()
+                self.assertEqual([], self.scan(tally=tally, paths=one))
+                self.assertEqual(1, len(tally.type_level_warnings))
+                w = tally.type_level_warnings[0]
+                self.assertEqual(ls.TYPE_LEVEL_RULE, w.rule)
+                for k in want:
+                    self.assertIn(k, w.excerpt)
+
+    def test_the_warning_prints_with_the_date_and_remedy_and_exits_0(self):
+        self.keep(self.jpg, "iptc", rel="p.jpg")
+        rc, out, _err = self.run_main(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1))
+        self.assertEqual(0, rc, out)
+        self.assertIn("WARNING ONLY until " + ls.TYPE_LEVEL_UNTIL.isoformat(), out)
+        self.assertIn("iptc:By-line", out)
+        self.assertIn("name the fields instead", out)
+
+    def test_from_the_cutoff_each_type_level_line_stops_keeping_its_set(self):
+        for rel, data, whole in (("p.jpg", self.jpg, "iptc"),
+                                 ("x.webp", _webp((b"VP8 ", b"\x00" * 10),
+                                                  (b"XMP ", self.xmp)), "xmp"),
+                                 ("t.png", self.png, "png-text")):
+            with self.subTest(whole):
+                for old in self.tmp.glob("*.*"):
+                    old.unlink()
+                self.keep(data, whole, rel=rel)
+                rc, out, _err = self.run_main(ls.TYPE_LEVEL_UNTIL)
+                self.assertEqual(1, rc, out)
+                self.assertIn("no longer keeps it", out)
+                self.assertIn(f"{whole}:", out)
+
+    def test_icc_and_jpeg_comments_keep_their_type_level_lines_for_good(self):
+        data = _png((b"iCCP", b"p\x00\x00" + _zlib.compress(b"profile")))
+        self.keep(data, "icc", rel="i.png")
+        with _on(ls.TYPE_LEVEL_UNTIL + _dt.timedelta(days=400)):
+            self.assertEqual([], self.scan())
+
+    # -- the manifest grammar --------------------------------------------------
+
+    def _refused(self, scope, needle):
+        d = _sha(b"x")
+        self.manifest(f"{d}  a.png  # ok\n{d}:{scope}  a.png  # need\n")
+        with self.assertRaises(ls.BinaryManifestError) as cm:
+            ls.load_binary_manifest(self.tmp)
+        self.assertIn(needle, str(cm.exception))
+
+    def test_scope_grammar_for_the_new_sets_is_strict(self):
+        self._refused("iptc:Byline", "unknown iptc field Byline")
+        self._refused("iptc:By-line,By-line", "list each metadata set once")
+        self._refused("iptc:City,iptc", "already keeps")
+        self._refused("xmp:creator", "unknown xmp field creator")
+        self._refused("xmp:dc:creator,dc:title", "write each xmp field in full")
+        self._refused("xmp:dc:creator,title", "write each xmp field in full")
+        self._refused("png-text:Creation%2", "unknown png-text field")
+        self._refused("png-text:a:b", "unknown png-text field")
+        self._refused("xmp,xmp:dc:creator", "already keeps")
+
+    def test_scope_grammar_accepts_the_documented_forms(self):
+        for scope, want in (
+                ("iptc:By-line,City,2:250", ["iptc:By-line", "iptc:City", "iptc:2:250"]),
+                ("iptc:2:080,2:090", ["iptc:2:080", "iptc:2:090"]),
+                ("iptc:8BIM-0x03ED,iptc:unknown", ["iptc:8BIM-0x03ED", "iptc:unknown"]),
+                ("xmp:dc:creator,xmp:exif:GPSLatitude",
+                 ["xmp:dc:creator", "xmp:exif:GPSLatitude"]),
+                ("xmp:dc:creator,exif:Make", ["xmp:dc:creator", "exif:Make"]),
+                ("png-text:Author,Creation%20Time",
+                 ["png-text:Author", "png-text:Creation%20Time"]),
+                ("png-text:Author,icc", ["png-text:Author", "icc"]),
+                ("exif:Model,iptc:City,xmp:dc:title,png-text:Title",
+                 ["exif:Model", "iptc:City", "xmp:dc:title", "png-text:Title"])):
+            with self.subTest(scope):
+                self.assertEqual((want, None), ls.parse_scope(scope))
+
+    def test_a_manifest_line_with_dots_and_percents_loads(self):
+        data = _png((b"tEXt", b"Creation Time\x00v"), (b"tEXt", b"a.b\x00v"))
+        self.keep(data, "png-text:Creation%20Time,a.b", rel="t.png")
+        self.assertEqual([], self.scan())
+
+    # -- --binary-entries and names-only output --------------------------------
+
+    def listing(self):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ls.main(["--root", str(self.tmp), "--binary-entries"])
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_the_listing_prints_one_line_per_field_for_each_set(self):
+        self.put("p.jpg", self.jpg)
+        self.put("t.png", self.png)
+        self.put("x.webp", _webp((b"VP8 ", b"\x00" * 10), (b"XMP ", self.xmp)))
+        rc, out, _err = self.listing()
+        self.assertEqual(0, rc)
+        for k in ("iptc:By-line", "iptc:City", "png-text:Author",
+                  "png-text:Creation%20Time", "xmp:dc:creator", "xmp:exif:GPSLatitude"):
+            self.assertTrue(any(f":{k}  " in line for line in out.splitlines()), k)
+
+    def test_the_listing_migrates_a_type_level_line(self):
+        self.keep(self.jpg, "iptc", rel="p.jpg")
+        d = _sha(self.jpg)
+        rc, out, err = self.listing()
+        self.assertEqual(0, rc)
+        self.assertIn(f"{d}:iptc:By-line  p.jpg", out.splitlines())
+        self.assertIn("type-level line for iptc", err)
+
+    def test_listing_lines_load_once_given_reasons(self):
+        self.put("t.png", self.png)
+        d = _sha(self.png)
+        self.manifest(f"{d}  t.png  # synthetic\n"
+                      f"{d}:png-text:Author,Creation%20Time  t.png  # the credit line\n")
+        self.assertEqual([], self.scan())
+        self.assertEqual("", self.listing()[1])
+
+    def test_no_value_reaches_any_output(self):
+        self.keep(self.jpg, rel="p.jpg")
+        self.put("x.png", _png((b"iTXt", b"XML:com.adobe.xmp\x00\x00\x00\x00\x00" + self.xmp)))
+        self.put("t.png", self.png)
+        for extra in ((), ("--json",)):
+            rc, out, err = self.run_main(ls.TYPE_LEVEL_UNTIL, *extra)
+            self.assertNotIn(self.SECRET, out + err)
+            self.assertNotIn("41,24N", out + err)
+        rc, out, err = self.listing()
+        self.assertNotIn(self.SECRET, out + err)
 
 
 class BinaryGitTracking(_TreeCase):

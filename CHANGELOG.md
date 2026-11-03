@@ -5,6 +5,26 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-03 — G3 keeps IPTC, XMP and PNG text field by field, `020/450` part 2)
+- **A `.leakscanbinaries` line can now keep named IPTC datasets, XMP
+  properties and PNG text keywords**, as it already could Exif and GPS fields
+  (part 1). Write `<digest>:iptc:By-line,Credit`, `<digest>:xmp:dc:creator`
+  or `<digest>:png-text:Author,Creation%20Time`, each under one reason. IPTC
+  fields use the IIM dataset names (`iptc:2:250` for one the table lacks,
+  `iptc:8BIM-0x03ED` for another Photoshop resource); XMP fields are the
+  packet's top-level `prefix:property` names, written in full; PNG text uses
+  the chunk keyword with `%XX` for any byte outside `A-Za-z0-9_.-`. Names
+  only, never values, in every output. The XMP reader is stdlib expat with
+  no DOCTYPE or entity accepted. Anything unreadable is `<set>:unknown` and
+  blocks until named; any field present and not named blocks, naming it; a
+  field the file lacks is a stale line.
+- **Children have until 2026-12-18 to move to field-level lines.** A
+  type-level `iptc`, `xmp` or `png-text` line keeps working, with the same
+  warning part 1 gave `exif`, until `TYPE_LEVEL_UNTIL`; from that day the set
+  blocks until its fields are named. `--binary-entries` prints one line per
+  field and re-lists a type-level line's fields. `icc` and `jpeg-comment` have
+  no fields and are unchanged. This completes `020/450`.
+
 ### Changed (2026-11-03 — `spellscan` and `wrapscan` read the staged index at the hook, `320/600` first slice)
 - **Children: no action, and one behaviour change at the hook.** On the hook
   plane `spellscan` and `wrapscan` now run `--staged`: each staged Markdown file

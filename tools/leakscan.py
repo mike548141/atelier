@@ -71,6 +71,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import xml.parsers.expat as _expat
 import zlib
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
@@ -912,11 +913,13 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 #     line per set "just in case" is the blanket acceptance the answer
 #     forbids.
 #
-#   * FIELDS (020/450, part 1): the Exif set is read tag by tag, so a line
-#     keeps `exif:Model,LensModel` and not the `gps:` tags beside them. See
-#     `EXIF_TAGS`. A type-level line (`exif`) is accepted with a warning until
-#     `TYPE_LEVEL_UNTIL`. IPTC, XMP, PNG text and JPEG comments are still kept
-#     whole-set; reading their fields is the rest of 020/450.
+#   * FIELDS (020/450): the Exif, IPTC, XMP and PNG text sets are read field by
+#     field, so a line keeps `exif:Model,LensModel` and not the `gps:` tags
+#     beside them, `iptc:By-line,Credit`, `xmp:dc:creator` or
+#     `png-text:Author`. See `EXIF_TAGS`, `IPTC_DATASETS`, `xmp_fields` and
+#     `png_text_field`. A type-level line (`exif`, `iptc`, `xmp`, `png-text`)
+#     is accepted with a warning until `TYPE_LEVEL_UNTIL`. ICC profiles and JPEG
+#     comments have no fields to name and stay whole-set.
 #
 # What it cannot see, stated so nobody infers cover that is not there: the
 # pixels themselves (no OCR — the entry's reason is the human attesting to
@@ -924,8 +927,10 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 # documents, fonts, archives — for these the file line accepts the whole
 # file, metadata included); JPEG segments after the first start-of-scan, and
 # JPEG APPn segments other than APP1, APP2 (ICC) and APP13; the CONTENT of an
-# ICC profile or IPTC block (named by presence, never read); the VALUES of Exif
-# tags (named, never read); bytes appended after a format's end marker.
+# ICC profile (named by presence, never read); the VALUES of Exif and IPTC
+# fields (named, never read; XMP and PNG text values are run through the text
+# rules, which match shapes and do not understand them); bytes appended after
+# a format's end marker.
 #
 # THE GATE COVERS TRACKED BINARIES (the ruling's word). A full-tree scan of a
 # git work tree gates the files `git ls-files` lists and counts the rest
@@ -955,7 +960,7 @@ MIN_DIGEST_HEX = 16
 PRINTED_DIGEST_HEX = 16
 META_SEGMENT_CAP = 1 * 1024 * 1024   # bytes of ONE metadata segment read or
                                      # inflated; past it the segment is opaque
-_ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9_,:-]+))?"
+_ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9_,:.%%-]+))?"
                        r"[ \t]+\*?(?P<path>\S.*)$" % MIN_DIGEST_HEX)
 
 # THE ADOPTION GRACE — the one exception to E6a, and dated.
@@ -984,14 +989,15 @@ BINARY_GRACE_UNTIL = datetime.date(2026, 11, 18)
 
 # THE TYPE-LEVEL CUT-OFF (020/450) — a second, later and narrower date.
 #
-# `020/450` reads the FIELDS inside a metadata set (Exif and GPS tags first), so
-# an entry can keep `exif:Model,LensModel` and not the GPS block beside them.
-# Entries written before that, which keep a whole set (`exif`), are still
-# accepted: until this date they WARN, naming the fields the file carries and
-# asking for field-level entries. From it they stop keeping the sets whose
-# fields are read, and the set blocks as `binary-metadata`. Sets whose fields
-# are not read yet (every set except `exif`, in this part) keep their type-level
-# entries unchanged. Like the grace it is one constant compared with the UTC
+# `020/450` reads the FIELDS inside a metadata set (Exif and GPS tags, IPTC
+# datasets, XMP properties, PNG text keywords), so an entry can keep
+# `exif:Model,LensModel` and not the GPS block beside them. Entries written
+# before that, which keep a whole set (`exif`, `iptc`, `xmp`, `png-text`), are
+# still accepted: until this date they WARN, naming the fields the file carries
+# and asking for field-level entries. From it they stop keeping the sets whose
+# fields are read, and the set blocks as `binary-metadata`. Sets with no fields
+# to name (`icc`, `jpeg-comment`, `unknown`) keep their type-level entries
+# unchanged. Like the grace it is one constant compared with the UTC
 # clock, with no flag, env var or config key to move it; it is later than the
 # grace's end on purpose, so a child that listed its binaries by type before
 # 2026-11-18 has a month to migrate. Delete the warning path once it passes.
@@ -1056,7 +1062,8 @@ def _same_digest(a: str, b: str) -> bool:
 
 # A type-level key and the field sets it keeps when it is the whole type: the
 # Exif set holds the GPS IFD, so a whole-`exif` entry has always kept GPS too.
-_KEY_COVERS = {"exif": ("exif", "gps")}
+_KEY_COVERS = {"exif": ("exif", "gps"), "iptc": ("iptc",), "xmp": ("xmp",),
+               "png-text": ("png-text",)}
 
 
 def _keys_overlap(a: str, b: str) -> bool:
@@ -1075,36 +1082,44 @@ def parse_scope(scope: str) -> tuple[list[str], str | None]:
     """A set line's scope, `icc,xmp` or `exif:Model,LensModel,gps:GPSLatitude`,
     as `(keys, problem)`. A key is a whole set (`icc`) or one field
     (`exif:Model`); a bare name after a `set:Field` is another field of the
-    same set. No wildcard, and no group name alone: `gps` would keep every GPS
-    tag under a reason that names none of them (020/450: "it should be
-    specific"), so the fields are listed."""
+    same set (an XMP field is always written in full, `xmp:dc:creator`, as its
+    own prefix could be a set's name). No wildcard, and no group name alone:
+    `gps` would keep every GPS tag under a reason that names none of them
+    (020/450: "it should be specific"), so the fields are listed."""
     keys: list[str] = []
     cur: str | None = None
     for tok in scope.split(","):
         if not tok:
             return [], f"list each metadata set once, separated by commas — '{scope}'"
-        if ":" in tok:
-            cur, _, name = tok.partition(":")
-            if cur not in FIELD_NAMES:
-                return [], (f"'{cur}' has no fields to name — fields are read for "
-                            f"{', '.join(FIELD_NAMES)}")
+        head, sep, rest = tok.partition(":")
+        if sep and head in FIELD_SETS:
+            cur, name = head, rest
+        elif sep and cur == "iptc" and _IPTC_NUM_RX.match(tok):
+            name = tok                      # iptc:2:080, then 2:090 continues it
+        elif sep and cur == "xmp":
+            return [], (f"write each xmp field in full, xmp:{tok} — a bare "
+                        f"'{head}:' could be another set's field")
+        elif sep:
+            return [], (f"'{head}' has no fields to name — fields are read for "
+                        f"{', '.join(FIELD_SETS)}")
         elif tok in METADATA_SETS:
             keys.append(tok)
             cur = None
             continue
+        elif cur == "xmp":
+            return [], f"write each xmp field in full, xmp:<prefix>:{tok}"
         elif cur is not None:
             name = tok
-        elif tok in FIELD_NAMES:
+        elif tok in FIELD_SETS:
             return [], (f"'{tok}' alone would keep every field in it — name them, "
                         f"'{tok}:<Field>[,<Field>...]'")
         else:
             return [], (f"unknown metadata set {tok} (the sets are "
                         f"{', '.join(METADATA_SETS)}; fields are written "
                         "set:Field, such as exif:Model)")
-        if not exif_field_valid(cur, name):
-            return [], (f"unknown {cur} field {name} (names are the Exif / GPS tag "
-                        "names, such as exif:Model or gps:GPSLatitude, or a tag "
-                        "number as 0x9999)")
+        if not field_valid(cur, name):
+            return [], (f"unknown {cur} field {name} (names are "
+                        f"{_FIELD_HELP[cur]})")
         keys.append(f"{cur}:{name}")
     if len(set(keys)) != len(keys):
         return [], f"list each metadata set once, separated by commas — '{scope}'"
@@ -1311,18 +1326,12 @@ FIELD_NAMES = {
     "exif": frozenset(EXIF_TAGS.values()) | {"unknown"},
     "gps": frozenset(GPS_TAGS.values()),
 }
+# Every set whose fields are read; `field_valid` knows each one's vocabulary.
+FIELD_SETS = ("exif", "gps", "iptc", "xmp", "png-text")
 _EXIF_POINTERS = {0x8769: "exif", 0x8825: "gps", 0xA005: "exif"}
 _EXIF_MAX_IFDS = 16          # IFDs walked in one block (a real one has 3-5)
 _EXIF_MAX_ENTRIES = 1024     # entries read from ONE IFD (the count is a u16)
 _HEX_TAG_RX = re.compile(r"^0x[0-9A-F]{4}$")
-
-
-def exif_field_valid(field_set: str, name: str) -> bool:
-    """Is `name` something an entry may use after `<field_set>:`? A named tag,
-    `unknown` (exif only), or a tag number spelled `0x` and four upper-case hex
-    digits."""
-    return (name in FIELD_NAMES.get(field_set, ())
-            or bool(_HEX_TAG_RX.match(name)))
 
 
 def exif_fields(blob: bytes) -> list[str]:
@@ -1375,10 +1384,316 @@ def exif_fields(blob: bytes) -> list[str]:
     return sorted(keys)
 
 
+# --- G3 field level (020/450 part 2): IPTC, XMP and PNG text, by name -------
+#
+# The same rule as Exif: Mike's "things like exif, iptc, xmp are data types,
+# nto fields". Names only, never values, in every output.
+#
+#   iptc:<dataset>   the IPTC IIM dataset names of the Photoshop 8BIM resource
+#                    0x0404 (`iptc:By-line`, `iptc:City`). A dataset the table
+#                    does not name is `iptc:<record>:<number>`
+#                    (`iptc:2:999`); another Photoshop resource in the same
+#                    APP13 is `iptc:8BIM-0x03ED`.
+#   xmp:<prefix:property>   the top-level properties of the packet's
+#                    rdf:Description elements (`xmp:dc:creator`,
+#                    `xmp:exif:GPSLatitude`), attributes and child elements
+#                    alike; a property's value, nested structure included, is
+#                    one field. Well-known namespaces are spelled with their
+#                    usual prefix whatever the packet declares.
+#   png-text:<keyword>   the keyword of a tEXt / zTXt / iTXt chunk; a byte
+#                    outside [A-Za-z0-9_.-] is %XX (`Creation%20Time`).
+#
+# `<set>:unknown` is what could not be walked (a block that fails to parse, a
+# DOCTYPE or entity in a packet, a structure outside the RDF skeleton, too many
+# fields, an overlong keyword). It blocks until named, as `exif:unknown` does.
+_FIELDS_PER_SET_CAP = 1024    # distinct fields kept per set; past it, unknown
+_IPTC_MAX_DATASETS = 4096
+_IPTC_MAX_RESOURCES = 1024
+IPTC_DATASETS = {
+    (1, 0): "ModelVersion", (1, 5): "Destination", (1, 20): "FileFormat",
+    (1, 22): "FileFormatVersion", (1, 30): "ServiceIdentifier",
+    (1, 40): "EnvelopeNumber", (1, 50): "ProductID",
+    (1, 60): "EnvelopePriority", (1, 70): "DateSent", (1, 80): "TimeSent",
+    (1, 90): "CodedCharacterSet", (1, 100): "UniqueObjectName",
+    (1, 120): "ARMIdentifier", (1, 122): "ARMVersion",
+    (2, 0): "RecordVersion", (2, 3): "ObjectTypeReference",
+    (2, 4): "ObjectAttributeReference", (2, 5): "ObjectName",
+    (2, 7): "EditStatus", (2, 8): "EditorialUpdate", (2, 10): "Urgency",
+    (2, 12): "SubjectReference", (2, 15): "Category",
+    (2, 20): "SupplementalCategories", (2, 22): "FixtureIdentifier",
+    (2, 25): "Keywords", (2, 26): "ContentLocationCode",
+    (2, 27): "ContentLocationName", (2, 30): "ReleaseDate",
+    (2, 35): "ReleaseTime", (2, 37): "ExpirationDate",
+    (2, 38): "ExpirationTime", (2, 40): "SpecialInstructions",
+    (2, 42): "ActionAdvised", (2, 45): "ReferenceService",
+    (2, 47): "ReferenceDate", (2, 50): "ReferenceNumber",
+    (2, 55): "DateCreated", (2, 60): "TimeCreated",
+    (2, 62): "DigitalCreationDate", (2, 63): "DigitalCreationTime",
+    (2, 65): "OriginatingProgram", (2, 70): "ProgramVersion",
+    (2, 75): "ObjectCycle", (2, 80): "By-line", (2, 85): "By-lineTitle",
+    (2, 90): "City", (2, 92): "Sub-location", (2, 95): "Province-State",
+    (2, 100): "Country-PrimaryLocationCode",
+    (2, 101): "Country-PrimaryLocationName",
+    (2, 103): "OriginalTransmissionReference", (2, 105): "Headline",
+    (2, 110): "Credit", (2, 115): "Source", (2, 116): "CopyrightNotice",
+    (2, 118): "Contact", (2, 120): "Caption-Abstract",
+    (2, 122): "Writer-Editor", (2, 125): "RasterizedCaption",
+    (2, 130): "ImageType", (2, 131): "ImageOrientation",
+    (2, 135): "LanguageIdentifier", (2, 150): "AudioType",
+    (2, 151): "AudioSamplingRate", (2, 152): "AudioSamplingResolution",
+    (2, 153): "AudioDuration", (2, 154): "AudioOutcue", (2, 184): "JobID",
+    (2, 185): "MasterDocumentID", (2, 186): "ShortDocumentID",
+    (2, 187): "UniqueDocumentID", (2, 188): "OwnerID",
+    (2, 200): "ObjectPreviewFileFormat", (2, 201): "ObjectPreviewFileVersion",
+    (2, 202): "ObjectPreviewData", (2, 221): "Prefs",
+    (2, 225): "ClassifyState", (2, 228): "SimilarityIndex",
+    (2, 230): "DocumentNotes", (2, 231): "DocumentHistory",
+    (2, 232): "ExifCameraInfo", (2, 255): "CatalogSets",
+}
+_IPTC_NAMES = frozenset(IPTC_DATASETS.values())
+_IPTC_NUM_RX = re.compile(r"^[0-9]:[0-9]{3}$")
+_IPTC_RES_RX = re.compile(r"^8BIM-0x[0-9A-F]{4}$")
+
+
+def _iptc_iim(data: bytes, keys: set) -> bool:
+    """IIM datasets in `data` (tag marker 0x1C, record, dataset, length,
+    value) added to `keys` by name; False if they cannot be walked. Lengths
+    are read, values never."""
+    pos, n = 0, len(data)
+    count = 0
+    while pos < n:
+        if data[pos] == 0 and not any(data[pos:]):   # trailing padding
+            return True
+        if data[pos] != 0x1C or pos + 5 > n:
+            return False
+        rec, ds = data[pos + 1], data[pos + 2]
+        ln = struct.unpack(">H", data[pos + 3:pos + 5])[0]
+        pos += 5
+        if ln & 0x8000:                  # extended: the length is `ln` bytes long
+            ll = ln & 0x7FFF
+            if ll > 4 or pos + ll > n:
+                return False
+            ln = int.from_bytes(data[pos:pos + ll], "big")
+            pos += ll
+        if rec == 0 or rec > 9 or pos + ln > n:
+            return False
+        pos += ln
+        count += 1
+        if count > _IPTC_MAX_DATASETS:
+            return False
+        keys.add("iptc:" + IPTC_DATASETS.get((rec, ds), f"{rec}:{ds:03d}"))
+    return True
+
+
+def iptc_fields(blob: bytes) -> list[str]:
+    """The field keys (`iptc:By-line`, `iptc:2:999`, `iptc:8BIM-0x03ED`) an
+    APP13 / ImageMagick IPTC profile carries, sorted; `iptc:unknown` is added
+    when any part cannot be walked. `blob` is a Photoshop 3.0 header and 8BIM
+    resources, bare 8BIM resources, or bare IIM datasets."""
+    keys: set[str] = set()
+    ok = True
+    if blob.startswith(b"Photoshop 3.0\x00"):
+        pos = 14
+    elif blob.startswith(b"8BIM"):
+        pos = 0
+    elif blob[:1] == b"\x1c":
+        ok = _iptc_iim(blob, keys)
+        pos = len(blob)
+    else:
+        return ["iptc:unknown"]
+    seen = 0
+    while ok and pos < len(blob):
+        if blob[pos:pos + 4] != b"8BIM" or pos + 7 > len(blob):
+            ok = False
+            break
+        rid = struct.unpack(">H", blob[pos + 4:pos + 6])[0]
+        name_len = 1 + blob[pos + 6]
+        at = pos + 6 + name_len + (name_len & 1)
+        if at + 4 > len(blob):
+            ok = False
+            break
+        size = struct.unpack(">I", blob[at:at + 4])[0]
+        at += 4
+        if at + size > len(blob):
+            ok = False
+            break
+        if rid == 0x0404:
+            ok = _iptc_iim(blob[at:at + size], keys)
+        else:
+            keys.add(f"iptc:8BIM-0x{rid:04X}")
+        pos = at + size + (size & 1)
+        seen += 1
+        if seen > _IPTC_MAX_RESOURCES:
+            ok = False
+    if not ok:
+        keys.add("iptc:unknown")
+    return sorted(keys)
+
+
+_RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+_XML_NS = "http://www.w3.org/XML/1998/namespace"
+_XMPMETA_NS = "adobe:ns:meta/"
+_XMP_PREFIXES = {
+    "http://purl.org/dc/elements/1.1/": "dc",
+    "http://ns.adobe.com/xap/1.0/": "xmp",
+    "http://ns.adobe.com/xap/1.0/rights/": "xmpRights",
+    "http://ns.adobe.com/xap/1.0/mm/": "xmpMM",
+    "http://ns.adobe.com/xap/1.0/bj/": "xmpBJ",
+    "http://ns.adobe.com/xap/1.0/t/pg/": "xmpTPg",
+    "http://ns.adobe.com/xmp/note/": "xmpNote",
+    "http://ns.adobe.com/photoshop/1.0/": "photoshop",
+    "http://ns.adobe.com/exif/1.0/": "exif",
+    "http://ns.adobe.com/exif/1.0/aux/": "aux",
+    "http://ns.adobe.com/tiff/1.0/": "tiff",
+    "http://ns.adobe.com/pdf/1.3/": "pdf",
+    "http://ns.adobe.com/camera-raw-settings/1.0/": "crs",
+    "http://ns.adobe.com/lightroom/1.0/": "lr",
+    "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/": "Iptc4xmpCore",
+    "http://iptc.org/std/Iptc4xmpExt/2008-02-29/": "Iptc4xmpExt",
+    "http://ns.microsoft.com/photo/1.0/": "MicrosoftPhoto",
+    _RDF_NS: "rdf",
+}
+_NCNAME = r"[A-Za-z_][A-Za-z0-9_.-]{0,63}"
+_XMP_FIELD_RX = re.compile(rf"^{_NCNAME}:{_NCNAME}$")
+_XMP_MAX_PROPERTIES = 1024
+
+
+class _XmpUnwalkable(Exception):
+    pass
+
+
+def xmp_fields(data: bytes) -> list[str]:
+    """The field keys (`xmp:dc:creator`) an XMP packet carries, sorted, or
+    `["xmp:unknown"]` when it cannot be read with confidence. Parsed by expat
+    from the standard library as a stream of start tags, never a tree: a
+    DOCTYPE, an entity declaration, an element outside the
+    xmpmeta / RDF / Description skeleton, an unqualified or unprefixable name,
+    or more than 1,024 properties is `unknown`. Element text is never kept."""
+    keys: set[str] = set()
+    roles: list[str] = []
+    declared: dict[str, str] = {}
+    seen_rdf = False
+
+    def fail(*_a):
+        raise _XmpUnwalkable
+
+    def key_of(qname: str) -> str:
+        uri, _, local = qname.rpartition(" ")
+        prefix = _XMP_PREFIXES.get(uri) or declared.get(uri)
+        if not uri or not prefix:
+            fail()
+        k = f"{prefix}:{local}"
+        if not _XMP_FIELD_RX.match(k):
+            fail()
+        return k
+
+    def start(qname, attrs):
+        nonlocal seen_rdf
+        uri, _, local = qname.rpartition(" ")
+        parent = roles[-1] if roles else None
+        if parent is None:
+            if (uri, local) == (_XMPMETA_NS, "xmpmeta"):
+                role = "meta"
+            elif (uri, local) == (_RDF_NS, "RDF"):
+                role = "rdf"
+                seen_rdf = True
+            else:
+                fail()
+        elif parent == "meta":
+            if (uri, local) != (_RDF_NS, "RDF"):
+                fail()
+            role = "rdf"
+            seen_rdf = True
+        elif parent == "rdf":
+            if (uri, local) != (_RDF_NS, "Description"):
+                fail()
+            role = "desc"
+            for a in attrs:
+                auri, _, alocal = a.rpartition(" ")
+                if auri in (_RDF_NS, _XML_NS):
+                    continue                   # rdf:about, xml:lang: not properties
+                keys.add("xmp:" + key_of(a))
+        elif parent == "desc":
+            role = "prop"
+            keys.add("xmp:" + key_of(qname))
+        else:                                  # inside a property's value
+            role = "inner"
+        if len(keys) > _XMP_MAX_PROPERTIES:
+            fail()
+        roles.append(role)
+
+    p = _expat.ParserCreate("utf-8", " ")
+    p.SetParamEntityParsing(_expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    p.StartDoctypeDeclHandler = fail
+    p.EntityDeclHandler = fail
+    p.StartNamespaceDeclHandler = lambda pre, uri: declared.setdefault(uri, pre) if pre else None
+    p.StartElementHandler = start
+    p.EndElementHandler = lambda _n: roles.pop()
+    try:
+        p.Parse(data, True)
+    except (_XmpUnwalkable, _expat.ExpatError):
+        return ["xmp:unknown"]
+    if not seen_rdf:
+        return ["xmp:unknown"]
+    return sorted(keys)
+
+
+_PNG_KEYWORD_OK = frozenset(b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            b"0123456789_.-")
+_PNG_KEYWORD_RX = re.compile(r"^(?:[A-Za-z0-9_.-]|%[0-9A-F]{2}){1,237}$")
+
+
+def png_text_field(keyword: bytes) -> str:
+    """The field key for a PNG text chunk keyword: percent-encoded outside
+    `[A-Za-z0-9_.-]`, so it is one token in the manifest; a keyword outside
+    the PNG limit (1 to 79 bytes) is `png-text:unknown`, and a keyword that is
+    itself `unknown` is written `%75nknown` so the two cannot be confused."""
+    if not 1 <= len(keyword) <= 79:
+        return "png-text:unknown"
+    if keyword == b"unknown":
+        return "png-text:%75nknown"
+    return "png-text:" + "".join(chr(b) if b in _PNG_KEYWORD_OK else f"%{b:02X}"
+                                 for b in keyword)
+
+
+def field_valid(field_set: str, name: str) -> bool:
+    """Is `name` something an entry may use after `<field_set>:`? Exif and
+    GPS: a named tag, `unknown` (exif only), or a tag number spelled `0x` and
+    four upper-case hex digits. IPTC: a dataset name, `<record>:<number>`,
+    `8BIM-0x....` or `unknown`. XMP: `<prefix>:<Property>` or `unknown`.
+    PNG text: a percent-encoded keyword or `unknown`."""
+    if field_set in ("exif", "gps"):
+        return (name in FIELD_NAMES.get(field_set, ())
+                or bool(_HEX_TAG_RX.match(name)))
+    if name == "unknown":
+        return field_set in ("iptc", "xmp", "png-text")
+    if field_set == "iptc":
+        return (name in _IPTC_NAMES or bool(_IPTC_NUM_RX.match(name))
+                or bool(_IPTC_RES_RX.match(name)))
+    if field_set == "xmp":
+        return bool(_XMP_FIELD_RX.match(name))
+    if field_set == "png-text":
+        return bool(_PNG_KEYWORD_RX.match(name))
+    return False
+
+
+_FIELD_HELP = {
+    "exif": "the Exif / GPS tag names, such as exif:Model or gps:GPSLatitude, or "
+            "a tag number as 0x9999",
+    "iptc": "the IPTC dataset names, such as iptc:By-line or iptc:City, or "
+            "<record>:<number> as 2:999",
+    "xmp": "<prefix>:<Property>, each written in full, such as xmp:dc:creator",
+    "png-text": "the chunk keyword, spaces and punctuation as %XX, such as "
+                "png-text:Creation%20Time",
+}
+_FIELD_HELP["gps"] = _FIELD_HELP["exif"]
+
+
 # The walkers append `(set, label)` to `found` for every metadata segment they
 # meet, and `(label, text)` to `texts` for every one they can read as text. A
-# set whose fields are read (Exif, 020/450) also appends `(set, label, keys)`
-# to `fields`, `keys` being the field keys that segment carries.
+# set whose fields are read (Exif, IPTC, XMP, PNG text: 020/450) also appends
+# `(set, label, keys)` to `fields`, `keys` being the field keys that segment
+# carries; every `found` entry of such a set has one.
 _XMP_KEYWORD = "XML:com.adobe.xmp"
 _RAW_PROFILE_SETS = {"exif": "exif", "app1": "exif", "iptc": "iptc",
                      "8bim": "iptc", "xmp": "xmp", "icc": "icc", "icm": "icc"}
@@ -1390,6 +1705,22 @@ def _note_exif(label: str, blob: bytes | None, found: list, fields: list) -> Non
     found.append(("exif", label))
     fields.append(("exif", label,
                    exif_fields(blob) if blob is not None else ["exif:unknown"]))
+
+
+def _note_iptc(label: str, blob: bytes | None, found: list, fields: list) -> None:
+    """One IPTC segment: the set, and its fields (`iptc:unknown` when the
+    block is absent from the read or cannot be walked)."""
+    found.append(("iptc", label))
+    fields.append(("iptc", label,
+                   iptc_fields(blob) if blob is not None else ["iptc:unknown"]))
+
+
+def _note_xmp(label: str, blob: bytes | None, found: list, fields: list) -> None:
+    """One XMP packet: the set, and its properties (`xmp:unknown` when the
+    packet is absent from the read or does not parse)."""
+    found.append(("xmp", label))
+    fields.append(("xmp", label,
+                   xmp_fields(blob) if blob is not None else ["xmp:unknown"]))
 
 
 def _png_metadata(fh, size: int, texts: list, found: list, fields: list) -> None:
@@ -1463,19 +1794,25 @@ def _png_text_chunk(ctype: str, data: bytes, texts: list, found: list,
         # profile: text-shaped, but nothing a text rule can read.
         kind = kw.lower()[len("raw profile type"):].strip()
         what = f"{label} (hex-encoded binary profile)"
-        if _RAW_PROFILE_SETS.get(kind) == "exif":
+        kept = _RAW_PROFILE_SETS.get(kind, "unknown")
+        if kept in ("exif", "iptc", "xmp"):
             raw = _png_text_decode(ctype, rest)
-            _note_exif(what, _raw_profile_bytes(raw) if raw is not None else None,
-                       found, fields)
-            return
-        found.append((_RAW_PROFILE_SETS.get(kind, "unknown"), what))
+            blob = _raw_profile_bytes(raw) if raw is not None else None
+            {"exif": _note_exif, "iptc": _note_iptc, "xmp": _note_xmp}[kept](
+                what, blob, found, fields)
+        else:
+            found.append((kept, what))
         return
     set_name = "xmp" if kw == _XMP_KEYWORD else "png-text"
     value = _png_text_decode(ctype, rest)
     if value is None:
         found.append(("unknown", f"{label} (undecodable, truncated or past the cap)"))
         return
-    found.append((set_name, label))
+    if set_name == "xmp":
+        _note_xmp(label, value.encode("utf-8"), found, fields)
+    else:
+        found.append((set_name, label))
+        fields.append((set_name, label, [png_text_field(keyword)]))
     texts.append((label, f"{kw}: {value}"))
 
 
@@ -1485,6 +1822,23 @@ _ICC_TAG = b"ICC_PROFILE\x00"
 
 
 def _jpeg_metadata(fh, size: int, texts: list, found: list, fields: list) -> None:
+    # Extended XMP arrives in numbered pieces that are only well-formed once
+    # joined, so the pieces are gathered per GUID and read once at the end.
+    # `ext["total"]` bounds what is held: past the cap the pieces are dropped
+    # and the packet reads as unknown.
+    ext: dict = {"pieces": {}, "total": 0, "bad": False}
+    try:
+        _jpeg_walk(fh, size, texts, found, fields, ext)
+    finally:
+        if ext["bad"]:
+            fields.append(("xmp", "JPEG extended XMP", ["xmp:unknown"]))
+        for pieces in ext["pieces"].values():
+            fields.append(("xmp", "JPEG extended XMP",
+                           xmp_fields(b"".join(b for _o, b in sorted(pieces)))))
+
+
+def _jpeg_walk(fh, size: int, texts: list, found: list, fields: list,
+               ext: dict) -> None:
     pos = 2
     while True:
         fh.seek(pos)
@@ -1515,7 +1869,7 @@ def _jpeg_metadata(fh, size: int, texts: list, found: list, fields: list) -> Non
                 found.append(("jpeg-comment", "JPEG comment"))
                 texts.append(("JPEG comment", seg.decode("utf-8", errors="replace")))
             elif marker == 0xED:
-                found.append(("iptc", "JPEG APP13 (IPTC/Photoshop)"))
+                _note_iptc("JPEG APP13 (IPTC/Photoshop)", seg, found, fields)
             elif marker == 0xE2:
                 if seg.startswith(_ICC_TAG):
                     found.append(("icc", "JPEG APP2 ICC_PROFILE"))
@@ -1523,12 +1877,20 @@ def _jpeg_metadata(fh, size: int, texts: list, found: list, fields: list) -> Non
             elif seg.startswith(b"Exif\x00"):
                 _note_exif("JPEG APP1 Exif", seg, found, fields)
             elif seg.startswith(_XMP_NS):
-                found.append(("xmp", "JPEG XMP"))
+                _note_xmp("JPEG XMP", seg[len(_XMP_NS):], found, fields)
                 texts.append(("JPEG XMP", seg[len(_XMP_NS):].decode("utf-8", errors="replace")))
             elif seg.startswith(_XMP_EXT_NS):
                 # 32-byte GUID + 4-byte full length + 4-byte offset, then XML
                 body = seg[len(_XMP_EXT_NS) + 40:]
                 found.append(("xmp", "JPEG extended XMP"))
+                head = len(_XMP_EXT_NS)
+                ext["total"] += len(seg)
+                if len(seg) < head + 40 or ext["total"] > META_SEGMENT_CAP:
+                    ext["bad"] = True           # short header, or past the cap
+                    ext["pieces"].clear()
+                elif not ext["bad"]:
+                    off = struct.unpack(">I", seg[head + 36:head + 40])[0]
+                    ext["pieces"].setdefault(seg[head:head + 32], []).append((off, body))
                 texts.append(("JPEG extended XMP", body.decode("utf-8", errors="replace")))
             else:
                 found.append(("unknown", "JPEG APP1 (unrecognised)"))
@@ -1556,8 +1918,9 @@ def _webp_metadata(fh, size: int, texts: list, found: list, fields: list) -> Non
             if n > META_SEGMENT_CAP:
                 found.append(("unknown", f"WebP XMP past the {META_SEGMENT_CAP}-byte cap"))
             else:
-                found.append(("xmp", "WebP XMP"))
-                texts.append(("WebP XMP", fh.read(n).decode("utf-8", errors="replace")))
+                raw = fh.read(n)
+                _note_xmp("WebP XMP", raw, found, fields)
+                texts.append(("WebP XMP", raw.decode("utf-8", errors="replace")))
         pos += 8 + n + (n & 1)
 
 
@@ -1599,11 +1962,20 @@ def inspect_media_fields(fh) -> tuple[str | None, list, list, list]:
 
 
 def metadata_fields(fields: list) -> dict[str, list[str]]:
-    """`fields` grouped by set: set -> sorted field keys across its segments."""
+    """`fields` grouped by set: set -> sorted field keys across its segments.
+    A set with more than `_FIELDS_PER_SET_CAP` distinct fields keeps the first
+    ones in sorted order and gains `<set>:unknown`, so a file of thousands of
+    chunks costs a bounded report, not an unbounded one."""
     out: dict[str, set[str]] = {}
     for name, _label, keys in fields:
         out.setdefault(name, set()).update(keys)
-    return {name: sorted(keys) for name, keys in out.items()}
+    done: dict[str, list[str]] = {}
+    for name, keys in out.items():
+        ordered = sorted(keys)
+        if len(ordered) > _FIELDS_PER_SET_CAP:
+            ordered = sorted(set(ordered[:_FIELDS_PER_SET_CAP]) | {f"{name}:unknown"})
+        done[name] = ordered
+    return done
 
 
 def metadata_sets(found: list[tuple[str, str]]) -> dict[str, list[str]]:
@@ -2183,7 +2555,7 @@ def render_human(findings: list[Finding], warning: str | None,
         lines.append(f"  A binary (G3): look at it, then list it in {BINARY_MANIFEST} with a")
         lines.append("  reason — `leakscan --binary-entries` prints the lines, hash-bound, so a")
         lines.append("  changed file blocks again. Metadata: strip every set and field you do not")
-        lines.append("  need; keep one only on its own '<digest>:<set>' or '<digest>:exif:<Field>'")
+        lines.append("  need; keep one only on its own '<digest>:<set>' or '<digest>:<set>:<Field>'")
         lines.append("  line, reasoned with that need.")
         lines.append("  A stale entry: delete or re-path it.")
     return "\n".join(lines)
@@ -2446,6 +2818,20 @@ def _selftest() -> int:
             + struct.pack(">HHII", 0x0110, 2, 1, 0) + struct.pack(">I", 0))
     if exif_fields(tiff) != ["exif:Model"]:
         print("FAIL: Exif tag 0x0110 not read as the field exif:Model")
+        ok = False
+    # G3 fields, part 2 (020/450): an IPTC By-line, an XMP property and a PNG
+    # keyword are each read by name; a packet that is not XMP is unknown.
+    if iptc_fields(b"\x1c\x02\x50\x00\x01x") != ["iptc:By-line"]:
+        print("FAIL: IPTC dataset 2:080 not read as the field iptc:By-line")
+        ok = False
+    packet = (b'<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="'
+              + _RDF_NS.encode() + b'"><rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/">'
+              b"<dc:title>t</dc:title></rdf:Description></rdf:RDF></x:xmpmeta>")
+    if xmp_fields(packet) != ["xmp:dc:title"] or xmp_fields(b"<a/>") != ["xmp:unknown"]:
+        print("FAIL: XMP properties not read by name")
+        ok = False
+    if png_text_field(b"Creation Time") != "png-text:Creation%20Time":
+        print("FAIL: PNG text keyword not written as a field")
         ok = False
     _f, texts, _o = inspect_media(png(b"tEXt", b"Author\x00jane.doe@example.com"))  # leakscan:allow: selftest fixture
     if not any(f.rule == "email" for _l, t in texts for f in scan_text("t", t, [])):
