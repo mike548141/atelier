@@ -5,6 +5,22 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-03 — `spellscan` and `wrapscan` read the staged index at the hook, `320/600` first slice)
+- **Children: no action, and one behaviour change at the hook.** On the hook
+  plane `spellscan` and `wrapscan` now run `--staged`: each staged Markdown file
+  is read from the git index (whole, so fence context is right) and a finding is
+  kept only if it sits on a line the commit adds. Two failures end: an unstaged
+  draft on disk no longer reds another writer's commit in a shared checkout, and
+  a staged US spelling or over-long line no longer passes because its disk copy
+  was fixed after `git add`. Net effect on a green child: none can turn red from
+  this, since a file the commit does not touch is no longer read and a staged
+  file is read only on its added lines (a defect already in an edited file is
+  left to CI, whose whole-tree read is unchanged). New: `spellscan --staged` and
+  `wrapscan --staged` (repo-relative scope paths, as for the other staged guards)
+  and two shared helpers in `report.py` (`staged_added_by_path`, `staged_blob`).
+  `datescan`, `reviewscan` and `sizescan` still read the working tree at the
+  hook; they are the item's later slices.
+
 ### Changed (2026-11-03 — the repo-local check seam is now in the README and the hook sample, `320/560`)
 - **Children: a check of your own already has a home.** `local` in
   `.atelier-floor.json` names a script your repo ships, and the floor runs it in

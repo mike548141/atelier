@@ -580,7 +580,13 @@ SCANNERS: tuple[Scanner, ...] = (
     ),
     Scanner(
         "wrapscan",
-        hook=["--root", "{root}", "{scope}"],
+        # `--staged` on the hook plane only (320/600): the hook asks what THIS
+        # commit is about to make true, which is the index, not the disk. A
+        # working-tree read let one writer's unstaged draft block another's
+        # commit and let a staged defect pass once its disk copy was fixed. CI
+        # keeps the whole-tree form: its checkout already IS the committed tree.
+        # The advisory form stays whole-tree (`--warn`), as it can never block.
+        hook=["--staged", "--root", "{root}", "{scope}"],
         ci=["--root", "{root}", "{scope}"],
         advisory=["--warn", "--root", "{root}", "{scope}"],
         why="doctrine prose stays within its column budget",
@@ -588,7 +594,13 @@ SCANNERS: tuple[Scanner, ...] = (
     ),
     Scanner(
         "spellscan",
-        hook=["--root", "{root}", "{scope}"],
+        # `--staged` on the hook plane only (320/600): the hook asks what THIS
+        # commit is about to make true, which is the index, not the disk. A
+        # working-tree read let one writer's unstaged draft block another's
+        # commit and let a staged defect pass once its disk copy was fixed. CI
+        # keeps the whole-tree form: its checkout already IS the committed tree.
+        # The advisory form stays whole-tree (`--warn`), as it can never block.
+        hook=["--staged", "--root", "{root}", "{scope}"],
         ci=["--root", "{root}", "{scope}"],
         advisory=["--warn", "--root", "{root}", "{scope}"],
         why="NZ-English spelling across the doc surface",

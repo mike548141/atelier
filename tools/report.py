@@ -50,6 +50,7 @@ import os
 import re
 import subprocess
 import sys
+from contextlib import contextmanager
 from dataclasses import asdict
 from pathlib import Path
 from typing import Callable, Iterable, Iterator, Sequence
@@ -117,6 +118,43 @@ def refuse_missing_paths(name: str, targets: Sequence[Path]) -> int | None:
 def cannot_read(name: str, e: OSError) -> int:
     """Exit 2 for a file the scan could not open."""
     return broken(name, f"cannot read {e.filename}: {e.strerror}")
+
+
+def staged_added_by_path() -> dict[str, set[int]]:
+    """Path -> the set of real new-file line numbers the staged diff adds,
+    read by `staged_added` (so it shares that reader's refusals). The shape a
+    scanner needs when it must read a staged file WHOLE, for context (is this
+    line inside a fence?), and then report only on the lines a commit adds
+    (roadmap 320/600)."""
+    added: dict[str, set[int]] = {}
+    for path, lineno, _text in staged_added():
+        added.setdefault(path, set()).add(lineno)
+    return added
+
+
+@contextmanager
+def staged_blob(path: str):
+    """The INDEX copy of `path` (what the commit will hold, not the working
+    tree's), as a binary stream git feeds incrementally, so a large staged file
+    is never held whole in memory. Inherits the environment on purpose: a hook
+    runs with `GIT_INDEX_FILE` set (a partial commit uses a temporary index),
+    and the blob must come from the same index the diff was read from.
+
+    Raises `subprocess.CalledProcessError` (a member of `STAGED_DIFF_FAILURES`)
+    if git cannot produce the blob, so a missing or unreadable staged file is a
+    broken scan (exit 2), never an empty and therefore clean one. The caller
+    must read the stream to its end inside the `with`."""
+    proc = subprocess.Popen(["git", "cat-file", "blob", f":0:{path}"],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        yield proc.stdout
+    finally:
+        proc.stdout.close()
+        err = proc.stderr.read()
+        proc.stderr.close()
+        rc = proc.wait()
+    if rc != 0:
+        raise subprocess.CalledProcessError(rc, proc.args, stderr=err)
 
 
 def git_diff_failed(name: str, e: BaseException) -> int:

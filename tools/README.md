@@ -1131,7 +1131,12 @@ pre-commit hook and CI, and `floor.py --list` prints it `enforced`. It shipped
 advisory-only (CI in `--warn`, not in the hook, until reviewed); Mike's ruling
 flipped it to blocking in CI in `4f1c10c` (2026-07-23), once the
 doctrine-surface scope scanned clean, and the registry (`40c7a22`, 2026-07-25)
-then put it on the hook plane too.
+then put it on the hook plane too. On the hook plane it runs `--staged`
+(`320/600`): it reads each staged Markdown file from the git **index**, whole,
+so fence state is right, and reports only the lines the commit **adds**. An
+unstaged draft on disk can no longer block someone else's commit, and a staged
+over-long line cannot pass because its disk copy was fixed after `git add`. CI
+keeps the whole-tree read.
 
 Column length is a character count, honest for the house's ASCII prose but not
 a true display-width measure (a stated Unicode caveat). Four exemptions,
@@ -1151,6 +1156,7 @@ python3 tools/wrapscan.py --root . docs     # explicit — the CI invocation
 python3 tools/wrapscan.py --warn            # report findings, always exit 0
 python3 tools/wrapscan.py --limit 100       # tune the column limit
 python3 tools/wrapscan.py --json            # machine-readable
+python3 tools/wrapscan.py --staged --root . docs   # the hook plane: staged copy, added lines
 python3 tools/wrapscan.py --selftest        # prove the engine offline
 ```
 
@@ -1172,7 +1178,12 @@ pre-commit hook and CI, and `floor.py --list` prints it `enforced`. It shipped
 advisory-only (CI in `--warn`, not in the hook, until reviewed); Mike's ruling
 flipped it to blocking in CI in `4f1c10c` (2026-07-23), with the frozen record
 stores netted by `.spellscanignore` rather than retro-spelled, and the
-registry (`40c7a22`, 2026-07-25) then put it on the hook plane too.
+registry (`40c7a22`, 2026-07-25) then put it on the hook plane too. On the
+hook plane it runs `--staged` (`320/600`): it reads each staged Markdown file
+from the git **index**, whole, so fence state is right, and reports only the
+lines the commit **adds**. An unstaged draft on disk can no longer block
+someone else's commit, and a staged US spelling cannot pass because its disk
+copy was fixed after `git add`. CI keeps the whole-tree read.
 
 The denylist is generated from stem lists, one source of truth: an
 `-ize/-ise` + `-yze/-yse` verb family (with a smaller `-ization/-isation`
@@ -1199,6 +1210,7 @@ python3 tools/spellscan.py                 # scan docs/** (default scope)
 python3 tools/spellscan.py --root . docs    # explicit — the CI invocation
 python3 tools/spellscan.py --warn           # report findings, always exit 0
 python3 tools/spellscan.py --json           # machine-readable
+python3 tools/spellscan.py --staged --root . docs   # the hook plane: staged copy, added lines
 python3 tools/spellscan.py --selftest       # prove the engine offline
 ```
 

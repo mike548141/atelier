@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0759, wt: atelier-qr-4c65-floorhooks) 🔎 **Hand-up from a private child: at the hook plane the content
+- [ ] 🔎 **Hand-up from a private child: at the hook plane the content
       scanners (`spellscan`, `wrapscan`, and by registry `datescan`,
       `reviewscan`, `sizescan`) read the WORKING TREE, not the staged index,
       so one writer's unstaged draft blocks everyone else's commit, and the
@@ -84,3 +84,22 @@
         unstaged US spelling blocked a clean commit; a staged one fixed on
         disk after git add committed unread; datescan and wrapscan also block
         on unstaged files. Reviewscan and sizescan: code-read only.
+      ✅ **Slice 1 landed 2026-11-03 (`spellscan`, `wrapscan`); item stays open.**
+      Both gain `--staged` and the registry passes it on the hook plane only.
+      Design settled: the staged file is read from the index WHOLE (so a fence
+      opened by an unchanged line still hides the added line inside it) and a
+      finding is kept only on a line the commit adds, using the shared
+      `report.staged_added` / `scope_staged` and two new shared helpers
+      (`report.staged_added_by_path`, `report.staged_blob`, streamed, same
+      bounded read). A scope path narrows the staged set by repo-relative
+      prefix; an absolute or escaping one is refused (exit 2). Both
+      directions pinned in `test_spellscan.StagedPlane` /
+      `test_wrapscan.StagedPlane` and proven end to end through the real hook
+      in a throwaway repo (unstaged draft: commit lands; staged defect fixed on
+      disk: commit refused). The advisory (`--warn`) form is still whole-tree.
+      **Remaining:** `datescan`, `reviewscan`, `sizescan` still read the working
+      tree at the hook (`sizescan --check` is a size budget over a whole file,
+      so it may have a whole-file reason; judge it, do not copy this slice).
+      The "what does the floor print for a staged-only finding whose disk copy
+      differs" question is answered for these two: it prints the staged line
+      number and text-less finding, which can differ from the editor's view.

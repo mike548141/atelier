@@ -37,7 +37,10 @@ scanner blocking on both planes — the pre-commit hook and CI — and
 advisory-only (CI in `--warn` mode, never the hook, until reviewed), matching
 datescan's rollout discipline; Mike's ruling flipped it to blocking in CI in
 4f1c10c (2026-07-23), once the doctrine-surface scope scanned clean, and the
-registry (40c7a22, 2026-07-25) then put it on the hook plane too. `--warn`
+registry (40c7a22, 2026-07-25) then put it on the hook plane too. On the hook
+plane it runs `--staged` (320/600): the INDEX copy of each staged Markdown
+file, scanned whole for fence context, findings kept only on the lines the
+commit adds; CI keeps the whole-tree read. `--warn`
 remains a report-only mode for re-baselining; the registry's `advisory` form
 uses it.
 
@@ -421,6 +424,14 @@ def _iter_physical_lines(path: Path):
     list, which held the file's content twice over at once (measured while
     building this fix: ~93 MB of growth for a 23 MB larger many-line file,
     ~48 MB for a 23 MB larger single-line file)."""
+    with open(path, "rb") as fh:
+        yield from _iter_physical_lines_fh(fh)
+
+
+def _iter_physical_lines_fh(fh):
+    """`_iter_physical_lines` over an open binary stream: the same bounded
+    chunked read, so a staged blob git streams to us (320/600) is held no
+    more whole than a file on disk is."""
     decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
     lineno = 1
     pending = ""
@@ -442,12 +453,11 @@ def _iter_physical_lines(path: Path):
                 pending = ""
                 truncated = False
 
-    with open(path, "rb") as fh:
-        while True:
-            chunk = fh.read(_READ_CHUNK_BYTES)
-            if not chunk:
-                break
-            yield from feed(decoder.decode(chunk))
+    while True:
+        chunk = fh.read(_READ_CHUNK_BYTES)
+        if not chunk:
+            break
+        yield from feed(decoder.decode(chunk))
     tail = decoder.decode(b"", final=True)
     if tail:
         yield from feed(tail)
@@ -456,6 +466,10 @@ def _iter_physical_lines(path: Path):
 
 
 def _content_lines_from_file(path: Path, tally: "Tally | None" = None):
+    return _content_lines_from_physical(_iter_physical_lines(path), tally)
+
+
+def _content_lines_from_physical(physical, tally: "Tally | None" = None):
     """Streaming equivalent of `_content_lines`: same fence-pairing state
     machine, sourced from `_iter_physical_lines` instead of a whole-file
     `text.splitlines()` list (020/380). A truncated over-long line is scanned
@@ -463,7 +477,7 @@ def _content_lines_from_file(path: Path, tally: "Tally | None" = None):
     in_fence = False
     fence_char = ""
     fence_len = 0
-    for lineno, line, truncated in _iter_physical_lines(path):
+    for lineno, line, truncated in physical:
         if truncated and tally is not None:
             tally.note_line_truncated()
         stripped = line.lstrip()
@@ -579,6 +593,36 @@ def scan_paths(paths: list[Path], root: Path, limit: int = LINE_LIMIT,
     return findings
 
 
+def scan_staged(added: dict[str, set[int]], root: Path, limit: int = LINE_LIMIT,
+                tally: "Tally | None" = None) -> list[Finding]:
+    """The hook plane (320/600): what this commit is about to make true.
+
+    `added` is path -> the line numbers the staged diff adds
+    (`report.staged_added_by_path`). Each staged Markdown file is read from the
+    INDEX, whole, so the fence state is right, and only findings on an ADDED
+    line are kept: a defect already in the file is the whole-tree plane's
+    (CI's), and an unstaged edit on disk is nobody's business here. Reading the
+    working tree instead is what let one writer's draft block another's commit
+    and let a staged defect pass once its disk copy was fixed."""
+    globs = load_ignore_globs(root)
+    findings: list[Finding] = []
+    for rel in sorted(added):
+        if Path(rel).suffix.lower() not in MARKDOWN_SUFFIXES:
+            continue
+        if any(part in SKIP_DIR_NAMES for part in Path(rel).parts[:-1]):
+            continue
+        if _ignored(rel, globs):
+            if tally is not None:
+                tally.files_by_glob += 1
+            continue
+        with report.staged_blob(rel) as fh:
+            numbered = _content_lines_from_physical(
+                _iter_physical_lines_fh(fh), tally)
+            found = _scan_numbered_lines(rel, numbered, limit, tally)
+        findings.extend(f for f in found if f.line in added[rel])
+    return findings
+
+
 def render_human(findings: list[Finding], limit: int,
                  tally: "Tally | None" = None) -> str:
     if not findings:
@@ -612,6 +656,12 @@ def _main(argv: list[str] | None = None) -> int:
                     help="report findings but always exit 0 (report-only "
                          "mode, for re-baselining or a warn-first rollout; "
                          "the floor registry runs it without this by default)")
+    ap.add_argument("--staged", action="store_true",
+                    help="the hook plane: read the STAGED (index) copy of each "
+                         "Markdown file and report only on the lines the "
+                         "commit adds; paths then scope the staged set and "
+                         "are repo-relative (default: every staged Markdown "
+                         "file; run from the repo root, as a hook does)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--limit", type=int, default=LINE_LIMIT,
                     help=f"column limit; lines longer are findings (default: {LINE_LIMIT})")
@@ -627,23 +677,41 @@ def _main(argv: list[str] | None = None) -> int:
     if rc is not None:
         return rc
 
-    if args.paths:
-        # A RELATIVE target resolves against --root, never the caller's cwd:
-        # mixing the two reads one repo's file under another repo's rules,
-        # and neither half of the output says so (roadmap 010/110).
-        targets = report.resolve_targets(root, args.paths)
-    else:
-        docs = root / "docs"
-        targets = [docs] if docs.is_dir() else [root]
-
-    rc = report.refuse_missing_paths("wrapscan", targets)
-    if rc is not None:
-        return rc
     tally = Tally()
-    try:
-        findings = scan_paths(targets, root, args.limit, tally)
-    except OSError as e:
-        return report.cannot_read("wrapscan", e)
+    if args.staged:
+        try:
+            added = report.staged_added_by_path()
+        except report.STAGED_DIFF_FAILURES as e:
+            return report.git_diff_failed("wrapscan", e)
+        # Repo-relative scope, normalised and refused the way the other staged
+        # guards do (`report.scope_staged`, roadmap 115/360): an absolute or
+        # escaping path would match nothing and a scan of nothing exits 0.
+        rc, added = report.scope_staged("wrapscan", added, args.paths, "docs/")
+        if rc is not None:
+            return rc
+        try:
+            findings = scan_staged(added, root, args.limit, tally)
+        except report.STAGED_DIFF_FAILURES as e:
+            return report.git_diff_failed("wrapscan", e)
+        except OSError as e:
+            return report.cannot_read("wrapscan", e)
+    else:
+        if args.paths:
+            # A RELATIVE target resolves against --root, never the caller's cwd:
+            # mixing the two reads one repo's file under another repo's rules,
+            # and neither half of the output says so (roadmap 010/110).
+            targets = report.resolve_targets(root, args.paths)
+        else:
+            docs = root / "docs"
+            targets = [docs] if docs.is_dir() else [root]
+
+        rc = report.refuse_missing_paths("wrapscan", targets)
+        if rc is not None:
+            return rc
+        try:
+            findings = scan_paths(targets, root, args.limit, tally)
+        except OSError as e:
+            return report.cannot_read("wrapscan", e)
 
     if args.json:
         print(json.dumps({
