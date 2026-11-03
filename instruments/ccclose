@@ -279,16 +279,54 @@ function resolveFrom(base, p) {
 // has no branch. A relative path resolves against a preceding `cd`, a -C, or
 // the record's own cwd.
 //
-// A `$NAME` / `${NAME}` in the path (or in the `cd` / `-C` it resolves against)
-// is expanded from a literal assignment made earlier in the same command, or
-// before it in the transcript (`vars`, the same reading the message-file
-// evidence uses, 210/310). A variable with no such assignment, or any other
-// expansion ($(...), backticks), leaves the path unknown, and the add is
-// DROPPED: a made-up path would be pasted as fact (210/330). An assignment
+// A `$NAME` / `${NAME}` in the path (or in the `cd` / `-C` it resolves against,
+// or in the -b branch) is expanded from a literal assignment made earlier in the
+// same command, or before it in the transcript (`vars`, the same reading the
+// message-file evidence uses, 210/310). A variable with no such assignment, or
+// any other expansion ($(...), backticks), leaves the path unknown, and the add
+// is DROPPED: a made-up path would be pasted as fact (210/330). An assignment
 // that only prefixes the git command itself (`W=/p git worktree add $W`) is
 // not seen by that command's own expansion, so it does not count either.
+//
+// An add inside `for VAR in w1 w2; do ... done` whose word list is plain words
+// (no glob, brace, $ or backtick) is expanded once per word, the loop variable
+// standing for each; nested literal loops multiply. A loop over anything else
+// leaves its variable unset, so the add is dropped (210/360).
+//
+// `stats`, when given, takes the number of adds that were dropped, so the block
+// can say how many it could not resolve instead of under-counting silently.
 const WT_ADD = /\bgit\s+((?:-[Cc]\s+\S+\s+)*)worktree\s+add\b/g;
-function worktreeAdds(command, cwd, vars = new Map()) {
+const FOR_HEAD = /(?:^|[\s;&|(])for\s+([A-Za-z_]\w*)\s+in\s+([^;\n]*?)\s*(?:;|\n)\s*do\b/g;
+const LOOP_OPEN = /(?:^|[\s;&|(])(?:for|while|until|select)\s/g;
+const LOOP_CLOSE = /(?:^|[\s;&|()])done\b/g;
+
+// The `for` loops whose body holds the offset `at`: [{ name, words|null }],
+// outermost first. words is null when the list is not plain literal words.
+function loopsAround(command, at) {
+  const out = [];
+  if (!command.includes('for')) return out;
+  for (const h of command.matchAll(FOR_HEAD)) {
+    const bodyFrom = h.index + h[0].length;
+    if (bodyFrom > at) continue;
+    // Walk to this loop's own `done`, skipping nested loops' pairs.
+    const marks = [];
+    for (const m of command.slice(bodyFrom).matchAll(LOOP_OPEN)) marks.push([m.index, 1]);
+    for (const m of command.slice(bodyFrom).matchAll(LOOP_CLOSE)) marks.push([m.index, -1]);
+    marks.sort((a, b) => a[0] - b[0]);
+    let depth = 0, doneAt = Infinity;
+    for (const [i, d] of marks) {
+      depth += d;
+      if (depth < 0) { doneAt = bodyFrom + i; break; }
+    }
+    if (at >= doneAt) continue;
+    const raw = h[2];
+    const plain = raw.trim() !== '' && !/[$`*?\[\]{}()<>~\\]/.test(raw);
+    out.push({ name: h[1], words: plain ? shellWords(raw) : null });
+  }
+  return out;
+}
+
+function worktreeAdds(command, cwd, vars = new Map(), stats = null) {
   const out = [];
   const assigns = command.includes('=') ? assignmentsIn(command) : [];
   for (const m of command.matchAll(WT_ADD)) {
@@ -305,31 +343,47 @@ function worktreeAdds(command, cwd, vars = new Map()) {
     }
     if (!pos.length) continue;
     // Variables as they stand when this add runs.
-    const env = new Map(vars);
+    const base0 = new Map(vars);
     for (const a of assigns) {
       const from = command.indexOf(a.name + '=', a.at);
-      if (a.at < m.index && /[;&|\n]/.test(command.slice(from, m.index))) env.set(a.name, a.value);
+      if (a.at < m.index && /[;&|\n]/.test(command.slice(from, m.index))) base0.set(a.name, a.value);
     }
-    const expand = (word) => (/[$`]/.test(word) ? expandVars(word, env) : word);
-    const target = expand(pos[0]);
-    if (target === null || target === '') continue;
-    let base = cwd || null, baseKnown = true;
-    const cds = [...command.slice(0, m.index).matchAll(/\bcd\s+("[^"]*"|'[^']*'|[^\s;&|]+)/g)];
-    const dirs = [];
-    if (cds.length) dirs.push(unquote(cds[cds.length - 1][1]));
-    for (const c of m[1].matchAll(/-C\s+(\S+)/g)) dirs.push(unquote(c[1]));
-    for (const d of dirs) {
-      const x = expand(d);
-      if (x === null) { baseKnown = false; break; }
-      base = resolveFrom(base, x);
+    // One environment per combination of the enclosing loops' words.
+    let envs = [base0];
+    for (const lp of loopsAround(command, m.index)) {
+      if (lp.words === null) { for (const e of envs) e.delete(lp.name); continue; }
+      envs = envs.flatMap((e) => lp.words.map((wd) => new Map(e).set(lp.name, wd)));
     }
-    // An unknown directory only matters to a relative path.
-    if (!baseKnown && !path.isAbsolute(target) && !target.startsWith('~')) continue;
-    const wtPath = resolveFrom(base, target);
-    out.push({
-      path: wtPath,
-      branch: detach ? null : (branch || (pos[1] !== undefined ? expand(pos[1]) : null) || path.basename(wtPath)),
-    });
+    let dropped = false;
+    const site = [];
+    for (const env of envs) {
+      const expand = (word) => (/[$`]/.test(word) ? expandVars(word, env) : word);
+      const target = expand(pos[0]);
+      const br = branch === null ? null : expand(branch);
+      if (target === null || target === '' || br === null && branch !== null) { dropped = true; continue; }
+      let base = cwd || null, baseKnown = true;
+      const cds = [...command.slice(0, m.index).matchAll(/\bcd\s+("[^"]*"|'[^']*'|[^\s;&|]+)/g)];
+      const dirs = [];
+      if (cds.length) dirs.push(unquote(cds[cds.length - 1][1]));
+      for (const c of m[1].matchAll(/-C\s+(\S+)/g)) dirs.push(unquote(c[1]));
+      for (const d of dirs) {
+        const x = expand(d);
+        if (x === null) { baseKnown = false; break; }
+        base = resolveFrom(base, x);
+      }
+      // An unknown directory only matters to a relative path.
+      if (!baseKnown && !path.isAbsolute(target) && !target.startsWith('~')) { dropped = true; continue; }
+      const wtPath = resolveFrom(base, target);
+      const commitish = pos[1] !== undefined ? expand(pos[1]) : null;
+      if (!br && !detach && pos[1] !== undefined && commitish === null) { dropped = true; continue; }
+      if (site.includes(wtPath)) continue;
+      site.push(wtPath);
+      out.push({
+        path: wtPath,
+        branch: detach ? null : (br || commitish || path.basename(wtPath)),
+      });
+    }
+    if (dropped && stats) stats.unresolved = (stats.unresolved || 0) + 1;
   }
   return out;
 }
@@ -541,9 +595,10 @@ function fileSubjects(evs) {
 
 function notePending(t, id, command, cwd, vars) {
   if (!id || !command) return;
-  const adds = command.includes('worktree') ? worktreeAdds(command, cwd, vars) : [];
+  const stats = { unresolved: 0 };
+  const adds = command.includes('worktree') ? worktreeAdds(command, cwd, vars, stats) : [];
   const pr = command.includes('gh') ? ghPrCommands(command) : { creates: 0, merges: [] };
-  if (adds.length || pr.creates || pr.merges.length) t.pend.set(id, { adds, ...pr });
+  if (adds.length || stats.unresolved || pr.creates || pr.merges.length) t.pend.set(id, { adds, unresolved: stats.unresolved, ...pr });
 }
 
 const resultText = (b, o) => {
@@ -568,6 +623,7 @@ function resolvePending(t, p, b, o) {
     return;
   }
   for (const a of p.adds || []) t.worktrees.push({ ...a, via: 'git worktree add' });
+  t.unresolvedAdds += p.unresolved || 0;
   if (p.creates) {
     for (const m of text.matchAll(/github\.com\/([^/\s]+\/[^/\s]+)\/pull\/(\d+)/g)) {
       const e = t.prs.get(Number(m[2])) || { slug: m[1].toLowerCase(), opened: false, merged: false };
@@ -591,7 +647,7 @@ async function readTranscript(file) {
     notes: new Map(), toolResults: new Map(),
     // What the session did to PRs and worktrees, from its own commands (see
     // the identifiers section): pend holds a command until its result lands.
-    prs: new Map(), worktrees: [], pend: new Map(),
+    prs: new Map(), worktrees: [], unresolvedAdds: 0, pend: new Map(),
     commitSubjects: new Set(), msg: MsgEvidence(),
     // Deletes awaiting their result, and the routes of those refused (180/180).
     delPend: new Map(), refused: new Map(),
@@ -1522,7 +1578,7 @@ function identifiersWorktrees({ repo, w, t, branches }) {
     if (!inWindow(b.ct, w) || seenBranch.has(b.name)) continue;
     items.push({ path: null, branch: b.name, via: 'tip in window', worktree: null, branchState: branchState(b.name) });
   }
-  return { known: true, items };
+  return { known: true, items, unresolved: t.unresolvedAdds || 0 };
 }
 
 async function collectIdentifiers(g) {
@@ -1608,14 +1664,18 @@ function renderIdentifiers(r) {
   }
   // Worktrees and branches
   const wt = r.worktrees;
+  const unres = wt.known && wt.unresolved
+    ? `  - ${wt.unresolved} worktree add${wt.unresolved === 1 ? '' : 's'} not resolved (a variable with no literal assignment, or a loop over something other than plain words) — fill in by hand`
+    : null;
   if (!wt.known) o.push(`- **Worktrees and branches**: ${BY_HAND(wt.why)}`);
-  else if (!wt.items.length) o.push('- **Worktrees and branches**: none');
+  else if (!wt.items.length) { o.push(`- **Worktrees and branches**: none${unres ? ' listed' : ''}`); if (unres) o.push(unres); }
   else {
     list(`- **Worktrees and branches** (${wt.items.length}):`, wt.items.map((x) => {
       const where = x.path ? `${tildePath(x.path)}${x.branch ? ` (branch ${x.branch})` : ' (detached)'}` : `branch ${x.branch}`;
       const state = [x.worktree === null ? null : `worktree ${x.worktree}`, x.branch || x.path === null ? `branch ${x.branchState}` : null].filter(Boolean);
       return `${where} — ${state.join('; ')}`;
     }));
+    if (unres) o.push(unres);
   }
   // Agents
   const a = r.agents;

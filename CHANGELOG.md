@@ -263,6 +263,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   own tree (which holds the source) is scanned as before. Measured over the
   estate's repos: exactly one finding fewer in each child that stamps the floor.
 
+### Fixed (2026-11-03 — `ccclose --identifiers`: worktrees made in a loop, `210/360`)
+- **A loop-made worktree is listed, and a dropped one is counted.** After
+  `210/330`, `for n in a b; do git worktree add … /p-$n …; done` was dropped
+  silently, so the block under-counted. An add inside a `for` loop over plain
+  words (no glob, brace, variable or command substitution) is now expanded once
+  per word. Any add still unresolved is counted, and the Worktrees field prints
+  one line, "N worktree adds not resolved", so the reader knows to fill them
+  in. The line is absent when every add resolved; `--json` carries
+  `worktrees.unresolved`. A `-b` branch holding an unresolvable variable is now
+  counted too, rather than listed with the raw `$VAR` as its name. No path is
+  ever guessed.
+
 ### Fixed (2026-11-03 — `ccclose --identifiers`: an unexpanded worktree path, `210/330`)
 - **A worktree path held in a shell variable is no longer invented.**
   `W=/abs/path && git worktree add --detach $W origin/main` was listed as

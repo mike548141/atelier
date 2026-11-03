@@ -368,7 +368,12 @@ always prints the by-hand line, because nothing here can see another repo.
   `EnterWorktree` results saying "Created worktree at ...". A `$VAR` in the path
   is expanded from a literal assignment earlier in the command or the
   transcript (the same reading as message files); a path that cannot be resolved
-  is dropped, not guessed (`210/330`). Each is then
+  is dropped, not guessed (`210/330`). An add inside a `for VAR in w1 w2; do ...
+done` loop whose word list is plain words (no glob, brace, `$` or backtick) is
+expanded once per word, nested loops multiplying; a loop over anything else
+leaves its variable unknown. Every add still dropped is counted, and the block
+prints one line, "N worktree adds not resolved", so a short list says so
+(`210/360`). Each is then
   checked now: directory present or put away, branch deleted or kept (merged
   or not). Worktrees born in the window and branches with a tip in it are
   added, since those still exist and the repo can show them.

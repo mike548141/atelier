@@ -1158,6 +1158,80 @@ test('--identifiers worktrees: a $VAR path is listed as resolved, and an unresol
   assert.doesNotMatch(out, /\$W|\$E|NEVER_SET/);
 });
 
+// 210/360: a `for` loop over plain words is expanded once per word; any add left
+// unresolved is counted, so the block says it under-lists instead of staying silent.
+test('worktreeAdds expands a for loop over a literal word list, once per word', () => {
+  assert.deepEqual(cc.worktreeAdds('for n in a b c; do git worktree add -b qr-$n /w/qr-$n origin/main; done', '/r'),
+    [{ path: '/w/qr-a', branch: 'qr-a' }, { path: '/w/qr-b', branch: 'qr-b' }, { path: '/w/qr-c', branch: 'qr-c' }]);
+  assert.deepEqual(cc.worktreeAdds('for n in a b\ndo\n  git worktree add --detach "/w/wt-${n}" origin/main\ndone', '/r'),
+    [{ path: '/w/wt-a', branch: null }, { path: '/w/wt-b', branch: null }]);
+  // Nested literal loops multiply; a word list may be quoted.
+  assert.deepEqual(cc.worktreeAdds('for r in x y; do for n in 1 2; do git worktree add --detach /w/$r-$n; done; done', '/r').map((a) => a.path),
+    ['/w/x-1', '/w/x-2', '/w/y-1', '/w/y-2']);
+  assert.deepEqual(cc.worktreeAdds("for n in 'a' \"b\"; do git worktree add --detach /w/$n; done", '/r').map((a) => a.path), ['/w/a', '/w/b']);
+  // An add after the loop is not inside it, and a loop's variable is not known there.
+  const st = { unresolved: 0 };
+  assert.deepEqual(cc.worktreeAdds('for n in a b; do echo $n; done; git worktree add --detach /w/$n', '/r', new Map(), st), []);
+  assert.equal(st.unresolved, 1);
+  // A relative path resolves against the cwd, per word.
+  assert.deepEqual(cc.worktreeAdds('for n in a b; do git worktree add -b $n ../$n; done', '/r/sub').map((a) => a.path), ['/r/a', '/r/b']);
+});
+
+test('worktreeAdds counts an add it cannot resolve and never guesses its path', () => {
+  const count = (cmd, vars) => {
+    const st = { unresolved: 0 };
+    const got = cc.worktreeAdds(cmd, '/r', vars || new Map(), st);
+    return [got, st.unresolved];
+  };
+  assert.deepEqual(count('for n in $(ls); do git worktree add --detach /w/$n; done'), [[], 1]);
+  assert.deepEqual(count('for n in /src/*; do git worktree add --detach /w/$n; done'), [[], 1]);
+  assert.deepEqual(count('for n in {a,b}; do git worktree add --detach /w/$n; done'), [[], 1]);
+  assert.deepEqual(count('for n in $LIST; do git worktree add --detach /w/$n; done'), [[], 1]);
+  assert.deepEqual(count('git worktree add --detach $W'), [[], 1]);
+  assert.deepEqual(count('git worktree add -b "$(mktemp -u)" /w/x'), [[], 1]);
+  // A literal loop alongside an unresolved add: the first is listed, the second counted.
+  assert.deepEqual(count('for n in a; do git worktree add --detach /w/$n; done && git worktree add --detach $Q'),
+    [[{ path: '/w/a', branch: null }], 1]);
+  // A loop over something unknown, whose variable the path does not use, still resolves.
+  assert.deepEqual(count('for n in $(ls); do git worktree add --detach /w/fixed; done'), [[{ path: '/w/fixed', branch: null }], 0]);
+  // Everything resolved: nothing counted.
+  assert.deepEqual(count('git worktree add -b ok /w/ok')[1], 0);
+  assert.deepEqual(count('git worktree add --detach $W', new Map([['W', '/w/w']])), [[{ path: '/w/w', branch: null }], 0]);
+});
+
+test('--identifiers worktrees: loop adds are listed and unresolved adds are counted in one line (210/360)', () => {
+  const w = world();
+  const root = repo(w);
+  const lit = path.join(w.base, 'wt-loop');
+  transcript(w, 'sess-id-14', [
+    bashUse('l1', `for n in a b; do git worktree add --detach ${lit}-$n origin/main; done`, root), useResult('l1', 'Preparing worktree'),
+    bashUse('l2', 'for n in $(ls); do git worktree add --detach /nowhere/$n origin/main; done', root), useResult('l2', 'Preparing worktree'),
+    bashUse('l3', 'git worktree add --detach $NEVER_SET origin/main', root), useResult('l3', 'Preparing worktree'),
+    bashUse('l4', 'git worktree add --detach $ALSO_UNSET origin/main', root), useResult('l4', '', true),
+  ]);
+  const j = JSON.parse(ccclose(w, root, ['--session', 'sess-id-14', '--identifiers', '--json']).out);
+  assert.deepEqual(j.worktrees.items.map((x) => x.path).sort(), [`${lit}-a`, `${lit}-b`]);
+  assert.equal(j.worktrees.unresolved, 2);
+  const out = idRun(w, root, 'sess-id-14').out;
+  const lines = out.split('\n').filter((l) => /worktree adds? not resolved/.test(l));
+  assert.equal(lines.length, 1);
+  assert.match(lines[0], /^ {2}- 2 worktree adds not resolved \(a variable with no literal assignment/);
+  assert.doesNotMatch(out, /NEVER_SET|ALSO_UNSET|nowhere/);
+});
+
+test('--identifiers worktrees: no count line when every add resolved (210/360)', () => {
+  const w = world();
+  const root = repo(w);
+  const good = path.join(w.base, 'wt-all-good');
+  transcript(w, 'sess-id-15', [
+    bashUse('g1', `for n in a b; do git worktree add --detach ${good}-$n origin/main; done`, root), useResult('g1', 'Preparing worktree'),
+  ]);
+  const j = JSON.parse(ccclose(w, root, ['--session', 'sess-id-15', '--identifiers', '--json']).out);
+  assert.equal(j.worktrees.items.length, 2);
+  assert.equal(j.worktrees.unresolved, 0);
+  assert.doesNotMatch(idRun(w, root, 'sess-id-15').out, /not resolved/);
+});
+
 test('ghPrCommands reads merge numbers and ignores other repos, flag values and quoted mentions', () => {
   assert.deepEqual(cc.ghPrCommands('gh pr merge 12 --squash'), { creates: 0, merges: [12] });
   assert.deepEqual(cc.ghPrCommands('gh pr merge --squash --body 5 #13'), { creates: 0, merges: [13] });

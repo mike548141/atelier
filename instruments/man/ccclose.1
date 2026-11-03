@@ -444,6 +444,13 @@ branch is deleted or kept, merged or not.
 A path with a shell variable is read from a literal assignment earlier in the
 same command or the transcript; a path that cannot be resolved is left out, not
 guessed.
+An add inside a
+.B for
+loop over plain words (no glob, brace, variable or command substitution) is
+listed once per word.
+Adds left out are counted, and the block prints one line,
+.RI \(lq N
+worktree adds not resolved\(rq, so the list is known to be short.
 Worktrees born inside the window and branches with a tip inside it are added.
 .TP
 .B Agents
