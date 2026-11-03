@@ -1,4 +1,4 @@
-- [ ] 🚩 **The channel can contaminate review independence, and § The channel
+- [~] (claimed 2026-11-03-0759, wt: atelier-qr-4c65-doctrine2) 🚩 **The channel can contaminate review independence, and § The channel
       does not say so** `[S][docs]` — found by using it, 2026-08-17, within the
       hour of the section landing.
       **What happened.** The author of a landed doctrine delta messaged the

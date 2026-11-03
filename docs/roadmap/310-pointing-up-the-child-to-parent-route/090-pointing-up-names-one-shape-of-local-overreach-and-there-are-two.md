@@ -1,4 +1,4 @@
-- [ ] 🔎 **§ *Pointing up* names one shape of deciding a house question locally,
+- [~] (claimed 2026-11-03-0759, wt: atelier-qr-4c65-doctrine2) 🔎 **§ *Pointing up* names one shape of deciding a house question locally,
       and there are two — the second one closes the question instead of opening
       it** `[XS][docs]` — raised from faves 2026-08-19 after exercising the
       route cold. Filed rather than patched; see the note at the end, which is

@@ -1,4 +1,4 @@
-- [ ] **Proposal: a response-field allowlist leaks through non-scalar fields —
+- [~] (claimed 2026-11-03-0759, wt: atelier-qr-4c65-doctrine2) **Proposal: a response-field allowlist leaks through non-scalar fields —
       the output side of exposure wants a sentence in `SECRETS.md`.** Filed
       from a private child via § *Pointing up*, 2026-08-22.
       **The incident, as class:** a session reading a provider API's

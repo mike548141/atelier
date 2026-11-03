@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: the repo-local check seam (`local` in
+- [~] (claimed 2026-11-03-0759, wt: atelier-qr-4c65-floorhooks) 🔎 **Hand-up: the repo-local check seam (`local` in
       `.atelier-floor.json`) is absent from the README and the method docs, and
       a child recorded a hand-up for a capability that already existed**
       `[S][doctrine]` — filed 2026-10-11 from a private child repo via
