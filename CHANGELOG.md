@@ -5,6 +5,31 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-03 — G3 keeps Exif and GPS metadata field by field, `020/450` part 1)
+- **A `.leakscanbinaries` line can now keep named Exif and GPS fields**, not
+  just the whole Exif set. Mike, 2026-10-19: *"I did mean fields as in GPS
+  versus the camera model. Things like exif, iptc, xmp are data types, nto
+  fields"*. Write `<digest>:exif:Make,Model,LensModel  path  # why` and
+  `<digest>:gps:GPSLatitude,GPSLongitude  path  # why`. leakscan reads the
+  Exif tag numbers (stdlib only, bounded, never the values) and names each
+  from the Exif / TIFF / GPS tables; a tag not in the table is written by
+  number (`exif:0x9999`), and a block it cannot walk is `exif:unknown`. Any
+  field present and not named blocks as `binary-metadata`, naming it; a field
+  the file lacks is a stale line. One reason may cover several fields. No
+  wildcard, and `gps` alone is refused (list the tags).
+- **`--binary-entries` prints one line per Exif or GPS field**, and a note on
+  merging fields that share a need into one line.
+- **Type-level lines keep working, with a warning, until 2026-12-18.** An
+  `exif` line written before this keeps the whole set, GPS included. Until
+  that date each scan prints a warning naming the fields the file carries and
+  asking for field-level lines; the JSON output carries them under
+  `binary_type_level`, and the `suppressed:` line counts them. From 2026-12-18
+  such a line keeps nothing and the set blocks. The date is a constant
+  (`TYPE_LEVEL_UNTIL`), a month after the G3 grace ends (2026-11-18), with no
+  flag or setting to move it. Sets whose fields are not read yet (IPTC, XMP,
+  PNG text, JPEG comments, ICC, unknown) are unaffected.
+- **Not yet:** IPTC datasets, XMP properties and PNG text keywords as fields,
+  which is the remainder of `020/450`.
 ### Fixed (2026-11-03 — leakscan `nz-phone` no longer reads digit runs inside hex digests, `320/470`)
 - **A digit run inside a 16+ character hex run is not a phone number.** The
   rule's `(?<!\d)`/`(?!\d)` lookarounds accepted a hex letter beside the

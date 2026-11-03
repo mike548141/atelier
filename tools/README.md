@@ -294,7 +294,8 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
 
 - **Format.** A file line is the first 16 or more hex characters of the
   file's SHA-256, then the repo-relative path. A set line is the same digest,
-  `:<set>`, then the path, one set per line. The reason uses the same grammar
+  `:<scope>`, then the path; the scope names the sets and fields it keeps
+  (below). The reason uses the same grammar
   as `.leakscanignore` (`allowmarker.read_reasoned_lines`): a comment stanza
   above the line, or a trailing `# reason`. A line with no reason is a config
   error (exit 2). So is a malformed line, an unknown set, a path or set listed
@@ -335,6 +336,41 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   `exiftool -all= -tagsfromfile @ -icc_profile file` to keep only the colour
   profile). A set line for a set the file doesn't carry is stale and blocks:
   the hash binds the bytes, so the line was wrong when it was written.
+- **Fields, for Exif and GPS.** Mike, 2026-10-19: *"I did mean fields as in
+  GPS versus the camera model. Things like exif, iptc, xmp are data types,
+  nto fields"*. So the Exif block is read tag by tag (tag numbers only, never
+  the values), and a line keeps named fields, not the whole set:
+
+  ```
+  c81d07a2e4f9b613:exif:Make,Model,LensModel  docs/img/site.jpg  # the shop shows which camera
+  c81d07a2e4f9b613:gps:GPSLatitude,GPSLongitude  docs/img/site.jpg  # the venue pin on the map
+  ```
+
+  A field is `exif:<TagName>` or `gps:<TagName>`, with the tag names of the
+  Exif / TIFF / GPS specifications (`exif:Model`, `exif:DateTimeOriginal`,
+  `gps:GPSLatitude`). After one `set:Field`, bare names continue the same
+  set, so `exif:Make,Model` keeps two fields. One reason may cover several
+  fields, so long as the line lists each. Rules: no wildcard; `gps` alone is
+  refused, because it would keep every GPS tag under a reason that names none
+  (list them); a name that is not a real tag is refused as a typo; a tag the
+  table does not name is written by its number, `exif:0x9999`; and a set and
+  its own fields (`exif` with `exif:Model`) cannot both be named. Any field
+  present and not named blocks as `binary-metadata`, naming it. A field the
+  file lacks is a stale line. A block the reader cannot walk (a short header,
+  an offset outside the block, more than 16 directories) is the field
+  `exif:unknown`, which blocks until it is named. `MakerNote` is one field:
+  naming it keeps the camera maker's whole opaque block, so say so in the
+  reason. IPTC, XMP, PNG text and JPEG comments are still kept by set; their
+  fields are the next part of `020/450`.
+- **Type-level lines, accepted with a warning until 2026-12-18.** A line
+  written before fields were read (`<digest>:exif  path`) keeps the whole Exif
+  set, GPS included. Until `TYPE_LEVEL_UNTIL` (2026-12-18, UTC) it still does,
+  and each scan prints a warning that names the fields the file carries and
+  asks for field-level lines. From that day it keeps nothing: the set blocks
+  as `binary-metadata` until fields are named. A month after the grace
+  ends, so a child that listed by type before 2026-11-18 has time to migrate.
+  Other sets (`icc`, `iptc`, `xmp`, `png-text`, `jpeg-comment`, `unknown`)
+  are unaffected. Like the grace, no flag or setting moves the date.
 - **Text sets are still scanned.** `png-text`, `xmp` and `jpeg-comment` are
   decoded and run through the normal rules and term list, kept or not.
   Keeping a set states a need; it doesn't stop the scan. Allow-markers
@@ -343,8 +379,9 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
 - **What it can't see.** The pixels: no OCR, so the reason *is* the human
   check. Metadata in any other format (GIF, TIFF, HEIC/AVIF, PDF, Office files,
   fonts, archives), where the file line accepts the whole file, metadata
-  included. The contents of an Exif, IPTC or ICC block, which are named by
-  presence and never read. JPEG segments after the first start-of-scan, JPEG
+  included. The values of Exif tags, which are named and never read (the human
+  who writes the reason reads them in the file). The contents of an IPTC or
+  ICC block, which are named by presence and never read. JPEG segments after the first start-of-scan, JPEG
   APPn segments other than APP1, APP2 (ICC) and APP13, and bytes after a
   format's end marker.
 - **Which files are gated.** In a git work tree, a whole-tree scan gates the
@@ -389,7 +426,10 @@ python3 <atelier>/tools/leakscan.py --root . --binary-entries   # prints the lin
 
 `--binary-entries` prints a file line for every tracked binary that no entry
 accepts yet (new, or changed since listed), and one `<digest>:<set>` line for
-each metadata set it carries that no line keeps. It writes **no reason**, and
+each metadata set it carries that no line keeps, or one `<digest>:exif:<Field>`
+line for each Exif or GPS field. A type-level `exif` line is listed again as
+its field lines, with a note that it is replaced. Merge the fields that share
+one need into one line. It writes **no reason**, and
 the scan refuses the lines until a person adds one. Its notes go to stderr:
 which entries replace a changed line, and which sets each file carries. Look
 at each file. Strip every set you have no need for, then re-run, because

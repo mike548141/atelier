@@ -1694,6 +1694,12 @@ def _sha(data, n=16):
 
 class _TreeCase(unittest.TestCase):
     def setUp(self):
+        # Pinned to the day before the type-level cut-off (020/450), so a
+        # fixture that keeps a whole set (`exif`) stays accepted whatever day
+        # the suite runs; tests that care about the day patch it themselves.
+        pin = _on(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1))
+        pin.start()
+        self.addCleanup(pin.stop)
         self.tmp = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
         self.terms = self.tmp.parent / f"{self.tmp.name}-terms.txt"
@@ -1924,6 +1930,366 @@ class BinaryMetadata(_TreeCase):
         self.assertEqual((None, [], []), ls.inspect_media(io.BytesIO(b"GIF89a\x00\x00")))
 
 
+def _tiff(ifd0=(), exif=(), gps=(), little=False, raw_ptr=None):
+    """A synthetic TIFF/Exif block (the part after `Exif\\0\\0`): one IFD0 of
+    `ifd0` tag numbers, plus an Exif IFD and a GPS IFD when given. Values are
+    zero: only tag numbers are read."""
+    e = "<" if little else ">"
+
+    def ifd(tags, ptrs):
+        entries = [(t, 0) for t in tags] + ptrs
+        return (_struct.pack(e + "H", len(entries))
+                + b"".join(_struct.pack(e + "HHII", t, 2, 1, v) for t, v in entries)
+                + _struct.pack(e + "I", 0))
+
+    sizes = [2 + 12 * (len(ifd0) + bool(exif) + bool(gps)) + 4,
+             2 + 12 * len(exif) + 4, 2 + 12 * len(gps) + 4]
+    at_exif = 8 + sizes[0]
+    at_gps = at_exif + (sizes[1] if exif else 0)
+    ptrs = ([(0x8769, at_exif)] if exif else []) + ([(0x8825, at_gps)] if gps else [])
+    body = ifd(ifd0, ptrs) + (ifd(exif, []) if exif else b"") + (ifd(gps, []) if gps else b"")
+    return (b"II*\x00" if little else b"MM\x00*") + _struct.pack(e + "I", 8) + body
+
+
+MAKE, MODEL, SOFTWARE = 0x010F, 0x0110, 0x0131
+LENS_MODEL, DATE_ORIG = 0xA434, 0x9003
+GPS_LAT, GPS_LON = 0x0002, 0x0004
+
+
+class ExifFieldParsing(unittest.TestCase):
+    """020/450 — Exif and GPS tags read by NAME, tag numbers only, bounded."""
+
+    def test_fields_are_named_from_each_ifd(self):
+        blob = _tiff(ifd0=[MAKE, MODEL], exif=[LENS_MODEL, DATE_ORIG],
+                     gps=[GPS_LAT, GPS_LON])
+        self.assertEqual(
+            ["exif:DateTimeOriginal", "exif:LensModel", "exif:Make", "exif:Model",
+             "gps:GPSLatitude", "gps:GPSLongitude"], ls.exif_fields(blob))
+
+    def test_either_byte_order_and_the_exif_prefix_read_alike(self):
+        a = _tiff(ifd0=[MODEL], gps=[GPS_LAT])
+        b = _tiff(ifd0=[MODEL], gps=[GPS_LAT], little=True)
+        self.assertEqual(ls.exif_fields(a), ls.exif_fields(b))
+        self.assertEqual(ls.exif_fields(a), ls.exif_fields(b"Exif\x00\x00" + a))
+
+    def test_gps_tag_numbers_do_not_borrow_the_exif_names(self):
+        # Tag 0x0002 is InteroperabilityVersion in an Exif IFD, GPSLatitude
+        # in the GPS one: the IFD decides the name.
+        self.assertEqual(["exif:InteroperabilityVersion"],
+                         ls.exif_fields(_tiff(ifd0=[0x0002])))
+        self.assertEqual(["gps:GPSLatitude"], ls.exif_fields(_tiff(gps=[0x0002])))
+
+    def test_an_unnamed_tag_is_reported_by_its_number(self):
+        self.assertEqual(["exif:0x9999"], ls.exif_fields(_tiff(ifd0=[0x9999])))
+        self.assertEqual(["gps:0x0040"], ls.exif_fields(_tiff(gps=[0x0040])))
+
+    def test_an_empty_block_has_no_fields(self):
+        self.assertEqual([], ls.exif_fields(_tiff()))
+
+    def test_what_cannot_be_walked_is_unknown(self):
+        good = _tiff(ifd0=[MAKE, MODEL])
+        for name, blob in (("empty", b""), ("short", b"MM\x00\x2a"),
+                           ("bad magic", b"MM\x00\x2b" + good[4:]),
+                           ("bad order", b"XX" + good[2:]),
+                           ("ifd offset past the end", good[:4] + b"\x00\x00\xff\xff"),
+                           ("truncated entries", good[:20])):
+            with self.subTest(name):
+                self.assertIn("exif:unknown", ls.exif_fields(blob))
+
+    def test_a_truncated_block_still_names_what_it_did_hold(self):
+        good = _tiff(ifd0=[MAKE, MODEL, SOFTWARE])
+        got = ls.exif_fields(good[:8 + 2 + 12 * 2])    # two whole entries
+        self.assertIn("exif:Make", got)
+        self.assertIn("exif:unknown", got)
+
+    def test_a_pointer_loop_terminates_and_is_not_an_error(self):
+        # IFD0's Exif pointer points back at IFD0.
+        blob = (b"MM\x00*" + _struct.pack(">I", 8) + _struct.pack(">H", 2)
+                + _struct.pack(">HHII", MODEL, 2, 1, 0)
+                + _struct.pack(">HHII", 0x8769, 4, 1, 8) + _struct.pack(">I", 0))
+        self.assertEqual(["exif:Model"], ls.exif_fields(blob))
+
+    def test_a_chain_longer_than_the_cap_fails_closed(self):
+        # IFD1, IFD2, ... each pointing at the next: past 16 IFDs it is unknown.
+        n = ls._EXIF_MAX_IFDS + 4
+        size = 2 + 4
+        blob = b"MM\x00*" + _struct.pack(">I", 8)
+        for i in range(n):
+            nxt = 8 + size * (i + 1) if i + 1 < n else 0
+            blob += _struct.pack(">H", 0) + _struct.pack(">I", nxt)
+        self.assertIn("exif:unknown", ls.exif_fields(blob))
+
+    def test_a_huge_declared_count_is_bounded_not_allocated(self):
+        blob = b"MM\x00*" + _struct.pack(">I", 8) + _struct.pack(">H", 0xFFFF)
+        self.assertEqual(["exif:unknown"], ls.exif_fields(blob))
+
+    def test_every_table_name_is_valid_where_it_is_used(self):
+        for name in ("Model", "LensModel", "unknown", "0x9999"):
+            self.assertTrue(ls.exif_field_valid("exif", name), name)
+        for name in ("GPSLatitude", "0x0040"):
+            self.assertTrue(ls.exif_field_valid("gps", name), name)
+        for fs, name in (("exif", "model"), ("exif", "GPSLatitude"), ("gps", "Model"),
+                         ("gps", "unknown"), ("iptc", "Model"), ("exif", "0x99")):
+            self.assertFalse(ls.exif_field_valid(fs, name), (fs, name))
+
+
+class BinaryFieldLevel(_TreeCase):
+    """020/450 — an entry names the Exif/GPS fields it keeps, under one
+    reason; any field present and not named blocks, naming it."""
+
+    def setUp(self):
+        super().setUp()
+        self.blob = _tiff(ifd0=[MAKE, MODEL], exif=[LENS_MODEL],
+                          gps=[GPS_LAT, GPS_LON])
+        self.png = _png((b"eXIf", self.blob))
+
+    def keep(self, data, *scopes, rel="p.png"):
+        self.put(rel, data)
+        d = _sha(data)
+        self.manifest(f"{d}  {rel}  # synthetic photo, reviewed\n"
+                      + "".join(f"{d}:{s}  {rel}  # test needs {s}\n" for s in scopes))
+
+    def test_every_unkept_field_is_named_in_the_block(self):
+        self.keep(self.png)
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        for k in ("exif:Make", "exif:Model", "exif:LensModel",
+                  "gps:GPSLatitude", "gps:GPSLongitude"):
+            self.assertIn(k, fs[0].excerpt)
+
+    def test_the_camera_model_kept_blocks_the_gps_beside_it(self):
+        self.keep(self.png, "exif:Make,Model,LensModel")
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertIn("gps:GPSLatitude", fs[0].excerpt)
+        self.assertIn("gps:GPSLongitude", fs[0].excerpt)
+        self.assertNotIn("exif:Model", fs[0].excerpt)
+
+    def test_naming_every_field_accepts_the_photo(self):
+        self.keep(self.png, "exif:Make,Model,LensModel,gps:GPSLatitude,GPSLongitude")
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        self.assertEqual(1, tally.binaries_by_manifest)
+        self.assertEqual([], tally.type_level_warnings)
+
+    def test_fields_may_sit_on_separate_lines_with_their_own_reasons(self):
+        self.keep(self.png, "exif:Make,Model,LensModel", "gps:GPSLatitude,GPSLongitude")
+        self.assertEqual([], self.scan())
+
+    def test_one_missing_field_is_the_only_one_named(self):
+        self.keep(self.png, "exif:Make,Model,LensModel,gps:GPSLatitude")
+        fs = self.scan()
+        self.assertEqual(1, len(fs))
+        self.assertIn("gps:GPSLongitude", fs[0].excerpt)
+        self.assertNotIn("GPSLatitude", fs[0].excerpt)
+
+    def test_a_field_the_file_lacks_is_a_stale_line(self):
+        self.keep(self.png, "exif:Make,Model,LensModel,gps:GPSLatitude,GPSLongitude",
+                  "exif:Software")
+        fs = self.scan()
+        self.assertEqual(["binary-stale-entry"], [f.rule for f in fs])
+        self.assertIn("keeps exif:Software, which these bytes do not carry", fs[0].excerpt)
+
+    def test_an_unnamed_tag_blocks_until_kept_by_number(self):
+        data = _png((b"eXIf", _tiff(ifd0=[MODEL, 0x9999])))
+        self.keep(data, "exif:Model")
+        fs = self.scan()
+        self.assertIn("exif:0x9999", fs[0].excerpt)
+        self.keep(data, "exif:Model,0x9999")
+        self.assertEqual([], self.scan())
+
+    def test_an_undecodable_exif_blocks_as_unknown_until_named(self):
+        data = _png((b"eXIf", b"MM\x00\x2a\x00\x00"))
+        self.keep(data)
+        self.assertIn("exif:unknown", self.scan()[0].excerpt)
+        self.keep(data, "exif:unknown")
+        self.assertEqual([], self.scan())
+
+    def test_a_set_with_no_fields_needs_no_line(self):
+        self.keep(_png((b"eXIf", _tiff())))
+        self.assertEqual([], self.scan())
+
+    def test_the_same_fields_in_jpeg_and_webp_and_a_raw_profile(self):
+        raw = ("\nexif\n  %d\n" % len(self.blob)) + self.blob.hex()
+        for rel, data in (
+                ("p.jpg", _jpeg((0xE1, b"Exif\x00\x00" + self.blob))),
+                ("p.webp", _webp((b"VP8 ", b"\x00" * 10), (b"EXIF", self.blob))),
+                ("r.png", _png((b"zTXt", b"Raw profile type exif\x00\x00"
+                                + _zlib.compress(raw.encode())))),
+                ("r2.png", _png((b"tEXt", b"Raw profile type APP1\x00" + raw.encode())))):
+            with self.subTest(rel):
+                one = [self.tmp / rel]       # earlier subtests' files stay in the tree
+                self.keep(data, rel=rel)
+                fs = self.scan(paths=one)
+                self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+                self.assertIn("gps:GPSLatitude", fs[0].excerpt)
+                self.keep(data, "exif:Make,Model,LensModel,gps:GPSLatitude,GPSLongitude",
+                          rel=rel)
+                self.assertEqual([], self.scan(paths=one))
+
+    def test_an_undecodable_raw_profile_is_exif_unknown(self):
+        data = _png((b"tEXt", b"Raw profile type exif\x00\nexif\n  4\nzz"))
+        self.keep(data)
+        self.assertIn("exif:unknown", self.scan()[0].excerpt)
+
+    def test_an_exif_past_the_cap_is_exif_unknown(self):
+        big = _tiff(ifd0=[MODEL]) + b"\x00" * ls.META_SEGMENT_CAP
+        self.keep(_png((b"eXIf", big)))
+        self.assertIn("exif:unknown", self.scan()[0].excerpt)
+
+    # -- type-level entries: accepted with a warning, then refused ----------
+
+    def type_level(self):
+        self.keep(self.png, "exif")
+
+    def run_main(self, day, *extra):
+        out, err = io.StringIO(), io.StringIO()
+        with _on(day), contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ls.main(["--root", str(self.tmp), str(self.tmp),
+                          "--terms", str(self.terms), *extra])
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_the_type_level_cutoff_is_a_later_iso_date(self):
+        self.assertIsInstance(ls.TYPE_LEVEL_UNTIL, _dt.date)
+        self.assertGreaterEqual(ls.TYPE_LEVEL_UNTIL, _dt.date(2026, 12, 18))
+        self.assertTrue(ls.in_type_level_grace(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1)))
+        self.assertFalse(ls.in_type_level_grace(ls.TYPE_LEVEL_UNTIL))
+
+    def test_a_type_level_line_still_keeps_the_set_with_a_warning(self):
+        self.type_level()
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        self.assertEqual(1, len(tally.type_level_warnings))
+        w = tally.type_level_warnings[0]
+        self.assertEqual(ls.TYPE_LEVEL_RULE, w.rule)
+        for k in ("exif:Make", "exif:Model", "gps:GPSLatitude"):
+            self.assertIn(k, w.excerpt)
+
+    def test_the_warning_names_the_fields_the_date_and_the_remedy_and_exits_0(self):
+        self.type_level()
+        rc, out, _err = self.run_main(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1))
+        self.assertEqual(0, rc, out)
+        self.assertIn("WARNING ONLY until " + ls.TYPE_LEVEL_UNTIL.isoformat(), out)
+        self.assertIn("gps:GPSLatitude", out)
+        self.assertIn("name the fields instead", out)
+        self.assertIn("1 type-level metadata entr(y/ies) warned", out)
+
+    def test_from_the_cutoff_a_type_level_line_no_longer_keeps_the_set(self):
+        self.type_level()
+        rc, out, _err = self.run_main(ls.TYPE_LEVEL_UNTIL)
+        self.assertEqual(1, rc, out)
+        self.assertIn("binary-metadata", out)
+        self.assertIn("no longer keeps it", out)
+        self.assertIn("gps:GPSLatitude", out)
+        self.assertNotIn("WARNING ONLY until " + ls.TYPE_LEVEL_UNTIL.isoformat(), out)
+
+    def test_type_level_stays_valid_for_sets_whose_fields_are_not_read(self):
+        data = _png((b"iCCP", b"p\x00\x00" + _zlib.compress(b"profile")))
+        self.keep(data, "icc")
+        with _on(ls.TYPE_LEVEL_UNTIL + _dt.timedelta(days=400)):
+            self.assertEqual([], self.scan())
+
+    def test_json_carries_the_type_level_warnings(self):
+        self.type_level()
+        rc, out, _err = self.run_main(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1), "--json")
+        self.assertEqual(0, rc)
+        doc = json.loads(out)
+        self.assertEqual([], doc["findings"])
+        self.assertTrue(doc["binary_type_level"]["active"])
+        self.assertEqual(["leakscan:binary-type-level"],
+                         [w["id"] for w in doc["binary_type_level"]["warnings"]])
+
+    # -- the manifest grammar ----------------------------------------------
+
+    def _refused(self, scope, needle):
+        d = _sha(b"x")
+        self.manifest(f"{d}  a.png  # ok\n{d}:{scope}  a.png  # need\n")
+        with self.assertRaises(ls.BinaryManifestError) as cm:
+            ls.load_binary_manifest(self.tmp)
+        self.assertIn(needle, str(cm.exception))
+
+    def test_scope_grammar_is_strict(self):
+        self._refused("exif:Modle", "unknown exif field Modle")
+        self._refused("gps:Model", "unknown gps field Model")
+        self._refused("gps", "name them")
+        self._refused("gps,exif:Model", "name them")
+        self._refused("exif:", "unknown exif field")
+        self._refused("icc:Profile", "'icc' has no fields to name")
+        self._refused("exif:Model,Model", "list each metadata set once")
+        self._refused("exif:Model,exif", "already keeps")
+        self._refused("exif,gps:GPSLatitude", "already keeps")
+        self._refused("exif:Model,icc,colour", "unknown metadata set colour")
+        self._refused("exif:Model,colour", "unknown exif field colour")
+        self._refused("exif:model", "unknown exif field model")
+
+    def test_scope_grammar_accepts_the_documented_forms(self):
+        for scope, want in (
+                ("icc,xmp", ["icc", "xmp"]),
+                ("exif", ["exif"]),
+                ("exif:Model,LensModel", ["exif:Model", "exif:LensModel"]),
+                ("exif:Model,gps:GPSLatitude,GPSLongitude",
+                 ["exif:Model", "gps:GPSLatitude", "gps:GPSLongitude"]),
+                ("exif:Model,icc", ["exif:Model", "icc"])):
+            with self.subTest(scope):
+                self.assertEqual((want, None), ls.parse_scope(scope))
+
+    def test_a_field_and_its_whole_set_on_two_lines_are_refused(self):
+        d = _sha(b"x")
+        self.manifest(f"{d}  a.png  # ok\n{d}:exif:Model  a.png  # model\n"
+                      f"{d}:exif  a.png  # all\n")
+        with self.assertRaises(ls.BinaryManifestError) as cm:
+            ls.load_binary_manifest(self.tmp)
+        self.assertIn("already kept at line 2", str(cm.exception))
+
+    def test_a_field_set_line_still_needs_its_own_reason(self):
+        d = _sha(b"x")
+        self.manifest(f"# reviewed\n{d}  a.png\n{d}:exif:Model  a.png\n")
+        with self.assertRaises(ls.BinaryManifestError) as cm:
+            ls.load_binary_manifest(self.tmp)
+        self.assertIn("needs its own reason", str(cm.exception))
+
+    # -- --binary-entries ---------------------------------------------------
+
+    def listing(self):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ls.main(["--root", str(self.tmp), "--binary-entries"])
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_the_listing_prints_one_line_per_field(self):
+        self.put("p.png", self.png)
+        d = _sha(self.png)
+        rc, out, err = self.listing()
+        self.assertEqual(0, rc)
+        self.assertEqual(
+            sorted([f"{d}  p.png"] + [f"{d}:{k}  p.png" for k in (
+                "exif:Make", "exif:Model", "exif:LensModel",
+                "gps:GPSLatitude", "gps:GPSLongitude")]),
+            sorted(out.splitlines()))
+        self.assertIn("gps:GPSLatitude", err)
+        self.assertIn(f"{d}:exif:Model,LensModel", err)
+
+    def test_the_listing_lines_are_loadable_once_given_reasons_and_merged(self):
+        self.put("p.png", self.png)
+        d = _sha(self.png)
+        self.manifest(f"{d}  p.png  # synthetic photo\n"
+                      f"{d}:exif:Make,Model,LensModel  p.png  # the shop shows the camera\n"
+                      f"{d}:gps:GPSLatitude,GPSLongitude  p.png  # the venue pin\n")
+        self.assertEqual([], self.scan())
+        self.assertEqual("", self.listing()[1])
+
+    def test_a_type_level_line_is_migrated_by_the_listing(self):
+        self.type_level()
+        d = _sha(self.png)
+        rc, out, err = self.listing()
+        self.assertEqual(0, rc)
+        lines = out.splitlines()
+        self.assertIn(f"{d}:gps:GPSLatitude  p.png", lines)
+        self.assertNotIn(f"{d}  p.png", lines)         # the file line still stands
+        self.assertIn("type-level line for exif (line 2)", err)
+        self.assertIn(ls.TYPE_LEVEL_UNTIL.isoformat(), err)
+
+
 class BinaryGitTracking(_TreeCase):
     """In a git work tree the gate covers what git tracks (the ruling's word);
     an untracked binary is counted, never silently skipped."""
@@ -2050,9 +2416,9 @@ class BinaryEntriesListing(_TreeCase):
         self.assertEqual(0, rc)
         self.assertEqual(sorted(out.splitlines()),
                          sorted([f"{_sha(a)}  a.bin", f"{_sha(b)}  b.png",
-                                 f"{_sha(b)}:exif  b.png"]))
+                                 f"{_sha(b)}:exif:unknown  b.png"]))
         self.assertNotIn("#", out)
-        self.assertIn("metadata set(s) exif", err)
+        self.assertIn("exif:unknown", err)
         self.manifest(out)
         with self.assertRaises(ls.BinaryManifestError):
             self.scan()
@@ -2331,9 +2697,9 @@ class BinaryNamedSets(_TreeCase):
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             self.assertEqual(0, ls.main(["--root", str(self.tmp), "--binary-entries"]))
         d = _sha(data)
-        self.assertEqual([f"{d}  c.png", f"{d}:exif  c.png", f"{d}:icc  c.png"],
+        self.assertEqual([f"{d}  c.png", f"{d}:exif:unknown  c.png", f"{d}:icc  c.png"],
                          out.getvalue().splitlines())
-        self.assertIn("strip every set you have no need for", err.getvalue())
+        self.assertIn("strip every set or field you have no need for", err.getvalue())
 
     def test_binary_entries_lists_only_the_sets_still_missing(self):
         data = self.png_icc((b"eXIf", b"MM\x00\x2a"))
@@ -2341,7 +2707,7 @@ class BinaryNamedSets(_TreeCase):
         out = io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
             ls.main(["--root", str(self.tmp), "--binary-entries"])
-        self.assertEqual([f"{_sha(data)}:exif  c.png"], out.getvalue().splitlines())
+        self.assertEqual([f"{_sha(data)}:exif:unknown  c.png"], out.getvalue().splitlines())
 
 
 if __name__ == "__main__":

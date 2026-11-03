@@ -325,6 +325,9 @@ class TestScannerLinePins(unittest.TestCase):
                                       "0 untracked binary file(s) not gated · "
                                       "0 G3 finding(s) warned, not blocking, before "
                                       f"{m.BINARY_GRACE_UNTIL.isoformat()} · "
+                                      "0 type-level metadata entr(y/ies) warned, "
+                                      "not blocking, before "
+                                      f"{m.TYPE_LEVEL_UNTIL.isoformat()} · "
                                       f"0 beyond {CAP}")
         self.assertEqual(m.render_human([], None, True, t).splitlines()[0],
                          "✓ leakscan clean (structural + local).")

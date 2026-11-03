@@ -370,6 +370,11 @@ class Tally:
     # The G3 adoption grace (see `BINARY_GRACE_UNTIL`): gate findings printed
     # as warnings, not counted in the exit code. Always 0 from the cut-off on.
     binary_grace_warnings: int = 0
+    # 020/450: type-level entries still accepted, as warnings, before
+    # `TYPE_LEVEL_UNTIL`. Always 0 from that date on.
+    # They are kept OUT of the findings, so no caller of `scan_paths` can take
+    # one for a block; the CLI prints them.
+    type_level_warnings: list = field(default_factory=list, compare=False)
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
@@ -401,6 +406,8 @@ class Tally:
                  f"{self.binaries_untracked} untracked binary file(s) not gated",
                  f"{self.binary_grace_warnings} G3 finding(s) warned, not blocking, "
                  f"before {BINARY_GRACE_UNTIL.isoformat()}",
+                 f"{len(self.type_level_warnings)} type-level metadata entr(y/ies) "
+                 f"warned, not blocking, before {TYPE_LEVEL_UNTIL.isoformat()}",
                  report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS)]
         return report.suppressed_line(parts, breakdown=self.by_marker,
                                       disabled=self.disabled_rules)
@@ -905,14 +912,20 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 #     line per set "just in case" is the blanket acceptance the answer
 #     forbids.
 #
+#   * FIELDS (020/450, part 1): the Exif set is read tag by tag, so a line
+#     keeps `exif:Model,LensModel` and not the `gps:` tags beside them. See
+#     `EXIF_TAGS`. A type-level line (`exif`) is accepted with a warning until
+#     `TYPE_LEVEL_UNTIL`. IPTC, XMP, PNG text and JPEG comments are still kept
+#     whole-set; reading their fields is the rest of 020/450.
+#
 # What it cannot see, stated so nobody infers cover that is not there: the
 # pixels themselves (no OCR — the entry's reason is the human attesting to
 # them); metadata in any other format (GIF, TIFF, HEIC/AVIF, PDF, Office
 # documents, fonts, archives — for these the file line accepts the whole
 # file, metadata included); JPEG segments after the first start-of-scan, and
 # JPEG APPn segments other than APP1, APP2 (ICC) and APP13; the CONTENT of an
-# ICC profile, Exif or IPTC block (named by presence, never read); bytes
-# appended after a format's end marker.
+# ICC profile or IPTC block (named by presence, never read); the VALUES of Exif
+# tags (named, never read); bytes appended after a format's end marker.
 #
 # THE GATE COVERS TRACKED BINARIES (the ruling's word). A full-tree scan of a
 # git work tree gates the files `git ls-files` lists and counts the rest
@@ -942,7 +955,7 @@ MIN_DIGEST_HEX = 16
 PRINTED_DIGEST_HEX = 16
 META_SEGMENT_CAP = 1 * 1024 * 1024   # bytes of ONE metadata segment read or
                                      # inflated; past it the segment is opaque
-_ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9_,-]+))?"
+_ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9_,:-]+))?"
                        r"[ \t]+\*?(?P<path>\S.*)$" % MIN_DIGEST_HEX)
 
 # THE ADOPTION GRACE — the one exception to E6a, and dated.
@@ -968,6 +981,28 @@ _ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9
 # softened". Delete this block, `in_binary_grace` and its callers once the
 # date has passed.
 BINARY_GRACE_UNTIL = datetime.date(2026, 11, 18)
+
+# THE TYPE-LEVEL CUT-OFF (020/450) — a second, later and narrower date.
+#
+# `020/450` reads the FIELDS inside a metadata set (Exif and GPS tags first), so
+# an entry can keep `exif:Model,LensModel` and not the GPS block beside them.
+# Entries written before that, which keep a whole set (`exif`), are still
+# accepted: until this date they WARN, naming the fields the file carries and
+# asking for field-level entries. From it they stop keeping the sets whose
+# fields are read, and the set blocks as `binary-metadata`. Sets whose fields
+# are not read yet (every set except `exif`, in this part) keep their type-level
+# entries unchanged. Like the grace it is one constant compared with the UTC
+# clock, with no flag, env var or config key to move it; it is later than the
+# grace's end on purpose, so a child that listed its binaries by type before
+# 2026-11-18 has a month to migrate. Delete the warning path once it passes.
+TYPE_LEVEL_UNTIL = datetime.date(2026, 12, 18)
+TYPE_LEVEL_RULE = "binary-type-level"
+
+
+def in_type_level_grace(today: datetime.date | None = None) -> bool:
+    """True strictly before `TYPE_LEVEL_UNTIL` (UTC). Tests patch
+    `_utc_today`."""
+    return (today or _utc_today()) < TYPE_LEVEL_UNTIL
 
 
 def _utc_today() -> datetime.date:
@@ -1019,6 +1054,68 @@ def _same_digest(a: str, b: str) -> bool:
     return a.startswith(b) or b.startswith(a)
 
 
+# A type-level key and the field sets it keeps when it is the whole type: the
+# Exif set holds the GPS IFD, so a whole-`exif` entry has always kept GPS too.
+_KEY_COVERS = {"exif": ("exif", "gps")}
+
+
+def _keys_overlap(a: str, b: str) -> bool:
+    """Do two kept keys keep any of the same thing? `exif` overlaps every
+    `exif:` and `gps:` field; a field overlaps only itself."""
+    if a == b:
+        return True
+    for whole, field_sets in _KEY_COVERS.items():
+        for x, y in ((a, b), (b, a)):
+            if x == whole and ":" in y and y.split(":", 1)[0] in field_sets:
+                return True
+    return False
+
+
+def parse_scope(scope: str) -> tuple[list[str], str | None]:
+    """A set line's scope, `icc,xmp` or `exif:Model,LensModel,gps:GPSLatitude`,
+    as `(keys, problem)`. A key is a whole set (`icc`) or one field
+    (`exif:Model`); a bare name after a `set:Field` is another field of the
+    same set. No wildcard, and no group name alone: `gps` would keep every GPS
+    tag under a reason that names none of them (020/450: "it should be
+    specific"), so the fields are listed."""
+    keys: list[str] = []
+    cur: str | None = None
+    for tok in scope.split(","):
+        if not tok:
+            return [], f"list each metadata set once, separated by commas — '{scope}'"
+        if ":" in tok:
+            cur, _, name = tok.partition(":")
+            if cur not in FIELD_NAMES:
+                return [], (f"'{cur}' has no fields to name — fields are read for "
+                            f"{', '.join(FIELD_NAMES)}")
+        elif tok in METADATA_SETS:
+            keys.append(tok)
+            cur = None
+            continue
+        elif cur is not None:
+            name = tok
+        elif tok in FIELD_NAMES:
+            return [], (f"'{tok}' alone would keep every field in it — name them, "
+                        f"'{tok}:<Field>[,<Field>...]'")
+        else:
+            return [], (f"unknown metadata set {tok} (the sets are "
+                        f"{', '.join(METADATA_SETS)}; fields are written "
+                        "set:Field, such as exif:Model)")
+        if not exif_field_valid(cur, name):
+            return [], (f"unknown {cur} field {name} (names are the Exif / GPS tag "
+                        "names, such as exif:Model or gps:GPSLatitude, or a tag "
+                        "number as 0x9999)")
+        keys.append(f"{cur}:{name}")
+    if len(set(keys)) != len(keys):
+        return [], f"list each metadata set once, separated by commas — '{scope}'"
+    for i, a in enumerate(keys):
+        for b in keys[i + 1:]:
+            if _keys_overlap(a, b):
+                return [], (f"{a} already keeps {b} — name the whole set or its "
+                            "fields, not both")
+    return keys, None
+
+
 def load_binary_manifest(root: Path) -> dict[str, BinaryEntry]:
     """Entries from `<root>/.leakscanbinaries`, keyed by repo-relative path.
     Every problem is collected and raised together as `BinaryManifestError`:
@@ -1039,16 +1136,12 @@ def load_binary_manifest(root: Path) -> dict[str, BinaryEntry]:
         # reason (Mike, 2026-10-19, 020/440: "fields A, B, and C allowed
         # because of X"). Each must be a real set, named once; there is no
         # wildcard, so the reason is always about a stated list.
-        names = scope.split(",") if scope else []
-        if scope and (not all(names) or len(set(names)) != len(names)):
-            problems.append(f"line {n}: list each metadata set once, separated "
-                            f"by commas — '{scope}'")
-            continue
-        unknown = [x for x in names if x not in METADATA_SETS]
-        if unknown:
-            problems.append(f"line {n}: unknown metadata set {', '.join(unknown)} "
-                            f"(the sets are {', '.join(METADATA_SETS)})")
-            continue
+        names: list[str] = []
+        if scope:
+            names, bad = parse_scope(scope)
+            if bad:
+                problems.append(f"line {n}: {bad}")
+                continue
         path = m.group("path").strip()
         path = path[2:] if path.startswith("./") else path
         if reason is None:
@@ -1075,10 +1168,11 @@ def load_binary_manifest(root: Path) -> dict[str, BinaryEntry]:
                             f"digest from its file line {files[path][2]}")
             continue
         sets = kept.setdefault(path, {})
-        again = [x for x in group if x in sets]
+        again = [x for x in group if any(_keys_overlap(x, k) for k in sets)]
         if again:
+            first = next(k for k in sets if _keys_overlap(again[0], k))
             problems.append(f"line {n}: {', '.join(again)} in '{path}' already kept "
-                            f"at line {sets[again[0]].lineno}")
+                            f"at line {sets[first].lineno}")
             continue
         # The metadata's need may not be the file's own reason: one comment
         # stanza over a file line and its set lines gives every line the same
@@ -1132,14 +1226,173 @@ def _inflate(data: bytes) -> bytes | None:
     return None if d.unconsumed_tail else out
 
 
+# --- G3 field level (020/450): Exif and GPS tags read by name ---------------
+#
+# Mike, 2026-10-19, on 020/440: "I did mean fields as in GPS versus the camera
+# model. Things like exif, iptc, xmp are data types, nto fields." An Exif block
+# is a TIFF structure: a header, then image file directories (IFDs) of
+# `tag, type, count, value` entries. This reads the TAG NUMBERS only (never a
+# value), names each from the Exif / TIFF / GPS specifications, and reports
+# `exif:<TagName>` or `gps:<TagName>`. A tag the table does not name is
+# reported by its number (`exif:0x9999`) so an entry can still keep it
+# explicitly. What cannot be walked at all (a short header, an offset outside
+# the block, a loop, too many entries) is `exif:unknown`: it blocks unless
+# named, exactly as `unknown` does at the type level.
+#
+# The values are not read: the entry keeps a field, and the human who writes
+# its reason has looked at the value in the file. The pointers that only lead
+# to another IFD (Exif, GPS, Interop) are followed and not reported.
+EXIF_TAGS = {
+    0x00FE: "NewSubfileType", 0x0100: "ImageWidth", 0x0101: "ImageLength",
+    0x0102: "BitsPerSample", 0x0103: "Compression",
+    0x0106: "PhotometricInterpretation", 0x010E: "ImageDescription",
+    0x010F: "Make", 0x0110: "Model", 0x0111: "StripOffsets",
+    0x0112: "Orientation", 0x0115: "SamplesPerPixel", 0x0116: "RowsPerStrip",
+    0x0117: "StripByteCounts", 0x011A: "XResolution", 0x011B: "YResolution",
+    0x011C: "PlanarConfiguration", 0x0128: "ResolutionUnit",
+    0x012D: "TransferFunction", 0x0131: "Software", 0x0132: "DateTime",
+    0x013B: "Artist", 0x013E: "WhitePoint", 0x013F: "PrimaryChromaticities",
+    0x0201: "JPEGInterchangeFormat", 0x0202: "JPEGInterchangeFormatLength",
+    0x0211: "YCbCrCoefficients", 0x0212: "YCbCrSubSampling",
+    0x0213: "YCbCrPositioning", 0x0214: "ReferenceBlackWhite",
+    0x8298: "Copyright",
+    0x829A: "ExposureTime", 0x829D: "FNumber", 0x8822: "ExposureProgram",
+    0x8824: "SpectralSensitivity", 0x8827: "ISOSpeedRatings",
+    0x8828: "OECF", 0x8830: "SensitivityType",
+    0x8831: "StandardOutputSensitivity", 0x8832: "RecommendedExposureIndex",
+    0x8833: "ISOSpeed", 0x9000: "ExifVersion", 0x9003: "DateTimeOriginal",
+    0x9004: "DateTimeDigitized", 0x9010: "OffsetTime",
+    0x9011: "OffsetTimeOriginal", 0x9012: "OffsetTimeDigitized",
+    0x9101: "ComponentsConfiguration", 0x9102: "CompressedBitsPerPixel",
+    0x9201: "ShutterSpeedValue", 0x9202: "ApertureValue",
+    0x9203: "BrightnessValue", 0x9204: "ExposureBiasValue",
+    0x9205: "MaxApertureValue", 0x9206: "SubjectDistance",
+    0x9207: "MeteringMode", 0x9208: "LightSource", 0x9209: "Flash",
+    0x920A: "FocalLength", 0x9214: "SubjectArea", 0x927C: "MakerNote",
+    0x9286: "UserComment", 0x9290: "SubSecTime",
+    0x9291: "SubSecTimeOriginal", 0x9292: "SubSecTimeDigitized",
+    0xA000: "FlashpixVersion", 0xA001: "ColorSpace",
+    0xA002: "PixelXDimension", 0xA003: "PixelYDimension",
+    0xA004: "RelatedSoundFile", 0xA20B: "FlashEnergy",
+    0xA20C: "SpatialFrequencyResponse", 0xA20E: "FocalPlaneXResolution",
+    0xA20F: "FocalPlaneYResolution", 0xA210: "FocalPlaneResolutionUnit",
+    0xA214: "SubjectLocation", 0xA215: "ExposureIndex",
+    0xA217: "SensingMethod", 0xA300: "FileSource", 0xA301: "SceneType",
+    0xA302: "CFAPattern", 0xA401: "CustomRendered", 0xA402: "ExposureMode",
+    0xA403: "WhiteBalance", 0xA404: "DigitalZoomRatio",
+    0xA405: "FocalLengthIn35mmFilm", 0xA406: "SceneCaptureType",
+    0xA407: "GainControl", 0xA408: "Contrast", 0xA409: "Saturation",
+    0xA40A: "Sharpness", 0xA40B: "DeviceSettingDescription",
+    0xA40C: "SubjectDistanceRange", 0xA420: "ImageUniqueID",
+    0xA430: "CameraOwnerName", 0xA431: "BodySerialNumber",
+    0xA432: "LensSpecification", 0xA433: "LensMake", 0xA434: "LensModel",
+    0xA435: "LensSerialNumber", 0xA460: "CompositeImage", 0xA500: "Gamma",
+    # Interoperability IFD
+    0x0001: "InteroperabilityIndex", 0x0002: "InteroperabilityVersion",
+}
+GPS_TAGS = {
+    0x00: "GPSVersionID", 0x01: "GPSLatitudeRef", 0x02: "GPSLatitude",
+    0x03: "GPSLongitudeRef", 0x04: "GPSLongitude", 0x05: "GPSAltitudeRef",
+    0x06: "GPSAltitude", 0x07: "GPSTimeStamp", 0x08: "GPSSatellites",
+    0x09: "GPSStatus", 0x0A: "GPSMeasureMode", 0x0B: "GPSDOP",
+    0x0C: "GPSSpeedRef", 0x0D: "GPSSpeed", 0x0E: "GPSTrackRef",
+    0x0F: "GPSTrack", 0x10: "GPSImgDirectionRef", 0x11: "GPSImgDirection",
+    0x12: "GPSMapDatum", 0x13: "GPSDestLatitudeRef",
+    0x14: "GPSDestLatitude", 0x15: "GPSDestLongitudeRef",
+    0x16: "GPSDestLongitude", 0x17: "GPSDestBearingRef",
+    0x18: "GPSDestBearing", 0x19: "GPSDestDistanceRef",
+    0x1A: "GPSDestDistance", 0x1B: "GPSProcessingMethod",
+    0x1C: "GPSAreaInformation", 0x1D: "GPSDateStamp",
+    0x1E: "GPSDifferential", 0x1F: "GPSHPositioningError",
+}
+# Field names by field set: the vocabulary an entry may use after `exif:` or
+# `gps:`. `unknown` is the parse-failure field and lives in `exif` only.
+FIELD_NAMES = {
+    "exif": frozenset(EXIF_TAGS.values()) | {"unknown"},
+    "gps": frozenset(GPS_TAGS.values()),
+}
+_EXIF_POINTERS = {0x8769: "exif", 0x8825: "gps", 0xA005: "exif"}
+_EXIF_MAX_IFDS = 16          # IFDs walked in one block (a real one has 3-5)
+_EXIF_MAX_ENTRIES = 1024     # entries read from ONE IFD (the count is a u16)
+_HEX_TAG_RX = re.compile(r"^0x[0-9A-F]{4}$")
+
+
+def exif_field_valid(field_set: str, name: str) -> bool:
+    """Is `name` something an entry may use after `<field_set>:`? A named tag,
+    `unknown` (exif only), or a tag number spelled `0x` and four upper-case hex
+    digits."""
+    return (name in FIELD_NAMES.get(field_set, ())
+            or bool(_HEX_TAG_RX.match(name)))
+
+
+def exif_fields(blob: bytes) -> list[str]:
+    """The field keys (`exif:Model`, `gps:GPSLatitude`, `exif:0x9999`) an Exif
+    block carries, sorted; `exif:unknown` is added when any part of the block
+    could not be walked. Reads tag numbers only, every offset and count
+    bounded by the block's own length, so a hostile block costs a bounded
+    number of reads and never an unbounded one."""
+    keys: set[str] = set()
+    if blob.startswith(b"Exif\x00\x00"):
+        blob = blob[6:]
+    if len(blob) < 8 or blob[:2] not in (b"II", b"MM"):
+        return ["exif:unknown"]
+    e = "<" if blob[:2] == b"II" else ">"
+    if struct.unpack(e + "H", blob[2:4])[0] != 42:
+        return ["exif:unknown"]
+    todo = [(struct.unpack(e + "I", blob[4:8])[0], "exif", True)]
+    seen: set[int] = set()
+    ok = True
+    while todo:
+        off, kind, chain = todo.pop()
+        if off in seen:             # a shared or looping pointer: walked once
+            continue
+        if len(seen) >= _EXIF_MAX_IFDS:
+            ok = False
+            continue
+        seen.add(off)
+        if off + 2 > len(blob):
+            ok = False
+            continue
+        n = struct.unpack(e + "H", blob[off:off + 2])[0]
+        if n > _EXIF_MAX_ENTRIES or off + 2 + 12 * n + 4 > len(blob):
+            ok = False
+            n = min(n, _EXIF_MAX_ENTRIES, (len(blob) - off - 2) // 12)
+        for i in range(n):
+            at = off + 2 + 12 * i
+            tag = struct.unpack(e + "H", blob[at:at + 2])[0]
+            if tag in _EXIF_POINTERS and kind != "gps":
+                ptr = struct.unpack(e + "I", blob[at + 8:at + 12])[0]
+                todo.append((ptr, _EXIF_POINTERS[tag], False))
+                continue
+            table, prefix = (GPS_TAGS, "gps") if kind == "gps" else (EXIF_TAGS, "exif")
+            keys.add(f"{prefix}:" + table.get(tag, f"0x{tag:04X}"))
+        if chain and off + 2 + 12 * n + 4 <= len(blob):
+            nxt = struct.unpack(e + "I", blob[off + 2 + 12 * n:off + 6 + 12 * n])[0]
+            if nxt:
+                todo.append((nxt, "exif", True))
+    if not ok:
+        keys.add("exif:unknown")
+    return sorted(keys)
+
+
 # The walkers append `(set, label)` to `found` for every metadata segment they
-# meet, and `(label, text)` to `texts` for every one they can read as text.
+# meet, and `(label, text)` to `texts` for every one they can read as text. A
+# set whose fields are read (Exif, 020/450) also appends `(set, label, keys)`
+# to `fields`, `keys` being the field keys that segment carries.
 _XMP_KEYWORD = "XML:com.adobe.xmp"
 _RAW_PROFILE_SETS = {"exif": "exif", "app1": "exif", "iptc": "iptc",
                      "8bim": "iptc", "xmp": "xmp", "icc": "icc", "icm": "icc"}
 
 
-def _png_metadata(fh, size: int, texts: list, found: list) -> None:
+def _note_exif(label: str, blob: bytes | None, found: list, fields: list) -> None:
+    """One Exif segment: the set, and its fields (`exif:unknown` when the
+    block is absent from the read: past the cap or undecodable)."""
+    found.append(("exif", label))
+    fields.append(("exif", label,
+                   exif_fields(blob) if blob is not None else ["exif:unknown"]))
+
+
+def _png_metadata(fh, size: int, texts: list, found: list, fields: list) -> None:
     pos = 8
     while True:
         fh.seek(pos)
@@ -1155,7 +1408,8 @@ def _png_metadata(fh, size: int, texts: list, found: list) -> None:
         if ctype == "IEND":
             return
         if ctype == "eXIf":
-            found.append(("exif", "PNG eXIf"))
+            _note_exif("PNG eXIf", fh.read(n) if n <= META_SEGMENT_CAP else None,
+                       found, fields)
         elif ctype == "iCCP":
             found.append(("icc", "PNG iCCP"))
         elif ctype in ("tEXt", "zTXt", "iTXt"):
@@ -1163,11 +1417,44 @@ def _png_metadata(fh, size: int, texts: list, found: list) -> None:
                 found.append(("unknown", f"PNG {ctype} past the "
                                          f"{META_SEGMENT_CAP}-byte cap"))
             else:
-                _png_text_chunk(ctype, fh.read(n), texts, found)
+                _png_text_chunk(ctype, fh.read(n), texts, found, fields)
         pos += 12 + n
 
 
-def _png_text_chunk(ctype: str, data: bytes, texts: list, found: list) -> None:
+def _png_text_decode(ctype: str, rest: bytes) -> str | None:
+    """The text of a tEXt / zTXt / iTXt chunk body (after its keyword), or
+    None when it is truncated, undecodable or inflates past the cap."""
+    if ctype == "tEXt":
+        return rest.decode("latin-1")
+    if ctype == "zTXt":
+        raw = _inflate(rest[1:])
+        return None if raw is None else raw.decode("latin-1")
+    # iTXt: flag, method, language\0, translated keyword\0, text
+    if len(rest) < 2:
+        return None
+    compressed = rest[0] == 1
+    _lang, _, rest2 = rest[2:].partition(b"\x00")
+    _tkw, _, body = rest2.partition(b"\x00")
+    if compressed:
+        body = _inflate(body)
+        if body is None:
+            return None
+    return body.decode("utf-8", errors="replace")
+
+
+def _raw_profile_bytes(value: str) -> bytes | None:
+    """The binary profile inside ImageMagick's text form: a blank line, the
+    profile name, the byte count, then the bytes as hex. None if it does not
+    decode."""
+    lines = value.split("\n")
+    try:
+        return bytes.fromhex("".join("".join(lines[3:]).split()))
+    except ValueError:
+        return None
+
+
+def _png_text_chunk(ctype: str, data: bytes, texts: list, found: list,
+                    fields: list) -> None:
     keyword, _, rest = data.partition(b"\x00")
     kw = keyword.decode("latin-1")
     label = f"PNG {ctype} '{kw}'"
@@ -1175,31 +1462,19 @@ def _png_text_chunk(ctype: str, data: bytes, texts: list, found: list) -> None:
         # ImageMagick carries Exif/IPTC/8BIM here as a hex dump of the binary
         # profile: text-shaped, but nothing a text rule can read.
         kind = kw.lower()[len("raw profile type"):].strip()
-        found.append((_RAW_PROFILE_SETS.get(kind, "unknown"),
-                      f"{label} (hex-encoded binary profile)"))
+        what = f"{label} (hex-encoded binary profile)"
+        if _RAW_PROFILE_SETS.get(kind) == "exif":
+            raw = _png_text_decode(ctype, rest)
+            _note_exif(what, _raw_profile_bytes(raw) if raw is not None else None,
+                       found, fields)
+            return
+        found.append((_RAW_PROFILE_SETS.get(kind, "unknown"), what))
         return
     set_name = "xmp" if kw == _XMP_KEYWORD else "png-text"
-    if ctype == "tEXt":
-        value = rest.decode("latin-1")
-    elif ctype == "zTXt":
-        raw = _inflate(rest[1:])
-        if raw is None:
-            found.append(("unknown", f"{label} (undecodable or past the cap)"))
-            return
-        value = raw.decode("latin-1")
-    else:  # iTXt: flag, method, language\0, translated keyword\0, text
-        if len(rest) < 2:
-            found.append(("unknown", f"{label} (truncated)"))
-            return
-        compressed = rest[0] == 1
-        _lang, _, rest2 = rest[2:].partition(b"\x00")
-        _tkw, _, body = rest2.partition(b"\x00")
-        if compressed:
-            body = _inflate(body)
-            if body is None:
-                found.append(("unknown", f"{label} (undecodable or past the cap)"))
-                return
-        value = body.decode("utf-8", errors="replace")
+    value = _png_text_decode(ctype, rest)
+    if value is None:
+        found.append(("unknown", f"{label} (undecodable, truncated or past the cap)"))
+        return
     found.append((set_name, label))
     texts.append((label, f"{kw}: {value}"))
 
@@ -1209,7 +1484,7 @@ _XMP_EXT_NS = b"http://ns.adobe.com/xmp/extension/\x00"
 _ICC_TAG = b"ICC_PROFILE\x00"
 
 
-def _jpeg_metadata(fh, size: int, texts: list, found: list) -> None:
+def _jpeg_metadata(fh, size: int, texts: list, found: list, fields: list) -> None:
     pos = 2
     while True:
         fh.seek(pos)
@@ -1246,7 +1521,7 @@ def _jpeg_metadata(fh, size: int, texts: list, found: list) -> None:
                     found.append(("icc", "JPEG APP2 ICC_PROFILE"))
                 # other APP2 payloads (FlashPix, MPF) are outside the walk
             elif seg.startswith(b"Exif\x00"):
-                found.append(("exif", "JPEG APP1 Exif"))
+                _note_exif("JPEG APP1 Exif", seg, found, fields)
             elif seg.startswith(_XMP_NS):
                 found.append(("xmp", "JPEG XMP"))
                 texts.append(("JPEG XMP", seg[len(_XMP_NS):].decode("utf-8", errors="replace")))
@@ -1260,7 +1535,7 @@ def _jpeg_metadata(fh, size: int, texts: list, found: list) -> None:
         pos += 2 + n
 
 
-def _webp_metadata(fh, size: int, texts: list, found: list) -> None:
+def _webp_metadata(fh, size: int, texts: list, found: list, fields: list) -> None:
     fh.seek(4)
     riff_end = min(size, 8 + struct.unpack("<I", fh.read(4))[0])
     pos = 12
@@ -1273,7 +1548,8 @@ def _webp_metadata(fh, size: int, texts: list, found: list) -> None:
             found.append(("unknown", f"WebP chunk {fourcc.strip()} overruns the file"))
             return
         if fourcc == "EXIF":
-            found.append(("exif", "WebP EXIF"))
+            _note_exif("WebP EXIF", fh.read(n) if n <= META_SEGMENT_CAP else None,
+                       found, fields)
         elif fourcc == "ICCP":
             found.append(("icc", "WebP ICCP"))
         elif fourcc == "XMP ":
@@ -1286,19 +1562,27 @@ def _webp_metadata(fh, size: int, texts: list, found: list) -> None:
 
 
 def inspect_media(fh) -> tuple[str | None, list[tuple[str, str]], list[tuple[str, str]]]:
-    """`(format, text segments, metadata found)` for a PNG, JPEG or WebP
+    """`inspect_media_fields` without the field detail: `(format, texts, found)`."""
+    fmt, texts, found, _fields = inspect_media_fields(fh)
+    return fmt, texts, found
+
+
+def inspect_media_fields(fh) -> tuple[str | None, list, list, list]:
+    """`(format, text segments, metadata found, fields)` for a PNG, JPEG or WebP
     file object; `(None, [], [])` for anything else. Text segments are
     `(label, decoded text)` to be scanned; metadata found is `(set, label)`
     for every segment, text or opaque, with `set` a key of `METADATA_SETS`.
     Every read is bounded (`META_SEGMENT_CAP`, or the format's own 64 KiB
     segment limit for JPEG), so peak memory is independent of the file's
-    size."""
+    size. `fields` is `(set, label, keys)` per segment of a set whose fields are
+    read (Exif and GPS so far, 020/450), `keys` like `exif:Model`."""
     fh.seek(0, os.SEEK_END)
     size = fh.tell()
     fh.seek(0)
     head = fh.read(12)
     texts: list[tuple[str, str]] = []
     found: list[tuple[str, str]] = []
+    fields: list[tuple[str, str, list[str]]] = []
     if head.startswith(b"\x89PNG\r\n\x1a\n"):
         fmt, walker = "png", _png_metadata
     elif head.startswith(b"\xff\xd8"):
@@ -1306,12 +1590,20 @@ def inspect_media(fh) -> tuple[str | None, list[tuple[str, str]], list[tuple[str
     elif head[:4] == b"RIFF" and head[8:12] == b"WEBP":
         fmt, walker = "webp", _webp_metadata
     else:
-        return None, texts, found
+        return None, texts, found, fields
     try:
-        walker(fh, size, texts, found)
+        walker(fh, size, texts, found, fields)
     except struct.error:
         found.append(("unknown", f"{fmt.upper()} structure cannot be walked"))
-    return fmt, texts, found
+    return fmt, texts, found, fields
+
+
+def metadata_fields(fields: list) -> dict[str, list[str]]:
+    """`fields` grouped by set: set -> sorted field keys across its segments."""
+    out: dict[str, set[str]] = {}
+    for name, _label, keys in fields:
+        out.setdefault(name, set()).update(keys)
+    return {name: sorted(keys) for name, keys in out.items()}
 
 
 def metadata_sets(found: list[tuple[str, str]]) -> dict[str, list[str]]:
@@ -1344,7 +1636,7 @@ def check_binary(path: Path, rel: str, entry: BinaryEntry | None,
     try:
         with open(path, "rb") as fh:
             digest = _sha256_file(fh)
-            _fmt, texts, found = inspect_media(fh)
+            _fmt, texts, found, fields = inspect_media_fields(fh)
     except OSError as e:
         gate("binary-unlisted", f"unreadable ({e.__class__.__name__})")
         return findings
@@ -1354,9 +1646,32 @@ def check_binary(path: Path, rel: str, entry: BinaryEntry | None,
             findings.append(f)
     accepted = entry is not None and entry.matches(digest)
     present = metadata_sets(found)
+    keys_by_set = metadata_fields(fields)
     for name, labels in present.items():
-        if not (accepted and name in entry.sets):
-            gate("binary-metadata", f"{name}: {'; '.join(labels)} — no line keeps it")
+        keys = keys_by_set.get(name)
+        whole = accepted and name in entry.sets
+        if keys is None:                       # a set whose fields are not read
+            if not whole:
+                gate("binary-metadata", f"{name}: {'; '.join(labels)} — no line keeps it")
+            continue
+        if whole:                              # a type-level line (020/450)
+            if in_type_level_grace():
+                if tally is not None:
+                    tally.type_level_warnings.append(Finding(
+                        rel, 0, TYPE_LEVEL_RULE, "binary", "high",
+                        f"{name} is kept as a whole type; it carries "
+                        f"{', '.join(keys) or 'no fields'}", "binary"))
+            else:
+                gate("binary-metadata",
+                     f"{name}: a type-level line no longer keeps it since "
+                     f"{TYPE_LEVEL_UNTIL.isoformat()} — name its fields: "
+                     f"{', '.join(keys) or 'it carries none'}")
+            continue
+        unkept = [k for k in keys if not (accepted and k in entry.sets)]
+        if unkept:
+            gate("binary-metadata",
+                 f"{name}: {', '.join(unkept)} ({'; '.join(labels)}) — no line "
+                 f"keeps {'it' if len(unkept) == 1 else 'them'}")
     if entry is None:
         twin = (by_digest or {}).get(digest[:MIN_DIGEST_HEX])
         hint = f" — same bytes as the entry for {twin}" if twin else ""
@@ -1365,8 +1680,9 @@ def check_binary(path: Path, rel: str, entry: BinaryEntry | None,
         gate("binary-changed", f"listed {entry.digest[:PRINTED_DIGEST_HEX]}, "
                                f"now {digest[:PRINTED_DIGEST_HEX]} (line {entry.lineno})")
     else:
+        every_field = {k for ks in keys_by_set.values() for k in ks}
         for name, kept in entry.sets.items():
-            if name not in present:
+            if name not in (every_field if ":" in name else present):
                 _record(findings, tally, _stale(
                     entry, f"keeps {name}, which these bytes do not carry",
                     kept.lineno))
@@ -1617,11 +1933,27 @@ def binary_entries(paths: list[Path], root: Path) -> tuple[list[str], list[str]]
             continue
         with open(p, "rb") as fh:
             digest = _sha256_file(fh)
-            _fmt, _texts, found = inspect_media(fh)
+            _fmt, _texts, found, fields = inspect_media_fields(fh)
         entry = manifest.get(rel)
         accepted = entry is not None and entry.matches(digest)
         present = metadata_sets(found)
-        missing = [s for s in present if not (accepted and s in entry.sets)]
+        keys_by_set = metadata_fields(fields)
+        # One line per thing still to keep: a set (no fields read), or a field.
+        # A type-level line on a set whose fields are read is migrated: it is
+        # replaced by the field lines, so every field is listed again.
+        missing: list[str] = []
+        migrating: list[str] = []
+        for name in present:
+            keys = keys_by_set.get(name)
+            whole = accepted and name in entry.sets
+            if keys is None:
+                if not whole:
+                    missing.append(name)
+            elif whole:
+                migrating.append(name)
+                missing.extend(keys)
+            else:
+                missing.extend(k for k in keys if not (accepted and k in entry.sets))
         if accepted and not missing:
             continue
         if "#" in rel or "\n" in rel or rel != rel.strip() or rel.startswith("*"):
@@ -1637,11 +1969,21 @@ def binary_entries(paths: list[Path], root: Path) -> tuple[list[str], list[str]]
                              f"{entry.lineno} and the set lines under it")
         lines.extend(f"{d}:{s}  {rel}" for s in missing)
         if missing:
+            shown = [s for s in present if s in missing]
             notes.append(f"{rel}: carries metadata set(s) "
-                         + ", ".join(f"{s} ({'; '.join(present[s])})" for s in missing)
-                         + " — strip every set you have no need for (that changes "
-                         "the bytes: re-run this), and keep a set's line only "
-                         "with that set's own need as its reason")
+                         + ", ".join(f"{s} ({'; '.join(present[s])})" for s in shown)
+                         + (", and fields " + ", ".join(k for k in missing if ":" in k)
+                            if any(":" in k for k in missing) else "")
+                         + " — strip every set or field you have no need for (that "
+                         "changes the bytes: re-run this), and keep one only with "
+                         "its own need as the reason; fields that share one need "
+                         "may share a line, written "
+                         f"{d}:exif:Model,LensModel  {rel}")
+        for name in migrating:
+            notes.append(f"{rel}: the type-level line for {name} (line "
+                         f"{entry.sets[name].lineno}) is replaced by the field "
+                         "lines above; it is accepted with a warning until "
+                         f"{TYPE_LEVEL_UNTIL.isoformat()}")
     return lines, notes
 
 
@@ -1773,9 +2115,32 @@ def render_grace(grace: list[Finding]) -> list[str]:
     return lines
 
 
+def render_type_level(warns: list[Finding]) -> list[str]:
+    """020/450: type-level entries still accepted, each naming the fields the
+    file carries and the date they stop being accepted."""
+    if not warns:
+        return []
+    cut = TYPE_LEVEL_UNTIL.isoformat()
+    lines = [f"⚠ leakscan: {len(warns)} G3 type-level metadata entr"
+             f"{'y' if len(warns) == 1 else 'ies'} — WARNING ONLY until {cut}, "
+             f"refused from {cut}:"]
+    for f in sorted(warns, key=lambda x: (x.path, x.excerpt)):
+        lines.append(report.with_id(
+            f"  {_where(f)}  [warn until {cut}] {f.rule} → {f.excerpt}"
+            f" — refused from {cut}; remedy: name the fields instead "
+            "(`leakscan --binary-entries` prints the lines)",
+            "leakscan", f.rule))
+    lines.append(f"  Before {cut}: replace each type-level line in {BINARY_MANIFEST} "
+                 "with a line naming the fields kept (`<digest>:exif:Model,LensModel`) "
+                 "under the need for those fields, strip the rest, and commit.")
+    lines.append("")
+    return lines
+
+
 def render_human(findings: list[Finding], warning: str | None,
                  scanned_local: bool, tally: Tally | None = None,
-                 grace: list[Finding] | None = None) -> str:
+                 grace: list[Finding] | None = None,
+                 typewarn: list[Finding] | None = None) -> str:
     # 020/380 — a capped run's TRUE total lives on the tally, never on
     # `len(findings)`: everything past `MAX_MATERIALIZED_FINDINGS` was
     # counted there instead of being built as a `Finding` at all (see
@@ -1787,11 +2152,14 @@ def render_human(findings: list[Finding], warning: str | None,
     if warning:
         lines.append(f"⚠ {warning}")
     lines.extend(render_grace(grace or []))
+    lines.extend(render_type_level(typewarn or []))
     if not findings and not over_cap:
         cover = "structural + local" if scanned_local else "structural only"
         lines.append(f"✓ leakscan clean ({cover})."
                      + (f" The G3 warning(s) above block from "
-                        f"{BINARY_GRACE_UNTIL.isoformat()}." if grace else ""))
+                        f"{BINARY_GRACE_UNTIL.isoformat()}." if grace else "")
+                     + (f" The type-level warning(s) above are refused from "
+                        f"{TYPE_LEVEL_UNTIL.isoformat()}." if typewarn else ""))
         if tally is not None:
             lines.append(tally.summary())
         return "\n".join(lines)
@@ -1814,8 +2182,9 @@ def render_human(findings: list[Finding], warning: str | None,
     if any(f.kind == "binary" for f in findings):
         lines.append(f"  A binary (G3): look at it, then list it in {BINARY_MANIFEST} with a")
         lines.append("  reason — `leakscan --binary-entries` prints the lines, hash-bound, so a")
-        lines.append("  changed file blocks again. Metadata: strip every set you do not need;")
-        lines.append("  keep one only on its own '<digest>:<set>' line, reasoned with that need.")
+        lines.append("  changed file blocks again. Metadata: strip every set and field you do not")
+        lines.append("  need; keep one only on its own '<digest>:<set>' or '<digest>:exif:<Field>'")
+        lines.append("  line, reasoned with that need.")
         lines.append("  A stale entry: delete or re-path it.")
     return "\n".join(lines)
 
@@ -1990,6 +2359,7 @@ def _main(argv: list[str] | None = None) -> int:
     # hit is an ordinary rule's finding and still blocks. Findings past the
     # materialisation cap were counted, never built, so they cannot be sorted
     # by rule and stay blocking: fail closed.
+    typewarn = tally.type_level_warnings
     grace: list[Finding] = []
     if in_binary_grace():
         grace = [f for f in findings if f.rule in BINARY_RULES]
@@ -2010,6 +2380,12 @@ def _main(argv: list[str] | None = None) -> int:
                 "warnings": report.finding_dicts("leakscan", grace,
                                                  lambda f: f.rule),
             },
+            "binary_type_level": {
+                "until": TYPE_LEVEL_UNTIL.isoformat(),
+                "active": in_type_level_grace(),
+                "warnings": report.finding_dicts("leakscan", typewarn,
+                                                 lambda f: f.rule),
+            },
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
@@ -2020,7 +2396,7 @@ def _main(argv: list[str] | None = None) -> int:
             },
         }, indent=2))
     else:
-        print(render_human(findings, warning, scanned_local, tally, grace))
+        print(render_human(findings, warning, scanned_local, tally, grace, typewarn))
 
     return report.exit_code(len(findings) + tally.findings_over_cap)
 
@@ -2064,6 +2440,12 @@ def _selftest() -> int:
     _f, _t, found = inspect_media(png(b"eXIf", b"MM\x00\x2a"))
     if [s for s, _l in found] != ["exif"]:
         print("FAIL: PNG eXIf chunk not reported as the exif metadata set")
+        ok = False
+    # G3 fields (020/450): one IFD0 entry, tag 0x0110, reads as `exif:Model`.
+    tiff = (b"MM\x00*" + struct.pack(">IH", 8, 1)
+            + struct.pack(">HHII", 0x0110, 2, 1, 0) + struct.pack(">I", 0))
+    if exif_fields(tiff) != ["exif:Model"]:
+        print("FAIL: Exif tag 0x0110 not read as the field exif:Model")
         ok = False
     _f, texts, _o = inspect_media(png(b"tEXt", b"Author\x00jane.doe@example.com"))  # leakscan:allow: selftest fixture
     if not any(f.rule == "email" for _l, t in texts for f in scan_text("t", t, [])):
