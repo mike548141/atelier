@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-03 — a `pre-merge-commit` hook, so a clean `git merge --no-ff` runs the hook plane, `115/340`)
+- **Children: copy the merge hook beside your `pre-commit`.** Git never ran
+  `pre-commit` for the commit a clean `git merge --no-ff` writes, so a queue
+  run's merges (and any merge of two branches that were each green) reached
+  history with no hook plane having read the combined tree. atelier now ships
+  `tools/pre-merge-commit.sample` and a tracked `.githooks/pre-merge-commit`: it
+  hands over to the `pre-commit` in the same directory, names no scanner, and
+  fails closed if that sibling is missing. To take it, in a repo that tracks
+  its hooks: `cp <atelier-path>/.githooks/pre-merge-commit .githooks/ && chmod
+  +x .githooks/pre-merge-commit` (a legacy install copies the `.sample` into
+  `.git/hooks/`); `create-repo` and `/atelier:install-hook` now do this for new
+  installs. Nothing turns red on its own: a repo without the file is as it was.
+  `--no-verify` skips it as it skips `pre-commit`. `cherry-pick`, `revert` and
+  `rebase` still have no client-side hook that can refuse, so CI is the only
+  plane that reads their commits (`docs/method/GUARDS.md` § *Which commits the
+  hook plane reaches*). `floorfleet` does not yet report a child missing the
+  merge hook.
+
 ### Added (2026-11-03 — G3 keeps Exif and GPS metadata field by field, `020/450` part 1)
 - **A `.leakscanbinaries` line can now keep named Exif and GPS fields**, not
   just the whole Exif set. Mike, 2026-10-19: *"I did mean fields as in GPS

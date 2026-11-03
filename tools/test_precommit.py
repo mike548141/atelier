@@ -33,6 +33,8 @@ from pathlib import Path
 TOOLS_DIR = Path(__file__).resolve().parent
 SAMPLE = TOOLS_DIR / "pre-commit.sample"
 TRACKED_HOOK = TOOLS_DIR.parent / ".githooks" / "pre-commit"
+MERGE_SAMPLE = TOOLS_DIR / "pre-merge-commit.sample"
+TRACKED_MERGE_HOOK = TOOLS_DIR.parent / ".githooks" / "pre-merge-commit"
 
 # Structural-match AWS access-key-ID shape — secretscan flags it as
 # [high/named]. (Do NOT use AWS's published example SECRET key wJalr…: the
@@ -369,6 +371,114 @@ class PreCommitHookTest(unittest.TestCase):
         self.assertNotEqual(r.returncode, 0,
                             "a rename/delete breaking an unstaged link must block")
         self.assertEqual(self._commit_count(), 1, "the breaking commit must not land")
+
+
+class MergeHookTest(unittest.TestCase):
+    """`pre-merge-commit` (roadmap 115/340) — the hook plane over a merge's tree.
+
+    Git does not run `pre-commit` for the commit `git merge --no-ff` writes on
+    its own, so a merge of two branches reached history with no hook plane
+    having read the combined tree. The shim hands the merge's staged tree to the
+    sibling `pre-commit`. These tests drive real merges: a hook that is only
+    shown to exist proves nothing about whether git calls it.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.mkdtemp(prefix="mergehook-test-")
+        self.repo = Path(self._tmp) / "child"
+        (self.repo / ".githooks").mkdir(parents=True)
+        _git(self.repo, "init", "-q", "-b", "main")
+        _git(self.repo, "config", "user.name", "Test")
+        _git(self.repo, "config", "user.email", "test@example.com")  # leakscan:allow: RFC-2606 fixture identity for throwaway test repos
+        _git(self.repo, "config", "commit.gpgsign", "false")
+        _git(self.repo, "config", "hooks.atelierTools", str(TOOLS_DIR))
+        for name, src in (("pre-commit", TRACKED_HOOK),
+                          ("pre-merge-commit", TRACKED_MERGE_HOOK)):
+            dst = self.repo / ".githooks" / name
+            shutil.copy(src, dst)
+            dst.chmod(0o755)
+        _git(self.repo, "config", "core.hooksPath", ".githooks")
+        (self.repo / "README.md").write_text("clean content\n")
+        _git(self.repo, "add", "-A")
+        r = _git(self.repo, "commit", "-m", "init", env={"ATELIER_TOOLS": ""})
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    def tearDown(self):
+        shutil.rmtree(self._tmp, ignore_errors=True)
+
+    def _branch_with(self, name: str, fname: str, text: str) -> None:
+        """A side branch holding `fname`, made with --no-verify so the branch's
+        own commit hook does not hide what the MERGE hook does."""
+        _git(self.repo, "checkout", "-q", "-b", name)
+        (self.repo / fname).write_text(text)
+        _git(self.repo, "add", fname)
+        r = _git(self.repo, "commit", "-q", "--no-verify", "-m", name)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        _git(self.repo, "checkout", "-q", "main")
+        (self.repo / "README.md").write_text(f"clean content {name}\n")
+        _git(self.repo, "add", "README.md")
+        r = _git(self.repo, "commit", "-q", "--no-verify", "-m", f"main-{name}")
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    def _head(self) -> str:
+        return _git(self.repo, "rev-parse", "HEAD").stdout.strip()
+
+    def test_tracked_merge_hook_matches_the_canonical_sample(self):
+        self.assertEqual(MERGE_SAMPLE.read_text(), TRACKED_MERGE_HOOK.read_text(),
+                         ".githooks/pre-merge-commit has drifted from "
+                         "tools/pre-merge-commit.sample (the sample is canonical)")
+
+    def test_tracked_merge_hook_is_executable(self):
+        self.assertTrue(TRACKED_MERGE_HOOK.stat().st_mode & 0o111,
+                        "a non-executable hook is skipped by git without a word")
+
+    def test_merge_hook_names_no_scanner(self):
+        body = "\n".join(ln for ln in TRACKED_MERGE_HOOK.read_text().splitlines()
+                         if not ln.lstrip().startswith("#"))
+        self.assertNotRegex(body, r"\b\w+scan\.py",
+                            "the merge hook is transport only; the registry decides")
+
+    def test_a_clean_no_ff_merge_of_a_bad_tree_is_refused(self):
+        self._branch_with("bad", "leaky.py", PLANTED_SECRET)
+        before = self._head()
+        r = _git(self.repo, "merge", "--no-ff", "-m", "merge", "bad",
+                 env={"ATELIER_TOOLS": ""})
+        self.assertNotEqual(r.returncode, 0, "the merge hook must refuse the merge")
+        self.assertIn("BLOCKED by", r.stdout + r.stderr)
+        self.assertEqual(self._head(), before, "no merge commit may land")
+
+    def test_without_the_merge_hook_the_same_merge_lands(self):
+        """The control: proves the refusal above comes from the new hook and
+        not from some other plane, and records the gap it closes."""
+        (self.repo / ".githooks" / "pre-merge-commit").unlink()
+        self._branch_with("bad", "leaky.py", PLANTED_SECRET)
+        before = self._head()
+        r = _git(self.repo, "merge", "--no-ff", "-m", "merge", "bad",
+                 env={"ATELIER_TOOLS": ""})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertNotEqual(self._head(), before)
+
+    def test_no_verify_skips_the_merge_hook(self):
+        self._branch_with("bad", "leaky.py", PLANTED_SECRET)
+        r = _git(self.repo, "merge", "--no-ff", "--no-verify", "-m", "merge",
+                 "bad", env={"ATELIER_TOOLS": ""})
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_a_clean_merge_passes(self):
+        self._branch_with("good", "notes.md", "fine\n")
+        r = _git(self.repo, "merge", "--no-ff", "-m", "merge", "good",
+                 env={"ATELIER_TOOLS": ""})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_a_merge_hook_with_no_pre_commit_beside_it_fails_closed(self):
+        (self.repo / ".githooks" / "pre-commit").unlink()
+        self._branch_with("good", "notes.md", "fine\n")
+        before = self._head()
+        r = _git(self.repo, "merge", "--no-ff", "-m", "merge", "good",
+                 env={"ATELIER_TOOLS": ""})
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("fail closed", r.stderr.lower())
+        self.assertEqual(self._head(), before)
 
 
 if __name__ == "__main__":

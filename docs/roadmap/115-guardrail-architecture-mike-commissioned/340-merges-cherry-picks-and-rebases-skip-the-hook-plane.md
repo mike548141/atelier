@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0759, wt: atelier-qr-4c65-floorhooks) 🔎 **Merges, cherry-picks and rebases make commits the hook plane
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-floorhooks) 🔎 **Merges, cherry-picks and rebases make commits the hook plane
       never sees** `[S][tools]`. Hand-up filed 2026-10-16 by a private
       child, found by a cold review there and measured again before filing.
       Not fixed in the child's place: the floor hook is the house's.
@@ -70,3 +70,23 @@
         head every few landings; and cancel-in-progress on a busy main
         means CI's verdict covers only the newest head, never the states
         between.
+      ✅ **Closed 2026-11-03 (steps 1 and 2; step 3 deliberately left).**
+      Step 1: `tools/pre-merge-commit.sample` (tracked copy
+      `.githooks/pre-merge-commit`, drift-tested like `pre-commit`) hands over to
+      the sibling `pre-commit`, so a clean `git merge --no-ff` runs the same
+      hook plane over the merged tree; it fails closed if no `pre-commit` sits
+      beside it. `create-repo` step 6 and `/atelier:install-hook` copy both.
+      Proven in a throwaway repo and pinned in `test_precommit.MergeHookTest`
+      with real merges: a planted secret that rode in on a `--no-verify`
+      branch is refused at the merge (no merge commit lands), the same merge
+      lands with the hook removed (the control), `--no-verify` skips it, a clean
+      merge passes. Step 2: `GUARDS.md` § *Which commits the hook plane reaches*
+      says plainly that cherry-pick, revert and rebase (including a
+      hand-resolved `rebase --continue`) have no client-side hook that can
+      refuse, so CI alone reads them. Step 3 (`floorfleet` reporting a child with
+      `pre-commit` but no `pre-merge-commit`) is not done: the shim column is
+      one state per repo, so a second hook means a new column, a new red on every
+      green child and its tests. Own item when wanted; until then existing
+      children gain the merge hook by re-copying it (CHANGELOG says so). The
+      queue-run lessons in the last addendum (re-run suites on the merged head;
+      cancel-in-progress hides intermediate heads) are not changed here.

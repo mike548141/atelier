@@ -194,7 +194,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [conflictscan's open-conflict state runs across staged hunks](roadmap/115-guardrail-architecture-mike-commissioned/310-conflictscan-open-conflict-state-runs-across-hunks.md)
 - ✅ 🔎 [Three small gaps in the floor's tests and count contract](roadmap/115-guardrail-architecture-mike-commissioned/320-three-small-floor-test-and-contract-gaps.md)
 - [ ] 🔎 [RECORD.md's index rotation has lost its trigger](roadmap/115-guardrail-architecture-mike-commissioned/330-record-md-rotation-trigger-has-no-signal.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-floorhoo…) [Merges, cherry-picks and…](roadmap/115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md)
 - [ ] 🔎 [A cloud session cannot satisfy the hook plane's leakscan term…](roadmap/115-guardrail-architecture-mike-commissioned/350-a-cloud-session-cannot-satisfy-the-hook-planes-term-requirement.md)
 - ✅ [DONE 2026-10-18](roadmap/115-guardrail-architecture-mike-commissioned/360-a-bare-dot-scope-makes-the-staged-plane-scan-nothing.md)
 

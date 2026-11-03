@@ -319,6 +319,26 @@ it is not a bypass, it is a hole. Making the escape hatch painful is not the
 answer — that invites worse workarounds — but making it *silent* is how a floor
 becomes decoration. `C4` is the open build.
 
+### Which commits the hook plane reaches
+
+The hook plane is git's `pre-commit` hook, and git calls that hook for an
+ordinary `git commit` only. Measured on git 2.50.1 (roadmap `115/340`):
+
+| How the commit is made | Client-side hook that runs | Can it refuse? |
+|---|---|---|
+| `git commit` | `pre-commit` | yes |
+| `git merge` that stops on a conflict, finished by `git commit` | `pre-commit` | yes |
+| `git merge --no-ff` (a clean automatic merge) | `pre-merge-commit` (atelier ships it beside `pre-commit`; it hands over to the same checks) | yes |
+| `git cherry-pick`, `git revert`, `git rebase` (including `rebase --continue` after a hand-resolved conflict) | none | **no** |
+
+A rebase or cherry-pick writes commits whose bytes no client-side plane read,
+and a hand-resolved rebase conflict lands genuinely new content that way.
+`post-rewrite` can warn after a rebase but cannot refuse. **Those commits are
+checked by CI only**, so a check that exists only at the hook (a local,
+credentialed tripwire CI cannot run) does not cover them at all. `--no-verify`
+skips `pre-commit` and `pre-merge-commit` alike; it is a bypass, and the
+side-stepping rule above applies to it.
+
 ## A rule with no home is not a rule
 
 A guard's family above is *rules that exist and can be defeated*. This is the

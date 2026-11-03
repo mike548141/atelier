@@ -22,6 +22,10 @@ Do this:
    ```sh
    cp "${CLAUDE_PLUGIN_ROOT}/tools/pre-commit.sample" "$(git rev-parse --git-path hooks)/pre-commit"
    chmod +x "$(git rev-parse --git-path hooks)/pre-commit"
+   # A clean `git merge` makes its commit without running pre-commit; this hook
+   # hands the merged tree to the same checks (it needs pre-commit beside it).
+   cp "${CLAUDE_PLUGIN_ROOT}/tools/pre-merge-commit.sample" "$(git rev-parse --git-path hooks)/pre-merge-commit"
+   chmod +x "$(git rev-parse --git-path hooks)/pre-merge-commit"
    ```
 
 3. **Point the hook at this plugin's bundled scanners.** Critical: `${CLAUDE_PLUGIN_ROOT}`

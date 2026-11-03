@@ -476,6 +476,12 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
     silently skipped — the pre-fix hook skipped silently and committed a planted
     secret (2026-07-10, the create-repo exercise). Contract pinned by
     `tools/test_precommit.py`.
+  - **Merges.** Git does not run `pre-commit` for a clean `git merge --no-ff`;
+    copy `tools/pre-merge-commit.sample` to `pre-merge-commit` beside it and the
+    same checks run over the merged tree (it hands over to the sibling
+    `pre-commit` and names no scanner). `cherry-pick`, `revert` and `rebase` have
+    no hook that can refuse, so CI is the only plane that reads those commits
+    (`docs/method/GUARDS.md` § *Which commits the hook plane reaches*).
 - **CI** — in a repo that carries the scanners (atelier itself), run both with
   `--json` on every push (belt and braces; a hook only protects the clone that
   has it installed). A child repo runs the same scanners through its **CI
