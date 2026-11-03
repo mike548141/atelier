@@ -327,6 +327,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
 - [ ] 🎯 [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the claimed index line fitted to wrapscan,…](roadmap/160-doctrine-review-owed/985-rule-4-cold-pass-queued-claimed-index-line-fit.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccclose resolves a shell variable in a…](roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md)
 
 ## build/ layer — open strands
 
@@ -412,7 +413,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md)
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/300-plain-ccclose-ends-with-the-identifiers-block.md)
 - ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/310-ccclose-cannot-read-a-commit-message-from-a-file.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-ccclose) [ccclose --identifiers misses…](roadmap/210-instruments-open-features/320-ccclose-misses-author-backdated-commits.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/320-ccclose-misses-author-backdated-commits.md)
 - [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-ccclose) [ccclose lists a worktree whose…](roadmap/210-instruments-open-features/330-ccclose-lists-a-worktree-path-with-an-unexpanded-variable.md)
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
 

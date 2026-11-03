@@ -1210,6 +1210,38 @@ test('--identifiers commits: a subagent\'s Write credits the subagent\'s -F comm
   assert.deepEqual(subjectsOf(j.commits.items), ['agent: own file', 'agent: parent commits it']);
 });
 
+// 210/320: membership in the window is the COMMITTER date (when the session
+// made the commit), never the author date a history rewrite or a backdated
+// import may have set months earlier.
+function commitBackdated(w, root, msg, authorWhen, committerWhen) {
+  sh(w, root, ['add', '--', '.']);
+  const env = { ...w.env,
+    GIT_AUTHOR_DATE: new Date(authorWhen).toISOString(), GIT_COMMITTER_DATE: new Date(committerWhen).toISOString() };
+  execFileSync('git', ['commit', '-q', '-m', msg], { cwd: root, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+}
+
+test('--identifiers commits: a commit whose author date predates the window counts by its committer date (210/320)', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'plain: ordinary', NOW - 40 * MIN);
+  write(root, 'b.txt', 'b'); commitBackdated(w, root, 'history: backdated author', NOW - 90 * 24 * 60 * MIN, NOW - 35 * MIN);
+  write(root, 'c.txt', 'c'); commit(w, root, 'plain: after', NOW - 30 * MIN);
+  // Control: the author date really is outside the window, the committer date inside it.
+  const [aT, cT] = sh(w, root, ['log', '-1', '--skip=1', '--format=%at %ct']).split(' ').map(Number);
+  assert.ok(aT * 1000 < NOW - 60 * MIN && cT * 1000 > NOW - 60 * MIN);
+  transcript(w, 'sess-id-22', committed('plain: ordinary', 'history: backdated author', 'plain: after'));
+  const j = parseId(w, root, 'sess-id-22');
+  assert.deepEqual(subjectsOf(j.commits.items), ['plain: ordinary', 'history: backdated author', 'plain: after']);
+  assert.equal(j.commits.total, 3);
+  assert.equal(j.commits.unbroken, true);
+  assert.equal(j.commits.unconfirmed.total, 0);
+  // A backdated commit no command of the session names is not lost: it is dated
+  // in the window by its committer date, so it prints as unconfirmed.
+  write(root, 'd.txt', 'd'); commitBackdated(w, root, 'history: scripted, no command', NOW - 80 * 24 * 60 * MIN, NOW - 25 * MIN);
+  const k = parseId(w, root, 'sess-id-22');
+  assert.deepEqual(subjectsOf(k.commits.unconfirmed.items), ['history: scripted, no command']);
+});
+
 test('--identifiers commits: a peer\'s commits in the window are unconfirmed, not credited, and break the range', () => {
   const w = world();
   const root = repo(w);

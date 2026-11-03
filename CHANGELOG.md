@@ -5,6 +5,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-03 — `ccclose --identifiers`: backdated commits, `210/320`)
+- **Backdated commits: pinned, not changed.** The window already judged a commit
+  by its committer date; the reported gap was commits made by a script, which
+  no commit command of the session names and which print as unconfirmed. A test
+  now holds the committer-date rule against a commit whose author date is 90
+  days back. The man page and design note say so.
+
 ### Changed (2026-11-03 — a claimed item's index line fits `wrapscan`, and a bracket in a title no longer breaks its link, `320/730` · `320/450` §2)
 - **Children: read this at your pin bump.** `board.py` used to print a whole
   `(claimed …, wt: …)` fragment ahead of a 70-column title on the index line,

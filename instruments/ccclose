@@ -656,7 +656,9 @@ function repoFacts(rootArg) {
 
 // Commits whose committer time is inside the window. --since takes a day of
 // slack so a time-zone reading of the bound can never drop one; the exact
-// filter is on %ct.
+// filter is on %ct. The COMMITTER date is when the session made the commit; the
+// author date may be set to anything (a backdated history import, a rebase), so
+// it plays no part (210/320).
 function inWindow(sec, w) { return sec * 1000 >= Math.floor(w.first / 1000) * 1000 && sec * 1000 <= w.last; }
 function sinceArg(w) { return `--since=${new Date(w.first - 86400000).toISOString()}`; }
 function windowCommits(repo, w, revs, extra = []) {

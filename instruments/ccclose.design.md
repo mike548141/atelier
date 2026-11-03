@@ -59,7 +59,9 @@ serves.
   needs it says so.
 - **The window** is the first and last timestamp in the transcript. "This
   session's" commits, branches, worktrees, claims and PRs are the ones dated
-  inside the window on this repo. **That is a heuristic, and the output says so
+  inside the window on this repo, a commit being dated by its committer date
+(when the session made it; an author date set back by a history import plays no
+part, `210/320`). **That is a heuristic, and the output says so
   every run**: two sessions working the same repo at the same time can each be
   credited with the other's work. One attribution is stronger: a `[~]` claim
   line that names the session's 8-character id prefix (the queue-run claim

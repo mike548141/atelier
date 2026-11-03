@@ -53,6 +53,8 @@ it is still live, so its window runs to now: a commit made just before the
 check can postdate the log's last line.
 The session's commits, branches, worktrees, claims and pull requests are taken
 to be the ones dated inside that window on this repo.
+A commit is dated by its committer date, when the session made it, never its
+author date: a history imported with backdated author dates still counts.
 .B This is a heuristic,
 and every run prints it: two sessions that worked the same repo at the same
 time can each be credited with the other's work.
