@@ -955,5 +955,163 @@ class BoundedMemory(unittest.TestCase):
             "input size again (020/380).")
 
 
+def _git(repo, *args):
+    import os
+    import subprocess
+    return subprocess.run(
+        ["git", "-C", str(repo), *args],
+        capture_output=True, text=True, check=True,
+        env={**os.environ,
+             "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",  # leakscan:allow: RFC-2606 fixture identity for a throwaway test repo
+             "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.invalid"})  # leakscan:allow: RFC-2606 fixture identity for a throwaway test repo
+
+
+class StagedPlaneBase(unittest.TestCase):
+    """Shared plumbing for the 320/600 `--staged` tests: a throwaway git repo
+    the test drives with real `git add`, entered by cwd as the hook does."""
+    MOD = None
+
+    def setUp(self):
+        import os
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        _git(self.repo, "init", "-q")
+        self._old_cwd = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, self._old_cwd)
+
+    def _write(self, rel, text):
+        p = self.repo / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def _main(self, *args):
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+            rc = self.MOD.main([*args])
+        return rc, out.getvalue()
+
+    def _run(self, *extra):
+        return self._main("--staged", "--root", str(self.repo), *extra)
+
+    def _add(self, *paths):
+        _git(self.repo, "add", *paths)
+
+    def _commit(self, *paths):
+        _git(self.repo, "add", *paths)
+        _git(self.repo, "commit", "-q", "-m", "c")
+
+
+class StagedPlane(StagedPlaneBase):
+    """320/600, slice 2: `--staged` judges the INDEX copy of each roadmap or
+    archive store the commit touches, whole (cold content and live state are
+    properties of a whole file). Both directions pinned, plus a deletion-only
+    edit, which adds no line and can still leave the file wrong."""
+    MOD = sizescan
+    BAD = "# Roadmap\n\n- [x] done thing\n"
+    GOOD = "# Roadmap\n\n- [ ] open thing\n"
+
+    def _check(self, *extra):
+        return self._run("--check", *extra)
+
+    def test_false_block_an_unstaged_roadmap_does_not_block(self):
+        self._write("docs/ROADMAP.md", self.GOOD)
+        self._write("docs/note.md", "a\n")
+        self._commit("docs/ROADMAP.md", "docs/note.md")
+        self._write("docs/ROADMAP.md", self.BAD)        # edited, never staged
+        self._write("docs/note.md", "a\nb\n")
+        self._add("docs/note.md")
+        rc, out = self._check()
+        self.assertEqual(0, rc, out)
+        # ...and the working-tree plane still sees it, so the test is not vacuous.
+        self.assertEqual(
+            1, self._main("--check", "--root", str(self.repo))[0])
+
+    def test_false_pass_a_staged_defect_fixed_on_disk_still_blocks(self):
+        self._write("docs/ROADMAP.md", self.BAD)
+        self._add("docs/ROADMAP.md")
+        self._write("docs/ROADMAP.md", self.GOOD)       # fixed after `git add`
+        rc, out = self._check()
+        self.assertEqual(1, rc, out)
+        self.assertIn("docs/ROADMAP.md", out)
+
+    def test_a_staged_clean_roadmap_passes(self):
+        self._write("docs/ROADMAP.md", self.GOOD)
+        self._add("docs/ROADMAP.md")
+        self.assertEqual(0, self._check()[0])
+
+    def test_without_check_the_staged_run_reports_and_exits_zero(self):
+        self._write("docs/ROADMAP.md", self.BAD)
+        self._add("docs/ROADMAP.md")
+        rc, out = self._run()
+        self.assertEqual(0, rc, out)
+        self.assertIn("docs/ROADMAP.md", out)
+
+    def test_a_staged_archive_store_with_a_live_marker_blocks(self):
+        self._write("docs/ROADMAP-DONE.md", "- [x] a\n- [ ] b\n")
+        self._add("docs/ROADMAP-DONE.md")
+        rc, out = self._check()
+        self.assertEqual(1, rc, out)
+        self.assertIn("docs/ROADMAP-DONE.md", out)
+
+    def test_a_deletion_only_edit_is_judged_whole(self):
+        # Deleting the closing fence adds no line, yet the open fence now
+        # runs out unbalanced and the example [x] inside it counts as real.
+        self._write("docs/ROADMAP.md", "# R\n\n```\n- [x] example\n```\n")
+        self._commit("docs/ROADMAP.md")
+        self._write("docs/ROADMAP.md", "# R\n\n```\n- [x] example\n")
+        self._add("docs/ROADMAP.md")
+        rc, out = self._check()
+        self.assertEqual(1, rc, out)
+
+    def test_a_file_the_commit_does_not_touch_is_not_judged(self):
+        self._write("docs/ROADMAP.md", self.BAD)
+        self._commit("docs/ROADMAP.md")                  # already wrong at HEAD
+        self._write("docs/other.md", "x\n")
+        self._add("docs/other.md")
+        self.assertEqual(0, self._check()[0])
+
+    def test_a_growth_store_dir_still_bounds_cold_content(self):
+        self._write("docs/sessions/ROADMAP.md", self.BAD)
+        self._add("docs/sessions/ROADMAP.md")
+        self.assertEqual(0, self._check()[0])
+
+    def test_a_nested_readme_is_not_a_root_only_file_candidate(self):
+        self._write("docs/README.md", "# r\n- [x] done\n")
+        self._add("docs/README.md")
+        self.assertEqual(0, self._check()[0])
+
+    def test_a_large_header_only_file_is_not_a_broken_pipe(self):
+        # A hot-path file with no cold-content convention is read for its
+        # header alone and the stream is dropped early; git is still writing a
+        # blob far larger than a pipe buffer. That must read clean, not exit 2.
+        self._write("README.md", "# r\n" + ("filler line\n" * 200000))
+        self._add("README.md")
+        rc, out = self._check()
+        self.assertEqual(0, rc, out)
+
+    def test_scope_narrows_the_staged_set(self):
+        self._write("docs/ROADMAP.md", self.BAD)
+        self._add("docs/ROADMAP.md")
+        self.assertEqual(0, self._check("elsewhere")[0])
+        self.assertEqual(1, self._check("docs")[0])
+        self.assertEqual(1, self._check()[0])
+
+    def test_an_absolute_scope_is_refused_not_passed(self):
+        self._write("docs/ROADMAP.md", self.BAD)
+        self._add("docs/ROADMAP.md")
+        self.assertEqual(2, self._check(str(self.repo / "docs"))[0])
+
+    def test_json_mode_reports_the_staged_finding(self):
+        import json
+        self._write("docs/ROADMAP.md", self.BAD)
+        self._add("docs/ROADMAP.md")
+        rc, out = self._check("--json")
+        self.assertEqual(1, rc)
+        self.assertEqual("docs/ROADMAP.md", json.loads(out)["findings"][0]["path"])
+
+
 if __name__ == "__main__":
     unittest.main()

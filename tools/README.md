@@ -1007,8 +1007,16 @@ python3 tools/sizescan.py                  # report over the whole repo (cold co
 python3 tools/sizescan.py --root repo      # scan a child from atelier
 python3 tools/sizescan.py --check          # gate: exit 1 on relocatable cold content or a live archive marker
 python3 tools/sizescan.py --json           # machine-readable
+python3 tools/sizescan.py --check --staged # the hook plane: staged copy of each roadmap / archive store the commit touches
 python3 tools/sizescan.py --selftest       # prove the engine offline
 ```
+
+**On the hook plane it reads the index** (`320/600`). Cold content and live
+state are properties of a whole file, so `--staged` judges the **whole staged
+copy** of each hot-path file or archive store the commit touches, not just the
+lines it adds, and a deletion-only edit is judged too (it adds no line, yet it
+can unbalance a fence). A file the commit does not touch is not read at the
+hook: its state is CI's whole-tree read, which is unchanged.
 
 **The gate has a narrow bite.** Cold content is a recoverable hygiene threshold
 with a lossless fix — harvest the `[x]` item aside — so a bare `sizescan`
@@ -1043,8 +1051,17 @@ hatch: `reviewscan:allow: <reason>` on any line. Deliberation:
 ```sh
 python3 tools/reviewscan.py --root . .        # scan a repo
 python3 tools/reviewscan.py --root . docs/decisions   # a decisions dir directly
+python3 tools/reviewscan.py --staged --root .  # the hook plane: staged copy of each record / brief the commit touches
 python3 tools/reviewscan.py --selftest        # prove it against fixtures
 ```
+
+**On the hook plane it reads the index** (`320/600`). Both checks are
+properties of a whole file (does the record carry a review line; does the brief
+carry a deferred section with no verdict), so `--staged` judges the **whole
+staged copy** of each decision record and review brief the commit touches. A
+deletion-only edit that drops a record's review line is judged, which an
+added-lines filter would miss. A record or brief the commit does not touch is
+left to CI's whole-tree read.
 
 A path arg may be a tree, a `docs/decisions/` dir itself, or a single record
 file — an explicitly-named path is scanned, never silently matched by nothing
@@ -1124,7 +1141,10 @@ on both the pre-commit hook and CI, and `floor.py --list` prints it
 out of the hook until it had an independent review); the flip to blocking in
 CI was Mike's ruling in `d24caec` (2026-07-23), after the cold review passed
 and the docs re-baselined to zero genuine breaches, and the registry
-(`40c7a22`, 2026-07-25) then put it on the hook plane too.
+(`40c7a22`, 2026-07-25) then put it on the hook plane too. On the hook plane it
+runs `--staged` (`320/600`), exactly as `spellscan` and `wrapscan` do: the
+staged copy is read from the index, whole, and only findings on lines the
+commit **adds** are kept. CI keeps the whole-tree read.
 
 Exemptions, deliberately generous (a false positive costs a comment; a noisy
 scanner trains itself away): a fenced code block or blockquoted line (quoted

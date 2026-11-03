@@ -533,5 +533,148 @@ class BoundedMemory(unittest.TestCase):
             "input size again (020/380).")
 
 
+def _git(repo, *args):
+    import os
+    import subprocess
+    return subprocess.run(
+        ["git", "-C", str(repo), *args],
+        capture_output=True, text=True, check=True,
+        env={**os.environ,
+             "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",  # leakscan:allow: RFC-2606 fixture identity for a throwaway test repo
+             "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.invalid"})  # leakscan:allow: RFC-2606 fixture identity for a throwaway test repo
+
+
+class StagedPlaneBase(unittest.TestCase):
+    """Shared plumbing for the 320/600 `--staged` tests: a throwaway git repo
+    the test drives with real `git add`, entered by cwd as the hook does."""
+    MOD = None
+
+    def setUp(self):
+        import os
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        _git(self.repo, "init", "-q")
+        self._old_cwd = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, self._old_cwd)
+
+    def _write(self, rel, text):
+        p = self.repo / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def _main(self, *args):
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+            rc = self.MOD.main([*args])
+        return rc, out.getvalue()
+
+    def _run(self, *extra):
+        return self._main("--staged", "--root", str(self.repo), *extra)
+
+    def _add(self, *paths):
+        _git(self.repo, "add", *paths)
+
+    def _commit(self, *paths):
+        _git(self.repo, "add", *paths)
+        _git(self.repo, "commit", "-q", "-m", "c")
+
+
+class StagedPlane(StagedPlaneBase):
+    """320/600, slice 2: `--staged` reads the INDEX, and only the lines a commit
+    adds. Pairs a false block with a false pass, because fixing one direction
+    alone is how the other gets missed."""
+    MOD = ds
+    BAD = "It landed last week.\n"
+    GOOD = "Stamped 2026-07-23.\n"
+
+    def test_false_block_an_unstaged_draft_does_not_block(self):
+        self._write("docs/a.md", self.GOOD)
+        self._commit("docs/a.md")
+        self._write("docs/a.md", self.GOOD + "also fine\n")
+        self._add("docs/a.md")
+        self._write("docs/draft.md", self.BAD)          # never staged
+        rc, out = self._run("docs")
+        self.assertEqual(0, rc, out)
+        # ...and the working-tree plane still sees it, so the test is not vacuous.
+        self.assertEqual(1, self._main("--root", str(self.repo), "docs")[0])
+
+    def test_false_pass_a_staged_defect_fixed_on_disk_still_blocks(self):
+        self._write("docs/c.md", self.BAD)
+        self._add("docs/c.md")
+        self._write("docs/c.md", self.GOOD)             # fixed after `git add`
+        rc, out = self._run("docs")
+        self.assertEqual(1, rc, out)
+        self.assertIn("docs/c.md:1", out)
+
+    def test_a_staged_clean_file_passes(self):
+        self._write("docs/ok.md", self.GOOD)
+        self._add("docs/ok.md")
+        self.assertEqual(0, self._run("docs")[0])
+
+    def test_only_added_lines_report_not_a_defect_already_in_the_file(self):
+        self._write("docs/old.md", self.BAD)
+        self._commit("docs/old.md")
+        self._write("docs/old.md", self.BAD + self.GOOD)
+        self._add("docs/old.md")
+        self.assertEqual(0, self._run("docs")[0])
+
+    def test_an_added_defect_in_an_edited_file_reports_its_real_line(self):
+        self._write("docs/e.md", self.GOOD + self.GOOD)
+        self._commit("docs/e.md")
+        self._write("docs/e.md", self.GOOD + self.GOOD + self.BAD)
+        self._add("docs/e.md")
+        rc, out = self._run("docs")
+        self.assertEqual(1, rc, out)
+        self.assertIn("docs/e.md:3", out)
+
+    def test_fence_context_comes_from_the_whole_staged_file(self):
+        # The added line sits inside a fence opened by an UNCHANGED line above
+        # it. Scanning added lines alone would call it prose and block.
+        self._write("docs/f.md", "```\n" + self.GOOD + "```\n")
+        self._commit("docs/f.md")
+        self._write("docs/f.md", "```\n" + self.GOOD + self.BAD + "```\n")
+        self._add("docs/f.md")
+        self.assertEqual(0, self._run("docs")[0])
+
+    def test_scope_narrows_the_staged_set(self):
+        self._write("notes/x.md", self.BAD)
+        self._add("notes/x.md")
+        self.assertEqual(0, self._run("docs")[0])
+        self.assertEqual(1, self._run("notes")[0])
+        self.assertEqual(1, self._run()[0])
+
+    def test_an_absolute_scope_is_refused_not_passed(self):
+        self._write("docs/x.md", self.BAD)
+        self._add("docs/x.md")
+        self.assertEqual(2, self._run(str(self.repo / "docs"))[0])
+
+    def test_ignore_glob_still_applies(self):
+        self._write("docs/frozen/z.md", self.BAD)
+        self._write(".datescanignore",
+                    "# frozen record, kept as written\ndocs/frozen/**\n")
+        self._add("docs/frozen/z.md")
+        self.assertEqual(0, self._run("docs")[0])
+
+    def test_json_mode_reports_the_staged_finding(self):
+        import json
+        self._write("docs/j.md", self.BAD)
+        self._add("docs/j.md")
+        rc, out = self._run("docs", "--json")
+        self.assertEqual(1, rc)
+        self.assertEqual("docs/j.md", json.loads(out)["findings"][0]["path"])
+
+    def test_a_large_staged_file_is_streamed_whole(self):
+        # More than a pipe buffer, with the defect on the last line: the blob
+        # is read to its end, not cut short (a short read would pass it).
+        self._write("docs/big.md", (self.GOOD * 20000) + self.BAD)
+        self._add("docs/big.md")
+        rc, out = self._run("docs")
+        self.assertEqual(1, rc, out)
+        self.assertIn("docs/big.md:20001", out)
+
+
 if __name__ == "__main__":
     unittest.main()

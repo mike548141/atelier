@@ -151,6 +151,11 @@ is lossless) and on live state in an archive store. Reviewed 2026-07-14 (cold,
 PASS-WITH-FINDINGS), reworked to the cold-content model 2026-07-20 (Mike's
 ruling, same day), and stripped of its size advisory 2026-10-16 (115/270 c).
 
+On the hook plane the floor runs it `--staged` (320/600): the INDEX copy of each
+hot-path file or archive store the commit touches, judged whole (cold content
+and live state are properties of a whole file, so there is no added-line filter,
+and a deletion-only edit is judged too); CI keeps the whole-tree read.
+
 Exit codes (fail-safe — anything but a clean run is non-zero):
   0  clean; or gated findings present but --check was not given. Inert hatches
      are named but never change the code.
@@ -514,6 +519,14 @@ def _iter_physical_lines(path: Path):
     characters for `text`; `truncated=True` says so — the excess is still
     READ (so running time stays linear in bytes read) but never held, and
     the caller counts the truncation rather than scanning silently short."""
+    with open(path, "rb") as fh:
+        yield from _iter_physical_lines_fh(fh)
+
+
+def _iter_physical_lines_fh(fh):
+    """`_iter_physical_lines` over an open binary stream: the same bounded
+    chunked read, so a staged blob git streams to us (320/600) is held no
+    more whole than a file on disk is."""
     decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
     lineno = 1
     pending = ""
@@ -535,12 +548,11 @@ def _iter_physical_lines(path: Path):
                 pending = ""
                 truncated = False
 
-    with open(path, "rb") as fh:
-        while True:
-            chunk = fh.read(_READ_CHUNK_BYTES)
-            if not chunk:
-                break
-            yield from feed(decoder.decode(chunk))
+    while True:
+        chunk = fh.read(_READ_CHUNK_BYTES)
+        if not chunk:
+            break
+        yield from feed(decoder.decode(chunk))
     tail = decoder.decode(b"", final=True)
     if tail:
         yield from feed(tail)
@@ -548,8 +560,15 @@ def _iter_physical_lines(path: Path):
         yield lineno, pending, truncated
 
 
-def _scan_file_metrics(path: Path, basename: str, item_slots: int = 0
-                       ) -> tuple[str, int, int, int, list[ColdItem]]:
+def _staged_physical_lines(rel: str):
+    """Physical lines of the INDEX copy of `rel` (320/600), re-openable: a
+    caller that needs a second pass calls this again for a fresh stream."""
+    with report.staged_blob(rel) as fh:
+        yield from _iter_physical_lines_fh(fh)
+
+
+def _scan_file_metrics(path: Path, basename: str, item_slots: int = 0,
+                       lines=None) -> tuple[str, int, int, int, list[ColdItem]]:
     """Stream `path` once (twice only in the rare unbalanced-fence case) to
     compute `(header, line_count, cold_items, live_items, items)` without ever
     holding the whole file, or a per-line record of it, in memory (020/380).
@@ -566,7 +585,14 @@ def _scan_file_metrics(path: Path, basename: str, item_slots: int = 0
     flag list would itself grow with the file's LINE COUNT, which is exactly
     the not-allowed-to-scale-with-input-size shape this fix exists to remove.
     Two bounded passes is still linear in bytes read, just a larger constant
-    factor, and the common (balanced) case never pays it at all."""
+    factor, and the common (balanced) case never pays it at all.
+
+    `lines` is a zero-argument factory of physical lines, for a source other
+    than `path` on disk (the staged index copy, 320/600); each call must give a
+    fresh stream, as the second pass needs one."""
+    if lines is None:
+        def lines():
+            return _iter_physical_lines(path)
     want_cold = basename in COLD_CHECKBOX_FILES
     want_live = is_archive_store(basename)
 
@@ -576,7 +602,7 @@ def _scan_file_metrics(path: Path, basename: str, item_slots: int = 0
         in_fence = False
         cold = live = 0
         items: list[ColdItem] = []
-        for lineno, text, _truncated in _iter_physical_lines(path):
+        for lineno, text, _truncated in lines():
             n = lineno
             if lineno <= MARKER_SCAN_LINES:
                 header_lines.append(text)
@@ -600,12 +626,13 @@ def _scan_file_metrics(path: Path, basename: str, item_slots: int = 0
     return header, n, cold, live, items
 
 
-def _read_header(path: Path) -> str:
+def _read_header(path: Path, lines=None) -> str:
     """The first `MARKER_SCAN_LINES` lines of `path` and nothing more, for a
     hot-path file that is read only to find a stale hatch (115/270 c). Streamed
     and stopped early, so a huge file costs one chunk, not a full pass."""
     header_lines: list[str] = []
-    for lineno, text, _truncated in _iter_physical_lines(path):
+    for lineno, text, _truncated in (lines() if lines is not None
+                                     else _iter_physical_lines(path)):
         header_lines.append(text)
         if lineno >= MARKER_SCAN_LINES:
             break
@@ -689,41 +716,104 @@ def scan_paths(paths: list[Path], root: Path,
                counts: dict[str, int] | None = None,
                inert: list[InertHatch] | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
+    skipped: list[int] = []
+
+    def sources():
+        for p in iter_candidates(paths, root, globs, skipped,
+                                 evaluate_ignored=True):
+            yield (p.name, _rel(p, root),
+                   lambda looked_at, slots, p=p: (
+                       _scan_file_metrics(p, p.name, slots) if looked_at
+                       else (_read_header(p), 0, 0, 0, [])))
+    return _judge(sources(), globs, skipped, counts, inert)
+
+
+def _staged_candidates(staged, globs: list[str], skipped: list[int]):
+    """The staged counterpart of `iter_candidates` (320/600): the same
+    filters, decided from the repo-relative path, since the file is read from
+    the index. Directory parts are taken relative to the repo root, which is
+    where a hook's default scan starts."""
+    for rel in sorted(staged):
+        rp = Path(rel)
+        name = rp.name
+        if name not in HOT_PATH_FILES and not is_archive_store(name):
+            continue
+        parts = set(rp.parts[:-1])
+        if parts & NON_CONTENT_DIR_NAMES:
+            continue
+        if parts & STORE_DIR_NAMES and not is_archive_store(name):
+            continue
+        if name in ROOT_ONLY and rp.parent != Path("."):
+            continue
+        if _ignored(rel, globs) and is_archive_store(name):
+            skipped.append(1)
+            continue
+        yield (name, rel,
+               lambda looked_at, slots, rel=rel: (
+                   _scan_file_metrics(Path(rel), name, slots,
+                                      lines=lambda: _staged_physical_lines(rel))
+                   if looked_at
+                   else (_read_header(Path(rel),
+                                      lines=lambda: _staged_physical_lines(rel)),
+                         0, 0, 0, [])))
+
+
+def scan_staged(staged, root: Path,
+                counts: dict[str, int] | None = None,
+                inert: list[InertHatch] | None = None) -> list[Finding]:
+    """The hook plane (320/600): what this commit is about to make true.
+
+    Both of this scanner's checks judge a WHOLE file (does the roadmap carry a
+    completed item? does an archive store carry a live marker?), so a
+    changed line is the wrong unit: a commit that only deletes lines adds
+    none, yet can leave a file wrong. The unit is therefore the whole INDEX
+    copy of every staged hot-path file or archive store (`staged`: path ->
+    anything, from `report.staged_paths`), judged by exactly the code that
+    judges the disk copy. A file the commit does not touch is not judged here:
+    its state is CI's whole-tree read, and an unstaged edit on disk is nobody's
+    business at the hook."""
+    globs = load_ignore_globs(root)
+    skipped: list[int] = []
+    return _judge(_staged_candidates(staged, globs, skipped), globs, skipped,
+                  counts, inert)
+
+
+def _judge(sources, globs: list[str], skipped: list[int],
+           counts: dict[str, int] | None,
+           inert: list[InertHatch] | None) -> list[Finding]:
+    """The verdict on each source file, whichever plane it is read from.
+    `sources` yields `(basename, repo-relative path, read)`, where
+    `read(looked_at, slots)` gives `(header, n, cold, live, items)`."""
     findings: list[Finding] = []
     files_allowed = 0
     n_inert = 0
-    skipped: list[int] = []
     slots = MAX_MATERIALIZED_FINDINGS
     cold_over_cap = 0
-    for p in iter_candidates(paths, root, globs, skipped, evaluate_ignored=True):
+    for name, rel, read in sources:
         # 020/380 — streamed rather than `p.read_text()` + whole-file regex
         # passes: peak memory for this file is now bounded by `_MAX_LINE_BYTES`
         # regardless of the file's own size. `header` is already the
         # first-`MARKER_SCAN_LINES`-lines slice, so `parse_allow` needs no
         # change. A hot-path file with no cold-content convention is read for
         # its header alone: it has nothing to count, only hatches to name.
-        looked_at = p.name in COLD_CHECKBOX_FILES or is_archive_store(p.name)
+        looked_at = name in COLD_CHECKBOX_FILES or is_archive_store(name)
         try:
-            if looked_at:
-                header, n, cold, live, items = _scan_file_metrics(p, p.name, slots)
-            else:
-                header, n, cold, live, items = _read_header(p), 0, 0, 0, []
+            header, n, cold, live, items = read(looked_at, slots)
         except OSError:
             continue
         slots -= len(items)
         cold_over_cap += cold - len(items)
         scope = parse_allow(header)
-        rel = _rel(p, root)
         # A hatch is counted as a suppression only where it still exempts
         # something: an allow-marker on an archive store that covers its
         # harvest-integrity check. Every other hatch is inert (115/270 c).
-        exempt = (scope is not None and is_archive_store(p.name)
+        exempt = (scope is not None and is_archive_store(name)
                   and allowmarker.covers(scope, "harvest-integrity",
                                          FINDING_KINDS))
         if exempt:
             files_allowed += 1
-        hatches = _inert_hatches(p.name, header, scope, _ignored(rel, globs))
-        if is_archive_store(p.name):
+        hatches = _inert_hatches(name, header, scope, _ignored(rel, globs))
+        if is_archive_store(name):
             # Integrity only — an archive store holds no cold content to look
             # for. A live marker gates under --check; a clean archive stays
             # silent.
@@ -878,6 +968,12 @@ def _main(argv: list[str] | None = None) -> int:
                          "an archive store carries live state markers "
                          "([ ]/[~]/⏳ — harvest integrity) "
                          "(default: report only, exit 0)")
+    ap.add_argument("--staged", action="store_true",
+                    help="the hook plane: judge the STAGED (index) copy of "
+                         "each roadmap or archive store the commit touches, "
+                         "whole; paths then scope the staged set and are "
+                         "repo-relative (default: every staged one; run from "
+                         "the repo root, as a hook does)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
@@ -890,20 +986,37 @@ def _main(argv: list[str] | None = None) -> int:
     rc = report.refuse_missing_root("sizescan", root, args.root)
     if rc is not None:
         return rc
-    # A RELATIVE target resolves against --root, never the caller's cwd:
-    # mixing the two reads one repo's file under another repo's rules,
-    # and neither half of the output says so (roadmap 010/110).
-    targets = report.resolve_targets(root, args.paths or [str(root)])
-    rc = report.refuse_missing_paths("sizescan", targets)
-    if rc is not None:
-        return rc
-    try:
-        counts: dict[str, int] = {"files_allowed": 0, "files_by_glob": 0,
-                                  "cold_over_cap": 0, "inert_hatches": 0}
-        inert: list[InertHatch] = []
-        findings = scan_paths(targets, root, counts, inert)
-    except OSError as e:
-        return report.cannot_read("sizescan", e)
+    counts: dict[str, int] = {"files_allowed": 0, "files_by_glob": 0,
+                              "cold_over_cap": 0, "inert_hatches": 0}
+    inert: list[InertHatch] = []
+    if args.staged:
+        try:
+            staged = dict.fromkeys(report.staged_paths())
+        except report.STAGED_DIFF_FAILURES as e:
+            return report.git_diff_failed("sizescan", e)
+        # Repo-relative scope, normalised and refused the way the other staged
+        # guards do (`report.scope_staged`, roadmap 115/360).
+        rc, staged = report.scope_staged("sizescan", staged, args.paths, ".")
+        if rc is not None:
+            return rc
+        try:
+            findings = scan_staged(staged, root, counts, inert)
+        except report.STAGED_DIFF_FAILURES as e:
+            return report.git_diff_failed("sizescan", e)
+        except OSError as e:
+            return report.cannot_read("sizescan", e)
+    else:
+        # A RELATIVE target resolves against --root, never the caller's cwd:
+        # mixing the two reads one repo's file under another repo's rules,
+        # and neither half of the output says so (roadmap 010/110).
+        targets = report.resolve_targets(root, args.paths or [str(root)])
+        rc = report.refuse_missing_paths("sizescan", targets)
+        if rc is not None:
+            return rc
+        try:
+            findings = scan_paths(targets, root, counts, inert)
+        except OSError as e:
+            return report.cannot_read("sizescan", e)
 
     if args.json:
         print(json.dumps({

@@ -132,6 +132,20 @@ def staged_added_by_path() -> dict[str, set[int]]:
     return added
 
 
+def staged_paths() -> list[str]:
+    """Every path the staged change adds, copies, modifies or renames to, with
+    no regard to whether it adds a LINE (`git diff --cached --name-only -z`,
+    the same `ACMR` filter as `STAGED_DIFF_CMD`). For a scanner that judges a
+    whole file rather than a line (`reviewscan`, `sizescan`, roadmap 320/600):
+    a deletion-only edit adds no line, yet it can make the whole file wrong
+    (it removed the file's review line). Raises `subprocess.CalledProcessError`
+    if git fails; callers catch `STAGED_DIFF_FAILURES`."""
+    out = subprocess.run(
+        ["git", "diff", "--cached", "--name-only", "-z", "--no-ext-diff",
+         "--diff-filter=ACMR"], capture_output=True, check=True)
+    return nul_paths(out.stdout)
+
+
 @contextmanager
 def staged_blob(path: str):
     """The INDEX copy of `path` (what the commit will hold, not the working

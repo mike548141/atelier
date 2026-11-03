@@ -1,7 +1,7 @@
 - [ ] ⏳ **Rule-4 cold pass queued: the `pre-merge-commit` hook, the repo-local
-      seam documentation, and `spellscan` / `wrapscan` reading the staged index
-      (`115/340`, `320/560`, `320/600` first slice).** The merge hook and the
-      two scanners reach every child's hook plane and next CI run, and
+      seam documentation, and the five content scanners reading the staged index
+      (`115/340`, `320/560`, `320/600` both slices).** The merge hook and the
+      five scanners reach every child's hook plane and next CI run, and
       `GUARDS.md` gained a section, so the authoring session (a principal-opened
       Opus 5.5 queue run, session 4c65083c, 2026-11-03, which dispatched the
       Sonnet worker that wrote the code) queues this and does not take it.
@@ -12,10 +12,13 @@
       `.githooks/pre-merge-commit`, `.githooks/pre-commit`,
       `tools/pre-commit.sample`, `tools/test_precommit.py`, `tools/report.py`,
       `tools/spellscan.py`, `tools/test_spellscan.py`, `tools/wrapscan.py`,
-      `tools/test_wrapscan.py`, `tools/floor.py`, `tools/README.md`,
+      `tools/test_wrapscan.py`, `tools/datescan.py`, `tools/test_datescan.py`,
+      `tools/reviewscan.py`, `tools/test_reviewscan.py`, `tools/sizescan.py`,
+      `tools/test_sizescan.py`, `tools/floor.py`, `tools/README.md`,
       `docs/method/GUARDS.md`, `commands/install-hook.md`,
       `skills/create-repo/SKILL.md`, `CHANGELOG.md` (commits `b5e6ead`, `625f29a`
-      and `7673da1`, on `main`, 2026-11-03).
+      and `7673da1`, on `main`, 2026-11-03, and the commit that lands `320/600`
+      slice 2).
       *Intent records:*
       [`../115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md`](../115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md),
       [`../320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md`](../320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md),

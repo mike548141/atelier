@@ -501,7 +501,11 @@ SCANNERS: tuple[Scanner, ...] = (
     ),
     Scanner(
         "reviewscan",
-        hook=["--root", "{root}", "{scope}"],
+        # `--staged` on the hook plane only (320/600): the index copy of each
+        # decision record / brief the commit touches, judged whole. Both of
+        # its checks are properties of a whole file, so the unit is the file
+        # the commit touches, not the line it adds. CI keeps the whole tree.
+        hook=["--staged", "--root", "{root}", "{scope}"],
         ci=["--root", "{root}", "{scope}"],
         advisory=None,  # REVIEW.md: omission IS the bug, so it cannot be advisory
         why="a decision record states its review judgement, and a review "
@@ -527,7 +531,11 @@ SCANNERS: tuple[Scanner, ...] = (
     ),
     Scanner(
         "sizescan",
-        hook=["--check", "--root", "{root}", "{scope}"],
+        # `--staged` on the hook plane only (320/600): the index copy of each
+        # roadmap or archive store the commit touches, judged whole (cold
+        # content and live state are properties of a whole file). CI keeps the
+        # whole tree. The advisory form drops --check and stays whole-tree.
+        hook=["--check", "--staged", "--root", "{root}", "{scope}"],
         ci=["--check", "--root", "{root}", "{scope}"],
         advisory=["--root", "{root}", "{scope}"],  # drop --check
         why="current-truth files stay honest; archive stores hold no live state",
@@ -572,7 +580,8 @@ SCANNERS: tuple[Scanner, ...] = (
     ),
     Scanner(
         "datescan",
-        hook=["--root", "{root}", "{scope}"],
+        # `--staged` on the hook plane only (320/600): see wrapscan below.
+        hook=["--staged", "--root", "{root}", "{scope}"],
         ci=["--root", "{root}", "{scope}"],
         advisory=["--warn", "--root", "{root}", "{scope}"],
         why="records date in absolute UTC, never a drifting 'today'",

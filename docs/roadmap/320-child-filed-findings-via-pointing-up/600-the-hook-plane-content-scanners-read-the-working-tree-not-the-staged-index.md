@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0840, wt: atelier-qr-4c65-staged2) 🔎 **Hand-up from a private child: at the hook plane the content
+- [x] 🔎 **Hand-up from a private child: at the hook plane the content
       scanners (`spellscan`, `wrapscan`, and by registry `datescan`,
       `reviewscan`, `sizescan`) read the WORKING TREE, not the staged index,
       so one writer's unstaged draft blocks everyone else's commit, and the
@@ -103,3 +103,27 @@
       The "what does the floor print for a staged-only finding whose disk copy
       differs" question is answered for these two: it prints the staged line
       number and text-less finding, which can differ from the editor's view.
+      ✅ **Slice 2 landed 2026-11-03 (`datescan`, `reviewscan`, `sizescan`); item
+      closed, all five read the staged plane.** `datescan --staged` is slice 1's
+      shape: the staged file is read whole from the index and a finding is kept
+      only on a line the commit adds. `reviewscan` and `sizescan` judge WHOLE
+      files (a record has its review line; a roadmap holds no completed item; an
+      archive store holds no live marker), so "staged" there means: judge the
+      whole index copy of every record, brief, roadmap or archive store the
+      commit touches, by the code that judges the disk copy, with no added-line
+      filter. That was a judged choice, not a copy: an added-lines filter would
+      pass a deletion-only edit that drops a record's review line, which adds
+      nothing and leaves the file wrong. So these two list the staged PATHS
+      (new shared `report.staged_paths`, `--name-only -z`, the same `ACMR`
+      filter) rather than the staged diff. `sizescan --check` had no whole-tree
+      reason the registry did not state: its size-independent gate is a property
+      of the file the commit writes, and CI keeps the whole tree. A file the
+      commit does not touch is no longer read at the hook (its state is CI's).
+      The registry passes `--staged` on the hook plane only; the advisory forms
+      stay whole-tree. Pinned both ways (false block and false pass) in
+      `StagedPlane` in each scanner's test file, plus a deletion-only case for
+      the two whole-file scanners and a large-blob case (git must see the stream
+      read to its end or a clean early return reads as a failed `git cat-file`),
+      and proven end to end through the real hook in a throwaway repo (unstaged
+      bad draft, record and roadmap: commit lands; the same staged then fixed on
+      disk: commit refused by all three).

@@ -5,6 +5,29 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-03 — `datescan`, `reviewscan` and `sizescan` read the staged index at the hook, `320/600` second slice)
+- **Children: no action, and one behaviour change at the hook.** On the hook
+  plane the last three scanners that read the working tree now run `--staged`,
+  as `spellscan` and `wrapscan` did in the first slice; CI's whole-tree read is
+  unchanged. This completes `320/600`. Two ends: an unstaged draft on disk no
+  longer reds another writer's commit in a shared checkout, and a staged defect
+  no longer passes because its disk copy was fixed after `git add`.
+  - `datescan --staged` is the line scanners' shape: the staged Markdown file is
+    read whole from the index (so fence context is right) and a finding is kept
+    only on a line the commit adds.
+  - `reviewscan --staged` and `sizescan --check --staged` judge **whole files**
+    (a record has its review line; a roadmap holds no completed item; an
+    archive store holds no live marker), so an added-lines filter would be the
+    wrong unit and would miss a deletion-only edit that drops a review line.
+    They judge the whole staged copy of each record, brief, roadmap or archive
+    store the commit touches, by the code that judges the disk copy. A file the
+    commit does not touch is no longer read at the hook; its state is CI's.
+  - Net effect on a green child: none can turn red from this. A file the
+    commit does not touch is not read, and a touched file is judged by the
+    verdict CI would give it.
+  - New shared helper in `report.py`: `staged_paths` (every path the staged
+    change adds, copies, modifies or renames to, whether or not it adds a line).
+
 ### Added (2026-11-03 — ccclose counts the scratch folder and flags a refused delete re-routed, `180/170`, `180/180`)
 - **A thirteenth check, *Scratch folder empty*.** ccclose reads the session's
   scratch folder from the transcript's environment record and counts the

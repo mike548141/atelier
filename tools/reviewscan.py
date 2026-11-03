@@ -76,6 +76,11 @@ hatch in `reviewscan:allow:`. Accepted, not defended against.
 A line carrying `reviewscan:allow: <reason>` anywhere in a record exempts it —
 self-documenting and greppable, same hatch as the sibling scanners.
 
+On the hook plane the floor runs it `--staged` (320/600): the INDEX copy of
+each decision record and review brief the commit touches, judged whole (both
+checks are properties of a whole file, so there is no added-line filter, and a
+deletion-only edit is judged too); CI keeps the whole-tree read.
+
 Exit codes (fail-safe — anything but a clean scan is non-zero):
   0  clean
   1  record(s) missing the review line
@@ -195,40 +200,51 @@ def _iter_file_lines(path: Path):
     checked, matching the old whole-text `in` / `.search()` as closely as a
     bounded read can (a marker split exactly across one window's cut is the
     one stated residual, mitigated by the overlap)."""
+    with open(path, "rb") as fh:
+        yield from _iter_fh_lines(fh)
+
+
+def _iter_fh_lines(fh):
+    """`_iter_file_lines` over an open binary stream: the same bounded
+    windowed read, so a staged blob git streams to us (320/600) is held no
+    more whole than a file on disk is."""
     decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
     pending = ""
     first = True
-    with open(path, "rb") as fh:
+    while True:
+        chunk = fh.read(READ_CHUNK_BYTES)
+        if not chunk:
+            break
+        pending += decoder.decode(chunk)
         while True:
-            chunk = fh.read(READ_CHUNK_BYTES)
-            if not chunk:
+            nl = pending.find("\n")
+            if nl == -1:
                 break
-            pending += decoder.decode(chunk)
-            while True:
-                nl = pending.find("\n")
-                if nl == -1:
-                    break
-                yield pending[:nl], first
-                pending = pending[nl + 1:]
-                first = True
-            if len(pending) >= LINE_WINDOW_BYTES:
-                yield pending, first
-                pending = pending[-LINE_WINDOW_OVERLAP:]
-                first = False
-        pending += decoder.decode(b"", final=True)
-        if pending:
+            yield pending[:nl], first
+            pending = pending[nl + 1:]
+            first = True
+        if len(pending) >= LINE_WINDOW_BYTES:
             yield pending, first
+            pending = pending[-LINE_WINDOW_OVERLAP:]
+            first = False
+    pending += decoder.decode(b"", final=True)
+    if pending:
+        yield pending, first
 
 
-def scan_record(path: Path, suppressed: list[int] | None = None) -> bool:
+def scan_record(path: Path, suppressed: list[int] | None = None,
+                lines=None) -> bool:
     """True if the record satisfies the rule (has the line, or is exempt).
 
     `suppressed` collects one entry per record an allow-marker exempted, so a
-    clean run can state what it subtracted (`method/GUARDS.md`, rule b)."""
+    clean run can state what it subtracted (`method/GUARDS.md`, rule b).
+    `lines` is a ready line source (the staged index copy, 320/600); by
+    default the file on disk is read."""
     # A `review:` inside a fenced code block is a QUOTED example, not the
     # record's own judgement (RS2) — track fence state and skip fenced lines.
     in_fence = False
-    for line, is_first in _iter_file_lines(path):
+    for line, is_first in (lines if lines is not None
+                           else _iter_file_lines(path)):
         if parse_allow(line) is not None:
             if suppressed is not None:
                 suppressed.append(1)
@@ -243,16 +259,19 @@ def scan_record(path: Path, suppressed: list[int] | None = None) -> bool:
     return False
 
 
-def scan_brief(path: Path) -> bool:
+def scan_brief(path: Path, lines=None) -> bool:
     """True if the brief satisfies rule 1's placement rule (or is exempt).
 
     Fails only for the one mechanically-reliable shape: a deferred SECTION
     present in a brief that has no verdict yet — i.e. deferred content sitting
-    where a reviewer will read it before its findings exist.
+    where a reviewer will read it before its findings exist. `lines` is a
+    ready line source (the staged index copy, 320/600); by default the file on
+    disk is read.
     """
     in_fence = False
     has_deferred = has_verdict = False
-    for line, is_first in _iter_file_lines(path):
+    for line, is_first in (lines if lines is not None
+                           else _iter_file_lines(path)):
         if DEFERRAL_ALLOW in line:
             return True
         if not is_first:
@@ -342,25 +361,88 @@ def find_records(paths: list[Path]) -> list[Path]:
     return sorted(dict.fromkeys(records))
 
 
+def staged_kind(rel: str) -> str | None:
+    """`"record"`, `"brief"` or None for a repo-relative staged path: the same
+    classification `find_records` / `find_briefs` make from the disk, decided
+    from the path alone, since the file is read from the index (320/600)."""
+    p = Path(rel)
+    if p.suffix != ".md" or "templates" in p.parts:
+        return None
+    parent = p.parent
+    if parent.parent.name != "docs":
+        return None
+    if parent.name == "decisions":
+        m = RECORD_NAME.match(p.name)
+        return "record" if m and m.group(1) >= BOUNDARY else None
+    if (parent.name == "reviews" and p.name != "README.md"
+            and not p.name.endswith(".deferred.md")):
+        return "brief"
+    return None
+
+
+def scan_staged(staged: dict, suppressed: list[int] | None = None
+                ) -> tuple[list[str], list[str], list[str], list[str]]:
+    """The hook plane (320/600): what this commit is about to make true.
+
+    Both checks judge a WHOLE file (does the record carry a review line? does
+    the brief carry a deferred section with no verdict?), so there is no
+    added-line filter to apply as the line scanners do: that would pass a
+    commit which deleted a record's review line, an edit that adds nothing.
+    The unit is therefore the whole INDEX copy of every staged record or brief
+    (`staged`: path -> anything, from `report.staged_paths`), judged by the
+    same `scan_record` / `scan_brief` as the disk read. A file the commit does
+    not touch is not judged here; CI's whole-tree read owns that.
+
+    Returns (records, record_failures, briefs, misplaced_briefs), all
+    repo-relative."""
+    records: list[str] = []
+    failures: list[str] = []
+    briefs: list[str] = []
+    misplaced: list[str] = []
+    for rel in sorted(staged):
+        kind = staged_kind(rel)
+        if kind is None:
+            continue
+        with report.staged_blob(rel) as fh:
+            lines = _iter_fh_lines(fh)
+            if kind == "record":
+                records.append(rel)
+                if not scan_record(Path(rel), suppressed, lines=lines):
+                    failures.append(rel)
+            else:
+                briefs.append(rel)
+                if not scan_brief(Path(rel), lines=lines):
+                    misplaced.append(rel)
+            for _ in lines:   # drain: git must see the stream read to its end
+                pass
+    return records, failures, briefs, misplaced
+
+
 def run(paths: list[Path], root: Path, as_json: bool) -> int:
     records = find_records(paths)
     _suppressed: list[int] = []
     failures = [r for r in records if not scan_record(r, _suppressed)]
     briefs = find_briefs(paths)
     misplaced = [b for b in briefs if not scan_brief(b)]
+    rel = lambda ps: [str(p.relative_to(root)) for p in ps]  # noqa: E731
+    return _render(rel(records), rel(failures), rel(briefs), rel(misplaced),
+                   len(_suppressed), as_json)
+
+
+def _render(records: list[str], failures: list[str], briefs: list[str],
+            misplaced: list[str], n_suppressed: int, as_json: bool) -> int:
     if as_json:
         print(json.dumps({
-            "checked": [str(r.relative_to(root)) for r in records],
-            "failures": [str(r.relative_to(root)) for r in failures],
-            "briefs_checked": [str(b.relative_to(root)) for b in briefs],
-            "briefs_misplaced_deferral": [
-                str(b.relative_to(root)) for b in misplaced],
+            "checked": records,
+            "failures": failures,
+            "briefs_checked": briefs,
+            "briefs_misplaced_deferral": misplaced,
         }, indent=2))
         return report.exit_code(len(failures) + len(misplaced))
 
     if failures:
         for r in failures:
-            print(f"✗ {r.relative_to(root)} — no review line. Add one:")
+            print(f"✗ {r} — no review line. Add one:")
         print()
         print("Every decision record states its review judgement (REVIEW.md):")
         print("  **Review**: queued — docs/reviews/<brief>.md")
@@ -371,7 +453,7 @@ def run(paths: list[Path], root: Path, as_json: bool) -> int:
         if failures:
             print()
         for b in misplaced:
-            print(f"✗ {b.relative_to(root)} — deferred section inside the "
+            print(f"✗ {b} — deferred section inside the "
                   "brief, with no verdict yet.")
         print()
         print("REVIEW.md rule 1: deferred material lives in a SIBLING file,")
@@ -389,7 +471,7 @@ def run(paths: list[Path], root: Path, as_json: bool) -> int:
             f"line; {len(briefs)} review brief(s) keep deferred material out "
             "of the brief."))
         print(report.suppressed_line(
-            [f"{len(_suppressed)} record(s) by allow-marker"]))
+            [f"{n_suppressed} record(s) by allow-marker"]))
     return report.exit_code(len(failures) + len(misplaced))
 
 
@@ -463,6 +545,12 @@ def main(argv: list[str] | None = None) -> int:
                     help="files or directories to scan (default: --root)")
     ap.add_argument("--root", default=".",
                     help="repo root, for relative reporting (default: .)")
+    ap.add_argument("--staged", action="store_true",
+                    help="the hook plane: judge the STAGED (index) copy of "
+                         "each decision record and review brief the commit "
+                         "touches, whole; paths then scope the staged set and "
+                         "are repo-relative (default: every staged one; run "
+                         "from the repo root, as a hook does)")
     ap.add_argument("--json", action="store_true",
                     help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
@@ -475,6 +563,26 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(args.root).resolve()
     if not root.is_dir():
         return report.broken("reviewscan", f"--root {args.root} is not a directory")
+    if args.staged:
+        try:
+            staged = dict.fromkeys(report.staged_paths())
+        except report.STAGED_DIFF_FAILURES as e:
+            return report.git_diff_failed("reviewscan", e)
+        # Repo-relative scope, normalised and refused the way the other staged
+        # guards do (`report.scope_staged`, roadmap 115/360).
+        rc, staged = report.scope_staged("reviewscan", staged, args.paths,
+                                         "docs/")
+        if rc is not None:
+            return rc
+        suppressed: list[int] = []
+        try:
+            recs, fails, briefs, misplaced = scan_staged(staged, suppressed)
+        except report.STAGED_DIFF_FAILURES as e:
+            return report.git_diff_failed("reviewscan", e)
+        except OSError as e:
+            return report.cannot_read("reviewscan", e)
+        return _render(recs, fails, briefs, misplaced, len(suppressed),
+                       args.json)
     # A RELATIVE target resolves against --root, never the caller's cwd:
     # mixing the two reads one repo's file under another repo's rules,
     # and neither half of the output says so (roadmap 010/110).
