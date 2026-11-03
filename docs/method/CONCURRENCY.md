@@ -1029,9 +1029,10 @@ The same run brief fixed three things the report carries (homed 2026-10-18,
   device** (`COMMUNICATION.md` § *Asking for a ruling*), in plain language:
   what it is for and what each answer would change (`00-APEX.md` for what an
   informed ruling needs). Prose carries it only where the harness has no
-  device; a 🎯 line in the closing message is not the device. (2026-11-03,
-  `180/150`: a run parked a decision for the end, then wrote it and two other
-  asks into its close as prose.)
+  device; a 🎯 line in the closing message is not the device. A refused tool
+  call is one such question (`AUTONOMY.md` § *A refused call is an ask, never
+  an obstacle*). (2026-11-03, `180/150`: a run parked a decision for the end,
+  then wrote it and two other asks into its close as prose.)
 - **A re-read of the principal's asks before the all-clear.** Read back every
   prompt he gave this session, and every question, action or decision the run
   put to him, mid-turn as well as at the turn. Each one is either done or

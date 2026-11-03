@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0824, wt: atelier-qr-4c65-closecheck) 🔎 **The run declared "ready to close" with loose ends in the same
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-closecheck) 🔎 **The run declared "ready to close" with loose ends in the same
       message.** Session `8e498ef1` (2026-10-18) opened its close with
       "✅ Ready to close", then listed under *Loose ends*: an open PR (#97,
       "held for you; I didn't touch it"), and 50 working files a
@@ -19,3 +19,11 @@
   "the scratch folder is clean", while its body said "no directories left".
   About 98 files were still there. A headline should claim no more than its
   evidence does.
+      ✅ **Landed 2026-11-03.** `RECORD.md` § *Finish the sequence, then
+      declare the close*, under the all-clear: a loose end the session cannot
+      clear goes through the decision device and makes the close *not ready
+      until you answer*; the headline claims no more than its evidence.
+      `ccclose` gains check 13, *Scratch folder empty*: it reads the scratch
+      folder from the transcript's environment record and counts the files
+      and folders left (warn; man page and design note §7). Review owed:
+      `160/996`.

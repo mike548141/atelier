@@ -149,6 +149,22 @@ stopped instead of re-deriving it:
     deliberately left open. The test: the principal reads it and closes without
     a nagging "did it really capture everything?" (Grounded 2026-07-20, Mike:
     the declare-the-close signal is only worth the evidence under it.)
+    - **A loose end makes the close "not ready until you decide".** A loose
+      end is something the close owes and has not put away; open work
+      recorded on the board is not one. A close that names its own loose ends
+      under "ready" fails the invariant above. The session clears what it can
+      before declaring. One it cannot clear, such as a refused delete or a
+      pull request held for the principal's ruling, is put to him through the
+      decision device (`COMMUNICATION.md` § *Asking for a ruling*), and the
+      message says *not ready until you answer*, never "ready". The headline
+      claims no more than its evidence: "the scratch folder is clean" over a
+      check that found no folders is a claim past it. `ccclose`'s *Scratch
+      folder empty* check counts what the session's agents left there.
+      (Grounded 2026-10-18, `180/170`: a close opened "✅ Ready to close"
+      above an open pull request and 50 files left in the scratch folder after
+      both deletes were refused, and asked nothing through the device; on
+      reopening it said "the scratch folder is clean" with about 98 files
+      still there.)
     - **The evidence names every agent the session launched, and how each
       ended**: reported back, or stopped on purpose and said so. It is read
       from the agent list at that moment, never from memory, and `ccclose`'s

@@ -5,6 +5,23 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-03 — ccclose counts the scratch folder and flags a refused delete re-routed, `180/170`, `180/180`)
+- **A thirteenth check, *Scratch folder empty*.** ccclose reads the session's
+  scratch folder from the transcript's environment record and counts the
+  files and folders left in it, listing the files. Anything left warns: clear
+  it, or name each as a loose end. Empty or gone passes; a transcript with no
+  environment record is not applicable. A close had said "the scratch folder
+  is clean" over about 98 files.
+- **The workaround check flags a refused delete reached by another route.**
+  After a delete is refused (a deny rule, the classifier, the principal), a
+  later delete that uses only other routes (`rm`, `rmdir`, `unlink`,
+  `find -delete`, Python's `rmtree` or `os.remove`, pathlib, Node's `fs`) is
+  listed. A retry by the refused route is not. Inline shell commands in the
+  parent transcript only; the man page names what it misses.
+- `RECORD.md`: a loose end the session cannot clear makes the close "not ready
+  until you decide", put through the decision device. `AUTONOMY.md`: a refused
+  call is put to the principal, never routed around.
+
 ### Added (2026-11-03 — G3 keeps IPTC, XMP and PNG text field by field, `020/450` part 2)
 - **A `.leakscanbinaries` line can now keep named IPTC datasets, XMP
   properties and PNG text keywords**, as it already could Exif and GPS fields

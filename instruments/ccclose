@@ -7,7 +7,7 @@
  * owed" is a claim that must carry its evidence. This is that evidence, read
  * from the repo, the host and the session's own transcript rather than from the
  * session's memory, which is the thing that drifts in a long session. It prints
- * the standard outputs (session id, transcript, window), twelve checks in a
+ * the standard outputs (session id, transcript, window), thirteen checks in a
  * fixed order, the principal's close-out asks found in the transcript, and a
  * one-line verdict. The design of record is instruments/ccclose.design.md.
  *
@@ -57,8 +57,9 @@ OPTIONS
 
 Checks worktrees, branches, pushes, PRs, the session record, the board, live
 claims, the floor at the pushed head, review pointers, workaround-shaped
-commands, the working tree and the session's subagents, lists the principal's
-close-out asks, and ends with the identifiers block.
+commands (a refused delete re-routed among them), the working tree, the
+session's subagents and its scratch folder, lists the principal's close-out
+asks, and ends with the identifiers block.
 Read-only. Exit 0 when no check fails.  Full manual: man ccclose`;
 
 // The cap on every listed set. Counts stay whole; only the lists are cut.
@@ -170,6 +171,35 @@ const BYPASSES = [
 function bypassesIn(command) {
   return BYPASSES.filter(([, re]) => re.test(command)).map(([label]) => label);
 }
+
+// A refused delete reached by another route (180/180). A session whose delete
+// was refused, by a deny rule, the classifier or the principal, then deleted the
+// same files by a Python call: the refusal treated as an obstacle. The narrow
+// form: only deletes, only the routes below, only inline in a shell command. A
+// later call is flagged when it deletes only by routes no refused call used; a
+// retry by a refused route is not (a rule narrowed on the principal's word lets
+// the same command through, and that is no workaround). The flag does not
+// expire: the transcript does not record a rule being changed.
+const DELETE_ROUTES = [
+  ['rm', /(?<![\w./-])(?<!\bgit\s+)rm\s/],
+  ['rmdir', /(?<![\w./-])rmdir\s/],
+  ['unlink', /(?<![\w./-])unlink\s/],
+  ['find -delete', /\bfind\s[^;&|\n]*\s-delete\b/],
+  ['python rmtree', /\brmtree\s*\(/],
+  ['python os delete', /\bos\.(?:remove|unlink|rmdir|removedirs)\s*\(/],
+  ['python pathlib delete', /(?<!\bos)\.(?:unlink|rmdir)\s*\(/],
+  ['node fs delete', /\b(?:rmSync|unlinkSync|rmdirSync)\s*\(|\bfs(?:\.promises)?\.(?:rm|unlink|rmdir)\s*\(/],
+];
+function deleteRoutes(command) {
+  return DELETE_ROUTES.filter(([, re]) => re.test(command)).map(([label]) => label);
+}
+// How the harness words a refused call in its tool_result (census of the live
+// store, 2026-11-03): a deny rule, the auto-mode classifier, the principal's
+// rejection, a block for safety, and a compound command whose parts needed an
+// approval nobody gave. Each arrives with is_error set. A failed command
+// (a non-zero exit) is not a refusal and does not match.
+const REFUSAL = /^\s*(?:Permission to use \S+[\s\S]*? has been denied|Permission for this action was denied|The user doesn't want to proceed with this tool use|Auto mode could not evaluate this action and is blocking it|This \S+ command [\s\S]*?require approval)/;
+const isRefusal = (b) => !!(b && b.is_error) && REFUSAL.test(typeof b.content === 'string' ? b.content : cct.extractText(b.content));
 
 // The ends of background agents, as the parent transcript records them: a
 // <task-notification> block with a <task-id> (the agent's id) and a <status>.
@@ -563,6 +593,10 @@ async function readTranscript(file) {
     // the identifiers section): pend holds a command until its result lands.
     prs: new Map(), worktrees: [], pend: new Map(),
     commitSubjects: new Set(), msg: MsgEvidence(),
+    // Deletes awaiting their result, and the routes of those refused (180/180).
+    delPend: new Map(), refused: new Map(),
+    // The harness's scratch folder for this session, from its environment record.
+    scratch: null,
   };
   let n = 0, k = 0;
   const rl = readline.createInterface({ input: fs.createReadStream(file), crlfDelay: Infinity });
@@ -585,8 +619,20 @@ async function readTranscript(file) {
         if (b && b.type === 'tool_result' && b.tool_use_id) {
           t.toolResults.set(b.tool_use_id, Number.isFinite(ms) ? ms : null);
           if (t.pend.has(b.tool_use_id)) resolvePending(t, t.pend.get(b.tool_use_id), b, o);
+          const del = t.delPend.get(b.tool_use_id);
+          if (del && isRefusal(b)) {
+            for (const r of del.routes) if (!t.refused.has(r)) t.refused.set(r, del.ts);
+          }
+          t.delPend.delete(b.tool_use_id);
         }
       }
+    }
+    // The harness records the session's scratch folder in an environment
+    // attachment (snapshot.scratchpadDirectory); the latest one governs.
+    if (o.type === 'attachment' && o.attachment && o.attachment.type === 'environment') {
+      const sp = o.attachment.snapshot && o.attachment.snapshot.scratchpadDirectory;
+      if (typeof sp === 'string' && sp) t.scratch = sp;
+      continue;
     }
     let text = null, ref = null, channel = null, principal = false;
     if (o.type === 'user' && !o.toolUseResult) {
@@ -622,6 +668,18 @@ async function readTranscript(file) {
         notePending(t, b.id, cmd, o.cwd, varsBefore);
         if (cmd.includes('git')) for (const x of commitSubjectsIn(cmd)) t.commitSubjects.add(x);
         const hit = bypassesIn(cmd);
+        const routes = deleteRoutes(cmd);
+        if (routes.length) {
+          // Read against refusals already in the log: a call made before a
+          // refusal's result landed cannot be a response to it. A command that
+          // also retries a refused route is a retry, not a re-route.
+          const fresh = routes.filter((r) => !t.refused.has(r));
+          if (t.refused.size && fresh.length === routes.length) {
+            const was = [...t.refused].map(([r, at]) => `${r}${at === null ? '' : ` at ${utc(at)} UTC`}`).join(', ');
+            hit.push(`refused delete re-routed (refused: ${was}; now: ${fresh.join(', ')})`);
+          }
+          if (b.id) t.delPend.set(b.id, { routes, ts: Number.isFinite(ms) ? ms : null });
+        }
         if (!hit.length) continue;
         t.bypassesTotal++;
         if (t.bypasses.length < CAP) {
@@ -1136,6 +1194,46 @@ async function checkSubagents(file, t, all = false) {
   return { ...check('subagents', L, status, summary, items), counts, agents: all ? listed : listed.slice(0, CAP) };
 }
 
+// --- check 13: the scratch folder ------------------------------------------
+//
+// Files a session's agents leave in its scratch folder are a loose end of the
+// close (180/170): a session once declared "the scratch folder is clean" over
+// about 98 files. The folder is the one the harness recorded in the transcript's
+// environment attachment, never derived, because the harness allocates it (a
+// renamed project folder already breaks the obvious derivation). Every file and
+// folder in it is the session's own: the workers of a queue run write into the
+// orchestrator's. The walk is bounded so a cloned tree cannot stall the check;
+// a cut walk says "at least".
+const SCRATCH_WALK = 10000;
+function scratchContents(dir) {
+  const files = [], dirs = [];
+  let seen = 0, cut = false;
+  const walk = (d, rel) => {
+    let ents;
+    try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+    ents.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    for (const e of ents) {
+      if (++seen > SCRATCH_WALK) { cut = true; return; }
+      const r = rel ? `${rel}/${e.name}` : e.name;
+      if (e.isDirectory()) { dirs.push(r); walk(path.join(d, e.name), r); if (cut) return; } else files.push(r);
+    }
+  };
+  walk(dir, '');
+  return { files, dirs, cut };
+}
+function checkScratch(t) {
+  const L = 'Scratch folder empty';
+  if (!t) return check('scratch', L, 'na', 'no transcript');
+  if (!t.scratch) return check('scratch', L, 'na', 'the transcript records no scratch folder');
+  if (!isDir(t.scratch)) return check('scratch', L, 'pass', `${t.scratch} no longer exists`);
+  const { files, dirs, cut } = scratchContents(t.scratch);
+  if (!files.length && !dirs.length) return check('scratch', L, 'pass', `${t.scratch} is empty`);
+  const least = cut ? 'at least ' : '';
+  return check('scratch', L, 'warn',
+    `${least}${files.length} file(s) and ${least}${dirs.length} folder(s) left in ${t.scratch} — clear them, or name each as a loose end`,
+    (files.length ? files : dirs).slice(0, CAP), files.length || dirs.length);
+}
+
 function checkTree(repo) {
   const L = 'Working tree clean';
   if (!repo.isGit) return check('tree', L, 'na', NOT_GIT);
@@ -1582,6 +1680,7 @@ async function collect(opts, gathered) {
     checkBypasses(t),
     checkTree(repo),
     await checkSubagents(file, t),
+    checkScratch(t),
   ];
   const commitsIn = repo.isGit && w ? windowCommits(repo, w, ['--branches', '--remotes']) : null;
   const unpushed = repo.isGit && w && repo.remotes.length ? windowCommits(repo, w, ['--branches', '--not', '--remotes']) : null;
@@ -1683,5 +1782,5 @@ async function main() {
 
 if (require.main === module) main();
 
-module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
+module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
   worktreeAdds, ghPrCommands, commitSubjectsIn, messageFilesIn, heredocWritesIn, render, CAP };

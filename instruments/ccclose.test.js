@@ -129,7 +129,7 @@ esac
 }
 
 const ID_ORDER = ['worktrees', 'branches', 'pushed', 'prs', 'session-record', 'board', 'claims',
-  'floor', 'reviews', 'bypasses', 'tree', 'subagents'];
+  'floor', 'reviews', 'bypasses', 'tree', 'subagents', 'scratch'];
 
 
 // --- subagent fixtures ---------------------------------------------------
@@ -286,7 +286,7 @@ test('a tidy close passes every check that applies and exits 0', () => {
   const j = json(w, root, ['--session', 'sess-tidy']);
   assert.deepEqual(j.checks.map((c) => c.id), ID_ORDER);
   const want = { worktrees: 'pass', branches: 'pass', pushed: 'pass', prs: 'na', 'session-record': 'pass',
-    board: 'na', claims: 'na', floor: 'na', reviews: 'na', bypasses: 'pass', tree: 'pass', subagents: 'na' };
+    board: 'na', claims: 'na', floor: 'na', reviews: 'na', bypasses: 'pass', tree: 'pass', subagents: 'na', scratch: 'na' };
   for (const [id, st] of Object.entries(want)) assert.equal(j.by[id].status, st, `${id}: ${j.by[id].summary}`);
   assert.equal(j.code, 0);
   assert.equal(j.verdict.status, 'pass');
@@ -715,6 +715,159 @@ test('check 12 list is capped and the cut counted, with problems listed first', 
   assert.equal(j.by.subagents.counts.agents, n + 1);
   assert.match(j.by.subagents.items[0], /^❌ zz99999 the one that matters/);
   assert.match(ccclose(w, root, ['--session', 'sess-many-agents']).out, /… and 5 more/);
+});
+
+// --- a refused delete re-routed (180/180) ---------------------------------
+
+test('deleteRoutes names each delete route and leaves look-alikes alone', () => {
+  assert.deepEqual(cc.deleteRoutes('rm -rf /tmp/x'), ['rm']);
+  assert.deepEqual(cc.deleteRoutes('ls; rm a'), ['rm']);
+  assert.deepEqual(cc.deleteRoutes('find . -name "*.tmp" -exec rm {} +'), ['rm']);
+  assert.deepEqual(cc.deleteRoutes('rmdir empty'), ['rmdir']);
+  assert.deepEqual(cc.deleteRoutes('unlink f'), ['unlink']);
+  assert.deepEqual(cc.deleteRoutes('find /tmp/s -type f -delete'), ['find -delete']);
+  assert.deepEqual(cc.deleteRoutes('python3 -c "import shutil; shutil.rmtree(p)"'), ['python rmtree']);
+  assert.deepEqual(cc.deleteRoutes('python3 -c "import os; os.remove(p)"'), ['python os delete']);
+  assert.deepEqual(cc.deleteRoutes('python3 -c "os.unlink(p)"'), ['python os delete']);
+  assert.deepEqual(cc.deleteRoutes('python3 -c "p.unlink(missing_ok=True)"'), ['python pathlib delete']);
+  assert.deepEqual(cc.deleteRoutes('node -e "fs.rmSync(d, {recursive: true})"'), ['node fs delete']);
+  for (const ok of ['git rm --cached f', 'docker run --rm img', 'ls form', 'cat rm.txt', 'git worktree remove wt',
+    'grep -n unlinked f', 'echo confirm']) {
+    assert.deepEqual(cc.deleteRoutes(ok), [], ok);
+  }
+});
+
+test('isRefusal reads the harness\'s refusal wordings and nothing else', () => {
+  const err = (content) => ({ type: 'tool_result', is_error: true, content });
+  for (const c of [
+    'Permission to use Bash with command rm -rf /tmp/x has been denied.',
+    'Permission for this action was denied by the Claude Code auto mode classifier. Reason: x',
+    'The user doesn\'t want to proceed with this tool use. The tool use was rejected.',
+    'Auto mode could not evaluate this action and is blocking it for safety.',
+    'This Bash command contains multiple operations. The following parts require approval: rm -rf x',
+  ]) assert.equal(cc.isRefusal(err(c)), true, c);
+  assert.equal(cc.isRefusal(err([{ type: 'text', text: 'Permission to use Bash has been denied.' }])), true);
+  assert.equal(cc.isRefusal(err('Exit code 1\nrm: x: No such file or directory')), false);
+  assert.equal(cc.isRefusal({ type: 'tool_result', content: 'Permission to use Bash has been denied.' }), false);
+});
+
+// A Bash tool_use and its result, as the parent transcript records them.
+const delUse = (id, command, m) => ({ type: 'assistant', timestamp: at(m), message: { model: 'claude-opus-5-5',
+  content: [{ type: 'tool_use', id, name: 'Bash', input: { command } }] } });
+const delResult = (id, content, m, isError = false) => ({ type: 'user', timestamp: at(m), toolUseResult: 'x',
+  message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: id, content, ...(isError ? { is_error: true } : {}) }] } });
+const DENIED = (cmd) => `Permission to use Bash with command ${cmd} has been denied.`;
+const rerouted = (t) => t.bypasses.filter((b) => b.kinds.some((k) => k.startsWith('refused delete re-routed')));
+
+test('a delete by another route after a refused rm is flagged; a retry by rm is not', async () => {
+  const w = world();
+  const p = transcript(w, 'sess-reroute', [
+    delUse('t1', 'rm -rf /tmp/s/old', -40), delResult('t1', DENIED('rm -rf /tmp/s/old'), -40, true),
+    delUse('t2', 'python3 -I -c "import shutil; shutil.rmtree(\'/tmp/s/old\')"', -30), delResult('t2', '', -30),
+    delUse('t3', 'find /tmp/s -type f -delete', -25), delResult('t3', '', -25),
+    delUse('t4', 'rm -rf /tmp/s/old', -10), delResult('t4', '', -10),
+    delUse('t5', 'rm -f /tmp/s/a && rmdir /tmp/s', -5), delResult('t5', '', -5),
+  ]);
+  const t = await cc.readTranscript(p);
+  const hits = rerouted(t);
+  assert.equal(hits.length, 2);
+  assert.match(hits[0].kinds[0], /^refused delete re-routed \(refused: rm at \d{4}-\d\d-\d\d \d\d:\d\d UTC; now: python rmtree\)$/);
+  assert.match(hits[1].kinds[0], /now: find -delete\)$/);
+  assert.equal(t.bypassesTotal, 2);
+});
+
+test('no re-route without a refusal: a failed rm, a delete before the refusal landed, an unrefused session', async () => {
+  const w = world();
+  const failed = transcript(w, 'sess-failed-rm', [
+    delUse('f1', 'rm /tmp/s/x', -40), delResult('f1', 'Exit code 1\nrm: /tmp/s/x: No such file or directory', -40, true),
+    delUse('f2', 'python3 -c "import os; os.remove(\'/tmp/s/y\')"', -30), delResult('f2', '', -30),
+  ]);
+  assert.equal(rerouted(await cc.readTranscript(failed)).length, 0);
+  // Two calls in one turn: the second was issued before the first's refusal came back.
+  const parallel = transcript(w, 'sess-parallel', [
+    delUse('p1', 'rm -rf /tmp/s/old', -40), delUse('p2', 'find /tmp/s -delete', -40),
+    delResult('p1', DENIED('rm -rf /tmp/s/old'), -39, true), delResult('p2', '', -39),
+  ]);
+  assert.equal(rerouted(await cc.readTranscript(parallel)).length, 0);
+  const plain = transcript(w, 'sess-plain-delete', [
+    delUse('n1', 'python3 -c "import shutil; shutil.rmtree(\'/tmp/s\')"', -30), delResult('n1', '', -30),
+  ]);
+  assert.equal(rerouted(await cc.readTranscript(plain)).length, 0);
+});
+
+test('a refused Python delete re-routed to rm is flagged in the workaround check of a whole run', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-reroute-run', [
+    delUse('r1', 'python3 -c "import os; os.remove(\'/tmp/s/x\')"', -40),
+    delResult('r1', 'The user doesn\'t want to proceed with this tool use. The tool use was rejected.', -40, true),
+    delUse('r2', 'rm /tmp/s/x', -30), delResult('r2', '', -30),
+  ]);
+  const j = json(w, root, ['--session', 'sess-reroute-run']);
+  assert.equal(j.by.bypasses.status, 'warn');
+  assert.equal(j.by.bypasses.itemsTotal, 1);
+  assert.match(j.by.bypasses.items[0], /\[refused delete re-routed \(refused: python os delete at .+; now: rm\)\] rm \/tmp\/s\/x/);
+});
+
+// --- check 13: the scratch folder (180/170) --------------------------------
+
+const envRecord = (dir) => ({ type: 'attachment', attachment: { type: 'environment', snapshot: { workingDirectory: '/x', scratchpadDirectory: dir } } });
+
+test('check 13 counts the files and folders left in the scratch folder the transcript records', () => {
+  const w = world();
+  const root = repo(w);
+  const scratch = path.join(w.base, 'scratch');
+  write(scratch, 'notes.txt', 'n');
+  write(scratch, 'w-one/out.log', 'o');
+  write(scratch, 'w-one/deep/exit.txt', 'exit=0');
+  fs.mkdirSync(path.join(scratch, 'empty'));
+  transcript(w, 'sess-scratch', [envRecord(path.join(w.base, 'gone')), envRecord(scratch)]);
+  const j = json(w, root, ['--session', 'sess-scratch']);
+  assert.equal(j.by.scratch.status, 'warn');
+  assert.equal(j.by.scratch.summary, `3 file(s) and 3 folder(s) left in ${scratch} — clear them, or name each as a loose end`);
+  assert.deepEqual(j.by.scratch.items, ['notes.txt', 'w-one/deep/exit.txt', 'w-one/out.log']);
+  assert.equal(j.by.scratch.itemsTotal, 3);
+  assert.equal(j.code, 0);   // a look, not a fail
+  assert.equal(j.verdict.status, 'warn');
+  assert.match(ccclose(w, root, ['--session', 'sess-scratch']).out, /⚠️ Scratch folder empty +3 file\(s\) and 3 folder\(s\) left in/);
+});
+
+test('check 13 passes on an empty or removed scratch folder, and is not applicable with none recorded', () => {
+  const w = world();
+  const root = repo(w);
+  const empty = path.join(w.base, 'empty-scratch');
+  fs.mkdirSync(empty);
+  transcript(w, 'sess-scratch-empty', [envRecord(empty)]);
+  const e = json(w, root, ['--session', 'sess-scratch-empty']);
+  assert.equal(e.by.scratch.status, 'pass');
+  assert.equal(e.by.scratch.summary, `${empty} is empty`);
+  transcript(w, 'sess-scratch-gone', [envRecord(path.join(w.base, 'nope'))]);
+  const g = json(w, root, ['--session', 'sess-scratch-gone']);
+  assert.equal(g.by.scratch.status, 'pass');
+  assert.match(g.by.scratch.summary, /no longer exists$/);
+  transcript(w, 'sess-scratch-none');
+  const n = json(w, root, ['--session', 'sess-scratch-none']);
+  assert.equal(n.by.scratch.status, 'na');
+  assert.equal(n.by.scratch.summary, 'the transcript records no scratch folder');
+  assert.equal(json(w, root, ['--session', 'no-such']).by.scratch.status, 'na');
+});
+
+test('check 13 lists only folders when no file is left, and caps the file list', () => {
+  const w = world();
+  const root = repo(w);
+  const dirsOnly = path.join(w.base, 'dirs-only');
+  fs.mkdirSync(path.join(dirsOnly, 'a', 'b'), { recursive: true });
+  transcript(w, 'sess-scratch-dirs', [envRecord(dirsOnly)]);
+  const d = json(w, root, ['--session', 'sess-scratch-dirs']);
+  assert.equal(d.by.scratch.status, 'warn');
+  assert.match(d.by.scratch.summary, /^0 file\(s\) and 2 folder\(s\) left in/);
+  assert.deepEqual(d.by.scratch.items, ['a', 'a/b']);
+  const many = path.join(w.base, 'many');
+  for (let i = 0; i < cc.CAP + 3; i++) write(many, `f${String(i).padStart(3, '0')}.txt`, 'x');
+  transcript(w, 'sess-scratch-many', [envRecord(many)]);
+  const m = json(w, root, ['--session', 'sess-scratch-many']);
+  assert.equal(m.by.scratch.items.length, cc.CAP);
+  assert.equal(m.by.scratch.itemsTotal, cc.CAP + 3);
 });
 
 // --- documentation convention (REPO-STANDARD: concise --help + a man page) --

@@ -134,8 +134,9 @@ and an absent input never crashes the run.
 | 10 | Workaround-shaped commands | the transcript's shell commands | never; any hit is ⚠️ | no transcript |
 | 11 | Working tree clean | `git status` | never; dirty is ⚠️ | not a git repo |
 | 12 | Subagents finished | the session's `subagents/` directory beside its transcript, and the parent transcript's `<task-notification>`s and `tool_result`s | an agent with no finished final turn and no completed, killed or stopped notification | no transcript; no `subagents/` directory |
+| 13 | Scratch folder empty | the scratch folder the transcript's environment attachment records | never; anything left is ⚠️ | no transcript; no environment record |
 
-Why three checks can never fail:
+Why four checks can never fail:
 
 - **Reviews (9).** Whether work earns a review is a judgement (`REVIEW.md`
   § *calibrate to risk*): self-verifying work over reviewed machinery does not.
@@ -146,9 +147,40 @@ Why three checks can never fail:
   (`--no-verify`, signing switched off, force pushes, `reset --hard`, bare
   `git stash`, `git add -A`, removing an `index.lock`, `gh pr merge --admin`,
   hooks redirected). Some are legitimate. It lists them; the session answers.
+  One shape spans two calls: a **refused delete re-routed** *(added
+  2026-11-03, board item 180/180)*. A session whose `rm` was refused by a deny
+  rule then deleted the same files with a Python `shutil.rmtree`. A Bash
+  call's delete routes are read from its command (`rm`, `rmdir`, `unlink`,
+  `find -delete`, Python's `rmtree`, `os.remove`/`os.unlink`/`os.rmdir`, a
+  pathlib `.unlink()`/`.rmdir()`, Node's `fs.rm`/`fs.unlink`/`fs.rmdir` and
+  their `Sync` forms). When its `tool_result` is a refusal, its routes are
+  marked refused. The refusal is read from the result's wording with
+  `is_error` set: a deny rule ("Permission to use … has been denied"), the
+  auto-mode classifier, the principal's rejection, a block for safety, or a
+  compound command whose parts "require approval" (a census of the live store,
+  2026-11-03). A later delete is listed when every route it uses is unrefused;
+  one that also retries a refused route is a retry, since a rule narrowed on
+  the principal's word lets the same command through. A call issued before the
+  refusal's result landed is not read against it. On the grounding session
+  the form lists the two Python deletes and not the later `rm`; across the
+  store's 1119 transcripts, 73 hold a refused delete and 9 are listed. It
+  misses a delete inside a script file, any other route, a subagent's own
+  transcript, and refused effects other than deletes, and the flag never
+  expires, since the transcript does not record a rule change.
 - **Working tree (11).** Uncommitted changes the session did not make are proof
   another session is live (`CONCURRENCY.md`), so a dirty tree cannot be
   attributed from here.
+- **Scratch folder (13).** *(Added 2026-11-03, board item 180/170.)* A close
+  once declared "the scratch folder is clean" over about 98 files its agents
+  had left. The folder is read from the transcript's `environment`
+  attachment (`snapshot.scratchpadDirectory`, the latest governing), never
+  derived: the harness allocates it, and a renamed project folder already
+  breaks the derivation from the project path. Every entry is the session's
+  own, since a queue run's workers write into the orchestrator's folder. It
+  warns rather than fails because a file left there harms nothing and the
+  remedy may be the principal's (a refused delete): the session clears it or
+  names each as a loose end. The walk stops at 10000 entries, a bound on run
+  time rather than a measured size, and then says "at least".
 
 **Subagents finished (12), precisely.** *(Added 2026-10-18, board item
 020/420.)* Closing a tab on "ready to close" kills a running agent silently, so
@@ -244,7 +276,7 @@ error, and a listed non-ask costs one line of answer.
 
 ## 10. Output
 
-A header block of standard outputs, the twelve check lines, the asks, then one
+A header block of standard outputs, the thirteen check lines, the asks, then one
 verdict line, for example `❌ not ready to close: 2 fail · 1 unknown · 6 pass ·
 2 not applicable · 3 asks to answer`. The field set is stable: every check
 prints every run, zeros print, and a figure the tool could not read prints
@@ -293,7 +325,7 @@ not spawn it. The orchestrating session queues the `⏳`.
 `ccclose --identifiers` prints the block `RECORD.md` asks every detail record and
 closing message to end with ("read fresh at close, never recalled"; asked for by
 Mike, 2026-10-18, board item `210/280`). It prints only a `## Identifiers`
-heading and seven fields in `RECORD.md`'s order, and runs none of the twelve
+heading and seven fields in `RECORD.md`'s order, and runs none of the thirteen
 checks: it shares their reads (`gather()`: session, transcript, window, repo,
 board, `gh`, branches) but not their verdicts, so it never waits on
 `board.py --check` or a floor run. It exits `0`, since it is a record and not a

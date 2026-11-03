@@ -373,7 +373,7 @@ usage records — the opposite treatment, for the opposite reason.
 tidy-up is done, and that "nothing is owed" must carry its evidence. `ccclose`
 is that evidence, read from the repo, from GitHub through `gh`, and from the
 session's own transcript, never from the session's memory. It prints the
-session id, transcript and window, twelve checks in a fixed order (✅ pass ·
+session id, transcript and window, thirteen checks in a fixed order (✅ pass ·
 ❌ fail · ⚠️ partial or unknown · ➖ not applicable, with the reason), the
 principal's close-out asks found in the transcript under *Asked of this close —
 answer each*, and a verdict line. It exits 0 only when no check fails.

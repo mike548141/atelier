@@ -330,6 +330,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS, IPTC,…](roadmap/160-doctrine-review-owed/990-rule-4-cold-pass-queued-g3-field-level-and-nz-phone-digest-guard.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose resolves a shell variable in a…](roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the dispatch brief, the pathspec and…](roadmap/160-doctrine-review-owed/995-rule-4-cold-pass-queued-dispatch-brief-and-shared-surfaces.md)
+- [ ] ⏳ [Rule-4 cold pass queued: a loose end makes the close "not ready until…](roadmap/160-doctrine-review-owed/996-rule-4-cold-pass-queued-close-loose-ends-and-routed-refusals.md)
 - [ ] ⏳ [Rule-4 cold pass queued: pathscan skips a child's inlined floor…](roadmap/160-doctrine-review-owed/997-rule-4-cold-pass-queued-floor-region-skip-and-markup-rule.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the pre-merge-commit hook, the repo-local…](roadmap/160-doctrine-review-owed/998-rule-4-cold-pass-queued-merge-hook-and-staged-content-scanners.md)
 - [ ] ⏳ [Rule-4 cold pass queued: disclosed contact with a review chain, the…](roadmap/160-doctrine-review-owed/999-rule-4-cold-pass-queued-disclosed-contact-scalar-allowlist-closed-questions.md)
@@ -360,8 +361,8 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/140-the-run-stopped-by-judgement-with-work-untriaged.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/150-close-decisions-not-put-through-the-device.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/160-worktree-names-do-not-say-which-session.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-closeche…) [The run declared "ready to…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-closeche…) [A denied delete was worked…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
 - [ ] 🔎 [A worker's review pointer cites its own branch or pre-merge hashes,…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/190-worker-pointers-cite-a-branch-the-merge-deletes.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)

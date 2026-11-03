@@ -18,7 +18,8 @@ that it is ready to close.
 That declaration is a claim, and it needs evidence: worktrees and branches put
 away, commits pushed, pull requests merged, the session record written, the
 board rebuilt, no claim left live, the floor green on what was pushed, reviews
-queued where they are owed, and every subagent finished.
+queued where they are owed, every subagent finished, and nothing left in the
+scratch folder.
 A session that answers those from its own memory is answering from the thing
 that drifts most in a long session.
 .PP
@@ -28,7 +29,7 @@ through
 .BR gh (1),
 and of the session's own transcript.
 It prints the standard outputs (the session id, its transcript, its time
-window, the repo and its head), twelve checks in a fixed order, the
+window, the repo and its head), thirteen checks in a fixed order, the
 principal's close-out asks found in the transcript, and a one-line verdict.
 It changes nothing.
 .SS The session and its window
@@ -176,6 +177,36 @@ and
 .BR "gh pr merge \-\-admin" .
 Some are legitimate, so a hit only warns; each is listed for the session to
 answer.
+.IP
+One shape is read across calls: a
+.BR "refused delete re-routed" .
+A delete whose result is a refusal (a deny rule, the auto-mode classifier,
+the principal rejecting the call, a block for safety, or a compound command
+whose parts needed an approval) marks its route as refused.
+A later delete flags when it uses only routes no refused call used.
+The routes are
+.BR rm ,
+.BR rmdir ,
+.BR unlink ,
+.BR "find \-delete" ,
+Python's
+.BR rmtree ,
+.BR os.remove " (and " os.unlink ", " os.rmdir ),
+a pathlib
+.BR .unlink() " or " .rmdir() ,
+and Node's
+.BR fs.rm ", " fs.unlink ", " fs.rmdir
+and their
+.B Sync
+forms.
+A retry by a refused route does not flag: a rule narrowed on the principal's
+word lets the same command through.
+A failed command (a non-zero exit) is not a refusal.
+It misses a delete written into a script file and then run, a delete by any
+other tool or language, a call in a subagent's transcript, and any refused
+effect other than a delete.
+The flag does not expire, because the transcript does not record a rule being
+changed.
 .TP
 .B Working tree clean
 Uncommitted changes warn.
@@ -229,6 +260,21 @@ its short id, description and end, problems first.
 The session running
 .B ccclose
 is live, so its own agents still working show as cut until they end.
+.TP
+.B Scratch folder empty
+The scratch folder is the one the harness recorded in the transcript's
+environment attachment
+.RB ( snapshot.scratchpadDirectory ;
+the latest governs), never derived.
+Every file and folder under it is counted, and the files are listed, or the
+folders when no file is left.
+Anything left only warns: the session clears it, or names each as a loose end
+in its close.
+The folder empty, or gone, passes.
+No transcript, or a transcript with no environment record, is not
+applicable.
+The walk stops at 10000 entries and then says
+.BR "at least" .
 .SS Asked of this close \(em answer each
 After the checks,
 .B ccclose
@@ -432,6 +478,10 @@ Session transcripts, read only and a line at a time.
 The session's subagent transcripts and their
 .I .meta.json
 files, read only.
+.TP
+.I scratchpadDirectory
+The session's scratch folder, as the transcript records it; listed, never
+changed.
 .TP
 .I docs/SESSIONS.md \fRor\fP SESSIONS.md
 The session log, with its

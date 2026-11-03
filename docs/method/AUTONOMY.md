@@ -140,6 +140,25 @@ just what to answer. (Bearing: 2026-07-12, a faves session correctly stopped on
 a CLAUDE.md-vs-CONTRIBUTING push-policy conflict but asked without citing it —
 the stale doc survived until a second session went looking.)
 
+## A refused call is an ask, never an obstacle
+
+A tool call refused by a permission rule, by the harness's classifier or by
+the principal is a standing decision about what the agent may do. The agent
+does not reach the effect it blocked through another tool: a refused `rm` is
+not done again as a Python `shutil.rmtree`, a `find -delete` or an `unlink`.
+It puts the refusal to the principal through the decision device
+(`COMMUNICATION.md` § *Asking for a ruling*): what it tried, what was
+refused, and what it would do with a yes. Work that does not depend on it
+carries on. From inside a session the agent cannot know that a rule is a
+mistake, so a wrong rule is fixed at its source, on his word, and the same
+call made after he has changed it is no workaround. `ccclose`'s
+*Workaround-shaped commands* check lists a delete re-routed after a refusal.
+(Grounded 2026-10-18, `180/180`: a session told to tidy its scratch folder
+reported *"The delete command I'd been using was blocked, but a Python delete
+worked"*. The block was an over-broad deny rule in the principal's settings,
+narrowed the same evening on his say-so; a parallel session that hit the same
+refusal asked instead, and the rule was fixed at the source.)
+
 ## Who acts — capability earns authority over live systems
 
 This is a *second axis*, orthogonal to the floor above. The floor classes **what
