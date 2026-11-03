@@ -600,6 +600,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: a peer's relayed ruling can override an order the principal…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)
 - [ ] 🔎 [Hand-up: a one-line claim still overruns the index line, so 320/730's…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
 - [ ] 🔎 [Hand-up: REVIEW.md has no shape for a live-only top-up of a degraded…](roadmap/320-child-filed-findings-via-pointing-up/760-hand-up-review-md-has-no-shape-for-a-live-only-top-up-of-a-degraded-pass.md)
+- [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
