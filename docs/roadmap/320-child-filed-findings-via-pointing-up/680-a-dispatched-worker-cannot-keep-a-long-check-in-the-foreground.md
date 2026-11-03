@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **Hand-up: a dispatched worker cannot keep a long check in the foreground, so a dispatch prompt that says "run the gate in the foreground" asks for something the harness will not do** `[S][doctrine]`. Handed up by a private child's orchestrated queue run on 2026-10-17, under `PROPAGATION.md` § *Pointing up*. A suspicion of a missing rule, with two measured instances; no fix proposed. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-dispatch) 🔎 **Hand-up: a dispatched worker cannot keep a long check in the foreground, so a dispatch prompt that says "run the gate in the foreground" asks for something the harness will not do** `[S][doctrine]`. Handed up by a private child's orchestrated queue run on 2026-10-17, under `PROPAGATION.md` § *Pointing up*. A suspicion of a missing rule, with two measured instances; no fix proposed. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 
       **What was measured.** The child's queue run had five worker lanes
       live at once. Its `make check` took 19½ minutes under that load
@@ -27,3 +27,9 @@
       **Not claimed:** that the 600 s figure is fixed across harness
       versions (it is the tool's stated maximum in this session); or that
       fewer lanes would always keep the gate under it.
+      ✅ **Landed 2026-11-03.** `CONCURRENCY.md` § *Orchestrated
+      queue runs*, *A long check is the worker's to poll*: the dispatch
+      prompt has the worker redirect a long check to a scratch file ending
+      in an exit-code line and poll it itself. The cap's figure is recorded
+      as the tool's in that session, not a constant. Carried as a line of
+      the dispatch brief. Review owed: `160/995`.

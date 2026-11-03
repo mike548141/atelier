@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **Hand-up: the process table is a shared surface, so a pattern kill
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-dispatch) 🔎 **Hand-up: the process table is a shared surface, so a pattern kill
       crosses sessions, and a run's wave size is judged by memory when CPU load
       binds first** `[S][doctrine]`. Handed up by a private child's
       orchestrated queue run on 2026-10-17, under `PROPAGATION.md`
@@ -33,3 +33,10 @@
       (a scan that exhausts the machine).
       review: warranted, light — it would add a shared surface to the
       concurrency doctrine.
+      ✅ **Landed 2026-11-03.** `CONCURRENCY.md` § *Orchestrated
+      queue runs*, *The machine is shared too*: kill by launched PID or
+      owned worktree cwd, never by pattern, and the dispatch prompt says so
+      (a line of the dispatch brief); a wave is judged by the 15-minute load
+      average as well as memory. No numeric ceiling is set: the run's
+      figures show memory misjudging the box, not where the line is.
+      Review owed: `160/995`.

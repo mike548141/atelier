@@ -3,7 +3,8 @@
 The principal opens most working sessions with a prompt of his own: a standing
 brief that points the session at the repo's doctrine and says how he wants it
 to work, close and report. This directory keeps that prompt and the history
-of how it changed.
+of how it changed, and beside them the house's own dispatch brief, the bounds
+an orchestrator opens each worker with.
 
 - [`session-open-prompt.md`](session-open-prompt.md) is the **current** text,
   and it is exactly what `/atelier:queue-run <this run's brief>` runs: the
@@ -18,6 +19,11 @@ of how it changed.
   `git log --follow -p docs/method/session-open/template-history.md`. Each
   commit's author date is when that version was first used, and its message
   says how many sessions used it.
+- [`dispatch-brief.md`](dispatch-brief.md) is the **dispatch brief**: the
+  fixed bounds an orchestrator copies into every worker's opening prompt
+  (`180/120`). Unlike the two files above it is house text, not the
+  principal's, and it holds no rule of its own: each line points at the
+  `CONCURRENCY.md` rule that grounds it.
 
 ## How the template history was built (2026-10-18, `180/060`)
 

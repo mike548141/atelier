@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **Dispatch prompts drop two doctrine obligations: the worker's own
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-dispatch) 🔎 **Dispatch prompts drop two doctrine obligations: the worker's own
       scratch directory, and the terminal marker.** Found reviewing the first
       real `/atelier:queue-run` (session `8e498ef1`, 2026-10-18, `180/110`).
       Of its five dispatches, four named no scratch directory
@@ -14,3 +14,13 @@
       obligations (worktree, scratch path, foreground verification, explicit
       staging, no push or merge, terminal marker); or a pre-dispatch
       self-check line in the run's loop.
+      ✅ **Landed 2026-11-03** (the skeleton shape). New
+      `docs/method/session-open/dispatch-brief.md` holds the fixed bounds
+      as one copyable block (worktree and its name, absolute paths, unique
+      scratch directory, long-check poll, explicit staging and pathspec
+      commit, no push or merge, kill scope, `WORKER DONE` marker), with a
+      table pointing each line at its `CONCURRENCY.md` rule. `CONCURRENCY.md`
+      § *Orchestrated queue runs* points at it (*The fixed obligations are
+      copied, not recalled*); `session-open/README.md` lists it as house
+      text, not the principal's.
+      Review owed: `160/995`.

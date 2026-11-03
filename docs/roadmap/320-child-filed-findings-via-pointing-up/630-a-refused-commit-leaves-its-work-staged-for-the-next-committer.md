@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **Hand-up: a REFUSED commit leaves its work staged in the shared
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-dispatch) 🔎 **Hand-up: a REFUSED commit leaves its work staged in the shared
       index, where the next session's commit takes it, and no rule says
       what the refused session owes.** Filed from a private child on
       2026-10-16 through § *Pointing up*: written directly into the
@@ -61,3 +61,10 @@
       refusal. Reproduced in a throwaway repo: a refused commit left the
       file staged, and a second session's commit took it under its own
       message. Pathspec commit is still only proposed in `320/350`.
+      ✅ **Landed 2026-11-03.** `CONCURRENCY.md` § *The trigger*,
+      *The index is a shared surface too*: the leaver's rule, beside
+      `320/350`'s pathspec half: after a refused commit in a shared
+      checkout, unstage your own paths before investigating
+      (`git restore --staged <paths>`). Reproduced in a throwaway repo: a
+      refused commit left its path staged, and the restore unstaged only
+      that path. Review owed: `160/995`.

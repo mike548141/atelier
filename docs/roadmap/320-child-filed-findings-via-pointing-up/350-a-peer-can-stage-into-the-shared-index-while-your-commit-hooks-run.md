@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **Hand-up: a peer can stage into the shared index DURING your commit,
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-dispatch) 🔎 **Hand-up: a peer can stage into the shared index DURING your commit,
       so "read `git diff --cached` before every commit" cannot close the hole
       it is written to close — and the orchestrator seat is the one most
       exposed.** Filed from a private child 2026-09-20 via § *Pointing up*, by
@@ -56,3 +56,11 @@
       which is child-specific.
       *review: owed on whatever doctrine text the ruling produces (rule 4: a
       session that neither authored nor was instructed by the author).*
+      ✅ **Landed 2026-11-03.** `CONCURRENCY.md` § *The trigger*,
+      *The index is a shared surface too*: commit by pathspec as well as
+      reading the index; a worktree is the only index of one's own, so
+      multi-commit work, an orchestrator's included, takes one, and a
+      commit it must still make in the shared checkout (a claim) goes by
+      pathspec. The pathspec line is also in the dispatch brief. Pathspec
+      behaviour checked in a throwaway repo: a peer's staged path stayed
+      staged. Review owed: `160/995`.

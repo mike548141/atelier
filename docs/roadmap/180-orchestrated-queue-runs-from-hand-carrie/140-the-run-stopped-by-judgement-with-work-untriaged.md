@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **The run stopped "by judgement" with work on the board and the
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-dispatch) 🔎 **The run stopped "by judgement" with work on the board and the
       rest untriaged.** Session `8e498ef1` (2026-10-18, `180/110`) ran 1h54m,
       closed three items and wrote five briefs, then stopped. It said plainly
       that the stop matched none of the four named conditions. The items it
@@ -13,3 +13,10 @@
       Fable-bound) before any stop other than economics or cap; or add *the
       rest needs the principal's direction* as a named stop that lists the
       items it rests on.
+      ✅ **Landed 2026-11-03** (the triage shape, no fifth
+      stop). `CONCURRENCY.md` § *Orchestrated queue runs*, after the four
+      stop conditions: a stop other than economics or session cap is
+      claimed on a per-item triage (progressable, idea-only, ruling-bound,
+      review-tier-bound, blocked on something else), which the report
+      carries by count with the items each count rests on.
+      Review owed: `160/995`.

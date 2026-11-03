@@ -328,6 +328,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the claimed index line fitted to wrapscan,…](roadmap/160-doctrine-review-owed/985-rule-4-cold-pass-queued-claimed-index-line-fit.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose resolves a shell variable in a…](roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the dispatch brief, the pathspec and…](roadmap/160-doctrine-review-owed/995-rule-4-cold-pass-queued-dispatch-brief-and-shared-surfaces.md)
 
 ## build/ layer — open strands
 
@@ -350,11 +351,11 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/090-one-text-for-the-command-and-the-hand-copy.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/100-the-four-guard-rails-move-into-the-prompt.md)
 - ✅ [REVIEWED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/110-review-the-first-real-queue-run.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-dispatch) [Dispatch prompts drop two…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/120-dispatch-prompts-drop-the-scratch-and-marker-obligations.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-dispatch) [Three of five review briefs…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/130-briefs-landed-on-scanner-results-not-read.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-dispatch) [The run stopped "by judgement"…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/140-the-run-stopped-by-judgement-with-work-untriaged.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-dispatch) [The run's open decision went…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/150-close-decisions-not-put-through-the-device.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-dispatch) [Worktree names do not say…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/160-worktree-names-do-not-say-which-session.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/120-dispatch-prompts-drop-the-scratch-and-marker-obligations.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/130-briefs-landed-on-scanner-results-not-read.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/140-the-run-stopped-by-judgement-with-work-untriaged.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/150-close-decisions-not-put-through-the-device.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/160-worktree-names-do-not-say-which-session.md)
 - [ ] 🔎 [The run declared "ready to close" with loose ends in the same message.](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
 - [ ] 🔎 [A denied delete was worked around with another tool.](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
 
@@ -561,7 +562,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Hand-up: the run-open role check still sends the tier question back…](roadmap/320-child-filed-findings-via-pointing-up/320-the-run-open-role-check-sends-the-tier-question-back-to-the-principal.md)
 - [ ] 🎯 [Does the new naming precedence reach doctrine's own prose?](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
 - [ ] 🔎 [blockscan cannot see a change to a mapped section's SUBSECTIONS, and…](roadmap/320-child-filed-findings-via-pointing-up/340-blockscans-map-cannot-see-a-subsection.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-dispatch) [Hand-up: a peer can stage…](roadmap/320-child-filed-findings-via-pointing-up/350-a-peer-can-stage-into-the-shared-index-while-your-commit-hooks-run.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/350-a-peer-can-stage-into-the-shared-index-while-your-commit-hooks-run.md)
 - ✅ [REPORT — 115/200's owed work is done from the child's side: the…](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
 - [ ] [REPORT — <owner/repo> is a declared placeholder in the floor region…](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
 - [ ] 🎯 [The floor's visibility bullet reads as a one-time check, and may name…](roadmap/320-child-filed-findings-via-pointing-up/380-the-floor-s-public-tense-and-whether-it-should-name-the-root.md)
@@ -589,14 +590,14 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up from a private child: at the hook plane the content scanners…](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
 - [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-scanners) [Hand-up: the floor region…](roadmap/320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md)
 - [ ] 🔎 [Hand-up: a child's own visibility fact sits inside its verbatim floor…](roadmap/320-child-filed-findings-via-pointing-up/620-a-childs-own-visibility-fact-sits-inside-the-verbatim-floor.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-dispatch) [Hand-up: a REFUSED commit…](roadmap/320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md)
 - [ ] 🔎 [Hand-up: a cross-estate question gets answered from one repo's tree,…](roadmap/320-child-filed-findings-via-pointing-up/640-a-question-about-the-estate-is-answered-from-one-tree.md)
 - [ ] 🔎 [Hand-up: an estate fact learned in a child has no rule sending it up…](roadmap/320-child-filed-findings-via-pointing-up/650-an-estate-fact-learned-in-a-child-has-no-rule-to-travel-up.md)
 - [ ] 🔎 [Hand-up: the house assumes every repo is a direct sibling of the…](roadmap/320-child-filed-findings-via-pointing-up/660-grouping-children-into-folders-breaks-the-sibling-convention.md)
 - [ ] 🔎 [Hand-up: the session-open prompt's "restore" left a net change that…](roadmap/320-child-filed-findings-via-pointing-up/670-the-session-open-restore-left-a-net-change-that-reverses-a-ruling.md)
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-dispatch) [Hand-up: a dispatched worker…](roadmap/320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - [ ] 🔎 [Hand-up: a scanner's --selftest prints its fixture findings in the…](roadmap/320-child-filed-findings-via-pointing-up/690-a-scanner-selftest-prints-fixture-findings-in-the-floors-own-shape.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
-- [~] 🔎 (claimed 2026-11-03, wt: atelier-qr-4c65-dispatch) [Hand-up: the process table…](roadmap/320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md)
+- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md)
 - [ ] 🔎 [rpi hand-up: a rollout row backwards; wrapscan blind to split boards](roadmap/320-child-filed-findings-via-pointing-up/710-rpi-hand-up-a-rollout-row-backwards-wrapscan-blind-to-split-boards.md)
 - ✅ [FIXED 2026-10-18](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
 - ✅ 🔎 [Hand-up: the paragraph projection joins a wrapped claim into one…](roadmap/320-child-filed-findings-via-pointing-up/730-hand-up-the-paragraph-projection-joins-a-claim-into-an-index-line-wrapscan-refuses.md)

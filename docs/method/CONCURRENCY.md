@@ -94,6 +94,23 @@ checkout.** Neither shows in `git status` as anything that reads as "stop":
   live peer to have put it there: an index outlives the ref that fed it, so a
   path staged before you opened, or left behind when a peer landed by
   `update-ref`, is still sitting there to be committed under your message.
+  **The read cannot see a peer who stages after it, so commit by pathspec
+  too** (`git commit -- <paths>`): it takes only the paths named and leaves a
+  peer's staged entries staged. The read and the commit are not atomic, and a
+  floor-hook commit can run for minutes. **A worktree is the only index of
+  one's own**, which is why multi-commit work takes one (above), an
+  orchestrator's records and board edits included; a commit it must still
+  make in the shared checkout, such as a claim on `main` (§ Claiming work),
+  goes by pathspec. (2026-11-03, `320/350`: a child's hook run of over two
+  minutes swept a peer's four staged files into a one-file commit, and two
+  days later a resuming session found a live peer's session log staged at
+  open.) **And the leaver's rule: a refused commit leaves its paths staged**
+  for the next committer to take. After a floor check refuses your commit
+  in a shared checkout, unstage your own paths before investigating
+  (`git restore --staged <paths>`), and re-stage once the cause is fixed.
+  (2026-11-03, `320/630`: a correct `board` refusal left one session's hunk
+  in the index, and a peer's claim commit carried it under the wrong author
+  and message.)
 - **Repository *state* is shared, and unprotected.** A rebase in progress
   produces no dirty file, no claim, and nothing in `git status --short` that
   reads as a stop; `git push` can then report success while pushing nothing.
@@ -764,8 +781,12 @@ worker inherits is bounded** (2026-07-23, QR3): a worker builds and commits in
 its own worktree and hands back — the merge to `main`, and everything on the
 always-confirm floor (`AUTONOMY.md`), stays the orchestrator's, which reads
 the work it is endorsing before the merge lands (a push is publication on a
-public repo). A dispatch prompt carries the item and its bounds, never a
-relaxation of standing doctrine.
+public repo). **A review brief is work it endorses**: the cold reviewer is
+held to it, so an unread brief can steer a pass no one has checked. The
+orchestrator reads every brief in full before it lands; a writer's clean
+scanner report is not that read. (2026-11-03, `180/130`: a run landed three of
+five briefs on their writers' scanner results, and said so.) A dispatch prompt
+carries the item and its bounds, never a relaxation of standing doctrine.
 
 **The worktree is the isolation; the scratch space is not — so the dispatch
 prompt says so.** A worker's git worktree isolates the *repo* and stops there.
@@ -837,6 +858,37 @@ that inference while they were still verifying (2026-09-07, handed up as
 - **Neither stands alone.** A crashed worker never writes its marker, so the
   marker proves *done* but never *not done*; the notice covers that case. The
   marker covers the gap between a push and the notice.
+
+**A long check is the worker's to poll, because no notice reaches it.** The
+harness's shell tool caps a foreground command and, past the cap, moves it to
+the background by itself; the completion notice then goes to the orchestrating
+session, not the worker. So "run the gate in the foreground" asks for something
+the harness will not do. The dispatch prompt tells the worker to redirect a
+long check's output to a file in its scratch directory ending in an exit-code
+line, and to poll that file itself if the command is moved. The exit line is
+the check's own, which is the act's own effect (§ Integration hygiene).
+(2026-11-03, `320/680`: under five worker lanes a child's gate took 19½
+minutes against a 600 s cap, and two of five workers briefed to run it in the
+foreground stopped "waiting for the gate" until told to read their own output.
+The cap's figure is the tool's in that session, not a constant.)
+
+**A run's worktree names carry its session's short id**, in the form
+`<repo>-qr-<id>-<slug>` with the id's first four characters
+(`atelier-qr-4c65-board`), so a claim's `wt:`, a brief or a commit body that
+cites the name says which session made it. (2026-11-03, `180/160`: two live
+runs both named worktrees `atelier-qr-<item>`, and a brief-writer read a peer
+run's commit as its own run's and refused the brief under rule 4.)
+
+**The fixed obligations are copied, not recalled.** Whatever the item, every
+dispatch prompt carries the same bounds: the worktree and absolute paths, the
+scratch directory, the long-check poll, explicit staging and the pathspec
+commit, no push or merge, the kill scope (*the machine is shared*, below) and
+the terminal marker. They are kept as one copyable skeleton,
+[`session-open/dispatch-brief.md`](session-open/dispatch-brief.md), each line
+pointing at the rule here that grounds it, and a dispatch starts from it.
+(2026-11-03, `180/120`: of the first real run's five dispatches, four named no
+scratch directory and four asked for no marker, and a brief-writer left 50
+files in the orchestrator's scratchpad. Both rules lived only in this prose.)
 
 **Tier at open — state it, don't ask.** An orchestrating session **names the
 tier it is on in its opening report and proceeds** (`ECONOMICS.md` — the
@@ -920,6 +972,20 @@ finish near-done items before opening new fronts — never worker concurrency.
 And a run that authors doctrine mid-run keeps draining: authoring is not a
 stop condition — the run queues the `⏳` (which it may not take) and moves on.
 
+**The machine is shared too: the process table and the load.** Every session
+on the box runs in one process table, so a kill by name pattern (`pkill -f`)
+reaches other sessions' processes as well as yours. A kill is scoped by the PID
+the session launched, or by the worktree cwd it owns (`lsof -p <pid> -d cwd`),
+never by a pattern, and the dispatch prompt says so: naming the scope is what
+binds a worker, as naming the scratch path does. A wave is judged by CPU load
+as well as memory: read the 15-minute load average before adding one, not only
+free memory. This sets no ceiling; one run's figures show memory misjudging
+the box, not where the line is. (2026-11-03, `320/700`: a worker's
+`pkill -f "pytest -q"` was followed by another session's suite, about 30
+minutes in, no longer running, cause inferred, not proven; and a wave of ten
+builders sized on 59 % free memory drove the load average to 168 on a box
+shared with about a dozen sessions.)
+
 **Stop conditions — named, and the report says which fired.** A run stops on one
 of four:
 
@@ -930,6 +996,15 @@ of four:
 - **queue empty** — nothing left unclaimed;
 - **everything left is blocked** — every remaining item waits on a decision only
   the principal can make, or on another item not yet done.
+
+**A stop other than economics or session cap is claimed on a triage, not on
+judgement.** Before it, the run triages each remaining open item as
+progressable, idea-only, ruling-bound, review-tier-bound or blocked on
+something else. *Everything left is blocked* holds only when none is
+progressable, and the report carries the triage by count, with the items each
+count rests on. Until then the run has reached no named stop and keeps
+draining. (2026-11-03, `180/140`: a run stopped "by judgement" with work on the
+board, and said honestly that it had not triaged the rest one by one.)
 
 It ends with a **report**, and the report's job is to make blocked items
 **visible, not skipped**: a run that silently steps over a 🎯 principal-blocked
@@ -947,9 +1022,13 @@ The same run brief fixed three things the report carries (homed 2026-10-18,
 - **The identifiers block** (`RECORD.md`): the session id, so the principal
   can pull the transcript up (`cctranscript`, `ccclose`), and the commits,
   pull requests, board items, worktrees and agents the run touched.
-- **Each open decision, one at a time, in plain language**: what it is for and
-  what each answer would change (`COMMUNICATION.md` for the decision device;
-  `00-APEX.md` for what an informed ruling needs).
+- **Each open decision or question, one at a time, through the decision
+  device** (`COMMUNICATION.md` § *Asking for a ruling*), in plain language:
+  what it is for and what each answer would change (`00-APEX.md` for what an
+  informed ruling needs). Prose carries it only where the harness has no
+  device; a 🎯 line in the closing message is not the device. (2026-11-03,
+  `180/150`: a run parked a decision for the end, then wrote it and two other
+  asks into its close as prose.)
 - **A re-read of the principal's asks before the all-clear.** Read back every
   prompt he gave this session, and every question, action or decision the run
   put to him, mid-turn as well as at the turn. Each one is either done or

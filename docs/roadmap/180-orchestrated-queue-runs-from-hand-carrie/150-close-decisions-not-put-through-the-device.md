@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-03-0641, wt: atelier-qr-4c65-dispatch) 🔎 **The run's open decision went into the close message as prose,
+- [x] **DONE 2026-11-03** (wt: atelier-qr-4c65-dispatch) 🔎 **The run's open decision went into the close message as prose,
       not through the decision device.** Session `8e498ef1` (2026-10-18,
       `180/110`) parked `320/450` "for your decision at the end of the run".
       Then it wrote the decision as a 🎯 list item in its final message, with
@@ -14,3 +14,9 @@
   refused delete were also put in prose. See `180/170`.
   On reopening it again offered a choice in prose (*"Say the word and I'll
   put a reminder in your calendar"*) rather than asking through the device.
+      ✅ **Landed 2026-11-03.** `CONCURRENCY.md` § *Orchestrated
+      queue runs*, the report list: each open decision or question goes
+      through the decision device (`COMMUNICATION.md` § *Asking for a
+      ruling*), prose only where the harness has none; a 🎯 line in the
+      close is not the device. `180/170` stays open on its own shapes.
+      Review owed: `160/995`.
