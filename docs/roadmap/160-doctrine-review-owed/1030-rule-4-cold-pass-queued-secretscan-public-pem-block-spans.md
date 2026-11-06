@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `secretscan` exempts a public
+- [~] ⏳ **Rule-4 cold pass queued: `secretscan` exempts a public
       certificate's or public key's PEM body from the entropy rule
       (`320/790`).** `secretscan` is the publish-safety guard every child
       floats on at `floor.yml@main`, and this change opens a blind spot on
@@ -38,3 +38,12 @@
       selection; `850e2a78` orchestrates, holds the sibling and forms no
       finding. Barred from reviewing: `722ac2e2` and its workers, `782f8a66`,
       `850e2a78`.
+      `[~]` **CLAIMED 2026-11-06-2041** (wt: atelier-160-1030-2041; cold pass: a
+      Fable 5.1 reviewer, tier checked at selection, run locally through
+      Claude Code, not the API harness, which stays stopped until its own
+      review's findings are ruled; orchestrator: drain session `850e2a78`,
+      Opus 5.5, a rule-4 off-tier orchestrator that holds the context
+      partition, forms no finding and writes no severity; it authored
+      neither delta nor the brief, and was not started or instructed by
+      `722ac2e2`). Runs under the principal's 2026-11-06 approval quoted
+      above.

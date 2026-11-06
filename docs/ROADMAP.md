@@ -347,7 +347,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ccapple checks the filter before it looks…](roadmap/160-doctrine-review-owed/1000-rule-4-cold-pass-queued-ccapple-checks-the-filter-first.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose expands a for loop's literal word…](roadmap/160-doctrine-review-owed/1010-rule-4-cold-pass-queued-ccclose-loop-made-worktrees.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose lists board ids in number order…](roadmap/160-doctrine-review-owed/1020-rule-4-cold-pass-queued-ccclose-board-order.md)
-- [ ] ⏳ [Rule-4 cold pass queued: secretscan exempts a public certificate's or…](roadmap/160-doctrine-review-owed/1030-rule-4-cold-pass-queued-secretscan-public-pem-block-spans.md)
+- [~] ⏳ [Rule-4 cold pass queued: secretscan exempts a public certificate's or…](roadmap/160-doctrine-review-owed/1030-rule-4-cold-pass-queued-secretscan-public-pem-block-spans.md)
 - [ ] ⏳ [Rule-4 cold pass queued: secretscan still reads a file its…](roadmap/160-doctrine-review-owed/1040-rule-4-cold-pass-queued-secretscan-reads-exempt-files-for-private-keys.md)
 
 ## build/ layer — open strands
