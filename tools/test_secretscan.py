@@ -1850,5 +1850,362 @@ class StagedPositionalScope(unittest.TestCase):
         self.assertEqual(0, self._main("no-such-dir")[0])
 
 
+
+# ===========================================================================
+# 320/790 — the body of a PEM public certificate / public key.
+#
+# `PUBLIC_KEY_RX` exempted the BEGIN line and nothing under it, so a 14-line
+# certificate gave one `[medium/entropy]` finding per body line, and the only
+# route left was a whole-file `.secretscanignore` that blinds every rule. The
+# block is now recognised as a unit. Every test below that guards the other
+# direction (what must NOT be exempt) is written to fail on the naive version —
+# "any line between a BEGIN and an END", or "any BEGIN CERTIFICATE to the end of
+# the file" — not merely to pass on the careful one.
+# ===========================================================================
+import base64
+import random
+
+PEM_BEGIN_CERT = "-----BEGIN CERTIFICATE-----"
+PEM_END_CERT = "-----END CERTIFICATE-----"
+PEM_BEGIN_PUB = "-----BEGIN PUBLIC KEY-----"
+PEM_END_PUB = "-----END PUBLIC KEY-----"
+# The private headers are assembled so this file does not carry them whole.
+PEM_PRIVATE_LABELS = ("PRIVATE KEY", "RSA PRIVATE KEY", "EC PRIVATE KEY",
+                      "OPENSSH PRIVATE KEY", "ENCRYPTED PRIVATE KEY")
+
+
+def der_blob(size, seed=7):
+    """Random bytes wrapped as ONE DER SEQUENCE (tag, long-form length that
+    accounts for every byte) — the structure a certificate or a
+    SubjectPublicKeyInfo has, with no real key behind it."""
+    body = random.Random(seed).randbytes(size)
+    n = len(body)
+    if n < 0x80:
+        head = bytes([0x30, n])
+    elif n < 0x100:
+        head = bytes([0x30, 0x81, n])
+    elif n < 0x10000:
+        head = bytes([0x30, 0x82]) + n.to_bytes(2, "big")
+    else:
+        head = bytes([0x30, 0x83]) + n.to_bytes(3, "big")
+    return head + body
+
+
+def pem_lines(label, raw, width=64):
+    b64 = base64.b64encode(raw).decode()
+    return ([f"-----BEGIN {label}-----"]
+            + [b64[i:i + width] for i in range(0, len(b64), width)]
+            + [f"-----END {label}-----"])
+
+
+def flagged_lines(lines, **kw):
+    """Line numbers carrying a finding, scanning `lines` as one file."""
+    return {f.line for f in ss.scan_text("t", "\n".join(lines) + "\n", **kw)}
+
+
+class PublicPemBody(unittest.TestCase):
+    CERT = pem_lines("CERTIFICATE", der_blob(476))     # 10 body lines
+    BODY = CERT[1:-1]
+
+    # --- the control: the claim is only meaningful if the bare body blocks
+    def test_the_bare_body_blocks_on_every_line(self):
+        self.assertEqual(set(range(1, len(self.BODY) + 1)), flagged_lines(self.BODY))
+
+    # --- the fix
+    def test_certificate_body_is_clean_and_counted(self):
+        tally = ss.Tally()
+        out = ss.scan_text("c.pem", "\n".join(self.CERT) + "\n", frozenset(), tally)
+        self.assertEqual([], out)
+        self.assertGreaterEqual(tally.public_key_spans, len(self.BODY) - 2)
+        self.assertEqual(0, tally.marker_total)
+
+    def test_public_key_body_is_clean(self):
+        spki = pem_lines("PUBLIC KEY", der_blob(91, seed=3))
+        self.assertEqual(set(), flagged_lines(spki))
+
+    def test_summary_field_set_is_unchanged(self):
+        # Reuses `public_key_spans`: no counter added, so two runs still compare.
+        self.assertEqual(ss.Tally().summary().count(" · "),
+                         ss.Tally(public_key_spans=5).summary().count(" · "))
+        self.assertIn("5 by public-key line", ss.Tally(public_key_spans=5).summary())
+
+    def test_crlf_and_indented_blocks_are_recognised(self):
+        crlf = [ln + "\r" for ln in self.CERT]
+        self.assertEqual(set(), flagged_lines(crlf))
+        yaml = ["ca.crt: |"] + ["    " + ln for ln in self.CERT]
+        self.assertEqual(set(), flagged_lines(yaml))
+
+    # --- 1: a private key block is never covered, and still says so
+    def test_private_key_blocks_stay_flagged(self):
+        body = pem_lines("CERTIFICATE", der_blob(476))[1:-1]
+        for label in PEM_PRIVATE_LABELS:
+            with self.subTest(label=label):
+                lines = [f"-----BEGIN {label}-----", *body, f"-----END {label}-----"]
+                found = ss.scan_text("k", "\n".join(lines) + "\n")
+                self.assertIn("private-key-header", {f.rule for f in found})
+                self.assertEqual(set(range(2, len(body) + 2)) | {1},
+                                 {f.line for f in found})
+
+    def test_private_label_is_not_a_public_label(self):
+        # A header merely CONTAINING the words must not open a block.
+        for hdr in ("-----BEGIN PRIVATE KEY-----", "-----BEGIN RSA PUBLIC KEY-----",
+                    "-----BEGIN X CERTIFICATE-----", "-----BEGIN CERTIFICATE REQUEST-----"):
+            with self.subTest(hdr=hdr):
+                lines = [hdr, *self.BODY, hdr.replace("BEGIN", "END")]
+                self.assertTrue(set(range(2, len(self.BODY) + 2)) <= flagged_lines(lines))
+
+    # --- 2: an unclosed block must not suppress to end of file
+    def test_unclosed_block_suppresses_nothing(self):
+        later = ["notes follow", *self.BODY]        # more pure base64 after it
+        lines = [PEM_BEGIN_CERT, *self.BODY, *later]
+        self.assertTrue(set(range(2, len(self.BODY) + 2)) <= flagged_lines(lines))
+        self.assertTrue(set(range(len(self.BODY) + 3, len(lines) + 1))
+                        <= flagged_lines(lines))
+
+    def test_block_past_the_bound_suppresses_nothing(self):
+        # It does close, but not within the bound (documented at 2048 lines of
+        # body, ~96 KiB of DER): 2100 lines is over it by any reading.
+        big = pem_lines("CERTIFICATE", der_blob(48 * 2100 - 5))
+        self.assertEqual(2100, len(big) - 2)
+        found = {f.line for f in ss.scan_text("big", "\n".join(big) + "\n")}
+        self.assertTrue(found, "an over-long block must not be exempt")
+        self.assertIn(2, found)
+        # a certificate of the largest size in current use (SLH-DSA-256f, about
+        # 50 KB, about 1,050 lines) is under it, and exempt
+        slh = pem_lines("CERTIFICATE", der_blob(50_000))
+        self.assertGreater(len(slh) - 2, 1000)
+        self.assertEqual(set(), flagged_lines(slh))
+
+    def test_empty_block_is_not_a_block(self):
+        self.assertEqual(set(), flagged_lines([PEM_BEGIN_CERT, PEM_END_CERT]))
+
+    # --- 3: a private BEGIN inside an open certificate block ends it at once
+    def test_private_begin_inside_a_certificate_block(self):
+        priv = "-----BEGIN OPENSSH " + "PRIVATE KEY-----"
+        part = pem_lines("CERTIFICATE", der_blob(476))[1:-1]
+        lines = [PEM_BEGIN_CERT, *part[:2], priv, *part[2:], PEM_END_CERT]
+        found = ss.scan_text("t", "\n".join(lines) + "\n")
+        flagged = {f.line for f in found}
+        self.assertIn("private-key-header", {f.rule for f in found})
+        # the private key's body, which a naive "until END CERTIFICATE" exempts
+        self.assertTrue(set(range(5, 5 + len(part) - 2)) <= flagged, flagged)
+        # and the certificate lines before it are voided too (fail closed)
+        self.assertTrue({2, 3} <= flagged)
+
+    def test_a_mismatched_end_label_voids_the_block(self):
+        lines = [PEM_BEGIN_CERT, *self.BODY, "-----END PUBLIC KEY-----"]
+        self.assertTrue(set(range(2, len(self.BODY) + 2)) <= flagged_lines(lines))
+
+    # --- 4: only pure base64 lines are body; named rules still fire
+    def test_a_credential_line_inside_voids_the_block(self):
+        pw = "password=" + "Hunter2xyzQw82Lmfhtxz47Kdms4hq82"
+        lines = [PEM_BEGIN_CERT, *self.BODY[:3], pw, *self.BODY[3:], PEM_END_CERT]
+        found = ss.scan_text("t", "\n".join(lines) + "\n")
+        self.assertIn("assigned-secret", {f.rule for f in found})
+        self.assertTrue({2, 3, 4} <= {f.line for f in found})
+
+    def test_an_aws_key_inside_still_fires(self):
+        lines = [PEM_BEGIN_CERT, *self.BODY[:3], "key AKIAIOSFODNN7EXAMPLE",
+                 *self.BODY[3:], PEM_END_CERT]
+        self.assertIn("aws-access-key-id",
+                      {f.rule for f in ss.scan_text("t", "\n".join(lines) + "\n")})
+
+    def test_non_base64_entropy_line_inside_is_not_exempt(self):
+        # `_` and `-` are in the entropy net's class and not in base64's. A line
+        # of them between BEGIN and END is not body, and an implementation that
+        # exempts "everything in the span" would let it through.
+        sneaky = "Zx91Kdms4hq82Tvb_Qw82Lmfhtxz47-Gk8xQvie2mNf"
+        lines = [PEM_BEGIN_CERT, *self.BODY[:3], sneaky, *self.BODY[3:], PEM_END_CERT]
+        self.assertIn(5, flagged_lines(lines))
+
+    def test_overlong_line_inside_is_not_body(self):
+        # RFC 7468: at most 76 characters. 77 of pure base64 is not a body line.
+        wide = pem_lines("CERTIFICATE", der_blob(476), width=77)
+        self.assertEqual(77, len(wide[1]))
+        self.assertTrue(flagged_lines(wide))
+
+    def test_secret_in_a_forged_certificate_wrapper_is_not_exempt(self):
+        # Pure base64, right line width, right headers — but it is not a DER
+        # SEQUENCE, so it is not a certificate.
+        secret = base64.b64encode(random.Random(1).randbytes(476)).decode()
+        forged = [PEM_BEGIN_CERT, *[secret[i:i + 64] for i in range(0, len(secret), 64)],
+                  PEM_END_CERT]
+        self.assertTrue(flagged_lines(forged))
+
+    def test_der_length_must_account_for_every_byte(self):
+        raw = der_blob(476) + b"\x00"                 # trailing byte past the SEQUENCE
+        self.assertTrue(flagged_lines(pem_lines("CERTIFICATE", raw)))
+        raw = der_blob(476)[:-5]                      # truncated
+        self.assertTrue(flagged_lines(pem_lines("CERTIFICATE", raw)))
+
+    def test_named_rule_still_runs_on_an_exempt_line(self):
+        found = ss.scan_lines("t", [(1, "AKIAIOSFODNN7EXAMPLE")],
+                              pem_lines=frozenset({1}))
+        self.assertEqual(["aws-access-key-id"], [f.rule for f in found])
+
+    def test_line_numbers_must_be_consecutive(self):
+        # What a staged diff of added lines looks like when the BEGIN and the
+        # body come from different hunks: not one block.
+        numbered = [(1, PEM_BEGIN_CERT)] + [(i + 10, t) for i, t in enumerate(self.BODY)]
+        numbered.append((10 + len(self.BODY), PEM_END_CERT))
+        self.assertTrue(ss.scan_lines("t", numbered))
+
+    # --- 6: a chain
+    def test_each_certificate_in_a_chain_is_its_own_span(self):
+        a = pem_lines("CERTIFICATE", der_blob(476, seed=1))
+        b = pem_lines("CERTIFICATE", der_blob(600, seed=2))
+        c = pem_lines("CERTIFICATE", der_blob(300, seed=3))
+        self.assertEqual(set(), flagged_lines([*a, *b, *c]))
+
+    def test_a_bad_certificate_in_a_chain_does_not_spoil_its_neighbours(self):
+        a = pem_lines("CERTIFICATE", der_blob(476, seed=1))
+        secret = base64.b64encode(random.Random(5).randbytes(300)).decode()
+        forged = [PEM_BEGIN_CERT, *[secret[i:i + 64] for i in range(0, len(secret), 64)],
+                  PEM_END_CERT]
+        c = pem_lines("CERTIFICATE", der_blob(300, seed=3))
+        lines = [*a, *forged, *c]
+        found = flagged_lines(lines)
+        self.assertEqual(set(), found & set(range(1, len(a) + 1)))
+        self.assertEqual(set(), found & set(range(len(a) + len(forged) + 1, len(lines) + 1)))
+        self.assertTrue(found & set(range(len(a) + 2, len(a) + len(forged))))
+
+    def test_a_certificate_after_an_unterminated_one_still_stands_alone(self):
+        a = [PEM_BEGIN_CERT, *pem_lines("CERTIFICATE", der_blob(476, seed=1))[1:3]]
+        b = pem_lines("CERTIFICATE", der_blob(476, seed=4))
+        found = flagged_lines([*a, *b])
+        self.assertEqual({2, 3}, found)
+
+
+class PublicPemBodyWholeFile(unittest.TestCase):
+    """The streaming reader (`_scan_file`) sees one line at a time; the verdict
+    on a block arrives at its END line."""
+
+    def _scan(self, name, lines):
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d, ignore_errors=True)
+        (d / name).write_text("\n".join(lines) + "\n")
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = ss.main(["--root", str(d), "--json", str(d / name)])
+        return code, json.loads(buf.getvalue())
+
+    def test_certificate_file_is_clean(self):
+        code, out = self._scan("cert.pem", pem_lines("CERTIFICATE", der_blob(476)))
+        self.assertEqual((0, []), (code, out["findings"]))
+        self.assertGreater(out["suppressed"]["by_public_key_line"], 0)
+
+    def test_private_key_file_still_blocks(self):
+        code, out = self._scan("key.pem", pem_lines("PRIVATE KEY", der_blob(476)))
+        self.assertEqual(1, code)
+        self.assertIn("private-key-header", {f["rule"] for f in out["findings"]})
+
+    def test_certificate_then_private_key_in_one_file(self):
+        lines = (pem_lines("CERTIFICATE", der_blob(476, seed=1))
+                 + pem_lines("PRIVATE KEY", der_blob(476, seed=4)))
+        code, out = self._scan("bundle.pem", lines)
+        self.assertEqual(1, code)
+        n_cert = len(pem_lines("CERTIFICATE", der_blob(476, seed=1)))
+        self.assertTrue(all(f["line"] > n_cert for f in out["findings"]), out["findings"])
+
+
+class PublicPemBodyStaged(unittest.TestCase):
+    """`--staged` sees only added lines. A diff that adds body lines to a
+    certificate already in the file carries no BEGIN line; the block is found in
+    the index copy of the file (choice recorded in 320/790), and a line whose
+    block cannot be seen is scanned."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self._git("init", "-q")
+        self._git("config", "user.email", "test@example.com")
+        self._git("config", "user.name", "test")
+
+    def _git(self, *args):
+        return subprocess.run(["git", *args], cwd=self.tmp, check=True,
+                              capture_output=True, text=True)
+
+    def _staged_scan(self):
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        try:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                code = ss.main(["--staged", "--root", str(self.tmp), "--json"])
+        finally:
+            os.chdir(old)
+        return code, json.loads(buf.getvalue())
+
+    def _write(self, name, lines):
+        (self.tmp / name).write_text("\n".join(lines) + "\n")
+        self._git("add", name)
+
+    def test_a_whole_new_certificate_is_clean(self):
+        self._write("cert.pem", pem_lines("CERTIFICATE", der_blob(476)))
+        code, out = self._staged_scan()
+        self.assertEqual((0, []), (code, out["findings"]))
+        self.assertGreater(out["suppressed"]["by_public_key_line"], 0)
+
+    def test_a_new_private_key_still_blocks(self):
+        self._write("key.pem", pem_lines("PRIVATE KEY", der_blob(476)))
+        code, out = self._staged_scan()
+        self.assertEqual(1, code)
+        self.assertIn("private-key-header", {f["rule"] for f in out["findings"]})
+
+    def test_body_lines_added_to_an_existing_certificate_are_read_in_context(self):
+        # Re-key the certificate in place, keeping its length: the commit adds
+        # body lines only, no BEGIN and no END in the hunk.
+        self._write("cert.pem", pem_lines("CERTIFICATE", der_blob(476, seed=1)))
+        self._git("commit", "-q", "-m", "init")
+        new = pem_lines("CERTIFICATE", der_blob(476, seed=4))
+        self._write("cert.pem", new)
+        staged = ss.staged_added_lines  # the hunk really has no BEGIN line
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        try:
+            added = [t for _n, t in staged()["cert.pem"]]
+        finally:
+            os.chdir(old)
+        self.assertNotIn(PEM_BEGIN_CERT, added)
+        code, out = self._staged_scan()
+        self.assertEqual((0, []), (code, out["findings"]))
+
+    def test_body_lines_added_to_a_block_that_is_not_a_certificate_are_scanned(self):
+        # The same hunk shape, but the file's block is a private key: the
+        # enclosing block IS seen, and it is not a public one.
+        self._write("k.pem", pem_lines("OPENSSH PRIVATE KEY", der_blob(476, seed=1)))
+        self._git("commit", "-q", "-m", "init")
+        self._write("k.pem", pem_lines("OPENSSH PRIVATE KEY", der_blob(476, seed=4)))
+        code, out = self._staged_scan()
+        self.assertEqual(1, code)
+        self.assertTrue(len(out["findings"]) >= 2)
+
+    def test_body_lines_with_no_enclosing_block_are_scanned(self):
+        body = pem_lines("CERTIFICATE", der_blob(476))[1:-1]
+        self._write("notes.txt", ["just some base64", *body])
+        code, out = self._staged_scan()
+        self.assertEqual(1, code)
+        self.assertEqual(len(body), len(out["findings"]))
+
+    def test_a_block_that_loses_its_end_in_the_commit_is_scanned(self):
+        full = pem_lines("CERTIFICATE", der_blob(476, seed=1))
+        self._write("cert.pem", full)
+        self._git("commit", "-q", "-m", "init")
+        self._write("cert.pem", pem_lines("CERTIFICATE", der_blob(476, seed=4))[:-1])
+        code, out = self._staged_scan()
+        self.assertEqual(1, code, "the staged file is an unterminated block")
+
+    def test_a_non_certificate_file_never_reads_a_blob(self):
+        self._write("a.txt", ["nothing here", "version = 1.2.3"])
+        calls = []
+        real = ss.report.staged_blob
+        ss.report.staged_blob = lambda p: calls.append(p) or real(p)
+        try:
+            code, _out = self._staged_scan()
+        finally:
+            ss.report.staged_blob = real
+        self.assertEqual((0, []), (code, calls))
+
+
 if __name__ == "__main__":
     unittest.main()

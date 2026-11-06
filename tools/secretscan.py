@@ -80,6 +80,8 @@ Zero third-party dependencies; stdlib only.
 from __future__ import annotations
 
 import argparse
+import base64
+import binascii
 import codecs
 import fnmatch
 import itertools
@@ -410,6 +412,138 @@ PUBLIC_KEY_RX = re.compile(
     r"(?i)\b(?:ssh-(?:ed25519|rsa|dss)|ecdsa-sha2[\w-]*|public[_-]?key|pubkey"
     r"|sshkey|authorized_keys)\b"
     r"|-----BEGIN (?:PUBLIC KEY|CERTIFICATE|[A-Z ]*PUBLIC)")
+
+# 320/790 — the BODY of a PEM public certificate or public key. `PUBLIC_KEY_RX`
+# is per line, so it exempts the `-----BEGIN CERTIFICATE-----` line and nothing
+# under it: each base64 body line is 64 mixed-class characters with no keyword
+# beside it, and tripped the entropy net one finding per line (a fresh 14-line
+# P-256 certificate gave 8). A comment cannot go inside a PEM block, so a child
+# had only a whole-file `.secretscanignore` — which blinds EVERY rule to the
+# file, a private key pasted in later included.
+#
+# So the block is recognised as a unit and its body lines are handed to the SAME
+# carve-out, counted in the same `Tally.public_key_spans` field (no new field,
+# so the summary line's field set is unchanged). Nothing else is widened: it is
+# the entropy pass only; named and assigned rules still run on every body line.
+#
+# Every condition is a way to FAIL CLOSED, because this is a blind spot and a
+# private key is what it must never cover:
+#   * the label is exactly `CERTIFICATE` or `PUBLIC KEY` (a `PRIVATE KEY`
+#     header, whatever its prefix, is not a label here and opens nothing);
+#   * the block must CLOSE with the matching END line — an unterminated BEGIN
+#     suppresses nothing, rather than suppressing to end of file;
+#   * it must close within `PEM_MAX_BODY_LINES`, which also bounds the buffer;
+#   * every line between is pure base64 (`A-Za-z0-9+/=`) of at most
+#     `PEM_MAX_LINE` characters (RFC 7468 §3), consecutive in the file. One
+#     stray line (a `password=…`, a private-key header, a blank, a gap in the
+#     line numbers of a staged diff) voids the WHOLE block, not just that line;
+#   * the decoded body must be one DER SEQUENCE whose length field accounts for
+#     every byte — the shape of an X.509 certificate and of a
+#     SubjectPublicKeyInfo — so a secret wrapped in a forged header is not
+#     exempt. (Stdlib only: a tag and length check, no certificate parsing.)
+#
+# PEM_MAX_BODY_LINES is grounded in certificate size, not in the one certificate
+# that prompted this: openssl emits 64 base64 characters (48 DER bytes) per line,
+# so a bound in DER bytes converts directly. Ordinary web certificates are
+# 1-3 KiB (20-60 lines); a post-quantum certificate carrying an SLH-DSA-256f
+# signature is about 50 KB (about 1,050 lines), the largest signature in the
+# standardised sets. 2048 lines is 96 KiB of DER, about twice that, with the
+# buffer for it held at 2048 x 76 characters, about 150 KiB, per open block.
+PEM_PUBLIC_LABELS = ("CERTIFICATE", "PUBLIC KEY")
+PEM_MAX_BODY_LINES = 2048
+PEM_MAX_LINE = 76
+_PEM_BEGIN_RX = re.compile(
+    "-----BEGIN (" + "|".join(PEM_PUBLIC_LABELS) + ")-----")
+_PEM_BODY_RX = re.compile(r"[A-Za-z0-9+/]+={0,2}")
+
+
+def _is_pem_body_line(stripped: str) -> bool:
+    return len(stripped) <= PEM_MAX_LINE and bool(_PEM_BODY_RX.fullmatch(stripped))
+
+
+def _is_der_sequence(raw: bytes) -> bool:
+    """True if `raw` is exactly one DER SEQUENCE: tag 0x30, then a length that
+    accounts for every remaining byte. Definite lengths only (short form, or
+    long form of one to four length octets) — DER has no other kind, and
+    anything else is not a certificate."""
+    if len(raw) < 2 or raw[0] != 0x30:
+        return False
+    first = raw[1]
+    if first < 0x80:
+        header, length = 2, first
+    elif 0x81 <= first <= 0x84:
+        header = 2 + (first - 0x80)
+        if len(raw) < header:
+            return False
+        length = int.from_bytes(raw[2:header], "big")
+    else:
+        return False
+    return header + length == len(raw)
+
+
+def _pem_body_is_der(lines: list[str]) -> bool:
+    try:
+        raw = base64.b64decode("".join(lines), validate=True)
+    except (binascii.Error, ValueError):
+        return False
+    return _is_der_sequence(raw)
+
+
+def pem_exempt_stream(items):
+    """Pass `items` — `(lineno, text, extra)` triples in file order — through,
+    appending a fourth element: True for a body line of a closed, valid
+    public-certificate / public-key PEM block (see the 320/790 comment), else
+    False.
+
+    A block's body can only be judged at its END line, so its lines are held
+    (at most `PEM_MAX_BODY_LINES`) and released together; every other line passes
+    through at once. Order is preserved. A line that voids an open block is
+    released with the block as non-exempt and then re-read as an ordinary line,
+    so a certificate that follows an unterminated one still gets its own span
+    (a chain: each certificate stands alone)."""
+    label = None
+    held: list = []
+    last = 0
+    for item in items:
+        lineno, text = item[0], item[1]
+        while True:
+            if label is None:
+                if "-----BEGIN" in text:
+                    m = _PEM_BEGIN_RX.fullmatch(text.strip())
+                    if m:
+                        label, held, last = m.group(1), [], lineno
+                yield (*item, False)
+                break
+            stripped = text.strip()
+            if lineno == last + 1:
+                if stripped == f"-----END {label}-----":
+                    ok = bool(held) and _pem_body_is_der(
+                        [h[1].strip() for h in held])
+                    for h in held:
+                        yield (*h, ok)
+                    yield (*item, False)
+                    label, held = None, []
+                    break
+                if len(held) < PEM_MAX_BODY_LINES and _is_pem_body_line(stripped):
+                    held.append(item)
+                    last = lineno
+                    break
+            for h in held:      # voided: release as ordinary lines, re-read this one
+                yield (*h, False)
+            label, held = None, []
+    for h in held:               # EOF inside an open block: never closed
+        yield (*h, False)
+
+
+def pem_body_lines(numbered_lines) -> frozenset[int]:
+    """Line numbers of the exempt PEM body lines among `numbered_lines`
+    (`(lineno, text)` pairs). A block must be seen whole, with consecutive line
+    numbers, to count."""
+    return frozenset(n for n, _t, _x, ok in
+                     pem_exempt_stream((n, t, None) for n, t in numbered_lines) if ok)
+
+
+_NO_PEM_LINES: frozenset[int] = frozenset()
 
 # E3 (ruled 2026-08-04, Mike): a PUBLIC-KEY FINGERPRINT is public material by
 # definition — it is the value you publish so someone can verify a key they were
@@ -842,15 +976,26 @@ def _record(findings: list[Finding], tally: Tally | None, finding: Finding) -> N
 
 def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
                disabled: frozenset[str] = frozenset(),
-               tally: Tally | None = None) -> list[Finding]:
+               tally: Tally | None = None,
+               pem_lines: frozenset[int] | None = None) -> list[Finding]:
     """The scanning engine. `numbered_lines` pairs each line of text with its
     REAL line number in the file — which need not be sequential or start at 1.
     That is the shape `--staged` mode needs (320/290): only a diff's added
     lines are scanned, but a finding must still point at the line it actually
     sits on, not at its position in a blob of concatenated fragments.
     `scan_text` below is the sequential-numbering convenience wrapper every
-    whole-file caller uses."""
+    whole-file caller uses.
+
+    `pem_lines` (320/790) is the set of line numbers that are the body of a
+    public certificate / public key PEM block, whose entropy spans take the
+    public-key carve-out below. None means "work it out from `numbered_lines`":
+    a block counts only if every line of it, BEGIN to END, is present with
+    consecutive numbers. A caller that sees only part of a file (a staged diff's
+    added lines, one line at a time) passes the set it derived from the whole
+    file instead."""
     findings: list[Finding] = []
+    if pem_lines is None:
+        pem_lines = pem_body_lines(numbered_lines)
     # Line -> allowance scope, collected as we go. The subtraction happens
     # AFTER dedupe (rule b, find first and subtract second): suppressing at
     # match time would also count entropy hits that dedupe was about to drop,
@@ -901,7 +1046,7 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
         first = next(entropy, None)
         if first is None:
             continue    # the entropy pass is the LAST step of the line loop
-        public_key_line = bool(PUBLIC_KEY_RX.search(line))
+        public_key_line = lineno in pem_lines or bool(PUBLIC_KEY_RX.search(line))
         fingerprints = () if public_key_line else _fingerprint_spans(line)
         url_spans = () if public_key_line else _url_spans(line)
         for m in itertools.chain((first,), entropy):
@@ -1129,8 +1274,10 @@ def _scan_file(path: Path, rel: str, disabled: frozenset[str],
     seen_in_window: set[tuple[str, str]] = set()
     in_overlong = False
     try:
-        for lineno, text, is_final in _iter_numbered_lines(path):
-            unit = scan_lines(rel, [(lineno, text)], disabled, tally)
+        for lineno, text, is_final, pem in pem_exempt_stream(
+                _iter_numbered_lines(path)):
+            unit = scan_lines(rel, [(lineno, text)], disabled, tally,
+                              frozenset((lineno,)) if pem else _NO_PEM_LINES)
             if in_overlong:
                 for f in unit:
                     key = (f.rule, f.excerpt)
@@ -1201,6 +1348,27 @@ def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
     for path, lineno, text in report.staged_added():
         files.setdefault(path, []).append((lineno, text))
     return files
+
+
+def staged_pem_lines(path: str, added: list[tuple[int, str]]) -> frozenset[int]:
+    """Which of a staged file's ADDED lines are the body of a public PEM block
+    (320/790). A diff that adds only body lines to a certificate already in the
+    file shows no BEGIN line, so the block is found in the INDEX copy of the
+    file — what the commit will hold — and a line is exempt only if that whole
+    block, BEGIN to END, is valid there. A line whose block is not seen is
+    simply scanned. The blob is read only if some added line could be a body
+    line long enough to trip the entropy net, so the hook's hot path is
+    unchanged for every other file. Raises `STAGED_DIFF_FAILURES` if git cannot
+    produce the blob; the caller exits 2 rather than treat that as clean."""
+    wanted = {n for n, t in added
+              if len(t.strip()) >= HIGH_ENTROPY_MIN_LEN and _is_pem_body_line(t.strip())}
+    if not wanted:
+        return _NO_PEM_LINES
+    with report.staged_blob(path) as stream:
+        items = ((n, raw.decode("utf-8", "replace").rstrip("\n"), None)
+                 for n, raw in enumerate(stream, start=1))
+        return frozenset(n for n, _t, _x, ok in pem_exempt_stream(items)
+                         if ok and n in wanted)
 
 
 def advisory_count_line(n: int) -> str:
@@ -1350,7 +1518,11 @@ def _main(argv: list[str] | None = None) -> int:
             if _ignored(path, globs):
                 tally.files_by_glob += 1
                 continue
-            findings.extend(scan_lines(path, lines, disabled, tally))
+            try:
+                pem = staged_pem_lines(path, lines)
+            except report.STAGED_DIFF_FAILURES as e:
+                return report.git_diff_failed("secretscan", e)
+            findings.extend(scan_lines(path, lines, disabled, tally, pem))
     else:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,

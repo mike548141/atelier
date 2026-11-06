@@ -609,6 +609,31 @@ glued to a real secret with no host/path shape buys no suppression either.
 The report prints only a redacted
 fingerprint (length + entropy), never the secret value.
 
+### A public certificate's body (320/790)
+
+A PEM `-----BEGIN CERTIFICATE-----` or `-----BEGIN PUBLIC KEY-----` block is a
+run of base64 lines with no keyword, and a comment cannot go inside it, so
+the per-line public-key rule used to exempt only the BEGIN line and flag every
+body line under it. The block is now exempt from the **entropy** rule as a unit,
+counted in the existing `by public-key line` field (the summary line's field set
+does not change). Nothing else is widened: named and assigned rules still run on
+every line of the block. It fails closed, each condition pinned by a test in
+`tools/test_secretscan.py` (`PublicPemBody*`):
+
+| Condition | Why |
+|---|---|
+| The label is exactly `CERTIFICATE` or `PUBLIC KEY` | a `PRIVATE KEY` block of any prefix (`RSA`, `EC`, `OPENSSH`, `ENCRYPTED`) is never covered, and its header still flags |
+| The matching END line must be found, within 2048 body lines | an unclosed BEGIN suppresses nothing rather than running to end of file. 2048 lines is 96 KiB of DER at openssl's 64 characters a line, about twice the largest certificate in current use (an SLH-DSA-256f signature, about 50 KB) |
+| Every line between is pure base64 (`A-Za-z0-9+/=`), at most 76 characters, on consecutive file lines | RFC 7468. One stray line (a `password=...`, a blank, a private-key header, a gap in a staged diff's line numbers) voids the **whole** block, so a half-valid block is flagged in full |
+| The decoded body is one DER `SEQUENCE` whose length accounts for every byte | the shape of an X.509 certificate and a public-key record, so a secret wrapped in a forged header is not exempt (stdlib only; no certificate parsing) |
+
+Each certificate in a chain is judged on its own. In `--staged` mode a diff that
+only adds body lines carries no BEGIN, so the block is read from the **index
+copy** of the file and a line is exempt only if that whole block is valid there;
+a file with no long base64 line among its added lines never reads a blob. Not
+covered, deliberately: other PEM labels (`RSA PUBLIC KEY`, `CERTIFICATE REQUEST`,
+`TRUSTED CERTIFICATE`) and a certificate escaped inside a one-line string.
+
 ### Bounded memory (020/370)
 
 Peak memory is bounded by a fixed constant, independent of how large the tree

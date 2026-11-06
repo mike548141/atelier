@@ -5,6 +5,27 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-06 — secretscan: a public certificate's body no longer trips the entropy net, `320/790`)
+- **A PEM `CERTIFICATE` or `PUBLIC KEY` block is exempt from the entropy rule
+  as a whole, not just its BEGIN line.** The carve-out was per line, so a fresh
+  14-line certificate staged alone gave 8 `[medium/entropy]` findings, and a
+  comment cannot go inside a PEM block. A child's only route was a whole-file
+  `.secretscanignore`, which blinds every rule to the file. The body lines now
+  take the existing public-key carve-out and are counted in the same
+  `by public-key line` field, so the summary line keeps its field set. Only the
+  entropy rule is suppressed: named and assigned rules still run on every line.
+  It fails closed. The block must close with the matching END line within 2048
+  body lines; every line between must be pure base64 of at most 76 characters,
+  on consecutive file lines; the decoded body must be one DER `SEQUENCE` whose
+  length accounts for every byte (stdlib only). A private-key header, a stray
+  line, a missing END or a forged wrapper around a non-DER secret voids the
+  whole block, and a `PRIVATE KEY` block is never covered. Each certificate in
+  a chain is judged on its own. In `--staged` mode a diff that adds only body
+  lines is judged against the index copy of the file, so the enclosing block is
+  seen rather than assumed; a file with no candidate line never reads a blob.
+  `tools/test_secretscan.py` (`PublicPemBody*`) pins each condition with a case
+  that fails on the naive version; `tools/README.md` has the section.
+
 ### Fixed (2026-11-03 — ccclose: board ids in board order, `210/370`)
 - **`ccclose --identifiers` lists board items in number order.** The lists
   sorted their ids as text, so `160/1000` printed before `160/986`. Each digit
