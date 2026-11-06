@@ -1977,6 +1977,10 @@ def synthetic_private_der(kind, seed=21):
         return _der(0x30, _der(0x02, b"\x01") + _der(0x04, rng.randbytes(32))
                     + _der(0xA0, _der(0x06, OID_P256))
                     + _der(0xA1, _der(0x03, b"\x00" + rng.randbytes(65))))
+    if kind == "ED_PKCS8":       # a 48-byte PrivateKeyInfo, under the bare-run floor
+        algo = _der(0x30, _der(0x06, bytes.fromhex("2b6570")))
+        return _der(0x30, _der(0x02, b"\x00") + algo
+                    + _der(0x04, _der(0x04, rng.randbytes(32))))
     raise KeyError(kind)
 
 
@@ -2318,6 +2322,377 @@ class PublicPemBodyStaged(unittest.TestCase):
         finally:
             ss.report.staged_blob = real
         self.assertEqual((0, []), (code, calls))
+
+
+# ===========================================================================
+# 115/380 — an exempt file is still read for REAL private-key material.
+#
+# A `.secretscanignore` glob skips a file for every rule, on the promise that
+# its fixtures are fictional. On 2026-11-06 a worker put four working private
+# keys into the exempted `tools/test_secretscan.py`, every check passed, and
+# only a human read caught it. The one check an exempt file now keeps is
+# ADVISORY: it counts in the advisory line and never moves the exit code.
+#
+# Every key here is BUILT AT TEST TIME from `synthetic_private_der` (random
+# bytes in a private key's ASN.1 outline, no key behind them), so this file
+# carries no key-shaped base64 of its own — which the last test proves by
+# scanning it.
+# ===========================================================================
+EXEMPT_RULE = "exempt-private-key"
+
+
+def b64(raw):
+    return base64.b64encode(raw).decode()
+
+
+def py_fragments(raw, width=64, name="KEY"):
+    """A key as a Python test writes it: adjacent quoted strings in parens."""
+    s = b64(raw)
+    parts = [s[i:i + width] for i in range(0, len(s), width)]
+    return ([f"{name} = ("] + [f'    "{p}"' for p in parts[:-1]]
+            + [f'    "{parts[-1]}")'])
+
+
+def encrypted_pkcs8(seed=5):
+    rng = random.Random(seed)
+    return _der(0x30, _der(0x30, _der(0x06, OID_RSA) + _der(0x05, b""))
+                + _der(0x04, rng.randbytes(120)))
+
+
+class ExemptPrivateKeyBase(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        (self.tmp / ".secretscanignore").write_text(
+            "# fixtures exempted on a stated ground, as the repo does\n"
+            "fixtures/*.py\n")
+        (self.tmp / "fixtures").mkdir()
+        (self.tmp / "src").mkdir()
+
+    def put(self, rel, lines):
+        (self.tmp / rel).write_text("\n".join(lines) + "\n")
+
+    def run_scan(self, *extra):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = ss.main(["--root", str(self.tmp), "--json", *extra, str(self.tmp)])
+        return code, json.loads(buf.getvalue())
+
+    def exempt_hits(self, rel_lines, rel="fixtures/t.py"):
+        self.put(rel, rel_lines)
+        code, out = self.run_scan()
+        return code, [f for f in out["findings"] if f["rule"] == EXEMPT_RULE], out
+
+
+class ExemptPem(ExemptPrivateKeyBase):
+    def test_a_private_pem_block_in_an_exempt_file_is_an_advisory_hit(self):
+        for label, kind in (("PRIVATE KEY", "EC_PKCS8"), ("PRIVATE KEY", "RSA_PKCS8"),
+                            ("RSA PRIVATE KEY", "RSA_PKCS1"),
+                            ("EC PRIVATE KEY", "EC_SEC1"),
+                            ("PRIVATE KEY", "ED_PKCS8")):    # under the bare floor
+            with self.subTest(label=label, kind=kind):
+                lines = ["# fixture", *pem_lines(label, synthetic_private_der(kind))]
+                code, hits, out = self.exempt_hits(lines)
+                self.assertEqual(0, code, "advisory: the exit code does not move")
+                self.assertEqual(1, len(hits))
+                self.assertEqual(2, hits[0]["line"], "reported at the BEGIN line")
+                self.assertEqual(
+                    1, out["counts"]["advisory"], "counted in the advisory tier")
+                self.assertEqual(0, out["counts"]["blocking"])
+
+    def test_the_hit_never_prints_the_key(self):
+        raw = synthetic_private_der("EC_PKCS8")
+        _c, hits, _o = self.exempt_hits(pem_lines("PRIVATE KEY", raw))
+        self.assertNotIn(b64(raw)[:24], json.dumps(hits))
+        self.assertIn("bytes decoded", hits[0]["excerpt"])
+
+    def test_encrypted_and_openssh_blocks_are_hits(self):
+        ssh = b"openssh-key-v1\x00" + random.Random(2).randbytes(200)
+        for label, raw in (("ENCRYPTED PRIVATE KEY", encrypted_pkcs8()),
+                           ("OPENSSH PRIVATE KEY", ssh)):
+            with self.subTest(label=label):
+                _c, hits, _o = self.exempt_hits(pem_lines(label, raw))
+                self.assertEqual(1, len(hits))
+
+    def test_a_quoted_pem_in_python_is_a_hit_in_both_spellings(self):
+        raw = synthetic_private_der("EC_PKCS8")
+        s = b64(raw)
+        one = ('PEM = "-----BEGIN PRIVATE KEY-----\\n' + s
+               + '\\n-----END PRIVATE KEY-----\\n"')
+        _c, hits, _o = self.exempt_hits([one])
+        self.assertEqual(1, len(hits), "one-line escaped PEM")
+        parts = [s[i:i + 64] for i in range(0, len(s), 64)]
+        many = (['PEM = ("-----BEGIN PRIVATE KEY-----\\n"']
+                + [f'    "{p}\\n"' for p in parts]
+                + ['    "-----END PRIVATE KEY-----\\n")'])
+        _c, hits, _o = self.exempt_hits(many)
+        self.assertEqual(1, len(hits), "fragments between quoted header lines")
+
+    def test_one_block_is_reported_once_not_as_pem_and_as_bare_run(self):
+        # The RSA body is well over the bare-run floor, so (b) sees it too.
+        _c, hits, _o = self.exempt_hits(
+            pem_lines("RSA PRIVATE KEY", synthetic_private_der("RSA_PKCS1")))
+        self.assertEqual(1, len(hits))
+
+    def test_certificates_and_public_keys_are_not_hits(self):
+        for label, raw in (("CERTIFICATE", der_blob(476)), ("PUBLIC KEY", der_blob(91, 3)),
+                           ("CERTIFICATE", der_blob(2000, 8))):
+            with self.subTest(label=label):
+                _c, hits, _o = self.exempt_hits(pem_lines(label, raw))
+                self.assertEqual([], hits)
+        real = REAL_PEM_BODIES["CERT"] + REAL_PEM_BODIES["PUB"]
+        _c, hits, _o = self.exempt_hits([f'X = "{REAL_PEM_BODIES["CERT"]}"',
+                                         f'Y = "{REAL_PEM_BODIES["PUB"]}"', real[:0]])
+        self.assertEqual([], hits, "a real certificate's body as a bare run")
+
+    def test_an_unclosed_block_is_still_found_as_a_bare_run(self):
+        body = pem_lines("X", synthetic_private_der("EC_PKCS8"))[1:-1]
+        _c, hits, _o = self.exempt_hits(["-----BEGIN PRIVATE KEY-----", *body])
+        self.assertEqual([2], [h["line"] for h in hits])
+        self.assertIn("base64 run", hits[0]["excerpt"])
+
+    def test_a_private_key_under_a_certificate_label_is_still_a_hit(self):
+        # Mislabelled, or glued under the wrong header: judged on the bytes.
+        raw = synthetic_private_der("RSA_PKCS8")
+        _c, hits, _o = self.exempt_hits(pem_lines("CERTIFICATE", raw))
+        self.assertEqual(1, len(hits))
+
+    def test_fictional_fixtures_are_not_hits(self):
+        fake = b64(random.Random(4).randbytes(300))
+        cut = b64(synthetic_private_der("EC_PKCS8"))[:90]       # truncated DER
+        for name, lines in {
+            "header only": ["-----BEGIN PRIVATE KEY-----"],
+            "header and end": ["-----BEGIN RSA PRIVATE KEY-----",
+                               "-----END RSA PRIVATE KEY-----"],
+            "placeholder body": ["-----BEGIN PRIVATE KEY-----", "FAKEFAKEFAKEFAKEFAKE",
+                                 "-----END PRIVATE KEY-----"],
+            "random body": pem_lines("PRIVATE KEY", random.Random(4).randbytes(300)),
+            "truncated der": ["-----BEGIN PRIVATE KEY-----", cut,
+                              "-----END PRIVATE KEY-----"],
+            "traditional encrypted headers": [      # the body is ciphertext
+                "-----BEGIN RSA PRIVATE KEY-----", "Proc-Type: 4,ENCRYPTED",
+                "DEK-Info: AES-128-CBC,0123456789ABCDEF0123456789ABCDEF", "",
+                *pem_lines("X", random.Random(6).randbytes(600))[1:-1],
+                "-----END RSA PRIVATE KEY-----"],
+            "random base64 in a string": [f'FAKE = "{fake}"'],
+        }.items():
+            with self.subTest(name):
+                _c, hits, out = self.exempt_hits(lines)
+                self.assertEqual([], hits)
+                self.assertEqual(0, out["counts"]["advisory"])
+
+
+class ExemptBareRun(ExemptPrivateKeyBase):
+    KINDS = ("RSA_PKCS1", "RSA_PKCS8", "EC_PKCS8", "EC_SEC1")
+
+    def test_a_bare_run_of_each_form_is_an_advisory_hit(self):
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                raw = synthetic_private_der(kind)
+                self.assertGreaterEqual(len(raw), ss.EXEMPT_RUN_MIN_DECODED)
+                code, hits, out = self.exempt_hits([f'KEY = "{b64(raw)}"'])
+                self.assertEqual(0, code)
+                self.assertEqual(1, len(hits))
+                self.assertEqual(1, out["counts"]["advisory"])
+
+    def test_the_form_is_named_without_the_key(self):
+        for kind, name in (("EC_SEC1", "SEC1"), ("EC_PKCS8", "PKCS#8"),
+                           ("RSA_PKCS1", "PKCS#1")):
+            _c, hits, _o = self.exempt_hits([f'K = "{b64(synthetic_private_der(kind))}"'])
+            self.assertIn(name, hits[0]["excerpt"])
+
+    def test_adjacent_quoted_fragments_are_joined(self):
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                lines = ["import x", *py_fragments(synthetic_private_der(kind))]
+                code, hits, _o = self.exempt_hits(lines)
+                self.assertEqual(0, code)
+                self.assertEqual([3], [h["line"] for h in hits],
+                                 "reported where the literal starts")
+
+    def test_a_comma_ends_the_literal_so_neighbours_do_not_glue(self):
+        # A list of separate strings: a hash, then a wrapped key. Gluing the
+        # hash on the front would hide the key.
+        raw = synthetic_private_der("EC_PKCS8")
+        s = b64(raw)
+        h = s[:60]
+        lines = ["VALS = [", f'    "{h}",', f'    "{s[:100]}"', f'    "{s[100:]}",', "]"]
+        _c, hits, _o = self.exempt_hits(lines)
+        self.assertEqual([3], [x["line"] for x in hits])
+
+    def test_fragments_split_by_commas_are_not_one_key(self):
+        s = b64(synthetic_private_der("RSA_PKCS1"))
+        parts = [s[i:i + 64] for i in range(0, len(s), 64)]
+        lines = ["VALS = ["] + [f'    "{p}",' for p in parts] + ["]"]
+        _c, hits, _o = self.exempt_hits(lines)
+        self.assertEqual([], hits, "separate literals are separate values")
+
+    def test_a_run_under_the_floor_is_not_judged(self):
+        raw = synthetic_private_der("ED_PKCS8")
+        self.assertLess(len(raw), ss.EXEMPT_RUN_MIN_DECODED)
+        _c, hits, _o = self.exempt_hits([f'K = "{b64(raw)}"'])
+        self.assertEqual([], hits, "the PEM form of a short key is the (a) case")
+
+    def test_outlines_that_are_not_private_keys_are_not_hits(self):
+        rng = random.Random(9)
+        spki = _der(0x30, _der(0x30, _der(0x06, OID_EC) + _der(0x06, OID_P256))
+                    + _der(0x03, b"\x00" + rng.randbytes(120)))
+        digest = encrypted_pkcs8()      # SEQUENCE{SEQUENCE, OCTET STRING}, bare
+        seq_only = _der(0x30, _der(0x02, b"\x00") + _der(0x04, rng.randbytes(60)))
+        ver2 = _der(0x30, _der(0x02, b"\x02") + _der(0x04, rng.randbytes(120)))
+        ints = _der(0x30, b"".join(_der_int(rng, 40) for _ in range(4)))
+        for name, raw in {"public key": spki, "digestinfo-shaped": digest,
+                          "short version-0 record": seq_only, "version 2": ver2,
+                          "positive integers only": ints,
+                          "random": rng.randbytes(300)}.items():
+            with self.subTest(name):
+                _c, hits, _o = self.exempt_hits([f'K = "{b64(raw)}"'])
+                self.assertEqual([], hits)
+
+    def test_a_run_that_does_not_start_at_the_der_is_not_a_hit(self):
+        # Judged from its first character: the stated gap.
+        _c, hits, _o = self.exempt_hits(
+            [f'K = "{b64(b"x" * 3)}{b64(synthetic_private_der("EC_PKCS8"))}"'])
+        self.assertEqual([], hits)
+
+    def test_escape_letters_do_not_misalign_a_run(self):
+        s = b64(synthetic_private_der("EC_SEC1"))
+        _c, hits, _o = self.exempt_hits([f"K = 'x\\n{s}\\ny'"])
+        self.assertEqual(1, len(hits))
+
+
+class ExemptBoundary(ExemptPrivateKeyBase):
+    """Everything else about an exempt file stays exactly as it was."""
+
+    def test_every_other_rule_is_still_skipped_for_the_file(self):
+        self.put("fixtures/t.py", ["aws = AKIAIOSFODNN7EXAMPLE",       # secretscan:allow: fixture
+                                   "password = Gk8xQvie2mNfR7pLzW3dTaHb",   # secretscan:allow: fixture
+                                   "-----BEGIN PRIVATE KEY-----",
+                                   "commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90"])
+        code, out = self.run_scan()
+        self.assertEqual((0, []), (code, out["findings"]))
+        self.assertEqual(1, out["suppressed"]["files_by_ignore_glob"])
+
+    def test_the_same_key_in_a_file_that_is_not_exempt_is_unchanged(self):
+        lines = pem_lines("PRIVATE KEY", synthetic_private_der("EC_PKCS8"))
+        self.put("src/t.py", lines)
+        code, out = self.run_scan()
+        rules = {f["rule"] for f in out["findings"]}
+        self.assertEqual(1, code, "blocked by the rules that always applied")
+        self.assertIn("private-key-header", rules)
+        self.assertNotIn(EXEMPT_RULE, rules, "the new rule is for exempt files only")
+
+    def test_exit_code_stays_zero_with_only_these_hits_and_the_count_line_has_them(self):
+        self.put("fixtures/t.py", pem_lines("PRIVATE KEY", synthetic_private_der("EC_PKCS8")))
+        self.put("fixtures/u.py", py_fragments(synthetic_private_der("RSA_PKCS1")))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = ss.main(["--root", str(self.tmp), str(self.tmp)])
+        out = buf.getvalue()
+        self.assertEqual(0, code)
+        self.assertIn(f"{ss.ADVISORY_COUNT_PREFIX} 2 finding(s)", out)
+        self.assertIn("🟡 ADVISORY FINDINGS", out)
+        self.assertIn(EXEMPT_RULE, out)
+        self.assertNotIn("commit blocked", out)
+
+    def test_summary_line_field_set_is_unchanged(self):
+        self.put("fixtures/t.py", pem_lines("PRIVATE KEY", synthetic_private_der("EC_PKCS8")))
+        tally = ss.Tally()
+        ss.scan_paths([self.tmp], self.tmp, frozenset(), tally)
+        self.assertEqual(1, tally.files_by_glob)
+        self.assertEqual(ss.Tally(files_by_glob=1).summary(), tally.summary())
+
+    def test_disabling_the_rule_stops_it_and_the_read(self):
+        self.put("fixtures/t.py", pem_lines("PRIVATE KEY", synthetic_private_der("EC_PKCS8")))
+        real = ss._iter_numbered_lines
+        read = []
+        ss._iter_numbered_lines = lambda p: read.append(Path(p).name) or real(p)
+        try:
+            code, out = self.run_scan("--disable", EXEMPT_RULE)
+        finally:
+            ss._iter_numbered_lines = real
+        self.assertEqual((0, []), (code, out["findings"]))
+        self.assertNotIn("t.py", read, "a disabled rule must not read the exempt file")
+        self.assertIn(EXEMPT_RULE, out["suppressed"]["disabled_rules"])
+
+    def test_the_rule_is_a_known_name(self):
+        self.assertIn(EXEMPT_RULE, ss.ALL_RULES)
+        self.assertEqual(EXEMPT_RULE, ss.EXEMPT_PRIVATE_KEY_RULE)
+
+    def test_a_huge_line_is_bounded_and_reports_one_hit(self):
+        # 6 MB on one line spans two read windows; the key sits in the first
+        # and the overlap must not report it twice.
+        s = b64(synthetic_private_der("EC_PKCS8"))
+        self.put("fixtures/t.py", [f'K = "{s}{"A" * (6 * 1024 * 1024)}"'])
+        _c, out = self.run_scan()
+        self.assertEqual([EXEMPT_RULE], [f["rule"] for f in out["findings"]])
+
+    def test_the_findings_cap_applies(self):
+        key = b64(synthetic_private_der("EC_SEC1"))
+        self.put("fixtures/t.py", [f'K{i} = "{key}"' for i in range(5)])
+        old = ss.MAX_MATERIALIZED_FINDINGS
+        ss.MAX_MATERIALIZED_FINDINGS = 2
+        try:
+            code, out = self.run_scan()
+        finally:
+            ss.MAX_MATERIALIZED_FINDINGS = old
+        self.assertEqual(0, code)
+        self.assertEqual(5, out["counts"]["advisory"], "capped hits are still counted")
+
+    def test_the_exempt_test_files_of_this_repo_hold_no_real_key(self):
+        # The expected result of the rule on the tree it was built for: zero.
+        here = pathlib.Path(__file__).resolve().parent
+        for name in ("test_secretscan.py", "test_leakscan.py", "test_signscan.py"):
+            with self.subTest(name):
+                found = ss._scan_exempt_file(here / name, name, frozenset(), None)
+                self.assertEqual([], [(f.path, f.line) for f in found])
+
+
+class ExemptStaged(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self._git("init", "-q")
+        (self.tmp / ".secretscanignore").write_text(
+            "# fixtures exempted on a stated ground\nfixtures/*.py\n")
+        (self.tmp / "fixtures").mkdir()
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        self.addCleanup(os.chdir, old)
+
+    def _git(self, *args):
+        return subprocess.run(["git", "-C", str(self.tmp), *args], check=True,
+                              capture_output=True, text=True)
+
+    def _staged(self, rel, lines):
+        (self.tmp / rel).write_text("\n".join(lines) + "\n")
+        self._git("add", "--", rel)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = ss.main(["--staged", "--root", str(self.tmp), "--json"])
+        return code, json.loads(buf.getvalue())
+
+    def test_a_staged_key_in_an_exempt_file_is_an_advisory_hit(self):
+        for lines in (["x = 1", *pem_lines("PRIVATE KEY", synthetic_private_der("EC_PKCS8"))],
+                      ["x = 1", *py_fragments(synthetic_private_der("RSA_PKCS8"))]):
+            with self.subTest(first=lines[1][:12]):
+                code, out = self._staged("fixtures/t.py", lines)
+                self.assertEqual(0, code)
+                self.assertEqual({EXEMPT_RULE}, {f["rule"] for f in out["findings"]})
+                self.assertEqual(2 if lines[1].startswith("-----") else 3,
+                                 out["findings"][0]["line"])
+                self._git("reset", "-q")
+
+    def test_a_staged_exempt_file_without_a_key_is_clean_and_reads_no_blob(self):
+        calls = []
+        real = ss.report.staged_blob
+        ss.report.staged_blob = lambda p: calls.append(p) or real(p)
+        try:
+            code, out = self._staged("fixtures/t.py", [
+                "-----BEGIN PRIVATE KEY-----", "x = 1", "AKIAIOSFODNN7EXAMPLE"])  # secretscan:allow: fixture
+        finally:
+            ss.report.staged_blob = real
+        self.assertEqual((0, [], []), (code, out["findings"], calls))
 
 
 if __name__ == "__main__":

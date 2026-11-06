@@ -48,6 +48,13 @@ same whole-shape reasoning E6c already ruled (an unbroken 32+ alphanumeric run
 is key material, not a name), applied to the path where SHAs actually live, and
 costing a printed line rather than a blocked commit.
 
+A second advisory rule, `exempt-private-key` (115/380), reads what a whole-file
+`.secretscanignore` glob would otherwise hide: a file exempted on the promise that
+its fixtures are fictional is still checked for REAL private-key material (a PEM
+private-key block, or a base64 run, that decodes to a private key's DER outline).
+Every other rule stays skipped for that file; the one check is advisory, so the
+exit code is unmoved. See `scan_exempt_lines`.
+
 An advisory finding nobody reads is cover, not coverage (EI1) — so the tier ships
 with its consumers rather than ahead of them: the pre-commit hook prints them at
 the commit that would introduce them, every CI push re-prints ALL of them
@@ -787,6 +794,10 @@ RESPONSE_ADVISORY = "advisory"
 # `HIGH_ENTROPY_RX`, already there. What is new is only the response.
 LOW_VARIETY_RULE = "low-variety-entropy"
 
+# 115/380 — the one check that still runs on a file a `.secretscanignore` glob
+# skips. Advisory, like the rule above; see `scan_exempt_lines`.
+EXEMPT_PRIVATE_KEY_RULE = "exempt-private-key"
+
 # The line `render_human` prints so a reader — and `tools/floor.py`'s board —
 # can both read the count off one run. floor.py matches this prefix rather than
 # importing anything: the scanners are self-contained by design (one is
@@ -1149,7 +1160,8 @@ def _looks_binary(data: bytes) -> bool:
 
 
 ALL_RULES = frozenset({p.name for p in NAMED}
-                      | {"assigned", "high-entropy", LOW_VARIETY_RULE})
+                      | {"assigned", "high-entropy", LOW_VARIETY_RULE,
+                         EXEMPT_PRIVATE_KEY_RULE})
 
 
 IgnoreFileError = allowmarker.IgnoreFileError
@@ -1176,8 +1188,11 @@ def _walk_files(base: Path):
     return filewalk.walk_files(base, SKIP_DIR_NAMES)
 
 
-def iter_files(paths: list[Path], root: Path, globs: list[str],
-               tally: Tally | None = None):
+def _classify_files(paths: list[Path], root: Path, globs: list[str]):
+    """Yield `(path, root-relative path, ignored)` for every file under `paths`.
+    `ignored` is True when a `.secretscanignore` glob names it. The one place
+    that decision is made, so the skip and the exempt-file check (115/380) can
+    never disagree about which files are exempt."""
     for base in paths:
         candidates = [base] if base.is_file() else _walk_files(base)
         for p in candidates:
@@ -1190,11 +1205,17 @@ def iter_files(paths: list[Path], root: Path, globs: list[str],
                 rel = str(p.resolve().relative_to(root.resolve()))
             except ValueError:
                 rel = str(p)
-            if _ignored(rel, globs):
-                if tally is not None:
-                    tally.files_by_glob += 1
-                continue
-            yield p, rel
+            yield p, rel, _ignored(rel, globs)
+
+
+def iter_files(paths: list[Path], root: Path, globs: list[str],
+               tally: Tally | None = None):
+    for p, rel, ignored in _classify_files(paths, root, globs):
+        if ignored:
+            if tally is not None:
+                tally.files_by_glob += 1
+            continue
+        yield p, rel
 
 
 # Streaming-read tuning (020/370, the machine-thrash defect). Every constant
@@ -1317,12 +1338,345 @@ def _scan_file(path: Path, rel: str, disabled: frozenset[str],
     return findings
 
 
+# ---------------------------------------------------------------------------
+# 115/380 — what an EXEMPT file is still read for.
+#
+# A glob in `.secretscanignore` skips a file for every rule. The scanners' own
+# test files are skipped on the stated ground that their fixtures are fictional,
+# and nothing held them to it: on 2026-11-06 a worker put four working private
+# keys into `tools/test_secretscan.py`, every check passed, and only a human
+# read caught it. So an exempt file keeps ONE narrow check, for exactly what
+# "fictional" is meant to exclude: real private-key material. Every other rule
+# stays skipped, so a stated-reason glob works as it always did.
+#
+# ADVISORY for now (`RESPONSE_ADVISORY`): reported and counted in the same
+# `secretscan advisory:` line, exit code unmoved, because it changes what a
+# guard reads inside its own exemptions and children float at `main`. A later
+# item may flip it to blocking once the estate reads clean.
+#
+# Two shapes, both judged on the DECODED BYTES, never on the text, so a
+# fictional header, a certificate and a public key cannot trip it:
+#   (a) a PEM block with any `... PRIVATE KEY` label whose body is pure base64
+#       and decodes to a private-key DER outline (or, for `OPENSSH PRIVATE KEY`,
+#       to `openssh-key-v1\0`; for `ENCRYPTED PRIVATE KEY`, to the encrypted
+#       PKCS#8 outline);
+#   (b) a bare base64 run of at least `EXEMPT_RUN_MIN_DECODED` bytes that
+#       decodes to the outline: a SEQUENCE opening with INTEGER 0 or 1, then
+#       PKCS#8 (SEQUENCE{OID..}, OCTET STRING), PKCS#1/DSA (five or more
+#       INTEGERs) or SEC1 (OCTET STRING, optional [0]/[1]), the children
+#       filling the SEQUENCE exactly. That is what a private key has and a
+#       certificate (first child a SEQUENCE) and a public key do not.
+#
+# FRAGMENTS ARE JOINED. A Python test writes a key as adjacent quoted strings,
+# one per line, so no single line holds a run long enough to judge. A quoted
+# fragment line is joined to the lines directly after it until a line that is
+# not a fragment, or one that ends with `,` or `)`, or a padded `=` end. The
+# join costs a small state machine and is worth it: it is exactly the shape the
+# 2026-11-06 keys were committed in, and the alternative is a rule that passes
+# on the realistic case and fails on a wrapped one. A joined run is judged from
+# its first character, so a key that does not begin at a fragment is missed;
+# that is the known gap, with base64url (`-_`) runs and a bare run under
+# `EXEMPT_RUN_MIN_DECODED` bytes (the PEM form of a short key is still caught
+# by (a)). The floor is a cost bound, not a detection threshold: the outline
+# test is what keeps a false positive out.
+#
+# BOUNDED. The file is streamed through `_iter_numbered_lines` (020/370), a
+# joined run is capped at `EXEMPT_RUN_MAX_CHARS` (the PEM bound, ~150 KiB), and
+# a hit is held as a redacted `Finding` through `_record`, so the findings cap
+# applies. The key is never printed: an excerpt carries a length and a form.
+EXEMPT_RUN_MIN_DECODED = 100
+EXEMPT_RUN_MIN_CHARS = (EXEMPT_RUN_MIN_DECODED * 4 + 2) // 3
+EXEMPT_FRAG_MIN = 16
+# A fragment or a tail suffix longer than this is not a wrapped literal, and the
+# whitespace-tolerant patterns that read them must not be fed an arbitrary
+# length (a long blank run before a stray character is quadratic to reject).
+EXEMPT_LINE_MAX = 4096
+EXEMPT_RUN_MAX_CHARS = PEM_MAX_BODY_LINES * PEM_MAX_LINE
+OPENSSH_MAGIC = b"openssh-key-v1\x00"
+
+_PEM_PRIV_BEGIN_RX = re.compile(r"-----BEGIN ((?:[A-Z0-9]+ )*PRIVATE KEY)-----")
+_PEM_PRIV_ONELINE_RX = re.compile(
+    r"-----BEGIN ((?:[A-Z0-9]+ )*PRIVATE KEY)-----(.*?)-----END \1-----")
+_ESCAPES_RX = re.compile(r"\\[nrt]|[\s\"'+\\]")
+# A whole line that is one (optionally quoted) base64 fragment: `"MIIE..."`,
+# `    "MIIE...\n"  # why`, `MIIE...` (a raw PEM body line). Group 2 is the
+# fragment, 4 is the trailer that says whether the literal goes on.
+_FRAG_RX = re.compile(
+    r"""^\s*(?:[A-Za-z]{0,2}["'])?([A-Za-z0-9+/]+={0,2})((?:\\[nrt])*)"""
+    r"""["']?\s*([+,)\\]*)\s*(?:\#.*)?$""")
+# What may follow the last fragment of a line that has other text before it
+# (`KEY = ("MIIE...`): a closing quote, line-continuation punctuation, a comment.
+# Matched against the text AFTER the run, never searched for across the line: a
+# search that fails after a long run retries from every position inside it,
+# which is quadratic on an overlong line (found by the 6 MB test below).
+_TAIL_AFTER_RX = re.compile(
+    r"""((?:\\[nrt])*)["']?\s*([+,)\\]*)\s*(?:\#.*)?$""")
+_LONG_FRAG_RX = re.compile(r"[A-Za-z0-9+/]{%d,}={0,2}" % EXEMPT_FRAG_MIN)
+_RUN_RX = re.compile(r"[A-Za-z0-9+/]{%d,}={0,2}" % EXEMPT_RUN_MIN_CHARS)
+
+
+def _der_children(raw: bytes, start: int, end: int):
+    """The elements that exactly fill `raw[start:end]`, or None."""
+    out, at = [], start
+    while at < end:
+        el = _der_element(raw, at)
+        if el is None or el[2] > end:
+            return None
+        out.append(el)
+        at = el[2]
+    return out
+
+
+def private_key_outline(raw: bytes) -> str | None:
+    """The form (`PKCS#8`, `PKCS#1`, `SEC1`) if `raw` opens with a private
+    key's DER outline, else None. A SEQUENCE whose first child is INTEGER 0 or
+    1, then children that fill it exactly in one of the three private-key
+    shapes. A certificate or a SubjectPublicKeyInfo opens with a SEQUENCE and
+    matches none. Tags and lengths only; a shape check, not a key parse."""
+    outer = _der_element(raw, 0)
+    if outer is None or outer[0] != 0x30:
+        return None
+    kids = _der_children(raw, outer[1], outer[2])
+    if not kids or len(kids) < 2:
+        return None
+    ver = kids[0]
+    if ver[0] != 0x02 or ver[2] - ver[1] != 1 or raw[ver[1]] not in (0, 1):
+        return None
+    rest = kids[1:]
+    tag = rest[0][0]
+    if tag == 0x30 and len(rest) >= 2 and rest[1][0] == 0x04 \
+            and all(k[0] in (0xA0, 0x81) for k in rest[2:]):
+        first = _der_element(raw, rest[0][1])      # AlgorithmIdentifier: OID first
+        return "PKCS#8" if first is not None and first[0] == 0x06 else None
+    if tag == 0x04 and all(k[0] in (0xA0, 0xA1) for k in rest[1:]):
+        return "SEC1"
+    ints = [k for k in rest if k[0] == 0x02]
+    if tag == 0x02 and len(ints) >= 5 \
+            and all(k[0] == 0x02 for k in rest[:len(ints)]) \
+            and all(k[0] == 0x30 for k in rest[len(ints):]):
+        return "PKCS#1"
+    return None
+
+
+def _is_encrypted_pkcs8(raw: bytes) -> bool:
+    """EncryptedPrivateKeyInfo: SEQUENCE { SEQUENCE, OCTET STRING }. Judged
+    only under an `ENCRYPTED PRIVATE KEY` label — bare, the same outline is a
+    DigestInfo, which is not a key."""
+    outer = _der_element(raw, 0)
+    if outer is None or outer[0] != 0x30:
+        return False
+    kids = _der_children(raw, outer[1], outer[2])
+    return bool(kids) and [k[0] for k in kids] == [0x30, 0x04]
+
+
+def _b64_decode_loose(s: str) -> bytes | None:
+    """Decode base64 that may carry junk after the real end: padding is
+    rebuilt from the length, a dangling single character is dropped."""
+    s = s.rstrip("=")
+    if len(s) % 4 == 1:
+        s = s[:-1]
+    s += "=" * (-len(s) % 4)
+    try:
+        return base64.b64decode(s, validate=True)
+    except (binascii.Error, ValueError):
+        return None
+
+
+def _pem_private_hit(label: str, body: str) -> str | None:
+    raw = _b64_decode_loose(body)
+    if not raw:
+        return None
+    if label.startswith("OPENSSH "):
+        ok = raw.startswith(OPENSSH_MAGIC)
+    elif label.startswith("ENCRYPTED "):
+        ok = _is_encrypted_pkcs8(raw)
+    else:
+        ok = private_key_outline(raw) is not None
+    return f"<PEM {label} block, {len(raw)} bytes decoded>" if ok else None
+
+
+def _bare_run_hit(run: str) -> str | None:
+    if len(run) < EXEMPT_RUN_MIN_CHARS:
+        return None
+    raw = _b64_decode_loose(run[:EXEMPT_RUN_MAX_CHARS])
+    if raw is None or len(raw) < EXEMPT_RUN_MIN_DECODED:
+        return None
+    form = private_key_outline(raw)
+    return f"<base64 run, {len(raw)} bytes decoded, {form} outline>" if form else None
+
+
+def _drop_escape_lead(text: str, start: int, run: str) -> str:
+    """`"\\nMIIE..."` puts the `n` of a source-level `\\n` escape on the front
+    of the run; it is not base64."""
+    if start > 0 and text[start - 1] == "\\" and run[:1] in ("n", "r", "t"):
+        return run[1:]
+    return run
+
+
+def exempt_key_hits(items):
+    """Yield `(lineno, excerpt)` for each real private key in `items`, a stream
+    of `(lineno, text, ...)` in file order. See the 115/380 comment above."""
+    acc: list[str] = []          # the open joined run
+    acc_len = acc_line = acc_last = 0
+    pem_label = None             # the open PEM block
+    pem_body: list[str] = []
+    pem_line = pem_last = 0
+    covered = (0, 0)             # lines of a PEM block already reported by (a)
+
+    def flush():
+        nonlocal acc, acc_len
+        run, line = "".join(acc), acc_line
+        acc, acc_len = [], 0
+        if covered[0] < line <= covered[1]:
+            return None          # (a) already reported this key
+        hit = _bare_run_hit(run)
+        return (line, hit) if hit else None
+
+    for item in items:
+        lineno, text = item[0], item[1]
+        # Cost: a short line with nothing open and no PEM marker cannot start
+        # anything, and is the common case in a file of code.
+        if (len(text) < EXEMPT_FRAG_MIN and not acc and pem_label is None
+                and "-----" not in text):
+            continue
+        if acc and lineno != acc_last + 1:
+            got = flush()
+            if got:
+                yield got
+
+        one = _PEM_PRIV_ONELINE_RX.search(text) if "PRIVATE KEY-----" in text else None
+        if one:
+            hit = _pem_private_hit(one.group(1), _ESCAPES_RX.sub("", one.group(2)))
+            if acc:
+                got = flush()
+                if got:
+                    yield got
+            if hit:
+                yield lineno, hit
+                continue
+
+        frag = _FRAG_RX.match(text) if len(text) <= EXEMPT_LINE_MAX else None
+
+        if pem_label is not None:
+            if lineno == pem_last + 1 and f"-----END {pem_label}-----" in text:
+                hit = (_pem_private_hit(pem_label, "".join(pem_body))
+                       if pem_body else None)
+                if hit:
+                    covered = (pem_line, lineno)
+                    yield pem_line, hit
+                pem_label, pem_body = None, []
+            elif (lineno == pem_last + 1 and frag
+                    and len(pem_body) < PEM_MAX_BODY_LINES):
+                pem_body.append(frag.group(1))
+                pem_last = lineno
+            else:
+                pem_label, pem_body = None, []      # voided: not a clean block
+
+        if frag and (acc or len(frag.group(1)) >= EXEMPT_FRAG_MIN):
+            if not acc:
+                acc_line = lineno
+            acc.append(frag.group(1))
+            acc_len += len(frag.group(1))
+            acc_last = lineno
+            # Padding ends a base64 value, but inside an open PEM block the
+            # run is judged at the END line, after (a) has had its say.
+            ends = ((frag.group(1).endswith("=") and pem_label is None)
+                    or "," in frag.group(3) or ")" in frag.group(3))
+            if ends or acc_len > EXEMPT_RUN_MAX_CHARS:
+                got = flush()
+                if got:
+                    yield got
+            continue
+
+        if acc:
+            got = flush()
+            if got:
+                yield got
+
+        if pem_label is None and "PRIVATE KEY-----" in text:
+            m = _PEM_PRIV_BEGIN_RX.search(text)
+            if m and not one:
+                pem_label, pem_body, pem_line, pem_last = m.group(1), [], lineno, lineno
+
+        if len(text) < EXEMPT_FRAG_MIN:
+            continue
+        tail_start = -1
+        last = None
+        for last in _LONG_FRAG_RX.finditer(text):
+            pass
+        after = (_TAIL_AFTER_RX.match(text, last.end())
+                 if last is not None and len(text) - last.end() <= EXEMPT_LINE_MAX
+                 else None)
+        if after:
+            run = _drop_escape_lead(text, last.start(), last.group(0))
+            tail_start = last.start()
+            if "," in after.group(2) or ")" in after.group(2) or run.endswith("="):
+                hit = _bare_run_hit(run)
+                if hit and not (covered[0] < lineno <= covered[1]):
+                    yield lineno, hit
+            else:
+                acc, acc_len, acc_line, acc_last = [run], len(run), lineno, lineno
+        if len(text) >= EXEMPT_RUN_MIN_CHARS:
+            for m in _RUN_RX.finditer(text):
+                if m.start() == tail_start:
+                    continue      # the tail run was handled (or is open) above
+                hit = _bare_run_hit(_drop_escape_lead(text, m.start(), m.group(0)))
+                if hit and not (covered[0] < lineno <= covered[1]):
+                    yield lineno, hit
+    if acc:
+        got = flush()
+        if got:
+            yield got
+
+
+def _exempt_findings(rel: str, items, tally: Tally | None) -> list[Finding]:
+    findings: list[Finding] = []
+    seen: set[tuple[int, str]] = set()      # an overlong line's windows overlap
+    for lineno, excerpt in exempt_key_hits(items):
+        if (lineno, excerpt) in seen:
+            continue
+        seen.add((lineno, excerpt))
+        _record(findings, tally, Finding(rel, lineno, EXEMPT_PRIVATE_KEY_RULE,
+                                         "exempt", "high", excerpt,
+                                         RESPONSE_ADVISORY))
+    return findings
+
+
+def _scan_exempt_file(path: Path, rel: str, disabled: frozenset[str],
+                      tally: Tally | None) -> list[Finding]:
+    """The one check an exempt (`.secretscanignore`) file still gets. Streams
+    the file; reads nothing if the rule is disabled."""
+    if EXEMPT_PRIVATE_KEY_RULE in disabled:
+        return []
+    try:
+        return _exempt_findings(rel, _iter_numbered_lines(path), tally)
+    except OSError:
+        return []       # vanished mid-walk, as `_scan_file` treats it
+
+
+def scan_exempt_lines(rel: str, numbered_lines: list[tuple[int, str]],
+                      disabled: frozenset[str] = frozenset(),
+                      tally: Tally | None = None) -> list[Finding]:
+    """The same check over a staged diff's ADDED lines of an exempt file. No
+    blob is read: a key is seen only if its lines were added together, and the
+    CI run, which reads the whole file, re-prints anything this misses."""
+    if EXEMPT_PRIVATE_KEY_RULE in disabled:
+        return []
+    return _exempt_findings(rel, ((n, t) for n, t in numbered_lines), tally)
+
+
 def scan_paths(paths: list[Path], root: Path,
                disabled: frozenset[str] = frozenset(),
                tally: Tally | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    for p, rel in iter_files(paths, root, globs, tally):
+    for p, rel, ignored in _classify_files(paths, root, globs):
+        if ignored:
+            # Skipped by every rule EXCEPT the one narrow check (115/380).
+            if tally is not None:
+                tally.files_by_glob += 1
+            findings.extend(_scan_exempt_file(p, rel, disabled, tally))
+            continue
         findings.extend(_scan_file(p, rel, disabled, tally))
     return findings
 
@@ -1408,26 +1762,37 @@ def _render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
     one stopped the commit without reading either carefully, so the icon, the
     verb and the framing all differ, and the block states its own exit-code
     consequence rather than leaving it to be inferred."""
-    lines = ["",
-             "🟡 ADVISORY FINDINGS — none of these blocked anything.",
-             "   Coverage the blocking net does not reach: an unbroken 32+ "
-             "character run with no",
-             "   credential-named key beside it. Most are hashes, digests and "
-             "ids; a hex-encoded",
-             "   credential outside an assignment looks exactly the same, which "
-             "is why these are",
-             "   shown rather than dropped."]
+    lines = ["", "🟡 ADVISORY FINDINGS — none of these blocked anything."]
+    rules = {f.rule for f in advisory}
+    if rules - {EXEMPT_PRIVATE_KEY_RULE}:
+        lines += ["   Coverage the blocking net does not reach: an unbroken 32+ "
+                  "character run with no",
+                  "   credential-named key beside it. Most are hashes, digests and "
+                  "ids; a hex-encoded",
+                  "   credential outside an assignment looks exactly the same, which "
+                  "is why these are",
+                  "   shown rather than dropped."]
+    if EXEMPT_PRIVATE_KEY_RULE in rules:
+        # 115/380: what a `.secretscanignore` exemption is still read for.
+        lines += [f"   {EXEMPT_PRIVATE_KEY_RULE}: a file exempted by .secretscanignore "
+                  "on the promise that its",
+                  "   fixtures are fictional holds text that decodes as a real private "
+                  "key. Build a test",
+                  "   key at run time instead of committing one."]
     for f in sorted(advisory, key=lambda x: (x.path, x.line)):
         lines.append(report.with_id(
             f"     {f.path}:{f.line}  [advisory/{f.kind}] {f.rule} → {f.excerpt}",
             "secretscan", f.rule))
     lines.append("   A real secret here: remove it and ROTATE it — advisory "
                  "describes this scan's")
-    lines.append("   confidence, never the value's safety. Otherwise leave it: "
-                 "the finding costs a")
-    lines.append(f"   line, and '# {ALLOW_MARKER}:{LOW_VARIETY_RULE}: <reason>' "
-                 "is there for a line")
-    lines.append("   that is genuinely noise worth silencing.")
+    if rules - {EXEMPT_PRIVATE_KEY_RULE}:
+        lines.append("   confidence, never the value's safety. Otherwise leave it: "
+                     "the finding costs a")
+        lines.append(f"   line, and '# {ALLOW_MARKER}:{LOW_VARIETY_RULE}: <reason>' "
+                     "is there for a line")
+        lines.append("   that is genuinely noise worth silencing.")
+    else:
+        lines.append("   confidence, never the value's safety.")
     if over_cap:
         lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS,
                                           noun="advisory finding(s)", indent="   "))
@@ -1535,6 +1900,7 @@ def _main(argv: list[str] | None = None) -> int:
         for path, lines in staged.items():
             if _ignored(path, globs):
                 tally.files_by_glob += 1
+                findings.extend(scan_exempt_lines(path, lines, disabled, tally))
                 continue
             try:
                 pem = staged_pem_lines(path, lines)

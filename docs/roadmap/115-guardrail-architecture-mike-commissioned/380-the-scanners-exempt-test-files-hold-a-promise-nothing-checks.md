@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-06-1153, wt: atelier-qr-722a-exempt)
+- [x] (claimed 2026-11-06-1153, wt: atelier-qr-722a-exempt)
       🔎 **The scanners' exempted test files rest on a promise nothing
       checks: "deliberately fictional", so real key material can land there
       unseen.** `.secretscanignore` exempts `tools/test_secretscan.py`,
@@ -21,3 +21,15 @@
       `synthetic_private_der` in `tools/test_secretscan.py` now does.
       Taken by the finding run, advisory first (it changes what a guard
       reads inside its own exemptions, and children float at `main`).
+      ✅ **DONE 2026-11-06:** `tools/secretscan.py` gives a file a
+      `.secretscanignore` glob skips one check, `exempt-private-key`, in the
+      advisory tier (exit code unmoved): a PEM private-key block, or a base64
+      run (quoted fragments joined) of at least 100 decoded bytes, that
+      decodes to a private key's DER outline (PKCS#8, PKCS#1, SEC1, encrypted
+      PKCS#8, OpenSSH). Every other rule stays skipped. `--disable
+      exempt-private-key` stops the file being read. Tests build every key at
+      run time. Probed before landing over every child with a
+      `.secretscanignore` (13): blocking results unchanged, run times within
+      noise, and the rule's only hits are in one child that tracks dead TLS
+      keys as recorded debt (true positives, reported, not blocking).
+      Cold pass queued as `160/1040`.

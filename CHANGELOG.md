@@ -5,6 +5,27 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-07 — secretscan: an exempt file is still read for a real private key, `115/380`)
+- **A file a `.secretscanignore` glob skips now gets one narrow, advisory
+  check: real private-key material (`exempt-private-key`).** The scanners' own
+  test files are exempt on the promise that their fixtures are fictional, and
+  nothing held them to it: on 2026-11-06 a worker put four working private keys
+  into `tools/test_secretscan.py`, every check passed, and only a human read
+  caught it. The check reads the file (streamed, bounded) for a PEM block with
+  any `... PRIVATE KEY` label whose body decodes to a private key's DER outline
+  (an `OPENSSH` body to `openssh-key-v1`), and for a base64 run of at least 100
+  decoded bytes that decodes to the same outline (PKCS#8, PKCS#1/DSA or SEC1),
+  joining the adjacent quoted fragments a Python test writes a key as. A
+  header alone, a placeholder or truncated body, a certificate and a public key
+  are not hits. It reuses the PEM bound and the DER helpers of `320/790`.
+  Every other rule stays skipped for the file, so a reasoned glob works as
+  before. **Advisory:** a hit is counted in the existing `secretscan advisory:`
+  line and the exit code does not move; the summary line's field set is
+  unchanged, and `--disable exempt-private-key` turns it off. On this repo's
+  tree it finds nothing. `tools/test_secretscan.py` (`Exempt*`) builds every key
+  at test time from `synthetic_private_der`; `tools/README.md` has the section,
+  with the known gaps stated.
+
 ### Changed (2026-11-06 — secretscan: a public certificate's body no longer trips the entropy net, `320/790`)
 - **A PEM `CERTIFICATE` or `PUBLIC KEY` block is exempt from the entropy rule
   as a whole, not just its BEGIN line.** The carve-out was per line, so a fresh

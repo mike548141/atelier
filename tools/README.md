@@ -583,6 +583,7 @@ the exit code:
 |---|---|---|
 | **block** | every named format, `assigned-secret`, and `high-entropy` — unchanged, byte for byte, from before the tier existed | `1` |
 | **advisory** | `low-variety-entropy` — an unbroken 32+ character run with no credential-named key beside it (hex digests, single-case blobs) | `0` |
+| **advisory** | `exempt-private-key` — real private-key material in a file a `.secretscanignore` glob skips (below) | `0` |
 
 The blocking set never shrinks; the advisory tier is coverage that did not exist
 before, opened on the path `HIGH_ENTROPY_RX`'s mixed-class requirement had shut.
@@ -633,6 +634,52 @@ copy** of the file and a line is exempt only if that whole block is valid there;
 a file with no long base64 line among its added lines never reads a blob. Not
 covered, deliberately: other PEM labels (`RSA PUBLIC KEY`, `CERTIFICATE REQUEST`,
 `TRUSTED CERTIFICATE`) and a certificate escaped inside a one-line string.
+
+### What an exemption still checks (115/380)
+
+A glob in `.secretscanignore` skips a file for every rule. The scanners' own
+test files are skipped on the stated ground that their fixtures are fictional,
+and nothing held them to it: on 2026-11-06 a worker put four working private
+keys into `tools/test_secretscan.py`, every check passed, and only a human read
+caught it. So an exempt file keeps **one** narrow check, for what "fictional"
+is meant to exclude: real private-key material. Every other rule stays skipped,
+so a reasoned glob works as it always did.
+
+It is **advisory**: a hit is reported and counted in the `secretscan advisory:`
+line (so `floor.py`'s board carries it), and the exit code does not move. A
+later item may make it blocking once the estate reads clean. The summary line
+keeps its field set; `N file(s) by .secretscanignore` still counts the files
+skipped, and a hit is a finding, not a new counter. `--disable
+exempt-private-key` turns it off, and then the exempt file is not read at all.
+
+Two shapes, both judged on the **decoded bytes**, so a fictional header, a
+placeholder body, a certificate or a public key cannot trip it:
+
+| Shape | A hit when |
+|---|---|
+| A PEM block | any `-----BEGIN ... PRIVATE KEY-----` label, a body of pure base64 on consecutive lines (raw, or quoted fragments), and the decoded bytes are a private key's DER outline. `OPENSSH PRIVATE KEY` needs a body that opens `openssh-key-v1\0`; `ENCRYPTED PRIVATE KEY` needs the encrypted PKCS#8 outline. A header alone, a truncated or random body, a Proc-Type (traditional encrypted) block and a closed `CERTIFICATE` are not hits |
+| A bare base64 run | at least 100 decoded bytes (the floor is a cost bound; the outline is what excludes false positives) that decode to a `SEQUENCE` opening with `INTEGER` 0 or 1, then PKCS#8 (`SEQUENCE{OID..}`, `OCTET STRING`), PKCS#1 or DSA (five or more `INTEGER`s) or SEC1 (`OCTET STRING`, optional `[0]`/`[1]`), the children filling the `SEQUENCE` exactly. A certificate or public key opens with a `SEQUENCE` and matches none |
+
+**Joined fragments.** A Python test writes a key as adjacent quoted strings, one
+per line, so no single line is long enough to judge. A quoted base64 fragment is
+joined to the lines straight after it until a line that is not a fragment, a
+line ending `,` or `)`, or a padded `=`. It is worth the small state machine
+because it is the shape the 2026-11-06 keys were committed in. A comma ends the
+literal, so a list of separate strings is never read as one key. A PEM block
+and the same body read as a bare run are reported once.
+
+**Known gaps, stated.** A joined run is judged from its first character, so a
+key that does not begin at a fragment is missed. A bare run under 100 decoded
+bytes (an Ed25519 key) is missed, though its PEM form is caught. Base64url
+(`-` `_`) runs, PGP private-key blocks, and a key split over comma-separated
+literals are not read. In `--staged` mode only the **added lines** are read (no
+blob), so a key is seen if its lines were added together; the CI run reads the
+whole file and prints anything the hook missed. Cost: the file is streamed
+through the 020/370 reader, a joined run is capped at the PEM bound (about 150
+KiB), and a hit is held as a redacted finding under the findings cap, so
+memory stays bounded. An excerpt names the form and the decoded length and
+never the key. Tests: `tools/test_secretscan.py` (`Exempt*`); the key shapes in
+them are **built at test time** by `synthetic_private_der`, never written down.
 
 ### Bounded memory (020/370)
 
