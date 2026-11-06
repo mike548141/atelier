@@ -1874,11 +1874,14 @@ PEM_PRIVATE_LABELS = ("PRIVATE KEY", "RSA PRIVATE KEY", "EC PRIVATE KEY",
                       "OPENSSH PRIVATE KEY", "ENCRYPTED PRIVATE KEY")
 
 
-def der_blob(size, seed=7):
+def der_blob(size, seed=13):
     """Random bytes wrapped as ONE DER SEQUENCE (tag, long-form length that
-    accounts for every byte) — the structure a certificate or a
+    accounts for every byte) opening with an inner SEQUENCE — the structure a certificate or a
     SubjectPublicKeyInfo has, with no real key behind it."""
-    body = random.Random(seed).randbytes(size)
+    rng = random.Random(seed)
+    # the first element is itself a SEQUENCE, as a certificate's tbsCertificate
+    # and a SubjectPublicKeyInfo's AlgorithmIdentifier are
+    body = bytes([0x30, 10]) + rng.randbytes(10) + rng.randbytes(size - 12)
     n = len(body)
     if n < 0x80:
         head = bytes([0x30, n])
@@ -1901,6 +1904,80 @@ def pem_lines(label, raw, width=64):
 def flagged_lines(lines, **kw):
     """Line numbers carrying a finding, scanning `lines` as one file."""
     return {f.line for f in ss.scan_text("t", "\n".join(lines) + "\n", **kw)}
+
+
+# A real self-signed certificate (CN=example.test) and its public key: public
+# material by definition. The private half is NOT in this file — it would be real
+# key material in a public repo, so the private-key shapes below are synthetic.
+REAL_PEM_BODIES = {
+    "CERT": (
+        "MIICEjCCAbgCCQCO8Z6km5ufPjAKBggqhkjOPQQDAjAXMRUwEwYDVQQDDAxleGFt"
+        "cGxlLnRlc3QwHhcNMjYxMTA2MDU0OTIwWhcNMjYxMjA2MDU0OTIwWjAXMRUwEwYD"
+        "VQQDDAxleGFtcGxlLnRlc3QwggFLMIIBAwYHKoZIzj0CATCB9wIBATAsBgcqhkjO"
+        "PQEBAiEA/////wAAAAEAAAAAAAAAAAAAAAD///////////////8wWwQg/////wAA"
+        "AAEAAAAAAAAAAAAAAAD///////////////wEIFrGNdiqOpPns+u9VXaYhrxlHQaw"
+        "zFOw9jvOPD4n0mBLAxUAxJ02CIbnBJNqZnjhE50mt4GffpAEQQRrF9Hy4SxCR/i8"
+        "5uVjpEDydwN9gS3rM6D0oTlF2JjClk/jQuL+Gn+bjufrSnwPnhYrzjNXazFezsu2"
+        "QGg3v1H1AiEA/////wAAAAD//////////7zm+q2nF56E87nKwvxjJVECAQEDQgAE"
+        "YjbZY/g+eWuxWmYWBrPFo2t+qAQxJfAxmf1f2lFiIymVopw0uNvXjA/SLATyeOEH"
+        "YBSIJbvrxnra3o7wEoFATjAKBggqhkjOPQQDAgNIADBFAiEAl+uV+HZOv0bxWQkB"
+        "w0gLWKf4GGAa+5ZKz59wPh1/3MsCIDW9HFeTfEmcVt0IDM5fOFwEzjPgRthIXujZ"
+        "g/n3Evzq"
+    ),
+    "PUB": (
+        "MIIBSzCCAQMGByqGSM49AgEwgfcCAQEwLAYHKoZIzj0BAQIhAP////8AAAABAAAA"
+        "AAAAAAAAAAAA////////////////MFsEIP////8AAAABAAAAAAAAAAAAAAAA////"
+        "///////////8BCBaxjXYqjqT57PrvVV2mIa8ZR0GsMxTsPY7zjw+J9JgSwMVAMSd"
+        "NgiG5wSTamZ44ROdJreBn36QBEEEaxfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5"
+        "RdiYwpZP40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA"
+        "//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABGI22WP4PnlrsVpmFgazxaNr"
+        "fqgEMSXwMZn9X9pRYiMplaKcNLjb14wP0iwE8njhB2AUiCW768Z62t6O8BKBQE4="
+    ),
+}
+
+
+def _der(tag, content):
+    n = len(content)
+    if n < 0x80:
+        head = bytes([tag, n])
+    else:
+        octets = n.to_bytes((n.bit_length() + 7) // 8, "big")
+        head = bytes([tag, 0x80 | len(octets)]) + octets
+    return head + content
+
+
+def _der_int(rng, size):
+    """A positive INTEGER of `size` random bytes (a leading zero if needed)."""
+    v = bytes([rng.randrange(1, 256)]) + rng.randbytes(size - 1)
+    return _der(0x02, (b"\x00" + v) if v[0] & 0x80 else v)
+
+
+OID_RSA = bytes.fromhex("2a864886f70d010101")        # rsaEncryption
+OID_EC = bytes.fromhex("2a8648ce3d0201")             # id-ecPublicKey
+OID_P256 = bytes.fromhex("2a8648ce3d030107")         # prime256v1
+
+
+def synthetic_private_der(kind, seed=21):
+    """Random bytes in the ASN.1 OUTLINE of each private-key form — SEQUENCE
+    opening with an INTEGER version — and no key behind them. Sized like the
+    real thing (EC about 170 bytes, RSA about 1200) so they span several body
+    lines and trip the entropy net bare."""
+    rng = random.Random(seed)
+    if kind == "RSA_PKCS1":      # RSAPrivateKey
+        ints = [_der(0x02, b"\x00"), _der_int(rng, 257), _der(0x02, b"\x01\x00\x01"),
+                _der_int(rng, 256)] + [_der_int(rng, n) for n in (129, 129, 128, 128, 128)]
+        return _der(0x30, b"".join(ints))
+    if kind == "RSA_PKCS8":      # PrivateKeyInfo
+        algo = _der(0x30, _der(0x06, OID_RSA) + _der(0x05, b""))
+        return _der(0x30, _der(0x02, b"\x00") + algo + _der(0x04, rng.randbytes(1190)))
+    if kind == "EC_PKCS8":
+        algo = _der(0x30, _der(0x06, OID_EC) + _der(0x06, OID_P256))
+        return _der(0x30, _der(0x02, b"\x00") + algo + _der(0x04, rng.randbytes(121)))
+    if kind == "EC_SEC1":        # ECPrivateKey
+        return _der(0x30, _der(0x02, b"\x01") + _der(0x04, rng.randbytes(32))
+                    + _der(0xA0, _der(0x06, OID_P256))
+                    + _der(0xA1, _der(0x03, b"\x00" + rng.randbytes(65))))
+    raise KeyError(kind)
 
 
 class PublicPemBody(unittest.TestCase):
@@ -2049,6 +2126,42 @@ class PublicPemBody(unittest.TestCase):
         numbered = [(1, PEM_BEGIN_CERT)] + [(i + 10, t) for i, t in enumerate(self.BODY)]
         numbered.append((10 + len(self.BODY), PEM_END_CERT))
         self.assertTrue(ss.scan_lines("t", numbered))
+
+    # --- a private key's DER is a SEQUENCE too; its first element is an INTEGER
+    @staticmethod
+    def _wrap(label, key):
+        if key in REAL_PEM_BODIES:
+            body = [REAL_PEM_BODIES[key][i:i + 64]
+                    for i in range(0, len(REAL_PEM_BODIES[key]), 64)]
+        else:
+            body = pem_lines(label, synthetic_private_der(key))[1:-1]
+        return [f"-----BEGIN {label}-----", *body, f"-----END {label}-----"]
+
+    def test_real_certificate_and_public_key_are_exempt(self):
+        self.assertEqual(set(), flagged_lines(self._wrap("CERTIFICATE", "CERT")))
+        self.assertEqual(set(), flagged_lines(self._wrap("PUBLIC KEY", "PUB")))
+
+    def test_private_key_shaped_bodies_under_a_public_header_are_flagged(self):
+        # Synthetic PKCS#8 (EC and RSA), SEC1 and PKCS#1 outlines, no real key:
+        # a mislabel, or an editor gluing a key under a certificate's header.
+        # Each is SEQUENCE { INTEGER version, ... }, so the outer-SEQUENCE
+        # check alone exempted them.
+        for key in ("EC_PKCS8", "RSA_PKCS8", "EC_SEC1", "RSA_PKCS1"):
+            for label in ("CERTIFICATE", "PUBLIC KEY"):
+                with self.subTest(key=key, label=label):
+                    lines = self._wrap(label, key)
+                    bare = flagged_lines(lines[1:-1])
+                    self.assertTrue(bare, "control: the bare body blocks")
+                    self.assertEqual({n + 1 for n in bare}, flagged_lines(lines))
+
+    def test_der_must_open_with_a_nested_sequence(self):
+        self.assertTrue(ss._is_der_sequence(der_blob(100)))
+        # outer SEQUENCE, first element an INTEGER
+        self.assertFalse(ss._is_der_sequence(bytes([0x30, 6, 2, 1, 0, 4, 1, 0])))
+        # inner SEQUENCE claims more than the outer body holds
+        self.assertFalse(ss._is_der_sequence(bytes([0x30, 4, 0x30, 9, 0, 0])))
+        # an outer SEQUENCE with no content
+        self.assertFalse(ss._is_der_sequence(bytes([0x30, 0])))
 
     # --- 6: a chain
     def test_each_certificate_in_a_chain_is_its_own_span(self):

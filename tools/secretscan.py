@@ -437,10 +437,13 @@ PUBLIC_KEY_RX = re.compile(
 #     `PEM_MAX_LINE` characters (RFC 7468 §3), consecutive in the file. One
 #     stray line (a `password=…`, a private-key header, a blank, a gap in the
 #     line numbers of a staged diff) voids the WHOLE block, not just that line;
-#   * the decoded body must be one DER SEQUENCE whose length field accounts for
-#     every byte — the shape of an X.509 certificate and of a
-#     SubjectPublicKeyInfo — so a secret wrapped in a forged header is not
-#     exempt. (Stdlib only: a tag and length check, no certificate parsing.)
+#   * the decoded body must be one DER SEQUENCE whose length accounts for every
+#     byte and whose FIRST element is itself a SEQUENCE — the shape an X.509
+#     certificate (tbsCertificate) and a SubjectPublicKeyInfo
+#     (AlgorithmIdentifier) share, and which PKCS#8, PKCS#1 and SEC1 private
+#     keys (first element an INTEGER) do not have. So a private key mislabelled
+#     or glued under a certificate header is not exempt. (Stdlib only: tags and
+#     lengths, no certificate parsing; a heuristic on shape, not a validation.)
 #
 # PEM_MAX_BODY_LINES is grounded in certificate size, not in the one certificate
 # that prompted this: openssl emits 64 base64 characters (48 DER bytes) per line,
@@ -461,24 +464,39 @@ def _is_pem_body_line(stripped: str) -> bool:
     return len(stripped) <= PEM_MAX_LINE and bool(_PEM_BODY_RX.fullmatch(stripped))
 
 
-def _is_der_sequence(raw: bytes) -> bool:
-    """True if `raw` is exactly one DER SEQUENCE: tag 0x30, then a length that
-    accounts for every remaining byte. Definite lengths only (short form, or
-    long form of one to four length octets) — DER has no other kind, and
-    anything else is not a certificate."""
-    if len(raw) < 2 or raw[0] != 0x30:
-        return False
-    first = raw[1]
+def _der_element(raw: bytes, at: int):
+    """The (tag, content start, content end) of the DER element at `at`, or None
+    if its header is truncated, its length is not a definite one of one to four
+    octets, or its content runs past the end of `raw`."""
+    if len(raw) < at + 2:
+        return None
+    tag, first = raw[at], raw[at + 1]
     if first < 0x80:
-        header, length = 2, first
+        start, length = at + 2, first
     elif 0x81 <= first <= 0x84:
-        header = 2 + (first - 0x80)
-        if len(raw) < header:
-            return False
-        length = int.from_bytes(raw[2:header], "big")
+        start = at + 2 + (first - 0x80)
+        if len(raw) < start:
+            return None
+        length = int.from_bytes(raw[at + 2:start], "big")
     else:
+        return None
+    if start + length > len(raw):
+        return None
+    return tag, start, start + length
+
+
+def _is_der_sequence(raw: bytes) -> bool:
+    """True if `raw` is exactly one DER SEQUENCE (tag 0x30, a length that
+    accounts for every byte) whose FIRST element is itself a SEQUENCE that fits
+    inside it. That is the shape a certificate (tbsCertificate) and a
+    SubjectPublicKeyInfo (AlgorithmIdentifier) share, and no private-key DER
+    form has it: PKCS#8, PKCS#1 and SEC1 all open with an INTEGER version. The
+    outer-SEQUENCE test alone let a private key's body pass as a certificate."""
+    outer = _der_element(raw, 0)
+    if outer is None or outer[0] != 0x30 or outer[2] != len(raw):
         return False
-    return header + length == len(raw)
+    inner = _der_element(raw, outer[1])
+    return inner is not None and inner[0] == 0x30 and inner[2] <= outer[2]
 
 
 def _pem_body_is_der(lines: list[str]) -> bool:

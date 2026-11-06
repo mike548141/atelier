@@ -16,10 +16,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   entropy rule is suppressed: named and assigned rules still run on every line.
   It fails closed. The block must close with the matching END line within 2048
   body lines; every line between must be pure base64 of at most 76 characters,
-  on consecutive file lines; the decoded body must be one DER `SEQUENCE` whose
-  length accounts for every byte (stdlib only). A private-key header, a stray
-  line, a missing END or a forged wrapper around a non-DER secret voids the
-  whole block, and a `PRIVATE KEY` block is never covered. Each certificate in
+  on consecutive file lines; the decoded body must be one DER `SEQUENCE` that
+  accounts for every byte and whose first element is itself a `SEQUENCE` (the
+  shape a certificate and a public-key record share, and which PKCS#8, PKCS#1
+  and SEC1 private keys, opening with an `INTEGER`, do not have; stdlib only,
+  a check on shape and not a parse). A private-key header, a stray line, a
+  missing END, a private key's body under a certificate header or a forged
+  wrapper around a non-DER secret voids the whole block, and a `PRIVATE KEY`
+  block is never covered. Each certificate in
   a chain is judged on its own. In `--staged` mode a diff that adds only body
   lines is judged against the index copy of the file, so the enclosing block is
   seen rather than assumed; a file with no candidate line never reads a blob.

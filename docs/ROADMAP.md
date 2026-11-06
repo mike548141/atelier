@@ -346,6 +346,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ccapple checks the filter before it looks…](roadmap/160-doctrine-review-owed/1000-rule-4-cold-pass-queued-ccapple-checks-the-filter-first.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose expands a for loop's literal word…](roadmap/160-doctrine-review-owed/1010-rule-4-cold-pass-queued-ccclose-loop-made-worktrees.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose lists board ids in number order…](roadmap/160-doctrine-review-owed/1020-rule-4-cold-pass-queued-ccclose-board-order.md)
+- [ ] ⏳ [Rule-4 cold pass queued: secretscan exempts a public certificate's or…](roadmap/160-doctrine-review-owed/1030-rule-4-cold-pass-queued-secretscan-public-pem-block-spans.md)
 
 ## build/ layer — open strands
 
@@ -627,7 +628,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: REVIEW.md has no shape for a live-only top-up of a degraded…](roadmap/320-child-filed-findings-via-pointing-up/760-hand-up-review-md-has-no-shape-for-a-live-only-top-up-of-a-degraded-pass.md)
 - [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
 - [ ] [Turn conflictscan's tool-markup rule from advisory to blocking once…](roadmap/320-child-filed-findings-via-pointing-up/780-the-tool-markup-advisory-goes-blocking-once-the-estate-is-clean.md)
-- [~] (claimed 2026-11-06, wt: atelier-qr-722a-secretscan) [Hand-up: secretscan flags…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
+- ✅ [Hand-up: secretscan flags every body line of a PEM public…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
