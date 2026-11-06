@@ -4,10 +4,10 @@
 function).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 RUN — verdict below: FAIL, 2 MAJOR · 4 MODERATE · 4 minor · 2 note
-(XK1–XK12). Run 2026-11-06 UTC by a cold Fable 5.1 reviewer under orchestrator `850e2a78`; act 2
-(the reconcile) pending. Brief written 2026-11-06 UTC by session `782f8a66`, a headless Opus 5.5
-brief-writer.
+**Status:** ACTS 1 AND 2 RUN — verdict and reconcile below: FAIL, 2 MAJOR · 4 MODERATE ·
+6 minor · 4 note (XK1–XK16; XK13–XK16 formed at reconcile). Run 2026-11-06 UTC by a cold Fable
+5.1 reviewer under orchestrator `850e2a78`, act 1 committed as `7c6b781` before the sibling was
+opened. Brief written 2026-11-06 UTC by session `782f8a66`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1040-rule-4-cold-pass-queued-secretscan-reads-exempt-files-for-private-keys.md`.
 **Why it earns a review:** `secretscan` is the credential boundary every adopting child floats on
@@ -252,9 +252,8 @@ after the reviewer's phase-1 findings are committed -->
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every
 prior verdict in `docs/reviews/`, the queue pointer
 `docs/roadmap/160-doctrine-review-owed/1040-rule-4-cold-pass-queued-secretscan-reads-exempt-files-for-private-keys.md`,
-this brief's sibling
-`docs/reviews/2026-11-06-2027-secretscan-exempt-private-keys-cold.deferred.md` (held by the
-orchestrator), every delta commit's message body, and these records beyond their first line
+this brief's sibling (now folded at the end of this file; held by the orchestrator until
+act 1 was committed), every delta commit's message body, and these records beyond their first line
 (the title):
 
 - `docs/roadmap/115-guardrail-architecture-mike-commissioned/380-the-scanners-exempt-test-files-hold-a-promise-nothing-checks.md`
@@ -668,3 +667,243 @@ should wait for them. Every finding is the principal's to decide (rule 3): nothi
       triages before any flip to blocking.
 - [ ] Questions for the principal that did not need an answer to run this pass: none beyond
       XK4 and XK5.
+
+### Reconcile (act 2, 2026-11-06 UTC)
+
+Opened only after act 1 was committed unrevised (`7c6b781`): the held sibling, the queue pointer
+`160/1040`, the intent record `115/380` whole, and `0d8db9c`'s message body. Not opened: the
+sibling's list of prior records on nearby surfaces (five earlier verdicts, `GUARDS.md` and the
+rest), and the `160/1030` brief, verdict and folded sibling, which belong to another reviewer.
+The sibling is folded in by the orchestrator, not here. Act-1 text above is unrevised. One
+reconcile probe printed path fragments from two children's scope lists into the session
+transcript; none is carried here.
+
+**Against the author's account** (`115/380`'s DONE paragraph and the commit body):
+
+- The near miss: four real throwaway keys on a branch, amended to synthetic DER before the
+  push, nothing on `main`. Consistent with the loop (0 / 0 / 0). XK10's note on the word
+  "committed" stands as wording only; the record is accurate, and the README's public sentence
+  names no person and no repo.
+- "Probed before landing over every child with a `.secretscanignore` (13)": two independent
+  runs count 11 of 21 wired children (the brief-writer's and this pass's). The 13 does not
+  reproduce — XK13 below.
+- "The rule's only hits are in one child that tracks dead TLS keys as recorded debt (true
+  positives, reported, not blocking)": this answers XK12's triage question — the six
+  1 217-byte PKCS#8 hits are known, recorded, dead keys. XK12 stands, re-aimed: the flip
+  condition "once the estate reads clean" has no path to clean while recorded debt sits in an
+  exempt file and the rule has no hatch (XK9); the two findings are one decision. Severity
+  unchanged.
+- "Taken by the finding run, advisory first": confirms XK4 — the tier was the author's choice,
+  recorded in the item as "to judge" and judged by the same run; no ruling of the principal's
+  on the design or the tier (the sibling found none either). Unchanged.
+- "Patterns that must skip a long blank or base64 run are matched anchored, never searched (a
+  search was quadratic on a 6 MB line)": the author found and fixed one quadratic, the tail
+  search. XK2's two are different — the double `\s*` inside those anchored patterns, and the
+  one-line regex, which is still searched. Unchanged.
+- "(OpenSSH: openssh-key-v1)" is claimed for the PEM form only: consistent with XK3. Unchanged.
+- The brief-writer's held results agree with this pass's on every line: suite 2 358 OK; tree
+  28 / 0 / 3; loop 0 / 0 / 0; scratch staging at line 2, 1 216 bytes, control 0; fleet 21 wired,
+  11 with an ignore file, 6 hits in one child; its 74 → 78 s on the largest child matches the
+  ≤ 1.16 ratio here.
+
+**Against the sibling's eleven seeded questions** (a floor, read after the findings):
+
+1. *Tier.* XK4: the author's decision, recorded in the item, not where `SECRETS.md` says a
+   narrowing goes; no flip item exists.
+2. *Who reads it.* Formed at reconcile, XK14 below: on this repo's board a real key would be
+   29 on a count of 28 noise; the human and CI-log block names the rule per finding, the board
+   carries the number only.
+3. *Off switch.* XK7 for `--help`. A child can pass `--disable` through the floor's flags:
+   3 of 21 wired children carry `--disable` flags today, none to `secretscan`; none narrows
+   `secretscan`'s scope. A child that turned the rule off would be visible: the summary line
+   prints `disabled: <rule>`, and `floorfleet`'s rows carry a `disabled` field.
+4. *Shapes.* The act-1 matrix answers each: a JSON string with `\n` escapes — missed, silent
+   (XK1, MAJOR); a bare OpenSSH body — missed, silent (XK3); `Proc-Type` — stated, and not
+   principled against `ENCRYPTED PRIVATE KEY` as the question suspects: both are real key
+   material, one judged on outline and the other excluded (XK6); a PuTTY `.ppk` — by its format
+   (an SSH wire blob under `Private-Lines:`, not DER) not read, not probed, silent; a JWK `d` —
+   stated (base64url); PKCS#12 — probed, missed, silent; a DER key file — probed at reconcile,
+   never read (XK15); comma-separated literals — stated; `+` concatenation one literal per
+   line — caught; one-line `"…" + "…"` — caught for DER forms by path (b); a first fragment
+   sharing a line with other text — caught, unless under 16 characters (XK11).
+5. *Outline false positives.* None realistic found. DSA and DH parameters, an ECDSA signature
+   and a PKCS#1 public key each open with a large INTEGER, not a one-byte 0 or 1; a crypto
+   library's ASN.1 fixture in this shape is a key fixture. The advisory block's "decodes as a
+   real private key" is stronger than the outline test; a wording point under XK8's counsel.
+6. *Cost.* XK2: two super-linear inputs. On the children's real exempt files: within noise.
+7. *State-machine edges.* Probed at reconcile with synthetic keys: two PEM blocks in one file —
+   2 hits (lines 1, 7); a PEM block then its own body as a literal — 2 (lines 1, 8), correct,
+   two occurrences; two fragment sets — 2 (lines 2, 7); two keys glued as one fragment run with
+   no separator — 1, the first, by design (judged from the first byte; one hit is enough). A
+   padded `=` cannot sit mid-value in one base64 string, and the 150 KiB cap is far above any
+   key. No defect.
+8. *Staged plane.* The stated gap confirmed (act 1, question 3). "The CI run reads the whole
+   file" holds for the fleet today: no wired child narrows `secretscan`'s CI scope (0 of 21).
+   CI does not block on it either, which is XK4's point.
+9. *Record dates.* Formed at reconcile, XK16 below.
+10. *Public record of the near miss.* Accurate against history and the intent record; the one
+    looseness is "committed" (XK10); acceptable content for a public README.
+11. *Exempt binary files.* Formed at reconcile, XK15 below.
+
+**Findings formed at reconcile, marked as such:**
+
+- **XK13 — note — The intent record's child count does not reproduce.** `115/380` says 13
+  children carry a `.secretscanignore`; two independent fleet runs count 11 of 21 wired. The
+  difference is probably discovery (all git repos under the parent against wired children), but
+  the record states the number without its method. V1.
+- **XK14 — minor — On the floor board a real key is +1 on a count of noise.** `floor.py` reads
+  the `secretscan advisory:` total only; per-rule counts do not reach the board, so a child's
+  board cannot tell an `exempt-private-key` hit from a git SHA. The CI log's 🟡 block can, but
+  the board is what gets looked at. This is EI1's "cover, not coverage" at the board altitude,
+  and one more reason XK4's decision matters.
+  *Counsel:* print the rule breakdown beside the total (the summary line already breaks
+  allow-markers down by rule), and let the board carry it.
+- **XK15 — note — An exempt binary key file is never read, and the README does not say so.**
+  A `.der` private key in an exempt path is binary to the 020/370 reader (`_looks_binary` on
+  the first chunk), so the check yields nothing (probe: 0 hits). By design of the reader, but
+  the gap list should name it.
+- **XK16 — minor — The CHANGELOG heading carries a local date.** `### Added (2026-11-07 …)`
+  for a commit authored 2026-11-07T01:17+13:00, which is 2026-11-06T12:17Z. `CONVENTIONS.md`
+  keeps UTC at rest; the `320/790` entry beside it says 2026-11-06.
+
+**Overall, restated: FAIL — 2 MAJOR, 4 MODERATE, 6 minor, 4 note (XK1–XK16).** Nothing in the
+sibling or the author's account moves an act-1 severity. The act-1 counsel stands: fix XK1–XK3
+before any flip to blocking; XK4, XK5, XK12 and XK9 are one decision of the principal's about
+the tier, the hatch and the recorded debt; the rest are record and test fixes.
+
+Follow-ups added at reconcile:
+
+- [ ] XK13: `115/380` states its child-count method, or takes 11.
+- [ ] XK14: per-rule advisory counts to the board.
+- [ ] XK15: the gap list names binary key files.
+- [ ] XK16: the CHANGELOG heading in UTC.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-06)
+
+*Released to the reviewer only after its act-1 findings were committed (`7c6b781`); folded here
+verbatim (headings demoted two levels) and the sibling file removed, per the brief. The
+orchestrator (drain session `850e2a78`, Claude Opus 5.5) formed no finding and wrote no
+severity.*
+
+### Sibling to the secretscan exempt-private-keys cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-11-06-2027-secretscan-exempt-private-keys-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** The orchestrator, drain session `850e2a78`, holds it and hands it over on receipt
+of the committed act 1. Written 2026-11-06 UTC by the brief-writer, session `782f8a66` (Opus
+5.5), named in the brief's provenance; it forms no finding and assigns no severity. Fold this
+file in below the reconcile and delete it at phase 2.
+
+#### Intent record and author's account
+
+- `115/380` (`docs/roadmap/115-guardrail-architecture-mike-commissioned/`) — read in full by the
+  brief-writer. Found 2026-11-06 by queue run `722ac2e2` at its own landing of `320/790`: the
+  worker's fix had added four real throwaway private keys (EC and RSA PKCS#8, SEC1, PKCS#1) to
+  `tools/test_secretscan.py`; every check passed and only the orchestrator's read caught them
+  before the push; the branch was amended to synthetic DER and the record says nothing reached
+  `main`. Its "possible shape, to judge" is the landed design. It says the finding run took the
+  work itself, advisory first, because the change alters what a guard reads inside its own
+  exemptions and children float at `main`.
+- Its `DONE 2026-11-06` paragraph is the author's landing account and carries a **live-proven
+  claim** to re-run (V2): a probe over every child with a `.secretscanignore`, with a count of
+  such children, blocking results unchanged, run times within noise, and the rule's only hits
+  in one child, described there as true positives held as recorded debt.
+- No principal ruling on the design was found in either record. The principal's pick quoted in
+  the pointer approves running the pass, not the design or the advisory tier.
+- No commit message body was read.
+
+#### Re-run results held back from the brief
+
+Run once by the brief-writer, 2026-11-06 UTC, from the worktree root at `b2851e9`, in the
+foreground unless stated:
+
+- `test_secretscan.py`: 239 tests, OK, exit 0 (about 10 s). `secretscan --selftest`: exit 0.
+- Full suite under `nice -n 10`: 2358 tests, OK, exit 0 (536.5 s, load average 2.5 to 4.8).
+- `floor.py --plane ci --root .`: exit 0. `--plane hook`: exit 0, with nothing staged. Both ran
+  with this brief's four files untracked and the two pointer lines unstaged in the tree.
+- The tree: exit 0; 0 blocking; 28 advisory, all `low-variety-entropy`; 0
+  `exempt-private-key`; `files_by_ignore_glob` 3.
+- The test-file loop: 0 hits in `tools/test_secretscan.py` at each of `c5f6202`, `3d53b67` and
+  `0d8db9c`.
+- The exempt file, scratch repo: staged, exit 0, 1 advisory finding, `exempt-private-key` at
+  line 2, excerpt naming a base64 run of 1216 decoded bytes in a PKCS#8 outline,
+  `files_by_ignore_glob` 1; whole tree, the same finding, exit 0; with `--disable
+  exempt-private-key`, 0 advisory, exit 0. Control, the pre-delta tool from `815dce6` on the same
+  staging: 0 advisory, exit 0. A first attempt with a glob carrying no stated reason exited 2
+  on every plane (existing behaviour, not this delta's), so the recipe states a reason.
+- Children, read-only, count only: `floorfleet` found 23 rows, 22 `wired` and 1 `absent`; 21
+  wired children other than the parent, **11 of them carrying a `.secretscanignore`**. Pre-delta
+  tool (`815dce6`) against HEAD: exit codes and `counts.blocking` identical in all 21.
+  `exempt-private-key` hits in exactly **one** child: 6, all `PEM PRIVATE KEY` blocks, across 3
+  files; that child's advisory count goes from 2 to 8. Run time: the largest child 74.0 s
+  before and 78.0 s at HEAD (one run each, under load); every other child within 0.1 s. The
+  intent record states a different count of children with a `.secretscanignore`; reconcile the
+  two.
+
+#### Prior records on nearby surfaces (named by filename, not opened, not exhaustive)
+
+- `docs/roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md`
+  — by its file name, an earlier instance of the same class; surfaced by the brief's reconcile
+  sweep. Not opened.
+- `docs/reviews/2026-07-28-1204-c1-advisory-cold.md`,
+  `2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md`,
+  `2026-10-17-1010-advisory-count-per-scanner-cold.md` — the advisory tier and its count line,
+  which this delta adds a second rule to.
+- `docs/reviews/2026-07-28-1220-secretscan-fragment-cold.md` — by its name, earlier work on
+  fragments in `secretscan`.
+- `docs/reviews/2026-10-26-0912-staged-positional-reader-cold.md` and its top-up — the
+  `--staged` reader (`115/360`); the brief-writer read only `160/950`'s summary of it.
+- `docs/method/GUARDS.md`, `commands/scan.md`, `docs/build/templates/workflows/floor.yml`,
+  `tools/publishscan.py`: hits of the reconcile sweep, not read.
+
+#### Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. **Tier.** `SECRETS.md`'s posture is over-flag, and a working private key in a public repo is
+   the clearest leak there is. The check is advisory, so the exit code does not move. Whose
+   decision was advisory, is it recorded where the doctrine says narrowing decisions go, and is
+   there a board item for the flip to blocking that the README and comment promise ("a later
+   item may")?
+2. **Who reads it.** The floor board carries the `secretscan advisory:` count. On atelier's own
+   tree that count is 28 low-variety findings. Does a real key in an exempt file show as 29 on
+   the board, indistinguishable from noise, and is that "an advisory finding nobody reads is
+   cover, not coverage" (EI1)?
+3. **Off switch.** `--help` lists the rules `--disable` takes and does not name
+   `exempt-private-key`. Can a child disable it through the floor's `flags`, and would
+   `floorfleet` or the summary line show that it did?
+4. **Shapes missed.** Traditional encrypted PEM (`Proc-Type: 4,ENCRYPTED`) is stated as not a
+   hit, while `ENCRYPTED PRIVATE KEY` is checked; is the difference principled? A bare OpenSSH
+   body (no PEM lines), a PuTTY `.ppk`, a JWK with a `d` member (base64url), a PKCS#12 or DER
+   key file the reader treats as binary, a key in a JSON string with `\n` escapes, a key split
+   over comma-separated literals or `+` concatenation, a key whose first fragment shares a line
+   with other text: which are caught, which are stated gaps, and which are silent gaps?
+5. **Outline false positives.** `private_key_outline` matches PKCS#1 as a `SEQUENCE` of an
+   `INTEGER` 0 or 1 then five or more `INTEGER`s and optional trailing `SEQUENCE`s. What else has
+   that shape (DSA or DH parameters, some signature formats, an ASN.1 test vector in a crypto
+   library's fixtures)? Does the advisory text ("holds text that decodes as a real private
+   key") overclaim when the test is an outline, not a parse?
+6. **Cost.** `_FRAG_RX` and `_TAIL_AFTER_RX` carry `\s*` and optional groups; `_LONG_FRAG_RX`
+   and `_RUN_RX` run `finditer` over every line of up to 4096 characters, and the reader windows
+   longer lines. Is there an input that makes any of them super-linear, and what does the check
+   cost on the largest exempt file in the children (the brief's probe times it)?
+7. **State machine edges.** `covered` remembers one PEM block; `flush` drops a run whose start
+   line falls in it. Two keys in one file, a PEM block followed by its own body as a quoted
+   literal, a padded `=` mid-run, an `acc_len` cap flush in the middle of a 4096-bit key: does
+   each report once, twice, or never?
+8. **Staged plane.** Only added lines are read. A key added across two commits, or a commit
+   that adds the key lines to an existing exempt file whose earlier half was committed earlier,
+   is missed at the hook; the README says CI "prints anything the hook missed", but CI does not
+   block on it either. Is "the CI run reads the whole file" a claim the floor's CI plane makes
+   good for every child (scope, `flags`)?
+9. **Record dates.** The changelog heading is dated 2026-11-07; the commit landed 2026-11-06
+   UTC (2026-11-07 in the committer's zone). `CONVENTIONS.md` keeps UTC at rest.
+10. **Public record of a near miss.** The README, comment and changelog say a worker put four
+    working private keys in the test file. Is that statement accurate against history (the
+    brief's test-file loop), and is it the right content for a public tool README?
+11. **Exempt binary files.** `.secretscanignore` can name a binary file; does the exempt check
+    read it, skip it as binary, or fail?
+
+#### Facts held back from the brief
+
+- The intent record's child-probe claim (above) is what the brief's children line re-runs; the
+  brief does not state the claim or its numbers.
+- `115/050` exists (above); the brief does not name it.
