@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `secretscan` exempts a public
+- [ ] 🎯 **Rule-4 cold pass queued: `secretscan` exempts a public
       certificate's or public key's PEM body from the entropy rule
       (`320/790`).** `secretscan` is the publish-safety guard every child
       floats on at `floor.yml@main`, and this change opens a blind spot on
@@ -47,3 +47,27 @@
       neither delta nor the brief, and was not started or instructed by
       `722ac2e2`). Runs under the principal's 2026-11-06 approval quoted
       above.
+      ✅ **PASS RAN 2026-11-06** (Fable 5.1 on the laptop, under the off-tier
+      orchestrator drain session `850e2a78`, which formed no finding; act 1
+      at `b128672`, act 2 and the folded sibling in
+      `docs/reviews/2026-11-06-2027-secretscan-public-pem-spans-cold.md`).
+      **PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 2 minor · 3 notes**
+      (PM1–PM8). No standing MAJOR; no finding formed at reconcile. **PM1**
+      a bare certificate file went from blocking to clean, a narrowing of
+      the blocking set decided at tool altitude, while three surfaces still
+      say the set never shrinks; **PM2** (security) a PKCS#8 encrypted
+      private key relabelled `CERTIFICATE` or `PUBLIC KEY` passes the shape
+      check and is fully exempt; **PM3** the held block stores unstripped
+      lines, so the stated memory bound does not hold (measured about 16×
+      the pre-delta peak on a crafted file); **PM4** four mutants stay
+      green, including the fail-closed blob path; **PM5** glued string
+      literals and other real shapes fall outside and are not named as not
+      covered; **PM6–PM8** notes on the README, the hot-path claim and the
+      counter's name.
+      🎯 **The principal's (rule 3, a guard is doctrine by function):** every
+      finding, nothing applied. First PM1: ratify or reverse the carve-out.
+      Then PM2's fix and whether it goes by the `SECURITY.md` route. Then
+      PM3, PM5, and the reviewer's open question whether a `PUBLIC KEY`
+      label should accept a certificate's shape. Recommended routing: PM2,
+      PM3, PM4, PM6 and PM7 to one fix item on `secretscan`, after PM1 is
+      ruled; PM5 to the same item as a "not covered" line unless he widens.
