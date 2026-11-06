@@ -5,9 +5,13 @@
       authoring session (a principal-opened Opus 5.5 queue run, session
       722ac2e2, 2026-11-06, which found the gap at its landing of `320/790`
       and dispatched the Sonnet worker that wrote the code) queues this and
-      does not take it. The principal's approval of `160/1030` does not
-      cover it: it waits for his word, and a session he approves may take
-      both together (same file, same run's work).
+      does not take it. **Approved by the principal, 2026-11-06,** through
+      the device at the authoring run's close: asked whether the fresh
+      session he opens for `160/1030` should review this too, he picked
+      **"Yes, both in that session"** (the recommended option). That
+      session takes both, on the same terms as `160/1030`: API credit where
+      it reaches parity, else Fable locally. Barred sessions: 722ac2e2 and
+      anything it started.
       *Tier:* Fable, the principal-named review tier, checked at selection.
       *Pass type:* code cold pass, per `method/REVIEW.md` rule 4.
       *Delta, scoped to paths:* `tools/secretscan.py`,
