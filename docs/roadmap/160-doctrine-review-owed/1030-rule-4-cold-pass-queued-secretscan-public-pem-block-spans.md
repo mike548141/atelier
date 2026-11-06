@@ -22,3 +22,11 @@
       voiding right, or too strict for a real-world certificate file.
       *Intent record:*
       [`../320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md`](../320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md).
+      ✅ **Approved by the principal, 2026-11-06, through the device at the
+      authoring run's close, verbatim:** *"If you can run it using the API
+      credit and achieve parity of quality in the review as doing it locally
+      then use the API. If you cant achieve parity then run it on fable
+      locally now"*. The authoring session cannot start, instruct or brief
+      it (rule 4), so on his pick a fresh session he opens takes it: an Opus
+      brief first, then the pass on the API credit where it reaches parity,
+      else Fable locally. Barred sessions: 722ac2e2 and anything it started.
