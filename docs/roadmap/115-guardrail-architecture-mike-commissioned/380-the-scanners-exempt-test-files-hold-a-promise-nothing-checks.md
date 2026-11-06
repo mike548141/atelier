@@ -1,4 +1,5 @@
-- [ ] 🔎 **The scanners' exempted test files rest on a promise nothing
+- [~] (claimed 2026-11-06-1153, wt: atelier-qr-722a-exempt)
+      🔎 **The scanners' exempted test files rest on a promise nothing
       checks: "deliberately fictional", so real key material can land there
       unseen.** `.secretscanignore` exempts `tools/test_secretscan.py`,
       `tools/test_leakscan.py` and `tools/test_signscan.py` whole, on the
@@ -18,5 +19,5 @@
       reverse), or a real PEM private-key block with a body that decodes.
       Fixtures that need a private-key shape build it at test time, as
       `synthetic_private_der` in `tools/test_secretscan.py` now does.
-      Not taken by the finding run: it changes what a guard exempts, and the
-      run had already stopped.
+      Taken by the finding run, advisory first (it changes what a guard
+      reads inside its own exemptions, and children float at `main`).
