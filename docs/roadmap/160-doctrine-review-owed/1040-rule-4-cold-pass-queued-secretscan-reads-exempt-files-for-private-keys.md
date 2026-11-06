@@ -24,3 +24,11 @@
       non-key; the staged path reading added lines only.
       *Intent record:*
       [`../115-guardrail-architecture-mike-commissioned/380-the-scanners-exempt-test-files-hold-a-promise-nothing-checks.md`](../115-guardrail-architecture-mike-commissioned/380-the-scanners-exempt-test-files-hold-a-promise-nothing-checks.md).
+      ⏳ **BRIEF WRITTEN 2026-11-06** by session `782f8a66` (Opus 5.5, off-tier,
+      forms no finding; started by drain session `850e2a78`, which authored
+      neither delta): `docs/reviews/2026-11-06-2027-secretscan-exempt-private-keys-cold.md`,
+      with its `.deferred.md` sibling (11 seeded questions, one results set, two
+      held facts); review NOT run. Fable 5.1 on the laptop, checked at
+      selection; `850e2a78` orchestrates, holds the sibling and forms no
+      finding. Barred from reviewing: `722ac2e2` and its workers, `782f8a66`,
+      `850e2a78`.

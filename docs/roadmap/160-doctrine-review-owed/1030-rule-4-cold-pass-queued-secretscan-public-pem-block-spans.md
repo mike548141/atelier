@@ -30,3 +30,11 @@
       it (rule 4), so on his pick a fresh session he opens takes it: an Opus
       brief first, then the pass on the API credit where it reaches parity,
       else Fable locally. Barred sessions: 722ac2e2 and anything it started.
+      ⏳ **BRIEF WRITTEN 2026-11-06** by session `782f8a66` (Opus 5.5, off-tier,
+      forms no finding; started by drain session `850e2a78`, which authored
+      neither delta): `docs/reviews/2026-11-06-2027-secretscan-public-pem-spans-cold.md`,
+      with its `.deferred.md` sibling (11 seeded questions, one results set, two
+      held facts); review NOT run. Fable 5.1 on the laptop, checked at
+      selection; `850e2a78` orchestrates, holds the sibling and forms no
+      finding. Barred from reviewing: `722ac2e2` and its workers, `782f8a66`,
+      `850e2a78`.
