@@ -1,4 +1,5 @@
-- [ ] 🔎 **Hand-up: `secretscan` flags every body line of a PEM public
+- [~] (claimed 2026-11-06-0527, wt: atelier-qr-722a-secretscan)
+      🔎 **Hand-up: `secretscan` flags every body line of a PEM public
       certificate, so a child that must commit one is pushed to a path-level
       exemption that blinds the scanner to the whole file** `[tool]`.
       Handed up from a private child on 2026-11-03 under `PROPAGATION.md`

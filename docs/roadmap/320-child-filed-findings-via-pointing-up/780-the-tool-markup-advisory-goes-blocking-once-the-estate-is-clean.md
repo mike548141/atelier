@@ -1,4 +1,5 @@
-- [ ] **Turn `conflictscan`'s tool-markup rule from advisory to blocking
+- [~] (claimed 2026-11-06-0527, wt: atelier-qr-722a-inline)
+      **Turn `conflictscan`'s tool-markup rule from advisory to blocking
       once no child's tree carries the leak.** Follow-up to `320/490`, filed
       2026-11-03 by queue run 4c65083c. The rule landed advisory (`92dd817`)
       because a read-only probe found the leaked closing markup in frozen
