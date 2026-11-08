@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bd)
-      🎯 **Cold pass queued: the opening prompt's template history, for
+- [x] 🎯 **Cold pass queued: the opening prompt's template history, for
       privacy and specific work (`180/060`).** Text mined from the principal's
       private session transcripts landed in this public repo, and the only
       check so far is the session that landed it. A cold reader should test
@@ -50,3 +49,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing. The new Fable pass on the older prompt history (TH7) is not part of it.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: TH1, TH5, TH6 as counselled; TH2, TH3 partly (the README marks what is unconfirmed); TH7 not run, as he chose; TH4 — the `.spellscanignore` entry extends his 2026-07-23 ruling by analogy, so the README no longer claims his ruling covers it, and **he may confirm or narrow it**.
+      No serious finding stood, so the cycle closes here.

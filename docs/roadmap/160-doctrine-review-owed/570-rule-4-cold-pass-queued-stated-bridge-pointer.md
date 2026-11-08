@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bd)
-      🎯 **Rule-4 cold pass queued: SECRETS' stated-bridge pointers repointed
+- [x] 🎯 **Rule-4 cold pass queued: SECRETS' stated-bridge pointers repointed
       to PRINCIPLES (`200/100` C6).** The run authored this itself. It was
       queued at landing, and the run neither takes it nor spawns a reviewer
       for it. *Tier:* Fable, the principal-named review tier, checked at
@@ -47,3 +46,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: BR1–BR6 as counselled; BR2's open question (should PRINCIPLES §7 name the platform-imposed bridge shape) is **his**.
+      No serious finding stood, so the cycle closes here.

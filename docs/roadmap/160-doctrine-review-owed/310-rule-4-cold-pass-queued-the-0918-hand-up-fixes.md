@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bd)
-      🎯 **Rule-4 cold pass queued — the 2026-09-18 hand-up fixes to the
+- [x] 🎯 **Rule-4 cold pass queued — the 2026-09-18 hand-up fixes to the
       session-start sync, the act-verification clause and the drift command.**
       Self-authored doctrine, queued at landing by its author, who may not take
       it. *Tier:* Fable, the principal-named review tier — checked at
@@ -50,3 +49,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: HF1–HF7, HF9, HF11, HF12 as counselled (the drift check fetches first and fails closed; `pins.py` measures against `origin/main`, `--head` offline); HF10 routed to `320/180`; HF8 took the narrower option (verify-the-act stays behind the child block's pointer) — **his to confirm**.
+      No serious finding stood, so the cycle closes here.

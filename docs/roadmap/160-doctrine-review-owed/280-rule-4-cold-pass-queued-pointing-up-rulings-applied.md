@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bd)
-      🎯 **Rule-4 cold pass queued — the pointing-up rulings applied (PU-1
+- [x] 🎯 **Rule-4 cold pass queued — the pointing-up rulings applied (PU-1
       command fix, PU-2 naming).** Self-authored in rule 4's inherited
       sense: the applier's judgement produced the new wording, and the
       applier also authored the verdict being applied (REVIEW.md prefers
@@ -50,3 +49,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: PV1, PV3–PV5 as counselled; PV2 routed to `320/330`.
+      No serious finding stood, so the cycle closes here.

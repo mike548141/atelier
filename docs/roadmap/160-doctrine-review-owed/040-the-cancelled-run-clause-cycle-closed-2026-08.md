@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bd)
-      🎯 **The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6
+- [x] 🎯 **The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6
   await Mike's ruling round.** The rule-4 Fable cold pass (taker: a
   Mike-spawned session, claimed 0815 UTC) returned PASS-WITH-FINDINGS —
   0 MAJOR / 2 MODERATE / 1 minor / 3 note; reconcile against the intent
@@ -20,3 +19,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: CR2–CR4, CR6 in `RECORD.md`; CR1 as a CHANGELOG correction; CR5 needed nothing.
+      No serious finding stood, so the cycle closes here.

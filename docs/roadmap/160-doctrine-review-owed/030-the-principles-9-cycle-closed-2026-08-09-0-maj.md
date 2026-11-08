@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bd)
-      🎯 **The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await
+- [x] 🎯 **The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await
   Mike's ruling round.** The rule-4 Fable cold pass (taker: a Mike-spawned
   session, claimed 0815 UTC) returned PASS-WITH-FINDINGS — 0 MAJOR /
   1 MODERATE / 1 minor / 1 note; reconcile against the intent record changed
@@ -20,3 +19,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: TD1–TD3 as counselled.
+      No serious finding stood, so the cycle closes here.
