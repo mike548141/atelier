@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
-      🎯 **Nothing enumerates what the estate owes the house — the upstream
+- [x] 🎯 **Nothing enumerates what the estate owes the house — the upstream
       mirror of `floorfleet`** `[M][tool]` — the named gap in
       `PROPAGATION.md` § *Pointing up*, and the reason that section says of
       itself that it is rung 1.
@@ -29,3 +28,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: convention now (a dated pending-upstream marker in every child), tool later.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): the `Pending upstream:` line convention; no enumerator is built, and one needs its own decision. Cold pass
+        queued as `160/1160`.

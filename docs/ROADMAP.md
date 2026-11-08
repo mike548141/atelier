@@ -361,6 +361,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the exception-register design, redrafted on…](roadmap/160-doctrine-review-owed/1130-rule-4-cold-pass-queued-exception-register-redraft.md)
 - [ ] ⏳ [Rule-4 cold pass queued: five session-doctrine additions the…](roadmap/160-doctrine-review-owed/1140-rule-4-cold-pass-queued-session-doctrine-batch.md)
 - [ ] ⏳ [Rule-4 cold pass queued: eight guard and evidence additions the…](roadmap/160-doctrine-review-owed/1150-rule-4-cold-pass-queued-guard-and-evidence-doctrine-batch.md)
+- [ ] ⏳ [Rule-4 cold pass queued: seven propagation additions the principal…](roadmap/160-doctrine-review-owed/1160-rule-4-cold-pass-queued-propagation-doctrine-batch.md)
 
 ## build/ layer — open strands
 
@@ -548,7 +549,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/310-pointing-up-the-child-to-parent-route/README.md)*
 
 - ✅ 🎯 [The upstream route, and the two block defects that caused the instance](roadmap/310-pointing-up-the-child-to-parent-route/010-the-pointing-up-route-and-the-two-block-fixes.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [Nothing enumerates what the estate…](roadmap/310-pointing-up-the-child-to-parent-route/020-nothing-enumerates-what-the-estate-owes-the-house.md)
+- ✅ 🎯 [Nothing enumerates what the estate owes the house — the upstream…](roadmap/310-pointing-up-the-child-to-parent-route/020-nothing-enumerates-what-the-estate-owes-the-house.md)
 - [ ] [Ten children carry both block defects, and each clears them at its…](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
 - [ ] 🎯 [Queue the block-trim finding in cbom — AFTER this cycle's review…](roadmap/310-pointing-up-the-child-to-parent-route/040-queue-the-block-trim-finding-in-cbom-after-the-cycle.md)
 - ✅ [Rule-4 review RUN and RULED (tier: Fable; pass type: doc cold pass) —…](roadmap/310-pointing-up-the-child-to-parent-route/050-rule-4-cold-pass-queued-pointing-up.md)
@@ -558,9 +559,9 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
 - ✅ [The route's three shapes — WRITTEN 2026-08-23](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
 - ✅ ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [§ Pointing up only names atelier…](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
+- ✅ 🎯 [§ Pointing up only names atelier as a parent — Mike commissioned,…](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
 - [ ] 🎯 [CLASS — the parent holds accommodations its children cannot inherit,…](roadmap/310-pointing-up-the-child-to-parent-route/130-the-parent-holds-accommodations-the-child-cannot-inherit.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [A PR as the carrier for an idea…](roadmap/310-pointing-up-the-child-to-parent-route/140-a-pr-as-the-carrier-between-any-two-repos.md)
+- ✅ 🎯 [A PR as the carrier for an idea or finding between any two repos, not…](roadmap/310-pointing-up-the-child-to-parent-route/140-a-pr-as-the-carrier-between-any-two-repos.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
 
@@ -598,12 +599,12 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [A ruling that changes doctrine has no check that the child block's…](roadmap/320-child-filed-findings-via-pointing-up/300-a-ruling-that-moves-doctrine-has-no-check-the-block-copy-moved.md)
 - [ ] 🎯 [Should pathscan block instead of warn?](roadmap/320-child-filed-findings-via-pointing-up/310-should-pathscan-block-instead-of-warn.md)
 - ✅ 🔎 [Hand-up: the run-open role check still sends the tier question back…](roadmap/320-child-filed-findings-via-pointing-up/320-the-run-open-role-check-sends-the-tier-question-back-to-the-principal.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [Does the new naming precedence…](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
+- ✅ 🎯 [Does the new naming precedence reach doctrine's own prose?](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
 - [ ] 🔎 [blockscan cannot see a change to a mapped section's SUBSECTIONS, and…](roadmap/320-child-filed-findings-via-pointing-up/340-blockscans-map-cannot-see-a-subsection.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/350-a-peer-can-stage-into-the-shared-index-while-your-commit-hooks-run.md)
 - ✅ [REPORT — 115/200's owed work is done from the child's side: the…](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
 - [ ] [REPORT — <owner/repo> is a declared placeholder in the floor region…](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [The floor's visibility bullet…](roadmap/320-child-filed-findings-via-pointing-up/380-the-floor-s-public-tense-and-whether-it-should-name-the-root.md)
+- ✅ 🎯 [The floor's visibility bullet reads as a one-time check, and may name…](roadmap/320-child-filed-findings-via-pointing-up/380-the-floor-s-public-tense-and-whether-it-should-name-the-root.md)
 - ✅ 🎯 [MISSING HOUSE RULE — a check in the same shell invocation as the act…](roadmap/320-child-filed-findings-via-pointing-up/390-missing-house-rule-a-check-in-the-same-invocation-as-the-act-is-not-a-check.md)
 - [ ] 🔎 [CANDIDATE HOUSE RULE — verify a figure correction in the RENDERED…](roadmap/320-child-filed-findings-via-pointing-up/400-count-survivors-in-the-rendered-artefact-not-the-source-you-edited.md)
 - [ ] 🔎 [Hand-up: the canonical floor's estate resources bullet is unwritable…](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
@@ -623,7 +624,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: no floor scanner reads a commit message, so a term that is…](roadmap/320-child-filed-findings-via-pointing-up/550-no-scanner-reads-a-commit-message-body.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md)
 - [ ] 🔎 [MISSING HOUSE RULE — a "this cannot work" built only from reading is…](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [MISSING HOUSE RULE — the house…](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
+- ✅ 🎯 [MISSING HOUSE RULE — the house has no method for splitting one repo…](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
 - [ ] 🔎 [Hand-up: the floor's Estate resources bullet covers facts — don't…](roadmap/320-child-filed-findings-via-pointing-up/590-the-estate-resources-bullet-covers-facts-not-access-or-write-back.md)
 - ✅ 🔎 [Hand-up from a private child: at the hook plane the content scanners…](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md)
@@ -690,7 +691,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/README.md)*
 
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [No doctrine models a repo-to-repo…](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/010-consumer-and-subject-cluster-relationships-have-no-model.md)
+- ✅ 🎯 [No doctrine models a repo-to-repo relationship other than…](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/010-consumer-and-subject-cluster-relationships-have-no-model.md)
 - [ ] 🎯 [shed and client-data repos rely on an "always confirm" floor rule,…](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/020-shed-and-client-data-repos-rely-on-a-confirm-rule-not-a-control.md)
 
 ## Choosing among implementation mechanisms (Mike commissioned, 2026-09-16)

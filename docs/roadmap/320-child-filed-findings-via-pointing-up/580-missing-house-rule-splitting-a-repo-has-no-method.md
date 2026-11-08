@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
-      🎯 **MISSING HOUSE RULE — the house has no method for splitting one repo
+- [x] 🎯 **MISSING HOUSE RULE — the house has no method for splitting one repo
       into two, and two children have now each worked one out alone**
       `[M][doctrine]`. Hand-up from a private child via § *Pointing up*,
       2026-10-11. The evidence is held in the children's private records, so
@@ -75,3 +74,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: commission a class-only "Splitting a repo" method section, the children's records supplied privately.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): a draft § *Splitting a repo* in `docs/build/REPO-BOUNDARY.md`, its elements labelled testimony not re-driven, and what could not be grounded listed. Cold pass
+        queued as `160/1160`.

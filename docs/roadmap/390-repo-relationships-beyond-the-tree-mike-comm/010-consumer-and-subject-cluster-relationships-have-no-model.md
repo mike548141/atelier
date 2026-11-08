@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
-      🎯 **No doctrine models a repo-to-repo relationship other than
+- [x] 🎯 **No doctrine models a repo-to-repo relationship other than
       doctrine-parent/child.**
   - [ ] 🔑 **Consumer-of-asset.** `REACH.md` § *The credential boundary*
         already distinguishes a "provisioning registry" and "per-consumer
@@ -31,3 +30,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: atelier does not model consumer or subject-cluster relationships; one generic line points at the estate root's registry.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): one generic line in `PROPAGATION.md`. Cold pass
+        queued as `160/1160`.

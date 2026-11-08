@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
-      🎯 **§ *Pointing up* only names atelier as a parent — Mike commissioned,
+- [x] 🎯 **§ *Pointing up* only names atelier as a parent — Mike commissioned,
       2026-09-12.** His words: *"Find better ways for sessions working on
       child repos to feed back ideas, problems or whatever to 'parent' repos
       like atelier to consider and act upon. Similarly a child repo of shed
@@ -39,3 +38,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: a general child-to-any-parent route, drafted with 310/140 as one rule; a private parent may receive specifics.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `PROPAGATION.md` § *The same route between any two repos*, drafted with `310/140`. Cold pass
+        queued as `160/1160`.

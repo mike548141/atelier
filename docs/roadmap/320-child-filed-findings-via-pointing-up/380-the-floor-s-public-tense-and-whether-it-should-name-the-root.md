@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
-      🎯 **The floor's visibility bullet reads as a one-time check, and may
+- [x] 🎯 **The floor's visibility bullet reads as a one-time check, and may
       name the thing it exists to hide** — two wording proposals on the
       canonical floor region, filed from a private child 2026-09-20 via
       § *Pointing up*. Both concern the same bullet, both are the principal's
@@ -62,3 +61,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: accept both: "is ever made public", and one sentence that spelling the actual path in a public-candidate repo defeats the rule.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): both proposals in the floor's estate-resources bullet, canonical region and stamped copy together; children take it at their next pin bump. Cold pass
+        queued as `160/1160`.

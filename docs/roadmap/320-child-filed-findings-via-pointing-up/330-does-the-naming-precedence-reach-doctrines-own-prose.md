@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
-      🎯 **Does the new naming precedence reach doctrine's own prose?** —
+- [x] 🎯 **Does the new naming precedence reach doctrine's own prose?** —
       split out of `320/190` when Mike ruled it 2026-09-19 (*rule 2 wins,
       everywhere*). That ruling settled the surfaces a **filing** creates:
       branch name, PR title, commit subject, PR body. It did not settle the
@@ -29,3 +28,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: public doctrine names no private child repo in worked examples.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): route rule 2 covers doctrine's own prose and worked examples say "a private child"; origin citations and adoption tables are left as they stand. Cold pass
+        queued as `160/1160`.
