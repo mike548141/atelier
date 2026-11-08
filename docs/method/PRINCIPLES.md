@@ -321,9 +321,10 @@ time it saved.
 ## 9. Data modelling — every fact carries its time dimension
 
 *Added 2026-08-08 (Mike). §1–8 govern the code and the system; this one governs
-the **data the system holds about the world**, which the other eight never
-reached. The gap was structural: code gets a time dimension for free — git
-records when every line was created, changed and removed — so the habit of
+the **data the system holds about the world**, which the other eight reach only
+at the system-evidence layer (§6). The gap was structural: code gets a time
+dimension for free — git records when every line was created, changed and
+removed — so the habit of
 asking "when?" never has to be learned for code. Data has no git. Nothing
 supplies the missing dimension later, and nobody notices it is missing until the
 first question that needs it cannot be answered.*
@@ -336,7 +337,11 @@ alongside its fields and its keys.
 - **Two clocks, kept apart.** *World time* is when the thing was true out there;
   *record time* is when we learned it, wrote it, or last confirmed it. They are
   different facts and they diverge — you find out on Tuesday about something that
-  happened in March. Collapse them into one column and two whole question classes
+  happened in March. (Record time is itself a family: when we learned it, when
+  we wrote it and when we last confirmed it can each differ, and staleness needs
+  the last-confirmed one. It is sized by the same question test below, not
+  assumed to be three columns.) Collapse them into one column and two whole
+  question classes
   become unanswerable: "was this true on date X?" (world) and "what did we
   believe on date X, and how stale is it now?" (record). Most datasets need both;
   the ones that genuinely need only one should say which, and why.
@@ -375,7 +380,11 @@ alongside its fields and its keys.
   stale is this · what did we believe at the time* — and carry the minimum that
   answers those. Carrying less is the defect this principle exists to name;
   carrying more than the questions justify is §2 KISS violated in the other
-  direction.
+  direction. **For personal data it is a §5 privacy defect as well:** record-time
+  trails and by-whom fields joined to identities are themselves personal data,
+  and a retention limit can make the lawful answer *less* dimension than the
+  questions would justify. Prefer-a-dated-end-state is a default, not a licence
+  to keep what must not be kept.
 
 *Generalised case:* a curated venue guide in this fleet holds records that carry
 one nullable "verified" field and a content-pipeline status — and no world time
@@ -400,7 +409,9 @@ propagation pointer that carries it.
 **Where the neighbouring rules sit.** This principle says the dimension must
 *exist*; [`CONVENTIONS.md`](CONVENTIONS.md) says how each stamp is *written*
 once it does (UTC at rest, ISO 8601, labelled deviations) — existence and frame
-are different questions, and neither substitutes for the other. The *state vs
+are different questions, and neither substitutes for the other. Its nearest
+neighbour in this file is §6: §6 dates and attributes the system's own facts and
+claims, and §9 is the same instinct for the data the system holds. The *state vs
 stateless* situation test below ("undated state is a future lie") is this
 principle's instance for derived snapshots. [`RECORD.md`](RECORD.md) is the same
 instinct already applied to our own record — append-only log, absolute dating

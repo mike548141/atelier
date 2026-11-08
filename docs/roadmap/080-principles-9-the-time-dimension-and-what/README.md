@@ -4,8 +4,8 @@ Mike minted the rule this session: **data — application, system or user — ca
 the time dimension its domain implies.** Code gets one free from git; data has
 none, and the dimension cannot be recovered after the fact. Landed as
 `PRINCIPLES.md` §9 (two clocks kept apart · a stored result carrying its
-derivation · lifecycle over booleans · no hard delete · open intervals ≠ unknown ·
-size the dimension by the questions the domain will ask · retrofits bound as well
+derivation · lifecycle over booleans · a dated end-state preferred to hard
+delete · open intervals ≠ unknown · size the dimension by the questions the domain will ask · retrofits bound as well
 as new designs), following the house pattern for a new principle — inline stamp,
 no ADR, as with API-first and mobile-first (both "decided 2026-07-14"). Rule-4 `⏳`
 queued below.
