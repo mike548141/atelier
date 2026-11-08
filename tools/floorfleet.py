@@ -408,6 +408,23 @@ READ_FAILED = "failed"    # we were not allowed, or not able, to ask
 HTTP_STATUS_RE = re.compile(r"\(HTTP (\d{3})\)")
 
 
+def _gh_run(args: list[str]) -> subprocess.CompletedProcess | None:
+    """Run `gh` with `args`; None when the binary cannot be started at all.
+
+    A missing `gh` raises `FileNotFoundError` out of `subprocess.run` before any
+    outcome exists, which is neither a 404 nor a nonzero exit — it is the "no
+    `gh`" ending `_read_remote_slug_result`'s docstring already counts as a read
+    we could not make (FF1). Every `gh` call site goes through here so that
+    ending gets the documented failure value (`failed`, `None`, `[]`) instead of
+    a traceback that a `--check` run would read as the legitimate "estate
+    unguarded" red. No behaviour change when `gh` exists."""
+    try:
+        return subprocess.run(["gh", *args], capture_output=True, text=True,
+                              check=False)
+    except OSError:
+        return None
+
+
 def _read_remote_slug_result(slug: str, rel: str) -> tuple[str, str | None]:
     """(outcome, text) for one file on a repo's default branch, by slug.
 
@@ -425,10 +442,9 @@ def _read_remote_slug_result(slug: str, rel: str) -> tuple[str, str | None]:
     Unparseable means failed for the same reason: base64 we cannot decode is not
     evidence of anything. An EMPTY file is `ok` with empty text, because that is
     a fact we actually read."""
-    r = subprocess.run(
-        ["gh", "api", f"repos/{slug}/contents/{rel}", "--jq", ".content"],
-        capture_output=True, text=True, check=False,
-    )
+    r = _gh_run(["api", f"repos/{slug}/contents/{rel}", "--jq", ".content"])
+    if r is None:
+        return (READ_FAILED, None)
     if r.returncode != 0:
         m = HTTP_STATUS_RE.search(r.stderr or "")
         if m and m.group(1) == "404":
@@ -473,9 +489,8 @@ def _gh_json(path: str) -> object | None:
     that reason on its first live run. Callers select fields from the parsed
     object instead; `_read_remote_slug` handles the one endpoint whose payload
     is genuinely not JSON."""
-    r = subprocess.run(["gh", "api", path],
-                       capture_output=True, text=True, check=False)
-    if r.returncode != 0 or not r.stdout.strip():
+    r = _gh_run(["api", path])
+    if r is None or r.returncode != 0 or not r.stdout.strip():
         return None
     try:
         return json.loads(r.stdout)
@@ -491,9 +506,8 @@ def _gh_list(path: str) -> list[dict]:
     it enumerates. `--jq '.[]'` emits one compact object per line, which is what
     makes `--paginate` parseable — the raw paginated body is several JSON arrays
     concatenated, which is not valid JSON."""
-    r = subprocess.run(["gh", "api", "--paginate", "--jq", ".[]", path],
-                       capture_output=True, text=True, check=False)
-    if r.returncode != 0:
+    r = _gh_run(["api", "--paginate", "--jq", ".[]", path])
+    if r is None or r.returncode != 0:
         return []
     out: list[dict] = []
     for line in r.stdout.splitlines():

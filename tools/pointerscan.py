@@ -137,8 +137,13 @@ states, read from the item's own text**, on four grounds:
   * It names the sharper defect. All five residues said the review was queued
     when what was actually owed was the principal's ruling. A guard that only
     knows "a verdict exists" cannot say that; one that reads states can.
-  * It needs no cross-file I/O, so it reads staged content honestly and has no
-    plane seam.
+  * It needs no cross-file join, so it has no CROSS-FILE plane seam. The
+    single-file index-versus-worktree seam remains: `scan()` reads the working
+    tree and the hook invocation passes no `--staged`, so a pointer staged and
+    then reverted in the working tree scans clean. That is the accepted
+    residual of the hygiene-scanner class (linkscan, datescan, wrapscan and
+    spellscan read the working tree at the hook the same way); only the
+    boundary scanners read the index (PG1).
 
 **Stated residual, not defended against:** a pointer that is stale against a
 verdict it never links is invisible here. That is the price of refusing the
@@ -151,7 +156,12 @@ Findings exit 0. Every detector reads judgement-adjacent text and the honest
 posture is to warn at the one moment the fix is free: a pointer is fixable in
 the commit that writes it. A line carrying `pointerscan:allow: <reason>`
 anywhere in an item exempts it — the same greppable hatch as the sibling
-scanners.
+scanners. There is also a FILE-level form: the same marker on a roadmap file's
+FIRST line exempts the whole file (unscoped), or drops one detector across it
+(`pointerscan:allow:<detector>: <reason>`). It is a bigger lever than the
+per-item hatch, so it is kept visible: the run summary's suppressed count
+includes every file it exempts (PG2). The reviewer offered document-or-drop;
+documented, because a file-level scope has been in use since AM4.
 
 Exit codes:
   0  scanned (clean or with findings — this never blocks)

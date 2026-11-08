@@ -1121,6 +1121,19 @@ class GhReadTest(unittest.TestCase):
             self.assertIsNone(floorfleet._gh_json("repos/o/r"))
             self.assertEqual(floorfleet._gh_list("user/repos"), [])
 
+    def test_a_missing_gh_binary_is_a_failed_read_not_a_traceback(self):
+        """FF1. A missing `gh` raises FileNotFoundError out of subprocess.run,
+        before any outcome exists; the three call sites map it to the
+        documented failure values, so `--remote` degrades to unknown rows
+        (which red `--check`) instead of dying in a traceback."""
+        with mock.patch.object(subprocess, "run",
+                               side_effect=FileNotFoundError("gh")):
+            self.assertIsNone(floorfleet._gh_json("repos/o/r"))
+            self.assertEqual(floorfleet._gh_list("user/repos"), [])
+            self.assertEqual(
+                floorfleet._read_remote_slug_result("o/r", "CLAUDE.md"),
+                (floorfleet.READ_FAILED, None))
+
     def _content(self, code, stdout="", stderr=""):
         done = subprocess.CompletedProcess([], code, stdout=stdout,
                                            stderr=stderr)
