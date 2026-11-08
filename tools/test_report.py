@@ -471,7 +471,8 @@ class TestScannerLinePins(unittest.TestCase):
         import linkscan as m
         t = m.Tally()
         self.assertEqual(t.summary(), "  suppressed: 0 by allow-marker · 0 file(s) by "
-                                      f".linkscanignore · 0 beyond {CAP}")
+                                      f".linkscanignore · 0 beyond {CAP}"
+                                      " · 0 marker(s) naming no rule")
         self.assertEqual(m.render_human([], t).splitlines()[0],
                          "✓ linkscan clean — every internal link resolves.")
         t.findings_over_cap = 3
@@ -487,7 +488,8 @@ class TestScannerLinePins(unittest.TestCase):
         t.note_marker("a")
         self.assertEqual(t.summary(), "  suppressed: 2 by allow-marker · 0 file(s) by "
                                       ".datescanignore · 0 over-long line(s) scanned "
-                                      "truncated\n    allow-marker breakdown: a×1, b×1")
+                                      "truncated · 0 marker(s) naming no rule"
+                                      "\n    allow-marker breakdown: a×1, b×1")
         self.assertEqual(m.render_human([], t).splitlines()[0],
                          "✓ datescan clean — no relative-time words or non-ISO "
                          "dates found.")
@@ -512,7 +514,7 @@ class TestScannerLinePins(unittest.TestCase):
         t = m.Tally()
         self.assertEqual(t.summary(), "  suppressed: 0 by allow-marker · 0 file(s) by "
                                       ".spellscanignore · 0 over-long line(s) scanned "
-                                      "truncated")
+                                      "truncated · 0 marker(s) naming no rule")
         self.assertEqual(m.render_human([], t).splitlines()[0],
                          "✓ spellscan clean — no US spellings found.")
         out = m.render_human([m.Finding("a.md", 1, "us-spelling", "color",
@@ -563,7 +565,8 @@ class TestScannerLinePins(unittest.TestCase):
                          "  suppressed: 0 by allow-marker · 0 file(s) by .secretscanignore"
                          " · 1 rule(s) disabled · 0 public-key fingerprint(s) · 0 by "
                          "public-key line · 0 by published-url token · "
-                         f"0 beyond {CAP}\n    disabled: assigned")
+                         f"0 beyond {CAP} · 0 marker(s) naming no rule"
+                         "\n    disabled: assigned")
         t.note_marker("r")
         self.assertIn("\n    allow-marker breakdown: r×1\n    disabled: assigned",
                       t.summary())
@@ -593,7 +596,8 @@ class TestScannerLinePins(unittest.TestCase):
                                       f"{m.TYPE_LEVEL_UNTIL.isoformat()} · "
                                       "0 manifest line(s) with no who/when warned, "
                                       "not blocking · "
-                                      f"0 beyond {CAP}")
+                                      f"0 beyond {CAP} · "
+                                      "0 marker(s) naming no rule")
         self.assertEqual(m.render_human([], None, True, t).splitlines()[0],
                          "✓ leakscan clean (structural + local).")
         t.findings_over_cap = 3

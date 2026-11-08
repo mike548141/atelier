@@ -192,6 +192,10 @@ class Tally:
     # read these counters, never `len(findings)`).
     blocking_over_cap: int = 0
     advisory_over_cap: int = 0
+    # 160/480 AM10: allow-markers whose scope names a rule that does not
+    # exist, which are silently inert (the finding they were written for still
+    # reports). Counted so a typo is visible on a clean run too.
+    unknown_scope_markers: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
@@ -220,6 +224,9 @@ class Tally:
     def note_marker(self, rule: str) -> None:
         self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
 
+    def note_unknown_scope(self) -> None:
+        self.unknown_scope_markers += 1
+
     def note_fingerprint(self) -> None:
         self.fingerprints += 1
 
@@ -243,7 +250,8 @@ class Tally:
                  f"{self.public_key_spans} by public-key line",
                  f"{self.url_tokens} by published-url token",
                  report.cap_part(self.blocking_over_cap + self.advisory_over_cap,
-                                 MAX_MATERIALIZED_FINDINGS)]
+                                 MAX_MATERIALIZED_FINDINGS),
+                 f"{self.unknown_scope_markers} marker(s) naming no rule"]
         return report.suppressed_line(parts, breakdown=self.by_marker,
                                       disabled=self.disabled_rules)
 
@@ -1057,6 +1065,9 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
         scope = parse_allow(line) if ALLOW_MARKER in line else None
         if scope is not None:
             allow_by_line[lineno] = scope
+            if (tally is not None and scope
+                    and allowmarker.names_no_rule(scope, ALL_RULES)):
+                tally.note_unknown_scope()
 
         for pat, gate in named:
             if gate is not None and not gate(line):
@@ -1981,6 +1992,7 @@ def _main(argv: list[str] | None = None) -> int:
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
+                "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
                 "disabled_rules": list(tally.disabled_rules),
                 "public_key_fingerprints": tally.fingerprints,

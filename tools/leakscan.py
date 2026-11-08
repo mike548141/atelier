@@ -85,6 +85,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import unicodedata
 import xml.parsers.expat as _expat
 import zlib
 from dataclasses import dataclass, asdict, field
@@ -480,6 +481,10 @@ class Tally:
     # clean run says what it did not read.
     binaries_by_manifest: int = 0
     binaries_untracked: int = 0
+    # 160/480 AM10: allow-markers whose scope names a rule that does not
+    # exist, which are silently inert (the finding they were written for still
+    # reports). Counted so a typo is visible on a clean run too.
+    unknown_scope_markers: int = 0
     # The G3 adoption grace (see `BINARY_GRACE_UNTIL`): gate findings printed
     # as warnings, not counted in the exit code. Always 0 from the cut-off on.
     binary_grace_warnings: int = 0
@@ -514,6 +519,9 @@ class Tally:
     def note_marker(self, rule: str) -> None:
         self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
 
+    def note_unknown_scope(self) -> None:
+        self.unknown_scope_markers += 1
+
     def summary(self) -> str:
         """One stable line, zeros printed. The field set never varies between
         runs so two runs can be read side by side (a missing field would read
@@ -529,7 +537,8 @@ class Tally:
                  f"warned, not blocking, before {TYPE_LEVEL_UNTIL.isoformat()}",
                  f"{len(self.provenance_warnings)} manifest line(s) with no who/when "
                  "warned, not blocking",
-                 report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS)]
+                 report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS),
+                 f"{self.unknown_scope_markers} marker(s) naming no rule"]
         return report.suppressed_line(parts, breakdown=self.by_marker,
                                       disabled=self.disabled_rules)
 
@@ -698,15 +707,27 @@ VALIDATORS: dict[str, "object"] = {
 }
 
 
+def _nfc(text: str) -> str:
+    """Unicode NFC (LK2, 2026-11-09). A macron can be one code point (U+0101)
+    or a base letter plus a combining mark (U+0061 U+0304); the two print
+    identically and a plain regex matches only the spelling it was compiled
+    from. Plain and `forms:` terms are compiled from NFC, and the line is also
+    searched in NFC (`_term_hit`), so a term typed one way catches text typed
+    the other. ASCII, the overwhelming case, is returned untouched."""
+    return text if text.isascii() else unicodedata.normalize("NFC", text)
+
+
 def derived_form_regex(term: str) -> "re.Pattern[str]":
     """G6 — the OPT-IN derived-form matcher behind a `forms:` term.
 
     A name leaks as a slug, a localpart or an identifier far more often than as
     the canonical spaced literal: the sweep probed a listed name's slug,
     camel-case, snake-case and double-spaced forms and every one passed clean.
-    This joins the term's words with `[\\s._-]*`, so one term covers
+    This joins the term's words with `[\\s._/+-]*`, so one term covers
     `jane-q-public`, `jane_q_public`, `jane.q.public`, `janeQPublic`,
-    `janeqpublic` and any whitespace run between the words.
+    `janeqpublic`, any whitespace run between the words, and (LK3, 2026-11-09)
+    a name spread across path components (`jane/q/public.md`, the shape the
+    path plane reads) or tagged into an email local part (`jane+q+public`).
 
     OPT-IN, and it stays opt-in: the zero-separator form means a short or
     common-word term can start matching inside ordinary compounds, and only the
@@ -718,7 +739,7 @@ def derived_form_regex(term: str) -> "re.Pattern[str]":
     2026-09-18) so `jane-q-publics` and `jane-q-publics'` hit alongside the
     bare derived form."""
     parts = [re.escape(p) for p in term.split() if p]
-    return re.compile(r"\b" + r"[\s._-]*".join(parts) + PLURAL_SUFFIX, re.IGNORECASE)
+    return re.compile(r"\b" + r"[\s._/+-]*".join(parts) + PLURAL_SUFFIX, re.IGNORECASE)
 
 
 # Mike ruled 2026-09-18 (roadmap 320/240): a listed term must ALSO catch its
@@ -762,14 +783,18 @@ def load_local_terms(path: Path | None) -> tuple[list[tuple[str, "re.Pattern[str
             body = line[len("regex:"):].strip()
             terms.append((body, re.compile(body, re.IGNORECASE)))
         elif line.startswith("forms:"):
-            body = line[len("forms:"):].strip()
+            body = _nfc(line[len("forms:"):].strip())
             terms.append((body, derived_form_regex(body)))
         else:
+            line = _nfc(line)
             terms.append((line, re.compile(r"\b" + re.escape(line) + PLURAL_SUFFIX, re.IGNORECASE)))
     return terms, None
 
 
 BY_NAME: dict[str, Pattern] = {p.name: p for p in ALL_RULES}
+
+# What a marker's scope may name (AM10): a structural rule, or `local-term`.
+_MARKER_RULE_NAMES = frozenset(BY_NAME) | {"local-term"}
 
 
 # --- per-rule pre-filters (roadmap 110/130, lever 4) ---------------------
@@ -868,6 +893,14 @@ def _record(findings: list[Finding], tally: Tally | None, finding: Finding) -> N
         findings.append(finding)
 
 
+def _term_hit(rx: "re.Pattern[str]", line: str, nfc_line: str) -> bool:
+    """A term matches the line as written, or (LK2) as NFC-normalised. The
+    union only ever adds a hit, so a `regex:` term that matched before still
+    matches and one written for the decomposed spelling still can."""
+    return rx.search(line) is not None or (
+        nfc_line is not line and rx.search(nfc_line) is not None)
+
+
 def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
               local_terms: list[tuple[str, "re.Pattern[str]"]],
               disabled: frozenset[str] = frozenset(),
@@ -890,6 +923,9 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
         # without it cannot carry a marker (110/130, lever 4).
         allow_scope = (parse_allow(line)
                        if honour_markers and ALLOW_MARKER in line else None)
+        if (allow_scope and tally is not None
+                and allowmarker.names_no_rule(allow_scope, _MARKER_RULE_NAMES)):
+            tally.note_unknown_scope()
         shadows = _shadow_spans(line, disabled)
         for pat, gate, blocking in rules:
             if gate is not None and not gate(line):
@@ -919,8 +955,9 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
         # D1: the term list runs on EVERY line — the unscoped marker never
         # reaches it. The ONE exemption is a scope naming `local-term`
         # explicitly (ruled 2026-08-09): deliberate, reasoned, counted.
+        nfc_line = _nfc(line)
         for term, rx in local_terms:
-            if rx.search(line):
+            if _term_hit(rx, line, nfc_line):
                 if allow_scope is not None and "local-term" in allow_scope:
                     if tally is not None:
                         tally.note_marker("local-term")
@@ -957,10 +994,14 @@ def scan_path_name(rel: str,
 
     A path cannot carry an inline allow-marker, so the only hatch here is
     `.leakscanignore` — which callers apply before this runs, so a path already
-    exempted by a glob never reaches it."""
+    exempted by a glob never reaches it. That is now true by construction
+    (LK6, 2026-11-09): the path is scanned with `honour_markers=False`, so a
+    filename that itself spells a marker and a reason cannot exempt its own
+    findings. (The docstring said so before; the code did not do it.)"""
     return [Finding(rel, 0, f.rule, f.kind, f.severity, f.excerpt,
                     response=f.response)
-            for f in scan_text(rel, rel, local_terms, disabled, tally)]
+            for f in scan_text(rel, rel, local_terms, disabled, tally,
+                               honour_markers=False)]
 
 
 def _looks_binary(data: bytes) -> bool:
@@ -3239,6 +3280,7 @@ def _main(argv: list[str] | None = None) -> int:
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
+                "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
                 "disabled_rules": list(tally.disabled_rules),
                 "binaries_by_manifest": tally.binaries_by_manifest,

@@ -265,6 +265,43 @@ class DeferralPlacementTest(unittest.TestCase):
             "# B\n\n<!-- reviewscan:allow: review-line reason -->\n"
             "## Deferred — seeded\n"))
 
+    # 160/480 AM1: check 2 reads its marker through the shared grammar, like
+    # every other site. It used to test a raw substring, so none of these
+    # exempted for the right reason: a marker with no reason, a mention in a
+    # code span, and a marker whose reason is missing all passed the brief.
+    def test_a_deferral_marker_with_no_reason_does_not_exempt(self):
+        for marker in ("<!-- reviewscan:allow:deferral: -->",
+                       "<!-- reviewscan:allow:deferral:-->",
+                       "reviewscan:allow:deferral:"):
+            with self.subTest(marker=marker):
+                self.assertFalse(self.brief(f"# B\n\n{marker}\n## Deferred — seeded\n"))
+
+    def test_a_deferral_marker_in_a_code_span_is_a_mention(self):
+        self.assertFalse(self.brief(
+            "# B\n\nThe escape is `reviewscan:allow:deferral: <reason>`.\n"
+            "## Deferred — seeded\n"))
+
+    def test_a_deferral_marker_with_a_reason_still_exempts(self):
+        self.assertTrue(self.brief(
+            "# B\n\n<!-- reviewscan:allow:deferral: historic record -->\n"
+            "## Deferred — seeded\n"))
+        self.assertTrue(self.brief(
+            '# B\n\n<!-- reviewscan:allow:deferral: "seeded" is a quote -->\n'
+            "## Deferred — seeded\n"))
+
+    def test_a_deferral_scoped_marker_does_not_waive_check_one(self):
+        # AM4: the single-kind guard now says what its scope means. A marker
+        # written for the deferral check must not also excuse a record that
+        # states no review judgement.
+        with tempfile.TemporaryDirectory() as s:
+            f = Path(s) / "r.md"
+            f.write_text("# t\n<!-- reviewscan:allow:deferral: other check -->\n")
+            self.assertFalse(reviewscan.scan_record(f))
+            f.write_text("# t\n<!-- reviewscan:allow: whole record -->\n")
+            self.assertTrue(reviewscan.scan_record(f))
+            f.write_text("# t\n<!-- reviewscan:allow:review-line: named -->\n")
+            self.assertTrue(reviewscan.scan_record(f))
+
     def test_brief_with_no_deferred_material_passes(self):
         self.assertTrue(self.brief("# B\n\n## Scope\n\nfour lenses\n"))
 

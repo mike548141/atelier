@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0400, wt: atelier-rr-722a-w2)
-      🎯 **Rule-4 cold pass queued: the shared allow-marker grammar and ignore
+- [x] 🎯 **Rule-4 cold pass queued: the shared allow-marker grammar and ignore
       loader (`115/080` part 2).** The run authored this itself (its
       dispatched workers' output counts as the run's authorship). It was
       queued at landing, and the run neither takes it nor spawns a reviewer
@@ -53,3 +52,8 @@
             (rule 3); nothing was applied.
       💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Strict, with a warning period"* — the offered option read: count broken markers across every repo first; a malformed marker then warns for a set period (about 30 days) while items are queued in the affected repos, and after that it exempts nothing (AM2). The rest of AM1–AM13 on the reviewer's counsel. Also answers `160/110`'s LK1.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read
+      by the orchestrator before landing), per his answer: AM2 — a malformed marker
+      warns until 2026-12-09 and then exempts nothing; the count first found none
+      live across 22 repos; AM1, AM3–AM13 as counselled (AM6 by the narrower
+      option). Cold pass `160/1190`.

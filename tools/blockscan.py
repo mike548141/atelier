@@ -380,7 +380,7 @@ def _normalise(lines: list[str]) -> list[str]:
 
 
 def _has_allow(*texts: str) -> bool:
-    return any(ALLOW_MARKER_RX.search(t) for t in texts)
+    return any(allowmarker.present(ALLOW_MARKER_RX, t) for t in texts)
 
 
 # -------------------------------------------------------------- git plane --

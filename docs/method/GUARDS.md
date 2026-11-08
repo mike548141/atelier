@@ -231,6 +231,19 @@ false-positive email must not also exempt a credential on the same line. A guard
 with more than one rule therefore supports rule-scoped allowance, and an
 unscoped allowance is the deliberate whole-line case, not the default.
 
+**A marker's grammar fails closed** (Mike, 2026-11-09: *"Strict, with a warning
+period"*). A scoped marker whose scope is broken — no reason after it, a space
+or a stray character inside the scope, a trailing comma — used to be read as the
+*unscoped* form with the scope word for a reason, so it quietly exempted every
+rule on the line: wider than its author named, on every guard, both boundary
+guards included. It is now a *mention* and exempts nothing. To let a repo find
+and fix its own, the shared reader (`tools/allowmarker.py`) honours such a
+marker as before until `MALFORMED_GRACE_UNTIL` (2026-12-09) and warns about it
+on every run; from that date it exempts nothing. A marker inside an inline code
+span is likewise a mention, the safe way to document the syntax. The grammar,
+and which scope words each guard takes, are in `tools/README.md` under *Allow
+markers and ignore files*.
+
 ## Acceptance and deferment are different things
 
 One spelling covered both for most of this estate's life, which is how

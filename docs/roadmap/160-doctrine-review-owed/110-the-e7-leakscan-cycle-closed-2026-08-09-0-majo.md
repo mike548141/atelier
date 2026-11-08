@@ -1,4 +1,4 @@
-- [ ] 🎯 **The E7 leakscan cycle CLOSED 2026-08-09 (0 MAJOR); LK1–LK6 + a
+- [x] 🎯 **The E7 leakscan cycle CLOSED 2026-08-09 (0 MAJOR); LK1–LK6 + a
   G2 reach note await Mike's ruling round.** The rule-4 Fable cold pass
   (taker: a Mike-spawned session, claimed 0815 UTC) returned
   PASS-WITH-FINDINGS — 0 MAJOR / 1 MODERATE / 2 minor / 3 note; every
@@ -23,3 +23,6 @@
   § *E7 built*.
       💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Strict, with a warning period"*, put to him with `160/480` (LK1 is AM2): see that item's note.
+      ✅ **DONE 2026-11-09 — APPLIED** with `160/480`: LK1 is AM2; LK2, LK3, LK4, LK6
+      as counselled; LK5 needed nothing. The staged-plane G2 note stays **his**, the
+      reviewer having given no counsel. Cold pass `160/1190`.

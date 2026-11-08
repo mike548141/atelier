@@ -435,17 +435,20 @@ import report  # noqa: E402
 # a colon and a non-empty reason, so a bare mention of the marker text alone
 # does not silently exempt the line.
 ALLOW_MARKER = "pathscan:allow"
-ALLOW_MARKER_RX = allowmarker.marker_rx(ALLOW_MARKER, sep=allowmarker.SEP_ANY_SPACE, named_reason=False)
-
 ALLOW_SCOPE_RX = allowmarker.marker_rx(ALLOW_MARKER, scope="one", group="kind")
+
+# The one kind a marker's scope can name (160/480 AM4): this scanner has one
+# finding kind, so the line already IS the narrowest allowance and a sub-rule
+# would be ceremony rather than narrowness (`method/GUARDS.md`, rule a). The
+# unscoped form and `:missing-path:` are the same hatch; a scope naming
+# anything else keeps the whole-line reach (`allowmarker.covers`).
+FINDING_KINDS = frozenset({"missing-path"})
 
 
 def parse_allow(line: str) -> str | None:
     """The scope of the line's allow-marker, or None if it carries none.
 
-    `""` is the only scope: this scanner has one finding kind, so the line
-    already IS the narrowest allowance and a sub-rule would be ceremony
-    rather than narrowness (`method/GUARDS.md`, rule a).
+    `""` is the unscoped form; `"missing-path"` is the one kind named.
     A marker with no reason returns None — a mention, not an exemption."""
     return allowmarker.scope_of(ALLOW_SCOPE_RX, line, "kind")
 
@@ -1138,7 +1141,7 @@ def _scan_content_lines(md_file: Path, root: Path, lines, tally: "Tally | None",
                     resolved[token] = ok
             if ok:
                 continue
-            if scope is not None:
+            if allowmarker.covers(scope, "missing-path", FINDING_KINDS):
                 if tally is not None:
                     tally.note_marker("missing-path")
                 continue

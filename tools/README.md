@@ -1,7 +1,6 @@
 # tools/ — atelier's mechanical controls
 
 <!-- indexscan:maps dir=. match=*.py exclude=test_*.py -->
-<!-- indexscan:allow: allowmarker.py its catalogue entry is owed as AM5 (the shared allow-marker grammar cold pass), open on that review's checklist; this marker goes stale and is reported the day the entry lands. Added 2026-10-05 by session 5e3f68f1 (agent, queue run 200/010) -->
 
 Doctrine informs; a *check* enforces. These are the checks. Zero third-party
 dependencies — run them with the system `python3`.
@@ -1649,9 +1648,10 @@ nothing — its entry is now listed, gone, or outside every `match=` — is
 reported as `stale-allow`, so a deferment written as "entry owed by finding X"
 announces itself the day the entry lands. `.indexscanignore` exempts a file
 from being read for declarations (a fixture tree quoting the syntax raw), each
-glob with its reason. atelier's own two markers are of that deferment kind:
-the shared file-walk and allow-marker helpers have catalogue entries owed by
-two open review findings (FW2, AM5).
+glob with its reason. atelier's own markers were of that deferment kind: the
+shared file-walk and allow-marker helpers each had a catalogue entry owed by an
+open review finding (FW2, AM5), and each marker was deleted the day its entry
+landed.
 
 **The date rule (`date-mismatch`, `320/430`'s second residual).** An index
 line whose date disagrees with the file it links passes `linkscan`, because the
@@ -2132,6 +2132,78 @@ board with the earlier `FW7`).
 modes could differ on (tracked, untracked, ignored, force-added past an ignore
 rule, deleted but cached, symlinks, a nested clone, a linked worktree, skip
 names) and the expected set written out.
+
+## `allowmarker.py` — Allow markers and ignore files
+
+Not a check. The one grammar every scanner reads its exemptions with
+(`115/080`, `160/480`). Each scanner keeps its own marker word and its own
+result type; the shared module owns the mechanism, so a change to it reaches all
+of them at once and a test pins each scanner's parameters.
+The scanners import it with `filewalk.py` and `report.py`, so the unit of reuse
+is the `tools/` directory and not any one scanner file.
+
+**The marker** is `<scanner>:allow[:<scope>]: <reason>`, with a word boundary
+before `<scanner>`, a colon, then a reason that starts with a letter, digit,
+underscore or an opening quote. A marker with no reason is a mention and exempts
+nothing. The scope is optional and narrows the marker to one finding kind (a
+rule name or a word); the unscoped form exempts every kind in its unit, which is
+the deliberate whole-line case (`method/GUARDS.md`, *Granularity*).
+
+| Scanner | Unit a marker exempts | Scope it takes |
+|---|---|---|
+| `leakscan` | a line | rule names, comma-joined (`email,ipv4`); `local-term` for the term list |
+| `secretscan` | a line | one rule name (`aws-access-key-id`, `assigned`, `high-entropy`) |
+| `datescan` | a line | one kind (`non-iso-date`, `relative-time-word`, `invalid-iso-date`) |
+| `linkscan` | a line | one kind (`missing-file`, `missing-anchor`) |
+| `spellscan` | a line | the one US word the marker is for |
+| `pathscan` | a line | `missing-path`, its one kind |
+| `licenscan` | a file or declaration | a kind (`no-license`, `unknown-license`, `mismatch`, ...) |
+| `sizescan` | a file header | a kind (`cold-content`, `harvest-integrity`, `size-advisory`) |
+| `pointerscan` | a pointer or its file | a kind (`grammar`, `cycle`, `state`) |
+| `reviewscan` | a record (unscoped) or a brief (`deferral`) | `deferral` for check 2; unscoped for check 1 |
+| `indexscan` | one index entry (`date-mismatch` form) | `date-mismatch`; the bare form names the entry |
+| `conflictscan`, `wrapscan` | a line | none: text after the colon is the reason |
+| `blockscan`, `stampscan` | a block | none; the reason may start on the next line |
+
+A scope that names none of a scanner's kinds keeps the old whole-unit reach in
+`licenscan`, `sizescan`, `pointerscan`, `pathscan` and `reviewscan`, and
+exempts nothing in the rule-matching scanners (`leakscan`, `secretscan`,
+`datescan`, `linkscan`, `spellscan`). `conflictscan` and `wrapscan` read a scope as part of
+the reason, so `conflictscan:allow:foo: why` exempts the line.
+
+**Fails closed** (`160/480`, Mike 2026-11-09: *"Strict, with a warning
+period"*):
+
+- A **malformed scoped marker** is one whose first colon is followed at once by
+  a run with no space that reaches a second colon but is not a valid scope with a
+  reason: `leakscan:allow:ipv4:` (no reason), `leakscan:allow:email, ipv4: why`
+  (a space in the scope), `leakscan:allow:a,: why` (a trailing comma), a list
+  where the scanner takes one word. It used to be read as the unscoped form with
+  the scope word as the reason, which exempted every rule on the line. Before
+  `MALFORMED_GRACE_UNTIL` in `allowmarker.py` (**2026-12-09**) it still does, and
+  each run warns on stderr naming the marker. From that date it exempts nothing.
+  The date is one constant with no flag or environment variable to move it. A
+  marker with a single word and no second colon (`leakscan:allow:ipv4`) is
+  indistinguishable from an unscoped marker whose reason has no leading space and
+  is still read that way; write the space.
+- A marker **inside an inline code span** is a mention and exempts nothing, in
+  every scanner. Put the syntax in backticks to document it. A prose mention
+  outside a code span that happens to fit the grammar still counts; that residual
+  is inherent to the grammar.
+
+`python3 tools/allowmarker.py --census [--root .]` lists the malformed markers
+in a tree (file, line, marker head) and exits 0, so a repo can find its own
+before the date.
+
+**Ignore files** (`.<scanner>ignore`, `.leakscanignore` and its siblings) hold
+one glob per line, each with a reason: a trailing `# reason`, or a comment block
+directly above in its own stanza (a blank line ends it). An unreasoned glob is a
+config error and the scan exits 2. The match is Python's `fnmatch` on the
+repo-relative path, **not** gitignore: `*` also crosses `/` (`docs/*.md` matches
+`docs/sub/a.md`), `**` means the same as `*`, a leading `/` never matches, `!`
+is a literal character that negates nothing, and `g/` or a bare directory name
+`g` matches everything beneath it. A glob that can never match exempts nothing,
+silently; write each glob as a path from the repo root.
 
 ## Tests
 

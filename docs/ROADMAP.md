@@ -51,7 +51,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [E6 — the floor's posture, and the dial that makes it reachable. RULED…](roadmap/020-policy-as-code-programme-five-tracks-mik/140-e6-the-floor-s-posture-and-the-dial-that-makes.md)
 - ✅ [DONE 2026-10-18](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
 - ✅ [E9 — every scanner walks gitignored nested worktrees, and counts the…](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
-- [~] (claimed 2026-11-09-0400, wt: atelier-rr-722a-w2) [F1 — rebuild the block-vs-advise…](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md)
+- ✅ 🎯 [F1 — rebuild the block-vs-advise model from base. REBUILT 2026-08-05…](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md)
 - [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
 - [ ] [The measurement that supports it, and its limits.](roadmap/020-policy-as-code-programme-five-tracks-mik/190-the-measurement-that-supports-it-and-its-limit.md)
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
@@ -241,7 +241,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Rule-4 review queued (tier: Fable; pass type: code cold pass) — the…](roadmap/160-doctrine-review-owed/080-rule-4-review-queued-tier-fable-pass-type-code.md)
 - [ ] 🎯 [Rule-4 review queued (tier: Fable; pass type: code cold pass, the EP…](roadmap/160-doctrine-review-owed/090-rule-4-review-queued-tier-fable-pass-type-code.md)
 - [ ] 🎯 [The E6b + E3 cycle CLOSED 2026-08-09 (0 MAJOR); AB1–AB6 await Mike's…](roadmap/160-doctrine-review-owed/100-the-e6b-e3-cycle-closed-2026-08-09-0-major-ab1.md)
-- [ ] 🎯 [The E7 leakscan cycle CLOSED 2026-08-09 (0 MAJOR); LK1–LK6 + a G2…](roadmap/160-doctrine-review-owed/110-the-e7-leakscan-cycle-closed-2026-08-09-0-majo.md)
+- ✅ 🎯 [The E7 leakscan cycle CLOSED 2026-08-09 (0 MAJOR); LK1–LK6 + a G2…](roadmap/160-doctrine-review-owed/110-the-e7-leakscan-cycle-closed-2026-08-09-0-majo.md)
 - [ ] 🎯 [Glossary ratify pass (Mike)](roadmap/160-doctrine-review-owed/120-glossary-ratify-pass-mike.md)
 - [ ] [Define complex vs complicated in the glossary](roadmap/160-doctrine-review-owed/130-define-complex-vs-complicated-in-the-glossary.md)
 - [ ] [Propagate the widened apex floor to the fleet children](roadmap/160-doctrine-review-owed/140-propagate-the-widened-apex-floor-to-the-fleet.md)
@@ -279,7 +279,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [Rule-4 cold pass queued: the mandate-versus-default date rule…](roadmap/160-doctrine-review-owed/450-rule-4-cold-pass-queued-the-date-kind-rule.md)
 - [ ] [Rule-4 cold pass queued: ccarchive's manifest checkpoints and…](roadmap/160-doctrine-review-owed/460-rule-4-cold-pass-queued-the-manifest-checkpoints.md)
 - [ ] 🎯 [Rule-4 cold pass queued: publishscan's round-2 denylist (260/040).](roadmap/160-doctrine-review-owed/470-rule-4-cold-pass-queued-publishscan-round-2.md)
-- [~] (claimed 2026-11-09-0400, wt: atelier-rr-722a-w2) [Rule-4 cold pass queued: the…](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
+- ✅ 🎯 [Rule-4 cold pass queued: the shared allow-marker grammar and ignore…](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
 - [ ] 🎯 [Rule-4 cold pass queued: pathscan's brace expansion and inline ./…](roadmap/160-doctrine-review-owed/490-rule-4-cold-pass-queued-pathscan-brace-expansion.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the expected toolbox and its install rule…](roadmap/160-doctrine-review-owed/500-rule-4-cold-pass-queued-the-expected-toolbox.md)
 - [ ] [Rule-4 cold pass queued: ccarchive's heal pulled (210/170, MC1).](roadmap/160-doctrine-review-owed/510-rule-4-cold-pass-queued-the-heal-pulled.md)
@@ -364,6 +364,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: seven propagation additions the principal…](roadmap/160-doctrine-review-owed/1160-rule-4-cold-pass-queued-propagation-doctrine-batch.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose --identifiers credits on evidence…](roadmap/160-doctrine-review-owed/1170-rule-4-cold-pass-queued-identifiers-on-evidence-and-the-same-item-stop.md)
 - [ ] ⏳ [Rule-4 cold pass queued: held-back review notes leave the shared…](roadmap/160-doctrine-review-owed/1180-rule-4-cold-pass-queued-review-notes-date-kind-and-visibility.md)
+- [ ] ⏳ [Rule-4 cold pass queued: a malformed allow-marker goes strict after a…](roadmap/160-doctrine-review-owed/1190-rule-4-cold-pass-queued-strict-markers-and-lowering.md)
 
 ## build/ layer — open strands
 
@@ -648,6 +649,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
 - [ ] [Turn conflictscan's tool-markup rule from advisory to blocking once…](roadmap/320-child-filed-findings-via-pointing-up/780-the-tool-markup-advisory-goes-blocking-once-the-estate-is-clean.md)
 - ✅ [Hand-up: secretscan flags every body line of a PEM public…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
+- [ ] 🔎 [A floor disabled entry carries a reason but no end date, so it cannot…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 

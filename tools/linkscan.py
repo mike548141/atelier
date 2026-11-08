@@ -112,6 +112,10 @@ class Tally:
     files_by_glob: int = 0
     # 110/120 — see MAX_MATERIALIZED_FINDINGS.
     findings_over_cap: int = 0
+    # 160/480 AM10: allow-markers whose scope names a rule that does not
+    # exist, which are silently inert (the finding they were written for still
+    # reports). Counted so a typo is visible on a clean run too.
+    unknown_scope_markers: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
@@ -131,6 +135,9 @@ class Tally:
     def note_marker(self, rule: str) -> None:
         self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
 
+    def note_unknown_scope(self) -> None:
+        self.unknown_scope_markers += 1
+
     def summary(self) -> str:
         """One stable line, known zeros printed, so two runs compare. The
         over-cap count prints every run, 0 included, exactly as leakscan,
@@ -138,7 +145,8 @@ class Tally:
         return report.suppressed_line(
             [f"{self.marker_total} by allow-marker",
              f"{self.files_by_glob} file(s) by .linkscanignore",
-             report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS)],
+             report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS),
+             f"{self.unknown_scope_markers} marker(s) naming no rule"],
             breakdown=self.by_marker)
 
 
@@ -483,8 +491,12 @@ def _strip_inline_code(line: str) -> str:
 _ALLOW_PRUNE_AT = 64
 
 
+# What a marker's scope may name (160/480 AM10).
+FINDING_KINDS = frozenset({"missing-file", "missing-anchor", "outside-root"})
+
+
 def _iter_links_from_lines(lines, allow_by_line: dict[int, str] | None = None,
-                           prune_allow: bool = False):
+                           prune_allow: bool = False, on_marker=None):
     """Shared engine behind `iter_links` (in-memory text) and
     `iter_links_from_path` (streaming, real files — 020/380). `lines` is any
     iterable of (lineno, line) already filtered to exclude fenced code.
@@ -495,6 +507,8 @@ def _iter_links_from_lines(lines, allow_by_line: dict[int, str] | None = None,
     belongs."""
     for lineno, line in lines:
         scope = parse_allow(line)
+        if on_marker is not None and scope:
+            on_marker(scope)
         if scope is not None and allow_by_line is not None:
             if prune_allow and len(allow_by_line) >= _ALLOW_PRUNE_AT:
                 for k in [k for k in allow_by_line if k < lineno]:
@@ -530,12 +544,12 @@ def iter_links(text: str, allow_by_line: dict[int, str] | None = None):
 
 
 def iter_links_from_path(path: Path, allow_by_line: dict[int, str] | None = None,
-                         prune_allow: bool = False):
+                         prune_allow: bool = False, on_marker=None):
     """Streaming sibling of `iter_links`, for real files on disk — peak
     memory bounded by `_iter_file_content_lines` regardless of the file's
     size (020/380)."""
     yield from _iter_links_from_lines(_iter_file_content_lines(path), allow_by_line,
-                                      prune_allow)
+                                      prune_allow, on_marker)
 
 
 def is_external(dest: str) -> bool:
@@ -801,8 +815,13 @@ def check_file(md_file: Path, root: Path,
             return
         findings.append(f)
 
+    def on_marker(scope: str) -> None:
+        if tally is not None and allowmarker.names_no_rule(scope, FINDING_KINDS):
+            tally.note_unknown_scope()
+
     for lineno, dest in iter_links_from_path(md_file, allow_by_line,
-                                             prune_allow=True):
+                                             prune_allow=True,
+                                             on_marker=on_marker):
         if not dest or is_external(dest):
             continue
         path, anchor = split_target(dest)
@@ -977,6 +996,7 @@ def _main(argv: list[str] | None = None) -> int:
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
+                "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
         }

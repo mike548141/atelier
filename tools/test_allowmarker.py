@@ -10,19 +10,49 @@ compiles the exact pattern it carried before is the guard against the
 marker reads exactly like an absent one, so only a pattern pin catches it.
 """
 
+import contextlib
+import datetime
 import importlib
+import io
+import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import allowmarker as am  # noqa: E402
 
 M = "demoscan:allow"
 
+# Two dates either side of the malformed-marker grace. Every test that depends
+# on which side of it a run falls pins the clock, so the suite reads the same
+# on 2026-11-09 and on 2027-01-01.
+DURING = datetime.date(2026, 11, 9)
+AFTER = am.MALFORMED_GRACE_UNTIL
+
+
+def at(day):
+    """Run the body with allowmarker's clock at `day` and its warnings muted
+    and forgotten, so tests neither leak nor depend on each other's."""
+    stack = contextlib.ExitStack()
+    stack.enter_context(mock.patch.object(am, "_utc_today", return_value=day))
+    stack.enter_context(mock.patch.object(am, "_WARNED", set()))
+    stack.enter_context(contextlib.redirect_stderr(io.StringIO()))
+    return stack
+
 
 class TestMarkerGrammar(unittest.TestCase):
+    """The grammar as it reads DURING the malformed-marker grace: a broken
+    scoped marker still reads as the unscoped form (and warns). The strict
+    read, after the date, is `TestMalformedMarkers`."""
+
+    def setUp(self):
+        stack = at(DURING)
+        stack.__enter__()
+        self.addCleanup(stack.__exit__, None, None, None)
+
     def test_unscoped_same_line_named_reason(self):
         rx = am.marker_rx(M)
         self.assertTrue(am.present(rx, f"x <!-- {M}: because -->"))
@@ -72,11 +102,17 @@ class TestMarkerGrammar(unittest.TestCase):
         # and the whole tail is read as the (unscoped) reason.
         self.assertEqual(am.scope_of(rx, f"{M}:a,b: why"), "")
 
-    def test_single_scope_group_name_is_parameter(self):
+    def test_scope_group_name_is_single_sourced(self):
+        # AM8: the pattern remembers the group it was built with, so a reader
+        # can neither ask for another (the old IndexError mid-scan) nor drift
+        # from it. A stale group argument is ignored.
         rx = am.marker_rx(M, scope="one", group="rule")
+        self.assertEqual(am.scope_of(rx, f"{M}:r1: why"), "r1")
         self.assertEqual(am.scope_of(rx, f"{M}:r1: why", "rule"), "r1")
-        with self.assertRaises(IndexError):
-            am.scope_of(rx, f"{M}:r1: why", "kind")
+        self.assertEqual(am.scope_of(rx, f"{M}:r1: why", "kind"), "r1")
+        rx = am.marker_rx(M, scope="list", group="kind")
+        self.assertEqual(am.scopes_of(rx, f"{M}:a,b: why"), frozenset({"a", "b"}))
+        self.assertEqual(am.scopes_of(rx, f"{M}:a: why", "rule"), frozenset({"a"}))
 
     def test_list_scope(self):
         rx = am.marker_rx(M, scope="list", group="rule")
@@ -110,10 +146,8 @@ _PIN = {
     "indexscan": {"ALLOW_RX": r"\bindexscan:allow(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>" + _REASON + ")"},
     "wrapscan": {"ALLOW_RX": r"\bwrapscan:allow:[ \t]*(?P<reason>" + _REASON + ")"},
     "datescan": {
-        "ALLOW_MARKER_RX": r"\bdatescan:allow:\s*" + _REASON,
         "ALLOW_SCOPE_RX": r"\bdatescan:allow(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>" + _REASON + ")"},
     "pathscan": {
-        "ALLOW_MARKER_RX": r"\bpathscan:allow:\s*" + _REASON,
         "ALLOW_SCOPE_RX": r"\bpathscan:allow(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>" + _REASON + ")"},
     "stampscan": {"ALLOW_MARKER_RX": r"\bstampscan:allow:\s*" + _REASON},
     "leakscan": {"ALLOW_RX": r"\bleakscan:allow(?::(?P<rule>[A-Za-z0-9_-]+(?:,[A-Za-z0-9_-]+)*))?:[ \t]*(?P<reason>"
@@ -142,7 +176,8 @@ class TestScannerParametersPinned(unittest.TestCase):
     def test_pins_cover_every_scanner_that_imports_the_module(self):
         tools = Path(__file__).resolve().parent
         importers = {p.stem for p in tools.glob("*scan.py")
-                     if "import allowmarker" in p.read_text(encoding="utf-8")}
+                     if not p.name.startswith("test_")
+                     and "import allowmarker" in p.read_text(encoding="utf-8")}
         self.assertEqual(importers, set(_PIN))
 
     def test_scoped_parsers_keep_their_result_types(self):
@@ -234,12 +269,285 @@ class TestIgnoreFile(unittest.TestCase):
                               (7, "c.png", None), (9, "d.png", "")])
             self.assertEqual(am.read_reasoned_lines(Path(td) / "absent"), [])
 
+    def test_a_glob_with_control_or_bidi_characters_is_not_echoed_raw(self):
+        # 160/480 AM9: the error echoes the glob; through any scanner's `main`
+        # the message passes report.broken, which drops C0/C1 controls and the
+        # bidi override/isolate set (160/730 RT3). Pinned here for the loader.
+        hostile = "docs/\u202egnp.md\x1b[2J"
+        with tempfile.TemporaryDirectory() as td:
+            Path(td, ".leakscanignore").write_text(hostile + "\n", encoding="utf-8")
+            r = subprocess.run([sys.executable, "-I", str(Path(am.__file__).parent / "leakscan.py"),
+                                "--root", td, td], capture_output=True, text=True)
+        self.assertEqual(2, r.returncode, r.stdout + r.stderr)
+        self.assertIn("no stated reason", r.stderr)
+        for bad in ("\u202e", "\x1b"):
+            self.assertNotIn(bad, r.stderr)
+
     def test_ignored_matches_glob_or_directory_prefix(self):
         self.assertTrue(am.ignored("docs/a.md", ["docs/*.md"]))
         self.assertTrue(am.ignored("docs/sub/a.md", ["docs/"]))
         self.assertTrue(am.ignored("docs/sub/a.md", ["docs"]))
         self.assertFalse(am.ignored("other/a.md", ["docs/"]))
         self.assertFalse(am.ignored("a.md", []))
+
+    def test_fnmatch_semantics_are_not_gitignores(self):
+        # 160/480 AM6: the ignore files call themselves "gitignore-style"; they
+        # are not. Pinned as the stated behaviour, so a change is deliberate.
+        self.assertTrue(am.ignored("docs/sub/a.md", ["docs/*.md"]))   # * crosses /
+        self.assertFalse(am.ignored("docs/a.md", ["/docs/a.md"]))     # leading / never matches
+        self.assertFalse(am.ignored("a.md", ["!a.md"]))               # ! is a literal
+        self.assertFalse(am.ignored("x.md", ["**/x.md"]))             # no top-level match
+        self.assertTrue(am.ignored("docs/x.md", ["**/x.md"]))
+
+
+class TestMalformedMarkers(unittest.TestCase):
+    """160/480 AM2 (and LK1, the same finding): a scoped marker whose scope is
+    broken used to back off to the unscoped form and exempt every rule on its
+    line. Mike, 2026-11-09: "Strict, with a warning period". Before
+    `MALFORMED_GRACE_UNTIL` it still exempts and warns; from it, nothing."""
+
+    ONE = am.marker_rx(M, scope="one", group="kind")
+    LIST = am.marker_rx(M, scope="list", group="rule")
+    # Each is a scoped marker that failed to parse as one.
+    BROKEN = (
+        f"{M}:ipv4:",                      # scope, no reason
+        f"{M}:ipv4: ",                     # scope, blank reason
+        f"x <!-- {M}:ipv4: -->",           # scope, comment closer for a reason
+        f"{M}:email, ipv4: why",           # a space inside the scope
+        f"{M}:a,: why",                    # a trailing comma
+        f"{M}:e.mail: why",                # a stray character in the scope
+    )
+    # Each is a marker that parses as intended and must never be flagged.
+    FINE = (
+        f"{M}:ipv4: why",
+        f"{M}: why",
+        f"{M}: why: more",                 # a colon inside the reason
+        f"{M}: see ADR 0005: public",
+        f"{M}:ipv4: why: more",
+    )
+
+    def test_during_the_grace_a_broken_marker_still_exempts_and_warns(self):
+        for text in self.BROKEN:
+            with self.subTest(text=text), at(DURING):
+                err = io.StringIO()
+                with contextlib.redirect_stderr(err):
+                    got = am.scope_of(self.ONE, text)
+                self.assertIn(got, ("",), text)      # the old whole-unit read
+                self.assertIn("malformed allow-marker", err.getvalue())
+                self.assertIn(am.MALFORMED_GRACE_UNTIL.isoformat(), err.getvalue())
+
+    def test_after_the_grace_a_broken_marker_exempts_nothing(self):
+        for text in self.BROKEN:
+            with self.subTest(text=text), at(AFTER):
+                self.assertIsNone(am.scope_of(self.ONE, text))
+                self.assertIsNone(am.scopes_of(self.LIST, text))
+
+    def test_the_grace_ends_on_the_date_itself(self):
+        with at(AFTER - datetime.timedelta(days=1)):
+            self.assertTrue(am.in_malformed_grace())
+            self.assertEqual("", am.scope_of(self.ONE, f"{M}:ipv4:"))
+        with at(AFTER):
+            self.assertFalse(am.in_malformed_grace())
+            self.assertIsNone(am.scope_of(self.ONE, f"{M}:ipv4:"))
+        self.assertEqual(AFTER, datetime.date(2026, 12, 9))
+
+    def test_a_well_formed_marker_is_never_flagged_on_either_side(self):
+        for day in (DURING, AFTER):
+            for text in self.FINE:
+                with self.subTest(day=day, text=text), at(day):
+                    err = io.StringIO()
+                    with contextlib.redirect_stderr(err):
+                        self.assertIsNotNone(am.scope_of(self.ONE, text), text)
+                        self.assertIsNotNone(am.scopes_of(self.LIST, text), text)
+                    self.assertEqual("", err.getvalue(), text)
+
+    def test_scopes_are_read_as_written_on_either_side(self):
+        for day in (DURING, AFTER):
+            with at(day):
+                self.assertEqual("ipv4", am.scope_of(self.ONE, f"{M}:ipv4: why"))
+                self.assertEqual(frozenset({"a", "b"}),
+                                 am.scopes_of(self.LIST, f"{M}:a,b: why"))
+                self.assertEqual("", am.scope_of(self.ONE, f"{M}: why"))
+
+    def test_a_comma_list_is_malformed_for_a_single_scope_scanner(self):
+        with at(AFTER):
+            self.assertIsNone(am.scope_of(self.ONE, f"{M}:a,b: why"))
+            self.assertEqual(frozenset({"a", "b"}),
+                             am.scopes_of(self.LIST, f"{M}:a,b: why"))
+
+    def test_after_the_grace_a_later_well_formed_marker_still_counts(self):
+        text = f"{M}:ipv4: <!-- {M}:email: real reason -->"
+        with at(AFTER):
+            self.assertEqual("email", am.scope_of(self.ONE, text.replace(
+                f"{M}:ipv4: <", f"{M}:ipv4:; <")))   # first is broken, second counts
+
+    def test_the_warning_is_printed_once_per_distinct_marker(self):
+        with at(DURING):
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                for _ in range(3):
+                    am.scope_of(self.ONE, f"{M}:ipv4:")
+                am.scope_of(self.ONE, f"{M}:email:")
+            self.assertEqual(2, err.getvalue().count("malformed allow-marker"))
+            self.assertEqual([f"{M}:email:", f"{M}:ipv4:"], am.malformed_seen())
+
+    def test_an_unscoped_pattern_has_no_malformed_notion(self):
+        # conflictscan / wrapscan read the text after the colon as the reason.
+        rx = am.marker_rx(M)
+        with at(AFTER):
+            self.assertTrue(am.present(rx, f"{M}:ipv4:"[:-1] + ": why"))
+            self.assertTrue(am.present(rx, f"{M}:foo: why"))
+
+    def test_a_bare_scope_word_with_no_second_colon_is_unchanged(self):
+        # The one shape this cannot tell from `m:allow:reason` (a reason with no
+        # leading space); named in the README, not silently changed.
+        with at(AFTER):
+            self.assertEqual("", am.scope_of(self.ONE, f"{M}:relative-time"))
+
+    def test_the_cut_off_is_a_constant_with_no_override(self):
+        src = (Path(am.__file__)).read_text(encoding="utf-8")
+        self.assertFalse("os.environ" in src or "getenv(" in src or "argv" in
+                         src.split("def census")[0])
+
+
+class TestCodeSpans(unittest.TestCase):
+    """160/480 AM3: a mention of the syntax inside an inline code span is not a
+    marker. stampscan alone did this before; now every reader does."""
+
+    ONE = am.marker_rx(M, scope="one", group="kind")
+    LIST = am.marker_rx(M, scope="list", group="rule")
+    UNSCOPED = am.marker_rx(M)
+    ANYSPACE = am.marker_rx(M, sep=am.SEP_ANY_SPACE, named_reason=False)
+
+    def test_blanking_keeps_length_and_leaves_plain_text(self):
+        for text in ("no ticks", f"`{M}: why`", f"a `b` c ``d`e`` f", "x ` unmatched",
+                     "line one\n`two`\nthree\n"):
+            self.assertEqual(len(text), len(am.blank_code_spans(text)), text)
+        self.assertEqual("no ticks", am.blank_code_spans("no ticks"))
+        self.assertEqual("x ` unmatched", am.blank_code_spans("x ` unmatched"))
+        self.assertEqual("a" + " " * 5 + "c", am.blank_code_spans("a `b` c"))
+        self.assertEqual("a" + " " * 9 + "f", am.blank_code_spans("a ``d`e`` f"))
+
+    def test_a_mention_in_a_code_span_exempts_nothing_in_every_reader(self):
+        with at(DURING):
+            text = f"the line `{M}:ipv4: because`"
+            self.assertIsNone(am.scope_of(self.ONE, text))
+            self.assertIsNone(am.scopes_of(self.LIST, text))
+            self.assertFalse(am.present(self.UNSCOPED, text))
+            self.assertFalse(am.present(self.ANYSPACE, text))
+
+    def test_a_marker_outside_the_span_still_counts(self):
+        with at(DURING):
+            text = f"the line `code` <!-- {M}:ipv4: because -->"
+            self.assertEqual("ipv4", am.scope_of(self.ONE, text))
+            self.assertEqual(frozenset({"ipv4"}), am.scopes_of(self.LIST, text))
+            self.assertTrue(am.present(self.UNSCOPED, text))
+
+    def test_an_unmatched_backtick_hides_nothing(self):
+        with at(DURING):
+            self.assertEqual("", am.scope_of(self.ONE, f"it`s <!-- {M}: because -->"))
+
+    def test_a_multiline_text_is_blanked_line_by_line(self):
+        with at(DURING):
+            self.assertFalse(am.present(self.ANYSPACE, f"`{M}: why`\nnext line"))
+            self.assertTrue(am.present(self.ANYSPACE, f"`x`\n{M}:\nwhy"))
+            # A line is the unit: a span that would cross a newline is not one.
+            self.assertTrue(am.present(self.ANYSPACE, f"`{M}:\nwhy`"))
+
+
+class TestUnknownScopeTally(unittest.TestCase):
+    """160/480 AM10: a scope naming no rule is silently inert in the
+    rule-matching scanners (the finding it was written for still reports), so
+    the suppression tally counts it and a typo shows even on a clean run."""
+
+    def test_the_helper(self):
+        known = {"email", "Ipv4"}
+        self.assertFalse(am.names_no_rule(None, known))
+        self.assertFalse(am.names_no_rule("", known))
+        self.assertFalse(am.names_no_rule(frozenset(), known))
+        self.assertFalse(am.names_no_rule("email", known))
+        self.assertFalse(am.names_no_rule("IPV4", known))
+        self.assertTrue(am.names_no_rule("emial", known))
+        self.assertTrue(am.names_no_rule(frozenset({"email", "emial"}), known))
+
+    def test_each_rule_matching_scanner_counts_a_typo_and_not_a_real_scope(self):
+        import datescan, leakscan, linkscan, secretscan, spellscan
+        cases = (
+            ("leakscan", lambda t, tally: leakscan.scan_text("t", t, [], frozenset(), tally),
+             "x  # leakscan:allow:ipv44: typo", "x  # leakscan:allow:ipv4: real"),
+            ("secretscan", lambda t, tally: secretscan.scan_text("t", t, frozenset(), tally),
+             "x  # secretscan:allow:not-a-rule: typo", "x  # secretscan:allow:assigned: real"),
+            ("spellscan", lambda t, tally: spellscan.scan_text("t", t, tally),
+             "color <!-- spellscan:allow:colour: typo -->", "color <!-- spellscan:allow:color: real -->"),
+            ("datescan", lambda t, tally: datescan.scan_text("t", t, tally),
+             "today <!-- datescan:allow:relative-time: typo -->",
+             "today <!-- datescan:allow:relative-time-word: real -->"),
+        )
+        for name, run, typo, real in cases:
+            mod = importlib.import_module(name)
+            with self.subTest(scanner=name):
+                t = mod.Tally()
+                run(typo, t)
+                self.assertEqual(1, t.unknown_scope_markers)
+                self.assertIn("1 marker(s) naming no rule", t.summary())
+                t = mod.Tally()
+                run(real, t)
+                self.assertEqual(0, t.unknown_scope_markers)
+                self.assertIn("0 marker(s) naming no rule", t.summary())
+                t = mod.Tally()
+                run("plain line", t)
+                self.assertEqual(0, t.unknown_scope_markers)
+
+    def test_linkscan_counts_a_typo(self):
+        import linkscan
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "a.md").write_text(
+                "[x](ghost.md) <!-- linkscan:allow:missing-fil: typo -->\n"
+                "[y](ghost2.md) <!-- linkscan:allow:missing-file: real -->\n",
+                encoding="utf-8")
+            t = linkscan.Tally()
+            linkscan.scan_paths([root], root, t)
+        self.assertEqual(1, t.unknown_scope_markers)
+        self.assertIn("1 marker(s) naming no rule", t.summary())
+
+    def test_the_json_surface_carries_it(self):
+        with tempfile.TemporaryDirectory() as td:
+            Path(td, "a.md").write_text("color <!-- spellscan:allow:colour: typo -->\n",
+                                        encoding="utf-8")
+            r = subprocess.run([sys.executable, "-I", str(Path(am.__file__).parent / "spellscan.py"),
+                                "--json", "--root", td, td], capture_output=True, text=True)
+        import json
+        self.assertEqual(1, json.loads(r.stdout)["suppressed"]["markers_naming_no_rule"], r.stderr)
+
+
+class TestCensus(unittest.TestCase):
+    def test_census_lists_malformed_markers_and_skips_good_ones_and_code(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "a.md").write_text(
+                "ok <!-- leakscan:allow:ipv4: because -->\n"
+                "bad <!-- leakscan:allow:ipv4: -->\n"
+                "bad2 leakscan:allow:email, ipv4: why\n"
+                "doc `leakscan:allow:ipv4:` in code\n"
+                "plain leakscan:allow: reason\n"
+                "list leakscan:allow:email,ipv4: ok\n"
+                "one secretscan:allow:a,b: a list for a one-scope scanner\n",
+                encoding="utf-8")
+            rows = am.census(root)
+            self.assertEqual([("a.md", 2, "leakscan:allow:ipv4:"),
+                              ("a.md", 3, "leakscan:allow:email, ipv4:"),
+                              ("a.md", 7, "secretscan:allow:a,b:")], rows)
+
+    def test_the_cli_reports_and_exits_zero(self):
+        with tempfile.TemporaryDirectory() as td:
+            Path(td, "a.md").write_text("x leakscan:allow:ipv4:\n", encoding="utf-8")
+            r = subprocess.run([sys.executable, "-I", str(Path(am.__file__)),
+                                "--census", "--root", td],
+                               capture_output=True, text=True)
+            self.assertEqual(0, r.returncode, r.stderr)
+            self.assertIn("a.md:1: leakscan:allow:ipv4:", r.stdout)
+            self.assertIn("1 malformed scoped marker", r.stdout)
 
 
 class TestCovers(unittest.TestCase):

@@ -24,6 +24,11 @@
 # plural unmatched is the failure mode, not a false positive. 'regex:' terms
 # are operator-authored verbatim and are NEVER touched by this.
 #
+# MACRONS — always on. A plain or 'forms:' term is compared in Unicode NFC, and
+# so is each scanned line, so a name typed with a single macron character
+# matches the same name typed as a letter plus a combining macron (and the
+# reverse). 'regex:' terms are tried against the line as written AND in NFC.
+#
 # DERIVED FORMS ('forms:') — opt in, per term.
 #
 # A plain literal matches the canonical spelling and nothing else. Names do not
@@ -33,9 +38,10 @@
 # them passed clean.
 #
 # 'forms:' closes that. It matches the term's words joined by ANY run of
-# whitespace, dots, underscores or hyphens — INCLUDING none at all — so one
-# entry covers the slug, snake, dotted, camel-case, run-together and
-# double-spaced spellings at once. Word boundaries still apply at both ends.
+# whitespace, dots, underscores, hyphens, slashes or plus signs — INCLUDING none
+# at all — so one entry covers the slug, snake, dotted, camel-case, run-together,
+# double-spaced, path-split (jane/q/public) and email-tagged (jane+q+public)
+# spellings at once. Word boundaries still apply at both ends.
 #
 #   forms:Jane Q Public
 #     matches   jane-q-public · jane_q_public · jane.q.public · janeQPublic

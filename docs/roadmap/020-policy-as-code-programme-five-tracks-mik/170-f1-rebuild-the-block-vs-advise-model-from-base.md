@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0400, wt: atelier-rr-722a-w2)
-      🎯 **F1 — rebuild the block-vs-advise model from base. REBUILT
+- [x] 🎯 **F1 — rebuild the block-vs-advise model from base. REBUILT
       2026-08-05 as [`method/GUARDS.md`](../../method/GUARDS.md); STAYS OPEN until
       the two rulings below are Mike's** (the P6 precedent — the work is
       delivered, the ruling is what remains owed), picked up under
@@ -120,3 +119,8 @@
       boundary with its corpus, not this entry.
   - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Allow if declared + expiring"* — the offered option read: a repo may lower a check's response only with a written reason and an end date, visible in the fleet view; the new model replaces E6d(i)'s "never lower" wording.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+        read by the orchestrator before landing): `GUARDS.md` § *Provenance, not
+        direction* carries the rule, E6d(i) is marked superseded. Follow-ups, not
+        built: a floor `disabled` entry has no end date; whether `scope` or
+        `flags` narrowing counts as lowering. Cold pass `160/1190`.

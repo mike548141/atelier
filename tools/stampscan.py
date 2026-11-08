@@ -600,7 +600,7 @@ def _find_stamp_blocks_from_lines(
                 "region": m_begin.group("region"),
                 "narrow": _narrow_of(m_begin),
                 "payload": [],
-                "allow": bool(ALLOW_MARKER_RX.search(scan_line)),
+                "allow": allowmarker.present(ALLOW_MARKER_RX, scan_line),
             }
             continue
 
@@ -618,7 +618,7 @@ def _find_stamp_blocks_from_lines(
             continue
 
         if open_stamp is not None:
-            if ALLOW_MARKER_RX.search(scan_line):
+            if allowmarker.present(ALLOW_MARKER_RX, scan_line):
                 open_stamp["allow"] = True
             open_stamp["payload"].append(raw_line)
 

@@ -102,6 +102,44 @@ item's state line; the under-credit forms) are written into `ccclose.design.md`
 §15.1, the man page, the README and `RECORD.md`. The JSON gains fields and
 changes no existing meaning; the credited lists are the stricter ones.
 
+### Changed (2026-11-09 — the shared allow-marker grammar fails closed; the E7 leakscan counsel applied, `160/480` and `160/110`)
+Mike answered *"Strict, with a warning period"* (2026-11-09; his word, picked
+from options). The reviewers' other counsel is applied as written; the shared
+reader in `tools/allowmarker.py` carries most of it, so one edit reaches every
+scanner.
+- **A malformed scoped marker exempts nothing from 2026-12-09 (AM2, and LK1,
+  which is the same finding).** `leakscan:allow:ipv4:` with no reason, a space
+  inside a composed scope, a trailing comma, a scope the scanner cannot take:
+  each used to be read as the unscoped form with the scope word for a reason,
+  and exempted every rule on its line, both boundary guards included. Until
+  `MALFORMED_GRACE_UNTIL` (a dated constant, no flag or variable moves it) it
+  still does and every run warns on stderr; from the date it is a mention.
+  `python3 tools/allowmarker.py --census` lists them. A census of every repo
+  with a floor found no live malformed marker, only documentation mentions.
+- **A marker inside an inline code span is a mention (AM3).** Every reader
+  blanks code spans first; only `stampscan` did before.
+- **`reviewscan`'s deferral waiver reads the shared grammar (AM1)**: it was a
+  raw substring with no reason, the one hatch the extraction missed. A
+  `deferral`-scoped marker no longer also waives check 1 (AM4); `pathscan`
+  declares its one kind.
+- **A marker naming no rule is counted (AM10)** in `leakscan`, `secretscan`,
+  `datescan`, `linkscan` and `spellscan`: `N marker(s) naming no rule` on the
+  suppression line and `markers_naming_no_rule` in the JSON.
+- **Cleanups.** The scope group is single-sourced, so a reader cannot ask for
+  one the pattern lacks (AM8); the two dead `ALLOW_MARKER_RX` constants and the
+  stale comment above one are gone (AM7, AM12); the ignore-file headers say
+  `fnmatch`, not gitignore (AM6, pinned); the grammar, a scanner by scope table
+  and the unit of reuse are in `tools/README.md` § *Allow markers and ignore
+  files* (AM5, AM13), and the review-brief skill says to check the review
+  worktree carries the subject (AM11). AM9 was already closed by `160/730`'s
+  control-character stripping and is now pinned.
+- **`leakscan`: LK2** plain and `forms:` terms are compared in Unicode NFC, and
+  each line is tried as written and in NFC. **LK3** the derived-form separator
+  takes `/` and `+`. **LK6** the path plane no longer honours a marker spelt in
+  a filename. **LK4** the staged-path tests skip outside a git work tree. LK5
+  was a note for operators and needed no change. The staged-plane reach note
+  stays with the principal.
+
 ### Added (2026-11-08 — five session-and-ask doctrine additions)
 Mike approved the recommendation on each item on 2026-11-09 (his date) as a pick from
 options a session offered (an answer, not a ruling in his words). Doctrine

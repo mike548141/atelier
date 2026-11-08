@@ -152,6 +152,11 @@ FENCE = re.compile(r"^\s*(```|~~~)")
 DEFERRED_HEADING = re.compile(r"^#{1,6}\s.*\b(deferred|seeded)\b",
                               re.IGNORECASE)
 
+# The two things a marker's scope can name (160/480 AM4). `deferral` waives
+# check 2 alone; the unscoped form waives check 1 alone (and, as for every
+# scanner, a scope naming neither keeps the old whole-unit reach, `covers`).
+FINDING_KINDS = frozenset({"review-line", "deferral"})
+
 # Check 2's exemption is SCOPED: an unscoped `reviewscan:allow:` placed for a
 # review-line reason must not silently waive the deferral guard too (DF3).
 DEFERRAL_ALLOW = "reviewscan:allow:deferral:"
@@ -246,7 +251,7 @@ def scan_record(path: Path, suppressed: list[int] | None = None,
     in_fence = False
     for line, is_first in (lines if lines is not None
                            else _iter_file_lines(path)):
-        if parse_allow(line) is not None:
+        if allowmarker.covers(parse_allow(line), "review-line", FINDING_KINDS):
             if suppressed is not None:
                 suppressed.append(1)
             return True
@@ -273,7 +278,7 @@ def scan_brief(path: Path, lines=None) -> bool:
     has_deferred = has_verdict = False
     for line, is_first in (lines if lines is not None
                            else _iter_file_lines(path)):
-        if DEFERRAL_ALLOW in line:
+        if parse_allow(line) == "deferral":
             return True
         if not is_first:
             continue

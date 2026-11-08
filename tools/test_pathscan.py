@@ -912,6 +912,11 @@ class Allowances(unittest.TestCase):
     def test_html_comment_close_is_not_a_reason(self):
         self.assertIsNone(ps.parse_allow("x <!-- pathscan:allow: -->"))
         self.assertEqual("", ps.parse_allow("x <!-- pathscan:allow: real reason -->"))
+        # 160/480 AM4: the one kind is named; a code-span mention is no marker.
+        self.assertEqual("missing-path",
+                         ps.parse_allow("x <!-- pathscan:allow:missing-path: why -->"))
+        self.assertIsNone(ps.parse_allow("see `<!-- pathscan:allow: why -->` here"))
+        self.assertEqual(frozenset({"missing-path"}), ps.FINDING_KINDS)
 
     def test_bare_marker_without_reason_is_not_an_allowance(self):
         self.assertIsNone(ps.parse_allow("x <!-- pathscan:allow -->"))

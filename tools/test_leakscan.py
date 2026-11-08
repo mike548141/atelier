@@ -1,6 +1,7 @@
 """Stdlib-only tests for leakscan (no pytest needed): `python3 -m unittest`."""
 
 import contextlib
+import datetime
 import io
 import json
 import os
@@ -15,6 +16,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
+import allowmarker
 import leakscan as ls
 import memprobe
 import test_support_regex as rxsupport
@@ -603,6 +605,16 @@ class StagedAbsolutePathTest(unittest.TestCase):
     Found for real on 2026-07-25: tools/floor.py's first draft rendered absolute
     paths on the staged plane and every boundary check passed green.
     """
+
+    @classmethod
+    def setUpClass(cls):
+        # LK4: when the tree is not a git work tree (a source export), leakscan's
+        # `git diff` fails first (exit 129, "git diff failed"), so these two
+        # tests would fail on their message text and not on what they assert.
+        r = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "--git-dir"],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            raise unittest.SkipTest("not inside a git work tree")
 
     def _run(self, *args):
         import subprocess, sys
@@ -1236,6 +1248,145 @@ class PathScanning(unittest.TestCase):
         # is still reported on its own, at line 0.
         self.assertEqual(["ipv4"], [f.rule for f in fs if f.kind != "binary"])
         self.assertEqual(["binary-unlisted"], [f.rule for f in fs if f.kind == "binary"])
+
+
+class MalformedScopedMarkers(unittest.TestCase):
+    """160/480 AM2 and 160/110 LK1 (the same finding): a scoped marker with a
+    broken scope used to back off to the unscoped form and exempt EVERY
+    structural rule on its line, including a second leak the author never
+    named. Mike, 2026-11-09: "Strict, with a warning period". The term list was
+    never reachable by an unscoped marker (D1) and still is not."""
+
+    # A line carrying two structural leaks, so a marker that exempts too much
+    # is visible: an IPv4 address and an email.
+    LEAK = "host 172.16.31.7 mail a.b@example.com  "
+    SHAPES = {
+        "scope with no reason": "# leakscan:allow:ipv4:",
+        "scope with a blank reason": "# leakscan:allow:ipv4: ",
+        "space inside a composed scope": "# leakscan:allow:email, ipv4: why",
+        "trailing comma": "# leakscan:allow:ipv4,: why",
+    }
+
+    def run_at(self, day, text):
+        with unittest.mock.patch.object(allowmarker, "_utc_today", return_value=day), \
+                unittest.mock.patch.object(allowmarker, "_WARNED", set()), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            return rules(text), err.getvalue()
+
+    def test_after_the_grace_both_leaks_still_report(self):
+        for name, marker in self.SHAPES.items():
+            with self.subTest(shape=name):
+                found, _ = self.run_at(allowmarker.MALFORMED_GRACE_UNTIL, self.LEAK + marker)
+                self.assertEqual({"ipv4", "email"}, found)
+
+    def test_during_the_grace_it_still_exempts_and_says_so(self):
+        for name, marker in self.SHAPES.items():
+            with self.subTest(shape=name):
+                found, err = self.run_at(datetime.date(2026, 11, 9), self.LEAK + marker)
+                self.assertEqual(set(), found)
+                self.assertIn("malformed allow-marker", err)
+                self.assertIn("2026-12-09", err)
+
+    def test_a_well_formed_scoped_marker_is_untouched_on_both_sides(self):
+        text = self.LEAK + "# leakscan:allow:ipv4: documentation address"
+        for day in (datetime.date(2026, 11, 9), allowmarker.MALFORMED_GRACE_UNTIL):
+            found, err = self.run_at(day, text)
+            self.assertEqual({"email"}, found)
+            self.assertEqual("", err)
+
+    def test_a_broken_marker_never_reached_the_term_list(self):
+        terms = [("Acme", re.compile(r"\bAcme\b", re.IGNORECASE))]
+        for day in (datetime.date(2026, 11, 9), allowmarker.MALFORMED_GRACE_UNTIL):
+            found, _ = self.run_at(day, "Acme 172.16.31.7  # leakscan:allow:ipv4:", )
+            self.assertNotIn("local-term", found)      # the helper passes no terms
+            with unittest.mock.patch.object(allowmarker, "_utc_today", return_value=day), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                self.assertIn("local-term",
+                              rules("Acme 172.16.31.7  # leakscan:allow:ipv4:", terms))
+
+
+class TermNormalisation(unittest.TestCase):
+    """160/110 LK2: a macron is one code point or a letter plus a combining
+    mark. The two print the same, and a term typed one way must catch text
+    typed the other. Constructed from code points so this file carries no
+    decomposed text of its own."""
+
+    NFC = "M\u0101ori"
+    NFD = "Ma\u0304ori"
+
+    def terms(self, spelling, prefix=""):
+        with tempfile.TemporaryDirectory() as td:
+            f = Path(td) / "terms.txt"
+            f.write_text(prefix + spelling + "\n", encoding="utf-8")
+            terms, warning = ls.load_local_terms(f)
+        self.assertIsNone(warning)
+        return terms
+
+    def test_a_composed_term_catches_decomposed_text_and_back(self):
+        for term_spelling, text_spelling in ((self.NFC, self.NFD), (self.NFD, self.NFC),
+                                             (self.NFC, self.NFC), (self.NFD, self.NFD)):
+            with self.subTest(term=ascii(term_spelling), text=ascii(text_spelling)):
+                self.assertIn("local-term",
+                              rules(f"see {text_spelling} here", self.terms(term_spelling)))
+
+    def test_forms_terms_are_normalised_too(self):
+        for text in (self.NFC, self.NFD):
+            self.assertIn("local-term", rules(f"a {text.lower()} b",
+                                              self.terms(self.NFD, prefix="forms:")))
+
+    def test_a_regex_term_still_matches_what_it_matched_before(self):
+        # Verbatim, as ever; plus the line is also tried in NFC, so a pattern
+        # typed in the composed form now catches decomposed text.
+        composed = [("x", re.compile(self.NFC, re.IGNORECASE))]
+        self.assertIn("local-term", rules(f"see {self.NFC} here", composed))
+        self.assertIn("local-term", rules(f"see {self.NFD} here", composed))
+        decomposed = [("x", re.compile(self.NFD, re.IGNORECASE))]
+        self.assertIn("local-term", rules(f"see {self.NFD} here", decomposed))
+
+    def test_ascii_lines_are_returned_untouched(self):
+        s = "plain ascii"
+        self.assertIs(s, ls._nfc(s))
+        self.assertNotIn("local-term", rules("nothing here", self.terms(self.NFC)))
+
+
+class DerivedFormSeparators(unittest.TestCase):
+    """160/110 LK3: a name spread across path components or tagged into an
+    email local part evaded even a `forms:` term. The path plane reads
+    slash-delimited paths, where `/` between name parts is the usual shape."""
+
+    def forms(self, term):
+        return [(term, ls.derived_form_regex(term))]
+
+    def test_slash_and_plus_join_the_words(self):
+        for text in ("jane/q/public.md", "docs/jane+q+public", "jane/q.public",
+                     "jane-q-public", "jane_q_public"):
+            with self.subTest(text=text):
+                self.assertIn("local-term", rules(f"see {text} today", self.forms("Jane Q Public")))
+
+    def test_the_path_plane_catches_a_name_split_across_directories(self):
+        fs = ls.scan_path_name("people/jane/q/public/notes.md", self.forms("Jane Q Public"))
+        self.assertEqual(["local-term"], [f.rule for f in fs])
+
+    def test_boundaries_and_missing_words_still_hold(self):
+        self.assertNotIn("local-term", rules("jane/public here", self.forms("Jane Q Public")))
+        self.assertNotIn("local-term", rules("a Bartender shift", self.forms("Bart")))
+
+
+class PathPlaneHonoursNoMarkers(unittest.TestCase):
+    """160/110 LK6: the code's docstring and the E7 record say a path has no
+    inline marker hatch, but `scan_path_name` reused `scan_text`, so a filename
+    that spelt a marker and a reason exempted its own findings."""
+
+    def test_a_filename_that_spells_a_marker_does_not_exempt_itself(self):
+        name = "notes/a.b@example.com leakscan:allow: fixture.md"
+        self.assertEqual(["email"], [f.rule for f in ls.scan_path_name(name, [])])
+        # ... and the same text in a file body still does exempt (the hatch).
+        self.assertEqual([], scan("a.b@example.com leakscan:allow: fixture"))
+
+    def test_a_path_matching_a_term_is_not_exempted_by_a_scoped_marker(self):
+        terms = [("Acme", re.compile(r"\bAcme\b", re.IGNORECASE))]
+        fs = ls.scan_path_name("Acme leakscan:allow:local-term: x.md", terms)
+        self.assertEqual(["local-term"], [f.rule for f in fs])
 
 
 class DerivedTermForms(unittest.TestCase):

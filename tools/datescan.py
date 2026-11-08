@@ -187,19 +187,14 @@ import report  # noqa: E402
 # and greppable, same contract as the sibling scanners.
 ALLOW_MARKER = "datescan:allow"
 
-# DSR8: the sibling scanners (leakscan/linkscan/secretscan/wrapscan/spellscan)
-# all treat ALLOW_MARKER as a bare substring — any prose that merely mentions
-# the marker text exempts the whole line, and an empty reason is accepted.
-# datescan tightens this past sibling parity: the marker must sit at a word
-# boundary (so it can't hide inside a longer token) and must be followed by a
-# colon and a non-empty reason, `datescan:allow: <reason>` — matching the
-# documented contract this header and render_human() already advertise. The
-# reason must start with a WORD character (not just any non-whitespace) so
-# an empty-reason marker inside its own HTML comment, `<!-- datescan:allow:
-# -->`, isn't mistaken for a reason of "-->" — the comment closer is the
-# first non-whitespace character there, but it isn't a reason.
-ALLOW_MARKER_RX = allowmarker.marker_rx(ALLOW_MARKER, sep=allowmarker.SEP_ANY_SPACE, named_reason=False)
-
+# DSR8 (tightened past the bare-substring read the siblings once had; every
+# sibling has since followed, and the grammar is now one shared module,
+# `allowmarker.py`): the marker sits at a word boundary (so it cannot hide
+# inside a longer token) and is followed by a colon and a non-empty reason,
+# `datescan:allow: <reason>`. The reason must start with a WORD character (not
+# just any non-whitespace) so an empty-reason marker inside its own HTML
+# comment, `<!-- datescan:allow: -->`, is not mistaken for a reason of "-->".
+# A scope (`datescan:allow:<kind>: <reason>`) narrows it to one finding kind.
 ALLOW_SCOPE_RX = allowmarker.marker_rx(ALLOW_MARKER, scope="one", group="kind")
 
 
@@ -223,6 +218,10 @@ class Tally:
     # up to that cap (see `_iter_physical_lines`); this counts how many times
     # that happened, so the truncation is REPORTED rather than silent.
     lines_truncated: int = 0
+    # 160/480 AM10: allow-markers whose scope names a rule that does not
+    # exist, which are silently inert (the finding they were written for still
+    # reports). Counted so a typo is visible on a clean run too.
+    unknown_scope_markers: int = 0
 
     @property
     def marker_total(self) -> int:
@@ -230,6 +229,9 @@ class Tally:
 
     def note_marker(self, kind: str) -> None:
         self.by_marker[kind] = self.by_marker.get(kind, 0) + 1
+
+    def note_unknown_scope(self) -> None:
+        self.unknown_scope_markers += 1
 
     def note_line_truncated(self) -> None:
         self.lines_truncated += 1
@@ -239,9 +241,13 @@ class Tally:
         return report.suppressed_line(
             [f"{self.marker_total} by allow-marker",
              f"{self.files_by_glob} file(s) by .datescanignore",
-             f"{self.lines_truncated} over-long line(s) scanned truncated"],
+             f"{self.lines_truncated} over-long line(s) scanned truncated",
+             f"{self.unknown_scope_markers} marker(s) naming no rule"],
             breakdown=self.by_marker)
 
+
+# What a marker's scope may name (160/480 AM10): the finding kinds below.
+FINDING_KINDS = frozenset({"relative-time-word", "non-iso-date", "invalid-iso-date"})
 
 # Only these extensions are scanned — dated records are Markdown prose, not
 # code or config. Matches linkscan's MARKDOWN_SUFFIXES.
@@ -698,6 +704,9 @@ def _scan_numbered_lines(path: str, numbered_lines, tally: "Tally | None" = None
         scope = parse_allow(raw_line)
         if scope is not None:
             allow_by_line[lineno] = scope
+            if (tally is not None and scope
+                    and allowmarker.names_no_rule(scope, FINDING_KINDS)):
+                tally.note_unknown_scope()
         # Indented code first: a line that is both code and `>`-led is code,
         # exempt whole, exactly as before (it was skipped either way).
         if _is_indented_code(raw_line):
@@ -957,6 +966,7 @@ def _main(argv: list[str] | None = None) -> int:
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
+                "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
         }, indent=2))

@@ -188,6 +188,10 @@ class Tally:
     # up to that cap (see `_iter_physical_lines`); counted so the truncation
     # is REPORTED rather than silent.
     lines_truncated: int = 0
+    # 160/480 AM10: allow-markers whose scope names a rule that does not
+    # exist, which are silently inert (the finding they were written for still
+    # reports). Counted so a typo is visible on a clean run too.
+    unknown_scope_markers: int = 0
 
     @property
     def marker_total(self) -> int:
@@ -195,6 +199,9 @@ class Tally:
 
     def note_marker(self, rule: str) -> None:
         self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
+
+    def note_unknown_scope(self) -> None:
+        self.unknown_scope_markers += 1
 
     def note_line_truncated(self) -> None:
         self.lines_truncated += 1
@@ -204,7 +211,8 @@ class Tally:
         return report.suppressed_line(
             [f"{self.marker_total} by allow-marker",
              f"{self.files_by_glob} file(s) by .spellscanignore",
-             f"{self.lines_truncated} over-long line(s) scanned truncated"],
+             f"{self.lines_truncated} over-long line(s) scanned truncated",
+             f"{self.unknown_scope_markers} marker(s) naming no rule"],
             breakdown=self.by_marker)
 
 
@@ -624,6 +632,9 @@ def _scan_numbered_lines(path: str, numbered_lines, tally: "Tally | None" = None
         scope = parse_allow(raw_line)
         if scope is not None:
             allow_by_line[lineno] = scope
+            if (tally is not None and scope
+                    and allowmarker.names_no_rule(scope, DENYLIST)):
+                tally.note_unknown_scope()
         if _is_blockquote(raw_line):
             continue
         line = _strip_inline_code(raw_line)
@@ -843,6 +854,7 @@ def _main(argv: list[str] | None = None) -> int:
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
+                "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
         }, indent=2))

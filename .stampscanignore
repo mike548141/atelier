@@ -1,4 +1,5 @@
-# Paths exempt from stampscan (gitignore-style globs, one per line).
+# Paths exempt from stampscan (fnmatch globs, not gitignore: `*` crosses `/`, no
+# leading `/` or `!`; one per line, from the repo root).
 # Keep this list SHORT and reasoned — every entry is a hole in the boundary.
 #
 # Note what this file does NOT do: an ignored path is exempt from being
