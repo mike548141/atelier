@@ -292,9 +292,11 @@ def _content_lines(text: str):
 # `tools/secretscan.py`'s identical mechanism). Every constant is a FIXED
 # size, independent of the file or tree being scanned: peak memory for
 # reading ANY one file is bounded by `LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP`,
-# never by the file's own size. Duplicated here rather than imported so this
-# tool stays self-contained and copyable alone (this module's own stated
-# design principle, and secretscan's).
+# never by the file's own size. Duplicated here rather than imported because
+# each guard's reader carries something different (the window and overlap,
+# fenced-code state here) - see `filewalk`'s docstring for what IS shared.
+# This tool imports only the stdlib and `filewalk`, `allowmarker` and `report`
+# beside it, so those travel with it (160/730 RT5).
 #
 # The WINDOW SIZE itself is grounded in THIS tool's own shapes, not copied
 # from secretscan's number: secretscan's 4 MiB accounts for a large NAMED
@@ -953,6 +955,9 @@ def _main(argv: list[str] | None = None) -> int:
     # mixing the two reads one repo's file under another repo's rules,
     # and neither half of the output says so (roadmap 010/110).
     targets = report.resolve_targets(root, args.paths or [str(root)])
+    rc = report.refuse_escaping_targets("linkscan", root, args.paths)
+    if rc is not None:
+        return rc
     rc = report.refuse_missing_paths("linkscan", targets)
     if rc is not None:
         return rc

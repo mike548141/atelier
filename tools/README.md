@@ -261,9 +261,8 @@ python3 tools/leakscan.py --binary-entries  # print .leakscanbinaries lines to r
 python3 tools/leakscan.py --selftest      # prove the engine on this box
 ```
 
-Exit codes (fail-safe — only a clean scan is zero): `0` clean, or report-only
-findings only · `1` blocking findings (blocks the commit) · `2` usage/config
-error.
+Exit codes follow the shared contract (`report.py`, below): `0` includes report-only
+findings, and `1` blocks the commit.
 
 ### Rules that are off report, and never block (115/090)
 
@@ -789,14 +788,12 @@ python3 tools/secretscan.py --json          # machine-readable, for CI/compositi
 python3 tools/secretscan.py --selftest      # prove the engine on this box
 ```
 
-Exit codes match leakscan (`0` clean **or advisory-only** · `1` blocking
-findings · `2` usage/config error).
-Escape hatches mirror it too: `# secretscan:allow: <reason>` per line, a glob in
-`.secretscanignore` per path, and `--disable <rule>` to quiet a noisy rule (a
-named rule, `assigned`, `high-entropy`, or `low-variety-entropy`) while keeping
-the rest. A true
-positive is never just exempted — **remove it, move it to the secret store, and
-rotate it.**
+Exit codes follow the shared contract (`report.py`, below): `0` includes
+advisory-only findings. Escape hatches mirror leakscan's: `# secretscan:allow:
+<reason>` per line, a glob in `.secretscanignore` per path, and `--disable
+<rule>` to quiet a noisy rule (a named rule, `assigned`, `high-entropy`, or
+`low-variety-entropy`) while keeping the rest. A true positive is never just
+exempted — **remove it, move it to the secret store, and rotate it.**
 
 ## `licenscan.py` — the pre-publish licence gate
 
@@ -855,16 +852,16 @@ python3 tools/licenscan.py --json               # machine-readable, for CI/compo
 python3 tools/licenscan.py --selftest           # prove the engine on this box
 ```
 
-Exit codes match the others (`0` clean **or advisory-only** · `1` blocking
-findings, publish blocked · `2` usage/config error). Escape hatches mirror them: `# licenscan:allow: <reason>`
-per line (a deliberately dual-licensed file, or a header in test data), a glob in
-`.licenscanignore` per path. `# licenscan:allow:<kind>: <reason>` exempts one
-kind only (`mismatch`, `incompatible`, `unknown-declaration`,
-`unknown-license`), so a marker written for a permissive mismatch no longer
-covers a copyleft header (`115/080`). A scope naming none of the kinds still
-exempts the whole line, as it always did. Because it's a publish gate, wire it into the
-**pre-publish** scrub (alongside the leak/secret pass) and CI's release job — not
-the per-commit hook.
+Exit codes follow the shared contract (`report.py`, below): `0` includes
+advisory-only findings and `1` means publish blocked. Escape hatches mirror the
+others': `# licenscan:allow: <reason>` per line (a deliberately dual-licensed
+file, or a header in test data), a glob in `.licenscanignore` per path. `#
+licenscan:allow:<kind>: <reason>` exempts one kind only (`mismatch`,
+`incompatible`, `unknown-declaration`, `unknown-license`), so a marker written
+for a permissive mismatch no longer covers a copyleft header (`115/080`). A
+scope naming none of the kinds still exempts the whole line, as it always did.
+Because it's a publish gate, wire it into the **pre-publish** scrub (alongside
+the leak/secret pass) and CI's release job — not the per-commit hook.
 
 ## `conflictscan.py` — no unresolved merge-conflict marker reaches history
 
@@ -1078,9 +1075,9 @@ python3 tools/linkscan.py --json           # machine-readable, for CI
 python3 tools/linkscan.py --selftest       # prove the engine offline
 ```
 
-Exit codes match the others: `0` every internal link resolves · `1` at least one
-break · `2` usage/config error — so a scan it *couldn't* complete never reports
-green. See the residual note at the top for what it structurally cannot catch.
+Exit codes follow the shared contract (`report.py`, below): `1` is at least one
+broken link, and a scan it *couldn't* complete is `2`, never green. See the
+residual note at the top for what it structurally cannot catch.
 
 **Wiring** — unlike the licence gate, linkscan runs on both the **pre-commit
 hook** and **CI**, always over the **whole tree** (not `--staged`): a link goes
@@ -1346,10 +1343,10 @@ python3 tools/datescan.py --json           # machine-readable
 python3 tools/datescan.py --selftest       # prove the engine offline
 ```
 
-Exit codes: `0` clean, report-only findings only, or `--warn` given · `1`
-blocking findings without `--warn` · `2` usage/config error. Escape hatches
-mirror the sibling scanners: `<!-- datescan:allow: <reason> -->` per line, a
-glob in `.datescanignore` per path.
+Exit codes follow the shared contract (`report.py`, below): `0` includes
+report-only findings and `--warn`; `1` is blocking findings without it. Escape
+hatches mirror the sibling scanners: `<!-- datescan:allow: <reason> -->` per
+line, a glob in `.datescanignore` per path.
 
 ### Blockquoted lines report, and never block (115/090)
 
@@ -1414,8 +1411,8 @@ python3 tools/wrapscan.py --staged --root . docs   # the hook plane: staged copy
 python3 tools/wrapscan.py --selftest        # prove the engine offline
 ```
 
-Exit codes: `0` clean, or `--warn` given · `1` findings without `--warn` · `2`
-usage/config error. Escape hatches mirror the sibling scanners:
+Exit codes follow the shared contract (`report.py`, below): `1` is findings
+without `--warn`. Escape hatches mirror the sibling scanners:
 `<!-- wrapscan:allow: <reason> -->` per line, a glob in `.wrapscanignore` per
 path.
 
@@ -1468,8 +1465,8 @@ python3 tools/spellscan.py --staged --root . docs   # the hook plane: staged cop
 python3 tools/spellscan.py --selftest       # prove the engine offline
 ```
 
-Exit codes: `0` clean, or `--warn` given · `1` findings without `--warn` · `2`
-usage/config error. Escape hatches mirror the sibling scanners:
+Exit codes follow the shared contract (`report.py`, below): `1` is findings
+without `--warn`. Escape hatches mirror the sibling scanners:
 `<!-- spellscan:allow: <reason> -->` per line, a glob in `.spellscanignore` per
 path.
 
@@ -1964,6 +1961,16 @@ missing root, a missing path, an unreadable file, a failed `git diff`, an
 absolute `--staged` path). It also holds the `✓ <name> clean — …` and
 `✗ <name>: N …` heads, the `suppressed:` tally line with its allow-marker
 breakdown, the finding-cap lines, and the `(--warn: advisory only …)` notice.
+
+<!-- exitcodes:begin -->
+**The exit-code contract, stated once** (`160/730` RT10; the per-scanner
+sections below point here and add only what is theirs). `0`: nothing blocking,
+meaning clean, only advisory or report-only findings, or `--warn` given. `1`:
+blocking findings. `2`: the scan itself is broken and cannot be trusted, meaning
+a usage or config error, a missing root or path, a file it could not read, a
+failed `git diff`, an ignore glob with no reason, or a crash. `--warn` turns `1`
+into `0` and never touches `2`: a broken scan is not a pass.
+<!-- exitcodes:end -->
 
 Every difference between scanners is a parameter: the scanner's name, its
 tally fields in its own order, the finding noun, the tail of a head line. None

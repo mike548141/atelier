@@ -808,11 +808,14 @@ BY_NAME = {s.name: s for s in SCANNERS}
 # how many findings it reported without blocking — INCLUDING when that number is
 # zero. This reads it back off the run's own output.
 #
-# Why a printed line rather than an import: the scanners are self-contained by
-# deliberate design (their docstrings say so — a peer can copy one alone), and
-# floor.py runs them as subprocesses so a child repo can point at any tools dir.
-# Coupling them by import would trade that away for one integer. The cost of the
-# looser coupling is that wording drift breaks the read silently — so it does
+# Why a printed line rather than an import: floor.py runs the scanners as
+# subprocesses so a child repo can point at any tools dir, and a scanner needs
+# nothing from floor.py. (The scanners are not each copyable ALONE any more -
+# they share `filewalk`, `allowmarker` and `report` from this directory, all
+# stdlib-only - so the reason is the direction of the dependency, not
+# isolation: 160/730 RT5.) Coupling them by import would add one for a single
+# integer. The cost of the looser coupling is that wording drift breaks the
+# read silently — so it does
 # not get to be silent: the scanner prints its known zero, a missing line is
 # recorded as `advisory=-1` ("declared a count, produced none") rather than as 0,
 # and `test_floor.py::AdvisoryCountContract` runs the real scanner and matches
@@ -825,8 +828,8 @@ BY_NAME = {s.name: s for s in SCANNERS}
 # unanchored `advisory: N finding(s)` pattern read 77 off a blocking finding
 # line, ahead of the real count line below it. So the pattern names the scanner
 # and must be the whole line, in the scanner's own wording (the
-# `<name> advisory: N finding(s) — reported, not blocking.` line both
-# count-carriers build in `advisory_count_line`): a finding line continues past
+# `<name> advisory: N finding(s) — reported, not blocking.` line the
+# count-carriers build with `report.advisory_count_line`): a finding line continues past
 # `finding(s)` with `:LINE  [kind]`, and never matches.
 def advisory_count_rx(name: str) -> "re.Pattern[str]":
     return re.compile(

@@ -720,13 +720,9 @@ def _suppression_line(rep: Report) -> str:
 
 def advisory_count_line(n: int) -> str:
     """The one line that always says how many advisory findings this run made.
-
-    ALWAYS printed, zero included: a line printed only when non-zero makes "no
-    line" mean two things, nothing found or the wording drifted and the board
-    is now parsing a message that no longer exists. Printing the zero collapses
-    that, so a count that disappears is a defect somebody can see (the same
-    reasoning as secretscan's `advisory_count_line`)."""
-    return f"  {ADVISORY_COUNT_PREFIX} {n} finding(s) — reported, not blocking."
+    The wording lives in `report.advisory_count_line` (RT6, 160/730), which
+    `floor.py`'s `advisory_count_rx` reads back."""
+    return report.advisory_count_line("licenscan", n)
 
 
 def _render_advisory(advisory: list[Finding]) -> list[str]:
@@ -805,7 +801,12 @@ def _main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         return report.broken("licenscan", f"not a directory: {root}")
 
-    globs = load_ignore_globs(root)
+    try:
+        globs = load_ignore_globs(root)
+    except OSError as e:
+        # An unreadable ignore file is a broken scan: exit 2 with a line, not
+        # a traceback and Python's 1 (RT4, 160/730).
+        return report.cannot_read("licenscan", e)
     _skipped: list[int] = []
     _truncated: list[int] = []
     files = collect_files(root, globs, _skipped, _truncated)

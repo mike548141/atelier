@@ -222,6 +222,62 @@ Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
   read" comment and the `ccarchive` charter's line that cctranscript still
   gunzips every mirror for one column.
 
+### Changed (2026-11-09 — four scanner cold passes applied: floor-stamp switch, boundary guards read tracked files, linear email and URL rules, exit contract kept, `160/430`, `160/600`, `160/720`, `160/730`)
+Mike's answer of 2026-11-09 ("Approve all 17"): the reviewer's counsel applied as
+written, each item closing when applied, with no new Fable re-check. Every
+behaviour change below was run against each child's configured scope before it
+landed, old tool against new. No child's exit code changed. One child's output
+did: the boundary guards now read a tracked `.pyc` under a `__pycache__` folder
+there, and the G3 binary gate reports it as a warning that blocks from
+2026-11-18 unless the file is listed or untracked.
+- **`stampscan --require-floor-stamp` (CU1).** `--require-stamps` certifies that
+  some stamped block was compared, not that the floor is stamped; its help and
+  README now say so. The new switch exits `2` unless a compared block names the
+  floor pair. Under `--json` an unmet demand prints the document with
+  `clean: false` and `require_stamps_unmet` (CU2). Nothing wired passes either.
+- **`blockscan`'s unmapped-heading report (CU3-CU8).** "N other heading(s)", not
+  "top-level"; fences pair by the shared rule (a three-backtick line inside a
+  four-backtick fence no longer ends it); a map `path` outside `--root` is a
+  config error; heading text and paths are escaped in human output; the
+  report's blind spots are stated. CU10 (where the advisory report should land)
+  is a ruling and is not applied.
+- **The three boundary guards read tracked files under skip-named folders
+  (GW1).** `secretscan`, `leakscan` and `conflictscan` pass
+  `read_tracked_under_skip=True`: a credential committed at `.vscode/`, `venv/`
+  or `node_modules/` no longer passes the whole-tree plane. Every other guard
+  keeps its skip. Also in `filewalk`: no yielded path has a symlinked parent
+  (GW4), every git call runs with `core.fsmonitor=false` (GW5), and a git that
+  fails for a tree carrying a `.git` entry says so once (GW2). Tests pin the
+  three behaviours the module relied on with none (GW3), and a shape matrix.
+  The README gains `filewalk.py`'s entry and the stale `os.walk` line is fixed
+  (GW6); `linkscan`, `reviewscan` and `pointerscan` still walk their own way
+  (GW7, on the board).
+- **`leakscan`'s `email` rule and `secretscan`'s `basic-auth-url` and `URL_RX`
+  are linear (GT1).** A greedy class restarted at every word boundary, so a 1
+  MiB line of `1-1-1-…` cost over ten minutes in a blocking hook. `anchoredrx.py`
+  tries the original pattern once per run; the matches are the same, proven on a
+  fuzzed corpus. A gate is now declared on its rule and the table is derived
+  (GT2, GT3); the suites prove every gate necessary over lines generated from
+  each rule's own regex, and that no gated rule is case-insensitive unless its
+  gate is flag-aware. `test_scanner_rules.py` pins the three rules the two
+  scanners copy and runs every rule table through boundary-rich lines at two
+  sizes (GT5, GT9); `pathscan`'s scheme-URL regex is listed there as known
+  quadratic (`BP9`). The earlier gate speed figures (3x and 4.6x) were measured
+  once on a corpus that is not in the repository (GT7).
+- **An unreadable file is a broken scan, not a clean one (RT1).** `secretscan`,
+  `leakscan`, `datescan`, `spellscan`, `wrapscan` and `sizescan` swallowed the
+  error and printed `clean`; they exit `2` with the shared `cannot read` line.
+  A file that vanishes mid-walk stays a silent skip. A crash is exit `2` with
+  its traceback, not `1` (RT4); an unreadable ignore file is the `cannot read`
+  line, not a traceback; a relative target climbing out of `--root` is refused
+  (RT7); control and bidi characters are stripped from every `broken` message
+  (RT3); `report.advisory_count_line` is the one home of the line `floor.py`
+  parses (RT6); and a staged scope that left nothing to scan says so on stderr
+  (RT2; the spelling refusals were already in, `115/360`, `160/950`).
+  The "copyable alone" claims in eleven places are corrected (RT5), the exit
+  contract is stated once in the `report.py` section with pointers (RT10), and
+  the review-brief skill gives the re-run invocation that runs (GT6).
+
 ### Changed (2026-11-09 — G3 review applied: who allowed it and when, the gate before the ignore file, raw XMP read, `160/980`)
 Mike's answers of 2026-11-08 on the cold pass of `020/150`, plus the reviewer's
 counsel on the rest. G3 itself still warns only until **2026-11-18, which he

@@ -1323,9 +1323,11 @@ class ReportedNoteTest(unittest.TestCase):
 class AdvisoryCountContract(unittest.TestCase):
     """E6b's third consumer leg — the board count, and the seam it rides on.
 
-    The count is read off a printed line rather than an import, because the
-    scanners are self-contained by design. That buys zero coupling and costs
-    exactly one risk: the two files drift and the read silently returns nothing.
+    The count is read off a printed line rather than an import, because
+    floor.py runs the scanners as subprocesses and they need nothing from it
+    (they do share `filewalk`, `allowmarker` and `report` with each other, so
+    they are not each copyable alone: 160/730 RT5). That buys no import from
+    the scanners into floor.py and costs exactly one risk: the two files drift and the read silently returns nothing.
     So the risk is tested from BOTH sides on every push — floor's pattern
     against the scanner's real output, and floor's -1 against a scanner that
     printed no count at all — and never argued for in a comment.

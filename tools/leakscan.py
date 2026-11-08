@@ -2504,11 +2504,13 @@ def _scan_file(path: Path, rel: str,
                 seen_in_window = set()
             else:
                 in_overlong = True
-    except OSError:
-        # A file that vanishes/becomes unreadable mid-walk (race with another
-        # process) is not this scanner's failure to report — matches the old
-        # behaviour, which never guarded `read_bytes()` here either.
-        pass
+    except OSError as e:
+        # A file that VANISHES mid-walk (a race with another process) is not
+        # this scanner's failure to report. One that exists but cannot be read
+        # is: re-raised, and `guarded_main` turns it into exit 2 - a broken
+        # scan is not a pass (RT1, 160/730).
+        if not report.is_vanished(e):
+            raise
     return findings
 
 
@@ -2880,8 +2882,9 @@ def advisory_count_line(n: int) -> str:
     without blocking (115/090). ALWAYS printed, zero included, for the reason
     `secretscan.advisory_count_line` gives: a line printed only when non-zero
     makes "no line" mean both "nothing found" and "the wording drifted", and
-    `tools/floor.py` reads this line for its board."""
-    return f"  {ADVISORY_COUNT_PREFIX} {n} finding(s) — reported, not blocking."
+    `tools/floor.py` reads this line for its board. The wording lives in
+    `report.advisory_count_line` (RT6, 160/730)."""
+    return report.advisory_count_line("leakscan", n)
 
 
 def render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
@@ -3103,6 +3106,8 @@ def _main(argv: list[str] | None = None) -> int:
         staged = report.restrict_to_scope(staged, allowed)
         in_changed = report.restrict_to_scope(dict.fromkeys(changed), allowed)
         in_removed = report.restrict_to_scope(dict.fromkeys(removed), allowed)
+        report.note_empty_scope("leakscan", len(changed), len(in_changed),
+                                args.paths)
         # .leakscanignore applies in staged mode too, so an exemption means the
         # same thing whether you scan the tree or a commit.
         globs = load_ignore_globs(root)
@@ -3168,6 +3173,9 @@ def _main(argv: list[str] | None = None) -> int:
         # A typo'd path scanning nothing must never read as a clean pass —
         # the linkscan L1 silent-success class, closed here too
         # (2026-07-11 review N2).
+        rc = report.refuse_escaping_targets("leakscan", root, args.paths)
+        if rc is not None:
+            return rc
         rc = report.refuse_missing_paths("leakscan", targets)
         if rc is not None:
             return rc

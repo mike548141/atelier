@@ -505,7 +505,7 @@ def _match_case(original: str, nz: str) -> str:
 
 # Streaming-read tuning (020/380, reusing 020/370's secretscan shape — see
 # `tools/secretscan.py`'s `_iter_numbered_lines`, duplicated rather than
-# imported so this scanner stays copyable alone). `_MAX_LINE_BYTES` is
+# imported because each guard's reader differs; 160/730 RT5). `_MAX_LINE_BYTES` is
 # two-plus orders of magnitude past any realistic wrapped-prose line — real
 # content is never truncated; it exists to bound the pathological case (one
 # absurd multi-MB "line") to a fixed, cheap constant instead of letting it
@@ -603,12 +603,15 @@ def scan_text(path: str, text: str, tally: "Tally | None" = None) -> list[Findin
 def scan_file(path: Path, rel: str, tally: "Tally | None" = None) -> list[Finding]:
     """Bounded-memory disk variant of `scan_text` (020/380): streams `path`
     in fixed-size chunks instead of reading it whole — see
-    `_iter_physical_lines`. A file that vanishes/becomes unreadable mid-walk
-    reports nothing from it, matching the old `read_text()` behaviour's own
-    lack of a per-file guard."""
+    `_iter_physical_lines`. A file that VANISHES mid-walk (a race with another
+    process) reports nothing from it; one that exists but cannot be read
+    (permissions, an I/O error) raises, and `_main` turns that into exit 2 -
+    a broken scan is not a pass (RT1, 160/730)."""
     try:
         return _scan_numbered_lines(rel, _content_lines_from_file(path, tally), tally)
-    except OSError:
+    except OSError as e:
+        if not report.is_vanished(e):
+            raise
         return []
 
 
@@ -820,6 +823,9 @@ def _main(argv: list[str] | None = None) -> int:
             docs = root / "docs"
             targets = [docs] if docs.is_dir() else [root]
 
+        rc = report.refuse_escaping_targets("spellscan", root, args.paths)
+        if rc is not None:
+            return rc
         rc = report.refuse_missing_paths("spellscan", targets)
         if rc is not None:
             return rc

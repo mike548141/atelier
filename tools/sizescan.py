@@ -799,7 +799,12 @@ def _judge(sources, globs: list[str], skipped: list[int],
         looked_at = name in COLD_CHECKBOX_FILES or is_archive_store(name)
         try:
             header, n, cold, live, items = read(looked_at, slots)
-        except OSError:
+        except OSError as e:
+            # A file that vanished between the walk and the open is a race.
+            # One that exists but cannot be read is a broken scan (RT1,
+            # 160/730): re-raised, and `_main` turns it into exit 2.
+            if not report.is_vanished(e):
+                raise
             continue
         slots -= len(items)
         cold_over_cap += cold - len(items)
@@ -1010,6 +1015,9 @@ def _main(argv: list[str] | None = None) -> int:
         # mixing the two reads one repo's file under another repo's rules,
         # and neither half of the output says so (roadmap 010/110).
         targets = report.resolve_targets(root, args.paths or [str(root)])
+        rc = report.refuse_escaping_targets("sizescan", root, args.paths)
+        if rc is not None:
+            return rc
         rc = report.refuse_missing_paths("sizescan", targets)
         if rc is not None:
             return rc

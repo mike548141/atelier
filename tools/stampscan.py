@@ -457,7 +457,7 @@ def _content_lines(text: str):
 # Streaming-read tuning (020/380, reusing 020/370's secretscan/spellscan
 # shape — see `tools/secretscan.py`'s `_iter_numbered_lines` and
 # `tools/spellscan.py`'s `_iter_physical_lines`, duplicated rather than
-# imported so this scanner stays copyable alone). Before this fix,
+# imported because each guard's reader differs; 160/730 RT5). Before this fix,
 # `scan_paths` read every candidate file WHOLE (`md.read_text()`) and every
 # canonical `source=` WHOLE too (`resolve_source`'s `candidate.read_text()`),
 # each immediately re-split via `text.splitlines()` inside `_content_lines` —

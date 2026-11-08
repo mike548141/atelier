@@ -424,6 +424,10 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
         return report.broken("publishscan", str(e))
     except RuntimeError as e:
         return report.broken("publishscan", str(e))
+    except OSError as e:
+        # An unreadable ignore file is a broken scan: exit 2 with a line, not
+        # a traceback and Python's 1 (RT4, 160/730).
+        return report.cannot_read("publishscan", e)
     findings = [(p, why) for p in paths
                 if not _ignored(p, globs) and (why := matches(p))]
 
@@ -584,6 +588,8 @@ def run_history(root: Path, warn: bool, as_json: bool) -> int:
         return 0
     except (BadIgnoreFile, RuntimeError) as e:
         return report.broken("publishscan", str(e))
+    except OSError as e:
+        return report.cannot_read("publishscan", e)
 
     findings = sorted(hits.items())
     if as_json:

@@ -181,9 +181,10 @@ A repo closes the gap for itself by declaring the root in
   }
 
 Read directly by THIS scanner (`load_declared_roots`), not by `tools/floor.py`
-— pathscan is self-contained by design (see this docstring's closing
-paragraph: "a peer who adopts atelier can run it with the system python3 and
-no install"), so it parses the one key it needs out of the shared config
+— pathscan has no dependency on `floor.py` by design (it needs only the
+stdlib and the sibling `filewalk`, `allowmarker` and `report`; see this
+docstring's closing paragraph: "a peer who adopts atelier can run it with the
+system python3 and no install"), so it parses the one key it needs out of the shared config
 file itself rather than depending on `floor.py`'s `Config` class. `floor.py`
 does not read the `roots` key at all: an unrecognised top-level key in
 `.atelier-floor.json` passes through it unexamined, exactly as any other key
@@ -646,8 +647,8 @@ class Finding:
 
 # The inlined-floor stamp pair (child/copy side), COPIED from
 # `tools/stampscan.py` (`_STAMP_BEGIN_RX`/`_STAMP_END_RX`, `FLOOR_SOURCE`/
-# `FLOOR_REGION`) so this tool stays copyable alone — a test pins the two
-# in step. Same anchoring as stampscan: the marker opens the (stripped) line.
+# `FLOOR_REGION`) so this tool does not import `stampscan` - a test pins the
+# two in step. Same anchoring as stampscan: the marker opens the (stripped) line.
 _STAMP_BEGIN_RX = re.compile(
     r"^<!--\s*stamp:begin\s+source=(?P<source>\S+)\s+region=(?P<region>\S+)"
     r"(?:\s+narrow=(?P<narrow>.+?))?\s*-->"
@@ -753,7 +754,7 @@ def _content_lines(text: str, skip_floor: bool = False):
 # grounded in this tool's own shape, as linkscan's is: a path token is
 # bounded by PATH_MAX-ish lengths (a few KiB), so a 4 KiB overlap keeps any
 # real token whole in one window, and 256 KiB is far more generous than any
-# real Markdown line. Copied, not imported, so the tool stays copyable alone.
+# real Markdown line. Copied, not imported (each guard's reader differs).
 READ_CHUNK_BYTES = 1 * 1024 * 1024
 LINE_WINDOW_BYTES = 256 * 1024
 LINE_WINDOW_OVERLAP = 4 * 1024
@@ -1196,8 +1197,8 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 # The shared per-repo config file `tools/floor.py` owns — read here only for
 # the ONE key that is this scanner's own (`roots.pathscan`). floor.py does
 # not know this key exists; an unrecognised top-level key in the file passes
-# through it unexamined, which is what lets this scanner stay self-contained
-# (module docstring's closing paragraph) while still reading a file another
+# through it unexamined, which is what lets this scanner stay independent of
+# `floor.py` (module docstring's closing paragraph) while still reading a file another
 # tool also reads.
 FLOOR_CONFIG_NAME = ".atelier-floor.json"
 
@@ -1425,6 +1426,9 @@ def _main(argv: list[str] | None = None) -> int:
         docs = root / "docs"
         targets = [docs] if docs.is_dir() else [root]
 
+    rc = report.refuse_escaping_targets("pathscan", root, args.paths)
+    if rc is not None:
+        return rc
     rc = report.refuse_missing_paths("pathscan", targets)
     if rc is not None:
         return rc

@@ -27,6 +27,18 @@ no guard parses a C-quoted path as though it were a bare one (`115/260`), and
 the one reader of the staged diff (`staged_added`, also at the foot), so that
 no guard takes an added line for a file header (`115/280`).
 
+LINES STILL SPELT PRIVATELY, AND WHY (RT6, `160/730`; each is a line a future
+shared edit will miss, so they are listed here rather than left to be found):
+`licenscan`'s missing-root line (`not a directory: <root>`), `publishscan`'s and
+`reviewscan`'s (`--root <raw> is not a directory`), `reviewscan`'s per-path
+refusal, and `stampscan`'s `--warn` notice (`drift not blocking this build`, not
+`WARN_NOTICE`). Each is pinned byte for byte in `test_report.py`, the converted
+scanners' output is a contract with every child, and folding a line means
+changing its bytes, which this consolidation does not do. `pointerscan.py` and
+`board.py` stay unconverted (README says so). The advisory-count line WAS folded
+(`advisory_count_line`), because `floor.py` parses it and a copy that drifts
+breaks that read.
+
 WHAT THIS MODULE DELIBERATELY DOES NOT DO: unify behaviour or wording. Every
 difference between the scanners is a PARAMETER here — the scanner's name, the
 tally's parts, the finding noun, a head line's tail, the over-cap indent, the
@@ -52,6 +64,7 @@ import posixpath
 import re
 import subprocess
 import sys
+import traceback
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import asdict
 from pathlib import Path
@@ -67,18 +80,33 @@ EXIT_BROKEN = 2     # the scan itself is broken — never read as a pass
 WARN_NOTICE = "\n  (--warn: advisory only — not blocking this build.)"
 
 
-def exit_code(blocking: object, *, warn: bool = False) -> int:
-    """0 or 1 from the truthiness of `blocking` (a count, a list or a bool);
-    always 0 under `warn`. Exit 2 is never computed here — it is returned by
-    `broken` at the point the scan finds it cannot be trusted."""
+def exit_code(blocking: "int | bool", *, warn: bool = False) -> int:
+    """0 or 1 from the truthiness of `blocking` (a count or a bool); always 0
+    under `warn`. Exit 2 is never computed here - it is returned by `broken` at
+    the point the scan finds it cannot be trusted.
+
+    Typed `int | bool` on purpose (RT8, `160/730`): an object whose truthiness
+    is not a finding count (a generator is always true, an empty-but-truthy
+    tally object too) must not decide the exit code. Every caller passes an
+    `int` or a `bool`."""
     if warn:
         return EXIT_CLEAN
     return EXIT_FINDINGS if blocking else EXIT_CLEAN
 
 
+# RT3 (`160/730`): a message reaches the committer's terminal and the CI log,
+# and carries text from a path or an ignore-file glob that a pull request can
+# land. C0 controls (newline kept: some messages are deliberately multi-line),
+# DEL, C1 controls and the bidi override/isolate controls are dropped, so an
+# escape sequence cannot clear a screen or reorder what the reader sees.
+_MESSAGE_CONTROL_RX = re.compile(
+    "[\x00-\x09\x0b-\x1f\x7f-\x9f\u202a-\u202e\u2066-\u2069]")
+
+
 def broken(name: str, message: str) -> int:
-    """Print `<name>: <message>` to stderr and return exit 2."""
-    print(f"{name}: {message}", file=sys.stderr)
+    """Print `<name>: <message>` to stderr and return exit 2. Control
+    characters in `message` are stripped first (RT3)."""
+    print(f"{name}: {_MESSAGE_CONTROL_RX.sub('', message)}", file=sys.stderr)
     return EXIT_BROKEN
 
 
@@ -87,11 +115,46 @@ def guarded_main(name: str, run: Callable[[list[str] | None], int],
                  config_errors: tuple[type[BaseException], ...]) -> int:
     """Run a scanner's `_main`, turning any of `config_errors` into exit 2.
     An unexplained exemption or an unusable declaration makes the scan's own
-    scope untrustworthy, so it is a broken scan, not a pass."""
+    scope untrustworthy, so it is a broken scan, not a pass.
+
+    A file the scan could not read, escaping every guard's own handler, is the
+    shared `cannot read` line and exit 2 (RT4a).
+
+    Any OTHER exception is a broken scan too (RT4, `160/730`): the traceback is
+    printed in full, so nothing is swallowed, and the exit code is 2, not
+    Python's 1 - which is the code for "blocking findings" and misreported a
+    crash as one. `SystemExit` (argparse's usage errors) and
+    `KeyboardInterrupt` are not `Exception`s and pass through untouched."""
     try:
         return run(argv)
     except config_errors as e:
         return broken(name, str(e))
+    except OSError as e:
+        # A read that no guard caught (an unreadable ignore file, a file the
+        # scan could not open) is the contract's own "cannot read" line, exit
+        # 2, not a traceback (RT4a, 160/730). An OSError that names no file
+        # is not that line and falls through to the traceback.
+        if e.filename is not None:
+            return cannot_read(name, e)
+        traceback.print_exc()
+        print(f"{name}: internal error - the scan did not complete "
+              "(a broken scan is not a pass)", file=sys.stderr)
+        return EXIT_BROKEN
+    except Exception:
+        traceback.print_exc()
+        print(f"{name}: internal error - the scan did not complete "
+              "(a broken scan is not a pass)", file=sys.stderr)
+        return EXIT_BROKEN
+
+
+def is_vanished(e: OSError) -> bool:
+    """True for the one read failure a scan may skip without saying so: the
+    file went away between the walk listing it and the scan opening it (a race
+    with another process). Anything else - a permission error, an I/O error -
+    is a file the scan could not read, and a broken scan is not a pass
+    (RT1, `160/730`)."""
+    return isinstance(e, (FileNotFoundError, NotADirectoryError,
+                          IsADirectoryError))
 
 
 def resolve_targets(root: Path, paths: Iterable[str]) -> list[Path]:
@@ -99,6 +162,34 @@ def resolve_targets(root: Path, paths: Iterable[str]) -> list[Path]:
     cwd: mixing the two reads one repo's file under another repo's rules
     (roadmap 010/110)."""
     return [(root / p) if not Path(p).is_absolute() else Path(p) for p in paths]
+
+
+def refuse_escaping_targets(name: str, root: Path,
+                            paths: Iterable[str]) -> int | None:
+    """Exit 2 if a RELATIVE target climbs out of `root`, else None (RT7,
+    `160/730`). `resolve_targets` promises "never the caller's cwd"; nothing
+    promised "never outside the root", and a `../x` target was scanned under
+    the ignore file and anchors of a root they were not written for. An
+    absolute target is the caller's explicit choice and is left alone. The
+    check is lexical (`normpath`), so a symlink inside the root is not
+    refused."""
+    rootp = os.path.normpath(str(root))
+    escaping = []
+    for p in paths:
+        if Path(p).is_absolute():
+            continue
+        full = os.path.normpath(os.path.join(rootp, p))
+        if full != rootp and not full.startswith(rootp.rstrip(os.sep) + os.sep):
+            escaping.append(p)
+    if escaping:
+        return broken(
+            name,
+            f"path(s) climb out of --root: {', '.join(escaping)}\n"
+            "  A relative path is read under --root, with that root's ignore "
+            "file and anchors, so one that leaves it\n"
+            "  would be scanned under rules written for another tree. Give "
+            "an absolute path, or run with the right --root.")
+    return None
 
 
 def refuse_missing_root(name: str, root: Path, raw: str) -> int | None:
@@ -342,10 +433,28 @@ def scope_staged(name: str, staged: dict, paths: Iterable[str],
     """Restrict the staged set to the positional `paths`; (rc, staged).
     `resolve_staged_scope` decides what the positionals name; this applies
     the answer to one path-keyed dict."""
+    paths = list(paths)
     rc, allowed = resolve_staged_scope(name, paths, example)
     if rc is not None:
         return rc, staged
-    return None, restrict_to_scope(staged, allowed)
+    kept = restrict_to_scope(staged, allowed)
+    note_empty_scope(name, len(staged), len(kept), paths)
+    return None, kept
+
+
+def note_empty_scope(name: str, staged: int, in_scope: int,
+                     paths: Iterable[str]) -> None:
+    """Say, on stderr, when a positional scope left nothing to scan (RT2,
+    `160/730`). A commit that touches only files outside the scope is a
+    legitimate pass and stays one (exit code unchanged), but "clean" over zero
+    files read is the same line as "clean" over a hundred; this is the line that
+    tells them apart. Silent unless the scope was restricted, something was
+    staged, and none of it was in scope."""
+    paths = list(paths)
+    if paths and staged and not in_scope:
+        print(f"{name}: none of the {staged} staged file(s) is in the "
+              f"--staged scope ({', '.join(paths)}): nothing was scanned",
+              file=sys.stderr)
 
 
 def refuse_other_repo(name: str, root: Path) -> int | None:
@@ -376,6 +485,22 @@ def refuse_other_repo(name: str, root: Path) -> int | None:
            f"  The current directory belongs to the repo at {here}.\n")
         + "  A scan of one repo's index under another's rules would pass "
         "while covering nothing. Run it from inside the repo, or drop --root.")
+
+
+def advisory_count_line(name: str, n: int) -> str:
+    """The one line that always says how many advisory findings this run made:
+    `  <name> advisory: N finding(s) - reported, not blocking.`
+
+    The single home of the wording `floor.py`'s `advisory_count_rx(name)` reads
+    back off a scanner's output (RT6, `160/730`; it was built three times, in
+    `secretscan`, `leakscan` and `licenscan`, and a drift between any copy and
+    the pattern breaks the board's read silently).
+
+    ALWAYS printed, zero included: a line printed only when non-zero makes "no
+    line" mean two things, nothing found or the wording drifted and the board
+    is now parsing a message that no longer exists. Printing the zero collapses
+    that, so a count that disappears is a defect somebody can see."""
+    return f"  {name} advisory: {n} finding(s) \u2014 reported, not blocking."
 
 
 def clean_head(name: str, detail: str) -> str:

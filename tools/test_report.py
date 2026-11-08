@@ -73,11 +73,70 @@ class TestExitContract(unittest.TestCase):
                              (ValueError, KeyError))
         self.assertEqual((rc, err), (2, "demoscan: 'bad glob'\n"))
 
-    def test_guarded_main_never_swallows_other_errors(self):
+    def test_guarded_main_reports_other_errors_as_a_broken_scan(self):
+        """RT4 (160/730): a crash is a broken scan (2), not "findings" (1),
+        and it is not swallowed: the traceback is printed in full."""
         def run(argv):
             raise RuntimeError("a defect, not a config error")
-        with self.assertRaises(RuntimeError):
-            report.guarded_main("demoscan", run, None, (ValueError,))
+        rc, err = _stderr_of(report.guarded_main, "demoscan", run, None,
+                             (ValueError,))
+        self.assertEqual(2, rc)
+        self.assertIn("Traceback (most recent call last)", err)
+        self.assertIn("RuntimeError: a defect, not a config error", err)
+        self.assertIn("demoscan: internal error", err)
+
+    def test_guarded_main_turns_an_unreadable_file_into_the_cannot_read_line(self):
+        """RT4a (160/730): an unreadable ignore file used to be a traceback and
+        Python's exit 1 on four guards."""
+        def run(argv):
+            raise PermissionError(13, "Permission denied", "/r/.xignore")
+        rc, err = _stderr_of(report.guarded_main, "demoscan", run, None,
+                             (ValueError,))
+        self.assertEqual((2, "demoscan: cannot read /r/.xignore: "
+                             "Permission denied\n"), (rc, err))
+
+    def test_guarded_main_an_oserror_naming_no_file_is_a_traceback_and_two(self):
+        def run(argv):
+            raise OSError("something else")
+        rc, err = _stderr_of(report.guarded_main, "demoscan", run, None,
+                             (ValueError,))
+        self.assertEqual(2, rc)
+        self.assertIn("Traceback", err)
+
+    def test_guarded_main_lets_usage_exits_and_interrupts_through(self):
+        for exc in (SystemExit(2), KeyboardInterrupt()):
+            def run(argv, exc=exc):
+                raise exc
+            with self.assertRaises(type(exc)):
+                report.guarded_main("demoscan", run, None, (ValueError,))
+
+    def test_broken_strips_control_and_bidi_characters(self):
+        """RT3 (160/730): a path or an ignore-file glob reaches the terminal."""
+        rc, err = _stderr_of(report.broken, "demoscan",
+                             "bad \x1b[2J\x1b[H\x07path \u202eevil\x9b\x7f end")
+        self.assertEqual(2, rc)
+        self.assertEqual("demoscan: bad [2J[Hpath evil end\n", err)
+
+    def test_broken_keeps_newlines_and_ordinary_text(self):
+        rc, err = _stderr_of(report.broken, "d", "line one\n  line two t\u014dhutu")
+        self.assertEqual("d: line one\n  line two t\u014dhutu\n", err)
+
+    def test_every_helper_that_prints_goes_through_broken(self):
+        for fn, args in ((report.cannot_read, ("d", OSError(13, "denied\x1b[2J", "a\x1bb"))),
+                         (report.refuse_missing_paths, ("d", [Path("x\x1b[2Jy")]))):
+            rc, err = _stderr_of(fn, *args)
+            self.assertEqual(2, rc)
+            self.assertNotIn("\x1b", err)
+
+    def test_exit_code_is_typed_int_or_bool(self):
+        self.assertIn("int | bool", str(inspect.signature(report.exit_code)))
+
+    def test_is_vanished_names_the_race_and_nothing_else(self):
+        self.assertTrue(report.is_vanished(FileNotFoundError(2, "gone")))
+        self.assertTrue(report.is_vanished(NotADirectoryError(20, "x")))
+        self.assertTrue(report.is_vanished(IsADirectoryError(21, "x")))
+        self.assertFalse(report.is_vanished(PermissionError(13, "denied")))
+        self.assertFalse(report.is_vanished(OSError(5, "I/O error")))
 
     def test_guarded_main_hands_argv_through(self):
         seen = []
@@ -92,6 +151,62 @@ class TestBrokenScanLines(unittest.TestCase):
         self.assertEqual(report.resolve_targets(root, ["docs", "/abs/x", "/r"]),
                          [Path("/r/docs"), Path("/abs/x"), Path("/r")])
         self.assertEqual(report.resolve_targets(root, []), [])
+
+    def test_advisory_count_line_is_the_wording_floor_reads(self):
+        """RT6 (160/730): one home for the line `floor.advisory_count_rx`
+        parses; secretscan, leakscan and licenscan all build it here."""
+        import floor
+        import leakscan
+        import licenscan
+        import secretscan
+        for name, mod in (("secretscan", secretscan), ("leakscan", leakscan),
+                          ("licenscan", licenscan)):
+            for n in (0, 1, 77):
+                line = report.advisory_count_line(name, n)
+                self.assertEqual(line, mod.advisory_count_line(n))
+                self.assertEqual(n, floor._read_advisory_count(
+                    "finding line\n" + line + "\n", name))
+        self.assertEqual("  x advisory: 3 finding(s) \u2014 reported, not blocking.",
+                         report.advisory_count_line("x", 3))
+
+    def test_the_privately_spelt_lines_are_recorded_in_the_module_docstring(self):
+        doc = " ".join(report.__doc__.split())
+        for needle in ("LINES STILL SPELT PRIVATELY", "licenscan", "publishscan",
+                       "reviewscan", "stampscan"):
+            self.assertIn(needle, doc)
+
+    def test_note_empty_scope_speaks_only_when_a_scope_left_nothing(self):
+        """RT2 (160/730): the spelling refusals (115/360, 160/950) were already
+        in; this is the residual 'clean over zero files' line."""
+        rc, err = _stderr_of(lambda: report.note_empty_scope("d", 3, 0, ["docs/"]))
+        self.assertIn("none of the 3 staged file(s) is in the --staged scope (docs/)", err)
+        self.assertIn("nothing was scanned", err)
+        for args in ((3, 2, ["docs/"]), (0, 0, ["docs/"]), (3, 0, []), (3, 3, [])):
+            rc, err = _stderr_of(lambda a=args: report.note_empty_scope("d", *a))
+            self.assertEqual("", err, args)
+
+    def test_scope_staged_notes_an_empty_scope_without_changing_the_result(self):
+        staged = {"a.txt": {1}, "b/c.txt": {2}}
+        with unittest.mock.patch.object(report, "resolve_staged_scope",
+                                        return_value=(None, frozenset({"zzz"}))):
+            result, err = _stderr_of(report.scope_staged, "d", staged,
+                                     ["docs/"], "x/")
+        self.assertEqual((None, {}), result)
+        self.assertIn("nothing was scanned", err)
+
+    def test_refuse_escaping_targets(self):
+        """RT7 (160/730): a relative target must stay under --root."""
+        root = Path("/r")
+        for ok in ([], ["docs"], ["docs/../src"], ["./docs"], ["/abs/x"],
+                   ["/elsewhere/../x"], ["."], ["a/b/../.."]):
+            self.assertIsNone(report.refuse_escaping_targets("d", root, ok), ok)
+        for bad in (["../x"], ["docs/../../x"], ["a/b/../../.."], ["..", "docs"]):
+            rc, err = _stderr_of(report.refuse_escaping_targets, "d", root, bad)
+            self.assertEqual(2, rc, bad)
+            self.assertIn("climb out of --root", err)
+        rc, err = _stderr_of(report.refuse_escaping_targets, "d",
+                             Path("/r"), ["../r-sibling/x"])
+        self.assertEqual(2, rc)
 
     def test_missing_root(self):
         with tempfile.TemporaryDirectory() as td:

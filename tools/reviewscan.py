@@ -167,8 +167,9 @@ VERDICT_HEADING = re.compile(r"^#{1,6}\s.*\bverdict\b", re.IGNORECASE)
 # `tools/secretscan.py`'s identical mechanism). Fixed sizes independent of
 # the file scanned: peak memory for reading ANY one record or brief is
 # bounded by `LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP`, never by the file's
-# own size. Duplicated here rather than imported so this tool stays
-# self-contained and copyable alone.
+# own size. Duplicated here rather than imported (each guard's reader
+# differs); the tool imports only the stdlib and `filewalk`, `allowmarker`
+# and `report` beside it (160/730 RT5).
 #
 # The WINDOW SIZE is grounded in THIS tool's own shapes (`tools/linkscan.py`
 # makes the same argument in more detail, and measured the same effect):

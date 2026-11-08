@@ -742,6 +742,9 @@ def _main(argv: list[str] | None = None) -> int:
         # mixing the two reads one repo's file under another repo's rules,
         # and neither half of the output says so (roadmap 010/110).
         targets = report.resolve_targets(root, args.paths or [str(root)])
+        rc = report.refuse_escaping_targets("conflictscan", root, args.paths)
+        if rc is not None:
+            return rc
         rc = report.refuse_missing_paths("conflictscan", targets)
         if rc is not None:
             return rc

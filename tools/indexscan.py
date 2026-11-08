@@ -698,6 +698,9 @@ def _main(argv: list[str] | None = None) -> int:
     if rc is not None:
         return rc
     targets = report.resolve_targets(root, args.paths or [str(root)])
+    rc = report.refuse_escaping_targets("indexscan", root, args.paths)
+    if rc is not None:
+        return rc
     rc = report.refuse_missing_paths("indexscan", targets)
     if rc is not None:
         return rc

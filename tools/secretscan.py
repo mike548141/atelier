@@ -71,10 +71,11 @@ The report never prints a secret value: findings carry path:line + a redacted
 fingerprint (length + entropy), enough to locate, not enough to re-leak.
 
 Some overlap with leakscan is intentional (both catch private-key headers, AWS
-key ids, JWTs) — the tools have different *purposes* and are each self-contained
-so a peer can copy either one alone. The small plumbing duplication (staged
-diff, ignore globs, file iteration) is the price of that zero-coupling; if a
-third scanner ever lands, factor a shared base then, not speculatively now.
+key ids, JWTs) — the tools have different *purposes* and keep their own rule
+tables so neither depends on the other. They are NOT each copyable alone: both
+import `filewalk`, `allowmarker`, `anchoredrx` and `report` from this directory
+(stdlib-only; 160/730 RT5), which is where the plumbing that used to be
+duplicated (file walk, ignore globs, exit contract) now lives.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero):
   0  clean, or advisory findings only (they are REPORTED, never a gate)
@@ -832,9 +833,11 @@ EXEMPT_PRIVATE_KEY_RULE = "exempt-private-key"
 
 # The line `render_human` prints so a reader — and `tools/floor.py`'s board —
 # can both read the count off one run. floor.py matches this prefix rather than
-# importing anything: the scanners are self-contained by design (one is
-# copyable alone), so the coupling is a documented output contract, pinned from
-# both sides by `test_floor.py::AdvisoryCountContract`.
+# importing anything: floor.py runs the scanners as subprocesses and they need
+# nothing from it (they are not each copyable alone - they share `filewalk`,
+# `allowmarker` and `report` - 160/730 RT5), so the coupling is a documented
+# output contract, pinned from both sides by
+# `test_floor.py::AdvisoryCountContract`.
 ADVISORY_COUNT_PREFIX = "secretscan advisory:"
 
 
@@ -1350,11 +1353,13 @@ def _scan_file(path: Path, rel: str, disabled: frozenset[str],
                 seen_in_window = set()
             else:
                 in_overlong = True
-    except OSError:
-        # A file that vanishes/becomes unreadable mid-walk (race with another
-        # process) is not this scanner's failure to report — matches the old
-        # behaviour, which never guarded `read_bytes()` here either.
-        pass
+    except OSError as e:
+        # A file that VANISHES mid-walk (a race with another process) is not
+        # this scanner's failure to report. One that exists but cannot be read
+        # is: re-raised, and `guarded_main` turns it into exit 2 - a broken
+        # scan is not a pass (RT1, 160/730).
+        if not report.is_vanished(e):
+            raise
     return findings
 
 
@@ -1670,7 +1675,9 @@ def _scan_exempt_file(path: Path, rel: str, disabled: frozenset[str],
         return []
     try:
         return _exempt_findings(rel, _iter_numbered_lines(path), tally)
-    except OSError:
+    except OSError as e:
+        if not report.is_vanished(e):
+            raise       # unreadable is a broken scan (RT1, 160/730)
         return []       # vanished mid-walk, as `_scan_file` treats it
 
 
@@ -1771,8 +1778,9 @@ def advisory_count_line(n: int) -> str:
     "no line" mean two different things: nothing found, or the wording drifted
     and the reader (or `tools/floor.py`) is now parsing a message that no longer
     exists. Printing the zero collapses that ambiguity, so a count that
-    disappears is a defect somebody can see rather than a quiet green."""
-    return f"  {ADVISORY_COUNT_PREFIX} {n} finding(s) — reported, not blocking."
+    disappears is a defect somebody can see rather than a quiet green. The
+    wording lives in `report.advisory_count_line` (RT6, 160/730)."""
+    return report.advisory_count_line("secretscan", n)
 
 
 def _render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
@@ -1943,6 +1951,9 @@ def _main(argv: list[str] | None = None) -> int:
         # A typo'd path scanning nothing must never read as a clean pass —
         # the linkscan L1 silent-success class, closed here too
         # (2026-07-11 review N2).
+        rc = report.refuse_escaping_targets("secretscan", root, args.paths)
+        if rc is not None:
+            return rc
         rc = report.refuse_missing_paths("secretscan", targets)
         if rc is not None:
             return rc
