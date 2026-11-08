@@ -5,6 +5,32 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-09 — child-and-parent relationship doctrine, six items)
+Mike approved the recommendation on each item on 2026-11-09 as a pick from
+options a session offered (an answer, not a ruling in his words). Doctrine
+wording only; no scanner or tool is built.
+- **The floor binds a repo made public later (`320/380`).** The estate-resources
+  bullet reads "is public, or is ever made public", with one sentence that
+  spelling the actual path defeats the convention. The canonical region and
+  the template's stamped copy change together; children's copies update at
+  their next pin bump.
+- **No private child in a worked example (`320/330`).** `PROPAGATION.md` § *The
+  route* rule 2 reaches doctrine's own prose; the worked examples, bearings and
+  instances in eight method files and the build README say "a private child".
+  Acts done to a repo and the extraction origin's provenance citations are left,
+  pending his word.
+- **A greppable marker for owed-upstream lines (`310/020`).** `Pending
+  upstream:`, an ISO date and the parent item or `unfiled`. The enumerator is
+  not built.
+- **Only parent and child is modelled (`390/010`).** One generic line points
+  other relationships at the estate root's registry.
+- **One route between any two repos (`310/120`, `310/140`).** `PROPAGATION.md`
+  § *The same route between any two repos*: a PR files an idea and never the
+  fix, redaction keys on the target's visibility, an issue where there is no
+  write access. How the target learns a PR arrived is undecided.
+- **Splitting a repo (`320/580`).** A draft section in `REPO-BOUNDARY.md`
+  from one hand-up's testimony, with what could not be grounded listed.
+
 ### Added (2026-11-08 — five session-and-ask doctrine additions)
 Mike approved the recommendation on each item on 2026-11-09 (his date) as a pick from
 options a session offered (an answer, not a ruling in his words). Doctrine
