@@ -77,4 +77,64 @@ speculation that one might. Don't pre-split for a reuse or a public release that
 is only hypothetical; let the real need draw the boundary. And when one *does*
 fire, split **promptly**: the cheapness of splitting decays as a folder accretes
 cross-references, its own CI, and a doctrine block — deferring a fired
-discriminator is how the accidental monorepo above actually forms.
+discriminator is how the accidental monorepo above actually forms. How to
+split is the last section, below.
+
+## Splitting a repo — how, once a discriminator has fired
+
+*Added 2026-11-09 from `320/580`, as a draft of what could be grounded and no
+more; Mike's pick from options offered, so an answer and not a ruling in his
+words. Class only: the evidence is two splits a private child summarised by
+shape in a hand-up of 2026-10-11, and the detail stays in the children's
+private records. Every element below is that hand-up's testimony. atelier has
+not re-driven it (`PROPAGATION.md` § Pointing up: a hand-up's mechanism claim
+is re-driven before it becomes house text), so read this as a checklist to
+test against the next split, not as a settled method.*
+
+**The two splits.** A tool moved out of a private engagement repo into a new
+public repo, over about two weeks, recorded as done. Estate data moved out of a
+product repo into the estate root, begun months earlier, stalled behind other
+work, and re-planned by studying the first. The first's lessons are reported to
+have transferred almost one for one, which is why one section covers both.
+
+**What the first split developed, and the second reused:**
+
+1. **State the bar and the capability list before the first move.** What the
+   split must achieve, and what the new home must be able to do.
+2. **A four-line routing test, placed in every onramp a session on either side
+   reads** (the user-global one too, when one side may not name the other). It
+   came from the private side, so it goes private. It is generic and written
+   with synthetic examples, so it goes public. It is both, so split it and
+   never carry the motive across. Unsure goes private.
+3. **Records never cross, however well cleaned.** Session logs, history, board
+   items and decisions stay with the side that made them.
+4. **One home per fact, one direction of flow, never fork.** A change the new
+   repo needs is made upstream, not in a local copy.
+5. **Build the guard first and prove it fails.** A guard that skips silently
+   when its data is absent is the defect both splits hit (compare `320/230`).
+   One was found only because the second split studied the first, before the
+   deletion that would have exposed it.
+6. **Judge by meaning; keywords back it up.** The gate's first layer is a read
+   for meaning, attested by hash, with token lists as a backstop only.
+7. **Migrate in measured stages, and a moved result stops the stage.**
+8. **Give every temporary bridge a dated delete-item.**
+9. **Rename refuse-first**, with a script that also copies the assistant memory
+   keyed by path, so the move does not orphan it.
+10. **Cold reviews at stage boundaries.**
+11. **A handoff file with a "settled, do not re-ask" list**, so a fresh session
+    does not reopen a ruling.
+
+**What the principal had to correct, so it is not re-learned:** keywords
+used where meaning was needed (three times in the first split), forking where
+upstreaming was needed (twice in four minutes), a settled ruling asked again,
+and the silent-skip guard above.
+
+**What could not be grounded here, and is therefore not written.** The
+hand-up names the gate's first layer and says nothing of its others, or of the
+token-list format. It gives no sizes for the stages and does not say what
+"measured" measures. It does not say when the rename refuses, what the handoff
+file's fields are, or where a stage boundary falls. Items 1 and 11 are
+headings, not contents: the bar and capability list were not itemised. How a
+split of data differs from a split of a tool is unknown, since the second is
+unfinished. The extraction from the children's private records, and its cold
+review, are owed before this section is more than a checklist.
