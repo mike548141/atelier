@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued — the scratch-space clause: a worker's worktree
+- [~] (claimed 2026-11-09-0500, wt: atelier-rr-722a-x1)
+      🎯 **Rule-4 cold pass queued — the scratch-space clause: a worker's worktree
       isolates the repo and not the scratchpad, so the dispatch prompt carries
       the obligation.** Self-authored by the run that measured it; queued at
       landing, and the run neither takes nor spawns it. *Tier:* Fable, the
@@ -49,3 +50,5 @@
             shape — this batch's orchestrator moved its siblings out on reading
             the finding; SK10 (note) formed at reconcile. Findings are the
             principal's to decide (rule 3); nothing was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Keep it out of that folder"* (SK1): held-back review notes never live in the orchestrator's scratch folder; the rule says where they go. SK2–SK9 wording on the reviewer's counsel.

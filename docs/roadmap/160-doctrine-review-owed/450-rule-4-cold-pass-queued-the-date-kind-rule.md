@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the mandate-versus-default date rule
+- [~] (claimed 2026-11-09-0500, wt: atelier-rr-722a-x1)
+      🎯 **Rule-4 cold pass queued: the mandate-versus-default date rule
       (`040/010`).** The run authored the wording itself. The rule is Mike's
       and is quoted, and the placement and surrounding prose are the run's.
       It was queued at landing, and the run neither takes it nor spawns a
@@ -47,3 +48,5 @@
             `4ff5f81` (titled for the CP pass) because a blocked commit had left
             that pass's files staged; the text is unrevised. Findings are the
             principal's to decide (rule 3); nothing was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Add a readable label"* (DK1, DK2): each dated rule carries a `mandate` or `default` kind the checkers read; existing dates get labelled.

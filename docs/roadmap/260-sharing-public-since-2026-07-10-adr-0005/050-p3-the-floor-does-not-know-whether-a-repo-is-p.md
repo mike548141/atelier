@@ -1,4 +1,5 @@
-- [ ] 🎯 **P3 — the floor does not know whether a repo is public, and it should
+- [~] (claimed 2026-11-09-0500, wt: atelier-rr-722a-x1)
+      🎯 **P3 — the floor does not know whether a repo is public, and it should
       (ADR-worthy).** Mike, 2026-07-29: *"we will need additional guards, or to
       run the existing guards at a higher level of protection for public vs
       private repos."* Today visibility appears in the registry only as prose
@@ -13,3 +14,5 @@
       what happens to a repo whose declaration says private and whose platform
       says public — that is a **live breach**, and the floor should say so
       loudly rather than fail on a config mismatch.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Yes, with the loud alert"*: each repo declares its visibility in its floor config, cross-checked against GitHub, public repos get the stricter checks, and a says-private-is-public mismatch is red. **Overlap noted by him the same day:** build on the daily visibility check already filed under `390/020`, never a second one.
