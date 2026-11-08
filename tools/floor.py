@@ -267,9 +267,17 @@ ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # verbatim, so these are stripped at the parse seam — see `strip_controls`.
 # C1 included per FR3 (ruled 2026-08-23): U+009B is a one-character CSI alias
 # xterm-lineage terminals honour even in UTF-8 mode, so a C0-only strip left
-# the exact repaint C1F3 closed reachable through one byte. The bidi/zero-width
-# spoofing set is a queued decision, not silently folded in here.
+# the exact repaint C1F3 closed reachable through one byte.
 CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f-\x9f]")
+# The bidi override and isolate set (U+202A-202E, U+2066-2069), which can
+# visually reorder a printed line. ESCAPED to a visible `<U+XXXX>`, not dropped
+# (Mike's pick, 2026-11-09, from options offered, board item 020/350): unlike a
+# control character these have a legitimate use in right-to-left text, so a
+# reader should see that one was there rather than have it vanish, and the
+# spoof is defeated either way. Joiners and zero-width spaces (U+200B-200D,
+# U+2060, U+FEFF) are left alone: they are ordinary in Indic, Arabic and emoji
+# text and reorder nothing. The marks U+200E/F and U+061C are likewise left.
+BIDI_CHARS_RE = re.compile(r"[\u202a-\u202e\u2066-\u2069]")
 
 # Arguments whose presence in a plane's template means the check REPORTS its
 # findings and never blocks on them. `--warn` is the estate-wide spelling: every
@@ -892,7 +900,9 @@ def _days_over(review_by: str, today: str) -> str:
 
 def strip_controls(value: object) -> object:
     """Remove C0 control characters (and DEL) from every string in a parsed
-    config document — keys and values, at any depth.
+    config document — keys and values, at any depth. Bidi override and isolate
+    characters are not removed but ESCAPED to a visible `<U+XXXX>` (see
+    `BIDI_CHARS_RE`; 020/350).
 
     A child's `.atelier-floor.json` is text an operator READS: the `why` on an
     advisory, the reason on a disabled check, a local check's description, all
@@ -917,7 +927,9 @@ def strip_controls(value: object) -> object:
     instead of: one of the two would gain a case and the other would not, and
     nothing would say which. One seam, two callers."""
     if isinstance(value, str):
-        return CONTROL_CHARS_RE.sub("", value)
+        return BIDI_CHARS_RE.sub(
+            lambda m: f"<U+{ord(m.group()):04X}>",
+            CONTROL_CHARS_RE.sub("", value))
     if isinstance(value, dict):
         # Two keys that differ only by control characters would silently
         # collapse to one entry, the other dropped — the quiet meaning-change

@@ -1807,12 +1807,67 @@ class ControlCharacterTest(unittest.TestCase):
         """FR3 (ruled 2026-08-23): U+009B is a one-character CSI alias
         that xterm-lineage terminals honour even in UTF-8 mode, so a
         C0-only strip left the exact repaint C1F3 closed reachable
-        through one byte. Bidi/zero-width spoofing is a queued decision,
-        deliberately not asserted here."""
+        through one byte. The bidi set is escaped, not stripped: see
+        the bidi tests below (020/350)."""
         cfg = _cfg({"disabled": {"spellscan": "own\x9b31med \x85 text"}})
         self.assertNotIn("\x9b", cfg.disabled["spellscan"])
         self.assertNotIn("\x85", cfg.disabled["spellscan"])
         self.assertEqual(cfg.disabled["spellscan"], "own31med  text")
+
+    def test_bidi_overrides_and_isolates_are_escaped_visibly(self):
+        """020/350 (Mike's pick, 2026-11-09, from options offered): the
+        override and isolate set can reorder a printed line, so each is
+        replaced by a visible `<U+XXXX>` marker. Not dropped: right-to-left
+        text has a legitimate use for them, and a reader should see that one
+        was there."""
+        for cp in [*range(0x202A, 0x202F), *range(0x2066, 0x206A)]:
+            with self.subTest(codepoint=f"U+{cp:04X}"):
+                cfg = _cfg({"disabled": {"spellscan": f"ok{chr(cp)}evil"}})
+                self.assertNotIn(chr(cp), cfg.disabled["spellscan"])
+                self.assertEqual(cfg.disabled["spellscan"],
+                                 f"ok<U+{cp:04X}>evil")
+
+    def test_joiners_and_zero_width_characters_are_left_alone(self):
+        """The other direction: the zero-width joiner family is ordinary in
+        Indic, Arabic and emoji text and reorders nothing, so it must pass
+        through untouched (020/350)."""
+        text = "a\u200bb\u200cc\u200dd\u2060e\ufeff f\u200eg\u200fh"
+        cfg = _cfg({"disabled": {"spellscan": text}})
+        self.assertEqual(cfg.disabled["spellscan"], text)
+
+    def test_the_bidi_escape_is_idempotent_and_reaches_keys(self):
+        """Escaping twice must not change the result (the seam is called from
+        more than one place), and a key carrying an override no longer
+        matches a real scanner name, so the config fails closed by message."""
+        once = floor.strip_controls("x\u202ey")
+        self.assertEqual(once, "x<U+202E>y")
+        self.assertEqual(floor.strip_controls(once), once)
+        with self.assertRaises(floor.ConfigError) as caught:
+            _cfg({"disabled": {"spell\u202escan": "why"}})
+        self.assertNotIn("\u202e", str(caught.exception))
+
+    def test_a_key_that_collapses_onto_a_literal_marker_refuses(self):
+        """An escaped key and a key already spelled with the marker text
+        would become one entry; the existing refusal must catch it."""
+        with self.assertRaises(ValueError) as caught:
+            floor.strip_controls({"a\u202eb": 1, "a<U+202E>b": 2})
+        self.assertIn("collapse", str(caught.exception))
+
+    def test_the_rendered_line_carries_no_bidi_override(self):
+        """End to end: what reaches the terminal shows the marker, not the
+        reordering character."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(json.dumps(
+                {"disabled": {"spellscan": "no prose\u202egnp.exe"}}),
+                encoding="utf-8")
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"),
+                 "--plane", "ci", "--root", td],
+                capture_output=True, text=True)
+        self.assertIn("spellscan", r.stderr)
+        self.assertNotIn("\u202e", r.stderr)
+        self.assertIn("<U+202E>", r.stderr)
 
     def test_two_keys_collapsing_after_the_strip_refuse_loudly(self):
         """FR4 (ruled 2026-08-23): a silent merge would drop one entry —
