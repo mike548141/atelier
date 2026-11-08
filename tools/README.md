@@ -81,7 +81,8 @@ has **no size check**: a file is never reported for its length (Mike's ruling,
 size × read-frequency, so the enemy is cold content sitting on the hot path,
 never fulsomeness: a roadmap that is long purely from a genuine list of *open*
 items is not mentioned at all. The judgement of whether a long all-open file is
-hiding resolved narrative stays human, caught at review.
+hiding resolved narrative is detected by nothing: no tool and no scheduled
+review looks for it, and keeping it out is the writing session's discipline.
 
 **board** (a records-hygiene check, board-store ADR 2026-08-15) guards the one
 derived file the split board keeps: `ROADMAP.md` is generated from the per-item
@@ -1122,9 +1123,9 @@ answered "Remove it" (`115/270` c). The reference points, the marker and the
 advisory output are gone. What that gave up, stated plainly: the advisory was
 the only pointer to **prose-shaped cold content** (resolved narrative under an
 *open* item) and to thinness, which a machine cannot name without guessing. They
-stay **caught at review, not measured**, with nothing in the tool pointing at
-them. A finding still prints its file's line count as context, never as a
-trigger.
+are **detected by nothing**: no tool and no scheduled review looks for them
+(`160/850`), and nothing in this tool points at them. A finding still prints
+its file's line count as context, never as a trigger.
 
 Scope, in two deliberate directions:
 
@@ -1145,24 +1146,32 @@ detail lives in a standalone file). An unscoped `sizescan:allow`, a
 `sizescan:allow:cold-content` scope and a `.sizescanignore` glob all leave a
 file's completed `[x]` items gated; a glob no longer skips the file.
 
-**Two hatches still do something, only on an archive store.** An unscoped (or
-`harvest-integrity`-scoped) `sizescan:allow: <reason>` header exempts the store's
-integrity check, and a glob in `.sizescanignore` skips it. They are counted on
-the `suppressed:` line.
+**Two hatches still do something, only on an archive store.** A
+`sizescan:allow` header that is unscoped, `harvest-integrity`-scoped, **or
+scoped with a word the tool does not recognise** exempts the store's integrity
+check, and a glob in `.sizescanignore` skips it. They are counted on the
+`suppressed:` line. A scope the tool does not recognise (a typo of
+`harvest-integrity`) is read as the
+unscoped form, which is the additive rule `115/230` still has to rule on, so it
+is also named under "Unrecognised scope (still exempting)", counted as
+`N unrecognised scope(s) (read as unscoped)` and carried in `--json` as
+`unrecognised_scopes`. A glob-skipped store's header is not read, so a stale
+marker on one is not named.
 
-**Every other hatch is present and inert, and the report names it.** With the
-size advisory gone, a `sizescan:allow` on any other hot-path file (it only ever
-quieted that advisory), a scope that does not cover the file's own kind
-(`size-advisory`, `cold-content`, or `harvest-integrity` on a roadmap), a
-`.sizescanignore` glob over a hot-path file and a leftover `sizescan:budget=N`
-exempt nothing. Each is listed under "Inert hatches" with its path (on a roadmap
-that carries cold content, under that finding instead: `note: sizescan:allow
-header (unscoped) present and inert — it cannot exempt cold content`), counted on
-the `suppressed:` line as `N inert hatch(es) (exempt nothing)`, and carried in
-`--json` as `inert_hatches`. They change no verdict and no exit code: remove
-them. No new exemption exists. `size-advisory` stays a recognised, retired scope
-name so a stale `sizescan:allow:size-advisory:` marker is not mistaken for the
-unscoped form, which *would* exempt an archive store (`115/080`).
+**Every other hatch is present and inert, and the report names it (except on a
+store a glob skips).** With the size advisory gone, a `sizescan:allow` on any
+other hot-path file (it only ever quieted that advisory), a scope that does not
+cover the file's own kind (`size-advisory`, `cold-content`, or
+`harvest-integrity` on a roadmap), a `.sizescanignore` glob over a hot-path file
+and a leftover `sizescan:budget=N` exempt nothing. Each is listed under "Inert
+hatches" with its path (on a roadmap that carries cold content, under that
+finding instead: `note: sizescan:allow header (unscoped) present and inert — it
+cannot exempt cold content`), counted on the `suppressed:` line as `N inert
+hatch(es) (exempt nothing)`, and carried in `--json` as `inert_hatches`. They
+change no verdict and no exit code: remove them. No new exemption exists.
+`size-advisory` stays a recognised, retired scope name so a stale
+`sizescan:allow:size-advisory:` marker is not mistaken for the unscoped form,
+which *would* exempt an archive store (`115/080`).
 
 **The gate names what it counted.** Each flagged file lists every completed item
 (`line 12: the item's text`, text capped at 60 characters), so the move to

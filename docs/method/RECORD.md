@@ -60,8 +60,10 @@ stopped instead of re-deriving it:
   the same current-truth/history split as `ROADMAP`→`ROADMAP-DONE`, and the
   answer to the one move a bloated *already-split* index otherwise lacks.
   `tools/sizescan.py` does not measure the index's length — it has no size check
-  (Mike's ruling, 2026-10-05: no arbitrary line or size limits) — so a regression
-  back to a flat log is caught at review, not by a number. (Grounded 2026-07-14:
+  (Mike's ruling, 2026-10-05: no arbitrary line or size limits) — and nothing
+  else reads the index for its shape, so a regression back to a flat log is
+  detected by no tool and by no scheduled review: it relies on the writing
+  session's discipline and the next session noticing. (Grounded 2026-07-14:
   the cold review found the append-only rule and the budget colliding with no
   sanctioned move for an index that had already done the split.) An entry
   written while a review is pending names any deferred material by file and
@@ -436,16 +438,19 @@ history relocates to an on-demand store.** SESSIONS (index + `docs/sessions/`),
 the board (generated index + per-item files; pre-split detail in
 `ROADMAP-DONE.md`), a README that points into `docs/` — the same
 shape. The discipline decays silently, though: the split gets done once by hand,
-then nothing fires when a file bloats again. So it carries a **signal** —
-`tools/sizescan.py`. Cost is size × read-frequency (Mike's ruling, 2026-07-20),
+then nothing fires when a file bloats again. So, for the one form a machine
+can name, it carries a **signal** — `tools/sizescan.py`. Cost is size ×
+read-frequency (Mike's ruling, 2026-07-20),
 so the signal keys on **relocatable cold content on the hot path**, not length:
 it **gates** on a completed `[x]` item in a checkbox-worklog file (a done item
 belongs in `ROADMAP-DONE.md`; left inline it is pure cost with a lossless fix),
 and does not report line count at all (Mike's ruling, 2026-10-05: no arbitrary
 size limits; the old length advisory was removed 2026-10-16), because a file
 long purely from live current-truth has nothing to relocate. Resolved narrative
-under an open item is real cold content a machine cannot name, so it stays
-caught at review. Growth stores are excluded by design; flagging the
+under an open item is real cold content a machine cannot name, and no tool or
+scheduled review looks for it: nothing fires when a file bloats with it, so
+keeping it out is the writing session's discipline and the next session's
+noticing. Growth stores are excluded by design; flagging the
 *destination* would punish the fix. The
 destination has its own contract, though — **harvest integrity** (Mike's ruling,
 2026-07-22): the named archive stores (`*-DONE.md`, `*-ARCHIVE.md`) record

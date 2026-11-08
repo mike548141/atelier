@@ -426,6 +426,61 @@ there, and the G3 binary gate reports it as a warning that blocks from
   contract is stated once in the `report.py` section with pointers (RT10), and
   the review-brief skill gives the re-run invocation that runs (GT6).
 
+### Changed (2026-11-09 — four cold-pass reviews applied: the staged diff, indexscan's date rule, sizescan's hatches, `160/800`, `160/810`, `160/830`, `160/850`)
+Mike's answer of 2026-11-09 ("Approve all 17") applied the reviewers' counsel as
+written. Scanner changes were run against every child before landing.
+- **The staged diff is read by a pinned command (`160/800`).** `git diff` ran
+  under whatever the committer's settings said. `diff.suppressBlankEmpty` with
+  `diff.interHunkContext` or `GIT_DIFF_OPTS` (which git applies over the
+  command line) fused hunks and printed bare blank context lines, so
+  `secretscan`, `conflictscan` and `leakscan` all refused a legitimate diff
+  with exit 2. The two settings are pinned, `GIT_DIFF_OPTS` is dropped from the
+  child's environment, and `--no-relative` keeps paths root-relative from a
+  subdirectory. A refusal now says it is not a finding and how to see the raw
+  diff, and `floor.py` no longer reads an advisory count off a scanner that
+  exited 2 (it reported "the count contract has drifted" beside the real cause).
+- **Two kinds of change were invisible to the staged guards.** The filter is now
+  `ACMRT`: a regular file that replaces a symlink (or the reverse) is a
+  typechange, which `ACMR` never showed to any guard. A `-diff` or `binary`
+  attribute staged with a text file made git print "Binary files differ" and no
+  line, so a secret in it reached `secretscan` and `conflictscan` (`leakscan`
+  already read such a file whole). A path git calls binary whose index copy has
+  no NUL in its first 8000 bytes is now read again with `--text`; a genuinely
+  binary file is never turned into lines. `diff.<driver>.textconv` is left
+  unpinned on purpose, and the reason is recorded beside the command.
+- **Not changed, and said so:** the staged plane still holds the whole diff in
+  memory (`160/800` SX6): what an over-long staged line should do is a ruling to
+  ask for. `leakscan`'s path-name cover for empty, renamed and binary files was
+  already built (`G3`) and is now pinned by a test. `--staged --root` naming
+  another repo was already refused (`160/950`).
+- **`conflictscan` and `leakscan`: one input class moved with `115/300`
+  (`160/830`).** The entry above said no exit code moved. An added line holding
+  a form feed, vertical tab, NEL, U+2028 or a lone CR before a conflict marker
+  was split by `str.splitlines`, so the marker looked like a line of its own
+  and was flagged at a wrong number. It is now one line, as in git and on the
+  whole-tree plane, so `conflictscan` no longer flags it (exit 1 to 0 on that
+  contrived input). `leakscan` keeps its finding at the correct line. Both
+  planes' agreement is pinned.
+- **`indexscan`'s date rule (`160/810`).** `before=` now scopes the date rule as
+  it scopes `unlisted`: a line that links a frozen entry is not date-checked, and
+  is counted under `by_before` when it would have fired. A marker whose scope
+  names no kind (a typo, `Date-Mismatch:`) exempts nothing and is reported
+  `stale-allow`; the first version read it as an `unlisted` exemption. The dated
+  line count is the lines judged (an impossible date is not in it). The marker
+  count is split by what each exempted (`--json`: `by_allow_marker_kind`). The
+  finding names the three causes of a misdated line and says to append the
+  marker after the link. The registry's `why` names the date rule.
+- **`sizescan` (`160/850`).** An archive store's header marker with a scope the
+  tool does not recognise has always exempted the integrity check, as the
+  unscoped form does; the docs said it was inert. The docs are corrected, and
+  the report now names it under "Unrecognised scope (still exempting)", counts
+  it on the `suppressed:` line (a new part, `N unrecognised scope(s) (read as
+  unscoped)`) and carries it in `--json` as `unrecognised_scopes`. The
+  behaviour itself is left to `115/230`. `RECORD.md` and the tool's docs no
+  longer say that prose-shaped cold content is "caught at review": no tool and
+  no scheduled review looks for it. The docstring no longer calls the
+  2026-10-16 answer a ruling.
+
 ### Changed (2026-11-09 — G3 review applied: who allowed it and when, the gate before the ignore file, raw XMP read, `160/980`)
 Mike's answers of 2026-11-08 on the cold pass of `020/150`, plus the reviewer's
 counsel on the rest. G3 itself still warns only until **2026-11-18, which he

@@ -41,13 +41,16 @@ done item belongs in `ROADMAP-DONE.md`; left inline it is pure cost with a
 lossless fix. So *that* is what `--check` gates on: the presence of `[x]` items
 on the hot path. **Prose-shaped cold content** — resolved narrative packed under
 a still-open `[ ]` item, a closed-cycle write-up with no checkbox — is real cold
-content too, but it cannot be detected without guessing, so it is **caught at
-review, never measured**, and nothing in this tool points at it. This mirrors the
+content too, but it cannot be detected without guessing, so it is **detected by
+nothing**: no tool and no scheduled review looks for it (160/850 SZ2), and
+nothing in this tool points at it. Keeping it out is the writing session's
+discipline and the next session's noticing. This mirrors the
 tool's standing one-sided honesty — a too-*thin* file (a hollow ARCHITECTURE.md
 that lies by omission) is the worse defect, but thinness is judgement caught at
 review under the stub-honestly rule (`00-APEX.md`), never a measured floor.
 
-**There is no size check at all** (Mike's rulings, 2026-10-05 and 2026-10-16).
+**There is no size check at all** (Mike's ruling of 2026-10-05, and his answer
+of 2026-10-16 to a session's question).
 sizescan once also reported a hot file's length against a class reference point
 (`ROADMAP.md` ~300 lines, `SESSIONS.md` ~250, and so on) as an advisory that
 never failed a build, with a `sizescan:budget=N` marker to override the number.
@@ -127,12 +130,19 @@ Hatches (header-only — the first 15 lines, never the body, so a file that mere
 advisory went, only two hatches can still exempt anything, and both only on an
 archive store:
 
-  * `sizescan:allow` — unscoped, or scoped `harvest-integrity` — exempts an
-    archive store's harvest-integrity check. Keep the reason on the marker line
-    so the exemption is self-documenting.
-  * A glob in `.sizescanignore` skips an archive store wholesale.
+  * `sizescan:allow` — unscoped, scoped `harvest-integrity`, **or scoped with
+    any word the tool does not recognise** (a typo of `harvest-integrity`, an
+    invented scope) — exempts an archive store's harvest-integrity check. The
+    last form is read as unscoped (`allowmarker.covers`, kept until `115/230`
+    is ruled); it is named under "Unrecognised scope" and counted on the
+    `suppressed:` line, so a mistyped scope is visible. Keep the reason on the
+    marker line so the exemption is self-documenting.
+  * A glob in `.sizescanignore` skips an archive store wholesale. The store's
+    header is not read at all, so a stale marker on a glob-skipped store is
+    not named (the one class the sentence below does not cover, 160/850 SZ4).
 
-**Everything else is present and inert, and is named, never silently accepted.**
+**Everything else is present and inert, and is named, never silently accepted,
+except on a store a `.sizescanignore` glob skips.**
 A hatch that can no longer exempt anything — any `sizescan:allow` on a hot-path
 file (it only ever quieted the retired size advisory), a scope that does not
 cover the file's own kind (`size-advisory`, `cold-content`, or
@@ -183,8 +193,10 @@ import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
 import report  # noqa: E402
 
-# A file whose HEADER carries this marker, unscoped or scoped `harvest-integrity`,
-# has an archive store's harvest-integrity check exempted: the only thing left
+# A file whose HEADER carries this marker, unscoped, scoped `harvest-integrity`
+# or scoped with a word this tool does not know (read as unscoped, and named
+# under "Unrecognised scope"), has an archive store's harvest-integrity check
+# exempted: the only thing left
 # for it to exempt, now the size advisory is gone. It never exempts cold content
 # (Mike's 2026-10-05 ruling: no hatch silences that gate). Anywhere else it is
 # inert, and the report says so. Keep the reason on the same line so the
@@ -382,6 +394,16 @@ class InertHatch:
     """A hatch present where it can no longer exempt anything (115/270 c)."""
     path: str            # the file it sits on (or matches), repo-relative
     hatch: str           # what it is, e.g. `sizescan:allow header (unscoped)`
+
+
+@dataclass
+class LooseScope:
+    """A header marker on an archive store whose scope names no kind this tool
+    has. It is read as the unscoped form and DOES exempt the store's
+    harvest-integrity check (`allowmarker.covers`, kept until `115/230` is
+    ruled), so it is named, never accepted silently (160/850 SZ1)."""
+    path: str            # the archive store, repo-relative
+    scope: str           # the scope as written, e.g. `living-doc`
 
 
 # Where a hot file's cold content belongs, so the report points at the fix, not
@@ -714,7 +736,8 @@ def _inert_hatches(basename: str, header: str, scope: str | None,
 
 def scan_paths(paths: list[Path], root: Path,
                counts: dict[str, int] | None = None,
-               inert: list[InertHatch] | None = None) -> list[Finding]:
+               inert: list[InertHatch] | None = None,
+               loose: list[LooseScope] | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     skipped: list[int] = []
 
@@ -725,7 +748,7 @@ def scan_paths(paths: list[Path], root: Path,
                    lambda looked_at, slots, p=p: (
                        _scan_file_metrics(p, p.name, slots) if looked_at
                        else (_read_header(p), 0, 0, 0, [])))
-    return _judge(sources(), globs, skipped, counts, inert)
+    return _judge(sources(), globs, skipped, counts, inert, loose)
 
 
 def _staged_candidates(staged, globs: list[str], skipped: list[int]):
@@ -760,7 +783,8 @@ def _staged_candidates(staged, globs: list[str], skipped: list[int]):
 
 def scan_staged(staged, root: Path,
                 counts: dict[str, int] | None = None,
-                inert: list[InertHatch] | None = None) -> list[Finding]:
+                inert: list[InertHatch] | None = None,
+                loose: list[LooseScope] | None = None) -> list[Finding]:
     """The hook plane (320/600): what this commit is about to make true.
 
     Both of this scanner's checks judge a WHOLE file (does the roadmap carry a
@@ -775,18 +799,20 @@ def scan_staged(staged, root: Path,
     globs = load_ignore_globs(root)
     skipped: list[int] = []
     return _judge(_staged_candidates(staged, globs, skipped), globs, skipped,
-                  counts, inert)
+                  counts, inert, loose)
 
 
 def _judge(sources, globs: list[str], skipped: list[int],
            counts: dict[str, int] | None,
-           inert: list[InertHatch] | None) -> list[Finding]:
+           inert: list[InertHatch] | None,
+           loose: list[LooseScope] | None = None) -> list[Finding]:
     """The verdict on each source file, whichever plane it is read from.
     `sources` yields `(basename, repo-relative path, read)`, where
     `read(looked_at, slots)` gives `(header, n, cold, live, items)`."""
     findings: list[Finding] = []
     files_allowed = 0
     n_inert = 0
+    n_loose = 0
     slots = MAX_MATERIALIZED_FINDINGS
     cold_over_cap = 0
     for name, rel, read in sources:
@@ -817,6 +843,10 @@ def _judge(sources, globs: list[str], skipped: list[int],
                                          FINDING_KINDS))
         if exempt:
             files_allowed += 1
+            if scope and scope not in FINDING_KINDS:
+                n_loose += 1
+                if loose is not None:
+                    loose.append(LooseScope(rel, scope))
         hatches = _inert_hatches(name, header, scope, _ignored(rel, globs))
         if is_archive_store(name):
             # Integrity only — an archive store holds no cold content to look
@@ -849,6 +879,7 @@ def _judge(sources, globs: list[str], skipped: list[int],
         counts["files_by_glob"] = len(skipped)
         counts["cold_over_cap"] = cold_over_cap
         counts["inert_hatches"] = n_inert
+        counts["unrecognised_scopes"] = n_loose
     return findings
 
 
@@ -859,14 +890,19 @@ def _kinds(f: Finding) -> list[str]:
 
 
 def _suppression_line(files_allowed: int, files_by_glob: int,
-                      cold_over_cap: int = 0, inert_hatches: int = 0) -> str:
+                      cold_over_cap: int = 0, inert_hatches: int = 0,
+                      unrecognised: int = 0) -> str:
     """Rule (b): known zeros printed, so two runs can be compared. The cap part
     is the house one (`report.cap_part`), printed as a zero when nothing was
     held back. The inert count is a tally of hatches that exempt nothing, so it
     is not a suppression: it sits here so a stale hatch can never be absent from
-    the line a reader compares across runs (115/270 c)."""
+    the line a reader compares across runs (115/270 c). The unrecognised-scope
+    count is the part of the allow-header count whose marker names no kind the
+    tool has and so exempts as the unscoped form: a mistyped scope looks like
+    any other allow otherwise (160/850 SZ1)."""
     return report.suppressed_line(
         [f"{files_allowed} file(s) by sizescan:allow header",
+         f"{unrecognised} unrecognised scope(s) (read as unscoped)",
          f"{files_by_glob} file(s) by .sizescanignore",
          f"{inert_hatches} inert hatch(es) (exempt nothing)",
          report.cap_part(cold_over_cap, MAX_MATERIALIZED_FINDINGS)])
@@ -874,32 +910,55 @@ def _suppression_line(files_allowed: int, files_by_glob: int,
 
 def _inert_block(orphans: list[InertHatch]) -> list[str]:
     """The report's section for inert hatches that are not already named under
-    a cold-content finding. Empty when there are none."""
+    a cold-content finding. Empty when there are none. The reason is not one
+    reason: a hot-path marker or a leftover budget did quiet the retired size
+    advisory, but a scope that does not cover the file's own kind never did
+    (160/850 SZ5)."""
     if not orphans:
         return []
     out = ["\n  Inert hatches (change no verdict): present, but each exempts "
-           "nothing, because sizescan no longer has a size advisory for it to "
-           "quiet. Remove them, so a stale marker does not read as if it still "
-           "did something."]
+           "nothing, either because it only ever quieted the size advisory "
+           "sizescan no longer has, or because its scope does not cover this "
+           "file's kind. Remove them, so a stale marker does not read as if it "
+           "still did something."]
     out.extend(f"    {h.path}: {h.hatch}" for h in orphans)
+    return out
+
+
+def _loose_block(loose: list[LooseScope]) -> list[str]:
+    """The report's section for header markers whose scope names no kind: they
+    still EXEMPT an archive store's integrity check, as the unscoped form
+    does, so a mistyped `harvest-integrity` parks live work with no trace
+    unless it is named here. Empty when there are none (160/850 SZ1)."""
+    if not loose:
+        return []
+    out = ["\n  Unrecognised scope (still exempting): the marker names no kind "
+           "sizescan has, so it is read as unscoped and exempts the store's "
+           "harvest-integrity check. If that is the intent, write "
+           "`harvest-integrity`; otherwise remove it."]
+    out.extend(f"    {h.path}: {ALLOW_MARKER}:{h.scope}" for h in loose)
     return out
 
 
 def render_human(findings: list[Finding], files_allowed: int = 0,
                  files_by_glob: int = 0, cold_over_cap: int = 0,
-                 inert: list[InertHatch] | None = None) -> str:
+                 inert: list[InertHatch] | None = None,
+                 loose: list[LooseScope] | None = None) -> str:
     # `inert` is every inert hatch the scan found; the ones on a cold-content
     # finding are printed under that finding, the rest in their own section.
     # Both count on the suppressed line.
     on_finding = {f.path for f in findings if f.cold_items}
     orphans = [h for h in (inert or []) if h.path not in on_finding]
     n_inert = len(orphans) + sum(len(f.cold_hatches) for f in findings)
-    tally = _suppression_line(files_allowed, files_by_glob, cold_over_cap, n_inert)
+    loose = loose or []
+    tally = _suppression_line(files_allowed, files_by_glob, cold_over_cap,
+                              n_inert, len(loose))
     if not findings:
         return "\n".join([report.clean_head(
             "sizescan", "no relocatable cold content on the hot path; "
                         "archive stores hold no live markers.")]
-                         + _inert_block(orphans) + [tally])
+                         + _inert_block(orphans) + _loose_block(loose)
+                         + [tally])
     n_cold = sum(1 for f in findings if f.cold_items)
     n_live = sum(1 for f in findings if f.live_items)
     head = (f"⚠ sizescan: {len(findings)} file(s) flagged "
@@ -952,6 +1011,7 @@ def render_human(findings: list[Finding], files_allowed: int = 0,
                      "`.sizescanignore` silences this gate: harvest the "
                      "completed [x] items listed above.")
     lines.extend(_inert_block(orphans))
+    lines.extend(_loose_block(loose))
     lines.append("")
     lines.append(tally)
     return "\n".join(lines)
@@ -992,8 +1052,10 @@ def _main(argv: list[str] | None = None) -> int:
     if rc is not None:
         return rc
     counts: dict[str, int] = {"files_allowed": 0, "files_by_glob": 0,
-                              "cold_over_cap": 0, "inert_hatches": 0}
+                              "cold_over_cap": 0, "inert_hatches": 0,
+                              "unrecognised_scopes": 0}
     inert: list[InertHatch] = []
+    loose: list[LooseScope] = []
     if args.staged:
         try:
             staged = dict.fromkeys(report.staged_paths())
@@ -1005,7 +1067,7 @@ def _main(argv: list[str] | None = None) -> int:
         if rc is not None:
             return rc
         try:
-            findings = scan_staged(staged, root, counts, inert)
+            findings = scan_staged(staged, root, counts, inert, loose)
         except report.STAGED_DIFF_FAILURES as e:
             return report.git_diff_failed("sizescan", e)
         except OSError as e:
@@ -1022,7 +1084,7 @@ def _main(argv: list[str] | None = None) -> int:
         if rc is not None:
             return rc
         try:
-            findings = scan_paths(targets, root, counts, inert)
+            findings = scan_paths(targets, root, counts, inert, loose)
         except OSError as e:
             return report.cannot_read("sizescan", e)
 
@@ -1036,6 +1098,10 @@ def _main(argv: list[str] | None = None) -> int:
             # zero is printed too. Those on a cold-content file are also on its
             # finding's `cold_hatches`.
             "inert_hatches": [asdict(h) for h in inert],
+            # Header markers on an archive store whose scope names no kind:
+            # they exempt as the unscoped form (160/850 SZ1). Known zero
+            # printed too.
+            "unrecognised_scopes": [asdict(h) for h in loose],
             # One finding per FILE, carrying up to two kinds, so `ids` (a
             # list, one per kind present) rather than the one `id` the
             # per-line scanners give.
@@ -1046,7 +1112,7 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, counts["files_allowed"],
                            counts["files_by_glob"], counts["cold_over_cap"],
-                           inert))
+                           inert, loose))
 
     # Report-only by default: exit 0. --check gives teeth to what has a
     # pure-win remedy — relocatable cold content (a [x] item on the hot path) and

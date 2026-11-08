@@ -122,6 +122,10 @@
           reviewscan deferral substring (6 live), wrapscan silencing any
           line that carries a *sibling's* marker (11 lines), and
           `sizescan:budget`.
+          *(Noted 2026-11-09, from the cold pass at `160/850`: the audit is
+          right as dated. `sizescan:budget` no longer exempts anything. It
+          went with the size advisory on 2026-10-16 and is now only named as
+          an inert leftover. Do not look for it as a live exemption.)*
         🔴 **A doctrine line contradicts Mike's standard and goes in part 2.**
         `GUARDS.md` § *Who, why, when* says who and when "come from version
         control", and that demanding an author field asks someone to retype

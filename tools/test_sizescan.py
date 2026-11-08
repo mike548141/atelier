@@ -16,6 +16,7 @@ answer of 2026-10-16), and there is nothing to relocate in an all-open
 roadmap."""
 
 import io
+import json
 import shutil
 import sys
 import tempfile
@@ -859,6 +860,55 @@ class ScopedMarker(unittest.TestCase):
             hot = found["ROADMAP.md"]
             self.assertEqual((hot.cold_items, hot.gated), (2, True))
             self.assertEqual(allowed, 1)
+
+
+class UnrecognisedScope(_TreeTest):
+    """160/850 SZ1: a header marker whose scope names no kind exempts an
+    archive store's integrity check as the unscoped form does. The docs said
+    only an unscoped or `harvest-integrity` marker could, and the report named
+    nothing, so a mistyped scope parked live work with no trace."""
+
+    def store(self, marker):
+        self.write_text("docs/ROADMAP-DONE.md",
+                        f"<!-- {marker} -->\n" + _cold(n_open=1, n_done=1))
+
+    def run_json(self):
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            code = sizescan.main(["--check", "--json", "--root", str(self.tmp),
+                                  str(self.tmp)])
+        return code, json.loads(buf.getvalue())
+
+    def test_a_mistyped_scope_still_exempts_and_is_named_and_counted(self):
+        self.store(f"{_MARK}:harvest-integrty: open on purpose")
+        code, doc = self.run_json()
+        self.assertEqual(code, 0)                  # it exempts, as documented
+        self.assertEqual(
+            [{"path": "docs/ROADMAP-DONE.md", "scope": "harvest-integrty"}],
+            doc["unrecognised_scopes"])
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            sizescan.main(["--root", str(self.tmp), str(self.tmp)])
+        out = buf.getvalue()
+        self.assertIn("Unrecognised scope (still exempting)", out)
+        self.assertIn("docs/ROADMAP-DONE.md: sizescan:allow:harvest-integrty", out)
+        self.assertIn("1 file(s) by sizescan:allow header · "
+                      "1 unrecognised scope(s) (read as unscoped)", out)
+
+    def test_the_deliberate_forms_are_not_named(self):
+        for marker in (f"{_MARK}: living doc",
+                       f"{_MARK}:harvest-integrity: open on purpose"):
+            with self.subTest(marker=marker):
+                self.store(marker)
+                code, doc = self.run_json()
+                self.assertEqual(code, 0)
+                self.assertEqual([], doc["unrecognised_scopes"])
+
+    def test_a_retired_or_cold_scope_exempts_nothing_and_is_not_loose(self):
+        self.store(f"{_MARK}:size-advisory: old")
+        code, doc = self.run_json()
+        self.assertEqual(code, 1)                  # the store still gates
+        self.assertEqual([], doc["unrecognised_scopes"])
 
 
 class Allowances(unittest.TestCase):

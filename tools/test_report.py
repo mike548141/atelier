@@ -608,8 +608,9 @@ class TestScannerLinePins(unittest.TestCase):
 
     def test_sizescan(self):
         import sizescan as m
-        self.assertEqual(m._suppression_line(1, 2, 0, 3),
+        self.assertEqual(m._suppression_line(1, 2, 0, 3, 1),
                          "  suppressed: 1 file(s) by sizescan:allow header · "
+                         "1 unrecognised scope(s) (read as unscoped) · "
                          "2 file(s) by .sizescanignore · "
                          "3 inert hatch(es) (exempt nothing) · "
                          "0 beyond the 50000-finding cap (counted, not listed)")
@@ -617,6 +618,7 @@ class TestScannerLinePins(unittest.TestCase):
                          "✓ sizescan clean — no relocatable cold content on the hot "
                          "path; archive stores hold no live markers.\n"
                          "  suppressed: 0 file(s) by sizescan:allow header · "
+                         "0 unrecognised scope(s) (read as unscoped) · "
                          "0 file(s) by .sizescanignore · "
                          "0 inert hatch(es) (exempt nothing) · "
                          "0 beyond the 50000-finding cap (counted, not listed)")
@@ -1082,8 +1084,6 @@ class ParseAddedLinesTest(unittest.TestCase):
                 self.git("config", *setting.split("="))
                 self.assertEqual([("x.md", 2, "new")], self.staged())
 
-    def test_nothing_staged_is_empty(self):
-        self.assertEqual([], self.staged())
     def test_context_producing_settings_do_not_make_a_legitimate_diff_refused(self):
         # 160/800 SX1: `diff.suppressBlankEmpty=true` prints a blank context
         # line bare, and `diff.interHunkContext` or a `-u3` in GIT_DIFF_OPTS
@@ -1149,6 +1149,8 @@ class ParseAddedLinesTest(unittest.TestCase):
         self.assertIn("not a finding", err.getvalue())
         self.assertIn("git diff --cached --unified=0", err.getvalue())
 
+    def test_nothing_staged_is_empty(self):
+        self.assertEqual([], self.staged())
 
     def test_a_diff_that_is_not_git_shaped_is_refused_not_guessed(self):
         for name, raw in [
