@@ -210,6 +210,30 @@ The apex sets what a ruling ask must **contain**
 ([`00-APEX.md`](00-APEX.md), *The principal's authority is absolute*).
 This section is the other half: how that ask **reaches** him.
 
+**First, establish that there is a decision to ask about.** Everything below
+says how to ask well and none of it says whether to ask, and a rule that fixes
+the shape of an answer but not the test for the question will be satisfied by a
+well-formed question about nothing. So before the device, sort what you hold:
+
+- **The evidence settles it: a record.** Report it, never put it to a vote. A
+  finding with nothing to decide is an explanation, and an explanation goes in
+  the account, in plain words.
+- **Several courses are genuinely open: a decision.** The ask follows this
+  section as written.
+- **The evidence is absent: the honest option set includes "find out first".**
+  That is neither of the two an options-with-trade-offs frame naturally
+  produces, and it is often the cheapest.
+
+When he answers the **frame** instead of the question ("is this the wrong way
+to ask me?"), that is evidence against the form, not new input to it: stop
+asking in that shape and re-examine the form before the next ask.
+(Approved 2026-11-09, `320/110`, as Mike's pick from options offered, not a
+ruling in his words. Grounded in one incident in one child repository, filed
+through § *Pointing up* of `PROPAGATION.md`: seven structured asks, three of
+them about items already measured clean, before he stopped the run and asked
+for a paragraph per item instead. One principal, one repo: a suspicion with an
+incident behind it, not a counted class.)
+
 **Use the harness's structured decision device wherever one exists.** Where the
 environment offers a way to put a question *as* a question — selectable options
 rather than prose to reply to — that is the default channel. It covers
