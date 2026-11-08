@@ -134,8 +134,9 @@ a reason, in the same object spelling `advisory` uses:
                           content in a networking repo"}}
 
 Reason required because the effect is the same as a partial disable and the
-route is quieter: `flags` refuses the five mode-changing arguments, and any
-abbreviation argparse would expand to one, by blocklist (`FORBIDDEN_FLAGS`;
+route is quieter: `flags` refuses the mode-changing arguments and the ones that
+change what a check reads, and any abbreviation argparse would expand to one,
+by blocklist (`FORBIDDEN_FLAGS`;
 a `scope` path may not start with `-` either), and a blocklist underblocks — a rule switched off by name,
 or a positional matching no staged path, shrinks cover without touching it
 (ADR 0008 cold pass, EP1; `scope` ruled 2026-07-28, `flags` 2026-08-04). On a
@@ -754,7 +755,16 @@ SCANNERS: tuple[Scanner, ...] = (
 # turn the CI plane's personal-data boundary into a guaranteed pass. On the
 # hook plane leakscan refuses it beside `--staged`, but the CI plane carries
 # no such pairing.
-FORBIDDEN_FLAGS = {"--warn", "--check", "--selftest", "--json", "--binary-entries"}
+#
+# `--root`, `--terms` and `--staged` (160/980 GM8) are the other kind: they do
+# not change the mode but WHAT the check reads. Every template already passes
+# `--root`, and a repeated store option keeps the LAST value in argparse, so a
+# child's `--root`/`--terms` displaced the template's and `--staged` on the CI
+# plane turned the run into a diff scan; each happened to gate more, never
+# less, but nothing in the design promised that. A child's `flags` tune a
+# check, they do not re-aim it.
+FORBIDDEN_FLAGS = {"--warn", "--check", "--selftest", "--json", "--binary-entries",
+                   "--root", "--terms", "--staged"}
 
 
 def forbidden_flags(args: list[str]) -> list[str]:
@@ -1479,7 +1489,7 @@ class Config:
                 )
             # EP1(b), ruled 2026-08-04 — the twin of the `scope` rule above, and
             # the half C1 did not carry. `FORBIDDEN_FLAGS` is a blocklist, so it
-            # stops the four arguments we know weaken a check and nothing else:
+            # stops the arguments we know weaken a check and nothing else:
             # a rule switched off by name, or a positional matching no staged
             # path, shrinks cover without touching it. On a check that may never
             # be softened that is a cover decision, so it goes on the record the
@@ -1622,8 +1632,11 @@ def _render(args: list[str], root: Path, cfg: Config,
             trees: list[str] | None = None) -> list[str]:
     """Resolve an argument template against a repo. `{scope}` expands to EVERY
     path the check reads — which is why this returns a list rather than mapping
-    arg-for-arg. A child's extra `flags` are appended LAST, so they can add to
-    the template's arguments but never displace them."""
+    arg-for-arg. A child's extra `flags` are appended LAST. Appending does not
+    by itself stop a flag displacing the template's (a repeated store option
+    keeps the last value in argparse); what stops that is `FORBIDDEN_FLAGS`,
+    which refuses `--root`, `--terms` and `--staged` at config load, so a
+    child's flags can add to the template's arguments but not re-aim them."""
     paths = trees if trees is not None else subtrees(root, cfg, name or "")
 
     # STAGED MODE TAKES REPO-RELATIVE PATHS, and this is a genuine sharp edge.
@@ -2296,7 +2309,11 @@ def _selftest() -> int:
             {"flags": {"leakscan": {"args": ["--self"], "why": "w"}}})
     rejects("listing mode smuggled in as a scope path",
             {"scope": {"leakscan": {"paths": ["--binary-entries"], "why": "w"}}})
-    # EP1(b). The blocklist above stops five known arguments; this is what
+    # …and the ones that re-aim a check rather than change its mode (GM8).
+    for flag in ("--root", "--terms", "--staged", "--ter"):
+        rejects(f"{flag} would displace the template's own",
+                {"flags": {"leakscan": {"args": [flag, "/dev/null"], "why": "w"}}})
+    # EP1(b). The blocklist above stops the known arguments; this is what
     # stops the rest going unremarked on a check nobody may soften.
     rejects("reasonless flags on an unsoftenable check",
             {"flags": {"leakscan": {"args": ["--disable", "ipv4"]}}})

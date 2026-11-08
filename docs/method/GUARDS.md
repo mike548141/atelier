@@ -289,6 +289,14 @@ version control**, which records them more reliably than a hand-maintained field
 and cannot drift from the truth. A guard that demanded an author field would be
 asking someone to retype what `git blame` already knows, and it would go stale.
 
+*Narrowed 2026-11-09 for one manifest (`160/980`).* Mike's 2026-10-03 words
+(ADR `2026-10-03-0641`) ask that every exception record who created it (a
+session id, and whether he ruled or an agent chose) and when, and measured that
+git cannot name either. For `.leakscanbinaries` he answered on 2026-11-08 that
+each line records who allowed it and when, so its lines carry `by=`, `session=`
+and `on=` beside the reason. Everything else here is as written until the
+exception register (`110/100`) replaces it.
+
 The requirement is therefore: **a reason, in the declaration, on the line or in
 the file a reviewer reads** — and never in a location the exemption itself makes
 unreadable. An exemption whose reason lives inside the file that the exemption

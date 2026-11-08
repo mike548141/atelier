@@ -239,6 +239,18 @@ anything that blocks, and that asymmetry is decided rather than incidental —
 the fit being that a leak of personal data is the one exposure no rotation
 undoes.
 
+**One dated exception, decided 2026-10-18 (G3, `020/150`).** `leakscan` gates
+tracked binary media (an image's metadata can name its owner and place), and
+its four gate rules (`binary-unlisted`, `binary-changed`, `binary-metadata`,
+`binary-stale-entry`) warn without blocking until `BINARY_GRACE_UNTIL`,
+**2026-11-18**, and block from that day. Mike chose the option labelled
+"Grace period (Recommended)" so no child went red on the day G3 landed; he made
+the date firm for every child on 2026-11-08. It covers those four rules and
+nothing else, and the code removes it after the date (`010/190`). So the
+asymmetry above holds for every rule that blocks, with this one self-expiring
+exception recorded here; the statements of it in `tools/README.md`, the
+`leakscan.py` source comment and `CHANGELOG.md` are copies of this one.
+
 **Narrowed 2026-10-16: in `leakscan`, rules that are off report without
 blocking.** A rule withdrawn from the blocking set for noise, and a rule a repo
 turns off with `--disable`, used to see nothing at all. Each now still runs:

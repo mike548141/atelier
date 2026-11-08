@@ -74,3 +74,24 @@
       refuses dash-led paths. This covers every scanner run through the
       floor. 2,031 Python and 489 node tests green, PR checks green. Cold
       pass queued at `160/980`; the removal of both graces is `010/190`.
+      📝 **Cold pass applied 2026-11-09 (`160/980`).** Mike's answers of
+      2026-11-08 (answers, not rulings): the date is **firm** (*"Firm; queue
+      fixes now"*) for every child, which is a mandate in `GUARDS.md`'s terms.
+      And *"Yes, all as recommended"*: (b) raw `xmp` the gate cannot read is
+      reported as unreadable, never as clean; (c) each manifest line records
+      who allowed it and when, per his 2026-10-03 words, not a reason alone;
+      (d) the gate runs before the ignore file for a binary, so no glob skips
+      it. Corrections to this record: (1) the grace's option text (*"unlisted
+      files print a warning…"*) was the queue run's; only the label *"Grace
+      period (Recommended)"* is his. (2) The 2026-10-18 landing was put to him
+      without the register hold (`110/100`, *"G3 (PR #97) is held until it
+      meets (1) and (2)"*) or the register ADR's consequence that G3 move onto
+      it; his *"Allow with reason (Recommended)"* answered the opaque-metadata
+      hatch, not who and when. The 2026-11-08 answer re-briefs that: lines now
+      record `by= session= on=`, and old reason-only lines warn without
+      blocking (no date; whether and when they block is his to rule). That is
+      the minimum his answer needed. The register would carry the same fields
+      as `file` entries, so it still supersedes this. (3) The 2026-08-04
+      ruling's words are on record nowhere in the tree; this item and the
+      delta rest on a paraphrase. (4) The sets are data types, not the fields
+      he meant; `020/450` is the field-level build.

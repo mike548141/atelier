@@ -476,6 +476,8 @@ class TestScannerLinePins(unittest.TestCase):
                                       "0 type-level metadata entr(y/ies) warned, "
                                       "not blocking, before "
                                       f"{m.TYPE_LEVEL_UNTIL.isoformat()} · "
+                                      "0 manifest line(s) with no who/when warned, "
+                                      "not blocking · "
                                       f"0 beyond {CAP}")
         self.assertEqual(m.render_human([], None, True, t).splitlines()[0],
                          "✓ leakscan clean (structural + local).")

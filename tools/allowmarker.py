@@ -142,6 +142,38 @@ class IgnoreFileError(ValueError):
             f"a trailing '# reason' on the line.")
 
 
+def read_reasoned_parts(f: Path) -> list[tuple[int, str, str, str | None]]:
+    """The grammar of `read_reasoned_lines` before its two reason places are
+    merged: `(line number, entry, trailing, stanza)`. `trailing` is the text
+    after the first `#` on the entry's own line (empty when none); `stanza` is
+    the comment block directly above it, its lines joined by a space, or None
+    when no comment block covers the entry (a blank line ends a stanza; a
+    stanza of bare `#` lines is the empty string, still a block). A caller
+    that records something beside the reason (G3's who and when) reads both
+    places, so a trailing note never hides the stanza's reason.
+    `read_reasoned_lines` is built on this, so the two cannot drift. An
+    absent file reads as no entries."""
+    if not f.exists():
+        return []
+    out: list[tuple[int, str, str, str | None]] = []
+    stanza: list[str] = []
+    for n, raw in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+        line = raw.strip()
+        if not line:
+            stanza = []
+            continue
+        if line.startswith("#"):
+            stanza.append(line.lstrip("#").strip())
+            continue
+        entry, _, trailing = line.partition("#")
+        entry = entry.strip()
+        if not entry:
+            continue
+        out.append((n, entry, trailing.strip(),
+                    " ".join(s for s in stanza if s) if stanza else None))
+    return out
+
+
 def read_reasoned_lines(f: Path) -> list[tuple[int, str, str | None]]:
     """The reason grammar every reason-required config file shares, as
     `(line number, entry, reason)` triples — `reason` is None for an entry no
@@ -156,29 +188,15 @@ def read_reasoned_lines(f: Path) -> list[tuple[int, str, str | None]]:
 
     Single-sourced so `.leakscanignore` and `.leakscanbinaries` (G3) cannot
     drift apart on what "reasoned" means."""
-    if not f.exists():
-        return []
     out: list[tuple[int, str, str | None]] = []
-    stanza: list[str] = []
-    for n, raw in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-        line = raw.strip()
-        if not line:
-            stanza = []
-            continue
-        if line.startswith("#"):
-            stanza.append(line.lstrip("#").strip())
-            continue
-        entry, _, trailing = line.partition("#")
-        entry = entry.strip()
-        if not entry:
-            continue
+    for n, entry, trailing, stanza in read_reasoned_parts(f):
         # A stanza of bare `#` lines still counts as a reason block — the
         # presence test the ignore loader always made — so the text may be
         # empty while the entry is reasoned; None is reserved for "no reason".
-        if trailing.strip():
-            reason: str | None = trailing.strip()
-        elif stanza:
-            reason = " ".join(s for s in stanza if s)
+        if trailing:
+            reason: str | None = trailing
+        elif stanza is not None:
+            reason = stanza
         else:
             reason = None
         out.append((n, entry, reason))

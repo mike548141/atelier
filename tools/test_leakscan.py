@@ -1806,6 +1806,15 @@ def _webp(*chunks):
     return b"RIFF" + _struct.pack("<I", len(body)) + body
 
 
+_STUB_RX = re.compile(r"  # by=\S+ session=\S+ on=\d{4}-\d{2}-\d{2}$")
+
+
+def _bare(text):
+    """A `--binary-entries` listing without the who/when stub each line carries
+    (160/980 GM5), for the tests that are about WHICH lines print."""
+    return "\n".join(_STUB_RX.sub("", ln) for ln in text.splitlines())
+
+
 def _sha(data, n=16):
     return _hashlib.sha256(data).hexdigest()[:n]
 
@@ -1904,13 +1913,34 @@ class BinaryGate(_TreeCase):
         self.assertEqual([], self.scan(tally=tally))
         self.assertEqual((0, 0), (tally.binaries_by_manifest, tally.binaries_untracked))
 
-    def test_an_ignore_glob_still_exempts_before_the_gate(self):
-        # A repo's existing hatch keeps its meaning: path-wide, counted.
+    def test_an_ignore_glob_does_not_skip_the_gate_for_a_binary(self):
+        # 160/980 GM9, Mike's answer 2026-11-08: the gate runs BEFORE the ignore
+        # file for a binary. A glob is path-wide and blind to content, so a
+        # reasoned glob over an image directory would pass every present and
+        # future image unread; it cannot be the hatch.
         self.put("vendor/font.woff", self.BLOB)
         self.put(".leakscanignore", "vendor/  # third-party fonts, not ours\n")
         tally = ls.Tally()
+        self.assertEqual(["binary-unlisted"], [f.rule for f in self.scan(tally=tally)])
+        self.assertEqual(0, tally.files_by_glob)
+        # ...and the hash-bound entry is what passes it, glob or no glob.
+        self.manifest(f"{_sha(self.BLOB)}  vendor/font.woff  # vendored font, looked at\n")
+        tally = ls.Tally()
         self.assertEqual([], self.scan(tally=tally))
-        self.assertEqual(1, tally.files_by_glob)
+        self.assertEqual(1, tally.binaries_by_manifest)
+
+    def test_an_ignore_glob_still_exempts_text_and_is_counted(self):
+        self.put("vendor/readme.txt", "plain text, third party\n")
+        self.put("vendor/a.bin", b"\x00ignored but gated")
+        self.put(".leakscanignore", "vendor/  # third-party files, not ours\n")
+        tally = ls.Tally()
+        self.assertEqual(["binary-unlisted"], [f.rule for f in self.scan(tally=tally)])
+        self.assertEqual(1, tally.files_by_glob)       # the text file only
+
+    def test_an_entry_for_a_glob_ignored_file_that_is_gone_is_stale(self):
+        self.put(".leakscanignore", "vendor/  # third-party files, not ours\n")
+        self.manifest(f"{_sha(self.BLOB)}  vendor/gone.woff  # was vendored\n")
+        self.assertEqual(["binary-stale-entry"], self.rules())
 
     def test_disable_cannot_switch_the_gate_off(self):
         # No quiet hatch: binary rules are not structural rules.
@@ -2383,7 +2413,7 @@ class BinaryFieldLevel(_TreeCase):
             sorted([f"{d}  p.png"] + [f"{d}:{k}  p.png" for k in (
                 "exif:Make", "exif:Model", "exif:LensModel",
                 "gps:GPSLatitude", "gps:GPSLongitude")]),
-            sorted(out.splitlines()))
+            sorted(_bare(out).splitlines()))
         self.assertIn("gps:GPSLatitude", err)
         self.assertIn(f"{d}:exif:Model,LensModel", err)
 
@@ -2401,7 +2431,7 @@ class BinaryFieldLevel(_TreeCase):
         d = _sha(self.png)
         rc, out, err = self.listing()
         self.assertEqual(0, rc)
-        lines = out.splitlines()
+        lines = _bare(out).splitlines()
         self.assertIn(f"{d}:gps:GPSLatitude  p.png", lines)
         self.assertNotIn(f"{d}  p.png", lines)         # the file line still stands
         self.assertIn("type-level line for exif (line 2)", err)
@@ -2901,7 +2931,7 @@ class BinaryFieldLevelOtherSets(_TreeCase):
         d = _sha(self.jpg)
         rc, out, err = self.listing()
         self.assertEqual(0, rc)
-        self.assertIn(f"{d}:iptc:By-line  p.jpg", out.splitlines())
+        self.assertIn(f"{d}:iptc:By-line  p.jpg", _bare(out).splitlines())
         self.assertIn("type-level line for iptc", err)
 
     def test_listing_lines_load_once_given_reasons(self):
@@ -2988,7 +3018,7 @@ class BinaryGitTracking(_TreeCase):
         data = self.put("ok.bin", b"\x00\x01ok")
         self.manifest(f"{_sha(data)}  ok.bin  # reviewed fixture\n")
         self.put("ok.bin", b"\x00\x01changed after listing")
-        self.git("add", "ok.bin")
+        self.git("add", "ok.bin", ls.BINARY_MANIFEST)
         self.put("ok.bin", data)  # working tree restored; the INDEX holds the change
         rc, out = self.staged()
         self.assertEqual(1, rc, out)
@@ -3031,6 +3061,64 @@ class BinaryGitTracking(_TreeCase):
         self.assertEqual(1, rc, out)
         self.assertIn("email", out)
 
+    def test_staged_manifest_an_unstaged_manifest_edit_does_not_excuse_a_staged_binary(self):
+        data = self.put("ok.bin", b"\x00\x01ok")
+        self.git("add", "ok.bin")
+        self.manifest(f"{_sha(data)}  ok.bin  # reviewed fixture\n")     # never staged
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertIn("binary-unlisted", out)
+        self.assertIn("not staged", out)
+
+
+    def test_staged_manifest_a_staged_manifest_excuses_it_whatever_the_working_copy_says(self):
+        data = self.put("ok.bin", b"\x00\x01ok")
+        self.manifest(f"{_sha(data)}  ok.bin  # reviewed fixture\n")
+        self.git("add", ".")
+        self.manifest("")                                  # working copy emptied after staging
+        rc, out = self.staged()
+        self.assertEqual(0, rc, out)
+        self.assertIn("differs from its staged copy", out)
+
+
+    def test_staged_manifest_a_staged_removal_of_the_manifest_leaves_no_entries(self):
+        data = self.put("ok.bin", b"\x00\x01ok")
+        self.manifest(f"{_sha(data)}  ok.bin  # reviewed fixture\n")
+        self.git("add", ".")
+        self.git("commit", "-q", "-m", "seed")
+        self.git("rm", "-q", "--cached", ls.BINARY_MANIFEST)
+        self.put("ok.bin", b"\x00\x01ok changed")
+        self.git("add", "ok.bin")
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertIn("binary-unlisted", out)
+
+
+    def test_staged_glob_a_staged_binary_under_a_glob_is_gated(self):
+        self.put(".leakscanignore", "vendor/  # third-party files, not ours\n")
+        self.put("vendor/f.woff", b"\x00\x01staged font")
+        self.git("add", ".")
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertIn("binary-unlisted", out)
+
+
+    def test_staged_glob_text_under_the_glob_is_still_skipped(self):
+        self.put(".leakscanignore", "vendor/  # third-party files, not ours\n")
+        self.put("vendor/notes.txt", "contact a.b@example.com\n")   # leakscan:allow: fixture
+        self.git("add", ".")
+        rc, out = self.staged()
+        self.assertEqual(0, rc, out)
+
+
+    def test_staged_glob_a_listed_binary_under_a_glob_passes(self):
+        data = self.put("vendor/f.woff", b"\x00\x01staged font")
+        self.put(".leakscanignore", "vendor/  # third-party files, not ours\n")
+        self.manifest(f"{_sha(data)}  vendor/f.woff  # vendored font, looked at\n")
+        self.git("add", ".")
+        rc, out = self.staged()
+        self.assertEqual(0, rc, out)
+
 
 class BinaryEntriesListing(_TreeCase):
     """`--binary-entries` — the one-act re-baseline: it prints the lines, a
@@ -3048,10 +3136,10 @@ class BinaryEntriesListing(_TreeCase):
         b = self.put("b.png", _png((b"eXIf", b"MM")))
         rc, out, err = self.listing()
         self.assertEqual(0, rc)
-        self.assertEqual(sorted(out.splitlines()),
+        self.assertEqual(sorted(_bare(out).splitlines()),
                          sorted([f"{_sha(a)}  a.bin", f"{_sha(b)}  b.png",
                                  f"{_sha(b)}:exif:unknown  b.png"]))
-        self.assertNotIn("#", out)
+        self.assertNotIn("#", _bare(out))
         self.assertIn("exif:unknown", err)
         self.manifest(out)
         with self.assertRaises(ls.BinaryManifestError):
@@ -3065,7 +3153,7 @@ class BinaryEntriesListing(_TreeCase):
         self.manifest("".join(
             line + ("  # test fixture needs its exif block\n" if ":" in line
                     else "  # synthetic fixture, reviewed\n")
-            for line in out.splitlines()))
+            for line in _bare(out).splitlines()))
         self.assertEqual([], self.rules())
 
     def test_only_unaccepted_files_are_listed_and_a_change_is_named(self):
@@ -3332,7 +3420,7 @@ class BinaryNamedSets(_TreeCase):
             self.assertEqual(0, ls.main(["--root", str(self.tmp), "--binary-entries"]))
         d = _sha(data)
         self.assertEqual([f"{d}  c.png", f"{d}:exif:unknown  c.png", f"{d}:icc  c.png"],
-                         out.getvalue().splitlines())
+                         _bare(out.getvalue()).splitlines())
         self.assertIn("strip every set or field you have no need for", err.getvalue())
 
     def test_binary_entries_lists_only_the_sets_still_missing(self):
@@ -3341,7 +3429,8 @@ class BinaryNamedSets(_TreeCase):
         out = io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
             ls.main(["--root", str(self.tmp), "--binary-entries"])
-        self.assertEqual([f"{_sha(data)}:exif:unknown  c.png"], out.getvalue().splitlines())
+        self.assertEqual([f"{_sha(data)}:exif:unknown  c.png"],
+                         _bare(out.getvalue()).splitlines())
 
 
 
@@ -3375,6 +3464,231 @@ BLOCKING_AT_115_090 = (
     ("nz-ird", "ird 123-456-789 x"),
 )
 TERM = ("zzzterm", re.compile(r"\bzzzterm\b", re.IGNORECASE))
+
+
+class BinaryProvenance(_TreeCase):
+    """160/980 GM5 (Mike's answer, 2026-11-08): each `.leakscanbinaries` line
+    records WHO allowed it and WHEN, per his 2026-10-03 words, not a reason
+    alone. A line written before the form existed still loads and WARNS."""
+
+    BLOB = b"\x00provenance fixture"
+    PROV = "by=agent session=0123abcd-4567 on=2026-11-09"
+
+    def write(self, text):
+        self.put("a.bin", self.BLOB)
+        self.manifest(text)
+        return ls.load_binary_manifest(self.tmp)
+
+    def test_a_trailing_note_records_who_and_when_apart_from_the_reason(self):
+        e = self.write(f"{_sha(self.BLOB)}  a.bin  # {self.PROV} our own diagram\n")["a.bin"]
+        self.assertEqual(ls.Provenance("agent", "0123abcd-4567", "2026-11-09"), e.prov)
+        self.assertEqual("our own diagram", e.reason)
+
+    def test_the_stanza_may_carry_either_or_both(self):
+        d = _sha(self.BLOB)
+        e = self.write(f"# our own diagram, looked at\n{d}  a.bin  # {self.PROV}\n")["a.bin"]
+        self.assertEqual("our own diagram, looked at", e.reason)
+        self.assertEqual("agent", e.prov.by)
+        e = self.write(f"# {self.PROV}\n{d}  a.bin  # our own diagram\n")["a.bin"]
+        self.assertEqual("our own diagram", e.reason)
+        self.assertEqual("0123abcd-4567", e.prov.session)
+
+    def test_who_and_when_alone_are_not_a_reason(self):
+        d = _sha(self.BLOB)
+        for text in (f"{d}  a.bin  # {self.PROV}\n", f"# {self.PROV}\n{d}  a.bin\n"):
+            with self.subTest(text), self.assertRaises(ls.BinaryManifestError) as cm:
+                self.write(text)
+            self.assertIn("no stated reason", str(cm.exception))
+
+    def test_a_principal_kind_and_a_human_session_parse(self):
+        d = _sha(self.BLOB)
+        for kind in ("principal-ruled", "principal-answer", "agent"):
+            e = self.write(f"{d}  a.bin  # by={kind} session=human on=2026-11-09 fine\n")
+            self.assertEqual((kind, "human"), (e["a.bin"].prov.by, e["a.bin"].prov.session))
+
+    def test_a_who_and_when_that_does_not_read_is_a_config_error_not_a_pass(self):
+        d = _sha(self.BLOB)
+        for why, note in (("by=agent on=2026-11-09", "incomplete who/when"),
+                          ("by=robot session=human on=2026-11-09", "not a kind of grant"),
+                          ("by=agent session=x on=2026-11-09", "not a session id"),
+                          ("by=agent session=human on=2026-13-45", "not a YYYY-MM-DD date"),
+                          ("by=CHOOSE session=human on=2026-11-09", "not a kind of grant")):
+            with self.subTest(why), self.assertRaises(ls.BinaryManifestError) as cm:
+                self.write(f"{d}  a.bin  # {why} the reason\n")
+            self.assertIn(note, str(cm.exception))
+
+    def test_the_blanket_check_compares_reasons_not_who_and_when(self):
+        # One stanza over a file line and its set line is one blanket reason
+        # even though both lines now also carry a who/when.
+        data = _png((b"iCCP", b"p\x00\x00" + _zlib.compress(b"x")))
+        self.put("c.png", data)
+        d = _sha(data)
+        self.manifest(f"# one reason for all\n{d}  c.png  # {self.PROV}\n"
+                      f"{d}:icc  c.png  # {self.PROV}\n")
+        with self.assertRaises(ls.BinaryManifestError) as cm:
+            ls.load_binary_manifest(self.tmp)
+        self.assertIn("needs its own reason", str(cm.exception))
+
+    # -- the old, reason-only line: a clear warning, never a silent pass ----
+
+    def test_a_reason_only_line_still_loads_and_warns_by_line(self):
+        data = _png((b"iCCP", b"p\x00\x00" + _zlib.compress(b"x")))
+        self.put("c.png", data)
+        d = _sha(data)
+        self.manifest(f"{d}  c.png  # our own logo\n{d}:icc  c.png  # brand colours\n")
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))     # does not block
+        self.assertEqual([1, 2], [w.line for w in tally.provenance_warnings])
+        self.assertEqual(ls.PROVENANCE_RULE, tally.provenance_warnings[0].rule)
+        self.assertIn("2 manifest line(s) with no who/when warned, not blocking",
+                      tally.summary())
+
+    def test_a_line_that_records_who_and_when_does_not_warn(self):
+        self.put("a.bin", self.BLOB)
+        self.manifest(f"{_sha(self.BLOB)}  a.bin  # {self.PROV} reviewed\n")
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        self.assertEqual([], tally.provenance_warnings)
+
+    def test_the_warning_prints_in_the_run_and_in_json_and_never_moves_the_exit(self):
+        self.put("a.bin", self.BLOB)
+        self.manifest(f"{_sha(self.BLOB)}  a.bin  # reviewed fixture\n")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            rc = ls.main(["--root", str(self.tmp), str(self.tmp), "--terms", str(self.terms)])
+        self.assertEqual(0, rc, out.getvalue())
+        self.assertIn("record a reason but not who allowed them or when", out.getvalue())
+        self.assertIn(f"{ls.BINARY_MANIFEST}:1", out.getvalue())
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            rc = ls.main(["--root", str(self.tmp), str(self.tmp), "--terms", str(self.terms),
+                          "--json"])
+        self.assertEqual(0, rc)
+        j = json.loads(out.getvalue())["binary_provenance"]
+        self.assertEqual(ls.PROVENANCE_FORM, j["form"])
+        self.assertEqual([1], [w["line"] for w in j["warnings"]])
+
+    def test_a_long_list_prints_a_screenful_and_counts_the_rest(self):
+        n = ls.PROVENANCE_LIST_CAP + 5
+        lines = []
+        for i in range(n):
+            body = b"\x00body %d" % i
+            self.put(f"f{i}.bin", body)
+            lines.append(f"{_sha(body)}  f{i}.bin  # fixture {i}\n")
+        self.manifest("".join(lines))
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        text = "\n".join(ls.render_provenance(tally.provenance_warnings))
+        self.assertEqual(ls.PROVENANCE_LIST_CAP, text.count("[warn]"))
+        self.assertIn("…and 5 more, counted but not listed", text)
+
+    # -- the printed lines carry it ---------------------------------------
+
+    def test_the_listing_stub_is_agent_with_the_session_in_a_claude_session(self):
+        with unittest.mock.patch.dict(os.environ, {"CLAUDE_CODE_SESSION_ID": "abcd1234-ef"}):
+            stub = ls.provenance_stub(_dt.date(2026, 11, 9))
+        self.assertEqual("by=agent session=abcd1234-ef on=2026-11-09", stub)
+
+    def test_the_listing_stub_leaves_the_kind_to_a_person(self):
+        env = {k: v for k, v in os.environ.items() if k != "CLAUDE_CODE_SESSION_ID"}
+        with unittest.mock.patch.dict(os.environ, env, clear=True):
+            stub = ls.provenance_stub(_dt.date(2026, 11, 9))
+        self.assertEqual("by=CHOOSE session=human on=2026-11-09", stub)
+        # ...and the loader refuses it until they choose, and it is no reason.
+        self.put("a.bin", self.BLOB)
+        self.manifest(f"{_sha(self.BLOB)}  a.bin  # {stub}\n")
+        with self.assertRaises(ls.BinaryManifestError) as cm:
+            ls.load_binary_manifest(self.tmp)
+        self.assertIn("not a kind of grant", str(cm.exception))
+
+    def test_a_printed_line_with_a_reason_added_loads_clean(self):
+        self.put("a.bin", self.BLOB)
+        out = io.StringIO()
+        with unittest.mock.patch.dict(os.environ, {"CLAUDE_CODE_SESSION_ID": "abcd1234-ef"}), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            ls.main(["--root", str(self.tmp), "--binary-entries"])
+        line = out.getvalue().strip()
+        self.assertIn("# by=agent session=abcd1234-ef on=", line)
+        self.manifest(line + " our own fixture, looked at\n")
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        self.assertEqual([], tally.provenance_warnings)
+
+
+class BinaryManifestPaths(_TreeCase):
+    """160/980 GM6: an entry that can match nothing is a config error at load,
+    not a line the inventory carries unremarked."""
+
+    def test_absolute_and_climbing_paths_are_refused_at_load(self):
+        d = "0123456789abcdef"
+        for path in ("/etc/x.bin", "../x.bin", "a/../../x.bin", "a/../x.bin"):
+            with self.subTest(path):
+                self.manifest(f"{d}  {path}  # reason\n")
+                with self.assertRaises(ls.BinaryManifestError) as cm:
+                    ls.load_binary_manifest(self.tmp)
+                self.assertIn("not a path inside the repo", str(cm.exception))
+
+    def test_a_dot_slash_path_still_loads(self):
+        self.manifest("0123456789abcdef  ./a/x.bin  # reason\n")
+        self.assertEqual(["a/x.bin"], list(ls.load_binary_manifest(self.tmp)))
+
+    def test_the_run_exits_two_on_one(self):
+        self.manifest("0123456789abcdef  /etc/x.bin  # reason\n")
+        rc = ls.main(["--root", str(self.tmp), str(self.tmp), "--terms", str(self.terms)])
+        self.assertEqual(2, rc)
+
+
+class RawXmpProfile(_TreeCase):
+    """160/980 GM4 (Mike's answer, 2026-11-08): the raw `xmp` profile in a PNG
+    is decoded and scanned like every other XMP form, and one the gate cannot
+    read is reported UNREADABLE, never as clean."""
+
+    def raw(self, payload_hex, n=0):
+        return _png((b"tEXt", b"Raw profile type xmp\x00" + (f"\nxmp\n  {n}\n" + payload_hex).encode()))
+
+    def test_a_raw_profile_xmp_packet_is_text_scanned_kept_or_not(self):
+        pkt = _xmp(body="<dc:creator>a.b@example.com</dc:creator>")
+        data = self.raw(pkt.hex(), len(pkt))
+        self.put("r.png", data)
+        self.manifest(f"{_sha(data)}  r.png  # synthetic image, reviewed\n"
+                      f"{_sha(data)}:xmp:dc:creator  r.png  # the credit line\n")
+        fs = self.scan()
+        self.assertEqual(["email"], [f.rule for f in fs])
+        self.assertIn("hex-encoded binary profile", fs[0].where)
+
+    def test_the_same_address_is_found_in_every_xmp_form(self):
+        pkt = _xmp(body="<dc:creator>a.b@example.com</dc:creator>")
+        forms = {"raw.png": self.raw(pkt.hex(), len(pkt)),
+                 "x.webp": _webp((b"VP8 ", b"\x00" * 10), (b"XMP ", pkt)),
+                 "x.jpg": _jpeg((0xE1, ls._XMP_NS + pkt)),
+                 "i.png": _png((b"iTXt", b"XML:com.adobe.xmp\x00\x00\x00\x00\x00" + pkt))}
+        for rel, data in forms.items():
+            with self.subTest(rel):
+                self.put(rel, data)
+                fs = ls.scan_paths([self.tmp / rel], self.tmp, [], frozenset())
+                self.assertIn("email", [f.rule for f in fs])
+
+    def test_an_undecodable_raw_profile_is_reported_unreadable_and_blocks(self):
+        data = self.raw("zz not hex at all")
+        self.put("r.png", data)
+        self.manifest(f"{_sha(data)}  r.png  # synthetic image, reviewed\n")
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertIn("UNREADABLE", fs[0].excerpt)
+        self.assertIn("xmp:unknown", fs[0].excerpt)
+        # Keeping it is a deliberate, named line, and it stays reported.
+        self.manifest(f"{_sha(data)}  r.png  # synthetic image, reviewed\n"
+                      f"{_sha(data)}:xmp:unknown  r.png  # the profile is a vendor blob\n")
+        self.assertEqual([], self.scan())
+
+    def test_an_undecodable_exif_or_iptc_raw_profile_is_unreadable_too(self):
+        for kind in ("exif", "iptc"):
+            with self.subTest(kind):
+                data = _png((b"tEXt", f"Raw profile type {kind}\x00\n{kind}\n  4\nzz".encode()))
+                self.put(f"{kind}.png", data)
+                self.manifest("")
+                fs = [f for f in self.scan() if f.path == f"{kind}.png"]
+                self.assertTrue(any("UNREADABLE" in f.excerpt for f in fs), fs)
 
 
 class _CliCase(unittest.TestCase):

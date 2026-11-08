@@ -16,3 +16,10 @@
       guard is the principal's call." Whether that is the rule, or whether
       E6a gets an adoption-time exception, is a ruling. It is the first
       decision in PR #97.
+      📝 **Noted 2026-11-09 (`160/980` GM11):** the G3 adoption grace
+      (`020/150`) is that first decision, answered for G3 only. Mike chose a
+      dated, self-expiring warning inside leakscan's binary rules, ending
+      2026-11-18, and recorded as an exception in `SECRETS.md`. So a no-advisory
+      guard has had one adoption-time deferment, as a dated exception. Whether
+      the shape generalises to other no-advisory guards, and so what `GUARDS.md`
+      § Adoption should say, is still the principal's ruling and is not made here.

@@ -327,11 +327,33 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   file's SHA-256, then the repo-relative path. A set line is the same digest,
   `:<scope>`, then the path; the scope names the sets and fields it keeps
   (below). The reason uses the same grammar
-  as `.leakscanignore` (`allowmarker.read_reasoned_lines`): a comment stanza
+  as `.leakscanignore` (`allowmarker.read_reasoned_parts`): a comment stanza
   above the line, or a trailing `# reason`. A line with no reason is a config
   error (exit 2). So is a malformed line, an unknown set, a path or set listed
-  twice, and a set line with no file line or a different digest. A path can't
-  contain `#`.
+  twice, a path that is absolute or climbs out with `..` (it could match no
+  file, so it would sit in the inventory doing nothing), and a set line with
+  no file line or a different digest. A path can't contain `#`.
+- **Who allowed it, and when.** Mike, 2026-10-03, on every exception: it is
+  to be *"recorded so that its clear that the exception exists, why it is
+  necessary, who created it (e.g. session transcript ID, did I rule or did
+  you do it automatically etc), when the exception was granted"*, and on
+  2026-11-08 he answered that each manifest line records who and when, not a
+  reason alone. So each line's comment, trailing or in its stanza, also
+  carries `by=<principal-ruled|principal-answer|agent> session=<id|human>
+  on=<YYYY-MM-DD>`. `principal-ruled` is his own words, `principal-answer` a
+  pick he made from a session's options, `agent` a session's own judgement; the
+  session is the transcript id (`$CLAUDE_CODE_SESSION_ID`) or `human`. These
+  are not a reason: a line that holds only them is still unreasoned, and a
+  stanza of them over lines needing their own reason still counts as one
+  blanket. A `by=` that doesn't read as the whole form, an unknown kind or a
+  bad date is a config error, never a quiet pass. `--binary-entries` prints
+  the note on every line (`by=agent` with the session id inside a Claude
+  session; `by=CHOOSE` otherwise, which is refused until a person picks).
+  **A line written before this, with a reason and no who/when, still loads and
+  prints a warning that names its line and never blocks.** No date turns that
+  warning into a block: whether and when it should is Mike's to rule. It is the
+  minimum his answer needed; the held exception register (`110/100`) would
+  carry the same three fields as `file` entries.
 - **One-time, because the entry is tied to the hash.** If the file changes it
   blocks again as `binary-changed`, and whoever re-lists it is looking at the
   new bytes. 16 hex characters (64 bits) is the printed form because
@@ -356,8 +378,10 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   the sets of metadata it wants to keep. It should only keep the metadata it
   has a need for"*. And, 2026-10-19: *"I am fine with one reason applying
   to multiple fields of metadata, but it should be specific e.g. fields A,
-  B, and C allowed because of X"*. So every set present in the file blocks
-  as `binary-metadata`, naming the set, until a line names it. One line may
+  B, and C allowed because of X"*. These sets are **data types** (Exif, XMP,
+  and so on), not the fields he meant; the field-level keep he asked for, GPS
+  versus the camera model, is the next bullet (`020/450`). So every set present
+  in the file blocks as `binary-metadata`, naming the set, until a line names it. One line may
   name one set (`<digest>:icc  path`) or several (`<digest>:icc,xmp  path`)
   under one reason, the need for exactly those sets. There is no wildcard.
   Keeping `icc` never keeps the `exif` beside it. A set line's reason may not
@@ -441,11 +465,20 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   decoded and run through the normal rules and term list, kept or not.
   Keeping a set states a need; it doesn't stop the scan. Allow-markers
   inside metadata are ignored, because nobody reviews text hidden in a
-  binary.
+  binary. That includes XMP in ImageMagick's `Raw profile type xmp` PNG chunk,
+  which is a hex dump of the packet: it is decoded and scanned like XMP in a
+  JPEG or WebP. A raw `exif`, `iptc` or `xmp` profile that doesn't decode is
+  reported as **UNREADABLE** and blocks as `<set>:unknown`; it is never
+  clean.
 - **What it can't see.** The pixels: no OCR, so the reason *is* the human
   check. Metadata in any other format (GIF, TIFF, HEIC/AVIF, PDF, Office files,
   fonts, archives), where the file line accepts the whole file, metadata
-  included. The values of Exif and IPTC fields, which are named and never read
+  included. Two guards are weaker than they may read: a set line's reason may
+  not repeat the file line's, but that is textual equality, so a one-character
+  difference loads, and whether a reason is specific stays the person's call;
+  and the JPEG walker's cost is linear in a run of degenerate markers (a
+  million RST markers took 0.5 s), bounded by the file's size and not
+  budgeted. The values of Exif and IPTC fields, which are named and never read
   (the human who writes the reason reads them in the file); XMP and PNG text
   values are matched by the text rules, which do not understand them. The
   contents of an ICC block, which are named by presence and never read. JPEG segments after the first start-of-scan, JPEG
@@ -455,7 +488,10 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   files `git ls-files` lists. It counts untracked binaries such as `.DS_Store`
   as "not gated" in the summary. Outside git, every binary is gated. The
   staged hook gates every binary the commit adds, modifies or renames. It reads
-  the index copy, not the working tree. It also now path-scans the names of
+  the index copy, not the working tree, and so does it read
+  `.leakscanbinaries`: the manifest the commit holds, and none when the commit
+  holds none, whatever the working copy says (it prints a note when the two
+  differ, so a hook and CI cannot disagree about the same commit). It also now path-scans the names of
   binaries, empty new files and pure renames, which the added-lines diff never
   showed. A file git marks `binary` that is really text is read in full.
 - **Deleted or renamed.** An entry that accepts nothing blocks as
@@ -463,28 +499,42 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   text, or removed or renamed by the staged commit. A renamed file's finding
   names its old entry ("same bytes as the entry for …"), so the fix is
   re-pathing its lines.
-- **`.leakscanignore` still runs first.** A glob-ignored tree, such as
-  vendored fonts, is not gated. `--disable` can't turn the gate off, because
-  the binary rules aren't structural rules. Every accepted binary is counted
-  in the `suppressed:` line.
+- **`.leakscanignore` does not skip the gate.** For a binary the gate runs
+  *before* the ignore file (Mike's answer, 2026-11-08): a glob is path-wide
+  and blind to content, so it can't be the hatch for an image, and a reasoned
+  `docs/img/` glob would otherwise pass every present and future image unread.
+  A tracked binary under a glob is gated like any other and needs its
+  hash-bound entry; the glob still skips text, and still skips an untracked
+  file. `--disable` can't turn the gate off, because the binary rules aren't
+  structural rules. Every accepted binary is counted in the `suppressed:`
+  line.
 
-**The adoption grace, until 2026-11-18.** Mike chose to land G3 with a grace
-period (2026-10-18, on roadmap 020/150): *"unlisted files print a warning
-naming a cut-off date (~30 days), then start blocking. No child goes red
-today; each lists its files when convenient."* So until
-`BINARY_GRACE_UNTIL` (2026-11-18, UTC; the exact day was the queue run's
-pick on that "~30 days", not a ruling) the four gate findings,
-`binary-unlisted`, `binary-changed`, `binary-metadata` and
+**The adoption grace, until 2026-11-18, and it is firm.** On roadmap `020/150`
+(2026-10-18) Mike chose, through the decision device, the option labelled
+*"Grace period (Recommended)"*. The option's own text was the queue run's, not
+his words: *unlisted files print a warning naming a cut-off date (~30 days),
+then start blocking; no child goes red today; each lists its files when
+convenient*. So until `BINARY_GRACE_UNTIL` (2026-11-18, UTC) the four gate
+findings, `binary-unlisted`, `binary-changed`, `binary-metadata` and
 `binary-stale-entry`, print as warnings. Each names the date and its remedy,
 and none fails the exit code. From that date they block exactly as above.
-Nothing else is graced: every other rule, including a hit in an image's text
-metadata, blocks today. This is the one exception to leakscan having no
+The day was the queue run's pick on "~30 days"; Mike made it firm on
+2026-11-08 (*"Firm; queue fixes now"*): **2026-11-18 stands for every child.**
+Each child that would fail gets an item on its own board to strip or list
+before then, and a child not worked by the date goes red until it is. In
+`GUARDS.md`'s terms it is a mandate, not a default: a child may list or strip
+earlier, or argue an exemption through its parent, and none can move the
+date. Nothing else is graced: every other rule, including a hit in an image's
+text metadata, blocks today. This is the one exception to leakscan having no
 advisory form for a rule that blocks (E6a; rules that are off report, above).
-It is dated and has no flag, env var or config key, so
-nothing can move it. floor.py refuses any `flags` argument that is, or
-abbreviates, a mode flag (`--binary-entries`, `--selftest`, `--warn`,
-`--json`, `--check`), and any `scope` path starting with `-`. Those were the
-only ways to skip the gate. leakscan's floor entry still has no advisory form.
+It is dated and has no flag, env var or config key, so nothing can move it.
+floor.py refuses any `flags` argument that is, or abbreviates, a mode flag
+(`--binary-entries`, `--selftest`, `--warn`, `--json`, `--check`) or one that
+re-aims the check (`--root`, `--terms`, `--staged`), and any `scope` path
+starting with `-`. Those were the only *unrecorded* ways to skip the gate: a
+reasoned floor `scope` that leaves a tree out is still on the record, and
+declared, not quiet. (A `.leakscanignore` glob used to be a second one; it no
+longer is, above.) leakscan's floor entry still has no advisory form.
 
 **Adopting it: one commit, before the cut-off.**
 
@@ -497,7 +547,8 @@ accepts yet (new, or changed since listed), and one `<digest>:<set>` line for
 each metadata set it carries that no line keeps, or one `<digest>:<set>:<Field>`
 line for each Exif, GPS, IPTC, XMP or PNG text field. A type-level line on one
 of those sets is listed again as its field lines, with a note that it is replaced. Merge the fields that share
-one need into one line. It writes **no reason**, and
+one need into one line. Each line ends with the who/when note
+(`# by=… session=… on=…`, above). It writes **no reason**, and
 the scan refuses the lines until a person adds one. Its notes go to stderr:
 which entries replace a changed line, and which sets each file carries. Look
 at each file. Strip every set you have no need for, then re-run, because
@@ -1945,6 +1996,12 @@ have no per-finding kind either.
 ```sh
 cd tools && python3 -m unittest      # stdlib only, no pytest — covers every tool here
 ```
+
+The tools themselves run on Python 3.9 and later, but the **tests need 3.11 or
+later**: the G3 git-plane tests (`BinaryGitTracking`) use `contextlib.chdir`,
+`test_allowmarker` uses `Path.write_text(newline=)` (3.10), and `test_floor`
+uses 3.10 type syntax. CI pins 3.12. Under macOS's system `python3` (3.9) those error,
+which is the interpreter and not a bug in the tools.
 
 ## `coldsweep.py` — the cold reviewer's tree search, with rule 2's bar built in
 

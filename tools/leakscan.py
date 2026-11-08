@@ -43,10 +43,12 @@ A tracked BINARY's body cannot be read, so since G3 (ruled 2026-08-04) it
 blocks until a reasoned, hash-bound `.leakscanbinaries` entry accepts its exact
 bytes; PNG/JPEG/WebP metadata is walked, text metadata scanned, and every
 named metadata set it carries (Exif, IPTC, XMP, ICC, text chunks, comments)
-blocking until a reasoned line keeps that set. Until `BINARY_GRACE_UNTIL`
-(2026-11-18) these G3 findings warn and do not block — the one, dated
-exception to "no advisory form" for a rule that blocks. See the G3 block below
-and the leakscan section of `tools/README.md`.
+blocking until a reasoned line keeps that set. Each manifest line also records
+WHO allowed it and WHEN (`by=… session=… on=…`; a line without them warns).
+Until `BINARY_GRACE_UNTIL` (2026-11-18, firm for every child) these G3 findings
+warn and do not block — the one, dated exception to "no advisory form" for a
+rule that blocks. See the G3 block below and the leakscan section of
+`tools/README.md`.
 
 Rules that are OFF report without blocking (115/090, Mike's answer
 2026-10-16: "Report-only for off rules"). A rule a repo turns off with
@@ -427,6 +429,9 @@ class Tally:
     # They are kept OUT of the findings, so no caller of `scan_paths` can take
     # one for a block; the CLI prints them.
     type_level_warnings: list = field(default_factory=list, compare=False)
+    # 160/980 GM5: manifest lines that record no who/when, as warnings that
+    # never block. Kept out of the findings for the same reason.
+    provenance_warnings: list = field(default_factory=list, compare=False)
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
@@ -463,6 +468,8 @@ class Tally:
                  f"before {BINARY_GRACE_UNTIL.isoformat()}",
                  f"{len(self.type_level_warnings)} type-level metadata entr(y/ies) "
                  f"warned, not blocking, before {TYPE_LEVEL_UNTIL.isoformat()}",
+                 f"{len(self.provenance_warnings)} manifest line(s) with no who/when "
+                 "warned, not blocking",
                  report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS)]
         return report.suppressed_line(parts, breakdown=self.by_marker,
                                       disabled=self.disabled_rules)
@@ -964,13 +971,24 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 #     `<sha256 hex, ≥16 chars>  <path>` accepts the file, and
 #     `<same digest>:<set>  <path>` keeps ONE named metadata set — each line
 #     reasoned with the SAME grammar as `.leakscanignore`
-#     (`allowmarker.read_reasoned_lines`: a trailing `# reason` or a comment
-#     stanza). A binary cannot hold an inline marker, and a `.leakscanignore`
-#     glob is the wrong hatch: it is path-wide, rule-wide and blind to
-#     content, so a REPLACED image would pass under the old acceptance. The
-#     digest is what makes "one-time" true — a changed binary no longer
-#     matches its entry and blocks again, and the human who re-lists it is
-#     looking at the new bytes.
+#     (`allowmarker.read_reasoned_parts`: a trailing `# reason` or a comment
+#     stanza), and recording WHO allowed it and WHEN beside the reason
+#     (`by=<principal-ruled|principal-answer|agent> session=<id|human>
+#     on=<YYYY-MM-DD>`, the exception register's vocabulary, ADR 2026-10-03-0641:
+#     Mike, 2026-10-03, wanted every exception "recorded so that its clear
+#     that the exception exists, why it is necessary, who created it (e.g.
+#     session transcript ID, did I rule or did you do it automatically etc),
+#     when the exception was granted"; he chose that for this manifest on
+#     2026-11-08, 160/980 GM5). A line written before that, with a reason and
+#     no who/when, still loads and WARNS, naming itself; nothing here dates
+#     the warning into a block, which is the principal's to rule. A binary
+#     cannot hold an inline marker, and a `.leakscanignore` glob is the wrong
+#     hatch: it is path-wide, rule-wide and blind to content, so a REPLACED
+#     image would pass under the old acceptance. For that reason the gate runs
+#     BEFORE the ignore file for a binary (Mike's answer, 2026-11-08, 160/980
+#     GM9): a glob never skips G3. The digest is what makes "one-time" true — a
+#     changed binary no longer matches its entry and blocks again, and the
+#     human who re-lists it is looking at the new bytes.
 #   * THE DIGEST is a hex PREFIX of SHA-256, at least 16 characters (64
 #     bits). Full 64 also parses. The printed form is 16 because secretscan's
 #     context-free entropy net reports every 32+ character run as an advisory
@@ -988,7 +1006,11 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 #     set line names each set it keeps explicitly — one (`:icc`) or several
 #     (`:icc,xmp`) — under one reason, the need for exactly those sets; there
 #     is no wildcard, and every set present in the file that no line names
-#     blocks as `binary-metadata`, naming the set.
+#     blocks as `binary-metadata`, naming the set. These sets are DATA TYPES
+#     (Exif, XMP, …), not the fields he meant ("GPS versus the camera model",
+#     his next sentence, 020/440); the field-level keep is `020/450`, built
+#     below for Exif, GPS, IPTC, XMP and PNG text. ICC profiles and JPEG
+#     comments have no fields to name.
 #     Accepting the pixels never accepts a GPS block, and keeping a colour
 #     profile never keeps the Exif beside it. TEXT sets (PNG text chunks, XMP,
 #     JPEG comments) are ALSO decoded and run through the ordinary rule set
@@ -1017,6 +1039,13 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 # fields (named, never read; XMP and PNG text values are run through the text
 # rules, which match shapes and do not understand them); bytes appended after
 # a format's end marker.
+#
+# Two guards here are weaker than a reader may assume (160/980 GM14): the
+# blanket refusal (a set line's reason may not repeat the file line's) is
+# textual equality, so a one-character difference loads and specificity stays
+# the human's; and the JPEG walker's cost is linear in the length of a run of
+# degenerate markers (a million RST markers took 0.5 s), bounded by the file's
+# size and not budgeted.
 #
 # THE GATE COVERS TRACKED BINARIES (the ruling's word). A full-tree scan of a
 # git work tree gates the files `git ls-files` lists and counts the rest
@@ -1052,18 +1081,25 @@ _ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9
 # THE ADOPTION GRACE — the one exception to E6a, and dated.
 #
 # E6a: leakscan has no advisory form for a rule that blocks; every finding of
-# one blocks (rules that are off report, and never blocked, 115/090). Mike's
-# answer on 020/150, 2026-10-18, chose to land G3 with a grace period: "unlisted files
-# print a warning naming a cut-off date (~30 days), then start blocking. No
-# child goes red today; each lists its files when convenient." That answer is
-# the authority for this exception, and it is the ONLY one: it covers the
-# four G3 gate rules (`BINARY_RULES`) and nothing else. Every other leakscan
-# rule, including a hit in an image's TEXT metadata, blocks as before.
+# one blocks (rules that are off report, and never blocked, 115/090). On
+# 020/150, 2026-10-18, Mike chose, through the decision device, the option
+# labelled "Grace period (Recommended)". The option's own text was the queue
+# run's, not his words: "unlisted files print a warning naming a cut-off date
+# (~30 days), then start blocking. No child goes red today; each lists its
+# files when convenient." His choice of that option is the authority for this
+# exception, and it is the ONLY one: it covers the four G3 gate rules
+# (`BINARY_RULES`) and nothing else. Every other leakscan rule, including a
+# hit in an image's TEXT metadata, blocks as before.
 #
-# The exact date is the queue-run orchestrator's choice on that "~30 days"
-# answer (31 days after the answer was given), NOT a ruling. Before it, a G3 finding
-# prints as a warning naming the date and the remedy and does not fail the
-# exit code; ON and after it, the finding blocks exactly as built. It is
+# The exact date was the queue-run orchestrator's pick on that "~30 days"
+# (31 days after the answer was given). Mike made it FIRM on 2026-11-08
+# (160/980 GM7; his answer, "Firm; queue fixes now"): 2026-11-18 stands for
+# every child, each child that would fail gets an item on its own board to
+# strip or list before then, and a child not worked by the date goes red until
+# it is. In GUARDS' terms it is a mandate: a child may list or strip earlier
+# or argue an exemption through its parent, and none can move the date. Before
+# it, a G3 finding prints as a warning naming the date and the remedy and does
+# not fail the exit code; ON and after it, the finding blocks exactly as built. It is
 # unreachable after the date by construction: the cut-off lives in this one
 # constant and is compared with the UTC clock, and there is no flag, env var
 # or config key that moves it. A child's floor overrides cannot reach it
@@ -1124,11 +1160,22 @@ class BinaryManifestError(ValueError):
 
 
 @dataclass(frozen=True)
+class Provenance:
+    """WHO allowed a manifest line and WHEN (160/980 GM5): the exception
+    register's `granted_by`, `session` and `granted`, written
+    `by=<kind> session=<id|human> on=<YYYY-MM-DD>` in the line's comment."""
+    by: str
+    session: str
+    on: str
+
+
+@dataclass(frozen=True)
 class KeptSet:
     """One `<digest>:<set>  <path>` line: a metadata set kept, and why."""
     name: str
     reason: str
     lineno: int
+    prov: "Provenance | None" = field(default=None, compare=False)
 
 
 @dataclass(frozen=True)
@@ -1138,9 +1185,50 @@ class BinaryEntry:
     reason: str
     lineno: int
     sets: dict = field(default_factory=dict, compare=False)   # name -> KeptSet
+    prov: "Provenance | None" = field(default=None, compare=False)
 
     def matches(self, sha256_hex: str) -> bool:
         return sha256_hex.startswith(self.digest)
+
+
+# WHO and WHEN, in the exception register's vocabulary (ADR 2026-10-03-0641):
+# `principal-ruled` (his own words), `principal-answer` (a pick from a session's
+# options), or `agent` (a session's judgement). The session is the transcript
+# id (`$CLAUDE_CODE_SESSION_ID`) or `human`. This is the minimum that honours
+# his 2026-10-03 words for this manifest; the held register (110/100) would
+# carry the same three fields as `file` entries, so a line migrates as it is.
+PROVENANCE_KINDS = ("principal-ruled", "principal-answer", "agent")
+_PROVENANCE_RX = re.compile(
+    r"\bby=(?P<by>\S+)\s+session=(?P<session>\S+)\s+on=(?P<on>\S+)")
+_SESSION_RX = re.compile(r"^(?:human|[A-Za-z0-9][A-Za-z0-9._-]{3,63})$")
+PROVENANCE_FORM = "by=<principal-ruled|principal-answer|agent> session=<id|human> on=<YYYY-MM-DD>"
+PROVENANCE_RULE = "binary-no-provenance"
+
+
+def split_provenance(text: str) -> tuple["Provenance | None", str, str | None]:
+    """`(provenance, rest, problem)` for the comment text of a manifest line.
+    `rest` is the text with the provenance removed, which is what counts as
+    the reason: who and when are not a reason. No `by=` token is no
+    provenance and no problem (the line is old, and warns); a `by=` that does
+    not read as the whole form is a problem, never a quiet pass."""
+    if not re.search(r"\bby=", text):
+        return None, text, None
+    m = _PROVENANCE_RX.search(text)
+    if not m:
+        return None, text, f"incomplete who/when — write {PROVENANCE_FORM}"
+    if m.group("by") not in PROVENANCE_KINDS:
+        return None, text, (f"by={m.group('by')} is not a kind of grant (use "
+                            f"{', '.join(PROVENANCE_KINDS)})")
+    if not _SESSION_RX.match(m.group("session")):
+        return None, text, (f"session={m.group('session')} is not a session id "
+                            "(4–64 letters, digits, '.', '_' or '-') or 'human'")
+    try:
+        datetime.date.fromisoformat(m.group("on"))
+    except ValueError:
+        return None, text, f"on={m.group('on')} is not a YYYY-MM-DD date"
+    rest = (text[:m.start()] + " " + text[m.end():]).strip(" \t;,-—")
+    return Provenance(m.group("by"), m.group("session"), m.group("on")), \
+        re.sub(r"\s+", " ", rest), None
 
 
 def _same_digest(a: str, b: str) -> bool:
@@ -1218,16 +1306,56 @@ def parse_scope(scope: str) -> tuple[list[str], str | None]:
     return keys, None
 
 
-def load_binary_manifest(root: Path) -> dict[str, BinaryEntry]:
+def _line_reason(trailing: str, stanza: str | None
+                 ) -> tuple["Provenance | None", str | None, str | None]:
+    """`(provenance, reason, problem)` for one manifest line's two comment
+    places. Who and when may sit in either; they are never the reason, so a
+    note holding only them leaves the reason to the stanza above, and a
+    stanza holding only them is no reason at all. A bare `#` stanza still
+    counts as a reasoned block, as it always has for `.leakscanignore`."""
+    prov, t_rest, bad = split_provenance(trailing)
+    s_prov, s_rest = None, stanza
+    if bad is None and stanza is not None:
+        s_prov, s_rest, bad = split_provenance(stanza)
+    if bad:
+        return None, None, bad
+    if t_rest:
+        reason: str | None = t_rest
+    elif stanza is not None and (s_rest or stanza == ""):
+        reason = s_rest
+    else:
+        reason = None
+    return prov or s_prov, reason, None
+
+
+def _escapes_root(path: str) -> bool:
+    """A path no repo-relative file can have: absolute, or climbing out with
+    `..` (160/980 GM6). Such a line could match nothing, and the stale-entry
+    check only sees paths under a scanned tree, so it would sit in the
+    inventory unremarked."""
+    return Path(path).is_absolute() or path.startswith("/") \
+        or ".." in Path(path).parts
+
+
+def load_binary_manifest(root: Path, source: Path | None = None
+                         ) -> dict[str, BinaryEntry]:
     """Entries from `<root>/.leakscanbinaries`, keyed by repo-relative path.
     Every problem is collected and raised together as `BinaryManifestError`:
     an unreasoned line, a malformed line, an unknown or comma-joined set, a
-    path or a set listed twice, a set line with no file line for its path or
-    with a different digest. An absent file is no entries."""
-    files: dict[str, tuple[str, str, int]] = {}
-    set_lines: list[tuple[int, str, str, str, str]] = []
+    path or a set listed twice (or one that is absolute or climbs out with
+    `..`), a set line with no file line for its path or with a different
+    digest, a who/when that does not read. An absent file is no entries.
+    `source` reads another copy of the manifest, for the staged plane's index
+    copy (GM12)."""
+    files: dict[str, tuple[str, str, int, Provenance | None]] = {}
+    set_lines: list[tuple[int, str, str, tuple, str, Provenance | None]] = []
     problems: list[str] = []
-    for n, body, reason in allowmarker.read_reasoned_lines(root / BINARY_MANIFEST):
+    for n, body, trailing, stanza in allowmarker.read_reasoned_parts(
+            source or root / BINARY_MANIFEST):
+        prov, reason, bad = _line_reason(trailing, stanza)
+        if bad:
+            problems.append(f"line {n}: {bad}")
+            continue
         m = _ENTRY_RX.match(body)
         if not m:
             problems.append(f"line {n}: not '<sha256 hex, ≥{MIN_DIGEST_HEX} chars>"
@@ -1246,20 +1374,25 @@ def load_binary_manifest(root: Path) -> dict[str, BinaryEntry]:
                 continue
         path = m.group("path").strip()
         path = path[2:] if path.startswith("./") else path
+        if _escapes_root(path):
+            problems.append(f"line {n}: '{path}' is not a path inside the repo "
+                            "(absolute, or climbing out with '..'): it can match "
+                            "no file")
+            continue
         if reason is None:
             what = f"keeping {scope} in '{path}'" if scope else f"'{path}'"
             problems.append(f"line {n}: {what} has no stated reason")
             continue
         digest = m.group("digest").lower()
         if scope:
-            set_lines.append((n, path, digest, tuple(names), reason))
+            set_lines.append((n, path, digest, tuple(names), reason, prov))
         elif path in files:
             problems.append(f"line {n}: '{path}' already listed at line "
                             f"{files[path][2]}")
         else:
-            files[path] = (digest, reason, n)
+            files[path] = (digest, reason, n, prov)
     kept: dict[str, dict[str, KeptSet]] = {}
-    for n, path, digest, group, reason in set_lines:
+    for n, path, digest, group, reason, prov in set_lines:
         label = ",".join(group)
         if path not in files:
             problems.append(f"line {n}: keeps {label} in '{path}', but no file line "
@@ -1289,15 +1422,34 @@ def load_binary_manifest(root: Path) -> dict[str, BinaryEntry]:
                             "and its sets is one blanket reason)")
             continue
         for name in group:
-            sets[name] = KeptSet(name, reason, n)
+            sets[name] = KeptSet(name, reason, n, prov)
     if problems:
         raise BinaryManifestError(
             f"{BINARY_MANIFEST}: {len(problems)} problem(s) — {'; '.join(problems)}. "
             "Every accepted binary, and every metadata set it keeps, states its "
             "reason where a reviewer reads it (method/GUARDS.md): a comment above "
             "the stanza, or a trailing '# reason' on the line.")
-    return {path: BinaryEntry(path, d, reason, n, kept.get(path, {}))
-            for path, (d, reason, n) in files.items()}
+    return {path: BinaryEntry(path, d, reason, n, kept.get(path, {}), prov)
+            for path, (d, reason, n, prov) in files.items()}
+
+
+def provenance_gaps(manifest: dict[str, BinaryEntry]) -> list[Finding]:
+    """One warning per manifest LINE that records no who/when (160/980 GM5):
+    a line written before the form existed. Never a block, and never silent —
+    a reason alone is not what the principal asked for (2026-10-03), but an
+    old line must not break a child that was told, on 2026-10-18, it would not
+    go red today. Sorted by line; a set line naming several sets is one."""
+    gaps: dict[int, Finding] = {}
+    for e in manifest.values():
+        if e.prov is None:
+            gaps[e.lineno] = Finding(BINARY_MANIFEST, e.lineno, PROVENANCE_RULE,
+                                     "binary", "high", f"{e.path}: file line")
+        for k in e.sets.values():
+            if k.prov is None and k.lineno not in gaps:
+                gaps[k.lineno] = Finding(BINARY_MANIFEST, k.lineno, PROVENANCE_RULE,
+                                         "binary", "high",
+                                         f"{e.path}: keeps {k.name}")
+    return [gaps[n] for n in sorted(gaps)]
 
 
 def _looks_binary_file(path: Path) -> bool:
@@ -1885,8 +2037,16 @@ def _png_text_chunk(ctype: str, data: bytes, texts: list, found: list,
         if kept in ("exif", "iptc", "xmp"):
             raw = _png_text_decode(ctype, rest)
             blob = _raw_profile_bytes(raw) if raw is not None else None
+            if blob is None:
+                # Never clean (160/980 GM4): a profile the gate cannot decode
+                # is reported as UNREADABLE, and blocks as `<set>:unknown`.
+                what = f"{label} (hex-encoded binary profile, UNREADABLE: does not decode)"
             {"exif": _note_exif, "iptc": _note_iptc, "xmp": _note_xmp}[kept](
                 what, blob, found, fields)
+            if kept == "xmp" and blob is not None:
+                # The packet is text: scan it like every other XMP form, kept
+                # or not. This was the one XMP shape the text rules never saw.
+                texts.append((what, blob.decode("utf-8", errors="replace")))
         else:
             found.append((kept, what))
         return
@@ -2192,6 +2352,21 @@ def _walk_files(base: Path):
 
 def iter_files(paths: list[Path], root: Path, globs: list[str],
                tally: Tally | None = None):
+    """Every file the ignore globs leave, as `(path, repo-relative path)`; the
+    ones they skip are counted on `tally`."""
+    for p, rel, ignored in iter_files_marked(paths, root, globs):
+        if ignored:
+            if tally is not None:
+                tally.files_by_glob += 1
+            continue
+        yield p, rel
+
+
+def iter_files_marked(paths: list[Path], root: Path, globs: list[str]):
+    """As `iter_files` but ALSO the files the ignore globs skip, as
+    `(path, repo-relative path, ignored)`. G3 runs before the ignore file for a
+    binary (160/980 GM9), so the caller must see the ignored ones to gate
+    them, and decide itself what a skip counts as."""
     for base in paths:
         candidates = [base] if base.is_file() else _walk_files(base)
         for p in candidates:
@@ -2204,11 +2379,7 @@ def iter_files(paths: list[Path], root: Path, globs: list[str],
                 rel = str(p.resolve().relative_to(root.resolve()))
             except ValueError:
                 rel = str(p)
-            if _ignored(rel, globs):
-                if tally is not None:
-                    tally.files_by_glob += 1
-                continue
-            yield p, rel
+            yield p, rel, _ignored(rel, globs)
 
 
 # Streaming-read tuning (020/380, reusing secretscan's 020/370 constants
@@ -2321,11 +2492,27 @@ def scan_paths(paths: list[Path], root: Path,
                tally: Tally | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     manifest = load_binary_manifest(root)
+    if tally is not None:
+        tally.provenance_warnings.extend(provenance_gaps(manifest))
     tracked = tracked_files(root)
     by_digest = _digest_index(manifest)
     findings: list[Finding] = []
     gated: set[str] = set()
-    for p, rel in iter_files(paths, root, globs, tally):
+    for p, rel, ignored in iter_files_marked(paths, root, globs):
+        if ignored:
+            # G3 runs BEFORE the ignore file for a binary (160/980 GM9): a
+            # glob is path-wide and blind to content, so it cannot be the
+            # hatch for a binary. A tracked binary under a glob is gated like
+            # any other; everything else the glob skips stays skipped.
+            if not _looks_binary_file(p) or (tracked is not None
+                                             and rel not in tracked):
+                if tally is not None:
+                    tally.files_by_glob += 1
+                continue
+            gated.add(rel)
+            findings.extend(check_binary(p, rel, manifest.get(rel), local_terms,
+                                         disabled, tally, by_digest))
+            continue
         # G2: the path is scanned whatever the contents turn out to be — a
         # binary's NAME is readable even when its body is not.
         findings.extend(scan_path_name(rel, local_terms, disabled, tally))
@@ -2340,8 +2527,7 @@ def scan_paths(paths: list[Path], root: Path,
                                          disabled, tally, by_digest))
     # An entry this walk could have reached but did not gate accepts nothing.
     for entry in manifest.values():
-        if entry.path in gated or _ignored(entry.path, globs) \
-                or not _under_any(root / entry.path, paths):
+        if entry.path in gated or not _under_any(root / entry.path, paths):
             continue
         _record(findings, tally, _stale(entry, _stale_reason(root / entry.path,
                                                              entry.path, tracked)))
@@ -2373,6 +2559,20 @@ def _stale_reason(p: Path, rel: str, tracked: set[str] | None) -> str:
     return "in a directory the scan never walks"
 
 
+def provenance_stub(today: datetime.date | None = None) -> str:
+    """The who/when a printed line carries (160/980 GM5), so recording it costs
+    the person nothing: the session id and today's UTC date, and `by=agent`
+    when a Claude session prints it. Run by a person there is no session, and
+    the kind of grant is theirs to state, so it prints `by=CHOOSE`, which the
+    loader refuses until they write principal-ruled, principal-answer or
+    agent. It is never a reason: a line holding only this is still unreasoned."""
+    sid = os.environ.get("CLAUDE_CODE_SESSION_ID", "")
+    on = (today or _utc_today()).isoformat()
+    if sid and _SESSION_RX.match(sid):
+        return f"by=agent session={sid} on={on}"
+    return f"by=CHOOSE session=human on={on}"
+
+
 def binary_entries(paths: list[Path], root: Path) -> tuple[list[str], list[str]]:
     """`--binary-entries`: the `.leakscanbinaries` lines a gated binary still
     needs — a file line when no entry accepts its bytes (new, or changed
@@ -2385,9 +2585,11 @@ def binary_entries(paths: list[Path], root: Path) -> tuple[list[str], list[str]]
     globs = load_ignore_globs(root)
     manifest = load_binary_manifest(root)
     tracked = tracked_files(root)
+    stub = provenance_stub()
     lines: list[str] = []
     notes: list[str] = []
-    for p, rel in iter_files(paths, root, globs):
+    for p, rel, _ignored_by_glob in iter_files_marked(paths, root, globs):
+        # An ignored binary is gated too (GM9), so its lines are listed.
         if not _looks_binary_file(p) or (tracked is not None and rel not in tracked):
             continue
         with open(p, "rb") as fh:
@@ -2422,11 +2624,11 @@ def binary_entries(paths: list[Path], root: Path) -> tuple[list[str], list[str]]
             continue
         d = digest[:PRINTED_DIGEST_HEX]
         if not accepted:
-            lines.append(f"{d}  {rel}")
+            lines.append(f"{d}  {rel}  # {stub}")
             if entry is not None:
                 notes.append(f"{rel}: changed since listed — replaces line "
                              f"{entry.lineno} and the set lines under it")
-        lines.extend(f"{d}:{s}  {rel}" for s in missing)
+        lines.extend(f"{d}:{s}  {rel}  # {stub}" for s in missing)
         if missing:
             shown = [s for s in present if s in missing]
             notes.append(f"{rel}: carries metadata set(s) "
@@ -2509,6 +2711,31 @@ def staged_changes() -> tuple[list[str], set[str], list[str]]:
         if added == "-" and deleted == "-":
             binary.add(path)
     return changed, binary, removed
+
+
+def _staged_manifest(root: Path, dest: Path) -> dict[str, BinaryEntry]:
+    """The manifest as the commit will hold it (160/980 GM12): the INDEX copy,
+    and none when the index holds none, whatever the working tree says. Like
+    the ignore file the hook read the working tree before; unlike it, this
+    file holds the entries that excuse a binary, so the hook and CI must judge
+    the same bytes. A working copy that differs from the staged one is said so
+    on stderr, because the verdict is then not the one the person is looking
+    at."""
+    r = subprocess.run(["git", "ls-files", "--stage", "--", BINARY_MANIFEST],
+                       capture_output=True, check=True)
+    working = root / BINARY_MANIFEST
+    if not r.stdout.strip():
+        if working.exists():
+            print(f"leakscan: {BINARY_MANIFEST} is not staged, so this commit holds "
+                  "no manifest and the hook reads none (`git add` it)",
+                  file=sys.stderr)
+        return {}
+    _staged_blob(BINARY_MANIFEST, dest)
+    if working.exists() and working.read_bytes() != dest.read_bytes():
+        print(f"leakscan: {BINARY_MANIFEST} differs from its staged copy; the hook "
+              "reads the staged one, which is what the commit holds",
+              file=sys.stderr)
+    return load_binary_manifest(root, dest)
 
 
 def _staged_blob(path: str, dest: Path) -> None:
@@ -2596,6 +2823,32 @@ def render_type_level(warns: list[Finding]) -> list[str]:
     return lines
 
 
+PROVENANCE_LIST_CAP = 20
+
+
+def render_provenance(warns: list[Finding]) -> list[str]:
+    """160/980 GM5: manifest lines that record a reason and no who/when. A
+    warning, with no date on it: whether and when it blocks is the principal's
+    to rule. Lists the first `PROVENANCE_LIST_CAP` lines and counts the rest,
+    so a child with a hundred old lines gets one screen, not a wall."""
+    if not warns:
+        return []
+    n = len(warns)
+    lines = [f"⚠ leakscan: {n} {BINARY_MANIFEST} line(s) record a reason but not who "
+             "allowed them or when — WARNING ONLY:"]
+    for f in warns[:PROVENANCE_LIST_CAP]:
+        lines.append(report.with_id(
+            f"  {BINARY_MANIFEST}:{f.line}  [warn] {f.rule} → {f.excerpt}",
+            "leakscan", f.rule))
+    if n > PROVENANCE_LIST_CAP:
+        lines.append(f"  …and {n - PROVENANCE_LIST_CAP} more, counted but not listed.")
+    lines.append(f"  Add `{PROVENANCE_FORM}` to each line's comment (the exception "
+                 "register's who, session and date; 'agent' for a session's own "
+                 "judgement). `leakscan --binary-entries` prints it on new lines.")
+    lines.append("")
+    return lines
+
+
 def advisory_count_line(n: int) -> str:
     """The one line that always says how many findings this run reported
     without blocking (115/090). ALWAYS printed, zero included, for the reason
@@ -2638,7 +2891,8 @@ def render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
 def render_human(findings: list[Finding], warning: str | None,
                  scanned_local: bool, tally: Tally | None = None,
                  grace: list[Finding] | None = None,
-                 typewarn: list[Finding] | None = None) -> str:
+                 typewarn: list[Finding] | None = None,
+                 provwarn: list[Finding] | None = None) -> str:
     # 115/090: `findings` may carry report-only findings from rules that are
     # off; they are listed in their own block and never counted as blocking.
     advisory = [f for f in findings if not f.blocks]
@@ -2656,6 +2910,7 @@ def render_human(findings: list[Finding], warning: str | None,
         lines.append(f"⚠ {warning}")
     lines.extend(render_grace(grace or []))
     lines.extend(render_type_level(typewarn or []))
+    lines.extend(render_provenance(provwarn or []))
     if not findings and not over_cap:
         cover = "structural + local" if scanned_local else "structural only"
         lines.append(f"✓ leakscan clean ({cover})."
@@ -2730,7 +2985,8 @@ def _main(argv: list[str] | None = None) -> int:
                          "(new, or changed since listed), and a '<digest>:<set>' line "
                          "for every metadata set it carries that no line keeps. Lines "
                          "carry no reason: review each file and write one per file and "
-                         "per set kept, or the scan refuses it. Never writes the file.")
+                         "per set kept, or the scan refuses it. Each ends with a "
+                         "'by= session= on=' who/when note. Never writes the file.")
     ap.add_argument("--selftest", action="store_true", help="run built-in checks and exit")
     args = ap.parse_args(argv)
 
@@ -2757,8 +3013,10 @@ def _main(argv: list[str] | None = None) -> int:
         print(f"leakscan: {len(lines)} entr{'y' if len(lines) == 1 else 'ies'} to review. "
               f"Append to {BINARY_MANIFEST} with a reason — a '# reason' comment above "
               "the stanza or on the line — saying what each file is and that you looked, "
-              "and on each set line the need for keeping that set. Strip a set you do "
-              "not need rather than keep it.",
+              "and on each set line the need for keeping that set; keep the "
+              "'by= session= on=' note on each line, and replace by=CHOOSE with "
+              f"{', '.join(PROVENANCE_KINDS)}. Strip a set you do not need rather "
+              "than keep it.",
               file=sys.stderr)
         return 0
     try:
@@ -2822,8 +3080,6 @@ def _main(argv: list[str] | None = None) -> int:
         # .leakscanignore applies in staged mode too, so an exemption means the
         # same thing whether you scan the tree or a commit.
         globs = load_ignore_globs(root)
-        manifest = load_binary_manifest(root)
-        by_digest = _digest_index(manifest)
         findings = []
         # Every changed path once, in a stable order: the text diff's files
         # first (their existing order), then the paths only git's name list
@@ -2831,16 +3087,28 @@ def _main(argv: list[str] | None = None) -> int:
         ordered = list(staged) + [p for p in in_changed if p not in staged]
         with tempfile.TemporaryDirectory(prefix="leakscan-") as td:
             blob = Path(td) / "blob"
+            # The manifest this commit will hold, not the working tree's
+            # (160/980 GM12): a commit whose manifest edit is unstaged must
+            # be judged on what it commits, as on CI.
+            try:
+                manifest = _staged_manifest(root, Path(td) / "manifest")
+            except subprocess.CalledProcessError as e:
+                return report.broken("leakscan",
+                                     f"git cat-file failed for {BINARY_MANIFEST}: {e}")
+            tally.provenance_warnings.extend(provenance_gaps(manifest))
+            by_digest = _digest_index(manifest)
             for path in ordered:
-                if _ignored(path, globs):
+                ignored = _ignored(path, globs)
+                if ignored and path not in binary:
                     tally.files_by_glob += 1
                     continue
-                # G2 on the hot path too: a leak in a NEW file's name reaches
-                # the remote by the same commit as one in its body.
-                findings.extend(scan_path_name(path, local_terms, disabled, tally))
-                if path in staged:
-                    findings.extend(scan_lines(path, staged[path], local_terms,
-                                                 disabled, tally))
+                if not ignored:
+                    # G2 on the hot path too: a leak in a NEW file's name reaches
+                    # the remote by the same commit as one in its body.
+                    findings.extend(scan_path_name(path, local_terms, disabled, tally))
+                    if path in staged:
+                        findings.extend(scan_lines(path, staged[path], local_terms,
+                                                     disabled, tally))
                 if path not in binary:
                     continue
                 try:
@@ -2848,6 +3116,12 @@ def _main(argv: list[str] | None = None) -> int:
                 except subprocess.CalledProcessError as e:
                     return report.broken("leakscan",
                                          f"git cat-file failed for {path}: {e}")
+                if ignored and not _looks_binary_file(blob):
+                    # G3 runs before the ignore file for a BINARY (GM9); a file
+                    # git calls binary that is really text is only text, and
+                    # the glob still skips it.
+                    tally.files_by_glob += 1
+                    continue
                 if _looks_binary_file(blob):
                     findings.extend(check_binary(blob, path, manifest.get(path),
                                                  local_terms, disabled, tally, by_digest))
@@ -2858,7 +3132,7 @@ def _main(argv: list[str] | None = None) -> int:
                     findings.extend(_scan_file(blob, path, local_terms, disabled, tally))
         for path in in_removed:
             entry = manifest.get(path)
-            if entry is not None and not _ignored(path, globs):
+            if entry is not None:
                 _record(findings, tally, _stale(entry, "removed or renamed by this commit"))
     else:
         # A RELATIVE target resolves against --root, never the caller's cwd:
@@ -2879,6 +3153,7 @@ def _main(argv: list[str] | None = None) -> int:
     # materialisation cap were counted, never built, so they cannot be sorted
     # by rule and stay blocking: fail closed.
     typewarn = tally.type_level_warnings
+    provwarn = tally.provenance_warnings
     grace: list[Finding] = []
     if in_binary_grace():
         grace = [f for f in findings if f.rule in BINARY_RULES]
@@ -2916,6 +3191,11 @@ def _main(argv: list[str] | None = None) -> int:
                 "warnings": report.finding_dicts("leakscan", grace,
                                                  lambda f: f.rule),
             },
+            "binary_provenance": {
+                "form": PROVENANCE_FORM,
+                "warnings": report.finding_dicts("leakscan", provwarn,
+                                                 lambda f: f.rule),
+            },
             "binary_type_level": {
                 "until": TYPE_LEVEL_UNTIL.isoformat(),
                 "active": in_type_level_grace(),
@@ -2932,7 +3212,8 @@ def _main(argv: list[str] | None = None) -> int:
             },
         }, indent=2))
     else:
-        print(render_human(findings, warning, scanned_local, tally, grace, typewarn))
+        print(render_human(findings, warning, scanned_local, tally, grace, typewarn,
+                           provwarn))
 
     return report.exit_code(blocking_total)
 

@@ -954,7 +954,7 @@ class InvocationTest(unittest.TestCase):
 
     def test_tuning_a_boundary_check_states_why(self):
         """EP1(b), ruled 2026-08-04 — `scope`'s twin, and the half C1 did not
-        carry. `FORBIDDEN_FLAGS` is a blocklist of five mode arguments, so a
+        carry. `FORBIDDEN_FLAGS` is a blocklist of known arguments, so a
         rule switched off by name still shrinks a boundary check's cover and
         touches nothing on the list. That is a cover decision, so it goes on
         the record the way a disabled check does — and the block names the
@@ -2085,6 +2085,36 @@ class G3GraceCannotBeExtendedTest(unittest.TestCase):
                 self.assertRefused(
                     {"flags": {"leakscan": {"args": [arg], "why": "later"}}},
                     "may not contain")
+
+    def test_args_that_re_aim_a_check_are_refused_however_spelled(self):
+        # 160/980 GM8: `--root`, `--terms` and `--staged` do not change the
+        # mode, they change what the check reads. Appended after the template's
+        # own they displaced it (argparse keeps the last value of a repeated
+        # store option), so they are refused like the mode flags.
+        for arg in ("--root", "--root=/tmp/x", "--ro", "--terms", "--terms=/dev/null",
+                    "--ter", "--staged", "--stag", "--staged=1"):
+            with self.subTest(arg=arg):
+                self.assertRefused(
+                    {"flags": {"leakscan": {"args": [arg, "x"], "why": "later"}}},
+                    "may not contain")
+
+    def test_no_real_scanner_flag_is_a_prefix_of_a_forbidden_one(self):
+        # The refusal is a prefix test, so it refuses a legitimate flag only if
+        # that flag is itself a strict prefix of a forbidden one. The docstring
+        # says none is; this is the check, over every scanner's own parser.
+        import re
+        tools = Path(floor.__file__).resolve().parent
+        seen = set()
+        for sc in floor.SCANNERS:
+            f = tools / f"{sc.name}.py"
+            src = f.read_text(encoding="utf-8") if f.exists() else ""
+            seen |= set(re.findall(r'add_argument\(\s*"(--[A-Za-z-]+)"', src))
+        for flag in sorted(seen):
+            if flag in floor.FORBIDDEN_FLAGS:
+                continue
+            with self.subTest(flag=flag):
+                self.assertEqual([], floor.forbidden_flags([flag]))
+        self.assertGreater(len(seen), 5)
 
     def test_a_scope_path_cannot_carry_a_mode_flag(self):
         # A scope path renders as a positional, and a dash-led positional is

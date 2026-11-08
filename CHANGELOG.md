@@ -5,6 +5,47 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-09 — G3 review applied: who allowed it and when, the gate before the ignore file, raw XMP read, `160/980`)
+Mike's answers of 2026-11-08 on the cold pass of `020/150`, plus the reviewer's
+counsel on the rest. G3 itself still warns only until **2026-11-18, which he
+made firm for every child**.
+- **Each `.leakscanbinaries` line records who allowed it and when (GM5).** The
+  line's comment also carries `by=<principal-ruled|principal-answer|agent>
+  session=<id|human> on=<YYYY-MM-DD>`, the exception register's vocabulary. A
+  malformed one is a config error. `--binary-entries` prints it on every line
+  (`by=agent` plus the session id in a Claude session, `by=CHOOSE` otherwise,
+  refused until a person picks). **A line written before this, reason only,
+  still loads and prints a warning naming its line; it never blocks.** No date
+  makes that a block: that is Mike's to rule, and it sits against the held
+  exception register (`110/100`), which would carry the same three fields.
+  `--json` gains `binary_provenance`, and the `suppressed:` line a field.
+- **A `.leakscanignore` glob no longer skips the gate for a binary (GM9).** The
+  gate runs before the ignore file: a tracked binary under a glob needs its
+  hash-bound entry like any other. Text and untracked files under a glob are
+  skipped as before. On the hook plane too.
+- **A PNG `Raw profile type xmp` chunk is decoded and its text scanned (GM4)**,
+  like XMP in a JPEG or WebP; it was the one XMP form the text rules never saw.
+  A raw `exif`, `iptc` or `xmp` profile that does not decode is reported
+  **UNREADABLE** and blocks as `<set>:unknown`.
+- **The hook reads the manifest the commit holds (GM12):** the index copy, none
+  when the commit holds none. It prints a note when the working copy differs.
+- **A manifest path that is absolute or climbs out with `..` is a config error
+  (GM6)**; it used to load and sit in the inventory matching nothing.
+- **`floor.py` also refuses `--root`, `--terms` and `--staged` in `flags`
+  (GM8)**, and abbreviations of them: they re-aim a check, and a repeated
+  option keeps its last value. The `_render` docstring no longer claims that
+  appending stops displacement. A test now checks that no real scanner flag is
+  a prefix of a forbidden one.
+- **Wording (GM1, GM3, GM7, GM10, GM13, GM14):** the README and `leakscan.py`
+  attribute the grace's option text to the queue run and cite the label Mike
+  chose; the sets are said to be data types, with `020/450` as the field-level
+  keep; 2026-11-18 is stated as firm; a stale "four arguments" and "after the
+  date" are corrected; the tests' Python floor (3.11) is named; and the blanket
+  refusal's textual equality and the JPEG walker's unbudgeted linear cost are
+  each stated. `allowmarker.read_reasoned_parts` is new (the two places a
+  reason can sit, before they are merged); `read_reasoned_lines` is built on
+  it and unchanged.
+
 ### Changed (2026-11-08 — the report-up duty: the floor block now carries the privacy rule, `160/300`)
 - **The short text every child reads at session start now tells a private repo
   to describe a doctrine problem by its class only.** The `floor` region's
@@ -105,6 +146,7 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   no longer inherit the host's commit-signing config (QS9). `test_pins.py`'s
   bounded-memory pins time out at 600 s, a hang guard, instead of 60 s, so a
   loaded machine no longer reds the suite as a memory defect (QU3).
+
 
 ### Added (2026-11-07 — secretscan: an exempt file is still read for a real private key, `115/380`)
 - **A file a `.secretscanignore` glob skips now gets one narrow, advisory
@@ -513,6 +555,10 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   fields A, B, and C allowed because of X"*. Two set lines may now share a
   reason; a set line still may not just repeat the file line's reason.
   Nothing changes for a manifest already written one set per line.
+  These sets are data types (Exif, XMP, and so on), not the fields he meant:
+  his next sentence was *"I did mean fields as in GPS versus the camera
+  model"*. The field-level keep is `020/450`, built after this (see the
+  entries above) (`160/980` GM3).
 
 ### Added (2026-10-18 — leakscan gates binary files, warning only until 2026-11-18, `020/150`)
 - **What G3 checks.** `leakscan` no longer skips a tracked binary in
@@ -530,8 +576,10 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   (`binary-unlisted`, `binary-changed`, `binary-metadata`,
   `binary-stale-entry`) print as warnings naming that date and their remedy,
   and the exit code is unchanged. Mike chose a grace period of about 30
-  days; the exact date was the queue run's pick. Every other leakscan rule
-  still blocks today, including a personal-data hit in an image's text
+  days (the option labelled "Grace period (Recommended)"; the option text
+  was the queue run's, not his words); the exact date was the queue run's
+  pick, and he made it firm on 2026-11-08 (`160/980`). Every other leakscan
+  rule still blocks today, including a personal-data hit in an image's text
   metadata.
 - **What each child does, before the cut-off.** Run
   `python3 <atelier>/tools/leakscan.py --root . --binary-entries`. It prints
@@ -540,8 +588,8 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   example `exiftool -all= file`) and re-run, because stripping changes the
   hash. Then write a reason per file and a need-specific reason per set you
   keep, and commit `.leakscanbinaries`.
-- **After 2026-11-18** the same findings block CI and the hook exactly as a
-  leak does. The date cannot be moved or skipped: there is no flag for it,
+- **From 2026-11-18** (on that day itself) the same findings block CI and the
+  hook exactly as a leak does. The date cannot be moved or skipped: there is no flag for it,
   and `floor.py` now refuses a mode flag in `flags` even when abbreviated
   (`--binary`, `--self`), and any `scope` path that starts with `-`.
 

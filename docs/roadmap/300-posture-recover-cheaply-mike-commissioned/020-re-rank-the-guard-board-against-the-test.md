@@ -127,7 +127,7 @@
       | `020/110` | stampscan to the children | cheap failure | Stays advisory through a soak period. Any later flip is a separate ruling. | |
       | `020/120` | signscan flip to blocking | forbids · recovery: revert and re-sign | Matches `170/010`. The flip is Mike's. | |
       | `020/140` | secretscan impact axis (E6d) | forbids · recovery: rotate | Escalation only, grounded on "rotation presupposes detection". | |
-      | `020/150` | leakscan binary media (G3, held PR) | forbids only | No advisory or dated form. Published image metadata cannot be withdrawn. | 🚩 |
+      | `020/150` | leakscan binary media (G3, held PR) | forbids only | No advisory form; one dated adoption exception to 2026-11-18, recorded in `SECRETS.md`. Published image metadata cannot be withdrawn. | 🚩 |
       | `020/180` | session close-out checker | undecided | Refuse or report is not stated. | |
       | `020/300` | the unwired reply gate | undecided | Redesign or destroy, after a design review. | |
       | `020/350` | bidi and zero-width characters at the board parse seam | undecided | Strip, escape, or accept. None of the three blocks. | |
