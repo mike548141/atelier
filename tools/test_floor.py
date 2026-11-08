@@ -2372,10 +2372,16 @@ class DateKindTest(unittest.TestCase):
             (Path(td) / floor.CONFIG_NAME).write_text(
                 json.dumps(self._adv(**{"review-by": "2027-03-31"})),
                 encoding="utf-8")
+            # The hook plane's leakscan refuses to run with no term list, and
+            # CI has none: give it one, or the plane reds for that reason.
+            terms = Path(td) / ".." / (Path(td).name + "-terms.txt")
+            terms.write_text("zzz-no-such-term\n", encoding="utf-8")
+            self.addCleanup(terms.unlink, missing_ok=True)
+            env = {**os.environ, "ATELIER_LEAKSCAN_TERMS": str(terms)}
             r = subprocess.run(
                 [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane", "hook",
                  "--root", td, "--json"], capture_output=True, text=True,
-                cwd=td)  # --staged reads the index of the cwd's repo
+                cwd=td, env=env)  # --staged reads the index of the cwd's repo
             self.assertEqual(r.returncode, 0, r.stderr)
             res = {x["name"]: x for x in json.loads(r.stdout)["results"]}
             self.assertIn("moved later", res["wrapscan"]["date_note"])
