@@ -28,6 +28,37 @@ Snapshot-first where the platform offers it: **ZFS/filesystem snapshots**,
 **DB dumps**, **object-store versioning**. Taking a fresh snapshot immediately
 before a risky op is cheap; it is the difference between "undo" and "gone".
 
+## Where the act is irreversible, a report is not evidence
+
+**Where an action cannot be undone, a tool's own report is not sufficient
+evidence for it: corroborate from the artefacts.** Narrow on purpose. "Distrust
+your tools" would be ignored within a day, and should be; this binds only at
+the irreversible act, where the cost of a wrong report is the data.
+
+A tool's report can be corrupted independently of its work (`EVIDENCE.md` §14
+makes the same point from the side of the tool you built). The case that earned
+the rule: a large deletion was authorised by a verdict tick that a corrupted
+process had printed. The check that caught it was re-deriving the result from
+the manifests on disk (five digests recomputed, the raw diffs re-run) instead
+of reading the run's own summary. The two agreed; they did not have to, and the
+rule exists for the gap between those two sentences. Two of the three
+instances in that session were found only because the owner asked for evidence
+he could check rather than accepting a verdict.
+
+**Never overwrite an executable that a running invocation is reading.** Write
+to a new path and rename over it, or version the filename. Bash reads a script
+by byte offset, so replacing the file underneath resumes execution at an offset
+that now lands mid-token, and the process keeps going and keeps printing. The
+rename is atomic; an in-place write is not.
+
+Mike adopted both on 2026-11-09 as data-integrity doctrine (board item
+`370/010`; his pick from options offered, an answer, not a ruling in his
+words). **No scanner:** there is no grep for "this output came from a
+corrupted process". The write-then-rename convention belongs in whatever
+governs how a tool is written, and a tool that rewrites itself or a sibling
+script should follow it. See also `EVIDENCE.md` §18 (a negative needs a
+positive control), which covers the opposite failure, a report that is empty.
+
 ## The data plane is the slow lane
 
 Broad autonomy grants (commit/push/PR, and any per-domain write grant) **do not
