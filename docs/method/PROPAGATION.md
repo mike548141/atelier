@@ -411,6 +411,12 @@ facts on the DRY ruling of 2026-08-09. That is the whole failure mode in one
 repo: a repeat is not a redundant copy, it is a *falsifiable* copy, and it
 falsifies quietly.
 
+**Only parent and child is modelled here** (`390/010`, 2026-11-09; Mike's pick
+from options offered, so an answer and not a ruling in his words). atelier does
+not model a repo that consumes another's asset, nor repos that group by subject.
+Those relationships, where the estate records them at all, belong in the estate
+root's registry.
+
 ## Pointing up — reporting a doctrine problem to the house
 
 *The route that was missing. § The layer-override rule says children point up
