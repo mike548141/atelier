@@ -127,6 +127,17 @@ does not enforce a check must SAY SO, in a committed file
   disabled   the check does not run. A deliberate, reviewable choice on the
              record, with a stated reason.
 
+VISIBILITY (260/050)
+--------------------
+A repo declares what it is, `"visibility": "public"` or `"private"`, and the CI
+plane (inside Actions only; the hook never touches the network) asks GitHub
+what it is NOW. Declared private and GitHub says public is a LIVE BREACH and
+the one red here, with a loud alert. Declared public and GitHub says private,
+GitHub unreadable, and nothing declared are all 🟡 and never block, so no repo
+goes red the day the key exists. It detects and alerts; it cannot stop a flip.
+What a public declaration tightens (advisory hatches, licenscan, publishscan)
+is not built yet. The daily external check is `390/020`'s, not built here.
+
 `floorfleet.py` reads those declarations across the estate and shows them, so
 "this repo is not enforcing X" is a visible board state rather than an absence
 nobody can see. **A guard that is off and known is a decision; a guard that is
@@ -266,12 +277,17 @@ import os
 import re
 import subprocess
 import sys
+import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
 CONFIG_NAME = ".atelier-floor.json"
 # The two kinds of date GUARDS.md names (§ Who may move a deferment's date).
 DATE_KINDS = ("mandate", "default")
+# What a repo may declare about itself (260/050). Two values: GitHub's third,
+# "internal", is a private-side state, and a repo that is not on GitHub
+# publicly or privately has nothing to declare.
+VISIBILITIES = ("public", "private")
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # C0 controls, DEL, and the C1 range. Config-authored text reaches a terminal
 # verbatim, so these are stripped at the parse seam — see `strip_controls`.
@@ -1311,6 +1327,10 @@ def _load_local(raw: object) -> tuple[Scanner, ...]:
 class Config:
     docs: str = "docs"
     licence: str | None = None
+    # "public" or "private": what this repo says it is, checked against GitHub
+    # on the CI plane (260/050). None is undeclared, which warns and never
+    # blocks, so no repo goes red the day the key exists.
+    visibility: str | None = None
     advisory: dict[str, Advisory] = field(default_factory=dict)
     disabled: dict[str, str] = field(default_factory=dict)  # name -> reason
     # Per-scanner overrides of WHERE a check looks. atelier itself needs this
@@ -1420,6 +1440,13 @@ class Config:
 
         docs = raw.get("docs", "docs")
         licence = raw.get("licence") or None
+        visibility = raw.get("visibility")
+        if visibility is not None and visibility not in VISIBILITIES:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `visibility` must be one of "
+                f"{', '.join(repr(v) for v in VISIBILITIES)}, got "
+                f"{visibility!r}"
+            )
         advisory = _load_advisory(raw.get("advisory", {}))
 
         # `disabled` takes {name: reason}. A bare list is refused rather than
@@ -1435,8 +1462,8 @@ class Config:
             raise ConfigError(f"{CONFIG_NAME}: `disabled` must be an object")
         disabled = {k: str(v) for k, v in raw_disabled.items()}
 
-        cfg = Config(docs=docs, licence=licence, advisory=advisory,
-                     disabled=disabled,
+        cfg = Config(docs=docs, licence=licence, visibility=visibility,
+                     advisory=advisory, disabled=disabled,
                      scope=_load_scope(raw.get("scope", {})),
                      flags=_load_flags(raw.get("flags", {})),
                      local=_load_local(raw.get("local", {}) or {}))
@@ -1768,6 +1795,87 @@ def plan(plane: str, cfg: Config) -> list[tuple[Scanner, str]]:
         else:
             out.append((s, "enforced"))
     return out
+
+
+REPO_SLUG_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+
+
+def _github_get(url: str, token: str | None) -> dict:
+    """GET one JSON document from api.github.com. The URL is built by the
+    caller from a validated slug, so the token only ever goes to that host."""
+    headers = {"Accept": "application/vnd.github+json",
+               "User-Agent": "atelier-floor"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=10) as resp:  # https only
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def github_visibility(env: dict | None = None, get=_github_get) -> str | None:
+    """"public" or "private" as GitHub says right now, or None when it cannot
+    be learned. The live API answer wins over the event payload, because a
+    re-run of an old workflow replays the payload from when it first ran, and
+    the whole point is the state NOW. The payload is the fallback for an API
+    that cannot be reached. "internal" is a private-side state."""
+    env = os.environ if env is None else env
+    slug = env.get("GITHUB_REPOSITORY", "")
+    if REPO_SLUG_RE.match(slug):  # a malformed slug never reaches the network
+        try:
+            doc = get(f"https://api.github.com/repos/{slug}",
+                      env.get("GITHUB_TOKEN") or None)
+            if isinstance(doc.get("private"), bool):
+                return "private" if doc["private"] else "public"
+        except (OSError, ValueError, AttributeError):
+            pass
+    try:
+        event = json.loads(Path(env.get("GITHUB_EVENT_PATH", "")).read_text(
+            encoding="utf-8"))
+        flag = event["repository"]["private"]
+        if isinstance(flag, bool):
+            return "private" if flag else "public"
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    return None
+
+
+def check_visibility(cfg: Config, actual: str | None) -> Result:
+    """The CI plane's visibility line (260/050). Declared against GitHub:
+
+      declared private, GitHub public   RED. A live breach; the build fails
+                                        loudly, and says what to do first.
+      declared public, GitHub private   a finding (🟡), not red: the declaration
+                                        is stale, nothing is exposed.
+      cannot read GitHub                🟡: not checked, never red. A network
+                                        fault must not fail every build.
+      nothing declared                  🟡: say so, never red.
+
+    This is a detect-and-alert guard, which GUARDS.md's fourth requirement
+    calls making the failure cheap: it cannot stop a flip, and it shortens the
+    time one goes unseen to the next CI run. Whether a daily external check is
+    also needed is `390/020`'s, not a second one built here."""
+    declared = cfg.visibility
+    if declared is None:
+        return Result("visibility", "enforced", 0, partial=(
+            'no `visibility` declared in .atelier-floor.json — add "public" '
+            'or "private" so the floor can check it against GitHub'))
+    if actual is None:
+        return Result("visibility", "enforced", 0, partial=(
+            f"declared {declared}, but GitHub's answer could not be read — "
+            "not checked this run"))
+    if declared == actual:
+        return Result("visibility", "enforced", 0,
+                      reason=f"declared {declared}, GitHub agrees")
+    if declared == "private":
+        return Result("visibility", "enforced", 1, reason=(
+            "LIVE BREACH: this repo is declared PRIVATE and GitHub says it is "
+            "PUBLIC — everything in it, history included, is readable by "
+            "anyone. Make it private again first, then rotate anything in "
+            "its history that was a secret, then correct whichever side was "
+            "wrong"))
+    return Result("visibility", "enforced", 0, partial=(
+        "declared public, GitHub says private — a stale declaration, nothing "
+        "is exposed; correct `visibility` in .atelier-floor.json"))
 
 
 def moved_later(root: Path, cfg: Config) -> dict[str, str]:
@@ -2208,6 +2316,12 @@ def render(results: list[Result], plane: str) -> str:
             "with the scanner's\n`<name>:allow: <reason>` line marker or a "
             "`.<name>ignore` glob, then retry."
         )
+        if "visibility" in bad:
+            lines.append("")
+            lines.append(
+                "🚨 visibility is not a finding to exempt: the repo is "
+                "declared private and GitHub\nsays it is public. Make it "
+                "private again first; the rest follows (260/050).")
     return "\n".join(lines)
 
 
@@ -2513,6 +2627,15 @@ def main(argv: list[str] | None = None) -> int:
     tools = resolve_tools_dir(args.tools)
     ci = args.plane == "ci" and os.environ.get("GITHUB_ACTIONS") == "true"
     results = run(args.plane, root, tools, cfg, ci, json_mode=args.json)
+    if ci:
+        # Inside Actions only: a local run has no GitHub context to ask, and
+        # the hook plane never touches the network.
+        vis = check_visibility(
+            cfg, github_visibility() if cfg.visibility else None)
+        results.append(vis)
+        if vis.failed:
+            print(f"::error title=live breach::{_wc(vis.reason)}",
+                  file=sys.stderr if args.json else sys.stdout, flush=True)
 
     if args.json:
         print(json.dumps({"plane": args.plane, "root": str(root),

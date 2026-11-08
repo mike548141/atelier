@@ -2381,5 +2381,143 @@ class DateKindTest(unittest.TestCase):
             self.assertIn("moved later", res["wrapscan"]["date_note"])
 
 
+class VisibilityDeclarationTest(unittest.TestCase):
+    """260/050: a repo declares `visibility` in its floor config and CI checks
+    it against GitHub. Mike, 2026-11-09: "Yes, with the loud alert". The one
+    red is a repo that says private and is public; everything else warns, so no
+    repo goes red the day the key exists."""
+
+    def _cfg(self, **kw):
+        return floor.Config(**kw)
+
+    def test_the_key_loads_validates_and_defaults_to_undeclared(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / floor.CONFIG_NAME
+            self.assertIsNone(floor.Config.load(Path(td)).visibility)
+            for ok in ("public", "private"):
+                p.write_text(json.dumps({"visibility": ok}), encoding="utf-8")
+                self.assertEqual(floor.Config.load(Path(td)).visibility, ok)
+            for bad in ("Public", "internal", "", True, 7, ["public"]):
+                with self.subTest(value=bad):
+                    p.write_text(json.dumps({"visibility": bad}),
+                                 encoding="utf-8")
+                    with self.assertRaises(floor.ConfigError) as cm:
+                        floor.Config.load(Path(td))
+                    self.assertIn("'public'", str(cm.exception))
+                    self.assertIn("'private'", str(cm.exception))
+
+    def test_declared_private_but_public_is_the_only_red(self):
+        r = floor.check_visibility(self._cfg(visibility="private"), "public")
+        self.assertTrue(r.failed)
+        self.assertIn("LIVE BREACH", r.reason)
+        self.assertIn("Make it private again", r.reason.replace("make it", "Make it"))
+        out = floor.render([r], "ci")
+        self.assertIn("❌", out)
+        self.assertIn("BLOCKED by: visibility", out)
+        self.assertIn("visibility is not a finding to exempt", out)
+
+    def test_every_other_case_warns_and_never_fails(self):
+        cases = {
+            "agree private": (self._cfg(visibility="private"), "private"),
+            "agree public": (self._cfg(visibility="public"), "public"),
+            "stale: public declared, private actual":
+                (self._cfg(visibility="public"), "private"),
+            "github unreadable": (self._cfg(visibility="private"), None),
+            "undeclared, public": (self._cfg(), "public"),
+            "undeclared, unknown": (self._cfg(), None),
+        }
+        for label, (cfg, actual) in cases.items():
+            with self.subTest(case=label):
+                r = floor.check_visibility(cfg, actual)
+                self.assertFalse(r.failed)
+                self.assertEqual(r.rc, 0)
+        warned = ("stale: public declared, private actual",
+                  "github unreadable", "undeclared, public",
+                  "undeclared, unknown")
+        for label in warned:
+            cfg, actual = cases[label]
+            r = floor.check_visibility(cfg, actual)
+            self.assertTrue(r.partial, label)
+            self.assertIn("🟡", floor.render([r], "ci"), label)
+
+    def test_github_answer_is_read_live_then_from_the_event(self):
+        env = {"GITHUB_REPOSITORY": "o/r"}
+        self.assertEqual(floor.github_visibility(
+            env, get=lambda u, tok: {"private": False}), "public")
+        self.assertEqual(floor.github_visibility(
+            env, get=lambda u, tok: {"private": True}), "private")
+        seen = {}
+        def get(url, tok):
+            seen["url"], seen["tok"] = url, tok
+            return {"private": True}
+        floor.github_visibility({**env, "GITHUB_TOKEN": "tkn"}, get=get)
+        self.assertEqual(seen, {"url": "https://api.github.com/repos/o/r",
+                                "tok": "tkn"})
+        # The API failing falls back to the event payload.
+        def boom(url, tok):
+            raise OSError("no network")
+        with tempfile.TemporaryDirectory() as td:
+            ev = Path(td) / "event.json"
+            ev.write_text(json.dumps({"repository": {"private": False}}),
+                          encoding="utf-8")
+            self.assertEqual(floor.github_visibility(
+                {**env, "GITHUB_EVENT_PATH": str(ev)}, get=boom), "public")
+        self.assertIsNone(floor.github_visibility(env, get=boom))
+
+    def test_a_malformed_slug_never_reaches_the_network(self):
+        def get(url, tok):
+            raise AssertionError("must not be called")
+        for slug in ("", "noslash", "a/b/c", "a/b?x=1", "a/ b", "../x/y z"):
+            with self.subTest(slug=slug):
+                self.assertIsNone(floor.github_visibility(
+                    {"GITHUB_REPOSITORY": slug}, get=get))
+
+    def test_inside_actions_the_floor_exits_red_on_a_breach(self):
+        """End to end, with the event payload standing in for GitHub (no
+        GITHUB_REPOSITORY, so nothing touches the network): declared private,
+        payload public, exit 1 with the alert on stderr."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            ev = Path(td) / "event.json"
+            outcomes = {}
+            for private_now, declared in ((False, "private"), (True, "private"),
+                                          (False, "public")):
+                ev.write_text(json.dumps({"repository": {"private": private_now}}),
+                              encoding="utf-8")
+                (Path(td) / floor.CONFIG_NAME).write_text(
+                    json.dumps({"visibility": declared}), encoding="utf-8")
+                env = {k: v for k, v in os.environ.items()
+                       if k != "GITHUB_REPOSITORY"}
+                env.update(GITHUB_ACTIONS="true", GITHUB_EVENT_PATH=str(ev))
+                r = subprocess.run(
+                    [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane",
+                     "ci", "--root", td], capture_output=True, text=True,
+                    env=env)
+                outcomes[(private_now, declared)] = r
+            breach = outcomes[(False, "private")]
+            self.assertEqual(breach.returncode, 1, breach.stderr[-600:])
+            self.assertIn("LIVE BREACH", breach.stderr)
+            self.assertIn("::error title=live breach::", breach.stdout)
+            for ok in ((True, "private"), (False, "public")):
+                self.assertEqual(outcomes[ok].returncode, 0,
+                                 outcomes[ok].stderr[-600:])
+
+    def test_a_local_run_adds_no_visibility_line(self):
+        """Outside Actions there is no GitHub context and no network call, so
+        every child's local and hook output is unchanged."""
+        env = {k: v for k, v in os.environ.items() if k != "GITHUB_ACTIONS"}
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps({"visibility": "private"}), encoding="utf-8")
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane", "ci",
+                 "--root", td, "--json"], capture_output=True, text=True,
+                env=env)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            names = [x["name"] for x in json.loads(r.stdout)["results"]]
+            self.assertNotIn("visibility", names)
+
+
 if __name__ == "__main__":
     unittest.main()

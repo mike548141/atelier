@@ -5,6 +5,41 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-09 — three cold-pass applications: `160/380`, `160/450`, `260/050`)
+Mike answered options a session offered on each; those are answers, not rulings
+in his own words. The reviewers' counsel was applied as written.
+- **Held-back review notes never live in the shared scratchpad (`160/380`).**
+  The harness hands every agent the orchestrator's own scratchpad, so a sibling
+  `.deferred.md` held there is one read from any reviewer. `CONCURRENCY.md`
+  § *Orchestrated queue runs* now says where such material goes (a user-local
+  directory outside the repo, every worktree and any harness scratchpad, never a
+  reviewer's working directory), names the recipe (`<scratchpad>/<worker>/`),
+  grounds *absolute* on the argument, softens "binds" to "reduces", writes the
+  test that says when the rule is spent, and adds a close-time listing of the
+  scratchpad root. `REVIEW.md` rule 1 no longer calls an orchestrator-held store
+  "structural" unless the bytes never sit on a path the reviewer is given; rule 2
+  counts a fourth hand-written-exclusion instance; rule 4 has the author run
+  `pointerscan` on the pointer it writes. Owed and not done: the dispatch
+  sentence in the queue-run prompt and skill, which hold no rule of their own.
+- **A dated rule carries a `mandate` or `default` kind the checkers read
+  (`160/450`).** `.atelier-floor.json` advisories take an optional `kind`;
+  `floor.py` validates it and shows it, `floorfleet.py` shows it and says aloud
+  when it is missing (an unlabelled date reads as a mandate). On the hook plane a
+  mandate's or unlabelled `review-by` moving later than HEAD's is a warn-only
+  line. `GUARDS.md` gains the scope, the house readings marked as such, and the
+  cross-links with `PROPAGATION.md` and `REPO-STANDARD.md`; the template and the
+  `floor.py` docstring use a placeholder date. `coldsweep.py` warns when an
+  `--also-exclude` matches nothing. No existing date is labelled by this change:
+  labelling is each repo's own edit, and which kind a date is needs the principal.
+  Not built: a fleet-wide house-date declaration for the board to compare to.
+- **Each repo may declare its visibility, checked against GitHub in CI
+  (`260/050`).** `"visibility": "public" | "private"` in `.atelier-floor.json`.
+  Inside Actions only, `floor.py` reads GitHub's live answer (the event payload
+  if the API is unreachable): declared private but public is a red build with a
+  loud alert; the reverse, an unreadable answer, and no declaration all warn and
+  never block. It detects and alerts and cannot stop a flip. Not built: what a
+  public declaration tightens, and the daily external check, which is `390/020`'s.
+
 ### Added (2026-11-09 — child-and-parent relationship doctrine, six items)
 Mike approved the recommendation on each item on 2026-11-09 as a pick from
 options a session offered (an answer, not a ruling in his words). Doctrine

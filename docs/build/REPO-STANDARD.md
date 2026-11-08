@@ -123,7 +123,10 @@ applied to repo docs: a claim no stronger than its evidence — see
   Distinct from `ci.yml` (which gates *correctness*); this gates *publish-safety*.
   licenscan is a publish gate, left commented until the repo settles a licence.
 - **.atelier-floor.json** — what the repo decides about that floor, and the only
-  place it decides it: where its records live, the licence it asserts, which
+  place it decides it: where its records live, the licence it asserts, its
+  `visibility` (`"public"` or `"private"`, checked against GitHub in CI:
+  declared private but public is the one red, a loud one; undeclared only
+  warns), which
   checks run advisory or disabled (with a reason), and — under `local` — checks
   the repo **adds** for itself. One key is read by a scanner directly rather
   than by `floor.py`: `roots.pathscan` declares extra resolution roots for a
