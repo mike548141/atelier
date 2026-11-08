@@ -85,15 +85,12 @@ checkout.** Neither shows in `git status` as anything that reads as "stop":
   produce an index holding both work sets, and a commit from either lands the
   other's half under the wrong message. The check that sees it is
   `git diff --cached` immediately before every commit — read the whole staged
-  diff, paths included, against what you believe you wrote. (This sentence
-  previously prescribed `-U0 | grep '^@@'`, a pipe that strips exactly the
-  paths at issue — corrected on the principal's ruling, 2026-08-22, PU-1.)
-  Staging by explicit path, never `git add -A`, is the other half. **Read it as the whole
-  index, not as your own hunks** — the paths it shows that you never staged are
-  the point of the check, not a side effect of it. A stale entry also needs no
-  live peer to have put it there: an index outlives the ref that fed it, so a
-  path staged before you opened, or left behind when a peer landed by
-  `update-ref`, is still sitting there to be committed under your message.
+  diff, paths included, against what you believe you wrote. Staging by explicit
+  path, never `git add -A`, is the other half. (Corrected 2026-08-22, PU-1 — the
+  old form is in the record.) A stale entry also needs no live peer to have put
+  it there: an index outlives the ref that fed it, so a path staged before you
+  opened, or left behind when a peer landed by `update-ref`, is still sitting
+  there to be committed under your message.
   **The read cannot see a peer who stages after it, so commit by pathspec
   too** (`git commit -- <paths>`): it takes only the paths named and leaves a
   peer's staged entries staged. The read and the commit are not atomic, and a
@@ -132,15 +129,16 @@ because nothing told a session it was the second one. Good habits (small
 commits, pushed fast) were standing in for a rule with no firing condition.
 
 *Bearing:* `cbom`, 2026-08-18 (named on the principal's ruling, 2026-08-22 —
-PU-2) — a session staged two paths explicitly,
-read `git status`, committed, and destroyed a sibling's session-log entry that
-had been sitting in the index before it opened. It diagnosed the cause
-correctly and then reached for this rule **through its floor block's compression
-of it** — *read the staged hunk headers* — concluded the house had a gap it does
-not have, and wrote a local duplicate marked owed upstream. The block's phrase
-and its pointer (which named § The channel, where this rule is not) were both
-corrected on that finding; the route a child should have taken instead is
-`PROPAGATION.md` § *Pointing up*.
+PU-2) — a session staged two paths explicitly, read `git status`, committed, and
+destroyed a sibling's session-log entry that had been sitting in the index
+before it opened. It diagnosed the cause correctly and then reached for this
+rule **through its floor block's compression of it** — *read the staged hunk
+headers* — and concluded the rule had a gap. It did: the command the house then
+prescribed printed no path (corrected 2026-08-22, PU-1). The session wrote a
+local duplicate marked owed upstream; what it owed was that finding, filed by
+the route in `PROPAGATION.md` § *Pointing up*. The block's phrase and its
+pointer (which named § The channel, where this rule is not) were both corrected
+on that finding.
 
 ## The solo default — trunk-based, but "solo" is a conclusion, not an assumption
 

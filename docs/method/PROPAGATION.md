@@ -650,14 +650,13 @@ nothing and destroys the record of how it arrived.
 
 ### The instance
 
-`cbom`, 2026-08-18 — named on the principal's ruling (2026-08-22, PU-2: the
-veil was already defeated by this section's own item `040`, which quotes him
-naming the repo, so the honest shape is the naming; the class-never-specifics
-rule for what a *child files upward* stands unchanged). A session staged two
-paths explicitly, committed,
-and destroyed a sibling's session-log entry that had been sitting in the shared
-checkout's index before it arrived. Real failure, correctly diagnosed down to
-the cause — an index outliving the ref that fed it.
+`cbom`, 2026-08-18 — named on the principal's ruling (2026-08-22, PU-2); the
+reviewer's grounds for it, that the veil was already defeated by this section's
+own item `040`, which quotes him naming the repo, are in the verdict
+(`docs/reviews/2026-08-21-0820-pointing-up-cold.md`). A session staged two
+paths explicitly, committed, and destroyed a sibling's session-log entry that
+had been sitting in the shared checkout's index before it arrived. Real failure,
+correctly diagnosed down to the cause — an index outliving the ref that fed it.
 
 It then reached for the rule and read **its own block**, which compresses the
 house rule to *read the staged hunk headers before every commit*. Read that way,
@@ -665,11 +664,15 @@ the rule only covers what you staged, so the session concluded the house had a
 gap, wrote roughly three hundred words of new rule into the child's floor block,
 and marked it owed upstream.
 
-The house had no gap. `CONCURRENCY.md` § The trigger says to run
-`git diff --cached`, which reads the whole index — including the paths you did
-not stage. Its sibling rule was in the parent verbatim. **Nothing was owed
-upstream at all**, and the debt marker pointed at a rule the parent already
-owned.
+The house owned the rule, but it prescribed a path-blind command for it. As
+`CONCURRENCY.md` § The trigger stood on 2026-08-18 it said to run
+`git diff --cached -U0 | grep '^@@'` and compare the hunk headers, which prints
+no path; the block's phrase was a faithful compression of the parent's own
+sentence, not a lossy one. The command was corrected on 2026-08-22 (PU-1) to
+plain `git diff --cached`, which reads the whole index, including the paths you
+did not stage. What was owed upstream was **that finding**, filed by the route
+this section teaches, and not a second copy of a rule the parent already owned:
+the debt marker pointed at a rule with an owner.
 
 Four things went wrong and the session could see none of them from where it
 stood, which is why this section exists rather than a correction to that child:
