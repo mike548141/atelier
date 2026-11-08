@@ -66,3 +66,14 @@
       session id and points to the record holding his words. Q3 — *"Mark
       'unrecorded' + review date"*. Q4 — *"Separate investigation"*: scanning
       inside binary files is filed as `115/390`, outside this design.
+      📝 **REWORKED 2026-11-09** by queue run 722ac2e2 (an Opus worker, read by
+      the orchestrator before landing) to the central shape he chose: one
+      file per repo, `.atelier-exceptions.jsonl`, append-only under a union
+      merge. Scanners read both forms from the start, and the old form
+      retires only on a later dated ruling of his, at zero unmigrated. Q2 and
+      Q3 are in; binary contents are out (`115/390`). The costs of the
+      central choice are stated in the ADR's § 8, the largest being the
+      build and migration. **Left for him:** approve the re-review
+      (`160/1130`), then accept the design. Two readings of the writer's, both
+      stated in the ADR: `.leakscanbinaries` moves in; floor softening stays
+      in `.atelier-floor.json`.
