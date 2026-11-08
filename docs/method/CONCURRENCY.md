@@ -917,36 +917,61 @@ session in a child, bound the shape between them:
   scratchpad, and four into **bare `/tmp`** under generic names
   (`floor_old.txt`, `prop_new.md`). That is a namespace with no per-session
   component at all, shared by every process on the machine — wider than the
-  per-project parent anyone would have guessed at. Two failures at once: the
+  per-user parent anyone would have guessed at. Two failures at once: the
   prohibition did not hold, and the fallback escaped the project entirely.
-  Independently, that per-project parent accumulates files too, among them a
-  `msg`/`msgB`/`msgD`/`msgE` run of commit messages from an earlier atelier
-  sitting: a session hand-disambiguating inside a shared namespace, which is
-  what people do when the namespace will not do it for them.
+  Independently, the per-user parent every project's scratchpad hangs off
+  accumulates files too, among them a `msg`/`msgB`/`msgD`/`msgE` run of commit
+  messages from an earlier atelier sitting: a session hand-disambiguating
+  inside a shared namespace, which is what people do when the namespace will
+  not do it for them.
 
 **So a dispatch prompt names an explicit, unique, absolute scratch directory for
-each worker** — and an orchestrator writing scratch of its own uses one too.
-**Naming a path is what binds; forbidding writes is not**, and that is the
-instance's sharpest lesson: the one worker told plainly to write nothing wrote
-five files, while every worker simply given a path used it. *Unique* because
-nothing else separates two workers sharing a directory. *Absolute* on the
-independently-observed cwd hazard (§ *Integration hygiene*), **not** on these
-escapes — every one of those five writes used an absolute path already, so they
-are no evidence for it, and a cwd-reversion explanation for them is **dead**.
+each worker.** The recipe is one line: `<orchestrator scratchpad>/<worker-name>/`,
+which the worker creates. An orchestrator writing scratch of its own uses a
+named subdirectory of its own too, **never the scratchpad root** it hands out:
+the root is every worker's, and a worker's `__pycache__` or loose file there
+lands beside the orchestrator's. *Unique* because nothing else separates two
+workers sharing a directory. *Absolute* because a relative path resolves
+against a working directory the worker does not control; the rule needs no
+incident to say so, and the five writes above are none (each used an absolute
+path already). **Naming a path reduces strays; nothing eliminates them.** The
+one worker told plainly to write nothing wrote five files, while every worker
+simply given a path used it, but that is one forbidden worker, and a named path
+does not reach the writes a worker never chooses: `mktemp`, a language
+runtime's temp directory, the harness's own `tool-results/` spill.
+
+**The shared scratch is a read surface too, so held-back review notes never
+live in it** (Mike, 2026-11-09, `160/380`: *"Keep it out of that folder"*). On
+the harness measured, every agent is handed the orchestrator's own scratchpad,
+so a sibling `.deferred.md` held there is one `cat` from any reviewer, with no
+prompt between them. Material an orchestrator holds back from a cold reviewer
+(`REVIEW.md` rule 1) therefore lives in a **user-local directory the
+orchestrator creates outside the repo, outside every worktree and outside any
+path the harness reports as a scratchpad**. It is never made a reviewer's
+working directory either: a store the reviewer is not given still reaches it as
+the harness's inherited cwd (observed, `160/380` reconcile). The 2026-09-25
+batch held twenty siblings in the scratchpad and moved them out on reading this
+finding. The arrangement is still not a partition on a same-user machine;
+`REVIEW.md` rule 1 says what it is.
 
 It is a prompt obligation rather than a mechanism because the scratch path is
-the harness's to allocate, not this repo's — if the harness namespaces scratch
-per agent, the rule is spent rather than merely stale, and should be retired.
+the harness's to allocate, not this repo's. **The rule is spent when the
+harness namespaces scratch per agent, and one command says whether it has:**
+compare a subagent's reported *Scratchpad directory* (or its
+`CLAUDE_CODE_SESSION_ID`) with its parent's. Equal means shared, as on
+2026-09-25, when transcripts were already keyed per agent. Different means the
+rule is spent and should be retired.
 
-⚠️ *Provenance, kept because the correction is the lesson.* The escaped files
-were first attributed — confidently, with a three-signal chain of timing,
-content shape and a plausible actor — to the peer that reported them. A
-transcript check the next hour **falsified that attribution**: they belonged to
-a third session doing the same task by nearly the same method at the same time,
-and the peer's own worker had written elsewhere entirely. Three consistent
-signals and no disconfirming check produced a wrong answer that two sessions
-agreed on. **Agreement is not corroboration when neither party opened the
-source** — here, the peer's own transcript, one grep away throughout.
+**One check can see the radius that matters most.** After a wave, list the
+scratchpad root against the names the orchestrator dispatched: anything else
+escaped a named directory. It reaches neither bare `/tmp` nor `tool-results/`,
+so it is partial, but it makes the obligation checked at close (verify the
+act, § *Integration hygiene*) for the part that collides.
+
+*Provenance.* The escaped files were first misattributed to the peer that
+reported them; a transcript check falsified that the next hour (2026-09-20,
+full sequence in `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md`).
+The lesson is § *Re-run, don't reason*: agreement is not corroboration.
 
 **Teardown waits for the worker to stop, and git cannot say when it has.** A
 clean worktree whose `HEAD` matches the pushed branch measures *nothing

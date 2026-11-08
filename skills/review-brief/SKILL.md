@@ -52,7 +52,11 @@ A good brief is falsifiable and attackable. Include:
    body-free**: `tools/coldsweep.py --commit <sha> [--path <p>]` (subject,
    stat and diff, never the body, with rule-2 barred files left out). Say why
    plain `git show` is barred: it prints the body before the diff, and
-   reading is atomic (`REVIEW.md` rule 1).
+   reading is atomic (`REVIEW.md` rule 1). **Give the reviewer's
+   `tools/coldsweep.py` sweep command one `--also-exclude` for every path the
+   brief's *Deferred reading* section bars**, not only the queue pointer: a
+   path the section lists and the command does not exclude is read by the
+   sanctioned command itself (2026-09-25, SK9).
 2. **Why it earns a review** — name the worst failure mode (e.g. a false negative
    that manufactures confidence).
 3. **Scope, and the four lenses — run all four.** Scope is the whole

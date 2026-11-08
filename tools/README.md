@@ -2153,12 +2153,13 @@ the easiest way to search at the moment a reviewer wants to.
 
 `REVIEW.md` rule 2 bars a cold reviewer from the author's records: the session
 log, the session records, the harvested board, prior verdicts. Reviewers were
-told to exclude those paths and tried to. **Three recorded times the exclusion
+told to exclude those paths and tried to. **Four recorded times the exclusion
 silently did not apply** — most often a pattern assuming a `./` prefix that
 `grep -r <dir>` does not emit, so the exclusion matched nothing and the sweep
 ran wide open. In the worst instance a reviewer held a prior verdict's findings
 before writing its own. The rule was restated after each instance; three
-instances in, the principal ruled for a guard instead (2026-08-17).
+instances in, the principal ruled for a guard instead (2026-08-17); a
+fourth, a hand-written `grep` exclusion, followed on 2026-09-25.
 
 **Why it does not shell out to `grep`.** The defect was never in the reviewer's
 care — it was in matching a path by string prefix against output whose prefix is

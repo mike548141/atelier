@@ -92,8 +92,15 @@ governing who may spawn it:
    that: where a review runs under an orchestrator, the deferred bytes stay
    with the orchestrator and reach the reviewer on receipt of its committed
    findings — the required shape for rule-4 doctrine passes run that way, and
-   the one arrangement that may honestly be called structural. Call the rest
-   what it is: a strong default with an audit trail.
+   the one arrangement that may honestly be called structural **only where the
+   deferred bytes never sit on a path the reviewer is given**. Held in the
+   scratchpad the harness hands every agent, they are one read away, so the
+   shape is no partition at all (the 2026-09-25 cold pass on the scratch
+   clause, SK1); held anywhere else on a same-user machine they are still a
+   path the reviewer can reach, and the honest name is the one below. Where
+   the orchestrator holds them is `CONCURRENCY.md` § *Orchestrated queue
+   runs* (never the scratchpad, never a reviewer's working directory). Call
+   the rest what it is: a strong default with an audit trail.
 
    **The deferral has side doors: every record a reviewer reads before the
    brief.** A reviewer's onramp reads the tail of the session log, the board
@@ -130,11 +137,14 @@ governing who may spawn it:
    Verifying a prior review's decisions (its `[fixed]` claims) is
    reconcile-step work, done after that point — not licence to read early.
    **Sweep the tree with `tools/coldsweep.py`, not a hand-written exclusion**
-   (the principal's ruling, 2026-08-17). The bar above was breached three times
+   (the principal's ruling, 2026-08-17). The bar above was breached four times
    by reviewers who were trying to honour it: the exclusion was written as a
    text prefix, the prefix did not match what the search tool emitted, and the
    sweep ran wide open — once handing a reviewer a prior verdict's findings
-   before it wrote its own. The rule was restated after each instance and the
+   before it wrote its own. The fourth (2026-09-25, a cold pass on the scratch
+   clause) came after the ruling: a hand-written `grep -v '^\./docs/…'` on
+   the reviewer's first sweep, with output that carried no `./` prefix. The
+   rule was restated after each instance and the
    instances kept coming, so the exclusion is now the tool's default and the
    wide sweep is `--include-barred`, which prints a banner telling you to
    disclose it. A wide sweep is not forbidden; an **undisclosed** one is.
@@ -176,7 +186,10 @@ governing who may spawn it:
    author's handoff when such work is finished: queue the review pointer
    (ROADMAP `⏳`, naming the delta and the intent record — a ceiling as well
    as a floor: refs only, no evaluative account, which belongs in the intent
-   record where the reviewer's deferral discipline governs when it is read),
+   record where the reviewer's deferral discipline governs when it is read;
+   the author runs `pointerscan` on the pointer it writes, since its
+   grammar check is warn-only and the author is the one reader who can act
+   on the warning for free),
    **in the same commit that lands the work** — landing = queuing, so no
    window exists in which landed doctrine sits unpointed and commits touching
    its surfaces escape the pointer's delta list (AWA2 ruling, 2026-07-23).
