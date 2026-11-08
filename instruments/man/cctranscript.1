@@ -387,6 +387,16 @@ its first-prompt column shows an
 .B evicted
 marker instead \(em but rendering a chosen session will fetch its bytes back,
 which is the point of a deliberate read.
+.IP
+The first-prompt column is read from the start of each mirror without
+checking the gzip trailer, which is where gzip keeps its integrity check.
+On a damaged mirror it can therefore list wrong or partial text, or list a row
+for a mirror cut off after its first prompt, where rendering the session
+refuses.
+Integrity is
+.BR ccarchive (1)'s
+.B \-\-verify
+job.
 .TP
 .BI \-\-dest " dir"
 Where the archive lives (default: iCloud Drive, or

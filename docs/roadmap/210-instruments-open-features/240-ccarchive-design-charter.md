@@ -29,5 +29,6 @@
         run trusts a mirror from a stat alone.
       - ✅ **Sibling tools.** ccrepo and cctranscript skip `_untrusted/`,
         `_anomalies/` and `_versions/`. cctranscript's skip of the last two
-        landed with this item's filing. Its archive pool still gunzips every
-        mirror for one column (`210/180`).
+        landed with this item's filing. Its archive pool no longer gunzips
+        every mirror for the first-prompt column: it reads a bounded prefix
+        and falls back to the whole file only on a miss (`210/180`).

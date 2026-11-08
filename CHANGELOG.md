@@ -77,6 +77,32 @@ wording and one fleet-view tool; no scanner's blocking behaviour changes.
   spellscan exemption as covered by the 2026-07-23 ruling. No published commit
   and no prompt text was touched; the earlier prompt history is not re-reviewed.
 
+### Changed (2026-11-09 — cctranscript's first-prompt column states what a damaged mirror does, and the head-read size is one constant, `160/680`)
+Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
+- **The "can never change an answer" claim is withdrawn for a damaged mirror
+  (FP1).** gzip checks its data only in the trailer, and the first-prompt column
+  reads a prefix, so a corrupted prefix that still decodes is trusted: it can
+  list wrong or partial text where the whole-file read refuses, and a mirror cut
+  off after its first prompt lists that prompt where it used to abort the
+  listing. The code comments, the man page (`--from-archive`) and this entry now
+  say so. The session you pick still renders through the strict read, which
+  refuses. Integrity is `ccarchive --verify`'s job. Not taken: printing a marked
+  row instead of aborting when the fallback throws (the pass called it optional,
+  and it changes the listing's output).
+- **Tests pin both ends (FP2).** A mirror cut off after its first prompt, and a
+  damaged prefix that still decodes (level-0 gzip, one byte flipped), are now
+  asserted, so the contract is explicit rather than accidental. The partial-line
+  comment gives the real reason a cut prefix's last line is dropped.
+- **A small mirror with no prompt is inflated once, not twice (FP6, FP5).** When
+  the prefix read is the whole file, its strict inflate is the answer. The
+  prefix is also out of scope before the fallback inflates the whole file.
+- **One named constant for the 64 KB head read (FP7)**, `HEAD_BYTES`, for the
+  cwd sniff, `gunzipHead`'s floor and the first-prompt bound. The comment no
+  longer carries the archive's counts (FP9).
+- **Two stale statements fixed (FP4):** `ccrepo`'s "gzip has no cheap partial
+  read" comment and the `ccarchive` charter's line that cctranscript still
+  gunzips every mirror for one column.
+
 ### Changed (2026-11-09 — G3 review applied: who allowed it and when, the gate before the ignore file, raw XMP read, `160/980`)
 Mike's answers of 2026-11-08 on the cold pass of `020/150`, plus the reviewer's
 counsel on the rest. G3 itself still warns only until **2026-11-18, which he

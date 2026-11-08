@@ -590,6 +590,58 @@ test('first prompt: a corrupt mirror with no prompt in its prefix still throws, 
   assert.throws(() => cc.firstUserPromptText(f));
 });
 
+test('first prompt: a mirror cut off after its first prompt lists it (the disclosed difference)', () => {
+  // 160/680 FP2: none of the tests above pins the one place the prefix path
+  // differs from the whole-file read. The prompt sits in the intact prefix, the
+  // rest of the stream is gone: the whole-file read refuses, the listing shows
+  // the row. The listing is a navigation aid; the chosen session still renders
+  // through the strict read, which throws.
+  const f = writeGz('cutafter', [promptLine('survives the cut'), carrierLine(2e6), promptLine('never reached')]);
+  fs.writeFileSync(f, fs.readFileSync(f).subarray(0, 300000));
+  assert.throws(() => cc.readLogText(f));
+  assert.equal(cc.firstUserPromptText(f), 'survives the cut');
+});
+
+test('first prompt: a damaged prefix that still decodes lists wrong text (the contract, pinned)', () => {
+  // 160/680 FP1. gzip checks its data only in the trailer, which a prefix read
+  // never reaches. At level 0 the prompt's bytes sit in the compressed stream
+  // verbatim, so one flipped byte inside them still decodes. The prefix path
+  // returns the ALTERED text where the whole-file read throws on the CRC. That is
+  // the stated contract (comment, man page, CHANGELOG), pinned so it is explicit
+  // rather than accidental; integrity is `ccarchive --verify`'s job.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-fp1-'));
+  const f = path.join(dir, 'damaged.jsonl.gz');
+  const body = Buffer.from([promptLine('the original prompt'), carrierLine(2e5)].join('\n') + '\n');
+  const gz = zlib.gzipSync(body, { level: 0 });
+  assert.ok(gz.length > 3 * cc.FIRST_PROMPT_PREFIX, 'the prefix must be a cut read');
+  const at = gz.indexOf('the original prompt');
+  assert.ok(at > 0);
+  gz[at + 4] ^= 0x01;   // "the orhginal prompt" or similar: one byte, same length
+  fs.writeFileSync(f, gz);
+  assert.throws(() => cc.readLogText(f), 'the strict whole-file read refuses');
+  const listed = cc.firstUserPromptText(f);
+  assert.notEqual(listed, 'the original prompt');
+  assert.equal(listed.length, 'the original prompt'.length);
+});
+
+test('first prompt: a small mirror with no prompt is inflated once, not twice', () => {
+  // 160/680 FP6. gunzipHead already took the strict whole inflate of a file at
+  // most one prefix long; a miss then re-read and re-inflated the same bytes.
+  const f = writeGz('tiny-none', [JSON.stringify({ type: 'summary' })]);
+  const real = zlib.gunzipSync;
+  let calls = 0;
+  zlib.gunzipSync = (...a) => { calls++; return real(...a); };
+  try { assert.equal(cc.firstUserPromptText(f), ''); } finally { zlib.gunzipSync = real; }
+  assert.equal(calls, 1);
+});
+
+test('the three head-read sizes are one named number', () => {
+  // 160/680 FP7: the cwd sniff, gunzipHead's floor and the first-prompt bound
+  // used to be four literals held equal by a comment.
+  assert.equal(cc.FIRST_PROMPT_PREFIX, cc.HEAD_BYTES);
+  assert.equal(cc.HEAD_BYTES, 65536);
+});
+
 // --- --search ------------------------------------------------------------
 // Every fixture below is SYNTHETIC and written here in the test: nothing from a
 // real Claude Code log, no real session id, no real path under ~/.claude.

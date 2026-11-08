@@ -245,31 +245,48 @@ function readLogText(file) {
   return file.endsWith('.gz') ? zlib.gunzipSync(raw).toString('utf8') : raw.toString('utf8');
 }
 
+// The one head-read size: the cwd sniff's bound, the least compressed prefix
+// gunzipHead ever reads, and the first-prompt search's bound (a smaller `want`
+// would not make the read cheaper, so the three are the same number by
+// construction rather than by a comment saying they agree).
+const HEAD_BYTES = 65536;
+
 // The first `want` bytes of a .gz's decompressed text (fewer if the log is
 // shorter), without gunzipping the whole mirror: read a prefix of the
 // compressed bytes and inflate with Z_SYNC_FLUSH, which yields what the prefix
 // holds instead of failing on a cut stream. If the prefix gave too little,
 // double it. Once the prefix IS the whole file, use the plain strict gunzip so
 // a genuinely truncated or corrupt mirror still throws, as it always did.
-function gunzipHead(file, want) {
+//
+// WHAT A PREFIX READ DOES NOT VERIFY (160/680, FP1). gzip checks its data only
+// in the trailer, and a prefix read never reaches the trailer. So bytes taken
+// from a prefix are UNVERIFIED: a damaged mirror whose damage still decodes
+// yields wrong or partial text here where the whole-file read refuses. Integrity
+// is `ccarchive --verify`'s job, not this read's.
+//
+// Returns { buf, whole }: `whole` is true when `buf` is the strict, verified
+// inflate of the entire file, so a caller holding it has no reason to read the
+// file a second time.
+function gunzipHeadEx(file, want) {
   const fd = fs.openSync(file, 'r');
   try {
     const size = fs.fstatSync(fd).size;
-    let take = Math.max(want, 65536);
+    let take = Math.max(want, HEAD_BYTES);
     for (;;) {
       if (take >= size) {
         const all = Buffer.alloc(size);
         fs.readSync(fd, all, 0, size, 0);
-        return zlib.gunzipSync(all);
+        return { buf: zlib.gunzipSync(all), whole: true };
       }
       const buf = Buffer.alloc(take);
       const n = fs.readSync(fd, buf, 0, take, 0);
       const part = zlib.gunzipSync(buf.subarray(0, n), { finishFlush: zlib.constants.Z_SYNC_FLUSH });
-      if (part.length >= want) return part;
+      if (part.length >= want) return { buf: part, whole: false };
       take *= 2;
     }
   } finally { fs.closeSync(fd); }
 }
+function gunzipHead(file, want) { return gunzipHeadEx(file, want).buf; }
 
 // Read the true cwd from the first log line that records one. Claude's folder
 // names dash-mangle every separator alike and can't be reversed, so we recover
@@ -278,10 +295,10 @@ function cwdFromLog(file) {
   let chunk;
   try {
     if (file.endsWith('.gz')) {
-      chunk = gunzipHead(file, 65536).toString('utf8', 0, 65536);
+      chunk = gunzipHead(file, HEAD_BYTES).toString('utf8', 0, HEAD_BYTES);
     } else {
       const fd = fs.openSync(file, 'r');
-      const buf = Buffer.alloc(65536);
+      const buf = Buffer.alloc(HEAD_BYTES);
       const n = fs.readSync(fd, buf, 0, buf.length, 0);
       fs.closeSync(fd);
       chunk = buf.toString('utf8', 0, n);
@@ -389,34 +406,52 @@ function currentRepoDir() {
 }
 
 // How much decompressed text the first-prompt search asks gunzipHead for before
-// it settles for the whole mirror. It is a speed path only: a prompt the prefix
-// does not contain is found by the whole-file read below, so the number can
-// never change an answer. Chosen from a census of 983 local mirrors
-// (2026-10-05 UTC): the first prompt ended within 16 KB in all but 25, within 64 KB
-// in all but 24, and the tail beyond that was flat out to 2.9 MB (23 beyond
-// 256 KB), so a larger bound buys only a handful of mirrors. 64 KB also equals
-// the cwd sniff's bound, and gunzipHead never reads less than 64 KB of
-// compressed bytes anyway, so a smaller `want` would not make the read cheaper.
-const FIRST_PROMPT_PREFIX = 65536;
+// it settles for the whole mirror. It is a speed path: on an INTACT mirror a
+// prompt the prefix does not contain is found by the whole-file read below, so
+// the number cannot change an answer. (On a damaged mirror it can: see
+// firstUserPromptText.) Chosen from a census of one archive: nearly every first
+// prompt ended within 16 KB and the tail beyond 64 KB was flat, so a larger
+// bound buys only a handful of mirrors. It is HEAD_BYTES, the least
+// gunzipHead reads anyway.
+const FIRST_PROMPT_PREFIX = HEAD_BYTES;
 
-// The first real prompt in a log. An archived .gz mirror is first read through
-// gunzipHead, and only the COMPLETE lines of what it yields are searched: the
-// last line of a cut prefix is partial and could parse as a different, shorter
-// object, so it is dropped. The first match among complete leading lines is the
-// first match in the whole file, so a hit there is final. No hit means the
-// prefix proved nothing (the prompt is later, or the log has none), so fall
-// back to the whole-file read, which is the answer this function always gave.
+// The first real prompt found in a .gz mirror's prefix, or null when the prefix
+// proves nothing (no complete line holds one, or it could not be read). Only the
+// COMPLETE lines of the prefix are searched: the last line of a cut prefix is
+// incomplete, and an incomplete JSON object only ever fails to parse, so it is
+// dropped unread, and a prompt that sits on it is found by the whole-file read.
+// The first match among complete leading lines is the first match in the whole
+// file, so on an intact mirror a hit is final. Kept apart from
+// firstUserPromptText so the inflated prefix is out of scope, and collectable,
+// before the fallback inflates the whole file.
+function firstPromptFromPrefix(file) {
+  let head;
+  try { head = gunzipHeadEx(file, FIRST_PROMPT_PREFIX); } catch { return null; }
+  // The strict inflate of the whole file: this IS the whole-file answer, last
+  // line included, and there is nothing left to fall back to.
+  if (head.whole) return firstPromptInLines(head.buf.toString('utf8').split('\n'));
+  const cut = head.buf.lastIndexOf(0x0a);
+  if (cut < 0) return null;
+  return firstPromptInLines(head.buf.toString('utf8', 0, cut).split('\n')) || null;
+}
+
+// The first prompt in a log. An archived .gz mirror is first read through
+// gunzipHead; no hit there means the prefix proved nothing (the prompt is later,
+// or the log has none), so fall back to the whole-file read, which is the
+// answer this function always gave.
+//
+// THE CONTRACT ON A DAMAGED MIRROR (160/680, FP1). "A hit is final" holds for
+// an INTACT mirror and no further. gzip verifies its data only in the trailer,
+// which the prefix read never reaches, so a corrupted prefix that still decodes
+// is trusted: it may list wrong or partial text where the whole-file read would
+// have thrown, and a mirror cut off after its first prompt lists that prompt
+// where it used to abort the listing. The row is a navigation aid, not a
+// record: the session you pick still renders through the strict whole-file
+// read, which refuses. Integrity is `ccarchive --verify`'s job.
 function firstUserPromptText(file) {
   if (file.endsWith('.gz')) {
-    let head = null;
-    try { head = gunzipHead(file, FIRST_PROMPT_PREFIX); } catch { head = null; }
-    if (head) {
-      const cut = head.lastIndexOf(0x0a);
-      if (cut >= 0) {
-        const hit = firstPromptInLines(head.toString('utf8', 0, cut).split('\n'));
-        if (hit) return hit;
-      }
-    }
+    const hit = firstPromptFromPrefix(file);
+    if (hit !== null) return hit;
   }
   return firstPromptInLines(readLogText(file).split('\n'));
 }
@@ -1480,8 +1515,8 @@ if (require.main === module) {
 module.exports = {
   friendlyModel, modelColor, humanDelta, fmtTokens, contextOf, wrap, visLen, padLeftTo,
   styleInline, fmtTime, dateOf, toolSummary, toolSearchText, extractText, encodePath,
-  readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord, statFlagsBatch, gunzipHead,
-  firstUserPromptText, FIRST_PROMPT_PREFIX,
+  readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord, statFlagsBatch, gunzipHead, gunzipHeadEx,
+  firstUserPromptText, FIRST_PROMPT_PREFIX, HEAD_BYTES,
   subagentDir, finishedAgents, escapeRegex, rawForms, scanText, excerptAround,
   isHumanQueuedCommand, isNotificationQueuedCommand, classifyUserRecord, stripElements, HARNESS_TAGS, COMMAND_TAGS,
 };

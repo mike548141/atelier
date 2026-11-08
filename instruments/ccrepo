@@ -690,8 +690,11 @@ function cwdFromLog(file) {
   let chunk;
   try {
     if (file.endsWith('.gz')) {
-      // gzip has no cheap partial read; these logs are small enough that a full
-      // gunzip for the 64 KB cwd sniff is fine.
+      // A full gunzip for the 64 KB cwd sniff: the rollup cache keeps the cost
+      // small on a warm run. A cheaper partial read exists (cctranscript's
+      // gunzipHead inflates a compressed prefix); it is not shared here because
+      // nothing has needed it, and a prefix read leaves the gzip trailer
+      // unchecked, which this full read does not.
       chunk = zlib.gunzipSync(fs.readFileSync(file)).toString('utf8', 0, 65536);
     } else {
       const fd = fs.openSync(file, 'r');
