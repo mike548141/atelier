@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-08-1059, wt: atelier-rr-722a-300)
-      🎯 **Rule-4 cold pass queued — the doctrine-reporting duty, the route's three
+- [ ] 🎯 **Rule-4 cold pass queued — the doctrine-reporting duty, the route's three
       shapes, and the no-harm rules for a hand-up.** Self-authored doctrine,
       queued at landing by its author, who may not take it. *Tier:* Fable, the
       principal-named review tier — checked at selection; a session that cannot
@@ -55,3 +54,13 @@
       as counselled. **Not covered, back to him in a later round:** RU2, RU5,
       RU6, RU7 (named in the ask as needing his thought) and RU3, RU4, RU12
       (not named in the ask).
+      ✅ **APPLIED 2026-11-08** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing), per Mike's answer above: RU1 — the
+      class-only privacy clause is in the floor region of `PROPAGATION.md`,
+      its stamped copy in `docs/build/templates/CLAUDE.md`, and atelier's own
+      `CLAUDE.md`; RU8–RU10 as counselled; RU11 is a note for other owners
+      (nothing to change). Not built, needs his word: RU1's second counsel
+      (extend `blockscan`'s map to subsections, or accept the `320/340`
+      residual) and RU9's other option (retitle section `320`). Still owed to
+      him: RU2–RU7, RU12. A MAJOR stood, so the application's cold pass is
+      queued as `160/1050`.

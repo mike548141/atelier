@@ -526,10 +526,10 @@ Four steps, none of them large.
    - **Hand it over the cross-session channel** and let an atelier session file
      it (`CONCURRENCY.md` § The channel). This is how the first nine findings in
      board section `320` arrived (the section holds many more now, and most
-     of the later ones came by the first shape's branch and PR). Note the channel's own law: a message
-     reserves nothing and is volatile, so the hand-up is not *filed* until the
-     atelier session lands the item — until then the finding lives only in the
-     child's own record.
+     of the later ones came by the first shape's branch and PR). Note the
+     channel's own law: a message reserves nothing and is volatile, so the
+     hand-up is not *filed* until the atelier session lands the item — until
+     then the finding lives only in the child's own record.
    - **Hold and flag** where neither exists — a fresh clone elsewhere, a CI
      context, no channel. Write the finding into the child's own session record
      marked as owed upstream, naming what it is owed to. That is not filing and

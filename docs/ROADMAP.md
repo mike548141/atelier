@@ -260,7 +260,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued — the ruling-ask rules (device, verified…](roadmap/160-doctrine-review-owed/270-rule-4-cold-pass-queued-decision-asks.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the pointing-up rulings applied (PU-1…](roadmap/160-doctrine-review-owed/280-rule-4-cold-pass-queued-pointing-up-rulings-applied.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the ruling-ask rule widened and pushed to…](roadmap/160-doctrine-review-owed/290-rule-4-cold-pass-queued-ask-rule-to-children.md)
-- [~] (claimed 2026-11-08-1059, wt: atelier-rr-722a-300) [Rule-4 cold pass queued — the…](roadmap/160-doctrine-review-owed/300-rule-4-cold-pass-queued-report-up-duty.md)
+- [ ] 🎯 [Rule-4 cold pass queued — the doctrine-reporting duty, the route's…](roadmap/160-doctrine-review-owed/300-rule-4-cold-pass-queued-report-up-duty.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the 2026-09-18 hand-up fixes to the…](roadmap/160-doctrine-review-owed/310-rule-4-cold-pass-queued-the-0918-hand-up-fixes.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the 2026-09-18 floor-registry code: a…](roadmap/160-doctrine-review-owed/320-rule-4-cold-pass-queued-the-0918-registry-code.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the 2026-09-19 tier ruling: orchestration…](roadmap/160-doctrine-review-owed/330-rule-4-cold-pass-queued-the-tier-ruling.md)
@@ -349,6 +349,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose lists board ids in number order…](roadmap/160-doctrine-review-owed/1020-rule-4-cold-pass-queued-ccclose-board-order.md)
 - [ ] 🎯 [Rule-4 cold pass queued: secretscan exempts a public certificate's or…](roadmap/160-doctrine-review-owed/1030-rule-4-cold-pass-queued-secretscan-public-pem-block-spans.md)
 - [ ] 🎯 [Rule-4 cold pass queued: secretscan still reads a file its…](roadmap/160-doctrine-review-owed/1040-rule-4-cold-pass-queued-secretscan-reads-exempt-files-for-private-keys.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the class-only privacy clause in the…](roadmap/160-doctrine-review-owed/1050-rule-4-cold-pass-queued-report-up-privacy-clause.md)
 
 ## build/ layer — open strands
 
