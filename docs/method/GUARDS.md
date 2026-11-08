@@ -105,6 +105,47 @@ unmeasured. Like the fourth requirement it binds new guard work as a review
 question, and a guard found to fail it is a finding for the principal, not a
 revert.
 
+### Declare the threat model — who is it protecting whom from
+
+A guard also declares **who it protects, and from whom.** Almost every guard
+answers one question: *a reader, from a bad artefact* (a stale index, a
+duplicate key, an incomplete prior artefact, a leak). Few know that another
+**writer** exists, and nobody notices, because a single session never meets the
+other case. Six instances in one evening across three parallel sessions, which
+the filer called a rate rather than a level, so a design finding rather than a
+discipline one:
+
+- a peer's staged path lands under your commit message (`CONCURRENCY.md`
+  § *The trigger* owns this one);
+- a check that reads the **worktree** fails your unrelated commit on a peer's
+  uncommitted edit (reproduced here by reading `tools/floor.py`'s registry:
+  most hook-plane checks render absolute worktree paths);
+- a guard reading only the staged column of `git status --porcelain` misses
+  the unstaged twin, so `reset --hard` silently reverts a change nobody
+  staged (reproduced in a scratch repo: a symlink a tool repoints stages
+  nothing, and `git diff --cached --name-only` is empty);
+- a blocking chain in which no single link was wrong (the strongest argument
+  for worktree-by-default).
+
+Declare the writer the guard assumes, so that a guard reading one plane says so
+and a reviewer can ask what a second writer does to it.
+
+🛑 **The pathspec caveat is not detachable.** `git commit -- <paths>` commits
+only the named paths and leaves every other index entry staged and untouched,
+a real third option beside *commit the sweep* and *take a worktree*. Its
+safety came entirely from **knowing whose the other paths were**. The test is
+not "the paths are foreign", it is "the paths are identified": a session
+working alone cannot meet it, and without the precondition the technique lets a
+session commit *around* a hazard it has not understood.
+
+Filed as `320/050` from a private child on 2026-08-19; Mike approved it on
+2026-11-09 (his pick from options offered, not a ruling in his words). Like
+the fourth requirement it is a review question today; where its declaration
+lives (the registry slot of `115/120`, or beside it) is **not decided here**.
+Whether the shared-checkout hazards already recorded in `CONCURRENCY.md`
+(absorbing a peer's work with a wide add; destroying a peer's hunks with a wide
+revert) are the same finding at guard-design level is likewise open.
+
 ## What a finding is assessed on — three axes
 
 A finding carries three independent assessments. They were collapsed into one
