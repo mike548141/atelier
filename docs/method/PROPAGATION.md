@@ -704,6 +704,50 @@ putting it on the board where consideration can happen. Do not rewrite the
 reporter's history to tidy it — a rebase of someone else's pushed branch buys
 nothing and destroys the record of how it arrived.
 
+### The same route between any two repos
+
+*Added 2026-11-09 from `310/120` and `310/140`, two commissions drafted as one
+rule; Mike's pick from options offered, so an answer and not a ruling in his
+words. The first, 2026-09-12: "Find better ways for sessions working on child
+repos to feed back ideas, problems or whatever to 'parent' repos like atelier
+to consider and act upon", and likewise a child of the estate root wanting to
+add an asset back to it. The second, 2026-09-29: "PR's could be the best way
+for a session working in one repo to send an idea or whatever to another repo".*
+
+§ *Pointing up* is the case where the target is atelier, which is public, and
+the subject is doctrine. The same route serves any pair of repos (a child to a
+parent that is not atelier, a repo to a sibling, a parent to a child), with
+three differences and one carry-over:
+
+1. **The carrier files an idea or finding; it never delivers the fix.** The PR
+   adds a board item or a request file to the target, in the target's own
+   format, and the target's session decides and does the work. Work lands in
+   the repo it changes, and a PR that carries the fix reduces the target's
+   session to pressing merge, which is delivery from another session
+   (`CONCURRENCY.md` § *What the channel is not*: queue, never deliver).
+2. **Redaction keys on the target's visibility.** A public target gets rule 2
+   of § *The route* unchanged: the class only, and no repo token on the branch,
+   PR title, commit subject or body. A private target may be sent specifics
+   (names, hosts, the sender's own detail), because the filing publishes
+   nothing to a wider audience. That relaxes what the target's readers may see
+   and nothing else: a secret value never travels in a PR, in either direction.
+3. **No write access to the target means an issue.** Where an issue cannot be
+   opened either, hold and flag (shape 3 above), with the `Pending upstream:`
+   marker.
+4. **The harm-avoidance rules carry over, not a difference:** a
+   `report-<subject>-<HHMM>` branch with no repo token where the target is
+   public, a first line that says this is a filed finding, the PR opened before
+   the session stops, and nothing touched but the sender's own item (§ *Report
+   without harming the parent*). The target's half carries over too: a session
+   that finds an orphaned report lands it.
+
+**Not decided: how the target learns a PR arrived.** The orphaned-report
+failure was a PR nobody looked for. The candidates are the enumerator
+`310/020` prices, or a talk-first message to the target's live session
+(`CONCURRENCY.md` § *The channel*). Until one is chosen, the sender names where
+it filed in its own record, and the route is as unwatched as § *The instance*
+says the upward one is.
+
 ### The instance
 
 A private child, 2026-08-18. (This text named the repo from 2026-08-22, on
