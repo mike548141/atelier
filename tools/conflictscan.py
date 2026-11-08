@@ -103,13 +103,14 @@ SCOPE — ALL tracked text files, not Markdown-only (unlike `datescan`/
 `wrapscan`/`spellscan`/`pathscan`). A conflict marker can land in any file a
 bad merge touches — source, config, JSON, YAML — so this scanner matches
 `secretscan`'s/`leakscan`'s shape (whole-tree walk, binary skipped by a NUL
-byte in the first 8KiB) rather than the Markdown-only doc scanners'. Like
-every sibling here, "tracked" means the filesystem walk this repo's other
-scanners already use (skip `.git`/build-cache dirs, honour
-`.conflictscanignore`) — none of them consult `git ls-files`, and adding that
-distinction here alone would make this scanner behave differently from its
-neighbours for no reason this check's subject demands. Scanning an untracked
-file too is a strict superset of the intended scope, never a hole.
+byte in the first 8KiB) rather than the Markdown-only doc scanners'. The walk
+is the shared one in `tools/filewalk.py`: inside a git work tree it streams
+`git ls-files` (tracked plus untracked-not-ignored files), so an IGNORED file
+is not read, and it honours `.conflictscanignore`. A tracked file is read even
+under a skip-named directory (`.vscode/`, `venv/`, `node_modules/`), because
+this is one of the three boundary guards (160/600, GW1); outside a git tree the
+old `os.walk` runs and skips those names. Scanning an untracked file too is a
+strict superset of the intended scope, never a hole.
 
 NO FENCED-CODE EXEMPTION, ON PURPOSE. `datescan`/`wrapscan`/`pathscan` skip
 fenced (``` ```) code blocks because those are Markdown-specific and an
@@ -464,7 +465,8 @@ def _walk_files(base: Path):
     for the mechanism and the 020/160 (E9) linked-worktree skip.
     `SKIP_DIR_NAMES` is this scanner's own per-guard parameter, passed in
     rather than shared."""
-    return filewalk.walk_files(base, SKIP_DIR_NAMES)
+    return filewalk.walk_files(base, SKIP_DIR_NAMES,
+                               read_tracked_under_skip=True)
 
 
 def iter_files(paths: list[Path], root: Path, globs: list[str],

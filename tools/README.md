@@ -1,7 +1,6 @@
 # tools/ — atelier's mechanical controls
 
 <!-- indexscan:maps dir=. match=*.py exclude=test_*.py -->
-<!-- indexscan:allow: filewalk.py its catalogue entry is owed as FW2 (the single-sourced file-walk cold pass), open on that review's checklist; this marker goes stale and is reported the day the entry lands. Added 2026-10-05 by session 5e3f68f1 (agent, queue run 200/010) -->
 <!-- indexscan:allow: allowmarker.py its catalogue entry is owed as AM5 (the shared allow-marker grammar cold pass), open on that review's checklist; this marker goes stale and is reported the day the entry lands. Added 2026-10-05 by session 5e3f68f1 (agent, queue run 200/010) -->
 
 Doctrine informs; a *check* enforces. These are the checks. Zero third-party
@@ -762,8 +761,9 @@ should not matter how much it scans it should no have this affect."* Three
 mechanisms, each a fixed size chosen once (see the constants and comments
 beside `_iter_numbered_lines`/`Tally.take_finding_slot` in the source):
 
-- the directory walk streams (`os.walk`, pruned in place) instead of building
-  the whole tree's file list before scanning a byte;
+- the file walk streams (`filewalk.py`: a streamed `git ls-files` inside a git
+  work tree, else `os.walk` pruned in place) instead of building the whole
+  tree's file list before scanning a byte;
 - a file is read and decoded in fixed-size chunks, never held whole as bytes
   **and** a decoded `str` **and** a `splitlines()` list at once (the old
   shape); an overlong single line (no `\n` in sight) is scanned in
@@ -2027,6 +2027,61 @@ each line, and every exit code, is unchanged (`115/080`). `conflictscan`,
 `wrapscan` and `indexscan` print none: their marker takes no scope, so there
 is no kind a marker could name. `reviewscan`, `publishscan` and `harvestscan`
 have no per-finding kind either.
+
+## `filewalk.py` — the one file walk every scanner shares
+
+Not a check. Every tree-walking scanner calls `walk_files(base, skip_dir_names)`
+for the files it reads (`115/080` part 1, `110/110`). **Inside a git work tree
+it streams `git ls-files -z -t --cached --others --exclude-standard`**: tracked
+files plus untracked files that are not ignored, which is everything that could
+be committed. A gitignored file can never be committed, so not reading it loses
+no protection (one repository went from 15.8 GB walked to its 132 MB tracked).
+Anywhere else (no repository, the root itself ignored, git missing or failing)
+it falls back to `os.walk`, pruning in place. Each scanner passes its own
+skip-name set, and a directory whose `.git` is a file (a linked worktree or an
+initialised submodule) is always pruned. A nested plain clone is walked with
+`os.walk`, so its content is still read.
+
+What the walk guarantees, and what it does not (cold pass `160/600`):
+
+- **Tracked files are read even under a skip name, for the three boundary
+  guards** (GW1). `secretscan`, `leakscan` and `conflictscan` pass
+  `read_tracked_under_skip=True`, so a credential committed at `.vscode/…`,
+  `venv/…` or `node_modules/…` no longer passes the whole-tree plane while the
+  staged plane catches it. The skip names then apply to untracked entries and
+  nested walks only. Every other scanner keeps its skip contract unchanged: a
+  prose or licence check has no business reading vendored output.
+- **A yielded path never has a symlinked parent directory** (GW4). Git can index
+  `d/f.txt` while the worktree has `d` replaced by a link out of the root; that
+  file is not read.
+- **Scanning does not run what the tree names** (GW5). Every git call runs with
+  `core.fsmonitor=false`, because a repository's own `.git/config` can name a
+  command for it and `ls-files` would run it. Git itself still parses that
+  tree's index and config.
+- **A fallback that hides a failure says so** (GW2). Git reporting "no
+  repository" is the ordinary case and is silent. Git failing for a tree that
+  carries a `.git` entry (dubious ownership, a corrupt `HEAD`) prints one stderr
+  line and records `os.walk:git-failed` in `LAST_MODE`, because the wide walk
+  reads the ignored files again and the result would otherwise change with the
+  machine.
+- **No git call has a timeout** (GW8). A hung git hangs the guard; it stops, it
+  does not pass.
+- **It answers "which paths", not "which content"** (GW10). At the hook a
+  staged-then-deleted file is committed unread and a file whose worktree copy
+  differs from its staged copy is read in the worktree version. The boundary
+  guards avoid this with `--staged`.
+- **A nested clone's own ignored files are read** (GW9), deliberately.
+
+The per-scanner ignore files (`.leakscanignore` and its siblings) may still
+carry globs for nested worktrees that git mode already drops; they are harmless.
+`linkscan`, `reviewscan` and `pointerscan` still walk with their own code, so
+"guards stop reading ignored trees" is not yet true of them (GW7, tracked on the
+board with the earlier `FW7`).
+
+`test_filewalk.py` holds a shape matrix: one repository with every shape the
+modes could differ on (tracked, untracked, ignored, force-added past an ignore
+rule, deleted but cached, symlinks, a nested clone, a linked worktree, skip
+names) and the expected set written out.
 
 ## Tests
 

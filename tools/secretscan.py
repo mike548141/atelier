@@ -1185,7 +1185,8 @@ def _walk_files(base: Path):
     see that module's docstring for the mechanism, the 020/370/020/380
     history, and the 020/160 (E9) linked-worktree skip. `SKIP_DIR_NAMES` is
     this scanner's own per-guard parameter, passed in rather than shared."""
-    return filewalk.walk_files(base, SKIP_DIR_NAMES)
+    return filewalk.walk_files(base, SKIP_DIR_NAMES,
+                               read_tracked_under_skip=True)
 
 
 def _classify_files(paths: list[Path], root: Path, globs: list[str]):

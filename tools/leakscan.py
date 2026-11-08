@@ -2350,7 +2350,8 @@ def _walk_files(base: Path):
     `.leakscanignore`, blocked a commit — the incident that motivated that
     fix). `SKIP_DIR_NAMES` is this scanner's own per-guard parameter, passed
     in rather than shared."""
-    return filewalk.walk_files(base, SKIP_DIR_NAMES)
+    return filewalk.walk_files(base, SKIP_DIR_NAMES,
+                               read_tracked_under_skip=True)
 
 
 def iter_files(paths: list[Path], root: Path, globs: list[str],

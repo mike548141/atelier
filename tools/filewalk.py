@@ -68,6 +68,45 @@ submodule) as one directory entry, not its files. Those entries are walked
 with the old `os.walk` so a nested plain clone's content is still read
 exactly as before (FW9), and a directory whose `.git` is a FILE (linked
 worktree, initialised submodule) is still pruned (020/160).
+
+Tracked files under a skip-named directory (160/600, GW1). The skip names
+exist to stop the walk paying for litter. In git mode that reason is gone: git
+never lists litter, so the only thing a skip name can still remove is a file
+that could be committed - and, for a tracked file, already was. A caller that
+is a boundary guard (a secret, a leak or a conflict marker in a committed
+editor-settings or vendored file must not pass the whole-tree plane) passes
+`read_tracked_under_skip=True`, and then the skip names apply to untracked
+entries and nested walks only; a tracked file is always yielded. The default is
+False, so every other guard keeps its own skip contract unchanged (a prose or
+licence check has no business reading vendored output). Decided per guard, as
+the cold pass counselled; the three that pass True are `secretscan`,
+`leakscan` and `conflictscan`.
+
+What the walk guarantees, and what it does not (GW4, GW5, GW8, GW10):
+  * A yielded path never has a symlinked parent directory. Git can index
+    `d/f.txt` while the worktree has `d` replaced by a link out of the root;
+    reading it would read a file outside the tree. (A leaf that is a symlink to
+    a file is still yielded, as before.)
+  * Every git call runs with `core.fsmonitor=false`. A repository's own
+    `.git/config` can name a command for `fsmonitor`, and git would run it for
+    `ls-files`; scanning a tree must not execute anything the tree names. Other
+    tree-configured commands (hooks) are not run by the calls made here. A
+    guard pointed at a tree the operator does not trust still trusts git itself
+    to parse that tree's index and config.
+  * No git call has a timeout. A git that hangs hangs the guard: it stops, it
+    does not pass. Recorded rather than bounded, because any bound short enough
+    to matter would fall back to the whole-disk walk this module exists to avoid.
+  * The walk answers "which paths", not "which content". At the hook a
+    staged-then-deleted file is committed unread and a file whose worktree copy
+    differs from its staged copy is read in the worktree version. The three
+    boundary guards avoid this with `--staged`; the others do not.
+  * Fallbacks speak. `os.walk:not-in-git-tree` (git says there is no
+    repository, nothing above the directory looks like one) is the ordinary
+    case and stays silent. Where git itself failed - it cannot be run, or
+    refuses a tree that carries a `.git` entry (dubious ownership, a corrupt
+    HEAD) - the walk says so once on stderr and `LAST_MODE` is
+    `os.walk:git-failed`, because the wide fallback reads the ignored files
+    again and the result would otherwise change with the machine (GW2).
 """
 
 from __future__ import annotations
@@ -80,7 +119,8 @@ from pathlib import Path
 from typing import Iterable, Iterator
 
 # Which enumeration the most recent `walk_files` call used: "git",
-# "os.walk:not-in-git-tree", "os.walk:root-ignored" or "os.walk:git-unavailable".
+# "os.walk:not-in-git-tree", "os.walk:root-ignored", "os.walk:git-unavailable"
+# or "os.walk:git-failed".
 LAST_MODE: str | None = None
 
 _WARNED: set[str] = set()
@@ -93,9 +133,31 @@ def _git_env() -> dict:
     return {k: v for k, v in os.environ.items() if k not in _GIT_ENV_DROP}
 
 
+# GW5: never let a tree's own `.git/config` name a command for git to run on
+# our behalf (`core.fsmonitor` is run by `ls-files`). Prepended to every call.
+_GIT_SAFE = ("-c", "core.fsmonitor=false")
+
+
 def _git(base: Path, *args: str) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", "-C", str(base), *args], capture_output=True,
-                          env=_git_env(), check=False)
+    return subprocess.run(["git", *_GIT_SAFE, "-C", str(base), *args],
+                          capture_output=True, env=_git_env(), check=False)
+
+
+def _warn_once(key: str, text: str) -> None:
+    if key not in _WARNED:
+        _WARNED.add(key)
+        print(text, file=sys.stderr)
+
+
+def _has_git_entry(base: Path) -> bool:
+    """True if `base` or any ancestor has a `.git` entry (directory or file):
+    the tree looks like a repository, so a git that will not answer for it has
+    FAILED rather than reported "no repository"."""
+    try:
+        here = base.resolve()
+    except OSError:
+        here = base.absolute()
+    return any((d / ".git").exists() for d in (here, *here.parents))
 
 
 def _git_unusable(base: Path) -> str:
@@ -103,13 +165,21 @@ def _git_unusable(base: Path) -> str:
     try:
         r = _git(base, "rev-parse", "--is-inside-work-tree")
     except OSError as exc:
-        if "unavailable" not in _WARNED:
-            _WARNED.add("unavailable")
-            print(f"filewalk: git unavailable ({exc}); walking the whole "
-                  "directory tree, untracked and ignored files included",
-                  file=sys.stderr)
+        _warn_once("unavailable",
+                   f"filewalk: git unavailable ({exc}); walking the whole "
+                   "directory tree, untracked and ignored files included")
         return "git-unavailable"
     if r.returncode != 0 or r.stdout.strip() != b"true":
+        if r.returncode != 0 and _has_git_entry(base):
+            # GW2: a repository that git will not enumerate (dubious
+            # ownership, a corrupt HEAD) is not "no repository".
+            detail = (r.stderr.decode(errors="replace").strip().splitlines()
+                      or ["no detail"])[0][:200]
+            _warn_once("failed",
+                       f"filewalk: git could not enumerate {base} ({detail}); "
+                       "walking the whole directory tree, untracked and "
+                       "ignored files included")
+            return "git-failed"
         return "not-in-git-tree"
     # A root that is itself gitignored lists nothing under --others; the
     # caller asked for it explicitly, so read it with the plain walk.
@@ -132,23 +202,30 @@ def _stream_nul(proc: subprocess.Popen) -> Iterator[bytes]:
         yield buf
 
 
-def _git_walk(base: Path, skip: "frozenset | set") -> Iterator[Path]:
+def _git_walk(base: Path, skip: "frozenset | set",
+              tracked_ignores_skip: bool = False) -> Iterator[Path]:
     err = tempfile.TemporaryFile()
+    # `-t` tags every record: `H ` for a tracked path, `? ` for an untracked
+    # one (GW1 needs to tell them apart).
     proc = subprocess.Popen(
-        ["git", "-C", str(base), "ls-files", "-z", "--cached", "--others",
-         "--exclude-standard"],
+        ["git", *_GIT_SAFE, "-C", str(base), "ls-files", "-z", "-t",
+         "--cached", "--others", "--exclude-standard"],
         stdout=subprocess.PIPE, stderr=err, env=_git_env())
-    ok_dirs: dict[str, bool] = {"": True}
+    ok_dirs: dict[tuple[str, bool], bool] = {("", True): True, ("", False): True}
 
-    def dir_ok(rel_dir: str) -> bool:
-        """False if a component is in `skip` or the directory is a linked
-        worktree / initialised submodule (a `.git` FILE)."""
-        hit = ok_dirs.get(rel_dir)
+    def dir_ok(rel_dir: str, honour_skip: bool = True) -> bool:
+        """False if a component is in `skip` (only when `honour_skip`), the
+        directory is a symlink (GW4), or it is a linked worktree /
+        initialised submodule (a `.git` FILE)."""
+        key = (rel_dir, honour_skip)
+        hit = ok_dirs.get(key)
         if hit is None:
             parent, _, leaf = rel_dir.rpartition("/")
-            hit = (leaf not in skip and dir_ok(parent)
+            hit = ((not honour_skip or leaf not in skip)
+                   and dir_ok(parent, honour_skip)
+                   and not (base / rel_dir).is_symlink()
                    and not (base / rel_dir / ".git").is_file())
-            ok_dirs[rel_dir] = hit
+            ok_dirs[key] = hit
         return hit
 
     finished = False
@@ -158,10 +235,12 @@ def _git_walk(base: Path, skip: "frozenset | set") -> Iterator[Path]:
             if raw == last:  # unmerged paths are listed once per stage
                 continue
             last = raw
-            rel = os.fsdecode(raw)
+            tracked = raw[:1] != b"?"
+            rel = os.fsdecode(raw[2:])
             is_dir_entry = rel.endswith("/")
             rel = rel.rstrip("/")
-            if not dir_ok(rel.rpartition("/")[0]):
+            honour = not (tracked and tracked_ignores_skip)
+            if not dir_ok(rel.rpartition("/")[0], honour):
                 continue
             p = base / rel
             if is_dir_entry or (not p.is_symlink() and p.is_dir()):
@@ -184,7 +263,8 @@ def _git_walk(base: Path, skip: "frozenset | set") -> Iterator[Path]:
             raise RuntimeError(f"filewalk: `git ls-files` failed (exit {rc}): {msg}")
 
 
-def walk_files(base: Path, skip_dir_names: Iterable[str]) -> Iterator[Path]:
+def walk_files(base: Path, skip_dir_names: Iterable[str],
+               read_tracked_under_skip: bool = False) -> Iterator[Path]:
     """Every regular file under `base`, streamed one at a time.
 
     Inside a git work tree: tracked plus untracked-not-ignored files via a
@@ -194,7 +274,13 @@ def walk_files(base: Path, skip_dir_names: Iterable[str]) -> Iterator[Path]:
     `skip_dir_names` is a per-guard PARAMETER, not a shared constant — see
     the module docstring: ten callers pass an identical ten-name set and one
     (`licenscan`) passes a twelve-name set that additionally prunes `dist`
-    and `build`."""
+    and `build`.
+
+    `read_tracked_under_skip` (GW1, 160/600): in git mode, yield a TRACKED
+    file even when it sits under a skip-named directory; the skip names then
+    apply to untracked entries and nested walks only. For the boundary
+    guards. Ignored in the `os.walk` fallback, which has no notion of
+    tracked."""
     global LAST_MODE
     skip = skip_dir_names if isinstance(skip_dir_names, (set, frozenset)) else set(skip_dir_names)
     why = _git_unusable(Path(base))
@@ -203,7 +289,7 @@ def walk_files(base: Path, skip_dir_names: Iterable[str]) -> Iterator[Path]:
         yield from _os_walk(base, skip)
         return
     LAST_MODE = "git"
-    yield from _git_walk(Path(base), skip)
+    yield from _git_walk(Path(base), skip, read_tracked_under_skip)
 
 
 def _os_walk(base: Path, skip: "frozenset | set") -> Iterator[Path]:
