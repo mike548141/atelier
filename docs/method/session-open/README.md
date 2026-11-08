@@ -19,7 +19,8 @@ an orchestrator opens each worker with.
   one commit per version of the reusable part of the prompt, in the order the
   versions were first used. Read it with
   `git log --follow -p docs/method/session-open/template-history.md`. Each
-  commit's author date is when that version was first used, and its message
+  commit's author date is when that version was first used (the first four
+  carry a wrong offset: see *What the history does not show*), and its message
   says how many sessions used it.
 - [`dispatch-brief.md`](dispatch-brief.md) is the **dispatch brief**: the
   fixed bounds an orchestrator copies into every worker's opening prompt
@@ -95,5 +96,36 @@ The mining was done by a worker agent and checked by the orchestrating session
 before landing: the excluded units were read one by one, and every landed
 version passed the leak, secret, date and spelling scanners, with one
 exception: `catalog` in one version is the principal's own spelling, kept
-verbatim under his 2026-07-23 ruling that historical text is not
-retro-spelled.
+verbatim. The spellscan exemption for the history file (`.spellscanignore`)
+extends his 2026-07-23 ruling by analogy. That ruling names the frozen record
+stores, which is not this file, and he has not ruled on the extension.
+
+## What the history does not show (cold pass, `160/940`)
+
+A cold pass found no private detail and no single session's work in any of the
+50 versions. It also found these limits in how the history describes itself.
+The published commits are not rewritten to mend them.
+
+- **The first four author dates carry the wrong offset.** Versions 1 to 4 were
+  committed with a `+12:00` offset on a time that is UTC, and with the seconds
+  zeroed. Read their digits as UTC. Their messages ("First used … UTC") are
+  right, and the day and the order are right.
+- **The session counts do not quite reconcile.** The messages of versions 5 to
+  50 count 226 family sessions (142 first runs and 84 re-pastes), and versions
+  1 to 4 add 25 precursor sessions. The family figure above is 228, so two
+  family sessions are in no commit. A likely reason is that they opened with
+  the newest text, which is held back until it has opened two sessions. That
+  is unconfirmed.
+- **Version 31 is unconfirmed as a recurring unit.** One of its paragraphs is
+  seen whole in one session on the live store. Its message credits the version
+  with three sessions, but whether the paragraph itself came back has not been
+  re-driven from the archive. The version stands as published history.
+- **Removals leave no mark.** Of the nine units taken out, only the one
+  replaced by `[estate-root repo]` shows. A bullet that ends at a colon with
+  nothing after it, as in versions 17 and 18, is where a run's task list was.
+- **A version can be a single use.** A version is an ordered assembly of units
+  that each recurred, so a version can have opened one session: 17 of the 50
+  messages report one session and no re-paste. The history cannot tell the
+  sessions the principal opened from those a run opened, because the store
+  lists sessions and not who typed the first prompt. Counts of re-pastes
+  therefore mean "this text ran this often", not "he typed it this often".
