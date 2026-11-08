@@ -56,3 +56,13 @@
       review-by date, or re-granted; Q4 binary contents scanned in a
       separate investigation or the gap accepted. The redraft's re-review is
       queued as `160/1130` and waits for his Fable approval.
+      💬 **Mike's answers to the redraft's four questions, 2026-11-09 (to
+      options queue run 722ac2e2 offered; answers, not rulings):** Q1 —
+      *"Large: one central file"* (not the recommended option, which was the
+      small in-place design): one central register file per repo replaces the
+      scattered notes, so the redraft is reworked to that shape, keeping the
+      both-forms transition so no child goes red during migration. Q2 —
+      *"Yes, short ID + pointer"*: each exemption shows the 8-character
+      session id and points to the record holding his words. Q3 — *"Mark
+      'unrecorded' + review date"*. Q4 — *"Separate investigation"*: scanning
+      inside binary files is filed as `115/390`, outside this design.
