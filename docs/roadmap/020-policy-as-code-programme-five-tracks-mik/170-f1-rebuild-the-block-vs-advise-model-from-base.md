@@ -1,4 +1,5 @@
-- [ ] 🎯 **F1 — rebuild the block-vs-advise model from base. REBUILT
+- [~] (claimed 2026-11-09-0400, wt: atelier-rr-722a-w2)
+      🎯 **F1 — rebuild the block-vs-advise model from base. REBUILT
       2026-08-05 as [`method/GUARDS.md`](../../method/GUARDS.md); STAYS OPEN until
       the two rulings below are Mike's** (the P6 precedent — the work is
       delivered, the ruling is what remains owed), picked up under
@@ -117,3 +118,5 @@
       is handed to the funded pointer-grammar build as a boundary specimen
       (procedural pass-type vs evaluative steering); the build decides the
       boundary with its corpus, not this entry.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Allow if declared + expiring"* — the offered option read: a repo may lower a check's response only with a written reason and an end date, visible in the fleet view; the new model replaces E6d(i)'s "never lower" wording.

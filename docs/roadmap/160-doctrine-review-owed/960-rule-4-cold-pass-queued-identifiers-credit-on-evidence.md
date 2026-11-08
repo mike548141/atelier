@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: `ccclose --identifiers` credits
+- [~] (claimed 2026-11-09-0400, wt: atelier-rr-722a-w3)
+      🎯 **Rule-4 cold pass queued: `ccclose --identifiers` credits
       commits on evidence, not the window (`210/290`).** A block designed
       to be pasted into records as fact, so the authoring session (a
       Mike-opened Opus 5.5 queue run, session 8e498ef1, 2026-10-18, wt
@@ -54,3 +55,5 @@
       in this repo (a `210/` item once ruled); the reconcile also records a
       third `--since` walk for the open `160/920` sweep and a pre-delta
       `--session` question for its follow-ups.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Credit only on evidence"* — the offered option read: `ccclose --identifiers` lists a commit only where the session's own transcript shows it made it, and shows anything uncertain as uncertain (IE1–IE4); IE5–IE14 on the reviewer's counsel.

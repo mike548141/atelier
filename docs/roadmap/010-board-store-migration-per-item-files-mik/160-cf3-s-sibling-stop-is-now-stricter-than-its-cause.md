@@ -1,4 +1,5 @@
-- [ ] 🎯 **CF3's dirty-sibling stop is now stricter than its cause requires —
+- [~] (claimed 2026-11-09-0400, wt: atelier-rr-722a-w1)
+      🎯 **CF3's dirty-sibling stop is now stricter than its cause requires —
       relax it, or restate the reason that survives.** Raised by the session
       that built `010/020`, surfaced rather than decided because it is a change
       to standing doctrine, 2026-09-20.
@@ -50,3 +51,5 @@
       ⚠️ Not measured: how often the dirty-sibling case actually fires. Nothing
       records a skipped claim, so the throughput cost above is reasoned, not
       counted — and a ruling that turns on it should say so.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Stop only for the same item"* — the offered option read: a session still works in its own worktree and stops only where a peer's unsaved changes touch the item it wants; claiming a different item beside a live peer is allowed. Also answers `160/260`'s BA1 and `320/120`.

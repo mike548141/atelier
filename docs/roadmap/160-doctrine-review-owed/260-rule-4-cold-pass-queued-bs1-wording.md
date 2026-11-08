@@ -91,3 +91,5 @@
             BA8 (minor) formed at reconcile: the 2026-09-20 run's record has no
             010/020 section and no closing block. Findings are the principal's
             to decide (rule 3); nothing was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Stop only for the same item"*, put to him with `010/160` (BA1): see that item's note.
