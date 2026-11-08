@@ -5,6 +5,32 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-08 — five session-and-ask doctrine additions)
+Mike approved the recommendation on each item on 2026-11-09 (his date) as a pick from
+options a session offered (an answer, not a ruling in his words). Doctrine
+wording only; no scanner or tool changes, and the session-open prompt is untouched.
+- **Off-repo concurrency (`360/010`).** `CONCURRENCY.md` § *Beyond the repo*:
+  an owner marker on anything launched on a shared host, and the open-of-session
+  announcement widened to hosts, long jobs, shared remote files and live
+  services; a rate-limited API's lockout is named as a disguised collision.
+  A claim that outlives its session stays deferred; no locking protocol.
+- **A decision exists before the ask (`320/110`).** `COMMUNICATION.md` §
+  *Asking for a ruling*: a settled matter is a record, an open one is a
+  decision, absent evidence adds "find out first"; a principal answering the
+  frame is evidence against the form.
+- **When to ask (`420/010`).** `COMMUNICATION.md` § *When to ask*: sort a
+  question by what it blocks, park and proceed on branch-blocking ones, proceed
+  on a named assumption only where recoverable, never on a floor item, and away
+  as a mode he declares. The harness-notification question stays open.
+- **Talk first (`280/050`).** `CONCURRENCY.md` § *Talk first*: talk to decide,
+  write to hold; silence sends a session to the orphan-claim rules, and talk-first
+  never reaches a cold reviewer. The onramp read order and the propagated floor
+  clause are not changed here.
+- **A session with no repo (`410/010`).** `RECORD.md` § *A session with no
+  repo*: a thin person-level onramp, move to the repo before recording, a plain
+  close in the reply, named hand-on routes, and the privacy line travelling with
+  any output. The onramp file itself is person-local and not built here.
+
 ### Changed (2026-11-08 — six cold-pass reviews applied as counselled: §9 privacy, the cancelled-run clause, pointing up, the hand-up fixes, stated-bridge pointers, the template history)
 Mike approved applying each reviewer's counsel as written on 2026-11-09 (his
 date), each item closing when applied with no new Fable re-check. Doctrine
