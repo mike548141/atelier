@@ -82,8 +82,9 @@ Read in this order:
     three assessment axes (identification confidence · probability of harm ·
     impact of harm), assessment kept separate from response, the granularity
     ladder (line/check/repo) that makes "as narrow as possible" checkable, and
-    **provenance not direction** — a guard may never lower its own response,
-    a declared/reasoned/visible act may, with an expiry where the claim rots.
+    **provenance not direction** — a guard may never lower its own response;
+    a repo may lower a check's only with a written reason and an end date,
+    visible in the fleet view (ruled 2026-11-09, replacing E6d(i)'s wording).
     Carries the estate's standing requirement on every allowance: **narrow,
     noisy, reasoned**. *(rule-4 review queued, 2026-08-05.)*
 

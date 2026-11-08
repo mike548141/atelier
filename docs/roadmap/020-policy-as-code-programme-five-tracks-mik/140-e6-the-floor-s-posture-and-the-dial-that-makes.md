@@ -79,6 +79,11 @@
             served by placeholder detection and allow-markers, which force a
             written reason. Quieting comes from E6b's confidence tier, never
             from impact.
+            **Superseded in wording, 2026-11-09** (Mike, *"Allow if declared
+            + expiring"*, on `020/170`): a repo may lower a check's response
+            only with a written reason and an end date, visible in the fleet
+            view. The tool still never lowers a response on its own; see
+            `method/GUARDS.md` § *Provenance, not direction*.
             **(ii) Repo-declared, via the seam that already exists.** Impact
             is *least* knowable exactly where it matters most: a shared
             scanner can class a vendor credential by construction, but cannot

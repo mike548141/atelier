@@ -102,6 +102,19 @@ item's state line; the under-credit forms) are written into `ccclose.design.md`
 §15.1, the man page, the README and `RECORD.md`. The JSON gains fields and
 changes no existing meaning; the credited lists are the stricter ones.
 
+### Changed (2026-11-09 — E6d(i) replaced: a repo may lower a check's response, declared and expiring, `020/170`)
+Mike answered *"Allow if declared + expiring"* (2026-11-09; his word, picked
+from options). Doctrine only; no tool changes.
+- **`method/GUARDS.md` § *Provenance, not direction***: a repo may lower a
+  check's response only with a written reason and an end date, visible in the
+  fleet view; the tool never lowers one on its own judgement. This replaces
+  E6d(i)'s "impact may only raise a response, never lower it" wording (also
+  noted at E6d(i) in the E6 board item and in `method/README.md`); E6d(ii) and
+  (iii) are untouched. A table sets each lowering mechanism against the rule:
+  floor `advisory` meets it, floor `disabled` has a reason but no end date,
+  `scope` / `flags` are ruled permanent facts, and line markers and ignore
+  globs stay acceptances. The two gaps are follow-ups, not built here.
+
 ### Changed (2026-11-09 — the shared allow-marker grammar fails closed; the E7 leakscan counsel applied, `160/480` and `160/110`)
 Mike answered *"Strict, with a warning period"* (2026-11-09; his word, picked
 from options). The reviewers' other counsel is applied as written; the shared

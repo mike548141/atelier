@@ -323,10 +323,11 @@ not Mike's.
 
 ## Provenance, not direction
 
-The standing E6d(i) ruling was **escalate only**: impact may raise a finding's
+The E6d(i) ruling (2026-07-29) was **escalate only**: impact may raise a finding's
 response, never lower it. FG2 counselled replacing that with a provenance
 constraint, and Mike ruled it adopted as a **working hypothesis to test at
-design, not inherit**. This is the test and its result.
+design, not inherit**. This is the test and its result, and **Mike confirmed it
+on 2026-11-09** (below).
 
 **The test.** Does the estate already contain a lawful downward lane? If it does
 not, escalate-only is a live constraint and should stand. If it does, then
@@ -366,10 +367,39 @@ estate has been wrong that way before. What changes is that the taxonomy now
 describes what the estate actually does, instead of forbidding it in theory
 while doing it in practice.
 
-> 🎯 **Mike's to confirm:** this supersedes **E6d(i)**'s escalate-only wording.
-> The substance of his ruling is kept; the direction-constraint that carried it
-> is replaced by the provenance-constraint above. E6d(ii) repo-declared and
-> E6d(iii) computed-severity are untouched.
+### Ruled 2026-11-09: a repo may lower a check's response, declared and expiring
+
+Asked whether the provenance model should replace E6d(i), Mike answered
+*"Allow if declared + expiring"*. In operational terms:
+
+> A repo may lower a check's response **only with a written reason and an end
+> date, visible in the fleet view**. The tool never lowers a response on its own
+> judgement, and a lowering with no end date is not a lowering this model
+> allows.
+
+This **replaces E6d(i)'s wording** ("impact may only raise a response, never
+lower it") with that rule; E6d(ii) repo-declared and E6d(iii) computed-severity
+are untouched. It is stricter than condition 4 at the *check* and *repo* levels
+of [Granularity](#granularity--the-axis-that-was-doing-silent-work): there the
+end date is always required, not only "where the claim rots", because a check
+that is quieter than its default is a deferment whatever it is called. A *line*
+marker and an ignore-file *glob* stay acceptances: a reason, no end date, since
+what they say about one line or one path does not decay.
+
+Where each lowering stands against the rule today, so the gap is a list and not
+a feeling:
+
+| Lowering | Reason | End date | In the fleet view |
+|---|---|---|---|
+| floor `advisory` (a check reports, does not block) | required (`why`) | required (`review-by`), goes red when it passes | yes: dated, and red when expired |
+| floor `disabled` (a check is off) | required | **none yet** | listed with its reason, no date |
+| floor `scope` / `flags` (a check looks at less, or is tuned) | required (`why`) | none: ruled a permanent fact about the repo (2026-07-28) | not as a lowering |
+| line marker, ignore-file glob (acceptance) | required | none, by design | counted in the scan's suppressed line |
+
+The `disabled` row is the one place the ruling and the machinery disagree, and
+`scope` / `flags` need a decision on whether narrowing counts as lowering a
+*response* or is a separate axis. Neither is built or decided here; both are
+open follow-ups to the board item that carried the ruling (`020/170`).
 
 ## Fail noisy, then subtract
 
