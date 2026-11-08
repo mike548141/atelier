@@ -1,4 +1,5 @@
-- [ ] 🎯 **The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await
+- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bd)
+      🎯 **The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await
   Mike's ruling round.** The rule-4 Fable cold pass (taker: a Mike-spawned
   session, claimed 0815 UTC) returned PASS-WITH-FINDINGS — 0 MAJOR /
   1 MODERATE / 1 minor / 1 note; reconcile against the intent record changed
@@ -13,3 +14,9 @@
   `docs/method/README.md` (item 11) + `docs/method/CONVENTIONS.md` (§ *What
   lives elsewhere*) + both CHANGELOG entries. *Intent record:* the
   § *PRINCIPLES §9 — the time dimension* item above, rulings included.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+      after he asked for and read a one-line summary of each; an answer, not
+      a ruling):** *"Approve all 17"* — the reviewer's counsel applied as
+      written on this item and sixteen others with no serious finding, each
+      closing when applied, with no new Fable re-check; scanner changes
+      tested against every child before landing.

@@ -1,4 +1,5 @@
-- [ ] 🎯 **Cold pass queued: the opening prompt's template history, for
+- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bd)
+      🎯 **Cold pass queued: the opening prompt's template history, for
       privacy and specific work (`180/060`).** Text mined from the principal's
       private session transcripts landed in this public repo, and the only
       check so far is the session that landed it. A cold reader should test
@@ -43,3 +44,9 @@
       alone. *Routing:* TH1, TH2, TH4–TH6 are README or metadata fixes here;
       TH3 a recurrence re-check; TH7's counsel is a new queued privacy pass on
       the prompt file's history, which waits for his word.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+      after he asked for and read a one-line summary of each; an answer, not
+      a ruling):** *"Approve all 17"* — the reviewer's counsel applied as
+      written on this item and sixteen others with no serious finding, each
+      closing when applied, with no new Fable re-check; scanner changes
+      tested against every child before landing. The new Fable pass on the older prompt history (TH7) is not part of it.

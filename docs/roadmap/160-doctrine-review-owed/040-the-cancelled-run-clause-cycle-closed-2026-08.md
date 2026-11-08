@@ -1,4 +1,5 @@
-- [ ] 🎯 **The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6
+- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bd)
+      🎯 **The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6
   await Mike's ruling round.** The rule-4 Fable cold pass (taker: a
   Mike-spawned session, claimed 0815 UTC) returned PASS-WITH-FINDINGS —
   0 MAJOR / 2 MODERATE / 1 minor / 3 note; reconcile against the intent
@@ -13,3 +14,9 @@
   `docs/method/RECORD.md` (§ *The session log* — the cancelled-run sub-bullet)
   + its CHANGELOG entry (landed 2026-08-09). *Intent record:* the § *The
   floor-at-head all-clear has a cancelled-run hole* item above.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+      after he asked for and read a one-line summary of each; an answer, not
+      a ruling):** *"Approve all 17"* — the reviewer's counsel applied as
+      written on this item and sixteen others with no serious finding, each
+      closing when applied, with no new Fable re-check; scanner changes
+      tested against every child before landing.

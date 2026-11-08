@@ -35,17 +35,12 @@
         sharing action itself*, upstream of content.
   - [ ] 💬 **Mike, 2026-11-08, asked by session 722ac2e2 to pick a control,
         answered in his own words:** *"I'm sure I decided this months ago and
-        built some checks"*. Checked the same day, and he is right in part:
-        the estate-root repo carries a daily scheduled workflow that fails
-        loudly (GitHub emails the owner) the moment it is anything but
-        private, green on its runs of 2026-11-06 to 2026-11-08 (detective);
-        the client-data repo has no remote at all. The preventive layers
-        were recorded there as optional and not built: a token without
-        `Administration: write` (agents still use the full OAuth login) and an
-        organisation that locks visibility, which the owner deferred on
-        2026-08-03 to the repos-to-public programme. Not covered by any check
-        found: *"shared to unauthorised people"* (no collaborator-list audit).
-        Open for him: whether the collaborator gap needs a check.
+        built some checks"*. Checked the same day: he is right in part. The
+        controls that exist, the ones deferred by his own earlier answer and
+        the one gap are recorded in the estate root's own private records,
+        not here (`260/080`: a private repo's state goes by type in public
+        records). The gap found is the one his words name: *"shared to
+        unauthorised people"*.
   - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2
         offered; an answer, not a ruling):** *"Yes, add to daily check"* — the
         offered option read: extend the daily visibility check so it also

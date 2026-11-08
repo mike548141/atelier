@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the file walk enumerates through git
+- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bs1)
+      🎯 **Rule-4 cold pass queued: the file walk enumerates through git
       (`110/110`).** The run authored this itself (its dispatched workers'
       output counts as the run's authorship). It was queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -31,3 +32,9 @@
             never reads a secret committed there; inherited from the parent
             walk, and now pinned by a test. Findings are the principal's to
             decide (rule 3); nothing was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+      after he asked for and read a one-line summary of each; an answer, not
+      a ruling):** *"Approve all 17"* — the reviewer's counsel applied as
+      written on this item and sixteen others with no serious finding, each
+      closing when applied, with no new Fable re-check; scanner changes
+      tested against every child before landing.

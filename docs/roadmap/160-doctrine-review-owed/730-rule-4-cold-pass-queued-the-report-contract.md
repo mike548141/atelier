@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the shared exit and reporting contract
+- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bs1)
+      🎯 **Rule-4 cold pass queued: the shared exit and reporting contract
       (`115/080` part 3).** The run authored this itself (its dispatched
       worker's output counts as the run's authorship). It is queued at
       landing, and the run neither takes it nor spawns a reviewer for it.
@@ -43,3 +44,9 @@
             file; RT1 and RT5 re-find the open FW8/D5 and FW4/AM13, RT2 is new.
             Findings are the principal's to decide (rule 3); nothing was
             applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+      after he asked for and read a one-line summary of each; an answer, not
+      a ruling):** *"Approve all 17"* — the reviewer's counsel applied as
+      written on this item and sixteen others with no serious finding, each
+      closing when applied, with no new Fable re-check; scanner changes
+      tested against every child before landing.

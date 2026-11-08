@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued — the pointing-up rulings applied (PU-1
+- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bd)
+      🎯 **Rule-4 cold pass queued — the pointing-up rulings applied (PU-1
       command fix, PU-2 naming).** Self-authored in rule 4's inherited
       sense: the applier's judgement produced the new wording, and the
       applier also authored the verdict being applied (REVIEW.md prefers
@@ -43,3 +44,9 @@
             § *The instance* and the CONCURRENCY Bearing still say the house had
             no gap; PV5 (minor) formed at reconcile. Findings are the
             principal's to decide (rule 3); nothing was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+      after he asked for and read a one-line summary of each; an answer, not
+      a ruling):** *"Approve all 17"* — the reviewer's counsel applied as
+      written on this item and sixteen others with no serious finding, each
+      closing when applied, with no new Fable re-check; scanner changes
+      tested against every child before landing.

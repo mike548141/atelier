@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the index projects the logical first
+- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bi)
+      🎯 **Rule-4 cold pass queued: the index projects the logical first
       paragraph, with a dated grace for children (`010/170`).** `board`
       blocks in every child's CI and cannot be softened, and this change
       both alters what every child's index must contain and adds a dated
@@ -68,3 +69,9 @@
       🎯 **The principal's (rule 3, `board` is doctrine by function):** every
       finding, PP1 and PP2 (MODERATE) first; nothing applied. Recommended
       routing: PQ1 to `010/190`; PQ2 and PQ3 to their own board items.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+      after he asked for and read a one-line summary of each; an answer, not
+      a ruling):** *"Approve all 17"* — the reviewer's counsel applied as
+      written on this item and sixteen others with no serious finding, each
+      closing when applied, with no new Fable re-check; scanner changes
+      tested against every child before landing.
