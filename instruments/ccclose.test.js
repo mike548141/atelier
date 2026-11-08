@@ -69,9 +69,15 @@ function write(root, rel, text) {
   fs.mkdirSync(path.dirname(p), { recursive: true });
   fs.writeFileSync(p, text);
 }
+// Every commit made through the fixture is remembered by message, with its
+// committer time and the repo it was made in, so a transcript can carry the
+// command that made it at the time it ran (160/960: a command confirms a commit
+// only by subject, repo, result and time).
+const CT = new Map();
 function commit(w, root, msg, when) {
   sh(w, root, ['add', '--', '.']);
   sh(w, root, ['commit', '-q', '-m', msg], when);
+  if (when !== undefined) CT.set(msg, { when, root });
   return sh(w, root, ['rev-parse', 'HEAD']);
 }
 
@@ -971,9 +977,21 @@ const useResult = (id, text, isError = false) => ({ type: 'user', message: { rol
 
 // The session's own `git commit` commands, one per message: the house form
 // (`git commit -q -m`), so the transcript carries the message and never a SHA.
-const commitCmd = (id, msg) => bashUse(id, `git add -- x && git commit -q -m ${JSON.stringify(msg)}`);
-const committed = (...msgs) => msgs.map((m, i) => commitCmd(`c${i}-${m.length}`, m));
-const BOARD_MSGS = ['board: seed', 'board: file a, b, c, f', 'board: claim c and f; close d', 'board: close b; release f; queue review on a'];
+const iso = (ms) => new Date(ms).toISOString();
+// A Bash call and its result, timed around `ms` (the moment the commit was made).
+const ran = (id, command, ms, cwd, isError = false) => [
+  { ...bashUse(id, command, cwd), timestamp: iso(ms - 500) },
+  { ...useResult(id, isError ? 'error: exit 1' : 'ok', isError), timestamp: iso(ms + 500) },
+];
+const commitCmd = (id, msg, over = {}) => {
+  const c = CT.get(msg);
+  return ran(id, `git add -- x && git commit -q -m ${JSON.stringify(msg)}`, over.when === undefined ? c.when : over.when, over.cwd === undefined ? c.root : over.cwd, !!over.error);
+};
+const committed = (...msgs) => msgs.flatMap((m, i) => commitCmd(`c${i}-${m.length}`, m));
+// A commit command for `msg` with its own text, run in the repo where the fixture made it.
+const ranFor = (id, command, msg, extra = {}) => ran(id, command, CT.get(msg).when, extra.cwd === undefined ? CT.get(msg).root : extra.cwd, !!extra.error);
+// (The seed commit is days old, before the window: the session ran no command for it.)
+const BOARD_MSGS = ['board: file a, b, c, f', 'board: claim c and f; close d', 'board: close b; release f; queue review on a'];
 
 function boardWorld() {
   const w = world();
@@ -1068,7 +1086,8 @@ test('--identifiers with no commits in the window prints zeros and none, not abs
   assert.deepEqual(headings(out), FIELDS);
   assert.match(out, /- \*\*Commits\*\* \(0\): none\n/);
   assert.match(out, /- \*\*Pull requests\*\*: none/);
-  assert.match(out, /  - completed: none\n  - created: none\n  - claimed \(still open\): none\n  - ⏳ review items created: none\n/);
+  assert.match(out, /  - completed: none\n  - created: none\n  - claimed \(still open\): none\n  - claimed, then closed or released by an unconfirmed commit: none\n  - ⏳ review items created: none\n/);
+  assert.match(out, /  - unconfirmed, only through a squash merge this session did not run: none\n/);
   assert.match(out, /- \*\*Worktrees and branches\*\*: none\n/);
   assert.match(out, /- \*\*Agents\*\*: 0 · none launched\n/);
 });
@@ -1086,12 +1105,14 @@ test('--identifiers board: completed, created and claimed groups, and the ⏳ it
   assert.deepEqual(j.board.claimed, ['010/030']);
   assert.deepEqual(j.board.review, ['010/010']);
   assert.deepEqual(j.board.unconfirmed, { completed: [], created: [], claimed: [], review: [], reviewElsewhere: [] });
+  assert.deepEqual(j.board.viaSquash, { completed: [], created: [], claimed: [], review: [], reviewElsewhere: [] });
   const out = idRun(w, root, 'sess-id-5').out;
   assert.match(out, /  - unconfirmed, from window-only commits: none\n/);
   assert.match(out, /  - completed: 010\/020, 010\/040\n/);
   assert.match(out, /  - created: 010\/010, 010\/020, 010\/030, 010\/060\n/);
   assert.match(out, /  - claimed \(still open\): 010\/030\n/);
   assert.match(out, /  - ⏳ review items created: 010\/010\n/);
+  assert.deepEqual(j.board.claimedMoved, []);
 });
 
 test('--identifiers board: no board, or a hand-kept one, is marked by hand', () => {
@@ -1394,7 +1415,7 @@ test('--identifiers --json carries the same fields', () => {
   transcript(w, 'sess-id-15');
   const j = JSON.parse(ccclose(w, root, ['--session', 'sess-id-15', '--identifiers', '--json']).out);
   assert.equal(j.form, 'identifiers');
-  assert.deepEqual(Object.keys(j.commits), ['known', 'total', 'items', 'unbroken', 'range', 'unconfirmed', 'leftOut']);
+  assert.deepEqual(Object.keys(j.commits), ['known', 'total', 'items', 'unbroken', 'range', 'unconfirmed', 'leftOut', 'evidenceUnreadable']);
   assert.deepEqual(Object.keys(j), ['tool', 'form', 'session', 'commits', 'pullRequests', 'board', 'worktrees', 'agents', 'otherRepos', 'heuristic']);
   assert.equal(j.session.id, 'sess-id-15');
 });
@@ -1427,11 +1448,11 @@ test('--identifiers commits: the session\'s own commit commands confirm its comm
   write(root, 'b.txt', 'b'); commit(w, root, 'heredoc: own commit', NOW - 35 * MIN);
   write(root, 'c.txt', 'c'); commit(w, root, 'agent: made by a subagent', NOW - 30 * MIN);
   agent(w, 'sess-id-20', 'aa111111', { turns: [
-    { type: 'assistant', timestamp: at(-31), message: { content: [{ type: 'tool_use', id: 'g1', name: 'Bash', input: { command: 'git commit -q -m "agent: made by a subagent"' } }] } },
+    ...ranFor('g1', 'git commit -q -m "agent: made by a subagent"', 'agent: made by a subagent'),
     ...finishedTurns] });
   transcript(w, 'sess-id-20', [
-    commitCmd('k1', 'plain: own commit'),
-    bashUse('k2', 'git commit -q -m "$(cat <<\'EOF\'\nheredoc: own commit\n\nwhy\nEOF\n)"'),
+    ...commitCmd('k1', 'plain: own commit'),
+    ...ranFor('k2', 'git commit -q -m "$(cat <<\'EOF\'\nheredoc: own commit\n\nwhy\nEOF\n)"', 'heredoc: own commit'),
     viaAttachment('aa111111', 'completed'),
   ]);
   const j = parseId(w, root, 'sess-id-20');
@@ -1475,9 +1496,9 @@ test('--identifiers commits: -F path is credited when the session Wrote that fil
   const { w, root } = fileWorld([['file: written with Write', 40], ['file: relative path', 35], ['peer: unrelated', 30]]);
   transcript(w, 'sess-id-30', [
     writeUse('w1', '/work/msg/one.txt', '\nfile: written with Write\n\nwhy it matters\n'),
-    bashUse('c1', 'git commit -q -F /work/msg/one.txt', '/work'),
-    writeUse('w2', 'msg/two.txt', 'file: relative path\n', '/work'),
-    bashUse('c2', 'git commit -q --file=msg/two.txt', '/work'),
+    ...ranFor('c1', 'git commit -q -F /work/msg/one.txt', 'file: written with Write'),
+    writeUse('w2', 'msg/two.txt', 'file: relative path\n', root),
+    ...ranFor('c2', 'git commit -q --file=msg/two.txt', 'file: relative path'),
   ]);
   const j = parseId(w, root, 'sess-id-30');
   assert.deepEqual(subjectsOf(j.commits.items), ['file: written with Write', 'file: relative path']);
@@ -1488,10 +1509,10 @@ test('--identifiers commits: -F path is credited when an earlier heredoc wrote i
   const { w, root } = fileWorld([['hd: first message', 40], ['hd: second message', 35], ['hd: tee message', 30]]);
   transcript(w, 'sess-id-31', [
     bashUse('h1', "cat > /work/m.txt <<'EOF'\nhd: stale draft\nEOF"),
-    bashUse('h2', "cat > /work/m.txt <<'EOF'\nhd: first message\n\nbody\nEOF\ngit commit -q -F /work/m.txt"),
+    ...ranFor('h2', "cat > /work/m.txt <<'EOF'\nhd: first message\n\nbody\nEOF\ngit commit -q -F /work/m.txt", 'hd: first message'),
     bashUse('h3', 'cat <<EOF > /work/m.txt\nhd: second message\nEOF'),
-    bashUse('c3', 'git commit -q -F /work/m.txt'),
-    bashUse('h4', 'tee /work/t.txt <<EOF\nhd: tee message\nEOF\ngit commit -q -F /work/t.txt'),
+    ...ranFor('c3', 'git commit -q -F /work/m.txt', 'hd: second message'),
+    ...ranFor('h4', 'tee /work/t.txt <<EOF\nhd: tee message\nEOF\ngit commit -q -F /work/t.txt', 'hd: tee message'),
   ]);
   const j = parseId(w, root, 'sess-id-31');
   assert.deepEqual(subjectsOf(j.commits.items), ['hd: first message', 'hd: second message', 'hd: tee message']);
@@ -1501,7 +1522,7 @@ test('--identifiers commits: -F path is credited when an earlier heredoc wrote i
 test('--identifiers commits: a file written after the commit that names it does not credit it', () => {
   const { w, root } = fileWorld([['late: written after', 40]]);
   transcript(w, 'sess-id-32', [
-    bashUse('c1', 'git commit -q -F /work/late.txt'),
+    ...ranFor('c1', 'git commit -q -F /work/late.txt', 'late: written after'),
     writeUse('w1', '/work/late.txt', 'late: written after\n'),
   ]);
   const j = parseId(w, root, 'sess-id-32');
@@ -1512,21 +1533,21 @@ test('--identifiers commits: a file written after the commit that names it does 
 test('--identifiers commits: a $VAR path is credited only when the variable was assigned a literal', () => {
   const { w, root } = fileWorld([['var: assigned in the same command', 41], ['var: same line', 39], ['var: assigned earlier, braces', 35], ['var: never assigned', 30], ['var: assigned from a command', 25]]);
   transcript(w, 'sess-id-33', [
-    bashUse('v1', "S=/work/msgs\ncat > $S/a.txt <<'EOF'\nvar: assigned in the same command\nEOF\ngit commit -q -F \"$S/a.txt\""),
+    ...ranFor('v1', "S=/work/msgs\ncat > $S/a.txt <<'EOF'\nvar: assigned in the same command\nEOF\ngit commit -q -F \"$S/a.txt\"", 'var: assigned in the same command'),
     // The assignment and the heredoc on one line, before other commands.
-    bashUse('v1b', "cd /work && S=/work/msgs && cat > $S/e.txt <<'EOF'\nvar: same line\nEOF\ngit commit -q -F $S/e.txt"),
+    ...ranFor('v1b', `cd ${root} && S=/work/msgs && cat > $S/e.txt <<'EOF'\nvar: same line\nEOF\ngit commit -q -F $S/e.txt`, 'var: same line'),
     bashUse('v2', 'export DIR=/work/other'),
     writeUse('w2', '/work/other/b.txt', 'var: assigned earlier, braces\n'),
-    bashUse('v3', 'git commit -q -F ${DIR}/b.txt'),
+    ...ranFor('v3', 'git commit -q -F ${DIR}/b.txt', 'var: assigned earlier, braces'),
     // Written by a heredoc under an unassigned variable, then committed from it.
-    bashUse('v4', "cat > $NOPE/c.txt <<'EOF'\nvar: never assigned\nEOF\ngit commit -q -F $NOPE/c.txt"),
+    ...ranFor('v4', "cat > $NOPE/c.txt <<'EOF'\nvar: never assigned\nEOF\ngit commit -q -F $NOPE/c.txt", 'var: never assigned'),
     // Assigned from a command: not a literal, so not resolvable.
-    bashUse('v5', "T=$(mktemp -d)\ncat > $T/d.txt <<'EOF'\nvar: assigned from a command\nEOF\ngit commit -q -F $T/d.txt"),
+    ...ranFor('v5', "T=$(mktemp -d)\ncat > $T/d.txt <<'EOF'\nvar: assigned from a command\nEOF\ngit commit -q -F $T/d.txt", 'var: assigned from a command'),
   ]);
   const j = parseId(w, root, 'sess-id-33');
   assert.deepEqual(subjectsOf(j.commits.items), ['var: assigned in the same command', 'var: same line', 'var: assigned earlier, braces']);
   assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['var: never assigned', 'var: assigned from a command']);
-  assert.match(idRun(w, root, 'sess-id-33').out, /cannot be matched otherwise/);
+  assert.match(idRun(w, root, 'sess-id-33').out, /matched only when the session wrote that file at a path that resolves/);
 });
 
 test('--identifiers commits: a peer\'s message file is not the session\'s, even when the subject matches', () => {
@@ -1535,9 +1556,9 @@ test('--identifiers commits: a peer\'s message file is not the session\'s, even 
   // commits from it and from a basename-alike path of its own.
   transcript(w, 'sess-id-34', [
     writeUse('w1', '/work/mine/msg.txt', 'mine: wrote my own\n'),
-    bashUse('c1', 'git commit -q -F /work/peer/msg.txt'),
-    bashUse('c2', 'git commit -q -F /work/peer.txt'),
-    bashUse('c3', 'git commit -q -F /work/mine/msg.txt'),
+    ...ranFor('c1', 'git commit -q -F /work/peer/msg.txt', 'peer: wrote this one'),
+    ...ranFor('c2', 'git commit -q -F /work/peer.txt', 'peer: wrote this one'),
+    ...ranFor('c3', 'git commit -q -F /work/mine/msg.txt', 'mine: wrote my own'),
   ]);
   const j = parseId(w, root, 'sess-id-34');
   assert.deepEqual(subjectsOf(j.commits.items), ['mine: wrote my own']);
@@ -1549,10 +1570,10 @@ test('--identifiers commits: a subagent\'s Write credits the subagent\'s -F comm
   const at = (m) => new Date(NOW + m * MIN).toISOString();
   agent(w, 'sess-id-35', 'bb222222', { turns: [
     { ...writeUse('a1', '/work/a/m1.txt', 'agent: own file\n'), timestamp: at(-41) },
-    { ...bashUse('a2', 'git commit -q -F /work/a/m1.txt'), timestamp: at(-40) },
+    ...ranFor('a2', 'git commit -q -F /work/a/m1.txt', 'agent: own file'),
     { ...writeUse('a3', '/work/a/m2.txt', 'agent: parent commits it\n'), timestamp: at(-36) },
     ...finishedTurns] });
-  transcript(w, 'sess-id-35', [bashUse('p1', 'git commit -q -F /work/a/m2.txt'), viaAttachment('bb222222', 'completed')]);
+  transcript(w, 'sess-id-35', [...ranFor('p1', 'git commit -q -F /work/a/m2.txt', 'agent: parent commits it'), viaAttachment('bb222222', 'completed')]);
   const j = parseId(w, root, 'sess-id-35');
   assert.deepEqual(subjectsOf(j.commits.items), ['agent: own file', 'agent: parent commits it']);
 });
@@ -1565,6 +1586,7 @@ function commitBackdated(w, root, msg, authorWhen, committerWhen) {
   const env = { ...w.env,
     GIT_AUTHOR_DATE: new Date(authorWhen).toISOString(), GIT_COMMITTER_DATE: new Date(committerWhen).toISOString() };
   execFileSync('git', ['commit', '-q', '-m', msg], { cwd: root, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  CT.set(msg, { when: committerWhen, root });
 }
 
 test('--identifiers commits: a commit whose author date predates the window counts by its committer date (210/320)', () => {
@@ -1606,7 +1628,7 @@ test('--identifiers commits: a peer\'s commits in the window are unconfirmed, no
   assert.equal(j.commits.unbroken, false);
   assert.equal(j.commits.range, null);
   const out = idRun(w, root, 'sess-id-21').out;
-  assert.match(out, /- \*\*Commits\*\* \(2\): \w+ \w+\n  - unconfirmed, dated in the window only \(2\): .* — no commit command of the session matches them; check before pasting as fact\n/);
+  assert.match(out, /- \*\*Commits\*\* \(2\): \w+ \w+\n  - unconfirmed, dated in the window only \(2\): .* — no commit command of the session matches them by subject, repo, result and time; check before pasting as fact\n/);
 });
 
 test('--identifiers commits: a squash merge the session did not run is left out; one it ran is counted', () => {
@@ -1629,13 +1651,14 @@ test('--identifiers commits: a squash merge the session did not run is left out;
   const j = parseId(w, root, 'sess-id-22', { CCCLOSE_GH: ghStub(w, { views: { 13: 'MERGED' } }) });
   assert.deepEqual(subjectsOf(j.commits.items), ['mine: change', 'Add gadget (#13)']);
   assert.deepEqual(j.commits.leftOut.items.map((x) => [x.subject, x.pr]), [['Add widget (#12)', 12], ['Merge pull request #14 from peer/topic', 14]]);
-  assert.match(j.commits.leftOut.items[0].reason, /squash merge of PR #12, merge not run by this session/);
+  assert.match(j.commits.leftOut.items[0].reason, /first-parent line with a PR number \(#12\); this session ran no numbered gh pr merge for it/);
   assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['Topic work (#15)']);
   const out = idRun(w, root, 'sess-id-22').out;
-  assert.match(out, /  - left out \(2\): \w+ \(PR #12 squash merge, merge not run by this session\), \w+ \(PR #14 squash merge/);
+  assert.match(out, /  - left out \(2\): \w+ \(PR #12: a squash merge on the first-parent line, and this session ran no numbered gh pr merge for it\), \w+ \(PR #14: a squash merge/);
+  assert.match(out, /a heuristic; add by hand any that this session merged another way/);
 });
 
-test('--identifiers board: items from a peer\'s commits are unconfirmed, and a left-out squash merge counts for nothing', () => {
+test('--identifiers board: items from a peer\'s commits are unconfirmed, and a left-out squash merge is listed apart (IE14)', () => {
   const w = world();
   const root = repo(w);
   write(root, 'docs/ROADMAP.md', '<!-- GENERATED by board.py -->\n');
@@ -1651,13 +1674,16 @@ test('--identifiers board: items from a peer\'s commits are unconfirmed, and a l
   const j = parseId(w, root, 'sess-id-23');
   assert.deepEqual(j.board.created, ['010/010']);
   assert.deepEqual(j.board.completed, ['010/010']);
-  // The peer's item shows only as unconfirmed; the squash merge shows nowhere.
+  // The peer's item shows only as unconfirmed. The squash merge is the only
+  // carrier of 030, so it is listed, on its own line, as coming through a merge
+  // the session did not run (IE14): never as the session's own.
   assert.deepEqual(j.board.unconfirmed.created, ['010/020']);
   assert.deepEqual(j.board.unconfirmed.completed, []);
+  assert.deepEqual(j.board.viaSquash.created, ['010/030']);
   const out = idRun(w, root, 'sess-id-23').out;
   assert.match(out, /  - created: 010\/010\n/);
   assert.match(out, /  - unconfirmed, from window-only commits: created 010\/020 — check before pasting as fact\n/);
-  assert.doesNotMatch(out, /010\/030/);
+  assert.match(out, /  - unconfirmed, only through a squash merge this session did not run: completed 010\/030; created 010\/030 — check before pasting as fact\n/);
 });
 
 test('--identifiers board: the ⏳ marker counts on an item\'s state line only, never in its body', () => {
@@ -1684,4 +1710,245 @@ test('--identifiers board: the ⏳ marker counts on an item\'s state line only, 
 test('board ids sort as numbers, so a four-digit pointer follows 999 (210/370)', () => {
   assert.deepEqual(['160/1000', '160/986', '010/200', '160/1010', '210/370'].sort(cc.boardOrder),
     ['010/200', '160/986', '160/1000', '160/1010', '210/370']);
+});
+
+// --- 160/960: a commit is credited only where the session's own command made it
+
+const own = (root) => ({ cwd: root });
+
+test('IE1/IE11: a peer\'s commit with the session\'s own subject, made at another time, is unconfirmed and breaks the range', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'board: rebuild index', NOW - 40 * MIN);
+  const mine = CT.get('board: rebuild index').when;
+  write(root, 'p.txt', 'p'); commit(w, root, 'board: rebuild index', NOW - 38 * MIN);   // the peer's, same subject
+  write(root, 'b.txt', 'b'); commit(w, root, 'mine: next', NOW - 36 * MIN);
+  transcript(w, 'sess-ie1', [...commitCmd('k1', 'board: rebuild index', { when: mine }), ...committed('mine: next')]);
+  const j = parseId(w, root, 'sess-ie1');
+  assert.equal(j.commits.total, 2);
+  assert.deepEqual(j.commits.unconfirmed.items.map((x) => [x.subject, x.note && /does not fit/.test(x.note)]), [['board: rebuild index', true]]);
+  // The peer's commit sits between the two, so first^..last would name three.
+  assert.equal(j.commits.unbroken, false);
+  assert.equal(j.commits.range, null);
+  assert.match(idRun(w, root, 'sess-ie1').out, /  - [0-9a-f]+: its subject matches a command of the session that does not fit \(failed, another repo, or another time\)\n/);
+});
+
+test('IE1: one command confirms at most one commit, even when two commits fall in its span with that subject', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'board: rebuild index', NOW - 40 * MIN);
+  const first = CT.get('board: rebuild index').when;
+  write(root, 'p.txt', 'p'); commit(w, root, 'board: rebuild index', NOW - 40 * MIN + 1500);
+  // One long-running command whose span covers both commits.
+  transcript(w, 'sess-ie1b', ran('long', 'git commit -q -m "board: rebuild index"', first + 800, root));
+  const j = parseId(w, root, 'sess-ie1b');
+  assert.equal(j.commits.total, 1);
+  assert.equal(j.commits.unconfirmed.total, 1);
+});
+
+test('IE2: a commit command that failed confirms nothing, even when a peer made a commit with its subject', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'p.txt', 'p'); commit(w, root, 'docs: one subject', NOW - 40 * MIN);
+  transcript(w, 'sess-ie2', commitCmd('k1', 'docs: one subject', { error: true }));
+  const j = parseId(w, root, 'sess-ie2');
+  assert.equal(j.commits.total, 0);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['docs: one subject']);
+});
+
+test('IE3: a commit command run in another repo confirms nothing here; one run in a linked worktree of this repo does', () => {
+  const w = world();
+  const root = repo(w);
+  const other = repo(w, 'other');
+  write(root, 'a.txt', 'a'); commit(w, root, 'tools: made in this repo', NOW - 40 * MIN);
+  const wt = path.join(w.base, 'wt-linked');
+  sh(w, root, ['worktree', 'add', '-q', '-b', 'side', wt]);
+  write(wt, 'b.txt', 'b'); commit(w, wt, 'tools: made in a worktree', NOW - 35 * MIN);
+  write(root, 'c.txt', 'c'); commit(w, root, 'tools: peer, same subject as a command elsewhere', NOW - 30 * MIN);
+  transcript(w, 'sess-ie3', [
+    ...commitCmd('k1', 'tools: made in this repo'),
+    ...commitCmd('k2', 'tools: made in a worktree', { cwd: wt }),
+    // Same subject and time as the peer's commit, but run in the other repo.
+    ...commitCmd('k3', 'tools: peer, same subject as a command elsewhere', { cwd: other }),
+  ]);
+  const j = parseId(w, root, 'sess-ie3');
+  assert.deepEqual(subjectsOf(j.commits.items), ['tools: made in this repo', 'tools: made in a worktree']);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['tools: peer, same subject as a command elsewhere']);
+});
+
+test('IE3: a `git -C other commit` and a `cd other && git commit` are read as running there', () => {
+  const w = world();
+  const root = repo(w);
+  const other = repo(w, 'other');
+  write(root, 'a.txt', 'a'); commit(w, root, 'x: via -C other', NOW - 40 * MIN);
+  write(root, 'b.txt', 'b'); commit(w, root, 'x: via cd other', NOW - 35 * MIN);
+  write(root, 'c.txt', 'c'); commit(w, root, 'x: via -C here', NOW - 30 * MIN);
+  transcript(w, 'sess-ie3b', [
+    ...ranFor('k1', `git -C ${other} commit -q -m "x: via -C other"`, 'x: via -C other', own(root)),
+    ...ranFor('k2', `cd ${other} && git commit -q -m "x: via cd other"`, 'x: via cd other', own(root)),
+    ...ranFor('k3', `cd ${other} && git -C ${root} commit -q -m "x: via -C here"`, 'x: via -C here', own(other)),
+  ]);
+  const j = parseId(w, root, 'sess-ie3b');
+  assert.deepEqual(subjectsOf(j.commits.items), ['x: via -C here']);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['x: via -C other', 'x: via cd other']);
+});
+
+test('IE4: commit text that runs nothing is no evidence (heredoc body, grep pattern, echo, quoted script)', () => {
+  const f = cc.commitSubjectsIn;
+  assert.deepEqual(f('cat > notes.md <<\'EOF\'\ngit commit -q -m "docs: quoted in a heredoc"\nEOF'), []);
+  assert.deepEqual(f('grep -n \'git commit -m "docs: a grep pattern"\' notes.md'), []);
+  assert.deepEqual(f('echo "git commit -q -m \'docs: an echo\'"'), []);
+  assert.deepEqual(f('bash -c \'git commit -q -m "docs: wrapped in sh -c"\''), []);
+  // In command position it still counts: after a line start, ;, &&, ||, a pipe, then/do.
+  assert.deepEqual(f('true\ngit commit -q -m "a: new line"'), ['a: new line']);
+  assert.deepEqual(f('false || git commit -q -m "a: after or"'), ['a: after or']);
+  assert.deepEqual(f('if true; then git commit -q -m "a: after then"; fi'), ['a: after then']);
+  assert.deepEqual(f('GIT_EDITOR=true git commit -q -m "a: env prefix"'), ['a: env prefix']);
+  // A heredoc that carries the commit's own message still counts, and a later real commit too.
+  assert.deepEqual(f('cat > n <<\'EOF\'\ngit commit -m "no: quoted"\nEOF\ngit commit -q -m "yes: real"'), ['yes: real']);
+});
+
+test('IE4: a heredoc that quotes a commit command does not confirm a peer\'s commit with that subject', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'p.txt', 'p'); commit(w, root, 'docs: example subject', NOW - 40 * MIN);
+  transcript(w, 'sess-ie4', ranFor('k1', 'cat > notes.md <<\'EOF\'\ngit commit -q -m "docs: example subject"\nEOF', 'docs: example subject'));
+  const j = parseId(w, root, 'sess-ie4');
+  assert.equal(j.commits.total, 0);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['docs: example subject']);
+});
+
+test('IE5: a subagent\'s failed `gh pr merge` confirms nothing; its successful one does', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'Peer work (#14)', NOW - 40 * MIN);
+  write(root, 'b.txt', 'b'); commit(w, root, 'Own work (#15)', NOW - 35 * MIN);
+  sh(w, root, ['remote', 'set-url', 'origin', 'https://github.com/example/demo.git']);
+  agent(w, 'sess-ie5', 'cc333333', { turns: [
+    { ...bashUse('m1', 'gh pr merge 14 --squash', root), timestamp: at(-41) },
+    { ...useResult('m1', 'not mergeable', true), timestamp: at(-40) },
+    { ...bashUse('m2', 'gh pr merge 15 --squash', root), timestamp: at(-36) },
+    { ...useResult('m2', 'merged'), timestamp: at(-35) },
+    ...finishedTurns] });
+  transcript(w, 'sess-ie5', [viaAttachment('cc333333', 'completed')]);
+  const j = parseId(w, root, 'sess-ie5');
+  assert.deepEqual(subjectsOf(j.commits.items), ['Own work (#15)']);
+  assert.deepEqual(j.commits.leftOut.items.map((x) => x.pr), [14]);
+});
+
+test('IE6: a squash titled like a commit the session made is unconfirmed, never left out as someone else\'s', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'tools: add the thing', NOW - 40 * MIN);
+  write(root, 'b.txt', 'b'); commit(w, root, 'tools: add the thing (#21)', NOW - 35 * MIN);   // a peer squashed the session's branch
+  write(root, 'c.txt', 'c'); commit(w, root, 'peer: their own change (#22)', NOW - 30 * MIN);
+  sh(w, root, ['reset', '-q', '--hard', 'HEAD']);
+  // The session's own branch commit is no longer on any ref in real life; here it
+  // stays, which does not matter: the squash is what is under test.
+  transcript(w, 'sess-ie6', committed('tools: add the thing'));
+  const j = parseId(w, root, 'sess-ie6');
+  assert.deepEqual(subjectsOf(j.commits.items), ['tools: add the thing']);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['tools: add the thing (#21)']);
+  assert.match(j.commits.unconfirmed.items[0].note, /squash merge of PR #21 titled like a commit of this session/);
+  assert.deepEqual(subjectsOf(j.commits.leftOut.items), ['peer: their own change (#22)']);
+  assert.doesNotMatch(j.commits.leftOut.items[0].reason, /merge not run by this session/);
+});
+
+test('IE7: a claim a peer\'s commit closed is not "still open", and has its own line', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'docs/ROADMAP.md', '<!-- GENERATED by board.py -->\n');
+  item(root, '010', '010', '- [ ] **a** filed\n');
+  item(root, '010', '020', '- [ ] **b** filed\n');
+  commit(w, root, 'board: file a and b', NOW - 50 * MIN);
+  item(root, '010', '010', '- [~] (claimed) **a**\n');
+  item(root, '010', '020', '- [~] (claimed) **b**\n');
+  commit(w, root, 'board: claim a and b', NOW - 45 * MIN);
+  item(root, '010', '010', '- [x] **a** done\n');   // closed by a commit the session did not make
+  commit(w, root, 'board: close a (the orchestrator)', NOW - 40 * MIN);
+  transcript(w, 'sess-ie7', committed('board: file a and b', 'board: claim a and b'));
+  const j = parseId(w, root, 'sess-ie7');
+  assert.deepEqual(j.board.claimed, ['010/020']);
+  assert.deepEqual(j.board.claimedMoved, ['010/010']);
+  assert.deepEqual(j.board.unconfirmed.completed, ['010/010']);
+  const out = idRun(w, root, 'sess-ie7').out;
+  assert.match(out, /  - claimed \(still open\): 010\/020\n  - claimed, then closed or released by an unconfirmed commit: 010\/010\n/);
+});
+
+test('IE8: the block says a separately dispatched worker session\'s commits are expected to print as unconfirmed', () => {
+  const { w, root } = boardWorld();
+  transcript(w, 'sess-ie8');
+  const out = idRun(w, root, 'sess-ie8').out;
+  assert.match(out, /a worker dispatched as its own session has its own transcript, which is not read, so its commits print as unconfirmed/);
+});
+
+test('IE9: an unreadable subagent transcript is counted beside the unconfirmed line, not swallowed', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'agent: lost with its transcript', NOW - 40 * MIN);
+  // A directory where the transcript file should be: reading it fails (EISDIR).
+  const dir = path.join(w.home, '.claude', 'projects', 'proj', 'sess-ie9', 'subagents');
+  fs.mkdirSync(path.join(dir, 'agent-dd444444.jsonl'), { recursive: true });
+  transcript(w, 'sess-ie9');
+  const j = parseId(w, root, 'sess-ie9');
+  assert.equal(j.commits.evidenceUnreadable, 1);
+  assert.match(idRun(w, root, 'sess-ie9').out, /  - evidence incomplete: 1 subagent transcript\(s\) could not be read/);
+});
+
+test('IE10: a message\'s first paragraph is folded as git folds it; a quoted -C path with spaces is read', () => {
+  const f = cc.commitSubjectsIn;
+  assert.deepEqual(f('git commit -q -m "tools: a long subject\nthat git folds\n\nbody here"'), ['tools: a long subject that git folds']);
+  assert.deepEqual(f('git commit -q -m "$(cat <<\'EOF\'\ntools: folded\nin a heredoc\n\nbody\nEOF\n)"'), ['tools: folded in a heredoc']);
+  const w = world();
+  const base = path.join(w.base, 'a dir with spaces');
+  fs.mkdirSync(base);
+  const root = repo(w, 'a dir with spaces/repo');
+  assert.ok(root.includes(' '));
+  write(root, 'a.txt', 'a'); commit(w, root, 'x: in a path with spaces', NOW - 40 * MIN);
+  transcript(w, 'sess-ie10', ranFor('k1', `git -C "${root}" commit -q -m "x: in a path with spaces"`, 'x: in a path with spaces', { cwd: w.base }));
+  assert.deepEqual(subjectsOf(parseId(w, root, 'sess-ie10').commits.items), ['x: in a path with spaces']);
+});
+
+test('a rebase, a pull --rebase or a message-less amend rewrites the session\'s own commits: the copies are confirmed; a peer\'s are not', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'mine: first', NOW - 40 * MIN);
+  const t1 = CT.get('mine: first').when;
+  write(root, 'p.txt', 'p'); commit(w, root, 'peer: untouched', NOW - 25 * MIN);
+  // The rebase (at NOW - 20 min) re-commits 'mine: first' as a new commit.
+  write(root, 'c.txt', 'c'); commit(w, root, 'mine: first', NOW - 20 * MIN);
+  const t2 = NOW - 20 * MIN;
+  transcript(w, 'sess-rb', [
+    ...commitCmd('k1', 'mine: first', { when: t1, cwd: root }),
+    ...ran('rb', 'git rebase origin/main', t2, root),
+  ]);
+  const j = parseId(w, root, 'sess-rb');
+  assert.deepEqual(j.commits.items.map((x) => x.subject), ['mine: first', 'mine: first']);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['peer: untouched']);
+  // Without the rebase command the second copy is unconfirmed.
+  transcript(w, 'sess-rb2', commitCmd('k1', 'mine: first', { when: t1, cwd: root }));
+  const k = parseId(w, root, 'sess-rb2');
+  assert.equal(k.commits.total, 1);
+});
+
+test('a commit command with no end (a record cut before its result) confirms nothing', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'a.txt', 'a'); commit(w, root, 'cut: no result', NOW - 40 * MIN);
+  transcript(w, 'sess-cut', [{ ...bashUse('k1', 'git commit -q -m "cut: no result"', root), timestamp: iso(NOW - 40 * MIN - 500) }]);
+  const j = parseId(w, root, 'sess-cut');
+  assert.equal(j.commits.total, 0);
+  assert.equal(j.commits.unconfirmed.total, 1);
+});
+
+test('commitCommandsIn marks a rebase, a pull --rebase and a message-less amend as rewrites, and a plain pull as nothing', () => {
+  const k = (c) => cc.commitCommandsIn(c, '/r').map((x) => [x.sub, x.rewrite, x.subject, x.dir]);
+  assert.deepEqual(k('git rebase origin/main'), [['rebase', true, null, '/r']]);
+  assert.deepEqual(k('git pull --rebase'), [['pull', true, null, '/r']]);
+  assert.deepEqual(k('git pull'), []);
+  assert.deepEqual(k('git commit --amend --no-edit'), [['commit', true, null, '/r']]);
+  assert.deepEqual(k('git commit --amend -m "a: new"'), [['commit', false, 'a: new', '/r']]);
+  assert.deepEqual(k('cd /elsewhere && git commit -q -m "a: b"'), [['commit', false, 'a: b', '/elsewhere']]);
+  assert.deepEqual(k('git -C sub commit -q -m "a: b"'), [['commit', false, 'a: b', '/r/sub']]);
+  assert.deepEqual(k('git -C "$D" commit -q -m "a: b"'), [['commit', false, 'a: b', null]]);
 });

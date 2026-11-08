@@ -359,9 +359,21 @@ The session id, the models its transcript shows, and its window in UTC.
 .B Commits
 The commits the session made, as short shas, oldest first.
 A commit is credited as fact only on evidence:
-its subject is one the session, or one of its subagents, gave a
+one
 .B git commit
-command (this house commits with
+command of the session, or of one of its subagents, made it.
+The command must fit the commit on four counts: its subject (a message's first
+paragraph, its lines joined, as git reads it); the repo it ran in (its cwd, a
+.B cd
+or a
+.B \-C
+resolves into this repo or one of its worktrees); its result (not an error:
+a command that failed for any reason counts for nothing); and the time (the
+commit was made while the command ran).
+Each command confirms at most one commit.
+A commit command only quoted in a heredoc, a grep pattern or an echo runs
+nothing and is no evidence.
+This house commits with
 .BR \-q ,
 so the message is in the transcript but the sha is not;
 .B \-m
@@ -375,7 +387,14 @@ only if the session assigned the variable a literal; a message in a variable,
 or in a file nobody in the session wrote, cannot be matched), or
 it is the squash merge of a PR the session ran
 .B gh pr merge
-on.
+on (a merge that did not fail).
+A rebase, a
+.B pull \-\-rebase
+or an amend with no message of its own re-commits the session's own commits:
+a copy made while one ran is credited if its subject is one the session gave a
+commit command.
+A worker dispatched as its own session has its own transcript, which is not
+read: its commits print as unconfirmed.
 When each credited commit's only parent is the one before it (an unbroken run
 on one branch) the range follows, written
 .IR first ^.. last
@@ -384,14 +403,23 @@ A commit from a session that overlapped breaks the run, so no range prints.
 Two sub-lines follow, on every run.
 .B unconfirmed
 lists commits dated inside the window that no commit command of the session
-matches: they may be a concurrent session's, so check them before pasting.
+matches by subject, repo, result and time: they may be a concurrent session's,
+so check them before pasting.
+A commit whose subject matches a command that does not fit says so on a line of
+its own, as does a squash titled like a commit of the session, which may be its
+own branch work merged by a peer.
+A line says when subagent transcripts could not be read, since their commits
+then print as unconfirmed.
 .B left out
 lists squash merges (a subject ending
 .BR (#N) ,
 or
 .BR "Merge pull request #N" )
-on the default branch's first-parent line whose PR the session did not merge;
-they repeat someone else's branch commits.
+on the default branch's first-parent line whose PR the session ran no numbered
+merge for.
+It is a heuristic: a merge by another route (the web, auto-merge, no number) is
+left out too, and so is a direct commit whose subject names an issue, so add
+those by hand.
 .TP
 .B Pull requests
 Every PR the session's own commands opened
@@ -423,10 +451,14 @@ review items created (an item whose state line, the first line of its file,
 gained a
 .B \[u23F3]
 outside a code span: the body of an item, or its close note, never counts).
-These four lines follow the credited commits only.
-A fifth line,
+These lines follow the credited commits only, and a claim counts as still open
+only if nothing in the window, confirmed or not, moved the item since; a
+confirmed claim that an unconfirmed commit closed or released has its own line.
+A line,
 .BR unconfirmed ,
 lists what only the unconfirmed commits changed, to check before pasting.
+A last line lists what is carried only by a squash merge the session did not
+run, because the branch commits it repeats may be on no ref.
 Items are named by section and item number, such as 180/060.
 A hand-kept board has no item store to diff and prints by hand.
 .TP

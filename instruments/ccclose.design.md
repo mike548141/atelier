@@ -355,15 +355,17 @@ always prints the by-hand line, because nothing here can see another repo.
 
 - **Commits.** Three tiers, because the window alone credits a concurrent
   session's work as the session's own (§15.1). *Credited*, oldest first, as
-  short shas: a commit whose subject is a subject the session, or one of its
-  subagents, gave a `git commit` command, or the squash merge of a PR the
-  session ran `gh pr merge` on. The range shows only when each credited commit's
+  short shas: a commit that a `git commit` command of the session, or of one of
+  its subagents, made, matched by subject, repo, result and time (§15.1), or the
+  squash merge of a PR the session ran `gh pr merge` on. The range shows only when each credited commit's
   one parent is the credited commit before it, and is written `first^..last`
   because a git range excludes its left end; a peer's commit between two of
   them breaks it, which is the honest answer. *Unconfirmed, dated in the window
   only*: the rest of the window's commits, listed on their own line with "check
-  before pasting as fact". *Left out*: squash merges of PRs the session did not
-  merge. Both sub-lines print on every run (`none` when empty).
+  before pasting as fact"; one whose subject matches a command that does not fit
+  says so on a line of its own. *Left out*: squash merges of PRs the session ran
+  no numbered merge for (a heuristic, and printed as one). Both sub-lines print
+  on every run (`none` when empty).
 - **Pull requests.** The repo alone cannot name a merged PR, so the union of
   three sources: `gh pr create` results (the PR URL in the output),
   `gh pr merge <n>` commands, and the open PRs check 4 already credits. Each
@@ -377,9 +379,12 @@ always prints the by-hand line, because nothing here can see another repo.
   it is still claimed at the end (a claim released inside the window is not
   owed); a state line that gains `⏳` marks a *review item created*. Ids come
   from the path's two numeric prefixes. The four lines follow the credited
-  commits only; a fifth lists what the unconfirmed commits add on top. A
-  left-out squash merge contributes to neither. A hand-kept board has no item
-  store and prints by hand.
+  commits only (a claim counts as still open only if nothing in the window moved
+  the item since, so a confirmed claim an unconfirmed commit closed or released
+  has its own line); a further line lists what the unconfirmed commits add on
+  top, and a last one what only a left-out squash merge carries, because the
+  branch commits it repeats may be on no ref (IE14). A hand-kept board has no
+  item store and prints by hand.
 - **Worktrees and branches.** A worktree put away and its deleted branch leave
   no trace in git, so the creations are read from the transcript: `git worktree
   add` commands (path, and `-b` or the path's name for the branch) and
@@ -429,19 +434,40 @@ Options weighed:
   remote-tracking), so a branch commit whose subject merely ends `(#N)` is not
   mistaken for one.
 - *Leave out squash merges of PRs the session did not run `gh pr merge` on.*
-  Taken. The merge is read from the session's and its subagents' commands, a
-  failed command counting for nothing. Cost: a `gh pr merge` with no number
-  (current branch) is not read, so that session's own squash merge is listed as
-  left out, visibly, and not silently lost.
-- *Positive evidence of authorship.* Taken as the main rule. This house commits
-  with `git commit -q`, so a SHA never reaches the transcript, but the message
-  does, in `-m` or in a heredoc (`-m "$(cat <<'EOF'` or `-F - <<'EOF'`). A git
-  subject equal (whitespace-collapsed) to a subject found in a `git commit` or
-  `git merge` command of the session, or of any of its subagents (the same
-  directory check 12 reads), is credited. A repeated subject cannot cross
-  sessions in practice because the window still bounds the candidates. A
-  message in a variable is unreadable and its commit lands as unconfirmed,
-  never as credited. A message in a file (`-F path`, `--file=path`, 210/310) is
+  Taken, as a heuristic that the block prints as one. The merge is read from the
+  session's and its subagents' commands, a failed command counting for nothing
+  (the subagents' results are checked as the parent's are, IE5), and run in
+  this repo. Cost: a `gh pr merge` with no number (current branch), a web-UI or
+  `--auto` merge, or a direct commit whose subject names an issue `(#N)` on the
+  first-parent line, is listed as left out, visibly, and not silently lost. A
+  squash whose title, less the `(#N)`, equals a subject the session gave a
+  commit command is not left out: it may be the session's own branch work, merged
+  by a peer, so it is unconfirmed, with the reason on a line of its own.
+- *Positive evidence of authorship.* Taken as the main rule, and bound to the
+  command (160/960, after the cold pass found the first binding, subject
+  equality alone, crediting a concurrent session's same-subject commit as fact).
+  This house commits with `git commit -q`, so a SHA never reaches the
+  transcript, but the message does, in `-m` or in a heredoc (`-m "$(cat
+  <<'EOF'` or `-F - <<'EOF'`), and so do the command's own times and result. A
+  window commit is credited only where one `git commit` or `git merge` command of
+  the session, or of one of its subagents (the same directory check 12 reads),
+  fits it on all four: the subject (whitespace-collapsed; a message's first
+  paragraph, its lines joined, as git reads %s); the repo (the record's cwd, a
+  preceding `cd` and each `-C` resolve into the repo, a linked worktree of it, or
+  a worktree the session added, or into a directory sharing its git common dir);
+  the result (the tool_result is not an error: a command that fails for any
+  reason, `&& git push` included, counts for nothing, which errs towards
+  unconfirmed); and the time (the commit's committer second falls inside the
+  span from the command's tool_use record to its tool_result, a second of slack
+  each side). Each command confirms at most one commit. A git word counts only
+  in command position, so a commit command quoted in a heredoc body, a grep
+  pattern, an echo or an `sh -c` string runs nothing and is no evidence. A
+  rebase, a `pull --rebase` or an amend with no message re-commits the session's
+  own commits; a copy made inside such a command's span confirms only if its
+  subject is one the session already gave a commit command. A commit whose
+  subject matches a command that does not fit (failed, another repo, another
+  time) stays unconfirmed and says so. A message in a variable is unreadable and
+  its commit lands as unconfirmed, never as credited. A message in a file (`-F path`, `--file=path`, 210/310) is
   read from the same transcript's own evidence of writing that file: the
   Write tool's `file_path` and the first non-empty line of its `content`, or a
   heredoc in a Bash command (`cat > path <<'EOF'`, `cat <<EOF > path`,
@@ -468,7 +494,24 @@ literal (`S=/abs/path`, or a literal relative to the cwd). A variable set from
 a command (`S=$(mktemp -d)`), from another variable, or never in the
 transcript leaves the commit unconfirmed. Every run says so, in the
 attribution line: a message read from a file is matched only when the session
-wrote that file at a path that resolves. The JSON field set is unchanged.
+wrote that file at a path that resolves. The JSON gained fields with 160/960
+(`commits.evidenceUnreadable`, an optional `note` on an unconfirmed item,
+`board.claimedMoved` and `board.viaSquash`); existing fields keep their meaning,
+the credited lists being the stricter ones.
+
+Worker sessions (IE8): a worker dispatched as its own headless session has its
+own transcript, which this form does not read. Its commits print as unconfirmed,
+which is expected, not a fault, for an orchestrator's block under the queue-run
+pattern; the orchestrator confirms them by hand (its own claim commit, the
+worker's report) or says so. Subagents of the session, whose transcripts sit in
+its `subagents/` directory, are read. An unreadable subagent transcript is
+counted on the Commits line ("evidence incomplete"), since its commits then
+print as unconfirmed.
+
+Board state line (IE13): the board reduce reads each item file's first line,
+where `board.py` reads the first non-blank, non-comment line. An item whose
+state line follows a leading comment reads here as having no state. No item in
+this repo has that shape.
 
 Not solved: a message file written some other way (`echo`, `printf`, an
 editor, a script, `sed -i` on an existing file) or at a path built by a
@@ -477,4 +520,12 @@ commits only that way gets an empty credited list and everything unconfirmed,
 which is honest but unhelpful. A Write whose result was an error still counts
 as a write. Symlinked paths (`/tmp` against `/private/tmp`) are compared as
 written, not by realpath. A commit made by a tool on the session's behalf (a
-script that commits) is unconfirmed too.
+script that commits) is unconfirmed too. Under-credit forms, each erring towards
+unconfirmed (IE10): a cherry-pick, a revert and a default-message merge (no
+subject in the command); `git --git-dir=...`, an alias, `-qmfoo`, `--file=-`,
+a `$'...'`-quoted message, and a commit command wrapped in `sh -c`, `ssh` or a
+script; a message file edited with an editor or the Edit tool after its Write; a
+commit made in a worktree since removed that the session's own `worktree add`
+commands do not name; and, where a branch's pre-rebase copy survives on a ref,
+both copies are credited (every one is the session's, so the count doubles but
+no peer's commit is credited).

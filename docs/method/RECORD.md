@@ -102,7 +102,13 @@ stopped instead of re-deriving it:
       the model it ran on, and its window in UTC.
     - **Commits**: every commit the session landed, its workers' included, as
       short SHAs in order, with the range when they run unbroken. The record's
-      own commit cannot name itself; the closing message adds it.
+      own commit cannot name itself; the closing message adds it. `ccclose`
+      lists a commit as the session's only where its own transcript, or a
+      subagent's, shows a commit command that made it; the rest of the window
+      prints as *unconfirmed*, to check before it is pasted as fact. A worker
+      dispatched as its own session has its own transcript, which the block
+      does not read, so an orchestrator's workers' commits print as
+      unconfirmed: confirm them by hand from the workers' reports.
     - **Pull requests**: the number of each one the session opened, merged or
       landed, and which it did.
     - **Board**: by number, the items the session completed, the new items

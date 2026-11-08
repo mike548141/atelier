@@ -17,9 +17,9 @@
  * sessions working one repo at once can each be credited with the other's work.
  * The one stronger signal is a [~] claim line that names the session's 8-char id
  * prefix. The identifiers block (--identifiers) goes further for commits and
- * board movement: it credits as fact only a commit whose subject appears in a
- * `git commit` command of the session or its subagents, and labels the rest
- * "unconfirmed" (design note section 15).
+ * board movement: it credits as fact only a commit that a git command of the
+ * session or its subagents made, bound to the commit by subject, repo, result and
+ * time, and labels the rest "unconfirmed" (design note section 15).
  *
  * READ-ONLY. It never commits, pushes, fetches, removes a worktree or edits a
  * file. "Pushed" therefore means "in a remote-tracking ref as of the last
@@ -417,27 +417,100 @@ function ghPrCommands(command) {
   return out;
 }
 
-// The subject lines of the commits a command makes, read from the command text.
-// This house commits with `git commit -q`, so a SHA never reaches the transcript,
-// but the message does: in `-m`, or in a heredoc (`-m "$(cat <<'EOF' ...)"` or
-// `-F - <<'EOF'`). A message held in a variable is missed, never guessed; the
-// commit it made is then "unconfirmed". A message in a file (`-F path`) is read
-// by messageFilesIn / MsgEvidence below, from the session's own Write or heredoc.
-const GIT_MSG = /\bgit\s+(?:(?:-[Cc]|-c)\s+\S+\s+|--no-pager\s+)*(?:commit|merge)\b/g;
+// The git commands a Bash command RUNS that make or rewrite commits, read from
+// the command text, each with where it ran. This house commits with `git commit
+// -q`, so a SHA never reaches the transcript, but the message does: in `-m`, or
+// in a heredoc (`-m "$(cat <<'EOF' ...)"` or `-F - <<'EOF'`). A message held in
+// a variable is missed, never guessed; the commit it made is then "unconfirmed".
+// A message in a file (`-F path`) is read by messageFilesIn / MsgEvidence below,
+// from the session's own Write or heredoc.
+//
+// Only a git word in COMMAND POSITION counts (line start, after ; & | ( or then /
+// do / else, past env assignments and time/nice/exec): a commit command quoted
+// in a heredoc body, a grep pattern or an echo runs nothing and is no evidence
+// (IE4). Heredoc bodies are blanked before the match, so an offset in the blanked
+// text is an offset in the command.
 const normSubject = (x) => String(x).replace(/\s+/g, ' ').trim();
-function commitSubjectsIn(command) {
+// What git calls the subject (%s): the first paragraph, its lines joined.
+function firstParagraph(text) {
   const out = [];
-  for (const m of command.matchAll(GIT_MSG)) {
-    const rest = command.slice(m.index + m[0].length);
+  for (const l of String(text).split('\n')) {
+    if (!l.trim()) { if (out.length) break; continue; }
+    out.push(l);
+  }
+  return normSubject(out.join(' '));
+}
+const HEREDOC_G = /<<-?\s*(['"]?)([A-Za-z_]\w*)\1/g;
+function codeOf(command) {
+  if (!command.includes('<<')) return command;
+  const ls = command.split('\n');
+  for (let i = 0; i < ls.length; i++) {
+    const tags = [...ls[i].matchAll(HEREDOC_G)].map((m) => m[2]);
+    if (!tags.length) continue;
+    let j = i + 1;
+    for (const tag of tags) {
+      for (; j < ls.length && ls[j].trim() !== tag; j++) ls[j] = ' '.repeat(ls[j].length);
+      j++;
+    }
+    i = Math.max(i, j - 1);
+  }
+  return ls.join('\n');
+}
+const GIT_OPTS = '(?:(?:-[Cc]|-c)\\s+(?:"[^"]*"|\'[^\']*\'|\\S+)\\s+|--no-pager\\s+)*';
+const GIT_CMD = new RegExp(
+  '(?:^|[\\n;&|(]\\s*|\\b(?:then|do|else)\\s+)(?:[A-Za-z_]\\w*=\\S*\\s+)*'
+  + '(?:(?:command|time|exec|env|nice(?:\\s+-n\\s*-?\\d+)?)\\s+)*git\\s+(' + GIT_OPTS + ')'
+  + '(commit|merge|rebase|pull)\\b', 'g');
+// [{ at, end, sub, opts }]: `at` is the match offset, `end` just past the subcommand.
+function gitCommands(command) {
+  if (!command.includes('git')) return [];
+  const code = codeOf(command);
+  return [...code.matchAll(GIT_CMD)].map((m) => ({ at: m.index, end: m.index + m[0].length, sub: m[2], opts: m[1] || '', code }));
+}
+// The directory words of the `git -C <dir>` options, in order.
+const cDirs = (opts) => [...opts.matchAll(/(?:^|\s)-C\s+("[^"]*"|'[^']*'|\S+)/g)].map((x) => x[1].replace(/^(["'])(.*)\1$/, '$2'));
+// The last `cd <dir>` before an offset, as a word (or null).
+function cdBefore(code, at) {
+  let word = null;
+  for (const m of code.slice(0, at).matchAll(/(?:^|[\n;&|(]\s*)cd\s+("[^"]*"|'[^']*'|[^\s;&|()]+)/g)) word = m[1].replace(/^(["'])(.*)\1$/, '$2');
+  return word;
+}
+// Where a command ran: the record's cwd, moved by a preceding `cd` and then by
+// each `-C`. null when any step cannot be resolved to an absolute path.
+function runDir(cwd, cdWord, cs) {
+  let d = typeof cwd === 'string' && cwd ? cwd : null;
+  for (const w of [cdWord, ...cs]) {
+    if (w === null) continue;
+    d = resolvePath(w, d, new Map(), null);
+    if (d === null) return null;
+  }
+  return d;
+}
+
+// The commits a command makes or rewrites: [{ at, sub, subject, dir, rewrite }].
+// `subject` is read from -m or a heredoc; a `-F path` commit has none (its subject
+// comes from MsgEvidence, keyed by command and `at`); `rewrite` is a rebase, a pull --rebase or
+// an amend with no message of its own: it makes copies of commits, so it can
+// only carry a subject another command of the session already gave.
+function commitCommandsIn(command, cwd) {
+  const out = [];
+  for (const g of gitCommands(command)) {
+    const rest = command.slice(g.end);
+    const dir = runDir(cwd, cdBefore(g.code, g.at), cDirs(g.opts));
+    const base = { at: g.at, sub: g.sub, dir, subject: null, rewrite: false };
+    if (g.sub === 'rebase') { out.push({ ...base, rewrite: true }); continue; }
+    if (g.sub === 'pull') {
+      if (/(?:^|\s)(?:--rebase(?:=\S+)?|-r)(?:\s|$)/.test(g.code.slice(g.end).split('\n')[0])) out.push({ ...base, rewrite: true });
+      continue;
+    }
     const nl = rest.indexOf('\n');
     const first = nl < 0 ? rest : rest.slice(0, nl);
     const hd = /<<-?\s*(['"]?)([A-Za-z_]\w*)\1/.exec(first);
     let msg = null;
     if (hd && nl >= 0 && (/(?:^|\s)(?:-F|--file)\s+-(?:\s|$)/.test(first) || /\$\(\s*cat\b/.test(first))) {
-      for (const l of rest.slice(nl + 1).split('\n')) {
-        if (l.trim() === hd[2]) break;
-        if (l.trim()) { msg = l; break; }
-      }
+      const body = [];
+      for (const l of rest.slice(nl + 1).split('\n')) { if (l.trim() === hd[2]) break; body.push(l); }
+      msg = body.join('\n');
     } else {
       const words = shellWords(rest);
       for (let i = 0; i < words.length && msg === null; i++) {
@@ -446,12 +519,15 @@ function commitSubjectsIn(command) {
         else if (x.startsWith('--message=')) msg = x.slice('--message='.length);
         else if (/^-m./.test(x)) msg = x.slice(2);
       }
-      if (msg !== null) msg = msg.split('\n')[0];
     }
-    if (msg !== null && msg.trim()) out.push(normSubject(msg));
+    if (msg !== null && msg.trim()) { out.push({ ...base, subject: firstParagraph(msg) }); continue; }
+    if (fileWord(shellWords(rest)) !== null) { out.push(base); continue; }
+    if (g.sub === 'commit' && /(?:^|\s)--amend(?:\s|$)/.test(first) && !/(?:^|\s)(?:-F|--file)\b/.test(first)) out.push({ ...base, rewrite: true });
   }
   return out;
 }
+// The subjects the commands give, with no regard to where or whether they ran.
+const commitSubjectsIn = (command) => commitCommandsIn(command, null).map((x) => x.subject).filter((x) => x !== null);
 
 // A commit message given as a file (`git commit -F path`, `--file=path`) leaves
 // no subject in the command, but the session may have written that file itself:
@@ -495,26 +571,34 @@ function resolvePath(word, cwd, vars, base) {
   return root && path.isAbsolute(root) ? path.resolve(root, x) : null;
 }
 
+// The path word of a `-F path` / `--file=path` among a command's words, or null.
+function fileWord(words) {
+  for (let i = 0; i < words.length; i++) {
+    const x = words[i];
+    let f = null;
+    if (x === '--file' || /^-[A-Za-z]*F$/.test(x)) f = words[i + 1];
+    else if (x.startsWith('--file=')) f = x.slice('--file='.length);
+    if (f !== undefined && f !== null && f !== '-' && f !== '') return f;
+  }
+  return null;
+}
+
 // The `-F path` / `--file=path` commits of a command: [{ at, word, dir }]. `dir`
-// is a `git -C dir` value, which a relative path is read against.
+// is a `git -C dir` value, which a relative path is read against. `at` is
+// commitCommandsIn's, so a command's file is matched back to its commit.
 function messageFilesIn(command) {
   const out = [];
-  for (const m of command.matchAll(GIT_MSG)) {
-    const words = shellWords(command.slice(m.index + m[0].length));
-    const c = /-C\s+(\S+)/.exec(m[0]);
-    for (let i = 0; i < words.length; i++) {
-      const x = words[i];
-      let f = null;
-      if (x === '--file' || /^-[A-Za-z]*F$/.test(x)) f = words[i + 1];
-      else if (x.startsWith('--file=')) f = x.slice('--file='.length);
-      if (f !== undefined && f !== null && f !== '-' && f !== '') { out.push({ at: m.index, word: f, dir: c ? strip(c[1]) : null }); break; }
-    }
+  for (const g of gitCommands(command)) {
+    if (g.sub !== 'commit' && g.sub !== 'merge') continue;
+    const f = fileWord(shellWords(command.slice(g.end)));
+    const cs = cDirs(g.opts);
+    if (f !== null) out.push({ at: g.at, word: f, dir: cs.length ? cs[0] : null });
   }
   return out;
 }
 
 // Files a command writes with a heredoc: [{ at, word, subject }], subject = the
-// body's first non-empty line. Appends (>>, tee -a) are skipped: the first line
+// body's first paragraph, as git reads a message's subject. Appends (>>, tee -a) are skipped: the first line
 // of the file would then be unknown.
 const REDIRECT_OUT = /(?<![>\d&])>(?![>&])\s*("[^"\n]+"|'[^'\n]+'|[^\s;&|<>]+)/;
 const TEE_OUT = /\btee\s+((?:-\S+\s+)*)("[^"\n]+"|'[^'\n]+'|[^\s;&|<>-][^\s;&|<>]*)/;
@@ -528,8 +612,10 @@ function heredocWritesIn(command) {
   for (let i = 0; i < ls.length; i++) {
     const hd = HEREDOC_AT.exec(ls[i]);
     if (!hd) continue;
-    let subject = null, j = i + 1;
-    for (; j < ls.length && ls[j].trim() !== hd[2]; j++) if (subject === null && ls[j].trim()) subject = normSubject(ls[j]);
+    const body = [];
+    let j = i + 1;
+    for (; j < ls.length && ls[j].trim() !== hd[2]; j++) body.push(ls[j]);
+    const subject = body.some((l) => l.trim()) ? firstParagraph(body.join('\n')) : null;
     // The command part of the line, less the heredoc marker. Only `cat` and
     // `tee` are read as writing the body to a file.
     const line = ls[i].slice(0, hd.index) + ' ' + ls[i].slice(hd.index + hd[0].length);
@@ -549,14 +635,13 @@ function heredocWritesIn(command) {
 function MsgEvidence() {
   return { n: 0, vars: new Map(), writes: [], files: [] };
 }
-function noteMessageSources(ev, name, input, cwd) {
+function noteMessageSources(ev, name, input, cwd, cmdId = null) {
   if (!ev || !input) return;
   const base = ev.n++;
   if (name === 'Write') {
     if (typeof input.file_path !== 'string' || typeof input.content !== 'string') return;
     const p = resolvePath(input.file_path, cwd, ev.vars, null);
-    const first = input.content.split('\n').find((l) => l.trim());
-    if (p && first !== undefined) ev.writes.push({ path: p, subject: normSubject(first), seq: base });
+    if (p && input.content.trim()) ev.writes.push({ path: p, subject: firstParagraph(input.content), seq: base });
     return;
   }
   if (name !== 'Bash' || typeof input.command !== 'string') return;
@@ -578,24 +663,57 @@ function noteMessageSources(ev, name, input, cwd) {
   for (const f of files) {
     const v = envAt(f.at);
     const p = resolvePath(f.word, cwd, v, f.dir);
-    if (p) ev.files.push({ path: p, seq: rel(f.at) });
+    if (p) ev.files.push({ path: p, seq: rel(f.at), key: `${cmdId}:${f.at}` });
   }
   for (const a of assigns) ev.vars.set(a.name, a.value);
 }
 
-// The subjects the files commits read: the latest earlier write to the path in
-// the same transcript; with none, a write by any other transcript of the
-// session (unorderable, so any is accepted). A path nobody here wrote adds nothing.
+// The subjects each `-F` commit read, by its key (command id : offset): the
+// latest earlier write to the path in the same transcript; with none, the writes
+// of any other transcript of the session (unorderable, so any is accepted). A
+// path nobody here wrote adds nothing.
 function fileSubjects(evs) {
-  const out = new Set();
+  const out = new Map();
   for (const ev of evs) {
     for (const f of ev.files) {
       const own = ev.writes.filter((w) => w.path === f.path && w.seq < f.seq);
-      if (own.length) { out.add(own.reduce((a, b) => (b.seq >= a.seq ? b : a)).subject); continue; }
-      for (const o of evs) if (o !== ev) for (const w of o.writes) if (w.path === f.path) out.add(w.subject);
+      if (own.length) { out.set(f.key, [own.reduce((a, b) => (b.seq >= a.seq ? b : a)).subject]); continue; }
+      const others = new Set();
+      for (const o of evs) if (o !== ev) for (const w of o.writes) if (w.path === f.path) others.add(w.subject);
+      if (others.size) out.set(f.key, [...others]);
     }
   }
   return out;
+}
+
+// The session's git commands that make or rewrite commits, and its `gh pr merge`
+// commands, each with the span it ran in (the tool_use record's time to its
+// result's) and whether it failed (design note 15.1). A commit is the session's
+// only where one of these fits it in time, repo and result.
+function CmdLog() { return { cmds: [], byId: new Map() }; }
+const finiteOr = (x) => (Number.isFinite(x) ? x : null);
+function noteCommand(log, id, command, cwd, ts) {
+  if (!id || typeof command !== 'string') return;
+  const hasGit = command.includes('git'), hasGh = command.includes('gh');
+  if (!hasGit && !hasGh) return;
+  const items = hasGit ? commitCommandsIn(command, cwd) : [];
+  const gh = hasGh ? ghPrCommands(command) : { merges: [] };
+  if (!items.length && !gh.merges.length) return;
+  let ghDir = null;
+  if (gh.merges.length) {
+    const code = codeOf(command);
+    const at = code.search(/\bgh\s+pr\s+merge\b/);
+    ghDir = runDir(cwd, cdBefore(code, at < 0 ? code.length : at), []);
+  }
+  const cmd = { id, start: finiteOr(ts), end: null, ok: null, items, merges: gh.merges, ghDir };
+  log.cmds.push(cmd);
+  log.byId.set(id, cmd);
+}
+function noteCommandResult(log, id, isError, ts) {
+  const c = log.byId.get(id);
+  if (!c) return;
+  c.end = finiteOr(ts);
+  c.ok = !isError;
 }
 
 function notePending(t, id, command, cwd, vars) {
@@ -653,7 +771,7 @@ async function readTranscript(file) {
     // What the session did to PRs and worktrees, from its own commands (see
     // the identifiers section): pend holds a command until its result lands.
     prs: new Map(), worktrees: [], unresolvedAdds: 0, pend: new Map(),
-    commitSubjects: new Set(), msg: MsgEvidence(),
+    cmds: CmdLog(), msg: MsgEvidence(),
     // Deletes awaiting their result, and the routes of those refused (180/180).
     delPend: new Map(), refused: new Map(),
     // The harness's scratch folder for this session, from its environment record.
@@ -679,6 +797,7 @@ async function readTranscript(file) {
       for (const b of o.message.content) {
         if (b && b.type === 'tool_result' && b.tool_use_id) {
           t.toolResults.set(b.tool_use_id, Number.isFinite(ms) ? ms : null);
+          noteCommandResult(t.cmds, b.tool_use_id, !!b.is_error, ms);
           if (t.pend.has(b.tool_use_id)) resolvePending(t, t.pend.get(b.tool_use_id), b, o);
           const del = t.delPend.get(b.tool_use_id);
           if (del && isRefusal(b)) {
@@ -723,11 +842,11 @@ async function readTranscript(file) {
         // Variables as they stood BEFORE this command: its own assignments are
         // read in order by worktreeAdds, and noteMessageSources folds them in.
         const varsBefore = new Map(t.msg.vars);
-        if (b.name === 'Write' || b.name === 'Bash') noteMessageSources(t.msg, b.name, b.input, o.cwd);
+        if (b.name === 'Write' || b.name === 'Bash') noteMessageSources(t.msg, b.name, b.input, o.cwd, b.id);
         if (b.name !== 'Bash') continue;
         const cmd = b.input && typeof b.input.command === 'string' ? b.input.command : '';
         notePending(t, b.id, cmd, o.cwd, varsBefore);
-        if (cmd.includes('git')) for (const x of commitSubjectsIn(cmd)) t.commitSubjects.add(x);
+        noteCommand(t.cmds, b.id, cmd, o.cwd, ms);
         const hit = bypassesIn(cmd);
         const routes = deleteRoutes(cmd);
         if (routes.length) {
@@ -1324,8 +1443,12 @@ const escapeRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // becomes `- [~]` (and listed only if it is still claimed at the end), and a ⏳
 // review item is one whose STATE LINE gained the marker. The state line is the
 // file's first line, and the marker counts outside a code span: board.py's own
-// grammar (STATE_RE, CODE_SPAN_RE), so an item that merely mentions ⏳ in its
-// body, its close note or a backtick span is not a review item (210/290).
+// grammar for WHAT a state line is (STATE_RE, CODE_SPAN_RE), so an item that
+// merely mentions ⏳ in its body, its close note or a backtick span is not a
+// review item (210/290). WHERE it is looked for differs: board.py takes the
+// first non-blank, non-comment line, this reads line 1 only, so an item whose
+// state line follows a leading comment reads as having no state here (IE13,
+// stated in design note 15.1; no item in this repo has that shape).
 //
 // Which commits count is the caller's: `pick(sha, ct)`. The log is read once
 // and reduced once per tier, so confirmed and unconfirmed movement come from
@@ -1401,42 +1524,68 @@ function boardReduce({ dir, text }, pick) {
     completed: sorted(completed), created: sorted(created),
     claimed: sorted([...claimed].filter((id) => final.get(id) === '~')),
     review: sorted(review), reviewElsewhere: sorted(reviewElsewhere),
+    final,
   };
 }
 
 // The board movement of the confirmed commits, and beside it what ONLY the
-// unconfirmed ones add (the window's movement minus the confirmed). A left-out
-// squash merge is in neither: it repeats a peer's branch commits.
+// unconfirmed ones add (the window's movement minus the confirmed). A claim is
+// "still open" only if nothing in the window, confirmed or not, moved the item
+// since; a confirmed claim that an unconfirmed commit closed or released is its
+// own line (IE7). A left-out squash merge carries the movement of branch commits
+// that may no longer be on any ref: what only it carries is listed, marked as
+// coming through a merge the session did not run (IE14).
 const BOARD_KEYS = ['completed', 'created', 'claimed', 'review', 'reviewElsewhere'];
 function boardChanges(repo, w, b, attrib) {
   const log = boardLog(repo, w, b);
   if (!log) return null;
   const sure = new Set(attrib.confirmed.map((x) => x.sha));
   const maybe = new Set(attrib.unconfirmed.map((x) => x.sha));
-  const mine = boardReduce(log, (sha) => sure.has(sha));
-  const both = boardReduce(log, (sha) => sure.has(sha) || maybe.has(sha));
-  const unconfirmed = {};
-  for (const k of BOARD_KEYS) unconfirmed[k] = both[k].filter((x) => !mine[k].includes(x));
-  return { ...mine, unconfirmed };
+  const squash = new Set(attrib.leftOut.map((x) => x.sha));
+  const { final: _m, ...mine } = boardReduce(log, (sha) => sure.has(sha));
+  const { final: bothFinal, ...both } = boardReduce(log, (sha) => sure.has(sha) || maybe.has(sha));
+  const { final: _f, ...sq } = boardReduce(log, (sha) => squash.has(sha));
+  const unconfirmed = {}, viaSquash = {};
+  for (const k of BOARD_KEYS) {
+    unconfirmed[k] = both[k].filter((x) => !mine[k].includes(x));
+    viaSquash[k] = sq[k].filter((x) => !both[k].includes(x));
+  }
+  const claimedMoved = mine.claimed.filter((id) => bothFinal.get(id) !== '~');
+  return { ...mine, claimed: mine.claimed.filter((id) => bothFinal.get(id) === '~'), claimedMoved, unconfirmed, viaSquash };
 }
 
 // --- which commits are the session's ------------------------------------------
 //
 // The window only says a commit was made while the session was open, which a
 // concurrent session satisfies equally (210/290). So a window commit is credited
-// as fact only on positive evidence. Three tiers:
-//   confirmed    its subject is a subject the session (or one of its subagents)
-//                gave a `git commit` command, or it is the squash merge of a PR
-//                the session ran `gh pr merge` on;
+// as fact only on positive evidence, and the evidence is the COMMAND, bound to
+// the commit (160/960). A commit is confirmed when a git command of the session
+// or one of its subagents
+//   - read a subject equal to the commit's (or, for a rebase or an amend with no
+//     message, the session had given that subject to another command),
+//   - ran in this repo (its cwd, a `cd` or `-C` resolves into the repo, one of
+//     its linked worktrees, or a worktree the session added),
+//   - did not fail (its tool_result is not an error), and
+//   - ran when the commit was made (the commit's committer time falls inside the
+//     span from the command's tool_use record to its tool_result record),
+// and each command confirms at most one commit. Or it is the squash merge of a PR
+// the session ran `gh pr merge` on, by a merge that did not fail. Three tiers:
+//   confirmed    as above;
 //   left out     the squash merge (or "Merge pull request") of a PR on the
-//                integration branch's first-parent line that the session did not
-//                merge: it repeats someone else's branch commits;
+//                integration branch's first-parent line that the session ran no
+//                numbered merge for: a heuristic, which repeats someone else's
+//                branch commits when it is right;
 //   unconfirmed  dated in the window, no evidence either way.
 const PR_SUBJECT = [/\(#(\d+)\)\s*$/, /^Merge pull request #(\d+)\b/];
 const prOfSubject = (subject) => {
   for (const re of PR_SUBJECT) { const m = re.exec(subject); if (m) return Number(m[1]); }
   return null;
 };
+// A committer time has one-second resolution and the records' clocks are the
+// harness's, so a commit fits a command when its second overlaps the span, give
+// or take a second.
+const SPAN_SLACK = 1000;
+const fitsSpan = (ctSec, e) => ctSec * 1000 + 999 >= e.start - SPAN_SLACK && ctSec * 1000 <= e.end + SPAN_SLACK;
 
 function firstParentShas(repo, w) {
   const refs = [repo.remoteRef, repo.defaultBranch && `refs/heads/${repo.defaultBranch}`].filter(Boolean);
@@ -1449,36 +1598,68 @@ function firstParentShas(repo, w) {
 }
 
 // What the session's own commands say it committed and merged: the parent's, and
-// each subagent's (the same subagents/ directory check 12 reads).
+// each subagent's (the same subagents/ directory check 12 reads). Unreadable
+// transcripts are counted, never swallowed (IE9).
 async function commitEvidence(file, t) {
-  const subjects = new Set(t ? t.commitSubjects : []);
+  const logs = t ? [t.cmds] : [];
   const evs = t ? [t.msg] : [];
-  const merges = new Set();
-  if (t) for (const [n, e] of t.prs) if (e.merged) merges.add(n);
+  const paths = new Set(t ? t.worktrees.map((x) => x.path) : []);
+  let unreadable = 0;
   const dir = file ? path.join(path.dirname(file), path.basename(file, '.jsonl'), 'subagents') : null;
   let names = [];
-  try { names = dir && isDir(dir) ? fs.readdirSync(dir).filter((n) => /^agent-.+\.jsonl$/.test(n)).sort() : []; } catch {}
+  try { names = dir && isDir(dir) ? fs.readdirSync(dir).filter((n) => /^agent-.+\.jsonl$/.test(n)).sort() : []; } catch { unreadable++; }
   for (const n of names) {
     const rl = readline.createInterface({ input: fs.createReadStream(path.join(dir, n)), crlfDelay: Infinity });
-    const ev = MsgEvidence();
-    evs.push(ev);
+    const ev = MsgEvidence(), log = CmdLog();
+    evs.push(ev); logs.push(log);
     try {
       for await (const ln of rl) {
-        if (!ln.includes('"Bash"') && !ln.includes('"Write"')) continue;
+        const hasUse = ln.includes('"Bash"') || ln.includes('"Write"');
+        if (!hasUse && !ln.includes('tool_result')) continue;
         let o; try { o = JSON.parse(ln); } catch { continue; }
-        if (o.type !== 'assistant' || !o.message || !Array.isArray(o.message.content)) continue;
+        const ms = o.timestamp ? Date.parse(o.timestamp) : NaN;
+        if (!o.message || !Array.isArray(o.message.content)) continue;
         for (const b of o.message.content) {
-          if (!b || b.type !== 'tool_use' || (b.name !== 'Bash' && b.name !== 'Write') || !b.input) continue;
-          noteMessageSources(ev, b.name, b.input, o.cwd);
+          if (!b) continue;
+          if (o.type === 'user' && b.type === 'tool_result' && b.tool_use_id) { noteCommandResult(log, b.tool_use_id, !!b.is_error, ms); continue; }
+          if (o.type !== 'assistant' || b.type !== 'tool_use' || (b.name !== 'Bash' && b.name !== 'Write') || !b.input) continue;
+          noteMessageSources(ev, b.name, b.input, o.cwd, b.id);
           if (b.name !== 'Bash' || typeof b.input.command !== 'string') continue;
-          for (const x of commitSubjectsIn(b.input.command)) subjects.add(x);
-          if (b.input.command.includes('gh')) for (const k of ghPrCommands(b.input.command).merges) merges.add(k);
+          noteCommand(log, b.id, b.input.command, o.cwd, ms);
+          if (b.input.command.includes('worktree')) for (const a of worktreeAdds(b.input.command, o.cwd, new Map(), { unresolved: 0 })) paths.add(a.path);
         }
       }
-    } catch {}
+    } catch { unreadable++; }
   }
-  for (const x of fileSubjects(evs)) subjects.add(x);
-  return { subjects, merges };
+  const files = fileSubjects(evs);
+  const cmds = [];
+  for (const log of logs) {
+    for (const c of log.cmds) {
+      for (const x of c.items) if (x.subject === null && files.has(`${c.id}:${x.at}`)) x.subjects = files.get(`${c.id}:${x.at}`);
+      cmds.push(c);
+    }
+  }
+  return { cmds, unreadable, worktreePaths: [...paths] };
+}
+
+// Does a directory belong to this repo: under its root, a linked worktree or a
+// worktree the session added, or a git directory sharing its common dir.
+function repoScope(repo, extra) {
+  const roots = [repo.root, ...(linkedWorktrees(repo) || []).map((x) => x.path), ...extra].map(safeReal);
+  const under = (d, r) => d === r || d.startsWith(r.endsWith(path.sep) ? r : r + path.sep);
+  const cache = new Map();
+  return (dir) => {
+    if (!dir) return false;
+    if (cache.has(dir)) return cache.get(dir);
+    const d = safeReal(dir);
+    let ok = roots.some((r) => under(d, r));
+    if (!ok && isDir(d) && repo.commonDir) {
+      const c = git(d, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+      ok = c.ok && safeReal(c.out.trim()) === safeReal(repo.commonDir);
+    }
+    cache.set(dir, ok);
+    return ok;
+  };
 }
 
 function attributeCommits(repo, w, ev) {
@@ -1487,22 +1668,47 @@ function attributeCommits(repo, w, ev) {
   const c = windowCommits(repo, w, ['--branches', '--remotes'], ['--reverse']);
   if (c === null) return { known: false, why: 'git log failed' };
   const onLine = firstParentShas(repo, w);
+  const inRepo = repoScope(repo, ev.worktreePaths);
+  // The commands that count: not failed, with a span, in this repo. `seen` is
+  // every subject any command read, so an unconfirmed commit whose subject
+  // matches one that does not fit can say so.
+  const events = [], rewrites = [], own = new Set(), seen = new Set(), merges = new Set();
+  for (const cmd of ev.cmds) {
+    for (const x of cmd.items) for (const sj of (x.subject !== null ? [x.subject] : x.subjects || [])) seen.add(sj);
+    if (cmd.ok !== true) continue;
+    if (inRepo(cmd.ghDir)) for (const n of cmd.merges) merges.add(n);
+    if (cmd.start === null || cmd.end === null) continue;
+    for (const x of cmd.items) {
+      if (!inRepo(x.dir)) continue;
+      const subjects = x.subject !== null ? [x.subject] : x.subjects || [];
+      if (x.rewrite) rewrites.push({ start: cmd.start, end: cmd.end });
+      else if (subjects.length) { events.push({ start: cmd.start, end: cmd.end, subjects, used: false }); for (const sj of subjects) own.add(sj); }
+    }
+  }
   const confirmed = [], unconfirmed = [], leftOut = [];
   for (const x of c) {
-    const pr = prOfSubject(x.subject);
-    if (ev.subjects.has(normSubject(x.subject))) confirmed.push({ ...x, via: 'commit command' });
-    else if (pr !== null && onLine.has(x.sha)) {
-      if (ev.merges.has(pr)) confirmed.push({ ...x, via: 'merge run' });
-      else leftOut.push({ ...x, pr });
-    } else unconfirmed.push(x);
+    const pr = prOfSubject(x.subject), subj = normSubject(x.subject);
+    const hit = events.find((e) => !e.used && e.subjects.includes(subj) && fitsSpan(x.ct, e));
+    if (hit) { hit.used = true; confirmed.push({ ...x, via: 'commit command' }); continue; }
+    if (pr !== null && onLine.has(x.sha)) {
+      if (merges.has(pr)) { confirmed.push({ ...x, via: 'merge run' }); continue; }
+      // The house's squash title is the PR's first commit: a squash titled like a
+      // commit the session made may be its own branch work, merged by a peer.
+      if (own.has(normSubject(x.subject.replace(PR_SUBJECT[0], '')))) {
+        unconfirmed.push({ ...x, note: `squash merge of PR #${pr} titled like a commit of this session; merged by a route it did not run, so possibly its own work` });
+      } else leftOut.push({ ...x, pr });
+      continue;
+    }
+    if (own.has(subj) && rewrites.some((e) => fitsSpan(x.ct, e))) { confirmed.push({ ...x, via: 'rewrite of an own commit' }); continue; }
+    unconfirmed.push(seen.has(subj) ? { ...x, note: 'its subject matches a command of the session that does not fit (failed, another repo, or another time)' } : x);
   }
-  return { known: true, confirmed, unconfirmed, leftOut };
+  return { known: true, confirmed, unconfirmed, leftOut, unreadable: ev.unreadable };
 }
 
 function identifiersCommits(attrib) {
   if (!attrib.known) return attrib;
   const c = attrib.confirmed;
-  const view = (x) => ({ sha: x.sha, short: x.abbrev, subject: x.subject });
+  const view = (x) => (x.note ? { sha: x.sha, short: x.abbrev, subject: x.subject, note: x.note } : { sha: x.sha, short: x.abbrev, subject: x.subject });
   // Unbroken = each commit's only parent is the one before it, so first..last
   // names exactly these commits. (A git range excludes its left end, hence ^.)
   // Over the confirmed commits alone: a peer's commit between two of them
@@ -1515,10 +1721,12 @@ function identifiersCommits(attrib) {
     unconfirmed: { total: attrib.unconfirmed.length, items: attrib.unconfirmed.map(view) },
     leftOut: {
       total: attrib.leftOut.length,
-      items: attrib.leftOut.map((x) => ({ ...view(x), pr: x.pr, reason: `squash merge of PR #${x.pr}, merge not run by this session` })),
+      items: attrib.leftOut.map((x) => ({ ...view(x), pr: x.pr, reason: LEFT_OUT_REASON(x.pr) })),
     },
+    evidenceUnreadable: attrib.unreadable || 0,
   };
 }
+const LEFT_OUT_REASON = (pr) => `on the first-parent line with a PR number (#${pr}); this session ran no numbered gh pr merge for it (a heuristic: a merge by another route, or a direct commit whose subject names an issue, is left out too)`;
 
 function identifiersPrs({ repo, w, t, gh, branches }) {
   if (!repo.isGit) return { known: false, why: NOT_GIT };
@@ -1639,10 +1847,13 @@ function renderIdentifiers(r) {
       : '- **Commits** (0): none');
     const u = c.unconfirmed, lo = c.leftOut;
     o.push(u.total
-      ? `  - unconfirmed, dated in the window only (${u.total}): ${u.items.map((x) => x.short).join(' ')} — no commit command of the session matches them; check before pasting as fact`
+      ? `  - unconfirmed, dated in the window only (${u.total}): ${u.items.map((x) => x.short).join(' ')} — no commit command of the session matches them by subject, repo, result and time; check before pasting as fact`
       : '  - unconfirmed, dated in the window only (0): none');
+    const noted = u.items.filter((x) => x.note);
+    for (const x of noted) o.push(`  - ${x.short}: ${x.note}`);
+    if (c.evidenceUnreadable) o.push(`  - evidence incomplete: ${c.evidenceUnreadable} subagent transcript(s) could not be read, so commits they made may print as unconfirmed`);
     o.push(lo.total
-      ? `  - left out (${lo.total}): ${lo.items.map((x) => `${x.short} (PR #${x.pr} squash merge, merge not run by this session)`).join(', ')}`
+      ? `  - left out (${lo.total}): ${lo.items.map((x) => `${x.short} (PR #${x.pr}: a squash merge on the first-parent line, and this session ran no numbered gh pr merge for it)`).join(', ')} — a heuristic; add by hand any that this session merged another way or whose branch work was its own`
       : '  - left out (0): none');
   }
   // Pull requests
@@ -1663,13 +1874,19 @@ function renderIdentifiers(r) {
   else {
     const ids = (a) => (a.length ? a.join(', ') : 'none');
     const rv = b.review.length || b.reviewElsewhere.length ? [...b.review, ...b.reviewElsewhere].join(', ') : 'none';
-    const u = b.unconfirmed;
+    const u = b.unconfirmed, vs = b.viaSquash;
     const urv = [...u.review, ...u.reviewElsewhere];
     const parts = [['completed', u.completed], ['created', u.created], ['claimed', u.claimed], ['⏳', urv]]
       .filter(([, a]) => a.length).map(([k, a]) => `${k} ${a.join(', ')}`);
+    const vrv = [...vs.review, ...vs.reviewElsewhere];
+    const sparts = [['completed', vs.completed], ['created', vs.created], ['claimed', vs.claimed], ['⏳', vrv]]
+      .filter(([, a]) => a.length).map(([k, a]) => `${k} ${a.join(', ')}`);
     list('- **Board**:', [`completed: ${ids(b.completed)}`, `created: ${ids(b.created)}`,
-      `claimed (still open): ${ids(b.claimed)}`, `⏳ review items created: ${rv}`,
-      `unconfirmed, from window-only commits: ${parts.length ? `${parts.join('; ')} — check before pasting as fact` : 'none'}`]);
+      `claimed (still open): ${ids(b.claimed)}`,
+      `claimed, then closed or released by an unconfirmed commit: ${ids(b.claimedMoved)}`,
+      `⏳ review items created: ${rv}`,
+      `unconfirmed, from window-only commits: ${parts.length ? `${parts.join('; ')} — check before pasting as fact` : 'none'}`,
+      `unconfirmed, only through a squash merge this session did not run: ${sparts.length ? `${sparts.join('; ')} — check before pasting as fact` : 'none'}`]);
   }
   // Worktrees and branches
   const wt = r.worktrees;
@@ -1705,7 +1922,7 @@ function renderIdentifiers(r) {
 
 const HEURISTIC = '"this session\'s" = dated inside the window on this repo; sessions that overlapped can be credited with each other\'s work';
 // The identifiers block's own note: its commits and board lines are not window-dated.
-const ID_HEURISTIC = 'commits and board movement above the unconfirmed lines are matched to commit commands in the session\'s own transcript and its subagents\' (a message read from a file is matched only when the session wrote that file at a path that resolves, and cannot be matched otherwise); what is only dated inside the window is marked unconfirmed, and open PRs, worktrees and branches are still credited by the window or by the session\'s commands';
+const ID_HEURISTIC = 'commits and board movement above the unconfirmed lines are matched to commit commands in the session\'s own transcript and its subagents\' (one command, one commit: the subject, the repo, a result that is not an error and the time the commit was made must all fit; a message read from a file is matched only when the session wrote that file at a path that resolves; a worker dispatched as its own session has its own transcript, which is not read, so its commits print as unconfirmed); what is only dated inside the window is marked unconfirmed, and open PRs, worktrees and branches are still credited by the window or by the session\'s commands';
 const ASK_HEURISTIC = 'keyword heuristic over the principal\'s turn and mid-turn prompts — lists, does not judge';
 
 // What both forms read first: the session, its transcript and window, the repo,
@@ -1852,4 +2069,4 @@ async function main() {
 if (require.main === module) main();
 
 module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
-  worktreeAdds, ghPrCommands, commitSubjectsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };
+  worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };

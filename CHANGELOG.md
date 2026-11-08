@@ -31,6 +31,23 @@ wording only; no scanner or tool is built.
 - **Splitting a repo (`320/580`).** A draft section in `REPO-BOUNDARY.md`
   from one hand-up's testimony, with what could not be grounded listed.
 
+### Changed (2026-11-09 — `ccclose --identifiers` credits a commit only on evidence, `160/960`)
+Mike answered *"Credit only on evidence"* (2026-11-09; an answer, not a ruling in his
+words) to a cold pass that found the block crediting a concurrent session's
+same-subject commit as fact (IE1 to IE14). The Commits line now lists a commit
+only where one command of the session or its subagents made it: the subject, the
+repo, a result that is not an error and the time must all fit, one command to one
+commit; a commit command quoted in a heredoc, grep or echo is no evidence. What
+does not fit prints as unconfirmed and says why. Also: subagent merges are
+result-checked, the "left out" line is worded as the heuristic it is, a squash
+titled like the session's own commit is unconfirmed, a claim a peer closed is no
+longer "still open", a left-out squash's board movement is listed apart, unread
+subagent transcripts are counted, a message's first paragraph is folded as git
+folds it. The limits (worker sessions are not read; a leading comment hides an
+item's state line; the under-credit forms) are written into `ccclose.design.md`
+§15.1, the man page, the README and `RECORD.md`. The JSON gains fields and
+changes no existing meaning; the credited lists are the stricter ones.
+
 ### Added (2026-11-08 — five session-and-ask doctrine additions)
 Mike approved the recommendation on each item on 2026-11-09 (his date) as a pick from
 options a session offered (an answer, not a ruling in his words). Doctrine
