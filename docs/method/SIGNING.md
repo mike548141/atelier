@@ -171,7 +171,7 @@ cheap to run:
   holds the retired public key). Unlike the store master key, a lost signing
   key costs minutes, not access.
 
-## Activation ladder (status: fully active 2026-07-12 — warn-first, faves/ros deferred)
+## Activation ladder (status: fully active 2026-07-12 — warn-first, two children deferred)
 
 1. **[done 2026-07-12]** **Principal registers a signing key** — generate the
    dedicated key, upload to GitHub as a signing key, name it to the agent. The
@@ -196,12 +196,12 @@ cheap to run:
    child's own `floor.yml`**, read by `git rev-list <boundary>..HEAD`. All **10
    children carrying the house floor** retrofit (pin bumped to a signing-aware
    atelier SHA + the floor signing steps + their pre-signing HEAD as boundary);
-   7 verified green, 3 (docker-heap, rpi, homenetwork) red on **pre-existing
+   7 verified green, 3 (two private children and `rpi`) red on **pre-existing
    scanner debt that predates signing** — they fail at the scanner stage before
-   the signing steps run, owner's debt to clear. **Deferred: faves and ros** run
-   bespoke `ci.yml`, not the house floor — signing-CI for them waits on a
-   separate floor-adoption pass (they still *sign* every commit; only their CI
-   *verification* is deferred).
+   the signing steps run, owner's debt to clear. **Deferred: `faves` and one
+   private child** run bespoke `ci.yml`, not the house floor — signing-CI for
+   them waits on a separate floor-adoption pass (they still *sign* every commit;
+   only their CI *verification* is deferred).
 5. **[done 2026-07-12]** CI verification in the floor workflows — both planes
    (machine-key via `tools/signscan.py` + GitHub API), `fetch-depth: 0`, trust
    list at the child's pin (`git show <pin>:allowed_signers`), the

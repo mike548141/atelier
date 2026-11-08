@@ -494,9 +494,12 @@ pattern-matching leak scanner catches the value `AKIA…`, never the sentence
 a private repo's *name* coupled to its *sensitive posture* — which secrets it
 holds, where, their exposure history, its publication intent, or the
 confidential content it carries. Naming a private sibling is not the harm —
-adoption lists, pin bumps, and worked examples (e.g. ros, faves, numen) name
-children legitimately, and the record's resumability depends on it; the test is
-whether the name is load-bearing for the lesson. When a record must describe
+adoption lists and pin bumps name children legitimately, and the record's
+resumability depends on it; the test is whether the name is load-bearing for
+the lesson. A *worked example* in a doctrine file is the exception: it names no
+private child, only "a private child" (Mike's pick from options offered,
+2026-11-09, `320/330`; `PROPAGATION.md` § *The route* rule 2). When a record
+must describe
 security work, either the name or the posture goes generic ("an infra repo",
 "a captured runtime snapshot"), and the fine detail lives only in the private
 repo's own records. Enforcement, stated honestly (PROPAGATION's enforcement

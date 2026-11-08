@@ -382,8 +382,8 @@ IDs are the record's; its full citation list for each line lives there.
 
 ## The lifecycle — brief on top, verdict below, one file
 
-Grounded in the `ros`/atelier practice. A review is a **durable artefact**, not a
-throwaway chat:
+Grounded in a private child's and atelier's practice. A review is a **durable
+artefact**, not a throwaway chat:
 
 1. **Brief** — before the review runs, write a scoped brief to
    `docs/reviews/<date>-<HHMM>-<slug>.md` (`HHMM` in UTC — `date -u`,
@@ -522,23 +522,23 @@ findable from where the reader stood. (Mike, 2026-07-19. Canonical statement:
 the grounded instance it cites, kept here with the incident; a stamped
 pointer, not a second source. RL2, 2026-08-02.)
 
-**Enforcement is structural where a machine can reach it, conventional where
-it can't — stated per surface, because the written rule demonstrably did not
-hold.** Since 2026-07-21 the artefact exists (closing 2026-07-19 cold-pass
-F6): the ADR template and decisions README carry the `review:` field, and
-`tools/reviewscan.py` reds a new decision record that omits the line — there
-the omission is caught mechanically. Roadmap sections carry the same
-convention by template prose only: a lint on roadmap headings would fire on
-prose and be trained away (the 0820 record's grounds for deferring it), so
-for those records the remedy below remains a written rule, honestly named.
-Grounded in two incidents, the second decisive: 2026-07-15, a reviewer
-dismissed a committed-direction expansion as *"zero source code, so nothing my
-verdict should have covered"* — the rule already said otherwise. Then
-2026-07-18 (`ros`, model-datasheet catalogue), a building session declined to
+**Enforcement is structural where a machine can reach it, conventional where it
+can't — stated per surface, because the written rule demonstrably did not
+hold.** Since 2026-07-21 the artefact exists (closing 2026-07-19 cold-pass F6):
+the ADR template and decisions README carry the `review:` field, and
+`tools/reviewscan.py` reds a new decision record that omits the line — there the
+omission is caught mechanically. Roadmap sections carry the same convention by
+template prose only: a lint on roadmap headings would fire on prose and be
+trained away (the 0820 record's grounds for deferring it), so for those records
+the remedy below remains a written rule, honestly named. Grounded in two
+incidents, the second decisive: 2026-07-15, a reviewer dismissed a
+committed-direction expansion as *"zero source code, so nothing my verdict
+should have covered"* — the rule already said otherwise. Then 2026-07-18 (a
+private child, a model-datasheet catalogue), a building session declined to
 queue a review on the same "no code" grounds **while the correct rule sat in
 three places it had access to** — the repo's own review policy, this file, and
-that session's memory of the 2026-07-15 correction. Writing it a fourth time
-is the category error `PROPAGATION.md` names: *a doctrine that is read is not a
+that session's memory of the 2026-07-15 correction. Writing it a fourth time is
+the category error `PROPAGATION.md` names: *a doctrine that is read is not a
 doctrine that is complied with.*
 
 The failure mode is not ignorance, it is **invisibility** — *declining* a

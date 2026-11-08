@@ -129,17 +129,17 @@ the worktree rule had existed since this doc was written yet never fired,
 because nothing told a session it was the second one. Good habits (small
 commits, pushed fast) were standing in for a rule with no firing condition.
 
-*Bearing:* `cbom`, 2026-08-18 (named on the principal's ruling, 2026-08-22 —
-PU-2) — a session staged two paths explicitly, read `git status`, committed, and
-destroyed a sibling's session-log entry that had been sitting in the index
-before it opened. It diagnosed the cause correctly and then reached for this
-rule **through its floor block's compression of it** — *read the staged hunk
-headers* — and concluded the rule had a gap. It did: the command the house then
-prescribed printed no path (corrected 2026-08-22, PU-1). The session wrote a
-local duplicate marked owed upstream; what it owed was that finding, filed by
-the route in `PROPAGATION.md` § *Pointing up*. The block's phrase and its
-pointer (which named § The channel, where this rule is not) were both corrected
-on that finding.
+*Bearing:* a private child, 2026-08-18 (named here from 2026-08-22, PU-2, until
+`320/330` withdrew it) — a session staged two paths explicitly, read
+`git status`, committed, and destroyed a sibling's session-log entry that had been
+sitting in the index before it opened. It diagnosed the cause correctly and then
+reached for this rule **through its floor block's compression of it** — *read
+the staged hunk headers* — and concluded the rule had a gap. It did: the command
+the house then prescribed printed no path (corrected 2026-08-22, PU-1). The
+session wrote a local duplicate marked owed upstream; what it owed was that
+finding, filed by the route in `PROPAGATION.md` § *Pointing up*. The block's
+phrase and its pointer (which named § The channel, where this rule is not) were
+both corrected on that finding.
 
 ## The solo default — trunk-based, but "solo" is a conclusion, not an assumption
 
@@ -315,10 +315,10 @@ enough.
   carries that deliberation). Files named under retired schemes keep their
   names and citations — the record is append-only; never rename history.
 
-  *Bearing:* ros 2026-07-13 — two parallel sessions each computed "next NN"
-  from a stale view: one had taken 03, the other took 03 and 04. Nothing
-  conflicted at merge; the duplicate surfaced only on human read-through and
-  was fixed by renumbering 03→05. Allocation at session open, with the push
+  *Bearing:* a private child, 2026-07-13 — two parallel sessions each computed
+  "next NN" from a stale view: one had taken 03, the other took 03 and 04.
+  Nothing conflicted at merge; the duplicate surfaced only on human read-through
+  and was fixed by renumbering 03→05. Allocation at session open, with the push
   hours later, was the whole window.
 - **A rebase absorbs a shared *value* instead of conflicting on it.** The
   conflict machinery protects shared *lines*, and a line whose new content
@@ -722,9 +722,9 @@ instruction names it (§ Claiming work); another session's **in-flight tree**
 is never worked around or absorbed (§ The trigger); and another **repo's**
 open work belongs to the session live in that repo — read it for the picture,
 change nothing (the 2026-07-20 cmd-Q recovery held exactly this line: the
-atelier sweep read `ros` for context and left tiki's recovery to the ros
-session). Scope creep inside one session — "while I'm here" fixes in files
-the given work doesn't touch — is the same fence seen from inside: surface
+atelier sweep read another repo for context and left its recovery to the
+session live there). Scope creep inside one session — "while I'm here" fixes in
+files the given work doesn't touch — is the same fence seen from inside: surface
 it and queue it, don't quietly take it. This section is the named home the
 child block's Session-rhythm cue points to. (SR1, ruled 2026-07-20 —
 authored from Mike's standing "focus on given work" instruction; until then
@@ -844,8 +844,8 @@ orphan claim, worktree, or branch is reclaimed or put away on the evidence,
 never a timer (§ Claiming work — Orphan claims · § Every branch ends put
 away), and **another repo's or session's recovery is not yours to run**
 (§ Stay in your lane) — read it for the picture and change nothing, as the
-2026-07-20 sweep read `ros` for context and left tiki's recovery to the session
-live there.
+2026-07-20 sweep read another repo for context and left its recovery to the
+session live there.
 
 ## Orchestrated queue runs — draining the shared queue across a session chain
 

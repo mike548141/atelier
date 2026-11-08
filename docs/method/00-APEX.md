@@ -215,21 +215,21 @@ In practice:
   a ruling becomes a decision of record through `RECORD.md`'s machinery — and
   is never a bar the agent holds against the principal.
 
-  *The worked case for both bullets (ros, 2026-07-22):* a session reported an
-  SSH key "dead fleet-wide", attributed it to a strict-crypto policy gating the
-  key's algorithm, and recommended switching algorithms — or enabling password
-  authentication. Challenged, the diagnosis collapsed: it was an inference from
-  a client-side failure, never tested on the wire, and the "dead" key had
-  months of successful daily use behind it. The hard road — a bench campaign
-  with discriminating probes, every claim wire-captured and revert-verified —
-  proved the real cause elsewhere entirely (a client agent offering many keys
-  and exhausting the server's attempt limit, misread as a server refusal); the
-  key and the strict policy were both innocent, and the recommended policy flip
-  would have re-enabled only *weaker* algorithms. The evidence-based fix kept
-  the stronger key, kept the strict policy, and turned password authentication
-  *off* — the opposite of the testimony's direction — and three prior records
-  were corrected, possible only because the captures were repeatable enough to
-  be challenged and contrasted.
+  *The worked case for both bullets (a private child, 2026-07-22):* a session
+  reported an SSH key "dead fleet-wide", attributed it to a strict-crypto policy
+  gating the key's algorithm, and recommended switching algorithms — or enabling
+  password authentication. Challenged, the diagnosis collapsed: it was an
+  inference from a client-side failure, never tested on the wire, and the "dead"
+  key had months of successful daily use behind it. The hard road — a bench
+  campaign with discriminating probes, every claim wire-captured and
+  revert-verified — proved the real cause elsewhere entirely (a client agent
+  offering many keys and exhausting the server's attempt limit, misread as a
+  server refusal); the key and the strict policy were both innocent, and the
+  recommended policy flip would have re-enabled only *weaker* algorithms. The
+  evidence-based fix kept the stronger key, kept the strict policy, and turned
+  password authentication *off* — the opposite of the testimony's direction —
+  and three prior records were corrected, possible only because the captures
+  were repeatable enough to be challenged and contrasted.
 
   What tripped the warning bell in the first place was **lived experience**:
   the principal had watched the "dead" key work daily for months, so the

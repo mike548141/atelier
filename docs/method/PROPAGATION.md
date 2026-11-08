@@ -1,9 +1,9 @@
 # Propagation — how the house doctrine reaches every repo
 
-*How a child repo (ros, faves, any future project) stays current with atelier
-without a second source of truth drifting from the first. The review-endorsed
-shape (2026-07-10): **thin anchor, fat pointer** — a dependency with a lockfile,
-for doctrine instead of code.*
+*How a child repo (a private child, faves, any future project) stays current
+with atelier without a second source of truth drifting from the first. The
+review-endorsed shape (2026-07-10): **thin anchor, fat pointer** — a dependency
+with a lockfile, for doctrine instead of code.*
 
 ## The problem
 
@@ -357,7 +357,7 @@ computed by an engine, so the rule is a discipline:
 
 - A child may **narrow** (make a rule stricter — e.g. faves forbids a build
   step; atelier is silent on it) or **append** (add repo-specific doctrine —
-  e.g. ros's tiki bearings).
+  e.g. a private child's product-specific bearings).
 - A child may **never silently contradict** the parent. A child rule that is
   *looser* or *opposite* to a house rule is a **defect to surface**, not a
   quiet local win. Raise it: either the house doctrine is wrong (change atelier)
@@ -400,15 +400,16 @@ and only the first is free:
   exemption as drift and "fixes" a decision the principal made.
 
 The grounding, so this is not written from a heading. The estate's economics
-doctrine was restated in four children — `ros`, `rpi`, `nova` and `faves`. Three
-of them carried a two-pool billing model the parent had already superseded with
-billing-state-of-the-marginal-token, and a fixed model-to-role mapping the house
-had already replaced with tier-by-risk; `nova` named `ros` — a sibling — as "the
-canonical version", minting a second root. `faves` hit the sharp end first: its
-copy "drifted 17 days behind a provider change, and misled a session into
-arguing from a falsified fact", and was trimmed to repo-local facts on the DRY
-ruling of 2026-08-09. That is the whole failure mode in one repo: a repeat is
-not a redundant copy, it is a *falsifiable* copy, and it falsifies quietly.
+doctrine was restated in four children — two private, plus `rpi` and `faves`.
+Three of them carried a two-pool billing model the parent had already superseded
+with billing-state-of-the-marginal-token, and a fixed model-to-role mapping the
+house had already replaced with tier-by-risk; one private child named another —
+a sibling — as "the canonical version", minting a second root. `faves` hit the
+sharp end first: its copy "drifted 17 days behind a provider change, and misled
+a session into arguing from a falsified fact", and was trimmed to repo-local
+facts on the DRY ruling of 2026-08-09. That is the whole failure mode in one
+repo: a repeat is not a redundant copy, it is a *falsifiable* copy, and it
+falsifies quietly.
 
 ## Pointing up — reporting a doctrine problem to the house
 
@@ -416,7 +417,7 @@ not a redundant copy, it is a *falsifiable* copy, and it falsifies quietly.
 and the parent never points down for truth; § Who is a child says a child may
 add but never repeat. Neither says **where** a child files a rule the house
 owns — so the only mechanism a child session actually had was to write the rule
-into its own onramp and note the debt in prose. Grounded on `cbom`,
+into its own onramp and note the debt in prose. Grounded on a private child,
 2026-08-18 (§ The instance, below). Widened from "when a child earns a house
 rule" to any problem with the doctrine on the principal's commission,
 2026-08-23 — the section keeps its short name, which is how the rest of the
@@ -583,6 +584,16 @@ Four steps, none of them large.
    ref and title behind in the forge's own history. Which is the argument for
    the precedence: the failure mode here is one-way.
 
+   **The same precedence reaches this doctrine's own prose** (`320/330`,
+   2026-11-09; Mike's pick from options offered, so an answer and not a ruling
+   in his words, and it replaces PU-2's 2026-08-22 choice to name the filing
+   child). A worked example, bearing or instance in a public doctrine file
+   names no private child repo: it says "a private child" and keeps the
+   narrative. A public child may be named. Not worked examples, and so outside
+   this rule: an act done to a repo (a grant table, an adoption list, a pin
+   bump), which `RECORD.md` § *The record is public* still allows, and the
+   provenance citations of the repo this doctrine was extracted from (the
+   README, and pointers into its files), kept pending his word.
 3. **The child keeps the consequence, not the rule.** The child still has to be
    safe in the window between learning and landing, and that need is real — it
    is what drives the local write. So the child may add **one line of
@@ -618,7 +629,7 @@ those reports to occur without causing harm" — after a hand-up that was correc
 in substance cost the parent three separate things in one evening. The report is
 owed; the collateral is not, and none of it was necessary.*
 
-**The instance.** A `docker-heap` session filed board section `380` by shape 1,
+**The instance.** A private child's session filed board section `380` by shape 1,
 writing directly into atelier's tree. The finding was good and is now merged.
 What it cost:
 
@@ -675,10 +686,10 @@ nothing and destroys the record of how it arrived.
 
 ### The instance
 
-`cbom`, 2026-08-18 — named on the principal's ruling (2026-08-22, PU-2); the
-reviewer's grounds for it, that the veil was already defeated by this section's
-own item `040`, which quotes him naming the repo, are in the verdict
-(`docs/reviews/2026-08-21-0820-pointing-up-cold.md`). A session staged two
+A private child, 2026-08-18. (This text named the repo from 2026-08-22, on
+PU-2, whose grounds are in the verdict
+`docs/reviews/2026-08-21-0820-pointing-up-cold.md`; it was withdrawn on
+2026-11-09, `320/330`, by rule 2 above.) A session staged two
 paths explicitly, committed, and destroyed a sibling's session-log entry that
 had been sitting in the shared checkout's index before it arrived. Real failure,
 correctly diagnosed down to the cause — an index outliving the ref that fed it.

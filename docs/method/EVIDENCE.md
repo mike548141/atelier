@@ -300,17 +300,17 @@ highest-risk sites, where a wrong belief looks most like a right one:
 - **comments asserting third-party behaviour** — a sentence about what a
   library does is a claim with no source until someone reads that library.
 
-(Grounded: three instances in `ros`; minted at the third, on the principal's
-ruling of 2026-08-03, per the >2 promotion rule in `PROPAGATION.md` § *When a
-rule keeps breaking*. 2026-07-25: a "hermetic SSH connections" test recorded
-as mutation-verified had encoded a wrong reading of asyncssh *as* the
+(Grounded: three instances in a private child; minted at the third, on the
+principal's ruling of 2026-08-03, per the >2 promotion rule in `PROPAGATION.md`
+§ *When a rule keeps breaking*. 2026-07-25: a "hermetic SSH connections" test
+recorded as mutation-verified had encoded a wrong reading of asyncssh *as* the
 invariant — that `client_keys=[]` offers no keys, when it loads the default
-ones. Test and code shared the belief, so every mutation passed (fixed in ros
-`321ff0f`). The same day, a capture harness wrapped the
-wrong asyncssh hook and reported `refusals_received: 0` everywhere, caught
-only because a *successful* login also read zero. 2026-08-03: a dual-supply
-power test asserted the very rail label a review had just proven to be a
-mislabel, because it was written from the code's own belief.)
+ones. Test and code shared the belief, so every mutation passed (fixed in that
+child). The same day, a capture harness wrapped the wrong asyncssh hook and
+reported `refusals_received: 0` everywhere, caught only because a *successful*
+login also read zero. 2026-08-03: a dual-supply power test asserted the very
+rail label a review had just proven to be a mislabel, because it was written
+from the code's own belief.)
 
 ## 16. Capture, do not compose: a fixture of another program's output
 
@@ -418,10 +418,11 @@ scanner.)
 
 ---
 
-*Bearing in `ros`: the diagnose layer's honesty discriminators (a signal-floored
-client is not "broken hardware"; a flap is not a roam) are §2–§4 applied to live
-network telemetry, and its instruments — `apply`'s skip-loudly, the read-back
-after a write, `diagnose` returning "unknown" rather than a guessed cause — are
-§14 in force: the "phantom success / phantom failure" bug class is exactly a
-claim emitted stronger than its evidence. That case-law stays in ros
-`docs/PRINCIPLES.md`; this file is the general statement it points up to.* <!-- pathscan:allow: a path in the external ros repo, not atelier's own tree -->
+*Bearing in a private child: the diagnose layer's honesty discriminators (a
+signal-floored client is not "broken hardware"; a flap is not a roam) are §2–§4
+applied to live network telemetry, and its instruments — `apply`'s skip-loudly,
+the read-back after a write, `diagnose` returning "unknown" rather than a
+guessed cause — are §14 in force: the "phantom success / phantom failure" bug
+class is exactly a claim emitted stronger than its evidence. That case-law stays
+in that child's `docs/PRINCIPLES.md`; this file is the general statement it
+points up to.* <!-- pathscan:allow: a path in an external repo -->

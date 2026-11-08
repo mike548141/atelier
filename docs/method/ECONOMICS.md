@@ -203,9 +203,10 @@ would pass identically on Linux.
 - **Single-platform repo** → all jobs Linux. No exceptions to reach for.
 - **Multi-platform repo** → Linux for everything portable (lint, type-check,
   build, the platform-agnostic tests), and a **narrow** macOS/Windows job for
-  only the OS-specific code paths. The worked case is `ros`: multi-platform by
-  design, so Linux carries the whole pipeline except the two `tiki` pieces that
-  are genuinely macOS-specific, which alone touch a macOS runner.
+  only the OS-specific code paths. The worked case is a private child:
+  multi-platform by design, so Linux carries the whole pipeline except the two
+  `tiki` pieces that are genuinely macOS-specific, which alone touch a macOS
+  runner.
 
 A full `os: [ubuntu, macos]` matrix across *every* job is the anti-pattern this
 trims: it re-runs platform-independent checks at 10× for a portability claim
