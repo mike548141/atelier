@@ -59,6 +59,15 @@ build's own record carries the detail:
   undistinguished from other tool output — this fix widened the mid-turn
   channel by exactly the one shape it found, not by every shape typed input can
   take.
+- **§4 and §5 did not know about the `harness` role, added 2026-10-16
+  (`210/250`).** A record the harness wrote into a `type:"user"` entry (a task
+  notification, an `isMeta` record, a slash command's output echo) is now
+  `harness`, not `you`. It still takes an exchange number, so §4's "numbers only
+  `you` and `claude`" is now "numbers `you`, `claude` and `harness`", and a
+  harness turn is searched by default, reporting `harness` as its role. The
+  layer vocabulary has no name for it: `searched prompts+replies` and
+  `meta.layersSearched` include it under prompts, and a hit tells it apart by
+  role alone. Recorded in the review of `210/250` (HC4, `160/880`).
 Asked for by Mike (2026-07-26): *"Something that lets you search all the
 transcripts using regex or for a simple term. If you give cctranscript a command
 like `--repo` that limits the scope to search within."*

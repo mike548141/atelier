@@ -935,6 +935,52 @@ test('classifyUserRecord: a prompt, harness text and nothing are told apart', ()
   assert.deepEqual(cc.classifyUserRecord(rec(quoted)), { kind: 'prompt', text: quoted });
 });
 
+// --- 160/880: what the classifier assumes, in both directions ---------------
+// The assumption-bearing shapes of the 2026-10-17 cold pass (its HC5 rows),
+// asserted as the CURRENT behaviour so a change in the harness's shapes, or in
+// this classifier, shows up here rather than in a quietly wrong render.
+
+test('classifyUserRecord: the assumption-bearing shapes, as they behave today', () => {
+  const rec = (content) => ({ type: 'user', message: { role: 'user', content } });
+  const TN = '<task-notification><summary>done</summary></task-notification>';
+  const SR = '<system-reminder>a note</system-reminder>';
+  // Row 33: a lone pasted wrapper with no other words is harness, however it got there.
+  assert.equal(cc.classifyUserRecord(rec(SR)).kind, 'harness');
+  // Row 15: a non-browser wrapper riding on a prompt stays in the prompt's text.
+  // The census (160/880, HC2) found none injected that way: they are mentions.
+  assert.deepEqual(cc.classifyUserRecord(rec(`${TN} then an ask`)), { kind: 'prompt', text: `${TN} then an ask` });
+  // Row 45: the same across two text blocks.
+  assert.equal(cc.classifyUserRecord(rec([{ type: 'text', text: SR }, { type: 'text', text: 'the ask' }])).kind, 'prompt');
+  // Rows 19-25: a malformed wrapper is not recognised, so the record is a prompt.
+  for (const bad of ['<TASK-NOTIFICATION>x</TASK-NOTIFICATION>', '<task-notification/>', '<task-notification>unclosed',
+    '</task-notification>', '<task-notification-x>x</task-notification-x>']) {
+    assert.equal(cc.classifyUserRecord(rec(bad)).kind, 'prompt', bad);
+  }
+  // Rows 35/36: a quoted system reminder is kept, a quoted browser block is not.
+  assert.equal(cc.classifyUserRecord(rec('why does <system-reminder>x</system-reminder> show up?')).text,
+    'why does <system-reminder>x</system-reminder> show up?');
+  assert.equal(cc.classifyUserRecord(rec('why <browser_instruction>x</browser_instruction> show?')).text, 'why   show?');
+});
+
+test('renderCommand: the principal\'s slash command reads as /name args', () => {
+  assert.equal(cc.renderCommand('<command-message>foo</command-message>\n<command-name>/foo</command-name>\n<command-args>do the thing</command-args>'),
+    '/foo do the thing');
+  assert.equal(cc.renderCommand('<command-name>/clear</command-name>\n<command-args></command-args>'), '/clear');
+  assert.equal(cc.renderCommand('<command-name>clear</command-name>'), '/clear');
+  // Any other text in the record follows the command; a text with no command is untouched.
+  assert.equal(cc.renderCommand('<command-name>/x</command-name> plus words'), '/x\nplus words');
+  assert.equal(cc.renderCommand('just words'), 'just words');
+  assert.equal(cc.renderCommand('<command-name></command-name>'), '<command-name></command-name>');
+});
+
+test('a slash command with typed arguments renders as /name args, in the transcript and the --list label', () => {
+  const cmd = '<command-message>foo</command-message>\n<command-name>/foo</command-name>\n<command-args>make sure the roadmap is updated</command-args>';
+  const file = midTurnFile([{ type: 'user', timestamp: '2026-01-02T03:04:05.000Z', message: { role: 'user', content: cmd } }, claude('ok')]);
+  const turn = cc.readTurns(file).turns.find((t) => t.role === 'you');
+  assert.equal(turn.text, '/foo make sure the roadmap is updated');
+  assert.equal(cc.firstUserPromptText(file), '/foo make sure the roadmap is updated');
+});
+
 test('readTurns: a task notification and a meta record are harness, not you', () => {
   const file = midTurnFile([
     you('first ask'), claude('first reply'),

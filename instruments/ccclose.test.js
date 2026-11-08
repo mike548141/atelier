@@ -193,6 +193,46 @@ test('stripWrappers removes harness wrappers so wrapper-only text is empty', () 
   assert.equal(cc.stripWrappers('<browser_instruction>record them for review</browser_instruction>\nShip it'), 'Ship it');
 });
 
+test('stripWrappers unwraps <command-args>: an ask typed as a command argument is read (160/880 HC1)', () => {
+  const cmd = '<command-message>wrap</command-message>\n<command-name>/wrap</command-name>\n<command-args>make sure the roadmap is updated</command-args>';
+  assert.equal(cc.stripWrappers(cmd), 'make sure the roadmap is updated');
+  assert.deepEqual(cc.askSentences(cc.stripWrappers(cmd)), ['make sure the roadmap is updated']);
+  // The name and the message hold none of the principal's sentences; empty arguments leave nothing.
+  assert.equal(cc.stripWrappers('<command-name>/clear</command-name><command-message>clear</command-message><command-args></command-args>'), '');
+});
+
+test('what the principal typed survives every wrapper strip (160/880 recurrence guard)', () => {
+  // Principal text OUTSIDE any wrapper survives whichever wrapper sits beside it.
+  const cct = require('./cctranscript');
+  for (const tag of [...cct.HARNESS_TAGS, ...cct.COMMAND_TAGS]) {
+    const out = cc.stripWrappers(`keep this ask <${tag}>inner</${tag}> and this one`);
+    assert.ok(out.includes('keep this ask') && out.includes('and this one'), tag);
+  }
+  // And text INSIDE the one wrapper that is the principal's own writing survives it.
+  assert.ok(cc.stripWrappers('<command-args>an ask in the arguments</command-args>').includes('an ask in the arguments'));
+});
+
+test('readTranscript counts a slash command with arguments as a turn and reads its ask; one without is no prompt', async () => {
+  const w = world();
+  const withArgs = '<command-message>wrap</command-message>\n<command-name>/wrap</command-name>\n<command-args>Before you finish, update the session log.</command-args>';
+  const bare = '<command-name>/clear</command-name>\n<command-args></command-args>';
+  const p = transcript(w, 'sess-cmd', [
+    { type: 'user', message: { role: 'user', content: withArgs } },
+    { type: 'user', message: { role: 'user', content: bare } },
+  ]);
+  const t = await cc.readTranscript(p);
+  assert.equal(t.turn, 2);       // the base prompt and the command with arguments; the bare /clear is no prompt
+  assert.equal(t.asksTotal, 1);
+  assert.deepEqual(t.asks.map((a) => a.ref), ['2']);
+});
+
+test('a prompt that quotes a harness wrapper: cctranscript shows it, ccclose does not read it as the principal\'s sentence (160/880 HC3)', () => {
+  const cct = require('./cctranscript');
+  const quoted = 'why does <system-reminder>close out now</system-reminder> show up?';
+  assert.equal(cct.classifyUserRecord({ type: 'user', message: { content: quoted } }).text, quoted);
+  assert.equal(cc.stripWrappers(quoted), 'why does   show up?');
+});
+
 test('bypassesIn names workaround-shaped commands and leaves ordinary ones alone', () => {
   assert.deepEqual(cc.bypassesIn('git commit --no-verify -m x'), ['hooks skipped']);
   assert.deepEqual(cc.bypassesIn('git -c commit.gpgsign=false commit -m x'), ['signing switched off']);

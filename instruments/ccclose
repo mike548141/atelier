@@ -133,10 +133,15 @@ function locateTranscript(spec) {
 
 // Harness wrappers that ride in a type:"user" record but are not the principal
 // typing. Text that is nothing BUT these is not a prompt for the asks list. The
-// list is cctranscript's own (its harness wrappers plus the slash-command ones,
-// which hold none of the principal's sentences), so the two tools cannot drift.
+// lists are cctranscript's own, so the two tools cannot drift. The slash-command
+// wrappers split: <command-name> and <command-message> hold none of the
+// principal's sentences and are stripped, but <command-args> holds exactly what
+// they typed after the command, so it is UNWRAPPED, its text kept (160/880, HC1).
+// A command with empty args is therefore still wrapper-only, and no prompt.
+const COMMAND_ARGS_RE = /<command-args\b[^>]*>([\s\S]*?)<\/command-args>/g;
 function stripWrappers(text) {
-  return cct.stripElements(text, [...cct.HARNESS_TAGS, ...cct.COMMAND_TAGS]).trim();
+  const t = cct.stripElements(text, [...cct.HARNESS_TAGS, ...cct.COMMAND_WRAPPER_TAGS]);
+  return t.replace(COMMAND_ARGS_RE, ' $1 ').trim();
 }
 
 // The close-out ask heuristic (design note §9). A sentence is listed when it

@@ -467,7 +467,7 @@ function firstPromptInLines(lines) {
       // Harness text (a task notification, a meta record) is not a prompt, so a
       // session that opens with one is listed by its first real prompt.
       const c = classifyUserRecord(o);
-      if (c && c.kind === 'prompt') return c.text.replace(/\s+/g, ' ').trim();
+      if (c && c.kind === 'prompt') return renderCommand(c.text).replace(/\s+/g, ' ').trim();
     } else if (o.type === 'attachment' && isHumanQueuedCommand(o.attachment)) {
       const t = extractText(o.attachment.prompt);
       if (t) return t.replace(/\s+/g, ' ').trim();
@@ -491,17 +491,32 @@ function extractText(content) {
 // <cross-session-message> from a peer's session, a <system-reminder>, and the
 // <browser_instruction> block a browser extension prepends to a real prompt.
 // Records the harness itself marks isMeta: true (skill bodies and the like) are
-// harness text whatever they contain. The slash-command wrappers are listed
-// apart: <command-name> et al. record the principal's own /command, so a record
-// that is only those stays theirs (a prompt) — but a consumer hunting for asks
-// (ccclose) strips them too, because they hold no sentences of the principal's.
+// harness text whatever they contain.
+//
+// RE-DRIVEN 2026-11-09 (160/880, HC2) over the local live store, counting
+// type:"user" prompt records that carry a harness element AND other text. The
+// only element ever injected onto a real prompt is <browser_instruction>.
+// <system-reminder> and <local-command-caveat> also occur inside prompt records,
+// but every one sat mid-prose in a single text block (none leading, trailing or
+// in a block of its own): the shape of a mention or a paste by the principal,
+// not of an injection. So a prompt keeps them, and the census does not call for
+// per-block classification or a wider JOINED_TAGS.
+//
+// The slash-command wrappers are listed apart, and they are NOT alike.
+// <command-name> and <command-message> name the principal's own /command and
+// hold none of their sentences. <command-args> holds exactly what the principal
+// typed after the command, so it is theirs: a consumer hunting for asks
+// (ccclose) strips the first two and UNWRAPS the third (160/880, HC1).
 const HARNESS_TAGS = ['system-reminder', 'task-notification', 'local-command-stdout',
   'local-command-stderr', 'local-command-caveat', 'cross-session-message', 'browser_instruction'];
 const COMMAND_TAGS = ['command-name', 'command-message', 'command-args'];
+// The slash-command wrappers that hold none of the principal's sentences.
+const COMMAND_WRAPPER_TAGS = ['command-name', 'command-message'];
 // The one injected element seen riding on a REAL prompt (prepended to the
 // principal's typing in the same record), so the only one removed from a prompt's
 // displayed text. The others are only ever stripped to decide a record is wholly
-// harness text; a prompt that merely quotes one keeps it.
+// harness text; a prompt that merely quotes one keeps it. (A prompt that quotes
+// a <browser_instruction> element therefore loses the quote too.)
 const JOINED_TAGS = ['browser_instruction'];
 
 // Remove every <tag ...>...</tag> element of the named tags. Not trimmed.
@@ -522,6 +537,21 @@ function classifyUserRecord(o) {
   if (o.isMeta) return { kind: 'harness', text: raw };
   if (!stripElements(raw, HARNESS_TAGS).trim()) return { kind: 'harness', text: raw };
   return { kind: 'prompt', text: stripElements(raw, JOINED_TAGS).trim() };
+}
+
+// How the principal's own slash command reads in a transcript or a listing:
+// `/name args` rather than the record's raw <command-name>/<command-args> XML.
+// The elements are replaced by that one line and any other text in the record
+// is kept after it. A text with no <command-name> element is returned as it is.
+function renderCommand(text) {
+  const nm = /<command-name\b[^>]*>([\s\S]*?)<\/command-name>/.exec(text);
+  const name = nm ? nm[1].trim() : '';
+  if (!name) return text;
+  const ar = /<command-args\b[^>]*>([\s\S]*?)<\/command-args>/.exec(text);
+  const args = ar ? ar[1].trim() : '';
+  const shown = (name.startsWith('/') ? name : '/' + name) + (args ? ' ' + args : '');
+  const rest = stripElements(text, COMMAND_TAGS).trim();
+  return rest ? `${shown}\n${rest}` : shown;
 }
 
 // A message typed while a turn is already in flight never becomes a normal
@@ -763,7 +793,7 @@ function readTurns(file, opts = {}) {
       // renumbering would move every N/N.M ref already quoted in committed
       // records. What changes is only whose it is — role 'harness', not 'you'.
       const c = classifyUserRecord(o);
-      if (c) turns.push({ role: c.kind === 'harness' ? 'harness' : 'you', ts, text: c.text });
+      if (c) turns.push({ role: c.kind === 'harness' ? 'harness' : 'you', ts, text: c.kind === 'harness' ? c.text : renderCommand(c.text) });
     } else if (o.type === 'attachment' && isNotificationQueuedCommand(o.attachment)) {
       // The same harness event as a user-type notification, arriving by the
       // attachment channel. Read as harness, but flagged `inline`: it does NOT
@@ -1518,5 +1548,5 @@ module.exports = {
   readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord, statFlagsBatch, gunzipHead, gunzipHeadEx,
   firstUserPromptText, FIRST_PROMPT_PREFIX, HEAD_BYTES,
   subagentDir, finishedAgents, escapeRegex, rawForms, scanText, excerptAround,
-  isHumanQueuedCommand, isNotificationQueuedCommand, classifyUserRecord, stripElements, HARNESS_TAGS, COMMAND_TAGS,
+  isHumanQueuedCommand, isNotificationQueuedCommand, classifyUserRecord, renderCommand, stripElements, HARNESS_TAGS, COMMAND_TAGS, COMMAND_WRAPPER_TAGS,
 };

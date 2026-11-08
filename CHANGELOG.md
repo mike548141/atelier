@@ -77,6 +77,34 @@ wording and one fleet-view tool; no scanner's blocking behaviour changes.
   spellscan exemption as covered by the 2026-07-23 ruling. No published commit
   and no prompt text was touched; the earlier prompt history is not re-reviewed.
 
+### Changed (2026-11-09 — `ccclose` reads an ask typed as a slash command's argument, and the harness classification says what it assumes, `160/880`)
+Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
+- **An ask typed after a slash command is now read (HC1).** `ccclose` stripped
+  `<command-args>` along with the command's name, on the ground that none of them
+  held a sentence of the principal's; `<command-args>` holds exactly what they
+  typed. It is now unwrapped, so the ask is listed and the record counts as a
+  turn. A command with empty arguments is still no prompt. `cctranscript` shows
+  such a record, and the `--list` label, as `/name args` instead of raw XML
+  (`--json` `text` follows).
+- **The "only `<browser_instruction>` rides on a real prompt" claim was
+  re-driven against the local store (HC2).** It holds: other harness elements
+  occur inside prompts only mid-prose, as a mention or a paste, so no per-block
+  classification and no wider `JOINED_TAGS`. The census is written into the
+  comment, without counts.
+- **The two tools' text difference is stated (HC3):** `cctranscript` keeps a
+  quoted harness wrapper in a prompt's text (all but `<browser_instruction>`);
+  `ccclose` strips every wrapper when it looks for asks. The man page no longer
+  says only a block a browser extension "prepends" is removed: a prompt that
+  quotes one loses the quote. Counts of `you` taken before 2026-10-16 included
+  what is now `harness` (HC12). The `--search` design note gains the departure
+  bullet for the harness role, and says it rides in the `prompts+replies`
+  layer (HC4). The README's "field set never varies" names its one exception
+  (HC11).
+- **Tests pin the assumptions (HC5)** in both directions: a lone pasted wrapper,
+  a wrapper riding on a prompt, malformed wrappers, a command with arguments,
+  and a guard that principal text survives every wrapper strip.
+- Not taken: HC7 (regex cost, anchoring), HC8, HC9, HC10 (notes).
+
 ### Changed (2026-11-09 — cctranscript's first-prompt column states what a damaged mirror does, and the head-read size is one constant, `160/680`)
 Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
 - **The "can never change an answer" claim is withdrawn for a damaged mirror

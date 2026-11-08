@@ -131,10 +131,22 @@ no reference of its own (\fBnull\fP in
 .BR \-\-json ),
 and the replies after it keep numbering under the exchange it sits in. A
 .I <browser_instruction>
-block that a browser extension prepends to a real prompt is removed from that
-prompt's text. Your own slash commands
-.RI ( <command-name> )
-stay yours.
+element is removed from a prompt's text wherever it sits. A browser extension
+prepends one to a real prompt, and a prompt that merely quotes one loses the
+quote too. No other harness element is taken out of a prompt: one found inside
+your prose, such as a pasted
+.IR <system-reminder> ,
+stays, because a prompt that quotes a wrapper is your own writing.
+.BR ccclose (1)
+strips every harness wrapper from a prompt's text when it looks for asks, so
+the two tools agree on whose a record is and differ on its text in that case.
+Your own slash commands stay yours, shown as
+.IR "/name args" .
+Counts of
+.B you
+taken before 2026-10-16 included what is now
+.BR harness ,
+so they are not comparable with a fresh run of the same session.
 .PP
 With no
 .I session
@@ -305,7 +317,10 @@ needed, since it is read by the same
 pass the render uses. Harness text is searched too, and a hit in it reports
 role
 .BR harness ,
-so it is never mistaken for your prompt. See NOTES for the one channel of your
+so it is never mistaken for your prompt. It has no layer name of its own: the
+summary's
+.I prompts+replies
+includes it. See NOTES for the one channel of your
 own typed input that this does
 .I not
 cover.

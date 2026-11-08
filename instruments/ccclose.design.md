@@ -108,10 +108,28 @@ harness wrapper (`<task-notification>`, `<local-command-stdout>`,
 `<system-reminder>`, `<browser_instruction>` and kin), is harness text, and
 cctranscript shows it with its own role. Harness text still takes an exchange
 number there (the model answers it, and renumbering would move quoted refs), so
-ccclose numbers it the same way and only declines to treat it as an ask. One
-filter remains ccclose's own, for the asks list only: the slash-command wrappers
-(`<command-name>` and kin) are stripped from a prompt's text, because they hold
-none of the principal's sentences, though cctranscript still shows the record as theirs.
+ccclose numbers it the same way and only declines to treat it as an ask. Two
+filters remain ccclose's own, for the asks list only (`stripWrappers`):
+
+- **The slash-command wrappers split.** `<command-name>` and `<command-message>`
+  are stripped from a prompt's text, because they name the command and hold none
+  of the principal's sentences. `<command-args>` is **unwrapped, not stripped**:
+  it holds exactly what the principal typed after the command, so an ask typed
+  as a command's argument is read. (Until 2026-11-09 all three were stripped on
+  the ground that none held a sentence of the principal's; that was false for
+  `<command-args>`, and an ask typed that way was dropped: 160/880, HC1.) A
+  command with empty arguments is still wrapper-only, so it is no prompt.
+  cctranscript shows such a record as `/name args`.
+- **Every harness wrapper is stripped from a prompt's text, wherever it sits.**
+  cctranscript keeps all but `<browser_instruction>` in a prompt's text, because
+  a prompt that quotes a wrapper is the principal's own writing. So the two
+  tools agree on whose a record is and on its exchange number, and **differ on
+  its text** when a prompt quotes a wrapper (cctranscript shows the quote,
+  ccclose does not read it as the principal's sentence), and the header's
+  `N you` differs from ccclose's `N turn` by the commands with empty
+  arguments. A census of the local store (2026-11-09) found no harness element
+  injected onto a prompt other than `<browser_instruction>`, so cctranscript's
+  narrower rule is the right one for the render (160/880, HC2, HC3).
 
 ## 7. The checks
 
