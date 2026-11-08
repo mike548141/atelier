@@ -64,3 +64,7 @@
       residual) and RU9's other option (retitle section `320`). Still owed to
       him: RU2–RU7, RU12. A MAJOR stood, so the application's cold pass is
       queued as `160/1050`.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered, after a
+      one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
+      all 13"* — the fix summarised to him stands approved, on the reviewer's
+      counsel. Here: RU2–RU6, RU12.

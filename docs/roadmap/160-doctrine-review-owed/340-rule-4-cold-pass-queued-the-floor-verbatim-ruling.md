@@ -47,3 +47,9 @@
             the tool's own footer recommends it, and nothing automated reaches a
             child's block; FV11 (minor) formed at reconcile. Findings are the
             principal's to decide (rule 3); nothing was applied.
+      ⚖️ **Mike, 2026-11-09, in his own words** (asked by queue run 722ac2e2 about
+      repos' copies of the core rules drifting, offered a report only, blocking,
+      or hand-checking): *"The approve the report only option for 1 month and then
+      we move to blocking per option 2"*. Option 1 read: a fleet report of which
+      repos' copies are out of date, no blocking. Option 2 read: block any repo
+      whose copy differs. So report-only until 2026-12-09, then blocking.

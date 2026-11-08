@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 review queued (tier: Fable; pass type: code + doctrine cold pass,
+- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-z1)
+      🎯 **Rule-4 review queued (tier: Fable; pass type: code + doctrine cold pass,
   the `ccmail` build).**
   *Delta:* `instruments/ccmail` (new) + `instruments/ccmail.test.js` (new, 25
   tests) + `instruments/man/ccmail.1` (new) + `instruments/README.md` (the
@@ -53,3 +54,7 @@
             CC13 (minor) formed at reconcile. Nothing from the mailbox enters
             the verdict. Findings are the principal's to decide (rule 3);
             nothing was applied.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Keep it, lock the cache"* (CC1, CC2): the delegated
+        route stays and its domain-wide reach is written down; the attachment
+        cache gets private permissions and a 30-day expiry.

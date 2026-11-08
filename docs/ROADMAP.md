@@ -432,7 +432,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [cctranscript never reads the principal's mid-turn messages, and its…](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
 - ✅ [pins.py enumerates CWD-relative and reports a wrong denominator from…](roadmap/210-instruments-open-features/110-pins-py-enumerates-cwd-relative-and-lies-from-a-worktree.md)
 - [ ] 🔎 [Drive binaries have the gap ccmail just closed for mail](roadmap/210-instruments-open-features/120-drive-binaries-have-the-same-gap-ccmail-just-closed.md)
-- [ ] 🎯 [Rule-4 review queued (tier: Fable; pass type: code + doctrine cold…](roadmap/210-instruments-open-features/130-ccmail-rule-4-review-queued.md)
+- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-z1) [Rule-4 review queued (tier: Fable;…](roadmap/210-instruments-open-features/130-ccmail-rule-4-review-queued.md)
 - [ ] 🎯 [ccgrab — a web-media capture instrument (Mike commissioned…](roadmap/210-instruments-open-features/140-ccgrab-web-media-capture-instrument.md)
 - ✅ 🔎 [Why is the source smaller than the archived copy? — the shrink…](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
 - ✅ 🎯 [ccarchive's summary counts files, and Mike's own read of the tool is…](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)

@@ -54,3 +54,12 @@
             what its comment says, and the 30-repo blast-radius claim compared
             exit codes rather than findings. Findings are the principal's to
             decide (rule 3); nothing was applied.
+      💬 **Mike corrected the question, 2026-11-09, in his own words:** *"I don't think
+      you have understood me correctly. When I said "Never allow it as I don't
+      want any of my repo's to run a flat running log" we were discussing the
+      design for board (aka roadmap of work to do in each repo) and I don't want
+      the board to be a single file, instead we use a tiered multi file design
+      where the synposis and key info goes into the main board file and the
+      detail of the work goes into a child file that the main board
+      references"*. Queue run 722ac2e2 had paraphrased it as finished work piling
+      up; the re-ask states it as he did.
