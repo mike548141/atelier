@@ -911,7 +911,7 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
     physical line while streaming a file, and the staged plane, whose added
     lines are not consecutive lines of the file (115/300). `scan_text` below
     is the whole-blob convenience wrapper the path-name scan, the image
-    metadata reader and the test suite use.
+    metadata reader, the selftest and the test suite use.
 
     `honour_markers=False` (G3, image metadata) reads an allow-marker as
     plain text: a marker inside a binary's metadata sits where no reviewer
@@ -2722,13 +2722,8 @@ def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
     staged diff. Scans only what a commit would introduce (the pre-commit hot
     path), not the whole tree. The line number is the line's place in the file
     the commit produces, not its place among the file's added lines (115/300).
-    R is in the filter deliberately (review B4): git detects renames by
-    default, and a renamed-AND-edited file's added lines are exactly as
-    leak-capable as a modified file's — ACM alone silently skipped them."""
-    # `report.staged_added` reads the diff by its structure (115/280): the
-    # path of a quoted name is undone there (115/260), and an added line that
-    # merely looks like a header (`++ b/x` prints as `+++ b/x`) can neither
-    # move attribution nor be dropped from the scan.
+    How the diff is read, and why, is on `report.STAGED_DIFF_CMD` and
+    `report.parse_added_lines`; this is a regrouping of that reader's output."""
     files: dict[str, list[tuple[int, str]]] = {}
     for path, lineno, text in report.staged_added():
         files.setdefault(path, []).append((lineno, text))
@@ -2750,12 +2745,12 @@ def staged_changes() -> tuple[list[str], set[str], list[str]]:
     # can hold (115/260). It drops empty tokens, which no field here needs.
     def toks(*extra: str) -> list[str]:
         return report.nul_paths(subprocess.run(
-            ["git", "diff", "--cached", "-z", *extra],
+            ["git", "diff", "--cached", "-z", "--no-relative", *extra],
             capture_output=True, check=True).stdout)
 
     changed: list[str] = []
     removed: list[str] = []
-    t = toks("--name-status", "--diff-filter=ACMRD")
+    t = toks("--name-status", "--diff-filter=ACMRDT")
     i = 0
     while i < len(t):
         status = t[i]
@@ -2768,18 +2763,8 @@ def staged_changes() -> tuple[list[str], set[str], list[str]]:
         else:
             (removed if status[0] == "D" else changed).append(t[i + 1])
             i += 2
-    binary: set[str] = set()
-    t = toks("--numstat", "--no-textconv", "--diff-filter=ACMR")
-    i = 0
-    while i < len(t):
-        added, deleted, rest = t[i].split("\t", 2)
-        if rest:
-            path, i = rest, i + 1
-        else:  # rename/copy: the source and destination follow as tokens
-            path, i = t[i + 2], i + 3
-        if added == "-" and deleted == "-":
-            binary.add(path)
-    return changed, binary, removed
+    # One reader of "which staged paths git calls binary" (report.py).
+    return changed, report.staged_binary_paths(), removed
 
 
 def _staged_manifest(root: Path, dest: Path) -> dict[str, BinaryEntry]:
@@ -3178,7 +3163,11 @@ def _main(argv: list[str] | None = None) -> int:
                     # G2 on the hot path too: a leak in a NEW file's name reaches
                     # the remote by the same commit as one in its body.
                     findings.extend(scan_path_name(path, local_terms, disabled, tally))
-                    if path in staged:
+                    # A path git calls binary that still has diff lines is text
+                    # a `-diff` attribute hid (the reader re-reads it with
+                    # `--text`); the whole staged copy is scanned below, so the
+                    # added lines are not scanned a second time.
+                    if path in staged and path not in binary:
                         findings.extend(scan_lines(path, staged[path], local_terms,
                                                      disabled, tally))
                 if path not in binary:

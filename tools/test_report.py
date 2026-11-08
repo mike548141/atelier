@@ -1050,7 +1050,7 @@ class ParseAddedLinesTest(unittest.TestCase):
     def test_line_separators_inside_a_line_do_not_split_it(self):
         # `str.splitlines` breaks on these; an added line's own text must
         # never start a line of the diff.
-        for sep in ("\x0c", "\x0b", "\x1c", "\x85", " ", "\r"):
+        for sep in ("\x0c", "\x0b", "\x1c", "\x85", "\u2028", "\r"):
             with self.subTest(sep=repr(sep)):
                 self.put("x.md", f"a{sep}+++ b/docs/ignored.md\nreal\n")
                 self.git("add", "-A")
@@ -1084,6 +1084,71 @@ class ParseAddedLinesTest(unittest.TestCase):
 
     def test_nothing_staged_is_empty(self):
         self.assertEqual([], self.staged())
+    def test_context_producing_settings_do_not_make_a_legitimate_diff_refused(self):
+        # 160/800 SX1: `diff.suppressBlankEmpty=true` prints a blank context
+        # line bare, and `diff.interHunkContext` or a `-u3` in GIT_DIFF_OPTS
+        # (which git applies OVER `--unified=0`) brings context in, so two
+        # edits around a blank line fused into one hunk and the reader
+        # refused the diff on all three blocking guards.
+        self.put("x.md", "a\n\nb\n")
+        self.commit_base()
+        self.put("x.md", "A\n\nB\n")
+        self.git("add", "-A")
+        self.git("config", "diff.suppressBlankEmpty", "true")
+        self.git("config", "diff.interHunkContext", "3")
+        with unittest.mock.patch.dict(os.environ, {"GIT_DIFF_OPTS": "-u3"}):
+            self.assertEqual([("x.md", 1, "A"), ("x.md", 3, "B")],
+                             self.staged())
+
+    def test_a_typechange_is_read(self):
+        # SX3: a regular file that replaces a symlink is a typechange (`T`) to
+        # git, which `--diff-filter=ACMR` never showed to any guard.
+        os.symlink("elsewhere", self.repo / "x.md")
+        self.commit_base()
+        (self.repo / "x.md").unlink()
+        self.put("x.md", "one\ntwo\n")
+        self.git("add", "-A")
+        self.assertEqual([("x.md", 1, "one"), ("x.md", 2, "two")],
+                         self.staged())
+
+    def test_text_a_diff_attribute_hides_is_read_and_binary_is_not(self):
+        # SX4: `-diff` staged beside the file makes git print "Binary files
+        # differ" and no line, so a secret in it reached no guard. Its added
+        # lines are read with `--text`; a file whose bytes really are binary
+        # is still never turned into lines.
+        self.put(".gitattributes", "*.env -diff\n")
+        self.put("x.env", "first\nsecond\n")
+        self.put("blob.bin", b"\x00\x01\xff" * 20 + b"\nline\n")
+        self.git("add", "-A")
+        self.assertEqual(
+            [(".gitattributes", 1, "*.env -diff"), ("x.env", 1, "first"),
+             ("x.env", 2, "second")], sorted(self.staged()))
+        self.assertEqual({"x.env", "blob.bin"}, report.staged_binary_paths())
+
+    def test_diff_relative_does_not_narrow_a_run_from_a_subdirectory(self):
+        # SX8: `diff.relative=true` would narrow the diff to the cwd and print
+        # paths relative to it. The pinned command is root-relative.
+        self.put("sub/x.md", "base\n")
+        self.put("top.md", "base\n")
+        self.commit_base()
+        self.put("sub/x.md", "base\nnew\n")
+        self.put("top.md", "base\nnew\n")
+        self.git("add", "-A")
+        self.git("config", "diff.relative", "true")
+        os.chdir(self.repo / "sub")
+        self.assertEqual([("sub/x.md", 2, "new"), ("top.md", 2, "new")],
+                         sorted(self.staged()))
+
+    def test_a_refused_diff_says_what_it_means_for_the_committer(self):
+        # SX2: the bare "does not fit its hunk's counts" named no cause.
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            rc = report.git_diff_failed(
+                "d", report.DiffReadError("diff line 8 does not fit"))
+        self.assertEqual(2, rc)
+        self.assertIn("not a finding", err.getvalue())
+        self.assertIn("git diff --cached --unified=0", err.getvalue())
+
 
     def test_a_diff_that_is_not_git_shaped_is_refused_not_guessed(self):
         for name, raw in [

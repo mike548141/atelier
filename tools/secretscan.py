@@ -1722,38 +1722,11 @@ def scan_paths(paths: list[Path], root: Path,
 def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
     """Path → [(real file line number, added-line text), ...] for the staged
     diff. Scans only what a commit would introduce (the pre-commit hot path),
-    not the whole tree.
-
-    Fixes two defects found TOGETHER in one commit and filed as one report
-    (320/290), each masking the other: a spaced filename reported a truncated
-    path, and the finding's line number pointed 765 lines from the real one.
-    Reproduced directly against real git output before either fix, not
-    inferred from the diff format spec:
-
-      * git appends a literal trailing TAB to the `+++ b/<path>` header when
-        the path contains whitespace — there is no timestamp field here (that
-        is POSIX `diff -u`'s convention, not git's), so the tab is the ONLY
-        thing that can trail the path and stripping it is safe. `-c
-        core.quotePath=false` is passed too, so a non-ASCII path is not C-quoted
-        into something this parser would then have to un-escape.
-      * the OLD code numbered every added line sequentially from 1 — as if the
-        whole diff were one hunk starting at the top of the file — so a file
-        touched in more than one place reported EVERY finding at the wrong
-        line, independent of the path at all (reproduced with a two-hunk diff
-        on an ordinary, space-free filename). Each `@@ -a,b +c,d @@` hunk
-        header now resets the real new-file line counter, and every added or
-        context line advances it by one; a removed (`-`) line does not, since
-        it never lands in the file the commit produces.
-
-    R is in the filter deliberately (review B4): git detects renames by
-    default, and a renamed-AND-edited file's added lines are exactly as
-    leak-capable as a modified file's — ACM alone silently skipped them."""
-    # The diff is read by `report.staged_added` (115/280): the file header is
-    # taken from git's structure, the real line number from each hunk's
-    # counts, and the quoting of a tab/newline/quote/backslash name undone
-    # (115/260). An added line that merely LOOKS like a header (`++ b/x`
-    # prints as `+++ b/x`) used to move attribution here, and was itself
-    # dropped as not-an-added-line, hiding what followed it.
+    not the whole tree. How the diff is read (the pinned command, the filter,
+    the file header taken from git's structure, the real line number from each
+    hunk's counts, a quoted name undone) is on `report.STAGED_DIFF_CMD` and
+    `report.parse_added_lines`: this is a regrouping of that reader's output
+    (115/280, 320/290)."""
     files: dict[str, list[tuple[int, str]]] = {}
     for path, lineno, text in report.staged_added():
         files.setdefault(path, []).append((lineno, text))

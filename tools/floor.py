@@ -2126,8 +2126,14 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
                                       text=True, errors="replace")
                 rc = proc.returncode
                 print(proc.stdout, end="", file=child_stdout, flush=True)
-                advisory_findings = _read_advisory_count(proc.stdout,
-                                                         scanner.name)
+                # Exit 2 is a scan that could not run (160/800 SX2), and a
+                # scan that did not run prints no count. Reading one anyway
+                # reported "the count contract has drifted", a misdiagnosis
+                # beside the real cause, so the count is read only when the
+                # scan finished.
+                advisory_findings = (
+                    0 if rc == 2 else
+                    _read_advisory_count(proc.stdout, scanner.name))
             else:
                 rc = subprocess.run(argv, check=False,
                                     stdout=child_stdout).returncode
@@ -2310,6 +2316,12 @@ def render(results: list[Result], plane: str) -> str:
     if bad:
         lines.append("")
         lines.append(f"BLOCKED by: {', '.join(bad)}")
+        broke = [r.name for r in results if r.failed and r.rc == 2]
+        if broke:
+            lines.append(
+                f"{', '.join(broke)}: exit 2 means the scan itself could not "
+                "run, not that it found something. Read that\nscanner's "
+                "message above; a marker or an ignore glob will not clear it.")
         lines.append(
             "Fix the finding(s) above — remove and ROTATE a real secret, fix a "
             "broken link,\nharvest a stranded item — or exempt a false positive "

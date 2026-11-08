@@ -1994,7 +1994,29 @@ diff that does not fit its counts is exit 2, never a guess. Each added line
 comes with its real line number in the file the commit produces, and all three
 guards report a finding at that line (`115/300`): a marker staged on line 5 of
 a file whose lines 1-4 are unchanged is reported at 5, not at its position
-among the added lines.
+among the added lines. One input class moved with it (`160/830`): an added line
+holding a form feed, vertical tab, NEL, U+2028 or a lone CR before a marker is
+one line to git, so the marker is not at column 0 and `conflictscan` no longer
+flags it, as on the whole-tree plane.
+
+The command that reads the diff is pinned (`160/800`), so a user setting cannot
+change what the guards see. `diff.suppressBlankEmpty`, `diff.interHunkContext`
+and `GIT_DIFF_OPTS` could make the reader refuse a legitimate diff (exit 2, on
+all three guards, with no remedy named); all three are pinned or scrubbed, and
+a refusal now says it is not a finding and how to see the raw diff. `--no-relative`
+keeps paths root-relative from a subdirectory. The filter is `ACMRT`: a file
+that replaces a symlink (or the reverse) is a typechange, which `ACMR` never
+showed to any guard. A `-diff` or `binary` attribute staged with a text file
+made git print "Binary files differ" and no line, hiding a secret; a path git
+calls binary whose index copy has no NUL in its first 8000 bytes is now read
+again with `--text`. A genuinely binary file is never turned into lines.
+`diff.<driver>.textconv` is left unpinned on purpose: it lives in the user's
+own config, not in a commit, and pinning it off would remove the extra cover a
+textconv for PDF or DOCX gives. **Not bounded:** the staged plane holds the
+whole diff in memory, unlike the whole-tree plane (`020/370`); what an
+over-long staged line should do is a ruling still to be asked (`160/800` SX6).
+`floor.py` no longer reads an advisory count off a scanner that exited 2, which
+had it report "the count contract has drifted" beside the real cause.
 
 The staged guards read their positionals through one function too (the three
 boundary guards, plus `datescan`, `sizescan`, `spellscan`, `reviewscan` and

@@ -29,6 +29,7 @@ Zero third-party deps, same as the rest of the suite.
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -1753,6 +1754,37 @@ class AdvisoryCountContract(unittest.TestCase):
         out = floor.render([r], "ci")
         self.assertIn("🔴", out)
         self.assertIn("count contract has drifted", out)
+
+    def test_a_scan_that_could_not_run_is_not_a_drifted_count(self):
+        """160/800 SX2. A scanner that exits 2 prints no advisory count, and
+        reading none off it reported "the count contract has drifted" beside
+        the real cause. The board now says the scan could not run."""
+        with tempfile.TemporaryDirectory() as td:
+            tools = Path(td) / "tools"
+            tools.mkdir()
+            for p in TOOLS_DIR.glob("*.py"):
+                if not p.name.startswith("test_"):
+                    shutil.copy(p, tools / p.name)
+            (tools / "secretscan.py").write_text(
+                "import sys\nprint('secretscan: the scan itself broke',"
+                " file=sys.stderr)\nsys.exit(2)\n", encoding="utf-8")
+            root = Path(td) / "repo"
+            (root / "docs").mkdir(parents=True)
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane", "ci",
+                 "--root", str(root), "--tools", str(tools)],
+                capture_output=True, text=True)
+        self.assertEqual(1, r.returncode, r.stderr)
+        self.assertNotIn("count contract has drifted", r.stderr)
+        self.assertIn("secretscan: exit 2 means the scan itself could not run",
+                      r.stderr)
+
+    def test_the_exit_two_note_only_names_the_checks_that_exited_two(self):
+        out = floor.render([floor.Result("secretscan", "enforced", 1),
+                            floor.Result("leakscan", "enforced", 2)], "ci")
+        self.assertIn("BLOCKED by: secretscan, leakscan", out)
+        self.assertIn("leakscan: exit 2 means", out)
+        self.assertNotIn("secretscan: exit 2", out)
 
     def test_a_failing_check_still_reads_as_failed(self):
         """Precedence: ❌ outranks the advisory mark. A check that BLOCKED must

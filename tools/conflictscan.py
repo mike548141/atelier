@@ -407,7 +407,13 @@ def scan_lines(path: str, numbered_lines: "list[tuple[int, str]]",
     not consecutive lines of the file, so each carries its real line number
     from `report.staged_added` and a finding is reported at THAT line. The
     open-conflict state still runs through the added lines in order, exactly
-    as before: only the number a finding is reported at changed.
+    as before: the number a finding is reported at changed, and so did one
+    input class (160/830 RN1): an added line holding a form feed, vertical
+    tab, NEL, U+2028 or a lone CR before a marker. `str.splitlines` used to
+    split it, so the marker looked like a line of its own and was flagged
+    (at a wrong number); it is now one line, the marker is not at column 0,
+    and nothing is flagged, as on the whole-tree plane and in git's own line
+    model. Pinned by `StagedReaderPins`.
     `_scan_file` below is the streaming shape the whole-tree walk uses."""
     findings: list[Finding] = []
     in_conflict = False
@@ -425,8 +431,8 @@ def scan_lines(path: str, numbered_lines: "list[tuple[int, str]]",
 
 def scan_text(path: str, text: str, tally: "Tally | None" = None) -> list[Finding]:
     """Scan a whole text blob, numbering its lines from 1 — the whole-blob
-    convenience wrapper over `scan_lines` (the selftest and the test suite
-    use it); the staged plane passes real line numbers to `scan_lines`."""
+    convenience wrapper over `scan_lines` (the test suite uses it); the staged
+    plane passes real line numbers to `scan_lines`."""
     return scan_lines(path, list(enumerate(text.splitlines(), start=1)), tally)
 
 
@@ -603,16 +609,9 @@ def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
 
     The line number is the line's place in the file the commit produces, not
     its place among the file's added lines (115/300): a marker staged on line
-    5 of a file whose lines 1-4 are unchanged is reported at 5, not at 1.
-
-    `R` is in the diff filter deliberately (matches `secretscan`'s own
-    review-B4 reasoning): a renamed-and-edited file's added lines can carry a
-    conflict marker exactly as a modified file's can, and `ACM` alone would
-    silently skip them."""
-    # `report.staged_added` reads the diff by its structure (115/280): the
-    # path of a quoted name is undone there (115/260), and an added line that
-    # merely looks like a header (`++ b/x` prints as `+++ b/x`) can neither
-    # move attribution nor be dropped from the scan.
+    5 of a file whose lines 1-4 are unchanged is reported at 5, not at 1. How
+    the diff is read, and why, is on `report.STAGED_DIFF_CMD` and
+    `report.parse_added_lines`."""
     files: dict[str, list[tuple[int, str]]] = {}
     for path, lineno, text in report.staged_added():
         files.setdefault(path, []).append((lineno, text))

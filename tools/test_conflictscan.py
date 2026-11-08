@@ -593,6 +593,58 @@ class StagedRealLineNumbers(unittest.TestCase):
         self.assertEqual((1, [("fresh.md", 2, "opener")]), self._found())
 
 
+class StagedReaderPins(StagedRealLineNumbers):
+    """160/800 and 160/830 — what the shared staged reader is pinned to, seen
+    through this guard. Inherits the fixture helpers of the class above (and
+    so also re-runs its three tests, which is harmless)."""
+
+    def _tree(self, name):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            code = cs.main(["--root", str(self.repo), "--json", name])
+        return code, [(f["path"], f["line"], f["kind"])
+                      for f in json.loads(buf.getvalue())["findings"]]
+
+    def test_a_typechange_to_a_file_holding_a_marker_blocks(self):
+        # 160/800 SX3: a file that replaces a symlink was never in the diff.
+        os.symlink("elsewhere", self.repo / "t.md")
+        _git(self.repo, "add", "--", "t.md")
+        _git(self.repo, "-c", "commit.gpgsign=false", "commit", "-q", "-m", "b")
+        (self.repo / "t.md").unlink()
+        self._stage("t.md", ["x", self.OPENER])
+        self.assertEqual((1, [("t.md", 2, "opener")]), self._found())
+
+    def test_a_marker_in_text_a_diff_attribute_hides_blocks(self):
+        # 160/800 SX4: `-diff` staged with the file printed "Binary files
+        # differ" and no line.
+        self._stage(".gitattributes", ["*.cfg -diff"])
+        self._stage("a.cfg", ["x", self.OPENER])
+        self.assertEqual((1, [("a.cfg", 2, "opener")]), self._found())
+
+    def test_a_blank_line_between_two_edits_is_not_a_refusal(self):
+        # 160/800 SX1, through the guard: refused (exit 2) before the pins.
+        self._commit("b.md", ["a", "", "b"])
+        _git(self.repo, "config", "diff.suppressBlankEmpty", "true")
+        _git(self.repo, "config", "diff.interHunkContext", "3")
+        self._stage("b.md", ["A", "", "B", self.OPENER])
+        self.assertEqual((1, [("b.md", 4, "opener")]), self._found())
+
+    def test_a_line_separator_before_a_marker_agrees_on_both_planes(self):
+        # 160/830 RN1: a form feed, VT, NEL, U+2028 or lone CR inside an added
+        # line is not a line break to git. The marker after it is not at column
+        # 0, so neither plane flags it. (`str.splitlines` made the old staged
+        # plane flag it: the exit code moved 1 -> 0, towards the tree plane.)
+        for sep in ("\x0c", "\x0b", "\x85", "\u2028", "\r"):
+            with self.subTest(sep=repr(sep)):
+                name = "sep%d.md" % ord(sep)
+                (self.repo / name).write_bytes(
+                    ("a" + sep + self.OPENER + "\n").encode())
+                _git(self.repo, "add", "--", name)
+                self.assertEqual((0, []), self._found())
+                self.assertEqual((0, []), self._tree(name))
+
+
 class BoundedMemory(unittest.TestCase):
     """020/380 — the same class of defect `020/370` fixed in `secretscan`,
     applied here: peak memory must be bounded by a constant that does not

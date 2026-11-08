@@ -3285,6 +3285,53 @@ class BinaryGitTracking(_TreeCase):
         self.assertEqual(1, rc, out)
         self.assertIn("email", out)
 
+    def test_staged_empty_new_file_has_its_name_read(self):
+        # 160/800 SX5: no added line, so the diff names no path for it.
+        self.put("10.1.2.3.md", "")
+        self.git("add", ".")
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertIn("ipv4", out)
+
+    def test_staged_typechange_has_its_name_and_body_read(self):
+        # 160/800 SX3 and SX5: a regular file that replaces a symlink is a
+        # typechange to git, which `ACMR` filters showed to no plane.
+        os.symlink("elsewhere", self.tmp / "10.1.2.3.md")
+        self.git("add", ".")
+        self.git("commit", "-q", "-m", "seed")
+        (self.tmp / "10.1.2.3.md").unlink()
+        self.put("10.1.2.3.md", "owner a.b@example.com\n")
+        self.git("add", ".")
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertIn("ipv4", out)
+        self.assertIn("email", out)
+
+    def test_staged_text_hidden_by_a_diff_attribute_is_read_once(self):
+        # The reader now re-reads such a file with `--text`; the gate already
+        # scans the whole staged copy, so the same line is not reported twice.
+        self.put(".gitattributes", "*.cfg -diff\n")
+        self.put("app.cfg", "owner a.b@example.com\n")
+        self.git("add", ".")
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertEqual(1, out.count("app.cfg:1"), out)
+
+    def test_a_line_separator_before_a_hit_keeps_the_finding_at_its_line(self):
+        # 160/830 RN1: unlike conflictscan, leakscan's structural rules are
+        # not anchored to column 0, so a separator inside a line moves nothing
+        # but the number, and the number is the file's.
+        for sep in ("\x0c", "\x0b", "\x85", "\u2028", "\r"):
+            with self.subTest(sep=repr(sep)):
+                name = "s%d.md" % ord(sep)
+                (self.tmp / name).write_bytes(
+                    f"one\ntwo{sep}10.1.2.3\n".encode())
+                self.git("add", name)
+                rc, out = self.staged()
+                self.assertEqual(1, rc, out)
+                self.assertIn(f"{name}:2", out)
+                self.git("rm", "-q", "--cached", name)
+
     def test_staged_manifest_an_unstaged_manifest_edit_does_not_excuse_a_staged_binary(self):
         data = self.put("ok.bin", b"\x00\x01ok")
         self.git("add", "ok.bin")

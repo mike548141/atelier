@@ -264,11 +264,11 @@ def staged_added_by_path() -> dict[str, set[int]]:
 
 def staged_paths() -> list[str]:
     """Every path the staged change adds, copies, modifies or renames to, with
-    no regard to whether it adds a LINE (`git diff --cached --name-only -z`,
-    the same `ACMR` filter as `STAGED_DIFF_CMD`). For a scanner that judges a
-    whole file rather than a line (`reviewscan`, `sizescan`, roadmap 320/600):
-    a deletion-only edit adds no line, yet it can make the whole file wrong
-    (it removed the file's review line). Raises `subprocess.CalledProcessError`
+    no regard to whether it adds a LINE (`git diff --cached --name-only -z`;
+    the filter is `ACMR`, narrower than `STAGED_DIFF_CMD`'s). For a scanner
+    that judges a whole file rather than a line (`reviewscan`, `sizescan`,
+    roadmap 320/600): a deletion-only edit adds no line, yet it can make the
+    whole file wrong (it removed the file's review line). Raises `subprocess.CalledProcessError`
     if git fails; callers catch `STAGED_DIFF_FAILURES`."""
     out = subprocess.run(
         ["git", "diff", "--cached", "--name-only", "-z", "--no-ext-diff",
@@ -302,8 +302,20 @@ def staged_blob(path: str):
 
 
 def git_diff_failed(name: str, e: BaseException) -> int:
-    """Exit 2 when the staged diff cannot be read."""
-    return broken(name, f"git diff failed: {e}")
+    """Exit 2 when the staged diff cannot be read. A diff the reader refuses
+    (`DiffReadError`) also says what that means for the committer, because the
+    bare "does not fit its hunk's counts" names no cause and no way forward
+    (160/800 SX2)."""
+    msg = f"git diff failed: {e}"
+    if isinstance(e, DiffReadError):
+        msg += ("\n  This is not a finding: the guard could not read the staged "
+                "diff, so it refuses to guess.\n"
+                "  The usual cause is a git setting or environment variable "
+                "that changes how `git diff`\n"
+                "  prints (diff.* config, GIT_DIFF_OPTS). The guard pins the "
+                "ones it knows; see the raw\n"
+                "  diff with: git diff --cached --unified=0 --no-ext-diff")
+    return broken(name, msg)
 
 
 def refuse_absolute_staged(name: str, paths: Iterable[str],
@@ -668,10 +680,51 @@ def nul_paths(raw: bytes) -> list[str]:
 # is not a shape this reader understands. That is `DiffReadError` (exit 2 via
 # `git_diff_failed`), never a guess that might hide a line.
 
+# What the command pins, and why each pin is there (160/800):
+#   * `core.quotePath=false`: a non-ASCII name is printed as itself.
+#   * `diff.suppressBlankEmpty=false` and `diff.interHunkContext=0`, with
+#     `GIT_DIFF_OPTS` dropped from the environment (`_diff_env`): the plane is
+#     `-U0` as designed. A user setting that prints a blank context line bare
+#     (`suppressBlankEmpty`), or fuses nearby hunks and so brings context in
+#     (`interHunkContext`, or a `-u3` in `GIT_DIFF_OPTS`, which git applies OVER
+#     the `--unified=0` below), made the reader refuse a legitimate diff on all
+#     three blocking guards (SX1).
+#   * `--no-ext-diff` and the two prefixes: the header shape is git's own.
+#   * `--no-relative`: paths are root-relative whatever `diff.relative` says or
+#     the directory a hand run starts from.
+#   * `ACMRT`: T is a typechange. A file that replaces a symlink (or the
+#     reverse) is not "modified" to git, so `ACMR` never showed it to any guard
+#     (SX3). R stays on purpose: git detects renames by default and a renamed
+#     AND edited file's added lines are as leak-capable as a modified file's.
+#
+# Left unpinned on purpose, and recorded as a choice (SX4): `diff.<driver>.
+# textconv`. It lives in the user's own config (a commit cannot stage it), and
+# pinning `--no-textconv` would also remove the extra cover a textconv for
+# PDF or DOCX gives. What a commit CAN stage, a `-diff` or `binary` attribute
+# that makes git print "Binary files differ" for text, is closed another way:
+# `staged_added` reads such a file's added lines with `--text` when its index
+# copy is text (`_hidden_text_paths`).
+#
+# Not bounded (SX6, SX11): the diff is captured whole and every added line is
+# materialised, so this plane's memory grows with the commit, unlike the
+# whole-tree plane (020/370, 020/380). Streaming it needs a ruling on what an
+# over-long staged line does; it is routed to the principal, not guessed here.
+_DIFF_PINS = (
+    "-c", "core.quotePath=false", "-c", "diff.suppressBlankEmpty=false",
+    "-c", "diff.interHunkContext=0")
+
 STAGED_DIFF_CMD = (
-    "git", "-c", "core.quotePath=false", "diff", "--cached", "--unified=0",
-    "--no-color", "--no-ext-diff", "--src-prefix=a/", "--dst-prefix=b/",
-    "--diff-filter=ACMR")
+    "git", *_DIFF_PINS, "diff", "--cached", "--unified=0",
+    "--no-color", "--no-ext-diff", "--no-relative", "--src-prefix=a/",
+    "--dst-prefix=b/", "--diff-filter=ACMRT")
+
+
+def _diff_env() -> dict[str, str]:
+    """The environment `git diff` runs in: ours, minus `GIT_DIFF_OPTS`, the one
+    variable git applies over the command line. `GIT_INDEX_FILE` and the rest
+    stay: a partial commit uses a temporary index and the diff must read it."""
+    return {k: v for k, v in os.environ.items() if k != "GIT_DIFF_OPTS"}
+
 
 _HUNK_RX = re.compile(
     r"^@@ -\d+(?:,(?P<old_n>\d+))? \+(?P<new_start>\d+)(?:,(?P<new_n>\d+))? @@")
@@ -756,12 +809,74 @@ def parse_added_lines(raw: bytes) -> Iterator[tuple[str, int, str]]:
         raise DiffReadError("the diff ends inside a hunk")
 
 
+def staged_binary_paths() -> set[str]:
+    """Paths the staged change adds, modifies, copies, renames or retypes that
+    git reads as BINARY (`numstat` prints `-` for both counts). `--no-textconv`
+    so the verdict is about the bytes, not a driver's text. Shared by
+    `staged_added` (to find text a `-diff` attribute hid) and leakscan's binary
+    gate. Raises `subprocess.CalledProcessError`."""
+    out = subprocess.run(
+        ["git", "diff", "--cached", "-z", "--numstat", "--no-textconv",
+         "--no-relative", "--diff-filter=ACMRT"],
+        capture_output=True, check=True, env=_diff_env())
+    toks = nul_paths(out.stdout)
+    binary: set[str] = set()
+    i = 0
+    while i < len(toks):
+        added, deleted, rest = toks[i].split("\t", 2)
+        if rest:
+            path, i = rest, i + 1
+        else:  # rename/copy: the source and destination follow as tokens
+            path, i = toks[i + 2], i + 3
+        if added == "-" and deleted == "-":
+            binary.add(path)
+    return binary
+
+
+# git's own test for "binary": a NUL in the first 8000 bytes.
+_BINARY_PROBE_BYTES = 8000
+
+
+def _blob_looks_text(path: str) -> bool:
+    """Does the INDEX copy of `path` have no NUL in its first 8000 bytes? Reads
+    only that much, so a large binary is never read whole."""
+    proc = subprocess.Popen(["git", "cat-file", "blob", f":0:{path}"],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        head = proc.stdout.read(_BINARY_PROBE_BYTES)
+    finally:
+        proc.kill()
+        proc.stdout.close()
+        proc.stderr.close()
+        proc.wait()
+    return b"\0" not in head
+
+
+def _hidden_text_paths() -> list[str]:
+    """Staged paths git calls binary although their bytes are text: a `-diff`
+    or `binary` attribute, staged in the same commit as the file, makes
+    `git diff` print "Binary files differ" and no line at all, so a secret in
+    the file reached no guard (160/800 SX4, driven through a real commit)."""
+    return sorted(p for p in staged_binary_paths() if _blob_looks_text(p))
+
+
 def staged_added() -> list[tuple[str, int, str]]:
     """The added lines of the staged diff as (path, line number, text), read by
     `parse_added_lines`. Raises `subprocess.CalledProcessError` if git fails and
     `DiffReadError` if its output is not a diff the reader understands; callers
-    catch `STAGED_DIFF_FAILURES` and exit 2. R is in the diff filter on purpose:
-    git detects renames by default, and a renamed-and-edited file's added lines
-    are as leak-capable as a modified file's."""
-    out = subprocess.run(list(STAGED_DIFF_CMD), capture_output=True, check=True)
-    return list(parse_added_lines(out.stdout))
+    catch `STAGED_DIFF_FAILURES` and exit 2. The pins and the reasons for the
+    filter are on `STAGED_DIFF_CMD`.
+
+    A file git calls binary whose index copy is text is read again with
+    `--text`, one path at a time. A genuinely binary file is never read: it is
+    the reason the first pass does not use `--text` for everything (a staged
+    photograph would arrive as megabytes of "lines")."""
+    out = subprocess.run(list(STAGED_DIFF_CMD), capture_output=True,
+                         check=True, env=_diff_env())
+    added = list(parse_added_lines(out.stdout))
+    for path in _hidden_text_paths():
+        out = subprocess.run(
+            [*STAGED_DIFF_CMD, "--text", "--", f":(top,literal){path}"],
+            capture_output=True, check=True, env=_diff_env())
+        added.extend(parse_added_lines(out.stdout))
+    return added
