@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0500, wt: atelier-rr-722a-x1)
-      🎯 **Rule-4 cold pass queued: the mandate-versus-default date rule
+- [x] 🎯 **Rule-4 cold pass queued: the mandate-versus-default date rule
       (`040/010`).** The run authored the wording itself. The rule is Mike's
       and is quoted, and the placement and surrounding prose are the run's.
       It was queued at landing, and the run neither takes it nor spawns a
@@ -50,3 +49,9 @@
             principal's to decide (rule 3); nothing was applied.
       💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Add a readable label"* (DK1, DK2): each dated rule carries a `mandate` or `default` kind the checkers read; existing dates get labelled.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read
+      by the orchestrator before landing), per his answer: DK1 — an optional `kind`
+      key on a dated advisory, validated and shown by `floor.py` and the fleet
+      view, an unlabelled date read as a mandate (DK11); DK2–DK10 as counselled.
+      Labelling each child's existing dates is that child's own edit. Cold pass
+      `160/1180`.
