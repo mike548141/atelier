@@ -162,8 +162,8 @@ git config user.email "<git_identity.email>"
        '<atelier-path>\|<SHA>\|<owner/repo>\|<visibility fact>\|<plugin-path>\|<VERSION>' . \
                                         # expect: no hits ANYWHERE (all filled)
    # then run the block's own drift check VERBATIM —
-   # live mode; expect empty:
-   git -C "$SRC" log --oneline <stamped-SHA>..HEAD
+   # live mode; expect empty (a fetch error is no result, not no drift):
+   git -C "$SRC" fetch -q && git -C "$SRC" log --oneline <stamped-SHA>..origin/main
    # bundled mode; expect exactly the stamped <VERSION>:
    grep '"version"' "$SRC/.claude-plugin/plugin.json"
    ```

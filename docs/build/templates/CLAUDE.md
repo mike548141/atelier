@@ -97,10 +97,12 @@ in atelier and is read on demand — never wholesale.
   hand-up in the first line, open the PR before you stop, and touch nothing but
   your own item. (`PROPAGATION.md` § *Pointing up*.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
-  session start run `git -C "<atelier-path>" fetch -q` then `git -C
+  session start run `git -C "<atelier-path>" fetch -q && git -C
   "<atelier-path>" log --oneline <SHA>..origin/main` — the parent's published
-  mainline, never whatever branch its checkout is parked on; any output means
-  the house doctrine moved — read it, then bump the pin above deliberately.
+  mainline (its remote is assumed to be `origin`), never whatever branch its
+  checkout is parked on. A fetch error is *no result*, not *no drift*; any
+  output means the house doctrine moved — read it, then bump the pin above
+  deliberately.
 - **Estate resources — point up, don't re-derive:** providers & account plans,
   financial constraints & plan entitlements, licences, credentials and the
   estate inventory live in the operator's **private estate-root repo**

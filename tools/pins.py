@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""pins — the fleet view of "which children are stale" against atelier HEAD.
+"""pins — the fleet view of "which children are stale" against atelier's mainline.
 
 The propagation mechanism (method/PROPAGATION.md) makes staleness observable one
 repo at a time: each child's CLAUDE.md carries a pin (`atelier@<SHA>`) and a
@@ -16,13 +16,25 @@ That respects the honest caveat PROPAGATION states: the pin makes staleness
 *observable*, not *enforced* — a view is observability, and that is all it
 claims to be.
 
-  pins                 discover children under atelier's parent dir + report
+  pins                 fetch, then discover children under atelier's parent dir
+                       + report against the published mainline (origin/main)
+  pins --head          offline: measure against the local checkout's HEAD instead
   pins --child <path>  report only the named child repo(s)
   pins --json          machine-readable (for a dashboard or a CI gate)
   pins --check         exit 1 if any child is not current (for CI/hooks)
   pins --log           also print the commits each stale child would inspect
 
-How a child is classified (pin = the child's pinned SHA, HEAD = atelier HEAD):
+The reference is the parent's *published* mainline (`origin/main`, after a
+`git fetch`), the same reference a child's own session-start drift check uses
+(PROPAGATION § The mechanism, point 4), never whatever branch or stale commit
+the atelier checkout happens to sit on (160/310 HF3, `320/260`). A fetch that
+fails is *no result*, not *no drift*: the tool exits 2 and says so, rather than
+report a fleet measured against a checkout it could not refresh. `--head` is
+the explicit offline choice, and the report names which reference it used.
+The remote is assumed to be named `origin`.
+
+How a child is classified (pin = the child's pinned SHA, HEAD = the reference
+above; with `--head`, atelier's local HEAD):
   current   pin == HEAD                       — up to date
   behind    pin is an ancestor of HEAD        — N house commits since the pin
   ahead     HEAD is an ancestor of pin        — child pinned newer than atelier
@@ -36,8 +48,8 @@ Exit codes (fail-safe — anything but "everything current" is non-zero):
   0  every discovered child is current
   1  at least one child is behind/ahead/diverged/unknown/no-pin (with --check),
      or plain output when something is not current
-  2  environment error (not run against an atelier repo, HEAD unreadable, a
-     named --child is missing) — we could not truthfully compute the fleet, so
+  2  environment error (not run against an atelier repo, the reference
+     unreadable, the fetch failed, a named --child is missing) — we could not truthfully compute the fleet, so
      we do not report a green fleet we did not verify.
 
 Zero third-party dependencies; stdlib only — a peer who adopts atelier runs it
@@ -295,10 +307,38 @@ def resolve_atelier(explicit: str | None) -> Path:
     return main_checkout(toplevel(start))
 
 
+MAINLINE_REF = "origin/main"
+
+
+def reference(atelier: Path, use_head: bool) -> tuple[str, str]:
+    """(sha, label) of the commit the fleet is measured against.
+
+    Default is the published mainline after a fetch. A failed fetch raises —
+    an empty or stale answer would read as "current", the silent-negative
+    shape the verify-the-act bullet names — and the message points at `--head`
+    for the offline case instead of falling back on its own."""
+    if use_head:
+        return git(["-C", str(atelier), "rev-parse", "HEAD"]).stdout.strip(), "HEAD"
+    fetched = git(["-C", str(atelier), "fetch", "-q", "origin"], check=False)
+    if fetched.returncode != 0:
+        raise GitError(
+            "could not fetch origin in the atelier checkout "
+            f"({fetched.stderr.strip() or 'no output'}) — a fetch error is no "
+            "result, not no drift; pass --head to measure the local checkout "
+            "offline")
+    ref = git(["-C", str(atelier), "rev-parse", "--verify", "-q",
+               f"{MAINLINE_REF}^{{commit}}"], check=False)
+    if ref.returncode != 0 or not ref.stdout.strip():
+        raise GitError(f"the atelier checkout has no {MAINLINE_REF} after the "
+                       "fetch (the published-mainline remote is assumed to be "
+                       "named origin); pass --head to measure the local checkout")
+    return ref.stdout.strip(), MAINLINE_REF
+
+
 def cmd_report(args) -> int:
     try:
         atelier = resolve_atelier(args.atelier)
-        head = git(["-C", str(atelier), "rev-parse", "HEAD"]).stdout.strip()
+        head, ref_label = reference(atelier, getattr(args, "head", False))
     except GitError as e:
         print(f"pins: {e}", file=sys.stderr)
         print("pins: run this from an atelier checkout, or pass --atelier <path>.",
@@ -324,6 +364,7 @@ def cmd_report(args) -> int:
     if args.json:
         out = {
             "atelier": str(atelier),
+            "ref": ref_label,
             "head": head,
             "children": [asdict(i) for i in infos],
         }
@@ -331,7 +372,7 @@ def cmd_report(args) -> int:
             out["searched"] = [str(r) for r in roots]
         print(json.dumps(out, indent=2))
     else:
-        print(render(infos, atelier, head, args.log, roots))
+        print(render(infos, atelier, head, args.log, roots, ref_label))
 
     if not infos:
         # Nothing discovered is not "all clean" — say so, and treat as actionable
@@ -372,8 +413,8 @@ def _detail(i: ChildPin) -> str:
 
 
 def render(infos: list[ChildPin], atelier: Path, head: str, want_log: bool,
-          roots: list[Path] | None = None) -> str:
-    lines = [f"atelier fleet pins  (HEAD {head[:7]}  {atelier})"]
+          roots: list[Path] | None = None, ref: str = "HEAD") -> str:
+    lines = [f"atelier fleet pins  ({ref} {head[:7]}  {atelier})"]
     if roots is not None:
         # Named explicitly, always — not just when the count looks wrong. PU-5
         # was a small, plausible-looking count from the wrong place; the fix is
@@ -419,6 +460,9 @@ def build_parser() -> argparse.ArgumentParser:
                     help="report only this child repo (repeatable; bypasses discovery)")
     ap.add_argument("--log", action="store_true",
                     help="also print the commits each stale child would inspect")
+    ap.add_argument("--head", action="store_true",
+                    help="measure against the local checkout's HEAD, offline, "
+                         "instead of fetching and using origin/main")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--check", action="store_true",
                     help="exit 1 if any child is not current (for CI/hooks)")

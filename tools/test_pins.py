@@ -151,13 +151,90 @@ class RealRepos(unittest.TestCase):
     def test_report_exit_codes(self):
         # --atelier points at the throwaway repo (default would resolve to the
         # real atelier this script lives in, which doesn't know these SHAs).
-        base = ["--atelier", str(self.atelier), "--root", str(self.parent)]
+        base = ["--atelier", str(self.atelier), "--root", str(self.parent), "--head"]
         self._child("ros", self.head)
         args = pins.build_parser().parse_args(base)
         self.assertEqual(pins.cmd_report(args), 0)  # only child is current
         self._child("faves", self.c1)
         args = pins.build_parser().parse_args(base + ["--check"])
         self.assertEqual(pins.cmd_report(args), 1)  # now one is behind
+
+
+class PublishedMainlineReference(unittest.TestCase):
+    """160/310 HF3 — the fleet view is measured against the published
+    mainline after a fetch, not the local checkout's HEAD. A stale local
+    checkout made a pin at the true tip read "ahead" or "unknown" (`320/260`),
+    and a failed fetch must be *no result*, never an empty "all current"."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="pins-ref-"))
+        self.parent = self.tmp / "estate"
+        self.parent.mkdir()
+        self.origin = self.tmp / "origin.git"
+        git(["init", "-q", "--bare", "-b", "main", str(self.origin)], self.tmp)
+        # the publisher advances origin; atelier is a clone left one behind
+        self.pub = self.tmp / "pub"
+        git(["clone", "-q", str(self.origin), str(self.pub)], self.tmp)
+        git(["config", "user.email", "t@example.com"], self.pub)  # leakscan:allow: fictional test fixture
+        git(["config", "user.name", "Test"], self.pub)
+        self._commit(self.pub, "one")
+        git(["push", "-q", "origin", "main"], self.pub)
+        self.atelier = self.parent / "atelier"
+        git(["clone", "-q", str(self.origin), str(self.atelier)], self.tmp)
+        self.old = sha(self.atelier)
+        self._commit(self.pub, "two")
+        git(["push", "-q", "origin", "main"], self.pub)
+        self.tip = sha(self.pub)
+        child = self.parent / "ros"
+        child.mkdir()
+        git(["init", "-q", "-b", "main"], child)
+        (child / "CLAUDE.md").write_text(f"(pinned `atelier@{self.tip[:7]}`)\n")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _commit(self, repo, name):
+        (repo / name).write_text(name + "\n")
+        git(["add", "--", name], repo)
+        git(["-c", "user.email=t@example.com", "-c", "user.name=Test",  # leakscan:allow: fictional test fixture
+             "commit", "-qm", name], repo)
+
+    def _run(self, *extra):
+        return subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "pins.py"), "--atelier", str(self.atelier),
+             "--root", str(self.parent), "--json", *extra],
+            capture_output=True, text=True)
+
+    def test_default_fetches_and_measures_against_origin_main(self):
+        # A stale local HEAD would call the child (pinned at the true tip)
+        # unknown; the fetched mainline calls it current.
+        proc = self._run()
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        payload = json.loads(proc.stdout)
+        self.assertEqual(payload["ref"], "origin/main")
+        self.assertEqual(payload["head"], self.tip)
+        self.assertEqual(payload["children"][0]["status"], pins.STATUS_CURRENT)
+
+    def test_head_is_the_explicit_offline_choice(self):
+        proc = self._run("--head")
+        payload = json.loads(proc.stdout)
+        self.assertEqual(payload["ref"], "HEAD")
+        self.assertEqual(payload["head"], self.old)
+        self.assertEqual(payload["children"][0]["status"], pins.STATUS_UNKNOWN)
+
+    def test_failed_fetch_is_no_result_not_no_drift(self):
+        shutil.move(str(self.origin), str(self.origin) + ".gone")
+        proc = self._run()
+        self.assertEqual(proc.returncode, 2, proc.stdout)
+        self.assertIn("no result, not no drift", proc.stderr)
+        self.assertIn("--head", proc.stderr)
+        self.assertEqual(proc.stdout.strip(), "")
+
+    def test_remote_not_named_origin_is_refused_with_the_assumption_stated(self):
+        git(["remote", "rename", "origin", "upstream"], self.atelier)
+        proc = self._run()
+        self.assertEqual(proc.returncode, 2, proc.stdout)
+        self.assertIn("origin", proc.stderr)
 
 
 class WorktreeResolution(unittest.TestCase):
@@ -216,7 +293,8 @@ class WorktreeResolution(unittest.TestCase):
         # shape PU-5 was filed against.
         script = self.worktree / "tools" / "pins.py"
         proc = subprocess.run(
-            [sys.executable, str(script), "--root", str(self.empty_root), "--json"],
+            [sys.executable, str(script), "--root", str(self.empty_root), "--head",
+             "--json"],
             cwd=str(self.worktree), capture_output=True, text=True)
         self.assertEqual(proc.returncode, 0, proc.stderr)
         payload = json.loads(proc.stdout)
@@ -229,7 +307,7 @@ class WorktreeResolution(unittest.TestCase):
         # discovery looked and how many it found, not just trust a denominator.
         script = self.worktree / "tools" / "pins.py"
         proc = subprocess.run(
-            [sys.executable, str(script), "--root", str(self.empty_root)],
+            [sys.executable, str(script), "--root", str(self.empty_root), "--head"],
             cwd=str(self.worktree), capture_output=True, text=True)
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn(str(self.empty_root), proc.stdout)

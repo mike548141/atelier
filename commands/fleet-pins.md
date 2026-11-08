@@ -19,9 +19,13 @@ lives in — inside the plugin that is the bundled tree; pass `--atelier <path>`
 explicitly to point at your **live** atelier checkout when running from the plugin,
 so the SHAs compare against real history). Pass `$ARGUMENTS` through:
 
-- **default** — discover children under atelier's parent dir and report each one's
-  pin status (current / stale, and by how many commits):
+- **default** — fetch the atelier checkout, then discover children under its
+  parent dir and report each one's pin status (current / stale, and by how many
+  commits) against the published mainline, `origin/main`, the same reference a
+  child's own drift check uses. A failed fetch exits 2: it is no result, not no
+  drift:
   `python3 "${CLAUDE_PLUGIN_ROOT}/tools/pins.py" [--atelier <live-atelier>]`
+- **`--head`** — offline: measure against the checkout's local HEAD instead.
 - **`--child <repo>`** — report only that child (repeatable; bypasses discovery).
 - **`--log`** — also print the commits each stale child would need to inspect.
 - **`--check`** — exit 1 if any child is stale (for CI / hooks).

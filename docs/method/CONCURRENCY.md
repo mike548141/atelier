@@ -196,33 +196,46 @@ action across every parallel session.
   (two sessions legitimately landing on the same integration branch):
   `git pull --rebase --autostash` at session start; push after each commit,
   not in a batch at session end. The opening bookend has two gates, because
-  `--autostash` stashes *whatever* is dirty, not whatever is yours, onto a
-  stash stack shared by the primary checkout and every worktree. **Read
-  `git status` first**: anything dirty that is not yours is positive proof of
-  a live peer (§ The trigger), so the bookend becomes a stop and a move to a
-  worktree, never a step that shelves the peer's work where a second session
-  may pop it. **And no remote, no bookend** — a repo with no upstream gains
-  nothing from the pull and keeps the stash hazard. (A private child's
-  near-miss, 2026-09-06: the bookend ran verbatim beside a peer's five staged
-  files and was saved only by the pull failing first — `320/210`.)
+  `--autostash` stashes *whatever* is dirty, not whatever is yours, and puts it
+  back without its index state: a peer's *staged* files come back unstaged,
+  and where the re-apply collides their file is left with conflict markers and
+  their change on a stash stack shared by the primary checkout and every
+  worktree. **Read `git status` first**: anything dirty that is not yours is
+  positive proof of a live peer (§ The trigger), so the bookend becomes a stop
+  and a move to a worktree, never a step that round-trips the peer's work
+  through a stash. Dirty work that *is* yours, a predecessor session cut
+  mid-flight (§ Surviving an interrupted session), is committed or backed out
+  by reverse edit first: the bookend runs on a clean tree only. **And no
+  remote, no bookend** — a repo with no upstream gains nothing from the pull,
+  and the pull fails with a hint that invites a wrong repair. A fresh worktree
+  branch has a remote but no upstream, so there the bookend is
+  `git pull --rebase --autostash origin main`. (A private child's near-miss,
+  2026-09-06: the bookend ran verbatim beside a peer's five staged files and
+  was saved only by the pull failing first — `320/210`.)
 - **Verify the act, not the absence of an error.** Reading a check's output
   covers the check; it says nothing about whether the act that followed
   happened. A commit blocked on another session's `index.lock`, a
   `git commit <path>` that refuses an untracked file, a backgrounded command
   whose reported exit code is the wrapper's — each prints no failure marker a
   filter was looking for, and each leaves a session sure of a state change
-  that never occurred. So confirm by the act's own effect: for a commit,
-  `git log --oneline -1`; for a push, the remote ref; for a write, the file. A
-  grep for failure markers that matches nothing is indistinguishable from a
-  command that produced nothing, so filtering output is not reading it. The
-  costliest case is close-out: *"nothing of mine is outstanding"* is measured
-  at that moment — `git status`, `git worktree list`, a claim grep, the live
-  agent list — never
-  recalled from what the session believes it did, because a close-out miss is
-  the one nobody is left to catch. (Three sessions in one private child, one
-  evening, 2026-09-06: two `index.lock` collisions, an untracked-path commit
-  refusal and a finished item left uncommitted at close, each read as
-  success — `320/220`.)
+  that never occurred. The rule binds any act whose success the session did not
+  read from that act's own output. Confirm it by its own effect: for a commit,
+  `git log --oneline -1`; for a push, `git ls-remote origin main` (the remote's
+  own answer: `git rev-parse origin/main` after a push reads local
+  bookkeeping); for a write, the file. A grep for failure markers that matches
+  nothing is indistinguishable from a command that produced nothing, so
+  filtering output is not reading it. The costliest case is close-out:
+  *"nothing of mine is outstanding"* is measured at that moment — `git status`,
+  `git worktree list`, a claim grep, the live agent list — never recalled from
+  what the session believes it did, because a close-out miss is the one nobody
+  is left to catch. (Three sessions in one private child, one evening,
+  2026-09-06: two `index.lock` collisions, an untracked-path commit refusal and
+  a finished item left uncommitted at close, each read as success — `320/220`.)
+  *Not copied into the child doctrine block:* the block is lean by design,
+  because every child session pays its length at every open, so this bullet
+  stays behind the Concurrency bullet's pointer to this file (160/310 HF8,
+  taken as the narrower option; one clause in the block's session-rhythm
+  bullet is the alternative if a child is seen to miss it).
 - Append-tail files (session logs, changelogs) will conflict when concurrent
   sessions both append — that conflict is *expected and trivial*: keep both
   entries, chronological order, move on. Design shared records so this is the

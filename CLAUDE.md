@@ -11,15 +11,17 @@ private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`
 ## Read order at session start
 
 1. Sync first — `git status` before `git pull --rebase --autostash`, because
-   autostash shelves dirty work that may be a peer's (`CONCURRENCY.md`
-   § Integration hygiene) — and **assume another session may
-   be live** — a clean tree is not proof you're alone (this repo's own
-   commit-small-push-fast hygiene means a disciplined parallel session leaves the
-   tree clean between commits). Uncommitted changes you didn't make are positive
-   proof another session is live: move to a worktree before touching anything.
-   Absent that proof, still take a worktree by default for write-heavy or
-   multi-commit work; reading needs no ceremony (`docs/method/CONCURRENCY.md`
-   § The trigger).
+   autostash shelves dirty work that may be a peer's and returns it unstaged
+   (`CONCURRENCY.md` § Integration hygiene). Dirty work you didn't make is
+   positive proof another session is live: **stop and move to a worktree before
+   touching anything, never autostash it**. Dirty work that is yours (a
+   predecessor cut mid-flight): commit it or back it out first; the pull runs
+   on a clean tree only. And **assume another session may be live** — a clean
+   tree is not proof you're alone (this repo's own commit-small-push-fast
+   hygiene means a disciplined parallel session leaves the tree clean between
+   commits). Absent that proof, still take a worktree by default for
+   write-heavy or multi-commit work; reading needs no ceremony
+   (`docs/method/CONCURRENCY.md` § The trigger).
 2. `docs/method/00-APEX.md` — the frame everything sits inside.
 3. `README.md` — what atelier is and its layers.
 4. Tail of `docs/SESSIONS.md` — where the last session left off. A last commit

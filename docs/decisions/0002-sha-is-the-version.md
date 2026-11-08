@@ -36,3 +36,12 @@ Zero release overhead; the pin is exact and mechanically diffable. The costs,
 accepted: a SHA is opaque to humans (mitigated by the CHANGELOG line), and
 pins are meaningful only while history is never rewritten — atelier's `main`
 is therefore append-only; a force-push would orphan every child's pin.
+
+## Addendum (2026-11-08) — the drift range is measured against the published mainline
+
+The drift check above is written `<PIN>..HEAD`. It is now
+`git -C <atelier-path> fetch -q && git -C <atelier-path> log --oneline <PIN>..origin/main`
+(`PROPAGATION.md` § *The mechanism*, point 4): `HEAD` of a stale or parked
+checkout can run the range backwards and report nothing (`320/260`), and the
+fetch error is no result, not no drift. The decision itself, that the SHA is
+the version, is unchanged.

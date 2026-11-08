@@ -127,19 +127,20 @@ Grounded in the live instance, not invented to fill a heading:
   evidence; it is not the rule's home. That the rule spent two days stated only
   in a commit message is itself the grounding for the `GUARDS.md` entry.
 
-  **Each plane is scoped to its reader (ruled 2026-08-10).** The reply plane
-  covered everything, because every reply is written to the principal — that
-  scoping survives the unwiring above and would carry to any collector built in
-  its place. The repo plane covers only the prose the principal reads —
-  doctrine, ruling asks, review briefs, the live roadmap. Session records
-  (`SESSIONS.md`,
-  `docs/sessions/`, `ROADMAP-DONE.md`) are excluded by ruling: they are
-  append-only history written for the next session's agent, and rewriting
-  them would be dishonest — so a warning there has no possible fix and is
-  pure noise. Measured at the ruling: records carried 3,377 of atelier's
-  7,817 advisory findings. The principal's opening position was to remove the
-  repo plane altogether on this audience argument; the scoping is the accepted
-  counter — keep the floor where the human reads, drop it where none does.
+  **Each plane was scoped to its reader (ruled 2026-08-10), until the removal
+  above.** The reply plane covered everything, because every reply is written
+  to the principal; that scoping would carry to any collector built in its
+  place. The repo plane covered only the prose the principal reads — doctrine,
+  ruling asks, review briefs, the live roadmap. Session records
+  (`SESSIONS.md`, `docs/sessions/`, `ROADMAP-DONE.md`) were excluded by ruling:
+  they are append-only history written for the next session's agent, and
+  rewriting them would be dishonest — so a warning there had no possible fix
+  and was pure noise. Measured at the ruling: records carried 3,377 of
+  atelier's 7,817 advisory findings. The principal's opening position was to
+  remove the repo plane altogether on this audience argument, and the scoping
+  was the accepted counter — keep the floor where the human reads, drop it
+  where none does — until 2026-09-18, when his opening position is what
+  happened.
 
   **Why the correction was owed rather than optional.** The unenforced half was
   measured on 2026-08-09 across 6,704 replies in 1,094 transcripts. The rules
@@ -153,10 +154,11 @@ Grounded in the live instance, not invented to fill a heading:
 
   **What stays judgement, honestly.** Ordering, dosage of tone, whether an icon
   is apt or noise, whether a survey should have been a recommendation — none of
-  that is checkable, and no scanner should pretend otherwise. The gate covers
-  the mechanical floor of readability, not the calibration itself. A reply can
-  pass every rule here and still land badly; that residue is what the
-  maintained instance above is for.
+  that is checkable, and no scanner should pretend otherwise. At HEAD no gate
+  covers even the mechanical floor of readability (the prose plane was removed
+  on 2026-09-18, above), so the calibration carries the whole load. A reply can
+  follow every rule here and still land badly; the maintained instance above
+  is what catches that.
 - **Person-local, pointed at, never copied.** A repo's CLAUDE.md may carry
   *repo* conventions (locale for its artefacts, commit style); the personal
   layer never travels into a repo — not even a private one, because repos

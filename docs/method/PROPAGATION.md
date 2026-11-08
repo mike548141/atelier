@@ -43,11 +43,15 @@ Five moving parts, no engine, no new machinery:
 
 4. **The drift check rides the session-start read.** The child `CLAUDE.md` is
    already read at session start; it now ends the doctrine block with one
-   command — `git -C "<atelier-path>" log --oneline <PIN>..origin/main`, after
-   a `fetch`: measured against the parent's published mainline, never the
-   branch its checkout happens to be parked on. Empty output ⇒ current. Any
-   output ⇒ the house doctrine has moved since the pin: read the changes,
-   decide if they bear on this repo, and bump the pin **deliberately**.
+   command — `git -C "<atelier-path>" fetch -q && git -C "<atelier-path>" log
+   --oneline <PIN>..origin/main`: measured against the parent's published
+   mainline (its remote is assumed to be `origin`), never the branch its
+   checkout happens to be parked on. The two are joined with `&&` because a
+   failed fetch must not reach the `log`: its empty output would read as
+   "current" when a fetch error is *no result*, not *no drift*. Empty output
+   after a good fetch ⇒ current. Any output ⇒ the house doctrine has moved
+   since the pin: read the changes, decide if they bear on this repo, and bump
+   the pin **deliberately**.
    Bump even when the delta turns out not to bear on this repo (tool commits,
    session logs) — the pin means "inspected up to here", and a check that keeps
    re-surfacing old noise trains sessions to skim it (alarm fatigue kills the
@@ -185,10 +189,12 @@ in atelier and is read on demand — never wholesale.
   hand-up in the first line, open the PR before you stop, and touch nothing but
   your own item. (`PROPAGATION.md` § *Pointing up*.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
-  session start run `git -C "<atelier-path>" fetch -q` then `git -C
+  session start run `git -C "<atelier-path>" fetch -q && git -C
   "<atelier-path>" log --oneline <SHA>..origin/main` — the parent's published
-  mainline, never whatever branch its checkout is parked on; any output means
-  the house doctrine moved — read it, then bump the pin above deliberately.
+  mainline (its remote is assumed to be `origin`), never whatever branch its
+  checkout is parked on. A fetch error is *no result*, not *no drift*; any
+  output means the house doctrine moved — read it, then bump the pin above
+  deliberately.
 - **Estate resources — point up, don't re-derive:** providers & account plans,
   financial constraints & plan entitlements, licences, credentials and the
   estate inventory live in the operator's **private estate-root repo**
@@ -441,6 +447,16 @@ nothing today and destroys the only evidence the house would ever get, and it
 leaves the next repo to rediscover the same problem from scratch. Working around
 in silence is the failure this duty closes; the visible pair — narrow locally
 *and* report up — is step 3 of § The route.
+
+**A hand-up's mechanism claim is re-driven before it becomes house text.** A
+report is testimony: the incident is evidence, but the child's account of
+*why* it happened is a hypothesis (`CONCURRENCY.md` § The channel: a peer's
+claim is a hypothesis to re-run; `00-APEX.md`: doctrine changes ride on
+repeatable proof). Before atelier writes a mechanism into a method file it
+runs the mechanism, and the record says it did. Three clauses adopted as
+written from one hand-up each had to be corrected after a cold pass measured
+them (`160/310`: the stash, the no-upstream and the remote-for-upstream
+claims).
 
 **atelier is bound identically, and the only difference is distance.** An
 atelier session that finds its own doctrine wrong files a board item in

@@ -113,3 +113,11 @@ Mike ruled [fixed]): signing posture is the **eighth** externalised fact — the
 `signing` key in the profile, honest default off; the skill reads it instead of
 hard-baking `git config commit.gpgsign true`. The enumeration of seven above
 stands as accepted; this note is the append-only correction, not a rewrite.
+
+## Addendum (2026-11-08) — the drift check in the quoted form
+
+Point 3 quotes the drift check as `git -C ../atelier log <SHA>..HEAD`. The
+block now carries `fetch -q && ... log --oneline <SHA>..origin/main`
+(`PROPAGATION.md` § *The mechanism*, point 4; `320/260`), so a stale or parked
+checkout cannot read as "current". The bundled-mode degradation this point
+decides is unchanged.
