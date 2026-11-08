@@ -293,7 +293,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: the file walk enumerates through git…](roadmap/160-doctrine-review-owed/600-rule-4-cold-pass-queued-git-enumerated-walk.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the template reviews README's trigger list…](roadmap/160-doctrine-review-owed/610-rule-4-cold-pass-queued-template-review-triggers.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the always-confirm list's copies match…](roadmap/160-doctrine-review-owed/620-rule-4-cold-pass-queued-floor-list-membership.md)
-- [~] (claimed 2026-11-09-0120, wt: atelier-rr-722a-630) [Rule-4 cold pass queued: personal…](roadmap/160-doctrine-review-owed/630-rule-4-cold-pass-queued-pii-by-purpose.md)
+- ✅ 🎯 [Rule-4 cold pass queued: personal data held by purpose, with recorded…](roadmap/160-doctrine-review-owed/630-rule-4-cold-pass-queued-pii-by-purpose.md)
 - [ ] 🎯 [Rule-4 cold pass queued: pathscan and linkscan stream and cap…](roadmap/160-doctrine-review-owed/640-rule-4-cold-pass-queued-bounded-pathscan-linkscan.md)
 - [~] (claimed 2026-11-09-0045, wt: atelier-rr-722a-650) [Rule-4 cold pass queued: the…](roadmap/160-doctrine-review-owed/650-rule-4-cold-pass-queued-exception-register-design.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the linear line reader in three guards…](roadmap/160-doctrine-review-owed/660-rule-4-cold-pass-queued-linear-reader.md)
@@ -356,6 +356,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: a private repo's state goes by type in…](roadmap/160-doctrine-review-owed/1090-rule-4-cold-pass-queued-private-state-type-only.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the principal speaks through three channels…](roadmap/160-doctrine-review-owed/1100-rule-4-cold-pass-queued-three-channels.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the ladder gains a floor: framing always, a…](roadmap/160-doctrine-review-owed/1110-rule-4-cold-pass-queued-ladder-floor.md)
+- [ ] ⏳ [Rule-4 cold pass queued: personal data in a public repo is one closed…](roadmap/160-doctrine-review-owed/1120-rule-4-cold-pass-queued-personal-data-closed-list.md)
 
 ## build/ layer — open strands
 

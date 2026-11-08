@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0120, wt: atelier-rr-722a-630)
-      🎯 **Rule-4 cold pass queued: personal data held by purpose, with
+- [x] 🎯 **Rule-4 cold pass queued: personal data held by purpose, with
       recorded exceptions (`200/100` C11).** The run authored this itself.
       The rule is in Mike's own words, and the placement and wording around
       it are the run's. It was queued at landing, and the run neither takes
@@ -42,3 +41,18 @@
       in a public repo only he grants a personal-data exception, in his own
       words, so the scanner refuses any other excuse (PI1, PI2 on the
       reviewer's counsel); the other findings take the reviewer's counsel.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per Mike's answer above: PI1
+      — the "declared where it appears" claim is replaced by one closed list,
+      `docs/PERSONAL-DATA.md` (PD1–PD5), kept true by
+      `tools/test_personal_data.py`; PI2 — in a public repo only the
+      principal grants a personal-data exception, in his own words, and a
+      marker is not a grant (`REPO-STANDARD.md`, `CLAUDE.md`, both child
+      templates); PI3–PI10 as counselled; no scanner behaviour changed.
+      **Not done, for him:** a scanner that enforces the closed list (it
+      would need a per-repo visibility key and start warn-only, since
+      several private children carry many personal-data markers); whether
+      the rule moves into the stamped floor block; the private-repo grant
+      wording ("the principal's order for the work is the grant"), which is
+      the worker's reading of his 2026-10-03 words. Two MAJORs stood, so the
+      application's cold pass is queued as `160/1120`.
