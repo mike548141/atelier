@@ -109,9 +109,10 @@ in atelier and is read on demand — never wholesale.
   (atelier's private counterpart). Reference it for these; never re-derive
   them locally or copy its contents down. The **expected toolbox** (which
   tools to expect, and how to find them) is atelier's: `method/TOOLBOX.md`.
-  If **this** repo is public, reference the root by local-path convention,
-  never by name — a public repo naming the estate's credential/inventory root
-  is reconnaissance.
+  If **this** repo is public, or is ever made public, reference the root by
+  local-path convention, never by name — a public repo naming the estate's
+  credential/inventory root is reconnaissance. Spelling the actual path in a
+  repo that may go public defeats the convention, because the path is the name.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 <!-- stamp:end -->

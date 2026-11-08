@@ -201,9 +201,10 @@ in atelier and is read on demand — never wholesale.
   (atelier's private counterpart). Reference it for these; never re-derive
   them locally or copy its contents down. The **expected toolbox** (which
   tools to expect, and how to find them) is atelier's: `method/TOOLBOX.md`.
-  If **this** repo is public, reference the root by local-path convention,
-  never by name — a public repo naming the estate's credential/inventory root
-  is reconnaissance.
+  If **this** repo is public, or is ever made public, reference the root by
+  local-path convention, never by name — a public repo naming the estate's
+  credential/inventory root is reconnaissance. Spelling the actual path in a
+  repo that may go public defeats the convention, because the path is the name.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 ```
@@ -266,6 +267,14 @@ convention instead. That convention is defined **per estate, not here**: each
 estate states its own in its private root's onramp — the one place the name may
 appear — so a child inherits the reference form from the same place it inherits
 the name. Its contents are never copied down into any child.
+
+*(2026-11-09, `320/380`, filed from a child 2026-09-20; Mike's pick from options
+offered, so an answer and not a ruling in his words.)* The floor's visibility
+test now reads "is public, or is ever made public". A present-tense test
+returns false on every read of a private-now, public-candidate repo until the
+day it flips, by which time the content it exists to keep out is committed. And
+a compliant example that spells the real path discloses the name it hides.
+Children's copies carry the old wording until their next pin bump.
 
 **"Any public tree" includes atelier's own, records and all** — and it has to be
 said, because the narrower wording did not hold. This rule previously read
