@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bs1)
-      🎯 **Rule-4 cold pass queued: `stampscan --require-stamps` and
+- [x] 🎯 **Rule-4 cold pass queued: `stampscan --require-stamps` and
       `blockscan`'s unmapped-heading report (`320/130`, `320/340`).** The run
       authored this itself (its dispatched workers' output counts as the
       run's authorship). It was queued at landing, and the run neither takes
@@ -52,3 +51,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: CU1 by the narrower route (`--require-stamps` says what it certifies; a new `--require-floor-stamp` fails closed unless a compared block names the floor), CU2–CU8 as counselled; CU10 (where the advisory report lands) is **his**.
+      No serious finding stood, so the cycle closes here.

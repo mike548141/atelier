@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bs1)
-      🎯 **Rule-4 cold pass queued: the per-rule pre-filter gates in
+- [x] 🎯 **Rule-4 cold pass queued: the per-rule pre-filter gates in
       leakscan and secretscan (`110/130`).** The run authored this itself
       (its dispatched worker's output counts as the run's authorship). It is
       queued at landing, and the run neither takes it nor spawns a reviewer
@@ -49,3 +48,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: GT1 (the email and URL rules are linear, by `tools/anchoredrx.py`), GT2–GT9 as counselled; no child's result differs.
+      No serious finding stood, so the cycle closes here.

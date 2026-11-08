@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bs1)
-      🎯 **Rule-4 cold pass queued: the file walk enumerates through git
+- [x] 🎯 **Rule-4 cold pass queued: the file walk enumerates through git
       (`110/110`).** The run authored this itself (its dispatched workers'
       output counts as the run's authorship). It was queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -38,3 +37,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: GW1 per guard: `secretscan`, `leakscan` and `conflictscan` read tracked files under skip-named folders; GW2–GW6, GW8–GW10 as counselled; GW7 and GW11 routed. Probed over every child: one tracked compiled file newly seen, which warns until the G3 cut-off.
+      No serious finding stood, so the cycle closes here.
