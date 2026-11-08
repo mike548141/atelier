@@ -940,14 +940,14 @@ simply given a path used it, but that is one forbidden worker, and a named path
 does not reach the writes a worker never chooses: `mktemp`, a language
 runtime's temp directory, the harness's own `tool-results/` spill.
 
-**The shared scratch is a read surface too, so held-back review notes never
-live in it** (Mike, 2026-11-09, `160/380`: *"Keep it out of that folder"*). On
-the harness measured, every agent is handed the orchestrator's own scratchpad,
-so a sibling `.deferred.md` held there is one `cat` from any reviewer, with no
-prompt between them. Material an orchestrator holds back from a cold reviewer
-(`REVIEW.md` rule 1) therefore lives in a **user-local directory the
-orchestrator creates outside the repo, outside every worktree and outside any
-path the harness reports as a scratchpad**. It is never made a reviewer's
+**The shared scratch is a read surface too, so held-back review notes never live
+in it** (Mike's answer, 2026-11-09, `160/380`: *"Keep it out of that folder"*).
+On the harness measured, every agent is handed the orchestrator's own
+scratchpad, so a sibling `.deferred.md` held there is one `cat` from any
+reviewer, with no prompt between them. Material an orchestrator holds back from
+a cold reviewer (`REVIEW.md` rule 1) therefore lives in a **user-local directory
+the orchestrator creates outside the repo, outside every worktree and outside
+any path the harness reports as a scratchpad**. It is never made a reviewer's
 working directory either: a store the reviewer is not given still reaches it as
 the harness's inherited cwd (observed, `160/380` reconcile). The 2026-09-25
 batch held twenty siblings in the scratchpad and moved them out on reading this
