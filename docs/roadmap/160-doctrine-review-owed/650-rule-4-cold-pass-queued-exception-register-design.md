@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0045, wt: atelier-rr-722a-650)
-      🎯 **Rule-4 cold pass queued: the exception-register design, before it is
+- [ ] 🎯 **Rule-4 cold pass queued: the exception-register design, before it is
       accepted or built (`110/100` part 2).** The run authored this itself.
       It was queued at drafting, and the run neither takes it nor spawns a
       reviewer for it. *Tier:* Fable, the principal-named review tier,
@@ -42,3 +41,18 @@
       (both forms honoured through a transition, so no child goes red at the
       switch). The redraft's re-review is Fable work and waits for his
       approval then.
+      📝 **REDRAFTED 2026-11-09** by queue run 722ac2e2 (an Opus worker, read by
+      the orchestrator before landing), per Mike's approval above: the ADR
+      `docs/decisions/2026-10-03-0641-the-exception-register.md` is reworked
+      on the reviewer's counsel for every finding, still a draft. Today's
+      markers and ignore files stay; each gains who granted it
+      (`principal-ruled`, `principal-answer`, `agent`), session, date and a
+      pointer to his words, the same tokens `160/980` put on manifest lines;
+      old and new forms both work, and the old one retires only on a later
+      dated ruling of his, so no child goes red (XR1). **Four questions for
+      him** sit in the ADR's open-questions section: Q1 small design or one
+      central file; Q2 whether a public repo may show session ids and
+      pointers to his words; Q3 old exceptions marked "unrecorded" with a
+      review-by date, or re-granted; Q4 binary contents scanned in a
+      separate investigation or the gap accepted. The redraft's re-review is
+      queued as `160/1130` and waits for his Fable approval.
