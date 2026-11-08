@@ -338,6 +338,46 @@ offered (board item `320/030`); that is an answer, not a ruling in his words.
 It is a review question, not a scanner: nothing here can tell a captured
 fixture from a typed one.)
 
+## 17. A check in the same invocation as the act it guards is not a check
+
+A guard whose output nobody reads before the act is not a guard. **Run the
+check as its own command, read the output, then act** — for any act, not only
+a destructive one. This is the part of "verify" that comes *before*. It sits
+beside `CONCURRENCY.md` § *Integration hygiene*, "Verify the act, not the
+absence of an error", which covers *after* (did the act I meant happen); this
+covers whether the gate's answer was read while I could still not act. A
+session passed the first rule cleanly and still broke this one (instance 5).
+
+Five instances, four from a child and one from atelier's own session:
+
+1. `&&`-chained: the check printed its warning and the chained `reset --hard`
+   ran anyway, destroying a peer's uncommitted file.
+2. A pipe eats the exit code: `cmd | tail` reports `tail`'s status, so a red
+   gate reads green.
+3. A persisting `cd` carries into the next command, so the act lands in a repo
+   nobody checked.
+4. A clean index is a claim about the past: the check was read and the paths
+   verified, and the commit still swept a peer's staged files, staged in the
+   minutes the slow floor took.
+5. Batched read: `gh pr view --json state,mergedAt` and
+   `git push origin --delete <branch>` ran in one command, so the
+   `OPEN`/`null` that should have stopped the delete resolved after it. A peer
+   had pushed to the branch meanwhile; recovery was luck about a forge's
+   retention policy, not a control.
+
+The two mitigations that made the class vanish for the child are
+tool-specific habits of this rule, not rivals to it: commit by pathspec on a
+shared checkout (`CONCURRENCY.md`), and land a worktree by
+`git merge --ff-only` from a clean primary, which moves ref and tree together.
+
+The filing child's principal ruled this on 2026-09-06 and widened it from
+*destructive* to *any* act after a plain `git commit` swept a peer's work.
+Mike adopted it as house doctrine on 2026-11-09 (board item `320/390`; his pick
+from options offered, an answer, not a ruling in his words). **No guard:** the
+class is not mechanisable, since nothing inspects a session's shell
+invocations, so this rule has no forcing function and is counted as the kind
+`020/220` exists to count.
+
 ---
 
 *Bearing in `ros`: the diagnose layer's honesty discriminators (a signal-floored

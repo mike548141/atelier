@@ -284,6 +284,11 @@ enough.
   stays behind the Concurrency bullet's pointer to this file (160/310 HF8,
   taken as the narrower option; one clause in the block's session-rhythm
   bullet is the alternative if a child is seen to miss it).
+- **Read the check before the act, in separate commands.** The mirror of the
+  bullet above: a check in the same invocation as the act it guards (chained
+  with `&&`, batched, piped) resolves after the act, so it guards nothing.
+  Run it alone, read the output, then act. The rule, its five instances and
+  why it has no guard are `EVIDENCE.md` §17 (`320/390`).
 - Append-tail files (session logs, changelogs) will conflict when concurrent
   sessions both append — that conflict is *expected and trivial*: keep both
   entries, chronological order, move on. Design shared records so this is the
