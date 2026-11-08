@@ -110,3 +110,8 @@ Read in this order:
   holds the layer-override rule (a child may narrow/append, never silently
   contradict) and the enforcement clause (read ≠ complied). Read this when
   wiring a new repo or bumping a pin.
+- **`session-open/`** — the principal's standing session-open prompt
+  (`session-open-prompt.md`), the history of how it changed, and the dispatch
+  brief an orchestrator opens each worker with. The prompt is his text, and
+  `/atelier:queue-run` runs its committed copy (see its README for what that
+  means and who can change it).

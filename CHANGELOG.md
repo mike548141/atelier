@@ -27,6 +27,43 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 - Not changed, still the principal's: RU2–RU7 and RU12. `blockscan`'s
   subsection blind spot stays filed as `320/340`.
 
+### Changed (2026-11-09 — `/atelier:queue-run` runs the committed prompt, and the cold pass's other findings, `160/900`)
+- **The command reads the committed copy of the principal's session-open
+  prompt and never the working file, and says so when an edit is pending
+  (QK1).** A local-path install loads the clone in place, so uncommitted text
+  in the prompt was run with no hook, test or review having seen it. The
+  skill now has the run read `git show HEAD:` on the file from the plugin
+  root, check `git status --porcelain` on it, and report a pending edit in its
+  opening lines; an install that is not a git checkout reads the file and says
+  so. The prompt's wording is untouched. The skill also gives the bundled
+  doctrine path, `${CLAUDE_PLUGIN_ROOT}/docs/method/CONCURRENCY.md`, for when
+  the prompt's `../atelier` path does not resolve (QK3). Mike, 2026-11-08:
+  *"Keep edit; read committed only"*.
+- **`tools/test_queue_run_single_source.py` sees more (QK9).** List markers,
+  emphasis and numbering are stripped before the copy check, so a bullet copied
+  without its dash is caught; every paragraph of the skill body must be a known
+  delivery job and may name only the two known files, so a new rule or an
+  instruction pointed at another file fails; and the committed read, the
+  pending-edit warning, the no-checkout case and the bundled doctrine path are
+  pinned. A paraphrase is still invisible to it, as the skill header says.
+- **Teardown has three legs, and merges before it removes (QK6).**
+  `CONCURRENCY.md` § *Orchestrated queue runs* no longer rests on the harness
+  notice alone: the notice reaches a live orchestrator only, a worker run as a
+  separate session gives none, and a worker that never pushed leaves the only
+  copy in its worktree. Merge or push from the worktree path first; the third
+  leg is `git worktree list` plus a check for a process still using the
+  worktree. `RECORD.md` now points at it.
+- **Stale and duplicated statements cut (QK7, QK8, QK10, QK13, QK14).** The
+  identifiers list is `RECORD.md`'s alone, with `CONCURRENCY.md` pointing at it;
+  two sentences made stale by the command and by the prompt's standing "away"
+  paragraph are corrected; the `install-hook` re-run sentence is scoped to
+  GitHub installs; `docs/method/README.md` indexes `session-open/`; "adds
+  nothing" now reads "adds no rule of its own" where it was stated; a
+  threat-model note for the prompt as an instruction channel is in the
+  session-open README; and `RECORD.md` gains the addendum clause for the
+  identifiers block and a line holding a mid-run push to `main` to the
+  full-suite bar (QK2's lesson).
+
 ### Added (2026-11-07 — secretscan: an exempt file is still read for a real private key, `115/380`)
 - **A file a `.secretscanignore` glob skips now gets one narrow, advisory
   check: real private-key material (`exempt-private-key`).** The scanners' own

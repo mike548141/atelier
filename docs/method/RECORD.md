@@ -115,6 +115,12 @@ stopped instead of re-deriving it:
     - **Other repos** it wrote to, with their commits. A private repo is named
       generically in a public record (§ *The record is public*); the closing
       message to the principal names it.
+    A record extended after its close (an addendum, a resumed session)
+    re-reads the block with `ccclose --identifiers` and replaces it, or dates
+    the block it leaves as of its first close. Left alone, the window stops
+    at the first close while the commits keep growing, and the totals
+    disagree (2026-11-08, `160/900` QK14: a record extended five times read
+    that way).
     Asked for by Mike, 2026-10-18 (`180/080`): *"the useful identifiers at the
     tail of the session. I am thinking things like commit ID's created by the
     session, the session ID and any others you recommend"*, then *"Other ID's
@@ -171,7 +177,8 @@ stopped instead of re-deriving it:
       *Subagents finished* check reads it. A declaration made with an agent
       still running is not a declaration: closing the tab kills that agent
       silently, and the harness's "didn't finish" notice only appears if the
-      session is resumed. (Grounded 2026-10-16, `020/420`: a read of 30
+      session is resumed (so the teardown rule in `CONCURRENCY.md` § *Orchestrated
+      queue runs* does not rest on that notice alone). (Grounded 2026-10-16, `020/420`: a read of 30
       sessions found every close made with no agent still running, but eleven
       agents cut by a host crash survived only because their sessions were
       resumed.)
@@ -186,6 +193,14 @@ stopped instead of re-deriving it:
       00:47 close pushed a 🎯-closed item and left the floor red — reviewscan
       since 00:06 plus its own un-harvested `[x]` — and the next session
       inherited the debt to restore green, `165c40f`.)
+    - **A push to `main` mid-run is held to the same bar as the close.** The
+      floor-at-head rule above is written for the close, but the break it
+      guards against also lands from a mid-run merge. Before a merge or push
+      of doctrine, a skill or a test to `main`, run the full suite, not only
+      the test the change added. (Grounded 2026-10-18: the commit that made
+      the queue-run skill load the prompt file landed with six failures in
+      `test_templates.py`, the author having run only the new test, and the
+      repair came 16 minutes later; `160/900` QK2.)
     - **A *cancelled* run is not a result, and a concurrent session cancels
       yours as a matter of routine.** The floor workflow runs under
       `cancel-in-progress: true`, so a second session pushing to the same ref

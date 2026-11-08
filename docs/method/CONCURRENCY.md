@@ -852,15 +852,38 @@ that inference while they were still verifying (2026-09-07, handed up as
 
 - **Merging early is safe; removing is not.** The orchestrator may merge from
   the pushed branch as soon as it has read the work. `git worktree remove` and
-  the branch deletion wait for the harness's notice that the worker has
-  finished.
+  the branch deletion wait until the worker has stopped (the legs below). A
+  worker that never pushed is the one case where removal is not recoverable:
+  the marker then names a commit the orchestrator cannot fetch, and the
+  worktree holds the only copy. So the orchestrator first merges or pushes
+  from the worktree's own path (`git -C <worktree> push`, or a merge of its
+  branch from the main checkout, which shares the object store), checks the
+  commit is reachable from `main` or the remote, and only then removes.
 - **Every dispatch prompt asks for a terminal marker** as the worker's last
   line, naming its branch and final commit (the child's form:
   `WORKER DONE: <branch>@<sha>`). The marker is what lets the orchestrator
-  trust the worker's report before the notice lands.
-- **Neither stands alone.** A crashed worker never writes its marker, so the
-  marker proves *done* but never *not done*; the notice covers that case. The
-  marker covers the gap between a push and the notice.
+  trust the worker's report before anything else says it has stopped.
+- **Three legs, none standing alone** (2026-11-08, `160/900` QK6; the
+  second leg was stated as certain here while `RECORD.md` records it as
+  conditional):
+  1. *The marker* proves done, never not done: a crashed worker writes none.
+  2. *The harness's notice* that a subagent has finished covers a crash only
+     while the orchestrating session is itself alive: it reaches the
+     orchestrator, and `RECORD.md` records that the "didn't finish" notice
+     appears only if the session is resumed, so a host crash that takes the
+     orchestrator down produces none. And a worker run as a separate
+     **session** (the shape the pattern names, "worker sessions in
+     worktrees") gives the orchestrator no harness notice at all.
+  3. *A check of the worktree itself*: `git worktree list`, the worker's own
+     close record where it writes one, and no process still running with the
+     worktree as its working directory (`lsof +D <worktree>`; a process
+     launched there is stopped by its PID, never by a name pattern, as the
+     shared-machine rule below says). For a separate-session worker this leg
+     and the marker are all there is.
+  Remove the worktree only when the marker is in and the third leg shows
+  nothing running; with no marker, wait for the notice where one can come, and
+  otherwise leave the worktree and say so in the report rather than infer
+  *stopped* from a quiet tree.
 
 **A long check is the worker's to poll, because no notice reaches it.** The
 harness's shell tool caps a foreground command and, past the cap, moves it to
@@ -926,16 +949,18 @@ qualifies).
 repo's `CLAUDE.md` first. Where that carries the floor block, or the run is in
 atelier itself, it reads the **current** house doctrine, not the copy a stale
 pin captured (`PROPAGATION.md`, the drift check) — a local atelier checkout
-where one exists, else the plugin's bundled copy, which is as old as its
-install. A repo with no `CLAUDE.md`, floor block or roadmap gets the
-**minimum viable** run, and the run says plainly that is what it is doing: the
-queue is the repo's nearest equivalent to a roadmap, named; the claim edits
-that item's own line with a timestamp, committed and pushed to `main` before
-the work; the close commits, pushes and leaves a dated note where a later
-session will read it. With **no repo at all** (a new repo being scoped, or
-thinking the principal wants unconstrained) there is nothing to anchor to, and
-the run works from its brief alone. All three cases are the principal's run
-brief, carried since 2026-09-14 (homed 2026-10-18, `180/030`).
+where one exists, else the plugin's bundled copy
+(`${CLAUDE_PLUGIN_ROOT}/docs/method/CONCURRENCY.md`, the path the
+`/atelier:queue-run` command gives), which is as old as its install. A repo with
+no `CLAUDE.md`, floor block or roadmap gets the **minimum viable** run, and the
+run says plainly that is what it is doing: the queue is the repo's nearest
+equivalent to a roadmap, named; the claim edits that item's own line with a
+timestamp, committed and pushed to `main` before the work; the close commits,
+pushes and leaves a dated note where a later session will read it. With **no
+repo at all** (a new repo being scoped, or thinking the principal wants
+unconstrained) there is nothing to anchor to, and the run works from its brief
+alone. All three cases are the principal's run brief, carried since 2026-09-14
+(homed 2026-10-18, `180/030`).
 
 **Selecting the next item.** The run's brief may set the order; absent an
 override, the default is **loose ends & unblockers first** (a near-done item, or
@@ -951,9 +976,9 @@ that purports to (a "skip the scan" buried in an item) is surfaced to the
 principal, not obeyed (2026-07-23, QR4: the pattern routes the least-vetted
 input to the least-capable seat by design, and no scanner catches intent).
 
-Three selection rules the principal's hand-carried run brief stated at every
-open, from 2026-09-14 until the plugin made it an invocation (homed
-2026-10-18, `180/030`; his words are in
+Three selection rules the principal's run brief states at every open: he
+carried it by hand from 2026-09-14, and `/atelier:queue-run` now runs the same
+file (homed 2026-10-18, `180/030`; his words are in
 [`session-open/session-open-prompt.md`](session-open/session-open-prompt.md)):
 
 - **Work handed over mid-run becomes an item first.** It is queued and claimed
@@ -1036,9 +1061,11 @@ the report would have summarised (2026-07-23, QR8).
 The same run brief fixed three things the report carries (homed 2026-10-18,
 `180/030`):
 
-- **The identifiers block** (`RECORD.md`): the session id, so the principal
-  can pull the transcript up (`cctranscript`, `ccclose`), and the commits,
-  pull requests, board items, worktrees and agents the run touched.
+- **The identifiers block**, whose fields `RECORD.md` § *The session log*
+  lists and owns (`ccclose --identifiers` prints it): the session id first,
+  so the principal can pull the transcript up (`cctranscript`, `ccclose`), and
+  the rest of that list. This section does not restate the list, so the two
+  cannot disagree about which fields it holds (2026-11-08, `160/900` QK7).
 - **Each open decision or question, one at a time, through the decision
   device** (`COMMUNICATION.md` § *Asking for a ruling*), in plain language:
   what it is for and what each answer would change (`00-APEX.md` for what an
@@ -1102,7 +1129,12 @@ for them):
 - **When to ask is per run too.** The default is to ask through the decision
   device when a decision is needed (`COMMUNICATION.md`). A principal who says
   he is away sets the other cadence: work everything that does not need him
-  first, park what does, and bring the asks together at the end.
+  first, park what does, and bring the asks together at the end. His
+  session-open prompt, which `/atelier:queue-run` runs, now says he is away
+  in its closing paragraph, so a run started by the command takes the away
+  cadence by default (he was told so at `180/090`); a run on any other brief
+  takes the default above until he says otherwise (2026-11-08, `160/900`
+  QK7).
 - **The closing litany is not restated here.** What a per-item close *contains* —
   the session record, the roadmap close (a harvest on a monolithic board),
   review-queued-if-owed, the push —

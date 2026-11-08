@@ -8,10 +8,12 @@ an orchestrator opens each worker with.
 
 - [`session-open-prompt.md`](session-open-prompt.md) is the **current** text,
   and it is exactly what `/atelier:queue-run <this run's brief>` runs: the
-  skill loads this file and adds nothing, so the command and the copy pasted
-  by hand are one text (`180/090`; `tools/test_queue_run_single_source.py`
-  guards it). It is the principal's text: an agent changes it only on his
-  say-so, quoted in the commit. Its own git history runs back to a first
+  skill loads this file and adds no rule of its own (only how to fetch it, the
+  bundled path of the doctrine and where the typed text goes), so the command
+  and the copy pasted by hand are one text (`180/090`;
+  `tools/test_queue_run_single_source.py` guards it). It is the principal's
+  text: an agent changes it only on his say-so, quoted in the commit. Its own
+  git history runs back to a first
   reconstruction made on 2026-09-16 (V1 to V9, folded in by subtree merge).
 - [`template-history.md`](template-history.md) is the **template history**:
   one commit per version of the reusable part of the prompt, in the order the
@@ -24,6 +26,31 @@ an orchestrator opens each worker with.
   (`180/120`). Unlike the two files above it is house text, not the
   principal's, and it holds no rule of its own: each line points at the
   `CONCURRENCY.md` rule that grounds it.
+
+## What the command runs, and who can change it (`160/900`, QK1)
+
+A plugin installed from a local clone loads the clone's files in place, so
+the working file and the committed file can differ. The command runs only the
+**committed** copy (`git show HEAD:` on the file) and says so in its opening
+report when an edit to the file is pending in the working tree (Mike,
+2026-11-08: *"Keep edit; read committed only"*). An edit takes effect when it
+is committed, which is when the pre-commit hook, the tests and review can see
+it.
+
+This file is an instruction channel, so the threat is stated here:
+
+- **Who can change what runs.** Anyone who can land a commit on `main` (the
+  repo is public); and, on a machine with a local-path install, any process
+  running as the user, which can edit the working file but cannot make the
+  command run it unless it also commits.
+- **What catches a hostile commit.** The pre-commit scanners (they judge
+  shape, not intent), the four phrase pins in `tools/test_templates.py`
+  (an edit that keeps those phrases passes), and a human reading the diff.
+  Nothing yet reads whether a commit to this file carries the principal's
+  say-so: that check is not built (`160/900` QK1 counsel, awaiting his
+  ruling).
+- **What the command does not guard.** The committed copy is what was
+  committed, not what was reviewed: a commit that never met review still runs.
 
 ## How the template history was built (2026-10-18, `180/060`)
 

@@ -100,8 +100,9 @@ What you get:
 - **`/atelier:install-hook`** — install the fail-closed git pre-commit scan hook
   into the current repo (git hooks don't travel, so it's per-clone; and the
   hook's scanner path is pinned to the installed plugin *version*, which is
-  now the commit, so re-run it in each hooked repo after every plugin update
-  — until then the hook blocks, it never waves through).
+  now the commit, so in a repo hooked from a GitHub install re-run it after
+  every plugin update — until then the hook blocks, it never waves through. A
+  local-path install loads the clone in place, so its path does not move).
 - **`session-onramp`** skill — loads the apex (honesty, adaptation) and
   the always-confirm floor, then points at the rest of the doctrine, read on demand.
 - **`review-brief`** skill — the peer-review lifecycle that turns "looks right"
