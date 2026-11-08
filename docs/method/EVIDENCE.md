@@ -378,6 +378,44 @@ class is not mechanisable, since nothing inspects a session's shell
 invocations, so this rule has no forcing function and is counted as the kind
 `020/220` exists to count.
 
+## 18. A negative needs a positive control first
+
+Before an instrument's negative result carries weight, **make it display a
+positive: the same instrument, in the same run and syntax, against a case
+already known to be present.** Where the negative will authorise something
+irreversible, the control is not optional.
+
+This is not "check your exit codes", which is true and insufficient:
+
+- An exit code can be 0 with the answer empty for the wrong reason (a
+  substring operator matched a name a second pool also carried). Honest
+  tool, wrong question, failing toward false reassurance.
+- The shell hides status structurally: `x=$(cmd)` in a pipeline, a `$(...)`
+  inside a `printf`, a value read into an `if`. `2>/dev/null` gets written
+  reflexively.
+- The class reaches past exit codes: a filter that can only match the broken
+  form of a value, a comparison that treats an absent file as an identical
+  one, a guard matching a naming convention the other copy does not use.
+
+Cheapest form, one extra call printed on the line above the real one so the
+reader sees both:
+
+```
+pool/known-good (holds snapshots)   ->  198   # the instrument works
+pool/under-test                     ->    0   # a measured absence
+```
+
+Without the first line the second is indistinguishable from a broken tool.
+
+(Grounded: a child, 2026-08-24, found across two concurrent sessions, not
+within either. One query timed out and returned nothing; the other returned
+rows from a different pool. The conclusion was in fact right, which is why
+this is doctrine: a defect invisible when it does no harm has to be designed
+out, not noticed. Mike adopted it as its own rule, beside `DATA-PROTECTION.md`'s
+corroborate-from-artefacts rule rather than inside it, on 2026-11-09 (board
+item `380/010`; his pick from options offered). Review question, not a
+scanner.)
+
 ---
 
 *Bearing in `ros`: the diagnose layer's honesty discriminators (a signal-floored
