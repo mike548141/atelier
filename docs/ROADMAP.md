@@ -641,6 +641,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
 - [ ] [Turn conflictscan's tool-markup rule from advisory to blocking once…](roadmap/320-child-filed-findings-via-pointing-up/780-the-tool-markup-advisory-goes-blocking-once-the-estate-is-clean.md)
 - ✅ [Hand-up: secretscan flags every body line of a PEM public…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
+- [ ] 🔎 [Hand-up: the principal's method for asking a question is not in…](roadmap/320-child-filed-findings-via-pointing-up/800-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
