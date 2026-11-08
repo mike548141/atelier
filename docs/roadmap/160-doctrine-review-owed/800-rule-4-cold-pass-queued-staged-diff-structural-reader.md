@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bs2)
-      🎯 **Rule-4 cold pass queued: the staged diff read by its structure
+- [x] 🎯 **Rule-4 cold pass queued: the staged diff read by its structure
       (`115/280`).** The run authored this itself (its dispatched worker's
       output counts as the run's authorship). It is queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -61,3 +60,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: SX1–SX5, SX7, SX10, RN1, RN2, RN4 as counselled (one mine-to-judge choice on textconv is noted beside the command); SX6, what an over-long staged line should do, is **his** and unbuilt.
+      No serious finding stood, so the cycle closes here.

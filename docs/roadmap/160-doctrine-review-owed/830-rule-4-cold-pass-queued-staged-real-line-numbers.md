@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bs2)
-      🎯 **Rule-4 cold pass queued: staged findings at their real line
+- [x] 🎯 **Rule-4 cold pass queued: staged findings at their real line
       (`115/300`).** The run authored this itself (its dispatched worker's
       output counts as the run's authorship). It is queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -58,3 +57,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: tidy-ups as counselled, with `160/800`.
+      No serious finding stood, so the cycle closes here.

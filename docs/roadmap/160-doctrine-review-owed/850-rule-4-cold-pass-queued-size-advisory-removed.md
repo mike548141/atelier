@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bs2)
-      🎯 **Rule-4 cold pass queued: sizescan's size advisory removed
+- [x] 🎯 **Rule-4 cold pass queued: sizescan's size advisory removed
       (`115/270` c).** The run authored this itself (its dispatched worker's
       output counts as the run's authorship). It is queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -63,3 +62,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing. SZ2: the doc he was briefed from claimed a detector that does not exist; it is corrected.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: SZ1, SZ4, SZ5, SZ13 as counselled; SZ2 — the docs no longer claim a detector that does not exist, and whether his earlier answer stands knowing that is **his**; SZ3 and SZ11 routed.
+      No serious finding stood, so the cycle closes here.

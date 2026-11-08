@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bs2)
-      🎯 **Rule-4 cold pass queued: indexscan's date rule (`320/430`).** The
+- [x] 🎯 **Rule-4 cold pass queued: indexscan's date rule (`320/430`).** The
       run authored this itself (its dispatched worker's output counts as the
       run's authorship). It is queued at landing, and the run neither takes
       it nor spawns a reviewer for it. *Tier:* Fable, the principal-named
@@ -63,3 +62,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing. DM13 is recorded: `320/430` was closed without his ruling written down.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: DM1–DM6, DM9, DM11, DM12 as counselled; DM13 and DM14 are noted on `320/430`, whose one-line ruling is **his**; DM10 routed to the `160/700` cycle.
+      No serious finding stood, so the cycle closes here.
