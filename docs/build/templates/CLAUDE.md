@@ -89,10 +89,13 @@ in atelier and is read on demand — never wholesale.
   house would get. Check the parent's actual file first — this block is a lossy
   summary and is not evidence about what the house says. File it in atelier's
   board directly, or hand it over the peer channel, or — where neither is
-  reachable — hold it in this repo's record marked owed upstream. Filing without
-  harming the parent: name the branch for the report, say it is a hand-up in the
-  first line, open the PR before you stop, and touch nothing but your own item.
-  (`PROPAGATION.md` § *Pointing up*.)
+  reachable — hold it in this repo's record marked owed upstream. Describe the
+  problem by its class only: atelier is public and a push cannot be retracted,
+  so a private repo never names itself or its contents (hosts, clients,
+  secrets) on the branch, PR title, commit subject, PR body or item. Filing
+  without harming the parent: name the branch for the report, say it is a
+  hand-up in the first line, open the PR before you stop, and touch nothing but
+  your own item. (`PROPAGATION.md` § *Pointing up*.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" fetch -q` then `git -C
   "<atelier-path>" log --oneline <SHA>..origin/main` — the parent's published

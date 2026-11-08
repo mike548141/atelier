@@ -177,10 +177,13 @@ in atelier and is read on demand — never wholesale.
   house would get. Check the parent's actual file first — this block is a lossy
   summary and is not evidence about what the house says. File it in atelier's
   board directly, or hand it over the peer channel, or — where neither is
-  reachable — hold it in this repo's record marked owed upstream. Filing without
-  harming the parent: name the branch for the report, say it is a hand-up in the
-  first line, open the PR before you stop, and touch nothing but your own item.
-  (`PROPAGATION.md` § *Pointing up*.)
+  reachable — hold it in this repo's record marked owed upstream. Describe the
+  problem by its class only: atelier is public and a push cannot be retracted,
+  so a private repo never names itself or its contents (hosts, clients,
+  secrets) on the branch, PR title, commit subject, PR body or item. Filing
+  without harming the parent: name the branch for the report, say it is a
+  hand-up in the first line, open the PR before you stop, and touch nothing but
+  your own item. (`PROPAGATION.md` § *Pointing up*.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" fetch -q` then `git -C
   "<atelier-path>" log --oneline <SHA>..origin/main` — the parent's published
@@ -440,8 +443,9 @@ in silence is the failure this duty closes; the visible pair — narrow locally
 *and* report up — is step 3 of § The route.
 
 **atelier is bound identically, and the only difference is distance.** An
-atelier session that finds its own doctrine wrong files a board item under
-`docs/roadmap/` exactly as a child's finding would arrive there, rather than
+atelier session that finds its own doctrine wrong files a board item in
+section `320` (findings filed via this section, whoever found them) exactly as
+a child's finding would arrive there, rather than
 fixing the wording in passing and moving on. The reason is not symmetry for its
 own sake: a doctrine defect found and quietly patched leaves no trace of *what
 was wrong*, so the class cannot be counted, and § When a rule keeps breaking —
@@ -504,7 +508,8 @@ its first sentence.
 Four steps, none of them large.
 
 1. **File it in the parent's board, not the child's onramp.** A board item under
-   atelier's `docs/roadmap/`, carrying the incident, the class it belongs to,
+   atelier's `docs/roadmap/` (its format, numbering and rebuild step are in
+   `docs/roadmap/README.md`), carrying the incident, the class it belongs to,
    and the doctrine file it would land in. This is not delivering a fix from
    another session (`CONCURRENCY.md` § Stay in your lane) — filing a finding in
    the repo that owns the subject *is* the lane. Writing the doctrine is an
@@ -519,8 +524,9 @@ Four steps, none of them large.
      queue-never-deliver carve-out sanctions it, and § Report without harming
      the parent is what makes it safe.
    - **Hand it over the cross-session channel** and let an atelier session file
-     it (`CONCURRENCY.md` § The channel). This is how board section `320`'s
-     nine findings actually arrived. Note the channel's own law: a message
+     it (`CONCURRENCY.md` § The channel). This is how the first nine findings in
+     board section `320` arrived (the section holds many more now, and most
+     of the later ones came by the first shape's branch and PR). Note the channel's own law: a message
      reserves nothing and is volatile, so the hand-up is not *filed* until the
      atelier session lands the item — until then the finding lives only in the
      child's own record.

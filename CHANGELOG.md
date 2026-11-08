@@ -5,6 +5,28 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-08 — the report-up duty: the floor block now carries the privacy rule, `160/300`)
+- **The short text every child reads at session start now tells a private repo
+  to describe a doctrine problem by its class only.** The `floor` region's
+  *Doctrine problems point up* bullet carried the rules that protect the parent
+  (name the branch, say it is a hand-up, open the PR, touch only your item) and
+  omitted the one that protects the child: atelier is public and a push cannot
+  be retracted, so a private repo must not name itself or its contents (hosts,
+  clients, secrets) on the branch, PR title, commit subject, PR body or item
+  (cold pass RU1, `docs/reviews/2026-09-25-0715-report-up-duty-cold.md`; the
+  principal chose "add privacy line now", 2026-11-08). The clause is in the
+  canonical `floor` region (`docs/method/PROPAGATION.md`), its stamped copy
+  (`docs/build/templates/CLAUDE.md`) and atelier's own `CLAUDE.md` § Hard
+  constraints. Children pick it up at their next pin bump, where `stampscan`
+  reds a stale copy.
+- **Three wording fixes from the same pass (RU8–RU10), all in
+  `PROPAGATION.md` § Pointing up:** the "nine findings" sentence now says the
+  *first* nine in board section `320` (it holds many more); § The duty names
+  section `320` as the home of atelier's own reports; § The route step 1
+  points at `docs/roadmap/README.md` for the board's format and rebuild step.
+- Not changed, still the principal's: RU2–RU7 and RU12. `blockscan`'s
+  subsection blind spot stays filed as `320/340`.
+
 ### Added (2026-11-07 — secretscan: an exempt file is still read for a real private key, `115/380`)
 - **A file a `.secretscanignore` glob skips now gets one narrow, advisory
   check: real private-key material (`exempt-private-key`).** The scanners' own

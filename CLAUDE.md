@@ -54,7 +54,11 @@ Read the rest of `docs/method/` on demand when a change touches it.
   the wording in passing is the thing this forbids: a defect quietly patched
   leaves no trace of what was wrong, so the class can't be counted and
   § *When a rule keeps breaking* has nothing to read. Being the home of the
-  doctrine makes the report shorter, not optional.
+  doctrine makes the report shorter, not optional. A report from a private
+  repo is described by its class only: atelier is public and a push cannot be
+  retracted, so the reporter never names itself or its contents (hosts,
+  clients, secrets) on any surface the filing creates (branch, PR title,
+  commit subject, PR body, item) — `PROPAGATION.md` § *The route*, rule 2.
 
 ## Autonomy in this repo
 
