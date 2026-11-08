@@ -415,7 +415,7 @@ particular private repo was in (its checks passing or failing, its findings, how
 far its pin lagged). In a public record that goes by type — "a private child
 was failing a check", not the name. Naming a private repo in any other context,
 including an act done to it (a pin bumped, a floor installed), stays allowed.
-Forward only; no scrub. Ruled 2026-11-08 (Mike's pick from offered options, not
+Forward only; no scrub. Decided 2026-11-08 (Mike's pick from offered options, not
 his own words); the reasoning and the rejected postures are in
 [the ADR](../decisions/2026-08-05-1233-estate-internal-context-in-public-records.md).
 

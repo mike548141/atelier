@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-08-1140, wt: atelier-rr-722a-260)
-      🎯 **P6 — `rpi` F5: estate-internal context accumulating in public
+- [x] 🎯 **P6 — `rpi` F5: estate-internal context accumulating in public
       records. Mike's ruling owed** (was mis-marked `⏳` — the queue glyph means
       a review is queued for a taker, and what is owed here is a decision;
       re-marked 2026-08-03 on `pointerscan`'s day-one warning). Session logs
@@ -41,3 +40,12 @@
         The posture the draft ADR calls C. Binds forward only. Applying it
         fills the ADR's Decision and Rejected sections and the doctrine line,
         which is self-authored, so its landing queues a cold pass.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): the ADR's Decision
+        and Rejected sections are filled with posture C, marked as his pick
+        from offered options, and `RECORD.md` § *The record is public* gains
+        the type-only rule for a private repo's state, pointing at the ADR.
+        A type that fits only one repo counts as its name (the drafter's
+        reading, marked so in the ADR). A scanner could only prompt, never
+        block; the name-by-posture registry item can be re-specified that
+        way. Cold pass queued as `160/1090`.

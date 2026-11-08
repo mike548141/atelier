@@ -353,6 +353,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: /atelier:queue-run reads the committed…](roadmap/160-doctrine-review-owed/1060-rule-4-cold-pass-queued-queue-run-reads-the-committed-prompt.md)
 - [ ] ⏳ [Rule-4 cold pass queued: git resolves a staged scan's positional…](roadmap/160-doctrine-review-owed/1070-rule-4-cold-pass-queued-git-resolves-the-staged-scope.md)
 - [ ] ⏳ [Rule-4 cold pass queued: G3 records who and when on every manifest…](roadmap/160-doctrine-review-owed/1080-rule-4-cold-pass-queued-g3-who-when-and-gate-order.md)
+- [ ] ⏳ [Rule-4 cold pass queued: a private repo's state goes by type in…](roadmap/160-doctrine-review-owed/1090-rule-4-cold-pass-queued-private-state-type-only.md)
 
 ## build/ layer — open strands
 
@@ -487,7 +488,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [P3 — the floor does not know whether a repo is public, and it should…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/050-p3-the-floor-does-not-know-whether-a-repo-is-p.md)
 - [ ] [P4 — rpi F9, routed upward: the ci plane calls leakscan without…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/060-p4-rpi-f9-routed-upward-the-ci-plane-calls-lea.md)
 - [ ] [P5 — rpi F10, routed upward: the publish-safety checklist gates repo…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/070-p5-rpi-f10-routed-upward-the-publish-safety-ch.md)
-- [~] (claimed 2026-11-08-1140, wt: atelier-rr-722a-260) [P6 — rpi F5: estate-internal…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/080-p6-rpi-f5-estate-internal-context-accumulating.md)
+- ✅ 🎯 [P6 — rpi F5: estate-internal context accumulating in public records.…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/080-p6-rpi-f5-estate-internal-context-accumulating.md)
 - ✅ [P7 — harvest the rpi publication properly.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/090-p7-harvest-the-rpi-publication-properly.md)
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
 - ✅ 🔎 [P9 — what the flip's transcripts add to the pre-flip gate](roadmap/260-sharing-public-since-2026-07-10-adr-0005/110-p9-what-the-flip-transcripts-add-to-the-gate.md)
