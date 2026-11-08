@@ -365,8 +365,11 @@ IDs are the record's; its full citation list for each line lives there.
   is stamped. → `EVIDENCE.md` §9; `PROPAGATION.md` § *One statement, stamped
   copies*. *~9: e.g. `create-repo C3`, `review-rule4-cold F4`, `SA7`.*
 - **V5 — No internal contradiction.** The work agrees with itself and with
-  the sibling docs it must reconcile with. No other home states this; this
-  line is canonical. *~18, the
+  the sibling docs it must reconcile with. A cross-reference is checked for
+  the rule it reaches, not only the file it finds: a pointer to a file that
+  does not hold the rule passes a file-exists test (`pathscan`) and is still
+  dangling, so the verdict's cross-reference line states the rule reached.
+  No other home states this; this line is canonical. *~18, the
   second-largest class: e.g. `reach-rereview A4`, `review-independence I4`,
   `CF2`.*
 - **V6 — Security & privacy on every review**, with `/security-review` where

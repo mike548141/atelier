@@ -68,12 +68,13 @@ The target property of every credential, in priority order:
 3. **Short-lived** — expires on its own, so an undetected exposure self-heals.
 
 Most platforms don't offer JIT or short-lived grants, so **standing credentials
-are the common honest reality** — and that's allowed, on one condition: a standing
-credential is a **tracked debt to shorten, not a resting state**. It needs a
-stated reason (usually "the platform offers no JIT grant"), and it stays on a list
-of things to tighten. Silently treating a standing credential as the finished
-state is the defect; naming it as a bridge is the discipline (see
-`PRINCIPLES.md`'s "a hand-action is only a stated bridge" rule).
+are the common honest reality** — and that's allowed, on one condition: a
+standing credential is a **tracked debt to shorten, not a resting state**
+(`PRINCIPLES.md` §5, *Honest pattern*, states the rule). It needs a stated
+reason (usually "the platform offers no JIT grant"), and it stays on a list of
+things to tighten. Silently treating a standing credential as the finished
+state is the defect; naming it as a bridge is the discipline (`PRINCIPLES.md`
+§7, "a hand-action is only a stated bridge").
 
 ## One credential, one entity, one system — the non-reuse rules
 
@@ -155,7 +156,8 @@ passwords at 30 characters makes "all its passwords fit in 30 characters" a
 visible pattern, but an *imposed* one — take the maximum the platform permits
 and record the constraint beside that platform's mint procedure
 (instance-local, "what lives elsewhere"). An imposed cap is a stated bridge
-(`DATA-PROTECTION.md`), never a licence for schemes below the cap.
+(`PRINCIPLES.md` §7, "a hand-action is only a stated bridge"), never a licence
+for schemes below the cap.
 
 **The break-glass class** (SA4, 2026-07-23). Credentials a human must
 transcribe by hand during an outage, when the store itself may be unreachable
@@ -165,7 +167,8 @@ the paragraph above doesn't cover: a max-length random string is hostile to
 the recovery path exactly when it matters. The class stays machine-minted and
 schemeless, but may be minted **transcription-optimised** (a generated
 word-sequence passphrase): the constraint is recorded as a stated bridge
-beside that platform's mint procedure, instance-local, like any imposed cap.
+(`PRINCIPLES.md` §7) beside that platform's mint procedure, instance-local,
+like any imposed cap.
 What it never licenses is a human "memorable" scheme — the temptation this
 class exists to name is the one the minting bar exists to kill.
 
@@ -299,7 +302,8 @@ Three duties, in order (Mike's rulings, 2026-07-22):
   for its reads can't tell you a secret was taken) **where the store can
   provide one** — a file-based store (the sops+age class, this doctrine's own
   exemplar) decrypts offline and has no read trail to offer, and that gap is
-  a named limitation (stated bridge, `PRINCIPLES.md`) weighed when
+  a named limitation (`PRINCIPLES.md` §7, "a hand-action is only a stated
+  bridge"; §5, *name the gap*) weighed when
   choosing store technology, never a duty silently skipped (SA2, 2026-07-23).
   Detection you don't do is
   rotation you never trigger.

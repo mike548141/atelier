@@ -67,6 +67,10 @@ full in this file.
 - **Thin anchor / fat pointer** — the two-part propagation mechanism: the
   inlined floor plus the SHA-pinned, drift-checked reference to the parent
   ([`PROPAGATION.md`](PROPAGATION.md)).
+- **Stated bridge** — a gap, hand-action or standing exception carried openly,
+  with its reason, as tracked debt to shorten and never as a resting state.
+  Defined once, in [`PRINCIPLES.md`](PRINCIPLES.md) §7 (*codify before you
+  converge*); the credential and *name the gap* applications are in §5.
 
 ## Process
 

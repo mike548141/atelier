@@ -69,7 +69,7 @@ power must not exist before the earlier step's guard does.
    before any write is *performed* rather than before the power exists, and the
    gap between the credential's power and its guard is a **named, tracked debt**
    (step 2's same clause) — never a silently absorbed risk. The ordering is the
-   target; the fallback is the stated bridge.
+   target; the fallback is the stated bridge (`PRINCIPLES.md` §7).
 
 6. **Widen in rings, each ring earned.** Access grows the way a rollout does —
    read → additive/reversible writes → destructive — and each ring opens only
