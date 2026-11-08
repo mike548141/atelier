@@ -31,6 +31,32 @@ wording only; no scanner or tool changes, and the session-open prompt is untouch
   close in the reply, named hand-on routes, and the privacy line travelling with
   any output. The onramp file itself is person-local and not built here.
 
+### Added (2026-11-09 — eight approved doctrine items: five rules, a mechanism guide, a guard declaration pair, and the bidi escape)
+Mike picked each from options offered on 2026-11-09 (an answer, not a ruling in
+his words). No scanner is added; the one code change is the floor's text seam.
+- **Capture, do not compose (`320/030`).** `EVIDENCE.md` §16: a fixture of
+  another program's output is captured from it and records what produced it.
+- **A check in the same invocation as its act is not a check (`320/390`).**
+  `EVIDENCE.md` §17, with a pointer bullet in `CONCURRENCY.md`. Not
+  mechanisable, so no guard.
+- **A negative needs a positive control first (`380/010`).** `EVIDENCE.md`
+  §18; mandatory where the negative authorises an irreversible act.
+- **Corroborate from the artefacts; never overwrite a running executable
+  (`370/010`).** `DATA-PROTECTION.md`; write a new path and rename.
+- **Forbid or make cheap: the side of the boundary the writer is on
+  (`320/020`) and who a guard protects from whom (`320/050`).** `GUARDS.md`,
+  the second with the pathspec caveat (the paths must be identified, not
+  merely foreign). Atelier's own guards are not yet audited against either.
+- **Which mechanism a new need should take (`400/010`).** New
+  `docs/method/MECHANISMS.md`. The item's premise that the one MCP server is
+  third-party was stale (`instruments/browser-fetch/` is in this repo); the
+  guide follows the tree.
+- **The floor escapes the bidi override and isolate set visibly (`020/350`).**
+  `tools/floor.py` `strip_controls` renders U+202A-202E and U+2066-2069 as
+  `<U+XXXX>` instead of passing them to the terminal; joiners and zero-width
+  spaces are left alone. No local child's config carries any, and the fleet
+  report is byte-identical before and after.
+
 ### Changed (2026-11-08 — six cold-pass reviews applied as counselled: §9 privacy, the cancelled-run clause, pointing up, the hand-up fixes, stated-bridge pointers, the template history)
 Mike approved applying each reviewer's counsel as written on 2026-11-09 (his
 date), each item closing when applied with no new Fable re-check. Doctrine
