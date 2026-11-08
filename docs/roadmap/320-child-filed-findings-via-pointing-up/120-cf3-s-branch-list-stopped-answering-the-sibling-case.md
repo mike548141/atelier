@@ -1,4 +1,4 @@
-- [ ] 🔎 **CF3's branch list stopped answering the sibling-dirty case when the
+- [x] 🔎 **CF3's branch list stopped answering the sibling-dirty case when the
       board split, and what replaced it is a stop with no exit** — filed from
       `cbom` 2026-08-24 via § *Pointing up*, over the **channel** (the second
       filing shape), explicitly to avoid writing into a tree the parent was live
@@ -115,3 +115,6 @@
           citation is a small edit, and "small" is exactly the argument that
           erodes the line. It is also why the fix above is written as a finding
           for ruling rather than applied here.
+  - [x] ✅ **CLOSED 2026-11-09** by queue run 722ac2e2: answered by `010/160`'s
+        revision of `CONCURRENCY.md`. The no-exit deadlock is gone for a claim of
+        a different item, and the rule now sits in the list a session reads.

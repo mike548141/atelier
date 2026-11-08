@@ -25,7 +25,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A claim on a long-titled item fails the wrapscan floor — on the…](roadmap/010-board-store-migration-per-item-files-mik/130-a-claim-fragment-on-a-long-title-fails-wrapscan.md)
 - ✅ 🔎 [index_title's fallback swallows the claim fragment into the generated…](roadmap/010-board-store-migration-per-item-files-mik/140-index-title-fallback-swallows-the-claim-fragment.md)
 - ✅ 🔥 [board called a current index stale from every worktree of atelier,…](roadmap/010-board-store-migration-per-item-files-mik/150-board-judged-the-tree-from-the-tool-s-own-path.md)
-- [~] (claimed 2026-11-09-0400, wt: atelier-rr-722a-w1) [CF3's dirty-sibling stop is now…](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
+- ✅ 🎯 [CF3's dirty-sibling stop is now stricter than its cause requires —…](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
 - ✅ [DONE 2026-10-18](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
 - [ ] 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
 - [ ] [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
@@ -257,7 +257,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The ruling-round-application cycle CLOSED 2026-08-17 (0 MAJOR);…](roadmap/160-doctrine-review-owed/230-rule-4-cold-pass-queued-the-0817-ruling-round.md)
 - [ ] 🛑 [The coldsweep pass RAN 2026-08-17 and the cycle stays OPEN — three…](roadmap/160-doctrine-review-owed/240-rule-4-cold-pass-queued-coldsweep.md)
 - ✅ [A queued pointer at 240 instructs its own reviewer, and pointerscan…](roadmap/160-doctrine-review-owed/250-a-queued-pointer-instructs-its-own-reviewer.md)
-- [ ] 🎯 [Rule-4 cold pass queued — the BS1 wording ruling applied (the…](roadmap/160-doctrine-review-owed/260-rule-4-cold-pass-queued-bs1-wording.md)
+- ✅ 🎯 [Rule-4 cold pass queued — the BS1 wording ruling applied (the…](roadmap/160-doctrine-review-owed/260-rule-4-cold-pass-queued-bs1-wording.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the ruling-ask rules (device, verified…](roadmap/160-doctrine-review-owed/270-rule-4-cold-pass-queued-decision-asks.md)
 - ✅ 🎯 [Rule-4 cold pass queued — the pointing-up rulings applied (PU-1…](roadmap/160-doctrine-review-owed/280-rule-4-cold-pass-queued-pointing-up-rulings-applied.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the ruling-ask rule widened and pushed to…](roadmap/160-doctrine-review-owed/290-rule-4-cold-pass-queued-ask-rule-to-children.md)
@@ -327,7 +327,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
 - ✅ 🎯 [Cold pass queued: the opening prompt's template history, for privacy…](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
 - ✅ 🎯 [Rule-4 cold pass queued: the staged-positional reader the three…](roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md)
-- [~] (claimed 2026-11-09-0400, wt: atelier-rr-722a-w3) [Rule-4 cold pass queued: ccclose…](roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md)
+- ✅ 🎯 [Rule-4 cold pass queued: ccclose --identifiers credits commits on…](roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md)
 - ✅ 🎯 [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
 - ✅ 🎯 [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the claimed index line fitted to wrapscan,…](roadmap/160-doctrine-review-owed/985-rule-4-cold-pass-queued-claimed-index-line-fit.md)
@@ -362,6 +362,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: five session-doctrine additions the…](roadmap/160-doctrine-review-owed/1140-rule-4-cold-pass-queued-session-doctrine-batch.md)
 - [ ] ⏳ [Rule-4 cold pass queued: eight guard and evidence additions the…](roadmap/160-doctrine-review-owed/1150-rule-4-cold-pass-queued-guard-and-evidence-doctrine-batch.md)
 - [ ] ⏳ [Rule-4 cold pass queued: seven propagation additions the principal…](roadmap/160-doctrine-review-owed/1160-rule-4-cold-pass-queued-propagation-doctrine-batch.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccclose --identifiers credits on evidence…](roadmap/160-doctrine-review-owed/1170-rule-4-cold-pass-queued-identifiers-on-evidence-and-the-same-item-stop.md)
 
 ## build/ layer — open strands
 
@@ -578,7 +579,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
 - [ ] 🎯 [PROPOSAL — the damaging attribution carries NO QUOTATION MARKS, so…](roadmap/320-child-filed-findings-via-pointing-up/100-unquoted-attribution-is-invisible-to-quotescan-and-a-corroboration-for-070.md)
 - ✅ 🎯 [PROPOSAL — § Asking for a ruling tells a session HOW to ask and never…](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
-- [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the…](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
+- ✅ 🔎 [CF3's branch list stopped answering the sibling-dirty case when the…](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
 - [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a…](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
 - [ ] [REPORT — secretscan's suppression units cannot reach a finding inside…](roadmap/320-child-filed-findings-via-pointing-up/140-secretscan-has-no-suppression-unit-for-generated-json.md)
 - [ ] 🤔 [CANDIDATE HOUSE RULE — the prescribed open-time sync command can fail…](roadmap/320-child-filed-findings-via-pointing-up/150-the-open-time-sync-command-s-error-text-names-a-cause-that-is-not-the-cause.md)

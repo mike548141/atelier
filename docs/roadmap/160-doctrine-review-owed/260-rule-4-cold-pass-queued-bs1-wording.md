@@ -1,4 +1,4 @@
-- [ ] 🎯 **Rule-4 cold pass queued — the BS1 wording ruling applied (the
+- [x] 🎯 **Rule-4 cold pass queued — the BS1 wording ruling applied (the
       hook-plane guarantee said plainly on four surfaces).** Self-authored
       doctrine, queued at landing by its author, who may not take it. *Tier:*
       Fable, the principal-named review tier — checked at selection; a session
@@ -93,3 +93,5 @@
             to decide (rule 3); nothing was applied.
       💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Stop only for the same item"*, put to him with `010/160` (BA1): see that item's note.
+      ✅ **DONE 2026-11-09 — APPLIED** with `010/160`: BA1, BA3–BA8 as counselled;
+      BA2 was already fixed. A MAJOR stood: cold pass `160/1170`.

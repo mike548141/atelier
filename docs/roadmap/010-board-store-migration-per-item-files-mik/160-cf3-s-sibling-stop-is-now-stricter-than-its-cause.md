@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0400, wt: atelier-rr-722a-w1)
-      🎯 **CF3's dirty-sibling stop is now stricter than its cause requires —
+- [x] 🎯 **CF3's dirty-sibling stop is now stricter than its cause requires —
       relax it, or restate the reason that survives.** Raised by the session
       that built `010/020`, surfaced rather than decided because it is a change
       to standing doctrine, 2026-09-20.
@@ -53,3 +52,7 @@
       counted — and a ruling that turns on it should say so.
   - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Stop only for the same item"* — the offered option read: a session still works in its own worktree and stops only where a peer's unsaved changes touch the item it wants; claiming a different item beside a live peer is allowed. Also answers `160/260`'s BA1 and `320/120`.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+        read by the orchestrator before landing): `CONCURRENCY.md` states the
+        stop for the item's own file only; a peer's staged entries and a
+        monolithic board (`030/140`) stay named exceptions. Cold pass `160/1170`.
