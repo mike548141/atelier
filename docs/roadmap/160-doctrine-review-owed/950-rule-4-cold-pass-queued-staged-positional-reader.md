@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the staged-positional reader the three
+- [~] (claimed 2026-11-08-1059, wt: atelier-rr-722a-950)
+      🎯 **Rule-4 cold pass queued: the staged-positional reader the three
       staged-diff guards share (`115/360`).** Guard code, doctrine by
       function: a clean `--staged` scan is read as "nothing barred was
       staged". So the authoring session (a Mike-opened Opus 5.5 queue run,
@@ -80,3 +81,11 @@
       QS11's narrower truth on the `115/360` record; QU2's other two
       findings belong to the `970` pointer and the 2026-10-03 exception
       register's record.
+      💬 **Mike's answer, 2026-11-08 (to options session 722ac2e2 offered in
+      its ruling round; an answer, not a ruling):** *"Fix it + take advice"* —
+      the offered option read: fix QS1 the way the reviewer counselled (let
+      git resolve the positional), apply the reviewer's counsel on the other
+      13 findings (QS2–QS11, QU1–QU3, QU3 being the 60 s wall-clock bound in
+      `test_pins.py`), and accept **TOP-UP SUFFICES** with no full laptop
+      re-run. The application is to queue a Fable re-check, which waits for
+      his approval as usual (a MAJOR stood in the pass).

@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: G3 lands with a dated grace, metadata
+- [~] (claimed 2026-11-08-1059, wt: atelier-rr-722a-980)
+      🎯 **Rule-4 cold pass queued: G3 lands with a dated grace, metadata
       is kept set by set, and floor refuses abbreviated mode flags
       (`020/150`).** This is the personal-data boundary of every child, and
       it adds the one stated exception to E6a. So the authoring session (a
@@ -53,3 +54,14 @@
       `tools/` here (GM4, GM6, GM8–GM10, GM12–GM14); doctrine-record fixes
       here (GM1–GM3, GM5, GM11); `010/190` unchanged. By count only, 3
       wired children go red at the cut-off unless they list or strip.
+      💬 **Mike's answers, 2026-11-08 (to options session 722ac2e2 offered in
+      its ruling round; answers, not rulings):** (a) GM7 — *"Firm; queue fixes
+      now"*: 2026-11-18 stands for every child, and each child that would fail
+      gets an item on its own board to strip or list before then; a child not
+      worked by the date goes red until it is. (b)–(d) and GM1–GM15 — *"Yes,
+      all as recommended"*: the offered picks read (b) raw `xmp` the gate
+      cannot read is reported as unreadable, never as clean (GM4); (c) each
+      manifest line records who allowed it and when, per his 2026-10-03 words,
+      not a reason alone (GM5); (d) the gate runs before the ignore file for
+      binaries, so no ignore glob skips it (GM9); and the reviewer's counsel on
+      the 15 findings.

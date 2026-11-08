@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued — the doctrine-reporting duty, the route's three
+- [~] (claimed 2026-11-08-1059, wt: atelier-rr-722a-300)
+      🎯 **Rule-4 cold pass queued — the doctrine-reporting duty, the route's three
       shapes, and the no-harm rules for a hand-up.** Self-authored doctrine,
       queued at landing by its author, who may not take it. *Tier:* Fable, the
       principal-named review tier — checked at selection; a session that cannot
@@ -46,3 +47,11 @@
             number collision is only checkable parent-side and that check is a
             record, not a rule. Findings are the principal's to decide (rule 3);
             nothing was applied.
+      💬 **Mike's answer, 2026-11-08 (to options session 722ac2e2 offered in
+      its ruling round; an answer, not a ruling):** *"Add privacy line now"* —
+      the offered option read: add the class-only privacy clause (describe a
+      problem by its type, never name the reporting repo or its contents) to
+      the stamped child copy and atelier's copy now (RU1), and apply RU8–RU11
+      as counselled. **Not covered, back to him in a later round:** RU2, RU5,
+      RU6, RU7 (named in the ask as needing his thought) and RU3, RU4, RU12
+      (not named in the ask).
