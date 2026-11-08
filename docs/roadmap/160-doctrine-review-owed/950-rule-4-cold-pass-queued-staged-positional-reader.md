@@ -1,4 +1,4 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the staged-positional reader the three
+- [x] 🎯 **Rule-4 cold pass queued: the staged-positional reader the three
       staged-diff guards share (`115/360`).** Guard code, doctrine by
       function: a clean `--staged` scan is read as "nothing barred was
       staged". So the authoring session (a Mike-opened Opus 5.5 queue run,
@@ -104,3 +104,9 @@
       no tracked file now blocks the commit (exit 2). QU2's other two
       findings stay with the `970` pointer and the exception register. A
       MAJOR stood, so the application's cold pass is queued as `160/1070`.
+      ✅ **DONE 2026-11-09.** 💬 Mike's answer (to options queue run 722ac2e2
+      offered; an answer, not a ruling): *"Keep it"* — every staged scanner
+      refuses a scope git does not know, the five others included, so a typo
+      in a repo's settings fails loudly instead of quietly checking nothing.
+      A declared directory with no tracked file is the same case. Every
+      finding is now applied or routed; the re-check is `160/1070`.

@@ -72,3 +72,9 @@
       re-check. QK12 (`ccclose` classes a still-running subagent as cut
       mid-flight) is filed as `210/380`. A MAJOR stood, so the application's
       cold pass is queued as `160/1060`.
+      💬 **Mike's answers, 2026-11-09 (to options queue run 722ac2e2 offered;
+      answers, not rulings):** QK4 — *"Yes, add it"*: the prompt's ⏳ guard
+      rail now reads "and only on the tier the review names". QK5 — *"Restore
+      all four"*: the four units cut on 2026-09 without his say-so are back,
+      word for word. Both applied to his prompt the same day on those
+      answers. Still his: QK1's second counsel only.
