@@ -190,6 +190,53 @@ concurrently.
 serial within one); this doctrine generalises that discipline to every outward
 action across every parallel session.
 
+## Beyond the repo — name what you launch, announce what you hold
+
+Everything above protects the repository, and in an estate the damaging
+collision is often not there: a long job on a shared host, a file rewritten on a
+remote machine, a rate-limited login. None of it shows in `git status`, and a
+clean tree says nothing about who is holding a multi-hour job. Two cheap rules
+cover most of it. (Approved 2026-11-09, `360/010`, as Mike's pick from options
+offered, not a ruling in his words; the evidence is the 2026-08-23 incident
+the item records.)
+
+1. **Name what you launch on a shared host, and let the name say whose it is.**
+   A container, background process or scheduled job started where a peer can
+   see it carries an owner marker in its name. Distinctive is not enough: a
+   random name is perfectly unique and tells a reader nothing, so an unowned
+   long-running job reads as litter, and the tidy-minded response to litter is
+   to clear it away. The failure is not a confused peer but a **helpful** one
+   stopping a job that took hours; the same tool in the same incident was
+   attributed correctly when named and reported as "neither is mine" when left
+   to the runtime's random name. It also bites a session against its own
+   work: the tool there could not recognise its own unnamed verifier, and
+   restarted it. A name prefix serves a container; a bare script has nowhere
+   obvious to carry one, so the convention is "whatever the host lets you
+   label, label with the owner" and is not specified further.
+2. **The open-of-session announcement covers non-git claims.** Beside the file
+   set (§ The channel, *Hello*), name the **hosts** being worked on, any
+   **long-running job** in flight and roughly how long it has left, any
+   **shared remote file** the session rewrites, and any **live service** whose
+   restart would hurt. Same principle as the file set: a claim says *what*,
+   never which files, so it stays short. Law 1 still applies: the announcement
+   is awareness, and the owner marker in rule 1 is the part that outlives the
+   window.
+
+**A rate-limited API fails in disguise.** Two sessions probing one login
+inside the same window produce `Invalid credentials` and a lockout, which reads
+as a credential fault and sends whoever hits it hunting in the wrong place.
+Before treating such a failure as a credential problem, ask whether a peer is
+using the same login, and name that login in the announcement when you rely on
+it.
+
+**Not decided, and not built.** A long job's claim outliving its session (a
+marker file beside the work) is deferred: its failure mode is the stale marker,
+which teaches people to ignore markers, and no answer for the session that dies
+holding one has been chosen. **No locking protocol follows from any of this**:
+that would be over-built for a household estate and abandoned the first time it
+was inconvenient. Revisit only on evidence that naming and announcing were not
+enough.
+
 ## Integration hygiene
 
 - **Sync bookends** shrink the collision window the substrate can't cover
@@ -525,7 +572,8 @@ not have caught:
   work, and give the **file set** — a claim says *what*, never *which files*.
   This also upgrades § The trigger's flipped prior from an assumption into a
   checkable fact: a session can enumerate its live peers and ask, rather than
-  inferring solitude from a clean tree.
+  inferring solitude from a clean tree. Off-repo claims (hosts, long jobs,
+  shared remote files, live services) ride in the same hello (§ Beyond the repo).
 - **Holdings.** Answer other sessions' hellos. The overlap is only visible from
   outside, which is why answering matters as much as announcing.
 - **Minting.** Announce any shared-namespace value the moment it is taken —
