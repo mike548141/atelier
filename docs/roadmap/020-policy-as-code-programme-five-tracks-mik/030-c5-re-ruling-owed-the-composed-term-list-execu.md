@@ -1,4 +1,5 @@
-- [ ] 🎯 **C5 re-ruling owed — the composed term-list execution was reverted
+- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1)
+      🎯 **C5 re-ruling owed — the composed term-list execution was reverted
       on falsifying measurement (2026-08-05, same session).** The BOTH-
       COMPOSED ruling of 2026-08-04 was executed and probe-verified, then
       reverted hours later when three of its premises failed on contact:
@@ -233,3 +234,5 @@
       decision to add the term is no longer irreversible-by-friction.
       Mike's call, on a materially smaller question than the one this
       item opened with.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Treat like any private repo"*, put to him with `020/050`: see that item.

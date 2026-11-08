@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued — the ruling-ask rules (device, verified basis,
+- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1)
+      🎯 **Rule-4 cold pass queued — the ruling-ask rules (device, verified basis,
       options with a recommendation).** Self-authored doctrine, queued at
       landing by its author, who may not take it. *Tier:* Fable, the
       principal-named review tier — checked at selection; a session that cannot
@@ -99,3 +100,5 @@
             states the duty as three parts; DR9 (note) formed at reconcile.
             Findings are the principal's to decide (rule 3); nothing was
             applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Always, as two steps"* (DR1, DR3): the explanation arrives as a finished message before the question box, in every view, at the cost of one extra turn.

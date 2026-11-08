@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the deferral's side doors (`320/720`).**
+- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1)
+      🎯 **Rule-4 cold pass queued: the deferral's side doors (`320/720`).**
       (claimed 2026-10-25-2135, wt: atelier-cold-160-910; cold pass: a Fable 5.1
       reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
       the context partition, forms no finding and writes no severity)
@@ -28,3 +29,5 @@
       none of the delta (dispatched by the Mike-opened Opus 5.5 queue run, wt
       atelier-qr-briefs-1018); its exposure is disclosed in the brief. The
       pass stays queued for a criterion-passing cold Fable session.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Fix the reviewer's side"* (DS1): the reviewer skips the session-log step and the writer-side duty goes. Decides `160/930`'s BF1 and BF5, `160/230` RR2 and `280/030` CH1.

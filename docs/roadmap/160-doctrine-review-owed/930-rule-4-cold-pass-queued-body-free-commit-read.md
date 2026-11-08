@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the body-free commit read (`130/030`).**
+- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1)
+      🎯 **Rule-4 cold pass queued: the body-free commit read (`130/030`).**
       (claimed 2026-10-25-2233, wt: atelier-cold-160-930; cold pass: a Fable 5.1
       reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
       the context partition, forms no finding and writes no severity)
@@ -30,3 +31,5 @@
       none of the delta (dispatched by the Mike-opened Opus 5.5 queue run, wt
       atelier-qr-briefs-1018); its exposure is disclosed in the brief. The
       pass stays queued for a criterion-passing cold Fable session.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
+        answer, not a ruling):** *"Fix the reviewer's side"*, put to him with `160/910`: the commit-reading tool shows the safe view by default.
