@@ -602,12 +602,26 @@ Four steps, none of them large.
    generalisation, not the reasoning, not the incident narrative. A
    pending-upstream line is a **narrowing** (§ The layer-override rule), which
    a child may always do; it is also dated, addressed, and removable at the
-   next pin bump — watched by nobody until `310/020`'s enumerator lands —
+   next pin bump — watched by nobody until an enumerator lands (`310/020`) —
    which is what separates it from a second original. (The principal ruled this
    allowance in preference to holding nothing, 2026-08-18: forbidding the local
    write without removing the exposure that causes it would leave the child
    knowingly unprotected, and that exposure is what produced the instance
    below.)
+
+   **The marker: a convention now, a tool later** (`310/020`, 2026-11-09;
+   Mike's pick from options offered, so an answer and not a ruling in his
+   words). Every pending-upstream line, and every hold-and-flag note from
+   shape 3, begins with the literal words `Pending upstream:`, then the date
+   it was written (ISO, UTC) and the parent item it waits on, or `unfiled`
+   where nothing is filed yet, then the one line. For example:
+   `Pending upstream: 2026-11-09, 320/380 — the instruction for this repo.`
+   One literal phrase means a plain `grep -rn 'Pending upstream:'` over a
+   child's tree lists everything that repo owes the house, and a future
+   enumerator has one thing to walk. The convention is all that is decided.
+   The enumerator (the upstream mirror of `floorfleet`, reading for lines
+   older than the item they name) is not built, and wants its own ruling,
+   priced against the registry wiring `stampscan` is waiting on.
 
 4. **The incident goes in the child's record.** A session log is the right home
    for what happened. `GUARDS.md` § A rule with no home is not a rule bars a
@@ -618,9 +632,9 @@ Four steps, none of them large.
 **Closing the loop.** When the parent lands the doctrine, the child's
 pending-upstream line is replaced by a pointer at its next pin bump — the pin
 bump is already the occasion on which a child reviews its block against a moved
-parent (§ The standard child doctrine block), so this needs no new ceremony. A
-pending-upstream line that survives a pin bump past its parent item is drift,
-and should read as one.
+parent (§ The standard child doctrine block), so this needs no new ceremony: the
+same occasion runs the `grep` above. A pending-upstream line that survives a pin
+bump past its parent item is drift, and should read as one.
 
 ### Report without harming the parent
 
