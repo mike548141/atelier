@@ -284,3 +284,49 @@ the list; on an overrule the options are keep, modify, or stand aside, and the
 recommendation may honestly be counsel against; and where the deciding basis
 is the principal's alone — taste, his own appetite for risk — the
 recommendation says so rather than dressing itself as analysis.
+
+## When to ask — an ask stops the run, so say what the rest does meanwhile
+
+The sections above settle **whether** a question is owed and **how** it reaches
+him. This one settles **when**, because in a harness an ask is a stop: the turn
+ends and everything behind the question waits, whether it depended on the
+answer or not. Both costs are real. Asking early and often halts the run on the
+first question, he may not know it is waiting, and by the time he answers the
+prompt cache has expired and the resume re-pays context. Not asking costs
+wasted work, wrong work, and, past the `AUTONOMY.md` floor, unapproved action.
+His message "don't stop to ask" does not lift that floor. (Approved 2026-11-09,
+`420/010`, as Mike's pick from options offered, not a ruling in his words. His
+own words that commissioned it, 2026-10-01, are on the item: *"Its about when to
+ask rather than if you should ask I think"*.)
+
+**Sort each question by what it blocks**, then act on the sort:
+
+| It blocks | Do |
+| --- | --- |
+| Nothing: a reversible default exists | Take the default, say so in the record and the end-of-run account. |
+| One branch of the work | **Park and proceed**: write the question into the durable record (`CONCURRENCY.md` § *Surviving an interrupted session*, so it outlives the window), carry on with everything it does not touch, and bring the parked asks together at the end. |
+| The whole run | The only kind that justifies stopping. Ask it first, while he is likely present, before the long unattended stretch. |
+
+- **Proceeding on an assumption is allowed only where the work is
+  recoverable**, so a "no" costs a revert and not a re-run. The assumption is
+  named in the record and repeated in the end-of-run ask.
+- **A floor item never proceeds on assumption.** It queues, and the rest of the
+  run continues around it.
+- **The end-of-run asks follow the rest of this doc**: one decision each, in the
+  device, account first, and only those where a decision exists (above).
+
+**Away is a mode he declares, and it binds the timing.** When he says he will
+be away ("I won't be here for several hours"), the parked-asks cadence above is
+the rule for the whole run: park what needs him, finish what does not, ask
+together at the end. Absent such a word the default stays the ask-through-the-
+device cadence of the sections above, since that is correct when he is watching.
+His session-open prompt already declares away in its closing paragraph (so a
+run started by `/atelier:queue-run` takes the parked-asks cadence; the
+orchestrated-run section of `CONCURRENCY.md` says so) and a session reads a
+declaration the same way wherever it appears, by his words and no other cue.
+
+**Not decided here.** Whether the harness can notify him when a session stops
+on a question is unverified, and is worth one artefact check before anything
+relies on it (the item holds it for later). Whether the away declaration should
+persist as a standing switch across sessions, so he need not re-send it, is a
+matter for his person-level instructions and is left to him.

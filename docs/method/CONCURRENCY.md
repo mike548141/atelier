@@ -1186,7 +1186,9 @@ for them):
   the same value (`ECONOMICS.md`, the cheapest-model rule and runner class).
   A directive changes how much of the queue to drain, never that rule.
 - **When to ask is per run too.** The default is to ask through the decision
-  device when a decision is needed (`COMMUNICATION.md`). A principal who says
+  device when a decision is needed (`COMMUNICATION.md`); the standing rule, with
+  what a question blocks and the away mode, is `COMMUNICATION.md` § *When to
+  ask*. A principal who says
   he is away sets the other cadence: work everything that does not need him
   first, park what does, and bring the asks together at the end. His
   session-open prompt, which `/atelier:queue-run` runs, now says he is away
