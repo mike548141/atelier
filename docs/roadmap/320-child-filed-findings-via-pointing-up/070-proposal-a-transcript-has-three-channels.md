@@ -1,4 +1,5 @@
-- [ ] 🎯 **PROPOSAL — a transcript has three principal-authored channels, and a
+- [~] (claimed 2026-11-09-0045, wt: atelier-rr-722a-070)
+      🎯 **PROPOSAL — a transcript has three principal-authored channels, and a
       read that names one is a confident negative** `[S][docs]` — filed from
       `cbom` 2026-08-19/21 via § *Pointing up* (its board `120/080`), on Mike's
       direction to that session: *"Suggest it to atelier repo for doctrine +
@@ -47,3 +48,10 @@
       **Related:** `320/080` (the `quotescan` proposal, which depends on this
       one) and `020/…`'s check of the 2026-08-09 measurement, which the same
       filing prompted and which came back clean.
+  - [ ] 💬 **Mike's answer, 2026-11-08 (to options queue run 722ac2e2
+        offered; an answer, not a ruling):** *"Adopt both rules"* — the
+        offered option read: (1) a mid-session instruction counts exactly
+        like an opening one, and one meant to stand is written down where
+        later sessions will see it; (2) any audit of what he asked says which
+        of the three channels (opening prompt, mid-turn message, question-box
+        pick) it read.

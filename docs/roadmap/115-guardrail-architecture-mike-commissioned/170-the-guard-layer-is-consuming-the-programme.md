@@ -1,4 +1,4 @@
-- [ ] 🎯 **The guard layer is consuming the programme — the proportionality
+- [x] 🎯 **The guard layer is consuming the programme — the proportionality
       question, which is Mike's.** Best outcomes is not maximum enforcement,
       and the commission asked for outcomes. Measured 2026-08-15: of **126 open
       board items, roughly 95 are guard, policy, enforcement or review work**,
@@ -28,3 +28,11 @@
       two add work. Whether the estate should be spending three-quarters of its
       capacity here at all is a proportionality call that has never been put to
       him, and every item in this section is downstream of the answer.
+      ✅ **ANSWERED 2026-11-08, Mike, in his own words** (asked by queue run
+      722ac2e2 whether to ration check-building, offered a cap at about half,
+      no limit, or a freeze; he took none of them): *"This sounds like yet
+      another artifical limit that is not helpful. It is about balancing
+      importance and priority to do the work that is most valuable"*. So: no
+      share or cap on guard work; every item, guard or not, is ranked by its
+      value against the rest. Items held downstream of this question are now
+      judged each on its own value.

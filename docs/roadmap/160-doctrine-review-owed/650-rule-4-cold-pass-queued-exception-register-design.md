@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the exception-register design, before it is
+- [~] (claimed 2026-11-09-0045, wt: atelier-rr-722a-650)
+      🎯 **Rule-4 cold pass queued: the exception-register design, before it is
       accepted or built (`110/100` part 2).** The run authored this itself.
       It was queued at drafting, and the run neither takes it nor spawns a
       reviewer for it. *Tier:* Fable, the principal-named review tier,
@@ -31,3 +32,13 @@
             pin bump — children call the floor at the main branch and the draft
             has no both-forms transition. Findings are the principal's to decide
             (rule 3); nothing was applied.
+      💬 **Mike, 2026-11-08, in his own words** (asked by queue run 722ac2e2
+      whether to redraft, walk the findings first, or drop the register; the
+      recommended option was a redraft fixing every finding, with a period
+      where old and new exemption forms both work): *"So your recommendation
+      is to improve the design based on the the fable review advice - if
+      thats correct then I approve"*. It is correct, so the redraft is
+      approved: the design is reworked on the reviewer's counsel for XR1–XR14
+      (both forms honoured through a transition, so no child goes red at the
+      switch). The redraft's re-review is Fable work and waits for his
+      approval then.
