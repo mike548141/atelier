@@ -223,6 +223,48 @@ stopped instead of re-deriving it:
   - (See also session hygiene in `ECONOMICS.md`: log where you got to, then
     start fresh rather than dragging a bloated context.)
 
+## A session with no repo — what it reads, keeps and hands on
+
+Every onramp and close-out above assumes a tree: a repo's `CLAUDE.md`, a
+session log, a board, a commit. A session opened outside any repo (a small job,
+an idea being shaped) has only the person-level instructions, and the record
+rules have nowhere to land. Three gaps, one answer each. (Approved 2026-11-09,
+`410/010`, as Mike's pick from options offered, not a ruling in his words.)
+
+- **Onramp: a thin person-level one.** A short file in the person's own
+  configuration, not in any repo, that points at the house doctrine and says
+  which parts bind a session with no tree. The rules that need no tree bind
+  as written: the apex, the `AUTONOMY.md` floor, `DATA-PROTECTION.md`, the
+  calibration and ask rules in `COMMUNICATION.md`, and the defaults in
+  `CONVENTIONS.md`. The rules that act on a tree (worktrees, claims, the board,
+  the session log) have nothing to act on and do not bind in form. As with the
+  calibration in `COMMUNICATION.md`, the pattern is shareable and the instance
+  stays person-local.
+- **Record and close: move to the repo before recording.** For shaping work the
+  default is that the session moves to the repo the work belongs to, or opens
+  one, **before it records anything**, so the first record lands where a later
+  session will read it. Where no repo exists yet, the thinking stays in the
+  reply until one does. A small job that belongs to no repo closes with a
+  plain statement in the reply of what was done, what is left, and where any
+  output went. Nothing reusable is left only in the person's memory store, which
+  no future session of the repo will read.
+- **Hand-on: the output reaches the repo it belongs to by a route, not by
+  luck.** The routes are the principal carrying it across, or a message to a
+  live session in that repo (`CONCURRENCY.md` § *Talk first*). Handing it on as
+  a pull request is a further route that is not settled here.
+
+**The privacy line travels with the output.** A session with no repo is where
+person-level context is closest to hand, so whatever it carries into a repo,
+above all a public one, is checked against that repo's own boundary before it
+lands, by what it describes and not by where it came from (§ *The record is
+public* below; `DATA-PROTECTION.md`). Abridge on the way in and say that you
+abridged.
+
+**Not decided, and not built.** The person-level onramp file itself belongs to
+the person, not to this repo, and is the person's to create. A standing scratch repo that
+repo-less work defaults into was considered and not adopted: it is the cheapest
+to try and the likeliest to become a dumping ground.
+
 ## Decisions — ADRs for anything a future session might re-propose
 
 A decision that a later session could reasonably reopen ("why isn't this a
