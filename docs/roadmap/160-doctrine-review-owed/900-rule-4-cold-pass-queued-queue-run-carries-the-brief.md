@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-08-1140, wt: atelier-rr-722a-900)
-      🎯 **Rule-4 cold pass queued: the queue-run skill carries the whole
+- [ ] 🎯 **Rule-4 cold pass queued: the queue-run skill carries the whole
       run brief (`180/010`, `180/030`), and worker teardown (`180/020`).**
       (claimed 2026-10-25-2016, wt: atelier-cold-160-900; cold pass: a Fable 5.1
       reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
@@ -59,3 +58,17 @@
       only the committed prompt and warns when edits are pending; apply the
       reviewer's counsel on the other findings, **except QK5** (four units of
       his own text the change dropped), which goes back to him.
+      ✅ **APPLIED 2026-11-09** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing), per Mike's answer above: QK1 — the
+      `/atelier:queue-run` skill reads the prompt's committed copy (`git
+      show HEAD:`), never the working file, and reports a pending edit in its
+      opening lines; QK2 (main is green now; a mid-run push to `main` is held
+      to the full-suite bar in `RECORD.md`), QK3, QK6–QK10, QK13, QK14 as
+      counselled. Not done, needs his word: **QK4** (the tier clause belongs
+      in his prompt's review guard rail, which is his text) and QK1's second
+      counsel (a floor check that every commit touching the prompt quotes his
+      say-so: new machinery). **QK5** goes back to him as he asked. QK11
+      widens this pointer's delta to the repair commits of 2026-10-18 for the
+      re-check. QK12 (`ccclose` classes a still-running subagent as cut
+      mid-flight) is filed as `210/380`. A MAJOR stood, so the application's
+      cold pass is queued as `160/1060`.

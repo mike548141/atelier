@@ -15,8 +15,8 @@ description: Orchestrate a queue run — drain the shared roadmap queue as an or
   the prompt or starts copying its lines. What the skill does add is only
   delivery, and each addition is pinned by that test: how to fetch the prompt
   (the committed copy, never the working file, with a warning when an edit to
-  it is pending: Mike, 2026-11-08, 160/900 QK1, "Keep edit; read committed
-  only"), the bundled path of the doctrine (QK3), and where the typed text
+  it is pending: Mike's answer, 2026-11-08, 160/900 QK1, "Keep edit;
+  read committed only"), the bundled path of the doctrine (QK3), and where the typed text
   goes. A change to the prompt takes effect when it is committed, and not
   before. The doctrine the prompt anchors to
   is `docs/method/CONCURRENCY.md` § Orchestrated queue runs and

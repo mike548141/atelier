@@ -320,7 +320,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🛑 [Rule-4 cold pass queued: ccclose, the close-out checker (020/180).](roadmap/160-doctrine-review-owed/870-rule-4-cold-pass-queued-ccclose.md)
 - [ ] 🎯 [Rule-4 cold pass queued: cctranscript's harness classification…](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
 - [ ] 🛑 [Rule-4 cold pass queued: ccmail stops sending the operator to --auth…](roadmap/160-doctrine-review-owed/890-rule-4-cold-pass-queued-ccmail-auth-advice.md)
-- [~] (claimed 2026-11-08-1140, wt: atelier-rr-722a-900) [Rule-4 cold pass queued: the…](roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md)
+- [ ] 🎯 [Rule-4 cold pass queued: the queue-run skill carries the whole run…](roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the deferral's side doors (320/720).](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the close declaration covers subagents…](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
@@ -350,6 +350,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: secretscan exempts a public certificate's or…](roadmap/160-doctrine-review-owed/1030-rule-4-cold-pass-queued-secretscan-public-pem-block-spans.md)
 - [ ] 🎯 [Rule-4 cold pass queued: secretscan still reads a file its…](roadmap/160-doctrine-review-owed/1040-rule-4-cold-pass-queued-secretscan-reads-exempt-files-for-private-keys.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the class-only privacy clause in the…](roadmap/160-doctrine-review-owed/1050-rule-4-cold-pass-queued-report-up-privacy-clause.md)
+- [ ] ⏳ [Rule-4 cold pass queued: /atelier:queue-run reads the committed…](roadmap/160-doctrine-review-owed/1060-rule-4-cold-pass-queued-queue-run-reads-the-committed-prompt.md)
 
 ## build/ layer — open strands
 
@@ -442,6 +443,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
 - ✅ [ccclose --identifiers drops a worktree made in a shell loop, and the…](roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md)
 - ✅ 🔎 [ccclose --identifiers lists board items in text order, so 160/1000…](roadmap/210-instruments-open-features/370-ccclose-sorts-board-ids-as-text.md)
+- [ ] 🔎 [ccclose classes a subagent that is still running as "cut mid-flight".](roadmap/210-instruments-open-features/380-ccclose-classes-a-running-subagent-as-cut.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

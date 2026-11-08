@@ -177,9 +177,9 @@ stopped instead of re-deriving it:
       *Subagents finished* check reads it. A declaration made with an agent
       still running is not a declaration: closing the tab kills that agent
       silently, and the harness's "didn't finish" notice only appears if the
-      session is resumed (so the teardown rule in `CONCURRENCY.md` § *Orchestrated
-      queue runs* does not rest on that notice alone). (Grounded 2026-10-16, `020/420`: a read of 30
-      sessions found every close made with no agent still running, but eleven
+      session is resumed (so the teardown rule in `CONCURRENCY.md`
+      § *Orchestrated queue runs* does not rest on that notice alone).
+      (Grounded 2026-10-16, `020/420`: a read of 30 sessions found every close made with no agent still running, but eleven
       agents cut by a host crash survived only because their sessions were
       resumed.)
     - **When the close pushes, the evidence is the *floor at head*, not the
