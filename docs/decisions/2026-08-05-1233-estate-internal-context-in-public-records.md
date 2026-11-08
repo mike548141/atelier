@@ -1,16 +1,22 @@
 # Estate-internal context in public records
 
-**Status**: draft • **Date**: 2026-08-05
-**Review**: not warranted while draft — a draft binds nothing and its
-substance is the principal's to rule (REVIEW.md rule 3, doctrine by
-function). The rule-4 pointer is owed by whatever doctrine edit the
-acceptance drives, not by this file.
+**Status**: accepted • **Date**: 2026-08-05 (drafted) • **Decided**: 2026-11-08
 
-> **This ADR is drafted, not decided.** Mike rules in it. The **Decision**
-> and **Rejected** sections are deliberately unfilled — the drafter cannot
-> write them without pre-empting the ruling, and `draft` is the only mutable
-> state the lifecycle allows (`decisions/README.md`). Both postures are set
-> out below with their measured costs, which is the work P6 funded.
+**Review**: queued — a rule-4 cold pass is owed on the doctrine edit this
+acceptance drove (`docs/method/RECORD.md` § *The record is public*); the ⏳
+pointer is written when that edit lands, by the landing session.
+
+> **Decided, with its provenance stated plainly.** On 2026-11-08 Mike chose
+> *"Type-only for private state"* from the options a session offered him in a
+> ruling round. That is an **answer to options a session offered, not a ruling
+> in his own words**, and this record does not dress it as one. The option read:
+> a private repo's internal state is described by its type only in a public
+> record ("a private child was failing a check"); naming a repo in any other
+> context stays allowed. It is the posture this draft called **C** (and framed
+> as a "variant"). The Decision below is a session's precise statement of that
+> pick; where Mike's own words differ, his words win. The places where this
+> statement makes a judgement the pick did not spell out are marked
+> **(drafter's reading)**.
 
 ## Context
 
@@ -165,31 +171,88 @@ more framing to get wrong.
 
 ## Decision
 
-<!-- Mike's to write. Unfilled by design; see the note under Status. -->
+**Posture C: in a public record, a private repo's internal state is described
+by its type only.** It binds forward only.
+
+**What must be type-only.** A sentence that says what *condition* a particular
+private repo was in at a time. That covers what its checks, guards or scans
+showed (passing, failing, which one); its findings and open items; how current
+its pin or install was; what it was configured with or holding; its health;
+and the work in flight inside it. The repo is described by a *type* that more
+than one repo could answer to ("a private child", "an infra repo", "one repo in
+the fleet"), never by its name, and never by a description specific enough to
+identify it alone **(drafter's reading: a type that only one repo fits is a
+name)**.
+
+**What stays allowed, unchanged.** Naming a private repo in any other context:
+that it adopts atelier, adoption lists and fleet rosters, who did what and
+which session ran in it, a PR or item that concerns it, and an *act* done to or
+by it (a pin bumped, a floor installed, a fix landed) as distinct from its
+resulting *condition* **(drafter's reading: act versus condition is the line
+the pick implies for pin bumps; "bumped the pin in `widget-api`" is an act,
+"`widget-api` is three pins behind" is a condition)**. Public repos are
+unaffected: their state is public already. Worked examples in doctrine keep
+their names where the name is load-bearing for the lesson.
+
+| Allowed (names, acts, roles) | Type-only (private state) |
+|---|---|
+| "`widget-api` (private) adopted the floor today." | "A private child was failing the secret scan." |
+| "Bumped the pin in `widget-api`." | "A private child's pin was three bumps behind." |
+| "Session ran in `widget-api` to land item X." | "An infra repo had two open scan findings." |
+
+The narrower rule stands as the stricter floor beneath this one, unchanged: a
+private repo's name coupled to its *sensitive* posture (secrets held and where,
+exposure history, publication intent, confidential content) stays barred. This
+rule adds the milder name x operational-state band the join rule never reached.
+
+**Part (b), published workflow.** Answered by the same line: published
+*method* (how work is done, generalised) is this repo's purpose and stays;
+published *operations* (what a named private repo is currently doing and in
+what state) goes type-only. This is the method-versus-operations line the
+Context draws.
+
+**Forward only.** No scrub, no migration, no retrospective disposition of the
+~270 existing mentions: pushed history is permanent, and a scrub of HEAD
+remediates nothing (`RECORD.md`).
+
+**Enforcement, stated honestly.** The rule binds at write-time discipline plus
+review sweeps, as the narrow rule does. A scanner for the whole rule is not
+available, because telling a state sentence from an act sentence is judgement.
+A narrow advisory aid is plausible (see Consequences).
 
 ## Rejected
 
-<!-- Completed at acceptance, from whichever postures lose. -->
+- **Posture A, open-estate transparency (the name x sensitive-posture join as
+  the only bar):** it leaves the reconnaissance surface open at its present
+  width. A reader can assemble from public records which sibling repos exist
+  and roughly what state each was in on a given date, and `publishscan` judges
+  paths, not prose, so nothing stops it widening. It also leaves the greyer
+  band permanently un-adjudicated, which is how the narrow rule came to be
+  breached three times. Its one real merit, zero writing friction, is bought
+  entirely by leaving the band open.
+- **Posture B, class-level wording for all estate-internal context about a
+  private sibling (generic unless the name earns its place):** it taxes every
+  session close, on the surface carrying ~96% of the mentions and written under
+  the most time pressure, and the three breaches of the narrower rule are the
+  evidence that a tax like that gets paid late or not at all. It also degrades
+  cold resumability, the operating model's premise, by turning ordinary
+  who-did-what naming into "an infra repo" for no protective gain, since the
+  harm sits in the state sentence and not in the name. C taxes only the state
+  sentence, measured at ~15 lines across the whole history.
 
 ## Consequences
 
-Stated conditionally, since the decision is open.
-
-- **If A**: `RECORD.md` § *The record is public* is ratified unchanged and
-  gains a dated note recording that the wider question was asked and answered
-  as accepted transparency, so a future session does not re-open it as novel.
-  The registry's name × posture scanner item keeps its narrow scope. P6 closes
-  with no doctrine delta beyond the note.
-- **If B or C**: `RECORD.md` gains the widened rule, stated at the point of
-  use — the session-record and review-brief templates, where the sentence is
-  actually written — rather than only in the doctrine chapter, per this repo's
-  own rule-grammar finding. The change is self-authored doctrine, so it queues
-  a rule-4 pointer at landing. The registry scanner item is re-specified
-  against whichever line is ruled.
-- **In every case**: forward-only. No scrub, no migration, no retrospective
-  disposition of the existing mentions — the permanence of pushed history makes
-  that unavailable, and pretending otherwise would be the rounding-up this
-  repo's apex forbids.
-- **Estate reach**: the ruling binds every repo heading public, which is the
-  reason F5 was routed up rather than fixed where it was found. `ros` and
-  `faves` are the next flips and inherit whatever is ruled here.
+- `docs/method/RECORD.md` § *The record is public* gains the rule, stated once
+  and pointing here. The change is self-authored doctrine, so it queues a
+  rule-4 cold pass at landing (the **Review** line above).
+- A session writing a record asks one question of any sentence about a private
+  repo: is this its *condition* (type only) or an *act / role* (name allowed)?
+- **Registry scanner item (the name x posture item in the 200 section of the
+  board).** Re-specify against this line. A mechanical aid can flag a line that
+  puts a private repo's name beside state vocabulary (failing, passing, behind,
+  finding, stale and the like) as an advisory prompt to a human, never a gate:
+  the act-versus-condition judgement stays with the writer and the reviewer.
+- Forward-only. The archive permanently holds two conventions; that legibility
+  cost is accepted, since the alternative (a scrub) is unavailable.
+- **Estate reach**: the ruling binds every repo heading public, and reaches
+  children through the next doctrine pin, not through this ADR.

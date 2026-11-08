@@ -409,6 +409,16 @@ session-record posture prose leaked into public atelier, scrubbed at HEAD but
 permanent in history; the 2026-07-12 cold review then found the name-to-posture
 join had survived that scrub in four more places.)
 
+**A private repo's state is described by its type only.** The join rule above
+guards *sensitive* posture. A wider band sits next to it: what condition a
+particular private repo was in (its checks passing or failing, its findings, how
+far its pin lagged). In a public record that goes by type — "a private child
+was failing a check", not the name. Naming a private repo in any other context,
+including an act done to it (a pin bumped, a floor installed), stays allowed.
+Forward only; no scrub. Ruled 2026-11-08 (Mike's pick from offered options, not
+his own words); the reasoning and the rejected postures are in
+[the ADR](../decisions/2026-08-05-1233-estate-internal-context-in-public-records.md).
+
 ## Why this is doctrine, not just tidiness
 
 The whole operating model assumes a session can be **resumed cold** — by another

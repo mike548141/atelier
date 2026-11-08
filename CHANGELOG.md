@@ -46,6 +46,21 @@ made firm for every child**.
   reason can sit, before they are merged); `read_reasoned_lines` is built on
   it and unchanged.
 
+### Changed (2026-11-09 — public records describe a private repo's state by its type only, `260/080`)
+- **A new write-time rule for every public record: say what condition a
+  private repo was in by its type, not its name.** "A private child was failing
+  a check", not the repo's name beside the result. Naming a private repo
+  anywhere else, including an act done to it such as a pin bump, stays allowed,
+  and the older name-plus-sensitive-posture bar stands beneath it. Forward only:
+  the existing mentions are not scrubbed, since pushed history is permanent.
+  The estate-internal-context ADR is now accepted (postures A and B rejected,
+  C adopted) and the rule is a short paragraph in `docs/method/RECORD.md`
+  § The record is public. It is Mike's pick from options a session offered
+  (2026-11-08), not a ruling in his words, and the ADR says so. The doctrine
+  edit is self-authored, so a rule-4 cold pass is owed. No scanner enforces it;
+  the name x posture scanner item can now be re-specified against this line as
+  an advisory aid.
+
 ### Changed (2026-11-08 — the report-up duty: the floor block now carries the privacy rule, `160/300`)
 - **The short text every child reads at session start now tells a private repo
   to describe a doctrine problem by its class only.** The `floor` region's
