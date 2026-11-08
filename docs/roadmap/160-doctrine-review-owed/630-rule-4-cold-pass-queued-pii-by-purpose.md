@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: personal data held by purpose, with
+- [~] (claimed 2026-11-09-0120, wt: atelier-rr-722a-630)
+      🎯 **Rule-4 cold pass queued: personal data held by purpose, with
       recorded exceptions (`200/100` C11).** The run authored this itself.
       The rule is in Mike's own words, and the placement and wording around
       it are the run's. It was queued at landing, and the run neither takes
@@ -33,3 +34,11 @@
             appears, but the account name stands on 27 lines with no inline
             declaration and the leak guard passes it unmarked. Findings are the
             principal's to decide (rule 3); nothing was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+      re-put with their impacts after he said he did not understand them; an
+      answer, not a ruling):** *"Honest claim + only you grant"* — the offered
+      option read: reword the claim to "listed in one place" (true today),
+      add a test that keeps that list matching the files, and add a rule that
+      in a public repo only he grants a personal-data exception, in his own
+      words, so the scanner refuses any other excuse (PI1, PI2 on the
+      reviewer's counsel); the other findings take the reviewer's counsel.

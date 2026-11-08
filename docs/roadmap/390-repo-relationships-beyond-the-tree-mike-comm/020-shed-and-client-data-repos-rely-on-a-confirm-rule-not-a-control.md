@@ -46,3 +46,10 @@
         2026-08-03 to the repos-to-public programme. Not covered by any check
         found: *"shared to unauthorised people"* (no collaborator-list audit).
         Open for him: whether the collaborator gap needs a check.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2
+        offered; an answer, not a ruling):** *"Yes, add to daily check"* — the
+        offered option read: extend the daily visibility check so it also
+        alerts him if anyone other than him is given access to the estate
+        root or any other private repo; cheap, detects within a day, cannot
+        prevent. Queued on the estate root's own board for a session there
+        to build (queue, never deliver).
