@@ -82,8 +82,10 @@ compare and the integrity checks do not:
     plane's "is this staged commit about to move both copies".
 
   --check (whole tree, no git needed — the default with none of the three
-    flags given). Verifies ONLY the map's own integrity, against
-    whatever is on disk: every mapped heading still resolves to EXACTLY ONE
+    flags given). Verifies the map's own integrity, against
+    whatever is on disk (and, as an advisory report that never changes the
+    exit code or `clean`, lists the headings the map cannot see - see
+    "Reported scope" below): every mapped heading still resolves to EXACTLY ONE
     line in its source doc (a renamed or duplicated heading reds, never
     silently no-ops), and every bullet anchor still resolves to EXACTLY ONE
     bullet in both the region and the template. This is the check that
@@ -96,6 +98,17 @@ compare and the integrity checks do not:
     (against the NEW/staged content) before any co-change comparison is
     attempted, for the same reason: comparing OLD to NEW is meaningless once
     either side cannot be located.
+
+REPORTED SCOPE of the `--check` unmapped-heading report (board `320/340`),
+stated so its silence is not read as more than it covers. It lists `##`-or-
+deeper headings outside fenced code in the docs the map names as sources.
+It does NOT see: (a) the body under a doc's `#` title, which is a section
+too and which the co-change rule also cannot see (every mapped doc has one,
+a few non-blank lines); (b) a fenced presentation of the floor in
+`PROPAGATION.md`; (c) setext headings, indented headings and a second `#`.
+An edit in any of those is invisible to both the rule and the report. It
+runs under `--check` only, so `--staged` and `--against` stay blind to a
+subsection-only edit (CU5, CU10 of the 160/430 pass).
 
 ONE STATED ASSUMPTION, honestly, not rounded away: every mapped path (the
 region, the template, every source) is assumed to ALREADY EXIST at `HEAD` —
@@ -186,9 +199,9 @@ FLIP TO BLOCKING IS A SEPARATE RULING, not this build's to take):
   0  clean; or --warn was given and only `violation` findings exist
   1  `violation` finding(s) present, and --warn was NOT given
   2  usage / config error — a malformed map, an unresolvable region/template/
-     source file, a stale heading, a missing bullet anchor, a `git show`
-     failure, bad CLI arguments (NEVER downgraded by --warn — a broken scan
-     is not a pass)
+     source file, a mapped path resolving outside --root, a stale heading, a
+     missing bullet anchor, a `git show` failure, bad CLI arguments (NEVER
+     downgraded by --warn — a broken scan is not a pass)
 
 Zero third-party dependencies; stdlib only, so a peer who adopts atelier can
 run it with the system python3 and no install — and CI needs nothing but
@@ -489,22 +502,37 @@ def check_integrity(cfg: dict, read_text) -> list[Finding]:
     return findings
 
 
+_FENCE_RX = re.compile(r"^(`{3,}|~{3,})")
+
+
 def _headings(text: str) -> list[tuple[int, int, str]]:
     """(zero-based line index, level, stripped line) of every heading in
     `text` outside a fenced code block. Level-1 headings are the document
-    title, not a section anyone maps, so they are left out."""
+    title, not a section anyone maps, so they are left out - and so is the
+    body under that title (see "Reported scope" in the module docstring).
+
+    Fence pairing is the shared sibling rule (datescan, linkscan, wrapscan,
+    pathscan, stampscan): an opener is a run of three or more backticks or
+    tildes, and it is closed only by a BARE run of the same character at
+    least as long - so a three-backtick line inside a four-backtick fence
+    (the way Markdown shows a fenced example) does not end it early (CU4,
+    160/430)."""
     out: list[tuple[int, int, str]] = []
-    fence = None
+    fence_char = ""
+    fence_len = 0
     for i, line in enumerate(text.splitlines()):
-        m = re.match(r"^\s*(`{3,}|~{3,})", line)
-        if m:
-            marker = m.group(1)[0]
-            if fence is None:
-                fence = marker
-            elif fence == marker:
-                fence = None
+        stripped = line.lstrip()
+        m = _FENCE_RX.match(stripped)
+        if fence_len:
+            if (m and m.group(1)[0] == fence_char
+                    and len(m.group(1)) >= fence_len
+                    and stripped.rstrip() == m.group(1)):
+                fence_char, fence_len = "", 0
             continue
-        if fence is not None or not _HEADING_RX.match(line):
+        if m:
+            fence_char, fence_len = m.group(1)[0], len(m.group(1))
+            continue
+        if not _HEADING_RX.match(line):
             continue
         level = len(line) - len(line.lstrip("#"))
         if level >= 2:
@@ -672,15 +700,33 @@ def _suppression_line(findings: list[Finding]) -> str:
     return f"  suppressed: {skipped} finding(s) by allow-marker"
 
 
+_UNSAFE_RX = re.compile(
+    "[\x00-\x08\x0b-\x1f\x7f-\x9f\u200b-\u200f\u202a-\u202e"
+    "\u2060-\u2064\u2066-\u2069\ufeff]")
+
+
+def _safe(text: str | None) -> str:
+    """`text` with control and bidi-control characters written out as escapes,
+    for human output. Heading text and map paths come from files a change can
+    edit, and an ESC or a bidi override echoed raw rewrites the reader's
+    terminal or the order of what they read (CU7, 160/430). Ordinary
+    non-ASCII text (macrons) is untouched. `--json` is already escaped by the
+    encoder."""
+    return _UNSAFE_RX.sub(
+        lambda m: f"\\x{ord(m.group()):02x}" if ord(m.group()) < 256
+        else f"\\u{ord(m.group()):04x}", text or "")
+
+
 def _render_unmapped(unmapped: list[Finding]) -> str:
     under = [f for f in unmapped if f.detail.startswith("under mapped")]
     rest = len(unmapped) - len(under)
     lines = [f"  unmapped: {len(unmapped)} heading(s) in mapped docs that no "
              "map entry accounts for (advisory, not blocking)."]
     for f in sorted(under, key=lambda x: (x.source_path or "", x.line)):
-        lines.append(f"    {f.source_path}:{f.line}  {f.heading}  [{f.detail}]")
+        lines.append(f"    {_safe(f.source_path)}:{f.line}  "
+                     f"{_safe(f.heading)}  [{f.detail}]")
     if rest:
-        lines.append(f"  + {rest} top-level heading(s) no bullet cites "
+        lines.append(f"  + {rest} other heading(s) no bullet cites "
                      "(--json lists them)")
     lines.append("    An edit under one of these is invisible to the co-change "
                  "rule. Map it in tools/blockscan_map.json if a block bullet "
@@ -706,19 +752,22 @@ def _render_base(findings: list[Finding]) -> str:
     if errors:
         lines.append(f"✗ blockscan: {len(errors)} config error(s) (fail-safe, map is stale).")
         for f in sorted(errors, key=lambda x: (x.bullet or "", x.source_path or "")):
-            lines.append(f"  [{f.kind}] bullet={f.bullet} {f.source_path} "
-                        f"heading={f.heading!r}  {f.detail}")
+            lines.append(f"  [{f.kind}] bullet={f.bullet} "
+                        f"{_safe(f.source_path)} "
+                        f"heading={f.heading!r}  {_safe(f.detail)}")
     if violations:
         lines.append(f"✗ blockscan: {len(violations)} co-change violation(s).")
         for f in sorted(violations, key=lambda x: (x.bullet or "", x.source_path or "")):
-            lines.append(f"  {f.source_path}:{f.line}  bullet={f.bullet}  {f.detail}")
+            lines.append(f"  {_safe(f.source_path)}:{f.line}  "
+                         f"bullet={f.bullet}  {_safe(f.detail)}")
     if not errors and not violations:
         lines.append(f"✓ blockscan clean — {len(notes)} mapped section(s) checked.")
     if notes:
         lines.append(f"  ({len(notes)} note(s): "
                      + ", ".join(sorted({f.kind for f in notes})) + ")")
         for f in sorted(notes, key=lambda x: (x.bullet or "", x.source_path or "")):
-            lines.append(f"    {f.source_path}:{f.line}  [{f.kind}] bullet={f.bullet}  {f.detail}")
+            lines.append(f"    {_safe(f.source_path)}:{f.line}  [{f.kind}] "
+                         f"bullet={f.bullet}  {_safe(f.detail)}")
     lines.append(_suppression_line(findings))
     if violations:
         lines.append(
@@ -759,10 +808,13 @@ def _main(argv: list[str] | None = None) -> int:
                          "hook plane) — what this commit is about to make "
                          "true, per PROPAGATION.md's own framing")
     ap.add_argument("--check", action="store_true",
-                    help="whole-tree integrity-only mode: verifies the map "
-                         "still resolves against what's on disk, with no "
-                         "co-change check (that needs --staged or --against). "
-                         "This is also what runs with none of the three given.")
+                    help="whole-tree mode: verifies the map still resolves "
+                         "against what's on disk, with no co-change check "
+                         "(that needs --staged or --against), and prints an "
+                         "advisory list of headings in mapped docs that no "
+                         "map entry accounts for (never changes the exit "
+                         "code). This is also what runs with none of the "
+                         "three given.")
     ap.add_argument("--against", default=None, metavar="REV",
                     help="the co-change check between REV (old) and HEAD "
                          "(new) — the CI backstop, for a checkout with no "
@@ -808,8 +860,19 @@ def _main(argv: list[str] | None = None) -> int:
         else:
             def read_disk(relpath: str) -> str:
                 p = root / relpath
+                # CU6 (160/430): a map `path` is data a change can edit; one
+                # that resolves outside --root (`../`, an absolute path, a
+                # symlink out) is refused, as stampscan refuses a `source=`
+                # that escapes (ST4) - the git plane already cannot leave the
+                # repository.
+                try:
+                    p.resolve().relative_to(root)
+                except ValueError:
+                    raise ConfigError(
+                        f"mapped path resolves outside --root: "
+                        f"{_safe(relpath)}") from None
                 if not p.is_file():
-                    raise ConfigError(f"mapped path does not exist: {relpath}")
+                    raise ConfigError(f"mapped path does not exist: {_safe(relpath)}")
                 # 020/380 — same size gate as the git plane (`_check_blob_size`):
                 # refuse an oversized mapped file before buffering it whole.
                 size = p.stat().st_size

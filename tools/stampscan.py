@@ -247,8 +247,10 @@ not, matching the sibling scanners' "a broken scan is not a pass"):
      allow-marked); or --warn was given and only drift findings exist
   1  drift finding(s) present, and --warn was NOT given
   2  usage / config error — malformed stamp, unresolvable source or region,
-     a source resolving outside --root, bad CLI arguments (NEVER downgraded
-     by --warn)
+     a source resolving outside --root, bad CLI arguments, or a cover
+     switch's demand unmet (`--require-stamps`: no stamped block was
+     compared; `--require-floor-stamp`: no block pointing at the floor
+     was compared) (NEVER downgraded by --warn)
 
 Zero third-party dependencies; stdlib only, so a peer who adopts atelier can
 run it with the system python3 and no install — and CI needs nothing but
@@ -362,6 +364,12 @@ def _is_floor_block(block: "StampBlock") -> bool:
     name match: a generic region also named "floor" elsewhere (this file's
     own test fixtures included) must not be swept in."""
     return block.source == FLOOR_SOURCE and block.region == FLOOR_REGION
+
+
+def _is_floor_block_finding(f: "Finding") -> bool:
+    """The finding-side twin of `_is_floor_block`: a compared stamp that names
+    the one canonical (source, region) floor pair."""
+    return f.source == FLOOR_SOURCE and f.region == FLOOR_REGION
 
 
 @dataclass
@@ -1034,13 +1042,24 @@ def _main(argv: list[str] | None = None) -> int:
     ap.add_argument("--require-stamps", action="store_true",
                     help="fail (exit 2) if the run verified no stamped block "
                          "at all, instead of printing a clean pass over "
-                         "nothing. For hooks/CI on a tree that is EXPECTED to "
-                         "carry a stamped floor block: an unstamped block "
-                         "has no marker for the scanner to find, and to "
-                         "automation an exit-0 over nothing is "
-                         "indistinguishable from a verified one. Modelled on "
-                         "`leakscan --require-terms`. Blocks skipped by "
-                         "allow-marker do not count as verified.")
+                         "nothing. It certifies that AT LEAST ONE stamped "
+                         "block of any kind was compared, NOT that the "
+                         "inlined floor is stamped: a tree whose floor copy "
+                         "carries no marker passes while any unrelated "
+                         "stamp is present. Use --require-floor-stamp for "
+                         "that. Modelled on `leakscan --require-terms`. "
+                         "Blocks skipped by allow-marker do not count as "
+                         "verified.")
+    ap.add_argument("--require-floor-stamp", action="store_true",
+                    help="fail (exit 2) unless the run compared a stamped "
+                         "block that points at the atelier safety floor "
+                         f"(source={FLOOR_SOURCE} region={FLOOR_REGION}). "
+                         "For hooks/CI on a tree that is EXPECTED to carry "
+                         "the stamped floor block: an unstamped floor copy "
+                         "has no marker for the scanner to find, so an "
+                         "unrelated stamp elsewhere must not stand in for "
+                         "it. Implies the --require-stamps demand. Blocks "
+                         "skipped by allow-marker do not count.")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
@@ -1081,27 +1100,45 @@ def _main(argv: list[str] | None = None) -> int:
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     drifts = [f for f in findings if f.kind in _DRIFT_KINDS]
 
-    if args.require_stamps and not errors:
-        # Verified = compared against a canonical region (identical, narrow
-        # or drift). A run that verified none checked nothing; refuse to
-        # report it as a pass. Config errors already exit 2 below.
-        verified = sum(1 for f in findings
-                       if f.kind in _DRIFT_KINDS or f.kind in ("identical", "narrow"))
-        if verified == 0:
+    # Cover switches. Verified = compared against a canonical region
+    # (identical, narrow or drift); an allow-skipped block is not cover.
+    # `unmet` carries a stable marker so a machine consumer under --json
+    # gets the document with `clean: false`, never an empty stdout (CU2).
+    unmet: str | None = None
+    if (args.require_stamps or args.require_floor_stamp) and not errors:
+        compared = [f for f in findings
+                    if f.kind in _DRIFT_KINDS or f.kind in ("identical", "narrow")]
+        skipped_n = sum(1 for f in findings if f.kind == "skipped")
+        if not compared:
+            unmet = "no-stamped-block"
             print("stampscan: --require-stamps set but no stamped block was "
                   "verified (found 0 stamp:begin/stamp:end pairs compared "
                   "against a canonical region; "
-                  f"{sum(1 for f in findings if f.kind == 'skipped')} skipped "
+                  f"{skipped_n} skipped "
                   f"by allow-marker, {len(_skipped)} file(s) by "
                   ".stampscanignore). An unstamped floor block carries no "
                   "marker for the scanner to check - refusing to report "
                   "nothing-checked as a pass.", file=sys.stderr)
+        elif args.require_floor_stamp and not any(
+                _is_floor_block_finding(f) for f in compared):
+            unmet = "no-floor-stamp"
+            print("stampscan: --require-floor-stamp set but no stamped block "
+                  f"pointing at the floor (source={FLOOR_SOURCE} "
+                  f"region={FLOOR_REGION}) was verified ({len(compared)} "
+                  "other stamped block(s) were compared; "
+                  f"{skipped_n} skipped by allow-marker, "
+                  f"{len(_skipped)} file(s) by .stampscanignore). An "
+                  "unstamped floor copy carries no marker for the scanner "
+                  "to check - refusing to let an unrelated stamp stand in "
+                  "for it.", file=sys.stderr)
+        if unmet is not None and not args.json:
             return 2
 
     if args.json:
         print(json.dumps({
-            "clean": not errors and not drifts,
+            "clean": not errors and not drifts and unmet is None,
             "warn": args.warn,
+            "require_stamps_unmet": unmet,
             "findings": [asdict(f) for f in findings],
             "suppressed": {
                 "blocks_by_allow_marker":
@@ -1115,7 +1152,7 @@ def _main(argv: list[str] | None = None) -> int:
         if drifts and args.warn and not errors:
             print("\n  (--warn: advisory only — drift not blocking this build.)")
 
-    if errors:
+    if errors or unmet is not None:
         return 2  # fail-safe: NEVER downgraded by --warn
     if drifts:
         return 0 if args.warn else 1

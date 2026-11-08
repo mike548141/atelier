@@ -1743,16 +1743,28 @@ python3 tools/stampscan.py --warn --root . .   # the advisory CI invocation
 python3 tools/stampscan.py --root . docs       # docs only, gating
 python3 tools/stampscan.py --json              # machine-readable
 python3 tools/stampscan.py --require-stamps --root . .   # fail if nothing was verified
+python3 tools/stampscan.py --require-floor-stamp --root . .   # fail unless the floor stamp was
 python3 tools/stampscan.py --selftest          # prove the engine offline
 ```
 
 `--require-stamps` is the cover switch, modelled on `leakscan --require-terms`.
-Without it a tree whose floor block is unstamped (no marker to find) prints
+Without it a tree with no stamped block prints
 `✓ stampscan clean — no stamped blocks found.` and exits 0, which a reader cannot
 tell from "checked and clean". With it, a run that verified no stamped block
 (none found, or only allow-marker skips) exits `2` with a stderr message naming
-what was missing. Drift (`1`) and config errors (`2`) are reported as before.
-Off by default, so the advisory invocation is unchanged.
+what was missing. **What it certifies is "at least one stamped block of any kind
+was compared", not "the floor is stamped"**: a tree whose floor copy carries no
+marker passes it while any unrelated stamp is present (cold pass `160/430`,
+CU1). `--require-floor-stamp` is the switch for that claim: it exits `2` unless
+a compared block names the floor pair (`source=docs/method/PROPAGATION.md
+region=floor`), so an unrelated stamp cannot stand in for it. It fails closed
+and is deliberately literal: a floor stamp spelling the source path another way
+reads as no floor stamp. Under `--json` an unmet demand still prints the
+document, with `clean: false` and `require_stamps_unmet` set to
+`no-stamped-block` or `no-floor-stamp` (`null` otherwise). Drift (`1`) and
+config errors (`2`) are reported as before. Both switches are off by default,
+so the advisory invocation is unchanged, and nothing wired passes either of
+them yet.
 
 Exit codes: `0` clean, or `--warn` with drift findings only · `1` drift, without
 `--warn` · `2` usage/config error — a malformed stamp, an unresolvable source or
@@ -1847,17 +1859,27 @@ to the co-change rule. `--check` therefore also lists every `##`-or-deeper
 heading, code fences excluded, in a doc the map names as a source that no map
 entry accounts for, labelled `under mapped <heading>` when it sits beneath a
 mapped section (the sharp case). Human output lists only those in full and
-collapses the rest to one count line (`+ N top-level heading(s) no bullet
-cites (--json lists them)`); `--json` keeps every finding. It is a report
+collapses the rest to one count line (`+ N other heading(s) no bullet cites
+(--json lists them)`; it counts every other unmapped heading, including a `###`
+under an unmapped `##`); `--json` keeps every finding. It is a report
 only: exit code, the `clean` field in `--json` and the `--staged`/`--against`
 planes are unchanged (it appears as `unmapped` findings in `--json`), and it is
 skipped while the map is stale. Mapping or leaving a heading is still a
-human call.
+human call. **What it does not see** (160/430, CU5): the body under a doc's `#`
+title (every mapped doc has one, a few non-blank lines, and the co-change rule
+cannot see it either), a fenced presentation of the floor in `PROPAGATION.md`,
+setext or indented headings, and a second `#`; and it runs under `--check`
+only, so a subsection-only edit passes `--staged` and `--against` unremarked.
+Fences pair by the shared rule (a bare closer of the same character, at least as
+long), and heading text and map paths are printed with control and bidi
+characters escaped. A map `path` that resolves outside `--root` is a config
+error (exit `2`).
 
 Exit codes: `0` clean, or `--warn` with violation findings only · `1` a
 co-change violation, without `--warn` · `2` usage/config error — a malformed
-map, an unresolvable region/template/source file, a stale heading, a missing
-bullet anchor, a `git show` failure (never downgraded by `--warn`).
+map, an unresolvable region/template/source file (or one resolving outside
+`--root`), a stale heading, a missing bullet anchor, a `git show` failure (never
+downgraded by `--warn`).
 
 **Deliberately NOT in `tools/floor.py`'s registry — the same ST3 class as
 `stampscan`, and worse: every path this map names exists only in atelier**

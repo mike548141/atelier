@@ -970,6 +970,93 @@ class RequireStamps(unittest.TestCase):
         self.assertIn("✓ stampscan clean — no stamped blocks found.", out)
         self.assertEqual("", err)
 
+    def test_switch_certifies_any_stamp_not_the_floor_probe_e(self):
+        """CU1 (160/430), probe E, pinned as the switch's documented limit:
+        the floor copy is unstamped, one unrelated stamp is present, and
+        `--require-stamps` still passes. That is why the sibling exists."""
+        self._stamped()
+        _write(self.tmp, "docs/floor-copy.md", "# Floor copy\n\na\nb\n")
+        rc, out, _err = self._run("--require-stamps")
+        self.assertEqual(0, rc)
+        self.assertIn("1 stamped block(s) verified", out)
+
+    def _floor_stamped(self, payload):
+        _write(self.tmp, ss.FLOOR_SOURCE, _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md",
+               _child_text(payload, source=ss.FLOOR_SOURCE))
+
+    def test_floor_switch_fails_when_only_an_unrelated_stamp_is_present(self):
+        self._stamped()
+        _write(self.tmp, "docs/floor-copy.md", "# Floor copy\n\na\nb\n")
+        rc, out, err = self._run("--require-floor-stamp")
+        self.assertEqual(2, rc)
+        self.assertIn("--require-floor-stamp", err)
+        self.assertIn("pointing at the floor", err)
+        self.assertNotIn("clean", out)
+
+    def test_floor_switch_fails_over_an_unstamped_tree(self):
+        self._unstamped()
+        rc, _out, err = self._run("--require-floor-stamp")
+        self.assertEqual(2, rc)
+        self.assertIn("no stamped block was verified", err)
+
+    def test_floor_switch_passes_with_a_floor_stamp(self):
+        self._floor_stamped(["a", "b"])
+        rc, out, err = self._run("--require-floor-stamp")
+        self.assertEqual(0, rc)
+        self.assertIn("1 stamped block(s) verified", out)
+        self.assertEqual("", err)
+
+    def test_floor_switch_counts_a_drifting_floor_stamp_as_compared(self):
+        self._floor_stamped(["a"])
+        rc, _out, _err = self._run("--require-floor-stamp")
+        self.assertEqual(1, rc)
+
+    def test_floor_switch_does_not_count_an_allow_skipped_floor_block(self):
+        self._floor_stamped(["a", f"<!-- {ss.ALLOW_MARKER}: reason -->"])
+        rc, _out, err = self._run("--require-floor-stamp")
+        self.assertEqual(2, rc)
+        self.assertIn("1 skipped by allow-marker", err)
+
+    def test_json_over_nothing_emits_the_document_with_clean_false(self):
+        """CU2: every other exit-2 path under --json prints the document;
+        this one printed nothing."""
+        import json
+        self._unstamped()
+        rc, out, err = self._run("--require-stamps", "--json")
+        self.assertEqual(2, rc)
+        doc = json.loads(out)
+        self.assertFalse(doc["clean"])
+        self.assertEqual("no-stamped-block", doc["require_stamps_unmet"])
+        self.assertIn("no stamped block was verified", err)
+
+    def test_json_floor_switch_names_its_own_marker(self):
+        import json
+        self._stamped()
+        rc, out, _err = self._run("--require-floor-stamp", "--json")
+        self.assertEqual(2, rc)
+        doc = json.loads(out)
+        self.assertFalse(doc["clean"])
+        self.assertEqual("no-floor-stamp", doc["require_stamps_unmet"])
+
+    def test_json_marker_is_null_when_the_demand_is_met_or_absent(self):
+        import json
+        self._stamped()
+        for argv in (("--json",), ("--require-stamps", "--json")):
+            rc, out, _err = self._run(*argv)
+            self.assertEqual(0, rc, argv)
+            self.assertIsNone(json.loads(out)["require_stamps_unmet"], argv)
+
+    def test_help_states_what_the_switch_certifies(self):
+        import contextlib
+        import io
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), self.assertRaises(SystemExit):
+            ss._main(["--help"])
+        text = " ".join(buf.getvalue().split())
+        self.assertIn("NOT that the inlined floor is stamped", text)
+        self.assertIn("--require-floor-stamp", text)
+
 
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):

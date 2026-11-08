@@ -293,7 +293,8 @@ class UnmappedHeadings(BlockscanFixture):
         self.assertIn("### A subsection", r.stdout)
         self.assertIn("under mapped ## Honesty is absolute", r.stdout)
         self.assertNotIn("## Adaptation is continuous", r.stdout)
-        self.assertIn("+ 1 top-level heading(s) no bullet cites", r.stdout)
+        self.assertIn("+ 1 other heading(s) no bullet cites", r.stdout)
+        self.assertNotIn("top-level", r.stdout)
         self.assertIn("(--json lists them)", r.stdout)
         self.assertIn("unmapped: 2 heading(s)", r.stdout)
 
@@ -331,6 +332,94 @@ class UnmappedHeadings(BlockscanFixture):
         r = self.run_staged()
         self.assertEqual(0, r.returncode, r.stdout + r.stderr)
         self.assertNotIn("unmapped", r.stdout)
+
+    def test_nested_heading_under_an_unmapped_parent_is_not_called_top_level(self):
+        """CU3 (160/430): a `###` under an unmapped `##` is counted in the
+        collapsed line, so the line must not call it top-level."""
+        self.write_apex(
+            f"# Apex\n\n{self.HEADING}\n\nBody.\n\n"
+            "## Unmapped parent\n\nText.\n\n"
+            "### Nested under the unmapped parent\n\nMore.\n")
+        r = self.run_check()
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertIn("unmapped: 2 heading(s)", r.stdout)
+        self.assertIn("+ 2 other heading(s) no bullet cites", r.stdout)
+        self.assertNotIn("top-level", r.stdout)
+
+    def test_three_backticks_inside_a_four_backtick_fence_do_not_close_it(self):
+        """CU4: the standard way Markdown shows a fenced example."""
+        self.write_apex(
+            f"# Apex\n\n{self.HEADING}\n\n````markdown\n```\n"
+            "## inside the outer fence\n```\n````\n")
+        r = self.run_check()
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertNotIn("inside the outer fence", r.stdout)
+        self.assertNotIn("unmapped", r.stdout)
+
+    def test_a_longer_or_other_char_run_does_not_close_a_fence(self):
+        self.write_apex(
+            f"# Apex\n\n{self.HEADING}\n\n~~~\n```\n## still fenced\n```\n"
+            "~~~\n\n## after the fence\n")
+        r = self.run_check()
+        self.assertNotIn("still fenced", r.stdout)
+        self.assertIn("unmapped: 1 heading(s)", r.stdout)  # only the last
+
+    def test_a_closer_with_an_info_string_does_not_close_a_fence(self):
+        self.write_apex(
+            f"# Apex\n\n{self.HEADING}\n\n```\n```python\n"
+            "## still fenced\n```\n")
+        r = self.run_check()
+        self.assertNotIn("still fenced", r.stdout)
+
+    def test_control_and_bidi_characters_in_a_heading_are_escaped(self):
+        """CU7: heading text is echoed to a terminal."""
+        self.write_apex(
+            f"# Apex\n\n{self.HEADING}\n\nBody.\n\n"
+            "### Sub \x1b[2Jscreen \u202eevil\n\nText.\n")
+        r = self.run_check()
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertNotIn("\x1b", r.stdout)
+        self.assertNotIn("\u202e", r.stdout)
+        self.assertIn("\\x1b[2Jscreen", r.stdout)
+        self.assertIn("\\u202eevil", r.stdout)
+
+    def test_ordinary_non_ascii_heading_text_is_left_alone(self):
+        self.write_apex(
+            f"# Apex\n\n{self.HEADING}\n\nBody.\n\n### Māori tohutō\n\nText.\n")
+        r = self.run_check()
+        self.assertIn("### Māori tohutō", r.stdout)
+
+    def _map_with_path(self, path: str) -> None:
+        mp = self.root / "tools" / "blockscan_map.json"
+        cfg = json.loads(mp.read_text())
+        cfg["bullets"]["apex"]["sources"][0]["path"] = path
+        mp.write_text(json.dumps(cfg))
+
+    def test_a_map_path_escaping_root_is_a_config_error(self):
+        """CU6: `../` and an absolute path were read and their headings
+        echoed. Refused now, as stampscan refuses a `source=` that escapes."""
+        outside = self.root.parent / "blockscan-outside-probe.md"
+        outside.write_text("# T\n\n## Honesty is absolute\n\n## Secret heading\n")
+        self.addCleanup(outside.unlink)
+        for path in (f"../{outside.name}", str(outside)):
+            self._map_with_path(path)
+            r = self.run_check()
+            self.assertEqual(2, r.returncode, (path, r.stdout + r.stderr))
+            self.assertIn("resolves outside --root", r.stderr)
+            self.assertNotIn("Secret heading", r.stdout + r.stderr)
+
+    def test_help_describes_the_unmapped_report(self):
+        r = subprocess.run([sys.executable, bs.__file__, "--help"],
+                           capture_output=True, text=True)
+        text = " ".join(r.stdout.split())
+        self.assertIn("advisory list of headings", text)
+        self.assertNotIn("integrity-only", text)
+
+    def test_module_docstring_states_the_report_scope(self):
+        doc = " ".join(bs.__doc__.split())
+        self.assertIn("REPORTED SCOPE", doc)
+        self.assertIn("body under a doc's `#` title", doc)
+        self.assertIn("mapped path resolving outside --root", doc)
 
 
 class ExtractionHelpers(unittest.TestCase):
