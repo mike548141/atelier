@@ -76,6 +76,35 @@ this requirement is that it makes that visible rather than that it condemns it.
 The pass over the open board is queued rather than done, precisely so nothing is
 re-litigated in the sitting that wrote the rule.
 
+### Choosing between them — the side of the boundary the writer is on
+
+The fourth requirement says to declare *which*; this is how to pick, at the
+moment of building one. **The side of the boundary the writer is on decides
+it.**
+
+- At a **construction site inside your own code**, where you control the
+  writer: **forbid.** There is no recovery to build, because a wrong label is
+  already in the reader's hands before anyone could notice.
+- At a **read site**, where the writer is a future build or another producer
+  you do not control: **make the failure cheap.** Carry the unrecognised thing
+  through, unlabelled.
+
+This is why one subsystem can give *opposite* answers to the same validation
+question without contradicting itself: a classifier that raises on an unknown
+kind where it builds its own labels, and its grouping counterpart that files an
+unknown kind as `unclassified` where it reads another producer's. Without the
+rule that reads as an inconsistency, and a future session would be right to try
+to "fix" one of them.
+
+Grounded in two parallel child sessions that reached it independently on
+2026-08-17, filed through `PROPAGATION.md` § *Pointing up* as `320/020`. Mike
+adopted it on 2026-11-09 as a short companion to the fourth requirement (his
+pick from options offered; an answer, not a ruling in his words). ⚠️ **Not yet
+audited:** whether atelier's own guards obey it, and which would fail it, is
+unmeasured. Like the fourth requirement it binds new guard work as a review
+question, and a guard found to fail it is a finding for the principal, not a
+revert.
+
 ## What a finding is assessed on — three axes
 
 A finding carries three independent assessments. They were collapsed into one
