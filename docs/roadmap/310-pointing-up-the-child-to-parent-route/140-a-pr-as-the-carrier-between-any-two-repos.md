@@ -1,4 +1,5 @@
-- [ ] 🎯 **A PR as the carrier for an idea or finding between *any* two
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
+      🎯 **A PR as the carrier for an idea or finding between *any* two
       repos, not just child to atelier — Mike commissioned, 2026-09-29.**
       His words: *"PR's could be the best way for a session working in one
       repo to send an idea or whatever to another repo"*.
@@ -31,3 +32,7 @@
   - [ ] 📎 Filed under `310` rather than `390` because it is the *route*
         question; `390/010` holds the *relationship* model the route would
         run along.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: a PR between repos carries the filed idea, not the fix; redaction keyed on the target's visibility; an issue where there is no write access.

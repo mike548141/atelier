@@ -1,4 +1,5 @@
-- [ ] 🎯 **PROPOSAL — *capture, do not compose*: a hand-written fixture can only
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
+      🎯 **PROPOSAL — *capture, do not compose*: a hand-written fixture can only
       ever confirm its author's own model** `[S][docs]` — filed from a private
       child 2026-08-18 via § *Pointing up*. No owner in `docs/method/` today;
       the nearest surfaces are `EVIDENCE.md` and `GUARDS.md`, and choosing
@@ -33,3 +34,7 @@
       Whether that seam rule and this fixture rule are one rule or two is a
       judgement for whoever writes it up; filing them apart here would risk the
       three-originals defect this house already names.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: adopt "capture, do not compose" test fixtures as doctrine.

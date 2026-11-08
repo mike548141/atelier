@@ -1,4 +1,5 @@
-- [ ] 🎯 **Nothing enumerates what the estate owes the house — the upstream
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
+      🎯 **Nothing enumerates what the estate owes the house — the upstream
       mirror of `floorfleet`** `[M][tool]` — the named gap in
       `PROPAGATION.md` § *Pointing up*, and the reason that section says of
       itself that it is rung 1.
@@ -24,3 +25,7 @@
       this question if it landed.
       **Until it exists** the route rests on a child session filing at the
       moment the rule is earned — a discipline, not a gate.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: convention now (a dated pending-upstream marker in every child), tool later.

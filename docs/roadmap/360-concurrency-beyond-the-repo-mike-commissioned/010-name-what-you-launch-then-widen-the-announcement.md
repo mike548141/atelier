@@ -1,4 +1,5 @@
-- [ ] 🎯 **Decide the cheap rules first — naming and announcing — and treat
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2)
+      🎯 **Decide the cheap rules first — naming and announcing — and treat
       anything stronger as a separate question that needs its own evidence.**
   - [ ] **Rule 1, and it is nearly free: name what you launch on a shared host.**
         A container, background process or scheduled job started on a machine a
@@ -47,3 +48,7 @@
         *credential* problem, not a *concurrency* problem — and sends whoever hits
         it hunting in entirely the wrong place. It happened in the commissioning
         incident, twice over, for two different reasons.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: adopt rules 1 and 2 (an owner marker on anything launched on a shared host; a wider session-open announcement); rule 3 stays deferred.

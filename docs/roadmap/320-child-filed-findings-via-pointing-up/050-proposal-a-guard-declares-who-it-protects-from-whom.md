@@ -1,4 +1,5 @@
-- [ ] 🎯 **PROPOSAL for `GUARDS.md` — a guard's THREAT MODEL is a property to
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
+      🎯 **PROPOSAL for `GUARDS.md` — a guard's THREAT MODEL is a property to
       declare: who is it protecting whom from** `[S][docs]` — filed from a
       private child 2026-08-19 via § *Pointing up*, class only (no repo, hosts,
       client or filenames, as the route requires). **Mike's ruling, not an
@@ -87,3 +88,7 @@
       wide `git add`, and destroying a peer's in-flight hunks with a wide
       revert. Whether those are the same finding at guard-design level, or two
       records of the same evening's shape, is part of what a ruling would need.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: add a "who is protected from whom" declaration to guard doctrine, with the pathspec-commit caveat.

@@ -1,4 +1,5 @@
-- [ ] 🎯 **Decide whether "prefer artefacts over reports" earns a line, and where.**
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
+      🎯 **Decide whether "prefer artefacts over reports" earns a line, and where.**
       The three mechanisms below are each worth a sentence in passing; the
       generalisation is the part that might be doctrine.
   - [ ] **The candidate rule, stated tightly enough to be checkable:**
@@ -30,3 +31,7 @@
         re-run — instead of reading the run's own summary.** The two agreed. They
         did not have to, and the whole item exists because of the gap between
         those two sentences.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: adopt the artefacts-over-reports rule and write-then-rename, as data-integrity doctrine with no scanner.

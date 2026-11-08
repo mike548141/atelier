@@ -70,7 +70,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [linkscan's reference-style blindness — FIXED 2026-08-23](roadmap/020-policy-as-code-programme-five-tracks-mik/320-linkscan-is-blind-to-reference-style-link-des.md)
 - ✅ [The 2026-08-09 measurement checked for the three-channel blind spot —…](roadmap/020-policy-as-code-programme-five-tracks-mik/330-the-2026-08-09-measurement-checked-for-the-blind-spot.md)
 - ✅ [Pin the three softenable-set prose lists to Scanner.advisory (AP2,…](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
-- [ ] 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept (FR3's…](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [The bidi / zero-width spoofing…](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
 - ✅ 🎯 [Remove plainscan: the reply hook destroyed, the engine archived](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
 - ✅ 🔥 [DEFECT — secretscan's memory grows with what it scans: ~9 GB over one…](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
 - ✅ 🔥 [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
@@ -517,7 +517,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [The floor clause has to reach 11 children, and each child adopts it…](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
 - [ ] 🎯 [The channel-section cycle CLOSED 2026-08-17 (0 MAJOR); CH1–CH16 await…](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
 - ✅ [DONE 2026-11-03](roadmap/280-cross-session-channel-mike-commissioned/040-the-channel-can-contaminate-review-independence.md)
-- [ ] 🎯 [Talk first — the channel as a session's first preference, with git…](roadmap/280-cross-session-channel-mike-commissioned/050-talk-first-the-channel-as-first-preference.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2) [Talk first — the channel as a…](roadmap/280-cross-session-channel-mike-commissioned/050-talk-first-the-channel-as-first-preference.md)
 
 ## Ruling round 2026-08-17 — the cold-run findings (Mike)
 
@@ -545,7 +545,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/310-pointing-up-the-child-to-parent-route/README.md)*
 
 - ✅ 🎯 [The upstream route, and the two block defects that caused the instance](roadmap/310-pointing-up-the-child-to-parent-route/010-the-pointing-up-route-and-the-two-block-fixes.md)
-- [ ] 🎯 [Nothing enumerates what the estate owes the house — the upstream…](roadmap/310-pointing-up-the-child-to-parent-route/020-nothing-enumerates-what-the-estate-owes-the-house.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [Nothing enumerates what the estate…](roadmap/310-pointing-up-the-child-to-parent-route/020-nothing-enumerates-what-the-estate-owes-the-house.md)
 - [ ] [Ten children carry both block defects, and each clears them at its…](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
 - [ ] 🎯 [Queue the block-trim finding in cbom — AFTER this cycle's review…](roadmap/310-pointing-up-the-child-to-parent-route/040-queue-the-block-trim-finding-in-cbom-after-the-cycle.md)
 - ✅ [Rule-4 review RUN and RULED (tier: Fable; pass type: doc cold pass) —…](roadmap/310-pointing-up-the-child-to-parent-route/050-rule-4-cold-pass-queued-pointing-up.md)
@@ -555,25 +555,25 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
 - ✅ [The route's three shapes — WRITTEN 2026-08-23](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
 - ✅ ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
-- [ ] 🎯 [§ Pointing up only names atelier as a parent — Mike commissioned,…](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [§ Pointing up only names atelier…](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
 - [ ] 🎯 [CLASS — the parent holds accommodations its children cannot inherit,…](roadmap/310-pointing-up-the-child-to-parent-route/130-the-parent-holds-accommodations-the-child-cannot-inherit.md)
-- [ ] 🎯 [A PR as the carrier for an idea or finding between any two repos, not…](roadmap/310-pointing-up-the-child-to-parent-route/140-a-pr-as-the-carrier-between-any-two-repos.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [A PR as the carrier for an idea…](roadmap/310-pointing-up-the-child-to-parent-route/140-a-pr-as-the-carrier-between-any-two-repos.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
 
 *[Narrative](roadmap/320-child-filed-findings-via-pointing-up/README.md)*
 
 - [ ] 🔥 [pathscan reds on three reference shapes that are never real, and the…](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
-- [ ] 🎯 [PROPOSAL for GUARDS.md — strict where we author, forgiving where we…](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
-- [ ] 🎯 [PROPOSAL — capture, do not compose: a hand-written fixture can only…](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [PROPOSAL for GUARDS.md — strict…](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [PROPOSAL — capture, do not compose:…](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
 - [ ] 🔎 [By-call enforcement resolves through a working tree, so "fresh"…](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
-- [ ] 🎯 [PROPOSAL for GUARDS.md — a guard's THREAT MODEL is a property to…](roadmap/320-child-filed-findings-via-pointing-up/050-proposal-a-guard-declares-who-it-protects-from-whom.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [PROPOSAL for GUARDS.md — a guard's…](roadmap/320-child-filed-findings-via-pointing-up/050-proposal-a-guard-declares-who-it-protects-from-whom.md)
 - [ ] 🎯 [PROPOSAL for the floor + GUARDS.md — where siblings exist, require a…](roadmap/320-child-filed-findings-via-pointing-up/060-proposal-the-floor-requires-a-path-scoped-commit.md)
 - ✅ 🎯 [PROPOSAL — a transcript has three principal-authored channels, and a…](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal…](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
 - ✅ [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
 - [ ] 🎯 [PROPOSAL — the damaging attribution carries NO QUOTATION MARKS, so…](roadmap/320-child-filed-findings-via-pointing-up/100-unquoted-attribution-is-invisible-to-quotescan-and-a-corroboration-for-070.md)
-- [ ] 🎯 [PROPOSAL — § Asking for a ruling tells a session HOW to ask and never…](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2) [PROPOSAL — § Asking for a ruling…](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
 - [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the…](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
 - [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a…](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
 - [ ] [REPORT — secretscan's suppression units cannot reach a finding inside…](roadmap/320-child-filed-findings-via-pointing-up/140-secretscan-has-no-suppression-unit-for-generated-json.md)
@@ -595,13 +595,13 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [A ruling that changes doctrine has no check that the child block's…](roadmap/320-child-filed-findings-via-pointing-up/300-a-ruling-that-moves-doctrine-has-no-check-the-block-copy-moved.md)
 - [ ] 🎯 [Should pathscan block instead of warn?](roadmap/320-child-filed-findings-via-pointing-up/310-should-pathscan-block-instead-of-warn.md)
 - ✅ 🔎 [Hand-up: the run-open role check still sends the tier question back…](roadmap/320-child-filed-findings-via-pointing-up/320-the-run-open-role-check-sends-the-tier-question-back-to-the-principal.md)
-- [ ] 🎯 [Does the new naming precedence reach doctrine's own prose?](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [Does the new naming precedence…](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
 - [ ] 🔎 [blockscan cannot see a change to a mapped section's SUBSECTIONS, and…](roadmap/320-child-filed-findings-via-pointing-up/340-blockscans-map-cannot-see-a-subsection.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/350-a-peer-can-stage-into-the-shared-index-while-your-commit-hooks-run.md)
 - ✅ [REPORT — 115/200's owed work is done from the child's side: the…](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
 - [ ] [REPORT — <owner/repo> is a declared placeholder in the floor region…](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
-- [ ] 🎯 [The floor's visibility bullet reads as a one-time check, and may name…](roadmap/320-child-filed-findings-via-pointing-up/380-the-floor-s-public-tense-and-whether-it-should-name-the-root.md)
-- [ ] 🎯 [MISSING HOUSE RULE — a check in the same shell invocation as the act…](roadmap/320-child-filed-findings-via-pointing-up/390-missing-house-rule-a-check-in-the-same-invocation-as-the-act-is-not-a-check.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [The floor's visibility bullet…](roadmap/320-child-filed-findings-via-pointing-up/380-the-floor-s-public-tense-and-whether-it-should-name-the-root.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [MISSING HOUSE RULE — a check…](roadmap/320-child-filed-findings-via-pointing-up/390-missing-house-rule-a-check-in-the-same-invocation-as-the-act-is-not-a-check.md)
 - [ ] 🔎 [CANDIDATE HOUSE RULE — verify a figure correction in the RENDERED…](roadmap/320-child-filed-findings-via-pointing-up/400-count-survivors-in-the-rendered-artefact-not-the-source-you-edited.md)
 - [ ] 🔎 [Hand-up: the canonical floor's estate resources bullet is unwritable…](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
 - [ ] 🔎 [Hand-up: a queued-review pointer may name a moving bound, and…](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
@@ -620,7 +620,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: no floor scanner reads a commit message, so a term that is…](roadmap/320-child-filed-findings-via-pointing-up/550-no-scanner-reads-a-commit-message-body.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md)
 - [ ] 🔎 [MISSING HOUSE RULE — a "this cannot work" built only from reading is…](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
-- [ ] 🎯 [MISSING HOUSE RULE — the house has no method for splitting one repo…](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [MISSING HOUSE RULE — the house…](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
 - [ ] 🔎 [Hand-up: the floor's Estate resources bullet covers facts — don't…](roadmap/320-child-filed-findings-via-pointing-up/590-the-estate-resources-bullet-covers-facts-not-access-or-write-back.md)
 - ✅ 🔎 [Hand-up from a private child: at the hook plane the content scanners…](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md)
@@ -665,14 +665,14 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/README.md)*
 
-- [ ] 🎯 [Decide the cheap rules first — naming and announcing — and treat…](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/010-name-what-you-launch-then-widen-the-announcement.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2) [Decide the cheap rules first…](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/010-name-what-you-launch-then-widen-the-announcement.md)
 - [ ] 🎯 [Cross-repo session coordination — Mike commissioned, 2026-09-12.](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/020-parallel-sessions-across-different-repos-have-no-shared-view.md)
 
 ## 🎭 The report can lie while the work is fine — 2026-08-23
 
 *[Narrative](roadmap/370-the-report-can-lie-while-the-work-is-fine/README.md)*
 
-- [ ] 🎯 [Decide whether "prefer artefacts over reports" earns a line, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [Decide whether "prefer artefacts…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
 - [ ] [The fifth instance is not a report — it is a GUARD, and that is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
 - [ ] [The sixth instance is the checker written to enforce this item, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/030-the-sixth-instance-was-the-checker-written-for-370.md)
 
@@ -680,33 +680,33 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/380-silence-read-as-an-answer/README.md)*
 
-- [ ] 🎯 [Decide whether "make the instrument show a positive first" earns a…](roadmap/380-silence-read-as-an-answer/010-make-the-instrument-show-a-positive-first.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [Decide whether "make the instrument…](roadmap/380-silence-read-as-an-answer/010-make-the-instrument-show-a-positive-first.md)
 - [ ] [The second instance is the INVERSE of 010, and it is the more…](roadmap/380-silence-read-as-an-answer/020-a-client-timeout-is-not-evidence-the-server-did-nothing.md)
 
 ## Repo relationships beyond the parent/child tree (Mike commissioned, 2026-09-12)
 
 *[Narrative](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/README.md)*
 
-- [ ] 🎯 [No doctrine models a repo-to-repo relationship other than…](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/010-consumer-and-subject-cluster-relationships-have-no-model.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [No doctrine models a repo-to-repo…](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/010-consumer-and-subject-cluster-relationships-have-no-model.md)
 - [ ] 🎯 [shed and client-data repos rely on an "always confirm" floor rule,…](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/020-shed-and-client-data-repos-rely-on-a-confirm-rule-not-a-control.md)
 
 ## Choosing among implementation mechanisms (Mike commissioned, 2026-09-16)
 
 *[Narrative](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/README.md)*
 
-- [ ] 🎯 [No doctrine says which mechanism a new need should take — four are…](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/010-no-doctrine-says-which-mechanism-a-new-need-should-take.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [No doctrine says which mechanism…](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/010-no-doctrine-says-which-mechanism-a-new-need-should-take.md)
 
 ## Sessions without a repo (Mike commissioned, 2026-09-29)
 
 *[Narrative](roadmap/410-sessions-without-a-repo-mike-commissioned/README.md)*
 
-- [ ] 🎯 [No doctrine covers a session with no tree — decide what a repo-less…](roadmap/410-sessions-without-a-repo-mike-commissioned/010-no-doctrine-covers-a-session-with-no-tree.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2) [No doctrine covers a session…](roadmap/410-sessions-without-a-repo-mike-commissioned/010-no-doctrine-covers-a-session-with-no-tree.md)
 
 ## When to ask — keeping work flowing (Mike commissioned, 2026-10-01)
 
 *[Narrative](roadmap/420-when-to-ask-mike-commissioned/README.md)*
 
-- [ ] 🎯 [An ask stops the whole run — decide when a session asks, and what it…](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2) [An ask stops the whole run —…](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
 - [ ] 🎯 [An answer to a session's question is not a ruling. Records must tell…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
 
 ## Review quality is never traded for budget (Mike commissioned, 2026-10-04)

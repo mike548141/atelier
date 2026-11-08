@@ -1,4 +1,5 @@
-- [ ] 🎯 **An ask stops the whole run — decide when a session asks, and what
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2)
+      🎯 **An ask stops the whole run — decide when a session asks, and what
       it does with the rest of the work while the question waits.**
   - [ ] 🔑 **Both costs are real, and the doctrine prices only one.**
     - **Asking too early or too often:** the run halts on the first question,
@@ -40,3 +41,7 @@
         may answer what would otherwise wait on him), `300` (recover cheaply —
         provisional work is that posture applied to asking), `410` (repo-less
         sessions have no durable record to park a question in).
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: generalise park-and-proceed into a standing rule with an away mode he can declare; the notification question later.

@@ -1,4 +1,5 @@
-- [ ] 🎯 **Decide whether "make the instrument show a positive first" earns a
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
+      🎯 **Decide whether "make the instrument show a positive first" earns a
       line, and whether this sits inside `370` or beside it.** The narrative
       argues *beside*: `370`'s remedy is to re-read the report against the
       artefacts, and that remedy is unavailable when the failure IS the absence
@@ -50,3 +51,7 @@
         mechanical control **and** for cross-checking method between concurrent
         sessions, which `CONCURRENCY.md` currently treats as a claim-collision
         protocol rather than a correctness one.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: adopt "show a positive control first" as its own rule, mandatory where a negative authorises an irreversible act.

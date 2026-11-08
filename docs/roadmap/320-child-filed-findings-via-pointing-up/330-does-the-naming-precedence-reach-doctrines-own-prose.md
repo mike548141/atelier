@@ -1,4 +1,5 @@
-- [ ] 🎯 **Does the new naming precedence reach doctrine's own prose?** —
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
+      🎯 **Does the new naming precedence reach doctrine's own prose?** —
       split out of `320/190` when Mike ruled it 2026-09-19 (*rule 2 wins,
       everywhere*). That ruling settled the surfaces a **filing** creates:
       branch name, PR title, commit subject, PR body. It did not settle the
@@ -24,3 +25,7 @@
       naming, which is what produced the inconsistency.
       **Not claimable as work:** whichever way it goes, the edit is small.
       The decision is the whole item.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: public doctrine names no private child repo in worked examples.

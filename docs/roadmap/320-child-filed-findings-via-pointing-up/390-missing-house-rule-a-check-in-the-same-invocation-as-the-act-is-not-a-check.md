@@ -1,4 +1,5 @@
-- [ ] 🎯 **MISSING HOUSE RULE — a check in the same shell invocation as the
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
+      🎯 **MISSING HOUSE RULE — a check in the same shell invocation as the
       act it guards is not a check, and this house has no rule saying so**
       `[M][doctrine]` — filed from a private child via § *Pointing up*,
       2026-09-20, with a fifth instance produced by atelier's own orchestrating
@@ -75,3 +76,7 @@
       here inspects a session's shell invocations, and a rule with no forcing
       function is the class `020/220` exists to count. Filed as the defect and
       the ask, deliberately not as the patch.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: adopt the child's rule as house doctrine; no guard (not mechanisable).

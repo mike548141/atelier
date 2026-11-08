@@ -1,4 +1,5 @@
-- [ ] 🎯 **The floor's visibility bullet reads as a one-time check, and may
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
+      🎯 **The floor's visibility bullet reads as a one-time check, and may
       name the thing it exists to hide** — two wording proposals on the
       canonical floor region, filed from a private child 2026-09-20 via
       § *Pointing up*. Both concern the same bullet, both are the principal's
@@ -57,3 +58,7 @@
       byte-identical to canonical with placeholder fills only, verified by
       construction on 2026-09-20. Consideration and remediation are atelier's;
       the reporting child stops at this report.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: accept both: "is ever made public", and one sentence that spelling the actual path in a public-candidate repo defeats the rule.

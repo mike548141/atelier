@@ -1,4 +1,5 @@
-- [ ] 🎯 **MISSING HOUSE RULE — the house has no method for splitting one repo
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
+      🎯 **MISSING HOUSE RULE — the house has no method for splitting one repo
       into two, and two children have now each worked one out alone**
       `[M][doctrine]`. Hand-up from a private child via § *Pointing up*,
       2026-10-11. The evidence is held in the children's private records, so
@@ -70,3 +71,7 @@
       `docs/build/`, `skills/` or the READMEs; the nearest is
       `docs/build/REPO-BOUNDARY.md:71-80`, which says *when* to split (cheap,
       do it promptly) and not *how*. Overlaps `320/230` (silent-skip guard).
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: commission a class-only "Splitting a repo" method section, the children's records supplied privately.

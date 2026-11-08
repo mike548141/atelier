@@ -1,4 +1,5 @@
-- [ ] 🎯 **PROPOSAL for `GUARDS.md` — *strict where we author, forgiving where
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
+      🎯 **PROPOSAL for `GUARDS.md` — *strict where we author, forgiving where
       we read*: the rule that tells an author WHICH of the two to pick**
       `[S][docs]` — filed from a private child 2026-08-18 via § *Pointing up*.
       **Mike's ruling, not an agent's call:** this changes the fourth
@@ -32,3 +33,7 @@
       **Relationship to `310`:** this is a *child-originated doctrine proposal*,
       the case § *Pointing up* step 1 describes. It arrived as a proposal rather
       than as locally-authored rule text, which is the route working.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: adopt the rule as a short companion to the guard rules, noting atelier's own guards are not yet audited against it.

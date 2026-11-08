@@ -1,4 +1,5 @@
-- [ ] 🎯 **Talk first — the channel as a session's first preference, with git
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2)
+      🎯 **Talk first — the channel as a session's first preference, with git
       and the concurrency rules behind it — Mike commissioned, 2026-09-29.**
       His words: *"The first preference should be for any claude session to
       communicate directly with another rather than rely on git, concurrency
@@ -38,3 +39,7 @@
         launch — talk-first needs an owner to ask), `280/040` (the channel can
         contaminate review independence — talk-first must not reach a cold
         reviewer).
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: adopt "talk to decide, write to hold" as the channel design.

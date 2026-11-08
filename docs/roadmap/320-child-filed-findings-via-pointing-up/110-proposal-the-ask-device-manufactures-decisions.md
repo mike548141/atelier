@@ -1,4 +1,5 @@
-- [ ] 🎯 **PROPOSAL — § *Asking for a ruling* tells a session HOW to ask and
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2)
+      🎯 **PROPOSAL — § *Asking for a ruling* tells a session HOW to ask and
       never tells it WHETHER there is a decision to ask about, so the device
       manufactures decisions out of non-decisions** `[M][docs]` — filed from a
       private child, 2026-08-25, via § *Pointing up*.
@@ -85,3 +86,7 @@
       generalises is atelier's to decide, and § *When a rule keeps breaking* is
       the place that would know, since it can see whether other children have
       filed the same shape.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: add the gate before the ask device in COMMUNICATION.md: no decision is manufactured where an explanation would do.

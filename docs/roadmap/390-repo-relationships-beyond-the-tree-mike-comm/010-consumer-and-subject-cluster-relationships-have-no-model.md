@@ -1,4 +1,5 @@
-- [ ] 🎯 **No doctrine models a repo-to-repo relationship other than
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
+      🎯 **No doctrine models a repo-to-repo relationship other than
       doctrine-parent/child.**
   - [ ] 🔑 **Consumer-of-asset.** `REACH.md` § *The credential boundary*
         already distinguishes a "provisioning registry" and "per-consumer
@@ -26,3 +27,7 @@
   - [ ] 📎 Distinguished from `310/120` (filed the same day): that item is
         about the **pointing-up route** having only one parent shape; this
         item is about relationships that are **not parent/child at all**.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: atelier does not model consumer or subject-cluster relationships; one generic line points at the estate root's registry.

@@ -1,4 +1,5 @@
-- [ ] 🎯 **No doctrine says which mechanism a new need should take — four are
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
+      🎯 **No doctrine says which mechanism a new need should take — four are
       already in use by precedent, none by rule.**
   - [ ] 🔑 **What's actually in play, named so the question is checkable.**
         At least six mechanisms exist in this estate today: a **policy-as-code
@@ -53,3 +54,7 @@
         one decision tree, and where it would live (`GUARDS.md`? a new
         `build/` doc? an ADR?), is the design work this item asks for and
         does not do.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: write a one-page decision guide on the four axes.

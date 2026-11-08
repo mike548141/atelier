@@ -1,4 +1,5 @@
-- [ ] 🎯 **No doctrine covers a session with no tree — decide what a repo-less
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2)
+      🎯 **No doctrine covers a session with no tree — decide what a repo-less
       session reads, keeps, and hands on.**
   - [ ] 🔑 **Three gaps, kept separate:**
     - **Onramp.** Nothing tells a repo-less session which house rules apply
@@ -24,3 +25,7 @@
   - [ ] 📎 **Related:** `240` (context follows the person — the device side of
         the same question), `360/020` (repo-less sessions are invisible to
         every per-repo coordination rule).
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: a thin home-directory onramp, with "move to the repo before recording" as the default for shaping work; the privacy line travels with any output.

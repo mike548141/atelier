@@ -1,4 +1,5 @@
-- [ ] 🎯 **§ *Pointing up* only names atelier as a parent — Mike commissioned,
+- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3)
+      🎯 **§ *Pointing up* only names atelier as a parent — Mike commissioned,
       2026-09-12.** His words: *"Find better ways for sessions working on
       child repos to feed back ideas, problems or whatever to 'parent' repos
       like atelier to consider and act upon. Similarly a child repo of shed
@@ -34,3 +35,7 @@
         assumes a reachable parent and a channel"), because that item is
         about reachability of *atelier specifically*, while this one is about
         the route's shape being atelier-specific in the first place.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered,
+        after reading a one-line summary of each of twenty; an answer, not a
+        ruling):** *"Approve all 20"* — the recommendation on this item
+        stands approved: a general child-to-any-parent route, drafted with 310/140 as one rule; a private parent may receive specifics.
