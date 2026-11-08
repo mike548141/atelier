@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0045, wt: atelier-rr-722a-070)
-      🎯 **PROPOSAL — a transcript has three principal-authored channels, and a
+- [x] 🎯 **PROPOSAL — a transcript has three principal-authored channels, and a
       read that names one is a confident negative** `[S][docs]` — filed from
       `cbom` 2026-08-19/21 via § *Pointing up* (its board `120/080`), on Mike's
       direction to that session: *"Suggest it to atelier repo for doctrine +
@@ -55,3 +54,12 @@
         later sessions will see it; (2) any audit of what he asked says which
         of the three channels (opening prompt, mid-turn message, question-box
         pick) it read.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `RECORD.md` gains
+        § *What the principal said arrives three ways* — a mid-turn
+        instruction counts like an opening one and a standing one is written
+        down before the turn ends; an audit of what he asked names the
+        channels it read and how it told his typing from injected text.
+        `GUARDS.md` points at it. `320/080` can now build on it; `320/100`'s
+        form check still needs its own decision. Cold pass queued as
+        `160/1100`.

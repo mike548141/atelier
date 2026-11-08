@@ -354,6 +354,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: git resolves a staged scan's positional…](roadmap/160-doctrine-review-owed/1070-rule-4-cold-pass-queued-git-resolves-the-staged-scope.md)
 - [ ] ⏳ [Rule-4 cold pass queued: G3 records who and when on every manifest…](roadmap/160-doctrine-review-owed/1080-rule-4-cold-pass-queued-g3-who-when-and-gate-order.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a private repo's state goes by type in…](roadmap/160-doctrine-review-owed/1090-rule-4-cold-pass-queued-private-state-type-only.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the principal speaks through three channels…](roadmap/160-doctrine-review-owed/1100-rule-4-cold-pass-queued-three-channels.md)
 
 ## build/ layer — open strands
 
@@ -564,7 +565,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [By-call enforcement resolves through a working tree, so "fresh"…](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
 - [ ] 🎯 [PROPOSAL for GUARDS.md — a guard's THREAT MODEL is a property to…](roadmap/320-child-filed-findings-via-pointing-up/050-proposal-a-guard-declares-who-it-protects-from-whom.md)
 - [ ] 🎯 [PROPOSAL for the floor + GUARDS.md — where siblings exist, require a…](roadmap/320-child-filed-findings-via-pointing-up/060-proposal-the-floor-requires-a-path-scoped-commit.md)
-- [~] (claimed 2026-11-09-0045, wt: atelier-rr-722a-070) [PROPOSAL — a transcript has…](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)
+- ✅ 🎯 [PROPOSAL — a transcript has three principal-authored channels, and a…](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal…](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
 - ✅ [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
 - [ ] 🎯 [PROPOSAL — the damaging attribution carries NO QUOTATION MARKS, so…](roadmap/320-child-filed-findings-via-pointing-up/100-unquoted-attribution-is-invisible-to-quotescan-and-a-corroboration-for-070.md)
