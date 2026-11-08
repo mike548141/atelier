@@ -74,7 +74,8 @@ nothing errors. The three cues:
   commit — that silently merges two intentions, the exact clobbering this
   doctrine exists to prevent.
 - **Ask, when a channel exists:** where sessions can message each other, a
-  session enumerates its live peers at open and asks (§ The channel). This is
+  session enumerates its live peers at open and asks (§ The channel), and asks
+  the owner before it works around what it meets (§ Talk first). This is
   the only cue that turns the flipped prior into a *fact* rather than a posture —
   the other two are discoveries you make by accident.
 
@@ -562,6 +563,41 @@ protocol and collided anyway.
      different accepted records is left permanently vacant; an allocator counts
      records rather than contiguity, so the gap costs nothing and reuse costs a
      permanently ambiguous citation.
+
+### Talk first: talk to decide, write to hold
+
+Where a channel exists, **a session that meets another session's work asks the
+owner first** and falls back on the rules only when no one answers. "Meets"
+means a dirty tree it did not make, a `[~]` claim, a branch it does not
+recognise, a held host. Mike's words, 2026-09-29: *"The first preference should
+be for any claude session to communicate directly with another rather than rely
+on git, concurrency rules etc... Talking to each other allows them to understand
+the situation properly and negoitate a way forward"*. The order of reach
+changes, not the parts: the worktree, the claim line and the rebase stay, and
+catch what a conversation did not.
+
+The reconciliation with law 1 is **talk to decide, write to hold**. The
+conversation reaches the agreement; the artefact (a claim edit, a commit, a
+record) is what makes it survive either session's death. A handover agreed in
+words is not a handover until the holder has written it, and a message alone
+never lets you take a claim. (Approved 2026-11-09, `280/050`, as Mike's pick
+from options offered, not a ruling in his words; the reconciliation is the
+item's reading.)
+
+- **The cost clause still applies.** A negotiation is peer contact, so claims
+  made in it are hypotheses (§ *Re-run, don't reason*): two of the four
+  recorded rounds existed only to correct the earlier two.
+- **No answer sends you to the rules, not past them.** If the owner is idle,
+  gone, or a closed session whose claim outlived it, the rules above take over
+  unchanged: § *Surviving an interrupted session* and § *Claiming work*, orphan
+  claims, on evidence and never a timer.
+- **Talk-first never reaches a cold reviewer.** A message from a delta's author
+  into its review chain is disclosed contact (§ *What the channel is not*).
+
+Not decided here: whether the session-open read order should say "ask who is
+live" where it now says "assume another may be", and whether the floor clause
+propagated to the children needs the same re-ordering. Both are separate
+changes to text that propagates, and belong to their own items.
 
 ### What the channel carries
 
