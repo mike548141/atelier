@@ -376,26 +376,22 @@ shared worktree safe when the staging command is not file-scoped.
 
 **On a split board** (board-store ADR, 2026-08-15) the item's checkbox line
 lives in *its own file* under `docs/roadmap/`, and the claim commit carries two
-things: that line's edit, and the regenerated index — `tools/board.py rebuild`
-at a clean checkout, `rebuild --from-index` at a dirty one, which regenerates
-from the staged plane so a sibling's unstaged line cannot be absorbed into the
-file you are about to stage. The `board` floor check runs `--staged` at the
-hook (`010/020`, landed 2026-09-20, discharging BS1's fund): it reads the git
-**index** on both sides, so a rebuild that **ran but was not staged** and one
-that **absorbed a sibling's dirty state line** are now both caught at the hook
-itself, not only on CI afterwards. CI keeps the worktree form, where the
-checkout already *is* the committed tree. What no plane defends is a commit
-that deliberately stages a stale item edit *and* a stale index together —
-that is a wrong commit, not a plane confusion, and no choice of plane helps.
-*The claiming rule this wording carried while the check was unbuilt — that a
-dirty sibling state line is a stop for claiming from that checkout — is CF3's
-to restate or relax now that its cause is closed; see there.* The mechanics
-below
-are unchanged; only the collision surface improves. Same-item claims still
-collide on the item's state line. Different-item claims now touch different
-files, so the false-conflict case shrinks to the index — where two claims'
-generated lines may sit adjacent. That conflict is resolved **by regenerating,
-never by hand-merging**: rebase, run `rebuild`, stage the index, continue.
+things: that line's edit, and the regenerated index: `tools/board.py
+--rebuild` at a clean checkout, `--rebuild --from-index` at a dirty one, which
+regenerates from the staged plane so a sibling's *unstaged* line cannot be
+absorbed into the file you are about to stage. The `board` floor check runs
+`--staged` at the hook (`010/020`, 2026-09-20), reading the git **index** on
+both sides, so a rebuild that was never staged, or one that absorbed a sibling's
+unstaged state line, is caught at the hook and not only on CI; the mechanism and
+its limits are the docstring of `tools/board.py`, which is canonical. A
+sibling's **staged** line is not caught there: it is this commit's content
+whoever staged it, and `git diff --cached` before the commit is the check for
+that (§ The trigger). Whether a stranger's edits stop a claim is CF3's, below.
+Same-item claims still collide on the item's state line. Different-item claims
+touch different files, so the false-conflict case shrinks to the index, where
+two claims' generated lines may sit adjacent. That conflict is resolved **by
+regenerating, never by hand-merging**: rebase, run `--rebuild`, stage the
+index, continue.
 
 **Where the claim lands is load-bearing.** The claim commit goes to the
 **integration branch every session rebases onto** (`main`), *before* creating or
@@ -413,32 +409,42 @@ rather than worktrees skips this entirely — each clone has its own `main`.)
 
 **Claiming at a dirty primary checkout.** The flipped prior (§ The trigger)
 says to expect company, and the claim must still land on `main` from the
-primary checkout — so the dirty case gets a rule, not a workaround. If the
-stranger's uncommitted edits do **not** touch the queue (any item's state
-line — yours or a sibling's — and on a split board the generated index with
-it): stage and commit
-the claim alone, nothing else — the one sanctioned touch inside another
-session's tree, safe because it stages only your own hunks. If the item's file
-**itself** is dirty: that is positive proof the other session is queue-active —
-sync, take the next open item, touch nothing. (CF3, ruled 2026-07-20 — the
-gap predated the flip; the flip made it expected rather than exceptional. A
-dirty *index* alone is weaker evidence on a split board — any state change
-regenerates it — so the item file, not the index, is the tell.)
+primary checkout, so the dirty case gets a rule, not a workaround. A stranger's
+uncommitted edits stop a claim of **that item and no other** (Mike, 2026-11-09,
+to the options offered: *"Stop only for the same item"*):
 
-🎯 **CF3's stop is now stricter than its cause requires, and that is the
-principal's to settle, not a session's.** Part of why a dirty *sibling* item
-blocked a claim was that regenerating the index off the worktree could absorb
-that sibling's unstaged line. `rebuild --from-index` closes exactly that risk
-(`010/020`, landed 2026-09-20), so the rule *could* relax to: a sibling's dirty
-edit to a **different** item no longer stops a claim — run `rebuild
---from-index` instead of stopping — and only a dirty edit to the **exact item
-being claimed** remains a stop, which is the same-item collision the rule above
-already calls positive proof. **It has not been relaxed here.** The stop also
-carries a second, independent reason the new flag does nothing about: a dirty
-sibling item is evidence a peer is queue-active, and CF3 reads that as a signal
-about *the other session*, not only about the index. Weighing those against each
-other is a standing-doctrine change; queued for ruling rather than taken (the
-building worker surfaced it and declined to decide it, correctly).
+- **The item's own file is dirty**, in the worktree or the index: that is
+  positive proof the other session is queue-active on *this* item. Sync, take
+  the next open item (which this rule then tests in turn), touch nothing.
+- **Anything else is dirty**: another item's state line, any other file, and on
+  a split board the generated index with them. Claim anyway: stage your item's
+  file and the index, regenerated with `tools/board.py --rebuild --from-index`
+  so the sibling's unstaged line cannot reach it, and commit by pathspec (§ The
+  trigger). It is the one sanctioned touch inside another session's tree, safe
+  because it stages only your own hunks. The index is generated, so if the
+  stranger had rebuilt it on disk their copy is rewritten and nothing of theirs
+  is lost; they rebuild again. Two sessions on different items is the designed
+  case (§ On a split board), not a collision.
+- **Something staged that is not yours** is a different case, the shared
+  index's (§ The trigger): a regenerated index carries a peer's staged state
+  line, and the hook refuses the pathspec commit that would carry it without
+  its item. That is their commit in flight, so wait for it to land rather than
+  work around it.
+
+The claim is all that happens in the primary checkout. The work that follows is
+done in your own worktree (§ The trigger), never beside the stranger's edits.
+
+(CF3, ruled 2026-07-20, revised 2026-11-09. The gap predated the flip; the flip
+made it expected rather than exceptional. A dirty *index* alone is weaker
+evidence on a split board, since any state change regenerates it, so the item
+file, not the index, is the tell. The original rule also stopped at *any*
+item's dirty state line. That had two bases. One was mechanical, that a rebuild
+off the worktree could bake the sibling's unstaged line into your claim; the
+`--from-index` rebuild closes it. The other was that a dirty sibling is
+evidence of a queue-active peer, which is no reason to refuse a *different*
+item: it is the flipped prior again. How often the old stop fired was never
+measured. On a **monolithic** board the one board file is every item's file, so
+a dirty board file still stops every claim; that is `030/140`, open.)
 
 - **Push succeeds** → the item is yours; now enter the worktree and work.
 - **Push rejected** → `pull --rebase`. If another session claimed the *same*

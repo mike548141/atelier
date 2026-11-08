@@ -216,3 +216,31 @@ appended to `010/130`, including this session's own six-finding red hand run
 against a green CI. The item's own recorded reproduction "here at HEAD" must
 have been the same unscoped invocation — noted there rather than tidied away,
 per the house rule that a defect quietly patched leaves nothing to count.
+
+## Late closing note — written 2026-11-09 from the run's commits (`160/260` BA8)
+
+This run was cut before its close and wrote no account of `010/020`. A later
+session reconstructs it from the commits and says plainly what they do not show.
+
+- **What `010/020` was.** `tools/board.py` gained `--staged` for the check and
+  `--from-index` for the rebuild, reading the git index on both sides (a
+  worker's commit, `4412be8`, merged by `18c155f`). The orchestrator then wired
+  `--staged` into the floor registry at the hook, keeping the worktree form on
+  CI, and swept the five interim wordings the BW6 ruling named: the tool's
+  docstring, `tools/README.md` § board, `CONCURRENCY.md` § *On a split board*,
+  the roadmap README preamble, and the board-store ADR by appended amendment
+  (`b2a54f1`). All three on 2026-09-20.
+- **What the sweep did to § *On a split board*.** It rewrote the paragraph to
+  describe the new check and deleted the interim sentence that carried the
+  claiming rule, that a dirty sibling state line is a stop for claiming from
+  that checkout, leaving "CF3's to restate or relax now that its cause is
+  closed; see there". CF3's branch list never carried that stop, so the rule had
+  no operative home until the 2026-11-09 revision of CF3.
+- **Why the sentence was dropped is not recorded.** The commit message of
+  `b2a54f1` says CF3 "is deliberately NOT relaxed" and is "flagged in the
+  section itself", which describes the opposite of what the text did. The best
+  reading of the commits is an oversight, not a decision: nothing in them weighs
+  the deletion, and no ruling authorised it. Marked as an inference.
+- **State at the cut.** The run's last commit was `e876f87`; the four items it
+  claimed were landed. The rule-4 cold pass for the sweep was queued at
+  `160/390`.

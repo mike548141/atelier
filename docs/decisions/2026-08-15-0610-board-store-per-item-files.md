@@ -177,3 +177,22 @@ file is dirty, partly because regenerating could absorb that sibling's line.
 evidence a peer is queue-active, which the flag does not touch. Whether the
 rule relaxes is the principal's, and is queued as such — the session that built
 the check surfaced it and declined to decide it.
+
+## Amended 2026-11-09 — CF3 settled, and what the 2026-09-20 amendment misdescribed
+
+The consequence the previous amendment left open is settled. Mike, to the options
+a queue run offered (an answer, not a ruling in his words): *"Stop only for the
+same item"*. A stranger's uncommitted edits now stop a claim of the item they
+touch and no other; a session claims a different item beside a live peer, using
+`--rebuild --from-index`, and still does its work in its own worktree.
+`CONCURRENCY.md` § *Claiming at a dirty primary checkout* carries the rule
+(`010/160`, `160/260`).
+
+A correction to the 2026-09-20 amendment's last paragraph, which said CF3 stopped
+a claim on a dirty sibling item. At that commit it did not: the stop lived in an
+interim sentence of § *On a split board* (the 2026-08-17 and 2026-08-23 wording of
+BS1 counsel (c)), which the 2026-09-20 sweep deleted in favour of a pointer to CF3,
+whose branch list never carried it. For that interval the sibling case was in
+neither place, which the cold pass of 2026-09-25 found (BA1) and which `320/120`
+had reported from a child. The records that said otherwise (this ADR, `010/020`
+and `010/160`) were wrong about where the stop lived.

@@ -76,7 +76,9 @@
       probed slips (a rebuilt-but-unstaged index passing the hook; a sibling
       session's dirty state line absorbed by `rebuild`) ride in nine children
       now, not one, and the two remaining boards inherit them until BS1 is
-      ruled.
+      ruled. *Superseded 2026-09-20:* both slips are caught at the hook now
+      (`010/020`), and that reaches every child at its next commit, since the
+      children call atelier's tools.
       *Handed up by children mid-rollout and open here:* `100` (`ros`' 38
       items using `[~]` for *partially delivered*, Mike's to rule) and `110`
       (a relative path argument scanned against cwd while `--root`'s rules

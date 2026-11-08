@@ -54,6 +54,11 @@
       🎯 **One consequence left for Mike:** CF3's dirty-sibling stop is now
       stricter than its mechanical cause requires — `010/160`. The building
       worker surfaced it and declined to decide it, correctly.
+      📝 *Correction, 2026-11-09 (the 2026-09-25 cold pass, BA1):* the stop did
+      not live in CF3's branch list at this commit. It lived in an interim
+      sentence of `CONCURRENCY.md` § *On a split board*, which this item's own
+      sweep deleted. Settled since: a peer's edits stop a claim of the same item
+      only (`010/160`).
       Rule-4 `⏳` at `160/390`; this run may not take it.
       🎉 **Propagation confirmed from a child's side, by accident, the same
       evening.** A live child session verified the landing in its own repo and

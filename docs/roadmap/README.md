@@ -7,10 +7,9 @@ that commit carried. Each section's narrative lives in that section's
 `README.md`. [`../ROADMAP.md`](../ROADMAP.md) is the **generated index**
 (`tools/board.py`; the `board` floor check blocks a commit whose index is stale
 — on CI against the worktree, which *is* the committed tree there, and at the
-hook against the staged plane (`--staged`), so a rebuild that ran but was never
-staged, or one that absorbed a sibling's dirty line, is caught at the hook
-itself rather than only on CI — and after a merge conflict on the index,
-rebuilding *is* the resolution, via `rebuild --from-index` at a dirty
+hook against the staged plane (`--staged`; mechanism and limits in the
+docstring of `tools/board.py`) — and after a merge conflict on the index,
+rebuilding *is* the resolution, via `--rebuild --from-index` at a dirty
 checkout). The
 session-start read is the index; open item files on demand. Completed detail
 from before the split lives frozen in [`../ROADMAP-DONE.md`](../ROADMAP-DONE.md);

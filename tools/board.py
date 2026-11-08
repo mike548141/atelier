@@ -33,18 +33,21 @@ WHY THE INDEX IS COMMITTED AND CHECKED, NOT HAND-KEPT
 A committed derived file can drift from its source — the estate's most-recorded
 defect class. So this tool is wired into the floor as a CHECK: a commit whose
 index does not match its item files fails, with the remedy printed (run
-`rebuild`) — on CI unconditionally; at the hook, `--staged` (below) reads the
+`--rebuild`) — on CI unconditionally; at the hook, `--staged` (below) reads the
 git INDEX rather than the worktree, the same plane harvestscan's HV4 reads for
 the identical reason: the hook's question is what this commit is about to make
 true, which is neither HEAD nor an unstaged edit lying dirty in the same
 checkout. That closes the two live slips BS1 named (2026-08-15) — an index
-rebuilt but never staged, and a rebuild that read a sibling's dirty item line
-off the worktree and baked it into the committed index — because both are
-content the INDEX never had. `rebuild --from-index` (below) is the matching
-write-side fix: it regenerates from the same plane, so a claimer at a dirty
-primary checkout (CONCURRENCY.md § Claiming work) never absorbs a sibling's
-unstaged line into the file it is about to stage. CI keeps the plain
-(worktree) form — a CI checkout has no unstaged state to confuse it with, so
+rebuilt but never staged, and a rebuild that read a sibling's unstaged item
+line off the worktree and baked it into the committed index — because both are
+content the INDEX never had. A sibling's UNSTAGED line is what that guards: a
+sibling's STAGED line is this commit's content whoever staged it, so it is
+baked and accepted by construction, and `git diff --cached` before the commit
+is the check for it (CONCURRENCY.md § The trigger). `rebuild --from-index`
+(below) is the matching write-side fix: it regenerates from the same plane,
+so a claimer at a dirty primary checkout (CONCURRENCY.md § Claiming work)
+never absorbs a sibling's unstaged line into the file it is about to stage.
+CI keeps the plain (worktree) form — a CI checkout has no unstaged state to confuse it with, so
 the worktree already IS the committed tree there, and `--staged` would answer
 a question CI cannot ask (BS1 → `010/020`, FUNDED 2026-08-17, landed
 2026-09-20). Two sessions closing different items both regenerate; if their
@@ -73,8 +76,8 @@ commit. Hence `rebuild_cmd()`: repo-relative where the tool is inside the
 tree, the hook's `$ATELIER_TOOLS` spelling where it is not, and NEVER an
 absolute path, which would put a machine-local fact into a public file.
 
-STATED RESIDUAL — RETIRED 2026-09-20 (010/020, BS1's fund). The gap above used
-to be permanent: `--check` compared the WORKTREE's item files against the
+STATED RESIDUAL — THE 2026-08 GAP RETIRED 2026-09-20 (010/020, BS1's
+fund). The gap above used to be permanent: `--check` compared the WORKTREE's item files against the
 WORKTREE's index unconditionally, so a commit that staged an item edit
 without the rebuilt index — or one that staged a rebuild which had quietly
 absorbed a sibling's dirty item line — passed the hook every time, on nothing
@@ -90,6 +93,17 @@ What is NOT claimed: this does not protect a commit that stages BOTH a stale
 item edit and a stale index together in one deliberate act — that is not a
 plane confusion, it is just a wrong commit, and no check on which plane to
 read defends against staging the wrong content on purpose.
+
+LIVE RESIDUALS (named by the 2026-09-25 cold pass, BA7). (1) A sibling's
+STAGED state line is baked by `rebuild --from-index` and accepted by
+`--check --staged`, because it is the commit's own staged content; the hook
+does block a pathspec commit that carries the baked index line without its
+item. (2) At a dirty checkout the worktree `--check` reds and prints the plain
+`rebuild` remedy, which if run reads the worktree and absorbs the sibling's
+unstaged line; the hook then catches that (the staged plane disagrees), so the
+loop corrects itself, but the printed advice is wrong for that state: use
+`--rebuild --from-index` there. (A staged item whose path git quotes was a
+third; it is fixed, 115/260.)
 
 Exit codes:  0 clean/not-in-scope · 1 stale index or invalid item file ·
 2 environment error (bad root, or `--staged`/`--from-index` outside a git

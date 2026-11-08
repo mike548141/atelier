@@ -87,23 +87,23 @@ hiding resolved narrative stays human, caught at review.
 **board** (a records-hygiene check, board-store ADR 2026-08-15) guards the one
 derived file the split board keeps: `ROADMAP.md` is generated from the per-item
 files under `docs/roadmap/`, and a commit whose index is stale against them
-fails with the remedy printed (`board.py rebuild`; after a merge conflict on
+fails with the remedy printed (`board.py --rebuild`; after a merge conflict on
 the index, rebuilding *is* the resolution). CI checks the worktree against
-itself — a CI checkout has no staged-vs-unstaged distinction to get wrong, the
-checkout already *is* the committed tree. The hook checks the **staged plane**
-instead (`--staged`; harvestscan's HV4 shape, reused rather than reinvented):
-it builds the wanted index from the item files as staged (`git show :path`)
-and compares it against `ROADMAP.md` as staged, so it answers "does what's
-about to be committed already agree with itself" — never "does the working
-directory agree with itself", which is the weaker question the hook used to
-ask and which let two slips through unnoticed until CI (BS1, 2026-08-15): an
-index rebuilt on disk but never `git add`ed, and a rebuild that read a
-**sibling's** dirty, unstaged item edit straight off the worktree and baked it
-into the committed index. `rebuild --from-index` is the matching write-side
-fix — it regenerates from the same staged plane, so a claimer at a dirty
-primary checkout (`CONCURRENCY.md` § Claiming work) never absorbs a sibling's
-unstaged line into the file they are about to stage; it is the remedy the
-hook now prints on a staged-plane failure. Done items render `✅` in the index
+itself, since a CI checkout already *is* the committed tree. The hook checks the
+**staged plane** instead (`--staged`; harvestscan's HV4 shape, reused rather
+than reinvented): it builds the wanted index from the item files as staged and
+compares it against `ROADMAP.md` as staged, so it answers "does what's about to
+be committed already agree with itself", never "does the working directory agree
+with itself". That catches, at the hook and not only on CI, an index rebuilt on
+disk but never `git add`ed, and a rebuild that read a sibling's **unstaged**
+item edit off the worktree and baked it into the committed index (BS1,
+2026-08-15; `010/020`). A sibling's **staged** line is this commit's content
+whoever staged it, so `git diff --cached` before the commit is the check for
+that. `--rebuild --from-index` regenerates from the same staged plane, so a
+claimer at a dirty primary checkout (`CONCURRENCY.md` § Claiming work) never
+absorbs a sibling's unstaged line; it is the remedy the hook prints on a
+staged-plane failure. The docstring of `tools/board.py` is canonical for the
+mechanism and its live residuals. Done items render `✅` in the index
 — never `[x]`, so sizescan's cold-content gate cannot fire on a generated line.
 A repo with no `docs/roadmap/` directory (worktree plane) or none tracked in
 the index (staged plane) is out of scope and passes saying so.

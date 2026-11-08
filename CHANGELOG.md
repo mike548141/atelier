@@ -31,6 +31,25 @@ wording only; no scanner or tool is built.
 - **Splitting a repo (`320/580`).** A draft section in `REPO-BOUNDARY.md`
   from one hand-up's testimony, with what could not be grounded listed.
 
+### Changed (2026-11-09 — a stranger's edits stop a claim of the same item only, `010/160`, `160/260`)
+Mike answered *"Stop only for the same item"* (2026-11-09; an answer to the options a
+queue run offered, not a ruling in his words). `CONCURRENCY.md` § *Claiming at a dirty
+primary checkout* (CF3): a session finds a peer's uncommitted edits, still does its work
+in its own worktree, and stops a claim only where the peer's edits touch the item it
+wants; a different item beside a live peer is claimed with `--rebuild --from-index`, by
+pathspec. The old stop and its "stricter than its cause" paragraph are gone; a peer's
+staged entries and a monolithic board are named as the cases it does not cover.
+- **The 2026-09-25 cold pass's other findings.** BA1: the sibling case now has its
+  operative sentence in CF3's branch list, and the ADR, `010/020` and `010/030` are
+  corrected to say the stop had lived in an interim sentence the 2026-09-20 sweep
+  deleted. BA3: the surfaces say *unstaged* where that is the guarantee, and state that
+  a peer's *staged* line is this commit's content. BA4: `--rebuild` is the one spelling.
+  BA5: this closure of BS1's residual (2026-09-20, `010/020`) was never logged; it is
+  here. BA6: the docstring of `tools/board.py` is canonical and the README, roadmap
+  README and `CONCURRENCY.md` keep a clause and a pointer. BA7: the docstring names the
+  live residuals. BA8: a late closing note on the 2026-09-20 run's record. BA2 (a quoted
+  item path dropped from the index plane) was already fixed by `115/260`.
+
 ### Changed (2026-11-09 — `ccclose --identifiers` credits a commit only on evidence, `160/960`)
 Mike answered *"Credit only on evidence"* (2026-11-09; an answer, not a ruling in his
 words) to a cold pass that found the block crediting a concurrent session's
