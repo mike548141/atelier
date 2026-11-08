@@ -1627,13 +1627,17 @@ def _render(args: list[str], root: Path, cfg: Config,
     paths = trees if trees is not None else subtrees(root, cfg, name or "")
 
     # STAGED MODE TAKES REPO-RELATIVE PATHS, and this is a genuine sharp edge.
-    # secretscan/leakscan filter the staged diff by PREFIX against git's own
-    # path list, which is always repo-relative. An absolute path (or a bare ".")
-    # therefore matches nothing at all — and a scan that matches nothing exits 0,
-    # so the failure looks exactly like a clean pass. Caught here by the planted-
-    # secret tests in test_precommit.py, which is the only reason it is not
-    # shipping: the first draft of this function rendered absolute paths for both
-    # planes and every boundary check silently passed.
+    # secretscan/leakscan filter the staged diff against git's own path list,
+    # which is always repo-relative. An absolute path matched nothing at all —
+    # and a scan that matches nothing exits 0, so the failure looks exactly like
+    # a clean pass. Caught here by the planted-secret tests in test_precommit.py,
+    # which is the only reason it is not shipping: the first draft of this
+    # function rendered absolute paths for both planes and every boundary check
+    # silently passed. Since 115/360 and 160/950 the guards no longer rely on
+    # this render alone: they refuse an absolute path, and refuse a positional
+    # git does not know (a case or Unicode variant included), so a bare "." now
+    # means the whole diff. The render still drops it: no positional is the
+    # plainest spelling of "the whole staged set".
     if "--staged" in args:
         scoped = [p.strip("/") for p in paths if p not in (".", "")]
     else:
@@ -1847,11 +1851,11 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         # `local.*.scope` ("narrowing a check to nothing is a silent hole, not a
         # scope") and for an absolute path in --staged mode.
         #
-        # It is ONE member of that class, and the class is shut end to end. The
-        # class is "a declared scope that reads something other than the tree it
-        # names", and all three of its members now block: does not resolve (shut
-        # here) / resolves OUTSIDE the repo — `/etc`, `..` (shut lexically at
-        # parse by `_reject_escaping_scope`, so it blocks on every plane and for
+        # It is ONE member of that class. The class is "a declared scope that
+        # reads something other than the tree it names", and all three of its
+        # members block HERE: does not resolve (shut here) / resolves OUTSIDE the
+        # repo — `/etc`, `..` (shut lexically at parse by
+        # `_reject_escaping_scope`, so it blocks on every plane and for
         # softenable scanners too) / resolves outside via an in-tree symlink
         # (shut by the outside guard above, which resolves both sides). Fleet
         # `scope` now carries BOTH halves of the membership rule, the same
@@ -1859,6 +1863,14 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         # closed, not merely described. Track A application cold pass, TA1,
         # ruled (a) and closed 2026-07-28. Registry defaults for these scanners
         # are the repo root, so only an explicit declaration can reach here.
+        #
+        # The narrower truth (160/950 QS1): "exists" here is the FILESYSTEM's
+        # word, and a case-folding or normalising filesystem says yes to
+        # `Docs` where git, which lists `docs`, says no. The existence test
+        # alone was therefore not "shut end to end" on the hook plane. The
+        # staged guards close that seam themselves: `report.resolve_staged_scope`
+        # lets git resolve each positional and refuses one git does not know,
+        # so a misspelt-by-case scope blocks (exit 2) instead of reading clean.
         if missing and scanner.advisory is None:
             print(
                 f"floor: {scanner.name} is scoped to "

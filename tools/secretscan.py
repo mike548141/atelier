@@ -1849,11 +1849,15 @@ def _main(argv: list[str] | None = None) -> int:
         prog="secretscan",
         description="Scan for plaintext credentials before they reach git history.")
     ap.add_argument("paths", nargs="*",
-                    help="files/dirs to scan (default: whole repo, or --staged)")
+                    help="files/dirs to scan (default: whole repo, or --staged). "
+                         "With --staged, repo-root-relative paths in git's own "
+                         "spelling and case ('.' is the whole diff); one git "
+                         "does not know is refused (exit 2)")
     ap.add_argument("--staged", action="store_true",
                     help="scan only lines added in the git staging area (pre-commit hook)")
     ap.add_argument("--root", default=".",
-                    help="repo root for relative paths/.secretscanignore")
+                    help="repo root for relative paths/.secretscanignore "
+                         "(with --staged it must be the repo you run in)")
     ap.add_argument("--disable", default="",
                     help="comma-separated rules to skip (named rule, 'assigned', "
                          f"'high-entropy', or '{LOW_VARIETY_RULE}'). Use to quiet "
@@ -1880,6 +1884,9 @@ def _main(argv: list[str] | None = None) -> int:
     tally = Tally(disabled_rules=tuple(sorted(disabled)))
 
     if args.staged:
+        rc = report.refuse_other_repo("secretscan", root)
+        if rc is not None:
+            return rc
         try:
             staged = staged_added_lines()
         except report.STAGED_DIFF_FAILURES as e:
@@ -1890,8 +1897,9 @@ def _main(argv: list[str] | None = None) -> int:
         # paths repo-relative, so `/Users/…/repo/x.py` matches no prefix, the
         # filter empties the set, and a boundary scan that covered nothing looks
         # exactly like one that found nothing wrong. Refuse it.
-        # `report.scope_staged` also normalises the spelling (`.`, `./x`) and
-        # refuses one that escapes the repo (roadmap 115/360).
+        # `report.scope_staged` also normalises the spelling (`.`, `./x`),
+        # refuses one that escapes the repo, and lets git resolve what each
+        # positional names, refusing one git does not know (115/360, 160/950).
         rc, staged = report.scope_staged("secretscan", staged, args.paths, "src/")
         if rc is not None:
             return rc

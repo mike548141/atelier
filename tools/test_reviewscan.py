@@ -486,9 +486,14 @@ class StagedPlane(StagedPlaneBase):
     def test_scope_narrows_the_staged_set(self):
         self._write(self.REC, self.WITHOUT)
         self._add(self.REC)
+        # A scope must name a path git knows (160/950): `elsewhere` is tracked,
+        # with no review record staged under it, so it narrows to a clean pass.
+        self._write("elsewhere/ok.md", "Fine.\n")
+        self._add("elsewhere/ok.md")
         self.assertEqual(0, self._run("elsewhere")[0])
         self.assertEqual(1, self._run("docs")[0])
         self.assertEqual(1, self._run()[0])
+        self.assertEqual(2, self._run("nowhere")[0])   # names nothing git knows
 
     def test_an_absolute_scope_is_refused_not_passed(self):
         self._write(self.REC, self.WITHOUT)

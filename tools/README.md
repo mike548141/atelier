@@ -530,14 +530,20 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
 ### Wiring it in
 
 - **Pre-commit hook** — copy `tools/pre-commit.sample` to
-  `.git/hooks/pre-commit` (`chmod +x`). It runs `secretscan --staged` and
-  `leakscan --staged` over the staged diff, plus `linkscan` over the **whole
-  tree**, and aborts the commit on any finding. This is the primary control.
+  `.git/hooks/pre-commit` (`chmod +x`). It names no scanner (ADR 0008): it hands
+  the commit to `floor.py`, which runs the registry's checks (`secretscan` and
+  `leakscan` over the staged diff, `linkscan` over the **whole tree**, and the
+  rest) and aborts the commit on any finding. This is the primary control.
   (linkscan is whole-tree, not staged, on purpose: a link breaks when a
   *different* file is renamed or deleted, so the file that goes stale is usually
-  not the one in your diff — see `linkscan.py` below.) For a subtree/networking
-  repo, edit the hook's leakscan invocation to add the `--disable`/path scoping
-  above.
+  not the one in your diff — see `linkscan.py` below.) To scope a check to a
+  subtree (a networking repo, a private repo with a shareable `tiki/`), declare
+  it in the repo's `.atelier-floor.json`, never in the hook: `"scope":
+  {"leakscan": {"paths": ["tiki/"], "why": "..."}}`, and `flags` for
+  `--disable`. The floor renders the paths as the guard's staged positionals.
+  A staged positional is a repo-root-relative path in git's own spelling and
+  case: the guard lets git say what it names and exits 2 for one git does not
+  know (a typo, `Docs` for `docs`), never a clean pass over nothing.
   - **In a repo that doesn't carry the scanners** (any create-repo child — the
     scanners live only here), point the hook up:
     `git config hooks.atelierTools <atelier-path>/tools` (or `ATELIER_TOOLS`
@@ -1894,6 +1900,21 @@ comes with its real line number in the file the commit produces, and all three
 guards report a finding at that line (`115/300`): a marker staged on line 5 of
 a file whose lines 1-4 are unchanged is reported at 5, not at its position
 among the added lines.
+
+The staged guards read their positionals through one function too (the three
+boundary guards, plus `datescan`, `sizescan`, `spellscan`, `reviewscan` and
+`wrapscan`): `resolve_staged_scope` (`115/360`, `160/950`). `.` is the whole
+diff, `./docs` and `docs//` mean `docs`, and `docs` is the `docs/` subtree,
+never `docs-extra/`. Git decides what a positional names (`git ls-files` for
+the index, plus the paths the commit removes), so a spelling the filesystem
+forgives and git does not (a different case, a decomposed Unicode name) cannot
+make the scan cover nothing. These exit 2: an absolute path, one that climbs
+out with `..`, one git does not know (a typo, a glob, an unexpanded `~`, a
+directory the repo lacks), and a `--root` that is not the repo the process runs
+in (the staged diff is always the current directory's). A tracked directory the
+commit does not touch is not refused: that is a commit outside the scope.
+`leakscan` judges its positionals once and cuts all three of its path lists by
+the answer.
 `test_report.py` tests each helper and pins each converted scanner's lines as
 literals. What a scanner prints reaches every child's CI at its next run, so a
 shared edit that changes one of those lines fails the suite first.

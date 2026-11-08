@@ -64,6 +64,48 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   identifiers block and a line holding a mid-run push to `main` to the
   full-suite bar (QK2's lesson).
 
+### Fixed (2026-11-09 — the staged guards' positional reader lets git resolve a scope, `115/360`, `160/950`)
+- **A `--staged` scope spelt by case or Unicode normalisation differently from
+  git's no longer reads clean.** `secretscan`, `leakscan` and `conflictscan`
+  filtered the staged diff by comparing each positional's text with git's path
+  list. A scope of `Docs` for git's `docs`, or a decomposed (NFD) directory name
+  for git's NFC, passes the floor's filesystem `exists()` check on a
+  case-folding disk, matched nothing, and the guards printed clean over a staged
+  live-shaped secret at the hook (the Fable cold pass's QS1, MAJOR; CI caught it
+  only after the push). The reader (`report.resolve_staged_scope`) now asks git
+  what each positional names, as one literal root-anchored pathspec against the
+  index and the commit's removals, and exits 2 for a positional git does not
+  know: a typo, the wrong case, a glob, an unexpanded `~`, a directory the repo
+  lacks (QS2). Spelling is normalised with `posixpath` (QS10).
+  **What changes for a caller:** a hand-typed `--staged tikii/` or a scope that
+  names no tracked path now exits 2 instead of 0. A scope naming tracked paths
+  the commit does not touch still passes. The floor never hands the guards a
+  missing directory (it blocks first), so no declared scope is turned away.
+- **The same reader serves five more staged scanners**, and they inherit the
+  change: `datescan`, `sizescan`, `spellscan`, `reviewscan` and `wrapscan`
+  call `report.scope_staged` too, so a `--staged` scope naming nothing git
+  knows now exits 2 for them as well (their `test_scope_narrows_the_staged_set`
+  fixtures now track the directory they narrow to). The floor already skips a
+  softenable check whose scope directory is absent, so no declared scope
+  changes behaviour.
+- **`--root` must be the repo the process runs in (QS3).** The staged diff is
+  git's view of the current directory. A cwd in another repo with `--root` here
+  read that repo's index under this repo's rules and printed clean; it now
+  exits 2. A cwd in a subdirectory of the same repo is fine: positionals are
+  root-relative whatever the cwd.
+- **`--help` for `paths` and `--root`** says so (QS5); `tools/README.md` now
+  describes the reader and its refusals, and "Wiring it in" points scoping at
+  the floor's `scope` key rather than at editing the hook (QS6).
+- **Tests.** Each guard's `StagedPositionalScope` pins the prefix boundary
+  (`docs-extra`), the exact-file positional, the refusals above, a Unicode
+  variant, the wrong-repo cwd and a subdirectory cwd (QS4, QU1);
+  `test_report.py` and `test_floor.py` pin the reader and the hook-plane case.
+  The suite no longer needs Python 3.11 in `test_leakscan.py` or 3.10 in
+  `test_allowmarker.py` and `test_pathscan.py`, and the staged-reader fixtures
+  no longer inherit the host's commit-signing config (QS9). `test_pins.py`'s
+  bounded-memory pins time out at 600 s, a hang guard, instead of 60 s, so a
+  loaded machine no longer reds the suite as a memory defect (QU3).
+
 ### Added (2026-11-07 — secretscan: an exempt file is still read for a real private key, `115/380`)
 - **A file a `.secretscanignore` glob skips now gets one narrow, advisory
   check: real private-key material (`exempt-private-key`).** The scanners' own

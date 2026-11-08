@@ -686,11 +686,15 @@ def _main(argv: list[str] | None = None) -> int:
         description="Check that no unresolved merge-conflict marker reaches "
                     "a commit.")
     ap.add_argument("paths", nargs="*",
-                    help="files/dirs to scan (default: whole repo, or --staged)")
+                    help="files/dirs to scan (default: whole repo, or --staged). "
+                         "With --staged, repo-root-relative paths in git's own "
+                         "spelling and case ('.' is the whole diff); one git "
+                         "does not know is refused (exit 2)")
     ap.add_argument("--staged", action="store_true",
                     help="scan only lines added in the git staging area (pre-commit hook)")
     ap.add_argument("--root", default=".",
-                    help="repo root for relative paths/.conflictscanignore")
+                    help="repo root for relative paths/.conflictscanignore "
+                         "(with --staged it must be the repo you run in)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
@@ -707,6 +711,9 @@ def _main(argv: list[str] | None = None) -> int:
     tally = Tally()
 
     if args.staged:
+        rc = report.refuse_other_repo("conflictscan", root)
+        if rc is not None:
+            return rc
         try:
             staged = staged_added_lines()
         except report.STAGED_DIFF_FAILURES as e:
@@ -715,8 +722,9 @@ def _main(argv: list[str] | None = None) -> int:
         # git reports, so the filter silently empties and the scan covers
         # nothing while still exiting 0 — the same silent-success class
         # `secretscan`/`linkscan` already close. Refuse it rather than pass.
-        # `report.scope_staged` also normalises the spelling (`.`, `./x`) and
-        # refuses one that escapes the repo (roadmap 115/360).
+        # `report.scope_staged` also normalises the spelling (`.`, `./x`),
+        # refuses one that escapes the repo, and lets git resolve what each
+        # positional names, refusing one git does not know (115/360, 160/950).
         rc, staged = report.scope_staged("conflictscan", staged, args.paths, "src/")
         if rc is not None:
             return rc

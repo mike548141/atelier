@@ -52,3 +52,26 @@
       and key before the fix, exit 1 after; hook plane scoped elsewhere
       stays clean, scoped to the findings still blocks. 16 new tests;
       1949 Python tests green. Cold pass queued at `160/950`.
+      🔎 **The narrower truth, added 2026-11-09 beside the principal's
+      2026-11-08 answer on `160/950` (the cold pass's QS11).** Three
+      statements above hold only in part. *"The real hook plane is **not**
+      affected"* was true of the bare `.`, which `floor.py` drops. It was not
+      true of the class: the floor passes `./x` and `x/.` through its render,
+      and a scope spelt by case (`Docs` for git's `docs`) or Unicode
+      normalisation passed the floor's filesystem `exists()` check on a
+      case-folding disk and then matched nothing in git's path list. *"Once
+      spelling is normalised, leftover emptiness is scope"* was false on that
+      platform: the reader compared text with git's paths, and a spelling the
+      filesystem forgives and git does not (QS1, MAJOR) read clean over a
+      staged live-shaped secret. And the refusal this record declined (a
+      positional that names nothing) rested on a premise the floor
+      contradicts: it blocks a declared scope that does not exist before any
+      guard runs, so no hook-plane invocation hands the guards a missing
+      directory (QS2). The principal's answer was to fix it and take the
+      reviewer's advice on every finding. `tools/report.py`
+      `resolve_staged_scope` now lets git resolve each positional and exits 2
+      for one git does not know, and the same change covers `--root` naming a
+      different repo from the cwd's (QS3), the prefix boundary and
+      exact-file pins in each guard's tests (QS4, QU1), the stale comments
+      (QS5), `tools/README.md` wiring (QS6), and `posixpath` (QS10). Item:
+      `160/950`.

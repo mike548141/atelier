@@ -276,6 +276,14 @@ class BoundedMemory(unittest.TestCase):
 
     PINS = str(TOOLS_DIR / "pins.py")
 
+    # A hang guard, NOT a performance bound (160/950 QU3). This class pins
+    # MEMORY; a wall-clock limit tight enough to matter on an idle machine
+    # (60 s) tripped under a loaded one (load 14-53 stretched the full suite
+    # from about 440 s to about 1200 s) and the red read as a memory defect.
+    # Ten minutes is far above any observed load-inflated run and still stops
+    # a scan that has really hung.
+    HANG_GUARD_SECONDS = 600
+
     def _build_atelier(self) -> tuple[Path, str]:
         tmp = Path(tempfile.mkdtemp(prefix="pins-mem-atelier-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
@@ -305,8 +313,14 @@ class BoundedMemory(unittest.TestCase):
         result = memprobe.run_and_measure(
             [sys.executable, self.PINS, "--atelier", str(atelier),
              "--root", str(root)],
-            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
-        self.assertFalse(result.timed_out, "scan did not finish in time")
+            timeout=self.HANG_GUARD_SECONDS,
+            rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(
+            result.timed_out,
+            f"scan did not finish in {self.HANG_GUARD_SECONDS} s. This is a "
+            "hang guard: under heavy machine load a slow scan is NOT the "
+            "memory defect this class pins; re-run on a quieter machine "
+            "before reading it as one.")
         self.assertFalse(result.killed_over_limit,
                          "scan exceeded the 900 MB safety limit")
         return result.peak_rss_bytes

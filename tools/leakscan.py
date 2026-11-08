@@ -2701,7 +2701,10 @@ def _main(argv: list[str] | None = None) -> int:
         prog="leakscan",
         description="Scan for personal/estate data before it reaches a shareable repo.")
     ap.add_argument("paths", nargs="*",
-                    help="files/dirs to scan (default: whole repo, or --staged)")
+                    help="files/dirs to scan (default: whole repo, or --staged). "
+                         "With --staged, repo-root-relative paths in git's own "
+                         "spelling and case ('.' is the whole diff); one git "
+                         "does not know is refused (exit 2)")
     ap.add_argument("--staged", action="store_true",
                     help="scan only lines added in the git staging area (pre-commit hook)")
     ap.add_argument("--terms", help="path to the local literal-term list")
@@ -2711,7 +2714,9 @@ def _main(argv: list[str] | None = None) -> int:
                          "that is EXPECTED to have full cover — review B5: to "
                          "automation, a degraded exit-0 pass is indistinguishable "
                          "from a full one.")
-    ap.add_argument("--root", default=".", help="repo root for relative paths/.leakscanignore")
+    ap.add_argument("--root", default=".",
+                    help="repo root for relative paths/.leakscanignore "
+                         "(with --staged it must be the repo you run in)")
     ap.add_argument("--disable", default="",
                     help="comma-separated structural rules that report instead "
                          "of blocking (e.g. ipv4,ipv6,mac-address for a networking "
@@ -2791,33 +2796,29 @@ def _main(argv: list[str] | None = None) -> int:
     tally = Tally(disabled_rules=tuple(sorted(disabled)))
 
     if args.staged:
+        rc = report.refuse_other_repo("leakscan", root)
+        if rc is not None:
+            return rc
         try:
             staged = staged_added_lines()
             changed, binary, removed = staged_changes()
         except report.STAGED_DIFF_FAILURES as e:
             return report.git_diff_failed("leakscan", e)
         # Positional paths, in --staged mode, restrict the scan to staged files
-        # under those prefixes — e.g. scan only the shareable `tiki/` subtree of
-        # an otherwise-private repo.
-        # An ABSOLUTE path here scans NOTHING and exits 0 — the silent-success
-        # class (linkscan L1) already closed for a missing path, found again on
-        # 2026-07-25 while building tools/floor.py. git lists staged paths
-        # repo-relative, so an absolute one matches no prefix, the filter empties
-        # the set, and a boundary scan covering nothing looks exactly like one
-        # that found nothing wrong. Refuse it — this is the subtree-scoping
-        # entry point for private repos with a shareable subtree, so a silent
-        # miss here is precisely the case that matters.
-        # `report.scope_staged` also normalises the spelling (`.`, `./x`) and
-        # refuses one that escapes the repo (roadmap 115/360). G3's extra path
-        # lists (binaries, empty new files, pure renames, removals) go through
-        # the same reader, so one scope means one thing on every list.
-        rc, staged = report.scope_staged("leakscan", staged, args.paths, "tiki/")
+        # under those paths — e.g. scan only the shareable `tiki/` subtree of
+        # an otherwise-private repo. `report.resolve_staged_scope` judges the
+        # positionals ONCE (roadmap 115/360, 160/950): it refuses an absolute
+        # path (which matches no repo-relative git path), one that leaves the
+        # repo, and one git does not know (a typo, the wrong case), and
+        # otherwise lets git say what each names. G3's extra path lists
+        # (binaries, empty new files, pure renames, removals) are cut by the
+        # same answer, so one scope means one thing on every list.
+        rc, allowed = report.resolve_staged_scope("leakscan", args.paths, "tiki/")
         if rc is not None:
             return rc
-        _rc, in_changed = report.scope_staged(
-            "leakscan", dict.fromkeys(changed), args.paths, "tiki/")
-        _rc, in_removed = report.scope_staged(
-            "leakscan", dict.fromkeys(removed), args.paths, "tiki/")
+        staged = report.restrict_to_scope(staged, allowed)
+        in_changed = report.restrict_to_scope(dict.fromkeys(changed), allowed)
+        in_removed = report.restrict_to_scope(dict.fromkeys(removed), allowed)
         # .leakscanignore applies in staged mode too, so an exemption means the
         # same thing whether you scan the tree or a commit.
         globs = load_ignore_globs(root)

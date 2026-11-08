@@ -1086,7 +1086,7 @@ class StreamingReader(unittest.TestCase):
 
     def test_matches_whole_text_reader_at_every_chunk_size(self):
         f = self.tmp / "s.md"
-        f.write_text(self.SAMPLE, encoding="utf-8", newline="")
+        f.write_bytes(self.SAMPLE.encode("utf-8"))  # no newline translation (3.9)
         want = self._expected(f)
         self.assertTrue(want)
         for chunk in list(range(1, 40)) + [64, 4096]:

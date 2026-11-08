@@ -176,7 +176,7 @@ class TestIgnoreFile(unittest.TestCase):
     def load(self, text, name=".demoscanignore"):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            (root / name).write_text(text, encoding="utf-8", newline="")
+            (root / name).write_bytes(text.encode("utf-8"))  # no newline translation
             return am.load_ignore_globs(root, name)
 
     def test_absent_file_is_no_globs(self):

@@ -312,8 +312,9 @@ class ScopeAndFlagsTest(unittest.TestCase):
                              f"staged path must be repo-relative, got {a!r}")
 
     def test_default_staged_scope_passes_no_positional(self):
-        """Whole-repo staged cover means NO positional at all — not '.', which
-        is an absolute-path-shaped miss in disguise (git never lists './x')."""
+        """Whole-repo staged cover means NO positional at all. A bare '.' would
+        also mean the whole diff since 115/360, but the render stays the
+        plainest spelling and does not depend on the guards' normalising."""
         argv = floor._render(floor.BY_NAME["secretscan"].hook, Path("/repo"),
                              floor.Config(), "secretscan")
         self.assertEqual(argv, ["--staged", "--root", "/repo"])
@@ -744,6 +745,38 @@ class InvocationTest(unittest.TestCase):
             r = self._run("--plane", "ci", "--root", td)
             self.assertEqual(r.returncode, 1, r.stdout)
             self.assertIn("gone", r.stderr)
+
+    def test_a_case_variant_scope_over_a_staged_secret_blocks_the_hook(self):
+        """160/950 QS1 (MAJOR). A committed scope spelt `Docs` for git's `docs`
+        passes the filesystem's `exists()` on a case-folding disk, rendered
+        `enforced`, and the staged guard filtered the diff to nothing and
+        printed clean over a live-shaped secret. The guard now lets git
+        resolve the positional and refuses one git does not know; on a
+        case-sensitive disk the floor's own existence guard blocks first.
+        Either way the hook plane must not exit 0, and secretscan must not
+        have read the staged diff as clean."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            git = lambda *a: subprocess.run(   # noqa: E731
+                ["git", "-C", td, "-c", "commit.gpgsign=false", *a],
+                check=True, capture_output=True)
+            git("init", "-q")
+            (root / "docs").mkdir()
+            # Assembled at run time so this file carries no secret shape.
+            (root / "docs" / "a.txt").write_text(
+                "token = " + "aB3dE5fG7hJ9kL1m" + "N3pQ5rS7tU9vW1xY3z\n")
+            (root / floor.CONFIG_NAME).write_text(json.dumps({"scope": {
+                "secretscan": {"paths": ["Docs"], "why": "fixture"}}}),
+                encoding="utf-8")
+            git("add", "--", "docs/a.txt", floor.CONFIG_NAME)
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane", "hook",
+                 "--root", td, "--json"],
+                capture_output=True, text=True, cwd=td)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            result = {x["name"]: x for x in json.loads(r.stdout)["results"]}["secretscan"]
+            self.assertEqual("enforced", result["state"])
+            self.assertIn(result["rc"], (1, 2), "secretscan must not read clean")
 
     def test_scope_outside_the_repo_is_refused_at_parse(self):
         """Track A application cold pass, TA1 (MAJOR), ruled (a). A scope path

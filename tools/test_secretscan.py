@@ -14,11 +14,14 @@ import sys
 import tempfile
 import pathlib
 import re
+import unicodedata
 import unittest
 from pathlib import Path
 
 import secretscan as ss
 import memprobe
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 TOOLS_DIR = Path(__file__).resolve().parent
 
@@ -1201,7 +1204,8 @@ class StagedSpacedPathAndMultiHunkTest(unittest.TestCase):
 
     def _git(self, *args):
         import subprocess
-        return subprocess.run(["git", *args], cwd=self.tmp, check=True,
+        return subprocess.run(["git", "-c", "commit.gpgsign=false", *args],
+                              cwd=self.tmp, check=True,
                               capture_output=True, text=True)
 
     def _staged_from(self):
@@ -1300,7 +1304,7 @@ class StagedQuotedPathsTest(unittest.TestCase):
 
     def _git(self, *args):
         import subprocess
-        return subprocess.run(["git", "-C", str(self.tmp), *args], check=True,
+        return subprocess.run(["git", "-C", str(self.tmp), "-c", "commit.gpgsign=false", *args], check=True,
                               capture_output=True, text=True)
 
     def _stage(self, name, text):
@@ -1349,7 +1353,7 @@ class StagedPosedHeaderTest(unittest.TestCase):
 
     def _git(self, *args):
         import subprocess
-        return subprocess.run(["git", "-C", str(self.tmp), *args], check=True,
+        return subprocess.run(["git", "-C", str(self.tmp), "-c", "commit.gpgsign=false", *args], check=True,
                               capture_output=True, text=True)
 
     def _stage(self, name, text):
@@ -1398,16 +1402,16 @@ class StagedAbsolutePathTest(unittest.TestCase):
         import subprocess, sys
         return subprocess.run(
             [sys.executable, str(pathlib.Path(__file__).resolve().parent / "secretscan.py"), *args],
-            capture_output=True, text=True)
+            capture_output=True, text=True, cwd=REPO_ROOT)
 
     def test_absolute_staged_path_is_refused(self):
-        r = self._run("--staged", "--root", "/tmp", "/tmp/anything")
+        r = self._run("--staged", "--root", str(REPO_ROOT), "/tmp/anything")
         self.assertEqual(r.returncode, 2, "must be an environment error, not a pass")
         self.assertIn("absolute", r.stderr.lower())
 
     def test_error_names_the_working_form(self):
         """A refusal that doesn't say what to do instead just gets --no-verify'd."""
-        r = self._run("--staged", "--root", "/tmp", "/tmp/anything")
+        r = self._run("--staged", "--root", str(REPO_ROOT), "/tmp/anything")
         self.assertIn("src/", r.stderr)
 
 
@@ -1797,6 +1801,8 @@ class StagedPositionalScope(unittest.TestCase):
     a path leaving the repo is refused. A scope that merely excludes every
     staged file is NOT refused: the hook plane passes the check's declared
     scope, and a commit touching only files outside it is a legitimate pass.
+    Since 160/950 git decides what a positional names, so a spelling git does
+    not know (a typo, the wrong case) is refused, never read as clean.
     """
 
     # Assembled so this file does not itself carry the shape it plants.
@@ -1810,11 +1816,26 @@ class StagedPositionalScope(unittest.TestCase):
         old = os.getcwd()
         os.chdir(self.repo)
         self.addCleanup(os.chdir, old)
-        (self.repo / "docs").mkdir()
-        (self.repo / "src").mkdir()
+        for d in ("docs", "src", "src-extra", "caf\u00e9"):
+            (self.repo / d).mkdir()
+        (self.repo / "src" / "keep.txt").write_text("kept\n")
+        # `src` is tracked with nothing staged under it; `src-extra` shares
+        # its name prefix and holds the planted finding (160/950 QS4/QU1).
+        self._git("add", "--", "src/keep.txt")
+        self._git("commit", "-q", "-m", "seed")
         (self.repo / "docs" / "a.txt").write_text(self.BAD + "\n")
-        subprocess.run(["git", "-C", str(self.repo), "add", "--", "docs/a.txt"],
-                       check=True)
+        (self.repo / "src-extra" / "b.txt").write_text(self.BAD + "\n")
+        (self.repo / "caf\u00e9" / "c.txt").write_text(self.BAD + "\n")
+        self._git("add", "--", "docs/a.txt", "src-extra/b.txt", "caf\u00e9/c.txt")
+
+    def _git(self, *args):
+        # Host-independent: a fixture commit must not inherit the host's
+        # signing or identity config (160/950 QS9).
+        subprocess.run(
+            ["git", "-C", str(self.repo), "-c", "user.name=t",
+             "-c", "user.email=t",
+             "-c", "commit.gpgsign=false", *args],
+            check=True, capture_output=True)
 
     def _main(self, *paths):
         out, err = io.StringIO(), io.StringIO()
@@ -1840,14 +1861,79 @@ class StagedPositionalScope(unittest.TestCase):
             with self.subTest(p=p):
                 code, err = self._main(p)
                 self.assertEqual(2, code, "an environment error, not a pass")
-                self.assertIn("outside the repo", err)
+                self.assertIn("climb out of the repo", err)
 
-    def test_empty_by_scope_is_not_refused(self):
-        """The hook plane's shape: a declared scope that no staged file falls
-        under. Filtering to nothing here is scope, not spelling."""
+    def test_prefix_boundary_is_a_directory_not_a_name_prefix(self):
+        """`src` is the `src/` subtree, not every path starting `src`: the
+        planted finding sits in `src-extra/` and a `src` scope must not reach
+        it, while `src-extra` must (160/950 QS4)."""
+        self.assertEqual(0, self._main("src")[0])
+        self.assertEqual(1, self._main("src-extra")[0])
+        self.assertEqual(1, self._main("src", "src-extra")[0])
+
+    def test_an_exact_file_positional_is_that_file(self):
+        """The file/directory distinction each guard copy must pin (QU1)."""
+        self.assertEqual(1, self._main("docs/a.txt")[0])
+        self.assertEqual(1, self._main("./docs/a.txt")[0])
+        self.assertEqual(0, self._main("src/keep.txt")[0])
+
+    def test_a_scope_with_nothing_staged_under_it_is_not_refused(self):
+        """The hook plane's shape: a tracked directory this commit does not
+        touch. Filtering to nothing here is scope, not spelling."""
         self.assertEqual(0, self._main("src")[0])
         self.assertEqual(0, self._main("./src")[0])
-        self.assertEqual(0, self._main("no-such-dir")[0])
+
+    def test_a_positional_git_does_not_know_is_refused(self):
+        """160/950 QS1/QS2: a typo, a literal glob, an unexpanded `~`, or a
+        spelling that differs from git's by CASE names no path git lists. It
+        used to filter the set to nothing and exit 0 over a planted finding."""
+        for p in ("no-such-dir", "docs/*", "~/docs", "Docs", "DOCS/a.txt",
+                  "Docs/a.txt", "docs/A.txt"):
+            with self.subTest(p=p):
+                code, err = self._main(p)
+                self.assertEqual(2, code, "an environment error, not a pass")
+                self.assertIn("name nothing git knows", err)
+
+    def test_one_unknown_positional_refuses_even_beside_a_known_one(self):
+        code, err = self._main("docs", "Docs")
+        self.assertEqual(2, code)
+        self.assertIn("Docs", err)
+
+    def test_a_unicode_variant_spelling_never_reads_clean(self):
+        """160/950 QS1: the filesystem forgives a decomposed (NFD) spelling of
+        the NFC directory git stores. Git resolves it (macOS precomposes) or
+        the positional is refused; exit 0 over the planted finding is the bug."""
+        nfd = unicodedata.normalize("NFD", "caf\u00e9")
+        self.assertNotEqual(nfd, "caf\u00e9")
+        for spelling in (nfd, nfd + "/c.txt"):
+            with self.subTest(spelling=spelling):
+                code, _err = self._main(spelling)
+                self.assertIn(code, (1, 2))
+        self.assertEqual(1, self._main("caf\u00e9")[0])
+
+    def test_the_cwd_repo_must_be_the_root_repo(self):
+        """160/950 QS3: the staged diff is the cwd repo's. A cwd in another
+        repo with `--root` here read the wrong index and printed clean."""
+        other = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, other, ignore_errors=True)
+        subprocess.run(["git", "-C", str(other), "init", "-q"], check=True)
+        os.chdir(other)
+        for paths in ((), ("docs",)):
+            with self.subTest(paths=paths):
+                code, err = self._main(*paths)
+                self.assertEqual(2, code, "an environment error, not a pass")
+                self.assertIn("not the repo --root names", err)
+
+    def test_a_subdirectory_cwd_reads_the_same_scope(self):
+        """Positionals are repo-root-relative whatever the cwd (QS3)."""
+        os.chdir(self.repo / "docs")
+        self.assertEqual(1, self._main("docs")[0])
+        self.assertEqual(1, self._main("docs/a.txt")[0])
+        self.assertEqual(1, self._main(".")[0])
+        code, err = self._main("a.txt")      # cwd-relative: not git's spelling
+        self.assertEqual(2, code)
+        self.assertIn("name nothing git knows", err)
+
 
 
 
@@ -2239,7 +2325,8 @@ class PublicPemBodyStaged(unittest.TestCase):
         self._git("config", "user.name", "test")
 
     def _git(self, *args):
-        return subprocess.run(["git", *args], cwd=self.tmp, check=True,
+        return subprocess.run(["git", "-c", "commit.gpgsign=false", *args],
+                              cwd=self.tmp, check=True,
                               capture_output=True, text=True)
 
     def _staged_scan(self):
@@ -2661,7 +2748,7 @@ class ExemptStaged(unittest.TestCase):
         self.addCleanup(os.chdir, old)
 
     def _git(self, *args):
-        return subprocess.run(["git", "-C", str(self.tmp), *args], check=True,
+        return subprocess.run(["git", "-C", str(self.tmp), "-c", "commit.gpgsign=false", *args], check=True,
                               capture_output=True, text=True)
 
     def _staged(self, rel, lines):

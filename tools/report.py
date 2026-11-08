@@ -48,6 +48,7 @@ from __future__ import annotations
 
 import io
 import os
+import posixpath
 import re
 import subprocess
 import sys
@@ -232,50 +233,149 @@ def refuse_absolute_staged(name: str, paths: Iterable[str],
     return None
 
 
-def scope_staged(name: str, staged: dict, paths: Iterable[str],
-                 example: str) -> tuple[int | None, dict]:
-    """Restrict the staged set to the positional `paths`; (rc, staged).
+# The pathspec magic that makes a positional mean exactly one thing to git:
+# `top` anchors it at the repo root whatever the cwd (a subdirectory run reads
+# the same scope as a root run), `literal` stops `*`, `?` and `[` from becoming
+# globs. Environment switches that would change what these mean are dropped.
+_LITERAL_TOP = ":(top,literal)"
+_PATHSPEC_ENV_DROP = ("GIT_GLOB_PATHSPECS", "GIT_NOGLOB_PATHSPECS",
+                      "GIT_ICASE_PATHSPECS")
 
-    The one reader the three staged-diff guards share (roadmap 115/360).
-    git lists staged paths repo-relative (`docs/x.md`), so each positional is
-    normalised to that spelling first: `.` is the repo root and restricts
-    nothing, `./docs` and `docs//` mean `docs`. Without this `.` became the
-    prefix `./`, matched nothing, and the scan printed clean over a staged
-    conflict marker and a live-shaped key.
 
-    Two refusals (rc 2), both spelling errors that would empty the set:
-    an absolute path (`refuse_absolute_staged`), and one that normalises to
-    `..` or `../x`, which names something outside the repo and so can never
-    match a repo-relative path.
+def _git_scope_names(*cmd: str) -> set[str]:
+    """The NUL-separated names a read-only git command lists, as a set.
+    Raises `subprocess.CalledProcessError` if git fails."""
+    env = {k: v for k, v in os.environ.items() if k not in _PATHSPEC_ENV_DROP}
+    env["GIT_LITERAL_PATHSPECS"] = "0"
+    return set(nul_paths(subprocess.run(
+        ["git", "-c", "core.quotePath=false", *cmd],
+        capture_output=True, check=True, env=env).stdout))
 
-    Deliberately NOT a refusal: a positional that leaves the set empty. The
-    hook plane renders the check's declared scope as the positionals, and a
-    commit staging only files outside that scope legitimately filters to
-    nothing, and so does a scope naming a directory this repo lacks. Once
-    spelling is normalised, emptiness left over is scope, not spelling.
+
+def resolve_staged_scope(name: str, paths: Iterable[str],
+                         example: str) -> tuple[int | None, frozenset | None]:
+    """Resolve the positional `paths` of a `--staged` scan; (rc, allowed).
+
+    The one reader the three staged-diff guards share (roadmap 115/360). A
+    positional is a repo-root-relative path in git's own spelling, and GIT
+    decides what it names (`160/950` QS1/QS2): `git ls-files` for what the
+    index holds (every staged addition, change and rename target) plus `git
+    diff --cached --diff-filter=D` for what this commit removes, each given
+    the positional as one literal root-anchored pathspec. A path is then in
+    scope when git listed it. The comparison is against git's own output, so
+    a case fold or a Unicode normalisation the filesystem forgives (`Docs`
+    for `docs`, an NFD directory name for git's NFC) cannot decide whether
+    the scan runs: git either resolves the spelling or the positional is
+    refused here.
+
+    `allowed` is None when nothing is restricted (no positional, or `.`, the
+    repo root); otherwise the frozenset of in-scope paths. Spelling is
+    normalised first with `posixpath.normpath` (git's paths are POSIX
+    whatever the host): `./docs` and `docs//` mean `docs`.
+
+    Refusals (rc 2), each a scope that would cover less than it names:
+      * an absolute path (`refuse_absolute_staged`);
+      * one that normalises to `..` or `../x`, outside the repo;
+      * one that names nothing git knows, neither indexed nor removed by this
+        commit: a typo, the wrong case, a glob, an unexpanded `~`, a
+        directory the repo lacks. Tree mode already refuses the same typo
+        (`refuse_missing_paths`) and the floor blocks a declared scope that
+        resolves to nothing, so no floor invocation is turned away by this.
+    NOT a refusal: a positional that names tracked paths none of which this
+    commit stages. That is a commit outside the scope, a legitimate pass.
     """
     paths = list(paths)
     rc = refuse_absolute_staged(name, paths, example)
     if rc is not None:
-        return rc, staged
-    norm = [os.path.normpath(p) for p in paths]
+        return rc, None
+    norm = [posixpath.normpath(p) for p in paths]
     escaping = [p for p, n in zip(paths, norm)
                 if n == ".." or n.startswith("../")]
     if escaping:
         return broken(
             name,
-            f"--staged path(s) outside the repo: {', '.join(escaping)}\n"
-            "  git lists staged paths relative to the repo root, so a path "
-            "that leaves it matches nothing\n"
+            f"--staged path(s) climb out of the repo with '..': "
+            f"{', '.join(escaping)}\n"
+            "  A staged path is read from the repo root, in git's spelling, "
+            "so one that leaves the root names nothing git lists\n"
             "  and the scan would pass while covering nothing. Pass e.g. "
-            f"'{example}' instead."), staged
-    if "." in norm:
-        return None, staged          # the repo root: no restriction
-    prefixes = tuple(n + "/" for n in norm)
-    if prefixes:
-        staged = {path: lines for path, lines in staged.items()
-                  if path.startswith(prefixes) or path in norm}
-    return None, staged
+            f"'{example}' instead."), None
+    if "." in norm or not norm:
+        return None, None            # the repo root: no restriction
+    allowed: set[str] = set()
+    unknown: list[str] = []
+    try:
+        for p, n in zip(paths, norm):
+            spec = _LITERAL_TOP + n
+            found = _git_scope_names("ls-files", "-z", "--full-name",
+                                     "--", spec)
+            found |= _git_scope_names(
+                "diff", "--cached", "--name-only", "-z", "--no-renames",
+                "--no-ext-diff", "--diff-filter=D", "--", spec)
+            if not found:
+                unknown.append(p)
+            allowed |= found
+    except subprocess.CalledProcessError as e:
+        return git_diff_failed(name, e), None
+    if unknown:
+        return broken(
+            name,
+            f"--staged path(s) name nothing git knows: {', '.join(unknown)}\n"
+            "  git lists neither an indexed path nor a removal under it, so "
+            "it can match no staged file\n"
+            "  and the scan would pass while covering nothing. Spell it as "
+            "git does: repo-root-relative, exact case, no glob or '~'.\n"
+            f"  Pass e.g. '{example}' instead."), None
+    return None, frozenset(allowed)
+
+
+def restrict_to_scope(items: dict, allowed: frozenset | None) -> dict:
+    """`items` (keyed by path) cut to the paths `allowed` lists; the whole of
+    it when `allowed` is None (nothing restricted)."""
+    if allowed is None:
+        return items
+    return {path: v for path, v in items.items() if path in allowed}
+
+
+def scope_staged(name: str, staged: dict, paths: Iterable[str],
+                 example: str) -> tuple[int | None, dict]:
+    """Restrict the staged set to the positional `paths`; (rc, staged).
+    `resolve_staged_scope` decides what the positionals name; this applies
+    the answer to one path-keyed dict."""
+    rc, allowed = resolve_staged_scope(name, paths, example)
+    if rc is not None:
+        return rc, staged
+    return None, restrict_to_scope(staged, allowed)
+
+
+def refuse_other_repo(name: str, root: Path) -> int | None:
+    """Exit 2 if the staged diff the process would read (git in the cwd) is not
+    the repo `--root` names (`160/950` QS3). The staged readers run git in the
+    cwd; `--root` otherwise only locates ignore files and manifests, so a cwd
+    in a different repo read that repo's index under this repo's rules and
+    printed clean. A cwd in a subdirectory of the same repo is fine: positionals
+    are root-anchored and the diff paths are root-relative whatever the cwd."""
+    def top(*pre: str) -> str | None:
+        try:
+            out = subprocess.run(
+                ["git", *pre, "rev-parse", "--show-toplevel"],
+                capture_output=True, check=True).stdout
+        except (subprocess.CalledProcessError, OSError):
+            return None
+        return os.path.realpath(out.decode("utf-8", "surrogateescape").strip())
+
+    here, there = top(), top("-C", str(root))
+    if here is not None and here == there:
+        return None
+    return broken(
+        name,
+        "--staged reads the git index of the directory it is run in, and that "
+        f"is not the repo --root names ({root}).\n"
+        + ("  The current directory is not inside a git repo.\n"
+           if here is None else
+           f"  The current directory belongs to the repo at {here}.\n")
+        + "  A scan of one repo's index under another's rules would pass "
+        "while covering nothing. Run it from inside the repo, or drop --root.")
 
 
 def clean_head(name: str, detail: str) -> str:

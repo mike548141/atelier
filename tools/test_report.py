@@ -17,11 +17,16 @@ not do.
 """
 
 import contextlib
+import inspect
 import io
 import os
+import shutil
+import subprocess
 import sys
 import tempfile
+import unicodedata
 import unittest
+import unittest.mock
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -128,22 +133,165 @@ class TestBrokenScanLines(unittest.TestCase):
             "'sub/' instead.\n"))
 
 
-    def test_scope_staged_normalises_and_refuses_only_spelling(self):
-        """115/360 — `.` is no restriction, `./x` is `x`, a path leaving the
-        repo is refused, and an empty-by-scope result is NOT a refusal."""
-        staged = {"docs/a.md": [(1, "x")], "src/b.py": [(1, "y")], "top.md": []}
-        scope = lambda *p: report.scope_staged("d", staged, p, "src/")
-        self.assertEqual((None, staged), scope("."))
-        self.assertEqual((None, staged), scope("./"))
-        self.assertEqual((None, staged), scope())
-        self.assertEqual((None, {"docs/a.md": [(1, "x")]}), scope("./docs"))
-        self.assertEqual((None, {"top.md": []}), scope("./top.md"))
-        self.assertEqual((None, {}), scope("nowhere"))   # scope, not spelling
+class StagedScopeResolution(unittest.TestCase):
+    """115/360 + 160/950 — what a `--staged` positional names is decided by
+    git, in a real repo, never by a prefix compare against a spelling."""
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        self.git("init", "-q")
+        old = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, old)
+        for d in ("docs", "src", "docs-extra", "gone"):
+            (self.repo / d).mkdir()
+        for f in ("docs/a.md", "src/b.py", "docs-extra/x.md", "gone/g.md",
+                  "src/moved.py", "top.md"):
+            (self.repo / f).write_text(f + "\n")
+        self.git("add", "--", ".")
+        self.git("commit", "-q", "-m", "seed")
+        # Now stage a change: modify docs/a.md, add docs/new.md, delete the
+        # whole `gone/` directory, rename src/moved.py away.
+        (self.repo / "docs/a.md").write_text("changed\n")
+        (self.repo / "docs/new.md").write_text("new\n")
+        self.git("rm", "-q", "--", "gone/g.md")
+        self.git("mv", "src/moved.py", "docs/moved.py")
+        self.git("add", "--", "docs/a.md", "docs/new.md")
+        self.staged = {"docs/a.md": 1, "docs/new.md": 1, "docs/moved.py": 1,
+                       "docs-extra/x.md": 1, "top.md": 1}
+
+    def git(self, *args):
+        subprocess.run(
+            ["git", "-C", str(self.repo), "-c", "user.name=t",
+             "-c", "user.email=t", "-c", "commit.gpgsign=false", *args],
+            check=True, capture_output=True)
+
+    def scope(self, *p):
+        return report.scope_staged("d", self.staged, p, "src/")
+
+    def test_dot_slash_and_empty_are_no_restriction_or_the_same_path(self):
+        self.assertEqual((None, self.staged), self.scope("."))
+        self.assertEqual((None, self.staged), self.scope("./"))
+        self.assertEqual((None, self.staged), self.scope())
+        want = {"docs/a.md": 1, "docs/new.md": 1, "docs/moved.py": 1}
+        self.assertEqual((None, want), self.scope("./docs"))
+        self.assertEqual((None, want), self.scope("docs//"))
+        self.assertEqual((None, {"top.md": 1}), self.scope("./top.md"))
+
+    def test_the_prefix_is_a_directory_not_a_name_prefix(self):
+        """160/950 QS4: `docs` is `docs/`, never `docs-extra/`."""
+        rc, got = self.scope("docs")
+        self.assertNotIn("docs-extra/x.md", got)
+        self.assertEqual((None, {"docs-extra/x.md": 1}), self.scope("docs-extra"))
+
+    def test_an_exact_file_is_that_file(self):
+        self.assertEqual((None, {"docs/a.md": 1}), self.scope("docs/a.md"))
+
+    def test_a_tracked_scope_with_nothing_staged_is_not_refused(self):
+        self.assertEqual((None, {}), self.scope("src"))
+
+    def test_a_scope_whose_files_this_commit_removes_still_resolves(self):
+        """`gone/` is no longer in the index; the commit deletes it. A removal
+        under a scope is under it (leakscan's removed list is cut by this)."""
+        rc, allowed = report.resolve_staged_scope("d", ["gone"], "src/")
+        self.assertIsNone(rc)
+        self.assertEqual(frozenset({"gone/g.md"}), allowed)
+
+    def test_a_rename_is_under_both_its_scopes(self):
+        rc, allowed = report.resolve_staged_scope("d", ["src/moved.py"], "src/")
+        self.assertIsNone(rc)
+        self.assertEqual(frozenset({"src/moved.py"}), allowed)
+        rc, allowed = report.resolve_staged_scope("d", ["docs/moved.py"], "src/")
+        self.assertEqual(frozenset({"docs/moved.py"}), allowed)
+
+    def test_a_name_git_does_not_know_is_refused(self):
+        """160/950 QS1/QS2: typo, case variant, literal glob, `~`."""
+        for bad in ("nowhere", "Docs", "DOCS/a.md", "docs/*", "docs/?.md",
+                    "~/docs", "docs/A.md"):
+            with self.subTest(bad=bad):
+                (rc, _), err = _stderr_of(report.scope_staged, "d",
+                                          self.staged, [bad], "src/")
+                self.assertEqual(2, rc)
+                self.assertIn("d: --staged path(s) name nothing git knows: "
+                              + bad, err)
+                self.assertIn("'src/'", err)
+
+    def test_a_unicode_variant_is_resolved_by_git_or_refused_never_empty(self):
+        d = "caf\u00e9"
+        (self.repo / d).mkdir()
+        (self.repo / d / "c.md").write_text("c\n")
+        self.git("add", "--", d + "/c.md")
+        staged = {d + "/c.md": 1}
+        nfd = unicodedata.normalize("NFD", d)
+        buf = io.StringIO()
+        with contextlib.redirect_stderr(buf):
+            rc, got = report.scope_staged("d", staged, [nfd], "src/")
+        self.assertIn(rc, (None, 2))
+        if rc is None:
+            self.assertEqual(staged, got)
+
+    def test_a_subdirectory_cwd_reads_root_relative_spellings(self):
+        os.chdir(self.repo / "docs")
+        self.assertEqual((None, {"docs/a.md": 1}),
+                         report.scope_staged("d", self.staged, ["docs/a.md"],
+                                             "src/"))
+        (rc, _), _err = _stderr_of(report.scope_staged, "d", self.staged,
+                                   ["a.md"], "src/")
+        self.assertEqual(2, rc)
+
+    def test_the_environment_cannot_turn_a_path_into_a_glob(self):
+        with unittest.mock.patch.dict(os.environ, {
+                "GIT_LITERAL_PATHSPECS": "1", "GIT_GLOB_PATHSPECS": "1",
+                "GIT_ICASE_PATHSPECS": "1"}):
+            self.assertEqual((None, {"docs/a.md": 1}), self.scope("docs/a.md"))
+            (rc, _), _err = _stderr_of(report.scope_staged, "d", self.staged,
+                                       ["Docs"], "src/")
+            self.assertEqual(2, rc)
+
+    def test_a_path_leaving_the_repo_is_refused(self):
         for bad in ("..", "../x", "./../x", "docs/../../x"):
-            (rc, _), err = _stderr_of(report.scope_staged, "d", staged,
+            (rc, _), err = _stderr_of(report.scope_staged, "d", self.staged,
                                       [bad], "src/")
             self.assertEqual(2, rc, bad)
-            self.assertIn("outside the repo", err)
+            self.assertIn("climb out of the repo", err)
+
+    def test_the_spelling_is_normalised_as_posix_whatever_the_host(self):
+        """160/950 QS10: git's paths are POSIX, so the reader must not use the
+        host's `os.path` (`docs\\sub` on a backslash host matches nothing)."""
+        src = inspect.getsource(report.resolve_staged_scope)
+        self.assertIn("posixpath.normpath", src)
+        self.assertNotIn("os.path.normpath", src)
+        self.assertEqual((None, {"docs/a.md": 1}),
+                         self.scope("docs/sub/../a.md"))
+
+    def test_git_failure_is_a_broken_scan_not_a_pass(self):
+        with unittest.mock.patch.object(
+                report, "_git_scope_names",
+                side_effect=subprocess.CalledProcessError(128, "git")):
+            (rc, _), err = _stderr_of(report.scope_staged, "d", self.staged,
+                                      ["docs"], "src/")
+        self.assertEqual(2, rc)
+        self.assertIn("git diff failed", err)
+
+    def test_the_cwd_repo_must_be_the_root_repo(self):
+        self.assertIsNone(report.refuse_other_repo("d", self.repo))
+        os.chdir(self.repo / "docs")
+        self.assertIsNone(report.refuse_other_repo("d", self.repo))
+        other = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, other, ignore_errors=True)
+        subprocess.run(["git", "-C", str(other), "init", "-q"], check=True)
+        os.chdir(other)
+        rc, err = _stderr_of(report.refuse_other_repo, "d", self.repo)
+        self.assertEqual(2, rc)
+        self.assertIn("is not the repo --root names", err)
+        self.assertIn(os.path.realpath(other), err)
+        plain = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, plain, ignore_errors=True)
+        os.chdir(plain)
+        rc, err = _stderr_of(report.refuse_other_repo, "d", self.repo)
+        self.assertEqual(2, rc)
+        self.assertIn("not inside a git repo", err)
 
 
 class TestReportLines(unittest.TestCase):
@@ -684,7 +832,7 @@ class ParseAddedLinesTest(unittest.TestCase):
 
     def git(self, *args):
         import subprocess
-        return subprocess.run(["git", "-C", str(self.repo), *args], check=True,
+        return subprocess.run(["git", "-C", str(self.repo), "-c", "commit.gpgsign=false", *args], check=True,
                               capture_output=True,
                               env={**os.environ, **self.GIT_ENV}).stdout
 
