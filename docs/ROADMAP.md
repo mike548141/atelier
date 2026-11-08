@@ -328,7 +328,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: the staged-positional reader the three…](roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md)
 - [ ] 🎯 [Rule-4 cold pass queued: ccclose --identifiers credits commits on…](roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
-- [~] (claimed 2026-11-08-1059, wt: atelier-rr-722a-980) [Rule-4 cold pass queued: G3…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
+- ✅ 🎯 [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the claimed index line fitted to wrapscan,…](roadmap/160-doctrine-review-owed/985-rule-4-cold-pass-queued-claimed-index-line-fit.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the orchestrator writes the review pointer…](roadmap/160-doctrine-review-owed/986-rule-4-cold-pass-queued-orchestrator-writes-the-pointer.md)
 - [ ] ⏳ [Rule-4 cold pass queued: board.py sorts item and section numbers as…](roadmap/160-doctrine-review-owed/987-rule-4-cold-pass-queued-board-sorts-numbers-as-numbers.md)
@@ -352,6 +352,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the class-only privacy clause in the…](roadmap/160-doctrine-review-owed/1050-rule-4-cold-pass-queued-report-up-privacy-clause.md)
 - [ ] ⏳ [Rule-4 cold pass queued: /atelier:queue-run reads the committed…](roadmap/160-doctrine-review-owed/1060-rule-4-cold-pass-queued-queue-run-reads-the-committed-prompt.md)
 - [ ] ⏳ [Rule-4 cold pass queued: git resolves a staged scan's positional…](roadmap/160-doctrine-review-owed/1070-rule-4-cold-pass-queued-git-resolves-the-staged-scope.md)
+- [ ] ⏳ [Rule-4 cold pass queued: G3 records who and when on every manifest…](roadmap/160-doctrine-review-owed/1080-rule-4-cold-pass-queued-g3-who-when-and-gate-order.md)
 
 ## build/ layer — open strands
 

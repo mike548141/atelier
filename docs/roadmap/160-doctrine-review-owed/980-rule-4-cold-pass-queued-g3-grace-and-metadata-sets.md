@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-08-1059, wt: atelier-rr-722a-980)
-      🎯 **Rule-4 cold pass queued: G3 lands with a dated grace, metadata
+- [x] 🎯 **Rule-4 cold pass queued: G3 lands with a dated grace, metadata
       is kept set by set, and floor refuses abbreviated mode flags
       (`020/150`).** This is the personal-data boundary of every child, and
       it adds the one stated exception to E6a. So the authoring session (a
@@ -65,3 +64,20 @@
       not a reason alone (GM5); (d) the gate runs before the ignore file for
       binaries, so no ignore glob skips it (GM9); and the reviewer's counsel on
       the 15 findings.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per Mike's answers above:
+      (a) 2026-11-18 stated as firm for every child (GM7); (b) a raw profile
+      that will not decode is reported UNREADABLE and blocks as
+      `<set>:unknown`, and PNG raw `xmp` is now decoded and read (GM4); (c)
+      each manifest line records `by=<principal-ruled|principal-answer|agent>
+      session=<id|human> on=<YYYY-MM-DD>`, the exception register's own
+      fields, and an old reason-only line warns per line and never blocks
+      (GM5); (d) the gate runs before the ignore file for tracked binaries on
+      both planes (GM9); GM1–GM3, GM6, GM8, GM10–GM14 as counselled.
+      Fail-before shown; full suite 2432 OK after rebasing onto `160/950`.
+      **Measured for the cut-off:** six wired children, not three, would go
+      red on 2026-11-18; each gets an item on its own board. **Left for
+      him:** when old reason-only lines should start blocking, which the
+      exception register's redraft (`160/650`, its Q3) carries. A cold pass
+      on the new mechanism (a blocking guard in every child, and doctrine in
+      `SECRETS.md` and `GUARDS.md`) is queued as `160/1080`.
