@@ -140,6 +140,8 @@ class RuleTablesScaleLinearly(unittest.TestCase):
         for name, rx in OTHER.items():
             with self.subTest(name):
                 ratio, where = _worst_ratio(rx)
+                if not where:           # every shape under the time floor
+                    self.skipTest("too fast to measure on this machine")
                 self.assertGreater(
                     ratio, LINEAR_BOUND,
                     f"{name} no longer scales quadratically ({where}): remove "

@@ -3204,6 +3204,9 @@ class BinaryEntriesListing(_TreeCase):
             rc = ls.main(["--root", str(self.tmp), "--binary-entries"])
         return rc, out.getvalue(), err.getvalue()
 
+    # The listing's who/when depends on the session id; outside a session it
+    # prints by=CHOOSE, which refuses before the reason rule this test pins.
+    @unittest.mock.patch.dict(os.environ, {"CLAUDE_CODE_SESSION_ID": "abcd1234"})
     def test_lines_print_without_a_reason_and_need_one_to_load(self):
         a = self.put("a.bin", b"\x00a")
         b = self.put("b.png", _png((b"eXIf", b"MM")))
