@@ -312,6 +312,32 @@ only because a *successful* login also read zero. 2026-08-03: a dual-supply
 power test asserted the very rail label a review had just proven to be a
 mislabel, because it was written from the code's own belief.)
 
+## 16. Capture, do not compose: a fixture of another program's output
+
+A hand-written fixture encodes what its author *expected* the other program to
+print. It can therefore only confirm the author's own model, and it passes
+forever while being wrong. §15 gives the reason (a test shares its code's
+beliefs); this is the working rule for the commonest case.
+
+**Where a tool parses another program's output, the fixture is captured from
+that program, not typed, and the test records what produced it** (program,
+version, date captured, §1). A loopback-only stub the author stands up is
+enough; it needs no network. The same holds at the seam between two of your
+own modules: a consumer's fixture is captured from the producer's real output,
+because two suites can both be green while each encodes its own belief about
+the shape between them and neither tests the other's.
+
+(Grounded: a child, 2026-08-17, two lanes that did not know of each other.
+One lane's protocol-version probe shipped the opposite of the truth behind a
+hand-written fixture that would have passed indefinitely; only a live run
+caught it. The other lane captured real output from a stub it stood up itself
+and met the trap at once, because the real output held a marker its author
+would never have thought to write. Same trap, opposite outcomes, decided by
+fixture provenance alone. Mike picked this rule, 2026-11-09, from options
+offered (board item `320/030`); that is an answer, not a ruling in his words.
+It is a review question, not a scanner: nothing here can tell a captured
+fixture from a typed one.)
+
 ---
 
 *Bearing in `ros`: the diagnose layer's honesty discriminators (a signal-floored
