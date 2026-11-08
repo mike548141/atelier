@@ -151,5 +151,5 @@ Once all that is done review all my prompts in this session, both at the
 turn and mid-turn, and make sure you have done everything I asked fully.
 Review your replies to capture open actions, questions, decisions you asked
 of me.
-Make sure everything is ready to close this session. This includes recording
+Make sure everything is ready to close this session and run ccclose. This includes recording
 decisions, evidence, learnings, and questions to ask me later.
