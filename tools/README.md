@@ -216,12 +216,14 @@ than pretended away:
   wanting the opposite trade pins `ref:` exactly as the trust list pins
   (SCA1, 2026-07-23).
 
-## `leakscan.py` — keep personal/estate data out of a shareable repo
+## `leakscan.py` — catch the shape of personal/estate data before it is committed
 
-The apex + AUTONOMY floor forbid personal, health, family, financial or
-estate-topology detail from entering a repo that can go public. `leakscan` is the
-machine that enforces that boundary, so a leak fails the commit instead of
-reaching the remote.
+A repo holds personal data only for a purpose, with every exception recorded
+(`docs/build/REPO-STANDARD.md` § Personal data); a public repo holds only a
+closed list its principal has granted (atelier's is `docs/PERSONAL-DATA.md`).
+`leakscan` is the machine behind that rule, so a leak fails the commit instead of
+reaching the remote. It reads shapes and listed terms, not purpose, and an
+allow-marker on a line is not a grant of an exception.
 
 ### Two layers (why the scanner itself leaks nothing)
 

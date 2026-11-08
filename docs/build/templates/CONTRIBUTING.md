@@ -100,9 +100,11 @@ other repos would want the rule, it belongs upstream in atelier instead.
   pass. <!-- for web: which browsers/widths; for a CLI: which real inputs -->
 - **New Zealand English** throughout (favourite, colour, organise);
   correct macrons on te reo Māori.
-- **Personal data only for a purpose.** Avoid addresses, contacts, health,
-  family or business detail. Anything the work needs is a declared, recorded
-  exception, never an unremarked line.
+- **Personal data only for a purpose.** Avoid real people's names, contact
+  details and addresses, health, family and financial detail, and estate detail
+  (hostnames, paths, client names). Anything the work cannot be done without is
+  an exception recorded in `docs/PERSONAL-DATA.md`, never an unremarked line;
+  in a public repo only the principal grants one, in his own words.
 - **Comments say _why_, not _what_** — constraints and non-obvious
   reasons only.
 - **Record real decisions.** A short ADR in [`docs/decisions/`](docs/decisions/)

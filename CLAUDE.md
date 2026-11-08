@@ -4,7 +4,7 @@ This repo *is* the operating model. When working here you are editing the rules
 you work by everywhere else — so hold them especially tightly here.
 
 **Repo facts:** `mike548141/atelier` · **Visibility: PUBLIC** (ADR 0005,
-2026-07-10). A push *is* publication now — the no-personal-data boundary binds on
+2026-07-10). A push *is* publication now — the closed personal-data list binds on
 **every commit**, and the pre-commit scan hook is load-bearing, not a
 private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`.
 
@@ -35,12 +35,16 @@ Read the rest of `docs/method/` on demand when a change touches it.
 
 ## Hard constraints
 
-- **No personal data beyond the few recorded exceptions a public repo needs.**
-  No health, family, financial, or personal-estate context enters this repo.
-  atelier is public, so it holds the fewest exceptions of any repo: the
-  published author identity and account name, each declared where it appears.
-  Mike's personal context stays in `~/.claude/`. The purpose-based rule and his
-  words are in `docs/build/REPO-STANDARD.md`.
+- **No personal data beyond the closed list in `docs/PERSONAL-DATA.md`.**
+  No health, family, financial or personal-estate context enters this repo, and
+  neither does any other person's name, contact detail or address. The list is
+  the one place that says what personal data atelier holds (the published
+  author identity and account name), why, and in which files; a test keeps it
+  matching the tree. It is **closed**: in a public repo only Mike grants an
+  exception, in his own words, so a session that thinks it needs one stops and
+  asks him. An allow-marker on a line is not a grant. Mike's personal context
+  stays in `~/.claude/`. The purpose rule and his words are in
+  `docs/build/REPO-STANDARD.md` § *Repo-craft conventions*.
 - **Live the doctrine you're writing.** The apex (`00-APEX.md`) applies to the
   agent editing this repo: honest about what's done vs stubbed, no rounding a
   half-extraction into "extracted".
@@ -69,7 +73,7 @@ binds on every commit. The making-public floor is **spent** (ADR 0005 was the
 confirmation). The live floor is the next deliberate *widening* — a public
 announcement, a published package, a plugin/skills bundle — which stays Mike's
 call, never the agent's initiative. And because the repo is public, the
-no-personal-data boundary is load-bearing continuously, not just at publish.
+closed personal-data list is load-bearing continuously, not just at publish.
 
 ## Layout
 

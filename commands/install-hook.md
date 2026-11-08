@@ -4,9 +4,9 @@ allowed-tools: Bash(git:*), Bash(cp:*), Bash(chmod:*), Bash(python3:*), Bash(cd:
 ---
 
 Install atelier's **git pre-commit hook** into the current repository. It blocks a
-commit that would put a plaintext secret or personal/estate data into history, or
-leave a broken internal link, and it **fails closed** — a missing scanner blocks
-the commit rather than waving it through.
+commit that would put a plaintext secret or the shape of personal/estate data
+into history, or leave a broken internal link, and it **fails closed** — a
+missing scanner blocks the commit rather than waving it through.
 
 This is a *git* hook, not a Claude Code event hook: a plugin cannot install it
 automatically, and git transports neither hooks nor config — so this must be run

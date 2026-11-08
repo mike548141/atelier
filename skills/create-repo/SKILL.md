@@ -67,7 +67,7 @@ atelier apex applied to repo-craft; the standard is how it lands.
 
 The identity this skill stamps comes from `~/.atelier/instance.yaml` — **your**
 profile, in your home directory, never in a repo, never committed (the same
-boundary that keeps personal context out of a shareable repo).
+boundary that keeps personal context out of every repo it does not belong in).
 
 - **If it exists**, read it. Its keys drive every stamp below. The schema —
   every key, its shape, its default, and the why per key — is

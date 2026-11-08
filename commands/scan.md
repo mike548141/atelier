@@ -16,7 +16,7 @@ real failure, never as "clean"):
 1. **secretscan** — plaintext credentials that must never reach git history (runs
    in every repo, whatever its visibility — a burned secret is burned regardless):
    `python3 "${CLAUDE_PLUGIN_ROOT}/tools/secretscan.py" --root . .`
-2. **leakscan** — personal / estate data that must not enter a shareable repo. Its
+2. **leakscan** — the shape of personal / estate data, held only for a recorded purpose. Its
    structural patterns always run; a machine-local literal term list
    (`~/.claude/leakscan-terms.txt`) loads *if present* and otherwise it degrades to
    structural-only with a warning (that list is machine-local by design — never in

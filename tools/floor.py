@@ -475,7 +475,7 @@ SCANNERS: tuple[Scanner, ...] = (
         hook=["--staged", "--root", "{root}", "--require-terms", "{scope}"],
         ci=["--root", "{root}", "{scope}"],  # structural-only: no --require-terms
         advisory=None,  # the personal-data boundary is not a re-baselining matter
-        why="no personal/estate data enters a repo that can go public",
+        why="the shape of personal/estate data is caught before it is committed",
         full_cover_flag="--require-terms",
         # 115/090: rules that are off (a rule this child names in `flags`
         # `--disable`, and a rule withdrawn for noise) report without

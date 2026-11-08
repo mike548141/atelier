@@ -133,11 +133,20 @@ in atelier and is read on demand — never wholesale.
 
 ## Hard constraints
 
-- **Personal data only for a purpose, and every exception recorded.** This
-  repo avoids PII by default (health, family, financial, personal-estate
-  context). Anything it must hold for the work it exists to do is a declared,
-  narrow, recorded exception (atelier `build/REPO-STANDARD.md`). <!-- A public
-  repo holds the fewest exceptions; run the leak/secret scans as hooks. -->
+- **Personal data only for a purpose, and every exception recorded.** This repo
+  avoids PII by default: real people's names, contact details and addresses,
+  health, family and financial detail, and any identifier that points at one
+  person (an account name). Estate detail (hostnames, topology, machine-local
+  paths, client names) is not PII, but the same default and recording apply.
+  An exception stands only if the work this repo exists to do cannot be done
+  without that very datum; one a placeholder or an invented example would serve
+  fails. Each is recorded in `docs/PERSONAL-DATA.md` (the data, why, how it was
+  granted, the files it may stand in); a repo without that file holds none. In
+  a public repo only the principal grants an exception, in his own words, and
+  the list is closed until he adds to it: a session that thinks it needs one
+  stops and asks. An allow-marker on a line is not a grant, and the leak and
+  secret scans catch the shape of personal data, not its purpose. Full rule:
+  `<atelier-path>/docs/build/REPO-STANDARD.md`.
 - **Hooks don't travel.** The scan hook and its `hooks.atelierTools` config are
   per-clone — git transports neither, so a fresh clone commits **unscanned**
   until they're reinstalled. Before the first commit on any new clone or

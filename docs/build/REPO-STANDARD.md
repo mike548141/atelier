@@ -168,24 +168,54 @@ applied to repo docs: a claim no stronger than its evidence — see
   the reason a thing is the way it is. Restating the code in prose is noise.
   (The general form is `method/RECORD.md`; it lands here as a code-review bar.)
 - **Personal data is held only for a purpose, and every exception is
-  recorded.** Mike's words (2026-10-03), which replaced a shareable-only
-  boundary that he called the wrong one: *"my github username (mike548141)
-  would be considered personally identifable inforamtion (PII) as well. It is
-  about the purpose that we collect, use, and hold information for. In general
-  all repo's should avoid holding PII but there will be exceptions like my
-  github account. Private repos will have more exceptions than a public repo
-  because its necessary for the context of the work I ordered and there are
-  controls in palce to protect it."* So:
-  - **Every repo avoids PII by default.** That covers names, contacts, health,
-    family, finance, estate topology and machine-local paths.
-  - **An exception is held for a purpose**, and is recorded and narrow, under
-    the standard in `roadmap/110-…/100` (why, who, when, the narrowest span).
-  - **A private repo legitimately carries more exceptions than a public
-    one**, because the work it was ordered for needs them and its controls
-    protect them. A public repo carries only the few it needs, such as the
-    published author identity.
-  - The leak and secret scans enforce the default as hooks, and each
-    exception is a declared allowance.
+  recorded.** Asked whether this rule covered only repos bound for sharing or
+  every repo, Mike rejected both boundaries (2026-10-03). His words, which
+  replaced the shareable-only rule: *"This is the wrong boundary, for example
+  my github username (mike548141) would be considered personally identifable
+  inforamtion (PII) as well. It is about the purpose that we collect, use, and
+  hold information for. In general all repo's should avoid holding PII but
+  there will be exceptions like my github account. Private repos will have
+  more exceptions than a public repo because its necessary for the context of
+  the work I ordered and there are controls in palce to protect it."* So:
+  - **The default, in every repo.** Avoid PII: the names, contact details and
+    addresses of real people; health, family and financial detail; and any
+    identifier that points at one person, such as an account name. Estate
+    detail (hostnames, topology, machine-local paths, client names) is not
+    PII, but the same default and the same recording apply to it, and a
+    public repo holds none.
+  - **The purpose test.** An exception stands only if the work the repo was
+    ordered for cannot be done or understood without that very datum, and the
+    record names the work. A purpose that a placeholder, a role or an invented
+    example would serve equally fails. "Useful", "harmless" and "public
+    elsewhere" are not purposes.
+  - **Who grants one.** In a public repo only the principal grants an
+    exception, in his own words, and the list is closed until he adds to it. A
+    session that thinks one is needed stops and asks him; it never adds an
+    entry itself. In a private repo the principal's order for the work is the
+    grant: a session records what the work needs, marks it as its own call and
+    not a ruling, and asks when unsure.
+  - **Where it is recorded.** One list per repo, `docs/PERSONAL-DATA.md`. Each
+    entry gives the data, why it is held, how it was granted (his words, his
+    call, or a session's own choice) and the narrowest set of files it may
+    stand in. A repo with no such file holds no exceptions. atelier's own is
+    the worked example, and a test keeps it matching the tree. The guard rules
+    for the marker that pairs with an entry are in `method/GUARDS.md`; the
+    draft exception register (`decisions/2026-10-03-0641-the-exception-register.md`)
+    is where the per-exception record is heading.
+  - **Found unrecorded.** An exception with no entry is a breach to fix, not a
+    line to document around: remove it, or ask the principal for a grant. In
+    a public repo history keeps what a push published (`method/RECORD.md`), so
+    tell him.
+  - **When a private repo widens.** Read its list first. Each entry the new
+    audience would see needs the principal's word again, and history holds
+    what HEAD no longer shows. Widening stays a floor action
+    (`method/AUTONOMY.md`).
+  - **What the scans do and do not do.** The leak and secret scans catch the
+    *shape* of personal data (an email, an address, a value under a label like
+    date of birth, and the literal terms in a machine-local list) and refuse it
+    unless a marker with a reason is on the line. They cannot read purpose,
+    and a person described in paraphrase passes. A marker records that someone
+    judged a line; it is not a grant, and in a public repo it needs one.
 - **Grounded, not invented** — see the file-set note; it applies to every doc,
   every commit message, every ROADMAP claim.
 - **Private-first** — new repos default private; widening audience is a floor

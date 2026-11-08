@@ -49,7 +49,7 @@ we work:
 | `docs/build/` | **how we build** — the repo-build standard and templates (repo craft) |
 | `docs/decisions/` | ADRs — decisions that rejected a real alternative |
 | `docs/reviews/` | peer-review briefs (work earns trust through independent review — see `method/REVIEW.md`) |
-| `tools/` | the mechanical controls that *enforce* the doctrine — e.g. `leakscan.py`, the pre-commit boundary keeping personal/estate data out of a shareable repo |
+| `tools/` | the mechanical controls that *enforce* the doctrine — e.g. `leakscan.py`, the pre-commit net catching the shape of personal/estate data before it is committed |
 | `instruments/` | tools that *observe* the collaboration — its cost (`ccrepo`) and its history (`cctranscript`); tools whose only value is the Claude teammateship (see `docs/decisions/0006-instruments-in-atelier.md`) |
 
 ### `docs/method/` — the operating model
@@ -134,11 +134,13 @@ Early. The `method/` layer is standing up first; the `build/` layer (the
 ## Sharing
 
 **Public** since 2026-07-10 (see `docs/decisions/0005-going-public.md`),
-Apache-2.0. No personal, health, family, or financial context ever enters this
-repo — that stays in the operator's private person-level context by design,
-which is exactly what makes atelier safe to publish. Because the repo is public,
-that boundary is load-bearing on **every commit**: the `tools/` scan hook
-(leakscan · secretscan) is the mechanical gate, not a pre-publish afterthought.
+Apache-2.0. No personal, health, family, or financial context enters this
+repo beyond the closed list in `docs/PERSONAL-DATA.md` (the author's published
+identity and account name) — the rest stays in the operator's private
+person-level context by design, which is what makes atelier safe to publish.
+Because the repo is public, that boundary is load-bearing on **every commit**:
+the `tools/` scan hook (leakscan · secretscan) is the mechanical gate, not a
+pre-publish afterthought.
 Widening further, atelier is now packaged as an installable plugin/skills bundle
 (see *Install as a Claude Code plugin* above) — the delivery vehicle for the
 doctrine to travel. A public **announcement** remains the next deliberate widening

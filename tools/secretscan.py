@@ -2,8 +2,8 @@
 """secretscan — the mechanical gate that keeps plaintext credentials out of a
 git commit.
 
-leakscan guards the *public boundary* (personal/estate data must not enter a
-repo that can go public). secretscan guards a different boundary that exists in
+leakscan catches the *shape of personal/estate data* (a repo holds such data
+only for a recorded purpose). secretscan guards a different boundary that exists in
 *every* repo, private ones included: a committed credential is burned the moment
 it lands in history, regardless of who can see the repo — history is forever and
 a private repo can be shared, forked or leaked later. So this runs everywhere,

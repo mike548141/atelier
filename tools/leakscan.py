@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-"""leakscan — the mechanical boundary that keeps personal/estate data out of a
-shareable repo.
+"""leakscan — the mechanical net that catches the SHAPE of personal/estate data
+before it is committed.
 
-The doctrine (atelier apex + AUTONOMY floor) says personal, health, family,
-financial and estate-topology detail must never enter a repo that can go public.
-A rule enforced by intent alone fails the first tired session. This is the
-machine that enforces it: a denylist scan run as a pre-commit hook and in CI, so
-a leak fails the commit instead of reaching the remote.
+The doctrine (`docs/build/REPO-STANDARD.md` § Personal data) says a repo holds
+personal data only for a purpose, with every exception recorded; a public repo
+holds only the closed list its principal has granted. A rule enforced by intent
+alone fails the first tired session. This is the machine behind it: a denylist
+scan run as a pre-commit hook and in CI, so a leak fails the commit instead of
+reaching the remote. It reads shapes and listed terms, not purpose: a person
+described in paraphrase passes, and an allow-marker on a line records that
+someone judged the line; it is not a grant of an exception.
 
 Three layers, split so the scanner itself leaks nothing:
 
@@ -2954,7 +2957,7 @@ def render_human(findings: list[Finding], warning: str | None,
 def _main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="leakscan",
-        description="Scan for personal/estate data before it reaches a shareable repo.")
+        description="Scan for the shape of personal/estate data before it is committed.")
     ap.add_argument("paths", nargs="*",
                     help="files/dirs to scan (default: whole repo, or --staged). "
                          "With --staged, repo-root-relative paths in git's own "

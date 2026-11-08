@@ -171,12 +171,12 @@ watchdog poll.
 ## 5. Security, privacy, cost — by design, not bolted on
 
 - **Privacy, security, and financial efficiency are design inputs from the first
-  line**, not later hardening passes. Secrets never land inline; no personal
-  detail in a shareable artefact; cost is a written policy, not an afterthought.
-  Enumerating a design's threats belongs in this first-line work — name what
-  could attack a surface before building it, right-sized ([`REVIEW.md`](REVIEW.md),
-  the security lens at design altitude; a lightweight pass, not full STRIDE
-  ceremony).
+  line**, not later hardening passes. Secrets never land inline; personal
+  data held only for a recorded purpose; cost is a written policy, not an
+  afterthought. Enumerating a design's threats belongs in this first-line work —
+  name what could attack a surface before building it, right-sized
+  ([`REVIEW.md`](REVIEW.md), the security lens at design altitude; a
+  lightweight pass, not full STRIDE ceremony).
 - **Secure by default — a new surface opens closed.** Any new surface — a config
   key, a service, a feature flag, a port, a permission, an exposed path —
   **defaults to closed or minimal**, and *opening* it needs a stated, deliberate

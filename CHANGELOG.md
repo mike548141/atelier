@@ -98,6 +98,54 @@ made firm for every child**.
   check-building follows. Census work (`020/220`) and the framing obligation
   (`020/230`) are not done by this change.
 
+### Changed (2026-11-08 — personal data: the claim made true, one closed list, and who grants, `160/630`)
+- **atelier's hard constraint no longer says each personal-data exception is
+  "declared where it appears".** The cold pass measured the account name on 27
+  lines with no declaration (PI1), so the claim was false. The claim is now
+  "listed in one place", and that place exists: `docs/PERSONAL-DATA.md` names
+  every exception atelier holds (the account name, the author's full name and
+  email, the first name used as the doctrine's voice, and the git author
+  identity on every commit), with why it is held, how it was granted and the
+  files it may stand in. The principal chose this route from offered options
+  (an answer to options, 2026-11-09, not a ruling in his words).
+- **The list is closed, and only the principal opens it (PI2).**
+  `docs/build/REPO-STANDARD.md` § Personal data and atelier's `CLAUDE.md` now
+  say that in a public repo an exception is the principal's alone to grant, in
+  his own words; a session that thinks it needs one stops and asks, and an
+  allow-marker is not a grant. The flat prohibition now also names other
+  people's names, contact details and addresses, which the old sentence
+  omitted. "Purpose" has a test (the work cannot be done or understood without
+  that very datum; a placeholder, a role or an invented example would fail it),
+  and the standard says what happens to an exception found unrecorded, to a
+  private repo's exceptions when it widens, and what the scans can and cannot
+  judge (PI3, PI8, PI9).
+- **A test keeps the list matching the files.** `tools/test_personal_data.py`
+  fails the suite if a listed string stands in a tracked file no entry names,
+  if an entry names a place its string has left, if a personal-data
+  allow-marker stands outside a named place, if the set of entries changes
+  without the test changing with it, or if a surface goes back to the old claim.
+  One entry (the first name) cannot be pinned to files and says so.
+- **One rule across the four passages (PI4, PI5, PI7, PI10).** The child
+  templates `docs/build/templates/CLAUDE.md` and `CONTRIBUTING.md` now carry the
+  same default, purpose test, recording place and public-repo grant rule, so a
+  child reading only its own files gets the whole rule; the estate-detail class
+  (hosts, paths, client names) is back, labelled as not PII. The verbatim
+  quotation in the standard now opens where his words open. The personal-data
+  constraint sits outside the stamped doctrine block, so `stampscan` cannot tell
+  an existing child its copy is stale: children created before this date still
+  carry the old sentence until someone updates them.
+- **The old "shareable-only" framing is gone from the surfaces the cold pass
+  found (PI6):** `tools/leakscan.py` (docstring and `--help` description),
+  `tools/floor.py` (the registry's reason, which every child's floor prints),
+  `tools/README.md`, `tools/secretscan.py`, `commands/scan.md`,
+  `commands/install-hook.md`, the create-repo skill, `docs/method/PRINCIPLES.md`
+  and `README.md`. Wording only: no scanner behaviour changed, so no child's
+  result changes.
+- Not changed: making `leakscan` itself refuse a personal-data allow-marker in
+  a public repo unless it matches the closed list. The scanner has no notion of
+  a repo's visibility or of a list, and the cold pass's counsel was the
+  doctrine sentence, so this stays a follow-up.
+
 ### Changed (2026-11-08 — the report-up duty: the floor block now carries the privacy rule, `160/300`)
 - **The short text every child reads at session start now tells a private repo
   to describe a doctrine problem by its class only.** The `floor` region's
