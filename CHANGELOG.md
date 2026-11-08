@@ -5,6 +5,78 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-08 — six cold-pass reviews applied as counselled: §9 privacy, the cancelled-run clause, pointing up, the hand-up fixes, stated-bridge pointers, the template history)
+Mike approved applying each reviewer's counsel as written on 2026-11-09 (his
+date), each item closing when applied with no new Fable re-check. Doctrine
+wording and one fleet-view tool; no scanner's blocking behaviour changes.
+- **PRINCIPLES §9 prices the time dimension as a privacy cost too (`160/030`).**
+  For personal data, record-time trails and by-whom fields joined to identities
+  are themselves personal data and a retention limit can make the lawful answer
+  *less* dimension; "prefer a dated end-state" is a default, not a licence. §9
+  now says it sits beside §6 (which dates the system's own facts), "never
+  reached" is softened, and record time is named as a family sized by the same
+  question test. The roadmap shorthand "no hard delete" for §9 is softened to
+  match the hedged doctrine.
+- **The cancelled-run clause (`160/040`).** A re-run now waits for a quiet
+  group, because it re-enters the same `cancel-in-progress` group and would
+  cancel a concurrent session's in-flight run. The clause is conditional on
+  the floor running under `cancel-in-progress` (as atelier's `ci.yml` does; a
+  child's caller workflow may not). The all-clear is stated positively:
+  conclusion `success` on a run for your own SHA. The "~90 seconds" is "about
+  100". **Correction to the 2026-08-09 entry above ("a cancelled floor run is
+  not an all-clear"), which stands as written:** it justified keeping
+  `cancel-in-progress` by minutes saved, but public-repo Actions runs are free
+  (`ci.yml`'s COST NOTE), so no metered minute is saved here. The decision
+  survives on `ECONOMICS.md`'s rule that cost hygiene applies regardless of
+  meter, and on runner and queue contention; where it saves metered minutes is
+  in a private child's caller workflow, which was not examined.
+- **Pointing up: the instance no longer says the house had no gap (`160/280`).**
+  Correcting the index check to plain `git diff --cached` (PU-1, 2026-08-22)
+  made the instance narrative false: the house rule had prescribed a path-blind
+  pipe, so the child's compression was faithful and its gap real. The Bearing
+  in `CONCURRENCY.md` and § *The instance* in `PROPAGATION.md` now say so, and
+  that what was owed upstream was the finding, not a duplicate rule. The PU-2
+  note no longer states the reviewer's grounds in the principal's voice. The
+  2026-08-22 application itself had no entry; it is added in its own date
+  place below.
+- **The 2026-09-18 hand-up fixes (`160/310`).**
+  - The sync-bookend prose states the measured mechanism: autostash puts dirty
+    work back without its index state (a peer's staged files return unstaged),
+    and on a collision leaves conflict markers and the change on the shared
+    stash stack. Gate 2's reason is corrected (a no-upstream pull gains nothing
+    and fails with a hint that invites a wrong repair), the worktree form
+    (`git pull --rebase --autostash origin main`) is named, and the onramp
+    gains the missing branch: dirty work that is yours is committed or backed
+    out first.
+  - The drift check is `fetch -q && log --oneline <SHA>..origin/main` in the
+    block, the template and `PROPAGATION.md` point 4: a fetch error is no
+    result, not no drift, and the remote is assumed to be `origin`. This moves
+    the pin the children read; delivery is at each child's next pin bump
+    (`030/120`). `skills/create-repo` runs the same form.
+  - `tools/pins.py` measures against `origin/main` after a fetch, as a child's
+    own check does. A failed fetch exits 2; `--head` keeps the local checkout
+    as the explicit offline choice. Pinned by four tests.
+  - Verify-the-act says it binds any act whose success the session did not read
+    from that act's own output, and names `git ls-remote origin main`. It stays
+    behind the block's pointer rather than in the lean block.
+  - `COMMUNICATION.md` describes the removed prose plane as history, and says no
+    gate covers the readability floor at HEAD. § *Pointing up* gains the duty
+    to re-drive a hand-up's mechanism claim before writing it into a method
+    file. Two ADRs gain addenda for the drift range.
+- **Stated-bridge citations (`160/570`).** The `SECRETS.md` bridge sites cite
+  `PRINCIPLES.md` §7 with the phrase (and §5 for the standing-credential
+  case), including the third site the phrase-keyed sweep missed; `ACCESS.md`
+  gains the same citation, `GLOSSARY.md` gains an entry, and the
+  tracked-debt restatement in `SECRETS.md` points at its §5 source.
+  `REVIEW.md` V5 says a cross-reference is checked for the rule it reaches,
+  not only the file it finds.
+- **The template history's framing (`160/940`).** `session-open/README.md`
+  says what the history does not show: the first four dates' wrong offset, the
+  session counts that differ by two, version 31's unconfirmed recurrence,
+  unmarked removals and single-use versions. It no longer presents the
+  spellscan exemption as covered by the 2026-07-23 ruling. No published commit
+  and no prompt text was touched; the earlier prompt history is not re-reviewed.
+
 ### Changed (2026-11-09 — G3 review applied: who allowed it and when, the gate before the ignore file, raw XMP read, `160/980`)
 Mike's answers of 2026-11-08 on the cold pass of `020/150`, plus the reviewer's
 counsel on the rest. G3 itself still warns only until **2026-11-18, which he
@@ -1065,6 +1137,17 @@ cold reviews' findings (`210/210`), in plain terms:
   remote (`320/210`); **Verify the act, not the absence of an error**
   (`320/220`); the drift command reads `..origin/main` after a fetch
   (`320/260`); "self-removing" corrected (`310/110`).
+
+### Fixed (2026-08-22 — the index check shows paths, and the instance is named; entry added 2026-11-08)
+Mike ruled the two pointing-up findings on 2026-08-22 and the application landed
+without a log entry, so the 2026-08-18 entry below read as the last word on the
+index check. Added belatedly on the 2026-09-25 cold pass's counsel (`160/280`).
+- **PU-1 — the check is plain `git diff --cached`.** `CONCURRENCY.md` § *The
+  trigger* had prescribed `git diff --cached -U0 | grep '^@@'`, a pipe that
+  strips the paths the check exists to show. It now says to read the whole
+  staged diff, paths included.
+- **PU-2 — the repo is named.** The veil over the instance in `PROPAGATION.md`
+  and the Bearing in `CONCURRENCY.md` was dropped on his ruling.
 
 ### Changed (2026-08-23 — the ruling-round applications: AP and FR, the code half)
 - **pathscan excludes records by default, estate-wide** (FR2, Mike's
