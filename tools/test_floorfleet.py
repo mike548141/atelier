@@ -550,6 +550,29 @@ class AdvisoryAgeingTest(unittest.TestCase):
         self.assertIn("🟡", legacy)
         self.assertIn("migrate it", legacy)
 
+    def test_the_date_kind_is_read_and_shown_and_unlabelled_is_said_aloud(self):
+        """160/450: the label is a key the board reads. A value outside the two
+        kinds is dropped (floor.py refuses it where the repo is); a dated
+        advisory with no label says so, because blank would read as "nobody
+        asked" and the rule is that it reads as a mandate until asked."""
+        self.assertEqual(
+            floorfleet._advisory_kinds({
+                "a": {"why": "x", "review-by": "2999-01-01", "kind": "mandate"},
+                "b": {"why": "x", "review-by": "2999-01-01", "kind": "default"},
+                "c": {"why": "x", "review-by": "2999-01-01", "kind": "soft"},
+                "d": {"why": "x", "review-by": "2999-01-01"}, "e": 7}),
+            {"a": "mandate", "b": "default"})
+        self.assertEqual(floorfleet._advisory_kinds(["wrapscan"]), {})
+        info = floorfleet.ChildFloor(
+            name="child", path="/x", state="wired", detail="calls atelier's floor @main",
+            advisory={"wrapscan": ("adopting", "2999-01-01"),
+                      "spellscan": ("adopting", "2999-01-01")},
+            advisory_kind={"wrapscan": "mandate"})
+        out = floorfleet.render([info], remote=False)
+        self.assertIn("mandate date", out)
+        self.assertIn("date kind not recorded", out)
+        self.assertEqual(out.count("date kind not recorded"), 1)
+
 
 class ParentWiringTest(unittest.TestCase):
     """TA5 — the parent classifier must read live YAML, not commented-out YAML.

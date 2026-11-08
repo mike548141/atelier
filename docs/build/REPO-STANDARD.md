@@ -132,7 +132,9 @@ applied to repo docs: a claim no stronger than its evidence — see
   (`tools/pathscan.py`'s own module docstring, DECLARED RESOLUTION ROOTS,
   is the schema's home; 320/010). The layering mirrors doctrine exactly
   (`method/PROPAGATION.md`): a shared floor, a local append, and the child may
-  narrow but never contradict. So a rule that is genuinely this repo's — a
+  narrow but never contradict (a dated advisory's `kind`, `mandate` or
+  `default`, says whether a later date narrows or contradicts: `method/GUARDS.md`
+  § *Who may move a deferment's date*). So a rule that is genuinely this repo's — a
   tripwire whose blocklist could never live in a shared repo, say — gets a home
   that keeps the repo *inside* propagation, instead of the bespoke hook that
   takes it out. A local check may not take a fleet check's name, and one whose

@@ -250,9 +250,9 @@ acceptance.
 
 ### Who may move a deferment's date: mandate or default
 
-A deferment's expiry is often set by the principal for the whole fleet, as a
-`review-by` the children inherit. Such a date is one of two kinds, and the
-kind decides what a child may do with it. Mike's rule (2026-08-09):
+A deferment's expiry is sometimes set by the principal for the whole fleet,
+as a `review-by` the children are held to. Such a date is one of two kinds,
+and the kind decides what a child may do with it. Mike's rule (2026-08-09):
 
 > If I specifically said all child repos must do X by date Y then they must
 > do it by that date, but the child repos may set an earlier date or argue
@@ -261,19 +261,52 @@ kind decides what a child may do with it. Mike's rule (2026-08-09):
 > before, the same, or after.
 
 - **Mandate.** The date binds the whole class. A child may **tighten** it to
-  an earlier date, or **argue for an exemption** through its parent. It may
-  never set a later date.
+  an earlier date, or **argue for an exemption**. It may never set a later
+  date. (The house's reading of the quote: the argument travels up the route
+  `PROPAGATION.md` § *Pointing up* gives, and an exemption the principal
+  grants is recorded in the child, by § *The layer-override rule*.)
 - **Default.** The date seeds the value. A child may set an **earlier, the
-  same, or a later** date of its own, and a later date stands as of right.
+  same, or a later** date of its own. (The house's reading: a later date
+  needs no ruling, and still carries the reason every deferment carries,
+  § *Provenance, not direction*.)
 
-So **a ruling that sets a date for the fleet names its kind.** That way no
-later pass has to work out after the fact which one was meant, and a child
-reading the date knows what it may do. *Grounding:* the C1b `review-by`
-horizon of 2026-09-01. Two repos that migrated themselves had set later
-dates, and nothing said whether the house date was a ceiling. Mike ruled it a
-**default** (2026-08-09), so the later dates stand. An unnamed date is the
-gap this closes. A date ruled before this rule was written has no kind on
-record. When its kind matters, ask, and record the answer beside the date.
+**The kind is a label the checkers read, and it lives beside the date.** A
+dated advisory in `.atelier-floor.json` takes an optional
+`"kind": "mandate"` or `"kind": "default"` next to its `review-by`
+(Mike's answer, 2026-11-09, to the options a session offered on the cold
+pass on this subsection: *"Add a readable label"*). `tools/floor.py` validates
+it and shows it on the floor line and in `--json`; `tools/floorfleet.py` shows
+it on the board. Two things follow from the label being there:
+
+- **An unlabelled date reads as a mandate**, the stricter reading, until the
+  principal says otherwise (§ *The layer-override rule*: on a live
+  collision the stricter reading wins). The board says "date kind not
+  recorded" aloud. A date ruled before the label existed has no kind on
+  record; when its kind matters, ask, and record the answer as the label,
+  with the date it was ruled.
+- **A mandate's date moving later is reported at the commit that does it.**
+  On the hook plane `floor.py` compares the staged `review-by` with HEAD's
+  and prints a line when it moved later on a date that was a mandate or
+  unlabelled. HEAD's label decides, so relabelling in the same edit does not
+  escape it. It reports and never blocks. What it cannot see is the *house's*
+  date, because no tool holds one: a fleet-wide declaration of the house's
+  dates, which the board could compare each child against, is not built.
+
+**A ruling that sets a date for the fleet names its kind**, so no later pass
+has to work out after the fact which one was meant. *Scope:* this is for dates
+the principal sets for the whole fleet. A date a child sets for itself, with
+no fleet date behind it, is a deferment under § *Provenance, not direction*
+(declared, reasoned, principal-visible) and carries a label only if the child
+chooses one. A pending-upstream line (`PROPAGATION.md` § *Pointing up*) expires
+on an event, the next pin bump, so it has no date to label. A fleet horizon a
+session set without the principal has no kind until one is asked for.
+
+*Grounding:* the C1b `review-by` horizon of 2026-09-01. Two repos that
+migrated themselves had set later dates, and nothing said whether the house
+date was a ceiling. Mike ruled it a **default** (2026-08-09), so the later
+dates stand. An unnamed date is the gap this closes. The sentence about a
+date ruled before this rule was written is the run's addition (2026-10-03),
+not Mike's.
 
 ## Provenance, not direction
 

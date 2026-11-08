@@ -300,5 +300,44 @@ class TestExitCodes(unittest.TestCase):
         self.assertEqual(coldsweep.selftest(), 0)
 
 
+class TestEmptyAlsoExclude(unittest.TestCase):
+    """160/450 DK9: an --also-exclude that matches nothing bars nothing, and
+    a brief once named a path that never existed. The sweep warns on stderr,
+    still runs, and keeps its exit code."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        (self.tmp / "docs").mkdir()
+        (self.tmp / "docs" / "a.md").write_text("FINDME\n")
+        (self.tmp / "docs" / "b.md").write_text("FINDME\n")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _run(self, *argv):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = coldsweep.main(["--root", str(self.tmp), *argv])
+        return code, out.getvalue(), err.getvalue()
+
+    def test_a_path_that_matches_nothing_is_warned_about(self):
+        code, _, err = self._run("--also-exclude", "docs/typo-dir", "FINDME")
+        self.assertEqual(code, 0)          # the sweep ran; exit unchanged
+        self.assertIn("--also-exclude docs/typo-dir matches no file", err)
+
+    def test_a_path_that_matches_is_silent_in_any_spelling(self):
+        for spelling in ("docs/a.md", "./docs/a.md", "docs//a.md"):
+            with self.subTest(spelling=spelling):
+                code, out, err = self._run("--also-exclude", spelling,
+                                           "FINDME")
+                self.assertEqual(err, "")
+                self.assertNotIn("docs/a.md:", out)
+
+    def test_include_barred_has_no_bar_to_warn_about(self):
+        _, _, err = self._run("--include-barred", "--also-exclude", "nope",
+                              "FINDME")
+        self.assertEqual(err, "")
+
+
 if __name__ == "__main__":
     unittest.main()

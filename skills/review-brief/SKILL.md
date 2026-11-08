@@ -57,6 +57,11 @@ A good brief is falsifiable and attackable. Include:
    brief's *Deferred reading* section bars**, not only the queue pointer: a
    path the section lists and the command does not exclude is read by the
    sanctioned command itself (2026-09-25, SK9).
+   **And name the check that the reviewer's tree has the delta at all:**
+   `git merge-base --is-ancestor <landing commit> HEAD` exits 0 before any
+   reading starts, and an orchestrator merges `origin/main` into the review
+   branch before it spawns, because a review branch forked before the delta
+   shows the reviewer a tree with nothing to review (2026-10-03, DK8).
 2. **Why it earns a review** — name the worst failure mode (e.g. a false negative
    that manufactures confidence).
 3. **Scope, and the four lenses — run all four.** Scope is the whole

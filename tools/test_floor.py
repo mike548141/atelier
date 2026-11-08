@@ -2265,5 +2265,121 @@ class G3GraceCannotBeExtendedTest(unittest.TestCase):
             "may not be softened")
 
 
+class DateKindTest(unittest.TestCase):
+    """160/450 (DK1, DK2): the kind a dated rule carries is a key the floor
+    reads, and a mandate's date moving later is a line, not silence. Mike,
+    2026-11-09: "Add a readable label"."""
+
+    @staticmethod
+    def _adv(**decl):
+        return {"advisory": {"wrapscan": {
+            "why": "adopting", "review-by": "2999-01-01", **decl}}}
+
+    def _load(self, cfg):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / floor.CONFIG_NAME).write_text(json.dumps(cfg),
+                                                      encoding="utf-8")
+            return floor.Config.load(Path(td))
+
+    def test_both_kinds_load_and_unlabelled_stays_valid(self):
+        for kind in ("mandate", "default"):
+            with self.subTest(kind=kind):
+                cfg = self._load(self._adv(kind=kind))
+                self.assertEqual(cfg.advisory["wrapscan"].kind, kind)
+        # No child may go red the day the key lands: absent is still valid.
+        self.assertIsNone(self._load(self._adv()).advisory["wrapscan"].kind)
+
+    def test_an_unknown_kind_is_refused_with_the_known_ones_named(self):
+        for bad in ("Mandate", "soft", "", 7):
+            with self.subTest(kind=bad):
+                with self.assertRaises(floor.ConfigError) as cm:
+                    self._load(self._adv(kind=bad))
+                self.assertIn("'mandate'", str(cm.exception))
+                self.assertIn("'default'", str(cm.exception))
+
+    def test_the_kind_reaches_json_and_the_floor_line(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps(self._adv(kind="mandate")), encoding="utf-8")
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane", "ci",
+                 "--root", td, "--json"], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            res = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            self.assertEqual(res["wrapscan"]["kind"], "mandate")
+            # Present and empty on a result with nothing to say: comparable.
+            self.assertEqual(res["linkscan"]["kind"], "")
+            self.assertEqual(res["linkscan"]["date_note"], "")
+        line = floor.render([floor.Result(
+            "wrapscan", "advisory", 0, reason="adopting", kind="mandate",
+            review_by="2999-01-01")], "ci")
+        self.assertIn("[mandate, review by 2999-01-01]", line)
+
+    def _repo_with_head(self, td, head_cfg):
+        env = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@x",
+               "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@x"}
+        def git(*a):
+            subprocess.run(["git", "-C", td, *a], check=True, env=env,
+                           capture_output=True)
+        git("init", "-q")
+        (Path(td) / floor.CONFIG_NAME).write_text(json.dumps(head_cfg),
+                                                  encoding="utf-8")
+        (Path(td) / "docs").mkdir()
+        (Path(td) / "docs" / "a.md").write_text("hello\n", encoding="utf-8")
+        git("add", floor.CONFIG_NAME, "docs/a.md")
+        git("-c", "commit.gpgsign=false", "commit", "-q", "-m", "x")
+
+    def _later(self, head, new):
+        with tempfile.TemporaryDirectory() as td:
+            self._repo_with_head(td, head)
+            (Path(td) / floor.CONFIG_NAME).write_text(json.dumps(new),
+                                                      encoding="utf-8")
+            return floor.moved_later(Path(td), floor.Config.load(Path(td)))
+
+    def test_a_mandate_moved_later_is_noted_even_if_relabelled_in_the_edit(self):
+        head = self._adv(kind="mandate", **{"review-by": "2026-12-31"})
+        new = self._adv(kind="default", **{"review-by": "2027-03-31"})
+        notes = self._later(head, new)
+        self.assertIn("wrapscan", notes)
+        self.assertIn("2026-12-31 to 2027-03-31", notes["wrapscan"])
+        self.assertIn("mandate", notes["wrapscan"])
+
+    def test_an_unlabelled_date_moved_later_reads_as_a_mandate(self):
+        notes = self._later(self._adv(**{"review-by": "2026-12-31"}),
+                            self._adv(**{"review-by": "2027-03-31"}))
+        self.assertIn("unlabelled, read as a mandate", notes["wrapscan"])
+
+    def test_tightening_staying_and_a_default_moving_later_are_silent(self):
+        for head_kind, old, new in (("mandate", "2026-12-31", "2026-11-30"),
+                                    ("mandate", "2026-12-31", "2026-12-31"),
+                                    ("default", "2026-12-31", "2027-06-30")):
+            with self.subTest(kind=head_kind, old=old, new=new):
+                self.assertEqual(self._later(
+                    self._adv(kind=head_kind, **{"review-by": old}),
+                    self._adv(kind=head_kind, **{"review-by": new})), {})
+
+    def test_no_readable_head_yields_nothing_rather_than_an_error(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps(self._adv()), encoding="utf-8")
+            cfg = floor.Config.load(Path(td))
+            self.assertEqual(floor.moved_later(Path(td), cfg), {})  # no repo
+
+    def test_the_note_is_a_report_and_never_blocks_the_hook(self):
+        with tempfile.TemporaryDirectory() as td:
+            self._repo_with_head(td, self._adv(**{"review-by": "2026-12-31"}))
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps(self._adv(**{"review-by": "2027-03-31"})),
+                encoding="utf-8")
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane", "hook",
+                 "--root", td, "--json"], capture_output=True, text=True,
+                cwd=td)  # --staged reads the index of the cwd's repo
+            self.assertEqual(r.returncode, 0, r.stderr)
+            res = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            self.assertIn("moved later", res["wrapscan"]["date_note"])
+
+
 if __name__ == "__main__":
     unittest.main()

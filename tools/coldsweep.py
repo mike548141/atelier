@@ -278,6 +278,18 @@ def _main(argv: list[str] | None = None) -> int:
 
     kept, skipped = walk(root, barred)
 
+    # A bar that matches nothing is a bar that bars nothing (160/450, DK9): a
+    # brief once named a directory that never existed and the sweep enforced
+    # nothing while the prose declared it. Said on stderr, every run, and never
+    # a change to the exit code: the sweep still ran, the reader just learns the
+    # extra bar was empty.
+    if not args.include_barred:
+        for entry in args.also_exclude:
+            if not any(is_barred(rel, (entry,)) for rel in skipped):
+                print(f"coldsweep: warning: --also-exclude {entry} matches no "
+                      "file, so it excludes nothing (a typo, or a path that "
+                      "does not exist in this tree)", file=sys.stderr)
+
     if args.list_barred:
         if args.include_barred:
             print("coldsweep: --include-barred — nothing is excluded.")

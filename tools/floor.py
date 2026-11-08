@@ -104,10 +104,18 @@ does not enforce a check must SAY SO, in a committed file
 
                "advisory": {
                  "wrapscan": {"why": "adopting the check; 60 findings to
-                                      clear", "review-by": "2026-09-01"}
+                                      clear", "review-by": "YYYY-MM-DD",
+                              "kind": "default"}
                }
 
-             Both fields are required (C1, ruled 2026-07-28). Until C1 the key
+             `kind` is optional and says who may move the date (GUARDS.md
+             § Who may move a deferment's date): "mandate" (the principal set
+             the date for the whole fleet; a child may only tighten it) or
+             "default" (a seed; a child may set another). An unlabelled date
+             reads as a mandate until the principal says otherwise, so the
+             stricter reading holds in the meantime (160/450, DK1, DK11).
+
+             Both `why` and `review-by` are required (C1, ruled 2026-07-28). Until C1 the key
              was a bare list of scanner names carrying neither, so nothing
              distinguished three-days-into-a-cleanup from softened-and-forgotten
              — the exact decay ADR 0008 exists to end, and `disabled` (the
@@ -262,6 +270,8 @@ from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
 CONFIG_NAME = ".atelier-floor.json"
+# The two kinds of date GUARDS.md names (§ Who may move a deferment's date).
+DATE_KINDS = ("mandate", "default")
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # C0 controls, DEL, and the C1 range. Config-authored text reaches a terminal
 # verbatim, so these are stripped at the parse seam — see `strip_controls`.
@@ -311,6 +321,10 @@ class Advisory:
     why: str = ""
     review_by: str | None = None  # ISO 8601 date, per CONVENTIONS.md
     legacy: bool = False
+    # Who may move the date: "mandate" (tighten only), "default" (any move), or
+    # None, unlabelled, which reads as a mandate (GUARDS.md, 160/450). Optional
+    # so no declaration in the field goes red the day the key lands.
+    kind: str | None = None
 
     def expired(self, today: str) -> bool:
         """Has the review date passed? String comparison is exact for ISO 8601
@@ -957,7 +971,7 @@ def _load_advisory(raw: object) -> dict[str, Advisory]:
     """Parse `advisory`, accepting both spellings during the C1 transition.
 
       ["wrapscan"]                                  legacy — parses, renders 🟡
-      {"wrapscan": {"why": "...", "review-by": "2026-09-01"}}   the rule
+      {"wrapscan": {"why": "...", "review-by": "YYYY-MM-DD"}}   the rule
 
     The legacy form exists so the schema can land without breaking every
     child's CI on the same afternoon (children fetch atelier@main at run time,
@@ -1016,16 +1030,22 @@ def _load_advisory(raw: object) -> dict[str, Advisory]:
                 f"{CONFIG_NAME}: `advisory.{name}.review-by` is not a real "
                 f"date: {review_by!r}"
             ) from e
-        unknown = sorted(set(decl) - {"why", "review-by"})
+        unknown = sorted(set(decl) - {"why", "review-by", "kind"})
         if unknown:
             # Same call as the local seam's key check (LS4): a key read past in
             # silence is a declaration the writer believes is doing something.
             raise ConfigError(
                 f"{CONFIG_NAME}: `advisory.{name}` has unknown "
                 f"{', '.join(repr(k) for k in unknown)} (known: 'why', "
-                "'review-by')"
+                "'review-by', 'kind')"
             )
-        out[name] = Advisory(why=why, review_by=review_by)
+        kind = decl.get("kind")
+        if kind is not None and kind not in DATE_KINDS:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `advisory.{name}.kind` must be one of "
+                f"{', '.join(repr(k) for k in DATE_KINDS)}, got {kind!r}"
+            )
+        out[name] = Advisory(why=why, review_by=review_by, kind=kind)
     return out
 
 
@@ -1569,6 +1589,12 @@ class Result:
     # between the two files, never a zero. Silence and zero must not look alike;
     # that is the whole reason the scanner prints its known zero.
     advisory: int = 0
+    # The date's kind as declared ("mandate", "default", or "" unlabelled), and
+    # a note when the commit being made moves a mandate's (or an unlabelled)
+    # date LATER than HEAD had it. Always present, empty when there is nothing
+    # to say, so a --json consumer's field set stays comparable (160/450).
+    kind: str = ""
+    date_note: str = ""
 
     @property
     def failed(self) -> bool:
@@ -1744,6 +1770,39 @@ def plan(plane: str, cfg: Config) -> list[tuple[Scanner, str]]:
     return out
 
 
+def moved_later(root: Path, cfg: Config) -> dict[str, str]:
+    """Advisories whose `review-by` this tree moves LATER than HEAD had it, on
+    a date that is a mandate or unlabelled (160/450, DK2). A mandate's date may
+    be tightened and never extended, and nothing else sees the move: the file
+    validates as well-formed either way. The old label decides, so relabelling
+    a mandate `default` in the same edit does not escape. A report, never a
+    block: an unreadable HEAD (no repo, no commit, no such file, an old
+    spelling) yields nothing rather than an error."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "show", f"HEAD:{CONFIG_NAME}"],
+            capture_output=True, text=True, check=False)
+    except OSError:
+        return {}
+    if out.returncode != 0:
+        return {}
+    try:
+        old = _load_advisory(json.loads(out.stdout).get("advisory", {}))
+    except (ValueError, AttributeError, ConfigError):
+        return {}
+    notes: dict[str, str] = {}
+    for name, new in cfg.advisory.items():
+        prev = old.get(name)
+        if not (prev and prev.review_by and new.review_by):
+            continue
+        if new.review_by > prev.review_by and prev.kind != "default":
+            held = prev.kind or "unlabelled, read as a mandate"
+            notes[name] = (f"review-by moved later, {prev.review_by} to "
+                           f"{new.review_by} — the date was a {held}: a "
+                           "child may tighten it, not extend it")
+    return notes
+
+
 def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         json_mode: bool = False) -> list[Result]:
     """Run the plan. In `--json` mode the scanners' own reports are routed to
@@ -1751,6 +1810,7 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
     this must not have to strip nine scanners' prose out of it first."""
     child_stdout = sys.stderr if json_mode else None
     results: list[Result] = []
+    later = moved_later(root, cfg) if plane == "hook" else {}
     for scanner, state in plan(plane, cfg):
         if state == "disabled":
             # `local=` here for the same reason the other four branches carry
@@ -2048,6 +2108,8 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
                        else ""),
             legacy=bool(adv and adv.legacy),
             advisory=advisory_findings,
+            kind=(adv.kind or "" if adv else ""),
+            date_note=(later.get(scanner.name, "") if adv else ""),
         ))
     return results
 
@@ -2116,7 +2178,8 @@ def render(results: list[Result], plane: str) -> str:
         # warn-only check with a shrinking scope says both things.
         warn_note = (WARN_ONLY_NOTE
                      if r.state == "warn-only" and not r.failed else "")
-        said = [s for s in (r.reason, warn_note, r.partial, advisory_note) if s]
+        said = [s for s in (r.reason, warn_note, r.partial, advisory_note,
+                            r.date_note and f"🟡 {r.date_note}") if s]
         note = f"  ({'; '.join(said)})" if said else ""
         if r.state == "advisory":
             if r.legacy:
@@ -2126,7 +2189,8 @@ def render(results: list[Result], plane: str) -> str:
                 # How long it has stood, not just that it stood too long: the
                 # count is what separates "expired on Friday" from "abandoned
                 # in March", and it belongs where a commit is being made (C1F2).
-                note += (f"  [review by {r.review_by}"
+                note += (f"  [{r.kind + ', ' if r.kind else ''}"
+                         f"review by {r.review_by}"
                          + (f" — PASSED, {r.days_over}]" if r.expired
                             else "]"))
         # A local check is marked, not segregated: it blocks the same commit as

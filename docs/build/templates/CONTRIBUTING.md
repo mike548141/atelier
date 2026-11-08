@@ -62,9 +62,15 @@ due — both required:
 ```json
 "advisory": {
   "wrapscan": {"why": "adopting the check; ~60 findings to clear",
-               "review-by": "2026-09-01"}
+               "review-by": "YYYY-MM-DD", "kind": "default"}
 }
 ```
+
+`review-by` is a real date you choose (a passed one reads as abandoned).
+`kind` is optional and says who may move it: `"default"` for a date you set
+for yourself, `"mandate"` where the principal set the date for the whole
+fleet and you may only tighten it. Leave it off and the date reads as a
+mandate.
 
 When the date passes the repo goes **red on the fleet board** and nothing
 blocks — the pressure is visibility, not a broken commit on a date nobody

@@ -272,6 +272,10 @@ class ChildFloor:
     # name -> (why, review-by). Empty strings mean a pre-C1 bare-list
     # declaration, which is exactly what the board needs to show as unmigrated.
     advisory: dict[str, tuple[str, str]] = field(default_factory=dict)
+    # name -> the date's declared kind ("mandate", "default"), present only
+    # where the declaration carries one. A separate map so the tuple above keeps
+    # its shape for every reader of it (160/450).
+    advisory_kind: dict[str, str] = field(default_factory=dict)
     disabled: dict[str, str] = field(default_factory=dict)
     # Checks this repo declares for itself (floor.py's repo-local seam). Read
     # here for the same reason `disabled` is: a rule the estate cannot see is a
@@ -896,6 +900,17 @@ def _advisories(raw: object) -> dict[str, tuple[str, str]]:
     return out
 
 
+def _advisory_kinds(raw: object) -> dict[str, str]:
+    """name -> kind for each advisory that declares a valid one. Read as the
+    config SAYS it, like `_advisories`: a value that is not one of floor.py's
+    two kinds is dropped here (floor.py is what refuses it, where the repo
+    is), so the board never prints a label the rules do not know."""
+    if not isinstance(raw, dict):
+        return {}
+    return {str(name): decl["kind"] for name, decl in raw.items()
+            if isinstance(decl, dict) and decl.get("kind") in floor.DATE_KINDS}
+
+
 def _scope_paths(raw: object) -> dict[str, list[str]]:
     """`scope` as declared, in either C1 spelling: name -> list of paths. The
     A1(b) object form carries a `why` too, which the board does not print — the
@@ -960,6 +975,7 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
     # while applying FS1: every child on this estate happens to carry the file,
     # so the crash path was never walked.
     advisory: dict[str, tuple[str, str]] = {}
+    advisory_kind: dict[str, str] = {}
     disabled: dict[str, str] = {}
     local: dict[str, str] = {}
     scope: dict[str, list[str]] = {}
@@ -991,6 +1007,7 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
                 # where the repo is. Same landing as unparseable JSON.
                 raise ValueError("not a JSON object")
             advisory = _advisories(cfg.get("advisory"))
+            advisory_kind = _advisory_kinds(cfg.get("advisory"))
             scope = _scope_paths(cfg.get("scope"))
             flags = _flag_args(cfg.get("flags"))
             raw_docs = cfg.get("docs")
@@ -1010,7 +1027,8 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
 
     return ChildFloor(name=repo.name, path=str(repo), state=state, detail=detail,
                       hook=hook_state(repo), shim=shim_state(read, repo),
-                      advisory=advisory, disabled=disabled, local=local,
+                      advisory=advisory, advisory_kind=advisory_kind,
+                      disabled=disabled, local=local,
                       scope=scope, flags=flags, docs=docs)
 
 
@@ -1332,6 +1350,15 @@ def render(infos: list[ChildFloor], remote: bool, status: bool = False,
             else:
                 lines.append(
                     f"      ⚠️  {name} advisory until {review_by} — {why}")
+            # The date's kind, beside the date (160/450). Unlabelled is said
+            # aloud rather than left blank, because blank reads as "no one
+            # asked" and the rule is that it reads as a mandate until asked.
+            if review_by:
+                kind = i.advisory_kind.get(name)
+                lines.append(
+                    f"         {kind} date" if kind else
+                    "         date kind not recorded — reads as a mandate "
+                    "until the principal says")
         for name, why in i.disabled.items():
             lines.append(f"      ⏭  {name} disabled — {why}")
         for name, why in i.local.items():

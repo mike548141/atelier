@@ -2183,3 +2183,7 @@ python3 tools/coldsweep.py --selftest
 
 Exit codes follow `grep` so it drops into a pipeline: **0** matched, **1** no
 match, **2** the search itself failed. A broken sweep is not a clean one.
+
+An `--also-exclude` that matches no file prints a warning on stderr and changes
+nothing else: a bar that bars nothing is how a brief once named a path that never
+existed while the prose declared the bar (160/450, DK9).

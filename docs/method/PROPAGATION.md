@@ -364,6 +364,10 @@ computed by an engine, so the rule is a discipline:
   or the child is (fix the child). Silence is the one disallowed resolution.
 - On a live collision, the **stricter/safer** reading wins until the conflict is
   resolved upward. Children point up; the parent never points down for truth.
+- A later date on a **default** is a ruled looseness, not drift; a later date
+  on a **mandate** is the defect, unless the principal grants the exemption and
+  it is recorded in the child. `GUARDS.md` § *Who may move a deferment's date*
+  says which is which; an unlabelled date reads as a mandate.
 
 ### Who is a child, and what a child may hold (Mike's ruling, 2026-08-09)
 
