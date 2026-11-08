@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-08-1059, wt: atelier-rr-722a-950)
-      🎯 **Rule-4 cold pass queued: the staged-positional reader the three
+- [ ] 🎯 **Rule-4 cold pass queued: the staged-positional reader the three
       staged-diff guards share (`115/360`).** Guard code, doctrine by
       function: a clean `--staged` scan is read as "nothing barred was
       staged". So the authoring session (a Mike-opened Opus 5.5 queue run,
@@ -89,3 +88,19 @@
       `test_pins.py`), and accept **TOP-UP SUFFICES** with no full laptop
       re-run. The application is to queue a Fable re-check, which waits for
       his approval as usual (a MAJOR stood in the pass).
+      ✅ **APPLIED 2026-11-09** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing), per Mike's answer above: QS1/QS2 —
+      `tools/report.py` `resolve_staged_scope` lets git resolve each staged
+      positional as a literal root-anchored pathspec and refuses (exit 2) one
+      git does not know, so a case or Unicode variant can no longer pass a
+      staged secret; QS3–QS11, QU1 and QU3 (the `test_pins.py` bound is now a
+      600 s hang guard) as counselled; QS11's narrower truth is on the
+      `115/360` record. Fail-before shown for every code finding; full suite
+      2402 OK. Probed before landing: every declared `scope` path in the five
+      children that declare one is tracked, so none goes red. **Two calls for
+      him:** the reader also reaches five other scanners (`datescan`,
+      `sizescan`, `spellscan`, `reviewscan`, `wrapscan`), which now refuse an
+      unknown scope too; and a declared scope directory that exists but holds
+      no tracked file now blocks the commit (exit 2). QU2's other two
+      findings stay with the `970` pointer and the exception register. A
+      MAJOR stood, so the application's cold pass is queued as `160/1070`.
