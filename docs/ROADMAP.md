@@ -59,7 +59,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await…](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
 - [ ] 🎯 [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
 - [ ] 🎯 [(b) The half with no owner: doctrine that reaches the moment of…](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
-- [~] (claimed 2026-11-09-0120, wt: atelier-rr-722a-240) [The posture change this implies…](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
+- ✅ 🎯 [The posture change this implies — stated so it is ruled, not assumed.](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
 - ✅ [The REPO-plane numbers are still unruled](roadmap/020-policy-as-code-programme-five-tracks-mik/260-the-repo-plane-numbers-are-still-unruled.md)
 - [ ] [Carry P5's finding into part (b).](roadmap/020-policy-as-code-programme-five-tracks-mik/270-carry-p5-s-finding-into-part-b.md)
@@ -355,6 +355,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: G3 records who and when on every manifest…](roadmap/160-doctrine-review-owed/1080-rule-4-cold-pass-queued-g3-who-when-and-gate-order.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a private repo's state goes by type in…](roadmap/160-doctrine-review-owed/1090-rule-4-cold-pass-queued-private-state-type-only.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the principal speaks through three channels…](roadmap/160-doctrine-review-owed/1100-rule-4-cold-pass-queued-three-channels.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the ladder gains a floor: framing always, a…](roadmap/160-doctrine-review-owed/1110-rule-4-cold-pass-queued-ladder-floor.md)
 
 ## build/ layer — open strands
 
