@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bi)
-      🎯 **Rule-4 cold pass queued: the index projects the logical first
+- [x] 🎯 **Rule-4 cold pass queued: the index projects the logical first
       paragraph, with a dated grace for children (`010/170`).** `board`
       blocks in every child's CI and cannot be softened, and this change
       both alters what every child's index must contain and adds a dated
@@ -75,3 +74,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: PP1–PP10 as counselled (PP2 by carrying the marker); PP11 and PQ1 are carried on `010/190`; PQ2 is filed as `210/390`; PQ3 was already closed by `160/950`'s QU3.
+      No serious finding stood, so the cycle closes here.

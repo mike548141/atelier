@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bi)
-      🎯 **Rule-4 cold pass queued: cctranscript's first-prompt prefix read
+- [x] 🎯 **Rule-4 cold pass queued: cctranscript's first-prompt prefix read
       (`210/180`).** The run authored this itself (its dispatched worker's
       output counts as the run's authorship). It is queued at landing, and the
       run neither takes it nor spawns a reviewer for it. *Tier:* Fable, the
@@ -47,3 +46,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: FP1–FP7, FP9 as counselled; counsel (iii), a marked row when the fallback throws, was optional and not taken.
+      No serious finding stood, so the cycle closes here.

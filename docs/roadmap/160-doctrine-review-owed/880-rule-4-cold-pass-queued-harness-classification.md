@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0300, wt: atelier-rr-722a-bi)
-      🎯 **Rule-4 cold pass queued: cctranscript's harness classification
+- [x] 🎯 **Rule-4 cold pass queued: cctranscript's harness classification
       (`210/250`).** The run authored this itself (its dispatched worker's
       output counts as the run's authorship). It is queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -60,3 +59,6 @@
       written on this item and sixteen others with no serious finding, each
       closing when applied, with no new Fable re-check; scanner changes
       tested against every child before landing.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+      read by the orchestrator before landing), per his bulk approval: HC1, HC3–HC5, HC11, HC12 as counselled; HC2's census is recorded; HC7–HC10 are notes.
+      No serious finding stood, so the cycle closes here.
