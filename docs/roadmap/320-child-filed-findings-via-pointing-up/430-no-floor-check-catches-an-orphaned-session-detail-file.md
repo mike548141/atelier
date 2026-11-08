@@ -62,3 +62,18 @@
       the tool says that rather than guessing. That is the disposition for
       the rest of this item. 0 findings here and 0 in the siblings, so it
       is a tripwire, not a find. Review queued at `160/810`.
+
+      🔎 **Recorded 2026-11-09, from the cold pass at `160/810` (DM13, DM14).**
+      This item was closed on the author's own narrowing of what it asked
+      for: "date or slug disagrees" became "earlier only, never slug", and
+      "no further work is owed" was written as its disposition. No ruling of
+      the principal's on that narrowing was recorded, and none is claimed
+      here. The reviewer found the narrowing sound on the evidence and
+      endorsed its substance; what is open is the close, which is the
+      principal's to confirm. **A one-line ruling is still owed: accept the
+      narrowing and leave this closed, or keep the slug half open.** Separately,
+      the grounding counts above mix two populations. "16 of 252" does not
+      reproduce: over the dated session lines that link a dated entry, the
+      index at the delta's parent held 242, of which 14 were later than their
+      file (8 by date, 6 by time) and none earlier. The direction holds in
+      every count.

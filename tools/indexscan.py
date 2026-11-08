@@ -47,7 +47,10 @@ declaration is a whole-line HTML comment, invisible when rendered:
             an entry whose name STARTS with an ISO date earlier than this is
             blameless. Records written before the index was kept are not made
             to come clean by rewriting history. An entry with no leading date
-            is never excluded by `before=`.
+            is never excluded by `before=`. It scopes BOTH rules: such an entry
+            is not owed a line, and a line that links it is not date-checked
+            (every remedy for a misdated line edits it, and the record is
+            append-only), counted under `by_before` when it would have fired.
 
 Several declarations in one index are allowed (one per directory it maps).
 
@@ -76,6 +79,14 @@ the line is dated EARLIER than the file it links: a line cannot describe a
 file that did not yet exist. Same date: an exact time earlier than the file's
 `HHMM` start fires likewise; an approximate (`~`) time is never compared.
 
+THE GRAMMAR, positively (what is read; anything else is not). An item is read
+only if it is `- [YYYY-MM-DD[ · [~]HHMM UTC] …](dest)` at three spaces of
+indent or fewer, with a real date, a bullet or an ordered-list marker, and
+`dest` landing on a dated entry of a declared directory outside a fence. A
+time written any other way (`14:30`, `UTC+12`, an ISO `T…Z` stamp) is NOT a
+time to this rule: the date alone is checked and the rest is dropped. The
+tally counts the lines it judged, which excludes an impossible date.
+
 WHY "NOT EARLIER" AND NOT "EQUAL" (the grounding, not a guess). The real
 session index has many lines whose date or time is LATER than the file they
 link, legitimately: an addendum line appended when a later ruling was applied
@@ -87,8 +98,24 @@ never true of a real entry, so it is the only direction checked.
 WHAT THE DATE RULE CANNOT SEE: a line dated too LATE (indistinguishable from
 an addendum); the SLUG — the link text is free prose, with nothing in it to
 compare against the filename, so slug drift is NOT checked and no heuristic
-stands in for it; list items whose link is not the leading token; table rows.
-It does not check whether the rest of the line is true, either.
+stands in for it; list items whose link is not the leading token; table rows;
+reference-style links; items nested four or more spaces; blockquoted items and
+headings; text that opens with emphasis or a glyph; an ISO `T…Z` stamp; a time
+labelled with an offset, which is read as plain UTC; a four-digit counter in
+the time slot, read as a time; a marker past the 1 MiB chunk cut. It does not
+check whether the rest of the line is true, either.
+
+THREATS, for the new surface (160/810 DM9). The index and the entry names are
+the inputs; a hostile index is the case that matters in a public repo. What
+reaches a log is the index path, a line number, an entry's name from the
+directory walk, and dates captured by digit patterns: no other index text is echoed, so
+a finding cannot carry a forged workflow command (every line is indented, and
+`floor.py` escapes what it annotates). A hostile index cannot make the scan
+read outside `--root` (`dir=` is refused, destinations are normalised and never
+opened), cannot silence another guard (every marker is word-anchored to this
+scanner's name), and cannot cost more than linear time (anchored patterns,
+bounded lines, a finding cap). The residual is that a marker in the index
+exempts what it names, which is what markers are for and is counted.
 
 EXEMPTIONS — fail noisy, then subtract (`method/GUARDS.md` rule b). Every
 subtraction is counted on the summary line, known zeros included:
@@ -103,10 +130,19 @@ subtraction is counted on the summary line, known zeros included:
     `stale-allow`: an exemption that outlived its cause is drift too.
     That form is for `unlisted`. A `date-mismatch` takes its own scoped form,
     on the offending line itself (the narrowest unit — one line, not every
-    line that names the entry):
+    line that names the entry), AFTER the link:
         <!-- indexscan:allow:date-mismatch: <entry> <reason> -->
     where `<entry>` is the name the line links. On any other line, or naming
-    another entry, it exempts nothing and is reported `stale-allow`.
+    another entry, it exempts nothing and is reported `stale-allow`. A marker
+    placed BEFORE the link stops the line being a leading link at all.
+    Any other scope (a mistyped kind, `slug:`) exempts nothing and is reported
+    `stale-allow` (160/810 DM2; the older shared grammar read it as an entry
+    name and exempted nothing, and the first version of the date rule widened
+    it into an `unlisted` exemption). The summary line breaks the marker count
+    down by what each exempted.
+    A marker quoted FILLED IN inside a code span is live (fences are skipped,
+    code spans are not): quote the syntax with `<entry> <reason>` placeholders,
+    which are never read as a marker.
   * `exclude=` / `before=` on the declaration are SCOPE, not exemptions: the
     declarer saying what the index answers for. Like `scope` on a softenable
     floor check they need no reason; they are counted all the same.
@@ -147,6 +183,7 @@ import sys
 import urllib.parse
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Sequence
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
@@ -227,12 +264,20 @@ class Tally:
     declarations: int = 0
     entries: int = 0
     by_marker: int = 0
+    by_marker_kind: dict[str, int] = field(default_factory=dict)
     by_exclude: int = 0
     by_before: int = 0
     files_by_glob: int = 0
     dated_lines: int = 0
     findings_over_cap: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
+
+    def note_marker(self, kind: str) -> None:
+        """One exemption by an allow-marker, counted in the total and by what
+        it exempted (`unlisted` or `date-mismatch`, 160/810 DM12): the total
+        alone could not say whether any date finding was being exempted."""
+        self.by_marker += 1
+        self.by_marker_kind[kind] = self.by_marker_kind.get(kind, 0) + 1
 
     def take_finding_slot(self) -> bool:
         if self._materialized < MAX_MATERIALIZED_FINDINGS:
@@ -251,7 +296,8 @@ class Tally:
                      f"{self.by_before} by before=",
                      f"{self.files_by_glob} file(s) by .indexscanignore",
                      report.cap_part(self.findings_over_cap,
-                                     MAX_MATERIALIZED_FINDINGS)]))
+                                     MAX_MATERIALIZED_FINDINGS)],
+                    breakdown=self.by_marker_kind))
 
 
 def parse_allow(line: str) -> tuple[str, str] | None:
@@ -379,10 +425,17 @@ def _parse_decl(text: str, lineno: int, index_rel: str) -> Decl:
     return Decl(index_rel, lineno, mapped, globs("match"), globs("exclude"), before)
 
 
-def discover(path: Path, index_rel: str) -> tuple[list[Decl], dict[str, int]]:
-    """Pass 1 over one Markdown file: its declarations and allow markers."""
+def discover(path: Path, index_rel: str
+             ) -> tuple[list[Decl], dict[str, int], list[tuple[int, str, str]]]:
+    """Pass 1 over one Markdown file: its declarations, its unscoped allow
+    markers (entry -> line) and the markers whose scope names a kind this
+    scanner does not have, as `(line, kind, entry)`. Those exempt nothing and
+    are reported `stale-allow` (160/810 DM2): the rule-matching scanners
+    already read an unknown scope that way, and indexscan has no live scoped
+    marker to protect, so there is no reason to widen it."""
     decls: list[Decl] = []
     allows: dict[str, int] = {}
+    unknown: list[tuple[int, str, str]] = []
     for lineno, text, at_start in _unfenced(path):
         if "indexscan:" not in text:
             continue
@@ -390,9 +443,13 @@ def discover(path: Path, index_rel: str) -> tuple[list[Decl], dict[str, int]]:
             decls.append(_parse_decl(text, lineno, index_rel))
             continue
         hit = parse_allow_scoped(text)
-        if hit is not None and hit[0] != DATE_KIND:   # that form is line-bound
+        if hit is None or hit[0] == DATE_KIND:   # that form is line-bound
+            continue
+        if hit[0]:
+            unknown.append((lineno, hit[0], hit[1]))
+        else:
             allows.setdefault(hit[1], lineno)
-    return decls, allows
+    return decls, allows, unknown
 
 
 def _entries(root: Path, mapped: str) -> set[str] | None:
@@ -464,10 +521,12 @@ def _real_date(iso: str) -> bool:
     return True
 
 
-def _entry_path(dest: str, index_dir: str, decls: list[Decl]) -> str | None:
+def _entry_path(dest: str, index_dir: str, decls: list[Decl]
+                ) -> tuple[str, Decl] | None:
     """The repo-relative path of the declared-directory entry a link
-    destination lands on (the file, or the subdirectory it is inside),
-    honouring `match=` and `exclude=`; None if it lands on none."""
+    destination lands on (the file, or the subdirectory it is inside) and the
+    declaration that answers for it, honouring `match=` and `exclude=`; None
+    if it lands on none."""
     if SCHEME_RX.match(dest) or dest.startswith(("#", "//")):
         return None
     dest = urllib.parse.unquote(dest.split("#", 1)[0].split("?", 1)[0])
@@ -486,34 +545,52 @@ def _entry_path(dest: str, index_dir: str, decls: list[Decl]) -> str | None:
         name = rest.split("/", 1)[0]
         if name and any(fnmatch.fnmatchcase(name, g) for g in d.match) \
                 and not any(fnmatch.fnmatchcase(name, g) for g in d.exclude):
-            return f"{d.dir}/{name}" if d.dir else name
+            return (f"{d.dir}/{name}" if d.dir else name), d
     return None
 
 
-def _misdated(text: str, name: str) -> str | None:
-    """Why a dated link text cannot be true of the dated entry it links, or
-    None. Only 'the line predates the file' counts (see THE DATE RULE)."""
+def _misdated(text: str, name: str) -> tuple[bool, str | None]:
+    """`(compared, why)`: whether the line's date was a real one the rule could
+    judge, and why it cannot be true of the dated entry it links (None if it
+    can). Only 'the line predates the file' counts (see THE DATE RULE).
+    `compared` is False for an impossible date on either side, so the tally
+    counts what was judged, not what looked dated (160/810 DM3)."""
     t, n = TEXT_STAMP_RX.match(text), NAME_STAMP_RX.match(name)
     if not t or not n or not _real_date(t["date"]) or not _real_date(n["date"]):
-        return None
+        return False, None
     if t["date"] < n["date"]:
-        return (f"the line is dated {t['date']} but the file it links begins "
-                f"{n['date']} — an entry cannot predate its file; fix the "
-                "line's date or its link")
+        return True, (
+            f"the line is dated {t['date']} but the file it links begins "
+            f"{n['date']} — an entry cannot predate its file. " + _REMEDY)
     if t["date"] == n["date"] and t["time"] and not t["approx"]:
         lt, ln = _clock(t["time"]), _clock(n["time"])
         if lt is not None and ln is not None and lt < ln:
-            return (f"the line says {t['time']} UTC but the file it links "
-                    f"begins {n['time']} UTC the same day — an entry cannot "
-                    "predate its file; fix the line's time or its link")
-    return None
+            return True, (
+                f"the line says {t['time']} UTC but the file it links "
+                f"begins {n['time']} UTC the same day — an entry cannot "
+                "predate its file. " + _REMEDY)
+    return True, None
+
+
+# The three real causes of a misdated line, named so that the reader does not
+# change a true stamp to fit a misnamed file (160/810 DM6): the line's stamp is
+# wrong, its link is wrong, or the FILE is named by its creation time rather
+# than the session's start (`RECORD.md`) and the line is the true one.
+_REMEDY = ("Either the line's stamp is wrong, or its link is, or the file is "
+           "named by its creation time rather than the session's start (then "
+           "the line is true and the file is misnamed). Otherwise append "
+           "'<!-- {marker}:{kind}: {{name}} <reason> -->' AFTER the link on "
+           "that line").format(marker=ALLOW_MARKER, kind=DATE_KIND)
 
 
 def check_dates(path: Path, index_rel: str, decls: list[Decl],
                 tally: Tally) -> list[Finding]:
     """Pass 3 (THE DATE RULE): one streaming read; holds nothing but the
     findings. A line-bound `date-mismatch` marker is consumed here too, so a
-    marker that exempted nothing is reported as stale."""
+    marker that exempted nothing is reported as stale. A line that links an
+    entry `before=` calls blameless is not judged (it is counted under
+    `by_before` when it would have fired), because every remedy for it edits
+    a frozen record (160/810 DM1)."""
     findings: list[Finding] = []
     index_dir = posixpath.dirname(index_rel)
     for lineno, text, at_start in _unfenced(path):
@@ -528,12 +605,20 @@ def check_dates(path: Path, index_rel: str, decls: list[Decl],
         name = ""
         m = LEAD_LINK_RX.match(text)
         if m:
-            entry = _entry_path(m["dest"], index_dir, decls)
+            found = _entry_path(m["dest"], index_dir, decls)
+            entry, decl = found if found else (None, None)
             name = posixpath.basename(entry) if entry else ""
             if entry is not None and NAME_STAMP_RX.match(name) \
                     and TEXT_STAMP_RX.match(m["text"]):
-                tally.dated_lines += 1
-                why = _misdated(m["text"], name)
+                compared, why = _misdated(m["text"], name)
+                lead = LEADING_DATE_RX.match(name)
+                if decl.before and lead and lead.group(1) < decl.before:
+                    # Frozen: blameless, as for `unlisted`. Not compared.
+                    if why is not None:
+                        tally.by_before += 1
+                    why = None
+                elif compared:
+                    tally.dated_lines += 1
         if why is None:
             if marker is not None:
                 _add(findings, tally, Finding(
@@ -542,7 +627,7 @@ def check_dates(path: Path, index_rel: str, decls: list[Decl],
                     "not a misdated link to that entry — remove it"))
             continue
         if marker is not None and marker == name:
-            tally.by_marker += 1
+            tally.note_marker(DATE_KIND)
             continue
         if marker is not None:
             _add(findings, tally, Finding(
@@ -551,8 +636,7 @@ def check_dates(path: Path, index_rel: str, decls: list[Decl],
                 f"links {name!r} — it exempts nothing"))
         _add(findings, tally, Finding(
             index_rel, lineno, DATE_KIND, entry,
-            why + f"; or mark that line '<!-- {ALLOW_MARKER}:{DATE_KIND}: "
-            f"{name} <reason> -->'"))
+            why.replace("{name}", name)))
     return findings
 
 
@@ -586,7 +670,8 @@ def _add(findings: list[Finding], tally: Tally, f: Finding) -> None:
 
 
 def check_index(path: Path, index_rel: str, decls: list[Decl],
-                allows: dict[str, int], root: Path, tally: Tally) -> list[Finding]:
+                allows: dict[str, int], root: Path, tally: Tally,
+                unknown: "Sequence[tuple[int, str, str]]" = ()) -> list[Finding]:
     findings: list[Finding] = []
     tally.indexes += 1
     candidates: dict[str, Decl] = {}       # repo-relative entry -> its declaration
@@ -622,7 +707,7 @@ def check_index(path: Path, index_rel: str, decls: list[Decl],
             continue
         name = posixpath.basename(entry)
         if name in allows:
-            tally.by_marker += 1
+            tally.note_marker("unlisted")
             used.add(name)
             continue
         _add(findings, tally, Finding(
@@ -631,6 +716,12 @@ def check_index(path: Path, index_rel: str, decls: list[Decl],
             "line, widen exclude=, or mark it "
             f"'<!-- {ALLOW_MARKER}: {name} <reason> -->'"))
     findings.extend(check_dates(path, index_rel, decls, tally))
+    for line, kind, name in unknown:
+        _add(findings, tally, Finding(
+            index_rel, line, "stale-allow", name,
+            f"this marker's scope {kind!r} names no kind indexscan has — it "
+            f"exempts nothing; the unscoped form exempts an unlisted entry, "
+            f"'{DATE_KIND}:' a misdated line — fix the scope or remove it"))
     for name, line in sorted(allows.items(), key=lambda kv: kv[1]):
         if name not in used:
             _add(findings, tally, Finding(
@@ -644,10 +735,11 @@ def scan_paths(paths: list[Path], root: Path, tally: Tally) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
     for p, rel in _index_files(paths, root, globs, tally):
-        decls, allows = discover(p, rel)
+        decls, allows, unknown = discover(p, rel)
         if not decls:
             continue
-        findings.extend(check_index(p, rel, decls, allows, root, tally))
+        findings.extend(check_index(p, rel, decls, allows, root, tally,
+                                    unknown))
     return findings
 
 
@@ -725,6 +817,8 @@ def _main(argv: list[str] | None = None) -> int:
                         "entries": tally.entries,
                         "dated_lines": tally.dated_lines},
             "suppressed": {"by_allow_marker": tally.by_marker,
+                           "by_allow_marker_kind": dict(
+                               sorted(tally.by_marker_kind.items())),
                            "by_exclude": tally.by_exclude,
                            "by_before": tally.by_before,
                            "files_by_ignore_glob": tally.files_by_glob},

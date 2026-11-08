@@ -755,7 +755,10 @@ SCANNERS: tuple[Scanner, ...] = (
         "indexscan",
         # 200/010, option C as ruled: one generic check that a hand-maintained
         # index names every entry of the directory it maps (the UNLISTED
-        # direction; listed-but-missing stays linkscan's and pathscan's).
+        # direction; listed-but-missing stays linkscan's and pathscan's), and
+        # that no dated index line predates the file it links (the date rule,
+        # `320/430`: the `why` below is what `--list` and a CI annotation print,
+        # so it names both).
         # OPT-IN PER INDEX — an index with no `indexscan:maps` declaration is
         # never read as one, so this line reaches every child on its next run
         # and checks nothing there until the child declares an index
@@ -768,7 +771,8 @@ SCANNERS: tuple[Scanner, ...] = (
         hook=["--warn", "--root", "{root}", "{scope}"],
         ci=["--warn", "--root", "{root}", "{scope}"],
         advisory=["--warn", "--root", "{root}", "{scope}"],
-        why="a hand-maintained index names every file in the directory it maps",
+        why="a hand-maintained index names every file in the directory it "
+            "maps, and no dated line predates the file it links",
         # Fourth requirement (GUARDS.md, declared; its registry slot is not
         # built yet, `115/120`): MAKES THE FAILURE CHEAP. An unlisted file
         # still commits; the guard names the drift when the fix is one line.

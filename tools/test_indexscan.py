@@ -130,8 +130,8 @@ class Unlisted(Fixture):
         self.assertFalse(doc["clean"])
         self.assertEqual(doc["checked"]["declarations"], 1)
         self.assertEqual(set(doc["suppressed"]),
-                         {"by_allow_marker", "by_exclude", "by_before",
-                          "files_by_ignore_glob"})
+                         {"by_allow_marker", "by_allow_marker_kind",
+                          "by_exclude", "by_before", "files_by_ignore_glob"})
 
     def test_ignored_files_inside_git_are_not_entries(self):
         """The shared walk is git-aware: a gitignored file can never be
@@ -338,6 +338,73 @@ class DateRule(Fixture):
         self.assertEqual(got, [("date-mismatch", "d/log/2026-07-14-1200-x.md"),
                                ("stale-allow", "2026-07-14-1200-x.md")])
 
+    def test_before_scopes_the_date_rule_and_counts_what_it_excused(self):
+        # 160/810 DM1: a frozen entry is blameless for `unlisted`, and every
+        # remedy for a misdated line edits it, so it is blameless here too.
+        self.index("- [2026-07-01 · t](log/2026-07-14-1200-x.md)",
+                   decl="<!-- indexscan:maps dir=log match=*.md "
+                        "before=2026-08-01 -->\n")
+        got, tally = self.dates()
+        self.assertEqual(got, [])
+        self.assertEqual(tally.by_before, 2)   # the entry, and the line
+        self.assertEqual(tally.dated_lines, 0)  # a frozen line is not compared
+
+    def test_before_does_not_excuse_a_later_entry(self):
+        self.index("- [2026-07-01 · t](log/2026-07-14-1200-x.md)",
+                   decl="<!-- indexscan:maps dir=log match=*.md "
+                        "before=2026-07-14 -->\n")
+        self.assertEqual(self.dates()[0],
+                         [("date-mismatch", "d/log/2026-07-14-1200-x.md")])
+
+    def test_an_unknown_marker_kind_exempts_nothing(self):
+        # 160/810 DM2: the first version of the date rule read any kind other
+        # than `date-mismatch` as an `unlisted` exemption.
+        self.write("d/log/a.md")
+        self.write("d/log/b.md")
+        self.write("d/I.md", "# i\n" + self.DECL + "[a](log/a.md)\n"
+                   "<!-- indexscan:allow:slug: b.md a mistyped scope -->\n")
+        got, tally = self.scan()
+        self.assertEqual(got, [("stale-allow", "b.md"),
+                               ("unlisted", "d/log/b.md")])
+        self.assertEqual(tally.by_marker, 0)
+
+    def test_a_differently_cased_kind_is_unknown_too(self):
+        self.index("- [2026-07-01 · t](log/2026-07-14-1200-x.md) "
+                   "<!-- indexscan:allow:Date-Mismatch: 2026-07-14-1200-x.md r -->")
+        got, tally = self.dates()
+        self.assertEqual(got, [("date-mismatch", "d/log/2026-07-14-1200-x.md"),
+                               ("stale-allow", "2026-07-14-1200-x.md")])
+        self.assertEqual(tally.by_marker, 0)
+
+    def test_an_impossible_date_is_not_counted_as_compared(self):
+        # 160/810 DM3.
+        self.index("- [2026-13-45 · junk](log/2026-07-14-1200-x.md)")
+        self.assertEqual(self.dates()[1].dated_lines, 0)
+
+    def test_the_marker_count_says_what_each_marker_exempted(self):
+        # 160/810 DM12.
+        self.write("d/log/2026-07-14-1200-x.md")
+        self.write("d/log/o.md")
+        self.write("d/I.md", "# i\n" + self.DECL +
+                   "<!-- indexscan:allow: o.md owed -->\n"
+                   "- [2026-07-01 · t](log/2026-07-14-1200-x.md) "
+                   "<!-- indexscan:allow:date-mismatch: 2026-07-14-1200-x.md r -->\n")
+        code, out, _ = run(["--root", str(self.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("2 by allow-marker", out)
+        self.assertIn("allow-marker breakdown: date-mismatch×1, unlisted×1", out)
+        doc = json.loads(run(["--json", "--root", str(self.root)])[1])
+        self.assertEqual({"date-mismatch": 1, "unlisted": 1},
+                         doc["suppressed"]["by_allow_marker_kind"])
+
+    def test_the_finding_names_the_three_causes_and_where_the_marker_goes(self):
+        self.index("- [2026-07-01 · t](log/2026-07-14-1200-x.md)")
+        code, out, _ = run(["--root", str(self.root)])
+        self.assertIn("the file is named by its creation time", out)
+        self.assertIn("AFTER the link", out)
+        self.assertIn("indexscan:allow:date-mismatch: 2026-07-14-1200-x.md",
+                      out)
+
     def test_the_cap_holds_and_is_counted(self):
         self.index(*[f"- [2026-07-01 · {i}](log/2026-07-14-1200-x.md)"
                      for i in range(5)])
@@ -479,7 +546,7 @@ class AtelierAdoption(unittest.TestCase):
         for rel in ("docs/decisions/README.md", "tools/README.md",
                     "instruments/README.md", "docs/SESSIONS.md"):
             with self.subTest(index=rel):
-                decls, _ = indexscan.discover(repo / rel, rel)
+                decls, _, _ = indexscan.discover(repo / rel, rel)
                 self.assertTrue(decls, f"{rel} carries no indexscan:maps line")
 
 

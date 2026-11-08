@@ -1630,10 +1630,12 @@ maps) and must stay inside `--root`. `match=` and `exclude=` are
 comma-separated globs on each **entry's name**; an entry is a file or a
 subdirectory directly inside `dir`, so an instrument that is a folder is one
 entry. `before=` is the frozen-record precedent: an entry whose name starts
-with an ISO date earlier than it is blameless. The index file itself is always
-excluded. A file with no declaration is never checked, so the scanner cannot
-red a repo that has not declared one — an undeclared tree prints that it
-checked nothing and exits 0.
+with an ISO date earlier than it is blameless, both for being listed and for the
+date rule below (a line that links one is not date-checked, and counts under
+`by_before` when it would have fired, because every remedy for it edits a frozen
+record). The index file itself is always excluded. A file with no declaration is
+never checked, so the scanner cannot red a repo that has not declared one — an
+undeclared tree prints that it checked nothing and exits 0.
 
 **Listed** means a Markdown link (inline or a reference definition) resolving
 to the entry or into it, or an inline code span (whole, or its first word)
@@ -1661,7 +1663,13 @@ whose target is a date-named entry of a declared directory, and flags the line
 if it is dated **earlier** than the file: an entry cannot predate the file it
 describes. On the same date, an exact time earlier than the file's `-HHMM-`
 start fires too; an approximate `~HHMM` is never compared. An index whose lines
-carry no dates is never touched.
+carry no dates is never touched. Stated positively, the item it reads is
+`- [YYYY-MM-DD[ · [~]HHMM UTC] …](dest)` at three spaces of indent or fewer,
+with a real date, and `dest` landing on a dated entry outside a fence; anything
+else is not read. A time written another way (`14:30`, `UTC+12`, an ISO
+`T…Z` stamp) is not a time to this rule: the date alone is checked. The "dated
+lines compared" count is the lines it judged, so an impossible date is not in
+it.
 
 It checks "not earlier", not "equal", on evidence: atelier's session index has
 many lines legitimately *later* than their file — addendum lines appended after
@@ -1669,13 +1677,25 @@ a later ruling, and entries stamped at session close — so an equality rule
 fires on all of them. **The slug is not checked at all**: link text is free
 prose with nothing crisp to compare against the filename, and a heuristic there
 would cry wolf. Also unseen: a line dated too *late* (it reads as an addendum),
-a link that is not the item's leading token, and table rows.
+a link that is not the item's leading token, table rows, reference-style
+links, items nested four or more spaces, blockquoted items and headings, text
+that opens with emphasis or a glyph, a four-digit counter in the time slot
+(read as a time), and a marker past the 1 MiB chunk cut.
 
 A deliberate exception is marked **on the offending line**, the narrowest unit,
 in its own scoped form: `<!-- indexscan:allow:date-mismatch: <entry> <reason> -->`
-with the entry's name. Anywhere else, or naming another entry, it exempts
-nothing and is reported `stale-allow`. The earlier unscoped marker still
-exempts an *unlisted* entry only; it never silences a date finding.
+with the entry's name, appended **after the link** (a marker placed before it
+stops the line being a leading link at all). Anywhere else, or naming another
+entry, it exempts nothing and is reported `stale-allow`. The earlier unscoped
+marker still exempts an *unlisted* entry only; it never silences a date
+finding. **A marker with any other scope exempts nothing** and is reported
+`stale-allow` (`160/810`): a mistyped kind or `Date-Mismatch:` is not an
+exemption. The date finding names the three real causes of a misdated line, so
+a true stamp is not changed to fit a misnamed file: the line's stamp is wrong,
+its link is wrong, or the file is named by its creation time rather than the
+session's start. The summary line breaks the marker count down by what each
+exempted. Quote the marker syntax with `<entry> <reason>` placeholders: fences
+are skipped but code spans are not, so a marker quoted filled in is live.
 
 **Fourth requirement — declared: makes the failure cheap.** It forbids
 nothing: an unlisted file still commits, and whether a file belongs in an index
