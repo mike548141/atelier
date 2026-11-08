@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
-      🎯 **No doctrine says which mechanism a new need should take — four are
+- [x] 🎯 **No doctrine says which mechanism a new need should take — four are
       already in use by precedent, none by rule.**
   - [ ] 🔑 **What's actually in play, named so the question is checkable.**
         At least six mechanisms exist in this estate today: a **policy-as-code
@@ -58,3 +57,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: write a one-page decision guide on the four axes.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): the new `docs/method/MECHANISMS.md`, indexed in both READMEs. Cold pass
+        queued as `160/1150`.

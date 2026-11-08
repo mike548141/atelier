@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
-      🎯 **Decide whether "make the instrument show a positive first" earns a
+- [x] 🎯 **Decide whether "make the instrument show a positive first" earns a
       line, and whether this sits inside `370` or beside it.** The narrative
       argues *beside*: `370`'s remedy is to re-read the report against the
       artefacts, and that remedy is unavailable when the failure IS the absence
@@ -55,3 +54,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: adopt "show a positive control first" as its own rule, mandatory where a negative authorises an irreversible act.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `EVIDENCE.md` §18, mandatory where a negative authorises an irreversible act. Cold pass
+        queued as `160/1150`.

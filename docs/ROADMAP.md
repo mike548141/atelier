@@ -70,7 +70,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [linkscan's reference-style blindness — FIXED 2026-08-23](roadmap/020-policy-as-code-programme-five-tracks-mik/320-linkscan-is-blind-to-reference-style-link-des.md)
 - ✅ [The 2026-08-09 measurement checked for the three-channel blind spot —…](roadmap/020-policy-as-code-programme-five-tracks-mik/330-the-2026-08-09-measurement-checked-for-the-blind-spot.md)
 - ✅ [Pin the three softenable-set prose lists to Scanner.advisory (AP2,…](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [The bidi / zero-width spoofing…](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
+- ✅ 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept (FR3's…](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
 - ✅ 🎯 [Remove plainscan: the reply hook destroyed, the engine archived](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
 - ✅ 🔥 [DEFECT — secretscan's memory grows with what it scans: ~9 GB over one…](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
 - ✅ 🔥 [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
@@ -360,6 +360,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: personal data in a public repo is one closed…](roadmap/160-doctrine-review-owed/1120-rule-4-cold-pass-queued-personal-data-closed-list.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the exception-register design, redrafted on…](roadmap/160-doctrine-review-owed/1130-rule-4-cold-pass-queued-exception-register-redraft.md)
 - [ ] ⏳ [Rule-4 cold pass queued: five session-doctrine additions the…](roadmap/160-doctrine-review-owed/1140-rule-4-cold-pass-queued-session-doctrine-batch.md)
+- [ ] ⏳ [Rule-4 cold pass queued: eight guard and evidence additions the…](roadmap/160-doctrine-review-owed/1150-rule-4-cold-pass-queued-guard-and-evidence-doctrine-batch.md)
 
 ## build/ layer — open strands
 
@@ -566,10 +567,10 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/320-child-filed-findings-via-pointing-up/README.md)*
 
 - [ ] 🔥 [pathscan reds on three reference shapes that are never real, and the…](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [PROPOSAL for GUARDS.md — strict…](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [PROPOSAL — capture, do not compose:…](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
+- ✅ 🎯 [PROPOSAL for GUARDS.md — strict where we author, forgiving where we…](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
+- ✅ 🎯 [PROPOSAL — capture, do not compose: a hand-written fixture can only…](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
 - [ ] 🔎 [By-call enforcement resolves through a working tree, so "fresh"…](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [PROPOSAL for GUARDS.md — a guard's…](roadmap/320-child-filed-findings-via-pointing-up/050-proposal-a-guard-declares-who-it-protects-from-whom.md)
+- ✅ 🎯 [PROPOSAL for GUARDS.md — a guard's THREAT MODEL is a property to…](roadmap/320-child-filed-findings-via-pointing-up/050-proposal-a-guard-declares-who-it-protects-from-whom.md)
 - [ ] 🎯 [PROPOSAL for the floor + GUARDS.md — where siblings exist, require a…](roadmap/320-child-filed-findings-via-pointing-up/060-proposal-the-floor-requires-a-path-scoped-commit.md)
 - ✅ 🎯 [PROPOSAL — a transcript has three principal-authored channels, and a…](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal…](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
@@ -603,7 +604,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [REPORT — 115/200's owed work is done from the child's side: the…](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
 - [ ] [REPORT — <owner/repo> is a declared placeholder in the floor region…](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
 - [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d3) [The floor's visibility bullet…](roadmap/320-child-filed-findings-via-pointing-up/380-the-floor-s-public-tense-and-whether-it-should-name-the-root.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [MISSING HOUSE RULE — a check…](roadmap/320-child-filed-findings-via-pointing-up/390-missing-house-rule-a-check-in-the-same-invocation-as-the-act-is-not-a-check.md)
+- ✅ 🎯 [MISSING HOUSE RULE — a check in the same shell invocation as the act…](roadmap/320-child-filed-findings-via-pointing-up/390-missing-house-rule-a-check-in-the-same-invocation-as-the-act-is-not-a-check.md)
 - [ ] 🔎 [CANDIDATE HOUSE RULE — verify a figure correction in the RENDERED…](roadmap/320-child-filed-findings-via-pointing-up/400-count-survivors-in-the-rendered-artefact-not-the-source-you-edited.md)
 - [ ] 🔎 [Hand-up: the canonical floor's estate resources bullet is unwritable…](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
 - [ ] 🔎 [Hand-up: a queued-review pointer may name a moving bound, and…](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
@@ -674,7 +675,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/370-the-report-can-lie-while-the-work-is-fine/README.md)*
 
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [Decide whether "prefer artefacts…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
+- ✅ 🎯 [Decide whether "prefer artefacts over reports" earns a line, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
 - [ ] [The fifth instance is not a report — it is a GUARD, and that is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
 - [ ] [The sixth instance is the checker written to enforce this item, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/030-the-sixth-instance-was-the-checker-written-for-370.md)
 
@@ -682,7 +683,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/380-silence-read-as-an-answer/README.md)*
 
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [Decide whether "make the instrument…](roadmap/380-silence-read-as-an-answer/010-make-the-instrument-show-a-positive-first.md)
+- ✅ 🎯 [Decide whether "make the instrument show a positive first" earns a…](roadmap/380-silence-read-as-an-answer/010-make-the-instrument-show-a-positive-first.md)
 - [ ] [The second instance is the INVERSE of 010, and it is the more…](roadmap/380-silence-read-as-an-answer/020-a-client-timeout-is-not-evidence-the-server-did-nothing.md)
 
 ## Repo relationships beyond the parent/child tree (Mike commissioned, 2026-09-12)
@@ -696,7 +697,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/README.md)*
 
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1) [No doctrine says which mechanism…](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/010-no-doctrine-says-which-mechanism-a-new-need-should-take.md)
+- ✅ 🎯 [No doctrine says which mechanism a new need should take — four are…](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/010-no-doctrine-says-which-mechanism-a-new-need-should-take.md)
 
 ## Sessions without a repo (Mike commissioned, 2026-09-29)
 

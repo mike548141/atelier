@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
-      🎯 **PROPOSAL for `GUARDS.md` — *strict where we author, forgiving where
+- [x] 🎯 **PROPOSAL for `GUARDS.md` — *strict where we author, forgiving where
       we read*: the rule that tells an author WHICH of the two to pick**
       `[S][docs]` — filed from a private child 2026-08-18 via § *Pointing up*.
       **Mike's ruling, not an agent's call:** this changes the fourth
@@ -37,3 +36,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: adopt the rule as a short companion to the guard rules, noting atelier's own guards are not yet audited against it.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `GUARDS.md`, noting atelier's own guards are not yet audited against it. Cold pass
+        queued as `160/1150`.

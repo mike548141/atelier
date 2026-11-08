@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
-      🎯 **MISSING HOUSE RULE — a check in the same shell invocation as the
+- [x] 🎯 **MISSING HOUSE RULE — a check in the same shell invocation as the
       act it guards is not a check, and this house has no rule saying so**
       `[M][doctrine]` — filed from a private child via § *Pointing up*,
       2026-09-20, with a fifth instance produced by atelier's own orchestrating
@@ -80,3 +79,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: adopt the child's rule as house doctrine; no guard (not mechanisable).
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `EVIDENCE.md` §17, with a pointer from `CONCURRENCY.md`; no guard. Cold pass
+        queued as `160/1150`.

@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
-      🎯 **The bidi / zero-width spoofing set — strip, escape, or accept
+- [x] 🎯 **The bidi / zero-width spoofing set — strip, escape, or accept
       (FR3's named follow-on, ruled queued 2026-08-23).** The parse-seam
       strip now covers C0 + DEL + C1 (U+009B CSI alias included). Bidi
       overrides (U+202E and family) and zero-width characters can still
@@ -14,3 +13,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: escape visibly the bidi override and isolate set (U+202A–202E, U+2066–2069); leave joiners alone.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `tools/floor.py` `strip_controls` escapes the bidi override and isolate set as `<U+XXXX>`, joiners left alone; fail-before shown, the fleet view byte-identical. Cold pass
+        queued as `160/1150`.

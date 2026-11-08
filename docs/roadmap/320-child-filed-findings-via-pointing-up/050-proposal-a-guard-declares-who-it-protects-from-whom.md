@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
-      🎯 **PROPOSAL for `GUARDS.md` — a guard's THREAT MODEL is a property to
+- [x] 🎯 **PROPOSAL for `GUARDS.md` — a guard's THREAT MODEL is a property to
       declare: who is it protecting whom from** `[S][docs]` — filed from a
       private child 2026-08-19 via § *Pointing up*, class only (no repo, hosts,
       client or filenames, as the route requires). **Mike's ruling, not an
@@ -92,3 +91,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: add a "who is protected from whom" declaration to guard doctrine, with the pathspec-commit caveat.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `GUARDS.md`; where the declaration lives (beside `115/120`'s registry slot or in it) stays open, and it binds as a review question meanwhile. Cold pass
+        queued as `160/1150`.

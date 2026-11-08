@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d1)
-      🎯 **Decide whether "prefer artefacts over reports" earns a line, and where.**
+- [x] 🎯 **Decide whether "prefer artefacts over reports" earns a line, and where.**
       The three mechanisms below are each worth a sentence in passing; the
       generalisation is the part that might be doctrine.
   - [ ] **The candidate rule, stated tightly enough to be checkable:**
@@ -35,3 +34,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: adopt the artefacts-over-reports rule and write-then-rename, as data-integrity doctrine with no scanner.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `DATA-PROTECTION.md`. Cold pass
+        queued as `160/1150`.
