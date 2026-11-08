@@ -1357,10 +1357,13 @@ class AdvisoryCountContract(unittest.TestCase):
         # tests below. It keeps the advisory form it already had.
         self.assertTrue(floor.BY_NAME["datescan"].advisory_count)
         self.assertIsNotNone(floor.BY_NAME["datescan"].advisory)
+        # board too (160/970): the 010/170 grace's notice, contract tests below.
+        self.assertTrue(floor.BY_NAME["board"].advisory_count)
+        self.assertIsNone(floor.BY_NAME["board"].advisory)
         others = [s.name for s in floor.SCANNERS
                   if s.advisory_count
                   and s.name not in ("secretscan", "licenscan", "conflictscan",
-                                     "leakscan", "datescan")]
+                                     "leakscan", "datescan", "board")]
         self.assertEqual([], others, "a new count-carrying check needs its own "
                                      "contract test, not this one by accident")
 
@@ -1541,6 +1544,59 @@ class AdvisoryCountContract(unittest.TestCase):
             r = self._run("--plane", "ci", "--root", str(root))
         self.assertEqual(1, r.returncode, r.stderr)
         self.assertRegex(r.stderr, r"❌ datescan\s+enforced")
+
+    def _graced_board_repo(self, td: str) -> Path:
+        """A tiny split board whose committed index is the PREVIOUS projection
+        (each item's first physical line only): `board --check` accepts it with
+        a notice until the grace's end date (010/170)."""
+        sys.path.insert(0, str(TOOLS_DIR))
+        import board
+        root = Path(td)
+        sec = root / "docs" / "roadmap" / "10-track"
+        sec.mkdir(parents=True)
+        (root / "docs" / "roadmap" / "README.md").write_text("# board\n", encoding="utf-8")
+        (sec / "README.md").write_text("# Track\n", encoding="utf-8")
+        (sec / "10-wrapped.md").write_text(
+            "- [~] **A claimed item whose title fills the first\n"
+            "      line** (claimed 2026-01-02-0304, wt: example-wt)\n", encoding="utf-8")
+        old, _ = board.build_index(root / "docs" / "roadmap", _entry=board._index_entry_v1)
+        (root / "docs" / "ROADMAP.md").write_text(old, encoding="utf-8")
+        return root
+
+    def test_floors_pattern_matches_boards_real_output(self):
+        """The seam, exercised end to end for the sixth count-carrier: the
+        count is 0 on a tree with no board and on a current one, and a missing
+        line would read -1 (a drifted contract), never 0."""
+        with tempfile.TemporaryDirectory() as td:
+            bare = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "board.py"), "--check", "--root", td],
+                capture_output=True, text=True)
+        self.assertEqual(0, bare.returncode, bare.stdout)
+        self.assertEqual(0, floor._read_advisory_count(bare.stdout, "board"))
+        self.assertEqual(-1, floor._read_advisory_count("✓ board index current\n", "board"))
+
+    def test_the_board_carries_the_boards_grace_count(self):
+        """160/970 PP5: a green run that used the grace is 🟡 with a count on the
+        floor's board, not only a line in a collapsed CI group. Skipped from
+        the grace's end date, when the old form is refused and the count is 0."""
+        import board
+        if board._today_utc() >= board.LEGACY_INDEX_ACCEPTED_UNTIL:
+            self.skipTest("the grace has ended")
+        with tempfile.TemporaryDirectory() as td:
+            root = self._graced_board_repo(td)
+            r = self._run("--plane", "ci", "--root", str(root))
+        self.assertRegex(r.stderr, r"🟡 board\s+enforced")
+        self.assertIn("1 advisory finding(s) — reported, not blocking", r.stderr)
+
+    def test_a_current_board_stays_a_plain_tick(self):
+        sys.path.insert(0, str(TOOLS_DIR))
+        import board
+        with tempfile.TemporaryDirectory() as td:
+            root = self._graced_board_repo(td)
+            board.run_check(root, fix=True)
+            r = self._run("--plane", "ci", "--root", str(root))
+        self.assertEqual(0, r.returncode, r.stderr)
+        self.assertRegex(r.stderr, r"✅ board\s+enforced")
 
     def test_a_conflict_marker_still_fails_the_floor_beside_the_advisory(self):
         with tempfile.TemporaryDirectory() as td:

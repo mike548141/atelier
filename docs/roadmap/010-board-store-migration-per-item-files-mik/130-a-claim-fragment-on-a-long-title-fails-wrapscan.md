@@ -95,3 +95,10 @@
       insulates the parent is part of what a child inherits. Same shape as
       `320/160` on the floor block; probably the cheaper half of this item to
       rule on.
+      📌 **Cited 2026-11-09 by the cold pass of `010/170` (`160/970`, PP1).**
+      The projected claim is bounded now (`320/730`, 2026-11-03): the index
+      line cuts the title and shortens the claim so no space of the line lies
+      past column 85. What stays open here is the question above, whether a
+      child inherits the scope narrowing, and the standing advice that the
+      generated index cannot be rewrapped by hand. The `010/170` grace notice
+      now points a `wrapscan` child at that advice.

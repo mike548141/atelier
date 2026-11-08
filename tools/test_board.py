@@ -15,12 +15,16 @@ What carries the weight here, shaped by the defects the split exists to end:
 Zero third-party deps, same as the rest of the suite.
 """
 
+import contextlib
+import io
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import date
 from pathlib import Path
+from unittest import mock
 
 TOOLS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS_DIR))
@@ -416,6 +420,38 @@ class LogicalFirstParagraph(unittest.TestCase):
             "      (claimed 2026-01-02-0304, wt: after-a-blank)\n")
         self.assertNotIn("claimed", line)
 
+    def test_a_marker_on_the_line_a_plain_title_reaches_into_travels(self):
+        """160/970 PP2. With no bold span, the title is the first 70 characters
+        of the PARAGRAPH, so a line-two fragment is reproduced into the index
+        line; its allow-marker has to travel with it, or the index line fails
+        the very scanner the item file had already exempted."""
+        line = self.line_for(
+            "21-plain.md",
+            "- [ ] a plain-text title that wraps onto its second line\n"
+            "      (15/7/26) <!-- datescan:allow: synthetic fixture --> and on\n")
+        self.assertIn("(15/7/26)", line)
+        self.assertTrue(line.endswith("<!-- datescan:allow: synthetic fixture -->"),
+                        line)
+
+    def test_a_marker_beyond_the_plain_titles_reach_does_not_travel(self):
+        """The other direction: once line one alone fills the title, a marker on
+        line two exempts prose the index never shows, and must not travel."""
+        line = self.line_for(
+            "22-plain.md",
+            "- [ ] a plain-text title long enough that the first line alone fills the cap and more\n"
+            "      later words <!-- datescan:allow: synthetic fixture -->\n")
+        self.assertNotIn("datescan:allow", line)
+
+    def test_a_code_span_that_wraps_from_line_one_masks_what_it_spans(self):
+        """160/970 PP6, pinned as the documented shape (see `_mask_code`): the
+        span is read across the joined paragraph, as the renderer reads it, so a
+        marker between an odd backtick and the next one is masked."""
+        line = self.line_for(
+            "23-span.md",
+            "- [ ] **A title** with a stray ` backtick\n"
+            "      then <!-- datescan:allow: synthetic fixture --> a closing ` here\n")
+        self.assertNotIn("datescan:allow", line)
+
     def test_a_flag_in_continuation_prose_is_a_mention(self):
         line = self.line_for(
             "90-mention.md",
@@ -504,6 +540,134 @@ class LegacyGrace(unittest.TestCase):
     def test_the_legacy_renderer_reads_the_first_line_only(self):
         self.assertIn("- [~] [A claimed item whose title fills the first](",
                       self.old)
+
+    def test_the_end_date_is_pinned(self):
+        """160/970 PP3. Every other test here derives from the constant, so
+        moving it left them green. Mike made 2026-11-18 firm, UTC, no flag."""
+        self.assertEqual(date(2026, 11, 18), board.LEGACY_INDEX_ACCEPTED_UNTIL)
+
+    def test_the_default_date_is_todays_utc_date(self):
+        """160/970 PP3. `_today_utc` was reached by no test: they all inject
+        `today`. Here it is the clock that decides."""
+        self.index.write_text(self.old, encoding="utf-8")
+        for fake, want_rc in ((self.BEFORE, 0), (self.ON, 1)):
+            buf = io.StringIO()
+            with mock.patch.object(board, "_today_utc", return_value=fake), \
+                    contextlib.redirect_stdout(buf):
+                rc = board.run_check(self.root, fix=False)
+            self.assertEqual(want_rc, rc, buf.getvalue())
+
+    def test_the_notice_says_utc_and_points_a_wrapscan_child_at_the_readme(self):
+        """160/970 PP8 and PP1: the zone, and the standing advice that the
+        projected index is not rewrappable by hand."""
+        self.index.write_text(self.old, encoding="utf-8")
+        _, out = self.check(self.BEFORE)
+        self.assertIn("(UTC)", out)
+        self.assertIn("wrapscan", out)
+        self.assertIn("tools/README.md", out)
+
+    def test_a_notice_beside_a_real_failure_says_which_one_fails(self):
+        """160/970 PP8: the grace notice used to print as an 'accepted' line
+        directly beside exit 1, which read as if the index were the failure."""
+        self.index.write_text(self.old, encoding="utf-8")
+        (self.sec / "30-no-state.md").write_text("prose first\n", encoding="utf-8")
+        rc, out = self.check(self.BEFORE)
+        self.assertEqual(1, rc, out)
+        self.assertIn("a notice, not the failure", out)
+
+    def test_the_legacy_renderer_reproduces_the_pre_delta_tool_byte_for_byte(self):
+        """160/970 PP3. `_index_entry_v1` was pinned by nothing but a reviewer's
+        probe. These strings are what the tool printed before 010/170 landed,
+        for the shapes children's committed indexes hold; if the grace's
+        renderer drifts, a child's old-form index stops being accepted."""
+        cases = [
+            ("- [ ] 🎯 **Fix the fail-open gate** — it exits 0\n      continuation\n",
+             "- [ ] 🎯 [Fix the fail-open gate](roadmap/a/b.md)"),
+            ("- [~] (claimed 2026-01-02-0304, wt: example-wt) **A claimed item**\n",
+             "- [~] (claimed 2026-01-02-0304, wt: example-wt) [A claimed item](roadmap/a/b.md)"),
+            ("- [ ] a plain title with no bold at all, carried on a single line of text well past the cap of seventy chars\n",
+             "- [ ] [a plain title with no bold at all, carried on a single line of text…](roadmap/a/b.md)"),
+            ("- [x] **Done thing** <!-- datescan:allow: synthetic -->\n",
+             "- ✅ [Done thing](roadmap/a/b.md) <!-- datescan:allow: synthetic -->"),
+            ("- [ ] **About the `⏳` glyph** and `(claimed x)` mention\n",
+             "- [ ] [About the glyph](roadmap/a/b.md)"),
+            ("- ⏳ 🔎 **Queued review pointer** thing\n",
+             "- ⏳ 🔎 [Queued review pointer](roadmap/a/b.md)"),
+        ]
+        for text, want in cases:
+            self.assertEqual(want, board._index_entry_v1(text, "roadmap/a/b.md"), text)
+
+    def test_a_continuation_must_be_indented_to_join_the_paragraph(self):
+        """160/970 PP3: the indented-only rule. An unindented line after the
+        state line is not part of the state line's paragraph."""
+        text = "- [ ] **A title that\ncontinues unindented** (claimed 2026-01-02, wt: x)\n"
+        state = board.item_state(text)
+        self.assertEqual(("**A title that",), state.lines)
+
+
+class AdvisoryCount(unittest.TestCase):
+    """160/970 PP5: every `--check` prints one `board advisory: N finding(s)`
+    line, which `floor.py` reads into the floor's board. N is 1 on a run that
+    used the grace, else 0. A missing line would read as -1 (a drifted
+    contract), so it prints on the not-in-scope path too."""
+
+    def run_main(self, root: Path, *args: str) -> tuple[int, str]:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = board.main(["--check", "--root", str(root), *args])
+        return rc, buf.getvalue()
+
+    def test_a_tree_with_no_board_prints_a_zero(self):
+        with tempfile.TemporaryDirectory() as td:
+            rc, out = self.run_main(Path(td))
+        self.assertEqual(0, rc)
+        self.assertIn("board advisory: 0 finding(s) — reported, not blocking.", out)
+
+    def test_a_current_index_prints_a_zero(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            make_board(root)
+            board.run_check(root, fix=True)
+            rc, out = self.run_main(root)
+        self.assertEqual(0, rc, out)
+        self.assertIn("board advisory: 0 finding(s)", out)
+
+    def test_a_grace_run_prints_a_one(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            sec = make_board(root)
+            (sec / "20-wrapped.md").write_text(
+                "- [~] **A claimed item whose title fills the first\n"
+                "      line** (claimed 2026-01-02-0304, wt: example-wt)\n",
+                encoding="utf-8")
+            old, _ = board.build_index(root / board.BOARD_DIR,
+                                       _entry=board._index_entry_v1)
+            (root / board.INDEX_REL).write_text(old, encoding="utf-8")
+            until = board.LEGACY_INDEX_ACCEPTED_UNTIL
+            with mock.patch.object(board, "_today_utc",
+                                   return_value=until.fromordinal(until.toordinal() - 1)):
+                rc, out = self.run_main(root)
+        self.assertEqual(0, rc, out)
+        self.assertIn("board advisory: 1 finding(s) — reported, not blocking.", out)
+
+    def test_a_stale_index_prints_a_zero_and_still_fails(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            make_board(root)
+            rc, out = self.run_main(root)
+        self.assertEqual(1, rc, out)
+        self.assertIn("board advisory: 0 finding(s)", out)
+
+    def test_rebuild_does_not_print_it(self):
+        """`floor.py` only ever runs `--check`; a rebuild's output is not a check's."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            make_board(root)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = board.main(["--rebuild", "--root", str(root)])
+        self.assertEqual(0, rc)
+        self.assertNotIn("advisory", buf.getvalue())
 
 
 class BoundedMemory(unittest.TestCase):
@@ -612,6 +776,9 @@ class StagedPlane(unittest.TestCase):
         _git(self.root, "config", "user.email",
              "test@example.invalid")  # leakscan:allow: RFC 2606 reserved domain, throwaway git identity
         _git(self.root, "config", "user.name", "test")
+        # A host whose global config signs commits with a key the test cannot
+        # reach would otherwise ERROR all twelve tests here (160/970, PP9).
+        _git(self.root, "config", "commit.gpgsign", "false")
         board.run_check(self.root, fix=True)          # write a current index
         _git(self.root, "add", "-A")
         _git(self.root, "commit", "-q", "-m", "seed")

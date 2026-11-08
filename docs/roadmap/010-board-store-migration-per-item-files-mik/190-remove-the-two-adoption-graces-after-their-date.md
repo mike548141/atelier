@@ -10,3 +10,21 @@
       index or listed their binaries (`atelier:fleet-pins` and each child's
       latest floor run). That list goes to Mike, so the cut-off reds are
       expected, not a surprise.
+      🔎 **Added 2026-11-09 from the cold pass of `010/170` (`160/970`):**
+      - **The removal list in the code was short.** Following it verbatim left
+        `today`, `_today_utc`, the `_entry` seam, the `escape` parameter and
+        the `date` / `Callable` imports behind, and `test_board.py` failed to
+        import (the `LegacyGrace` class reads the constant). The full list is
+        now the `LEGACY` comment in `tools/board.py`; use that, not the line
+        above. The new `board advisory:` count line stays when the grace goes.
+      - **The "which children have not rebuilt" list comes from `board` on
+        each checkout, not from CI (PQ1).** Run `board --check` (both planes)
+        in each child's checkout. A child with no running CI is the one a
+        fleet-pins or latest-floor-run list would miss: its CI never showed
+        the notice, and on 2026-11-18 its hook reds from a plane that never
+        warned it.
+      - **Put "one release" to the principal before the cut-off (PP11).** His
+        words were "a one-release grace period"; this repo tags no release, and
+        the 2026-11-18 end (UTC, 31 days) was the queue run's reading, which
+        reached him in the closing account. Raise it with the child counts at
+        the "list goes to Mike" step, as a briefing question.

@@ -588,6 +588,12 @@ SCANNERS: tuple[Scanner, ...] = (
         ci=["--check", "--root", "{root}", "{scope}"],
         advisory=None,  # a stale index is a wrong board; there is no soft form
         why="the generated roadmap index never drifts from its item files",
+        # NOT a softening (`advisory=None` above stands): the count is the
+        # grace period's notice (010/170), 1 on a run that accepted an old-form
+        # index and 0 otherwise, so the one signal that used to survive a green
+        # summary is no longer only the CHANGELOG (160/970, PP5). It goes when
+        # the grace does, with `board.py`'s LEGACY block.
+        advisory_count=True,
     ),
     Scanner(
         "datescan",

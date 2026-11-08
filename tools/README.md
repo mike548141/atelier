@@ -118,6 +118,19 @@ wrapped without ceasing to be links — so a child either scopes `wrapscan` off
 the index or waits on the generated-file exemption question (board item
 `010/070`, unruled).
 
+Each index line is projected from the item's **logical first paragraph** (board
+`010/170`): the state line plus the indented lines that continue it, up to a
+blank line, an unindented line or a line that opens a new block. A bold title
+that wraps renders whole and a `(claimed …)` fragment wrapped onto line two
+shows; flags still read the state line alone, and a code span is read across the
+joined paragraph, so an odd backtick pairs with one on a later line. **Until
+2026-11-18 (UTC)** `--check` also accepts an index in the previous first-line
+form. It prints a ⚠️ notice, and a `board advisory: 1 finding(s)` line that
+`floor.py` shows as `🟡 board` on its summary, so the notice survives a green
+run. From that date the old form is stale like any other mismatch. The date is
+firm and no flag moves it; the removal list is the `LEGACY` comment in
+`board.py`.
+
 **reviewscan** (a records-hygiene check) proves only **presence**: a decision
 record carries *a* review line. Whether "not warranted" was the honest call —
 or a queued pointer was ever taken — is exactly the judgement a validator

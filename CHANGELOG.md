@@ -77,6 +77,45 @@ wording and one fleet-view tool; no scanner's blocking behaviour changes.
   spellscan exemption as covered by the 2026-07-23 ruling. No published commit
   and no prompt text was touched; the earlier prompt history is not re-reviewed.
 
+### Changed (2026-11-09 — the grace notice reaches the floor's board, a plain title's marker travels, and the grace's removal list is complete, `160/970`)
+Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
+- **Children: nothing to do, and nothing blocks that did not.** The index a
+  child already holds renders as before; the child probe (every repo with a
+  floor config, both planes) found no change in any `board` result.
+- **The grace notice now shows on the floor's board (PP5).** `board --check`
+  prints one `board advisory: N finding(s)` line (1 on a run that accepted an
+  old-form index, else 0) and `floor.py` reads it, so a green run that used the
+  grace reads `🟡 board enforced (🟡 1 advisory finding(s) — reported, not
+  blocking)` instead of a plain tick, in CI and at the hook. The exit code does
+  not move. The notice says the end is **2026-11-18 in UTC** (a hook on a UTC+13
+  machine flips at 13:00 local that day), that the remedy on the staged plane is
+  `--from-index`, and points a `wrapscan` child at `tools/README.md`'s advice to
+  scope `wrapscan` off the generated index. When the run also fails for another
+  reason it says the ✗ lines are the failure, not the notice.
+- **A marker on a plain title's second line travels (PP2).** With no bold span
+  the title is the first 70 characters of the paragraph, so a line-two fragment
+  is reproduced into the index line; its `allow` marker now travels with it
+  instead of being dropped. No existing item is affected. Not taken: restoring
+  the head-only title fallback, which would re-title lines in children that have
+  rebuilt and turn their index stale.
+- **The span is 31 days, not 30 (PP8)**, and "one release" is a date because
+  this repo tags none; both are said in the code, and `010/190` carries the
+  question to put to the principal.
+- **The removal list is complete (PP4).** The `LEGACY` comment in `board.py` and
+  `010/190` name everything the grace touches: `today`, `_today_utc`, the
+  `_entry` seam, the `escape` parameter, the imports and the test classes whose
+  import breaks first.
+- **Tests (PP3, PP9):** the end date is pinned; the default-date path runs; the
+  legacy renderer is held against stored pre-010/170 output; the indented-only
+  rule is asserted; `StagedPlane` turns commit signing off so a host with an
+  unreachable signing key no longer errors twelve tests.
+- **Stated, not changed (PP6, PP7):** a code span that wraps across lines masks
+  what it spans, as the renderer reads it (`_mask_code`); `tools/README.md`
+  gains the paragraph rule and the grace's duration.
+- **Not done here, routed:** the child list for the cut-off comes from `board`
+  on each checkout (PQ1, on `010/190`); the Python version floor (PQ2) and the
+  load-bound `test_pins.BoundedMemory` timeout (PQ3) are for their own items.
+
 ### Changed (2026-11-09 — `ccclose` reads an ask typed as a slash command's argument, and the harness classification says what it assumes, `160/880`)
 Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
 - **An ask typed after a slash command is now read (HC1).** `ccclose` stripped
