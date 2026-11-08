@@ -70,6 +70,9 @@ we work:
   marginal-cost self-check, tiered authority, and
   session hygiene. **Canonical here** (extracted 2026-07-10); the estate-specific
   numbers stay person-local.
+- **`MECHANISMS.md`** — which mechanism a new need should take (guard, hook,
+  skill, command, instrument, MCP server), as four axes: block or judge,
+  intercept or invoke, one repo or the estate, cost to carry.
 
 ## Install as a Claude Code plugin
 

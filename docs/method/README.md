@@ -87,6 +87,11 @@ Read in this order:
     Carries the estate's standing requirement on every allowance: **narrow,
     noisy, reasoned**. *(rule-4 review queued, 2026-08-05.)*
 
+17. **`MECHANISMS.md`** — which mechanism a new need should take: guard, hook,
+    skill, slash command, instrument or MCP server, read off four axes (block
+    or judge · intercept or invoke · one repo or the estate · cost to carry).
+    A one-page guide, offered for use and correction, not a ruled decision tree.
+
 **Meta — how the doctrine is enforced, recorded, and propagated:**
 
 - **`GLOSSARY.md`** — the shared language: load-bearing terms defined once or
