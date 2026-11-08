@@ -17,6 +17,7 @@ from pathlib import Path
 
 import leakscan as ls
 import memprobe
+import test_support_regex as rxsupport
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -1569,8 +1570,9 @@ class GatesAreNecessary(unittest.TestCase):
                          frozenset({"ipv6", "mac-address"}), frozenset({"ipv4", "email"})):
             t_gated = ls.Tally(disabled_rules=tuple(sorted(disabled)))
             gated = ls.scan_lines("p", lines, [], disabled, t_gated)
+            # One home for the table (GT3): patching GATES and the memo is
+            # enough, `_shadow_spans` and the scan loop both read it.
             with mock.patch.object(ls, "GATES", {}), \
-                    mock.patch.object(ls, "_GATED", tuple((p, None) for p in ls.ALL_RULES)), \
                     mock.patch.object(ls, "_ACTIVE_CACHE", {}):
                 t_plain = ls.Tally(disabled_rules=tuple(sorted(disabled)))
                 plain = ls.scan_lines("p", lines, [], disabled, t_plain)
@@ -1592,6 +1594,77 @@ class GatesAreNecessary(unittest.TestCase):
         # no edit to the gate. Pin it with every canary shape the suite holds.
         for _label, line in PII_CANARIES:
             self.assertTrue(ls.GATES["pii-key-context"](line), line)
+
+    def test_gates_hold_over_a_corpus_generated_from_the_regexes(self):
+        """GT2 (160/720): the hand-kept corpus above covers a rule per RULE.
+        This one is built from each gated rule's own regex, one line per
+        alternative of every alternation, so a branch added to a rule under
+        the same name is exercised the day it is added."""
+        for pat in ls.ALL_RULES:
+            gate = ls.GATES.get(pat.name)
+            if gate is None:
+                continue
+            with self.subTest(pat.name):
+                rx = getattr(pat.regex, "original", pat.regex)
+                matched = [t for t in rxsupport.samples(rx) if rx.search(t)]
+                self.assertTrue(matched, f"no sample of {pat.name} matches it: "
+                                "extend test_support_regex or add a POSITIVE")
+                for line in matched:
+                    self.assertTrue(gate(line),
+                                    f"gate for {pat.name} rejects {line!r}")
+
+    def test_every_top_level_alternative_of_a_gated_rule_passes_its_gate(self):
+        for pat in ls.ALL_RULES:
+            gate = ls.GATES.get(pat.name)
+            rx = getattr(pat.regex, "original", pat.regex)
+            if gate is None:
+                continue
+            branches = rxsupport.top_level_branches(rx.pattern)
+            if len(branches) < 2:
+                continue
+            for src in branches:
+                brx = re.compile(src, rx.flags)
+                got = [t for t in rxsupport.samples(brx) if brx.search(t)]
+                with self.subTest(rule=pat.name, branch=src):
+                    self.assertTrue(got)
+                    self.assertTrue(all(gate(t) for t in got))
+
+    # A rule that is case-insensitive needs a gate that is too. Only these two
+    # are, and each gate is flag-aware for a stated reason.
+    FLAG_AWARE_GATES = {
+        "pii-key-context": "the gate tests the letter-free tail `[:=]\\s*...`",
+        "diagnosis-key": "the gate's own regex carries (?i)",
+    }
+
+    def test_no_gated_rule_is_case_insensitive_unless_its_gate_is_flag_aware(self):
+        """GT2 (b): the premise 'no rule carries (?i)' was a comment. A
+        case-insensitive rule paired with a case-sensitive literal gate would
+        reject every line differing only in case."""
+        for pat in ls.ALL_RULES:
+            rx = getattr(pat.regex, "original", pat.regex)
+            if pat.gate is not None and rx.flags & re.IGNORECASE:
+                self.assertIn(pat.name, self.FLAG_AWARE_GATES,
+                              f"{pat.name} is case-insensitive with a gate not "
+                              "declared flag-aware")
+        for name in self.FLAG_AWARE_GATES:
+            rx = getattr(ls.BY_NAME[name].regex, "original", ls.BY_NAME[name].regex)
+            self.assertTrue(rx.flags & re.IGNORECASE, f"{name}: stale entry")
+
+    def test_the_gate_is_declared_on_the_rule_and_the_table_is_derived(self):
+        """GT3: one home. `GATES` is the rules' own gates, and the scan loop
+        and the shadow spans both read it."""
+        self.assertEqual(ls.GATES, {p.name: p.gate for p in ls.ALL_RULES
+                                    if p.gate is not None})
+        self.assertFalse(hasattr(ls, "_GATED"))
+        from unittest import mock
+        marker = lambda ln: False   # noqa: E731
+        with mock.patch.object(ls, "GATES", {**ls.GATES, "mac-address": marker}), \
+                mock.patch.object(ls, "_ACTIVE_CACHE", {}):
+            active = {p.name: g for p, g, _b in ls._active_rules(frozenset())}
+            self.assertIs(marker, active["mac-address"])
+            # ipv6 is shadowed by mac-address; with the shadower's gate failing
+            # it casts no span, and the same patched table decides that.
+            self.assertEqual({}, ls._shadow_spans("aa:bb:cc:dd:ee:ff", frozenset()))
 
     def test_gates_leave_the_term_list_alone(self):
         # The gates guard STRUCTURAL rules only; a line no gate passes still

@@ -93,6 +93,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import anchoredrx  # noqa: E402
 import report  # noqa: E402
 
 # A line carrying this marker is intentionally exempt (e.g. an illustrative
@@ -213,10 +214,23 @@ class Pattern:
     name: str
     severity: str  # "high" | "medium" — confidence only, never the response
     regex: "re.Pattern[str]"
+    # 110/130 lever 4, 160/720 GT2: the rule's pre-filter, declared BESIDE the
+    # rule so that widening the regex and re-reading the gate are one diff
+    # hunk. A gate is a cheap test on the line that is NECESSARY for the rule
+    # to match; None means the rule always runs its full regex (fail open). See
+    # "per-rule pre-filters" below for what a gate may and may not be.
+    gate: "object" = None
 
 
-def _p(name: str, severity: str, rx: str, flags: int = 0) -> Pattern:
-    return Pattern(name, severity, re.compile(rx, flags))
+def _p(name: str, severity: str, rx: str, flags: int = 0,
+       gate: "object" = None, anchored: "dict | None" = None) -> Pattern:
+    """`anchored` (160/720 GT1) swaps the compiled regex for its linear-time
+    stand-in (`anchoredrx.AnchoredRx`): same matches, but a run of the leading
+    class is tried once, not once per word boundary."""
+    compiled = re.compile(rx, flags)
+    if anchored is not None:
+        compiled = anchoredrx.AnchoredRx(compiled, **anchored)
+    return Pattern(name, severity, compiled, gate)
 
 
 # --- the personal-data key vocabulary (G1) -------------------------------
@@ -261,19 +275,44 @@ PII_KEY_RX = (
     r"|(?:home|street|postal|residential|physical)[_ -]?address"
     r")\b\s*[:=]\s*[\"']?(?P<value>[^\s\"'`,;:]{2,})")
 
+# Cheap pieces the rules' gates (declared on each rule below) share. Each is
+# derived from a rule's own pattern text and is a NECESSARY condition for it.
+_DIGITS4_RX = re.compile(r"\d{4}")                     # payment-card
+_PHONE_TAIL_RX = re.compile(r"\d{3}[\s-]?\d{3}")       # nz-phone
+# nz-address: every alternative ends in one of these suffix words.
+_ADDRESS_SUFFIX_RX = re.compile(
+    r"Street|Road|Avenue|Lane|Drive|Terrace|Crescent"
+    r"|St|Rd|Ave|Ln|Dr|Pl|Tce|Cres|Place|Way|Close|Grove|Hill|Green")
+# pii-key-context: the pattern's fixed tail is
+# `\b\s*[:=]\s*["']?<2+ value chars>`. This is the part from the `[:=]` on —
+# necessary whatever key vocabulary is added to PII_KEY_RX later, because it
+# names no key. (The `[:=]` first means the regex engine only wakes at a colon
+# or equals sign, not at every word.)
+_PII_TAIL_RX = re.compile(r"""[:=]\s*["']?[^\s"'`,;:]{2}""")
+# diagnosis-key: its key alternatives all contain these letters, any case.
+_DIAGNOS_RX = re.compile(r"(?i)diagnos")
+
 # Structural patterns. Ordered high→medium. Tuned to catch real estate/PII shapes
 # while keeping false positives survivable (fail-safe favours over-flagging: a
 # false positive costs a `leakscan:allow`, a false negative costs a leak).
 STRUCTURAL: list[Pattern] = [
     _p("private-key-header", "high",
-       r"-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----"),
-    _p("aws-access-key-id", "high", r"\bAKIA[0-9A-Z]{16}\b"),
-    _p("jwt", "high", r"\beyJ[A-Za-z0-9_-]{6,}\.eyJ[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}"),
+       r"-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----",
+       # gate: `-----BEGIN [..] PRIVATE KEY-----` ends in this literal.
+       gate=lambda ln: "PRIVATE KEY-----" in ln),
+    _p("aws-access-key-id", "high", r"\bAKIA[0-9A-Z]{16}\b",
+       gate=lambda ln: "AKIA" in ln),
+    _p("jwt", "high", r"\beyJ[A-Za-z0-9_-]{6,}\.eyJ[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}",
+       # gate: `eyJ…\.eyJ…` - the second segment's lead-in.
+       gate=lambda ln: ".eyJ" in ln),
     _p("email", "high",
-       r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
+       r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b",
+       gate=lambda ln: "@" in ln,
+       anchored=dict(run=r"[A-Za-z0-9._%+-]+", literal="@", start=r"\b")),
     # G1 — the key-context layer. High: the label has already done the
     # filtering, so a surviving hit is about as confident as this tool gets.
-    _p("pii-key-context", "high", PII_KEY_RX),
+    _p("pii-key-context", "high", PII_KEY_RX,
+       gate=lambda ln: _PII_TAIL_RX.search(ln) is not None),
     # G4 — financial identifiers. Card and IBAN are SELF-VALIDATING (Luhn and
     # ISO 7064 mod-97 respectively, both applied in VALIDATORS below), which is
     # what keeps a long digit run from being a false-positive engine. The
@@ -281,11 +320,18 @@ STRUCTURAL: list[Pattern] = [
     # of a card are caught without letting a single-space separator stitch an
     # arbitrary numeric table row into a sixteen-digit "card".
     _p("payment-card", "high",
-       r"(?<![\d-])(?:\d{13,19}|\d{4}(?:[ -]\d{4}){2,3}(?:[ -]\d{1,3})?)(?![\d-])"),
-    _p("iban", "high", r"\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b"),
+       r"(?<![\d-])(?:\d{13,19}|\d{4}(?:[ -]\d{4}){2,3}(?:[ -]\d{1,3})?)(?![\d-])",
+       # gate: 13-19 digits or `\d{4}` groups: either way four digits in a row.
+       gate=lambda ln: _DIGITS4_RX.search(ln) is not None),
+    _p("iban", "high", r"\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b",
+       # gate: `[A-Z]{2}\d{2}[A-Z0-9]{11,30}` is at least 15 characters long.
+       gate=lambda ln: len(ln) >= 15),
     _p("mac-address", "high",
-       r"\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b"),
-    _p("ipv4", "medium", r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
+       r"\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b",
+       # gate: `(?:xx[:-]){5}xx` - five separators.
+       gate=lambda ln: ln.count(":") + ln.count("-") >= 5),
+    _p("ipv4", "medium", r"\b(?:\d{1,3}\.){3}\d{1,3}\b",
+       gate=lambda ln: ln.count(".") >= 3),
     # D2 (ruled 2026-08-04, and E4 with it): require `::` OR four-plus groups.
     # The old rule took any THREE colon-separated hex-ish groups, which is also
     # the shape of `HH:MM:SS`, a port map, a ratio and a hex colour triplet —
@@ -300,18 +346,22 @@ STRUCTURAL: list[Pattern] = [
        r"|[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4}){0,5}"
        r"|::[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4}){1,5}"
        r"|[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4}){3,7}"
-       r")(?![0-9A-Za-z:])"),
+       r")(?![0-9A-Za-z:])",
+       # gate: every alternative carries at least two colons (`h::h`, `h:h::`, `::h:h`).
+       gate=lambda ln: ln.count(":") >= 2),
     # G4 — the NZ bank account in its hyphenated field form (bank-branch-
     # account-suffix). The COMPACT all-digit form stays key-context-only per
     # the ruling: bare eight-to-sixteen digit runs are the don't-add list.
-    _p("nz-bank-account", "medium", r"\b\d{2}-\d{4}-\d{7}-\d{2,3}\b"),
+    _p("nz-bank-account", "medium", r"\b\d{2}-\d{4}-\d{7}-\d{2,3}\b",
+       gate=lambda ln: ln.count("-") >= 3),
     # G7 — the bracketed area-code form (landline or mobile prefix in
     # parentheses), the one common NZ spelling the rule missed.
     _p("nz-phone", "medium",
        r"(?<!\d)(?:"
        r"(?:\+64[\s-]?|0)(?:2\d|[3-9])"
        r"|\((?:\+64[\s-]?)?0?(?:2\d|[3-9])\)"
-       r")[\s-]?\d{3}[\s-]?\d{3,4}(?!\d)"),
+       r")[\s-]?\d{3}[\s-]?\d{3,4}(?!\d)",
+       gate=lambda ln: _PHONE_TAIL_RX.search(ln) is not None),
     # D4 (ruled 2026-08-04): the abbreviated and bare-word suffixes now need at
     # least one capitalised word in front of them. Without it, a low number
     # beside an abbreviation or an ordinary English word — a figure reference,
@@ -324,10 +374,13 @@ STRUCTURAL: list[Pattern] = [
        r"(?:Street|Road|Avenue|Lane|Drive|Terrace|Crescent)"
        r"|(?:[A-Z][a-z]+\s+){1,2}"
        r"(?:St|Rd|Ave|Ln|Dr|Pl|Tce|Cres|Place|Way|Close|Grove|Hill|Green)"
-       r")\b"),
+       r")\b",
+       gate=lambda ln: _ADDRESS_SUFFIX_RX.search(ln) is not None),
     _p("coordinates", "medium",
-       r"[-+]?\d{1,2}\.\d{4,}\s*,\s*[-+]?\d{1,3}\.\d{4,}"),
-    _p("nz-ird", "medium", r"\b\d{2,3}-\d{3}-\d{3}\b"),
+       r"[-+]?\d{1,2}\.\d{4,}\s*,\s*[-+]?\d{1,3}\.\d{4,}",
+       gate=lambda ln: "," in ln and ln.count(".") >= 2),
+    _p("nz-ird", "medium", r"\b\d{2,3}-\d{3}-\d{3}\b",
+       gate=lambda ln: ln.count("-") >= 2),
 ]
 
 # --- rules that are OFF report without blocking (115/090) ---------------
@@ -353,7 +406,10 @@ STRUCTURAL: list[Pattern] = [
 WITHDRAWN: list[Pattern] = [
     _p("diagnosis-key", "medium",
        r"(?i)" + _KEY_LEAD + r"(?P<key>diagnos[ie]s)"
-       r"\b\s*[:=]\s*[\"']?(?P<value>[^\s\"'`,;:]{2,})"),
+       r"\b\s*[:=]\s*[\"']?(?P<value>[^\s\"'`,;:]{2,})",
+       # gate: the key-context tail, and the key's own letters.
+       gate=lambda ln: (_DIAGNOS_RX.search(ln) is not None
+                        and _PII_TAIL_RX.search(ln) is not None)),
 ]
 WITHDRAWN_NAMES = frozenset(p.name for p in WITHDRAWN)
 # Every rule the engine runs, in report order: STRUCTURAL first, unchanged.
@@ -725,9 +781,11 @@ BY_NAME: dict[str, Pattern] = {p.name: p for p in ALL_RULES}
 # rule would match is a silent false negative in a boundary scanner, the worst
 # failure this tool has, so every gate below states WHY it is necessary and is
 # derived from the rule's own pattern text, never from a guess about the data.
-# A rule with no entry here has no provable cheap necessary condition and
-# always runs its full regex (fail open). `test_leakscan.GatesAreNecessary`
-# pins each gate against its rule on matching and near-miss lines.
+# A rule that declares no gate has no provable cheap necessary condition and
+# always runs its full regex (fail open). The gate is declared on the rule
+# (`Pattern.gate`), beside the regex it conditions. `test_leakscan.
+# GatesAreNecessary` pins each gate against its rule on matching and near-miss
+# lines, and every top-level alternative of every gated rule.
 #
 # NOT BUILT, and why: lever 3 of 110/130, one combined alternation pass over
 # every rule. Rules here overlap on the same span (a MAC is also a valid IPv6;
@@ -739,50 +797,13 @@ BY_NAME: dict[str, Pattern] = {p.name: p for p in ALL_RULES}
 # Counting gates (`count(x) >= n`) rest on one fact: a match whose pattern
 # needs n separator characters contains at least n of them, and `str.count` /
 # `in` are single C passes that allocate nothing.
-_DIGITS4_RX = re.compile(r"\d{4}")                     # payment-card
-_PHONE_TAIL_RX = re.compile(r"\d{3}[\s-]?\d{3}")       # nz-phone
-# nz-address: every alternative ends in one of these suffix words.
-_ADDRESS_SUFFIX_RX = re.compile(
-    r"Street|Road|Avenue|Lane|Drive|Terrace|Crescent"
-    r"|St|Rd|Ave|Ln|Dr|Pl|Tce|Cres|Place|Way|Close|Grove|Hill|Green")
-# pii-key-context: the pattern's fixed tail is
-# `\b\s*[:=]\s*["']?<2+ value chars>`. This is the part from the `[:=]` on —
-# necessary whatever key vocabulary is added to PII_KEY_RX later, because it
-# names no key. (The `[:=]` first means the regex engine only wakes at a colon
-# or equals sign, not at every word.)
-_PII_TAIL_RX = re.compile(r"""[:=]\s*["']?[^\s"'`,;:]{2}""")
-# diagnosis-key: its key alternatives all contain these letters, any case.
-_DIAGNOS_RX = re.compile(r"(?i)diagnos")
-
-GATES: dict[str, "object"] = {
-    # `-----BEGIN [..] PRIVATE KEY-----` ends in this literal.
-    "private-key-header": lambda ln: "PRIVATE KEY-----" in ln,
-    "aws-access-key-id": lambda ln: "AKIA" in ln,
-    # `eyJ…\.eyJ…` — the second segment's lead-in.
-    "jwt": lambda ln: ".eyJ" in ln,
-    "email": lambda ln: "@" in ln,
-    "pii-key-context": lambda ln: _PII_TAIL_RX.search(ln) is not None,
-    # 13-19 digits or `\d{4}` groups: either way four digits in a row.
-    "payment-card": lambda ln: _DIGITS4_RX.search(ln) is not None,
-    # `[A-Z]{2}\d{2}[A-Z0-9]{11,30}` is at least 15 characters long.
-    "iban": lambda ln: len(ln) >= 15,
-    # `(?:xx[:-]){5}xx` — five separators.
-    "mac-address": lambda ln: ln.count(":") + ln.count("-") >= 5,
-    "ipv4": lambda ln: ln.count(".") >= 3,
-    # every alternative carries at least two colons (`h::h`, `h:h::`, `::h:h`).
-    "ipv6": lambda ln: ln.count(":") >= 2,
-    "nz-bank-account": lambda ln: ln.count("-") >= 3,
-    "nz-phone": lambda ln: _PHONE_TAIL_RX.search(ln) is not None,
-    "nz-address": lambda ln: _ADDRESS_SUFFIX_RX.search(ln) is not None,
-    "coordinates": lambda ln: "," in ln and ln.count(".") >= 2,
-    "nz-ird": lambda ln: ln.count("-") >= 2,
-    # diagnosis-key: the key-context tail, and the key's own letters.
-    "diagnosis-key": lambda ln: (_DIAGNOS_RX.search(ln) is not None
-                                 and _PII_TAIL_RX.search(ln) is not None),
-}
-# One entry per rule, in ALL_RULES' order: (pattern, gate-or-None).
-_GATED: tuple[tuple[Pattern, "object"], ...] = tuple(
-    (p, GATES.get(p.name)) for p in ALL_RULES)
+# The gate table, DERIVED from the rules (160/720 GT2/GT3): each rule's gate is
+# declared on the rule itself, above, and this dict is the single runtime home
+# the scan loop and `_shadow_spans` both read. `_active_rules` builds from it
+# when it first needs a disabled-set, behind its memo, so patching `GATES` and
+# clearing `_ACTIVE_CACHE` switches gating off everywhere at once.
+GATES: dict[str, "object"] = {p.name: p.gate for p in ALL_RULES
+                              if p.gate is not None}
 _ACTIVE_CACHE: dict[frozenset[str], tuple] = {}
 
 
@@ -794,15 +815,16 @@ def blocks(rule: str, disabled: frozenset[str] = frozenset()) -> bool:
 
 
 def _active_rules(disabled: frozenset[str]) -> tuple:
-    """Every rule in `_GATED`, each with whether its hits block (115/090: a
-    disabled rule runs and reports rather than being skipped), memoised per
+    """Every rule in `ALL_RULES`, each with its gate from `GATES` and whether
+    its hits block (115/090: a    disabled rule runs and reports rather than being skipped), memoised per
     disabled-set so the per-line loop does not re-test every name."""
     if not isinstance(disabled, frozenset):   # a plain set worked before
         disabled = frozenset(disabled)
     got = _ACTIVE_CACHE.get(disabled)
     if got is None:
         got = _ACTIVE_CACHE[disabled] = tuple(
-            (p, g, blocks(p.name, disabled)) for p, g in _GATED)
+            (p, GATES.get(p.name), blocks(p.name, disabled))
+            for p in ALL_RULES)
     return got
 
 

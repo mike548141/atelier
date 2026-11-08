@@ -87,7 +87,11 @@ A good brief is falsifiable and attackable. Include:
    asserted proofs; a proof that no longer reproduces is a finding. A proof you
    have not re-run is not one you can close on. The brief-writer runs every
    re-run line once, from where the brief says to run it, before writing it
-   down.
+   down. For this repo's Python tests the line is `cd tools && python3 -m
+   unittest test_<name>` (or `python3 -m unittest discover -s tools -p
+   'test_<name>.py'`); the dotted `python3 -m unittest tools.test_<name>` raises
+   `ModuleNotFoundError`, because the test files import their siblings as
+   top-level names.
 
 ## Running it and landing the verdict
 

@@ -20,6 +20,7 @@ from pathlib import Path
 
 import secretscan as ss
 import memprobe
+import test_support_regex as rxsupport
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -1774,7 +1775,9 @@ class GatesAreNecessary(unittest.TestCase):
                          frozenset({"low-variety-entropy"}), frozenset({"jwt", "openai-key"})):
             t_gated = ss.Tally()
             gated = ss.scan_lines("p", lines, disabled, t_gated)
-            with mock.patch.object(ss, "_NAMED_GATED", tuple((p, None) for p in ss.NAMED)), \
+            # One home for the table (GT3): patching NAMED_GATES and the memo
+            # is enough.
+            with mock.patch.object(ss, "NAMED_GATES", {}), \
                     mock.patch.object(ss, "_ACTIVE_CACHE", {}), \
                     mock.patch.object(ss, "_ASSIGNED_TAIL_RX", re.compile("")), \
                     mock.patch.object(ss, "HIGH_ENTROPY_MIN_LEN", 0):
@@ -1784,6 +1787,64 @@ class GatesAreNecessary(unittest.TestCase):
             self.assertEqual([dataclasses.asdict(f) for f in gated],
                              [dataclasses.asdict(f) for f in plain], disabled)
             self.assertEqual(dataclasses.asdict(t_gated), dataclasses.asdict(t_plain), disabled)
+
+    def test_gates_hold_over_a_corpus_generated_from_the_regexes(self):
+        """GT2 (160/720): built from each gated rule's own regex, one line per
+        alternative of every alternation, so a branch added under the same
+        name is exercised the day it is added."""
+        for pat in ss.NAMED:
+            gate = ss.NAMED_GATES.get(pat.name)
+            if gate is None:
+                continue
+            with self.subTest(pat.name):
+                rx = getattr(pat.regex, "original", pat.regex)
+                matched = [t for t in rxsupport.samples(rx) if rx.search(t)]
+                self.assertTrue(matched, f"no sample of {pat.name} matches it: "
+                                "extend test_support_regex or add a POSITIVE")
+                for line in matched:
+                    self.assertTrue(gate(line),
+                                    f"gate for {pat.name} rejects {line!r}")
+
+    def test_every_top_level_alternative_of_a_gated_rule_passes_its_gate(self):
+        seen = 0
+        for pat in ss.NAMED:
+            gate = ss.NAMED_GATES.get(pat.name)
+            rx = getattr(pat.regex, "original", pat.regex)
+            branches = rxsupport.top_level_branches(rx.pattern)
+            if gate is None or len(branches) < 2:
+                continue
+            for src in branches:
+                seen += 1
+                brx = re.compile(src, rx.flags)
+                got = [t for t in rxsupport.samples(brx) if brx.search(t)]
+                with self.subTest(rule=pat.name, branch=src):
+                    self.assertTrue(got)
+                    self.assertTrue(all(gate(t) for t in got))
+        self.assertGreaterEqual(seen, 2, "github-token has two top-level branches")
+
+    def test_no_named_rule_is_case_insensitive(self):
+        """GT2 (b): 'no NAMED rule carries (?i)' was a comment; every literal
+        gate is case-sensitive because of it. A case-insensitive rule needs a
+        flag-aware gate, which none of the literal gates is."""
+        for pat in ss.NAMED:
+            rx = getattr(pat.regex, "original", pat.regex)
+            self.assertEqual(0, rx.flags & re.IGNORECASE,
+                             f"{pat.name} is case-insensitive: its gate is not")
+
+    def test_the_gate_is_declared_on_the_rule_and_the_table_is_derived(self):
+        """GT3: one home."""
+        self.assertEqual(ss.NAMED_GATES, {p.name: p.gate for p in ss.NAMED
+                                          if p.gate is not None})
+        self.assertFalse(hasattr(ss, "_NAMED_GATED"))
+
+    def test_the_entropy_pass_is_not_a_continue_past_the_rest_of_the_loop(self):
+        """GT4: a step added after the entropy pass must run on every line,
+        not only on lines that had an entropy match. The pass used to end the
+        loop body with `continue`, correct only while it was the last step."""
+        import inspect
+        src = inspect.getsource(ss.scan_lines)
+        self.assertNotIn("if first is None:", src)
+        self.assertIn("if first is not None:", src)
 
     def test_the_marker_regex_needs_the_marker_literal(self):
         # The `ALLOW_MARKER in line` guard in scan_lines rests on this.

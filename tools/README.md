@@ -2028,6 +2028,49 @@ each line, and every exit code, is unchanged (`115/080`). `conflictscan`,
 is no kind a marker could name. `reviewscan`, `publishscan` and `harvestscan`
 have no per-finding kind either.
 
+## `anchoredrx.py` — linear-time stand-ins for three greedy-run regexes
+
+Not a check. Three rules each open with a greedy character class that must be
+followed by a literal: `leakscan`'s `email` (`[A-Za-z0-9._%+-]+@…`),
+`secretscan`'s `basic-auth-url` and its `URL_RX` carve-out
+(`[A-Za-z][A-Za-z0-9+.-]*://…`). The regex engine restarts the class run at every
+word boundary and scans to the end of the run before it fails on the literal, so
+a line of short boundary-rich runs (`1-1-1-`, `sk-`, `eyJ.`) cost O(n²): about
+twenty-two minutes for a 1 MiB line, in a blocking hook (cold pass `160/720`,
+GT1). The gates skip the rules on lines without the literal; one trailing `@` or
+`://` reopened the path.
+
+`AnchoredRx` keeps the original compiled pattern as the single statement of
+what matches, and tries it once per maximal run, at the first position that
+satisfies the pattern's own start condition (`\b`, or `\b` plus a letter) at or
+after the previous match. It yields the same match objects in the same order;
+`test_anchoredrx.py` proves that against the originals on a fuzzed corpus
+including adjacent matches, and proves the cost grows 4x for 4x the line. It is
+the stand-in for a possessive quantifier that the Python 3.9 floor does not
+have, and would not be enough anyway: the restarts, not the backtracking, are
+the cost.
+
+**A gate is declared on its rule.** `Pattern.gate` in `leakscan` and
+`secretscan` is the rule's cheap necessary condition (`110/130`, lever 4),
+written beside the regex it conditions, so widening the regex and re-reading the
+gate are one diff hunk. `GATES` / `NAMED_GATES` are derived from the rules and
+are the one table the scan loop and the shadow spans read. The suites prove
+every gate necessary against a corpus **generated from each rule's own regex**
+(`test_support_regex.py`: one line per alternative of every alternation), not
+only against a hand-kept list; and that no gated rule is case-insensitive unless
+its gate is flag-aware. `test_scanner_rules.py` pins the three rules the two
+scanners copy (`private-key-header`, `aws-access-key-id`, `jwt`) to each other,
+declaring the one intended difference, and runs every rule table through
+boundary-rich lines at two sizes: the control shape for this defect class, which
+had been found three times by hand. A regex known to be quadratic and not yet
+fixed is listed with its reason (`pathscan`'s scheme-URL pattern, `BP9`), and the
+test fails when the entry has become linear.
+
+The speed figures in `CHANGELOG.md` for the gates (about 3x for `leakscan`, 4.6x
+for `secretscan` on a 50 MB corpus) were measured once on a corpus that is not in
+the repository; the equivalence claim re-runs, the speed figure does not. A
+future figure names its corpus shape or ships a generator.
+
 ## `filewalk.py` — the one file walk every scanner shares
 
 Not a check. Every tree-walking scanner calls `walk_files(base, skip_dir_names)`

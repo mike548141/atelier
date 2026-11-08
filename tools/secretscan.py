@@ -102,6 +102,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import anchoredrx  # noqa: E402
 import report  # noqa: E402
 
 # A line carrying this marker is intentionally exempt (e.g. a documented example
@@ -342,36 +343,65 @@ class Pattern:
     name: str
     severity: str  # "high" | "medium" — advisory; any hit still blocks
     regex: "re.Pattern[str]"
+    # 110/130 lever 4, 160/720 GT2: the rule's pre-filter, declared BESIDE the
+    # rule so that widening the regex and re-reading the gate are one diff
+    # hunk. A gate is a cheap test on the line that is NECESSARY for the rule
+    # to match; None means the rule always runs its full regex (fail open).
+    gate: "object" = None
 
 
-def _p(name: str, severity: str, rx: str, flags: int = 0) -> Pattern:
-    return Pattern(name, severity, re.compile(rx, flags))
+def _p(name: str, severity: str, rx: str, flags: int = 0,
+       gate: "object" = None, anchored: "dict | None" = None) -> Pattern:
+    """`anchored` (160/720 GT1) swaps the compiled regex for its linear-time
+    stand-in (`anchoredrx.AnchoredRx`): same matches, but a run of the leading
+    class is tried once, not once per word boundary."""
+    compiled = re.compile(rx, flags)
+    if anchored is not None:
+        compiled = anchoredrx.AnchoredRx(compiled, **anchored)
+    return Pattern(name, severity, compiled, gate)
 
 
 # NAMED credential formats — unambiguous by construction, so they flag on shape
 # alone. Ordered by how self-evidently they are a secret.
 NAMED: list[Pattern] = [
     _p("private-key-header", "high",
-       r"-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----"),
-    _p("pgp-private-key", "high", r"-----BEGIN PGP PRIVATE KEY BLOCK-----"),  # secretscan:allow: this is the detection pattern, not a key
-    _p("aws-access-key-id", "high", r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"),
+       r"-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----",
+       gate=lambda ln: "PRIVATE KEY-----" in ln),
+    _p("pgp-private-key", "high", r"-----BEGIN PGP PRIVATE KEY BLOCK-----",  # secretscan:allow: this is the detection pattern, not a key
+       gate=lambda ln: "-----BEGIN PGP PRIVATE KEY BLOCK-----" in ln),  # secretscan:allow: this is the detection pattern, not a key
+    _p("aws-access-key-id", "high", r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b",
+       gate=lambda ln: "AKIA" in ln or "ASIA" in ln),
     _p("github-token", "high",
-       r"\bgh[posru]_[A-Za-z0-9]{36,}\b|\bgithub_pat_[0-9A-Za-z_]{22,}\b"),
-    _p("slack-token", "high", r"\bxox[baprs]-[0-9A-Za-z-]{10,}\b"),
+       r"\bgh[posru]_[A-Za-z0-9]{36,}\b|\bgithub_pat_[0-9A-Za-z_]{22,}\b",
+       gate=lambda ln: "_" in ln and ("gh" in ln or "github_pat_" in ln)),
+    _p("slack-token", "high", r"\bxox[baprs]-[0-9A-Za-z-]{10,}\b",
+       gate=lambda ln: "xox" in ln),
     _p("slack-webhook", "high",
-       r"https://hooks\.slack\.com/services/[A-Za-z0-9/]+"),
-    _p("google-api-key", "high", r"\bAIza[0-9A-Za-z_-]{35}\b"),
-    _p("gcp-oauth-secret", "medium", r"\bGOCSPX-[0-9A-Za-z_-]{20,}\b"),
-    _p("stripe-key", "high", r"\b[rsp]k_(?:live|test)_[0-9A-Za-z]{20,}\b"),
-    _p("anthropic-key", "high", r"\bsk-ant-[A-Za-z0-9-]{20,}\b"),
-    _p("openai-key", "high", r"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b"),
-    _p("npm-token", "high", r"\bnpm_[A-Za-z0-9]{36}\b"),
-    _p("twilio-key", "high", r"\bSK[0-9a-fA-F]{32}\b"),
-    _p("sendgrid-key", "high", r"\bSG\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\b"),
+       r"https://hooks\.slack\.com/services/[A-Za-z0-9/]+",
+       gate=lambda ln: "https://hooks.slack.com/services/" in ln),
+    _p("google-api-key", "high", r"\bAIza[0-9A-Za-z_-]{35}\b",
+       gate=lambda ln: "AIza" in ln),
+    _p("gcp-oauth-secret", "medium", r"\bGOCSPX-[0-9A-Za-z_-]{20,}\b",
+       gate=lambda ln: "GOCSPX-" in ln),
+    _p("stripe-key", "high", r"\b[rsp]k_(?:live|test)_[0-9A-Za-z]{20,}\b",
+       gate=lambda ln: "k_live_" in ln or "k_test_" in ln),
+    _p("anthropic-key", "high", r"\bsk-ant-[A-Za-z0-9-]{20,}\b",
+       gate=lambda ln: "sk-ant-" in ln),
+    _p("openai-key", "high", r"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b",
+       gate=lambda ln: "sk-" in ln),
+    _p("npm-token", "high", r"\bnpm_[A-Za-z0-9]{36}\b",
+       gate=lambda ln: "npm_" in ln),
+    _p("twilio-key", "high", r"\bSK[0-9a-fA-F]{32}\b",
+       gate=lambda ln: "SK" in ln),
+    _p("sendgrid-key", "high", r"\bSG\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\b",
+       gate=lambda ln: "SG." in ln),
     _p("jwt", "high",
-       r"\beyJ[A-Za-z0-9_-]{6,}\.eyJ[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}"),
+       r"\beyJ[A-Za-z0-9_-]{6,}\.eyJ[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}",
+       gate=lambda ln: ".eyJ" in ln),
     _p("basic-auth-url", "high",
-       r"\b[a-zA-Z][a-zA-Z0-9+.-]*://[^/\s:@]+:[^/\s:@]{4,}@"),
+       r"\b[a-zA-Z][a-zA-Z0-9+.-]*://[^/\s:@]+:[^/\s:@]{4,}@",
+       gate=lambda ln: "://" in ln and "@" in ln,
+       anchored=dict(run=r"[a-zA-Z0-9+.-]+", literal="://", start=r"\b[a-zA-Z]")),
 ]
 
 # The context-free high-entropy net. Requires mixed character classes (lower +
@@ -647,7 +677,9 @@ FINGERPRINT_RX = re.compile(
 # only the path's non-final segments) is available if that narrower residual
 # is ever measured live; it is not narrowed pre-emptively because a floor
 # fitted to a hypothetical is not a floor (`ground-numeric-limits`).
-URL_RX = re.compile(r"\b[A-Za-z][A-Za-z0-9+.-]*://[^\s<>\"']+")
+URL_RX = anchoredrx.AnchoredRx(
+    re.compile(r"\b[A-Za-z][A-Za-z0-9+.-]*://[^\s<>\"']+"),
+    run=r"[A-Za-z0-9+.-]+", literal="://", start=r"\b[A-Za-z]")
 
 
 def _url_spans(line: str) -> list[tuple[int, int]]:
@@ -955,40 +987,25 @@ def _assigned_is_secret(value: str) -> bool:
 # equals sign, not at every word.)
 _ASSIGNED_TAIL_RX = re.compile(r"""[:=]\s*["']?[^\s"'`,;:]{6}""")
 
-NAMED_GATES: dict[str, "object"] = {
-    "private-key-header": lambda ln: "PRIVATE KEY-----" in ln,
-    "pgp-private-key": lambda ln: "-----BEGIN PGP PRIVATE KEY BLOCK-----" in ln,  # secretscan:allow: the detection literal, not a key
-    "aws-access-key-id": lambda ln: "AKIA" in ln or "ASIA" in ln,
-    # `gh[posru]_…` carries `gh`, `github_pat_…` carries that literal; both
-    # carry `_`. (`github` itself does not contain `gh`.)
-    "github-token": lambda ln: "_" in ln and ("gh" in ln or "github_pat_" in ln),
-    "slack-token": lambda ln: "xox" in ln,
-    "slack-webhook": lambda ln: "https://hooks.slack.com/services/" in ln,
-    "google-api-key": lambda ln: "AIza" in ln,
-    "gcp-oauth-secret": lambda ln: "GOCSPX-" in ln,
-    "stripe-key": lambda ln: "k_live_" in ln or "k_test_" in ln,
-    "anthropic-key": lambda ln: "sk-ant-" in ln,
-    "openai-key": lambda ln: "sk-" in ln,
-    "npm-token": lambda ln: "npm_" in ln,
-    "twilio-key": lambda ln: "SK" in ln,
-    "sendgrid-key": lambda ln: "SG." in ln,
-    "jwt": lambda ln: ".eyJ" in ln,
-    "basic-auth-url": lambda ln: "://" in ln and "@" in ln,
-}
-# One entry per NAMED rule, in NAMED's order: (pattern, gate-or-None).
-_NAMED_GATED: tuple[tuple[Pattern, "object"], ...] = tuple(
-    (p, NAMED_GATES.get(p.name)) for p in NAMED)
+# The gate table, DERIVED from the rules (160/720 GT2): each rule's gate is
+# declared on the rule itself, above. This dict is the one runtime home
+# `_active_named` reads, behind its memo, so patching `NAMED_GATES` and
+# clearing `_ACTIVE_CACHE` switches gating off everywhere at once.
+NAMED_GATES: dict[str, "object"] = {p.name: p.gate for p in NAMED
+                                    if p.gate is not None}
 _ACTIVE_CACHE: dict[frozenset[str], tuple] = {}
 
 
 def _active_named(disabled: frozenset[str]) -> tuple:
-    """`_NAMED_GATED` minus the disabled rules, memoised per disabled-set."""
+    """`NAMED` with each rule's gate, minus the disabled rules, memoised per
+    disabled-set."""
     if not isinstance(disabled, frozenset):   # a plain set worked before
         disabled = frozenset(disabled)
     got = _ACTIVE_CACHE.get(disabled)
     if got is None:
         got = _ACTIVE_CACHE[disabled] = tuple(
-            (p, g) for p, g in _NAMED_GATED if p.name not in disabled)
+            (p, NAMED_GATES.get(p.name)) for p in NAMED
+            if p.name not in disabled)
     return got
 
 
@@ -1073,49 +1090,51 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
         entropy = (HIGH_ENTROPY_RX.finditer(line) if len(line) >= HIGH_ENTROPY_MIN_LEN
                    else iter(()))
         first = next(entropy, None)
-        if first is None:
-            continue    # the entropy pass is the LAST step of the line loop
-        public_key_line = lineno in pem_lines or bool(PUBLIC_KEY_RX.search(line))
-        fingerprints = () if public_key_line else _fingerprint_spans(line)
-        url_spans = () if public_key_line else _url_spans(line)
-        for m in itertools.chain((first,), entropy):
-            span = m.group(0)
-            if public_key_line:
-                if tally is not None:
-                    tally.note_public_key_span()
-                continue
-            # E3, checked BEFORE the rule split so the carve-out costs one
-            # decision rather than two, and is counted once either way.
-            if _inside_fingerprint(m.span(), fingerprints):
-                if tally is not None:
-                    tally.note_fingerprint()
-                continue
-            # 320/290 — a token inside a published URL's scheme+host+path is
-            # not an entropy candidate at all, neither blocking nor advisory.
-            # Its query string and fragment are NOT covered by this span (see
-            # `URL_RX`/`_url_spans`), so a token there still reaches the
-            # checks below exactly as if no URL were present.
-            if _inside_url(m.span(), url_spans):
-                if tally is not None:
-                    tally.note_url_token()
-                continue
-            if _is_placeholder(span):
-                continue
-            if _has_mixed_classes(span):
-                # The blocking net, byte for byte as it has always been.
-                if ("high-entropy" not in disabled
-                        and shannon(span) >= HIGH_ENTROPY_MIN):
-                    _record(findings, tally, Finding(path, lineno, "high-entropy",
+        # GT4 (160/720): wrapped, not `continue`d past. A later step added
+        # to this loop body would otherwise be skipped on every line with
+        # no entropy match - nearly all of them - and nothing would say so.
+        if first is not None:
+            public_key_line = lineno in pem_lines or bool(PUBLIC_KEY_RX.search(line))
+            fingerprints = () if public_key_line else _fingerprint_spans(line)
+            url_spans = () if public_key_line else _url_spans(line)
+            for m in itertools.chain((first,), entropy):
+                span = m.group(0)
+                if public_key_line:
+                    if tally is not None:
+                        tally.note_public_key_span()
+                    continue
+                # E3, checked BEFORE the rule split so the carve-out costs one
+                # decision rather than two, and is counted once either way.
+                if _inside_fingerprint(m.span(), fingerprints):
+                    if tally is not None:
+                        tally.note_fingerprint()
+                    continue
+                # 320/290 — a token inside a published URL's scheme+host+path is
+                # not an entropy candidate at all, neither blocking nor advisory.
+                # Its query string and fragment are NOT covered by this span (see
+                # `URL_RX`/`_url_spans`), so a token there still reaches the
+                # checks below exactly as if no URL were present.
+                if _inside_url(m.span(), url_spans):
+                    if tally is not None:
+                        tally.note_url_token()
+                    continue
+                if _is_placeholder(span):
+                    continue
+                if _has_mixed_classes(span):
+                    # The blocking net, byte for byte as it has always been.
+                    if ("high-entropy" not in disabled
+                            and shannon(span) >= HIGH_ENTROPY_MIN):
+                        _record(findings, tally, Finding(path, lineno, "high-entropy",
+                                                         "entropy", "medium",
+                                                         redact(span, "entropy"),
+                                                         RESPONSE_BLOCK))
+                elif (LOW_VARIETY_RULE not in disabled
+                        and LOW_VARIETY_KEY_RX.fullmatch(span)):
+                    # E6b — the coverage that did not exist before the tier.
+                    _record(findings, tally, Finding(path, lineno, LOW_VARIETY_RULE,
                                                      "entropy", "medium",
                                                      redact(span, "entropy"),
-                                                     RESPONSE_BLOCK))
-            elif (LOW_VARIETY_RULE not in disabled
-                    and LOW_VARIETY_KEY_RX.fullmatch(span)):
-                # E6b — the coverage that did not exist before the tier.
-                _record(findings, tally, Finding(path, lineno, LOW_VARIETY_RULE,
-                                                 "entropy", "medium",
-                                                 redact(span, "entropy"),
-                                                 RESPONSE_ADVISORY))
+                                                     RESPONSE_ADVISORY))
     # A named/assigned hit and a bare entropy hit often fire on the same token;
     # keep the more specific one so the report isn't doubled.
     if not findings:
