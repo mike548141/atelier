@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2)
-      🎯 **An ask stops the whole run — decide when a session asks, and what
+- [x] 🎯 **An ask stops the whole run — decide when a session asks, and what
       it does with the rest of the work while the question waits.**
   - [ ] 🔑 **Both costs are real, and the doctrine prices only one.**
     - **Asking too early or too often:** the run halts on the first question,
@@ -45,3 +44,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: generalise park-and-proceed into a standing rule with an away mode he can declare; the notification question later.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `COMMUNICATION.md` § *When to ask*, with a declarable away mode; the harness-notification question stays open. Cold pass
+        queued as `160/1140`.

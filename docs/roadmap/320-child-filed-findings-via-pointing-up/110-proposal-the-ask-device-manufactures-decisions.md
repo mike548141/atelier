@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2)
-      🎯 **PROPOSAL — § *Asking for a ruling* tells a session HOW to ask and
+- [x] 🎯 **PROPOSAL — § *Asking for a ruling* tells a session HOW to ask and
       never tells it WHETHER there is a decision to ask about, so the device
       manufactures decisions out of non-decisions** `[M][docs]` — filed from a
       private child, 2026-08-25, via § *Pointing up*.
@@ -90,3 +89,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: add the gate before the ask device in COMMUNICATION.md: no decision is manufactured where an explanation would do.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `COMMUNICATION.md` § *Asking for a ruling*, the gate before the device. Cold pass
+        queued as `160/1140`.

@@ -359,6 +359,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the ladder gains a floor: framing always, a…](roadmap/160-doctrine-review-owed/1110-rule-4-cold-pass-queued-ladder-floor.md)
 - [ ] ⏳ [Rule-4 cold pass queued: personal data in a public repo is one closed…](roadmap/160-doctrine-review-owed/1120-rule-4-cold-pass-queued-personal-data-closed-list.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the exception-register design, redrafted on…](roadmap/160-doctrine-review-owed/1130-rule-4-cold-pass-queued-exception-register-redraft.md)
+- [ ] ⏳ [Rule-4 cold pass queued: five session-doctrine additions the…](roadmap/160-doctrine-review-owed/1140-rule-4-cold-pass-queued-session-doctrine-batch.md)
 
 ## build/ layer — open strands
 
@@ -518,7 +519,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [The floor clause has to reach 11 children, and each child adopts it…](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
 - [ ] 🎯 [The channel-section cycle CLOSED 2026-08-17 (0 MAJOR); CH1–CH16 await…](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
 - ✅ [DONE 2026-11-03](roadmap/280-cross-session-channel-mike-commissioned/040-the-channel-can-contaminate-review-independence.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2) [Talk first — the channel as a…](roadmap/280-cross-session-channel-mike-commissioned/050-talk-first-the-channel-as-first-preference.md)
+- ✅ 🎯 [Talk first — the channel as a session's first preference, with git…](roadmap/280-cross-session-channel-mike-commissioned/050-talk-first-the-channel-as-first-preference.md)
 
 ## Ruling round 2026-08-17 — the cold-run findings (Mike)
 
@@ -574,7 +575,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal…](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
 - ✅ [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
 - [ ] 🎯 [PROPOSAL — the damaging attribution carries NO QUOTATION MARKS, so…](roadmap/320-child-filed-findings-via-pointing-up/100-unquoted-attribution-is-invisible-to-quotescan-and-a-corroboration-for-070.md)
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2) [PROPOSAL — § Asking for a ruling…](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
+- ✅ 🎯 [PROPOSAL — § Asking for a ruling tells a session HOW to ask and never…](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
 - [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the…](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
 - [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a…](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
 - [ ] [REPORT — secretscan's suppression units cannot reach a finding inside…](roadmap/320-child-filed-findings-via-pointing-up/140-secretscan-has-no-suppression-unit-for-generated-json.md)
@@ -666,7 +667,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/README.md)*
 
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2) [Decide the cheap rules first…](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/010-name-what-you-launch-then-widen-the-announcement.md)
+- ✅ 🎯 [Decide the cheap rules first — naming and announcing — and treat…](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/010-name-what-you-launch-then-widen-the-announcement.md)
 - [ ] 🎯 [Cross-repo session coordination — Mike commissioned, 2026-09-12.](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/020-parallel-sessions-across-different-repos-have-no-shared-view.md)
 
 ## 🎭 The report can lie while the work is fine — 2026-08-23
@@ -701,13 +702,13 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/410-sessions-without-a-repo-mike-commissioned/README.md)*
 
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2) [No doctrine covers a session…](roadmap/410-sessions-without-a-repo-mike-commissioned/010-no-doctrine-covers-a-session-with-no-tree.md)
+- ✅ 🎯 [No doctrine covers a session with no tree — decide what a repo-less…](roadmap/410-sessions-without-a-repo-mike-commissioned/010-no-doctrine-covers-a-session-with-no-tree.md)
 
 ## When to ask — keeping work flowing (Mike commissioned, 2026-10-01)
 
 *[Narrative](roadmap/420-when-to-ask-mike-commissioned/README.md)*
 
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2) [An ask stops the whole run —…](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
+- ✅ 🎯 [An ask stops the whole run — decide when a session asks, and what it…](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
 - [ ] 🎯 [An answer to a session's question is not a ruling. Records must tell…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
 
 ## Review quality is never traded for budget (Mike commissioned, 2026-10-04)

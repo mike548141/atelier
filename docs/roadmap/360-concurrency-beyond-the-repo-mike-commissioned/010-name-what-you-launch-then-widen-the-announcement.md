@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2)
-      🎯 **Decide the cheap rules first — naming and announcing — and treat
+- [x] 🎯 **Decide the cheap rules first — naming and announcing — and treat
       anything stronger as a separate question that needs its own evidence.**
   - [ ] **Rule 1, and it is nearly free: name what you launch on a shared host.**
         A container, background process or scheduled job started on a machine a
@@ -52,3 +51,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: adopt rules 1 and 2 (an owner marker on anything launched on a shared host; a wider session-open announcement); rule 3 stays deferred.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `CONCURRENCY.md` § *Beyond the repo* (rules 1 and 2; rule 3 stays deferred). Cold pass
+        queued as `160/1140`.

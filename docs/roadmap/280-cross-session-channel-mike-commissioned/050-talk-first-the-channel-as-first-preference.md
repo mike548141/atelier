@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2)
-      🎯 **Talk first — the channel as a session's first preference, with git
+- [x] 🎯 **Talk first — the channel as a session's first preference, with git
       and the concurrency rules behind it — Mike commissioned, 2026-09-29.**
       His words: *"The first preference should be for any claude session to
       communicate directly with another rather than rely on git, concurrency
@@ -43,3 +42,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: adopt "talk to decide, write to hold" as the channel design.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `CONCURRENCY.md` § *Talk first*; the read-order and floor-clause changes are separate items if wanted. Cold pass
+        queued as `160/1140`.

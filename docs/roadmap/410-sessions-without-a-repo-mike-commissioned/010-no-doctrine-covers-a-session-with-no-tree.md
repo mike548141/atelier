@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0330, wt: atelier-rr-722a-d2)
-      🎯 **No doctrine covers a session with no tree — decide what a repo-less
+- [x] 🎯 **No doctrine covers a session with no tree — decide what a repo-less
       session reads, keeps, and hands on.**
   - [ ] 🔑 **Three gaps, kept separate:**
     - **Onramp.** Nothing tells a repo-less session which house rules apply
@@ -29,3 +28,6 @@
         after reading a one-line summary of each of twenty; an answer, not a
         ruling):** *"Approve all 20"* — the recommendation on this item
         stands approved: a thin home-directory onramp, with "move to the repo before recording" as the default for shaping work; the privacy line travels with any output.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
+        worker, read by the orchestrator before landing): `RECORD.md` § *A session with no repo*; the home-directory onramp itself is his, and personal, so it is not built here. Cold pass
+        queued as `160/1140`.
