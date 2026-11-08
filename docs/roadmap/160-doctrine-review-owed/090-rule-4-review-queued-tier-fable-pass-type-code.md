@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
+- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1)
+      🎯 **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
   EP application; the EP cycle's three MAJORs keep it open past this).**
   *Delta:* `tools/floor.py` + `tools/floorfleet.py` +
   `tools/pre-commit.sample` + `.githooks/pre-commit` +
@@ -94,3 +95,7 @@
             amendment landed (`140/020`), and the ruleset's admin bypass was
             removed. AR2 to AR7, and AR8's process lesson, are still his to
             rule.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered, after a
+      one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
+      all 13"* — the fix summarised to him stands approved, on the reviewer's
+      counsel.

@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the queue-run skill's sync step gains the
+- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t2)
+      🎯 **Rule-4 cold pass queued: the queue-run skill's sync step gains the
       status-first gate (`200/100` C1).** The run authored this itself. It
       was queued at landing, and the run neither takes it nor spawns a
       reviewer for it. *Tier:* Fable, the principal-named review tier,
@@ -40,3 +41,7 @@
             claim on main from the dirty primary cannot land; SY7 (note) formed
             at reconcile. Findings are the principal's to decide (rule 3);
             nothing was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered, after a
+      one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
+      all 13"* — the fix summarised to him stands approved, on the reviewer's
+      counsel.

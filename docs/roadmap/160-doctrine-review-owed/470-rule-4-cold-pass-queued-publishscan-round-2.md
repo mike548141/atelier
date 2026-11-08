@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: publishscan's round-2 denylist
+- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1)
+      🎯 **Rule-4 cold pass queued: publishscan's round-2 denylist
       (`260/040`).** The run authored this itself (its dispatched workers'
       output counts as the run's authorship). It was queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -48,3 +49,7 @@
             suite ran once with the result unread under contention; a solo
             re-run is owed before "suite green at HEAD" is claimed. Findings
             are the principal's to decide (rule 3); nothing was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered, after a
+      one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
+      all 13"* — the fix summarised to him stands approved, on the reviewer's
+      counsel.

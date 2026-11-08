@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: pathscan's brace expansion and inline
+- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t2)
+      🎯 **Rule-4 cold pass queued: pathscan's brace expansion and inline
       `./` skip (`320/010` class C, `320/170`).** The run authored this
       itself (its dispatched workers' output counts as the run's
       authorship). It was queued at landing, and the run neither takes it
@@ -50,3 +51,7 @@
             that imports pathscan among them) and it did not re-run the floor;
             the pushed floor on `main` is the all-clear. Findings are the
             principal's to decide (rule 3); nothing was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered, after a
+      one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
+      all 13"* — the fix summarised to him stands approved, on the reviewer's
+      counsel.

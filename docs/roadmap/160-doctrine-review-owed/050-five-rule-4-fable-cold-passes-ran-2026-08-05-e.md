@@ -1,4 +1,5 @@
-- [ ] 🎯 **Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle
+- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1)
+      🎯 **Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle
   CLOSED (0 MAJOR each); the residue findings await Mike's ruling.**
   **SCHEDULED 2026-08-09 (Mike): the residue ruling round — these findings
   plus the sixth and seventh passes' and the P6 ADR ruling — is the next
@@ -26,3 +27,7 @@
   the landing-equals-bookkeeping clauses
   ([verdict](../../reviews/2026-08-05-1258-landing-equals-bookkeeping-cold.md))
   — LB1–LB2 notes. All five terminal: no new pointers.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered, after a
+      one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
+      all 13"* — the fix summarised to him stands approved, on the reviewer's
+      counsel.
