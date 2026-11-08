@@ -1,4 +1,5 @@
-- [ ] 🎯 **P6 — `rpi` F5: estate-internal context accumulating in public
+- [~] (claimed 2026-11-08-1140, wt: atelier-rr-722a-260)
+      🎯 **P6 — `rpi` F5: estate-internal context accumulating in public
       records. Mike's ruling owed** (was mis-marked `⏳` — the queue glyph means
       a review is queued for a taker, and what is owed here is a decision;
       re-marked 2026-08-03 on `pointerscan`'s day-one warning). Session logs
@@ -32,3 +33,11 @@
       sitting)** (left deliberately unfilled — a drafter cannot fill them
       without pre-empting the ruling). Whatever doctrine edit acceptance drives
       is self-authored ⇒ rule-4 `⏳` at *that* landing, not this one.
+  - [ ] 💬 **Mike's answer, 2026-11-08 (to options session 722ac2e2 offered in
+        its ruling round; an answer, not a ruling):** *"Type-only for private
+        state"* — the offered option read: a private repo's internal state is
+        described by its type only in a public record ("a private child was
+        failing a check"); naming a repo in any other context stays allowed.
+        The posture the draft ADR calls C. Binds forward only. Applying it
+        fills the ADR's Decision and Rejected sections and the doctrine line,
+        which is self-authored, so its landing queues a cold pass.

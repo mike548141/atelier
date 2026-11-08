@@ -1,4 +1,5 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the queue-run skill carries the whole
+- [~] (claimed 2026-11-08-1140, wt: atelier-rr-722a-900)
+      🎯 **Rule-4 cold pass queued: the queue-run skill carries the whole
       run brief (`180/010`, `180/030`), and worker teardown (`180/020`).**
       (claimed 2026-10-25-2016, wt: atelier-cold-160-900; cold pass: a Fable 5.1
       reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
@@ -50,3 +51,11 @@
       none of the delta (dispatched by the Mike-opened Opus 5.5 queue run, wt
       atelier-qr-briefs-1018); its exposure is disclosed in the brief. The
       pass stays queued for a criterion-passing cold Fable session.
+      💬 **Mike's answer, 2026-11-08 (to options session 722ac2e2 offered in
+      its ruling round; an answer, not a ruling):** *"Keep edit; read
+      committed only"* — the offered option read: commit the uncommitted edit
+      found in his prompt as his (done the same day, the commit that makes the
+      close line ask for `ccclose`); fix QK1 so the queue-run command reads
+      only the committed prompt and warns when edits are pending; apply the
+      reviewer's counsel on the other findings, **except QK5** (four units of
+      his own text the change dropped), which goes back to him.

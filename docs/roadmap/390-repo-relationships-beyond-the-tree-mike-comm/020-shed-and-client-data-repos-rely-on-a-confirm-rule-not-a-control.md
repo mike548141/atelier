@@ -33,3 +33,16 @@
         reds, secret findings in service config, both open) — those are about
         *content already exposed*; this is about the *repo-visibility and
         sharing action itself*, upstream of content.
+  - [ ] 💬 **Mike, 2026-11-08, asked by session 722ac2e2 to pick a control,
+        answered in his own words:** *"I'm sure I decided this months ago and
+        built some checks"*. Checked the same day, and he is right in part:
+        the estate-root repo carries a daily scheduled workflow that fails
+        loudly (GitHub emails the owner) the moment it is anything but
+        private, green on its runs of 2026-11-06 to 2026-11-08 (detective);
+        the client-data repo has no remote at all. The preventive layers
+        were recorded there as optional and not built: a token without
+        `Administration: write` (agents still use the full OAuth login) and an
+        organisation that locks visibility, which the owner deferred on
+        2026-08-03 to the repos-to-public programme. Not covered by any check
+        found: *"shared to unauthorised people"* (no collaborator-list audit).
+        Open for him: whether the collaborator gap needs a check.
