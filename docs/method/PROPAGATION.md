@@ -818,6 +818,33 @@ feels like progress and reliably is not.
    happen (`REVIEW.md` rule 1). The question that finds this rung: *what would
    have to stop being true for this failure to be impossible?*
 
+**What is owed, and what is earned (2026-11-09).** The ladder above is for a
+rule that has *broken*. The policy-as-code programme's aim, that doctrine be
+both enforced and directive, asked a prior question: is a rule owed both
+framing and a check from the day it is written? The answer has two parts.
+
+- **Framing is owed by every rule, up front.** Each rule is written down
+  clearly and keyed to the situation the reader will be standing in when they
+  decide, not to a condition a scanner can evaluate. This is rung 1 made a
+  design obligation, not a remedy held back until the third breakage.
+- **A mechanism is owed only where its value beats its cost.** A check is added
+  where it is worth building, ranked against every other piece of work on the
+  board like any other item; no rule is owed one by existing. Recurrence is the
+  cheapest evidence of value, so rung 2's *recurrence earns a check* stands as
+  the usual way a rule qualifies, not the only one.
+
+So the ladder is unchanged in how it is climbed (stop at the first rung that
+would have prevented the recorded occurrences), and gains a floor under it:
+rung 1 is never skipped, and a check not built is a decision with its reason
+recorded, not silence. Mike, 2026-11-09, `020/240`: *"Written always, checker
+by value"*, his pick from options the queue run offered, so an answer and not
+a ruling in his own words. It rests on his words of 2026-11-08
+on `115/170` (the proportionality question), asked whether to cap guard work:
+*"This sounds like yet another artifical limit that is not helpful. It is about
+balancing importance and priority to do the work that is most valuable"*. No
+blanket check-building follows from the aim; where each rule stands is the
+census's output (`020/220`).
+
 **The ladder only gets climbed if the trigger is countable.** Nothing here can
 currently answer "how many times has this broken?" — recurrence is noticed by
 someone's unease, which is how a rule reaches its third occurrence unpromoted.

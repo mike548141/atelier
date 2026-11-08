@@ -80,6 +80,24 @@ made firm for every child**.
   section's two halves and land with or after it; `320/100`'s form-based check
   for unquoted attribution is untouched.
 
+### Changed (2026-11-09 — the "when a rule keeps breaking" ladder gains a floor, `020/240`)
+- **`docs/method/PROPAGATION.md` § *When a rule keeps breaking* now says what
+  every rule is owed and what it has to earn.** The ladder was a remedy for a
+  rule that had already broken: stop at the first rung that fits. The
+  policy-as-code aim ("enforced and directive") asked whether every rule owes
+  both from the start. Answer, recorded as the new subsection *What is owed,
+  and what is earned*: framing is owed by every rule up front (rung 1 as a
+  design obligation, not a remedy); a mechanism is owed only where its value
+  beats its cost, ranked against all other work, with recurrence the usual
+  but not the only evidence of value. A check not built is a recorded
+  decision, not silence. The ladder's climbing rule is unchanged.
+  Mike, 2026-11-09, picked "Written always, checker by value" from options the
+  queue run offered; that is an answer, not a ruling, and the text says so. It
+  rests on his own words of 2026-11-08 on `115/170`: *"It is about balancing
+  importance and priority to do the work that is most valuable"*. No blanket
+  check-building follows. Census work (`020/220`) and the framing obligation
+  (`020/230`) are not done by this change.
+
 ### Changed (2026-11-08 — the report-up duty: the floor block now carries the privacy rule, `160/300`)
 - **The short text every child reads at session start now tells a private repo
   to describe a doctrine problem by its class only.** The `floor` region's
