@@ -202,17 +202,24 @@ stopped instead of re-deriving it:
       `test_templates.py`, the author having run only the new test, and the
       repair came 16 minutes later; `160/900` QK2.)
     - **A *cancelled* run is not a result, and a concurrent session cancels
-      yours as a matter of routine.** The floor workflow runs under
-      `cancel-in-progress: true`, so a second session pushing to the same ref
-      kills the in-flight run for *your* commit — it ends `cancelled`, which is
-      neither pass nor fail, and no run ever reports on the commit you pushed.
-      A later commit's green run is **not** a substitute: it evidences a
-      different tree, and it is only reassuring at all when your commit is an
-      ancestor of it. Read the conclusion, never just "the run finished": on
-      `cancelled`, re-run it against your own SHA and wait for that. (Grounded
-      2026-08-09: a doctrine push went green locally, its head run was cancelled
-      ~90 seconds later by a parallel session's push, and the close cited the
-      superseding commit's green — true, but evidence for someone else's tree.)
+      yours as a matter of routine.** Where the floor runs under
+      `cancel-in-progress: true` — as atelier's `ci.yml` does; a child's
+      caller workflow may not — a second session pushing to the same ref
+      kills the in-flight run for *your* commit. It ends `cancelled`, which
+      is neither pass nor fail, and no run ever reports on the commit you
+      pushed. A later commit's green run is **not** a substitute: it
+      evidences a different tree, and it is only reassuring at all when your
+      commit is an ancestor of it. The all-clear is stated positively: it is
+      conclusion `success` on a run for your own SHA, and anything else
+      (`cancelled`, `timed_out`, a startup failure, "the run finished") is
+      not one. On `cancelled`, re-run it against your own SHA and wait for
+      that, **once the group is quiet** (no floor run in flight on the ref):
+      a re-run re-enters the same concurrency group, so started while
+      another session's run is in flight it cancels that run, inflicting the
+      harm this clause guards against. (Grounded 2026-08-09: a doctrine push
+      went green locally, its head run was cancelled about 100 seconds later
+      by a parallel session's push, and the close cited the superseding
+      commit's green — true, but evidence for someone else's tree.)
   - (See also session hygiene in `ECONOMICS.md`: log where you got to, then
     start fresh rather than dragging a bloated context.)
 
