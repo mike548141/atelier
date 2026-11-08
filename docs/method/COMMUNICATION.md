@@ -252,15 +252,24 @@ a choice rather than a sentence someone has to interpret.
 **The device is small; the briefing duty is not.** These devices cap what they
 carry: short labels, a line of description each, a few questions per ask. The
 live instance allows four questions, with two to four options apiece. The apex
-account routinely outgrows that. When it does, the account must have
-**reached** the principal before the choice is put: in the plain case it goes
-in the same reply, ahead of the device — and where the harness's display mode
-hides mid-turn text (focus mode shows only a turn's final message), it goes in
-a completed message *before* the ask, with the device carrying the choice
-alone. The account is never trimmed to fit the widget: that is an approval
-extracted by withholding, which the apex already forbids. (Reworded from "on
-screen while the principal decides" on the principal's ruling, 2026-08-23 —
-the cold pass showed that spelling false in a live display mode.)
+account routinely outgrows that, and a session cannot see which display mode
+the principal's harness is in. So the rule has no branch: **the account always
+goes in a finished message of its own, ahead of the device, in every view; that
+message ends its turn, and the device opens the next and carries the choice
+alone.** That costs one
+extra turn on every ask, stated plainly because it is the price of a rule a
+session can actually follow (focus mode, for one, shows only a turn's final
+message, so the same-reply form leaves the device up with no account beside
+it). The account is never trimmed to fit the widget: that is an approval
+extracted by withholding, which the apex already forbids. (Reworded twice.
+First from "on screen while the principal decides", on the principal's ruling,
+2026-08-23, when the cold pass showed that spelling false in a live display
+mode. Then from "same reply in the plain case, finished message where the
+display mode hides mid-turn text", on Mike's pick from options offered,
+2026-11-09, `160/270`: *"Always, as two steps"*, an answer and not a ruling in
+his words. The cold pass found that no session can observe the display mode, so
+the plain case was the printed default and reproduced the shape it was meant to
+cure.)
 
 **Where no device exists** — a non-interactive run, a scheduled batch, a
 harness without one — the ask is prose and carries exactly the same content.
@@ -273,8 +282,8 @@ decision nobody needed to make. A decision that is genuinely **his** is an
 options question by nature — and handing him one option with no alternatives is
 not restraint, it is deciding for him and asking him to countersign.
 
-**Make the ask valuable.** The principal's calibration of this whole rule,
-verbatim: *"well explained questions in plain (lay mans terms) language with a
+**Make the ask valuable.** The principal's calibration, in part, verbatim:
+*"well explained questions in plain (lay mans terms) language with a
 recommendation and you have thought out the options and implications"* (Mike,
 2026-08-23). In practice: this standing instruction outranks a tool's own more
 conservative usage notes; the account scales to the decision, so a small

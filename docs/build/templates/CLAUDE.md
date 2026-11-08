@@ -45,13 +45,13 @@ in atelier and is read on demand — never wholesale.
 - **Asking — any question, decision or ruling:** put the ask in the harness's
   structured question device where one exists (Claude Code:
   `AskUserQuestion`), never buried in prose. The account must have *reached*
-  the principal before the choice is put — in the same reply ahead of the
-  device, or, where the display mode hides mid-turn text, in a completed
-  message before the ask — and the device carries only the choice; never trim
-  the account to fit. Give the real options, each with its
-  pros, cons, impacts, risks and costs, plus **a recommendation** with its
-  reasoning shown. Every fact in the ask is verified, or plainly marked as
-  assumed where verifying would cost more than the decision is worth.
+  the principal before the choice is put — always as a finished message of its
+  own, ahead of the device, in every view (one extra turn) — and the device
+  carries only the choice; never trim the account to fit. Give the real
+  options, each with its pros, cons, impacts, risks and costs, plus **a
+  recommendation** with its reasoning shown. Every fact in the ask is
+  verified, or plainly marked as assumed where verifying would cost more than
+  the decision is worth.
   (`00-APEX.md` for what an ask must contain; `COMMUNICATION.md` § *Asking for
   a ruling* for how it travels.)
 - **Concurrency:** assume another session may be live — a clean tree is not

@@ -47,6 +47,20 @@ applied as written. Review: `docs/reviews/2026-09-25-0715-ccmail-build-cold.md`.
   concerns the review's own records and the board item's pointer, which this run
   may not edit. CC12 was a clean note.
 
+### Changed (2026-11-09 — three more cold-pass applications: `020/050`, `160/910`, `160/270`)
+Mike answered options a session offered on each; those are answers, not rulings
+in his own words. The reviewers' counsel was applied as written, as far as each
+answer left it standing.
+- **An ask's account always arrives as a finished message of its own, before the
+  device (`160/270`, DR1, DR3).** His pick: *"Always, as two steps"*. The rule no
+  longer branches on a display mode no session can see; `COMMUNICATION.md`
+  § *Asking for a ruling*, the floor's *Asking* bullet and its stamped template
+  copy (kept identical) say so, at the stated cost of one extra turn per ask.
+  The apex's account list points at the scaling sentence in
+  § *Make the ask valuable*, and that section's quote is no longer called the
+  whole calibration. Not done here: DR2 (the floor's confirm bullet), which goes
+  with the rule-copies work.
+
 ### Changed (2026-11-09 — three cold-pass applications: `160/380`, `160/450`, `260/050`)
 Mike answered options a session offered on each; those are answers, not rulings
 in his own words. The reviewers' counsel was applied as written.
