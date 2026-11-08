@@ -97,8 +97,9 @@ Read in this order:
   brief-on-top/verdict-below lifecycle; inline vs batched). Documents inform;
   review enforces.
 - **`RECORD.md`** — docs-as-code (lockstep change), the append-only session log +
-  detail-on-demand, ADRs for re-litigable decisions, absolute dating. The record
-  is what makes a session resumable cold.
+  detail-on-demand, ADRs for re-litigable decisions, absolute dating, and the
+  three channels the principal speaks through (an audit names which it read). The
+  record is what makes a session resumable cold.
 - **`SIGNING.md`** — provenance for the record: SSH-native commit/tag signing
   fleet-wide (what a signature honestly claims, the adoption boundary, key
   handling under SECRETS' scope), artefact signing deferred behind a stated

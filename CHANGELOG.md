@@ -61,6 +61,25 @@ made firm for every child**.
   the name x posture scanner item can now be re-specified against this line as
   an advisory aid.
 
+### Added (2026-11-09 — doctrine: the principal speaks through three channels, `320/070`)
+- **`RECORD.md` gains § *What the principal said arrives three ways*, with two
+  rules.** The principal reaches a session by the opening prompt, by mid-turn
+  messages and by question-box picks. (1) A mid-turn instruction counts exactly
+  like an opening one, and one meant to stand is written down where later
+  sessions will see it. (2) Any audit of what he asked says which of the three
+  channels it read, because a read of one is a confident negative about the
+  rest. The section also carries the finding's own warning: a channel's record
+  type is not its authorship (only 43.3% of mid-turn records are human-typed),
+  so a corpus must name how it tells his typing from injected text. Grounded in
+  the 2026-08-21 estate measurement (24.3% of what he typed arrived mid-turn)
+  and in `cctranscript`'s one-channel read (`210/100`). Source: the
+  principal's pick of "Adopt both rules" from offered options, 2026-11-08, an
+  answer rather than a ruling in his words. `GUARDS.md` § *A rule with no home
+  is not a rule* gains a pointer, and `README.md` lists the section.
+- **Not done here:** `320/080` (`quotescan`) must build its corpus on this
+  section's two halves and land with or after it; `320/100`'s form-based check
+  for unquoted attribution is untouched.
+
 ### Changed (2026-11-08 — the report-up duty: the floor block now carries the privacy rule, `160/300`)
 - **The short text every child reads at session start now tells a private repo
   to describe a doctrine problem by its class only.** The `floor` region's

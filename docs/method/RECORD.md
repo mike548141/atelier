@@ -278,6 +278,55 @@ This is why an approval alone never closes a recommendation: the approval says
 ruling. See `GUARDS.md` § *A rule with no home is not a rule* for the class
 this instance belongs to.
 
+## What the principal said arrives three ways — read and honour all of them
+
+The principal speaks to a session through **three channels**, and a record or an
+audit of "what did he ask for" that names only one is a confident negative:
+
+1. **The opening prompt** — the message that starts the session.
+2. **Mid-turn messages** — typed while the session works. They arrive as
+   steering, not as a brief, so they feel lighter than they are.
+3. **Question-box picks** — a selection in the structured decision device
+   (`COMMUNICATION.md` § *Asking for a ruling*). In a Claude Code transcript
+   these are stored as three different record types, and a read that filters
+   on the first (`type == "user"`) drops the other two **silently**.
+
+Two rules follow. Mike chose both from options put to him on 2026-11-08 ("Adopt
+both rules"; an answer to a question asked, not a ruling in his own words —
+`320/070`).
+
+- **A mid-turn instruction counts exactly like an opening one.** The session
+  acts on it, and one meant to stand — a rule, a ruling, a scope — is written
+  down where later sessions will see it, before the turn ends. This is
+  `GUARDS.md` § *A rule with no home is not a rule* applied to an arrival mode
+  rather than a rule type: an instruction that arrived as steering and was
+  homed nowhere governs nothing after the session closes.
+- **An audit of what the principal asked for says which of the three channels
+  it read.** Without that, its negatives are artefacts of its filter. "He never
+  asked for that" is a claim about the corpus the audit read, and it states
+  that corpus.
+
+**Why it earned doctrine.** The loss is scope, not sampling noise. Measured
+across the estate's transcripts (2026-08-21, classified identically on both
+channels), **24.3%** of what the principal typed arrived mid-turn (3,013
+opening against 965 mid-turn), and in one child repo all nineteen of its most
+consequential instructions did. Four of the five deliverables that repo exists
+to produce were commissioned in messages an opening-prompt read cannot see.
+A second repo then rebuilt a requirements list and its extractor dropped his
+founding message the same way, returning 3,020 plausible messages that looked
+correct. This house's own `cctranscript` read only the first channel and
+printed `searched prompts+replies` anyway (`210/100`).
+
+**Both halves, or the rule trades one wrong count for another.** A channel's
+*record type* is not its *authorship*. Only **43.3%** of mid-turn records are
+typed by the principal; the rest are task notifications, messages from other
+sessions and system reminders, which arrive in both records. Widening a read to
+the mid-turn channel without also filtering for who wrote each record counts
+system text as his words. So an audit, a corpus or a scanner built on this
+section names **both**: which channels it read, and how it told his typing from
+injected text. Records that predate the field that marks the origin of a
+message need their own rule, not a silent drop (one child lost 1,305 that way).
+
 ## The roadmap — one file per item, a generated index
 
 The board is a **per-item store** (board-store ADR, 2026-08-15): each item is

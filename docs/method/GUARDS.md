@@ -386,6 +386,11 @@ doctrine and not only in the incident that earned it: the incident is the
 evidence, the doctrine surface is the rule. Same relationship for every entry
 in this file.
 
+**The principal's own words are subject to the same test.** An instruction he
+typed mid-turn, or chose in the question box, is as binding as one in the
+opening prompt, and as homeless if nothing writes it down (`RECORD.md` § *What
+the principal said arrives three ways*).
+
 ## When a guard is wrong
 
 A false positive is not an allowance case. It is a defect in the guard, and the
