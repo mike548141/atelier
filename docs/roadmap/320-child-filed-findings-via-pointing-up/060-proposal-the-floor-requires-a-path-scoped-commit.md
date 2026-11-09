@@ -1,4 +1,4 @@
-- [ ] 🎯 **PROPOSAL for the floor + `GUARDS.md` — where siblings exist, require a
+- [~] (claimed 2026-11-09-1402, wt: atelier-qr-d0ca-msg, session d0ca5d24) 🎯 **PROPOSAL for the floor + `GUARDS.md` — where siblings exist, require a
       path-scoped commit or an explicit whole-index marker** `[M][tools][docs]`
       — filed from `cbom` 2026-08-19 via § *Pointing up* (its board `120/070`,
       `b60590b`), by a session reporting itself as the **offender** in a fresh

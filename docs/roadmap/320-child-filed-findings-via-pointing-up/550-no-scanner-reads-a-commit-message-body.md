@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: no floor scanner reads a commit message, so a term that is
+- [~] (claimed 2026-11-09-1402, wt: atelier-qr-d0ca-msg, session d0ca5d24) 🔎 **Hand-up: no floor scanner reads a commit message, so a term that is
       caught in files lands unflagged in a message body** `[M][tools]` — filed
       2026-10-11 from a private child repo via `PROPAGATION.md` § *Pointing
       up*. Class only: no repo, term, person or hash appears below. Checked

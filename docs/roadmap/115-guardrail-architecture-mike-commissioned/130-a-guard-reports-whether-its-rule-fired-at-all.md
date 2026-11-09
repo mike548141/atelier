@@ -1,4 +1,4 @@
-- [ ] **A guard reports whether its rule fired at all, and over what — so
+- [~] (claimed 2026-11-09-1402, wt: atelier-qr-d0ca-cover, session d0ca5d24) **A guard reports whether its rule fired at all, and over what — so
       "clean" and "scanned nothing" stop looking identical.** The cheapest
       finding of the whole commission, and it is imported rather than invented:
       assertion verification calls this vacuity, and treats a property that
