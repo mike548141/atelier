@@ -1371,12 +1371,33 @@ class AdvisoryCountContract(unittest.TestCase):
         # board too (160/970): the 010/170 grace's notice, contract tests below.
         self.assertTrue(floor.BY_NAME["board"].advisory_count)
         self.assertIsNone(floor.BY_NAME["board"].advisory)
+        # attribscan too (320/100): its warnings before the date, and it keeps
+        # an advisory form for adoption. Contract test below.
+        self.assertTrue(floor.BY_NAME["attribscan"].advisory_count)
+        self.assertIsNotNone(floor.BY_NAME["attribscan"].advisory)
         others = [s.name for s in floor.SCANNERS
                   if s.advisory_count
                   and s.name not in ("secretscan", "licenscan", "conflictscan",
-                                     "leakscan", "datescan", "board")]
+                                     "leakscan", "datescan", "board", "attribscan")]
         self.assertEqual([], others, "a new count-carrying check needs its own "
                                      "contract test, not this one by accident")
+
+    def test_attribscan_prints_the_contract_line_zero_included(self):
+        """Whole tree, because the line is printed in every mode and the tree
+        form needs no git: one finding, then a clean tree."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "docs").mkdir()
+            (root / "docs" / "a.md").write_text("Ruled 2026-11-09.\n",
+                                                encoding="utf-8")
+            scan = [sys.executable, str(TOOLS_DIR / "attribscan.py"),
+                    "--root", str(root), "docs"]
+            out = subprocess.run(scan, capture_output=True, text=True)
+            self.assertEqual(0, out.returncode, out.stderr)
+            self.assertEqual(1, floor._read_advisory_count(out.stdout, "attribscan"))
+            (root / "docs" / "a.md").write_text("Nothing here.\n", encoding="utf-8")
+            zero = subprocess.run(scan, capture_output=True, text=True)
+            self.assertEqual(0, floor._read_advisory_count(zero.stdout, "attribscan"))
 
     def _licence_repo(self, td: str, *extra: tuple[str, str]) -> Path:
         """A tiny repo asserting Apache-2.0, with a permissive header in a

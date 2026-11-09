@@ -835,6 +835,30 @@ SCANNERS: tuple[Scanner, ...] = (
         # still commits; the guard names the drift when the fix is one line.
     ),
     Scanner(
+        "attribscan",
+        # 320/100, slice 2 of 320/810 (the principal, 2026-11-09: "all six,
+        # warnings at first and then move to blocking action"). Reads ADDED
+        # lines only on both planes, the hook against the index and CI against
+        # its parent (harvestscan's convention): a record's old `ruled` cannot
+        # be fixed without rewriting the record, so history is measured
+        # (`attribscan` with no plane flag, exit 0), never gated. The warning
+        # period is ON THE DATE in attribscan (`ATTRIBUTION_WARN_UNTIL`), so
+        # the flip is the constant's and needs no edit here, and `--warn` stays
+        # out of the templates: `warns_only` then says what is true, that the
+        # check will gate on its date. Its count of warnings reaches the board
+        # through `advisory_count`, not the tick alone.
+        hook=["--staged", "--root", "{root}", "{scope}"],
+        ci=["--against", "HEAD^", "--root", "{root}", "{scope}"],
+        # A child may soften it for adoption, with a why and a review-by, like
+        # the other judgement-adjacent prose checks. A floor-level softening
+        # selects this argv on both planes; on CI that is an empty diff.
+        advisory=["--warn", "--staged", "--root", "{root}", "{scope}"],
+        why="an attribution to the principal carries a quotation of him, a "
+            "citation of where he said it, or says it is an agent's decision",
+        default_scope="docs",
+        advisory_count=True,
+    ),
+    Scanner(
         "licenscan",
         hook=["--expect", "{licence}", "{scope}"],
         ci=["--expect", "{licence}", "{scope}"],

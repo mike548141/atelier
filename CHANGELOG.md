@@ -69,6 +69,22 @@ Doctrine wording only; no scanner or tool changes.
   lines. Blocking, and the "follow-ups all landed" sub-shape, stay unbuilt.
 
 ### Added (2026-11-10 — `blockscan` reads edits inside mapped sub-sections, `320/340`, slice 1 of `320/810`)
+
+### Added (2026-11-09 — `attribscan`: "ruled" with no quote of him, `320/100`, slice 2 of `320/810`)
+- **New scanner `attribscan`.** A record that says the owner ruled something
+  with no quotation of him, no citation of where he said it and no statement
+  that it is an agent's call is a finding; it reads the form, never the truth.
+  It reads only lines a commit adds, on both planes, because an old record
+  cannot be fixed without rewriting it; the whole-tree form only reports. Warns
+  and exits 0 until 2027-02-08, a dated constant no flag moves (the date is the
+  run's choice, not the principal's), then exits 1 unless `--warn` was given.
+  Registered in the floor with an advisory form for adoption. Probed by exit
+  code in 21 child checkouts and atelier, on the CI plane's own argument: 0
+  non-zero exits before or on the flip date. Whole-tree share, reported rather
+  than gated: 1,372 of 5,144 Markdown files carry the form (27%), the highest
+  child share is 1 of 2 files.
+
+### Added (2026-11-09 — `blockscan` reads edits inside mapped sub-sections, `320/340`, slice 1 of `320/810`)
 - **An edit inside an unmapped subsection of a mapped section is now a finding
   (`blockscan`).** The rule read only the lines between a mapped heading and the
   next heading, so a change to a `###` beneath a mapped `##` changed nothing it

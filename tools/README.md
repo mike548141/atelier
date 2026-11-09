@@ -1880,6 +1880,60 @@ The converse is loose by design: **any** link or code span naming an entry
 counts as listing it, wherever it sits in the index — a passing mention is
 indistinguishable from an entry.
 
+## `attribscan.py` — an attribution to the principal carries his words (warning until 2027-02-08)
+
+Board `320/100`, the second slice of `320/810` (his words 2026-11-09: *"all six,
+warnings at first and then move to blocking action"*). A record that says the
+owner ruled something, with no quotation of him and no citation of where he
+said it, can manufacture an instruction he never gave, and later sessions then
+defend it against him. Spelling, wrapping, links and dates all pass a confident
+fabrication, and a quote-checker never looks when there are no quotation marks.
+
+It reads the **form**, never the truth: a line that attributes a decision to him
+(`ruled` other than `overruled` or `ruled out`; `his ruling|instruction|directive`,
+`the owner's ...`, `the principal's ...`; `he directed`, `he instructed`; a
+capitalised name's `ruling` or `directive`) with nothing beside it to show whose
+words these are. Beside it means the same paragraph or list item, at most three
+lines either side, inline code removed: a double-quoted quotation (straight or
+curly), a `>` blockquote line, a citation (`ADR` and a number, `decisions/`,
+`sessions/`, `transcript`, `session` and a hex id, a board id such as `060/030`),
+or a statement that it is an agent's own call (`the run's choice`, `an agent's
+decision`). Fenced code, inline code and `>` blockquote lines are not attributions,
+and a generated `docs/ROADMAP.md` (when `docs/roadmap/` exists) is skipped so a
+claim is not counted twice. A marker `attribscan:allow: <reason>` on the line or
+its block exempts it; a bare marker exempts nothing.
+
+```sh
+python3 tools/attribscan.py --staged --root . docs        # the hook plane: added lines
+python3 tools/attribscan.py --against HEAD^ --root . docs # the CI plane: added lines
+python3 tools/attribscan.py --root . docs                 # whole tree: report only, exit 0
+python3 tools/attribscan.py --selftest
+```
+
+**Additions only, on both planes** (`320/810`): records are append-only history,
+so an old `ruled` cannot be fixed without rewriting the record. The whole-tree
+form exists to measure the share of a repo's records that carry the form, and
+never blocks. Measured 2026-11-09: 1,372 of 5,144 Markdown files across atelier
+and 21 children carry the form,
+and the highest single child share was a half, of two files: reported here, and
+no reason to gate history, since `--against HEAD^` reads only what a commit adds.
+
+Until `ATTRIBUTION_WARN_UNTIL` (**2027-02-08**, UTC, a constant no flag moves;
+the date is the run's choice, four weeks after blockscan's sub-section date) a
+finding on the staged or CI plane is reported and exits `0`. On and after it the
+finding exits `1`, unless `--warn` was given. Registered in `floor.py` for every
+child, like any registry line, with an `advisory` form a child can declare for
+adoption with a why and a review date. On the first commit of a repo `HEAD^` does
+not exist and the run passes and says so; any other unresolvable revision is a
+broken scan (exit `2`).
+
+Exit codes: `0` nothing blocking (clean, a warning before the date, `--warn`, or
+any whole-tree run) · `1` a finding on the staged or CI plane on or after the
+date · `2` the scan itself is broken. **What it cannot see:** whether an
+attribution is true, or whether a quotation is his (`320/080`'s corpus-checking
+problem, not this scanner's); and the patterns are a grammar, so a sentence that
+attributes in other words is not read.
+
 ## `stampscan.py` — an inlined copy still equals its canonical parent (advisory)
 
 Where a child repo or a template **inlines** a floor or a pull-quote of canonical
