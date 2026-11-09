@@ -1,4 +1,4 @@
-- [ ] 🎯 **Mint the evidence-window rule as guard-design doctrine — Mike's
+- [~] (claimed 2026-11-09-1330, wt: atelier-qr-d0ca-guards, session d0ca5d24) 🎯 **Mint the evidence-window rule as guard-design doctrine — Mike's
       call.** Proposed wording: *a guard may only enforce a rule whose
       licensing context fits inside its evidence window; where the context that
       would license an exception is outside what the guard can see, the rule is

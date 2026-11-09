@@ -1,4 +1,4 @@
-- [ ] 🎯 **Every guard declares the purpose it answers to, and proves it fires
+- [~] (claimed 2026-11-09-1330, wt: atelier-qr-d0ca-guards, session d0ca5d24) 🎯 **Every guard declares the purpose it answers to, and proves it fires
       on its own grounding incidents — Mike's call, and it is the answer to the
       question he actually asked.** The axis is not narrow versus wide. It is
       what a guard is *organised around*: a detectable feature, or the purpose
