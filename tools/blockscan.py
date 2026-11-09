@@ -106,9 +106,38 @@ It does NOT see: (a) the body under a doc's `#` title, which is a section
 too and which the co-change rule also cannot see (every mapped doc has one,
 a few non-blank lines); (b) a fenced presentation of the floor in
 `PROPAGATION.md`; (c) setext headings, indented headings and a second `#`.
-An edit in any of those is invisible to both the rule and the report. It
-runs under `--check` only, so `--staged` and `--against` stay blind to a
-subsection-only edit (CU5, CU10 of the 160/430 pass).
+An edit in any of those is invisible to both the rule and the report. The
+report itself runs under `--check` only; since the sub-section check below,
+`--staged` and `--against` read a sub-section edit too (CU5, CU10 of the 160/430
+pass named that gap).
+
+THE SUB-SECTION CHECK (board `320/340`, the first slice of `320/810`, the
+principal's order of 2026-11-09: "all six, warnings at first and then move to
+blocking action"). The rule above reads the lines between a mapped heading and
+the next heading of any level, so an edit inside an UNMAPPED subsection of a
+mapped section changed nothing the rule could see, and the session that built
+the rule walked straight into that. This closes it without changing the rule's
+own slice: every `##`-or-deeper subsection beneath a mapped heading, in the sense
+`check_unmapped` already uses (nearest mapped ancestor, so a subsection mapped to
+a DIFFERENT bullet keeps answering to that bullet alone), is compared too. A
+changed subsection whose bullet did not move is a `subsection` finding, named
+apart from a `violation` so the two can be counted and judged apart; the bullet,
+the allow marker and the three places it may sit are exactly the rule above.
+It reads the same two states, so it is live on `--staged` and `--against`, and
+`--check` has nothing to compare. WHY THE DEFAULT AND NOT AN OPT-IN: the two
+candidates the item offered (map every subsection, or `recursive: true` per
+entry) both leave the blind spot where nobody has yet thought to widen the map,
+and each new subsection re-opens it; deriving the membership from the headings
+leaves no map to go stale. That is this slice's choice, not his.
+
+THE DATE. Until `SUBSECTION_WARN_UNTIL` a `subsection` finding is reported and
+exits 0, `--warn` or not. On and after it the finding exits 1, and `--warn` does
+not soften it: `--warn` keeps the MEANING it has always had for the direct rule
+(whose flip stays a separate ruling), and this check was ordered blocking by
+the principal, on a date, in `.github/workflows/ci.yml`'s `--against HEAD^ --warn`
+step just as anywhere else. The constant is compared with the UTC clock; no flag,
+environment variable or map key moves it. The date itself is the run's choice,
+not his (four weeks apart from the next, `320/810`).
 
 ONE STATED ASSUMPTION, honestly, not rounded away: every mapped path (the
 region, the template, every source) is assumed to ALREADY EXIST at `HEAD` —
@@ -195,9 +224,12 @@ silently degraded if ever crossed (`method/GUARDS.md` rule b).
 Exit codes (fail-safe, matching pathscan's own advisory-first posture — this
 check is first-of-kind and not yet reviewed, so its one live wiring
 (atelier's own `ci.yml`, see WIRING RESIDUAL above) passes `--warn`; THE
-FLIP TO BLOCKING IS A SEPARATE RULING, not this build's to take):
-  0  clean; or --warn was given and only `violation` findings exist
-  1  `violation` finding(s) present, and --warn was NOT given
+FLIP TO BLOCKING IS A SEPARATE RULING, not this build's to take, except for
+the `subsection` finding, which the principal ordered blocking on a date):
+  0  clean; or --warn was given and only `violation` findings exist; or only
+     `subsection` findings exist and today is before `SUBSECTION_WARN_UNTIL`
+  1  `violation` finding(s) present and --warn was NOT given; or `subsection`
+     finding(s) present on or after `SUBSECTION_WARN_UNTIL`, --warn or not
   2  usage / config error — a malformed map, an unresolvable region/template/
      source file, a mapped path resolving outside --root, a stale heading, a
      missing bullet anchor, a `git show` failure, bad CLI arguments (NEVER
@@ -211,6 +243,7 @@ Python.
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
 import re
 import subprocess
@@ -241,6 +274,15 @@ DEFAULT_MAP_NAME = "blockscan_map.json"
 # a fixed, checkable ceiling.
 MAX_MAPPED_FILE_BYTES = 4 * 1024 * 1024
 
+# 320/810 slice 1 (see THE DATE in the module docstring): before this date a
+# `subsection` finding is reported and exits 0; on and after it, it exits 1,
+# `--warn` or not. Compared with the UTC clock, with no flag, environment
+# variable or map key that moves it (the shape of leakscan's
+# `BINARY_GRACE_UNTIL`). A run's choice of date, not the principal's. The
+# others in the staggered turn-on, four weeks apart: `attribscan` 2027-02-08,
+# and the closed personal-data check after that (`320/810` names them).
+SUBSECTION_WARN_UNTIL = datetime.date(2027, 1, 11)
+
 _HEADING_RX = re.compile(r"^#{1,6}\s")
 _TOP_BULLET_RX = re.compile(r"\n-\s\*\*")
 
@@ -254,7 +296,7 @@ class ConfigError(RuntimeError):
 class Finding:
     kind: str        # "violation" | "stale-heading" | "missing-bullet"
                       # | "missing-file" | "missing-region" | "skipped"
-                      # | "moved" | "unmapped"
+                      # | "moved" | "unmapped" | "subsection"
     bullet: str | None
     source_path: str | None
     heading: str | None
@@ -576,6 +618,93 @@ def check_unmapped(cfg: dict, read_text) -> list[Finding]:
     return findings
 
 
+def _utc_today() -> datetime.date:
+    return datetime.datetime.now(datetime.timezone.utc).date()
+
+
+def subsection_warn_only(today: datetime.date | None = None) -> bool:
+    """True strictly before `SUBSECTION_WARN_UNTIL` (UTC). Tests patch
+    `_utc_today`; nothing a caller can pass at the command line reaches it."""
+    return (today or _utc_today()) < SUBSECTION_WARN_UNTIL
+
+
+# ------------------------------------------------- the sub-section check --
+
+def _subsections(text: str, mapped: set[str]) -> dict[str, dict[tuple[str, int], tuple[int, list[str]]]]:
+    """For each mapped heading in `text`, the unmapped subsections it owns: the
+    nearest mapped ancestor, as `check_unmapped` reads it, so a subsection that
+    is mapped to another bullet, or that sits under one, answers to that bullet
+    alone. The value is `{(heading, nth occurrence under this parent): (line,
+    body lines)}`; a subsection's body runs to the next `##`-or-deeper heading
+    outside a fence, non-recursive like the rule's own slice."""
+    heads = _headings(text)
+    lines = text.splitlines()
+    out: dict[str, dict[tuple[str, int], tuple[int, list[str]]]] = {}
+    seen: dict[tuple[str, str], int] = {}
+    stack: list[tuple[int, str]] = []
+    for idx, (line_i, level, head) in enumerate(heads):
+        while stack and stack[-1][0] >= level:
+            stack.pop()
+        parent = next((t for _, t in reversed(stack) if t in mapped), None)
+        if head not in mapped and parent is not None:
+            end = heads[idx + 1][0] if idx + 1 < len(heads) else len(lines)
+            key = (parent, head)
+            n = seen.get(key, 0)
+            seen[key] = n + 1
+            out.setdefault(parent, {})[(head, n)] = (line_i, _normalise(lines[line_i + 1:end]))
+        stack.append((level, head))
+    return out
+
+
+def _subsection_findings(bullet_id: str, decl: dict, path: str, heading: str,
+                         old_text: str, new_text: str, mapped: set[str],
+                         cfg: dict, region_changed: bool, template_changed: bool,
+                         region_new_bullet, template_new_bullet) -> list[Finding]:
+    """The sub-section check for one mapped source of one bullet (see the
+    module docstring). A subsection that changed while its bullet did not move
+    in both files is a `subsection` finding, unless a scoped allow marker sits
+    in its new text or the new bullet (the same three places the rule reads)."""
+    old_subs = _subsections(old_text, mapped).get(heading.strip(), {})
+    new_subs = _subsections(new_text, mapped).get(heading.strip(), {})
+    findings: list[Finding] = []
+    for key in sorted(set(old_subs) | set(new_subs)):
+        sub_heading = key[0]
+        old_body = old_subs.get(key)
+        new_body = new_subs.get(key)
+        if old_body is not None and new_body is not None and old_body[1] == new_body[1]:
+            continue
+        line = (new_body[0] if new_body is not None else old_body[0]) + 1
+        if region_changed and template_changed:
+            findings.append(Finding(
+                "moved", bullet_id, path, sub_heading, line,
+                f"subsection of {heading.strip()!r} changed; both the region "
+                "bullet and the template bullet changed with it"))
+            continue
+        body_text = "\n".join(new_body[1]) if new_body is not None else ""
+        if _has_allow(body_text,
+                      region_new_bullet[0] if region_new_bullet else "",
+                      template_new_bullet[0] if template_new_bullet else ""):
+            findings.append(Finding(
+                "skipped", bullet_id, path, sub_heading, line,
+                f"blockscan:allow - subsection of {heading.strip()!r}, "
+                "comparison skipped"))
+            continue
+        missing = []
+        if not region_changed:
+            missing.append(cfg["region"]["path"])
+        if not template_changed:
+            missing.append(cfg["template"]["path"])
+        findings.append(Finding(
+            "subsection", bullet_id, path, sub_heading, line,
+            f"{path} § {sub_heading!r} (a subsection of mapped "
+            f"{heading.strip()!r}) changed but bullet {decl['anchor']!r} did "
+            "not change in: " + ", ".join(missing)
+            + f". Either move the bullet in both files, or add '<!-- "
+              f"{ALLOW_MARKER}: <reason> -->' to the changed subsection or "
+              "the bullet."))
+    return findings
+
+
 # ------------------------------------------------------------ staged mode --
 
 def check_costaged(root: Path, cfg: dict, read_old, read_new) -> list[Finding]:
@@ -619,6 +748,12 @@ def check_costaged(root: Path, cfg: dict, read_old, read_new) -> list[Finding]:
     new_source_cache: dict[str, str] = {}
     old_source_cache: dict[str, str] = {}
 
+    # 320/340: every heading the map names, per doc, for the sub-section check.
+    mapped_by_path: dict[str, set[str]] = {}
+    for decl in cfg["bullets"].values():
+        for src in decl["sources"]:
+            mapped_by_path.setdefault(src["path"], set()).add(src["heading"].strip())
+
     for bullet_id, decl in cfg["bullets"].items():
         region_new_bullet = extract_bullet(region_new_body, decl["anchor"])
         region_old_bullet = extract_bullet(region_old_body, decl["anchor"])
@@ -642,8 +777,19 @@ def check_costaged(root: Path, cfg: dict, read_old, read_new) -> list[Finding]:
             old_section = extract_section(old_source_cache[path], src["heading"])
             if new_section is None:
                 continue  # already reported as stale-heading above
+            # 320/340: a change beneath this heading, in a subsection it owns,
+            # is checked even when the heading's own lines did not move. A
+            # heading new in this commit (old side unresolved) is the direct
+            # rule's to judge: its whole body changed by construction.
+            if old_section is not None:
+                findings.extend(_subsection_findings(
+                    bullet_id, decl, path, src["heading"],
+                    old_source_cache[path], new_source_cache[path],
+                    mapped_by_path[path], cfg,
+                    region_changed, template_changed,
+                    region_new_bullet, template_new_bullet))
             if old_section is not None and _normalise(old_section) == _normalise(new_section):
-                continue  # this source did not change in this commit
+                continue  # this source's own lines did not change in this commit
 
             # +2: the heading's own 0-based line index, plus one to land on
             # the section's first body line, plus one for 1-based display.
@@ -691,6 +837,7 @@ def check_costaged(root: Path, cfg: dict, read_old, read_new) -> list[Finding]:
 _CONFIG_ERROR_KINDS = {"missing-region", "missing-bullet", "stale-heading",
                        "missing-file"}
 _UNMAPPED_KINDS = {"unmapped"}
+_SUBSECTION_KINDS = {"subsection"}
 _VIOLATION_KINDS = {"violation"}
 _CLEAN_KINDS = {"moved", "skipped"}
 
@@ -734,10 +881,33 @@ def _render_unmapped(unmapped: list[Finding]) -> str:
     return "\n".join(lines)
 
 
-def render_human(findings: list[Finding]) -> str:
+def _render_subsections(subs: list[Finding], blocking: bool) -> str:
+    until = SUBSECTION_WARN_UNTIL.isoformat()
+    lines = [(f"\u2717 blockscan: {len(subs)} subsection edit(s) inside a mapped "
+              f"section with no bullet move (blocking since {until}).")
+             if blocking else
+             (f"\u26a0 blockscan: {len(subs)} subsection edit(s) inside a mapped "
+              f"section with no bullet move (warning, blocking from {until}).")]
+    for f in sorted(subs, key=lambda x: (x.bullet or "", x.source_path or "", x.line)):
+        lines.append(f"  {_safe(f.source_path)}:{f.line}  bullet={f.bullet}  "
+                     f"{_safe(f.detail)}")
+    return "\n".join(lines)
+
+
+def render_human(findings: list[Finding], *, today: datetime.date | None = None) -> str:
     unmapped = [f for f in findings if f.kind in _UNMAPPED_KINDS]
-    base = _render_base([f for f in findings if f.kind not in _UNMAPPED_KINDS])
-    return base + ("\n" + _render_unmapped(unmapped) if unmapped else "")
+    subs = [f for f in findings if f.kind in _SUBSECTION_KINDS]
+    rest = [f for f in findings if f.kind not in (_UNMAPPED_KINDS | _SUBSECTION_KINDS)]
+    parts: list[str] = []
+    # A subsection finding alone is not "nothing to check moved": say what ran,
+    # not the clean head, when it is the only thing there is to say.
+    if rest or not subs:
+        parts.append(_render_base(rest))
+    if subs:
+        parts.append(_render_subsections(subs, not subsection_warn_only(today)))
+    if unmapped:
+        parts.append(_render_unmapped(unmapped))
+    return "\n".join(parts)
 
 
 def _render_base(findings: list[Finding]) -> str:
@@ -824,7 +994,9 @@ def _main(argv: list[str] | None = None) -> int:
     ap.add_argument("--warn", action="store_true",
                     help="report violation findings but always exit 0 for "
                          "them (advisory rollout — first-of-kind, not yet "
-                         "reviewed). Never downgrades a config error.")
+                         "reviewed). Never downgrades a config error, and "
+                         "does not soften a `subsection` finding, whose own "
+                         "date decides (SUBSECTION_WARN_UNTIL).")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
@@ -894,11 +1066,18 @@ def _main(argv: list[str] | None = None) -> int:
 
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     violations = [f for f in findings if f.kind in _VIOLATION_KINDS]
+    # The dated turn-on (320/810 slice 1): warning first, and on the date it
+    # blocks whatever --warn says.
+    subsections = [f for f in findings if f.kind in _SUBSECTION_KINDS]
+    subsection_blocks = bool(subsections) and not subsection_warn_only()
 
     if args.json:
         print(json.dumps({
-            "clean": not errors and not violations,
+            "clean": not errors and not violations and not subsection_blocks,
             "warn": args.warn,
+            "subsection": {"count": len(subsections),
+                           "blocking": subsection_blocks,
+                           "until": SUBSECTION_WARN_UNTIL.isoformat()},
             "findings": [asdict(f) for f in findings],
             "suppressed": {"by_allow_marker":
                           sum(1 for f in findings if f.kind == "skipped")},
@@ -910,6 +1089,8 @@ def _main(argv: list[str] | None = None) -> int:
 
     if errors:
         return 2  # fail-safe: NEVER downgraded by --warn
+    if subsection_blocks:
+        return 1
     if violations:
         return 0 if args.warn else 1
     return 0

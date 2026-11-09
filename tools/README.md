@@ -2051,15 +2051,34 @@ heading nobody maps stays unmapped until someone reads that log. **What it does
 not see** (160/430, CU5): the body under a doc's `#`
 title (every mapped doc has one, a few non-blank lines, and the co-change rule
 cannot see it either), a fenced presentation of the floor in `PROPAGATION.md`,
-setext or indented headings, and a second `#`; and it runs under `--check`
-only, so a subsection-only edit passes `--staged` and `--against` unremarked.
-Fences pair by the shared rule (a bare closer of the same character, at least as
+setext or indented headings, and a second `#`. Fences pair by the shared rule (a bare closer of the same character, at least as
 long), and heading text and map paths are printed with control and bidi
 characters escaped. A map `path` that resolves outside `--root` is a config
 error (exit `2`).
 
-Exit codes: `0` clean, or `--warn` with violation findings only · `1` a
-co-change violation, without `--warn` · `2` usage/config error — a malformed
+**The sub-section check (board `320/340`, the first slice of `320/810`; his
+words 2026-11-09: *"all six, warnings at first and then move to blocking
+action"*).** The rule's slice stops at the next heading of any level, so an
+edit in an unmapped subsection of a mapped section changed nothing it could
+see. Now `--staged` and `--against` also compare every unmapped `##`-or-deeper
+subsection whose nearest mapped ancestor is the mapped heading: a change there
+with its bullet unmoved is a `subsection` finding, with the same remedies as a
+`violation` (move the bullet in both files, or a reasoned `blockscan:allow`
+marker in the changed subsection or the bullet). A subsection mapped to another
+bullet answers to that bullet alone, so the apex case still holds, and a
+subsection added or removed in the commit counts as changed. Until
+`SUBSECTION_WARN_UNTIL` (**2027-01-11**, UTC, a constant no flag moves; the
+date is the run's choice, not his) it warns and exits `0`; on and after it, it
+exits `1`, and `--warn` does not soften it, since `--warn` is the posture of
+the direct rule, whose flip stays a separate ruling. In `--json` it is the
+`subsection` block (count, blocking, until) and `clean` turns false only from
+the date. It stays out of the floor registry for the reason below: it reads
+atelier's doctrine docs, which no child has.
+
+Exit codes: `0` clean, or `--warn` with violation findings only, or `subsection`
+findings before their date · `1` a co-change violation without `--warn`, or a
+`subsection` finding from its date with or without `--warn` · `2` usage/config
+error — a malformed
 map, an unresolvable region/template/source file (or one resolving outside
 `--root`), a stale heading, a missing bullet anchor, a `git show` failure (never
 downgraded by `--warn`).

@@ -7,12 +7,16 @@ source doc with a mapped heading, a region file, and a template file — the
 same four-file shape as `blockscan.py`'s own `--selftest`, factored here so
 each case is a separate, named test rather than one long script."""
 
+import contextlib
+import datetime
+import io
 import json
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 import blockscan as bs
@@ -541,6 +545,201 @@ class BoundedMemory(unittest.TestCase):
             f"peak RSS grew {growth / 1e6:.1f} MB for a ~2.9 MB larger "
             f"mapped source file, past the {bound / 1e6:.1f} MB bound "
             "grounded in the cap.")
+
+
+class SubsectionCheck(BlockscanFixture):
+    """320/340, the first slice of 320/810: an edit in an unmapped subsection
+    of a mapped section is a `subsection` finding, warning-only until
+    `SUBSECTION_WARN_UNTIL` and blocking from it, with the same bullet-move
+    and allow-marker remedies as the direct rule. In process, because the
+    date is patched and a subprocess cannot see the patch."""
+
+    SUB_BODY = "Sub body.\n\n"
+
+    def setUp(self):
+        super().setUp()
+        self.write_source("Original honesty text.\n\n### A subsection\n\n"
+                          + self.SUB_BODY)
+        _git(self.root, "add", "-A")
+        _git(self.root, "commit", "-q", "-m", "add subsection")
+
+    def edit_subsection(self, text="Reworded sub body.\n\n"):
+        self.write_source("Original honesty text.\n\n### A subsection\n\n" + text)
+        self.stage_all()
+
+    def run_main(self, *extra, on=None):
+        when = on if on is not None else bs.SUBSECTION_WARN_UNTIL - datetime.timedelta(days=30)
+        out = io.StringIO()
+        with unittest.mock.patch.object(bs, "_utc_today", return_value=when), \
+                contextlib.redirect_stdout(out):
+            code = bs.main(["--staged", "--root", str(self.root), *extra])
+        return code, out.getvalue()
+
+    def test_a_subsection_edit_warns_and_exits_0_before_the_date(self):
+        self.edit_subsection()
+        code, out = self.run_main()
+        self.assertEqual(code, 0, out)
+        self.assertIn("subsection edit(s)", out)
+        self.assertIn(bs.SUBSECTION_WARN_UNTIL.isoformat(), out)
+        self.assertIn("A subsection", out)
+
+    def test_the_day_before_the_date_is_still_a_warning(self):
+        self.edit_subsection()
+        code, _ = self.run_main(on=bs.SUBSECTION_WARN_UNTIL - datetime.timedelta(days=1))
+        self.assertEqual(code, 0)
+
+    def test_on_the_date_it_blocks(self):
+        self.edit_subsection()
+        code, out = self.run_main(on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 1, out)
+        self.assertIn("blocking since", out)
+
+    def test_warn_does_not_soften_it_on_the_date(self):
+        self.edit_subsection()
+        code, _ = self.run_main("--warn", on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 1)
+
+    def test_json_on_the_date_reads_not_clean_and_blocking(self):
+        self.edit_subsection()
+        code, out = self.run_main("--json", on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 1)
+        data = json.loads(out)
+        self.assertFalse(data["clean"])
+        self.assertEqual(data["subsection"]["count"], 1)
+        self.assertTrue(data["subsection"]["blocking"])
+
+    def test_json_before_the_date_stays_clean(self):
+        self.edit_subsection()
+        code, out = self.run_main("--json")
+        self.assertEqual(code, 0)
+        data = json.loads(out)
+        self.assertTrue(data["clean"])
+        self.assertFalse(data["subsection"]["blocking"])
+
+    def test_moving_the_bullet_in_both_files_clears_it_on_the_date(self):
+        self.edit_subsection()
+        self.write_region("- **The apex:** Moved block wording.\n")
+        self.write_template("- **The apex:** Moved block wording.\n")
+        self.stage_all()
+        code, out = self.run_main(on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("subsection edit(s)", out)
+
+    def test_moving_only_one_file_still_fires_naming_the_other(self):
+        self.edit_subsection()
+        self.write_region("- **The apex:** Moved block wording.\n")
+        self.stage_all()
+        code, out = self.run_main(on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 1, out)
+        self.assertIn("docs/build/templates/CLAUDE.md", out)
+
+    def test_an_allow_marker_in_the_subsection_clears_it_on_the_date(self):
+        self.edit_subsection("Reworded. <!-- blockscan:allow: deliberate -->\n\n")
+        code, out = self.run_main(on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 0, out)
+
+    def test_a_bare_marker_does_not_clear_it(self):
+        self.edit_subsection("Reworded. <!-- blockscan:allow -->\n\n")
+        code, _ = self.run_main(on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 1)
+
+    def test_a_subsection_added_this_commit_counts(self):
+        self.write_source("Original honesty text.\n\n### A subsection\n\n"
+                          + self.SUB_BODY + "### Brand new\n\nNew text.\n\n")
+        self.stage_all()
+        code, out = self.run_main(on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 1, out)
+        self.assertIn("Brand new", out)
+
+    def test_a_subsection_removed_this_commit_counts(self):
+        self.write_source("Original honesty text.\n")
+        self.stage_all()
+        code, out = self.run_main(on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 1, out)
+        self.assertIn("A subsection", out)
+
+    def test_the_against_plane_reads_it_too(self):
+        self.write_source("Original honesty text.\n\n### A subsection\n\nChanged.\n\n")
+        _git(self.root, "add", "-A")
+        _git(self.root, "commit", "-q", "-m", "sub edit")
+        out = io.StringIO()
+        with unittest.mock.patch.object(bs, "_utc_today",
+                                         return_value=bs.SUBSECTION_WARN_UNTIL), \
+                contextlib.redirect_stdout(out):
+            code = bs.main(["--against", "HEAD^", "--root", str(self.root)])
+        self.assertEqual(code, 1, out.getvalue())
+
+    def test_a_clean_tree_is_silent(self):
+        code, out = self.run_main(on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 0)
+        self.assertNotIn("subsection edit(s)", out)
+
+    def test_a_fenced_heading_does_not_cut_a_subsection_short(self):
+        self.write_source("Original honesty text.\n\n### A subsection\n\n"
+                          "```\n# not a heading\n```\n\nFirst.\n\n")
+        _git(self.root, "add", "-A")
+        _git(self.root, "commit", "-q", "-m", "fenced")
+        self.write_source("Original honesty text.\n\n### A subsection\n\n"
+                          "```\n# not a heading\n```\n\nSecond.\n\n")
+        self.stage_all()
+        code, out = self.run_main(on=bs.SUBSECTION_WARN_UNTIL)
+        self.assertEqual(code, 1, out)
+
+    def test_the_date_is_read_strictly_before(self):
+        self.assertTrue(bs.subsection_warn_only(
+            bs.SUBSECTION_WARN_UNTIL - datetime.timedelta(days=1)))
+        self.assertFalse(bs.subsection_warn_only(bs.SUBSECTION_WARN_UNTIL))
+        self.assertFalse(bs.subsection_warn_only(
+            bs.SUBSECTION_WARN_UNTIL + datetime.timedelta(days=1)))
+
+
+class SubsectionMappedElsewhere(BlockscanFixture):
+    """The apex case the rule's non-recursive slice exists for: a subsection
+    mapped to ANOTHER bullet answers to that bullet alone, so an edit to it
+    does not fire the bullet of the section it sits in."""
+
+    def setUp(self):
+        super().setUp()
+        cfg = json.loads((self.root / "tools" / "blockscan_map.json").read_text())
+        cfg["bullets"]["other"] = {"anchor": "**Other:**",
+                                   "sources": [{"path": "docs/method/APEX.md",
+                                                "heading": "### Mapped sub"}]}
+        (self.root / "tools" / "blockscan_map.json").write_text(json.dumps(cfg))
+        self.write_region("- **The apex:** Original block wording.\n"
+                          "- **Other:** other bullet text.\n")
+        self.write_template("- **The apex:** Original block wording.\n"
+                            "- **Other:** other bullet text.\n")
+        self.write_source("Original honesty text.\n\n### Mapped sub\n\nM.\n\n")
+        _git(self.root, "add", "-A")
+        _git(self.root, "commit", "-q", "-m", "mapped sub")
+
+    def run_on_date(self, *extra):
+        out = io.StringIO()
+        with unittest.mock.patch.object(bs, "_utc_today",
+                                         return_value=bs.SUBSECTION_WARN_UNTIL), \
+                contextlib.redirect_stdout(out):
+            code = bs.main(["--staged", "--root", str(self.root), *extra])
+        return code, out.getvalue()
+
+    def test_editing_it_does_not_fire_the_section_it_sits_in(self):
+        self.write_source("Original honesty text.\n\n### Mapped sub\n\nM2.\n\n")
+        self.write_region("- **The apex:** Original block wording.\n"
+                          "- **Other:** other bullet moved.\n")
+        self.write_template("- **The apex:** Original block wording.\n"
+                            "- **Other:** other bullet moved.\n")
+        self.stage_all()
+        code, out = self.run_on_date()
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("subsection edit(s)", out)
+
+    def test_a_subsection_under_the_mapped_sub_answers_to_that_sub(self):
+        self.write_source("Original honesty text.\n\n### Mapped sub\n\nM.\n\n"
+                          "#### Deep\n\nDeep.\n\n")
+        self.stage_all()
+        code, out = self.run_on_date()
+        self.assertEqual(code, 1, out)
+        self.assertIn("bullet=other", out)
+        self.assertNotIn("bullet=apex", out)
 
 
 if __name__ == "__main__":

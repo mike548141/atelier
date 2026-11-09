@@ -68,6 +68,19 @@ Doctrine wording only; no scanner or tool changes.
   review-brief skill, the reviews template and `REVIEW.md` step 5 carry the two
   lines. Blocking, and the "follow-ups all landed" sub-shape, stay unbuilt.
 
+### Added (2026-11-10 — `blockscan` reads edits inside mapped sub-sections, `320/340`, slice 1 of `320/810`)
+- **An edit inside an unmapped subsection of a mapped section is now a finding
+  (`blockscan`).** The rule read only the lines between a mapped heading and the
+  next heading, so a change to a `###` beneath a mapped `##` changed nothing it
+  could see. `--staged` and `--against` now compare every unmapped subsection
+  whose nearest mapped ancestor is the mapped heading, with the same remedies as
+  a violation. It warns and exits 0 until 2027-01-11, a date in code that no flag
+  moves (the date is the run's choice, not the principal's), and from then it
+  exits 1 and `--warn` does not soften it. Atelier-only as blockscan always was,
+  so a child's exit is unchanged. Probed: 21 of 21 child checkouts exit 2 before
+  and after (no map, never wired there); replayed over atelier's own doctrine
+  history, 14 of 124 commits would have warned, all real subsection edits.
+
 ### Changed (2026-11-09 — how a question reaches the principal, and what comes back: `320/820`, `420/020`, `020/270`)
 Doctrine wording only; no scanner or tool changes.
 - **His method for asking (`320/820`).** `COMMUNICATION.md` § *Asking for a
