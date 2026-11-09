@@ -97,6 +97,68 @@ def _git(repo: Path, *args: str, env: dict | None = None) -> subprocess.Complete
     )
 
 
+COMMIT_MSG_SAMPLE = TOOLS_DIR / "commit-msg.sample"
+TRACKED_COMMIT_MSG = TOOLS_DIR.parent / ".githooks" / "commit-msg"
+
+
+class CommitMsgHookTest(unittest.TestCase):
+    """.githooks/commit-msg (roadmap 320/810) — the message plane.
+
+    Git runs `pre-commit` before the message exists, so a check on a commit's
+    title has to run from here. Real commits, because a hook that is only shown
+    to exist proves nothing about whether git calls it."""
+
+    def setUp(self):
+        self._tmp = tempfile.mkdtemp(prefix="commitmsg-test-")
+        self.repo = Path(self._tmp) / "r"
+        (self.repo / ".githooks").mkdir(parents=True)
+        _git(self.repo, "init", "-q", "-b", "main")
+        _git(self.repo, "config", "user.name", "Test")
+        _git(self.repo, "config", "user.email", "test@example.com")  # leakscan:allow: RFC-2606 fixture identity for throwaway test repos
+        _git(self.repo, "config", "commit.gpgsign", "false")
+        dst = self.repo / ".githooks" / "commit-msg"
+        shutil.copy(TRACKED_COMMIT_MSG, dst)
+        dst.chmod(0o755)
+        _git(self.repo, "config", "core.hooksPath", ".githooks")
+        (self.repo / "a").write_text("1\n")
+        _git(self.repo, "add", "a")
+
+    def tearDown(self):
+        shutil.rmtree(self._tmp, ignore_errors=True)
+
+    def _commit(self, env=None):
+        return _git(self.repo, "commit", "-q", "-m", "x", env=env or {})
+
+    def test_tracked_hook_matches_the_canonical_sample(self):
+        self.assertEqual(COMMIT_MSG_SAMPLE.read_text(), TRACKED_COMMIT_MSG.read_text())
+
+    def test_tracked_hook_is_executable(self):
+        self.assertTrue(TRACKED_COMMIT_MSG.stat().st_mode & 0o111)
+
+    def test_the_hook_names_no_scanner(self):
+        body = "\n".join(ln for ln in TRACKED_COMMIT_MSG.read_text().splitlines()
+                         if not ln.lstrip().startswith("#"))
+        self.assertNotRegex(body, r"\b\w+scan\.py")
+
+    def test_a_clean_commit_passes_through_the_message_plane(self):
+        r = self._commit(env={"ATELIER_TOOLS": str(TOOLS_DIR)})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("msg plane", r.stderr + r.stdout)
+
+    def test_fails_closed_when_floor_is_unresolvable(self):
+        r = self._commit(env={"ATELIER_TOOLS": "/nonexistent-tools-dir"})
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("fail closed", (r.stderr + r.stdout).lower())
+        self.assertEqual(_git(self.repo, "rev-list", "--count", "HEAD").returncode, 128,
+                         "nothing may enter history")
+
+    def test_a_message_file_argument_is_required(self):
+        r = subprocess.run(["sh", str(TRACKED_COMMIT_MSG)], cwd=self.repo,
+                           capture_output=True, text=True)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("no message file", r.stderr)
+
+
 class TrackedHookTest(unittest.TestCase):
     """.githooks/pre-commit — the hook that survives a fresh clone.
 

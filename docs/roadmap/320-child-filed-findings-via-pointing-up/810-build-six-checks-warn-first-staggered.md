@@ -50,6 +50,11 @@
         measured rate (88% of commits in atelier, 97% in one child, by session
         transcript) is why. Probe by exit code: 21 of 21 exit 0. Tests: 11, in
         `tools/test_sweepscan.py`.
+  - [x] ✅ **The commit-message plane LANDED 2026-11-10**: `floor.py --plane msg`,
+        `.githooks/commit-msg` beside `pre-commit`, a `msg` template on `Scanner`
+        absent by default. A clone that predates the hook is told by one line on
+        its own next commit; nothing reaches into it (a hook needs installing per
+        clone, and `floorfleet` does not yet check for this one).
   - [ ] **The dates are the run's choice, not his**: 2027-01-11, 2027-02-08,
         2027-03-08, one check at a time and four weeks apart, none before
         2027-01-11 because earlier flips already fall on 2026-11-18, 2026-12-09

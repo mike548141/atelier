@@ -182,7 +182,8 @@ git config user.email "<git_identity.email>"
    mkdir -p .githooks
    cp "$SRC/.githooks/pre-commit" .githooks/pre-commit
    cp "$SRC/.githooks/pre-merge-commit" .githooks/pre-merge-commit  # a clean `git merge` skips pre-commit
-   chmod +x .githooks/pre-commit .githooks/pre-merge-commit
+   cp "$SRC/.githooks/commit-msg" .githooks/commit-msg  # git runs pre-commit before the message exists
+   chmod +x .githooks/pre-commit .githooks/pre-merge-commit .githooks/commit-msg
    git config core.hooksPath .githooks
    # Absolutise: a relative path here only resolves from the main checkout, so
    # the fail-closed hook would block every WORKTREE commit (fleet-wide bug,

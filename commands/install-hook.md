@@ -26,6 +26,10 @@ Do this:
    # hands the merged tree to the same checks (it needs pre-commit beside it).
    cp "${CLAUDE_PLUGIN_ROOT}/tools/pre-merge-commit.sample" "$(git rev-parse --git-path hooks)/pre-merge-commit"
    chmod +x "$(git rev-parse --git-path hooks)/pre-merge-commit"
+   # The commit-message plane: git runs pre-commit before the message exists,
+   # so the checks that read a commit message run one hook later.
+   cp "${CLAUDE_PLUGIN_ROOT}/tools/commit-msg.sample" "$(git rev-parse --git-path hooks)/commit-msg"
+   chmod +x "$(git rev-parse --git-path hooks)/commit-msg"
    ```
 
 3. **Point the hook at this plugin's bundled scanners.** Critical: `${CLAUDE_PLUGIN_ROOT}`

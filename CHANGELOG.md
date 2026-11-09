@@ -62,6 +62,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   line-shape pins (extended, not removed, for `indexscan`, `licenscan` and
   `reviewscan`).
 
+### Added (2026-11-10 — the commit-message plane, `320/810`)
+- **`floor.py --plane msg` and `.githooks/commit-msg`.** A commit message is a
+  surface `pre-commit` cannot read, because git runs `pre-commit` before the
+  message exists. The new hook, one hook later, hands `floor.py --plane msg` the
+  message file. A check joins by declaring a `msg` template on `Scanner`, absent
+  by default, so no existing scanner changes. Fail-closed if `floor.py` or the
+  message file is missing. On CI, a check that reads a message goes over the
+  pushed range through its own `ci` template and only reports, because a pushed
+  message cannot be fixed without rewriting history.
+- **A clone that predates the hook finds out on its own next commit.** The
+  hook plane prints one `commit-msg` line saying the checks did not run and
+  where to copy the file. Nothing reaches into a clone to install it.
+  `tools/commit-msg.sample` is the canonical copy; `commands/install-hook.md`
+  and `create-repo` install it.
+
 ### Added (2026-11-10 — `sweepscan`: commits name their files, `320/060`, slice 4 of `320/810`)
 - **New scanner `sweepscan`, hook plane only.** Where a repo has more than one
   live worktree, a commit either names its files (`git commit -- <paths>`, which

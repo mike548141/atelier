@@ -624,6 +624,12 @@ ordinary `git commit` only. Measured on git 2.50.1 (roadmap `115/340`):
 | `git merge --no-ff` (a clean automatic merge) | `pre-merge-commit` (atelier ships it beside `pre-commit`; it hands over to the same checks) | yes |
 | `git cherry-pick`, `git revert`, `git rebase` (including `rebase --continue` after a hand-resolved conflict) | none | **no** |
 
+The commit message is a separate plane (`floor.py --plane msg`, `320/810`):
+`commit-msg` runs for `git commit` and for a merge, after git has written the
+message and with `GIT_INDEX_FILE` still naming the index the commit will carry.
+Neither `pre-commit` nor any CI step can read that message before it lands, so
+the check that does can only be this hook, and `--no-verify` skips it too.
+
 A rebase or cherry-pick writes commits whose bytes no client-side plane read,
 and a hand-resolved rebase conflict lands genuinely new content that way.
 `post-rewrite` can warn after a rebase but cannot refuse. **Those commits are

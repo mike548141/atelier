@@ -26,6 +26,8 @@ and what the config is allowed to mean.
 Zero third-party deps, same as the rest of the suite.
 """
 
+import contextlib
+import io
 import json
 import os
 import re
@@ -34,6 +36,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 # 210/390: fail loudly and say why, rather than error on 3.10 syntax or
@@ -176,6 +179,51 @@ class RegistryTest(unittest.TestCase):
         self.assertNotIn("--check", soft)
         hard = floor._render(floor.BY_NAME["sizescan"].ci, root, cfg, "sizescan")
         self.assertIn("--check", hard)
+
+
+class MsgPlaneTest(unittest.TestCase):
+    """The commit-message plane (320/810): absent by default, read only by a
+    check that declares it, and fail-closed if it has nothing to read."""
+
+    def test_only_a_check_written_for_it_declares_msg(self):
+        for s in floor.SCANNERS:
+            if s.name not in floor.MSG_CHECKS:
+                self.assertIsNone(s.template("msg"), s.name)
+
+    def test_a_scanner_with_no_template_on_a_plane_is_none(self):
+        s = floor.Scanner("x", hook=["--root", "{root}"], ci=None, advisory=None,
+                          why="y")
+        self.assertEqual(s.template("hook"), ["--root", "{root}"])
+        self.assertIsNone(s.template("msg"))
+
+    def test_render_substitutes_the_message_file(self):
+        out = floor._render(["--message-file", "{msgfile}", "--root", "{root}"],
+                            Path("/repo"), floor.Config(), "x", trees=["."],
+                            msgfile="/tmp/m")
+        self.assertEqual(out, ["--message-file", "/tmp/m", "--root", "/repo"])
+
+    def test_msg_plane_needs_the_message_file_and_refuses_it_elsewhere(self):
+        self.assertEqual(floor.main(["--plane", "msg", "--root", "."]), 1)
+        self.assertEqual(floor.main(["--plane", "hook", "--message-file", "x",
+                                     "--root", "."]), 1)
+
+    def test_list_on_the_msg_plane_runs_without_a_message_file(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(floor.main(["--plane", "msg", "--list"]), 0)
+
+    def test_commit_msg_note(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            with unittest.mock.patch.object(floor, "SCANNERS", (floor.Scanner(
+                    "x", hook=None, ci=None, advisory=None, why="y",
+                    msg=["{msgfile}"]),)):
+                self.assertIn("commit-msg.sample", floor.commit_msg_hook_note(root))
+            hook = root / ".git" / "hooks" / "commit-msg"
+            hook.parent.mkdir(exist_ok=True)
+            hook.write_text("#!/bin/sh\n")
+            hook.chmod(0o755)
+            self.assertEqual(floor.commit_msg_hook_note(root), "")
 
 
 class ConfigTest(unittest.TestCase):

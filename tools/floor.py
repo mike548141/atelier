@@ -51,8 +51,17 @@ be the wrong kind of uniformity:
         rather than ✅ — identical output for materially different cover is the
         claim, not the check (`Scanner.full_cover_flag`).
 
+  msg   the commit-message plane (`.githooks/commit-msg`, `320/810`). Runs only
+        the checks that declare a `msg` template, handing each the message file
+        git has just written; nothing else reads it. The pre-commit gate cannot
+        do this job: git runs `pre-commit` before the message exists. On CI the
+        same checks read the pushed range through their own `ci` template, and
+        those findings only report, because a pushed message cannot be fixed
+        without rewriting history.
+
 Both planes read this one registry, so a scanner added here reaches every child's
-hook and every child's CI at once, with no child edit.
+hook and every child's CI at once, with no child edit. A commit-msg hook is a
+file each clone installs (`commit_msg_hook_note`, below).
 
 THREE STATES, NOT TWO — what a green tick is allowed to mean
 -------------------------------------------------------------
@@ -275,6 +284,7 @@ WHAT THIS CANNOT SEE — read before trusting a clean run
 Usage:
   floor.py --plane hook --root <repo>    the pre-commit gate (staged, full cover)
   floor.py --plane ci   --root <repo>    the CI backstop (whole tree)
+  floor.py --plane msg  --root <repo> --message-file <f>  the commit-message gate
   floor.py --list                        show the registry and exit
   floor.py --selftest                    prove the logic offline, then exit
 """
@@ -434,8 +444,11 @@ class Flags:
 class Scanner:
     """One check, and exactly how each plane invokes it.
 
-    `hook`/`ci` are argument templates; a None plane means the check does not run
-    there at all. `advisory` is the argument form that reports without blocking —
+    `hook`/`ci`/`msg` are argument templates; a None plane means the check does
+    not run there at all. `msg` is absent by default: only a check written to
+    read a commit message declares it. `{msgfile}` in a `msg` template is the
+    message file git passed the hook. `advisory` is the argument form that
+    reports without blocking —
     None means this check may not be softened (see the module docstring: boundary
     and integrity checks have no advisory form, by design, with one exception:
     publishscan, a boundary check, carries one as an ADOPTION AID — a child
@@ -493,10 +506,18 @@ class Scanner:
     # both entries already said it in prose. Declared and derived must agree, in
     # both directions, or the selftest fails.
     warn_only: bool = False
+    # Argument template on the commit-message plane; None for nearly every
+    # check. See the class docstring. Keyword-only in practice, so the
+    # registry's existing positional entries need no edit.
+    msg: list[str] | None = None
 
     @property
     def is_local(self) -> bool:
         return self.run is not None
+
+    def template(self, plane: str) -> list[str] | None:
+        """This check's argument template on `plane`, or None."""
+        return {"hook": self.hook, "ci": self.ci, MSG_PLANE: self.msg}.get(plane)
 
     def warns_only(self, plane: str) -> bool:
         """Can this check's FINDINGS block, on this plane?
@@ -522,7 +543,7 @@ class Scanner:
         is deliberately unchanged by this state. A warn-only check that
         returns non-zero has failed for a reason its warn flag was never
         about."""
-        argv = self.hook if plane == "hook" else self.ci
+        argv = self.template(plane)
         if argv is None:
             return False
         return self.warn_only or any(f in argv for f in WARN_MODE_FLAGS)
@@ -957,6 +978,9 @@ BY_NAME = {s.name: s for s in SCANNERS}
 # no CI form by design. Named, not inferred from a None, so a dropped `ci=` on
 # any other entry still fails the selftest.
 HOOK_ONLY = frozenset({"sweepscan"})
+# The checks that declare a `msg` template. Named so a test notices if a new
+# entry starts reading messages without saying so.
+MSG_CHECKS = frozenset()
 
 # THE ADVISORY-COUNT CONTRACT (E6b, third consumer leg).
 #
@@ -1006,6 +1030,10 @@ class ConfigError(RuntimeError):
 
 
 PLANES = ("hook", "ci")
+# The commit-message plane stands beside the two tree planes and is deliberately
+# not one of `PLANES`: that tuple is what a child's `local` check may declare,
+# and a local check has no message file to be handed.
+MSG_PLANE = "msg"
 # Every key a `local.<name>` declaration may carry. Kept beside the parser that
 # reads them so adding a key here and reading it there stay one edit apart —
 # a key added to the parser but not to this set would be rejected as unknown,
@@ -1935,7 +1963,8 @@ def subtrees(root: Path, cfg: Config, name: str) -> list[str]:
 
 def _render(args: list[str], root: Path, cfg: Config,
             name: str | None = None,
-            trees: list[str] | None = None) -> list[str]:
+            trees: list[str] | None = None,
+            msgfile: str = "") -> list[str]:
     """Resolve an argument template against a repo. `{scope}` expands to EVERY
     path the check reads — which is why this returns a list rather than mapping
     arg-for-arg. A child's extra `flags` are appended LAST. Appending does not
@@ -1969,7 +1998,8 @@ def _render(args: list[str], root: Path, cfg: Config,
             continue
         out.append(a.format(root=str(root),
                             scope=scoped[0] if scoped else str(root),
-                            licence=cfg.licence or ""))
+                            licence=cfg.licence or "",
+                            msgfile=msgfile))
     extra = cfg.flags.get(name or "")
     if extra is not None:
         out.extend(extra.args)
@@ -1995,8 +2025,13 @@ def plan(plane: str, cfg: Config) -> list[tuple[Scanner, str]]:
     # Fleet checks first, then the child's own — the floor a repo inherits is
     # read before the floor it adds, in the output as in the doctrine.
     for s in (*SCANNERS, *cfg.local):
-        args = s.hook if plane == "hook" else s.ci
+        args = s.template(plane)
         if args is None:
+            # The msg plane runs only the checks written for it, and a
+            # msg-plane check (no hook template of its own) does not list on
+            # the hook plane: it runs one hook later on the same commit.
+            if plane == MSG_PLANE or (plane == "hook" and s.msg is not None):
+                continue
             # A check may legitimately be hook-only — the ros tripwire's
             # blocklist is machine/repo-local, the same shape as leakscan's term
             # list, and `sweepscan` reads a signal that exists only inside a
@@ -2143,8 +2178,28 @@ def moved_later(root: Path, cfg: Config) -> dict[str, str]:
     return notes
 
 
+def commit_msg_hook_note(root: Path) -> str:
+    """The sentence a clone with no commit-msg hook is told, or "" when it has
+    one. A hook is per-clone and travels with nothing, so this is how a clone
+    that predates it finds out: on its own next commit, once, in a line.
+    Nothing reaches into a clone to install it (`320/810`)."""
+    if not any(s.msg is not None for s in SCANNERS):
+        return ""
+    out = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "--git-path", "hooks/commit-msg"],
+        capture_output=True, text=True, check=False)
+    if out.returncode != 0:
+        return ""
+    hook = root / out.stdout.strip()
+    if hook.is_file() and os.access(hook, os.X_OK):
+        return ""
+    return ("this clone has no commit-msg hook, so the commit-message checks "
+            "did not run. Copy atelier's tools/commit-msg.sample there "
+            f"({hook}) and chmod +x it")
+
+
 def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
-        json_mode: bool = False) -> list[Result]:
+        json_mode: bool = False, msg_file: str = "") -> list[Result]:
     """Run the plan. In `--json` mode the scanners' own reports are routed to
     stderr so stdout carries nothing but the JSON document — a caller parsing
     this must not have to strip nine scanners' prose out of it first."""
@@ -2254,9 +2309,14 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
                                   local=True))
             continue
 
-        base = scanner.advisory if state == "advisory" else (
-            scanner.hook if plane == "hook" else scanner.ci
-        )
+        # An advisory declaration selects the advisory argv on the hook and msg
+        # planes. A check that reads a message on the CI plane is already
+        # report-only there and its advisory form has no message file to read,
+        # so it keeps its CI argv.
+        if state == "advisory" and not (plane == "ci" and scanner.msg is not None):
+            base = scanner.advisory
+        else:
+            base = scanner.template(plane)
 
         declared = subtrees(root, cfg, scanner.name)
         # The resolved half of the membership rule (TA1, ruled (a)). The lexical
@@ -2347,7 +2407,7 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             continue
 
         argv = [*_interpreter(path), str(path),
-                *_render(base, root, cfg, scanner.name, trees)]
+                *_render(base, root, cfg, scanner.name, trees, msg_file)]
         # Actions' workflow commands go to the SAME stream the scanners' own
         # prose does (`child_stdout`: stderr under --json, stdout otherwise) —
         # not unconditionally to stdout. Under --json, stdout is reserved for
@@ -2615,9 +2675,12 @@ def _selftest() -> int:
 
     # Every registered scanner runs on both planes unless deliberately absent.
     for s in SCANNERS:
-        check(f"{s.name} has a hook form", s.hook is not None)
+        check(f"{s.name} has a hook form",
+              s.hook is not None or s.msg is not None)
         check(f"{s.name} has a ci form",
               s.ci is not None or s.name in HOOK_ONLY)
+    check("no existing registry entry reads a message by accident",
+          all(s.msg is None or s.hook is None for s in SCANNERS))
 
     # The boundary/integrity checks must have NO advisory form — this is the
     # rule the whole "nothing is silently absent" design rests on.
@@ -2873,8 +2936,12 @@ def _selftest() -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="floor", description=__doc__.split("\n")[0])
-    p.add_argument("--plane", choices=("hook", "ci"), default="hook",
-                   help="hook = staged/full-cover pre-commit; ci = whole-tree backstop")
+    p.add_argument("--plane", choices=("hook", "ci", MSG_PLANE), default="hook",
+                   help="hook = staged/full-cover pre-commit; ci = whole-tree "
+                        "backstop; msg = the commit-message gate")
+    p.add_argument("--message-file", default="", metavar="PATH",
+                   help="the commit message, as git passes it to commit-msg "
+                        "(required with --plane msg, refused otherwise)")
     p.add_argument("--root", default=".", help="the repo to scan")
     p.add_argument("--tools", help="atelier's tools dir (default: env, git config, then here)")
     p.add_argument("--list", action="store_true", help="show the plan and exit")
@@ -2887,6 +2954,12 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.selftest:
         return _selftest()
+    # Refused, not defaulted: a message plane that read nothing would be a
+    # green tick over a message nobody looked at.
+    if (args.plane == MSG_PLANE) != bool(args.message_file) and not args.list:
+        print("floor: --message-file goes with --plane msg, and is required "
+              "there — BLOCKING (fail closed).", file=sys.stderr)
+        return 1
 
     root = Path(args.root).resolve()
     try:
@@ -2904,7 +2977,13 @@ def main(argv: list[str] | None = None) -> int:
 
     tools = resolve_tools_dir(args.tools)
     ci = args.plane == "ci" and os.environ.get("GITHUB_ACTIONS") == "true"
-    results = run(args.plane, root, tools, cfg, ci, json_mode=args.json)
+    results = run(args.plane, root, tools, cfg, ci, json_mode=args.json,
+                  msg_file=args.message_file)
+    if args.plane == "hook":
+        # One line, on the plane every existing clone runs on every commit.
+        note = commit_msg_hook_note(root)
+        if note:
+            results.append(Result("commit-msg", "skipped", 0, reason=note))
     if ci:
         # Inside Actions only: a local run has no GitHub context to ask, and
         # the hook plane never touches the network.

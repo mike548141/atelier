@@ -639,6 +639,16 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
     `pre-commit` and names no scanner). `cherry-pick`, `revert` and `rebase` have
     no hook that can refuse, so CI is the only plane that reads those commits
     (`docs/method/GUARDS.md` § *Which commits the hook plane reaches*).
+  - **The commit-message plane.** Git runs `pre-commit` before the message
+    exists, so checks that read a commit message run one hook later:
+    `tools/commit-msg.sample`, copied to `commit-msg` beside `pre-commit`,
+    hands `floor.py --plane msg` the message file. It names no scanner and
+    fails closed if `floor.py` or the message file is missing. A check joins
+    this plane by declaring a `msg` template in the registry, absent by
+    default, so nothing else changes. **A clone that predates this hook finds
+    out on its own next commit**: the hook plane prints one `⏭ commit-msg`
+    line saying the commit-message checks did not run and where to copy the
+    file. Nothing reaches into a clone to install it.
 - **CI** — in a repo that carries the scanners (atelier itself), run both with
   `--json` on every push (belt and braces; a hook only protects the clone that
   has it installed). A child repo runs the same scanners through its **CI
