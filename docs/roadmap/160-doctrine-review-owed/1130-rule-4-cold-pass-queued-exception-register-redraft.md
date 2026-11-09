@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
-      ⏳ **Rule-4 cold pass queued: the exception-register design, redrafted
+- [ ] ⏳ **Rule-4 cold pass queued: the exception-register design, redrafted
       on its failed pass's counsel (`160/650`, `110/100`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in
       its ruling round, which dispatched the worker that wrote it) queues
@@ -17,3 +16,12 @@
       forged cheaply; whether XR1–XR16 are each closed as claimed.
       *Intent record:*
       [`650-rule-4-cold-pass-queued-exception-register-design.md`](650-rule-4-cold-pass-queued-exception-register-design.md).
+      *Brief:*
+      `docs/reviews/2026-11-09-0153-exception-register-redraft-cold.md`,
+      written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5
+      brief-writer started by `74f2b8cd` (neither may run it); its
+      held-back sibling holds one pointer block, 3 questions and 2
+      facts. *Size:* large. The pass waits for his approval of Fable.
+      2026-11-09: his four answers are in (`160/650`; the ADR's
+      open-questions section), so the *best run after* note above is
+      met.

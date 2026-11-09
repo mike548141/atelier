@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
-      ⏳ **Rule-4 cold pass queued: seven propagation additions the principal
+- [ ] ⏳ **Rule-4 cold pass queued: seven propagation additions the principal
       approved in one list (`310/020`, `320/380`, `320/330`, `390/010`,
       `320/580`, `310/120`, `310/140`).** One changes the floor block every
       child copies. The authoring session (a principal-opened Opus 5.5 queue
@@ -18,3 +17,9 @@
       leak on a public target; whether § *Splitting a repo* claims more than
       its grounding.
       *Intent record:* the seven items named above.
+      *Brief:*
+      `docs/reviews/2026-11-09-0153-propagation-doctrine-batch-cold.md`,
+      written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5
+      brief-writer started by `74f2b8cd` (neither may run it); its
+      held-back sibling holds one pointer block, 2 questions and 2
+      facts. *Size:* medium. The pass waits for his approval of Fable.

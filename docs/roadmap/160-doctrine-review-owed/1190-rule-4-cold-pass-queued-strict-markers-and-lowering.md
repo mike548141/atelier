@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
-      ⏳ **Rule-4 cold pass queued: a malformed allow-marker goes strict after
+- [ ] ⏳ **Rule-4 cold pass queued: a malformed allow-marker goes strict after
       a dated warning (`160/480`, `160/110`), and a check may be lowered only
       declared, reasoned and expiring (`020/170`).** The shared marker reader
       runs in every child. The authoring session (a principal-opened Opus 5.5
@@ -17,3 +16,9 @@
       exempts after the date; whether the new rule covers every way a repo
       can soften a check.
       *Intent record:* the three items named above.
+      *Brief:*
+      `docs/reviews/2026-11-09-0153-strict-markers-and-lowering-cold.md`,
+      written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5
+      brief-writer started by `74f2b8cd` (neither may run it); its
+      held-back sibling holds one pointer block, 3 questions and 2
+      facts. *Size:* large. The pass waits for his approval of Fable.

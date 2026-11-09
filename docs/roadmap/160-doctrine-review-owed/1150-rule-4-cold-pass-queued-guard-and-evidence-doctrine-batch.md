@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
-      ⏳ **Rule-4 cold pass queued: eight guard and evidence additions the
+- [ ] ⏳ **Rule-4 cold pass queued: eight guard and evidence additions the
       principal approved in one list (`320/020`, `320/030`, `320/390`,
       `370/010`, `380/010`, `400/010`, `320/050`, `020/350`).** The authoring
       session (a principal-opened Opus 5.5 queue run, session 722ac2e2,
@@ -18,3 +17,9 @@
       rule already homed elsewhere; whether escaping in `strip_controls`
       reaches every surface that prints a child's config.
       *Intent record:* the eight items named above.
+      *Brief:*
+      `docs/reviews/2026-11-09-0153-guard-and-evidence-doctrine-batch-cold.md`,
+      written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5
+      brief-writer started by `74f2b8cd` (neither may run it); its
+      held-back sibling holds one pointer block, 2 questions and 1 fact.
+      *Size:* medium. The pass waits for his approval of Fable.

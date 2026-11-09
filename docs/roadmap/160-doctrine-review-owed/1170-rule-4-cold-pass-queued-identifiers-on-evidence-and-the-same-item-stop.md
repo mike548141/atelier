@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
-      ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits on
+- [ ] ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits on
       evidence (`160/960`), and a peer's edits stop only a claim of the same
       item (`010/160`, `160/260`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in
@@ -18,3 +17,9 @@
       evidence the session did not produce; whether two sessions can still
       both claim one item under the narrower stop.
       *Intent record:* the items named above.
+      *Brief:*
+      `docs/reviews/2026-11-09-0153-identifiers-on-evidence-and-the-same-item-stop-cold.md`,
+      written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5
+      brief-writer started by `74f2b8cd` (neither may run it); its
+      held-back sibling holds one pointer block, 2 questions and 1 fact.
+      *Size:* large. The pass waits for his approval of Fable.

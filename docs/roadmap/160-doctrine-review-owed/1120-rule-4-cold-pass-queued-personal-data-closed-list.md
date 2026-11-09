@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
-      ⏳ **Rule-4 cold pass queued: personal data in a public repo is one
+- [ ] ⏳ **Rule-4 cold pass queued: personal data in a public repo is one
       closed list only the principal adds to (`160/630`, PI1 and PI2
       applied).** The authoring session (a
       principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in
@@ -20,3 +19,9 @@
       wording follows his 2026-10-03 words.
       *Intent record:*
       [`630-rule-4-cold-pass-queued-pii-by-purpose.md`](630-rule-4-cold-pass-queued-pii-by-purpose.md).
+      *Brief:*
+      `docs/reviews/2026-11-09-0153-personal-data-closed-list-cold.md`,
+      written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5
+      brief-writer started by `74f2b8cd` (neither may run it); its
+      held-back sibling holds one pointer block, 3 questions and 1 fact.
+      *Size:* medium. The pass waits for his approval of Fable.

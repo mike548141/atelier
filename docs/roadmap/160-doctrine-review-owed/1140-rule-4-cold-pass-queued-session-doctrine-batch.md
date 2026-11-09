@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
-      ⏳ **Rule-4 cold pass queued: five session-doctrine additions the
+- [ ] ⏳ **Rule-4 cold pass queued: five session-doctrine additions the
       principal approved in one list (`360/010`, `320/110`, `420/010`,
       `280/050`, `410/010`).** The authoring session (a principal-opened Opus
       5.5 queue run, session 722ac2e2, 2026-11-09, in its ruling round, which
@@ -17,3 +16,9 @@
       added beyond the approved lines (in `320/110` and `420/010`) follow
       from them; whether talk-first can reach a cold reviewer.
       *Intent record:* the five items named above.
+      *Brief:*
+      `docs/reviews/2026-11-09-0153-session-doctrine-batch-cold.md`,
+      written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5
+      brief-writer started by `74f2b8cd` (neither may run it); its
+      held-back sibling holds one pointer block, 2 questions and 1 fact.
+      *Size:* medium. The pass waits for his approval of Fable.
