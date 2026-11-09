@@ -1019,6 +1019,21 @@ promoting a recurring pattern into doctrine — the ladder is cheap enough to
 start early; minting doctrine is not. Both stand until R1 makes the count
 mechanical.
 
+**Until then the mining pass is a session the principal commissions, about
+monthly** (`200/030`; his answer of 2026-11-09 approving the recommended option,
+so an answer and not a ruling in his own words). On his word, a session reads the
+session transcripts (`cctranscript`) and files what it finds as **board items**:
+recurring problems, opportunities and learnings, each with its evidence and how
+often it has recurred. It **proposes changes and never makes them**: no
+doctrine, tool or setting is edited by the pass, because a change goes through
+the board and, where `REVIEW.md` rule 3 applies, through review like any other.
+The source is the transcripts themselves and not only the findings a review
+wrote down, since a defect that never reached a review is invisible to that
+corpus by construction. It runs on his word and not on a timer: nothing is
+installed on his machine to start it (`TOOLBOX.md` § *Background jobs*), and a
+cloud schedule would not reach the transcripts, which live on his machine. Once
+the count is mechanical the pass reads it instead of re-deriving it.
+
 ## One statement, stamped copies — never three originals
 
 *Mike, 2026-07-29: the same point should not sit in three different places;

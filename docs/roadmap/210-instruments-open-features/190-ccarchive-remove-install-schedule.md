@@ -27,3 +27,11 @@
       flags and the launchd code are removed; the old flags are refused by name.
       `--help` and the man page say the tool is run by hand. `210/010` was
       noted and closed on its own evidence. Record: [`2026-10-04-2329-ccarchive-hardening.md`](../../sessions/2026-10-04-2329-ccarchive-hardening.md).
+
+      📝 **Correction, 2026-11-09 (Mike, in his own words):** *"I didnt rule out
+      background jobs. I ruled out you creating silly little apps and adding them
+      as login items on the mac that dont then run on a schedule but an event.
+      For example background jobs for an active claude code session are fine."*
+      The line above ("no background jobs") is the narrower rule overstated: the
+      standing rule is no helper app or interpreter script registered as a login
+      item. See `TOOLBOX.md` § *Background jobs*.

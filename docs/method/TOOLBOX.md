@@ -103,6 +103,30 @@ finds it:
 - **When a session finds a tool the list lacks, or a better finding method,
   it updates this list** in the same commit as the work that needed it.
 
+## Background jobs — what is ruled out, and what is not
+
+The principal, 2026-11-09, correcting a reading of his earlier ruling as a ban
+on background jobs: *"I didnt rule out background jobs. I ruled out you creating
+silly little apps and adding them as login items on the mac that dont then run on
+a schedule but an event. For example background jobs for an active claude code
+session are fine."*
+
+- **Fine:** a background job inside a live Claude Code session (a long test run,
+  a watcher, a poll). It starts and ends with the session and leaves nothing on
+  the machine.
+- **Ruled out:** a session creating a standing helper (a small app or a script
+  under an interpreter) and registering it as a login item, so that it starts on
+  an event (login) rather than on a schedule and outlives the session. It is also
+  a new trust surface, so `AUTONOMY.md`'s floor applies as it always did.
+- **A real schedule is a different thing.** `ccarchive --install-schedule` sets
+  one up for an install that wants it; the principal's own machine stays manual
+  (`210/230`).
+
+Records that state the rule as a flat "no background jobs" (`210/190`, and a
+session record of 2026-10-04) were recording the narrower rule above. The board
+item carries a dated correction; the session record is history and keeps its
+words.
+
 ## The command allowlist is part of this
 
 A repo's `.claude/settings.json` allowlist is the machine-checkable half of the <!-- pathscan:allow: gitignored by design since the P1 untrack ruling — never on disk in a fresh checkout -->
