@@ -12,7 +12,7 @@
       `GUARDS.md`, `docs/build/templates/CLAUDE.md`, `CLAUDE.md`,
       `skills/review-brief/SKILL.md`, `tools/coldsweep.py` and its test, the
       2026-08-05 ADR's correction, `CHANGELOG.md` — the commits that close those
-      items, on `main`, 2026-11-09.
+      items, on `main`, 2026-11-09, and the commit that closes `320/830`.
       *Questions worth the pass's time:* whether a reviewer that skips the log
       can still be primed another way; whether any text still leans on the
       withdrawn rule.
