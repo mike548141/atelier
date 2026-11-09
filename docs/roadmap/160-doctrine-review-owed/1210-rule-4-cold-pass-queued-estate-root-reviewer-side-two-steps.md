@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the estate root as an ordinary private repo
+- [~] (claimed 2026-11-09-0214, wt: under ~/worktrees/briefs, brief only, session 9bb1b984) ⏳ **Rule-4 cold pass queued: the estate root as an ordinary private repo
       (`020/050`), independence fixed at the reviewer (`160/910`, `160/930`), and
       the explanation before the box (`160/270`).** Touches the floor every child
       copies. The authoring session (a principal-opened Opus 5.5

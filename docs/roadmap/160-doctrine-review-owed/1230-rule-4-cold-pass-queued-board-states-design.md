@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the board-states design (`310/160`, `310/060`).**
+- [~] (claimed 2026-11-09-0214, wt: under ~/worktrees/briefs, brief only, session 9bb1b984) ⏳ **Rule-4 cold pass queued: the board-states design (`310/160`, `310/060`).**
       Every board in the estate would change. The authoring session (a principal-opened Opus 5.5
       queue run, session 722ac2e2, 2026-11-09, in its ruling round, which
       dispatched the worker that wrote it) queues this and does not take it.

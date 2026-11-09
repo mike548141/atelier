@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the thirteen technical fixes he approved in
+- [~] (claimed 2026-11-09-0214, wt: under ~/worktrees/briefs, brief only, session 9bb1b984) ⏳ **Rule-4 cold pass queued: the thirteen technical fixes he approved in
       one list (`160/050`, `090`, `100`, `220`, `470`, `490`, `520`, `560`, `590`,
       `300`, `570`, `430`, `680`).** Scanners in every child changed, and several
       passes had a MAJOR. The authoring session (a principal-opened Opus 5.5
