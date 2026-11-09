@@ -149,7 +149,7 @@ in atelier and is read on demand — never wholesale.
 - **Concurrency:** assume another session may be live — a clean tree is not
   proof you're alone. At session start read `git status` first — dirty work
   this session didn't make means stop and move, never autostash it — then,
-  where there is a remote, `git pull --rebase --autostash`; push after each
+  where the branch has an upstream, `git pull --rebase --autostash`; push after each
   commit. Take a worktree by default for write-heavy or multi-commit
   work; uncommitted changes this session didn't make are positive proof ⇒ move
   to a worktree — never work around or absorb them (`CONCURRENCY.md`). Name
@@ -330,6 +330,17 @@ Every other line is identical to the block above — the floor, concurrency,
 session rhythm, estate pointer, and visibility fact do not vary by mode. Drift
 is tracked by plugin version because that is the pin a plugin-only adopter can
 actually check: the command runs against exactly what they have installed.
+
+**What the version signal is worth, stated (`160/520` SY6).** A skill is
+doctrine by function: `queue-run` is the first thing an orchestrator executes,
+and a change to it reaches a plugin-only adopter only inside the plugin. Since
+2026-10-18 the plugin carries no `version` (each commit is its own version, the
+trade chosen on `180/040`), so the `grep '"version"'` above finds nothing to
+compare, and the drift check in this mode is **weaker than it reads**. The one
+signal left is the plugin's `CHANGELOG.md`: a commit that changes what a skill,
+command or method file tells a session to do carries its entry in the same
+commit. Whether to put a `version` back, and bump it when a skill's behaviour
+moves, is the principal's call (it reverses that choice), and is not taken here.
 
 ## The layer-override rule
 

@@ -251,15 +251,37 @@ enough.
   worktree. **Read `git status` first**: anything dirty that is not yours is
   positive proof of a live peer (§ The trigger), so the bookend becomes a stop
   and a move to a worktree, never a step that round-trips the peer's work
-  through a stash. Dirty work that *is* yours, a predecessor session cut
-  mid-flight (§ Surviving an interrupted session), is committed or backed out
-  by reverse edit first: the bookend runs on a clean tree only. **And no
-  remote, no bookend** — a repo with no upstream gains nothing from the pull,
-  and the pull fails with a hint that invites a wrong repair. A fresh worktree
-  branch has a remote but no upstream, so there the bookend is
-  `git pull --rebase --autostash origin main`. (A private child's near-miss,
-  2026-09-06: the bookend ran verbatim beside a peer's five staged files and
-  was saved only by the pull failing first — `320/210`.)
+  through a stash. Anything `git status` shows counts, untracked files
+  included: `--autostash` never shelves them, and a peer's commonest in-flight
+  artefact is a new file (a session record, a board item). Dirty work that *is*
+  yours, a predecessor session cut mid-flight (§ Surviving an interrupted
+  session), is committed or backed out by reverse edit first: the bookend runs
+  on a clean tree only. A run resumed after a context cut cannot tell its own
+  uncommitted work from a peer's by looking, so it runs that recovery sweep
+  *before* this gate. **And no upstream, no bare pull** — a branch with no
+  upstream gains nothing from `git pull`, and the pull fails with a hint that
+  invites a wrong repair. A fresh worktree branch has a remote but no upstream,
+  so there the bookend is `git pull --rebase --autostash origin main`. Where a
+  repo's read order repeats the bookend (its `CLAUDE.md` step 1), the one you
+  ran counts; run it once. (A private child's near-miss, 2026-09-06: the
+  bookend ran verbatim beside a peer's five staged files and was saved only by
+  the pull failing first — `320/210`.)
+- **After the stop, sync without touching the tree** (`160/520` SY1). Stopping
+  at a dirty checkout forbids the pull, not the sync. `git fetch origin` is
+  always safe there: it touches no working file and creates no stash. Base the
+  worktree on `origin/<integration branch>`
+  (`worktree.py start <feature> --start origin/main`), so it is not as stale as
+  the checkout the stop left behind. A claim that must still land on `main` from
+  the primary checkout (§ Claiming work) is made **after** `git merge --ff-only
+  origin/main` there. That succeeds when the incoming commits touch none of the
+  stranger's dirty paths (compare `git diff --name-only HEAD origin/main` with
+  `git status --short`) and refuses, changing nothing, when they do; on a
+  refusal it is CF3's: sync what you can, take the next open item, touch
+  nothing. Sync first, not after a rejected push: `git pull --rebase` refuses at
+  a dirty tree (*"cannot pull with rebase: You have unstaged changes"*), and
+  `--autostash` is what the bookend forbids. (Re-driven 2026-11-09 in a scratch
+  repo: the fetch exited 0 and left no stash; the fast-forward refused on an
+  overlapping path and succeeded on a disjoint one; the rebase refused.)
 - **Verify the act, not the absence of an error.** Reading a check's output
   covers the check; it says nothing about whether the act that followed
   happened. A commit blocked on another session's `index.lock`, a
@@ -447,7 +469,9 @@ measured. On a **monolithic** board the one board file is every item's file, so
 a dirty board file still stops every claim; that is `030/140`, open.)
 
 - **Push succeeds** → the item is yours; now enter the worktree and work.
-- **Push rejected** → `pull --rebase`. If another session claimed the *same*
+- **Push rejected** → `pull --rebase` (at a dirty primary checkout it refuses:
+  sync first, as § Integration hygiene's *After the stop* says, then claim).
+  If another session claimed the *same*
   item, both edited that one checkbox line and the rebase stops on it — the
   trivial conflict kind. They pushed first, so they own it: drop your claim,
   take the next unclaimed item.

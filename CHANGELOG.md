@@ -151,6 +151,35 @@ this machine, old scanner against new, and no repo's blocking result changed.
   lives in one place (PL4), and one comment no longer describes what a survey
   found tracked (PL3; the pushed commit body is a frozen record).
 
+### Changed (2026-11-09 — a run that stops at a dirty checkout has a way to sync and land, and one term for "no upstream", `160/520`)
+Mike's answer of 2026-11-09: the cold pass's counsel applied as written. The
+skill the pass reviewed has since been cut back to a pointer at the prompt, so
+the wording lives in the parent now.
+- **Children: the floor bullet changes one clause.** "where there is a remote"
+  is now "where the branch has an upstream" in `PROPAGATION.md` and the template,
+  identically. A child's own stamped copy follows at its next pin bump; nothing
+  blocks on the difference before then.
+- **After the stop, sync without touching the tree (SY1).** `CONCURRENCY.md`
+  § Integration hygiene gains a bullet: `git fetch origin` is always safe at a
+  dirty checkout; base the worktree on `origin/<branch>`; make a claim at the
+  primary checkout after `git merge --ff-only origin/<branch>`, which succeeds
+  when the incoming commits touch none of the stranger's dirty paths and refuses,
+  changing nothing, when they do (then CF3: sync, take the next item, touch
+  nothing). Sync first: `git pull --rebase` refuses at a dirty tree. Re-driven
+  in a scratch repo before it became text. § Claiming work's "Push rejected"
+  line points at it.
+- **One term (SY3)**: "upstream", the thing git tests. A fresh worktree branch
+  has a remote but no upstream and uses `pull --rebase --autostash origin main`.
+- **Dirty means anything `git status` shows, untracked included (SY5)**, and a
+  run resumed after a context cut runs the recovery sweep before the gate (SY4).
+  A repo whose read order repeats the bookend does not run it twice (SY7).
+- **SY2 is already met:** the skill holds no copy of step 2 any more.
+- **SY6, partly:** the plugin has carried no `version` since 2026-10-18 (each
+  commit is its own), so there is nothing to bump. `PROPAGATION.md` now says the
+  bundled-mode drift check is weaker than it reads and that the plugin's
+  `CHANGELOG.md` is the one signal left. Putting a `version` back reverses a
+  choice of the principal's and is not taken here.
+
 ### Changed (2026-11-09 — `pathscan`'s brace expansion is capped per file, a bare `./` path is a citation, and the residuals are written down, `160/490`)
 Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
 - **Children: nothing blocks.** `pathscan` is warn-only on every child's hook and

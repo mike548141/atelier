@@ -57,7 +57,7 @@ in atelier and is read on demand — never wholesale.
 - **Concurrency:** assume another session may be live — a clean tree is not
   proof you're alone. At session start read `git status` first — dirty work
   this session didn't make means stop and move, never autostash it — then,
-  where there is a remote, `git pull --rebase --autostash`; push after each
+  where the branch has an upstream, `git pull --rebase --autostash`; push after each
   commit. Take a worktree by default for write-heavy or multi-commit
   work; uncommitted changes this session didn't make are positive proof ⇒ move
   to a worktree — never work around or absorb them (`CONCURRENCY.md`). Name
