@@ -102,3 +102,49 @@
       child inherits the scope narrowing, and the standing advice that the
       generated index cannot be rewrapped by hand. The `010/170` grace notice
       now points a `wrapscan` child at that advice.
+      📮 **Hand-up, 2026-11-09: the same private child re-measured, and its
+      principal sent this here rather than rule on it locally.** Filed under
+      `PROPAGATION.md` § *Pointing up*, class-only. It adds evidence to this
+      item and touches nothing else. Consideration and remediation are
+      atelier's; the child stops here.
+      **What the principal said.** The child put the choice to him in its
+      own terms: declare a `wrapscan` scope that leaves out its board, copy
+      the parent's scope as it is, leave things as they are, or wait for
+      this item. He answered, verbatim: *"Put this to atelier as an issue to
+      think about"* (2026-11-08). So the child has **not** narrowed its
+      scope, and it goes on paying the marker meanwhile.
+      **Re-measured in the child's working tree, 2026-11-09.** The `scope`
+      block in its `.atelier-floor.json` still declares `leakscan` only.
+      **441 of 543 board item files** carry a `wrapscan:allow` marker (it
+      was 237 of 324 on 2026-09-20), and there are **570 markers** in all.
+      **399 of the 570** end in the same template clause, *"… in one line
+      so the index reads true"*, written in a handful of variants of *"a
+      state line carries the whole … in one line so the index reads
+      true"*. That answers the caveat carried above ("sample them first"):
+      most markers repeat a template about the board's one-line state
+      convention. They do not record a judgement about the line they
+      exempt. A marker meant to name a decision now names a habit.
+      **Parent side, re-read at `origin/main` `d8f00edb`.**
+      `.atelier-floor.json` scopes `wrapscan` to `docs/method`, `docs/build`
+      and `docs/decisions`. Its `why` (WS1, 2026-07-23) says the record,
+      log and review stores are "deliberately one-line-per-entry", and that
+      unscoped `docs/**` measured about 6:1 noise to signal. The first
+      reason describes a child's board as written. The second was measured
+      on the parent's tree only. Neither travels to a child.
+      🎯 **For atelier to weigh (the child's framing of what he sent):** should
+      the floor scope `wrapscan` off board stores by default for every
+      child (one declaration the parent already pays, made part of what a
+      child inherits)? Or should the board's one-line state convention
+      change, so a state line fits the scanner wherever it runs? Or is it
+      something else? Not a fix the child asks to have applied.
+      🔎 **A correction found while filing.** The child's own triage said a
+      child could leave out only its board by listing every other `docs/`
+      folder in `scope`, since `scope` names paths to look in. That missed
+      the narrower local route that already exists: a reasoned
+      `docs/roadmap/` glob in the child's `.wrapscanignore`, which
+      `wrapscan` at `origin/main` honours on both planes (`scan_paths` and
+      `scan_staged` each skip an ignored path). The child already keeps that
+      file for other record stores. So the child is not blocked locally.
+      The house question stands: atelier's own `.wrapscanignore` does not
+      list `docs/roadmap/` either, so the parent's immunity is the `scope`
+      declaration alone, and nothing hands a child either form.
