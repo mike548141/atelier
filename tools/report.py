@@ -65,6 +65,7 @@ import re
 import subprocess
 import sys
 import traceback
+import unicodedata
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import asdict
 from pathlib import Path
@@ -108,6 +109,22 @@ def strip_controls(text: str) -> str:
     than newline, DEL, C1 controls and the bidi override/isolate controls. For
     a human-rendered line that carries text a pull request can land."""
     return _MESSAGE_CONTROL_RX.sub("", text)
+
+
+def safe_text(text: str) -> str:
+    """`text` with every Unicode control (`Cc`) and format (`Cf`) character
+    dropped, for a line a scanner echoes from tracked text (160/790 HX2, the
+    class CWE-117 / CWE-150). Escape sequences (ESC, a C1 CSI), erase-line and
+    cursor movement, OSC title-set, backspace, BEL, DEL, the bidi overrides and
+    isolates, and the zero-width joiners all go. Tab and newline are controls
+    and go too: a caller that wants words kept apart collapses whitespace
+    first (`" ".join(text.split())`), and one that wants line breaks kept uses
+    `strip_controls`. A printable character is never touched, so a
+    macron, a CJK character or an emoji (without its joiner) survives. One
+    neutraliser, so a scanner that echoes file text shares it instead of
+    carrying its own list."""
+    return "".join(c for c in text
+                   if unicodedata.category(c) not in ("Cc", "Cf"))
 
 
 def broken(name: str, message: str) -> int:

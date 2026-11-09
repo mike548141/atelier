@@ -1,6 +1,8 @@
-# Harness worktrees nest inside the repo (.claude/worktrees/<branch>/): full
-# checkouts of sibling sessions' in-flight state. Their ROADMAP/index copies
-# are theirs to keep honest at their own landing — scanning them here
-# double-reports every file and lets another session's mid-flight tree gate
-# this one's commit.
+# This entry covers archive stores only, and none of it is what keeps a sibling
+# session's tree out of this one's commit. A glob over a hot-path roadmap
+# exempts nothing (160/790 HX3; sizescan names it inert), so the protection is
+# `.gitignore` (the harness worktrees are untracked) plus the file walk's
+# prune of any directory carrying a `.git` file, both older than this entry.
+# It stays as a statement of intent, and for a stray `*-DONE.md` under the
+# worktrees directory.
 .claude/worktrees/**

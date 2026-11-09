@@ -116,7 +116,21 @@ floor — carries no legitimate narrowing at all, by identity rather than by
 name. It is identified by the (`source`, `region`) PAIR, not by the region
 name "floor" alone: this test suite (and a real child scaffold) is free to
 name an unrelated region "floor" too, and doing so must not accidentally
-trip the floor-specific rule. Only the one live pairing counts.
+trip the floor-specific rule. Only the one live pairing counts. The pair is
+matched on the FILE the `source=` resolves to, not on how it is spelled
+(160/340 FV1): `./docs/method/PROPAGATION.md`, `docs//method/PROPAGATION.md`,
+`docs/method/../method/PROPAGATION.md` and a case-folded spelling on a
+case-insensitive filesystem all name the floor and get the floor's rule. The
+region name stays a literal compare.
+
+A `stampscan:allow` marker inside a floor stamp is IGNORED (160/340 FV2, the
+principal, 2026-11-09: an allow-marker may not switch off the exact-copy check
+inside the stamped floor region): the block is compared, and a differing copy
+is drift whatever markers it carries. The result says so when one was present.
+The floor's footer never offers `narrow=` or the marker as a way out of the red
+it has just given. A `.stampscanignore` glob still exempts a whole FILE from
+being scanned for stamps, floor or not: that is the path-level lane, not this
+one.
 
 For that pairing, a `narrow=` declaration on an otherwise-genuine ordered
 subset is DRIFT, RED, exactly like an undeclared silent drop — the
@@ -184,7 +198,8 @@ EXEMPTIONS — same shape as every sibling scanner:
   * THE ALLOW MARKER. A line carrying `stampscan:allow: <reason>` anywhere
     inside a stamped block (the begin line, the payload, or the end line)
     exempts that WHOLE BLOCK from comparison — reported as "skipped", not
-    counted toward clean or drift. Tightened to the same word-boundary +
+    counted toward clean or drift. EXCEPT a stamp of the safety floor, which
+    it never exempts (FLOOR IS VERBATIM, above). Tightened to the same word-boundary +
     non-empty-reason contract datescan uses (DSR8): a bare mention of the
     marker text, or an empty reason, does not exempt.
   * THE IGNORE FILE. A `.stampscanignore` glob at the scan root exempts a
@@ -263,6 +278,7 @@ import argparse
 import codecs
 import fnmatch
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, asdict
@@ -368,8 +384,24 @@ def _is_floor_block(block: "StampBlock") -> bool:
 
 def _is_floor_block_finding(f: "Finding") -> bool:
     """The finding-side twin of `_is_floor_block`: a compared stamp that names
-    the one canonical (source, region) floor pair."""
-    return f.source == FLOOR_SOURCE and f.region == FLOOR_REGION
+    the one canonical (source, region) floor pair, by the file it resolves to
+    (`Finding.floor`, FV1) or, failing that, by its literal spelling."""
+    return f.floor or (f.source == FLOOR_SOURCE and f.region == FLOOR_REGION)
+
+
+def _names_the_floor(root: Path, source_path: Path, region: str) -> bool:
+    """FV1 (160/340): is the resolved `source_path` the floor's own file, with
+    the floor's region? `os.path.samefile` rather than a path compare, so a
+    respelling, a case-folded name on a case-insensitive filesystem or a hard
+    link to the file all name it. False when the floor's file is not in this
+    root (a tree that does not carry it has no floor stamp to protect), or the
+    two cannot be compared."""
+    if region != FLOOR_REGION:
+        return False
+    try:
+        return os.path.samefile(source_path, root.resolve() / FLOOR_SOURCE)
+    except OSError:
+        return False
 
 
 @dataclass
@@ -393,6 +425,10 @@ class Finding:
     source: str | None
     region: str | None
     detail: str
+    # True when the stamp this finding is about is the safety floor's, by the
+    # file its `source=` resolves to (160/340 FV1). Always present, so a --json
+    # consumer's field set does not vary.
+    floor: bool = False
 
 
 # ---------------------------------------------------------------- parsing --
@@ -743,11 +779,32 @@ def _first_offending_line(child: list[str], parent: list[str]) -> str | None:
     return None
 
 
-def evaluate_block(block: StampBlock, canonical: list[str]) -> Finding:
+_FLOOR_ALLOW_NOTE = (" A `stampscan:allow` marker inside a floor stamp is "
+                     "ignored: the floor is compared whatever a marker says.")
+
+
+def evaluate_block(block: StampBlock, canonical: list[str],
+                   floor: bool | None = None) -> Finding:
     """Compare one stamped block's payload to its resolved canonical
     region, applying the identical / legitimate-narrow / silent-drop-or-
-    drift rules from the module header."""
-    if block.allow:
+    drift rules from the module header.
+
+    `floor` says whether this stamp is the safety floor's, decided by the
+    caller from the file `source=` resolves to (FV1). Left as None it falls
+    back to the literal-spelling pair test, which is what a direct caller
+    with no root to resolve against gets. A floor stamp is never skipped by an
+    allow marker (FV2)."""
+    if floor is None:
+        floor = _is_floor_block(block)
+    found = _evaluate(block, canonical, floor)
+    found.floor = floor
+    if floor and block.allow:
+        found.detail += _FLOOR_ALLOW_NOTE
+    return found
+
+
+def _evaluate(block: StampBlock, canonical: list[str], floor: bool) -> Finding:
+    if block.allow and not floor:
         return Finding(block.path, block.line, "skipped", block.source,
                        block.region, "stampscan:allow — comparison skipped")
 
@@ -777,7 +834,7 @@ def evaluate_block(block: StampBlock, canonical: list[str]) -> Finding:
             "longer a stamped copy.")
 
     if _is_ordered_subsequence(child, parent):
-        if block.narrow and _is_floor_block(block):
+        if block.narrow and floor:
             # Board 115/030, ruled 2026-09-19: the floor is copied verbatim.
             # PROPAGATION.md no longer grants the floor a legitimate
             # narrowing, so a narrow= declaration here buys nothing — this
@@ -798,6 +855,17 @@ def evaluate_block(block: StampBlock, canonical: list[str]) -> Finding:
                 f"legitimate narrow (declared: {block.narrow!r}) — "
                 f"{len(child)} of {len(parent)} canonical lines kept, in "
                 f"order")
+        if floor:
+            # The floor has no legitimate narrowing, so the remedy this
+            # branch gives every other region (declare `narrow=`) is the one
+            # act the floor refuses; naming it here would recommend the thing
+            # the same run just redded (160/340 FV2).
+            return Finding(
+                block.path, block.line, "drift", block.source, block.region,
+                f"the floor is copied verbatim — {len(child)} of "
+                f"{len(parent)} canonical lines kept. A line was dropped: "
+                "restore the canonical text word for word. A `narrow=` "
+                "declaration does not excuse it.")
         return Finding(
             block.path, block.line, "drift", block.source, block.region,
             "an ordered subset of the canonical region, but no narrow= was "
@@ -895,7 +963,7 @@ def scan_paths(paths: list[Path], root: Path,
     # EXTRACTED REGION (typically a small floor block), never a whole
     # canonical document — the 020/380 fix. A source resolution error is
     # cached too, so a stray/missing source is still only diagnosed once.
-    region_cache: dict[tuple[str, str], tuple[list[str] | None, str | None]] = {}
+    region_cache: dict[tuple[str, str], tuple[list[str] | None, bool]] = {}
     source_error_cache: dict[str, str] = {}
 
     for md in iter_markdown(paths, root, globs, skipped):
@@ -910,9 +978,9 @@ def scan_paths(paths: list[Path], root: Path,
         for block in blocks:
             cache_key = (block.source, block.region)
             if cache_key in region_cache:
-                canonical, region_error = region_cache[cache_key]
+                canonical, floor = region_cache[cache_key]
             elif block.source in source_error_cache:
-                canonical, region_error = None, None
+                canonical, floor = None, False
                 findings.append(Finding(
                     block.path, block.line, source_error_cache[block.source],
                     block.source, block.region,
@@ -938,7 +1006,8 @@ def scan_paths(paths: list[Path], root: Path,
                     continue
                 canonical = extract_region_from_file(
                     source_path, block.region, truncated)
-                region_cache[cache_key] = (canonical, None)
+                floor = _names_the_floor(root, source_path, block.region)
+                region_cache[cache_key] = (canonical, floor)
 
             if canonical is None:
                 findings.append(Finding(
@@ -948,7 +1017,7 @@ def scan_paths(paths: list[Path], root: Path,
                     f"not found in {block.source}"))
                 continue
 
-            findings.append(evaluate_block(block, canonical))
+            findings.append(evaluate_block(block, canonical, floor))
 
     return findings
 
@@ -1010,7 +1079,10 @@ def render_human(findings: list[Finding], files_by_glob: int = 0,
         for f in sorted(notes, key=lambda x: (x.path, x.line)):
             lines.append(f"    {f.path}:{f.line}  [{f.kind}] {f.detail}")
     lines.append(_suppression_line(findings, files_by_glob, lines_truncated))
-    if drifts:
+    # The footer never offers a way out of a red it has just given (FV2): a
+    # floor drift gets its own line, with no `narrow=` and no allow marker, and
+    # the generic footer is printed only when a non-floor drift is present.
+    if any(not _is_floor_block_finding(f) for f in drifts):
         lines.append(
             "\n  A real drift: make the block equal its canonical region, or "
             "add `narrow=<reason>` to stamp:begin if the narrowing is "
@@ -1019,6 +1091,12 @@ def render_human(findings: list[Finding], files_by_glob: int = 0,
             f"  A deliberate exemption: append '<!-- {ALLOW_MARKER}: <reason> -->'")
         lines.append("  inside the stamped block, or add a path glob to "
                       ".stampscanignore.")
+    if any(_is_floor_block_finding(f) for f in drifts):
+        lines.append(
+            "\n  A floor drift: the safety floor is copied word for word. "
+            "Restore the canonical text. Neither `narrow=` nor an allow "
+            "marker excuses it; a line of it you believe is wrong is reported "
+            "upward (PROPAGATION.md, Pointing up), never dropped locally.")
     return "\n".join(lines)
 
 

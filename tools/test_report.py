@@ -465,6 +465,35 @@ class TestStripControls(unittest.TestCase):
             "tools/x.py → ok · 𝔘"))
 
 
+class TestSafeText(unittest.TestCase):
+    """160/790 HX2 — one neutraliser for text a scanner echoes from tracked
+    files: every Unicode control (Cc) and format (Cf) character goes, nothing
+    printable does."""
+
+    def test_every_control_and_format_character_goes(self):
+        for cp in list(range(0x00, 0x20)) + [0x7f] + list(range(0x80, 0xa0)) \
+                + [0xad, 0x200b, 0x200c, 0x200d, 0x200e, 0x200f, 0x202a,
+                   0x202e, 0x2060, 0x2066, 0x2069, 0xfeff]:
+            with self.subTest(cp=hex(cp)):
+                self.assertEqual("ab", report.safe_text("a" + chr(cp) + "b"))
+
+    def test_an_escape_sequence_loses_its_escape(self):
+        out = report.safe_text("x\x1b[2K\x1b[1Ay\x1b]0;t\x07z\u009b31m")
+        for bad in ("\x1b", "\x07", "\u009b"):
+            self.assertNotIn(bad, out)
+
+    def test_printable_text_is_untouched(self):
+        for text in ("tools/x.py → ok · 𝔘", "Māori māori", "日本語 text", "…",
+                     "a b"):
+            self.assertEqual(text, report.safe_text(text))
+
+    def test_nothing_the_filter_keeps_is_a_control_or_format_character(self):
+        sample = "".join(chr(c) for c in range(0x2800) if c not in (0xd800,))
+        kept = report.safe_text(sample)
+        self.assertFalse([c for c in kept
+                          if unicodedata.category(c) in ("Cc", "Cf")])
+
+
 class TestScannerLinePins(unittest.TestCase):
     """Each converted scanner's lines, as literals. A shared edit that moves
     any one of them fails here."""
@@ -625,11 +654,13 @@ class TestScannerLinePins(unittest.TestCase):
 
     def test_sizescan(self):
         import sizescan as m
-        self.assertEqual(m._suppression_line(1, 2, 0, 3, 1),
+        self.assertEqual(m._suppression_line(1, 2, 0, 3, 1, 4),
                          "  suppressed: 1 file(s) by sizescan:allow header · "
                          "1 unrecognised scope(s) (read as unscoped) · "
                          "2 file(s) by .sizescanignore · "
                          "3 inert hatch(es) (exempt nothing) · "
+                         "4 roadmap(s) under a store directory (not read for "
+                         "cold content) · "
                          "0 beyond the 50000-finding cap (counted, not listed)")
         self.assertEqual(m.render_human([]),
                          "✓ sizescan clean — no relocatable cold content on the hot "
@@ -638,6 +669,8 @@ class TestScannerLinePins(unittest.TestCase):
                          "0 unrecognised scope(s) (read as unscoped) · "
                          "0 file(s) by .sizescanignore · "
                          "0 inert hatch(es) (exempt nothing) · "
+                         "0 roadmap(s) under a store directory (not read for "
+                         "cold content) · "
                          "0 beyond the 50000-finding cap (counted, not listed)")
 
     def test_licenscan(self):

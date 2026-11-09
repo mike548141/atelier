@@ -412,6 +412,151 @@ class FloorIsVerbatim(unittest.TestCase):
         self.assertEqual("narrow", f.kind)
 
 
+class FloorAllowAndIdentity(unittest.TestCase):
+    """160/340 FV1 and FV2 (the principal, 2026-11-09: an allow-marker may not
+    switch off the exact-copy check inside the stamped floor region).
+
+    FV1: the floor is identified by the FILE its `source=` resolves to, so a
+    respelling of the path cannot turn the floor's rule into a generic
+    `narrow=` pass. FV2: a `stampscan:allow` marker inside a floor stamp is
+    ignored, and the footer never offers `narrow=` or the marker as a way out
+    of a floor red."""
+
+    FLOOR = ss.FLOOR_SOURCE
+
+    def setUp(self):
+        self.tmp = ss.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        _write(self.tmp, self.FLOOR, _parent_text(["a", "b", "c"]))
+
+    def _child(self, payload, source=None, narrow=None, allow=False):
+        attrs = f"source={source or self.FLOOR} region=floor"
+        if narrow is not None:
+            attrs += f" narrow={narrow}"
+        begin = f"<!-- stamp:begin {attrs} -->"
+        if allow:
+            begin += " <!-- stampscan:allow: a reason -->"
+        _write(self.tmp, "docs/child.md",
+               begin + "\n" + "\n".join(payload) + "\n<!-- stamp:end -->\n")
+        return ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+
+    # --- FV2 ---------------------------------------------------------------
+
+    def test_an_allow_marker_does_not_skip_a_narrowed_floor(self):
+        found = self._child(["a", "c"], allow=True)
+        self.assertEqual(["drift"], [f.kind for f in found])
+        self.assertTrue(found[0].floor)
+        self.assertIn("allow", found[0].detail)
+        self.assertIn("ignored", found[0].detail)
+
+    def test_an_allow_marker_does_not_skip_a_reworded_floor(self):
+        found = self._child(["a", "b, tweaked", "c"], allow=True)
+        self.assertEqual(["drift"], [f.kind for f in found])
+
+    def test_an_allow_marker_on_an_exact_copy_is_compared_not_skipped(self):
+        found = self._child(["a", "b", "c"], allow=True)
+        self.assertEqual(["identical"], [f.kind for f in found])
+        self.assertIn("ignored", found[0].detail)
+
+    def test_an_allow_marker_still_skips_a_non_floor_stamp(self):
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md",
+               "<!-- stamp:begin source=docs/PARENT.md region=floor -->"
+               " <!-- stampscan:allow: a reason -->\nz\n<!-- stamp:end -->\n")
+        found = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["skipped"], [f.kind for f in found])
+        self.assertFalse(found[0].floor)
+
+    def test_a_floor_red_never_recommends_the_excuse_it_refused(self):
+        for payload, narrow in ((["a", "c"], None), (["a", "c"], "why"),
+                                (["a", "b, tweaked", "c"], None)):
+            with self.subTest(payload=payload, narrow=narrow):
+                found = self._child(payload, narrow=narrow)
+                out = ss.render_human(found)
+                self.assertIn("✗ stampscan", out)
+                self.assertNotIn("add `narrow=", out)
+                self.assertNotIn("A deliberate exemption", out)
+                self.assertNotIn("append '<!--", out)
+                self.assertIn("word for word", out)
+
+    def test_a_non_floor_red_keeps_its_footer(self):
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md", _child_text(["a"]))
+        out = ss.render_human(ss.scan_paths([self.tmp / "docs" / "child.md"],
+                                            self.tmp))
+        self.assertIn("add `narrow=<reason>`", out)
+        self.assertIn("A deliberate exemption", out)
+        self.assertNotIn("floor drift", out)
+
+    def test_a_mixed_run_prints_both_footers(self):
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/other.md", _child_text(["a"]))
+        self._child(["a", "c"])
+        out = ss.render_human(ss.scan_paths([self.tmp / "docs"], self.tmp))
+        self.assertIn("A deliberate exemption", out)
+        self.assertIn("A floor drift", out)
+
+    def test_the_cover_switch_counts_a_floor_stamp_with_an_allow_marker(self):
+        """It is compared now, so it is cover; before FV2 it was skipped and
+        did not count."""
+        found = self._child(["a", "b", "c"], allow=True)
+        self.assertTrue(ss._is_floor_block_finding(found[0]))
+        self.assertEqual("identical", found[0].kind)
+
+    # --- FV1 ---------------------------------------------------------------
+
+    SPELLINGS = ("./docs/method/PROPAGATION.md",
+                 "docs//method/PROPAGATION.md",
+                 "docs/./method/PROPAGATION.md",
+                 "docs/method/../method/PROPAGATION.md",
+                 "docs/method/sub/../PROPAGATION.md")
+
+    def test_a_respelled_floor_source_is_still_the_floor(self):
+        (self.tmp / "docs/method/sub").mkdir()
+        for source in self.SPELLINGS:
+            with self.subTest(source=source):
+                found = self._child(["a", "c"], source=source, narrow="why")
+                self.assertEqual(["drift"], [f.kind for f in found])
+                self.assertTrue(found[0].floor)
+
+    def test_a_respelled_floor_source_with_an_allow_marker_is_still_compared(self):
+        found = self._child(["a", "c"], source="./docs/method/PROPAGATION.md",
+                            allow=True)
+        self.assertEqual(["drift"], [f.kind for f in found])
+
+    def test_a_case_folded_spelling_is_the_floor_where_the_filesystem_agrees(self):
+        folded = "docs/METHOD/propagation.md"
+        if not (self.tmp / folded).exists():
+            self.skipTest("a case-sensitive filesystem: the spelling does not "
+                          "resolve, so it is a missing-source error instead")
+        found = self._child(["a", "c"], source=folded, narrow="why")
+        self.assertEqual(["drift"], [f.kind for f in found])
+
+    def test_a_copy_that_is_not_the_floor_file_keeps_the_generic_rule(self):
+        """The pair is the file, not the region name: `region=floor` against
+        the child's own copy elsewhere is an ordinary stamp (FV5 / v12)."""
+        _write(self.tmp, "docs/OWN.md", _parent_text(["a", "b", "c"]))
+        found = self._child(["a", "c"], source="docs/OWN.md", narrow="why")
+        self.assertEqual(["narrow"], [f.kind for f in found])
+        self.assertFalse(found[0].floor)
+
+    def test_the_floor_file_with_another_region_name_is_not_the_floor(self):
+        _write(self.tmp, self.FLOOR,
+               _parent_text(["a", "b", "c"]) +
+               "<!-- other:begin -->\nx\ny\n<!-- other:end -->\n")
+        _write(self.tmp, "docs/child.md",
+               "<!-- stamp:begin source=" + self.FLOOR + " region=other "
+               "narrow=why -->\nx\n<!-- stamp:end -->\n")
+        found = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["narrow"], [f.kind for f in found])
+
+    def test_a_tree_with_no_floor_file_has_no_floor_stamp(self):
+        (self.tmp / self.FLOOR).unlink()
+        _write(self.tmp, "docs/OWN.md", _parent_text(["a", "b", "c"]))
+        found = self._child(["a", "c"], source="docs/OWN.md", narrow="why")
+        self.assertEqual(["narrow"], [f.kind for f in found])
+
+
 class ScanPaths(unittest.TestCase):
     def setUp(self):
         import shutil
@@ -1012,11 +1157,24 @@ class RequireStamps(unittest.TestCase):
         rc, _out, _err = self._run("--require-floor-stamp")
         self.assertEqual(1, rc)
 
-    def test_floor_switch_does_not_count_an_allow_skipped_floor_block(self):
+    def test_an_allow_marker_cannot_skip_a_floor_block_so_it_is_compared(self):
+        """160/340 FV2: this was `exit 2, 1 skipped by allow-marker` while an
+        allow marker could switch the floor's exact-copy check off. It cannot
+        now: the block is compared, differs, and is the floor's red (exit 1)."""
         self._floor_stamped(["a", f"<!-- {ss.ALLOW_MARKER}: reason -->"])
-        rc, _out, err = self._run("--require-floor-stamp")
-        self.assertEqual(2, rc)
-        self.assertIn("1 skipped by allow-marker", err)
+        rc, out, err = self._run("--require-floor-stamp")
+        self.assertEqual(1, rc)
+        self.assertIn("drift finding", out)
+        self.assertNotIn("skipped by allow-marker", err)
+
+    def test_an_exact_floor_copy_with_a_begin_line_marker_counts_as_cover(self):
+        _write(self.tmp, ss.FLOOR_SOURCE, _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md",
+               f"<!-- stamp:begin source={ss.FLOOR_SOURCE} region=floor -->"
+               f" <!-- {ss.ALLOW_MARKER}: reason -->\na\nb\n"
+               "<!-- stamp:end -->\n")
+        rc, _out, _err = self._run("--require-floor-stamp")
+        self.assertEqual(0, rc)
 
     def test_json_over_nothing_emits_the_document_with_clean_false(self):
         """CU2: every other exit-2 path under --json prints the document;

@@ -409,7 +409,9 @@ def load_ignore_globs(root: Path, filename: str) -> list[str]:
 
     GUARDS.md rule (c): an ignore glob is the widest allowance a scanner
     grants — a whole path, every rule, indefinitely — so it is the last place
-    an unexplained exemption should be possible. A glob is reasoned if it
+    an unexplained exemption should be possible. (One kind of finding takes no
+    glob at all: sizescan's cold-content gate on a hot-path roadmap, ruled
+    "never allow it". GUARDS.md § *Acceptance*, 160/790 HX3.) A glob is reasoned if it
     carries a trailing `# reason` (publishscan's form) OR sits under a comment
     block in its own stanza. A blank line ends a stanza, so a bare glob under
     no comment at all is refused (`read_reasoned_lines` is the grammar).

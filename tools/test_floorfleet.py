@@ -562,6 +562,18 @@ class AdvisoryAgeingTest(unittest.TestCase):
         self.assertIn("🟡", legacy)
         self.assertIn("migrate it", legacy)
 
+    def test_a_barred_advisory_names_the_date_on_the_board(self):
+        """160/790 HX1: the check whose report-only form is closing says so on
+        the board beside the declaration, so a child is told before it turns
+        red and the other advisories carry no such line."""
+        barred = self._render_one({"sizescan": ("keeping items", "2999-01-01")})
+        self.assertIn("advisory barred from 2026-12-09", barred)
+        other = self._render_one({"wrapscan": ("adopting", "2999-01-01")})
+        self.assertNotIn("barred", other)
+        # A bare pre-C1 declaration is just as barred, and just as told.
+        bare = self._render_one({"sizescan": ("", "")})
+        self.assertIn("advisory barred from 2026-12-09", bare)
+
     def test_the_date_kind_is_read_and_shown_and_unlabelled_is_said_aloud(self):
         """160/450: the label is a key the board reads. A value outside the two
         kinds is dropped (floor.py refuses it where the repo is); a dated

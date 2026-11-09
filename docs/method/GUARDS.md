@@ -267,6 +267,16 @@ are distinguished on purpose, at every level. A repo-level adopt mode is a
 deferment. An ignore-file glob for a scanner's own test fixtures is an
 acceptance.
 
+**One kind of finding takes no acceptance at all** (160/790 HX3). `sizescan`'s
+cold-content gate, a completed `[x]` item on the hot-path roadmap, is ruled
+*"Never allow it"*, so no marker and no ignore-file glob exempts it: a glob over
+a roadmap exempts nothing, and the run names it inert. The remedy for a tracked
+fixture roadmap that carries `[x]` lines is to fence them (a `[x]` inside a
+fenced code block is a quoted example, not an item) or to name the file
+something other than a roadmap. A roadmap under a store-named directory
+(`sessions/`, `reviews/`, `decisions/`, `archive/`, `_archive/`, `intake/`) is
+not read for cold content, and the check's suppressed line counts those files.
+
 ### Who may move a deferment's date: mandate or default
 
 A deferment's expiry is sometimes set by the principal for the whole fleet,
@@ -401,6 +411,18 @@ a feeling:
 | floor `disabled` (a check is off) | required | **none yet** | listed with its reason, no date |
 | floor `scope` / `flags` (a check looks at less, or is tuned) | required (`why`) | none: ruled a permanent fact about the repo (2026-07-28) | not as a lowering |
 | line marker, ignore-file glob (acceptance) | required | none, by design | counted in the scan's suppressed line |
+
+**One check is barred from the `advisory` row** (160/790 HX1, the principal,
+2026-11-09: *"Bar it; nova converts"*). `sizescan` enforces the board's design:
+the main board is a short list of work and its state, and the detail of each
+item sits in a file of its own, never in a flat running log. His ruling on that
+was *"Never allow it"*, and a report-only form is a way to allow it with the
+gate still printing, so it is the one lowering the general rule above does not
+give this check. From 2026-12-09 an `advisory.sizescan` declaration, however
+reasoned and dated, is a config error and the floor blocks; before that date the
+declaration still works and the check's line on the floor board names the date.
+A specific "never" beats the general "declared and expiring". `disabled` is not
+what he ruled on and stays open with its reason.
 
 The `disabled` row is the one place the ruling and the machinery disagree, and
 `scope` / `flags` need a decision on whether narrowing counts as lowering a

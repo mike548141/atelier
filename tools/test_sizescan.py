@@ -476,12 +476,46 @@ class ColdItemListing(_TreeTest):
         self.assertEqual(len(title), sizescan._TITLE_CHARS)
         self.assertTrue(title.endswith("…"))
 
+    def test_a_title_cannot_carry_a_terminal_escape_or_a_bidi_override(self):
+        """160/790 HX2: an item is tracked text, and its listing reaches every
+        contributor's pre-commit output and the CI log. Erase-line and
+        cursor-up sequences, an OSC title-set, a C1 CSI, backspace, BEL, DEL, a
+        bidi override and a zero-width joiner are dropped; ordinary text, a
+        macron and the truncation ellipsis survive. Built from escapes in the
+        source, so the test file carries no raw control character."""
+        hostile = ("\x1b[2K\x1b[1A\x1b]0;owned\x07 shown \u009b31m "
+                   "\x08\x7f \u202eevil\u200d Māori")
+        self.write_text("docs/ROADMAP.md", "- [x] " + hostile + "\n")
+        title = self.finding("docs/ROADMAP.md").cold_listed[0].title
+        for bad in ("\x1b", "\x07", "\x08", "\x7f", "\u009b", "\u202e",
+                    "\u200d"):
+            self.assertNotIn(bad, title)
+        self.assertIn("shown", title)
+        self.assertIn("Māori", title)
+        # Through the human report as well, not only the parsed item.
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            sizescan.main(["--root", str(self.tmp), str(self.tmp)])
+        self.assertNotIn("\x1b", buf.getvalue())
+        self.assertNotIn("\u202e", buf.getvalue())
+
+    def test_dropping_a_control_character_does_not_join_two_words(self):
+        self.write_text("docs/ROADMAP.md", "- [x] one\ttwo\u200b \u200b three\n")
+        self.assertEqual(self.finding("docs/ROADMAP.md").cold_listed[0].title,
+                         "one two three")
+
+    def test_the_ellipsis_survives_the_cap(self):
+        self.write_text("docs/ROADMAP.md", "- [x] " + "\u202e" + "word " * 100 + "\n")
+        title = self.finding("docs/ROADMAP.md").cold_listed[0].title
+        self.assertEqual(len(title), sizescan._TITLE_CHARS)
+        self.assertTrue(title.endswith("…"))
+
     def test_empty_item_text_is_stated_not_blank(self):
         self.write_text("docs/ROADMAP.md", "- [x]\n")
         self.assertEqual(self.finding("docs/ROADMAP.md").cold_listed[0].title,
                          "(no text)")
 
-    def test_report_lists_every_item_within_85_columns(self):
+    def test_report_lists_every_item_within_85_characters(self):
         self.write_text("docs/ROADMAP.md",
                         "- [ ] open\n- [x] " + "long " * 40 + "\n- [x] short\n")
         buf = io.StringIO()
@@ -531,6 +565,54 @@ class ColdItemListing(_TreeTest):
         f0 = data["findings"][0]
         self.assertEqual(f0["cold_listed"], [{"line": 2, "title": "done"}])
         self.assertEqual(f0["cold_hatches"], [])
+
+
+class StoreDirectoryRoadmaps(_TreeTest):
+    """160/790 HX3: a roadmap under a store-named directory is not read for
+    cold content, and that scope reduction is named on the suppressed line, on
+    both planes, instead of a clean run hiding it."""
+
+    def _counts(self):
+        counts = {}
+        sizescan.scan_paths([self.tmp], self.tmp, counts)
+        return counts
+
+    def test_a_roadmap_under_a_store_directory_is_counted_not_read(self):
+        self.write_text("docs/sessions/ROADMAP.md", "- [x] done\n")
+        self.write_text("archive/ROADMAP.md", "- [x] done\n")
+        self.write_text("docs/ROADMAP.md", "- [ ] open\n")
+        counts = self._counts()
+        self.assertEqual(counts["roadmaps_in_store_dirs"], 2)
+        self.assertEqual(self.flagged(), [])
+
+    def test_the_known_zero_is_printed(self):
+        self.write_text("docs/ROADMAP.md", "- [ ] open\n")
+        self.assertEqual(self._counts()["roadmaps_in_store_dirs"], 0)
+        out = sizescan.render_human([])
+        self.assertIn("0 roadmap(s) under a store directory (not read for "
+                      "cold content)", out)
+        out = sizescan.render_human([], store_dirs=3)
+        self.assertIn("3 roadmap(s) under a store directory", out)
+
+    def test_an_archive_store_under_a_store_directory_is_not_counted(self):
+        """Archive stores under these directories are still integrity-checked,
+        so they are not a reduction of scope."""
+        self.write_text("docs/sessions/ROADMAP-DONE.md", "- [x] done\n")
+        self.assertEqual(self._counts()["roadmaps_in_store_dirs"], 0)
+
+    def test_json_carries_the_count(self):
+        import json
+        self.write_text("docs/reviews/ROADMAP.md", "- [x] done\n")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            sizescan.main(["--json", "--root", str(self.tmp), str(self.tmp)])
+        self.assertEqual(json.loads(buf.getvalue())["roadmaps_in_store_dirs"], 1)
+
+    def test_the_staged_plane_counts_it_too(self):
+        counts = {}
+        sizescan.scan_staged({"docs/sessions/ROADMAP.md": None,
+                              "docs/ROADMAP.md": None}, self.tmp, counts)
+        self.assertEqual(counts["roadmaps_in_store_dirs"], 1)
 
 
 class ExitContract(_TreeTest):

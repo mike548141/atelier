@@ -1164,11 +1164,33 @@ Scope, in two deliberate directions:
   dirs — for cold content. Those are the *destinations* the split moves detail
   into. A named archive store inside one is still integrity-checked.
 
-**Nothing silences the cold-content gate** (`115/270`, Mike's ruling: no repo
-keeps a flat running log; the board is a list of work and its state, and the
-detail lives in a standalone file). An unscoped `sizescan:allow`, a
+**No marker and no ignore glob silences the cold-content gate, and from
+2026-12-09 neither does the floor** (`115/270`, Mike's ruling: no repo keeps a
+flat running log; the board is a list of work and its state, and the detail
+lives in a standalone file). An unscoped `sizescan:allow`, a
 `sizescan:allow:cold-content` scope and a `.sizescanignore` glob all leave a
-file's completed `[x]` items gated; a glob no longer skips the file.
+file's completed `[x]` items gated; a glob no longer skips the file. A tracked
+fixture roadmap that carries `[x]` lines is kept by fencing them (a fenced `[x]`
+is an example, not an item) or by naming the file something that is not a
+roadmap.
+
+**The floor's report-only lane is barred from 2026-12-09** (`160/790` HX1, the
+principal, 2026-11-09: *"Bar it; nova converts"*). `floor.py` used to give
+sizescan an `advisory` form, which kept a flat log with the gate printing and
+not blocking, a lane the ruling's briefing had not named. `ADVISORY_BARRED_FROM`
+in `floor.py` now bars it: before the date an `advisory.sizescan` declaration
+still works and its floor line, `floorfleet` and `--json` (`barred_from`) name
+the date; from it the declaration, in either spelling, is a config error and the
+floor blocks. A reasoned `disabled` entry is untouched. A repo that has the
+declaration converts its board (harvest the completed items, or split the
+roadmap into a file per item) and removes the entry.
+
+**One scope reduction is neither a hatch nor a glob, and is named.** A
+`ROADMAP.md` under a store-named directory (`sessions/`, `reviews/`,
+`decisions/`, `archive/`, `_archive/`, `intake/`) is not read for cold content.
+The `suppressed:` line counts those files as `N roadmap(s) under a store
+directory (not read for cold content)`, and `--json` carries it as
+`roadmaps_in_store_dirs`.
 
 **Two hatches still do something, only on an archive store.** A
 `sizescan:allow` header that is unscoped, `harvest-integrity`-scoped, **or
@@ -1198,9 +1220,13 @@ change no verdict and no exit code: remove them. No new exemption exists.
 which *would* exempt an archive store (`115/080`).
 
 **The gate names what it counted.** Each flagged file lists every completed item
-(`line 12: the item's text`, text capped at 60 characters), so the move to
+(`line 12: the item's text`, text capped at 60 characters, with control and
+format characters dropped so a tracked item cannot repaint a terminal), so the
+move to
 `ROADMAP-DONE.md` is a lookup, not an inference. The listing is capped
-run-wide at `MAX_MATERIALIZED_FINDINGS` (50,000, the cap every scanner uses);
+run-wide at `MAX_MATERIALIZED_FINDINGS` (50,000, the number every scanner uses, a
+shared convention and not a figure derived here; it bounds memory, not the
+length of the report);
 items past it are counted, never dropped silently: the report prints
 `…and N more completed item(s), counted but not listed`, the `suppressed:` line
 carries `N beyond the 50000-finding cap`, and `--json` carries each file's
@@ -1846,9 +1872,16 @@ region, or a `source=` resolving **outside** `--root` (traversal and absolute
 paths both escaped before; a crafted stamp could aim the scanner at any file on
 the machine and get a line of it echoed in the drift hint). A config error is
 **never** downgraded by `--warn`. Escape hatches: `stampscan:allow: <reason>`
-anywhere inside a stamped block exempts that block; a path glob in
-`.stampscanignore` exempts a file from being scanned for stamps of its own
-(it stays usable as a canonical `source=` target).
+anywhere inside a stamped block exempts that block, **except a stamp of the
+safety floor**, which is compared whatever markers it carries (`160/340` FV2:
+the result says the marker was ignored, and the floor's footer never offers
+`narrow=` or the marker as a way out). The floor is identified by the file the
+stamp's `source=` resolves to, so a respelled path (`./docs/...`, `docs//...`,
+a `..` segment, a case-folded name on a case-insensitive filesystem) is still
+the floor (FV1). A path glob in `.stampscanignore` exempts a file from being
+scanned for stamps of its own (it stays usable as a canonical `source=`
+target); it is the one lane left that can skip a file that carries a floor
+stamp.
 
 **Wired advisory in atelier's own `ci.yml` only** — deliberately *not* in the
 `floor.py` registry, which would reach every child at once (ADR 0008). The

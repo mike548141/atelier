@@ -1373,6 +1373,15 @@ def render(infos: list[ChildFloor], remote: bool, status: bool = False,
             else:
                 lines.append(
                     f"      ⚠️  {name} advisory until {review_by} — {why}")
+            # An advisory on a check the floor is closing the report-only form
+            # of (160/790 HX1): the date it stops working, so the board says
+            # what will turn red and when, before the day.
+            barred = floor.ADVISORY_BARRED_FROM.get(name)
+            if barred is not None:
+                lines.append(
+                    f"         🔴 {name} advisory barred from "
+                    f"{barred.isoformat()} — the floor blocks this repo "
+                    "from then unless the declaration is removed")
             # The date's kind, beside the date (160/450). Unlabelled is said
             # aloud rather than left blank, because blank reads as "no one
             # asked" and the rule is that it reads as a mandate until asked.

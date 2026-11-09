@@ -240,13 +240,21 @@ lines); undeclared, a drop reds. Three boundaries on that:
   `<name>scan:allow:` marker in the house; what it buys is a name attached to
   the decision. atelier's own stamped copies narrow nothing.
 - **The safety floor never narrows.** A child's copy of the `floor` region is
-  the canonical text word for word — no compression, no declared narrowing —
-  and `narrow=` on a `region=floor` stamp reds instead of excusing anything
-  (ruled 2026-09-19, `115/030`: *"Floor copy verbatim"*). The floor is the one
-  text that must bind where nothing else of the child's is read, so a child
-  that finds a line of it wrong reports it upward (§ *Pointing up*) instead of
-  dropping it locally. The declaration above stays for any other stamped
-  region; today the floor is the only one.
+  the canonical text word for word — no compression, no declared narrowing.
+  The rule keys on the stamp of *this file's* `floor` region, which the
+  scanner identifies by the file the stamp's `source=` resolves to, not by how
+  the path is spelled, so a respelling of the path is still the floor. A
+  `narrow=` on such a stamp that narrows anything reds instead of excusing it
+  (ruled 2026-09-19, `115/030`: *"Floor copy verbatim"*); on a copy that is
+  already word for word it narrows nothing and changes nothing. Nor can a
+  `stampscan:allow` marker inside the stamp switch the comparison off: the
+  block is compared whatever markers it carries (the principal's answer of
+  2026-11-09, `160/340` FV2: a specific "never" beats the general escape).
+  The floor is the one text that must bind where nothing else of the child's
+  is read, so a child that finds a line of it wrong reports it upward
+  (§ *Pointing up*) instead of dropping it locally. The declaration above
+  stays for any other stamped region; as of 2026-11-09 the floor is the only
+  one.
 
 The inlined floor is a **narrowing-free restatement** of the apex + AUTONOMY
 floor, and the concurrency line restates `CONCURRENCY.md`'s flipped prior

@@ -2300,6 +2300,118 @@ class G3GraceCannotBeExtendedTest(unittest.TestCase):
             "may not be softened")
 
 
+class BarredAdvisoryTest(unittest.TestCase):
+    """160/790 HX1 (the principal, 2026-11-09: "Bar it; nova converts"): the
+    floor's report-only form may not be used on sizescan, the check that
+    enforces the board's design. Until the date the declaration works and says
+    when it stops; from the date it is a config error. Every date is passed
+    through the patched clock, so these tests do not change meaning when the
+    real date passes."""
+
+    GRACE_LAST_DAY = "2026-12-08"
+    BARRED_DAY = "2026-12-09"
+
+    @staticmethod
+    def _load_on(day, payload):
+        from unittest import mock
+        with mock.patch.object(floor, "_today", return_value=day):
+            return _cfg(payload)
+
+    DECLARED = {"advisory": {"sizescan": {
+        "why": "three finished items kept on purpose",
+        "review-by": "2026-12-31"}}}
+
+    def test_the_date_is_the_ruled_one(self):
+        import datetime
+        self.assertEqual(floor.ADVISORY_BARRED_FROM["sizescan"],
+                         datetime.date(2026, 12, 9))
+
+    def test_every_barred_name_is_a_registered_scanner(self):
+        for name in floor.ADVISORY_BARRED_FROM:
+            self.assertIn(name, floor.BY_NAME)
+
+    def test_the_declaration_still_loads_the_day_before(self):
+        cfg = self._load_on(self.GRACE_LAST_DAY, self.DECLARED)
+        self.assertIn("sizescan", cfg.advisory)
+
+    def test_the_declaration_is_a_config_error_on_the_date(self):
+        with self.assertRaises(floor.ConfigError) as cm:
+            self._load_on(self.BARRED_DAY, self.DECLARED)
+        msg = str(cm.exception)
+        self.assertIn("sizescan", msg)
+        self.assertIn("2026-12-09", msg)
+        self.assertIn("board", msg)
+
+    def test_a_reason_and_a_later_review_date_do_not_buy_a_way_round(self):
+        """nova's declaration reads review-by 2026-12-31, after the bar."""
+        with self.assertRaises(floor.ConfigError):
+            self._load_on("2027-03-01", self.DECLARED)
+
+    def test_the_bare_list_spelling_is_barred_too(self):
+        """A pre-C1 declaration has no reason and no date, and is the form one
+        child still carries."""
+        self._load_on(self.GRACE_LAST_DAY, {"advisory": ["sizescan"]})
+        with self.assertRaises(floor.ConfigError):
+            self._load_on(self.BARRED_DAY, {"advisory": ["sizescan"]})
+
+    def test_the_other_softenable_checks_are_untouched(self):
+        for name in ("wrapscan", "datescan", "spellscan", "publishscan"):
+            with self.subTest(name=name):
+                cfg = self._load_on("2999-01-01", {"advisory": [name]})
+                self.assertIn(name, cfg.advisory)
+
+    def test_a_reasoned_disable_is_still_open_after_the_date(self):
+        """The bar closes the report-only switch the ruling named. `disabled`
+        is the lane every check with no advisory form has, reasoned and on the
+        board, and is not what the principal ruled on."""
+        cfg = self._load_on(self.BARRED_DAY, {"disabled": {
+            "sizescan": "this repo has no roadmap"}})
+        self.assertEqual(_states("ci", cfg)["sizescan"], "disabled")
+
+    def test_the_bar_is_not_reachable_from_a_config_key(self):
+        """No key a child can write moves the date, the shape of the other
+        grace dates in the house."""
+        for key in ("barred-from", "advisory-barred-from", "grace"):
+            with self.subTest(key=key):
+                with self.assertRaises(floor.ConfigError):
+                    self._load_on(self.BARRED_DAY,
+                                  {**self.DECLARED, key: "2999-01-01"})
+
+    def test_the_line_names_the_date_while_the_declaration_still_works(self):
+        from unittest import mock
+        import dataclasses
+        only = floor.BY_NAME["sizescan"]
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            cfg = self._load_on(self.GRACE_LAST_DAY, self.DECLARED)
+            with mock.patch.object(floor, "SCANNERS", (only,)), \
+                    mock.patch.object(floor, "BY_NAME", {"sizescan": only}), \
+                    mock.patch.object(floor, "_today",
+                                      return_value=self.GRACE_LAST_DAY):
+                results = floor.run("ci", root, TOOLS_DIR, cfg, ci=False)
+        self.assertEqual(results[0].state, "advisory")
+        self.assertEqual(results[0].barred_from, "2026-12-09")
+        line = floor.render(results, "ci")
+        self.assertIn("advisory barred from 2026-12-09", line)
+        # The field is always present, so a JSON consumer's keys do not vary.
+        plain = floor.Result("secretscan", "enforced", 0)
+        self.assertEqual(plain.barred_from, "")
+        self.assertIn("barred_from", dataclasses.asdict(plain))
+
+    def test_an_enforced_check_carries_no_such_note(self):
+        line = floor.render([floor.Result("sizescan", "enforced", 0)], "ci")
+        self.assertNotIn("barred", line)
+
+    def test_the_registry_says_why_the_form_is_going(self):
+        """The registry comment is where the next reader of the sizescan entry
+        looks; it must say the form is barred, not that it is for adoption."""
+        text = Path(floor.__file__).read_text(encoding="utf-8")
+        start = text.index('Scanner(\n        "sizescan",')
+        entry = text[start:text.index("Scanner(", start + 10)]
+        self.assertIn("ADVISORY_BARRED_FROM", entry)
+        self.assertIn("flat running log", entry)
+
+
 class DateKindTest(unittest.TestCase):
     """160/450 (DK1, DK2): the kind a dated rule carries is a key the floor
     reads, and a mandate's date moving later is a line, not silence. Mike,

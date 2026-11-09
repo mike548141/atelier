@@ -289,6 +289,26 @@ DATE_KINDS = ("mandate", "default")
 # publicly or privately has nothing to declare.
 VISIBILITIES = ("public", "private")
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+# THE BARRED ADVISORY (160/790 HX1, ruled by the principal 2026-11-09: "Bar it;
+# nova converts"). sizescan's cold-content gate is what enforces the board's
+# design (the main board a short list of work and its state, the detail of each
+# item in a file of its own, never one flat running log). Its ruling was "never
+# allow it", and the floor's report-only form was a lane round it that the
+# ruling's briefing had not named. A check named here may not be declared
+# `advisory` from the date given, however the declaration is spelled and
+# however it is reasoned and dated: the config is a ConfigError, so the floor
+# blocks and says why. Before that date the declaration still works and the
+# check's line carries the date (`Result.barred_from`), so a child that has one
+# is told before it turns red, not on the day. `disabled` is not touched: it is
+# the lane every check with no advisory form already has, reasoned and on the
+# board. One constant compared with the UTC clock, with no flag, environment
+# variable or config key that moves it (the shape of `allowmarker`'s
+# `MALFORMED_GRACE_UNTIL`). Once the date has passed and no child declares one,
+# the grace path (`Result.barred_from` and its note) can go; the bar stays.
+ADVISORY_BARRED_FROM: dict[str, datetime.date] = {
+    "sizescan": datetime.date(2026, 12, 9),
+}
 # C0 controls, DEL, and the C1 range. Config-authored text reaches a terminal
 # verbatim, so these are stripped at the parse seam — see `strip_controls`.
 # C1 included per FR3 (ruled 2026-08-23): U+009B is a one-character CSI alias
@@ -584,11 +604,21 @@ SCANNERS: tuple[Scanner, ...] = (
         # `--staged` on the hook plane only (320/600): the index copy of each
         # roadmap or archive store the commit touches, judged whole (cold
         # content and live state are properties of a whole file). CI keeps the
-        # whole tree. The advisory form drops --check and stays whole-tree.
+        # whole tree. The advisory form drops --check and stays whole-tree,
+        # and is BARRED from 2026-12-09 (`ADVISORY_BARRED_FROM`, 160/790 HX1):
+        # this check enforces the board's design, which the principal ruled
+        # "never allow" a flat running log in, so a report-only lane round it
+        # is the one thing it must not offer. The form stays until then so a
+        # child that declared it is told, not surprised. After the date
+        # delete the form (`advisory=None`) and the grace note, and the
+        # forbid-the-act declaration below is the whole of it.
         hook=["--check", "--staged", "--root", "{root}", "{scope}"],
         ci=["--check", "--root", "{root}", "{scope}"],
         advisory=["--root", "{root}", "{scope}"],  # drop --check
-        why="current-truth files stay honest; archive stores hold no live state",
+        why="current-truth files stay honest; archive stores hold no live "
+            "state; no repo's board is a flat running log (the finished "
+            "items go to the archive store), and no report-only switch "
+            "may be used to keep one",
     ),
     Scanner(
         "board",
@@ -913,6 +943,16 @@ def _today() -> str:
     day early or late depending on the committer's timezone would make the
     board disagree with itself across machines."""
     return datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+
+
+def advisory_barred(name: str, today: str | None = None) -> bool:
+    """True when `name` may no longer be declared `advisory`: it is in
+    `ADVISORY_BARRED_FROM` and the UTC date is on or after its date. `today` is
+    an ISO date for tests; nothing a child can write reaches it."""
+    barred = ADVISORY_BARRED_FROM.get(name)
+    if barred is None:
+        return False
+    return datetime.date.fromisoformat(today or _today()) >= barred
 
 
 def _days_over(review_by: str, today: str) -> str:
@@ -1544,6 +1584,20 @@ class Config:
                     "softened — it is a boundary or integrity check. Fix the "
                     "finding, or disable it deliberately with a stated reason."
                 )
+            if advisory_barred(name):
+                raise ConfigError(
+                    f"{CONFIG_NAME}: {name!r} may no longer be declared "
+                    f"advisory — barred from "
+                    f"{ADVISORY_BARRED_FROM[name].isoformat()} (the principal's "
+                    "ruling, 2026-11-09). It enforces the board's design, the "
+                    "main board a short list with each item's detail in its "
+                    "own file, and a report-only form lets a flat running log "
+                    "stand. Remove the `advisory` entry and convert the board: "
+                    "harvest the completed items to the archive store, or "
+                    "split the roadmap into one file per item. A reasoned "
+                    "`disabled` entry is still available for a check this "
+                    "repo genuinely cannot run."
+                )
         for name, reason in self.disabled.items():
             if not reason.strip():
                 raise ConfigError(
@@ -1627,6 +1681,12 @@ class Result:
     # to say, so a --json consumer's field set stays comparable (160/450).
     kind: str = ""
     date_note: str = ""
+    # The date from which this check's `advisory` form is barred, when the
+    # check is in `ADVISORY_BARRED_FROM` and the child has declared it advisory.
+    # Empty otherwise. Always present, so a --json consumer's field set stays
+    # comparable run to run. A report, never a block: the block is the config
+    # error from that date.
+    barred_from: str = ""
 
     @property
     def failed(self) -> bool:
@@ -2229,6 +2289,9 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             advisory=advisory_findings,
             kind=(adv.kind or "" if adv else ""),
             date_note=(later.get(scanner.name, "") if adv else ""),
+            barred_from=(ADVISORY_BARRED_FROM[scanner.name].isoformat()
+                         if adv and scanner.name in ADVISORY_BARRED_FROM
+                         else ""),
         ))
     return results
 
@@ -2297,7 +2360,13 @@ def render(results: list[Result], plane: str) -> str:
         # warn-only check with a shrinking scope says both things.
         warn_note = (WARN_ONLY_NOTE
                      if r.state == "warn-only" and not r.failed else "")
+        barred_note = (f"🔴 advisory barred from {r.barred_from}: from that "
+                       "date this declaration is a config error and the floor "
+                       "blocks" if r.barred_from else "")
+        if barred_note and mark != "❌":
+            mark = "🔴"
         said = [s for s in (r.reason, warn_note, r.partial, advisory_note,
+                            barred_note,
                             r.date_note and f"🟡 {r.date_note}") if s]
         note = f"  ({'; '.join(said)})" if said else ""
         if r.state == "advisory":
