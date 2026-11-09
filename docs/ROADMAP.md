@@ -164,7 +164,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/115-guardrail-architecture-mike-commissioned/README.md)*
 
 - [ ] 🎯 [Mint the evidence-window rule as guard-design doctrine — Mike's call.](roadmap/115-guardrail-architecture-mike-commissioned/010-mint-the-evidence-window-rule-as-guard-design.md)
-- [ ] 🎯 [Confidence on a fact: stored field, or computed? Mike's call, and it…](roadmap/115-guardrail-architecture-mike-commissioned/020-confidence-on-a-fact-stored-field-or-computed.md)
+- [~] (claimed 2026-11-09-1500, wt: atelier-rr-722a-v1) [Confidence on a fact: stored…](roadmap/115-guardrail-architecture-mike-commissioned/020-confidence-on-a-fact-stored-field-or-computed.md)
 - ✅ 🔥 [stampscan's verdicts are inverted against the doctrine it enforces —…](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md)
 - [ ] 🔎 [The withdrawn-review convention rests on a premise that now has a…](roadmap/115-guardrail-architecture-mike-commissioned/040-the-withdrawn-review-premise-has-a-counterexam.md)
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to…](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)

@@ -1,4 +1,5 @@
-- [ ] 🎯 **Confidence on a fact: stored field, or computed? Mike's call, and it
+- [~] (claimed 2026-11-09-1500, wt: atelier-rr-722a-v1)
+      🎯 **Confidence on a fact: stored field, or computed? Mike's call, and it
       has never been put to him.** Mike named confidence in his own vocabulary
       on 2026-08-15 — *"what is our confidence level in the fact"* — as part of
       the provenance metadata he has discussed alongside the time dimension. The
@@ -23,3 +24,5 @@
       per-fact confidence number is a documented anti-pattern. But the counsel
       is not the ruling, and the child repo owns the fix either way under the §9
       scope clause.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
+        not a ruling):** *"Work it out from the source"*: confidence is computed from how a fact was obtained, with a rough rank only where one method varies.

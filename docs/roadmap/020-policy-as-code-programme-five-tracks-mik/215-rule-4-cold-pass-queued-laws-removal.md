@@ -20,3 +20,5 @@
       laws-removal-0815 (claim `4ea0a8f`, merge `b5da9e5`). *Intent record:*
       `docs/sessions/2026-08-15-0809-laws-removal.md`.
   - [ ] ✅ LR4(a) applied 2026-11-09 by queue run 722ac2e2; LR4(c) belongs to `160/140`.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
+        not a ruling):** *"Leave it out"* (LR5): the apex sentence stays out; the apex already bounds itself to this repo's rules.

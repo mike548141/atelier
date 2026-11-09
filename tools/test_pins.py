@@ -566,7 +566,9 @@ class FloorCopyReport(unittest.TestCase):
         unknown = self._eval(self._child("lost", "deadbeef", "(pinned `atelier@deadbeef`)\n"))
         self.assertEqual(unknown.copy, pins.COPY_NO_REFERENCE)
         allowed = stamped(filled(FLOOR_V1, self.v1) + "\n<!-- stampscan:allow: reason -->")
-        self.assertEqual(self._eval(self._child("allowed", self.v1, allowed)).copy, pins.COPY_SKIPPED)
+        # 160/340 FV2: a marker inside a floor stamp no longer switches the
+        # comparison off, so the added line is a difference like any other.
+        self.assertEqual(self._eval(self._child("allowed", self.v1, allowed)).copy, pins.COPY_DRIFT)
         broken = f"(pinned `atelier@{self.v1[:7]}`)\n<!-- stamp:begin source=x region=floor -->\nno end\n"
         self.assertEqual(self._eval(self._child("broken", self.v1, broken)).copy, pins.COPY_MALFORMED)
         for info in (unstamped, old, unknown):
