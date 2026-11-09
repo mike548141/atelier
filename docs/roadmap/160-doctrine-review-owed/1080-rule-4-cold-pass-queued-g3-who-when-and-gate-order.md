@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: G3 records who and when on every manifest
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
+      ⏳ **Rule-4 cold pass queued: G3 records who and when on every manifest
       line, runs before the ignore file, and reports unreadable metadata
       (`160/980` applied).** A blocking guard in every child changes what it
       reads and what it accepts, a week before its grace ends. The authoring

@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the principal speaks through three channels (`320/070`).** The authoring session (a
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
+      ⏳ **Rule-4 cold pass queued: the principal speaks through three channels (`320/070`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in
       its ruling round, which dispatched the Sonnet worker that wrote it)
       queues this and does not take it.

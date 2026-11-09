@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the class-only privacy clause in the
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
+      ⏳ **Rule-4 cold pass queued: the class-only privacy clause in the
       report-up duty, applied (`160/300`, RU1 and RU8–RU10).** The text every
       child reads at session start now tells a private repo to describe a
       finding by its class and never name itself or its contents on a

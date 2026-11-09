@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: git resolves a staged scan's positional
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
+      ⏳ **Rule-4 cold pass queued: git resolves a staged scan's positional
       scope, and an unknown one is refused (`160/950`, QS1 applied).** The
       staged-positional reader every staged guard shares now asks git what a
       scope names. The authoring session (a principal-opened Opus 5.5 queue

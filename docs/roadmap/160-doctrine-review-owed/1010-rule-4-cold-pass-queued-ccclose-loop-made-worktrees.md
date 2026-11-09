@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccclose` expands a `for` loop's
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
+      ⏳ **Rule-4 cold pass queued: `ccclose` expands a `for` loop's
       literal word list and counts the worktree adds it cannot resolve
       (`210/360`).** `ccclose`'s identifiers block is pasted into records
       as fact, so the authoring session (a principal-opened Opus 5.5 queue

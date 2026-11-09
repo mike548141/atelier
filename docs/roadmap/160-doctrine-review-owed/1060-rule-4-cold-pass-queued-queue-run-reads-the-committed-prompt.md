@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `/atelier:queue-run` reads the committed
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
+      ⏳ **Rule-4 cold pass queued: `/atelier:queue-run` reads the committed
       prompt and warns on a pending edit, and the teardown rule's three legs
       (`160/900`, QK1 and its counsel applied).** The command every queue run
       starts from now runs only committed text. The authoring session (a

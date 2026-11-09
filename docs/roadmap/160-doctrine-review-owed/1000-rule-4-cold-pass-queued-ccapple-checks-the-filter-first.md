@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccapple` checks the filter before it
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
+      ⏳ **Rule-4 cold pass queued: `ccapple` checks the filter before it
       looks for a store (`210/340`).** `ccapple` reads the principal's
       Apple stores and its exit status is what a caller branches on, so the
       authoring session (a principal-opened Opus 5.5 queue run, session
