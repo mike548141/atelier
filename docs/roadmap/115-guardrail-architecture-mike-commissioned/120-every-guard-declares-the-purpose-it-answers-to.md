@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1330, wt: atelier-qr-d0ca-guards, session d0ca5d24) 🎯 **Every guard declares the purpose it answers to, and proves it fires
+- [ ] 🎯 **Every guard declares the purpose it answers to, and proves it fires
       on its own grounding incidents — Mike's call, and it is the answer to the
       question he actually asked.** The axis is not narrow versus wide. It is
       what a guard is *organised around*: a detectable feature, or the purpose
@@ -68,3 +68,11 @@
       as this item's build.
   - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
         not a ruling):** *"Everything, on every check now"* (not the recommended option): each check states all four fields now, purpose and proof it fires included, even where existing checks fail the bar. Also answers `115/010`, `300/040`. Not yet built.
+  - [ ] ✅ **Design done 2026-11-09, build owed** (queue run d0ca5d24).
+        `docs/method/GUARDS.md` § *What every check declares* states the standard
+        and `docs/decisions/2026-11-09-1334-check-declaration-standard.md` gives
+        the registry schema, the readers, the warn-first report, the split by
+        check group, and the census of all 16 registry checks. All 16 fail the
+        bar on at least one field and 56 of 80 fields are owed. No check changed.
+        **Owed:** step 0, then groups A to D, then group E, in series on
+        `tools/floor.py`. Group A needs the allow-marker question answered first.

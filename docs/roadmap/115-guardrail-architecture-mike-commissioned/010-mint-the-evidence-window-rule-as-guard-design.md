@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1330, wt: atelier-qr-d0ca-guards, session d0ca5d24) 🎯 **Mint the evidence-window rule as guard-design doctrine — Mike's
+- [x] 🎯 **Mint the evidence-window rule as guard-design doctrine — Mike's
       call.** Proposed wording: *a guard may only enforce a rule whose
       licensing context fits inside its evidence window; where the context that
       would license an exception is outside what the guard can see, the rule is
@@ -29,5 +29,11 @@
       makes their scope reductions look like defects rather than tuning, which
       is either the point or an argument against, depending on how much appetite
       there is for re-opening settled scopes.
-  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
+  - [x] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
         not a ruling):** *"Everything, on every check now"*, put to him with `115/120`.
+  - [x] ✅ **Landed 2026-11-09** (queue run d0ca5d24): `docs/method/GUARDS.md`
+        § *Before building a check: the evidence window*, in this item's wording,
+        with three questions a reader applies before building, a worked case for
+        each outcome, and the one counter-case that would disprove it. Its grounds
+        are this item's count, not re-measured. The rule-4 cold pass is owed and
+        is queued by whoever lands the doctrine.

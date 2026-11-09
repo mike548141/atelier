@@ -164,7 +164,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/115-guardrail-architecture-mike-commissioned/README.md)*
 
-- [~] 🎯 (claimed 2026-11-09, wt: atelier-qr-d0ca-guards, …) [Mint the evidence-window…](roadmap/115-guardrail-architecture-mike-commissioned/010-mint-the-evidence-window-rule-as-guard-design.md)
+- ✅ 🎯 [Mint the evidence-window rule as guard-design doctrine — Mike's call.](roadmap/115-guardrail-architecture-mike-commissioned/010-mint-the-evidence-window-rule-as-guard-design.md)
 - ✅ 🎯 [Confidence on a fact: stored field, or computed? Mike's call, and it…](roadmap/115-guardrail-architecture-mike-commissioned/020-confidence-on-a-fact-stored-field-or-computed.md)
 - ✅ 🔥 [stampscan's verdicts are inverted against the doctrine it enforces —…](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md)
 - ✅ 🔎 [The withdrawn-review convention rests on a premise that now has a…](roadmap/115-guardrail-architecture-mike-commissioned/040-the-withdrawn-review-premise-has-a-counterexam.md)
@@ -175,7 +175,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Give every guard a second dial — the standing consequence of Mike's…](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of…](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at…](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
-- [~] 🎯 (claimed 2026-11-09, wt: atelier-qr-d0ca-guards, …) [Every guard declares the…](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
+- [ ] 🎯 [Every guard declares the purpose it answers to, and proves it fires…](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
 - [ ] [A guard reports whether its rule fired at all, and over what — so…](roadmap/115-guardrail-architecture-mike-commissioned/130-a-guard-reports-whether-its-rule-fired-at-all.md)
 - ✅ 🔥 [The scheduled estate conformance job has never once been green — 19…](roadmap/115-guardrail-architecture-mike-commissioned/140-the-estate-conformance-job-has-never-once-been.md)
 - [ ] [What actually reaches a child, measured 2026-08-15 — and it is about…](roadmap/115-guardrail-architecture-mike-commissioned/150-what-reaches-a-child-measured-and-it-is-about.md)
@@ -511,12 +511,13 @@ then `python3 tools/board.py rebuild`.
 - ✅ [P2a — teach publishscan the shapes the fleet actually has.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/040-p2a-teach-publishscan-the-shapes-the-fleet-act.md)
 - ✅ 🎯 [P3 — the floor does not know whether a repo is public, and it should…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/050-p3-the-floor-does-not-know-whether-a-repo-is-p.md)
 - [ ] [P4 — rpi F9, routed upward: the ci plane calls leakscan without…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/060-p4-rpi-f9-routed-upward-the-ci-plane-calls-lea.md)
-- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-guards, se…) [P5 — rpi F10, routed upward:…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/070-p5-rpi-f10-routed-upward-the-publish-safety-ch.md)
+- ✅ [P5 — rpi F10, routed upward: the publish-safety checklist gates repo…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/070-p5-rpi-f10-routed-upward-the-publish-safety-ch.md)
 - ✅ 🎯 [P6 — rpi F5: estate-internal context accumulating in public records.…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/080-p6-rpi-f5-estate-internal-context-accumulating.md)
 - ✅ [P7 — harvest the rpi publication properly.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/090-p7-harvest-the-rpi-publication-properly.md)
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
 - ✅ 🔎 [P9 — what the flip's transcripts add to the pre-flip gate](roadmap/260-sharing-public-since-2026-07-10-adr-0005/110-p9-what-the-flip-transcripts-add-to-the-gate.md)
 - ✅ 🔎 [publishscan's default and staged planes miss any path git quotes](roadmap/260-sharing-public-since-2026-07-10-adr-0005/120-publishscan-misses-non-ascii-paths.md)
+- [ ] 🔎 [A gh api read of the pre-flip platform settings](roadmap/260-sharing-public-since-2026-07-10-adr-0005/130-a-gh-api-read-of-the-pre-flip-platform-settings.md)
 
 ## Open questions
 
@@ -624,7 +625,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [MISSING HOUSE RULE — a check in the same shell invocation as the act…](roadmap/320-child-filed-findings-via-pointing-up/390-missing-house-rule-a-check-in-the-same-invocation-as-the-act-is-not-a-check.md)
 - [ ] 🔎 [CANDIDATE HOUSE RULE — verify a figure correction in the RENDERED…](roadmap/320-child-filed-findings-via-pointing-up/400-count-survivors-in-the-rendered-artefact-not-the-source-you-edited.md)
 - [ ] 🔎 [Hand-up: the canonical floor's estate resources bullet is unwritable…](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
-- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-guards, …) [Hand-up: a queued-review…](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
+- [ ] 🔎 [Hand-up: a queued-review pointer may name a moving bound, and…](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
 - ✅ 🔎 [Hand-up: nothing catches an orphaned session-detail file once the…](roadmap/320-child-filed-findings-via-pointing-up/430-no-floor-check-catches-an-orphaned-session-detail-file.md)
 - [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-marker, …) [A review file's follow-up…](roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md)
 - [ ] 🔎 [A wrapped claim does not project into the index, a &#93; in a title…](roadmap/320-child-filed-findings-via-pointing-up/450-a-wrapped-claim-does-not-project-and-two-more-from-a-child-s-cold-passes.md)

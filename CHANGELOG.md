@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-09 — the evidence-window rule, the declaration standard's design, the platform-settings gate, and a pinned review bound: `115/010`, `115/120`, `260/070`, `320/420`)
+Doctrine and one design note; no scanner or tool changes.
+- **The evidence-window rule (`115/010`).** `GUARDS.md` gains a section a reader
+  applies before building a check: a guard may only enforce a rule whose
+  licensing context fits inside what it can see, or the rule stays directive, or
+  the window is widened first. Falsifiable, with the case that would disprove it.
+- **What every check declares (`115/120`, design only).** `GUARDS.md` states the
+  standard: rule by citation, grounding and a replay, purpose gap, evidence
+  window, and cheap-failure or forbids-the-act. A new design note gives the
+  registry schema, the warn-first report and a census of all 16 registry checks.
+  All 16 fail the bar on at least one field. Nothing is built; no check changed.
+- **Pre-flip gate reads platform settings (`260/070`).** `AUTONOMY.md` adds the
+  wiki, Actions policy, fork-PR approval, private vulnerability reporting and
+  rulesets to the pre-flip list, and says flip and harden are one sitting. A
+  tool to read them is filed as `260/130`.
+- **A taker pins a moving bound (`320/420` part a).** `REVIEW.md` rule 4 says so.
+  The grammar and guard wait until `pointerscan` is next opened.
+
 ### Changed (2026-11-09 — the floor's record-store carve-out, and three doctrine additions: `030/130`, `160/195`, `060/010`, `160/170`)
 Doctrine wording only; no scanner or tool changes.
 - **The floor names bulk deletion from a record store (`030/130`).** The list

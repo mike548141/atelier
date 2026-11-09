@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1330, wt: atelier-qr-d0ca-guards, session d0ca5d24) 🔎 **Hand-up: a queued-review pointer may name a moving bound, and
+- [ ] 🔎 **Hand-up: a queued-review pointer may name a moving bound, and
       `pointerscan` calls it current.** Filed from the public child `tuhura`
       2026-09-20, found by the rule-4 cold pass it queued on 2026-08-17 and
       took 2026-09-20 (finding F5 of that verdict, raised by the reviewer,
@@ -49,3 +49,7 @@
 
       review: not warranted — a finding filed for consideration, taking no
       decision.
+  - [x] ✅ **(a) done 2026-11-09** (queue run d0ca5d24): `docs/method/REVIEW.md`
+        rule 4 says the taker pins a moving bound to a fixed SHA in its claim and
+        records the pin in the verdict's scope. **(b) stays open**: the grammar
+        and the guard wait until `pointerscan` is next opened.

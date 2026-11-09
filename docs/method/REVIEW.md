@@ -225,6 +225,10 @@ governing who may spawn it:
    **in the same commit that lands the work** — landing = queuing, so no
    window exists in which landed doctrine sits unpointed and commits touching
    its surfaces escape the pointer's delta list (AWA2 ruling, 2026-07-23).
+   A pointer written in the landing commit cannot name that commit's own SHA,
+   so where it names a moving bound such as `..HEAD` the taker pins the bound
+   to a fixed SHA in its claim and records the pin in the verdict's scope; the
+   one recorded case had grown four commits past the landing (`320/420`).
    Where the work lands as *several* commits, "the landing commit" is the one
    that completes it — the pointer goes in the last commit of the series, and
    the window the rule closes is the one between that commit and the next

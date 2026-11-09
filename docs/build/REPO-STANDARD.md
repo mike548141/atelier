@@ -88,8 +88,10 @@ applied to repo docs: a claim no stronger than its evidence — see
   `gh api repos/<owner>/<repo>/private-vulnerability-reporting` →
   `enabled: true`** (a policy
   that routes through a disabled switch is a broken control — SC1,
-  2026-07-23); the finding severity + recurrence-prevention practice it names
-  is `method/REVIEW.md`'s security lens. Seed from `templates/SECURITY.md`; atelier's
+  2026-07-23). PVR is one of the platform settings the pre-flip gate reads;
+  the others, and what to do about them, are in `method/AUTONOMY.md`
+  (§ Always confirm). The finding severity + recurrence-prevention practice it
+  names is `method/REVIEW.md`'s security lens. Seed from `templates/SECURITY.md`; atelier's
   own root `SECURITY.md` is the worked example. (Grounded: the 2026-07-22
   security-canon gap map.)
 - **.gitignore** — always ignores OS litter and **both** Claude settings files

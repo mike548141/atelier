@@ -6,7 +6,9 @@ response it earns, and on what terms that response may be lowered.
 
 It does not say how to detect things. It says who may decide a finding does not
 apply, at what granularity, on what evidence, and how anyone reading the repo
-later can see that the decision was made.
+later can see that the decision was made. Two questions come before all of
+that: whether a check may be built at all, and what it must state once built
+(§ *Before building a check* and § *What every check declares*).
 
 **Status:** rebuilt 2026-08-05 from Track F / F1, on the frame Mike named
 2026-08-02 and the FG1–FG6 rulings of 2026-08-03. Self-authored doctrine — its
@@ -145,6 +147,100 @@ lives (the registry slot of `115/120`, or beside it) is **not decided here**.
 Whether the shared-checkout hazards already recorded in `CONCURRENCY.md`
 (absorbing a peer's work with a wide add; destroying a peer's hunks with a wide
 revert) are the same finding at guard-design level is likewise open.
+
+## Before building a check: the evidence window
+
+Ask this of a proposed check before any of it is written. Its answer can refuse
+the build.
+
+> A guard may only enforce a rule whose licensing context fits inside its
+> evidence window; where the context that would license an exception is outside
+> what the guard can see, the rule is directive, or the window must be widened
+> before the check is built.
+
+The **evidence window** is what the check reads on each plane it runs on: the
+added lines of the staged diff, the staged copy of a whole file, the working
+tree, the tracked set, a diff against a parent commit. The **licensing context**
+is the set of facts that would make a match acceptable.
+
+Three questions, in order:
+
+1. **What would license a match?** Write the facts down. If you cannot, you do
+   not yet know what the check is for.
+2. **Are those facts inside the window, on every plane the check runs on?** If
+   yes, build it.
+3. **If not, which way out?** The rule stays directive: doctrine, caught at
+   review. Or the window is widened first, by something the check can then read.
+   If neither is possible, the check is not built.
+
+Each outcome has a real case. `datescan` leaves "a dated maintenance edit
+carries its date" at review, because the fact that licenses it is the edit's
+intent and a text scanner cannot see intent. `harvestscan` widened its window:
+every sibling reads a file as it stands, and the failure it exists for shows
+only as a difference between two versions. A floor `flags` declaration widens
+one too, when a repo states the fact the scanner cannot read, as in the
+networking case where IP shapes are legitimate content. A check that only warns
+does not enforce, so this rule does not bar it: `pointerscan` reads
+judgement-adjacent text and `harvestscan` cannot ground its threshold, and both
+are warn-only and say so. That reading of "enforce" is this doc's, not his
+words.
+
+**It can be shown wrong.** Put to a proposed check, the rule predicts whether
+the build survives its own corpus. Its grounds as the board records them
+(`115/010`, not re-measured here): four first-of-kind scanner cold passes each
+found the same shape, sound rule, wrong scope, not gateable as built; four
+guard builds were killed or shelved on measurement; about one build in three
+did not survive. One counter-case disproves it: a check that blocks on a rule
+whose licensing context is outside its window, and keeps its block through its
+corpus with no scope cut. Record it if you meet one.
+
+**Not settled here:** whether an allow-marker counts as bringing the missing
+context inside the window. A person wrote the reason on the line the guard
+reads, which says yes; a check needing many markers has only moved its cost to
+the writer, which says no. The census under `115/120` carries this as open.
+
+**Necessary, not sufficient.** This says when to accept a proxy for a rule. It
+says nothing about testing the proxy once accepted, which is the next section.
+
+Adopted on Mike's 2026-11-09 answer *"Everything, on every check now"* (to
+options a session offered, so an answer, not a ruling in his words). The
+wording is a proposal from `115/010`. It applies to existing checks too, and a
+check that fails it is a finding for the principal, never a revert.
+
+## What every check declares
+
+Every check states the five things below, in one declaration beside its `why`:
+the fields `115/120` proposed, with the fourth requirement's cheap-failure or
+forbids-the-act folded in, one standard and not two. It is a reason for
+building a guard, held to the standard the estate already held a reason for
+weakening one. A check that cannot meet a field **states that**, and is marked.
+None goes red for it and none is unwired for it, because a reviewer can argue
+with a stated gap and cannot argue with a blank.
+
+| Field | What it holds | What counts as a pass |
+|---|---|---|
+| **Rule served** | A citation: the file and section, the decision record or the ruling where the rule is written. Never restated | It resolves, it names the rule, and a reviewer has read the cited text against the check |
+| **Grounding and replay** | Each incident by reference, and for each the test that replays it | The test fails if the check stops firing on that incident |
+| **Purpose gap** | In a sentence, what the rule needs that the check does not measure | It names a need of the rule, not a technique limit of the check |
+| **Evidence window** | What each plane reads, the licensing context, and the answer to the section above | Inside the window, or outside with its way out named |
+| **Posture** | Cheap-failure or forbids-the-act | One of the two words, and what it costs |
+
+**Citation is not catch.** A citation only proves a source exists. The one
+guard enforcing the inverse of its own doctrine passed a review that verified
+it named its source correctly (`115/120`). So a machine can check that a
+citation resolves and only a reader can pass the field.
+
+**A replay fails when the check stops firing.** A test that a clean file stays
+clean proves nothing here. A standing canary suite counts where a canary stands
+for an incident, and so does a defect injected on purpose, because an injected
+defect is real by construction.
+
+**The `why` stays, and is not this.** It is the one-line outcome the board and
+CI print. The declaration is what that line can be compared against.
+
+Today none of this is built, so it binds as a review question. The schema, what
+reads it, how a miss is reported, and how far each check is from the bar are in
+[the design note](../decisions/2026-11-09-1334-check-declaration-standard.md).
 
 ## What a finding is assessed on — three axes
 

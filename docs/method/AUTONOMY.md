@@ -71,6 +71,25 @@ are hard or impossible to undo:
   - **The doctrine pin is current at the flip.** Before the visibility change,
     run the drift check (PROPAGATION) and compare the inlined floor with the
     canonical one. (`260/090`.)
+  - **The gate reads the platform's settings, not only the tree.** Every check
+    above reads what the repo contains; what GitHub exposes is set apart from
+    it, and every settings finding in the first child's post-flip review came
+    through that gap. So before the flip the gate reads and records, with
+    `gh api repos/<owner>/<repo>/...`: the wiki (`gh repo view --json
+    hasWikiEnabled`), which stays off, because it is a second git repo the
+    floor never sees; Actions policy (`actions/permissions` and
+    `actions/permissions/workflow`); fork-PR approval
+    (`actions/permissions/fork-pr-contributor-approval`); private vulnerability
+    reporting (`private-vulnerability-reporting`), which reads `enabled: true`
+    (`build/REPO-STANDARD.md`, SECURITY.md); and rulesets or branch protection
+    (`rulesets`, `rules/branches/<branch>`). Where no house value is ruled, as
+    for Actions policy and fork-PR approval, the value read goes in front of the
+    confirmation.
+  - **Flip and harden are one sitting.** Branch protection and fork-PR approval
+    cannot be set while a repo is private on the free plan, so they are set
+    straight after the visibility change, the gate names that unprotected
+    window, and the flip is not finished until they read back. One flip's
+    observation. (`260/070`.)
 - **Recoverability ends at push once anything downstream consumes it.** A pushed
   commit a peer, CI, or a deploy has already pulled is not revert-clean; a pushed
   **secret is burned** even after a history rewrite. So: a commit that contains a
