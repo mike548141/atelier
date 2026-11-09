@@ -1939,7 +1939,10 @@ under an unmapped `##`); `--json` keeps every finding. It is a report
 only: exit code, the `clean` field in `--json` and the `--staged`/`--against`
 planes are unchanged (it appears as `unmapped` findings in `--json`), and it is
 skipped while the map is stale. Mapping or leaving a heading is still a
-human call. **What it does not see** (160/430, CU5): the body under a doc's `#`
+human call. **The report stays in the CI log, and nothing routes it to a person**
+(`160/430`, CU10): it runs as an advisory CI step and prints on every push, so a
+heading nobody maps stays unmapped until someone reads that log. **What it does
+not see** (160/430, CU5): the body under a doc's `#`
 title (every mapped doc has one, a few non-blank lines, and the co-change rule
 cannot see it either), a fenced presentation of the floor in `PROPAGATION.md`,
 setext or indented headings, and a second `#`; and it runs under `--check`

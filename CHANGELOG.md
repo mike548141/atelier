@@ -154,6 +154,10 @@ this machine, old scanner against new, and no repo's blocking result changed.
 
 
 
+
+### Changed (2026-11-09 — `blockscan`'s advisory report: nothing routes it to a person, `160/430`)
+- `tools/README.md` says the unmapped-heading report stays in the CI log, where it
+  already is, and that nothing routes it to a person (CU10). Documentation only.
 ### Changed (2026-11-09 — `SECRETS.md` says what its permanent bridges rest on, `160/570`)
 - The imposed-cap and break-glass bridges are not the shapes `PRINCIPLES.md` §7
   licenses (temporary, or unsafe to codify); they rest on §5's credential rule
