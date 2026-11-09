@@ -16,3 +16,6 @@
   - [ ] **Findings not yet put to him:** the rest of `160/230`, `160/290`, `160/330`,
         `160/340` (FV4, FV6, FV8, FV9), `160/670` (HD4–HD16), `160/710`, `160/120`,
         `020/215`, `280/030`, `300/040`. Bring them as one-line lists.
+  - [ ] **Next ask, first:** his written method (`320/820`): one question at a
+        time, long form in the session, no item numbers in the box. This round
+        asked up to four per box.
