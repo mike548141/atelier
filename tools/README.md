@@ -815,8 +815,9 @@ python3 tools/secretscan.py --selftest      # prove the engine on this box
 Exit codes follow the shared contract (`report.py`, below): `0` includes
 advisory-only findings. Escape hatches mirror leakscan's: `# secretscan:allow:
 <reason>` per line, a glob in `.secretscanignore` per path, and `--disable
-<rule>` to quiet a noisy rule (a named rule, `assigned`, `high-entropy`, or
-`low-variety-entropy`) while keeping the rest. A true positive is never just
+<rule>` to quiet a noisy rule (a named rule, `assigned` or `assigned-secret`
+(one rule, two spellings, accepted in `--disable` and in a scoped marker alike),
+`high-entropy`, or `low-variety-entropy`) while keeping the rest. A true positive is never just
 exempted — **remove it, move it to the secret store, and rotate it.**
 
 ## `licenscan.py` — the pre-publish licence gate

@@ -119,6 +119,13 @@ import report  # noqa: E402
 #     `secretscan:allow:<rule>: <reason>` exempts only that one, named as the
 #     finding names it (`aws-access-key-id`, `assigned-secret`, `high-entropy`,
 #     …). A scoped name matching no rule exempts NOTHING — a typo fails closed.
+#     ONE rule carries two spellings (320/840): the assigned-value rule's
+#     findings are named `assigned-secret`, while `--disable` has always taken
+#     the shorter `assigned`. Both are accepted in BOTH places (`RULE_ALIASES`),
+#     so a marker, a `--disable` flag and the "naming no rule" count all read the
+#     one list, `ALL_RULES`, and a marker that exempts a line is never counted
+#     as naming no rule. Findings, JSON and the tally breakdown keep
+#     `assigned-secret`.
 #   * REASONED. Colon plus a non-empty reason, or it is a mention rather than
 #     an exemption. Tightened 2026-08-05; a bare marker used to exempt.
 #   * NOISY. Every suppression is counted and reported (`Tally`).
@@ -1089,6 +1096,7 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
     # inflating the very number this exists to make trustworthy.
     allow_by_line: dict[int, str] = {}
     named = _active_named(disabled)
+    assigned_off = bool(disabled & RULE_ALIASES.keys())
     for lineno, line in numbered_lines:
         # The marker regex opens with the literal marker text, so a line
         # without it cannot carry a marker (110/130, lever 4).
@@ -1106,11 +1114,11 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
                 _record(findings, tally, Finding(path, lineno, pat.name, "named",
                                                  pat.severity, redact(m.group(0), "named")))
 
-        if "assigned" not in disabled and _ASSIGNED_TAIL_RX.search(line):
+        if (not assigned_off and _ASSIGNED_TAIL_RX.search(line)):
             for m in SECRET_KEY_RX.finditer(line):
                 value = m.group(2)
                 if _assigned_is_secret(value):
-                    _record(findings, tally, Finding(path, lineno, "assigned-secret",
+                    _record(findings, tally, Finding(path, lineno, ASSIGNED_RULE,
                                                      "assigned", "high",
                                                      redact(value, "assigned")))
 
@@ -1194,7 +1202,7 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
     kept: list[Finding] = []
     for f in _dedupe_same_span(findings):
         scope = allow_by_line.get(f.line)
-        if scope is not None and scope in ("", f.rule):
+        if _scope_exempts(scope, f.rule):
             if tally is not None:
                 tally.note_marker(f.rule)
             continue
@@ -1230,8 +1238,31 @@ def _looks_binary(data: bytes) -> bool:
     return b"\x00" in data[:8192]
 
 
+# 320/840 — a rule's FINDING name is what a marker is compared with and what
+# the report prints; `--disable` historically took a shorter spelling for the
+# assigned-value rule. `RULE_ALIASES` maps every accepted spelling to the name
+# findings carry; the rule list is built from it, so no spelling can be accepted
+# in one place and counted as unknown in another.
+ASSIGNED_RULE = "assigned-secret"
+RULE_ALIASES = {"assigned": ASSIGNED_RULE, ASSIGNED_RULE: ASSIGNED_RULE}
+
+
+def canonical_rule(name: str) -> str:
+    """The name findings carry for an accepted spelling of a rule (identity for
+    every rule with one spelling, and for a name that is no rule at all)."""
+    return RULE_ALIASES.get(name, name)
+
+
+def _scope_exempts(scope: str | None, rule: str) -> bool:
+    """Does a marker of this scope exempt a finding of `rule`? The unscoped
+    form exempts every rule; a scoped one exempts the rule it names, in any
+    accepted spelling. Case-sensitive, exactly as before."""
+    return scope is not None and (scope == "" or canonical_rule(scope) == rule)
+
+
 ALL_RULES = frozenset({p.name for p in NAMED}
-                      | {"assigned", "high-entropy", LOW_VARIETY_RULE,
+                      | set(RULE_ALIASES)
+                      | {"high-entropy", LOW_VARIETY_RULE,
                          EXEMPT_PRIVATE_KEY_RULE})
 
 
@@ -1924,7 +1955,8 @@ def _main(argv: list[str] | None = None) -> int:
                     help="repo root for relative paths/.secretscanignore "
                          "(with --staged it must be the repo you run in)")
     ap.add_argument("--disable", default="",
-                    help="comma-separated rules to skip (named rule, 'assigned', "
+                    help="comma-separated rules to skip (named rule, 'assigned' "
+                         "or 'assigned-secret', "
                          f"'high-entropy', or '{LOW_VARIETY_RULE}'). Use to quiet "
                          "a noisy generic rule while keeping the high-confidence "
                          "vendor formats.")

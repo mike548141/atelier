@@ -692,6 +692,37 @@ def _phone_inside_hex_digest(m: "re.Match[str]") -> bool:
 _HEX_CHARS = frozenset("0123456789abcdefABCDEF")
 
 
+def _phone_inside_hex_byte_field(m: "re.Match[str]") -> bool:
+    r"""Roadmap 320/850. A device dump prints a property's raw bytes between
+    angle brackets, and a little-endian small integer there is eight to sixteen
+    hex digits that are all decimal digits with a tail of zeros, so it matched
+    the phone rule yet falls under the digest guard's 16-character floor. A match
+    is a byte field, not a phone, when it lies wholly inside `<` ... `>` and the
+    bracketed text is an even-length run of hex digits and nothing else.
+
+    Only the exact bracket form is exempt, so the rule keeps reach everywhere
+    else: a bracketed number with a space, dash, plus or paren in it is not a hex
+    run, an odd-length run is not whole bytes, and a bracketed all-digit run of
+    exactly ten characters that IS the match is the one unseparated mobile shape
+    that is also a whole number of bytes (five), so it is kept as a phone."""
+    text = m.group(0)
+    if not text.isdigit():      # a separator, `+` or paren is no hex digit
+        return False
+    line = m.string
+    lo, hi = m.start(), m.end()
+    while lo > 0 and line[lo - 1] in _HEX_CHARS:
+        lo -= 1
+    while hi < len(line) and line[hi] in _HEX_CHARS:
+        hi += 1
+    if lo == 0 or hi >= len(line) or line[lo - 1] != "<" or line[hi] != ">":
+        return False
+    if (hi - lo) % 2:
+        return False
+    if len(text) == 10 and (lo, hi) == (m.start(), m.end()):
+        return False
+    return True
+
+
 # Per-rule post-match validators: the regex says "this is the right SHAPE", the
 # validator says "and it is not one of the shapes we ruled out". Keeping them
 # beside the patterns means a rule's exclusions are readable in one place
@@ -701,7 +732,8 @@ VALIDATORS: dict[str, "object"] = {
     "ipv4": lambda m: not _ipv4_is_safe(m.group(0)),
     "payment-card": lambda m: _luhn_ok(m.group(0)),
     "iban": lambda m: _iban_ok(m.group(0)),
-    "nz-phone": lambda m: not _phone_inside_hex_digest(m),
+    "nz-phone": lambda m: not (_phone_inside_hex_digest(m)
+                               or _phone_inside_hex_byte_field(m)),
     "pii-key-context": lambda m: not _is_placeholder(m.group("value")),
     "diagnosis-key": lambda m: not _is_placeholder(m.group("value")),
 }

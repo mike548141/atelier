@@ -40,6 +40,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   floor still fails from a worktree (`320/180`), and the children's own
   `../atelier` references (`320/660`) can only follow it. Both items stay open.
 
+### Fixed (2026-11-09 — two child-filed scanner findings: `320/850` leakscan, `320/840` secretscan)
+Both change scanners children float on; no exit code moved in any of 30 child
+checkouts, probed old against new.
+- **`nz-phone` no longer fires on a bracketed byte field (`320/850`).** A device
+  dump prints raw property bytes between angle brackets, and a small integer
+  there is hex digits that all happen to be decimal. A match wholly inside `<`
+  and `>`, where the bracketed text is an even-length run of hex digits and
+  nothing else, now passes. A bracketed number with a separator, an odd-length
+  run, and a bracketed unseparated ten-digit number still flag. One child's 64
+  per-line allow-markers for this are now unused and can go on its next pin.
+- **`secretscan`'s assigned-value rule has one name everywhere (`320/840`).**
+  Findings carry `assigned-secret` while `--disable` took `assigned`, so the
+  "marker(s) naming no rule" count called a working marker inert and a house
+  queue run once proposed a rename that would have turned 11 of 12 lines red.
+  Both spellings are now accepted in `--disable` and in a scoped marker, all
+  reading the one rule list. Findings and JSON keep `assigned-secret`. A marker
+  that exempts a line is never counted as naming no rule; a typo still is.
+
 ### Changed (2026-11-09 — the evidence-window rule, the declaration standard's design, the platform-settings gate, and a pinned review bound: `115/010`, `115/120`, `260/070`, `320/420`)
 Doctrine and one design note; no scanner or tool changes.
 - **The evidence-window rule (`115/010`).** `GUARDS.md` gains a section a reader

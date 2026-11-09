@@ -1063,6 +1063,88 @@ class Dedupe(unittest.TestCase):
         self.assertNotIn("entropy", kinds)
 
 
+class AssignedRuleHasTwoSpellings(unittest.TestCase):
+    """320/840. The assigned-value rule's findings are named `assigned-secret`;
+    `--disable` has always taken `assigned`. The marker, the flag and the
+    "naming no rule" count must read one list, and a marker that exempts a line
+    must never be counted as naming no rule."""
+
+    LINE = 'password = "Gk8xQvie2mNfR7pLzW3dTaHb"'
+
+    def _run(self, marker_scope, disabled=frozenset()):
+        tally = ss.Tally()
+        tag = f"secretscan:allow:{marker_scope}" if marker_scope else "secretscan:allow"
+        fs = ss.scan_text("t", f"{self.LINE}  # {tag}: synthetic fixture\n",
+                          disabled, tally)
+        return fs, tally
+
+    def test_finding_name_marker_exempts_and_is_not_counted_inert(self):
+        fs, tally = self._run("assigned-secret")
+        self.assertEqual([], fs)                       # the marker works
+        self.assertEqual(0, tally.unknown_scope_markers)
+        self.assertIn("0 marker(s) naming no rule", tally.summary())
+        self.assertEqual({"assigned-secret": 1}, tally.by_marker)
+
+    def test_short_name_marker_exempts_and_is_not_counted_inert(self):
+        fs, tally = self._run("assigned")
+        self.assertEqual([], fs)
+        self.assertEqual(0, tally.unknown_scope_markers)
+        self.assertEqual({"assigned-secret": 1}, tally.by_marker)
+
+    def test_unscoped_marker_still_exempts(self):
+        fs, tally = self._run("")
+        self.assertEqual([], fs)
+        self.assertEqual(0, tally.unknown_scope_markers)
+
+    def test_every_marker_that_exempts_is_never_counted(self):
+        # The invariant, over every spelling of every rule the scanner lists:
+        # if a marker of that scope leaves the line exempt, it is not counted
+        # as naming no rule.
+        for name in sorted(ss.ALL_RULES):
+            fs, tally = self._run(name)
+            if not [f for f in fs if f.rule == ss.ASSIGNED_RULE]:
+                self.assertEqual(0, tally.unknown_scope_markers, name)
+
+    def test_a_real_typo_still_exempts_nothing_and_is_counted(self):
+        fs, tally = self._run("assigned-secrets")
+        self.assertIn("assigned-secret", [f.rule for f in fs])
+        self.assertEqual(1, tally.unknown_scope_markers)
+        self.assertIn("1 marker(s) naming no rule", tally.summary())
+
+    def test_another_rules_name_does_not_exempt_this_one(self):
+        fs, _ = self._run("high-entropy")
+        self.assertIn("assigned-secret", [f.rule for f in fs])
+
+    def test_both_spellings_disable_the_rule(self):
+        for spelling in ("assigned", "assigned-secret"):
+            self.assertEqual(
+                set(), rules(self.LINE, frozenset({spelling})), spelling)
+        self.assertIn("assigned-secret", rules(self.LINE))
+
+    def test_both_spellings_pass_the_unknown_rule_check_on_the_cli(self):
+        import subprocess
+        for spelling in ("assigned", "assigned-secret"):
+            with tempfile.TemporaryDirectory() as d:
+                (Path(d) / "f.txt").write_text(self.LINE + "\n")
+                r = subprocess.run(
+                    [sys.executable, str(Path(ss.__file__)), "--root", d,
+                     "--disable", spelling, "f.txt"],
+                    capture_output=True, text=True)
+                self.assertEqual(0, r.returncode, (spelling, r.stdout, r.stderr))
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "f.txt").write_text(self.LINE + "\n")
+            r = subprocess.run(
+                [sys.executable, str(Path(ss.__file__)), "--root", d,
+                 "--disable", "assigned-secrets", "f.txt"],
+                capture_output=True, text=True)
+            self.assertEqual(2, r.returncode)
+
+    def test_json_and_findings_keep_the_finding_name(self):
+        self.assertEqual("assigned-secret", ss.canonical_rule("assigned"))
+        self.assertEqual("assigned-secret", ss.canonical_rule("assigned-secret"))
+        self.assertEqual("high-entropy", ss.canonical_rule("high-entropy"))
+
+
 class Disable(unittest.TestCase):
     def test_disable_high_entropy_keeps_named(self):
         text = "AKIAIOSFODNN7EXAMPLE and aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"

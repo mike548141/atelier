@@ -1300,6 +1300,69 @@ class PhoneInsideHexDigest(unittest.TestCase):
         self.assertIn("nz-phone", rules(f"{self.SHA} 021 555 1234"))
 
 
+class PhoneInsideBracketedByteField(unittest.TestCase):
+    """Roadmap 320/850 — a device dump prints raw property bytes between angle
+    brackets; an even-length run of hex digits and nothing else, wholly inside
+    them, is a byte field and not a phone. A bracketed real-shaped number keeps
+    flagging."""
+
+    def _phone_matches(self, line):
+        rx = [x for x in ls.STRUCTURAL if x.name == "nz-phone"][0].regex
+        return rx.search(line) is not None
+
+    def test_the_shape_matched_the_regex_before_the_guard(self):
+        # Pin the regression: the bare regex hit these, so the guard is what
+        # clears them.
+        for line in ("<05000000>", "<031234567a>", "<091234567a>"):
+            with self.subTest(line=line):
+                self.assertTrue(self._phone_matches(line))
+
+    def test_byte_fields_pass(self):
+        for field in ("05000000", "0300000000000000", "091234567a",
+                      "031234567a", "0400000000000000ffee"):
+            with self.subTest(field=field):
+                self.assertNotIn("nz-phone", rules(f"    \"IOCacheLine\" = <{field}>"))
+                self.assertNotIn("nz-phone", rules(f"x = <{field}> y"))
+
+    def test_byte_field_with_uppercase_hex_passes(self):
+        self.assertNotIn("nz-phone", rules("v = <05000000AB00>"))
+
+    def test_bracketed_real_shaped_numbers_still_flag(self):
+        for text in ("<021 555 1234>", "<+64 21 555 1234>", "<09-555-1234>",
+                     "<021-555-1234>", "<(04) 555 1234>"):
+            with self.subTest(text=text):
+                self.assertIn("nz-phone", rules(f"contact {text} today"))
+
+    def test_bracketed_ten_digit_unseparated_mobile_still_flags(self):
+        # Ten decimal digits is both a whole number of bytes and the one
+        # unseparated NZ mobile length; it is kept as a phone.
+        self.assertIn("nz-phone", rules("contact <0215551234> today"))
+
+    def test_bracketed_odd_length_run_still_flags(self):
+        # Nine digits is not whole bytes (a ten-digit run is the other case,
+        # pinned above).
+        self.assertIn("nz-phone", rules("contact <031234567> today"))
+
+    def test_bracket_must_close_around_the_run(self):
+        for line in ("ring <05000000 now", "ring 05000000> now",
+                     "ring (05000000) now", "ring [05000000] now",
+                     "ring <x05000000> now"):
+            with self.subTest(line=line):
+                self.assertIn("nz-phone", rules(line))
+
+    def test_extra_text_inside_the_brackets_is_not_a_byte_field(self):
+        self.assertIn("nz-phone", rules("ring <tel 05000000> now"))
+        self.assertIn("nz-phone", rules("ring <05000000 05000000> now"))
+        self.assertIn("nz-phone", rules("ring <05000000,> now"))
+
+    def test_unbracketed_phones_unchanged(self):
+        for line in ("ring 031234567 today", "ring 05000000 today",
+                     "ring 0215551234 today"):
+            with self.subTest(line=line):
+                self.assertEqual(self._phone_matches(line),
+                                 "nz-phone" in rules(line))
+
+
 class PathScanning(unittest.TestCase):
     """G2 (ruled 2026-08-04) — the repo-relative PATH runs through the same
     rule set, reported at line 0. Measured cost when proposed: zero findings
