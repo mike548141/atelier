@@ -46,3 +46,9 @@
       Brief written 2026-08-17 by a non-author Fable cold session (its three
       disclosures stand in the verdict); sibling folded in and deleted; wt:
       cold-run-0817-1321.
+      *Note (160/560, TC2, TC4, TC7, 2026-11-09).* CH2 is applied in
+      `CONCURRENCY.md` § The trigger and § The channel (*Hello*): the ask is a
+      fact when a peer answers, and silence licenses nothing. CH7's two halves
+      are both done: the "two cues" count was fixed in `df0820e` (count half
+      only, which that commit did not say), and the "by accident" wording is
+      fixed there now.

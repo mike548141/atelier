@@ -155,6 +155,22 @@ this machine, old scanner against new, and no repo's blocking result changed.
 
 
 
+
+### Changed (2026-11-09 — the third "another session is live" cue ends in an action, and the cue wording is made true, `160/560`)
+Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
+- **Children: nothing to do.** The edits are in `CONCURRENCY.md` § The trigger and
+  § The channel, which a child reads through the pointer, not in the stamped block.
+- **The ask cue ends in an action (TC1).** A peer's answer that names this repo is
+  the dirty-tree case without the dirt: move to a worktree and announce your file
+  set. It was the one cue of the three that ended in knowledge.
+- **The ask is a fact only when a peer answers (TC2).** An empty list or no reply
+  is silence and licenses nothing; § The channel's *Hello* sentence says the same.
+  This also applies `280/030`'s CH2, which the note there now records.
+- **The counts and the accuracy (TC3, TC4).** "Two blind spots" is "two more", and
+  says the opening paragraph's blind spot is the first; "discoveries you make by
+  accident" is "reach you by being told or by stumbling on the evidence". CH7's two
+  halves are both done, and `280/030` says so (TC7).
+- **Not done, by the pass's own word:** TC5 and TC6 are notes with no action owed.
 ### Changed (2026-11-09 — `blockscan`'s advisory report: nothing routes it to a person, `160/430`)
 - `tools/README.md` says the unmapped-heading report stays in the CI log, where it
   already is, and that nothing routes it to a person (CU10). Documentation only.

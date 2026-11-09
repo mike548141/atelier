@@ -75,12 +75,18 @@ nothing errors. The three cues:
   doctrine exists to prevent.
 - **Ask, when a channel exists:** where sessions can message each other, a
   session enumerates its live peers at open and asks (§ The channel), and asks
-  the owner before it works around what it meets (§ Talk first). This is
-  the only cue that turns the flipped prior into a *fact* rather than a posture —
-  the other two are discoveries you make by accident.
+  the owner before it works around what it meets (§ Talk first). A peer's
+  answer that names this repo is the dirty-tree case without the dirt: move to
+  a worktree and announce your file set (§ Claiming work). This is the only cue
+  that turns the flipped prior into a *fact* rather than a posture, and only
+  when a peer answers: an empty list or no reply is silence, which licenses
+  nothing. The other two reach you by being told or by stumbling on the
+  evidence.
 
-**The backstop has two blind spots, and both bite in the shared primary
-checkout.** Neither shows in `git status` as anything that reads as "stop":
+**The backstop has two more blind spots, and both bite in the shared primary
+checkout.** The opening paragraph's blind spot (a disciplined peer leaves a
+clean tree) is the first; these two come on top of it. Neither shows in
+`git status` as anything that reads as "stop":
 
 - **The index is a shared surface too.** Two sessions staging into one checkout
   produce an index holding both work sets, and a commit from either lands the
@@ -642,8 +648,9 @@ not have caught:
 - **Hello, on open and on resume.** Identify the session and its repo, name the
   work, and give the **file set** — a claim says *what*, never *which files*.
   This also upgrades § The trigger's flipped prior from an assumption into a
-  checkable fact: a session can enumerate its live peers and ask, rather than
-  inferring solitude from a clean tree. Off-repo claims (hosts, long jobs,
+  checkable fact when a peer answers: a session can enumerate its live peers
+  and ask, rather than inferring solitude from a clean tree. An empty list or
+  no reply is silence and licenses nothing. Off-repo claims (hosts, long jobs,
   shared remote files, live services) ride in the same hello (§ Beyond the repo).
 - **Holdings.** Answer other sessions' hellos. The overlap is only visible from
   outside, which is why answering matters as much as announcing.
