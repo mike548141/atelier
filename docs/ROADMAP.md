@@ -365,6 +365,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose --identifiers credits on evidence…](roadmap/160-doctrine-review-owed/1170-rule-4-cold-pass-queued-identifiers-on-evidence-and-the-same-item-stop.md)
 - [ ] ⏳ [Rule-4 cold pass queued: held-back review notes leave the shared…](roadmap/160-doctrine-review-owed/1180-rule-4-cold-pass-queued-review-notes-date-kind-and-visibility.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a malformed allow-marker goes strict after a…](roadmap/160-doctrine-review-owed/1190-rule-4-cold-pass-queued-strict-markers-and-lowering.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccmail's cache is private and expires, and…](roadmap/160-doctrine-review-owed/1200-rule-4-cold-pass-queued-ccmail-cache-and-recorded-reach.md)
 
 ## build/ layer — open strands
 
@@ -432,7 +433,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [cctranscript never reads the principal's mid-turn messages, and its…](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
 - ✅ [pins.py enumerates CWD-relative and reports a wrong denominator from…](roadmap/210-instruments-open-features/110-pins-py-enumerates-cwd-relative-and-lies-from-a-worktree.md)
 - [ ] 🔎 [Drive binaries have the gap ccmail just closed for mail](roadmap/210-instruments-open-features/120-drive-binaries-have-the-same-gap-ccmail-just-closed.md)
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-z1) [Rule-4 review queued (tier: Fable;…](roadmap/210-instruments-open-features/130-ccmail-rule-4-review-queued.md)
+- ✅ 🎯 [Rule-4 review queued (tier: Fable; pass type: code + doctrine cold…](roadmap/210-instruments-open-features/130-ccmail-rule-4-review-queued.md)
 - [ ] 🎯 [ccgrab — a web-media capture instrument (Mike commissioned…](roadmap/210-instruments-open-features/140-ccgrab-web-media-capture-instrument.md)
 - ✅ 🔎 [Why is the source smaller than the archived copy? — the shrink…](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
 - ✅ 🎯 [ccarchive's summary counts files, and Mike's own read of the tool is…](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)

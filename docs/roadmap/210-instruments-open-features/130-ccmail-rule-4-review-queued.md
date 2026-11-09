@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-z1)
-      🎯 **Rule-4 review queued (tier: Fable; pass type: code + doctrine cold pass,
+- [x] 🎯 **Rule-4 review queued (tier: Fable; pass type: code + doctrine cold pass,
   the `ccmail` build).**
   *Delta:* `instruments/ccmail` (new) + `instruments/ccmail.test.js` (new, 25
   tests) + `instruments/man/ccmail.1` (new) + `instruments/README.md` (the
@@ -58,3 +57,12 @@
         answer, not a ruling):** *"Keep it, lock the cache"* (CC1, CC2): the delegated
         route stays and its domain-wide reach is written down; the attachment
         cache gets private permissions and a 30-day expiry.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker,
+        read by the orchestrator before landing), per his answer: CC1's reach is
+        written down in an ADR 0006 addendum, the man page, README and `--status`;
+        CC2 the cache is private with a 30-day expiry, its sweep pinned against
+        symlink escapes; CC3–CC8, CC11 as counselled; CC9 partly (a registry entry
+        is owed outside this repo); CC10 overtaken. CC1(iii), refusing a delegated
+        subject that differs from the cloud login, was not part of his answer and
+        is not built. Session record for this pass: see the verdict. Cold pass
+        `160/1200`.
