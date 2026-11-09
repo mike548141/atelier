@@ -39,6 +39,11 @@
       require either a quote, a citation, or a demotion to *"an agent's decision"*.
       That converts an invisible class into a visible one without needing the
       corpus that makes `320/080` hard.
+      ✅ **The form check LANDED 2026-11-09 (slice 2 of `320/810`):**
+      `tools/attribscan.py`, on lines a commit adds, warning until 2027-02-08.
+      It asks for a quote, a citation or a statement that it is an agent's
+      decision, as offered here. The corroboration and the unsupported-claim
+      shape below stay open.
 
 - [ ] 🔎 **CORROBORATION for `320/070` (a transcript has three channels), from an
       independent second incident — and it is stronger than a proposal.** The

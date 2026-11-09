@@ -58,3 +58,7 @@
       application's cold pass is queued as `160/1120`.
       💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Ordering the work is permission"* (re-put in plain terms after *"I dont understand"*): in a private repo, the principal's order for the work is the grant for the personal data that work needs, and the session notes that it judged so. Confirms the wording `REPO-STANDARD.md` carries.
+      ✅ **The scanner landed 2026-11-09 (slice 3 of `320/810`):**
+      `tools/pdlistscan.py`, for repos declaring `"visibility": "public"`,
+      warning until 2027-03-08. Whether the rule moves into the stamped floor
+      block stays open.

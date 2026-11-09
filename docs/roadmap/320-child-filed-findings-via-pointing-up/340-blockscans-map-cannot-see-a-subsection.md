@@ -1,4 +1,4 @@
-- [ ] 🔎 **`blockscan` cannot see a change to a mapped section's
+- [x] 🔎 **`blockscan` cannot see a change to a mapped section's
       SUBSECTIONS, and the session that built it walked straight into the
       gap** — found 2026-09-20 in the same sitting `320/300` landed, by
       running the new check against that sitting's own doctrine commits.
@@ -46,3 +46,11 @@
       itself by mapping subsections explicitly or by an opt-in
       `recursive: true`. The 12 above are the input to that choice. The item
       stays `[ ]` for it.
+      ✅ **Closed 2026-11-09 (queue run d0ca5d24, slice 1 of `320/810`):** the
+      gap itself is closed, by neither candidate above: `tools/blockscan.py`
+      now compares every unmapped subsection whose nearest mapped ancestor is
+      the mapped heading, so a new subsection needs no map entry, and a
+      subsection mapped to another bullet still answers to that bullet alone.
+      That choice is the run's, not his: his order was the check, in his words
+      *"all six, warnings at first and then move to blocking action"*. It warns
+      until 2027-01-11, then blocks; `320/810` carries the date and the probe.
