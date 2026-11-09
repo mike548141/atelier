@@ -63,3 +63,7 @@
       detail of the work goes into a child file that the main board
       references"*. Queue run 722ac2e2 had paraphrased it as finished work piling
       up; the re-ask states it as he did.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
+      not a ruling):** *"Bar it; nova converts"* (HX1): the floor's report-only switch may not be used
+      on the board-design check; each child with it on turns it off, and a child
+      still on a single-file board converts, on its own board.

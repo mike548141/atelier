@@ -565,6 +565,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [§ Pointing up only names atelier as a parent — Mike commissioned,…](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
 - [ ] 🎯 [CLASS — the parent holds accommodations its children cannot inherit,…](roadmap/310-pointing-up-the-child-to-parent-route/130-the-parent-holds-accommodations-the-child-cannot-inherit.md)
 - ✅ 🎯 [A PR as the carrier for an idea or finding between any two repos, not…](roadmap/310-pointing-up-the-child-to-parent-route/140-a-pr-as-the-carrier-between-any-two-repos.md)
+- [~] (claimed 2026-11-09-0930, wt: atelier-rr-722a-bd2) [Design exercise: refine how…](roadmap/310-pointing-up-the-child-to-parent-route/160-design-exercise-how-we-manage-work-on-the-board.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
 
@@ -650,6 +651,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Turn conflictscan's tool-markup rule from advisory to blocking once…](roadmap/320-child-filed-findings-via-pointing-up/780-the-tool-markup-advisory-goes-blocking-once-the-estate-is-clean.md)
 - ✅ [Hand-up: secretscan flags every body line of a PEM public…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
 - [ ] 🔎 [A floor disabled entry carries a reason but no end date, so it cannot…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
+- [ ] 🔎 [Build the six checks he chose, warnings first, then blocking, each…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 

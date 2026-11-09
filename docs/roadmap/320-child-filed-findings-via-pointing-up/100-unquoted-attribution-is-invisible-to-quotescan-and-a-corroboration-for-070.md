@@ -84,3 +84,11 @@
       and none for whether a claim outruns its evidence** — while that rule sits
       at the apex. Offered as evidence for the rung decision; the remedy is
       atelier's.
+  - [ ] ⚖️ **Mike, 2026-11-09, in his own words** (asked by queue run 722ac2e2 which of six
+      candidate checks to build): *"all six, warnings at first and then move to
+      blocking action. With a staggered turn on of each so they dont all hit at
+      once"*. The six: commits name their files (`320/060`); "ruled" with no quote
+      (`320/100`); private names in branch names and commit titles (`160/360`
+      NP2); the closed personal-data list (`160/630`); edits inside mapped
+      sub-sections (`320/340`); a quote of him on commits touching his prompt
+      (`160/900`). Plan: `320/810`.

@@ -73,3 +73,15 @@
       states verbatim, and holds one dated, self-removing pending-upstream line
       naming this item. Its own items were re-marked to the *existing* standard
       (disposition in prose) — that is applying the rule, not changing it.
+  - [ ] ⚖️ **Mike, 2026-11-09, in his own words** (asked by queue run 722ac2e2, which
+        recommended one new status): *"I accept your recommendation but per several
+        prior sessions in this or other repos where I mocked up additional statuses
+        that I think the board will require. I think we need to expand further than
+        just the recommended option for example where child items are a mix of done,
+        in-progress, and not-started etc. There may even be a requirement for two
+        tiers/classes e.g. a general class of something like "no more work to be done
+        on this item and any children" with child classes of "done / work completed",
+        "not required", "supersceeded", "duplicate", "a mixed status or an
+        in-progress for when there are child pieces of work" etc Run a design exercise
+        based on the lived experiences of our past sessions to refine how we manage
+        work using the board"*. Design exercise: `310/160`.

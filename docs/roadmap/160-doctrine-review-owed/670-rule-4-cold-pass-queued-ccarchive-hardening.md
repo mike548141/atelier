@@ -46,3 +46,7 @@
             uncited as non-code. The re-review of 210/210 returns no MAJOR, so
             the cycle opened by 160/460 and 160/510 closes here. Findings are
             the principal's to decide (rule 3); nothing was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
+      not a ruling):** *"Add a local rollback check"* (HD1): a small local record of the last saved
+      version, so a rollback is refused or flagged; key rotation verifies the old
+      signature first (HD2, HD3). HD4–HD16 are not yet approved.
