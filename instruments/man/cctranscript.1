@@ -97,7 +97,7 @@ neither is ever rendered as if you had typed it \(em see NOTES for how the
 three are told apart. The task notification is shown as harness text (below);
 the peer's message is not shown. A header chip,
 .BR "N mid-turn" ,
-appears only when the session holds at least one.
+always prints, a known zero included.
 .PP
 Not everything the log records as a user message is something you typed. A
 background task's
@@ -114,7 +114,7 @@ A header chip,
 .BR "N harness" ,
 counts them apart from
 .BR "N you" ,
-and appears only when the session holds at least one. Harness text still opens
+and always prints, a known zero included. Harness text still opens
 an exchange and takes its number, because the replies that follow it answer it,
 and dropping the number would shift every
 .I N

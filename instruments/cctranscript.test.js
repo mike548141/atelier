@@ -624,6 +624,12 @@ test('first prompt: a damaged prefix that still decodes lists wrong text (the co
   assert.equal(listed.length, 'the original prompt'.length);
 });
 
+test('header: the mid-turn and harness chips print at zero, so the field set never varies (160/880 HC11)', () => {
+  const out = execFileSync('node', [SCRIPT, '--no-color', FIXTURE], { encoding: 'utf8' });
+  const header = out.split('\n').find((l) => / turns · /.test(l));
+  assert.match(header, / you · \d+ Claude · \d+ mid-turn · \d+ harness · \d+ agents? started/);
+});
+
 test('first prompt: a small mirror with no prompt is inflated once, not twice', () => {
   // 160/680 FP6. gunzipHead already took the strict whole inflate of a file at
   // most one prefix long; a miss then re-read and re-inflated the same bytes.
@@ -1020,7 +1026,7 @@ test('CLI: --json gives harness text its own role and the full text; the header 
     [['you', '1'], ['claude', '1.1'], ['harness', '2'], ['claude', '2.1'], ['harness', '3'], ['you', '4']]);
   assert.match(j.turns[2].text, /<summary>Background job "build" finished<\/summary>/);
   const out = execFileSync('node', [SCRIPT, '--no-color', file], { encoding: 'utf8' });
-  assert.match(out, /2 you · 2 Claude · 2 harness/);
+  assert.match(out, /2 you · 2 Claude · 0 mid-turn · 2 harness/);
 });
 
 test('CLI: the human render shows harness text on the left, labelled and clipped to a line', () => {
@@ -1106,7 +1112,7 @@ test('CLI: an attachment notification is a grey Harness line without a rule, cou
   assert.deepEqual(j.turns.map((t) => [t.role, t.ref]), [['you', '1'], ['claude', '1.1'], ['harness', null], ['claude', '1.2']]);
   assert.match(j.turns[2].text, /Synthetic job aaa finished/);
   const out = execFileSync('node', [SCRIPT, '--no-color', '--width', '80', file], { encoding: 'utf8' });
-  assert.match(out, /1 you · 2 Claude · 1 harness/);
+  assert.match(out, /1 you · 2 Claude · 0 mid-turn · 1 harness/);
   const lines = out.split('\n');
   const at = lines.findIndex((l) => l.includes('Harness'));
   assert.ok(at > 0, 'a Harness label is printed');

@@ -151,6 +151,14 @@ this machine, old scanner against new, and no repo's blocking result changed.
   lives in one place (PL4), and one comment no longer describes what a survey
   found tracked (PL3; the pushed commit body is a frozen record).
 
+
+### Changed (2026-11-09 — `cctranscript`'s header prints the mid-turn and harness chips at zero, `160/880`)
+Settled by the principal's standing steer that report fields stay comparable.
+- The header line read side by side with another session's now has the same
+  fields every run: `N mid-turn` and `N harness` print at `0` where they used to
+  vanish. A script that matched `2 you · 2 Claude · 2 harness` needs `· 0 mid-turn`
+  between. The README's "the field set never varies" is true again without its one
+  stated exception; the context chip still drops when the size is unknown.
 ### Changed (2026-11-09 — the new-repo reviews template leads on independence, names one applier and the child's seat names, `160/590`)
 Mike's answer of 2026-11-09: the cold pass's counsel applied as written. Which
 tier reviews is untouched: the principal still names it.

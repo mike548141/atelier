@@ -348,10 +348,12 @@ take an exchange number but are never counted as yours; a task
 notification that arrived as an attachment record reads as harness too but
 takes no number, so no existing ref moves), then **agents started ·
 finished**, then the context peak, then the clock span. It is designed to be read by **comparing two sessions side by side**,
-which fixes one rule: the *field set* never varies between runs. The one
-stated exception is the two turn chips for **mid-turn** and **harness** text,
-which print only when the session holds at least one; every other field prints
-even when it is zero.
+which fixes one rule: the *field set* never varies between runs. Every field
+prints even when it is zero, the **mid-turn** and **harness** chips included
+(until 2026-11-09 those two printed only when the session held at least one;
+`160/880` HC11 ended the exception). The one field that can still be absent is
+the context size, because a log with no usage records leaves it *unknown*, and
+`0` would misreport that.
 
 **Agents started vs finished** is a deliberate pair. *Started* counts the spawn
 tool calls (`Agent`, legacy `Task`) — a ceiling, since a skipped or stopped spawn
