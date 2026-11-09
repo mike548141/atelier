@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-09 — the principal's answers on `160/340`, `115/020`, `310/160` applied)
+His answers to options a session offered (answers, not rulings in his own
+words, except where quoted).
+- **The sizescan bar now covers `disabled` too, from the same date
+  (`160/340`; *"Bar both"*).** `floor.DISABLED_BARRED_FROM` (a separate table,
+  2026-12-09) makes a `disabled.sizescan` entry a config error from that date,
+  as `advisory.sizescan` already is. Until then the entry works, and its floor
+  line, `floorfleet` and `--json` (`barred_from`, now also set on a disabled
+  result) name the date. A repo with no board needs no entry: the check passes
+  on an empty tree. No repo on the machine lists it today.
+
 ### Changed (2026-11-09 — three review rulings applied: `160/790`, `160/340`, `160/020`, `200/030`)
 Mike's answers of 2026-11-09 (answers to options offered, not rulings in his own
 words, except where quoted); the reviewers' counsel on the rest applied as written.

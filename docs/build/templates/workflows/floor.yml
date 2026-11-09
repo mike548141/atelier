@@ -50,7 +50,8 @@ name: floor
 # `.atelier-floor.json` while you do, which keeps the finding visible instead of
 # silencing it. One exception: sizescan, which enforces the board's design (a
 # short main board, each item's detail in its own file), may not be declared
-# advisory from 2026-12-09. Until then it still can, and its line says so.
+# advisory or disabled from 2026-12-09. Until then it still can, and its line
+# says so.
 #
 # FALSE POSITIVE in this repo's own tree (a deliberate fake-secret test fixture, a
 # committed build-output dir full of generated markdown)? Two hatches, both

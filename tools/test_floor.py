@@ -2360,13 +2360,71 @@ class BarredAdvisoryTest(unittest.TestCase):
                 cfg = self._load_on("2999-01-01", {"advisory": [name]})
                 self.assertIn(name, cfg.advisory)
 
-    def test_a_reasoned_disable_is_still_open_after_the_date(self):
-        """The bar closes the report-only switch the ruling named. `disabled`
-        is the lane every check with no advisory form has, reasoned and on the
-        board, and is not what the principal ruled on."""
-        cfg = self._load_on(self.BARRED_DAY, {"disabled": {
-            "sizescan": "this repo has no roadmap"}})
+    def test_a_reasoned_disable_is_barred_too_from_the_same_date(self):
+        """160/340, "Bar both": `disabled` was the one lane left open, and for
+        this check it is the same flat running log with nothing printed. The
+        day before it still loads; from the date it is a config error that
+        names the date, whatever reason it carries."""
+        payload = {"disabled": {"sizescan": "this repo has no roadmap"}}
+        cfg = self._load_on(self.GRACE_LAST_DAY, payload)
         self.assertEqual(_states("ci", cfg)["sizescan"], "disabled")
+        with self.assertRaises(floor.ConfigError) as cm:
+            self._load_on(self.BARRED_DAY, payload)
+        msg = str(cm.exception)
+        self.assertIn("sizescan", msg)
+        self.assertIn("2026-12-09", msg)
+        self.assertIn("disabled", msg)
+        with self.assertRaises(floor.ConfigError):
+            self._load_on("2027-06-01", {"disabled": {
+                "sizescan": "a long and careful reason, dated and reviewed"}})
+
+    def test_the_disable_date_is_the_ruled_one_and_matches_the_advisory_bar(self):
+        import datetime
+        self.assertEqual(floor.DISABLED_BARRED_FROM["sizescan"],
+                         datetime.date(2026, 12, 9))
+        self.assertEqual(floor.DISABLED_BARRED_FROM,
+                         floor.ADVISORY_BARRED_FROM)
+        for name in floor.DISABLED_BARRED_FROM:
+            self.assertIn(name, floor.BY_NAME)
+
+    def test_the_other_checks_may_still_be_disabled(self):
+        for name in ("wrapscan", "datescan", "spellscan", "publishscan",
+                     "secretscan"):
+            with self.subTest(name=name):
+                cfg = self._load_on("2999-01-01",
+                                    {"disabled": {name: "no prose here"}})
+                self.assertIn(name, cfg.disabled)
+
+    def test_the_disabled_line_names_the_date_while_it_still_works(self):
+        from unittest import mock
+        only = floor.BY_NAME["sizescan"]
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            cfg = self._load_on(self.GRACE_LAST_DAY, {"disabled": {
+                "sizescan": "no roadmap yet"}})
+            with mock.patch.object(floor, "SCANNERS", (only,)), \
+                    mock.patch.object(floor, "BY_NAME", {"sizescan": only}), \
+                    mock.patch.object(floor, "_today",
+                                      return_value=self.GRACE_LAST_DAY):
+                results = floor.run("ci", root, TOOLS_DIR, cfg, ci=False)
+        self.assertEqual(results[0].state, "disabled")
+        self.assertEqual(results[0].barred_from, "2026-12-09")
+        self.assertFalse(results[0].failed)
+        line = floor.render(results, "ci")
+        self.assertIn("disabled barred from 2026-12-09", line)
+        self.assertIn("🔴", line)
+
+    def test_a_disabled_check_not_named_carries_no_date(self):
+        from unittest import mock
+        only = floor.BY_NAME["wrapscan"]
+        with tempfile.TemporaryDirectory() as td:
+            cfg = self._load_on(self.GRACE_LAST_DAY, {"disabled": {
+                "wrapscan": "no prose"}})
+            with mock.patch.object(floor, "SCANNERS", (only,)), \
+                    mock.patch.object(floor, "BY_NAME", {"wrapscan": only}):
+                results = floor.run("ci", Path(td), TOOLS_DIR, cfg, ci=False)
+        self.assertEqual(results[0].barred_from, "")
+        self.assertNotIn("barred", floor.render(results, "ci"))
 
     def test_the_bar_is_not_reachable_from_a_config_key(self):
         """No key a child can write moves the date, the shape of the other
@@ -2409,6 +2467,7 @@ class BarredAdvisoryTest(unittest.TestCase):
         start = text.index('Scanner(\n        "sizescan",')
         entry = text[start:text.index("Scanner(", start + 10)]
         self.assertIn("ADVISORY_BARRED_FROM", entry)
+        self.assertIn("DISABLED_BARRED_FROM", entry)
         self.assertIn("flat running log", entry)
 
 

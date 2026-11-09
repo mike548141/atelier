@@ -109,7 +109,7 @@ to `[x]` with a dated disposition note, un-harvest back to the roadmap, or
 reformat a parent that was only ever a heading. Never silently fix.
 
 **No marker and no ignore glob silences the cold-content gate, and from
-2026-12-09 neither does the floor's report-only form** (Mike's ruling,
+2026-12-09 neither does the floor's report-only form or its off switch** (Mike's ruling,
 2026-10-05, in his words: "Never allow it as I don't want any of my repo's to
 run a flat running log, they should all being using the new method where the
 main board (aka roadmap) is a simple list of the work and its state, all the
@@ -130,9 +130,12 @@ log with the gate printing and not blocking, and the ruling's briefing had not
 named that lane. The principal's answer was "Bar it". `floor.ADVISORY_BARRED_FROM`
 now bars the form from 2026-12-09: before that date an `advisory.sizescan`
 declaration still works and its line on the floor board names the date; from it
-the declaration is a config error and the floor blocks. A reasoned `disabled`
-entry is not touched (it is the lane every check with no report-only form has,
-and it is on the board). The two ways the gate can still not read a roadmap are
+the declaration is a config error and the floor blocks. `disabled` was left
+open at first (it is the lane every check with no report-only form has) and the
+principal then barred it too (`160/340`, *"Bar both"*): `floor.DISABLED_BARRED_FROM`
+gives it the same date and the same treatment, since a repo that switches the
+gate off keeps a flat log with nothing printed. A repo with no board needs no
+entry; the gate passes on an empty tree. The two ways the gate can still not read a roadmap are
 both outside a hatch: a `ROADMAP.md` under a store-named directory (`sessions/`,
 `reviews/`, `decisions/`, `archive/`, `_archive/`, `intake/`) is not read for
 cold content, and the suppressed line now counts those files; and a fenced

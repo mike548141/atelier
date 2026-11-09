@@ -574,6 +574,16 @@ class AdvisoryAgeingTest(unittest.TestCase):
         bare = self._render_one({"sizescan": ("", "")})
         self.assertIn("advisory barred from 2026-12-09", bare)
 
+    def test_a_barred_disable_names_the_date_on_the_board(self):
+        """160/340, "Bar both": the full-off lane carries the same notice."""
+        info = floorfleet.ChildFloor(
+            name="child", path="/x", state="wired",
+            detail="calls atelier's floor @main",
+            disabled={"sizescan": "no roadmap yet", "wrapscan": "no prose"})
+        text = floorfleet.render([info], remote=False)
+        self.assertIn("sizescan disabled barred from 2026-12-09", text)
+        self.assertEqual(text.count("disabled barred from"), 1)
+
     def test_the_date_kind_is_read_and_shown_and_unlabelled_is_said_aloud(self):
         """160/450: the label is a key the board reads. A value outside the two
         kinds is dropped (floor.py refuses it where the repo is); a dated

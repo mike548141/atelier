@@ -421,8 +421,11 @@ gate still printing, so it is the one lowering the general rule above does not
 give this check. From 2026-12-09 an `advisory.sizescan` declaration, however
 reasoned and dated, is a config error and the floor blocks; before that date the
 declaration still works and the check's line on the floor board names the date.
-A specific "never" beats the general "declared and expiring". `disabled` is not
-what he ruled on and stays open with its reason.
+A specific "never" beats the general "declared and expiring". `disabled` was
+left open at first, as not what he had ruled on; asked whether the bar should
+reach it too, he answered *"Bar both"* (`160/340`, 2026-11-09), so a
+`disabled.sizescan` entry is barred from the same date, with the same notice
+before it. A repo with no board needs no entry.
 
 The `disabled` row is the one place the ruling and the machinery disagree, and
 `scope` / `flags` need a decision on whether narrowing counts as lowering a

@@ -300,13 +300,26 @@ ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # however it is reasoned and dated: the config is a ConfigError, so the floor
 # blocks and says why. Before that date the declaration still works and the
 # check's line carries the date (`Result.barred_from`), so a child that has one
-# is told before it turns red, not on the day. `disabled` is not touched: it is
-# the lane every check with no advisory form already has, reasoned and on the
-# board. One constant compared with the UTC clock, with no flag, environment
-# variable or config key that moves it (the shape of `allowmarker`'s
-# `MALFORMED_GRACE_UNTIL`). Once the date has passed and no child declares one,
-# the grace path (`Result.barred_from` and its note) can go; the bar stays.
+# is told before it turns red, not on the day. One constant compared with the
+# UTC clock, with no flag, environment variable or config key that moves it (the
+# shape of `allowmarker`'s `MALFORMED_GRACE_UNTIL`). Once the date has passed and
+# no child declares one, the grace path (`Result.barred_from` and its note) can
+# go; the bar stays.
 ADVISORY_BARRED_FROM: dict[str, datetime.date] = {
+    "sizescan": datetime.date(2026, 12, 9),
+}
+# THE BARRED DISABLE (160/340, the principal, 2026-11-09, asked whether the
+# report-only bar should reach the full-off lane too: "Bar both"). `disabled`
+# was left open at first, as the lane every check with no advisory form has.
+# For this check it is the same lane round the same ruling ("never allow it"):
+# a repo that switches the board-design check off keeps a flat running log with
+# nothing printing at all. So from the same date, with the same treatment (the
+# date named on the check's line, the fleet board and `--json` before it, then a
+# ConfigError), a repo may not list a check named here under `disabled`. A repo
+# with no board has nothing for the check to read and needs no entry. A
+# separate table on purpose, not an alias of the one above, so moving one date
+# is a visible edit that the tests then make the author look at.
+DISABLED_BARRED_FROM: dict[str, datetime.date] = {
     "sizescan": datetime.date(2026, 12, 9),
 }
 # C0 controls, DEL, and the C1 range. Config-authored text reaches a terminal
@@ -611,14 +624,16 @@ SCANNERS: tuple[Scanner, ...] = (
         # is the one thing it must not offer. The form stays until then so a
         # child that declared it is told, not surprised. After the date
         # delete the form (`advisory=None`) and the grace note, and the
-        # forbid-the-act declaration below is the whole of it.
+        # forbid-the-act declaration below is the whole of it. The full-off
+        # lane, `disabled`, is barred from the same date (160/340,
+        # `DISABLED_BARRED_FROM`) for the same reason.
         hook=["--check", "--staged", "--root", "{root}", "{scope}"],
         ci=["--check", "--root", "{root}", "{scope}"],
         advisory=["--root", "{root}", "{scope}"],  # drop --check
         why="current-truth files stay honest; archive stores hold no live "
             "state; no repo's board is a flat running log (the finished "
-            "items go to the archive store), and no report-only switch "
-            "may be used to keep one",
+            "items go to the archive store), and neither a report-only "
+            "switch nor an off switch may be used to keep one",
     ),
     Scanner(
         "board",
@@ -949,7 +964,19 @@ def advisory_barred(name: str, today: str | None = None) -> bool:
     """True when `name` may no longer be declared `advisory`: it is in
     `ADVISORY_BARRED_FROM` and the UTC date is on or after its date. `today` is
     an ISO date for tests; nothing a child can write reaches it."""
-    barred = ADVISORY_BARRED_FROM.get(name)
+    return _barred_on(ADVISORY_BARRED_FROM, name, today)
+
+
+def disabled_barred(name: str, today: str | None = None) -> bool:
+    """True when `name` may no longer be listed under `disabled`: it is in
+    `DISABLED_BARRED_FROM` and the UTC date is on or after its date. `today` is
+    an ISO date for tests; nothing a child can write reaches it."""
+    return _barred_on(DISABLED_BARRED_FROM, name, today)
+
+
+def _barred_on(table: dict[str, datetime.date], name: str,
+               today: str | None) -> bool:
+    barred = table.get(name)
     if barred is None:
         return False
     return datetime.date.fromisoformat(today or _today()) >= barred
@@ -1594,14 +1621,27 @@ class Config:
                     "own file, and a report-only form lets a flat running log "
                     "stand. Remove the `advisory` entry and convert the board: "
                     "harvest the completed items to the archive store, or "
-                    "split the roadmap into one file per item. A reasoned "
-                    "`disabled` entry is still available for a check this "
-                    "repo genuinely cannot run."
+                    "split the roadmap into one file per item. `disabled` "
+                    "is barred from the same date, so it is no way round."
                 )
         for name, reason in self.disabled.items():
             if not reason.strip():
                 raise ConfigError(
                     f"{CONFIG_NAME}: disabling {name!r} needs a stated reason"
+                )
+            if disabled_barred(name):
+                raise ConfigError(
+                    f"{CONFIG_NAME}: {name!r} may no longer be disabled — "
+                    f"barred from {DISABLED_BARRED_FROM[name].isoformat()} "
+                    "(the principal's ruling, 2026-11-09). It enforces the "
+                    "board's design, the main board a short list with each "
+                    "item's detail in its own file, and switching it off "
+                    "lets a flat running log stand with nothing printed. "
+                    "Remove the `disabled` entry and convert the board: "
+                    "harvest the completed items to the archive store, or "
+                    "split the roadmap into one file per item. A repo with "
+                    "no board needs no entry, because the check passes on "
+                    "an empty tree."
                 )
         # A flag that changes what a check MEANS is not a scoping decision, and
         # must not be reachable by this route: `--warn` here would be a silent
@@ -1681,9 +1721,9 @@ class Result:
     # to say, so a --json consumer's field set stays comparable (160/450).
     kind: str = ""
     date_note: str = ""
-    # The date from which this check's `advisory` form is barred, when the
-    # check is in `ADVISORY_BARRED_FROM` and the child has declared it advisory.
-    # Empty otherwise. Always present, so a --json consumer's field set stays
+    # The date from which this check's `advisory` (or `disabled`) lane is barred,
+    # when the check is in `ADVISORY_BARRED_FROM` (`DISABLED_BARRED_FROM`) and
+    # the child has declared it that way. Empty otherwise. Always present, so a --json consumer's field set stays
     # comparable run to run. A report, never a block: the block is the config
     # error from that date.
     barred_from: str = ""
@@ -1991,8 +2031,12 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             # check from a disabled fleet one, and the render drops the `· local`
             # tag that says which repo's decision this was (local seam cold
             # pass, LS5).
-            results.append(Result(scanner.name, state, 0, cfg.disabled[scanner.name],
-                                  local=scanner.is_local))
+            results.append(Result(
+                scanner.name, state, 0, cfg.disabled[scanner.name],
+                local=scanner.is_local,
+                barred_from=(DISABLED_BARRED_FROM[scanner.name].isoformat()
+                             if scanner.name in DISABLED_BARRED_FROM
+                             else "")))
             continue
         if state == "skipped":
             reason = ("no licence declared" if scanner.opt_in
@@ -2360,7 +2404,7 @@ def render(results: list[Result], plane: str) -> str:
         # warn-only check with a shrinking scope says both things.
         warn_note = (WARN_ONLY_NOTE
                      if r.state == "warn-only" and not r.failed else "")
-        barred_note = (f"🔴 advisory barred from {r.barred_from}: from that "
+        barred_note = (f"🔴 {r.state} barred from {r.barred_from}: from that "
                        "date this declaration is a config error and the floor "
                        "blocks" if r.barred_from else "")
         if barred_note and mark != "❌":

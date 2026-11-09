@@ -1393,6 +1393,14 @@ def render(infos: list[ChildFloor], remote: bool, status: bool = False,
                     "until the principal says")
         for name, why in i.disabled.items():
             lines.append(f"      ⏭  {name} disabled — {why}")
+            # The full-off lane of the same bar (160/340): same date, same
+            # line, so the board says what will turn red before the day.
+            barred = floor.DISABLED_BARRED_FROM.get(name)
+            if barred is not None:
+                lines.append(
+                    f"         🔴 {name} disabled barred from "
+                    f"{barred.isoformat()} — the floor blocks this repo "
+                    "from then unless the entry is removed")
         for name, why in i.local.items():
             lines.append(f"      ➕ {name} local — {why or 'no reason declared'}")
         # Cover reductions, printed beside the removals. `scope` is what a check

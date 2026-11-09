@@ -1222,9 +1222,14 @@ not blocking, a lane the ruling's briefing had not named. `ADVISORY_BARRED_FROM`
 in `floor.py` now bars it: before the date an `advisory.sizescan` declaration
 still works and its floor line, `floorfleet` and `--json` (`barred_from`) name
 the date; from it the declaration, in either spelling, is a config error and the
-floor blocks. A reasoned `disabled` entry is untouched. A repo that has the
-declaration converts its board (harvest the completed items, or split the
-roadmap into a file per item) and removes the entry.
+floor blocks. **`disabled` is barred from the same date** (`160/340`, the
+principal, 2026-11-09, asked whether to bar both lanes: *"Bar both"*):
+`DISABLED_BARRED_FROM`, a separate table with the same date, treats a
+`disabled.sizescan` entry the same way, and its floor line, `floorfleet` and
+`--json` (`barred_from`, now also set on a disabled result) name the date until
+then. A repo with no board needs no entry, since the gate passes on an empty
+tree. A repo that has either entry converts its board (harvest the completed
+items, or split the roadmap into a file per item) and removes it.
 
 **One scope reduction is neither a hatch nor a glob, and is named.** A
 `ROADMAP.md` under a store-named directory (`sessions/`, `reviews/`,
