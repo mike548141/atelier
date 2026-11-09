@@ -21,6 +21,7 @@ ccarchive \- durably preserve every Claude Code transcript, word for word
 .RI [ \-\-force ]
 .br
 .B ccarchive \-\-rekey
+.RI [ \-\-accept\-unverified ]
 .RI [ \-\-dest
 .IR dir ]
 .br
@@ -310,13 +311,25 @@ below.
 .B \-\-rekey
 Mint a fresh signing key (replacing any existing one) and re-sign the current
 manifest with it. The deliberate key roll \(em after suspected key exposure, or
-on a cadence \(em and the one deliberate way to clear an index a run refused to
-trust: run it only once you are satisfied the archive is intact. Takes the lock.
-See
+on a cadence. It first checks the manifest under the
+.I old
+key and refuses, exit 2, changing nothing, unless it is
+.BR verified :
+re-signing would otherwise make whatever is on the volume read as sound. A new
+archive (no manifest) needs no check. Takes the lock. See
 .B SIGNING
 and
 .B TRUST
 below.
+.TP
+.B \-\-accept\-unverified
+With
+.BR \-\-rekey :
+re-sign an index that does not verify (changed after signing, signed by another
+key, unsigned, no key here, a signature with no manifest, or rolled back). It is
+the one deliberate clear: use it only once you are satisfied the archive is
+intact. The report names the state it cleared. Does nothing without
+.BR \-\-rekey .
 .TP
 .B \-\-audit
 Compare the
@@ -779,6 +792,43 @@ is only ever set after its mirror is fully written. Overlapping runs are
 prevented by a lock (see
 .BR LOCK ).
 .PP
+.B Rollback.
+A signature attests the manifest's bytes and says nothing of how recent
+they are, so an older manifest put back with its own older signature is a
+pair that verifies. Someone able to write to the archive volume could use
+that to erase every session archived since, and the sessions the archive
+exists for are the ones already pruned from the machine. So each save
+carries a save number in
+.IR manifest.json.sig ,
+bound to that manifest by its own MAC under the same key (a number that does
+not check is never believed), and the machine keeps a small record of the last
+save it made, beside the signing key, off the volume (see
+.BR FILES ).
+An index whose save number is behind that record, or is the same number over a
+different index, is
+.BR rolled\-back :
+a run, a
+.B \-\-restore
+or a dry run refuses it (exit 2, nothing changed), and
+.B \-\-verify
+and
+.B \-\-audit
+report it and exit 1. So does a volume whose index and signature are both gone
+when this machine has kept a record of saving one. A volume
+.I ahead
+of the record is not a rollback (another machine saved, or this one died before
+keeping its record), and a machine with no record, or a signature from before
+this check, simply starts one. The message says what to check, because a
+sync fault looks the same as a person: whether iCloud Drive has finished syncing
+the folder, whether it shows a restored or conflicted copy of
+.I manifest.json
+or its signature, whether another machine ran an older
+.B ccarchive
+on the archive, and whether any recent session is missing. Once you are
+satisfied, clear it with
+.BR "\-\-rekey \-\-accept\-unverified" .
+It does not guard a machine whose own state directory is lost or written to.
+.PP
 The manifest and its signature are two files, and a write cannot replace both at
 once. So the new signature is written first, beside the old one, as
 .IR manifest.json.sig.next ;
@@ -822,11 +872,31 @@ minted at first use with 32 bytes of entropy \(em never a hand-composed value.
 .B Rotation.
 The key is re-mintable at will:
 .B \-\-rekey
-generates a fresh one and re-signs the current manifest, which is all a roll
-needs \(em the signature only ever attests the
+checks the manifest under the old key, then generates a fresh one and re-signs
+the current manifest, which is all a roll needs \(em the signature only ever
+attests the
 .I current
-manifest, so nothing is lost. Roll on any credible suspicion of key exposure,
-and on a cadence besides. But because the key is what a
+manifest, so nothing is lost. The check comes first because a roll re-signs
+whatever is there: on a manifest that does not verify, a roll without
+.B \-\-accept\-unverified
+refuses, and one with it names the state it cleared.
+.PP
+There is one key per home, and
+.B \-\-rekey
+rolls it for one destination. With more than one archive, a roll for one
+leaves every other archive signed by the old key: each reads as signed by a
+different key, and
+.B \-\-rekey \-\-accept\-unverified \-\-dest
+.I dir
+on one of them mints yet another key and breaks the rest again. No sequence
+of rolls brings them all across under one key, so do not roll the key while you
+keep more than one archive. A run killed
+between minting the key and re-signing leaves every archive under a key that no
+longer exists, and the same flag is the recovery. A fuller scheme (a key per
+destination, or one roll that verifies and re-signs them all) is not built.
+.PP
+Roll on any credible suspicion of key exposure,
+and, with a single archive, on a cadence besides. But because the key is what a
 .I new
 machine needs to verify existing signatures, keep an out-of-band backup of it: a
 lost key cannot be re-minted to a value that verifies old signatures (the same
@@ -842,7 +912,9 @@ non-zero for, each non-green case: a
 .B different key
 (an unexpected roll, or a foreign signer); an
 .B unsigned
-manifest (a pre-signing archive to migrate, or a removed signature); and an
+manifest (a pre-signing archive to migrate, or a removed signature); a
+.B rolled\-back
+one (older than the last save this machine made); and an
 .B unverifiable
 manifest \(em no key on this machine, so the signature cannot be checked at all
 (bring the key out-of-band; a run will not mint a new one while a manifest
@@ -870,13 +942,16 @@ then parse, and refuse anything but
 .B verified
 \(em a manifest changed after signing, one signed by a different key, an
 unsigned one, one that cannot be checked because there is no key here, or a
-signature whose manifest has gone. The refusal names the state, changes nothing
-and exits 2. A missing key is never minted while a manifest exists: that would
+signature whose manifest has gone, or one older than the last save this machine
+made (rolled back; see
+.BR SIGNING ).
+The refusal names the state, changes nothing and exits 2. A missing key is
+never minted while a manifest exists: that would
 re-sign an index nobody checked. A genuinely new archive \(em no manifest
 and no signature \(em proceeds,
 and is signed as it is written. The one deliberate clear
 is
-.BR \-\-rekey ,
+.BR "\-\-rekey \-\-accept\-unverified" ,
 once the operator is satisfied the archive is intact. A dry run refuses the same
 way, since what it would preview is a refusal.
 .PP
@@ -1218,7 +1293,7 @@ JSON, every mode stops with an error and leaves it where it is. Invalid JSON
 never carries a valid signature, so an ordinary run refuses it too (see
 .BR TRUST ).
 Only after the operator's deliberate
-.B \-\-rekey
+.B \-\-rekey \-\-accept\-unverified
 does an ordinary run set an invalid manifest aside, as
 .IR manifest.json.corrupt\-<UTC\ timestamp> ,
 never over an earlier set-aside copy, and then start a new, signed
@@ -1490,6 +1565,16 @@ Present only while a run is going, after one died part way, or while a record
 waits on an evicted mirror. See
 .BR TRUST .
 .TP
+.I ~/.claude/ccarchive\-state/<id>.last
+The local record of the last save this machine made to one destination: its
+save number, the sha256 of the manifest and the time, signed with the signing
+key. Mode 0600, beside the journal. What makes a rolled-back index detectable;
+see
+.BR SIGNING .
+Removed by
+.B \-\-rekey
+on a destination with no manifest.
+.TP
 .I ~/.claude/ccarchive\-state/<id>.lock
 The lock for one destination, while a run that writes holds it (or after one
 died). See
@@ -1527,7 +1612,9 @@ new machine (bring the signing key too, or the signature reads as unverifiable).
 .TP
 .B ccarchive \-\-rekey
 Roll the signing key and re-sign the manifest \(em after suspected key exposure,
-or on a cadence.
+or on a cadence. It verifies the manifest first; add
+.B \-\-accept\-unverified
+only once you are satisfied the archive is intact.
 .TP
 .B ccarchive \-\-lock\-status
 Is a run holding the archive, or did one leave a stuck lock?

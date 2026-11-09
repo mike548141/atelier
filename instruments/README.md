@@ -490,13 +490,19 @@ that cleanup:
   the key guards tamper-*evidence*, not confidentiality. It's minted at first use
   (32 bytes of entropy) and **re-mintable**: `ccarchive --rekey` rolls it and
   re-signs the current manifest (the signature only ever attests the current
-  manifest, so a roll loses nothing) — roll on suspected exposure or on a cadence,
-  but keep an **out-of-band backup** of the key, because a *new machine* needs it to
+  manifest, so a roll loses nothing) — after verifying it under the old key first,
+  and refusing one that does not verify unless `--accept-unverified` says
+  otherwise (it then names the state it cleared). Roll on suspected exposure or on
+  a cadence, but keep an **out-of-band backup** of the key, because a *new machine* needs it to
   verify (SECRETS.md's redundancy obligation, applied). Every manifest write
   re-signs — but only after the run has **authenticated** the manifest it loaded:
   a run (or `--restore`) refuses an index whose signature is anything but
-  verified, exit 2, and `--rekey` is the one deliberate clear, so a run never
-  launders a forged index into a signed one. `--verify` fails
+  verified, exit 2, and `--rekey --accept-unverified` is the one deliberate clear,
+  so a run never launders a forged index into a signed one. A **rolled-back**
+  index (an older manifest and signature put back, which would otherwise verify)
+  is caught by a save number in the signature, checked against a small local
+  record of the last save this machine made; a sync fault looks the same, so the
+  message says what to check. `--verify` fails
   **safe and honest**, never green on doubt: it separates a `MISMATCH` (tamper) from
   a `different-key` signature, an `unsigned` manifest (migrate), and an
   `unverifiable` one (no key here). What it does **not** stop: a tamperer who also

@@ -71,7 +71,10 @@
  *
  * Trust model: the signed manifest is the index of what ccarchive itself wrote.
  * A run that writes authenticates it first and refuses an index it cannot (exit 2;
- * --rekey is the deliberate clear). A private intent journal beside the signing
+ * --rekey --accept-unverified is the deliberate clear). Each save carries a save
+ * number, and a private record of the last save this machine made sits beside the
+ * signing key, so an index older than that is flagged as rolled back (a rolled-back
+ * manifest and signature pair would otherwise verify). A private intent journal beside the signing
  * key, off the archive, lets the next run put back exactly the mirrors a dead run
  * wrote. Any other archive file the index does not vouch for is adopted only if
  * it is byte-identical to the live copy, and otherwise moved to <dest>/_untrusted/
@@ -99,7 +102,7 @@ OPTIONS
   --force                Make a live file that is not an append the archive's copy (the old one is kept); with --restore, a newer live file.
   --allow-repo-dest      Permit an archive dir inside a git work tree.
   --verify [--materialise]  Re-check archive vs signed sha256 manifest; --materialise reads evicted files too.
-  --rekey                New signing key; re-sign the index (the deliberate clear for an untrusted one).
+  --rekey [--accept-unverified]  New signing key; re-signs the index only after verifying it under the old key. --accept-unverified is the deliberate clear for an index that does not verify (it says which state it cleared).
   --audit                Check the live store against the archive; report drift.
   --restore [--delta]    Restore from the archive; --delta: only --audit's drift.
   --lock-status | --clear-lock  Is a run holding this archive? Clear a stuck lock.
@@ -118,7 +121,7 @@ function takeValue(flag) {
 // so a typo such as --dry-runn can never fall through to a real archive run.
 const VALUE_FLAGS = new Set(['--dest', '--source', '--at']);
 const BOOL_FLAGS = new Set(['--dry-run', '--force', '--allow-repo-dest', '--verify', '--materialise',
-  '--rekey', '--audit', '--restore', '--delta', '--json', '--lock-status', '--clear-lock', '-h', '--help',
+  '--rekey', '--accept-unverified', '--audit', '--restore', '--delta', '--json', '--lock-status', '--clear-lock', '-h', '--help',
   '--install-schedule', '--schedule-status', '--uninstall-schedule']);
 
 // Validate an argument list: throws a CcError (exit 2) naming the first option it
@@ -843,12 +846,115 @@ function loadSig(destRoot) {
 // Sign the manifest's EXACT on-disk bytes into a detached sidecar. Atomic write so
 // a crash mid-write can't leave a half-written signature. A signature written this
 // way supersedes any pending one (see saveManifestSigned).
-function signManifest(destRoot, keyBuf, manifestBytes) {
+function signManifest(destRoot, keyBuf, manifestBytes, seq) {
   const bytes = manifestBytes || fs.readFileSync(manifestPath(destRoot));
-  const sig = { algorithm: SIG_ALGORITHM, keyId: keyId(keyBuf), mac: computeMac(keyBuf, bytes) };
+  const sig = signatureBody(keyBuf, bytes, seq);
   writeFileAtomic(sigPath(destRoot), JSON.stringify(sig, null, 2) + '\n');
   try { fs.unlinkSync(sigNextPath(destRoot)); } catch {}
   return sig;
+}
+
+// The rollback check (HD1). The HMAC over the manifest has no freshness: an older
+// manifest with its own older signature is a pair that verifies, so someone able to
+// write to the archive volume could put one back and erase every session archived
+// since. So each save carries a SAVE NUMBER (seq) in the signature sidecar, bound
+// to that exact manifest by its own MAC (seqMac, under the same key), and the
+// machine keeps a small local record of the last save it made (see below). An index
+// whose save number is behind the local record is a rollback.
+function seqMacFor(keyBuf, seq, bytes) {
+  return computeMac(keyBuf, Buffer.concat([Buffer.from(`ccarchive-seq ${seq}\n`), bytes]));
+}
+function signatureBody(keyBuf, bytes, seq) {
+  const sig = { algorithm: SIG_ALGORITHM, keyId: keyId(keyBuf), mac: computeMac(keyBuf, bytes) };
+  if (Number.isInteger(seq) && seq >= 1) { sig.seq = seq; sig.seqMac = seqMacFor(keyBuf, seq, bytes); }
+  return sig;
+}
+// The save number a signature vouches for, or null: absent (a signature from before
+// this check), or present without a MAC that matches these manifest bytes. An
+// unauthenticated number is never believed, so bumping it by hand gains nothing.
+function signatureSeq(sig, keyBuf, bytes) {
+  if (!sig || !Number.isInteger(sig.seq) || sig.seq < 1 || typeof sig.seqMac !== 'string') return null;
+  return macEqual(sig.seqMac, seqMacFor(keyBuf, sig.seq, bytes)) ? sig.seq : null;
+}
+
+// The local record of the last save this machine made: { seq, sha256, at, mac }, one
+// file per destination in the private state directory beside the signing key, so it
+// is off the archive volume and a writer to the volume cannot touch it. MAC'd under
+// the signing key so a damaged or foreign record is told from a good one.
+function lastSavedPath(keyPath, destRoot) { return path.join(stateDir(keyPath), `${destId(destRoot)}.last`); }
+function lastSavedMac(keyBuf, r) {
+  return computeMac(keyBuf, Buffer.from(JSON.stringify(['ccarchive-last-saved', r.seq, r.sha256, r.at])));
+}
+// null when there is none (a first run, a new machine, or one from before this check),
+// or when it cannot be checked (a damaged file, or one written under a key since
+// rolled by an older ccarchive). The caller then starts a new record rather than
+// refusing for ever over a local file.
+function readLastSaved(keyPath, destRoot, keyBuf) {
+  if (!keyBuf) return null;
+  let r;
+  try { r = JSON.parse(fs.readFileSync(lastSavedPath(keyPath, destRoot), 'utf8')); } catch { return null; }
+  if (!r || !Number.isInteger(r.seq) || r.seq < 0 || typeof r.sha256 !== 'string' || typeof r.at !== 'string' ||
+      typeof r.mac !== 'string' || !macEqual(r.mac, lastSavedMac(keyBuf, r))) return null;
+  return r;
+}
+// Best effort: the volume copy is already saved, and a missing record only means the
+// next run adopts the volume's index (a volume ahead of the record is never a
+// rollback). Said aloud, because a record that silently stops being kept would
+// switch the check off.
+function writeLastSaved(keyPath, destRoot, keyBuf, seq, bytes) {
+  const r = { seq, sha256: sha256(bytes), at: new Date().toISOString() };
+  r.mac = lastSavedMac(keyBuf, r);
+  try {
+    ensureStateDir(keyPath);
+    writeFileAtomic(lastSavedPath(keyPath, destRoot), JSON.stringify(r) + '\n', { mode: 0o600 });
+  } catch (e) {
+    process.stderr.write(`ccarchive: could not keep the local record of this save (${e.code || e.message}); the rollback check is off for this archive until a later run keeps one\n`);
+  }
+}
+function clearLastSaved(keyPath, destRoot) {
+  try { fs.unlinkSync(lastSavedPath(keyPath, destRoot)); } catch {}
+}
+
+// Is the index on the volume older than, or different from, the last this machine
+// saved? bytes is null when the volume has no manifest at all, volSeq the verified
+// save number (null when absent). null = no sign of rollback. Only a volume AHEAD of
+// the record is fine (another machine saved, or this one died before keeping its
+// record).
+function judgeRollback(keyPath, destRoot, keyBuf, bytes, volSeq) {
+  const last = readLastSaved(keyPath, destRoot, keyBuf);
+  if (!last || last.seq === 0) return null;
+  const base = { localSeq: last.seq, volumeSeq: volSeq, savedAt: last.at };
+  if (bytes === null) return { ...base, why: 'missing' };
+  if (volSeq === null) return { ...base, why: 'unnumbered' };
+  if (volSeq < last.seq) return { ...base, why: 'older' };
+  if (volSeq === last.seq && sha256(bytes) !== last.sha256) return { ...base, why: 'differs' };
+  return null;
+}
+
+// One verdict for the index at a destination, the signature states plus `rolled-back`
+// and `absent` (no manifest and no signature: nothing to attest). `orphan-signature`
+// is a signature whose manifest is gone.
+function indexState(destRoot, keyPath, keyBuf, bytes) {
+  const sigExists = fs.existsSync(sigPath(destRoot));
+  if (bytes === null) {
+    if (sigExists) return { state: 'orphan-signature' };
+    const rb = judgeRollback(keyPath, destRoot, keyBuf, null, null);
+    return rb ? { state: 'rolled-back', keyId: keyId(keyBuf), ...rb } : { state: 'absent' };
+  }
+  const v = checkManifestSignature(destRoot, bytes, keyBuf);
+  if (v.state !== 'verified') return v;
+  const rb = judgeRollback(keyPath, destRoot, keyBuf, bytes, v.seq === undefined ? null : v.seq);
+  return rb ? { ...v, state: 'rolled-back', ...rb } : v;
+}
+// A volume with no manifest (and no signature): absent, unless this machine kept a
+// record of a save, in which case the index is gone and that is a rollback to nothing.
+function indexRollbackOnly(destRoot, keyPath, keyBuf) {
+  return fs.existsSync(sigPath(destRoot)) ? { state: 'absent' } : indexState(destRoot, keyPath, keyBuf, null);
+}
+// The save number the next save carries: past both the volume's and this machine's.
+function chainFor(keyPath, destRoot, keyBuf, volSeq) {
+  const last = readLastSaved(keyPath, destRoot, keyBuf);
+  return { keyPath, seq: Math.max(last ? last.seq : 0, volSeq || 0) };
 }
 
 // The manifest and its signature are two files, and each is replaced atomically but
@@ -863,25 +969,32 @@ function signManifest(destRoot, keyBuf, manifestBytes) {
 // The .next is only ever accepted when it verifies under the key over the manifest
 // bytes actually on disk, so it is exactly as hard to forge as the signature itself.
 function sigNextPath(destRoot) { return sigPath(destRoot) + '.next'; }
-function saveManifestSigned(destRoot, obj, keyBuf) {
+function saveManifestSigned(destRoot, obj, keyBuf, chain) {
   fs.mkdirSync(destRoot, { recursive: true });
   const bytes = Buffer.from(manifestText(obj));
-  const sig = { algorithm: SIG_ALGORITHM, keyId: keyId(keyBuf), mac: computeMac(keyBuf, bytes) };
+  const seq = chain ? chain.seq + 1 : null;      // no chain: the legacy, unnumbered save
+  const sig = signatureBody(keyBuf, bytes, seq);
   writeFileAtomic(sigNextPath(destRoot), JSON.stringify(sig, null, 2) + '\n');
   writeFileAtomic(manifestPath(destRoot), bytes);
   fs.renameSync(sigNextPath(destRoot), sigPath(destRoot));
+  if (chain) {
+    chain.seq = seq;
+    writeLastSaved(chain.keyPath, destRoot, keyBuf, seq, bytes);
+  }
 }
 
 // The verdict on the manifest's signature, counting a pending .next signature (the
 // window above) as the signature it is. { ...verifySignature, pendingSignature: true }
 // marks the second case so a caller can finish it.
 function checkManifestSignature(destRoot, bytes, keyBuf) {
-  const v = verifySignature(bytes, loadSig(destRoot), keyBuf);
+  const sig = loadSig(destRoot);
+  const v = verifySignature(bytes, sig, keyBuf);
+  if (v.state === 'verified') return { ...v, seq: signatureSeq(sig, keyBuf, bytes) };
   if (v.state !== 'tampered') return v;
   let next = null;
   try { next = JSON.parse(fs.readFileSync(sigNextPath(destRoot), 'utf8')); } catch { next = null; }
   if (next && verifySignature(bytes, next, keyBuf).state === 'verified') {
-    return { state: 'verified', keyId: v.keyId, pendingSignature: true };
+    return { state: 'verified', keyId: v.keyId, pendingSignature: true, seq: signatureSeq(next, keyBuf, bytes) };
   }
   return v;
 }
@@ -909,6 +1022,23 @@ function verifySignature(manifestBytes, sig, keyBuf) {
   return { state: 'tampered', keyId: mine };
 }
 
+// Plain words for a rollback verdict, and what to check: a sync fault can raise this
+// as readily as a person, so the message names both and says where to look first.
+function rollbackSentence(rb) {
+  const saved = `this machine last saved save #${rb.localSeq} on ${String(rb.savedAt).slice(0, 10)}`;
+  const what = {
+    older: `the archive index on the volume is save #${rb.volumeSeq}, older than the last this machine saved (#${rb.localSeq}, ${String(rb.savedAt).slice(0, 10)})`,
+    unnumbered: `the archive index on the volume carries no save number, yet ${saved}`,
+    differs: `the archive index on the volume is a different save #${rb.volumeSeq} from the one this machine kept (${saved})`,
+    missing: `the archive index and its signature are both gone from the volume, yet ${saved}`,
+  }[rb.why] || 'the archive index is not the one this machine last saved';
+  return `manifest ROLLED BACK — ${what}. Someone may have put an older copy back, but a ` +
+    `sync fault does the same. Check: that iCloud Drive has finished syncing this folder; that it ` +
+    `shows no restored, reverted or conflicted copy of manifest.json or manifest.json.sig; that no ` +
+    `other machine ran an older ccarchive on this archive; that no recent session is missing from ` +
+    `the archive (ccarchive --verify, then ccarchive --audit). Keep every file as it is.`;
+}
+
 // One human line for a signature verdict — the trust anchor, shown up top.
 function signatureLine(sig, keyPath) {
   switch (sig.state) {
@@ -916,6 +1046,8 @@ function signatureLine(sig, keyPath) {
       (sig.pendingSignature ? ` — a run was killed between replacing the manifest and its signature; the new signature is intact beside it and the next run completes the swap` : '');
     case 'tampered':     return `  ✗ manifest signature MISMATCH — the manifest was altered after signing (TAMPER EVIDENT)`;
     case 'key-mismatch': return `  ✗ manifest signed by a different key (sig ${sig.sigKeyId} vs your key ${sig.keyId}) — an unexpected key roll, or tampering`;
+    case 'rolled-back':  return `  ✗ ${rollbackSentence(sig)} Once you are satisfied the volume copy is the one to keep, ` +
+      `accept it with ccarchive --rekey --accept-unverified`;
     case 'unsigned':     return `  ⚠ manifest is NOT signed — a pre-signing archive to migrate (run ccarchive), or the signature was removed`;
     case 'no-key':       return `  ⚠ manifest signature UNVERIFIABLE — no signing key at ${keyPath}; bring it here out-of-band or run ccarchive to establish one (the hash results below then trust an unauthenticated manifest)`;
     default:             return null;   // 'absent' — no manifest, nothing to attest
@@ -926,21 +1058,40 @@ function signatureLine(sig, keyPath) {
 // The signature only ever attests the CURRENT manifest bytes, so a roll loses
 // nothing — old .sig files simply stop verifying, which is the point of a roll.
 //
-// --rekey is also the ONE deliberate clear for an index a write-mode run refused
-// to trust (see authenticateManifest): the operator, satisfied the archive is
-// intact, re-attests the current manifest bytes under a fresh key. Records still
-// pending in the intent journal are carried across: each one that checks under the
-// old key is re-signed under the new one; one that does not is dropped and counted.
-// A signature left with no manifest beside it attests nothing and is moved aside.
-function rekeyManifest(destRoot, keyPath, asJson) {
+// --rekey checks the index it is about to re-sign, under the OLD key, first (HD3):
+// re-signing launders whatever is on the volume into a green --verify, so it refuses
+// anything but `verified` (a tampered, unsigned, key-mismatched, unverifiable, orphan
+// or rolled-back index) and says why. A new archive (nothing on the volume) needs no
+// check. The deliberate clear of an index the operator is satisfied about is
+// --rekey --accept-unverified, and the report names the state it cleared.
+//
+// Records still pending in the intent journal are carried across: each one that
+// checks under the old key is re-signed under the new one; one that does not is
+// dropped and counted. A signature left with no manifest beside it attests nothing
+// and is moved aside.
+function rekeyManifest(destRoot, keyPath, asJson, opts = {}) {
   let oldKey = null;
   try { oldKey = loadKey(keyPath); } catch { oldKey = null; }   // an unreadable old key: journal can't be checked
+  const bytes = readManifestBytes(destRoot);
+  const before = indexState(destRoot, keyPath, oldKey, bytes);
+  const cleared = before.state === 'verified' || before.state === 'absent' ? null : before.state;
+  if (cleared && !opts.acceptUnverified) {
+    const e = untrustedIndexError(before.state, destRoot, keyPath, null, before, 'rekey');
+    throw e;
+  }
+  const last = readLastSaved(keyPath, destRoot, oldKey);
+  const nextSeq = Math.max(last ? last.seq : 0, before.seq || 0) + 1;
   const jp = journalPath(keyPath, destRoot);
   const journal = oldKey ? readJournal(jp, oldKey) : (fs.existsSync(jp) ? { records: [], rejected: -1 } : null);
   const keyBuf = mintKey(keyPath);           // fresh key, replacing any existing
   const id = keyId(keyBuf);
-  const hasManifest = fs.existsSync(manifestPath(destRoot));
-  if (hasManifest) signManifest(destRoot, keyBuf);
+  const hasManifest = bytes !== null;
+  if (hasManifest) {
+    signManifest(destRoot, keyBuf, bytes, nextSeq);
+    writeLastSaved(keyPath, destRoot, keyBuf, nextSeq, bytes);
+  } else {
+    clearLastSaved(keyPath, destRoot);        // nothing on the volume: a new archive starts a new record
+  }
   let orphanSig = null;
   if (!hasManifest && fs.existsSync(sigPath(destRoot))) {
     orphanSig = `${sigPath(destRoot)}.orphan-${utcStamp()}`;
@@ -954,6 +1105,7 @@ function rekeyManifest(destRoot, keyPath, asJson) {
     rewriteJournal(jp, keyBuf, journal.records);
   }
   const result = { rekeyed: true, keyId: id, keyFile: keyPath, manifestSigned: hasManifest,
+    previousState: before.state, clearedUnverified: !!cleared,
     ...(orphanSig ? { orphanSignatureMovedTo: path.basename(orphanSig) } : {}),
     ...(journal ? { journalCarried, journalDropped } : {}) };
   if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return 0; }
@@ -964,6 +1116,12 @@ function rekeyManifest(destRoot, keyPath, asJson) {
       ? `  re-signed manifest.json at ${destRoot} with the new key (old signatures now invalid — nothing lost, the current manifest is re-attested)`
       : `  no manifest at ${destRoot} yet — the key is ready; the next ccarchive run signs the manifest`,
   ];
+  if (cleared) {
+    lines.push(`  ⚠ the index was NOT verified before this: its state was ${cleared}, cleared on your word ` +
+      `(--accept-unverified). It is now signed as it stood, so a later --verify is green over whatever it held.`);
+  } else if (hasManifest) {
+    lines.push(`  the index verified under the old key before it was re-signed`);
+  }
   if (orphanSig) lines.push(`  a signature with no manifest beside it was moved aside as ${path.basename(orphanSig)}`);
   if (journal) {
     lines.push(journalDropped === -1
@@ -993,45 +1151,57 @@ function utcStamp(d = new Date()) {
 //             key is never minted while a manifest exists: that would re-sign an
 //             index nobody checked. The deliberate clear is --rekey, once the
 //             operator is satisfied the archive is intact.
-function untrustedIndexError(state, destRoot, keyPath, detail) {
+function untrustedIndexError(state, destRoot, keyPath, detail, rb, mode) {
   const what = {
     tampered: 'does not match its signature — it changed after it was signed',
     'key-mismatch': `was signed by a different key (${detail || 'another key'})`,
     unsigned: 'is not signed — a pre-signing archive, or its signature was removed',
     'no-key': `cannot be checked: there is no signing key at ${keyPath}, and a new one is not minted while an index exists`,
     'orphan-signature': 'is missing while its signature is present — the manifest was removed',
+    'rolled-back': rb ? `is older than, or not the same as, the last index this machine saved: ${rollbackSentence(rb).replace(/^manifest ROLLED BACK — /, '')}` : 'is a rollback',
   }[state] || state;
-  const e = new CcError(`refused: the archive index (manifest.json) at ${destRoot} ${what} ` +
-    `(signature state: ${state}). ` +
-    `Nothing was changed. Check it with ccarchive --verify (bring the key here if it is on another machine); ` +
-    `once you are satisfied the archive is intact, clear this deliberately with ccarchive --rekey`, 'EUNTRUSTED');
+  const clear = 'once you are satisfied the archive is intact, clear this deliberately with ccarchive --rekey --accept-unverified';
+  const e = mode === 'rekey'
+    ? new CcError(`refused: --rekey would re-sign an index it could not verify first — the archive index ` +
+        `(manifest.json) at ${destRoot} ${what} (signature state: ${state}). Nothing was changed. ` +
+        `Check it with ccarchive --verify (bring the key here if it is on another machine); ${clear}`, 'EUNTRUSTED')
+    : new CcError(`refused: the archive index (manifest.json) at ${destRoot} ${what} ` +
+        `(signature state: ${state}). ` +
+        `Nothing was changed. Check it with ccarchive --verify (bring the key here if it is on another machine); ${clear}`, 'EUNTRUSTED');
   e.state = state;
   return e;
 }
 
-// Returns { manifest, keyBuf, fresh }. opts: { onCorrupt, mintIfFresh }.
+// Returns { manifest, keyBuf, fresh, chain }. opts: { onCorrupt, mintIfFresh }. chain
+// carries the save number forward to every save this run makes (see saveManifestSigned).
 function authenticateManifest(destRoot, keyPath, opts = {}) {
   const bytes = readManifestBytes(destRoot);
-  const sigExists = fs.existsSync(sigPath(destRoot));
   let keyBuf = loadKey(keyPath);
-  if (bytes === null && !sigExists) {
+  const v = indexState(destRoot, keyPath, keyBuf, bytes);
+  if (v.state === 'absent') {
     if (!keyBuf && opts.mintIfFresh) keyBuf = mintKey(keyPath);
-    return { manifest: {}, keyBuf, fresh: true };
+    return { manifest: {}, keyBuf, fresh: true, chain: chainFor(keyPath, destRoot, keyBuf, null) };
   }
-  if (bytes === null) throw untrustedIndexError('orphan-signature', destRoot, keyPath);
-  const v = checkManifestSignature(destRoot, bytes, keyBuf);
   if (v.state !== 'verified') {
     throw untrustedIndexError(v.state, destRoot, keyPath,
-      v.state === 'key-mismatch' ? `signature key ${v.sigKeyId}, your key ${v.keyId}` : null);
+      v.state === 'key-mismatch' ? `signature key ${v.sigKeyId}, your key ${v.keyId}` : null, v);
   }
   const manifest = parseManifest(bytes, destRoot, { onCorrupt: opts.onCorrupt || 'throw' });
+  const chain = chainFor(keyPath, destRoot, keyBuf, v.seq);
+  // A volume ahead of this machine's record (another machine saved, or this one died
+  // before keeping its record), or a machine with no record yet, adopts the volume's
+  // verified save number as its baseline, so the check starts guarding from this run.
+  if (opts.adopt && v.seq !== null && v.seq !== undefined) {
+    const last = readLastSaved(keyPath, destRoot, keyBuf);
+    if (!last || v.seq > last.seq) writeLastSaved(keyPath, destRoot, keyBuf, v.seq, bytes);
+  }
   // A write-mode run that set an authenticated-but-unparseable manifest aside
   // (only reachable after a deliberate --rekey over it) starts a new one at once,
   // signed, so the signature never outlives the manifest it attests.
   if (opts.onCorrupt === 'setaside' && readManifestBytes(destRoot) === null) {
-    saveManifestSigned(destRoot, {}, keyBuf);
+    saveManifestSigned(destRoot, {}, keyBuf, chain);
   }
-  return { manifest, keyBuf, fresh: false, pendingSignature: !!v.pendingSignature };
+  return { manifest, keyBuf, fresh: false, pendingSignature: !!v.pendingSignature, chain };
 }
 
 // --- run state kept OFF the archive: intent journal + lock ---------------------
@@ -1401,10 +1571,11 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
   // fails the verify — TAMPER (mismatch/key-mismatch), a legacy UNSIGNED manifest
   // to migrate, or an UNVERIFIABLE one (no key). None is ever a silent green.
   const manifestExists = fs.existsSync(manifestPath(destRoot));
+  const vKey = loadKey(keyPath);
   result.signature = manifestExists
-    ? checkManifestSignature(destRoot, fs.readFileSync(manifestPath(destRoot)), loadKey(keyPath))
-    : { state: 'absent' };
-  const sigFailed = manifestExists && result.signature.state !== 'verified';
+    ? indexState(destRoot, keyPath, vKey, fs.readFileSync(manifestPath(destRoot)))
+    : (vKey ? indexRollbackOnly(destRoot, keyPath, vKey) : { state: 'absent' });
+  const sigFailed = result.signature.state !== 'verified' && result.signature.state !== 'absent';
 
   // An unmanifested file fails the verify: it is either injected, or archived
   // history the manifest lost — both need a human eye, not a green tick.
@@ -1578,10 +1749,12 @@ function auditLiveStore(srcRoot, destRoot, asJson, materialise, keyPath) {
   // an index that is not verified are never presented as clean.
   const bytes = readManifestBytes(destRoot);
   const manifest = bytes === null ? {} : parseManifest(bytes, destRoot, { onCorrupt: 'throw' });
+  const auditKeyPath = keyPath || resolveKeyPath(os.homedir());
+  const aKey = loadKey(auditKeyPath);
   const signature = bytes === null
-    ? { state: 'absent' }
-    : checkManifestSignature(destRoot, bytes, loadKey(keyPath || resolveKeyPath(os.homedir())));
-  const unverified = bytes !== null && signature.state !== 'verified';
+    ? (aKey ? indexRollbackOnly(destRoot, auditKeyPath, aKey) : { state: 'absent' })
+    : indexState(destRoot, auditKeyPath, aKey, bytes);
+  const unverified = signature.state !== 'verified' && signature.state !== 'absent';
   const unreadable = [];
   const liveList = liveListWithHashes(srcRoot, unreadable);
 
@@ -2238,7 +2411,8 @@ function run() {
   if (argv.includes('--lock-status')) return lockStatus(keyPath, destRoot, asJson);
   if (argv.includes('--clear-lock')) return clearLock(keyPath, destRoot, asJson);
   if (argv.includes('--rekey')) {
-    return withLock(keyPath, destRoot, 'rekey', () => rekeyManifest(destRoot, keyPath, asJson));
+    return withLock(keyPath, destRoot, 'rekey',
+      () => rekeyManifest(destRoot, keyPath, asJson, { acceptUnverified: argv.includes('--accept-unverified') }));
   }
   if (argv.includes('--verify')) return verifyArchive(destRoot, asJson, materialise, keyPath);
   if (argv.includes('--audit')) return auditLiveStore(srcRoot, destRoot, asJson, materialise, keyPath);
@@ -2281,7 +2455,7 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
   // changed. A corrupt-but-authenticated manifest (only after a deliberate --rekey)
   // is set aside by a real run; a dry run warns and moves nothing.
   const auth = authenticateManifest(destRoot, keyPath,
-    { onCorrupt: dryRun ? 'warn' : 'setaside', mintIfFresh: !dryRun });
+    { onCorrupt: dryRun ? 'warn' : 'setaside', mintIfFresh: !dryRun, adopt: !dryRun });
   const manifest = auth.manifest;
   const keyBuf = auth.keyBuf;
   let manifestChanged = false;
@@ -2354,7 +2528,7 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
   // the records still pending (everything else is now in the signed index) and
   // refresh the lock's heartbeat.
   const persist = () => {
-    saveManifestSigned(destRoot, manifest, keyBuf);
+    saveManifestSigned(destRoot, manifest, keyBuf, auth.chain);
     rewriteJournal(jp, keyBuf, pending);
     heartbeatLock(lock);
   };
@@ -2692,7 +2866,7 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
   }
 
   if (!dryRun) {
-    if (manifestChanged) saveManifestSigned(destRoot, manifest, keyBuf);
+    if (manifestChanged) saveManifestSigned(destRoot, manifest, keyBuf, auth.chain);
     // Finished: every mirror this run wrote is in the signed index, so the journal
     // keeps only the records still pending (an offloaded mirror not yet checked).
     rewriteJournal(jp, keyBuf, pending);
@@ -2958,6 +3132,8 @@ module.exports = {
   sha256, manifestPath, loadManifest, saveManifest, listArchivedRels, verifyArchive,
   classifyChange, dataKind, countKind, kindCounts, COUNT_KINDS, mirrorRels, keptKeys, keptInfo, isLegacyEntry,
   datalessPaths, legacyBudgetMs, saveManifestSigned, checkManifestSignature, sigNextPath,
+  signatureSeq, seqMacFor, lastSavedPath, readLastSaved, writeLastSaved, judgeRollback, indexState, chainFor,
+  rollbackSentence,
   ANOMALIES_DIR, VERSIONS_DIR,
   insideGitWorkTree, auditCategorize, classifyDivergence, auditLiveStore,
   isDatalessFlags, statFlags, isDataless,

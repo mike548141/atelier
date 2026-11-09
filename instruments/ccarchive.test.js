@@ -109,8 +109,14 @@ function makeTree() {
 
 // Re-sign a manifest a test edited by hand, as if the tool itself had written it:
 // a write-mode run authenticates the index first (HL3) and refuses one it cannot.
+// It also takes the next save number and keeps the local record, as a save by the
+// tool does, so a hand edit is not read as a rollback (HD1).
 function resign(dest, keyFile = process.env.CCARCHIVE_KEYFILE) {
-  cc.signManifest(dest, cc.ensureKey(keyFile));
+  const key = cc.ensureKey(keyFile);
+  const bytes = fs.readFileSync(cc.manifestPath(dest));
+  const seq = cc.chainFor(keyFile, dest, key, cc.signatureSeq(cc.loadSig(dest), key, bytes)).seq + 1;
+  cc.signManifest(dest, key, bytes, seq);
+  cc.writeLastSaved(keyFile, dest, key, seq, bytes);
 }
 
 function runJson(src, dest, ...flags) {
@@ -1447,7 +1453,8 @@ test('contract: an unsigned manifest is refused by an ordinary run; --rekey is t
   assert.ok(!fs.existsSync(path.join(dest, 'manifest.json.sig')), 'no signature was written');
   assert.deepEqual(fs.readFileSync(cc.manifestPath(dest)), before);
   // The operator, satisfied, migrates it deliberately; runs then proceed.
-  assert.equal(runCli('--rekey', '--dest', dest).status, 0);
+  assert.equal(runCli('--rekey', '--dest', dest).status, 2, 'rekey will not re-sign what it could not verify (HD3)');
+  assert.equal(runCli('--rekey', '--accept-unverified', '--dest', dest).status, 0);
   assert.equal(runCli('--source', src, '--dest', dest).status, 0);
   const r = runCli('--verify', '--dest', dest, '--json');
   assert.equal(r.status, 0);
@@ -1907,7 +1914,7 @@ function makeStale(src, dest, rel) {
   const prefix = fs.readFileSync(path.join(src, rel)).subarray(0, 4);
   manifest[rel] = { sha256: cc.sha256(prefix), rawBytes: prefix.length, archivedAt: 'old' };
   cc.saveManifest(dest, manifest);
-  cc.signManifest(dest, cc.ensureKey(process.env.CCARCHIVE_KEYFILE));
+  resign(dest);
 }
 
 test('HL11: a source replaced by an older, shorter copy is never recorded as the truth against an intact mirror', () => {
@@ -2386,10 +2393,10 @@ test('contract: a write-mode run sets an unparseable manifest aside under a time
   fs.writeFileSync(mp, 'first corruption');
   assert.equal(runCli('--source', src, '--dest', dest).status, 2);
   assert.ok(!listDir(dest).some((n) => n.startsWith('manifest.json.corrupt-')), 'a refused run moves nothing');
-  assert.equal(runCli('--rekey', '--dest', dest).status, 0);
+  assert.equal(runCli('--rekey', '--accept-unverified', '--dest', dest).status, 0);
   runJson(src, dest);
   fs.writeFileSync(mp, 'second corruption');
-  assert.equal(runCli('--rekey', '--dest', dest).status, 0);
+  assert.equal(runCli('--rekey', '--accept-unverified', '--dest', dest).status, 0);
   runJson(src, dest);
   const kept = listDir(dest).filter((n) => n.startsWith('manifest.json.corrupt-'));
   assert.equal(kept.length, 2, 'both casualties are kept');
@@ -2544,7 +2551,7 @@ test('contract: a removed manifest with its signature left is refused; --rekey m
   const r = runCli('--json', '--source', src, '--dest', dest);
   assert.equal(r.status, 2);
   assert.equal(JSON.parse(r.stdout).state, 'orphan-signature');
-  const rk = runCli('--rekey', '--json', '--dest', dest);
+  const rk = runCli('--rekey', '--accept-unverified', '--json', '--dest', dest);
   assert.equal(rk.status, 0);
   assert.match(JSON.parse(rk.stdout).orphanSignatureMovedTo, /^manifest\.json\.sig\.orphan-/);
   // Now a new archive over the old mirrors: each is adopted only because it is
@@ -3453,7 +3460,7 @@ test('contract: a kill between replacing the manifest and its signature leaves a
   const mf = cc.loadManifest(dest);
   mf[REL_B].archivedAt = 'edited by the run that was killed';
   const bytes = Buffer.from(JSON.stringify(Object.fromEntries(Object.keys(mf).sort().map((k) => [k, mf[k]])), null, 2) + '\n');
-  fs.writeFileSync(cc.sigNextPath(dest), JSON.stringify({ algorithm: 'HMAC-SHA256', keyId: cc.keyId(keyBuf), mac: cc.computeMac(keyBuf, bytes) }));
+  fs.writeFileSync(cc.sigNextPath(dest), JSON.stringify({ algorithm: 'HMAC-SHA256', keyId: cc.keyId(keyBuf), mac: cc.computeMac(keyBuf, bytes), seq: 2, seqMac: cc.seqMacFor(keyBuf, 2, bytes) }));
   fs.writeFileSync(cc.manifestPath(dest), bytes);
   assert.equal(cc.verifySignature(bytes, cc.loadSig(dest), keyBuf).state, 'tampered', 'the old signature alone no longer matches');
   const v = runCliKey(key, '--verify', '--dest', dest);
@@ -3547,4 +3554,245 @@ test('drift guard: ONE BAD FILE does not list --restore as read-only', () => {
   assert.match(list, /verify/);
   assert.doesNotMatch(list, /restore/, 'restore writes live files; it is not in the read-only list');
   assert.match(bad.slice(bad.indexOf(')', i)), /restore.*is\s+not one of them/s);
+});
+
+// -- HD1–HD3: the rollback check, and a roll that verifies first --
+//
+// SAFETY: every test here runs under its own throwaway signing key (freshKeyFile),
+// so the local record of the last save lands in that key's own state directory under
+// the OS temp dir, and every archive is a temp dir. Nothing touches the real archive,
+// the real key or the real state directory.
+
+// Archive once, keep a copy of the pair, add a session, archive again. Returns the
+// pair as it stood after the FIRST run (the one a rollback would put back).
+function twoSaves() {
+  const { src, dest } = makeTree();
+  const key = freshKeyFile();
+  assert.equal(runCliKey(key, '--json', '--source', src, '--dest', dest).status, 0);
+  const older = {
+    m: fs.readFileSync(cc.manifestPath(dest)),
+    s: fs.readFileSync(path.join(dest, 'manifest.json.sig')),
+  };
+  fs.writeFileSync(path.join(src, '-repo-b', 'uuid3.jsonl'), '{"later":"session"}\n');
+  assert.equal(runCliKey(key, '--json', '--source', src, '--dest', dest).status, 0);
+  return { src, dest, key, older };
+}
+const putBack = (dest, older) => {
+  fs.writeFileSync(cc.manifestPath(dest), older.m);
+  fs.writeFileSync(path.join(dest, 'manifest.json.sig'), older.s);
+};
+const sigOf = (dest) => JSON.parse(fs.readFileSync(path.join(dest, 'manifest.json.sig'), 'utf8'));
+
+test('HD1: each save numbers itself in the signature (bound to the manifest) and the machine keeps a 0600 local record', () => {
+  const { dest, key } = twoSaves();
+  const sig = sigOf(dest);
+  assert.equal(sig.seq, 2, 'two saves, so the second is #2');
+  assert.equal(cc.signatureSeq(sig, cc.loadKey(key), fs.readFileSync(cc.manifestPath(dest))), 2);
+  const rec = cc.readLastSaved(key, dest, cc.loadKey(key));
+  assert.equal(rec.seq, 2);
+  assert.equal(rec.sha256, cc.sha256(fs.readFileSync(cc.manifestPath(dest))));
+  assert.equal(fs.statSync(cc.lastSavedPath(key, dest)).mode & 0o777, 0o600);
+  assert.ok(cc.lastSavedPath(key, dest).startsWith(path.dirname(key)), 'beside the key, never on the volume');
+  // A number is never believed unless its MAC matches these manifest bytes.
+  const forged = { ...sig, seq: 99 };
+  assert.equal(cc.signatureSeq(forged, cc.loadKey(key), fs.readFileSync(cc.manifestPath(dest))), null);
+  assert.equal(runCliKey(key, '--verify', '--dest', dest).status, 0, 'a normal archive is not flagged');
+});
+
+test('HD1: a rolled-back manifest and signature pair is refused by runs and flagged by --verify and --audit, with what to check', () => {
+  const { src, dest, key, older } = twoSaves();
+  putBack(dest, older);                                  // the older pair verifies on its own
+  fs.rmSync(path.join(dest, '-repo-b', 'uuid3.jsonl.gz'));   // and the pruned session is gone
+  const v = runCliKey(key, '--verify', '--dest', dest, '--json');
+  assert.equal(v.status, 1);
+  const sig = JSON.parse(v.stdout).signature;
+  assert.equal(sig.state, 'rolled-back');
+  assert.equal(sig.why, 'older');
+  assert.equal(sig.volumeSeq, 1);
+  assert.equal(sig.localSeq, 2);
+  const human = runCliKey(key, '--verify', '--dest', dest).stdout;
+  assert.match(human, /ROLLED BACK/);
+  assert.match(human, /sync fault/, 'a sync fault can raise this, and the message says so');
+  assert.match(human, /iCloud Drive has finished syncing/, 'and says what to check first');
+  assert.match(human, /ccarchive --rekey --accept-unverified/);
+  const a = runCliKey(key, '--audit', '--source', src, '--dest', dest, '--json');
+  assert.equal(a.status, 1, 'an audit against a rolled-back index is not an all-clear');
+  assert.equal(JSON.parse(a.stdout).signature.state, 'rolled-back');
+  const before = { m: fs.readFileSync(cc.manifestPath(dest)), s: fs.readFileSync(path.join(dest, 'manifest.json.sig')) };
+  for (const args of [[], ['--dry-run'], ['--restore'], ['--restore', '--dry-run']]) {
+    const r = runCliKey(key, ...args, '--json', '--source', src, '--dest', dest);
+    assert.equal(r.status, 2, args.join(' ') || 'an ordinary run');
+    const j = JSON.parse(r.stdout);
+    assert.equal(j.code, 'EUNTRUSTED');
+    assert.equal(j.state, 'rolled-back');
+    assert.match(j.error, /iCloud Drive has finished syncing/);
+  }
+  assert.deepEqual(fs.readFileSync(cc.manifestPath(dest)), before.m, 'nothing re-signed or rewritten');
+  assert.deepEqual(fs.readFileSync(path.join(dest, 'manifest.json.sig')), before.s);
+  assert.equal(cc.readLastSaved(key, dest, cc.loadKey(key)).seq, 2, 'the local record is never lowered by a refusal');
+});
+
+test('HD1: --rekey will not clear a rollback unasked; --accept-unverified does, naming the state, and runs then proceed', () => {
+  const { src, dest, key, older } = twoSaves();
+  putBack(dest, older);
+  fs.rmSync(path.join(dest, '-repo-b', 'uuid3.jsonl.gz'));   // the pruned session the rollback erased
+  const refused = runCliKey(key, '--rekey', '--dest', dest, '--json');
+  assert.equal(refused.status, 2);
+  assert.equal(JSON.parse(refused.stdout).state, 'rolled-back');
+  assert.deepEqual(fs.readFileSync(cc.manifestPath(dest)), older.m, 'a refused roll changes nothing');
+  const ok = runCliKey(key, '--rekey', '--accept-unverified', '--dest', dest, '--json');
+  assert.equal(ok.status, 0);
+  const out = JSON.parse(ok.stdout);
+  assert.equal(out.previousState, 'rolled-back');
+  assert.equal(out.clearedUnverified, true);
+  assert.equal(runCliKey(key, '--verify', '--dest', dest).status, 0, 'the accepted index is the new baseline');
+  assert.equal(runCliKey(key, '--json', '--source', src, '--dest', dest).status, 0);
+  assert.ok(sigOf(dest).seq > 2, 'the save number carried on past the record, never back to 1');
+});
+
+test('HD1: same save number over a different index, an unnumbered signature, and a vanished index are all rollbacks', () => {
+  // Different index at the same number: a second machine's fork.
+  let t = twoSaves();
+  const mf = cc.loadManifest(t.dest);
+  const key = cc.loadKey(t.key);
+  const bytes = Buffer.from(cc.manifestText ? cc.manifestText({}) : '{}\n');
+  fs.writeFileSync(cc.manifestPath(t.dest), bytes);
+  cc.signManifest(t.dest, key, bytes, 2);
+  assert.ok(Object.keys(mf).length > 0);
+  let sig = JSON.parse(runCliKey(t.key, '--verify', '--dest', t.dest, '--json').stdout).signature;
+  assert.equal(sig.state, 'rolled-back');
+  assert.equal(sig.why, 'differs');
+  // A pair signed without a number (from before this check) is behind a record that has one.
+  t = twoSaves();
+  cc.signManifest(t.dest, cc.loadKey(t.key), fs.readFileSync(cc.manifestPath(t.dest)));
+  sig = JSON.parse(runCliKey(t.key, '--verify', '--dest', t.dest, '--json').stdout).signature;
+  assert.equal(sig.state, 'rolled-back');
+  assert.equal(sig.why, 'unnumbered');
+  // A hand-raised number does not pass: its MAC does not match.
+  t = twoSaves();
+  putBack(t.dest, t.older);
+  const forged = { ...sigOf(t.dest), seq: 50 };
+  fs.writeFileSync(path.join(t.dest, 'manifest.json.sig'), JSON.stringify(forged));
+  sig = JSON.parse(runCliKey(t.key, '--verify', '--dest', t.dest, '--json').stdout).signature;
+  assert.equal(sig.state, 'rolled-back', 'a forged save number is never believed');
+  // Index and signature both removed, though this machine saved one.
+  t = twoSaves();
+  fs.rmSync(cc.manifestPath(t.dest));
+  fs.rmSync(path.join(t.dest, 'manifest.json.sig'));
+  sig = JSON.parse(runCliKey(t.key, '--verify', '--dest', t.dest, '--json').stdout).signature;
+  assert.equal(sig.state, 'rolled-back');
+  assert.equal(sig.why, 'missing');
+  const r = runCliKey(t.key, '--json', '--source', t.src, '--dest', t.dest);
+  assert.equal(r.status, 2, 'a run does not quietly start a new archive over an erased index');
+  assert.equal(fs.existsSync(cc.manifestPath(t.dest)), false);
+});
+
+test('HD1: a volume AHEAD of the record, no record, a damaged record and a legacy archive are not rollbacks', () => {
+  // Ahead: the record is older than the volume (another machine saved, or this one died first).
+  let t = twoSaves();
+  const key = cc.loadKey(t.key);
+  cc.writeLastSaved(t.key, t.dest, key, 1, t.older.m);
+  assert.equal(runCliKey(t.key, '--verify', '--dest', t.dest).status, 0);
+  assert.equal(runCliKey(t.key, '--json', '--source', t.src, '--dest', t.dest).status, 0);
+  assert.equal(cc.readLastSaved(t.key, t.dest, key).seq, 2, 'the record catches up to the volume');
+  // No record (a new machine, or an archive from before this check): adopted, never refused.
+  t = twoSaves();
+  fs.rmSync(cc.lastSavedPath(t.key, t.dest));
+  assert.equal(runCliKey(t.key, '--verify', '--dest', t.dest).status, 0);
+  assert.equal(runCliKey(t.key, '--json', '--source', t.src, '--dest', t.dest).status, 0);
+  assert.equal(cc.readLastSaved(t.key, t.dest, cc.loadKey(t.key)).seq, 2, 'and a record is started again from the verified volume');
+  // A damaged record cannot be checked, so it is replaced rather than blocking runs for ever.
+  t = twoSaves();
+  fs.writeFileSync(cc.lastSavedPath(t.key, t.dest), '{"seq": 9, "sha256": "x", "at": "x", "mac": "00"}\n');
+  assert.equal(runCliKey(t.key, '--verify', '--dest', t.dest).status, 0);
+  assert.equal(runCliKey(t.key, '--json', '--source', t.src, '--dest', t.dest).status, 0);
+  assert.equal(cc.readLastSaved(t.key, t.dest, cc.loadKey(t.key)).seq, 2);
+  // A legacy archive (signed, no number, no record) migrates by an ordinary run.
+  const { src, dest } = makeTree();
+  const lk = freshKeyFile();
+  assert.equal(runCliKey(lk, '--json', '--source', src, '--dest', dest).status, 0);
+  cc.signManifest(dest, cc.loadKey(lk), fs.readFileSync(cc.manifestPath(dest)));
+  fs.rmSync(cc.lastSavedPath(lk, dest));
+  assert.equal(runCliKey(lk, '--verify', '--dest', dest).status, 0);
+  assert.equal(runCliKey(lk, '--json', '--source', src, '--dest', dest).status, 0);
+  assert.equal(runCliKey(lk, '--verify', '--dest', dest).status, 0);
+});
+
+test('HD1: a new archive at a new path is unaffected by another archive\'s record', () => {
+  const t = twoSaves();
+  const { src, dest: other } = makeTree();
+  assert.equal(runCliKey(t.key, '--json', '--source', src, '--dest', other).status, 0);
+  assert.equal(sigOf(other).seq, 1);
+});
+
+test('HD3: --rekey checks the index under the old key first and refuses one that does not verify; nothing is minted or changed', () => {
+  const { src, dest } = makeTree();
+  const key = freshKeyFile();
+  runCliKey(key, '--json', '--source', src, '--dest', dest);
+  // A manifest edited by one byte (tampered).
+  const mp = cc.manifestPath(dest);
+  fs.writeFileSync(mp, fs.readFileSync(mp, 'utf8').replace('"sha256": "', '"sha256": "0'));
+  const keyBefore = fs.readFileSync(key, 'utf8');
+  const sigBefore = fs.readFileSync(path.join(dest, 'manifest.json.sig'));
+  const r = runCliKey(key, '--rekey', '--dest', dest, '--json');
+  assert.equal(r.status, 2);
+  const j = JSON.parse(r.stdout);
+  assert.equal(j.code, 'EUNTRUSTED');
+  assert.equal(j.state, 'tampered');
+  assert.match(j.error, /--accept-unverified/);
+  assert.equal(fs.readFileSync(key, 'utf8'), keyBefore, 'the key was not rolled');
+  assert.deepEqual(fs.readFileSync(path.join(dest, 'manifest.json.sig')), sigBefore, 'the index was not re-signed');
+  assert.equal(runCliKey(key, '--verify', '--dest', dest, '--json').status, 1, 'the evidence is still there');
+  // With the word, it clears, names what it cleared, and says so in both report shapes.
+  const human = runCliKey(key, '--rekey', '--accept-unverified', '--dest', dest);
+  assert.equal(human.status, 0);
+  assert.match(human.stdout, /NOT verified before this: its state was tampered/);
+  const key2 = freshKeyFile();
+  const d2 = makeTree();
+  runCliKey(key2, '--json', '--source', d2.src, '--dest', d2.dest);
+  fs.writeFileSync(cc.manifestPath(d2.dest), fs.readFileSync(cc.manifestPath(d2.dest), 'utf8').replace('"sha256": "', '"sha256": "0'));
+  const jj = JSON.parse(runCliKey(key2, '--rekey', '--accept-unverified', '--dest', d2.dest, '--json').stdout);
+  assert.equal(jj.previousState, 'tampered');
+  assert.equal(jj.clearedUnverified, true);
+});
+
+test('HD3: --rekey with the old key gone (unverifiable) refuses too, and a verified index rolls as before, saying it verified', () => {
+  const { src, dest } = makeTree();
+  const key = freshKeyFile();
+  runCliKey(key, '--json', '--source', src, '--dest', dest);
+  const okRoll = runCliKey(key, '--rekey', '--dest', dest);
+  assert.equal(okRoll.status, 0);
+  assert.match(okRoll.stdout, /verified under the old key before it was re-signed/);
+  fs.rmSync(key);                                           // a lost key: the index cannot be checked
+  const r = runCliKey(key, '--rekey', '--dest', dest, '--json');
+  assert.equal(r.status, 2);
+  assert.equal(JSON.parse(r.stdout).state, 'no-key');
+  assert.equal(fs.existsSync(key), false, 'no key was minted over an index nobody checked');
+  assert.equal(runCliKey(key, '--rekey', '--accept-unverified', '--dest', dest).status, 0);
+});
+
+test('HD2: with two archives under one key, a roll for one leaves the other signed by the old key, and no roll brings both across', () => {
+  const a = makeTree();
+  const b = makeTree();
+  const key = freshKeyFile();
+  runCliKey(key, '--json', '--source', a.src, '--dest', a.dest);
+  runCliKey(key, '--json', '--source', b.src, '--dest', b.dest);
+  assert.equal(runCliKey(key, '--verify', '--dest', b.dest).status, 0, 'verify first, as the page says');
+  assert.equal(runCliKey(key, '--rekey', '--dest', a.dest).status, 0);
+  const vb = JSON.parse(runCliKey(key, '--verify', '--dest', b.dest, '--json').stdout);
+  assert.equal(vb.signature.state, 'key-mismatch');
+  assert.equal(runCliKey(key, '--rekey', '--dest', b.dest).status, 2, 'an unflagged second roll is refused, not laundered');
+  assert.equal(runCliKey(key, '--rekey', '--accept-unverified', '--dest', b.dest).status, 0);
+  assert.equal(runCliKey(key, '--verify', '--dest', b.dest).status, 0);
+  assert.equal(runCliKey(key, '--verify', '--dest', a.dest).status, 1, 'the first archive is now the one left behind');
+  assert.match(fs.readFileSync(path.join(__dirname, 'man', 'ccarchive.1'), 'utf8'), /No sequence/,
+    'the page says so (HD2: named in SIGNING, Rotation)');
+});
+
+test('HD1: --accept-unverified is a known option, and the man page and --help say what the rollback check does', () => {
+  assert.doesNotThrow(() => cc.parseArgs(['--rekey', '--accept-unverified']));
+  const man = fs.readFileSync(path.join(__dirname, 'man', 'ccarchive.1'), 'utf8');
+  assert.match(man, /rolled\\-back/);
+  assert.match(man, /ccarchive\\-state\/<id>\.last/);
+  assert.match(cc.rollbackSentence({ why: 'older', localSeq: 5, volumeSeq: 3, savedAt: '2026-11-09T00:00:00Z' }), /sync fault/);
 });
