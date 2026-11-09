@@ -389,6 +389,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: sweepscan, commits name their files,…](roadmap/160-doctrine-review-owed/1400-rule-4-cold-pass-queued-sweepscan.md)
 - [ ] ⏳ [Rule-4 cold pass queued: namescan, private names in branch names and…](roadmap/160-doctrine-review-owed/1410-rule-4-cold-pass-queued-namescan.md)
 - [ ] ⏳ [Rule-4 cold pass queued: quotescan, a quote of the principal on…](roadmap/160-doctrine-review-owed/1420-rule-4-cold-pass-queued-quotescan.md)
+- [ ] ⏳ [Rule-4 cold pass queued: every check states its five declaration…](roadmap/160-doctrine-review-owed/1430-rule-4-cold-pass-queued-check-declarations-step-0.md)
 
 ## build/ layer — open strands
 
