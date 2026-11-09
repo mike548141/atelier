@@ -145,7 +145,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/110-estate-duplication-exception-audit-mike/README.md)*
 
-- [ ] [Make a voided allowance visible.](roadmap/110-estate-duplication-exception-audit-mike/010-make-a-voided-allowance-visible.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-marker, se…) [Make a voided allowance visible.](roadmap/110-estate-duplication-exception-audit-mike/010-make-a-voided-allowance-visible.md)
 - ✅ 🔎 [Five pre-existing worktree.py defects, found by that fix and…](roadmap/110-estate-duplication-exception-audit-mike/020-five-pre-existing-worktree-py-defects-found-by.md)
 - [ ] [Eight children carry a floor block that predates four doctrine…](roadmap/110-estate-duplication-exception-audit-mike/030-eight-children-carry-a-floor-block-that-predat.md)
 - [ ] [shed narrows the floor legitimately and undeclarably.](roadmap/110-estate-duplication-exception-audit-mike/040-shed-narrows-the-floor-legitimately-and-undecl.md)
@@ -624,7 +624,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: the canonical floor's estate resources bullet is unwritable…](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
 - [ ] 🔎 [Hand-up: a queued-review pointer may name a moving bound, and…](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
 - ✅ 🔎 [Hand-up: nothing catches an orphaned session-detail file once the…](roadmap/320-child-filed-findings-via-pointing-up/430-no-floor-check-catches-an-orphaned-session-detail-file.md)
-- [ ] 🔎 [A review file's follow-up list and the board item that points at it…](roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-marker, …) [A review file's follow-up…](roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md)
 - [ ] 🔎 [A wrapped claim does not project into the index, a &#93; in a title…](roadmap/320-child-filed-findings-via-pointing-up/450-a-wrapped-claim-does-not-project-and-two-more-from-a-child-s-cold-passes.md)
 - ✅ 🔎 [MISSING HOUSE RULE — what a review pointer becomes when its verdict…](roadmap/320-child-filed-findings-via-pointing-up/460-missing-rule-what-a-review-pointer-becomes-when-its-verdict-lands.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md)

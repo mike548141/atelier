@@ -1,4 +1,4 @@
-- [ ] **Make a voided allowance visible.** The fix above closes the known
+- [~] (claimed 2026-11-09-1325, wt: atelier-qr-d0ca-marker, session d0ca5d24) **Make a voided allowance visible.** The fix above closes the known
       cause; it does not close the class. A marker that parses as nothing is
       indistinguishable from no marker, so the next parser gap will also be
       silent. Cheapest honest answer: when a line carries the marker *string*

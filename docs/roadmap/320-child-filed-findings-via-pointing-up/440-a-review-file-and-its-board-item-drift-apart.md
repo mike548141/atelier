@@ -1,4 +1,4 @@
-- [ ] 🔎 **A review file's follow-up list and the board item that points at it
+- [~] (claimed 2026-11-09-1325, wt: atelier-qr-d0ca-marker, session d0ca5d24) 🔎 **A review file's follow-up list and the board item that points at it
       drift apart — and one time in five, measured, they disagree about the
       live state** `[M][tooling]` — filed by a private child 2026-09-26 via
       § *Pointing up*, on its principal's instruction to file. A tooling
