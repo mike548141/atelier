@@ -15,3 +15,4 @@
       plain open work, with no waiting mark. (3) *"Fix the 45 known; leave the
       rest"* (his pick). The draft is to be revised to his second answer before
       its re-review (`160/1230`).
+  - [ ] 📝 **REVISED 2026-11-09**: Q1 and Q3 folded in as decided; a maybe-later item is plain open work with no mark, in his words. Open: whether a real blocker keeps a `(waiting: …)` mark.

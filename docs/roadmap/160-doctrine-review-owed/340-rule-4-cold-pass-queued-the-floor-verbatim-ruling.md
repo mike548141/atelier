@@ -57,3 +57,4 @@
       ✅ The rule-copy report is built in `tools/pins.py`, comparing each child to its own pin; report-only until 2026-12-09, then blocking. FV3, FV11 done; FV4, FV6, FV8, FV9 remain. Cold pass `160/1240`.
       💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
         not a ruling):** *"Bar both"*: an allow-marker inside a floor stamp is barred (FV2, confirming what a worker had applied without his say-so), and a repo may not fully `disabled` the board-design check either, from the same date as the report-only bar. Also *"Require a stamp by 9 Dec"*: from 2026-12-09 a live child with no stamp on its floor copy counts as out of date.
+      ✅ `disabled` on the board-design check is barred from 2026-12-09 and an unstamped, no-reference or malformed live copy counts from the same date; an archived repo is exempt, read from GitHub. FV4, FV6, FV8, FV9 remain. Cold pass `160/1240`, whose delta includes these.

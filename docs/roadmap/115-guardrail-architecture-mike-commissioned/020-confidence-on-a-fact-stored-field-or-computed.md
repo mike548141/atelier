@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-1500, wt: atelier-rr-722a-v1)
-      🎯 **Confidence on a fact: stored field, or computed? Mike's call, and it
+- [x] 🎯 **Confidence on a fact: stored field, or computed? Mike's call, and it
       has never been put to him.** Mike named confidence in his own vocabulary
       on 2026-08-15 — *"what is our confidence level in the fact"* — as part of
       the provenance metadata he has discussed alongside the time dimension. The
@@ -26,3 +25,4 @@
       scope clause.
   - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
         not a ruling):** *"Work it out from the source"*: confidence is computed from how a fact was obtained, with a rough rank only where one method varies.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by the orchestrator before landing): `PRINCIPLES.md` §9 and a pointer in `EVIDENCE.md` §3. House rule only; a child builds it.
