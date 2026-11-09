@@ -784,6 +784,27 @@ things that were being traded against each other: the finding survives in the
 place the repo's next session will actually read, and the change is still made
 by a session that has that repo's full context, its tests, and its floor.
 
+Three things the lane needs said (`160/020` CM6, CM7, CM12):
+
+- **Where it goes when the target has no queue.** An unwired child, the repo an
+  audit most often finds wanting, may have no roadmap to queue into. The finding
+  is then queued in the estate root's own board, naming the target by type and
+  the work owed, and the principal is told; wiring the target's queue is still
+  that repo's own session's work, not a sideways act the audit may take. (The
+  narrower of the two fallbacks the reviewer offered: it adds no permission to
+  write into a repo.)
+- **The target's visibility governs what the evidence may carry.** The queue
+  lane moves evidence from the finder's context into the target's roadmap, so a
+  finding queued into a public child follows `RECORD.md` § *The record is
+  public*: a private sibling's name is not joined to its posture there, whatever
+  the finder's own repo allows.
+- **A finder that declines the lane parks, and says so.** Where the finder does
+  not queue sideways (the practised shape of the 2026-08-09 audit), its list
+  lives in a record of its own repo, marked as owed to the named targets, and is
+  **not queued**: it is owed to each target's roadmap by the first session that
+  works that target. Until then it is a finding at risk, and the finder's close
+  says the list is open rather than reporting the audit done.
+
 ## Every branch ends put away
 
 A branch that exists must mean exactly one thing: **open work**. The moment it

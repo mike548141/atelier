@@ -376,22 +376,40 @@ Stated as doctrine because it was being applied without being written down —
 which is how the economics-doc duplication survived across four repos while
 every one of them passed every check.
 
-**Adoption is the default, not the choice.** Every repo the principal works an
-agent in is an atelier child, unless the principal rules a specific exclusion.
-There is no third category of "repo we happen to use Claude in" — a repo outside
-the model is one the doctrine, the floor and the review loop do not reach, and
-that has to be a decision someone made rather than one nobody noticed. The
-enumerating instruments (`tools/floorfleet.py`, `tools/pins.py`) answer *is it
-current*; this rule is what makes "is it a child at all" answerable too, because
-the honest denominator for both boards is **every repo the principal uses**, not
-every repo already wired.
+**Adoption is the default, not the choice.** Every repo the principal owns or
+controls, and works an agent in, is an atelier child, unless the principal
+rules a specific exclusion (his answer of 2026-11-09, `160/020`: *"Own or
+control"*; an answer, not a ruling in his own words). A repo he neither owns
+nor controls (an upstream clone, a fork held to send a patch, a client's repo
+worked under the client's rules) is outside the rule without a ruling, because
+child-wiring there is impossible or wrong; where it is not plain which side a
+repo falls on, the question goes to him and the answer is recorded as an
+exclusion. **Exclusions are recorded in the estate root's private records**, not
+here: an excluded repo has no child block to carry the record, and this public
+parent never enumerates the repos it does not reach, so it points at that home by
+property, as it does for the estate's facts. An exclusion nobody wrote there is
+an oral ruling, which is the defect this subsection exists to end. There is no
+third category of "repo we happen to use Claude in" — a repo outside the model is
+one the doctrine, the floor and the review loop do not reach, and that has to be
+a decision someone made rather than one nobody noticed. The enumerating
+instruments (`tools/floorfleet.py`, `tools/pins.py`) answer *is it current*; this
+rule makes "is it a child at all" *decidable* (there is a fact of the matter),
+not *enumerable*: the instruments discover repos directory-locally on one
+machine, so a repo worked elsewhere appears on no board, and the only list of
+every repo the principal uses is a hand sweep of the project paths the agent has
+been used in (as the 2026-08-09 audit did). That list must never materialise on
+a public surface, and nor may an enumerating board that carries it
+(`RECORD.md` § *The record is public*).
 
 **A child may add. A child may not repeat, and may not conflict.** Three verbs,
-and only the first is free:
+and only the first is free. *Add* and *Conflict* are the *narrow or append* and
+*never silently contradict* bullets of § *The layer-override rule* seen from the
+child's side, stated here only for what they add; *Repeat* is new:
 
-- **Add** — repo-specific doctrine and extra guardrails, including ones stricter
-  than the house. Unrestricted, and actively wanted; a child that has learned
-  something its parent has not is the mechanism working.
+- **Add** — narrow or append, as that rule says: repo-specific doctrine and
+  extra guardrails, including ones stricter than the house. Unrestricted, and
+  actively wanted; a child that has learned something its parent has not is the
+  mechanism working.
 - **Repeat** — restating doctrine the parent already owns. **Forbidden.** This
   is DRY, and the failure is not tidiness: a restatement is a second original
   that drifts silently, and readers cannot tell which copy is current. Point up
@@ -402,7 +420,16 @@ and only the first is free:
   recorded in the child. This is the lane the bullets above were missing: an
   unresolved contradiction is a defect to surface, but a *ruled* one is
   legitimate and must be readable as such, or the next session reads a deliberate
-  exemption as drift and "fixes" a decision the principal made.
+  exemption as drift and "fixes" a decision the principal made. **Two rules, two
+  homes:** an exemption lives in the child that holds it; a *resolution* of a
+  parent/child conflict lands in the parent (`REVIEW.md`, lifecycle step 4).
+  **An exemption is re-tested when the rule it departs from moves.** It was
+  granted against that rule's wording at the time, so a ruling that changes a
+  house rule is also the trigger to list the exemptions granted against its old
+  wording (found by opening the children, until a register makes that a lookup)
+  and to re-confirm or end each. An exemption nobody re-tested can outlive its
+  grounds and read as a permission slip for a state the house has since moved
+  past.
 
 The grounding, so this is not written from a heading. The estate's economics
 doctrine was restated in four children — two private, plus `rpi` and `faves`.
@@ -410,9 +437,10 @@ Three of them carried a two-pool billing model the parent had already superseded
 with billing-state-of-the-marginal-token, and a fixed model-to-role mapping the
 house had already replaced with tier-by-risk; one private child named another —
 a sibling — as "the canonical version", minting a second root. `faves` hit the
-sharp end first: its copy "drifted 17 days behind a provider change, and misled
-a session into arguing from a falsified fact", and was trimmed to repo-local
-facts on the DRY ruling of 2026-08-09. That is the whole failure mode in one
+sharp end first: its own record of the incident (the words are the repo's, not
+the principal's) says its copy "drifted 17 days behind a provider change, and
+misled a session into arguing from a falsified fact", and it was trimmed to
+repo-local facts on the DRY ruling of 2026-08-09. That is the whole failure mode in one
 repo: a repeat is not a redundant copy, it is a *falsifiable* copy, and it
 falsifies quietly.
 

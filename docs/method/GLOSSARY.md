@@ -60,6 +60,10 @@ full in this file.
 - **Floor** — the irreducible subset of the doctrine a child repo carries
   *inlined*, so it binds even if the parent is never read
   ([`PROPAGATION.md`](PROPAGATION.md)).
+- **Child** — a repo the principal owns or controls and works an agent in,
+  carrying the floor and pointing up to this parent; adoption is the default and
+  an exclusion is a ruling recorded in the estate root
+  ([`PROPAGATION.md`](PROPAGATION.md) § *Who is a child*).
 - **Bearing** — a child's estate-specific application of a parent principle,
   held in the child and pointing up; children point up, the parent never
   points down for truth ([`PROPAGATION.md`](PROPAGATION.md),
