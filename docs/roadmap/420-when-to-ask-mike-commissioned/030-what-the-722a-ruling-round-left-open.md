@@ -19,3 +19,19 @@
   - [ ] **Next ask, first:** his written method (`320/820`): one question at a
         time, long form in the session, no item numbers in the box. This round
         asked up to four per box.
+  - [ ] **Added by queue run d0ca5d24 (2026-11-10), to ask in the same round, one at a
+        time, in plain words:**
+        - Should the check that commits name their files ever block? It would fire on
+          most commits as things stand (`320/060`): 88% in this repo, 97% in one child.
+        - Approve Fable for the cold passes this run queued (`160/1250` to `160/1430`,
+          fifteen of them) along with the earlier set, or hold.
+        - Land the held board-title fix with the 2026-11-18 cut-off (`010/180`, `010/190`),
+          or give it a grace of its own sooner.
+        - Words he types in reply to a session's question: an answer or a ruling
+          (`420/020`, in `COMMUNICATION.md` as unsettled).
+        - Does an allow-marker bring the missing context inside a check's evidence
+          window (`115/120`, `GUARDS.md`)? Group A's build waits on it.
+        - Run `cclive` at session open, or leave it on request (`360/020`).
+        - **To be aware of, no answer owed:** the blocking dates on the five warn-first
+          checks are this run's choice (`320/810`); and repos should not be moved into
+          group folders until the floor and child halves of `320/660` land.
