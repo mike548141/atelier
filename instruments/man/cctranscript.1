@@ -408,6 +408,13 @@ checking the gzip trailer, which is where gzip keeps its integrity check.
 On a damaged mirror it can therefore list wrong or partial text, or list a row
 for a mirror cut off after its first prompt, where rendering the session
 refuses.
+A mirror that cannot be read at all shows an
+.B (unreadable \(em reason)
+marker instead, with
+.B unreadable
+true under
+.BR \-\-json ,
+and the other rows still list.
 Integrity is
 .BR ccarchive (1)'s
 .B \-\-verify

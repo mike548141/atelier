@@ -1392,16 +1392,33 @@ function printSearchTable(layers, stats, trunc, topN, shown, elapsedMs) {
 
 // --- output -------------------------------------------------------------
 
+// The first prompt for a listing row, or the reason it could not be read. One
+// damaged or unreadable log used to abort the whole listing with a raw stack
+// (160/680, FP1 counsel iii, the per-row guard `--search` already has): now the
+// row is marked and the rest still list.
+function listingPrompt(s) {
+  try { return { text: firstUserPromptText(s.file), error: null }; }
+  catch (e) {
+    const why = String((e && e.message) || e).replace(/[\u0000-\u001f\u007f-\u009f]+/g, ' ').trim();
+    return { text: '', error: why.length > 60 ? why.slice(0, 57) + '…' : why };
+  }
+}
+
 function runList() {
   const pool = pickSessions();
   if (asJson) {
-    console.log(JSON.stringify(pool.map((s) => ({
-      id: s.id, repo: s.label, cwd: s.cwd,
-      lastActivity: s.mtime ? new Date(s.mtime).toISOString() : null,
-      // Evicted mirrors are listed but never read: no first prompt to show.
-      firstPrompt: s.evicted ? null : firstUserPromptText(s.file),
-      ...(s.file.endsWith('.gz') ? { evicted: !!s.evicted } : {}),
-    })), null, 2));
+    console.log(JSON.stringify(pool.map((s) => {
+      const p = s.evicted ? { text: null, error: null } : listingPrompt(s);
+      return {
+        id: s.id, repo: s.label, cwd: s.cwd,
+        lastActivity: s.mtime ? new Date(s.mtime).toISOString() : null,
+        // Evicted mirrors are listed but never read: no first prompt to show.
+        // An unreadable one is marked the same way, with `unreadable: true`.
+        firstPrompt: p.error ? null : p.text,
+        ...(s.file.endsWith('.gz') ? { evicted: !!s.evicted } : {}),
+        ...(p.error ? { unreadable: true } : {}),
+      };
+    }), null, 2));
     return;
   }
   console.log();
@@ -1411,8 +1428,13 @@ function runList() {
     if (s.evicted) {
       first = paint(ESC.dim, '(evicted — bytes in iCloud; rendering it fetches them)');
     } else {
-      first = firstUserPromptText(s.file);
-      if (first.length > 70) first = first.slice(0, 67) + '…';
+      const p = listingPrompt(s);
+      if (p.error) {
+        first = paint(ESC.dim, `(unreadable — ${p.error})`);
+      } else {
+        first = p.text;
+        if (first.length > 70) first = first.slice(0, 67) + '…';
+      }
     }
     const repoTag = listAll || repoArg ? '  ' + paint(ESC.blue, `[${s.label}]`) : '';
     console.log(`  ${paint(ESC.cyan, s.id.slice(0, 8))}  ${paint(ESC.dim, when)}${repoTag}  ${first}`);

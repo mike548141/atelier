@@ -624,6 +624,29 @@ test('first prompt: a damaged prefix that still decodes lists wrong text (the co
   assert.equal(listed.length, 'the original prompt'.length);
 });
 
+test('--list: an unreadable mirror is a marked row, not a stack trace (160/680 counsel iii)', () => {
+  // The cut mirror has no prompt in its prefix, so the fallback whole-file read
+  // runs and throws. The listing used to die with a raw stack; now the row says
+  // so, in both outputs, and the command exits 0.
+  const f = writeGz('cutlist', [carrierLine(2e6), promptLine('never reached')]);
+  fs.writeFileSync(f, fs.readFileSync(f).subarray(0, 300000));
+  assert.throws(() => cc.firstUserPromptText(f));
+  const j = JSON.parse(execFileSync('node', [SCRIPT, '--json', '--list', f], { encoding: 'utf8' }));
+  assert.equal(j.length, 1);
+  assert.equal(j[0].firstPrompt, null);
+  assert.equal(j[0].unreadable, true);
+  const t = execFileSync('node', [SCRIPT, '--no-color', '--list', f], { encoding: 'utf8' });
+  assert.match(t, /\(unreadable — /);
+  assert.match(t, /1 session\(s\)/);
+});
+
+test('--list: a readable mirror carries no unreadable mark', () => {
+  const f = writeGz('fine', [promptLine('a fine prompt')]);
+  const j = JSON.parse(execFileSync('node', [SCRIPT, '--json', '--list', f], { encoding: 'utf8' }));
+  assert.equal(j[0].firstPrompt, 'a fine prompt');
+  assert.equal('unreadable' in j[0], false);
+});
+
 test('header: the mid-turn and harness chips print at zero, so the field set never varies (160/880 HC11)', () => {
   const out = execFileSync('node', [SCRIPT, '--no-color', FIXTURE], { encoding: 'utf8' });
   const header = out.split('\n').find((l) => / turns · /.test(l));

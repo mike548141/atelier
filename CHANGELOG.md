@@ -152,6 +152,15 @@ this machine, old scanner against new, and no repo's blocking result changed.
   found tracked (PL3; the pushed commit body is a frozen record).
 
 
+
+### Changed (2026-11-09 — `cctranscript --list` marks an unreadable mirror instead of dying, `160/680`)
+- **Children: none use it; nothing blocks.** One damaged or unreadable mirror used to
+  abort the whole listing with a raw stack trace. The row now reads `(unreadable —
+  <reason>)` in the text listing, `firstPrompt: null` with `unreadable: true` in
+  `--json`, the command exits 0 and the other rows list (the per-row guard
+  `--search` already has; FP1 counsel iii, folded from `CP4` and `CS11`). A readable
+  row carries no `unreadable` key, as an unevicted one carries no marker. The man
+  page says so.
 ### Changed (2026-11-09 — `cctranscript`'s header prints the mid-turn and harness chips at zero, `160/880`)
 Settled by the principal's standing steer that report fields stay comparable.
 - The header line read side by side with another session's now has the same
