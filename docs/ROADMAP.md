@@ -657,6 +657,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Hand-up: secretscan flags every body line of a PEM public…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
 - [ ] 🔎 [A floor disabled entry carries a reason but no end date, so it cannot…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
 - [ ] 🔎 [Build the six checks he chose, warnings first, then blocking, each…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
+- [ ] 🔎 [Hand-up: the principal's method for asking a question is not in…](roadmap/320-child-filed-findings-via-pointing-up/820-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
