@@ -181,6 +181,7 @@ RU7–RU11 were applied or settled earlier.
   has: hold-and-flag, a fork and PR, an issue, `SECURITY.md` for a vulnerability.
 - **A doctrine defect that is a vulnerability goes private first (RU6),** with its
   public item landing with the fix.
+
 ### Changed (2026-11-09 — the third "another session is live" cue ends in an action, and the cue wording is made true, `160/560`)
 Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
 - **Children: nothing to do.** The edits are in `CONCURRENCY.md` § The trigger and
@@ -196,14 +197,17 @@ Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
   accident" is "reach you by being told or by stumbling on the evidence". CH7's two
   halves are both done, and `280/030` says so (TC7).
 - **Not done, by the pass's own word:** TC5 and TC6 are notes with no action owed.
+
 ### Changed (2026-11-09 — `blockscan`'s advisory report: nothing routes it to a person, `160/430`)
 - `tools/README.md` says the unmapped-heading report stays in the CI log, where it
   already is, and that nothing routes it to a person (CU10). Documentation only.
+
 ### Changed (2026-11-09 — `SECRETS.md` says what its permanent bridges rest on, `160/570`)
 - The imposed-cap and break-glass bridges are not the shapes `PRINCIPLES.md` §7
   licenses (temporary, or unsafe to codify); they rest on §5's credential rule
   (*Honest pattern*, *name the gap*), and §7 supplies the grammar's name. One
   paragraph in `SECRETS.md`; no child action.
+
 ### Changed (2026-11-09 — `cctranscript --list` marks an unreadable mirror instead of dying, `160/680`)
 - **Children: none use it; nothing blocks.** One damaged or unreadable mirror used to
   abort the whole listing with a raw stack trace. The row now reads `(unreadable —
@@ -212,6 +216,7 @@ Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
   `--search` already has; FP1 counsel iii, folded from `CP4` and `CS11`). A readable
   row carries no `unreadable` key, as an unevicted one carries no marker. The man
   page says so.
+
 ### Changed (2026-11-09 — `cctranscript`'s header prints the mid-turn and harness chips at zero, `160/880`)
 Settled by the principal's standing steer that report fields stay comparable.
 - The header line read side by side with another session's now has the same
@@ -219,6 +224,7 @@ Settled by the principal's standing steer that report fields stay comparable.
   vanish. A script that matched `2 you · 2 Claude · 2 harness` needs `· 0 mid-turn`
   between. The README's "the field set never varies" is true again without its one
   stated exception; the context chip still drops when the size is unknown.
+
 ### Changed (2026-11-09 — the new-repo reviews template leads on independence, names one applier and the child's seat names, `160/590`)
 Mike's answer of 2026-11-09: the cold pass's counsel applied as written. Which
 tier reviews is untouched: the principal still names it.
