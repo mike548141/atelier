@@ -1,4 +1,4 @@
-- [ ] **C3 — a sanctioned adoption path.** A repo whose existing content
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) **C3 — a sanctioned adoption path.** A repo whose existing content
       already fails the gate **cannot commit the change that installs the
       gate.** It happened twice during the rollout and was resolved with a
       documented one-time bypass — defensible once, but it is now an

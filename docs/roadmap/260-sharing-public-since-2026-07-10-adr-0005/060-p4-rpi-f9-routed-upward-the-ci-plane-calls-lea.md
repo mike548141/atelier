@@ -1,4 +1,4 @@
-- [ ] **P4 — `rpi` F9, routed upward: the ci plane calls `leakscan` without
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) **P4 — `rpi` F9, routed upward: the ci plane calls `leakscan` without
       `--require-terms`.** Every child's CI run therefore self-reports "cover not
       guaranteed". The fix belongs in atelier's registry, not any child — it
       pairs with Track D's registry work; the design question is whether CI can

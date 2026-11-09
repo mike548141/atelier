@@ -1,4 +1,4 @@
-- [ ] **Adoption is a chicken-and-egg problem and I improvised twice.** A repo
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) **Adoption is a chicken-and-egg problem and I improvised twice.** A repo
       whose existing content already fails the gate **cannot commit the change
       that installs the gate**. It happened on two repos and I resolved it with a
       one-time `--no-verify`, documented in each commit — defensible once, but it

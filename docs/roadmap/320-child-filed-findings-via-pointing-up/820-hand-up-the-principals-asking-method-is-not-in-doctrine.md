@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: the principal's method for asking a question is not in
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-asking, session d0ca5d24) 🔎 **Hand-up: the principal's method for asking a question is not in
       doctrine, though he says it is, and one case of the method failing
       was misdiagnosed as a display fault** `[doctrine]`. Handed up from a
       private child on 2026-11-09 under `PROPAGATION.md` § *Pointing up*.

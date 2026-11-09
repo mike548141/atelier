@@ -1,4 +1,4 @@
-- [ ] 🔎 **The withdrawn-review convention rests on a premise that now has a
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) 🔎 **The withdrawn-review convention rests on a premise that now has a
       counterexample.** `docs/reviews/withdrawn/README.md` rule 5 states that
       findings die with the pass, on this reasoning: *"If a finding is real, the
       accepted pass finds it independently — and that is the point of the

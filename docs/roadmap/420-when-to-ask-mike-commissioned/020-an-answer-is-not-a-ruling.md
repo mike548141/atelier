@@ -1,4 +1,4 @@
-- [ ] 🎯 **An answer to a session's question is not a ruling. Records
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-asking, session d0ca5d24) 🎯 **An answer to a session's question is not a ruling. Records
       must tell them apart** `[M][doctrine]`. Mike commissioned this,
       2026-10-03. Verbatim:
 

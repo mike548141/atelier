@@ -1,4 +1,4 @@
-- [ ] **`finished` counts logs, not successes — and a dead agent still leaves a
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-instr, session d0ca5d24) **`finished` counts logs, not successes — and a dead agent still leaves a
       log.** Measured on the session that shipped the feature: it started six
       subagents, **three of which died** on infrastructure faults (two watchdog
       stalls, one connection closed mid-response), and the header still read

@@ -1,4 +1,4 @@
-- [ ] 🔎 **The paragraph projection (`010/170`) loses two small signals,
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) 🔎 **The paragraph projection (`010/170`) loses two small signals,
       and a claim placed inside a wrapped title now shows in the title.**
       Found by the `010/170` worker reading all 297 changed index lines,
       and by the orchestrator at landing. (1) 11 wrapped titles lose a

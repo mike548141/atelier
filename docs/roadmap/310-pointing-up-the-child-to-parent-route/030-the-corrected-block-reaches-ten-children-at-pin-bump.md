@@ -1,4 +1,4 @@
-- [ ] 🚩 **Ten children carry both block defects, and each clears them at its
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) 🚩 **Ten children carry both block defects, and each clears them at its
       own next pin bump** `[S][docs]` — swept 2026-08-18, not estimated:
       `ros`, `rpi`, `faves`, `shed`, `cbom`, `kainga`, `tuhura`, `docker-heap`,
       `derry-hill`, `stewart-drive` — all ten carry *read the staged hunk

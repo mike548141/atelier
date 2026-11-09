@@ -1,4 +1,4 @@
-- [ ] 🎭 **The sixth instance is the checker written to enforce this item, and it
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) 🎭 **The sixth instance is the checker written to enforce this item, and it
       failed the same way within the hour.** Recorded because it is the most
       self-incriminating evidence available that this class is not a matter of
       carelessness — the author was holding the rule in mind and shipped the

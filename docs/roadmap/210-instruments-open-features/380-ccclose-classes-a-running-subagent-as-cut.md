@@ -1,4 +1,4 @@
-- [ ] 🔎 **`ccclose` classes a subagent that is still running as "cut
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-instr, session d0ca5d24) 🔎 **`ccclose` classes a subagent that is still running as "cut
       mid-flight".** Found by the `160/900` cold pass (QK12) and filed by
       queue run 722ac2e2 on 2026-11-09 when it applied that pass. A close
       check that reads a live agent as cut tells the session the agent is

@@ -27,7 +27,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [board called a current index stale from every worktree of atelier,…](roadmap/010-board-store-migration-per-item-files-mik/150-board-judged-the-tree-from-the-tool-s-own-path.md)
 - ✅ 🎯 [CF3's dirty-sibling stop is now stricter than its cause requires —…](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
 - ✅ [DONE 2026-10-18](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
-- [ ] 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene,…) [The paragraph projection…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
 - [ ] [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
 - ✅ 🔎 [A four-digit item number sorts out of order, and the review section…](roadmap/010-board-store-migration-per-item-files-mik/200-a-four-digit-item-number-sorts-out-of-order.md)
 
@@ -43,7 +43,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [floorfleet's remaining child-authored text surfaces.](roadmap/020-policy-as-code-programme-five-tracks-mik/060-floorfleet-s-remaining-child-authored-text-sur.md)
 - [ ] 🎯 [C1b — migrate the remainder, then delete the legacy spelling.](roadmap/020-policy-as-code-programme-five-tracks-mik/070-c1b-migrate-the-remainder-then-delete-the-lega.md)
 - [ ] [C2 — retire the remainder.](roadmap/020-policy-as-code-programme-five-tracks-mik/080-c2-retire-the-remainder.md)
-- [ ] [C3 — a sanctioned adoption path.](roadmap/020-policy-as-code-programme-five-tracks-mik/090-c3-a-sanctioned-adoption-path.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene, s…) [C3 — a sanctioned adoption…](roadmap/020-policy-as-code-programme-five-tracks-mik/090-c3-a-sanctioned-adoption-path.md)
 - [ ] [C4 — make the local bypass visible.](roadmap/020-policy-as-code-programme-five-tracks-mik/100-c4-make-the-local-bypass-visible.md)
 - [ ] [D2 residue — stampscan registry wiring stays barred on ST3.](roadmap/020-policy-as-code-programme-five-tracks-mik/110-d2-residue-stampscan-registry-wiring-stays-bar.md)
 - [ ] 🎯 [D3 — signscan cannot fail CI.](roadmap/020-policy-as-code-programme-five-tracks-mik/120-d3-signscan-cannot-fail-ci.md)
@@ -62,7 +62,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [The posture change this implies — stated so it is ruled, not assumed.](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
 - ✅ [The REPO-plane numbers are still unruled](roadmap/020-policy-as-code-programme-five-tracks-mik/260-the-repo-plane-numbers-are-still-unruled.md)
-- [ ] [Carry P5's finding into part (b).](roadmap/020-policy-as-code-programme-five-tracks-mik/270-carry-p5-s-finding-into-part-b.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-asking, se…) [Carry P5's finding into part…](roadmap/020-policy-as-code-programme-five-tracks-mik/270-carry-p5-s-finding-into-part-b.md)
 - ✅ [Watch the live hook for two failure modes](roadmap/020-policy-as-code-programme-five-tracks-mik/280-watch-the-live-hook-for-two-failure-modes.md)
 - ✅ [The backlog.](roadmap/020-policy-as-code-programme-five-tracks-mik/290-the-backlog.md)
 - [ ] [Generalise the finding, don't just fix this doc.](roadmap/020-policy-as-code-programme-five-tracks-mik/300-generalise-the-finding-don-t-just-fix-this-doc.md)
@@ -94,7 +94,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [A private-key-header that was prose, not key material](roadmap/030-enforcement-propagation-the-estate-rollo/060-a-private-key-header-that-was-prose-not-key-ma.md)
 - [ ] [Mechanise the private-repo × posture join](roadmap/030-enforcement-propagation-the-estate-rollo/070-mechanise-the-private-repo-posture-join.md)
 - [ ] [2 repos still owe the declaration — blocked by their own reds.](roadmap/030-enforcement-propagation-the-estate-rollo/080-2-repos-still-owe-the-declaration-blocked-by-t.md)
-- [ ] [Adoption is a chicken-and-egg problem and I improvised twice.](roadmap/030-enforcement-propagation-the-estate-rollo/090-adoption-is-a-chicken-and-egg-problem-and-i-im.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene, s…) [Adoption is a chicken-and-egg…](roadmap/030-enforcement-propagation-the-estate-rollo/090-adoption-is-a-chicken-and-egg-problem-and-i-im.md)
 - [ ] [no-verify is the real hole, and nothing sees it.](roadmap/030-enforcement-propagation-the-estate-rollo/100-no-verify-is-the-real-hole-and-nothing-sees-it.md)
 - ✅ [The floor drift check can never fire against a stale checkout — the…](roadmap/030-enforcement-propagation-the-estate-rollo/110-the-floor-drift-check-can-never-fire-against-a.md)
 - [ ] [Every child inlines the same stale-HEAD drift bullet — a fleet sweep…](roadmap/030-enforcement-propagation-the-estate-rollo/120-every-child-inlines-the-same-stale-head-drift.md)
@@ -167,9 +167,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Mint the evidence-window rule as guard-design doctrine — Mike's call.](roadmap/115-guardrail-architecture-mike-commissioned/010-mint-the-evidence-window-rule-as-guard-design.md)
 - ✅ 🎯 [Confidence on a fact: stored field, or computed? Mike's call, and it…](roadmap/115-guardrail-architecture-mike-commissioned/020-confidence-on-a-fact-stored-field-or-computed.md)
 - ✅ 🔥 [stampscan's verdicts are inverted against the doctrine it enforces —…](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md)
-- [ ] 🔎 [The withdrawn-review convention rests on a premise that now has a…](roadmap/115-guardrail-architecture-mike-commissioned/040-the-withdrawn-review-premise-has-a-counterexam.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene,…) [The withdrawn-review convention…](roadmap/115-guardrail-architecture-mike-commissioned/040-the-withdrawn-review-premise-has-a-counterexam.md)
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to…](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
-- [ ] 🔎 [A coined paraphrase is still presented on the board as a child repo's…](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene,…) [A coined paraphrase is still…](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped…](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
 - ✅ [Single-source the scanner harness, re-grounded on Mike's own upstream…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's…](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
@@ -278,12 +278,12 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [Rule-4 cold pass queued: stampscan --require-stamps and blockscan's…](roadmap/160-doctrine-review-owed/430-rule-4-cold-pass-queued-the-cover-switch-and-unmapped-headings.md)
 - [ ] 🎯 [Rule-4 cold pass queued: cctranscript's archive-pool speedup…](roadmap/160-doctrine-review-owed/440-rule-4-cold-pass-queued-the-archive-pool-speedup.md)
 - ✅ 🎯 [Rule-4 cold pass queued: the mandate-versus-default date rule…](roadmap/160-doctrine-review-owed/450-rule-4-cold-pass-queued-the-date-kind-rule.md)
-- [ ] [Rule-4 cold pass queued: ccarchive's manifest checkpoints and…](roadmap/160-doctrine-review-owed/460-rule-4-cold-pass-queued-the-manifest-checkpoints.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene, s…) [Rule-4 cold pass queued:…](roadmap/160-doctrine-review-owed/460-rule-4-cold-pass-queued-the-manifest-checkpoints.md)
 - ✅ 🎯 [Rule-4 cold pass queued: publishscan's round-2 denylist (260/040).](roadmap/160-doctrine-review-owed/470-rule-4-cold-pass-queued-publishscan-round-2.md)
 - ✅ 🎯 [Rule-4 cold pass queued: the shared allow-marker grammar and ignore…](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
 - ✅ 🎯 [Rule-4 cold pass queued: pathscan's brace expansion and inline ./…](roadmap/160-doctrine-review-owed/490-rule-4-cold-pass-queued-pathscan-brace-expansion.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the expected toolbox and its install rule…](roadmap/160-doctrine-review-owed/500-rule-4-cold-pass-queued-the-expected-toolbox.md)
-- [ ] [Rule-4 cold pass queued: ccarchive's heal pulled (210/170, MC1).](roadmap/160-doctrine-review-owed/510-rule-4-cold-pass-queued-the-heal-pulled.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene, s…) [Rule-4 cold pass queued:…](roadmap/160-doctrine-review-owed/510-rule-4-cold-pass-queued-the-heal-pulled.md)
 - ✅ 🎯 [Rule-4 cold pass queued: the queue-run skill's sync step gains the…](roadmap/160-doctrine-review-owed/520-rule-4-cold-pass-queued-queue-run-sync-gate.md)
 - [ ] 🛑 [Rule-4 cold pass queued: REPO-STANDARD's remote-creation authority,…](roadmap/160-doctrine-review-owed/530-rule-4-cold-pass-queued-remote-creation-authority.md)
 - [ ] 🛑 [Rule-4 cold pass queued: "harvest" scoped to monolithic boards across…](roadmap/160-doctrine-review-owed/540-rule-4-cold-pass-queued-harvest-only-on-a-monolithic-board.md)
@@ -432,7 +432,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🤔 [Per-transcript topic capture — idea to consider (Mike, 2026-08-02; no…](roadmap/210-instruments-open-features/040-per-transcript-topic-capture-idea-to-consider.md)
 - ✅ 🔎 [Archive-mode pool construction dominates every --from-archive run,…](roadmap/210-instruments-open-features/050-archive-mode-pool-construction-dominates-every.md)
 - [ ] [Context as a share of the window](roadmap/210-instruments-open-features/060-context-as-a-share-of-the-window.md)
-- [ ] [finished counts logs, not successes — and a dead agent still leaves a…](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-instr, ses…) [finished counts logs, not…](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
 - ✅ [think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
 - [ ] [Subagent logs are outside every cctranscript view.](roadmap/210-instruments-open-features/090-subagent-logs-are-outside-every-cctranscript-v.md)
 - ✅ 🔥 [cctranscript never reads the principal's mid-turn messages, and its…](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
@@ -463,8 +463,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
 - ✅ [ccclose --identifiers drops a worktree made in a shell loop, and the…](roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md)
 - ✅ 🔎 [ccclose --identifiers lists board items in text order, so 160/1000…](roadmap/210-instruments-open-features/370-ccclose-sorts-board-ids-as-text.md)
-- [ ] 🔎 [ccclose classes a subagent that is still running as "cut mid-flight".](roadmap/210-instruments-open-features/380-ccclose-classes-a-running-subagent-as-cut.md)
-- [ ] 🔎 [The Python test suite needs 3.11 or later and does not say so.](roadmap/210-instruments-open-features/390-the-suite-needs-python-3-11-and-does-not-say-so.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-instr, s…) [ccclose classes a subagent…](roadmap/210-instruments-open-features/380-ccclose-classes-a-running-subagent-as-cut.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene,…) [The Python test suite needs…](roadmap/210-instruments-open-features/390-the-suite-needs-python-3-11-and-does-not-say-so.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
@@ -504,7 +504,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Exercise the interactive fill + bundled-mode scaffold end-to-end](roadmap/260-sharing-public-since-2026-07-10-adr-0005/030-exercise-the-interactive-fill-bundled-mode-sca.md)
 - ✅ [P2a — teach publishscan the shapes the fleet actually has.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/040-p2a-teach-publishscan-the-shapes-the-fleet-act.md)
 - ✅ 🎯 [P3 — the floor does not know whether a repo is public, and it should…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/050-p3-the-floor-does-not-know-whether-a-repo-is-p.md)
-- [ ] [P4 — rpi F9, routed upward: the ci plane calls leakscan without…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/060-p4-rpi-f9-routed-upward-the-ci-plane-calls-lea.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene, s…) [P4 — rpi F9, routed upward:…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/060-p4-rpi-f9-routed-upward-the-ci-plane-calls-lea.md)
 - [ ] [P5 — rpi F10, routed upward: the publish-safety checklist gates repo…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/070-p5-rpi-f10-routed-upward-the-publish-safety-ch.md)
 - ✅ 🎯 [P6 — rpi F5: estate-internal context accumulating in public records.…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/080-p6-rpi-f5-estate-internal-context-accumulating.md)
 - ✅ [P7 — harvest the rpi publication properly.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/090-p7-harvest-the-rpi-publication-properly.md)
@@ -559,7 +559,7 @@ then `python3 tools/board.py rebuild`.
 
 - ✅ 🎯 [The upstream route, and the two block defects that caused the instance](roadmap/310-pointing-up-the-child-to-parent-route/010-the-pointing-up-route-and-the-two-block-fixes.md)
 - ✅ 🎯 [Nothing enumerates what the estate owes the house — the upstream…](roadmap/310-pointing-up-the-child-to-parent-route/020-nothing-enumerates-what-the-estate-owes-the-house.md)
-- [ ] [Ten children carry both block defects, and each clears them at its…](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene, s…) [Ten children carry both block…](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
 - [ ] 🎯 [Queue the block-trim finding in cbom — AFTER this cycle's review…](roadmap/310-pointing-up-the-child-to-parent-route/040-queue-the-block-trim-finding-in-cbom-after-the-cycle.md)
 - ✅ [Rule-4 review RUN and RULED (tier: Fable; pass type: doc cold pass) —…](roadmap/310-pointing-up-the-child-to-parent-route/050-rule-4-cold-pass-queued-pointing-up.md)
 - [ ] 🎯 [The board's state vocabulary is too narrow to index work by](roadmap/310-pointing-up-the-child-to-parent-route/060-the-board-state-vocabulary-is-too-narrow-to-index-by.md)
@@ -653,12 +653,12 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: a peer's relayed ruling can override an order the principal…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)
 - ✅ 🔎 [Hand-up: a one-line claim still overruns the index line, so 320/730's…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
 - [ ] 🔎 [Hand-up: REVIEW.md has no shape for a live-only top-up of a degraded…](roadmap/320-child-filed-findings-via-pointing-up/760-hand-up-review-md-has-no-shape-for-a-live-only-top-up-of-a-degraded-pass.md)
-- [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-scan, se…) [Hand-up: reviewscan does…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
 - [ ] [Turn conflictscan's tool-markup rule from advisory to blocking once…](roadmap/320-child-filed-findings-via-pointing-up/780-the-tool-markup-advisory-goes-blocking-once-the-estate-is-clean.md)
 - ✅ [Hand-up: secretscan flags every body line of a PEM public…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
-- [ ] 🔎 [A floor disabled entry carries a reason but no end date, so it cannot…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-scan, se…) [A floor disabled entry carries…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
 - [ ] 🔎 [Build the six checks he chose, warnings first, then blocking, each…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
-- [ ] 🔎 [Hand-up: the principal's method for asking a question is not in…](roadmap/320-child-filed-findings-via-pointing-up/820-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-asking, …) [Hand-up: the principal's…](roadmap/320-child-filed-findings-via-pointing-up/820-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
@@ -691,7 +691,7 @@ then `python3 tools/board.py rebuild`.
 
 - ✅ 🎯 [Decide whether "prefer artefacts over reports" earns a line, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
 - [ ] [The fifth instance is not a report — it is a GUARD, and that is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
-- [ ] [The sixth instance is the checker written to enforce this item, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/030-the-sixth-instance-was-the-checker-written-for-370.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-hygiene, s…) [The sixth instance is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/030-the-sixth-instance-was-the-checker-written-for-370.md)
 
 ## 🔇 Silence read as an answer — 2026-08-24
 
@@ -724,7 +724,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/420-when-to-ask-mike-commissioned/README.md)*
 
 - ✅ 🎯 [An ask stops the whole run — decide when a session asks, and what it…](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
-- [ ] 🎯 [An answer to a session's question is not a ruling. Records must tell…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
+- [~] 🎯 (claimed 2026-11-09, wt: atelier-qr-d0ca-asking, …) [An answer to a session's…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
 - [ ] 🎯 [What the 2026-11-09 ruling round left open.](roadmap/420-when-to-ask-mike-commissioned/030-what-the-722a-ruling-round-left-open.md)
 
 ## Review quality is never traded for budget (Mike commissioned, 2026-10-04)

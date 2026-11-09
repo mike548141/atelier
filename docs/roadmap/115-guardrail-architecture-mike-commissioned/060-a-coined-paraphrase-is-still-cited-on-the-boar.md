@@ -1,4 +1,4 @@
-- [ ] 🔎 **A coined paraphrase is still presented on the board as a child
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) 🔎 **A coined paraphrase is still presented on the board as a child
       repo's quoted words.** A cold pass on 2026-08-09 found that a phrase used
       twice on the board in quotation marks, and attributed to a child repo
       rejecting roughly seventy allow-markers, appears nowhere outside atelier's

@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: `reviewscan` does not see decision records named by
+- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-scan, session d0ca5d24) 🔎 **Hand-up: `reviewscan` does not see decision records named by
       number, and reports "clean" over a repo full of them** `[tool]`.
       Handed up from a private child on 2026-11-02 under `PROPAGATION.md`
       § *Pointing up*, found by a brief-writing run (Opus 5.5, no reviewer)
