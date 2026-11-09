@@ -44,6 +44,12 @@
         exit code with the date patched: 22 of 22 exit 0 today and on the flip
         date; atelier is the only repo in scope, with 0 findings. Tests: 21, in
         `tools/test_pdlistscan.py`.
+  - [x] ✅ **Slice 4 LANDED 2026-11-10: commits name their files (`320/060`)**,
+        a new scanner, `tools/sweepscan.py`, registered hook-only, warn-only,
+        **with no blocking date**: see the finding on `320/060`, where the
+        measured rate (88% of commits in atelier, 97% in one child, by session
+        transcript) is why. Probe by exit code: 21 of 21 exit 0. Tests: 11, in
+        `tools/test_sweepscan.py`.
   - [ ] **The dates are the run's choice, not his**: 2027-01-11, 2027-02-08,
         2027-03-08, one check at a time and four weeks apart, none before
         2027-01-11 because earlier flips already fall on 2026-11-18, 2026-12-09

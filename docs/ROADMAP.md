@@ -598,7 +598,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [PROPOSAL — capture, do not compose: a hand-written fixture can only…](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
 - [ ] 🔎 [By-call enforcement resolves through a working tree, so "fresh"…](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
 - ✅ 🎯 [PROPOSAL for GUARDS.md — a guard's THREAT MODEL is a property to…](roadmap/320-child-filed-findings-via-pointing-up/050-proposal-a-guard-declares-who-it-protects-from-whom.md)
-- [~] 🎯 (claimed 2026-11-09, wt: atelier-qr-d0ca-msg, ses…) [PROPOSAL for the floor +…](roadmap/320-child-filed-findings-via-pointing-up/060-proposal-the-floor-requires-a-path-scoped-commit.md)
+- [ ] 🎯 [PROPOSAL for the floor + GUARDS.md — where siblings exist, require a…](roadmap/320-child-filed-findings-via-pointing-up/060-proposal-the-floor-requires-a-path-scoped-commit.md)
 - ✅ 🎯 [PROPOSAL — a transcript has three principal-authored channels, and a…](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal…](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
 - ✅ [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)

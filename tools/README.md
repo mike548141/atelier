@@ -1949,6 +1949,31 @@ attribution is true, or whether a quotation is his (`320/080`'s corpus-checking
 problem, not this scanner's); and the patterns are a grammar, so a sentence that
 attributes in other words is not read.
 
+## `sweepscan.py` — where sibling worktrees exist, a commit names its files (warn-only, no date)
+
+Board `320/060`, the fourth slice of `320/810`. A session staged into a shared
+index in the window between another session's read of it and its commit; the
+commit carried paths its author never chose, with the correct count on screen.
+Hook plane only: the signal is git's `GIT_INDEX_FILE`, which ends `index` for a
+plain commit, `index.lock` for `-a` or `-i`, and `next-index-<pid>.lock` for
+`git commit -- <paths>`, so only the last names its files. In a repo with more
+than one live worktree (bare and prunable entries do not count), any other form
+warns in one line and lands. `ATELIER_WHOLE_INDEX=1` declares the whole index:
+an environment variable, because git runs `pre-commit` before it writes the
+message and a trailer could not reach this plane. A merge, cherry-pick, revert
+or rebase is exempt.
+
+```sh
+python3 tools/sweepscan.py --root .      # only meaningful inside a commit; otherwise clean
+python3 tools/sweepscan.py --selftest
+```
+
+**Warn-only with no blocking date, and that is the point of the record**
+(`320/060`): measured over session transcripts it fires on most commits. Exit
+codes: `0` reported or clean · `2` the scan itself is broken. **What it cannot
+see:** a deliberate foreign path-scope; concurrency it does not know about
+(`git worktree list` is a proxy, and a stale worktree still charges the tax).
+
 ## `pdlistscan.py` — in a public repo, personal data stands only where the closed list names it (warning until 2027-03-08)
 
 Board `160/630`, the third slice of `320/810`. `tools/test_personal_data.py`

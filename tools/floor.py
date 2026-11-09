@@ -877,6 +877,25 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory_count=True,
     ),
     Scanner(
+        "sweepscan",
+        # 320/060, slice 4 of 320/810 (the principal, 2026-11-09: "all six,
+        # warnings at first and then move to blocking action"). HOOK ONLY: the
+        # signal is git's GIT_INDEX_FILE, which exists only while a commit is
+        # being made, so there is nothing for CI to read. The plan lists it as
+        # skipped on that plane rather than pass over it in silence.
+        # WARN-ONLY WITH NO DATE, on purpose, and that is a finding: measured
+        # over session transcripts it fires on most commits (see the scanner's
+        # docstring), so a date would turn noise into a gate. `warn_only` and
+        # `advisory` == `hook` say so in the registry's own shape.
+        hook=["--root", "{root}"],
+        ci=None,
+        advisory=["--root", "{root}"],
+        why="where sibling worktrees exist, a commit names its files or "
+            "declares the whole index",
+        advisory_count=True,
+        warn_only=True,
+    ),
+    Scanner(
         "licenscan",
         hook=["--expect", "{licence}", "{scope}"],
         ci=["--expect", "{licence}", "{scope}"],
@@ -934,6 +953,10 @@ def forbidden_flags(args: list[str]) -> list[str]:
     return bad
 
 BY_NAME = {s.name: s for s in SCANNERS}
+# A check named here reads a signal that exists only inside a commit, so it has
+# no CI form by design. Named, not inferred from a None, so a dropped `ci=` on
+# any other entry still fails the selftest.
+HOOK_ONLY = frozenset({"sweepscan"})
 
 # THE ADVISORY-COUNT CONTRACT (E6b, third consumer leg).
 #
@@ -1974,16 +1997,16 @@ def plan(plane: str, cfg: Config) -> list[tuple[Scanner, str]]:
     for s in (*SCANNERS, *cfg.local):
         args = s.hook if plane == "hook" else s.ci
         if args is None:
-            # A local check may legitimately be hook-only — the ros tripwire's
+            # A check may legitimately be hook-only — the ros tripwire's
             # blocklist is machine/repo-local, the same shape as leakscan's term
-            # list. It still LISTS on the other plane, saying it did not run
+            # list, and `sweepscan` reads a signal that exists only inside a
+            # commit. It still LISTS on the other plane, saying it did not run
             # there: a check absent from CI must not read as a check that passed.
             # A declared disable outranks the off-plane skip (FR6, ruled
             # 2026-08-23): nothing runs either way, but the board line names
             # the stronger of the two true facts.
-            if s.is_local:
-                out.append((s, "disabled" if s.name in cfg.disabled
-                            else "skipped"))
+            out.append((s, "disabled" if s.name in cfg.disabled
+                        else "skipped"))
             continue
         if s.name in cfg.disabled:
             out.append((s, "disabled"))
@@ -2593,7 +2616,8 @@ def _selftest() -> int:
     # Every registered scanner runs on both planes unless deliberately absent.
     for s in SCANNERS:
         check(f"{s.name} has a hook form", s.hook is not None)
-        check(f"{s.name} has a ci form", s.ci is not None)
+        check(f"{s.name} has a ci form",
+              s.ci is not None or s.name in HOOK_ONLY)
 
     # The boundary/integrity checks must have NO advisory form — this is the
     # rule the whole "nothing is silently absent" design rests on.

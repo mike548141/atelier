@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1402, wt: atelier-qr-d0ca-msg, session d0ca5d24) 🎯 **PROPOSAL for the floor + `GUARDS.md` — where siblings exist, require a
+- [ ] 🎯 **PROPOSAL for the floor + `GUARDS.md` — where siblings exist, require a
       path-scoped commit or an explicit whole-index marker** `[M][tools][docs]`
       — filed from `cbom` 2026-08-19 via § *Pointing up* (its board `120/070`,
       `b60590b`), by a session reporting itself as the **offender** in a fresh
@@ -68,3 +68,24 @@
       NP2); the closed personal-data list (`160/630`); edits inside mapped
       sub-sections (`320/340`); a quote of him on commits touching his prompt
       (`160/900`). Plan: `320/810`.
+  - [x] ✅ **BUILT 2026-11-10, warn-only: `tools/sweepscan.py`** (slice 4 of
+      `320/810`), on the hook plane through `GIT_INDEX_FILE`, with
+      `ATELIER_WHOLE_INDEX=1` as the whole-index marker: an environment variable
+      because git runs `pre-commit` before it writes the message, so a message
+      trailer cannot reach this plane (measured, git 2.50). `-a` and `-i` are
+      not named commits; merges, cherry-picks, reverts and rebases are exempt.
+      Tests: 11, in `tools/test_sweepscan.py`.
+  - [ ] 🎯 **Finding for the principal: it stays warn-only, with no blocking
+      date, because it fires on most commits.** A commit's form is not in git
+      history, so the measure is the session transcripts' `git commit` command
+      lines, counts only, in atelier and one child (a repo with six live
+      worktrees): atelier, 2,219 of 2,510 (88%) took the whole index, and 173
+      of 373 (46%) this month; the child, 3,427 of 3,530 (97%), and 124 of 157
+      (79%) this month. A check that fires on everything is noise, so the run
+      did not set a date (the first slot, 2027-04-05, stays unused). Fleet probe
+      by exit code, the scanner alone in each child's checkout, simulating a
+      plain commit: 21 of 21 exit 0 (20 children with a floor config and
+      atelier); the 5 with more than one worktree warn (atelier and 4 children),
+      the other 16 report one worktree. What would change the reading is a measure of how many of the
+      whole-index commits actually swept a peer's path, which no surface records
+      today. Blocking it stays his call.

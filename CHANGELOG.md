@@ -62,6 +62,23 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   line-shape pins (extended, not removed, for `indexscan`, `licenscan` and
   `reviewscan`).
 
+### Added (2026-11-10 — `sweepscan`: commits name their files, `320/060`, slice 4 of `320/810`)
+- **New scanner `sweepscan`, hook plane only.** Where a repo has more than one
+  live worktree, a commit either names its files (`git commit -- <paths>`, which
+  git shows by handing the hook a `next-index-` index) or declares the whole
+  index with `ATELIER_WHOLE_INDEX=1`. Otherwise it warns, one line, and the
+  commit lands. An environment variable, not a message trailer: git runs
+  `pre-commit` before it writes the message, so a trailer cannot reach this
+  plane. A merge, cherry-pick, revert or rebase is exempt, and `-a`/`-i` count
+  as the whole index. CI cannot read a commit's form, so the registry lists the
+  check as skipped there rather than passing over it.
+- **Warn-only with no blocking date, deliberately, and that is a finding for
+  the principal.** The form of a commit is not in git history, so the measure
+  is the session transcripts' `git commit` command lines, counts only: 2,219 of
+  2,510 (88%) in atelier and 3,427 of 3,530 (97%) in one child took the whole
+  index, 173 of 373 (46%) and 124 of 157 (79%) this month. A check that fires
+  on most commits is noise, not a gate.
+
 ### Added (2026-11-10 — `ccclose` names a failed agent, `210/400`)
 - **`ccclose` check 12 has a fifth agent state, *failed*.** A parent's
   `<status>failed</status>` notification used to read as "a status ccclose does

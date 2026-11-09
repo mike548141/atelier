@@ -69,7 +69,15 @@ class RegistryTest(unittest.TestCase):
         second, silent policy split — the bug this file exists to prevent."""
         for s in floor.SCANNERS:
             self.assertIsNotNone(s.hook, f"{s.name} has no hook form")
-            self.assertIsNotNone(s.ci, f"{s.name} has no CI form")
+            if s.name not in floor.HOOK_ONLY:
+                self.assertIsNotNone(s.ci, f"{s.name} has no CI form")
+
+    def test_a_hook_only_check_lists_as_skipped_on_ci_never_absent(self):
+        """A check that has no CI form must say so on that plane."""
+        self.assertEqual(floor.HOOK_ONLY, frozenset({"sweepscan"}))
+        self.assertEqual(_states("ci", floor.Config())["sweepscan"], "skipped")
+        self.assertEqual(_states("hook", floor.Config())["sweepscan"],
+                         "warn-only")
 
     def test_every_registered_scanner_exists(self):
         """The registry may not name a scanner that isn't there — that would be
@@ -188,7 +196,7 @@ class ConfigTest(unittest.TestCase):
             cfg = floor.Config.load(Path(td))
         states = _states("ci", cfg)
         for s in floor.SCANNERS:
-            if s.opt_in:
+            if s.opt_in or s.name in floor.HOOK_ONLY:
                 continue
             want = "warn-only" if s.warns_only("ci") else "enforced"
             self.assertEqual(states[s.name], want, f"{s.name} must default on")
@@ -361,7 +369,7 @@ class LocalSeamTest(unittest.TestCase):
         states = _states("ci", cfg)
         self.assertEqual(len(states), len(floor.SCANNERS) + 1)
         for s in floor.SCANNERS:
-            if not s.opt_in:
+            if not s.opt_in and s.name not in floor.HOOK_ONLY:
                 # Untouched means "the state the registry gives it", which for
                 # the warn-only three is not `enforced` — read off the entry so
                 # this asserts non-interference rather than a frozen list.
@@ -1382,9 +1390,18 @@ class AdvisoryCountContract(unittest.TestCase):
                   if s.advisory_count
                   and s.name not in ("secretscan", "licenscan", "conflictscan",
                                      "leakscan", "datescan", "board", "attribscan",
-                                     "pdlistscan")]
+                                     "pdlistscan", "sweepscan")]
         self.assertEqual([], others, "a new count-carrying check needs its own "
                                      "contract test, not this one by accident")
+
+    def test_sweepscan_prints_the_contract_line_zero_included(self):
+        """The count is on the board or it is not read; a known zero included."""
+        out = subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "sweepscan.py"), "--root", str(TOOLS_DIR)],
+            capture_output=True, text=True,
+            env={k: v for k, v in os.environ.items() if k != "GIT_INDEX_FILE"})
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertEqual(floor._read_advisory_count(out.stdout, "sweepscan"), 0)
 
     def test_attribscan_prints_the_contract_line_zero_included(self):
         """Whole tree, because the line is printed in every mode and the tree
