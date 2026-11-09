@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1402, wt: atelier-qr-d0ca-cover, session d0ca5d24) **A guard reports whether its rule fired at all, and over what — so
+- [ ] **A guard reports whether its rule fired at all, and over what — so
       "clean" and "scanned nothing" stop looking identical.** The cheapest
       finding of the whole commission, and it is imported rather than invented:
       assertion verification calls this vacuity, and treats a property that
@@ -58,3 +58,18 @@
       invoked directly, where it walked a nested worktree and counted the tree
       twice. Coverage reporting would have made that visible in the output
       rather than in a footnote.
+      - [ ] 🔧 **Partly landed 2026-11-09 — the shared line and eleven scanners;
+            the rest remain.** `report.coverage_line` and `report.coverage_dict`
+            (`tools/report.py`) give one stable line, `coverage: N file(s) opened ·
+            M <unit>`, with known zeros and a plain "scanned nothing" warning when
+            either count is zero; it never changes an exit status. Done:
+            `datescan`, `wrapscan`, `spellscan`, `conflictscan`, `harvestscan`,
+            `pointerscan`, `indexscan`, `licenscan`, `reviewscan`, `publishscan`,
+            `sizescan`, each on the stream its own tally uses and each pinned in
+            its own test module. `GUARDS.md` carries the coverage-accounting
+            sentence beside the suppression requirement. **Still open:** the four
+            scanners other lanes hold (`secretscan`, `leakscan`, `linkscan`,
+            `pathscan`) and `floor.py`'s wrapper, then `attribscan`, `blockscan`,
+            `pdlistscan`, `signscan` and `stampscan`; and the label plane (a job
+            or board named for a property it does not cover), which no coverage
+            line reaches.

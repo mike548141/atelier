@@ -513,13 +513,21 @@ def vanished(old_text: str, alive: list[list[str]]) -> list[tuple[int, str]]:
 def scan(root: Path, rev: str,
          records: tuple[str, ...] = DEFAULT_RECORDS,
          stores: tuple[str, ...] = DEFAULT_SURVIVOR_STORES,
-         source: str = WORKTREE) -> list[dict]:
+         source: str = WORKTREE,
+         cov: dict | None = None) -> list[dict]:
+    """`cov`, when given, is filled with what the scan looked at (115/130):
+    `files` = watched record files read at the old revision, `items` = the
+    items parsed out of them. It is a side channel so the return value, which
+    callers and tests compare, keeps its shape."""
     alive = survivors(root, stores, source, records)
     findings: list[dict] = []
     for rel in expand_records(root, records, rev):
         old = git_show(root, rev, rel)
         if old is None:
             continue        # new file, or not tracked at that revision
+        if cov is not None:
+            cov["files"] = cov.get("files", 0) + 1
+            cov["items"] = cov.get("items", 0) + len(parse_items(old))
         for line, body in vanished(old, alive):
             findings.append({"file": rel, "line": line,
                              "excerpt": body[:160].strip()})
@@ -717,17 +725,23 @@ def main(argv: list[str] | None = None) -> int:
                       f"{NET_BULK_DELETE_LINES}-line bulk-deletion gate.")
             return 0
 
-    findings = scan(root, args.against, records, stores, source)
+    cov: dict = {"files": 0, "items": 0}
+    findings = scan(root, args.against, records, stores, source, cov)
 
     if args.json:
         print(json.dumps({"against": args.against, "records": list(records),
                           "survivor_stores": list(stores),
-                          "source": source, "findings": findings}, indent=2))
+                          "source": source, "findings": findings,
+                          "coverage": report.coverage_dict(
+                              cov["files"], cov["items"],
+                              unit_key="items_checked")}, indent=2))
         return 0
 
     if not findings:
         print("✓ harvestscan clean — every removed roadmap item still exists "
               "somewhere.")
+        print(report.coverage_line(cov["files"], cov["items"],
+                                   unit="item(s) checked"))
         return 0
 
     print(f"⚠ harvestscan: {len(findings)} removed item(s) with no surviving "

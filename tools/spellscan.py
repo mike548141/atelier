@@ -192,6 +192,13 @@ class Tally:
     # exist, which are silently inert (the finding they were written for still
     # reports). Counted so a typo is visible on a clean run too.
     unknown_scope_markers: int = 0
+    # 115/130 - coverage: Markdown files opened and physical lines read, so a
+    # run over nothing cannot print the same clean result as a run over docs.
+    files_opened: int = 0
+    lines_read: int = 0
+
+    def coverage(self) -> str:
+        return report.coverage_line(self.files_opened, self.lines_read)
 
     @property
     def marker_total(self) -> int:
@@ -586,7 +593,11 @@ def _content_lines_from_physical(physical, tally: "Tally | None" = None):
     in_fence = False
     fence_char = ""
     fence_len = 0
+    if tally is not None:
+        tally.files_opened += 1
     for lineno, line, truncated in physical:
+        if tally is not None:
+            tally.lines_read += 1
         if truncated and tally is not None:
             tally.note_line_truncated()
         stripped = line.lstrip()
@@ -754,7 +765,8 @@ def scan_staged(added: dict[str, set[int]], root: Path,
 def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if not findings:
         out = report.clean_head("spellscan", "no US spellings found.")
-        return out + ("\n" + tally.summary() if tally is not None else "")
+        return out + ("\n" + tally.summary() + "\n" + tally.coverage()
+                      if tally is not None else "")
     lines = [report.findings_head("spellscan", len(findings))]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         # The ID names the WORD: this marker is scoped by word, not by kind
@@ -766,6 +778,7 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.append(tally.coverage())
     lines.append("\n  A real US spelling: replace with the NZ-English form.")
     lines.append(f"  A legit API/tool term: inline-code it, add to ALLOWLIST_PHRASES,")
     lines.append(f"  or append '<!-- {ALLOW_MARKER}: <reason> -->' to the line, or add")
@@ -857,6 +870,8 @@ def _main(argv: list[str] | None = None) -> int:
                 "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
+            "coverage": report.coverage_dict(tally.files_opened,
+                                             tally.lines_read),
         }, indent=2))
     else:
         print(render_human(findings, tally))

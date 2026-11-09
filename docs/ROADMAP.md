@@ -176,7 +176,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of…](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at…](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
 - [ ] 🎯 [Every guard declares the purpose it answers to, and proves it fires…](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
-- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-cover, ses…) [A guard reports whether its…](roadmap/115-guardrail-architecture-mike-commissioned/130-a-guard-reports-whether-its-rule-fired-at-all.md)
+- [ ] [A guard reports whether its rule fired at all, and over what — so…](roadmap/115-guardrail-architecture-mike-commissioned/130-a-guard-reports-whether-its-rule-fired-at-all.md)
 - ✅ 🔥 [The scheduled estate conformance job has never once been green — 19…](roadmap/115-guardrail-architecture-mike-commissioned/140-the-estate-conformance-job-has-never-once-been.md)
 - [ ] [What actually reaches a child, measured 2026-08-15 — and it is about…](roadmap/115-guardrail-architecture-mike-commissioned/150-what-reaches-a-child-measured-and-it-is-about.md)
 - [ ] [The floor a child inherits is a records-hygiene floor, and the…](roadmap/115-guardrail-architecture-mike-commissioned/160-the-child-floor-is-a-records-hygiene-floor-not.md)

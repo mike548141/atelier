@@ -550,6 +550,15 @@ Every guard therefore:
   currently not looking at" has an answer that does not require reading every
   file.
 
+**Coverage is accounted the same way, because "clean" and "scanned nothing" are
+opposite states that print alike.** Every guard also states what it actually
+looked at — files opened and lines (or items, or rules) evaluated, known zeros
+printed — and says in words when that is nothing, so a scan that emptied its own
+file set cannot pass for a clean one. The count is informational: it never
+changes an exit status, and a guard that is legitimately out of scope (an
+opt-in check nobody has adopted) says so rather than looking clean. The shared
+form is `report.coverage_line` (`115/130`).
+
 A repo's live allowances are a standing, reviewable inventory. That inventory is
 also, unavoidably, a map of where the guards are not looking — so on a public
 repo it is itself part of the publication surface, which is the boundary

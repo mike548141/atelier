@@ -606,6 +606,38 @@ def suppressed_line(parts: Sequence[str], *,
     return line
 
 
+def coverage_line(files: int, units: int, *, unit: str = "line(s) read",
+                  noun: str = "file(s) opened") -> str:
+    """The rule-(b) sibling for COVERAGE (`115/130`): one stable line saying
+    what the scan actually looked at, so a clean result and a scan of nothing
+    stop reading the same.
+
+    `  coverage: <files> file(s) opened · <units> line(s) read`. When the scan
+    opened nothing, or evaluated nothing in what it opened, the same line ends
+    `— ⚠️ scanned nothing: no files were evaluated, so this result covers
+    nothing.` (or no lines, items). The warning avoids the word "clean" on
+    purpose: callers and tests read that word as the verdict.
+
+    Known zeros are printed, never dropped, so two runs compare. `unit` names
+    what the scanner evaluated where "lines" is the wrong word (`item(s)
+    checked`, `declaration(s) checked`); a scanner that is legitimately out of
+    scope passes its own `noun` and still says so rather than looking clean.
+    Informational only: it never touches an exit status."""
+    line = f"  coverage: {files} {noun} \u00b7 {units} {unit}"
+    if files == 0 or units == 0:
+        what = "files" if files == 0 else unit.split()[0].replace("(s)", "s")
+        line += (f" \u2014 \u26a0\ufe0f scanned nothing: no {what} were "
+                 f"evaluated, so this result covers nothing.")
+    return line
+
+
+def coverage_dict(files: int, units: int, *, unit_key: str = "lines_read") -> dict:
+    """The `--json` twin of `coverage_line`: `{"files_opened": N, "<unit_key>":
+    M, "scanned_nothing": bool}`. Added as one new key; nothing existing moves."""
+    return {"files_opened": files, unit_key: units,
+            "scanned_nothing": files == 0 or units == 0}
+
+
 # --- reading git's path output (115/260) ------------------------------------
 #
 # git C-quotes a path it thinks unsafe: wrapped in double quotes, with C

@@ -222,6 +222,14 @@ class Tally:
     # exist, which are silently inert (the finding they were written for still
     # reports). Counted so a typo is visible on a clean run too.
     unknown_scope_markers: int = 0
+    # 115/130 — coverage, the sibling of the suppression count: how many
+    # Markdown files were opened and how many physical lines read, so a run
+    # over nothing cannot print the same clean result as a run over everything.
+    files_opened: int = 0
+    lines_read: int = 0
+
+    def coverage(self) -> str:
+        return report.coverage_line(self.files_opened, self.lines_read)
 
     @property
     def marker_total(self) -> int:
@@ -621,7 +629,11 @@ def _content_lines_from_physical(physical, tally: "Tally | None" = None):
     in_fence = False
     fence_char = ""
     fence_len = 0
+    if tally is not None:
+        tally.files_opened += 1
     for lineno, line, truncated in physical:
+        if tally is not None:
+            tally.lines_read += 1
         if truncated and tally is not None:
             tally.note_line_truncated()
         stripped = line.lstrip()
@@ -859,6 +871,7 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
                                  "no relative-time words or non-ISO dates found.")]
         if tally is not None:
             out.append(tally.summary())
+            out.append(tally.coverage())
         return "\n".join(out + tail)
     lines = [report.findings_head("datescan", len(findings))]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
@@ -969,6 +982,8 @@ def _main(argv: list[str] | None = None) -> int:
                 "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
+            "coverage": report.coverage_dict(tally.files_opened,
+                                             tally.lines_read),
         }, indent=2))
     else:
         print(render_human(findings, tally))

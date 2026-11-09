@@ -448,6 +448,18 @@ class DateRule(Fixture):
 
 
 class Declarations(Fixture):
+    def test_a_declared_index_reports_coverage_without_a_warning(self):
+        """115/130: the coverage line counts the files opened and the
+        declarations checked, and warns only when there were none."""
+        self.write("d/x/a.md")
+        self.write("d/I.md", "# i\n<!-- indexscan:maps dir=x match=*.md -->\n"
+                   "- [a](x/a.md)\n")
+        code, out, _ = run(["--root", str(self.root)])
+        self.assertEqual(code, 0)
+        self.assertIn("coverage: 2 Markdown file(s) opened \u00b7 1 "
+                      "declaration(s) checked", out)
+        self.assertNotIn("scanned nothing", out)
+
     def test_quoted_syntax_is_not_a_declaration(self):
         self.write("d/x/a.md")
         self.write("d/I.md", "# i\nWrite `<!-- indexscan:maps dir=x match=*.md -->`.\n"
@@ -505,6 +517,10 @@ class UndeclaredRepo(Fixture):
             self.assertEqual(code, 0)
             self.assertIn("no index declares", out)
             self.assertIn("0 declaration(s)", out)
+            # 115/130: and it says, in words, that it covered nothing.
+            self.assertIn("coverage: 3 Markdown file(s) opened \u00b7 0 "
+                          "declaration(s) checked", out)
+            self.assertIn("scanned nothing", out)
 
     def test_the_floor_runs_it_clean_on_an_undeclared_repo(self):
         self.write("docs/a.md", "# a\n")

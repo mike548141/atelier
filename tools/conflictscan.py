@@ -223,11 +223,19 @@ class Tally:
     # The advisory tier's share of the same budget (see TOOL MARKUP below):
     # findings past the cap that would not have blocked.
     advisory_over_cap: int = 0
+    # 115/130 - coverage: files opened and physical lines read (on the staged
+    # plane, the added lines handed in), so a run over nothing cannot print the
+    # same clean result as a run over the tree.
+    files_opened: int = 0
+    lines_read: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
     def marker_total(self) -> int:
         return sum(self.by_marker.values())
+
+    def coverage(self) -> str:
+        return report.coverage_line(self.files_opened, self.lines_read)
 
     def take_finding_slot(self, blocks: bool = True) -> bool:
         """True if a finding may still be fully materialized (built and
@@ -417,7 +425,11 @@ def scan_lines(path: str, numbered_lines: "list[tuple[int, str]]",
     `_scan_file` below is the streaming shape the whole-tree walk uses."""
     findings: list[Finding] = []
     in_conflict = False
+    if tally is not None:
+        tally.files_opened += 1
     for lineno, raw in numbered_lines:
+        if tally is not None:
+            tally.lines_read += 1
         finding, in_conflict = _line_finding(path, lineno, raw, True, in_conflict)
         if finding is None:
             continue
@@ -573,7 +585,11 @@ def _scan_file(path: Path, rel: str, tally: "Tally | None") -> list[Finding]:
     seen_lineno: int | None = None
     current_finding: "Finding | None" = None
     allow_hit = False
+    if tally is not None:
+        tally.files_opened += 1
     for lineno, window, is_final in _iter_numbered_lines(path):
+        if is_final and tally is not None:
+            tally.lines_read += 1
         if lineno != seen_lineno:
             seen_lineno = lineno
             current_finding, in_conflict = _line_finding(
@@ -655,7 +671,8 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     count_line = advisory_count_line(len(advisory) + advisory_over)
     if not blocking and not over_cap:
         out = report.clean_head("conflictscan", "no conflict markers found.")
-        out += ("\n" + tally.summary() if tally is not None else "")
+        out += ("\n" + tally.summary() + "\n" + tally.coverage()
+                if tally is not None else "")
         out += "\n" + count_line
         if advisory:
             out += "\n" + "\n".join(_render_advisory(advisory, advisory_over))
@@ -669,6 +686,7 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.append(tally.coverage())
     lines.append(count_line)
     lines.append("\n  A real conflict marker: finish resolving the merge and remove it —")
     lines.append("  there is no correct commit that keeps one.")
@@ -771,6 +789,8 @@ def _main(argv: list[str] | None = None) -> int:
                 "by_allow_marker_rule": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
+            "coverage": report.coverage_dict(tally.files_opened,
+                                             tally.lines_read),
         }, indent=2))
     else:
         print(render_human(findings, tally))

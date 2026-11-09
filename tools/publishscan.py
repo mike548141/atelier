@@ -408,6 +408,15 @@ def _suppressed_lines(exempted: list[tuple[str, str]]) -> list[str]:
     return lines
 
 
+def _coverage_line(n_paths: int, noun: str) -> str:
+    """115/130 - how many paths the never-publish rules were applied to, and
+    how many rules. This scanner matches path NAMES (it opens no file), so the
+    count is of paths, and a hook run over a commit that adds nothing says so
+    rather than printing the same tick as a run over the whole tree."""
+    return report.coverage_line(n_paths, len(NEVER_PUBLISH),
+                                unit="never-publish rule(s) applied", noun=noun)
+
+
 def _suppressed_json(exempted: list[tuple[str, str]]) -> dict:
     return {"by_publishscanignore": len(exempted),
             "paths": [{"path": p, "why": w} for p, w in exempted]}
@@ -508,6 +517,8 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
             "rebased_to": str(top) if rebased else None,
             "findings": [{"path": p, "why": w} for p, w in findings],
             "suppressed": _suppressed_json(exempted),
+            "coverage": report.coverage_dict(len(paths), len(NEVER_PUBLISH),
+                                             unit_key="rules_applied"),
         }, indent=2))
         return report.exit_code(len(findings), warn=warn)
 
@@ -542,6 +553,7 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
             "publishscan",
             f"{len(paths)} {where}, none in the never-publish class{beyond}."))
         print("\n".join(_suppressed_lines(exempted)))
+        print(_coverage_line(len(paths), "path(s) checked"))
     return report.exit_code(len(findings), warn=warn)
 
 
@@ -687,6 +699,8 @@ def run_history(root: Path, warn: bool, as_json: bool) -> int:
                           "tracked_at_tip": p in tracked}
                          for p, (sha, when, why) in findings],
             "suppressed": _suppressed_json(exempted),
+            "coverage": report.coverage_dict(additions, len(NEVER_PUBLISH),
+                                             unit_key="rules_applied"),
         }, indent=2))
         return report.exit_code(len(findings), warn=warn)
 
@@ -714,6 +728,7 @@ def run_history(root: Path, warn: bool, as_json: bool) -> int:
                                       f"by {IGNORE_FILE}" if exempted else "")
                            + "."))
         print("\n".join(_suppressed_lines(exempted)))
+        print(_coverage_line(additions, "path addition(s) checked"))
     return report.exit_code(len(findings), warn=warn)
 
 

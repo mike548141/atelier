@@ -330,6 +330,42 @@ class InvocationTest(unittest.TestCase):
         self.assertEqual(self._run("--root", "/no/such/dir").returncode, 2)
 
 
+class CoverageLineTest(GitBackedTest):
+    """115/130 - the clean line is followed by what the scan read, and a run
+    over no record files says so while still exiting 0."""
+
+    def _run(self, *args):
+        return subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "harvestscan.py"), *args],
+            capture_output=True, text=True)
+
+    def test_clean_run_counts_record_files_and_items(self):
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            (root / "docs" / "ROADMAP.md").write_text(item(ITEM))
+            (root / "docs" / "ROADMAP-DONE.md").write_text("# done\n")
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            r = self._run("--root", str(root))
+            self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+            self.assertIn("harvestscan clean", r.stdout)
+            self.assertIn("coverage: 2 file(s) opened \u00b7 1 item(s) checked",
+                          r.stdout)
+            self.assertNotIn("scanned nothing", r.stdout)
+
+    def test_run_over_no_records_says_scanned_nothing_and_still_exits_0(self):
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            (root / "docs" / "other.md").write_text("# not a record\n")
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            r = self._run("--root", str(root))
+            self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+            self.assertIn("coverage: 0 file(s) opened \u00b7 0 item(s) checked",
+                          r.stdout)
+            self.assertIn("scanned nothing", r.stdout)
+
+
 class SplitBoardTest(GitBackedTest):
     """ADR 2026-08-15: the board is one file per item under docs/roadmap/.
     The removal the guard exists for is now a FILE deletion, and a watched

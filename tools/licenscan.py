@@ -453,6 +453,14 @@ class Report:
     # than fully scanned — counted so the cap's cost is visible, never silent
     # (`method/GUARDS.md`, rule b).
     files_truncated: int = 0
+    # 115/130 - coverage: text files opened and the lines in them (the LICENSE
+    # body included), so a run over an empty or all-ignored tree cannot print
+    # the same result as a run over the repo.
+    files_opened: int = 0
+    lines_read: int = 0
+
+    def coverage(self) -> str:
+        return report.coverage_line(self.files_opened, self.lines_read)
 
     @property
     def clean(self) -> bool:
@@ -528,6 +536,9 @@ def scan_repo(root: Path, files: list[tuple[str, str]],
 
     # 2/3. every declaration + header must agree with (or be compatible with) it.
     for rel, txt in files:
+        rep.files_opened += 1
+        rep.lines_read += txt.count("\n") + (
+            1 if txt and not txt.endswith("\n") else 0)
         if rel == rep.repo_license_path:
             continue
         for d in declarations_in(rel, txt, _suppressed):
@@ -759,6 +770,7 @@ def render_human(rep: Report) -> str:
                 "licenscan", f"nothing blocks a publish — repo licence {lic}; "
                              "see the advisory findings below."))
         lines.append(_suppression_line(rep))
+        lines.append(rep.coverage())
         lines.append(advisory_count_line(len(advisory)))
         if advisory:
             lines.extend(_render_advisory(advisory))
@@ -771,6 +783,7 @@ def render_human(rep: Report) -> str:
                                     "licenscan", f.kind))
     lines.append("")
     lines.append(_suppression_line(rep))
+    lines.append(rep.coverage())
     lines.append(advisory_count_line(len(advisory)))
     lines.append(f"\n  A false positive: append '# {ALLOW_MARKER}: <reason>' to the")
     lines.append("  line, or add a path glob to .licenscanignore. Not legal advice —")
@@ -829,6 +842,8 @@ def _main(argv: list[str] | None = None) -> int:
             "repo_license_path": rep.repo_license_path,
             "findings": report.finding_dicts("licenscan", rep.findings,
                                              lambda f: f.kind),
+            "coverage": report.coverage_dict(rep.files_opened,
+                                             rep.lines_read),
         }, indent=2))
     else:
         print(render_human(rep))

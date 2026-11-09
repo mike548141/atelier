@@ -5,6 +5,34 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-10 — "clean" and "scanned nothing" stop looking identical, `115/130`)
+- **`report.coverage_line` and `report.coverage_dict`.** One shared line,
+  `  coverage: N file(s) opened · M line(s) read`, with the unit and noun named by
+  the caller, known zeros printed, and a plain
+  `⚠️ scanned nothing: no files were evaluated, so this result covers nothing.`
+  when either count is zero. The warning avoids the word "clean" on purpose,
+  since callers and tests read that word as the verdict. Informational only: no
+  exit status changes. `coverage_dict` is its `--json` twin
+  (`files_opened`, the unit, `scanned_nothing`), added as one new key.
+- **Applied to eleven scanners:** `datescan`, `wrapscan`, `spellscan`,
+  `conflictscan`, `harvestscan`, `pointerscan`, `indexscan`, `licenscan`,
+  `reviewscan`, `publishscan` and `sizescan`, each on the stream its own tally
+  already uses (the clean result for the ones that print a tally only then, both
+  results for the ones that print it always). Units differ by what the scanner
+  evaluates: lines for the prose scanners, record items for `harvestscan` and
+  `pointerscan`, declarations for `indexscan`, checks for `reviewscan`, and
+  never-publish rules over path names for `publishscan`, which opens no file.
+  `indexscan`'s existing `checked:` line and its "no index declares" wording are
+  kept; the coverage line sits between it and the tally. Not done, so `115/130`
+  stays open: `secretscan`, `leakscan`, `linkscan` and `pathscan` (other lanes
+  hold them, with `floor.py`), and `attribscan`, `blockscan`, `pdlistscan`,
+  `signscan` and `stampscan`, which this slice did not take.
+- **`GUARDS.md` gains the coverage-accounting sentence** beside the
+  suppression-accounting requirement it completes.
+- Pinned in each scanner's own test module, and in `test_report.py`'s
+  line-shape pins (extended, not removed, for `indexscan`, `licenscan` and
+  `reviewscan`).
+
 ### Added (2026-11-10 — `ccclose` names a failed agent, `210/400`)
 - **`ccclose` check 12 has a fifth agent state, *failed*.** A parent's
   `<status>failed</status>` notification used to read as "a status ccclose does

@@ -593,6 +593,10 @@ def _render(records: list[str], failures: list[str], briefs: list[str],
             unread_numbered: int = 0,
             warnings: list[tuple[str, str]] | None = None) -> int:
     warnings = warnings or []
+    # 115/130 - coverage: every decision record gets the review-line check and
+    # every brief the deferral check, one file each, so files opened and checks
+    # run are one count here. Zero of both is a run that judged nothing.
+    n_checked = len(records) + len(briefs)
     if as_json:
         print(json.dumps({
             "checked": records,
@@ -601,6 +605,8 @@ def _render(records: list[str], failures: list[str], briefs: list[str],
             "briefs_misplaced_deferral": misplaced,
             "unread_numbered_records": unread_numbered,
             "review_header_warnings": [{"path": p, "missing": k} for p, k in warnings],
+            "coverage": report.coverage_dict(n_checked, n_checked,
+                                             unit_key="checks_run"),
         }, indent=2))
         return report.exit_code(len(failures) + len(misplaced))
 
@@ -640,6 +646,7 @@ def _render(records: list[str], failures: list[str], briefs: list[str],
               "deferred material out of the brief.")
         print(report.suppressed_line(
             [f"{n_suppressed} record(s) by allow-marker"]))
+        print(report.coverage_line(n_checked, n_checked, unit="check(s) run"))
     elif not failures and not misplaced:
         print(report.clean_head(
             "reviewscan",
@@ -648,6 +655,7 @@ def _render(records: list[str], failures: list[str], briefs: list[str],
             "of the brief."))
         print(report.suppressed_line(
             [f"{n_suppressed} record(s) by allow-marker"]))
+        print(report.coverage_line(n_checked, n_checked, unit="check(s) run"))
     for ln in _warning_lines(warnings):
         print(ln)
     return report.exit_code(len(failures) + len(misplaced))

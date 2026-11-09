@@ -1036,5 +1036,46 @@ class StagedPositionalScope(unittest.TestCase):
 
 
 
+class CoverageLine(unittest.TestCase):
+    """115/130 - the tally is followed by a coverage line, and a run over
+    nothing says so while still exiting 0."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _run(self, *extra):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+            rc = cs.main(["--root", str(self.tmp), *extra])
+        return rc, out.getvalue()
+
+    def test_clean_run_counts_files_and_lines(self):
+        (self.tmp / "a.txt").write_text("one\ntwo\nthree\n")
+        rc, out = self._run()
+        self.assertEqual(0, rc)
+        self.assertIn("  coverage: 1 file(s) opened \u00b7 3 line(s) read", out)
+        self.assertNotIn("scanned nothing", out)
+
+    def test_finding_run_still_reports_coverage(self):
+        (self.tmp / "a.txt").write_text("x\n<<<<<<< HEAD\ny\n")
+        rc, out = self._run()
+        self.assertEqual(1, rc)
+        self.assertIn("coverage: 1 file(s) opened \u00b7 3 line(s) read", out)
+
+    def test_run_over_nothing_says_scanned_nothing_and_still_exits_0(self):
+        rc, out = self._run()
+        self.assertEqual(0, rc)
+        self.assertIn("coverage: 0 file(s) opened \u00b7 0 line(s) read", out)
+        self.assertIn("scanned nothing", out)
+
+    def test_json_carries_the_same_coverage(self):
+        (self.tmp / "a.txt").write_text("one\n")
+        rc, out = self._run("--json")
+        self.assertEqual({"files_opened": 1, "lines_read": 1,
+                          "scanned_nothing": False},
+                         json.loads(out)["coverage"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -270,7 +270,16 @@ class Tally:
     files_by_glob: int = 0
     dated_lines: int = 0
     findings_over_cap: int = 0
+    # 115/130 - coverage: every Markdown file opened to look for a declaration
+    # (`indexes` above counts only those that declared one), so a tree where
+    # nothing declares reads differently from a tree with nothing in it.
+    files_opened: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
+
+    def coverage(self) -> str:
+        return report.coverage_line(self.files_opened, self.declarations,
+                                    unit="declaration(s) checked",
+                                    noun="Markdown file(s) opened")
 
     def note_marker(self, kind: str) -> None:
         """One exemption by an allow-marker, counted in the total and by what
@@ -290,6 +299,7 @@ class Tally:
         return (f"  checked: {self.declarations} declaration(s) in "
                 f"{self.indexes} index file(s), {self.entries} entr(ies) mapped, "
                 f"{self.dated_lines} dated index line(s) compared\n"
+                + self.coverage() + "\n"
                 + report.suppressed_line(
                     [f"{self.by_marker} by allow-marker",
                      f"{self.by_exclude} by exclude=",
@@ -735,6 +745,7 @@ def scan_paths(paths: list[Path], root: Path, tally: Tally) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
     for p, rel in _index_files(paths, root, globs, tally):
+        tally.files_opened += 1
         decls, allows, unknown = discover(p, rel)
         if not decls:
             continue
@@ -816,6 +827,9 @@ def _main(argv: list[str] | None = None) -> int:
                         "declarations": tally.declarations,
                         "entries": tally.entries,
                         "dated_lines": tally.dated_lines},
+            "coverage": report.coverage_dict(
+                tally.files_opened, tally.declarations,
+                unit_key="declarations_checked"),
             "suppressed": {"by_allow_marker": tally.by_marker,
                            "by_allow_marker_kind": dict(
                                sorted(tally.by_marker_kind.items())),

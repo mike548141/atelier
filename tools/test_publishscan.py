@@ -230,9 +230,18 @@ class PlaneTest(unittest.TestCase):
             add(root, ".atelier-floor.json", "{}\n")
             subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
                            capture_output=True)
-            self.assertEqual(self.run_tool("--root", s).returncode, 0)
-            self.assertEqual(self.run_tool("--root", s, "--staged").returncode,
-                             0)
+            tip = self.run_tool("--root", s)
+            self.assertEqual(tip.returncode, 0)
+            # 115/130: the tip plane says how many paths it checked...
+            self.assertRegex(tip.stdout, r"coverage: 2 path\(s\) checked "
+                                         r"\u00b7 \d+ never-publish rule\(s\) applied\n")
+            self.assertNotIn("scanned nothing", tip.stdout)
+            hook = self.run_tool("--root", s, "--staged")
+            self.assertEqual(hook.returncode, 0)
+            # ...and a hook run over a commit that adds nothing says so, with
+            # the same exit status.
+            self.assertIn("coverage: 0 path(s) checked", hook.stdout)
+            self.assertIn("scanned nothing", hook.stdout)
 
 
 class RoundTwoCounselTest(unittest.TestCase):
@@ -591,6 +600,7 @@ class HistoryTest(unittest.TestCase):
             r = self.run_tool("--root", s, "--history")
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
             self.assertIn("2 path addition(s) across 2 commit(s)", r.stdout)
+            self.assertIn("coverage: 2 path addition(s) checked", r.stdout)
 
     def test_the_oldest_add_is_reported_and_tip_state_is_read(self):
         """Added, removed, added again: the first commit is the one that
@@ -688,6 +698,7 @@ class HistoryTest(unittest.TestCase):
             r = self.run_tool("--root", s, "--history")
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
             self.assertIn("0 path addition(s) across 0 commit(s)", r.stdout)
+            self.assertIn("scanned nothing", r.stdout)
 
     def test_history_and_staged_are_exclusive(self):
         with tempfile.TemporaryDirectory() as s:

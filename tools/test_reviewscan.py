@@ -367,6 +367,25 @@ class NotInScopeTest(unittest.TestCase):
             self.assertIn("clean", r.stdout)
             self.assertNotIn("not in scope", r.stdout)
 
+    def test_coverage_line_counts_what_was_opened_and_warns_on_nothing(self):
+        """115/130: the not-in-scope wording stays, and the run also says how
+        many files it opened, in words when there were none."""
+        with tempfile.TemporaryDirectory() as s:
+            make_tree(Path(s))
+            r = self.run_tool("--root", s, s)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("coverage: 0 file(s) opened \u00b7 0 check(s) run",
+                          r.stdout)
+            self.assertIn("scanned nothing", r.stdout)
+        with tempfile.TemporaryDirectory() as s:
+            d = make_tree(Path(s))
+            (d / "2026-07-22-1200-ok.md").write_text(
+                "# ok\n**Review**: not warranted — test\n")
+            r = self.run_tool("--root", s, s)
+            self.assertIn("coverage: 1 file(s) opened \u00b7 1 check(s) run",
+                          r.stdout)
+            self.assertNotIn("scanned nothing", r.stdout)
+
     def test_a_failure_beside_numbered_records_still_reds(self):
         with tempfile.TemporaryDirectory() as s:
             d = make_tree(Path(s))

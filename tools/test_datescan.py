@@ -593,6 +593,32 @@ class _Cli(unittest.TestCase):
         return rc, json.loads(out)
 
 
+class CoverageLine(_Cli):
+    """115/130 - a clean run says how much it opened; a run over nothing says
+    so in words, and the exit status is the same either way."""
+
+    def test_clean_run_counts_files_and_lines(self):
+        rc, out = self.run_cli("# T\n\nStamped 2026-07-23.")
+        self.assertEqual(0, rc)
+        self.assertIn("  coverage: 1 file(s) opened \u00b7 3 line(s) read", out)
+        self.assertNotIn("scanned nothing", out)
+
+    def test_run_over_nothing_says_scanned_nothing_and_still_exits_0(self):
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = ds.main(["--root", str(self.tmp)])
+        self.assertEqual(0, rc)
+        self.assertIn("coverage: 0 file(s) opened \u00b7 0 line(s) read", out.getvalue())
+        self.assertIn("scanned nothing", out.getvalue())
+
+    def test_json_carries_the_same_coverage(self):
+        rc, out = self.run_json("# T\n\nStamped 2026-07-23.")
+        self.assertEqual({"files_opened": 1, "lines_read": 3,
+                          "scanned_nothing": False}, out["coverage"])
+
+
 class BlockingSetPinned(_Cli):
     """The blocking set cannot shrink (115/090)."""
 

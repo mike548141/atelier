@@ -339,6 +339,10 @@ class InvocationTest(unittest.TestCase):
             r = self._run("--root", td, ".")
             self.assertEqual(r.returncode, 0)
             self.assertIn("clean", r.stdout)
+            # 115/130: and it says how much it read.
+            self.assertIn("coverage: 1 roadmap file(s) opened \u00b7 1 item(s) "
+                          "checked", r.stdout)
+            self.assertNotIn("scanned nothing", r.stdout)
 
     def test_only_roadmaps_are_read(self):
         """Pointing this at prose is the fires-on-every-author failure the 0820
@@ -350,6 +354,11 @@ class InvocationTest(unittest.TestCase):
             r = self._run("--root", td, ".")
             self.assertEqual(r.returncode, 0)
             self.assertIn("clean", r.stdout)
+            # 115/130: a tree with no roadmap is out of scope, and says so
+            # rather than looking like a clean read of one.
+            self.assertIn("coverage: 0 roadmap file(s) opened \u00b7 0 item(s) "
+                          "checked", r.stdout)
+            self.assertIn("scanned nothing", r.stdout)
 
     def test_a_missing_root_is_an_error_not_a_silent_pass(self):
         self.assertEqual(self._run("--root", "/no/such/dir").returncode, 2)
@@ -366,6 +375,9 @@ class InvocationTest(unittest.TestCase):
             r = self._run("--root", td, "--json", ".")
             self.assertEqual(r.returncode, 0)
             self.assertEqual(len(json.loads(r.stdout)["findings"]), 1)
+            self.assertEqual({"files_opened": 1, "items_checked": 1,
+                              "scanned_nothing": False},
+                             json.loads(r.stdout)["coverage"])
 
 
 class LinkedWorktreeSkipped(unittest.TestCase):

@@ -427,6 +427,23 @@ class TestReportLines(unittest.TestCase):
                          "   …and 4 more x(s), counted but not listed "
                          "(past the 7-finding memory cap).")
 
+    def test_coverage_line_prints_known_zeros_and_warns_only_on_nothing(self):
+        """115/130: one stable line; the warning appears when no file was
+        opened or nothing was evaluated in them, and never says "clean"."""
+        self.assertEqual(report.coverage_line(3, 120),
+                         "  coverage: 3 file(s) opened \u00b7 120 line(s) read")
+        none = report.coverage_line(0, 0)
+        self.assertTrue(none.startswith(
+            "  coverage: 0 file(s) opened \u00b7 0 line(s) read"))
+        self.assertIn("scanned nothing: no files were evaluated", none)
+        empty = report.coverage_line(2, 0, unit="item(s) checked")
+        self.assertIn("scanned nothing: no items were evaluated", empty)
+        self.assertNotIn("clean", none + empty)
+        self.assertNotIn("\n", none)
+        self.assertEqual({"files_opened": 0, "items_checked": 0,
+                          "scanned_nothing": True},
+                         report.coverage_dict(0, 0, unit_key="items_checked"))
+
     def test_suppressed_line_keeps_the_callers_order_and_zeros(self):
         self.assertEqual(report.suppressed_line(["0 b", "0 a"]),
                          "  suppressed: 0 b · 0 a")
@@ -588,6 +605,11 @@ class TestScannerLinePins(unittest.TestCase):
         self.assertEqual(t.summary(),
                          "  checked: 0 declaration(s) in 0 index file(s), 0 entr(ies) "
                          "mapped, 0 dated index line(s) compared\n"
+                         # 115/130: the coverage line sits between the two.
+                         "  coverage: 0 Markdown file(s) opened \u00b7 0 "
+                         "declaration(s) checked \u2014 \u26a0\ufe0f scanned "
+                         "nothing: no files were evaluated, so this result "
+                         "covers nothing.\n"
                          "  suppressed: 0 by allow-marker · 0 by exclude= · "
                          "0 by before= · 0 file(s) by .indexscanignore · "
                          f"0 beyond {CAP}")
@@ -679,14 +701,17 @@ class TestScannerLinePins(unittest.TestCase):
         supp = ("  suppressed: 0 declaration(s) by allow-marker · 0 file(s) by "
                 ".licenscanignore · 0 file(s) over 8 MiB scanned truncated")
         count = "  licenscan advisory: 0 finding(s) — reported, not blocking."
+        # 115/130: the coverage line sits between the tally and the count.
+        cov = report.coverage_line(0, 0)
         self.assertEqual(m.render_human(rep),
                          "✓ licenscan clean — repo licence MIT, all declarations "
-                         "agree.\n" + supp + "\n" + count)
+                         "agree.\n" + supp + "\n" + cov + "\n" + count)
         rep.findings.append(m.Finding("mismatch", "high", "msg", "a.txt", 3))
         lines = m.render_human(rep).splitlines()
         self.assertEqual(lines[0], "✗ licenscan: 1 finding(s) — repo licence MIT. "
                                    "Publish blocked.")
         self.assertIn(supp, lines)
+        self.assertIn(cov, lines)
         self.assertIn(count, lines)
 
     def test_reviewscan(self):
@@ -706,7 +731,9 @@ class TestScannerLinePins(unittest.TestCase):
                          f"✓ reviewscan clean — 1 post-{m.BOUNDARY} decision record(s) "
                          "carry a review line; 0 review brief(s) keep deferred "
                          "material out of the brief.\n"
-                         "  suppressed: 0 record(s) by allow-marker\n")
+                         "  suppressed: 0 record(s) by allow-marker\n"
+                         # 115/130: one record opened, one check run.
+                         "  coverage: 1 file(s) opened \u00b7 1 check(s) run\n")
 
 
 class TestFindingIdHelpers(unittest.TestCase):

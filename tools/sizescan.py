@@ -873,6 +873,11 @@ def _judge(sources, globs: list[str], skipped: list[int],
     n_loose = 0
     slots = MAX_MATERIALIZED_FINDINGS
     cold_over_cap = 0
+    # 115/130 - coverage: candidate files actually opened and the physical
+    # lines read from them, so a run that found no roadmap or archive store
+    # cannot print the same clean result as one that read them all.
+    files_opened = 0
+    lines_read = 0
     for name, rel, read in sources:
         # 020/380 — streamed rather than `p.read_text()` + whole-file regex
         # passes: peak memory for this file is now bounded by `_MAX_LINE_BYTES`
@@ -890,6 +895,8 @@ def _judge(sources, globs: list[str], skipped: list[int],
             if not report.is_vanished(e):
                 raise
             continue
+        files_opened += 1
+        lines_read += n
         slots -= len(items)
         cold_over_cap += cold - len(items)
         scope = parse_allow(header)
@@ -939,6 +946,8 @@ def _judge(sources, globs: list[str], skipped: list[int],
         counts["inert_hatches"] = n_inert
         counts["unrecognised_scopes"] = n_loose
         counts["roadmaps_in_store_dirs"] = len(store_skipped or [])
+        counts["files_opened"] = files_opened
+        counts["lines_read"] = lines_read
     return findings
 
 
@@ -1008,7 +1017,8 @@ def render_human(findings: list[Finding], files_allowed: int = 0,
                  files_by_glob: int = 0, cold_over_cap: int = 0,
                  inert: list[InertHatch] | None = None,
                  loose: list[LooseScope] | None = None,
-                 store_dirs: int = 0) -> str:
+                 store_dirs: int = 0,
+                 coverage: "tuple[int, int] | None" = None) -> str:
     # `inert` is every inert hatch the scan found; the ones on a cold-content
     # finding are printed under that finding, the rest in their own section.
     # Both count on the suppressed line.
@@ -1018,6 +1028,10 @@ def render_human(findings: list[Finding], files_allowed: int = 0,
     loose = loose or []
     tally = _suppression_line(files_allowed, files_by_glob, cold_over_cap,
                               n_inert, len(loose), store_dirs)
+    # 115/130: `coverage` is (files opened, lines read); None for a caller that
+    # does not have it (the tally line is then exactly what it always was).
+    if coverage is not None:
+        tally += "\n" + report.coverage_line(*coverage)
     if not findings:
         return "\n".join([report.clean_head(
             "sizescan", "no relocatable cold content on the hot path; "
@@ -1119,7 +1133,8 @@ def _main(argv: list[str] | None = None) -> int:
     counts: dict[str, int] = {"files_allowed": 0, "files_by_glob": 0,
                               "cold_over_cap": 0, "inert_hatches": 0,
                               "unrecognised_scopes": 0,
-                              "roadmaps_in_store_dirs": 0}
+                              "roadmaps_in_store_dirs": 0,
+                              "files_opened": 0, "lines_read": 0}
     inert: list[InertHatch] = []
     loose: list[LooseScope] = []
     if args.staged:
@@ -1171,6 +1186,10 @@ def _main(argv: list[str] | None = None) -> int:
             # Roadmaps not read for cold content because they sit under a
             # store-named directory (160/790 HX3). Known zero printed too.
             "roadmaps_in_store_dirs": counts["roadmaps_in_store_dirs"],
+            # Files opened and lines read (115/130): a run over nothing reads
+            # `scanned_nothing: true` rather than `clean: true` alone.
+            "coverage": report.coverage_dict(counts["files_opened"],
+                                             counts["lines_read"]),
             # One finding per FILE, carrying up to two kinds, so `ids` (a
             # list, one per kind present) rather than the one `id` the
             # per-line scanners give.
@@ -1181,7 +1200,8 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, counts["files_allowed"],
                            counts["files_by_glob"], counts["cold_over_cap"],
-                           inert, loose, counts["roadmaps_in_store_dirs"]))
+                           inert, loose, counts["roadmaps_in_store_dirs"],
+                           (counts["files_opened"], counts["lines_read"])))
 
     # Report-only by default: exit 0. --check gives teeth to what has a
     # pure-win remedy — relocatable cold content (a [x] item on the hot path) and

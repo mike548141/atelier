@@ -529,7 +529,8 @@ def unmarked_findings(marker: str, body: str) -> list[str]:
 
 def scan_text(text: str, path: str = "",
               suppressed: list[int] | None = None,
-              file_scope: str | None = None) -> list[Finding]:
+              file_scope: str | None = None,
+              cov: dict | None = None) -> list[Finding]:
     """Pure, so the selftest and the tests drive it with no filesystem.
 
     `suppressed` collects one entry per item an allow-marker exempted, so the
@@ -538,9 +539,13 @@ def scan_text(text: str, path: str = "",
 
     `file_scope` is the detector a file-level marker (the file's first line)
     names, when it names one: that detector's findings are dropped across the
-    file. A file-level marker exempting every kind never reaches here."""
+    file. A file-level marker exempting every kind never reaches here.
+
+    `cov`, when given, gains one per item evaluated under `items` (115/130)."""
     out: list[Finding] = []
     for item in parse_items(text):
+        if cov is not None:
+            cov["items"] = cov.get("items", 0) + 1
         unmarked = unmarked_findings(item.marker, item.body)
         scope = parse_allow(item.body)
         if scope is not None:
@@ -618,13 +623,19 @@ def roadmaps(paths: list[str], root: Path) -> list[Path]:
 
 
 def scan(paths: list[str], root: Path,
-         suppressed: list[int] | None = None) -> list[Finding]:
+         suppressed: list[int] | None = None,
+         cov: dict | None = None) -> list[Finding]:
+    """`cov`, when given, is filled with what the scan looked at (115/130):
+    `files` = roadmap files read, `items` = the items evaluated in them. A side
+    channel, so the return value callers compare keeps its shape."""
     out: list[Finding] = []
     for p in roadmaps(paths, root):
         try:
             text = p.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
+        if cov is not None:
+            cov["files"] = cov.get("files", 0) + 1
         if text.startswith(GENERATED_MARKS):
             continue        # the board index — projections, not items (above)
         file_scope = parse_allow(text.split("\n")[0])
@@ -637,7 +648,7 @@ def scan(paths: list[str], root: Path,
             rel = p.resolve().relative_to(root.resolve()).as_posix()
         except ValueError:
             rel = p.as_posix()
-        out.extend(scan_text(text, rel, suppressed, file_scope))
+        out.extend(scan_text(text, rel, suppressed, file_scope, cov))
     return out
 
 
@@ -852,17 +863,24 @@ def main(argv: list[str] | None = None) -> int:
             return 2
 
     _suppressed: list[int] = []
-    findings = scan(paths, root, _suppressed)
+    cov: dict = {"files": 0, "items": 0}
+    findings = scan(paths, root, _suppressed, cov)
 
     if args.json:
         print(json.dumps({"findings": report.finding_dicts(
-            "pointerscan", findings, lambda f: f.detector)}, indent=2))
+            "pointerscan", findings, lambda f: f.detector),
+            "coverage": report.coverage_dict(
+                cov["files"], cov["items"], unit_key="items_checked")},
+            indent=2))
         return 0
 
     if not findings:
         print("✓ pointerscan clean — every queued-review pointer is "
               "refs-only and current.")
         print(f"  suppressed: {len(_suppressed)} pointer(s) by allow-marker")
+        print(report.coverage_line(cov["files"], cov["items"],
+                                   unit="item(s) checked",
+                                   noun="roadmap file(s) opened"))
         return 0
 
     grammar = [f for f in findings if f.detector == "grammar"]

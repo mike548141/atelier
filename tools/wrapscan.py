@@ -237,6 +237,13 @@ class Tally:
     # up to that cap (see `_iter_physical_lines`); counted so the truncation
     # is REPORTED rather than silent.
     lines_truncated: int = 0
+    # 115/130 - coverage: Markdown files opened and physical lines read, so a
+    # run over nothing cannot print the same clean result as a run over docs.
+    files_opened: int = 0
+    lines_read: int = 0
+
+    def coverage(self) -> str:
+        return report.coverage_line(self.files_opened, self.lines_read)
 
     @property
     def marker_total(self) -> int:
@@ -477,7 +484,11 @@ def _content_lines_from_physical(physical, tally: "Tally | None" = None):
     in_fence = False
     fence_char = ""
     fence_len = 0
+    if tally is not None:
+        tally.files_opened += 1
     for lineno, line, truncated in physical:
+        if tally is not None:
+            tally.lines_read += 1
         if truncated and tally is not None:
             tally.note_line_truncated()
         stripped = line.lstrip()
@@ -630,7 +641,8 @@ def render_human(findings: list[Finding], limit: int,
                  tally: "Tally | None" = None) -> str:
     if not findings:
         out = report.clean_head("wrapscan", f"no prose lines over {limit} columns.")
-        return out + ("\n" + tally.summary() if tally is not None else "")
+        return out + ("\n" + tally.summary() + "\n" + tally.coverage()
+                      if tally is not None else "")
     lines = [report.findings_head("wrapscan", len(findings),
                                   tail=f" (limit {limit} columns).")]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
@@ -638,6 +650,7 @@ def render_human(findings: list[Finding], limit: int,
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.append(tally.coverage())
     lines.append("\n  A real over-wrap: rewrap the prose at the house width (~80 cols).")
     lines.append(f"  A deliberate exemption: append '<!-- {ALLOW_MARKER}: <reason> -->'")
     lines.append("  to the line, or add a path glob to .wrapscanignore.")
@@ -729,6 +742,8 @@ def _main(argv: list[str] | None = None) -> int:
                 "by_allow_marker": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
+            "coverage": report.coverage_dict(tally.files_opened,
+                                             tally.lines_read),
         }, indent=2))
     else:
         print(render_human(findings, args.limit, tally))

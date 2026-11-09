@@ -536,6 +536,36 @@ class TwoResponses(unittest.TestCase):
         self.assertIn("none of these blocked anything", out)
 
 
+class CoverageLine(unittest.TestCase):
+    """115/130 - the tally is followed by a coverage line; counted from the
+    pure engine so the numbers are exact, and rendered by the real CLI."""
+
+    def test_the_engine_counts_files_and_lines(self):
+        rep = lc.scan_repo(Path("."), [("LICENSE", APACHE),
+                                       ("a.py", "x = 1\ny = 2\n"),
+                                       ("b.py", "no trailing newline")], None)
+        self.assertEqual((3, 6), (rep.files_opened, rep.lines_read))
+
+    def test_a_clean_run_prints_the_coverage_line(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "LICENSE").write_text(APACHE, encoding="utf-8")
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "licenscan.py"), td],
+                capture_output=True, text=True)
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertIn("coverage: 1 file(s) opened \u00b7 3 line(s) read", r.stdout)
+        self.assertNotIn("scanned nothing", r.stdout)
+
+    def test_an_empty_tree_still_blocks_on_no_licence_and_says_it_read_nothing(self):
+        with tempfile.TemporaryDirectory() as td:
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "licenscan.py"), td],
+                capture_output=True, text=True)
+        self.assertEqual(1, r.returncode, r.stdout + r.stderr)
+        self.assertIn("coverage: 0 file(s) opened \u00b7 0 line(s) read", r.stdout)
+        self.assertIn("scanned nothing", r.stdout)
+
+
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(lc._selftest(), 0)
