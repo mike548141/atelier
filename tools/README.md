@@ -2012,6 +2012,30 @@ carry a hit. Exit codes: `0` nothing blocking · `1` a finding on the message
 plane on or after the date · `2` the scan is broken, including `--require-terms`
 with no list on this machine.
 
+## `quotescan.py` — a commit touching the principal's prompt carries his words (warning until 2027-05-31)
+
+Board `160/900` QK1's second counsel, the sixth slice of `320/810`.
+`docs/method/session-open/session-open-prompt.md` is his text, and a cold pass
+found nothing mechanical read his say-so on a change to it. On the
+commit-message plane this asks that a commit carrying that file has a quotation
+in its message: a double-quoted span of two or more words, straight or curly, or
+a `>` line, inline code removed first. It reads the **form**, never whose words
+they are (`320/080`'s problem). The paths are a tuple in the file, one today.
+
+```sh
+python3 tools/quotescan.py --message-file <file> --root .  # the msg plane
+python3 tools/quotescan.py --range pushed --root . --warn  # the CI plane: reports only
+python3 tools/quotescan.py --selftest
+```
+
+Until `QUOTE_WARN_UNTIL` (**2027-05-31**, UTC, a constant no flag moves; the date
+is the run's choice) a finding on the message plane is reported and exits `0`; on
+and after it, it exits `1`, unless `--warn`. A line `quotescan:allow: <reason>`
+exempts it; a bare marker exempts nothing. Measured over atelier: 19 commits
+touch the prompt and 8 carry a quote (42%), so about 1 in 120
+commits meets it. Exit codes: `0` nothing blocking · `1` a finding on the message
+plane on or after the date · `2` the scan is broken.
+
 ## `pdlistscan.py` — in a public repo, personal data stands only where the closed list names it (warning until 2027-03-08)
 
 Board `160/630`, the third slice of `320/810`. `tools/test_personal_data.py`

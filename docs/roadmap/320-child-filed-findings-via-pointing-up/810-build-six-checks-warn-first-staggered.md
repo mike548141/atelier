@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1402, wt: atelier-qr-d0ca-msg, session d0ca5d24) 🔎 **Build the six checks he chose, warnings first, then blocking, each
+- [ ] 🔎 **Build the six checks he chose, warnings first, then blocking, each
       turned on at a staggered date.** His words, 2026-11-09: *"all six, warnings
       at first and then move to blocking action. With a staggered turn on of each
       so they dont all hit at once"*. The six, each with its home item: commits
@@ -64,28 +64,31 @@
         code with the date patched: 21 of 21 exit 0 today and on the flip date
         (atelier in scope, the other 20 out). Tests: 14, in
         `tools/test_namescan.py`, plus `tools/test_commitmsg.py` (11).
+  - [x] ✅ **Slice 6 LANDED 2026-11-10: a quote of him on commits touching his
+        prompt (`160/900`, QK1's second counsel)**, a new scanner,
+        `tools/quotescan.py`, on the commit-message plane. Warns until
+        **2027-05-31** (`QUOTE_WARN_UNTIL`), then exits 1 unless `--warn`; on CI it
+        reports only. Measured over atelier: 19 commits touch the prompt, 8 carry
+        a quote (42%). Probe by exit code with the date patched: 21 of 21 exit 0
+        today and on the flip date; only atelier holds the path, so it is the
+        only repo where this can fire. Tests: 14, in `tools/test_quotescan.py`.
   - [ ] **The dates are the run's choice, not his**: 2027-01-11, 2027-02-08,
         2027-03-08, one check at a time and four weeks apart, none before
         2027-01-11 because earlier flips already fall on 2026-11-18, 2026-12-09
         and 2026-12-18. Each flip needs a fresh fleet probe before its date.
   - [ ] **Three cold passes owed**, one per landing (each is self-authored
         guard code): the orchestrator queues them when it lands the work.
-  - [ ] 🔎 **Three checks remain, and they split two ways, not one.**
-        **Commits name their files (`320/060`) needs no new plane:** its home
-        item measured that a path-scoped commit is visible to the hook through
-        `GIT_INDEX_FILE`, so it can be a hook-plane scanner today. What it needs
-        first is a place for its "whole index intended" marker, and a reading of
-        the cost: atelier and most children run several worktrees, so it binds
-        nearly every commit.
-        **Private names in branch names and commit titles (`160/360` NP2) and a
-        quote of him on commits touching his prompt (`160/900`, QK1's second
-        counsel) need a plane that reads a commit message.** The design, next
-        slice: a scanner-agnostic `.githooks/commit-msg` beside `pre-commit`,
-        calling `floor.py --plane msg` with the message file; a `msg` template
-        on `Scanner` alongside `hook` and `ci`, absent by default; on CI, the
-        same checks over `git log` for the pushed range, where history cannot be
-        fixed, so the CI side stays report-only and the commit-msg plane is the
-        gate. `320/550` (no scanner reads a commit message) proposes the same
-        plane for the term and secret rule sets and should share it. A hook
-        needs installing per clone, so the reach is every machine, and the
-        pre-existing clones have to be told.
+  - [ ] **What remains: the flips and their probes.** Five dated turns, each
+        needing a fresh fleet probe by exit code before its date:
+        `SUBSECTION_WARN_UNTIL` 2027-01-11, `ATTRIBUTION_WARN_UNTIL` 2027-02-08,
+        `PERSONAL_DATA_WARN_UNTIL` 2027-03-08, `NAME_WARN_UNTIL` 2027-05-03,
+        `QUOTE_WARN_UNTIL` 2027-05-31. `sweepscan` has no date and no flip: it
+        waits on his call (`320/060`). The 2027-04-05 slot the run planned for
+        it stays unused, so the later two did not move up. Existing clones need
+        `tools/commit-msg.sample` installed for the last two to run; the hook
+        plane tells each one on its next commit, and until then their CI report
+        is the only cover. `floorfleet` does not yet check for this hook.
+  - [ ] **Dates 2027-05-03 and 2027-05-31 are the run's choice, not his**, four
+        weeks apart and after the three already set, in the order built. The
+        measurement fits both: `namescan` found nothing in atelier's titles, and
+        `quotescan` fires only on commits touching one file.

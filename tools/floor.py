@@ -935,6 +935,21 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory_count=True,
     ),
     Scanner(
+        "quotescan",
+        # 160/900 QK1's second counsel, slice 6 of 320/810 (the principal,
+        # 2026-11-09: "all six, warnings at first and then move to blocking
+        # action"). A commit touching his prompt carries a quotation of him. The
+        # commit-message plane, because the say-so lives in the message; CI reads
+        # the pushed range and only reports. The warning period is the date in
+        # quotescan (`QUOTE_WARN_UNTIL`), so `--warn` stays out of the msg template.
+        hook=None,
+        msg=["--message-file", "{msgfile}", "--root", "{root}"],
+        ci=["--warn", "--range", "pushed", "--root", "{root}"],
+        advisory=["--warn", "--message-file", "{msgfile}", "--root", "{root}"],
+        why="a commit touching the principal's prompt carries his words",
+        advisory_count=True,
+    ),
+    Scanner(
         "licenscan",
         hook=["--expect", "{licence}", "{scope}"],
         ci=["--expect", "{licence}", "{scope}"],
@@ -998,7 +1013,7 @@ BY_NAME = {s.name: s for s in SCANNERS}
 HOOK_ONLY = frozenset({"sweepscan"})
 # The checks that declare a `msg` template. Named so a test notices if a new
 # entry starts reading messages without saying so.
-MSG_CHECKS = frozenset({"namescan"})
+MSG_CHECKS = frozenset({"namescan", "quotescan"})
 
 # THE ADVISORY-COUNT CONTRACT (E6b, third consumer leg).
 #

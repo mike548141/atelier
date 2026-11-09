@@ -62,6 +62,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   line-shape pins (extended, not removed, for `indexscan`, `licenscan` and
   `reviewscan`).
 
+### Added (2026-11-10 — `quotescan`: a quote of him on commits touching his prompt, `160/900` QK1, slice 6 of `320/810`)
+- **New scanner `quotescan`, on the commit-message plane.** A commit carrying
+  `docs/method/session-open/session-open-prompt.md` has a double-quoted span of
+  two or more words or a `>` line in its message, or a reasoned
+  `quotescan:allow:` line. It reads the form, never whose words they are. Warns
+  until **2027-05-31** (`QUOTE_WARN_UNTIL`), the run's choice of date, then
+  blocks; CI reports over the pushed range only. Measured over atelier: 19
+  commits touch the prompt, 8 carry a quote. Fleet probe by exit code, the
+  scanner alone in each child's checkout with the date patched: 21 of 21 exit 0
+  today and on the flip date; only atelier holds the path.
+
 ### Added (2026-11-10 — `namescan`: private names in branch names and commit titles, `160/360` NP2, slice 5 of `320/810`)
 - **New scanner `namescan`, on the commit-message plane.** In a repo that
   declares `"visibility": "public"` (`260/050`), it reads this commit's title and

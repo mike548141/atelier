@@ -68,6 +68,9 @@ class MessagePlaneTest(Base):
         rc, out = self.run_main("--message-file", self._msg("tools: add a check\n"))
         self.assertEqual(rc, 0, out)
         self.assertIn("clean", out)
+        import floor
+        self.assertEqual(floor._read_advisory_count(out, "namescan"), 0,
+                         "the known zero the board reads")
 
     def test_a_term_in_the_title_warns_before_the_date(self):
         rc, out = self.run_main("--message-file", self._msg(f"tools: {FAKE_TERM} fix\n"))

@@ -78,3 +78,10 @@
       all four"*: the four units cut on 2026-09 without his say-so are back,
       word for word. Both applied to his prompt the same day on those
       answers. Still his: QK1's second counsel only.
+      ✅ **QK1's second counsel BUILT 2026-11-10: `tools/quotescan.py`** (slice 6 of
+      `320/810`, on his words there: *"all six, warnings at first and then move to
+      blocking action"*). A commit touching
+      `docs/method/session-open/session-open-prompt.md` carries a double-quoted
+      span of two or more words or a `>` line in its message, or a reasoned
+      `quotescan:allow:` line. It reads the form, never whose words they are.
+      Warns until 2027-05-31 (the run's choice of date), then blocks.

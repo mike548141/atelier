@@ -236,6 +236,14 @@ class MsgPlaneTest(unittest.TestCase):
             argv = floor._render(base, root, cfg, "namescan", trees=["."])
             self.assertNotIn("", argv, "no empty message-file argument")
 
+    def test_quotescan_reads_the_message_and_reports_only_on_ci(self):
+        s = floor.BY_NAME["quotescan"]
+        self.assertIsNone(s.hook)
+        self.assertIn("{msgfile}", s.msg)
+        self.assertIn("--warn", s.ci)
+        self.assertNotIn("--warn", s.msg)
+        self.assertEqual(_states("msg", floor.Config())["quotescan"], "enforced")
+
     def test_commit_msg_note(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -1463,7 +1471,8 @@ class AdvisoryCountContract(unittest.TestCase):
                   if s.advisory_count
                   and s.name not in ("secretscan", "licenscan", "conflictscan",
                                      "leakscan", "datescan", "board", "attribscan",
-                                     "pdlistscan", "sweepscan", "namescan")]
+                                     "pdlistscan", "sweepscan", "namescan",
+                                     "quotescan")]
         self.assertEqual([], others, "a new count-carrying check needs its own "
                                      "contract test, not this one by accident")
 
