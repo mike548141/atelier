@@ -372,6 +372,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the board-states design (310/160, 310/060).](roadmap/160-doctrine-review-owed/1230-rule-4-cold-pass-queued-board-states-design.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the report-only switch barred on the board…](roadmap/160-doctrine-review-owed/1240-rule-4-cold-pass-queued-board-check-bar-membership-review-cadence.md)
 - [ ] ⏳ [Rule-4 cold pass queued: his method for asking, and an answer is not…](roadmap/160-doctrine-review-owed/1250-rule-4-cold-pass-queued-asking-method-and-answer-versus-ruling.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccclose's fourth agent state, still running…](roadmap/160-doctrine-review-owed/1260-rule-4-cold-pass-queued-ccclose-running-state.md)
 
 ## build/ layer — open strands
 
