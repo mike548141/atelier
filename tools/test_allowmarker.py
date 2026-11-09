@@ -164,6 +164,8 @@ _PIN = {
     # apostrophe); the two are the same character set, pinned as the shared form.
     "blockscan": {"ALLOW_MARKER_RX": r"\bblockscan:allow:\s*" + _REASON},
     "attribscan": {"ALLOW_RX": r"\battribscan:allow:\s*" + _REASON},
+    "namescan": {"ALLOW_RX": r"\bnamescan:allow:\s*" + _REASON},
+    "quotescan": {"ALLOW_RX": r"\bquotescan:allow:\s*" + _REASON},
 }
 
 
