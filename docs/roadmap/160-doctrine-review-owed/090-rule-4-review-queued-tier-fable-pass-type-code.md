@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1)
-      🎯 **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
+- [x] 🎯 **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
   EP application; the EP cycle's three MAJORs keep it open past this).**
   *Delta:* `tools/floor.py` + `tools/floorfleet.py` +
   `tools/pre-commit.sample` + `.githooks/pre-commit` +
@@ -99,3 +98,5 @@
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
       all 13"* — the fix summarised to him stands approved, on the reviewer's
       counsel.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): AR3 (an empty term list is exit 2 under `--require-terms`), AR2, AR5–AR8 as counselled; AR4 already fixed. Whether to guard the ruleset's bypass list is his. Cold pass `160/1220`.

@@ -235,12 +235,12 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The child-membership + work-locality cycle CLOSED 2026-08-09 (0…](roadmap/160-doctrine-review-owed/020-the-child-membership-work-locality-cycle-close.md)
 - ✅ 🎯 [The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await…](roadmap/160-doctrine-review-owed/030-the-principles-9-cycle-closed-2026-08-09-0-maj.md)
 - ✅ 🎯 [The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6…](roadmap/160-doctrine-review-owed/040-the-cancelled-run-clause-cycle-closed-2026-08.md)
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1) [Five rule-4 Fable cold passes…](roadmap/160-doctrine-review-owed/050-five-rule-4-fable-cold-passes-ran-2026-08-05-e.md)
+- ✅ 🎯 [Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle…](roadmap/160-doctrine-review-owed/050-five-rule-4-fable-cold-passes-ran-2026-08-05-e.md)
 - [ ] 🎯 [A seventh pass: the F1/GUARDS.md rebuild + the twelve-scanner…](roadmap/160-doctrine-review-owed/060-a-seventh-pass-the-f1-guards-md-rebuild-the-tw.md)
 - [ ] 🎯 [A sixth pass the same day: the sitting's five doctrine edits,…](roadmap/160-doctrine-review-owed/070-a-sixth-pass-the-same-day-the-sitting-s-five-d.md)
 - ✅ [Rule-4 review queued (tier: Fable; pass type: code cold pass) — the…](roadmap/160-doctrine-review-owed/080-rule-4-review-queued-tier-fable-pass-type-code.md)
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1) [Rule-4 review queued (tier: Fable;…](roadmap/160-doctrine-review-owed/090-rule-4-review-queued-tier-fable-pass-type-code.md)
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1) [The E6b + E3 cycle CLOSED 2026-08-09…](roadmap/160-doctrine-review-owed/100-the-e6b-e3-cycle-closed-2026-08-09-0-major-ab1.md)
+- ✅ 🎯 [Rule-4 review queued (tier: Fable; pass type: code cold pass, the EP…](roadmap/160-doctrine-review-owed/090-rule-4-review-queued-tier-fable-pass-type-code.md)
+- ✅ 🎯 [The E6b + E3 cycle CLOSED 2026-08-09 (0 MAJOR); AB1–AB6 await Mike's…](roadmap/160-doctrine-review-owed/100-the-e6b-e3-cycle-closed-2026-08-09-0-major-ab1.md)
 - ✅ 🎯 [The E7 leakscan cycle CLOSED 2026-08-09 (0 MAJOR); LK1–LK6 + a G2…](roadmap/160-doctrine-review-owed/110-the-e7-leakscan-cycle-closed-2026-08-09-0-majo.md)
 - [ ] 🎯 [Glossary ratify pass (Mike)](roadmap/160-doctrine-review-owed/120-glossary-ratify-pass-mike.md)
 - [ ] [Define complex vs complicated in the glossary](roadmap/160-doctrine-review-owed/130-define-complex-vs-complicated-in-the-glossary.md)
@@ -278,7 +278,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: cctranscript's archive-pool speedup…](roadmap/160-doctrine-review-owed/440-rule-4-cold-pass-queued-the-archive-pool-speedup.md)
 - ✅ 🎯 [Rule-4 cold pass queued: the mandate-versus-default date rule…](roadmap/160-doctrine-review-owed/450-rule-4-cold-pass-queued-the-date-kind-rule.md)
 - [ ] [Rule-4 cold pass queued: ccarchive's manifest checkpoints and…](roadmap/160-doctrine-review-owed/460-rule-4-cold-pass-queued-the-manifest-checkpoints.md)
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1) [Rule-4 cold pass queued: publishscan's…](roadmap/160-doctrine-review-owed/470-rule-4-cold-pass-queued-publishscan-round-2.md)
+- ✅ 🎯 [Rule-4 cold pass queued: publishscan's round-2 denylist (260/040).](roadmap/160-doctrine-review-owed/470-rule-4-cold-pass-queued-publishscan-round-2.md)
 - ✅ 🎯 [Rule-4 cold pass queued: the shared allow-marker grammar and ignore…](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
 - [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t2) [Rule-4 cold pass queued: pathscan's…](roadmap/160-doctrine-review-owed/490-rule-4-cold-pass-queued-pathscan-brace-expansion.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the expected toolbox and its install rule…](roadmap/160-doctrine-review-owed/500-rule-4-cold-pass-queued-the-expected-toolbox.md)
@@ -367,6 +367,7 @@ then `python3 tools/board.py rebuild`.
 - [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200) [Rule-4 cold pass queued: a…](roadmap/160-doctrine-review-owed/1190-rule-4-cold-pass-queued-strict-markers-and-lowering.md)
 - [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200) [Rule-4 cold pass queued: ccmail's…](roadmap/160-doctrine-review-owed/1200-rule-4-cold-pass-queued-ccmail-cache-and-recorded-reach.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the estate root as an ordinary private repo…](roadmap/160-doctrine-review-owed/1210-rule-4-cold-pass-queued-estate-root-reviewer-side-two-steps.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the thirteen technical fixes he approved in…](roadmap/160-doctrine-review-owed/1220-rule-4-cold-pass-queued-thirteen-technical-fixes.md)
 
 ## build/ layer — open strands
 

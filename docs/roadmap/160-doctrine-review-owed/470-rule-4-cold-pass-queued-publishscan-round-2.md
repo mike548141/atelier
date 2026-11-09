@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1)
-      🎯 **Rule-4 cold pass queued: publishscan's round-2 denylist
+- [x] 🎯 **Rule-4 cold pass queued: publishscan's round-2 denylist
       (`260/040`).** The run authored this itself (its dispatched workers'
       output counts as the run's authorship). It was queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -53,3 +52,5 @@
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
       all 13"* — the fix summarised to him stands approved, on the reviewer's
       counsel.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): PL1 recorded fixed; PL2, PL4–PL8, PL11, PL13 as counselled; PL3's comment reworded. PL3's and PL16's new policy and PL9 are his. Cold pass `160/1220`.

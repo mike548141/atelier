@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1)
-      🎯 **The E6b + E3 cycle CLOSED 2026-08-09 (0 MAJOR); AB1–AB6 await
+- [x] 🎯 **The E6b + E3 cycle CLOSED 2026-08-09 (0 MAJOR); AB1–AB6 await
   Mike's ruling round.** The rule-4 Fable cold pass (taker: a Mike-spawned
   session, claimed 0815 UTC) returned PASS-WITH-FINDINGS — 0 MAJOR /
   1 MODERATE / 2 minor / 3 note; every re-run reproduced (both suite-count
@@ -23,3 +22,5 @@
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
       all 13"* — the fix summarised to him stands approved, on the reviewer's
       counsel.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): AB1 (the fingerprint carve-out is off on a credential-named line), AB2–AB6. Cold pass `160/1220`.

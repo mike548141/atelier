@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t1)
-      🎯 **Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle
+- [x] 🎯 **Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle
   CLOSED (0 MAJOR each); the residue findings await Mike's ruling.**
   **SCHEDULED 2026-08-09 (Mike): the residue ruling round — these findings
   plus the sixth and seventh passes' and the P6 ADR ruling — is the next
@@ -31,3 +30,5 @@
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
       all 13"* — the fix summarised to him stands approved, on the reviewer's
       counsel.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): FF1, PG1, PG2 (documented). Cold pass `160/1220`.
