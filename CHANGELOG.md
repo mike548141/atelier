@@ -24,6 +24,10 @@ words, except where quoted).
   otherwise fail; if that cannot be established the child is not exempt and the
   line says so. `--json` `floor_copy` gains `blocking_states`, `would_fail`,
   `failing` and `archived_exempt`.
+- **`PRINCIPLES.md` §9 and `EVIDENCE.md` §3: confidence is worked out from the
+  source (`115/020`; *"Work it out from the source"*).** Compute it from how a
+  fact was obtained, who supplied it and its age; store a rough rank only where
+  one method itself varies, never a bare score. House rule only; no tool.
 
 ### Changed (2026-11-09 — three review rulings applied: `160/790`, `160/340`, `160/020`, `200/030`)
 Mike's answers of 2026-11-09 (answers to options offered, not rulings in his own

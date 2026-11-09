@@ -69,6 +69,10 @@ the source's authority. Roughly ascending in risk:
 High-risk acquisition + a claim that matters ⇒ confirm it a second way before
 reporting it as settled.
 
+That order is a rough rank of methods, not a score: how far to trust a fact is
+worked out from how it was obtained, and a stored number is not a substitute for
+the method (`PRINCIPLES.md` §9, *Confidence is worked out from the source*).
+
 ## 4. Never assert an uncorroborated *reported* fact
 
 A specific figure or claim that arrives through a reporting chain — someone

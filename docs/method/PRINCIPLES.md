@@ -357,6 +357,21 @@ alongside its fields and its keys.
   if each value knows its own age and how expensively it was obtained. (Mike,
   2026-08-09 — the generalised case below is the shape that prompted it: a bare
   nullable "verified" flag, carrying neither date nor method.)
+- **Confidence is worked out from the source, not stored as a number.** "How
+  far do we trust this?" is answered from what the record already holds: the
+  method that established the fact, who or what supplied it, and its age (the
+  bullet above). Store those, and compute confidence when it is asked for, by a
+  policy that names how it weighs each method and can justify the weights. A bare
+  per-fact score is a claim stronger than its evidence: nobody can defend the
+  number, and it goes stale without anyone touching it. The one narrow exception
+  is where a single method itself varies (a scraper that is sometimes exact and
+  sometimes a guess): there a rough rank, a few named levels and never a number,
+  may be stored, because the method alone cannot recover it. Using confidence as
+  a bar for whether an inferred fact is admitted at all is a rule about *use*,
+  and lives in the policy that applies it, not in a column. (Mike, 2026-11-09,
+  choosing from options a session offered: *"Work it out from the source"*. An
+  answer, not a ruling in his own words; the owning repo's fix is its own under
+  the scope clause below.)
 - **Model the lifecycle, not a boolean.** An entity's states are transitions with
   dates, not flags. `closed: true` throws away *when*, cannot represent a
   reopening, and silently rewrites history the moment it flips. A dated
