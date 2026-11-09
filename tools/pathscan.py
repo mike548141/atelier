@@ -89,10 +89,37 @@ sharp honest one):
      Two shapes are handled here rather than reported (320/010 class C,
      320/170): a BRACE-EXPANSION token such as `docs/X-{A,B}.md` is expanded
      and EACH alternative checked (a `{slug}` with no comma, or an expansion
-     past 64 alternatives, is skipped as a placeholder); and a `./`-led token
-     opening an inline backtick span, `` `./x.sh run` ``, is a command run
+     past 64 alternatives, is skipped as a placeholder; so is any token that
+     would take one file past 1,024 alternatives in all, and that skip is
+     COUNTED, 160/490 PX1); and a `./`-led token opening an inline backtick
+     span AND FOLLOWED BY AN ARGUMENT, `` `./x.sh run` ``, is a command run
      from the reader's directory, not a repo pointer, and is skipped the way
-     a fenced block already is.
+     a fenced block already is. A span holding only the `./` path is a
+     citation and is checked (PX2): nothing about it tells a command from a
+     pointer, and a bare command that is meant to be absent takes the allow
+     marker. A finding for an expanded token names the text as written.
+
+     WHAT THESE TWO SHAPES COST, stated (160/490 PX3, PX4, PX7, PX9, PX10):
+       - A group with no comma discards its WHOLE token, directory prefix
+         included: `docs/nosuch/{slug}.md` is clean though `docs/nosuch/` does
+         not exist (it used to be flagged at the truncated directory).
+       - A path written directly against a brace (`{docs/x.md}`, `x{docs/y.md`)
+         is not seen: `{` and `}` are in the token lookbehind. The spaced form
+         is still caught.
+       - A group with a space after its comma, a nested group under a deeper
+         prefix and an unbalanced brace still truncate or skip as they did
+         before expansion existed; the path before the brace is checked.
+       - The `./` rule reads parity of backticks on ONE line: a `./` token after
+         a closing backtick on a line that begins inside a wrapped span, a
+         double-backtick span and a span that wraps to the next line do not
+         all answer alike. Same text, different answer, accepted.
+       - An expansion can resolve outside the root, as a literal `..` token
+         already could: existence only, no content is read. One token can make
+         up to 64 such probes.
+       - A brace group accepts any character but braces, whitespace and `/`, so
+         a quantifier (`docs/x{2,3}`) or a format string expands to targets
+         nobody wrote. The finding names the written token; the human line has
+         control and bidi characters stripped (`--json` escapes them).
 
   4. A path-shaped token is a CANDIDATE only if it starts with a known
      top-level repo directory (`docs/`, `tools/`, `skills/`, `commands/`,
@@ -473,6 +500,9 @@ class Tally:
     # 110/120 — see MAX_MATERIALIZED_FINDINGS. Every pathscan finding is one
     # kind, so one counter suffices.
     findings_over_cap: int = 0
+    # 160/490 PX1 — brace tokens skipped because their FILE had spent its
+    # expansion allowance (`_MAX_EXPANSIONS_PER_FILE`): counted, never silent.
+    brace_tokens_over_cap: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
@@ -500,7 +530,10 @@ class Tally:
             [f"{self.marker_total} by allow-marker",
              f"{self.files_by_glob} file(s) by .pathscanignore",
              f"{self.files_by_records} record file(s) excluded by default",
-             report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS)],
+             report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS),
+             f"{self.brace_tokens_over_cap} brace token(s) past the "
+             f"{_MAX_EXPANSIONS_PER_FILE}-alternative per-file cap "
+             "(counted, not checked)"],
             breakdown=self.by_marker)
 
 
@@ -574,6 +607,33 @@ _BRACE_GROUP = re.compile(r"\{([^{}]*)\}")
 # Most alternatives one token may expand to before it is skipped rather than
 # checked; a runaway cross-product is not a path anyone wrote by hand.
 _MAX_BRACE_EXPANSION = 64
+
+# Most alternatives ONE FILE may expand to in all (160/490, PX1). The per-token
+# cap above bounds a token, not a line or a file: 25,000 tokens of 64
+# alternatives each on one line took 142 s and 1.8 GB before the finding cap,
+# and still ~100 s after it, because every alternative is resolved on disk.
+# Grounded in the corpus, not fitted to a probe: the busiest real file across
+# every repo with a floor config expanded 35 alternatives in all, so 1,024
+# leaves about thirty times that and ends the cost at a fixed constant per file.
+# A token that would pass the cap is skipped whole (never half-expanded) and
+# COUNTED (`Tally.brace_tokens_over_cap`), printed every run, a known zero
+# included.
+_MAX_EXPANSIONS_PER_FILE = 1024
+
+
+class _ExpansionBudget:
+    """One file's remaining brace-expansion allowance (160/490, PX1)."""
+
+    def __init__(self, limit: int | None = None):
+        self.remaining = _MAX_EXPANSIONS_PER_FILE if limit is None else limit
+        self.skipped = 0            # tokens skipped whole for want of budget
+
+    def take(self, n: int) -> bool:
+        if n > self.remaining:
+            self.skipped += 1
+            return False
+        self.remaining -= n
+        return True
 
 
 def _expand_braces(token: str) -> list[str] | None:
@@ -912,26 +972,53 @@ def _is_elided(match_text: str, cleaned: str, match_end: int) -> bool:
 
 def _is_command_invocation(cleaned: str, m: "re.Match[str]") -> bool:
     """True if the token is a `./`-led command at the START of an inline
-    backtick span — `` `./nosuch/same.sh run` ``. That is a command run in
-    whatever directory the reader is in, not a pointer into this repo, which
-    is exactly why the same text inside a fenced block is already exempt
-    (320/170: the fenced and inline spellings differed only in wrapper). The
-    `./` lead and the span-start position are both required, so a path merely
-    quoted mid-span, or a bare-prose `./x` mention, is still checked."""
+    backtick span, WITH AN ARGUMENT AFTER IT — `` `./nosuch/same.sh run` ``.
+    That is a command run in whatever directory the reader is in, not a
+    pointer into this repo, which is exactly why the same text inside a fenced
+    block is already exempt (320/170: the fenced and inline spellings differed
+    only in wrapper). The `./` lead, the span-start position and a trailing
+    argument are all required, so a path merely quoted mid-span, a bare-prose
+    `./x` mention, or a span holding ONLY the `./` path is still checked.
+
+    The argument rule is 160/490's PX2: nothing about a lone `./path` tells a
+    command from a citation, and the skip had hidden a stale citation whenever
+    a span held only the path, while an argument after the token is a
+    mechanical sign of a command. A bare command that is deliberately not in
+    the repo takes the allow-marker, which records why."""
     if not m.group(0).startswith("./"):
         return False
     start = m.start()
     if start == 0 or cleaned[start - 1] != "`":
         return False
     # An odd number of backticks before the span start means it OPENS a span.
-    return cleaned[:start].count("`") % 2 == 1 and cleaned.find("`", m.end()) != -1
+    if cleaned[:start].count("`") % 2 != 1:
+        return False
+    close = cleaned.find("`", m.end())
+    return close != -1 and bool(cleaned[m.end():close].strip())
 
 
 def iter_candidates(line: str, first_window: bool = True,
-                    final_window: bool = True):
-    """Yield candidate path tokens (trimmed, filtered) from one already-
-    de-fenced line — bare prose AND backtick-wrapped spans alike (backticks
-    are not stripped; see header on why that's deliberate here).
+                    final_window: bool = True,
+                    budget: "_ExpansionBudget | None" = None):
+    """The candidate tokens of `iter_candidate_sources`, without the text each
+    was written as. See it for the arguments."""
+    for token, _written in iter_candidate_sources(line, first_window,
+                                                  final_window, budget):
+        yield token
+
+
+def iter_candidate_sources(line: str, first_window: bool = True,
+                           final_window: bool = True,
+                           budget: "_ExpansionBudget | None" = None):
+    """Yield `(candidate, written)` for each path token (trimmed, filtered) of
+    one already-de-fenced line — bare prose AND backtick-wrapped spans alike
+    (backticks are not stripped; see header on why that's deliberate here).
+    `written` is the token as the author wrote it when a brace group expanded
+    it, else None, so a finding for `docs/x3.md` can name the `docs/x{3}`-style
+    text a reader would search for (160/490, PX5).
+
+    `budget` is the file's expansion allowance (PX1): a brace token that would
+    overspend it is skipped whole and counted on the budget.
 
     `first_window`/`final_window` are False only for the windows of an
     overlong line (110/120). Windows overlap by `LINE_WINDOW_OVERLAP`, so a
@@ -956,6 +1043,9 @@ def iter_candidates(line: str, first_window: bool = True,
         alternatives = _expand_braces(m.group(0))
         if alternatives is None:
             continue
+        braced = "{" in m.group(0)
+        if braced and budget is not None and not budget.take(len(alternatives)):
+            continue
         for alt in alternatives:
             token = _trim_trailing_period(alt)
             if not token or "/" not in token:
@@ -964,7 +1054,7 @@ def iter_candidates(line: str, first_window: bool = True,
                 continue
             if not _is_known_candidate(token):
                 continue
-            yield token
+            yield token, (m.group(0) if braced else None)
 
 
 def _outermost_named_ancestor(p: Path, name: str) -> Path | None:
@@ -1121,6 +1211,7 @@ def _scan_content_lines(md_file: Path, root: Path, lines, tally: "Tally | None",
     seen_on_line: set[str] = set()
     current_line = 0
     resolved: dict[str, bool] = {}
+    budget = _ExpansionBudget()
     for lineno, raw_line, first, final in lines:
         if lineno != current_line:
             seen_on_line.clear()
@@ -1130,7 +1221,8 @@ def _scan_content_lines(md_file: Path, root: Path, lines, tally: "Tally | None",
         scope = parse_allow(raw_line)
         if _is_stub_marked(raw_line):
             continue
-        for token in iter_candidates(raw_line, first, final):
+        for token, written in iter_candidate_sources(raw_line, first, final,
+                                                     budget):
             if token in seen_on_line:
                 continue
             seen_on_line.add(token)
@@ -1147,11 +1239,15 @@ def _scan_content_lines(md_file: Path, root: Path, lines, tally: "Tally | None",
                 continue
             if tally is not None and not tally.take_finding_slot():
                 continue
+            from_text = (f"; expanded from the written `{written}`"
+                         if written is not None else "")
             findings.append(Finding(
                 rel, lineno, "missing-path", token,
                 f"{token} does not exist (checked repo-root-relative, "
                 f"relative to {rel}'s own directory, relative to "
-                f"{docs_anchor_note}{detail_suffix})"))
+                f"{docs_anchor_note}{detail_suffix}){from_text}"))
+    if tally is not None:
+        tally.brace_tokens_over_cap += budget.skipped
     return findings
 
 
@@ -1359,8 +1455,13 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
         return out + ("\n" + tally.summary() if tally is not None else "")
     lines = [report.findings_head("pathscan", len(findings) + over_cap)]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
+        # A brace group can carry any character but braces, whitespace and
+        # `/`, so a target may hold an escape or a bidi override that would
+        # reach the terminal or CI log. Strip them from the human line (PX6);
+        # `--json` escapes them already.
         lines.append(report.with_id(
-            f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}",
+            report.strip_controls(
+                f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}"),
             "pathscan", f.kind))
     if over_cap:
         lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS))
@@ -1382,7 +1483,12 @@ def _main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="pathscan",
         description="Check that named repo-path references (bare prose or "
-                    "backtick-wrapped, not already a Markdown link) resolve.")
+                    "backtick-wrapped, not already a Markdown link) resolve. "
+                    "A {a,b} group is expanded and each alternative checked "
+                    "(a token past 64 alternatives, or past 1024 in one "
+                    "file, is skipped and counted); a `./x run` span with an "
+                    "argument is a command and skipped, a span holding only "
+                    "a ./ path is a citation and checked.")
     ap.add_argument("paths", nargs="*",
                     help="files/dirs to scan (default: <root>/docs if present, "
                          "else the whole root). The default is NOT the gateable "
@@ -1450,6 +1556,7 @@ def _main(argv: list[str] | None = None) -> int:
             "findings": report.finding_dicts("pathscan", findings,
                                              lambda f: f.kind),
             "findings_over_cap": tally.findings_over_cap,
+            "brace_tokens_over_cap": tally.brace_tokens_over_cap,
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
@@ -1508,10 +1615,14 @@ def _selftest() -> int:
         "```\n`tools/fenced-ghost.py` inside a fenced example\n```\n"      # skipped (fenced)
         "`tools/allowed-ghost.py` is fine  <!-- pathscan:allow: fixture -->\n"  # skipped (allow marker)
         "A trailing mention of `tools/real.py`.\n"                         # resolves, trailing period trimmed
+        "Both `tools/{ghost,real}.py` are named.\n"                       # BREAK 3: only the missing alternative
+        "Run `./nosuch/same.sh go` from the child.\n"                     # skipped (a command: an argument follows)
+        "Or cite `./nosuch/cited.sh` as a path.\n"                        # BREAK 4: a span holding only the path
     )
     findings = scan_paths([tmp / "docs"], tmp)
     targets = sorted(f.target for f in findings)
-    expected = sorted(["tools/ghost.py", "docs/ghost/plan.md"])
+    expected = sorted(["tools/ghost.py", "docs/ghost/plan.md", "tools/ghost.py",
+                       "./nosuch/cited.sh"])
     ok = targets == expected
     if not ok:
         print(f"FAIL: got {targets}, expected {expected}")

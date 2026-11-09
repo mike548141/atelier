@@ -1625,6 +1625,26 @@ longer than 16 KiB the placeholder/URL/link-destination blanking is applied in o
 pass per pattern rather than re-run after each blanked span, which differs only
 for adversarial nesting such as `<a <b> c>`.
 
+**Two shapes it handles rather than reports** (`320/010` class C, `320/170`;
+residuals named by the `160/490` cold pass). A brace group such as
+`docs/X-{A,B}.md` is **expanded and each alternative checked**; a group with no
+comma (`{slug}`) or a token past 64 alternatives is skipped as a placeholder,
+and a **file** may expand to at most 1,024 alternatives in all (the busiest real
+file used 35): a token past that is skipped whole and **counted** on every run
+(`… brace token(s) past the 1024-alternative per-file cap`, `--json`'s
+`brace_tokens_over_cap`), so one hostile line cannot cost minutes. A finding
+for an expanded token names the text as written. A `` `./x.sh run` `` span **with
+an argument** is a command run from the reader's directory and is skipped like a
+fenced block; a span holding **only** a `./` path is a citation and is checked
+(put `pathscan:allow` on a bare command that is meant to be absent). **What
+these cost**, named: a comma-less group drops its whole token, directory prefix
+included; a path written directly against a brace is not seen (the spaced form
+is); a group with a space after its comma, a nested group and an unbalanced
+brace still truncate or skip; the `./` rule reads backtick parity on one line,
+so a double-backtick span or one that wraps answers differently; an expansion
+can name a path outside the root (existence only, no content is read); and a
+quantifier or format string in a group expands to targets nobody wrote.
+
 ### Usage
 
 ```bash

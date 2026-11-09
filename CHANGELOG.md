@@ -151,6 +151,37 @@ this machine, old scanner against new, and no repo's blocking result changed.
   lives in one place (PL4), and one comment no longer describes what a survey
   found tracked (PL3; the pushed commit body is a frozen record).
 
+### Changed (2026-11-09 — `pathscan`'s brace expansion is capped per file, a bare `./` path is a citation, and the residuals are written down, `160/490`)
+Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
+- **Children: nothing blocks.** `pathscan` is warn-only on every child's hook and
+  CI (`--warn` in the registry template), so no exit code moves. The child probe
+  (every repo with a floor config, scanning `docs`) found 22 repos unchanged and
+  two that each gain two warn-only findings, all `./` paths in a span that held
+  only the path. Such a span now prints a finding where it printed none; add
+  `pathscan:allow` if the command is meant to be absent.
+- **One file may expand to at most 1,024 alternatives (PX1).** The cap was per
+  token (64), so a line of 25,000 wide tokens cost about 100 s even after the
+  finding cap. A token past the file's allowance is skipped whole and **counted**:
+  the summary line prints `N brace token(s) past the 1024-alternative per-file
+  cap` every run, a known zero included, and `--json` carries
+  `brace_tokens_over_cap`. The busiest real file in the corpus used 35. The
+  test counts disk lookups, not seconds, so a slow machine cannot flake it.
+- **A bare `./` path is a citation unless an argument follows (PX2).**
+  `` `./x.sh run` `` is still a command and skipped; `` `./tools/x.sh` `` is
+  checked. `./`-led spans that held only the path were silently clean before.
+- **A finding names the text as written (PX5)** (`expanded from the written
+  `docs/x{1,2}.md``), and **the human line strips control and bidi characters
+  (PX6)** (`report.strip_controls`, the filter `report.broken` already used).
+- **The residuals are stated (PX3, PX4, PX7, PX9, PX10)** in the module
+  docstring and `tools/README.md`, with `--help` naming both behaviours: a
+  comma-less group drops its whole token, a path against a brace is unseen, the
+  `./` rule reads one line's backtick parity, an expansion can name a path
+  outside the root, and a quantifier expands to targets nobody wrote.
+- **`--selftest` now exercises both behaviours (PX11)**, and a boundary test pins
+  64 alternatives yielding 64 and 65 skipped.
+- **Not done:** the registry `why` keeps its one-line purpose (the behaviours are
+  residuals, not purposes); PX12 is left as it stands.
+
 ### Changed (2026-11-09 — the board generator's line-width promise is tested on its real output, `160/220`)
 Mike's answer of 2026-11-09: the cold pass's counsel applied as written. BG1 and
 BG2 stay the funded fix at `290/060`; BG11 needs nothing.

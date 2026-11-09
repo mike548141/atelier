@@ -450,6 +450,21 @@ class TestReportLines(unittest.TestCase):
                          "\n  (--warn: advisory only — not blocking this build.)")
 
 
+class TestStripControls(unittest.TestCase):
+    """160/490 PX6 — the filter `broken` already used, now public so a human
+    rendering can use it too."""
+
+    def test_controls_and_bidi_go_and_newline_stays(self):
+        import report
+        self.assertEqual("a[2Jb\nc", report.strip_controls(
+            "a\x1b[2Jb\nc\u202e\x7f\x9b"))
+
+    def test_ordinary_text_is_untouched(self):
+        import report
+        self.assertEqual("tools/x.py → ok · 𝔘", report.strip_controls(
+            "tools/x.py → ok · 𝔘"))
+
+
 class TestScannerLinePins(unittest.TestCase):
     """Each converted scanner's lines, as literals. A shared edit that moves
     any one of them fails here."""
@@ -526,7 +541,9 @@ class TestScannerLinePins(unittest.TestCase):
         t = m.Tally()
         self.assertEqual(t.summary(), "  suppressed: 0 by allow-marker · 0 file(s) by "
                                       ".pathscanignore · 0 record file(s) excluded by "
-                                      f"default · 0 beyond {CAP}")
+                                      f"default · 0 beyond {CAP} · 0 brace token(s) "
+                                      "past the 1024-alternative per-file cap "
+                                      "(counted, not checked)")
         self.assertEqual(m.render_human([], t).splitlines()[0],
                          "✓ pathscan clean — every candidate repo-path reference "
                          "resolves.")

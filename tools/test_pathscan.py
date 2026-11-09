@@ -337,9 +337,30 @@ class InlineCodeSpanInvocation(unittest.TestCase):
     """320/170 — `./x.sh run` inside a fence was clean, inside an inline code
     span was flagged. Same text, different wrapper."""
 
-    def test_dot_slash_command_opening_a_span_is_skipped(self):
+    def test_dot_slash_command_with_an_argument_is_skipped(self):
         self.assertEqual([], cand("run `./nosuch/same.sh run` to reproduce"))
-        self.assertEqual([], cand("run `./nosuch/same.sh` to reproduce"))
+        self.assertEqual([], cand("run `./nosuch/same.sh --all x` to go"))
+
+    def test_a_span_holding_only_the_dot_slash_path_is_a_citation(self):
+        # 160/490 PX2. Nothing about a lone `./path` tells a command from a
+        # citation, and the old skip hid a stale citation whenever a span held
+        # only the path. An argument after the token is what marks a command.
+        self.assertEqual(["./nosuch/same.sh"],
+                         cand("run `./nosuch/same.sh` to reproduce"))
+        self.assertEqual(["./tools/nosuch.py"], cand("see `./tools/nosuch.py`."))
+        self.assertEqual(["./nosuch/same.sh"], cand("`./nosuch/same.sh  `"))
+
+    def test_the_allow_marker_is_the_way_to_keep_a_bare_command(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs").mkdir()
+        (tmp / "docs" / "n.md").write_text(
+            "run `./nosuch/same.sh` <!-- pathscan:allow: a child's own script -->\n"
+            "run `./nosuch/other.sh`\n")
+        tally = ps.Tally()
+        found = ps.scan_paths([tmp / "docs"], tmp, tally)
+        self.assertEqual(["./nosuch/other.sh"], [f.target for f in found])
+        self.assertEqual(1, tally.marker_total)
 
     def test_fenced_spelling_is_equally_clean(self):
         self.assertEqual(
@@ -1399,6 +1420,156 @@ class LongLineBlanking(unittest.TestCase):
         t0 = time.monotonic()
         self.assertEqual(list(ps.iter_candidates(line)), [])
         self.assertLess(time.monotonic() - t0, 10)
+
+
+class BraceExpansionPerFileCap(unittest.TestCase):
+    """160/490 PX1 — the cap was per token (64), so nothing bounded a line or a
+    file: 25,000 tokens of 64 alternatives took 142 s and 1.8 GB. The budget is
+    per FILE, a token that would overspend it is skipped whole, and the skip is
+    COUNTED, never silent. These pin the count of disk lookups (the cost), not
+    the clock, so a slow machine cannot flake them."""
+
+    GROUP = "{" + ",".join(f"a{i}" for i in range(64)) + "}"
+
+    def hostile(self, tokens: int) -> str:
+        return " ".join(f"docs/t{n}/x-{self.GROUP}.md" for n in range(tokens))
+
+    def test_one_line_of_many_wide_tokens_does_bounded_lookups(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs").mkdir()
+        (tmp / "docs" / "h.md").write_text(self.hostile(2_000) + "\n")
+        calls = []
+        real = ps._resolves
+
+        def counting(*a, **k):
+            calls.append(a[2])
+            return real(*a, **k)
+
+        tally = ps.Tally()
+        with mock.patch.object(ps, "_resolves", counting):
+            ps.scan_paths([tmp / "docs"], tmp, tally)
+        self.assertLessEqual(len(calls), ps._MAX_EXPANSIONS_PER_FILE)
+        self.assertEqual(2_000 - ps._MAX_EXPANSIONS_PER_FILE // 64,
+                         tally.brace_tokens_over_cap)
+
+    def test_the_boundary_is_exact(self):
+        with mock.patch.object(ps, "_MAX_EXPANSIONS_PER_FILE", 128):
+            b = ps._ExpansionBudget()
+            two = f"`docs/x-{self.GROUP}.md` `docs/y-{self.GROUP}.md`"
+            self.assertEqual(128, len(list(ps.iter_candidates(two, budget=b))))
+            self.assertEqual(0, b.skipped)
+            self.assertEqual(
+                [], list(ps.iter_candidates(f"`docs/z-{{a,b}}.md`", budget=b)))
+            self.assertEqual(1, b.skipped)      # the third token, skipped whole
+
+    def test_exactly_64_alternatives_yields_64_and_65_is_skipped(self):
+        self.assertEqual(64, len(cand(f"`docs/x-{self.GROUP}.md`")))
+        sixty_five = "{" + ",".join(f"a{i}" for i in range(65)) + "}"
+        self.assertEqual([], cand(f"`docs/x-{sixty_five}.md`"))
+
+    def test_the_budget_is_per_file_not_per_run(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs").mkdir()
+        for n in ("a", "b"):
+            (tmp / "docs" / f"{n}.md").write_text("see `docs/{p,q}.md`\n")
+        with mock.patch.object(ps, "_MAX_EXPANSIONS_PER_FILE", 2):
+            tally = ps.Tally()
+            found = ps.scan_paths([tmp / "docs"], tmp, tally)
+        self.assertEqual(0, tally.brace_tokens_over_cap)
+        self.assertEqual(4, len(found))         # p.md and q.md, in each file
+
+    def test_ordinary_files_never_meet_the_cap(self):
+        # The busiest file in the corpus the cap was grounded on used 35.
+        self.assertGreater(ps._MAX_EXPANSIONS_PER_FILE, 35 * 10)
+
+    def test_the_count_prints_every_run_and_in_json(self):
+        import contextlib
+        import io
+        import json
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs").mkdir()
+        (tmp / "docs" / "h.md").write_text(f"see `docs/{{p,q}}.md`\n")
+        quiet = ps.Tally()
+        ps.scan_paths([tmp / "docs"], tmp, quiet)
+        self.assertIn("· 0 brace token(s) past the 1024-alternative per-file cap "
+                      "(counted, not checked)", quiet.summary())
+        with mock.patch.object(ps, "_MAX_EXPANSIONS_PER_FILE", 1):
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                ps.main(["--root", str(tmp), "--json", str(tmp / "docs")])
+        self.assertEqual(1, json.loads(buf.getvalue())["brace_tokens_over_cap"])
+        with mock.patch.object(ps, "_MAX_EXPANSIONS_PER_FILE", 1):
+            tally = ps.Tally()
+            ps.scan_paths([tmp / "docs"], tmp, tally)
+            self.assertIn("1 brace token(s) past the 1-alternative",
+                          tally.summary())
+
+
+class FindingNamesWhatWasWritten(unittest.TestCase):
+    """160/490 PX5 — `Finding.target` is an expansion now, so a reader searching
+    the line for it found nothing. The detail names the written token."""
+
+    def scan(self, text):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs").mkdir()
+        (tmp / "docs" / "a.md").write_text("x\n")
+        (tmp / "docs" / "n.md").write_text(text + "\n")
+        return ps.scan_paths([tmp / "docs"], tmp)
+
+    def test_an_expanded_finding_names_the_written_token(self):
+        (f,) = self.scan("both `docs/{a,b}.md`")
+        self.assertEqual("docs/b.md", f.target)
+        self.assertIn("expanded from the written `docs/{a,b}.md`", f.detail)
+
+    def test_a_plain_finding_is_unchanged(self):
+        (f,) = self.scan("see `docs/b.md`")
+        self.assertNotIn("expanded from", f.detail)
+
+    def test_sources_pair_each_candidate_with_its_written_text(self):
+        self.assertEqual(
+            [("docs/x1.md", "docs/x{1,2}.md"), ("docs/x2.md", "docs/x{1,2}.md"),
+             ("docs/y.md", None)],
+            list(ps.iter_candidate_sources("`docs/x{1,2}.md` and `docs/y.md`")))
+
+
+class HumanRenderingStripsControls(unittest.TestCase):
+    """160/490 PX6 — a brace group accepts any character but braces, whitespace
+    and `/`, so an escape or a bidi override in one reached the terminal inside
+    the printed target. `--json` escapes them; the human line now strips them."""
+
+    def test_escape_and_bidi_characters_do_not_reach_the_human_output(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs").mkdir()
+        (tmp / "docs" / "n.md").write_text(
+            "see `docs/x{a\x1b[2J,b\u202e}.md`\n", encoding="utf-8")
+        tally = ps.Tally()
+        found = ps.scan_paths([tmp / "docs"], tmp, tally)
+        self.assertTrue(any("\x1b" in f.target for f in found), "fixture")
+        out = ps.render_human(found, tally)
+        for bad in ("\x1b", "\u202e"):
+            self.assertNotIn(bad, out)
+        self.assertIn("docs/xa[2J.md", out)
+
+    def test_json_keeps_the_raw_text_escaped(self):
+        import json
+        f = ps.Finding("a.md", 1, "missing-path", "docs/x\x1b.md", "d")
+        self.assertIn("\\u001b", json.dumps({"t": f.target}))
+
+
+class SelftestExercisesBothBehaviours(unittest.TestCase):
+    """160/490 PX11 — `--selftest` exercised neither the brace expansion nor the
+    `./` skip, so a regression in either left the self-check green."""
+
+    def test_the_selftest_source_names_both(self):
+        src = (TOOLS_DIR / "pathscan.py").read_text(encoding="utf-8")
+        body = src[src.index("def _selftest"):]
+        self.assertIn("{ghost,real}", body)
+        self.assertIn("./nosuch/same.sh", body)
 
 
 if __name__ == "__main__":

@@ -103,10 +103,17 @@ _MESSAGE_CONTROL_RX = re.compile(
     "[\x00-\x09\x0b-\x1f\x7f-\x9f\u202a-\u202e\u2066-\u2069]")
 
 
+def strip_controls(text: str) -> str:
+    """`text` without the characters `broken` strips (RT3): C0 controls other
+    than newline, DEL, C1 controls and the bidi override/isolate controls. For
+    a human-rendered line that carries text a pull request can land."""
+    return _MESSAGE_CONTROL_RX.sub("", text)
+
+
 def broken(name: str, message: str) -> int:
     """Print `<name>: <message>` to stderr and return exit 2. Control
     characters in `message` are stripped first (RT3)."""
-    print(f"{name}: {_MESSAGE_CONTROL_RX.sub('', message)}", file=sys.stderr)
+    print(f"{name}: {strip_controls(message)}", file=sys.stderr)
     return EXIT_BROKEN
 
 
