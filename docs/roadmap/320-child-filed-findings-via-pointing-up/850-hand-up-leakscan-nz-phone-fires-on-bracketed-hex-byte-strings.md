@@ -1,4 +1,4 @@
-- [ ] **Hand-up from a private child: leakscan's `nz-phone` rule fires on
+- [~] (claimed 2026-11-09-1345, wt: atelier-qr-d0ca-scan2, session d0ca5d24) **Hand-up from a private child: leakscan's `nz-phone` rule fires on
       bracketed hex-byte strings.** Filed 2026-11-09 by a child session, as a
       finding only; the fix is the house's.
 

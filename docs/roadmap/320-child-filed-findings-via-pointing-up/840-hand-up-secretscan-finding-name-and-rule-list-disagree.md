@@ -1,4 +1,4 @@
-- [ ] **Hand-up from a private child: `secretscan` calls a marker "naming no
+- [~] (claimed 2026-11-09-1345, wt: atelier-qr-d0ca-scan2, session d0ca5d24) **Hand-up from a private child: `secretscan` calls a marker "naming no
       rule" while that marker works, because a finding's name and the rule list
       differ.** Filed 2026-11-09 by a child session, as a finding only; the fix
       is the house's.

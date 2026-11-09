@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: the house assumes every repo is a direct sibling of the
+- [~] (claimed 2026-11-09-1345, wt: atelier-qr-d0ca-paths, session d0ca5d24) 🔎 **Hand-up: the house assumes every repo is a direct sibling of the
       parent, so an operator who groups children into folders breaks every
       child's path to the parent and the estate root** `[M][doctrine][tools]`.
       Handed up by a private child on 2026-10-17, under `PROPAGATION.md`

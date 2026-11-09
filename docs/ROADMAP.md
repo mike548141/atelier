@@ -602,7 +602,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🤔 [CANDIDATE HOUSE RULE — the prescribed open-time sync command can fail…](roadmap/320-child-filed-findings-via-pointing-up/150-the-open-time-sync-command-s-error-text-names-a-cause-that-is-not-the-cause.md)
 - [ ] [REPORT — a child cannot stamp its inlined floor at all: source= may…](roadmap/320-child-filed-findings-via-pointing-up/160-stampscan-cannot-stamp-across-a-repo-boundary.md)
 - [ ] [REPORT — four verified pathscan false-positive classes from a second…](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
-- [ ] [REPORT — the ../<sibling> path convention every child inherits…](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-paths, ses…) [REPORT — the ../<sibling>…](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
 - ✅ 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both…](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)
 - ✅ 🛑 [REPORT — an unresolved merge conflict shipped to a PUBLIC main and…](roadmap/320-child-filed-findings-via-pointing-up/200-no-floor-scanner-reads-a-conflict-marker.md)
 - ✅ [REPORT — CONCURRENCY.md's session-start bookend tells every session…](roadmap/320-child-filed-findings-via-pointing-up/210-the-session-start-autostash-contradicts-the-shared-checkout-premise.md)
@@ -650,7 +650,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md)
 - [ ] 🔎 [Hand-up: a cross-estate question gets answered from one repo's tree,…](roadmap/320-child-filed-findings-via-pointing-up/640-a-question-about-the-estate-is-answered-from-one-tree.md)
 - [ ] 🔎 [Hand-up: an estate fact learned in a child has no rule sending it up…](roadmap/320-child-filed-findings-via-pointing-up/650-an-estate-fact-learned-in-a-child-has-no-rule-to-travel-up.md)
-- [ ] 🔎 [Hand-up: the house assumes every repo is a direct sibling of the…](roadmap/320-child-filed-findings-via-pointing-up/660-grouping-children-into-folders-breaks-the-sibling-convention.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-paths, s…) [Hand-up: the house assumes…](roadmap/320-child-filed-findings-via-pointing-up/660-grouping-children-into-folders-breaks-the-sibling-convention.md)
 - ✅ 🔎 [SUPERSEDED 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/670-the-session-open-restore-left-a-net-change-that-reverses-a-ruling.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - ✅ 🔎 [Hand-up: a scanner's --selftest prints its fixture findings in the…](roadmap/320-child-filed-findings-via-pointing-up/690-a-scanner-selftest-prints-fixture-findings-in-the-floors-own-shape.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
@@ -668,8 +668,8 @@ then `python3 tools/board.py rebuild`.
 - [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-checks, …) [Build the six checks he chose,…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
 - ✅ 🔎 [Hand-up: the principal's method for asking a question is not in…](roadmap/320-child-filed-findings-via-pointing-up/820-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
 - ✅ 🔎 [Hand-up: a dangling section citation in RECORD.md, and a count that…](roadmap/320-child-filed-findings-via-pointing-up/830-two-small-doctrine-defects-a-dangling-section-and-a-miscount.md)
-- [ ] [Hand-up from a private child: secretscan calls a marker "naming no…](roadmap/320-child-filed-findings-via-pointing-up/840-hand-up-secretscan-finding-name-and-rule-list-disagree.md)
-- [ ] [Hand-up from a private child: leakscan's nz-phone rule fires on…](roadmap/320-child-filed-findings-via-pointing-up/850-hand-up-leakscan-nz-phone-fires-on-bracketed-hex-byte-strings.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-scan2, ses…) [Hand-up from a private child:…](roadmap/320-child-filed-findings-via-pointing-up/840-hand-up-secretscan-finding-name-and-rule-list-disagree.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-scan2, ses…) [Hand-up from a private child:…](roadmap/320-child-filed-findings-via-pointing-up/850-hand-up-leakscan-nz-phone-fires-on-bracketed-hex-byte-strings.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 

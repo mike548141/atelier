@@ -1,4 +1,4 @@
-- [ ] **REPORT — the `../<sibling>` path convention every child inherits
+- [~] (claimed 2026-11-09-1345, wt: atelier-qr-d0ca-paths, session d0ca5d24) **REPORT — the `../<sibling>` path convention every child inherits
       resolves only from a main checkout, so it breaks in the worktree the
       concurrency doctrine tells sessions to take by default — and the house's
       own drift-check instruction is one of the things that breaks**
