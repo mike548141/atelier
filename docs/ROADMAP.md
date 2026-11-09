@@ -665,6 +665,7 @@ then `python3 tools/board.py rebuild`.
 - [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-checks, …) [Build the six checks he chose,…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
 - ✅ 🔎 [Hand-up: the principal's method for asking a question is not in…](roadmap/320-child-filed-findings-via-pointing-up/820-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
 - ✅ 🔎 [Hand-up: a dangling section citation in RECORD.md, and a count that…](roadmap/320-child-filed-findings-via-pointing-up/830-two-small-doctrine-defects-a-dangling-section-and-a-miscount.md)
+- [ ] [Hand-up from a private child: secretscan calls a marker "naming no…](roadmap/320-child-filed-findings-via-pointing-up/840-hand-up-secretscan-finding-name-and-rule-list-disagree.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
