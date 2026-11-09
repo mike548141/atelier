@@ -659,6 +659,7 @@ then `python3 tools/board.py rebuild`.
 - [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-scan, se…) [A floor disabled entry carries…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
 - [ ] 🔎 [Build the six checks he chose, warnings first, then blocking, each…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
 - [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-asking, …) [Hand-up: the principal's…](roadmap/320-child-filed-findings-via-pointing-up/820-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
+- [ ] [Hand-up from a private child: leakscan's nz-phone rule fires on…](roadmap/320-child-filed-findings-via-pointing-up/830-hand-up-leakscan-nz-phone-fires-on-bracketed-hex-byte-strings.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
