@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1)
-      🎯 **Rule-4 cold pass queued: the body-free commit read (`130/030`).**
+- [x] 🎯 **Rule-4 cold pass queued: the body-free commit read (`130/030`).**
       (claimed 2026-10-25-2233, wt: atelier-cold-160-930; cold pass: a Fable 5.1
       reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
       the context partition, forms no finding and writes no severity)
@@ -33,3 +32,5 @@
       pass stays queued for a criterion-passing cold Fable session.
       💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Fix the reviewer's side"*, put to him with `160/910`: the commit-reading tool shows the safe view by default.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): `tools/coldsweep.py` leaves the board store out by default (BF1), prints only the subject, and BF2–BF12, BF15 as counselled; BF5 homed in `REVIEW.md`. Cold pass `160/1210`.

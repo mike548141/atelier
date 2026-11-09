@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1)
-      🎯 **C5 re-ruling owed — the composed term-list execution was reverted
+- [x] 🎯 **C5 re-ruling owed — the composed term-list execution was reverted
       on falsifying measurement (2026-08-05, same session).** The BOTH-
       COMPOSED ruling of 2026-08-04 was executed and probe-verified, then
       reverted hours later when three of its premises failed on contact:
@@ -236,3 +235,5 @@
       item opened with.
   - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Treat like any private repo"*, put to him with `020/050`: see that item.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): falls with `020/050`: no blocked word. C5R3 and C5R9 corrected where they stand; C5R1, 4–8, 10–12 fall with the idea. C5R2 correction: the deletion precedent this item describes is misdescribed. Cold pass `160/1210`.

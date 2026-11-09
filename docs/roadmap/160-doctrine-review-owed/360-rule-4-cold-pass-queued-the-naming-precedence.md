@@ -40,3 +40,4 @@
             sharpened at reconcile as the applier's wording beyond the recorded
             ruling; NP10 (minor) formed at reconcile. Findings are the
             principal's to decide (rule 3); nothing was applied.
+      📝 NP5 is still his: `020/050`'s answer does not say whether a private child names itself in the parent. Noted 2026-11-09 by queue run 722ac2e2.

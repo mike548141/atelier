@@ -37,9 +37,9 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] 🎯 [The five red floors themselves are now open work.](roadmap/020-policy-as-code-programme-five-tracks-mik/010-the-five-red-floors-themselves-are-now-open-wo.md)
 - [ ] 🎯 [B4 — the roadmap-deletion guard: BUILT, MEASURED, and deliberately…](roadmap/020-policy-as-code-programme-five-tracks-mik/020-b4-the-roadmap-deletion-guard-built-measured-a.md)
-- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1) [C5 re-ruling owed — the composed…](roadmap/020-policy-as-code-programme-five-tracks-mik/030-c5-re-ruling-owed-the-composed-term-list-execu.md)
+- ✅ 🎯 [C5 re-ruling owed — the composed term-list execution was reverted on…](roadmap/020-policy-as-code-programme-five-tracks-mik/030-c5-re-ruling-owed-the-composed-term-list-execu.md)
 - [ ] 🎯 [A scanner's verdict has two states and needs three — "found, and all…](roadmap/020-policy-as-code-programme-five-tracks-mik/040-a-scanner-s-verdict-has-two-states-and-needs-t.md)
-- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1) [The join C5 guards was written…](roadmap/020-policy-as-code-programme-five-tracks-mik/050-the-join-c5-guards-was-written-twice-more-on-2.md)
+- ✅ 🎯 [The join C5 guards was written twice more on 2026-08-09, both times…](roadmap/020-policy-as-code-programme-five-tracks-mik/050-the-join-c5-guards-was-written-twice-more-on-2.md)
 - ✅ [floorfleet's remaining child-authored text surfaces.](roadmap/020-policy-as-code-programme-five-tracks-mik/060-floorfleet-s-remaining-child-authored-text-sur.md)
 - [ ] 🎯 [C1b — migrate the remainder, then delete the legacy spelling.](roadmap/020-policy-as-code-programme-five-tracks-mik/070-c1b-migrate-the-remainder-then-delete-the-lega.md)
 - [ ] [C2 — retire the remainder.](roadmap/020-policy-as-code-programme-five-tracks-mik/080-c2-retire-the-remainder.md)
@@ -258,7 +258,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🛑 [The coldsweep pass RAN 2026-08-17 and the cycle stays OPEN — three…](roadmap/160-doctrine-review-owed/240-rule-4-cold-pass-queued-coldsweep.md)
 - ✅ [A queued pointer at 240 instructs its own reviewer, and pointerscan…](roadmap/160-doctrine-review-owed/250-a-queued-pointer-instructs-its-own-reviewer.md)
 - ✅ 🎯 [Rule-4 cold pass queued — the BS1 wording ruling applied (the…](roadmap/160-doctrine-review-owed/260-rule-4-cold-pass-queued-bs1-wording.md)
-- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1) [Rule-4 cold pass queued — the…](roadmap/160-doctrine-review-owed/270-rule-4-cold-pass-queued-decision-asks.md)
+- ✅ 🎯 [Rule-4 cold pass queued — the ruling-ask rules (device, verified…](roadmap/160-doctrine-review-owed/270-rule-4-cold-pass-queued-decision-asks.md)
 - ✅ 🎯 [Rule-4 cold pass queued — the pointing-up rulings applied (PU-1…](roadmap/160-doctrine-review-owed/280-rule-4-cold-pass-queued-pointing-up-rulings-applied.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the ruling-ask rule widened and pushed to…](roadmap/160-doctrine-review-owed/290-rule-4-cold-pass-queued-ask-rule-to-children.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the doctrine-reporting duty, the route's…](roadmap/160-doctrine-review-owed/300-rule-4-cold-pass-queued-report-up-duty.md)
@@ -322,9 +322,9 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [Rule-4 cold pass queued: cctranscript's harness classification…](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
 - [ ] 🛑 [Rule-4 cold pass queued: ccmail stops sending the operator to --auth…](roadmap/160-doctrine-review-owed/890-rule-4-cold-pass-queued-ccmail-auth-advice.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the queue-run skill carries the whole run…](roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md)
-- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1) [Rule-4 cold pass queued: the…](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
+- ✅ 🎯 [Rule-4 cold pass queued: the deferral's side doors (320/720).](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the close declaration covers subagents…](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
-- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1) [Rule-4 cold pass queued: the…](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
+- ✅ 🎯 [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
 - ✅ 🎯 [Cold pass queued: the opening prompt's template history, for privacy…](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
 - ✅ 🎯 [Rule-4 cold pass queued: the staged-positional reader the three…](roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md)
 - ✅ 🎯 [Rule-4 cold pass queued: ccclose --identifiers credits commits on…](roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md)
@@ -366,6 +366,7 @@ then `python3 tools/board.py rebuild`.
 - [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200) [Rule-4 cold pass queued: held-back…](roadmap/160-doctrine-review-owed/1180-rule-4-cold-pass-queued-review-notes-date-kind-and-visibility.md)
 - [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200) [Rule-4 cold pass queued: a…](roadmap/160-doctrine-review-owed/1190-rule-4-cold-pass-queued-strict-markers-and-lowering.md)
 - [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200) [Rule-4 cold pass queued: ccmail's…](roadmap/160-doctrine-review-owed/1200-rule-4-cold-pass-queued-ccmail-cache-and-recorded-reach.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the estate root as an ordinary private repo…](roadmap/160-doctrine-review-owed/1210-rule-4-cold-pass-queued-estate-root-reviewer-side-two-steps.md)
 
 ## build/ layer — open strands
 

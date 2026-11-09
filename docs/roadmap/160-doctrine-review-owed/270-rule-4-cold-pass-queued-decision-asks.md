@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1)
-      🎯 **Rule-4 cold pass queued — the ruling-ask rules (device, verified basis,
+- [x] 🎯 **Rule-4 cold pass queued — the ruling-ask rules (device, verified basis,
       options with a recommendation).** Self-authored doctrine, queued at
       landing by its author, who may not take it. *Tier:* Fable, the
       principal-named review tier — checked at selection; a session that cannot
@@ -102,3 +101,5 @@
             applied.
       💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Always, as two steps"* (DR1, DR3): the explanation arrives as a finished message before the question box, in every view, at the cost of one extra turn.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): DR1, the account always arrives as a finished message that ends its turn; DR3, DR9 as counselled; DR2 joins the rule-copy work. Cold pass `160/1210`.

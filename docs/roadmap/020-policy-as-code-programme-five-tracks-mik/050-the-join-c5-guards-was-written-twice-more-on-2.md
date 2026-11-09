@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0700, wt: atelier-rr-722a-y1)
-      🎯 **The join C5 guards was written twice more on 2026-08-09, both
+- [x] 🎯 **The join C5 guards was written twice more on 2026-08-09, both
       times in *this* repo — a decision is owed on the standing gap, not
       just on the term.** `PROPAGATION.md`'s name↔posture
       split says the estate root is named only in a private child's own
@@ -35,3 +34,5 @@
       C5 is ruled** — it is not blocked on it.
   - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Treat like any private repo"* — the offered option read: the estate root loses its special never-named rule and becomes like any other private repo (the name is fine; what it holds and its condition stay hidden, `260/080`); the blocked-word idea is dropped. Decides `020/030` and `160/360`'s NP5 too.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): the special never-named rule is withdrawn in the floor block and `PROPAGATION.md`; `RECORD.md` treats the estate root as any other private repo. Cold pass `160/1210`.
