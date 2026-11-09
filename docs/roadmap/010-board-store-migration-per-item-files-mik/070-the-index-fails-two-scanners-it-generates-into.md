@@ -85,3 +85,11 @@
       reproducing the number instead of accepting it. **A measurement that
       does not name what it counted can falsify a correct report and buy an
       unnecessary ruling.**
+      *Corrected 2026-11-09 (160/220, BG3, BG9, BG10; the text above is kept).*
+      "Passes both scanners unscoped, in any repo" holds for the renderer's
+      output except for an item carrying a sibling scanner's allow-marker and no
+      `wrapscan:allow`, which `tools/README.md` states and `test_board.py` pins;
+      the generated-file question stays open for that case. The survivor
+      `F1/GUARDS.md` was a false positive from a title fragment, not a real
+      stale path. And "28 per commit" was a hand run here: atelier scopes
+      `pathscan` away from the index, so the per-commit cost was the child's.

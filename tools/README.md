@@ -110,12 +110,21 @@ the index (staged plane) is out of scope and passes saying so.
 Every string the generator writes into the index has to be true in a repo that
 is **not** this one — children call the floor's tools and never vendor them, so
 the rebuild instruction is resolved per root (repo-relative here, the hook's
-`$ATELIER_TOOLS` spelling in a child, never an absolute path) and the banner
-names no path at all. Remaining stated residual: the index cannot pass a
-repo-wide `wrapscan` — its item lines are markdown links that cannot be
-wrapped without ceasing to be links — so a child either scopes `wrapscan` off
-the index or waits on the generated-file exemption question (board item
-`010/070`, unruled).
+own resolution order in a child, never an absolute path) and the banner names
+no path at all. The index passes `wrapscan` and `pathscan` unscoped, with no
+ignore file: an item line ends in its store path and the renderer keeps every
+space of it inside 85 columns. `test_board.py` and `--selftest` run the real
+`wrapscan` over generated output to hold that. Stated residual: an item whose
+state line carries a sibling scanner's allow-marker (`datescan:allow`, …) and
+no `wrapscan:allow` projects the marker onto its index line, and `wrapscan`
+exempts marker padding only when the text before the marker fits in 85
+columns, which the path seldom allows. Add `wrapscan:allow: <reason>` to the
+source marker (`<!-- datescan:allow: r; wrapscan:allow: r -->`); it travels
+with the rest. A child may instead scope `wrapscan` off the index. Whether a
+generated marker should exempt a file from the prose gates fleet-wide is a
+floor-policy question the board does not decide (board item `010/070`).
+Run with no `--root`, `board` uses the git toplevel of the current directory,
+so a run from a subdirectory finds the board.
 
 Each index line is projected from the item's **logical first paragraph** (board
 `010/170`): the state line plus the indented lines that continue it, up to a

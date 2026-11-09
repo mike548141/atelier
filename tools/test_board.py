@@ -1106,5 +1106,141 @@ class BracketsInATitle(unittest.TestCase):
                                   "roadmap/a/b.md"))
 
 
+class IndexLineWidthOnRealOutput(unittest.TestCase):
+    """160/220, BG3 — "the generated index passes `wrapscan` in any repo" was a
+    claim about the CURRENT DATA, not the renderer: it was never tested on the
+    generator's real output. These run the real `wrapscan` over a whole
+    generated index built from items shaped to stress the renderer (flags, long
+    claims, long titles, a wrapped title, a long slug), so a renderer change
+    that breaks the promise fails here, where the scanner's own rule is read,
+    not restated."""
+
+    LONG_TITLE = ("**A title that runs on and on well past what a reader needs "
+                  "in an index line, so it must be cut**")
+
+    def build(self, files: dict[str, str]) -> str:
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        root = Path(td.name)
+        sec = make_board(root)
+        for name, body in files.items():
+            (sec / name).write_text(body, encoding="utf-8")
+        board.run_check(root, fix=True)
+        return (root / board.INDEX_REL).read_text(encoding="utf-8")
+
+    def scan(self, text: str):
+        import wrapscan
+        return wrapscan.scan_text("ROADMAP.md", text)
+
+    def test_a_board_of_stressing_items_passes_wrapscan(self):
+        text = self.build({
+            "20-" + "a-very-long-slug-" * 4 + "x.md":
+                f"- [ ] 🎯🔥 {self.LONG_TITLE}\n",
+            "30-claimed.md":
+                f"- [~] 🔎 {self.LONG_TITLE}\n"
+                "      (claimed 2026-11-03-0638, "
+                "wt: atelier-qr-4c65-a-worktree-with-a-very-long-name)\n",
+            "40-wrapped.md":
+                "- [~] **A title that wraps\n      onto line two and keeps "
+                "going for a good while longer** "
+                "(claimed 2026-11-03-0638, wt: x)\n",
+            "50-done.md": f"- [x] {self.LONG_TITLE}\n",
+            "60-pointer.md": "- ⏳ Rule-4 review queued — delta abc..def\n",
+            "70-reasoned.md":
+                "- [ ] **Short** <!-- datescan:allow: verbatim date; "
+                "wrapscan:allow: the marker pads the line --> body\n",
+        })
+        self.assertGreater(max(len(l) for l in text.splitlines()), 85,
+                           "fixture must overrun the width, or it proves nothing")
+        self.assertEqual([], self.scan(text), text)
+
+    def test_a_sibling_marker_with_a_wrapscan_allow_travels_and_passes(self):
+        text = self.build({
+            "20-m.md": "- [ ] **Verbatim (15/7/26) title** <!-- datescan:allow:"
+                       " verbatim; wrapscan:allow: marker pads --> body\n"})
+        line = next(l for l in text.splitlines() if "20-m.md" in l)
+        self.assertIn("wrapscan:allow: marker pads", line)
+        self.assertEqual([], self.scan(line + "\n"), line)
+
+    def test_STATED_RESIDUAL_a_sibling_only_marker_can_be_flagged(self):
+        """The case the promise does NOT cover, pinned so the module docstring
+        and `tools/README.md` stay true to it. `wrapscan` exempts marker padding
+        only when the text before the marker fits in 85 columns, and an index
+        line's path seldom lets it. If this starts passing, the renderer or
+        `wrapscan` closed the gap: update both statements, then this test."""
+        text = self.build({
+            "20-" + "a-long-slug-" * 4 + "x.md":
+                "- [ ] **Verbatim (15/7/26) title** "
+                "<!-- datescan:allow: verbatim --> body\n"})
+        line = next(l for l in text.splitlines() if "20-a-long-slug" in l)
+        self.assertEqual(1, len(self.scan(line + "\n")), line)
+
+
+class SelftestNeedsNoHomeDirectory(unittest.TestCase):
+    """160/220, BG7 — the selftest asserted `str(Path.home()) not in text`, which
+    matches EVERY index when HOME is `/` (a minimal container), so the CI
+    selftest step failed on a machine with nothing wrong."""
+
+    def test_selftest_passes_with_home_at_the_filesystem_root(self):
+        import os
+        with mock.patch.dict(os.environ, {"HOME": "/"}):
+            self.assertEqual(Path.home(), Path("/"))
+            self.assertEqual(
+                0, board.selftest(), "selftest depends on the home directory")
+
+
+class DefaultRootIsTheGitToplevel(unittest.TestCase):
+    """160/220, BG8 — run from a subdirectory with no `--root`, the check looked
+    for `docs/roadmap/` under the subdirectory, found none, and printed "not in
+    scope" with exit 0: a silent pass for a check the floor enforces."""
+
+    def setUp(self):
+        if shutil.which("git") is None:
+            self.skipTest("git not on PATH")
+        import os
+        self._td = tempfile.TemporaryDirectory()
+        self.addCleanup(self._td.cleanup)
+        self.root = Path(self._td.name).resolve()
+        make_board(self.root)
+        _git(self.root, "init", "-q")
+        self.sub = self.root / "docs" / "method"
+        self.sub.mkdir(parents=True)
+        cwd = os.getcwd()
+        self.addCleanup(os.chdir, cwd)
+        os.chdir(self.sub)
+
+    def run_main(self, *argv):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = board.main(list(argv))
+        return rc, out.getvalue() + err.getvalue()
+
+    def test_a_subdirectory_run_finds_the_board(self):
+        rc, out = self.run_main("--check")
+        self.assertNotIn("not in scope", out)
+        self.assertEqual(1, rc, out)           # no index yet: stale, not skipped
+        self.assertIn("stale", out)
+
+    def test_rebuild_from_a_subdirectory_writes_the_roots_index(self):
+        rc, out = self.run_main("--rebuild")
+        self.assertEqual(0, rc, out)
+        self.assertTrue((self.root / board.INDEX_REL).is_file())
+        self.assertFalse((self.sub / board.INDEX_REL).exists())
+
+    def test_an_explicit_root_still_wins(self):
+        with tempfile.TemporaryDirectory() as bare:
+            rc, out = self.run_main("--check", "--root", bare)
+        self.assertEqual(0, rc, out)
+        self.assertIn("not in scope", out)
+
+    def test_outside_a_repo_the_default_is_the_current_directory(self):
+        import os
+        with tempfile.TemporaryDirectory() as bare:
+            os.chdir(bare)
+            rc, out = self.run_main("--check")
+        self.assertEqual(0, rc, out)
+        self.assertIn("not in scope", out)
+
+
 if __name__ == "__main__":
     unittest.main()

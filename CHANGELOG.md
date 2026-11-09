@@ -151,6 +151,31 @@ this machine, old scanner against new, and no repo's blocking result changed.
   lives in one place (PL4), and one comment no longer describes what a survey
   found tracked (PL3; the pushed commit body is a frozen record).
 
+### Changed (2026-11-09 — the board generator's line-width promise is tested on its real output, `160/220`)
+Mike's answer of 2026-11-09: the cold pass's counsel applied as written. BG1 and
+BG2 stay the funded fix at `290/060`; BG11 needs nothing.
+- **Children: nothing to do, and nothing blocks that did not.** No generated
+  index text changes; the child probe (every repo with a floor config) found no
+  change in any `board` result.
+- **The promise is held by a test (BG3).** `test_board.py` and `board --selftest`
+  run the real `wrapscan` over a whole generated index built from stressing items
+  (flags, long claims, long titles, a wrapped title, a long slug). The one case
+  not held is named in the `board.py` docstring and `tools/README.md` and pinned
+  by a test: an item with a sibling-only allow-marker. The generated-file
+  exemption question (`010/070`) stays open for that case.
+- **The selftest no longer fails with `HOME=/` (BG7)** and now checks the
+  in-tree branch, the one that emits a path, for a machine-local path.
+- **A hand run from a subdirectory finds the board (BG8).** With no `--root`,
+  `board` uses the git toplevel; the floor always passes `--root`.
+- **Stale wording swept (BG4, BG9, BG10).** The module docstring and the README
+  no longer give the superseded spelling or the withdrawn residual; the 2026-08-17
+  entry carries a dated correction.
+- **Dead code removed (BG13).** `GENERATED_MARKS` in `board.py` was never read.
+- **Already moot (BG6, BG14):** `plainscan` and its reply hook were removed
+  (`020/360`). **No change:** BG5's guidance half was corrected in place on
+  `010/030`, which now says its fleet table is a dated reading; BG12 concerns a
+  brief that was folded and deleted.
+
 ### Changed (2026-11-09 — three cold-pass applications: `160/380`, `160/450`, `260/050`)
 Mike answered options a session offered on each; those are answers, not rulings
 in his own words. The reviewers' counsel was applied as written.
@@ -1870,6 +1895,16 @@ index check. Added belatedly on the 2026-09-25 cold pass's counsel (`160/280`).
   gates fleet-wide — is not needed for the board and is not asked.
 - Found by `faves`, the first child to adopt the split board, which had
   papered over the first defect with a delegating shim. That shim can go.
+- **Corrected 2026-11-09 (`160/220`, BG4, BG9, BG10).** The entry above is
+  kept as written; four of its claims were wrong or have been overtaken. The
+  child spelling it gives (`$ATELIER_TOOLS` alone) was replaced within the hour
+  by the hook's resolution order. "Passes `wrapscan` unscoped, in any repo" is
+  true of the renderer's output except for an item carrying a sibling scanner's
+  allow-marker and no `wrapscan:allow`, which `tools/README.md` now states and
+  `test_board.py` pins. The `pathscan` finding left over (`F1/GUARDS.md`) was a
+  false positive from a title fragment, not "a real stale path". And "28 false
+  findings per commit here" was a hand run: this repo scopes `pathscan` away
+  from the index, so the per-commit cost was the first child's, not this one's.
 
 ### Changed (2026-08-15 — the principal's authority is absolute; his rulings are conditioned)
 - `00-APEX.md` § "The principal's authority is conditioned on being informed"

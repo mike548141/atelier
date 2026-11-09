@@ -93,3 +93,8 @@
       a split board reads the state lines and legend only; read the raw count
       instead. Changing the exemption would raise every split child's count
       at once, and is not taken here.
+      *Dated reading (160/220, BG5, 2026-11-09).* The table and the "still
+      monolithic" list above are the 2026-08-17 state, not today's. A child's
+      current state is read on that child's own checkout (`board` there), and
+      is not recorded in this public item. The guidance to later children is the
+      corrected text above: no ignore-file pair and no vendored shim.
