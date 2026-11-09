@@ -62,6 +62,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   line-shape pins (extended, not removed, for `indexscan`, `licenscan` and
   `reviewscan`).
 
+### Added (2026-11-10 — `namescan`: private names in branch names and commit titles, `160/360` NP2, slice 5 of `320/810`)
+- **New scanner `namescan`, on the commit-message plane.** In a repo that
+  declares `"visibility": "public"` (`260/050`), it reads this commit's title and
+  branch with leakscan's own term sources and engine, so no new list is made,
+  and warns until **2027-05-03** (`NAME_WARN_UNTIL`), the run's choice of date,
+  then blocks. A line `namescan:allow: <reason>` in the message body exempts it.
+  CI reads the pushed range and only reports. Measured over atelier: 0 of 2,285
+  titles and 0 of 41 refs. Fleet probe by exit code, the scanner alone in each
+  child's checkout with the date patched: 21 of 21 exit 0 today and on the flip
+  date; atelier is the only repo in scope.
+
 ### Added (2026-11-10 — the commit-message plane, `320/810`)
 - **`floor.py --plane msg` and `.githooks/commit-msg`.** A commit message is a
   surface `pre-commit` cannot read, because git runs `pre-commit` before the

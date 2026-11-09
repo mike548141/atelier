@@ -1984,6 +1984,34 @@ codes: `0` reported or clean · `2` the scan itself is broken. **What it cannot
 see:** a deliberate foreign path-scope; concurrency it does not know about
 (`git worktree list` is a proxy, and a stale worktree still charges the tax).
 
+## `namescan.py` — in a public repo, no private name in a branch name or commit title (warning until 2027-05-03)
+
+Board `160/360` finding NP2, the fifth slice of `320/810`. A branch name and a
+commit title publish in full the moment they are pushed, and nothing read
+either. On the commit-message plane (`.githooks/commit-msg`) this reads the
+commit's title and the current branch, in any repo that declares
+`"visibility": "public"` in `.atelier-floor.json`; a private repo is out of
+scope, as in `pdlistscan`. What counts as a private name is exactly what
+`leakscan` treats as one: its term sources (`$ATELIER_LEAKSCAN_TERMS`,
+`~/.claude/leakscan-terms.txt`) and engine, structural shapes included. No new
+list exists. A finding names the rule and a redacted excerpt, never the term.
+
+```sh
+python3 tools/namescan.py --message-file <file> --root . --require-terms  # the msg plane
+python3 tools/namescan.py --range pushed --root . --warn                  # the CI plane: reports only
+python3 tools/namescan.py --selftest
+```
+
+Until `NAME_WARN_UNTIL` (**2027-05-03**, UTC, a constant no flag moves; the date
+is the run's choice, the second of `320/810`'s later dates) a finding on the
+message plane is reported and exits `0`; on and after it, it exits `1`, unless
+`--warn`. On the CI plane it only reports. A line `namescan:allow: <reason>` in
+the message body exempts it; a bare marker exempts nothing, and a subject cannot
+exempt itself. Measured over atelier: 0 of 2,285 commit titles and 0 of 41 refs
+carry a hit. Exit codes: `0` nothing blocking · `1` a finding on the message
+plane on or after the date · `2` the scan is broken, including `--require-terms`
+with no list on this machine.
+
 ## `pdlistscan.py` — in a public repo, personal data stands only where the closed list names it (warning until 2027-03-08)
 
 Board `160/630`, the third slice of `320/810`. `tools/test_personal_data.py`
@@ -2443,6 +2471,14 @@ The speed figures in `CHANGELOG.md` for the gates (about 3x for `leakscan`, 4.6x
 for `secretscan` on a 50 MB corpus) were measured once on a corpus that is not in
 the repository; the equivalence claim re-runs, the speed figure does not. A
 future figure names its corpus shape or ships a generator.
+
+## `commitmsg.py` — reading a commit message, for the commit-message plane
+
+Not a scanner. The checks that declare a `msg` template (`namescan`,
+`quotescan`) read a commit message and the pushed range the same way through
+this module: comment lines and a verbose commit's scissors section removed, the
+first non-blank line as the subject, and on CI the event's `before` or a pull
+request's base as the range (`HEAD^..HEAD`, and a note, when neither resolves).
 
 ## `filewalk.py` — the one file walk every scanner shares
 

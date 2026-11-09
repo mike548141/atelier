@@ -55,6 +55,15 @@
         absent by default. A clone that predates the hook is told by one line on
         its own next commit; nothing reaches into it (a hook needs installing per
         clone, and `floorfleet` does not yet check for this one).
+  - [x] ✅ **Slice 5 LANDED 2026-11-10: private names in branch names and commit
+        titles (`160/360` NP2)**, a new scanner, `tools/namescan.py`, on the
+        commit-message plane, in scope only for a repo declared public, reading
+        leakscan's own term sources (no new list). Warns until **2027-05-03**
+        (`NAME_WARN_UNTIL`), then exits 1 unless `--warn`; on CI it reports only.
+        Measured over atelier: 0 of 2,285 titles and 0 of 41 refs. Probe by exit
+        code with the date patched: 21 of 21 exit 0 today and on the flip date
+        (atelier in scope, the other 20 out). Tests: 14, in
+        `tools/test_namescan.py`, plus `tools/test_commitmsg.py` (11).
   - [ ] **The dates are the run's choice, not his**: 2027-01-11, 2027-02-08,
         2027-03-08, one check at a time and four weeks apart, none before
         2027-01-11 because earlier flips already fall on 2026-11-18, 2026-12-09

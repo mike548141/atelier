@@ -41,3 +41,10 @@
             ruling; NP10 (minor) formed at reconcile. Findings are the
             principal's to decide (rule 3); nothing was applied.
       📝 NP5 is still his: `020/050`'s answer does not say whether a private child names itself in the parent. Noted 2026-11-09 by queue run 722ac2e2.
+  - [x] ✅ **NP2 BUILT 2026-11-10: `tools/namescan.py`** (slice 5 of `320/810`), on the
+        commit-message plane, in scope for a repo declared public: this commit's
+        title and branch, with leakscan's own term sources and engine. Warns
+        until 2027-05-03 (the run's choice of date), then blocks; CI reports over
+        the pushed range only. The counsel's pre-push shape was not built: the
+        commit-msg hook reads the branch at commit time, so a branch renamed
+        afterwards is seen only by CI's pushed-range report.

@@ -71,7 +71,8 @@ class RegistryTest(unittest.TestCase):
         """A check that ran in CI but not the hook (or vice versa) would be a
         second, silent policy split — the bug this file exists to prevent."""
         for s in floor.SCANNERS:
-            self.assertIsNotNone(s.hook, f"{s.name} has no hook form")
+            if s.name not in floor.MSG_CHECKS:
+                self.assertIsNotNone(s.hook, f"{s.name} has no hook form")
             if s.name not in floor.HOOK_ONLY:
                 self.assertIsNotNone(s.ci, f"{s.name} has no CI form")
 
@@ -210,6 +211,30 @@ class MsgPlaneTest(unittest.TestCase):
     def test_list_on_the_msg_plane_runs_without_a_message_file(self):
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(floor.main(["--plane", "msg", "--list"]), 0)
+
+    def test_namescan_reads_the_message_and_reports_only_on_ci(self):
+        s = floor.BY_NAME["namescan"]
+        self.assertIsNone(s.hook)
+        self.assertIn("{msgfile}", s.msg)
+        self.assertIn("--warn", s.ci)
+        self.assertNotIn("--warn", s.msg)
+        self.assertTrue(s.warns_only("ci"))
+        self.assertFalse(s.warns_only("msg"))
+        self.assertEqual(_states("msg", floor.Config())["namescan"], "enforced")
+        self.assertEqual(_states("ci", floor.Config())["namescan"], "warn-only")
+        self.assertNotIn("namescan", _states("hook", floor.Config()))
+        cfg = floor.Config(advisory=("namescan",))
+        self.assertEqual(_states("msg", cfg)["namescan"], "advisory")
+
+    def test_a_check_with_a_msg_form_keeps_its_ci_argv_when_softened(self):
+        """Softening a message check on CI must not reach for a message file."""
+        cfg = floor.Config(advisory=("namescan",))
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            base = floor.BY_NAME["namescan"].ci
+            argv = floor._render(base, root, cfg, "namescan", trees=["."])
+            self.assertNotIn("", argv, "no empty message-file argument")
 
     def test_commit_msg_note(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1438,7 +1463,7 @@ class AdvisoryCountContract(unittest.TestCase):
                   if s.advisory_count
                   and s.name not in ("secretscan", "licenscan", "conflictscan",
                                      "leakscan", "datescan", "board", "attribscan",
-                                     "pdlistscan", "sweepscan")]
+                                     "pdlistscan", "sweepscan", "namescan")]
         self.assertEqual([], others, "a new count-carrying check needs its own "
                                      "contract test, not this one by accident")
 

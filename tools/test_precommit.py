@@ -145,6 +145,20 @@ class CommitMsgHookTest(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("msg plane", r.stderr + r.stdout)
 
+    def test_a_private_name_in_the_title_of_a_public_repo_warns_and_lands(self):
+        """Real commit, real hook, real floor: the message plane reaches
+        namescan, which warns before its date and lets the commit land."""
+        terms = self.repo / "terms.txt"
+        terms.write_text("zephyrquill\n")
+        (self.repo / ".atelier-floor.json").write_text('{"visibility": "public"}\n')
+        _git(self.repo, "add", ".atelier-floor.json")
+        env = {"ATELIER_TOOLS": str(TOOLS_DIR),
+               "ATELIER_LEAKSCAN_TERMS": str(terms)}
+        r = _git(self.repo, "commit", "-m", "tools: zephyrquill fix", env=env)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("namescan", r.stderr + r.stdout)
+        self.assertIn("warning; blocking from", r.stderr + r.stdout)
+
     def test_fails_closed_when_floor_is_unresolvable(self):
         r = self._commit(env={"ATELIER_TOOLS": "/nonexistent-tools-dir"})
         self.assertNotEqual(r.returncode, 0)

@@ -917,6 +917,24 @@ SCANNERS: tuple[Scanner, ...] = (
         warn_only=True,
     ),
     Scanner(
+        "namescan",
+        # 160/360 NP2, slice 5 of 320/810 (the principal, 2026-11-09: "all six,
+        # warnings at first and then move to blocking action"). The commit-message
+        # plane: this commit's title and branch name, in a repo that declares
+        # itself public (260/050), with leakscan's term list and engine. CI
+        # reads the pushed range and only reports, so it carries `--warn`; the
+        # hook plane has no template because it runs one hook later, from
+        # commit-msg. The warning period is the date in namescan
+        # (`NAME_WARN_UNTIL`), so `--warn` stays out of the msg template.
+        hook=None,
+        msg=["--message-file", "{msgfile}", "--root", "{root}",
+             "--require-terms"],
+        ci=["--warn", "--range", "pushed", "--root", "{root}"],
+        advisory=["--warn", "--message-file", "{msgfile}", "--root", "{root}"],
+        why="in a public repo, no private name in a branch name or commit title",
+        advisory_count=True,
+    ),
+    Scanner(
         "licenscan",
         hook=["--expect", "{licence}", "{scope}"],
         ci=["--expect", "{licence}", "{scope}"],
@@ -980,7 +998,7 @@ BY_NAME = {s.name: s for s in SCANNERS}
 HOOK_ONLY = frozenset({"sweepscan"})
 # The checks that declare a `msg` template. Named so a test notices if a new
 # entry starts reading messages without saying so.
-MSG_CHECKS = frozenset()
+MSG_CHECKS = frozenset({"namescan"})
 
 # THE ADVISORY-COUNT CONTRACT (E6b, third consumer leg).
 #
@@ -2797,7 +2815,8 @@ def _selftest() -> int:
     check("off-plane local check still lists, as skipped",
           ci_states["tripwire"] == "skipped")
     check("a local check does not disturb the fleet floor",
-          hook_states["secretscan"] == "enforced" and len(hook_states) == len(SCANNERS) + 1)
+          hook_states["secretscan"] == "enforced"
+          and len(hook_states) == sum(s.hook is not None for s in SCANNERS) + 1)
     check("local scope is read from the declaration",
           subtrees(root, Config(local=(Scanner("x", [], [], [], "w", run="c.py",
                                                scope_paths=("src",)),)), "x") == ["src"])
