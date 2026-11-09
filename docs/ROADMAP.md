@@ -378,6 +378,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: cclive, a machine-wide view of live work…](roadmap/160-doctrine-review-owed/1290-rule-4-cold-pass-queued-cclive-instrument.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the evidence-window rule (115/010), the…](roadmap/160-doctrine-review-owed/1300-rule-4-cold-pass-queued-evidence-window-declaration-settings-gate.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a voided allow-marker is noted (110/010),…](roadmap/160-doctrine-review-owed/1310-rule-4-cold-pass-queued-voided-marker-note-review-header.md)
+- [ ] ⏳ [Rule-4 cold pass queued: blockscan reads edits inside mapped…](roadmap/160-doctrine-review-owed/1320-rule-4-cold-pass-queued-blockscan-subsections.md)
+- [ ] ⏳ [Rule-4 cold pass queued: attribscan, an attribution to the principal…](roadmap/160-doctrine-review-owed/1330-rule-4-cold-pass-queued-attribscan.md)
+- [ ] ⏳ [Rule-4 cold pass queued: pdlistscan, personal data in a public repo…](roadmap/160-doctrine-review-owed/1340-rule-4-cold-pass-queued-pdlistscan.md)
 
 ## build/ layer — open strands
 
