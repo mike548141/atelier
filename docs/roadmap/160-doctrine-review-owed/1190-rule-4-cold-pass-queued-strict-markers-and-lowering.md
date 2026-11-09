@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: a malformed allow-marker goes strict after
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
+      ⏳ **Rule-4 cold pass queued: a malformed allow-marker goes strict after
       a dated warning (`160/480`, `160/110`), and a check may be lowered only
       declared, reasoned and expiring (`020/170`).** The shared marker reader
       runs in every child. The authoring session (a principal-opened Opus 5.5

@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the exception-register design, redrafted
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
+      ⏳ **Rule-4 cold pass queued: the exception-register design, redrafted
       on its failed pass's counsel (`160/650`, `110/100`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in
       its ruling round, which dispatched the worker that wrote it) queues

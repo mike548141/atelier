@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: personal data in a public repo is one
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
+      ⏳ **Rule-4 cold pass queued: personal data in a public repo is one
       closed list only the principal adds to (`160/630`, PI1 and PI2
       applied).** The authoring session (a
       principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in

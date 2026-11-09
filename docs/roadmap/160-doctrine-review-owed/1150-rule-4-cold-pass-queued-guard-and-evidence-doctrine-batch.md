@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: eight guard and evidence additions the
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
+      ⏳ **Rule-4 cold pass queued: eight guard and evidence additions the
       principal approved in one list (`320/020`, `320/030`, `320/390`,
       `370/010`, `380/010`, `400/010`, `320/050`, `020/350`).** The authoring
       session (a principal-opened Opus 5.5 queue run, session 722ac2e2,

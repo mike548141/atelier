@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccmail`'s cache is private and expires,
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
+      ⏳ **Rule-4 cold pass queued: `ccmail`'s cache is private and expires,
       and its domain-wide reach is written down (`210/130`).** A tool holding a
       credential now deletes files on a sweep. The authoring session (a
       principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in its

@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits on
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
+      ⏳ **Rule-4 cold pass queued: `ccclose --identifiers` credits on
       evidence (`160/960`), and a peer's edits stop only a claim of the same
       item (`010/160`, `160/260`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in

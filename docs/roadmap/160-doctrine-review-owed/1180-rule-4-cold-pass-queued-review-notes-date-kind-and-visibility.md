@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: held-back review notes leave the shared
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
+      ⏳ **Rule-4 cold pass queued: held-back review notes leave the shared
       scratch (`160/380`), a dated rule carries a readable kind (`160/450`),
       and a repo declares its visibility (`260/050`).** The authoring session
       (a principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in

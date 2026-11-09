@@ -1,4 +1,5 @@
-- [ ] ⏳ **Rule-4 cold pass queued: seven propagation additions the principal
+- [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200)
+      ⏳ **Rule-4 cold pass queued: seven propagation additions the principal
       approved in one list (`310/020`, `320/380`, `320/330`, `390/010`,
       `320/580`, `310/120`, `310/140`).** One changes the floor block every
       child copies. The authoring session (a principal-opened Opus 5.5 queue
