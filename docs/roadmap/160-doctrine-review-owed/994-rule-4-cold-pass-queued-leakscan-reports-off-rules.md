@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: leakscan's rules that are off report
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: leakscan's rules that are off report
       without blocking, and the narrowed EI6 asymmetry (`115/090`).** This
       is first-of-kind work on the personal-data boundary: a response tier
       in leakscan, and the doctrine sentence it narrows. So the authoring

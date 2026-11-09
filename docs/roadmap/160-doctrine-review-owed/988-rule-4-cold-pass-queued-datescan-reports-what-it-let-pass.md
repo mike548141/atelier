@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: datescan's blockquoted lines report
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: datescan's blockquoted lines report
       their dating without blocking (`115/090`).** This is a response tier
       on a blocking guard, the second built to Mike's answers on the item.
       So the authoring session (a principal-opened Opus 5.5 queue run,

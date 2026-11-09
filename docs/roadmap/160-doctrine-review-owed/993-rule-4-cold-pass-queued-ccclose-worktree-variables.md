@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccclose` resolves a shell variable in
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: `ccclose` resolves a shell variable in
       a worktree add's path and drops one it cannot, and pins the
       committer-date window (`210/330`, `210/320`).** `ccclose`'s
       identifiers block is pasted into records as fact. So the authoring

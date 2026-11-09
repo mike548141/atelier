@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccapple`, a read-only search of the
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: `ccapple`, a read-only search of the
       Apple apps' local stores, landed before its review on the principal's
       word.** Mike, 2026-11-03, through the decision device, of three routes
       for PR #126 (keep it open for a review, merge it now and review after,

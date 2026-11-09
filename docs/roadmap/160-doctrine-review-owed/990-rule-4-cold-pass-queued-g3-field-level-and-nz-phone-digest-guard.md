@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS,
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS,
       IPTC, XMP, PNG text) field by field, with a dated migration for
       type-level lines, and `nz-phone` skips digit runs inside hex digests
       (`020/450` parts 1 and 2, `320/470`).**

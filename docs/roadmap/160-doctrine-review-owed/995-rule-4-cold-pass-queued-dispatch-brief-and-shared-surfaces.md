@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the dispatch brief, the pathspec and
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: the dispatch brief, the pathspec and
       leaver's rules for the shared index, the long-check poll, the shared
       process table and load, worktree names, brief reading, the stop
       triage and the device at close (`180/120`–`180/160`, `320/350`,

@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: disclosed contact with a review chain,
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: disclosed contact with a review chain,
       the non-scalar field under an allowlist, and closing a house question
       locally (`280/040`, `320/090`, `310/090`).** This is standing review,
       secrets and propagation doctrine every repo reads. So the authoring

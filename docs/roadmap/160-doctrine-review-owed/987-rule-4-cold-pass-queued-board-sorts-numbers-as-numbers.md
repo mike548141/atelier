@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `board.py` sorts item and section
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: `board.py` sorts item and section
       numbers as numbers (`010/200`).** `board.py` generates every child's
       index, so the authoring session (a principal-opened Opus 5.5 queue
       run, session deeac927, 2026-11-03, which wrote it inline) queues this

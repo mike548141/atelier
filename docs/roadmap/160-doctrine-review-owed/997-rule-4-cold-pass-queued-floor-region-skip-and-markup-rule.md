@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `pathscan` skips a child's inlined floor
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: `pathscan` skips a child's inlined floor
       region, and `conflictscan` reports tool-call markup as an advisory
       (`320/610`, `320/490`).** Both scanners reach every child's next CI
       run, so the authoring session (a principal-opened Opus 5.5 queue run,

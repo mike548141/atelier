@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: every scanner's `--selftest` prints only
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: every scanner's `--selftest` prints only
       its verdict (`320/690`).** The change reaches every child's next CI run
       (the reusable workflow's selftest step runs each scanner's `--selftest`),
       so the authoring session (a principal-opened Opus 5.5 queue run, session

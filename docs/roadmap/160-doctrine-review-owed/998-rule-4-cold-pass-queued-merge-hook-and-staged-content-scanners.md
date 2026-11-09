@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the `pre-merge-commit` hook, the repo-local
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: the `pre-merge-commit` hook, the repo-local
       seam documentation, and the five content scanners reading the staged index
       (`115/340`, `320/560`, `320/600` both slices).** The merge hook and the
       five scanners reach every child's hook plane and next CI run, and

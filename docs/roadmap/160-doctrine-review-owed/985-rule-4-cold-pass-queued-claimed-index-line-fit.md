@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the claimed index line fitted to
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: the claimed index line fitted to
       wrapscan, and brackets neutralised in titles (`320/730`, `320/450`
       §2).** `board.py` is a guard every child runs, and its index is what a
       queue run reads to choose work. So the authoring session (a

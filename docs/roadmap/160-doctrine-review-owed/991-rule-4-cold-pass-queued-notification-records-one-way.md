@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `cctranscript` reads a task notification
+- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: `cctranscript` reads a task notification
       the same way as an attachment record and as a user record, with no
       exchange number for the attachment (`210/260`).** `cctranscript`'s turn numbering and harness
       classification are what `ccclose` and the session records quote as
