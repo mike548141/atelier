@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
-      ⏳ **Rule-4 cold pass queued: the class-only privacy clause in the
+- [ ] ⏳ **Rule-4 cold pass queued: the class-only privacy clause in the
       report-up duty, applied (`160/300`, RU1 and RU8–RU10).** The text every
       child reads at session start now tells a private repo to describe a
       finding by its class and never name itself or its contents on a
@@ -20,3 +19,9 @@
       and its canonical region still agree.
       *Intent record:*
       [`300-rule-4-cold-pass-queued-report-up-duty.md`](300-rule-4-cold-pass-queued-report-up-duty.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session 84e3aa7f (Opus 5.5), a headless
+      brief-writer started by coordinating session 74f2b8cd:
+      `docs/reviews/2026-11-09-0126-report-up-privacy-clause-cold.md`, with
+      its `.deferred.md` sibling. Neither session may run the pass. Review NOT
+      run. The pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work.

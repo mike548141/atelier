@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
-      ⏳ **Rule-4 cold pass queued: G3 records who and when on every manifest
+- [ ] ⏳ **Rule-4 cold pass queued: G3 records who and when on every manifest
       line, runs before the ignore file, and reports unreadable metadata
       (`160/980` applied).** A blocking guard in every child changes what it
       reads and what it accepts, a week before its grace ends. The authoring
@@ -22,3 +21,9 @@
       silently.
       *Intent record:*
       [`980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md`](980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session 84e3aa7f (Opus 5.5), a headless
+      brief-writer started by coordinating session 74f2b8cd:
+      `docs/reviews/2026-11-09-0126-g3-who-when-gate-order-cold.md`, with its
+      `.deferred.md` sibling. Neither session may run the pass. Review NOT
+      run. The pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work.

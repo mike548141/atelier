@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
-      ⏳ **Rule-4 cold pass queued: git resolves a staged scan's positional
+- [ ] ⏳ **Rule-4 cold pass queued: git resolves a staged scan's positional
       scope, and an unknown one is refused (`160/950`, QS1 applied).** The
       staged-positional reader every staged guard shares now asks git what a
       scope names. The authoring session (a principal-opened Opus 5.5 queue
@@ -19,3 +18,9 @@
       directory); whether refusing an unknown scope can strand a child.
       *Intent record:*
       [`950-rule-4-cold-pass-queued-staged-positional-reader.md`](950-rule-4-cold-pass-queued-staged-positional-reader.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session 84e3aa7f (Opus 5.5), a headless
+      brief-writer started by coordinating session 74f2b8cd:
+      `docs/reviews/2026-11-09-0126-git-resolved-staged-scope-cold.md`, with
+      its `.deferred.md` sibling. Neither session may run the pass. Review NOT
+      run. The pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work.

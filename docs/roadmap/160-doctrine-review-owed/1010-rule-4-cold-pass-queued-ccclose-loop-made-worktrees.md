@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
-      ⏳ **Rule-4 cold pass queued: `ccclose` expands a `for` loop's
+- [ ] ⏳ **Rule-4 cold pass queued: `ccclose` expands a `for` loop's
       literal word list and counts the worktree adds it cannot resolve
       (`210/360`).** `ccclose`'s identifiers block is pasted into records
       as fact, so the authoring session (a principal-opened Opus 5.5 queue
@@ -15,3 +14,9 @@
       `210/360`, on `main`, 2026-11-03).
       *Intent record:*
       [`../210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md`](../210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session 84e3aa7f (Opus 5.5), a headless
+      brief-writer started by coordinating session 74f2b8cd:
+      `docs/reviews/2026-11-09-0126-ccclose-loop-worktrees-cold.md`, with its
+      `.deferred.md` sibling. Neither session may run the pass. Review NOT
+      run. The pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work.

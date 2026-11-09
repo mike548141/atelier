@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
-      ⏳ **Rule-4 cold pass queued: `/atelier:queue-run` reads the committed
+- [ ] ⏳ **Rule-4 cold pass queued: `/atelier:queue-run` reads the committed
       prompt and warns on a pending edit, and the teardown rule's three legs
       (`160/900`, QK1 and its counsel applied).** The command every queue run
       starts from now runs only committed text. The authoring session (a
@@ -21,3 +20,9 @@
       the three-leg teardown rule is followable by a separate-session worker.
       *Intent record:*
       [`900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md`](900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session 84e3aa7f (Opus 5.5), a headless
+      brief-writer started by coordinating session 74f2b8cd:
+      `docs/reviews/2026-11-09-0126-queue-run-committed-prompt-cold.md`, with
+      its `.deferred.md` sibling. Neither session may run the pass. Review NOT
+      run. The pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work.

@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0104, wt: atelier-160-1000-1110)
-      ⏳ **Rule-4 cold pass queued: `ccapple` checks the filter before it
+- [ ] ⏳ **Rule-4 cold pass queued: `ccapple` checks the filter before it
       looks for a store (`210/340`).** `ccapple` reads the principal's
       Apple stores and its exit status is what a caller branches on, so the
       authoring session (a principal-opened Opus 5.5 queue run, session
@@ -14,3 +13,9 @@
       2026-11-03).
       *Intent record:*
       [`../210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md`](../210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session 84e3aa7f (Opus 5.5), a headless
+      brief-writer started by coordinating session 74f2b8cd:
+      `docs/reviews/2026-11-09-0126-ccapple-filter-first-cold.md`, with its
+      `.deferred.md` sibling. Neither session may run the pass. Review NOT
+      run. The pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work.
