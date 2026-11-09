@@ -21,7 +21,8 @@ claims to be.
   pins --head          offline: measure against the local checkout's HEAD instead
   pins --child <path>  report only the named child repo(s)
   pins --json          machine-readable (for a dashboard or a CI gate)
-  pins --check         exit 1 if any child is not current (for CI/hooks)
+  pins --check         exit 1 if any child is not current (for CI/hooks); from
+                       2026-12-09 also if a child's floor copy differs
   pins --log           also print the commits each stale child would inspect
 
 The reference is the parent's *published* mainline (`origin/main`, after a
@@ -52,6 +53,35 @@ Exit codes (fail-safe — anything but "everything current" is non-zero):
      unreadable, the fetch failed, a named --child is missing) — we could not truthfully compute the fleet, so
      we do not report a green fleet we did not verify.
 
+THE FLOOR-COPY REPORT (`160/340`; Mike, 2026-11-09: "The approve the report
+only option for 1 month and then we move to blocking per option 2"). Every child
+inlines atelier's safety floor between `stamp:begin`/`stamp:end` markers, and
+nothing reached a child's copy: a pin bump without a re-copy reddened nowhere
+(`020/215` LR4, `160/340` FV3, FV11). For each child with a pin this also compares
+that copy with the canonical `floor` region, using `stampscan`'s own comparison
+(`find_stamp_blocks`, `extract_region`, `evaluate_block`) and no second one.
+Two things the comparison needs that `stampscan` alone cannot give:
+  - the REFERENCE is the floor text AT THE CHILD'S OWN PIN, read with
+    `git show <pin>:docs/method/PROPAGATION.md`, not the current text. A child
+    pinned in the past is lawfully verbatim to what it pinned; comparing it with
+    today's text would red every stale child for being stale, which `pins` already
+    reports as `behind`. A copy that differs from its OWN pin is the thing this
+    finds: a hand-edit, a compression, a partial re-copy. The report also says
+    whether the floor text itself has moved since the pin (`floor moved`), so a
+    child that is verbatim but out of date shows as both.
+  - the four placeholders a child fills (`<SHA>`, `<atelier-path>`,
+    `<visibility fact>`, `<owner/repo>`) are read out of the child's own lines
+    and put back into the reference before `stampscan` compares, so a compliant
+    copy reads `identical`. Anything else that differs is `drift`.
+REPORT-ONLY until `COPY_BLOCKS_FROM` (2026-12-09), the date printed on every run,
+then a copy that differs (`drift`) fails `--check` and the exit code like a stale
+pin (option 2, "block any repo whose copy differs"). One dated constant, as
+leakscan's `BINARY_GRACE_UNTIL`: no flag, env var or config key moves it. A copy
+this cannot compare is reported, never passed or failed: `unstamped` (no stamp
+for the floor in CLAUDE.md, so there is nothing to find), `no-reference` (the pin
+predates the floor region markers, or is not in this checkout), `skipped` (a
+`stampscan:allow` marker), `malformed` (broken markers).
+
 Zero third-party dependencies; stdlib only — a peer who adopts atelier runs it
 with the system python3 and no install.
 """
@@ -59,12 +89,16 @@ with the system python3 and no install.
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
 import re
 import subprocess
 import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import stampscan  # noqa: E402  — the floor-copy comparison is stampscan's, not a second one
 
 # The pin as written in a child CLAUDE.md: `atelier@<sha>`. 7–40 hex chars covers
 # an abbreviated or full SHA. The first occurrence is the authoritative pin (the
@@ -102,6 +136,138 @@ STATUS_NO_PIN = "no-pin"
 # Every status except "current" is actionable (someone should look). Kept as a
 # set so --check and the exit code agree on one definition of "not clean".
 ACTIONABLE = {STATUS_BEHIND, STATUS_AHEAD, STATUS_DIVERGED, STATUS_UNKNOWN, STATUS_NO_PIN}
+
+
+# --- the floor-copy report ---------------------------------------------------
+
+# THE CUT-OFF. Report-only before this date (UTC), blocking from it: Mike,
+# 2026-11-09, `160/340` — "The approve the report only option for 1 month and
+# then we move to blocking per option 2". One constant compared with the UTC
+# clock, in leakscan's `BINARY_GRACE_UNTIL` style: no flag, env var or config key
+# moves it, and the date is printed on every run. Delete the report-only path
+# once it has passed and the blocking is wanted for good.
+COPY_BLOCKS_FROM = datetime.date(2026, 12, 9)
+
+# The four values a child fills into the floor block. A line of the canonical
+# region may carry one or more; anything else in the region is literal.
+COPY_PLACEHOLDERS = ("<SHA>", "<atelier-path>", "<visibility fact>", "<owner/repo>")
+_PLACEHOLDER_RX = re.compile("(" + "|".join(re.escape(t) for t in COPY_PLACEHOLDERS) + ")")
+
+COPY_IDENTICAL = "identical"      # word for word the floor at the child's pin
+COPY_DRIFT = "drift"              # differs: the only state that blocks
+COPY_SKIPPED = "skipped"          # a stampscan:allow marker skipped the comparison
+COPY_UNSTAMPED = "unstamped"      # no stamp for the floor in CLAUDE.md
+COPY_NO_REFERENCE = "no-reference"  # no floor region at the pin (or the pin is unknown)
+COPY_MALFORMED = "malformed"      # stamp markers broken, nothing to compare
+COPY_UNCHECKED = "unchecked"      # not asked for, or the pin could not be read
+
+# Shown with the report, one mark per state.
+_COPY_MARK = {COPY_IDENTICAL: "✓", COPY_DRIFT: "✗", COPY_SKIPPED: "!",
+              COPY_UNSTAMPED: "·", COPY_NO_REFERENCE: "·", COPY_MALFORMED: "?",
+              COPY_UNCHECKED: "·"}
+
+
+def _utc_today() -> datetime.date:
+    return datetime.datetime.now(datetime.timezone.utc).date()
+
+
+def copy_blocking(today: datetime.date | None = None) -> bool:
+    """True from `COPY_BLOCKS_FROM` (UTC) on. Tests patch `_utc_today`; nothing a
+    caller can pass at the command line reaches it."""
+    return (today or _utc_today()) >= COPY_BLOCKS_FROM
+
+
+def floor_region_at(atelier: Path, ref: str) -> list[str] | None:
+    """The canonical `floor` region of PROPAGATION.md as it stood at `ref`
+    (a commit in `atelier`), or None when that commit has no such file or no
+    region markers (a pin from before the region was marked) or git cannot say.
+    The region is extracted by `stampscan.extract_region`, fence stripping
+    included, so it is exactly the text `stampscan` would compare."""
+    out = git(["-C", str(atelier), "show", f"{ref}:{stampscan.FLOOR_SOURCE}"], check=False)
+    if out.returncode != 0:
+        return None
+    return stampscan.extract_region(out.stdout, stampscan.FLOOR_REGION)
+
+
+# A placeholder's value may run over several lines (the visibility fact usually
+# does); this many child lines at most are joined to fit one canonical line.
+_MAX_VALUE_LINES = 8
+
+
+def fill_placeholders(canonical: list[str], child_lines: list[str]) -> list[str]:
+    """The canonical region with the child's own placeholder values put back.
+
+    Each canonical line that carries a placeholder becomes a pattern, and the
+    child's lines are scanned once, in order, for the first run of one to
+    `_MAX_VALUE_LINES` lines that fits it; what the placeholders matched there is
+    what the child filled in. The first value seen for a placeholder wins, and a
+    later line that disagrees then fails `stampscan`'s own comparison, which is
+    the only judge of a difference. A placeholder no child line fills (or that
+    the child left as the bare placeholder) is marked «… left unfilled» in the
+    reference, so the comparison reds on it and names the line. Nothing here
+    decides whether a copy is right."""
+    values: dict[str, str] = {}
+    child = [ln.rstrip() for ln in child_lines]
+    at = 0
+    for line in canonical:
+        parts = _PLACEHOLDER_RX.split(line.rstrip())
+        if len(parts) == 1:
+            continue
+        names = [p for n, p in enumerate(parts) if n % 2]
+        rx = re.compile("".join(
+            re.escape(p) if i % 2 == 0 else "(.+?)" for i, p in enumerate(parts)), re.DOTALL)
+        found = False
+        for j in range(at, len(child)):
+            for k in range(1, _MAX_VALUE_LINES + 1):
+                m = rx.fullmatch("\n".join(child[j:j + k]))
+                if m:
+                    for name, val in zip(names, m.groups()):
+                        # A value that is itself a placeholder is a blank left
+                        # blank, not a value: it stays unfilled.
+                        if not _PLACEHOLDER_RX.search(val):
+                            values.setdefault(name, val)
+                    at = j + k
+                    found = True
+                    break
+            if found:
+                break
+    filled = [_PLACEHOLDER_RX.sub(
+        lambda m: values.get(m.group(1), f"«{m.group(1)[1:-1]} left unfilled»"), ln)
+        for ln in canonical]
+    return "\n".join(filled).split("\n")
+
+
+def check_copy(label: str, text: str, canonical: list[str]) -> tuple[str, str]:
+    """(state, detail) for one child's CLAUDE.md text against the canonical floor
+    region it should copy. The verdict on a stamped block is
+    `stampscan.evaluate_block`'s; this only finds the block and fills the four
+    placeholders. When a file stamps the floor more than once the worst wins
+    (drift, then skipped, then identical)."""
+    blocks, malformed = stampscan.find_stamp_blocks(label, text)
+    floor = [b for b in blocks
+             if b.source == stampscan.FLOOR_SOURCE and b.region == stampscan.FLOOR_REGION]
+    if not floor:
+        if malformed:
+            return COPY_MALFORMED, malformed[0].detail
+        return COPY_UNSTAMPED, "no stamp for the floor in CLAUDE.md, so there is no copy to compare"
+    rank = {COPY_IDENTICAL: 0, COPY_SKIPPED: 1, COPY_DRIFT: 2}
+    worst, detail = COPY_IDENTICAL, ""
+    for b in floor:
+        f = stampscan.evaluate_block(b, fill_placeholders(canonical, b.payload))
+        state = {"identical": COPY_IDENTICAL, "skipped": COPY_SKIPPED}.get(f.kind, COPY_DRIFT)
+        if rank[state] >= rank[worst]:
+            worst, detail = state, f.detail
+            left = sorted({t for ln in b.payload for t in _PLACEHOLDER_RX.findall(ln)})
+            if state == COPY_DRIFT and left:
+                detail = (f"the copy still carries the unfilled placeholder(s) "
+                          f"{', '.join(left)} — fill each one in; {detail}")
+    return worst, detail
+
+
+def copy_blocks(info: "ChildPin", today: datetime.date | None = None) -> bool:
+    """Does this child's copy fail its check today? Only a copy that differs does,
+    and only from `COPY_BLOCKS_FROM`."""
+    return info.copy == COPY_DRIFT and copy_blocking(today)
 
 
 class GitError(RuntimeError):
@@ -155,20 +321,29 @@ def is_icloud(path: Path) -> bool:
     return any(m in hay for m in ICLOUD_MARKERS)
 
 
-def read_pin(claude_md: Path) -> str | None:
-    """The first `atelier@<sha>` in a child CLAUDE.md, lower-cased, or None.
-
-    020/380: refuses to read a CLAUDE.md over `MAX_CLAUDE_MD_BYTES` whole —
-    reported to stderr, then treated the same as "no pin found" (the same
-    safe direction an unreadable file already takes)."""
+def read_claude_text(claude_md: Path) -> str | None:
+    """A child's CLAUDE.md text, or None when it is over `MAX_CLAUDE_MD_BYTES`
+    (reported to stderr) or cannot be read. One bounded read, shared by the pin
+    and the floor-copy check."""
     try:
         if claude_md.stat().st_size > MAX_CLAUDE_MD_BYTES:
             print(f"pins: warning — {claude_md} is over the "
                  f"{MAX_CLAUDE_MD_BYTES}-byte cap; not read for a pin "
                  "(020/380)", file=sys.stderr)
             return None
-        text = claude_md.read_text(encoding="utf-8", errors="replace")
+        return claude_md.read_text(encoding="utf-8", errors="replace")
     except OSError:
+        return None
+
+
+def read_pin(claude_md: Path) -> str | None:
+    """The first `atelier@<sha>` in a child CLAUDE.md, lower-cased, or None.
+
+    020/380: refuses to read a CLAUDE.md over `MAX_CLAUDE_MD_BYTES` whole —
+    reported to stderr, then treated the same as "no pin found" (the same
+    safe direction an unreadable file already takes)."""
+    text = read_claude_text(claude_md)
+    if text is None:
         return None
     m = PIN_RE.search(text)
     return m.group(1).lower() if m else None
@@ -199,6 +374,13 @@ class ChildPin:
     behind: int          # house commits between pin and HEAD (behind direction)
     ahead: int           # commits the pin sits past HEAD (ahead/diverged direction)
     log: list[str]       # one-line log of the commits a stale child would inspect
+    # The floor-copy report (see the module docstring). `copy` is one of the
+    # COPY_* states; `copy_detail` says why in a line; `floor_moved` is whether
+    # the canonical floor text changed between the child's pin and the reference
+    # (None when either end could not be read).
+    copy: str = "unchecked"
+    copy_detail: str = ""
+    floor_moved: bool | None = None
 
 
 def _is_ancestor(repo: Path, a: str, b: str) -> bool:
@@ -219,7 +401,35 @@ def _known(repo: Path, sha: str) -> bool:
                check=False).returncode == 0
 
 
-def evaluate(atelier: Path, head: str, child_dir: Path, want_log: bool) -> ChildPin:
+def _copy_report(atelier: Path, head: str, pin: str, claude: Path, info: ChildPin,
+                 cache: dict) -> None:
+    """Fill `info.copy*` and `info.floor_moved` for a child whose pin is a commit
+    in `atelier`. `cache` holds one floor region per commit across children."""
+    def region(ref):
+        if ref not in cache:
+            cache[ref] = floor_region_at(atelier, ref)
+        return cache[ref]
+
+    at_pin = region(pin)
+    at_head = region(head)
+    if at_pin is not None and at_head is not None:
+        norm = stampscan._trim_blank_boundary
+        info.floor_moved = norm(stampscan._normalise(at_pin)) != norm(stampscan._normalise(at_head))
+    if at_pin is None:
+        info.copy = COPY_NO_REFERENCE
+        info.copy_detail = (f"no floor region in {stampscan.FLOOR_SOURCE} at the pin "
+                            f"{pin[:7]}, so there is no text to compare the copy with")
+        return
+    text = read_claude_text(claude)
+    if text is None:
+        info.copy = COPY_UNCHECKED
+        info.copy_detail = "CLAUDE.md could not be read"
+        return
+    info.copy, info.copy_detail = check_copy(f"{info.name}/CLAUDE.md", text, at_pin)
+
+
+def evaluate(atelier: Path, head: str, child_dir: Path, want_log: bool,
+             copy_cache: dict | None = None) -> ChildPin:
     claude = child_dir / "CLAUDE.md"
     pin = read_pin(claude) if claude.is_file() else None
     info = ChildPin(child_dir.name, str(child_dir), pin, STATUS_NO_PIN, 0, 0, [])
@@ -228,7 +438,10 @@ def evaluate(atelier: Path, head: str, child_dir: Path, want_log: bool) -> Child
 
     if not _known(atelier, pin):
         info.status = STATUS_UNKNOWN
+        info.copy = COPY_NO_REFERENCE
+        info.copy_detail = f"the pin {pin[:7]} is not a commit in this atelier checkout"
         return info
+    _copy_report(atelier, head, pin, claude, info, {} if copy_cache is None else copy_cache)
 
     pin_is_head = _is_ancestor(atelier, head, pin) and _is_ancestor(atelier, pin, head)
     pin_anc = _is_ancestor(atelier, pin, head)
@@ -358,27 +571,35 @@ def cmd_report(args) -> int:
         roots = [Path(r).expanduser() for r in args.root] if args.root else [atelier.parent]
         children = discover(roots, atelier)
 
-    infos = [evaluate(atelier, head, c, args.log) for c in
+    cache: dict = {}
+    infos = [evaluate(atelier, head, c, args.log, cache) for c in
              sorted(children, key=lambda p: p.name.lower())]
+    today = _utc_today()
+    blocked = [i for i in infos if copy_blocks(i, today)]
 
     if args.json:
         out = {
             "atelier": str(atelier),
             "ref": ref_label,
             "head": head,
+            "floor_copy": {
+                "blocks_from": COPY_BLOCKS_FROM.isoformat(),
+                "blocking": copy_blocking(today),
+                "differing": [i.name for i in infos if i.copy == COPY_DRIFT],
+            },
             "children": [asdict(i) for i in infos],
         }
         if roots is not None:
             out["searched"] = [str(r) for r in roots]
         print(json.dumps(out, indent=2))
     else:
-        print(render(infos, atelier, head, args.log, roots, ref_label))
+        print(render(infos, atelier, head, args.log, roots, ref_label, today))
 
     if not infos:
         # Nothing discovered is not "all clean" — say so, and treat as actionable
         # under --check (a fleet view that finds no fleet is usually a wrong root).
         return 1 if args.check else 0
-    not_current = any(i.status in ACTIONABLE for i in infos)
+    not_current = any(i.status in ACTIONABLE for i in infos) or bool(blocked)
     if args.check:
         return 1 if not_current else 0
     return 1 if not_current else 0
@@ -412,8 +633,36 @@ def _detail(i: ChildPin) -> str:
     return ""
 
 
+def render_copy(infos: list[ChildPin], today: datetime.date | None = None) -> list[str]:
+    """The floor-copy section: one line per child, and the cut-off date always."""
+    blocking = copy_blocking(today)
+    when = COPY_BLOCKS_FROM.isoformat()
+    lines = ["", "  floor copy — each child's stamped floor block against the floor text at its own pin"]
+    lines.append(f"  {'BLOCKING since' if blocking else 'report-only until'} {when}"
+                 + (": a copy that differs fails this check." if blocking else
+                    ": from then a copy that differs fails this check."))
+    width = max(len(i.name) for i in infos)
+    for i in infos:
+        mark = _COPY_MARK.get(i.copy, " ")
+        moved = ("  floor moved since the pin" if i.floor_moved else "")
+        lines.append(f"   {mark} {i.name:<{width}}  {i.copy:<12}{moved}")
+        if i.copy in (COPY_DRIFT, COPY_MALFORMED, COPY_SKIPPED, COPY_NO_REFERENCE, COPY_UNCHECKED) \
+                and i.copy_detail:
+            lines.append(f"       {i.copy_detail[:240]}")
+    differ = [i for i in infos if i.copy == COPY_DRIFT]
+    not_compared = [i for i in infos if i.copy in
+                    (COPY_UNSTAMPED, COPY_NO_REFERENCE, COPY_MALFORMED, COPY_SKIPPED, COPY_UNCHECKED)]
+    lines.append(f"  {len(differ)} of {len(infos)} copies differ"
+                 + (f" — {'failing now' if blocking else 'they would fail from ' + when}"
+                    if differ else "")
+                 + (f"; {len(not_compared)} not compared (unstamped, no reference at the pin, "
+                    "skipped or malformed), which never fail" if not_compared else "") + ".")
+    return lines
+
+
 def render(infos: list[ChildPin], atelier: Path, head: str, want_log: bool,
-          roots: list[Path] | None = None, ref: str = "HEAD") -> str:
+          roots: list[Path] | None = None, ref: str = "HEAD",
+          today: datetime.date | None = None) -> str:
     lines = [f"atelier fleet pins  ({ref} {head[:7]}  {atelier})"]
     if roots is not None:
         # Named explicitly, always — not just when the count looks wrong. PU-5
@@ -446,6 +695,7 @@ def render(infos: list[ChildPin], atelier: Path, head: str, want_log: bool,
     else:
         lines.append("")
         lines.append(f"  all {len(infos)} children current ✓")
+    lines.extend(render_copy(infos, today))
     return "\n".join(lines)
 
 

@@ -8,6 +8,7 @@ fleet can't exhibit."""
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -260,8 +261,10 @@ class WorktreeResolution(unittest.TestCase):
         # worktree, not the main checkout, when the script runs from there.
         tools_dir = self.main / "tools"
         tools_dir.mkdir()
-        real_pins = Path(__file__).resolve().parent / "pins.py"
-        shutil.copy(real_pins, tools_dir / "pins.py")
+        # pins reads a child's floor copy with stampscan's own comparison, so
+        # stampscan and the three modules it imports travel with it.
+        for name in ("pins.py", "stampscan.py", "filewalk.py", "allowmarker.py", "report.py"):
+            shutil.copy(Path(__file__).resolve().parent / name, tools_dir / name)
         self._commit(self.main, "seed.txt", "seed")
         self.worktree = Path(self.tmp) / "wt"
         subprocess.run(["git", "worktree", "add", "-q", str(self.worktree),
@@ -437,3 +440,181 @@ class BoundedMemory(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+# ---------------------------------------------------------------------------
+# 160/340 — the floor-copy report.
+#
+# SYNTHETIC repos only, built under a temp dir: nothing here reads a real child
+# or the real atelier checkout. The comparison is stampscan's (find_stamp_blocks,
+# extract_region, evaluate_block); these tests pin the parts pins adds: the
+# reference being the floor at the child's OWN pin, the four placeholders put
+# back, the dated cut-off, and the states a copy that cannot be compared gets.
+
+import datetime  # noqa: E402
+from unittest import mock  # noqa: E402
+
+FLOOR_V1 = [
+    "## Doctrine — inherited from atelier (pinned `atelier@<SHA>`)",
+    "",
+    "- **Rule one:** keep the safety rule verbatim.",
+    "- **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`.",
+    "  Run `git -C \"<atelier-path>\" log --oneline <SHA>..origin/main`.",
+    "- **This repo's visibility:** <visibility fact>. Verify:",
+    "  `gh repo view <owner/repo> --json visibility`.",
+]
+FLOOR_V2 = FLOOR_V1[:2] + ["- **Rule one:** keep the safety rule verbatim, always."] + FLOOR_V1[3:]
+
+
+def propagation(region):
+    return ("# PROPAGATION\n\nprose\n\n<!-- floor:begin -->\n```markdown\n"
+            + "\n".join(region) + "\n```\n<!-- floor:end -->\n\ntail\n")
+
+
+def filled(region, sha, visibility="PRIVATE by design. It holds only examples,\n  so it is never published"):
+    text = "\n".join(region)
+    for token, value in (("<SHA>", sha[:7]), ("<atelier-path>", "../atelier"),
+                         ("<visibility fact>", visibility), ("<owner/repo>", "example/child")):
+        text = text.replace(token, value)
+    return text
+
+
+def stamped(block_text, begin="<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor -->"):
+    return f"# child\n\n{begin}\n{block_text}\n<!-- stamp:end -->\n\nmore\n"
+
+
+class FloorCopyReport(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="pins-copy-"))
+        self.parent = self.tmp / "estate"
+        self.parent.mkdir()
+        self.atelier = self.parent / "atelier"
+        self.atelier.mkdir()
+        git(["init", "-q", "-b", "main"], self.atelier)
+        git(["config", "user.email", "t@example.com"], self.atelier)  # leakscan:allow: fictional test fixture
+        git(["config", "user.name", "Test"], self.atelier)
+        (self.atelier / "docs" / "method").mkdir(parents=True)
+        self.prop = self.atelier / "docs" / "method" / "PROPAGATION.md"
+        self.v0 = self._commit_text("no region yet\n")          # a pin before the region was marked
+        self.v1 = self._commit_text(propagation(FLOOR_V1))
+        self.v2 = self._commit_text(propagation(FLOOR_V2))      # the floor moved after v1
+        self.head = self.v2
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _commit_text(self, text):
+        self.prop.write_text(text)
+        git(["add", "-A"], self.atelier)
+        git(["commit", "-qm", "c"], self.atelier)
+        return sha(self.atelier)
+
+    def _child(self, name, pin, claude_md):
+        d = self.parent / name
+        d.mkdir()
+        git(["init", "-q", "-b", "main"], d)
+        (d / "CLAUDE.md").write_text(claude_md)
+        return d
+
+    def _eval(self, d):
+        return pins.evaluate(self.atelier, self.head, d, want_log=False)
+
+    def _run(self, *extra, today=None):
+        args = pins.build_parser().parse_args(
+            ["--atelier", str(self.atelier), "--root", str(self.parent), "--head", *extra])
+        with mock.patch.object(pins, "_utc_today", return_value=today or datetime.date(2026, 11, 9)):
+            return pins.cmd_report(args)
+
+    def test_a_verbatim_copy_with_its_placeholders_filled_reads_identical(self):
+        d = self._child("a", self.v2, stamped(filled(FLOOR_V2, self.v2)))
+        info = self._eval(d)
+        self.assertEqual(info.copy, pins.COPY_IDENTICAL, info.copy_detail)
+        self.assertFalse(info.floor_moved)
+
+    def test_a_child_at_an_older_pin_is_compared_with_the_floor_at_its_own_pin(self):
+        # Verbatim to what it pinned (v1), though the floor has since moved to v2.
+        d = self._child("old", self.v1, stamped(filled(FLOOR_V1, self.v1)))
+        info = self._eval(d)
+        self.assertEqual(info.copy, pins.COPY_IDENTICAL, info.copy_detail)
+        self.assertTrue(info.floor_moved, "and the report says the floor has moved since")
+        self.assertEqual(info.status, pins.STATUS_BEHIND, "staleness is the pin column's job")
+        # The same copy judged against TODAY's text would differ: the wrong reference.
+        today = stampscan_check(filled(FLOOR_V1, self.v1), FLOOR_V2)
+        self.assertEqual(today, pins.COPY_DRIFT)
+
+    def test_a_copy_that_differs_from_its_own_pin_is_drift(self):
+        reworded = filled(FLOOR_V1, self.v1).replace("keep the safety rule verbatim", "keep the safety rule")
+        info = self._eval(self._child("edited", self.v1, stamped(reworded)))
+        self.assertEqual(info.copy, pins.COPY_DRIFT)
+        self.assertIn("keep the safety rule", info.copy_detail)
+
+    def test_a_dropped_line_and_a_narrow_declaration_are_still_drift(self):
+        dropped = "\n".join(filled(FLOOR_V1, self.v1).split("\n")[:3])
+        begin = "<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor narrow=we-left-it-out -->"
+        info = self._eval(self._child("short", self.v1, stamped(dropped, begin)))
+        self.assertEqual(info.copy, pins.COPY_DRIFT, "the floor is verbatim; narrow= buys nothing")
+
+    def test_an_unfilled_placeholder_is_drift_and_names_the_line(self):
+        raw = f"(pinned `atelier@{self.v1[:7]}`)\n" + stamped("\n".join(FLOOR_V1))
+        info = self._eval(self._child("raw", self.v1, raw))
+        self.assertEqual(info.copy, pins.COPY_DRIFT)
+
+    def test_states_that_cannot_be_compared_are_reported_not_failed(self):
+        unstamped = self._eval(self._child("plain", self.v1, f"(pinned `atelier@{self.v1[:7]}`)\n"))
+        self.assertEqual(unstamped.copy, pins.COPY_UNSTAMPED)
+        old = self._eval(self._child("ancient", self.v0, f"(pinned `atelier@{self.v0[:7]}`)\n"))
+        self.assertEqual(old.copy, pins.COPY_NO_REFERENCE, "the pin predates the region markers")
+        unknown = self._eval(self._child("lost", "deadbeef", "(pinned `atelier@deadbeef`)\n"))
+        self.assertEqual(unknown.copy, pins.COPY_NO_REFERENCE)
+        allowed = stamped(filled(FLOOR_V1, self.v1) + "\n<!-- stampscan:allow: reason -->")
+        self.assertEqual(self._eval(self._child("allowed", self.v1, allowed)).copy, pins.COPY_SKIPPED)
+        broken = f"(pinned `atelier@{self.v1[:7]}`)\n<!-- stamp:begin source=x region=floor -->\nno end\n"
+        self.assertEqual(self._eval(self._child("broken", self.v1, broken)).copy, pins.COPY_MALFORMED)
+        for info in (unstamped, old, unknown):
+            self.assertFalse(pins.copy_blocks(info, datetime.date(2027, 1, 1)), "only drift ever blocks")
+
+    def test_report_only_before_the_date_blocking_from_it(self):
+        reworded = filled(FLOOR_V2, self.v2).replace("always", "sometimes")
+        self._child("edited", self.v2, stamped(reworded))
+        self._child("good", self.v2, stamped(filled(FLOOR_V2, self.v2)))
+        self.assertEqual(pins.COPY_BLOCKS_FROM, datetime.date(2026, 12, 9))
+        before = self._run("--check", today=datetime.date(2026, 12, 8))
+        # `edited` is current, so before the cut-off nothing at all is red.
+        self.assertEqual(before, 0, "report-only: a differing copy does not move the exit code")
+        after = self._run("--check", today=datetime.date(2026, 12, 9))
+        self.assertEqual(after, 1, "from the date the same comparison fails the check")
+        self.assertFalse(pins.copy_blocking(datetime.date(2026, 12, 8)))
+        self.assertTrue(pins.copy_blocking(datetime.date(2026, 12, 9)))
+
+    def test_the_date_and_the_differing_repos_are_printed_and_in_the_json(self):
+        self._child("edited", self.v2, stamped(filled(FLOOR_V2, self.v2).replace("always", "sometimes")))
+        out = self.tmp / "out.txt"
+        with mock.patch.object(pins, "_utc_today", return_value=datetime.date(2026, 11, 9)), \
+                open(out, "w") as fh, mock.patch.object(sys, "stdout", fh):
+            pins.cmd_report(pins.build_parser().parse_args(
+                ["--atelier", str(self.atelier), "--root", str(self.parent), "--head"]))
+            pins.cmd_report(pins.build_parser().parse_args(
+                ["--atelier", str(self.atelier), "--root", str(self.parent), "--head", "--json"]))
+        text = out.read_text()
+        self.assertIn("report-only until 2026-12-09", text)
+        self.assertIn("1 of 1 copies differ", text)
+        payload = json.loads(text[text.index("{"):])
+        self.assertEqual(payload["floor_copy"], {"blocks_from": "2026-12-09", "blocking": False,
+                                                 "differing": ["edited"]})
+        self.assertEqual(payload["children"][0]["copy"], "drift")
+
+    def test_the_four_placeholders_are_the_only_angle_tokens_in_the_real_floor_region(self):
+        # If the floor gains a fifth placeholder, filling it would silently stop
+        # working; this fails first. Reads atelier's own PROPAGATION.md (the one
+        # this script lives in), never a child.
+        import stampscan
+        text = (TOOLS_DIR.parent / "docs" / "method" / "PROPAGATION.md").read_text()
+        region = stampscan.extract_region(text, "floor")
+        tokens = set(re.findall(r"<[A-Za-z][^<>]*>", "\n".join(region)))
+        self.assertEqual(tokens, set(pins.COPY_PLACEHOLDERS))
+
+
+def stampscan_check(child_text, canonical_region):
+    """What the comparison says of `child_text` against an arbitrary region: the
+    wrong-reference control for the older-pin test."""
+    state, _ = pins.check_copy("x/CLAUDE.md", stamped(child_text), canonical_region)
+    return state

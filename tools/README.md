@@ -1030,6 +1030,47 @@ python3 tools/pins.py --check            # exit 1 if any child is not current (C
 python3 tools/pins.py --selftest         # prove the parse + classification offline
 ```
 
+### The floor-copy report (`160/340`)
+
+Every child inlines atelier's safety floor between `stamp:begin` / `stamp:end`
+markers, and until this nothing reached that copy: a pin bump with no re-copy
+reddened nowhere (`020/215` LR4, `160/340` FV3 and FV11). For each child with a
+pin, `pins` now compares the copy with the canonical `floor` region, using
+`stampscan`'s own comparison (`find_stamp_blocks`, `extract_region`,
+`evaluate_block`), and lists the result under the pin table:
+
+| Copy | Means | Mark |
+|---|---|---|
+| `identical` | word for word the floor at the child's **own pin**, placeholders filled | ✓ |
+| `drift` | differs: an edit, a compression, an unfilled placeholder, a re-wrap | ✗ |
+| `skipped` | a `stampscan:allow` marker inside the block skipped the comparison | ! |
+| `unstamped` | no `stamp:begin source=docs/method/PROPAGATION.md region=floor` in `CLAUDE.md`, so there is no copy to find | · |
+| `no-reference` | the pin predates the floor region markers, or is not in this checkout | · |
+| `malformed` | the stamp markers are broken | ? |
+
+**The reference is the floor at the child's own pin**, read with `git show
+<pin>:docs/method/PROPAGATION.md`, not today's text. A child pinned in the past
+is lawfully verbatim to what it pinned; judging it against today's text would
+red every stale child for being stale, which the pin table already reports as
+`behind`. The row says `floor moved since the pin` when the text itself has
+changed since, so a copy that is verbatim but out of date shows as both. The four
+placeholders a child fills (`<SHA>`, `<atelier-path>`, `<visibility fact>`,
+`<owner/repo>`) are read from the child's own lines and put back before the
+comparison, because `stampscan` compares literally and a filled copy would
+otherwise never match; a placeholder left unfilled is `drift`.
+
+**Report-only until 2026-12-09, then blocking** (Mike, 2026-11-09: *"The approve
+the report only option for 1 month and then we move to blocking per option 2"*,
+option 2 being *block any repo whose copy differs*). `COPY_BLOCKS_FROM` is one
+dated constant compared with the UTC clock, in `leakscan`'s `BINARY_GRACE_UNTIL`
+style: no flag, env var or config key moves it, and the date prints on every run
+and in `--json` (`floor_copy`). From it a `drift` copy fails `--check` and the
+exit code like a stale pin. Only `drift` ever blocks: a copy `pins` cannot
+compare (`unstamped`, `no-reference`, `skipped`, `malformed`) is reported and
+never failed or passed. This is a fleet view run from atelier, not a child's own
+CI, so a child's copy is still not checked at its own commit (`stampscan`
+cannot resolve a child's `source=`, ST3); the fleet report is what reaches it.
+
 Discovery walks one level under each search root (default: atelier's parent dir)
 for git repos whose `CLAUDE.md` carries a pin; atelier itself is excluded. An
 unreadable root degrades to a warning, not a crash (fail-safe). Exit codes match
@@ -1889,6 +1930,9 @@ template ships a stamp pinned at `source=docs/method/PROPAGATION.md`, a path tha
 exists only here, so a scaffolded child running it would exit 2; the child-side
 resolution story also has to be **pin-aware**, since a child pinned at
 `atelier@<SHA>` may lawfully differ from atelier@main. That is ST3, still open.
+What reaches a child's copy meanwhile is `pins`' floor-copy report (above): it
+runs `stampscan`'s comparison against the floor at each child's own pin, from
+atelier, report-only until 2026-12-09 and blocking after (`160/340`).
 
 ## `memprobe.py` — measuring a guard's real peak memory from outside it
 
