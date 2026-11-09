@@ -2098,4 +2098,4 @@ async function main() {
 if (require.main === module) main();
 
 module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
-  judgeAgent, FRESH_MS, worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };
+  judgeAgent, FRESH_MS, board, CLAIM_LINE, worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };

@@ -49,7 +49,7 @@ another reason. So `cclive` writes nothing and asks no session to do anything ne
 |---|---|---|
 | Repos | One level under each search root, a directory with a `.git` entry, as `tools/pins.py discover` walks | one `readdir` per root |
 | Claims | `git grep` for a `[~]` line in the repo's board **at the newest of its `main`/`master`/`origin/main`/`origin/master`** | one spawn per repo |
-| Worktrees | `git worktree list --porcelain`, then `git log --no-walk` for last-commit ages | two spawns per repo with linked worktrees |
+| Worktrees | `git worktree list --porcelain`, then `git log --no-walk` for last-commit ages; a repo with no `.git/worktrees` directory has only its primary checkout and spawns nothing | two spawns per repo with linked worktrees |
 | Live sessions | Mtime of `~/.claude/projects/*/*.jsonl` and `*/<session>/subagents/agent-*.jsonl` | one stat per recent file |
 | Where a session is | The last `cwd`, `gitBranch` and `aiTitle` in the tail of a *fresh* transcript only | 256 KiB per fresh file |
 | Load | `os.loadavg()` and core count | none |
@@ -64,7 +64,11 @@ generated index with its item store reads the store; a hand-kept `ROADMAP.md`
 reads that file. A repo with no board reports claims as *unknown*, never zero.
 
 **What counts as a claim.** A `[~]` state line at the left margin, or an indented
-`[~]` carrying a `claimed <date>` stamp. An indented `[~]` with no stamp is a
+`[~]` carrying a `claimed <date>` stamp. The stamp is looked for across the item's
+first paragraph, read with `git grep -A4` and `tools/board.py`'s own paragraph
+rule: on a real board all eleven claims in one repo carried the stamp on line two,
+because `wrapscan`'s width wraps a title and a claim sharing the first line. A
+stamp that says it was released dates nothing. An indented `[~]` with no stamp is a
 progress mark on a sub-bullet (one real board has 26 of them), so it is not
 counted. A left-margin `[~]` with no stamp is counted separately as **undated**:
 the same board has 52 such lines, most of them old, and the view keeps them to a
@@ -110,9 +114,11 @@ caps.
 
 Cross-referencing is what makes it more than three lists. A claim line whose
 stamp names a live session (its 8-hex id) or a worktree that has a live session in
-it is marked `live`; a worktree with a live session in it is marked `live`. Neither
-is proof of the other's absence, so the other mark says only `quiet`, and the
-limits line says what `quiet` is worth.
+it is marked `live`; a worktree with a live session in it, or named by a live
+claim, is marked `live` (a worker can keep its session's starting directory while
+it works by absolute path, so the claim is the second route). Neither is proof of
+the other's absence, so the other mark says only `quiet`, and the limits line says
+what `quiet` is worth.
 
 ## 7. Honest limits, in the output and the man page
 

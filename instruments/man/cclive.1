@@ -1,0 +1,187 @@
+.TH CCLIVE 1 "2026-11-09" "atelier instruments" "User Commands"
+.SH NAME
+cclive \- what any session on this machine is doing, holding or claimed on
+.SH SYNOPSIS
+.B cclive
+.RB [ \-\-root
+.IR dir ]...
+.RB [ \-\-fresh
+.IR minutes ]
+.RB [ \-\-all ]
+.RB [ \-\-json ]
+.br
+.B cclive
+.BR \-h " | " \-\-help
+.SH DESCRIPTION
+Work is coordinated repo by repo: a claim on one board, a worktree in one
+checkout, a session in one directory.
+A session that opens one repo cannot otherwise learn that another session is
+mid-flight in a sibling, even where the two could coordinate over a shared
+credential, host or subject.
+.PP
+.B cclive
+gives one view of live work across the repos on this machine, grouped by repo
+with a total, to be read at session open.
+It prints the time and the load average, the roots it scanned and what it
+skipped, one line of totals, a section for each repo with anything in it, one
+line naming the quiet repos, and the limits.
+.SS What it reads
+Everything it reads was written for another reason, and it writes nothing:
+.IP \(bu 2
+\fBRepos\fR: one level under each search root, a directory with a
+.I .git
+entry.
+A linked worktree found there is skipped, and is read through its own repo.
+.IP \(bu 2
+\fBClaims\fR: the board's
+.B [~]
+lines at the newest of the repo's
+.BR main ", " master ", " origin/main " and " origin/master .
+The claim commit reaches those refs; the working tree may be on another branch
+or behind.
+A board with a generated index is read from its item store, a hand-kept
+.I ROADMAP.md
+from that file.
+.IP \(bu 2
+\fBWorktrees\fR:
+.BR "git worktree list" ,
+with the age of each one's last commit.
+.IP \(bu 2
+\fBLive sessions\fR: transcripts under
+.I ~/.claude/projects
+written in the last ten minutes (\fB\-\-fresh\fR changes the bound), and the
+agent transcripts of sessions active in the last day.
+The tail of a fresh transcript gives its working directory, branch and title;
+transcripts are never read whole.
+.IP \(bu 2
+\fBLoad\fR: the 1, 5 and 15 minute load averages and the core count.
+.SS What counts as a claim
+A left-margin
+.B [~]
+line, or an indented
+.B [~]
+line carrying a claim stamp.
+A stamp may sit on any line of the item's first paragraph.
+A claim with a stamp is \fIdated\fR and shows its age, worktree and session;
+a left-margin
+.B [~]
+with no stamp is \fIundated\fR and is counted, and listed only with
+.BR \-\-all .
+An indented
+.B [~]
+with no stamp is a progress mark on a sub-bullet and is not counted.
+.SS Live and quiet
+A session is listed under the repo its own working directory is in, matched to
+the longest worktree path of any scanned repo.
+A subagent is matched by its own directory, so an orchestrator in one repo
+with a worker in another shows in both.
+A session in no scanned repo is listed under
+.BR elsewhere .
+.PP
+A claim is marked
+.B live
+when its stamp names a live session or a worktree with a live session in it.
+A worktree is marked
+.B live
+when a live session is in it or a live claim names it.
+Anything else is marked
+.BR quiet ,
+which means only that no such match was found.
+.SH OPTIONS
+.TP
+.BI \-\-root " dir"
+A directory whose children are the repos.
+Repeatable.
+Default: the colon-separated
+.B $CCLIVE_ROOTS
+if set, otherwise the parent directory of this atelier checkout.
+The header says which it used.
+.TP
+.BI \-\-fresh " minutes"
+A transcript counts as live if written this recently.
+Default ten, the bound
+.BR ccclose (1)
+uses, from a census of agent logs.
+.TP
+.B \-\-all
+Lift the caps: every claim and worktree, undated claims too, and every skipped
+name.
+.TP
+.B \-\-json
+Machine-readable output.
+Every field is present on every repo; lists are never capped.
+.TP
+.BR \-h ", " \-\-help
+A one-screen summary.
+.SH OUTPUT
+Every repo section starts with the same fields in the same order.
+A known zero is printed.
+An unknown prints as
+.B ?
+with its reason: a repo with no board shows
+.BR "claims ?" ,
+never
+.BR "claims 0" ,
+and is starred in the quiet line.
+.PP
+Claims and worktrees are capped at five per repo and the cut is counted.
+Sessions are never capped.
+Repos with a live session come first, then by newest commit.
+.SH EXIT STATUS
+.TP
+.B 0
+The view printed, including a partial one that says what it could not read.
+.TP
+.B 2
+Bad usage, or neither a search root nor the transcript store could be read.
+.SH LIMITS
+.IP \(bu 2
+A claim is a commit, so a stale claim looks live.
+It stays until a commit removes it, whether or not its session survived.
+.IP \(bu 2
+A quiet transcript might be a slow agent, past the bound on one long command.
+A session open and waiting on its operator writes nothing and reads as quiet,
+while still holding its worktree.
+.IP \(bu 2
+Another machine's sessions are invisible.
+Only this machine's transcripts are read, and nothing is fetched, so a claim
+pushed from elsewhere shows only once a fetch has brought it here.
+.IP \(bu 2
+Only repos under the roots are scanned.
+.IP \(bu 2
+A subagent still writing a day after its parent's last write is not seen.
+Of 3,602 agent logs measured, none wrote more than 0.2 hours past the parent.
+.IP \(bu 2
+Open pull requests, dirty state and running processes are not read.
+.SH FILES
+.TP
+.I ~/.claude/projects/*/<session>.jsonl
+Session transcripts, read by modification time and a bounded tail.
+.TP
+.I ~/.claude/projects/*/<session>/subagents/agent\-*.jsonl
+Agent transcripts, likewise.
+.SH ENVIRONMENT
+.TP
+.B CCLIVE_ROOTS
+Colon-separated search roots, used when no
+.B \-\-root
+is given.
+.TP
+.B CLAUDE_CODE_SESSION_ID
+Marks the session running the tool in the view.
+.SH EXAMPLES
+.TP
+.B cclive
+The view, at session open.
+.TP
+.B cclive \-\-fresh 60
+Everyone active in the past hour.
+.TP
+.B cclive \-\-json | jq \(aq.totals\(aq
+The totals, for a tool.
+.SH NOTES
+The design of record is
+.IR instruments/cclive.design.md .
+.SH SEE ALSO
+.BR ccclose (1),
+.BR git\-worktree (1)

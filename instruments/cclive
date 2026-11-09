@@ -1,0 +1,730 @@
+#!/usr/bin/env node
+/*
+ * cclive — what any session on this machine is doing, holding or claimed on.
+ *
+ * A session opening one repo cannot otherwise learn that another session is
+ * mid-flight in a sibling. Everything needed is already on disk for another
+ * reason, so this reads and writes nothing new: each repo's [~] claims at its
+ * newest integration ref, its worktrees with their last-commit ages, the
+ * transcripts under ~/.claude/projects that were written recently, and the load
+ * average. The design of record is instruments/cclive.design.md.
+ *
+ * HONEST LIMITS, printed on every run: a claim is a commit, so a stale claim
+ * looks live; a quiet transcript might be a slow agent, and a session open and
+ * waiting on its operator writes nothing; another machine's sessions are
+ * invisible. "live" on a claim or worktree is a positive match with a recent
+ * transcript; "quiet" means only that no such match was found.
+ *
+ * READ-ONLY. It never fetches, commits or writes, and uses no network. Transcripts
+ * are read a bounded tail at a time and only when fresh; git runs with
+ * --no-optional-locks so the viewer does not take the index lock it would be
+ * reporting contention on.
+ *
+ * FRESH_MS and the board adapter are ccclose's, required rather than copied, so
+ * the two tools cannot disagree about what "still running" means or where a
+ * repo's board is.
+ */
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { execFile, spawnSync } = require('node:child_process');
+
+const { FRESH_MS, board, CLAIM_LINE } = require(path.join(__dirname, 'ccclose'));
+
+// Reads per fresh transcript. Over 20 MB exists in the store; the fields wanted
+// are in the last few records.
+const TAIL_BYTES = 256 * 1024;
+const HEAD_BYTES = 64 * 1024;
+// A session's subagents/ are listed only if its own transcript was written this
+// recently. Census: of 3,602 agent logs none was written more than 0.2 h after
+// its parent's last write; the bound cuts the walk from 367 ms to 39 ms.
+const AGENT_HORIZON_MS = 24 * 3600 * 1000;
+const GIT_TIMEOUT_MS = 10000;
+const POOL = 4;
+const CAP = 5;
+const CLIP = 60;
+const NAMES_SHOWN = 8;
+
+const HELP = `cclive — what any session on this machine is doing, holding or claimed on
+
+USAGE
+  cclive [--root <dir>]... [--fresh <minutes>] [--all] [--json]
+
+OPTIONS
+  --root <dir>      A directory whose children are the repos (repeatable).
+                    Default: $CCLIVE_ROOTS (${path.delimiter}-separated), else the parent
+                    directory of this atelier checkout.
+  --fresh <min>     A transcript counts as live if written this recently
+                    (default ${FRESH_MS / 60000}, ccclose's bound).
+  --all             Lift the caps: every claim and worktree, undated claims too.
+  --json            Machine-readable output, always the full lists.
+  -h, --help        This help.
+
+Reads each repo's [~] claims at its newest main/master ref, its worktrees, and
+recently written transcripts. Writes nothing, fetches nothing. Reports which
+roots it scanned and what it skipped. A claim is a commit, so a stale claim
+looks live; a quiet transcript might be a slow agent; another machine's
+sessions are invisible. Exit: 0 the view printed, 2 bad usage or nothing could
+be read. See man cclive.`;
+
+function parseArgs(argv) {
+  const opts = { roots: [], fresh: null, all: false, json: false, help: false };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '-h' || a === '--help') opts.help = true;
+    else if (a === '--json') opts.json = true;
+    else if (a === '--all') opts.all = true;
+    else if (a === '--root' || a === '--fresh') {
+      const v = argv[i + 1];
+      if (v === undefined || v.startsWith('--')) return { error: `${a} needs a value` };
+      if (a === '--root') opts.roots.push(v);
+      else {
+        const n = Number(v);
+        if (!Number.isFinite(n) || n <= 0) return { error: `--fresh needs a number of minutes above zero, got '${v}'` };
+        opts.fresh = n;
+      }
+      i++;
+    } else return { error: `unknown argument '${a}'` };
+  }
+  return opts;
+}
+
+// --- small helpers -------------------------------------------------------
+
+const UNSAFE = /[\u0000-\u001f\u007f-\u009f‎‏‪-‮⁦-⁩]+/g;
+const printable = (x) => String(x).replace(UNSAFE, ' ').replace(/\s+/g, ' ').trim();
+const clip = (s, n = CLIP) => {
+  const t = printable(s);
+  return t.length > n ? `${t.slice(0, n - 1)}…` : t;
+};
+const isDir = (p) => { try { return fs.statSync(p).isDirectory(); } catch { return false; } };
+const realOr = (p) => { try { return fs.realpathSync(p); } catch { return p; } };
+const tilde = (p) => {
+  const h = os.homedir();
+  return p === h || p.startsWith(`${h}${path.sep}`) ? `~${p.slice(h.length)}` : p;
+};
+const iso = (ms) => (Number.isFinite(ms) ? new Date(ms).toISOString() : null);
+
+function ago(ms) {
+  if (!Number.isFinite(ms)) return '?';
+  const s = Math.max(0, Math.round(ms / 1000));
+  if (s < 90) return `${s}s`;
+  if (s < 5400) return `${Math.round(s / 60)}m`;
+  if (s < 129600) return `${Math.round(s / 3600)}h`;
+  return `${Math.round(s / 86400)}d`;
+}
+
+function gitRun(root, args) {
+  return new Promise((resolve) => {
+    execFile('git', ['--no-optional-locks', '-C', root, ...args],
+      { encoding: 'utf8', timeout: GIT_TIMEOUT_MS, maxBuffer: 16 * 1024 * 1024 },
+      (err, stdout, stderr) => {
+        if (!err) { resolve({ ok: true, code: 0, out: stdout, err: stderr }); return; }
+        resolve({ ok: false, code: typeof err.code === 'number' ? err.code : null, out: stdout || '', err: stderr || String(err.message) });
+      });
+  });
+}
+
+async function mapLimit(items, limit, fn) {
+  const results = new Array(items.length);
+  let next = 0;
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const i = next++;
+      results[i] = await fn(items[i], i);
+    }
+  }));
+  return results;
+}
+
+// --- where to look -------------------------------------------------------
+
+// The parent of the atelier checkout this file belongs to. --git-common-dir so
+// a copy run from a worktree still finds the estate parent, not the worktree's
+// (pins.main_checkout, PU-5).
+function defaultRoot() {
+  const r = spawnSync('git', ['-C', __dirname, 'rev-parse', '--git-common-dir'], { encoding: 'utf8', timeout: GIT_TIMEOUT_MS });
+  if (r.status === 0 && r.stdout.trim()) {
+    const common = path.resolve(__dirname, r.stdout.trim());
+    return path.dirname(path.dirname(common));
+  }
+  return path.dirname(path.dirname(__dirname));
+}
+
+function resolveRoots(opts, env = process.env) {
+  if (opts.roots.length) return opts.roots.map((p) => ({ path: path.resolve(p.replace(/^~(?=$|\/)/, os.homedir())), source: '--root' }));
+  if (env.CCLIVE_ROOTS) {
+    const list = env.CCLIVE_ROOTS.split(path.delimiter).filter(Boolean);
+    if (list.length) return list.map((p) => ({ path: path.resolve(p.replace(/^~(?=$|\/)/, os.homedir())), source: 'CCLIVE_ROOTS' }));
+  }
+  return [{ path: defaultRoot(), source: 'default' }];
+}
+
+// One level under each root, as tools/pins.py discover walks. A linked worktree
+// sitting under a root is reached through its own repo instead, so counting it
+// here would double it.
+function discover(roots) {
+  const found = new Map();
+  const reports = [];
+  for (const r of roots) {
+    const report = { path: r.path, source: r.source, readable: true, error: null, entries: 0, repos: 0, skipped: [] };
+    reports.push(report);
+    let ents;
+    try {
+      ents = fs.readdirSync(r.path, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1));
+    } catch (e) {
+      report.readable = false;
+      report.error = e.code || String(e.message);
+      continue;
+    }
+    for (const e of ents) {
+      const p = path.join(r.path, e.name);
+      if (!(e.isDirectory() || (e.isSymbolicLink() && isDir(p)))) continue;
+      report.entries++;
+      const gitPath = path.join(p, '.git');
+      let st;
+      try { st = fs.statSync(gitPath); } catch { report.skipped.push({ name: e.name, why: 'not a git repo' }); continue; }
+      if (st.isFile()) {
+        let head = '';
+        try { head = fs.readFileSync(gitPath, 'utf8').slice(0, 1024); } catch { /* treated as a repo; git will say */ }
+        if (/\/worktrees\//.test(head)) { report.skipped.push({ name: e.name, why: 'a linked worktree (read through its repo)' }); continue; }
+      }
+      const real = realOr(p);
+      if (found.has(real)) { report.skipped.push({ name: e.name, why: 'already found under another root' }); continue; }
+      found.set(real, { name: e.name, root: real });
+      report.repos++;
+    }
+  }
+  return { repos: [...found.values()], reports };
+}
+
+// --- git readers ---------------------------------------------------------
+
+function parseWorktrees(out) {
+  const list = [];
+  let cur = null;
+  const push = () => { if (cur && cur.path) list.push(cur); cur = null; };
+  for (const line of out.split('\n')) {
+    if (line.startsWith('worktree ')) {
+      push();
+      cur = { path: line.slice(9), head: null, branch: null, detached: false, bare: false, locked: false, prunable: false };
+    } else if (!cur) continue;
+    else if (line.startsWith('HEAD ')) cur.head = line.slice(5);
+    else if (line.startsWith('branch ')) cur.branch = line.slice(7).replace(/^refs\/heads\//, '');
+    else if (line === 'detached') cur.detached = true;
+    else if (line === 'bare') cur.bare = true;
+    else if (line === 'locked' || line.startsWith('locked ')) cur.locked = true;
+    else if (line === 'prunable' || line.startsWith('prunable ')) cur.prunable = true;
+  }
+  push();
+  return list;
+}
+
+// A claim's stamp. Wider than ccclose's CLAIM_TIME, which needs a time of day
+// and a lower-case word: a date alone still dates a claim, and some boards write
+// "CLAIMED 2026-11-09 12:42 UTC". Stamps are UTC by convention.
+const CLAIM_STAMP = /\bclaimed\s+(\d{4})-(\d{2})-(\d{2})(?:[-T ](\d{2}):?(\d{2}))?/i;
+// 8 hex with at least one letter, so a compact date is not read as a session id.
+const SESSION_ID = /\b(?=[0-9]*[a-f])[0-9a-f]{8}\b/;
+const CLAIM_WT = /\bwt:\s*`?([^\s,;)`]+)/;
+// tools/board.py's _BLOCK_START_RE: what ends an item's first paragraph.
+const BLOCK_START = /^(?:[-*+]|\d+[.)])(?:\s|$)|^>|^<!--|^```|^~~~|^#|^\|/;
+const STATE_MARK = /^\s*[-*]\s+\[~\]\s*/;
+
+// The title is the item's first paragraph, with its claim stamp removed: board
+// items wrap, so the stamp usually sits on the second physical line.
+function claimTitle(paragraph) {
+  const parts = [];
+  paragraph.forEach((raw, i) => {
+    const t = (i === 0 ? raw.replace(STATE_MARK, '') : raw.trim())
+      .replace(/\(claimed[^()]*(?:\([^()]*\)[^()]*)*\)/gi, '').trim();
+    if (t && !/^(?:[🔒🔓]\s*)?\(?claimed\b/iu.test(t)) parts.push(t);
+  });
+  const t = printable(parts.join(' ').replace(/\*\*/g, '').replace(/`/g, ''));
+  return t || null;
+}
+
+function claimId(rel, line, items) {
+  if (items && rel.startsWith(`${items}/`)) {
+    const m = rel.slice(items.length + 1).match(/^(\d+)[^/]*\/(\d+)/);
+    if (m) return line > 1 ? `${m[1]}/${m[2]}:${line}` : `${m[1]}/${m[2]}`;
+  }
+  return `${rel}:${line}`;
+}
+
+// git grep -z -n -A4: ref:path NUL line NUL text for a match and a context line
+// alike, and a bare "--" between groups. The context is what carries a wrapped
+// stamp: the state line and its indented continuations are the item's first
+// paragraph (board.py item_state), up to five physical lines of it. A stamp that
+// says it was released is not a claim. An indented [~] with no stamp is a
+// progress mark on a sub-bullet, not a claim.
+function parseClaims(out, ref, items, now) {
+  const heads = [];
+  let cur = null;
+  for (const row of out.split('\n')) {
+    if (!row || row === '--') continue;
+    const z = row.indexOf('\0');
+    if (z === -1) continue;
+    const loc = row.slice(0, z);
+    const rel = loc.startsWith(`${ref}:`) ? loc.slice(ref.length + 1) : loc;
+    const m = row.slice(z + 1).match(/^(\d+)\0([\s\S]*)$/);
+    if (!m) continue;
+    const line = Number(m[1]);
+    const text = m[2];
+    if (CLAIM_LINE.test(text)) {
+      cur = { rel, line, paragraph: [text], open: true };
+      heads.push(cur);
+      continue;
+    }
+    if (!cur || !cur.open || rel !== cur.rel || line !== cur.line + cur.paragraph.length) continue;
+    const c = text.trim();
+    if (!c || !/^\s/.test(text) || BLOCK_START.test(c)) { cur.open = false; continue; }
+    cur.paragraph.push(text);
+  }
+  const claims = [];
+  for (const h of heads) {
+    const stampLine = h.paragraph.find((l) => CLAIM_STAMP.test(l) && !/released|🔓/i.test(l));
+    const m = stampLine ? stampLine.match(CLAIM_STAMP) : null;
+    if (/^\s/.test(h.paragraph[0]) && !m) continue;
+    const at = m ? Date.UTC(+m[1], +m[2] - 1, +m[3], m[4] ? +m[4] : 0, m[5] ? +m[5] : 0) : null;
+    const after = m ? stampLine.slice(m.index) : '';
+    const sid = after.match(SESSION_ID);
+    const wt = after.match(CLAIM_WT);
+    claims.push({
+      id: claimId(h.rel, h.line, items), path: h.rel, line: h.line,
+      dated: m !== null, claimedAt: iso(at), ageMs: at === null ? null : now - at,
+      session: sid ? sid[0] : null, worktree: wt ? wt[1] : null,
+      title: claimTitle(h.paragraph), live: false,
+    });
+  }
+  return claims;
+}
+
+// One spawn: the newest of the four refs a claim could have reached. Local main
+// is often behind origin/main when workers land with a push from a worktree. A
+// tie keeps the local branch.
+async function newestRef(root) {
+  const r = await gitRun(root, ['for-each-ref', '--format=%(committerdate:unix) %(refname)',
+    'refs/heads/main', 'refs/heads/master', 'refs/remotes/origin/main', 'refs/remotes/origin/master']);
+  if (!r.ok) return { ref: null, commitMs: null };
+  let best = null;
+  for (const line of r.out.split('\n')) {
+    const m = line.match(/^(\d+) (.+)$/);
+    if (!m) continue;
+    const ms = Number(m[1]) * 1000;
+    const ref = m[2].replace(/^refs\/heads\//, '').replace(/^refs\/remotes\//, '');
+    if (!best || ms > best.commitMs) best = { ref, commitMs: ms };
+  }
+  return best || { ref: null, commitMs: null };
+}
+
+async function readClaims(repo, ref, now, report) {
+  const b = board({ root: repo.root });
+  if (!b) { report.board = null; report.claimsKnown = false; report.claimsWhy = 'no board'; return; }
+  report.board = b.items || b.index;
+  if (!ref) { report.claimsKnown = false; report.claimsWhy = 'no main or master ref'; return; }
+  const r = await gitRun(repo.root, ['grep', '-z', '-n', '-A', '4', '-E', '^[[:space:]]*[-*][[:space:]]+\\[~\\]', ref, '--', report.board]);
+  if (r.ok || r.code === 1) {
+    report.claims = parseClaims(r.out, ref, b.items, now);
+    report.claimsKnown = true;
+    return;
+  }
+  report.claimsKnown = false;
+  report.claimsWhy = 'git grep failed';
+  report.errors.push(`claims: ${clip(r.err || 'git grep failed', 100)}`);
+}
+
+async function readRepo(repo, now) {
+  const report = {
+    name: repo.name, path: repo.root, ref: null, newestCommitAt: null, newestCommitAgoMs: null,
+    board: null, claimsKnown: false, claimsWhy: null, claims: [],
+    worktreesKnown: false, worktrees: [], errors: [], sessions: [], quiet: false,
+  };
+  // No linked worktree means no .git/worktrees directory: spawning git for that
+  // answer was a third of the run on a machine with mostly single-checkout repos.
+  const hasLinked = !isDir(path.join(repo.root, '.git')) || isDir(path.join(repo.root, '.git', 'worktrees'));
+  const [wt, ref] = await Promise.all([
+    hasLinked ? gitRun(repo.root, ['worktree', 'list', '--porcelain']) : { ok: true, out: `worktree ${repo.root}\n`, err: '' },
+    newestRef(repo.root),
+  ]);
+  report.ref = ref.ref;
+  report.newestCommitAt = iso(ref.commitMs);
+  report.newestCommitAgoMs = ref.commitMs === null ? null : now - ref.commitMs;
+
+  let all = [];
+  if (wt.ok) { all = parseWorktrees(wt.out); report.worktreesKnown = true; } else report.errors.push(`worktrees: ${clip(wt.err || 'git worktree list failed', 100)}`);
+  const primary = all[0] || { path: repo.root, branch: null };
+  const linked = all.slice(1);
+
+  await readClaims(repo, ref.ref, now, report);
+
+  let commitBySha = new Map();
+  if (linked.length) {
+    const shas = linked.map((w) => w.head).filter(Boolean);
+    const log = await gitRun(repo.root, ['log', '--no-walk', '--format=%H %ct', ...shas]);
+    if (log.ok) {
+      commitBySha = new Map(log.out.split('\n').filter(Boolean).map((l) => {
+        const [sha, ts] = l.split(' ');
+        return [sha, Number(ts) * 1000];
+      }));
+    }
+  }
+  report.worktrees = linked.map((w) => {
+    const ms = w.head && commitBySha.has(w.head) ? commitBySha.get(w.head) : null;
+    return {
+      name: path.basename(w.path), path: w.path, branch: w.branch, detached: w.detached,
+      locked: w.locked, prunable: w.prunable,
+      lastCommitAt: iso(ms), lastCommitAgoMs: ms === null ? null : now - ms, live: false,
+    };
+  });
+  report._primary = primary;
+  report._linked = linked;
+  return report;
+}
+
+// --- transcripts ---------------------------------------------------------
+
+function readChunk(file, start, length) {
+  const fd = fs.openSync(file, 'r');
+  try {
+    const buf = Buffer.alloc(length);
+    const n = fs.readSync(fd, buf, 0, length, start);
+    return buf.toString('utf8', 0, n);
+  } finally { fs.closeSync(fd); }
+}
+
+// The last cwd, branch and title in a transcript. The tail first; a tail of
+// outsized records can miss them, so the head is the fallback for cwd.
+function tailInfo(file) {
+  const info = { cwd: null, branch: null, title: null };
+  let size;
+  try { size = fs.statSync(file).size; } catch { return info; }
+  const start = Math.max(0, size - TAIL_BYTES);
+  let lines;
+  try { lines = readChunk(file, start, Math.min(size, TAIL_BYTES)).split('\n'); } catch { return info; }
+  if (start > 0) lines.shift();
+  for (let i = lines.length - 1; i >= 0 && !(info.cwd && info.title); i--) {
+    const l = lines[i];
+    if (!l || (!l.includes('"cwd"') && !l.includes('"aiTitle"'))) continue;
+    let o;
+    try { o = JSON.parse(l); } catch { continue; }
+    if (!o || typeof o !== 'object') continue;
+    if (!info.cwd && typeof o.cwd === 'string' && o.cwd) {
+      info.cwd = o.cwd;
+      info.branch = typeof o.gitBranch === 'string' ? o.gitBranch : null;
+    }
+    if (!info.title && o.type === 'ai-title' && typeof o.aiTitle === 'string') info.title = o.aiTitle;
+  }
+  if (!info.cwd && start > 0) {
+    let head;
+    try { head = readChunk(file, 0, Math.min(size, HEAD_BYTES)).split('\n').slice(0, -1); } catch { return info; }
+    for (const l of head) {
+      if (!l.includes('"cwd"')) continue;
+      let o;
+      try { o = JSON.parse(l); } catch { continue; }
+      if (o && typeof o.cwd === 'string' && o.cwd) { info.cwd = o.cwd; info.branch = typeof o.gitBranch === 'string' ? o.gitBranch : null; break; }
+    }
+  }
+  return info;
+}
+
+function collectTranscripts(projects, now, freshMs) {
+  const stats = { dir: projects, readable: true, error: null, sessionsSeen: 0, agentLogsWalked: 0, freshFiles: 0, unreadableDirs: 0 };
+  const fresh = [];
+  let top;
+  try { top = fs.readdirSync(projects, { withFileTypes: true }); } catch (e) {
+    stats.readable = false;
+    stats.error = e.code || String(e.message);
+    return { fresh, stats };
+  }
+  const horizon = Math.max(AGENT_HORIZON_MS, freshMs);
+  for (const d of top) {
+    if (!d.isDirectory()) continue;
+    const dir = path.join(projects, d.name);
+    let ents;
+    try { ents = fs.readdirSync(dir, { withFileTypes: true }); } catch { stats.unreadableDirs++; continue; }
+    for (const e of ents) {
+      if (!e.isFile() || !e.name.endsWith('.jsonl')) continue;
+      const file = path.join(dir, e.name);
+      let m;
+      try { m = fs.statSync(file).mtimeMs; } catch { continue; }
+      stats.sessionsSeen++;
+      const session = e.name.slice(0, -'.jsonl'.length);
+      if (now - m <= freshMs) fresh.push({ file, session, agent: null, mtimeMs: m });
+      if (now - m > horizon) continue;
+      const sub = path.join(dir, session, 'subagents');
+      let names;
+      try { names = fs.readdirSync(sub); } catch { continue; }
+      for (const n of names) {
+        if (!/^agent-.+\.jsonl$/.test(n)) continue;
+        const af = path.join(sub, n);
+        let am;
+        try { am = fs.statSync(af).mtimeMs; } catch { continue; }
+        stats.agentLogsWalked++;
+        if (now - am <= freshMs) fresh.push({ file: af, session, agent: n.slice('agent-'.length, -'.jsonl'.length), mtimeMs: am });
+      }
+    }
+  }
+  stats.freshFiles = fresh.length;
+  return { fresh, stats };
+}
+
+// --- joining -------------------------------------------------------------
+
+// Every worktree of every scanned repo, longest path first, so a session in a
+// nested worktree lands on it and not on the checkout around it.
+function buildIndex(repos) {
+  const entries = [];
+  for (const r of repos) {
+    if (r._primary) entries.push({ path: realOr(r._primary.path), repo: r, name: 'primary', primary: true });
+    for (const w of r._linked || []) entries.push({ path: realOr(w.path), repo: r, name: path.basename(w.path), primary: false, worktree: w.path });
+  }
+  entries.sort((a, b) => b.path.length - a.path.length);
+  return entries;
+}
+
+function locate(index, cwd) {
+  if (!cwd) return null;
+  const real = realOr(cwd);
+  return index.find((e) => real === e.path || real.startsWith(`${e.path}/`)) || null;
+}
+
+function buildSessions(fresh, index, now, selfId) {
+  const groups = new Map();
+  const liveShort = new Set();
+  const liveWorktrees = new Set();
+  const elsewhere = [];
+  for (const f of fresh) {
+    const info = tailInfo(f.file);
+    const short = f.session.slice(0, 8);
+    liveShort.add(short);
+    const entry = locate(index, info.cwd);
+    if (entry && !entry.primary) liveWorktrees.add(entry.path);
+    const key = `${f.session}\0${entry ? entry.repo.path : 'elsewhere'}`;
+    let g = groups.get(key);
+    if (!g) {
+      g = {
+        session: f.session, short, repo: entry ? entry.repo : null, where: [], branch: null,
+        lastWrittenMs: 0, agents: 0, title: null, self: f.session === selfId, cwd: null, parentHere: false,
+      };
+      groups.set(key, g);
+    }
+    if (f.mtimeMs > g.lastWrittenMs) g.lastWrittenMs = f.mtimeMs;
+    if (f.agent) g.agents++;
+    const name = entry ? entry.name : (info.cwd ? tilde(info.cwd) : 'no working directory recorded');
+    if (!f.agent) {
+      g.parentHere = true;
+      g.where = [name, ...g.where.filter((x) => x !== name)];
+      g.branch = info.branch;
+      g.cwd = info.cwd;
+      if (info.title) g.title = info.title;
+    } else {
+      if (!g.where.includes(name)) g.where.push(name);
+      if (!g.parentHere && !g.branch) g.branch = info.branch;
+      if (!g.parentHere && !g.cwd) g.cwd = info.cwd;
+    }
+  }
+  // A subagent's title is not the session's; only the parent's line was taken.
+  // A group the parent has no part in still gets the parent's title, if the
+  // parent is live elsewhere.
+  const byId = new Map();
+  for (const g of groups.values()) if (g.title) byId.set(g.session, g.title);
+  for (const g of groups.values()) if (!g.title && byId.has(g.session)) g.title = byId.get(g.session);
+
+  for (const g of groups.values()) {
+    const row = {
+      session: g.session, short: g.short, where: g.where, branch: g.branch,
+      lastWrittenAt: iso(g.lastWrittenMs), lastWrittenAgoMs: now - g.lastWrittenMs,
+      agents: g.agents, title: g.title, self: g.self, cwd: g.cwd,
+    };
+    if (g.repo) g.repo.sessions.push(row); else elsewhere.push(row);
+  }
+  return { elsewhere, liveShort, liveWorktrees };
+}
+
+function markLive(repos, liveShort, liveWorktrees) {
+  const liveNames = new Set([...liveWorktrees].map((p) => path.basename(p)));
+  for (const r of repos) {
+    for (const w of r.worktrees) w.live = liveWorktrees.has(realOr(w.path));
+    for (const c of r.claims) {
+      c.live = (c.session !== null && liveShort.has(c.session)) || (c.worktree !== null && liveNames.has(c.worktree));
+      // A worker's cwd can stay the session's start directory while it works by
+      // absolute path, so a claim by a live session is the other way a worktree
+      // gets marked live.
+      if (c.live && c.worktree) for (const w of r.worktrees) if (w.name === c.worktree) w.live = true;
+    }
+  }
+}
+
+const byLiveThenNewest = (ageField) => (a, b) => {
+  if (a.live !== b.live) return a.live ? -1 : 1;
+  const av = a[ageField] === null || a[ageField] === undefined ? Infinity : a[ageField];
+  const bv = b[ageField] === null || b[ageField] === undefined ? Infinity : b[ageField];
+  return av - bv;
+};
+
+function assemble(repos, elsewhere, reports, stats, freshMs, now) {
+  for (const r of repos) {
+    r.sessions.sort((a, b) => a.lastWrittenAgoMs - b.lastWrittenAgoMs);
+    r.claims.sort(byLiveThenNewest('ageMs'));
+    r.worktrees.sort(byLiveThenNewest('lastCommitAgoMs'));
+    r.sessionCount = r.sessions.length;
+    r.agents = r.sessions.reduce((n, s) => n + s.agents, 0);
+    r.claimCount = r.claimsKnown ? r.claims.length : null;
+    r.claimsDated = r.claimsKnown ? r.claims.filter((c) => c.dated).length : null;
+    r.claimsUndated = r.claimsKnown ? r.claims.length - r.claimsDated : null;
+    r.worktreeCount = r.worktreesKnown ? r.worktrees.length : null;
+    r.quiet = r.sessions.length === 0 && (r.claimCount === null || r.claimCount === 0)
+      && (r.worktreesKnown && r.worktrees.length === 0) && r.errors.length === 0 && r.claimsWhy !== 'git grep failed';
+    delete r._primary;
+    delete r._linked;
+  }
+  repos.sort((a, b) => {
+    const as = a.sessions.length ? a.sessions[0].lastWrittenAgoMs : Infinity;
+    const bs = b.sessions.length ? b.sessions[0].lastWrittenAgoMs : Infinity;
+    if (as !== bs) return as - bs;
+    const ac = a.newestCommitAgoMs === null ? Infinity : a.newestCommitAgoMs;
+    const bc = b.newestCommitAgoMs === null ? Infinity : b.newestCommitAgoMs;
+    return ac - bc;
+  });
+  elsewhere.sort((a, b) => a.lastWrittenAgoMs - b.lastWrittenAgoMs);
+  const sessionIds = new Set();
+  for (const r of repos) for (const s of r.sessions) sessionIds.add(s.session);
+  for (const s of elsewhere) sessionIds.add(s.session);
+  const known = (k) => repos.reduce((n, r) => n + (r[k] === null ? 0 : r[k]), 0);
+  const totals = {
+    sessions: sessionIds.size,
+    agents: repos.reduce((n, r) => n + r.agents, 0) + elsewhere.reduce((n, s) => n + s.agents, 0),
+    claims: known('claimCount'), claimsDated: known('claimsDated'), claimsUndated: known('claimsUndated'),
+    worktrees: known('worktreeCount'), elsewhereSessions: elsewhere.length,
+    reposScanned: repos.length, reposActive: repos.filter((r) => !r.quiet).length, reposQuiet: repos.filter((r) => r.quiet).length,
+    reposClaimsUnknown: repos.filter((r) => r.claimCount === null).length,
+  };
+  const [one, five, fifteen] = os.loadavg();
+  return {
+    generatedAt: iso(now), load: { one, five, fifteen, cores: os.cpus().length },
+    freshMinutes: freshMs / 60000, roots: reports, transcripts: stats, totals, repos, elsewhere, limits: LIMITS,
+  };
+}
+
+// --- output --------------------------------------------------------------
+
+const LIMITS = [
+  'a claim is a commit, so a stale claim looks live; "quiet" means only that no live session matched',
+  'a quiet transcript might be a slow agent, and a session open and waiting on its operator writes nothing',
+  "another machine's sessions are invisible; nothing was fetched, so a claim not yet in a ref here is unseen",
+];
+
+const n1 = (x) => (Number.isFinite(x) ? x.toFixed(1) : '?');
+
+function fieldLine(r) {
+  const claims = r.claimCount === null ? `claims ? (${r.claimsWhy || 'unknown'})` : `claims ${r.claimCount} (${r.claimsDated} dated, ${r.claimsUndated} undated)`;
+  const wts = r.worktreeCount === null ? 'worktrees ?' : `worktrees ${r.worktreeCount}`;
+  return `sessions ${r.sessionCount} · agents ${r.agents} · ${claims} · ${wts} · newest commit ${r.newestCommitAgoMs === null ? '?' : `${ago(r.newestCommitAgoMs)} ago`}`;
+}
+
+function sessionLine(s, ind = '  ') {
+  const where = s.where.join(', ');
+  const branch = s.branch ? ` (${clip(s.branch, 40)})` : '';
+  const title = s.title ? `  ${clip(s.title, 56)}` : '';
+  const me = s.self ? '  ← this session' : '';
+  return `${ind}session ${s.short}  ${ago(s.lastWrittenAgoMs)} ago  ${clip(where, 60)}${branch}  agents ${s.agents}${title}${me}`;
+}
+
+function claimLine(c) {
+  const when = c.dated ? `${ago(c.ageMs)} ago` : 'undated';
+  const by = [c.worktree ? `wt ${clip(c.worktree, 40)}` : null, c.session ? `session ${c.session}` : null].filter(Boolean).join(', ');
+  const title = c.title ? `  ${clip(c.title)}` : '';
+  return `  claim   ${c.id}  ${when}  ${c.live ? 'live' : 'quiet'}${title}${by ? `  [${by}]` : ''}`;
+}
+
+function worktreeLine(w) {
+  const flags = [w.detached ? 'detached' : null, w.locked ? 'locked' : null, w.prunable ? 'prunable' : null].filter(Boolean).join(', ');
+  return `  wt      ${clip(w.name, 50)}  ${w.branch ? clip(w.branch, 40) : '(no branch)'}  commit ${w.lastCommitAgoMs === null ? '?' : `${ago(w.lastCommitAgoMs)} ago`}  ${w.live ? 'live' : 'quiet'}${flags ? `  [${flags}]` : ''}`;
+}
+
+function render(v, all) {
+  const out = [];
+  const utc = v.generatedAt.slice(0, 16).replace('T', ' ');
+  out.push(`cclive  ${utc} UTC  ·  load ${n1(v.load.one)} ${n1(v.load.five)} ${n1(v.load.fifteen)} on ${v.load.cores} cores (1, 5, 15 min)`);
+  out.push(`live = transcript written in the last ${v.freshMinutes} min`);
+  for (const r of v.roots) {
+    if (!r.readable) { out.push(`root  ${tilde(r.path)} (${r.source}): UNREADABLE (${r.error}), so nothing under it was scanned`); continue; }
+    const names = r.skipped.slice(0, all ? r.skipped.length : NAMES_SHOWN).map((x) => `${printable(x.name)} (${x.why})`).join(', ');
+    const more = all ? 0 : Math.max(0, r.skipped.length - NAMES_SHOWN);
+    out.push(`root  ${tilde(r.path)} (${r.source}): ${r.repos} repos · skipped ${r.skipped.length}${names ? `: ${names}${more ? `, +${more} more (--all)` : ''}` : ''}`);
+  }
+  const t = v.transcripts;
+  if (t.readable) {
+    const unread = t.unreadableDirs ? `, ${t.unreadableDirs} directories unreadable` : '';
+    out.push(`transcripts  ${tilde(t.dir)}: ${t.sessionsSeen} sessions, ${t.agentLogsWalked} agent logs walked, ${t.freshFiles} fresh${unread}`);
+  } else {
+    out.push(`transcripts  ${tilde(t.dir)}: UNREADABLE (${t.error}), so live sessions are unknown, not zero`);
+  }
+  out.push('');
+  const tt = v.totals;
+  const claimsTail = tt.reposClaimsUnknown ? ` (${tt.claimsDated} dated, ${tt.claimsUndated} undated; ${tt.reposClaimsUnknown} repos unknown)` : ` (${tt.claimsDated} dated, ${tt.claimsUndated} undated)`;
+  out.push(`TOTAL  sessions ${tt.sessions} · agents ${tt.agents} · claims ${tt.claims}${claimsTail} · worktrees ${tt.worktrees} · repos ${tt.reposActive} active, ${tt.reposQuiet} quiet of ${tt.reposScanned}`);
+  out.push('');
+
+  for (const r of v.repos) {
+    if (r.quiet) continue;
+    out.push(`${r.name}  ${fieldLine(r)}`);
+    for (const e of r.errors) out.push(`  unread  ${e}`);
+    for (const s of r.sessions) out.push(sessionLine(s));
+    const dated = r.claims.filter((c) => c.dated);
+    const undated = r.claims.filter((c) => !c.dated);
+    const claims = all ? [...dated, ...undated] : dated.slice(0, CAP);
+    for (const c of claims) out.push(claimLine(c));
+    if (!all) {
+      const cut = dated.length - claims.length + undated.length;
+      if (cut > 0) out.push(`  claim   +${cut} more (${dated.length - claims.length} dated, ${undated.length} undated; --all lists them)`);
+    }
+    const wts = all ? r.worktrees : r.worktrees.slice(0, CAP);
+    for (const w of wts) out.push(worktreeLine(w));
+    if (!all && r.worktrees.length > CAP) out.push(`  wt      +${r.worktrees.length - CAP} more (--all)`);
+  }
+
+  const quiet = v.repos.filter((r) => r.quiet).sort((a, b) => a.name.localeCompare(b.name));
+  if (quiet.length) {
+    const names = quiet.map((r) => `${r.name}${r.claimCount === null ? '*' : ''}`).join(', ');
+    out.push('');
+    out.push(`quiet  ${quiet.length} repos: sessions 0, no claim, no linked worktree${quiet.some((r) => r.claimCount === null) ? ' (* no board, so claims are unknown)' : ''}`);
+    out.push(`       ${names}`);
+  }
+  out.push('');
+  out.push(`elsewhere  sessions ${v.elsewhere.length} (live, working outside every scanned repo)`);
+  for (const s of v.elsewhere) out.push(sessionLine(s));
+  out.push('');
+  out.push(`limits  ${LIMITS.join('\n        ')}`);
+  return out.join('\n');
+}
+
+// --- main ----------------------------------------------------------------
+
+async function main() {
+  const opts = parseArgs(process.argv.slice(2));
+  if (opts.error) { console.error(`cclive: ${opts.error}\n\n${HELP}`); process.exit(2); }
+  if (opts.help) { console.log(HELP); process.exit(0); }
+  const now = Date.now();
+  const freshMs = opts.fresh !== null ? opts.fresh * 60000 : FRESH_MS;
+  const { repos: found, reports } = discover(resolveRoots(opts));
+  const projects = path.join(os.homedir(), '.claude', 'projects');
+  const repos = await mapLimit(found, POOL, (r) => readRepo(r, now));
+  const index = buildIndex(repos);
+  const { fresh, stats } = collectTranscripts(projects, now, freshMs);
+  if (!reports.some((r) => r.readable) && !stats.readable) {
+    console.error(`cclive: nothing could be read: no root under ${reports.map((r) => tilde(r.path)).join(', ')} and no transcripts at ${tilde(projects)} (${stats.error})`);
+    process.exit(2);
+  }
+  const { elsewhere, liveShort, liveWorktrees } = buildSessions(fresh, index, now, process.env.CLAUDE_CODE_SESSION_ID || null);
+  markLive(repos, liveShort, liveWorktrees);
+  const view = assemble(repos, elsewhere, reports, stats, freshMs, now);
+  if (opts.json) console.log(JSON.stringify(view, null, 2));
+  else console.log(render(view, opts.all));
+  process.exit(0);
+}
+
+if (require.main === module) main();
+
+module.exports = { parseArgs, resolveRoots, discover, parseWorktrees, parseClaims, claimId, claimTitle, tailInfo, collectTranscripts, buildIndex, locate, buildSessions, markLive, assemble, render, ago, printable, LIMITS };
