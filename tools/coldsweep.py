@@ -41,7 +41,9 @@ USAGE
 
 Exit codes follow grep so it drops into a pipeline: 0 matched, 1 no match,
 2 the search itself failed. A broken sweep is not a clean one. `--commit` exits
-0 when it printed the commit and 2 when it could not (unknown sha, not a repo).
+0 when it printed something in scope, 1 when nothing was in scope (a `--path`
+typo is the usual cause) and 2 when it could not (unknown sha, not a repo,
+shallow boundary, a root below the repository top).
 
 READING A LANDING COMMIT (`--commit`). A cold brief says to read the landing
 commit's "subject, stat and diff only" and bars its message body until phase 2,
@@ -52,13 +54,37 @@ reviewers in one batch read it that way, each by the obvious command, so the
 bar was unfollowable as written. `--commit` prints exactly the allowed view and
 nothing else: `<short sha> <subject>`, then `git diff --stat`, then `git diff`,
 against the commit's first parent (a root commit is diffed against the empty
-tree). The body is never requested from git, so it cannot be printed.
+tree). The subject is the message's first LINE: the message is read into memory
+to take it, and nothing after that line is ever printed (so a message with no
+blank line after its subject, or with CRLF line ends, cannot carry more than the
+first line out). The guarantee is "never printed", not "never requested".
 
 The rule-2 barred set applies to the diff as it does to the tree search: a
 landing commit usually edits `docs/SESSIONS.md`, which IS the author's account,
 so those hunks are left out and the run says which files it dropped, by name
 only. `--also-exclude` adds to the set; `--include-barred` lifts it with the
 same disclosure banner. `--path` scopes the diff to given paths (repeatable).
+
+THE BOARD STORE IS LEFT OUT BY DEFAULT (160/930 BF1, the principal's answer
+2026-11-09: fix the reviewer's side). A rule-4 landing commit usually also edits
+the intent record's board item and the queue pointer, which are the author's
+account too, and a run with no `--path` used to print their hunks under a clean
+"message body not read" line. With no `--path`, the board store (`docs/roadmap/`
+and `docs/ROADMAP.md`) is left out of the diff as well and named on the closing
+line. Naming a board file with `--path` is the deliberate act that shows it, and
+it is then named on the closing line as shown. `--include-barred` lifts this
+default too.
+
+THINGS WORTH KNOWING ABOUT THE DIFF (160/930 BF11, BF12). The bar follows the
+PATH, not the content: a record renamed out of `docs/sessions/` prints as an add
+and a file renamed into it prints its old content as a deletion. `--path`
+accepts git pathspec magic, including negative-only specs that mean "everything
+else"; every exclusion still holds. A `--path` that matches no changed file is
+named on stderr, and when nothing at all is in scope the run exits 1.
+`--root` must be the repository's top when inside a git repository, because the
+bar is measured from the root: a root below the top is refused, not guessed at.
+In a shallow clone the boundary commit has no parent to diff against and the run
+exits 2 rather than printing the whole tree as that commit's delta.
 
 DISCLOSURE. Every run prints the exclusion set it used, in a form that can be
 pasted into a verdict's provenance. `--include-barred` prints a banner saying
@@ -84,6 +110,16 @@ BARRED = (
     "docs/sessions",
     "docs/ROADMAP-DONE.md",
     "docs/reviews",
+)
+
+# The board store. A landing commit's board edits (the intent record's item, the
+# queue pointer) are the author's account, so a `--commit` read with no `--path`
+# leaves them out; naming one with `--path` is the deliberate act that shows it.
+# Not part of BARRED: rule 2 does not bar the board in general, and a review's
+# own subject can be a board item.
+BOARD = (
+    "docs/roadmap",
+    "docs/ROADMAP.md",
 )
 
 # Never worth searching and never worth the noise of excluding by hand.
@@ -157,17 +193,51 @@ def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
         encoding="utf-8", errors="replace")
 
 
-def _pathspec(paths: list[str], barred: tuple[str, ...]) -> list[str]:
-    """`-- <positive> <exclusions>` for git. Exclusions are anchored at the
-    repo top so no spelling of a barred path can fail to match (the same
-    defect `is_barred` exists for, kept out of git's own matching too)."""
-    positive = list(paths) if paths else [":/"]
-    out = ["--", *positive]
+def _exclusions(barred: tuple[str, ...]) -> list[str]:
+    """git pathspec exclusions, each anchored at the repo top so no spelling of a
+    barred path can fail to match (the same defect `is_barred` exists for, kept
+    out of git's own matching too). Without `top`, an exclusion is measured from
+    git's working directory and a run from below the repo top would bar nothing."""
+    out = []
     for entry in barred:
         parts = _parts(entry)
         if parts:
             out.append(":(top,exclude)" + "/".join(parts))
     return out
+
+
+def _pathspec(paths: list[str], barred: tuple[str, ...]) -> list[str]:
+    """`-- <positive> <exclusions>` for git."""
+    positive = list(paths) if paths else [":/"]
+    return ["--", *positive, *_exclusions(barred)]
+
+
+def repo_top(root: Path) -> Path | None:
+    """The git repository's top directory, or None outside a repository."""
+    res = _git(root, "rev-parse", "--show-toplevel")
+    if res.returncode != 0 or not res.stdout.strip():
+        return None
+    return Path(res.stdout.strip()).resolve()
+
+
+def anchor(entry: str, root: Path) -> str | None:
+    """`entry` as a path relative to `root`, or None if it lies outside it.
+
+    A relative entry stays as spelled (unless it climbs out with `..`); an
+    absolute one is made relative to the resolved root. `_parts` keeps the
+    leading directories of an absolute path, so without this an absolute
+    `--also-exclude` was never applied and yet was reported as excluded
+    (160/930 BF4).
+    """
+    p = Path(entry)
+    if p.is_absolute():
+        try:
+            return str(p.resolve().relative_to(root))
+        except ValueError:
+            return None
+    if ".." in p.parts:
+        return None
+    return entry
 
 
 def show_commit(root: Path, rev: str, paths: list[str],
@@ -178,6 +248,8 @@ def show_commit(root: Path, rev: str, paths: list[str],
         print(f"coldsweep: --root is not inside a git repository: {root}",
               file=sys.stderr)
         return 2
+    # `--end-of-options` is the injection guard: a rev spelled like an option is
+    # a rev, never a flag to git.
     res = _git(root, "rev-parse", "--verify", "--quiet", "--end-of-options",
                rev + "^{commit}")
     sha = res.stdout.strip()
@@ -191,22 +263,47 @@ def show_commit(root: Path, rev: str, paths: list[str],
         base = parent.stdout.strip()
         basis = "first parent"
     else:
+        shallow = _git(root, "rev-parse", "--is-shallow-repository")
+        if shallow.stdout.strip() == "true":
+            print(f"coldsweep: {sha[:12]} has no parent in this shallow clone, "
+                  "so its diff would be the whole tree. Deepen the clone "
+                  "(git fetch --unshallow) and run again.", file=sys.stderr)
+            return 2
         base = _git(root, "hash-object", "-t", "tree", "/dev/null").stdout.strip()
         basis = "empty tree (root commit)"
 
-    subject = _git(root, "log", "-1", "--no-notes", "--format=%h %s", sha)
-    spec = _pathspec(paths, barred)
+    # No `--path`: the board store is left out as well (BF1). With one, the
+    # reviewer has chosen what to read and the board is shown only if named.
+    board_default = bool(barred) and not paths
+    cut = barred + (BOARD if board_default else ())
+
+    # The message is read to take its first line and no more. `%s` would print
+    # the whole first PARAGRAPH, which for a message with no blank line after
+    # the subject is the body (BF2). `--no-notes` keeps a notes ref out of it.
+    msg = _git(root, "log", "-1", "--no-notes", "--format=%B", sha)
+    abbrev = _git(root, "log", "-1", "--no-notes", "--format=%h", sha)
+    subject = msg.stdout.split("\n", 1)[0].rstrip("\r")
+    spec = _pathspec(paths, cut)
     flags = ["--no-ext-diff", "--no-textconv", "--no-color"]
     stat = _git(root, "diff", "--stat", *flags, base, sha, *spec)
     diff = _git(root, "diff", *flags, base, sha, *spec)
     names = _git(root, "diff", "--name-only", base, sha, "--", ":/")
     kept = _git(root, "diff", "--name-only", base, sha, *spec)
-    for r in (subject, stat, diff, names, kept):
+    for r in (msg, abbrev, stat, diff, names, kept):
         if r.returncode != 0:
             print(f"coldsweep: git failed: {r.stderr.strip()}", file=sys.stderr)
             return 2
 
-    print(subject.stdout.rstrip("\n"))
+    # A --path that selects no changed file is a typo, a file the commit did not
+    # touch, or a barred file: name each (BF3), never a silent clean read.
+    unmatched = []
+    for pth in paths:
+        hit = _git(root, "diff", "--name-only", base, sha, "--", pth,
+                   *_exclusions(cut))
+        if hit.returncode == 0 and not hit.stdout.strip():
+            unmatched.append(pth)
+
+    print(f"{abbrev.stdout.strip()} {subject}")
     print()
     print(stat.stdout.rstrip("\n") or "(no changes in scope)")
     print()
@@ -215,17 +312,40 @@ def show_commit(root: Path, rev: str, paths: list[str],
     shown = set(kept.stdout.splitlines())
     dropped = [n for n in names.stdout.splitlines()
                if n not in shown and is_barred(Path(n), barred)]
+    board_dropped = [n for n in names.stdout.splitlines()
+                     if n not in shown and is_barred(Path(n), BOARD)
+                     and not is_barred(Path(n), barred)]
+    board_shown = [n for n in sorted(shown) if is_barred(Path(n), BOARD)]
     print()
     if not barred:
         print("⚠️  coldsweep: --include-barred — the rule-2 barred paths were "
-              "NOT left out of this diff.")
+              "NOT left out of this diff, nor the board store.")
         print("    Disclose this exposure in your verdict.")
     else:
         print(f"✓ coldsweep: commit {sha[:12]} read against its {basis}; "
-              "message body not read.")
+              f"subject, stat and diff of {len(shown)} file(s) printed; "
+              "message body not printed.")
+        if board_dropped:
+            print(f"  {len(board_dropped)} board-store file(s) left out by "
+                  f"default ({', '.join(BOARD)}; name one with --path to read "
+                  f"it): {', '.join(board_dropped)}.")
+        if board_shown:
+            print(f"  {len(board_shown)} board-store file(s) SHOWN because "
+                  f"--path covered them (author-written; disclose if read): "
+                  f"{', '.join(board_shown)}.")
+        if not (board_dropped or board_shown):
+            print("  0 board-store file(s) left out or shown: none touched.")
         print(f"  {len(dropped)} file(s) left out as rule-2 barred "
               f"({', '.join(barred)}): "
               f"{', '.join(dropped) if dropped else 'none touched'}.")
+    for pth in unmatched:
+        print(f"coldsweep: --path {pth} matched no changed file in this commit "
+              "(a typo, a file it did not touch, or a barred file)",
+              file=sys.stderr)
+    if not shown:
+        print("coldsweep: nothing in scope — no file of this commit is "
+              "readable under these paths and bars.", file=sys.stderr)
+        return 1
     return 0
 
 
@@ -252,7 +372,8 @@ def _main(argv: list[str] | None = None) -> int:
                          "brief bars). Barred paths are left out of the diff")
     ap.add_argument("--path", action="append", default=[], metavar="PATH",
                     help="with --commit: scope the diff to this path; "
-                         "repeatable")
+                         "repeatable. Naming a board-store file here is what "
+                         "shows it (it is left out by default)")
     ap.add_argument("--selftest", action="store_true")
     args = ap.parse_args(argv)
 
@@ -263,6 +384,32 @@ def _main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         print(f"coldsweep: --root is not a directory: {root}", file=sys.stderr)
         return 2
+
+    top = repo_top(root)
+    if top is not None and top != root:
+        print(f"coldsweep: --root must be the repository's top ({top}); the "
+              "bar is measured from the root, so a root below it would bar the "
+              "wrong paths", file=sys.stderr)
+        return 2
+
+    also: list[str] = []
+    for entry in args.also_exclude:
+        rel = anchor(entry, root)
+        if rel is None:
+            print(f"coldsweep: --also-exclude {entry} lies outside --root "
+                  f"({root}), so it could exclude nothing", file=sys.stderr)
+            return 2
+        also.append(rel)
+    args.also_exclude = also
+    scoped: list[str] = []
+    for entry in args.path:
+        rel = anchor(entry, root)
+        if rel is None:
+            print(f"coldsweep: --path {entry} lies outside --root ({root})",
+                  file=sys.stderr)
+            return 2
+        scoped.append(rel)
+    args.path = scoped
 
     barred = () if args.include_barred else BARRED + tuple(args.also_exclude)
 

@@ -2301,11 +2301,37 @@ python3 tools/coldsweep.py -i 'pattern'                  # case-insensitive
 python3 tools/coldsweep.py --also-exclude docs/roadmap/160-x 'PAT'
 python3 tools/coldsweep.py --list-barred                 # what it would exclude
 python3 tools/coldsweep.py --include-barred 'PAT'        # the exception, loudly
+python3 tools/coldsweep.py --commit SHA                  # a landing commit, body-free
+python3 tools/coldsweep.py --commit SHA --path tools/x.py   # scoped to a path
 python3 tools/coldsweep.py --selftest
 ```
 
 Exit codes follow `grep` so it drops into a pipeline: **0** matched, **1** no
 match, **2** the search itself failed. A broken sweep is not a clean one.
+
+**`--commit SHA` reads a landing commit without its message body** (160/930).
+It prints `<short sha> <subject>`, then `git diff --stat` and `git diff` against
+the first parent, with rule 2's barred files left out and named. The subject is
+the message's first **line** only: the message is read into memory to take it,
+and the guarantee is "never printed", not "never requested". Plain `git show`
+prints the body before the diff, which is the trap this removes.
+
+- **The board store is left out by default.** With no `--path`, `docs/roadmap/`
+  and `docs/ROADMAP.md` are left out of the diff too and named on the closing
+  line, because a rule-4 landing commit usually edits the intent record's item
+  and the queue pointer, which are the author's account. Naming a board file
+  with `--path` shows it, and the closing line then says it was shown.
+  `--include-barred` lifts the default, with the banner.
+- **`--path` that matches nothing is named on stderr**, and a run with nothing
+  in scope exits **1** (0 printed something, 2 could not read the commit).
+- **`--root` must be the repository's top** inside a git repository; a root
+  below it is refused (exit 2) because the bar is measured from the root. An
+  absolute `--also-exclude` or `--path` is read relative to the root, and one
+  outside the root exits 2 rather than being reported as applied.
+- **A shallow clone's boundary commit exits 2** instead of printing the whole
+  tree as its diff.
+- The bar follows the path, not the content (a record renamed out of a barred
+  directory prints as an add); `--path` accepts git pathspec magic.
 
 An `--also-exclude` that matches no file prints a warning on stderr and changes
 nothing else: a bar that bars nothing is how a brief once named a path that never

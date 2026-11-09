@@ -51,6 +51,30 @@ applied as written. Review: `docs/reviews/2026-09-25-0715-ccmail-build-cold.md`.
 Mike answered options a session offered on each; those are answers, not rulings
 in his own words. The reviewers' counsel was applied as written, as far as each
 answer left it standing.
+- **The independence of a cold reviewer is fixed at the reader, not at every
+  writer (`160/910`, `160/930`, `160/230` RR2, `280/030` CH1).** His pick:
+  *"Fix the reviewer's side"*. A cold reviewer **skips the session-log step** of
+  its read order (`CLAUDE.md` step 4, the child template's step 3, the
+  review-brief skill's spawn-prompt line, `REVIEW.md` rule 2), and the
+  writer-side "side doors" duty in `REVIEW.md` rule 1 and its `RECORD.md`
+  sentence are withdrawn. The new text cites the three recorded occurrences by
+  date and names what stays accepted. `REVIEW.md` rule 1's scope sentence now
+  covers any brief that carries deferred material, whoever wrote it (DS11);
+  rule 4 has the reviewer record the orchestrator's reviewer-facing instructions
+  in the verdict's provenance and says what orchestrator direction may contain
+  (RR2); rule 2 names the body-free commit read and why plain `git show` is the
+  trap, and the re-run duty has its home in § *Re-run every "live-proven"
+  claim* (BF5, BF15). CH1 was already met by `280/040` (disclosed contact;
+  `CONCURRENCY.md` § *What the channel is not*). `tools/coldsweep.py --commit`
+  now leaves the board store out when no `--path` is given and names it (BF1),
+  prints only the message's first line (BF2), exits 1 when nothing is in scope
+  and names each `--path` that matched nothing (BF3), reads an absolute
+  `--also-exclude` correctly or refuses it (BF4), refuses a `--root` below the
+  repository top (BF9) and a shallow clone's boundary commit (BF10), and has
+  tests for its untested guards (BF6, BF7). `coldsweep` is not a floor check:
+  no repo's build changes. Not applied: DS2, DS4, DS6 to DS8 (they concern the
+  withdrawn writer-side duty), and the board item DS12 asked to queue for a
+  warn-only shape check (moot with the duty).
 - **The estate-root repo gets no special naming rule (`020/050`, `020/030`).**
   His pick: *"Treat like any private repo"*. The sentence that named it only in
   a private child's onramp, never in any public tree, is gone from the floor's

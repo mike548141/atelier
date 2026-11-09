@@ -9,11 +9,14 @@ prefix did not match. Every test below is that shape, or the boundary next to it
 
 import contextlib
 import io
+import os
 import shutil
+import stat as statmod
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import coldsweep
 
@@ -111,7 +114,7 @@ class TestSweep(unittest.TestCase):
         self.assertNotIn(".git", {r.parts[0] for r in kept})
 
 
-class TestCommitView(unittest.TestCase):
+class CommitFixture(unittest.TestCase):
     """`--commit` prints subject, stat and diff — and never the message body.
 
     The defect: a cold brief bars the landing commit's body, but `git show`
@@ -164,6 +167,11 @@ class TestCommitView(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
+
+
+class TestCommitView(CommitFixture):
+    """The `--commit` view: the original contract."""
+
     def test_plain_git_show_would_leak_the_body(self):
         # The control: the fixture's body really is what `git show` prints, so
         # the absence assertions below are not vacuous.
@@ -183,7 +191,9 @@ class TestCommitView(unittest.TestCase):
     def test_subject_stat_and_diff_are_present(self):
         code, out, _ = self.run_cmd("--commit", self.sha)
         self.assertEqual(code, 0)
-        self.assertIn(f"{self.sha[:7]} area: change things", out)
+        # The subject, not the abbreviated hash: a global core.abbrev on the
+        # machine running the test changes the hash's length (160/930 BF7).
+        self.assertIn(" area: change things", out.splitlines()[0])
         self.assertIn("src/a.py", out)       # stat and diff headers
         self.assertIn("2 files changed", out)
         self.assertIn("+print('two')", out)
@@ -213,10 +223,30 @@ class TestCommitView(unittest.TestCase):
         self.assertNotIn("print('two')", out)
         self.assertIn("1 file changed", out)
 
-    def test_path_with_no_changes_says_so(self):
-        code, out, _ = self.run_cmd("--commit", self.sha, "--path", "nope")
-        self.assertEqual(code, 0)
+    def test_path_with_no_changes_says_so_and_exits_one(self):
+        # BF3: a typo'd --path used to print the proof line and exit 0, which a
+        # brief's own re-run criterion ("exit 0, closing line present") read as
+        # a clean read of nothing.
+        code, out, err = self.run_cmd("--commit", self.sha, "--path", "nope")
+        self.assertEqual(code, 1)
         self.assertIn("(no changes in scope)", out)
+        self.assertIn("--path nope matched no changed file", err)
+        self.assertIn("nothing in scope", err)
+
+    def test_one_bad_path_among_good_ones_is_named_not_fatal(self):
+        code, out, err = self.run_cmd("--commit", self.sha, "--path",
+                                      "src/b.py", "--path", "src/typo.py")
+        self.assertEqual(code, 0)
+        self.assertIn("+print('bee')", out)
+        self.assertIn("--path src/typo.py matched no changed file", err)
+        self.assertNotIn("--path src/b.py matched", err)
+
+    def test_a_barred_path_named_with_path_is_not_a_way_in(self):
+        code, out, err = self.run_cmd("--commit", self.sha, "--path",
+                                      "docs/SESSIONS.md")
+        self.assertEqual(code, 1)
+        self.assertNotIn("SESSIONTEXT", out)
+        self.assertIn("--path docs/SESSIONS.md matched no changed file", err)
 
     def test_root_commit_diffs_against_the_empty_tree(self):
         code, out, err = self.run_cmd("--commit", self.root_sha)
@@ -263,6 +293,208 @@ class TestCommitView(unittest.TestCase):
 
     def test_path_without_commit_is_a_usage_error(self):
         self.assertEqual(self.run_cmd("--path", "src", "PAT")[0], 2)
+
+
+class TestCommitViewGuards(CommitFixture):
+    """The same fixture, for the findings of the 160/930 cold pass."""
+
+    def board_commit(self):
+        """A landing commit that, like a rule-4 one, also edits the board."""
+        item = self.tmp / "docs" / "roadmap" / "160-owed"
+        item.mkdir(parents=True)
+        (item / "910-pointer.md").write_text("AUTHORACCOUNT the pointer\n")
+        (self.tmp / "docs" / "ROADMAP.md").write_text("INDEXLINE\n")
+        (self.tmp / "src" / "a.py").write_text("print('three')\n")
+        self.git("add", "docs/roadmap/160-owed/910-pointer.md",
+                 "docs/ROADMAP.md", "src/a.py")
+        return self.commit("area: land it", self.BODY + "-board")
+
+    # BF1 -- the safe view by default when a commit touches the board
+    def test_board_store_is_left_out_by_default_and_named(self):
+        sha = self.board_commit()
+        code, out, _ = self.run_cmd("--commit", sha)
+        self.assertEqual(code, 0)
+        self.assertNotIn("AUTHORACCOUNT", out)
+        self.assertNotIn("INDEXLINE", out)
+        self.assertIn("+print('three')", out)           # the code delta stays
+        self.assertIn("2 board-store file(s) left out by default", out)
+        self.assertIn("docs/roadmap/160-owed/910-pointer.md", out)
+
+    def test_naming_a_board_file_shows_it_and_says_so(self):
+        sha = self.board_commit()
+        code, out, _ = self.run_cmd(
+            "--commit", sha, "--path", "docs/roadmap/160-owed/910-pointer.md")
+        self.assertEqual(code, 0)
+        self.assertIn("+AUTHORACCOUNT the pointer", out)
+        self.assertIn("1 board-store file(s) SHOWN", out)
+
+    def test_include_barred_lifts_the_board_default_with_the_banner(self):
+        sha = self.board_commit()
+        _, out, _ = self.run_cmd("--commit", sha, "--include-barred")
+        self.assertIn("+AUTHORACCOUNT the pointer", out)
+        self.assertIn("nor the board store", out)
+
+    def test_a_commit_that_touches_no_board_prints_a_stable_zero_line(self):
+        _, out, _ = self.run_cmd("--commit", self.sha)
+        self.assertIn("0 board-store file(s) left out or shown: none touched",
+                      out)
+
+    # BF2 -- only the first LINE of the message is ever printed
+    def test_a_message_with_no_blank_line_after_its_subject_prints_one_line(self):
+        (self.tmp / "src" / "d.py").write_text("print('dee')\n")
+        self.git("add", "src/d.py")
+        self.git("commit", "-q", "-m",
+                 "area: glued\n" + self.BODY + "-glued\nmore body")
+        for argv in (("--commit", "HEAD"), ("--commit", "HEAD", "--path",
+                                            "src")):
+            with self.subTest(argv=argv):
+                _, out, err = self.run_cmd(*argv)
+                self.assertIn("area: glued", out.splitlines()[0])
+                self.assertNotIn(self.BODY, out + err)
+                self.assertNotIn("more body", out + err)
+
+    def test_a_crlf_message_prints_a_clean_first_line(self):
+        (self.tmp / "src" / "e.py").write_text("print('eee')\n")
+        self.git("add", "src/e.py")
+        msg = self.tmp / "crlf.txt"
+        msg.write_bytes(("area: crlf\r\n\r\n" + self.BODY +
+                         "-crlf\r\n").encode())
+        self.git("commit", "-q", "-F", str(msg), "--cleanup=verbatim")
+        _, out, err = self.run_cmd("--commit", "HEAD")
+        self.assertTrue(out.splitlines()[0].endswith("area: crlf"))
+        self.assertNotIn("\r", out.splitlines()[0])
+        self.assertNotIn(self.BODY, out + err)
+
+    # BF4 -- an absolute --also-exclude is applied, or refused; never reported
+    # as applied while doing nothing
+    def test_an_absolute_also_exclude_is_applied_in_both_modes(self):
+        absolute = str((self.tmp / "src" / "b.py").resolve())
+        _, out, _ = self.run_cmd("--commit", self.sha, "--also-exclude",
+                                 absolute)
+        self.assertNotIn("bee", out)
+        self.assertIn("+print('two')", out)
+        (self.tmp / "docs" / "method").mkdir()
+        (self.tmp / "docs" / "method" / "D.md").write_text("NEEDLE\n")
+        absolute = str((self.tmp / "docs" / "method").resolve())
+        code, out, err = self.run_cmd("--also-exclude", absolute, "NEEDLE")
+        self.assertEqual(code, 1)           # excluded, so nothing matched
+        self.assertEqual(err, "")
+        self.assertNotIn("D.md:", out)
+
+    def test_an_also_exclude_outside_the_root_exits_two(self):
+        outside = tempfile.mkdtemp()
+        try:
+            for entry in (outside, "../elsewhere"):
+                with self.subTest(entry=entry):
+                    code, _, err = self.run_cmd("--commit", self.sha,
+                                                "--also-exclude", entry)
+                    self.assertEqual(code, 2)
+                    self.assertIn("lies outside --root", err)
+        finally:
+            shutil.rmtree(outside, ignore_errors=True)
+
+    # BF9 -- one meaning for --root
+    def test_a_root_below_the_repository_top_is_refused(self):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = coldsweep.main(["--root", str(self.tmp / "src"),
+                                   "--commit", self.sha])
+        self.assertEqual(code, 2)
+        self.assertIn("must be the repository's top", err.getvalue())
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            self.assertEqual(
+                coldsweep.main(["--root", str(self.tmp / "docs"), "log"]), 2)
+
+    # BF10 -- a shallow clone's boundary commit is not a root commit
+    def test_a_shallow_boundary_commit_is_refused(self):
+        clone = Path(tempfile.mkdtemp())
+        try:
+            subprocess.run(["git", "clone", "-q", "--depth", "1",
+                            "file://" + str(self.tmp), str(clone / "c")],
+                           check=True, capture_output=True)
+            out, err = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = coldsweep.main(["--root", str(clone / "c"),
+                                       "--commit", "HEAD"])
+            self.assertEqual(code, 2)
+            self.assertIn("shallow clone", err.getvalue())
+            self.assertNotIn("print('two')", out.getvalue())
+        finally:
+            shutil.rmtree(clone, ignore_errors=True)
+
+    # BF6 -- the guards that had no test
+    def test_the_barred_bar_is_anchored_at_the_repo_top(self):
+        # Called from below the top (main refuses that now, but the guard is
+        # kept for any caller): `top` is what stops the exclusion being
+        # measured from the subdirectory and barring nothing.
+        self.assertIn(":(top,exclude)docs/SESSIONS.md",
+                      coldsweep._pathspec([], coldsweep.BARRED))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = coldsweep.show_commit(self.tmp / "src", self.sha, [],
+                                         coldsweep.BARRED)
+        self.assertEqual(code, 0)
+        self.assertNotIn("SESSIONTEXT", buf.getvalue())
+
+    def test_an_external_diff_driver_is_never_run(self):
+        marker = self.tmp / "ext-ran"
+        script = self.tmp / "extdiff.sh"
+        script.write_text("#!/bin/sh\necho EXTDIFFLEAK; touch '%s'\n" % marker)
+        script.chmod(script.stat().st_mode | statmod.S_IXUSR)
+        self.git("config", "diff.external", str(script))
+        code, out, err = self.run_cmd("--commit", self.sha)
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("EXTDIFFLEAK", out)
+        self.assertFalse(marker.exists())
+
+    def test_a_textconv_filter_is_never_run(self):
+        (self.tmp / ".gitattributes").write_text("*.py diff=leaky\n")
+        self.git("config", "diff.leaky.textconv", "echo TEXTCONVLEAK #")
+        code, out, err = self.run_cmd("--commit", self.sha)
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("TEXTCONVLEAK", out)
+        self.assertIn("+print('two')", out)
+
+    def test_colour_config_does_not_put_escapes_in_the_output(self):
+        self.git("config", "color.ui", "always")
+        self.git("config", "color.diff", "always")
+        _, out, _ = self.run_cmd("--commit", self.sha)
+        self.assertNotIn("\x1b[", out)
+
+    def test_a_notes_ref_never_reaches_the_output(self):
+        self.git("notes", "add", "-m", "NOTELEAK", self.sha)
+        self.git("config", "notes.displayRef", "refs/notes/commits")
+        _, out, err = self.run_cmd("--commit", self.sha)
+        self.assertNotIn("NOTELEAK", out + err)
+
+    def test_a_rev_spelled_like_an_option_is_a_rev_not_a_flag(self):
+        for rev in ("--all", "-h", "--output=" + str(self.tmp / "o.txt")):
+            with self.subTest(rev=rev):
+                # `=` form: argparse would take a bare "--all" for a flag.
+                code, out, err = self.run_cmd("--commit=" + rev)
+                self.assertEqual(code, 2)
+                self.assertEqual(out, "")
+                self.assertIn("not a commit", err)
+        self.assertFalse((self.tmp / "o.txt").exists())
+
+    def test_a_failed_git_diff_is_an_error_never_a_clean_read(self):
+        real = coldsweep._git
+
+        def failing(root, *args):
+            if args and args[0] == "diff":
+                return subprocess.CompletedProcess(
+                    args, 128, stdout="", stderr="fatal: simulated failure")
+            return real(root, *args)
+
+        out, err = io.StringIO(), io.StringIO()
+        with mock.patch.object(coldsweep, "_git", side_effect=failing), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = coldsweep.show_commit(self.tmp, self.sha, [],
+                                         coldsweep.BARRED)
+        self.assertEqual(code, 2)
+        self.assertIn("git failed", err.getvalue())
+        self.assertNotIn("message body not printed", out.getvalue())
+        self.assertNotIn("(no changes in scope)", out.getvalue())
 
 
 class TestExitCodes(unittest.TestCase):

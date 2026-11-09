@@ -50,9 +50,10 @@ A good brief is falsifiable and attackable. Include:
    anything machine-local that no other review will catch. Where a commit's
    message body is barred until phase 2, **name the command that reads it
    body-free**: `tools/coldsweep.py --commit <sha> [--path <p>]` (subject,
-   stat and diff, never the body, with rule-2 barred files left out). Say why
-   plain `git show` is barred: it prints the body before the diff, and
-   reading is atomic (`REVIEW.md` rule 1). **Give the reviewer's
+   stat and diff, never the body, with rule-2 barred files left out and, with
+   no `--path`, the board store too; name a board file with `--path` only where
+   it is the delta). Say why plain `git show` is barred: it prints the body
+   before the diff, and reading is atomic (`REVIEW.md` rule 1). **Give the reviewer's
    `tools/coldsweep.py` sweep command one `--also-exclude` for every path the
    brief's *Deferred reading* section bars**, not only the queue pointer: a
    path the section lists and the command does not exclude is read by the
@@ -62,6 +63,11 @@ A good brief is falsifiable and attackable. Include:
    reading starts, and an orchestrator merges `origin/main` into the review
    branch before it spawns, because a review branch forked before the delta
    shows the reviewer a tree with nothing to review (2026-10-03, DK8).
+   **Tell the reviewer to skip the session-log step of its read order** — in
+   the brief and in the spawn prompt, which should not say "read everything
+   first": the log is on rule 2's barred list, and the reviewer meets the
+   author's words before the brief if it reads its tail (`REVIEW.md` rule 2,
+   *the reviewer's start-up reading*; `160/910`).
 2. **Why it earns a review** — name the worst failure mode (e.g. a false negative
    that manufactures confidence).
 3. **Scope, and the four lenses — run all four.** Scope is the whole

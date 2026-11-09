@@ -131,7 +131,9 @@ in atelier and is read on demand — never wholesale.
    then silence with no closing entry means the last session either died
    mid-flight or is still live — run the read-first recovery sweep
    (`<atelier-path>/docs/method/CONCURRENCY.md` § Surviving an interrupted
-   session) before assuming either.
+   session) before assuming either. A cold reviewer skips this step: the log is
+   on the review rules' barred list (`<atelier-path>/docs/method/REVIEW.md`
+   rule 2).
 
 ## Hard constraints
 

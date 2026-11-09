@@ -54,7 +54,8 @@ not*); a pass that is clean *on the seeded questions specifically* is the
 strongest trigger. Each such pair is a data point.
 
 So these rules bind on top of fresh context — rules 1–2 whenever the brief is
-written by, or on the framing of, the work's author; rules 3–4 whenever the
+written by, or on the framing of, the work's author, or carries deferred
+material whoever wrote it; rules 3–4 whenever the
 work is self-authored doctrine — rule 3 however the review was spawned, rule 4
 governing who may spawn it:
 
@@ -100,20 +101,9 @@ governing who may spawn it:
    path the reviewer can reach, and the honest name is the one below. Where
    the orchestrator holds them is `CONCURRENCY.md` § *Orchestrated queue
    runs* (never the scratchpad, never a reviewer's working directory). Call
-   the rest what it is: a strong default with an audit trail.
-
-   **The deferral has side doors: every record a reviewer reads before the
-   brief.** A reviewer's onramp reads the tail of the session log, the board
-   pointer and recent commit subjects before it opens the brief. So any of
-   those, written by the author or brief-writer while the review is pending,
-   names deferred material **by file and count only, never by topic**: "a
-   held-back sibling with four questions and two facts", not what they are
-   about. Grounded in a child, 2026-10-18 (`320/720`): a brief-writer's close
-   entry gave the headlines of the two facts it had held back, and the cold
-   reviewer read them at onramp, before the brief, and disclosed it. Neither
-   steered a finding, but the leak ran through a door this rule did not
-   watch. No scanner checks this: a topic is meaning, not a pattern. The
-   commit-message door is `130/030`'s.
+   the rest what it is: a strong default with an audit trail. The reviewer's
+   own start-up reading is a door too, and it is closed at the reader (rule 2,
+   *the reviewer's start-up reading*).
 
    **Split for the duration, merged at rest.** When the verdict lands, the
    deferred file is folded into the brief below the verdict and deleted, so
@@ -148,6 +138,45 @@ governing who may spawn it:
    instances kept coming, so the exclusion is now the tool's default and the
    wide sweep is `--include-barred`, which prints a banner telling you to
    disclose it. A wide sweep is not forbidden; an **undisclosed** one is.
+
+   **Read a landing commit with `tools/coldsweep.py --commit <sha>`, never with
+   plain `git show`.** The commit's message body is barred until phase 2 (it is
+   the author's account of the work), and `git show`, in its default format,
+   prints the body before the diff: that is the trap. `--commit` prints the
+   subject, stat and diff only, leaves rule 2's barred files out, and with no
+   `--path` leaves the board store out too (a landing commit usually edits the
+   intent record's item and the queue pointer); name a board file with `--path`
+   only where it is the delta, and disclose that you read it (`tools/README.md`,
+   *coldsweep*; 160/930, applied 2026-11-09).
+
+   **The reviewer's start-up reading skips the session-log step** (Mike's pick
+   from options offered on `160/910`, 2026-11-09: *"Fix the reviewer's side"*;
+   an answer, not a ruling in his words). The session log is on this rule's
+   barred list, yet a repo's read order has every session read its tail before
+   any brief, so a cold reviewer meets the author's or brief-writer's words
+   before it has read a line of its brief. The fix sits at the reader, where it
+   costs one clause in every repo's read order and cannot be forgotten by a
+   writer: a cold reviewer **skips the session-log step** (atelier's `CLAUDE.md`
+   step 4; step 3 of the child template), whatever its spawn prompt says, and
+   its spawn prompt and the brief say so too. The step's other job, noticing a
+   session that died or is still live, is not a reviewer's: it works in a tree
+   it was handed. The writer-side duty this replaces (every writer names
+   deferred material "by file and count only, never by topic") is withdrawn; it
+   bound writers by role, and no check could see whether it was kept. A reviewer
+   that did read the tail, by an older prompt or by accident, discloses what it
+   met, as a 2026-08-17 brief already told its taker to. **Accepted, not
+   closed:** the onramp's other reads before the brief (the board index, recent
+   commit subjects) are not on the barred list and carry no writer-side duty
+   now; a reviewer discloses anything there that reads as the author's account.
+   Also accepted, because no step a reader skips reaches them: the cross-session
+   channel (rule 4's disclosed contact covers it), the opening prompt a
+   queue-run session is told to follow, branch and worktree names in claims, and
+   the barred-path list a brief must print to bar anything. Grounded in three
+   recorded occurrences, not one: 2026-08-02 (an author's log entry giving an
+   account of the delta reached a reviewer mid-pass through a sweep), 2026-08-17
+   (a brief-writer read the log tail at onramp, before the brief) and 2026-10-18
+   (a cold reviewer read a brief-writer's close entry at onramp, before the
+   brief, and disclosed it; `320/720`, which steered no finding).
 3. **Findings on self-authored *doctrine* are the principal's to decide,
    not the author's.** Doctrine here is defined by **function, not file type**:
    any rule that governs future agent behaviour, whether it lives in prose, an
@@ -226,6 +255,14 @@ governing who may spawn it:
    **disclosed in the claim, in the queue pointer and in the verdict's
    provenance** — before the findings, where a reader meets it rather than
    discovers it. Absent either, the stop clause above applies unchanged.
+   The first condition is checkable only if what the orchestrator told the
+   reviewer is in the record, so the **reviewer** puts it in the verdict's
+   provenance: the spawn prompt, the barred-set choice and the release message,
+   verbatim or as an attached file. Orchestrator direction is process only:
+   paths, tools, the barred set, the deliverable's shape, release timing. It
+   never contains a question about the delta, a pointer to where the risk
+   lives, or a request to revise a finding (the cold pass on the 2026-08-17
+   ruling round, RR2; applied at the reader, 2026-11-09, `160/910`).
    Grounding: a 2026-08-17 run put two passes on Fable reviewers under an Opus
    orchestrator, disclosed it that way, and asked; the ruling accepted the
    passes and directed that the rule be written so the next session reads it
@@ -350,6 +387,12 @@ its unexempted fixtures at HEAD), and the create-repo sweep caught the same clas
 again — a stamped, recorded proof that broke when run verbatim. This is lens 2
 (does it do what it claims) applied to the record itself, and it feeds the
 close-rule below: a proof you have not re-run is not a proof you can close on.
+The brief-writer owes the reviewer the same care: it runs every re-run line
+**once, from where the brief says to run it**, before writing it down. A line
+that fails from the place it names costs the reviewer its first act (grounded in
+PF10, a 2026-10-16 brief whose test line failed from the repo root); the
+review-brief skill carries the compressed copy (`160/930`, BF5, applied
+2026-11-09).
 
 ## The standing checklist — seven checks every review runs unasked
 

@@ -65,10 +65,10 @@ stopped instead of re-deriving it:
   detected by no tool and by no scheduled review: it relies on the writing
   session's discipline and the next session noticing. (Grounded 2026-07-14:
   the cold review found the append-only rule and the budget colliding with no
-  sanctioned move for an index that had already done the split.) An entry
-  written while a review is pending names any deferred material by file and
-  count only, because the reviewer reads this tail before the brief
-  (`REVIEW.md` rule 1, *side doors*).
+  sanctioned move for an index that had already done the split.) A cold
+  reviewer does not read this tail: it skips the session-log step of the read
+  order (`REVIEW.md` rule 2, *the reviewer's start-up reading*), so a closing
+  entry carries no duty about deferred material.
 - **Detail lives on demand** — when a session is substantial, its full detail
   goes in a `docs/sessions/<date>-<HHMM>-<slug>.md` file and the index carries
   a one-line pointer. (`HHMM` is the session's start time, 24-hour, in UTC —

@@ -28,7 +28,9 @@ private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`
    then silence with **no closing entry** means the last session either died
    mid-flight **or is still live** — run the read-first recovery sweep
    (`docs/method/CONCURRENCY.md` § Surviving an interrupted session) before
-   assuming either, and before starting new work.
+   assuming either, and before starting new work. **A cold reviewer skips this
+   step:** the log is on the review rules' barred list
+   (`docs/method/REVIEW.md` rule 2).
 5. `docs/ROADMAP.md` — what's open. It is the board's **generated index**
    (one file per item under `docs/roadmap/`; edit the item file, then
    `python3 tools/board.py --rebuild` — never the index itself).
