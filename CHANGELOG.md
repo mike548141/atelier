@@ -5,6 +5,23 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-10 — `ccclose` names a failed agent, `210/400`)
+- **`ccclose` check 12 has a fifth agent state, *failed*.** A parent's
+  `<status>failed</status>` notification used to read as "a status ccclose does
+  not know" and only warn, though a census of 3,587 agents found 50 so recorded,
+  none ending on `end_turn`. It is now its own state: a fail, judged before the
+  launch's `tool_result` (a failed foreground agent still returns one), counted
+  as `failed` in the summary line, `--json` `counts` and the identifiers block,
+  with a known zero when none. An unrecognised status still warns. Pinned in
+  `instruments/ccclose.test.js`; `instruments/ccclose.design.md` and
+  `instruments/man/ccclose.1` carry it.
+- **`cctranscript` is left alone on the second question of `210/400`.** Its
+  header could not count notification statuses honestly from the parent log: a
+  task notification covers background commands as well as agents, so a count
+  would mix them without opening the agent logs; one notification arrives in up
+  to three carrier shapes and needs de-duplicating by task id; and a new chip
+  would change a header line other records compare. `ccclose` is the judge.
+
 ### Changed (2026-11-09 — the evidence-window rule, the declaration standard's design, the platform-settings gate, and a pinned review bound: `115/010`, `115/120`, `260/070`, `320/420`)
 Doctrine and one design note; no scanner or tool changes.
 - **The evidence-window rule (`115/010`).** `GUARDS.md` gains a section a reader

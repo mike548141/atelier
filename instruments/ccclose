@@ -1341,6 +1341,13 @@ function judgeAgent(a, parent, now = Date.now()) {
   if (note && STOP_STATUS.has(note.status)) {
     return { state: 'stopped', status: 'pass', end: `stopped on purpose (${note.status} notification)` };
   }
+  // A failed notification is the parent's own word that the agent died. A
+  // measurement of 3,587 agents found 50 so recorded, none ending on end_turn,
+  // so it is its own state rather than an unknown status (210/400). It comes
+  // before the launch's tool_result: a failed foreground agent still returns one.
+  if (note && note.status === 'failed') {
+    return { state: 'failed', status: 'fail', end: 'failed (the parent recorded a failed notification)' };
+  }
   if (hasResult) {
     return { state: 'reported', status: 'pass',
       end: `reported (tool_result on the launch${finished ? '' : '; its own transcript stops short of end_turn'})` };
@@ -1371,7 +1378,7 @@ function judgeAgent(a, parent, now = Date.now()) {
 
 async function checkSubagents(file, t, all = false) {
   const L = 'Subagents finished';
-  const zero = { reported: 0, stopped: 0, unconsumed: 0, running: 0, cut: 0 };
+  const zero = { reported: 0, stopped: 0, unconsumed: 0, running: 0, cut: 0, failed: 0 };
   if (!file) return { ...check('subagents', L, 'na', 'not applicable — no transcript, so no subagents/ directory to read'), counts: null, agents: [] };
   const dir = path.join(path.dirname(file), path.basename(file, '.jsonl'), 'subagents');
   if (!isDir(dir)) return { ...check('subagents', L, 'na', 'not applicable — no subagents/ directory beside the transcript'), counts: { agents: 0, ...zero }, agents: [] };
@@ -1397,9 +1404,9 @@ async function checkSubagents(file, t, all = false) {
   const order = { fail: 0, warn: 1, pass: 2 };
   const listed = [...agents].sort((x, y) => order[x.status] - order[y.status]);
   const items = listed.map((a) => `${ICON[a.status]} ${a.short} ${clip(a.description || '(no description)', 60)} — ${a.end}`);
-  const status = counts.cut || counts.running ? 'fail' : counts.unconsumed ? 'warn' : 'pass';
+  const status = counts.cut || counts.running || counts.failed ? 'fail' : counts.unconsumed ? 'warn' : 'pass';
   const summary = `${counts.agents} agent(s) · ${counts.reported} reported · ${counts.stopped} stopped on purpose`
-    + ` · ${counts.unconsumed} finished, result never consumed · ${counts.running} still running · ${counts.cut} cut mid-flight`;
+    + ` · ${counts.unconsumed} finished, result never consumed · ${counts.running} still running · ${counts.cut} cut mid-flight · ${counts.failed} failed`;
   return { ...check('subagents', L, status, summary, items), counts, agents: all ? listed : listed.slice(0, CAP) };
 }
 
@@ -1938,7 +1945,7 @@ function renderIdentifiers(r) {
   else if (!a.counts.agents) o.push('- **Agents**: 0 · none launched');
   else {
     const k = a.counts;
-    list(`- **Agents**: ${k.agents} · ${k.reported} reported · ${k.stopped} stopped on purpose · ${k.unconsumed} result never consumed · ${k.running} still running · ${k.cut} cut mid-flight`,
+    list(`- **Agents**: ${k.agents} · ${k.reported} reported · ${k.stopped} stopped on purpose · ${k.unconsumed} result never consumed · ${k.running} still running · ${k.cut} cut mid-flight · ${k.failed} failed`,
       a.items.map((x) => `${x.short} ${clip(x.description || '(no description)', 60)} — ${x.end}`));
   }
   o.push(`- **Other repos**: ${r.otherRepos} — fill in by hand`);

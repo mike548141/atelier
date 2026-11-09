@@ -216,7 +216,7 @@ An agent is **finished** when its last `assistant` record has
 turn. One whose last assistant record is a `tool_use` with no result after it
 was **cut mid-flight**. The parent records an agent's end three ways, and the
 tool reads all of them: a `<task-notification>` with the agent's `<task-id>` and
-a `<status>` (`completed`, `killed` or `stopped`), carried in an `attachment`
+a `<status>` (`completed`, `killed`, `stopped` or `failed`), carried in an `attachment`
 record of type `queued_command`, in a `queue-operation` enqueue, or in a plain
 `user` record. The same notification usually arrives in more than one shape;
 the latest per agent governs. A text counts only when it opens with the tag, so
@@ -229,6 +229,7 @@ agent that same `tool_result` is only "launched", and does not count.
 | ✅ reported | finished, and a `completed` notification (or, foreground, the `tool_result`) |
 | ✅ stopped on purpose | a `killed` or `stopped` notification, whatever the transcript says. Named, never hidden: an orchestrator that stops a duplicate is doing right. |
 | ⚠️ unconsumed | finished by its own transcript, but the parent has no notification: the result was never read. Also a `completed` notification over a transcript that stops short of `end_turn`, and a status the tool does not know. |
+| ❌ failed | a `failed` notification, whatever the agent's own transcript or launch `tool_result` says: the parent's own word that it died. A census of 3,587 agents found 50 so recorded, none ending on `end_turn`. Its own count, never folded into cut or unknown (210/400). |
 | ❌ still running | no finished final turn and no notification, but the agent's own transcript is still growing: its last record is at most 10 minutes old by the clock (`FRESH_MS`), and the parent has recorded nothing more than 10 minutes after it. Also an agent resumed after its `completed` notification that is growing again. |
 | ❌ cut mid-flight | no finished final turn and no completed, killed or stopped notification. Also an agent resumed after its `completed` notification (records later than the notification) and cut again. |
 | ➖ | no transcript, or no `subagents/` directory ("not applicable", never a pass) |
@@ -240,10 +241,10 @@ therefore reads as running for up to that long, and its line says how long
 ago it last wrote. Running fails the check like cut, because a close under a
 working agent is the hazard, but never calls a live agent dead (210/380).
 
-The check is ❌ when any agent is cut or running, else ⚠️ when any is unconsumed, else ✅.
+The check is ❌ when any agent is cut, running or failed, else ⚠️ when any is unconsumed, else ✅.
 Its line prints every count, zeros included (`N agent(s) · R reported · S
 stopped on purpose · U finished, result never consumed · W still running ·
-C cut mid-flight`),
+C cut mid-flight · F failed`),
 then one line per agent (short id, description, end), problems first so the
 cap never hides one. An empty directory is a known zero and passes. If the
 transcript exists but cannot be read, the line is ⚠️ unknown, because no

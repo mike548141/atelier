@@ -229,7 +229,7 @@ a resume appends to the same file, so the last record is the final turn.
 matches each agent to the parent transcript's record of its end: a
 .B <task-notification>
 with the agent's task id and a status of
-.BR completed ", " killed " or " stopped ,
+.BR completed ", " killed ", " stopped " or " failed ,
 carried in a queued-command attachment, a queue enqueue or a plain user
 record (all three occur), or, for a foreground agent, the
 .B tool_result
@@ -246,8 +246,16 @@ A stopped agent is named in the list, never hidden.
 Finished by its own transcript, but the parent has no notification: the
 result was never consumed.
 .IP "fail"
-No finished final turn and no completed, killed or stopped notification,
-which is one of two states.
+A
+.B failed
+notification, whatever the agent's own transcript or launch result says: the
+parent's own word that it died.
+In a census of 3,587 agents, 50 were so recorded and none ended on
+.BR end_turn .
+It is its own state, counted apart, never read as unknown.
+.IP
+No finished final turn and no completed, killed, stopped or failed
+notification, which is one of two states.
 An agent whose transcript is still growing is
 .BR "still running" :
 its last record is under ten minutes old by the clock, and the parent has
@@ -270,7 +278,9 @@ No transcript, or no
 directory.
 .RE
 .IP
-The line counts every state, zeros included, and each agent is listed with
+The line counts every state, zeros included (reported, stopped, finished
+with the result never consumed, still running, cut mid-flight, failed), and
+each agent is listed with
 its short id, description and end, problems first.
 The session running
 .B ccclose
@@ -502,8 +512,8 @@ worktree adds not resolved\(rq, so the list is known to be short.
 Worktrees born inside the window and branches with a tip inside it are added.
 .TP
 .B Agents
-How many subagents the session launched, how each ended, and each one's short
-id and description.
+How many subagents the session launched, how each ended (the same six counts,
+failed included), and each one's short id and description.
 The list is whole, not capped.
 .TP
 .B Other repos

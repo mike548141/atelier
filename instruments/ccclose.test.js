@@ -661,8 +661,8 @@ test('check 12 sorts every agent into its state, with each carrier and the foreg
   const c = j.by.subagents;
   assert.equal(c.status, 'fail', c.summary);
   assert.equal(j.code, 1);
-  assert.deepEqual(c.counts, { agents: 7, reported: 4, stopped: 1, unconsumed: 1, running: 0, cut: 1 });
-  assert.match(c.summary, /7 agent\(s\) · 4 reported · 1 stopped on purpose · 1 finished, result never consumed · 0 still running · 1 cut mid-flight/);
+  assert.deepEqual(c.counts, { agents: 7, reported: 4, stopped: 1, unconsumed: 1, running: 0, cut: 1, failed: 0 });
+  assert.match(c.summary, /7 agent\(s\) · 4 reported · 1 stopped on purpose · 1 finished, result never consumed · 0 still running · 1 cut mid-flight · 0 failed/);
   const a = agentLines(j);
   for (const id of ['a1111111', 'b2222222', 'c3333333']) {
     assert.equal(a[id].status, 'pass', id);
@@ -687,6 +687,45 @@ test('check 12 sorts every agent into its state, with each carrier and the foreg
   assert.match(text, /- ✅ e555555 foreground job — reported \(tool_result/);
 });
 
+test('check 12 names a failed notification as its own state: a fail, counted apart from cut and unknown (210/400)', () => {
+  const w = world();
+  const root = repo(w);
+  const sid = 'sess-agents-failed';
+  // A background agent the parent was told failed; its own log stops mid-turn.
+  agent(w, sid, 'a1111111', { turns: cutTurns, description: 'died on a tool error' });
+  // A foreground agent that failed still returns a tool_result on its launch: the failure governs.
+  agent(w, sid, 'b2222222', { turns: cutTurns, description: 'foreground, failed', shape: 'foreground', toolUseId: 'toolu_fgfail' });
+  // A status the tool does not know stays an unknown: a warn, not a failure.
+  agent(w, sid, 'c3333333', { turns: finishedTurns, description: 'odd status' });
+  transcript(w, sid, [viaAttachment('a1111111', 'failed'), viaQueue('b2222222', 'failed'), toolResult('toolu_fgfail'),
+    viaUser('c3333333', 'weird')]);
+  const j = json(w, root, ['--session', sid]);
+  const c = j.by.subagents;
+  assert.equal(c.status, 'fail', c.summary);
+  assert.deepEqual(c.counts, { agents: 3, reported: 0, stopped: 0, unconsumed: 1, running: 0, cut: 0, failed: 2 });
+  assert.match(c.summary, /1 finished, result never consumed · 0 still running · 0 cut mid-flight · 2 failed/);
+  const a = agentLines(j);
+  assert.equal(a.a1111111.status, 'fail');
+  assert.match(a.a1111111.end, /^failed \(the parent recorded a failed notification\)/);
+  assert.equal(a.b2222222.status, 'fail');
+  assert.match(a.b2222222.end, /^failed/);
+  assert.match(a.c3333333.end, /status "weird", which ccclose does not know/);
+  assert.match(c.items[0], /^❌ (a111111|b222222) /);
+  assert.doesNotMatch(c.items.join('\n'), /cut mid-flight:/);
+  // It reaches the --identifiers block too, as a known count.
+  const out = idRun(w, root, sid).out;
+  assert.match(out, /- \*\*Agents\*\*: 3 · 0 reported · 0 stopped on purpose · 1 result never consumed · 0 still running · 0 cut mid-flight · 2 failed\n/);
+});
+
+test('judgeAgent: a failed notification is failed whatever the transcript ends on, and a later completed one supersedes it', () => {
+  const T = Date.now();
+  const mk = (status) => ({ ...{ last: T, notes: new Map([['z1', { status, ts: T }]]), toolResults: new Map() } });
+  const ag = (o = {}) => ({ id: 'z1', meta: {}, stop: null, blocks: ['tool_use'], lastTs: T - 1000, assistants: 1, ...o });
+  assert.equal(cc.judgeAgent(ag(), mk('failed'), T).state, 'failed');
+  assert.equal(cc.judgeAgent(ag({ stop: 'end_turn', blocks: ['text'] }), mk('failed'), T).state, 'failed');
+  assert.equal(cc.judgeAgent(ag({ stop: 'end_turn', blocks: ['text'] }), mk('completed'), T).state, 'reported');
+});
+
 test('check 12 passes when every agent was reported or stopped on purpose', () => {
   const w = world();
   const root = repo(w);
@@ -695,7 +734,7 @@ test('check 12 passes when every agent was reported or stopped on purpose', () =
   transcript(w, 'sess-agents-ok', [viaAttachment('a1111111', 'completed'), viaUser('d4444444', 'killed')]);
   const j = json(w, root, ['--session', 'sess-agents-ok']);
   assert.equal(j.by.subagents.status, 'pass', j.by.subagents.summary);
-  assert.deepEqual(j.by.subagents.counts, { agents: 2, reported: 1, stopped: 1, unconsumed: 0, running: 0, cut: 0 });
+  assert.deepEqual(j.by.subagents.counts, { agents: 2, reported: 1, stopped: 1, unconsumed: 0, running: 0, cut: 0, failed: 0 });
   assert.match(j.by.subagents.items.join('\n'), /stopped on purpose \(killed notification\)/);
 });
 
@@ -710,7 +749,7 @@ test('check 12 warns, and does not fail the close, for a finished agent whose re
   transcript(w, 'sess-agents-warn');
   const j = json(w, root, ['--session', 'sess-agents-warn']);
   assert.equal(j.by.subagents.status, 'warn');
-  assert.deepEqual(j.by.subagents.counts, { agents: 1, reported: 0, stopped: 0, unconsumed: 1, running: 0, cut: 0 });
+  assert.deepEqual(j.by.subagents.counts, { agents: 1, reported: 0, stopped: 0, unconsumed: 1, running: 0, cut: 0, failed: 0 });
   assert.equal(j.code, 0);
   assert.equal(j.verdict.status, 'warn');
 });
@@ -764,7 +803,7 @@ test('check 12 reads an agent whose transcript is still growing as running, not 
   transcript(w, 'sess-run', [], rel(0));
   const j = json(w, root, ['--session', 'sess-run']);
   const c = j.by.subagents;
-  assert.deepEqual(c.counts, { agents: 2, reported: 0, stopped: 0, unconsumed: 0, running: 1, cut: 1 });
+  assert.deepEqual(c.counts, { agents: 2, reported: 0, stopped: 0, unconsumed: 0, running: 1, cut: 1, failed: 0 });
   assert.match(c.summary, /1 still running · 1 cut mid-flight/);
   const a = agentLines(j);
   assert.equal(a.a1111111.state, 'running');
@@ -785,7 +824,7 @@ test('a running agent alone fails the check but is never called cut', () => {
   transcript(w, 'sess-run1', [], rel(0));
   const c = json(w, root, ['--session', 'sess-run1']).by.subagents;
   assert.equal(c.status, 'fail');
-  assert.deepEqual(c.counts, { agents: 1, reported: 0, stopped: 0, unconsumed: 0, running: 1, cut: 0 });
+  assert.deepEqual(c.counts, { agents: 1, reported: 0, stopped: 0, unconsumed: 0, running: 1, cut: 0, failed: 0 });
   assert.doesNotMatch(c.items.join('\n'), /cut mid-flight:/);
 });
 
@@ -831,7 +870,7 @@ test('check 12 is not applicable with no subagents/ directory, and says so rathe
   const j = json(w, root, ['--session', 'sess-no-agents']);
   assert.equal(j.by.subagents.status, 'na');
   assert.match(j.by.subagents.summary, /^not applicable — no subagents\/ directory/);
-  assert.deepEqual(j.by.subagents.counts, { agents: 0, reported: 0, stopped: 0, unconsumed: 0, running: 0, cut: 0 });  // known zeros print
+  assert.deepEqual(j.by.subagents.counts, { agents: 0, reported: 0, stopped: 0, unconsumed: 0, running: 0, cut: 0, failed: 0 });  // known zeros print
   assert.match(ccclose(w, root, ['--session', 'sess-no-agents']).out, /➖ Subagents finished +not applicable/);
   // With no transcript at all it is also not applicable, and the counts are unknown rather than zero.
   const none = json(w, root, ['--session', 'nothing-here']);
@@ -846,7 +885,7 @@ test('an empty subagents/ directory is a known zero, not a skipped check', () =>
   fs.mkdirSync(path.join(w.home, '.claude', 'projects', 'proj', 'sess-empty-agents', 'subagents'), { recursive: true });
   const j = json(w, root, ['--session', 'sess-empty-agents']);
   assert.equal(j.by.subagents.status, 'pass');
-  assert.match(j.by.subagents.summary, /^0 agent\(s\) · 0 reported · 0 stopped on purpose · 0 finished, result never consumed · 0 still running · 0 cut mid-flight/);
+  assert.match(j.by.subagents.summary, /^0 agent\(s\) · 0 reported · 0 stopped on purpose · 0 finished, result never consumed · 0 still running · 0 cut mid-flight · 0 failed/);
 });
 
 test('check 12 list is capped and the cut counted, with problems listed first', () => {
@@ -1211,7 +1250,7 @@ test('--identifiers agents: present are counted and listed, absent print zero', 
   agent(w, 'sess-id-7', 'bb222222', { turns: cutTurns, description: 'The cut one' });
   transcript(w, 'sess-id-7', [viaAttachment('aa111111', 'completed')]);
   const out = idRun(w, root, 'sess-id-7').out;
-  assert.match(out, /- \*\*Agents\*\*: 2 · 1 reported · 0 stopped on purpose · 0 result never consumed · 0 still running · 1 cut mid-flight\n/);
+  assert.match(out, /- \*\*Agents\*\*: 2 · 1 reported · 0 stopped on purpose · 0 result never consumed · 0 still running · 1 cut mid-flight · 0 failed\n/);
   assert.match(out, /  - aa11111 Build the thing — reported \(completed notification\)\n/);
   assert.match(out, /  - bb22222 The cut one — cut mid-flight/);
   transcript(w, 'sess-id-8');
