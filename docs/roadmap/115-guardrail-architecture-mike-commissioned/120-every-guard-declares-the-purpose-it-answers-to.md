@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1458, wt: atelier-qr-d0ca-decl, session d0ca5d24) 🎯 **Every guard declares the purpose it answers to, and proves it fires
+- [ ] 🎯 **Every guard declares the purpose it answers to, and proves it fires
       on its own grounding incidents — Mike's call, and it is the answer to the
       question he actually asked.** The axis is not narrow versus wide. It is
       what a guard is *organised around*: a detectable feature, or the purpose
@@ -76,3 +76,20 @@
         bar on at least one field and 56 of 80 fields are owed. No check changed.
         **Owed:** step 0, then groups A to D, then group E, in series on
         `tools/floor.py`. Group A needs the allow-marker question answered first.
+  - [ ] ✅ **Step 0 landed 2026-11-10** (queue run d0ca5d24). `Declares` beside
+        `why` on all 21 registry checks, `tools/floor.py`'s reader, `--list`
+        column, `--declarations`, the `--json` key and the CI and `floorfleet`
+        line. Warn-only, no exit code moved. Probe in `tools/test_floor.py`
+        (`DeclarationSurfaceTest`) and on five children, one at a time.
+        **What is stated:** Rule ✅ on the census's five resolves; the other
+        rules, and each field below without a ✅ in the census, are `Unmet`
+        with the reason. The open allow-marker question (`GUARDS.md` § *Before
+        building a check*) is carried, not settled: `leakscan`, `sizescan`,
+        `datescan` and the checks in Group E that lean on a marker state
+        `window` as `Unmet` naming it. The five checks new to the registry
+        since the census (`attribscan`, `pdlistscan`, `sweepscan`, `namescan`,
+        `quotescan`) state their fields from their own docstrings and tests;
+        none declares a posture, so each is `Unmet` there.
+        **Owed:** groups A to D, Group E's remaining local checks; `reviewed`
+        (a verdict reading each cited rule against its check) is what takes
+        any rule from `resolves` to `met`.

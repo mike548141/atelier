@@ -238,8 +238,11 @@ defect is real by construction.
 **The `why` stays, and is not this.** It is the one-line outcome the board and
 CI print. The declaration is what that line can be compared against.
 
-Today none of this is built, so it binds as a review question. The schema, what
-reads it, how a miss is reported, and how far each check is from the bar are in
+Step 0 is built (2026-11-10): every registry check states the five fields and
+`floor.py --declarations` reports them, warn-only, with no exit code reading them.
+The machine says only whether a citation or a replay resolves, so passing a field
+still binds as a review question. The schema, what reads it, how a miss is
+reported, and how far each check is from the bar are in
 [the design note](../decisions/2026-11-09-1334-check-declaration-standard.md).
 
 ## What a finding is assessed on — three axes

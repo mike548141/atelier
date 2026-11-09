@@ -1635,5 +1635,14 @@ class SizeCapTest(unittest.TestCase):
             self.assertEqual("hello\n", floorfleet._read_local(repo, "small.txt"))
 
 
+
+class DeclarationLineTest(unittest.TestCase):
+    """115/120 step 0: one reported line, for the registry the fleet floats on."""
+
+    def test_the_board_carries_the_declarations_line(self):
+        board = floorfleet.render([], remote=False)
+        self.assertRegex(board, r"declarations: \d+ checks, \d+ meet all five")
+
+
 if __name__ == "__main__":
     unittest.main()

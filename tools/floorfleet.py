@@ -1571,6 +1571,13 @@ def render(infos: list[ChildFloor], remote: bool, status: bool = False,
         lines.append("")
         lines.append("  Local hook gaps (this machine only — core.hooksPath never "
                      "travels): " + ", ".join(hookless))
+
+    # 115/120: one line, for the registry every repo floats on. Reported, and
+    # read from this checkout's floor.py, so it carries no per-repo cost.
+    lines.append("")
+    tools = Path(floor.__file__).resolve().parent
+    lines.append("  " + floor.declarations_line(
+        floor.declarations_report(floor.Config(), tools, tools.parent)))
     return "\n".join(lines)
 
 

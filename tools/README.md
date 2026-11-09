@@ -2352,11 +2352,53 @@ that already run the shared checks. Reach for it before filing a hand-up for
   shared scanner does.
 - **It is visible.** Local checks show in `floor.py --list`, in `--json`, in the
   render (tagged `local`) and on the `floorfleet` board.
+- **It may state what it is.** A `declares` object takes the same five fields as
+  a registry `Declares`; see below. A malformed one reads as *missing*, never a
+  config error.
 
 The full contract is the docstring of `tools/floor.py` (§ *The repo-local seam*)
 and the `.atelier-floor.json` bullet in `docs/build/REPO-STANDARD.md`. Check the
 hook with `python3 tools/floor.py --list --plane hook`, then stage a deliberate
 defect and watch the commit block.
+
+## `floor.py --declarations` — every check states five things (`115/120`)
+
+Each registry entry carries a `Declares` beside its `why`: the **rule** it serves,
+by citation; the **grounding** incidents with a replay test for each; the
+**purpose gap**, what the rule needs that the check does not measure; the
+**evidence window**; and its **posture**, cheap-failure or forbids-the-act. A field
+the check cannot honestly meet is an `Unmet` with its reason and the board item
+that owes it. The standard is `docs/method/GUARDS.md` § *What every check declares*,
+the schema and census `docs/decisions/2026-11-09-1334-check-declaration-standard.md`.
+
+**Reported, and only reported.** No exit code on any plane reads a declaration,
+here or in any child. Where it shows:
+
+- `floor.py --list` adds a `decl N/5` column before the `why`. `N` counts `met`
+  fields, which is the same test "meets all five" uses.
+- `floor.py --declarations` prints each check field by field and exits 0.
+  With `--json` it prints the report.
+- `floor.py --plane ci`, and `floorfleet`, carry one line, for example
+  `🟡 declarations: 21 checks, 0 meet all five (floor.py --declarations)`. The
+  hook plane prints nothing and pays nothing.
+- `--json` on any run carries a `declarations` key, always present.
+
+Per field the reader says `met`, `resolves` or `unmet`, or `missing` when the
+check has no declaration: **only a machine's half.** A citation resolving (the
+file and heading, ADR or board item exists) reads `resolves`, and a person reading
+it against the check is what makes it `met`, recorded in `reviewed`. A replay
+resolves by `ast`, with no import and no run. A check's own `local` declaration
+in `.atelier-floor.json` resolves against that repo, and a fleet check's against
+atelier's tree.
+
+The citation grammar is `docs/method/<file>.md § Heading` or `docs/build/<file>.md
+§ Heading`, a path under `docs/decisions/`, `ADR 0008`, or `board 320/200`; replays
+are `tools/test_x.py::Class.test_name`.
+
+**One question is carried, not settled.** `GUARDS.md` leaves open whether an
+allow-marker brings a licensing context inside the evidence window. A check that
+blocks, or will on a date, and leans on a marker states `window` as `Unmet` and
+names that question.
 
 ## `report.py` — the shared exit-code contract and report lines
 

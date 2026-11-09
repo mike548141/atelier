@@ -286,6 +286,7 @@ Usage:
   floor.py --plane ci   --root <repo>    the CI backstop (whole tree)
   floor.py --plane msg  --root <repo> --message-file <f>  the commit-message gate
   floor.py --list                        show the registry and exit
+  floor.py --declarations                every check's declaration, field by field
   floor.py --selftest                    prove the logic offline, then exit
 """
 
@@ -301,6 +302,7 @@ import sys
 import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
+from typing import Literal
 
 CONFIG_NAME = ".atelier-floor.json"
 # The two kinds of date GUARDS.md names (§ Who may move a deferment's date).
@@ -441,6 +443,54 @@ class Flags:
 
 
 @dataclass(frozen=True)
+class Unmet:
+    """A field the check cannot honestly meet yet. Stating it is what the
+    standard asks for (`GUARDS.md` § What every check declares): a reviewer
+    can argue with a stated gap and cannot argue with a blank."""
+    reason: str          # required, non-empty: why it is unmet
+    owed: str = ""       # the board item that would close it, if any
+
+
+@dataclass(frozen=True)
+class Grounding:
+    incident: str        # a board item, a verdict path, or "injected: <class>"
+    replay: "str | Unmet"  # "tools/test_x.py::Class.test_name"
+
+
+@dataclass(frozen=True)
+class Window:
+    hook: str                # what the hook plane reads, in words
+    ci: str                  # what the CI plane reads, in words
+    licensing_context: str   # the facts that would make a match acceptable
+    fits: Literal["inside", "outside-directive", "outside-warn-only",
+                  "outside-widened"]
+
+
+@dataclass(frozen=True)
+class Declares:
+    """What a check states about itself (`115/120`, the design note
+    `docs/decisions/2026-11-09-1334-check-declaration-standard.md`).
+
+    REPORTED, NEVER ENFORCED: a missing or `Unmet` field marks the check on
+    `--list`, `--declarations`, the CI line and the `--json` key, and no exit
+    code on any plane reads any of it. Going red would be a separate decision
+    of the principal's, with its own date and fleet probe.
+
+    The citation grammar for `rule` (each string one of): `docs/method/<f>.md
+    § Heading` or `docs/build/<f>.md § Heading`, a path under `docs/decisions/`,
+    `ADR 0008`, or `board 320/200`. `docs/build/` is added to the note's
+    grammar because `REPO-STANDARD.md`, where the personal-data rule lives, is
+    there. Prose is not a citation: a restated rule is what this retires."""
+    rule: "tuple[str, ...] | Unmet"
+    grounding: "tuple[Grounding, ...] | Unmet"
+    purpose_gap: "str | Unmet"  # one sentence, a need of the rule
+    window: "Window | Unmet"
+    posture: "Literal['cheap-failure', 'forbids-the-act'] | Unmet"
+    posture_cost: str = ""      # the recovery built, or the freedom given up
+    reviewed: str = ""          # the verdict that read the rule against the check
+
+
+@dataclass(frozen=True)
 class Scanner:
     """One check, and exactly how each plane invokes it.
 
@@ -510,6 +560,9 @@ class Scanner:
     # check. See the class docstring. Keyword-only in practice, so the
     # registry's existing positional entries need no edit.
     msg: list[str] | None = None
+    # What this check states about itself (`Declares`, above). None is
+    # *missing*: the state a child's `local` check is in until it declares.
+    declares: "Declares | None" = None
 
     @property
     def is_local(self) -> bool:
@@ -549,6 +602,24 @@ class Scanner:
         return self.warn_only or any(f in argv for f in WARN_MODE_FLAGS)
 
 
+# The board item the registry's Unmet fields are owed by, and the three Unmet
+# values that recur. Frozen, so sharing one instance across entries is safe.
+_OWED = "115/120"
+_GAP_UNSTATED = Unmet("no statement of what the rule needs that the check "
+                      "does not measure", _OWED)
+_WINDOW_UNSTATED = Unmet("planes readable from the registry argv and comments; "
+                         "licensing context not stated", _OWED)
+_POSTURE_UNDECLARED = Unmet("undeclared: neither cheap-failure nor "
+                            "forbids-the-act is stated", _OWED)
+# Carried, not settled: `GUARDS.md` § Before building a check leaves open whether
+# an allow-marker brings a licensing context inside the evidence window, and the
+# design note says every scanner with a marker depends on the answer. A check
+# with a marker that blocks, or will block on a date, cannot state its `fits`
+# until that is decided. A warn-only check does not enforce, so it can.
+_MARKER_OPEN = ("the fits answer waits on the open question whether an "
+                "allow-marker brings the licensing context inside the window "
+                "(GUARDS.md, Before building a check)")
+
 # The registry. Adding a line here is how a new policy reaches the whole estate.
 SCANNERS: tuple[Scanner, ...] = (
     Scanner(
@@ -564,6 +635,14 @@ SCANNERS: tuple[Scanner, ...] = (
         # nobody ever reads (E6b, and EI1's "an advisory finding nobody reads is
         # cover, not coverage").
         advisory_count=True,
+        declares=Declares(
+            rule=Unmet("names the SECRETS doctrine, no section", _OWED),
+            grounding=Unmet("CanarySuite stands for credential shapes; no "
+                            "canary is tied to a named incident", _OWED),
+            purpose_gap=_GAP_UNSTATED,
+            window=_WINDOW_UNSTATED,
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "leakscan",
@@ -586,6 +665,19 @@ SCANNERS: tuple[Scanner, ...] = (
         # `advisory=None` above still says a child may never soften this
         # check, and nothing that blocked stops blocking.
         advisory_count=True,
+        declares=Declares(
+            rule=("docs/build/REPO-STANDARD.md § Repo-craft conventions",),
+            grounding=Unmet("PIICanarySuite stands for data shapes; no canary "
+                            "is tied to a named incident", _OWED),
+            purpose_gap="the rule is that personal data is held only for a "
+                        "recorded purpose; the check reads shapes and listed "
+                        "terms, not purpose, so a person described in "
+                        "paraphrase passes",
+            window=Unmet("states what would license a match (a recorded "
+                         "purpose, a term the list does not name); "
+                         + _MARKER_OPEN, _OWED),
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "conflictscan",
@@ -605,6 +697,14 @@ SCANNERS: tuple[Scanner, ...] = (
         # markup saved into a file is REPORTED and never blocks, and its count
         # reaches the board rather than scrolling past in its own output.
         advisory_count=True,
+        declares=Declares(
+            rule=Unmet("names board 320/200, no passage of a rule", _OWED),
+            grounding=Unmet("incident named (320/200); fixtures of its shape, "
+                            "none names it", _OWED),
+            purpose_gap=Unmet("technique limits only", _OWED),
+            window=_WINDOW_UNSTATED,
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "linkscan",
@@ -612,6 +712,14 @@ SCANNERS: tuple[Scanner, ...] = (
         ci=["--root", "{root}", "{scope}"],    # outside the diff that caused it
         advisory=None,
         why="internal links resolve — thin anchor, fat pointer needs live pointers",
+        declares=Declares(
+            rule=Unmet("names PROPAGATION.md, no section", _OWED),
+            grounding=Unmet("020/320 is tested; no incident for the rule "
+                            "itself", _OWED),
+            purpose_gap=Unmet("technique limits only", _OWED),
+            window=_WINDOW_UNSTATED,
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "reviewscan",
@@ -624,6 +732,19 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory=None,  # REVIEW.md: omission IS the bug, so it cannot be advisory
         why="a decision record states its review judgement, and a review "
             "brief keeps deferred material in a sibling file",
+        declares=Declares(
+            rule=("docs/method/REVIEW.md § Review the design, not only the "
+                  "build — the earliest review is the cheapest",
+                  "docs/decisions/"
+                  "2026-07-18-0820-review-the-design-not-only-the-build.md",),
+            grounding=Unmet("cold-pass F6 named in the docstring, no replay",
+                            _OWED),
+            purpose_gap="the rule needs an honest review judgement; the check "
+                        "proves the line exists, and whether its grounds are "
+                        "honest is a reviewer's call",
+            window=_WINDOW_UNSTATED,
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "publishscan",
@@ -643,6 +764,20 @@ SCANNERS: tuple[Scanner, ...] = (
         why="no file whose publication weakens the repo is tracked — keys, "
             "environment files, logs, dumps, caches and an agent's "
             "unprompted-command allowlist",
+        declares=Declares(
+            rule=Unmet("no rule passage cited; F1 names a finding, not a rule",
+                       _OWED),
+            grounding=(Grounding(
+                "injected: a tracked agent command allowlist",
+                "tools/test_publishscan.py::PatternTest."
+                "test_the_grounded_pattern_reds"),),
+            purpose_gap="the rule is that no file whose publication weakens "
+                        "the repo is tracked; the check knows only listed "
+                        "path shapes, so a novel file mapping the repo's "
+                        "defences passes",
+            window=_WINDOW_UNSTATED,
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "sizescan",
@@ -666,6 +801,22 @@ SCANNERS: tuple[Scanner, ...] = (
             "state; no repo's board is a flat running log (the finished "
             "items go to the archive store), and neither a report-only "
             "switch nor an off switch may be used to keep one",
+        declares=Declares(
+            rule=Unmet("his ruling is restated in the docstring, not cited",
+                       _OWED),
+            grounding=Unmet("the three-thousand-line roadmap is named, no "
+                            "replay", _OWED),
+            purpose_gap="the rule wants cold content off the hot path; a "
+                        "completed item is the only form a machine can name, "
+                        "so prose-shaped cold content is detected by nothing",
+            window=Unmet("cold content has no hatch; harvest integrity has "
+                         "a header marker, so one answer cannot cover both; "
+                         + _MARKER_OPEN, _OWED),
+            posture="forbids-the-act",
+            posture_cost="a repo may not keep a flat running log or switch "
+                         "the gate off (from 2026-12-09); the remedy is the "
+                         "lossless move of finished items to the archive store",
+        ),
     ),
     Scanner(
         "board",
@@ -710,6 +861,16 @@ SCANNERS: tuple[Scanner, ...] = (
         # summary is no longer only the CHANGELOG (160/970, PP5). It goes when
         # the grace does, with `board.py`'s LEGACY block.
         advisory_count=True,
+        declares=Declares(
+            rule=("docs/decisions/2026-08-15-0610-board-store-per-item-files.md",),
+            grounding=(Grounding(
+                "board 010/020",
+                "tools/test_board.py::StagedPlane."
+                "test_slip_a_is_caught_on_the_staged_plane"),),
+            purpose_gap=_GAP_UNSTATED,
+            window=_WINDOW_UNSTATED,
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "datescan",
@@ -723,6 +884,16 @@ SCANNERS: tuple[Scanner, ...] = (
         # reports instead of passing unseen, and that count reaches the board.
         # Nothing that blocked stops blocking.
         advisory_count=True,
+        declares=Declares(
+            rule=Unmet("names seam S3, no passage of the rule", _OWED),
+            grounding=Unmet("the five-file sweep is named, no replay", _OWED),
+            purpose_gap="the rule also wants a dated maintenance edit to "
+                        "carry its date, and seeing that needs the edit's "
+                        "intent, which the check does not read",
+            window=Unmet("states what would license a match (a mention, a "
+                         "quotation); " + _MARKER_OPEN, _OWED),
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "wrapscan",
@@ -737,6 +908,14 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory=["--warn", "--root", "{root}", "{scope}"],
         why="doctrine prose stays within its column budget",
         default_scope="docs",
+        declares=Declares(
+            rule=Unmet("names seam S1, no passage of the rule", _OWED),
+            grounding=Unmet("no incident named; the regression proves an "
+                            "exemption", _OWED),
+            purpose_gap=Unmet("technique limits only", _OWED),
+            window=_WINDOW_UNSTATED,
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "spellscan",
@@ -751,6 +930,15 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory=["--warn", "--root", "{root}", "{scope}"],
         why="NZ-English spelling across the doc surface",
         default_scope="docs",
+        declares=Declares(
+            rule=("docs/method/CONVENTIONS.md § The declared defaults",),
+            grounding=Unmet("no incident named", _OWED),
+            purpose_gap="the convention is NZ English with macrons, and the "
+                        "check reads spelling alternations only, so a missing "
+                        "macron passes",
+            window=_WINDOW_UNSTATED,
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "harvestscan",
@@ -778,6 +966,21 @@ SCANNERS: tuple[Scanner, ...] = (
         # There is no `--warn` in the argv to derive this from: harvestscan has
         # no blocking form at all, so the flag was never needed.
         warn_only=True,
+        declares=Declares(
+            rule=Unmet("names HV1, a finding, no passage of a rule", _OWED),
+            grounding=Unmet("--replay measures real history by hand; it is "
+                            "not in the suite", _OWED),
+            purpose_gap=Unmet("technique limits only", _OWED),
+            window=Window(
+                hook="the index against HEAD, on a net-bulk-delete roadmap "
+                     "commit",
+                ci="HEAD against its parent, on the same scope",
+                licensing_context="that a removed item arrived somewhere, "
+                                  "read by a similarity threshold that is "
+                                  "honestly ungrounded",
+                fits="outside-warn-only"),
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "pointerscan",
@@ -790,6 +993,24 @@ SCANNERS: tuple[Scanner, ...] = (
         why="a queued-review pointer stays refs-only and stays true",
         default_scope="docs",
         warn_only=True,  # same as harvestscan: no blocking form, no flag to read
+        declares=Declares(
+            rule=("docs/method/REVIEW.md § Independence is more than fresh "
+                  "context",),
+            grounding=(Grounding(
+                "injected: a queued-review pointer seeding the reviewer's "
+                "question",
+                "tools/test_pointerscan.py::GrammarTest."
+                "test_the_live_specimen_is_flagged"),),
+            purpose_gap=Unmet("technique limits only", _OWED),
+            window=Window(
+                hook="the working tree's roadmap files",
+                ci="the same files in the CI checkout",
+                licensing_context="whether a phrase in a pointer steers the "
+                                  "pass, judgement-adjacent text the check "
+                                  "cannot rule on",
+                fits="outside-warn-only"),
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "pathscan",
@@ -828,6 +1049,16 @@ SCANNERS: tuple[Scanner, ...] = (
         # declares it in `.atelier-floor.json`, exactly as it already does
         # for wrapscan and spellscan; `--include-records` widens per run.
         default_scope="docs",
+        declares=Declares(
+            rule=Unmet("names seam S2, no passage of the rule", _OWED),
+            grounding=Unmet("cited occurrences are named; no replay names "
+                            "one", _OWED),
+            purpose_gap="the rule wants a named path to be the one meant; the "
+                        "check proves it exists somewhere, so a wrong "
+                        "reference masked by a same-named file passes",
+            window=_WINDOW_UNSTATED,
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "indexscan",
@@ -851,9 +1082,20 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory=["--warn", "--root", "{root}", "{scope}"],
         why="a hand-maintained index names every file in the directory it "
             "maps, and no dated line predates the file it links",
-        # Fourth requirement (GUARDS.md, declared; its registry slot is not
-        # built yet, `115/120`): MAKES THE FAILURE CHEAP. An unlisted file
-        # still commits; the guard names the drift when the fix is one line.
+        # Fourth requirement (GUARDS.md, declared in `posture` below): MAKES
+        # THE FAILURE CHEAP. An unlisted file still commits; the guard names
+        # the drift when the fix is one line.
+        declares=Declares(
+            rule=Unmet("names board 200/010, no passage of a rule", _OWED),
+            grounding=Unmet("320/430's residuals are tested; none is tied to "
+                            "a named incident", _OWED),
+            purpose_gap="whether a file belongs in the index is the "
+                        "index-keeper's call; the check sees presence and "
+                        "date only",
+            window=_WINDOW_UNSTATED,
+            posture="cheap-failure",
+            posture_cost="an unlisted file still commits; the fix is one line",
+        ),
     ),
     Scanner(
         "attribscan",
@@ -878,6 +1120,15 @@ SCANNERS: tuple[Scanner, ...] = (
             "citation of where he said it, or says it is an agent's decision",
         default_scope="docs",
         advisory_count=True,
+        declares=Declares(
+            rule=Unmet("names board 320/100, no passage of a rule", _OWED),
+            grounding=Unmet("320/100's incident class is named; no test "
+                            "names an incident", _OWED),
+            purpose_gap="the rule wants an attribution to be true; the check "
+                        "reads its form, and a quotation can be invented",
+            window=Unmet("reads added lines only; " + _MARKER_OPEN, _OWED),
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "pdlistscan",
@@ -896,6 +1147,21 @@ SCANNERS: tuple[Scanner, ...] = (
         why="in a public repo, personal data stands only where the closed "
             "list names it, and a marker is not a grant",
         advisory_count=True,
+        declares=Declares(
+            rule=("docs/build/REPO-STANDARD.md § Repo-craft conventions",),
+            grounding=Unmet("160/630 named; no test names the incident",
+                            _OWED),
+            purpose_gap="the purpose test wants each exception justified by "
+                        "the work; the check reads where a string stands and "
+                        "never whether the list's reason is good",
+            window=Window(
+                hook="the tracked files and the closed list, whole tree",
+                ci="the same, whole tree",
+                licensing_context="a list entry naming the place, which is a "
+                                  "file the check reads",
+                fits="inside"),
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "sweepscan",
@@ -915,6 +1181,23 @@ SCANNERS: tuple[Scanner, ...] = (
             "declares the whole index",
         advisory_count=True,
         warn_only=True,
+        declares=Declares(
+            rule=("docs/method/CONCURRENCY.md § The trigger — assume you are "
+                  "not the only session",),
+            grounding=Unmet("320/060 named; no test names the incident",
+                            _OWED),
+            purpose_gap="the rule wants a commit to carry only paths its "
+                        "author chose; the check sees the commit's form, and "
+                        "a named foreign path still lands",
+            window=Window(
+                hook="the name of git's index file and the worktree list",
+                ci="not run: the signal exists only inside a commit",
+                licensing_context="that the session meant the whole index, "
+                                  "stated by ATELIER_WHOLE_INDEX in the "
+                                  "commit's environment",
+                fits="outside-warn-only"),
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "namescan",
@@ -933,6 +1216,16 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory=["--warn", "--message-file", "{msgfile}", "--root", "{root}"],
         why="in a public repo, no private name in a branch name or commit title",
         advisory_count=True,
+        declares=Declares(
+            rule=Unmet("names board 160/360 finding NP2, no passage of a "
+                       "rule", _OWED),
+            grounding=Unmet("160/360's head-ref incidents are named; no test "
+                            "names one", _OWED),
+            purpose_gap=_GAP_UNSTATED,
+            window=Unmet("reads leakscan's terms over titles and branch "
+                         "names; " + _MARKER_OPEN, _OWED),
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "quotescan",
@@ -948,6 +1241,18 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory=["--warn", "--message-file", "{msgfile}", "--root", "{root}"],
         why="a commit touching the principal's prompt carries his words",
         advisory_count=True,
+        declares=Declares(
+            rule=Unmet("names board 160/900 finding QK1, no passage of a "
+                       "rule", _OWED),
+            grounding=Unmet("160/900's finding is named; no test names it",
+                            _OWED),
+            purpose_gap="the rule wants his say-so on a change to his prompt; "
+                        "the check reads the form of a quotation and cannot "
+                        "tell whose it is",
+            window=Unmet("reads the message and the guarded paths; "
+                         + _MARKER_OPEN, _OWED),
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
     Scanner(
         "licenscan",
@@ -962,6 +1267,15 @@ SCANNERS: tuple[Scanner, ...] = (
         # its `medium` findings are reported and never block, and the count
         # reaches the board rather than scrolling past in its own output.
         advisory_count=True,
+        declares=Declares(
+            rule=Unmet("no rule text cited", _OWED),
+            grounding=Unmet("no incident named", _OWED),
+            purpose_gap="the rule wants a repo safe to publish under one "
+                        "licence; the check reads SPDX tags, and a vendored "
+                        "file with a prose licence header is invisible to it",
+            window=_WINDOW_UNSTATED,
+            posture=_POSTURE_UNDECLARED,
+        ),
     ),
 )
 
@@ -1077,7 +1391,7 @@ MSG_PLANE = "msg"
 # reads them so adding a key here and reading it there stay one edit apart —
 # a key added to the parser but not to this set would be rejected as unknown,
 # which fails in the safe direction (loudly, at parse time).
-LOCAL_KEYS = frozenset({"run", "why", "planes", "args", "scope"})
+LOCAL_KEYS = frozenset({"run", "why", "planes", "args", "scope", "declares"})
 
 
 def _inside(root: Path, candidate: Path) -> bool:
@@ -1472,6 +1786,77 @@ def _reject_escaping_scope(where: str, path: str) -> None:
         )
 
 
+def _load_declares(raw: object) -> "Declares | None":
+    """A child's `local.<name>.declares`, or None if it is malformed.
+
+    Reported as *missing*, never a `ConfigError`, for any shape error here: a
+    warn-first field must not be able to fail the floor closed (the design
+    note, *How a miss is reported*). The `local` block's strict key checking
+    stops at this key's door on purpose."""
+    def unmet(v: object) -> "Unmet | None":
+        if isinstance(v, dict) and set(v) <= {"unmet", "owed"} \
+                and isinstance(v.get("unmet"), str) and v["unmet"].strip():
+            owed = v.get("owed", "")
+            if not isinstance(owed, str):
+                raise ValueError("owed")
+            return Unmet(v["unmet"], owed)
+        return None
+
+    def text_or_unmet(v: object) -> "str | Unmet":
+        u = unmet(v)
+        if u is not None:
+            return u
+        if isinstance(v, str) and v.strip():
+            return v
+        raise ValueError("expected text or an unmet object")
+
+    try:
+        if not isinstance(raw, dict) or set(raw) - {
+                "rule", "grounding", "purpose_gap", "window", "posture",
+                "posture_cost", "reviewed"}:
+            return None
+        rule = unmet(raw.get("rule"))
+        if rule is None:
+            if not isinstance(raw["rule"], list) or not raw["rule"] or not all(
+                    isinstance(x, str) and x.strip() for x in raw["rule"]):
+                return None
+            rule = tuple(raw["rule"])
+        grounding = unmet(raw.get("grounding"))
+        if grounding is None:
+            items = raw["grounding"]
+            if not isinstance(items, list) or not items:
+                return None
+            grounding = tuple(
+                Grounding(i["incident"], text_or_unmet(i["replay"]))
+                for i in items
+                if isinstance(i, dict) and set(i) == {"incident", "replay"}
+                and isinstance(i["incident"], str))
+            if len(grounding) != len(items):
+                return None
+        window = unmet(raw.get("window"))
+        if window is None:
+            w = raw["window"]
+            if not isinstance(w, dict) or set(w) != {
+                    "hook", "ci", "licensing_context", "fits"} \
+                    or w["fits"] not in WINDOW_FITS \
+                    or not all(isinstance(v, str) for v in w.values()):
+                return None
+            window = Window(w["hook"], w["ci"], w["licensing_context"], w["fits"])
+        posture = unmet(raw.get("posture"))
+        if posture is None:
+            if raw["posture"] not in POSTURES:
+                return None
+            posture = raw["posture"]
+        posture_cost = raw.get("posture_cost", "")
+        reviewed = raw.get("reviewed", "")
+        if not isinstance(posture_cost, str) or not isinstance(reviewed, str):
+            return None
+        return Declares(rule, grounding, text_or_unmet(raw.get("purpose_gap")),
+                        window, posture, posture_cost, reviewed)
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
 def _load_local(raw: object) -> tuple[Scanner, ...]:
     """Parse the `local` block into Scanners — the child's own checks.
 
@@ -1581,6 +1966,7 @@ def _load_local(raw: object) -> tuple[Scanner, ...]:
             why=why,
             run=run,
             scope_paths=scope,
+            declares=_load_declares(decl.get("declares")),
         ))
     return tuple(out)
 
@@ -2701,6 +3087,231 @@ def render(results: list[Result], plane: str) -> str:
     return "\n".join(lines)
 
 
+# THE DECLARATION READER (115/120, step 0). Reported only: nothing here touches
+# an exit code, and the hook plane never calls it, so an unrelated commit pays
+# nothing. Per field it says `met`, `resolves`, `unmet` or `missing`, and only a
+# machine's half of each: a citation resolving is not a reviewer having read it
+# against the check, so `rule` stays `resolves` until `reviewed` names a verdict.
+# `met` is what "meets all five" counts. A field that fails the machine's half
+# is `unmet` with the reason, rendered the same as a stated `Unmet`.
+DECLARES_FIELDS = ("rule", "grounding", "purpose_gap", "window", "posture")
+WINDOW_FITS = ("inside", "outside-directive", "outside-warn-only",
+               "outside-widened")
+POSTURES = ("cheap-failure", "forbids-the-act")
+_CITE_SECTION_RX = re.compile(r"^(docs/(?:method|build)/[^§]+\.md) § (.+)$")
+_CITE_ADR_RX = re.compile(r"^ADR (\d{4})$")
+_CITE_BOARD_RX = re.compile(r"^board (\d{3})/(\d{3})$")
+_CITE_DECISION_RX = re.compile(r"^docs/decisions/\S+$")
+_REPLAY_RX = re.compile(r"^(?P<path>[^:]+\.py)::(?P<cls>\w+)\.(?P<test>\w+)$")
+
+
+def _safe_rel(rel: str) -> bool:
+    """A cited path stays inside its base. A child's `local` declaration is
+    author-supplied, so this is what stops one naming a file outside the repo."""
+    p = PurePosixPath(rel)
+    return not p.is_absolute() and ".." not in p.parts
+
+
+def _heading_set(path: Path) -> set[str]:
+    """The normalised Markdown headings of a file, fenced code excluded."""
+    heads: set[str] = set()
+    fenced = False
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+        elif not fenced:
+            m = re.match(r"^#{1,6}\s+(.*?)\s*#*\s*$", line)
+            if m:
+                heads.add(_norm_heading(m.group(1)))
+    return heads
+
+
+def _norm_heading(text: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"[*`]", "", text)).strip().lower()
+
+
+def _citation_problem(cite: str, base: Path, cache: dict) -> str:
+    """Why `cite` does not resolve under `base`, or "" if it does."""
+    if (m := _CITE_SECTION_RX.match(cite)):
+        rel, heading = m.group(1), m.group(2)
+        if not _safe_rel(rel):
+            return f"{cite}: not a path inside the repo"
+        path = base / rel
+        if not path.is_file():
+            return f"{cite}: no such file"
+        heads = cache.setdefault(rel, _heading_set(path))
+        if _norm_heading(heading) not in heads:
+            return f"{cite}: no such heading"
+        return ""
+    if (m := _CITE_ADR_RX.match(cite)):
+        decisions = base / "docs" / "decisions"
+        if any(decisions.glob(f"{m.group(1)}-*.md")):
+            return ""
+        return f"{cite}: no such ADR"
+    if (m := _CITE_BOARD_RX.match(cite)):
+        if any((base / "docs" / "roadmap").glob(
+                f"{m.group(1)}-*/{m.group(2)}-*.md")):
+            return ""
+        return f"{cite}: no such board item"
+    if _CITE_DECISION_RX.match(cite):
+        if _safe_rel(cite) and (base / cite).is_file():
+            return ""
+        return f"{cite}: no such decision record"
+    return f"{cite}: not a citation the grammar knows"
+
+
+def _replay_problem(replay: str, base: Path, cache: dict) -> str:
+    """Why `replay` is not a real test method, or "" if it is. Read with `ast`:
+    no import and no run, so a broken test module is a finding, not a crash."""
+    m = _REPLAY_RX.match(replay)
+    if not m:
+        return f"{replay}: not path::Class.test_name"
+    rel = m.group("path")
+    if not _safe_rel(rel):
+        return f"{replay}: not a path inside the repo"
+    path = base / rel
+    if not path.is_file():
+        return f"{replay}: no such test file"
+    import ast
+    if rel not in cache:
+        tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
+        cache[rel] = {
+            n.name: {f.name for f in n.body
+                     if isinstance(f, (ast.FunctionDef, ast.AsyncFunctionDef))}
+            for n in tree.body if isinstance(n, ast.ClassDef)}
+    if m.group("test") not in cache[rel].get(m.group("cls"), ()):
+        return f"{replay}: no such test method"
+    return ""
+
+
+def _unmet_field(u: Unmet) -> dict:
+    return {"state": "unmet",
+            "reason": u.reason + (f" (owed: {u.owed})" if u.owed else "")}
+
+
+def _read_rule(d: "Declares", base: Path, cache: dict) -> dict:
+    if isinstance(d.rule, Unmet):
+        return _unmet_field(d.rule)
+    problems = [p for c in d.rule if (p := _citation_problem(c, base, cache))]
+    if not d.rule or problems:
+        return {"state": "unmet",
+                "reason": "; ".join(problems) or "no citation stated"}
+    if d.reviewed.strip():
+        return {"state": "met", "reason": ""}
+    return {"state": "resolves",
+            "reason": "the citation resolves; no verdict has read it against "
+                      "the check"}
+
+
+def _read_grounding(d: "Declares", base: Path, cache: dict) -> dict:
+    if isinstance(d.grounding, Unmet):
+        return _unmet_field(d.grounding)
+    problems: list[str] = []
+    for g in d.grounding:
+        inc = g.incident
+        if not inc.startswith("injected: ") and not _CITE_BOARD_RX.match(inc) \
+                and not (_safe_rel(inc) and (base / inc).is_file()):
+            problems.append(f"{inc}: not a board item, a verdict path or "
+                            "`injected:`")
+        elif _CITE_BOARD_RX.match(inc) and (p := _citation_problem(inc, base,
+                                                                  cache)):
+            problems.append(p)
+        if isinstance(g.replay, Unmet):
+            problems.append(_unmet_field(g.replay)["reason"])
+        elif (p := _replay_problem(g.replay, base, cache)):
+            problems.append(p)
+    if not d.grounding or problems:
+        return {"state": "unmet",
+                "reason": "; ".join(problems) or "no incident stated"}
+    return {"state": "met", "reason": ""}
+
+
+def read_declaration(s: Scanner, base: Path, cache: dict | None = None) -> dict:
+    """Per-field state of `s`'s declaration. Never raises: a declaration this
+    reader cannot read is reported as missing, the warn-first guarantee."""
+    cache = {} if cache is None else cache
+    d = s.declares
+    fields: dict[str, dict]
+    if not isinstance(d, Declares):
+        reason = ("not declared, or malformed in " + CONFIG_NAME if s.is_local
+                  else "not declared")
+        fields = {f: {"state": "missing", "reason": reason}
+                  for f in DECLARES_FIELDS}
+    else:
+        try:
+            gap = d.purpose_gap
+            fields = {
+                "rule": _read_rule(d, base, cache),
+                "grounding": _read_grounding(d, base, cache),
+                "purpose_gap": (
+                    _unmet_field(gap) if isinstance(gap, Unmet) else
+                    {"state": "met", "reason": ""}
+                    if gap.strip() and gap.strip().lower() != s.why.strip().lower()
+                    else {"state": "unmet",
+                          "reason": "empty, or only the `why` restated"}),
+                "window": (
+                    _unmet_field(d.window) if isinstance(d.window, Unmet) else
+                    {"state": "met", "reason": ""}
+                    if d.window.fits in WINDOW_FITS
+                    else {"state": "unmet",
+                          "reason": f"fits: {d.window.fits!r} is not one of "
+                                    "the four answers"}),
+                "posture": (
+                    _unmet_field(d.posture) if isinstance(d.posture, Unmet) else
+                    {"state": "met", "reason": ""}
+                    if d.posture in POSTURES
+                    else {"state": "unmet",
+                          "reason": f"{d.posture!r} is neither posture"}),
+            }
+        except Exception as exc:  # a reader bug must never fail the floor
+            fields = {f: {"state": "missing",
+                          "reason": f"unreadable declaration: {exc}"}
+                      for f in DECLARES_FIELDS}
+    return {"name": s.name,
+            "origin": "local" if s.is_local else "fleet",
+            "met": sum(1 for f in fields.values() if f["state"] == "met"),
+            "of": len(DECLARES_FIELDS),
+            "fields": fields}
+
+
+def declarations_report(cfg: Config, tools: Path, root: Path) -> dict:
+    """Every check's declaration. A fleet check's citations resolve against
+    atelier's own tree (the parent of the tools dir) and a local check's
+    against the repo that declares it. Field set stable, known zeros included."""
+    fleet_cache: dict = {}
+    local_cache: dict = {}
+    entries = [read_declaration(s, root, local_cache) if s.is_local
+               else read_declaration(s, tools.parent, fleet_cache)
+               for s in (*SCANNERS, *cfg.local)]
+    return {"checks": len(entries),
+            "meet_all_five": sum(1 for e in entries if e["met"] == e["of"]),
+            "entries": entries}
+
+
+def declarations_line(report: dict) -> str:
+    """The one line the CI plane and the fleet board carry."""
+    mark = "✅" if report["meet_all_five"] == report["checks"] else "🟡"
+    return (f"{mark} declarations: {report['checks']} checks, "
+            f"{report['meet_all_five']} meet all five "
+            "(floor.py --declarations)")
+
+
+def render_declarations(report: dict) -> str:
+    """The full table: one block per check, one line per field."""
+    mark = {"met": "✅", "resolves": "🔎", "unmet": "🟡", "missing": "🟡"}
+    lines = [f"floor declarations — {report['checks']} checks, "
+             f"{report['meet_all_five']} meet all five"]
+    for e in report["entries"]:
+        lines.append("")
+        tag = " · local" if e["origin"] == "local" else ""
+        lines.append(f"{e['name']}{tag}  decl {e['met']}/{e['of']}")
+        for name in DECLARES_FIELDS:
+            f = e["fields"][name]
+            note = f" — {f['reason']}" if f["reason"] else ""
+            lines.append(f"  {mark[f['state']]} {name:<12} {f['state']}{note}")
+    return "\n".join(lines)
+
+
 def _selftest() -> int:
     """Prove the decision logic offline — no scanner is invoked. What matters
     here is that the config cannot quietly mean less than it says."""
@@ -2985,6 +3596,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--root", default=".", help="the repo to scan")
     p.add_argument("--tools", help="atelier's tools dir (default: env, git config, then here)")
     p.add_argument("--list", action="store_true", help="show the plan and exit")
+    p.add_argument("--declarations", action="store_true",
+                   help="print every check's declaration, field by field, and "
+                        "exit 0 (reported, never enforced)")
     p.add_argument("--json", action="store_true", help="machine-readable result")
     p.add_argument("--selftest", action="store_true", help="prove the logic offline")
     return p
@@ -2996,7 +3610,8 @@ def main(argv: list[str] | None = None) -> int:
         return _selftest()
     # Refused, not defaulted: a message plane that read nothing would be a
     # green tick over a message nobody looked at.
-    if (args.plane == MSG_PLANE) != bool(args.message_file) and not args.list:
+    if (args.plane == MSG_PLANE) != bool(args.message_file) \
+            and not (args.list or args.declarations):
         print("floor: --message-file goes with --plane msg, and is required "
               "there — BLOCKING (fail closed).", file=sys.stderr)
         return 1
@@ -3009,13 +3624,23 @@ def main(argv: list[str] | None = None) -> int:
         print(f"floor: {e}", file=sys.stderr)
         return 1
 
-    if args.list:
-        for s, state in plan(args.plane, cfg):
-            origin = "local" if s.is_local else "fleet"
-            print(f"{s.name:<11} {state:<9} {origin:<6} {s.why}")
+    tools = resolve_tools_dir(args.tools)
+    if args.declarations:
+        report = declarations_report(cfg, tools, root)
+        print(json.dumps(report, indent=2) if args.json
+              else render_declarations(report))
         return 0
 
-    tools = resolve_tools_dir(args.tools)
+    if args.list:
+        caches: dict[Path, dict] = {root: {}, tools.parent: {}}
+        for s, state in plan(args.plane, cfg):
+            origin = "local" if s.is_local else "fleet"
+            base = root if s.is_local else tools.parent
+            decl = read_declaration(s, base, caches[base])
+            print(f"{s.name:<11} {state:<9} {origin:<6} "
+                  f"decl {decl['met']}/{decl['of']} {s.why}")
+        return 0
+
     ci = args.plane == "ci" and os.environ.get("GITHUB_ACTIONS") == "true"
     results = run(args.plane, root, tools, cfg, ci, json_mode=args.json,
                   msg_file=args.message_file)
@@ -3036,9 +3661,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.json:
         print(json.dumps({"plane": args.plane, "root": str(root),
-                          "results": [r.__dict__ for r in results]}, indent=2))
+                          "results": [r.__dict__ for r in results],
+                          "declarations": declarations_report(cfg, tools, root)},
+                         indent=2))
     else:
         print(render(results, args.plane), file=sys.stderr)
+        if args.plane == "ci":
+            print(declarations_line(declarations_report(cfg, tools, root)),
+                  file=sys.stderr)
     return 1 if any(r.failed for r in results) else 0
 
 

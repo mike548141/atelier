@@ -494,7 +494,8 @@ class LocalSeamTest(unittest.TestCase):
         but the set omits would be rejected as unknown the first time a child
         used it, which fails safely but confusingly."""
         self.assertEqual(floor.LOCAL_KEYS,
-                         frozenset({"run", "why", "planes", "args", "scope"}))
+                         frozenset({"run", "why", "planes", "args", "scope",
+                                    "declares"}))
         # And a fully-populated declaration still parses.
         cfg = _cfg({"local": {"t": {"run": "tools/t.py", "why": "w",
                                     "planes": ["hook"], "args": ["--x"],
@@ -2983,6 +2984,379 @@ class VisibilityDeclarationTest(unittest.TestCase):
             self.assertEqual(r.returncode, 0, r.stderr)
             names = [x["name"] for x in json.loads(r.stdout)["results"]]
             self.assertNotIn("visibility", names)
+
+
+
+class DeclarationRegistryTest(unittest.TestCase):
+    """115/120 step 0: every registry entry states all five fields, and what
+    a machine can say about each of them is true. Reported only, so these pin
+    the declarations rather than any check's behaviour."""
+
+    def test_every_registry_entry_has_a_declares(self):
+        for s in floor.SCANNERS:
+            with self.subTest(check=s.name):
+                self.assertIsInstance(s.declares, floor.Declares)
+
+    def test_every_replay_resolves_to_a_real_test_method(self):
+        """`ast` under the reader, no import and no run. A replay that names a
+        test that is not there would claim cover nobody can check."""
+        base = TOOLS_DIR.parent
+        cache: dict = {}
+        for s in floor.SCANNERS:
+            d = s.declares
+            if isinstance(d.grounding, floor.Unmet):
+                continue
+            for g in d.grounding:
+                if isinstance(g.replay, floor.Unmet):
+                    continue
+                with self.subTest(check=s.name, replay=g.replay):
+                    self.assertEqual(
+                        floor._replay_problem(g.replay, base, cache), "")
+
+    def test_every_citation_and_incident_resolves(self):
+        """The rule's own warning: citation is not catch, but a citation
+        that does not resolve is worse than an honest Unmet."""
+        base = TOOLS_DIR.parent
+        cache: dict = {}
+        for s in floor.SCANNERS:
+            d = s.declares
+            if not isinstance(d.rule, floor.Unmet):
+                for c in d.rule:
+                    with self.subTest(check=s.name, citation=c):
+                        self.assertEqual(
+                            floor._citation_problem(c, base, cache), "")
+            if not isinstance(d.grounding, floor.Unmet):
+                for g in d.grounding:
+                    if g.incident.startswith("injected: "):
+                        continue
+                    if g.incident.startswith("board "):
+                        with self.subTest(check=s.name, incident=g.incident):
+                            self.assertEqual(floor._citation_problem(
+                                g.incident, base, cache), "")
+                    else:
+                        with self.subTest(check=s.name, incident=g.incident):
+                            self.assertTrue((base / g.incident).is_file())
+
+    def test_each_field_is_stated_in_a_known_form(self):
+        for s in floor.SCANNERS:
+            d = s.declares
+            for name in floor.DECLARES_FIELDS:
+                value = getattr(d, name)
+                with self.subTest(check=s.name, field=name):
+                    if isinstance(value, floor.Unmet):
+                        self.assertTrue(value.reason.strip(),
+                                        "an Unmet carries its reason")
+                        self.assertTrue(value.owed, "an Unmet names what "
+                                                    "would close it")
+            if not isinstance(d.window, floor.Unmet):
+                self.assertIn(d.window.fits, floor.WINDOW_FITS)
+            if not isinstance(d.posture, floor.Unmet):
+                self.assertIn(d.posture, floor.POSTURES)
+                self.assertTrue(d.posture_cost.strip())
+
+    def test_the_open_marker_question_is_carried_not_settled(self):
+        """GUARDS.md leaves open whether an allow-marker brings a licensing
+        context inside the window. A check whose answer depends on it says so
+        and states no `fits`, so step 0 cannot quietly decide it."""
+        for name in ("leakscan", "sizescan", "datescan", "attribscan",
+                     "namescan", "quotescan"):
+            with self.subTest(check=name):
+                window = floor.BY_NAME[name].declares.window
+                self.assertIsInstance(window, floor.Unmet)
+                self.assertIn(floor._MARKER_OPEN, window.reason)
+
+    def test_the_registry_reads_without_a_missing_field(self):
+        report = floor.declarations_report(floor.Config(), TOOLS_DIR, TOOLS_DIR)
+        for e in report["entries"]:
+            with self.subTest(check=e["name"]):
+                self.assertNotIn("missing",
+                                 [f["state"] for f in e["fields"].values()])
+                self.assertEqual(e["of"], 5)
+
+
+class DeclarationReaderTest(unittest.TestCase):
+    """The reader's four states, and its guarantee that nothing it reads can
+    fail the floor."""
+
+    def _base(self):
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        root = Path(td.name)
+        (root / "docs/method").mkdir(parents=True)
+        (root / "docs/method/RULE.md").write_text(
+            "# Title\n\n## A real *heading* here\n\n"
+            "```\n## not a heading\n```\n", encoding="utf-8")
+        (root / "docs/roadmap/320-sec").mkdir(parents=True)
+        (root / "docs/roadmap/320-sec/010-item.md").write_text("- [ ] x\n",
+                                                               encoding="utf-8")
+        (root / "docs/decisions").mkdir(parents=True)
+        (root / "docs/decisions/0008-x.md").write_text("x", encoding="utf-8")
+        (root / "docs/decisions/2026-01-01-a.md").write_text("x", encoding="utf-8")
+        (root / "tools").mkdir()
+        (root / "tools/test_x.py").write_text(
+            "import unittest\nclass C(unittest.TestCase):\n"
+            "    def test_y(self):\n        pass\n", encoding="utf-8")
+        return root
+
+    def _scanner(self, **kw):
+        fields = dict(rule=floor.Unmet("r"),
+                      grounding=floor.Unmet("g"),
+                      purpose_gap=floor.Unmet("p"),
+                      window=floor.Unmet("w"),
+                      posture=floor.Unmet("c"))
+        fields.update(kw)
+        return floor.Scanner("x", hook=["a"], ci=["a"], advisory=None, why="why",
+                             declares=floor.Declares(**fields))
+
+    def _read(self, base, **kw):
+        return floor.read_declaration(self._scanner(**kw), base)["fields"]
+
+    def test_none_is_missing_on_every_field(self):
+        s = floor.Scanner("x", hook=["a"], ci=["a"], advisory=None, why="w")
+        got = floor.read_declaration(s, Path("."))
+        self.assertEqual(got["met"], 0)
+        for f in got["fields"].values():
+            self.assertEqual(f["state"], "missing")
+
+    def test_unmet_renders_with_its_reason_and_owed_item(self):
+        fields = self._read(Path("."), rule=floor.Unmet("no section", "115/120"))
+        self.assertEqual(fields["rule"]["state"], "unmet")
+        self.assertIn("no section", fields["rule"]["reason"])
+        self.assertIn("115/120", fields["rule"]["reason"])
+
+    def test_a_citation_resolves_and_only_a_verdict_makes_it_met(self):
+        base = self._base()
+        got = self._read(base, rule=("docs/method/RULE.md § A real heading here",))
+        self.assertEqual(got["rule"]["state"], "resolves")
+        s = self._scanner(rule=("docs/method/RULE.md § A real heading here",),
+                          reviewed="docs/reviews/x.md")
+        self.assertEqual(floor.read_declaration(s, base)["fields"]["rule"]["state"],
+                         "met")
+
+    def test_each_citation_form_resolves(self):
+        base = self._base()
+        for cite in ("ADR 0008", "board 320/010",
+                     "docs/decisions/2026-01-01-a.md"):
+            with self.subTest(cite=cite):
+                self.assertEqual(floor._citation_problem(cite, base, {}), "")
+
+    def test_a_citation_that_does_not_resolve_is_unmet(self):
+        base = self._base()
+        for cite in ("docs/method/RULE.md § not a heading",
+                     "docs/method/RULE.md § ## not a heading",
+                     "docs/method/MISSING.md § A real heading here",
+                     "ADR 9999", "board 999/999", "just some prose",
+                     "docs/decisions/../../../etc/passwd"):
+            with self.subTest(cite=cite):
+                got = self._read(base, rule=(cite,))
+                self.assertEqual(got["rule"]["state"], "unmet")
+                self.assertIn(cite, got["rule"]["reason"])
+
+    def test_a_replay_that_resolves_is_met(self):
+        base = self._base()
+        got = self._read(base, grounding=(
+            floor.Grounding("board 320/010", "tools/test_x.py::C.test_y"),))
+        self.assertEqual(got["grounding"]["state"], "met")
+
+    def test_a_replay_that_does_not_resolve_is_unmet(self):
+        base = self._base()
+        for replay in ("tools/test_x.py::C.test_nope", "tools/test_x.py::D.test_y",
+                       "tools/test_missing.py::C.test_y", "free text",
+                       "../outside.py::C.test_y"):
+            with self.subTest(replay=replay):
+                got = self._read(base, grounding=(
+                    floor.Grounding("injected: thing", replay),))
+                self.assertEqual(got["grounding"]["state"], "unmet")
+
+    def test_an_unmet_replay_or_a_bad_incident_is_unmet(self):
+        base = self._base()
+        got = self._read(base, grounding=(
+            floor.Grounding("injected: thing", floor.Unmet("no test yet")),))
+        self.assertEqual(got["grounding"]["state"], "unmet")
+        self.assertIn("no test yet", got["grounding"]["reason"])
+        got = self._read(base, grounding=(
+            floor.Grounding("board 999/999", "tools/test_x.py::C.test_y"),))
+        self.assertEqual(got["grounding"]["state"], "unmet")
+
+    def test_a_gap_restating_the_why_is_not_met(self):
+        got = self._read(Path("."), purpose_gap="WHY")
+        self.assertEqual(got["purpose_gap"]["state"], "unmet")
+        got = self._read(Path("."), purpose_gap="the check cannot see intent")
+        self.assertEqual(got["purpose_gap"]["state"], "met")
+
+    def test_window_and_posture_read_the_machine_half(self):
+        w = floor.Window("h", "c", "l", "inside")
+        got = self._read(Path("."), window=w, posture="cheap-failure")
+        self.assertEqual(got["window"]["state"], "met")
+        self.assertEqual(got["posture"]["state"], "met")
+        got = self._read(Path("."),
+                         window=floor.Window("h", "c", "l", "maybe"),
+                         posture="both")
+        self.assertEqual(got["window"]["state"], "unmet")
+        self.assertEqual(got["posture"]["state"], "unmet")
+
+    def test_all_five_met_counts_in_the_report(self):
+        base = self._base()
+        s = self._scanner(
+            rule=("docs/method/RULE.md § A real heading here",),
+            grounding=(floor.Grounding("injected: x",
+                                       "tools/test_x.py::C.test_y"),),
+            purpose_gap="a need of the rule",
+            window=floor.Window("h", "c", "l", "inside"),
+            posture="cheap-failure",
+            reviewed="docs/reviews/x.md")
+        with unittest.mock.patch.object(floor, "SCANNERS", (s,)):
+            report = floor.declarations_report(floor.Config(), base / "tools", base)
+        self.assertEqual(report["checks"], 1)
+        self.assertEqual(report["meet_all_five"], 1)
+        self.assertEqual(report["entries"][0]["met"], 5)
+        self.assertEqual(floor.declarations_line(report),
+                         "✅ declarations: 1 checks, 1 meet all five "
+                         "(floor.py --declarations)")
+
+    def test_an_unreadable_replay_file_never_raises(self):
+        base = self._base()
+        (base / "tools/test_broken.py").write_bytes(b"def (:\n")
+        got = self._read(base, grounding=(
+            floor.Grounding("injected: x", "tools/test_broken.py::C.test_y"),))
+        self.assertEqual(got["grounding"]["state"], "missing")
+
+    def test_a_reader_error_is_reported_as_missing(self):
+        s = self._scanner()
+        with unittest.mock.patch.object(floor, "_read_rule",
+                                        side_effect=RuntimeError("boom")):
+            got = floor.read_declaration(s, Path("."))
+        self.assertEqual(got["fields"]["rule"]["state"], "missing")
+        self.assertIn("boom", got["fields"]["rule"]["reason"])
+
+
+class DeclarationConfigTest(unittest.TestCase):
+    """A child's `local` check may declare, and a malformed declaration is
+    missing, never a ConfigError: a warn-first field cannot fail the floor."""
+
+    GOOD = {
+        "rule": ["docs/x.md"], "purpose_gap": "gap",
+        "grounding": [{"incident": "injected: x",
+                       "replay": {"unmet": "no test yet"}}],
+        "window": {"hook": "h", "ci": "c", "licensing_context": "l",
+                   "fits": "inside"},
+        "posture": {"unmet": "undeclared", "owed": "1/2"},
+    }
+
+    def _cfg(self, decl):
+        with tempfile.TemporaryDirectory() as td:
+            Path(td, floor.CONFIG_NAME).write_text(json.dumps({"local": {
+                "tripwire": {"run": "t.py", "why": "w", "declares": decl}}}),
+                encoding="utf-8")
+            return floor.Config.load(Path(td))
+
+    def test_a_good_declaration_is_read(self):
+        s = self._cfg(self.GOOD).local[0]
+        self.assertIsInstance(s.declares, floor.Declares)
+        self.assertEqual(s.declares.rule, ("docs/x.md",))
+        self.assertEqual(s.declares.window.fits, "inside")
+        self.assertIsInstance(s.declares.posture, floor.Unmet)
+
+    def test_a_malformed_declaration_is_missing_and_never_a_config_error(self):
+        bad_cases = [
+            "a string", 7, [], {"rule": "not a list"},
+            {**self.GOOD, "unknown": 1},
+            {**self.GOOD, "window": {"hook": "h", "ci": "c",
+                                     "licensing_context": "l", "fits": "nope"}},
+            {**self.GOOD, "posture": "maybe"},
+            {**self.GOOD, "grounding": [{"incident": "x"}]},
+            {**self.GOOD, "purpose_gap": ""},
+            {**self.GOOD, "rule": {"unmet": ""}},
+        ]
+        for bad in bad_cases:
+            with self.subTest(bad=bad):
+                s = self._cfg(bad).local[0]
+                self.assertIsNone(s.declares)
+                fields = floor.read_declaration(s, Path("."))["fields"]
+                for f in fields.values():
+                    self.assertEqual(f["state"], "missing")
+
+    def test_a_local_key_typo_is_still_a_config_error(self):
+        with tempfile.TemporaryDirectory() as td:
+            Path(td, floor.CONFIG_NAME).write_text(json.dumps({"local": {
+                "tripwire": {"run": "t.py", "why": "w", "declare": {}}}}),
+                encoding="utf-8")
+            with self.assertRaises(floor.ConfigError):
+                floor.Config.load(Path(td))
+
+    def test_a_local_check_without_a_declaration_reads_missing_in_the_report(self):
+        cfg = floor.Config(local=(floor.Scanner(
+            "tripwire", hook=[], ci=[], advisory=[], why="w", run="t.py"),))
+        report = floor.declarations_report(cfg, TOOLS_DIR, Path("."))
+        local = [e for e in report["entries"] if e["name"] == "tripwire"]
+        self.assertEqual(local[0]["origin"], "local")
+        self.assertEqual(local[0]["fields"]["rule"]["state"], "missing")
+
+
+class DeclarationSurfaceTest(unittest.TestCase):
+    """Where the declarations are shown, and that none of it moves an exit."""
+
+    def _main(self, argv, results=()):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err), \
+                unittest.mock.patch.object(floor, "run", return_value=list(results)):
+            rc = floor.main(argv)
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_the_list_column_is_added_and_the_old_columns_stand(self):
+        rc, out, _ = self._main(["--list", "--plane", "ci"])
+        self.assertEqual(rc, 0)
+        line = next(x for x in out.splitlines() if x.startswith("linkscan "))
+        cols = line.split()
+        self.assertEqual(cols[:3], ["linkscan", "enforced", "fleet"])
+        self.assertRegex(line, r"decl \d/5 internal links resolve")
+
+    def test_declarations_prints_the_table_and_exits_zero(self):
+        with tempfile.TemporaryDirectory() as td:
+            rc, out, _ = self._main(["--declarations", "--root", td])
+            self.assertEqual(rc, 0)
+            self.assertIn("declarations", out)
+            self.assertIn("secretscan", out)
+            rc, out, _ = self._main(["--declarations", "--root", td, "--json"])
+            self.assertEqual(rc, 0)
+            doc = json.loads(out)
+            self.assertEqual(doc["checks"], len(floor.SCANNERS))
+            self.assertEqual({e["name"] for e in doc["entries"]},
+                             {s.name for s in floor.SCANNERS})
+
+    def test_the_json_key_is_present_on_every_run(self):
+        with tempfile.TemporaryDirectory() as td:
+            for plane in ("ci", "hook"):
+                with self.subTest(plane=plane):
+                    rc, out, _ = self._main(
+                        ["--plane", plane, "--root", td, "--json"])
+                    self.assertEqual(rc, 0)
+                    doc = json.loads(out)
+                    self.assertIn("declarations", doc)
+                    self.assertEqual(doc["declarations"]["checks"],
+                                     len(floor.SCANNERS))
+
+    def test_the_ci_plane_carries_the_one_line_and_the_hook_plane_nothing(self):
+        with tempfile.TemporaryDirectory() as td:
+            rc, _, err = self._main(["--plane", "ci", "--root", td])
+            self.assertEqual(rc, 0)
+            self.assertIn("declarations:", err)
+            self.assertIn("meet all five", err)
+            rc, _, err = self._main(["--plane", "hook", "--root", td])
+            self.assertEqual(rc, 0)
+            self.assertNotIn("declarations", err)
+
+    def test_declarations_never_change_an_exit_code(self):
+        """The pin that warn-first is real: every check here is unmet or
+        missing, and the exit is the results' alone."""
+        with tempfile.TemporaryDirectory() as td:
+            for results, want in (([], 0),
+                                  ([floor.Result("linkscan", "enforced", 1)], 1)):
+                with self.subTest(want=want):
+                    rc, _, err = self._main(["--plane", "ci", "--root", td],
+                                            results=results)
+                    self.assertEqual(rc, want)
+                    self.assertIn("declarations:", err)
 
 
 if __name__ == "__main__":

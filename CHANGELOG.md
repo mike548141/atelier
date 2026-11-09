@@ -5,6 +5,27 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-10 — every check states five things, reported only, `115/120` step 0)
+- **Every registry check now carries a `Declares` beside its `why`**: rule
+  (by citation), grounding with a replay, purpose gap, evidence window and
+  posture. All 21 checks state all five; a field that cannot honestly be met
+  is an `Unmet` with its reason and the item that owes it. The census's 16 as
+  it stood (`docs/decisions/2026-11-09-1334-check-declaration-standard.md`), the
+  five new checks from their own docstrings and tests.
+- **`floor.py --declarations`** prints every check field by field and exits 0;
+  `--list` gains a `decl N/5` column before the `why`; every `--json` run carries
+  a `declarations` key; the CI plane and `floorfleet` carry one line (`🟡
+  declarations: 21 checks, 0 meet all five (floor.py --declarations)`). The hook
+  plane prints nothing and pays nothing.
+- A child's `local` check may carry a `declares` object in `.atelier-floor.json`.
+  Malformed reads as *missing* and is never a config error.
+- The reader says only a machine's half: a citation that resolves reads
+  `resolves` until a verdict has read it against the check. Whether an
+  allow-marker brings a licensing context inside the window stays open, and
+  every check whose window answer leans on it says so and declares no `fits`.
+- **No exit code changes.** Warn-first, on every plane, here and in every child;
+  nothing reads a declaration to decide anything.
+
 ### Added (2026-11-10 — the coverage line reaches the other nine scanners, `115/130`)
 - **`secretscan`, `leakscan`, `linkscan`, `pathscan`, `attribscan`, `blockscan`,
   `pdlistscan`, `signscan` and `stampscan` now print the `coverage:` line**, so
