@@ -5,6 +5,22 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-09 — the floor's record-store carve-out, and three doctrine additions: `030/130`, `160/195`, `060/010`, `160/170`)
+Doctrine wording only; no scanner or tool changes.
+- **The floor names bulk deletion from a record store (`030/130`).** The list
+  closed with "everything recoverable, just proceed" while `RECORD.md` holds
+  recoverable bytes to be the wrong test there, and the permissive half was the
+  half that travelled. `PROPAGATION.md` and the template change together; each
+  child takes it at its next pin, and none is changed by this.
+- **`/security-review` in a shared worktree (`160/195`).** `REVIEW.md` lens 4
+  says it reads the session's pending diff rather than a path, so in a shared
+  worktree it runs only on a tree verifiably clean at the moment of aiming.
+- **No credential at rest (`060/010`).** The ladder's next rung, in `SECRETS.md`
+  and `PRINCIPLES.md` §5, for a credential used rarely where the platform grants
+  nothing better. Stated as a one-case claim, with what one case cannot settle.
+- **Solve once, reuse the building block (`160/170`).** A bullet in
+  `PRINCIPLES.md` §8 carries it across repos, as intelligence and case-law.
+
 ### Changed (2026-11-09 — how a question reaches the principal, and what comes back: `320/820`, `420/020`, `020/270`)
 Doctrine wording only; no scanner or tool changes.
 - **His method for asking (`320/820`).** `COMMUNICATION.md` § *Asking for a

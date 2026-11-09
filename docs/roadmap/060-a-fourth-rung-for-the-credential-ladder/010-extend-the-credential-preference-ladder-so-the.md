@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1312, wt: atelier-qr-d0ca-docs, session d0ca5d24) **Extend the credential preference ladder so the standing credential is
+- [x] **Extend the credential preference ladder so the standing credential is
       not the only honest answer where the platform offers no JIT grant.
       Where a credential is used *irregularly or rarely*, doctrine should name
       an alternative in Mike's words: "delete the credential entirely and make
@@ -54,3 +54,13 @@
       owes a second instance or an explicit one-case claim before it becomes
       doctrine (`create-repo`'s stub-don't-fabricate rule, and the
       grounding bar in `CLAUDE.md`).
+      - [x] ✅ **DONE 2026-11-09** by queue run d0ca5d24: the next rung, *no
+            credential at rest*, in `SECRETS.md` § *The credential triad* with
+            his words quoted, in `PRINCIPLES.md` §5 and in its checklist line.
+            The bar above is met by an explicit one-case claim, not a second
+            instance. Of the open questions: placement is below the triad and
+            above a standing credential; *tested* is a condition; the minting
+            credential stays a tracked debt and carries the rotation cadence.
+            The rehearsal cadence and the frequency boundary are stated as open
+            in `SECRETS.md`, to settle when a second instance appears. Doctrine
+            change, cold pass owed.

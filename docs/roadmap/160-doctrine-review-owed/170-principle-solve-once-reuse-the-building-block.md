@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1312, wt: atelier-qr-d0ca-docs, session d0ca5d24) **Principle: solve once, reuse the building block (Mike, 2026-07-25)** —
+- [x] **Principle: solve once, reuse the building block (Mike, 2026-07-25)** —
   solve a problem once, then compose from the blocks you already have; never
   re-solve a solved problem. Holds at two scopes:
   - **In-repo:** one implementation of a capability, many consumers — e.g. tiki
@@ -20,3 +20,8 @@
   with the two captures above; likely lands in `PRINCIPLES.md` (with a
   `PROPAGATION.md` cross-link for the flow topology). Review WARRANTED if/when it
   moves to doctrine.
+  - [x] ✅ **DONE 2026-11-09** by queue run d0ca5d24: a bullet in `PRINCIPLES.md`
+        §8, pointing at §2 DRY and `EVIDENCE.md` §9 rather than restating them,
+        and at the three flows in `PROPAGATION.md`. The item holds a paraphrase,
+        so the text says so and quotes nothing. `160/150` and `160/160` stay
+        open and are not drawn on. Doctrine change, cold pass owed.

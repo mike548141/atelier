@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1312, wt: atelier-qr-d0ca-docs, session d0ca5d24) 🔎 **The inlined floor says "everything recoverable — just proceed",
+- [x] 🔎 **The inlined floor says "everything recoverable — just proceed",
       and `RECORD.md` rules that recoverability is the wrong test for a record
       store. Nothing reconciles them.** Raised as a question by a child
       session, **verified here 2026-08-16** as a real contradiction rather
@@ -26,3 +26,10 @@
       clause — one clause, at the point of use, in the text that actually
       travels. The alternative, pointing up to `RECORD.md`, reintroduces the
       dependency the region was built to remove.
+  - [x] ✅ **DONE 2026-11-09** by queue run d0ca5d24: the cheapest fix offered
+        above. The floor's confirm list in `PROPAGATION.md` names bulk deletion
+        from a record store, and its closing clause now reads "Everything else
+        recoverable". `docs/build/templates/CLAUDE.md` changed in step, so the
+        stamped copy still equals the canonical text. No child is changed by
+        this: each takes the new wording at its next pin. Doctrine change, cold
+        pass owed.

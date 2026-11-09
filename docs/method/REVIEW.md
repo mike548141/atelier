@@ -360,10 +360,21 @@ Not just "are there bugs". A real review runs all four:
    other deferred material before findings are committed; and where the
    scanner's own exclusions bar the work's file class (markdown
    documentation, for `/security-review`), its clean pass is definitionally
-   empty — weigh it as nothing, and say so. Where the work genuinely has no
-   security or privacy surface, the lens discharges in one explicit line with
-   grounds — the same shape as `review: not warranted`, and for the same
-   reason: omission is the bug, and no one can disagree with a blank.
+   empty — weigh it as nothing, and say so. One shape defeats the first
+   caution, because it takes away the control that caution assumes: an
+   orchestrated batch of reviewers sharing one worktree. `/security-review`
+   reads the session's pending diff, not a path it is aimed at, and in a
+   worktree shared by concurrent sessions "pending" means every session's
+   uncommitted work. Three reviewers in one batch (2026-08-15, the SL2 channel
+   class), each told to aim it at its own scratch clone, each scanned the
+   shared tree and were shown another pass's brief and deferred sibling. So in
+   that shape the path argument aims at nothing: run the scanner only where
+   the worktree is verifiably clean at the moment of aiming, else discharge it
+   in one line with grounds, and disclose any exposure in the verdict. Where
+   the work genuinely has no security or privacy surface, the lens discharges
+   in one explicit line with grounds — the same shape as
+   `review: not warranted`, and for the same reason: omission is the bug, and
+   no one can disagree with a blank.
 
 **A confirmed security finding carries two marks beyond the standard
 `[fixed]`/`[backlog]`/`[rejected]` tag** (*The lifecycle* step 4 below): a

@@ -76,6 +76,29 @@ things to tighten. Silently treating a standing credential as the finished
 state is the defect; naming it as a bridge is the discipline (`PRINCIPLES.md`
 §7, "a hand-action is only a stated bridge").
 
+**The next rung: no credential at rest.** Where the platform offers neither JIT
+nor short-lived grants and the credential is used irregularly or rarely, a
+tracked debt is not the only honest answer. In Mike's words, captured
+2026-08-03: *"delete the credential entirely and make its rebuild cheap,
+automated and tested"*. The credential is minted for the run and deleted after,
+so between uses it does not exist. What stays durable is the procedure to mint,
+which is the enabling property above taken to its end. The rung sits below the
+triad, because a platform's JIT or short-lived grant is better where one is
+offered, and above a standing credential, because the holder then achieves what
+the vendor does not grant.
+
+**This is a one-case claim.** One child repo's backup tool, on a platform whose
+delegation grant is standing-only, deletes the credential after each run and
+rebuilds it by a tested, automated path. The case grounds the shape; the limits
+that follow are reasoned from it. An untested rebuild trades a
+standing-credential risk for an outage risk, so *tested* is a condition of the
+rung. The rebuild path itself authenticates with something: deleting the leaf
+is progress, the minting credential still stands and stays a tracked debt, and
+the rotation cadence below then bounds that credential, since a deleted one has
+no exposure window left to bound. How often an idle rebuild must be rehearsed,
+and how rare is rare enough before mint-per-use is simply JIT, are open until a
+second instance.
+
 ## One credential, one entity, one system — the non-reuse rules
 
 Non-reuse has two axes, and both are load-bearing (Mike's rulings, 2026-07-22):

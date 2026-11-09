@@ -207,7 +207,10 @@ watchdog poll.
   *Case:* an automation user on a platform that offers no per-session grant
   stays standing — reproducible and policy-tiered as the first least-privilege
   step, with its standing-and-forever nature recorded as the tracked debt
-  rather than silently accepted.
+  rather than silently accepted. Where such a credential is used only
+  irregularly or rarely, the next rung is **no credential at rest**: delete it
+  between uses and make its rebuild cheap, automated and tested
+  ([`SECRETS.md`](SECRETS.md) § *The credential triad*; a one-case claim).
 - **Zero Trust — the NIST SP 800-207 tenets, right-sized.** No asset is inherently
   trusted; verify explicitly; least privilege; assume breach; network location
   alone grants no trust. NIST's own caveat is that not every tenet is achievable
@@ -307,6 +310,22 @@ paying.*
   source the apex governs ([`EVIDENCE.md`](EVIDENCE.md) §14): "build the tool"
   means build it *tested and honest*, not a fragile script that just moves the
   cost to debugging it later.
+- **Solve once, reuse the building block, at both scopes.** Mike's principle
+  (2026-07-25, captured in paraphrase): solve a problem once, then compose from
+  the blocks you already have; never re-solve a solved problem. Inside one repo
+  the bullet above and one-source (§2 DRY, [`EVIDENCE.md`](EVIDENCE.md) §9)
+  already hold it: one implementation of a capability, many consumers, as when
+  a network tool handles its wire protocol in one module every use case calls.
+  The wider reach is across repos, where the block is also intelligence and
+  case-law. A problem solved in one repo's domain becomes a block for the others
+  by three flows, all in [`PROPAGATION.md`](PROPAGATION.md): up (§ *Pointing
+  up*), down (§ *The mechanism*) and lateral (§ *The same route between any two
+  repos*). Code and knowledge obey the same law: factor the reusable thing, then
+  consume it, whether it is a function or a doctrine. That makes atelier the
+  fleet's shared library for knowledge, as that module is within its tool. The
+  grounding is uneven and stated: the up and down flows are practised, atelier
+  itself being extracted mostly from one child; the lateral route is the
+  youngest, written 2026-11-09.
 
 **The discipline — not a licence to gold-plate.** The payback comes from *real*
 recurrence or a *real* avoided class of work, never an imagined future need. The
@@ -600,6 +619,7 @@ adaptation are never traded against a design principle.
 - **Standing or ephemeral credential?** Default to least + just-in-time +
   short-lived (§5). A standing credential needs a stated reason — usually the
   platform offers no JIT grant — and is a tracked debt, not a resting state.
+  Used only rarely? Ask whether it need exist between uses at all (§5).
 - **One-off or recurring?** A task that genuinely happens once → do it directly;
   don't build a tool for it (KISS). A task that recurs, or whose manual repetition
   drifts and errs → invest now in the reusable tool or the work-avoiding design;
