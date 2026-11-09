@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-0214, wt: under ~/worktrees/briefs, brief only, session 9bb1b984) ⏳ **Rule-4 cold pass queued: the board-states design (`310/160`, `310/060`).**
+- [ ] ⏳ **Rule-4 cold pass queued: the board-states design (`310/160`, `310/060`).**
       Every board in the estate would change. The authoring session (a principal-opened Opus 5.5
       queue run, session 722ac2e2, 2026-11-09, in its ruling round, which
       dispatched the worker that wrote it) queues this and does not take it.
@@ -12,3 +12,9 @@
       *Questions worth the pass's time:* whether the migration keeps every child
       green; whether the measurements support the model.
       *Intent record:* `310/160`, `310/060`.
+      📝 BRIEF WRITTEN 2026-11-09 by session 9bb1b984 (Opus 5.5, headless,
+      started by coordinating session 74f2b8cd; neither authored this delta):
+      `docs/reviews/2026-11-09-0238-board-states-design-cold.md`, with its
+      `.deferred.md` sibling. Pass size: medium. Review NOT run: this pass
+      waits for a criterion-passing cold Fable session and the principal's
+      explicit permission for Fable work. Neither named session may run it.

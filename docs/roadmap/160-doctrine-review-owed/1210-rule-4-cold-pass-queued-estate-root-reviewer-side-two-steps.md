@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-0214, wt: under ~/worktrees/briefs, brief only, session 9bb1b984) ⏳ **Rule-4 cold pass queued: the estate root as an ordinary private repo
+- [ ] ⏳ **Rule-4 cold pass queued: the estate root as an ordinary private repo
       (`020/050`), independence fixed at the reviewer (`160/910`, `160/930`), and
       the explanation before the box (`160/270`).** Touches the floor every child
       copies. The authoring session (a principal-opened Opus 5.5
@@ -17,3 +17,9 @@
       can still be primed another way; whether any text still leans on the
       withdrawn rule.
       *Intent record:* the items named above.
+      📝 BRIEF WRITTEN 2026-11-09 by session 9bb1b984 (Opus 5.5, headless,
+      started by coordinating session 74f2b8cd; neither authored this delta):
+      `docs/reviews/2026-11-09-0238-estate-root-reader-side-two-steps-cold.md`, with its
+      `.deferred.md` sibling. Pass size: medium. Review NOT run: this pass
+      waits for a criterion-passing cold Fable session and the principal's
+      explicit permission for Fable work. Neither named session may run it.
