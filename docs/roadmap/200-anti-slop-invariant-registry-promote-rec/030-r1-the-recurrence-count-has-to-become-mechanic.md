@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-1030, wt: atelier-rr-722a-u1)
-      🎯 **R1 — the recurrence count has to become mechanical, and the mining
+- [x] 🎯 **R1 — the recurrence count has to become mechanical, and the mining
       pass earns a cadence rather than one run.** The registry's promotion rule
       (recurrence, not severity, earns a check) never fires, because nothing
       can answer *how many times has this broken?* — recurrence is currently
@@ -30,3 +29,5 @@
         doctrine on its own (a materially bigger, unscoped claim) is not
         decided here and should not be assumed by whoever builds this.
   - [ ] ⚖️ **Mike, 2026-11-09, in his own words** (queue run 722ac2e2 had said he ruled out background jobs on this machine, a wrong reading of the estate root's record): *"I didnt rule out background jobs. I ruled out you creating silly little apps and adding them as login items on the mac that dont then run on a schedule but an event. For example background jobs for an active claude code session are fine. I dont' think cloud would work as it cant access things like transcripts? Following all that I approve the recommended option"*. The recommended option read: on his word, about monthly, a session reads the transcripts and files what it finds as board items; it proposes changes and does not make them.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): `PROPAGATION.md` carries the on-his-word review and `TOOLBOX.md` § *Background jobs* his words. Cold pass `160/1240`.

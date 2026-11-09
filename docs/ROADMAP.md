@@ -232,7 +232,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/160-doctrine-review-owed/README.md)*
 
 - [ ] 🎯 [The cctranscript --search cycle CLOSED 2026-08-15 (0 MAJOR); CS1–CS14…](roadmap/160-doctrine-review-owed/010-rule-4-review-queued-tier-fable-pass-type-code.md)
-- [~] (claimed 2026-11-09-1030, wt: atelier-rr-722a-u1) [The child-membership + work-locality…](roadmap/160-doctrine-review-owed/020-the-child-membership-work-locality-cycle-close.md)
+- ✅ 🎯 [The child-membership + work-locality cycle CLOSED 2026-08-09 (0…](roadmap/160-doctrine-review-owed/020-the-child-membership-work-locality-cycle-close.md)
 - ✅ 🎯 [The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await…](roadmap/160-doctrine-review-owed/030-the-principles-9-cycle-closed-2026-08-09-0-maj.md)
 - ✅ 🎯 [The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6…](roadmap/160-doctrine-review-owed/040-the-cancelled-run-clause-cycle-closed-2026-08.md)
 - ✅ 🎯 [Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle…](roadmap/160-doctrine-review-owed/050-five-rule-4-fable-cold-passes-ran-2026-08-05-e.md)
@@ -310,7 +310,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🛑 [Rule-4 cold pass queued: guards read git-quoted paths (115/260,…](roadmap/160-doctrine-review-owed/760-rule-4-cold-pass-queued-quoted-paths.md)
 - ✅ [Estate survey: which repos hold Fable-dependent work, and which owe a…](roadmap/160-doctrine-review-owed/770-estate-survey-fable-work-and-unwritten-briefs.md)
 - [ ] 🛑 [Rule-4 cold pass queued: agreement is not corroboration, minted in…](roadmap/160-doctrine-review-owed/780-rule-4-cold-pass-queued-agreement-is-not-corroboration.md)
-- [ ] 🎯 [Rule-4 cold pass queued: no hatch silences sizescan's cold-content…](roadmap/160-doctrine-review-owed/790-rule-4-cold-pass-queued-sizescan-cold-content-hatches.md)
+- ✅ 🎯 [Rule-4 cold pass queued: no hatch silences sizescan's cold-content…](roadmap/160-doctrine-review-owed/790-rule-4-cold-pass-queued-sizescan-cold-content-hatches.md)
 - ✅ 🎯 [Rule-4 cold pass queued: the staged diff read by its structure…](roadmap/160-doctrine-review-owed/800-rule-4-cold-pass-queued-staged-diff-structural-reader.md)
 - ✅ 🎯 [Rule-4 cold pass queued: indexscan's date rule (320/430).](roadmap/160-doctrine-review-owed/810-rule-4-cold-pass-queued-indexscan-date-rule.md)
 - [ ] 🛑 [Rule-4 cold pass queued: ADR 0008's boundary amendment and the…](roadmap/160-doctrine-review-owed/820-rule-4-cold-pass-queued-adr-0008-boundary-amendment.md)
@@ -369,6 +369,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the estate root as an ordinary private repo…](roadmap/160-doctrine-review-owed/1210-rule-4-cold-pass-queued-estate-root-reviewer-side-two-steps.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the thirteen technical fixes he approved in…](roadmap/160-doctrine-review-owed/1220-rule-4-cold-pass-queued-thirteen-technical-fixes.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the board-states design (310/160, 310/060).](roadmap/160-doctrine-review-owed/1230-rule-4-cold-pass-queued-board-states-design.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the report-only switch barred on the board…](roadmap/160-doctrine-review-owed/1240-rule-4-cold-pass-queued-board-check-bar-membership-review-cadence.md)
 
 ## build/ layer — open strands
 
@@ -410,7 +411,7 @@ then `python3 tools/board.py rebuild`.
 
 - ✅ [Build a generic mechanism keeping any hand-maintained index true to…](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
 - ✅ [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
-- [~] (claimed 2026-11-09-1030, wt: atelier-rr-722a-u1) [R1 — the recurrence count has…](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md)
+- ✅ 🎯 [R1 — the recurrence count has to become mechanical, and the mining…](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md)
 - ✅ [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
 - ✅ [Codify V1–V7 as the always-loaded reviewer checklist](roadmap/200-anti-slop-invariant-registry-promote-rec/050-codify-v1-v7-as-the-always-loaded-reviewer-che.md)
 - [ ] [Two-layer acceptance criteria, one verification pass.](roadmap/200-anti-slop-invariant-registry-promote-rec/060-two-layer-acceptance-criteria-one-verification.md)

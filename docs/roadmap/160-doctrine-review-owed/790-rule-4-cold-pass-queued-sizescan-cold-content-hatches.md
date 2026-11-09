@@ -1,4 +1,4 @@
-- [ ] 🎯 **Rule-4 cold pass queued: no hatch silences sizescan's cold-content
+- [x] 🎯 **Rule-4 cold pass queued: no hatch silences sizescan's cold-content
       gate, and the gate lists the items (`115/270` parts a and b).** The run
       authored this itself (its dispatched worker's output counts as the
       run's authorship). It is queued at landing, and the run neither takes
@@ -67,3 +67,5 @@
       not a ruling):** *"Bar it; nova converts"* (HX1): the floor's report-only switch may not be used
       on the board-design check; each child with it on turns it off, and a child
       still on a single-file board converts, on its own board.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): HX1, an `advisory` declaration on sizescan is a config error from 2026-12-09 and every surface names the date; HX2, HX3, HX5, HX7, HX8, HX10 as counselled. Two children need items, queued on their own boards. Cold pass `160/1240`.

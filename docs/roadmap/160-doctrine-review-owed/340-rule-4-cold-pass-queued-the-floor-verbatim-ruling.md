@@ -53,3 +53,4 @@
       we move to blocking per option 2"*. Option 1 read: a fleet report of which
       repos' copies are out of date, no blocking. Option 2 read: block any repo
       whose copy differs. So report-only until 2026-12-09, then blocking.
+      ✅ FV1, FV2, FV5 applied 2026-11-09 by queue run 722ac2e2; the rest with the rule-copy report.
