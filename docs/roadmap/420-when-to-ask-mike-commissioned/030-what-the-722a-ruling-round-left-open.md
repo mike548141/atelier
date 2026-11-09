@@ -24,7 +24,7 @@
         - Should the check that commits name their files ever block? It would fire on
           most commits as things stand (`320/060`): 88% in this repo, 97% in one child.
         - Approve Fable for the cold passes this run queued (`160/1250` to `160/1430`,
-          fifteen of them) along with the earlier set, or hold.
+          nineteen of them) along with the earlier set, or hold.
         - Land the held board-title fix with the 2026-11-18 cut-off (`010/180`, `010/190`),
           or give it a grace of its own sooner.
         - Words he types in reply to a session's question: an answer or a ruling
