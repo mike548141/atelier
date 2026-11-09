@@ -74,6 +74,16 @@ class Range(unittest.TestCase):
         self.assertEqual(ss.commit_range(self.repo.dir, None, None),
                          [self.c3, self.c2, self.c1])
 
+    def test_an_option_shaped_boundary_is_refused_not_obeyed(self):
+        """AR6b. The boundary is a caller's workflow input. `--branches=*` plus
+        `..HEAD` was read by git as an option and listed NO commits with exit 0,
+        so nothing was verified and nothing said so. `--end-of-options` makes it
+        a (bad) revision, which is the error it should be."""
+        with self.assertRaises(ss.SignscanError):
+            ss.commit_range(self.repo.dir, "--branches=*", None)
+        with self.assertRaises(ss.SignscanError):
+            ss.commit_range(self.repo.dir, None, "--branches=*")
+
     def test_committer_email(self):
         self.assertEqual(ss.committer_email(self.repo.dir, self.c1), "t@example.test")
 

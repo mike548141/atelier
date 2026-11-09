@@ -610,11 +610,12 @@ def classify_run(enabled: bool | None, wf_state: str | None,
 # break the direct-to-`main` workflow the estate's sessions and claim
 # mechanics run on — so it is deliberately NOT in this set.
 REQUIRED_BOUNDARY_TYPES = ("deletion", "non_fast_forward")
-# Present on `main` today but reported for visibility only. The ADR states
-# signature verification is "warn-first on both planes" and never names
-# `required_signatures` as part of the boundary this item closes — so a repo
-# that carries it is stronger than commissioned, and one that lacks it is not
-# this row's problem. Redding on a control nobody ruled would be this tool
+# Present on `main` today but reported for visibility only. The ground is the
+# principal's ruling for this control (board item 140/020 and its README: force-
+# push and deletion blocking, not required signatures), NOT the ADR's 2026-08-23
+# "warn-first on both planes" sentence, which was superseded by the 2026-10-16
+# amendment (AR2/AR5). So a repo that carries `required_signatures` is stronger
+# than commissioned, and one that lacks it is not this row's problem. Redding on a control nobody ruled would be this tool
 # inventing a requirement, the mirror image of the silent absence AP1 found.
 INFORMATIONAL_BOUNDARY_TYPE = "required_signatures"
 
@@ -858,6 +859,14 @@ def terms_state() -> tuple[bool, str]:
     if path is None:
         return False, (f"absent on this machine (looked for $ATELIER_LEAKSCAN_TERMS, "
                        f"then {leakscan.DEFAULT_LOCAL_TERMS})")
+    # A list that is there but loads nothing is NOT cover (AR3): leakscan's
+    # hook plane refuses it, so the board must not call it full cover either.
+    try:
+        terms, _ = leakscan.load_local_terms(path)
+    except OSError as e:
+        return False, f"present at {path} but unreadable ({type(e).__name__})"
+    if not terms:
+        return False, f"present at {path} but holds no terms"
     return True, f"present at {path}"
 
 

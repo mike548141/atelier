@@ -21,7 +21,10 @@ open, binding on nothing; acceptance is the principal's call and freezes the
 substance. Everything after acceptance is appended, never edited: a dated
 **Addendum** section when the decision matures, `revoked <date>` + addendum
 when it stops applying with no replacement, `superseded by <file>` when a new
-ADR replaces it (the full lifecycle is `method/RECORD.md`).
+ADR replaces it (the full lifecycle is `method/RECORD.md`). An addendum that
+states a live state of the world dates it "as of <date>" — never "at HEAD",
+which a later reader takes to mean their HEAD — and carries the read beside
+the claim (AR1, AR5).
 
 ## Index
 

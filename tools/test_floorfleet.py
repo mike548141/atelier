@@ -414,6 +414,18 @@ class TermsStateTest(unittest.TestCase):
         self.assertIn("✅ personal-data term list", board)
         self.assertIn("full cover on this machine", board)
 
+    def test_an_empty_list_is_not_reported_as_full_cover(self):
+        """AR3: a zero-byte or comments-only list loads no terms, the hook plane
+        refuses it, and the board must say so rather than claim cover."""
+        with tempfile.TemporaryDirectory() as td:
+            for body in ("", "# only a comment\n\n"):
+                p = Path(td) / "terms.txt"
+                p.write_text(body, encoding="utf-8")
+                board = self._render_with(str(p))
+                self.assertIn("❌ personal-data term list", board, repr(body))
+                self.assertIn("holds no terms", board)
+                self.assertNotIn("full cover on this machine", board)
+
     def test_an_absent_list_is_reported_with_the_remedy(self):
         board = self._render_with(None)
         self.assertIn("❌ personal-data term list", board)

@@ -527,6 +527,99 @@ class RequireTerms(unittest.TestCase):
             with self.assertRaises(ls.TermsPathError):
                 ls.resolve_terms_path(None)
 
+    def _run_capture(self, argv, env_terms=None):
+        """(exit, stdout, stderr) with the machine's own list kept out of it."""
+        import contextlib, io, os, tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as td:
+            absent = str(ls.Path(td) / "absent-terms.txt")
+            env = {k: v for k, v in os.environ.items()
+                   if k != "ATELIER_LEAKSCAN_TERMS"}
+            if env_terms is not None:
+                env["ATELIER_LEAKSCAN_TERMS"] = env_terms
+            out, err = io.StringIO(), io.StringIO()
+            with mock.patch.dict(os.environ, env, clear=True), \
+                 mock.patch.object(ls, "DEFAULT_LOCAL_TERMS", absent), \
+                 contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                rc = ls.main(argv + ["--root", td, td])
+            return rc, out.getvalue(), err.getvalue()
+
+    def test_an_empty_term_list_is_refused_under_require_terms(self):
+        """AR3: a zero-byte list (a failed sync, a truncated write) satisfied
+        --require-terms, loaded nothing, and the pass line claimed local cover.
+        Comments-only loads nothing either."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            for body in ("", "# just a comment\n\n"):
+                f = ls.Path(td) / "t.txt"
+                f.write_text(body)
+                rc, out, err = self._run_capture(
+                    ["--require-terms", "--terms", str(f)])
+                self.assertEqual(2, rc, repr(body))
+                self.assertIn("holds no terms", err)
+                self.assertNotIn("clean", out)
+
+    def test_an_empty_term_list_without_require_terms_is_structural_only(self):
+        """The CI / fixture case must stay green, but must not claim cover: it
+        degrades exactly as an absent list does, with a warning naming it."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            f = ls.Path(td) / "t.txt"
+            f.write_text("")
+            rc, out, err = self._run_capture(["--terms", str(f)])
+        self.assertEqual(0, rc)
+        self.assertIn("structural only", out)
+        self.assertNotIn("structural + local", out)
+        self.assertIn("holds no terms", out)
+
+    def test_a_populated_term_list_still_claims_local_cover(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            f = ls.Path(td) / "t.txt"
+            f.write_text("zzz-no-fixture-has-this\n")
+            rc, out, err = self._run_capture(
+                ["--require-terms", "--terms", str(f)])
+        self.assertEqual(0, rc)
+        self.assertIn("structural + local", out)
+
+    def test_an_unreadable_term_list_is_exit_2_with_a_remedy(self):
+        """AR3: a directory, or a mode-000 file, was a raw traceback and exit 1
+        with no remedy -- the 'reaches for --no-verify' hazard."""
+        import os, tempfile
+        with tempfile.TemporaryDirectory() as td:
+            d = ls.Path(td) / "adir"
+            d.mkdir()
+            rc, out, err = self._run_capture(["--terms", str(d)])
+            self.assertEqual(2, rc)
+            self.assertIn("cannot be read", err)
+            self.assertIn("--terms", err)
+            self.assertNotIn("Traceback", err)
+            f = ls.Path(td) / "locked.txt"
+            f.write_text("zzz\n")
+            f.chmod(0)
+            try:
+                if not os.access(f, os.R_OK):    # root can read anything
+                    rc, out, err = self._run_capture(["--terms", str(f)])
+                    self.assertEqual(2, rc)
+                    self.assertIn("cannot be read", err)
+            finally:
+                f.chmod(0o600)
+
+    def test_an_empty_explicit_value_is_refused_under_require_terms_only(self):
+        """AR3: `--terms ""` / `ATELIER_LEAKSCAN_TERMS=` under --require-terms
+        fell through to the default list silently. Refused there; without the
+        flag it still means 'not set' (CI routes an unset secret into the env
+        var as an empty string, and CI holds no list)."""
+        rc, out, err = self._run_capture(["--require-terms", "--terms", ""])
+        self.assertEqual(2, rc)
+        self.assertIn("set but empty", err)
+        rc, out, err = self._run_capture(["--require-terms"], env_terms="")
+        self.assertEqual(2, rc)
+        self.assertIn("$ATELIER_LEAKSCAN_TERMS is set but empty", err)
+        # without --require-terms: today's behaviour, structural-only exit 0
+        self.assertEqual(0, self._run_capture(["--terms", ""])[0])
+        self.assertEqual(0, self._run_capture([], env_terms="")[0])
+
 
 class WholeTree(unittest.TestCase):
     """Whole-tree walk guards from the 2026-07-11 child-CI-floor review

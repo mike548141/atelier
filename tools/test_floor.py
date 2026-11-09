@@ -2160,10 +2160,13 @@ class SoftenableListsPinnedToRegistry(unittest.TestCase):
     change reds the stale sentence instead of leaving it to be found by hand.
 
     ADR 0008 Decision 2 (as amended 2026-08-23) restates this same set and is
-    NOT tested here: `docs/decisions/` holds frozen records (atelier's own
-    CLAUDE.md: "ADRs are frozen records"), so a future registry change cannot
-    be allowed to fail a test by way of text this repo has committed to never
-    editing again. A drift there is accepted, not caught.
+    NOT tested here: after acceptance an ADR is appended to, never edited
+    (`docs/decisions/README.md`: "Everything after acceptance is appended,
+    never edited"; `docs/method/RECORD.md` § Decisions), so a future
+    registry change cannot be allowed to fail a test by way of text this repo
+    has committed to never editing again. A drift there is accepted, not
+    caught. The cited ground was once a CLAUDE.md sentence that does not exist
+    (AR5); the two files named above are the real ones.
     """
 
     def _no_advisory_names(self) -> set[str]:

@@ -142,6 +142,9 @@ jobs:
       # WARN-FIRST while the fleet settles: reports unverified commits, does not
       # fail the build. To make it BLOCK once every active machine signs, drop
       # `--warn` and turn the gh-plane `::warning::` into `::error::` + exit 1.
+      # `--warn` covers VERIFICATION RESULTS only: an environment error, such as
+      # a malformed boundary that git cannot resolve, still exits 2 and fails
+      # the step. A broken scan is never a warned one (AR6c).
       #
       # TRUST LIST AT THE PIN, never floating main (2026-07-12 review G7): a
       # floated trust root would let anyone with write to atelier's main mint
@@ -183,7 +186,11 @@ jobs:
           # merge/squash): assert GitHub's own verification via the API. `gh` is
           # preinstalled on the runner; the default token can read this.
           # github.repository is the CALLER's repo inside a reusable workflow,
-          # which is exactly the repo whose commits we are verifying.
+          # which is exactly the repo whose commits we are verifying. It is
+          # expanded inline below, unlike the env-routed boundary above, on
+          # purpose: it is platform-controlled and limited to owner/repo
+          # characters, so it is not the caller-supplied input the AP3 rule
+          # (route through env) exists for (AR6a).
           DEFERRED=$(python3 atelier/tools/signscan.py \
             --allowed-signers "$TRUST" --boundary "$SIGN_BOUNDARY" \
             --repo repo --json \

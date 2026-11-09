@@ -77,12 +77,15 @@ def commit_range(repo: str, boundary: str | None, rev: str | None) -> list[str]:
     — it is the last UNSIGNED commit, the adoption boundary, so a retrofit repo
     skips its pre-signing history); or, with neither, ALL of HEAD's history — the
     right default for a born-signed repo, where every commit should verify."""
+    # `--end-of-options` closes the class where a boundary or rev that begins
+    # with `-` is read by git as an option (AR6b). The boundary reaches here
+    # from a caller's workflow input, so it is not ours to trust to be a SHA.
     if rev:
-        spec = ["-1", rev]
+        spec = ["-1", "--end-of-options", rev]
     elif boundary:
-        spec = [f"{boundary}..HEAD"]
+        spec = ["--end-of-options", f"{boundary}..HEAD"]
     else:
-        spec = ["HEAD"]
+        spec = ["--end-of-options", "HEAD"]
     proc = _git(repo, "rev-list", *spec)
     if proc.returncode != 0:
         raise SignscanError(f"git rev-list failed: {proc.stderr.strip()}")

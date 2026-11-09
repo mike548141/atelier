@@ -194,9 +194,12 @@ governing who may spawn it:
    informed*). An approval given without that account stands as the
    principal's word but is open to challenge — on the briefing, never on his
    authority — and the challenge is raised to him, by re-briefing and asking
-   again. Where the approval is an **always-confirm floor stop** rather than a
-   governance ruling, the order is fixed: re-brief *before* the irreversible
-   action, never after (`00-APEX.md`, the principal's ruling 2026-08-17).
+   again. Where a finding already has an answer or ruling on the board, the
+   ask names it, so he rules with the earlier word in front of him and not as
+   if the finding were new (AR8). Where the approval is an **always-confirm
+   floor stop** rather than a governance ruling, the order is fixed:
+   re-brief *before* the irreversible action, never after (`00-APEX.md`,
+   the principal's ruling 2026-08-17).
 4. **Self-authored doctrine earns a cold *spawn*, not just a cold context**
    (the principal's ruling, 2026-07-15, after the MODEL-ECONOMICS F1
    walk-through; sharpened by this rule's own cold pass, ruled the same day).

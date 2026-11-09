@@ -2808,13 +2808,25 @@ class TermsPathError(RuntimeError):
     principal's ruling 2026-08-23)."""
 
 
-def resolve_terms_path(cli: str | None) -> Path | None:
+def resolve_terms_path(cli: str | None, require: bool = False) -> Path | None:
     # The CLI flag and the env var are EXPLICIT settings: if one is given and
     # does not resolve, that is an error, never a fall-through. Only the
     # default location may be quietly absent.
+    #
+    # A set-but-EMPTY value (`--terms ""`, `ATELIER_LEAKSCAN_TERMS=`) is also an
+    # explicit setting (AR3), and under `require` (--require-terms, the hook
+    # plane) falling through to the default list is a quieter scan than the one
+    # the operator named, so it is refused. Without `require` it keeps its old
+    # meaning, "not set": a CI step that routes an unset secret into the env var
+    # sets it to the empty string, and CI deliberately holds no list.
     for candidate, source in ((cli, "--terms"),
                               (os.environ.get("ATELIER_LEAKSCAN_TERMS"),
                                "$ATELIER_LEAKSCAN_TERMS")):
+        if candidate == "" and require:
+            raise TermsPathError(
+                f"{source} is set but empty — with --require-terms that is "
+                "refused rather than read as 'use the default list'. Unset it, "
+                "or point it at the real term list")
         if candidate:
             p = Path(candidate).expanduser()
             if not p.exists():
@@ -3075,7 +3087,7 @@ def _main(argv: list[str] | None = None) -> int:
               file=sys.stderr)
         return 0
     try:
-        terms_path = resolve_terms_path(args.terms)
+        terms_path = resolve_terms_path(args.terms, args.require_terms)
     except TermsPathError as e:
         return report.broken("leakscan", str(e))
     if args.require_terms and terms_path is None:
@@ -3085,8 +3097,35 @@ def _main(argv: list[str] | None = None) -> int:
             f"(--terms, $ATELIER_LEAKSCAN_TERMS, or {DEFAULT_LOCAL_TERMS}). "
             "A structural-only scan is partial cover — refusing to report it "
             "as a pass.")
-    local_terms, warning = load_local_terms(terms_path)
-    scanned_local = terms_path is not None
+    try:
+        local_terms, warning = load_local_terms(terms_path)
+    except OSError as e:
+        # A directory, a mode-000 file, a vanished mount: the list exists and
+        # cannot be read, which is the same "quieter scan" as a missing one and
+        # gets the same refusal, with a remedy (AR3). It was a raw traceback.
+        return report.broken(
+            "leakscan",
+            f"the local term list {terms_path} cannot be read "
+            f"({type(e).__name__}: {e.strerror or e}) — refusing to scan "
+            "without it. Fix the path or its permissions, or point --terms / "
+            "$ATELIER_LEAKSCAN_TERMS at the real list.")
+    if terms_path is not None and not local_terms:
+        # A list that loads NOTHING (a zero-byte file from a failed sync, a
+        # truncated write, comments only) is not local cover, and the pass line
+        # must not say it is (AR3, lineage EP3 -> AP4). Under --require-terms it
+        # is the same refusal as an absent list; without it, it degrades the way
+        # an absent list does, with a warning naming the file, so a CI run or a
+        # fixture that supplies an empty list still passes as structural-only.
+        if args.require_terms:
+            return report.broken(
+                "leakscan",
+                f"--require-terms set but the local term list {terms_path} "
+                "holds no terms (empty, or comments only). A structural-only "
+                "scan is partial cover — refusing to report it as a pass. "
+                "Restore the list.")
+        warning = (f"the local term list {terms_path} holds no terms — scanned "
+                   "STRUCTURAL patterns only.")
+    scanned_local = bool(local_terms)
 
     disabled = frozenset(r.strip() for r in args.disable.split(",") if r.strip())
     withdrawn = disabled & WITHDRAWN_NAMES
