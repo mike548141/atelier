@@ -28,3 +28,6 @@
         the 2026-11-18 end (UTC, 31 days) was the queue run's reading, which
         reached him in the closing account. Raise it with the child counts at
         the "list goes to Mike" step, as a briefing question.
+      📎 **Added 2026-11-09 UTC:** land `010/180`'s held `board.py` fix (branch
+      `hold-010-180-index-title`) in the same step, since it also needs every
+      child's index rebuilt.

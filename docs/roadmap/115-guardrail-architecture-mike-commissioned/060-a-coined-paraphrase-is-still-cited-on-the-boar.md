@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) 🔎 **A coined paraphrase is still presented on the board as a child
+- [x] 🔎 **A coined paraphrase is still presented on the board as a child
       repo's quoted words.** A cold pass on 2026-08-09 found that a phrase used
       twice on the board in quotation marks, and attributed to a child repo
       rejecting roughly seventy allow-markers, appears nowhere outside atelier's
@@ -22,3 +22,9 @@
       has not been applied unilaterally — but it is the one finding in that set
       where leaving it costs something continuously, because the repo is public
       and the citation reads as sourced.
+      - [x] ✅ **Closed 2026-11-09.** The quoted phrase is gone from both places: `020/250`
+            was corrected on 2026-11-09 (C5R3, `020/050`), and the last citation, in
+            `020/030`, now attributes only the substance (a child chose path globs over
+            per-line markers, volume in the tens) to its decision record, with no
+            quotation marks. Re-verified by grep: the phrase now appears nowhere in the
+            tree except the C5R3 review finding that reports it.

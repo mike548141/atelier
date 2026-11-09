@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) 🚩 **Ten children carry both block defects, and each clears them at its
+- [x] 🚩 **Ten children carry both block defects, and each clears them at its
       own next pin bump** `[S][docs]` — swept 2026-08-18, not estimated:
       `ros`, `rpi`, `faves`, `shed`, `cbom`, `kainga`, `tuhura`, `docker-heap`,
       `derry-hill`, `stewart-drive` — all ten carry *read the staged hunk
@@ -24,3 +24,10 @@
       old phrase, not ten commits having been made. Until `020` lands there is
       no instrument for that, so it is a hand sweep — the same command run
       above, recorded with its date.
+      - [x] ✅ **Closed 2026-11-09 on its own close condition: a hand sweep shows zero
+            children carrying the old phrase as instruction.** Read-only grep of the
+            `CLAUDE.md` file of every sibling repo checkout on this machine (22 files; 0 carry the `grep '^@@'` form or the staged-hunk-headers
+            instruction; 21 name plain `git diff --cached`). One file still contains the words *staged
+            hunk headers*, as a dated record of the correction made on 2026-08-18, not
+            as a live instruction, and it does not point at `CONCURRENCY.md` § *The
+            channel*. Count only, by design: this repo is public.

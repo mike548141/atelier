@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) **Rule-4 cold pass queued: ccarchive's heal pulled (`210/170`,
+- [x] **Rule-4 cold pass queued: ccarchive's heal pulled (`210/170`,
       MC1).** The run authored this itself. It was queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
       the principal-named review tier, checked at selection. *Pass type:*
@@ -33,3 +33,8 @@
       - [ ] 🔧 **Findings built 2026-10-05 in `210/210` (merge `8540a1d`),
             after Mike's rulings walk; the cycle stays open until the
             re-review at `⏳ 160/670` runs.**
+      - [x] ✅ **Closed 2026-11-09 as stale — the cycle it opened closed on `160/670`.**
+            Re-verified: `160/670` records that the ccarchive hardening re-review
+            (`210/210`) returned no MAJOR and says "the cycle opened by 160/460 and
+            160/510 closes here". Its findings were built 2026-11-09 (HD1–HD3) and the
+            rest decided into the backlog, so no pass or fix is owed under this item.

@@ -23,7 +23,9 @@ Nothing in this directory is a finding, a ruling, or a completed review. A
    this once their own verdict is written and committed. Before that, no.
 5. **Findings die with the pass.** Nothing queued by a withdrawn pass carries
    forward. If a finding is real, the accepted pass finds it independently —
-   and that is the point of the redo.
+   and that is the point of the redo. That re-finding is an expectation, not a
+   guarantee: once the accepted replacement is written, the quarantined pass
+   may be read for defects it missed.
 
 ## What is here
 

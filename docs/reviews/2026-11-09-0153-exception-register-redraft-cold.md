@@ -64,8 +64,8 @@ past what he picked, say so. These are claims to test, not settled scope.
 
 A draft ADR, no code. Two commits on `main`: `c687e446` redrafted it on the failed pass's counsel;
 `7c2beaea` then reworked it to the one-central-file shape on the principal's answers. **The subject
-is the ADR at HEAD.** Read both commits; the queue pointer names only "the commit that lands the
-redraft", and the rework came after it.
+is the ADR at HEAD.** Read both commits; the queue pointer's delta names the file at HEAD, since
+the rework came after the redraft.
 
 Commits on `main`: `c687e446`, `7c2beaea`. The landing commit is `7c2beaea`. **Check your tree has
 it before reading anything:** `git merge-base --is-ancestor 7c2beaea HEAD` exits 0, and an

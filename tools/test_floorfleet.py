@@ -31,6 +31,14 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+# 210/390: fail loudly and say why, rather than error on 3.10 syntax or
+# `contextlib.chdir` further down. The tools run on 3.9; this suite does not.
+if sys.version_info < (3, 11):
+    raise ImportError(
+        f"{__file__}: this suite needs Python 3.11 or later, found "
+        f"{sys.version_info.major}.{sys.version_info.minor}. Run it with "
+        "python3.12 (CI pins 3.12); see tools/README.md.")
+
 TOOLS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS_DIR))
 

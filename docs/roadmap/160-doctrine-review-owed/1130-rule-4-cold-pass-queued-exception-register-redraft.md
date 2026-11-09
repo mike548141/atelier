@@ -9,8 +9,10 @@
       *Pass type:* design cold pass, per `method/REVIEW.md` rule 4.
       *Delta, scoped to paths:*
       `docs/decisions/2026-10-03-0641-the-exception-register.md`,
-      `docs/decisions/README.md` — the commit that lands the `160/650`
-      redraft, on `main`, 2026-11-09.
+      `docs/decisions/README.md` — the file at HEAD on `main`, not the redraft
+      commit alone: the ADR was reworked to one central file after the redraft
+      (`c687e446` then `7c2beaea`, both 2026-11-09; `160/650`). Read the
+      current file.
       *Questions worth the pass's time:* whether the both-forms transition
       really keeps every child green; whether the provenance record can be
       forged cheaply; whether XR1–XR16 are each closed as claimed.

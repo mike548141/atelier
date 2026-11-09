@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-hygiene, session d0ca5d24) 🎭 **The sixth instance is the checker written to enforce this item, and it
+- [x] 🎭 **The sixth instance is the checker written to enforce this item, and it
       failed the same way within the hour.** Recorded because it is the most
       self-incriminating evidence available that this class is not a matter of
       carelessness — the author was holding the rule in mind and shipped the
@@ -52,3 +52,13 @@
         affected verdicts were re-run with the fixed checker and re-established
         rather than assumed to have been right — they had been right, which is
         luck and was not treated as evidence.
+  - [x] ✅ **Closed 2026-11-09 as covered — `docs/method/EVIDENCE.md` § 18 ("A negative
+        needs a positive control first").** Read against this item: § 18 states the
+        practice the item proposed ("any check whose output can authorise an
+        irreversible act gets one run against a known-bad fixture"), including "where
+        the negative will authorise something irreversible, the control is not
+        optional", and names this item's own defect class, "a comparison that
+        treats an absent file as an identical one". It was adopted as Mike's own
+        rule on 2026-11-09 (board item `380/010`). Nothing in this item's text, the
+        empty-equals-empty loop, the `UNPROVEN` fix or the empty-versus-absent
+        asymmetry, is left without a home; the item stays as the worked evidence.

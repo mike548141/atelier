@@ -116,9 +116,10 @@
       for three lines; C5's cases are **60 frozen-record lines here plus
       58 across six private children**. Marking them means editing 118
       lines — 60 of them in *frozen records*, which this repo's own
-      convention says are not rewritten — and lands squarely on the rule a
-      child repo already applied when it rejected ~70 markers as "noise
-      that hides the next real finding". Worse in the children: doctrine
+      convention says are not rewritten — and lands on the trade-off a child
+      repo met when it chose path globs over per-line markers, volume in the
+      tens (its publish-review decision record; the earlier quoted phrase
+      was a coined paraphrase, C5R3). Worse in the children: doctrine
       *instructs* them to name the root, so a marker would be owed on
       every future onramp line forever — permanent friction on the
       prescribed act. So C5 is no longer "there is no hatch"; it is

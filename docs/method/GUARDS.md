@@ -594,7 +594,8 @@ resolved by undocumented one-time bypass.
 Adoption is a **deferment at repo granularity**: the guard installs
 advisory-first, with a reason and an expiry, and tightens on re-baseline. That
 is a governed act with an end date, where a bypass is an ungoverned one with
-neither. `C3` is the open build.
+neither. `C3` is built: the advisory block with a required reason and
+review date, in `.atelier-floor.json`.
 
 ## What this model does not decide
 
