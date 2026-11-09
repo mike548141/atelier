@@ -1,4 +1,4 @@
-- [ ] 🔎 **A `failed` agent notification is a status `ccclose` does not know,
+- [~] (claimed 2026-11-09-1354, wt: atelier-qr-d0ca-instr2, session d0ca5d24) 🔎 **A `failed` agent notification is a status `ccclose` does not know,
       and the one signal that separates a dead agent cleanly.** Found 2026-11-09
       by queue run d0ca5d24 while measuring `210/070`. Of 3,587 real agents the
       parent recorded `<status>failed</status>` for 50, none of which ended on
