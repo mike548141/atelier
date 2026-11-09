@@ -408,7 +408,7 @@ a feeling:
 | Lowering | Reason | End date | In the fleet view |
 |---|---|---|---|
 | floor `advisory` (a check reports, does not block) | required (`why`) | required (`review-by`), goes red when it passes | yes: dated, and red when expired |
-| floor `disabled` (a check is off) | required | **none yet** | listed with its reason, no date |
+| floor `disabled` (a check is off) | required | `review-by`, optional for now: missing or passed warns, never blocks (320/800); the bare string still parses | yes: dated, 🟡 when undated, 🔴 when passed |
 | floor `scope` / `flags` (a check looks at less, or is tuned) | required (`why`) | none: ruled a permanent fact about the repo (2026-07-28) | not as a lowering |
 | line marker, ignore-file glob (acceptance) | required | none, by design | counted in the scan's suppressed line |
 
@@ -427,10 +427,10 @@ reach it too, he answered *"Bar both"* (`160/340`, 2026-11-09), so a
 `disabled.sizescan` entry is barred from the same date, with the same notice
 before it. A repo with no board needs no entry.
 
-The `disabled` row is the one place the ruling and the machinery disagree, and
-`scope` / `flags` need a decision on whether narrowing counts as lowering a
-*response* or is a separate axis. Neither is built or decided here; both are
-open follow-ups to the board item that carried the ruling (`020/170`).
+The `disabled` row now carries its end date as a warning only; making it a
+block needs a date and a fleet probe first (`320/800`). `scope` / `flags` still
+need a decision on whether narrowing counts as lowering a *response* or is a
+separate axis, which is not built or decided here (`020/170`).
 
 ## Fail noisy, then subtract
 

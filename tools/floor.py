@@ -125,7 +125,18 @@ does not enforce a check must SAY SO, in a committed file
              commit failing on a date set months earlier is how a forcing
              function becomes a --no-verify habit.
   disabled   the check does not run. A deliberate, reviewable choice on the
-             record, with a stated reason.
+             record, with a stated reason and, like an advisory, an end date:
+
+               "disabled": {
+                 "spellscan": {"why": "no prose to check", "review-by": "YYYY-MM-DD"}
+               }
+
+             The bare string (`"spellscan": "no prose to check"`) still parses.
+             A missing or passed `review-by` WARNS on the floor line and the
+             fleet board and never changes the exit status (320/800: warn-first,
+             so no repo goes red; turning it into a block is owed, with a date
+             and a fleet probe). The bar on `disabled` board-design checks
+             below is separate and unchanged.
 
 VISIBILITY (260/050)
 --------------------
@@ -1055,6 +1066,53 @@ def strip_controls(value: object) -> object:
     return value
 
 
+def _load_disabled(raw: object) -> tuple[dict[str, str], dict[str, str]]:
+    """Parse `disabled`: name -> reason, and name -> review-by where declared.
+
+    Two spellings, like `advisory` during C1. The legacy bare string is a reason
+    with no end date; the object form is `{"why": ..., "review-by": ...}`. A
+    missing date is NOT an error (320/800: warn-first, no repo goes red the day
+    this lands); a date that is present must be a real ISO 8601 one, as for an
+    advisory, because a malformed date is a typo to be told about, not debt."""
+    if isinstance(raw, list):
+        raise ConfigError(
+            f"{CONFIG_NAME}: `disabled` must be an object of "
+            '{"scanner": "why"} — a disabled check states its reason'
+        )
+    if not isinstance(raw, dict):
+        raise ConfigError(f"{CONFIG_NAME}: `disabled` must be an object")
+    reasons: dict[str, str] = {}
+    dates: dict[str, str] = {}
+    for name, decl in raw.items():
+        if not isinstance(decl, dict):
+            reasons[name] = str(decl)
+            continue
+        unknown = sorted(set(decl) - {"why", "review-by"})
+        if unknown:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `disabled.{name}` has unknown "
+                f"key(s): {', '.join(unknown)} (allowed: 'why', 'review-by')"
+            )
+        reasons[name] = str(decl.get("why", "") or "")
+        review_by = decl.get("review-by")
+        if review_by:
+            review_by = str(review_by)
+            if not ISO_DATE_RE.match(review_by):
+                raise ConfigError(
+                    f"{CONFIG_NAME}: `disabled.{name}.review-by` must be an "
+                    f"ISO 8601 date (YYYY-MM-DD), got {review_by!r}"
+                )
+            try:
+                datetime.date.fromisoformat(review_by)
+            except ValueError:
+                raise ConfigError(
+                    f"{CONFIG_NAME}: `disabled.{name}.review-by` is not a "
+                    f"real date: {review_by!r}"
+                ) from None
+            dates[name] = review_by
+    return reasons, dates
+
+
 def _load_advisory(raw: object) -> dict[str, Advisory]:
     """Parse `advisory`, accepting both spellings during the C1 transition.
 
@@ -1405,6 +1463,11 @@ class Config:
     visibility: str | None = None
     advisory: dict[str, Advisory] = field(default_factory=dict)
     disabled: dict[str, str] = field(default_factory=dict)  # name -> reason
+    # name -> ISO review-by date, for a `disabled` entry that declares one. A
+    # parallel map so `disabled` keeps its shape (name -> reason) for every
+    # reader of it; an entry with no date here is the legacy bare string or an
+    # object that left it out, and warns (320/800).
+    disabled_review_by: dict[str, str] = field(default_factory=dict)
     # Per-scanner overrides of WHERE a check looks. atelier itself needs this
     # (its prose checks are scoped to the doctrine surface, not all of docs/) and
     # so does any repo whose shareable subtree is narrower than its whole tree —
@@ -1521,21 +1584,16 @@ class Config:
             )
         advisory = _load_advisory(raw.get("advisory", {}))
 
-        # `disabled` takes {name: reason}. A bare list is refused rather than
-        # accepted with an empty reason: the reason is the whole point of making
-        # an opt-out visible, so a reasonless one is a config bug, not a default.
-        raw_disabled = raw.get("disabled", {}) or {}
-        if isinstance(raw_disabled, list):
-            raise ConfigError(
-                f"{CONFIG_NAME}: `disabled` must be an object of "
-                '{"scanner": "why"} — a disabled check states its reason'
-            )
-        if not isinstance(raw_disabled, dict):
-            raise ConfigError(f"{CONFIG_NAME}: `disabled` must be an object")
-        disabled = {k: str(v) for k, v in raw_disabled.items()}
+        # `disabled` takes {name: reason} or {name: {why, review-by}}. A bare
+        # list is refused rather than accepted with an empty reason: the reason
+        # is the whole point of making an opt-out visible, so a reasonless one
+        # is a config bug, not a default.
+        disabled, disabled_review_by = _load_disabled(
+            raw.get("disabled", {}) or {})
 
         cfg = Config(docs=docs, licence=licence, visibility=visibility,
                      advisory=advisory, disabled=disabled,
+                     disabled_review_by=disabled_review_by,
                      scope=_load_scope(raw.get("scope", {})),
                      flags=_load_flags(raw.get("flags", {})),
                      local=_load_local(raw.get("local", {}) or {}))
@@ -1707,6 +1765,10 @@ class Result:
     # --json consumer's field set stays comparable run to run.
     days_over: str = ""
     legacy: bool = False
+    # A `disabled` check with no end date declared (the legacy bare string, or
+    # an object that left `review-by` out). A warning, never a block (320/800).
+    # Always present so a --json consumer's field set stays comparable.
+    undated: bool = False
     # How many findings this check REPORTED without blocking on them (E6b).
     # Always present and always an integer, so a --json consumer's field set
     # stays comparable run to run — and so does the board line. -1 is the one
@@ -2031,9 +2093,17 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             # check from a disabled fleet one, and the render drops the `· local`
             # tag that says which repo's decision this was (local seam cold
             # pass, LS5).
+            # 320/800: a disabled check declares an end date like an advisory.
+            # Missing or passed, it warns and changes no exit status.
+            d_by = cfg.disabled_review_by.get(scanner.name, "")
+            d_today = _today()
+            d_expired = bool(d_by and d_by < d_today)
             results.append(Result(
                 scanner.name, state, 0, cfg.disabled[scanner.name],
                 local=scanner.is_local,
+                review_by=d_by, expired=d_expired,
+                days_over=(_days_over(d_by, d_today) if d_expired else ""),
+                undated=not d_by,
                 barred_from=(DISABLED_BARRED_FROM[scanner.name].isoformat()
                              if scanner.name in DISABLED_BARRED_FROM
                              else "")))
@@ -2423,6 +2493,18 @@ def render(results: list[Result], plane: str) -> str:
                 # in March", and it belongs where a commit is being made (C1F2).
                 note += (f"  [{r.kind + ', ' if r.kind else ''}"
                          f"review by {r.review_by}"
+                         + (f" — PASSED, {r.days_over}]" if r.expired
+                            else "]"))
+        if r.state == "disabled":
+            # 320/800, the twin of the advisory end date above: warn-first, so
+            # neither branch touches `failed` or the exit status.
+            if r.undated:
+                note += ("  ⚠️  no end date — a disabled check carries a "
+                         "review-by date (020/170); warning only")
+            elif r.review_by:
+                if r.expired and mark != "❌":
+                    mark = "🔴"
+                note += (f"  [review by {r.review_by}"
                          + (f" — PASSED, {r.days_over}]" if r.expired
                             else "]"))
         # A local check is marked, not segregated: it blocks the same commit as

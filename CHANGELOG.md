@@ -35,6 +35,19 @@ Doctrine wording only; no scanner or tool changes.
   census found the parent records a `failed` status that `ccclose` does not
   yet know (`210/400`).
 
+### Changed (2026-11-10 — `reviewscan` says "not in scope"; floor `disabled` gets an end date)
+- **`reviewscan` no longer prints "clean" over a scan that matched no decision
+  record (`320/770`).** A repo whose records are named `NNNN-slug.md` has none
+  in scope, because the date gate reads the filename. The scan now says "not in
+  scope", counts the numbered records it did not read (`--json`:
+  `unread_numbered_records`), and keeps its exit status. Reading dates from
+  numbered records stays open on the item.
+- **A floor `disabled` entry can carry `{"why", "review-by"}` (`320/800`).** The
+  bare string still parses. A missing or passed `review-by` warns on the floor
+  line and in `floorfleet` (🟡 undated, 🔴 passed, with its age) and changes no
+  exit status. The 2026-12-09 bar on `disabled.sizescan` is unchanged. Making it
+  a block is owed, with a date and a fleet probe.
+
 ### Changed (2026-11-09 — the principal's answers on `160/340`, `115/020`, `310/160` applied)
 His answers to options a session offered (answers, not rulings in his own
 words, except where quoted).

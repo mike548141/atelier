@@ -2308,6 +2308,106 @@ class G3GraceCannotBeExtendedTest(unittest.TestCase):
             "may not be softened")
 
 
+class DisabledEndDateTest(unittest.TestCase):
+    """320/800: a `disabled` entry carries an end date the way an advisory does
+    (020/170: lowered only declared, reasoned and expiring). Warn-first: a
+    missing or passed date prints a warning and changes NO exit status."""
+
+    def _run(self, payload):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps(payload), encoding="utf-8")
+            return subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane", "ci",
+                 "--root", td], capture_output=True, text=True)
+
+    @staticmethod
+    def _line(r, name="spellscan"):
+        return next(l for l in r.stderr.splitlines()
+                    if l.strip().split()[1:2] == [name])
+
+    def test_the_legacy_string_still_loads_with_no_date(self):
+        cfg = _cfg({"disabled": {"spellscan": "no prose here"}})
+        self.assertEqual(cfg.disabled, {"spellscan": "no prose here"})
+        self.assertEqual(cfg.disabled_review_by, {})
+
+    def test_the_object_spelling_loads_reason_and_date(self):
+        cfg = _cfg({"disabled": {"spellscan": {
+            "why": "no prose here", "review-by": "2999-01-01"}}})
+        self.assertEqual(cfg.disabled, {"spellscan": "no prose here"})
+        self.assertEqual(cfg.disabled_review_by, {"spellscan": "2999-01-01"})
+
+    def test_an_object_without_a_date_loads_and_is_undated(self):
+        cfg = _cfg({"disabled": {"spellscan": {"why": "no prose here"}}})
+        self.assertEqual(cfg.disabled_review_by, {})
+
+    def test_an_object_still_needs_a_reason(self):
+        with self.assertRaises(floor.ConfigError):
+            _cfg({"disabled": {"spellscan": {"review-by": "2999-01-01"}}})
+
+    def test_a_malformed_or_unknown_key_is_a_config_error(self):
+        for bad in ({"why": "x", "review-by": "next week"},
+                    {"why": "x", "review-by": "2026-02-31"},
+                    {"why": "x", "until": "2999-01-01"}):
+            with self.subTest(bad=bad):
+                with self.assertRaises(floor.ConfigError):
+                    _cfg({"disabled": {"spellscan": bad}})
+
+    def test_the_legacy_string_warns_and_exits_zero(self):
+        r = self._run({"disabled": {"spellscan": "no prose here"}})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("no end date", self._line(r))
+
+    def test_a_future_date_shows_and_does_not_warn(self):
+        r = self._run({"disabled": {"spellscan": {
+            "why": "no prose here", "review-by": "2999-01-01"}}})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        line = self._line(r)
+        self.assertIn("review by 2999-01-01", line)
+        self.assertNotIn("no end date", line)
+        self.assertNotIn("PASSED", line)
+
+    def test_a_passed_date_warns_with_age_and_exits_zero(self):
+        r = self._run({"disabled": {"spellscan": {
+            "why": "no prose here", "review-by": "2020-01-01"}}})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        line = self._line(r)
+        self.assertIn("PASSED", line)
+        self.assertIn("days over", line)
+        self.assertIn("🔴", line)
+
+    def test_json_carries_the_fields_and_never_fails(self):
+        r = subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane", "ci",
+             "--json", "--root", self._td()],
+            capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        row = next(x for x in json.loads(r.stdout)["results"]
+                   if x["name"] == "spellscan")
+        self.assertTrue(row["undated"])
+        self.assertFalse(row["expired"])
+
+    def _td(self):
+        d = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, d, True)
+        (Path(d) / floor.CONFIG_NAME).write_text(
+            json.dumps({"disabled": {"spellscan": "no prose here"}}),
+            encoding="utf-8")
+        return d
+
+    def test_the_board_design_bar_still_bites_whatever_date_is_declared(self):
+        """The 2026-12-09 bar on `disabled` sizescan is not weakened by an end
+        date: a dated entry is a config error from the bar date all the same."""
+        from unittest import mock
+        payload = {"disabled": {"sizescan": {
+            "why": "no roadmap", "review-by": "2999-01-01"}}}
+        with mock.patch.object(floor, "_today", return_value="2026-12-08"):
+            _cfg(payload)
+        with mock.patch.object(floor, "_today", return_value="2026-12-09"):
+            with self.assertRaises(floor.ConfigError):
+                _cfg(payload)
+
+
 class BarredAdvisoryTest(unittest.TestCase):
     """160/790 HX1 (the principal, 2026-11-09: "Bar it; nova converts"): the
     floor's report-only form may not be used on sizescan, the check that

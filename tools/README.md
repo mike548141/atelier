@@ -1240,6 +1240,11 @@ then. A repo with no board needs no entry, since the gate passes on an empty
 tree. A repo that has either entry converts its board (harvest the completed
 items, or split the roadmap into a file per item) and removes it.
 
+A floor `disabled` entry is a reason string or `{"why": ..., "review-by":
+"YYYY-MM-DD"}`, the spelling `advisory` uses (`320/800`). A missing or passed
+`review-by` warns on the floor line and the `floorfleet` board and never
+changes the exit status; blocking on it is owed.
+
 **One scope reduction is neither a hatch nor a glob, and is named.** A
 `ROADMAP.md` under a store-named directory (`sessions/`, `reviews/`,
 `decisions/`, `archive/`, `_archive/`, `intake/`) is not read for cold content.
@@ -1333,7 +1338,9 @@ coordination-free `YYYY-MM-DD[-HHMM]-slug.md` scheme and dated on or after
 records are append-only and never flagged), that carries no review line.
 Presence only, by design; scope deliberately excludes roadmap headings (a lint
 there fires on prose — the `2026-07-18-0820` record's grounds). Exemption
-hatch: `reviewscan:allow: <reason>` on any line. Deliberation:
+hatch: `reviewscan:allow: <reason>` on any line. A scan that matches no dated
+record prints "not in scope" (exit unchanged) and counts any `NNNN-slug.md`
+records it did not read, instead of "clean". Deliberation:
 `docs/decisions/2026-07-21-0744-review-line-artefact.md`.
 
 ```sh

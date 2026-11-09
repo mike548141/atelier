@@ -277,6 +277,9 @@ class ChildFloor:
     # its shape for every reader of it (160/450).
     advisory_kind: dict[str, str] = field(default_factory=dict)
     disabled: dict[str, str] = field(default_factory=dict)
+    # name -> review-by for a `disabled` entry that declares one (320/800). An
+    # entry absent here is the legacy bare string, or an object with no date.
+    disabled_review_by: dict[str, str] = field(default_factory=dict)
     # Checks this repo declares for itself (floor.py's repo-local seam). Read
     # here for the same reason `disabled` is: a rule the estate cannot see is a
     # rule the estate cannot reason about — and unlike a fleet check, nobody
@@ -923,6 +926,30 @@ def _advisories(raw: object) -> dict[str, tuple[str, str]]:
     return out
 
 
+def _disabled(raw: object) -> tuple[dict[str, str], dict[str, str]]:
+    """`disabled` as declared, in either spelling: name -> why, and name ->
+    review-by where one is declared. Reads what the config SAYS and stays
+    tolerant of a malformed one (floor.py is what blocks); a date that is not
+    a real ISO date is dropped here, so the board never compares garbage."""
+    if not isinstance(raw, dict):
+        return {}, {}
+    why: dict[str, str] = {}
+    dates: dict[str, str] = {}
+    for name, v in raw.items():
+        if isinstance(v, dict):
+            why[str(name)] = str(v.get("why", "") or "")
+            by = str(v.get("review-by", "") or "")
+            if floor.ISO_DATE_RE.match(by):
+                try:
+                    datetime.date.fromisoformat(by)
+                except ValueError:
+                    continue
+                dates[str(name)] = by
+        else:
+            why[str(name)] = str(v)
+    return why, dates
+
+
 def _advisory_kinds(raw: object) -> dict[str, str]:
     """name -> kind for each advisory that declares a valid one. Read as the
     config SAYS it, like `_advisories`: a value that is not one of floor.py's
@@ -1000,6 +1027,7 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
     advisory: dict[str, tuple[str, str]] = {}
     advisory_kind: dict[str, str] = {}
     disabled: dict[str, str] = {}
+    disabled_review_by: dict[str, str] = {}
     local: dict[str, str] = {}
     scope: dict[str, list[str]] = {}
     flags: dict[str, list[str]] = {}
@@ -1035,8 +1063,7 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
             flags = _flag_args(cfg.get("flags"))
             raw_docs = cfg.get("docs")
             docs = str(raw_docs) if isinstance(raw_docs, str) else ""
-            d = cfg.get("disabled", {}) or {}
-            disabled = {k: str(v) for k, v in d.items()} if isinstance(d, dict) else {}
+            disabled, disabled_review_by = _disabled(cfg.get("disabled", {}) or {})
             loc = cfg.get("local", {}) or {}
             if isinstance(loc, dict):
                 # Report what the declaration SAYS, not what floor.py would make
@@ -1051,7 +1078,8 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
     return ChildFloor(name=repo.name, path=str(repo), state=state, detail=detail,
                       hook=hook_state(repo), shim=shim_state(read, repo),
                       advisory=advisory, advisory_kind=advisory_kind,
-                      disabled=disabled, local=local,
+                      disabled=disabled,
+                      disabled_review_by=disabled_review_by, local=local,
                       scope=scope, flags=flags, docs=docs)
 
 
@@ -1392,7 +1420,20 @@ def render(infos: list[ChildFloor], remote: bool, status: bool = False,
                     "         date kind not recorded — reads as a mandate "
                     "until the principal says")
         for name, why in i.disabled.items():
-            lines.append(f"      ⏭  {name} disabled — {why}")
+            # 320/800: a disabled check carries an end date like an advisory,
+            # shown in the same style. Warn-first: the board reports, nothing
+            # blocks on it (the floor's exit status is untouched).
+            by = i.disabled_review_by.get(name, "")
+            if not by:
+                lines.append(
+                    f"      🟡 {name} disabled — no end date (a disabled "
+                    f"check carries a review-by date, 020/170) — {why}")
+            elif by < today:
+                lines.append(
+                    f"      🔴 {name} disabled EXPIRED {by} "
+                    f"({_days_over(by, today)}) — {why}")
+            else:
+                lines.append(f"      ⏭  {name} disabled until {by} — {why}")
             # The full-off lane of the same bar (160/340): same date, same
             # line, so the board says what will turn red before the day.
             barred = floor.DISABLED_BARRED_FROM.get(name)

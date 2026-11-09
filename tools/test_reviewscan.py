@@ -321,6 +321,79 @@ class Allowances(unittest.TestCase):
                          reviewscan.parse_allow("x reviewscan:allow:deferral: grounds"))
 
 
+class NotInScopeTest(unittest.TestCase):
+    """320/770: a scan that matched no decision record must not print "clean"."""
+
+    def run_tool(self, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(TOOLS / "reviewscan.py"), *args],
+            capture_output=True, text=True)
+
+    def test_numbered_records_only_is_not_in_scope_and_counted(self):
+        with tempfile.TemporaryDirectory() as s:
+            d = make_tree(Path(s))
+            (d / "0001-foo.md").write_text("# no review line\n")
+            (d / "0002-bar.md").write_text("# no review line\n")
+            (d / "README.md").write_text("# index\n")
+            r = self.run_tool("--root", s, s)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)  # unchanged
+            self.assertIn("not in scope", r.stdout)
+            self.assertNotIn("clean", r.stdout)
+            self.assertIn("2 numbered", r.stdout)
+
+    def test_empty_decisions_dir_is_not_in_scope_with_no_numbered_note(self):
+        with tempfile.TemporaryDirectory() as s:
+            make_tree(Path(s))
+            r = self.run_tool("--root", s, s)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("not in scope", r.stdout)
+            self.assertNotIn("numbered", r.stdout)
+
+    def test_a_pre_boundary_dated_record_alone_is_still_not_in_scope(self):
+        with tempfile.TemporaryDirectory() as s:
+            d = make_tree(Path(s))
+            (d / "2026-07-20-2359-frozen.md").write_text("x")
+            r = self.run_tool("--root", s, s)
+            self.assertIn("not in scope", r.stdout)
+
+    def test_one_in_scope_record_keeps_the_clean_wording(self):
+        with tempfile.TemporaryDirectory() as s:
+            d = make_tree(Path(s))
+            (d / "0001-foo.md").write_text("x")
+            (d / "2026-07-22-1200-ok.md").write_text(
+                "# ok\n**Review**: not warranted — test\n")
+            r = self.run_tool("--root", s, s)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("clean", r.stdout)
+            self.assertNotIn("not in scope", r.stdout)
+
+    def test_a_failure_beside_numbered_records_still_reds(self):
+        with tempfile.TemporaryDirectory() as s:
+            d = make_tree(Path(s))
+            (d / "0001-foo.md").write_text("x")
+            (d / "2026-07-22-1200-bad.md").write_text("# no line\n")
+            r = self.run_tool("--root", s, s)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+
+    def test_json_carries_the_unread_count(self):
+        import json
+        with tempfile.TemporaryDirectory() as s:
+            d = make_tree(Path(s))
+            (d / "0001-foo.md").write_text("x")
+            r = self.run_tool("--root", s, "--json", s)
+            self.assertEqual(json.loads(r.stdout)["unread_numbered_records"], 1)
+
+    def test_count_ignores_dated_records_and_templates(self):
+        with tempfile.TemporaryDirectory() as s:
+            d = make_tree(Path(s))
+            (d / "2026-07-22-1200-a.md").write_text("x")
+            (d / "0001-foo.md").write_text("x")
+            t = Path(s) / "build" / "templates" / "docs" / "decisions"
+            t.mkdir(parents=True)
+            (t / "0009-example.md").write_text("x")
+            self.assertEqual(reviewscan.count_unread_numbered([Path(s)]), 1)
+
+
 class BoundedMemory(unittest.TestCase):
     """020/380 — reviewscan's share of the "every guard runs in bounded
     memory" ruling (`020/370` extended to the whole guard layer). Mike's

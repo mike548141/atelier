@@ -692,12 +692,18 @@ class TestScannerLinePins(unittest.TestCase):
     def test_reviewscan(self):
         import reviewscan as m
         with tempfile.TemporaryDirectory() as td:
+            # One in-scope record: the clean head is for a scan that judged
+            # something. A scan that matched none says "not in scope" (320/770).
+            d = Path(td) / "docs" / "decisions"
+            d.mkdir(parents=True)
+            (d / f"{m.BOUNDARY}-0001-x.md").write_text(
+                "# x\n**Review**: not warranted — fixture\n")
             buf = io.StringIO()
             with contextlib.redirect_stdout(buf):
                 rc = m.run([Path(td)], Path(td), False)
         self.assertEqual(rc, 0)
         self.assertEqual(buf.getvalue(),
-                         f"✓ reviewscan clean — 0 post-{m.BOUNDARY} decision record(s) "
+                         f"✓ reviewscan clean — 1 post-{m.BOUNDARY} decision record(s) "
                          "carry a review line; 0 review brief(s) keep deferred "
                          "material out of the brief.\n"
                          "  suppressed: 0 record(s) by allow-marker\n")

@@ -65,7 +65,10 @@ records would rewrite history, so the lint binds from the day the templates
 began prompting for the field. Same shape as floor.yml's SIGN_BOUNDARY — the
 boundary is the mechanism's own landing date, not a number picked to pass.
 Records named under the retired numeric scheme (`0001-…`) all predate the
-convention and are skipped by construction (they carry no date to test).
+convention and are skipped by construction (they carry no date to test). A scan
+that matches no dated record says "not in scope" and counts the numbered ones
+it did not read, rather than printing "clean" (320/770); reading a numbered
+record's date from its body or history stays open.
 
 Stated residual (2026-07-21 cold-pass RS4): the boundary reads the FILENAME
 date, so a record deliberately backdated below BOUNDARY escapes the lint.
@@ -339,6 +342,32 @@ def _dir_records(decisions_dir: Path) -> list[Path]:
     return records
 
 
+NUMBERED_NAME = re.compile(r"^\d{4}-(?!\d{2}-\d{2}\b).+\.md$")
+
+
+def count_unread_numbered(paths: list[Path]) -> int:
+    """Records named `NNNN-slug.md` that this scan does not read.
+
+    They carry no date for the BOUNDARY gate, so `find_records` skips them by
+    construction. The count is for the output only, so a pass over a repo that
+    keeps its records under that scheme says what it did not look at (320/770).
+    """
+    dirs: list[Path] = []
+    for base in paths:
+        if base.is_file():
+            if _is_decisions_dir(base.parent):
+                dirs.append(base.parent)
+        elif _is_decisions_dir(base):
+            dirs.append(base)
+        else:
+            dirs.extend(d for d in sorted(base.rglob("docs/decisions"))
+                        if _is_decisions_dir(d))
+    seen: set[Path] = set()
+    for d in dict.fromkeys(dirs):
+        seen.update(f for f in d.glob("*.md") if NUMBERED_NAME.match(f.name))
+    return len(seen)
+
+
 def _is_decisions_dir(p: Path) -> bool:
     return (p.is_dir() and p.name == "decisions" and p.parent.name == "docs"
             and "templates" not in p.parts)
@@ -432,17 +461,20 @@ def run(paths: list[Path], root: Path, as_json: bool) -> int:
     misplaced = [b for b in briefs if not scan_brief(b)]
     rel = lambda ps: [str(p.relative_to(root)) for p in ps]  # noqa: E731
     return _render(rel(records), rel(failures), rel(briefs), rel(misplaced),
-                   len(_suppressed), as_json)
+                   len(_suppressed), as_json,
+                   unread_numbered=count_unread_numbered(paths))
 
 
 def _render(records: list[str], failures: list[str], briefs: list[str],
-            misplaced: list[str], n_suppressed: int, as_json: bool) -> int:
+            misplaced: list[str], n_suppressed: int, as_json: bool,
+            unread_numbered: int = 0) -> int:
     if as_json:
         print(json.dumps({
             "checked": records,
             "failures": failures,
             "briefs_checked": briefs,
             "briefs_misplaced_deferral": misplaced,
+            "unread_numbered_records": unread_numbered,
         }, indent=2))
         return report.exit_code(len(failures) + len(misplaced))
 
@@ -470,7 +502,19 @@ def _render(records: list[str], failures: list[str], briefs: list[str],
         print("  then folds it back below the verdict and deletes it.")
         print(f"A genuine exception carries `{DEFERRAL_ALLOW} <reason>` —")
         print("scoped, so a review-line exemption does not waive this check.")
-    if not failures and not misplaced:
+    if not failures and not misplaced and not records:
+        # Zero records matched: nothing was judged, so "clean" would read as
+        # compliance over a repo whose records this scan cannot see (320/770).
+        # Same exit status; only the wording changes.
+        note = (f" ({unread_numbered} numbered NNNN-slug record(s) not read: "
+                "they carry no date to gate on)" if unread_numbered else "")
+        print(f"✓ reviewscan not in scope for decision records — 0 "
+              f"post-{BOUNDARY} dated record(s) matched{note}; nothing was "
+              f"checked for a review line. {len(briefs)} review brief(s) keep "
+              "deferred material out of the brief.")
+        print(report.suppressed_line(
+            [f"{n_suppressed} record(s) by allow-marker"]))
+    elif not failures and not misplaced:
         print(report.clean_head(
             "reviewscan",
             f"{len(records)} post-{BOUNDARY} decision record(s) carry a review "

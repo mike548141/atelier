@@ -570,6 +570,41 @@ class AdvisoryAgeingTest(unittest.TestCase):
         self.assertIn("🟡", legacy)
         self.assertIn("migrate it", legacy)
 
+    def _render_disabled(self, disabled, dates):
+        info = floorfleet.ChildFloor(name="child", path="/x", state="wired",
+                                     detail="calls atelier's floor @main",
+                                     disabled=disabled,
+                                     disabled_review_by=dates)
+        return floorfleet.render([info], remote=False)
+
+    def test_a_disabled_entry_shows_its_end_date_in_the_advisory_style(self):
+        """320/800: undated is 🟡 (warn), live shows the date, passed is 🔴 with
+        its age. The board reports; nothing here changes an exit status."""
+        undated = self._render_disabled({"spellscan": "no prose"}, {})
+        self.assertIn("🟡", undated)
+        self.assertIn("no end date", undated)
+        live = self._render_disabled({"spellscan": "no prose"},
+                                     {"spellscan": "2999-01-01"})
+        self.assertIn("disabled until 2999-01-01", live)
+        self.assertNotIn("🔴", live)
+        gone = self._render_disabled({"spellscan": "no prose"},
+                                     {"spellscan": "2020-01-01"})
+        self.assertIn("🔴", gone)
+        self.assertIn("EXPIRED 2020-01-01", gone)
+        self.assertIn("days over", gone)
+
+    def test_the_disabled_bar_line_survives_the_end_date(self):
+        out = self._render_disabled({"sizescan": "no roadmap"},
+                                    {"sizescan": "2999-01-01"})
+        self.assertIn("disabled barred from 2026-12-09", out)
+
+    def test_disabled_is_read_in_either_spelling(self):
+        why, dates = floorfleet._disabled({
+            "a": "legacy", "b": {"why": "obj", "review-by": "2999-01-01"},
+            "c": {"why": "bad date", "review-by": "soon"}})
+        self.assertEqual(why, {"a": "legacy", "b": "obj", "c": "bad date"})
+        self.assertEqual(dates, {"b": "2999-01-01"})
+
     def test_a_barred_advisory_names_the_date_on_the_board(self):
         """160/790 HX1: the check whose report-only form is closing says so on
         the board beside the declaration, so a child is told before it turns
