@@ -383,6 +383,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: pdlistscan, personal data in a public repo…](roadmap/160-doctrine-review-owed/1340-rule-4-cold-pass-queued-pdlistscan.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose names a failed agent as its own…](roadmap/160-doctrine-review-owed/1350-rule-4-cold-pass-queued-ccclose-failed-state.md)
 - [ ] ⏳ [Rule-4 cold pass queued: one helper resolves ../<sibling> from a…](roadmap/160-doctrine-review-owed/1360-rule-4-cold-pass-queued-estate-helper-sibling-resolution.md)
+- [ ] ⏳ [Rule-4 cold pass queued: nz-phone passes a bracketed byte field…](roadmap/160-doctrine-review-owed/1370-rule-4-cold-pass-queued-phone-byte-field-rule-spelling.md)
 
 ## build/ layer — open strands
 
