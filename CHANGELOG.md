@@ -70,6 +70,17 @@ Doctrine wording only; no scanner or tool changes.
 
 ### Added (2026-11-10 — `blockscan` reads edits inside mapped sub-sections, `320/340`, slice 1 of `320/810`)
 
+### Added (2026-11-09 — `pdlistscan`: the closed personal-data list in the floor, `160/630`, slice 3 of `320/810`)
+- **New scanner `pdlistscan`.** For a repo declaring `"visibility": "public"`,
+  a personal-data allow-marker or a listed string in a tracked file the closed
+  list does not name is a finding, as is a missing `docs/PERSONAL-DATA.md`. A
+  repo declaring anything else is out of scope and says so: in a private repo the
+  order for the work is the grant. Warns and exits 0 until 2027-03-08, a dated
+  constant no flag moves (the date is the run's choice, not the principal's),
+  then exits 1 unless `--warn` was given. Probed by exit code in 21 child
+  checkouts and atelier, today and with the date patched to the flip: 0
+  non-zero. Atelier is the only repo in scope, with 0 findings.
+
 ### Added (2026-11-09 — `attribscan`: "ruled" with no quote of him, `320/100`, slice 2 of `320/810`)
 - **New scanner `attribscan`.** A record that says the owner ruled something
   with no quotation of him, no citation of where he said it and no statement

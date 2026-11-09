@@ -1375,10 +1375,14 @@ class AdvisoryCountContract(unittest.TestCase):
         # an advisory form for adoption. Contract test below.
         self.assertTrue(floor.BY_NAME["attribscan"].advisory_count)
         self.assertIsNotNone(floor.BY_NAME["attribscan"].advisory)
+        # pdlistscan too (160/630): same shape as attribscan.
+        self.assertTrue(floor.BY_NAME["pdlistscan"].advisory_count)
+        self.assertIsNotNone(floor.BY_NAME["pdlistscan"].advisory)
         others = [s.name for s in floor.SCANNERS
                   if s.advisory_count
                   and s.name not in ("secretscan", "licenscan", "conflictscan",
-                                     "leakscan", "datescan", "board", "attribscan")]
+                                     "leakscan", "datescan", "board", "attribscan",
+                                     "pdlistscan")]
         self.assertEqual([], others, "a new count-carrying check needs its own "
                                      "contract test, not this one by accident")
 
@@ -1398,6 +1402,24 @@ class AdvisoryCountContract(unittest.TestCase):
             (root / "docs" / "a.md").write_text("Nothing here.\n", encoding="utf-8")
             zero = subprocess.run(scan, capture_output=True, text=True)
             self.assertEqual(0, floor._read_advisory_count(zero.stdout, "attribscan"))
+
+    def test_pdlistscan_prints_the_contract_line_zero_included(self):
+        """A public repo with a missing list is one finding; a private one is
+        out of scope and zero."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            subprocess.run(["git", "-C", td, "init", "-q"], check=True)
+            (root / floor.CONFIG_NAME).write_text(
+                json.dumps({"visibility": "public"}), encoding="utf-8")
+            scan = [sys.executable, str(TOOLS_DIR / "pdlistscan.py"),
+                    "--root", str(root)]
+            out = subprocess.run(scan, capture_output=True, text=True)
+            self.assertEqual(0, out.returncode, out.stderr)
+            self.assertEqual(1, floor._read_advisory_count(out.stdout, "pdlistscan"))
+            (root / floor.CONFIG_NAME).write_text(
+                json.dumps({"visibility": "private"}), encoding="utf-8")
+            zero = subprocess.run(scan, capture_output=True, text=True)
+            self.assertEqual(0, floor._read_advisory_count(zero.stdout, "pdlistscan"))
 
     def _licence_repo(self, td: str, *extra: tuple[str, str]) -> Path:
         """A tiny repo asserting Apache-2.0, with a permissive header in a

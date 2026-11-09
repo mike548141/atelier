@@ -1934,6 +1934,41 @@ attribution is true, or whether a quotation is his (`320/080`'s corpus-checking
 problem, not this scanner's); and the patterns are a grammar, so a sentence that
 attributes in other words is not read.
 
+## `pdlistscan.py` — in a public repo, personal data stands only where the closed list names it (warning until 2027-03-08)
+
+Board `160/630`, the third slice of `320/810`. `tools/test_personal_data.py`
+keeps atelier's own `docs/PERSONAL-DATA.md` true, but a test in atelier's suite
+reaches no child. This is the same check in the floor, for any repo that
+declares `"visibility": "public"` in `.atelier-floor.json` (`260/050`). A repo
+that declares anything else, or nothing, is **out of scope** and says so: in a
+private repo the principal's order for the work is the grant, which no scanner
+can read (his answer, 2026-11-09).
+
+In scope it reports three kinds: `no-list` (the file is missing),
+`unlisted-marker` (a `leakscan:allow:<scope>:` whose scope is a personal-data
+rule, in a tracked file no entry's `May stand in` names; a marker is not a
+grant), and `unlisted-holder` (a string an entry pins under `Data`, in a file
+that entry does not name). `tools/` and `instruments/` are not read when
+`tools/leakscan.py` exists at the root, the mark of atelier itself, whose
+sources hold the scanners' own invented fixtures; a child's `tools/` is read
+like any other path. Until `PERSONAL_DATA_WARN_UNTIL` (**2027-03-08**, UTC, a
+constant no flag moves; the date is the run's choice, four weeks after
+`attribscan`'s) a finding reports and exits `0`; on and after it, it exits `1`
+unless `--warn` was given. No child declares itself public with a list yet, so
+today it reads only atelier: 21 children are out of scope, and atelier is clean.
+
+```sh
+python3 tools/pdlistscan.py --root .
+python3 tools/pdlistscan.py --json --root .
+python3 tools/pdlistscan.py --selftest
+```
+
+Exit codes: `0` nothing blocking · `1` a finding on or after the date · `2` a
+broken scan (unparseable config or list, no git repository). It does not read
+personal data the list never pinned (a given name carries no string to find)
+and cannot judge whether an entry's reason is good, only whether a place is
+named.
+
 ## `stampscan.py` — an inlined copy still equals its canonical parent (advisory)
 
 Where a child repo or a template **inlines** a floor or a pull-quote of canonical

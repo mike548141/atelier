@@ -859,6 +859,24 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory_count=True,
     ),
     Scanner(
+        "pdlistscan",
+        # 160/630, slice 3 of 320/810 (the principal, 2026-11-09: "all six,
+        # warnings at first and then move to blocking action"). Reads the repo's
+        # declared visibility itself (260/050): only `"visibility": "public"` is
+        # in scope, so a private child's many markers never reach it and this
+        # line costs that child one "not in scope" line. Whole tree on both
+        # planes: a marker or listed string is a property of what is tracked, and
+        # a file named by the list can change without the diff saying so. The
+        # warning period is the date in pdlistscan (`PERSONAL_DATA_WARN_UNTIL`),
+        # so `--warn` stays out of these templates, as in attribscan.
+        hook=["--root", "{root}"],
+        ci=["--root", "{root}"],
+        advisory=["--warn", "--root", "{root}"],
+        why="in a public repo, personal data stands only where the closed "
+            "list names it, and a marker is not a grant",
+        advisory_count=True,
+    ),
+    Scanner(
         "licenscan",
         hook=["--expect", "{licence}", "{scope}"],
         ci=["--expect", "{licence}", "{scope}"],
