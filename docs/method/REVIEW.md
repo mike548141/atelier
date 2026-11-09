@@ -495,7 +495,9 @@ artefact**, not a throwaway chat:
    the ROADMAP pointer and add a `SESSIONS.md` entry.
 5. **Close** — a finding is only closed when its fix is itself verified, with a
    live proof where one exists. "Addressed the review" without exercising the fix
-   is the apex violation the review existed to catch.
+   is the apex violation the review existed to catch. When a review file's
+   state changes, update its dated `Status:` line, and keep its `board:` line
+   pointing at the item that holds the live ledger.
 
 **Applying decisions to doctrine — and when the cycle stops.** Applying
 decided findings to doctrine text is itself a doctrine edit and earns a

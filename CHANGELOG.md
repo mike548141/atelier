@@ -51,6 +51,23 @@ Doctrine wording only; no scanner or tool changes.
   and another machine's sessions are invisible. `--json` for tools. Design:
   `instruments/cclive.design.md`.
 
+### Added (2026-11-09 — a voided allow-marker says so, `110/010`; review files point at their board item, `320/440`)
+- **A marker that parses as nothing is no longer silent (`110/010`).** When a
+  line carries a scanner's marker word outside a code span but no allowance is
+  recognised (no reason, a broken scope after the grace, a prose mention), the
+  shared `allowmarker.py` readers print one stderr note per distinct marker head
+  per run: `allow-marker present but unparseable, so it allows nothing`. One
+  change for the class, in every reader. It shows the head and never the line,
+  and moves no result or exit status. It fires on any line a reader is asked
+  about, so a plain prose mention outside a code span is noted too.
+- **`reviewscan` check 3, warn only (`320/440`).** A review file named for
+  2026-11-10 or later should carry, above its first `##` heading, a `board:`
+  line naming its item file (or `none — <grounds>`) and a `Status:` line with an
+  ISO date. A file without them prints a `⚠` stanza; the exit status does not
+  move, here or in any child. `--json` gains `review_header_warnings`. The
+  review-brief skill, the reviews template and `REVIEW.md` step 5 carry the two
+  lines. Blocking, and the "follow-ups all landed" sub-shape, stay unbuilt.
+
 ### Changed (2026-11-09 — how a question reaches the principal, and what comes back: `320/820`, `420/020`, `020/270`)
 Doctrine wording only; no scanner or tool changes.
 - **His method for asking (`320/820`).** `COMMUNICATION.md` § *Asking for a

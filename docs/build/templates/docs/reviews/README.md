@@ -89,6 +89,10 @@ act on, not a transcript. Every field takes work that isn't built yet:
   for it to hold, and how that could be checked cheaply. Name the concrete thing,
   not "tests pass".
 - **Non-goals** — what's correctly out of scope.
+- **Board** and **Status** — two header lines above the first `##` heading:
+  `**Board:** <the board item's file>` (or `none — <grounds>`), and
+  `**Status:** <state, with its ISO date>`. `reviewscan` warns, never blocks,
+  on a new file without them.
 
 **Deferred material goes in its own file**, `<brief>.deferred.md` — never a
 section below a divider in the brief. Reading is atomic: a deferred section is

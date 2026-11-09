@@ -103,6 +103,11 @@ def in_malformed_grace(today: datetime.date | None = None) -> bool:
 _SCOPED: "dict[re.Pattern[str], tuple[str, str]]" = {}
 # The marker heads already warned about in this process (one warning each).
 _WARNED: set[str] = set()
+# pattern -> marker word, for EVERY pattern `marker_rx` built (scoped or not):
+# the "present but unparseable" note (110/010) needs the word the pattern is for.
+_MARKER_OF: "dict[re.Pattern[str], str]" = {}
+# The unparseable-marker heads already noted in this process (one note each).
+_NOTED: set[str] = set()
 
 
 def marker_rx(marker: str, *, scope: str | None = None, group: str = "kind",
@@ -122,6 +127,7 @@ def marker_rx(marker: str, *, scope: str | None = None, group: str = "kind",
         raise ValueError(f"unknown scope mode: {scope!r}")
     reason = (r"(?P<reason>" + REASON_START + r")") if named_reason else REASON_START
     rx = re.compile(r"\b" + re.escape(marker) + scope_part + r":" + sep + reason)
+    _MARKER_OF[rx] = marker
     if scope is not None:
         _SCOPED[rx] = (marker, group)
     return rx
@@ -174,8 +180,51 @@ def _blank_line(line: str) -> str:
 
 def present(rx: "re.Pattern[str]", text: str) -> bool:
     """True if `text` carries a reasoned marker (the unscoped readers). A
-    marker inside an inline code span is a mention, not a marker (AM3)."""
-    return rx.search(blank_code_spans(text)) is not None
+    marker inside an inline code span is a mention, not a marker (AM3). A line
+    that carries the marker word outside a code span but no marker is noted
+    once on stderr (110/010)."""
+    text = blank_code_spans(text)
+    if rx.search(text) is not None:
+        return True
+    _note_unparseable(rx, text)
+    return False
+
+
+# 110/010: A MARKER THAT PARSES AS NOTHING READS EXACTLY LIKE NO MARKER. When a
+# line carries the marker WORD (outside an inline code span, so a documented
+# mention stays quiet) but no allowance is recognised, the reader says so, once
+# per distinct head per run, on stderr, beside the findings the scan prints. A
+# NOTE ONLY: it changes no result and no exit status, and it shows the head of
+# the marker (the word and up to forty glued characters), never the line, so a
+# line that holds a secret is not echoed. It fires on any line a reader is asked
+# about, finding or not, because the reader is not told whether the line has one.
+_NOTE_HEAD_LEN = 40
+
+
+def _note_unparseable(rx: "re.Pattern[str]", blanked: str) -> None:
+    """Note the marker word on `blanked` (code spans already blanked) when the
+    pattern matched nothing there. Never raises; prints at most once per head."""
+    marker = _MARKER_OF.get(rx)
+    if marker is None or marker not in blanked:
+        return
+    # The word must end at a colon, a space or the end of the line: a code string
+    # such as `"leakscan:allow"` is a mention in source, not an attempt at one.
+    head = re.search(r"\b" + re.escape(marker) + r"(?![^\s:])[^\s<>`]{0,"
+                     + str(_NOTE_HEAD_LEN) + r"}", blanked)
+    if head is None:
+        return
+    shown = re.sub(r"[^\x21-\x7e]", "?", head.group(0))
+    if shown in _NOTED:
+        return
+    _NOTED.add(shown)
+    print(f"allowmarker: note: allow-marker present but unparseable, so it "
+          f"allows nothing: `{shown}`. Spell it `{marker}[:<scope>]: <reason>` "
+          f"(tools/README.md, 'Allow markers and ignore files').", file=sys.stderr)
+
+
+def unparseable_seen() -> list[str]:
+    """The marker heads noted as present but unparseable so far in this process."""
+    return sorted(_NOTED)
 
 
 def _group_of(rx: "re.Pattern[str]", group: str | None) -> str:
@@ -256,6 +305,7 @@ def _read(rx: "re.Pattern[str]", text: str, group: str | None):
                 continue
             _warn_malformed(text, m, rx)
         return m, group
+    _note_unparseable(rx, text)
     return None
 
 

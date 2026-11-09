@@ -462,6 +462,126 @@ class BoundedMemory(unittest.TestCase):
             "— memory is scaling with input size again (020/380).")
 
 
+GOOD_HEADER = ("# Cold pass\n\n**Pass type:** design\n"
+               "**Status:** BRIEF ONLY, not run. Written\n"
+               "2026-11-10 UTC by a brief-writer.\n"
+               "**Board:** `docs/roadmap/320-x/440-y.md`\n\n## Why\n\nbody\n")
+NEW_BRIEF = "2026-11-10-0900-x.md"
+
+
+class HeaderWarningTest(unittest.TestCase):
+    """320/440 (warn only): a review file dated on or after HEADER_BOUNDARY
+    carries a `board:` back-pointer and a `Status:` line with an ISO date. A
+    missing one is a warning; it never changes the exit status."""
+
+    def kinds(self, text):
+        return reviewscan.header_warnings(
+            (ln, True) for ln in text.split("\n"))
+
+    def test_a_complete_header_has_nothing_to_say(self):
+        self.assertEqual([], self.kinds(GOOD_HEADER))
+
+    def test_the_typographies_that_count(self):
+        for board in ("**Board:** docs/roadmap/a/b.md", "**Board**: a/b.md",
+                      "board: a/b.md", "- board: `a/b.md`", "> Board: a/b.md",
+                      "**Board:** none \u2014 a design only, no item",
+                      "board: none - no item yet"):
+            with self.subTest(board=board):
+                self.assertEqual([], self.kinds(
+                    f"# T\n**Status:** run 2026-11-10\n{board}\n"))
+
+    def test_a_missing_or_empty_pointer_warns(self):
+        for board in ("", "**Board:**", "board: none", "board: soon",
+                      "board: none \u2014"):
+            with self.subTest(board=board):
+                self.assertEqual(["board"], self.kinds(
+                    f"# T\n**Status:** run 2026-11-10\n{board}\n"))
+
+    def test_a_status_without_a_date_or_without_a_line_warns(self):
+        for status in ("**Status:** nothing has been built", "", "**Status:**"):
+            with self.subTest(status=status):
+                self.assertEqual(["status"], self.kinds(
+                    f"# T\n{status}\n**Board:** a/b.md\n"))
+
+    def test_a_wrapped_status_takes_its_date_from_the_next_line_only(self):
+        self.assertEqual([], self.kinds(
+            "# T\n**Status:** BRIEF ONLY.\nWritten 2026-11-10.\n**Board:** a.md\n"))
+        # The date sits under the NEXT field, not the status.
+        self.assertEqual(["status"], self.kinds(
+            "# T\n**Status:** BRIEF ONLY.\n**Tier:** 2026-11-10\n**Board:** a.md\n"))
+
+    def test_fields_below_the_first_section_heading_do_not_count(self):
+        self.assertEqual(["board", "status"], self.kinds(
+            "# T\n\n## Why\n**Status:** 2026-11-10\n**Board:** a.md\n"))
+
+    def test_the_boundary_is_the_filename_day(self):
+        self.assertFalse(reviewscan._header_in_scope("2026-11-09-2359-x.md"))
+        self.assertTrue(reviewscan._header_in_scope("2026-11-10-0000-x.md"))
+        self.assertTrue(reviewscan._header_in_scope("2026-11-10-x.md"))
+        self.assertFalse(reviewscan._header_in_scope("README.md"))
+
+
+class HeaderWarningRunTest(unittest.TestCase):
+    """The warning on the disk plane: stanza, JSON, and an unchanged exit."""
+
+    def run_tool(self, *args):
+        return subprocess.run(
+            [sys.executable, str(TOOLS / "reviewscan.py"), *args],
+            capture_output=True, text=True)
+
+    def test_a_bare_new_review_file_warns_and_exits_zero(self):
+        with tempfile.TemporaryDirectory() as s:
+            r = make_reviews(Path(s))
+            (r / NEW_BRIEF).write_text("# Brief\n\nbody\n")
+            res = self.run_tool("--root", s, s)
+            self.assertEqual(0, res.returncode, res.stdout + res.stderr)
+            self.assertIn("1 review file(s)", res.stdout)
+            self.assertIn("warn only, not blocking", res.stdout)
+            self.assertIn(f"docs/reviews/{NEW_BRIEF}", res.stdout)
+            self.assertIn("board:", res.stdout)
+            self.assertIn("Status:", res.stdout)
+
+    def test_a_complete_one_and_a_frozen_one_print_nothing_new(self):
+        with tempfile.TemporaryDirectory() as s:
+            r = make_reviews(Path(s))
+            (r / NEW_BRIEF).write_text(GOOD_HEADER)
+            (r / "2026-11-09-2359-old.md").write_text("# Brief\n\nbody\n")
+            res = self.run_tool("--root", s, s)
+            self.assertEqual(0, res.returncode, res.stdout + res.stderr)
+            self.assertNotIn("\u26a0", res.stdout)
+
+    def test_the_warning_sits_beside_a_real_failure_and_does_not_soften_it(self):
+        with tempfile.TemporaryDirectory() as s:
+            r = make_reviews(Path(s))
+            (r / NEW_BRIEF).write_text("# B\n\n## Deferred \u2014 seeded\n\nQ\n")
+            res = self.run_tool("--root", s, s)
+            self.assertEqual(1, res.returncode, res.stdout + res.stderr)
+            self.assertIn("\u26a0", res.stdout)
+
+    def test_json_carries_the_warnings_and_the_exit_is_unchanged(self):
+        import json
+        with tempfile.TemporaryDirectory() as s:
+            r = make_reviews(Path(s))
+            (r / NEW_BRIEF).write_text("# Brief\n")
+            res = self.run_tool("--root", s, "--json", s)
+            self.assertEqual(0, res.returncode, res.stdout + res.stderr)
+            got = json.loads(res.stdout)["review_header_warnings"]
+            self.assertEqual(
+                [("docs/reviews/" + NEW_BRIEF, "board"),
+                 ("docs/reviews/" + NEW_BRIEF, "status")],
+                [(w["path"], w["missing"]) for w in got])
+
+    def test_a_long_list_is_capped_in_the_stanza(self):
+        with tempfile.TemporaryDirectory() as s:
+            r = make_reviews(Path(s))
+            for i in range(15):
+                (r / f"2026-11-10-09{i:02d}-x.md").write_text("# B\n")
+            res = self.run_tool("--root", s, s)
+            self.assertEqual(0, res.returncode)
+            self.assertIn("15 review file(s)", res.stdout)
+            self.assertIn("and 10 more", res.stdout)
+
+
 def _git(repo, *args):
     import os
     import subprocess
@@ -563,6 +683,19 @@ class StagedPlane(StagedPlaneBase):
         rc, out = self._run("docs")
         self.assertEqual(1, rc, out)
         self.assertIn(brief, out)
+
+    def test_a_staged_new_review_file_warns_and_does_not_block(self):
+        brief = "docs/reviews/" + NEW_BRIEF
+        self._write(brief, "# B\n\nbody\n")
+        self._add(brief)
+        rc, out = self._run("docs")
+        self.assertEqual(0, rc, out)
+        self.assertIn("warn only, not blocking", out)
+        self._write(brief, GOOD_HEADER)
+        self._add(brief)
+        rc, out = self._run("docs")
+        self.assertEqual(0, rc, out)
+        self.assertNotIn("\u26a0", out)
 
     def test_a_deferred_sibling_and_a_readme_are_not_briefs(self):
         self._write("docs/reviews/README.md", "## Deferred — index\n")

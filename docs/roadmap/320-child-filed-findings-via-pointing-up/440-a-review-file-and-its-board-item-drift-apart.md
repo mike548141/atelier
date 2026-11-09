@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1325, wt: atelier-qr-d0ca-marker, session d0ca5d24) 🔎 **A review file's follow-up list and the board item that points at it
+- [ ] 🔎 **A review file's follow-up list and the board item that points at it
       drift apart — and one time in five, measured, they disagree about the
       live state** `[M][tooling]` — filed by a private child 2026-09-26 via
       § *Pointing up*, on its principal's instruction to file. A tooling
@@ -91,3 +91,29 @@
       *review: the child's proposal was itself the output of a cold review
       pass in the child; whether atelier's change needs one is atelier's
       call.*
+      - **2026-11-09, warn-only half built** (queue run d0ca5d24; proposal
+        items 1 and 2). `tools/reviewscan.py` check 3: a review file named for
+        2026-11-10 or later (`HEADER_BOUNDARY`, the day after landing, in the
+        shape of `BOUNDARY`) should carry, above its first `##` heading, a
+        `board:` line naming its item file or `board: none — <grounds>`, and a
+        `Status:` line with an ISO date (the line or the lines it wraps onto).
+        A file without them prints a `⚠` stanza and `--json` gains
+        `review_header_warnings`; the exit status does not move, on the disk or
+        the `--staged` plane, here or in any child. The review-brief skill, the
+        reviews template and `REVIEW.md` step 5 carry the two header lines.
+        Tests: `tools/test_reviewscan.py`. Items 3 and 4 of the proposal are
+        not built, by design (3 is a "do not"; 4 has no mechanical answer).
+      - **Probe, old scanner against new, whole tree, one repo at a time:**
+        exit code and stdout length identical in all 30 estate repos (no review
+        file is dated on or after the boundary yet, so nothing warns today).
+        With the boundary pushed back to the start for a count only: 736 of 738
+        review files across 17 repos have no `board:` line and 480 have no dated
+        `Status:` line, which is why the boundary is forward-looking.
+      - **Left open, kept `- [ ]` on purpose: blocking.** Proposal item 1 asks
+        that `reviewscan` red a file without the pointer. Warn-only is the first
+        stage, not the end state: blocking needs its own date and a fleet probe
+        at that date, because every child floats on this scanner and a red here
+        reaches each one's next CI run. The probe to run then: count review
+        files dated on or after the boundary that lack the lines, per child,
+        and read what the warning has caught by then. If the warning is not
+        read, or catches nothing, close this item as warn-only and file nothing.

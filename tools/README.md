@@ -1343,6 +1343,13 @@ record prints "not in scope" (exit unchanged) and counts any `NNNN-slug.md`
 records it did not read, instead of "clean". Deliberation:
 `docs/decisions/2026-07-21-0744-review-line-artefact.md`.
 
+**Check 3, warn only** (`320/440`): a file under `docs/reviews/` named for
+**2026-11-10** or later should carry, above its first `##` heading, a
+`board:` line naming its board item file (or `board: none — <grounds>`) and a
+`Status:` line with an ISO date. A file without them prints a `⚠` stanza and
+the exit status does not move, here or in any child; blocking would need its
+own date and a fleet probe first. `--json` adds `review_header_warnings`.
+
 ```sh
 python3 tools/reviewscan.py --root . .        # scan a repo
 python3 tools/reviewscan.py --root . docs/decisions   # a decisions dir directly
@@ -2391,6 +2398,12 @@ period"*):
   every scanner. Put the syntax in backticks to document it. A prose mention
   outside a code span that happens to fit the grammar still counts; that residual
   is inherent to the grammar.
+- A line that carries the **marker word but no recognised allowance** (a marker
+  with no reason, a broken scope after the grace, a prose mention outside a code
+  span) gets one stderr note per distinct marker head per run: `allow-marker
+  present but unparseable, so it allows nothing` (`110/010`). A note only: it
+  shows the marker's head and never the line, changes no result or exit status,
+  and fires on any line a reader is asked about, finding or not.
 
 `python3 tools/allowmarker.py --census [--root .]` lists the malformed markers
 in a tree (file, line, marker head) and exits 0, so a repo can find its own

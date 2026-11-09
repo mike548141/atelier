@@ -31,6 +31,23 @@ on correct behaviour at exactly the prescribed moment, which is how a check
 gets trained away (Track E). The fold-back stays a convention, honestly named
 here rather than half-enforced.
 
+CHECK 3 — A REVIEW FILE POINTS AT ITS BOARD ITEM (WARN ONLY; 320/440)
+----------------------------------------------------------------------
+A review file's own follow-up list and the board item that cites it drift
+apart, and a reader who stops at the stale one is misled. Only the half a
+machine can see is checked: a review file dated on or after
+`HEADER_BOUNDARY` carries, in its header block (the lines before its first
+`##` heading), a `board:` line naming its item file, or `board: none —
+<grounds>`, and a `Status:` line carrying an ISO date, so "nothing has been
+built" reads "nothing had been built on 2026-07-19" and stays true.
+
+WARN ONLY, BY DESIGN: it prints a `⚠` stanza and changes no exit status, here
+or in any child that floats on this scanner. Blocking needs its own date and a
+fleet probe first (320/440 item 1's "reds"; not done). A back-pointer says where
+the live ledger is; it does not keep the review file current. The inverse (the
+board item naming the review's revision) is deliberately not checked: a second
+restatement rots the same way.
+
 CHECK 1 — A DECISION RECORD STATES ITS REVIEW JUDGEMENT
 --------------------------------------------------------
 
@@ -111,6 +128,11 @@ import report  # noqa: E402
 # date). Records frozen before it are blameless and append-only — see docstring.
 BOUNDARY = "2026-07-21"
 
+# Check 3 (warn only, 320/440). Review files named for a day before this are
+# blameless: they are frozen records, and retrofitting a header would rewrite
+# history. The day after the check landed (2026-11-09), in the shape of BOUNDARY.
+HEADER_BOUNDARY = "2026-11-10"
+
 # `2026-07-21-0736-slug.md` or `2026-07-13-slug.md` (pre-HHMM records keep
 # their names — retired-scheme files are never renamed).
 RECORD_NAME = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:-\d{4})?-.+\.md$")
@@ -121,6 +143,20 @@ RECORD_NAME = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:-\d{4})?-.+\.md$")
 # JUDGEMENT, and `**Review**:` with nothing after the colon is the blank the
 # rule exists to make impossible, wearing the field's clothes.
 REVIEW_LINE = re.compile(r"^[\s>*-]*(?:\*\*)?[Rr](?:eview|EVIEW)(?:\*\*)?\s*:\s*\S")
+
+# Check 3's two header fields. Tolerant of typography, as REVIEW_LINE is:
+# `**Board**:`, `**Board:**`, `board:`, a bullet or a blockquote. The value is
+# what follows the colon; `_NEXT_FIELD` ends a wrapped `Status:` value.
+_FIELD = r"^[\s>*-]*(?:\*\*)?{name}\s*(?:\*\*)?\s*:\s*(?:\*\*)?\s*(\S.*)$"
+BOARD_LINE = re.compile(_FIELD.format(name="board"), re.IGNORECASE)
+STATUS_LINE = re.compile(_FIELD.format(name="status"), re.IGNORECASE)
+_NEXT_FIELD = re.compile(r"^[\s>*-]*\*\*[^*\n]+(?::\*\*|\*\*\s*:)")
+# `none` then a separator then grounds; or a pointer to an item file.
+_BOARD_NONE = re.compile(r"^`?none`?\s*[-\u2013\u2014:]\s*\S", re.IGNORECASE)
+_BOARD_PATH = re.compile(r"\S\.md\b")
+_ISO_DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
+_SECTION_HEADING = re.compile(r"^#{2,6}\s")
+HEADER_MAX_LINES = 60
 
 ALLOW_MARKER = "reviewscan:allow:"
 ALLOW_BASE = "reviewscan:allow"
@@ -299,6 +335,58 @@ def scan_brief(path: Path, lines=None) -> bool:
     return has_verdict or not has_deferred
 
 
+def header_warnings(lines) -> list[str]:
+    """Check 3 (warn only, 320/440): what a review file's header block lacks.
+
+    `lines` is a line source as `_iter_file_lines` yields it. Reads only the
+    header block: up to the first `##` heading, or `HEADER_MAX_LINES`. Returns
+    `"board"` when no `board:` line names an item file or says `none — <why>`,
+    and `"status"` when no `Status:` line carries an ISO date (the line itself
+    or the lines it wraps onto, up to a blank line or the next `**Field:**`)."""
+    board_ok = False
+    status_seen = status_dated = False
+    in_status = False
+    for n, (line, is_first) in enumerate(lines):
+        if n >= HEADER_MAX_LINES:
+            break
+        if not is_first:
+            continue
+        if _SECTION_HEADING.match(line):
+            break
+        if in_status:
+            if not line.strip() or _NEXT_FIELD.match(line):
+                in_status = False
+            elif _ISO_DATE.search(line):
+                status_dated = True
+        m = BOARD_LINE.match(line)
+        if m and (_BOARD_NONE.match(m.group(1)) or _BOARD_PATH.search(m.group(1))):
+            board_ok = True
+        m = STATUS_LINE.match(line)
+        if m and not status_seen:
+            status_seen = in_status = True
+            if _ISO_DATE.search(m.group(1)):
+                status_dated = True
+    out = []
+    if not board_ok:
+        out.append("board")
+    if not status_dated:
+        out.append("status")
+    return out
+
+
+def _header_in_scope(name: str) -> bool:
+    """A review file named for a day on or after `HEADER_BOUNDARY`."""
+    m = RECORD_NAME.match(name)
+    return bool(m and m.group(1) >= HEADER_BOUNDARY)
+
+
+def brief_header_warnings(path: Path) -> list[str]:
+    """`header_warnings` for the file on disk; [] outside the boundary."""
+    if not _header_in_scope(path.name):
+        return []
+    return header_warnings(_iter_file_lines(path))
+
+
 def _is_reviews_dir(p: Path) -> bool:
     return (p.is_dir() and p.name == "reviews" and p.parent.name == "docs"
             and "templates" not in p.parts)
@@ -415,7 +503,8 @@ def staged_kind(rel: str) -> str | None:
     return None
 
 
-def scan_staged(staged: dict, suppressed: list[int] | None = None
+def scan_staged(staged: dict, suppressed: list[int] | None = None,
+                warnings: list[tuple[str, str]] | None = None
                 ) -> tuple[list[str], list[str], list[str], list[str]]:
     """The hook plane (320/600): what this commit is about to make true.
 
@@ -427,6 +516,9 @@ def scan_staged(staged: dict, suppressed: list[int] | None = None
     (`staged`: path -> anything, from `report.staged_paths`), judged by the
     same `scan_record` / `scan_brief` as the disk read. A file the commit does
     not touch is not judged here; CI's whole-tree read owns that.
+
+    `warnings` collects Check 3's `(path, kind)` pairs for a staged review file
+    in scope (warn only, 320/440); it never changes what is returned.
 
     Returns (records, record_failures, briefs, misplaced_briefs), all
     repo-relative."""
@@ -450,6 +542,12 @@ def scan_staged(staged: dict, suppressed: list[int] | None = None
                     misplaced.append(rel)
             for _ in lines:   # drain: git must see the stream read to its end
                 pass
+        if kind == "brief" and warnings is not None and _header_in_scope(Path(rel).name):
+            with report.staged_blob(rel) as fh:
+                lines = _iter_fh_lines(fh)
+                warnings.extend((rel, k) for k in header_warnings(lines))
+                for _ in lines:
+                    pass
     return records, failures, briefs, misplaced
 
 
@@ -460,14 +558,41 @@ def run(paths: list[Path], root: Path, as_json: bool) -> int:
     briefs = find_briefs(paths)
     misplaced = [b for b in briefs if not scan_brief(b)]
     rel = lambda ps: [str(p.relative_to(root)) for p in ps]  # noqa: E731
+    warnings = [(str(b.relative_to(root)), k)
+                for b in briefs for k in brief_header_warnings(b)]
     return _render(rel(records), rel(failures), rel(briefs), rel(misplaced),
                    len(_suppressed), as_json,
-                   unread_numbered=count_unread_numbered(paths))
+                   unread_numbered=count_unread_numbered(paths),
+                   warnings=warnings)
+
+
+_WARN_SHOWN = 20
+_WARN_WORDS = {"board": "no `board:` line naming its item file (or `none \u2014 <grounds>`)",
+               "status": "no `Status:` line carrying an ISO date"}
+
+
+def _warning_lines(warnings: list[tuple[str, str]]) -> list[str]:
+    """Check 3's stanza (warn only): empty when there is nothing to say, so a
+    repo with no review file in scope sees the output it always saw."""
+    if not warnings:
+        return []
+    files = sorted({p for p, _ in warnings})
+    out = [f"\u26a0 {len(files)} review file(s) dated {HEADER_BOUNDARY} or later "
+           f"lack a header field (warn only, not blocking):"]
+    for p, k in warnings[:_WARN_SHOWN]:
+        out.append(f"  {p} \u2014 {_WARN_WORDS[k]}")
+    if len(warnings) > _WARN_SHOWN:
+        out.append(f"  \u2026and {len(warnings) - _WARN_SHOWN} more")
+    out.append("  Header lines: `**Board:** docs/roadmap/<section>/<item>.md` "
+               "(or `none \u2014 <grounds>`) and `**Status:** <state>, <ISO date>`.")
+    return out
 
 
 def _render(records: list[str], failures: list[str], briefs: list[str],
             misplaced: list[str], n_suppressed: int, as_json: bool,
-            unread_numbered: int = 0) -> int:
+            unread_numbered: int = 0,
+            warnings: list[tuple[str, str]] | None = None) -> int:
+    warnings = warnings or []
     if as_json:
         print(json.dumps({
             "checked": records,
@@ -475,6 +600,7 @@ def _render(records: list[str], failures: list[str], briefs: list[str],
             "briefs_checked": briefs,
             "briefs_misplaced_deferral": misplaced,
             "unread_numbered_records": unread_numbered,
+            "review_header_warnings": [{"path": p, "missing": k} for p, k in warnings],
         }, indent=2))
         return report.exit_code(len(failures) + len(misplaced))
 
@@ -522,6 +648,8 @@ def _render(records: list[str], failures: list[str], briefs: list[str],
             "of the brief."))
         print(report.suppressed_line(
             [f"{n_suppressed} record(s) by allow-marker"]))
+    for ln in _warning_lines(warnings):
+        print(ln)
     return report.exit_code(len(failures) + len(misplaced))
 
 
@@ -625,14 +753,16 @@ def main(argv: list[str] | None = None) -> int:
         if rc is not None:
             return rc
         suppressed: list[int] = []
+        header_warns: list[tuple[str, str]] = []
         try:
-            recs, fails, briefs, misplaced = scan_staged(staged, suppressed)
+            recs, fails, briefs, misplaced = scan_staged(staged, suppressed,
+                                                         header_warns)
         except report.STAGED_DIFF_FAILURES as e:
             return report.git_diff_failed("reviewscan", e)
         except OSError as e:
             return report.cannot_read("reviewscan", e)
         return _render(recs, fails, briefs, misplaced, len(suppressed),
-                       args.json)
+                       args.json, warnings=header_warns)
     # A RELATIVE target resolves against --root, never the caller's cwd:
     # mixing the two reads one repo's file under another repo's rules,
     # and neither half of the output says so (roadmap 010/110).

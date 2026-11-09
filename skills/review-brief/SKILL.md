@@ -109,6 +109,9 @@ A good brief is falsifiable and attackable. Include:
    top-level names. The same goes for every environment fact and file name the
    brief states (the interpreter's version, a file it says exists): read it
    off the machine before writing it down, never from memory (AR7).
+6. **Two header lines** — `**Board:** <the board item's file>` (or `none —
+   <grounds>`) and `**Status:** <state, with its ISO date>`, above the first
+   `##` heading. `reviewscan` warns, never blocks, on a new file without them.
 
 ## Running it and landing the verdict
 

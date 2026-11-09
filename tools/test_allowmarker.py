@@ -39,6 +39,7 @@ def at(day):
     stack = contextlib.ExitStack()
     stack.enter_context(mock.patch.object(am, "_utc_today", return_value=day))
     stack.enter_context(mock.patch.object(am, "_WARNED", set()))
+    stack.enter_context(mock.patch.object(am, "_NOTED", set()))
     stack.enter_context(contextlib.redirect_stderr(io.StringIO()))
     return stack
 
@@ -181,6 +182,10 @@ class TestScannerParametersPinned(unittest.TestCase):
         self.assertEqual(importers, set(_PIN))
 
     def test_scoped_parsers_keep_their_result_types(self):
+        with at(DURING):    # the unparseable cases below print a stderr note (110/010)
+            self._scoped_parsers_keep_their_result_types()
+
+    def _scoped_parsers_keep_their_result_types(self):
         import leakscan, conflictscan, wrapscan, datescan, secretscan  # noqa: E401
         self.assertEqual(leakscan.parse_allow("leakscan:allow:email,local-term: r"),
                          frozenset({"email", "local-term"}))
@@ -408,6 +413,94 @@ class TestMalformedMarkers(unittest.TestCase):
         src = (Path(am.__file__)).read_text(encoding="utf-8")
         self.assertFalse("os.environ" in src or "getenv(" in src or "argv" in
                          src.split("def census")[0])
+
+
+class TestUnparseableNote(unittest.TestCase):
+    """110/010: a marker that parses as nothing reads like no marker, so a line
+    that carries the marker word outside a code span but no allowance gets a
+    one-line stderr note. A note only: no result and no exit status moves."""
+
+    ONE = am.marker_rx(M, scope="one", group="kind")
+    LIST = am.marker_rx(M, scope="list", group="rule")
+    UNSCOPED = am.marker_rx(M)
+    ANYSPACE = am.marker_rx(M, sep=am.SEP_ANY_SPACE, named_reason=False)
+
+    def run_read(self, fn, rx, text, day=DURING):
+        with at(day):
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                got = fn(rx, text)
+            return got, err.getvalue(), am.unparseable_seen()
+
+    def test_every_reader_notes_a_marker_with_no_reason(self):
+        text = f"x = 1  # {M}"
+        for fn, rx in ((am.scope_of, self.ONE), (am.scopes_of, self.LIST),
+                       (am.present, self.UNSCOPED), (am.present, self.ANYSPACE)):
+            with self.subTest(rx=rx.pattern):
+                got, err, seen = self.run_read(fn, rx, text)
+                self.assertFalse(got)
+                self.assertIn("present but unparseable", err)
+                self.assertEqual(1, err.count("\n"))
+                self.assertEqual([M], seen)
+
+    def test_the_note_shows_the_head_and_never_the_line(self):
+        _, err, _ = self.run_read(am.scope_of, self.ONE,
+                                  f"password = hunter2  # {M}:ipv4:")
+        self.assertIn(f"`{M}:ipv4:`", err)
+        self.assertNotIn("hunter2", err)
+
+    def test_a_good_marker_is_never_noted(self):
+        for fn, rx, text in ((am.scope_of, self.ONE, f"{M}:ipv4: why"),
+                             (am.scopes_of, self.LIST, f"{M}: why"),
+                             (am.present, self.UNSCOPED, f"{M}: why"),
+                             (am.present, self.ANYSPACE, f"{M}:\nwhy")):
+            with self.subTest(text=text):
+                got, err, seen = self.run_read(fn, rx, text)
+                self.assertTrue(got is not None and got is not False)
+                self.assertEqual(("", []), (err, seen))
+
+    def test_a_line_without_the_word_is_silent(self):
+        for fn, rx in ((am.scope_of, self.ONE), (am.present, self.UNSCOPED)):
+            got, err, seen = self.run_read(fn, rx, "nothing to see")
+            self.assertEqual(("", []), (err, seen))
+
+    def test_a_mention_in_a_code_span_is_silent(self):
+        for fn, rx in ((am.scope_of, self.ONE), (am.scopes_of, self.LIST),
+                       (am.present, self.UNSCOPED)):
+            _, err, seen = self.run_read(fn, rx, f"write `{M}: <reason>` to allow")
+            self.assertEqual(("", []), (err, seen))
+
+    def test_a_broken_scoped_marker_is_noted_after_the_grace_only(self):
+        # During the grace it still allows (and warns as malformed); after it,
+        # it allows nothing, which is exactly when the reader needs telling.
+        got, err, seen = self.run_read(am.scope_of, self.ONE, f"{M}:ipv4:", DURING)
+        self.assertEqual("", got)
+        self.assertNotIn("unparseable", err)
+        got, err, seen = self.run_read(am.scope_of, self.ONE, f"{M}:ipv4:", AFTER)
+        self.assertIsNone(got)
+        self.assertIn("present but unparseable", err)
+
+    def test_the_note_is_printed_once_per_distinct_head(self):
+        with at(DURING):
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                for _ in range(3):
+                    am.scope_of(self.ONE, f"{M}")
+                am.scope_of(self.ONE, f"{M}:")
+            self.assertEqual(2, err.getvalue().count("present but unparseable"))
+            self.assertEqual(sorted([M, f"{M}:"]), am.unparseable_seen())
+
+    def test_the_head_is_bounded_and_printable(self):
+        _, err, seen = self.run_read(am.scope_of, self.ONE,
+                                     f"{M}:!\u202e" + "!" * 200)
+        self.assertEqual(1, len(seen))
+        self.assertLessEqual(len(seen[0]), len(M) + 40)
+        self.assertTrue(seen[0].isascii())
+
+    def test_a_code_string_naming_the_marker_is_not_an_attempt(self):
+        for text in (f'if "{M}" in line:', f"x = '{M}'", f"({M})", f"{M}, then"):
+            _, err, seen = self.run_read(am.scope_of, self.ONE, text)
+            self.assertEqual(("", []), (err, seen), text)
 
 
 class TestCodeSpans(unittest.TestCase):
