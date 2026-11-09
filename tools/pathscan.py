@@ -170,6 +170,12 @@ sharp honest one):
      under all three and is still flagged. The flip side is a real, named
      cost — see the silent-false-negative bullet under STATED RESIDUAL.
 
+     A `..` token that resolves nowhere above gets one more try through
+     `estate.landings` (`320/180`, `320/660`): read from the main checkout
+     when the scan runs in a linked worktree, and under each repo-holding
+     folder when `ATELIER_ESTATE_ROOT` is set. So `../<sibling>/x.md` gives
+     the same answer from a worktree as from the main checkout.
+
   6. A repo may DECLARE EXTRA RESOLUTION ROOTS in `.atelier-floor.json`,
      tried IN ADDITION to the three base anchors above, never instead of
      them — see DECLARED RESOLUTION ROOTS below for the full picture
@@ -209,7 +215,7 @@ A repo closes the gap for itself by declaring the root in
 
 Read directly by THIS scanner (`load_declared_roots`), not by `tools/floor.py`
 — pathscan has no dependency on `floor.py` by design (it needs only the
-stdlib and the sibling `filewalk`, `allowmarker` and `report`; see this
+stdlib and the sibling `filewalk`, `allowmarker`, `report` and `estate`; see this
 docstring's closing paragraph: "a peer who adopts atelier can run it with the
 system python3 and no install"), so it parses the one key it needs out of the shared config
 file itself rather than depending on `floor.py`'s `Config` class. `floor.py`
@@ -456,6 +462,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
 import report  # noqa: E402
+import estate  # noqa: E402
 
 # A line carrying this marker is intentionally exempt from every check on
 # that line. Same tightened contract as datescan (DSR8): word boundary, then
@@ -1173,7 +1180,29 @@ def _resolves(root: Path, md_file: Path, token: str,
     if _exists_under(docs_anchor if docs_anchor is not None
                      else _docs_anchor(root, md_file), token):
         return True
-    return any(_exists_under(root / extra, token) for extra in declared_roots)
+    if any(_exists_under(root / extra, token) for extra in declared_roots):
+        return True
+    return ".." in token and _lands_on_a_sibling(root, md_file, token,
+                                                 declared_roots, docs_anchor)
+
+
+def _lands_on_a_sibling(root: Path, md_file: Path, token: str,
+                        declared_roots: "tuple[str, ...] | list[str]",
+                        docs_anchor: "Path | None") -> bool:
+    """THE LAST ANCHOR (`320/180`, `320/660`): a token that leaves the repo
+    and did not resolve from where this checkout sits, read the way the main
+    checkout would read it, and under each repo-holding folder when the layout
+    setting names one. Same anchors, same `.md` retry; only ever drops a
+    finding, and it runs only for a `..` token that failed everywhere else."""
+    anchors = [root, md_file.parent,
+               docs_anchor if docs_anchor is not None
+               else _docs_anchor(root, md_file)]
+    anchors.extend(root / extra for extra in declared_roots)
+    for anchor in anchors:
+        for landing in estate.landings(root, anchor / token):
+            if _exists_under(landing.parent, landing.name):
+                return True
+    return False
 
 
 # Bounds on the per-file memos below. Both hold only what one file's own

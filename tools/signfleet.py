@@ -77,6 +77,7 @@ import tempfile
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
 
+import estate  # noqa: E402
 import pins
 import signscan
 
@@ -235,7 +236,8 @@ def cmd_report(args) -> int:
                 return 2
             children.append(p)
     else:
-        roots = [Path(r).expanduser() for r in args.root] if args.root else [atelier.parent]
+        roots = [Path(r).expanduser() for r in args.root] if args.root \
+            else [estate.parent(atelier)]
         children = pins.discover(roots, atelier)
 
     with tempfile.TemporaryDirectory(prefix="signfleet-") as td:
@@ -306,7 +308,8 @@ def build_parser() -> argparse.ArgumentParser:
         description="Fleet view of commit-signing readiness — would the warn→block flip pass?")
     ap.add_argument("--atelier", help="atelier repo path (default: the repo this script lives in)")
     ap.add_argument("--root", action="append",
-                    help="search root for discovery (repeatable; default: atelier's parent dir)")
+                    help="search root for discovery (repeatable; default: "
+                         "ATELIER_ESTATE_ROOT, else atelier's parent dir)")
     ap.add_argument("--child", action="append",
                     help="report only this child repo (repeatable; bypasses discovery)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")

@@ -76,6 +76,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
 import report  # noqa: E402
+import estate  # noqa: E402
 
 # A line carrying this marker is intentionally exempt (e.g. a deliberately
 # dangling pointer in a doc, or a template placeholder). Keep the reason on the
@@ -303,7 +304,8 @@ def _content_lines(text: str):
 # never by the file's own size. Duplicated here rather than imported because
 # each guard's reader carries something different (the window and overlap,
 # fenced-code state here) - see `filewalk`'s docstring for what IS shared.
-# This tool imports only the stdlib and `filewalk`, `allowmarker` and `report`
+# This tool imports only the stdlib and `filewalk`, `allowmarker`, `report`
+# and `estate`
 # beside it, so those travel with it (160/730 RT5).
 #
 # The WINDOW SIZE itself is grounded in THIS tool's own shapes, not copied
@@ -759,6 +761,15 @@ def _resolve_link(md_file: Path, root: Path, path: str,
     same few paths over and over)."""
     target = resolve(md_file, root, path)
     if not target.exists():
+        # `320/180`: a link leaving the repo reads the same from a worktree as
+        # from the main checkout (exists, outside the root), so an allow
+        # marker scoped to `outside-root` holds in both, and a repo in a group
+        # folder gets the same verdict through the layout setting (`320/660`).
+        if any(p.exists() for p in estate.landings(root, target)):
+            return ["fail", "outside-root",
+                    "resolves outside the repo root — a reader "
+                    "on GitHub gets a 404",
+                    _suggest(md_file, root, path, basename_index)]
         return ["fail", "missing-file", f"{_rel(target, root)} does not exist",
                 _suggest(md_file, root, path, basename_index)]
     if not _within_root(target, root):

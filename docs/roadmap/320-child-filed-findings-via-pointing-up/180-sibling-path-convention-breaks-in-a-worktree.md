@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1345, wt: atelier-qr-d0ca-paths, session d0ca5d24) **REPORT — the `../<sibling>` path convention every child inherits
+- [ ] **REPORT — the `../<sibling>` path convention every child inherits
       resolves only from a main checkout, so it breaks in the worktree the
       concurrency doctrine tells sessions to take by default — and the house's
       own drift-check instruction is one of the things that breaks**
@@ -83,3 +83,27 @@
 
       Consideration and remediation are atelier's; the reporting child stops at
       this report.
+
+      - 2026-11-09 — ✅ **Tools half done; the instruction half is still open.**
+        `tools/estate.py` is the shared helper this item asked for:
+        `main_checkout` finds the main checkout from any linked worktree through
+        `git rev-parse --git-common-dir`, and `landings` reads a path that leaves
+        the repo the way the main checkout would. `pathscan` and `linkscan` use
+        it, and the private twins in `pins.py` and `floorfleet.py` now call it.
+        `pathscan` resolves `../<sibling>` from a worktree as it does from the
+        main checkout; `linkscan` gives the same `outside-root` verdict, so an
+        allow marker scoped to that rule holds in both. `tools/test_estate.py`
+        drives both with a real `git worktree add` on a fixture and fails without
+        the fix (7 of its tests fail against the previous scanners).
+        Probed old against new, one repo at a time: both scanners over 29 child
+        main checkouts changed nothing, and in the 4 child worktrees that exist,
+        `pathscan` findings only fell (by 1 to 10; exit code unchanged) and
+        `linkscan` did not change.
+      - 🛑 **Owed, and blocked from here.** The onramp command is what fails
+        silently, and none of this touches it: `git -C "<atelier-path>" log
+        --oneline <SHA>..HEAD` inside the verbatim floor still exits 128 from a
+        worktree. It wants the setting-based form (`ATELIER_ESTATE_ROOT`, or a
+        command keyed to it) in the canonical floor, then each child's next pin
+        carries it. That edit is a floor change and is not made here. Until it
+        lands, this item stays open. See `320/660` for the setting and the
+        children's own references.

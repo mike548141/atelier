@@ -186,6 +186,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import estate  # noqa: E402  — where the main checkout and the estate root are
 import pins  # noqa: E402  — the shared fleet-discovery building block
 # Imported for its term-list resolution ONLY, so the board and the scanner
 # cannot disagree about where the list lives. Re-implementing the lookup here
@@ -770,22 +771,8 @@ def _live_yaml(text: str) -> str:
 
 def main_checkout(repo: Path) -> Path:
     """The main checkout behind `repo`, which IS `repo` unless it is a worktree.
-
-    `--git-common-dir` points at the main checkout's `.git` from any worktree,
-    so its parent is the main checkout itself. Falls back to `repo` whenever
-    git cannot answer — a non-repo directory, or no git on PATH."""
-    try:
-        out = subprocess.run(["git", "-C", str(repo), "rev-parse",
-                              "--git-common-dir"],
-                             capture_output=True, text=True, check=False)
-        if out.returncode == 0 and out.stdout.strip():
-            common = Path(out.stdout.strip())
-            if not common.is_absolute():
-                common = (repo / common)
-            return common.resolve().parent
-    except OSError:
-        pass
-    return repo
+    `estate.main_checkout`, the one shared answer (`320/180`)."""
+    return estate.main_checkout(repo)
 
 
 def _repo_name(repo: Path) -> str:
@@ -1754,7 +1741,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--atelier", help="path to atelier (default: this checkout)")
     p.add_argument("--root", action="append",
                    help="search root for discovery (repeatable; default: "
-                        "atelier's parent dir)")
+                        "ATELIER_ESTATE_ROOT, else atelier's parent dir)")
     p.add_argument("--child", action="append", help="report only this child path")
     p.add_argument("--remote", action="store_true",
                    help="read each repo's default branch from GitHub via gh")
@@ -1832,7 +1819,7 @@ def main(argv: list[str] | None = None) -> int:
         # already resolved the main checkout to label the parent row; the
         # intent reached the label and not the discovery.
         roots = [Path(r).expanduser() for r in args.root] if args.root \
-            else [main_checkout(atelier).parent]
+            else [estate.parent(atelier)]
         children = pins.discover(roots, atelier)
 
     if not children:

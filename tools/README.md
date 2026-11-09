@@ -1030,6 +1030,14 @@ python3 tools/pins.py --check            # exit 1 if any child is not current, o
 python3 tools/pins.py --selftest         # prove the parse + classification offline
 ```
 
+The default search root is `ATELIER_ESTATE_ROOT` when set (see `estate.py`), else
+the folder holding atelier's main checkout. With the setting on, a directory
+under a search root that is not a repo is treated as a group folder and walked
+one level deeper, and only one: repos are never descended into, and hidden or
+symlinked folders are skipped by name. The stderr funnel gains a line saying
+which group folders were walked and what was skipped (`320/660`). Unset, discovery
+and its output are unchanged. `floorfleet` and `signfleet` share this discovery.
+
 ### The floor-copy report (`160/340`)
 
 Every child inlines atelier's safety floor between `stamp:begin` / `stamp:end`
@@ -1080,7 +1088,8 @@ This is a fleet view run from atelier, not a child's own
 CI, so a child's copy is still not checked at its own commit (`stampscan`
 cannot resolve a child's `source=`, ST3); the fleet report is what reaches it.
 
-Discovery walks one level under each search root (default: atelier's parent dir)
+Discovery walks one level under each search root (default: the estate root when
+one is set, else atelier's parent dir; see below for group folders)
 for git repos whose `CLAUDE.md` carries a pin; atelier itself is excluded. An
 unreadable root degrades to a warning, not a crash (fail-safe). Exit codes match
 the others: `0` every child current · `1` at least one not current · `2`
@@ -1107,7 +1116,9 @@ Scope is deliberately narrow — a sharp honest check beats a broad flaky one:
   too), to a real file *or* directory, with the **on-disk casing matched exactly**
   (a case-insensitive local disk hides a mismatch GitHub 404s) and the target
   **inside the repo root** (GitHub serves nothing above it — a `../…` that
-  resolves on this machine is still a 404 for every reader).
+  resolves on this machine is still a 404 for every reader). A link that leaves
+  the repo gets the same `outside-root` verdict from a linked worktree or a group
+  folder as from the main checkout, through `estate.py` (`320/180`, `320/660`).
 - **Anchor existence** — a `#fragment` into a Markdown target (or same-file) must
   match a heading anchor **exactly** (GitHub fragment matching is exact —
   `#A-Section` never reaches `#a-section`; the report says what to write
@@ -1697,7 +1708,10 @@ caused it — bare prose (`docs/method/REVIEW.md`) and backtick spans alike,
 which `linkscan` cannot see because they are not Markdown links. `pathscan`
 finds those references and confirms each resolves, trying repo-root-relative,
 relative to the referencing file, and relative to its enclosing `docs/`, with
-`.md`/`.markdown` appended under the directory-index convention.
+`.md`/`.markdown` appended under the directory-index convention. A `..` token
+that resolves nowhere else is read through `estate.py`, so `../<sibling>/x.md`
+gives the same answer from a linked worktree as from the main checkout, and from
+a repo in a group folder when `ATELIER_ESTATE_ROOT` is set (`320/180`, `320/660`).
 
 Registry-promoted 2026-08-05 (PS5): it runs warn-only on every child's hook
 and CI through the floor — the `--warn` sits in the registry template as one
@@ -2448,6 +2462,28 @@ board with the earlier `FW7`).
 modes could differ on (tracked, untracked, ignored, force-added past an ignore
 rule, deleted but cached, symlinks, a nested clone, a linked worktree, skip
 names) and the expected set written out.
+
+## `estate.py` — where the main checkout is, and where its neighbours live
+
+Not a check. The one answer to "a `../<sibling>` reference, from here: where does
+it land?" (`320/180`, `320/660`), used by `pathscan`, `linkscan`, `pins`,
+`floorfleet` and `signfleet`. `main_checkout(repo)` finds the main checkout from
+any linked worktree through `git rev-parse --git-common-dir`. `parent(repo)`
+names the folder to look for neighbours in, and `landings(root, target)` gives
+every place a path that leaves the repo could really be.
+
+**The setting.** `ATELIER_ESTATE_ROOT`, or else the git config
+`hooks.atelierEstateRoot`, names the folder holding the repos and any group
+folders. It is the same two carriers, in the same order, as `ATELIER_TOOLS` /
+`hooks.atelierTools`, and for the same reason: an environment variable set in a
+shell does not reach a hook started by an editor, while a `git config --global`
+line reaches every repo. Unset means direct siblings, and nothing changes. A
+value that is not an absolute directory is reported on stderr and ignored.
+
+**What it does not do**, named: it resolves references for the tools. It does
+not fix the onramp's `git -C "<atelier-path>" log` command in the verbatim floor,
+which still fails from a worktree (the half `320/180` keeps open), and it cannot
+land anything on a host with no parent checkout at all (`320/660`'s addendum).
 
 ## `allowmarker.py` — Allow markers and ignore files
 

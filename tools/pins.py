@@ -111,6 +111,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import estate  # noqa: E402  — where the main checkout and the estate root are
 import stampscan  # noqa: E402  — the floor-copy comparison is stampscan's, not a second one
 
 # The pin as written in a child CLAUDE.md: `atelier@<sha>`. 7–40 hex chars covers
@@ -360,31 +361,12 @@ def toplevel(start: Path) -> Path:
 
 def main_checkout(repo: Path) -> Path:
     """The main checkout behind `repo`, which IS `repo` unless it is a worktree.
-
-    `--git-common-dir` points at the main checkout's `.git` from any worktree
-    (and at `repo/.git` itself from the main checkout), so its parent is the
-    main checkout regardless of which copy asked. Falls back to `repo` whenever
-    git cannot answer — a non-repo directory, or no git on PATH.
-
-    A twin of `floorfleet.main_checkout`, not an import of it: `floorfleet`
-    imports this module for fleet discovery, so importing back would cycle.
-    Same shape, same reason to exist — see PU-5 (2026-08-22): `pins` run from
-    a worktree resolved `resolve_atelier()` to the WORKTREE (its own
-    `--show-toplevel`), so `discover()` walked the worktree's parent directory
-    instead of atelier's, and silently reported that wrong denominator as the
-    whole fleet."""
-    try:
-        out = subprocess.run(["git", "-C", str(repo), "rev-parse",
-                              "--git-common-dir"],
-                             capture_output=True, text=True, check=False)
-        if out.returncode == 0 and out.stdout.strip():
-            common = Path(out.stdout.strip())
-            if not common.is_absolute():
-                common = (repo / common)
-            return common.resolve().parent
-    except OSError:
-        pass
-    return repo
+    `estate.main_checkout`, the one shared answer (`320/180`). See PU-5
+    (2026-08-22): `pins` run from a worktree resolved `resolve_atelier()` to the
+    WORKTREE (its own `--show-toplevel`), so `discover()` walked the worktree's
+    parent directory instead of atelier's, and silently reported that wrong
+    denominator as the whole fleet."""
+    return estate.main_checkout(repo)
 
 
 def is_icloud(path: Path) -> bool:
@@ -542,12 +524,33 @@ def _log(repo: Path, rng: str) -> list[str]:
     return out.stdout.splitlines() if out.returncode == 0 else []
 
 
-def discover(roots: list[Path], atelier: Path, quiet: bool = False) -> list[Path]:
+def _pinned_child(d: Path, found: dict[str, Path]) -> bool:
+    claude = d / "CLAUDE.md"
+    if claude.is_file() and read_pin(claude) is not None:
+        found[str(d.resolve())] = d
+        return True
+    return False
+
+
+def _names(items: list[str], limit: int = 12) -> str:
+    shown = ", ".join(items[:limit])
+    extra = len(items) - limit
+    return f"{shown}, and {extra} more" if extra > 0 else shown
+
+
+def discover(roots: list[Path], atelier: Path, quiet: bool = False,
+             grouped: bool | None = None) -> list[Path]:
     """One level under each search root, the git repos that carry an atelier pin.
     A directory qualifies if it has a .git entry and a CLAUDE.md that names a pin.
     atelier itself is excluded — it is the parent, not a child. Unreadable roots
     degrade to a warning (fail-safe: report the children we could see, don't
     crash the whole fleet view on one bad path).
+
+    `grouped` (`320/660`; default: whether `ATELIER_ESTATE_ROOT` or
+    `hooks.atelierEstateRoot` is set, see `estate.py`): a directory under a
+    search root that is not a repo is treated as a group folder and walked one
+    level deeper, and only one. A repo is never descended into. A hidden folder
+    or a symlink is not walked, and is named as skipped.
 
     Always reports what it looked at and what it found (to stderr, unless
     `quiet`) — PU-5 was not just a wrong root, it was a wrong root that reported
@@ -555,7 +558,10 @@ def discover(roots: list[Path], atelier: Path, quiet: bool = False) -> list[Path
     off. Printing the search root and the funnel (entries seen -> git repos ->
     pinned children) alongside the answer means a reader can judge for
     themselves whether "1 of 1" is a clean fleet or a fleet nobody found."""
+    if grouped is None:
+        grouped = estate.root_setting(atelier) is not None
     found: dict[str, Path] = {}
+    home = atelier.resolve()
     for root in roots:
         try:
             entries = sorted(p for p in root.iterdir() if p.is_dir())
@@ -564,20 +570,51 @@ def discover(roots: list[Path], atelier: Path, quiet: bool = False) -> list[Path
             continue
         git_repos = 0
         pinned = 0
+        walked: list[str] = []
+        skipped: list[str] = []
+        not_repos = 0
         for d in entries:
-            if d.resolve() == atelier.resolve():
+            if d.resolve() == home:
                 continue
-            if not (d / ".git").exists():
+            if (d / ".git").exists():
+                git_repos += 1
+                pinned += _pinned_child(d, found)
                 continue
-            git_repos += 1
-            claude = d / "CLAUDE.md"
-            if claude.is_file() and read_pin(claude) is not None:
-                pinned += 1
-                found[str(d.resolve())] = d
+            if not grouped:
+                continue
+            if d.name.startswith(".") or d.is_symlink():
+                skipped.append(d.name)
+                continue
+            try:
+                inside = sorted(p for p in d.iterdir() if p.is_dir())
+            except OSError as e:
+                print(f"pins: warning — cannot read group folder {d}: {e}",
+                      file=sys.stderr)
+                skipped.append(d.name)
+                continue
+            repos_here = 0
+            for c in inside:
+                if c.resolve() == home:
+                    continue
+                if not (c / ".git").exists():
+                    not_repos += 1
+                    continue
+                repos_here += 1
+                pinned += _pinned_child(c, found)
+            git_repos += repos_here
+            walked.append(f"{d.name} ({repos_here})")
         if not quiet:
             print(f"pins: searched {root} — {len(entries)} entries, "
                  f"{git_repos} are git repos, {pinned} carry an atelier pin",
                  file=sys.stderr)
+            if grouped:
+                print(f"pins: grouped layout — walked {len(walked)} group "
+                      f"folder(s) one level deeper, repos in each: "
+                      f"{_names(walked) or 'none'}; skipped {len(skipped)} "
+                      f"hidden, symlinked or unreadable: "
+                      f"{_names(skipped) or 'none'}; {not_repos} folder(s) "
+                      "inside a group are not repos and were not descended",
+                      file=sys.stderr)
     return list(found.values())
 
 
@@ -645,7 +682,8 @@ def cmd_report(args) -> int:
                 return 2
             children.append(p)
     else:
-        roots = [Path(r).expanduser() for r in args.root] if args.root else [atelier.parent]
+        roots = [Path(r).expanduser() for r in args.root] if args.root \
+            else [estate.parent(atelier)]
         children = discover(roots, atelier)
 
     cache: dict = {}
@@ -809,7 +847,8 @@ def build_parser() -> argparse.ArgumentParser:
         description="Fleet view of child-repo atelier pins — who is stale, by how much.")
     ap.add_argument("--atelier", help="atelier repo path (default: the repo this script lives in)")
     ap.add_argument("--root", action="append",
-                    help="search root for discovery (repeatable; default: atelier's parent dir)")
+                    help="search root for discovery (repeatable; default: "
+                         "ATELIER_ESTATE_ROOT, else atelier's parent dir)")
     ap.add_argument("--child", action="append",
                     help="report only this child repo (repeatable; bypasses discovery)")
     ap.add_argument("--log", action="store_true",

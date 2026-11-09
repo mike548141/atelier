@@ -22,6 +22,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   to three carrier shapes and needs de-duplicating by task id; and a new chip
   would change a header line other records compare. `ccclose` is the judge.
 
+### Added (2026-11-09 — one answer for where a sibling repo is, and a setting for group folders, tools half: `320/180`, `320/660`)
+- **`tools/estate.py`, a shared helper.** `main_checkout` finds the main checkout
+  from any linked worktree through `--git-common-dir`; `landings` reads a path
+  that leaves the repo the way that checkout would. `pins.py` and `floorfleet.py`
+  now call it instead of carrying their own twins. Stdlib plus `filewalk`.
+- **`../<sibling>` no longer differs by checkout (`320/180`).** `pathscan`
+  resolves it from a worktree as it does from the main checkout, and `linkscan`
+  gives the same `outside-root` verdict, so an allow marker scoped to that rule
+  holds in both. A main checkout's results do not change.
+- **A setting for grouped folders (`320/660`).** `ATELIER_ESTATE_ROOT`, or else
+  git config `hooks.atelierEstateRoot`, names the folder holding repos and group
+  folders; unset is today's behaviour. `pathscan` and `linkscan` look there, and
+  `pins` `discover` walks a group folder one level deeper and says what it
+  walked and skipped. `floorfleet` and `signfleet` share that discovery.
+- **Not done, and blocked:** the onramp's drift-check command in the verbatim
+  floor still fails from a worktree (`320/180`), and the children's own
+  `../atelier` references (`320/660`) can only follow it. Both items stay open.
+
 ### Changed (2026-11-09 — the evidence-window rule, the declaration standard's design, the platform-settings gate, and a pinned review bound: `115/010`, `115/120`, `260/070`, `320/420`)
 Doctrine and one design note; no scanner or tool changes.
 - **The evidence-window rule (`115/010`).** `GUARDS.md` gains a section a reader

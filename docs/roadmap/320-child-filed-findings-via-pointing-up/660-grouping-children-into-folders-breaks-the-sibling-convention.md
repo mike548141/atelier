@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1345, wt: atelier-qr-d0ca-paths, session d0ca5d24) 🔎 **Hand-up: the house assumes every repo is a direct sibling of the
+- [ ] 🔎 **Hand-up: the house assumes every repo is a direct sibling of the
       parent, so an operator who groups children into folders breaks every
       child's path to the parent and the estate root** `[M][doctrine][tools]`.
       Handed up by a private child on 2026-10-17, under `PROPAGATION.md`
@@ -43,3 +43,26 @@
         replaces the relative path also needs a fallback for a host with no
         parent checkout at all (fetch the pinned parent, or say plainly the
         local planes are off).
+
+      - 2026-11-09 — ✅ **Tools half done; nothing has moved and the blocked
+        half stays open.** `tools/estate.py` holds one setting,
+        `ATELIER_ESTATE_ROOT`, or else the git config `hooks.atelierEstateRoot`,
+        naming the folder that holds repos and group folders. It has the same
+        two carriers and order as `ATELIER_TOOLS`, chosen because a shell
+        variable does not reach a hook started by an editor. Unset is exactly
+        today's behaviour. Set: `pathscan` and `linkscan` find `../<sibling>`
+        at the root or in another group, and `tools/pins.py` `discover` treats
+        a non-repo folder as a group and walks it one level deeper, printing
+        which group folders it walked and what it skipped (hidden, symlinked,
+        unreadable, folders inside a group that are not repos); `floorfleet`
+        and `signfleet` share that discovery. Tests in `tools/test_estate.py`.
+      - 🛑 **Owed before the principal moves anything.** The tools can follow a
+        group folder now; the children's own words cannot. The live `../atelier`
+        references (22 children's onramps and contributing guides), the 9
+        estate-root references and the worktree recipe that climbs with
+        `$(git rev-parse --git-common-dir)/../../atelier` are the children's
+        work, and that work can only follow the floor change owed in `320/180`,
+        which is the blocked half. The addendum's case, a host with no parent
+        checkout at all, is not solved either: `estate.py` has nothing to land
+        on there, so the fallback (fetch the pinned parent, or say plainly the
+        local planes are off) is floor work too.

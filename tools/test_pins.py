@@ -262,8 +262,10 @@ class WorktreeResolution(unittest.TestCase):
         tools_dir = self.main / "tools"
         tools_dir.mkdir()
         # pins reads a child's floor copy with stampscan's own comparison, so
-        # stampscan and the three modules it imports travel with it.
-        for name in ("pins.py", "stampscan.py", "filewalk.py", "allowmarker.py", "report.py"):
+        # stampscan and the three modules it imports travel with it, and pins
+        # finds the main checkout through estate.
+        for name in ("pins.py", "estate.py", "stampscan.py", "filewalk.py",
+                     "allowmarker.py", "report.py"):
             shutil.copy(Path(__file__).resolve().parent / name, tools_dir / name)
         self._commit(self.main, "seed.txt", "seed")
         self.worktree = Path(self.tmp) / "wt"
