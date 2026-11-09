@@ -689,7 +689,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/README.md)*
 
 - ✅ 🎯 [Decide the cheap rules first — naming and announcing — and treat…](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/010-name-what-you-launch-then-widen-the-announcement.md)
-- [~] 🎯 (claimed 2026-11-09, wt: atelier-qr-d0ca-live, se…) [Cross-repo session coordination…](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/020-parallel-sessions-across-different-repos-have-no-shared-view.md)
+- ✅ 🎯 [Cross-repo session coordination — Mike commissioned, 2026-09-12.](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/020-parallel-sessions-across-different-repos-have-no-shared-view.md)
 
 ## 🎭 The report can lie while the work is fine — 2026-08-23
 

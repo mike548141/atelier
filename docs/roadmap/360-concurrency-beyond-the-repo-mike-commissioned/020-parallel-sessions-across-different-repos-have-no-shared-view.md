@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1312, wt: atelier-qr-d0ca-live, session d0ca5d24) 🎯 **Cross-repo session coordination — Mike commissioned, 2026-09-12.**
+- [x] 🎯 **Cross-repo session coordination — Mike commissioned, 2026-09-12.**
       His words: *"Find ways to improve how parallel sessions to converse,
       coordinate, share"* and, separately, *"Find better ways to track,
       claim, and coordinate work planned and in progress."*
@@ -30,3 +30,13 @@
         narrower, already-scoped concern than general cross-repo awareness.
   - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
         not a ruling):** *"Build a machine-wide view"* (not the recommended option): a machine-wide view of live work across repos; the one-line open-PR check is in `CLAUDE.md` step 6 already. Not yet designed or built.
+  - [x] ✅ **DONE 2026-11-09**, queue run d0ca5d24: `instruments/cclive`, built to
+        `instruments/cclive.design.md`, with its own test file and man page. A
+        read-only view across every repo under the estate parent: `[~]` claims
+        at the newest integration ref, worktrees with last-commit ages, sessions
+        and agents with a recently written transcript, and the load average. It
+        states its roots, what it skipped and its limits on every run.
+        **Stayed out:** open PRs (network; step 6 of the onramp already covers
+        them), dirty state, process inspection, and any shared index or channel
+        widening: this adds no new shared state. Cold pass not run here; the
+        orchestrator queues it.
