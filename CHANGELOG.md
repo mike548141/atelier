@@ -15,6 +15,15 @@ words, except where quoted).
   line, `floorfleet` and `--json` (`barred_from`, now also set on a disabled
   result) name the date. A repo with no board needs no entry: the check passes
   on an empty tree. No repo on the machine lists it today.
+- **`pins` blocks an unstamped copy from 2026-12-09 (`160/340`; *"Require a
+  stamp by 9 Dec"*).** From `COPY_BLOCKS_FROM` four floor-copy states fail
+  `--check`: `drift`, `unstamped`, `no-reference` (an old pin: bumping it
+  fixes it) and `malformed`. `skipped` and `unchecked` stay report-only. A repo
+  archived on GitHub is exempt, since it can no longer be changed: `pins` asks
+  `gh repo view`, only from the date and only about a child that would
+  otherwise fail; if that cannot be established the child is not exempt and the
+  line says so. `--json` `floor_copy` gains `blocking_states`, `would_fail`,
+  `failing` and `archived_exempt`.
 
 ### Changed (2026-11-09 — three review rulings applied: `160/790`, `160/340`, `160/020`, `200/030`)
 Mike's answers of 2026-11-09 (answers to options offered, not rulings in his own

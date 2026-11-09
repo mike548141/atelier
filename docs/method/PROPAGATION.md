@@ -267,7 +267,11 @@ lines); undeclared, a drop reds. Three boundaries on that:
   compares each child's copy with the floor *as it stood at that child's pin*
   (verbatim at its pin, not at today's text) and reports the ones that differ.
   That is report-only until 2026-12-09 and fails the fleet check from then
-  (`160/340`, the principal's words of 2026-11-09).
+  (`160/340`, the principal's words of 2026-11-09). What fails is a copy that
+  differs, and, on his answer of the same day (*"Require a stamp by 9 Dec"*), a
+  child whose copy has no stamp, a broken stamp, or a pin too old to compare
+  with: each has a fix the child can make. A repo archived on GitHub is exempt,
+  because it can no longer be changed.
 
 The inlined floor is a **narrowing-free restatement** of the apex + AUTONOMY
 floor, and the concurrency line restates `CONCURRENCY.md`'s flipped prior

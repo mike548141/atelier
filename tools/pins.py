@@ -22,7 +22,9 @@ claims to be.
   pins --child <path>  report only the named child repo(s)
   pins --json          machine-readable (for a dashboard or a CI gate)
   pins --check         exit 1 if any child is not current (for CI/hooks); from
-                       2026-12-09 also if a child's floor copy differs
+                       2026-12-09 also if a child's floor copy differs, is
+                       unstamped, is malformed or cannot be compared (an
+                       archived repo is exempt)
   pins --log           also print the commits each stale child would inspect
 
 The reference is the parent's *published* mainline (`origin/main`, after a
@@ -73,14 +75,25 @@ Two things the comparison needs that `stampscan` alone cannot give:
     `<visibility fact>`, `<owner/repo>`) are read out of the child's own lines
     and put back into the reference before `stampscan` compares, so a compliant
     copy reads `identical`. Anything else that differs is `drift`.
-REPORT-ONLY until `COPY_BLOCKS_FROM` (2026-12-09), the date printed on every run,
-then a copy that differs (`drift`) fails `--check` and the exit code like a stale
-pin (option 2, "block any repo whose copy differs"). One dated constant, as
-leakscan's `BINARY_GRACE_UNTIL`: no flag, env var or config key moves it. A copy
-this cannot compare is reported, never passed or failed: `unstamped` (no stamp
-for the floor in CLAUDE.md, so there is nothing to find), `no-reference` (the pin
-predates the floor region markers, or is not in this checkout), `skipped` (a
-`stampscan:allow` marker), `malformed` (broken markers).
+REPORT-ONLY until `COPY_BLOCKS_FROM` (2026-12-09), the date printed on every run.
+From it, four states fail `--check` and the exit code like a stale pin: `drift`
+(the copy differs: option 2, "block any repo whose copy differs"), and, from the
+principal's answer of 2026-11-09 to a later ask, "Require a stamp by 9 Dec":
+`unstamped` (no stamp for the floor in CLAUDE.md, so nothing can be compared),
+`no-reference` (an old pin, from before the floor region was marked, or one this
+checkout does not hold: bumping the pin fixes it) and `malformed` (the stamp
+markers are broken, so the stamp is not there to read). One dated constant, as
+leakscan's `BINARY_GRACE_UNTIL`: no flag, env var or config key moves it.
+**An archived repo is exempt.** A repo archived on GitHub can no longer be
+changed, so it can neither be stamped nor re-pinned. The tool asks GitHub, with
+`gh`, and only after the date and only for a child that would otherwise fail
+(so a clean fleet makes no call, and a test never does). When it cannot
+establish the answer (no `gh`, no GitHub remote, no network) the child is NOT
+exempt: a lookup that failed reads as "not archived", never as an exemption, and
+the line says the archive state was not established. Two states are still only
+reported, never failed: `skipped` (a `stampscan:allow` marker; the floor's own
+stamp no longer honours one, so this is the legacy reading) and `unchecked`
+(CLAUDE.md could not be read after its pin was).
 
 Zero third-party dependencies; stdlib only — a peer who adopts atelier runs it
 with the system python3 and no install.
@@ -154,16 +167,23 @@ COPY_PLACEHOLDERS = ("<SHA>", "<atelier-path>", "<visibility fact>", "<owner/rep
 _PLACEHOLDER_RX = re.compile("(" + "|".join(re.escape(t) for t in COPY_PLACEHOLDERS) + ")")
 
 COPY_IDENTICAL = "identical"      # word for word the floor at the child's pin
-COPY_DRIFT = "drift"              # differs: the only state that blocks
+COPY_DRIFT = "drift"              # differs
 COPY_SKIPPED = "skipped"          # a stampscan:allow marker skipped the comparison
 COPY_UNSTAMPED = "unstamped"      # no stamp for the floor in CLAUDE.md
 COPY_NO_REFERENCE = "no-reference"  # no floor region at the pin (or the pin is unknown)
 COPY_MALFORMED = "malformed"      # stamp markers broken, nothing to compare
 COPY_UNCHECKED = "unchecked"      # not asked for, or the pin could not be read
 
+# The states that fail the check from `COPY_BLOCKS_FROM` (160/340; Mike,
+# 2026-11-09, "Require a stamp by 9 Dec"). Drift is the original option 2. The
+# other three each have a fix the child can make: stamp the copy, bump the pin,
+# repair the markers. `skipped` and `unchecked` are not here: nothing the
+# child can do changes what they say, or they say nothing about the copy.
+COPY_BLOCKING_STATES = (COPY_DRIFT, COPY_UNSTAMPED, COPY_NO_REFERENCE, COPY_MALFORMED)
+
 # Shown with the report, one mark per state.
 _COPY_MARK = {COPY_IDENTICAL: "✓", COPY_DRIFT: "✗", COPY_SKIPPED: "!",
-              COPY_UNSTAMPED: "·", COPY_NO_REFERENCE: "·", COPY_MALFORMED: "?",
+              COPY_UNSTAMPED: "✗", COPY_NO_REFERENCE: "✗", COPY_MALFORMED: "✗",
               COPY_UNCHECKED: "·"}
 
 
@@ -264,10 +284,61 @@ def check_copy(label: str, text: str, canonical: list[str]) -> tuple[str, str]:
     return worst, detail
 
 
+def copy_would_block(info: "ChildPin") -> bool:
+    """Would this child's copy fail the check once `COPY_BLOCKS_FROM` has come,
+    ignoring the clock and any archive exemption? Pure: a state, nothing else."""
+    return info.copy in COPY_BLOCKING_STATES
+
+
 def copy_blocks(info: "ChildPin", today: datetime.date | None = None) -> bool:
-    """Does this child's copy fail its check today? Only a copy that differs does,
-    and only from `COPY_BLOCKS_FROM`."""
-    return info.copy == COPY_DRIFT and copy_blocking(today)
+    """Does this child's copy fail its check today? A copy in a blocking state
+    does, from `COPY_BLOCKS_FROM`, unless the repo is known to be archived. Only
+    `archived is True` exempts: `None` (never asked, or the lookup failed) and
+    `False` both leave the child failing."""
+    return (copy_would_block(info) and copy_blocking(today)
+            and info.archived is not True)
+
+
+GITHUB_REMOTE_RX = re.compile(
+    r"github\.com[:/]+([A-Za-z0-9][A-Za-z0-9._-]*)/([A-Za-z0-9._-]+?)(?:\.git)?/?$")
+
+
+def archived_on_github(child_dir: Path) -> bool | None:
+    """Is the child's GitHub repo archived? True or False when GitHub said so,
+    None when that could not be established: no `origin`, a remote that is not on
+    GitHub, no `gh`, no network, no access, or an answer that is not a boolean.
+    One `gh repo view` call; only reached for a child that would otherwise fail,
+    and only from `COPY_BLOCKS_FROM`. Tests patch this function and never reach
+    the network."""
+    remote = git(["-C", str(child_dir), "remote", "get-url", "origin"], check=False)
+    if remote.returncode != 0:
+        return None
+    m = GITHUB_REMOTE_RX.search(remote.stdout.strip())
+    if not m:
+        return None
+    try:
+        proc = subprocess.run(
+            ["gh", "repo", "view", f"{m.group(1)}/{m.group(2)}",
+             "--json", "isArchived", "-q", ".isArchived"],
+            capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    answer = proc.stdout.strip().lower()
+    if proc.returncode != 0 or answer not in ("true", "false"):
+        return None
+    return answer == "true"
+
+
+def resolve_archive_state(infos: list["ChildPin"], today: datetime.date | None = None) -> None:
+    """Ask GitHub about each child that would otherwise fail, from the cut-off
+    on, and record the answer on the child. Nothing is asked before the date or
+    of a child that passes."""
+    if not copy_blocking(today):
+        return
+    for i in infos:
+        if copy_would_block(i) and i.archived is None:
+            i.archived = archived_on_github(Path(i.path))
+            i.archive_checked = True
 
 
 class GitError(RuntimeError):
@@ -381,6 +452,12 @@ class ChildPin:
     copy: str = "unchecked"
     copy_detail: str = ""
     floor_moved: bool | None = None
+    # Whether the repo is archived on GitHub (an archived repo is exempt from
+    # the floor-copy block). `None` until asked, and still `None` when GitHub
+    # could not be reached; `archive_checked` says which. Asked only from
+    # `COPY_BLOCKS_FROM`, and only of a child that would otherwise fail.
+    archived: bool | None = None
+    archive_checked: bool = False
 
 
 def _is_ancestor(repo: Path, a: str, b: str) -> bool:
@@ -575,6 +652,7 @@ def cmd_report(args) -> int:
     infos = [evaluate(atelier, head, c, args.log, cache) for c in
              sorted(children, key=lambda p: p.name.lower())]
     today = _utc_today()
+    resolve_archive_state(infos, today)
     blocked = [i for i in infos if copy_blocks(i, today)]
 
     if args.json:
@@ -586,6 +664,13 @@ def cmd_report(args) -> int:
                 "blocks_from": COPY_BLOCKS_FROM.isoformat(),
                 "blocking": copy_blocking(today),
                 "differing": [i.name for i in infos if i.copy == COPY_DRIFT],
+                # Every child in a state that fails from the date, unless
+                # archived. Always present, so a consumer's keys do not vary.
+                "blocking_states": list(COPY_BLOCKING_STATES),
+                "would_fail": [i.name for i in infos if copy_would_block(i)],
+                "failing": [i.name for i in blocked],
+                "archived_exempt": [i.name for i in infos
+                                    if copy_would_block(i) and i.archived is True],
             },
             "children": [asdict(i) for i in infos],
         }
@@ -639,24 +724,43 @@ def render_copy(infos: list[ChildPin], today: datetime.date | None = None) -> li
     when = COPY_BLOCKS_FROM.isoformat()
     lines = ["", "  floor copy — each child's stamped floor block against the floor text at its own pin"]
     lines.append(f"  {'BLOCKING since' if blocking else 'report-only until'} {when}"
-                 + (": a copy that differs fails this check." if blocking else
-                    ": from then a copy that differs fails this check."))
+                 + (": a copy that differs, has no stamp, has a broken stamp or "
+                    "pins a commit with no floor text to compare fails this check."
+                    if blocking else
+                    ": from then a copy that differs, has no stamp, has a broken "
+                    "stamp or pins a commit with no floor text to compare fails "
+                    "this check."))
+    lines.append("  A repo archived on GitHub is exempt: it can no longer be changed.")
     width = max(len(i.name) for i in infos)
     for i in infos:
         mark = _COPY_MARK.get(i.copy, " ")
         moved = ("  floor moved since the pin" if i.floor_moved else "")
-        lines.append(f"   {mark} {i.name:<{width}}  {i.copy:<12}{moved}")
-        if i.copy in (COPY_DRIFT, COPY_MALFORMED, COPY_SKIPPED, COPY_NO_REFERENCE, COPY_UNCHECKED) \
-                and i.copy_detail:
+        exempt = ("  archived, exempt" if copy_would_block(i) and i.archived is True else "")
+        lines.append(f"   {mark} {i.name:<{width}}  {i.copy:<12}{moved}{exempt}")
+        if i.copy_detail and (i.copy in COPY_BLOCKING_STATES
+                              or i.copy in (COPY_SKIPPED, COPY_UNCHECKED)):
             lines.append(f"       {i.copy_detail[:240]}")
+        if blocking and copy_would_block(i) and i.archived is None and i.archive_checked:
+            lines.append("       archive state not established (no GitHub remote, gh or "
+                         "network), so this repo is not exempt")
     differ = [i for i in infos if i.copy == COPY_DRIFT]
-    not_compared = [i for i in infos if i.copy in
-                    (COPY_UNSTAMPED, COPY_NO_REFERENCE, COPY_MALFORMED, COPY_SKIPPED, COPY_UNCHECKED)]
+    other = [i for i in infos if i.copy in COPY_BLOCKING_STATES and i.copy != COPY_DRIFT]
+    exempt_n = [i for i in infos if copy_would_block(i) and i.archived is True]
+    not_compared = [i for i in infos if i.copy in (COPY_SKIPPED, COPY_UNCHECKED)]
     lines.append(f"  {len(differ)} of {len(infos)} copies differ"
                  + (f" — {'failing now' if blocking else 'they would fail from ' + when}"
-                    if differ else "")
-                 + (f"; {len(not_compared)} not compared (unstamped, no reference at the pin, "
-                    "skipped or malformed), which never fail" if not_compared else "") + ".")
+                    if differ else "") + ".")
+    if other:
+        lines.append(
+            f"  {len(other)} more cannot be compared because they are unstamped, "
+            "malformed or pin a commit with no floor text"
+            + (f" — {'failing now' if blocking else 'they would fail from ' + when}"
+               " unless archived") + ".")
+    if exempt_n:
+        lines.append(f"  {len(exempt_n)} exempt as archived.")
+    if not_compared:
+        lines.append(f"  {len(not_compared)} not compared (a skip marker, or CLAUDE.md "
+                     "unreadable), which never fail.")
     return lines
 
 

@@ -1026,7 +1026,7 @@ python3 tools/pins.py --log              # also print the commits each stale chi
 python3 tools/pins.py --child ../ros     # report only named repo(s) (repeatable; skips discovery)
 python3 tools/pins.py --root ~/code      # search a different root (repeatable)
 python3 tools/pins.py --json             # machine-readable, for a dashboard / CI gate
-python3 tools/pins.py --check            # exit 1 if any child is not current (CI/hooks)
+python3 tools/pins.py --check            # exit 1 if any child is not current, or from 2026-12-09 its floor copy fails (CI/hooks)
 python3 tools/pins.py --selftest         # prove the parse + classification offline
 ```
 
@@ -1044,9 +1044,9 @@ pin, `pins` now compares the copy with the canonical `floor` region, using
 | `identical` | word for word the floor at the child's **own pin**, placeholders filled | ✓ |
 | `drift` | differs: an edit, a compression, an unfilled placeholder, a re-wrap | ✗ |
 | `skipped` | a `stampscan:allow` marker inside the block skipped the comparison | ! |
-| `unstamped` | no `stamp:begin source=docs/method/PROPAGATION.md region=floor` in `CLAUDE.md`, so there is no copy to find | · |
-| `no-reference` | the pin predates the floor region markers, or is not in this checkout | · |
-| `malformed` | the stamp markers are broken | ? |
+| `unstamped` | no `stamp:begin source=docs/method/PROPAGATION.md region=floor` in `CLAUDE.md`, so there is no copy to find | ✗ |
+| `no-reference` | the pin predates the floor region markers, or is not in this checkout | ✗ |
+| `malformed` | the stamp markers are broken | ✗ |
 
 **The reference is the floor at the child's own pin**, read with `git show
 <pin>:docs/method/PROPAGATION.md`, not today's text. A child pinned in the past
@@ -1065,9 +1065,18 @@ option 2 being *block any repo whose copy differs*). `COPY_BLOCKS_FROM` is one
 dated constant compared with the UTC clock, in `leakscan`'s `BINARY_GRACE_UNTIL`
 style: no flag, env var or config key moves it, and the date prints on every run
 and in `--json` (`floor_copy`). From it a `drift` copy fails `--check` and the
-exit code like a stale pin. Only `drift` ever blocks: a copy `pins` cannot
-compare (`unstamped`, `no-reference`, `skipped`, `malformed`) is reported and
-never failed or passed. This is a fleet view run from atelier, not a child's own
+exit code like a stale pin. Four states block, not only `drift`: Mike's answer
+of 2026-11-09 to a later ask, *"Require a stamp by 9 Dec"*, adds `unstamped` (no
+stamp to compare), `no-reference` (an old pin, which bumping the pin fixes) and
+`malformed` (a broken stamp is not one). The line says what each needs. Two
+states are still only reported: `skipped` and `unchecked` (CLAUDE.md unreadable).
+**An archived repo is exempt**, since it can no longer be stamped or re-pinned.
+`pins` asks GitHub (`gh repo view`) only from the date and only about a child that
+would otherwise fail, so a clean fleet makes no call; if GitHub cannot be
+reached, or the repo has no GitHub remote, the child is not exempt and its line
+says the archive state was not established. `--json` `floor_copy` carries
+`would_fail`, `failing` and `archived_exempt` beside `differing`.
+This is a fleet view run from atelier, not a child's own
 CI, so a child's copy is still not checked at its own commit (`stampscan`
 cannot resolve a child's `source=`, ST3); the fleet report is what reaches it.
 
@@ -1937,7 +1946,8 @@ resolution story also has to be **pin-aware**, since a child pinned at
 `atelier@<SHA>` may lawfully differ from atelier@main. That is ST3, still open.
 What reaches a child's copy meanwhile is `pins`' floor-copy report (above): it
 runs `stampscan`'s comparison against the floor at each child's own pin, from
-atelier, report-only until 2026-12-09 and blocking after (`160/340`).
+atelier, report-only until 2026-12-09 and blocking after (`160/340`), for a copy
+that differs and, from the same date, one with no stamp.
 
 ## `memprobe.py` — measuring a guard's real peak memory from outside it
 

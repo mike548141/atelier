@@ -558,7 +558,7 @@ class FloorCopyReport(unittest.TestCase):
         info = self._eval(self._child("raw", self.v1, raw))
         self.assertEqual(info.copy, pins.COPY_DRIFT)
 
-    def test_states_that_cannot_be_compared_are_reported_not_failed(self):
+    def test_states_that_cannot_be_compared_are_reported_and_blocking_states_are_named(self):
         unstamped = self._eval(self._child("plain", self.v1, f"(pinned `atelier@{self.v1[:7]}`)\n"))
         self.assertEqual(unstamped.copy, pins.COPY_UNSTAMPED)
         old = self._eval(self._child("ancient", self.v0, f"(pinned `atelier@{self.v0[:7]}`)\n"))
@@ -570,9 +570,107 @@ class FloorCopyReport(unittest.TestCase):
         # comparison off, so the added line is a difference like any other.
         self.assertEqual(self._eval(self._child("allowed", self.v1, allowed)).copy, pins.COPY_DRIFT)
         broken = f"(pinned `atelier@{self.v1[:7]}`)\n<!-- stamp:begin source=x region=floor -->\nno end\n"
-        self.assertEqual(self._eval(self._child("broken", self.v1, broken)).copy, pins.COPY_MALFORMED)
-        for info in (unstamped, old, unknown):
-            self.assertFalse(pins.copy_blocks(info, datetime.date(2027, 1, 1)), "only drift ever blocks")
+        malformed = self._eval(self._child("broken", self.v1, broken))
+        self.assertEqual(malformed.copy, pins.COPY_MALFORMED)
+        # Before the date none of them blocks: report-only.
+        for info in (unstamped, old, unknown, malformed):
+            self.assertFalse(pins.copy_blocks(info, datetime.date(2026, 12, 8)))
+        # From the date every one of them does (160/340, "Require a stamp by
+        # 9 Dec"): each has a fix the child can make.
+        for info in (unstamped, old, unknown, malformed):
+            self.assertTrue(pins.copy_blocks(info, datetime.date(2026, 12, 9)), info.copy)
+        # A good copy never does, and the two reading-only states do not.
+        good = self._eval(self._child("good", self.v2, stamped(filled(FLOOR_V2, self.v2))))
+        self.assertFalse(pins.copy_blocks(good, datetime.date(2027, 1, 1)))
+        for state in (pins.COPY_SKIPPED, pins.COPY_UNCHECKED, pins.COPY_IDENTICAL):
+            fake = pins.ChildPin("x", "/x", "abc", pins.STATUS_CURRENT, 0, 0, [], copy=state)
+            self.assertFalse(pins.copy_blocks(fake, datetime.date(2027, 1, 1)), state)
+        self.assertEqual(set(pins.COPY_BLOCKING_STATES),
+                         {pins.COPY_DRIFT, pins.COPY_UNSTAMPED,
+                          pins.COPY_NO_REFERENCE, pins.COPY_MALFORMED})
+
+    def test_an_archived_repo_is_exempt_and_only_a_confirmed_one(self):
+        day = datetime.date(2026, 12, 9)
+
+        def info(archived):
+            return pins.ChildPin("x", "/x", "abc", pins.STATUS_CURRENT, 0, 0, [],
+                                 copy=pins.COPY_UNSTAMPED, archived=archived)
+        self.assertFalse(pins.copy_blocks(info(True), day), "archived: cannot be changed")
+        self.assertTrue(pins.copy_blocks(info(False), day))
+        self.assertTrue(pins.copy_blocks(info(None), day),
+                        "a lookup that failed or was never made is not an exemption")
+        drift = info(True)
+        drift.copy = pins.COPY_DRIFT
+        self.assertFalse(pins.copy_blocks(drift, day), "an archived copy cannot be re-copied either")
+
+    def test_the_archive_lookup_is_made_only_from_the_date_and_only_for_a_failing_child(self):
+        self._child("plain", self.v2, f"(pinned `atelier@{self.v2[:7]}`)\n")
+        self._child("good", self.v2, stamped(filled(FLOOR_V2, self.v2)))
+        asked = []
+
+        def fake(path):
+            asked.append(Path(path).name)
+            return True
+        with mock.patch.object(pins, "archived_on_github", side_effect=fake):
+            self.assertEqual(self._run("--check", today=datetime.date(2026, 12, 8)), 0)
+            self.assertEqual(asked, [], "report-only: no call at all")
+            self.assertEqual(self._run("--check", today=datetime.date(2026, 12, 9)), 0,
+                             "the one child that would fail is archived, so exempt")
+            self.assertEqual(asked, ["plain"], "only the child that would fail is asked about")
+
+    def test_archived_children_do_not_fail_the_copy_check_but_others_do(self):
+        # Both children are current at v2, so only the copy state can fail them.
+        self._child("plain", self.v2, f"(pinned `atelier@{self.v2[:7]}`)\n")
+        arch = self._child("arch", self.v2, f"(pinned `atelier@{self.v2[:7]}`)\n")
+        day = datetime.date(2026, 12, 9)
+        def by_path(p):
+            return Path(p).name == arch.name
+        with mock.patch.object(pins, "archived_on_github", side_effect=by_path):
+            self.assertEqual(self._run("--check", today=day), 1, "`plain` is not archived")
+        with mock.patch.object(pins, "archived_on_github", return_value=True):
+            self.assertEqual(self._run("--check", today=day), 0, "both archived, both exempt")
+
+    def test_the_github_remote_forms_are_read(self):
+        # The ssh form is the same host and path after its user part, which
+        # the pattern does not need (and a literal one reads as an email).
+        for url in ("https://github.com/example/child.git", "https://github.com/example/child",
+                    "github.com:example/child.git", "https://github.com/example/child/"):
+            m = pins.GITHUB_REMOTE_RX.search(url)
+            self.assertEqual(m.groups() if m else None, ("example", "child"), url)
+        for url in ("https://example.org/example/child.git", "/srv/git/child.git", ""):
+            self.assertIsNone(pins.GITHUB_REMOTE_RX.search(url), url)
+
+    def test_the_gh_lookup_is_fail_closed(self):
+        d = self.parent / "norem"
+        d.mkdir()
+        git(["init", "-q", "-b", "main"], d)
+        self.assertIsNone(pins.archived_on_github(d), "no origin: not established")
+        git(["remote", "add", "origin", "https://example.org/x/y.git"], d)
+        self.assertIsNone(pins.archived_on_github(d), "not a GitHub remote")
+        git(["remote", "set-url", "origin", "https://github.com/example/child.git"], d)
+        real_run = subprocess.run
+
+        def gh_as(result):
+            """`gh` answers as given (a result, or an exception to raise); git
+            runs for real, because the remote is read with it."""
+            def run(argv, *a, **kw):
+                if argv[0] != "gh":
+                    return real_run(argv, *a, **kw)
+                run.argv = argv
+                if isinstance(result, BaseException):
+                    raise result
+                return result
+            return run
+        ok = gh_as(mock.Mock(returncode=0, stdout="true\n"))
+        with mock.patch.object(pins.subprocess, "run", ok):
+            self.assertIs(pins.archived_on_github(d), True)
+        self.assertEqual(ok.argv[:4], ["gh", "repo", "view", "example/child"])
+        for bad in (mock.Mock(returncode=1, stdout=""), mock.Mock(returncode=0, stdout="maybe"),
+                    FileNotFoundError("gh"), pins.subprocess.TimeoutExpired("gh", 20)):
+            with mock.patch.object(pins.subprocess, "run", gh_as(bad)):
+                self.assertIsNone(pins.archived_on_github(d), repr(bad))
+        with mock.patch.object(pins.subprocess, "run", gh_as(mock.Mock(returncode=0, stdout="false\n"))):
+            self.assertIs(pins.archived_on_github(d), False)
 
     def test_report_only_before_the_date_blocking_from_it(self):
         reworded = filled(FLOOR_V2, self.v2).replace("always", "sometimes")
@@ -600,8 +698,10 @@ class FloorCopyReport(unittest.TestCase):
         self.assertIn("report-only until 2026-12-09", text)
         self.assertIn("1 of 1 copies differ", text)
         payload = json.loads(text[text.index("{"):])
-        self.assertEqual(payload["floor_copy"], {"blocks_from": "2026-12-09", "blocking": False,
-                                                 "differing": ["edited"]})
+        self.assertEqual(payload["floor_copy"], {
+            "blocks_from": "2026-12-09", "blocking": False, "differing": ["edited"],
+            "blocking_states": ["drift", "unstamped", "no-reference", "malformed"],
+            "would_fail": ["edited"], "failing": [], "archived_exempt": []})
         self.assertEqual(payload["children"][0]["copy"], "drift")
 
     def test_the_four_placeholders_are_the_only_angle_tokens_in_the_real_floor_region(self):
