@@ -28,3 +28,5 @@
   - [ ] 📎 Filed as a new item rather than folded into `360/010` because that
         item is about naming a *launch* before widening its announcement — a
         narrower, already-scoped concern than general cross-repo awareness.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
+        not a ruling):** *"Build a machine-wide view"* (not the recommended option): a machine-wide view of live work across repos; the one-line open-PR check is in `CLAUDE.md` step 6 already. Not yet designed or built.

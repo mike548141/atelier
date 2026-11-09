@@ -66,3 +66,5 @@
       `why` field, its format (cheap-failure or forbids-the-act, alongside
       this item's wider fields), and the check that reads it land together
       as this item's build.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
+        not a ruling):** *"Everything, on every check now"* (not the recommended option): each check states all four fields now, purpose and proof it fires included, even where existing checks fail the bar. Also answers `115/010`, `300/040`. Not yet built.

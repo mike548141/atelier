@@ -29,3 +29,5 @@
       makes their scope reductions look like defects rather than tuning, which
       is either the point or an argument against, depending on how much appetite
       there is for re-opening settled scopes.
+  - [ ] 💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
+        not a ruling):** *"Everything, on every check now"*, put to him with `115/120`.
