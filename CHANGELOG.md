@@ -28,6 +28,11 @@ words, except where quoted).
   source (`115/020`; *"Work it out from the source"*).** Compute it from how a
   fact was obtained, who supplied it and its age; store a rough rank only where
   one method itself varies, never a bare score. House rule only; no tool.
+- **The board-states design draft is revised to his answers (`310/160`).** A
+  maybe-later item is plain open work with no mark (his words); the waiting
+  field narrows to a real blocker and is put to him as the one open question;
+  only he may close commissioned work, a session may retire its own idea; the
+  known 45 non-delivery ticks are fixed and the rest left. Still a draft.
 
 ### Changed (2026-11-09 — three review rulings applied: `160/790`, `160/340`, `160/020`, `200/030`)
 Mike's answers of 2026-11-09 (answers to options offered, not rulings in his own

@@ -1,7 +1,8 @@
-# Board states: two tiers, a tick that means done, and waiting as a field
+# Board states: two tiers, a tick that means done, and a blocker as a field
 
 **Status**: proposed (draft; binds nothing until Mike rules on it) •
-**Date**: 2026-11-09
+**Date**: 2026-11-09 • **Revised**: 2026-11-09, to his three answers on the
+first version (recorded on `310/160`; see *Decided by him* below)
 
 **Review**: owed. A rule-4 design cold pass before acceptance, because this
 sets a file format about ten repos build to. It is Fable work and waits for
@@ -9,6 +10,7 @@ Mike's approval.
 
 Commissioned on `310/160`; his words are on `310/060`. Prior analysis:
 `310/060`, `310/070`, `010/100`, `310/080`, `420/020`. Nothing below is built.
+The re-review is queued as `160/1230` and runs on this revised text.
 
 ## Outcome
 
@@ -17,8 +19,10 @@ no more work) and add **two** boxes: `[-]` *closed without being delivered*,
 which is what makes the tick mean done, and `[/]` *partly delivered*, which
 stops `[~]` meaning two things. A `[-]` carries a required word (not required,
 superseded, duplicate, moved). A parent with child items gets a counted
-roll-up, checked against its children. Waiting becomes a field beside the box,
-never a box. Every change is additive, so no child goes red unannounced.
+roll-up, checked against its children. A real blocker becomes a field beside
+the box, never a box; a maybe-later item is not a blocker, and stays plain open
+work with no mark at all (his words, below). Every change is additive, so no
+child goes red unannounced.
 
 ## His words on states, found and quoted
 
@@ -40,6 +44,7 @@ reach (other option-pick turns, or a page that was never quoted back).
 | 2026-08-18, a child session | *"Give me a full view of all the work claimed, underway/in-flight, or to be done"* |
 | 2026-10-03, atelier session `c3355b80` (39+3) | *"I remember us specifying only `[ ]` `[-]` and `[*]`. I was pushing to add more but you (claude) pushed back and I said we could wait until we have clear use cases"* |
 | 2026-09-09, a child session | The page he asked to have offered to every repo (`320/280`) grouped work as *open*, *part done*, *waiting on you* and *your call* |
+| 2026-11-09, his answer to the first draft's second question | *"stays on the list as work to do, not parked or waiting. Just not done at that moment in time"* |
 | 2026-11-09, this commission | Two tiers, a general class *"no more work to be done on this item and any children"*, child classes *"done / work completed"*, *"not required"*, *"supersceeded"*, *"duplicate"*, *"a mixed status or an in-progress for when there are child pieces of work"* |
 
 **🔑 A record here is wrong, and it matters.** `310/080` says he *"never typed
@@ -124,7 +129,10 @@ advisory form.
    part-delivered item nobody holds. A session obeying the legend skips work
    that is free; `ccclose` counts them as claims.
 3. **An open box hides why it is open.** About half of a 40-item sample is not
-   takeable now, and the box says nothing.
+   takeable now, and the box says nothing. Of those, the 5 waiting on something
+   named are blockers a mark can show; the 3 ideas or held items are
+   maybe-later work, which he has ruled stays plain open work (below), so the
+   box still says nothing for them, by his choice.
 4. **`⏳` means two things.** A queued review in the legend and in
    `pointerscan`; waiting in most of its 162 uses on `[ ]` lines.
 5. **A parent has no state of its own.** 96 of 172 sections are mixed; item
@@ -177,32 +185,52 @@ required"*), which is his "mixed" with no extra state. A section is a parent
 for free: the generator can roll up its folder, and that is phase 2 of the
 migration (it touches every section line).
 
-**Waiting is a field, not a state.** Waiting changes while the work does not,
-several reasons can hold at once, and a box cannot say two things. It is one
-fragment beside the box, in the same family as `(claimed …)`, lifted to the
-index:
+**A real blocker is a field, not a state; "maybe later" is not a blocker.**
+A blocker is something outside the work that must happen first and that a
+session cannot supply: his decision, a date, another repo's change, evidence not
+yet in. It changes while the work does not, several can hold at once, and a box
+cannot say two things, so it is one fragment beside the box, in the same family
+as `(claimed …)`, lifted to the index:
 
-`(waiting: him)` · `(waiting: 2026-11-18)` · `(waiting: fable)` ·
-`(waiting: <repo>)` · `(waiting: evidence)`, each with a short reason in the
-text.
+`(waiting: him)` · `(waiting: 2026-11-18)` · `(waiting: <repo>)` ·
+`(waiting: evidence)`, each with a short reason in the text.
 
 A session takes `[ ]` or `[/]` with no claim and no waiting field. `⏳` keeps
-its one meaning, and a child's other `⏳` becomes a waiting field when next
-touched (`310/070`'s `⏳` half). "Parked" (*not now, maybe later*) is an open
-item with a waiting field, not a closed one: he drew that line himself, of a
-register: *"the register should have a lost state because it is quite
-different to disposed as it may come back"*.
+its one meaning, and a child's other `⏳` that names a real blocker becomes a
+waiting field when next touched (`310/070`'s `⏳` half).
 
-**Who may set what.**
+**"Not now, maybe later" gets no mark at all (Mike, 2026-11-09).** The first
+version of this draft marked it as waiting, and recommended that. He rejected
+it, in his own words: *"stays on the list as work to do, not parked or waiting.
+Just not done at that moment in time"*. So a maybe-later item is plain open
+work, `[ ]`: not parked, not held, not closed, and not marked. The first
+version's support for the opposite, his line about another list (*"the register
+should have a lost state … as it may come back"*), is withdrawn: it was said of
+a register, and his later words on this list are plain. What it costs: the box
+cannot tell a session "takeable now" from "maybe later", and this design does
+not try to; a session judges whether to take an open item as it does today.
+
+**Whether the waiting field survives at all is now the one open question** (put
+below). His answer was about maybe-later work. It did not say whether a real
+blocker keeps a mark, and the draft does not read it as saying so. The field is
+kept here for a real blocker only, because that is the case where a session
+taking the work cannot finish it, and a session has built an item whose text
+said *"unruled"* for exactly want of a mark.
+
+**Who may set what.** Decided on 2026-11-09 (his pick on the first version's
+first question, read as the option that reserved the call to him: *"You, except
+a session's own idea"*).
 
 | Move | Who | Basis |
 |---|---|---|
 | Open → claim, `[/]`, `[x]` | Any session | Evidence at landing, as today |
 | `[-] superseded`, `duplicate`, `moved` | Any session | The named target, checked to exist |
-| `[-] not-required`, on work Mike commissioned | Mike only | His words or his answer, recorded |
-| `[-] not-required`, on a session's own filing | The session | A stated reason, marked as a session's call |
+| `[-] not-required`, on work Mike or a client commissioned | Mike only | His words or his answer, recorded |
+| `[-] not-required`, on a session's own idea | The session | A stated reason, marked as a session's call |
 
-Who may close Mike's own commissioned work is put to him below.
+A session that wants commissioned work dropped asks him and waits; it does not
+close the item. Whether an idea is "its own" is judged by who first proposed the
+work, and an item a session filed on his instruction is his.
 
 **Answer or ruling.** Where a state rests on his decision, the line carries
 ⚖️ (a ruling: his own words, quoted in the file) or 💬 (an answer: his pick
@@ -223,7 +251,7 @@ a green tick unless it was delivered.
 | `[-] superseded by X` | `- 🔁 superseded` | Closed, see X |
 | `[-] duplicate of X` | `- 🪞 duplicate` | Closed, see X |
 | `[-] moved to X` | `- ➡️ moved` | Closed here, lives elsewhere |
-| `(waiting: him)` beside any live box | `- [ ] ⏸️ him` | Not takeable; a decision or hands |
+| `(waiting: him)` beside any live box (a real blocker only) | `- [ ] ⏸️ him` | Not takeable; a decision or hands |
 | parent with roll-up | Its box, then *"3 done, 1 live, 2 open"* | Read the children |
 
 ## Shapes compared
@@ -249,9 +277,10 @@ a green tick unless it was delivered.
    `CONCURRENCY.md` claim rule and the review tool's note.
 4. **Children, per item, at their own pace.** The 36 non-claim `[~]` are read
    one by one to `[/]` or `[ ]`: 36 judgements, not a migration (`010/100`). The
-   45 named `[x]` go to `[-]` the same way (question 3). Anything else stays as
-   it is.
-   `board --check` warns, never reds, on old shapes.
+   45 named `[x]` go to `[-]` the same way: he decided to fix the known 45 and
+   leave the rest. Anything else stays as it is, and the legend tells sessions
+   not to rely on an old tick without reading the item. `board --check` warns,
+   never reds, on old shapes.
 5. **The check tightens later, on a date, after the warning has run.** `[~]`
    without a claim, `[-]` without a word or target, a closed parent with a live
    child. A red never arrives unannounced.
@@ -261,7 +290,8 @@ a green tick unless it was delivered.
    never overlap. Pre-existing `board --check` semantics do not change.
 
 **Tools must change:** `STATE_RE`, `index_line`'s glyph map and a word parser
-in `board.py`, with the `(waiting: …)` and `children:` readers; `pointerscan`'s
+in `board.py`, with the `(waiting: …)` reader (real blockers only) and the
+`children:` reader; `pointerscan`'s
 `_MARKER`; `harvestscan`'s `ITEM_RE`; `sizescan`'s `_COLD_ITEM` and `_LIVE_ITEM`;
 `ccclose`'s `ITEM_STATE`, `STATE_LINE` and `CLAIM_LINE` (a claim needs the
 fragment); and the private child's queue tool. Legends: the house one and the
@@ -276,44 +306,42 @@ template, with children pointing at it instead of copying.
 - **Waiting as states** (`[w]`, on-hold): waiting moves while work does not,
   and two reasons can hold at once; the state count would grow with every new
   reason.
+- **A waiting or parked mark on a maybe-later item:** the first version's
+  recommendation, rejected by him on 2026-11-09 (*"not parked or waiting"*).
 
-## 🎯 Questions for him
+## Decided by him, 2026-11-09
 
-Each is in plain language and checked against what he has already said.
+His answers to the first version's three questions (recorded on `310/160`).
+The first and third are picks from options a session wrote, so by `420/020`
+they are answers, not rulings; the second is in his own words.
 
-**1. Who may decide a piece of work is not needed?** He has closed work himself
-(*"close this as not required by my ruling"*, 2026-10-20) and nothing covers
-the rest. Options: (a) only he may, on work he or a client asked for; a session
-may retire its own proposal, saying so and giving the reason. (b) Only he may,
-always. (c) A session may close anything, with a dated reason, and he can
-reverse it. **Recommended: (a).** It keeps his calls his, and stops a session
-quietly dropping what he asked for. A session's own false alarm is not his to
-adjudicate.
+| Question | His answer | Where it is applied |
+|---|---|---|
+| Who may decide a piece of work is not needed? | *"You, except a session's own idea"*: he decides, and a session may retire only its own idea | *Who may set what* |
+| "Not now, maybe later": does it stay on the to-do list? | *"stays on the list as work to do, not parked or waiting. Just not done at that moment in time"* | *"Not now, maybe later" gets no mark at all*; the waiting field narrowed to a real blocker |
+| The roughly 1,190 closed items: how much to correct? | *"Fix the 45 known; leave the rest"* | Migration step 4; *Consequences* |
 
-**2. "Not now, maybe later": does it stay on the to-do list?** Options: (a) it
-stays, marked as waiting, so nothing vanishes and no session grabs it. (b) A
-separate *parked* status that sits off the to-do list. (c) It closes, and a new
-item reopens it if it returns. **Recommended: (a).** His own *"it may come
-back"* (2026-10-20, on another list) is the reason it must not close; a
-separate status adds a pile with no job to do.
+## 🎯 The one question left for him
 
-**3. The roughly 1,190 already-closed items: how much to correct?** Most are
-truly finished, but some are not, and we cannot tell which without reading
-them. Reading all of them is about 7 MB, around 2 million tokens before any
-judgement. Options: (a) correct the 45 items that already say they were not
-delivered, leave the rest, and tell sessions not to rely on an old tick
-without reading the item. (b) Have sessions re-read and label every closed
-item now. (c) Take the green tick away from every old item so none looks
-finished, at the cost of the many that are. **Recommended: (a):** a small
-known cost, and it stops the error growing. Choose (b) if a false tick from the
-past is expensive enough to pay for once.
+**Does a real blocker still get a mark?** Some open work cannot be done yet for
+a plain reason outside the work: it needs his decision, a date, or another
+repo's change. His answer above was about maybe-later work, which is not that.
+Options: (a) a blocker carries a short `(waiting: …)` mark, so a session does
+not take work it cannot finish, and a reader can list what is stuck and on whom.
+(b) No mark: blocked work reads as plain open work and the reason stays in the
+text, as it does today. **Recommended: (a).** Half of a 40-item sample was not
+takeable now, and a session has built an item whose own text said *"unruled"*
+because an open box reads as takeable. Choose (b) for the simplest list, at the
+cost of those errors continuing.
 
 ## Consequences
 
 The tick means done. A session can list what it may take without reading the
-items, the stated condition for promotion is met, and the record of what closed
+items (a real blocker is marked, a maybe-later item is not), the stated
+condition for promotion is met, and the record of what closed
 and why survives in the index. `[~]`'s meaning narrows, and the house takes on
 one new parser and a word grammar to keep true. Old ticks stay ambiguous under
-question 3's recommendation, and that is a stated cost. `310/080`'s text and
+his answer on them (fix the known 45, leave the rest), and that is a stated
+cost. `310/080`'s text and
 the legend's "ruling" wording are corrections owed by whoever lands this; this
 draft changes neither.
