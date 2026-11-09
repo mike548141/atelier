@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: a loose end makes the close "not ready
+- [ ] ⏳ **Rule-4 cold pass queued: a loose end makes the close "not ready
       until you decide", a refused call is an ask and never routed around,
       and ccclose's scratch-folder check and refused-delete re-route flag
       (`180/170`, `180/180`).** This is standing close and autonomy doctrine
@@ -17,3 +17,9 @@
       *Intent records:*
       [`../180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md`](../180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md),
       [`../180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md`](../180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session d4a0fcf3 (Opus 5.5, headless,
+      started by coordinating session 74f2b8cd; neither authored this delta):
+      `docs/reviews/2026-11-09-0207-close-loose-ends-refusals-cold.md`, with
+      its `.deferred.md` sibling. Pass size: medium. Review NOT run: this pass
+      waits for a criterion-passing cold Fable session and the principal's
+      explicit permission for Fable work. Neither named session may run it.

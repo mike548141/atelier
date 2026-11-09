@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: the `pre-merge-commit` hook, the repo-local
+- [ ] ⏳ **Rule-4 cold pass queued: the `pre-merge-commit` hook, the repo-local
       seam documentation, and the five content scanners reading the staged index
       (`115/340`, `320/560`, `320/600` both slices).** The merge hook and the
       five scanners reach every child's hook plane and next CI run, and
@@ -23,3 +23,9 @@
       [`../115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md`](../115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md),
       [`../320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md`](../320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md),
       [`../320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md`](../320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session d4a0fcf3 (Opus 5.5, headless,
+      started by coordinating session 74f2b8cd; neither authored this delta):
+      `docs/reviews/2026-11-09-0207-merge-hook-staged-scanners-cold.md`, with
+      its `.deferred.md` sibling. Pass size: large. Review NOT run: this pass
+      waits for a criterion-passing cold Fable session and the principal's
+      explicit permission for Fable work. Neither named session may run it.

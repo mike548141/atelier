@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS,
+- [ ] ⏳ **Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS,
       IPTC, XMP, PNG text) field by field, with a dated migration for
       type-level lines, and `nz-phone` skips digit runs inside hex digests
       (`020/450` parts 1 and 2, `320/470`).**
@@ -16,3 +16,12 @@
       *Intent records:*
       [`../020-policy-as-code-programme-five-tracks-mik/450-g3-keeps-image-metadata-field-by-field-not-by-data-type.md`](../020-policy-as-code-programme-five-tracks-mik/450-g3-keeps-image-metadata-field-by-field-not-by-data-type.md),
       [`../320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md`](../320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session d4a0fcf3 (Opus 5.5, headless,
+      started by coordinating session 74f2b8cd; neither authored this delta):
+      `docs/reviews/2026-11-09-0207-g3-field-level-nz-phone-digest-cold.md`,
+      with its `.deferred.md` sibling. Pass size: large. Review NOT run: this
+      pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work. Neither named session
+      may run it.
+      🗒️ Noted 2026-11-09: `29021b9`, cited above, is a pre-rebase hash that
+      is not on `main`; the landed part 1 commit is `2ba261b`.

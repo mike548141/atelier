@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: `ccapple`, a read-only search of the
+- [ ] ⏳ **Rule-4 cold pass queued: `ccapple`, a read-only search of the
       Apple apps' local stores, landed before its review on the principal's
       word.** Mike, 2026-11-03, through the decision device, of three routes
       for PR #126 (keep it open for a review, merge it now and review after,
@@ -20,3 +20,9 @@
       on `main`, 2026-11-03).
       *Intent records:* PR #126's description, and
       [`../210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md`](../210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session d4a0fcf3 (Opus 5.5, headless,
+      started by coordinating session 74f2b8cd; neither authored this delta):
+      `docs/reviews/2026-11-09-0207-ccapple-cold.md`, with its `.deferred.md`
+      sibling. Pass size: large. Review NOT run: this pass waits for a
+      criterion-passing cold Fable session and the principal's explicit
+      permission for Fable work. Neither named session may run it.

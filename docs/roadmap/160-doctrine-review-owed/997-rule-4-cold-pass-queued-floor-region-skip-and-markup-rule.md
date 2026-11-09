@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: `pathscan` skips a child's inlined floor
+- [ ] ⏳ **Rule-4 cold pass queued: `pathscan` skips a child's inlined floor
       region, and `conflictscan` reports tool-call markup as an advisory
       (`320/610`, `320/490`).** Both scanners reach every child's next CI
       run, so the authoring session (a principal-opened Opus 5.5 queue run,
@@ -14,3 +14,10 @@
       *Intent records:*
       [`../320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md`](../320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md),
       [`../320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md`](../320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session d4a0fcf3 (Opus 5.5, headless,
+      started by coordinating session 74f2b8cd; neither authored this delta):
+      `docs/reviews/2026-11-09-0207-floor-region-skip-markup-rule-cold.md`,
+      with its `.deferred.md` sibling. Pass size: medium. Review NOT run: this
+      pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work. Neither named session
+      may run it.

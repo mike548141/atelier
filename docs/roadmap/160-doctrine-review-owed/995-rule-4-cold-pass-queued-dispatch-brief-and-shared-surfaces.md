@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: the dispatch brief, the pathspec and
+- [ ] ⏳ **Rule-4 cold pass queued: the dispatch brief, the pathspec and
       leaver's rules for the shared index, the long-check poll, the shared
       process table and load, worktree names, brief reading, the stop
       triage and the device at close (`180/120`–`180/160`, `320/350`,
@@ -23,3 +23,10 @@
       [`../320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md`](../320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md),
       [`../320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md`](../320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md),
       [`../320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md`](../320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session d4a0fcf3 (Opus 5.5, headless,
+      started by coordinating session 74f2b8cd; neither authored this delta):
+      `docs/reviews/2026-11-09-0207-dispatch-brief-shared-surfaces-cold.md`,
+      with its `.deferred.md` sibling. Pass size: medium. Review NOT run: this
+      pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work. Neither named session
+      may run it.

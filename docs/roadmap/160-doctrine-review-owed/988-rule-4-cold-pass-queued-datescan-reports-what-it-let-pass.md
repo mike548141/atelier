@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-0105, wt: under ~/worktrees/briefs, brief only, session d4a0fcf3) ⏳ **Rule-4 cold pass queued: datescan's blockquoted lines report
+- [ ] ⏳ **Rule-4 cold pass queued: datescan's blockquoted lines report
       their dating without blocking (`115/090`).** This is a response tier
       on a blocking guard, the second built to Mike's answers on the item.
       So the authoring session (a principal-opened Opus 5.5 queue run,
@@ -13,3 +13,9 @@
       `main`, 2026-11-03).
       *Intent record:*
       [`../115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md`](../115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md).
+      📝 BRIEF WRITTEN 2026-11-09 by session d4a0fcf3 (Opus 5.5, headless,
+      started by coordinating session 74f2b8cd; neither authored this delta):
+      `docs/reviews/2026-11-09-0207-datescan-blockquote-reports-cold.md`, with
+      its `.deferred.md` sibling. Pass size: medium. Review NOT run: this pass
+      waits for a criterion-passing cold Fable session and the principal's
+      explicit permission for Fable work. Neither named session may run it.
