@@ -381,6 +381,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: blockscan reads edits inside mapped…](roadmap/160-doctrine-review-owed/1320-rule-4-cold-pass-queued-blockscan-subsections.md)
 - [ ] ⏳ [Rule-4 cold pass queued: attribscan, an attribution to the principal…](roadmap/160-doctrine-review-owed/1330-rule-4-cold-pass-queued-attribscan.md)
 - [ ] ⏳ [Rule-4 cold pass queued: pdlistscan, personal data in a public repo…](roadmap/160-doctrine-review-owed/1340-rule-4-cold-pass-queued-pdlistscan.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccclose names a failed agent as its own…](roadmap/160-doctrine-review-owed/1350-rule-4-cold-pass-queued-ccclose-failed-state.md)
 
 ## build/ layer — open strands
 
