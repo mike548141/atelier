@@ -229,19 +229,28 @@ agent that same `tool_result` is only "launched", and does not count.
 | ✅ reported | finished, and a `completed` notification (or, foreground, the `tool_result`) |
 | ✅ stopped on purpose | a `killed` or `stopped` notification, whatever the transcript says. Named, never hidden: an orchestrator that stops a duplicate is doing right. |
 | ⚠️ unconsumed | finished by its own transcript, but the parent has no notification: the result was never read. Also a `completed` notification over a transcript that stops short of `end_turn`, and a status the tool does not know. |
+| ❌ still running | no finished final turn and no notification, but the agent's own transcript is still growing: its last record is at most 10 minutes old by the clock (`FRESH_MS`), and the parent has recorded nothing more than 10 minutes after it. Also an agent resumed after its `completed` notification that is growing again. |
 | ❌ cut mid-flight | no finished final turn and no completed, killed or stopped notification. Also an agent resumed after its `completed` notification (records later than the notification) and cut again. |
 | ➖ | no transcript, or no `subagents/` directory ("not applicable", never a pass) |
 
-The check is ❌ when any agent is cut, else ⚠️ when any is unconsumed, else ✅.
+Ten minutes is a bound from a census of 3,587 real agent logs (881,904 gaps
+between consecutive records): 99% of gaps are 83 s or less, 99.9% are 600 s or
+less, and 600 s is the longest one foreground command may run. A dead agent
+therefore reads as running for up to that long, and its line says how long
+ago it last wrote. Running fails the check like cut, because a close under a
+working agent is the hazard, but never calls a live agent dead (210/380).
+
+The check is ❌ when any agent is cut or running, else ⚠️ when any is unconsumed, else ✅.
 Its line prints every count, zeros included (`N agent(s) · R reported · S
-stopped on purpose · U finished, result never consumed · C cut mid-flight`),
+stopped on purpose · U finished, result never consumed · W still running ·
+C cut mid-flight`),
 then one line per agent (short id, description, end), problems first so the
 cap never hides one. An empty directory is a known zero and passes. If the
 transcript exists but cannot be read, the line is ⚠️ unknown, because no
 notification can be matched. `--json` adds `counts` and the capped `agents`
 list to this check. Like the rest it is read-only. The session running the
 check is live, so its own still-running agents (a worker, a reviewer) show ❌
-until they end: that is the intended answer to "ready to close?".
+(running) until they end: that is the intended answer to "ready to close?".
 
 **Pass and fail on the floor (8), precisely.** The sha checked is the newest
 commit from the window that the default branch's remote-tracking ref contains,

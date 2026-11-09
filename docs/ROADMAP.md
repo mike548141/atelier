@@ -433,7 +433,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🤔 [Per-transcript topic capture — idea to consider (Mike, 2026-08-02; no…](roadmap/210-instruments-open-features/040-per-transcript-topic-capture-idea-to-consider.md)
 - ✅ 🔎 [Archive-mode pool construction dominates every --from-archive run,…](roadmap/210-instruments-open-features/050-archive-mode-pool-construction-dominates-every.md)
 - [ ] [Context as a share of the window](roadmap/210-instruments-open-features/060-context-as-a-share-of-the-window.md)
-- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-instr, ses…) [finished counts logs, not…](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
+- ✅ [finished counts logs, not successes — and a dead agent still leaves a…](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
 - ✅ [think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
 - [ ] [Subagent logs are outside every cctranscript view.](roadmap/210-instruments-open-features/090-subagent-logs-are-outside-every-cctranscript-v.md)
 - ✅ 🔥 [cctranscript never reads the principal's mid-turn messages, and its…](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
@@ -464,8 +464,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
 - ✅ [ccclose --identifiers drops a worktree made in a shell loop, and the…](roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md)
 - ✅ 🔎 [ccclose --identifiers lists board items in text order, so 160/1000…](roadmap/210-instruments-open-features/370-ccclose-sorts-board-ids-as-text.md)
-- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-instr, s…) [ccclose classes a subagent…](roadmap/210-instruments-open-features/380-ccclose-classes-a-running-subagent-as-cut.md)
+- ✅ 🔎 [ccclose classes a subagent that is still running as "cut mid-flight".](roadmap/210-instruments-open-features/380-ccclose-classes-a-running-subagent-as-cut.md)
 - ✅ 🔎 [The Python test suite needs 3.11 or later and does not say so.](roadmap/210-instruments-open-features/390-the-suite-needs-python-3-11-and-does-not-say-so.md)
+- [ ] 🔎 [A failed agent notification is a status ccclose does not know, and…](roadmap/210-instruments-open-features/400-a-failed-agent-notification-is-a-status-ccclose-does.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

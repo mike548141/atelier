@@ -20,6 +20,21 @@ Doctrine wording only; no scanner or tool changes.
   before sending, check every term a reader could not have met and introduce it
   once. A scanner for this was measured and rejected, so it stays wording.
 
+### Added (2026-11-09 — `ccclose` tells a running agent from a cut one, `210/380`)
+- **`ccclose` check 12 has a fourth agent state, *still running*.** An agent
+  with no end recorded was always called cut mid-flight, so a close under a
+  live worker read as "the agent is dead". It is now running when its
+  transcript last grew under ten minutes ago (`FRESH_MS`) and the parent has
+  recorded nothing more than ten minutes after it, and its line says how long
+  ago. The bound comes from a census of 3,587 agent logs: 99.9% of gaps
+  between records are 600 s or less, the longest a foreground command runs.
+  Running still fails the check; cut is kept for an agent gone quiet. A new
+  `still running` count sits in the summary line, `--json` `counts` and the
+  identifiers block. `210/070` was measured and declined: a missing
+  `end_turn` flags 130 completed agents for every 50 failed ones. The same
+  census found the parent records a `failed` status that `ccclose` does not
+  yet know (`210/400`).
+
 ### Changed (2026-11-09 — the principal's answers on `160/340`, `115/020`, `310/160` applied)
 His answers to options a session offered (answers, not rulings in his own
 words, except where quoted).
@@ -294,12 +309,6 @@ this machine, old scanner against new, and no repo's blocking result changed.
   registry `why` and the README heading now name the class, the left-out list
   lives in one place (PL4), and one comment no longer describes what a survey
   found tracked (PL3; the pushed commit body is a frozen record).
-
-
-
-
-
-
 
 ### Changed (2026-11-09 — the hand-up route: parent-side duties, scope of the duty, vulnerability-class defects, `160/300` RU2–RU6, RU12)
 Mike's answer of 2026-11-09: the cold pass's counsel applied as written. RU1 and
@@ -1200,7 +1209,6 @@ made firm for every child**.
   no longer inherit the host's commit-signing config (QS9). `test_pins.py`'s
   bounded-memory pins time out at 600 s, a hang guard, instead of 60 s, so a
   loaded machine no longer reds the suite as a memory defect (QU3).
-
 
 ### Added (2026-11-07 — secretscan: an exempt file is still read for a real private key, `115/380`)
 - **A file a `.secretscanignore` glob skips now gets one narrow, advisory
@@ -2335,7 +2343,6 @@ file, and `--search` **is** the bulk read, so the note now states the
 flags-follow-operation rule in both directions. Rule-4 pointer queued at
 landing; the item itself said review was warranted at the design-to-build move.
 
-
 ### Fixed (2026-08-09 — worktree.py works from inside a worktree)
 The tool that is CONCURRENCY.md as a command failed at the one cwd an operator
 is most likely to be in when they land work. From inside a linked worktree,
@@ -2358,7 +2365,6 @@ would have introduced was caught in the same pass: a detached worktree's branch
 reads as the literal `"HEAD"`, which `merge-base` would have resolved in the
 main tree and called merged. Tests 12 → 27 on the module, suite 1222 → 1237.
 Five pre-existing defects the fix surfaced were queued rather than taken.
-
 
 ### Added (2026-08-09 — the subagent metadata sidecar is archived)
 Mike ruled this a new capture class on 2026-07-28 and it is now built.
@@ -2415,7 +2421,6 @@ than taken on the commit message's word) and the floor-local-seam verdict
 pointer, which had **diagnosed itself** as residue in its own text and still
 sat there as `[ ] 🎯`, inflating the count of rulings Mike was said to owe.
 Naming residue is not clearing it.
-
 
 ### Fixed (2026-08-09 — an allowance reason may open with a quote)
 Found by the estate exception audit, from a live failure rather than a read:

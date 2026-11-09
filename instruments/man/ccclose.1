@@ -246,9 +246,24 @@ A stopped agent is named in the list, never hidden.
 Finished by its own transcript, but the parent has no notification: the
 result was never consumed.
 .IP "fail"
-No finished final turn and no completed, killed or stopped notification:
-the agent was cut mid-flight.
-An agent resumed after its completed notification and cut again fails too.
+No finished final turn and no completed, killed or stopped notification,
+which is one of two states.
+An agent whose transcript is still growing is
+.BR "still running" :
+its last record is under ten minutes old by the clock, and the parent has
+recorded nothing more than ten minutes after it.
+Any other is
+.BR "cut mid-flight" .
+Both fail, since a close under a working agent is the hazard, but only the
+second says the agent is dead.
+An agent resumed after its completed notification is judged the same way.
+The ten minutes is a bound: in a census of 3,587 agent logs, 99.9% of the
+gaps between records were 600 seconds or less, which is also the longest
+a single foreground command may run.
+A dead agent therefore reads as running for up to ten minutes after its last
+record, and the line says how long ago that was; run
+.B ccclose
+again to settle it.
 .IP "not applicable"
 No transcript, or no
 .I subagents/
@@ -259,7 +274,8 @@ The line counts every state, zeros included, and each agent is listed with
 its short id, description and end, problems first.
 The session running
 .B ccclose
-is live, so its own agents still working show as cut until they end.
+is live, so its own agents still working show as still running until they
+end.
 .TP
 .B Scratch folder empty
 The scratch folder is the one the harness recorded in the transcript's

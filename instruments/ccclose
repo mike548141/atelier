@@ -1287,6 +1287,16 @@ function checkBypasses(t) {
 const SHORT = 7;
 const STOP_STATUS = new Set(['killed', 'stopped']);
 
+// How long an agent's transcript may sit silent and still be read as running.
+// Ten minutes, from a census of 3,587 real agent logs (881,904 gaps between
+// consecutive records): the 99th percentile gap is 83 s, the 99.9th is 600 s,
+// and 600 s is also the longest a single foreground command may run, so a
+// working agent waiting on one is silent for at most that. Past it, the
+// transcript is more likely stalled or dead than slow. It is a bound, not a
+// measurement of any one agent: a dead agent reads as running for this long
+// after its last record, and the line says how long ago that was.
+const FRESH_MS = 600000;
+
 // One agent's own transcript: the last assistant record's stop_reason (the
 // streamed partials before it carry null) and what that record held. A SendMessage
 // resume appends to the same file, so the LAST assistant record is the final turn.
@@ -1306,8 +1316,24 @@ async function readAgent(file) {
   return a;
 }
 
+// Still running: no end of any kind in the parent, and the agent's own
+// transcript still growing. "Growing" is two tests against evidence in the data:
+// its last record is recent by the clock, and the parent has not recorded
+// anything FRESH_MS after it (a parent that carried on while the agent stayed
+// silent has seen the agent stall). A parent idle while its agent works, or the
+// checking session itself, passes both.
+function runningVerdict(a, parent, now) {
+  if (a.lastTs === null || now - a.lastTs > FRESH_MS) return null;
+  if (parent.last !== null && parent.last - a.lastTs > FRESH_MS) return null;
+  const secs = Math.max(0, Math.round((now - a.lastTs) / 1000));
+  const ago = secs < 90 ? `${secs} s` : `${Math.round(secs / 60)} min`;
+  return { state: 'running', status: 'fail',
+    end: `still running: its transcript last grew ${ago} ago and no end is recorded; wait for it or stop it before closing` };
+}
+
 // The verdict on one agent, from its own transcript and the parent's record.
-function judgeAgent(a, parent) {
+// `now` is the clock the freshness test reads (a seam for the tests).
+function judgeAgent(a, parent, now = Date.now()) {
   const finished = a.stop === 'end_turn';
   const note = parent.notes.get(a.id) || null;
   const foreground = a.meta.requestShape === 'foreground';
@@ -1324,6 +1350,7 @@ function judgeAgent(a, parent) {
     // Notified complete, yet the file does not end on end_turn. Records after
     // the notification mean a resume that was then cut.
     const resumed = note.ts !== null && a.lastTs !== null && a.lastTs > note.ts;
+    if (resumed) { const run = runningVerdict(a, parent, now); if (run) return run; }
     return resumed
       ? { state: 'cut', status: 'fail', end: 'resumed after its completed notification and cut mid-flight' }
       : { state: 'unconsumed', status: 'warn', end: 'a completed notification, but its own transcript stops short of end_turn' };
@@ -1335,6 +1362,8 @@ function judgeAgent(a, parent) {
     return { state: 'unconsumed', status: 'warn',
       end: `finished, but the parent has no ${foreground ? 'tool_result' : 'notification'} (result never consumed)` };
   }
+  const run = runningVerdict(a, parent, now);
+  if (run) return run;
   const last = a.blocks.includes('tool_use') ? 'last turn is a tool_use with no result after it'
     : a.assistants ? `last turn has stop_reason ${a.stop === null ? 'null' : a.stop}` : 'no assistant turn yet';
   return { state: 'cut', status: 'fail', end: `cut mid-flight: ${last}` };
@@ -1342,7 +1371,7 @@ function judgeAgent(a, parent) {
 
 async function checkSubagents(file, t, all = false) {
   const L = 'Subagents finished';
-  const zero = { reported: 0, stopped: 0, unconsumed: 0, cut: 0 };
+  const zero = { reported: 0, stopped: 0, unconsumed: 0, running: 0, cut: 0 };
   if (!file) return { ...check('subagents', L, 'na', 'not applicable — no transcript, so no subagents/ directory to read'), counts: null, agents: [] };
   const dir = path.join(path.dirname(file), path.basename(file, '.jsonl'), 'subagents');
   if (!isDir(dir)) return { ...check('subagents', L, 'na', 'not applicable — no subagents/ directory beside the transcript'), counts: { agents: 0, ...zero }, agents: [] };
@@ -1368,9 +1397,9 @@ async function checkSubagents(file, t, all = false) {
   const order = { fail: 0, warn: 1, pass: 2 };
   const listed = [...agents].sort((x, y) => order[x.status] - order[y.status]);
   const items = listed.map((a) => `${ICON[a.status]} ${a.short} ${clip(a.description || '(no description)', 60)} — ${a.end}`);
-  const status = counts.cut ? 'fail' : counts.unconsumed ? 'warn' : 'pass';
+  const status = counts.cut || counts.running ? 'fail' : counts.unconsumed ? 'warn' : 'pass';
   const summary = `${counts.agents} agent(s) · ${counts.reported} reported · ${counts.stopped} stopped on purpose`
-    + ` · ${counts.unconsumed} finished, result never consumed · ${counts.cut} cut mid-flight`;
+    + ` · ${counts.unconsumed} finished, result never consumed · ${counts.running} still running · ${counts.cut} cut mid-flight`;
   return { ...check('subagents', L, status, summary, items), counts, agents: all ? listed : listed.slice(0, CAP) };
 }
 
@@ -1909,7 +1938,7 @@ function renderIdentifiers(r) {
   else if (!a.counts.agents) o.push('- **Agents**: 0 · none launched');
   else {
     const k = a.counts;
-    list(`- **Agents**: ${k.agents} · ${k.reported} reported · ${k.stopped} stopped on purpose · ${k.unconsumed} result never consumed · ${k.cut} cut mid-flight`,
+    list(`- **Agents**: ${k.agents} · ${k.reported} reported · ${k.stopped} stopped on purpose · ${k.unconsumed} result never consumed · ${k.running} still running · ${k.cut} cut mid-flight`,
       a.items.map((x) => `${x.short} ${clip(x.description || '(no description)', 60)} — ${x.end}`));
   }
   o.push(`- **Other repos**: ${r.otherRepos} — fill in by hand`);
@@ -2069,4 +2098,4 @@ async function main() {
 if (require.main === module) main();
 
 module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
-  worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };
+  judgeAgent, FRESH_MS, worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };
