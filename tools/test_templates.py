@@ -345,6 +345,38 @@ class ReviewsTemplateTest(unittest.TestCase):
         replaced that with its opposite — keep the opposite."""
         self.assertIn("not routine by virtue of being prose", self.flat)
 
+    def test_leads_on_independence_not_on_a_more_capable_model(self):
+        """160/590 TT1: `REVIEW.md` § Why review makes capability the
+        multiplier, never the precondition; a one-model adopter must still read
+        the practice as theirs."""
+        self.assertNotIn("more capable model", self.flat)
+        self.assertIn("independent session", self.flat)
+        self.assertIn("capability is the multiplier on top, not the precondition",
+                      self.flat)
+
+    def test_names_one_applier_and_keeps_the_doctrine_carve_out(self):
+        """160/590 TT2/TT4: one applier, stated once, with the doctrine
+        exception and the spawn test, and the closing paragraph points at it
+        rather than naming a narrower party."""
+        self.assertEqual(1, self.flat.count("One applier:"))
+        self.assertIn("applied by a hand that wrote neither the doctrine nor the "
+                      "verdict", self.flat)
+        self.assertIn("reviewed from a session its author neither started nor "
+                      "instructed", self.flat)
+        self.assertNotIn("apply fixes back on the workhorse seat", self.flat)
+
+    def test_uses_the_child_economics_seat_names(self):
+        """160/590 TT3: this file and the child ECONOMICS.md template name the
+        seats alike (capable / workhorse), and the model-per-seat naming has a
+        stated home."""
+        econ = (REVIEWS_TEMPLATE.parent.parent / "ECONOMICS.md").read_text()
+        self.assertIn("Workhorse seat", econ)
+        self.assertIn("Capable seat", econ)
+        self.assertIn("capable seat", self.flat)
+        self.assertIn("workhorse seat", self.flat)
+        self.assertNotIn("principal-named review tier", self.flat)
+        self.assertIn("held in this repo's ECONOMICS.md", self.flat)
+
     def test_placeholder_is_exactly_atelier_path(self):
         """create-repo's stamp step fills <atelier-path> here (its prove-the-
         stamp grep covers the whole tree since cold-pass F1); of the stamp
@@ -368,6 +400,34 @@ STAMP_INVENTORY = {
     ("CONTRIBUTING.md", "<atelier-path>"),
     ("docs/reviews/README.md", "<atelier-path>"),
 }
+
+
+class TemplateSetNamesNoModelTest(unittest.TestCase):
+    """160/590 TT6 — C8 removed the model names from the child-facing templates
+    by hand, and nothing pinned it, so the next one would be found at a cold
+    pass instead of at commit. No file in the template set may name a model
+    tier; `Claude` itself (the product, the CLAUDE.md file) is not one."""
+
+    MODEL_RX = re.compile(
+        r"\b(fable|opus|sonnet|haiku)\b|\bclaude-(?:[a-z]+-)?\d", re.IGNORECASE)
+
+    def test_no_template_names_a_model_tier(self):
+        hits = []
+        for path in sorted(TEMPLATES_DIR.rglob("*")):
+            if not path.is_file():
+                continue
+            try:
+                text = path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                continue
+            for n, line in enumerate(text.splitlines(), 1):
+                # A co-author trailer legitimately names the model that wrote
+                # the commit.
+                if line.lstrip().lower().startswith("co-authored-by:"):
+                    continue
+                if self.MODEL_RX.search(line):
+                    hits.append(f"{path.relative_to(TEMPLATES_DIR)}:{n}")
+        self.assertEqual([], hits, "a template names a model; use a seat name")
 
 
 class TemplateSetPlaceholderInventoryTest(unittest.TestCase):

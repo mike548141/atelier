@@ -1,5 +1,8 @@
 <!--
-  STAMPED POINTER, NOT A SECOND SOURCE. The canonical review doctrine — the
+  STAMPED POINTER, NOT A SECOND SOURCE. "Stamped" means create-repo fills its
+  placeholders when it copies the file; stampscan does not compare it, so a
+  child created earlier keeps the text it was given until someone re-copies it.
+  The canonical review doctrine — the
   trigger, the calibration, the lifecycle, the independence rules — lives in
   atelier's docs/method/REVIEW.md. What follows is a thin floor (enough to act
   on without opening atelier) plus a pointer up. Do NOT restate atelier's
@@ -12,10 +15,14 @@
 # Reviews
 
 Significant or risky work gets a peer review before it's trusted, and the review
-is written down here. The house practice: a **more capable model (the
-principal-named review tier) reviews the approach, assumptions, security &
+is written down here. The house practice: an **independent session on the
+capable seat (the tier the principal names for review, where one is named; a
+more capable tier where one exists; which model fills each seat is person-local,
+held in this repo's ECONOMICS.md) reviews the approach, assumptions, security &
 privacy, and real-world behaviour — not just whether the code is correct** —
-before the work is relied on. Reviewer
+before the work is relied on. Independence, different blind spots and fresh context deliver
+most of the value even when the reviewer is the same model; capability is the
+multiplier on top, not the precondition. Reviewer
 scope is the whole commitment — intent, decisions, design, docs, code, tests,
 behaviour (exercised live where possible); the brief's non-goals are the only
 legitimate narrowing (and the narrowing is itself reviewable), and security &
@@ -24,10 +31,15 @@ catalogues such as OWASP, not recalled; where the harness ships a security
 scanner — e.g. Claude Code's `/security-review` — aim it at the work where it
 can reach it, the floor under the lens, never a discharge of it, and never at
 a brief carrying deferred material; a work the scanner can't reach, or with
-no such surface, says so explicitly, with grounds). The builder then applies
-the findings on ordinary code; findings on self-authored doctrine are the
-principal's to decide (`REVIEW.md` rule 3). Canonical doctrine, and anything this file
-doesn't answer: `<atelier-path>/docs/method/REVIEW.md`.
+no such surface, says so explicitly, with grounds). **One applier:** the
+seat that built the work (the workhorse seat by default) applies the findings on
+ordinary code.
+Self-authored doctrine (by function: any rule that governs future agent
+behaviour, in prose or code) is reviewed from a session its author neither
+started nor instructed; its findings are the principal's to decide, and once
+decided are applied by a hand that wrote neither the doctrine nor the verdict
+(rules 3–4 of the `REVIEW.md` named next). Canonical doctrine, and anything this
+file doesn't answer: `<atelier-path>/docs/method/REVIEW.md`.
 
 ## When to write one
 
@@ -87,6 +99,6 @@ durably written, then fold it into the brief below the verdict and delete it.
 on `deferred`/`seeded` heading vocabulary — name the section with those
 words; a renamed section escapes the net).
 
-Keep review-tier sessions short and pre-scoped
-(`<atelier-path>/docs/method/ECONOMICS.md`): hand it the scoped subject,
-ask for findings, apply fixes back on the workhorse seat.
+Keep capable-seat sessions short and pre-scoped
+(`<atelier-path>/docs/method/ECONOMICS.md`): hand it the scoped subject and ask
+for findings. The applier is the one named in the first paragraph.

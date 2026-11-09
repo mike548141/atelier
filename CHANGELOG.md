@@ -151,6 +151,35 @@ this machine, old scanner against new, and no repo's blocking result changed.
   lives in one place (PL4), and one comment no longer describes what a survey
   found tracked (PL3; the pushed commit body is a frozen record).
 
+### Changed (2026-11-09 — the new-repo reviews template leads on independence, names one applier and the child's seat names, `160/590`)
+Mike's answer of 2026-11-09: the cold pass's counsel applied as written. Which
+tier reviews is untouched: the principal still names it.
+- **Children: nothing to do, and nothing blocks.** `docs/build/templates/docs/
+  reviews/README.md` is copied at creation and no check compares it, so a repo
+  created earlier keeps the text it was given (this is also the entry the
+  commit that retired the model names in this file, `77fc609`, lacked). A repo
+  that wants the new wording re-copies the file from atelier.
+- **It leads on independence (TT1).** The retired sentence made "a more capable
+  model" the practice's subject, which `REVIEW.md` § *Why review* rejects: the
+  first sentence now says an independent session on the capable seat reviews,
+  and that capability is the multiplier on top, not the precondition.
+- **One applier, with the doctrine carve-out and the spawn test (TT2, TT4).**
+  The seat that built the work applies findings on ordinary code; self-authored
+  doctrine, by function (prose or code), is reviewed from a session its author
+  neither started nor instructed, its findings are the principal's, and decided
+  ones go to a hand that wrote neither the doctrine nor the verdict. The closing
+  paragraph no longer names a second applier.
+- **The same seat names as the child's `ECONOMICS.md` (TT3):** capable seat,
+  workhorse seat; the model-per-seat naming is said to be person-local and held
+  there. "Principal-named review tier", board vocabulary a child never sees, is
+  gone from the file.
+- **"Stamped" is said to mean what it does (TT5):** `create-repo` fills the
+  placeholders when it copies the file; `stampscan` does not compare it.
+- **Pinned (TT6):** `test_templates.py` fails if any file in the template set
+  names a model tier (co-author trailers aside), and pins the three changes above.
+- **Routed, not done here:** a sweep of existing children for the retired
+  sentence belongs to a session that may touch those repositories (TT5).
+
 ### Changed (2026-11-09 — a run that stops at a dirty checkout has a way to sync and land, and one term for "no upstream", `160/520`)
 Mike's answer of 2026-11-09: the cold pass's counsel applied as written. The
 skill the pass reviewed has since been cut back to a pointer at the prompt, so
