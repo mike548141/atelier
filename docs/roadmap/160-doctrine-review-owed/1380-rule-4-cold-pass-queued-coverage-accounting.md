@@ -5,6 +5,6 @@
       *Tier:* Fable, the principal-named review tier, checked at selection;
       the pass waits for his explicit permission for Fable work.
       *Pass type:* code cold pass, per `method/REVIEW.md` rule 4.
-      *Delta, scoped to paths:* `tools/report.py` and the eleven scanners and tests the commit names, `docs/method/GUARDS.md`, `CHANGELOG.md` — the commit that lands `report.coverage_line`, on `main`.
+      *Delta, scoped to paths:* `tools/report.py` and the eleven scanners and tests the commit names, `docs/method/GUARDS.md`, `CHANGELOG.md` — the commit that lands `report.coverage_line`, and the later commit that extends it to the remaining scanners and the not-in-scope form, on `main`.
       *Questions worth the pass's time:* whether any count can be non-zero over a scan that evaluated nothing; whether the warning fires where a scanner is legitimately out of scope.
       *Intent record:* `115/130`.
