@@ -64,6 +64,13 @@ Grounded in the live instance, not invented to fill a heading:
   glosses only; content that matters never lives in them. (Live instance,
   2026-07-15: named as a recurring cross-repo habit and a refinement — the
   structure and consistency around it had landed well.)
+  One check belongs to the moment of writing: **before sending, go through every
+  term a reader could not have met, and introduce it once.** No scanner holds
+  this. One was built on 2026-08-09 and deleted the same day: it fired on 90.6%
+  of 6,764 replies, because a reader's knowledge spans years of working together
+  and nothing inside one text tells a term he owns from one he has never met.
+  That is one attempt on one corpus, and it is why this stays wording
+  (`020/270`).
 - **Cognitive-load stance** — solutions, drafts, and summaries versus option
   surveys; whether stating the obvious helps or grates.
 - **Tone** — register, humour, and *how much*. Dosage is part of the
@@ -251,12 +258,13 @@ a choice rather than a sentence someone has to interpret.
 
 **The device is small; the briefing duty is not.** These devices cap what they
 carry: short labels, a line of description each, a few questions per ask. The
-live instance allows four questions, with two to four options apiece. The apex
-account routinely outgrows that, and a session cannot see which display mode
-the principal's harness is in. So the rule has no branch: **the account always
-goes in a finished message of its own, ahead of the device, in every view; that
-message ends its turn, and the device opens the next and carries the choice
-alone.** That costs one
+live instance's ceiling is four questions, with two to four options apiece.
+That is what the tool permits; the practice is one question at a time, in his
+words below. The apex account routinely outgrows the device, and a session
+cannot see which display mode the principal's harness is in. So the rule has
+no branch: **the account always goes in a finished message of its own, ahead of
+the device, in every view; that message ends its turn, and the device opens the
+next and carries the choice alone.** That costs one
 extra turn on every ask, stated plainly because it is the price of a rule a
 session can actually follow (focus mode, for one, shows only a turn's final
 message, so the same-reply form leaves the device up with no account beside
@@ -293,6 +301,90 @@ the list; on an overrule the options are keep, modify, or stand aside, and the
 recommendation may honestly be counsel against; and where the deciding basis
 is the principal's alone — taste, his own appetite for risk — the
 recommendation says so rather than dressing itself as analysis.
+
+**His method, as he wrote it.** Mike pasted this to sessions three times on
+2026-11-05, as the method they were to use:
+
+> * ask one question at a time
+> * Put the context in the session transcript where I can read the longer
+>   detail. This can include things like what to consider, impacts, risks etc
+> * Use AskUserQuestion to ask the question, provide options and a
+>   recommendation etc
+> * Make sure you proof read your question and options so they make sense. For
+>   exmaple you often use reference ID's that I have no idea what they are.
+
+The same day: *"The long form detail goes into the session not into
+askuserquestion"*. In practice:
+
+- **One question at a time.** The ceiling above is the tool's and never a
+  target. Several waiting decisions go one after another. The ruling round of
+  2026-11-09 still asked up to four per box.
+- **The long form in the session, the box short.** What to consider, the impacts
+  and the risks go in text he can read; the box holds the question, the options
+  and the recommendation. Option previews are one way to break this: he accepted
+  one such ask, then stopped the next with *"Stop this is not working"*.
+- **Written to him, not read by you.** An account the session has only read,
+  from a file or tool output, has reached nobody. One session, 2026-11-06 to
+  11-08: four asks drew replies such as *"I dont understand the question or
+  options"*, and the session concluded that text above the box was not reaching
+  him. Its
+  transcript shows it had written no text about any of the four, only read each
+  write-up from a file. Nineteen asks in that session with their context written
+  as text drew no such complaint. That says nothing either way about what focus
+  mode hides, so the two-step rule above rests on its own grounds.
+- **The box makes sense on its own.** Proof-read the question and options before
+  putting them. No reference IDs, document numbers or unexplained acronyms: this
+  is the term check in the language axis above, at the one place he must act.
+  Where the decision is about a short piece of text, quote it in the box, which
+  fixed one failure within a minute.
+- **Answer what he asked before putting a choice.** A session that re-put the
+  same choice drew *"I asked why we want [it] at all … What is this for, whats
+  the value to us"*.
+- **Real options only.** A set whose options only do nothing or pass the work
+  elsewhere is no choice: *"These are not real options … your options either
+  offer to do nothing or get someone else to do it"*.
+- **Check parallel sessions before asking,** by `CONCURRENCY.md` § *The
+  channel*: *"Didnt I jsut answer this in the parallel session?"*, asked four
+  times.
+
+The four-line list is his written method. The last three bullets are his
+reactions to asks that failed, and the examples under the others are single
+cases. All of it was gathered from transcripts in several repositories,
+2026-10-30 to 11-08, and handed up through § *Pointing up* of `PROPAGATION.md`
+(`320/820`). Whether a session should stop to ask at all while he is away is
+§ *When to ask* below.
+
+**What comes back is an answer or a ruling, and the record says which.** Mike,
+2026-10-03, verbatim: *"My answer to questions are not rulings unless I say
+otherwise. Rulings are in my words and must be recorded verbatim as I state them
+with all the relevant context. Questions are something you (claude) have written
+and often I've picked from the options you gave me in AskUserQuestion rather
+which is quite different from a ruling and should not carry the same weight"*.
+
+- ⚖️ **A ruling** is in his own words. It is recorded verbatim, with the context
+  it was given in, and it carries the principal's authority.
+- 💬 **An answer** is his pick from a question and options a session wrote: the
+  session's framing with his selection. Work proceeds on it, because it is his
+  decision on what was asked. It does not carry a ruling's weight unless he says
+  it is one.
+
+A pick recorded as "Mike ruled X" makes a session's framing binding doctrine,
+the self-affirming loop he named the same day. Two records had already credited
+him with what a session proposed (`310/080`, `320/510`).
+
+**The record marks.** A line recording his decision carries one of the two
+marks. ⚖️ goes with his quoted words and their context. 💬 goes with the pick
+quoted, who offered the options, and the words "an answer, not a ruling", the
+shape the board's 2026-11-09 records already take. A pick is never written as
+"ruled". This section's title and the apex use "ruling" for the decision he is
+asked to make; what the device brings back is still an answer. Both marks were
+in use before this defined them, and older ⚖️ lines also tag a session's own
+weighed note, so a ⚖️ dated earlier proves nothing by itself. Words he types in
+reply to a session's question are the case between, and the record goes both
+ways: his sentence makes an answer no ruling unless he says otherwise, and one
+such reply stands marked ⚖️ (`115/270`). That is not settled here, so quote them
+and say they answered a question. The sweep of old records and any guard are the
+open parts of `420/020`.
 
 ## When to ask — an ask stops the run, so say what the rest does meanwhile
 

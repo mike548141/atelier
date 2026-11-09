@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-09 — how a question reaches the principal, and what comes back: `320/820`, `420/020`, `020/270`)
+Doctrine wording only; no scanner or tool changes.
+- **His method for asking (`320/820`).** `COMMUNICATION.md` § *Asking for a
+  ruling* carries his written method in his words: one question at a time, long
+  form in the session, a short box, proof-read with no reference IDs; and, from
+  his reactions to failed asks, answer his question first, real options only,
+  check peers first. The four-question sentence now states the tool's limit and
+  points at the practice. An account a session only read has reached nobody.
+- **An answer is not a ruling (`420/020` parts a and b).** The same section
+  defines the two classes in his words and the ⚖️ and 💬 record marks.
+  `RECORD.md` points at it. The sweep of old records and any guard stay open.
+- **The unmet-term check (`020/270`).** `COMMUNICATION.md`, the language axis:
+  before sending, check every term a reader could not have met and introduce it
+  once. A scanner for this was measured and rejected, so it stays wording.
+
 ### Changed (2026-11-09 — the principal's answers on `160/340`, `115/020`, `310/160` applied)
 His answers to options a session offered (answers, not rulings in his own
 words, except where quoted).

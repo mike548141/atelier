@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-asking, session d0ca5d24) 🎯 **An answer to a session's question is not a ruling. Records
+- [ ] 🎯 **An answer to a session's question is not a ruling. Records
       must tell them apart** `[M][doctrine]`. Mike commissioned this,
       2026-10-03. Verbatim:
 
@@ -31,12 +31,21 @@
       `320/010`, `320/500` and `TOOLBOX.md` now say "answer" where an option
       was picked, and quote him where he spoke.
       **Owed, not built:**
-      - (a) a doctrine home and wording. `COMMUNICATION.md` § *Asking for a
+      - [x] (a) a doctrine home and wording. `COMMUNICATION.md` § *Asking for a
         ruling* and the apex's "rulings conditioned" clause are the obvious
-        candidates.
-      - (b) a record convention that marks which class a decision is (e.g.
-        ⚖️ ruling against 💬 answer) and quotes the ruling.
-      - (c) a sweep of existing "RULED" records to reclassify the ones that
+        candidates. ✅ Landed 2026-11-09 by queue run d0ca5d24 in
+        `COMMUNICATION.md` § *Asking for a ruling*, his words quoted.
+      - [x] (b) a record convention that marks which class a decision is (e.g.
+        ⚖️ ruling against 💬 answer) and quotes the ruling. ✅ Landed the same
+        day in the same section, under *The record marks*. By a keyword count
+        then, about 14 of 33 ⚖️ board lines concern a ruling or answer; the
+        others mostly tag a session's own weighed note, so the sweep in (c)
+        covers ⚖️ too.
+      - [ ] (c) a sweep of existing "RULED" records to reclassify the ones that
         were answers. It is large, so do it in parts.
-      - (d) whether a guard can check that a "ruled" record carries a
+      - [ ] (d) whether a guard can check that a "ruled" record carries a
         verbatim quote.
+      - [ ] 🤔 Found while landing (a): words he types in reply to a session's
+        question are between the classes. His sentence makes them an answer
+        unless he says otherwise; `115/270` marks one ⚖️ as his own words. Left
+        open in the doctrine text and his to say.

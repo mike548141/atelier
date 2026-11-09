@@ -62,7 +62,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [The posture change this implies — stated so it is ruled, not assumed.](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
 - ✅ [The REPO-plane numbers are still unruled](roadmap/020-policy-as-code-programme-five-tracks-mik/260-the-repo-plane-numbers-are-still-unruled.md)
-- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-asking, se…) [Carry P5's finding into part…](roadmap/020-policy-as-code-programme-five-tracks-mik/270-carry-p5-s-finding-into-part-b.md)
+- ✅ [Carry P5's finding into part (b).](roadmap/020-policy-as-code-programme-five-tracks-mik/270-carry-p5-s-finding-into-part-b.md)
 - ✅ [Watch the live hook for two failure modes](roadmap/020-policy-as-code-programme-five-tracks-mik/280-watch-the-live-hook-for-two-failure-modes.md)
 - ✅ [The backlog.](roadmap/020-policy-as-code-programme-five-tracks-mik/290-the-backlog.md)
 - [ ] [Generalise the finding, don't just fix this doc.](roadmap/020-policy-as-code-programme-five-tracks-mik/300-generalise-the-finding-don-t-just-fix-this-doc.md)
@@ -371,6 +371,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the thirteen technical fixes he approved in…](roadmap/160-doctrine-review-owed/1220-rule-4-cold-pass-queued-thirteen-technical-fixes.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the board-states design (310/160, 310/060).](roadmap/160-doctrine-review-owed/1230-rule-4-cold-pass-queued-board-states-design.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the report-only switch barred on the board…](roadmap/160-doctrine-review-owed/1240-rule-4-cold-pass-queued-board-check-bar-membership-review-cadence.md)
+- [ ] ⏳ [Rule-4 cold pass queued: his method for asking, and an answer is not…](roadmap/160-doctrine-review-owed/1250-rule-4-cold-pass-queued-asking-method-and-answer-versus-ruling.md)
 
 ## build/ layer — open strands
 
@@ -658,7 +659,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Hand-up: secretscan flags every body line of a PEM public…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
 - [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-scan, se…) [A floor disabled entry carries…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
 - [ ] 🔎 [Build the six checks he chose, warnings first, then blocking, each…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
-- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-asking, …) [Hand-up: the principal's…](roadmap/320-child-filed-findings-via-pointing-up/820-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
+- ✅ 🔎 [Hand-up: the principal's method for asking a question is not in…](roadmap/320-child-filed-findings-via-pointing-up/820-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
 - ✅ 🔎 [Hand-up: a dangling section citation in RECORD.md, and a count that…](roadmap/320-child-filed-findings-via-pointing-up/830-two-small-doctrine-defects-a-dangling-section-and-a-miscount.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
@@ -725,7 +726,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/420-when-to-ask-mike-commissioned/README.md)*
 
 - ✅ 🎯 [An ask stops the whole run — decide when a session asks, and what it…](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
-- [~] 🎯 (claimed 2026-11-09, wt: atelier-qr-d0ca-asking, …) [An answer to a session's…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
+- [ ] 🎯 [An answer to a session's question is not a ruling. Records must tell…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
 - [ ] 🎯 [What the 2026-11-09 ruling round left open.](roadmap/420-when-to-ask-mike-commissioned/030-what-the-722a-ruling-round-left-open.md)
 
 ## Review quality is never traded for budget (Mike commissioned, 2026-10-04)

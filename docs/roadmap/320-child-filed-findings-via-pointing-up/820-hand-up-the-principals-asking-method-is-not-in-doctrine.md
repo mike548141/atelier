@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1242, wt: atelier-qr-d0ca-asking, session d0ca5d24) 🔎 **Hand-up: the principal's method for asking a question is not in
+- [x] 🔎 **Hand-up: the principal's method for asking a question is not in
       doctrine, though he says it is, and one case of the method failing
       was misdiagnosed as a display fault** `[doctrine]`. Handed up from a
       private child on 2026-11-09 under `PROPAGATION.md` § *Pointing up*.
@@ -98,3 +98,16 @@
       📎 Filed as `320/800`; landed as `320/820` by queue run 722ac2e2 on 2026-11-09, the
       number being taken (a hand-up's number is provisional). That run's own ruling
       round asked up to four questions per box, against the method this item records.
+  - [x] ✅ **LANDED 2026-11-09 by queue run d0ca5d24 (Opus 5.5, no reviewer).**
+        `COMMUNICATION.md` § *Asking for a ruling* carries his written method
+        verbatim with the practice under it: one question at a time, long form
+        in the session, a short box, no reference IDs, answer his question
+        first, real options, check peers. Part 2: the four-question sentence
+        now states a limit and points at the practice. Part 3: no rewording.
+        The 2026-08-23 ruling did not settle it alone: its disposition says "a
+        completed prior message" and kept the same reply as the plain case.
+        After this hand-up was filed, his pick of 2026-11-09 on `160/270`
+        (*"Always, as two steps"*, an answer) already reworded the sentence to
+        say the message ends its turn, so the two readings no longer both fit.
+        Part 4: the doctrine never carried the misdiagnosis; the corrected
+        class goes in as one-session evidence.

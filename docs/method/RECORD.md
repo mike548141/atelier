@@ -346,7 +346,8 @@ audit of "what did he ask for" that names only one is a confident negative:
 3. **Question-box picks** — a selection in the structured decision device
    (`COMMUNICATION.md` § *Asking for a ruling*). In a Claude Code transcript
    these are stored as three different record types, and a read that filters
-   on the first (`type == "user"`) drops the other two **silently**.
+   on the first (`type == "user"`) drops the other two **silently**. A pick is
+   an answer and not a ruling; that section holds the difference and the marks.
 
 Two rules follow. Mike chose both from options put to him on 2026-11-08 ("Adopt
 both rules"; an answer to a question asked, not a ruling in his own words —
