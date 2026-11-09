@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t2)
-      🎯 **The board-generator cycle CLOSED 2026-08-17 (0 MAJOR); BG1–BG14
+- [x] 🎯 **The board-generator cycle CLOSED 2026-08-17 (0 MAJOR); BG1–BG14
       await Mike's ruling round.** The rule-4 Fable code cold pass (taker: a
       cold session Mike opened 2026-08-17 0955 UTC on the Fable tier, running
       the brief a *different* cold session wrote at 0730 UTC, under a
@@ -37,3 +36,5 @@
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
       all 13"* — the fix summarised to him stands approved, on the reviewer's
       counsel.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): BG3–BG5, BG7–BG10, BG13; BG6, BG12, BG14 moot; the generated-file question stays at `010/070`. Cold pass `160/1220`.

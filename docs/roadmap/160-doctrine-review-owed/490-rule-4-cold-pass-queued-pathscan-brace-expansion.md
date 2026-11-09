@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t2)
-      🎯 **Rule-4 cold pass queued: pathscan's brace expansion and inline
+- [x] 🎯 **Rule-4 cold pass queued: pathscan's brace expansion and inline
       `./` skip (`320/010` class C, `320/170`).** The run authored this
       itself (its dispatched workers' output counts as the run's
       authorship). It was queued at landing, and the run neither takes it
@@ -55,3 +54,5 @@
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
       all 13"* — the fix summarised to him stands approved, on the reviewer's
       counsel.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): PX1 (1,024 expansions per file), PX2, PX5, PX6, PX11; PX3, PX4, PX7, PX9, PX10 written as residuals. Cold pass `160/1220`.

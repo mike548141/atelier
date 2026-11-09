@@ -58,3 +58,4 @@
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
       all 13"* — the fix summarised to him stands approved, on the reviewer's
       counsel. Here: CU10, the report stays in the CI log and the docs say nothing routes it to a person.
+      ✅ CU10 applied 2026-11-09 by queue run 722ac2e2.

@@ -172,6 +172,15 @@ like any imposed cap.
 What it never licenses is a human "memorable" scheme — the temptation this
 class exists to name is the one the minting bar exists to kill.
 
+**What these permanent bridges rest on** (`160/570` BR2). The imposed cap and
+the break-glass class are not the shapes `PRINCIPLES.md` §7 licenses (a bridge
+*temporary pending codification*, or permanent because codifying is *unsafe*):
+nothing awaits codification and nothing is unsafe to codify; they last until the
+platform changes. What holds them is the credential rule in `PRINCIPLES.md` §5
+(*Honest pattern*, and Zero Trust's *name the gap*): a stated reason, on a list,
+kept tightening, weighed again at technology choice. §7 supplies the grammar's
+name, "stated bridge", and no more.
+
 ## Right plane, never the wrong one
 
 A secret's *value* lives in exactly one place: the encrypted secret store.

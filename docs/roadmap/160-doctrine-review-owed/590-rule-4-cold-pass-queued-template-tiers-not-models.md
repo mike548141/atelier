@@ -1,5 +1,4 @@
-- [~] (claimed 2026-11-09-0830, wt: atelier-rr-722a-t2)
-      🎯 **Rule-4 cold pass queued: the template reviews README names tiers,
+- [x] 🎯 **Rule-4 cold pass queued: the template reviews README names tiers,
       not models (`200/100` C8).** The run authored this itself. It was
       queued at landing, and the run neither takes it nor spawns a reviewer
       for it. *Tier:* Fable, the principal-named review tier, checked at
@@ -46,3 +45,5 @@
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
       all 13"* — the fix summarised to him stands approved, on the reviewer's
       counsel.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): TT1–TT6. Cold pass `160/1220`.

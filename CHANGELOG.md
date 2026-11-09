@@ -153,6 +153,12 @@ this machine, old scanner against new, and no repo's blocking result changed.
 
 
 
+
+### Changed (2026-11-09 — `SECRETS.md` says what its permanent bridges rest on, `160/570`)
+- The imposed-cap and break-glass bridges are not the shapes `PRINCIPLES.md` §7
+  licenses (temporary, or unsafe to codify); they rest on §5's credential rule
+  (*Honest pattern*, *name the gap*), and §7 supplies the grammar's name. One
+  paragraph in `SECRETS.md`; no child action.
 ### Changed (2026-11-09 — `cctranscript --list` marks an unreadable mirror instead of dying, `160/680`)
 - **Children: none use it; nothing blocks.** One damaged or unreadable mirror used to
   abort the whole listing with a raw stack trace. The row now reads `(unreadable —

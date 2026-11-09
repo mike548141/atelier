@@ -53,3 +53,4 @@
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
       all 13"* — the fix summarised to him stands approved, on the reviewer's
       counsel. Here: counsel (iii), a marked row when the fallback read throws.
+      ✅ Counsel (iii) applied 2026-11-09 by queue run 722ac2e2.

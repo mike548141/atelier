@@ -1,4 +1,4 @@
-- [ ] 🎯 **Rule-4 cold pass queued — the doctrine-reporting duty, the route's three
+- [x] 🎯 **Rule-4 cold pass queued — the doctrine-reporting duty, the route's three
       shapes, and the no-harm rules for a hand-up.** Self-authored doctrine,
       queued at landing by its author, who may not take it. *Tier:* Fable, the
       principal-named review tier — checked at selection; a session that cannot
@@ -68,3 +68,5 @@
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve
       all 13"* — the fix summarised to him stands approved, on the reviewer's
       counsel. Here: RU2–RU6, RU12.
+      ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): RU2–RU6, RU12 as counselled (RU5 by the narrower option); RU7 done by `320/330`. Every finding is now applied or routed; cold passes `160/1050`, `160/1220`.
