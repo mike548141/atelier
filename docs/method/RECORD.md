@@ -536,7 +536,7 @@ other: the name is allowed, and what it holds and its condition go by type only
 (Mike's pick from options offered, 2026-11-09, `020/050`: *"Treat like any
 private repo"*; an answer, not a ruling in his words). The earlier rule that
 named it only in a private child's onramp, never in any public tree, is
-withdrawn, forward only; `PROPAGATION.md` § *Doctrine — inherited from atelier*
+withdrawn, forward only; `PROPAGATION.md` § *The standard child doctrine block*
 keeps the account. The name joined to what the repo holds stays barred by the join
 rule above.
 

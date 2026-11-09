@@ -232,7 +232,7 @@ A copy may **narrow** — carry genuinely less than the canonical region — but
 only by *declaring* it, with `narrow=<reason>` on the copy's own begin marker.
 The declaration is the entire signal, because a silent drop and a legitimate
 omission are mechanically identical (both are the canonical text minus some
-lines); undeclared, a drop reds. Three boundaries on that:
+lines); undeclared, a drop reds. Four boundaries on that:
 
 - **Narrowing to nothing is not a narrowing.** An empty stamped block is drift
   however it is declared. A floor exists to bind even where nothing else is
