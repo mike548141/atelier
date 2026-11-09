@@ -368,6 +368,7 @@ then `python3 tools/board.py rebuild`.
 - [~] (claimed 2026-11-09-0104, wt: atelier-160-1120-1200) [Rule-4 cold pass queued: ccmail's…](roadmap/160-doctrine-review-owed/1200-rule-4-cold-pass-queued-ccmail-cache-and-recorded-reach.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the estate root as an ordinary private repo…](roadmap/160-doctrine-review-owed/1210-rule-4-cold-pass-queued-estate-root-reviewer-side-two-steps.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the thirteen technical fixes he approved in…](roadmap/160-doctrine-review-owed/1220-rule-4-cold-pass-queued-thirteen-technical-fixes.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the board-states design (310/160, 310/060).](roadmap/160-doctrine-review-owed/1230-rule-4-cold-pass-queued-board-states-design.md)
 
 ## build/ layer — open strands
 
@@ -568,7 +569,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [§ Pointing up only names atelier as a parent — Mike commissioned,…](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
 - [ ] 🎯 [CLASS — the parent holds accommodations its children cannot inherit,…](roadmap/310-pointing-up-the-child-to-parent-route/130-the-parent-holds-accommodations-the-child-cannot-inherit.md)
 - ✅ 🎯 [A PR as the carrier for an idea or finding between any two repos, not…](roadmap/310-pointing-up-the-child-to-parent-route/140-a-pr-as-the-carrier-between-any-two-repos.md)
-- [~] (claimed 2026-11-09-0930, wt: atelier-rr-722a-bd2) [Design exercise: refine how…](roadmap/310-pointing-up-the-child-to-parent-route/160-design-exercise-how-we-manage-work-on-the-board.md)
+- [ ] 🔎 [Design exercise: refine how we manage work using the board, from the…](roadmap/310-pointing-up-the-child-to-parent-route/160-design-exercise-how-we-manage-work-on-the-board.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
 

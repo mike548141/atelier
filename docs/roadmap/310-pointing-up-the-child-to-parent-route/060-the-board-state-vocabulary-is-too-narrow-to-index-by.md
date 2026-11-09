@@ -85,3 +85,4 @@
         in-progress for when there are child pieces of work" etc Run a design exercise
         based on the lived experiences of our past sessions to refine how we manage
         work using the board"*. Design exercise: `310/160`.
+  - [ ] 📝 Design exercise done 2026-11-09: `docs/decisions/2026-11-09-board-states-design.md`, a draft (`310/160`). Corrections it found: `310/080`'s claim that he never enumerated states is false, since a tool could not see mid-turn messages until 2026-09-18 (he listed them on 2026-07-22); and the "tri-state ruling" was his pick from offered options, an answer.
