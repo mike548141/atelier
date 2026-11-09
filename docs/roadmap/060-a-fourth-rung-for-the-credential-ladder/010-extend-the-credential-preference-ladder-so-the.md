@@ -1,4 +1,4 @@
-- [ ] **Extend the credential preference ladder so the standing credential is
+- [~] (claimed 2026-11-09-1312, wt: atelier-qr-d0ca-docs, session d0ca5d24) **Extend the credential preference ladder so the standing credential is
       not the only honest answer where the platform offers no JIT grant.
       Where a credential is used *irregularly or rarely*, doctrine should name
       an alternative in Mike's words: "delete the credential entirely and make

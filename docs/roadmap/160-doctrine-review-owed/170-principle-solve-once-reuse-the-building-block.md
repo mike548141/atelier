@@ -1,4 +1,4 @@
-- [ ] **Principle: solve once, reuse the building block (Mike, 2026-07-25)** —
+- [~] (claimed 2026-11-09-1312, wt: atelier-qr-d0ca-docs, session d0ca5d24) **Principle: solve once, reuse the building block (Mike, 2026-07-25)** —
   solve a problem once, then compose from the blocks you already have; never
   re-solve a solved problem. Holds at two scopes:
   - **In-repo:** one implementation of a capability, many consumers — e.g. tiki

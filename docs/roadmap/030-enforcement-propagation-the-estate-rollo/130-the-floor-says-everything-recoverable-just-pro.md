@@ -1,4 +1,4 @@
-- [ ] 🔎 **The inlined floor says "everything recoverable — just proceed",
+- [~] (claimed 2026-11-09-1312, wt: atelier-qr-d0ca-docs, session d0ca5d24) 🔎 **The inlined floor says "everything recoverable — just proceed",
       and `RECORD.md` rules that recoverability is the wrong test for a record
       store. Nothing reconciles them.** Raised as a question by a child
       session, **verified here 2026-08-16** as a real contradiction rather

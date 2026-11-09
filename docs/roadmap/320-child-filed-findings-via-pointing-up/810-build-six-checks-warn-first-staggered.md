@@ -1,4 +1,4 @@
-- [ ] 🔎 **Build the six checks he chose, warnings first, then blocking, each
+- [~] (claimed 2026-11-09-1312, wt: atelier-qr-d0ca-checks, session d0ca5d24) 🔎 **Build the six checks he chose, warnings first, then blocking, each
       turned on at a staggered date.** His words, 2026-11-09: *"all six, warnings
       at first and then move to blocking action. With a staggered turn on of each
       so they dont all hit at once"*. The six, each with its home item: commits

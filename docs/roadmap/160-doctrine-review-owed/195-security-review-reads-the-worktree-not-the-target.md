@@ -1,4 +1,4 @@
-- [ ] 🔎 **`/security-review` reads the *session's* pending diff, not the path
+- [~] (claimed 2026-11-09-1312, wt: atelier-qr-d0ca-docs, session d0ca5d24) 🔎 **`/security-review` reads the *session's* pending diff, not the path
   it is aimed at — three reproductions in one review batch (2026-08-15).**
   Three concurrent rule-4 reviewers, each told to aim the house security
   scanner at their own scratch clone, each had it scan the shared worktree's

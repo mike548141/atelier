@@ -98,7 +98,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [no-verify is the real hole, and nothing sees it.](roadmap/030-enforcement-propagation-the-estate-rollo/100-no-verify-is-the-real-hole-and-nothing-sees-it.md)
 - ✅ [The floor drift check can never fire against a stale checkout — the…](roadmap/030-enforcement-propagation-the-estate-rollo/110-the-floor-drift-check-can-never-fire-against-a.md)
 - [ ] [Every child inlines the same stale-HEAD drift bullet — a fleet sweep…](roadmap/030-enforcement-propagation-the-estate-rollo/120-every-child-inlines-the-same-stale-head-drift.md)
-- [ ] 🔎 [The inlined floor says "everything recoverable — just proceed", and…](roadmap/030-enforcement-propagation-the-estate-rollo/130-the-floor-says-everything-recoverable-just-pro.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-docs, se…) [The inlined floor says "everything…](roadmap/030-enforcement-propagation-the-estate-rollo/130-the-floor-says-everything-recoverable-just-pro.md)
 - [ ] 🔎 [The dirty-checkout claiming rule yields to a file, then tells you to…](roadmap/030-enforcement-propagation-the-estate-rollo/140-cf3-s-claiming-rule-collapses-on-a-monolithic.md)
 
 ## Principal-set dates: mandate vs default (Mike, 2026-08-09)
@@ -117,7 +117,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/060-a-fourth-rung-for-the-credential-ladder/README.md)*
 
-- [ ] [Extend the credential preference ladder so the standing credential is…](roadmap/060-a-fourth-rung-for-the-credential-ladder/010-extend-the-credential-preference-ladder-so-the.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-docs, sess…) [Extend the credential preference…](roadmap/060-a-fourth-rung-for-the-credential-ladder/010-extend-the-credential-preference-ladder-so-the.md)
 
 ## 🤔 Rotatable vs unrotatable exposure — history rewrite as a legitimate remedy (Mike, 2026-08-06)
 
@@ -248,10 +248,10 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Propagate the widened apex floor to the fleet children](roadmap/160-doctrine-review-owed/140-propagate-the-widened-apex-floor-to-the-fleet.md)
 - [ ] [Elevate the first-principles doctrine to atelier](roadmap/160-doctrine-review-owed/150-elevate-the-first-principles-doctrine-to-ateli.md)
 - [ ] [Cross-repo learning: atelier distils domain-diverse children (Mike,…](roadmap/160-doctrine-review-owed/160-cross-repo-learning-atelier-distils-domain-div.md)
-- [ ] [Principle: solve once, reuse the building block (Mike, 2026-07-25)](roadmap/160-doctrine-review-owed/170-principle-solve-once-reuse-the-building-block.md)
+- [~] (claimed 2026-11-09, wt: atelier-qr-d0ca-docs, sess…) [Principle: solve once, reuse…](roadmap/160-doctrine-review-owed/170-principle-solve-once-reuse-the-building-block.md)
 - ✅ 🎯 [Rule-4 review RAN 2026-08-17 (tier: Fable; pass type: doctrine cold…](roadmap/160-doctrine-review-owed/180-rule-4-review-queued-tier-fable-pass-type-doc.md)
 - [ ] [REVIEW.md gap — what is the review cycle of an ADR accepted in part?](roadmap/160-doctrine-review-owed/190-review-md-gap-the-cycle-of-an-adr-accepted-in-part.md)
-- [ ] 🔎 [/security-review reads the session's pending diff, not the path it is…](roadmap/160-doctrine-review-owed/195-security-review-reads-the-worktree-not-the-target.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-docs, se…) [/security-review reads the…](roadmap/160-doctrine-review-owed/195-security-review-reads-the-worktree-not-the-target.md)
 - ✅ [Apex: the principal's authority is absolute; his rulings are…](roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md)
 - ✅ [Rule-4 cold pass — apex: authority absolute, rulings conditioned —…](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
 - ✅ 🎯 [The board-generator cycle CLOSED 2026-08-17 (0 MAJOR); BG1–BG14 await…](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
@@ -661,7 +661,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Turn conflictscan's tool-markup rule from advisory to blocking once…](roadmap/320-child-filed-findings-via-pointing-up/780-the-tool-markup-advisory-goes-blocking-once-the-estate-is-clean.md)
 - ✅ [Hand-up: secretscan flags every body line of a PEM public…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
 - [ ] 🔎 [A floor disabled entry carries a reason but no end date, so it cannot…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
-- [ ] 🔎 [Build the six checks he chose, warnings first, then blocking, each…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
+- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-checks, …) [Build the six checks he chose,…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
 - ✅ 🔎 [Hand-up: the principal's method for asking a question is not in…](roadmap/320-child-filed-findings-via-pointing-up/820-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
 - ✅ 🔎 [Hand-up: a dangling section citation in RECORD.md, and a count that…](roadmap/320-child-filed-findings-via-pointing-up/830-two-small-doctrine-defects-a-dangling-section-and-a-miscount.md)
 
@@ -688,7 +688,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/README.md)*
 
 - ✅ 🎯 [Decide the cheap rules first — naming and announcing — and treat…](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/010-name-what-you-launch-then-widen-the-announcement.md)
-- [ ] 🎯 [Cross-repo session coordination — Mike commissioned, 2026-09-12.](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/020-parallel-sessions-across-different-repos-have-no-shared-view.md)
+- [~] 🎯 (claimed 2026-11-09, wt: atelier-qr-d0ca-live, se…) [Cross-repo session coordination…](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/020-parallel-sessions-across-different-repos-have-no-shared-view.md)
 
 ## 🎭 The report can lie while the work is fine — 2026-08-23
 

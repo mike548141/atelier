@@ -1,4 +1,4 @@
-- [ ] 🎯 **Cross-repo session coordination — Mike commissioned, 2026-09-12.**
+- [~] (claimed 2026-11-09-1312, wt: atelier-qr-d0ca-live, session d0ca5d24) 🎯 **Cross-repo session coordination — Mike commissioned, 2026-09-12.**
       His words: *"Find ways to improve how parallel sessions to converse,
       coordinate, share"* and, separately, *"Find better ways to track,
       claim, and coordinate work planned and in progress."*
