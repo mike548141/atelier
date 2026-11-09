@@ -34,6 +34,11 @@ private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`
 5. `docs/ROADMAP.md` — what's open. It is the board's **generated index**
    (one file per item under `docs/roadmap/`; edit the item file, then
    `python3 tools/board.py --rebuild` — never the index itself).
+6. Open hand-up PRs — `gh pr list --state open --json
+   number,title,headRefName,createdAt`, read for a `report-` head ref or a
+   hand-up title. A child's filed finding has no owner until atelier lands it;
+   landing one is the first act of a session that finds one
+   (`docs/method/PROPAGATION.md` § *Report without harming the parent*).
 
 Read the rest of `docs/method/` on demand when a change touches it.
 

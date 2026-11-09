@@ -156,6 +156,31 @@ this machine, old scanner against new, and no repo's blocking result changed.
 
 
 
+
+### Changed (2026-11-09 — the hand-up route: parent-side duties, scope of the duty, vulnerability-class defects, `160/300` RU2–RU6, RU12)
+Mike's answer of 2026-11-09: the cold pass's counsel applied as written. RU1 and
+RU7–RU11 were applied or settled earlier.
+- **Children: nothing to do.** The edits are in `PROPAGATION.md` § Pointing up,
+  outside the stamped floor region.
+- **An atelier session reads the open hand-up PRs at open and lands any it finds
+  first (RU4, with RU2).** Eleven had stood open for three weeks until the
+  principal asked. `CLAUDE.md`'s read order gains the `gh pr list` step.
+- **The merge-time check is a command (RU2).** `gh pr view <n> --json
+  headRefName,title,body,files`: a `report-` head with no repo token unless that
+  repo is public, a title and body that say hand-up and name no private repo,
+  files that are the item and the index only. The harm is one-way, so it is read
+  before the merge. The branch-and-title lint is the next rung and is not built; the
+  pass asked for it as its own item, which this commit does not file.
+- **An index conflict is resolved by merging in the parent's worktree (RU3):**
+  `git merge --no-ff`, `--rebuild`, never a rewrite of the reporter's branch; the
+  filer is told to expect the conflict, not dodge it.
+- **A hand-up's number is provisional (RU12):** the parent runs `board.py --check`
+  after each landing and moves the later-landing item itself.
+- **The duty is the principal's repos (RU5), the narrower of the two options.**
+  An adopter outside the estate is not bound, and the text says which routes it
+  has: hold-and-flag, a fork and PR, an issue, `SECURITY.md` for a vulnerability.
+- **A doctrine defect that is a vulnerability goes private first (RU6),** with its
+  public item landing with the fix.
 ### Changed (2026-11-09 — the third "another session is live" cue ends in an action, and the cue wording is made true, `160/560`)
 Mike's answer of 2026-11-09: the cold pass's counsel applied as written.
 - **Children: nothing to do.** The edits are in `CONCURRENCY.md` § The trigger and

@@ -428,12 +428,18 @@ estate cites it.*
 
 ### The duty — every repo reports, atelier remediates
 
-**Every repo that works by this doctrine owes the house its problems with that
-doctrine, and atelier is not exempt from its own rule** (the principal's
-commission, 2026-08-23: *"the doctrine will direct all of my repos that use it
-(incl atelier itself) to report potential issues they have with the doctrine
-(with evidence where it is available) to atelier for consideration and
-remediation by atelier"*).
+**Every repo of the principal's that works by this doctrine owes the house its
+problems with that doctrine, and atelier is not exempt from its own rule** (the
+principal's commission, 2026-08-23: *"the doctrine will direct all of my repos
+that use it (incl atelier itself) to report potential issues they have with the
+doctrine (with evidence where it is available) to atelier for consideration and
+remediation by atelier"*). The commission is his repos, and the duty is no wider
+than it (`160/300` RU5). An adopter outside that estate is not bound by it and
+has no sibling checkout to write into and no peer channel to use, so the shapes
+below that reach it are hold-and-flag, a fork and pull request, or an issue on
+the public repo (issues are enabled); a vulnerability goes to `SECURITY.md`. The
+stamped bullet in the child block reads "every repo" for such an adopter too:
+read it as the principal's.
 
 **What counts as a problem** — deliberately wider than the earned-rule case the
 rest of this section was written for. A rule that is **wrong**; that is
@@ -566,6 +572,14 @@ Four steps, none of them large.
      in that repo that *can* reach the parent. Stating this shape is what stops
      an unreachable-parent session concluding it has no duty at all.
 
+   **A doctrine defect that is itself a vulnerability takes the private route
+   first** (`160/300` RU6). `SECURITY.md` puts "doctrine that, followed as
+   written, leads an adopter into an unsafe practice" in scope and routes it
+   privately; this section routes everything else to a public board item, and
+   neither used to name the other. For that class: GitHub's private
+   vulnerability reporting for an adopter, the private estate root for a member
+   of the estate. The public item lands with the fix, not before.
+
 2. **Carry the class, never the child's specifics.** atelier is public. A
    finding filed from a private child names the *shape* of what broke and the
    guarantee that failed — never the repo, its hosts, its clients or its
@@ -690,7 +704,13 @@ So four rules, each answering one of those:
 - **Touch your own item and nothing else.** Generated indexes are rebuilt, never
   hand-merged (`CONCURRENCY.md` § Claiming work). Claim nothing from the
   parent's queue, edit no doctrine, and take no worktree in the parent for
-  anything but the filing itself.
+  anything but the filing itself. **Expect an index conflict rather than try to
+  avoid it:** a rebuilt index made from a base the parent has since moved past
+  arrives conflicting though its floor run is green, and resolving it is the
+  parent's (below). Do not rebase onto a moved `main` to dodge it. **Your item
+  number is provisional until the parent lands it:** two filers on one base take
+  the same next number and the forge sees two new files with different names, so
+  carry no reference to your own number inside the filing.
 
 **And the parent's half, which this instance also exposed.** A filed finding
 with no PR has no owner at all — the reporter has stopped and the parent does
@@ -699,7 +719,39 @@ the PR, merge on the floor's own evidence, and say plainly in the PR that the
 content is the child's and unreviewed. That is not adopting the finding; it is
 putting it on the board where consideration can happen. Do not rewrite the
 reporter's history to tidy it — a rebase of someone else's pushed branch buys
-nothing and destroys the record of how it arrived.
+nothing and destroys the record of how it arrived. Four things make that half
+something a session does rather than something it means to do (`160/300`
+RU2–RU4, RU12):
+
+- **Look at open hand-ups at open.** Landing one was written as an act and had
+  no trigger: eleven stood open for three weeks until the principal asked. An
+  atelier session's start-of-session read includes the open hand-up PRs
+  (`gh pr list --state open --json number,title,headRefName,createdAt`, read for
+  a `report-` head ref or a hand-up title), and landing any it finds is the first
+  act of the session, ahead of its own work. The read is one command, so it does
+  not wait for the enumerator `310/020` waits on.
+- **Check before merging, by command, because the harm is one-way.** For each
+  PR: `gh pr view <n> --json headRefName,title,body,files`. The head ref starts
+  `report-` and carries no repo token unless that repo is public; the title and
+  body say it is a hand-up and name no private repo; the files are the filed
+  item, the regenerated index and nothing else. A branch name and a title are
+  published once pushed and cannot be retracted, so a failure here is a note on
+  the PR and a record, not something a merge or a deletion undoes. A
+  branch-name and title lint at the reporter's push, or a `handupscan` run at
+  merge, is the next rung (`GUARDS.md`); it is not built, and is not this
+  section's to build.
+- **Resolve an index conflict by merging, in the parent's own worktree.** A hand-up
+  that rebuilt `docs/ROADMAP.md` over a base `main` has since passed arrives
+  `DIRTY` although its floor run is green. In an integration worktree of the
+  parent, `git merge --no-ff` the report branch, take the conflicting index by
+  running `tools/board.py --rebuild` rather than by hand, and commit the merge: a
+  merge commit, never a rewrite of the reporter's branch. That is the move the
+  parent already makes, now written where the parent reads.
+- **Run `board.py --check` after each landing, and settle a number collision
+  yourself.** The number a hand-up takes is settled at the parent's merge, not
+  at the reporter's push, so only the parent can see a collision. The
+  later-landing item moves to the section's next free number, and the parent
+  makes the move, never the reporter.
 
 ### The same route between any two repos
 
