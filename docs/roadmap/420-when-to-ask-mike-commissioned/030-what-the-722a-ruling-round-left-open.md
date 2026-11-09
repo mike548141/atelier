@@ -32,6 +32,8 @@
         - Does an allow-marker bring the missing context inside a check's evidence
           window (`115/120`, `GUARDS.md`)? Group A's build waits on it.
         - Run `cclive` at session open, or leave it on request (`360/020`).
+        - Should leakscan's binary gate accept a path-scoped "generated, digest may
+          change" entry (`320/860`)? Recommended no: make the render reproducible.
         - **To be aware of, no answer owed:** the blocking dates on the five warn-first
           checks are this run's choice (`320/810`); and repos should not be moved into
           group folders until the floor and child halves of `320/660` land.

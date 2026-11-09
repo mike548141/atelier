@@ -684,6 +684,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Hand-up: a dangling section citation in RECORD.md, and a count that…](roadmap/320-child-filed-findings-via-pointing-up/830-two-small-doctrine-defects-a-dangling-section-and-a-miscount.md)
 - ✅ [Hand-up from a private child: secretscan calls a marker "naming no…](roadmap/320-child-filed-findings-via-pointing-up/840-hand-up-secretscan-finding-name-and-rule-list-disagree.md)
 - ✅ [Hand-up from a private child: leakscan's nz-phone rule fires on…](roadmap/320-child-filed-findings-via-pointing-up/850-hand-up-leakscan-nz-phone-fires-on-bracketed-hex-byte-strings.md)
+- [ ] [Hand-up from a private child: leakscan G3 has no form for a binary…](roadmap/320-child-filed-findings-via-pointing-up/860-hand-up-g3-has-no-form-for-a-generated-binary.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
