@@ -52,4 +52,34 @@ fail() { echo "selftest: $1" >&2; exit 1; }
   || fail "an unrecognised flag was treated as fatal"
 [ -f "$TMP/odd-1.jpg" ] || fail "no output when unknown flags were present"
 
-echo "  selftest ok — jpeg/png extensions correct, unknown flags tolerated"
+# 4. A page larger than the pixel budget is REFUSED, with a named error, before
+#    anything is allocated (review CC4). The MediaBox is the sender's choice and
+#    mail is the input: a 100,000-point page once ran 104 s at 4.4 GB. This one
+#    is only just over the default 64 Mpx budget at the reader's 100 dpi, so a
+#    renderer that ignored the budget would still finish — the assertion is on
+#    the refusal, not on a crash.
+mkpdf() {  # mkpdf <out> <mediabox-w> <mediabox-h>
+  sed "s|/MediaBox\[0 0 200 100\]|/MediaBox[0 0 $2 $3]|" "$TMP/in.pdf" > "$1"
+}
+mkpdf "$TMP/big.pdf" 6000 6000
+if "$BIN" -jpeg -r 100 -f 1 -l 1 "$TMP/big.pdf" "$TMP/big" 2>"$TMP/big.err"; then
+  fail "a page over the pixel budget was rendered, not refused"
+fi
+grep -q "budget" "$TMP/big.err" || fail "the refusal does not name the budget: $(cat "$TMP/big.err")"
+[ ! -e "$TMP/big-1.jpg" ] || fail "a refused page still left an output file"
+
+# 5. The probe from the review itself (a 100,000-point page, 19 Gpx at 100 dpi)
+#    is refused at once, not after 104 s and 4.4 GB.
+mkpdf "$TMP/absurd.pdf" 100000 100000
+"$BIN" -jpeg -r 100 -f 1 -l 1 "$TMP/absurd.pdf" "$TMP/absurd" 2>"$TMP/absurd.err" && \
+  fail "the 100,000-point page was rendered"
+grep -q "budget" "$TMP/absurd.err" || fail "the 100,000-point page did not get the named refusal: $(cat "$TMP/absurd.err")"
+
+# 6. The budget is adjustable, and a normal page is unaffected by the default.
+CCPDF_MAX_PIXELS=1000 "$BIN" -png -r 72 "$TMP/in.pdf" "$TMP/tiny" 2>/dev/null \
+  && fail "CCPDF_MAX_PIXELS=1000 did not refuse a 200x100 page"
+CCPDF_MAX_PIXELS=1000000 "$BIN" -png -r 72 "$TMP/in.pdf" "$TMP/roomy" \
+  || fail "CCPDF_MAX_PIXELS=1000000 refused a 200x100 page"
+[ -f "$TMP/roomy-1.png" ] || fail "no output under a roomy budget"
+
+echo "  selftest ok — jpeg/png extensions correct, unknown flags tolerated, pixel budget enforced"

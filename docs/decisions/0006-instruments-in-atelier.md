@@ -168,7 +168,8 @@ that make it acceptable:
   and its key is a file. Convenience bought with blast radius, against
   `SECRETS.md`'s *least* leg. Mike ruled for the narrow personal grant.
 - **The secret never touches a repo** — macOS Keychain by default, a 0600 file
-  (`CCMAIL_CREDENTIALS`) as the documented fallback. Re-mintable in one command
+  (`CCMAIL_CREDENTIALS`) as the documented fallback (*withdrawn by the
+  amendment below: there is no file fallback*). Re-mintable in one command
   (`--auth`) and revocable from the operator's Google account page, which is the
   cheap-to-burn property `SECRETS.md` asks for.
 - **The data it fetches never touches a repo either** — attachments are other
@@ -292,3 +293,66 @@ and a copy is a second place the private data lives); a version that can send
 or edit (a different risk class, and nothing here asked for it); and shelling
 out to the apps with AppleScript (it opens GUI applications and prompts the
 operator, the opposite of unattended).
+
+## Addendum (2026-11-09) — `ccmail`: how far each route reaches, and a private cache
+
+**Decision (the principal, answering the options offered on a cold review's
+major finding):** *"Keep it, lock the cache."* This is an answer to a choice
+put to him, not a new ruling in his own words. It means two things: the
+delegation-first order of the 2026-09-09 amendment **stays**, with its reach
+written down plainly below; and the attachment cache is private and expires.
+
+The cold review of the `ccmail` build
+(`docs/reviews/2026-09-25-0715-ccmail-build-cold.md`, finding CC1) found that
+the amendment's "stores nothing" and "keyless" were true of the *tool* and read
+as true of the *route*, and that neither route's exposure to a compromised
+session was stated anywhere. It is stated here.
+
+**What a compromised session can read, per route** (anyone able to run a
+command as the operator on the machine):
+
+| Route | What it can read | What it rests on |
+| --- | --- | --- |
+| 1. Delegation | **Every mailbox in the domain** the delegated identity is registered over, not one | The cloud CLI's own login: a plain file under the home directory that `ccmail` did not write and cannot protect |
+| 2. Own grant | One mailbox | A refresh token and client secret in the Keychain, readable by a single `security` command with no dialog, valid off-machine until revoked |
+
+`ccmail` itself reads only the mailbox named in its configuration. That is a
+property of the tool and no limit on the credential: the same session can ask
+the cloud CLI to sign for another mailbox without `ccmail`. "Keyless" means the
+identity has no downloadable private key; it does not mean no credential on the
+machine. The route depends on a stored login file, and the 2026-09-09 amendment's
+ban on loose secrets applies to that file in spirit, though not to anything
+`ccmail` writes. Both routes are read-only, and neither is a limit on reading.
+
+**Required of every future credential-holding instrument:** its ADR entry
+carries a line stating *what a compromised session on this machine can read
+with it, per route*. Without it a ruling on the credential is a ruling on an
+incomplete picture, which is how this one came to be challenged.
+
+**Threats considered for `ccmail`** (review CC3: an instrument that holds a
+credential or opens attacker-supplied bytes lists its threats, and an absent
+list is itself a finding), each with where it is answered:
+
+| Threat | Answer |
+| --- | --- |
+| A sender's filename: traversal, hidden file, collision, length, a bidirectional override or terminal escape in the name | `safeName` and `printable`: separators, controls and overrides replaced, dots dropped, capped in bytes; collisions suffixed, never overwritten |
+| A planted symlink in the destination, redirecting a write | Files are created with `wx`, which refuses an existing path, a link included |
+| A `--dest` that reaches a repository through a symlink | The repo guard resolves real paths before comparing |
+| A message id spliced into a URL or a path | Refused unless lowercase hex |
+| The cache holding other people's mail at rest | Directories 0700, files 0600, tightened on every run, message folders deleted after 30 days (mtime) |
+| The expiry sweep deleting something it should not | It touches only real directories named as message ids directly under the cache root, never follows a symlink, and refuses a root that is a symlink, the home directory, `/` or inside a work tree; pinned by tests |
+| A hostile PDF exhausting memory in `ccpdf` | A pixel budget (default 64 million) refuses a page over it, before allocating; the JavaScript and launch actions of a PDF were probed and did nothing in PDFKit |
+| A hostile Office container | `--text` reads it with `unzip -p` into a bounded buffer and never executes it |
+| A local process answering the loopback consent | `state` and a PKCE challenge; a request without the state is ignored |
+| A compromised session using the credential | Not prevented: stated above, per route |
+| A stalled connection hanging a session | A 60-second idle timeout on every request |
+
+**Not built, with the reason.** A sandbox profile for the PDF renderer was
+considered: Apple deprecates the facility and a profile is a maintenance
+liability, while the one resource attack measured is now bounded by the budget.
+Refusing a `subject` that differs from the cloud login's own identity was
+offered as defence in depth for route 1; it would leave the raw token untouched
+and was not part of the answer given, so it is not built and stays available.
+The standing-credential entry for the delegation identity and the cloud login
+belongs in the estate's private registry, outside this repository, and is owed
+there.

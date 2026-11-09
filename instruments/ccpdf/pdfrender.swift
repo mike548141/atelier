@@ -95,12 +95,42 @@ guard from <= to else { fail("page range \(from)-\(to) is empty (document has \(
 let width = String(to).count
 let scale = dpi / 72.0
 
+// PIXEL BUDGET. The page size comes from the file's MediaBox, and for a mail
+// attachment that is the sender's choice: a one-page PDF whose only hostile
+// property is a 100,000-point MediaBox, rendered at the reader's fixed 100 dpi,
+// ran 104 s at 4.4 GB resident (review CC4). A bitmap is four bytes a pixel, so
+// the default budget of 64 million pixels bounds one page at about 256 MB — an
+// A0 sheet at 150 dpi (35 million) still fits. A page over budget is refused
+// with a named error and a non-zero exit, before anything is allocated.
+// CCPDF_MAX_PIXELS overrides it for a machine that wants more or less. The
+// sums are done in Double, because converting an infinite or NaN size to Int
+// traps.
+let defaultMaxPixels: Double = 64_000_000
+var maxPixels = defaultMaxPixels
+if let raw = ProcessInfo.processInfo.environment["CCPDF_MAX_PIXELS"] {
+    guard let v = Double(raw), v >= 1, v.isFinite else {
+        fail("CCPDF_MAX_PIXELS must be a number of pixels, 1 or more (got \"\(raw)\")")
+    }
+    maxPixels = v
+}
+guard scale.isFinite, scale > 0 else { fail("-r must be a positive resolution (got \(dpi))") }
+
 for n in from...to {
     guard let page = doc.page(at: n - 1) else { continue }
     let box = page.bounds(for: .mediaBox)
-    let pxW = Int((box.width * scale).rounded())
-    let pxH = Int((box.height * scale).rounded())
-    guard pxW > 0, pxH > 0 else { continue }
+    let wantW = (Double(box.width) * scale).rounded()
+    let wantH = (Double(box.height) * scale).rounded()
+    guard wantW.isFinite, wantH.isFinite else {
+        fail("page \(n) has a non-finite size — refusing")
+    }
+    guard wantW > 0, wantH > 0 else { continue }
+    if wantW * wantH > maxPixels {
+        fail("page \(n) would be \(Int(min(wantW, 1e9))) x \(Int(min(wantH, 1e9))) px " +
+             "(\(Int(min(wantW * wantH / 1_000_000, 1e12))) Mpx), over the \(Int(maxPixels / 1_000_000)) Mpx " +
+             "budget — refusing before allocating. Use a lower -r, or raise CCPDF_MAX_PIXELS.")
+    }
+    let pxW = Int(wantW)
+    let pxH = Int(wantH)
 
     guard let ctx = CGContext(
         data: nil, width: pxW, height: pxH,

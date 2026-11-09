@@ -1,4 +1,4 @@
-.TH CCMAIL 1 "2026-09-09" "atelier instruments" "User Commands"
+.TH CCMAIL 1 "2026-11-09" "atelier instruments" "User Commands"
 .SH NAME
 ccmail \- open the Gmail attachments the mailbox connector can only name
 .SH SYNOPSIS
@@ -59,7 +59,7 @@ brings its own. There are
 and they are tried in order. Both are read\-only
 .RI ( gmail.readonly );
 neither can send, reply, label or delete.
-.SS Route 1 \(em delegation (preferred, stores nothing)
+.SS Route 1 \(em delegation (preferred, adds no credential of its own)
 An estate may already hold a
 .B keyless
 Workspace identity registered for domain\-wide delegation with
@@ -69,11 +69,16 @@ reaches it by impersonation: the operator's own cloud login signs a JWT as that
 identity, which is exchanged for a delegated token that lives in memory for one
 run and expires within the hour.
 .PP
-This route is preferred because it adds
-.BR nothing .
-No new grant, no new console registration, and no new stored secret \(em so
-there is nothing to keep, rotate, or lose. Configure it in the machine\-local
-file described under
+This route is preferred because
+.B ccmail
+adds
+.BR nothing
+to the estate: no new grant, no new console registration, and no new stored
+secret of its own. That is a statement about the tool, not about the route.
+See
+.B WHAT THE ROUTES REACH
+below for what the route itself rests on and how far it reaches. Configure it
+in the machine\-local file described under
 .BR FILES :
 .PP
 .RS
@@ -127,10 +132,48 @@ wrong place.
 .B \-\-status
 likewise reports every route, live or not, so a preferred route that has quietly
 stopped answering is visible before it becomes a surprise.
+.SS What the routes reach
+.B Read this before relying on either route.
+It states what anyone who can run a command as the operator on this machine
+could read with the credential, which is the question a credential's
+documentation exists to answer.
+.PP
+.B Route 1 reaches every mailbox in the domain, not one.
+The delegated identity is registered for domain\-wide delegation, and
+.B ccmail
+names the one mailbox it reads only in its own configuration. That limit is a
+property of this tool, not of the credential. Whoever can run a command as the
+operator while the cloud login is fresh can ask the cloud CLI to sign for any
+other mailbox the identity delegates over, and read it, with no help from
+.BR ccmail .
+.PP
+.B Route 1 depends on a stored login file.
+It stores nothing of its own, but it runs on the cloud CLI's own login, which
+that CLI keeps as a plain file under the operator's home directory. That file is
+the same class of thing the estate's rule against loose secrets forbids, and
+.B ccmail
+neither wrote it nor can protect it. Keyless means no downloadable private key
+for the identity; it does not mean no credential on this machine.
+.PP
+.B Route 2 reaches one mailbox,
+but its refresh token and client secret can be read from the Keychain by any
+process running as the operator with a single
+.B security
+command. There is no dialog, by design (see
+.BR "CREDENTIAL STORAGE" ).
+Once read they stay valid off this machine until the grant is revoked at the
+operator's Google account page.
+.PP
+Both routes are read\-only
+.RI ( gmail.readonly ):
+neither can send, reply, label or delete. Neither is a limit on
+.BR reading .
 .SH CREDENTIAL STORAGE
-Route 1 stores
-.B nothing
-\(em that is its chief virtue.
+Route 1 adds
+.B no stored secret of its own
+\(em but see
+.B What the routes reach
+for the cloud login it runs on.
 .PP
 Route 2's refresh token is a real secret and goes to the
 .B macOS Keychain
@@ -160,9 +203,15 @@ takes one argument describing what to fetch. The forms compose,
 comma\-separated, and a hit is never listed twice:
 .TP
 .B all
-Every attachment on the message. This is also what a bare
+Every attachment on the message. This is what
+.B \-\-get all
+means and what
 .B \-\-get
-means.
+with no selector is not: a bare
+.B \-\-get
+is an error, as is
+.B \-\-get
+followed by another option, because the selector is never guessed.
 .TP
 .I n
 The number shown in the listing, counting from 1.
@@ -179,6 +228,10 @@ Quote it, or the shell will expand it against the working directory first.
 A selector that matches nothing is an error that lists what the message
 actually carries. It is never silently widened to
 .BR all .
+A selector with several parts, one of which matches nothing
+.RI ( 1,99 ),
+fetches the parts that do match and prints a warning naming the one that did
+not.
 .SH OPTIONS
 .TP
 .B \-\-auth
@@ -187,7 +240,9 @@ half\-completing.
 .TP
 .B \-\-status
 Confirm the credential works, and report which account it reads, which scope it
-holds, where the secret is stored and where downloads land. One live API call.
+holds, where the secret is stored and where downloads land. It tests every
+route, so it makes several live calls and mints the delegated token more than
+once; it is not free to run in a loop.
 .TP
 .BI \-\-search " query"
 Find message ids using Gmail's own search syntax
@@ -239,6 +294,33 @@ is honoured;
 .B CCMAIL_DEST
 overrides the base outright).
 .PP
+.B The cache is private and short\-lived.
+Attachments are other people's mail at rest, so
+.B ccmail
+creates its directories 0700 and its files 0600, whatever the umask. On every
+run (except \-\-auth) it also makes any cache path looser than that private,
+and deletes each message folder in which nothing has been written for 30 days,
+then prints one line to standard error saying what it did. It prints nothing
+when there was nothing to do, so
+.B \-\-json
+output on standard output is never disturbed. The sweep deletes only real
+directories directly under the cache root whose names are message ids, never
+follows a symlink, and refuses to run at all if the cache root is a symlink, the
+home directory, the filesystem root or inside a git work tree. A
+.B \-\-dest
+you choose is not part of the cache: it is never swept, and an existing one
+keeps its own permissions (new files in it are still 0600).
+.PP
+To clear the cache by hand:
+.BR "rm \-rf ~/.cache/ccmail" .
+.PP
+A name already taken in the destination is never overwritten and never written
+through a symlink: the second of two
+.I image.png
+attachments is saved as
+.IR image\-2.png ,
+and a file already holding exactly the same bytes (an earlier run) is reused.
+.PP
 .B ccmail refuses to write inside a git work tree.
 A mail attachment is, by definition, data that belongs to whoever sent it, and
 a repository is one commit away from publication \(em the same reasoning, and
@@ -253,6 +335,8 @@ characters become underscores and leading dots are dropped, so a hostile or
 merely careless attachment name cannot escape the destination directory or
 arrive invisible to
 .BR ls (1).
+Bidirectional\-override and control characters are replaced too, and a name is
+capped in bytes, extension included, so one hostile name cannot abort the batch.
 An attachment the sender left unnamed \(em common for an inline image \(em is
 kept, not dropped, and named by its position and MIME type. Sometimes the
 unnamed part is the scan the message was about.
@@ -291,7 +375,9 @@ anyone who is not this operator.
 Route 2's refresh token. There is no file form.
 .TP
 .IR ~/.cache/ccmail/ <message\-id>/
-Default download destination.
+Default download destination. Private (0700 and 0600), and emptied of message
+folders untouched for 30 days. See
+.BR "WHERE FILES LAND" .
 .SH ENVIRONMENT
 .TP
 .B CCMAIL_CONFIG
@@ -351,8 +437,10 @@ The requested work completed.
 .TP
 .B 1
 Neither route could reach the mailbox (both reasons are reported), the message
-or attachment does not exist, the selector matched nothing, or the destination
-was refused. The message names which.
+id is not a Gmail id, the message does not exist, the selector matched nothing,
+or the destination was refused. Also 1 when some attachments were written and
+others could not be fetched: the ones that could be are still written, and each
+failure is named on standard error. The message names which.
 .SH NOTES
 .B ccmail
 is a capability instrument under

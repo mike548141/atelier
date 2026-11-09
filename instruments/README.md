@@ -631,17 +631,19 @@ operator never hits, since the operator just opens their own mail.
   into a context window would be a worse outcome than the gap it closes, so
   that is not offered even as an option — the same instinct behind ccrepo's
   refusal to fabricate a figure it cannot source.
-- **Two routes, tried in order, and the preferred one stores nothing.** The
+- **Two routes, tried in order, and the preferred one adds no secret of
+  `ccmail`'s own.** The
   connector's own authorisation is not reachable from a shell, so `ccmail`
   brings its own — both read-only (`gmail.readonly`), neither able to send,
   label or delete.
   **(1) Delegation.** Where an estate already holds a *keyless* Workspace
   identity registered for `gmail.readonly`, `ccmail` reaches it by
   impersonation: the operator's own cloud login signs a JWT as that identity,
-  exchanged for a token that lives in memory for one run. This adds **no
-  credential at all** — nothing to keep, rotate or lose — which is why it is
-  first. Configured by machine-local `~/.claude/ccmail.json`, holding
-  identifiers only, never a secret.
+  exchanged for a token that lives in memory for one run. `ccmail` stores
+  **nothing** for it, which is why it is first — but that is a fact about the
+  tool, not the route (see *How far each route reaches*, below). Configured by
+  machine-local `~/.claude/ccmail.json`, holding identifiers only, never a
+  secret.
   **(2) The operator's own grant.** `ccmail --auth`, once per machine. It exists
   because route 1 depends on a cloud login that lapses, and a tool promising
   "any session, any repo" cannot go dark for a day when that happens.
@@ -650,21 +652,44 @@ operator never hits, since the operator just opens their own mail.
   so a preferred route that quietly stopped answering is visible before it
   becomes a surprise.
 - **The one secret is stored like one, and there is no weaker fallback.** Route
-  1 has no secret. Route 2's refresh token goes to the macOS Keychain and
-  *nowhere else* — the item created with `-T /usr/bin/security` so the same
+  1 has no secret of `ccmail`'s own. Route 2's refresh token goes to the macOS
+  Keychain and *nowhere else* — the item created with `-T /usr/bin/security` so the same
   binary reads it back without an allow-access dialog, which is load-bearing
   since an agent session cannot click one. An earlier draft carried a 0600-file
   fallback; it was **removed** rather than deprioritised, because a fallback
   that lowers the bar is reached exactly when something has already gone wrong.
   Off macOS `ccmail` refuses to store and names the estate's real stores
   instead. This is the **first instrument to hold a credential to a third-party
-  account**; ADR 0006's third addendum records what that adds to the layer.
+  account**; ADR 0006's 2026-09-09 addendum records what that adds to the layer,
+  and its 2026-11-09 addendum the threats considered and the reach below.
+- **How far each route reaches — read this before relying on either.** What
+  anyone able to run a command as the operator could read with it:
+  **route 1 reaches every mailbox in the domain**, not one. `ccmail` reads only
+  the configured mailbox, but that is a property of the tool: the same session
+  can ask the cloud CLI to sign for any other mailbox the identity delegates
+  over. It also **depends on a stored login file**: the cloud CLI's own login,
+  a plain file under the home directory that `ccmail` did not write and cannot
+  protect. "Keyless" means no downloadable private key, not no credential on the
+  machine. **Route 2 reaches one mailbox**, but its refresh token and client
+  secret come out of the Keychain with one `security` command and no dialog, and
+  stay valid off the machine until revoked. Both are read-only; neither limits
+  *reading*.
 - **It refuses to write inside a git work tree.** A mail attachment is by
   definition someone else's data, and a repo is one commit from publication —
   the same guard, and the same reasoning, that `ccarchive` puts on its archive
   dest. Downloads default to `~/.cache/ccmail/<message-id>/`; `--dest` moves
   them, `--allow-repo-dest` is the deliberate override. Filenames are sanitised
-  so a hostile or careless attachment name cannot escape the directory.
+  so a hostile or careless attachment name cannot escape the directory, and a
+  repeated name is suffixed (`image-2.png`), never overwritten or written
+  through a planted symlink.
+- **The cache is private and expires.** Attachments are other people's mail at
+  rest: directories are created 0700 and files 0600, and on every run `ccmail`
+  tightens anything looser and deletes message folders untouched for 30 days,
+  printing one line on stderr when it did something. The sweep touches only real
+  directories named as message ids directly under the cache, never follows a
+  symlink, and refuses a cache root that is a symlink, the home directory, `/`
+  or inside a git work tree; tests pin each limit. A `--dest` you choose is
+  never swept. Clear it by hand with `rm -rf ~/.cache/ccmail`.
 - **`--text` extracts, and says that it extracted.** A PDF or image is readable
   the moment it lands; an Open XML file (`.docx`/`.xlsx`/`.pptx`) is a zip of
   XML and is not, so `--text` writes a plain-text sidecar beside it — words, and
@@ -706,6 +731,13 @@ why the fix belongs here rather than being left as a note.
   invalid. Everything about that failure pointed at the PDF instead of the tool.
   The call shape it tests — `-jpeg -r 100 -f 1 -l 1 in.pdf <prefix>` — was
   **observed** from the reader, not guessed.
+- **A page over a pixel budget is refused, not rendered.** A page's size is the
+  sender's choice (the file's MediaBox) and mail is the input: a one-page PDF
+  with a 100,000-point page once ran 104 seconds at 4.4 GB. The default budget
+  is 64 million pixels (about 256 MB a page; an A0 sheet at 150 dpi fits), the
+  refusal is named and happens before anything is allocated, and
+  `CCPDF_MAX_PIXELS` adjusts it. The selftest asserts the refusal. Re-run
+  `instruments/ccpdf/setup` to put the new build on `PATH`.
 
 ## Schema caveat
 

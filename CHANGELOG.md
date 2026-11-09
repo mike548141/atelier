@@ -5,6 +5,48 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-09 — `ccmail` cold pass applied: `210/130`)
+Mike answered *"Keep it, lock the cache"* to the options offered on the review's
+major finding (an answer, not a ruling); the reviewer's counsel on the rest was
+applied as written. Review: `docs/reviews/2026-09-25-0715-ccmail-build-cold.md`.
+- **The delegated route stays and its reach is written down (CC1).** ADR 0006
+  gains a 2026-11-09 addendum, and `man ccmail`, the README and the tool's own
+  header say what anyone able to run a command as the operator could read:
+  every mailbox the delegated identity covers on route 1, resting on the cloud
+  CLI's own stored login file; one mailbox on route 2, with the token one
+  `security` command away. ADR controls for future credential-holding
+  instruments now require that line, per route. Not built: refusing a subject
+  unlike the cloud login's own identity (offered, not part of the answer).
+- **The cache is private and expires (CC2).** Directories 0700, files 0600,
+  whatever the umask; every run tightens looser existing paths and deletes
+  message folders untouched for 30 days, with one line on stderr. The sweep
+  never follows a symlink and refuses a root that is a link, `$HOME`, `/` or in
+  a work tree; tests pin each limit. `rm -rf ~/.cache/ccmail` is documented.
+- **Threat list in the ADR addendum (CC3); standing-credential pointer (CC9).**
+  The superseded 0600-file fallback line in the ADR's controls is marked
+  withdrawn. The private-registry entry is owed outside this repository.
+- **`ccpdf` refuses an oversize page (CC4).** A 64-megapixel default budget,
+  `CCPDF_MAX_PIXELS` to adjust, a named error before allocation, asserted by the
+  selftest. Re-run `instruments/ccpdf/setup` to install it. A sandbox profile was
+  considered and not built (reason in the ADR).
+- **Write path (CC5, CC6, CC11).** Files are created with `wx` (no write through
+  a planted symlink), the repo guard resolves real paths, a message id must be
+  hex, same or colliding names are suffixed instead of overwritten, name caps
+  count bytes and cap the extension, one failing attachment no longer aborts the
+  batch (exit 1, each named), a part with no id and no data is skipped, bidi and
+  control characters are removed from names and listings, requests time out
+  after 60 seconds, `&#x..;` references decode, and an unreadable Keychain is an
+  error rather than "nothing stored".
+- **Docs against behaviour (CC7) and consent (CC8).** `--get` with no value, or
+  followed by an option, is refused (the man page no longer says a bare `--get`
+  means all); `--status` is described as several calls; a partial selector miss
+  is warned; the README points at the right addendum. The loopback consent now
+  sends `state` and a PKCE challenge and ignores a callback without the state.
+- **Overtaken, not built:** CC10 (no route live): the cache shows downloads from
+  late September to 8 November, so the tool is in use; no probe was run. CC13
+  concerns the review's own records and the board item's pointer, which this run
+  may not edit. CC12 was a clean note.
+
 ### Changed (2026-11-09 — three cold-pass applications: `160/380`, `160/450`, `260/050`)
 Mike answered options a session offered on each; those are answers, not rulings
 in his own words. The reviewers' counsel was applied as written.

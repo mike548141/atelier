@@ -23,11 +23,13 @@
  * the connector and cannot be reached from a shell, so ccmail brings its own.
  * Both are read-only (`gmail.readonly`) and neither can send, delete or label.
  *
- *   1. DELEGATION (preferred, stores nothing). An estate may already hold a
+ *   1. DELEGATION (preferred, no stored secret of ccmail's own; but see HOW FAR
+ *      EACH ROUTE REACHES below — the route itself is not credential-free). An
+ *      estate may already hold a
  *      keyless Workspace identity registered for gmail.readonly. ccmail reaches
  *      it by impersonation — the operator's own cloud login signs a JWT as that
  *      identity, exchanged for a token that lives in memory for one run. This
- *      route adds NO credential to the estate: nothing to keep, rotate or lose.
+ *      route adds NO credential of ccmail's own: nothing for ccmail to keep.
  *      Its cost is that it works only while that cloud login is fresh.
  *   2. THE OPERATOR'S OWN GRANT (fallback, stores one secret). `ccmail --auth`
  *      mints it once per machine. It never depends on a cloud login, which is
@@ -42,11 +44,27 @@
  * account, the paths, the client and the delegated identity all resolve at
  * runtime from machine-local config.
  *
+ * HOW FAR EACH ROUTE REACHES (what anyone who can run a command as the operator
+ * could read with it — the line ADR 0006's 2026-11-09 addendum requires):
+ *
+ *   1. DELEGATION reaches EVERY mailbox in the domain the delegated identity is
+ *      registered over, not one. ccmail reads only the configured subject, but
+ *      that is a property of this tool and not of the credential: whoever can
+ *      run a command as the operator can ask the cloud CLI to sign for any other
+ *      subject. "Stores nothing" is true of ccmail and false of the route: it
+ *      runs on the cloud CLI's own stored login, a plain file under the home
+ *      directory that ccmail did not write and cannot protect.
+ *   2. THE OPERATOR'S OWN GRANT reaches one mailbox, but its refresh token and
+ *      client secret come out of the Keychain with a single `security` command
+ *      (no dialog, by design) and stay valid off this machine until revoked.
+ *
  * WHERE THE FILES LAND. Downloads default to a cache directory outside every
  * repo, because an attachment is by definition someone else's data and a repo
  * dest is one commit away from publication. ccmail refuses to write inside a git
  * work tree at all — the same guard, for the same reason, that ccarchive puts on
- * its archive dest.
+ * its archive dest. The cache is PRIVATE and SHORT-LIVED: directories 0700,
+ * files 0600, and on every run ccmail tightens anything older that is looser and
+ * deletes each message folder not touched for 30 days (see cacheHygiene).
  *
  * OFFICE FORMATS. A PDF or an image is readable the moment it is on disk. A
  * .docx/.xlsx/.pptx is a zip of XML and is not, so `--text` unpacks one into a
@@ -63,12 +81,29 @@ const http = require('node:http');
 const https = require('node:https');
 const { execFileSync, spawnSync } = require('node:child_process');
 const readline = require('node:readline');
+const crypto = require('node:crypto');
 
 const SCOPE = 'https://www.googleapis.com/auth/gmail.readonly';
 const API = 'https://gmail.googleapis.com/gmail/v1/users/me';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const KEYCHAIN_SERVICE = 'ccmail';
+
+// The cache is other people's mail at rest: private to the operator, and gone
+// after a month. 30 days is the operator's ruling (2026-11-09), not a default.
+const CACHE_DAYS = 30;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const PRIVATE_DIR = 0o700;
+const PRIVATE_FILE = 0o600;
+// A Gmail message id is lowercase hex. Anything else is not ours: it is never
+// spliced into a URL or a path, and the cache sweep never deletes it.
+const ID_RE = /^[0-9a-f]{1,64}$/;
+// Bytes, not characters: a filesystem's limit is 255 bytes, and a name of 180
+// four-byte characters is 720.
+const MAX_NAME_BYTES = 200;
+const MAX_NAME_CHARS = 180;
+const MAX_EXT_BYTES = 16;
+const HTTP_TIMEOUT_MS = 60 * 1000;
 
 // ---------------------------------------------------------------------------
 // Config — machine-local, and deliberately NOT secret
@@ -144,15 +179,29 @@ function noStore() {
          `instead — see "DELEGATION" in \`man ccmail\` — or configure ${configFile()}.`;
 }
 
-function loadCreds() {
-  if (!keychainAvailable()) return null;
-  const r = spawnSync('security',
-    ['find-generic-password', '-s', KEYCHAIN_SERVICE, '-w'],
-    { encoding: 'utf8' });
-  if (r.status === 0 && r.stdout.trim()) {
-    try { return JSON.parse(r.stdout.trim()); } catch { return null; }
+// `security` exits 44 for "no such item" and something else for every other
+// failure (locked keychain, denied access, a crash). Only 44 is "nothing stored
+// yet"; folding the rest into it sent the operator to --auth to mint a grant
+// that already existed (review CC11).
+function classifyKeychainRead(r) {
+  if (r.error) return { creds: null, error: `could not run security: ${r.error.message}` };
+  if (r.status === 44) return { creds: null, error: null };
+  if (r.status !== 0) {
+    return { creds: null, error: `security exited ${r.status}: ${(r.stderr || '').trim() || 'no detail'}` };
   }
-  return null;
+  if (!(r.stdout || '').trim()) return { creds: null, error: null };
+  try {
+    return { creds: JSON.parse(r.stdout.trim()), error: null };
+  } catch {
+    return { creds: null, error: 'the stored item is not valid JSON' };
+  }
+}
+
+function loadCreds() {
+  if (!keychainAvailable()) return { creds: null, error: null };
+  return classifyKeychainRead(spawnSync('security',
+    ['find-generic-password', '-s', KEYCHAIN_SERVICE, '-w'],
+    { encoding: 'utf8' }));
 }
 
 function saveCreds(creds) {
@@ -296,6 +345,11 @@ function request(url, { method = 'GET', headers = {}, body = null } = {}) {
       }));
     });
     req.on('error', reject);
+    // Idle timeout: without one a stalled connection hangs the session forever
+    // with nothing printed (review CC11).
+    req.setTimeout(HTTP_TIMEOUT_MS, () => {
+      req.destroy(new Error(`no response from ${u.hostname} for ${HTTP_TIMEOUT_MS / 1000}s`));
+    });
     if (body) req.write(body);
     req.end();
   });
@@ -362,11 +416,13 @@ async function resolveToken() {
     tried.push(`delegation — not configured in ${configFile()}`);
   }
 
-  const creds = loadCreds();
+  const { creds, error: keychainError } = loadCreds();
   if (creds) {
     const r = await personalToken(creds);
     if (r.ok) return { token: r.token, route: 'keychain', subject: creds.account };
     tried.push(`stored grant — ${r.why}`);
+  } else if (keychainError) {
+    tried.push(`stored grant — the Keychain could not be read (${keychainError})`);
   } else {
     tried.push(`stored grant — ${keychainAbsentDetail(delegationConfigured(cfg), keychainAvailable())}`);
   }
@@ -400,12 +456,15 @@ async function api(token, urlPath, params = {}) {
   try { json = JSON.parse(res.body); } catch { json = null; }
   if (res.status !== 200) {
     const why = (json && json.error && json.error.message) || `HTTP ${res.status}`;
+    // Thrown, not die()d: one attachment failing must not abandon the rest of
+    // the batch (cmdGet catches it); every other caller lets it reach main,
+    // which reports it exactly as die() did.
     if (res.status === 403 && /insufficient|scope/i.test(why)) {
-      die(`Gmail refused the call for lack of scope: ${why}\n` +
+      throw new Error(`Gmail refused the call for lack of scope: ${why}\n` +
           `The stored grant may predate a scope change. Re-run: ccmail --auth`);
     }
-    if (res.status === 404) die(`Gmail has no such message or attachment (${why})`);
-    die(`Gmail API error: ${why}`);
+    if (res.status === 404) throw new Error(`Gmail has no such message or attachment (${why})`);
+    throw new Error(`Gmail API error: ${why}`);
   }
   return json;
 }
@@ -455,16 +514,34 @@ function header(message, want) {
 // Filenames and destinations
 // ---------------------------------------------------------------------------
 
+// Characters that can make a name lie about itself: the bidirectional controls
+// (a right-to-left override shows "gpj.exe" as "exe.jpg") and the C0/C1
+// controls (an escape sequence in a name is typed into the operator's terminal
+// when the listing is printed).
+const UNSAFE_NAME_CHARS = /[\/\\\x00-\x1f\x7f-\x9f؜‎‏‪-‮⁦-⁩]/g;
+
+function printable(name) {
+  return String(name || '').replace(UNSAFE_NAME_CHARS, '?');
+}
+
+function clipBytes(s, max) {
+  const cps = Array.from(s);
+  while (cps.length && Buffer.byteLength(cps.join('')) > max) cps.pop();
+  return cps.join('');
+}
+
 function safeName(name, index, mimeType) {
-  let n = (name || '').replace(/[\/\\\x00-\x1f]/g, '_').replace(/^\.+/, '').trim();
+  let n = (name || '').replace(UNSAFE_NAME_CHARS, '_').replace(/^\.+/, '').trim();
   if (!n) n = `attachment-${index + 1}${extFor(mimeType)}`;
-  // Long names are legal but painful to type back; a mail client's own limit is
-  // well under this, so a truncation here is very unlikely to bite.
-  if (n.length > 180) {
-    const ext = path.extname(n);
-    n = n.slice(0, 180 - ext.length) + ext;
-  }
-  return n;
+  // Long names are legal but painful to type back, and a name over the file
+  // system's byte limit throws ENAMETOOLONG mid-batch. The limit is in bytes,
+  // and an extension as long as the name must not defeat the cap (review CC6).
+  // Eight bytes are left for a collision suffix.
+  const rawExt = path.extname(n);
+  const ext = Buffer.byteLength(rawExt) <= MAX_EXT_BYTES ? rawExt : '';
+  const stem = ext ? n.slice(0, n.length - ext.length) : n;
+  const capped = Array.from(stem).slice(0, MAX_NAME_CHARS - ext.length).join('');
+  return clipBytes(capped, MAX_NAME_BYTES - Buffer.byteLength(ext) - 8) + ext;
 }
 
 function extFor(mimeType) {
@@ -481,8 +558,26 @@ function extFor(mimeType) {
   return map[mimeType] || '.bin';
 }
 
+// realpath of a path that may not exist yet: resolve the deepest ancestor that
+// does, then re-append the rest. A guard that compares the unresolved string is
+// bypassed by any symlink on the way in (review CC5).
+function realpathLoose(p) {
+  let head = path.resolve(p);
+  const tail = [];
+  for (;;) {
+    try {
+      return path.join(fs.realpathSync(head), ...tail.reverse());
+    } catch {
+      const up = path.dirname(head);
+      if (up === head) return path.resolve(p);
+      tail.push(path.basename(head));
+      head = up;
+    }
+  }
+}
+
 function insideGitWorkTree(dir) {
-  let d = path.resolve(dir);
+  let d = realpathLoose(dir);
   for (;;) {
     if (fs.existsSync(path.join(d, '.git'))) return d;
     const up = path.dirname(d);
@@ -496,6 +591,146 @@ function defaultDest() {
     || process.env.XDG_CACHE_HOME
     || path.join(os.homedir(), '.cache');
   return process.env.CCMAIL_DEST ? base : path.join(base, 'ccmail');
+}
+
+// ---------------------------------------------------------------------------
+// The cache — other people's mail at rest
+//
+// Attachments from arbitrary senders sit under the cache until something removes
+// them. Review CC2 found them world-readable, with no lifetime, in a directory
+// nobody was told to clear. The rule now (operator, 2026-11-09): private on
+// write, private after the fact, and gone after CACHE_DAYS.
+//
+// The sweep DELETES FILES, so its reach is drawn narrowly and every limit is
+// pinned by a test:
+//   - only direct children of the cache root whose names are message ids
+//     (lowercase hex) and which are real directories — never a symlink, never a
+//     loose file, never a name it did not create;
+//   - the entry's real path must still sit inside the root's real path;
+//   - rmSync on a directory unlinks a symlink inside it, it does not follow it;
+//   - it refuses outright if the root is itself a symlink, is the home
+//     directory or `/`, or sits inside a git work tree.
+// "Older" is the newest mtime anywhere inside the message folder, so a re-fetch
+// into a folder renews it.
+// ---------------------------------------------------------------------------
+
+function newestMtime(p, st) {
+  let newest = st.mtimeMs;
+  if (!st.isDirectory()) return newest;
+  let names = [];
+  try { names = fs.readdirSync(p); } catch { return newest; }
+  for (const name of names) {
+    const c = path.join(p, name);
+    let cs;
+    try { cs = fs.lstatSync(c); } catch { continue; }
+    newest = Math.max(newest, newestMtime(c, cs));
+  }
+  return newest;
+}
+
+function tightenTree(p, rep) {
+  let st;
+  try { st = fs.lstatSync(p); } catch { return; }
+  if (st.isSymbolicLink()) return;            // chmod follows links: never touch one
+  const want = st.isDirectory() ? PRIVATE_DIR : PRIVATE_FILE;
+  if (st.isDirectory() || st.isFile()) {
+    if (st.mode & 0o077) {
+      try { fs.chmodSync(p, want); rep.tightened++; } catch { rep.failed++; }
+    }
+  }
+  if (!st.isDirectory()) return;
+  let names = [];
+  try { names = fs.readdirSync(p); } catch { rep.failed++; return; }
+  for (const name of names) tightenTree(path.join(p, name), rep);
+}
+
+function cacheHygiene(root, { now = Date.now(), days = CACHE_DAYS } = {}) {
+  const rep = { root, tightened: 0, removed: [], skipped: [], failed: 0, refused: null };
+  let st;
+  try { st = fs.lstatSync(root); } catch { return rep; }   // no cache yet: nothing to do
+  if (st.isSymbolicLink()) { rep.refused = 'the cache directory is a symlink'; return rep; }
+  if (!st.isDirectory()) { rep.refused = 'the cache path is not a directory'; return rep; }
+  let real;
+  try { real = fs.realpathSync(root); } catch { rep.refused = 'the cache path cannot be resolved'; return rep; }
+  if (real === path.parse(real).root || real === fs.realpathSync(os.homedir())) {
+    rep.refused = 'the cache directory is the home directory or the filesystem root';
+    return rep;
+  }
+  if (insideGitWorkTree(real)) { rep.refused = 'the cache directory is inside a git work tree'; return rep; }
+
+  const cutoff = now - days * DAY_MS;
+  let names = [];
+  try { names = fs.readdirSync(real); } catch { rep.failed++; return rep; }
+  for (const name of names) {
+    if (!ID_RE.test(name)) continue;
+    const entry = path.join(real, name);
+    let es;
+    try { es = fs.lstatSync(entry); } catch { continue; }
+    if (es.isSymbolicLink()) { rep.skipped.push(`${name} (a symlink)`); continue; }
+    if (!es.isDirectory()) continue;
+    if (newestMtime(entry, es) >= cutoff) continue;
+    let realEntry;
+    try { realEntry = fs.realpathSync(entry); } catch { rep.failed++; continue; }
+    if (path.dirname(realEntry) !== real) { rep.skipped.push(`${name} (resolves outside the cache)`); continue; }
+    try {
+      fs.rmSync(realEntry, { recursive: true, force: true });
+      rep.removed.push(name);
+    } catch { rep.failed++; }
+  }
+
+  // Tighten the root and the message folders that remain — only those that look
+  // like ours, so a stray folder beside them is not touched.
+  if (st.mode & 0o077) {
+    try { fs.chmodSync(real, PRIVATE_DIR); rep.tightened++; } catch { rep.failed++; }
+  }
+  for (const name of names) {
+    if (ID_RE.test(name)) tightenTree(path.join(real, name), rep);
+  }
+  return rep;
+}
+
+function hygieneLine(rep) {
+  if (rep.refused) return `cache  not tidied — ${rep.refused} (${rep.root})`;
+  const bits = [];
+  if (rep.tightened) bits.push(`made ${rep.tightened} path(s) private`);
+  if (rep.removed.length) bits.push(`removed ${rep.removed.length} message folder(s) not touched for ${CACHE_DAYS}+ days`);
+  if (rep.skipped.length) bits.push(`left alone: ${rep.skipped.join(', ')}`);
+  if (rep.failed) bits.push(`${rep.failed} path(s) could not be changed`);
+  return bits.length ? `cache  ${bits.join('; ')} (${rep.root})` : '';
+}
+
+// Create a file that did not exist, readable by the operator only. 'wx' fails
+// on an existing path — a symlink included, even a dangling one — so a link
+// planted in the destination cannot redirect the write (review CC5a). A name
+// already taken gets a numeric suffix instead of an overwrite (CC6): two
+// attachments called image.png in one message are two files. The one exception
+// is a plain file already holding exactly these bytes (an earlier run), which is
+// reused rather than duplicated. `claimed` holds the names this run has used.
+function writePrivate(dir, name, buf, claimed) {
+  const ext = path.extname(name);
+  const stem = name.slice(0, name.length - ext.length);
+  for (let n = 1; n <= 1000; n++) {
+    const cand = n === 1 ? name : `${stem}-${n}${ext}`;
+    if (claimed.has(cand)) continue;
+    const file = path.join(dir, cand);
+    let fd;
+    try {
+      fd = fs.openSync(file, 'wx', PRIVATE_FILE);
+    } catch (e) {
+      if (e.code !== 'EEXIST') throw e;
+      let st;
+      try { st = fs.lstatSync(file); } catch { continue; }
+      if (st.isFile() && st.size === buf.length && fs.readFileSync(file).equals(buf)) {
+        claimed.add(cand);
+        return file;
+      }
+      continue;
+    }
+    try { fs.writeFileSync(fd, buf); } finally { fs.closeSync(fd); }
+    claimed.add(cand);
+    return file;
+  }
+  throw new Error(`more than 1000 files share the name ${printable(name)}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -530,6 +765,13 @@ function unzipList(file) {
   return r.status === 0 ? r.stdout.split('\n').filter(Boolean) : [];
 }
 
+// A numeric character reference, decimal or hex. Out-of-range values stay as
+// written rather than throwing on a hostile document.
+function codePoint(n, original) {
+  return Number.isInteger(n) && n >= 0 && n <= 0x10ffff && !(n >= 0xd800 && n <= 0xdfff)
+    ? String.fromCodePoint(n) : original;
+}
+
 function xmlText(xml, blockTags) {
   if (!xml) return '';
   let s = xml;
@@ -541,7 +783,8 @@ function xmlText(xml, blockTags) {
   s = s.replace(/<[^>]+>/g, '');
   s = s.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
        .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
-       .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(Number(d)))
+       .replace(/&#(\d+);/g, (_, d) => codePoint(Number(d), _))
+       .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => codePoint(parseInt(h, 16), _))
        .replace(/&amp;/g, '&');
   return s.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
@@ -668,9 +911,10 @@ async function cmdAuth(fallback) {
   rl.close();
   if (!clientId || !clientSecret) die('both the client ID and the client secret are needed');
 
-  const code = await loopbackConsent(clientId);
+  const { code, verifier } = await loopbackConsent(clientId);
   const form = new URLSearchParams({
     code,
+    code_verifier: verifier,
     client_id: clientId,
     client_secret: clientSecret,
     redirect_uri: loopbackConsent.redirectUri,
@@ -709,8 +953,40 @@ async function cmdAuth(fallback) {
   process.stdout.write('Every session on this machine can now read attachments. Try:  ccmail --status\n');
 }
 
+// Google's native-app guidance marks both `state` and a PKCE challenge
+// "Recommended" for exactly this loopback flow. Without them any local process
+// that reaches the port first can end the consent or feed in its own code
+// (review CC8).
+function pkcePair() {
+  const verifier = crypto.randomBytes(48).toString('base64url');
+  const challenge = crypto.createHash('sha256').update(verifier).digest('base64url');
+  return { verifier, challenge };
+}
+
+function buildConsentUrl(clientId, redirectUri, state, challenge) {
+  const u = new URL(AUTH_URL);
+  u.searchParams.set('client_id', clientId);
+  u.searchParams.set('redirect_uri', redirectUri);
+  u.searchParams.set('response_type', 'code');
+  u.searchParams.set('scope', SCOPE);
+  u.searchParams.set('access_type', 'offline');
+  u.searchParams.set('prompt', 'consent');
+  u.searchParams.set('state', state);
+  u.searchParams.set('code_challenge', challenge);
+  u.searchParams.set('code_challenge_method', 'S256');
+  return u;
+}
+
+function consentCallback(reqUrl, state) {
+  const u = new URL(reqUrl, 'http://127.0.0.1');
+  if (u.searchParams.get('state') !== state) return { ignore: true };
+  return { ignore: false, code: u.searchParams.get('code'), err: u.searchParams.get('error') };
+}
+
 function loopbackConsent(clientId) {
   return new Promise((resolve, reject) => {
+    const state = crypto.randomBytes(24).toString('base64url');
+    const { verifier, challenge } = pkcePair();
     // Without this the process waits for a consent that may never come — a
     // browser tab closed by mistake would leave a terminal hung with no clue
     // why. Five minutes is well past a real consent and well short of annoying.
@@ -721,25 +997,25 @@ function loopbackConsent(clientId) {
     giveUp.unref();
 
     const server = http.createServer((req, res) => {
+      const cb = consentCallback(req.url, state);
+      // Anything that does not carry our state is not our consent: answer it
+      // and keep waiting, so a stray local request cannot end the flow.
+      if (cb.ignore) {
+        res.writeHead(400, { 'content-type': 'text/plain; charset=utf-8' });
+        res.end('ccmail: this request did not come from the consent it is waiting for.');
+        return;
+      }
       clearTimeout(giveUp);
-      const u = new URL(req.url, 'http://127.0.0.1');
-      const code = u.searchParams.get('code');
-      const err = u.searchParams.get('error');
+      const { code, err } = cb;
       res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
       res.end(code ? 'ccmail is authorised. You can close this tab.' : `Authorisation failed: ${err || 'no code returned'}`);
       server.close();
-      if (code) resolve(code); else reject(new Error(err || 'no code returned'));
+      if (code) resolve({ code, verifier }); else reject(new Error(err || 'no code returned'));
     });
     server.listen(0, '127.0.0.1', () => {
       const port = server.address().port;
       loopbackConsent.redirectUri = `http://127.0.0.1:${port}`;
-      const u = new URL(AUTH_URL);
-      u.searchParams.set('client_id', clientId);
-      u.searchParams.set('redirect_uri', loopbackConsent.redirectUri);
-      u.searchParams.set('response_type', 'code');
-      u.searchParams.set('scope', SCOPE);
-      u.searchParams.set('access_type', 'offline');
-      u.searchParams.set('prompt', 'consent');
+      const u = buildConsentUrl(clientId, loopbackConsent.redirectUri, state, challenge);
       process.stdout.write(`\nOpening your browser to approve read-only access…\nIf it does not open, paste this in:\n${u}\n\n`);
       try { execFileSync('open', [u.toString()]); } catch { /* the printed URL is the fallback */ }
     });
@@ -760,20 +1036,27 @@ async function cmdStatus(json) {
       route: 'delegation',
       live: r.ok,
       detail: r.ok
-        ? `keyless, impersonating as ${cfg.delegate.subject}; nothing stored`
+        ? `keyless, impersonating as ${cfg.delegate.subject}; nothing stored by ccmail ` +
+          '(the identity itself reaches the whole domain — man ccmail, AUTHORISATION)'
         : r.why + (r.expired ? ' — fix: gcloud auth login' : ''),
     });
   } else {
     routes.push({ route: 'delegation', live: false, detail: `not configured in ${configFile()}` });
   }
 
-  const creds = loadCreds();
+  const { creds, error: keychainError } = loadCreds();
   if (creds) {
     const r = await personalToken(creds);
     routes.push({
       route: 'keychain',
       live: r.ok,
       detail: r.ok ? `stored grant for ${creds.account}, in the macOS Keychain` : r.why,
+    });
+  } else if (keychainError) {
+    routes.push({
+      route: 'keychain',
+      live: false,
+      detail: `the Keychain could not be read (${keychainError})`,
     });
   } else {
     const delegated = delegationConfigured(cfg);
@@ -794,7 +1077,7 @@ async function cmdStatus(json) {
   }
 
   if (json) {
-    print({ authorised: Boolean(winner), account, scope: SCOPE, routes, dest: defaultDest() });
+    print({ authorised: Boolean(winner), account, scope: SCOPE, routes, dest: defaultDest(), retentionDays: CACHE_DAYS });
     if (!winner) process.exit(1);
     return;
   }
@@ -806,7 +1089,7 @@ async function cmdStatus(json) {
   for (const r of routes) {
     process.stdout.write(`   ${r.live ? '✅' : r.optional ? '➖' : '❌'} ${r.route.padEnd(10)} ${r.detail}\n`);
   }
-  process.stdout.write(`   downloads   ${defaultDest()}\n`);
+  process.stdout.write(`   downloads   ${defaultDest()} (private; folders untouched for ${CACHE_DAYS} days are deleted)\n`);
   if (!winner) process.exit(1);
 }
 
@@ -837,6 +1120,7 @@ async function cmdSearch(query, limit, json) {
 }
 
 async function cmdList(messageId, json) {
+  requireMessageId(messageId);
   const { token } = await resolveToken();
   const m = await api(token, `/messages/${messageId}`, { format: 'full' });
   const items = attachmentsOf(m);
@@ -851,7 +1135,7 @@ async function cmdList(messageId, json) {
   if (!items.length) { process.stdout.write('No attachments on this message.\n'); return; }
   items.forEach((a, i) => {
     process.stdout.write(
-      `  [${i + 1}] ${a.filename || '(unnamed)'}\n` +
+      `  [${i + 1}] ${printable(a.filename) || '(unnamed)'}\n` +
       `      ${a.mimeType} · ${human(a.size)}\n`);
   });
   process.stdout.write(`\nFetch them with:  ccmail ${messageId} --get all\n`);
@@ -861,17 +1145,72 @@ function publicShape(a) {
   return { filename: a.filename, mimeType: a.mimeType, size: a.size };
 }
 
+// The write path, with the network injected (`fetchData(a)` returns base64url
+// or null) so it can be tested without Google. Private on creation: a directory
+// it creates is 0700 and a file 0600; an existing directory (a --dest the
+// operator chose) is left exactly as it was.
+async function writeAttachments(dest, chosen, items, fetchData, opts = {}) {
+  fs.mkdirSync(dest, { recursive: true, mode: PRIVATE_DIR });
+  const written = [];
+  const failed = [];
+  const claimed = new Set();
+  for (const a of chosen) {
+    const pos = items.indexOf(a) + 1;
+    const label = printable(a.filename) || `#${pos}`;
+    try {
+      const b64 = await fetchData(a);
+      if (!b64) {
+        process.stderr.write(`warn  ${label} returned no data — skipped\n`);
+        failed.push({ filename: a.filename, why: 'no data' });
+        continue;
+      }
+      const buf = Buffer.from(b64.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+      const file = writePrivate(dest, safeName(a.filename, pos - 1, a.mimeType), buf, claimed);
+      const rec = { file, filename: a.filename, mimeType: a.mimeType, bytes: buf.length };
+
+      if (opts.text) {
+        const kind = officeKind(file, a.mimeType);
+        if (kind) {
+          const r = extractOffice(file, kind);
+          if (r.ok) {
+            rec.text = writePrivate(dest, `${path.basename(file)}.txt`, Buffer.from(
+              `[ccmail: text extracted from ${path.basename(file)} — words and cell values only, ` +
+              `not the document's layout, images or formatting]\n\n${r.text}\n`), claimed);
+          } else {
+            rec.textError = r.why;
+            process.stderr.write(`warn  could not extract text from ${path.basename(file)}: ${r.why}\n`);
+          }
+        }
+      }
+      written.push(rec);
+    } catch (e) {
+      // One bad attachment must not abandon the others after some are written.
+      process.stderr.write(`warn  ${label} failed — skipped (${e.message})\n`);
+      failed.push({ filename: a.filename, why: e.message });
+    }
+  }
+  return { written, failed };
+}
+
+function requireMessageId(id) {
+  if (!ID_RE.test(id)) {
+    die(`"${printable(id).slice(0, 60)}" is not a Gmail message id (lowercase hex, as ccmail --search prints).`);
+  }
+}
+
 async function cmdGet(messageId, selector, opts) {
+  requireMessageId(messageId);
   const { token } = await resolveToken();
   const m = await api(token, `/messages/${messageId}`, { format: 'full' });
   const items = attachmentsOf(m);
   if (!items.length) die(`message ${messageId} has no attachments`);
 
-  const chosen = select(items, selector);
+  const { chosen, missed } = selectDetailed(items, selector);
   if (!chosen.length) {
     die(`nothing in message ${messageId} matches "${selector}".\n` +
-        `It has: ${items.map((a) => a.filename || '(unnamed)').join(', ')}`);
+        `It has: ${items.map((a) => printable(a.filename) || '(unnamed)').join(', ')}`);
   }
+  for (const t of missed) process.stderr.write(`warn  nothing matches "${t}" — skipped\n`);
 
   const dest = path.resolve(opts.dest || path.join(defaultDest(), messageId));
   const repo = insideGitWorkTree(dest);
@@ -880,68 +1219,50 @@ async function cmdGet(messageId, selector, opts) {
         `Mail attachments are other people's data and a repo is one commit from publication.\n` +
         `Pick a --dest outside it, or pass --allow-repo-dest if you truly mean to.`);
   }
-  fs.mkdirSync(dest, { recursive: true });
+  const fetchData = async (a) => {
+    if (a.inlineData) return a.inlineData;
+    if (!a.attachmentId) return null;
+    return (await api(token, `/messages/${messageId}/attachments/${a.attachmentId}`)).data;
+  };
+  const { written, failed } = await writeAttachments(dest, chosen, items, fetchData, opts);
+  if (failed.length) process.exitCode = 1;
 
-  const written = [];
-  for (const [i, a] of chosen.entries()) {
-    let b64 = a.inlineData;
-    if (!b64) {
-      const at = await api(token, `/messages/${messageId}/attachments/${a.attachmentId}`);
-      b64 = at.data;
-    }
-    if (!b64) { process.stderr.write(`warn  ${a.filename || `#${i + 1}`} returned no data — skipped\n`); continue; }
-    const buf = Buffer.from(b64.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
-    const file = path.join(dest, safeName(a.filename, items.indexOf(a), a.mimeType));
-    fs.writeFileSync(file, buf);
-    const rec = { file, filename: a.filename, mimeType: a.mimeType, bytes: buf.length };
-
-    if (opts.text) {
-      const kind = officeKind(file, a.mimeType);
-      if (kind) {
-        const r = extractOffice(file, kind);
-        if (r.ok) {
-          const txt = `${file}.txt`;
-          fs.writeFileSync(txt,
-            `[ccmail: text extracted from ${path.basename(file)} — words and cell values only, ` +
-            `not the document's layout, images or formatting]\n\n${r.text}\n`);
-          rec.text = txt;
-        } else {
-          rec.textError = r.why;
-          process.stderr.write(`warn  could not extract text from ${path.basename(file)}: ${r.why}\n`);
-        }
-      }
-    }
-    written.push(rec);
-  }
-
-  if (opts.json) { print({ id: messageId, dest, written }); return; }
+  if (opts.json) { print({ id: messageId, dest, written, failed }); return; }
   process.stdout.write(`Wrote ${written.length} file(s) to ${dest}\n\n`);
   for (const w of written) {
     process.stdout.write(`  ${w.file}  (${human(w.bytes)})\n`);
     if (w.text) process.stdout.write(`  ${w.text}  (extracted text)\n`);
   }
+  if (failed.length) process.stdout.write(`\n${failed.length} attachment(s) could not be fetched — see the warnings above.\n`);
   process.stdout.write('\nRead them from that path — nothing is printed here on purpose.\n');
 }
 
-function select(items, selector) {
-  if (!selector || selector === 'all') return items;
+function selectDetailed(items, selector) {
+  if (!selector || selector === 'all') return { chosen: items, missed: [] };
   const out = [];
+  const missed = [];
   for (const token of selector.split(',').map((s) => s.trim()).filter(Boolean)) {
+    let hit = false;
     if (/^\d+$/.test(token)) {
       const a = items[Number(token) - 1];
-      if (a) out.push(a);
-      continue;
+      if (a) { hit = true; if (!out.includes(a)) out.push(a); }
+    } else {
+      // A bare word matches any filename containing it; `*` globs. Case-blind,
+      // because nobody retypes an attachment name with its original capitals.
+      const rx = new RegExp(token.includes('*')
+        ? '^' + token.split('*').map(esc).join('.*') + '$'
+        : esc(token), 'i');
+      for (const a of items) {
+        if (a.filename && rx.test(a.filename)) { hit = true; if (!out.includes(a)) out.push(a); }
+      }
     }
-    // A bare word matches any filename containing it; `*` globs. Case-blind,
-    // because nobody retypes an attachment name with its original capitals.
-    const rx = new RegExp(token.includes('*')
-      ? '^' + token.split('*').map(esc).join('.*') + '$'
-      : esc(token), 'i');
-    for (const a of items) {
-      if (a.filename && rx.test(a.filename) && !out.includes(a)) out.push(a);
-    }
+    if (!hit) missed.push(token);
   }
-  return out;
+  return { chosen: out, missed };
+}
+
+function select(items, selector) {
+  return selectDetailed(items, selector).chosen;
 }
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -978,7 +1299,8 @@ SELECT (--get)
   1,3,report                          a comma-separated mix of the above
 
 OUTPUT
-  --dest <dir>      where files land (default ~/.cache/ccmail/<message-id>/)
+  --dest <dir>      where files land (default ~/.cache/ccmail/<message-id>/);
+                    the default cache is private and emptied after 30 days
   --text            also write a .txt sidecar for .docx/.xlsx/.pptx
   --json            machine-readable
   --limit <n>       --search result cap (default 10)
@@ -1011,7 +1333,11 @@ async function main(argv) {
       case '--fallback': opts.fallback = true; break;
       case '--status': mode = 'status'; break;
       case '--search': mode = 'search'; search = next(); break;
-      case '--get': get = next(); break;
+      case '--get':
+        // `--get --text` must not take --text as the selector.
+        if (argv[i + 1] === undefined || argv[i + 1].startsWith('--')) die('--get needs a value (all, a number, a word or a glob)');
+        get = next();
+        break;
       case '--dest': opts.dest = next(); break;
       case '--limit': {
         const v = Number(next());
@@ -1030,6 +1356,17 @@ async function main(argv) {
   }
 
   if (mode === 'auth') return cmdAuth(opts.fallback);
+
+  // Housekeeping on every working run: tighten what is looser than private and
+  // delete message folders untouched for CACHE_DAYS. One line on stderr, only
+  // when it did something, so --json output stays clean. A failure here is a
+  // warning, never a reason to refuse the work asked for.
+  try {
+    const line = hygieneLine(cacheHygiene(defaultDest()));
+    if (line) process.stderr.write(`${line}\n`);
+  } catch (e) {
+    process.stderr.write(`warn  cache housekeeping failed: ${e.message}\n`);
+  }
   if (mode === 'status') return cmdStatus(opts.json);
   if (mode === 'search') return cmdSearch(search, opts.limit, opts.json);
   if (!positional) { process.stdout.write(HELP); return; }
@@ -1045,4 +1382,6 @@ module.exports = {
   attachmentsOf, walkParts, safeName, select, xmlText, extractXlsx,
   extractOffice, officeKind, human, insideGitWorkTree, header, buildUrl,
   loadConfig, configFile, keychainAvailable, delegationConfigured, keychainAbsentDetail,
+  cacheHygiene, hygieneLine, writePrivate, realpathLoose, selectDetailed, printable,
+  classifyKeychainRead, buildConsentUrl, consentCallback, writeAttachments, pkcePair, defaultDest, CACHE_DAYS,
 };
