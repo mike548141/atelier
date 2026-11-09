@@ -248,7 +248,15 @@ If no local list is found, the scan runs structural-only and **says so loudly** 
 partial cover, never silently weaker. For automation that only reads exit codes,
 loud isn't enough: pass **`--require-terms`** on a hook/CI line that *expects*
 full cover and the scan fails closed (exit 2) when the list is absent, instead
-of reporting a degraded pass a script can't tell from a full one.
+of reporting a degraded pass a script can't tell from a full one. A list that is
+there but loads **no terms** (a zero-byte file, comments only) is the same
+partial cover: under `--require-terms` it is exit 2 too; without the flag it
+degrades with a warning naming the file, and the pass line says "structural
+only". A list that exists but cannot be read (a directory, a mode-000 file) is
+exit 2 with a remedy, never a traceback. A set-but-empty `--terms ""` or
+`$ATELIER_LEAKSCAN_TERMS=` is refused under `--require-terms` and means "not
+set" without it. The CI form passes no `--require-terms`, so none of this
+reddens a child's CI.
 
 ### Usage
 
@@ -677,6 +685,13 @@ credential lives in practice, so it is scored as a live entropy candidate
 throughout, on top of the assigned-secret rule already catching a named key
 there (`?token=…`, `?api_key=…`) regardless of URL shape. A bare `http://`
 glued to a real secret with no host/path shape buys no suppression either.
+The fingerprint carve-out was ruled for fingerprints in prose context, so it is
+**off on any line that names a credential key** (`api_key: SHA256:…`,
+`"token": "SHA256:…"`): there the body is scored as an ordinary entropy hit and
+blocks (AB1). Each fingerprint suppression is located as well as counted, `path:line`
+in the human output and in `--json` (`suppressed.public_key_fingerprint_locations`,
+bounded to the first 50; the count is exact). The count is of spans, which can
+exceed the findings the spans would have made (AB4).
 The report prints only a redacted
 fingerprint (length + entropy), never the secret value.
 
@@ -1251,7 +1266,7 @@ file — an explicitly-named path is scanned, never silently matched by nothing
 (the 2026-07-21 cold pass's RS1). The review line must carry a non-empty
 value, and a `review:` quoted inside a code fence doesn't count (RS2/RS3).
 
-## `publishscan.py` — no machine-local config is tracked
+## `publishscan.py` — no file whose publication weakens the repo is tracked
 
 Every other scanner here asks *does this file contain something private?* This
 one asks *does publishing this file, whatever it holds, help someone attack the
@@ -1271,12 +1286,16 @@ such rather than dressed up as findings. A second round (2026-10-03) added the
 shapes a survey of the estate's tracked files found (runtime logs, local
 databases, compiled-Python caches), plus standard-practice key, keystore,
 history, dump, capture, tool-cache and OS-cruft shapes. Each entry says which
-tier it is. Generic `*.pem`, `credentials*.json`,
-`*.rsc`, archives and `*.jsonl` were considered and left out, because
-legitimate files wear those names. Hatch: a glob in
+tier it is. What was considered and left out, and why, is listed once, in the
+comment above round 2 in `NEVER_PUBLISH` (`tools/publishscan.py`); it is not
+repeated here. Paths match with **case folded** (`.ENV` reds as `.env` does),
+and `.*_history` and `._*` match the basename only. Hatch: a glob in
 `.publishscanignore` — there is deliberately **no line marker**, because a
 reason written inside a file that should not exist is an exemption no reviewer
-would ever see.
+would ever see. A glob matches the full path, case-sensitively, from the root
+file only. Every run prints `suppressed: N never-publish path(s) by
+.publishscanignore` (zero included), lists the first ten of them, and `--json`
+carries them all in `suppressed`, so a broad glob cannot go green unseen.
 
 ```sh
 python3 tools/publishscan.py --root .            # the tracked set (CI plane)

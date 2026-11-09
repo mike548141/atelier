@@ -100,6 +100,57 @@ answer left it standing.
   whole calibration. Not done here: DR2 (the floor's confirm bullet), which goes
   with the rule-copies work.
 
+### Changed (2026-11-09 — four cold-pass applications: 160/050, 090, 100, 470)
+Mike answered options a session offered on each; those are answers, not rulings
+in his own words. The reviewers' counsel was applied as written, taking the
+narrower option where one was offered. Scanner behaviour changes reach every
+child at its next CI run; each was probed against every floor-carrying repo on
+this machine, old scanner against new, and no repo's blocking result changed.
+- **`floorfleet` survives a missing `gh` (`160/050`, FF1).** All three `gh`
+  call sites go through one wrapper that maps an unstartable binary to the
+  documented failure values. `--remote` degrades to unknown rows, which red
+  `--check`, instead of a traceback. `pointerscan`'s docstring no longer
+  claims a staged read it does not perform (PG1) and documents its first-line
+  file hatch (PG2, kept, not dropped).
+- **`leakscan` refuses a term list that holds no terms (`160/090`, AR3).** A
+  zero-byte or comments-only list satisfied `--require-terms`, loaded nothing,
+  and printed "structural + local". Under `--require-terms` (the hook plane) it
+  is now exit 2; without the flag it degrades like an absent list, with a
+  warning naming the file, and the pass line says "structural only". CI passes
+  no `--require-terms`, so no child's CI changes. An unreadable list (a
+  directory, a mode-000 file) is exit 2 with a remedy, not a traceback. A
+  set-but-empty `--terms ""` or `$ATELIER_LEAKSCAN_TERMS=` is refused under
+  `--require-terms` and means "not set" without it. `floorfleet`'s board no
+  longer calls an empty list full cover. AR4 was already fixed. AR2 is largely
+  moot, the bypass having been removed: only the informational-signature
+  comment is re-grounded. AR5 to AR7: the pin test cites the real rule, the
+  `floor.yml` comments say why `github.repository` is exempt from the env-routing
+  rule and that `--warn` never covers an environment error, `signscan` passes
+  `--end-of-options` to `git rev-list`, `REVIEW.md` rule 3 says an ask names any
+  prior answer on the same finding (AR8), `decisions/README.md` says "as of
+  <date>" for live-state addenda, and the review-brief skill says to read
+  environment facts off the machine.
+- **`secretscan`: a fingerprint under a credential key blocks (`160/100`, AB1).**
+  `api_key: SHA256:<body>` passed fully clean after E3, because the assigned
+  rule only ever saw the short algorithm token. The carve-out is now off on any
+  line that names a credential key, which restores the pre-E3 block. Fingerprints
+  in prose context stay suppressed, as ruled. Suppressions are now located
+  (`path:line`, human and `--json`, first 50) as well as counted (AB3). AB2 and
+  AB4 to AB5 are docstring and comment corrections; AB6 is a recorded note.
+- **`publishscan`: the hatch is visible, and the patterns are tighter at the
+  edges (`160/470`).** PL1 (non-ASCII paths) was already fixed by `260/120`
+  and is now pinned on a macron-named directory. Every run prints
+  `suppressed: N never-publish path(s) by .publishscanignore`, zero included, lists
+  the first ten, and `--json` carries them all, on the default and history
+  planes (PL2). Behaviour changes: paths match with **case folded**, so `.ENV`,
+  `ID_RSA` and `server.KEY` red as their lower-case spellings do (PL7);
+  `.*_history` and `._*` match the basename only (PL6); `Thumbs.db` is no longer
+  shadowed by `*.db`, and the selftest asserts every entry is reachable (PL8);
+  the remedy quotes the path and says how a glob matches (PL11, PL13). The
+  registry `why` and the README heading now name the class, the left-out list
+  lives in one place (PL4), and one comment no longer describes what a survey
+  found tracked (PL3; the pushed commit body is a frozen record).
+
 ### Changed (2026-11-09 — three cold-pass applications: `160/380`, `160/450`, `260/050`)
 Mike answered options a session offered on each; those are answers, not rulings
 in his own words. The reviewers' counsel was applied as written.
