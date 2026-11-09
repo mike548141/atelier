@@ -723,6 +723,7 @@ then `python3 tools/board.py rebuild`.
 
 - ✅ 🎯 [An ask stops the whole run — decide when a session asks, and what it…](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
 - [ ] 🎯 [An answer to a session's question is not a ruling. Records must tell…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
+- [ ] 🎯 [What the 2026-11-09 ruling round left open.](roadmap/420-when-to-ask-mike-commissioned/030-what-the-722a-ruling-round-left-open.md)
 
 ## Review quality is never traded for budget (Mike commissioned, 2026-10-04)
 
