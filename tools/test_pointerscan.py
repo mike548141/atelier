@@ -330,6 +330,10 @@ class InvocationTest(unittest.TestCase):
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
             self.assertIn("pointerscan:", r.stdout)
             self.assertIn("ADVISORY ONLY", r.stdout)
+            # 115/130: the findings path says what it read, as the clean one does.
+            self.assertIn("coverage: 1 roadmap file(s) opened \u00b7 1 item(s) "
+                          "checked", r.stdout)
+            self.assertNotIn("scanned nothing", r.stdout)
 
     def test_a_clean_tree_says_so(self):
         with tempfile.TemporaryDirectory() as td:

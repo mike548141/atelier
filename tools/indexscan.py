@@ -276,10 +276,26 @@ class Tally:
     files_opened: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
 
+    @property
+    def out_of_scope(self) -> bool:
+        """Files were opened and none declares a mapped directory: adoption is
+        opt-in per index, so the check is legitimately not in scope here. That
+        is a state, not an alarm (GUARDS.md: say so rather than look clean)."""
+        return self.files_opened > 0 and self.declarations == 0
+
     def coverage(self) -> str:
-        return report.coverage_line(self.files_opened, self.declarations,
-                                    unit="declaration(s) checked",
-                                    noun="Markdown file(s) opened")
+        # No warning glyph and no "covers nothing" when out of scope: the guard
+        # did not fail to look, there is simply no declaration to check.
+        return report.coverage_line(
+            self.files_opened, self.declarations,
+            unit="declaration(s) checked", noun="Markdown file(s) opened",
+            not_in_scope=("no index declares a mapped directory."
+                          if self.out_of_scope else None))
+
+    def coverage_json(self) -> dict:
+        return report.coverage_dict(self.files_opened, self.declarations,
+                                    unit_key="declarations_checked",
+                                    in_scope=not self.out_of_scope)
 
     def note_marker(self, kind: str) -> None:
         """One exemption by an allow-marker, counted in the total and by what
@@ -827,9 +843,7 @@ def _main(argv: list[str] | None = None) -> int:
                         "declarations": tally.declarations,
                         "entries": tally.entries,
                         "dated_lines": tally.dated_lines},
-            "coverage": report.coverage_dict(
-                tally.files_opened, tally.declarations,
-                unit_key="declarations_checked"),
+            "coverage": tally.coverage_json(),
             "suppressed": {"by_allow_marker": tally.by_marker,
                            "by_allow_marker_kind": dict(
                                sorted(tally.by_marker_kind.items())),

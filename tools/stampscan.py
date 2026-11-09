@@ -598,15 +598,26 @@ def find_stamp_blocks(path: str, text: str) -> tuple[list[StampBlock], list[Find
     return _find_stamp_blocks_from_lines(path, _content_lines(text))
 
 
+def _counted(content_lines, cov: dict):
+    """115/130: pass the `(lineno, raw, scan)` triples through, counting each
+    as one line read, so the scan says how much it actually evaluated."""
+    for triple in content_lines:
+        cov["lines"] += 1
+        yield triple
+
+
 def find_stamp_blocks_in_file(path: str, file_path: Path,
-                              truncated: list[int] | None = None
+                              truncated: list[int] | None = None,
+                              cov: dict | None = None
                               ) -> tuple[list[StampBlock], list[Finding]]:
     """Bounded-memory disk variant of `find_stamp_blocks` (020/380): streams
     `file_path` in fixed-size chunks instead of reading it whole — see
     `_content_lines_from_file`. `path` is the label (repo-relative) reported
     in findings, independent of where `file_path` actually lives."""
-    return _find_stamp_blocks_from_lines(
-        path, _content_lines_from_file(file_path, truncated))
+    lines = _content_lines_from_file(file_path, truncated)
+    if cov is not None:
+        lines = _counted(lines, cov)
+    return _find_stamp_blocks_from_lines(path, lines)
 
 
 def _find_stamp_blocks_from_lines(
@@ -956,7 +967,8 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str],
 
 def scan_paths(paths: list[Path], root: Path,
                skipped: list[int] | None = None,
-               truncated: list[int] | None = None) -> list[Finding]:
+               truncated: list[int] | None = None,
+               cov: dict | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
     # Keyed by (source, region), not by source alone: this holds only the
@@ -972,7 +984,9 @@ def scan_paths(paths: list[Path], root: Path,
         # peak memory for THIS file is now bounded by `_MAX_LINE_BYTES` (plus
         # whatever it happens to be currently accumulating inside an open
         # stamp block), independent of the file's own size.
-        blocks, malformed = find_stamp_blocks_in_file(rel, md, truncated)
+        if cov is not None:
+            cov["files"] += 1
+        blocks, malformed = find_stamp_blocks_in_file(rel, md, truncated, cov)
         findings.extend(malformed)
 
         for block in blocks:
@@ -1046,15 +1060,24 @@ def _suppression_line(findings: list[Finding], files_by_glob: int,
             f"{lines_truncated} over-long line(s) scanned truncated")
 
 
+def _coverage_tail(cov: dict | None) -> str:
+    """115/130: the coverage line, on its own line after the tally, or nothing
+    when the caller supplied no counts (the in-memory test paths)."""
+    if cov is None:
+        return ""
+    return "\n" + report.coverage_line(cov["files"], cov["lines"])
+
+
 def render_human(findings: list[Finding], files_by_glob: int = 0,
-                 lines_truncated: int = 0) -> str:
+                 lines_truncated: int = 0, cov: dict | None = None) -> str:
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     drifts = [f for f in findings if f.kind in _DRIFT_KINDS]
     notes = [f for f in findings if f.kind in _CLEAN_KINDS]
 
     if not findings:
         return ("✓ stampscan clean — no stamped blocks found.\n"
-                + _suppression_line(findings, files_by_glob, lines_truncated))
+                + _suppression_line(findings, files_by_glob, lines_truncated)
+                + _coverage_tail(cov))
 
     lines: list[str] = []
     if errors:
@@ -1078,7 +1101,8 @@ def render_human(findings: list[Finding], files_by_glob: int = 0,
                       + ", ".join(sorted({f.kind for f in notes})) + ")")
         for f in sorted(notes, key=lambda x: (x.path, x.line)):
             lines.append(f"    {f.path}:{f.line}  [{f.kind}] {f.detail}")
-    lines.append(_suppression_line(findings, files_by_glob, lines_truncated))
+    lines.append(_suppression_line(findings, files_by_glob, lines_truncated)
+                 + _coverage_tail(cov))
     # The footer never offers a way out of a red it has just given (FV2): a
     # floor drift gets its own line, with no `narrow=` and no allow marker, and
     # the generic footer is printed only when a non-floor drift is present.
@@ -1169,8 +1193,9 @@ def _main(argv: list[str] | None = None) -> int:
         return 2
     _skipped: list[int] = []
     _truncated: list[int] = []
+    cov: dict = {"files": 0, "lines": 0}
     try:
-        findings = scan_paths(targets, root, _skipped, _truncated)
+        findings = scan_paths(targets, root, _skipped, _truncated, cov)
     except OSError as e:
         print(f"stampscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
@@ -1224,9 +1249,10 @@ def _main(argv: list[str] | None = None) -> int:
                 "files_by_ignore_glob": len(_skipped),
                 "lines_truncated": len(_truncated),
             },
+            "coverage": report.coverage_dict(cov["files"], cov["lines"]),
         }, indent=2))
     else:
-        print(render_human(findings, len(_skipped), len(_truncated)))
+        print(render_human(findings, len(_skipped), len(_truncated), cov))
         if drifts and args.warn and not errors:
             print("\n  (--warn: advisory only — drift not blocking this build.)")
 

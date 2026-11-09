@@ -120,6 +120,47 @@ class UnchangedTree(BlockscanFixture):
         self.assertEqual(0, r.returncode, r.stdout + r.stderr)
 
 
+class CoverageLine(BlockscanFixture):
+    """115/130: every plane says how many mapped files it opened and how many
+    lines it read, on the findings path as on the clean one; exit codes are
+    the ones each plane already had."""
+
+    # APEX.md 8 lines, PROPAGATION.md 8, the template 6: three files, 22 lines.
+    COVERAGE = "  coverage: 3 file(s) opened \u00b7 22 line(s) read"
+
+    def test_a_clean_whole_tree_check_counts_the_mapped_files(self):
+        r = self.run_check()
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertIn(self.COVERAGE, r.stdout)
+        self.assertNotIn("scanned nothing", r.stdout)
+
+    def test_a_clean_staged_run_counts_them_too(self):
+        r = self.run_staged()
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertIn(self.COVERAGE, r.stdout)
+
+    def test_the_findings_path_prints_it_and_still_exits_1(self):
+        self.write_source("Reworded honesty text.")
+        self.stage_all()
+        r = self.run_staged()
+        self.assertEqual(1, r.returncode, r.stdout + r.stderr)
+        self.assertIn("violation", r.stdout)
+        self.assertIn(self.COVERAGE, r.stdout)
+
+    def test_the_against_plane_prints_it(self):
+        r = self.run_against("HEAD")
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertIn(self.COVERAGE, r.stdout)
+
+    def test_json_carries_the_same_coverage(self):
+        r = subprocess.run(
+            [sys.executable, bs.__file__, "--check", "--json",
+             "--root", str(self.root)], capture_output=True, text=True)
+        self.assertEqual({"files_opened": 3, "lines_read": 22,
+                          "scanned_nothing": False},
+                         json.loads(r.stdout)["coverage"])
+
+
 class SectionChangedNoBlockMove(BlockscanFixture):
     """The core rule: a mapped section changed, neither copy of its block
     bullet moved -> a violation, exit 1."""

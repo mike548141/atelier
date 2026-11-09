@@ -54,6 +54,10 @@ import os
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import report as _report  # noqa: E402  (`report` is a local name below)
 
 # GitHub's web-flow committer address — the marker that a commit is server-minted
 # (merge/squash) and belongs to the gh-api plane, not the local one. Not personal
@@ -197,6 +201,25 @@ def _selftest() -> int:
     return 0 if ok else 1
 
 
+def coverage_line(report: dict) -> str:
+    """115/130: how many commits were examined and how many signatures the
+    machine plane actually verified, so an empty range (or one made only of
+    server-minted commits, which are deferred) cannot read like a pass."""
+    results = report["results"]
+    verified = sum(1 for r in results if r["plane"] == "machine")
+    return _report.coverage_line(
+        len(results), verified, unit="signature(s) verified",
+        noun="commit(s) examined", files_what="commits",
+        units_what="signatures")
+
+
+def coverage_dict(report: dict) -> dict:
+    results = report["results"]
+    return _report.coverage_dict(
+        len(results), sum(1 for r in results if r["plane"] == "machine"),
+        unit_key="signatures_verified")
+
+
 def render_human(report: dict, warn: bool) -> tuple[str, int]:
     results = report["results"]
     machine = [r for r in results if r["plane"] == "machine"]
@@ -213,10 +236,10 @@ def render_human(report: dict, warn: bool) -> tuple[str, int]:
     body = "\n".join(lines)
     if bad:
         verb = "WARN (not blocking)" if warn else "FAIL"
-        out = f"✗ {head} — {verb}\n{body}"
+        out = f"✗ {head} — {verb}\n{body}\n{coverage_line(report)}"
         return out, (0 if warn else 1)
     tail = f"\n{body}" if body else ""
-    return f"✓ {head}{tail}", 0
+    return f"✓ {head}{tail}\n{coverage_line(report)}", 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -252,7 +275,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.json:
-        print(json.dumps(report, indent=2))
+        print(json.dumps(dict(report, coverage=coverage_dict(report)), indent=2))
         bad = any(r["status"] == "bad" for r in report["results"])
         return 0 if (args.warn or not bad) else 1
 

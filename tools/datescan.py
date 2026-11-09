@@ -881,6 +881,9 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     lines.append("\n  A real dating slip: fix the word/date (stamp from `date -u`, ISO-8601).")
     lines.append(f"  A deliberate exemption: append '<!-- {ALLOW_MARKER}: <reason> -->'")
     lines.append("  to the line, or add a path glob to .datescanignore.")
+    if tally is not None:
+        # 115/130: the findings path says what it covered too.
+        lines.append(tally.coverage())
     return "\n".join(lines + tail)
 
 

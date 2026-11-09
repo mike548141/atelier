@@ -5,6 +5,35 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-10 — the coverage line reaches the other nine scanners, `115/130`)
+- **`secretscan`, `leakscan`, `linkscan`, `pathscan`, `attribscan`, `blockscan`,
+  `pdlistscan`, `signscan` and `stampscan` now print the `coverage:` line**, so
+  every tree scanner in the registry says what it opened. One line, on the
+  stream each already uses, on the findings path as on the clean one, with a
+  `coverage` key added to `--json`. Units follow what each evaluates: lines for
+  `secretscan`, `attribscan`, `blockscan`, `pdlistscan` and `stampscan`; lines or
+  binaries checked for `leakscan` (a binary run through the G3 gate counts, so a
+  commit that stages only one is not "scanned nothing"); internal links for
+  `linkscan`; candidate path references for `pathscan`; and commits examined and
+  machine-plane signatures verified for `signscan`. An exempt file `secretscan`
+  reads only for private keys counts as opened. No exit status changes; probed
+  old against new on five child checkouts, 60 runs, exit codes identical.
+- **`datescan`, `pointerscan` and `harvestscan` print it on the findings path
+  too.** Their tally used to appear only on a clean result, so a run that found
+  something said nothing of how much it had read.
+- **`indexscan` says plainly that no declaration exists.** In every child no
+  index has adopted its opt-in declaration, and the line read as a warning that
+  the scan "covers nothing". It now reads `not in scope here: no index declares
+  a mapped directory.`, with no warning glyph, in the human line and as
+  `in_scope: false` in `--json`. `pdlistscan` uses the same wording for a repo
+  that does not declare itself public. `report.coverage_line` gains the
+  `not_in_scope`, `files_what` and `units_what` keywords for this;
+  `report.coverage_dict` gains `in_scope`. `GUARDS.md` names the form.
+- **Not done, so `115/130` stays open:** `floor.py`'s own summary (another lane
+  holds the file, and it passes each scanner's output through unchanged, so the
+  new lines already reach its stream), and the label plane, which no coverage
+  line reaches.
+
 ### Added (2026-11-10 — "clean" and "scanned nothing" stop looking identical, `115/130`)
 - **`report.coverage_line` and `report.coverage_dict`.** One shared line,
   `  coverage: N file(s) opened · M line(s) read`, with the unit and noun named by

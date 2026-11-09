@@ -444,6 +444,33 @@ class TestReportLines(unittest.TestCase):
                           "scanned_nothing": True},
                          report.coverage_dict(0, 0, unit_key="items_checked"))
 
+    def test_coverage_line_names_its_subject_and_a_legitimate_out_of_scope(self):
+        """115/130: a scanner whose subject is not files names its own words,
+        and one with nothing to check says so with no alarm (GUARDS.md)."""
+        commits = report.coverage_line(0, 0, unit="signature(s) verified",
+                                       noun="commit(s) examined",
+                                       files_what="commits")
+        self.assertIn("scanned nothing: no commits were evaluated", commits)
+        sigs = report.coverage_line(2, 0, unit="signature(s) verified",
+                                    noun="commit(s) examined",
+                                    units_what="signatures")
+        self.assertIn("scanned nothing: no signatures were evaluated", sigs)
+        out = report.coverage_line(4, 0, noun="tracked file(s) opened",
+                                   not_in_scope="repo is not public.")
+        self.assertEqual(out, "  coverage: 4 tracked file(s) opened \u00b7 0 "
+                              "line(s) read \u2014 not in scope here: repo is "
+                              "not public.")
+        self.assertNotIn("\u26a0", out)
+        self.assertNotIn("covers nothing", out)
+        self.assertEqual(
+            {"files_opened": 4, "lines_read": 0, "scanned_nothing": False,
+             "in_scope": False},
+            report.coverage_dict(4, 0, in_scope=False))
+        self.assertEqual(
+            {"files_opened": 0, "lines_read": 0, "scanned_nothing": True,
+             "in_scope": True},
+            report.coverage_dict(0, 0, in_scope=True))
+
     def test_suppressed_line_keeps_the_callers_order_and_zeros(self):
         self.assertEqual(report.suppressed_line(["0 b", "0 a"]),
                          "  suppressed: 0 b · 0 a")

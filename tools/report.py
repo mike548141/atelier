@@ -607,7 +607,9 @@ def suppressed_line(parts: Sequence[str], *,
 
 
 def coverage_line(files: int, units: int, *, unit: str = "line(s) read",
-                  noun: str = "file(s) opened") -> str:
+                  noun: str = "file(s) opened", files_what: str = "files",
+                  units_what: str | None = None,
+                  not_in_scope: str | None = None) -> str:
     """The rule-(b) sibling for COVERAGE (`115/130`): one stable line saying
     what the scan actually looked at, so a clean result and a scan of nothing
     stop reading the same.
@@ -622,20 +624,40 @@ def coverage_line(files: int, units: int, *, unit: str = "line(s) read",
     what the scanner evaluated where "lines" is the wrong word (`item(s)
     checked`, `declaration(s) checked`); a scanner that is legitimately out of
     scope passes its own `noun` and still says so rather than looking clean.
+    A scanner whose subject is not files (commits, say) names it in
+    `files_what` / `units_what`, so the warning reads in its own words.
+    A guard that is legitimately out of scope (an opt-in nobody has adopted,
+    a rule for public repos only) passes `not_in_scope="<why>"`: the line then
+    ends `\u2014 not in scope here: <why>` with no warning glyph and no "covers
+    nothing" alarm, because the guard did not fail to look, it has nothing to
+    check. GUARDS.md: say so rather than look clean.
     Informational only: it never touches an exit status."""
     line = f"  coverage: {files} {noun} \u00b7 {units} {unit}"
+    if not_in_scope is not None:
+        return line + f" \u2014 not in scope here: {not_in_scope}"
     if files == 0 or units == 0:
-        what = "files" if files == 0 else unit.split()[0].replace("(s)", "s")
+        what = files_what if files == 0 else (
+            units_what or unit.split()[0].replace("(s)", "s"))
         line += (f" \u2014 \u26a0\ufe0f scanned nothing: no {what} were "
                  f"evaluated, so this result covers nothing.")
     return line
 
 
-def coverage_dict(files: int, units: int, *, unit_key: str = "lines_read") -> dict:
+def coverage_dict(files: int, units: int, *, unit_key: str = "lines_read",
+                  in_scope: bool | None = None) -> dict:
     """The `--json` twin of `coverage_line`: `{"files_opened": N, "<unit_key>":
-    M, "scanned_nothing": bool}`. Added as one new key; nothing existing moves."""
-    return {"files_opened": files, unit_key: units,
-            "scanned_nothing": files == 0 or units == 0}
+    M, "scanned_nothing": bool}`. Added as one new key; nothing existing moves.
+    A scanner with an opt-in or public-only rule passes `in_scope`: the dict
+    then also carries `"in_scope": bool`, and a legitimately out-of-scope run
+    reports `scanned_nothing: false` (it did not fail to look), matching the
+    line's `not_in_scope` wording. Omitted, the key set is the original three."""
+    d = {"files_opened": files, unit_key: units,
+         "scanned_nothing": files == 0 or units == 0}
+    if in_scope is not None:
+        d["in_scope"] = in_scope
+        if not in_scope:
+            d["scanned_nothing"] = False
+    return d
 
 
 # --- reading git's path output (115/260) ------------------------------------

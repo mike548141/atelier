@@ -310,6 +310,50 @@ class TreePlaneTest(RepoFixture):
         self.assertNotIn("\x1b", out)
 
 
+class CoverageLineTest(RepoFixture):
+    """115/130: a run says how many files it opened and lines it read, on the
+    findings path as on the clean one, and a run over nothing says so."""
+
+    def test_clean_and_findings_runs_both_print_the_counts(self):
+        self.write("docs/a.md", "Clean.\nStill clean.\n")
+        self.commit_all()
+        code, out = self.run_main("--root", str(self.root), "docs")
+        self.assertEqual(code, 0)
+        self.assertIn("  coverage: 1 file(s) opened \u00b7 2 line(s) read", out)
+        self.assertNotIn("scanned nothing", out)
+        self.write("docs/b.md", "Ruled 2026-11-10.\n")
+        self.commit_all()
+        code, out = self.run_main("--root", str(self.root), "docs")
+        self.assertEqual(code, 0)
+        self.assertIn("unquoted attribution", out)
+        self.assertIn("  coverage: 2 file(s) opened \u00b7 3 line(s) read", out)
+
+    def test_a_run_over_nothing_says_so_and_exits_as_before(self):
+        self.write("docs/a.txt", "not markdown\n")
+        self.commit_all()
+        code, out = self.run_main("--root", str(self.root), "docs")
+        self.assertEqual(code, 0)
+        self.assertIn("coverage: 0 file(s) opened \u00b7 0 line(s) read", out)
+        self.assertIn("scanned nothing", out)
+
+    def test_the_against_plane_counts_the_files_it_read(self):
+        self.write("docs/a.md", "One.\n")
+        self.commit_all("first")
+        self.write("docs/a.md", "One.\nTwo.\n")
+        self.commit_all("second")
+        code, out = self.run_main("--root", str(self.root), "--against", "HEAD^")
+        self.assertEqual(code, 0)
+        self.assertIn("coverage: 1 file(s) opened \u00b7 2 line(s) read", out)
+
+    def test_json_carries_the_same_coverage(self):
+        self.write("docs/a.md", "Clean.\n")
+        self.commit_all()
+        code, out = self.run_main("--json", "--root", str(self.root), "docs")
+        self.assertEqual({"files_opened": 1, "lines_read": 1,
+                          "scanned_nothing": False},
+                         json.loads(out)["coverage"])
+
+
 class SelftestPin(unittest.TestCase):
     def test_selftest_passes(self):
         r = subprocess.run([sys.executable, a.__file__, "--selftest"],

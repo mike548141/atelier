@@ -658,6 +658,63 @@ class Allowances(unittest.TestCase):
         self.assertIn("0 by allow-marker", linkscan.Tally().summary())
 
 
+class CoverageLine(unittest.TestCase):
+    """115/130: the run says how many Markdown files it opened and how many
+    internal links it evaluated, on the findings path as on the clean one."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="linkscan-cov-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+
+    def _main(self, *argv):
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = linkscan.main(["--root", str(self.tmp), *argv])
+        return rc, out.getvalue()
+
+    def test_a_clean_run_counts_files_and_internal_links(self):
+        (self.tmp / "t.md").write_text("# T\n")
+        (self.tmp / "a.md").write_text(
+            "[t](t.md) [self](#a) [ext](https://example.com)\n# A\n")
+        rc, out = self._main(str(self.tmp))
+        self.assertEqual(0, rc)
+        self.assertIn("  coverage: 2 Markdown file(s) opened \u00b7 2 internal "
+                      "link(s) checked", out)
+        self.assertNotIn("scanned nothing", out)
+
+    def test_the_findings_path_prints_it_and_still_exits_1(self):
+        (self.tmp / "a.md").write_text("[x](gone.md)\n")
+        rc, out = self._main(str(self.tmp))
+        self.assertEqual(1, rc)
+        self.assertIn("missing-file", out)
+        self.assertIn("coverage: 1 Markdown file(s) opened \u00b7 1 internal "
+                      "link(s) checked", out)
+
+    def test_markdown_with_no_internal_links_says_so_and_exits_0(self):
+        (self.tmp / "a.md").write_text("# nothing to follow\n")
+        rc, out = self._main(str(self.tmp))
+        self.assertEqual(0, rc)
+        self.assertIn("coverage: 1 Markdown file(s) opened \u00b7 0 internal "
+                      "link(s) checked", out)
+        self.assertIn("scanned nothing: no links were evaluated", out)
+
+    def test_an_empty_tree_says_no_files_were_evaluated(self):
+        rc, out = self._main(str(self.tmp))
+        self.assertEqual(0, rc)
+        self.assertIn("coverage: 0 Markdown file(s) opened", out)
+        self.assertIn("scanned nothing: no files were evaluated", out)
+
+    def test_json_carries_the_same_coverage(self):
+        import json
+        (self.tmp / "a.md").write_text("[t](a.md)\n")
+        rc, out = self._main("--json", str(self.tmp))
+        self.assertEqual({"files_opened": 1, "links_checked": 1,
+                          "scanned_nothing": False},
+                         json.loads(out)["coverage"])
+
+
 class ReferenceDefinitions(unittest.TestCase):
     """The reference family, checked at the definition (roadmap 020/320).
 

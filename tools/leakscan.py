@@ -522,6 +522,19 @@ class Tally:
     def note_unknown_scope(self) -> None:
         self.unknown_scope_markers += 1
 
+    # 115/130 coverage: every file whose CONTENT was read (a text file, or a
+    # binary run through the G3 gate), the text lines the rules evaluated, and
+    # the binaries gated. A binary is one unit of work, not a line, so the line
+    # counts both: a commit that stages only a binary is not "scanned nothing".
+    files_opened: int = 0
+    lines_read: int = 0
+    binaries_checked: int = 0
+
+    def coverage(self) -> str:
+        return report.coverage_line(
+            self.files_opened, self.lines_read + self.binaries_checked,
+            unit="line(s)/binary file(s) checked", units_what="lines")
+
     def summary(self) -> str:
         """One stable line, zeros printed. The field set never varies between
         runs so two runs can be read side by side (a missing field would read
@@ -2346,6 +2359,9 @@ def check_binary(path: Path, rel: str, entry: BinaryEntry | None,
     <old path>", the rename case. An unreadable file blocks rather than
     passing."""
     findings: list[Finding] = []
+    if tally is not None:
+        tally.files_opened += 1
+        tally.binaries_checked += 1
 
     def gate(rule: str, excerpt: str) -> None:
         _record(findings, tally, Finding(rel, 0, rule, "binary", "high", excerpt, "binary"))
@@ -2561,8 +2577,12 @@ def _scan_file(path: Path, rel: str,
     findings: list[Finding] = []
     seen_in_window: set[tuple[str, str]] = set()
     in_overlong = False
+    if tally is not None:
+        tally.files_opened += 1
     try:
         for lineno, text, is_final in _iter_numbered_lines(path):
+            if tally is not None:
+                tally.lines_read += 1
             unit = scan_lines(rel, [(lineno, text)], local_terms, disabled, tally)
             if in_overlong:
                 for f in unit:
@@ -3019,6 +3039,7 @@ def render_human(findings: list[Finding], warning: str | None,
                         f"{TYPE_LEVEL_UNTIL.isoformat()}." if typewarn else ""))
         if tally is not None:
             lines.append(tally.summary())
+            lines.append(tally.coverage())
         lines.append(advisory_count_line(len(advisory) + advisory_over))
         lines.extend(render_advisory(advisory, advisory_over))
         return "\n".join(lines)
@@ -3033,6 +3054,7 @@ def render_human(findings: list[Finding], warning: str | None,
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.append(tally.coverage())
     lines.append(advisory_count_line(len(advisory) + advisory_over))
     lines.append("\n  A true positive: remove the data (and rotate if it's a secret).")
     lines.append(f"  A false positive: append '# {ALLOW_MARKER}: <reason>' to the line")
@@ -3239,6 +3261,8 @@ def _main(argv: list[str] | None = None) -> int:
                     # `--text`); the whole staged copy is scanned below, so the
                     # added lines are not scanned a second time.
                     if path in staged and path not in binary:
+                        tally.files_opened += 1
+                        tally.lines_read += len(staged[path])
                         findings.extend(scan_lines(path, staged[path], local_terms,
                                                      disabled, tally))
                 if path not in binary:
@@ -3346,6 +3370,13 @@ def _main(argv: list[str] | None = None) -> int:
                 "binaries_by_manifest": tally.binaries_by_manifest,
                 "binaries_untracked_not_gated": tally.binaries_untracked,
             },
+            "coverage": dict(
+                report.coverage_dict(
+                    tally.files_opened,
+                    tally.lines_read + tally.binaries_checked,
+                    unit_key="lines_and_binaries_checked"),
+                lines_read=tally.lines_read,
+                binaries_checked=tally.binaries_checked),
         }, indent=2))
     else:
         print(render_human(findings, warning, scanned_local, tally, grace, typewarn,

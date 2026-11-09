@@ -193,7 +193,7 @@ def read(root: Path, rel: str) -> str | None:
 
 # ------------------------------------------------------------- the scan --
 
-def scan(root: Path) -> list[Finding]:
+def scan(root: Path, cov: dict | None = None) -> list[Finding]:
     """The findings for a repo already known to be in scope."""
     list_file = root / LIST_PATH
     if not list_file.is_file():
@@ -217,6 +217,9 @@ def scan(root: Path) -> list[Finding]:
         text = read(root, rel)
         if not text:
             continue
+        if cov is not None:  # 115/130: files opened and lines evaluated
+            cov["files"] += 1
+            cov["lines"] += len(text.splitlines())
         for i, line in enumerate(text.splitlines(), 1):
             for m in MARKER_RX.finditer(line):
                 if set(m.group(1).split(",")) & PERSONAL_SCOPES \
@@ -280,8 +283,9 @@ def _main(argv: list[str] | None) -> int:
     if rc is not None:
         return rc
 
+    cov: dict = {"files": 0, "lines": 0}
     if declared_public(root):
-        findings = scan(root)
+        findings = scan(root, cov)
         scope_note = ""
     else:
         findings = []
@@ -299,10 +303,18 @@ def _main(argv: list[str] | None) -> int:
             "blocking": blocks,
             "until": PERSONAL_DATA_WARN_UNTIL.isoformat(),
             "findings": [asdict(f) for f in findings],
+            "coverage": report.coverage_dict(cov["files"], cov["lines"],
+                                             in_scope=not scope_note),
         }, indent=2))
     else:
         print(render(findings, blocking=blocks, scope_note=scope_note))
         print(report.advisory_count_line(NAME, reported_not_blocking))
+        # 115/130: a repo that does not declare itself public is out of scope,
+        # said plainly and without the scanned-nothing alarm.
+        print(report.coverage_line(
+            cov["files"], cov["lines"], noun="tracked file(s) opened",
+            not_in_scope=("this repo does not declare public visibility."
+                          if scope_note else None)))
         if args.warn and findings:
             print(report.WARN_NOTICE)
     return report.exit_code(blocks)

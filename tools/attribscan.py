@@ -287,7 +287,15 @@ def _rel_scopes(root: Path, paths: list[str]) -> list[str]:
     return out
 
 
-def scan_staged(root: Path, paths: list[str]) -> tuple[list[Finding], int]:
+def _note_read(cov: dict | None, text: str) -> None:
+    """115/130 coverage: one more file opened, and the lines it held."""
+    if cov is not None:
+        cov["files"] = cov.get("files", 0) + 1
+        cov["lines"] = cov.get("lines", 0) + len(text.splitlines())
+
+
+def scan_staged(root: Path, paths: list[str],
+                cov: dict | None = None) -> tuple[list[Finding], int]:
     """Added lines of every staged `.md` file, in scope, against its index copy."""
     added = report.staged_added_by_path()
     rc, kept = report.scope_staged(NAME, added, paths, "docs/")
@@ -301,6 +309,7 @@ def scan_staged(root: Path, paths: list[str]) -> tuple[list[Finding], int]:
         with report.staged_blob(rel) as stream:
             text = stream.read().decode("utf-8", "replace")
         scanned += 1
+        _note_read(cov, text)
         findings.extend(scan_text(text, rel, linenos))
     return findings, scanned
 
@@ -314,7 +323,8 @@ def _has_parent(root: Path) -> bool:
     return out.returncode == 0 and len(out.stdout.split()) > 1
 
 
-def scan_against(root: Path, rev: str, paths: list[str]) -> tuple[list[Finding], int, str]:
+def scan_against(root: Path, rev: str, paths: list[str],
+                 cov: dict | None = None) -> tuple[list[Finding], int, str]:
     """Added lines of every `.md` file between `rev` and HEAD, in scope.
     Returns (findings, files scanned, a note for the head line)."""
     verify = _git(root, "rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}")
@@ -342,11 +352,14 @@ def scan_against(root: Path, rev: str, paths: list[str]) -> tuple[list[Finding],
             raise ConfigError(f"git show HEAD:{rel} failed: "
                               f"{show.stderr.decode('utf-8', 'replace').strip()}")
         scanned += 1
-        findings.extend(scan_text(show.stdout.decode("utf-8", "replace"), rel, linenos))
+        text = show.stdout.decode("utf-8", "replace")
+        _note_read(cov, text)
+        findings.extend(scan_text(text, rel, linenos))
     return findings, scanned, ""
 
 
-def scan_tree(root: Path, paths: list[str]) -> tuple[list[Finding], int, int]:
+def scan_tree(root: Path, paths: list[str],
+              cov: dict | None = None) -> tuple[list[Finding], int, int]:
     """Whole tree: every `.md` under the targets, every line. Report only."""
     targets = report.resolve_targets(root, paths or ["."])
     rc = report.refuse_missing_paths(NAME, targets)
@@ -363,7 +376,9 @@ def scan_tree(root: Path, paths: list[str]) -> tuple[list[Finding], int, int]:
             rel = path.resolve().relative_to(root).as_posix()
             if _is_generated_board(root, rel):
                 continue
-            hits = scan_text(path.read_text(encoding="utf-8", errors="replace"), rel)
+            text = path.read_text(encoding="utf-8", errors="replace")
+            _note_read(cov, text)
+            hits = scan_text(text, rel)
             scanned += 1
             touched += 1 if hits else 0
             findings.extend(hits)
@@ -437,20 +452,21 @@ def _main(argv: list[str] | None) -> int:
 
     note = ""
     touched: int | None = None
+    cov: dict = {"files": 0, "lines": 0}
     if args.staged:
         rc = report.refuse_other_repo(NAME, root)
         if rc is not None:
             return rc
         try:
-            findings, scanned = scan_staged(root, args.paths)
+            findings, scanned = scan_staged(root, args.paths, cov)
         except report.STAGED_DIFF_FAILURES as e:
             return report.git_diff_failed(NAME, e)
         mode = "staged"
     elif args.against is not None:
-        findings, scanned, note = scan_against(root, args.against, args.paths)
+        findings, scanned, note = scan_against(root, args.against, args.paths, cov)
         mode = "against"
     else:
-        findings, scanned, touched = scan_tree(root, args.paths)
+        findings, scanned, touched = scan_tree(root, args.paths, cov)
         mode = "tree"
 
     gating = mode != "tree"
@@ -467,11 +483,13 @@ def _main(argv: list[str] | None) -> int:
             "findings": [asdict(f) for f in findings],
             "blocking": blocks,
             "until": ATTRIBUTION_WARN_UNTIL.isoformat(),
+            "coverage": report.coverage_dict(cov["files"], cov["lines"]),
         }, indent=2))
     else:
         print(render(findings, blocking=blocks, mode=mode, scanned=scanned,
                      note=note, touched=touched))
         print(report.advisory_count_line(NAME, reported_not_blocking))
+        print(report.coverage_line(cov["files"], cov["lines"]))
         if args.warn and findings and gating:
             print(report.WARN_NOTICE)
     return report.exit_code(blocks)

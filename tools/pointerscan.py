@@ -923,6 +923,10 @@ def main(argv: list[str] | None = None) -> int:
     print("  that writes it, which is the one moment the fix costs nothing. "
           "Genuinely fine?")
     print(f"  Put `{ALLOW_MARKER} <reason>` in the item.")
+    # 115/130: the findings path says what it covered too, not only a clean run.
+    print(report.coverage_line(cov["files"], cov["items"],
+                               unit="item(s) checked",
+                               noun="roadmap file(s) opened"))
     return 0
 
 

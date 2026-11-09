@@ -764,6 +764,9 @@ def main(argv: list[str] | None = None) -> int:
           "threshold is a")
     print("  tuning constant that cannot be grounded, so it warns rather than "
           "blocks.")
+    # 115/130: the findings path says what it covered too, not only a clean run.
+    print(report.coverage_line(cov["files"], cov["items"],
+                               unit="item(s) checked"))
     return 0
 
 

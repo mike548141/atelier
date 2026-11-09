@@ -217,7 +217,16 @@ class Tally:
     # exist, which are silently inert (the finding they were written for still
     # reports). Counted so a typo is visible on a clean run too.
     unknown_scope_markers: int = 0
+    # 115/130 coverage, the sibling of the suppression count: every file the
+    # scan read (an exempt file read only for private-key material counts) and
+    # every line a rule evaluated, so a run over nothing cannot print the same
+    # clean result as a run over everything.
+    files_opened: int = 0
+    lines_read: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
+
+    def coverage(self) -> str:
+        return report.coverage_line(self.files_opened, self.lines_read)
 
     @property
     def marker_total(self) -> int:
@@ -1415,9 +1424,13 @@ def _scan_file(path: Path, rel: str, disabled: frozenset[str],
     findings: list[Finding] = []
     seen_in_window: set[tuple[str, str]] = set()
     in_overlong = False
+    if tally is not None:
+        tally.files_opened += 1
     try:
         for lineno, text, is_final, pem in pem_exempt_stream(
                 _iter_numbered_lines(path)):
+            if tally is not None:
+                tally.lines_read += 1
             unit = scan_lines(rel, [(lineno, text)], disabled, tally,
                               frozenset((lineno,)) if pem else _NO_PEM_LINES)
             if in_overlong:
@@ -1734,6 +1747,14 @@ def exempt_key_hits(items):
             yield got
 
 
+def _counted_lines(items, tally: Tally | None):
+    """Pass `items` through, counting each as one line read (115/130)."""
+    for item in items:
+        if tally is not None:
+            tally.lines_read += 1
+        yield item
+
+
 def _exempt_findings(rel: str, items, tally: Tally | None) -> list[Finding]:
     findings: list[Finding] = []
     seen: set[tuple[int, str]] = set()      # an overlong line's windows overlap
@@ -1753,8 +1774,11 @@ def _scan_exempt_file(path: Path, rel: str, disabled: frozenset[str],
     the file; reads nothing if the rule is disabled."""
     if EXEMPT_PRIVATE_KEY_RULE in disabled:
         return []
+    if tally is not None:
+        tally.files_opened += 1
     try:
-        return _exempt_findings(rel, _iter_numbered_lines(path), tally)
+        return _exempt_findings(
+            rel, _counted_lines(_iter_numbered_lines(path), tally), tally)
     except OSError as e:
         if not report.is_vanished(e):
             raise       # unreadable is a broken scan (RT1, 160/730)
@@ -1769,7 +1793,10 @@ def scan_exempt_lines(rel: str, numbered_lines: list[tuple[int, str]],
     CI run, which reads the whole file, re-prints anything this misses."""
     if EXEMPT_PRIVATE_KEY_RULE in disabled:
         return []
-    return _exempt_findings(rel, ((n, t) for n, t in numbered_lines), tally)
+    if tally is not None:
+        tally.files_opened += 1
+    return _exempt_findings(
+        rel, _counted_lines(((n, t) for n, t in numbered_lines), tally), tally)
 
 
 def scan_paths(paths: list[Path], root: Path,
@@ -1911,6 +1938,7 @@ def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
         if tally is not None:
             lines.append(tally.summary())
             lines.extend(_fingerprint_locations_line(tally))
+            lines.append(tally.coverage())
         lines.append(advisory_count_line(len(advisory) + advisory_over))
         if advisory:
             lines.extend(_render_advisory(advisory, advisory_over))
@@ -1928,6 +1956,7 @@ def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
         lines.append("")
         lines.append(tally.summary())
         lines.extend(_fingerprint_locations_line(tally))
+        lines.append(tally.coverage())
     lines.append(advisory_count_line(len(advisory) + advisory_over))
     lines.append("\n  A true positive: remove the secret, move it to the secret store")
     lines.append("  (e.g. a `!secret`/env reference), and ROTATE it — commit history is forever.")
@@ -2011,6 +2040,8 @@ def _main(argv: list[str] | None = None) -> int:
                 pem = staged_pem_lines(path, lines)
             except report.STAGED_DIFF_FAILURES as e:
                 return report.git_diff_failed("secretscan", e)
+            tally.files_opened += 1
+            tally.lines_read += len(lines)
             findings.extend(scan_lines(path, lines, disabled, tally, pem))
     else:
         # A RELATIVE target resolves against --root, never the caller's cwd:
@@ -2064,6 +2095,8 @@ def _main(argv: list[str] | None = None) -> int:
                     "advisory": tally.advisory_over_cap,
                 },
             },
+            "coverage": report.coverage_dict(tally.files_opened,
+                                             tally.lines_read),
         }, indent=2))
     else:
         print(render_human(findings, tally))

@@ -253,6 +253,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 # A line/span carrying this marker exempts exactly one `violation` finding —
 # never an integrity finding (`stale-heading`, `missing-bullet`, `missing-
@@ -847,6 +848,37 @@ def _suppression_line(findings: list[Finding]) -> str:
     return f"  suppressed: {skipped} finding(s) by allow-marker"
 
 
+class _Coverage:
+    """115/130: what the run read. Each mapped file counts once, however many
+    bullets cite it, with the lines of the content actually evaluated (the
+    working tree, the index, or HEAD: the NEW side, which is what the check
+    asserts about). Wraps the reader, so no check's own logic moves."""
+
+    def __init__(self) -> None:
+        self.lines_by_path: dict[str, int] = {}
+
+    def wrap(self, read_text):
+        def counted(path: str) -> str:
+            text = read_text(path)
+            self.lines_by_path.setdefault(path, len(text.splitlines()))
+            return text
+        return counted
+
+    @property
+    def files(self) -> int:
+        return len(self.lines_by_path)
+
+    @property
+    def lines(self) -> int:
+        return sum(self.lines_by_path.values())
+
+    def line(self) -> str:
+        return report.coverage_line(self.files, self.lines)
+
+    def as_dict(self) -> dict:
+        return report.coverage_dict(self.files, self.lines)
+
+
 _UNSAFE_RX = re.compile(
     "[\x00-\x08\x0b-\x1f\x7f-\x9f\u200b-\u200f\u202a-\u202e"
     "\u2060-\u2064\u2066-\u2069\ufeff]")
@@ -1017,18 +1049,19 @@ def _main(argv: list[str] | None = None) -> int:
         return 2
 
     map_path = Path(args.map).resolve() if args.map else root / "tools" / DEFAULT_MAP_NAME
+    cov = _Coverage()
     try:
         cfg = load_map(map_path)
         if args.staged:
             findings = check_costaged(
                 root, cfg,
                 read_old=lambda p: git_show(root, "HEAD", p),
-                read_new=lambda p: git_show_staged(root, p))
+                read_new=cov.wrap(lambda p: git_show_staged(root, p)))
         elif args.against is not None:
             findings = check_costaged(
                 root, cfg,
                 read_old=lambda p: git_show(root, args.against, p),
-                read_new=lambda p: git_show(root, "HEAD", p))
+                read_new=cov.wrap(lambda p: git_show(root, "HEAD", p)))
         else:
             def read_disk(relpath: str) -> str:
                 p = root / relpath
@@ -1055,6 +1088,7 @@ def _main(argv: list[str] | None = None) -> int:
                         f"module docstring's BOUNDED MEMORY section); "
                         f"refusing to read it whole")
                 return p.read_text(encoding="utf-8", errors="replace")
+            read_disk = cov.wrap(read_disk)
             findings = check_integrity(cfg, read_disk)
             # 320/340: advisory report of headings the map cannot see.
             # Skipped when the map is already stale (that red comes first).
@@ -1081,9 +1115,11 @@ def _main(argv: list[str] | None = None) -> int:
             "findings": [asdict(f) for f in findings],
             "suppressed": {"by_allow_marker":
                           sum(1 for f in findings if f.kind == "skipped")},
+            "coverage": cov.as_dict(),
         }, indent=2))
     else:
         print(render_human(findings))
+        print(cov.line())
         if violations and args.warn and not errors:
             print("\n  (--warn: advisory only — not blocking this build.)")
 

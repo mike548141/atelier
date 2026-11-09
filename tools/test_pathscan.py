@@ -811,6 +811,65 @@ class WholeTreeAndExitCodes(unittest.TestCase):
         self.assertEqual("missing-path", payload["findings"][0]["kind"])
 
 
+class CoverageLine(unittest.TestCase):
+    """115/130: the run says how many Markdown files it opened and how many
+    candidate path references it evaluated, on the findings path as on the
+    clean one; exit codes are those the same runs already had."""
+
+    def setUp(self):
+        import shutil
+        import tempfile
+        self.tmp = ps.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def _capture(self, argv):
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = ps.main(argv)
+        return rc, out.getvalue()
+
+    def test_a_clean_run_counts_files_and_references(self):
+        self._write("tools/real.py", "# real\n")
+        self._write("docs/note.md", "see `tools/real.py`, which exists\n")
+        rc, out = self._capture(["--root", str(self.tmp), str(self.tmp / "docs")])
+        self.assertEqual(0, rc)
+        self.assertIn("  coverage: 1 Markdown file(s) opened \u00b7 1 path "
+                      "reference(s) checked", out)
+        self.assertNotIn("scanned nothing", out)
+
+    def test_the_findings_path_prints_it_and_still_exits_1(self):
+        self._write("docs/note.md", "see `tools/ghost.py`\n")
+        rc, out = self._capture(["--root", str(self.tmp), str(self.tmp / "docs")])
+        self.assertEqual(1, rc)
+        self.assertIn("missing-path", out)
+        self.assertIn("coverage: 1 Markdown file(s) opened \u00b7 1 path "
+                      "reference(s) checked", out)
+
+    def test_markdown_with_no_candidate_says_so_and_exits_0(self):
+        self._write("docs/note.md", "prose with nothing path-shaped\n")
+        rc, out = self._capture(["--root", str(self.tmp), str(self.tmp / "docs")])
+        self.assertEqual(0, rc)
+        self.assertIn("coverage: 1 Markdown file(s) opened \u00b7 0 path "
+                      "reference(s) checked", out)
+        self.assertIn("scanned nothing: no path references were evaluated", out)
+
+    def test_json_carries_the_same_coverage(self):
+        import json
+        self._write("docs/note.md", "see `tools/ghost.py`\n")
+        rc, out = self._capture(["--json", "--root", str(self.tmp),
+                                 str(self.tmp / "docs")])
+        self.assertEqual({"files_opened": 1, "path_references_checked": 1,
+                          "scanned_nothing": False},
+                         json.loads(out)["coverage"])
+
+
 class DeclaredResolutionRoots(unittest.TestCase):
     """320/010 Class A — Mike's ruling 2026-09-19: a repo laid out
     `src/<pkg>/` declares that root in `.atelier-floor.json` so prose

@@ -353,6 +353,23 @@ class CoverageLineTest(GitBackedTest):
                           r.stdout)
             self.assertNotIn("scanned nothing", r.stdout)
 
+    def test_the_findings_path_prints_it_too_and_still_exits_0(self):
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            sec = root / "docs" / "roadmap" / "10-track-a"
+            sec.mkdir(parents=True)
+            (sec / "10-item.md").write_text(item(ITEM))
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            (sec / "10-item.md").unlink()
+            r = self._run("--root", str(root))
+            self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+            self.assertIn("1 removed item(s) with no surviving copy", r.stdout)
+            self.assertIn("ADVISORY ONLY", r.stdout)
+            self.assertRegex(
+                r.stdout,
+                r"  coverage: \d+ file\(s\) opened \u00b7 \d+ item\(s\) checked")
+
     def test_run_over_no_records_says_scanned_nothing_and_still_exits_0(self):
         with tempfile.TemporaryDirectory() as td:
             root, g = self._repo(td)

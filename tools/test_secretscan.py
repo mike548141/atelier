@@ -1327,6 +1327,78 @@ class WholeTree(unittest.TestCase):
             os.chdir(old)
 
 
+class CoverageLine(unittest.TestCase):
+    """115/130: the run says how many files it read and how many lines a rule
+    evaluated, on the blocked path as on the clean one, on the whole-tree and
+    the staged plane alike, and an exempt file read only for private keys
+    counts as read. Exit codes are those the same runs already had."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def _main(self, *argv):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = ss.main(["--root", str(self.tmp), *argv])
+        return rc, out.getvalue()
+
+    def test_a_clean_run_counts_files_and_lines(self):
+        self._write("a.md", "one\ntwo\n")
+        self._write("b.md", "three\n")
+        rc, out = self._main(str(self.tmp))
+        self.assertEqual(0, rc)
+        self.assertIn("  coverage: 2 file(s) opened \u00b7 3 line(s) read", out)
+        self.assertNotIn("scanned nothing", out)
+
+    def test_the_blocked_path_prints_it_and_still_exits_1(self):
+        self._write("a.md", "key = AKIAJ7Q2XR4TP9WNB5KD\n")
+        rc, out = self._main(str(self.tmp))
+        self.assertEqual(1, rc)
+        self.assertIn("aws-access-key-id", out)
+        self.assertIn("  coverage: 1 file(s) opened \u00b7 1 line(s) read", out)
+
+    def test_a_run_over_an_empty_tree_says_scanned_nothing_and_exits_0(self):
+        rc, out = self._main(str(self.tmp))
+        self.assertEqual(0, rc)
+        self.assertIn("coverage: 0 file(s) opened \u00b7 0 line(s) read", out)
+        self.assertIn("scanned nothing", out)
+
+    def test_an_exempt_file_read_for_private_keys_counts_as_read(self):
+        self._write(".secretscanignore", "# a stated fixture exemption\nfx/*.py\n")
+        self._write("fx/t.py", "x = 1\ny = 2\n")
+        rc, out = self._main(str(self.tmp))
+        self.assertEqual(0, rc)
+        # the ignore file itself, and the exempt fixture
+        self.assertIn("coverage: 2 file(s) opened \u00b7 4 line(s) read", out)
+
+    def test_the_staged_plane_counts_the_added_lines(self):
+        subprocess.run(["git", "-C", str(self.tmp), "init", "-q"], check=True)
+        self._write("a.md", "one\ntwo\nthree\n")
+        subprocess.run(["git", "-C", str(self.tmp), "add", "--", "a.md"],
+                       check=True)
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        try:
+            rc, out = self._main("--staged")
+        finally:
+            os.chdir(old)
+        self.assertEqual(0, rc)
+        self.assertIn("coverage: 1 file(s) opened \u00b7 3 line(s) read", out)
+
+    def test_json_carries_the_same_coverage(self):
+        self._write("a.md", "one\n")
+        rc, out = self._main("--json", str(self.tmp))
+        self.assertEqual({"files_opened": 1, "lines_read": 1,
+                          "scanned_nothing": False},
+                         json.loads(out)["coverage"])
+
+
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(0, ss._selftest())

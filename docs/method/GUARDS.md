@@ -556,8 +556,11 @@ looked at — files opened and lines (or items, or rules) evaluated, known zeros
 printed — and says in words when that is nothing, so a scan that emptied its own
 file set cannot pass for a clean one. The count is informational: it never
 changes an exit status, and a guard that is legitimately out of scope (an
-opt-in check nobody has adopted) says so rather than looking clean. The shared
-form is `report.coverage_line` (`115/130`).
+opt-in check nobody has adopted, a rule for public repos only) says so rather
+than looking clean. The shared form is `report.coverage_line` (`115/130`); a
+guard in that state passes it a `not_in_scope` reason, and the line then reads
+`not in scope here: <why>`, with no warning glyph and no "covers nothing"
+alarm, because the guard did not fail to look, it had nothing to check.
 
 A repo's live allowances are a standing, reviewable inventory. That inventory is
 also, unavoidably, a map of where the guards are not looking — so on a public

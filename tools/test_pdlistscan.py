@@ -215,6 +215,50 @@ class PublicRepoTest(Fixture):
         self.assertEqual(d["findings"][0]["kind"], "unlisted-marker")
 
 
+class CoverageLineTest(Fixture):
+    """115/130: the run says what it opened, on the findings path as on the
+    clean one; a repo that is not public says it is out of scope instead."""
+
+    def test_clean_and_findings_runs_both_count_what_they_read(self):
+        self.config("public")
+        self.write("docs/PERSONAL-DATA.md", LIST)
+        self.write("README.md", "hello\n")
+        self.commit_all()
+        code, out = self.run_main(on=p.PERSONAL_DATA_WARN_UNTIL)
+        self.assertEqual(code, 0, out)
+        # the floor config and the README; the list itself is never read
+        self.assertIn("  coverage: 2 tracked file(s) opened \u00b7 2 line(s) read",
+                      out)
+        self.assertNotIn("scanned nothing", out)
+        self.write("docs/other.md", MARKER_LINE)
+        self.commit_all()
+        code, out = self.run_main(on=p.PERSONAL_DATA_WARN_UNTIL)
+        self.assertEqual(code, 1, out)
+        self.assertIn("unlisted-marker", out)
+        self.assertIn("coverage: 3 tracked file(s) opened", out)
+
+    def test_a_private_repo_says_not_in_scope_with_no_alarm(self):
+        self.config("private")
+        self.write("a.md", MARKER_LINE)
+        self.commit_all()
+        code, out = self.run_main(on=p.PERSONAL_DATA_WARN_UNTIL)
+        self.assertEqual(code, 0, out)
+        self.assertIn("  coverage: 0 tracked file(s) opened \u00b7 0 line(s) read "
+                      "\u2014 not in scope here: this repo does not declare "
+                      "public visibility.", out)
+        self.assertNotIn("scanned nothing", out)
+
+    def test_json_carries_the_same_coverage(self):
+        self.config("public")
+        self.write("docs/PERSONAL-DATA.md", LIST)
+        self.write("README.md", "hello\n")
+        self.commit_all()
+        code, out = self.run_main("--json", on=p.PERSONAL_DATA_WARN_UNTIL)
+        self.assertEqual({"files_opened": 2, "lines_read": 2,
+                          "scanned_nothing": False, "in_scope": True},
+                         json.loads(out)["coverage"])
+
+
 class DateAndSelftest(unittest.TestCase):
     def test_personal_scopes_are_real_leakscan_rules(self):
         import leakscan

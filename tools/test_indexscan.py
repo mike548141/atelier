@@ -517,10 +517,28 @@ class UndeclaredRepo(Fixture):
             self.assertEqual(code, 0)
             self.assertIn("no index declares", out)
             self.assertIn("0 declaration(s)", out)
-            # 115/130: and it says, in words, that it covered nothing.
+            # 115/130: and it says plainly that the check is not in scope
+            # here (no declaration exists), as a state, not an alarm.
             self.assertIn("coverage: 3 Markdown file(s) opened \u00b7 0 "
-                          "declaration(s) checked", out)
-            self.assertIn("scanned nothing", out)
+                          "declaration(s) checked \u2014 not in scope here: "
+                          "no index declares a mapped directory.", out)
+            self.assertNotIn("scanned nothing", out)
+            self.assertNotIn("covers nothing", out)
+            self.assertNotIn("\u26a0", out)
+
+    def test_json_says_not_in_scope_rather_than_scanned_nothing(self):
+        self.write("README.md", "# r\n")
+        code, out, _ = run(["--json", "--root", str(self.root)])
+        self.assertEqual(code, 0)
+        self.assertEqual({"files_opened": 1, "declarations_checked": 0,
+                          "scanned_nothing": False, "in_scope": False},
+                         json.loads(out)["coverage"])
+
+    def test_an_empty_tree_still_warns_that_it_scanned_nothing(self):
+        code, out, _ = run(["--root", str(self.root)])
+        self.assertEqual(code, 0)
+        self.assertIn("coverage: 0 Markdown file(s) opened", out)
+        self.assertIn("scanned nothing", out)
 
     def test_the_floor_runs_it_clean_on_an_undeclared_repo(self):
         self.write("docs/a.md", "# a\n")

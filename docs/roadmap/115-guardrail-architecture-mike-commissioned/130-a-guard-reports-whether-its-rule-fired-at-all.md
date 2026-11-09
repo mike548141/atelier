@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1428, wt: atelier-qr-d0ca-cover2, session d0ca5d24) **A guard reports whether its rule fired at all, and over what — so
+- [ ] **A guard reports whether its rule fired at all, and over what — so
       "clean" and "scanned nothing" stop looking identical.** The cheapest
       finding of the whole commission, and it is imported rather than invented:
       assertion verification calls this vacuity, and treats a property that
@@ -73,3 +73,19 @@
             `pdlistscan`, `signscan` and `stampscan`; and the label plane (a job
             or board named for a property it does not cover), which no coverage
             line reaches.
+      - [ ] 🔧 **Landed 2026-11-10 — every tree scanner prints the line; two
+            things remain.** `secretscan`, `leakscan`, `linkscan`, `pathscan`,
+            `attribscan`, `blockscan`, `pdlistscan`, `signscan` and `stampscan`
+            now print `coverage:` (units: lines; lines or binaries for
+            `leakscan`; internal links; path references; commits and verified
+            signatures), each pinned in its own test module. `datescan`,
+            `pointerscan` and `harvestscan` print it on the findings path as
+            well as the clean one. `indexscan` and `pdlistscan` say `not in
+            scope here: <why>` with no warning glyph, for the opt-in nobody has
+            adopted and a repo that is not public (`report.coverage_line`'s
+            `not_in_scope`). Probed old against new on five child checkouts:
+            exit codes identical, one extra line each. **Still open:**
+            `floor.py`'s own summary (another lane holds the file; it passes each
+            scanner's output through, so the lines already reach its stream),
+            and the label plane (a job or board named for a property it does not
+            cover), which no coverage line reaches.

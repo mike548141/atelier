@@ -4196,6 +4196,74 @@ class BlockingSetPinned(_CliCase):
         self.assertTrue(ls.Finding("p", 1, "email", "structural", "high", "x").blocks)
 
 
+class CoverageLine(_CliCase):
+    """115/130: the run says how many files it read and how many lines (or
+    binaries) a rule evaluated, on the blocked path as on the clean one; the
+    exit codes are the ones the same runs already had."""
+
+    def test_a_clean_run_counts_the_file_and_its_lines(self):
+        rc, out = self.run_cli("one\ntwo")
+        self.assertEqual(0, rc)
+        self.assertIn("  coverage: 1 file(s) opened \u00b7 2 line(s)/binary "
+                      "file(s) checked", out)
+        self.assertNotIn("scanned nothing", out)
+
+    def test_the_blocked_path_prints_it_and_still_exits_1(self):
+        rc, out = self.run_cli("gateway 172.16.31.7 here")
+        self.assertEqual(1, rc)
+        self.assertIn("ipv4", out)
+        self.assertIn("  coverage: 1 file(s) opened \u00b7 1 line(s)/binary "
+                      "file(s) checked", out)
+
+    def test_a_run_over_an_empty_tree_says_scanned_nothing_and_exits_0(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), \
+                contextlib.redirect_stderr(io.StringIO()):
+            rc = ls.main(["--root", str(self.tmp), str(self.tmp),
+                          "--terms", str(self.terms)])
+        self.assertEqual(0, rc)
+        self.assertIn("coverage: 0 file(s) opened", out.getvalue())
+        self.assertIn("scanned nothing", out.getvalue())
+
+    def test_a_binary_gated_is_not_scanned_nothing(self):
+        (self.tmp / "b.bin").write_bytes(b"\x00\x01binary")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), \
+                contextlib.redirect_stderr(io.StringIO()):
+            ls.main(["--root", str(self.tmp), str(self.tmp),
+                     "--terms", str(self.terms)])
+        self.assertIn("coverage: 1 file(s) opened \u00b7 1 line(s)/binary "
+                      "file(s) checked", out.getvalue())
+        self.assertNotIn("scanned nothing", out.getvalue())
+
+    def test_the_staged_plane_counts_the_added_lines(self):
+        subprocess.run(["git", "-C", str(self.tmp), "init", "-q"], check=True)
+        (self.tmp / "a.md").write_text("one\ntwo\nthree\n")
+        subprocess.run(["git", "-C", str(self.tmp), "add", "--", "a.md"],
+                       check=True)
+        out = io.StringIO()
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        try:
+            with contextlib.redirect_stdout(out), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                rc = ls.main(["--staged", "--root", str(self.tmp),
+                              "--terms", str(self.terms)])
+        finally:
+            os.chdir(old)
+        self.assertEqual(0, rc)
+        self.assertIn("coverage: 1 file(s) opened \u00b7 3 line(s)/binary "
+                      "file(s) checked", out.getvalue())
+
+    def test_json_carries_the_same_coverage(self):
+        rc, out = self.run_json("one\ntwo")
+        self.assertEqual({"files_opened": 1,
+                          "lines_and_binaries_checked": 2,
+                          "scanned_nothing": False,
+                          "lines_read": 2, "binaries_checked": 0},
+                         out["coverage"])
+
+
 class DisabledClassReports(_CliCase):
     """A class a repo turns off with `--disable` reports without blocking."""
 

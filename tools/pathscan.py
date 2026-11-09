@@ -510,7 +510,18 @@ class Tally:
     # 160/490 PX1 — brace tokens skipped because their FILE had spent its
     # expansion allowance (`_MAX_EXPANSIONS_PER_FILE`): counted, never silent.
     brace_tokens_over_cap: int = 0
+    # 115/130 coverage: Markdown files read as sources, and the candidate
+    # repo-path references evaluated in them, so a tree with no candidate to
+    # check reads differently from a tree whose references all resolve.
+    files_opened: int = 0
+    refs_checked: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
+
+    def coverage(self) -> str:
+        return report.coverage_line(self.files_opened, self.refs_checked,
+                                    unit="path reference(s) checked",
+                                    noun="Markdown file(s) opened",
+                                    units_what="path references")
 
     @property
     def marker_total(self) -> int:
@@ -1227,6 +1238,8 @@ def _scan_content_lines(md_file: Path, root: Path, lines, tally: "Tally | None",
         is stat'ed once.
     """
     rel = _rel(md_file, root)
+    if tally is not None:
+        tally.files_opened += 1
     # The docs anchor's two forms are mutually exclusive (see _resolves) —
     # name the one actually tried, so a reader of the finding can check it
     # by hand.
@@ -1255,6 +1268,8 @@ def _scan_content_lines(md_file: Path, root: Path, lines, tally: "Tally | None",
             if token in seen_on_line:
                 continue
             seen_on_line.add(token)
+            if tally is not None:
+                tally.refs_checked += 1
             ok = resolved.get(token)
             if ok is None:
                 ok = _resolves(root, md_file, token, declared_roots, docs_anchor)
@@ -1481,7 +1496,8 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if not findings and not over_cap:
         out = report.clean_head(
             "pathscan", "every candidate repo-path reference resolves.")
-        return out + ("\n" + tally.summary() if tally is not None else "")
+        return out + ("\n" + tally.summary() + "\n" + tally.coverage()
+                      if tally is not None else "")
     lines = [report.findings_head("pathscan", len(findings) + over_cap)]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         # A brace group can carry any character but braces, whitespace and
@@ -1497,6 +1513,7 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.append(tally.coverage())
     lines.append("\n  A real stale path: fix the reference (or restore/rename the target).")
     lines.append("  A false positive or deliberate stub: append "
                  f"'<!-- {ALLOW_MARKER}: <reason> -->' to the line, or add a "
@@ -1591,6 +1608,9 @@ def _main(argv: list[str] | None = None) -> int:
                 "by_allow_marker_rule": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
+            "coverage": report.coverage_dict(
+                tally.files_opened, tally.refs_checked,
+                unit_key="path_references_checked"),
         }
         print(json.dumps(payload, indent=2))
     else:

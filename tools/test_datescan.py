@@ -603,6 +603,12 @@ class CoverageLine(_Cli):
         self.assertIn("  coverage: 1 file(s) opened \u00b7 3 line(s) read", out)
         self.assertNotIn("scanned nothing", out)
 
+    def test_findings_run_prints_the_coverage_line_too(self):
+        rc, out = self.run_cli("# T\n\nShipped yesterday.")
+        self.assertEqual(1, rc)
+        self.assertIn("relative-time-word", out)
+        self.assertIn("  coverage: 1 file(s) opened \u00b7 3 line(s) read", out)
+
     def test_run_over_nothing_says_scanned_nothing_and_still_exits_0(self):
         import contextlib
         import io

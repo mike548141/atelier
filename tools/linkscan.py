@@ -117,7 +117,18 @@ class Tally:
     # exist, which are silently inert (the finding they were written for still
     # reports). Counted so a typo is visible on a clean run too.
     unknown_scope_markers: int = 0
+    # 115/130 coverage: Markdown files opened as link sources, and the internal
+    # links evaluated in them, so a tree that held no links reads differently
+    # from a tree whose links all resolve.
+    files_opened: int = 0
+    links_checked: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
+
+    def coverage(self) -> str:
+        return report.coverage_line(self.files_opened, self.links_checked,
+                                    unit="internal link(s) checked",
+                                    noun="Markdown file(s) opened",
+                                    units_what="links")
 
     @property
     def marker_total(self) -> int:
@@ -807,6 +818,8 @@ def check_file(md_file: Path, root: Path,
     so the verdict is the one the old end-of-file pass reached. Path
     resolution is memoised per (directory, path) in `resolve_memo`."""
     rel = _rel(md_file, root)
+    if tally is not None:
+        tally.files_opened += 1
     own_slugs: set[str] | None = None
     findings: list[Finding] = []
     allow_by_line: dict[int, str] = {}
@@ -835,6 +848,8 @@ def check_file(md_file: Path, root: Path,
                                              on_marker=on_marker):
         if not dest or is_external(dest):
             continue
+        if tally is not None:
+            tally.links_checked += 1
         path, anchor = split_target(dest)
 
         if path == "":
@@ -938,7 +953,8 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     over_cap = tally.findings_over_cap if tally is not None else 0
     if not findings and not over_cap:
         out = report.clean_head("linkscan", "every internal link resolves.")
-        return out + ("\n" + tally.summary() if tally is not None else "")
+        return out + ("\n" + tally.summary() + "\n" + tally.coverage()
+                      if tally is not None else "")
     lines = [report.findings_head("linkscan", len(findings) + over_cap,
                                   noun="broken internal link(s)", tail=".\n")]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
@@ -953,6 +969,7 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.append(tally.coverage())
     lines.append("\n  A real break: fix the path/anchor (or the moved/renamed target).")
     lines.append(f"  A deliberate dangling pointer: append '<!-- {ALLOW_MARKER}: <reason> -->'")
     lines.append(f"  to the line (or '{ALLOW_MARKER}:<kind>: <reason>' for just one of")
@@ -1010,6 +1027,9 @@ def _main(argv: list[str] | None = None) -> int:
                 "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
+            "coverage": report.coverage_dict(
+                tally.files_opened, tally.links_checked,
+                unit_key="links_checked"),
         }
         print(json.dumps(payload, indent=2))
     else:

@@ -903,6 +903,60 @@ class SuppressionTally(unittest.TestCase):
                       ss.render_human(findings))
 
 
+class CoverageLine(unittest.TestCase):
+    """115/130: the run says how many Markdown files it opened and how many
+    lines it read, on the findings path as on the clean one."""
+
+    def setUp(self):
+        import shutil
+        import tempfile
+        self.tmp = ss.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _main(self, *argv):
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), \
+                contextlib.redirect_stderr(io.StringIO()):
+            rc = ss.main(list(argv))
+        return rc, out.getvalue()
+
+    def test_a_clean_run_counts_files_and_lines(self):
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md", _child_text(["a", "b"]))
+        rc, out = self._main("--root", str(self.tmp), str(self.tmp / "docs"))
+        self.assertEqual(0, rc)
+        n = sum(len((self.tmp / "docs" / f).read_text().splitlines())
+                for f in ("PARENT.md", "child.md"))
+        self.assertIn(f"  coverage: 2 file(s) opened \u00b7 {n} line(s) read", out)
+        self.assertNotIn("scanned nothing", out)
+
+    def test_the_drift_path_prints_it_and_still_exits_1(self):
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md", _child_text(["a"]))
+        rc, out = self._main("--root", str(self.tmp), str(self.tmp / "docs"))
+        self.assertEqual(1, rc)
+        self.assertIn("drift finding", out)
+        self.assertIn("coverage: 2 file(s) opened", out)
+
+    def test_a_run_over_no_markdown_says_scanned_nothing_and_exits_0(self):
+        _write(self.tmp, "docs/notes.txt", "not markdown\n")
+        rc, out = self._main("--root", str(self.tmp), str(self.tmp / "docs"))
+        self.assertEqual(0, rc)
+        self.assertIn("coverage: 0 file(s) opened \u00b7 0 line(s) read", out)
+        self.assertIn("scanned nothing", out)
+
+    def test_json_carries_the_same_coverage(self):
+        import json
+        _write(self.tmp, "docs/child.md", "# only\n")
+        rc, out = self._main("--json", "--root", str(self.tmp),
+                             str(self.tmp / "docs"))
+        self.assertEqual({"files_opened": 1, "lines_read": 1,
+                          "scanned_nothing": False},
+                         json.loads(out)["coverage"])
+
+
 class BoundedMemory(unittest.TestCase):
     """020/380 — extending 020/370's ruling to stampscan. Mike's ruling,
     verbatim: "it should not matter how much it scans it should no have this

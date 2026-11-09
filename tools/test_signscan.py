@@ -140,6 +140,49 @@ class Reporting(unittest.TestCase):
         self.assertEqual(ss.render_human(rep, warn=False)[1], 0)
 
 
+class CoverageLine(unittest.TestCase):
+    """115/130: the verdict line is followed by what was examined and verified,
+    on the failing path as on the passing one; exit codes are unchanged."""
+
+    def _report(self, statuses):
+        return {"repo": ".", "allowed_signers": "x",
+                "results": [{"sha": "a" * 40, "plane": p, "status": s, "detail": ""}
+                            for p, s in statuses]}
+
+    def test_a_passing_range_counts_commits_and_signatures(self):
+        rep = self._report([("github", "deferred"), ("machine", "good")])
+        out, code = ss.render_human(rep, warn=False)
+        self.assertEqual(code, 0)
+        self.assertIn("  coverage: 2 commit(s) examined \u00b7 1 signature(s) "
+                      "verified", out)
+        self.assertNotIn("scanned nothing", out)
+
+    def test_a_failing_range_prints_it_too(self):
+        out, code = ss.render_human(self._report([("machine", "bad")]),
+                                    warn=False)
+        self.assertEqual(code, 1)
+        self.assertIn("coverage: 1 commit(s) examined \u00b7 1 signature(s) "
+                      "verified", out)
+
+    def test_an_empty_range_says_scanned_nothing_and_still_passes(self):
+        out, code = ss.render_human(self._report([]), warn=False)
+        self.assertEqual(code, 0)
+        self.assertIn("coverage: 0 commit(s) examined \u00b7 0 signature(s) "
+                      "verified", out)
+        self.assertIn("scanned nothing: no commits were evaluated", out)
+
+    def test_only_server_commits_verify_nothing_here_and_say_so(self):
+        out, code = ss.render_human(self._report([("github", "deferred")]),
+                                    warn=False)
+        self.assertEqual(code, 0)
+        self.assertIn("scanned nothing: no signatures were evaluated", out)
+
+    def test_json_carries_the_same_coverage(self):
+        rep = self._report([("github", "deferred"), ("machine", "good")])
+        self.assertEqual({"files_opened": 2, "signatures_verified": 1,
+                          "scanned_nothing": False}, ss.coverage_dict(rep))
+
+
 class BoundedMemory(unittest.TestCase):
     """020/380 — extending 020/370's ruling to signscan. UNLIKE the tree-
     walking guards, signscan never reads a file's content at all: it holds
