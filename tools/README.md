@@ -1984,6 +1984,17 @@ codes: `0` reported or clean · `2` the scan itself is broken. **What it cannot
 see:** a deliberate foreign path-scope; concurrency it does not know about
 (`git worktree list` is a proxy, and a stale worktree still charges the tax).
 
+### `leakscan --messages` — the same rules over commit messages (read-only)
+
+`python3 tools/leakscan.py --messages [REVS] --root .` reads every commit
+message in `REVS` (default: every ref) through leakscan's rule sets, whole
+bodies, and exits `0` whatever it finds, `2` if the log cannot be read. It is the
+pre-flip sizing tool `320/550` asks for: a hit in an existing message cannot be
+fixed without rewriting history, so this says how big the job is before a repo
+goes public. A marker in a message exempts nothing, and authorship trailers
+(`Co-Authored-By:` and the like) are skipped. It is not on the
+commit-message plane; that is `320/550`'s part (b), not built.
+
 ## `namescan.py` — in a public repo, no private name in a branch name or commit title (warning until 2027-05-03)
 
 Board `160/360` finding NP2, the fifth slice of `320/810`. A branch name and a

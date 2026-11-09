@@ -62,6 +62,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   line-shape pins (extended, not removed, for `indexscan`, `licenscan` and
   `reviewscan`).
 
+### Added (2026-11-10 — `leakscan --messages`, `320/550` part (a))
+- **`leakscan --messages [REVS]` reads commit messages, read-only.** Whole bodies
+  through the same rule sets, every ref by default, exit `0` whatever it finds
+  and `2` if the log cannot be read, so a repo can size a history rewrite before
+  going public. Authorship trailers are skipped. Over atelier's 2,302 messages:
+  4 hits in 3 messages. Part (b), the same rule sets on the commit-message plane, is not built
+  and `320/550` stays open: `leakscan` has no advisory form, so it would block
+  every message body from day one with no warn-first period.
+
 ### Added (2026-11-10 — `quotescan`: a quote of him on commits touching his prompt, `160/900` QK1, slice 6 of `320/810`)
 - **New scanner `quotescan`, on the commit-message plane.** A commit carrying
   `docs/method/session-open/session-open-prompt.md` has a double-quoted span of

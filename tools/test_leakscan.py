@@ -492,6 +492,80 @@ class Redact(unittest.TestCase):
         self.assertIn("chars", out)
 
 
+class CommitMessages(unittest.TestCase):
+    """`--messages` (320/550): the same rule sets over a commit message, read
+    only. A synthetic term in a temp list, so no real name enters the repo."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.terms = self.root / "terms.txt"
+        self.terms.write_text("zephyrquill\n", encoding="utf-8")
+        for args in (["init", "-q", "-b", "main"], ["config", "user.name", "t"],
+                     ["config", "user.email", "t@example.invalid"],  # leakscan:allow: RFC-2606 fixture identity
+                     ["config", "commit.gpgsign", "false"]):
+            subprocess.run(["git", "-C", str(self.root), *args], check=True,
+                           capture_output=True)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _commit(self, name, message):
+        (self.root / name).write_text("x\n", encoding="utf-8")
+        subprocess.run(["git", "-C", str(self.root), "add", name], check=True,
+                       capture_output=True)
+        subprocess.run(["git", "-C", str(self.root), "commit", "-q", "-m", message],
+                       check=True, capture_output=True)
+
+    def _run(self, *argv):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+            rc = ls.main(["--root", str(self.root), "--terms", str(self.terms), *argv])
+        return rc, out.getvalue()
+
+    def test_a_body_hit_is_found_and_never_blocks(self):
+        self._commit("a", "clean title\n\nthe body names zephyrquill here")
+        rc, out = self._run("--messages")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("1 finding(s) in 1 of 1", out)
+        self.assertNotIn("zephyrquill", out, "a finding never prints the term")
+
+    def test_an_authorship_trailer_is_not_a_finding(self):
+        self._commit("a", "title\n\nbody\n\n"
+                          "Co-Authored-By: Someone <noreply@example.invalid>")  # leakscan:allow: RFC-2606 fixture identity
+        rc, out = self._run("--messages")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("0 finding(s) in 0 of 1", out)
+
+    def test_a_clean_log_reports_zero(self):
+        self._commit("a", "clean title")
+        rc, out = self._run("--messages")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("0 finding(s) in 0 of 1", out)
+
+    def test_a_range_reads_only_that_range(self):
+        self._commit("a", "names zephyrquill")
+        self._commit("b", "clean title")
+        rc, out = self._run("--messages", "HEAD^..HEAD")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("0 finding(s) in 0 of 1", out)
+
+    def test_a_marker_in_a_message_exempts_nothing(self):
+        self._commit("a", "x zephyrquill <!-- leakscan:allow:local-term: a reason -->")
+        rc, out = self._run("--messages")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("1 finding(s)", out)
+
+    def test_an_unreadable_range_is_broken_not_clean(self):
+        self._commit("a", "x")
+        rc, _ = self._run("--messages", "nosuch..HEAD")
+        self.assertEqual(rc, 2)
+
+    def test_it_refuses_paths_and_staged(self):
+        self.assertEqual(self._run("--messages", "--staged")[0], 2)
+        self.assertEqual(self._run("--messages", "HEAD", "somepath")[0], 2)
+
+
 class RequireTerms(unittest.TestCase):
     """Review B5: to automation, a degraded structural-only exit-0 pass is
     indistinguishable from full cover; --require-terms makes it fail closed."""

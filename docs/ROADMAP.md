@@ -647,7 +647,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: nothing at session open, or before "verified", reads the…](roadmap/320-child-filed-findings-via-pointing-up/520-nothing-reads-the-published-ci-conclusion.md)
 - [ ] 🔎 [Hand-up from a private child: a repo that holds one network's desired…](roadmap/320-child-filed-findings-via-pointing-up/530-a-network-tree-repo-trips-the-floor-s-scanners-by-construction.md)
 - [ ] 🔎 [MISSING HOUSE RULE — list what already exists before adding a…](roadmap/320-child-filed-findings-via-pointing-up/540-missing-house-rule-list-what-exists-before-adding-a-resource.md)
-- [~] 🔎 (claimed 2026-11-09, wt: atelier-qr-d0ca-msg, ses…) [Hand-up: no floor scanner…](roadmap/320-child-filed-findings-via-pointing-up/550-no-scanner-reads-a-commit-message-body.md)
+- [ ] 🔎 [Hand-up: no floor scanner reads a commit message, so a term that is…](roadmap/320-child-filed-findings-via-pointing-up/550-no-scanner-reads-a-commit-message-body.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md)
 - [ ] 🔎 [MISSING HOUSE RULE — a "this cannot work" built only from reading is…](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
 - ✅ 🎯 [MISSING HOUSE RULE — the house has no method for splitting one repo…](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)

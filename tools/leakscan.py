@@ -95,6 +95,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
 import anchoredrx  # noqa: E402
+import commitmsg  # noqa: E402
 import report  # noqa: E402
 
 # A line carrying this marker is intentionally exempt (e.g. an illustrative
@@ -3108,11 +3109,20 @@ def _main(argv: list[str] | None = None) -> int:
                          "carry no reason: review each file and write one per file and "
                          "per set kept, or the scan refuses it. Each ends with a "
                          "'by= session= on=' who/when note. Never writes the file.")
+    ap.add_argument("--messages", nargs="?", const="--all", default=None,
+                    metavar="REVS",
+                    help="read commit messages instead of files: every ref by "
+                         "default, or a git log range. Read-only: it reports "
+                         "and exits 0, because a message already written cannot "
+                         "be fixed without a history rewrite (320/550)")
     ap.add_argument("--selftest", action="store_true", help="run built-in checks and exit")
     args = ap.parse_args(argv)
 
     if args.selftest:
         return _selftest()
+    if args.messages is not None and (args.staged or args.binary_entries or args.paths):
+        return report.broken("leakscan", "--messages reads the log; it takes no "
+                             "paths, and neither --staged nor --binary-entries")
 
     root = Path(args.root).resolve()
     if args.binary_entries:
@@ -3200,6 +3210,10 @@ def _main(argv: list[str] | None = None) -> int:
     # 115/090 it narrows nothing at all: a disabled rule still runs, and its
     # hits report without blocking.
     tally = Tally(disabled_rules=tuple(sorted(disabled)))
+
+    if args.messages is not None:
+        return report_messages(root, args.messages, local_terms, disabled, tally,
+                               warning, as_json=args.json)
 
     if args.staged:
         rc = report.refuse_other_repo("leakscan", root)
@@ -3383,6 +3397,60 @@ def _main(argv: list[str] | None = None) -> int:
                            provwarn))
 
     return report.exit_code(blocking_total)
+
+
+AUTHOR_TRAILER_RX = re.compile(
+    r"^\s*(?:co-authored-by|signed-off-by|reviewed-by|acked-by|tested-by)\s*:",
+    re.IGNORECASE)
+
+
+def scan_messages(root: Path, revs: str,
+                  local_terms: list[tuple[str, "re.Pattern[str]"]],
+                  disabled: frozenset[str],
+                  tally: Tally) -> tuple[list[Finding], int]:
+    """Every commit message in `revs`, whole bodies, through the same rule set
+    as a file (320/550). A marker in a message exempts nothing: it sits where
+    no reviewer of the tree reads it, as in a binary's metadata."""
+    log = commitmsg.commits(root, revs)
+    findings: list[Finding] = []
+    for commit in log:
+        # Authorship trailers are published identity, on purpose and on every
+        # commit: 2,198 of atelier's 2,200 first-run hits were this one email.
+        body = "\n".join(ln for ln in commit.message.splitlines()
+                         if not AUTHOR_TRAILER_RX.match(ln))
+        findings.extend(scan_text(commit.sha[:12], body, local_terms,
+                                  disabled, tally, honour_markers=False))
+    return findings, len(log)
+
+
+def report_messages(root: Path, revs: str,
+                    local_terms: list[tuple[str, "re.Pattern[str]"]],
+                    disabled: frozenset[str], tally: Tally,
+                    warning: str | None, as_json: bool = False) -> int:
+    """The `--messages` report. Exit 0 whatever it finds; exit 2 if the log
+    cannot be read, because a range nobody read is not a clean range."""
+    try:
+        findings, read = scan_messages(root, revs, local_terms, disabled, tally)
+    except RuntimeError as e:
+        return report.broken("leakscan", str(e))
+    hit = len({f.path for f in findings})
+    if as_json:
+        print(json.dumps({"clean": not findings, "messages": read,
+                          "messages_with_findings": hit,
+                          "scanned_local_terms": bool(local_terms),
+                          "warning": warning,
+                          "findings": report.finding_dicts(
+                              "leakscan", findings, lambda f: f.rule)}, indent=2))
+        return 0
+    if warning:
+        print(f"leakscan: {warning}")
+    print(f"leakscan --messages: {len(findings)} finding(s) in {hit} of {read} "
+          "commit message(s). Read-only: this never blocks.")
+    for f in findings[:40]:
+        print(f"  {f.path}:{f.line}  [{f.rule}] {report.safe_text(f.excerpt)}")
+    if len(findings) > 40:
+        print(report.over_cap_line(len(findings) - 40, 40))
+    return 0
 
 
 def _selftest() -> int:

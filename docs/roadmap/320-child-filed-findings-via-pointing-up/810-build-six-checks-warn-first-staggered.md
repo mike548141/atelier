@@ -63,7 +63,7 @@
         Measured over atelier: 0 of 2,285 titles and 0 of 41 refs. Probe by exit
         code with the date patched: 21 of 21 exit 0 today and on the flip date
         (atelier in scope, the other 20 out). Tests: 14, in
-        `tools/test_namescan.py`, plus `tools/test_commitmsg.py` (11).
+        `tools/test_namescan.py`, plus `tools/test_commitmsg.py` (12).
   - [x] ✅ **Slice 6 LANDED 2026-11-10: a quote of him on commits touching his
         prompt (`160/900`, QK1's second counsel)**, a new scanner,
         `tools/quotescan.py`, on the commit-message plane. Warns until
@@ -78,6 +78,10 @@
         and 2026-12-18. Each flip needs a fresh fleet probe before its date.
   - [ ] **Three cold passes owed**, one per landing (each is self-authored
         guard code): the orchestrator queues them when it lands the work.
+  - [x] ✅ **`320/550` part (a) shared the plane**: `leakscan --messages [REVS]`,
+        read-only over `git log`, whole bodies. A few lines once the plane and
+        the message reader existed. Part (b), the same rules on the
+        commit-message plane, is not built: see `320/550`.
   - [ ] **What remains: the flips and their probes.** Five dated turns, each
         needing a fresh fleet probe by exit code before its date:
         `SUBSECTION_WARN_UNTIL` 2027-01-11, `ATTRIBUTION_WARN_UNTIL` 2027-02-08,

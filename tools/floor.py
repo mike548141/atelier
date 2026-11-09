@@ -983,8 +983,14 @@ SCANNERS: tuple[Scanner, ...] = (
 # plane turned the run into a diff scan; each happened to gate more, never
 # less, but nothing in the design promised that. A child's `flags` tune a
 # check, they do not re-aim it.
+#
+# `--messages` (320/550) is the same kind as `--binary-entries`: leakscan reads
+# the log, reports and exits 0, so through `flags` it would be a guaranteed pass
+# over the boundary. `--message-file` and `--range` are the re-aiming kind: a
+# message check reads the message it is handed and no other.
 FORBIDDEN_FLAGS = {"--warn", "--check", "--selftest", "--json", "--binary-entries",
-                   "--root", "--terms", "--staged"}
+                   "--root", "--terms", "--staged", "--messages", "--message-file",
+                   "--range"}
 
 
 def forbidden_flags(args: list[str]) -> list[str]:

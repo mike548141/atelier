@@ -244,6 +244,10 @@ class MsgPlaneTest(unittest.TestCase):
         self.assertNotIn("--warn", s.msg)
         self.assertEqual(_states("msg", floor.Config())["quotescan"], "enforced")
 
+    def test_a_child_cannot_reach_the_message_modes_through_flags(self):
+        for flag in ("--messages", "--message-file", "--range"):
+            self.assertEqual(floor.forbidden_flags([flag]), [flag])
+
     def test_commit_msg_note(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

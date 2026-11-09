@@ -1,4 +1,4 @@
-- [~] (claimed 2026-11-09-1402, wt: atelier-qr-d0ca-msg, session d0ca5d24) 🔎 **Hand-up: no floor scanner reads a commit message, so a term that is
+- [ ] 🔎 **Hand-up: no floor scanner reads a commit message, so a term that is
       caught in files lands unflagged in a message body** `[M][tools]` — filed
       2026-10-11 from a private child repo via `PROPAGATION.md` § *Pointing
       up*. Class only: no repo, term, person or hash appears below. Checked
@@ -46,3 +46,21 @@
         commit-msg hook ships. Repro: a commit body with an IPv6 address and a
         relative-time word exits 0; the same address in a staged file exits 1.
         320/240 exists. Sweep counts are child-side.
+  - [x] ✅ **Part (a) BUILT 2026-11-10: `leakscan --messages [REVS]`**, read-only over
+        `git log` (every ref by default), whole bodies, the same rule sets as a
+        file, exit 0 whatever it finds and 2 if the log cannot be read. It is
+        the pre-flip sizing tool the proposal asks for. A marker in a message
+        exempts nothing, and authorship trailers are skipped (published identity,
+        and 2,198 of the first run's 2,200 hits). Measured over atelier's 2,302
+        messages: 4 hits in 3 messages (3 structural, 1 term), which answers
+        "unevidenced at atelier's end" above. Listing them is one command; they
+        are the principal's to weigh, since a hit in an existing message cannot
+        be fixed without a history rewrite.
+  - [ ] **Part (b) is NOT built, so this item stays open.** The commit-msg plane
+        exists now (`320/810`), and the wiring is one registry line, but
+        `leakscan` has no advisory form by design and blocks on a hit, so
+        putting it on that plane is a blocking check over every message body
+        from day one, with no warn-first period and no measure of the fleet
+        behind it. `namescan` covers titles and branch names on that plane
+        (`160/360` NP2); bodies are read only by the sweep above. Pull-request
+        titles and bodies are not read by anything yet.
