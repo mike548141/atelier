@@ -575,8 +575,9 @@ SCANNERS: tuple[Scanner, ...] = (
         # been told about. A child declares it advisory while it cleans up,
         # with a `why` and a `review-by` like any other advisory declaration.
         advisory=["--warn", "--root", "{root}"],
-        why="no machine-local config is tracked — publishing an agent's "
-            "unprompted-command allowlist maps its unattended reach",
+        why="no file whose publication weakens the repo is tracked — keys, "
+            "environment files, logs, dumps, caches and an agent's "
+            "unprompted-command allowlist",
     ),
     Scanner(
         "sizescan",

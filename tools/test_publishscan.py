@@ -235,6 +235,159 @@ class PlaneTest(unittest.TestCase):
                              0)
 
 
+class RoundTwoCounselTest(unittest.TestCase):
+    """The round-2 cold pass's counsel (160/470): PL1 macron seam pinned on the
+    reviewer's own shape, PL2 hatch visibility, PL6 basename anchoring, PL7 case
+    folding, PL8 shadowed entries, PL11/PL13 remedy text."""
+
+    def run_tool(self, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(TOOLS / "publishscan.py"), *args],
+            capture_output=True, text=True)
+
+    def repo(self, s: str, *files: str, commit: bool = True) -> Path:
+        root = git_repo(Path(s))
+        subprocess.run(["git", "-C", s, "config", "core.quotePath", "true"],
+                       check=True, capture_output=True)
+        for f in files:
+            add(root, f)
+        if commit:
+            subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
+                           capture_output=True)
+        return root
+
+    # PL1 — already fixed by 260/120 (`-z`); pinned here on the reviewer's shapes
+    def test_pl1_macron_directory_and_name_both_planes(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = self.repo(s, "README.md")
+            for rel in ("Māori/.env", "Māori/id_rsa", "x/kēy.key"):
+                add(root, rel)
+            r = self.run_tool("--root", s, "--staged", "--json")
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertEqual(
+                sorted(f["path"] for f in json.loads(r.stdout)["findings"]),
+                ["Māori/.env", "Māori/id_rsa", "x/kēy.key"])
+            subprocess.run(["git", "-C", s, "commit", "-qm", "y"], check=True,
+                           capture_output=True)
+            r = self.run_tool("--root", s, "--json")
+            self.assertEqual(len(json.loads(r.stdout)["findings"]), 3)
+
+    # PL2 — the hatch says what it hid
+    def test_pl2_an_exempting_glob_is_counted_and_listed(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = self.repo(s, "README.md", ".env", "id_rsa", "app.log",
+                             commit=False)
+            (root / ".publishscanignore").write_text("*  # everything\n")
+            subprocess.run(["git", "-C", s, "commit", "-qam", "x"],
+                           capture_output=True)
+            r = self.run_tool("--root", s)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("3 never-publish path(s) by .publishscanignore",
+                          r.stdout)
+            self.assertIn("exempted: .env", r.stdout)
+            self.assertNotIn("none in the never-publish class.", r.stdout)
+            doc = json.loads(self.run_tool("--root", s, "--json").stdout)
+            self.assertEqual(3, doc["suppressed"]["by_publishscanignore"])
+            self.assertEqual({".env", "id_rsa", "app.log"},
+                             {p["path"] for p in doc["suppressed"]["paths"]})
+
+    def test_pl2_zero_is_printed_and_a_plain_path_is_not_counted(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = self.repo(s, "README.md", commit=False)
+            (root / ".publishscanignore").write_text("README.md  # why\n")
+            subprocess.run(["git", "-C", s, "commit", "-qam", "x"],
+                           capture_output=True)
+            r = self.run_tool("--root", s)
+            self.assertIn("0 never-publish path(s) by .publishscanignore",
+                          r.stdout)
+            doc = json.loads(self.run_tool("--root", s, "--json").stdout)
+            self.assertEqual(0, doc["suppressed"]["by_publishscanignore"])
+            self.assertEqual([], doc["suppressed"]["paths"])
+
+    def test_pl2_the_history_plane_reports_its_exemptions_too(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = self.repo(s, "README.md", "old/.env")
+            (root / ".publishscanignore").write_text("old/.env  # kept\n")
+            r = self.run_tool("--root", s, "--history", "--json")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            doc = json.loads(r.stdout)
+            self.assertEqual(1, doc["suppressed"]["by_publishscanignore"])
+            h = self.run_tool("--root", s, "--history")
+            self.assertIn("1 never-publish path(s) by .publishscanignore",
+                          h.stdout)
+
+    def test_pl2_findings_print_the_suppressed_line_too(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = self.repo(s, "README.md", ".env", "id_rsa", commit=False)
+            (root / ".publishscanignore").write_text(".env  # kept\n")
+            subprocess.run(["git", "-C", s, "commit", "-qam", "x"],
+                           capture_output=True)
+            r = self.run_tool("--root", s)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("1 never-publish path(s) by .publishscanignore",
+                          r.stdout)
+
+    # PL6 — basename-only globs
+    def test_pl6_history_globs_do_not_reach_past_the_basename(self):
+        for p in (".github/release_history", ".ci/job_history",
+                  "docs/._x/readme.md"):
+            self.assertIsNone(publishscan.matches(p), p)
+        for p in (".bash_history", "home/u/.python_history", "docs/._notes.md",
+                  "._x"):
+            self.assertIsNotNone(publishscan.matches(p), p)
+
+    # PL7 — case folded
+    def test_pl7_case_variants_red(self):
+        for p in (".ENV", "ID_RSA", "server.KEY", "App.LOG", "Known_Hosts",
+                  ".Npmrc", ".Ds_Store", "thumbs.DB", "x/.ENV.PRODUCTION",
+                  "DIR/Privkey1.PEM", "CLAUDE.LOCAL.MD"):
+            self.assertIsNotNone(publishscan.matches(p), p)
+
+    def test_pl7_folding_does_not_widen_the_lookalikes(self):
+        for p in ("keys/ID_RSA.PUB", "docs/ENV.md", "FullChain.PEM"):
+            self.assertIsNone(publishscan.matches(p), p)
+
+    def test_pl7_an_ignore_glob_stays_case_sensitive(self):
+        self.assertTrue(publishscan._ignored(".ENV", [".ENV"]))
+        self.assertFalse(publishscan._ignored(".env", [".ENV"]))
+
+    # PL8 — order and reachability
+    def test_pl8_thumbs_db_is_attributed_to_itself(self):
+        self.assertIn("thumbnail", publishscan.matches("docs/Thumbs.db"))
+        self.assertIn("local database", publishscan.matches("data/app.db"))
+
+    def test_pl8_every_entry_is_reachable_by_its_own_fixture(self):
+        shadowed = [g for g, why in publishscan.NEVER_PUBLISH
+                    if publishscan.matches(g.replace("*", "x")) != why]
+        self.assertEqual([], shadowed)
+
+    def test_pl8_a_round_two_shape_reds_on_both_planes(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = self.repo(s, "README.md")
+            add(root, "backup/server.KEY")
+            r = self.run_tool("--root", s, "--staged")
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("a private key file", r.stdout)
+            subprocess.run(["git", "-C", s, "commit", "-qm", "y"], check=True,
+                           capture_output=True)
+            self.assertEqual(self.run_tool("--root", s).returncode, 1)
+
+    # PL11 / PL13 — the remedy text
+    def test_pl11_the_remedy_states_how_a_glob_matches(self):
+        with tempfile.TemporaryDirectory() as s:
+            self.repo(s, "README.md", "tests/fixtures/.env")
+            out = self.run_tool("--root", s).stdout
+            self.assertIn("FULL path", out)
+            self.assertIn("does not", out)
+
+    def test_pl13_the_remedy_quotes_a_hostile_path(self):
+        with tempfile.TemporaryDirectory() as s:
+            self.repo(s, "README.md", "a b;touch x/.env")
+            out = self.run_tool("--root", s).stdout
+            self.assertIn("git rm --cached -- 'a b;touch x/.env'", out)
+            self.assertIn("echo 'a b;touch x/.env' >> .gitignore", out)
+
+
 class HatchAndModeTest(unittest.TestCase):
     def run_tool(self, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run(

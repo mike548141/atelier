@@ -73,8 +73,9 @@ Two tiers, both stated rather than blurred:
     not describe a private repo's security posture, even unnamed. The rest
     of round 2 (key and keystore shapes, history files, dumps and captures,
     tool caches, OS cruft) is standard practice too, and each entry in
-    NEVER_PUBLISH says which tier it is. Considered and left out: generic
-    `*.pem`, `credentials*.json`, `*.rsc`, archives, `*.jsonl`, `*.pub`.
+    NEVER_PUBLISH says which tier it is. What was considered and left out,
+    with the reasons, lives in ONE place: the comment above the round-2 block
+    of `NEVER_PUBLISH` (PL4). The README points there too.
 
   * ROUND 3: `*.egg-info/`, the one shape the 2026-10-05 harvest of a flip's
     transcripts found (260/090): a committed Python build directory, removed
@@ -131,6 +132,7 @@ import argparse
 import fnmatch
 import json
 import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -163,12 +165,13 @@ NEVER_PUBLISH: tuple[tuple[str, str], ...] = (
     (".idea/*", "editor-local config: local paths, tool config"),
 
     # ---- Round 2 (2026-10-03 survey of every sibling repo's tracked set). ----
+    # THE ONE LEFT-OUT LIST (PL4): the docstring and the README point here.
     # Provenance: "measured" = tracked in at least one repo of this estate at
     # survey time (counts only here; the survey names no repo); "standard
     # practice" = a file whose whole purpose is machine-local state or a secret
     # carrier, not yet seen tracked here. Deliberately NOT added, with reasons:
     # generic `*.pem` (public certificates and CA roots are legitimately
-    # tracked; measured 3 repos, most of them public chains), `credentials*.json`
+    # tracked), `credentials*.json`
     # (a deliberate no-secret registry and test fixtures wear that name),
     # `*.rsc` RouterOS (the same extension is source code and device exports),
     # generic archives and `*.jsonl` (fixtures and shipped data), `*.pub` (public
@@ -208,6 +211,10 @@ NEVER_PUBLISH: tuple[tuple[str, str], ...] = (
     (".*_history", "shell or REPL history — standard practice"),
     (".lesshst", "pager history — standard practice"),
     (".viminfo", "editor history — standard practice"),
+    # Order matters: the first match names the reason, so a SPECIFIC entry has
+    # to precede the generic glob it would otherwise sit under (PL8). A test
+    # drives every entry through its own fixture to keep that true.
+    ("Thumbs.db", "Windows thumbnail cache — standard practice"),
     ("*.db",
      "a local database — measured in the 2026-10-03 survey"),
     ("*.sqlite", "a local database — standard practice"),
@@ -253,7 +260,6 @@ NEVER_PUBLISH: tuple[tuple[str, str], ...] = (
      "an agent session's nested worktree — local scratch, never repo content"),
     # -- OS cruft
     (".DS_Store", "macOS folder metadata — standard practice"),
-    ("Thumbs.db", "Windows thumbnail cache — standard practice"),
     ("desktop.ini", "Windows folder metadata — standard practice"),
     ("._*", "macOS AppleDouble metadata — standard practice"),
 )
@@ -328,7 +334,18 @@ def load_ignores(root: Path) -> list[str]:
 
 
 def _ignored(path: str, globs: list[str]) -> bool:
-    return any(fnmatch.fnmatch(path, g) for g in globs)
+    # `fnmatchcase`, not `fnmatch`: the latter folds case on Windows and not on
+    # POSIX, so one `.publishscanignore` would mean two things on two hosts
+    # (PL7). An ignore glob stays CASE-SENSITIVE on purpose: an exemption is the
+    # narrow lever, so `.ENV  # reason` exempts `.ENV` and not `.env`.
+    return any(fnmatch.fnmatchcase(path, g) for g in globs)
+
+
+# Globs matched against the path's BASENAME alone. `fnmatch`'s `*` spans `/`,
+# which is what lets every other pattern match at any depth, but for these two
+# it overreaches: `.*_history` also reds `.github/release_history`, and `._*`
+# reds everything under a directory named `._x` (PL6).
+BASENAME_ONLY = frozenset({".*_history", "._*"})
 
 
 def matches(path: str) -> str | None:
@@ -337,11 +354,63 @@ def matches(path: str) -> str | None:
     Each pattern is tried at the repo root AND at any depth (`*/` + glob —
     `fnmatch`'s `*` spans `/`, which is also why the depth form needs no
     `**`). A machine-local file is machine-local wherever it sits.
+
+    CASE IS FOLDED (PL7): the denylist matches `.ENV`, `ID_RSA`, `server.KEY`
+    and `thumbs.DB` as it matches their lower-case spellings. Files that arrive
+    from Windows or a case-insensitive volume carry the upper-case form, and
+    `fnmatch.fnmatch` alone answers differently per host. The choice is the wider
+    one on purpose: a denylist that a capital letter walks past is not one.
+    Ignore globs are the opposite (see `_ignored`).
     """
+    folded = path.lower()
+    base = folded.rsplit("/", 1)[-1]
     for glob, why in NEVER_PUBLISH:
-        if fnmatch.fnmatch(path, glob) or fnmatch.fnmatch(path, "*/" + glob):
+        g = glob.lower()
+        if glob in BASENAME_ONLY:
+            if fnmatch.fnmatchcase(base, g):
+                return why
+        elif (fnmatch.fnmatchcase(folded, g)
+                or fnmatch.fnmatchcase(folded, "*/" + g)):
             return why
     return None
+
+
+# How many exempted paths a run prints. The count beside them is exact.
+SHOW_EXEMPTED = 10
+
+
+def _partition(paths, globs: list[str]):
+    """(findings, exempted): every never-publish path, split by whether the
+    ignore file exempts it. Only paths that WOULD have been findings count as
+    exempted, so the number says what the hatch is hiding, not how many paths
+    a broad glob happens to cover (PL2)."""
+    findings: list[tuple[str, str]] = []
+    exempted: list[tuple[str, str]] = []
+    for p in paths:
+        why = matches(p)
+        if why is None:
+            continue
+        (exempted if _ignored(p, globs) else findings).append((p, why))
+    return findings, exempted
+
+
+def _suppressed_lines(exempted: list[tuple[str, str]]) -> list[str]:
+    """The rule-(b) tally in the sibling scanners' grammar, zero printed, then
+    the exempted paths themselves (bounded), so a reasoned `*` in the ignore
+    file cannot turn a red board green without saying so (PL2)."""
+    lines = [report.suppressed_line(
+        [f"{len(exempted)} never-publish path(s) by {IGNORE_FILE}"])]
+    for p, why in exempted[:SHOW_EXEMPTED]:
+        lines.append(f"    exempted: {p} — {why}")
+    if len(exempted) > SHOW_EXEMPTED:
+        lines.append(f"    ... and {len(exempted) - SHOW_EXEMPTED} more "
+                     "(--json lists every one)")
+    return lines
+
+
+def _suppressed_json(exempted: list[tuple[str, str]]) -> dict:
+    return {"by_publishscanignore": len(exempted),
+            "paths": [{"path": p, "why": w} for p, w in exempted]}
 
 
 class NotARepo(Exception):
@@ -428,8 +497,7 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
         # An unreadable ignore file is a broken scan: exit 2 with a line, not
         # a traceback and Python's 1 (RT4, 160/730).
         return report.cannot_read("publishscan", e)
-    findings = [(p, why) for p in paths
-                if not _ignored(p, globs) and (why := matches(p))]
+    findings, exempted = _partition(paths, globs)
 
     if as_json:
         # rebased_to is always present (null when --root was already the top)
@@ -439,31 +507,41 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
             "staged": staged,
             "rebased_to": str(top) if rebased else None,
             "findings": [{"path": p, "why": w} for p, w in findings],
+            "suppressed": _suppressed_json(exempted),
         }, indent=2))
         return report.exit_code(len(findings), warn=warn)
 
     if findings:
         for p, why in findings:
             print(f"✗ {p} — tracked, but must not be published: {why}")
+        print("\n".join(_suppressed_lines(exempted)))
         print()
         print("These files are machine-local by nature. Untrack, keep the")
         print("file, and ignore it so it stays out of future commits:")
-        print(f"  git rm --cached {findings[0][0]}")
-        print(f"  echo '{findings[0][0]}' >> .gitignore")
+        print(f"  git rm --cached -- {shlex.quote(findings[0][0])}")
+        print(f"  echo {shlex.quote(findings[0][0])} >> .gitignore")
         print()
         print("Already-pushed history cannot be unpublished — untracking stops")
         print("the next commit, it does not recall the last one. A deliberate")
         print(f"exception: add a glob to {IGNORE_FILE} with a trailing")
         print(f"'# reason' on the same line (e.g. `{findings[0][0]}  # kept:")
-        print("<why>`) — a bare glob is a config error, and no line marker")
+        print("<why>`). A glob matches the FULL path, case-sensitively, and only")
+        print(f"the root {IGNORE_FILE} is read (PL11) — `.env` does not")
+        print("exempt `tests/fixtures/.env`. A bare glob is a config error, and no line marker")
         print("exists on purpose: a reason written inside an unpublishable")
         print("file is an exemption nobody reviewing the tree would see).")
         if warn:
             print(report.WARN_NOTICE)
     else:
         where = "staged path(s)" if staged else "tracked path(s)"
+        # Not "none in the class" when the hatch hid some: that sentence is
+        # literally false then (PL2).
+        beyond = (f" beyond the {len(exempted)} exempted by {IGNORE_FILE}"
+                  if exempted else "")
         print(report.clean_head(
-            "publishscan", f"{len(paths)} {where}, none in the never-publish class."))
+            "publishscan",
+            f"{len(paths)} {where}, none in the never-publish class{beyond}."))
+        print("\n".join(_suppressed_lines(exempted)))
     return report.exit_code(len(findings), warn=warn)
 
 
@@ -512,13 +590,17 @@ def _decode(raw: bytes) -> str:
 
 
 def history_findings(top: Path, globs: list[str]
-                     ) -> tuple[int, int, dict[str, tuple[str, int, str]]]:
-    """(path additions examined, commits with an addition, hits).
+                     ) -> tuple[int, int, dict[str, tuple[str, int, str]],
+                                dict[str, str]]:
+    """(path additions examined, commits with an addition, hits, exempted).
 
     hits maps path -> (oldest adding commit, its committer time, why). Only
-    hits are held; every other path is counted and dropped."""
+    hits are held; every other path is counted and dropped. `exempted` maps the
+    paths the ignore file hid, that would otherwise have been hits, to their
+    reason (PL2): held for the same reason hits are, bounded by what matched."""
     additions = commits = 0
     hits: dict[str, tuple[str, int, str]] = {}
+    exempted: dict[str, str] = {}
     sha, when, first = "", 0, False
     for tok in _git_stream(top, *HISTORY_LOG):
         if tok.startswith(b"\x01"):
@@ -533,17 +615,18 @@ def history_findings(top: Path, globs: list[str]
             continue
         additions += 1
         path = _decode(tok)
-        if _ignored(path, globs):
-            continue
         why = matches(path)
         if why is None:
+            continue
+        if _ignored(path, globs):
+            exempted[path] = why
             continue
         # The log runs newest-first, so a later-seen add of the same path is
         # older; committer time settles merge-order ties the walk leaves.
         prev = hits.get(path)
         if prev is None or when <= prev[1]:
             hits[path] = (sha, when, why)
-    return additions, commits, hits
+    return additions, commits, hits, exempted
 
 
 def _still_tracked(top: Path, hits: dict) -> set[str]:
@@ -573,10 +656,10 @@ def run_history(root: Path, warn: bool, as_json: bool) -> int:
                 "history is what a flip publishes; `git fetch --unshallow`")
         if _git(top, "for-each-ref", "--count=1",
                 "refs/heads", "refs/tags", "refs/remotes"):
-            additions, commits, hits = history_findings(top, globs)
+            additions, commits, hits, hidden = history_findings(top, globs)
             tracked = _still_tracked(top, hits)
         else:
-            additions, commits, hits, tracked = 0, 0, {}, set()
+            additions, commits, hits, tracked, hidden = 0, 0, {}, set(), {}
     except NotARepo:
         if as_json:
             print(json.dumps({"scanned": 0, "history": True, "commits": 0,
@@ -592,6 +675,7 @@ def run_history(root: Path, warn: bool, as_json: bool) -> int:
         return report.cannot_read("publishscan", e)
 
     findings = sorted(hits.items())
+    exempted = sorted(hidden.items())
     if as_json:
         print(json.dumps({
             "scanned": additions,
@@ -602,6 +686,7 @@ def run_history(root: Path, warn: bool, as_json: bool) -> int:
                           "first_date": _utc_day(when),
                           "tracked_at_tip": p in tracked}
                          for p, (sha, when, why) in findings],
+            "suppressed": _suppressed_json(exempted),
         }, indent=2))
         return report.exit_code(len(findings), warn=warn)
 
@@ -610,6 +695,7 @@ def run_history(root: Path, warn: bool, as_json: bool) -> int:
             where = "still tracked" if p in tracked else "history only"
             print(f"✗ {p} — first added {sha[:12]} ({_utc_day(when)}), "
                   f"{where}: {why}")
+        print("\n".join(_suppressed_lines(exempted)))
         print()
         print("A flip publishes every path ever pushed, not only the tip.")
         print("'still tracked' paths: untrack them as the default scan says.")
@@ -624,7 +710,10 @@ def run_history(root: Path, warn: bool, as_json: bool) -> int:
         print(report.clean_head(
             "publishscan", f"{additions} path addition(s) across {commits} "
                            "commit(s) of history, none in the never-publish "
-                           "class."))
+                           "class" + (f" beyond the {len(exempted)} exempted "
+                                      f"by {IGNORE_FILE}" if exempted else "")
+                           + "."))
+        print("\n".join(_suppressed_lines(exempted)))
     return report.exit_code(len(findings), warn=warn)
 
 
@@ -645,7 +734,9 @@ def selftest() -> int:
            "h/.bash_history", "CLAUDE.local.md", "infra/terraform.tfstate",
            ".claude/worktrees/agent-1",
            # Round 3.
-           "src/pkg.egg-info/PKG-INFO", "pkg.egg-info/SOURCES.txt"]
+           "src/pkg.egg-info/PKG-INFO", "pkg.egg-info/SOURCES.txt",
+           # Case is folded (PL7).
+           ".ENV", "x/ID_RSA", "certs/server.KEY", "docs/thumbs.DB"]
     green = [
         # The self-describing guard files this tool deliberately allows: they
         # MUST travel for the floor to run, and hiding them would weaken the
@@ -660,18 +751,27 @@ def selftest() -> int:
         ".vscode/extensions.json", ".editorconfig", "docs/changelog.md",
         "src/core.2fa.py", "docs/release_history.md", "registry/credentials.json",
         "docs/egg-info-notes.md", "src/egg_info.py",
+        # The basename-only globs do not reach past the basename (PL6).
+        ".github/release_history", ".ci/job_history", "docs/._x/readme.md",
     ]
     bad_red = [p for p in red if matches(p) is None]
     bad_green = [p for p in green if matches(p) is not None]
+    # Every entry must be reachable by its own fixture: first match names the
+    # reason, so a specific entry placed after a generic glob never fires and
+    # its provenance is silently attributed to the generic one (PL8).
+    unreachable = [g for g, why in NEVER_PUBLISH
+                   if matches(g.replace("*", "x")) != why]
     hatch_ok = _ignored(".mcp.json", [".mcp.json"])
     # Nothing this tool ingests can repaint the terminal it reports to
     # (C1F3/PA4). Checked here too: the selftest is what a child runs offline.
     controls_ok = _strip_controls("\x1b[2K.mcp\x07.json\x7f") == "[2K.mcp.json"
-    ok = not bad_red and not bad_green and hatch_ok and controls_ok
+    ok = (not bad_red and not bad_green and not unreachable and hatch_ok
+          and controls_ok)
     print("publishscan selftest:", "OK" if ok else "FAILED")
     if not ok:
         print("  missed (should red):", bad_red)
         print("  false positives (should pass):", bad_green)
+        print("  entries shadowed by an earlier one:", unreachable)
         print("  ignore-file hatch works:", hatch_ok)
         print("  control characters stripped:", controls_ok)
     return 0 if ok else 1
