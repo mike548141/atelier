@@ -385,6 +385,10 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: one helper resolves ../<sibling> from a…](roadmap/160-doctrine-review-owed/1360-rule-4-cold-pass-queued-estate-helper-sibling-resolution.md)
 - [ ] ⏳ [Rule-4 cold pass queued: nz-phone passes a bracketed byte field…](roadmap/160-doctrine-review-owed/1370-rule-4-cold-pass-queued-phone-byte-field-rule-spelling.md)
 - [ ] ⏳ [Rule-4 cold pass queued: coverage accounting: a scan of nothing no…](roadmap/160-doctrine-review-owed/1380-rule-4-cold-pass-queued-coverage-accounting.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the commit-message plane: a commit-msg hook…](roadmap/160-doctrine-review-owed/1390-rule-4-cold-pass-queued-commit-message-plane.md)
+- [ ] ⏳ [Rule-4 cold pass queued: sweepscan, commits name their files,…](roadmap/160-doctrine-review-owed/1400-rule-4-cold-pass-queued-sweepscan.md)
+- [ ] ⏳ [Rule-4 cold pass queued: namescan, private names in branch names and…](roadmap/160-doctrine-review-owed/1410-rule-4-cold-pass-queued-namescan.md)
+- [ ] ⏳ [Rule-4 cold pass queued: quotescan, a quote of the principal on…](roadmap/160-doctrine-review-owed/1420-rule-4-cold-pass-queued-quotescan.md)
 
 ## build/ layer — open strands
 
