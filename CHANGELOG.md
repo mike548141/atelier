@@ -5,6 +5,67 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-09 — three review rulings applied: `160/790`, `160/340`, `160/020`, `200/030`)
+Mike's answers of 2026-11-09 (answers to options offered, not rulings in his own
+words, except where quoted); the reviewers' counsel on the rest applied as written.
+- **The floor's report-only lane is barred for `sizescan` from 2026-12-09
+  (`160/790` HX1; *"Bar it; nova converts"*).** The check enforces the board's
+  design (a short main board, each item's detail in its own file), and the
+  floor's `advisory` form was a lane round the ruling's *"Never allow it"* that
+  its briefing never named. `floor.ADVISORY_BARRED_FROM` makes an
+  `advisory.sizescan` declaration, in either spelling and however reasoned or
+  dated, a config error from that date, so the floor blocks and says why. Until
+  then it still works: the check's floor line, `floorfleet` and `--json`
+  (`barred_from`, always present) name the date. A reasoned `disabled` entry is
+  untouched. Two children declare it today and must remove it and convert their
+  boards before the date. The registry `why` carries the forbid-the-act
+  declaration, and the child `floor.yml` template no longer teaches adopters to
+  declare sizescan advisory.
+- **sizescan's wording and listing (`160/790`).** The docstring and README no
+  longer say nothing silences the gate without naming the floor lane (HX1);
+  GUARDS.md names the one finding an ignore glob cannot accept, with the fixture
+  remedy (fence the `[x]` lines), and the allowmarker docstring points at it
+  (HX3). A roadmap under a store-named directory is not read for cold content, and
+  the `suppressed:` line now counts those (`N roadmap(s) under a store directory`,
+  `roadmaps_in_store_dirs` in `--json`): a new known-zero part, so runs before and
+  after this entry do not compare on that line (HX3). The completed-item listing
+  neutralises control and format characters through a new shared
+  `report.safe_text` (HX2); the other scanners that echo tracked text still do not
+  use it. Reworded: characters, not columns (HX5); "derived there" (HX7); the
+  two by-design exceptions to "a hatch is never silently ignored" (HX8); this
+  repo's own `.sizescanignore` comment (HX10). HX4 is record only: between the
+  landing commit and the next one a glob over a gated roadmap printed a count of
+  files by glob that it had not suppressed, so counts on that line from
+  2026-10-16 08:12 to 15:28 UTC do not compare with later ones. HX6 was already
+  done (`skills/review-brief`); HX9 needs nothing.
+- **`stampscan` and the floor stamp (`160/340` FV1, FV2, FV5).** The floor is now
+  identified by the file its `source=` resolves to, so a respelled path (`./docs/`,
+  `docs//`, a `..` segment, a case-folded name where the filesystem agrees) is
+  still the floor. A `stampscan:allow` marker inside a floor stamp is ignored: the
+  block is compared and the result says so, and the floor's red never offers
+  `narrow=` or the marker as a way out. PROPAGATION.md's bullet names the stamp of
+  the `floor` region rather than `region=floor`, and says an already word-for-word
+  copy carrying `narrow=` narrows nothing. `findings` gain an always-present
+  `floor` field. A `.stampscanignore` glob can still skip a whole file.
+- **Who is a child (`160/020`; *"Own or control"*).** PROPAGATION.md reads
+  repos the principal owns or controls, with exclusions recorded in the estate
+  root's private records, and a repo he neither owns nor controls outside the
+  rule without a ruling (CM1, CM2). "Answerable" is now "decidable, not
+  enumerable", naming the discovery gap (CM4); the three verbs point at the layer
+  rule instead of restating it (CM5); an exemption is re-tested when the rule it
+  departs from moves, and the two homes are stated (CM3). CONCURRENCY.md's queue
+  lane names the fallback for a target with no queue (the estate root's board,
+  the narrower of the two offered), the visibility of the target (CM6, CM7), and
+  what a finder that declines the lane owes (CM12). The quotation is attributed
+  (CM9) and the glossary defines *Child* (CM11). CM8 and CM10 need nothing; CM13
+  corrects a frozen record and waits for it to be next touched.
+- **The mining pass (`200/030`).** PROPAGATION.md states it: on the principal's
+  word, about monthly, a session reads the transcripts and files board items,
+  proposing changes and never making them. TOOLBOX.md § *Background jobs* records
+  what he ruled out (a standing helper registered as a login item) and what is
+  fine (a background job inside a live session); the flat "no background jobs"
+  line on `210/190` carries a dated correction.
+
 ### Changed (2026-11-09 — `ccmail` cold pass applied: `210/130`)
 Mike answered *"Keep it, lock the cache"* to the options offered on the review's
 major finding (an answer, not a ruling); the reviewer's counsel on the rest was
