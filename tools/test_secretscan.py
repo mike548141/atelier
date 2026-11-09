@@ -867,6 +867,75 @@ class Fingerprints(unittest.TestCase):
         self.assertIn("assigned-secret",
                       rules("api_key = Gk8xQvie2mNfR7pLzW3dTaHbXy4Wz9Qm"))
 
+    def test_a_fingerprint_shaped_value_under_a_credential_key_blocks(self):
+        """AB1. The composite `key: SHA256:<body>` gives the assigned rule a
+        value of just `SHA256` (its class stops at ':'), so the key name never
+        saw the body; the carve-out then ate the body and the line scanned fully
+        clean. The prior test's claim held only for values the key regex can
+        capture whole. A credential-named key on the line now switches the
+        carve-out off for that line, so the body reaches the entropy net."""
+        for line in (f"api_key: SHA256:{self.FP256}",
+                     f"password = SHA256:{self.FP256}",
+                     f'{{"token": "SHA256:{self.FP256}"}}',
+                     f"REDIS_PASSWORD='SHA256:{self.FP256}'",
+                     f"client_secret: sha256:{self.FP256}"):
+            with self.subTest(line=line):
+                fs = scan(line)
+                self.assertTrue(any(f.blocks for f in fs), line)
+                self.assertIn("high-entropy", [f.rule for f in fs])
+
+    def test_a_fingerprint_beside_a_credential_key_is_not_counted_suppressed(self):
+        tally = ss.Tally()
+        ss.scan_text("t", f"api_key: SHA256:{self.FP256}\n", frozenset(), tally)
+        self.assertEqual(0, tally.fingerprints)
+
+    def test_a_fingerprint_in_prose_context_is_still_suppressed(self):
+        """The other direction: the ruling (fingerprints in prose context stop
+        blocking) is intact. Key names that merely CONTAIN a credential word
+        (`key_fingerprint`, `token_fingerprint`) are not credential keys."""
+        for line in (f"key_fingerprint: SHA256:{self.FP256}",
+                     f"ssh_host_key_fingerprint = SHA256:{self.FP256}",
+                     f"token_fingerprint: SHA256:{self.FP256}",
+                     f"The host key is SHA256:{self.FP256}; verify it."):
+            with self.subTest(line=line):
+                self.assertEqual([], scan(line))
+
+    def test_suppressions_are_located_not_only_counted(self):
+        """AB3. A reader who sees the count grow can find which lines grew it:
+        human output and JSON both carry path:line, bounded, count exact."""
+        tally = ss.Tally()
+        text = (f"one\nhost key SHA256:{self.FP256}\n"
+                f"two\nhost key SHA256:{self.FP256}\n")
+        ss.scan_text("keys.txt", text, frozenset(), tally)
+        self.assertEqual([("keys.txt", 2), ("keys.txt", 4)], tally.fingerprint_at)
+        out = ss.render_human([], tally)
+        self.assertIn("public-key fingerprint(s) suppressed at: "
+                      "keys.txt:2, keys.txt:4", out)
+        # zero suppressions print no extra line
+        self.assertNotIn("suppressed at:", ss.render_human([], ss.Tally()))
+
+    def test_the_location_list_is_bounded_and_the_count_stays_exact(self):
+        tally = ss.Tally()
+        cap = ss.FINGERPRINT_LOCATIONS_CAP
+        n = cap + 7
+        text = "".join(f"host key SHA256:{self.FP256}\n" for _ in range(n))
+        ss.scan_text("k.txt", text, frozenset(), tally)
+        self.assertEqual(n, tally.fingerprints)
+        self.assertEqual(cap, len(tally.fingerprint_at))
+        self.assertIn("count above is exact", ss.render_human([], tally))
+
+    def test_the_json_carries_the_fingerprint_locations(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "keys.txt"
+            p.write_text(f"host key SHA256:{self.FP256}\n")
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                ss.main(["--root", d, "--json", str(p)])
+        sup = json.loads(buf.getvalue())["suppressed"]
+        self.assertEqual(1, sup["public_key_fingerprints"])
+        self.assertEqual([{"path": "keys.txt", "line": 1}],
+                         sup["public_key_fingerprint_locations"])
+
     def test_a_vendor_token_beside_a_fingerprint_still_blocks(self):
         fs = scan(f"SHA256:{self.FP256} AKIAIOSFODNN7EXAMPLE")
         self.assertEqual(["aws-access-key-id"], [f.rule for f in fs])

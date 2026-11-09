@@ -32,8 +32,11 @@ its consumer was named 2026-08-04). Every finding carries a `response`:
 
   * BLOCK — the named formats, the assigned-secret workhorse, and the
     context-free entropy net exactly as they have always fired. **The blocking
-    set never shrinks.** Every input that exited non-zero before this tier
-    existed still exits non-zero, with the same finding.
+    set never shrinks, with ONE ruled exception: E3 (2026-08-04) subtracts a
+    whole public-key fingerprint from the context-free net, on a line that names
+    no credential key (AB1, AB2).** Every other input that exited non-zero
+    before this tier existed still exits non-zero, with the same finding. The
+    E3 subtraction is counted, and located (AB3), never silent.
   * ADVISORY — reported in full, distinctly, and the exit code stays 0.
 
 Why the tier had to exist before coverage could widen: while `block` was the
@@ -144,6 +147,9 @@ def parse_allow(line: str) -> str | None:
 # (~43,000): the point of a fixed ceiling is that it does not need raising to
 # fit the last incident, only to fit a memory budget.
 MAX_MATERIALIZED_FINDINGS = 50_000
+# How many fingerprint-suppression locations a run keeps (AB3). A bound on the
+# audit list only; the count beside it is exact.
+FINGERPRINT_LOCATIONS_CAP = 50
 
 
 @dataclass
@@ -161,6 +167,14 @@ class Tally:
     # that a reader cannot see growing — the exact state rule (b) exists to
     # stop.
     fingerprints: int = 0
+    # WHERE the fingerprint suppressions were, bounded (AB3). The count above is
+    # authoritative and unbounded; this list is the audit trail for a reader who
+    # sees the count grow, and stops growing at `FINGERPRINT_LOCATIONS_CAP` so a
+    # hostile file cannot make it a memory problem (020/370's reasoning). The
+    # count is of SPANS, not of findings that would have been made (AB4): it
+    # rises before the placeholder gate and before dedupe, so it can count a span
+    # that would never have become a finding.
+    fingerprint_at: list[tuple[str, int]] = field(default_factory=list)
     # The `PUBLIC_KEY_RX` line carve-out, brought into the same model
     # 2026-08-09. It predated rule (b) and was the LAST silent subtraction here:
     # a line naming public key material had its whole entropy pass skipped, so
@@ -227,8 +241,13 @@ class Tally:
     def note_unknown_scope(self) -> None:
         self.unknown_scope_markers += 1
 
-    def note_fingerprint(self) -> None:
+    def note_fingerprint(self, path: str | None = None,
+                         line: int | None = None) -> None:
         self.fingerprints += 1
+        if (path is not None and line is not None
+                and len(self.fingerprint_at) < FINGERPRINT_LOCATIONS_CAP
+                and (path, line) not in self.fingerprint_at):
+            self.fingerprint_at.append((path, line))
 
     def note_public_key_span(self) -> None:
         self.public_key_spans += 1
@@ -282,8 +301,7 @@ SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv", "venv",
 # the pattern's global `(?i)` a case-insensitive lookbehind would also fire
 # inside `BYPASS` and re-introduce the false positives `\b` was there to stop.
 _LEAD = r"(?:\b|_|(?-i:(?<=[a-z0-9])(?=[A-Z])))"
-SECRET_KEY_RX = re.compile(
-    r"(?i)" + _LEAD + r"("
+_SECRET_KEY_WORDS = (
     r"pass(?:word|wd|phrase)?"
     r"|secret(?:[_-]?key)?"
     r"|token"
@@ -293,8 +311,19 @@ SECRET_KEY_RX = re.compile(
     r"|client[_-]?secret"
     r"|private[_-]?key"
     r"|credentials?"
-    r"|bearer"
+    r"|bearer")
+SECRET_KEY_RX = re.compile(
+    r"(?i)" + _LEAD + r"(" + _SECRET_KEY_WORDS +
     r")\b\s*[:=]\s*[\"']?([^\s\"'`,;:]{6,})")
+# A credential-named key assigned ANYTHING, on this line (AB1). Looser than
+# SECRET_KEY_RX on both sides, on purpose, and it is used for one decision only
+# (is the E3 carve-out allowed to apply on this line?): no value requirement,
+# because the composite shape `api_key: SHA256:<body>` gives SECRET_KEY_RX a
+# value of just `SHA256` (the value class stops at ':'); and an optional closing
+# quote on the key, because `"token": "SHA256:<body>"` (JSON) has one between
+# the key and its colon, which SECRET_KEY_RX never matched.
+CREDENTIAL_KEY_LINE_RX = re.compile(
+    r"(?i)" + _LEAD + r"(?:" + _SECRET_KEY_WORDS + r")\b[\"']?\s*[:=]")
 # The value class excludes ':' so a doc line like `secret: foo: !secret x` stops
 # at the field name (a code ref, rejected) rather than swallowing the colon; real
 # secrets don't carry ':' (auth/connection strings are the basic-auth-url rule).
@@ -840,9 +869,10 @@ LOW_VARIETY_RULE = "low-variety-entropy"
 EXEMPT_PRIVATE_KEY_RULE = "exempt-private-key"
 
 # The line `render_human` prints so a reader — and `tools/floor.py`'s board —
-# can both read the count off one run. floor.py matches this prefix rather than
-# importing anything: floor.py runs the scanners as subprocesses and they need
-# nothing from it (they are not each copyable alone - they share `filewalk`,
+# can both read the count off one run. floor.py reads the WHOLE line, anchored
+# at its start (`floor.advisory_count_rx`, so a finding line that embeds a
+# hostile path cannot spoof the count — AB5), rather than importing anything:
+# floor.py runs the scanners as subprocesses and they need nothing from it (they are not each copyable alone - they share `filewalk`,
 # `allowmarker` and `report` - 160/730 RT5), so the coupling is a documented
 # output contract, pinned from both sides by
 # `test_floor.py::AdvisoryCountContract`.
@@ -1110,6 +1140,14 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
         if first is not None:
             public_key_line = lineno in pem_lines or bool(PUBLIC_KEY_RX.search(line))
             fingerprints = () if public_key_line else _fingerprint_spans(line)
+            # AB1: the carve-out was ruled for fingerprints in PROSE context
+            # (E3, 2026-08-04). A credential-named key on the same line has
+            # already called what follows a credential, so no fingerprint span
+            # on that line is suppressed: the body goes to the entropy net as it
+            # did before E3, and blocks. A line that is a fingerprint in prose
+            # (keygen output, a trust-list comment) names no such key.
+            if fingerprints and CREDENTIAL_KEY_LINE_RX.search(line):
+                fingerprints = ()
             url_spans = () if public_key_line else _url_spans(line)
             for m in itertools.chain((first,), entropy):
                 span = m.group(0)
@@ -1121,7 +1159,7 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
                 # decision rather than two, and is counted once either way.
                 if _inside_fingerprint(m.span(), fingerprints):
                     if tally is not None:
-                        tally.note_fingerprint()
+                        tally.note_fingerprint(path, lineno)
                     continue
                 # 320/290 — a token inside a published URL's scheme+host+path is
                 # not an entropy candidate at all, neither blocking nor advisory.
@@ -1811,6 +1849,19 @@ def _render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
     return lines
 
 
+def _fingerprint_locations_line(tally: Tally | None) -> list[str]:
+    """Where the E3 carve-out acted, so a growing count can be audited (AB3).
+    Empty at zero, so a run with no suppression prints no extra line."""
+    if tally is None or not tally.fingerprint_at:
+        return []
+    shown = ", ".join(f"{p}:{n}" for p, n in tally.fingerprint_at)
+    more = tally.fingerprints - len(tally.fingerprint_at)
+    return [f"  public-key fingerprint(s) suppressed at: {shown}"
+            + (f" (and others, past the first {len(tally.fingerprint_at)} "
+               "listed; the count above is exact)" if more > 0 and
+               len(tally.fingerprint_at) >= FINGERPRINT_LOCATIONS_CAP else "")]
+
+
 def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
     blocking = [f for f in findings if f.blocks]
     advisory = [f for f in findings if not f.blocks]
@@ -1828,6 +1879,7 @@ def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
                                        "no credentials in the scanned lines."))
         if tally is not None:
             lines.append(tally.summary())
+            lines.extend(_fingerprint_locations_line(tally))
         lines.append(advisory_count_line(len(advisory) + advisory_over))
         if advisory:
             lines.extend(_render_advisory(advisory, advisory_over))
@@ -1844,6 +1896,7 @@ def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.extend(_fingerprint_locations_line(tally))
     lines.append(advisory_count_line(len(advisory) + advisory_over))
     lines.append("\n  A true positive: remove the secret, move it to the secret store")
     lines.append("  (e.g. a `!secret`/env reference), and ROTATE it — commit history is forever.")
@@ -1969,6 +2022,8 @@ def _main(argv: list[str] | None = None) -> int:
                 "files_by_ignore_glob": tally.files_by_glob,
                 "disabled_rules": list(tally.disabled_rules),
                 "public_key_fingerprints": tally.fingerprints,
+                "public_key_fingerprint_locations": [
+                    {"path": p, "line": n} for p, n in tally.fingerprint_at],
                 "by_public_key_line": tally.public_key_spans,
                 "by_published_url_token": tally.url_tokens,
                 "beyond_finding_cap": {
