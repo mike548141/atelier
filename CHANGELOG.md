@@ -21,6 +21,18 @@ Doctrine wording only; no scanner or tool changes.
 - **Solve once, reuse the building block (`160/170`).** A bullet in
   `PRINCIPLES.md` §8 carries it across repos, as intelligence and case-law.
 
+### Added (2026-11-09 — `cclive`, a machine-wide view of live work, `360/020`)
+- **`cclive`, a new read-only instrument.** One view, grouped by repo with a
+  total, of what any session on this machine is doing, holding or claimed on:
+  each repo's `[~]` claims at the newest of its integration refs, its worktrees
+  and last-commit ages, sessions and agents with a transcript written in the last
+  ten minutes (`ccclose`'s bound, shared rather than copied), matched to a repo by
+  their own working directory, and the load average. It prints the roots it
+  scanned and what it skipped, known zeros, and its limits every run: a claim is
+  a commit so a stale claim looks live, a quiet transcript might be a slow agent,
+  and another machine's sessions are invisible. `--json` for tools. Design:
+  `instruments/cclive.design.md`.
+
 ### Changed (2026-11-09 — how a question reaches the principal, and what comes back: `320/820`, `420/020`, `020/270`)
 Doctrine wording only; no scanner or tool changes.
 - **His method for asking (`320/820`).** `COMMUNICATION.md` § *Asking for a

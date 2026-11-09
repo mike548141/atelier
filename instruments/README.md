@@ -21,6 +21,7 @@ standard-library Python); each documents its own runtime.
 | `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage), plus how large sessions' context windows got. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. `--search <term>` asks the other question: which turns, across every session in scope, match a term or a `--regex`. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `ccclose`       | observe   | The close-out checker. From a fresh read of the repo, GitHub and the session's own transcript, says whether a close left anything owing (worktrees, branches, pushes, PRs, the session record, the board, live claims, the floor at the pushed head, review pointers, workaround-shaped commands, subagents still running) and lists the principal's close-out asks for the session to answer. Read-only. |
+| `cclive`        | observe   | One view of live work across every repo on the machine, for a session to read at open: each repo's `[~]` claims at its newest integration ref, its worktrees and last-commit ages, the sessions and agents whose transcripts were written recently, keyed to the repo by their own working directory, and the load average. Says which roots it scanned and what it skipped, and prints its limits every run. Read-only; no network. |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `ccmail`        | extend    | Open the Gmail attachments the mailbox connector can only *name* — it lists filenames and attachment ids but has no call that returns bytes. Fetches them to disk with its own read-only grant so the ordinary Read tool can open them. |
 | `ccpdf`         | extend    | A PDF page renderer built on macOS's own PDFKit, installed as `pdftoppm` — the binary Claude Code's file reader shells out to. Without it, a PDF on disk is still unreadable. |
@@ -46,17 +47,19 @@ three of the rows below. `ccclose` took a column on 2026-10-16. It shares only
 `--json` and `-h`; each dash in its column says why the operation is absent. `ccapple` took a column on 2026-11-01: it shares
 `--since`/`--until` (and takes the compact `YYYYMMDD` spelling so the word means one
 thing), `--json` and `-h`; its result cap is `--limit`, as in `ccmail --search`.
+`cclive` took a column on 2026-11-09. It shares only `--json` and `-h`; its `--root` is a
+repeatable search root, the word `tools/pins.py` uses for it.
 
-| Flag | Meaning | `ccarchive` | `cctranscript` | `ccrepo` | `ccclose` | `ccapple` |
-|------|---------|:-----------:|:---------------:|:--------:|:---------:|:---------:|
-| `--dest <dir>` | Where the archive lives (default iCloud Drive, or `$CCARCHIVE_DEST`) | write target | read target (implies `--from-archive`) | read target (implies `--from-archive`) | — | — (it reads the Apple apps' fixed store locations; `--db <path>` overrides one store) |
-| `--from-archive` | Read `ccarchive`'s mirror instead of the live logs | — (it *is* the archive) | ✅ | ✅ | — (a session being closed is live) | — (it reads the live Apple stores; there is no mirror) |
-| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | ✅ (`--search`) | ✅ | — | — (it opens databases only, never an evicted file's bytes) |
-| `--since` / `--until` | Bound to a local date range (`YYYYMMDD`), judged on each message's own timestamp | — | ✅ (`--search`) | ✅ | — (its window is the session's own) | ✅ (local days, `--until` inclusive; `YYYY-MM-DD` or `YYYYMMDD`) |
-| `--top <n>` | Keep only the first n rows per level, after ordering | — | ✅ (`--search`) | ✅ | — (lists are capped at 25, the cut counted) | — (`--limit <n>` caps a filtered search's results, the word `ccmail --search` uses) |
-| `--json` | Machine-readable output; never styled | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `--repo` | The repo dimension | — | `--repo <name>` selects one repo to read | `--repo <list>` filters/groups (comma = OR, `!` excludes, `*` globs) | — (`--root <dir>` names the checkout to check, as the `tools/` scanners spell it) | — (no repo dimension) |
-| `-h`, `--help` | One-screen usage summary | ✅ | ✅ | ✅ | ✅ | ✅ (per subcommand) |
+| Flag | Meaning | `ccarchive` | `cctranscript` | `ccrepo` | `ccclose` | `ccapple` | `cclive` |
+|------|---------|:-----------:|:---------------:|:--------:|:---------:|:---------:|:--------:|
+| `--dest <dir>` | Where the archive lives (default iCloud Drive, or `$CCARCHIVE_DEST`) | write target | read target (implies `--from-archive`) | read target (implies `--from-archive`) | — | — (it reads the Apple apps' fixed store locations; `--db <path>` overrides one store) | — (it reads the live store only) |
+| `--from-archive` | Read `ccarchive`'s mirror instead of the live logs | — (it *is* the archive) | ✅ | ✅ | — (a session being closed is live) | — (it reads the live Apple stores; there is no mirror) | — (a live view reads the live store) |
+| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | ✅ (`--search`) | ✅ | — | — (it opens databases only, never an evicted file's bytes) | — (it reads a bounded tail of fresh files; an evicted file is never fresh) |
+| `--since` / `--until` | Bound to a local date range (`YYYYMMDD`), judged on each message's own timestamp | — | ✅ (`--search`) | ✅ | — (its window is the session's own) | ✅ (local days, `--until` inclusive; `YYYY-MM-DD` or `YYYYMMDD`) | — (`--fresh <minutes>` sets the live bound) |
+| `--top <n>` | Keep only the first n rows per level, after ordering | — | ✅ (`--search`) | ✅ | — (lists are capped at 25, the cut counted) | — (`--limit <n>` caps a filtered search's results, the word `ccmail --search` uses) | — (lists cap at five per repo, the cut counted; `--all` lifts it) |
+| `--json` | Machine-readable output; never styled | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `--repo` | The repo dimension | — | `--repo <name>` selects one repo to read | `--repo <list>` filters/groups (comma = OR, `!` excludes, `*` globs) | — (`--root <dir>` names the checkout to check, as the `tools/` scanners spell it) | — (no repo dimension) | — (`--root <dir>` is a repeatable search root, as `tools/pins.py` spells it) |
+| `-h`, `--help` | One-screen usage summary | ✅ | ✅ | ✅ | ✅ | ✅ (per subcommand) | ✅ |
 
 **Note — `--materialise` is the worked example, and it now has a second act.**
 Until 2026-08-09 this note explained why `cctranscript` carried **no**
