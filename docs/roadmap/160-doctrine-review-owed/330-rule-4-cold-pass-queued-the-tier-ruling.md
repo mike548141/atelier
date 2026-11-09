@@ -48,3 +48,6 @@
             principal's verbatim fragments is narrowed or widened by the applied
             wording. Findings are the principal's to decide (rule 3); nothing
             was applied.
+      💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an answer,
+      not a ruling):** *"Yes, change it"* (TR2): his prompt's stop line now names
+      the second stop, a review needing a tier the session is not on.

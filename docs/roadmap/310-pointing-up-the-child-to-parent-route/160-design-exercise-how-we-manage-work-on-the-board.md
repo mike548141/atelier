@@ -8,3 +8,10 @@
       in other repos: find those first. Output is a design for him to decide,
       grounded in what sessions actually hit.
   - [ ] 📝 **DRAFTED 2026-11-09** by queue run 722ac2e2 (an Opus worker, read by the orchestrator before landing): the ADR proposes boxes `[ ]`, `[/]` partly delivered, `[~]` claims only, `⏳` reviews only, `[x]` delivered, and `[-]` closed and not delivered with a required reason word; named children and a checked roll-up for parents; waiting as a field, never a state. Three questions are his. Fable re-review queued as `160/1230`.
+      ⚖️ **Mike's answers to the draft's three questions, 2026-11-09:** (1) *"You,
+      except a session's own idea"* (his pick). (2) In his own words, rejecting
+      the draft's "marked waiting": *"stays on the list as work to do, not parked
+      or waiting. Just not done at that moment in time"*. So a maybe-later item is
+      plain open work, with no waiting mark. (3) *"Fix the 45 known; leave the
+      rest"* (his pick). The draft is to be revised to his second answer before
+      its re-review (`160/1230`).

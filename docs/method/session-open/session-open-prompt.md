@@ -18,8 +18,8 @@ in more current detail than anything below. Follow them rather than
 re-deriving your own version. (`/atelier:queue-run` runs exactly this file,
 so the command and this text cannot differ.) Say which model you're on in
 your first report, then get on with it — don't ask me which tier to use, and
-don't stop because a more capable one exists. Stop only if the work outruns
-you, and say so.
+don't stop because a more capable one exists. Stop if the work outruns you,
+or a review needs a tier you are not, and say so.
 
 If the repo has none of that — no `CLAUDE.md`, no floor block, no roadmap
 doc — run the minimum viable version instead, and say plainly that's what
