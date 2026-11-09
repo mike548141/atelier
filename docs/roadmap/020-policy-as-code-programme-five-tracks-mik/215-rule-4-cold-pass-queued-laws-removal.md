@@ -19,3 +19,4 @@
       after the claim. *Delta:* the removal commit `71b3e8f` on wt:
       laws-removal-0815 (claim `4ea0a8f`, merge `b5da9e5`). *Intent record:*
       `docs/sessions/2026-08-15-0809-laws-removal.md`.
+  - [ ] ✅ LR4(a) applied 2026-11-09 by queue run 722ac2e2; LR4(c) belongs to `160/140`.

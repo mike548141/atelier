@@ -1,4 +1,4 @@
-- [ ] 🎯 **CLASS — the parent holds accommodations its children cannot inherit,
+- [x] 🎯 **CLASS — the parent holds accommodations its children cannot inherit,
       and neither side can see the asymmetry from where it stands.** Three
       independent instances in one evening, 2026-09-20, none of them looked for:
       two reported by private children over the peer channel and one found here
@@ -77,3 +77,5 @@
       `.atelier-floor.json`'s `scope` block alone narrows three scanners, and
       only one of the three surfaced today. A census would turn this from three
       anecdotes into a count, and has not been run.
+  - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet worker, read by
+      the orchestrator before landing): `PROPAGATION.md` requires a parent's local narrowing to be visible, with the diagnostic. Cold pass `160/1240`.

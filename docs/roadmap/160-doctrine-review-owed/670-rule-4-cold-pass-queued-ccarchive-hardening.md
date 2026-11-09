@@ -50,3 +50,4 @@
       not a ruling):** *"Add a local rollback check"* (HD1): a small local record of the last saved
       version, so a rollback is refused or flagged; key rotation verifies the old
       signature first (HD2, HD3). HD4–HD16 are not yet approved.
+      ✅ HD1–HD3 applied 2026-11-09 by queue run 722ac2e2: a local save record refuses or flags a rollback; `--rekey` verifies first; HD2 by the narrower option. HD4–HD16 are not yet approved. Cold pass `160/1240`.

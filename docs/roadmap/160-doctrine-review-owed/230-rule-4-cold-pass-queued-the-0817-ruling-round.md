@@ -44,3 +44,4 @@
       principal's selected wording). Brief written 2026-08-17 by a non-author
       Fable cold session (its two disclosures stand in the verdict); sibling
       folded in and deleted; wt: cold-run-0817-1321.
+      ✅ RR1, RR8, RR12 applied 2026-11-09 by queue run 722ac2e2; the rest remain.

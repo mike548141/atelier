@@ -45,3 +45,4 @@
             inlined floor no landing commit reached and no scanner reads; AK7
             (note) formed at reconcile. Findings are the principal's to decide
             (rule 3); nothing was applied.
+      ✅ AK1–AK3 applied 2026-11-09 by queue run 722ac2e2 with the rule-copy work.

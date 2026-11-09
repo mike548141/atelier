@@ -54,3 +54,4 @@
       repos' copies are out of date, no blocking. Option 2 read: block any repo
       whose copy differs. So report-only until 2026-12-09, then blocking.
       ✅ FV1, FV2, FV5 applied 2026-11-09 by queue run 722ac2e2; the rest with the rule-copy report.
+      ✅ The rule-copy report is built in `tools/pins.py`, comparing each child to its own pin; report-only until 2026-12-09, then blocking. FV3, FV11 done; FV4, FV6, FV8, FV9 remain. Cold pass `160/1240`.
