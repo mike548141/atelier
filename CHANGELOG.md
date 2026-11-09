@@ -51,6 +51,21 @@ applied as written. Review: `docs/reviews/2026-09-25-0715-ccmail-build-cold.md`.
 Mike answered options a session offered on each; those are answers, not rulings
 in his own words. The reviewers' counsel was applied as written, as far as each
 answer left it standing.
+- **The estate-root repo gets no special naming rule (`020/050`, `020/030`).**
+  His pick: *"Treat like any private repo"*. The sentence that named it only in
+  a private child's onramp, never in any public tree, is gone from the floor's
+  *Estate resources* bullet (its stamped template copy kept identical) and from
+  `PROPAGATION.md`, which keeps a short, dated account of the withdrawal.
+  `RECORD.md` says it is an ordinary private repo (name allowed; what it holds
+  and its condition by type only); `TOOLBOX.md` and `AUTONOMY.md` no longer lean
+  on the old rule. The one audit paragraph that named private repos beside their
+  configuration is rewritten generically, and the ADR on estate-internal context
+  carries a dated correction of its "worked examples keep their names" sentence
+  (superseded by the `320/330` answer). From the C5 cold pass: C5R3's invented
+  quotation is corrected on `020/250`; C5R9's missing grant-date clause is added
+  to `GUARDS.md`. The rest of the C5 findings concern the term-list options and
+  fall with the dropped blocked-word idea. Forward only: nothing already
+  published is rewritten.
 - **An ask's account always arrives as a finished message of its own, before the
   device (`160/270`, DR1, DR3).** His pick: *"Always, as two steps"*. The rule no
   longer branches on a display mode no session can see; `COMMUNICATION.md`

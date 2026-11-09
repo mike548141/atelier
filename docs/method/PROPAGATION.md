@@ -201,10 +201,9 @@ in atelier and is read on demand — never wholesale.
   (atelier's private counterpart). Reference it for these; never re-derive
   them locally or copy its contents down. The **expected toolbox** (which
   tools to expect, and how to find them) is atelier's: `method/TOOLBOX.md`.
-  If **this** repo is public, or is ever made public, reference the root by
-  local-path convention, never by name — a public repo naming the estate's
-  credential/inventory root is reconnaissance. Spelling the actual path in a
-  repo that may go public defeats the convention, because the path is the name.
+  The root is a private repo like any other: it may be named, and in a
+  public tree what it holds and its condition go by type only
+  (`RECORD.md` § *The record is public*).
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 ```
@@ -260,13 +259,10 @@ plans and financial constraints, credentials, shared tooling) live in a separate
 **private estate-root repo** — the knowing-root that atelier deliberately is not
 (atelier is public and holds no inventory). Every child inherits both pointers:
 up to atelier for *how we work*, up to the estate root for *what the estate has*.
-The estate root is named only in a **private** child's own onramp — never in any
-public tree, so the repo's name is never coupled to the sensitive posture it
-holds (RECORD's name↔posture split). A public tree references it by a local-path
-convention instead. That convention is defined **per estate, not here**: each
-estate states its own in its private root's onramp — the one place the name may
-appear — so a child inherits the reference form from the same place it inherits
-the name. Its contents are never copied down into any child.
+The estate root is a private repo like any other: it may be named, in a private
+or a public tree, and what it holds and the condition it is in go by type only
+in a public record (`RECORD.md` § *The record is public*). Its contents are
+never copied down into any child.
 
 *(2026-11-09, `320/380`, filed from a child 2026-09-20; Mike's pick from options
 offered, so an answer and not a ruling in his words.)* The floor's visibility
@@ -274,43 +270,29 @@ test now reads "is public, or is ever made public". A present-tense test
 returns false on every read of a private-now, public-candidate repo until the
 day it flips, by which time the content it exists to keep out is committed. And
 a compliant example that spells the real path discloses the name it hides.
-Children's copies carry the old wording until their next pin bump.
+Children's copies carry the old wording until their next pin bump. *(Superseded
+the same day by `020/050`, below: the sentence this note reworded, which told a
+public repo to reference the estate root by path and never by name, is gone.)*
 
-**"Any public tree" includes atelier's own, records and all** — and it has to be
-said, because the narrower wording did not hold. This rule previously read
-*"never in this public canonical text, and never in a public child's tree"*,
-which binds the doctrine prose and the children and quietly exempts the one
-public repo doing most of the writing: atelier itself. The doctrine stayed
-clean and the **records** did not. Measured 2026-07-28: the estate root is
-named **63 times across 19 files** (both exact, and both reproduced on an
-independent re-sweep), and on roughly **8–10 of those lines** it sits beside
-exactly what it holds — the financial inventory, the credential registry, the
-keychain items. That last figure is approximate on purpose: it moves with which
-co-occurrence nouns the sweep counts, and a soft figure stated as a hard one is
-how figures here have gone wrong before. In the three current-truth records alone (`CHANGELOG.md`,
-`docs/SESSIONS.md`, `docs/ROADMAP-DONE.md`) it is 19. That is the coupling this
-rule exists to prevent, written by sessions that were following the rule as it
-was worded.
+**The earlier, stricter rule for the estate root is withdrawn** (2026-11-09,
+`020/050` and `020/030`; Mike's pick from options offered was *"Treat like any
+private repo"*, an answer and not a ruling in his words). This
+section used to say the estate root is named only in a private child's own
+onramp, never in any public tree, and that "any public tree" included
+atelier's own records. It is now an ordinary private repo under `RECORD.md`:
+the name is allowed; what it holds and its condition go by type only. The
+stricter rule did not hold: the root was named 63 times across 19 files of
+this repo's records when measured on 2026-07-28, and the programme recorded
+the same breach at least five times. The name is in pushed history for good
+either way, so the harm was never the name; it was the name beside what the
+repo holds, and that join stays barred. Forward only: nothing already written
+is scrubbed or rewritten, and the idea of putting the name on the leak
+scanner's term list is dropped with the rule.
 
-*(That paragraph first said "eight places … twice beside what it holds",
-counted from a sample rather than a sweep. Corrected on the cold pass before
-landing. The undercount is recorded rather than quietly fixed because it is the
-fourth blast-radius figure this programme has stated wrongly — and the second
-in the direction that flatters the work.)*
-
-The scrub is **forward-only** (Mike's ruling, 2026-07-28): the mentions already
-pushed stay. A public repo cannot be un-published, and rewriting the records
-would buy nothing back from forks, clones and caches while costing the
-history's integrity. The corrected count does not disturb that ruling — it
-strengthens it, since 63 rewrites buy back exactly what 8 would, which is
-nothing. What changes is that no *new* mention is written. Naming the leak's
-location precisely is itself safe here — this text already says the root is
-private and holds credentials; what it withholds is which repo that is.
-
-The general lesson is the one the policy-as-code programme keeps re-learning: a
+The general lesson the policy-as-code programme keeps re-learning stands: a
 boundary is only as good as the place it is enforced, and a rule that names
 *categories* of repo will exempt whichever category the writer is standing in.
-Bind the property — public — not the role.
+Bind the property, not the role.
 When atelier's apex, floor, concurrency, or estate-pointer doctrine changes, the
 block's wording is part of what a pin bump reviews.
 

@@ -115,8 +115,7 @@ approved but absent.
 **The allowlist is machine-local, never committed** (Mike ruled 2026-07-29;
 grounded in `rpi`'s post-flip cold pass, F1). It is a list of what runs
 *without a human in the loop*, so publishing it converts prompt-injection
-reconnaissance from a guess into a plan — the same reasoning that stops a
-public repo naming the estate-root repo. The content scanners cannot help here:
+reconnaissance from a guess into a plan. The content scanners cannot help here:
 the file holds no credential and no personal fact, so `secretscan` and
 `leakscan` correctly pass it. **The exposure is the file's existence in the
 tree, not its contents** — which is why the guard for this class has to ask a

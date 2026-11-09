@@ -53,10 +53,12 @@ are hard or impossible to undo:
     push is publication), and it is verifiable: `gh repo view <owner/repo> --json
     visibility`. State it *and* be able to check it (legibility).
   - **The confirmation includes the pre-flip scrub.** A private repo may name the
-    **estate-root repo** in its own onramp by design (PROPAGATION); the flip
-    publishes every one of those mentions at once. Pre-flip is the one moment a
-    scrub buys everything back — nothing is published yet — so scrubbing that
-    name is part of the making-public confirmation, not a follow-up to it.
+    **estate-root repo**, and say what it holds, in its own records; the flip
+    publishes every one of those lines at once, and a public record describes a
+    private repo's holdings and condition by type only (`RECORD.md`). Pre-flip
+    is the one moment a scrub buys everything back — nothing is published yet —
+    so scrubbing those lines is part of the making-public confirmation, not a
+    follow-up to it.
   - **The scrub runs last, over the gate's own records.** Run it on the final
     commit, after the gate's records are written, and include those records,
     above all any line joining a private repo's name to its scan state (RECORD

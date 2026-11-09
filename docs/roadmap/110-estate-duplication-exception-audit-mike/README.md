@@ -10,11 +10,12 @@ in your lane*, landed this commit).
 **The exception half came back strong and is recorded here so the next sweep
 does not re-derive it.** Every one of the 11 ignore-file globs and ~120 line
 markers read carries a stated reason; the three repo-wide `leakscan` opt-outs
-(`shed`, `derry-hill`, `stewart-drive`) each cite a named ADR, state the
-inverted-premise ground, and bound what does *not* relax. `faves`'
-`.leakscanignore` is the model instance — it argues why globs beat markers for
-its case, draws the venue-vs-person line, and tells a future reader not to
-widen it. No unreasoned hatch was found anywhere in the estate.
+(all in private repos) each cite a named ADR, state the inverted-premise
+ground, and bound what does *not* relax. One child's `.leakscanignore` is the
+model instance — it argues why globs beat markers for its case, draws the
+venue-vs-person line, and tells a future reader not to widen it. (Rewritten
+2026-11-09, `020/050`: the paragraph named each repo beside its configuration
+and what it holds; a private repo's state goes by type only in a public record.) No unreasoned hatch was found anywhere in the estate.
 
 **Corrected before close — reasoned is not the same as effective.** The
 sentence above stood for about an hour and was true as written: every

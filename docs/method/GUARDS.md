@@ -255,6 +255,12 @@ advisories with no end date became a decay problem.
   **and an expiry**. The expiry is the whole point: a deferment that cannot
   lapse is an acceptance that never admitted what it was.
 
+Either one also records **when it was granted**: the date, always, acceptance
+and deferment alike; an expiry only where the claim can rot. (Mike's 2026-08-09
+restatement as the board records it, not verbatim: the cold pass on the C5
+item, C5R9, found the text above did not yet say so. The three repo-wide
+opt-outs in the estate already practise it through dated ADRs.)
+
 The two already exist at different granularities by accident rather than design:
 a line marker is pure acceptance, a floor advisory is pure deferment. Now they
 are distinguished on purpose, at every level. A repo-level adopt mode is a

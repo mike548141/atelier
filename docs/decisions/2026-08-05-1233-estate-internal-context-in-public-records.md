@@ -200,6 +200,18 @@ their names where the name is load-bearing for the lesson.
 | "Bumped the pin in `widget-api`." | "A private child's pin was three bumps behind." |
 | "Session ran in `widget-api` to land item X." | "An infra repo had two open scan findings." |
 
+> **Correction, 2026-11-09.** The sentence above, "Worked examples in doctrine
+> keep their names where the name is load-bearing for the lesson", is
+> superseded. Mike's pick from options offered on `320/330` (*"Approve all
+> 20"*, 2026-11-09, an answer and not a ruling in his words) was that public
+> doctrine names no private child in a worked example: it says "a private
+> child" (`RECORD.md` § *The record is public*; `PROPAGATION.md` § *The route*
+> rule 2). Citations of where a rule was extracted from, adoption lists and
+> fleet rosters are "who did what", and stay allowed as stated above. Also
+> 2026-11-09 (`020/050`, same kind of pick, *"Treat like any private repo"*):
+> the estate-root repo has no stricter rule than this one. The ADR is not
+> rewritten; read it with this note.
+
 The narrower rule stands as the stricter floor beneath this one, unchanged: a
 private repo's name coupled to its *sensitive* posture (secrets held and where,
 exposure history, publication intent, confidential content) stays barred. This

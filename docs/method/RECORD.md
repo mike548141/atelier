@@ -531,6 +531,15 @@ Forward only; no scrub. Decided 2026-11-08 (Mike's pick from offered options, no
 his own words); the reasoning and the rejected postures are in
 [the ADR](../decisions/2026-08-05-1233-estate-internal-context-in-public-records.md).
 
+**The estate-root repo gets no stricter rule.** It is a private repo like any
+other: the name is allowed, and what it holds and its condition go by type only
+(Mike's pick from options offered, 2026-11-09, `020/050`: *"Treat like any
+private repo"*; an answer, not a ruling in his words). The earlier rule that
+named it only in a private child's onramp, never in any public tree, is
+withdrawn, forward only; `PROPAGATION.md` § *Doctrine — inherited from atelier*
+keeps the account. The name joined to what the repo holds stays barred by the join
+rule above.
+
 ## Why this is doctrine, not just tidiness
 
 The whole operating model assumes a session can be **resumed cold** — by another
