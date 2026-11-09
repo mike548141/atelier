@@ -106,6 +106,12 @@ measurement it claimed to be independent of.) `create-repo` stamps it on new
 repos; existing repos are retrofitted once. Everything below the block is
 repo-specific onramp.
 
+**Left behind the pointer, by decision** (`160/310` HF8, 2026-11-09): the
+verify-the-act rule (confirm each act by its own output, never by the absence of
+an error) is stated in `CONCURRENCY.md` and does **not** go in the block. The
+Session-rhythm bullet's evidence-based all-clear covers its close-out half, and
+the one-bullet-per-concern rule keeps the rest behind its pointer.
+
 <!-- floor:begin -->
 ```markdown
 ## Doctrine — inherited from atelier (pinned `atelier@<SHA>`)
@@ -126,8 +132,8 @@ in atelier and is read on demand — never wholesale.
   (record the principal's decision, never originate it); a lockout-class change
   that could sever your own access; installing an unapproved tool or adding a
   new trust surface (deploy keys, webhooks, OAuth/app grants). Each such
-  confirmation is an *informed* one — the agent puts what it wants to do, why,
-  and the likely impact in plain language first. The principal's authority is
+  confirmation is an *informed* one — the agent gives the full account
+  `00-APEX.md` owes, in plain language, first. The principal's authority is
   absolute — never overrule him, even if you believe him uninformed; an approval
   given without that account is open to challenge on the briefing, and the
   challenge is raised to him by re-briefing (`00-APEX.md`) — and at *this*
@@ -136,12 +142,14 @@ in atelier and is read on demand — never wholesale.
   recoverable — commit/push/PR included — just proceed.
 - **Asking — any question, decision or ruling:** put the ask in the harness's
   structured question device where one exists (Claude Code:
-  `AskUserQuestion`), never buried in prose. The account must have *reached*
-  the principal before the choice is put — always as a finished message of its
-  own, ahead of the device, in every view (one extra turn) — and the device
-  carries only the choice; never trim the account to fit. Give the real
-  options, each with its pros, cons, impacts, risks and costs, plus **a
-  recommendation** with its reasoning shown. Every fact in the ask is
+  `AskUserQuestion`), never buried in prose; with no device (a non-interactive
+  run, a scheduled batch, a harness without one) the same content goes in
+  prose. The account must have *reached* the principal before the choice is
+  put — always as a finished message of its own, ahead of the device, in every
+  view (one extra turn) — and the device carries only the choice; never trim
+  the account to fit. Give the real options, each with its pros, cons,
+  impacts, risks, costs and any other consideration that bears on the choice,
+  plus **a recommendation** with its reasoning shown. Every fact in the ask is
   verified, or plainly marked as assumed where verifying would cost more than
   the decision is worth.
   (`00-APEX.md` for what an ask must contain; `COMMUNICATION.md` § *Asking for
@@ -248,13 +256,18 @@ lines); undeclared, a drop reds. Three boundaries on that:
   (ruled 2026-09-19, `115/030`: *"Floor copy verbatim"*); on a copy that is
   already word for word it narrows nothing and changes nothing. Nor can a
   `stampscan:allow` marker inside the stamp switch the comparison off: the
-  block is compared whatever markers it carries (the principal's answer of
-  2026-11-09, `160/340` FV2: a specific "never" beats the general escape).
+  block is compared whatever markers it carries (`160/340` FV2, applied
+  2026-11-09 and put to the principal the same day).
   The floor is the one text that must bind where nothing else of the child's
   is read, so a child that finds a line of it wrong reports it upward
   (§ *Pointing up*) instead of dropping it locally. The declaration above
   stays for any other stamped region; as of 2026-11-09 the floor is the only
-  one.
+  one. **What reaches a child's copy:** nothing in the child's own CI, since
+  `stampscan` cannot resolve a child's `source=` (ST3); `tools/pins.py`
+  compares each child's copy with the floor *as it stood at that child's pin*
+  (verbatim at its pin, not at today's text) and reports the ones that differ.
+  That is report-only until 2026-12-09 and fails the fleet check from then
+  (`160/340`, the principal's words of 2026-11-09).
 
 The inlined floor is a **narrowing-free restatement** of the apex + AUTONOMY
 floor, and the concurrency line restates `CONCURRENCY.md`'s flipped prior
@@ -934,6 +947,19 @@ The parent is not exempt. atelier runs the floor it ships, scoped by the same
 config a child uses. A parent enforcing something its children don't — or missing
 something they have — is this defect one level up, and is exactly how a
 "canonical" repo drifts from its own canon.
+
+**A parent's local narrowing is written where its children can read it**
+(`310/130`, option a). A scope declaration, an exemption or any other
+accommodation the parent holds for itself is invisible from both ends: the
+parent never feels the cost it excused itself from, and a child sees only a rule
+that costs more than the doctrine says. So each one carries its reason beside it
+in the parent's own config (`.atelier-floor.json`, where `scope` and `flags`
+already require a `why`), and a rule that the parent narrows for itself says so
+where the rule is stated. A child can then adopt the narrowing or decline it on
+purpose, rather than never learn it exists. The diagnostic that goes with it:
+**when a child reports a house rule as expensive and the parent cannot reproduce
+the expense, suspect an accommodation the parent holds and has not shared before
+suspecting the child.**
 
 ## Enumeration, not assumption (how we know it landed)
 

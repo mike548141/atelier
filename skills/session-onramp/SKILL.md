@@ -39,16 +39,8 @@ the ladder.
 
 ## 2. The always-confirm floor
 
-Proceed freely on anything **recoverable** — commit / push / PR included. **Stop
-and confirm** before:
-
-- making a private repo public, or otherwise widening its audience;
-- anything truly destructive or irreversible;
-- handling secrets; spending money; anything touching people's safety;
-- **widening your own grant** — record the principal's decision, never originate it;
-- a lockout-class change that could sever your own access;
-- installing an unapproved tool or adding a new trust surface (deploy keys,
-  webhooks, OAuth/app grants).
+Before you act, read `docs/method/AUTONOMY.md` § *Always confirm*: the one list
+of what you stop and confirm, which this skill no longer restates.
 
 ## 3. Then read on demand
 

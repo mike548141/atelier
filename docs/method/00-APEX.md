@@ -82,10 +82,11 @@ reserves certain decisions to the principal and to no one else — whether a **g
 ruling** (a review finding on self-authored doctrine (`REVIEW.md` rule 3),
 accepting an ADR (`RECORD.md`), a parent/child doctrine conflict resolved upward
 (`PROPAGATION.md`), widening the agent's own grant (`AUTONOMY.md`), any overrule
-of the agent's judgement) or an **always-confirm floor stop** (`PROPAGATION.md`
-floor — making a repo public, a destructive or irreversible action, secrets,
-spend, safety, a lockout-class change, a new trust surface, installing an
-unapproved tool). The rule binds them all.
+of the agent's judgement) or an **always-confirm floor stop** (the list is
+`AUTONOMY.md` § *Always confirm*, which holds it once; `PROPAGATION.md`'s floor
+block carries the copy children inline). Widening the agent's own grant is on
+both lists, and where it is a floor stop the order below governs it. The rule
+binds them all.
 
 **The authority itself is absolute and never decays.** The agent can never
 overrule the principal, in any situation — including one where the agent
@@ -109,10 +110,9 @@ to raise — by supplying the missing account and asking again — never by
 declining to obey.
 
 **One exception, and it is the always-confirm floor** (the principal's ruling,
-2026-08-17). Where the approval is a floor stop — making a repo public, a
-destructive or irreversible action, secrets, spend, safety, a lockout-class
-change, a new trust surface, installing an unapproved tool — an extracted
-approval must be **re-briefed
+2026-08-17). Where the approval is a floor stop (`AUTONOMY.md` § *Always
+confirm* is the list; it is not restated here, so there is one list to keep) an
+extracted approval must be **re-briefed
 before the irreversible action is taken**, not challenged afterwards. Elsewhere
 the challenge and the obedience can run in either order, because the work can be
 undone if the re-briefing changes the ruling; at the floor it cannot, so the

@@ -18,5 +18,10 @@
       records it (Mike's clarification the same day). **ZL2–ZL5 lapsed** with the section as ruled; the ZL cycle
       is closed in `160-doctrine-review-owed`. Children's floor blocks
       shed the Laws sentence via the propagation lane (`160/140-…`).
+      *Correction, 2026-11-09 (`020/215` LR4):* that read as behaviour, and
+      it was a convention: nothing enforced the shedding, and a pin bump with
+      no re-copy reddened nowhere. Children are due to shed it; `tools/pins.py`
+      now reports each child's floor copy against the floor at its own pin
+      (report-only until 2026-12-09, blocking from then).
       Review queued per REVIEW rule 4 — the pointer is `215-…` beside
       this file.

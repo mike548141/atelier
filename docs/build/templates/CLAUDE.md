@@ -34,8 +34,8 @@ in atelier and is read on demand — never wholesale.
   (record the principal's decision, never originate it); a lockout-class change
   that could sever your own access; installing an unapproved tool or adding a
   new trust surface (deploy keys, webhooks, OAuth/app grants). Each such
-  confirmation is an *informed* one — the agent puts what it wants to do, why,
-  and the likely impact in plain language first. The principal's authority is
+  confirmation is an *informed* one — the agent gives the full account
+  `00-APEX.md` owes, in plain language, first. The principal's authority is
   absolute — never overrule him, even if you believe him uninformed; an approval
   given without that account is open to challenge on the briefing, and the
   challenge is raised to him by re-briefing (`00-APEX.md`) — and at *this*
@@ -44,12 +44,14 @@ in atelier and is read on demand — never wholesale.
   recoverable — commit/push/PR included — just proceed.
 - **Asking — any question, decision or ruling:** put the ask in the harness's
   structured question device where one exists (Claude Code:
-  `AskUserQuestion`), never buried in prose. The account must have *reached*
-  the principal before the choice is put — always as a finished message of its
-  own, ahead of the device, in every view (one extra turn) — and the device
-  carries only the choice; never trim the account to fit. Give the real
-  options, each with its pros, cons, impacts, risks and costs, plus **a
-  recommendation** with its reasoning shown. Every fact in the ask is
+  `AskUserQuestion`), never buried in prose; with no device (a non-interactive
+  run, a scheduled batch, a harness without one) the same content goes in
+  prose. The account must have *reached* the principal before the choice is
+  put — always as a finished message of its own, ahead of the device, in every
+  view (one extra turn) — and the device carries only the choice; never trim
+  the account to fit. Give the real options, each with its pros, cons,
+  impacts, risks, costs and any other consideration that bears on the choice,
+  plus **a recommendation** with its reasoning shown. Every fact in the ask is
   verified, or plainly marked as assumed where verifying would cost more than
   the decision is worth.
   (`00-APEX.md` for what an ask must contain; `COMMUNICATION.md` § *Asking for

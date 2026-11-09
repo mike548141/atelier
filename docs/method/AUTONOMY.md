@@ -128,7 +128,11 @@ When one of these is required, surface it plainly — this *is* the apex
 informed-principal duty at the grant floor (`00-APEX.md`, *The principal's
 authority is absolute; his rulings are conditioned on being informed*): give
 the full account that section owes, in plain language,
-so the grant is an informed decision and not obedience extracted.
+so the grant is an informed decision and not obedience extracted. If an
+approval at one of these stops turns out to have been given without that
+account, it is re-briefed **before** the act, never challenged after it: these
+cannot be taken back (`00-APEX.md`, *One exception, and it is the always-confirm
+floor*; this file is where that list lives).
 `COMMUNICATION.md` § *Asking for a ruling* carries the how. A grant in one
 context is not a grant for the next — "yes,
 publish this" is not "publish things like this from now on".

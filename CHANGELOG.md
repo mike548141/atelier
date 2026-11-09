@@ -66,6 +66,45 @@ words, except where quoted); the reviewers' counsel on the rest applied as writt
   fine (a background job inside a live session); the flat "no background jobs"
   line on `210/190` carries a dated correction.
 
+### Changed (2026-11-09 — `ccarchive` rollback check `160/670`; the rule-copy report `160/340`)
+Mike's answers of 2026-11-09 (an answer, not a ruling) and his words on the
+copy report, *"The approve the report only option for 1 month and then we move
+to blocking per option 2"*, applied as the reviewers counselled.
+- **`ccarchive` notices a rolled-back archive (HD1).** Each save carries a save
+  number in `manifest.json.sig`, bound to that manifest by its own MAC, and the
+  machine keeps a small 0600 record of the last save beside the signing key. An
+  index older than the record (or the same number over a different index, or
+  vanished) is `rolled-back`: runs, `--restore` and dry runs refuse it (exit
+  2), `--verify` and `--audit` report it (exit 1). A sync fault looks the same,
+  so the message says what to check. A volume ahead of the record, or no record,
+  is adopted. Archives signed before this have no number and start a record.
+- **`--rekey` verifies first (HD2, HD3).** It checks the index under the old
+  key and refuses anything but `verified` (exit 2, nothing minted or changed);
+  `--rekey --accept-unverified` is the deliberate clear and names the state it
+  cleared. HD2's fuller fix (a key per destination) is not built: `man
+  ccarchive` now says that no roll brings two archives across under one key.
+- **`tools/pins.py` reports each child's floor copy (`160/340` FV3, FV11;
+  `020/215` LR4).** It runs `stampscan`'s own comparison on the stamped floor
+  block against the floor text **at the child's own pin**, with the four
+  placeholders put back. **Report-only until 2026-12-09, blocking from then**
+  (one dated constant, `COPY_BLOCKS_FROM`, printed on every run): from it a
+  copy that differs fails `--check`. `unstamped`, `no-reference`, `skipped`
+  and `malformed` copies are reported and never fail. The floor-narrowing
+  bullet in `PROPAGATION.md` now says what does and does not reach a child's
+  copy.
+- **The copy and its sources agree (AK1, AK3, DR2, RR1, RR8, RR12).** The floor
+  region and the template stamp (byte-identical, one commit) restore the
+  options list's sixth item and the no-device clause, and point the
+  stop-and-confirm account at `00-APEX.md` instead of restating it. The apex
+  names the floor by reference to `AUTONOMY.md` § *Always confirm*, which gains
+  the order sentence (re-brief before the act). `skills/session-onramp` § 2 is
+  a one-line pointer instead of a third hand-kept copy. Children inline the old
+  block until their next pin bump.
+- **Doctrine written down.** A parent's local narrowing is written where its
+  children can read it, with the diagnostic (`310/130`, option a); verify-the-act
+  stays behind the pointer, not in the block (`160/310` HF8). The Laws entry
+  below carries a dated correction that its shedding was a convention (LR4).
+
 ### Changed (2026-11-09 — `ccmail` cold pass applied: `210/130`)
 Mike answered *"Keep it, lock the cache"* to the options offered on the review's
 major finding (an answer, not a ruling); the reviewer's counsel on the rest was
@@ -2168,6 +2207,10 @@ index check. Added belatedly on the 2026-09-25 cold pass's counsel (`160/280`).
   line left with the Laws caveat it summarised — and was restored the same
   day as honesty doctrine (entry above). Children's floor blocks
   shed the Laws sentence at their next pin bump (same propagation lane).
+  *(Correction, 2026-11-09, `020/215` LR4: that was a convention, not
+  behaviour. Nothing enforced the shedding and a pin bump with no re-copy
+  reddened nowhere; children are due to shed it, and `tools/pins.py` now
+  reports each child's floor copy against the floor at its own pin.)*
   The Laws-ladder raw note is closed as *not required*, kept in full.
   Historical records and review verdicts are untouched — every history
   layer (git, session logs, closed board items) keeps the Laws' full
