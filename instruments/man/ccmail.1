@@ -25,6 +25,22 @@ ccmail \- open the Gmail attachments the mailbox connector can only name
 .IR dir ]
 .RI [ \-\-text ]
 .RI [ \-\-json ]
+.br
+.B ccmail
+.I message\-id
+.B \-\-headers
+.RI [ \-\-dest
+.IR dir ]
+.RI [ \-\-json ]
+.br
+.B ccmail \-\-search
+.I query
+.B \-\-headers
+.RI [ \-\-limit
+.IR n ]
+.RI [ \-\-dest
+.IR dir ]
+.RI [ \-\-json ]
 .SH DESCRIPTION
 The Gmail connector Claude Code speaks to can search a mailbox, read a message
 body, and
@@ -262,6 +278,35 @@ results. Default 10.
 Download the selected attachments and print their paths. See
 .B SELECTING ATTACHMENTS
 above.
+.TP
+.B \-\-headers
+Write a message's transport headers to a private file and print its path:
+.IR From ,
+.IR Date ,
+every
+.IR Received ,
+.IR Received\-SPF ,
+.IR Authentication\-Results ,
+.I ARC\-Authentication\-Results
+and
+.IR DKIM\-Signature .
+They are fetched with Gmail's
+.I format=metadata
+and that header list, so no body is requested and the subject is never
+fetched. It measures a mail route (the hops a message crossed, the TLS each
+negotiated, which domain signed it) without reading the mail. With
+.BR \-\-search ,
+every match up to
+.B \-\-limit
+is read, one file each. Without
+.BR \-\-dest ,
+each lands as
+.I transport\-headers.txt
+in the message's own cache folder, so the 30\-day sweep covers it; with
+.BR \-\-dest ,
+as
+.IR <message\-id>.headers.txt .
+Control and bidirectional characters in a header are replaced with spaces.
 .TP
 .BI \-\-dest " dir"
 Where files land, overriding the default below. Refused if it falls inside a

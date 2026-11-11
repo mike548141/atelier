@@ -1237,6 +1237,92 @@ async function cmdGet(messageId, selector, opts) {
   process.stdout.write('\nRead them from that path — nothing is printed here on purpose.\n');
 }
 
+// ---------------------------------------------------------------------------
+// Transport headers — measuring a mail route without reading anyone's mail
+//
+// A Received header is written by the receiving server and records the
+// transport the sending server negotiated on that hop; the authentication
+// results and the DKIM-Signature say who signed and what each receiver
+// concluded. Together they measure a route. The Gmail API's metadata format
+// returns only the headers it is asked for and never the body, so this mode
+// asks for exactly the list below and nothing else. Subject is deliberately
+// not on it: a route measurement has no use for what the mail was about.
+// ---------------------------------------------------------------------------
+
+const TRANSPORT_HEADERS = [
+  'From', 'Date',
+  'Received', 'Received-SPF',
+  'Authentication-Results', 'ARC-Authentication-Results',
+  'DKIM-Signature',
+];
+
+function transportRequest() {
+  return { format: 'metadata', metadataHeaders: TRANSPORT_HEADERS.slice() };
+}
+
+// C0/C1 controls and bidirectional overrides, which a header from an arbitrary
+// sender could carry into the operator's terminal or editor. Tabs survive:
+// folded headers use them.
+const UNSAFE_HEADER_CHARS = /[\x00-\x08\x0a-\x1f\x7f-\x9f؜‎‏‪-‮⁦-⁩]/g;
+
+function transportText(message) {
+  const want = new Set(TRANSPORT_HEADERS.map((h) => h.toLowerCase()));
+  const hs = ((message.payload && message.payload.headers) || [])
+    .filter((h) => want.has(String(h.name).toLowerCase()));
+  const lines = [`# ccmail transport headers · message ${message.id || ''}`,
+    `# fetched ${new Date().toISOString()} · format=metadata, no body requested`,
+    `# internalDate ${message.internalDate ? new Date(Number(message.internalDate)).toISOString() : ''}`, ''];
+  for (const h of hs) lines.push(`${h.name}: ${String(h.value).replace(UNSAFE_HEADER_CHARS, ' ')}`);
+  return lines.join('\n') + '\n';
+}
+
+async function cmdHeaders(ids, opts) {
+  const { token } = await resolveToken();
+  const base = path.resolve(opts.dest || defaultDest());
+  const repo = insideGitWorkTree(base);
+  if (repo && !opts.allowRepoDest) {
+    die(`refusing to write mail headers inside a git work tree (${repo}).\n` +
+        `Headers name other people's addresses and a repo is one commit from publication.\n` +
+        `Pick a --dest outside it, or pass --allow-repo-dest if you truly mean to.`);
+  }
+  const written = [];
+  const failed = [];
+  for (const id of ids) {
+    try {
+      const m = await api(token, `/messages/${id}`, transportRequest());
+      // With no --dest, each message keeps its own folder under the cache, so
+      // the cache's lifetime sweep covers it exactly as it covers attachments.
+      const dir = opts.dest ? base : path.join(base, id);
+      fs.mkdirSync(dir, { recursive: true, mode: PRIVATE_DIR });
+      const name = opts.dest ? `${id}.headers.txt` : 'transport-headers.txt';
+      const file = writePrivate(dir, name, Buffer.from(transportText(m), 'utf8'), new Set());
+      written.push({ id, file });
+    } catch (e) {
+      failed.push({ id, error: e.message });
+      process.stderr.write(`warn  ${id}: ${e.message}\n`);
+    }
+  }
+  if (failed.length) process.exitCode = 1;
+  if (opts.json) { print({ dest: base, written, failed }); return; }
+  process.stdout.write(`Wrote transport headers for ${written.length} message(s)\n\n`);
+  for (const w of written) process.stdout.write(`  ${w.file}\n`);
+  process.stdout.write('\nNo body or subject was fetched. Read the files from those paths.\n');
+}
+
+async function searchIds(query, limit) {
+  const { token } = await resolveToken();
+  const ids = [];
+  let pageToken;
+  do {
+    const list = await api(token, '/messages', {
+      q: query, maxResults: Math.min(500, limit - ids.length), pageToken,
+    });
+    for (const m of list.messages || []) ids.push(m.id);
+    pageToken = list.nextPageToken;
+  } while (pageToken && ids.length < limit);
+  return ids;
+}
+
 function selectDetailed(items, selector) {
   if (!selector || selector === 'all') return { chosen: items, missed: [] };
   const out = [];
@@ -1290,6 +1376,8 @@ USAGE
   ccmail --search <gmail-query>       find message ids (Gmail search syntax)
   ccmail <message-id>                 list what is attached to that message
   ccmail <message-id> --get <what>    download them, print the paths
+  ccmail <message-id> --headers       write its transport headers (no body), print the path
+  ccmail --search <query> --headers   the same for every message the query matches
 
 SELECT (--get)
   all                                 every attachment (the default)
@@ -1304,6 +1392,8 @@ OUTPUT
   --text            also write a .txt sidecar for .docx/.xlsx/.pptx
   --json            machine-readable
   --limit <n>       --search result cap (default 10)
+  --headers         Received, authentication results and DKIM-Signature only,
+                    fetched with format=metadata: no body, no subject
 
 NOTES
   Attachment bytes are never printed — ccmail writes files and gives you paths.
@@ -1314,7 +1404,7 @@ NOTES
 `;
 
 async function main(argv) {
-  const opts = { limit: 10, json: false, text: false, dest: null, allowRepoDest: false };
+  const opts = { limit: 10, json: false, text: false, dest: null, allowRepoDest: false, headers: false };
   let positional = null;
   let get = null;
   let search = null;
@@ -1346,6 +1436,7 @@ async function main(argv) {
         break;
       }
       case '--text': opts.text = true; break;
+      case '--headers': opts.headers = true; break;
       case '--json': opts.json = true; break;
       case '--allow-repo-dest': opts.allowRepoDest = true; break;
       default:
@@ -1368,8 +1459,14 @@ async function main(argv) {
     process.stderr.write(`warn  cache housekeeping failed: ${e.message}\n`);
   }
   if (mode === 'status') return cmdStatus(opts.json);
+  if (opts.headers && get !== null) die('--headers and --get are separate reads; run them one at a time');
+  if (mode === 'search' && opts.headers) {
+    if (positional) die('--search with --headers takes a query, not a message id as well');
+    return cmdHeaders(await searchIds(search, opts.limit), opts);
+  }
   if (mode === 'search') return cmdSearch(search, opts.limit, opts.json);
   if (!positional) { process.stdout.write(HELP); return; }
+  if (opts.headers) { requireMessageId(positional); return cmdHeaders([positional], opts); }
   if (get !== null) return cmdGet(positional, get, opts);
   return cmdList(positional, opts.json);
 }
@@ -1384,4 +1481,5 @@ module.exports = {
   loadConfig, configFile, keychainAvailable, delegationConfigured, keychainAbsentDetail,
   cacheHygiene, hygieneLine, writePrivate, realpathLoose, selectDetailed, printable,
   classifyKeychainRead, buildConsentUrl, consentCallback, writeAttachments, pkcePair, defaultDest, CACHE_DAYS,
+  TRANSPORT_HEADERS, transportRequest, transportText,
 };

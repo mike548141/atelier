@@ -830,3 +830,42 @@ test('a Keychain read that fails is an error, only "no such item" is absence', (
 test('the cache retention is 30 days', () => {
   assert.equal(cc.CACHE_DAYS, 30);
 });
+
+// --- transport headers: a route measured without the mail ---------------------
+
+test('the headers read asks Gmail for metadata only, and never for the subject or body', () => {
+  const req = cc.transportRequest();
+  assert.strictEqual(req.format, 'metadata');
+  const names = req.metadataHeaders.map((h) => h.toLowerCase());
+  assert.ok(names.includes('received') && names.includes('dkim-signature'));
+  assert.ok(!names.includes('subject'), 'a route measurement has no use for the subject');
+  const u = cc.buildUrl('/messages/abc', req);
+  assert.strictEqual(u.searchParams.get('format'), 'metadata');
+  assert.ok(!u.searchParams.getAll('metadataHeaders').map((s) => s.toLowerCase()).includes('subject'));
+});
+
+test('transportText keeps every Received hop in order and drops headers it was not asked for', () => {
+  const m = {
+    id: 'abc123',
+    internalDate: '1767225600000',
+    payload: { headers: [
+      { name: 'Received', value: 'from b by c with ESMTPS (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384)' },
+      { name: 'Subject', value: 'should never be written' },
+      { name: 'Received', value: 'from a by b' },
+      { name: 'DKIM-Signature', value: 'v=1; d=example.test; s=sel' },
+    ] },
+  };
+  const text = cc.transportText(m);
+  assert.ok(!text.includes('should never be written'));
+  const hops = text.split('\n').filter((l) => l.startsWith('Received:'));
+  assert.deepStrictEqual(hops, ['Received: from b by c with ESMTPS (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384)',
+    'Received: from a by b']);
+  assert.ok(text.includes('DKIM-Signature: v=1; d=example.test; s=sel'));
+});
+
+test('transportText neutralises control and bidirectional characters a sender planted', () => {
+  const m = { id: 'x', payload: { headers: [{ name: 'Received', value: 'from a\x1b[31m by b‮ evil\r\nX: y' }] } };
+  const line = cc.transportText(m).split('\n').find((l) => l.startsWith('Received:'));
+  assert.ok(!/[\x1b\r‮]/.test(line));
+  assert.ok(!cc.transportText(m).includes('\nX: y'), 'a planted line break cannot forge a second header');
+});
