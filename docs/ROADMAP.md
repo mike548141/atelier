@@ -759,3 +759,9 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/README.md)*
 
 - [ ] 🎯 [Reinforce in doctrine that a review is never cut down to fit a…](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/010-reinforce-the-rule-in-doctrine-and-guard-it-in-code.md)
+
+## Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)
+
+*[Narrative](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md)*
+
+- [ ] 🎯 [Update the doctrine's economics so "the right model for the job"…](roadmap/440-economics-effective-then-efficient-mike-commissioned/010-update-economics-effective-then-efficient-and-count-real-spend.md)
