@@ -202,6 +202,11 @@ CLAIM_RE = re.compile(r"\(claimed [^)]*\)")
 CODE_SPAN_RE = re.compile(r"`[^`]*`")
 
 TITLE_RE = re.compile(r"\*\*(.+?)\*\*")
+# What the title's edges shed: spaces, em dashes and colons, and a hyphen only
+# when it stands alone. `--list` keeps both dashes; `- title` and `title -` lose
+# theirs (010/180).
+_EDGE_LEAD_RE = re.compile(r"^(?:[ —:]|-(?=\s|$))+")
+_EDGE_TRAIL_RE = re.compile(r"(?:[ —:]|(?<=\s)-|^-)+$")
 LINK_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 TITLE_MAX = 70
 
@@ -303,7 +308,7 @@ def _escape_link_text(text: str) -> str:
     return text.replace("[", "&#91;").replace("]", "&#93;")
 
 
-def index_title(rest: str, escape: bool = True) -> str:
+def index_title(rest: str, escape: bool = True, legacy: bool = False) -> str:
     """The index line's link text: the item's bold title, links flattened.
 
     The fallback strips the claim first. `TITLE_RE` wants a CLOSED `**…**` span
@@ -314,11 +319,30 @@ def index_title(rest: str, escape: bool = True) -> str:
     once swallowed into the title (reported by a child, 2026-08-17).
 
     `[` and `]` come out as character references (`escape`; 320/450 §2). Only
-    the LEGACY projection passes `escape=False`, to stay byte-identical."""
+    the LEGACY projection passes `escape=False`, to stay byte-identical, and it
+    passes `legacy=True`, which keeps the two defects below exactly as they were
+    rendered (010/180).
+
+    Two defects 010/180 closed, both skipped for `legacy`:
+      * A claim fragment INSIDE a closed bold span (a claim helper that writes
+        it on line two of a wrapped title) projected into the title as well as
+        the claim slot. It is cut out of the span; a backticked `(claimed …)`
+        mention stays, as in `index_line`'s own claim read.
+      * The edge strip took the dashes off a title that begins with a flag
+        (`--list` read as `list`). A hyphen is now an edge separator only when
+        it stands alone (`- title`, `title -`), not when it opens a word."""
     m = TITLE_RE.search(rest)
     raw = m.group(1) if m else CLAIM_RE.sub("", rest)
+    if m and not legacy:
+        for c in reversed(list(CLAIM_RE.finditer(_mask_code(raw)))):
+            raw = raw[:c.start()] + " " + raw[c.end():]
     raw = LINK_RE.sub(r"\1", raw)
-    raw = raw.replace("*", "").replace("`", "").strip(" —-:")
+    raw = raw.replace("*", "").replace("`", "")
+    if legacy:
+        raw = raw.strip(" —-:")
+    else:
+        raw = _EDGE_LEAD_RE.sub("", raw)
+        raw = _EDGE_TRAIL_RE.sub("", raw)
     for f in FLAGS:
         raw = raw.replace(f, "")
     raw = " ".join(raw.split())
@@ -326,6 +350,33 @@ def index_title(rest: str, escape: bool = True) -> str:
         raw = raw[:TITLE_MAX].rsplit(" ", 1)[0] + "…"
     raw = raw or "(untitled)"
     return _escape_link_text(raw) if escape else raw
+
+
+def _leading_glyph(head: str, drop: str = "") -> str:
+    """The symbol an item puts before its bold title that is NOT a board flag
+    (🚩, 💡, 🔑, 🎭, ✅ …), or "" (010/180).
+
+    The index lifts the flags in `FLAGS` into their own column and the title is
+    the bold span, so this glyph used to vanish from the index line. It is a
+    signal the author chose, so it leads the title. Only a run of symbols
+    counts: a claim, a flag, an arrow between flags (`🎯→✅`) and spaces are
+    set aside, and anything with a letter, digit or ASCII mark in it (a
+    parenthetical, a word) is prose, not a glyph, and is left out as before.
+    `drop` is a glyph the line's own marker already shows (a done item's `✅`).
+    A head with no bold span has no title boundary, so it carries none."""
+    if "**" not in head:
+        return ""
+    pre = head.split("**", 1)[0]
+    pre = CLAIM_RE.sub(" ", _mask_code(pre))
+    for f in FLAGS:
+        pre = pre.replace(f, " ")
+    pre = pre.replace("→", " ")
+    if drop:                       # the marker already shows it (`- ✅`)
+        pre = pre.replace(drop, " ")
+    pre = " ".join(pre.split())
+    if pre and all(ord(c) > 127 and not c.isalnum() for c in pre.replace(" ", "")):
+        return pre
+    return ""
 
 
 def _fit_title(title: str, room: int) -> str:
@@ -411,6 +462,9 @@ def index_line(marker: str, rest: str, rel_link: str,
     bare = CODE_SPAN_RE.sub(" ", head)
     flags = "".join(f for f in FLAGS if f in bare and f != marker)
     title = index_title(rest if "**" in head else rest.replace("**", ""))
+    lead = _leading_glyph(head, "✅" if marker == "[x]" else "")
+    if lead:
+        title = f"{lead} {title}"
 
     # Flags and the claim fragment go BEFORE the link, and the reason is
     # mechanical, not taste. wrapscan exempts a line whose overflow is one
@@ -533,8 +587,9 @@ def index_entry(text: str, rel_link: str) -> str | None:
 # two `_v1` functions, `_legacy_accepted`); the one branch in `run_check` that
 # calls `_legacy_accepted`, with the `today` parameter and `_today_utc` it
 # alone uses; the `_entry` parameter of `build_index` (its only other caller
-# passes the default) and the `escape` parameter of `index_title`, whose only
-# `escape=False` caller is `_index_entry_v1`; and the `date`, `datetime`,
+# passes the default) and the `escape` and `legacy` parameters of `index_title`, whose only
+# `escape=False` and `legacy=True` caller is `_index_entry_v1`, with `_EDGE_LEAD_RE` and
+# `_EDGE_TRAIL_RE`; and the `date`, `datetime`,
 # `timezone` and `Callable` imports once nothing else needs them. In
 # `tools/test_board.py`: the `LegacyGrace` class, the byte-identity test in
 # `BracketsInATitle`, the `StagedPlane` grace test and `AdvisoryCount`'s grace
@@ -575,7 +630,7 @@ def _index_entry_v1(text: str, rel_link: str) -> str | None:
         m = CLAIM_RE.search(rest)
         if m:
             line += f" {m.group(0)}"
-    line += f" [{index_title(rest, escape=False)}]({rel_link})"
+    line += f" [{index_title(rest, escape=False, legacy=True)}]({rel_link})"
     for c in ALLOW_COMMENT_RE.findall(rest):
         line += f" {c}"
     return line

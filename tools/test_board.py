@@ -321,6 +321,84 @@ class DuplicateNumbers(unittest.TestCase):
             ["README.md", "10-a.md", "20-b.md"], "x", "item"))
 
 
+class SmallTitleDefects(unittest.TestCase):
+    """010/180 — three small losses in the index line's title."""
+
+    def test_a_leading_flag_keeps_its_dashes(self):
+        self.assertEqual("--list is slow", board.index_title("**`--list` is slow**"))
+        self.assertEqual("--think is a flag",
+                         board.index_title("**--think is a flag**"))
+
+    def test_a_lone_hyphen_or_dash_still_comes_off_the_edge(self):
+        self.assertEqual("A title", board.index_title("**- A title -**"))
+        self.assertEqual("A title", board.index_title("**— A title:**"))
+        self.assertEqual("A title", board.index_title("A title —"))
+
+    def test_the_legacy_projection_keeps_the_old_strip(self):
+        # The grace-period index is byte-identical to the old rendering, which
+        # took the dashes off a flag. Until the grace ends that must hold.
+        self.assertEqual("list is slow", board.index_title(
+            "**`--list` is slow**", escape=False, legacy=True))
+
+    def test_a_claim_inside_a_wrapped_bold_title_stays_out_of_the_title(self):
+        rest = ("**A title that wraps (claimed 2026-10-18-0900, wt: x) "
+                "onto a second line**")
+        self.assertEqual("A title that wraps onto a second line",
+                         board.index_title(rest))
+        line = board.index_line("[~]", rest, "x.md", head="**A title that wraps")
+        self.assertEqual(1, line.count("claimed"))
+        self.assertIn("A title that wraps onto a second line", line)
+
+    def test_end_to_end_from_an_item_file(self):
+        # The claim sits on line two INSIDE the wrapped bold title, as one
+        # queue run's claim helper wrote it (020/150, 2026-10-18).
+        text = ("- [~] 🚩 **A long title that wraps\n"
+                "      (claimed 2026-10-18-0900, wt: x, session y)\n"
+                "      onto a third line** and some body\n")
+        line = board.index_entry(text, "roadmap/10-a/10-b.md")
+        self.assertEqual(1, line.count("claimed"), line)
+        self.assertIn("[🚩 A long title that wraps onto a third", line)
+
+    def test_a_backticked_claim_mention_in_the_title_stays(self):
+        rest = "**Reads `(claimed x)` in a title**"
+        self.assertIn("(claimed x)", board.index_title(rest))
+
+    def test_a_leading_non_flag_glyph_leads_the_title(self):
+        line = board.index_line("[ ]", "🚩 **A signal title**", "x.md",
+                                head="🚩 **A signal title**")
+        self.assertIn("[🚩 A signal title]", line)
+
+    def test_a_wrapped_title_carries_it_the_same_way(self):
+        rest = "💡 **A wrapped title**"  # the parser joins a wrapped title with spaces
+        line = board.index_line("[ ]", rest, "x.md", head="💡 **A wrapped")
+        self.assertIn("[💡 A wrapped title]", line)
+
+    def test_a_flag_is_lifted_not_carried(self):
+        line = board.index_line("[ ]", "🎯 **A flagged title**", "x.md",
+                                head="🎯 **A flagged title**")
+        self.assertTrue(line.startswith("- [ ] 🎯 [A flagged title]"), line)
+
+    def test_a_flag_arrow_glyph_run_carries_only_the_glyph(self):
+        line = board.index_line("[ ]", "🎯→🚩 **Moved**", "x.md",
+                                head="🎯→🚩 **Moved**")
+        self.assertIn("[🚩 Moved]", line)
+
+    def test_the_marker_glyph_is_not_repeated_on_a_done_item(self):
+        line = board.index_line("[x]", "✅ **Finished**", "x.md",
+                                head="✅ **Finished**")
+        self.assertEqual("- ✅ [Finished](x.md)", line)
+
+    def test_prose_before_the_title_is_not_a_glyph(self):
+        head = "(FUNDED by Mike 2026-09-20; parts 1–3 DONE) **The item**"
+        line = board.index_line("[ ]", head, "x.md", head=head)
+        self.assertIn("[The item]", line)
+
+    def test_the_claim_before_the_glyph_is_set_aside(self):
+        head = "(claimed 2026-11-09-1242, wt: w, session s) 🔑 **A keyed title**"
+        line = board.index_line("[~]", head, "x.md", head=head)
+        self.assertIn("[🔑 A keyed title]", line)
+
+
 class ClaimInTheFallbackTitle(unittest.TestCase):
     """A wrapped bold title sends index_title down its fallback path, and the
     fallback used to start at the claim (roadmap 010/140).

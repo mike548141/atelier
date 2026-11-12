@@ -31,3 +31,7 @@
       📎 **Added 2026-11-09 UTC:** land `010/180`'s held `board.py` fix (branch
       `hold-010-180-index-title`) in the same step, since it also needs every
       child's index rebuilt.
+      ✅ **Done 2026-11-12 UTC:** `010/180` landed on its own, with the six
+      children's indexes rebuilt the same hour; it no longer waits on this item.
+      Probe the same day: with the clock at 2026-11-18, every child passes the
+      board check, so removing the board grace reds none.

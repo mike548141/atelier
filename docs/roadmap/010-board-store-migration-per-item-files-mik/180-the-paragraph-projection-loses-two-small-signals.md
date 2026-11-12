@@ -1,4 +1,4 @@
-- [ ] 🔎 **The paragraph projection (`010/170`) loses two small signals,
+- [x] 🔎 **The paragraph projection (`010/170`) loses two small signals,
       and a claim placed inside a wrapped title now shows in the title.**
       Found by the `010/170` worker reading all 297 changed index lines,
       and by the orchestrator at landing. (1) 11 wrapped titles lose a
@@ -24,7 +24,7 @@
             change is 12 lines: nine gain a glyph, three keep their dashes. The README note about
             where a claim goes in a wrapped title is not needed, since a claim anywhere
             in the title no longer shows in it.
-  - [ ] 🛑 **Held, not landed (queue run d0ca5d24, 2026-11-09 UTC): this reds six of
+  - [x] 🛑 **Held, not landed (queue run d0ca5d24, 2026-11-09 UTC): this reds six of
         the eleven children.** The fix above is built and tested, 108 tests in
         `test_board`, but the probe at landing ran `board --check` in each child's
         checkout with the fixed `board.py`: six go stale that pass today, in the
@@ -34,3 +34,12 @@
         `tools/test_board.py`). **Land it together with `010/190`,** after the
         children have rebuilt, or with a grace of its own if the principal wants
         one sooner. Delete the branch when it lands.
+  - [x] ✅ **Landed 2026-11-12 UTC** by session d0ca5d24, on Mike's answer
+        "Land now + rebuild (Recommended)" to a question this session wrote
+        (an answer, not a ruling). The probe before landing, every repo by
+        exit code: without the fix all pass, today and with the clock at
+        2026-11-18, so every child had already rebuilt to the current
+        projection; with it, six go stale on both planes. Waiting for the
+        cut-off could not help, since a child can only rebuild to the new
+        projection once it has landed. So it landed, and each of the six
+        regenerated its index straight after. Branch deleted.

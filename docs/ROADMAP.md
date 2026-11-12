@@ -27,7 +27,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [board called a current index stale from every worktree of atelier,…](roadmap/010-board-store-migration-per-item-files-mik/150-board-judged-the-tree-from-the-tool-s-own-path.md)
 - ✅ 🎯 [CF3's dirty-sibling stop is now stricter than its cause requires —…](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
 - ✅ [DONE 2026-10-18](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
-- [ ] 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
+- ✅ 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
 - [ ] [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
 - ✅ 🔎 [A four-digit item number sorts out of order, and the review section…](roadmap/010-board-store-migration-per-item-files-mik/200-a-four-digit-item-number-sorts-out-of-order.md)
 
@@ -95,7 +95,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Mechanise the private-repo × posture join](roadmap/030-enforcement-propagation-the-estate-rollo/070-mechanise-the-private-repo-posture-join.md)
 - [ ] [2 repos still owe the declaration — blocked by their own reds.](roadmap/030-enforcement-propagation-the-estate-rollo/080-2-repos-still-owe-the-declaration-blocked-by-t.md)
 - ✅ [Adoption is a chicken-and-egg problem and I improvised twice.](roadmap/030-enforcement-propagation-the-estate-rollo/090-adoption-is-a-chicken-and-egg-problem-and-i-im.md)
-- [ ] [no-verify is the real hole, and nothing sees it.](roadmap/030-enforcement-propagation-the-estate-rollo/100-no-verify-is-the-real-hole-and-nothing-sees-it.md)
+- [ ] [--no-verify is the real hole, and nothing sees it.](roadmap/030-enforcement-propagation-the-estate-rollo/100-no-verify-is-the-real-hole-and-nothing-sees-it.md)
 - ✅ [The floor drift check can never fire against a stale checkout — the…](roadmap/030-enforcement-propagation-the-estate-rollo/110-the-floor-drift-check-can-never-fire-against-a.md)
 - [ ] [Every child inlines the same stale-HEAD drift bullet — a fleet sweep…](roadmap/030-enforcement-propagation-the-estate-rollo/120-every-child-inlines-the-same-stale-head-drift.md)
 - ✅ 🔎 [The inlined floor says "everything recoverable — just proceed", and…](roadmap/030-enforcement-propagation-the-estate-rollo/130-the-floor-says-everything-recoverable-just-pro.md)
@@ -453,7 +453,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Archive-mode pool construction dominates every --from-archive run,…](roadmap/210-instruments-open-features/050-archive-mode-pool-construction-dominates-every.md)
 - [ ] [Context as a share of the window](roadmap/210-instruments-open-features/060-context-as-a-share-of-the-window.md)
 - ✅ [finished counts logs, not successes — and a dead agent still leaves a…](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
-- ✅ [think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
+- ✅ [--think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
 - [ ] [Subagent logs are outside every cctranscript view.](roadmap/210-instruments-open-features/090-subagent-logs-are-outside-every-cctranscript-v.md)
 - ✅ 🔥 [cctranscript never reads the principal's mid-turn messages, and its…](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
 - ✅ [pins.py enumerates CWD-relative and reports a wrong denominator from…](roadmap/210-instruments-open-features/110-pins-py-enumerates-cwd-relative-and-lies-from-a-worktree.md)
@@ -463,11 +463,11 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Why is the source smaller than the archived copy? — the shrink…](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
 - ✅ 🎯 [ccarchive's summary counts files, and Mike's own read of the tool is…](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)
 - ✅ 🔎 [ccarchive's manifest lags its own mirror in 14 files, so the shrink…](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
-- ✅ 🔎 [list --from-archive still fully gunzips every local mirror for its…](roadmap/210-instruments-open-features/180-first-prompt-column-gunzips-every-mirror.md)
+- ✅ 🔎 [--list --from-archive still fully gunzips every local mirror for its…](roadmap/210-instruments-open-features/180-first-prompt-column-gunzips-every-mirror.md)
 - ✅ [ccarchive --install-schedule recreates a login job Mike removed —…](roadmap/210-instruments-open-features/190-ccarchive-remove-install-schedule.md)
 - ✅ [A run aborts on one evicted iCloud mirror instead of skipping it](roadmap/210-instruments-open-features/200-ccarchive-aborts-on-an-evicted-icloud-mirror.md)
 - ✅ [ccarchive hardening — build the cold passes' counsel so an ordinary…](roadmap/210-instruments-open-features/210-ccarchive-hardening-batch.md)
-- [ ] [IDEA ONLY — do not build until Mike says to start: keep whole…](roadmap/210-instruments-open-features/220-whole-document-history-like-git.md)
+- [ ] [💡 IDEA ONLY — do not build until Mike says to start: keep whole…](roadmap/210-instruments-open-features/220-whole-document-history-like-git.md)
 - ✅ [ccarchive: bring back a schedule, as a real calendar schedule, not a…](roadmap/210-instruments-open-features/230-ccarchive-a-real-calendar-schedule.md)
 - [ ] 🔎 [ccarchive's design charter, in Mike's words, checked against the tool](roadmap/210-instruments-open-features/240-ccarchive-design-charter.md)
 - ✅ 🔎 [cctranscript counts some harness text as the principal's prompts](roadmap/210-instruments-open-features/250-cctranscript-counts-harness-text-as-prompts.md)
@@ -486,7 +486,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [ccclose classes a subagent that is still running as "cut mid-flight".](roadmap/210-instruments-open-features/380-ccclose-classes-a-running-subagent-as-cut.md)
 - ✅ 🔎 [The Python test suite needs 3.11 or later and does not say so.](roadmap/210-instruments-open-features/390-the-suite-needs-python-3-11-and-does-not-say-so.md)
 - ✅ 🔎 [A failed agent notification is a status ccclose does not know, and…](roadmap/210-instruments-open-features/400-a-failed-agent-notification-is-a-status-ccclose-does.md)
-- ✅ [ccmail gains a headers-only read: a message's transport headers…](roadmap/210-instruments-open-features/410-ccmail-reads-transport-headers-without-a-body.md)
+- ✅ [🔧 ccmail gains a headers-only read: a message's transport headers…](roadmap/210-instruments-open-features/410-ccmail-reads-transport-headers-without-a-body.md)
 - [ ] 🔎 [ccrepo prices the 5.5 generation wrong: Haiku 5.5 counts at $0, and…](roadmap/210-instruments-open-features/420-ccrepo-prices-the-5-5-generation-wrong.md)
 - [ ] 🔎 [ccrepo's two cross-checks run over the whole scope when a --repo…](roadmap/210-instruments-open-features/430-ccrepo-cross-checks-ignore-the-repo-filter-unsaid.md)
 
@@ -552,7 +552,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/280-cross-session-channel-mike-commissioned/README.md)*
 
 - ✅ 🎯 [The channel as a concurrency primitive — a new section in…](roadmap/280-cross-session-channel-mike-commissioned/010-the-channel-as-a-concurrency-primitive.md)
-- [ ] [The floor clause has to reach 11 children, and each child adopts it…](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
+- [ ] [🚩 The floor clause has to reach 11 children, and each child adopts it…](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
 - [ ] 🎯 [The channel-section cycle CLOSED 2026-08-17 (0 MAJOR); CH1–CH16 await…](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
 - ✅ [DONE 2026-11-03](roadmap/280-cross-session-channel-mike-commissioned/040-the-channel-can-contaminate-review-independence.md)
 - ✅ 🎯 [Talk first — the channel as a session's first preference, with git…](roadmap/280-cross-session-channel-mike-commissioned/050-talk-first-the-channel-as-first-preference.md)
@@ -574,7 +574,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/300-posture-recover-cheaply-mike-commissioned/README.md)*
 
 - ✅ 🎯 [The posture section, and the fourth requirement it puts on every guard](roadmap/300-posture-recover-cheaply-mike-commissioned/010-the-posture-section-and-the-guard-test.md)
-- ✅ [Re-rank the open guard work against the fourth requirement — and…](roadmap/300-posture-recover-cheaply-mike-commissioned/020-re-rank-the-guard-board-against-the-test.md)
+- ✅ [🚩 Re-rank the open guard work against the fourth requirement — and…](roadmap/300-posture-recover-cheaply-mike-commissioned/020-re-rank-the-guard-board-against-the-test.md)
 - [ ] 🎯 [The census: what would this estate actually NOTICE, and what can it…](roadmap/300-posture-recover-cheaply-mike-commissioned/030-what-would-this-estate-actually-notice.md)
 - [ ] 🎯 [Rule-4 cold pass owed on the posture section and the fourth guard…](roadmap/300-posture-recover-cheaply-mike-commissioned/040-rule-4-cold-pass-queued-the-posture.md)
 
@@ -584,11 +584,11 @@ then `python3 tools/board.py rebuild`.
 
 - ✅ 🎯 [The upstream route, and the two block defects that caused the instance](roadmap/310-pointing-up-the-child-to-parent-route/010-the-pointing-up-route-and-the-two-block-fixes.md)
 - ✅ 🎯 [Nothing enumerates what the estate owes the house — the upstream…](roadmap/310-pointing-up-the-child-to-parent-route/020-nothing-enumerates-what-the-estate-owes-the-house.md)
-- ✅ [Ten children carry both block defects, and each clears them at its…](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
+- ✅ [🚩 Ten children carry both block defects, and each clears them at its…](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
 - [ ] 🎯 [Queue the block-trim finding in cbom — AFTER this cycle's review…](roadmap/310-pointing-up-the-child-to-parent-route/040-queue-the-block-trim-finding-in-cbom-after-the-cycle.md)
 - ✅ [Rule-4 review RUN and RULED (tier: Fable; pass type: doc cold pass) —…](roadmap/310-pointing-up-the-child-to-parent-route/050-rule-4-cold-pass-queued-pointing-up.md)
 - [ ] 🎯 [The board's state vocabulary is too narrow to index work by](roadmap/310-pointing-up-the-child-to-parent-route/060-the-board-state-vocabulary-is-too-narrow-to-index-by.md)
-- [ ] [Two board markers mean different things in a child than they do here,…](roadmap/310-pointing-up-the-child-to-parent-route/070-two-markers-mean-different-things-in-a-child.md)
+- [ ] [🚩 Two board markers mean different things in a child than they do here,…](roadmap/310-pointing-up-the-child-to-parent-route/070-two-markers-mean-different-things-in-a-child.md)
 - [ ] 🔎 [2cd4730 attributes a proposal to Mike that he did not make, and it…](roadmap/310-pointing-up-the-child-to-parent-route/080-a-capture-attributes-a-proposal-to-mike-that-he-did-not-make.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
 - ✅ [The route's three shapes — WRITTEN 2026-08-23](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
@@ -629,7 +629,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🛑 [The block still carries DA1's overturned wording](roadmap/320-child-filed-findings-via-pointing-up/250-the-block-still-carries-the-wording-da1-overturned.md)
 - ✅ 🔎 [The canonical floor block's drift command reads ..HEAD, so a child…](roadmap/320-child-filed-findings-via-pointing-up/260-the-drift-command-pins-a-child-to-whatever-branch-the-parent-is-parked-on.md)
 - [ ] [REPORT — datescan enforces the SHAPE of a date and cannot enforce its…](roadmap/320-child-filed-findings-via-pointing-up/270-datescan-enforces-the-shape-of-a-date-and-cannot-enforce-its-frame.md)
-- [ ] [PROPOSAL, hand-up from faves — a RENDERED board view, offered to…](roadmap/320-child-filed-findings-via-pointing-up/280-proposal-a-rendered-board-view-for-every-repo.md)
+- [ ] [💡 PROPOSAL, hand-up from faves — a RENDERED board view, offered to…](roadmap/320-child-filed-findings-via-pointing-up/280-proposal-a-rendered-board-view-for-every-repo.md)
 - ✅ [Two secretscan defects](roadmap/320-child-filed-findings-via-pointing-up/290-secretscan-reads-published-urls-as-credentials-and-mis-locates-findings-in-paths-with-spaces.md)
 - ✅ 🎯 [A ruling that changes doctrine has no check that the child block's…](roadmap/320-child-filed-findings-via-pointing-up/300-a-ruling-that-moves-doctrine-has-no-check-the-block-copy-moved.md)
 - [ ] 🎯 [Should pathscan block instead of warn?](roadmap/320-child-filed-findings-via-pointing-up/310-should-pathscan-block-instead-of-warn.md)
@@ -719,15 +719,15 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/370-the-report-can-lie-while-the-work-is-fine/README.md)*
 
 - ✅ 🎯 [Decide whether "prefer artefacts over reports" earns a line, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
-- [ ] [The fifth instance is not a report — it is a GUARD, and that is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
-- ✅ [The sixth instance is the checker written to enforce this item, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/030-the-sixth-instance-was-the-checker-written-for-370.md)
+- [ ] [🔑 The fifth instance is not a report — it is a GUARD, and that is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
+- ✅ [🎭 The sixth instance is the checker written to enforce this item, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/030-the-sixth-instance-was-the-checker-written-for-370.md)
 
 ## 🔇 Silence read as an answer — 2026-08-24
 
 *[Narrative](roadmap/380-silence-read-as-an-answer/README.md)*
 
 - ✅ 🎯 [Decide whether "make the instrument show a positive first" earns a…](roadmap/380-silence-read-as-an-answer/010-make-the-instrument-show-a-positive-first.md)
-- [ ] [The second instance is the INVERSE of 010, and it is the more…](roadmap/380-silence-read-as-an-answer/020-a-client-timeout-is-not-evidence-the-server-did-nothing.md)
+- [ ] [🔑 The second instance is the INVERSE of 010, and it is the more…](roadmap/380-silence-read-as-an-answer/020-a-client-timeout-is-not-evidence-the-server-did-nothing.md)
 
 ## Repo relationships beyond the parent/child tree (Mike commissioned, 2026-09-12)
 
