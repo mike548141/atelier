@@ -487,6 +487,8 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [The Python test suite needs 3.11 or later and does not say so.](roadmap/210-instruments-open-features/390-the-suite-needs-python-3-11-and-does-not-say-so.md)
 - ✅ 🔎 [A failed agent notification is a status ccclose does not know, and…](roadmap/210-instruments-open-features/400-a-failed-agent-notification-is-a-status-ccclose-does.md)
 - ✅ [ccmail gains a headers-only read: a message's transport headers…](roadmap/210-instruments-open-features/410-ccmail-reads-transport-headers-without-a-body.md)
+- [ ] 🔎 [ccrepo prices the 5.5 generation wrong: Haiku 5.5 counts at $0, and…](roadmap/210-instruments-open-features/420-ccrepo-prices-the-5-5-generation-wrong.md)
+- [ ] 🔎 [ccrepo's two cross-checks run over the whole scope when a --repo…](roadmap/210-instruments-open-features/430-ccrepo-cross-checks-ignore-the-repo-filter-unsaid.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
