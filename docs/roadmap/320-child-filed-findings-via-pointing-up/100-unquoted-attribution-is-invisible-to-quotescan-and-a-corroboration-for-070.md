@@ -97,3 +97,25 @@
       NP2); the closed personal-data list (`160/630`); edits inside mapped
       sub-sections (`320/340`); a quote of him on commits touching his prompt
       (`160/900`). Plan: `320/810`.
+  - [ ] 🔎 **Precision measured, 2026-11-12 UTC (session d0ca5d24): about one hit in
+        three is real, so `attribscan` must not block as built.** A whole-tree run
+        over all 30 local repositories gave 3,469 findings. A seeded random sample
+        of 200, read with four lines either side by a Sonnet agent and spot-checked
+        by the orchestrator, sorted into: 62 real (an unsourced claim that the
+        principal decided), 82 not an attribution at all, 44 attributions whose
+        evidence the check missed, 7 other, 5 unsure. Precision is about 31%
+        (roughly 25% to 38% at 95%).
+        **What fools it, generically:** a bare "ruled" with no ruler named ("as
+        ruled", "the ruled wording", "ruled out"); a ruling that is pending, not
+        claimed ("awaiting his ruling", "to be ruled on", a "ruling round"
+        heading); evidence it does not recognise (a quote on the line after
+        "verbatim:", a quote past the three-line window, a four-digit board id
+        such as `020/2710`, a repo-prefixed id, a `reviews/` path, an ADR named
+        without its number); a review or brief's own "RULED" verdict; and the
+        body of an ADR, which is itself the record of the decision.
+        **Owed before the blocking date (2027-02-08):** require a principal word in
+        the same sentence as "ruled"; skip pending and negated forms; widen the
+        evidence window to the whole list item and across a blank line after a
+        colon; accept four-digit and repo-prefixed board ids, `reviews/` paths and
+        a bare ADR name; exempt files under `decisions/`. Then re-measure on a
+        fresh sample, and probe the fleet by exit code. Recall was not measured.
