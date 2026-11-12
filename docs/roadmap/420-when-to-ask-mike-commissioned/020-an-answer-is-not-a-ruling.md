@@ -49,3 +49,8 @@
         question are between the classes. His sentence makes them an answer
         unless he says otherwise; `115/270` marks one ⚖️ as his own words. Left
         open in the doctrine text and his to say.
+  - [ ] 💬 **Typed replies, 2026-11-12 UTC.** 💬 Mike's pick, 2026-11-12 UTC, from
+        options session d0ca5d24 offered: "Answer unless I say ruling (Recommended)". An
+        answer, not a ruling.
+        `COMMUNICATION.md` now says so. Still open here: the sweep of old records
+        (one typed reply stands marked ⚖️, `115/270`) and any guard.

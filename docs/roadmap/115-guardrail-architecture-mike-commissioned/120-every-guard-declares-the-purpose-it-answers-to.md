@@ -93,3 +93,9 @@
         **Owed:** groups A to D, Group E's remaining local checks; `reviewed`
         (a verdict reading each cited rule against its check) is what takes
         any rule from `resolves` to `met`.
+  - [ ] 💬 **The allow-marker question is answered, 2026-11-12 UTC.** 💬 Mike's pick,
+        2026-11-12 UTC, from options session d0ca5d24 offered: "Yes, reason required
+        (Recommended)". An answer, not a ruling.
+        A reasoned allow-marker brings the missing context inside the evidence
+        window; `GUARDS.md` § *Before building a check* now says so. Group A is no
+        longer waiting on it.

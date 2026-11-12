@@ -1,4 +1,4 @@
-- [ ] **Hand-up from a private child: leakscan G3 has no form for a binary that
+- [x] **Hand-up from a private child: leakscan G3 has no form for a binary that
       is rebuilt.** Filed 2026-11-09 by a child session, as a suspicion from one
       repo and not a proven defect; the child owes nothing and asks for nothing.
       Waiting on Mike's answer, listed on `420/030`.
@@ -38,3 +38,11 @@
       **Done means** the fleet is measured for generated binaries, Mike has ruled
       on whether any path-scoped form exists, and whichever answer holds is
       written in the G3 block and in `GUARDS.md`.
+  - [x] ✅ **Closed 2026-11-12 UTC.** 💬 Mike's pick, 2026-11-12 UTC, from options
+        session d0ca5d24 offered: "No; fix at source (Recommended)". An answer, not a
+        ruling.
+        No path-scoped entry is built. The G3 block in `tools/leakscan.py` says so.
+        The child already carries its own item to make its render reproducible
+        and retire its digest helper, and that item records the answer. The fleet
+        measurement in "done means" is dropped: with no new form, there is nothing
+        to size.

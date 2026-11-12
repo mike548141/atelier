@@ -1100,7 +1100,10 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 #     BEFORE the ignore file for a binary (Mike's answer, 2026-11-08, 160/980
 #     GM9): a glob never skips G3. The digest is what makes "one-time" true — a
 #     changed binary no longer matches its entry and blocks again, and the
-#     human who re-lists it is looking at the new bytes.
+#     human who re-lists it is looking at the new bytes. There is no
+#     path-scoped or "generated, digest may change" entry, by design: a
+#     generated binary is made reproducible at its source or is not tracked
+#     (320/860; Mike's pick 2026-11-12, "No; fix at source", an answer).
 #   * THE DIGEST is a hex PREFIX of SHA-256, at least 16 characters (64
 #     bits). Full 64 also parses. The printed form is 16 because secretscan's
 #     context-free entropy net reports every 32+ character run as an advisory

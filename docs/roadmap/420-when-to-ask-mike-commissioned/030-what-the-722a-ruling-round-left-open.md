@@ -37,3 +37,13 @@
         - **To be aware of, no answer owed:** the blocking dates on the five warn-first
           checks are this run's choice (`320/810`); and repos should not be moved into
           group folders until the floor and child halves of `320/660` land.
+  - [x] ✅ **Asked and answered 2026-11-12 UTC by session d0ca5d24, one at a time.**
+        All seven of the d0ca5d24 list are answers, not rulings, recorded on their
+        items: board-title fix "Land now + rebuild" (`010/180`); generated binaries
+        "No; fix at source" (`320/860`); allow-markers "Yes, reason required"
+        (`115/120`); the cold passes "Next weekly drain", so `160/1250` to `160/1430`
+        and the earlier set run in the next weekly Fable drain, highest-value first
+        (the floor checks every repo runs), and wait until then; typed replies
+        "Answer unless I say ruling" (`420/020`); commits naming files "Warn, measure
+        first" (`320/060`); `cclive` "Every session at open" (`360/020`). The older
+        lists above are still open.

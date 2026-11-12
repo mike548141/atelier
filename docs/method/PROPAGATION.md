@@ -158,7 +158,9 @@ in atelier and is read on demand — never wholesale.
   (`00-APEX.md` for what an ask must contain; `COMMUNICATION.md` § *Asking for
   a ruling* for how it travels.)
 - **Concurrency:** assume another session may be live — a clean tree is not
-  proof you're alone. At session start read `git status` first — dirty work
+  proof you're alone. At session start run `cclive` where it is installed
+  (every live session, claim and worktree on this machine, about 2 s), and
+  read `git status` first — dirty work
   this session didn't make means stop and move, never autostash it — then,
   where the branch has an upstream, `git pull --rebase --autostash`; push after each
   commit. Take a worktree by default for write-heavy or multi-commit

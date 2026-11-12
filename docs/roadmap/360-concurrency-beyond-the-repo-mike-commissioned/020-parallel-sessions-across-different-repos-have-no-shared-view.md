@@ -40,3 +40,9 @@
         them), dirty state, process inspection, and any shared index or channel
         widening: this adds no new shared state. Cold pass not run here; the
         orchestrator queues it.
+  - [x] 💬 **`cclive` at session open, 2026-11-12 UTC.** 💬 Mike's pick, 2026-11-12 UTC,
+        from options session d0ca5d24 offered: "Every session at open (Recommended)". An
+        answer, not a ruling.
+        Written into `CONCURRENCY.md`, the `session-onramp` skill, the `CLAUDE.md`
+        template and atelier's own `CLAUDE.md`. Children pick up the skill line with
+        the plugin and the template line when their onramp is next restamped.

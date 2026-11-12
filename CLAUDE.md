@@ -21,7 +21,8 @@ private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`
    hygiene means a disciplined parallel session leaves the tree clean between
    commits). Absent that proof, still take a worktree by default for
    write-heavy or multi-commit work; reading needs no ceremony
-   (`docs/method/CONCURRENCY.md` § The trigger).
+   (`docs/method/CONCURRENCY.md` § The trigger). Run `cclive` too: every live
+   session, claim and worktree on this machine, in about two seconds.
 2. `docs/method/00-APEX.md` — the frame everything sits inside.
 3. `README.md` — what atelier is and its layers.
 4. Tail of `docs/SESSIONS.md` — where the last session left off. A last commit

@@ -89,3 +89,9 @@
       the other 16 report one worktree. What would change the reading is a measure of how many of the
       whole-index commits actually swept a peer's path, which no surface records
       today. Blocking it stays his call.
+  - [ ] 💬 **Blocking question answered, 2026-11-12 UTC.** 💬 Mike's pick, 2026-11-12
+        UTC, from options session d0ca5d24 offered: "Warn, measure first (Recommended)". An
+        answer, not a ruling.
+        `sweepscan` stays warn-only with no blocking date. Owed: count how often a
+        whole-index commit really swept up another session's work, then put
+        blocking to him again with that number.

@@ -194,10 +194,14 @@ did not survive. One counter-case disproves it: a check that blocks on a rule
 whose licensing context is outside its window, and keeps its block through its
 corpus with no scope cut. Record it if you meet one.
 
-**Not settled here:** whether an allow-marker counts as bringing the missing
-context inside the window. A person wrote the reason on the line the guard
-reads, which says yes; a check needing many markers has only moved its cost to
-the writer, which says no. The census under `115/120` carries this as open.
+**A reasoned allow-marker counts as bringing the missing context inside the
+window.** A person wrote the reason on the line the guard reads, so a check may
+enforce a rule whose licensing context only a person can supply, provided the
+marker carries its reason; a bare marker exempts nothing. The cost the other
+reading named still holds: a check that needs many markers has moved its cost
+to the writer, and that shows in its corpus before it may block. (Mike's pick,
+2026-11-12 UTC, from options a session offered: "Yes, reason required
+(Recommended)". An answer, not a ruling; `115/120`.)
 
 **Necessary, not sufficient.** This says when to accept a proxy for a rule. It
 says nothing about testing the proxy once accepted, which is the next section.

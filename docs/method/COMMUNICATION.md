@@ -262,22 +262,21 @@ live instance's ceiling is four questions, with two to four options apiece.
 That is what the tool permits; the practice is one question at a time, in his
 words below. The apex account routinely outgrows the device, and a session
 cannot see which display mode the principal's harness is in. So the rule has
-no branch: **the account always goes in a finished message of its own, ahead of
-the device, in every view; that message ends its turn, and the device opens the
-next and carries the choice alone.** That costs one
-extra turn on every ask, stated plainly because it is the price of a rule a
-session can actually follow (focus mode, for one, shows only a turn's final
-message, so the same-reply form leaves the device up with no account beside
-it). The account is never trimmed to fit the widget: that is an approval
-extracted by withholding, which the apex already forbids. (Reworded twice.
-First from "on screen while the principal decides", on the principal's ruling,
-2026-08-23, when the cold pass showed that spelling false in a live display
-mode. Then from "same reply in the plain case, finished message where the
-display mode hides mid-turn text", on Mike's pick from options offered,
-2026-11-09, `160/270`: *"Always, as two steps"*, an answer and not a ruling in
-his words. The cold pass found that no session can observe the display mode, so
-the plain case was the printed default and reproduced the shape it was meant to
-cure.)
+no branch: **the account is always written out as text first, then the device
+carries the choice alone, in the same turn.** The session does not end its turn
+between them and wait to be prompted: Mike, 2026-11-12, verbatim, to a session
+that did, *"You keep stopping - user AskUserQuestion as I've ruled in the
+doctrine you hold"* (`420/040`). The account is never trimmed to fit the widget:
+that is an approval extracted by withholding, which the apex already forbids.
+(Reworded three times. First from "on screen while the principal decides", on
+the principal's ruling, 2026-08-23, when the cold pass showed that spelling
+false in a live display mode. Then from "same reply in the plain case, finished
+message where the display mode hides mid-turn text", on Mike's pick from options
+offered, 2026-11-09, `160/270`: *"Always, as two steps"*, an answer and not a
+ruling in his words. The cold pass found that no session can observe the display
+mode, so the plain case was the printed default and reproduced the shape it was
+meant to cure. Then on his 2026-11-12 words above: the two steps are text then
+device, not two turns.)
 
 **Where no device exists** — a non-interactive run, a scheduled batch, a
 harness without one — the ask is prose and carries exactly the same content.
@@ -380,11 +379,12 @@ shape the board's 2026-11-09 records already take. A pick is never written as
 asked to make; what the device brings back is still an answer. Both marks were
 in use before this defined them, and older ⚖️ lines also tag a session's own
 weighed note, so a ⚖️ dated earlier proves nothing by itself. Words he types in
-reply to a session's question are the case between, and the record goes both
-ways: his sentence makes an answer no ruling unless he says otherwise, and one
-such reply stands marked ⚖️ (`115/270`). That is not settled here, so quote them
-and say they answered a question. The sweep of old records and any guard are the
-open parts of `420/020`.
+reply to a session's question are an **answer** unless he says they are a
+ruling: quote them, mark them 💬, and say they answered a question. (Mike's
+pick, 2026-11-12 UTC, from options a session offered: "Answer unless I say
+ruling (Recommended)". An answer, not a ruling, and it matches his 2026-10-03
+words above.) One older reply stands marked ⚖️ (`115/270`); the sweep of old
+records and any guard are the open parts of `420/020`.
 
 ## When to ask — an ask stops the run, so say what the rest does meanwhile
 

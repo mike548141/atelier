@@ -390,6 +390,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: namescan, private names in branch names and…](roadmap/160-doctrine-review-owed/1410-rule-4-cold-pass-queued-namescan.md)
 - [ ] ⏳ [Rule-4 cold pass queued: quotescan, a quote of the principal on…](roadmap/160-doctrine-review-owed/1420-rule-4-cold-pass-queued-quotescan.md)
 - [ ] ⏳ [Rule-4 cold pass queued: every check states its five declaration…](roadmap/160-doctrine-review-owed/1430-rule-4-cold-pass-queued-check-declarations-step-0.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the doctrine edits that record the…](roadmap/160-doctrine-review-owed/1440-rule-4-cold-pass-queued-the-2026-11-12-answers.md)
 
 ## build/ layer — open strands
 
@@ -687,7 +688,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Hand-up: a dangling section citation in RECORD.md, and a count that…](roadmap/320-child-filed-findings-via-pointing-up/830-two-small-doctrine-defects-a-dangling-section-and-a-miscount.md)
 - ✅ [Hand-up from a private child: secretscan calls a marker "naming no…](roadmap/320-child-filed-findings-via-pointing-up/840-hand-up-secretscan-finding-name-and-rule-list-disagree.md)
 - ✅ [Hand-up from a private child: leakscan's nz-phone rule fires on…](roadmap/320-child-filed-findings-via-pointing-up/850-hand-up-leakscan-nz-phone-fires-on-bracketed-hex-byte-strings.md)
-- [ ] [Hand-up from a private child: leakscan G3 has no form for a binary…](roadmap/320-child-filed-findings-via-pointing-up/860-hand-up-g3-has-no-form-for-a-generated-binary.md)
+- ✅ [Hand-up from a private child: leakscan G3 has no form for a binary…](roadmap/320-child-filed-findings-via-pointing-up/860-hand-up-g3-has-no-form-for-a-generated-binary.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
@@ -755,6 +756,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [An ask stops the whole run — decide when a session asks, and what it…](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
 - [ ] 🎯 [An answer to a session's question is not a ruling. Records must tell…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
 - [ ] 🎯 [What the 2026-11-09 ruling round left open.](roadmap/420-when-to-ask-mike-commissioned/030-what-the-722a-ruling-round-left-open.md)
+- ✅ [The two-step ask stalled the walk-through between questions.](roadmap/420-when-to-ask-mike-commissioned/040-the-two-step-ask-stalled-the-run-between-questions.md)
 
 ## Review quality is never traded for budget (Mike commissioned, 2026-10-04)
 

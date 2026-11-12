@@ -40,7 +40,10 @@ the ladder.
 ## 2. The always-confirm floor
 
 Before you act, read `docs/method/AUTONOMY.md` § *Always confirm*: the one list
-of what you stop and confirm, which this skill no longer restates.
+of what you stop and confirm, which this skill no longer restates. Then run
+`cclive` where it is installed: it shows every live session, claim and worktree
+on this machine, so you know who else is working before you touch anything
+(`docs/method/CONCURRENCY.md` § *Beyond the repo*).
 
 ## 3. Then read on demand
 

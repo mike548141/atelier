@@ -204,7 +204,10 @@ collision is often not there: a long job on a shared host, a file rewritten on a
 remote machine, a rate-limited login. None of it shows in `git status`, and a
 clean tree says nothing about who is holding a multi-hour job. `cclive`
 (`instruments/cclive`) shows the part that is on this machine: every repo's
-claims, worktrees and live sessions, in one view at session open. Two cheap rules
+claims, worktrees and live sessions, in one view, and **every session runs it at
+open**, where it is installed (Mike's pick, 2026-11-12 UTC, from options a
+session offered: "Every session at open (Recommended)"; an answer, not a
+ruling). Two cheap rules
 cover most of the rest. (Approved 2026-11-09, `360/010`, as Mike's pick from options
 offered, not a ruling in his words; the evidence is the 2026-08-23 incident
 the item records.)
