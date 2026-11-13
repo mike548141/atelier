@@ -757,6 +757,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [An answer to a session's question is not a ruling. Records must tell…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
 - [ ] 🎯 [What the 2026-11-09 ruling round left open.](roadmap/420-when-to-ask-mike-commissioned/030-what-the-722a-ruling-round-left-open.md)
 - ✅ [The two-step ask stalled the walk-through between questions.](roadmap/420-when-to-ask-mike-commissioned/040-the-two-step-ask-stalled-the-run-between-questions.md)
+- [ ] [The floor's Asking bullet still says "(one extra turn)".](roadmap/420-when-to-ask-mike-commissioned/050-the-floor-still-says-one-extra-turn.md)
 
 ## Review quality is never traded for budget (Mike commissioned, 2026-10-04)
 
