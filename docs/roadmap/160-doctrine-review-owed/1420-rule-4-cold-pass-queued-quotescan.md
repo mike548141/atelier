@@ -8,3 +8,9 @@
       *Delta, scoped to paths:* `tools/quotescan.py`, `tools/test_quotescan.py`, its registry entry in `tools/floor.py`, the `--messages` mode in `tools/leakscan.py` and its test — the commits that add them, on `main`.
       *Questions worth the pass's time:* whether any quotation marks at all satisfy it; whether `--messages` reports only its own findings and stays read-only.
       *Intent record:* `160/900`, `320/810`, `320/550`.
+      📝 BRIEF WRITTEN 2026-11-14 by session 5b3a35e9 (Opus 5.5), a headless
+      brief-writer started by an estate health sweep, orchestrator session
+      58027096: `docs/reviews/2026-11-14-0322-quotescan-and-leakscan-messages-cold.md`,
+      with its `.deferred.md` sibling. Neither session may run the pass. Review NOT
+      run. The pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work.
