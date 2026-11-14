@@ -16,3 +16,10 @@
       should not; whether "where it is installed" leaves a session on another
       machine with a clear step.
       *Intent record:* `420/030`, `420/040`, `115/120`, `360/020`.
+      *Review:* brief written 2026-11-14 UTC by a headless brief-writer (session `ce039b89`,
+      started by an estate health sweep, orchestrator session `58027096`; neither wrote the
+      delta): `docs/reviews/2026-11-14-0300-the-2026-11-12-answers-cold.md`, with its
+      `.deferred.md` sibling. The delta is one commit, `2a6d7a41`, pinned; nothing on its paths
+      has moved since. Pass size: small. Review NOT run: it waits for a criterion-passing cold
+      Fable session and the principal's explicit permission for Fable work. Neither named
+      session may run it.
