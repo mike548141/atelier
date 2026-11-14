@@ -1,0 +1,36 @@
+{
+  "_comment": "ccfleet config. Every value here is fictional. Keep your real one outside any public repo: it names your repos and carries your principal's words.",
+  "kit_dir": "~/fleet-kit",
+  "repos_root": "~/src",
+  "worktrees_root": "~/worktrees/fleet",
+  "default_model": "claude-sonnet-5-5",
+  "claude_bin": "claude",
+  "claude_args": ["--dangerously-skip-permissions"],
+  "nice": 5,
+  "max_concurrent": 4,
+  "stagger_seconds": 90,
+  "gate": {"max_load": 24, "min_mem_pct": 25, "min_disk_gb": 20},
+  "reset_utc": "2030-01-06T23:00",
+  "private_names": ["example-private-root", "example-client"],
+  "vars": {
+    "ASK": "\"Bring every repo up to a healthy state.\" (the principal's words, quoted verbatim from your own record)",
+    "RULINGS_FILE": "~/private/rulings.md",
+    "ATELIER": "~/src/atelier",
+    "REVIEW_APPROVAL": "No review-tier work is approved for this run."
+  },
+  "repos": {
+    "example-app": {"model": "claude-sonnet-5-5", "visibility": "private",
+                    "notes": "CI was red on the lint job at the last sweep."},
+    "example-docs": {"model": "claude-opus-5-5", "visibility": "public",
+                     "notes": "Public: everything written here is published."},
+    "example-infra": {"model": "claude-opus-5-5", "visibility": "private", "branch": "master",
+                      "notes": "Mainline is master. Reads of live systems only; no writes."}
+  },
+  "pass_prompt": "~/src/atelier/skills/review-drain/orchestrator-prompt.md",
+  "pass_model": "claude-opus-5-5",
+  "queue": {
+    "next": ["python3", "~/private/review_queue.py", "next", "--skip-file", "{LAUNCHED}"],
+    "take": ["python3", "~/private/review_queue.py", "take", "{REPO}:{ITEM}", "--by", "{BY}", "--brief", "{BRIEF}"],
+    "release": ["python3", "~/private/review_queue.py", "release", "{REPO}:{ITEM}", "--by", "{BY}"]
+  }
+}

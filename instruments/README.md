@@ -26,6 +26,7 @@ standard-library Python); each documents its own runtime.
 | `ccmail`        | extend    | Open the Gmail attachments the mailbox connector can only *name* — it lists filenames and attachment ids but has no call that returns bytes. Fetches them to disk with its own read-only grant so the ordinary Read tool can open them. `--headers` writes a message's transport headers alone (no body, no subject), to measure a mail route without reading the mail. |
 | `ccpdf`         | extend    | A PDF page renderer built on macOS's own PDFKit, installed as `pdftoppm` — the binary Claude Code's file reader shells out to. Without it, a PDF on disk is still unreadable. |
 | `ccapple`       | extend    | Read-only search of the Apple apps' local stores on a Mac — Contacts, Messages, Calendar, Reminders, Notes, Photos and the Home layout — which a session otherwise cannot reach, because the apps are GUI-only. Opens each SQLite store read-only and immutable, refuses to run without a filter, caps every search, never decrypts a locked note and never selects a credential column. Standard-library Python. |
+| `ccfleet`       | extend    | Runs headless Claude Code sessions across a fleet of repos, each one started inside a worktree whose basename is its repo, so per-repo cost tools bill the repo it was for (an Agent subagent bills its parent's). A load-, memory- and disk-gated driver starts jobs one at a time (`drive`, optionally one per repo at a time), or keeps review passes running from the adopter's own queue (`drain`, `resume`). Every estate value (repo list, notes, tiers, the principal's words, reset time) comes from a private JSON config; `ccfleet.example.json` is a fictional one. Refuses a public repo's prompt that names a configured private name. The `fleet-sweep` and `review-drain` skills drive it. Standard-library Python. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
 The Node CLIs are converging on a concise `-h`/`--help` digest plus a fuller
@@ -114,8 +115,9 @@ It symlinks each CLI into `~/.local/bin` and each `man/*.1` page into
 `~/.local/share/man/man1` (auto-found by `man` because `~/.local/bin` is on
 `PATH`), so `man ccarchive` works after install.
 
-Requirements: `node` on `PATH` (any recent LTS) for all of them except `ccapple`,
-which needs `python3` (3.8 or later) and nothing else. `ccrepo`
+Requirements: `node` on `PATH` (any recent LTS) for all of them except `ccapple`
+and `ccfleet`, which need `python3` (3.8 or later) and nothing else (`ccfleet`
+also needs `git`, and uses `gh` when a repo's visibility is not in its config). `ccrepo`
 computes cost itself from the logs, but uses `ccusage` (`npx ccusage` or a global
 install) for its reconciliation cross-check — skip it with `--no-reconcile` if
 ccusage isn't present. If `~/.local/bin` isn't on your `PATH`, the installer

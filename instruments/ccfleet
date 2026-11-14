@@ -1,0 +1,702 @@
+#!/usr/bin/env python3
+"""ccfleet -- run headless Claude Code sessions across a fleet of repos, each
+one billed to its own repo, started only while the machine has headroom.
+
+Why it exists: per-repo cost tools (`ccrepo`) label usage by the session's
+working-directory basename. A subagent started with the Agent tool runs in its
+parent's directory, so work done "for" another repo by an Agent subagent bills
+the orchestrator's repo, not the repo it was for. The fix is structural: each
+repo's work runs as its own `claude -p` session started INSIDE a worktree of
+that repo whose basename is the repo name. Doing that by hand for a dozen repos,
+without crashing the machine, is what this instrument does.
+
+THE LESSONS IT CARRIES (each one paid for in a real run):
+  * `claude -p` is always started with stdin from /dev/null. Without it a
+    "no stdin" warning lands in the JSON log and the result cannot be parsed.
+  * Every launch names its model (`--model`). A launch without one silently
+    inherits the default tier; tools/modelguard.py blocks such launches.
+  * The worktree's basename is the repo name, under a per-job parent directory
+    (`<worktrees_root>/<label>-<HHMM>/<repo>`). That basename is the billing key.
+  * Never repo work as an Agent subagent of the orchestrator (see above).
+  * A public repo's prompt never names a private repo. Rendering refuses to
+    launch a prompt for a public (or unknown-visibility) repo that contains any
+    configured private name. The guard is a literal match, so it catches the
+    names you list and nothing you forgot to list.
+  * This is Python, not zsh, on purpose: zsh reads a script as it runs, so
+    editing a driver script mid-run broke every running job's tail. Python
+    compiles the whole file at start, so a running driver is immune; a job
+    started after an edit runs the edited copy.
+  * Start one job at a time, staggered, and only while load, free memory and
+    free disk all have headroom: parallel test runs inside headless sessions
+    have taken a 16 GB laptop past load 100. Workers run their own tests
+    niced and single-process; say so in the prompt.
+  * A run past a usage limit ends with no RESULT line (read as UNKNOWN). The
+    drain stops after three unclean ends in a row, which is how a spent budget
+    shows up from outside.
+  * A `touch <kit_dir>/stop` ends launching cleanly; running jobs finish.
+
+Usage:
+  ccfleet check                       validate the config and print what it resolves to
+  ccfleet gate                        print the headroom reading; exit 0 if a start may go now
+  ccfleet run REPO --prompt FILE [--label L] [--model M] [--set K=V ...] [--keep] [--in WT] [--dry-run]
+  ccfleet drive JOBS [--max N] [--serial-per-repo] [--dry-run]
+  ccfleet drain [--max N] [--dry-run]
+  ccfleet pass REPO ITEM BRIEF [--dry-run]      one drain pass (drain starts these)
+  ccfleet resume REPO WORKTREE SESSION --prompt FILE [--item ITEM] [--set K=V ...]
+  common: --config PATH (else $CCFLEET_CONFIG)  --by ID (else $CCFLEET_BY): the
+  orchestrating session's id, filled into prompts as {BY}.
+
+JOBS is a TSV file, one job per line: repo, label, prompt template, then any
+number of KEY=VALUE fields that fill {KEY} in that template (MODEL=<id> sets the
+model; a value written @file:PATH takes that file's text, for a multi-line task). '#' lines and blank lines are skipped. A job whose result file for today
+already exists is skipped, so re-running a drive resumes it.
+
+CONFIG is JSON (see instruments/ccfleet.example.json, every value fictional):
+  kit_dir         logs/, results/<date>/, scratch/<repo>/, the stop file   (required)
+  repos_root      primary checkouts live at <repos_root>/<repo>          (required)
+  worktrees_root  job worktrees go under here                            (required)
+  default_model   the model a job runs on when neither job nor repo names one (required)
+  claude_bin      default "claude";   claude_args  extra args, e.g. a permission mode
+  nice            default 5;  max_concurrent  default 4;  stagger_seconds  default 90;  poll_seconds 30
+  gate            {max_load (default 2 x cores), min_mem_pct 25, min_disk_gb 20}
+  reset_utc       "YYYY-MM-DDTHH:MM": no new start at or after it (a budget reset)
+  private_names   names a public repo's prompt must never contain
+  vars            template variables for every job (the principal's words, paths)
+  repos           {name: {model, notes, visibility, github}}  per-repo facts
+  queue           drain only: {next, take, release} argv lists (see below)
+  pass_prompt     drain only: the per-pass orchestrator prompt template
+  pass_model      drain only: the orchestrator's model (the reviewer's tier is the prompt's business)
+
+THE QUEUE INTERFACE (drain). The review queue itself is the adopter's own tool;
+ccfleet only calls it. Each entry is an argv list; {REPO} {ITEM} {BRIEF} {BY}
+{WT} {LOG} are filled in before the call.
+  next     prints "REPO ITEM BRIEF_RELPATH" for the next pass to run, or nothing
+           when the queue is empty. It is called with the launched list's path
+           in {LAUNCHED} (one "REPO ITEM BRIEF" per line) so it can skip them.
+  take     claims the pass; a nonzero exit means someone else holds it (skip).
+  release  frees the claim after a pass ends DONE or SKIPPED.
+
+Template variables always filled: {REPO} {GH} {BR} {VIS} {PIN} {WT} {PRIMARY}
+{LANDING} {NOTES} {SCRATCH} {BY} {DATE}, plus config `vars`, plus the job's own.
+A {UPPER_CASE} placeholder left unfilled is a refusal, not a silent gap.
+
+Exit codes: 0 ran (the session's own verdict is in its END line and result
+file) · 1 setup failed · 2 claim refused · 3 reset reached · 4 queue empty ·
+5 refused by the private-name guard or an unfilled placeholder · 64 usage.
+Runtime: Python 3.8 or later, standard library only; git on PATH; gh optional
+(visibility lookup when a repo's config does not state it).
+"""
+import argparse
+import datetime as dt
+import json
+import os
+import re
+import shutil
+import signal
+import subprocess
+import sys
+import time
+
+EXIT_SETUP, EXIT_CLAIM, EXIT_RESET, EXIT_EMPTY, EXIT_GUARD, EXIT_USAGE = 1, 2, 3, 4, 5, 64
+PLACEHOLDER = re.compile(r"\{([A-Z][A-Z0-9_]*)\}")
+RESULT_RX = re.compile(r"RESULT:\s*\**\s*([A-Z]+(?: [A-Z]+)?)")
+
+
+class Refusal(Exception):
+    def __init__(self, code, msg):
+        super().__init__(msg)
+        self.code = code
+
+
+def now_utc():
+    return dt.datetime.now(dt.timezone.utc)
+
+
+def expand(p):
+    return os.path.abspath(os.path.expanduser(p)) if p else p
+
+
+# ---------- config ----------
+
+def load_config(path):
+    path = path or os.environ.get("CCFLEET_CONFIG")
+    if not path:
+        raise Refusal(EXIT_USAGE, "no config: pass --config PATH or set CCFLEET_CONFIG")
+    with open(expand(path), encoding="utf-8") as f:
+        cfg = json.load(f)
+    missing = [k for k in ("kit_dir", "repos_root", "worktrees_root", "default_model") if not cfg.get(k)]
+    if missing:
+        raise Refusal(EXIT_USAGE, f"config {path}: missing {', '.join(missing)}")
+    for k in ("kit_dir", "repos_root", "worktrees_root"):
+        cfg[k] = expand(cfg[k])
+    cfg.setdefault("claude_bin", "claude")
+    cfg.setdefault("claude_args", [])
+    cfg.setdefault("nice", 5)
+    cfg.setdefault("max_concurrent", 4)
+    cfg.setdefault("stagger_seconds", 90)
+    cfg.setdefault("poll_seconds", 30)
+    gate = cfg.setdefault("gate", {})
+    gate.setdefault("max_load", 2 * (os.cpu_count() or 4))
+    gate.setdefault("min_mem_pct", 25)
+    gate.setdefault("min_disk_gb", 20)
+    cfg.setdefault("private_names", [])
+    cfg.setdefault("vars", {})
+    cfg.setdefault("repos", {})
+    return cfg
+
+
+def reset_reached(cfg, at=None):
+    r = cfg.get("reset_utc")
+    if not r:
+        return False
+    when = dt.datetime.strptime(r, "%Y-%m-%dT%H:%M").replace(tzinfo=dt.timezone.utc)
+    return (at or now_utc()) >= when
+
+
+# ---------- headroom gate ----------
+
+def read_mem_pct():
+    """Free memory as a percentage, or None when it cannot be read."""
+    if sys.platform == "darwin":
+        try:
+            out = subprocess.run(["memory_pressure", "-Q"], capture_output=True, text=True, timeout=20).stdout
+            m = re.search(r"free percentage:\s*(\d+)", out)
+            return int(m.group(1)) if m else None
+        except (OSError, subprocess.SubprocessError):
+            return None
+    try:
+        info = {}
+        with open("/proc/meminfo") as f:
+            for line in f:
+                k, v = line.split(":", 1)
+                info[k] = int(v.split()[0])
+        return int(100 * info["MemAvailable"] / info["MemTotal"])
+    except (OSError, KeyError, ValueError):
+        return None
+
+
+def read_headroom(cfg):
+    l1, l5, l15 = os.getloadavg()
+    probe = cfg["worktrees_root"]
+    while not os.path.exists(probe):
+        probe = os.path.dirname(probe)
+    disk_gb = shutil.disk_usage(probe).free // 2**30
+    return {"load": (l1, l5, l15), "mem_pct": read_mem_pct(), "disk_gb": disk_gb}
+
+
+def gate_ok(gate, reading):
+    """A start may go only when every reading has headroom. An unreadable
+    memory figure holds (fail closed) unless min_mem_pct is 0."""
+    l1, l5, _ = reading["load"]
+    if l1 >= gate["max_load"] or l5 >= gate["max_load"]:
+        return False
+    if gate["min_mem_pct"] > 0 and (reading["mem_pct"] is None or reading["mem_pct"] < gate["min_mem_pct"]):
+        return False
+    return reading["disk_gb"] >= gate["min_disk_gb"]
+
+
+def describe(reading):
+    l = reading["load"]
+    mem = "?" if reading["mem_pct"] is None else reading["mem_pct"]
+    return f"load {l[0]:.1f}/{l[1]:.1f}/{l[2]:.1f} mem {mem}% disk {reading['disk_gb']}G"
+
+
+# ---------- git facts ----------
+
+def git(*args, cwd=None, check=True):
+    r = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
+    if check and r.returncode != 0:
+        raise Refusal(EXIT_SETUP, f"git {' '.join(args)}: {r.stderr.strip()}")
+    return r.stdout.strip()
+
+
+def repo_facts(cfg, repo, fetch=True):
+    primary = os.path.join(cfg["repos_root"], repo)
+    if not os.path.isdir(os.path.join(primary, ".git")) and not os.path.isfile(os.path.join(primary, ".git")):
+        raise Refusal(EXIT_SETUP, f"not a git checkout: {primary}")
+    rc = cfg["repos"].get(repo, {})
+    remote = git("remote", "get-url", "origin", cwd=primary, check=False)
+    facts = {"primary": primary, "remote": bool(remote)}
+    if remote:
+        if fetch:
+            git("fetch", "-q", "origin", cwd=primary)
+        # Not every repo's mainline is main.
+        ref = git("symbolic-ref", "--short", "refs/remotes/origin/HEAD", cwd=primary, check=False)
+        facts["defref"] = ref or "origin/main"
+        facts["branch"] = facts["defref"].split("/", 1)[1]
+        m = re.search(r"github\.com[:/](.+?)(?:\.git)?$", remote)
+        facts["gh"] = rc.get("github") or (m.group(1) if m else remote)
+    else:
+        facts["defref"] = facts["branch"] = rc.get("branch", "main")
+        facts["gh"] = rc.get("github", "(no remote)")
+    vis = rc.get("visibility")
+    if not vis and remote and shutil.which("gh") and fetch:
+        r = subprocess.run(["gh", "repo", "view", facts["gh"], "--json", "visibility", "-q", ".visibility"],
+                           capture_output=True, text=True)
+        vis = r.stdout.strip() if r.returncode == 0 else None
+    facts["visibility"] = (vis or "UNKNOWN").upper()
+    return facts
+
+
+def landing_text(facts, wt, branch_name=None):
+    if facts["remote"]:
+        b = facts["branch"]
+        return (f"Land each commit with `git -C '{wt}' pull --rebase origin {b}` then "
+                f"`git -C '{wt}' push origin HEAD:{b}` (unless this repo's CLAUDE.md requires "
+                f"a PR; then open one and say so).")
+    return (f"This repo has NO remote; local {facts['branch']} is the mainline and your worktree is on "
+            f"branch {branch_name}. Instead of pull/push: `git -C '{wt}' rebase {facts['branch']}`, then land "
+            f"with `git -C '{facts['primary']}' merge --ff-only {branch_name}` against the primary checkout "
+            f"(only while it is on {facts['branch']}; if the merge refuses over uncommitted changes there, "
+            f"wait and retry, never stash or absorb them). Never `git push`.")
+
+
+# ---------- prompt rendering ----------
+
+def render(template, values):
+    out = PLACEHOLDER.sub(lambda m: str(values[m.group(1)]) if m.group(1) in values else m.group(0), template)
+    left = sorted(set(PLACEHOLDER.findall(out)))
+    return out, left
+
+
+def private_hits(cfg, text, visibility):
+    """Private names in a prompt bound for a public or unknown-visibility repo."""
+    if visibility == "PRIVATE":
+        return []
+    names = set(cfg["private_names"])
+    names |= {r for r, rc in cfg["repos"].items() if str(rc.get("visibility", "")).upper() == "PRIVATE"}
+    return sorted(n for n in names if re.search(r"(?<![\w-])" + re.escape(n) + r"(?![\w-])", text, re.I))
+
+
+def build_prompt(cfg, template_path, values):
+    with open(expand(template_path), encoding="utf-8") as f:
+        text, left = render(f.read(), values)
+    if left:
+        raise Refusal(EXIT_GUARD, f"unfilled placeholder(s) in {template_path}: {', '.join('{'+k+'}' for k in left)}")
+    hits = private_hits(cfg, text, values.get("VIS", "UNKNOWN"))
+    if hits:
+        raise Refusal(EXIT_GUARD, f"refused: the prompt for {values.get('REPO')} ({values.get('VIS')}) names "
+                                  f"private name(s) {', '.join(hits)}")
+    return text
+
+
+# ---------- one session ----------
+
+def harvest(log_path):
+    """(result text, session id, RESULT word) from a `claude -p --output-format json` log."""
+    try:
+        with open(log_path, encoding="utf-8", errors="replace") as f:
+            s = f.read()
+    except OSError:
+        return "", "", "UNKNOWN"
+    try:
+        j = json.loads(s[s.index("{"):])
+        text, sid = j.get("result", "") or "", j.get("session_id", "") or ""
+    except (ValueError, AttributeError):
+        text, sid = s[-4000:], ""
+    found = RESULT_RX.findall(text)
+    return text, sid, (found[-1] if found else "UNKNOWN")
+
+
+def stamp_dir(root, label):
+    stamp = now_utc().strftime("%H%M")
+    parent = os.path.join(root, f"{label}-{stamp}")
+    if os.path.exists(parent):
+        parent += now_utc().strftime("%S")
+    return parent
+
+
+def session_argv(cfg, model, prompt, resume=None):
+    argv = []
+    if cfg["nice"]:
+        argv += ["nice", "-n", str(cfg["nice"])]
+    argv += [cfg["claude_bin"], "-p"]
+    if resume:
+        argv += ["--resume", resume]
+    argv += ["--model", model, *cfg["claude_args"], "--output-format", "json", prompt]
+    return argv
+
+
+def launch(cfg, argv, cwd, log):
+    # stdin from /dev/null, always: see the module docstring.
+    with open(log, "w") as out, open(log + ".err", "w") as err:
+        return subprocess.run(argv, cwd=cwd, stdin=subprocess.DEVNULL, stdout=out, stderr=err).returncode
+
+
+def read_at_file(v):
+    """A variable written `@file:PATH` takes the file's text (a multi-line task)."""
+    if isinstance(v, str) and v.startswith("@file:"):
+        with open(expand(v[6:]), encoding="utf-8") as f:
+            return f.read().rstrip("\n")
+    return v
+
+
+def safe(s):
+    return re.sub(r"[^A-Za-z0-9._-]+", "-", s).strip("-")
+
+
+def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown",
+            dry=False, keep=False, pre=None, post=None, check_file=None, existing=None):
+    """Make the worktree, render, launch, harvest, clean up. Returns (exit, RESULT word)."""
+    if reset_reached(cfg):
+        print(f"RESET reached; not starting {label or repo}")
+        return EXIT_RESET, "RESET"
+    extra = {k: read_at_file(v) for k, v in (extra or {}).items()}
+    model = model or extra.pop("MODEL", None) or cfg["repos"].get(repo, {}).get("model") or cfg["default_model"]
+    label = safe(label or repo)
+    facts = repo_facts(cfg, repo, fetch=not dry)
+    day = now_utc().strftime("%Y-%m-%d")
+    wt = expand(existing) if existing else os.path.join(stamp_dir(cfg["worktrees_root"], label), repo)
+    if existing and (os.path.basename(wt) != repo or not os.path.isdir(wt)):
+        # The basename is the billing key: a session in a differently named
+        # directory would bill some other label.
+        raise Refusal(EXIT_SETUP, f"--in must be an existing worktree whose basename is {repo}: {wt}")
+    keep = keep or bool(existing)  # an adopted worktree is the caller's to remove
+    kit = cfg["kit_dir"]
+    logs, results, scratch = (os.path.join(kit, "logs"), os.path.join(kit, "results", day),
+                              os.path.join(kit, "scratch", safe(repo)))
+    log = os.path.join(logs, os.path.basename(os.path.dirname(wt))
+                       + (f"-in-{now_utc():%H%M%S}" if existing else "") + ".json")
+    branch_name = None if (facts["remote"] or existing) else f"fleet/{label}-{now_utc().strftime('%H%M%S')}"
+    values = {**{k: str(v) for k, v in cfg["vars"].items()}, **{k: str(v) for k, v in extra.items()},
+              "REPO": repo, "GH": facts["gh"], "BR": facts["branch"], "VIS": facts["visibility"],
+              "WT": wt, "PRIMARY": facts["primary"], "LANDING": landing_text(facts, wt, branch_name),
+              "NOTES": cfg["repos"].get(repo, {}).get("notes", "none"), "SCRATCH": scratch + "/",
+              "BY": by, "DATE": day}
+    values.setdefault("PIN", "")
+    prompt = build_prompt(cfg, template, values)
+    argv = session_argv(cfg, model, prompt)
+    if dry:
+        print(f"DRY {repo} model={model} vis={facts['visibility']} wt={wt}")
+        print(f"DRY worktree add from {facts['defref']}; log={log}")
+        print("DRY argv: " + " ".join(argv[:-1]) + f" <prompt {len(prompt)} chars> < /dev/null")
+        return 0, "DRY"
+    for d in (logs, results, scratch, os.path.dirname(wt)):
+        os.makedirs(d, exist_ok=True)
+    if existing:
+        pass
+    elif facts["remote"]:
+        git("worktree", "add", "-q", "--detach", wt, facts["defref"], cwd=facts["primary"])
+    else:
+        git("worktree", "add", "-q", "-b", branch_name, wt, facts["branch"], cwd=facts["primary"])
+
+    def cleanup():
+        git("worktree", "remove", "--force", wt, cwd=facts["primary"], check=False)
+        try:
+            os.rmdir(os.path.dirname(wt))
+        except OSError:
+            pass
+        if branch_name:
+            git("branch", "-d", branch_name, cwd=facts["primary"], check=False)
+
+    if check_file and not os.path.isfile(os.path.join(wt, check_file)):
+        print(f"not on {facts['defref']}: {check_file}")
+        cleanup()
+        return EXIT_SETUP, "UNKNOWN"
+    if pre:
+        code = pre(values, log)
+        if code:
+            cleanup()
+            return code, "UNKNOWN"
+    print(f"START {now_utc():%Y-%m-%dT%H:%M:%SZ} {label} model={model} wt={wt} log={log}", flush=True)
+    rc = launch(cfg, argv, wt, log)
+    text, sid, result = harvest(log)
+    out = os.path.join(results, f"{label}.md")
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(f"<!-- session {sid} -->\n{text}\n")
+    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={sid} out={out}", flush=True)
+    finished = result in ("DONE", "SKIPPED")
+    if post:
+        post(values, finished, sid)
+    if not keep and (finished or not post):
+        cleanup()
+    return 0, result
+
+
+# ---------- drivers ----------
+
+class DriverLock:
+    """One driver per kit_dir: two drivers would each think they own the slots."""
+
+    def __init__(self, kit):
+        self.path = os.path.join(kit, "driver.pid")
+
+    def __enter__(self):
+        if os.path.exists(self.path):
+            try:
+                with open(self.path) as f:
+                    pid = int(f.read().strip())
+                os.kill(pid, 0)
+                raise Refusal(EXIT_SETUP, f"another driver (pid {pid}) is running on this kit_dir")
+            except (ValueError, ProcessLookupError):
+                pass
+        with open(self.path, "w") as f:
+            f.write(str(os.getpid()))
+        return self
+
+    def __exit__(self, *exc):
+        try:
+            os.remove(self.path)
+        except OSError:
+            pass
+
+
+def say(cfg, msg):
+    with open(os.path.join(cfg["kit_dir"], "driver.log"), "a") as f:
+        f.write(f"{now_utc():%H:%MZ} {msg}\n")
+
+
+def read_jobs(path):
+    jobs = []
+    with open(expand(path), encoding="utf-8") as f:
+        lines = f.read().splitlines()
+    for n, line in enumerate(lines, 1):
+        if not line.strip() or line.startswith("#"):
+            continue
+        f = line.split("\t")
+        if len(f) < 3:
+            raise Refusal(EXIT_USAGE, f"{path}:{n}: need repo, label, prompt")
+        extra = dict(x.split("=", 1) for x in f[3:] if "=" in x)
+        jobs.append({"repo": f[0], "label": safe(f[1] or f[0]), "prompt": f[2], "vars": extra})
+    return jobs
+
+
+def self_argv(args_common, *rest):
+    return [sys.executable, os.path.abspath(__file__), *args_common, *rest]
+
+
+def drive(cfg, jobs, common, max_n, serial_per_repo, dry):
+    """Start jobs in order, up to max_n at once, one per stagger, only with headroom.
+    serial_per_repo: never two jobs of one repo at once (one writer per repo)."""
+    kit, day = cfg["kit_dir"], now_utc().strftime("%Y-%m-%d")
+    os.makedirs(os.path.join(kit, "logs"), exist_ok=True)
+    queue, running, last_hold = list(jobs), {}, 0
+    say(cfg, f"drive up: {len(queue)} jobs, max {max_n}{', serial per repo' if serial_per_repo else ''}")
+    while queue or running:
+        for p in [p for p in running if p.poll() is not None]:
+            say(cfg, f"done {running.pop(p)['label']} rc={p.returncode}")
+        if os.path.exists(os.path.join(kit, "stop")) and queue:
+            say(cfg, f"stop file: {len(queue)} jobs not started")
+            queue = []
+        busy = {j["repo"] for j in running.values()}
+        nxt = next((j for j in queue if not (serial_per_repo and j["repo"] in busy)), None)
+        if nxt and os.path.exists(os.path.join(kit, "results", day, nxt["label"] + ".md")):
+            queue.remove(nxt)
+            say(cfg, f"skip {nxt['label']} (result exists for {day})")
+            continue
+        if nxt and len(running) < max_n:
+            reading = read_headroom(cfg)
+            if gate_ok(cfg["gate"], reading) or dry:
+                queue.remove(nxt)
+                rest = ["run", nxt["repo"], "--prompt", nxt["prompt"], "--label", nxt["label"]]
+                for k, v in nxt["vars"].items():
+                    rest += ["--set", f"{k}={v}"]
+                if dry:
+                    rest.append("--dry-run")
+                with open(os.path.join(kit, "logs", f"run-{nxt['label']}.out"), "w") as out:
+                    p = subprocess.Popen(self_argv(common, *rest), stdout=out, stderr=subprocess.STDOUT,
+                                         stdin=subprocess.DEVNULL)
+                running[p] = nxt
+                say(cfg, f"start {nxt['label']} ({len(running)}/{max_n}, {describe(reading)})")
+                if not dry:
+                    time.sleep(cfg["stagger_seconds"])
+                continue
+            if time.time() - last_hold > 600:
+                say(cfg, f"holding: {describe(reading)}")
+                last_hold = time.time()
+        time.sleep(0.2 if dry else cfg["poll_seconds"])
+    say(cfg, "drive down")
+
+
+def queue_call(cfg, name, values):
+    argv = [os.path.expanduser(PLACEHOLDER.sub(lambda m: str(values.get(m.group(1), m.group(0))), a))
+            for a in cfg["queue"][name]]
+    return subprocess.run(argv, capture_output=True, text=True)
+
+
+def drain(cfg, common, max_n, dry):
+    """Keep up to max_n review passes running from the adopter's queue until it is
+    empty, the reset arrives, the stop file appears, or the budget runs out."""
+    if not cfg.get("queue") or not all(k in cfg["queue"] for k in ("next", "take", "release")):
+        raise Refusal(EXIT_USAGE, "drain needs queue.next, queue.take and queue.release in the config")
+    kit = cfg["kit_dir"]
+    os.makedirs(os.path.join(kit, "logs"), exist_ok=True)
+    launched = os.path.join(kit, f"launched-{now_utc():%Y-%m-%d}.txt")
+    open(launched, "a").close()
+    running, bad, stop, empty, last_hold = {}, 0, None, False, 0
+    say(cfg, f"drain up: max {max_n}, gate {cfg['gate']}")
+    while True:
+        for p in [p for p in running if p.poll() is not None]:
+            pick, out = running.pop(p)
+            empty = False  # a slot freed: the queue may have something again
+            with open(out, errors="replace") as f:
+                end = [l for l in f if l.startswith("END ")]
+            if p.returncode == EXIT_RESET:
+                stop = stop or "reset"
+            elif not end:
+                say(cfg, f"{pick} ended early rc={p.returncode}")
+            else:
+                say(cfg, f"{pick} {end[-1].strip()}")
+                if "result=DONE" in end[-1] or "result=SKIPPED" in end[-1]:
+                    bad = 0
+                elif "result=BUDGET EXHAUSTED" in end[-1]:
+                    stop = "budget"
+                else:
+                    bad += 1
+                    stop = stop or ("failures" if bad >= 3 else None)
+        if os.path.exists(os.path.join(kit, "stop")):
+            stop = stop or "stopfile"
+        if reset_reached(cfg):
+            stop = stop or "reset"
+        if stop or empty:
+            if not running:
+                break
+            time.sleep(0.2 if dry else cfg["poll_seconds"])
+            continue
+        if len(running) < max_n:
+            reading = read_headroom(cfg)
+            if gate_ok(cfg["gate"], reading) or dry:
+                r = queue_call(cfg, "next", {"LAUNCHED": launched, "BY": common_by(common)})
+                pick = r.stdout.strip().splitlines()[-1].split() if r.stdout.strip() else []
+                if len(pick) < 3:
+                    empty = True
+                    say(cfg, "queue: nothing launchable now")
+                    continue
+                with open(launched, "a") as f:
+                    f.write(" ".join(pick[:3]) + "\n")
+                out = os.path.join(kit, "logs", f"pass-{safe(pick[0] + '-' + pick[1])}-{now_utc():%H%M%S}.out")
+                rest = ["pass", *pick[:3]] + (["--dry-run"] if dry else [])
+                with open(out, "w") as fh:
+                    p = subprocess.Popen(self_argv(common, *rest), stdout=fh, stderr=subprocess.STDOUT,
+                                         stdin=subprocess.DEVNULL)
+                running[p] = (" ".join(pick[:2]), out)
+                say(cfg, f"started {pick[0]} {pick[1]} ({len(running)}/{max_n}, {describe(reading)})")
+                if not dry:
+                    time.sleep(cfg["stagger_seconds"])
+                continue
+            if time.time() - last_hold > 600:
+                say(cfg, f"holding starts: {describe(reading)}")
+                last_hold = time.time()
+        time.sleep(0.2 if dry else cfg["poll_seconds"])
+    say(cfg, f"drain down: {stop or 'queue empty'}")
+    print(f"DRAIN EXIT: {stop or 'queue empty'}")
+
+
+def common_by(common):
+    return common[common.index("--by") + 1] if "--by" in common else "unknown"
+
+
+def one_pass(cfg, repo, item, brief, by, dry):
+    """One review pass: worktree, claim, the orchestrator session, release on a clean end."""
+    template = cfg.get("pass_prompt")
+    if not template:
+        raise Refusal(EXIT_USAGE, "pass needs pass_prompt (the orchestrator prompt template) in the config")
+    label = safe(f"{repo}-{item}")
+
+    def pre(values, log):
+        r = queue_call(cfg, "take", {**values, "ITEM": item, "BRIEF": brief, "LOG": log})
+        if r.returncode:
+            print(f"claim refused: {r.stdout.strip()} {r.stderr.strip()}")
+            return EXIT_CLAIM
+        return 0
+
+    def post(values, finished, sid):
+        if finished:
+            queue_call(cfg, "release", {**values, "ITEM": item, "BRIEF": brief, "SESSION": sid})
+
+    return run_one(cfg, repo, expand(template), label=label, model=cfg.get("pass_model"),
+                   extra={"ITEM": item, "BRIEF": brief}, by=by, dry=dry,
+                   pre=None if dry else pre, post=None if dry else post, check_file=brief)[0]
+
+
+def resume(cfg, repo, wt, sid, template, item, extra, by):
+    """Finish one pass a usage limit cut off: resume its own session, start nothing new."""
+    model = cfg.get("pass_model") or cfg["repos"].get(repo, {}).get("model") or cfg["default_model"]
+    facts = repo_facts(cfg, repo, fetch=False)
+    values = {**{k: str(v) for k, v in cfg["vars"].items()}, **extra, "REPO": repo, "WT": wt, "SESSION": sid,
+              "ITEM": item or "", "BY": by, "VIS": facts["visibility"], "GH": facts["gh"],
+              "BR": facts["branch"], "LANDING": landing_text(facts, wt, None), "DATE": f"{now_utc():%Y-%m-%d}"}
+    prompt = build_prompt(cfg, template, values)
+    os.makedirs(os.path.join(cfg["kit_dir"], "logs"), exist_ok=True)
+    log = os.path.join(cfg["kit_dir"], "logs", f"resume-{safe(repo + '-' + (item or sid))}-{now_utc():%H%M}.json")
+    print(f"START {now_utc():%Y-%m-%dT%H:%M:%SZ} resume {repo} {item or ''} of {sid}", flush=True)
+    rc = launch(cfg, session_argv(cfg, model, prompt, resume=sid), wt, log)
+    _, _, result = harvest(log)
+    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result}", flush=True)
+    if result == "DONE" and item and cfg.get("queue", {}).get("release"):
+        queue_call(cfg, "release", {**values, "BRIEF": ""})
+        git("worktree", "remove", "--force", wt, cwd=facts["primary"], check=False)
+    return 0
+
+
+# ---------- CLI ----------
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(prog="ccfleet", description="Per-repo billed headless sessions across a fleet, "
+                                 "load-gated. Full reference: the module docstring (ccfleet --doc).")
+    ap.add_argument("--config")
+    ap.add_argument("--by", default=os.environ.get("CCFLEET_BY", "unknown"))
+    ap.add_argument("--doc", action="store_true", help="print the full reference and exit")
+    sub = ap.add_subparsers(dest="cmd")
+    sub.add_parser("check")
+    sub.add_parser("gate")
+    p = sub.add_parser("run")
+    p.add_argument("repo"); p.add_argument("--prompt", required=True); p.add_argument("--label")
+    p.add_argument("--model"); p.add_argument("--set", action="append", default=[]); p.add_argument("--keep", action="store_true")
+    p.add_argument("--in", dest="existing", metavar="WT")
+    p.add_argument("--dry-run", action="store_true")
+    p = sub.add_parser("drive")
+    p.add_argument("jobs"); p.add_argument("--max", type=int); p.add_argument("--serial-per-repo", action="store_true")
+    p.add_argument("--dry-run", action="store_true")
+    p = sub.add_parser("drain")
+    p.add_argument("--max", type=int); p.add_argument("--dry-run", action="store_true")
+    p = sub.add_parser("pass")
+    p.add_argument("repo"); p.add_argument("item"); p.add_argument("brief"); p.add_argument("--dry-run", action="store_true")
+    p = sub.add_parser("resume")
+    p.add_argument("repo"); p.add_argument("worktree"); p.add_argument("session"); p.add_argument("--prompt", required=True)
+    p.add_argument("--item"); p.add_argument("--set", action="append", default=[])
+    a = ap.parse_args(argv)
+    if a.doc:
+        print(__doc__)
+        return 0
+    if not a.cmd:
+        ap.print_help()
+        return EXIT_USAGE
+    try:
+        cfg = load_config(a.config)
+        common = (["--config", a.config] if a.config else []) + ["--by", a.by]
+        if a.cmd == "check":
+            print(json.dumps({k: v for k, v in cfg.items() if k != "vars"}, indent=1))
+            print(f"vars: {', '.join(sorted(cfg['vars'])) or 'none'}; reset reached: {reset_reached(cfg)}")
+            return 0
+        if a.cmd == "gate":
+            reading = read_headroom(cfg)
+            ok = gate_ok(cfg["gate"], reading)
+            print(f"{'go' if ok else 'hold'}: {describe(reading)} (gate {cfg['gate']})")
+            return 0 if ok else 1
+        if a.cmd == "run":
+            extra = dict(s.split("=", 1) for s in a.set)
+            return run_one(cfg, a.repo, a.prompt, label=a.label, model=a.model, extra=extra, by=a.by,
+                           dry=a.dry_run, keep=a.keep, existing=a.existing)[0]
+        if a.cmd == "drive":
+            with DriverLock(cfg["kit_dir"]):
+                drive(cfg, read_jobs(a.jobs), common, a.max or cfg["max_concurrent"], a.serial_per_repo, a.dry_run)
+            return 0
+        if a.cmd == "drain":
+            with DriverLock(cfg["kit_dir"]):
+                drain(cfg, common, a.max or cfg["max_concurrent"], a.dry_run)
+            return 0
+        if a.cmd == "pass":
+            return one_pass(cfg, a.repo, a.item, a.brief, a.by, a.dry_run)
+        if a.cmd == "resume":
+            return resume(cfg, a.repo, expand(a.worktree), a.session, a.prompt, a.item,
+                          dict(s.split("=", 1) for s in a.set), a.by)
+    except Refusal as e:
+        print(f"ccfleet: {e}", file=sys.stderr)
+        return e.code
+    return EXIT_USAGE
+
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    sys.exit(main())

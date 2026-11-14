@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-14 — the fleet kits versioned: `ccfleet`, two skills, `modelguard`, `210/440`)
+- **`instruments/ccfleet`** runs headless Claude Code sessions across a fleet of
+  repos, each inside a worktree whose basename is its repo, so per-repo cost
+  tools bill the repo the work was for. `run`, a load-, memory- and disk-gated
+  `drive` (optionally one job per repo at a time), a queue-driven `drain`,
+  `resume` for a cut-off pass, and `run --in` for a fold. Every estate value
+  comes from a private JSON config (`ccfleet.example.json` is fictional); a
+  public repo's prompt naming a configured private name is refused. 17 tests.
+- **`skills/fleet-sweep/`** and **`skills/review-drain/`**: the health sweep and
+  the review drain as plugin skills, generic, with their prompt templates.
+- **`tools/modelguard.py`**: a `PreToolUse` hook that blocks an `Agent` call or a
+  `claude` launch that names no model. Not wired by the plugin; the snippet is
+  in `tools/README.md`. 3 tests.
+- Owed: `man/ccfleet.1`, and the rule-4 cold pass (`160/1450`).
+
 ### Added (2026-11-10 — every check states five things, reported only, `115/120` step 0)
 - **Every registry check now carries a `Declares` beside its `why`**: rule
   (by citation), grounding with a replay, purpose gap, evidence window and

@@ -2188,6 +2188,26 @@ every guard in `020/380` is meant to reuse: build a small and a larger
 synthetic input, measure both, assert the growth is under a bound derived
 from the guard's own design (never from today's measurement).
 
+## `modelguard.py` — every Claude session a session starts names its model
+
+Not a commit gate: a Claude Code `PreToolUse` hook. It denies an `Agent` call
+with no `model` (a fork is exempt: it always inherits) and a Bash command that
+starts or resumes a `claude` session with no `--model` (or `ANTHROPIC_MODEL=`),
+because a start that names no model silently inherits a tier, the choice
+ECONOMICS.md says is made on purpose. Management subcommands and heredoc bodies
+pass. It reads only the command text a session hands to Bash, so a script that
+launches `claude` itself is invisible to it; `instruments/ccfleet` always passes
+`--model` for that reason. A malformed payload never blocks. Wiring, in the
+user-level `~/.claude/settings.json` or a repo's `.claude/settings.json`:
+
+```json
+"hooks": {"PreToolUse": [{"matcher": "Agent|Bash", "hooks": [
+    {"type": "command", "command": "<atelier>/tools/modelguard.py"}]}]}
+```
+
+The plugin does not wire it for you: a hook that denies tool calls is the
+adopter's choice to switch on. Tests: `tools/test_modelguard.py`.
+
 ## `blockscan.py` — a ruling that moves doctrine moves the child block too (advisory, atelier-only)
 
 `stampscan` checks a **child's** inlined copy of the floor block against
