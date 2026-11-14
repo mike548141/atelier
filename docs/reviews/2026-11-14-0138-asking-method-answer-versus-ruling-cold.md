@@ -31,8 +31,8 @@ fleet once trusted.
   (Opus), on the principal's instruction that a brief is written for every review known to be
   owed (Mike, 2026-11-14, verbatim: *"include all briefs are written where we know a fable
   review is required"*). Neither wrote any of this delta. **Off-tier for review, disclosed: the
-  brief-writer forms no finding and writes no severity**, and stops after writing. It ran no review and used no Fable
-  model.
+  brief-writer forms no finding and writes no severity**, and stops after writing. It ran no review
+  and used no Fable model.
 - **Barred from running this pass:** session `43c70bbb` and session `58027096` (whoever writes a
   brief does not run it), and session `d0ca5d24` with everything it started. Session `d0ca5d24`
   also authored the later commit `2a6d7a41` on the same section, so it is barred twice over.
