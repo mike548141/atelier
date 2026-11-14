@@ -8,3 +8,9 @@
       *Delta, scoped to paths:* `tools/blockscan.py`, `tools/test_blockscan.py`, `tools/README.md` — the commit that closes `320/340`, on `main`.
       *Questions worth the pass's time:* whether reading through the nearest mapped ancestor can fire one edit on the wrong bullet; whether the date's flip reaches the `--warn` CI step as intended.
       *Intent record:* `320/340`, `320/810`.
+      📝 BRIEF WRITTEN 2026-11-14 by session 99821c6a (Opus 5.5), a headless
+      brief-writer started by an estate health sweep, orchestrator session
+      58027096: `docs/reviews/2026-11-14-0210-blockscan-subsection-edits-cold.md`,
+      with its `.deferred.md` sibling. Neither session may run the pass. Review NOT
+      run. The pass waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work.
