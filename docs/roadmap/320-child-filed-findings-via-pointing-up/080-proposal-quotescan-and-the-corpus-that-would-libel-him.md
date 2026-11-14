@@ -2,6 +2,9 @@
       against the transcript corpus** `[M][tools][docs]` — filed from `cbom`
       2026-08-19/21 via § *Pointing up* (its board `120/080`), on Mike's
       direction: *"Suggest it to atelier repo for doctrine + guards"*.
+      - ⏭️ Overtaken (estate-health dedupe, 2026-11-14): quotescan built
+        warn-first; cold pass 160/1420 queued
+        (`docs/roadmap/160-doctrine-review-owed/1420-rule-4-cold-pass-queued-quotescan.md:8`).
       **The gap it closes.** `RECORD.md` § *An approval is not the whole ruling*
       already rules that *"Capture is the approver's word, not the recorder's
       summary… because a paraphrase of an objection is an objection you have

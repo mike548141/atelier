@@ -3,6 +3,9 @@
       up* route, on Mike's ruling that this is the house's to decide.** Options
       are **offered, not recommended**; atelier may use, adapt, replace or
       decline any of them.
+      - ⏭️ Overtaken (estate-health dedupe, 2026-11-14): the `310/160` design
+        exercise Mike commissioned 2026-11-09 supersedes the options here
+        (`docs/roadmap/310-pointing-up-the-child-to-parent-route/160-design-exercise-how-we-manage-work-on-the-board.md:2`).
 
       **Mike's ruling, verbatim, which is what makes this an item here rather
       than an edit there:**

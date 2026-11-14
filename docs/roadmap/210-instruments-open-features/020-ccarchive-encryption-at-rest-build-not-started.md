@@ -8,6 +8,10 @@
   X25519; the `openssl` fallback has no AEAD modes at all), and the overhead is
   the *process boundary*, not key access — so encrypted-by-default is
   comfortably realistic.
+  - ✅ Answered (estate-health dedupe, 2026-11-14): Mike's answer is recorded at
+    `docs/roadmap/210-instruments-open-features/030-the-one-decision-and-it-gates-the-build-where.md:20`
+    💬 (his answer to a question): *"Write with 'age', read in-house
+    (Recommended)"*.
   - [ ] ⏳ **Sequenced 2026-10-05: build after the `⏳ 160/670` review of the
         hardening.** Put to Mike as options, and he answered *"After the
         independent review (Recommended)"*. The crypto source is C′
