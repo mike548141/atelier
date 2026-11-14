@@ -8,3 +8,7 @@
       *Delta, scoped to paths:* `tools/floor.py`, `tools/floorfleet.py`, their tests, `tools/README.md`, the status line in `docs/method/GUARDS.md`, `CHANGELOG.md` — the commit that closes step 0 of `115/120`, on `main`.
       *Questions worth the pass's time:* whether a `Declares` citation that resolves actually names the rule it claims; whether an `Unmet` can read as met in any view.
       *Intent record:* `115/120`, the design note in `docs/decisions/`.
+      *Brief:* written 2026-11-14 UTC by a headless brief-writer (session 263945c1) for
+      an estate health sweep, `docs/reviews/2026-11-14-0318-check-declarations-step-0-cold.md`,
+      held-back material in its `.deferred.md` sibling. Waiting on Mike's Fable approval;
+      sessions 263945c1, 58027096 and d0ca5d24 may not run it.
