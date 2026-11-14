@@ -8,3 +8,10 @@
       *Delta, scoped to paths:* `tools/report.py` and the eleven scanners and tests the commit names, `docs/method/GUARDS.md`, `CHANGELOG.md` — the commit that lands `report.coverage_line`, and the later commit that extends it to the remaining scanners and the not-in-scope form, on `main`.
       *Questions worth the pass's time:* whether any count can be non-zero over a scan that evaluated nothing; whether the warning fires where a scanner is legitimately out of scope.
       *Intent record:* `115/130`.
+      📝 BRIEF WRITTEN 2026-11-14 by session 2a99cef1 (Opus 5.5), a headless
+      brief-writer started by an estate health sweep, orchestrator session
+      58027096: `docs/reviews/2026-11-14-0259-coverage-accounting-cold.md`, with
+      its `.deferred.md` sibling. It covers both commits named above. Neither
+      session may run the pass. Review NOT run. The pass waits for a
+      criterion-passing cold Fable session and the principal's explicit
+      permission for Fable work.
