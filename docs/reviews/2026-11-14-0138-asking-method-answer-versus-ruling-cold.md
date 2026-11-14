@@ -29,8 +29,9 @@ fleet once trusted.
 - **Who wrote this brief:** a headless brief-writer (`claude-opus-5-5`; `cclive` lists it as session
   `43c70bbb`), started 2026-11-14 UTC by an estate health sweep, orchestrator session `58027096`
   (Opus), on the principal's instruction that a brief is written for every review known to be
-  owed. Neither wrote any of this delta. **Off-tier for review, disclosed: the brief-writer forms
-  no finding and writes no severity**, and stops after writing. It ran no review and used no Fable
+  owed (Mike, 2026-11-14, verbatim: *"include all briefs are written where we know a fable
+  review is required"*). Neither wrote any of this delta. **Off-tier for review, disclosed: the
+  brief-writer forms no finding and writes no severity**, and stops after writing. It ran no review and used no Fable
   model.
 - **Barred from running this pass:** session `43c70bbb` and session `58027096` (whoever writes a
   brief does not run it), and session `d0ca5d24` with everything it started. Session `d0ca5d24`
