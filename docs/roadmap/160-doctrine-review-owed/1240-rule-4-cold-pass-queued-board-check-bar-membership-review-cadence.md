@@ -17,3 +17,10 @@
       silently reset; whether comparing a child to its own pin hides real drift;
       what goes red on 2026-12-09.
       *Intent record:* the items named above.
+      📝 BRIEF WRITTEN 2026-11-14 by session a2c067e3 (Opus 5.5, headless, started by
+      an estate health sweep, orchestrator session 58027096; neither authored this
+      delta): `docs/reviews/2026-11-14-0052-floor-bars-copy-report-rollback-membership-cold.md`,
+      with its `.deferred.md` sibling. The delta is nine commits, `be217b1a` to
+      `d1189996`, the last two landed after this pointer. Pass size: large. Review
+      NOT run: it waits for a criterion-passing cold Fable session and the
+      principal's explicit permission for Fable work. Neither named session may run it.
