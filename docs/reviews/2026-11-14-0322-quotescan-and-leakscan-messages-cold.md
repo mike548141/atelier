@@ -1,10 +1,11 @@
 # Cold pass — `quotescan`, a quote of the principal on commits touching his prompt, and `leakscan --messages`
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1420-rule-4-cold-pass-queued-quotescan.md`
-**Status:** PASS RAN, act 1 written 2026-11-15 UTC by a Fable 5.1 cold reviewer under a rule-4
-off-tier orchestrator (verdict below the divider: PASS-WITH-FINDINGS, 1 MAJOR, 4 MODERATE, 5 minor,
-2 notes). Act 2 (reconcile against the held sibling) pending its release. Brief written 2026-11-14
-UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as session `5b3a35e9`); run under the
+**Status:** PASS RAN, acts 1 and 2 written 2026-11-15 UTC by a Fable 5.1 cold reviewer under a
+rule-4 off-tier orchestrator (verdict below the divider: PASS-WITH-FINDINGS, 1 MAJOR, 4 MODERATE,
+7 minor, 2 notes, QT1–QT14; QT13 and QT14 formed at reconcile). The deferred sibling is folded in
+below the reconcile and its file removed (2026-11-15 UTC). Brief written 2026-11-14 UTC by a
+headless Opus 5.5 brief-writer (`cclive` lists it as session `5b3a35e9`); run under the
 principal's weekly Fable drain order of 2026-11-16 NZDT.
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4.
@@ -317,7 +318,8 @@ the tool with the date patched) and say which probes you could not build.
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/` (the earlier pass that raised `QK1` included), the queue pointer above,
-this brief's sibling `docs/reviews/2026-11-14-0322-quotescan-and-leakscan-messages-cold.deferred.md`,
+this brief's sibling `docs/reviews/2026-11-14-0322-quotescan-and-leakscan-messages-cold.deferred.md`
+(folded below the verdict at phase 2; the file is removed),
 the four delta commits' message bodies, the pointer of QK1's first-counsel pass (`160/1060`), and
 the three intent records whole:
 `docs/roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md`,
@@ -739,3 +741,161 @@ worktree; a real amend; a real merge. Each was built in a scratch repo instead (
 
 Scratch repos, fixtures and the scratch copy of `tools/` were deleted at the end of act 1; nothing
 of them is kept. Act 2 follows on release of the sibling.
+
+### Reconcile (act 2, 2026-11-15 UTC)
+
+Released by the orchestrator after act 1 was committed (`28df3ba1`, local to the worktree). Read
+for this act: the held sibling (one file, by the path the orchestrator gave); the queue pointer
+`160/1420`; `160/900` (QK1's lines), `320/810` (slices 5–6 and what remains) and `320/550` whole;
+the four delta commits' bodies; the 2026-10-18 pass's QK1 reconcile paragraph. Act-1 text above is
+unrevised. One probe was run at reconcile, read-only, counts only (QT14).
+
+**Against the sibling's questions.** Q1 (two one-word quotes) and Q2 (`>` lines) are QT1's probes,
+confirmed and widened (a quoted file name, error string, command, the old prompt text, an empty
+`" "`, a JSON snippet; a wrapped three-line quotation rejected). Q3 (merges, silent
+`commit_files`) is QT5, confirmed in scratch and in history: the asymmetry with `commits()` is real
+and not stated anywhere. Q4 (no hook, no cover) is QA2 and QT6; the record owns the hook gap
+(`320/810`: existing clones need `tools/commit-msg.sample` installed, CI is the only cover until
+then, `floorfleet` does not check for it), which strengthens QT1's first line: the flip blocks only
+in clones that installed the hook and only for shapes, so it reaches neither the unseen edit nor
+the careless one. Q5 (option injection) is QT4: a finding, not a one-line hardening, because the
+tool reports clean after writing. Q6 is QT14 below. Q7 (secret shapes) is QT13 below. Q8 (trailer
+skip) is QT3, confirmed with the author's motive in view. Q9 (comment char) is QT2: the
+brief-writer's "probably harmless" holds for this repo at this commit (0 findings on the 38
+stripped lines) and not for the class. Q10 (`hit` by 12-character prefix) stays a note; no
+collision is plausible at this size. Q11 (10 vs 11) is answered: the 19th is a merge in which the
+prompt differs from every parent, which `diff-tree` without `-m` cannot list (QT5, QT7a). Q12
+(`2a6d7a41`) was read body-free in act 1 and is a comment only; nothing to add.
+
+**Against the author's account.** `b74cd5ef`'s body repeats the changelog's figures and the fleet
+claim; QT7a and QT7d stand against it. `49f3d407`'s body gives the trailer skip's motive: 2,198 of
+the first run's 2,200 hits were one authorship email. The noise was one identity; the skip is the
+whole class (QT3's counsel, to exempt the identity, answers the motive without the gap). `320/550`
+records "Listing them is one command; they are the principal's to weigh": consistent with the
+read-only design, and the three read gaps (QT2, QT3, QT9) and the pathspec simplification (QT14)
+mean the list is a floor, not a count. `160/900` records QK1's second counsel as "needs his word:
+new machinery", then built "on his words there" ("all six"): his words chose which checks to
+build and that they warn first; nothing in the records fixes what counts as a quotation, so QT1 is
+his to rule, as rule 3 requires, and the records show he has not yet. `320/810` says each flip
+needs a fresh fleet probe before its date; QT7d says what that probe can and cannot show.
+
+**Severities after reconcile.** Unchanged: QT1 MAJOR, QT2–QT5 MODERATE, QT6–QT10 minor, QT11–QT12
+notes. The brief-writer's re-run results agree with mine where both ran (10 findings over HEAD;
+4 in 3 messages; counts moved with history, 2,336 to 2,343 across refs).
+
+**Formed at reconcile** (from the sibling's Q7 and Q6; marked as such):
+
+**QT13 — minor (formed at reconcile) — The sizing tool reads no secret shape, and no surface a
+pre-flip reader meets says so.** `320/550`'s proposal named "local terms, structural shapes,
+secret shapes"; the landing says "the same rule sets as a file", which for leakscan excludes
+secretscan's shapes. A credential pasted into a commit body is unsized by the one tool the README
+calls the pre-flip sizing tool. *Counsel:* one sentence in the README's `--messages` subsection
+and the item, or a `secretscan --messages` on the same reader.
+
+**QT14 — minor (formed at reconcile) — A pathspec is accepted as `REVS` and quietly simplifies
+history.** Probe, counts only: `--messages . --root .` read 2,222 messages against 2,336 for
+`HEAD` (289 merges on HEAD); `git log .` drops the commits whose tree is the same as a parent's for
+that path, merges above all, and the report has no way to say it. A user writing `.` for "this
+repo" sizes the rewrite 5% short. *Counsel:* refuse a spec that is a path (`git rev-parse
+--verify` it as a revision first, or require `--` before any path and refuse paths outright).
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR, 4 MODERATE, 7 minor, 2 notes (QT1–QT14; QT13
+and QT14 formed at reconcile).** QT1 bears on the 2027-05-31 flip, which should not happen as built
+unless the principal rules otherwise after a plain-language account; QT6 bears on it too, as a
+route around the block. The author applies nothing on its own (rule 3).
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`28df3ba1` before the
+rebase onto `main`); folded here verbatim (headings demoted two levels) and the sibling file
+removed, per the brief. The orchestrator (a headless Opus 5.5 session started by drain session
+`21a271a5`, itself Opus 5.5) held the partition, formed no finding and wrote no severity.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-14-0322-quotescan-and-leakscan-messages-cold.md`
+(`REVIEW.md` rule 1). Written 2026-11-14 UTC by the brief-writer (`cclive` lists it as session
+`5b3a35e9`), which authored none of the delta. Open this only after act 1 is committed. Everything
+here is a floor, never a fence, and none of it is a finding: the brief-writer read the code once
+and probed none of these past what is recorded below.
+
+#### What the barred intent records say, in brief
+
+- `160/900` carries the earlier pass's verdict summary (PASS-WITH-FINDINGS, QK1–QK14, one MAJOR),
+  the principal's 2026-11-08 answer *"Keep edit; read committed only"*, the 2026-11-09 application
+  of QK1's first counsel, and the note that QK1's second counsel "needs his word" and is "new
+  machinery". It then records this build as done "on his words there" (`320/810`'s "all six"), and
+  restates the claim: a double-quoted span of two or more words or a `>` line, or a reasoned
+  marker; "It reads the form, never whose words they are."
+- `320/810` records slice 6 with the figures the changelog states: "19 commits touch the prompt,
+  8 carry a quote (42%)", 21 of 21 exit 0 with the date patched, "Tests: 14"; that the date is the
+  run's choice, four weeks after `NAME_WARN_UNTIL`; and that "`quotescan` fires only on commits
+  touching one file". It also records that existing clones need `tools/commit-msg.sample`
+  installed for the message-plane checks to run, that until then CI's report is the only cover,
+  and that `floorfleet` does not check for that hook.
+- `320/550` carries the child's finding, the 2026-10-16 verification at HEAD, and the part (a)
+  landing: "Measured over atelier's 2,302 messages: 4 hits in 3 messages (3 structural, 1 term)",
+  "Listing them is one command; they are the principal's to weigh". Part (b) stays open. It also
+  says pull-request titles and bodies are not read by anything yet.
+
+#### The brief-writer's re-run results (2026-11-14 UTC, load average about 5.5)
+
+- `test_quotescan`: 14 tests, OK. `test_leakscan.CommitMessages`: 7 tests, OK.
+  `test_floor.MsgPlaneTest`: 10 tests, OK. `quotescan --selftest`: OK, exit 0.
+- `quotescan --range HEAD --warn`: **10** unquoted changes reported. `git log -- <prompt>` lists
+  **19** commits (39 with `--full-history`, 21 of them merges). The landing says 19 touch and 8
+  carry a quote, which would leave 11 unquoted, not 10. No commit has touched the prompt since the
+  landing (last prompt commit `56e45a3b`, 2026-11-09). Unexplained by the brief-writer.
+- `quotescan --range pushed --warn` outside Actions: clean, exit 0, with the note "no pushed range
+  known: reading HEAD only", and the advisory line "0 finding(s)".
+- `quotescan --range nosuch..HEAD --warn`: exit 2, git's error text echoed.
+- `floor.py --plane msg --list`: `quotescan enforced fleet decl 1/5`.
+- `leakscan --messages --json` (counts only): 2,336 messages read, 3 with findings, 4 findings
+  (2 `email`, 1 `nz-address`, 1 `local-term`), `scanned_local_terms: true`, exit 0. The landing's
+  "4 hits in 3 messages (3 structural, 1 term)" over 2,302 still holds over 2,336. Text mode exit 0.
+- `leakscan --messages nosuch..HEAD`: exit 2.
+- The fleet probe was not run by the brief-writer.
+
+#### The brief-writer's own questions
+
+1. **Two one-word quotes.** `QUOTE_RX` is `["“][^"“”\n]*\s[^"“”\n]*["”]`. In `"x" and "y"` the span
+   from the first closing quote to the second opening quote (`" and "`) matches as a two-word
+   quote. So two quoted single words satisfy it, the case the selftest's "a one-word quote does
+   not count" seems meant to exclude (checked once:
+   `carries_quote('area: "x" and "y"')` returns True). Likewise a quoted path with a space, a quoted error message.
+2. **`>` lines.** Any line starting with `>` counts, including a quoted diff hunk, a shell redirect
+   at line start, or a pasted email reply. Git's default cleanup keeps such lines.
+3. **Merges and silent `commit_files`.** On the CI plane, `commit_files` runs `git diff-tree`
+   without `-m`/`-c`, which prints nothing for a merge commit, and returns `[]` on a git error
+   rather than raising. Twenty-one merges show up under `--full-history` for the prompt. A merge
+   that brings in a prompt change, or a commit git cannot diff, reads as clean, while `commits()`
+   raises on a bad range. Is that asymmetry intended?
+4. **No hook, no cover.** The message plane needs the `commit-msg` hook in each clone; CI is
+   report-only. So before and after the flip, a clone without the hook (or `--no-verify`) can
+   change the prompt with no message check at all, and the CI line says so only in a warning.
+   Does the flip mean anything for the actual harm, which is an unseen prompt edit?
+5. **Option injection.** Both `--range` (quotescan) and `--messages REVS` (leakscan) go straight to
+   `git log` after the format argument. `git log --output=<path>` writes a file, so a spec such as
+   `--output=/tmp/x` would make the "read-only" sweep write. Only a local user or a template sets
+   these, and `FORBIDDEN_FLAGS` keeps a child's `flags` away, so is this a finding or a one-line
+   hardening (`--end-of-options`)?
+6. **`nargs="?"`.** `leakscan --messages <positional>` consumes the positional as `REVS`; a user
+   who types `leakscan --messages .` gets `git log .`, which reads commits touching `.`, not every
+   ref. Probe what `--messages --json` and `--messages --root .` parse as.
+7. **"Same rule sets".** `320/550` asked for secret shapes too. leakscan's file mode does not cover
+   secrets (that is `secretscan`), so the sizing tool may under-count a secret in a message body.
+   Is that gap stated anywhere the user would read before a flip?
+8. **Trailer skip.** `AUTHOR_TRAILER_RX` drops any line starting with one of five trailer names,
+   anywhere in the body, whatever follows. A private address in a `Signed-off-by:` line of another
+   identity would not be counted.
+9. **The CI plane comment char.** `commitmsg.commits` cleans pushed messages with `#` as comment
+   char, so a body line starting with `#` is dropped before the quote test. A quote that sits on a
+   `#`-led line is invisible; probably harmless here, but check for the leakscan sweep, where a
+   dropped line is a dropped hit.
+10. **`hit` counts by `f.path`.** `report_messages` counts messages with findings as
+    `len({f.path})`, where `path` is the 12-character short id. Fine unless two commits share a
+    prefix; note only.
+11. **The 10 vs 11 discrepancy** above: which of the 19 commits does the tool count as quoted that
+    the landing count did not, or did the landing count something else?
+12. **`2a6d7a41`** cites the principal's pick inside a code comment in `leakscan.py`, labelled as
+    an answer. Out of scope except as a V3 mirror check.
