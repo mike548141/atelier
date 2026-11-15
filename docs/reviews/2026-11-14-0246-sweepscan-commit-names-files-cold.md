@@ -1,9 +1,10 @@
 # Cold pass — `sweepscan`: where sibling worktrees exist, a commit names its files (warn-only, no date)
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1400-rule-4-cold-pass-queued-sweepscan.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `b769469b`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** PASS RUN, act 1 written 2026-11-15 UTC by a Fable 5.1 cold reviewer under drain
+session `21a271a5` (verdict below: FAIL, 1 MAJOR); act 2 (reconcile) follows the sibling's release.
+Brief written 2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as session
+`b769469b`), which ran no review.
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4 (the queue pointer's own words).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
@@ -303,3 +304,282 @@ restated. Never revise act-1 text. Then fold the sibling in below the reconcile 
 The work is a floor check the fleet floats on, written by a queue run; findings go to the principal
 with the verdict, in plain words, and none is applied by the session that built the work (rule 4).
 Counsel per finding is welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict — act 1 (cold pass, Fable 5.1), 2026-11-15 UTC
+
+### Provenance (rule 4, V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), the principal-named review tier, checked at
+  selection. The reviewer alone read the delta, answered the lenses, formed every finding and set
+  every severity below.
+- **Spawn:** a headless per-pass orchestrator (Opus 5.5) started me; it was itself started by drain
+  session `21a271a5` (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold the context
+  partition, form no finding and write no severity. Neither wrote this brief or the delta; session
+  `21a271a5` wrote no brief, no delta, and started no brief-writer for this pass. I was not started
+  or instructed by any barred session (`b769469b`, `58027096`, `d0ca5d24` or anything it started).
+- **Standing order:** the principal's weekly Fable drain, invoked as `/fable-drain` on 2026-11-16
+  06:53 NZDT (2026-11-15 17:53 UTC); approval lapses at the reset, 2026-11-15 23:00 UTC, and a pass
+  already running at the reset may finish.
+- **Orchestrator direction, disclosed:** process only. It named my review worktree, this brief,
+  the review-log file I may write outside the repo, the tools to use, the barred set (the
+  `.deferred.md` sibling, removed from my worktree and held by the orchestrator; prior verdicts;
+  session logs; `ROADMAP-DONE.md`; `160-doctrine-review-owed/` items beyond titles; commit bodies;
+  the intent records beyond the brief's `sed` ranges), the deliverable's shape (this act, then
+  `### Reconcile`), release timing (sibling released after act 1 is committed), load limits and the
+  public-repo rules. It granted the brief's two conditional reads, read-only and counts only: the
+  transcript measurement and the fleet probe. It contained no question about the delta, no pointer
+  to where the risk lives, and no request to revise a finding. The prompt names paths this public
+  repo may not carry, so it is summarised here; it stands verbatim in the orchestrator's transcript
+  and in the review log kept outside the repo. No contact from the delta's author or the
+  brief-writer reached me.
+- **Environment:** `ATELIER_WHOLE_INDEX` was NOT set when I started (`env` grep count 0) and I set
+  it only inside probe commands. git 2.50.1 (Apple Git-155). `/usr/bin/python3` is 3.9.6; `python3`
+  on PATH is 3.14.6. The tools ran on 3.9 for the scanner and floor selftests and on 3.14 for the
+  unit tests (the brief-writer used 3.14; `tools/README.md` line 2741 says the tests need 3.11+).
+- **Worktree:** `atelier-160-1400-1939`, a linked worktree detached at `2fb235a6`
+  (`f9def52d` is an ancestor). `git worktree list` in it returns 6 entries during this pass, so
+  `sweepscan` run inside my tree would count 6; every probe below ran in throwaway repos in my
+  scratchpad, never in the review tree. The only pending change in my tree is the orchestrator's
+  removal of the sibling.
+- **What I read:** this brief whole; `docs/method/REVIEW.md`; the delta through `coldsweep.py
+  --commit f9def52d` (subject, stat, diff; the body not printed; its three board files left out);
+  `tools/sweepscan.py`, `tools/test_sweepscan.py`, `tools/floor.py` (registry entry at HEAD
+  including the later `declares=` block, `HOOK_ONLY`, `plan`, `run`, `Result.failed`),
+  `tools/report.py` (`guarded_main`), `.githooks/pre-commit` and `pre-merge-commit`,
+  `docs/method/CONCURRENCY.md` §§ The trigger, Integration hygiene, `docs/method/GUARDS.md` lines
+  125–145 and 625–645, `tools/README.md` (`sweepscan`, Python floor), `CHANGELOG.md` (the 2026-11-10
+  entry), `.github/workflows/*.yml` (Python pin), and the two intent records within the brief's
+  ranges only (`060` lines 1–70, `810` lines 1–14). I skipped the session-log step. I opened no
+  prior verdict, no session log, no `ROADMAP-DONE.md`, no commit body, and no `160-…` item beyond
+  its title. The mirror sweep ran through `coldsweep.py` with the brief's three `--also-exclude`
+  paths; no `--include-barred`.
+
+### Scope and the pinned bound
+
+The bound is pinned to **`f9def52d`** (`tools: warn when a commit in a multi-worktree repo takes the
+whole index`), the only commit touching `tools/sweepscan.py` or `tools/test_sweepscan.py`, judged as
+landed and as it stands at HEAD `2fb235a6`. `git log --oneline f9def52d..HEAD -- tools/floor.py
+tools/test_floor.py` lists `ba55be27`, `49f3d407`, `b74cd5ef`, `6b6110c9`, `55f23034`; the
+`declares=` block is not the delta and is read here only as a claim about this check.
+
+### Per-lens answers
+
+**Lens 1 — approach and assumptions.** The commit's *form* is the right thing to read: the probe
+table below shows git hands the hook a `next-index-` index exactly for the forms that carry only
+the named paths, and the filing's own account is that more printed text failed. An environment
+variable is the right marker for this plane: `pre-commit` runs before the message is written, so no
+trailer can reach it (confirmed; `commit-msg` is a later hook on the same commit). Two assumptions
+do not hold as stated. (a) **The scope test is wider than the risk.** A linked worktree has its own
+index: a path staged in a sibling worktree is invisible to `git diff --cached` in the main checkout
+(probed, 1 vs 0). The staged-sweep incident can happen only where two sessions share one index, the
+main checkout, which the worktree count reaches by proxy; yet the check charges every commit in a
+linked worktree too, which no sibling can sweep. The noise that grounds "warn-only, no date" is
+measured over that wider population, and the fraction made from linked worktrees cannot be read
+from transcripts (SV4). (b) **"Replaying" is read from a ref that outlives the replay.**
+`REBASE_HEAD` survives a hand-resolved rebase's completion, so the exemption keeps firing on fresh
+commits (SV1). The no-date posture is a measured conclusion in direction (most commits take the
+whole index, by my count too) but not in the figures or the population (SV4, SV5).
+
+**Lens 2 — correctness and quality.** Every form a session uses was driven as a real commit through
+a `core.hooksPath` hook, from the main checkout and from a linked worktree, and through the real
+`.githooks/pre-commit` → `floor.py` → `sweepscan` chain: the form table holds, the floor passes the
+hook's environment through unchanged, path-scoped commits are clean and leave the rest staged, the
+marker clears, a broken scan exits 2 and blocks through the floor despite `warn_only`. Two exempt
+paths exempt more or less than they say: a clean `git merge --no-ff` reaching the hook through
+`pre-merge-commit` **warns** (MERGE_HEAD is not yet visible there), where the docstring says a merge
+is exempt (SV2); a fresh commit during a stopped rebase, and every commit after a resolved one, is
+**exempt** (SV1). The `plan()` change moves no other entry's state on either plane (WA7).
+
+**Lens 3 — completeness and harvest.** The rule and the marker have no mirror outside `tools/`:
+`CONCURRENCY.md` § Integration hygiene already tells a session to commit by pathspec in a shared
+checkout and names a worktree as "the only index of one's own", but neither it, `GUARDS.md`, any
+skill prompt, nor the child template names `sweepscan` or `ATELIER_WHOLE_INDEX`, and nothing says
+when the marker is legitimate; nothing records its use (SV3). The tests cover every form the
+docstring names except the `pre-merge-commit` path it names (SV2) and the post-rebase state (SV1).
+The measurement cannot be re-derived from the record: the method is unstated (SV5).
+
+**Lens 4 — security and privacy.** Inputs the hook trusts: `GIT_INDEX_FILE` (its basename),
+`ATELIER_WHOLE_INDEX` (any non-empty value), `git worktree list`, and four replay refs. The one
+**fail-open on an inherited state** is SV1: a stale `REBASE_HEAD`, left by a routine operation,
+makes every later commit print a clean "replaying" line. A crafted `GIT_INDEX_FILE` whose basename
+starts `next-index-` also prints a false clean (probed), but it costs the committer the same
+deliberate act as the marker and so adds no exposure (N2). The marker inherited from a parent shell
+or harness setting silences the check with one unrecorded clean line (SV3). The incident class is a
+public repo publishing a peer's work under the wrong commit, and the delta's own records carry
+counts only: I read the whole diff and found no transcript line, path or session content.
+`/security-review`: **NOT RUN, discharged with grounds.** It reads the session's pending diff; in my
+tree that is this brief and the removed sibling, which `REVIEW.md` forbids scanning, and it cannot
+be aimed at a landed commit. Its clean pass would in any case be empty for the Python it could not
+reach.
+
+### V1–V7
+
+- **V1** No claim stronger than its evidence: breached three times — "a merge … is exempt;
+  `pre-merge-commit` hands over to this same hook" (SV2); "replaying commits already written"
+  (SV1); the four percentages as stated (SV5).
+- **V2** Re-run every proof: the re-run list reproduces (ledger below); the mechanism table
+  reproduces; the fleet probe reproduces in direction (22 of 22 exit 0, 2 would warn); the
+  transcript measurement reproduces in direction, not in figure (SV5).
+- **V3** Swept to every mirror: not done; no doctrine, skill or template mirror exists (SV3a).
+- **V4** One fact, one home: the `GIT_INDEX_FILE` table stands in the docstring, `tools/README.md`
+  and `CHANGELOG.md` unstamped; the registry comment points at the docstring. Note N7, not a
+  finding.
+- **V5** No internal contradiction: the `declares.rule` pointer reaches `CONCURRENCY.md` § The
+  trigger, whose "two more blind spots" paragraph holds the pathspec rule, so the reference reaches
+  its rule. README's "What it cannot see" agrees with the docstring and the `purpose_gap`. The
+  docstring contradicts the tool's behaviour on merges (SV2).
+- **V6** Security and privacy: lens 4 above; the scanner discharged with grounds.
+- **V7** Provenance: stated above and in the brief.
+
+### Load-bearing assumptions — WA1–WA9
+
+| # | Result | Probe |
+|---|---|---|
+| WA1 | **Confirmed** | Scratch repo, hook printing `basename $GIT_INDEX_FILE`: plain, `--amend`, `--allow-empty` → `index`; `-a`, `-i <p>` → `index.lock`; `-o <p>`, `-- <p>`, bare `<p>`, `--amend -o`, `--amend -- <p>`, `--amend --only` → `next-index-<pid>.lock`. Each matched the docstring's table on git 2.50.1. |
+| WA2 | **Confirmed** | Same forms from a linked worktree: `GIT_DIR` is `.git/worktrees/<name>` (absolute), the index basename follows the same table, `git worktree list` from inside counts 2. |
+| WA3 | **Confirmed** | The repo's real `.githooks/pre-commit` and `pre-merge-commit`, `ATELIER_TOOLS` pointed at my worktree's `tools/`, in a scratch repo with a sibling: plain commit → `⚠ … (1 staged path(s), 2 worktrees)`, count 1; `git commit -- a` → `✓ … names its files`, `b` left staged; the same from the linked worktree via `git -C`; marker → `✓ … declared`. The floor passes the environment through (`subprocess.run` with no `env=`) and `--root` is the hook's `rev-parse --show-toplevel`. |
+| WA4 | **Confirmed** | `ATELIER_WHOLE_INDEX=1 sh -c 'sh -c "git commit …"'` → declared. Also `=0` → declared (any non-empty), empty → not set. Nothing records it (SV3). |
+| WA5 | **Damaged** | Fresh commits while a rebase is stopped are exempt (two in a row); after `rebase --continue` finishes, `REBASE_HEAD` remains and every later fresh commit is exempt (SV1). A clean `merge --no-ff` through `pre-merge-commit` is *not* exempt (SV2). Conflicted merge, cherry-pick and revert resolutions are exempt and git refuses partial commits under them. |
+| WA6 | **Damaged at one edge** | Unlocked worktree whose directory is gone → `prunable`, not counted; **locked** worktree whose directory is gone → counted live until unlocked and pruned (SV6). A live one never dropped out. |
+| WA7 | **Confirmed** | Scratch clone, `floor.py --list` on hook and ci at `f9def52d~1` and `f9def52d`, for atelier and for a child-like config with a hook-only `local` check: the only diff is the added `sweepscan` line (hook `warn-only`, ci `skipped`); the local check lists `skipped` on ci before and after. |
+| WA8 | **Confirmed** | Bogus inherited `GIT_DIR` → exit 2 (`git worktree list failed`); root not a repo → exit 2. A stub `sweepscan.py` exiting 2 in a scratch copy of `tools/`, through the real floor on the hook plane: `❌ sweepscan warn-only`, `BLOCKED by: … sweepscan …`, "exit 2 means the scan itself could not run"; floor rc 1; the commit did not land. |
+| WA9 | **Confirmed in direction, damaged in figure** | Counted over this machine's transcripts (one process, counts only, nothing written): whole-index share 94 % (atelier, all time), 75 % (atelier, 2026-11-01 to the landing day), 85 % (largest other repo folder), 94 % (all other repos). The delta's 88 %, 46 %, 97 %, 79 % are not reproduced; the method is unstated (SV5). "Fires on most commits" holds in every slice I cut. |
+
+### Per-claim ledger
+
+| Claim (brief § *The claims*) | Verdict |
+|---|---|
+| The signal: index file name per form | **Holds** (WA1, WA2). |
+| "Only `next-index-` … carried set is exactly what the commit named" | **Holds**; the trust is in a basename the committer controls (N2). |
+| "The check is free: no output is parsed" | **Holds**. |
+| Marker: env var because `pre-commit` precedes the message; any non-empty value; nothing records it | **Holds as stated**; the admitted gap is the finding (SV3). |
+| Scope: more than one live worktree; bare and prunable do not count | **Holds**, locked-removed edge aside (SV6). |
+| "A merge, cherry-pick, revert or rebase is replaying … exempt; `pre-merge-commit` hands over" | **Fails** for the clean merge on the path it names (SV2); **over-holds** for rebase (SV1). |
+| Does not make an index safe; cannot stop a deliberate foreign path-scope; worktree list is a proxy | **Holds**, and the proxy is wider than the risk (SV4). |
+| No date: "a commit's form is not in git history"; the four figures; "noise, not a gate" | Form-not-in-history **holds**; figures **not reproduced**; "most commits" **holds** (SV5, SV4). |
+| Exit codes 0 / 2 | **Holds** (WA8). |
+| Registry: skipped on CI; `HOOK_ONLY` named | **Holds** (WA7; selftest and `test_floor` pin it). |
+| "Every case drives a real commit through a hook" | **Holds** for `CommitFormTest`; `CliTest` drives none (it fakes the env), which the docstring's word "every" overstates slightly (note N8). |
+
+### Findings
+
+**SV1 — MAJOR.** `replaying()` reads `REBASE_HEAD`, and `REBASE_HEAD` outlives the rebase. After
+a hand-resolved rebase finishes with `git rebase --continue` (merge backend, `rebase -i`, and the
+onramp's `git pull --rebase --autostash`), the ref remains while `rebase-merge/` is gone, `git
+status` says nothing, `--abort` and `--quit` refuse ("no rebase in progress"), and it clears only on
+the next *clean* rebase or an explicit `update-ref -d`. Every fresh plain commit in that checkout
+from then on prints `✓ sweepscan clean — replaying commits already written.` with a zero count:
+the brief's named worst case, a clean line printed for a commit that may have swept, with no end,
+after a routine house operation in the very checkout the check exists for. While a rebase is
+genuinely stopped, a fresh commit (not `--continue`) is exempt too, so the stopped state is a sweep
+window the check waives. Live exposure read 2026-11-15 ~20:00 UTC, counts only: no replay ref in
+atelier's main checkout, its 6 linked worktrees, 22 children's main checkouts or their 3 linked
+worktrees, so nothing is silenced today. `test_sweepscan.py` has no rebase case.
+*Counsel:* test the rebase **state directory** (`git rev-parse --git-path rebase-merge` /
+`rebase-apply` exists) instead of `REBASE_HEAD`; keep `MERGE_HEAD`, `CHERRY_PICK_HEAD` and
+`REVERT_HEAD` (removed at completion, and git refuses a partial commit under them anyway); add a
+conflict → `--continue` → fresh-commit-warns test.
+
+**SV2 — MODERATE.** A clean `git merge --no-ff` is not exempt on the path the docstring names. At
+`pre-merge-commit` time `GIT_INDEX_FILE` ends `index` and `rev-parse --verify MERGE_HEAD` fails, so
+the check warns "takes the whole index (1 staged path(s), 2 worktrees)" on an automatic merge. The
+docstring, README and CHANGELOG say a merge is exempt and that `pre-merge-commit` hands over to
+this hook; the one merge test drives `merge --no-commit` then `git commit`, the `pre-commit` path
+with MERGE_HEAD present, never the hook it names (V1, V2). Frequency is low in this house, which
+lands by `--ff-only`, but the claim is false where it is tested least.
+*Counsel:* either have `.githooks/pre-merge-commit` export a marker the floor passes through (e.g.
+`ATELIER_HOOK=pre-merge-commit`) and exempt on it, or state the limit honestly; add a
+`pre-merge-commit` test either way.
+
+**SV3 — MODERATE.** The marker is ungoverned and unrecorded. (a) Nothing says when
+`ATELIER_WHOLE_INDEX=1` is legitimate: doctrine already implies "only in a worktree you own"
+(`CONCURRENCY.md`: a worktree is "the only index of one's own"; the shared checkout commits by
+pathspec), but neither `CONCURRENCY.md`, `GUARDS.md`, any skill prompt nor the child template names
+the check or the marker (coldsweep: no hit outside `tools/`, the CHANGELOG and the registry) — V3.
+(b) A declared commit counts **0** advisories and leaves one `✓` line in a 108-line hook wall
+(measured on a tiny repo), so a set-and-forgotten marker (a harness `env` setting, an exported
+shell) is indistinguishable from a deliberate one on every surface the board and `floorfleet` read;
+the docstring admits "this scanner cannot tell". Confirmed inherited two shells up. `=0` counts
+as declared.
+*Counsel:* count declared commits on their own advisory line so the board sees them; state the
+marker's grant conditions beside the pathspec rule in `CONCURRENCY.md` § Integration hygiene; treat
+`0`/`false`/`no` as not set.
+
+**SV4 — MODERATE (the principal's call; counsel beneath).** The scope test charges commits the
+check has no reason to fire on, and the no-date posture rests on that count. A sibling worktree
+cannot stage into another worktree's index (probed), so a commit from a linked worktree can be
+swept only by a session sharing *that* worktree, which doctrine forbids and whose orchestrated form
+has one committer. The filed incident lives in the shared main checkout; the worktree count reaches
+it by proxy, as the filing says, but the proxy also taxes every linked-worktree commit. The 88 %/
+97 % that ground "noise, not a gate" are measured over that whole population, and the linked-
+worktree share cannot be read from transcripts (the session folder keeps its start path after a
+session enters a worktree), so the true noise floor is unknown. The delta departs from the
+principal's words ("warnings at first and then move to blocking action"; `810`'s Shape, "a dated
+constant per check") and says so in Claude's records (CHANGELOG, docstring, README, registry
+comment), which he does not read; whether the call was put to him on the board is checked at
+reconcile (the commit's board-file hunks are barred in act 1).
+*Counsel:* a free sharper signal exists: whether the commit's index is the common one
+(`git rev-parse --git-dir` equals `--git-common-dir`; in a linked worktree `GIT_DIR` is
+`.git/worktrees/<name>`). Charging only shared-checkout commits when worktrees > 1 would shrink the
+noise to the population at risk and let the dated-constant shape he chose be revisited on a real
+number.
+
+**SV5 — minor.** The measurement cannot be re-derived from the record. My count (one niced process,
+counts only, 5,099 transcript files, 8.9 GB): atelier 2,543 `git commit` lines all time, 94 % whole
+index; 536 from 2026-11-01 to the landing day, 75 %; largest other repo folder 4,111, 85 %; all
+other repos 15,239, 94 %. The delta's 2,510/88 %, 373/46 %, 3,530/97 %, 157/79 % come from an
+unstated classification and window, and the docstring's "this month" is a relative date in undated
+code. The direction holds in every slice; the figures as written are not reproducible (V1, V2).
+*Counsel:* record the method (what counts as "named", the window, the file set) beside the
+figures, or state "most" and drop them.
+
+**SV6 — minor.** `live_worktrees()` counts a **locked** worktree whose directory is gone as live
+(porcelain prints no `prunable` for a locked entry); the docstring's "a removed worktree stops
+charging" holds only for unlocked ones. Edge case; it errs toward warning.
+
+**Notes (no severity).** N1 `--json` prints `"clean": true` beside `"finding": true`; no consumer
+reads it today. N2 a crafted `GIT_INDEX_FILE` basename `next-index-*` yields a false clean; same
+deliberate act as the marker, no new exposure. N3 the `⚠` line sits in ~108 lines of hook output;
+the floor's summary repeats it as a `🟡` line, which is the mitigation. N4 `--amend` and
+`--allow-empty` plain forms warn; consistent, noisy. N5 a stale `GIT_INDEX_FILE` in a shell makes a
+hand run warn; harmless. N6 `test_sweepscan.py` needs Python ≥ 3.10 (`dict | None` at import);
+`tools/README.md` documents that the tests need 3.11+, so not a defect. N7 the form table is
+copied unstamped into README and CHANGELOG (V4). N8 `CliTest` fakes the hook environment rather
+than driving a commit; "every case" overstates by four tests.
+
+### Overall
+
+**FAIL** — 1 MAJOR (SV1), 3 MODERATE (SV2, SV3, SV4), 2 minor (SV5, SV6), 8 notes. The check reads
+the right signal and the floor wiring is sound (WA1–WA3, WA7, WA8 confirmed); it fails on the
+exemption that switches it off for good after a routine rebase, and on a merge claim its own test
+does not reach. All findings are on self-authored guard code and go to the principal (rule 3);
+none is applied by the session that built the work.
+
+### Re-run ledger (V2)
+
+| Line | Result |
+|---|---|
+| `git merge-base --is-ancestor f9def52d HEAD` | exit 0 |
+| `coldsweep.py --root . --commit f9def52d` | 6 files, body not printed, 3 board files left out |
+| `sweepscan.py --selftest` | `selftest OK` (3.9) |
+| `sweepscan.py --root .` | `no commit in progress`, count 0, exit 0 |
+| `floor.py --selftest` | `ok (21 scanners, 0 failure(s))` (3.9) |
+| `python3 -m unittest test_sweepscan` (cwd `tools/`) | 11 tests OK in 11.2 s (3.14); fails to import on 3.9, documented |
+| `python3 -m unittest test_floor` (cwd `tools/`) | 255 tests OK in 250 s (3.14); tree clean after |
+| Mechanism table | reproduced (WA1, WA2) |
+| Transcript measurement | run under the orchestrator's grant; direction reproduced, figures not (SV5) |
+| Fleet probe | run read-only under the grant: 22 children, 22 exit 0, 2 would warn |
+
+### Follow-up checklist
+
+- [ ] SV1 to the principal with the counsel; a rebase test lands with any fix.
+- [ ] SV2: pick "exempt on a hook marker" or "state the limit"; add the `pre-merge-commit` test.
+- [ ] SV3: grant conditions in `CONCURRENCY.md`; a counted line for declared commits; reject `0`.
+- [ ] SV4: the principal's call on scope and on the dated-constant shape, with the index-ownership
+      signal as the option on the table.
+- [ ] SV5: record the method beside the figures or drop them; de-relativise "this month".
+- [ ] SV6: a line in the docstring, or count only entries whose directory exists.
+- [ ] Act 2: reconcile against the sibling, the intent records and the commit body; check where the
+      no-date call was put to the principal.
