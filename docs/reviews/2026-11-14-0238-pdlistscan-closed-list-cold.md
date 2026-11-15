@@ -1,9 +1,10 @@
 # Cold pass — `pdlistscan`: in a public repo, personal data stands only where the closed list names it
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1340-rule-4-cold-pass-queued-pdlistscan.md`
-**Status:** ACT 1 RUN 2026-11-15 UTC on Fable 5.1, verdict FAIL (2 MAJOR, 4 MODERATE, 3 minor,
-3 notes), act 2 pending. Brief written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `fb2c22e6`). Run under the principal's weekly Fable drain order of
+**Status:** ACT 1 and ACT 2 RUN 2026-11-15 UTC on Fable 5.1, verdict FAIL (2 MAJOR, 4 MODERATE,
+4 minor, 4 notes; PN13 and PN14 formed at reconcile); sibling folded below the verdict
+2026-11-15 UTC. Findings are the principal's to decide. Brief written 2026-11-14 UTC by a headless
+Opus 5.5 brief-writer (`cclive` lists it as session `fb2c22e6`). Run under the principal's weekly Fable drain order of
 2026-11-16 06:53 NZDT (`/fable-drain`).
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4: self-authored guard code that
@@ -661,3 +662,204 @@ what the design did not carry across is the list's grammar (PN2) and the rule's 
       this scanner alone.
 - [ ] Act 2: open the sibling and the barred records, screen the commit body, append
       `### Reconcile`.
+
+### Reconcile — act 2, 2026-11-15 UTC
+
+Written after act 1 was committed unrevised as `84428ec7` on `main`. Opened at this step: the
+held sibling (the orchestrator's release message named its path, a user-local held copy outside
+the worktree; "Act 1 is committed and pushed … Act 2 may begin now … You may now read the held
+sibling, this one file"), the commit body of `6607c0eb`, the queue pointer `160/1340`, the
+intent records `160/630`, `320/810` and `260/050` whole, the 2026-10-04 personal-data verdict
+(its heads and PI1/PI2), the head of the unrun `160/1120` brief, the `160/1180` pointer,
+`docs/SESSIONS.md` line 355 and the author's session record of 2026-11-09. The author's own
+account of this slice is the commit body and the module docstring; the session record names
+`pdlistscan` in one list line and says nothing of its design. Nothing in act 1 is revised.
+
+**The sibling.** Fourteen questions and a run ledger; the brief-writer probed none past what it
+recorded. Eleven of the fourteen land on findings act 1 formed independently (Q1/Q2 → PN1 and
+PN5; Q3/Q4 → PN3; Q5 → PN6; Q6 → PN7; Q9 → PN2; Q10 → PN10; Q11 → the V4 note; Q12, Q13, Q14 →
+confirmed, no finding). Two it asked that act 1 did not raise, Q7 and Q8, are taken up below as
+findings formed at reconcile, one of them probed. Its fleet count differs from mine by one
+declaration (it saw 6 private / 3 public / 12 none on 2026-11-14; I saw 7 / 2 / 12, plus 2 with
+no config, across 22 children on 2026-11-15); which root moved is not recoverable from a count,
+and nothing turns on it.
+
+**The commit body.** It says "the same check in the floor" (PN3), "22 of 22 exit 0, atelier the
+only repo in scope, with 0 findings" (PN5: true on the landing day, false at HEAD), "Tests: 21"
+(true then; 24 at HEAD after `641f017f`), and nothing the docstring does not already say. It
+carries no account of why a missing list is a finding (PN4) or why an undeclared repo is out of
+scope beyond "a repo declaring anything else is out of scope and says so".
+
+Per finding:
+
+- **PN1 (MAJOR) stands.** The sibling's Q1 and Q2 ask the same question from both sides. The
+  author's account chose the declaration knowingly: `160/630` records "a scanner that enforces
+  the closed list … would need a per-repo visibility key", and `260/050`'s landing note says a
+  missing declaration "only warn[s], so no child turns red". Neither record weighs the case the
+  fleet now holds, a public repo with no key; `260/050` itself asked for "a stale declaration
+  is itself a finding", and an absent one is the stalest. The queued pass `160/1180` carries the
+  overlapping question "whether the cross-check can pass while a repo is public"; the principal
+  should rule on PN1 with that pointer in front of him, and whichever pass lands first should be
+  cited by the other (`REVIEW.md` rule 3, AR8).
+- **PN2 (MAJOR) stands.** The sibling's Q9 asks "which way does each failure fall: loud or
+  silent"; probe P3 answered: silent, all five shapes. Q4 adds that an empty or reason-less list
+  passes; it does. No record states the list's grammar for a child.
+- **PN3 (MODERATE) stands.** Q3 is the finding in the brief-writer's words, read from the code
+  and unprobed; P5 probed it. The body and README both carry "the same check".
+- **PN4 (MODERATE) stands.** No sibling question and no record touches it: `160/630`, `320/810`
+  and the body treat a missing list as a finding without noticing the standard's "A repo with no
+  such file holds no exceptions". The 2026-10-04 verdict's PI2 route ("in a public repo an
+  exception is the principal's to grant … and the list") is what the standard's sentence
+  implements, so the scanner's `no-list` is the newer reading and the standard the older; one of
+  them has to move, and it is his call which.
+- **PN5 (MODERATE) stands, narrowed.** The sibling's Q1 confirms the fleet had already moved by
+  2026-11-14. `320/810` carries an open bullet, "What remains: the flips and their probes … Each
+  flip needs a fresh fleet probe before its date", so the obligation is on the board, undated.
+  What stands is the README's stale fleet sentence on a live surface, and that the bullet names
+  no date and no owner. Counsel unchanged.
+- **PN6 (MODERATE) stands.** Q5 names the code-span and reason-less cases and says the other
+  direction "was not probed"; P2 probed it and found the unscoped form passes both scanners.
+- **PN7 (minor) stands.** Q6 is the same finding; it adds the line-wrapped and different-case
+  cases, which the yardstick shares and which act 1 left unraised on that ground. Noted, not
+  widened.
+- **PN8, PN9 (minor) stand.** No sibling counterpart.
+- **PN10 (note) stands; Q10's question answered.** `guarded_main` turns the strict-decode error
+  into a traceback and exit 2, not into anything read as clean.
+- **PN11, PN12 (notes) stand.** `160/630` keeps "whether the rule moves into the stamped floor
+  block" open, which is PN12's altitude question, unchanged.
+
+**Formed at reconcile** (from the sibling's Q7 and Q8; marked as such):
+
+**PN13 — minor, formed at reconcile. The hook plane reads the working tree, not the index.**
+`read()` opens the path on disk for every file `git ls-files` lists. Probed on a public scratch
+repo: a listed string staged in `docs/note.md` and then reverted in the working copy ran
+clean, so the commit would carry it unseen by the hook; the reverse (in the working tree, not
+staged) was reported against a commit that does not carry it. The CI plane runs on the pushed
+tree, which is the commit, so the backstop holds; the hook's cover is the one that is off by one.
+The floor registry's comment says "a file named by the list can change without the diff saying
+so", which is why the whole tree is read; reading it from the index (`git show :<path>`) on the
+hook plane would keep that and close the gap. *Counsel:* on `--staged`, read blobs from the
+index as the other hook-plane scanners do.
+
+**PN14 — note, formed at reconcile. Any entry's place licenses any personal-data marker.** The
+marker check matches a file against the union of every entry's `May stand in`, so a marker
+excusing an email passes in a file named only by the account-name entry. The yardstick does the
+same, and in atelier PD1 names `docs/roadmap/**` and `docs/reviews/*.md`, so every personal-data
+marker in the record stores passes on PD1's grant. Not a defect in parity terms; a design
+question for the list's owner: whether a place licenses a marker for data its entry does not
+hold.
+
+**Overall, restated: FAIL — 2 MAJOR, 4 MODERATE, 4 minor, 4 notes** (PN1–PN12 from act 1
+unchanged; PN13 minor and PN14 note formed at reconcile). The two MAJORs are the principal's to
+decide after a plain-language account; nothing is applied by this pass. The sibling is left in
+place for the orchestrator's fold.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`84428ec7`); folded here
+verbatim (headings demoted two levels) and the sibling file removed, per the brief. The
+orchestrator, a headless Opus 5.5 session started by drain session `21a271a5`, formed no
+finding and wrote no severity.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-14-0238-pdlistscan-closed-list-cold.md` (`REVIEW.md` rule 1).
+Written 2026-11-14 UTC by the brief-writer (`cclive` lists it as session `fb2c22e6`), which
+authored none of the delta. Open this only after act 1 is committed. Everything here is a floor,
+never a fence, and none of it is a finding: the brief-writer read the code once and probed none of
+these past what is recorded below.
+
+#### The brief-writer's own questions
+
+1. **The fleet has moved since landing.** The docstring, the README section and the commit say no
+   child declares itself public with a list, so for now the scanner reads only atelier. On
+   2026-11-14 UTC, by a read-only count of `.atelier-floor.json` across this machine's child
+   checkouts: 6 declare `private`, 3 declare `public`, 12 declare nothing. Each of the three public
+   ones was in scope on 2026-11-14 with one `no-list` finding, warning and exit 0. On 2027-03-08
+   each turns red unless a list is written, and a list entry is a grant only the principal makes.
+   Is anything set to tell him before the date (A7, V1)? And are the 12 with no declaration all
+   truly private (A1)?
+2. **No key, no scope.** `260/050`'s cross-check, per its landing note, only warns on a missing
+   declaration and is red only for says-private-is-public. So a public repo that never declares
+   is out of scope here and only warned about there. Is the pair loud enough for the one breach
+   that cannot be retracted (A1)?
+3. **The exemption is wider than the test's.** `tools/test_personal_data.py` skips `tools/` and
+   `instruments/` only when looking for markers; it reads them for listed strings, and atelier's
+   list names files under `tools/` as places. The scanner skips those paths for both kinds. In
+   atelier, a listed string added to an unnamed file under `tools/` is caught by the test and not
+   by the scanner. Is "the same check" true (A2, A5, V1)?
+4. **What the test checks and the scanner does not**: a closed set of entries (the test pins the
+   IDs), an entry naming a place that no longer holds its string, a named place that matches no
+   tracked file, and every entry carrying `Why held` and `Granted by`. In a child the list is the
+   only record of a grant, and an empty or reasonless list passes the scanner. Deliberate, and is
+   it said (A2)?
+5. **Two marker grammars.** The scanner's `leakscan:allow:([a-z0-9,-]+):` is its own; `leakscan`
+   builds its marker from `tools/allowmarker.py` (scope list `[A-Za-z0-9_-]+(,…)*`, optional
+   whitespace, a reason that must start with a word or quote character, and code spans blanked so a
+   mention is not a marker). So a marker mentioned inside backticks in a doc counts here and not
+   there, and a reason-less marker, which `leakscan` treats as a mention, counts here too. The other
+   direction (a marker `leakscan` honours that this scanner misses) was not probed (A3).
+6. **Per-line, case-sensitive matching.** A pinned string wrapped across a line break (a two-word
+   name in reflowed Markdown), or in a different case, is not seen; the in-suite test reads the
+   whole text with the same case sensitivity, so the line-wrap case is not new, but is it said
+   (A4)? Files over 4 MiB, binary files (a NUL byte), files missing from the working tree and the
+   list itself are skipped with nothing reported; the coverage line counts only what was opened.
+7. **Which tree the hook reads.** The scanner reads the working-tree copy of each path `git
+   ls-files` lists, not the index. On the hook plane, a staged string removed from the working tree
+   before committing is not seen, and an unstaged one is reported against a commit that does not
+   carry it. The floor's window says "the tracked files … whole tree"; is that the commit (A4)?
+8. **Any entry licenses any marker.** A personal-data marker is accepted in a file named by any
+   entry's `May stand in`, not only the entry that holds the data the marker excuses. The test does
+   the same. With one broad entry (atelier's account-name entry names `docs/roadmap/**` and
+   `docs/reviews/*.md`), any personal-data marker in those stores passes. Intended?
+9. **The parser fails quiet.** `parse_list` starts an entry only on `## PD<digits> ` (a space after
+   the number). A heading written `## PD6:` or `### PD6 —` is not an entry; its bullets are folded
+   into nothing, its strings are never checked and its places never license anything. A
+   `May stand in` token that is prose (atelier's given-name entry) becomes a glob that matches no
+   path. Which way does each failure fall: loud or silent (A6)?
+10. **Output escaping.** `render` passes `detail` through `report.safe_text` but prints `f.path`
+    raw. A tracked path with a control or bidi character is printed as is. `tracked()` decodes
+    `git ls-files -z` output as strict UTF-8, so a non-UTF-8 path raises; does `guarded_main` turn
+    that into exit 2 or into something read as clean? A tracked symlink is followed by `read()` out
+    of the tree. The detail never echoes the matched string, which looks right.
+11. **Duplicated code, two homes.** The scanner carries its own copies of `glob_rx`, `ticks`,
+    `parse_list`, `PERSONAL_SCOPES` and `MECHANISM_PREFIXES` from the in-suite test (only the scope
+    set is pinned against `leakscan`'s real rules, and only in the scanner's tests). A change to one
+    copy reaches the other only by hand (V4).
+12. **The date's order.** 2027-03-08 is four weeks after `attribscan`'s 2027-02-08, as stated; the
+    other dated slices fall on 2027-01-11, 2027-05-03 and 2027-05-31, and slice 4 has no date. The
+    floor's hook and CI templates pass no `--warn`; the advisory template does. The floor registry
+    declares the grounding `Unmet` ("no test names the incident"). Worth a line?
+13. **The test count.** The commit says 21 tests in `test_pdlistscan`; `def test_` counts 21 at
+    `6607c0eb` and 24 at the brief's base (the three later ones are `641f017f`'s coverage tests).
+    The floor contract test was "215 total there"; the brief-writer's run reports 255 at its base,
+    which includes later commits, so not comparable without a run at `6607c0eb`.
+14. **The `CHANGELOG.md` placement.** The entry sits under an empty `blockscan` heading that already
+    stood bare before this commit (checked at `6607c0eb~1`), so the bare heading is not this
+    delta's; the entry is headed 2026-11-09, the UTC day of the commit (02:52 +1300 on 2026-11-10
+    local).
+
+#### What the brief-writer ran, and what it got
+
+All from the worktree root on 2026-11-14 UTC (base `8c06ad60`), foreground, load average about 5
+on 12 cores.
+
+- `git merge-base --is-ancestor 6607c0eb HEAD`: exit 0.
+- `python3 tools/coldsweep.py --root . --commit 6607c0eb --path …` (the brief's six paths): exit 0,
+  738 non-blank lines; the subject and the six-file stat print first.
+- `git log --oneline 6607c0eb..HEAD -- tools/pdlistscan.py tools/test_pdlistscan.py
+  docs/PERSONAL-DATA.md tools/test_personal_data.py`: `641f017f` only.
+- `cd tools && python3 -m unittest test_pdlistscan`: 24 tests, OK, about 5 s.
+- `cd tools && python3 -m unittest test_personal_data`: 11 tests, OK, under 1 s.
+- `cd tools && nice python3 -m unittest test_floor`: 255 tests, OK, about 171 s. The run printed
+  a board-rebuild line; the worktree stayed clean afterwards (`git status --short` empty).
+- `python3 tools/pdlistscan.py --selftest`: `selftest OK — pdlistscan`, exit 0.
+- `python3 tools/pdlistscan.py --root .`: clean, advisory 0, coverage 1,252 tracked files opened and
+  183,447 lines read, exit 0. With `--json`: `clean` true, `in_scope` true, `blocking` false,
+  `until` 2027-03-08, no findings.
+- `python3 tools/floor.py --list --root . | grep pdlistscan`: one line, `enforced  fleet  decl 2/5`.
+- `ls` for `tools/leakscan.py` across this machine's checkouts: one, atelier's own.
+- The visibility count and the in-scope run in question 1: the scanner run read-only with `--json`
+  against each child that declares public; each exit 0, `in_scope` true, one `no-list`.
+- Not run: the 22-repo probe with the date patched to the flip (no recorded command; left to the
+  pass), and any probe of questions 2 to 11.
