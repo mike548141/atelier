@@ -1,9 +1,10 @@
 # Cold pass — `namescan`, no private name in a branch name or commit title
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1410-rule-4-cold-pass-queued-namescan.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `51ccf0f9`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** RUN. Act 1 (the verdict below the divider) written 2026-11-15 UTC by a Fable 5.1 cold
+reviewer, spawned by a headless orchestrator under drain session `21a271a5`; act 2 (reconcile
+against the sibling and the barred records) pending. Brief written 2026-11-14 UTC by a headless
+Opus 5.5 brief-writer (`cclive` lists it as session `51ccf0f9`).
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
@@ -311,3 +312,335 @@ public child on its date, so it is doctrine by function (rule 3): **the author a
 its own**. Record all findings; they are the principal's to decide, after a plain-language account.
 Counsel per finding is welcome, labelled as counsel and kept beneath it, and a finding that bears
 on whether the 2027-05-03 flip should happen as built says so in its first line.
+
+---
+
+## Verdict — act 1
+
+**Overall: FAIL** — 2 MAJOR · 4 MODERATE · 4 minor · 2 note (12 findings, `NS1`–`NS12`). The
+check is honest at runtime and its tests, selftest and measurements all reproduce, but two
+load-bearing assumptions are false: the engine as wired cannot see a private name in the shapes a
+ref name actually takes (`NS1`), and the surfaces the originating harm took on the forge are read
+either nowhere or only where the term list is absent, and the delta's own text does not say so
+(`NS2`). Both bear on the 2027-05-03 flip, each in its first line.
+
+### Provenance (V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), tier checked at selection, in a fresh session
+  started for this pass alone. Run on 2026-11-15 UTC from the review worktree
+  `/Users/mike/worktrees/fable/atelier-160-1410-1926/atelier` at `4a219254` (the board claim),
+  which carries `6b6110c9`, `b74cd5ef` and `ba55be27` (`merge-base --is-ancestor` printed
+  nothing). Nothing after `b74cd5ef` touched `tools/namescan.py`, `tools/test_namescan.py`,
+  `tools/commitmsg.py` or `.githooks/commit-msg`.
+- **Spawn:** by a headless orchestrator session (Opus 5.5) that drain session `21a271a5`
+  (Opus 5.5) started. Both are rule-4 off-tier orchestrators disclosed here: they hold the context
+  partition, form no finding and write no severity; the orchestrator committed the claim and
+  commits this act. Neither wrote the brief or any of the delta. Not started or instructed by the
+  barred sessions `51ccf0f9`, `58027096` or `d0ca5d24` (nor anything `d0ca5d24` started). Run under
+  the principal's weekly Fable drain order of 2026-11-15 17:53 UTC.
+- **Read:** this brief whole; `docs/method/REVIEW.md` §§ *What a review actually checks*,
+  *Re-run*, *The standing checklist*; `tools/namescan.py`, `tools/test_namescan.py`,
+  `tools/commitmsg.py`, `.githooks/commit-msg` at HEAD; `tools/floor.py` (the `namescan`,
+  `quotescan`, `sweepscan`, `pdlistscan` and `leakscan` entries, `MSG_CHECKS`, `FORBIDDEN_FLAGS`,
+  `_render`, `commit_msg_hook_note`, the TA4 comment); `leakscan.scan_lines`, `redact`,
+  `derived_form_regex`, `load_local_terms`, `resolve_terms_path`; `allowmarker.marker_rx`,
+  `present`, `_note_unparseable`; `pdlistscan.declared_public`; `report.safe_text`,
+  `guarded_main`, `advisory_count_line`, `quiet_selftest`; the three commits body-free through
+  `coldsweep --commit … --path …`; `tools/README.md` and `CHANGELOG.md` through those diffs and
+  grep; `.github/workflows/*.yml` by grep (`fetch-depth`, `floor.py`); `docs/method/PROPAGATION.md`
+  § *The route* rule 2 and the bullet at lines 786–802, § *Enforcement propagates too* in part;
+  `docs/method/GUARDS.md` by grep only; this repo's pull-request list (`gh pr list --state all
+  --json number,title,headRefName`, 136 rows); OWASP ASVS 5.0 chapters V1, V2 and V16, fetched,
+  not recalled. One `coldsweep` tree sweep with the brief's four excludes (the sibling exclude
+  matched no file: it is removed from this worktree on purpose).
+- **Not opened:** `docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`, every prior verdict
+  in `docs/reviews/`, the queue pointer, items `160/360`, `320/810` and `260/050`, the three commit
+  bodies, the `.deferred.md` sibling. No `--include-barred`. The machine's term list was loaded by
+  the tool for two real-cover measurements (`NS11`) and never opened, printed, quoted or counted.
+- **Exposure, disclosed:** the pull-request listing put 136 public titles and head refs of this
+  repo into the reviewer's context; none is repeated here. Fleet results below are counts only.
+  The harness loaded user-level instruction files and a memory index that hold private context;
+  nothing from them is used or carried here.
+- **Interpreter:** the re-run lines were run with `python3` on `PATH` (3.14.6), as the brief did;
+  `/usr/bin/python3` (3.9.6) was used only for `coldsweep` and the gate tools. git 2.50.1.
+  Every suite ran under `nice -n 10`, one at a time, foreground, with `uptime` read first (load
+  5.9–18.2 on 12 cores while other passes ran).
+
+### Lens 1 — approach and assumptions
+
+The load-bearing assumptions, named and probed. Every probe ran in a scratch repo under the
+scratchpad with a synthetic three-term list (one plain word, one plain two-word term, one `forms:`
+term), against a scratch copy of `tools/`; the worktree's `tools/` was never mutated, and every
+scratch artefact was deleted afterwards.
+
+- **NA1 — reading the title and branch at commit time prevents the harm.** DAMAGED (`NS2`). With
+  the real `.githooks/commit-msg` installed in the scratch repo: a plain commit with a listed term
+  in its title warns and lands (hook ran); `--no-verify` is silent; a `git rebase` replaying a
+  title and a `git cherry-pick` replaying a title run no `commit-msg` hook (both confirmed, exit 0,
+  no scanner line), while `git merge --no-ff -m` does run it; `git branch -m <name>` after the
+  commits, `git branch <name> HEAD` after a detached-HEAD commit, and `git push <remote>
+  HEAD:<name>` each publish a ref name that no local plane ever reads; a detached-HEAD commit
+  scans the subject only (clean line, branch empty, as the docstring says). On the CI plane the
+  pushed ref name is read from `GITHUB_HEAD_REF` / `GITHUB_REF_NAME` and, given a term list, a
+  listed term in it is found; without a list (a hosted runner) the same ref is invisible. A
+  pull-request title is read by neither plane: with a synthetic `GITHUB_EVENT_PATH` whose
+  `pull_request.title` carried a term, the run printed a clean line. Across the 21 local child
+  checkouts, 13 carry an executable `commit-msg` hook and 8 do not, including 1 of the 3 that
+  declare themselves public: in that clone the message plane never runs.
+- **NA2 — the CI plane is meaningful cover.** DAMAGED for terms, CONFIRMED for shapes (`NS3`).
+  With `HOME` pointed at an empty directory and no `--terms`, a title carrying a listed term
+  printed `✓ namescan clean — … (no local term list found — scanned STRUCTURAL patterns only. …)`,
+  exit 0, and the `--json` `cover` field says the same. So the green line is honest at runtime.
+  The README section, module docstring, changelog entry and floor comment say CI "reads the pushed
+  range and only reports" and never that CI holds no list, so a reader of those takes the CI plane
+  as cover for names; it is cover for hostnames, addresses and the other structural shapes only.
+  Both workflows check out with `fetch-depth: 0`, so `pushed_range` resolves the event's `before`
+  or a pull request's base in CI; on a shallow clone it falls to `HEAD^..HEAD` with a note, which
+  the head line prints.
+- **NA3 — leakscan's engine is the right definition of a private name for refs and titles.**
+  DAMAGED (`NS1`). A plain term compiles to `\b<term>(?:s)?\b`, and `\b` treats `_`, letters and
+  digits as word characters. Probed on branch names with the synthetic plain term:
+  `report-<term>-1`, `report/<term>/x` and the upper-cased term are found; `fix_<term>_thing`,
+  `fix<Term>Thing` and `<term>2` are missed. A plain two-word term can never match a ref name
+  (refs carry no spaces):
+  `report-<word>-<word>-1` and `<word>_<word>` both missed, and the same two-word term in a title
+  is found spaced and missed hyphenated or underscored. Only a `forms:` term matches the slug,
+  snake and camel spellings (`derived_form_regex`), and `forms:` is opt-in, held opt-in by
+  leakscan for a reason that belongs to prose (compound-word false positives), not to ref names.
+  Plurals and possessives in titles are caught; a term with a combining-mark spelling is matched
+  through NFC as leakscan does.
+- **NA4 — the check cannot leak what it guards.** CONFIRMED for findings, DAMAGED for one note
+  (`NS8`). A finding's `excerpt` is `term:<2 chars>…` for a listed term and leakscan's `redact`
+  for a structural shape (`10.….3 (8 chars)` shape); `where` is a literal or a 12-hex commit id;
+  `rule` is a rule name; `--json` carries the same three fields; a title and a branch name carrying
+  ESC, CSI and a bidi override produced no raw control character in any output; the branch name
+  itself is never printed, only its redacted excerpt. The error paths print a term-list *path* or a
+  floor-file path, never a term. The one channel that echoes message text is `allowmarker`'s
+  "present but unparseable" note: `namescan:allow:(<term>-fixture)` and `namescan:allow::<term>`
+  each printed the glued tail, term included, to stderr.
+- **NA5 — scope by declaration is correct.** DAMAGED (`NS6`). Of 21 local child checkouts with an
+  `.atelier-floor.json`, 3 declare `"visibility": "public"`; `gh repo view --json visibility`
+  (read-only) says 5 are public on the forge, so **2 public repos are outside the check's scope**
+  and get `✓ namescan clean — not declared public: out of scope.` A declaration of `"Public"`
+  (capitalised) is read as not public, the same comparison `pdlistscan.declared_public` makes. A
+  malformed floor file exits 2 with the shared `cannot read` line, no traceback. A private repo's
+  own name in its own titles is rightly out of scope, as the docstring says.
+- **NA6 — the exemption is narrow.** DAMAGED (`NS4`). `scan_message` tests
+  `allowmarker.present(ALLOW_RX, message)` over the **whole** message before reading the subject,
+  so a subject `tools: <term> fix namescan:allow: because` exempts itself (0 findings), against the
+  docstring, README, changelog and the brief's extracted claim that "a subject cannot exempt
+  itself". The separator is `SEP_ANY_SPACE` (`\s*`), which spans newlines, so a bare
+  `namescan:allow:` at the end of the subject followed by a body paragraph takes the body's first
+  word as its reason and exempts (0 findings). A marker inside an inline code span is a mention;
+  a leakscan marker in the body or the title exempts nothing; one body marker exempts the subject
+  and the branch together, which is the author's stated intent.
+- **NA7 — the date flips cleanly and alone.** CONFIRMED. With `_utc_today` patched: 2027-05-02
+  exits 0 with `advisory: 1 finding(s)`; 2027-05-03 and 2027-05-04 exit 1 with `commit blocked`
+  and `advisory: 0`; `--warn` holds exit 0 on the flip; `--json` reports `clean: false,
+  blocking: true, until: 2027-05-03`; moving the constant one day turns the suite red (`MUT4`),
+  so the date is pinned by test. The range plane exits 0 after the date with or without `--warn`.
+  On the day: 4 repos are in scope (this one and 3 children); over this repo's 2,336 titles and
+  the children's 13,321, 0 findings on the run date and with the date patched to 2027-05-03.
+  `--require-terms` on the message template means a public-declared repo on a machine with no
+  term list exits 2 and blocks from the landing date, not from the flip; that matches leakscan's
+  hook template and is a convention, not a defect (`NS12`).
+- **Altitude.** A commit-time hook is the right *first* rung: it is the only moment the term list
+  and the chance to prevent coincide. It is not the altitude of the harm, which is forge-side.
+  The routes in NA1 that bypass it are closed by a pre-push hook reading the ref names being
+  pushed with the same local list, and a pull-request title read in CI (structural shapes only,
+  as CI must be). `PROPAGATION.md` names that rung and says it is not built; the delta neither
+  points the reader there nor says what it leaves to it (`NS10`).
+
+### Lens 2 — correctness and quality
+
+Each commit diffed body-free; the tool driven on both planes against scratch repos across the
+flip; tests mutated on a scratch copy. Overclaims recorded against the text that makes them:
+
+- *"a subject cannot exempt itself"* — module docstring (EXEMPTION paragraph), README section,
+  changelog entry: false (`NS4`).
+- *"no private name in a branch name or commit title"* — README heading, floor `why`, help text:
+  stronger than the engine's reach on ref names (`NS1`) and silent on pull-request titles and on
+  push-time ref names (`NS2`).
+- *"CI reads the pushed range and only reports"* — README, docstring, changelog, floor comment:
+  true, and silent on CI's structural-only cover (`NS3`).
+- *"A finding names the rule and a redacted excerpt, never the term"* — docstring, README: true of
+  findings; the unparseable-marker note is not a finding and can carry the term (`NS8`).
+- *"Fleet probe … 21 of 21 exit 0 … atelier is the only repo in scope"* — changelog: the exit codes
+  reproduce; the scope claim is stale (3 children declare public at HEAD) and 2 more are public
+  undeclared (`NS6`, `NS11`).
+- *"Tests: 14"* — reproduces, and two of the fourteen cannot fail on the surface they name
+  (`NS5`).
+
+A 2 MB title scanned in 0.28 s and a title of 200,000 address-shaped tokens in 2.3 s with the
+printed list capped at 40, so the regexes do not blow up on a hostile line. Mutation `MUT3`
+(a reordering with identical semantics) kept the suite green, so the suite is not merely brittle.
+
+### Lens 3 — completeness and harvest
+
+- Mirror sites (V3): `PROPAGATION.md` lines 797–799 still read "A branch-name and title lint at
+  the reporter's push, or a `handupscan` run at merge, is the next rung (`GUARDS.md`); it is not
+  built". A commit-time lint is built and the sentence does not point at it, and `GUARDS.md` holds
+  no text about that rung (`NS10`). `CHANGELOG.md:650` says the same as history; left as history.
+- One home (V4): `NAME_WARN_UNTIL` is the date's home; the README heading and body, the changelog
+  and one test carry copies at the point of use, the shape `pdlistscan` uses for 2027-03-08.
+  Discharged. The scope key is one function, `pdlistscan.declared_public`, shared. Discharged.
+- Siblings: marker grammar matches `quotescan` and `attribscan` (`SEP_ANY_SPACE`, unnamed
+  reason); the advisory-count line, the broken-scan exits and the warn-first constant follow the
+  house shapes; `MSG_CHECKS` and the `test_floor` registry test were extended for it. The `ci`
+  template omits `--require-terms` as leakscan's does, by the same design.
+- Not harvested: `commitmsg.commits` hard-codes `#` when cleaning history, so a historical title
+  that begins with `#` is dropped and the body's first line is scanned as the subject (`NS9`).
+
+### Lens 4 — security and privacy (V6)
+
+Input is the most sensitive list on the machine; threats enumerated and checked against ASVS 5.0:
+- **Argument injection (ASVS 1.2.5, 1.3.3).** `--range=--output=<path>` is handed to `git log`
+  as an option and **wrote a file** in the scratch repo (exit 0, clean line); `--range=--all`
+  widens the read to every ref. argparse refuses the space-separated spelling, and
+  `FORBIDDEN_FLAGS` refuses `--range` and `--message-file` from a child's `flags`, so the surface
+  is the command line only (`NS7`). `pushed_range` validates the event's SHA by regex before
+  building the spec; a `GITHUB_HEAD_REF` carrying control characters reached no raw output.
+- **Log injection and control characters (16.4.1).** `safe_text` on every excerpt; `where` and
+  `rule` are internal; `broken` strips controls from error text. Confirmed by probe.
+- **Sensitive data in output (16.2.5).** Findings redact; the unparseable-marker note does not
+  (`NS8`). Where that note lands: on the message plane, the author's terminal; on the CI plane, a
+  log, but the text it echoes is a commit message already pushed to a public repo. No term reaches
+  a public log by the check's own hand in either; the finding is the broken claim and the channel.
+- **Error messages (16.5.1).** Error text names the term-list path or the floor-file path, never a
+  term. An unexpected exception prints a traceback and exits 2, which is the RT4 design.
+- **`/security-review`:** discharged with grounds. It reads the session's pending diff, not a path;
+  this worktree is not clean while the review runs (the deliberately removed sibling and this
+  file), and several passes are live on this machine, so the batch-shape caution in `REVIEW.md`
+  applies. Aimed at a scratch clone it would see the delta as landed code, which its exclusions
+  cover thinly. Not run.
+
+### Standing checklist V1–V7
+
+- **V1** no claim stronger than its evidence: breached (`NS2`, `NS3`, `NS4`, `NS11`).
+- **V2** re-run every live-proven claim: all ten lines re-run (ledger below); each reproduces.
+- **V3** changed rule swept to every mirror: breached at `PROPAGATION.md:797–799` (`NS10`).
+- **V4** one fact, one home: discharged (lens 3).
+- **V5** no internal contradiction: breached between the EXEMPTION docstring and
+  `scan_message` (`NS4`); the cross-reference `PROPAGATION.md:798 → GUARDS.md` reaches a file
+  that does not hold the rung (`NS10`). The floor's `declares.rule` is `Unmet("… no passage of a
+  rule")` while `PROPAGATION.md` § *The route* rule 2 is that passage (`NS10`). The docstring's
+  `260/050` reference was not opened; its claim (the visibility key) is confirmed by
+  `declared_public`.
+- **V6** security and privacy on every review: run (lens 4); `/security-review` discharged.
+- **V7** provenance stated: above.
+
+### Findings
+
+- **NS1 — MAJOR.** *Bears on the flip: a gate blind to slugged ref names should not turn
+  blocking as built.* The engine as wired cannot see a listed name in the shapes a ref name takes:
+  `_`, digit-glued and camel-case spellings of a one-word term are missed (`\b` treats `_` and
+  digits as word characters), and a plain multi-word term can match no ref name at all, nor a
+  hyphenated or underscored title. Only `forms:` terms reach those spellings, and `forms:` is
+  opt-in for a prose reason that does not apply to refs. The headline surface gets a false clear
+  in its most common shape. *Counsel:* on the ref surface (and arguably the title surface) compile
+  every literal through `derived_form_regex`, or at least treat `_`, digits and case changes as
+  boundaries; keep `forms:` opt-in for file text. Test the `_` case.
+- **NS2 — MAJOR.** *Bears on the flip: the green it prints after the flip must not be read as
+  cover for the forge.* The harm the brief says to judge by is a private name in a public repo's
+  head refs, titles or pull-request list. The build reads the branch name and commit title at
+  commit time only; a pull-request title is read nowhere; a ref named at push, renamed after its
+  commits, or created after a detached-HEAD commit passes no plane that holds the list; rebase
+  and cherry-pick replays run no `commit-msg` hook; 8 of 21 local clones (1 of 3 public-declared)
+  have no `commit-msg` hook. None of this is stated in the docstring, README, changelog or floor
+  comment, whose heading is "no private name in a branch name or commit title". The build matches
+  the principal's commissioning words; the gap is against the harm, and it is undisclosed.
+  *Counsel:* state the unread surfaces where the claim is made; read `pull_request.title` from the
+  event on the CI plane (structural shapes, like the rest of CI); queue the pre-push rung with
+  the local list for ref names.
+- **NS3 — MODERATE.** The CI plane holds no term list by design, so its cover is structural
+  shapes only; the runtime line and `--json` say so, the README section, docstring, changelog and
+  floor comment do not, and "CI reads the pushed range and only reports" reads as cover for
+  names. *Counsel:* one sentence at each of the four sites.
+- **NS4 — MODERATE.** "A subject cannot exempt itself" is false: the exemption is tested over the
+  whole message, so a reasoned marker in the title exempts the title; and because the separator
+  spans newlines, a bare `namescan:allow:` ending the subject takes the body's first word as its
+  reason. Neither shape is tested. *Counsel:* test the marker against `message` with the subject
+  line removed, and against the body only with `SEP_SAME_LINE`; add both cases to the tests and
+  the selftest.
+- **NS5 — MODERATE.** Two tests cannot fail on the surface they name:
+  `test_a_term_in_the_branch_warns` asserts `"branch" in out`, and the clean line reads "no
+  private name in a branch or title"; `test_range_reports_and_never_blocks` asserts `"private
+  name" in out`, and the clean line contains "private name". With the branch scan removed, and
+  separately with the range scan reading no commits, both stayed green (`MUT1`, `MUT2`). The
+  branch surface, the item's headline, has no failing test. *Counsel:* assert the finding line
+  (`branch: [local-term]`) and the advisory count.
+- **NS6 — MODERATE.** Scope by declaration loses repos: 2 of 21 local children are public on the
+  forge and not declared, and the check prints a clean "out of scope" line in each; a capitalised
+  `"Public"` is out of scope the same way. The changelog's "atelier is the only repo in scope" is
+  stale at HEAD (3 children declare public). The comparison is `pdlistscan`'s and shared, so the
+  defect is the floor's scope key, surfaced here. *Counsel:* a one-read reconciliation of the
+  declaration against `gh repo view --json visibility`, warn-first, in `floor.py` or
+  `floorfleet`; case-fold the value.
+- **NS7 — minor.** `--range=<spec>` beginning with `-` is passed to `git log` as an option:
+  `--output=<file>` wrote a file, `--all` widened the read. Command line only (`FORBIDDEN_FLAGS`
+  and argparse bound it). Shared `commitmsg.commits`, so `quotescan` inherits it. *Counsel:*
+  `git log --end-of-options <spec>` or refuse a spec with a leading `-`.
+- **NS8 — minor.** The unparseable-marker note echoes up to 40 glued characters after
+  `namescan:allow`, a listed term included, to stderr. On the message plane that is the author's
+  terminal; on CI it is text already public. The claim "never the term" is true of findings and
+  not of this channel. Shared `allowmarker` (110/010). *Counsel:* cut the note's head at the first
+  separator after the marker word.
+- **NS9 — minor.** On the range plane `commits()` cleans history with a hard-coded `#`, so a title
+  beginning with `#` is dropped and the body's first line is scanned as the subject; a term in
+  such a title was missed. `commitmsg` is `160/1390`'s design; the effect on namescan's result is
+  this pass's. *Counsel:* clean only the message-file plane; history is already cleaned by git.
+- **NS10 — minor.** `PROPAGATION.md:797–799` still says the branch-name and title lint "is not
+  built" and cites `GUARDS.md`, which holds no such text; the floor's `declares.rule` says no rule
+  passage exists while § *The route* rule 2 is one. *Counsel:* point the sentence at namescan and
+  name what it leaves to the next rung; cite rule 2 in `declares`.
+- **NS11 — note.** Measurements re-run with the real list, counts only: 0 of 2,336 titles in this
+  repo (was 0 of 2,285); 0 of 8 refs in the shared ref store (was 0 of 41, before branch
+  clean-up); 0 of 136 pull-request titles and 0 of 136 head refs; fleet 21 of 21 exit 0 on both
+  dates, 0 findings. The ref figures are hand measurements over `for-each-ref`, not a surface the
+  scanner reads: it reads one branch name per run. The fleet figure proves scope more than titles:
+  18 of 21 are out of scope and exit 0 before reading anything.
+- **NS12 — note.** `--require-terms` on the message template blocks from the landing date on any
+  machine without a term list in a public-declared repo, before the flip; this is leakscan's hook
+  convention and is right, stated so the flip-day reading is not that blocking began that day.
+
+### Per-commit ledger
+
+| commit | read body-free | findings |
+| --- | --- | --- |
+| `6b6110c9` | yes (`coldsweep --commit`, 7 paths) | NS1–NS9, NS11, NS12 |
+| `b74cd5ef` | yes (`coldsweep --commit`, 1 path) | none; the 3-line hunk is sound |
+| `ba55be27` | `declares=` block at HEAD only, as directed | none; its `Unmet` rule is NS10's |
+
+### Re-run ledger (2026-11-15 UTC, worktree root, `python3 tools/…` with 3.14.6, `nice -n 10`)
+
+| line | result |
+| --- | --- |
+| `cd tools && python3 -m unittest test_namescan` | 14 tests OK, exit 0 |
+| `cd tools && python3 -m unittest test_commitmsg` | 12 tests OK, exit 0 |
+| `cd tools && python3 -m unittest test_floor.MsgPlaneTest` | 10 tests OK, exit 0 |
+| `cd tools && python3 -m unittest test_precommit.CommitMsgHookTest` | 7 tests OK, exit 0 |
+| `namescan.py --selftest` | `selftest OK — namescan`, exit 0 |
+| `namescan.py --range pushed --root . --warn` | clean, note "no pushed range known", exit 0 |
+| `namescan.py --range HEAD --root . --warn \| head -2` | clean, advisory 0; 2,336 titles |
+| `namescan.py --range nosuch..HEAD --root . --warn` | `git log … failed`, exit 2 |
+| `floor.py --plane msg --list --root . \| grep namescan` | `enforced fleet decl 0/5` |
+| fleet probe by exit code, run date and 2027-05-03 | 21/21 and 21/21 exit 0, counts only |
+
+Probes NOT RUN because they would write to a real repo or forge: a real push of a privately
+named ref, a real pull request, installing the hook in a real clone. Each was built in a scratch
+repo with a scratch bare remote instead (lens 1, NA1).
+
+### Follow-up checklist (the principal's to decide; rule 3, the author applies nothing)
+
+- [ ] `NS1` ref-surface matching (slug, `_`, digit, case) — before the flip, or hold the flip.
+- [ ] `NS2` state the unread surfaces; read the pull-request title in CI; queue the pre-push rung.
+- [ ] `NS3` four sentences: CI holds no list, structural shapes only.
+- [ ] `NS4` subject self-exemption and the newline-spanning separator; two tests.
+- [ ] `NS5` make the branch and range tests able to fail.
+- [ ] `NS6` reconcile declared visibility with the forge; on 2026-11-15 UTC two undeclared
+      public repos sit outside every declaration-scoped check.
+- [ ] `NS7` `--end-of-options` in `commitmsg.commits`.
+- [ ] `NS8` cut the unparseable-marker note's head.
+- [ ] `NS9` do not clean history with `#`.
+- [ ] `NS10` PROPAGATION.md rung sentence; `declares.rule`.
+- [ ] Act 2: reconcile against the sibling and the barred records.
