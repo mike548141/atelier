@@ -340,7 +340,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: cctranscript reads a task notification the…](roadmap/160-doctrine-review-owed/991-rule-4-cold-pass-queued-notification-records-one-way.md)
 - [ ] ⏳ [Rule-4 cold pass queued: every scanner's --selftest prints only its…](roadmap/160-doctrine-review-owed/992-rule-4-cold-pass-queued-quiet-selftests.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose resolves a shell variable in a…](roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md)
-- [~] ⏳ [Rule-4 cold pass queued: leakscan's rules that are off report without…](roadmap/160-doctrine-review-owed/994-rule-4-cold-pass-queued-leakscan-reports-off-rules.md)
+- [ ] 🎯 [Rule-4 cold pass queued: leakscan's rules that are off report without…](roadmap/160-doctrine-review-owed/994-rule-4-cold-pass-queued-leakscan-reports-off-rules.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the dispatch brief, the pathspec and…](roadmap/160-doctrine-review-owed/995-rule-4-cold-pass-queued-dispatch-brief-and-shared-surfaces.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a loose end makes the close "not ready until…](roadmap/160-doctrine-review-owed/996-rule-4-cold-pass-queued-close-loose-ends-and-routed-refusals.md)
 - [ ] ⏳ [Rule-4 cold pass queued: pathscan skips a child's inlined floor…](roadmap/160-doctrine-review-owed/997-rule-4-cold-pass-queued-floor-region-skip-and-markup-rule.md)

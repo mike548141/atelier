@@ -4,9 +4,9 @@
 doctrine by function, rule 3).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** VERDICT, act 1 written 2026-11-15 UTC by a Fable 5.1 reviewer (below the divider);
-act 2, the reconcile against the sibling and the barred records, pending the orchestrator's
-release. Brief written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5 brief-writer.
+**Status:** VERDICT, acts 1 and 2 written 2026-11-15 UTC by a Fable 5.1 reviewer (below the
+divider); the sibling is folded in by the orchestrator at the same commit. Brief written
+2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/994-rule-4-cold-pass-queued-leakscan-reports-off-rules.md`.
 **Size of this pass:** medium: about 240 lines of guard code, a design note and a doctrine
@@ -177,9 +177,8 @@ recorded proof (V2): re-run it read-only and by count. The brief-writer did not 
 <!-- reviewscan:allow:deferral: this section BARS reading and carries no deferred content; the deferred material lives in the sibling .deferred.md under the rule-1 split, opened only after the reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
-verdict in `docs/reviews/`, this brief's sibling
-`docs/reviews/2026-11-09-0207-leakscan-off-rules-cold.deferred.md` (a held-back file; by count: 7
-questions, 2 facts), every other item under `docs/roadmap/160-doctrine-review-owed/` beyond its
+verdict in `docs/reviews/`, this brief's sibling (now folded at the end of this file; held by the orchestrator until
+act 1 was committed; by count: 7 questions, 2 facts), every other item under `docs/roadmap/160-doctrine-review-owed/` beyond its
 title, every delta commit's message body, and these intent records beyond their first line:
 
 - `docs/roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md`
@@ -453,3 +452,129 @@ Load: `uptime` 8.6 at start, 3.8–11.8 during; one heavy process at a time, all
 - [ ] LO4: pin the withdrawn-refusal wording.
 - [ ] LO6: tidy the docstring.
 - [ ] Act 2: reconcile against the sibling (7 questions, 2 facts) and the barred records.
+
+### Reconcile
+
+Act 2, 2026-11-15 UTC, after act 1 was committed unrevised (`b7cd9648`). Opened then, and not
+before: the sibling (7 questions, 2 facts, the brief-writer's re-run results); the intent record
+`115/090` whole; the EI6 record (`EI5`, `EI6`, the rulings); `00-APEX.md` § *The principal's
+authority is absolute*; the `115/090` lines of the author sessions' logs (2026-11-03 and
+2026-11-06); both delta commit bodies; the queue pointer; and the status and overall lines only of
+the 2026-10-17 advisory-count pass the sibling names. Nothing above the divider is revised.
+
+**Against the sibling's questions.**
+
+1. *Does "report" create the exposure EI6 guarded against; what is printed?* Act 1, lens 4: the
+   excerpt is redacted (three leading and two trailing characters and a length), the same as a
+   blocking hit's, and describes content already in the tree. EI6's object was the blocking set,
+   which did not move. No finding.
+2. *Is a count nobody acts on cover, not coverage; is the board the consumer EI1 asked for?* The
+   design answers with the per-run board count, which act 1 confirmed on both planes, and names
+   "read, not acted on" as the accepted cost (design § 5). The count never reaches the fleet view;
+   that is already LO1's evidence. One declared run now reports 6,216 hits, a list nobody will read
+   line by line; that is the answer's cost, not an overclaim. No new finding.
+3. *Is the pin list derived or hand-kept?* Hand-kept. The suite asserts every pinned name is in
+   `STRUCTURAL` and that `STRUCTURAL` and `WITHDRAWN` are disjoint, but not that every `STRUCTURAL`
+   name is pinned. A rule added after 2026-11-03 and later moved to `WITHDRAWN` leaves the blocking
+   set with the pin green. Not probed in act 1. **LO7, below, formed at reconcile.**
+4. *Is `blocks()` the only path?* Act 1 A2 and M9: every structural finding takes its response from
+   `_active_rules`, which calls `blocks()`; term-list, binary and path-name findings default to
+   block, and the staged, metadata and message lanes all go through `scan_lines`. No other path.
+5. *Can a child now disable a blocking rule more cheaply because it "still reports"?* This is LO1's
+   substance. The intent record's first answer said a child's `--disable` of a whole class "should
+   be weighed against that"; the build did not weigh it, and GUARDS left the question open. LO1
+   stands, with that line as added evidence.
+6. *Other double counts from the shadow asymmetry?* `SHADOWED_BY` has one entry (`ipv6` by
+   `mac-address`), so the MAC is the only one. None.
+7. *The authority chain against the informed-ruling test.* The intent record shows the 1501 run
+   holding the build, re-briefing with EI6 stated and "keep EI6" offered, and the principal
+   choosing the narrow option. `00-APEX.md`'s condition (a ruling is challengeable on whether he
+   was informed) is met for the second answer; the first is not relied on, as design § 1 says.
+   Holds.
+
+**Against the author's account.** The `0477462` body matches the delta as read; it changes no
+finding, and its "no exit code or blocking count moved" is the claim act 1 re-ran. The `e8614ec`
+body dates the consumer to 2026-08-04 (not checked); the dates the lead itself states were. The
+item record says "new report-only counts in 6 repos, the largest 2,662"; design § 6 says 2,652 for
+the same run. **LO8, below, formed at reconcile.** The sibling's re-run results (395, 187 and 2,643
+tests on 2026-11-09) sit below act 1's (422, 255, 3,134), as later landings would have it, and its
+Python 3.9 import error on `test_floor` reproduced.
+
+**Findings formed at reconcile.**
+
+**LO7 — minor (lens 3, tests; formed at reconcile).** `BlockingSetPinned` pins the fifteen rules
+of 2026-11-03 but does not require every `STRUCTURAL` rule to be pinned, so a rule added later and
+then withdrawn would narrow the blocking set with the suite green. The design's "adding a rule is
+welcome" makes the gap deliberate for additions, not for a later withdrawal of one. *Counsel:* one
+assertion that the pinned names equal `STRUCTURAL`'s, so a new rule arrives with its fixture.
+
+**LO8 — note (V5, records; formed at reconcile).** One measurement, two figures: the design note
+says the largest disabled-class count was 2,652 and the item record says 2,662. Both are dated
+records, so a correcting line beside the wrong one, not an erase.
+
+**Per-finding.** LO1 stands, strengthened (question 5). LO2, LO3, LO4, LO6 stand. LO5 stands; the
+sibling's "6 repos" reading matches the re-run (six repositories with a non-zero count).
+
+**Overall, restated:** **PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE (LO1) · 3 minor (LO2, LO3,
+LO7) · 4 notes (LO4, LO5, LO6, LO8).**
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`b7cd9648`); folded here
+verbatim (headings demoted two levels) and the sibling file removed, per the brief. The
+orchestrator (a headless Claude Opus 5.5 session started by drain session `21a271a5`) formed no
+finding and wrote no severity.*
+
+### Sibling to the leakscan-off-rules cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-11-09-0207-leakscan-off-rules-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-11-09 UTC by the brief-writer, session `d4a0fcf3` (Opus 5.5), named in the
+brief's provenance; it forms no finding and assigns no severity. Fold this file in below the
+reconcile and delete it at phase 2.
+
+#### Re-run results held back from the brief
+
+Run once by the brief-writer, 2026-11-09 UTC, from the worktree root at `b1f9499`, machine load
+averages 10 to 22 throughout:
+
+- `python3 -m unittest discover -s tools -p test_leakscan.py`: exit 0 (Ran 395 tests).
+- `python3 tools/leakscan.py --selftest`: exit 0 (selftest OK).
+- `cd tools && python3 -m unittest test_floor`: 187 tests, OK, exit 0 (Python 3.14.6).
+- `python3 tools/floor.py --plane ci --root .`: exit 0 (Python 3.14.6), `leakscan advisory: 3
+  finding(s)`.
+- Full suite, `nice -n 10 python3 -m unittest discover -s tools`, Python 3.14.6: 2,643 tests, OK,
+  exit 0, 1,167 s. An earlier run on the system Python 3.9.6: 2,307 tests, 4 import errors
+  (`test_floor`, `test_floorfleet`, `test_personal_data`, `test_precommit`: a module-level `str |
+  None` annotation) and 1 timeout under load (`test_spellscan.BoundedMemory`, which passed alone on
+  3.14).
+
+#### Prior records on nearby surfaces (named by filename, not opened unless the brief says so, not exhaustive)
+
+- `docs/reviews/2026-07-29-1243-e6-intent-cold.md`
+- `docs/reviews/2026-10-17-1010-advisory-count-per-scanner-cold.md`
+
+#### Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. EI6 said no advisory form because a leak cannot be rotated. An off rule that now reports prints
+   the matched personal data into CI logs and a board count: a public repo's log, for a rule the
+   repo chose to turn off. Does "report" create the exposure EI6 was protecting against? What does
+   the output print: value, redacted, or none?
+2. The withdrawn `diagnosis-key` rule reports across repositories. At 11 and 2,652 findings, is a
+   count nobody acts on "cover, not coverage" (EI1), and is the board's count the consumer EI1 asked
+   for?
+3. `BlockingSetPinned` lists fifteen rules. Is the list derived, or hand-kept so a new rule escapes
+   it?
+4. `blocks(rule, disabled)` is "the single decision". Is it the only path, or can a finding
+   constructed elsewhere reach the report with no response?
+5. `--disable` is a flag in `.atelier-floor.json`: can a child now disable a blocking rule more
+   cheaply because it "still reports", so the tier makes a narrowing feel safe?
+6. The MAC duplicate in § 5 is named. What other double-counts does the shadow asymmetry make?
+7. The ruling's authority chain: the first answer was given before EI6 was shown. Read the question
+   text at phase 2 against `00-APEX.md`'s informed-ruling test.
+
+#### Facts held back from the brief
+
+- At this HEAD the ci plane prints `leakscan advisory: 3 finding(s)` on this repo, all
+  `diagnosis-key` shape.
+- `tools/test_floor.py` fails to import on the system Python 3.9.6 here; passes on 3.14.

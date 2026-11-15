@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: leakscan's rules that are off report
+- [ ] 🎯 **Rule-4 cold pass queued: leakscan's rules that are off report
       without blocking, and the narrowed EI6 asymmetry (`115/090`).** This
       is first-of-kind work on the personal-data boundary: a response tier
       in leakscan, and the doctrine sentence it narrows. So the authoring
@@ -33,3 +33,30 @@
       4c65083c). The sibling is held out of the worktree until act 1 is
       committed. The item's "waits for the principal's explicit permission
       for Fable work" is met by that drain order.
+      ✅ PASS RAN 2026-11-15T20:40Z UTC (Fable 5.1 reviewer, acts 1 and 2; act 1
+      committed `b7cd9648` before the sibling opened; sibling folded into
+      the brief). Verdict: **PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE
+      (LO1) · 3 minor (LO2, LO3, LO7) · 4 notes (LO4, LO5, LO6, LO8).** No
+      standing MAJOR: the blocking set did not shrink, the pin holds and the
+      exit code moved in no repository re-run. Verdict:
+      `docs/reviews/2026-11-09-0207-leakscan-off-rules-cold.md`.
+      🎯 Owed to Mike (rule 3: guard text is doctrine by function, so every
+      finding is his to rule; nothing applied). Plain briefing: since this
+      build, a repo that switches off one of leakscan's checks no longer
+      hides the hits, it just stops them blocking. The rules on "lowering a
+      check" say such a step needs a reason, an end date and a line in the
+      fleet view, but still class switching a check off as "not a
+      lowering", and the open question `020/170` was left undecided.
+      LO1 (MODERATE): rule `020/170` with `--disable` named. Options: (a)
+      treat it as a lowering, so it gets an end date and shows in the fleet
+      view; (b) keep it a permanent, reasoned choice because the hits still
+      report, and say so in the guard rules. Reviewer's counsel lists both;
+      recommended (orchestrator's reading of the counsel, not a finding):
+      (a), the stricter one, since it is the personal-data boundary.
+      Then bulk-approve the small fixes: LO2 qualify one CHANGELOG line
+      (or let `160/1420` carry it); LO3 add staged-plane and image-metadata
+      tests for a disabled rule; LO7 assert every structural rule is
+      pinned; LO4 pin the refusal wording; LO6 tidy a docstring; LO8 add a
+      correcting line beside the wrong count (2,662 vs 2,652). LO5 needs
+      no action. Routing: fixes go to a fresh atelier session after his
+      word; LO1 to `020/170`.
