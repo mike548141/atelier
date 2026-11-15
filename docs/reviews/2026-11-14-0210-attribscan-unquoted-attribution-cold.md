@@ -3,7 +3,7 @@
 **Board:** `docs/roadmap/160-doctrine-review-owed/1330-rule-4-cold-pass-queued-attribscan.md`
 **Status:** ACT 2 SAVED 2026-11-15 UTC — FAIL, 1 MAJOR · 5 MODERATE · 6 minor · 4 note, by a Fable
 5.1 cold reviewer under a headless Opus 5.5 orchestrator (drain session `21a271a5`). Act 1 committed
-unrevised as `c1973db6`; the reconcile below was written after the sibling and the barred records
+unrevised as `f4998896`; the reconcile below was written after the sibling and the barred records
 were opened; the orchestrator folded the sibling below the verdict on 2026-11-15. The findings are the principal's to
 decide (rule 3). Brief written 2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as
 session `a18861ae`).
@@ -667,7 +667,7 @@ mechanism pass; the flip as built does not.
 
 ### Reconcile (act 2, 2026-11-15 UTC)
 
-Opened after act 1 was committed as `c1973db6`: the held sibling (released by the orchestrator from
+Opened after act 1 was committed as `f4998896`: the held sibling (released by the orchestrator from
 its hold outside the worktree), the two intent records `320/100` and `320/810` whole, the queue
 pointer `160/1330`, the author's session record (`docs/sessions/2026-11-09-1233-queue-run-d0ca.md`)
 and the brief-writer's (`2026-11-14-0210-brief-writer-a188.md`), the tail of `docs/SESSIONS.md`,
@@ -751,9 +751,11 @@ above is unchanged: whether the 2027-02-08 flip stands as built, with counsel (b
 
 The text below is the brief's `.deferred.md` sibling, folded verbatim by the headless Opus 5.5
 orchestrator (started by drain session `21a271a5`) after act 2 was saved. It was held out of the
-review worktree until act 1 was committed as `c1973db6`, then released to the reviewer for the
+review worktree until act 1 was committed as `f4998896`, then released to the reviewer for the
 reconcile above. The orchestrator forms no finding and edited none of it; the sibling file itself
-is removed from the tree in the same commit as this fold.
+is removed from the tree in the same commit as this fold. Act 1 was first committed locally
+as `c1973db6` and landed on `main` as `f4998896` after a rebase; the hashes above name the landed
+commit.
 
 # Held back — do not open before your findings are durably written
 
