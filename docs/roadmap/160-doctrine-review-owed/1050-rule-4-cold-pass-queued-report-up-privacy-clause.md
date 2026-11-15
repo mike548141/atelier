@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the class-only privacy clause in the
+- [~] ⏳ **Rule-4 cold pass queued: the class-only privacy clause in the
       report-up duty, applied (`160/300`, RU1 and RU8–RU10).** The text every
       child reads at session start now tells a private repo to describe a
       finding by its class and never name itself or its contents on a
@@ -25,3 +25,13 @@
       its `.deferred.md` sibling. Neither session may run the pass. Review NOT
       run. The pass waits for a criterion-passing cold Fable session and the
       principal's explicit permission for Fable work.
+      🔒 CLAIMED 2026-11-15T22:17Z UTC for the cold pass, in Mike's weekly Fable drain (his
+      `/fable-drain` order, 2026-11-16 06:53 NZDT; approval lapses at the reset,
+      2026-11-15 23:00 UTC). Orchestrator: headless Opus 5.5 session 9ec596e5,
+      started by drain session 21a271a5, a rule-4 off-tier orchestrator that holds
+      the context partition, forms no finding and writes no severity. Reviewer:
+      Fable 5.1, tier checked at selection, spawned by that orchestrator. Neither
+      is a barred session (722ac2e2 and what it started, 84e3aa7f, 74f2b8cd). The
+      sibling is held out of the worktree until act 1 is committed. The item's
+      "waits for the principal's explicit permission for Fable work" is met by
+      that drain order.
