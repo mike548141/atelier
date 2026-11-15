@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: git resolves a staged scan's positional
+- [ ] 🎯 **Rule-4 cold pass queued: git resolves a staged scan's positional
       scope, and an unknown one is refused (`160/950`, QS1 applied).** The
       staged-positional reader every staged guard shares now asks git what a
       scope names. The authoring session (a principal-opened Opus 5.5 queue
@@ -34,3 +34,21 @@
       sibling is held out of the worktree until act 1 is committed. The item's
       "waits for the principal's explicit permission for Fable work" is met by
       that drain order.
+      ✅ PASS RAN 2026-11-15 UTC (Fable 5.1, both acts; act 1 `aa68389e`):
+      **PASS-WITH-FINDINGS** — 0 MAJOR, 2 MODERATE, 3 minor, 4 notes; unchanged at
+      reconcile. No standing MAJOR. Verdict, folded sibling and review log in
+      `docs/reviews/2026-11-09-0126-git-resolved-staged-scope-cold.md`.
+      🎯 Mike's to rule (rule 3): **GS1** (MODERATE) — the README says eight staged
+      scanners refuse a `--root` for another repo; only three do, so five read "clean"
+      over the wrong index on a hand run. Same code defect as `998`'s HS2. Recommended:
+      rule once with HS2; add the one-line `refuse_other_repo` call to the five.
+      **GS2** (MODERATE) — CHANGELOG and `report.py`'s docstring say no declared scope is
+      turned away; a declared directory with no tracked file is refused at the hook, as
+      his "Keep it" answer accepted. Recommended: correct the three surfaces to the
+      ruling. **GS3** (minor) — the refusal text calls that case a spelling fault and names
+      no config file; recommended: one clause, and the floor naming `.atelier-floor.json`.
+      **GS4** (minor) — `GIT_DIR` moves both sides of the other-repo check; recommended:
+      reword the docstring and README. **GS5** (minor) — the child `CONTRIBUTING.md`
+      template is silent on the spelling rule; recommended: add one clause. GS6–GS9 are
+      notes (accept as residuals, or as counselled). Routing: atelier `tools/` and
+      `docs/build/templates/` work; children pick it up at their next floor run.

@@ -3,8 +3,10 @@
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-15 UTC under the principal's drain order of 2026-11-16 NZDT:
-PASS-WITH-FINDINGS, 0 MAJOR · 2 MODERATE · 3 minor · 4 notes. Act 2 (reconcile) owed.
+**Status:** VERDICT 2026-11-15 UTC, both acts written under the principal's drain order of
+2026-11-16 NZDT: PASS-WITH-FINDINGS, 0 MAJOR · 2 MODERATE · 3 minor · 4 notes, unchanged at
+reconcile. The sibling and the review log are folded below the verdict; each finding awaits the
+principal's decision.
 **Sizing:** **large** — one commit, 850 lines across 21 files, the shared reader of every staged
 guard, with scratch-repo probes to drive on macOS case and Unicode behaviour.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1070-rule-4-cold-pass-queued-git-resolves-the-staged-scope.md`.
@@ -200,7 +202,7 @@ Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/ses
 verdict in `docs/reviews/`, The earlier verdict is
 `docs/reviews/2026-10-26-0912-staged-positional-reader-cold.md`,
 `docs/reviews/2026-10-28-1255-staged-positional-reader-topup-cold.md`. the queue pointer above, this
-brief's sibling `docs/reviews/2026-11-09-0126-git-resolved-staged-scope-cold.deferred.md`, every
+brief's sibling (folded below the verdict; the `.deferred.md` file is removed), every
 delta commit's message body, and the intent record
 `docs/roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md`
 beyond its first line (the title).
@@ -500,3 +502,251 @@ softenable; magic-looking positionals; case-variant `--root` (passes, git canoni
 - [ ] GS5: one clause in the `CONTRIBUTING.md` template after the `scope` example.
 - [ ] GS6, GS7: as counselled, or record as accepted residuals.
 - [ ] GS8, GS9: no action unless he wants the brief's figures corrected at the fold.
+
+### Reconcile
+
+Act 2, 2026-11-15 UTC, after act 1 was committed as `aa68389e`. Read for the first time: the held
+sibling; the queue pointer `160/1070`; the intent record `160/950` whole; the commit body of
+`6467729f`; the prior verdicts `docs/reviews/2026-10-26-0912-staged-positional-reader-cold.md`
+(QS1–QS11) and `docs/reviews/2026-10-28-1255-staged-positional-reader-topup-cold.md` (QU1–QU3);
+the board item `115/360` the commit touched, through `git show` of that one path. Not opened:
+`docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, nothing there bore on a finding.
+No act-1 text is revised; the overall line stands.
+
+**Against the sibling's questions.** The pointer asked whether any spelling still lets a staged
+secret past (symlinks, submodules, a scope naming a removed directory) and whether refusing an
+unknown scope can strand a child. Act 1 answered the first for symlinks, submodules, special
+characters, magic prefixes and environment variables, and the second with the probe behind GS2.
+The brief-writer's seven questions, against act 1 and against five further probes run at reconcile
+(a scratch repo, deleted after): (1) answered by GS2 and GS3, and the cost to a child is one
+blocked commit with a message that points at the spelling; (2) a commit that moves every file out
+of a scope directory, rename detection on by default: `--no-renames` on the removals read lists the
+old paths as `D`, so the old scope resolves (exit 0, nothing added under it) and the new one scans
+(exit 1 on the planted marker), no refusal; (3) an intent-to-add entry resolves and its content is
+absent from `diff --cached`, as it is absent from the commit; a gitlink positional resolves to
+itself; a tracked symlink resolves to itself and a path under it is refused, as act 1 said;
+unmerged entries and sparse checkout were not driven; (4) with `core.precomposeunicode=true`,
+this platform's default, an NFD positional resolves (exit 1 on the planted marker); with it
+`false` the same positional is refused (exit 2): never clean, which is the property the tests
+pin, and a Linux CI run meets the refusal only on a hand-typed NFD spelling, since the floor
+renders what the config holds; (5) answered under lens 4 (`:docs`, `:(glob)docs/*`, `:/docs`
+refused); (6) run, and it formed GS1; (7) the brief's scratch lines run on an unborn HEAD and
+act 1 recorded `diff --cached` exiting 0 there.
+
+**Against the author's account.** The commit body says the reader "closes QS1 and QS2 together"
+and lists QS3–QS11, QU1 and QU3 as applied as counselled; the intent record's APPLIED entry adds
+two calls it put to the principal, that the five other scanners refuse an unknown scope too and
+that "a declared scope directory that exists but holds no tracked file now blocks the commit
+(exit 2)", and his answer "Keep it". That changes the reading of GS2 but not its text: the
+behaviour was disclosed to him on the board before he answered, so the gap is not an uninformed
+ruling; it is that the CHANGELOG, the public record a child reads, and the reader's docstring
+state the opposite of what he was told and accepted. GS2 stands at MODERATE on that ground.
+
+**Per finding.**
+
+- **GS1** — the prior pass's QS3 counselled "refuse when the cwd's `rev-parse --show-toplevel` is
+  not `root`"; the commit body claims QS3 applied and the README generalises it to eight
+  scanners. The code applied it to three. `998`'s HS2 has the code half before the principal
+  (its pointer's summary says so; its brief was not opened). Stands.
+- **GS2** — see above. The prior QS2 held that the floor "blocks or skips first"; the sibling's
+  first question suspected the same gap act 1 drove. Stands, MODERATE, on the record's text.
+- **GS3** — new to this pass; no prior finding touches the refusal's wording for the untracked
+  directory. Stands.
+- **GS4** — the prior QS3 reproduced the cwd shape only; the sibling's fourth question asked
+  about `GIT_DIR` on hooks. In the hook a set `GIT_DIR` names the committing repo, so both halves
+  of the check move together and correctly; the hand-run exposure stands as minor.
+- **GS5** — the prior QS5/QS6 swept `floor.py` comments and the README; neither named the child
+  `CONTRIBUTING.md` template. Stands.
+- **GS6, GS7, GS9** — not in any prior finding; stand as notes. GS9's second half is the prior
+  QS10's `posixpath` counsel as applied; the text-pinning test is the author's choice, accepted.
+- **GS8** — the brief-writer's own re-run ledger in the sibling matches act 1's exactly (the
+  seven scratch exits, floor hook and ci exit 0); its full-suite count (1019 tests) is of the
+  four delta modules, not the suite. Stands as a note on the brief.
+
+No finding was formed at reconcile. The brief-writer's floor note (three warn-only `pathscan`
+findings at `c132cc1c`) is outside this delta and was not pursued.
+
+**Overall: PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 3 minor · 4 notes.**
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`aa68389e` on `main`);
+folded here verbatim (headings demoted two levels) and the sibling file removed, per the brief. The
+orchestrator (headless Opus 5.5 session `12fb7359`, started by drain session `21a271a5`, itself
+Opus 5.5) held the partition, formed no finding and wrote no severity.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-09-0126-git-resolved-staged-scope-cold.md` (`REVIEW.md` rule 1).
+Written 2026-11-09 UTC by session `84e3aa7f`, the brief-writer, which authored none of the delta.
+Open this only after act 1 is committed. Everything here is a floor, never a fence, and none of it
+is a finding.
+
+#### The queue pointer's questions (author-written, verbatim)
+
+> whether any spelling still lets a staged secret past (symlinks, submodules, a scope naming a
+removed directory); whether refusing an unknown scope can strand a child.
+
+#### The brief-writer's own questions
+
+1. "A declared directory with no tracked file is the same case" sits beside the changelog's "no
+declared scope changes behaviour". A directory that exists on disk but tracks nothing passes the
+floor's `exists()` and then exits 2. Is the changelog's sentence true, and what does it cost a
+child?
+2. A commit that moves every file out of a scope directory: rename detection is on by default, so
+`--diff-filter=D` does not list the old paths. Is the scope then refused, blocking a legitimate
+move?
+3. Unmerged index entries, `git add -N`, sparse-checkout, a gitlink positional, a tracked symlink:
+what does `ls-files` answer for each?
+4. Hooks set `GIT_DIR`, and `core.precomposeunicode` makes macOS normalise argv while Linux does
+not. Does a scope resolve on the hook and refuse in CI, or the reverse?
+5. `GIT_LITERAL_PATHSPECS="0"` and the magic prefix: what does a positional beginning with `:` do?
+6. Run the five other scanners' refusals, not only the three staged-diff guards.
+7. The first commit of a repo, with no `HEAD`.
+
+#### What the brief-writer ran, and what it got
+
+- `gs_tests`: python3 3.14: 1019 tests OK, exit 0, 417 s under load.
+- `p1070`: scope docs: exit 1 (marker found). Docs: 2. nosuchdir/: 2. '*.md': 2. '.': 1. wrong cwd:
+  2. subdirectory cwd: 1.
+- `floor`: at c132cc1c: hook exit 0, ci exit 0. pathscan reports 3 findings, warn-only:
+  docs/method/EVIDENCE.md:427, docs/method/session-open/session-open-prompt.md:13 and
+  docs/method/session-open/template-history.md:10 (paths that do not exist from the repo root).
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*Headings demoted two levels; otherwise as the reviewer wrote it.*
+
+### Review log — atelier 160/1070, git-resolved staged scope cold pass
+
+Reviewer: Fable 5.1 subagent, spawned by headless orchestrator 12fb7359 (Opus 5.5), itself
+started by drain session 21a271a5 (Opus 5.5). Worktree:
+/Users/mike/worktrees/fable/atelier-160-1070-2150/atelier at eb13bf22. Act 1 entries are written
+before the sibling .deferred.md is released.
+
+#### Act 1
+
+- 2026-11-15T21:52Z `date -u`; `uptime` load 4.33/4.93/6.13. `git merge-base --is-ancestor
+  6467729f HEAD` exit 0 (delta present). `git status --short` shows only the sibling deleted.
+  python3 on PATH = 3.14.6.
+- Read the brief in full (docs/reviews/2026-11-09-0126-git-resolved-staged-scope-cold.md, 244 lines).
+- Read docs/method/REVIEW.md: lines 25-300 (rules 1-4), 302-460 (lenses, re-run rule, V1-V7).
+- `tools/coldsweep.py --help`; then the brief's `--commit 6467729f` line with its 20 `--path`s,
+  saved to scratch `reviewer/delta.diff` (1575 lines) and read in full. The commit's message body
+  was not printed. `git diff-tree --no-commit-id --name-only -r 6467729f` lists 21 files: the 20
+  in the brief plus the board item `docs/roadmap/115-.../360-...md`, which the brief bars until
+  phase 2 and which I did not open. Stat: 827+/146- over 20 files (the brief's "850 lines across
+  21 files" counts the board item).
+- Lens 1, assumptions named before any probe: (A1) `ls-files` + `diff --cached --diff-filter=D`
+  under one literal top-anchored pathspec enumerate exactly what a positional names; (A2) staged
+  dict keys (diff-header parse) and `nul_paths` output spell a path identically, else a scoped
+  scan drops files silently; (A3) `refuse_other_repo` compares two `rev-parse --show-toplevel`
+  answers, so anything that moves both (GIT_DIR) passes it; (A4) the claim "no declared scope is
+  turned away" rests on the floor's filesystem `exists()` agreeing with git's view; (A5) only the
+  three boundary guards call `refuse_other_repo`, though the README names eight; (A6)
+  `GIT_LITERAL_PATHSPECS=0` plus `:(top,literal)` neutralises env and magic in a positional;
+  (A7) the 600 s hang guard is a test-only bound.
+- `git log --oneline 6467729f..HEAD -- <20 paths>`: ~95 later commits on these paths. `git diff
+  6467729f HEAD -- tools/report.py` on scope lines: only `note_empty_scope` (RT2, 160/730) was
+  added to `scope_staged`; `resolve_staged_scope`, `restrict_to_scope`, `refuse_other_repo` are
+  byte-identical to the delta. Read tools/report.py 330-560 at HEAD (the reader), 683-760
+  (`unquote_c`, `diff_header_path`, `nul_paths`), 790-900 (`STAGED_DIFF_CMD`, `parse_added_lines`),
+  277-300 (`staged_added_by_path`, `staged_paths`).
+- grep callers: `refuse_other_repo` is called by secretscan:2013, leakscan:3222, conflictscan:733
+  and attribscan:457 only. datescan:932, spellscan:831, sizescan:1147, reviewscan:759,
+  wrapscan:705 call `scope_staged` and never `refuse_other_repo` (read each staged branch).
+- Read tools/floor.py 2402-2425 (`_render` staged branch), 2798-2840 (missing-scope block and
+  guard invocation: `subprocess.run(argv)` with no `cwd=`, so the guard inherits the floor's
+  cwd), tools/pre-commit.sample (runs `floor.py --plane hook --root "$repo_root"` from the hook's
+  cwd, which git sets to the top level). Read tools/README.md 2488-2505 and 615-630 at HEAD.
+- PROBE brief scratch lines (scratch repo, unborn HEAD, `docs/x.md` staged with a conflict
+  marker): docs=1, Docs=2, nosuchdir/=2, '*.md'=2, .=1, wrong-cwd=2, subdir-cwd=1. All as the
+  brief's claims predict. `core.ignorecase=true` on this APFS volume; `git ls-files --
+  ':(top,literal)Docs'` prints nothing, `docs` prints `docs/x.md`: git's pathspec match is
+  case-exact despite the filesystem. `git diff --cached --diff-filter=D` on an unborn HEAD exits 0.
+- PROBE A2 (scratch `special`): staged files named with `"`, TAB, backslash, space and NFC é,
+  each holding a conflict marker. conflictscan `--staged` with scope `docs` and with each exact
+  file name exits 1 and names every file; `""` and `docs/` read as the whole diff (exit 1);
+  `untracked-only` (a directory present on disk, nothing tracked) exits 2 with the "name nothing
+  git knows ... Spell it as git does" text. A2 holds for every name APFS can hold.
+- PROBE A5 (cwd = worktree, `--root` = scratch repo with 5 staged files, positional `docs`):
+  secretscan exit 2 with the QS3 refusal; datescan, spellscan, wrapscan, sizescan, reviewscan
+  each exit 0 "clean" with the coverage line "scanned nothing" (they read the worktree's index
+  under the scratch repo's rules). README 2497-2500 says all eight exit 2 on that `--root`.
+- PROBE A4 (scratch `hook`, floor hook plane, `--tools` = worktree tools): `.atelier-floor.json`
+  scope secretscan -> ["present-untracked"] (dir exists on disk, only an untracked file; commit
+  stages `src/a.py`): floor exit 1, secretscan state enforced rc 2, stderr "name nothing git
+  knows: present-untracked". Same with datescan (softenable): state enforced rc 2, floor exit 1.
+  So a declared on-disk directory with no tracked file IS turned away at the hook, for enforced
+  and softenable checks alike, and the remedy text says to fix the spelling.
+- PROBE A6/lens 4: positionals `:docs`, `:(glob)docs/*`, `:/docs` exit 2 (treated literally,
+  unknown); `docs/..` and `./` read as the whole diff. `--root` spelt with a case variant of the
+  real path passes (git canonicalises the case). GIT_DIR+GIT_WORK_TREE pointing at the scratch
+  repo with cwd and `--root` both the worktree: `refuse_other_repo` passes (both toplevels resolve
+  to the env repo) and the scan reads the scratch index under the worktree's rules, exit 1 with
+  the scratch findings. GIT_INDEX_FILE pointing at another repo's index: git diff fails, exit 2.
+- Mirror-site sweep with coldsweep (pattern on the new wording and `refuse_other_repo`): hits in
+  CHANGELOG.md:1504,1520, tools/README.md:2492, the 115/360 item (not opened) and the queue
+  pointer `docs/roadmap/160-doctrine-review-owed/998-...md:51`. DISCLOSED: I opened that pointer
+  (lines 1-12, 44-58; it is not on this brief's barred list) AFTER the A5 probe above, and it
+  carries another pass's verdict summary (HS1-HS10 with severities); its HS2 names the same five
+  readers skipping `refuse_other_repo`. My GS finding on that was formed from the probe first;
+  the pointer tells me it is already before the principal, so the finding cites it.
+- Lens 4 `/security-review`: NOT RUN, discharged by grounds: it reads the session's pending diff,
+  which in this worktree is the deleted barred sibling; running it would feed that file's
+  removed lines into this reviewer. The lens was worked by hand with the probes above.
+- Read tools/README.md 612-632 ("Wiring it in" at HEAD: carries the git-spelling clause) and
+  docs/build/templates/CONTRIBUTING.md 78-96 (the child template's `scope.paths` example; no
+  spelling clause). grep of docs/method/GUARDS.md, docs/build, skills for scope semantics: the
+  template line 87 is the only mirror site outside tools/ and CHANGELOG.
+- Hook-probe stderr read in full: on an rc 2 the floor prints only the guard's four lines and
+  moves to the next check; nothing names `.atelier-floor.json` (the floor's own missing-directory
+  block does). The JSON result for the refused check carries `reason: ''`.
+- Tests, foreground, `nice -n 10`, single process, load 3.1 at start: `cd tools && python3 -m
+  unittest test_report test_secretscan test_leakscan test_conflictscan test_floor` -> Ran 1147
+  tests in 239.185s, OK, exit 0. `git status --short` after: only the sibling deletion.
+- `floor.py --plane hook --root .` exit 0 (load 3.9); `floor.py --plane ci --root .` exit 0
+  (load 4.4). Worktree unchanged after both.
+- Full suite `python3 -m unittest discover -s tools` started under nice at load 4.4 (< 12), single
+  process, output to scratch `reviewer/fullsuite.txt`; result recorded below when it finishes.
+- Drafted the verdict (GS1-GS9: 0 MAJOR, 2 MODERATE, 3 minor, 4 notes) in scratch
+  `reviewer/verdict-draft.md`; to be appended to the brief below a `---` once the suite line is
+  known, then the repo gates run on the brief.
+- Scratch repos `staged-scope`, `special`, `hook` deleted after their probes; the text outputs
+  (delta.diff, targeted.txt, floor-*.txt, fullsuite.txt, verdict-draft.md) deleted at the end of
+  the act.
+- Full suite result: `Ran 3134 tests in 792.875s`, `OK`, exit 0 (another pass's full suite ran on
+  this machine at the same time; load 4-8 throughout).
+- Verdict appended to the brief below a `---` (259 lines: provenance, lenses, V1-V7, assumptions
+  A1-A7, per-commit ledger, GS1-GS9, overall PASS-WITH-FINDINGS 0/2/3/4, re-run ledger, follow-up
+  checklist); Status line set to ACT 1 WRITTEN 2026-11-15 UTC. Quoted line numbers re-pinned by
+  grep before the append (CHANGELOG 1511-1512, 1517-1519, 1520-1521; README 2497-2500; report.py
+  410).
+- Gates on the brief from the worktree, each exit 0: datescan, spellscan, wrapscan (85 and 100),
+  linkscan, leakscan, reviewscan, secretscan. Lines over 100 characters in the verdict: one path
+  (line 295) and three table rows (485-487), no prose.
+- Scratch text outputs deleted. Worktree after act 1: the brief modified, the sibling deleted,
+  nothing else. ACT 1 SAVED 2026-11-15 ~22:25 UTC.
+
+#### Act 2 (released by the orchestrator after act 1 was committed as aa68389e)
+
+- Release message received: read the held sibling at ~/.claude/fable-held/atelier--2026-11-09-0126-git-resolved-staged-scope-cold.deferred.md
+  and the records the brief bars until phase 2; append `### Reconcile` only; no fold, no delete.
+- Read: the sibling whole; queue pointer 160/1070 whole; intent record 160/950 lines 25-45 and
+  83-112 (prior pass summary, the APPLIED entry with its two calls to the principal, his two
+  answers); `git log -1 --format=%B 6467729f` (commit body); board item 115/360's hunk via
+  `git show 6467729f -- <that path>`; prior verdicts' finding headers (0912: QS1-QS11, lines
+  404-479, 655-662; 1255: QU1-QU3, lines 375-529) and QS2/QS3 text (0912 lines 423-444). Not
+  opened: ROADMAP-DONE.md, SESSIONS.md, docs/sessions/.
+- Reconcile probes (scratch `recon`, deleted): full move of a directory with rename detection on
+  -> old scope exit 0, new scope exit 1 (no refusal); `git add -N` directory -> exit 0;
+  gitlink positional `sub` -> ls-files lists `sub`, exit 0; tracked symlink `lnk` -> exit 0,
+  `lnk/x` -> exit 2; NFD positional with core.precomposeunicode=true -> exit 1, with =false ->
+  exit 2.
+- Intent record 950 shows the author told the principal "a declared scope directory that exists
+  but holds no tracked file now blocks the commit (exit 2)" and he answered "Keep it": GS2's
+  behaviour was disclosed; the CHANGELOG/docstring contradiction remains, severity kept.
+- `### Reconcile` appended to the brief; no act-1 text changed; no finding formed at reconcile.
+- Gates on the brief after the reconcile, each exit 0: datescan, spellscan, wrapscan, linkscan,
+  leakscan, reviewscan, secretscan. Scratch directory empty. Worktree: the brief modified, the
+  sibling deleted, nothing else. ACT 2 SAVED 2026-11-15 ~22:30 UTC.
