@@ -1,9 +1,10 @@
 # Cold pass — `nz-phone` passes a bracketed byte field, and secretscan's assigned-value rule takes two spellings
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1370-rule-4-cold-pass-queued-phone-byte-field-rule-spelling.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `c8eba849`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** PASS-WITH-FINDINGS, act 1 of the pass run 2026-11-15 UTC on Fable 5.1 (the verdict
+below the divider); act 2, the reconcile against the held sibling, follows its release. Brief
+written 2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as session
+`c8eba849`), run under the principal's weekly Fable drain order of 2026-11-16 NZDT.
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4 (the queue pointer's own words).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
@@ -282,3 +283,292 @@ restated. Never revise act-1 text. Then fold the sibling in below the reconcile 
 The work changes publish-safety scanners the fleet floats on, written by a queue run; findings go
 to the principal with the verdict, in plain words, and none is applied by the session that built
 the work (rule 4). Counsel per finding is welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict — act 1, cold pass on Fable 5.1, written 2026-11-15T20:12Z
+
+**Overall: PASS-WITH-FINDINGS** — 0 MAJOR · 2 MODERATE · 3 minor · 3 note. Both changes do what
+the filings asked and narrow the gates only on shapes nobody writes as text; the two MODERATE
+findings are about what the record can show, not about a real number or credential that now
+passes. Act 1 is written before the sibling was opened and is not revised after.
+
+### Provenance (rule 4; V7)
+
+- **Reviewer:** this session, on Fable 5.1 (`claude-fable-5-1`), the principal-named review tier,
+  checked at selection.
+- **Spawn:** a headless per-pass orchestrator (Opus 5.5), itself started by drain session
+  `21a271a5` (Opus 5.5), under the principal's weekly drain order (`/fable-drain`, 2026-11-16
+  06:53 NZDT; the approval lapses at the reset, 2026-11-15 23:00 UTC; a pass running at the reset
+  may finish). Both are rule-4 off-tier orchestrators: they hold the context partition, commit the
+  records, form no finding and write no severity. Neither wrote the brief, the sibling or the
+  delta. This session was not started or instructed by `c8eba849` (brief-writer), `58027096` (the
+  sweep that started it), `d0ca5d24` (the author's queue run) or anything it started.
+- **The spawn prompt, in substance** (process only; it carried no question about the delta and no
+  pointer to where the risk lives): the worktree path, read-only but for the brief; the brief and
+  review-log paths; that the sibling was removed from the tree and the barred list holds until act
+  1 is committed, with the held path to be sent afterwards; the load rules (every test under
+  `nice`, one suite at a time, foreground); no commit, no live write, no other file; the
+  public-repo naming rules; the verdict's shape and the finish lines. It stated that no child
+  checkouts are supplied, so the 30-checkout re-run is NOT RUN and the claim is weighed as
+  unverified, which is the brief's own direction.
+- **Review worktree:** `/Users/mike/worktrees/fable/atelier-160-1370-1957/atelier` at `cd7baa44`;
+  the only dirty entry is the sibling's deletion, by design. A scratch worktree of the parent
+  (`57719bfa~1` = `a9c58551`) sat under the session scratchpad for old-against-new probes and is
+  removed at the end of act 1.
+- **Read:** this brief whole; `docs/method/REVIEW.md`; the two filings' acceptance ranges only
+  (`320/850` lines 1–27, `320/840` lines 1–21); the delta body-free (`coldsweep --commit
+  57719bfa`, exit 0: three board files left out, no barred file touched); at HEAD,
+  `tools/leakscan.py`, `tools/secretscan.py`, `tools/allowmarker.py`, both changed test files and
+  `tools/test_allowmarker.py`; `docs/method/GUARDS.md` § *Fail noisy, then subtract*;
+  `tools/README.md`; `.leakscanignore`; the board index `docs/ROADMAP.md` lines naming `160/990`
+  and `160/1370`. The session-log step was skipped. No commit body, no prior verdict and no
+  sibling were opened.
+- **Disclosed exposure:** one hand-written mirror grep (not `coldsweep`) printed three lines of
+  the `160/1370` pointer (its title, its two "questions worth the pass's time", the brief's path)
+  and three of the `160/990` pointer. The two questions are this brief's YA1 and YA6 in substance
+  and steered no finding. The brief's prescribed `coldsweep` line then ran (exit 0; 739 files
+  excluded as barred). The harness also loaded user-level and repo instruction files and a memory
+  index, which hold private context this verdict does not carry.
+- **Contact:** none from any author or brief-writer session.
+- **Review log**, open by the principal's 2026-11-16 word: the drain's notes directory holds
+  `atelier-160-1370-1957.md`, every check and its result, in plain words.
+
+### Scope and the pinned bound
+
+Pinned to **`57719bfa`** (`git merge-base --is-ancestor 57719bfa HEAD` exits 0), judged as landed
+and as it stands at HEAD `cd7baa44`. The two code regions the brief names (the
+`_phone_inside_hex_byte_field` body; `secretscan.py` from `ASSIGNED_RULE =` to `ALL_RULES`) hash
+identically at the landing commit and at HEAD, and the two wiring lines (the `or` in the
+`nz-phone` validator; `assigned_off`) are present at HEAD. Nine later commits touch the paths, as
+the brief says. The non-goals are accepted as named, with one correction to their grounds (YB7).
+
+### Assumptions named first (lens 1), then attacked
+
+- **A1.** A device dump never renders a phone number as its decimal digits inside the brackets:
+  a stored number is hex of ASCII or BCD, which lands either outside the regex (a twenty-hex run
+  matches no phone) or under the digest guard. Confirmed by construction.
+- **A2.** Exempting by container (angle brackets, hex, even length) rather than by value is safe
+  because no publication surface writes a real number inside angle brackets with nothing but hex
+  beside it. Probed (YA2, YA3): the escape shapes exist and none is text anyone writes; held, with
+  a wording finding (YB4).
+- **A3.** Replacing counted per-line markers with a structural exemption is consistent with
+  `GUARDS.md` rule (b). Damaged: YB2.
+- **A4.** Accepting both spellings is the one non-breaking reconciliation: renaming the flag
+  breaks every child's `--disable assigned`; renaming the finding breaks every `assigned-secret`
+  marker. Confirmed: the parent refused `--disable assigned-secret` (exit 2) and exempted a
+  long-spelling marker while counting it as naming no rule, which is the filed defect.
+- **A5.** A short-spelling marker can only have been written to exempt, so honouring it widens
+  nothing unintended. Confirmed in this tree (none outside the tests); unverifiable in children.
+
+### Per-lens answers
+
+**Lens 1 — approach.** The byte-field test is the shape of the filing's fixture, generalised just
+enough: it keys on the one container a device dump uses and on whole bytes, and it keeps every
+separated, signed or parenthesised form. Against the alternative the child already had (64 reasoned
+markers, each counted in the tally), the exemption trades noise for visibility: the dropped
+matches are counted nowhere (YB2). On the spelling question the delta chose the only answer that
+breaks neither the fleet's flags nor the child's markers (A4); the cost is one rule under two names
+in `ALL_RULES`, carried by one table. The fleet effect is argued from exit codes, which cannot
+show the thing the argument is about (YB1).
+
+**Lens 2 — correctness.** Every runnable claim holds (ledger below). The ten-digit exception
+covers exactly the real-number lengths: of the all-digit lengths the regex admits, eight, nine and
+ten, nine is odd, ten is kept when it is the whole bracket, and eight is no complete NZ number
+(YB5 asks that this be said). It does not cover a ten-digit mobile with hex letters adjoining it
+inside the brackets, nor a nine-digit number plus one hex letter: both now pass (YB4). Every
+reader of a secretscan rule name agrees on the two spellings: the `--disable` check, the
+`assigned_off` switch, the marker's inert count, the exemption compare, the tally and the JSON all
+resolve through `RULE_ALIASES` or `ALL_RULES`; `_active_named` compares `NAMED` names only, which
+the alias does not touch. Case is where they still disagree (YB3).
+
+**Lens 3 — completeness.** Mirrors: the header comment, the `--disable` help, the README's
+escape-hatch paragraph and the changelog carry the two spellings; no skill, template or floor file
+in this repo names the `assigned` rule; the README has no per-rule leakscan table, so no mirror of
+the bracket rule is owed there. Other scanners: leakscan's marker names are its finding names plus
+`local-term` and `diagnosis-key`, by design; datescan, linkscan and spellscan print the same inert
+count through `allowmarker` and have no `--disable`, so no second split of this class exists. The
+30-checkout probe is not in this repo (NOT RUN); the commit-message plane shares `scan_text` and so
+the validator, but the parent has no `--messages`, so the fleet probe cannot have covered it.
+
+**Lens 4 — security and privacy.** Both gates narrow; the inputs that now pass were sought and
+found (YA2, YA3): an all-digit eight-digit run inside a bracket, a ten-digit mobile with hex
+letters adjoining it inside the bracket, a nine-digit number plus one hex letter, two such fields
+side by side, and an all-digit generic-type parameter. None is a shape a person writes a number in;
+a real number in a dump is encoded past the regex (A1). Every separated, signed, parenthesised,
+one-sided, header, autolink and `0x` form still flags, and nothing outside a complete bracket moved
+(YA4, 21 synthetic lines and the whole tree). On the secretscan side a short-spelling marker now
+exempts one rule's findings on its own line and nothing else (YA6), and the only lines it can
+newly clear carry a reasoned marker naming the rule. Fixtures: the leakscan tests use the
+555-pattern mobile and sequential-digit landline shapes; the secretscan test reuses the suite's
+existing synthetic token; both test files are in `.leakscanignore`; the whole tree scans clean at
+HEAD with the parent's scanner and with HEAD's. **`/security-review`: NOT RUN**, with grounds: it
+reads the session's pending diff, which in this worktree is the sibling's deletion (its text would
+print as removed lines) and this verdict, while the Python delta is landed, not pending.
+
+### Load-bearing assumptions (YA1–YA8)
+
+- **YA1 — damaged as worded, no number lost.** The regex admits all-digit lengths 8, 9 and 10.
+  Bracketed exactly: 9 flags, 10 flags, 8 is exempt (it was flagged at the parent). Eight is even
+  and outside the ten-digit exception; no complete NZ number has eight digits. *Probe:* old/new
+  scan of each length.
+- **YA2 — held, with an overbroad published claim.** A ten-digit mobile with two hex letters
+  adjoining it (either side, or one each side) passes; a nine-digit number plus one hex letter
+  passes; a ten-digit mobile plus one hex letter (odd) flags. None is a text shape (YB4). *Probe:*
+  old/new scan.
+- **YA3 — held.** An email `Message-ID`, a `tel:` autolink, an HTML-tag-like bracket, plus,
+  paren, dashed and spaced forms, one-sided brackets, template placeholders of nine and ten
+  digits, and `0x`-prefixed runs all flag as before. Two adjacent fields and an all-digit generic
+  parameter now pass; neither is text. *Probe:* old/new scan.
+- **YA4 — confirmed.** 21 synthetic lines without a complete bracket: 0 moved. Whole tree, the
+  parent's leakscan against HEAD's, `--json`: both clean, identical sets. `--messages` shares
+  `scan_text`; a smoke run over five messages ran. *Probe:* corpus; tree; `--messages
+  HEAD~5..HEAD`.
+- **YA5 — confirmed for spelling.** Library and CLI: both spellings disable the rule; both exempt
+  as a marker; a typo is refused (`--disable`, exit 2) or counted (marker). Case: `Assigned` is
+  refused at the CLI; a mixed-case marker is counted as naming a rule yet exempts nothing (YB3).
+  *Probe:* library and CLI, both trees.
+- **YA6 — confirmed.** A line with an assigned secret and a separate entropy token: the short
+  marker clears the assigned finding only; the entropy finding was dropped by the dedupe at both
+  parent and HEAD, marker or not. `assigned` collides with no `NAMED` name; `canonical_rule` is
+  identity for all 19 single-spelling rules. *Probe:* old/new scan.
+- **YA7 — unverified.** No `secretscan:allow:assigned` marker in this tree outside the tests;
+  children not supplied. A child with such a marker on a red line would have been red in CI
+  already, which bounds the exposure. *Probe:* tree grep.
+- **YA8 — NOT RUN**, and the measure is questioned (YB1). No probe possible here.
+
+### Per-claim ledger
+
+Each claim is the delta's own, from *The claims the delta makes* above.
+
+- *A byte field is a match wholly inside `<`…`>`, even-length hex and nothing else.* Holds as
+  coded.
+- *Only the exact bracket form is exempt; separator, `+` and paren break the run; an odd run is
+  not whole bytes.* Holds.
+- *A bracketed all-digit run of exactly ten that IS the match is kept as a phone.* Holds, exact
+  span only; adjoined hex defeats it (YB4).
+- *The field is eight to sixteen hex digits, under the digest guard's 16-character floor.* Holds
+  for 8–14; a sixteen-run was the digest guard's already (YB5).
+- *Changelog: a separator, an odd run and a bracketed unseparated ten-digit number still flag.*
+  Holds for the exact-span ten-digit form only (YB4).
+- *Both spellings accepted in both places; one list; an exempting marker is never counted inert.*
+  Holds (probe, CLI, JSON).
+- *Findings, JSON and the tally keep `assigned-secret`; a typo still counts.* Holds.
+- *`_scope_exempts` is case-sensitive, exactly as before.* Holds, and so the count and the match
+  still split on case (YB3).
+- *`canonical_rule` is identity for every one-spelling rule and for a non-rule.* Holds.
+- *No exit code moved in 30 child checkouts; one child's 64 markers are now unused.* NOT RUN;
+  weighed unverified; the exit-code measure cannot show a narrowing (YB1).
+
+### Standing checks V1–V7
+
+- **V1.** Three claims outrun their evidence: the fleet proof (YB1), the changelog's ten-digit
+  sentence (YB4), the docstring's range and silence on eight (YB5).
+- **V2.** Every re-run line reproduces (ledger below). The fleet re-run is NOT RUN.
+- **V3.** Swept: header comment, help text, README, changelog carry the change; no skill,
+  template or floor file names the rule; no leakscan per-rule table exists to mirror. Discharged.
+- **V4.** `RULE_ALIASES` is the one home; `ALL_RULES` derives from it; the README's restatement is
+  prose at the point of use. Discharged.
+- **V5.** One internal slip (the "sixteen" in the docstring, YB5); the code comments cite
+  `320/850` and `320/840`, and the rule reached in each is the filing's "Done means". The
+  `allowmarker.names_no_rule` docstring says the scanners lower-case compare; secretscan does not
+  (YB3).
+- **V6.** Lens 4 above; `/security-review` discharged with grounds.
+- **V7.** Stated above.
+
+### Findings
+
+**YB1 — MODERATE (V1, lens 1; YA8).** The delta's fleet proof is "no exit code moved in any of
+30 child checkouts, probed old against new". A child that floats green on the floor is green before
+and after whatever this guard waves through: a line that moves from flagged-and-marked to unflagged
+changes no exit code, and a line that moves from red to green changes it only if it was the child's
+last red line. So the measure as published cannot show the narrowing it is cited against. The
+second half of the claim (64 markers now unused) is a marker-count measure, which can show it, and
+suggests the author also counted; but the published proof is the exit code. Weighed as unverified
+here. *Counsel:* record the fleet probe as a per-child, per-rule finding diff under `--json` with
+markers honoured and again with them ignored, and list the lines that moved; that is the proof the
+changelog sentence needs. To be reconciled against the landing notes in act 2.
+
+**YB2 — MODERATE (lens 1; `GUARDS.md` rule (b)).** The byte-field exemption is a silent
+subtraction. The regex forms the match, the validator drops it, and no counter anywhere records
+that it happened: the tally has `note_marker` and `note_unknown_scope` only, so leakscan's output
+for "no phone shapes" and "forty phone shapes waved through as byte fields" is the same line.
+Rule (b) asks every guard to print what it suppressed and by which mechanism, and the delta
+replaced 64 counted, reasoned markers with zero visible count. The house frames `VALIDATORS` as
+part of a rule's definition ("not one of the shapes we ruled out"), which fits a Luhn check; this
+guard rules a shape out by its *surroundings*, which is what an allowance does. The digest guard
+(`320/470`) set the precedent and its own pass has not returned (YB7). *Counsel, the principal's to
+rule:* either count validator drops per rule in the suppressed line (one `note_` method and one
+`continue` branch), or record, once, that shape validators are definition and not allowance, so
+the next guard of this kind inherits a decision rather than a precedent.
+
+**YB3 — minor (lens 2; the `320/840` acceptance test, "agree").** The count and the match now
+agree on spelling and still disagree on case. `allowmarker.names_no_rule` lower-cases both sides,
+so a marker spelt `Assigned-Secret` or `ASSIGNED` is counted as naming a rule, while
+`_scope_exempts` compares case-sensitively, so the same marker exempts nothing and the line stays
+red. That is the filed defect's class in the other direction: the tally says every marker names a
+rule while one is inert. It fails closed, so the gate is not narrowed, and the author recorded the
+choice to leave it; the `names_no_rule` docstring, which says "as the scanners that lower-case
+compare", is wrong for secretscan. *Counsel:* lower-case in `_scope_exempts` or make the inert
+count case-sensitive for this scanner; either is one line, plus a test in the direction the delta's
+invariant test does not run (counted as known ⇒ exempts).
+
+**YB4 — minor (V1; YA2).** The changelog says "a bracketed unseparated ten-digit number still
+flag[s]". The code keeps it only when the ten digits are the whole bracket; with hex letters
+adjoining it inside the brackets (two on one side, or one each side) it passes, and a nine-digit
+number plus one hex letter passes. The docstring is exact ("that IS the match"); the changelog and
+the filing-facing sentence are not, and no test pins the adjoined-hex ten-digit case in either
+direction. The shapes are not text anyone writes, so this is wording and a missing pin, not a
+leak. *Counsel:* one clause in the changelog and one test each way.
+
+**YB5 — minor (V1, V5).** Two slips in the docstring. It gives the field as "eight to sixteen hex
+digits" that "fall under the digest guard's 16-character floor"; a sixteen-run is at the floor and
+was exempt before this delta, so the new guard's range is eight to fourteen. And it never says why
+an even eight-digit all-digit run is safe to drop: it is the filing's very shape and the delta's
+own fixture, and the reason (no complete NZ number has eight digits; the regex's three-digit tail
+admits one) is the load-bearing sentence a future reader of YA1 needs. *Counsel:* two sentences.
+
+**YB6 — note (lens 3).** A leakscan marker left on a line the guard now clears is neither used
+nor reported: `by_marker` is empty for it and it is not "naming no rule", because the rule exists.
+So the child learns its 64 markers are dead only by a count falling. Pre-existing class, not this
+delta's; recorded because the delta is the first change to create such markers in bulk.
+
+**YB7 — note (brief framing).** The non-goal fences the digest guard off as having "its own
+earlier pass". The board index shows that pass (`160/990`) claimed with no verdict, so the
+precedent this guard copies is unreviewed, and YB2's question is open for both. This pass does not
+depend on it; the wording should.
+
+**YB8 — note (polish).** `--disable assigned,assigned-secret` prints "2 rule(s) disabled" for one
+rule; and the README's new sentence nests one parenthesis inside another. Neither changes a
+verdict.
+
+### Re-run ledger (V2)
+
+| Line | Result |
+|---|---|
+| `git merge-base --is-ancestor 57719bfa HEAD` | exit 0 |
+| `coldsweep.py --root . --commit 57719bfa` | exit 0; subject, stat and diff only |
+| `leakscan.py --selftest` | selftest OK |
+| `secretscan.py --selftest` | selftest OK |
+| the two named classes | 18 tests, OK |
+| `unittest test_leakscan test_secretscan test_allowmarker` | 758 tests, OK, 74 s under `nice` |
+| 30-checkout old-against-new fleet probe | NOT RUN: no child checkouts supplied |
+
+Every test ran under `nice -n 10`, one suite at a time, in the foreground. Live systems: none
+touched; none needed.
+
+### Follow-up checklist
+
+- [ ] YB1: reconcile against the landing notes in act 2; if the per-child counts there are
+      finding-level, downgrade to a wording finding on the changelog sentence.
+- [ ] YB2: the principal's ruling on counting validator drops, or on recording validators as
+      definition; carry the same question into `160/990`.
+- [ ] YB3: case in `_scope_exempts` or in the inert count; fix the `names_no_rule` docstring;
+      add the converse test.
+- [ ] YB4: changelog clause; two tests on the adjoined-hex ten-digit shape.
+- [ ] YB5: two docstring sentences (range; why eight is safe).
+- [ ] YB6–YB8: notes for the owner; no action required by this pass.
+- [ ] Act 2: open the sibling and the barred records; screen the commit body; `### Reconcile`.
+
+Counsel is labelled as counsel throughout and sits beneath its finding; every finding is the
+principal's to decide (rule 3), and none is applied by the session that built the work (rule 4).
