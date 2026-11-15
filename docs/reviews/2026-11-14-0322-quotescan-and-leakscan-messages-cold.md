@@ -1,9 +1,11 @@
 # Cold pass — `quotescan`, a quote of the principal on commits touching his prompt, and `leakscan --messages`
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1420-rule-4-cold-pass-queued-quotescan.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `5b3a35e9`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** PASS RAN, act 1 written 2026-11-15 UTC by a Fable 5.1 cold reviewer under a rule-4
+off-tier orchestrator (verdict below the divider: PASS-WITH-FINDINGS, 1 MAJOR, 4 MODERATE, 5 minor,
+2 notes). Act 2 (reconcile against the held sibling) pending its release. Brief written 2026-11-14
+UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as session `5b3a35e9`); run under the
+principal's weekly Fable drain order of 2026-11-16 NZDT.
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
@@ -367,3 +369,373 @@ author applies nothing on its own**. Record all findings; they are the principal
 a plain-language account. Counsel per finding is welcome, labelled as counsel and kept beneath it,
 and a finding that bears on whether the 2027-05-31 flip should happen as built says so in its first
 line.
+
+---
+
+## Verdict — act 1 (cold pass, 2026-11-15 UTC)
+
+**Overall: PASS-WITH-FINDINGS — 1 MAJOR, 4 MODERATE, 5 minor, 2 notes (QT1–QT12).** Both tools
+do what their code says; the MAJOR is that the quote check, as built, does not serve the harm QK1
+names, and its 2027-05-31 flip to blocking should not happen as built unless the principal rules
+otherwise after the account below. `leakscan --messages` is a sound sizing tool with three read
+gaps (two latent in this repo, one hostile-input), and one "read-only" hole reachable from the
+command line only.
+
+### Provenance (rule 4, V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), tier checked at selection. Worktree
+  `/Users/mike/worktrees/fable/atelier-160-1420-1921/atelier`, branch detached at `76ae64e5`
+  (the claim commit); the four delta commits are ancestors (checked with `merge-base
+  --is-ancestor`, nothing printed). Run day 2026-11-15 UTC (`date -u`), 19:23–19:45.
+- **Spawn chain:** a headless orchestrator session (Opus 5.5) started this reviewer; that
+  orchestrator was itself started by drain session `21a271a5` (Opus 5.5), running the principal's
+  weekly Fable drain order (he invoked `/fable-drain` on 2026-11-16 06:53 NZDT). Both are rule-4
+  off-tier orchestrators: they hold the context partition, form no finding and write no severity.
+  Neither is the brief-writer `5b3a35e9`, the sweep `58027096`, the author run `d0ca5d24`, nor
+  anything the author run started.
+- **What the orchestrator told me, in substance (process only):** the worktree and brief paths;
+  read the brief in full and `REVIEW.md`; the partition (the `.deferred.md` sibling removed from
+  the worktree and held elsewhere, not to be sought anywhere); the barred list; `coldsweep` for
+  every sweep and commit read; write only this file, act 1 below a divider, Status line updated;
+  no commit, push or write in the worktree, scratch under the session scratchpad, deleted at the
+  end; no GUI; `/usr/bin/python3` for my own scripts and the worktree's tools by path; never print a
+  secret or the machine's term list, read real `--messages` runs as counts by rule; live systems
+  read-only (his words of 2026-11-09 quoted); `nice -n 10`, one suite at a time, `uptime` first;
+  atelier is public, orchestrators by session id only, child results by count; end with the
+  VERDICT/TALLY/PATH lines and stop until act 2 is released. It carried **no question about the
+  delta, no pointer to where the risk lives, and no request about any finding**. No contact from
+  any other session during the pass.
+- **What I read:** this brief whole; `docs/method/REVIEW.md` whole; the three commits through
+  `coldsweep --commit` with `--path` scoped to the non-board files (no board file, no message
+  body); `tools/quotescan.py`, `tools/test_quotescan.py`, `tools/commitmsg.py`,
+  `.githooks/commit-msg`, `tools/commit-msg.sample` whole; `tools/leakscan.py` lines 455–640,
+  950–1100 and 3095–3460; `tools/allowmarker.py` lines 1–200; `tools/report.py` by function;
+  `tools/floor.py` the quotescan entry at HEAD, `FORBIDDEN_FLAGS`/`forbidden_flags`, `MSG_CHECKS`,
+  `_render`, `plan`, `commit_msg_hook_note`; `tools/namescan.py` its JSON/render block;
+  `tools/attribscan.py` its regexes; `tools/README.md` lines 15–40, 636–650, 1984–2049,
+  2572–2580; `docs/method/GUARDS.md` § *Which commits the hook plane reaches*;
+  `.github/workflows/floor.yml` by grep; `commands/`, `skills/` listings; OWASP ASVS 5.0 V1 and
+  V16 through a Haiku fetch agent (items quoted under lens 4). **Not read:** `docs/SESSIONS.md`,
+  `docs/sessions/`, `docs/ROADMAP-DONE.md`, any prior verdict, the queue pointer, the three intent
+  records, the sibling, any commit body. Every sweep ran through `coldsweep` with the brief's
+  `--also-exclude` set; no `--include-barred`. The brief's coldsweep line names the sibling under
+  `docs/roadmap/`, which matches nothing; the sibling is under `docs/reviews/`, which the default
+  set bars anyway.
+- **Exposure, disclosed:** my harness loaded user-level and repo instruction files and a memory
+  index before the brief; none of it describes this delta. `coldsweep` printed the three commits'
+  **subjects** (unavoidable with `--commit`) and the names of the board files it left out.
+- **`/security-review`:** discharged by grounds. It reads the session's pending diff; this
+  worktree's only pending change is the deliberately removed sibling, and the delta is landed.
+  Lens 4 was worked by hand instead, below.
+
+### The acceptance test, answered
+
+**`quotescan`.** QK1's second counsel asks for a floor check that a commit touching the prompt
+*quotes his say-so*. The build checks that the message carries the *shape* of a quotation. The two
+differ exactly where QK1's harm lives: a change to his text that nobody authorised carries, by
+definition, nobody's words, and a shape test cannot tell a quotation of him from a quoted file
+name, a quoted error string, or a quotation of the old prompt text being removed (QA1, probed).
+Warn-only, the check is a reminder, and a reminder costs nothing. Blocking, it costs only the
+honest committer (a wrapped three-line quotation of him fails the regex; two one-word quotes on
+one line pass), so the flip turns a harmless prompt into a gate that stops the wrong people. The
+delta is candid that it reads the form; the floor entry's `why` ("carries his words") and the
+README heading are not.
+
+**`leakscan --messages`.** Part (a) is built as described: whole bodies, every ref, the file-mode
+rule sets, read-only, exit 2 when the log cannot be read. Three classes of line are never read
+(`#`-leading lines and anything after a scissors line; whole trailer-shaped lines; text after a
+`\x01` byte), and an option-shaped spec makes "read-only" false. Part (b)'s "not built, and why" is
+truthfully stated (leakscan has no advisory form) and the README says the mode is not on the
+message plane. The sizing figure reproduces by rule shape.
+
+### Lens 1 — approach and assumptions (QA1–QA8 and my own)
+
+Load-bearing assumptions I named before reading the brief's list: (i) the form of a quotation is
+evidence; (ii) the commit message is where say-so lives; (iii) `git diff-tree <sha>` lists what a
+commit changed; (iv) a committed message needs the same cleaning as a hook's message file; (v) a
+trailer line is identity and nothing else; (vi) `git log <spec>` is a read; (vii) the record
+separator cannot occur in a message; (viii) one path is his text.
+
+- **QA1 — DAMAGED.** `carries_quote` battery (22 cases, scratch): QUOTE a quoted file name with a
+  space, a quoted error string, a quoted command, two one-word quotes on one line (the span
+  *between* them matches), a quotation of someone else, a quotation of the old prompt text, a `>`
+  line from a pasted diff, a `>` line from an email reply, a quote in the subject alone, an empty
+  `" "`, a JSON snippet, a two-line wrapped quote. NOT a quote: a three-line wrapped quotation, a
+  single-quoted or curly-single-quoted span, a quote across a blank line, inline code, a fenced
+  block. Real history (counts only): of the 8 prompt commits the tool reads as quoted, 5 are
+  satisfied by a 2–3-word span and 3 by 4+ words; of the 10 it reads as unquoted, 1 carries a
+  double-quoted quotation wrapped over three or more lines and 2 carry a single-quoted multi-word
+  span. A check the author can satisfy by typing two quotation marks does not answer QK1; the
+  warn-only period makes that harmless, the date makes it harmful. → QT1.
+- **QA2 — partly confirmed.** The msg plane reads the index git set for the hook (confirmed by a
+  real hook in scratch: a path-scoped commit sees only what it named; the delta's amend claim
+  holds, Q6). Routes around it, probed: `--no-verify` commits (Q7); a clone with no hook (the
+  floor prints `commit_msg_hook_note` once, read); a message-only amend of a prompt commit drops
+  the quote and the hook sees no guarded path (Q6; → QT6); a rebase or cherry-pick (no hook,
+  `GUARDS.md` table, read); a move of the prompt is reported once as a deletion and the new path
+  is unguarded after (Q4, by design); an edit through a symlink shows as the target path and is
+  caught (Q5). Each lands on the CI plane, which only reports.
+- **QA3 — DAMAGED.** `commit_files` runs `diff-tree` without `-m`: a merge commit lists no paths
+  (scratch Q1b: a merge that edits the prompt itself is clean). On any git failure it returns `[]`
+  (Q2): silence, not exit 2. Real history: `git log -- <prompt>` lists 19 commits, 1 a merge in
+  which the prompt differs from every parent; the tool reads 18. A depth-1 clone's boundary commit
+  "touches" every file under `--root` (Q3); atelier's workflow uses `fetch-depth: 0`, so not live.
+  A force-push falls back to `HEAD^..HEAD` with a note (read). → QT5, QT12.
+- **QA4 — confirmed.** A sweep for "his text / his words / the principal's prompt" across the tree
+  (coldsweep, barred set excluded) finds the prompt named as the run prompt (`README.md`) and his
+  words quoted inside doctrine, ADRs and the personal-data list, none of which is "his text" as a
+  file. No second copy of the prompt's opening lines exists outside
+  `docs/method/session-open/`. One path is the honest set.
+- **QA5 — partly confirmed.** The mode runs the term list, the structural rules, `--disable`,
+  `--require-terms` and the empty-list warning exactly as file mode (I4; `scanned_local_terms`
+  false with a warning). `.leakscanignore` is path-based and cannot apply. **Secret shapes** are
+  secretscan's, not leakscan's: `320/550`'s proposal named them and the delta does not say they are
+  out of scope. Three line classes are never read (QT2, QT3, QT9).
+- **QA6 — DAMAGED.** `--messages=--output=<path>` reaches `git log` as an option: it wrote a file
+  and reported `0 finding(s) in 0 of 0` at exit 0 (I1). The bare form `--messages --output=…` is
+  refused by argparse (P6). `nargs="?"` swallows no following flag (P7); a path positional is
+  refused, exit 2 (P8). The report carries no file-mode tally (read). The JSON `clean` is
+  "no findings" and the text head says "Read-only: this never blocks": exit 0 cannot be mistaken
+  for clean by a reader, and `FORBIDDEN_FLAGS` keeps it from a child's `flags` (I checked
+  `forbidden_flags` judges `--x=y` by name). → QT4.
+- **QA7 — DAMAGED.** `AUTHOR_TRAILER_RX` drops whole lines by prefix, anywhere in the body, any
+  case, leading whitespace allowed: a `Co-Authored-By:` naming a second person, and a body line
+  `reviewed-BY:` carrying an address and a term, are never read (P3, P3b). Real history: 2,237
+  trailer lines skipped, scanned apart: email hits only, one redacted identity, no other rule. The
+  skip loses nothing in this repo at this commit; the design loses the class the repo's own hard
+  constraint names (any other person's name). → QT3.
+- **QA8 — confirmed, with a wording gap.** `QUOTE_WARN_UNTIL` is a constant compared with the UTC
+  clock; `--warn` is absent from the msg template and forbidden in a child's `flags`. Fleet probe
+  (scratch copy of `tools/`, `_utc_today` patched to 2027-05-31; the worktree untouched): 22 child
+  checkouts discovered, 0 archived, 0 hold the guarded path; `--range HEAD^..HEAD --warn` and
+  `--message-file` on the live index, both dates: 22 of 22 exit 0 on each. The CI plane exits 0 by
+  construction and the msg plane trivially where the path is absent, so the probe shows the flip is
+  a no-op for every child; it is not evidence about the one repo that holds the path. A repo's
+  `advisory` declaration selects the `--warn` template and the block never happens: dated,
+  visible, and not what "no config key moves it" suggests. → QT7(e).
+
+### Lens 2 — correctness and quality
+
+- Re-run ledger below: every brief line reproduces; 14 + 7 + 10 tests OK, selftest OK.
+- **Re-measured figures.** "19 touch, 8 carry a quote (42%)": `git log -- <prompt>` gives 19
+  (`--full-history` 39, 21 of them merges); the tool reads 18 touching, 8 quoted, 10 unquoted
+  (44%); `--range HEAD` reports 10 findings. "1 in 120": 19 of 2,335 commits on HEAD is 1 in 123.
+  "2,302 messages, 4 hits in 3 (3 structural, 1 term)": 2,343 messages across all refs (2,335 on
+  HEAD), 4 findings in 3 messages, by rule 2 email, 1 nz-address, 1 local-term; reproduced by
+  shape. "21 of 21": 22 of 22 (one more checkout discovered). "Tests: 14": 14.
+- **Mutation (scratch copy, suites unchanged).** quotescan: one-word quotes accepted, flip day
+  `<=`, bare marker accepted, `GUARDED` emptied, range plane ignoring paths, inline code kept — all
+  six fail the suite. leakscan `CommitMessages`: trailer skip removed, markers honoured, unreadable
+  log read as clean — all fail; **survive:** `messages_with_findings` counting findings not
+  messages, and the `--all` default changed to `HEAD`. → QT10.
+- **Overclaims**, each against the text that makes it. → QT7.
+- Hostile input: a 2 MB single-line message scans in 0.4 s; a `\x01` byte truncates (QT9);
+  control and bidi characters in an excerpt are dropped (`safe_text`, P9); git's error text goes
+  through `report.broken`, which strips controls (the `nosuch..HEAD` line, re-run).
+
+### Lens 3 — completeness and harvest
+
+- **V3 sweep.** No surface still says no scanner reads a commit message except the hand-up item's
+  own title in the board index (barred, by file name only). The README's "What these scans cannot
+  see" (line 15 block) does not mention messages; the `--messages` subsection sits under leakscan
+  and says plainly it is not on the message plane. `quotescan` sits beside `namescan` on every
+  surface that lists it (`tools/README.md`, `commitmsg.py`, `floor.py`, `test_floor.py`,
+  `test_allowmarker.py`) except `tools/test_precommit.py`, which names namescan as the example
+  that warns before its date; a one-check example, not a list. No doctrine, skill or template
+  lists the message-plane checks, so none is missing one.
+- **Conventions.** Marker grammar via `allowmarker` with `SEP_ANY_SPACE`, as siblings;
+  advisory-count line printed with the zero; broken-scan exit 2 (except QT4/QT5's silences);
+  `QUOTE_WARN_UNTIL` four weeks after `NAME_WARN_UNTIL` (2027-05-03 + 28 days, checked). The README
+  heading carries "warning until" like `attribscan`, `namescan`, `pdlistscan`. `attribscan`'s
+  `_QUOTE_RX` accepts any two characters between quotes and is used to *downgrade* a claim, not to
+  satisfy a gate; `quotescan` is the first sibling where the form opens a gate. The hook and its
+  sample are byte-identical (stamped copy, V4).
+- Harvest missed: the exception register's `ref` pattern (a tracked path to the record holding
+  his words) already exists as the house's way of pointing at say-so; the quote check does not use
+  it (counsel under QT1).
+
+### Lens 4 — security and privacy (V6; ASVS 5.0 items fetched, not recalled)
+
+- **Command execution** (ASVS V1.2.5, "operating system calls use parameterized OS queries"):
+  every git call is a list, no shell. **Option injection** (V1.3.3, "data being passed to a
+  potentially dangerous context is sanitized beforehand"): the user spec is passed unsanitised and
+  `git log` takes it as an option in the `=` form (QT4); the CI plane's base comes from the event
+  file, validated by `SHA_RX` with the all-zero SHA refused, and `pushed`/`HEAD^..HEAD` are
+  constants; `GITHUB_EVENT_PATH` is read once, JSON errors caught.
+- **Output encoding and log injection** (V1.1.2; V16.4.1, "logging components appropriately
+  encode data to prevent log injection"): quotescan prints a 12-character sha, constant paths, a
+  constant note; leakscan `--messages` prints the sha, a line number, a rule name and a redacted
+  excerpt through `safe_text` (P9: escape and bidi characters dropped); `report.broken` strips
+  controls from git's stderr. No printed field carries raw message text.
+- **Sensitive data in output** (V16.2.5, "may only be logged by being hashed or masked"): a term
+  excerpt is `term:` plus two characters; structural excerpts are redacted (P5, JSON path too,
+  which no test covers); a term never reaches stdout, stderr or JSON in the probes; my real run
+  was read as counts by rule and nothing else. The private term list is read by path and never
+  printed.
+- **Design altitude.** The tool reads every ref's message against the private list on a developer
+  machine and prints redacted hits: the exposure is the operator's terminal, as for file mode. The
+  trailer skip is the one *privacy* design defect: it treats every trailer-shaped line as public
+  identity (QT3).
+- **Hostile input:** QT9 (`\x01`), 2 MB line fine, NUL cannot be in a git message.
+
+### Standing checklist V1–V7
+
+- **V1** — not held: the "19 touch, 8 carry a quote" figure, the exit-code claim, the `why`, the
+  fleet claim and the "no config key" sentence each say more than the code does (QT7).
+- **V2** — every live-proven claim re-run (ledger below); all reproduce by shape, figures moved
+  with history (QT7a is a measure mismatch, not a stale proof).
+- **V3** — swept (lens 3); no stale mirror found.
+- **V4** — one home for message reading (`commitmsg`); the hook and sample are a stamped pair.
+  The cleaning rule has one home and is misapplied from it (QT2).
+- **V5** — the docstring ("reads the FORM") contradicts the floor `why` and README heading
+  ("carries his words") (QT7c). The README's exit-code line contradicts `commit_files`'s silence
+  (QT7b). Cross-references checked for the rule reached: `160/900` QK1 and `320/810` are quoted
+  in the brief's acceptance test and match the docstring's account; `320/080` ("the corpus
+  problem") is named by the docstring only and was left unread as a board item outside scope.
+- **V6** — lens 4 above, `/security-review` discharged by grounds.
+- **V7** — provenance above; the brief's provenance section and this one agree.
+
+### Findings
+
+**QT1 — MAJOR — Bears on the flip: the check reads a shape, not his say-so, and on 2027-05-31 the
+shape starts blocking.** Grounds: QA1 battery and real-history counts above. The build is honest
+that it reads the form; the item's harm (unauthorised changes to his text) is untouched by a form
+test, since an unauthorised change carries no words of his and the check cannot tell. Warn-only it
+is a reminder; blocking it stops a committer who wrapped a real quotation and passes one who quoted
+a file name. *Counsel:* keep it warn-only with no date until a check that reads say-so exists; or
+replace the form with a reference the house already uses, the exception register's `ref` shape (a
+tracked path, or a board item id plus a date, to the record holding his words), which a reviewer
+can follow and a shape test cannot fake; at minimum require the span be four or more words, allow
+single and multi-line quotes, and exclude a span that is also the old prompt text.
+
+**QT2 — MODERATE — `commitmsg.commits()` cleans already-committed messages with `#` as comment
+char, so `#`-leading lines and anything after a scissors line are never scanned.** Grounds: P1
+(term on a `# heading` line: 0 findings), P2 (term after a scissors line: 0), Q8 (a quote on a `#`
+line is lost on quotescan's CI plane). Git's cleanup ran at commit time; `-m` and `-F` keep `#`
+lines as content. Real history: 38 such lines in 17 of 2,343 messages are unread; scanned apart
+they carry 0 findings, so the gap is latent here. *Counsel:* in `commits()` use `%B` as git gives
+it; `clean()` belongs to the hook's file only.
+
+**QT3 — MODERATE — The authorship-trailer skip drops any trailer-shaped line, anywhere, whatever
+it carries.** Grounds: P3 (a second person's name and address in `Co-Authored-By:`: 0 findings),
+P3b (an indented, mixed-case `reviewed-BY:` body line with an IPv4 and a term: 0). "Published
+identity" is true of the author's own trailer; the repo's hard constraint forbids any other
+person's name, and that is what a co-author trailer carries. Real history: 2,237 trailer lines,
+email hits of one identity only, so nothing lost at this commit. *Counsel:* skip only the known
+identity (exempt the author's exact address, or scan trailers with `email` disabled for that
+value), or scan everything and let the one identity be the known, counted noise.
+
+**QT4 — MODERATE — An option-shaped spec makes "read-only" false and reports clean.** Grounds: I1
+`--messages=--output=<path>` and I2 `--range=--output=<path>`: `git log` wrote the file; leakscan
+reported `0 finding(s) in 0 of 0` and exit 0, quotescan "clean". A `--since=` spec would read
+nothing and report clean the same way. Reach: the command line only; a child's `flags` cannot
+(`FORBIDDEN_FLAGS` judges `--x=y` by name, checked) and CI passes constants. ASVS V1.3.3.
+*Counsel:* refuse a user spec that starts with `-` (the `--all` const is the tool's own, not the
+user's), or pass `--end-of-options` before a user spec; treat `0 of 0` with a non-empty spec as a
+note, not a clean line.
+
+**QT5 — MODERATE — The CI plane cannot see a merge commit's own change, and a `diff-tree` failure
+is silence.** Grounds: Q1b (a merge that edits the prompt itself: clean), Q2 (`commit_files` on
+an unreadable sha: `[]`). Real history: 1 of the 19 prompt commits is a merge in which the prompt
+differs from every parent; the tool reads 18. Rebased, cherry-picked and merged commits are
+exactly the ones only CI reads (`GUARDS.md`). *Counsel:* `diff-tree -m` (paths changed against
+any parent) and raise on a non-zero exit so `scan_range` exits 2.
+
+**QT6 — minor — Bears on the flip: a message-only amend removes the quote and the hook sees no
+guarded path.** Grounds: Q6 through a real hook. Commit with a quote, `commit --amend -m` without
+it: the final message carries no quote, only CI (report-only) sees it. The docstring calls the
+amend reading right; on the blocking plane it is a two-command route around the block.
+*Counsel:* record it in the docstring and README as a known route, beside `--no-verify`; a hook
+cannot tell an amend apart.
+
+**QT7 — minor — Overclaims, each against its text.** (a) Docstring, README and CHANGELOG: "19
+commits touch the prompt, 8 carry a quote (42%)" states `git log`'s count as the tool's measure;
+the tool reads 18 and cannot see the 19th (QT5). (b) README and docstring "Exit codes … `2` the
+scan is broken" against `commit_files` returning `[]` and an option-shaped spec reading nothing at
+exit 0 (QT4, QT5). (c) Floor `why` "carries his words" and README heading against the docstring's
+"reads the FORM". (d) CHANGELOG "21 of 21 exit 0 … on the flip date": true by construction on
+both planes where the path is absent; evidence of a no-op for children, not of safety for the
+repo that holds the path (now 22 of 22). (e) Docstring "no flag, environment variable or config
+key moves it": the date does not move; a repo's `advisory` declaration keeps the check warn-only
+past it, dated and visible. Say so.
+
+**QT8 — minor — Two meanings of `clean` in one delta's JSON.** quotescan's `"clean": not blocks`
+is true with findings in the warn period and always on the CI plane (Q9: `clean true, findings 1`);
+leakscan `--messages`'s `"clean": not findings`. quotescan follows namescan, so the split is
+between the message-plane checks and leakscan. *Counsel:* name the field `blocking` and drop
+`clean`, or define `clean` once in `report.py`.
+
+**QT9 — minor — A `\x01` byte in a message truncates it silently.** Grounds: P4, P4b: text after
+the byte is never scanned and the message still counts as read. The record separator is a byte
+git allows in a message. Real history: 0 such messages. *Counsel:* `git log -z` with a format
+free of `%x01`; NUL cannot occur in a message, so it is the one safe separator.
+
+**QT10 — minor — Test gaps.** No test pins the `--all` default or `messages_with_findings` as a
+count of messages (both mutants survive); none covers the JSON excerpt (P5 shows it redacted),
+a `#`-leading or trailer-shaped body line carrying a term (QT2, QT3), a merge on the range plane
+(QT5), or a message-only amend (QT6). quotescan's suite caught every mutant tried.
+
+**QT11 — note — `--all` reads stashes, remote-tracking refs and unpushed branches** (P13: a
+stash message with a term counted), a conservative over-count against `320/550`'s "all pushed
+refs", and it misses refs not fetched. The README's "every ref" is accurate; the sizing use case
+wants the pushed set named.
+
+**QT12 — note — A depth-1 clone's boundary commit "touches" every file** (`--root`; Q3), so a
+shallow CI would report every push as an unquoted prompt change. atelier's workflow fetches full
+history; a child that overrides depth would see noise, never a false clear.
+
+### Per-commit ledger
+
+- `b74cd5ef` — read body-free: yes (`coldsweep --commit`, 7 files, no board file). Findings:
+  QT1, QT5, QT6, QT7a–e, QT8, QT10, QT12.
+- `49f3d407` — read body-free: yes (`coldsweep --commit`, 6 files, no board file). Findings:
+  QT2, QT3, QT4, QT8, QT9, QT10, QT11.
+- `ba55be27` — read: the quotescan `declares=` block at HEAD only. Findings: QT7c (the `why`;
+  the `purpose_gap` is honest).
+- `2a6d7a41` — read body-free: yes (`coldsweep --commit`, `tools/leakscan.py` only). Findings:
+  none; a G3 comment, not the mode.
+- `tools/commitmsg.py` (shared dependency, in `49f3d407`'s tree): QT2, QT5 and QT9 live there.
+
+### Re-run ledger (2026-11-15 UTC, load 4.6–11.4, `nice -n 10`, one at a time)
+
+- `test_quotescan` — Ran 14 tests, OK.
+- `test_leakscan.CommitMessages` — Ran 7 tests, OK.
+- `test_floor.MsgPlaneTest` — Ran 10 tests, OK.
+- `quotescan.py --selftest` — `selftest OK — quotescan`, exit 0.
+- `quotescan.py --range HEAD --root . --warn` (read as JSON) — 10 findings, exit 0; beside it
+  `git log --format=%h -- <prompt> | wc -l` gives 19 and `--full-history` 39.
+- `quotescan.py --range pushed --root . --warn` — clean, note "no pushed range known: reading
+  HEAD only", exit 0.
+- `quotescan.py --range nosuch..HEAD --root . --warn` — `git log … failed`, exit 2.
+- `floor.py --plane msg --list --root . | grep quotescan` — `quotescan enforced fleet decl 1/5`,
+  exit 0.
+- `leakscan.py --messages --root . --json` (counts only) — 2,343 messages read, 3 with findings,
+  4 findings (email 2, nz-address 1, local-term 1), `scanned_local_terms` true, exit 0.
+- `leakscan.py --messages nosuch..HEAD --root .` — exit 2.
+- Fleet probe by exit code, both dates — 22 checkouts, 0 archived, 0 hold the path, 22 of 22
+  exit 0 on both planes.
+- `floor.py --plane msg` end to end over this worktree — namescan and quotescan clean, both
+  `enforced`, exit 0.
+
+NOT RUN (would write to a real repo): a real `git commit` through the floor's hook in this
+worktree; a real amend; a real merge. Each was built in a scratch repo instead (Q1–Q9).
+
+### Follow-up checklist (the principal decides; the author applies nothing — rule 3)
+
+- [ ] QT1 — rule on the 2027-05-31 flip: keep warn-only, change the check to read a reference,
+      or flip as built with the costs above in front of him.
+- [ ] QT2 — stop cleaning committed messages in `commitmsg.commits()`.
+- [ ] QT3 — narrow the trailer skip to the known identity.
+- [ ] QT4 — refuse or escape an option-shaped spec; stop reading `0 of 0` as clean.
+- [ ] QT5 — `diff-tree -m` and fail closed in `commit_files`.
+- [ ] QT6 — document the amend route beside `--no-verify`.
+- [ ] QT7 — correct the five texts (18 not 19; exit-code line; `why`; fleet claim; "no config
+      key").
+- [ ] QT8 — one meaning of `clean` across the floor's JSON.
+- [ ] QT9 — NUL-separated log format.
+- [ ] QT10 — pin the `--all` default, the message count, the JSON excerpt, and the QT2/QT3/QT5/QT6
+      shapes in tests.
+- [ ] QT11, QT12 — a sentence each in the README.
+
+Scratch repos, fixtures and the scratch copy of `tools/` were deleted at the end of act 1; nothing
+of them is kept. Act 2 follows on release of the sibling.
