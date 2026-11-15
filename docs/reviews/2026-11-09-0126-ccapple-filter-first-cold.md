@@ -3,8 +3,10 @@
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-15 UTC by the reviewer (Fable 5.1) under drain session
-21a271a5's headless orchestrator; the sibling is not yet opened. Brief written 2026-11-09 UTC.
+**Status:** ACT 2 (RECONCILE) WRITTEN 2026-11-15 UTC by the reviewer (Fable 5.1) under drain
+session 21a271a5's headless orchestrator; verdict PASS-WITH-FINDINGS (0 MAJOR, 1 MODERATE, 1 minor,
+3 notes). Act 1 committed as `15cb5d42`. Sibling folded below the verdict and the
+review log opened at the end, 2026-11-15 UTC, by the orchestrator. Brief written 2026-11-09 UTC.
 **Sizing:** **small** — one commit, 95 lines changed outside the board, one instrument, a test
 module that runs in about 13 s.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1000-rule-4-cold-pass-queued-ccapple-checks-the-filter-first.md`.
@@ -406,3 +408,228 @@ and the delta added two without touching the sentence. The protection it describ
       and Reminders answer "(no matches)" when their store is missing or unreadable?
 - [ ] If CA1's behaviour fix is taken, decide whether it lands under `160/989` or its own item.
 - [ ] Act 2 (reconcile) after the sibling is released; the overall line restated there.
+
+### Reconcile (act 2, 2026-11-15 UTC)
+
+Act 1 is committed on `main` as `15cb5d42`, unrevised. Then I read: the held sibling (released by
+the orchestrator with a process-only message: its path, the barred records now open, the shape of
+this section, no fold, no git writes, nothing about the delta or any finding); the queue pointer
+`160/1000` whole; the intent record `210/340` whole; the delta's commit message body; the author's
+session record (`docs/sessions/2026-11-03-1129-queue-run-deea.md`), the instrument's record
+(`2026-11-01-0618-ccapple-instrument.md`) and the brief-writer's (`2026-11-09-0104-briefs-84e3.md`),
+by grep for this delta; the two index lines in `docs/SESSIONS.md` naming it; and the `160/989`
+brief's Status line only (BRIEF ONLY, not run). I did not open `160/989`'s own `.deferred.md`
+sibling: it is held for that pass's reviewer.
+
+**Against the sibling's five questions** (a floor, never a fence; none steered act 1, which was
+written before I saw them):
+
+- *Q1, the two spellings of each flag list* → **CA2** reached this independently. Its second half
+  is answered in act 1 (A3): no subcommand or flag today is in one copy and not the other.
+- *Q2, falsy values, including a zero-like `--near` and the empty string* → act 1 probed `--id 0`
+  and `--text ""` (A4). Checked at reconcile: `photos --near 0,0` and `--near 0` pass the gate (a
+  non-empty string is truthy, as under the old `any(...)`; a bad coordinate is the parser's exit 2
+  once a store exists), `--near ""` is "no filter" and exits 2. Same semantics as before the delta
+  on every value a shell can pass. No finding.
+- *Q3, every path through `main()` before the gate* → act 1 A1: parse, the `status` return (which
+  opens stores by design and has no filter), the `--limit` check. None touches a store. The
+  sibling's "`doctor`-style paths" has one member here, `status`.
+- *Q4, does "(121 cases)" claim more than the two added tests* → the count is the module's (act 1
+  A5), and the CHANGELOG sentence attaches it to "runs all seven subcommands ... to pin both
+  statuses", where a reader takes 121 as the pinned cases. **Formed at reconcile, prompted by Q4,
+  recorded under CA1 rather than as a new finding:** the parenthesis is a third overclaim in the
+  same sentence; the fix is the same edit.
+- *Q5, `assertNotIn("store", err)` as a substring on a word a flag could carry* → **CA5, note,
+  formed at reconcile.** The assertion pins wording, not behaviour: a future `--store` flag or a
+  message that says "stored" would red it with no regression, while the behaviour it guards is "no
+  store was looked for", which `assertNotIn("cannot read store", err)` states exactly. *Counsel:*
+  assert the exit-1 message's own prefix, not the bare word.
+
+**Against the brief-writer's runs:** 121 OK under `/usr/bin/python3` 3.9 in about 15 s there; 121 OK
+under 3.14 in 8.4 s here. Consistent; the brief's "use the `python3` on `PATH`" was unnecessary for
+this module (the sibling shows 3.9 ran it) and harmless. `exit2` and `exit1` reproduce.
+
+**Against the author's account** (commit body, intent record, session record):
+
+- The body's "pin that a filter with no store is still exit 1" and the intent record's DONE line
+  "exit 1 when a filter is given but the store is missing" are the same general claim as the
+  CHANGELOG's, now on three surfaces. The original finding in the intent record already saw that
+  `contacts` and `reminders` "check the filter first", that is, resolve by a different route, and
+  did not follow that route to its missing-store exit. **CA1 stands at MODERATE**; nothing in the
+  author's account answers it, and `reminders --open-only` with no store also exits 0 `(no
+  matches)` (checked at reconcile; same cause).
+- "The first test fails on the old code for the four subcommands that were wrong": consistent
+  with the old code, where home's exactly-one-mode check sat in `main()` before `_one`
+  (`8ff5d373^`, lines 1671–1672). My mutation A reds five because removing `check_filters`
+  removes home's check too; that is my mutation, not the old code. No finding.
+- "The messages are unchanged": confirmed by the probes in act 1.
+- The pointer names the delta as "the commit that closes `210/340`, on `main`, 2026-11-03" with
+  no SHA; the brief pinned `8ff5d373` and I reviewed that pin. The pointer's and the brief's
+  provenance agree with the spawn I stated.
+
+**Severities after reconcile:** CA1 MODERATE (unchanged, one more instance noted), CA2 minor
+(unchanged), CA3 note, CA4 note, CA5 note (formed at reconcile).
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR, 1 MODERATE, 1 minor, 3 notes.**
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed and pushed to `main`
+(`15cb5d42`); folded here verbatim (headings demoted two levels) and the sibling file removed, per
+the brief. The orchestrator (a headless Opus 5.5 session started by drain session `21a271a5`,
+itself Opus 5.5) held the partition, formed no finding and wrote no severity.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-09-0126-ccapple-filter-first-cold.md` (`REVIEW.md` rule 1). Written
+2026-11-09 UTC by session `84e3aa7f`, the brief-writer, which authored none of the delta. Open this
+only after act 1 is committed. Everything here is a floor, never a fence, and none of it is a
+finding.
+
+#### The brief-writer's own questions
+
+1. `check_filters` and each search function now spell the flag list twice. What keeps the two in
+step when a flag is added (V4)? Is there a subcommand or a flag that one has and the other lacks
+today?
+2. Does `any(value for _, value in flags)` agree with the old per-function tests on every falsy
+value a caller can pass, including `--near` with a zero-like value and the empty string?
+3. The `--limit < 1` check sits before `check_filters`, and `doctor`-style paths return earlier
+still: map every path through `main()` before the gate and say whether any touches a store.
+4. The changelog's "121 cases" is the whole module's count. Does the sentence claim more than the
+two tests the delta added?
+5. `assertNotIn("store", err)` is a substring test on a word that a flag or subcommand name could
+later carry. Is it pinning the behaviour or the wording?
+
+#### What the brief-writer ran, and what it got
+
+- `test_ccapple`: /usr/bin/python3 3.9: 121 tests OK, exit 0, about 15 s.
+- `exit2`: all seven subcommands exit 2 under an empty HOME, each message naming the filters it
+  needs, no traceback (3.9).
+- `exit1`: exit 1, message `cannot read store` (3.9).
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*Form only: headings demoted two levels to sit under this one; no other change.*
+
+### Review log — atelier 160/1000, ccapple filter-first cold pass
+
+Reviewer: Fable 5.1 (claude-fable-5-1). Worktree: /Users/mike/worktrees/fable/atelier-160-1000-2129/atelier
+Started 2026-11-15 21:32 UTC. Load at start: 11.42 (16 GB laptop, several passes running).
+
+#### Act 1
+
+- 21:32 Read the brief in full and docs/method/REVIEW.md in full. Sibling .deferred.md not opened
+  (shows as deleted in git status; expected).
+- 21:32 `git merge-base --is-ancestor 8ff5d373 HEAD` exit 0: the delta is in my tree.
+- 21:32 python3 on PATH = 3.14.6; /usr/bin/python3 = 3.9.6.
+- 21:36 Delta read body-free via `tools/coldsweep.py --root <wt> --commit 8ff5d373 --path x4`
+  (3 board-store files left out; no rule-2 barred file touched). `git log 8ff5d373..HEAD` on the
+  instrument, its test and its man page: empty, so HEAD == delta for those three. CHANGELOG.md has
+  many later commits (other entries); I read the ccapple entry at HEAD.
+- 21:36 Load-bearing assumptions I name before probing (lens 1):
+  A1 nothing in main() touches a store before check_filters(args) on any subcommand path.
+  A2 check_filters covers every subcommand argparse admits; no cmd falls through it.
+  A3 the (flag, value) pairs in check_filters match each search function's own guard exactly.
+  A4 truthiness: a legitimately falsy filter value (0, "") is treated as "no filter" — same as before?
+  A5 "121 cases" and "about 13 s" reproduce.
+  A6 the man page's exit-status list agrees with the new paragraph and with the code.
+  A7 "each search function still carries it" holds for all seven, including home (search_home).
+  A8 the test module never opens a real store: TmpCase sets HOME to a temp dir for every process run.
+  A9 "a filter but no store still exits 1" holds for all seven, incl. contacts/reminders (multi-store
+     globs that may resolve to an empty list rather than fail).
+  A10 the new tests would go red if check_filters were removed or a pair dropped (mutation probe).
+  A11 the duplicated flag lists (check_filters vs search_*) are one fact in two homes (V4).
+- 21:38 Read at HEAD: main(), resolve_paths, _one, check_filters, search_home head, build_parser,
+  DEFAULT_PATTERNS, open_ro, render_text; man page EXIT STATUS and "Search, never dump"; test
+  header, TmpCase, AsAProcess.run_script (HOME=self.dir, a fresh temp dir per test).
+- 21:38 A1 CONFIRMED by reading: before check_filters(args) main() only parses argv, returns on
+  `status`, and checks --limit. HOME is read once at import (expanduser); no glob/open at import.
+- 21:38 A2 CONFIRMED: add_subparsers(required=True); no-cmd exits 2 from argparse. `status` returns
+  before check_filters. The final `else:` in main() is reminders.
+- 21:38 A3 CONFIRMED by comparing pairs: all six lists in check_filters match the search_* guards.
+- 21:39 Brief re-run line 2 (seven subcommands, no filter, HOME=empty scratch): all exit 2, each
+  message names the subcommand and its flags, none names a store. Line 3 (messages --text x): exit 1
+  "cannot read store: messages store not found". Both reproduce the brief's extracted claims.
+- 21:39 PROBE, filter + no store, each subcommand: calendar/notes/photos/home exit 1; contacts and
+  reminders exit 0 and print "(no matches)". CANDIDATE FINDING: the CHANGELOG line "A search that
+  does have a filter but no store still exits 1" is false for 2 of 7; the man page's EXIT STATUS
+  "1 - a store could not be read: missing ..." is contradicted for the two glob-resolved stores
+  (resolve_paths returns [] and search_contacts/search_reminders iterate zero stores). The new test
+  test_a_filter_with_no_store_is_still_exit_1 covers only messages/notes/photos/home.
+- 21:39 Edge probes: notes --id 0 -> exit 2 (0 is falsy; Z_PK starts at 1, unreachable; same as
+  before the delta, not raised). messages --text "" -> exit 2 (same as before). home with two
+  modes -> exit 2. --limit 0 with no filter -> "--limit must be at least 1" exit 2 (limit check
+  runs first; both are usage errors; no store touched). No subcommand -> argparse exit 2.
+  Empty HOME scratch dir still empty after all runs (nothing written).
+- 21:39 V3 sweep via coldsweep (two --also-exclude for the pointer and the intent record), pattern
+  on never dump / refuses to run without / needs at least one of / before any store: hits in
+  CHANGELOG (the delta entry and an older entry), instruments/README.md:28 (no exit code stated),
+  the man page para, and the --help epilog "Every search needs at least one filter." No other
+  surface states the ordering. Barred paths excluded (571 files); --include-barred not used.
+- 21:40 A8 CONFIRMED: AsAProcess.run_script sets HOME to a fresh temp dir; the only in-process
+  run_cli without --db is the status test, which first points cc.DEFAULT_PATTERNS at
+  <tmp>/none-*; every other Cli test passes --db. No test can reach a real store.
+- 21:40 A5: `( cd <wt>/instruments && nice -n 10 python3 -m unittest test_ccapple )`: Ran 121 tests
+  in 8.387s, OK (python3 3.14.6, load 8.1). 121 matches `def test_` count. ~13 s in the brief is a
+  sizing note; not raised.
+- 21:40 A7 CONFIRMED: direct no-filter tests exist for all six search_* (test lines 480, 531, 590,
+  636, 707, 832) and the home mode check (1128). search_home's own guard is the mode-validity
+  check (mode is a required positional), so "each search function still carries it" holds in
+  substance for home too; wording not raised.
+- 21:41 A10 mutation probes on a scratch copy (instrument + test copied to scratchpad, deleted after):
+  A. remove `check_filters(args)`: new test reds for messages/calendar/notes/photos/home (exit 1, the
+     store named); contacts/reminders stay 2 (their function guard fires because resolve_paths
+     returns [] and the guard precedes any open). B. drop ("--text", args.text) from the messages
+     pair in check_filters: red on the exact flag-list string. C. remove search_messages' own
+     guard: Messages.test_requires_a_filter reds (2 HelpAndManual errors are my copy lacking the
+     man dir; not the delta). Tests are effective in both directions.
+- 21:41 PROBE, synthetic no-Full-Disk-Access shape: HOME=<scratch> with the contacts Sources dir
+  and the reminders Stores dir chmod 000. contacts --name x and reminders --text x: "(no matches)"
+  exit 0 (python glob swallows the PermissionError and returns []). `status` says CANNOT OPEN
+  (store not found) for every store, exit 1. Dirs restored and removed. Grounds for CA1's silent-
+  failure half: the man page says exit 1 for "locked by macOS privacy (no Full Disk Access)".
+- 21:41 mandoc -T lint -W style on instruments/man/ccapple.1: exit 0, no output.
+- 21:41 Lens 4 reading: UsageError messages name only the subcommand and flag names (no user
+  input, no path); the exit-1 message names the app only ("<app> store not found"); open_ro is the
+  single door and is not reached before check_filters on any path. Nothing new to raise.
+- 21:41 /security-review: discharged by grounds (see verdict): the delta is landed, not pending;
+  this worktree is dirty with the removed sibling and will be dirty with the brief; shared-machine
+  shape (SL2 class). Lens 4 run by hand instead.
+- 21:41 Decided NOT to raise: notes --id 0 falsy (unreachable id, pre-existing); 8.4 s vs ~13 s;
+  the pre-existing `sqlite3.OperationalError` used by _one to reach the exit-1 handler (works,
+  pre-existing, belongs to the whole-instrument pass 160/989).
+- 21:42 Findings settled: CA1 MODERATE, CA2 minor, CA3 note, CA4 note. Writing act 1.
+- 21:46 Act 1 appended to the brief below a `---` divider; Status line updated to ACT 1 WRITTEN
+  2026-11-15 UTC. Gates on the brief from the worktree: datescan clean (408 lines read); linkscan
+  clean (0 markdown links; the sibling is cited as a code path, not a link); reviewscan clean
+  (deferred material kept out of the brief); wrapscan and spellscan skip docs/reviews/ by their
+  ignore files, so width and NZ spelling checked by hand: prose <= 100 columns (line 310 is 97
+  characters; awk counted the arrows as bytes), only table rows exceed it. Scratch dirs removed
+  (emptyhome, nofda, mut). Tree: only the brief modified and the sibling's planned deletion.
+- 21:46 ACT 1 SAVED. Verdict: PASS-WITH-FINDINGS — 0 MAJOR, 1 MODERATE (CA1), 1 minor (CA2),
+  2 notes (CA3, CA4). Waiting for the sibling's held path for act 2.
+
+#### Act 2
+
+- Release message received from the orchestrator (process only): act 1 committed and pushed to main
+  as 15cb5d42; the held sibling is at ~/.claude/fable-held/atelier--2026-11-09-0126-ccapple-filter-
+  first-cold.deferred.md; read it and the barred records; append ### Reconcile; do not fold or
+  delete the sibling; same rules. No question about the delta or any finding.
+- 21:44 Confirmed 15cb5d42 is on origin/main (merge-base --is-ancestor exit 0). Read the held
+  sibling (5 questions + the brief-writer's runs on 3.9), pointer 160/1000, intent record 210/340,
+  commit body of 8ff5d373, author/instrument/brief-writer session records by grep, the SESSIONS.md
+  index lines, and the 160/989 brief's Status line (BRIEF ONLY). Did NOT open 160/989's sibling.
+- 21:45 Reconcile probes (HOME=empty scratch, removed after): photos --near 0,0 exit 1 (gate
+  passed), --near "" exit 2, --near 0 exit 1; reminders --open-only exit 0 "(no matches)" (one more
+  CA1 instance). Old code 8ff5d373^ had home's mode check in main() before _one (lines 1671-1672),
+  so the author's "four subcommands" claim is right; my mutation A reds five because it removed
+  home's check too.
+- 21:45 Sibling Q1->CA2 (independent), Q2 answered no finding, Q3 answered (A1), Q4 -> folded into
+  CA1 as a third overclaim in the same sentence (formed at reconcile), Q5 -> CA5 note (formed at
+  reconcile: substring "store" pins wording). Author's account answers none of CA1; CA1 stays
+  MODERATE. Overall restated: PASS-WITH-FINDINGS — 0 MAJOR, 1 MODERATE, 1 minor, 3 notes.
+- 21:47 Reconcile appended; Status line set to ACT 2 (RECONCILE) WRITTEN 2026-11-15 UTC. No line
+  in the new section over 100 characters. Gates from the worktree: datescan clean (473 lines),
+  linkscan clean, reviewscan clean; wrapscan/spellscan skip docs/reviews/ by ignore file (hand
+  check done). Scratch dirs removed. Tree: brief modified, sibling's planned deletion only.
+  Sibling NOT folded or deleted (orchestrator's act). ACT 2 SAVED.
