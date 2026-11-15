@@ -3,9 +3,9 @@
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 SAVED 2026-11-15 UTC — verdict **FAIL** (1 MAJOR, 2 MODERATE, 3 minor,
-2 notes). The sibling is held by the orchestrator; the reconcile (act 2) is owed. Brief written
-2026-11-09 UTC.
+**Status:** PASS RAN 2026-11-15 UTC — act 1 committed before the sibling opened, act 2
+reconciled; verdict **FAIL** (1 MAJOR, 2 MODERATE, 3 minor, 2 notes). The sibling is folded
+below the verdict. Brief written 2026-11-09 UTC.
 **Sizing:** **medium** — one commit, about 120 lines of shell-reading logic in a 1,800-line
 instrument, no live system, but the parsing has many edge shapes to probe.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1010-rule-4-cold-pass-queued-ccclose-loop-made-worktrees.md`.
@@ -163,7 +163,7 @@ after the reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, the queue pointer above, this brief's sibling
-`docs/reviews/2026-11-09-0126-ccclose-loop-worktrees-cold.deferred.md`, every delta commit's message
+(its `.deferred.md` file, now folded below the verdict), every delta commit's message
 body, and the intent record
 `docs/roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md`
 beyond its first line (the title).
@@ -553,3 +553,220 @@ result text, which this instrument has so far done only for `EnterWorktree`; it 
 block treats as evidence, and that is a design choice rather than a bug fix.
 
 ACT 1 SAVED 2026-11-15 UTC.
+
+### Reconcile (act 2, 2026-11-15 UTC)
+
+Opened after act 1 was committed (`dc243522`, this file only), on the orchestrator's release
+message naming the sibling's held path: the sibling, the delta's commit message body, the queue
+pointer `160/1010` and the intent record `210/360`, each whole. `docs/SESSIONS.md`,
+`docs/sessions/`, `docs/ROADMAP-DONE.md` and other verdicts stayed unopened; nothing here needed
+them. Act-1 text above is unrevised. No finding was formed at reconcile.
+
+**Against the sibling's questions** (the brief-writer's floor, 2026-11-09; none was read before
+act 1):
+
+- Q1 (text patterns and quoted or prose words) ↔ **CW2**. Both directions occur: a false listing
+  when a prose opener leaves the loop unclosed (P1a), a false drop when `echo done` closes it
+  early (P1c). Act 1 graded the listing direction MODERATE and the drop direction safe.
+- Q2 (one failing add in a loop, whole-command result) ↔ **CW1 case A**: yes, listed as made.
+- Q3 (`break`, `continue`, an `if` guard) ↔ **CW1**, probe P24: listed once per word.
+- Q4 (bound on the product, cost of a long list) ↔ **CW4**: no bound; the cost is quadratic in
+  the paths produced through `site.includes`, measured to a timeout at 216,000 combinations.
+- Q5 (unit of "N worktree adds") ↔ **CW6**: per command, which the sentence does not say.
+- Q6 (`site.includes` de-duplicates two words resolving to one path) — checked at reconcile,
+  P32: one entry is listed. A shell's second add fails on the existing path, so one entry is the
+  true record. Not a finding.
+- Q7 (precedence of `br === null && branch !== null` in the `||` chain; a positional commit-ish
+  holding an unknown variable) — checked at reconcile: `&&` binds before `||`, so line 368 reads
+  as intended; the unknown commit-ish is dropped and counted, recorded as **CW8(b)**.
+
+The sibling's re-run shows 105/105 on 2026-11-09; mine shows 111/111. The suite grew by six tests
+with `50547442` and `1bc89816` after the brief was written; the delta's own tests are among both
+counts. Not a discrepancy.
+
+**Against the author's account** (the commit body of `03d8503d`, and the intent record):
+
+- The motive holds: a queue run's own close listed 5 worktrees of 13 made through a literal
+  loop, with nothing saying so. The delta builds both shapes the item names.
+- "A loop over anything else leaves its variable unset, so the add is dropped as before and
+  never guessed" — **CW2** and **CW5** stand against it as written: an unclosed loop expands a
+  later add into guessed paths, and an arithmetic `for` is neither expanded nor dropped.
+- "Tests: … add after the loop" — the shipped test covers the safe direction only (loop closed,
+  variable unknown, counted); the unsafe one (CW2) has no test.
+- "A -b branch (or commit-ish) holding an unresolvable variable now counts as unresolved too" —
+  confirmed (P5b, P7); the body states the commit-ish case the CHANGELOG leaves out.
+- The intent record's shape 1 wording, "N worktree adds not resolved (a variable with no
+  literal assignment)", is where the render's parenthetical comes from; **CW6** stands: the
+  causes grew and the sentence did not.
+- Nothing in the body or the intent record addresses a loop whose result is an error, so
+  **CW1** is not a point the author weighed and decided; it is unaddressed.
+
+**Against the queue pointer:** its provenance matches act 1's (barred sessions, orchestrator,
+tier, the drain order as the approval, the sibling held out of the worktree). Nothing to
+reconcile.
+
+**Overall line restated: FAIL — 1 MAJOR (CW1), 2 MODERATE (CW2, CW3), 3 minor (CW4, CW5, CW6),
+2 notes (CW7, CW8).** Every finding is the principal's to decide (rule 3); nothing applied.
+
+ACT 2 SAVED 2026-11-15 UTC.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`4a7b13a3` on `main`,
+`dc243522` before the rebase); folded here verbatim (headings demoted two levels) and the sibling file
+removed, per the brief. The orchestrator (a headless Opus 5.5 session started by drain session
+`21a271a5`, itself Opus 5.5) held the partition, formed no finding and wrote no severity.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-09-0126-ccclose-loop-worktrees-cold.md` (`REVIEW.md` rule 1).
+Written 2026-11-09 UTC by session `84e3aa7f`, the brief-writer, which authored none of the delta.
+Open this only after act 1 is committed. Everything here is a floor, never a fence, and none of it
+is a finding.
+
+#### The brief-writer's own questions
+
+1. `LOOP_CLOSE` and `LOOP_OPEN` are text patterns over the whole command: what do `git commit -m
+"all done"`, `echo for you`, a heredoc body or a quoted word do to the depth count? Which direction
+is the error: a false listing or a false drop?
+2. A command that adds one worktree per word and fails on one of them: `resolvePending` works from
+the whole command's result. Is an add that failed listed as made?
+3. `break`, `continue` or an `if` guard in the loop body: is the add listed once per word although
+the real loop did not run it for every word?
+4. Nested literal loops multiply: is there a bound on the product, and what does a long word list
+cost?
+5. `dropped` counts a site once though several of its expansions may be dropped. What unit is "N
+worktree adds", and does it match what the sentence tells the reader?
+6. `site.includes(wtPath)` silently de-duplicates. Is that right when two words resolve to one path?
+7. The operator precedence of `br === null && branch !== null` inside the `||` chain, and the case
+of a positional commit-ish holding an unknown variable.
+
+#### What the brief-writer ran, and what it got
+
+- `ccclose`: Node 24: 105 tests, 105 pass, 0 fail, 284 s under load.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*The Fable 5.1 reviewer's own work log, kept while it ran and unread by any other session until
+act 2 was saved; appended verbatim (headings demoted two levels). Form fixes only, if any, are
+listed here: none beyond the heading demotion.*
+
+### Work log — atelier 160/1010 cold pass (ccclose loop-made worktrees)
+
+Reviewer: Fable 5.1 (claude-fable-5-1), spawned by a headless Opus 5.5 orchestrator under drain
+session 21a271a5. Worktree: /Users/mike/worktrees/fable/atelier-160-1010-2141/atelier at
+53f25fa4. Brief: docs/reviews/2026-11-09-0126-ccclose-loop-worktrees-cold.md. Sibling
+`.deferred.md` absent from the worktree by design (git status shows ` D`); not sought.
+
+#### Act 1
+
+- 2026-11-15T21:43Z: started. uptime load 4.60. Read the brief in full (203 lines).
+- Partition: I will not open docs/ROADMAP-DONE.md, docs/SESSIONS.md, docs/sessions/, other
+  docs/reviews/ verdicts, the queue pointer 160/1010, the intent record 210/360 beyond its title,
+  or any delta commit message body. Sweeps via tools/coldsweep.py.
+- Tree check: `git merge-base --is-ancestor 03d8503d HEAD` exit 0. Later commits on the delta
+  paths listed with the brief's `git log --oneline` line (subjects only; the list is long because
+  CHANGELOG.md is a delta path). On `instruments/ccclose` since the delta: 50547442, 1bc89816,
+  457f374d (non-goal), 4e3b3984 (non-goal).
+- Read docs/method/REVIEW.md whole (698 lines): verdict shape, V1–V7, the method record rule.
+- Read the delta body-free: `python3 tools/coldsweep.py --root <wt> --commit 03d8503d --path` x5.
+  Subject, stat, diff only; coldsweep footer confirms the body was not printed and 3 board files
+  were left out. I did not pass --path for any board file.
+- Read at HEAD: instruments/ccclose 236–395 (shellWords, resolveFrom, WT_ADD, FOR_HEAD,
+  LOOP_OPEN, LOOP_CLOSE, loopsAround, worktreeAdds), 540–572 (LITERAL_ASSIGN, assignmentsIn,
+  expandVars), 715–855 (notePending, resolvePending, readTranscript loop), 1630–1670 (the second
+  worktreeAdds call site in commitEvidence, stats discarded), 1802–1835 (identifiersWorktrees),
+  1920–1941 (renderIdentifiers worktrees). instruments/ccclose.design.md 385–419; man/ccclose.1
+  490–519; docs/method/RECORD.md 95–137 (the identifiers block); instruments/README.md 392–424;
+  CHANGELOG entry at 1847. Intent record 210/360: first line only (title + state).
+- Hook: .githooks/pre-commit runs tools/floor.py's registry; will run the gates on the brief at
+  the end of the act.
+- Re-run obligation: `cd <wt> && nice -n 10 node --test instruments/ccclose.test.js` → exit 0,
+  tests 111, pass 111, fail 0, 143.7 s (21:47–21:49 UTC). Output kept in scratch only.
+- Probes run on a scratch COPY of instruments/ccclose + cctranscript (scratchpad/probe/), via
+  `node probe1.js`, `node probe2.js` (fixture transcripts through cc.readTranscript, deleted at the
+  end of the run) and `/usr/bin/python3 -I probe3.py` (each timing case in its own node process,
+  `nice -n 10`, 60 s timeout, 1.5 GB heap cap, smallest first, stop at first timeout).
+  - P1a `for n in a b; do git commit -m "fix for $n"; done; git worktree add --detach /w/$n` →
+    listed /w/a and /w/b, unresolved 0. Control P1b (no word "for" in the body) → listed none,
+    unresolved 1. Cause: LOOP_OPEN counts the plain word " for " as an opener, the loop never
+    closes (doneAt = Infinity), the add after `done` is read as inside the loop. Real shell makes
+    /w/b only. A guessed path → candidate finding (acceptance standard: never guessed).
+  - P1c `echo done` inside the body closes the loop early → the in-loop add after it is dropped
+    and counted (safe direction). Not raised beyond the P1a finding's text.
+  - P2 (readTranscript fixtures): A: loop of two adds, first fails, last succeeds, is_error
+    false → BOTH listed, unresolved 0. B: first succeeds, last fails, is_error true → NOTHING
+    listed, unresolved 0 (a made worktree dropped and not counted). C: single failed add →
+    dropped, as before the delta. D: unresolved add with an error result → not counted. E: loop
+    followed by `&& echo ok` → same as A. Cause: resolvePending gates the whole expansion on one
+    tool_result's is_error and returns before counting. Candidate finding, the brief's named
+    worst failure in both directions.
+  - P3 FOR_HEAD timing, `for n in ` + N spaces, no `;`/newline before the add: N=1000 → 310 ms;
+    N=4000 → 19.3 s; N=16000 → >60 s (timeout). Growth ≈ N³ (three overlapping whitespace
+    consumers: `in\s+`, `[^;\n]*?`, `\s*`). With a `\ndo` present (spaces-done) every size ≤ 64000
+    → 1 ms. ` \t` runs: 32 KB → 1.2 s (≈ N²). Candidate finding (lens 4, named in the brief).
+  - P4 expansion: depth 3 × 10 words → 1,000 paths, 11 ms; 30 words → 27,000 paths, 1.3 s;
+    60 words → 216,000 paths, >60 s timeout. Depth 4 × 10 → 10,000, 300 ms; × 20 → 160,000,
+    timeout. Growth ≈ paths² from `site.includes(wtPath)` (array scan per path) plus a `cds`
+    regex rerun and a Map copy per env. No cap on combinations. Candidate finding (minor).
+  - P5 unit of the count: `for n in $(ls); do git worktree add …` → 1; `for n in a b c; do git
+    worktree add -b $n-$X …` → 1 for three worktrees. The line says "N worktree adds"; a reader
+    takes N as worktrees. Candidate (minor).
+  - P7 `git worktree add /w/x $REF` ($REF unknown) → dropped, counted 1, though the path is
+    known. Before the delta the branch was guessed as the basename. Note.
+  - P7b `git worktree add /w/x origin/main` → branch "origin/main". git detaches at a non-branch
+    commit-ish, so the branch field is wrong; pre-existing (not this delta). Note.
+  - P30a `for ((i=0;i<2;i++)); do git worktree add --detach /w/$i; done` → listed /w/0 only,
+    unresolved 0: FOR_HEAD does not match, LITERAL_ASSIGN reads `i=0` as an assignment, so one
+    path is listed and the other dropped silently. Contradicts "a loop over anything else leaves
+    its variable unset, so the add is dropped". Candidate (minor).
+  - P30c `for n in ""` → /w/ listed; P6 `for n in a #b` → /w/#b listed (bash reads `#b` as a
+    comment). Notes; contrived.
+  - P8, P13, P26, P27, P28, P29, P30b, P30d, P30f, P30g, P31: all dropped and counted (safe).
+    P28b, P29, P30e, P32: listed as a shell would. Not raised.
+  - P24 `[ -d /w/$n ] && continue` in the body → all three listed; folded into the P2 finding
+    (one result stands for many adds).
+- Git fact check in a scratch repo (deleted after): branch `wt-a` pre-existing; `for n in a b; do
+  git worktree add -b wt-$n ../wt-$n; done` printed `Preparing worktree (new branch 'wt-a')`
+  then `fatal: a branch named 'wt-a' already exists`, made `wt-b`, `loop exit=0`. So
+  "Preparing worktree" prints before a failure and is not a success mark; `fatal:` and
+  `HEAD is now at` are the per-iteration marks.
+- Other callers: `worktreeAdds`/`loopsAround` are used by instruments/ccclose only (two sites) and
+  its tests; `spawnSync` is the git/gh wrapper; no transcript text is executed.
+- Mirror sweep: `python3 tools/coldsweep.py --root <wt> --also-exclude <pointer> --also-exclude
+  <intent record> 'worktree adds? not resolved|210/360|plain words \(no glob|loopsAround'` → 14
+  hits over 841 files, 571 excluded as barred; all hits in the five delta files and the tests.
+- 2026-11-15T22:0xZ: act 1 verdict appended to the brief below a `---` divider; Status line
+  updated. Findings CW1 MAJOR (one result gates a loop's whole expansion; probes P2 A/B/E),
+  CW2 MODERATE (quote-blind loop scanner; P1a/P1b/P1c), CW3 MODERATE (cubic FOR_HEAD; P3),
+  CW4 minor (uncapped expansion, quadratic dedupe; P4), CW5 minor (arithmetic for; P30a), CW6
+  minor (count unit and causes; P5a/P5b), CW7 note (prose understates the exclusion class;
+  design.md indentation), CW8 note (pre-existing branch-field behaviour; P7/P7b). Overall FAIL.
+- Gates run on the brief from the worktree: datescan exit 0 (clean), spellscan exit 0 (file is
+  in .spellscanignore, scanned nothing), wrapscan exit 0 (in .wrapscanignore, scanned nothing;
+  my own lines checked by awk: none over 100 columns after reflowing three tables to lists),
+  reviewscan exit 0 (brief keeps deferred material in a sibling), attribscan exit 0, leakscan
+  exit 0, linkscan exit 0 (no markdown links), pdlistscan tree-wide exit 0, pathscan 1 finding:
+  the held sibling's path at brief line 166, expected until the fold.
+- Scratch cleaned: probe copies, fixtures and the test-run capture removed.
+
+#### Act 2
+
+- 2026-11-15T22:1xZ: orchestrator released the sibling (act 1 committed as dc243522, brief file
+  only). Read: the held sibling (7 brief-writer questions; its re-run: 105/105 on 2026-11-09),
+  the delta's commit body (`git log -1 --format=%b 03d8503d`), the queue pointer 160/1010 whole,
+  the intent record 210/360 whole. Did not open docs/SESSIONS.md, docs/sessions/,
+  docs/ROADMAP-DONE.md or other verdicts: nothing in the reconcile needed them.
+- Sibling Q1 ↔ CW2; Q2 ↔ CW1 (case A); Q3 ↔ CW1 (P24); Q4 ↔ CW4; Q5 ↔ CW6; Q6 (dedupe of two
+  words to one path) checked: P32 lists one entry, a shell's second add fails on the existing
+  path, so one entry is the true record; not a finding. Q7: `target === null || target === '' ||
+  br === null && branch !== null` — `&&` binds before `||`, so the clause reads as intended
+  (line 368); the unknown positional commit-ish case is CW8(b). No finding formed at reconcile.
+- Test count 105 (sibling, 2026-11-09) vs 111 (mine): the suite grew with 50547442 and 1bc89816
+  after the brief; not a discrepancy.
+- 2026-11-15T22:06Z: `### Reconcile` appended beneath the act-1 verdict; act-1 text untouched;
+  overall line restated FAIL (1 MAJOR, 2 MODERATE, 3 minor, 2 notes). Gates on the brief from the
+  worktree: datescan, attribscan, leakscan, reviewscan, linkscan exit 0; pathscan 1 finding, the
+  held sibling's path (expected until the orchestrator's fold); no line over 100 columns in the
+  reconcile. No git write by me: status shows ` D` sibling (orchestrator's removal) and ` M` brief.
+  Sibling not folded, nothing deleted; the fold is the orchestrator's.
