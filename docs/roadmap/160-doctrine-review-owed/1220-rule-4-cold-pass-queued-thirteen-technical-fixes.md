@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the thirteen technical fixes he approved in
+- [~] ⏳ **Rule-4 cold pass queued: the thirteen technical fixes he approved in
       one list (`160/050`, `090`, `100`, `220`, `470`, `490`, `520`, `560`, `590`,
       `300`, `570`, `430`, `680`).** Scanners in every child changed, and several
       passes had a MAJOR. The authoring session (a principal-opened Opus 5.5
@@ -23,3 +23,12 @@
       is a small application after a pass with no MAJOR, which the principal's rule for
       this brief-writing run says is not owed a review. They were reported to him as
       candidates; he can widen the pass. The `⏳` stands for the four.
+      🔒 CLAIMED 2026-11-15T20:03Z UTC for the cold pass on the four briefed items, in Mike's weekly
+      Fable drain (his `/fable-drain` order, 2026-11-16 06:53 NZDT; approval lapses at the
+      reset, 2026-11-15 23:00 UTC). Orchestrator: a headless Opus 5.5 session started by
+      drain session 21a271a5, a rule-4 off-tier orchestrator that holds the context
+      partition, forms no finding and writes no severity. Reviewer: Fable 5.1, tier checked
+      at selection, spawned by that orchestrator. Neither is a barred session (9bb1b984,
+      74f2b8cd, 722ac2e2 and what it started). The sibling is held out of the worktree until
+      act 1 is committed. The item's "waits for the principal's explicit permission for
+      Fable work" is met by that drain order.
