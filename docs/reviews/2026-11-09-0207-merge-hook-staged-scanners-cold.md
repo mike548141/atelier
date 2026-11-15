@@ -6,9 +6,11 @@ doctrine by function, rule 3).
 pass. A session that cannot run on it stops (rule 4).
 **Status:** RUN, act 1 appended 2026-11-15 UTC by a Fable 5.1 reviewer spawned by a headless
 Opus 5.5 orchestrator of drain session `21a271a5`, under the principal's weekly Fable drain order.
-PASS-WITH-FINDINGS, 0 MAJOR · 3 MODERATE · 3 minor · 4 notes. Act 2 (reconcile against the sibling
-the orchestrator holds, and the commit bodies) is pending. Brief written 2026-11-09 UTC by session
-`d4a0fcf3`, a headless Opus 5.5 brief-writer.
+PASS-WITH-FINDINGS, 0 MAJOR · 3 MODERATE · 3 minor · 4 notes; act 1 committed `8df76523`. Act 2
+(reconcile against the sibling, the intent records and the commit bodies) appended 2026-11-15 UTC;
+the overall line is unchanged. The sibling is folded in below the reconcile by
+the orchestrator, 2026-11-15 UTC. Brief written 2026-11-09 UTC by session `d4a0fcf3`, a headless
+Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/998-rule-4-cold-pass-queued-merge-hook-and-staged-content-scanners.md`.
 **Size of this pass:** large: four commits across the hook plane, five scanners and `GUARDS.md`,
@@ -193,7 +195,7 @@ nice -n 10 python3 -m unittest discover -s tools
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
 `docs/reviews/2026-11-09-0207-merge-hook-staged-scanners-cold.deferred.md` (a held-back file; by
-count: 8 questions, 2 facts), every other item under `docs/roadmap/160-doctrine-review-owed/` beyond
+count: 8 questions, 2 facts; now folded in below the verdict and removed), every other item under `docs/roadmap/160-doctrine-review-owed/` beyond
 its title, every delta commit's message body, and these intent records beyond their first line:
 
 - `docs/roadmap/115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md`
@@ -482,3 +484,156 @@ under `nice -n 10`, one at a time, exit codes read explicitly. `uptime` load 14.
 - [ ] Follow-up, not a finding: `floorfleet` reporting a child whose hook plane lacks
       `pre-merge-commit` (the CHANGELOG already names the gap).
 - [ ] Owed ask: none. Default taken: findings recorded only, per rule 3.
+
+### Reconcile (act 2) — 2026-11-15 UTC
+
+Act 1 was committed unrevised as `8df76523` before anything below was opened. Opened for act 2:
+the sibling (released by the orchestrator's message naming its held path), the three intent
+records and the `160/998` item whole, the four commit bodies, the bearing lines of the two prior
+verdicts the sibling names (`2026-10-26-0912` and `2026-10-28-1255`, the staged-positional-reader
+passes) and the session-store lines on the three items. No act-1 text is revised. No finding was
+formed at reconcile.
+
+**Against the sibling's eight questions.**
+
+1. *`$0` through a symlink, a worktree `core.hooksPath`, a relative path; the tracked hook's mode.*
+   Git invokes a hook by the path it resolved, so `dirname "$0"` is the hooks directory whether
+   `core.hooksPath` is relative (`MergeHookTest`, `.githooks`) or absolute (probe G, which used
+   an absolute path); `create-repo` absolutises it for worktrees. Both tracked hooks are mode 755
+   and byte-equal to their samples (checked). A hook reached through a symlink was NOT probed.
+2. *Installation reach and the population.* A7 and the follow-up checklist: new installs get it,
+   an existing child copies it by hand, nothing reports one without it. The intent record's close
+   says step 3 was "deliberately left" and why (a new `floorfleet` column reds every green child).
+   The population was not measured: child repos are read-only to this pass and reported by count
+   only, and I opened none.
+3. *Fast-forward, `--no-commit`, octopus.* Fast-forward probed: nothing runs, and HS1 asks for the
+   row. `--no-commit` and an octopus merge were NOT probed; by git's own hook contract
+   `pre-merge-commit` does not run under `--no-commit` (the later `git commit` runs `pre-commit`),
+   which the table could state alongside the fast-forward row.
+4. *Fence state from the index; `git add -p`.* The whole index blob is read (`staged_blob`), so the
+   fence state is the index copy's; `test_fence_context_comes_from_the_whole_staged_file` pins it
+   and I re-ran it. `git add -p` produces an index that differs from both HEAD and the disk, and
+   `--cached` line numbers are the index copy's by construction; the probe-I temporary index is the
+   same shape. Not separately driven with `-p`.
+5. *`ACMR`.* A rename with no content change is listed as `R` and judged (the M2 mutant shows the
+   rule is live and untested, HS5). A mode-only change lists as `M` under `--name-only` and is
+   judged whole. `T` is excluded where the diff reader includes it (HS3). A deleted record (`D`) is
+   not judged on either plane: its absence is not a missing review line, and CI's tree read cannot
+   see it either; consistent with the design, recorded.
+6. *Hook-time growth.* Not measured. The cost is one `git cat-file` per staged file that is in a
+   scanner's scope and class (Markdown under `docs/` for three; records, briefs, roadmaps and
+   archive stores for two), not five per commit; untouched files are no longer read at all, which
+   is a saving over the tree read. Probe G's whole-floor hook runs took seconds under load 10.
+7. *A narrowing, ruled, CI-covered.* It is a narrowing: a defect already in a touched file no
+   longer blocks at the hook. The intent record left the remedy to atelier and the author decided
+   it (the body calls it a judged choice); no principal's ruling is recorded, and none was
+   required by the record. CI covers it: the five `ci=` registry forms are whole-tree and
+   unchanged (read in `floor.py`). HS9 records the one edge (a rename into scope). Nothing to add.
+8. *`staged_blob`'s `finally` on an early stop.* Probe B and the finalisation check: a 2.4 MB
+   header-only read exits 0 with empty stderr, and `gc.collect()` under `-X dev` printed nothing.
+   `reviewscan` drains its stream explicitly. The author's body says the header-only read "closes
+   it cleanly"; my reading of the generator-close path had expected a swallowed
+   `CalledProcessError`, and the live result shows none. Consistent with the account; the
+   mechanism is not stated in the code and I did not pin it further.
+
+**Against the sibling's facts.** The system Python 3.9.6 import failure (`str | None` at module
+level) was not re-driven: the brief fixes the interpreter to the first `python3` on `PATH`, 3.14.6,
+and the hook's own guard requires only that some `python3` exist. Recorded as a residual outside
+this delta. `staged_blob`'s reuse by `secretscan`'s body exemption (`160/1030`) is consistent
+with "one shared helper, not a third private copy" in the `7673da1` body; HS2 and HS3 sit in the
+callers and in `staged_paths`, not in `staged_blob`.
+
+**Against the brief-writer's re-run results.** Every line it ran passed then and passes at HEAD;
+the counts grew with the later landings (`test_precommit` 23 → 30, the full suite 2,643 → 3,134).
+
+**Against the author's account (the four bodies and the intent records).**
+
+- HS1: the intent record's own measurements (2026-10-16 and the 2026-10-17 addendum) covered plain
+  `cherry-pick`, `rebase`, `revert` and `rebase --continue`, and the GUARDS row generalised from
+  them to "including `rebase --continue`" and to every form of `cherry-pick`; `cherry-pick
+  --continue` and `reword` were never measured. The addendum's point that a hand-resolved rebase
+  lands unhooked stands and is the row's true cell. HS1 stands as written.
+- HS2 and HS3: both are gaps in a later application, not errors of this author. QS3 (`--root` does
+  not govern the staged diff) was found on 2026-10-26, before this delta; its remedy
+  `refuse_other_repo` landed 2026-11-09 (`6467729`), and the `160/800` pins the same day
+  (`ea8de0f`), both after the delta and both reaching the readers those passes named, not the
+  five added here. The counsel stands; the record should say the sweep missed these callers.
+- HS4: the bodies say the hook now answers "what is this commit about to make true"; the policy
+  plane is unmentioned in bodies, records and docs. Stands.
+- HS5: the `7673da1` body states `staged_blob` "inherits `GIT_INDEX_FILE`" as a design point; the
+  tests pin neither it nor the three other mutated lines. Stands.
+- HS6: the stale sentence is in a file the delta did not touch; the delta made it stale. Stands.
+- The bodies' "proven through the real hook in a throwaway repo" claims reproduce (probe G), and
+  "no child that was green can turn red" holds (V1 above).
+
+**Overall line, restated:** PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE (HS1, HS2, HS3) · 3 minor
+(HS4, HS5, HS6) · 4 notes (HS7–HS10). Unchanged by reconcile. The sibling is folded in below by
+the orchestrator.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`8df76523`); folded here
+verbatim (headings demoted two levels) and the sibling file removed, per the brief. The
+orchestrator (a headless Claude Opus 5.5 session started by drain session `21a271a5`) formed no
+finding and wrote no severity.*
+
+### Sibling to the merge-hook-staged-scanners cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-11-09-0207-merge-hook-staged-scanners-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-11-09 UTC by the brief-writer, session `d4a0fcf3` (Opus 5.5), named in the
+brief's provenance; it forms no finding and assigns no severity. Fold this file in below the
+reconcile and delete it at phase 2.
+
+#### Re-run results held back from the brief
+
+Run once by the brief-writer, 2026-11-09 UTC, from the worktree root at `b1f9499`, machine load
+averages 10 to 22 throughout:
+
+- `cd tools && python3 -m unittest test_precommit`: 23 tests, OK, exit 0 (Python 3.14.6).
+- `python3 -m unittest discover -s tools -p test_spellscan.py`: exit 0 (Ran 87 tests).
+- `python3 -m unittest discover -s tools -p test_wrapscan.py`: exit 0 (Ran 67 tests).
+- `python3 -m unittest discover -s tools -p test_datescan.py`: exit 0 (Ran 96 tests).
+- `python3 -m unittest discover -s tools -p test_reviewscan.py`: exit 0 (Ran 49 tests).
+- `python3 -m unittest discover -s tools -p test_sizescan.py`: exit 0 (Ran 106 tests).
+- `python3 tools/floor.py --plane hook --root .`: exit 0 (✅ licenscan enforced).
+- Full suite, `nice -n 10 python3 -m unittest discover -s tools`, Python 3.14.6: 2,643 tests, OK,
+  exit 0, 1,167 s. An earlier run on the system Python 3.9.6: 2,307 tests, 4 import errors
+  (`test_floor`, `test_floorfleet`, `test_personal_data`, `test_precommit`: a module-level `str |
+  None` annotation) and 1 timeout under load (`test_spellscan.BoundedMemory`, which passed alone on
+  3.14).
+
+#### Prior records on nearby surfaces (named by filename, not opened unless the brief says so, not exhaustive)
+
+- `docs/reviews/2026-10-26-0912-staged-positional-reader-cold.md`
+- `docs/reviews/2026-10-28-1255-staged-positional-reader-topup-cold.md`
+
+#### Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. `exec sh "$hook_dir/pre-commit"`: `$0` when a hook is invoked through a symlink, a worktree's
+   `core.hooksPath` or a relative path. Does `dirname "$0"` find the sibling? Does the shipped
+   `.githooks/pre-merge-commit` have its mode set?
+2. Installation reach: `commands/install-hook.md` copies it, but a child whose `.githooks` is
+   already stamped? `floorfleet` or `create-repo`'s stamp: what is the population that has it, and
+   does anything report a child without it?
+3. `git merge` when the merge is fast-forward, or with `--no-commit`, or an octopus: what runs? The
+   table measured one git version.
+4. Added-line filter plus whole-file context for fences: does `spellscan` read the fence state from
+   the index copy or the disk? Partial staging with `git add -p`: which lines are "added" and do the
+   numbers map to the index copy?
+5. `reviewscan` and `sizescan` whole-file on the index: `staged_paths` filter is `ACMR`. A rename
+   with no content change, a mode-only change, a deletion of a file whose absence is the defect (a
+   deleted ADR's review line)? `D` is excluded.
+6. Hook plane runtime: five more `git cat-file` readers per commit. On a big child's hook, the
+   hook-time growth?
+7. A blocking scan that used to read the disk and now reads only added lines: a defect already in a
+   touched file no longer blocks. Is that a narrowing, was it ruled, and does CI cover it on every
+   push in every child?
+8. `staged_blob`'s `finally`: `proc.stdout.close()` before `proc.wait()` on a large blob; a consumer
+   that stops reading early gets a SIGPIPE rc from git, and raises for a clean read?
+
+#### Facts held back from the brief
+
+- `tools/test_precommit.py` fails to import on the system Python 3.9.6 here; passes on 3.14.
+- `staged_blob` is the reader `secretscan`'s `--staged` body exemption later reuses (pass
+  `160/1030`, whose verdict the brief-writer read).
