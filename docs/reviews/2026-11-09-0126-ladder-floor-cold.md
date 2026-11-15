@@ -3,8 +3,8 @@
 **Pass type:** doctrine cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-15 UTC — PASS-WITH-FINDINGS (0 MAJOR · 2 MODERATE · 3 minor ·
-1 note). Act 2 (reconcile against the sibling) follows once act 1 is committed.
+**Status:** ACT 2 WRITTEN 2026-11-15 UTC — PASS-WITH-FINDINGS (0 MAJOR · 2 MODERATE · 3 minor ·
+2 notes). Act 1 landed `fa7a0306`; reconcile appended; sibling folded by the orchestrator.
 **Sizing:** **small** — one commit, one 27-line passage plus a changelog entry; no code.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1110-rule-4-cold-pass-queued-ladder-floor.md`.
 **Why it earns a review:** This sets what every rule in the house is owed and when a rule gets a
@@ -502,3 +502,284 @@ under rule 3; LF1 and LF2 are the two worth a plain-language briefing before the
 commit, because each changes what a future session is told it owes. My recommendation is to take
 LF1's narrowing (say what the census records and stop there) over building a new per-rule line,
 until the census has run and shows whether such a line would be used.
+
+### Reconcile — act 2, 2026-11-15 UTC
+
+**Release, recorded by the receiver (rule 4):** after act 1 was committed (`cbe9e023`, local), the
+orchestrator session `bb3a9a14` sent: *"Act 2 is released: you may now read this one held file,
+the brief's deferred sibling"*, giving the held copy's path outside the worktree and its
+pre-partition repo path `docs/reviews/2026-11-09-0126-ladder-floor-cold.deferred.md`, and opening
+*"the brief's other rule-2-barred records and the delta's commit body"*. Direction was process
+only: append `### Reconcile`, never revise act-1 text, record the release, update the log, re-run
+the gates, do not commit. No question about the delta and no request about any finding.
+
+**Opened at act 2:** the sibling (whole); the queue pointer `160/1110` (whole); the intent record
+`020/240` (whole); the commit body of `4458a157` (`git log -1 --format=%B`); `034ecd70`'s stat and
+dates. Not opened: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, other prior
+verdicts — nothing in the sibling or the records sent me there, and none bears on the delta.
+
+**The sibling, in sum:** the pointer's two author-written questions (does the passage contradict
+any rung or the >2 promotion rule; is "value beats cost" followable) and five brief-writer
+questions: where the not-built decision is recorded for existing rules; whether `115/170`'s words
+carry the weight; where else the house states when a rule earns a check; the "usual way" wording
+against a threshold stated elsewhere; and that the landing and pointer commits are separate. Plus
+its floor run at `c132cc1c` (hook and ci exit 0; three pathscan warn-only findings).
+
+**Per finding, against the sibling and the author's account:**
+
+- **LF1 (MODERATE) — stands.** The sibling's question 1 is the same gap from the other side ("for
+  the rules that already exist?"). The author's account answers that side: `020/240`'s close note
+  says *"`020/220` can run now"* and the passage names the census as where each rule stands. The
+  post-census side, the one act 1 found, is answered nowhere in the sibling, the pointer, the
+  intent record or the commit body. The pointer's "is 'value beats cost' followable" is answered
+  the same way: followable as a ranking act on the board, not auditable, because the decision it
+  produces has no named record. Severity unchanged.
+- **LF2 (MODERATE) — stands, with the author's account added.** `020/240`'s close note reads
+  *"`020/230` needs only a home for its review-time check"*. So the author did hold a remainder
+  for (b), and the brief's gloss came from here. But that sentence lives in `020/240`'s close
+  note, not in `020/230`, whose text still asks only for the design obligation the passage states.
+  A reader of the open item does not see the remainder; a reader of the changelog and commit body
+  (*"the framing obligation (`020/230`) [is] not done by this change"*) is told the obligation is
+  not done when its wording is. The counsel narrows: write the remainder into `020/230` itself
+  (*"the obligation is stated in `PROPAGATION.md` § …; what remains is a home for its review-time
+  check"*), and let the changelog line say that. Severity unchanged: the board still disagrees
+  with the doctrine on its face.
+- **LF3 (minor) — stands; the sibling's question 4 is the same comparison.** The commit body says
+  *"The climbing rule and the >2 promotion rule are untouched"*, which is true: the >2 promotion
+  rule (`PROPAGATION.md` 1079–1083) governs promoting a pattern into doctrine, not when a check is
+  owed, and the passage does not touch it. Act 1 answered the pointer's contradiction question in
+  the same place: no rung is contradicted in outcome; rung 2's earning sentence is left as a flat
+  exclusion the floor qualifies. The author's intent and the wording differ, which is the
+  sibling's own instruction ("compare wording, not intent").
+- **LF4 (minor) — stands.** The sibling's question 3 asked for the sweep act 1 ran; `GUARDS.md`'s
+  evidence window is the one sibling statement found, and it post-dates the delta, which the
+  author's account could not have known. `ECONOMICS.md`, `PRINCIPLES.md` and the skills state no
+  rule on when a check is earned.
+- **LF5 (minor) — confirmed against the records.** `020/240` dates the answer *"2026-11-09"* and
+  the pointer says *"2026-11-09"* too; the landing commit is `2026-11-09T01:04:49+13:00`, that is
+  `2026-11-08T12:04:49Z`, and the pointer commit `2026-11-09T01:32:39+13:00`. Every record carries
+  the local date, consistently with each other and against `CONVENTIONS.md`'s at-rest rule. The
+  fix, if taken, sweeps `020/240` and `160/1110` as well as the three sites act 1 named, or
+  labels the frame once. Severity unchanged.
+- **LF6 (note) — stands; nothing in the sibling or records speaks to it.**
+- **A2 (no finding) — the sibling's question 2 is the assumption act 1 confirmed.** `020/240`
+  records the offered option's text: *"an automatic check is added only where it is worth its
+  cost, ranked like any other work, in line with his own words of 2026-11-08 on `115/170`"*. So
+  the step from "ranked by value" to "a check only where worth it" was in the option he was
+  offered, not only the author's inference afterwards; the passage's labelling (an answer, not a
+  ruling) is confirmed. The quote *"Written always, checker by value"* is verbatim in `020/240`.
+
+**Formed at reconcile, prompted by the sibling's question 5:**
+
+**LF7 — note (formed at act 2) — the review pointer landed in a second commit, not the landing
+commit.** Evidence: `4458a157` touched only the two delta files (`git show --stat`, 0 board files);
+`034ecd70`, *"board: land 020/240's ladder floor; close it; queue 160/1110"*, 28 minutes later,
+carries the pointer and the intent record's close. Rule 4 says the pointer goes *"in the same
+commit that lands the work"* (AWA2); the TA9 allowance is for a series whose last commit completes
+the work. Here the two commits are adjacent in history with one committer timestamp
+(`2026-11-09T01:33:17+13:00` on both), so they were pushed as one series and the window the rule
+closes, landed doctrine sitting unpointed into the next session, did not open. The brief and the
+pointer both pin the delta to `4458a157`, and the delta list a reviewer runs on the two paths
+misses nothing, because the pointer commit touched only board files. A note because the rule's
+intent held; the letter did not. *Counsel:* none beyond what the house already says; the record
+shows the pattern was safe this once, not that it is safe.
+
+**The brief-writer's floor run:** at `c132cc1c` it saw three pathscan warn-only findings; at HEAD
+`6cf077af` pathscan is clean with ten allow-marker suppressions. Later commits resolved them;
+nothing for this pass.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 3 minor · 2 notes** (LF1–LF6 from
+act 1 unchanged in severity; LF7 added at reconcile as a note). The cycle closes on this pass
+(no MAJOR): decided findings go to the backlog and their application earns no further ceremony
+beyond the application commit's own pointer, per `REVIEW.md` § *Applying decisions to doctrine*.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`cbe9e023`, local; it
+landed on `main` as `fa7a0306` after the rebase onto newer commits, and the reconcile and log
+below cite the pre-rebase hash verbatim); folded here verbatim (headings demoted two levels) and
+the sibling file removed, per the brief. The orchestrator (headless Opus 5.5 session `bb3a9a14`,
+started by drain session `21a271a5`, itself Opus 5.5) held the partition, formed no finding and
+wrote no severity.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-09-0126-ladder-floor-cold.md` (`REVIEW.md` rule 1). Written
+2026-11-09 UTC by session `84e3aa7f`, the brief-writer, which authored none of the delta. Open this
+only after act 1 is committed. Everything here is a floor, never a fence, and none of it is a
+finding.
+
+#### The queue pointer's questions (author-written, verbatim)
+
+> whether the passage contradicts any rung of the ladder or the >2 promotion rule; whether 'value
+beats cost' is followable.
+
+#### The brief-writer's own questions
+
+1. "A check not built is a decision with its reason recorded": recorded where, by whom, for the
+rules that already exist?
+2. `115/170`'s words answered a different question (capping guard work). Do they carry the weight
+the passage rests on them?
+3. Where else does the house state when a rule earns a check (`GUARDS.md`, `ECONOMICS.md`,
+`PRINCIPLES.md`, a skill)? Sweep for mirrors (V3).
+4. The passage says recurrence is "the usual way", while a sentence elsewhere states a threshold.
+Compare wording, not intent.
+5. The landing commit and the pointer commit are separate (`4458a157`, then `034ecd70`).
+
+#### What the brief-writer ran, and what it got
+
+- `floor`: at c132cc1c: hook exit 0, ci exit 0. pathscan reports 3 findings, warn-only:
+  docs/method/EVIDENCE.md:427, docs/method/session-open/session-open-prompt.md:13 and
+  docs/method/session-open/template-history.md:10 (paths that do not exist from the repo root).
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*The reviewer's work log, kept outside the worktree while the pass ran and read by no other session
+until act 2 was saved; appended here verbatim at the fold (headings demoted two levels, form only)
+and the working file deleted.*
+
+### Review log — atelier 160/1110, ladder-floor cold pass (`020/240`)
+
+Reviewer: Fable 5.1 subagent, spawned by orchestrator session bb3a9a14 (started by drain session
+21a271a5). Worktree: /Users/mike/worktrees/fable/atelier-160-1110-2152/atelier. Brief:
+docs/reviews/2026-11-09-0126-ladder-floor-cold.md. Commands, files and evidence only.
+
+#### Act 1
+
+- 2026-11-15T21:54Z `date -u` → Sun Nov 15 21:54:06 UTC 2026. `uptime` load 5.57/5.33/6.14.
+- Read the brief whole (lines 1–193). Barred until act 2: ROADMAP-DONE.md, SESSIONS.md,
+  docs/sessions/, prior verdicts in docs/reviews/, the queue pointer 160/1110, the sibling
+  .deferred.md, delta commit message bodies, intent record 020/240 beyond its title.
+- `git status --short` → only ` D docs/reviews/2026-11-09-0126-ladder-floor-cold.deferred.md`
+  (the partition; expected). HEAD = 6cf077af.
+- `git merge-base --is-ancestor 4458a157 HEAD` → exit 0: the delta is in the tree.
+- `git log --oneline 4458a157..HEAD -- docs/method/PROPAGATION.md CHANGELOG.md` → 67 commits,
+  nearly all changelog-only; PROPAGATION.md-specific ones separated below.
+- `which python3` → /Library/Frameworks/Python.framework/Versions/3.14/bin/python3 (3.14.6), as
+  the brief requires for tools/.
+- Read docs/method/REVIEW.md whole (lines 1–699) for the verdict shape, rules 1–4, lenses, V1–V7,
+  and the 2026-11-15 method-record requirement (lines 503–516).
+- `python3 tools/coldsweep.py --root <wt> --commit 4458a157 --path docs/method/PROPAGATION.md
+  --path CHANGELOG.md` → exit 0; subject, stat (2 files, +45) and diff printed; body not printed;
+  "0 board-store file(s)… none touched; 0 file(s) left out as rule-2 barred: none touched".
+  Delta = CHANGELOG.md +18 (entry "Changed (2026-11-09 — … ladder gains a floor, 020/240)") and
+  PROPAGATION.md +27 (subsection "What is owed, and what is earned (2026-11-09)").
+- `git log --oneline 4458a157..HEAD -- docs/method/PROPAGATION.md` → 20 later commits touch the
+  file. `git diff 4458a157 HEAD -- docs/method/PROPAGATION.md | grep -c "What is owed\|Written
+  always\|beats its cost\|is never skipped"` → 0: no later hunk touches the passage. Passage at
+  HEAD = lines 1044–1070; read the whole section 987–1100 (enforcement clause, ladder rungs 1–3,
+  the passage, the countable-trigger and mining paragraphs).
+- `git show --stat --format='%h %s' 4458a157` → only the two files above.
+- `grep -n` headings in PROPAGATION.md → section "When a rule keeps breaking — climb, never
+  restate" starts line 1002; subsection at 1044; next paragraph 1071; next section 1100.
+- Read board items (not barred; disclosed): docs/roadmap/115-…/170-the-guard-layer-is-consuming
+  -the-programme.md whole (its ANSWERED 2026-11-08 paragraph carries the quoted words verbatim:
+  "This sounds like yet another artifical limit that is not helpful. It is about balancing
+  importance and priority to do the work that is most valuable" — matches PROPAGATION.md 1066–1068
+  character for character); docs/roadmap/020-…/220-a-the-census-nobody-has-run….md whole (open
+  `[ ]`; output "per-rule state: enforced · directive-only · unenforceable, accepted — the last
+  reasoned and dated to the GUARDS.md bar"); docs/roadmap/020-…/230-b-the-half-with-no-owner….md
+  whole (open `[ ]`; its text: rung 1 "only as remediation, after recorded breakage. This makes
+  it a design obligation on every rule, up front" — no mention of a review-time check).
+- `head -1 docs/roadmap/020-…/240-…md` → title only: "The posture change this implies — stated so
+  it is ruled, not …" (rest of the item barred until act 2).
+- Sweep script (scratchpad sweep.sh) running coldsweep with the brief's two --also-exclude paths,
+  patterns "Written always", "checker by value", "earns a check", "climb, never restate", "beats
+  its cost", "design obligation", "not silence", "first rung", "not severity", "What is owed".
+  Each: exit 0, 841 files scanned, 569 excluded as rule-2 barred. Hits of note:
+  PROPAGATION.md:1027 "Recurrence, not severity, is what earns a check"; RECORD.md:488 "(Ruled by
+  the principal 2026-08-04 on **recurrence, not severity**" (grounds for one describe-not-quote
+  rule, read 478–496: not a general ruling on what earns a check); docs/roadmap/200-…/README.md:23
+  "Recurrence — not severity — is the trigger for promotion to an always-on check" and :74 the
+  three rungs restated (read 18–30, 70–80); 110/010:7, 110/090:40, 200/030:3 cite rung 2;
+  EVIDENCE.md:169 "don't stop at the first rung" is a different ladder (acquisition).
+  "Written always" / "checker by value" occur only in the delta's two files.
+- `grep -rn "keeps breaking\|What is owed\|rung 1\|never restate" tools instruments skills
+  docs/build README.md docs/method/README.md` → no hits: no test, skill or template pins the text.
+- `grep -n "PROPAGATION" docs/method/README.md` → line 114 only, a one-line file description; no
+  index entry names the ladder or the floor. `grep -rn -i "writing a rule|write a rule|new rule|
+  rule is written|when you add a rule" docs/method docs/build` → no writer-facing surface points
+  at the floor (hits are unrelated uses of the words).
+- Read docs/method/GUARDS.md 151–213 (§ Before building a check: the evidence window — "If
+  neither is possible, the check is not built"; "Adopted on Mike's 2026-11-09 answer"), 350–382
+  (§ Acceptance and deferment), 648–691 (§ A rule with no home is not a rule — "name the surface
+  a future session reads it on"). `git log -S'Before building a check: the evidence window' --
+  docs/method/GUARDS.md` → dd3d60d4 2026-11-10: the evidence window landed AFTER the delta.
+- `grep -n` ECONOMICS.md value/cost/cheapest lines (10–299) and 00-APEX.md answer/ruling lines
+  (68–218): the "cheapest model that does the job" rule and the informed-ruling section; nothing
+  there states when a check is owed; no contradiction with the floor found.
+- `git log -1 --format='%h %ad %s' --date=iso-strict 4458a157` → author 2026-11-09T01:04:49+13:00
+  (= 2026-11-08T12:04:49Z); `%cd` → 2026-11-09T01:33:17+13:00 (= 2026-11-08T12:33:17Z).
+  Neighbour 3312cdbd (changelog entry dated 2026-11-08) → 2026-11-09T13:42:25+13:00
+  (= 2026-11-09T00:42:25Z). CONVENTIONS.md line 57 "UTC at rest; local on presentation", line 59
+  "prose stamps are YYYY-MM-DD + HHMM UTC".
+- Re-run line 1: `uptime` (load 3.61) then `nice -n 10 python3 tools/floor.py --plane hook --root
+  <wt>` → exit 0; nothing staged so the staged scanners report "scanned nothing"; linkscan 1255
+  files / 1635 links clean; pointerscan 2 advisories on OTHER items (160/1420, 160/994: queue-state
+  glyph), not this delta; pdlistscan 1274 files clean.
+- Re-run line 2: `uptime` (load 4.69) then `nice -n 10 python3 tools/floor.py --plane ci --root
+  <wt>` → exit 0. secretscan 28 entropy advisories (workflows, tests, tools; none in the delta);
+  leakscan 3 report-only diagnosis-key advisories; the same 2 pointerscan advisories; reviewscan
+  "253 review brief(s) keep deferred material out of the brief"; attribscan clean (1 file read);
+  "declarations: 21 checks, 0 meet all five". EXPOSURE: leakscan's advisory lines printed
+  `docs/SESSIONS.md:87` and `docs/reviews/2026-08-02-2348-deferral-delta-cold.md:29`, each with a
+  14-character redacted snippet ("Dia…ne", "dia…he"); barred paths, no delta account read.
+- Brief line widths: `awk` max=130, 90 lines over 85; `.wrapscanignore` exempts docs/reviews/ as a
+  safety net and the CI gate never walks it; `wrapscan --help` default limit 85. Verdict prose is
+  held at ≤ 100 columns per the brief.
+- /security-review: NOT RUN. Grounds: the worktree is dirty (the sibling's deletion) so the
+  scanner's pending diff is not the delta, and the delta is Markdown, which the scanner's
+  exclusions bar, so a clean pass would weigh as nothing (REVIEW.md lens 4; brief § House rules).
+- Act 1 verdict written to the brief below its `---` divider; Status line updated.
+- Verdict appended to the brief (lines 194–504 at this point); Status line changed to "ACT 1
+  WRITTEN 2026-11-15 UTC — PASS-WITH-FINDINGS (0 MAJOR · 2 MODERATE · 3 minor · 1 note)".
+- Line widths checked in characters (/usr/bin/python3): every prose line ≤ 100; only three table
+  rows (391, 481, 482) exceed it, as the brief's own tables do.
+- Gates after writing, `uptime` first (load 3.49): `floor.py --plane hook` → exit 0 (staged set
+  empty, so it saw none of the edit; same 2 pointerscan advisories on other items); `floor.py
+  --plane ci` → exit 0 (reviewscan 253 briefs, attribscan 1 file read). Scanners aimed at the brief
+  by path: leakscan, datescan, attribscan, reviewscan ("1 review brief(s) keep deferred material
+  out of the brief"), secretscan — each 1 file / 504 lines, exit 0. pdlistscan takes no path; it ran
+  tree-wide on the ci plane, exit 0. spellscan by file path opened 0 files (docs/reviews/ is in its
+  ignore list, checked below); the tree-wide ci run was clean.
+- Findings recorded in the brief: LF1 MODERATE (no record surface for "a check not built is a
+  decision recorded" after the census), LF2 MODERATE (020/230 open while the passage states its
+  ask; changelog says not done), LF3 minor (rung 2 "not severity" left flat vs the floor's "not
+  the only one"; 200/README mirror), LF4 minor (floor's value test and GUARDS.md evidence window
+  do not name each other; the latter landed 2026-11-10), LF5 minor (pick dated 2026-11-09 against
+  a 2026-11-08T12:04Z landing commit; CONVENTIONS "UTC at rest"), LF6 note (floor homed in a
+  section keyed to broken rules; no index or writer-facing pointer).
+- Sound and checked: the 115/170 quote is verbatim; the pick is labelled an answer, not a ruling;
+  the census is named as output, not claimed done; no later commit edited the passage; no test or
+  template pins the text; REVIEW.md 612–615's pointer reaches rung 1; RECORD.md 488's 2026-08-04
+  ruling is grounds for one rule, not a general bar on severity earning a check; both re-run
+  lines reproduce at HEAD with exit 0.
+- Scratch: only `sweep.sh` (a zsh loop over coldsweep patterns) in the session scratchpad; no
+  captures. ACT 1 complete; waiting for the orchestrator's commit and release message.
+
+#### Act 2
+
+- 2026-11-15T22:09Z release received from orchestrator bb3a9a14 (act 1 committed cbe9e023):
+  the held sibling's path, the pre-partition repo path to use, the other barred records and the
+  commit body opened; process direction only (append Reconcile, no act-1 revision, log, gates,
+  no commit).
+- Read: the sibling whole (pointer's two questions; five brief-writer questions; its floor run at
+  c132cc1c); docs/roadmap/160-doctrine-review-owed/1110-…md whole; docs/roadmap/020-…/240-…md
+  whole ("Written always, checker by value" verbatim; close note: "020/220 can run now; 020/230
+  needs only a home for its review-time check"); `git log -1 --format=%B 4458a157` (body repeats
+  the changelog's "020/230 not done"; "climbing rule and the >2 promotion rule are untouched").
+- `git log -1 --date=iso-strict 034ecd70` → author 2026-11-09T01:32:39+13:00, committer
+  2026-11-09T01:33:17+13:00 (same committer stamp as 4458a157); `show --stat` → ROADMAP.md,
+  020/240, 160/1110 only; `git log --oneline 4458a157..034ecd70` → one commit (adjacent).
+  `show --stat 4458a157 | grep -c 1110` → 0: the landing commit carried no pointer.
+- Reconcile appended: LF1–LF6 stand at their severities (LF2 counsel narrowed by 020/240's close
+  note; LF5 confirmed against 020/240 and the pointer, both dated 2026-11-09 local); A2 confirmed
+  by 020/240's option text; LF7 note formed at reconcile (pointer in a second commit, same push).
+  Overall restated: 0 MAJOR · 2 MODERATE · 3 minor · 2 notes.
+- Status line → "ACT 2 WRITTEN 2026-11-15 UTC …". Reconcile prose lines ≤ 100 characters.
+- Scratch sweep.sh deleted from the session scratchpad.
+- Gates after act 2, `uptime` first (load 6.75): `floor.py --plane hook` exit 0; `floor.py --plane
+  ci` exit 0 (only the same 2 pointerscan advisories on 160/1420 and 160/994); aimed at the brief:
+  leakscan, datescan, attribscan, reviewscan ("1 review brief(s) keep deferred material out of
+  the brief"), secretscan — each 1 file / 594 lines, exit 0. Tree: ` M` the brief, ` D` the
+  sibling (partition); no other change. ACT 2 complete; the orchestrator folds and commits.
