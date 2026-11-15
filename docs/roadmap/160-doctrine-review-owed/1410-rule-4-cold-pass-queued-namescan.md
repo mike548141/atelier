@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `namescan`, private names in branch names and commit titles, warn-first (`160/360` NP2, `320/810`).** The authoring session (a
+- [~] ⏳ **Rule-4 cold pass queued: `namescan`, private names in branch names and commit titles, warn-first (`160/360` NP2, `320/810`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -14,3 +14,13 @@
       with its `.deferred.md` sibling. Neither session may run the pass. Review NOT
       run. The pass waits for a criterion-passing cold Fable session and the
       principal's explicit permission for Fable work.
+      🔒 CLAIMED 2026-11-15T19:26Z UTC for the cold pass, in Mike's weekly Fable drain
+      (his `/fable-drain` order, 2026-11-16 06:53 NZDT; approval lapses at the
+      reset, 2026-11-15 23:00 UTC). Orchestrator: a headless Opus 5.5 session
+      started by drain session 21a271a5, a rule-4 off-tier orchestrator that
+      holds the context partition, forms no finding and writes no severity.
+      Reviewer: Fable 5.1, tier checked at selection, spawned by that
+      orchestrator. Neither is a barred session (51ccf0f9, 58027096,
+      d0ca5d24). The sibling is held out of the worktree until act 1 is
+      committed. The item's "waits for his explicit permission for Fable
+      work" is met by that drain order.
