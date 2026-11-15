@@ -1,10 +1,12 @@
 # Cold pass — `attribscan`, an attribution to the principal carries his words
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1330-rule-4-cold-pass-queued-attribscan.md`
-**Status:** ACT 1 SAVED 2026-11-15 UTC — FAIL, 1 MAJOR · 5 MODERATE · 6 minor · 3 note, by a Fable
-5.1 cold reviewer under a headless Opus 5.5 orchestrator (drain session `21a271a5`); act 2
-(`### Reconcile`) pending the orchestrator's release of the sibling. Brief written 2026-11-14 UTC by a
-headless Opus 5.5 brief-writer (`cclive` lists it as session `a18861ae`).
+**Status:** ACT 2 SAVED 2026-11-15 UTC — FAIL, 1 MAJOR · 5 MODERATE · 6 minor · 4 note, by a Fable
+5.1 cold reviewer under a headless Opus 5.5 orchestrator (drain session `21a271a5`). Act 1 committed
+unrevised as `c1973db6`; the reconcile below was written after the sibling and the barred records
+were opened; the orchestrator folded the sibling below the verdict on 2026-11-15. The findings are the principal's to
+decide (rule 3). Brief written 2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as
+session `a18861ae`).
 
 **Pass type:** code cold pass, first of its kind, per `docs/method/REVIEW.md` rule 4: the first
 scanner that reads records for a claim of the principal's authority.
@@ -662,3 +664,171 @@ lose CI cover in any child that softens it.
 
 **Overall: FAIL — 1 MAJOR · 5 MODERATE · 6 minor · 3 note.** The warning phase and the date
 mechanism pass; the flip as built does not.
+
+### Reconcile (act 2, 2026-11-15 UTC)
+
+Opened after act 1 was committed as `c1973db6`: the held sibling (released by the orchestrator from
+its hold outside the worktree), the two intent records `320/100` and `320/810` whole, the queue
+pointer `160/1330`, the author's session record (`docs/sessions/2026-11-09-1233-queue-run-d0ca.md`)
+and the brief-writer's (`2026-11-14-0210-brief-writer-a188.md`), the tail of `docs/SESSIONS.md`,
+`docs/ROADMAP-DONE.md` (no mention of the scanner), the four prior verdicts of 2026-11-14 that name
+it in passing, and both commit bodies. Act-1 text above is unrevised. One finding is formed here
+and marked so; no act-1 severity moves.
+
+**The author reached the headline conclusion first, and nowhere the scanner's own readers would
+see it.** Under `320/100`, the author session (`d0ca5d24`) recorded on 2026-11-12 UTC a whole-tree
+run over 30 local repositories (3,469 findings) and a seeded sample of 200 sorted by a Sonnet agent
+and spot-checked: 62 real, 82 not an attribution, 44 attributions whose evidence the check missed,
+precision about 31%, and the words "`attribscan` must not block as built", with a list of fixes it
+calls owed before 2027-02-08 (a principal word in the same sentence as `ruled`, skip pending and
+negated forms, widen the window to the whole item and across a blank line after a colon, more
+citation spellings, exempt `decisions/`). Recall was not measured. No commit since has touched the
+scanner; the README, docstring, floor entry, CHANGELOG and the `320/810` landing note still carry
+the share (27%) and the fleet probe and nothing of the precision. AT1 stands as written and gains a
+corroborating measurement on a wider corpus: the author's 31% real on 200 across 30 repos beside my
+20 of 30 on the target form in this repo's non-barred docs (my class is wider: a dated attribution
+by anyone with no adjacent evidence, where the author's "real" is an unsourced claim that the
+principal decided). The two samples agree on what fools the check. That the warning conclusion
+was reached by the author and left off every surface a reader of the scanner meets is the
+record-side half of AT1: the measurement belongs in the CHANGELOG beside the share and in the
+`320/810` landing note, not under the proposal alone.
+
+Per finding, against the sibling and the author's account:
+
+- **AT1 (MAJOR)** — the sibling's questions 1, 5 and 7 asked exactly this, unprobed; the author's
+  2026-11-12 measurement answers it the same way. Stands. The author's owed-fix list and my counsel
+  overlap on four of five points; mine adds the two-word quotation rule from `quotescan` and the
+  rename of the registry `why`.
+- **AT2 (MODERATE)** — the author names "a quote past the three-line window" and "a quote on the
+  line after `verbatim:`" among what fools it; the sibling's question 10 (the repo's own verdicts
+  after the flip) is this class. Stands; the fix is already on the author's list.
+- **AT3 (MODERATE)** — the sibling's question 2, verbatim the same case. Not in the author's list.
+  Stands.
+- **AT4 (MODERATE)** — the sibling's question 4. The landing commit body repeats "an advisory form
+  for adoption" with no plane caveat. Not in the author's list. Stands.
+- **AT5 (MODERATE)** — the sibling's question 3. Not in the author's list. Stands.
+- **AT6 (MODERATE)** — the sibling's question 8, unprobed there. Stands.
+- **AT7, AT9, AT10, AT12, AT14** — not raised in the sibling or the records; stand.
+- **AT8 (minor)** — the sibling's question 9 saw the same orphan heading on 2026-11-14 at line 280.
+  Stands.
+- **AT11 (minor)** — the author's "pending, not claimed" and "a bare `ruled` with no ruler" classes
+  are this finding, measured by the author at 82 of 200 not an attribution at all. Stands at minor:
+  it is a precision cost AT1 already carries at MAJOR.
+- **AT13 (note)** — the proposal's worked example shows the incident's shape (a port-forward
+  "ruled" that was the agent's own); the demotion route is the proposal's own third option. Stands.
+- **AT15 (minor)** — not raised anywhere; stands.
+
+**Formed at reconcile, from the sibling's question 6:**
+
+**AT16 — note — formed at reconcile.** One reasoned allow marker exempts every attribution in its
+block. `allowmarker.present` is run over the joined block, so a marker on one line clears a `ruled`,
+a `his ruling` and a `he directed` on the two lines beside it (probe: three attributions and one
+marker in one paragraph, 0 findings; the marker in its own paragraph, 2). The docstring says "on
+the line or anywhere in its block", so it is disclosed; the cost is that the one reason covers
+claims it was not written for, which is the shape the brief's second failure mode (the marker as
+reflex) would exploit. Counsel: a marker exempts the line it sits on, or the single attribution
+nearest it.
+
+**Commit bodies, screened.** `20e7fc35`: the body restates the docstring and the fleet probe
+("22 of 22 repos exit 0 before and on it"; `320/810` says 21 children and atelier, the CHANGELOG
+"21 child checkouts and atelier", consistent), "Tests: 32" (36 at HEAD after `641f017f`,
+consistent with the coverage commit's four), and "no child's records mostly so" (my fleet probe:
+highest child share 36%, consistent). Co-authored on Opus 5.5. `641f017f`: the coverage commit's
+body says nothing of attribscan beyond listing it among nine; its probe was "old against new on
+five child checkouts, 60 runs, exit codes identical". Co-authored on Sonnet 5.5. Nothing in either
+body changes a finding or a severity.
+
+**The sibling's own re-run results** match mine in every exit code; its whole-tree count (848 in
+337 of 1,175 files on 2026-11-14 at `2c1f0296`) and mine (848 in 337 of 1,218 on 2026-11-15 at
+`9614b231`) agree on the findings and differ by 43 files added since. Its `--against HEAD^` read 5
+files where mine read 1: different tips.
+
+**Overall, restated: FAIL — 1 MAJOR · 5 MODERATE · 6 minor · 4 note.** The warning phase and the
+date mechanism pass; the flip as built does not, and the author's own record agrees. The owed ask
+above is unchanged: whether the 2027-02-08 flip stands as built, with counsel (b).
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+The text below is the brief's `.deferred.md` sibling, folded verbatim by the headless Opus 5.5
+orchestrator (started by drain session `21a271a5`) after act 2 was saved. It was held out of the
+review worktree until act 1 was committed as `c1973db6`, then released to the reviewer for the
+reconcile above. The orchestrator forms no finding and edited none of it; the sibling file itself
+is removed from the tree in the same commit as this fold.
+
+# Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-14-0210-attribscan-unquoted-attribution-cold.md` (`REVIEW.md` rule
+1). Written 2026-11-14 UTC by the brief-writer (`cclive` lists it as session `a18861ae`), which
+authored none of the delta. Open this only after act 1 is committed. Everything here is a floor,
+never a fence, and none of it is a finding: the brief-writer read the code once and probed none of
+these past what is recorded below.
+
+## What the barred intent records say, in brief
+
+- `320/100` carries, under the proposal, a later measurement by the author session (2026-11-12
+  UTC): a whole-tree run over 30 local repositories gave 3,469 findings; a seeded random sample of
+  200, sorted by a Sonnet agent and spot-checked, put precision at about 31% (roughly 25% to 38%).
+  It names what fools the check (a bare "ruled" with no ruler, pending forms such as "to be ruled
+  on", evidence outside the window or in forms the patterns miss, a review's own verdict word, the
+  body of an ADR) and lists fixes it calls owed before 2027-02-08. Recall was not measured. On
+  2026-11-14 no commit after `641f017f` had changed the scanner, so none of those fixes had landed.
+- `320/810` records the slice-2 landing with the same fleet probe the changelog states (22 of 22
+  exit 0 on the landing date and on the flip date), the 1,372 of 5,144 whole-tree share,
+  "Tests: 32" (36 at HEAD, after `641f017f`), and that the dates are the run's choice.
+
+## The brief-writer's own questions
+
+1. **Precision against the flip.** The fleet probe counts exit codes on `--against HEAD^`, which
+   reads one commit per repo. Does "0 non-zero exits" say anything about how often an ordinary
+   commit after 2027-02-08 will be blocked? Set it beside the author's own later measurement above.
+2. **Moves and splits.** `scan_against` runs `git diff --no-renames`, and the staged plane reads
+   what git reports as added. A record moved or split into per-item files (a routine operation in
+   this estate) makes every old line "added". Does a record-store split after the flip get blocked
+   by its own history, and does the README's "an old record is never re-judged" survive that?
+3. **Push depth.** The CI template is `--against HEAD^`. A push of several commits is read at its
+   tip only. Is the hook the only cover for the others, and is that stated anywhere a reader of the
+   registry would see it?
+4. **The advisory form on CI.** The floor entry's comment says a floor-level softening selects the
+   advisory argv on both planes, and on CI that argv (`--warn --staged`) is an empty diff. Does a
+   child that declares the advisory form get a CI line that reads as a pass while reading nothing?
+5. **Evidence that is not evidence.** Any double-quoted run of two or more characters (a quoted
+   term, a file name), any `>` line, any `NNN/NNN` (the item's own id included), the bare word
+   `transcript`, and `session` plus six hex characters all clear a hit. A board id need not exist.
+   How cheap is a false clear, and is it cheaper than writing the allow marker?
+6. **One marker, several hits.** The allow marker is searched across the whole block, so one
+   reasoned marker exempts every attribution within three lines of it. Intended?
+7. **Name-possessive grammar.** `[A-Z][a-z]+'s (ruling|directive)` fires on any capitalised word:
+   a sentence-initial "Today's ruling", "Board's ruling", a reviewer's verdict word. And the role
+   grammar has no `his decision`, `his call`, `he decided`, `he chose`, `per <name>`. Which way
+   does the trade fall, and is the recall gap stated (the README says only "a grammar")?
+8. **Printed paths.** The excerpt passes through `report.safe_text`; `f.path` in `render` does not.
+   A file name with a control character from a diff or a walk: what does it print?
+9. **The changelog entry's place.** In `20e7fc35` the new entry was inserted directly under an
+   existing `### Added (2026-11-10 — blockscan ...)` heading, leaving that heading empty and a
+   second `### Added (2026-11-09 — blockscan ...)` heading after the new entry. At HEAD the empty
+   heading is still there (line 280 on 2026-11-14), now followed by a later slice's entry.
+10. **Its own verdicts.** This repo's reviews and briefs say `ruled` about the principal often, with
+    quotes on adjacent lines that may fall outside the window. Will the scanner block the repo's own
+    review records after the flip?
+
+## What the brief-writer ran, and what it got
+
+All from the worktree root on 2026-11-14 UTC unless stated, foreground, load average 5 to 6 on 12
+cores, at `origin/main` `2c1f0296`.
+
+- `cd tools && python3 -m unittest test_attribscan`: 36 tests, OK, exit 0, about 7 s.
+- `cd tools && python3 -m unittest test_floor.AdvisoryCountContract`: 33 tests, OK, exit 0, about
+  45 s. One fixture inside it prints a board-rebuild line to the terminal; the worktree stayed clean
+  (`git status --short` empty afterwards).
+- `python3 tools/attribscan.py --selftest`: `selftest OK`, exit 0.
+- `python3 tools/attribscan.py --root . docs`: exit 0; 848 unquoted attributions in 337 of 1,175
+  files; coverage 1,175 files, 171,549 lines. The first listed hit is in `docs/ROADMAP-DONE.md`, a
+  line naming "the board-store ADR" with no number.
+- `python3 tools/attribscan.py --against HEAD^ --root . docs`: exit 0, clean, 5 files read.
+- `python3 tools/attribscan.py --against nosuchrev --root . docs`: exit 2, "cannot resolve
+  revision".
+- `python3 tools/floor.py --list --root .`: attribscan listed `enforced`, `fleet`, `decl 1/5`.
+- The two `coldsweep --commit` lines in the brief: each exit 0, no body printed.
+- `merge-base --is-ancestor` on `20e7fc35` and `641f017f`: both ancestors of `2c1f0296`.
+- **Not run:** the fleet probe over child checkouts (left whole to the pass), and any probe of the
+  questions above.

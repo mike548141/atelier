@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `attribscan`, an attribution to the principal carries his words (`320/100`, slice 2 of `320/810`).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: `attribscan`, an attribution to the principal carries his words (`320/100`, slice 2 of `320/810`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -14,15 +14,31 @@
       with its `.deferred.md` sibling. Neither session may run the pass. Review NOT
       run. The pass waits for a criterion-passing cold Fable session and the
       principal's explicit permission for Fable work.
-      🔒 CLAIMED 2026-11-15T19:51Z UTC for the cold pass, in Mike's weekly Fable drain
-      (his `/fable-drain` order, 2026-11-16 06:53 NZDT; approval lapses at the
-      reset, 2026-11-15 23:00 UTC). Orchestrator: a headless Opus 5.5 session
-      started by drain session 21a271a5, a rule-4 off-tier orchestrator that
-      holds the context partition, forms no finding and writes no severity.
-      Reviewer: Fable 5.1, tier checked at selection, spawned by that
-      orchestrator. Neither is a barred session (a18861ae, 58027096, d0ca5d24
-      and what it started). The sibling is held out of the worktree until act 1
-      is committed. The fleet probe over local child checkouts is read-only and
-      reported by count and exit code only, naming no child. The item's "waits
-      for the principal's explicit permission for Fable work" is met by that
-      drain order.
+      ✅ PASS RAN 2026-11-15 UTC in Mike's weekly Fable drain: a Fable 5.1
+      reviewer, spawned by a headless Opus 5.5 orchestrator started by drain
+      session 21a271a5 (off-tier, held the partition, formed no finding).
+      Verdict **FAIL**, 16 findings: 1 MAJOR (AT1) · 5 MODERATE (AT2–AT6)
+      · 6 minor (AT7–AT11, AT15) · 4 note (AT12–AT14, AT16 formed at
+      reconcile). Verdict, reconcile and folded sibling:
+      `docs/reviews/2026-11-14-0210-attribscan-unquoted-attribution-cold.md`.
+      *Standing MAJOR, bearing on the 2027-02-08 flip:* AT1, the grammar and
+      evidence test cannot tell supported from unsupported attributions well
+      enough to block (about 3 in 27 paraphrased attributions fire, and an
+      unrelated quote or board id nearby clears one); the author's own
+      measurement under `320/100` reached the same conclusion.
+      🎯 *Owed to Mike (rule 3: the author applies nothing; every finding is
+      his to rule).* Plainly: this check flags a record that says Mike decided
+      something without quoting or citing him, and on 2027-02-08 it starts
+      blocking commits by itself in every child. The review found it works as
+      a warning but, as built, would block some honest records (long quotes,
+      moved or split files) and pass invented ones worded differently; the
+      CI cover also has holes (AT4 advisory form reads nothing on CI, AT5 a
+      push is judged by its last commit only), and AT6 prints file paths
+      unsanitised. Options: (a) keep the date as built; (b) stay warn-only
+      and re-date after AT1–AT5 are fixed and cold-reviewed; (c) whole-tree
+      report only, no flip. Recommendation (the reviewer's counsel): (b).
+      Nothing is applied until he rules.
+      *Routing:* fixes are atelier tool work (`tools/attribscan.py`, its
+      tests, the floor entry); AT6 is a shared path renderer in
+      `tools/report.py` (sweeping `leakscan` too); AT8 repairs `CHANGELOG.md`
+      headings; a fix to AT1–AT5 lands with its own cold pass.
