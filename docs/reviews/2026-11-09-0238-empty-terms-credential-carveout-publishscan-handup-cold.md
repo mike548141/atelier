@@ -7,7 +7,7 @@ pass. A session that cannot run on it stops (rule 4).
 **Status:** act 1 written 2026-11-15 UTC by a Fable 5.1 reviewer in worktree
 `atelier-160-1220-2002`, under a headless Opus 5.5 orchestrator started by drain session
 `21a271a5` (the principal's `/fable-drain` order of 2026-11-16 NZDT); PASS-WITH-FINDINGS, 0 MAJOR,
-2 MODERATE, 6 minor, 3 notes (act 1, committed `94a12966`); act 2 (reconcile) written
+2 MODERATE, 6 minor, 3 notes (act 1, committed `ff628614`); act 2 (reconcile) written
 2026-11-15 UTC by the same reviewer after the sibling's release, restated PASS-WITH-FINDINGS, 0
 MAJOR, 2 MODERATE, 7 minor, 4 notes. Sibling folded below the verdict
 2026-11-15 UTC by the orchestrator. Brief written 2026-11-09 UTC by session `9bb1b984`, a

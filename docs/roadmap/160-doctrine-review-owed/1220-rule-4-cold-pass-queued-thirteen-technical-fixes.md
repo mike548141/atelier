@@ -32,7 +32,7 @@
       74f2b8cd, 722ac2e2 and what it started). The sibling is held out of the worktree until
       act 1 is committed. The item's "waits for the principal's explicit permission for
       Fable work" is met by that drain order.
-      ✅ PASS RAN 2026-11-15 UTC (Fable 5.1 reviewer, act 1 `94a12966`, act 2 folded with
+      ✅ PASS RAN 2026-11-15 UTC (Fable 5.1 reviewer, act 1 `ff628614`, act 2 folded with
       the sibling): **PASS-WITH-FINDINGS — 0 MAJOR, 2 MODERATE, 7 minor, 4 notes**
       (`TL1`–`TL13`, verdict in the brief above). No standing MAJOR. The scanner changes hold
       at HEAD and no child's blocking result changed on this machine.
