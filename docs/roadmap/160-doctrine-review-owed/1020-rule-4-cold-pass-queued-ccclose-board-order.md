@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `ccclose` lists board ids in number
+- [ ] 🎯 **Rule-4 cold pass queued: `ccclose` lists board ids in number
       order (`210/370`).** `ccclose`'s identifiers block is pasted into
       records as fact, so the authoring session (a principal-opened Opus 5.5
       queue run, session deeac927, 2026-11-03, which wrote it inline) queues
@@ -25,3 +25,15 @@
       what it started, 84e3aa7f, 74f2b8cd). The sibling is held out of the worktree until
       act 1 is committed. The item's "waits for the principal's explicit permission for
       Fable work" is met by that drain order.
+      ✅ PASS RAN 2026-11-15 UTC (Fable 5.1, both acts; act 1 `fcce3da1`):
+      **PASS-WITH-FINDINGS** — 0 MAJOR, 0 MODERATE, 1 minor, 1 note; unchanged at reconcile.
+      No standing MAJOR. Verdict, folded sibling and review log in
+      `docs/reviews/2026-11-09-0126-ccclose-board-order-cold.md`.
+      🎯 Mike's to rule (rule 3), both small: **CO1** (minor) — the lists' number order is
+      pinned only by a unit test of the comparator; reverting the one line that wires it in
+      leaves every test green. Recommended: take it, add one end-to-end `--identifiers` test
+      with a three- and a four-digit id in one section. **CO2** (note) — "each digit run
+      compares as a number, as `board.py` does" overstates parity in mechanism (outcomes agree
+      on every real id). Recommended: no change, or reword CHANGELOG if it is touched again.
+      Routing: a CO1 fix is atelier instrument work (`instruments/ccclose.test.js`); no other
+      repo is affected.

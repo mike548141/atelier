@@ -3,8 +3,10 @@
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-15 UTC under the principal's weekly Fable drain order; verdict
-PASS-WITH-FINDINGS (0 MAJOR, 0 MODERATE, 1 minor, 1 note). Act 2 (reconcile) pending.
+**Status:** VERDICT 2026-11-15 UTC, both acts written under the principal's weekly Fable drain
+order: PASS-WITH-FINDINGS (0 MAJOR, 0 MODERATE, 1 minor, 1 note), unchanged at reconcile. The
+sibling and the review log are folded below the verdict; each finding awaits the principal's
+decision.
 **Sizing:** **small** — one commit, 16 lines. The pointer says it is small enough to take with
 `160/1010`. Separate briefs, because the deltas are separate commits.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1020-rule-4-cold-pass-queued-ccclose-board-order.md`.
@@ -346,3 +348,223 @@ the probes support.
 - [ ] Act 2: open the sibling on the orchestrator's release, reconcile, restate the overall line.
 - [ ] Scratch (`probe_order.js`, `suite.txt`, `mut/`, `mut_suite.txt`) deleted by the reviewer at
       the end of act 1.
+
+### Reconcile
+
+Act 2, 2026-11-15 UTC, after act 1 landed on `main` as `fcce3da1`, unrevised. The orchestrator's
+release message named one file, the held sibling, and opened the barred records; it carried no
+question about the delta and asked for no revision. Opened at this step: the sibling (whole), the
+queue pointer `160/1020`, the intent record `210/370`, the delta commit's message body, and the
+`docs/SESSIONS.md` index line of the 2026-11-03 queue run (the session record itself was not
+needed). No act-1 text above was changed.
+
+**Against the sibling's three questions.** Each was already answered in act 1, formed before the
+sibling was opened:
+
+1. *Leading zeros and ties against `board.py`'s key.* Answered by A1, A6 and CO2: on the board's
+   ids the two orders agree; on leading-zero variants the comparator ties (returns 0) where
+   `board.py` breaks by name, a case `board.py` reports as a number collision. The sibling's
+   example `010/200` against `10/200` is that tie.
+2. *Is `sorted` the only place the lists are ordered; any text sort of ids in ccclose or its
+   siblings?* Answered by A7 for ccclose. Extended at reconcile for the siblings: every `.sort(` in
+   `cclive`, `ccrepo`, `cctranscript` and `ccarchive` orders directory entries, ages, months, days,
+   object keys or paths, and none of those instruments parses a `\d+/\d+` board id. No finding.
+3. *Does anything pin the order through the printed block?* No; that is CO1.
+
+**Against the brief-writer's run.** It saw 105 tests pass in 284 s under load on 2026-11-09; this
+pass saw 111 pass in 113.5 s. The six added tests arrived with the later commits on the file
+(`457f374d`, `4e3b3984`, `1bc89816`, `50547442`); none bears on the sort. Consistent.
+
+**Against the author's account.** The commit body, the intent record and the pointer agree with
+the diff and with act 1: display only, nothing miscounted (consistent with the lens 4 discharge);
+"the order board.py has used since 010/200" (the wording CO2 notes); "pinned in
+`instruments/ccclose.test.js`" (the pin is the comparator alone, which is CO1). The intent record's
+chosen shape, "every digit run compares as a number", confirms the comparator's mechanism was
+deliberate, so CO2 stays a note on the parity wording only, not on the design. The pointer's spawn
+and permission text matches the provenance stated in act 1.
+
+**Per finding.** CO1 — stands, minor; nothing in the author's account addresses the wiring test.
+CO2 — stands, note; the same phrase appears in the commit body and CHANGELOG, so a reword, if the
+principal wants one, has two sites. No finding was formed at reconcile.
+
+**Overall, restated: PASS-WITH-FINDINGS** — 0 MAJOR, 0 MODERATE, 1 minor (CO1), 1 note (CO2).
+Every finding is the principal's to decide; nothing was applied.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`fcce3da1` on `main`);
+folded here verbatim (headings demoted two levels) and the sibling file removed, per the brief. The
+orchestrator (a headless Opus 5.5 session started by drain session `21a271a5`, itself Opus 5.5)
+held the partition, formed no finding and wrote no severity.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-09-0126-ccclose-board-order-cold.md` (`REVIEW.md` rule 1). Written
+2026-11-09 UTC by session `84e3aa7f`, the brief-writer, which authored none of the delta. Open this
+only after act 1 is committed. Everything here is a floor, never a fence, and none of it is a
+finding.
+
+#### The brief-writer's own questions
+
+1. Does `localeCompare` with `numeric: true` agree with `board.py`'s key on leading zeros (`010/200`
+against `10/200`) and on ties? Run both on the same list.
+2. Is `sorted` the only place the board lists are ordered? Look for another text sort of ids in
+`ccclose` and its siblings.
+3. The new test calls the comparator directly. Does anything pin the order through the printed
+block?
+
+#### What the brief-writer ran, and what it got
+
+- `ccclose`: Node 24: 105 tests, 105 pass, 0 fail, 284 s under load.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*The reviewer's work log, kept outside the worktree while the pass ran and read by no other session
+until act 2 was saved; appended here verbatim at the fold (headings demoted two levels, form only)
+and the working file deleted.*
+
+### Work log — atelier 160/1020, ccclose board-order cold pass (prefix CO)
+
+Reviewer: Fable 5.1 (claude-fable-5-1), tier checked at selection. Spawned by a headless per-pass
+orchestrator (Opus 5.5) started by drain session 21a271a5 (Opus 5.5); both rule-4 off-tier
+orchestrators holding the partition, forming no finding. Permission: the principal's weekly Fable
+drain order (`/fable-drain`, 2026-11-16 06:53 NZDT). Not started or instructed by deeac927,
+84e3aa7f or 74f2b8cd.
+
+Worktree: /Users/mike/worktrees/fable/atelier-160-1020-2131/atelier (HEAD 529c886e; the brief's
+`.deferred.md` sibling removed from the worktree by the orchestrator; not sought elsewhere).
+Run day: 2026-11-15 UTC (date -u at start: Sun Nov 15 21:33:41 UTC 2026). Load at start: 7.52.
+
+#### Act 1 — reads and commands
+
+- READ docs/reviews/2026-11-09-0126-ccclose-board-order-cold.md lines 1–188 (the brief, whole).
+- READ docs/method/REVIEW.md (whole, via cat; 46 KB) for rules 1–4 and V1–V7.
+- RAN `git -C <wt> merge-base --is-ancestor 5f7c2b0c HEAD` → exit 0 (delta is in HEAD).
+- RAN `git -C <wt> status --short` → only ` D docs/reviews/...deferred.md` (the partition).
+- `which python3` → /Library/Frameworks/Python.framework/Versions/3.14/bin/python3 (3.14.6), as
+  the brief requires for repo tools.
+- RAN `git -C <wt> log --oneline 5f7c2b0c..HEAD -- instruments/ccclose instruments/ccclose.test.js CHANGELOG.md`
+  → exit 0, ~70 subjects (mostly CHANGELOG); the per-path list for instruments/ccclose is read next.
+- RAN `python3 <wt>/tools/coldsweep.py --root <wt> --commit 5f7c2b0c --path instruments/ccclose
+  --path instruments/ccclose.test.js --path CHANGELOG.md` → exit 0; subject "ccclose: list board ids
+  in number order (210/370)", 3 files, +16/−2; body not printed; 3 board-store files left out
+  (ROADMAP.md, the 1020 pointer, the 370 intent record); 0 rule-2 files touched.
+- Delta content: `const boardOrder = (a, b) => a.localeCompare(b, 'en', { numeric: true })`;
+  `sorted = (x) => [...x].sort(boardOrder)` in boardReduce; boardOrder exported; one test sorting a
+  five-element literal array with cc.boardOrder; a CHANGELOG "Fixed" entry.
+
+#### Load-bearing assumptions named before further reading (lens 1)
+- A1 Numeric collation of two digit runs gives the same order as board.py's sort for every id shape
+  the board holds (NNN/NNN, NNN/NNNN).
+- A2 Every member of the sets reaching `sorted()` is a plain `\d+/\d+` id, so letter collation never
+  decides an order.
+- A3 The Node that runs ccclose has ICU (`Intl`) so `numeric: true` is honoured; without ICU the
+  comparator degrades to text order silently.
+- A4 The comparator is a consistent total order (sort is deterministic across runs and platforms).
+- A5 The new test would fail if the wiring (`sorted` using boardOrder) were reverted. (Suspect: it
+  tests the exported comparator, not the rendered list.)
+- A6 The CHANGELOG's "as board.py does since 010/200" is true of board.py at HEAD: same per-run
+  numeric comparison, same result on the real ids.
+- A7 No other id list in ccclose (or its docs/man page) still sorts as text (V3/V4).
+- A8 Before the delta, `.sort()` did put 160/1000 before 160/986 (the CHANGELOG's claim).
+- RAN `git log --oneline 5f7c2b0c..HEAD -- instruments/ccclose` → 5 commits (50547442, 6890e9db,
+  1bc89816, 4e3b3984, 457f374d); same minus 6890e9db for the test file. None touches the sort.
+- RAN `grep -n "\.sort(\|localeCompare\|boardOrder" instruments/ccclose` → boardOrder at 1505, used
+  at 1558 (sorted), exported at 2108; other sorts are agent file names (1387, 1646), status order
+  (1405), scratch entries by name (1430), numbered items by number (1797), marks (320): none a
+  board-id list.
+- RAN `node --version; node -p process.versions.icu …` → v24.18.0, ICU 78.3, Intl present, 'en'
+  supported. A3 confirmed on this machine.
+- READ instruments/ccclose 1490–1600 at HEAD (boardLog, boardOrder, boardReduce, boardChanges).
+  reviewElsewhere holds PATHS (f.path), not ids, and is sorted with boardOrder too (A2 partly
+  false: harmless, see verdict). unconfirmed/viaSquash/claimedMoved are filters of sorted lists.
+- READ tools/board.py 740–790 (board_order: `(0, int(leading), name)`; unnumbered last).
+- READ tools/test_board.py 80–100, 895–915 (010/200 tests: 130 < 990 < 1000; both planes agree).
+- READ CHANGELOG.md 1580–1612 (the 210/370 entry; the 010/200 entry beneath).
+- RAN coldsweep for `010/200` and for `210/370|boardOrder|number order|numeric collation|board
+  order` with the two --also-exclude paths → 10 and 11 hits; 571 files excluded; hits only in
+  CHANGELOG, the code, the test, board.py, test_board.py, ROADMAP.md's pointer line, and
+  160/987 (the 010/200 pointer).
+- RAN probe `<scratch>/probe_order.js` (comparator on 13 ids incl. leading zeros and a
+  four-digit section): numeric order as expected; 0 inconsistent pairs/triples over all
+  pairs/triples (A4 confirmed); `160/1` vs `160/01` → 0 (tie, where board.py breaks by name);
+  old `.sort()` gives 160/1000 before 160/986 (A8 confirmed).
+- grep instruments/README.md for ccclose: a table row and § "ccclose — the close-out, read fresh"
+  (392–423); no statement of id order. instruments/ccclose.design.md: grep sort|order|board; no
+  statement of the identifiers' id order (checked lines listed below).
+- RAN (re-run obligation) `uptime` (load 8.33) then `nice -n 10 node --test
+  <wt>/instruments/ccclose.test.js` → exit 0; tests 111, pass 111, fail 0; 113.5 s. Output in
+  scratch `suite.txt` (deleted at finish).
+- READ instruments/ccclose 1870–1930 (renderIdentifiers): the Board block joins `b.review` then
+  `b.reviewElsewhere`; unconfirmed/viaSquash parts are filters of the sorted lists; no re-sort.
+- READ instruments/ccclose.test.js 10–40 (require('./ccclose'), SCRIPT from __dirname) and the idRun
+  definition (1088); grep for board assertions: every rendered-list test uses same-width ids
+  (010/0x0), so text and numeric order coincide there.
+- READ instruments/ccclose.design.md 384–400 and 494–512 (board reduce; no statement of id order).
+- MUTATION PROBE (A5): copied instruments/ (1.7 MB) to scratch `mut/`, replaced
+  `[...x].sort(boardOrder)` with `[...x].sort()` (one occurrence), ran
+  `nice -n 10 node --test --test-name-pattern="board" <scratch>/mut/ccclose.test.js` → exit 0;
+  6 tests, 6 pass, 0 fail, including "board ids sort as numbers, so a four-digit pointer follows
+  999 (210/370)". A5 FALSIFIED: the test pins the exported comparator, not its use in boardReduce;
+  the wiring has no test. → CO1.
+- Man page instruments/man/ccclose.1: grep board|sort|order; line 373 is the field order of the
+  identifiers block, not id order; Board paragraph read at 462–492 (below).
+- READ instruments/man/ccclose.1 462–492 (Board paragraph: describes the lines, names ids "by
+  section and item number", states no order within a list). READ docs/method/RECORD.md 112–120
+  ("Board: by number, the items…": identification, not order). Neither is a mirror of the rule.
+- Checked (not raised): V3 — no mirror site states the id order, so no sweep owed. V4 — one home
+  (the comparator), a code comment and a CHANGELOG entry. V5 — code, comment, test and CHANGELOG
+  agree; `010/200` reaches board.py's board_order, which holds the cited rule. V6 — no new input
+  or output; comparator over regex-captured digits and git-log paths; /security-review not aimable
+  (delta landed, worktree dirty with the deleted sibling) → discharged by grounds.
+- Checked (not raised): the ICU reliance (A3). Without Intl the comparator degrades to text order;
+  the new unit test would fail there, so the failure is loud. Noted in lens 1, no finding.
+- Checked (not raised): reviewElsewhere paths are locale-collated now (A2). Deterministic and
+  harmless; mentioned in lens 2, no finding.
+
+#### Findings
+- CO1 minor — wiring untested. Evidence: mutation run above (6/6 pass with text sort restored);
+  every rendered-list test uses same-width ids. Criterion: brief lens 3 "tests that would stay
+  green on a broken change"; REVIEW.md scope (test code reviewed as code).
+- CO2 note — "each digit run … as board.py does" overstates mechanism parity. Evidence: board_order
+  = (0, int(leading), name) vs numeric collation of every run; probe tie `160/1` vs `160/01` → 0
+  where board.py breaks by name (a case board.py's number_collisions reports). Criterion: V1.
+
+#### Act 1 close
+- WROTE the verdict below a `---` divider in the brief; Status line updated to ACT 1 WRITTEN
+  2026-11-15 UTC, PASS-WITH-FINDINGS (0 MAJOR, 0 MODERATE, 1 minor, 1 note), act 2 pending.
+- RAN `python3 <wt>/tools/datescan.py --root <wt> <brief>` → clean, exit 0 (1 file, 335 lines).
+- RAN spellscan and wrapscan the same way → exit 0 but "scanned nothing": docs/reviews is in
+  .spellscanignore and .wrapscanignore. Column rule held by hand: `awk 'length($0) > 100'` over my
+  lines → none after rewrapping (the two tables became lists). Lines 10, 37, 162, 174 over 100
+  are the brief-writer's verbatim text, left as is.
+- Scratch deleted: probe_order.js, suite.txt, mut/, mut_suite.txt (claim.log there is the
+  orchestrator's, untouched). `git status --short` → only the brief modified and the sibling's
+  deletion. No commit, no push, no gh.
+- Verdict: PASS-WITH-FINDINGS — 0 MAJOR, 0 MODERATE, 1 minor (CO1), 1 note (CO2). ACT 1 SAVED.
+- Column check redone in characters (awk's length counts bytes; `…`, `—`, `→` are multi-byte):
+  `/usr/bin/python3` over the verdict lines → none over 100 characters. Brief is 349 lines.
+
+#### Act 2 — reconcile (released by the orchestrator after act 1 landed as fcce3da1)
+- READ the held sibling (whole; 3 questions and one re-run result: 105 tests, 105 pass, 284 s).
+- READ the queue pointer 160/1020 (whole), the intent record 210/370 (whole), the delta commit's
+  message body (`git log -1 --format=%B 5f7c2b0c`), and the SESSIONS.md index line for the
+  2026-11-03 queue run (grep for 210/370; the session record itself not opened: not needed).
+- RAN `git log -1 --format='%h %s' fcce3da1` → "reviews 160/1020: act 1 of the ccclose board-order
+  cold pass" (act 1 on main, unrevised).
+- RAN grep `\.sort(` over instruments/cclive, ccrepo, cctranscript, ccarchive and grep for a
+  `\d+/\d+` id regex in them → sorts are of dir entries, ages, months, days, keys and paths; no
+  sibling parses board ids. Sibling Q2 extended to siblings: no finding.
+- Reconciled: Q1 ↔ A1/A6/CO2; Q2 ↔ A7 (+ siblings); Q3 ↔ CO1. Brief-writer's 105/105 (284 s) vs
+  my 111/111 (113.5 s): six tests added by the later commits, none on the sort. Author's account
+  (commit body, intent record, pointer) agrees with the diff; "pinned in the test" is the
+  comparator only (CO1); "the order board.py has used" is CO2's phrase, also in the commit body.
+  No finding formed at reconcile. Overall unchanged: PASS-WITH-FINDINGS (1 minor, 1 note).
+- WROTE `### Reconcile` beneath the act-1 verdict; Status line updated to VERDICT 2026-11-15 UTC.
+- Gates after act 2: datescan on the brief (result in the next line of this log once read); column
+  check in characters over the verdict lines; `git status --short` → the brief modified and the
+  sibling's deletion only. No commit, no push, no gh; sibling untouched, fold left to the
+  orchestrator. Scratch holds only the orchestrator's claim.log. ACT 2 SAVED.
+- datescan after act 2: clean, exit 0 (the exit was read from the tool's own ✓ line; the shell
+  pipeline swallowed the status). Column check: no verdict line over 100 characters; brief 391
+  lines.
