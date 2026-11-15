@@ -472,10 +472,11 @@ artefact**, not a throwaway chat:
    more than fresh context*).
 2. **Run** — the reviewer reads the repo and the brief and reviews deep, not
    fast. Findings get stable IDs so nothing is lost in synthesis.
-3. **Verdict** — the reviewer's output (per-question answers, findings, a
-   follow-up checklist) is appended to the **same file**, below a `---`
-   divider. *Answer below the ask.* One file holds the whole exchange, so the
-   question and its answer can never drift apart (EVIDENCE §9). Any
+3. **Verdict** — the reviewer's output (its method, per-question answers,
+   findings with the reasoning behind each, a follow-up checklist) is appended
+   to the **same file**, below a `---` divider. *Answer below the ask.* One
+   file holds the whole exchange, so the question and its answer can never
+   drift apart (EVIDENCE §9). Any
    `.deferred.md` sibling is folded in below the verdict and deleted at this
    step — the split exists to protect the reviewer during the run, and the
    record it leaves behind is one file, as it always was.
@@ -498,6 +499,21 @@ artefact**, not a throwaway chat:
    is the apex violation the review existed to catch. When a review file's
    state changes, update its dated `Status:` line, and keep its `board:` line
    pointing at the item that holds the live ledger.
+
+**A verdict is only as trustworthy as the method behind it** (the principal's
+ruling, 2026-11-15 UTC, in his words: *"a review must have irrefutable integrity
+to promote trust in the reviwers verdict. So its reasoning and methdology are as
+important as its verdicts"*). A reader who cannot see how a verdict was reached
+can only take it on faith, and review exists so that nothing is taken on faith.
+So every verdict records, beside its findings: **what it examined** (paths,
+commits, commands run and what they returned); **what it set out to attack, and
+how**; **what it did not examine, and why**; and, for each finding and for the
+overall verdict, **the reasoning from evidence to conclusion** — enough that a
+second reader can re-run each check and either reach the same result or name
+the step where they part. This binds a FAIL as much as a PASS: a MAJOR finding
+with no visible reasoning is no more trustworthy than a clean verdict with no
+trail (*What review is not*). A verdict without that record is incomplete,
+however right its findings turn out to be.
 
 **Applying decisions to doctrine — and when the cycle stops.** Applying
 decided findings to doctrine text is itself a doctrine edit and earns a
@@ -665,7 +681,8 @@ spend — so it lives inside `ECONOMICS.md`'s marginal-cost self-check.
 
 ## What review is not
 
-- **Not a rubber stamp.** A verdict earns trust by *showing its work* — the
+- **Not a rubber stamp.** A verdict earns trust by *showing its work* (the
+  method record the lifecycle's verdict step requires) — the
   load-bearing assumptions named and attacked, the live proofs re-run, the
   sibling docs checked — never by its finding count. A clean verdict with that
   trail is a real result; a clean verdict without it is the suspect one.
