@@ -3,9 +3,9 @@
 **Pass type:** doctrine cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-15 UTC — PASS-WITH-FINDINGS (0 MAJOR · 3 MODERATE · 4 minor ·
-2 note), by a Fable 5.1 reviewer under the principal's drain order of 2026-11-16 NZDT; act 2
-(reconcile against the held sibling) pending.
+**Status:** VERDICT WRITTEN 2026-11-15 UTC, both acts — PASS-WITH-FINDINGS (0 MAJOR · 2 MODERATE
+· 6 minor · 2 note after reconcile), by a Fable 5.1 reviewer under the principal's drain order of
+2026-11-16 NZDT; the ten findings await the principal's decisions (rule 3).
 **Sizing:** **small** — one commit, 130 changed lines of an ADR plus a ten-line doctrine paragraph;
 no code.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1090-rule-4-cold-pass-queued-private-state-type-only.md`.
@@ -456,3 +456,92 @@ apply a stricter posture without either text naming the other (TY3). No MAJOR, s
 - [ ] TY9 move the correction into a dated Addendum, or record why not.
 - [ ] Reconcile (act 2): verify the option text; re-run the term × state probe over the
   record surfaces, counts only.
+
+### Reconcile (act 2, 2026-11-15 UTC, resumed after the weekly reset)
+
+Opened after act 1 was committed (`b5353ca4`): the held sibling (one file, outside the tree,
+released by the orchestrator's message naming its path), the delta's commit body, the queue pointer
+`160/1090`, the intent record `260/080`, the ruling-round session record of 2026-11-08 (69 lines),
+the brief-writer's session record's board line, `docs/ROADMAP-DONE.md` by grep. The release
+message was process only: the path, the barred list, the deliverable's shape. A usage limit cut
+the session at about 22:30 UTC with the sibling read and two probes run; it resumed at 23:55 UTC
+on the principal's order to finish in-progress work, from the review log.
+
+**The acceptance test, verified as far as the record allows.** The ruling-round record lists
+`260/080` among items answered through the device and quotes no option text. The one record of the
+option is the intent record's 💬 bullet, written by the authoring run: *"a private repo's
+internal state is described by its type only in a public record ('a private child was failing a
+check'); naming a repo in any other context stays allowed"*. The ADR's quotation matches it. So the
+Decision is faithful to the option as recorded; the option as shown on the device is not in the
+repo and cannot be checked from here.
+
+**The author's account (commit body, intent record).** It claims what the delta does and no more:
+posture C stated precisely, A and B rejected with reasons, two judgements marked as the drafter's,
+`RECORD.md` gains a pointer paragraph, forward only, a cold pass owed at landing. The body does not
+claim the pointer landed in the same commit, and the intent record's DONE bullet says the registry
+item "can be re-specified", which is the honest form the ADR's Consequences over-stated (TY4). No
+finding changes on the author's account.
+
+**Per finding, against the sibling.**
+
+- **TY1** — not among the sibling's questions. Stands.
+- **TY2** — the sibling's Q2 (*"Landed a fix for X" discloses a prior condition*) and Q3 (a type
+  beside a roster in the same record; does the one-repo reading reach the join across sentences)
+  are the same mechanism from two sides. The ADR allows "a fix landed" as an act by design, so the
+  inference it invites is accepted exposure, not a defect; the same-entry join is the defect.
+  Stands at MODERATE.
+- **TY3** — **revised at reconcile, severity lowered to minor.** My act-1 statement that
+  `namescan` bars a private repo's name in a commit title was too strong. A probe at reconcile
+  compared the leak scanner's local term list (the scanner's and `namescan`'s only term source)
+  with the names of the estate's repos: 0 of 31 names are on the list. So today `namescan` cannot
+  flag a sibling's name in a title; the contradiction on that surface is latent, becoming live
+  only if a name is ever added to the list. The skill-prompt leg stands as written: the
+  `fleet-sweep` and `review-drain` prompts (landed 2026-11-14) tell a public-repo session
+  *"Never name or point at a private repo, the estate root …"*, which is posture B on a plugin
+  surface `PRINCIPLES.md` § 6 names for sweeps, with no cross-reference either way. The ccfleet
+  guard those skills cite ("refuses to launch one that contains a configured private name") rests
+  on the same term list and so bars no repo name today. Reasoning for the downgrade: the live
+  contradiction is between two texts, not between a text and an enforced check, and the stricter
+  text is the safe side.
+- **TY4** — not among the sibling's questions. Stands.
+- **TY5** — the sibling's Q4 asks the same question (silent scope-cut or decision; check the
+  templates). Found independently in act 1; the templates checked are listed there. Stands.
+- **TY6** — the sibling's Q7 notes the separate commits. Stands at minor; the 51-second series
+  meets the rule's intent, and the review line still points nowhere.
+- **TY7** — not among the sibling's questions. Stands.
+- **TY8** — the sibling's Q3 reaches it (the one-repo reading against the roster). Stands.
+- **TY9** — not among the sibling's questions. Stands.
+- **Sibling Q5** (*"Ruled 2026-11-08"* beside *"not his own words"*): already answered in the
+  tree; `7ad98503` changed the word to "Decided" 51 seconds after the delta, and `PROPAGATION.md`
+  uses the "an answer, not a ruling" form eight times. No finding.
+- **Sibling Q6** (worked examples keep their names vs `9c8cb7e7`): resolved at HEAD by
+  `e76250cf`'s correction, as act 1 recorded; TY9 is about its form only.
+
+**TY10 — minor, formed at reconcile, prompted by the sibling's Q1.** The Decision's type-only
+list includes *"the work in flight inside it"*; the Decision's table allows *"Session ran in
+`widget-api` to land item X"*. An item under way in a named repo is work in flight inside it, so
+the two clauses of the same section disagree on the one example the ADR offers for it. The
+resolution the drafter probably intended (a session's presence is an act; the item's content is
+the condition) is not written. Breaks: V5, within the Decision. *Counsel:* strike "the work in
+flight inside it" from the type-only list or qualify it to the item's content and findings.
+
+**Correction to act 1's assumption 4 and lens 4.** The act-1 probe that returned 0 lines on the
+non-barred surfaces used the leak scanner's term list, which holds no repo name, so its zero
+measured nothing about this rule; the "false-positive floor of zero" sentence is withdrawn. The
+reconcile probe used the estate's repo directory names instead (31 names, public ones included,
+none printed; a crude state vocabulary of 20 words), counts only: records, 1,158 files, 1,051
+lines name a sibling, 139 put a name beside a state word, **0 of those in any file dated
+2026-11-09 or later**; non-barred surfaces, 82 files, 97 name lines, 6 name-beside-state, 0 dated
+2026-11-09 or later. Read with care: the 139 is an upper bound over history and includes public
+repos and words like "finding" in review ids; what it shows is that the band exists in the
+archive at a width the ADR's "~15 lines" under-counts by its narrower probe, and that in the
+week since the rule landed no record surface has added to it. The advisory aid the ADR calls
+plausible is feasible on this evidence, keyed on a discovered repo list (as item `030/070`
+sketched with `pins.discover`), not on the leak scanner's terms.
+
+**The brief-writer's re-run.** Its floor at `c132cc1c` reported pathscan 3 warn-only findings;
+at `ce0e1cc2` pathscan is clean on both planes. Resolved since.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 6 minor · 2 note** (TY3
+lowered to minor at reconcile; TY10 added at reconcile). No MAJOR, so the application of these
+rulings closes without a further pass.
