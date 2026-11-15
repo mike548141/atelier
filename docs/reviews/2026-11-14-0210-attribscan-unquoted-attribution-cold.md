@@ -1,9 +1,10 @@
 # Cold pass — `attribscan`, an attribution to the principal carries his words
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1330-rule-4-cold-pass-queued-attribscan.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `a18861ae`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** ACT 1 SAVED 2026-11-15 UTC — FAIL, 1 MAJOR · 5 MODERATE · 6 minor · 3 note, by a Fable
+5.1 cold reviewer under a headless Opus 5.5 orchestrator (drain session `21a271a5`); act 2
+(`### Reconcile`) pending the orchestrator's release of the sibling. Brief written 2026-11-14 UTC by a
+headless Opus 5.5 brief-writer (`cclive` lists it as session `a18861ae`).
 
 **Pass type:** code cold pass, first of its kind, per `docs/method/REVIEW.md` rule 4: the first
 scanner that reads records for a claim of the principal's authority.
@@ -295,3 +296,369 @@ every child on its date, so it is doctrine by function (rule 3): **the author ap
 its own**. Record all findings; they are the principal's to decide, after a plain-language account.
 Counsel per finding is welcome, labelled as counsel and kept beneath it, and a finding that bears
 on whether the 2027-02-08 flip should happen as built says so in its first line.
+
+---
+
+## Verdict — act 1 (cold pass, run 2026-11-15 UTC)
+
+**FAIL — 1 MAJOR · 5 MODERATE · 6 minor · 3 note.** The warning phase is sound and the date flips
+cleanly and alone (A5 confirmed, fleet-probed). The flip to blocking on 2027-02-08 as built is not:
+the evidence test is satisfied by any quoted token or any board id within three lines, the grammar
+reads about one attribution phrasing in nine, a long verbatim quotation of him does not clear the
+line it supports, a moved or split record is re-judged whole, and the advisory form a child may
+declare reads nothing on CI. Findings are the principal's to rule (rule 3); the author applies
+nothing on its own. Every finding that bears on the flip says so in its first line.
+
+### Provenance (V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), tier checked at selection. Spawned by a headless
+  Opus 5.5 orchestrator session, itself started by drain session `21a271a5` (Opus 5.5). Both are
+  rule-4 off-tier orchestrators: they hold the context partition, form no finding and write no
+  severity; neither wrote the brief or the delta. The orchestrator commits this file. Not started or
+  instructed by `a18861ae`, `58027096`, `d0ca5d24` or anything `d0ca5d24` started.
+- **Authority to run:** the principal's weekly Fable drain. Mike, 2026-11-16 06:53 NZDT (shed
+  session `21a271a5`): he invoked `/fable-drain`, the skill's named command for his drain order
+  (`~/.claude/fable-drain.json`, `fable-drain` skill). Recorded here as his act, not his words.
+- **Worktree:** `/Users/mike/worktrees/fable/atelier-160-1330-1950/atelier` at `9614b231`, read-only
+  to me except this file. Scratch repos and tool copies lived in the session scratchpad and are
+  deleted after act 2. Review log (open by design, user-local):
+  `~/.claude/fable-drain/notes/atelier-160-1330-1950.md`.
+- **What I read:** this brief; `tools/attribscan.py`, `tools/test_attribscan.py` at HEAD; the delta
+  body-free through `tools/coldsweep.py --commit 20e7fc35` (six paths) and `--commit 641f017f` (two
+  paths); `tools/report.py`, `tools/allowmarker.py`, `tools/filewalk.py` as far as attribscan calls
+  them; `tools/floor.py` (the `Scanner` class, the state and advisory selection, `subtrees`,
+  `_render`, the count reader); `tools/quotescan.py`; `tools/pins.py` (discovery);
+  `docs/method/REVIEW.md`; `docs/PERSONAL-DATA.md`; the heads of `RECORD.md` and `00-APEX.md` by
+  grep; `CHANGELOG.md` around the entry; `.github/workflows/ci.yml` and `floor.yml` by grep.
+  **Exposure, disclosed:** the
+  brief's whole-tree re-run line prints the first 40 findings, and the first two are excerpts of
+  `docs/ROADMAP-DONE.md` (barred); I saw those two lines in the head of that output and nothing
+  else from it. The precision sampler below excluded every barred path by prefix. The sibling
+  `.deferred.md` is absent from the worktree and was not sought anywhere. No prior verdict, session
+  log, pointer or intent record was opened; the commit bodies were not read.
+- **Helpers:** one `web-fetch` subagent on Haiku fetched three OWASP ASVS 5.0 requirement texts
+  (lens 4); it formed no finding. `/usr/bin/python3` (3.9.6) ran my probes on scratch copies; the
+  brief's own re-run lines ran on `python3` (3.14.6) as written; git 2.50.1.
+
+### Re-run ledger (V2)
+
+All run 2026-11-15 UTC from the worktree root (or `tools/` where the line says so), foreground.
+
+- `cd tools && python3 -m unittest test_attribscan` — 36 tests OK, exit 0 (7.2 s).
+- `cd tools && python3 -m unittest test_floor.AdvisoryCountContract` — 33 tests OK, exit 0
+  (54 s); the worktree was unchanged after it.
+- `python3 tools/attribscan.py --selftest` — `selftest OK`, exit 0.
+- `python3 tools/attribscan.py --root . docs` — 848 findings in 337 of 1218 files, exit 0;
+  coverage 1218 files · 178,199 lines.
+- `python3 tools/attribscan.py --against HEAD^ --root . docs` — clean, 1 file read, exit 0.
+- `python3 tools/attribscan.py --against nosuchrev --root . docs` — `cannot resolve revision
+  'nosuchrev'; refusing to pass over it`, exit 2.
+- `python3 tools/floor.py --list --root . | grep attribscan` — `attribscan  enforced  fleet
+  decl 1/5 …`.
+- **The fleet claim** (read-only, counts only): 22 children and atelier discovered one level under
+  the main checkout's parent, all with a records tree. On the CI argument (`--against HEAD^` with
+  the absolute scope the floor renders): **0 non-zero exits on 2026-11-15 and 0 with the date
+  patched to 2027-02-08**, 0 exit-2. Whole-tree share 1,504 of 6,208 Markdown files (24%);
+  children 1,168 of 5,055; highest child share 4 of 11 files (36%). The CHANGELOG's 1,372 of
+  5,144 (27%), 21 children and "1 of 2 files" were measured 2026-11-09; the drift is growth and
+  the shape reproduces.
+
+The date patch for the flip runs was a scratch copy whose `_utc_today()` returns 2027-02-08; the
+worktree's `tools/` was not touched. Every scratch probe named below ran on that copy or the
+unpatched one.
+
+### Per-commit ledger
+
+- `20e7fc35` — the attribscan landing (tool, tests, floor entry, floor test, README, CHANGELOG).
+  Read body-free: yes, `coldsweep --commit` with six `--path`s; no body printed. Findings: AT1–AT7,
+  AT8 (the CHANGELOG hunk), AT9–AT15.
+- `641f017f` — the coverage line threaded through (attribscan hunks only). Read body-free: yes,
+  `coldsweep --commit` with two `--path`s; the board item and the other scanners left out as
+  non-goals. Findings: none; the counts reproduce in every mode and in `--json`.
+
+No commit after `641f017f` touched either attribscan file (`git log` empty). `tools/floor.py` moved
+seven times since the landing; none changed the attribscan entry except the declaration column
+(`ba55be27`, `115/120` step 0, later work and not this pass's subject).
+
+### Lens 1 — approach and assumptions
+
+The load-bearing assumption under all six named ones is that **the form is a usable proxy for
+authorship**: that a quotation mark or a board id near the word `ruled` tells a later reader whose
+decision it was. On this repo's own records it is a weak proxy both ways (AT1, AT2, AT11): a quoted
+doctrine phrase clears, an unrelated board id clears, a five-line verbatim quotation of him does
+not. The proposal (`320/100`, quoted in the brief) offered exactly this form and called it "the
+machine-decidable half"; the build took the offer without measuring it, and the CHANGELOG measured
+the share of files carrying the form (27%) but not how often the form is right. As a warning the
+check is a useful nudge at the moment of writing, which is where the incident lives. As a block it
+teaches two things: the synonym (`Mike decided`, `he approved`, `at his request`: none read, AT1)
+and the quote mark. The doctrine that already owns the rule says the real thing: `RECORD.md`'s
+verbatim rule and its *an answer is not a ruling* line, and `00-APEX.md`'s "never emit a claim
+stronger than its evidence". The scanner is a reminder of that doctrine, not an enforcement of it,
+and its registry line should say so (the `why` reads as enforcement).
+
+- **A1** (the form separates well enough to block): **damaged.** Recall 3 of 27 paraphrases (11%);
+  precision of findings about 20 of 30 on the target form; false clears in 5 of 25 quote-cleared
+  and 4 of 12 citation-cleared samples. AT1, AT2, AT11.
+- **A2** (anything the evidence patterns match is evidence): **damaged.** `there is no transcript`,
+  `session deadbeef`, `ADR 9999`, `100/200 of the budget`, `"--warn"`, `("no")`, inch marks, and a
+  quoted reason inside another scanner's allow marker all clear a bare `He ruled this`. A citation
+  that resolves to nothing passes. AT1.
+- **A3** (added lines are the right plane): **damaged both ways.** A rewrap, a `git mv` and a
+  record-store split re-judge old lines and block on the flip date (AT3); a commit that deletes the
+  quotation beside an unchanged attribution is not seen (0 files read), and a push of several
+  commits is judged by its tip only (AT5).
+- **A4** (generic uses are rare): **damaged in part.** Every generic sense probed fires; in the
+  seeded sample 6 of 30 findings were generic, future or hedged. AT11.
+- **A5** (the date flips cleanly and alone): **confirmed.** One constant, read by `warn_only_today`
+  only; no flag, variable or config key (`grep` of `environ|getenv` finds none); the scratch copy
+  with the clock moved blocked where the live copy warned, on every probe; the floor's registry
+  comment and `warns_only` need no edit; 23 repos probed on the CI argument with the clock moved:
+  0 non-zero. The four-week chain holds: blockscan 2027-01-11 + 28 days = 2027-02-08; pdlistscan
+  2027-03-08.
+- **A6** (the advisory form leaves CI meaningful): **false.** AT4.
+
+### Lens 2 — correctness and quality
+
+What the code does, it does cleanly: the fence rule, the inline-code strip, the blockquote rules,
+the allow-marker grammar (a bare marker exempts nothing; an empty-reason marker is noted on stderr
+as unparseable), the `HEAD^`-on-a-first-commit pass, exit 2 on a bad revision, the advisory count
+line printed with its zero, the coverage line in every mode. Overclaims against the text that makes
+them: the README's "no reason to gate history, since `--against HEAD^` reads only what a commit
+adds" and the docstring's "an old `ruled` cannot be fixed … so a check that reddened on one would be
+a check nobody could clear" (AT3: a move or split reddens on old lines); the README's and
+CHANGELOG's "advisory form for adoption" with no plane caveat, against the registry comment that
+admits the empty diff (AT4); the CHANGELOG hunk's placement (AT8). The `why` field reads as
+enforcement of authorship where the docstring says form. The help text and the module docstring
+agree with the code on the grammar.
+
+### Lens 3 — completeness and harvest
+
+Surfaces stating the rule: docstring, help text, README section, floor entry comment and `why`,
+CHANGELOG, test names: consistent on the grammar and the date (V3). The grammar is stated in full
+twice, docstring and README, with no stamp (V4, AT14). The sibling conventions it shares: the
+fence rule (same as `blockscan`), the allow-marker grammar (`allowmarker.marker_rx`), the advisory
+count line, the coverage line (all shared helpers). Where it diverges: the against plane does not
+pin the diff as `report.STAGED_DIFF_CMD` does (AT7); the printed path is raw where `pdlistscan`
+sanitises its detail and `leakscan` shares the gap (AT6); `quotescan`, which shares its subject,
+requires two or more words inside the quotes (`QUOTE_RX`), attribscan accepts two characters
+(AT1). The registry's pushed-range convention (`--range pushed`) landed after this delta and is not
+used (AT5). Tests that stay green on a broken change: two mutants survive (AT9).
+
+### Lens 4 — security and privacy (V6)
+
+Checked against OWASP ASVS 5.0, fetched 2026-11-15: **16.4.1** (L2) "Verify that all logging
+components appropriately encode data to prevent log injection"; **2.2.1** (L1) input validated
+against an allow list or expected structure; **1.2.5** (L1) OS calls use parameterised queries or
+contextual encoding.
+
+- **Output encoding (16.4.1):** the excerpt is sanitised (`report.safe_text`, Cc and Cf dropped;
+  bidi probe stripped). The **path is not** (AT6): ESC `[2J` and U+202E in a file name reached the
+  terminal on the tree plane and the CI log on the against plane; `--json` escapes both. The `word`
+  field is regex-bounded (`\s` admits NBSP, which is printable).
+- **Input handling (2.2.1, 1.2.5):** `--against` is passed to `git rev-parse --verify --quiet
+  "<rev>^{commit}"` before any diff; `--all`, `--output=<file>`, `-q`, `--no-index`, `HEAD..HEAD`,
+  `@{u}` and `:/base` all exit 2 and wrote no file. `git show HEAD:<rel>` takes a path from the diff
+  header, prefixed. Argv lists throughout, no shell. Discharged.
+- **Hostile inputs:** a 1 MB line costs at most 1.3 s; 100k backticks or quotes are linear; a file
+  named `*.md` and a macron path read correctly; CRLF read correctly. A tracked symlink under
+  `docs/` to a file outside the repo makes the tree plane traceback and exit 2 (no leak; AT12); a
+  symlink to an in-repo non-Markdown file is read through.
+- **Environment:** `GIT_EXTERNAL_DIFF` is defeated by `--no-ext-diff`; `GIT_DIFF_OPTS` and two
+  repo-local diff settings crash the against plane to exit 2 (AT7). Fail-closed, as the contract
+  says, but as a traceback.
+- **Privacy:** AT13, weighed and not raised above a note.
+- **`/security-review`:** NOT RUN, discharged by grounds. It reads the session's pending diff, which
+  in this worktree is this brief and the deleted sibling, both barred material, so aiming it here
+  would read what rule 2 bars and nothing of the delta; the delta is landed, so a scratch clone
+  would hold no pending diff for it to read. The lens was worked by hand above.
+
+### Standing checklist V1–V7
+
+- **V1** — three overclaims recorded in lens 2 (AT3, AT4, AT8); the fleet and share claims hold.
+- **V2** — every re-run line reproduced; the fleet claim reproduced in shape with drifted numbers.
+- **V3** — one rule, swept: the grammar and the date agree across docstring, help, README, floor
+  entry, CHANGELOG and tests; the four-week chain across the sibling checks holds.
+- **V4** — the grammar is restated in full in the README with no stamp (AT14, note).
+- **V5** — one CHANGELOG entry carries two dates and an orphan heading (AT8); the README's advisory
+  claim contradicts the registry comment (AT4). Cross-references reached: `320/810` and `320/100`
+  quoted in the brief carry the words the docstring attributes to them; `harvestscan`'s `--against`
+  convention is as the docstring says.
+- **V6** — lens 4; AT6, AT7, AT12, AT13.
+- **V7** — stated above and in the brief's spawn section.
+
+### Findings
+
+Severity: MAJOR / MODERATE / minor / note. A first line that says **bears on the flip** means the
+finding is about whether 2027-02-08 should block as built. Counsel is labelled and kept beneath.
+
+**AT1 — MAJOR — Bears on the flip.** Measured on this repo's own records, the grammar and the
+evidence test do not separate supported from unsupported attributions well enough to block.
+*Recall:* 3 of 27 paraphrased attributions fire (`Mike ruled it`, `Mike's directive`, `the
+principal's ruling`); `Mike decided`, `he approved`, `per Mike`, `at his request`, `his call`, `he
+said no`, `Owner ruling 2026-08-23`, `the owner's call` and 16 more pass silently. *False clears,
+the brief's worse failure mode:* over 653 non-barred `.md` files under `docs/`, 391 attribution
+lines: 249 findings, 89 cleared by a quotation, 48 by a citation (37 of them a board id), 4 by a
+demotion, 1 by a blockquote. A seeded sample (seed 1330) of 25 quote-cleared lines: 15 cleared by
+his words or his recorded pick, 5 by a quotation that is not his (a quoted doctrine phrase, a quoted
+exclusion text, a quoted board message), 5 not attributions at all. Of 12 citation-cleared lines:
+4 cite the record holding the decision, 4 are cleared by a board id about something else, 4 are
+generic lines. Scratch probes: `He ruled this; there is no transcript.`, `He ruled this. The flag is
+"--warn".`, `He ruled this, see 100/200 of the budget.`, `He ruled this in session deadbeef.`, `He
+ruled this: see ADR 9999.`, `Price 5" screws, 3" nails.` all clear a bare attribution. *Precision
+of findings:* of 30 sampled, 20 are the target form, 6 generic or future (AT11), 2 supported but
+unseen (AT2 and a Markdown link to a record file), 2 headings with the words in the body below a
+blank line. The README discloses "the patterns are a grammar"; nothing measures it, and the
+CHANGELOG's only measurement is the share of files carrying the form.
+*Counsel:* keep the check warn-only past 2027-02-08 and set a new date only after the evidence
+test is tightened and re-measured on the whole tree: a quotation of two or more words (as
+`quotescan`'s `QUOTE_RX`) in the attribution's own sentence or the next line; a board id,
+`transcript` or `session <hex>` counts only when it follows the attribution word in its sentence;
+a quotation may close anywhere in the paragraph (AT2); and publish the measured precision beside
+the share. Rename the registry `why` to say form, not authorship.
+
+**AT2 — MODERATE — Bears on the flip.** A verbatim quotation of him that runs past the three-line
+window does not clear the attribution it supports, so the house's own long-quote form is a
+finding. Probe: the same text with the closing quote on line 3 gives 0 findings; on line 5, 1
+finding, as a paragraph and as a list item. Real instance in the whole-tree output:
+`docs/roadmap/210-instruments-open-features/230-ccarchive-a-real-calendar-schedule.md:30`, where
+"Mike's ruling, verbatim (2026-10-05)" is followed by a five-line italic quotation of him.
+`_QUOTE_RX` already spans newlines; only the `WINDOW` cut in `_block_bounds` defeats it.
+*Counsel:* read quotations over the whole paragraph or list item; keep the cap, if wanted, for
+citations and demotions.
+
+**AT3 — MODERATE — Bears on the flip.** "Additions only" does not hold for a rewrap, a move or a
+record-store split. `git diff --no-renames` calls every line of a moved file added, and a
+re-wrapped paragraph's lines are added, so old unquoted attributions are re-judged and block on the
+flip date. Probes on scratch repos, clock moved: a rewrap of one old line, 1 finding, exit 1; `git
+mv` of a record, 1 finding, exit 1; a one-file log split into five per-day files, 5 findings, exit
+1. The README says "no reason to gate history, since `--against HEAD^` reads only what a commit
+adds", and splitting one-file stores is what `sizescan` presses every repo to do.
+*Counsel:* drop an added line whose text also appears among the removed lines of the same diff (a
+moved or re-wrapped line), on both planes; or follow renames on the CI plane and read only the
+changed hunks of a renamed file. Say in the README what still re-judges.
+
+**AT4 — MODERATE — Bears on the flip.** The advisory form a child may declare reads nothing on
+the CI plane. The registry's advisory argv is `--warn --staged --root {root} {scope}`;
+`tools/floor.py` selects the advisory argv on CI for every check without a message plane; on CI
+the index equals HEAD, so the run prints "0 file(s) read", the coverage line says "scanned
+nothing", exit 0, and the board shows `advisory`. Probe on a scratch repo whose tip adds an
+unquoted attribution, clock moved: `--warn --staged`, clean, 0 files; `--against HEAD^` on the same
+tip, 1 finding, exit 1. The registry comment admits "on CI that is an empty diff"; the README ("an
+`advisory` form a child can declare for adoption with a why and a review date") and the CHANGELOG
+("Registered in the floor with an advisory form for adoption") do not. No other softenable blocking
+check carries `--staged` in its advisory argv (`harvestscan` does, and is warn-only on both
+planes). The brief's A6 is false as built; the escape hatch the flip pushes children towards
+removes their CI cover for this check without saying so on the board.
+*Counsel:* a per-plane advisory in the floor, or an advisory argv of `--warn --against HEAD^` on CI;
+until then the README says the advisory form covers the hook plane only.
+
+**AT5 — MODERATE — Bears on the flip.** The CI plane judges a push by its tip. `--against HEAD^`
+reads the lines added by the last commit only. Probe: three commits pushed together with the
+unquoted attribution in the first: clean on `HEAD^`; `--against HEAD~3`, 1 finding, exit 1 with the
+clock moved. The hook plane sees each commit where the hook is installed; CI is the plane the brief
+says binds every child with no edit. The registry now carries a pushed-range convention (`--range
+pushed`, `quotescan` and `namescan`, landed after this delta), which did not exist when attribscan
+took `harvestscan`'s `HEAD^`. A shallow clone of depth 1 reads `HEAD^` as "first commit: nothing to
+compare" and passes; `floor.yml` fetches depth 0, so only a child with its own workflow is exposed.
+*Counsel:* on CI, compare against the push's `before` sha where the event carries one, falling back
+to `HEAD^`; note the shallow-clone case in the README.
+
+**AT6 — MODERATE — security.** The printed path is not sanitised (CWE-117 / CWE-150; ASVS 5.0
+16.4.1). `render` passes the excerpt through `report.safe_text` and `f.path` raw. Probe: a file
+under `docs/` named with ESC `[2J` and U+202E reached the terminal unaltered on the tree plane and
+the CI plane; `--json` escapes both. The house named this class for the excerpt (`160/790` HX2) and
+`test_an_excerpt_cannot_carry_a_control_character` pins the excerpt only. `leakscan` prints
+`f.path` raw too, so the class is sibling-wide. Exploitability is low: a pull request has to land
+the file name, and the hook plane prints it to its own author. Recurrence prevention: one shared
+path renderer in `report.py` used by every finding line, and a test on the path as on the excerpt.
+This is tooling the repo ships for others to adopt; `SECURITY.md`'s disclosure path applies to the
+class, not urgently.
+
+**AT7 — minor.** The CI plane does not pin the diff the way the staged plane does.
+`report.STAGED_DIFF_CMD` pins `core.quotePath=false`, `diff.suppressBlankEmpty=false`,
+`diff.interHunkContext=0` and strips `GIT_DIFF_OPTS`; `scan_against` runs a bare `git diff
+--unified=0`. In a repo with `diff.interHunkContext=3` and `diff.suppressBlankEmpty=true`, or with
+`GIT_DIFF_OPTS=-u5` in the environment, the run ends in a `DiffReadError` traceback and exit 2:
+fail-closed, as the contract says, but a crash where the staged plane reads correctly.
+
+**AT8 — minor.** The landing commit damaged the CHANGELOG. `20e7fc35` inserted the attribscan entry
+between the heading `### Added (2026-11-10 — blockscan reads edits inside mapped sub-sections …)`
+and its body and re-dated the body's heading `2026-11-09`. At HEAD, line 280 is that empty
+2026-11-10 heading and line 307 its duplicate dated 2026-11-09 (V5: one entry, two dates). The
+attribscan entry itself sits in the 2026-11-09 block, which is its landing date.
+
+**AT9 — minor.** Two test gaps, found by mutating a scratch copy and running the 36 tests against
+it: disabling `_in_scope` on the against plane (every `.md` in the repo read, past the floor's
+scope) and dropping `--no-renames` both leave the suite green. Killed: sanitising, `WINDOW`, both
+sides of the date, the board-index skip, quote-in-code, the bare marker, tree-never-blocks,
+blockquote evidence, `transcript`, `--warn`, `ruled out`.
+
+**AT10 — minor.** The name grammar is ASCII-only. `_NAME_RULING_RX` is `[A-Z][a-z]+`:
+`Ngāio's ruling` and `Māori's directive` are not read, `Ngaio's ruling` is; `McDonald's ruling`
+is not. `CONVENTIONS.md` requires macrons on te reo Māori, and the test fixture spells the name
+without one.
+
+**AT11 — minor.** Generic senses of the words are findings (A4 damaged in part):
+`The court ruled`, `a ruled notebook`, `Monday's ruling`, `the Court's directive`,
+`Python's directive`, `he directed the film`, `he instructed the class` all fire; in the seeded
+sample 6 of 30 findings were generic, future (`await Mike's ruling round`, three times) or hedged
+(`may have been ruled`). About one finding in five on the flip date would be noise of this kind,
+and its remedy is the marker.
+
+**AT15 — minor.** An inline code span that wraps across a line break is mis-paired, and the
+example text inside it is read as prose. `_strip_code` works one line at a time; on a line whose
+first backtick closes a span opened on the line above, every pair shifts by one and the last
+span's text stays visible. Probe: the phrases of the grammar quoted in backticks as examples,
+wrapped once mid-span, 1 finding on `ruled`; the same text unwrapped, 0. Found when this verdict's
+own first draft warned three times on lines like these (since rewrapped). `allowmarker.
+blank_code_spans` has the same one-line limit by design; for attribscan the effect is a false
+finding on documentation of the grammar, which every README section about it will contain.
+
+**AT12 — note.** Symlinks. A tracked symlink under `docs/` to a file outside the repo makes the
+tree plane traceback (`relative_to` raises `ValueError`) and exit 2; a symlink to an in-repo
+non-Markdown file is read through as Markdown. `filewalk._git_walk` skips symlinked directories,
+not symlinked files.
+
+**AT13 — note — privacy, weighed.** The remedy line leads with "Quote him". `Mike's ruling` (PD4,
+his first name) is itself a phrase the name grammar reads, so the check fires most often on lines
+naming him and asks for his verbatim words beside his name in a public record. The citation and
+demotion routes carry no personal data, and the closed list already treats "his words, stored
+verbatim where cited" as house practice, so no new class of data is pushed. The remedy order could
+lead with the citation.
+
+**AT14 — note.** Wording and surfaces. `commit blocked` prints on the CI plane, where nothing is a
+commit; `--json` says `"clean": true` on a whole-tree run with findings (true by exit code, odd by
+the word); the evidence grammar is stated in full in the docstring and the README with no stamp
+(V4); the date appears in five prose places and one constant, consistent on 2026-11-15.
+
+### Decided and not raised
+
+Option injection through `--against` (every probe exit 2, no file written); pathological lines
+(1.3 s per MB at worst); CRLF; a file named `*.md` and a macron file name; `GIT_EXTERNAL_DIFF`
+(defeated by `--no-ext-diff`); the `decl 1/5` column (later work, `115/120`); the four-week date
+chain (consistent); the whole-tree `clean: true` beyond a note.
+
+### Owed ask (plain briefing, for the principal)
+
+🎯 **One decision:** does the 2027-02-08 flip to blocking stand as built? The check works as a
+warning now. On the flip date, as built, it would block some compliant records (long quotations,
+moved or split files), pass fabricated ones written in other words or beside any quote mark, and
+lose CI cover in any child that softens it.
+- **(a) Keep the date as built.** Accepts AT1–AT5 as known holes; children learn the marker.
+- **(b) Stay warn-only; re-date after AT1–AT5 are fixed and cold-reviewed.** *Recommended
+  (counsel).* Keeps his "warnings at first and then move to blocking action" in order, with a
+  gate worth having when it bites.
+- **(c) Whole-tree report only, no flip.** Keeps the measurement, drops the gate.
+
+### Follow-up checklist
+
+- [ ] The principal rules AT1–AT15 (rule 3; the author applies nothing on its own).
+- [ ] If (b): the fixes to AT1–AT5 land with their own cold pass (self-authored guard code), and
+      the date constant moves as part of that landing, not before.
+- [ ] AT6: a shared path renderer in `report.py`; sweep `leakscan`'s finding line; a path test.
+- [ ] AT8: repair the CHANGELOG headings (a current-truth file; fix in place).
+- [ ] AT9: a CI-plane scope test and a rename test.
+- [ ] Act 2 (`### Reconcile`) after the orchestrator releases the sibling.
+
+**Overall: FAIL — 1 MAJOR · 5 MODERATE · 6 minor · 3 note.** The warning phase and the date
+mechanism pass; the flip as built does not.
