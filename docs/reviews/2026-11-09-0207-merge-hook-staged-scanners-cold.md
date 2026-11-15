@@ -4,9 +4,11 @@
 doctrine by function, rule 3).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** BRIEF ONLY, not run. Written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5
-brief-writer. The pass is held for the principal's explicit approval of Fable work; this brief is
-not that approval.
+**Status:** RUN, act 1 appended 2026-11-15 UTC by a Fable 5.1 reviewer spawned by a headless
+Opus 5.5 orchestrator of drain session `21a271a5`, under the principal's weekly Fable drain order.
+PASS-WITH-FINDINGS, 0 MAJOR · 3 MODERATE · 3 minor · 4 notes. Act 2 (reconcile against the sibling
+the orchestrator holds, and the commit bodies) is pending. Brief written 2026-11-09 UTC by session
+`d4a0fcf3`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/998-rule-4-cold-pass-queued-merge-hook-and-staged-content-scanners.md`.
 **Size of this pass:** large: four commits across the hook plane, five scanners and `GUARDS.md`,
@@ -232,3 +234,251 @@ restated. Never revise act-1 text. Then fold the sibling in below the reconcile 
 
 The work is doctrine by function, so every finding is the principal's to decide (rule 3): record
 all, apply nothing. Counsel per finding is welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict (act 1) — 2026-11-15 UTC
+
+### Provenance
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), the principal-named review tier, checked at
+  selection. A fresh session started for this pass alone.
+- **How spawned:** by a headless Opus 5.5 orchestrator session, itself started by drain session
+  `21a271a5` (Opus 5.5) under the principal's weekly Fable drain order (`/fable-drain`,
+  2026-11-15T17:53Z). Both are rule-4 off-tier orchestrators, disclosed: they hold the context
+  partition, commit the records, form no finding and write no severity. Neither wrote the brief or
+  any of the delta. I was not started or instructed by `d4a0fcf3`, `74f2b8cd` or author session
+  `4c65083c`.
+- **Orchestrator direction, process only** (condensed from the spawn prompt; it carried no question
+  about the delta, no pointer to where risk lives, and no request to revise a finding): the item
+  and brief paths; my worktree; the finding prefix `HS`; "read the brief in full first and follow
+  it exactly"; the partition ("the `.deferred.md` sibling has been removed from the worktree on
+  purpose ... do not look for it in git history, other checkouts, scratchpads or tmp. It will be
+  released to you by message after act 1 is committed"); what I may write (this file and a review
+  log outside the repo); no commit, push or `git add`; read-only live systems; load rules (`nice`,
+  one suite at a time); public-repo wording rules; "do not ask questions; take sensible defaults
+  and record them"; and the act-1 / act-2 shape with the orchestrator doing the fold.
+- **Review worktree:** `/Users/mike/worktrees/fable/atelier-160-998-1937/atelier`, HEAD
+  `41c29978`; `git merge-base --is-ancestor 38bdcb1 HEAD` exit 0. The only working-tree change
+  is the sibling's deletion (the partition). Read-only to me except this file.
+- **Review log (open by design):** `~/.claude/fable-drain/notes/atelier-160-998-1937.md`, every
+  check, probe and mutation with its evidence.
+- **What I read:** this brief whole; `docs/method/REVIEW.md` whole; the four delta commits
+  body-free through `tools/coldsweep.py --commit` with the brief's `--path` list (exit 0 each;
+  board files left out); the per-file history since `38bdcb1` and the HEAD text of `tools/report.py`
+  (staged helpers), the five scanners' staged branches, `tools/floor.py` (Scanner, `_load_local`,
+  the runner, the hook entries), both hooks and samples, `tools/filewalk.py` lines 95–110,
+  `docs/method/GUARDS.md` § *Which commits the hook plane reaches*, `tools/README.md` (`local`,
+  the five scanners' sections), `docs/build/REPO-STANDARD.md` (grep), `CHANGELOG.md` lines
+  1665–1790, `.atelier-floor.json`, `tools/test_floor.py` lines 1487–1491; the brief's `coldsweep`
+  sweep (343 hits over 678 files, 742 barred files excluded) — its single-line hits included lines
+  of non-barred board items (`010/020`, `010/110`, `020/160`, `115/080`, `115/350`, `115/360`,
+  `260/110`, `320/050`, `320/060`, `320/290`, `320/340`, `320/440`, `320/630`, `320/790`), read no
+  further and none an account of this delta; the hook-plane floor run's output (no barred path
+  named). **Not opened:** `docs/SESSIONS.md`, `docs/sessions/`, any prior verdict, the sibling, the
+  barred board items, any delta commit's message body. The harness loaded user-level and repo
+  instruction files and a memory index that hold private context this verdict does not carry.
+  Tool versions: git 2.50.1 (Apple Git-155); `python3` first on `PATH` = CPython 3.14.6.
+- **`/security-review`:** NOT RUN, discharged by grounds: the delta is landed (nothing pending),
+  and the tree carries the sibling's deletion by design, so the scanner would read this brief.
+  The code-altitude read was done by hand (lens 4).
+
+### Load-bearing assumptions, named first and tested
+
+- **A1 — git runs a hook from the worktree root with the index the commit will carry in its
+  environment, and the scanners read that.** Confirmed. Probe G in a scratch child with the tracked
+  hooks and `hooks.atelierTools` pointing at this worktree's tools: `git commit -a` with a US
+  spelling only on disk (`GIT_INDEX_FILE=…/index.lock`) BLOCKED; `git commit -o docs/a.md`
+  (`next-index-*.lock`) BLOCKED; an unstaged draft beside a clean commit did NOT block. Probe I:
+  under a temporary index holding the defect, the shipped `spellscan --staged` exits 1.
+- **A2 — at `pre-merge-commit` the index is the merged result and `diff --cached` against HEAD
+  yields the other branch's lines.** Confirmed: a `--no-ff` merge of a `--no-verify` side branch
+  carrying a US spelling under `docs/` was BLOCKED by spellscan through the merge hook; HEAD
+  unmoved (probe G4). With the sibling `pre-commit` at mode 644 the merge was still scanned and
+  blocked (G5a); a plain `git commit` with a 644 `pre-commit` is skipped by git with a hint (X).
+- **A3 — the GUARDS table is a fact about git, measured.** Partly false: see HS1 (probe A).
+- **A4 — added-line filtering over a whole-file fence read is the right unit for the three line
+  scanners; the whole staged file is the right unit for `reviewscan` and `sizescan`.** Confirmed
+  by the delta's tests re-run and by the live probes; one edge noted (HS9).
+- **A5 — "what this commit is about to make true" is the index.** True for content, false for
+  policy: ignore globs are read from the working tree (probe E) — HS4.
+- **A6 — the five staged readers share the hardened plumbing the earlier-reviewed staged guards
+  have at HEAD.** False: HS2, HS3.
+- **A7 — the merge hook reaches every child.** It reaches new installs (`create-repo`,
+  `/atelier:install-hook`); an existing child copies it by hand and nothing reports one that has
+  not. The CHANGELOG says so plainly, so this is a follow-up, not a finding (see checklist).
+
+### Per-lens answers
+
+1. **Approach and assumptions.** Right problem, right altitude. A transport-only merge hook that
+   fails closed and hands over to the registry is the smallest shape that closes the clean-merge
+   gap; a `post-merge` warning could not refuse. Reading the index at the hook follows the `board`
+   rationale (`010/020`) and the brief's acceptance test. The non-goals fence off no risk. The
+   claims are mostly true; the one stamped "measured" is wrong in two cells (HS1).
+2. **Correctness and quality.** Every re-run line green (ledger). The staged read is correct on
+   the hook plane, including partial and `-a` commits. Two hand-run paths fail open (HS2, HS3);
+   neither reaches the hook, where git fixes the cwd and `--root`.
+3. **Completeness and harvest.** Mirror sites swept (V3). The hook-reach fact is restated in four
+   places (HS1). `filewalk.py` is stale (HS6). Four mutations of a scratch copy left the delta's
+   tests green (HS5). `floorfleet` does not report a child without the merge hook (disclosed).
+4. **Security and privacy.** Design altitude: the staged read narrows what the hook reads to the
+   commit's own content, a privacy gain; the merge hook adds no new trust (same `hooks.atelierTools`
+   class, trust note present). The one design weakness is policy read from disk (HS4). Code
+   altitude, by hand against the OWASP ASVS classes for a local tool: no shell anywhere (`argv`
+   lists in the hook's runner, `staged_blob`, `staged_paths`); paths come from git's `-z` output and
+   are used only as index specs and dict keys, and the `:0:` prefix neutralises a dash-leading
+   name; `local.run` is checked inside the repo lexically and resolved; reads are streamed and
+   bounded; the hook output prints offending lines as before (no new exposure); no personal data
+   handled. `/security-review` discharged above.
+
+### Standing checklist
+
+- **V1** — HS1 (a "measured" table wrong in two cells), HS4 (the index claim does not cover the
+  rules applied). "Fail closed" claims confirmed (G, X). "Net effect on a green child: none can
+  turn red" holds: what blocks now was CI-red before.
+- **V2** — re-run ledger below; every line reproduced.
+- **V3** — swept: CHANGELOG (three entries present and candid), `create-repo` SKILL, `install-hook`,
+  README, hook samples, GUARDS, REPO-STANDARD (`local` bullet at line 132). Stale: `filewalk.py`
+  (HS6).
+- **V4** — the hook-reach fact has four homes (HS1, counsel).
+- **V5** — HS2 and HS3 (the staged readers disagree at HEAD on cwd and pins); HS6. Cross-references
+  checked for the rule reached: README `local` → `floor.py` docstring § *The repo-local seam*
+  (holds it) and REPO-STANDARD (holds it); sample and README → GUARDS § (holds it).
+- **V6** — lens 4 above; `/security-review` discharged with grounds.
+- **V7** — provenance in the brief and repeated here.
+
+### Per-commit ledger
+
+| Commit | Read body-free | Findings |
+|---|---|---|
+| `b5e6ead` hooks: pre-merge-commit | yes | HS1 (sample header restates), HS5 (M3) |
+| `625f29a` docs: local seam | yes | none; claims re-driven: no shell, collision, missing, planes |
+| `7673da1` spellscan, wrapscan staged | yes | HS2, HS4, HS5 (M1) |
+| `38bdcb1` datescan, reviewscan, sizescan staged | yes | HS2, HS3, HS5 (M2, M4), HS6 (made stale) |
+
+### Findings
+
+**HS1 — MODERATE.** `GUARDS.md` § *Which commits the hook plane reaches*, stamped "Measured on git
+2.50.1", is wrong in two cells and silent on the route that most often lands unread commits. On
+git 2.50.1 (probe A, marker hooks, each re-verified with visible output): `git cherry-pick
+--continue` after a hand-resolved conflict RUNS `pre-commit` and can be refused; `git rebase -i`
+with `reword` RUNS `pre-commit`; `git rebase --continue` after a hand-resolved conflict does not
+(the table is right there); plain `cherry-pick`, `cherry-pick -e`, `revert` (with and without the
+editor) and a clean `rebase` do not. Not in the table at all: `git merge --ff-only` (and so
+`git pull`) and `git am` make or move onto commits no local plane read; `am` has `pre-applypatch`,
+which can refuse and which atelier does not ship. The section's purpose is to tell a designer
+where a hook-only check does not reach; the fast-forward omission is the material one. The same
+fact is restated in `tools/pre-merge-commit.sample`, `tools/README.md` § *Merges* and the
+CHANGELOG (V4). *Counsel:* correct the table from the probe (split the last row into
+`cherry-pick` / `revert` / `rebase` with the `--continue` and `reword` cells stated), add rows for
+`merge --ff` / `pull` and `am`, and make the sample and README point at the section instead of
+restating it.
+
+**HS2 — MODERATE.** The five `--staged` readers do not call `report.refuse_other_repo` (the QS3
+guard, `160/950`), which `secretscan`, `leakscan`, `conflictscan` and `attribscan` call at HEAD.
+Probe F, cwd in this worktree, `--root` a scratch repo with a staged US spelling / a record with no
+review line / a roadmap with a completed item: `spellscan`, `wrapscan`, `datescan`, `reviewscan`
+and `sizescan --check` all exit 0 "clean" (they read this cwd's empty index under the other
+repo's rules); `secretscan --staged --root <same>` exits 2 with the refusal. The hook plane is
+unaffected: git runs hooks from the top level and `--root` is that same directory. The brief's
+non-goal names `160/950` "except as it bears on HEAD"; this is that bearing (V5). *Counsel:* the
+one-line call the other four make, in each `--staged` branch, plus a test.
+
+**HS3 — MODERATE.** `report.staged_paths` (new in `38bdcb1`) lacks the pins `STAGED_DIFF_CMD`
+gained in `160/800` (`--no-relative`; `_diff_env()`), and filters `ACMR` where the diff reader
+filters `ACMRT`. Probe D with `diff.relative=true`: from the repo root both whole-file scanners
+block as they should; from a subdirectory, `reviewscan --staged` exits 0 ("not in scope … scanned
+nothing") over a staged record with NO review line, because git listed `decisions/…` relative to
+the cwd and `staged_kind` saw no `docs/` parent; `sizescan` exits 2 (`cat-file :0:ROADMAP.md`
+fails: fail closed); `spellscan`, whose reader is pinned, exits 1. The delta's own claim is "a
+failed read is a broken scan (exit 2), never an empty and therefore clean one"; reviewscan's path
+here is the empty-and-clean case. Hook plane unaffected (root cwd). *Counsel:* give `staged_paths`
+the same pins and env as `STAGED_DIFF_CMD` (one shared tuple), decide `T` deliberately, and add
+the subdirectory case to `test_reviewscan`.
+
+**HS4 — minor.** In `--staged` mode content comes from the index but exemption policy comes from
+the working tree: `load_ignore_globs(root)` reads `.spellscanignore` (and the siblings) from disk,
+and `.atelier-floor.json` is read from disk by the floor. Probe E: a staged US spelling under
+`docs/frozen/` exits 1 with no ignore file (E1); exits 0 with a reasoned `.spellscanignore` written
+on disk and left untracked (E2, "1 file(s) by .spellscanignore"), so the hook passes a commit that
+will not carry the file that exempted it and CI reds; with the ignore file staged but deleted from
+disk it exits 1 (E3). Class-wide (the earlier-reviewed guards read their ignore files from disk
+too) and recoverable at CI, but unstated: the delta's docstrings and README say the hook judges
+"what this commit is about to make true". *Counsel:* one sentence in `tools/README.md` naming the
+residual, or read the ignore file from the index when `--staged`.
+
+**HS5 — minor.** Four tests that stay green on a broken delta (scratch copies of `tools/`; each
+mutation shown live): **M1** `staged_blob` drops `GIT_INDEX_FILE` from its environment — the five
+`StagedPlane` classes (58 tests) pass, while under a temporary index holding the defect the mutant
+exits 0 and the original 1 (probe I); the delta's "inherits the environment on purpose" is
+load-bearing and untested, though probe G shows the hook path is right. **M2** `staged_paths`
+filters `ACM` (renames dropped) — `reviewscan`/`sizescan` `StagedPlane` pass; a `git mv` of a
+record with no review line into `docs/decisions/` (R100) passes the mutant, blocks the original.
+**M3** the merge hook `exec`s the sibling directly — `MergeHookTest` passes; live, a 644 sibling is
+refused either way (exit 1, HEAD unmoved), the shipped `sh` form with a scanner verdict and the
+mutant with a bare refusal, so the sample's rationale holds in direction and is untested. **M4**
+staged `sizescan` skips the `.sizescanignore` check for archive stores — `StagedPlane` passes; a
+staged `ROADMAP-DONE.md` with a live marker under a reasoned ignore glob: original 0 (suppressed
+1), tree mode 0, mutant 1. *Counsel:* one test per mutation; M1 is the one that guards a claim the
+delta makes.
+
+**HS6 — minor.** `tools/filewalk.py` lines 101–102: "The three boundary guards avoid this with
+`--staged`; the others do not." Stale at HEAD: the five content scanners (this delta), `attribscan`
+and `board` read the index too. A stated residual that is now wrong in its second half (V5).
+*Counsel:* "the hook-plane scanners that take `--staged` avoid this; `linkscan`, `pointerscan`,
+`pathscan`, `indexscan`, `pdlistscan` and `licenscan` read the tree."
+
+**HS7 — note.** In `--staged` mode the default scope is every staged Markdown file; in tree mode it
+is `docs/` when present. The floor passes `{scope}` so the planes agree at the hook; by hand they
+differ, as `--help` says. Recorded, not raised.
+
+**HS8 — note.** `sizescan` takes directory parts relative to the repo root in staged mode and to
+the walk base in tree mode, so under a narrow scope such as `docs/sessions` a `ROADMAP.md` there is
+skipped at the hook and judged on CI. The docstring names it. Recorded, not raised.
+
+**HS9 — note.** A file renamed into scope with small edits shows only its edited lines as added, so
+a defect it already carried passes the three line scanners at the hook and is CI's. Consistent
+with the delta's stated rule; recorded for the reader deciding what the hook covers.
+
+**HS10 — note.** The hook-plane floor run printed a `pathscan` warning on
+`docs/method/EVIDENCE.md:431` (a missing `docs/PRINCIPLES.md`), unrelated to this delta, and the
+coverage line "0 line(s) read — scanned nothing" for a header-only `sizescan` read appears in tree
+mode too (the `115/130` coverage line, out of scope). Neither is this delta's.
+
+### Overall
+
+**PASS-WITH-FINDINGS** — 0 MAJOR · 3 MODERATE (HS1, HS2, HS3) · 3 minor (HS4, HS5, HS6) · 4 notes
+(HS7–HS10). No finding touches the hook plane's live behaviour, which the probes confirm end to
+end; the MODERATE findings are a doctrine table stamped "measured" that is partly wrong, and two
+hand-run fail-open paths where the five readers lag the hardening the other staged guards received
+after this delta landed. All findings are the principal's to decide (rule 3); nothing applied.
+
+### Re-run ledger
+
+All from the worktree root unless stated, with the `python3` first on `PATH` (CPython 3.14.6),
+under `nice -n 10`, one at a time, exit codes read explicitly. `uptime` load 14.1 at start,
+4.4–10 during the runs.
+
+1. `cd tools && python3 -m unittest test_precommit` — Ran 30, OK, exit 0 (99.8 s).
+2. `python3 -m unittest discover -s tools -p test_spellscan.py` — OK, exit 0.
+3. `… -p test_wrapscan.py` — Ran 71, OK, exit 0.
+4. `… -p test_datescan.py` — Ran 100, OK, exit 0.
+5. `… -p test_reviewscan.py` — Ran 70, OK, exit 0.
+6. `… -p test_sizescan.py` — Ran 117, OK, exit 0.
+7. `python3 tools/floor.py --plane hook --root .` — exit 0; every check clean or not in scope,
+   one `pathscan` warning (HS10); no barred path named in its output.
+8. `nice -n 10 python3 -m unittest discover -s tools` — Ran 3134, OK, exit 0 (1148.9 s, two
+   other sessions' suites running alongside).
+
+### Follow-up checklist (for the principal's decision; nothing applied)
+
+- [ ] HS1: correct the GUARDS table from the probe; add the fast-forward / `pull` / `am` rows;
+      make the sample and README point at it.
+- [ ] HS2: `refuse_other_repo` in the five `--staged` branches, with a test.
+- [ ] HS3: pin `staged_paths` as `STAGED_DIFF_CMD` is pinned; decide `T`; subdirectory test.
+- [ ] HS4: state the disk-policy residual, or read ignore files from the index when staged.
+- [ ] HS5: four tests (M1 first).
+- [ ] HS6: one sentence in `filewalk.py`.
+- [ ] Follow-up, not a finding: `floorfleet` reporting a child whose hook plane lacks
+      `pre-merge-commit` (the CHANGELOG already names the gap).
+- [ ] Owed ask: none. Default taken: findings recorded only, per rule 3.
