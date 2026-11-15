@@ -355,7 +355,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: /atelier:queue-run reads the committed…](roadmap/160-doctrine-review-owed/1060-rule-4-cold-pass-queued-queue-run-reads-the-committed-prompt.md)
 - [~] ⏳ [Rule-4 cold pass queued: git resolves a staged scan's positional…](roadmap/160-doctrine-review-owed/1070-rule-4-cold-pass-queued-git-resolves-the-staged-scope.md)
 - [~] ⏳ [Rule-4 cold pass queued: G3 records who and when on every manifest…](roadmap/160-doctrine-review-owed/1080-rule-4-cold-pass-queued-g3-who-when-and-gate-order.md)
-- [ ] ⏳ [Rule-4 cold pass queued: a private repo's state goes by type in…](roadmap/160-doctrine-review-owed/1090-rule-4-cold-pass-queued-private-state-type-only.md)
+- [~] ⏳ [Rule-4 cold pass queued: a private repo's state goes by type in…](roadmap/160-doctrine-review-owed/1090-rule-4-cold-pass-queued-private-state-type-only.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the principal speaks through three channels…](roadmap/160-doctrine-review-owed/1100-rule-4-cold-pass-queued-three-channels.md)
 - [~] ⏳ [Rule-4 cold pass queued: the ladder gains a floor: framing always, a…](roadmap/160-doctrine-review-owed/1110-rule-4-cold-pass-queued-ladder-floor.md)
 - [ ] ⏳ [Rule-4 cold pass queued: personal data in a public repo is one closed…](roadmap/160-doctrine-review-owed/1120-rule-4-cold-pass-queued-personal-data-closed-list.md)
