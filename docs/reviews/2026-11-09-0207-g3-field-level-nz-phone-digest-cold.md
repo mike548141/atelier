@@ -4,9 +4,10 @@
 function, rule 3).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** BRIEF ONLY, not run. Written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5
-brief-writer. The pass is held for the principal's explicit approval of Fable work; this brief is
-not that approval.
+**Status:** ACT 1 WRITTEN, 2026-11-15 UTC: PASS-WITH-FINDINGS (0 MAJOR, 1 MODERATE, 3 minor, 4
+notes), by a Fable 5.1 reviewer under the principal's 2026-11-16 drain order; act 2 (reconcile
+with the sibling) pending. Brief written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus
+5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/990-rule-4-cold-pass-queued-g3-field-level-and-nz-phone-digest-guard.md`.
 **Size of this pass:** large: three commits, about 1,030 lines of binary-format parsing in a
@@ -216,3 +217,253 @@ restated. Never revise act-1 text. Then fold the sibling in below the reconcile 
 
 The work is doctrine by function, so every finding is the principal's to decide (rule 3): record
 all, apply nothing. Counsel per finding is welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict (act 1), 2026-11-15 UTC
+
+### Provenance
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), the principal-named tier, checked at selection.
+  Review worktree `/Users/mike/worktrees/fable/atelier-160-990-1955/atelier`, HEAD `3709c307`.
+- **Spawn:** started by a headless Opus 5.5 orchestrator session, itself started by drain
+  session `21a271a5` (Opus 5.5), under the principal's weekly Fable drain order of 2026-11-16
+  06:53 NZDT (`/fable-drain`). Both orchestrators are rule-4 off-tier orchestrators: they hold
+  the context partition, form no finding and write no severity. Neither wrote this brief or any
+  of the delta. I was not started or instructed by sessions `d4a0fcf3` or `74f2b8cd` (the
+  brief-writer and its coordinator) or by author session `4c65083c` or anything it started.
+- **Orchestrator direction received** (process only, summarised; no question about the delta,
+  no pointer to a risk): the item id, the worktree path, the brief path, the barred set (the
+  sibling removed from the worktree and not to be sought in history or elsewhere), the shape of
+  the deliverable (act 1 below a divider, prefix `GF`, column width, dates), the review-log
+  file I may write, no commit or push, load and live-system rules, and the release timing (the
+  sibling's path is sent after act 1 is committed).
+- **Partition:** the sibling `.deferred.md` is deleted in this worktree (`git status` shows the
+  deletion). I did not open it, look for it in git history, other checkouts or elsewhere, and I
+  did not open `docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`, any prior verdict,
+  any commit message body, or the two intent records beyond their first line. The session-log
+  step of the onramp was skipped (rule 2).
+- **What I read:** this brief whole; `docs/method/REVIEW.md` whole; `docs/method/GUARDS.md`
+  380–430; the three delta commits body-free through `coldsweep --commit`, scoped with `--path`
+  to the five delta paths (no board file named; `coldsweep` reported 2 board-store files left
+  out of `7bc0f87`); `tools/leakscan.py` at HEAD, the nz-phone rule and validators, the G3 block
+  comment and dates, the manifest grammar, every field reader and walker, `check_binary`,
+  `--binary-entries`, the renderers and the selftest; `tools/README.md` 350–585;
+  `CHANGELOG.md` 1723–1812; `tools/test_leakscan.py` 2561–3410 and the nz-phone test class;
+  board item `320/810` lines 70–85 and `320/850` line 14 (not barred; both reached by the
+  sweep). Three `coldsweep` sweeps, default exclusions plus the brief's three, no
+  `--include-barred`. The orchestrator's spawn prompt also carried the acceptance-test spans,
+  which I re-printed myself with the brief's command.
+- **Review log, open by design:** `~/.claude/fable-drain/notes/atelier-160-990-1955.md` holds
+  every check, probe and non-finding with its evidence, written as act 1 ran.
+- **Live systems:** none read, none written. **Child repos:** none read (0).
+- **Scratch:** synthetic fixtures and a mutated scratch copy of `tools/` under my scratchpad,
+  deleted at the end of act 1; no capture of real data was made.
+
+### Load-bearing assumptions, named first (lens 1)
+
+- **A1. A field's name is enough for the human to judge; the value is never needed in the
+  gate's output.** Confirmed as design and in behaviour: `test_no_value_reaches_any_output`
+  passes, and the only packet-controlled text in any output is a field *name* (an XMP local
+  name ≤ 64 characters, a PNG keyword ≤ 79 bytes percent-encoded), which is also run through
+  the text rules. Residual: a name is attacker-chosen text (GF8, note).
+- **A2. `<set>:unknown` is a fail-closed floor, not a hatch.** Half confirmed. It blocks until
+  named, so nothing passes silently. But naming it keeps the whole block whatever it holds, so
+  every legitimate shape the reader cannot walk becomes a reason for a child to write the one
+  wildcard the design refuses. One such legitimate shape found (GF3).
+- **A3. The dated flip is the principal's.** Damaged. The G3 grace date is his ("Firm", 160/980
+  GM7, quoted in the code); the type-level date is the author's pick, carried with the same
+  firmness and no attribution (GF1).
+- **A4. The manifest grammar is unambiguous: a token means one thing.** Damaged in one corner:
+  the bare `unknown` after a field is the `unknown` set (GF2).
+- **A5. The hex-digest guard skips only separator-free digit runs glued inside a
+  digest-length hex run.** Confirmed by probe at the boundary: 16 skipped, 15 flagged; a
+  spaced, dashed, `+64` or bracketed phone is never skipped (`isdigit` gate). The narrowing is
+  the author's pick of three options on a guard (GF7, note).
+- **A6. Every read is bounded.** Confirmed: IFDs ≤ 16, entries ≤ 1,024 and cut to the block,
+  IPTC datasets ≤ 4,096 and resources ≤ 1,024, XMP properties ≤ 1,024, one segment ≤ 1 MiB (64
+  KiB for JPEG), inflate capped, extended XMP total capped, fields per set ≤ 1,024. Memory for
+  the gathered `texts` of one file is bounded only by the file (pre-existing, GF8 note).
+
+### The acceptance test
+
+The two quoted spans were printed with the brief's command: fields "as in GPS versus the camera
+model", and one reason may cover several fields "e.g. fields A, B, and C allowed because of X".
+The design meets both: a line keeps `exif:Make,Model,LensModel` and the GPS tags beside them
+block, naming each (`test_the_camera_model_kept_blocks_the_gps_beside_it`); several fields of
+one or more sets sit under one reason on one line, or on several lines with their own reasons,
+and `gps` alone is refused. Whether a reason is *specific* stays the person's call, and the
+README says so. The remaining question is not whether the fields are read but who set the day
+the old whole-set lines stop working (GF1).
+
+### Per-lens answers
+
+1. **Approach & assumptions.** Right problem, right altitude: the gate names what the bytes
+   carry and makes the human keep it by name. The one design choice I would put back to the
+   principal is the dated flip (GF1): a warn-until-ruled posture, which this same README
+   already takes for the who/when warning, was available and is the house's default for an
+   agent's date. Fields as the unit is sound; the `unknown` field as a keepable name is the
+   honest fail-closed answer but it is also the hatch a legitimate legacy shape forces open
+   (GF3).
+2. **Correctness & quality.** Every claim in the brief's list re-drove true: names only, never
+   values; `<set>:unknown` blocks until named; the XMP skeleton, DOCTYPE, entity and 1,024
+   rules; the 2026-12-18 flip with no flag; the separator rule of the hex guard; the per-set
+   cap and the joined extended XMP. Overclaims found: the `inspect_media_fields` docstring
+   (GF4), the README's continuation-grammar sentence (GF2). Two edge shapes behave worse than
+   the text promises (GF3, GF6).
+3. **Completeness / harvest.** One home for the behaviour (`tools/README.md`) with a dated
+   CHANGELOG copy; no mirror in `docs/method`, skills or templates states the date, so V3/V4
+   hold. Tests are strong: of five mutations on a scratch copy, three were caught at once
+   (GPS pointer dropped, attribute-form XMP ignored, the grace never ending); two survived
+   (the hex floor lowered to 12, and `>` for `>=` at the floor), so the one number the guard
+   turns on is unpinned (GF5).
+4. **Security & privacy.** Design altitude: the gate collects nothing new; it prints names and
+   blocks on presence. Threats enumerated for the class (untrusted binary parsed in a hook):
+   entity expansion and external entities (DOCTYPE and entity declarations fail the packet,
+   parameter entities never parsed, bomb test present), decompression bombs (inflate capped),
+   unbounded counts and pointer loops (bounded, loop-tested), memory (per segment bounded; per
+   file not, pre-existing), output leakage (names only, test present). ASVS V5 input handling
+   and V12 file handling classes checked by hand. `/security-review` NOT RUN: it reads the
+   session's pending diff, which in this worktree is the removed sibling and then this brief
+   (the SL2 exposure); the delta is landed, not pending. Weighed as nothing; the hand read
+   stands in. Nothing MAJOR or MODERATE in this lens; GF8 is a note.
+
+### The standing checklist
+
+- **V1** No claim stronger than its evidence: GF4 (docstring says Exif and GPS "so far", a
+  3-tuple for a 4-tuple), GF2 (README's continuation sentence). The rest hold.
+- **V2** Re-run every recorded proof: the four lines re-run, ledger below; all green.
+- **V3** Swept to every mirror: one home plus CHANGELOG; the ADR `2026-10-03-0641` and items
+  `020/150`, `020/440`, `320/810` mention the field-level work and the date without restating
+  the rule. Clean.
+- **V4** One fact, one home: `TYPE_LEVEL_UNTIL` is one constant, read by one predicate; the
+  README prints it once. Clean.
+- **V5** No internal contradiction: README, CHANGELOG and code agree on "strictly before keeps,
+  from the day blocks". One governance contradiction inside the README (GF1: the who/when
+  warning's block date is "Mike's to rule"; the type-level block date is the author's). The
+  cross-reference to `GUARDS.md` reached the rule it names (mandate or default dates).
+- **V6** Security and privacy: lens 4 above; scanner discharged with grounds.
+- **V7** Provenance stated in the brief and repeated above.
+
+### Per-commit ledger
+
+| Commit | Read body-free | Findings |
+|---|---|---|
+| `7bc0f87` nz-phone hex-digest guard | yes (`coldsweep --commit`, 124 lines) | GF5, GF7 |
+| `2ba261b` Exif and GPS fields, part 1 | yes (1,335 lines) | GF1, GF2, GF4, GF6 |
+| `1297df4` IPTC, XMP and PNG text, part 2 | yes (1,357 lines) | GF2, GF3, GF8 |
+
+Since the delta, about 50 commits touched the four tool paths (93 with `CHANGELOG.md`); the
+ones that bear on it at HEAD are `e269f594`
+(the 160/980 application: provenance, raw XMP read, gate before the ignore file; a non-goal,
+read only where `check_binary` meets it) and `57719bfa` (the sibling byte-field guard beside
+`_phone_inside_hex_digest`). Neither changes a finding below.
+
+### Findings
+
+**GF1 — MODERATE.** *The type-level cut-off, 2026-12-18, is an agent's date carried as a
+mandate, with no surface saying whose it is.* `TYPE_LEVEL_UNTIL` blocks every child's
+whole-set `exif`, `iptc`, `xmp` and `png-text` lines from that day. The code comment says "Like
+the grace it is one constant ... no flag, env var or config key to move it", the README "no flag
+or setting moves the date", the CHANGELOG "a month after the G3 grace ends ... with no flag or
+setting to move it". The grace date beside it is the principal's, quoted ("Firm; queue fixes
+now", 160/980 GM7); this one has no word of his behind it on any surface a child reads, and
+`GUARDS.md` § *Who may move a deferment's date* says an unlabelled fleet date reads as a
+mandate, the strictest kind. The same README, twelve lines up, takes the opposite posture for
+the who/when warning: *"No date turns that warning into a block: whether and when it should is
+Mike's to rule."* Board item `320/810` already names the pattern for later flips ("the dates
+are the run's choice, not his") and lists 2026-12-18 among the existing ones. Rule 3: a
+blocking date in a guard is doctrine by function and his to decide.
+*Counsel:* put the date to him with the two live options (confirm 2026-12-18 as a mandate, or
+warn-only until he rules, as the who/when warning does); record who and what kind on the
+constant's comment, the README and the CHANGELOG; the fix is one line in each once he has
+spoken. Possibly answered in the barred records; reconciled in act 2.
+
+**GF2 — minor.** *The continuation grammar has one ambiguous token.* README 436–437: "After one
+`set:Field`, bare names continue the same set". Probe: `parse_scope("exif:Model,unknown")`
+returns `['exif:Model', 'unknown']`, the whole `unknown` *set*, because `tok in METADATA_SETS`
+is tested before the continuation branch, and `unknown` is the one name that is both a set and
+a field of every read set. The same holds for `iptc:City,unknown`. It fails closed later (the
+`unknown` line is stale and `exif:unknown` is still unkept, two findings), so nothing passes,
+but a child following the README's rule is sent round a loop the text does not explain.
+*Counsel:* in `parse_scope`, when `cur` is set and the token is `unknown`, read it as
+`<cur>:unknown`, or refuse it as ambiguous and ask for the full spelling; one test.
+
+**GF3 — minor.** *A legitimate legacy XMP root reads as the wildcard.* Probe: a packet whose
+root is `x:xapmeta` (the older Adobe spelling, which as I recall the XMP specification part 1
+asks readers to accept beside `x:xmpmeta`; verify before fixing) returns `['xmp:unknown']`
+while the same packet under `x:xmpmeta` returns its fields. A child with such a file can keep
+it only by naming `xmp:unknown`, which keeps the whole packet, GPS properties included, under
+one name: the whole-set keep the delta exists to end, reached through a shape the format
+allows. The text rules still scan the packet's values, so a bare phone or email in it is
+caught; a GPS coordinate is not. NUL-padded packets also read as unknown (padding is meant to
+be whitespace, so that one is defensible).
+*Counsel:* accept `(adobe:ns:meta/, xapmeta)` as a second root role; one line and one test.
+
+**GF4 — minor.** *A docstring overclaims by omission.* `inspect_media_fields` (leakscan.py
+2295–2303) still says `fields` is "(Exif and GPS so far, 020/450)" and that the function
+returns "`(None, [], [])` for anything else"; it returns a 4-tuple and reads IPTC, XMP and PNG
+text since part 2. The README and CHANGELOG are right; the code's own account lags.
+
+**GF5 — note.** *The hex guard's one number is unpinned by its tests.* On a scratch copy,
+`_HEX_RUN_MIN = 12` and `>` for `>=` both left `PhoneInsideHexDigest` green (the fixtures are a
+64-character digest, a 43-character run and an 11-character run). The boundary holds at HEAD
+(my probe: a 16-character run is skipped, 15 flags), so this is coverage, not behaviour.
+*Counsel:* one 15/16 pair of assertions.
+
+**GF6 — note.** *A type-level line over an Exif block with no entries has a remedy nobody
+prints.* Probe: before the date the warning says "it carries no fields"; from the date the block
+says "name its fields: it carries none"; `--binary-entries` prints nothing for the file. The
+file is clean with the set line deleted (control: exit 0), and no message says to delete it.
+Rare shape (most strippers remove the segment), fails closed.
+
+**GF7 — note.** *A privacy guard's reach was narrowed on the author's pick.* `320/470` offered
+three options with no principal ruling; the delta took option 1. The narrowing is tight (a
+separator-free 9–10-digit run glued inside a 16+ hex run) and the false positive it ends is
+real, so I would not hold it; under rule 3 it is still his call, and a one-line confirmation
+closes it. Possibly answered in the barred records; reconciled in act 2.
+
+**GF8 — note (lens 4).** *Names come from the packet, and per-file memory is unbounded.* An XMP
+prefix bound to two URIs in two `rdf:Description` elements yields two properties spelled with
+one prefix (`xmp:q:Thing`, `xmp:q:Other`); a packet that binds `dc` to a foreign URI yields an
+`xmp:dc:creator` a line meant for Dublin Core would keep. No privilege is gained (the committer
+controls both the packet and the line) and the values are scanned regardless. The `texts`
+gathered for one file grow with its text segments (a JPEG of thousands of 64 KiB XMP segments
+holds them all before scanning); 160/980 GM14 named the walker's time, this is its space.
+Pre-existing, disclosed here so nobody infers a bound that is not there.
+
+### Overall
+
+**PASS-WITH-FINDINGS** — 0 MAJOR · 1 MODERATE (GF1) · 3 minor (GF2, GF3, GF4) · 4 notes
+(GF5–GF8). The field-level reader does what it says, names only, fails closed everywhere I
+pushed it, and its tests catch the breaks that matter. The one thing owed is a ruling, not a
+fix: whose date 2026-12-18 is.
+
+### Re-run ledger (2026-11-15 UTC, worktree root, `python3` first on PATH)
+
+Each line is the brief's, run as written; the first two are abbreviated here to fit.
+
+| Line | Result |
+|---|---|
+| `... discover -s tools -p test_leakscan.py` (under `nice -n 10`) | exit 0, Ran 422 tests, OK |
+| `... discover -s tools -p test_report.py` (under `nice -n 10`) | exit 0, Ran 110 tests, OK |
+| `python3 tools/leakscan.py --selftest` | exit 0, "selftest OK" |
+| `nice -n 10 python3 -m unittest discover -s tools` | exit 0, Ran 3134 tests in 1118 s, OK |
+| `python3 tools/datescan.py <this brief>` | run after act 1 was written; result in the review log |
+
+Load at start 9.89 (1 min), several reviews running; every suite ran one at a time, single
+process.
+
+### Follow-up checklist
+
+- [ ] GF1: the principal rules on 2026-12-18 (mandate as built, or warn-only until he rules);
+      record who and what kind on the constant, README and CHANGELOG.
+- [ ] GF2: `parse_scope` reads or refuses a bare `unknown` after a field; test.
+- [ ] GF3: verify the spec's word on `x:xapmeta`; if confirmed, accept it as a root; test.
+- [ ] GF4: fix the `inspect_media_fields` docstring.
+- [ ] GF5: pin the hex floor with a 15/16 pair.
+- [ ] GF6: the empty-set message says "delete the line"; `--binary-entries` notes it.
+- [ ] GF7: one-line confirmation of the nz-phone narrowing.
+- [ ] GF8: no action; recorded.
+- [ ] Act 2: reconcile against the sibling and the barred records; the orchestrator folds the
+      sibling and commits.
