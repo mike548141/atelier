@@ -3,8 +3,8 @@
 **Pass type:** doctrine cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** BRIEF WRITTEN 2026-11-09 UTC. The pass has NOT run and waits for the principal's
-explicit approval for Fable work.
+**Status:** ACT 1 WRITTEN 2026-11-15 UTC — PASS-WITH-FINDINGS (0 MAJOR · 1 MODERATE · 3 minor ·
+2 note, HU1–HU6). Act 2 (reconcile) waits on the sibling's release after act 1 is committed.
 **Sizing:** **small** — one commit, about 50 lines of doctrine across three surfaces and one stamped
 copy.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1050-rule-4-cold-pass-queued-report-up-privacy-clause.md`.
@@ -203,3 +203,257 @@ act-1 text. Then fold the sibling in below the reconcile and delete it.
 
 Every finding is the principal's to decide (rule 3): record all, apply nothing. Counsel per finding
 is welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict — act 1 (2026-11-15 UTC)
+
+**Overall: PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE · 3 minor · 2 note** (HU1–HU6).
+
+### Provenance (V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), tier checked at selection. Run on 2026-11-15 UTC
+  from worktree `atelier-160-1050-2217` (read-only to me except this file), HEAD `f24bbaf9`, which
+  carries `94df4aad` (`merge-base --is-ancestor` exit 0).
+- **Spawn:** started by headless orchestrator session `9ec596e5` (Opus 5.5), itself started by
+  drain session `21a271a5` (Opus 5.5) under the principal's `/fable-drain` order of 2026-11-16
+  06:53 NZDT (2026-11-15 17:53 UTC), the approval this brief waited for. Both are rule-4 off-tier
+  orchestrators: they hold the context partition, form no finding and write no severity. Neither
+  wrote the brief or the delta. Neither barred session (`722ac2e2` and what it started, `84e3aa7f`,
+  `74f2b8cd`) started or instructed me, and no contact with any of them occurred.
+- **Spawn prompt, in substance (process only):** my identity and item; the worktree path and the
+  no-`cd`, absolute-path rule; the brief's path and an order to read it first and follow it;
+  `REVIEW.md` for the verdict shape; the partition (the `.deferred.md` sibling removed from the
+  worktree, its path released after act 1 is committed, no search for it elsewhere); a running
+  work log at a user-local path, appended to the review at the fold; what I may write (this file
+  and that log); no git command that writes, the orchestrator commits; read-only live reads
+  allowed, no live writes; scratch under the session scratchpad; load rules (`uptime`, `nice`,
+  one heavy process at a time); the public-repo rules (session ids only, no private repo name or
+  path, a child by type only); and the act-1 / act-2 stop points. It carried no question about
+  the delta, no pointer to where the risk lives, and no request about any finding.
+- **Barred-set choice:** the brief's list, unchanged: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`,
+  `docs/sessions/`, every prior verdict in `docs/reviews/`, the queue pointer `160/1050`, the
+  sibling, every delta commit's message body, and the intent record `160/300` beyond its title.
+  Every tree sweep ran through `tools/coldsweep.py` with both board items added by
+  `--also-exclude`; `--include-barred` was not used. Both landing commits were read with
+  `coldsweep --commit`, scoped by `--path` to the four delta paths; no board file was shown.
+- **Exposure, disclosed:** the harness loaded the user-level instruction file and a memory index
+  that hold private context and one line about two other passes' owed rulings; nothing in them
+  concerns this delta. The harness also showed the worktree's `git status` and five recent commit
+  subjects (claims and another pass's fold), none an account of this delta. I skipped the
+  session-log step of the read order (rule 2). I read `CLAUDE.md` whole at HEAD: it is a delta
+  surface, and reading the delta is never barred.
+- **Method trail:** every command, file range and result is in the work log the orchestrator
+  folds in below the reconcile (`REVIEW.md` § *The lifecycle*, the principal's ruling of
+  2026-11-15 UTC on method). The summary here is enough to repeat each check.
+- **Interrupted and resumed, disclosed:** the weekly usage limit cut this session off at about
+  2026-11-15T22:30Z, after the act-1 text above was written to this file and before its Status
+  line and scanner runs. On the principal's word (*"resume to finish everything that was partly
+  done i.e. in-progress"*) the same session resumed at 2026-11-15T23:54Z, re-read its own log,
+  and finished act 1: no finding or severity was formed or changed after the resume. The sibling
+  stayed unopened throughout.
+
+### What I examined, and how
+
+- The delta `94df4aad` body-free (subject, stat, diff; 4 files, +49/−14); its successor
+  `6bea4d10` body-free, scoped the same way (1 file, +4/−4); the later `160/300` application
+  `3312cdbd` body-free, scoped the same way, because it edits the sections the delta edits.
+- Each delta path at HEAD: `PROPAGATION.md` lines 115–229 (the floor region and stamp mechanics),
+  329–374 (bundled variant) and 475–864 (§ *Pointing up* whole);
+  `docs/build/templates/CLAUDE.md` 85–105; `CLAUDE.md` 36–75; the changelog entry at
+  1437–1458, diffed against its text in
+  `94df4aad` (identical).
+- The sites the clause points at or depends on: `docs/roadmap/README.md` whole, the section `320`
+  README (1–25) and its newest item's head, `RECORD.md` § *The record is public*,
+  `tools/README.md` § `namescan`, `tools/blockscan_map.json` 48–66, `tools/pins.py` docstring,
+  `--help` of
+  `coldsweep`, `stampscan`, `wrapscan`, `pins`.
+- Live, read-only: `gh run list --commit` for both landing commits; `gh pr list --state open`
+  with the fields `number,title,headRefName,createdAt`; the two open PR bodies grepped for the
+  hand-up words (counts only); the visibility of two child repos whose names sit in pre-clause
+  index lines.
+- Not examined, and why: the sibling, the pointer, the intent record's body, prior verdicts and
+  the session records (barred until act 2); any child repo's tree (none is in this worktree, and
+  the clause reaches a child only through its own pin bump — see HU2); the delta commits'
+  message bodies.
+
+### Lens 1 — approach and assumptions (named first, then probed)
+
+- **A1 — a session in a child can tell that its repo is private.** Confirmed: the floor carries
+  the repo's own visibility fact (`PROPAGATION.md` 220–221), so the clause's trigger is a fact the
+  reader already holds, not something it must infer.
+- **A2 — the floor is the text that binds where nothing else of atelier is read.** Confirmed by
+  design (119–121) and by `stampscan`: the template's copy is identical to the region (105 lines).
+  The right altitude: the harm the clause prevents is one-way and lands on the child, and the
+  floor is the one place a child session is guaranteed to read before it pushes anything.
+- **A3 — the surfaces the floor enumerates are the surfaces a hand-up publishes.** Damaged: the
+  commit message body is published on push and is not in the list (HU1).
+- **A4 — children receive the clause at their next pin bump, and a stale copy reds.** Mechanism
+  confirmed in `tools/pins.py` (the floor-copy report, `160/340`), but not as the changelog
+  describes it (HU2).
+- **A5 — the clause's substance predates the delta in § *The route* rule 2.** Confirmed
+  (641–660, the principal's ruling of 2026-09-19). The floor is a narrowing-free summary of it:
+  it drops rule
+  2's escape (a class that cannot be stated without specifics goes to the private estate root,
+  644–645) but says it is a lossy summary and points at the section (194–195, 203). No finding.
+- **A6 — "add privacy line now" is an answer to options, not a ruling in his words.** The
+  changelog records it as his choice, not his ruling. Correct as written.
+
+### Lens 2 — correctness and quality
+
+- The floor bullet, the stamped copy and atelier's `CLAUDE.md` carry the clause (94df4aad diff;
+  HEAD 197–203, template 97–103, `CLAUDE.md` 71–75). RU8 (539–541: the first nine of section
+  `320`, which holds 87 items), RU9 (§ *The duty* names section `320`) and RU10 (step 1 points at
+  `docs/roadmap/README.md`) are each present at HEAD as the changelog says.
+- Overclaims: one, in the changelog's mechanism sentence (HU2). The delta's wrap slip (a
+  102-column line in the RU8 sentence) passed `wrapscan` (limit 85, "materially over", and it
+  reported clean on the `94df4aad` copy) and was rewrapped by the next commit (HU4).
+- The cross-references reach their rules: the floor's "§ *Pointing up*" reaches the section that
+  holds the route (475); `CLAUDE.md`'s "§ *The route*, rule 2" reaches the rule (641). Step 1's
+  pointer reaches the format and rebuild rules but not a numbering rule (HU5).
+
+### Lens 3 — completeness and harvest
+
+- Mirror sites swept (`coldsweep`, barred set plus both board items excluded): the clause's words
+  appear only in the floor region, the stamped copy, atelier's `CLAUDE.md`, § *The route* and
+  § *Report without harming the parent*, and the changelog. No copy lives in `skills/`,
+  `docs/build/REPO-*.md` or the bundled-mode variant (which inherits the bullet by construction,
+  359–360). `tools/blockscan_map.json` anchors the bullet on its bold lead, which the delta did
+  not change, and maps it to § *Pointing up*; still correct.
+- Three wordings now exist: the canonical floor region, its stamped copy (watched) and atelier's
+  own `CLAUDE.md` sentence (unwatched, and addressed to the wrong actor — HU3).
+- What the delta did not cover and the brief names a non-goal: a guard. For the record, atelier
+  has since grown `namescan` (branch name and commit title, message plane, warning until
+  2027-05-03) and `leakscan --messages`; § *Report without harming the parent* at HEAD (797–800)
+  still says the lint "is not built". Both are term-list guards in atelier's own tree and reach a
+  shape-1 filer's commit through atelier's hooks only; neither reads a child's tree. Not a finding
+  on this delta; the stale "not built" is the application `3312cdbd`'s text, noted for its own
+  pass.
+
+### Lens 4 — security and privacy (the delta is a privacy control)
+
+The surfaces a hand-up creates, traced against the clause as the floor states it:
+
+| Surface | Published on push? | Named by the floor clause | Named elsewhere |
+|---|---|---|---|
+| Branch name | yes | yes | § Report w/o harming, rule 1 |
+| Commit subject | yes | yes | § Report w/o harming, rule 2 |
+| **Commit message body** | **yes** | **no** | not named anywhere (HU1) |
+| Commit author identity | yes | no | the published identity; `PERSONAL-DATA.md` |
+| PR title | yes (on open) | yes | § Report w/o harming, rule 2 |
+| PR body | yes (on open) | yes | § Report w/o harming, rule 2 |
+| PR comments | yes | no | none; no hand-up seen carrying one |
+| Item file name (slug), index line | yes | "item", read widely | index generated from the item |
+| Item body | yes | yes | § The route rule 2 |
+| CI log of the floor run on the PR | yes | no | derived from the item's content |
+| Parent's merge commit, PR note | yes | no (not the filing's) | `RECORD.md` § *Record is public* |
+| Child's own record, `Pending upstream:` line | no | — | private tree |
+
+Every surface except the commit body is either named by the clause, derived from a named surface,
+or owned by a rule that already reaches it. Live state: the two open hand-up PRs (#135, #136) carry
+`report-<subject>-<HHMM>` heads with no repo token and a body that says hand-up; the twelve most
+recent merge subjects on `main` say "land hand-up #n" and name no child. Two pre-clause index lines
+(items `320/280`, `320/710`) carry a child repo's token in a title or file name; both repos are
+public (checked live), which the rule allows. `/security-review`: discharged — a landed-delta
+review of Markdown, which the scanner's exclusions bar, so its clean pass would weigh as nothing;
+and the
+worktree is not clean (the sibling shows as deleted), so it was not aimed. Information-exposure
+class checked against CWE-200's shape (exposure through a published channel the author did not
+count as output): that is exactly HU1's commit-body gap.
+
+### Findings
+
+- **HU1 — MODERATE. The floor's surface list is closed and omits the commit message body.** The
+  floor says "on the branch, PR title, commit subject, PR body or item" (`PROPAGATION.md` 199–200;
+  template 102–103). A commit body is published the moment the branch is pushed, and the house's
+  own convention asks for a "why-dense body" (`CLAUDE.md` § Conventions), which is where a filer
+  writes the incident — the host, the client, the path. The canonical rule frames its list as
+  "every surface the filing creates" (647) and atelier's own `CLAUDE.md` copy keeps that frame
+  ("on any surface the filing creates (…)", 73–74); the floor copy, the one text a child reads,
+  drops the frame and keeps only the list. § *Report without harming the parent* (750–756) names
+  the first line of the commit and never the body. A child already filed that no scanner read a
+  commit body (`320/550`); `leakscan --messages` and `namescan` now do, by term list, in atelier's
+  hooks. *Counsel:* restore the frame in the floor and make the body explicit — "on every surface
+  the filing creates: the branch, the commit message, the PR title and body, the item" — so the
+  list reads as examples, not a fence; the stamped copy follows at the next pin bump.
+- **HU2 — minor (V1). The changelog's mechanism sentence names the wrong tool and a response not
+  yet in force.** "Children pick it up at their next pin bump, where `stampscan` reds a stale
+  copy" (1449–1450). `stampscan` cannot run in a child: it cannot resolve a child's `source=`
+  (ST3, 270–271). What compares a child's copy is `tools/pins.py`, from atelier, against the
+  floor *as it stood at the child's pin*, and it is report-only until 2026-12-09 (271–279;
+  `pins.py` docstring). Two consequences the sentence hides: nothing in a child reds; and a child
+  that never bumps compares clean at its own pin, so the clause reaches it only when it chooses to
+  bump. *Counsel:* "`tools/pins.py` reports a copy that differs from the floor at its pin, and
+  fails the fleet check from 2026-12-09."
+- **HU3 — minor (V4, V5). atelier's `CLAUDE.md` sentence binds an actor who is not its reader.**
+  The sentence (71–75) sits in the bullet about atelier reporting *its own* problems — atelier
+  is public and may name itself — and speaks of "the reporter" of "a report from a private repo",
+  which no reader of atelier's onramp is. The actor that onramp should bind is the atelier
+  session that files on a private child's behalf by shape 2 (619–625) or lands a hand-up
+  (read-order step 6; the merge check at 791–800), and neither duty is stated there; step 6
+  reaches the merge check by pointer only. The result is a third, unstamped wording addressed to
+  nobody present. *Counsel:* reword to the atelier session — "when this repo files or lands a
+  private child's report, it carries the class only and names no private repo on any surface" —
+  or drop the sentence and let step 6's pointer carry it.
+- **HU4 — minor. The delta is two commits, and the first shipped a line over the house width.**
+  `94df4aad` left the RU8 sentence at 102 columns (`PROPAGATION.md` line 529 at that commit); the
+  next commit, `6bea4d10` (the pointer's landing), rewrapped it (+4/−4 in `PROPAGATION.md`). The
+  brief and its sizing say "one commit". `wrapscan` passed the `94df4aad` copy (limit 85,
+  "materially over"), so no floor break, and no CI run exists for `94df4aad` alone (pushed with
+  `6bea4d10`, whose floor run succeeded 2026-11-08T11:31Z). `docs/roadmap/README.md` (AW6) says a
+  later commit touching a queued delta's surfaces widens the pointer's delta list. Whether the
+  pointer names `6bea4d10` is barred until act 2. *Counsel:* act 2 checks the pointer; if it names
+  `94df4aad` alone, widen it.
+- **HU5 — note (V5). Step 1's pointer promises a numbering rule the README does not hold.** RU10
+  made step 1 say the README holds the board's "format, numbering and rebuild step" (604–605). The
+  README holds the file-name shape `<NNN>-<section>/<NNN>-<slug>.md` and the rebuild
+  (`board.py --rebuild`, `--rebuild --from-index`), and no allocation rule; the only text a filer
+  meets on choosing a number is § *Report without harming the parent* (808–812, "next free
+  number"). *Counsel:* say "format and rebuild step", or add the allocation line to the README.
+- **HU6 — note (V5). § *The duty* sends atelier's own findings to a section whose name and README
+  say "child-filed".** RU9's text (539–541) says section `320` takes findings "whoever found
+  them"; the directory is `320-child-filed-findings-via-pointing-up` and its README's second
+  paragraph keeps the items together *because a child filed them* and calls that evidence about
+  the route. atelier's self-reports filed there dilute the section's stated purpose. *Counsel:*
+  widen the README's purpose line, or name a different home for atelier's own.
+
+### The standing checklist
+
+- **V1** — HU2; otherwise the changelog's claims re-drive (RU8–RU10 present; copies carry the
+  clause; the earlier verdict's path exists as a file name, content barred).
+- **V2** — re-run ledger below; the one recorded CI success (`6bea4d10`) read live.
+- **V3** — swept (lens 3): three sites carry the clause and the stamped copy is identical; no
+  further mirror found in skills, templates or the bundled variant.
+- **V4** — one canonical home (§ *The route* rule 2) with the floor as its stamped summary; the
+  `CLAUDE.md` sentence is an unwatched third wording (HU3).
+- **V5** — HU5, HU6; the two cross-references in the delta reach the rules they name (lens 2).
+- **V6** — lens 4 walked surface by surface; `/security-review` discharged with grounds.
+- **V7** — stated above, in the brief and here.
+
+### Per-commit ledger
+
+| Commit | Body-free | `--path` scope | Findings |
+|---|---|---|---|
+| `94df4aad` (the delta) | yes | 4 delta paths | HU1, HU2, HU3, HU5, HU6 |
+| `6bea4d10` (pointer landing, rewrap) | yes | 4 paths, 1 matched; 3 board files left out | HU4 |
+| `3312cdbd` (later `160/300` application) | yes | 4 paths, 3 matched | none; see lens 3 |
+
+### Re-run ledger (2026-11-15 UTC, from the worktree root, `python3` 3.14.6, `nice -n 10`)
+
+| Line | Result |
+|---|---|
+| `floor.py --plane hook --root .` | exit 0; every enforced check ✅; `attribscan` read 0 files |
+| `floor.py --plane ci --root .` | exit 0; `secretscan` 28, `leakscan` 3 advisory; 🟡 0/21 declared |
+| `stampscan.py --root . .` | exit 0; 1 block verified, template line 18 identical to `floor` |
+| `gh run list --commit <sha>` | `94df4aad`: no run; `6bea4d10`: `floor` success 2026-11-08T11:31Z |
+
+### Follow-up checklist (each the principal's to decide; nothing applied)
+
+- [ ] HU1 — open the floor's frame and name the commit message (one stamped-copy bump follows).
+- [ ] HU2 — correct the changelog's mechanism sentence.
+- [ ] HU3 — reword or drop atelier's `CLAUDE.md` sentence.
+- [ ] HU4 — act 2 checks the pointer's delta list for `6bea4d10`.
+- [ ] HU5 — "format and rebuild step", or a numbering line in the README.
+- [ ] HU6 — widen section `320`'s purpose line, or name another home.
+- [ ] Not a finding here, for `3312cdbd`'s own pass: § *Report without harming the parent* says the
+      branch-and-title lint "is not built"; `namescan` exists since.
