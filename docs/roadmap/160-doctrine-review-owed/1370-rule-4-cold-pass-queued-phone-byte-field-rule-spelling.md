@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `nz-phone` passes a bracketed byte field (`320/850`), and `secretscan`'s assigned rule takes both spellings (`320/840`).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: `nz-phone` passes a bracketed byte field (`320/850`), and `secretscan`'s assigned rule takes both spellings (`320/840`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -28,3 +28,27 @@
       is committed. The 30-checkout fleet re-run is NOT RUN: no child checkouts
       are supplied. The item's "waits for the principal's explicit permission
       for Fable work" is met by that drain order.
+      ✅ PASS RAN 2026-11-15 UTC (acts 1 and 2 on Fable 5.1, under a headless Opus 5.5
+      orchestrator started by drain session 21a271a5, which formed no finding):
+      **PASS-WITH-FINDINGS, 0 MAJOR · 1 MODERATE · 4 minor · 5 note (YB1–YB10;
+      YB9 and YB10 formed at reconcile).** No MAJOR stands: no real number or
+      credential line was found to pass that should not. Verdict and folded
+      sibling: `docs/reviews/2026-11-14-0229-phone-byte-field-assigned-rule-spelling-cold.md`.
+      The 30-checkout fleet re-run was NOT RUN (no child checkouts supplied).
+      🎯 **Mike's to rule (rule 3), plain words:**
+      - **YB2 (MODERATE):** the new byte-field rule drops phone-shaped matches
+        without counting them anywhere, so "no phones found" and "forty waved
+        through" print the same. Options: (a) count validator drops per rule
+        in the scan's output, or (b) record once that shape checks like this
+        are part of a rule's definition, not an allowance, so need no count.
+        Recommended: (a), a small change that keeps every suppression visible;
+        the same question then applies to the digest guard (`160/990`).
+      - **YB9 (note):** a narrower fix existed (the short spelling only in
+        `--disable`); no child uses the short marker, so keeping both
+        spellings is a choice, not a defect. Recommended: keep as built.
+      - **YB1, YB3–YB5 (minor):** changelog wording on the fleet proof and the
+        ten-digit case, a case mismatch that fails closed, two docstring
+        sentences, two missing tests. Recommended: approve as one small fix
+        item. YB6–YB8 and YB10 are notes; no action needed.
+      Routing: fixes go to a fresh session, never the authoring session
+      d0ca5d24 or what it started (rule 4).

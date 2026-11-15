@@ -1,10 +1,12 @@
 # Cold pass — `nz-phone` passes a bracketed byte field, and secretscan's assigned-value rule takes two spellings
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1370-rule-4-cold-pass-queued-phone-byte-field-rule-spelling.md`
-**Status:** PASS-WITH-FINDINGS, act 1 of the pass run 2026-11-15 UTC on Fable 5.1 (the verdict
-below the divider); act 2, the reconcile against the held sibling, follows its release. Brief
-written 2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as session
-`c8eba849`), run under the principal's weekly Fable drain order of 2026-11-16 NZDT.
+**Status:** PASS RAN, acts 1 and 2 written 2026-11-15 UTC by a Fable 5.1 cold reviewer under a
+rule-4 off-tier orchestrator (verdict below the divider: PASS-WITH-FINDINGS; after reconcile
+0 MAJOR, 1 MODERATE, 4 minor, 5 note, YB1–YB10; YB9 and YB10 formed at reconcile). The deferred
+sibling is folded in below the reconcile and its file removed (2026-11-15 UTC). Brief written
+2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as session `c8eba849`), run
+under the principal's weekly Fable drain order of 2026-11-16 NZDT.
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4 (the queue pointer's own words).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
@@ -239,8 +241,8 @@ cannot be re-run, say so and weigh the claim as unverified.
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-`docs/reviews/2026-11-14-0229-phone-byte-field-assigned-rule-spelling-cold.deferred.md` (a held-back
-file; by count: 11 questions, 6 facts), every item under `docs/roadmap/160-doctrine-review-owed/`
+`docs/reviews/2026-11-14-0229-phone-byte-field-assigned-rule-spelling-cold.deferred.md` (folded
+below the verdict at phase 2, the file removed; by count: 11 questions, 6 facts), every item under `docs/roadmap/160-doctrine-review-owed/`
 beyond its title, every commit's message body, and these records beyond the `sed` ranges in *The
 acceptance test*:
 
@@ -572,3 +574,161 @@ touched; none needed.
 
 Counsel is labelled as counsel throughout and sits beneath its finding; every finding is the
 principal's to decide (rule 3), and none is applied by the session that built the work (rule 4).
+
+### Reconcile — act 2, written 2026-11-15T20:19Z
+
+Opened after act 1 was committed unrevised (`fa2bfe2e`): the held sibling (11 questions, 6 facts,
+as the brief counted), the two filings' landing notes (`320/850` from line 28, `320/840` from line
+22), the `160/1370` pointer whole, and the commit body of `57719bfa`. The `160/990` brief, the
+digest guard's own pass, still reads BRIEF ONLY in this tree, so there is no prior verdict to
+reconcile against. Act-1 text above is unchanged; where a finding's weight moves, it moves here.
+
+**The author's account, screened.** The commit body and the landing notes carry more than the
+changelog does: the fleet probe is reported as "no exit code moved **and no finding appeared**"
+(`320/850`) and "no finding changed" (`320/840`), so a finding-count measure sat beside the exit
+code; the one child's `nz-phone` marker count fell from 70 to 6; the "naming no rule" count fell
+12, 10 and 4 to 0 in the three children that carried the long-spelling marker; "no child carries a
+marker in the short spelling, so nothing newly exempts anything"; and the case mismatch is recorded
+as deliberately "not changed". The body gives the exact-span ten-digit rationale ("would be a false
+negative on a real number") and the worker's identity. Nothing in it contradicts the delta or the
+act-1 reading of it.
+
+**The sibling's six facts** agree with the act-1 probes point for point: fact 1 is YA1's eight-digit
+pass; fact 2 is YA2's adjoined-byte pass; fact 3 is YA4's one-sided bracket; fact 4 is the
+`test_allowmarker` real-scope case (YB10 below); fact 6 is the dedupe-then-exempt order YA6 relied
+on. Fact 5 left one check open: `tools/test_secretscan.py` is in `.secretscanignore` (line 12), and
+secretscan over that file at HEAD reports it suppressed by the ignore, exit 0.
+
+**Per finding, against the sibling's questions and the author's account.**
+
+- **YB1 — moves from MODERATE to minor at reconcile.** Sibling Q11 asked the same question. The
+  author's record answers half of it: the probe compared finding counts ("no finding appeared", "no
+  finding changed") and marker counts, not exit codes alone, and the marker-count fall (70 to 6) is
+  the measure that can show a narrowing. What stands: the changelog published only the exit-code
+  sentence (V1); the 64 lines that moved from marked to unflagged are not listed or said to have
+  been inspected (the child marked them as byte fields when it added the markers, which is fair
+  evidence, but it is the child's, not the probe's); and the planes probed are not named, so the
+  commit-message plane, which the parent lacks, cannot have been covered. *Counsel stands:* name
+  the planes and the measure in the changelog; list moved lines next time.
+- **YB2 — stands, MODERATE.** Sibling Q7 asks the cost of a structural exemption every child
+  inherits against 64 markers in one child. The author's account does not weigh it against rule
+  (b); it reports the marker count falling as the fleet effect, which is the only visibility the
+  change leaves. The principal's ask in act 1 stands as written.
+- **YB3 — stands, minor.** The author recorded the case split as "not changed", as the brief's
+  non-goal said. The ask stands: fail-closed is safe, and the count is still wrong about an inert
+  marker, in the class the filing complained of.
+- **YB4 — stands, minor.** Sibling Q4 and fact 2 are the same shape. The author's rationale covers
+  the exact-span case only and is silent on the adjoined-byte case; the changelog sentence remains
+  broader than the code.
+- **YB5 — stands, minor.** Sibling Q3 asked which lengths were checked and against what source;
+  the account names ten only. Act 1 supplies the missing sentence (eight is no complete NZ number).
+- **YB6 — stands, note.** The author detected the dead markers by the count falling, as the note
+  predicts; nothing reports them as dead.
+- **YB7 — stands, note.** Confirmed: the digest guard's brief has no verdict in this tree.
+- **YB8 — stands, note.**
+
+**Findings formed at reconcile** (marked as such; neither changes the overall line):
+
+- **YB9 — note, formed at reconcile (sibling Q8).** A narrower reconciliation existed: accept the
+  short spelling in `--disable` only (so no child's floor flag breaks) and compare markers against
+  the finding name alone, which fixes the count and widens no marker grammar. The delta widened the
+  marker grammar too. By the author's own fleet measure the widening is empty today (no child
+  carries a short-spelling marker), so this is a choice for the principal, not a defect: two
+  accepted marker spellings for one rule, or one. Act 1's A4 stands as the reason the delta's choice
+  is at least non-breaking.
+- **YB10 — note, formed at reconcile (sibling Q9, fact 4).** `tools/test_allowmarker.py` used a
+  short-spelling marker as its "real scope" case before the delta, asserting that a marker names a
+  real rule while that marker exempted nothing. The delta made the assertion true by behaviour
+  without touching the test, and no record says the test's meaning was re-read. No other test
+  encodes the old split (the suite's other markers use the finding name). *Counsel:* one comment on
+  that case naming `320/840`, so the next reader knows why it holds.
+
+**Sibling questions not already covered.** Q5: answered by YA3 (held). Q6: the guard walks over hex
+characters, not digits, so adjoined hex letters widen the run (YA2); at the boundary the digest
+guard decides sixteen and above first, the new guard covers even runs of eight to fourteen, and a
+fifteen-run is odd and flags, so there is no gap and the overlap at sixteen is harmless. Q10:
+answered by YA6, with the author's account agreeing (no child carries the short spelling). Q1 and
+Q2, the pointer's own: no real number passes in any shape a person writes (YA1–YA3, with YB4 and
+YB5 as the wording owed); the second spelling exempts exactly what the first does (YA6).
+
+**Overall, restated: PASS-WITH-FINDINGS.** Act-1 tally 0 MAJOR · 2 MODERATE · 3 minor · 3 note;
+after reconcile, 0 MAJOR · 1 MODERATE (YB2) · 4 minor (YB1, YB3, YB4, YB5) · 5 note (YB6–YB10).
+Every finding is the principal's to decide (rule 3); none is applied by the session that built the
+work (rule 4). The sibling is left for the orchestrator to fold.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`fa2bfe2e` before the
+rebase onto `main`); folded here verbatim (headings demoted two levels) and the sibling file
+removed, per the brief. The orchestrator (a headless Opus 5.5 session started by drain session
+`21a271a5`, itself Opus 5.5) held the partition, formed no finding and wrote no severity.*
+
+### Held back — `nz-phone` passes a bracketed byte field, and secretscan's assigned-value rule takes two spellings
+
+Opened only once the reviewer's own findings are durably written (`REVIEW.md` rule 1). A floor,
+never a fence. Written by the brief-writer (`cclive` lists it as session `c8eba849`), which did not
+author the delta. Nothing here is a finding: these are questions, and facts read off the machine.
+
+#### The pointer's own questions
+
+1. Can a real number pass as a byte field?
+2. Can the second spelling exempt a line it should not?
+
+#### The brief-writer's questions
+
+3. The guard's test is that the whole bracketed run is even-length hex. The `nz-phone` regex admits
+   tails of three or four digits, so it matches unseparated shapes of more than one length (fact 1).
+   Is every even length it admits a real NZ number shape or not? The ten-digit exception answers one
+   length only. Which numbering-plan lengths did the author check, and against what source?
+4. The ten-digit exception holds only when the match IS the whole bracketed run. A real number with
+   one adjoining hex byte inside the same brackets passes (fact 2). Is that shape ever how a number
+   is written (a padded field, a number followed by a check byte, a pasted dump of a contact
+   record)? If never, say why; if sometimes, is the exception drawn in the right place?
+5. Angle brackets also wrap email addresses, URLs, markdown autolinks, and XML and HTML tags. Can any
+   of them leave an even-length run of decimal digits as the whole bracketed text? A bare number in
+   angle brackets in prose or a template placeholder?
+6. The guard scans outward over hex characters from the match, not over digits. Does a run like a
+   phone number with hex letters adjoining it inside brackets still behave as the docstring says?
+   Does the digest guard, run first, already decide every case the new guard was meant for at
+   sixteen characters, so the two guards overlap or leave a gap at the boundary?
+7. The child reported eight-to-sixteen-digit fields from one tool's dumps. Is the fix the narrowest
+   that answers it, against an exemption tied to that dump format (the property line around the
+   brackets), or against the per-line markers the child already carried? What is the cost of a
+   structural exemption every child inherits, against 64 markers in one child?
+8. Before the delta, a marker in the short spelling exempted nothing and was counted as naming a
+   rule; a marker in the long spelling exempted the line and was counted as naming no rule. The
+   delta makes both exempt. Is "either way" in the filing's *Done means* satisfied by widening, when
+   renaming the count's list to the long spelling would have fixed the count and widened nothing?
+9. `test_allowmarker.py` used a short-spelling marker as its "real scope" case before this delta
+   (fact 4): a test asserting a marker names a real rule while that marker exempted nothing. Did the
+   delta re-read that test's meaning, and does any other test still encode the old split?
+10. The dedupe drops an entropy finding on any line that also has a named or assigned finding, and
+    the marker check runs after the dedupe (fact 6). With a scoped marker naming the assigned rule
+    on a line that also carries a high-entropy token elsewhere on the line, does the entropy
+    finding vanish with the assigned one? Was that true before the delta for the long spelling, and
+    does the short spelling now extend it?
+11. The fleet probe is "by exit code across 30 child checkouts". An exit code cannot move for a
+    narrowing on a child that was already green, or on a finding that is advisory. Did the probe
+    compare finding sets as well, and across which planes? Did it include the commit-message plane,
+    which landed after this delta (`49f3d407`)?
+
+#### Facts read off the machine
+
+Read 2026-11-14 UTC at `d3293d93`, by building inputs from parts in a scratch script and running
+`leakscan.scan_text` over them. No phone-shaped literal is written here, by design.
+
+1. Inside angle brackets with nothing else, an unseparated landline-prefixed shape of eight digits
+   (the regex's three-digit-tail form) **passes**; the nine-digit form **flags**.
+2. An unseparated ten-digit mobile-prefixed shape alone in brackets **flags**. The same shape
+   followed inside the brackets by one more byte, either two digits or two hex letters, **passes**.
+3. A byte field and a separate unbracketed number on the same line: the number still **flags**. A
+   bracket opened and not closed before an eight-digit shape: **flags**.
+4. `tools/test_allowmarker.py` line 572 at `57719bfa~1` (from `6d26b058`, the same day) uses
+   `secretscan:allow:assigned: real` as the real-scope case in
+   `test_each_rule_matching_scanner_counts_a_typo_and_not_a_real_scope`; it reads the same at HEAD.
+5. `tools/test_leakscan.py` and `tools/test_secretscan.py` are both listed in `.leakscanignore`, so
+   leakscan never reads their fixtures; secretscan's own exemption for its test file was not
+   checked.
+6. In `secretscan.scan_lines`, `_dedupe_same_span` runs first (an entropy finding is dropped on any
+   line holding a `named` or `assigned`-kind finding), then `_scope_exempts` drops findings a marker
+   covers. At the parent, the exemption test was `scope in ("", f.rule)`.
