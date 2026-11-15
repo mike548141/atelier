@@ -4,9 +4,9 @@
 doctrine by function, rule 3).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** BRIEF ONLY, not run. Written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5
-brief-writer. The pass is held for the principal's explicit approval of Fable work; this brief is
-not that approval.
+**Status:** VERDICT, act 1 written 2026-11-15 UTC by a Fable 5.1 reviewer (below the divider);
+act 2, the reconcile against the sibling and the barred records, pending the orchestrator's
+release. Brief written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/994-rule-4-cold-pass-queued-leakscan-reports-off-rules.md`.
 **Size of this pass:** medium: about 240 lines of guard code, a design note and a doctrine
@@ -219,3 +219,237 @@ restated. Never revise act-1 text. Then fold the sibling in below the reconcile 
 
 The work is doctrine by function, so every finding is the principal's to decide (rule 3): record
 all, apply nothing. Counsel per finding is welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict — act 1, 2026-11-15 UTC
+
+**Status:** VERDICT, act 1 written 2026-11-15 UTC; act 2 (reconcile against the sibling and the
+barred records) pending the orchestrator's release.
+
+### Provenance, repeated (V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), tier checked at selection, in a session started for
+  this pass alone. Review worktree: `/Users/mike/worktrees/fable/atelier-160-994-1934/atelier`,
+  read-only to me except this file.
+- **Spawn chain:** a headless Opus 5.5 orchestrator, itself started by drain session `21a271a5`
+  (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold the context partition, form no
+  finding and write no severity. The orchestrator's prompt carried the worktree, the brief path, the
+  run constraints and this provenance; it framed nothing about the work. No contact with the brief's
+  barred sessions (`d4a0fcf3`, `74f2b8cd`, `4c65083c` and anything it started).
+- **Authority:** the principal's `/fable-drain` order of 2026-11-16 06:53 NZDT (2026-11-15 UTC),
+  lapsing at the weekly reset; a pass already running may finish.
+- **What I read, act 1:** this brief whole; `docs/method/REVIEW.md` § lenses, checklist and
+  lifecycle; the two delta commits body-free through `tools/coldsweep.py --commit --path`
+  (`0477462`: 8 files; `e8614ec`: `SECRETS.md` only, its 3 board-store files left out); the delta
+  paths at HEAD (`leakscan.py`, `test_leakscan.py`, `floor.py`, `test_floor.py`, `README.md`,
+  `SECRETS.md` § *The boundary's posture*, the design note, the `CHANGELOG.md` entries); the
+  `git log --oneline` of later commits on those paths (subjects only); `docs/method/GUARDS.md`
+  § *Ruled 2026-11-09*; `tools/pre-commit.sample`; the two acceptance-test labels through the
+  brief's `grep -o`; the existence (not the content) of the three files `SECRETS.md` links. Sweeps
+  ran through `coldsweep` with the brief's exclusions; `--include-barred` was not used. The
+  sibling `.deferred.md` was absent from the worktree and I did not look for it elsewhere. My
+  harness loaded user-level and repo instruction files and a memory index, which carry private
+  context this verdict does not.
+- **Review log**, open by design: `~/.claude/fable-drain/notes/atelier-160-994-1934.md`, every
+  check and its evidence as it was run.
+
+### Load-bearing assumptions, named first (lens 1)
+
+- **A1** The exit code is a function of blocking findings alone, on every plane. Probe: CLI
+  probes; mutations M5, M6; staged and floor-hook probes from a scratch repo. Confirmed.
+- **A2** The only ways a rule becomes report-only are `WITHDRAWN` membership and `--disable`;
+  the term list and binary gate cannot be moved. Probe: `blocks()` read; `--disable local-term`
+  and `--disable binary-unlisted` both exit 2; mutations M1, M2, M9. Confirmed.
+- **A3** A shadow never costs a blocking finding. Probe: `_shadow_spans` read; the MAC probe
+  (ipv6 blocks, mac-address reports); mutations M3, M3b. Confirmed.
+- **A4** The pin test would catch a shrinking blocking set. Probe: mutation M8 (withdraw `nz-ird`
+  by name). Confirmed: killed, 3 failures and 15 errors.
+- **A5** The 2026-10-16 answer authorises exactly this and nothing wider. Probe: acceptance grep;
+  `SECRETS.md` and design § 1 wording; GUARDS § *Ruled 2026-11-09*. Damaged in one respect: LO1.
+- **A6** `--disable` is "not a softening" of leakscan (the `floor.py` comment; the design's
+  "narrows nothing at all"). Probe: GUARDS.md's lowering table and its open question `020/170`.
+  Damaged: LO1.
+- **A7** The blast radius is as recorded (30 repos, 34 runs, no exit code or blocking count
+  moved). Probe: re-run, pre vs post tool, counts only. Confirmed in structure; counts drifted
+  (LO5).
+- **A8** Every scanning path carries `disabled` through, so a disabled rule reports on every
+  plane. Probe: call-site read (staged, path name, metadata, messages); mutations M11, M12. Holds
+  live; untested (LO3).
+
+### Lens 1 — approach and assumptions
+
+Right problem, right altitude, right shape, with one doctrinal loose end. The answer the delta rests
+on ("Report-only for off rules") is the narrower of the two labels the acceptance grep prints, and
+the delta takes exactly that: no rule is demoted, the fifteen structural rules and the term list
+still block, and the two kinds of "off" (withdrawn, disabled) are the only ones made to report. The
+response tier is secretscan's shape reused, the count line is the floor's existing contract, and
+the exit code is computed from blocking findings alone on every path I could reach (A1–A3, A8).
+The loose end is A5/A6: the delta turns `--disable` from a scope narrowing into a per-rule response
+lowering (its own words: it "narrows nothing at all"), and the doctrine at HEAD has not followed
+(LO1).
+
+### Lens 2 — correctness and quality: the claims, re-driven
+
+- *Nothing that blocks stops blocking; a test pins it* (`SECRETS.md`, README, CHANGELOG). Pin
+  list at HEAD is the 15 `STRUCTURAL` names; M8 killed (3 failures, 15 errors). Holds.
+- *Response is `advisory` only if withdrawn or in `--disable`* (design § 4). `blocks()` read; M1,
+  M2, M9 killed; the term list and the binary gate refuse `--disable` (exit 2). Holds.
+- *Report-only past the cap counts in `advisory_over_cap`, never the exit code* (design § 4).
+  `take_finding_slot(blocking)` read; M4 killed. Holds.
+- *A blocking shadowed rule is shadowed only by blocking shadowers* (design § 4, D5).
+  `_shadow_spans` read; probe: `--disable mac-address` leaves ipv6 blocking a MAC and mac-address
+  reporting; M3, M3b killed. Holds, with the § 5 duplicate as named.
+- *`clean` and `findings` keep their meaning* (design § 3). JSON probe; M5, M6 killed. Holds.
+- *§ 6 blast radius: 30 repos, 34 runs, no exit code moved.* Re-run pre vs post tool, counts
+  only. Structure holds exactly; magnitudes drifted (LO5).
+- *`e8614ec`: dial built 2026-08-07 (`dcb57fa`), lead stale "three months".*
+  `git show -s --format=%h %ad %s dcb57fa`: 2026-08-07, the secretscan second-response commit.
+  Holds.
+- *The count line prints on every run, zero included* (design § 3). Clean-tree probe prints
+  `0 finding(s)`; floor reads the last match. Holds.
+- *The hook plane prints the hits on the lines a commit adds* (design § 3). Staged probe from a
+  scratch repo, and floor `--plane hook` with `flags`: exit 0, block shown, board line
+  `🟡 leakscan enforced`. Holds.
+- *`--disable` refuses a withdrawn rule's name* (design § 2). Probe: exit 2 with the withdrawn
+  message; M13 survives, so the test pins only the code (LO4). Holds; weakly tested.
+
+No overclaim found in the delta's own text. The one statement that reads wider than its evidence is
+`floor.py`'s "NOT a softening" beside `advisory_count=True`: true of the floor FORM (`advisory=None`
+is unchanged), contestable of the flag (LO1).
+
+### Lens 3 — completeness and harvest
+
+- Surfaces that state the behaviour (V3): `SECRETS.md` (home), README § *Rules that are off*,
+  `leakscan.py` module docstring and the two E6a comments, `floor.py` registry comment and module
+  docstring, CHANGELOG 2026-11-03, the design note. All agree on scope ("rules that are off"; "for
+  a rule that blocks"). One later mirror drifted (LO2). datescan has since copied the pattern
+  (`160/988`'s subject; not read for this pass).
+- Harvest: the shape is secretscan's tier, the count contract is `report.advisory_count_line`, the
+  cap split is secretscan's. Nothing duplicated that already existed.
+- Tests that stay green on a broken delta: M11, M12, M13 (LO3, LO4). Every other mutation I tried
+  (ten) was killed, most by more than one test.
+
+### Lens 4 — security and privacy
+
+- **Design altitude.** The change moves hits from unseen to seen; it collects nothing new and
+  blocks nothing less. What it exposes: a report-only hit is printed, redacted, on every CI run for
+  as long as it stands, where a blocking hit is printed once and removed. On a public repo the
+  Actions log is public; the content it describes already is, and `redact()` leaves three leading
+  and two trailing characters plus a length. Bounded; accepted as designed. The surfacing question
+  EI1 asked (durable, acknowledged?) is answered as secretscan's was: the CI log and the board line,
+  no acknowledgement; the count never reaches the fleet view (part of LO1's evidence).
+- **Code altitude**, checked against ASVS V5 (input validation) and V8 (data protection) as they
+  apply to a CLI scanner: `--disable` names are validated against `STRUCTURAL` (unknown, withdrawn,
+  binary and `local-term` all exit 2); excerpts pass through `redact()` on both blocks; the new
+  regex has no nested quantifier and sits behind a two-part gate; `Finding.response` defaults to
+  block; the JSON change is additive; no new file write anywhere in the delta. The G3 reader keeps
+  `honour_markers=False`.
+- **`/security-review`: discharged with grounds.** The delta is landed, not pending; the tree was
+  not clean at any point of this run (the sibling's deliberate deletion, then this file), and the
+  scanner reads the session's pending diff, so aiming it would have scanned the brief. The
+  code-altitude read above was done by hand.
+
+### The standing checklist
+
+- **V1** — No claim stronger than its evidence: one, `floor.py`'s "NOT a softening" (LO1); the
+  rest hold (lens 2 table).
+- **V2** — Recorded proofs re-run: § 6 (structure reproduces, counts drifted, LO5); `dcb57fa`
+  (holds); the brief's five lines (re-run ledger).
+- **V3** — Mirror sites swept with `coldsweep`: one drifted (LO2); the rest agree.
+- **V4** — One home: `SECRETS.md` § *The boundary's posture* holds the narrowing; README and the
+  design note point at it. Discharged.
+- **V5** — No contradiction: `SECRETS.md`'s three links reach files that exist; the EI6 record is
+  pointed at, not opened (phase 2). GUARDS.md's 2026-11-09 lowering table and the delta's account
+  of `--disable` do not agree (LO1). CHANGELOG 2026-11-10 contradicts CHANGELOG 2026-11-03 on the
+  same page (LO2).
+- **V6** — Lens 4 above; `/security-review` discharged with grounds.
+- **V7** — Provenance stated above and in the brief.
+
+### Per-commit ledger
+
+- `0477462` leakscan: report rules that are off without blocking — read body-free, yes
+  (`coldsweep --commit --path` × 8 paths; 0 barred files touched). Findings: LO1, LO3, LO4.
+- `e8614ec` secrets: the advisory dial's lead says built — read body-free, yes
+  (`coldsweep --commit --path docs/method/SECRETS.md`; 3 board-store files left out). None.
+
+Later commits on the delta paths were read as subjects only, and the paths at HEAD in full.
+
+### Findings
+
+**LO1 — MODERATE (doctrine; lens 1, V5).** Since this delta `--disable` lowers a rule's response
+from block to advisory; the doctrine at HEAD classes it as something else and leaves the question
+open. The design says the flag "narrows nothing at all" and that a rule's response is advisory
+"only if it is withdrawn or named in `--disable`"; `floor.py`'s registry comment says this is "NOT
+a softening". `docs/method/GUARDS.md` § *Ruled 2026-11-09* says a repo may lower a check's response
+"only with a written reason and an end date, visible in the fleet view", then classes `scope` /
+`flags` as "not as a lowering" with no end date, on a 2026-07-28 ruling made when `--disable`
+dropped hits (a narrowing), and closes with "whether narrowing counts as lowering a *response* ...
+is not built or decided here (`020/170`)". At HEAD, `_load_flags` accepts `args` and `why` only,
+and `floorfleet.py` carries no advisory count, so a child's `--disable` on a personal-data rule is a
+lowering with a reason, no end date and no fleet-view line. The GUARDS ruling post-dates the delta
+by six days, so the delta broke no rule that stood when it landed; the contradiction is at HEAD.
+Nothing in the blocking set moved. *Counsel:* decide `020/170` with `--disable` named. Either (a)
+it is a lowering: `flags` learns `review-by` as `advisory` and `disabled` have, and the fleet view
+carries leakscan's count; or (b) the 2026-07-28 permanent-fact ruling stands for `flags` because
+the hits now report (the design's own argument), stated in GUARDS's table, with `floor.py`'s "NOT a
+softening" citing it.
+
+**LO2 — minor (V3, V5).** `CHANGELOG.md` line 107 (the 2026-11-10 `leakscan --messages` entry,
+`320/550` part (a)) says "`leakscan` has no advisory form, so it would block every message body",
+unqualified, about sixty lines above the 2026-11-03 entry that narrows that rule. `SECRETS.md` says
+"for anything that blocks". Formed against a later commit on the lane pass `160/1420` covers;
+recorded here as the drift of this delta's rule, not re-reviewed. *Counsel:* qualify the sentence.
+
+**LO3 — minor (lens 3, tests).** The staged plane (`leakscan.py` near line 3283) and the image
+metadata reader (near line 2381) pass `disabled` through, and no test pins either: replacing
+`disabled` with `frozenset()` at either call site leaves all 422 tests green (M11, M12). A disabled
+rule would then block on the hook or inside metadata while reporting in CI: fail-closed, so not a
+shrink, but "on every run" would be false on one plane. The live staged and floor-hook probes show
+both currently carry it. *Counsel:* one staged and one metadata case in `DisabledClassReports`.
+
+**LO4 — note (tests).** `test_disable_cannot_name_a_withdrawn_rule` asserts exit 2 only. With the
+withdrawn-rule refusal removed (M13) the unknown-name check still exits 2, so the message the design
+promises ("already reports without blocking, and `--disable` never silences a report") is untested.
+*Counsel:* assert the wording.
+
+**LO5 — note (V2).** § 6's disabled-class counts (56, 241, 2,652; 10 in-scope `diagnosis-key`) do
+not reproduce on 2026-11-15 (58, 260, 6,216; 11): repo content moved in twelve days. Everything
+structural reproduces: 30 repositories, 34 runs, 4 with declarations, no exit code or blocking
+count moved, `diagnosis-key` whole-tree counts 1, 1, 3, 11. The note is dated; no action.
+
+**LO6 — note (housekeeping, later commit).** `_active_rules`'s docstring (`leakscan.py` line 890)
+carries a stray run of spaces mid-sentence and an over-long line, introduced after this delta.
+
+### Overall
+
+**PASS-WITH-FINDINGS** — 0 MAJOR · 1 MODERATE (LO1) · 2 minor (LO2, LO3) · 3 notes (LO4, LO5,
+LO6). The blocking set did not shrink, under cover or otherwise: the pin holds, the exit code is a
+function of blocking findings on every path reached, and the estate re-run moved nothing. The one
+MODERATE is doctrinal: what `--disable` now *is* has not been ruled on, and the doctrine at HEAD
+says two things about it.
+
+### Re-run ledger
+
+- `python3 -m unittest discover -s tools -p test_leakscan.py` — `/usr/bin/python3` (3.9): Ran
+  422, OK, exit 0.
+- `python3 tools/leakscan.py --selftest` — 3.9: `selftest OK`, exit 0.
+- `cd tools && python3 -m unittest test_floor` (run as a subprocess with `cwd=tools`) — the PATH
+  `python3` (3.14); 3.9 refuses it, the suite needs 3.11+: Ran 255, OK, exit 0.
+- `python3 tools/floor.py --plane ci --root .` — 3.9: exit 0; atelier's own board line reads
+  `🟡 leakscan enforced (... 3 advisory finding(s))`.
+- `nice -n 10 python3 -m unittest discover -s tools` — 3.14: Ran 3134, OK, exit 0 (1,095 s).
+- § 6 blast radius, pre (`0477462^`) vs post (`0477462`) tools, counts only — 3.9, `nice -n 10`,
+  782 s: 34 runs over 30 repos, 0 moved.
+
+Load: `uptime` 8.6 at start, 3.8–11.8 during; one heavy process at a time, all under `nice -n 10`.
+
+### Follow-up checklist (the principal's to decide; nothing applied)
+
+- [ ] LO1: rule on `020/170` with `--disable` named (a lowering with an end date, or a declared
+      permanent fact), and align GUARDS's table and `floor.py`'s comment to the ruling.
+- [ ] LO2: qualify CHANGELOG line 107 (or let `160/1420` carry it).
+- [ ] LO3: staged and metadata cases with a disabled set.
+- [ ] LO4: pin the withdrawn-refusal wording.
+- [ ] LO6: tidy the docstring.
+- [ ] Act 2: reconcile against the sibling (7 questions, 2 facts) and the barred records.
