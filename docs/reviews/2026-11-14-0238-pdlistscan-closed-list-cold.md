@@ -1,9 +1,10 @@
 # Cold pass — `pdlistscan`: in a public repo, personal data stands only where the closed list names it
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1340-rule-4-cold-pass-queued-pdlistscan.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `fb2c22e6`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** ACT 1 RUN 2026-11-15 UTC on Fable 5.1, verdict FAIL (2 MAJOR, 4 MODERATE, 3 minor,
+3 notes), act 2 pending. Brief written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
+(`cclive` lists it as session `fb2c22e6`). Run under the principal's weekly Fable drain order of
+2026-11-16 06:53 NZDT (`/fable-drain`).
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4: self-authored guard code that
 enforces doctrine (the closed personal-data list), registered in the floor every child inherits,
@@ -301,3 +302,362 @@ revise act-1 text. Then fold the sibling in below the reconcile and delete it.
 `REVIEW.md` rule 3): the author applies nothing on its own, and neither does the reviewer. Record
 all; the findings are the principal's to decide, after a plain-language account. Counsel per
 finding is welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict — act 1, 2026-11-15 UTC
+
+**Overall: FAIL — 2 MAJOR, 4 MODERATE, 3 minor, 3 notes.** The scanner does what its tests say on
+the trees its tests build. On the trees the fleet actually holds, and on lists written in any
+shape but atelier's, it reports clean where the closed list is not being kept: two public
+children sit outside its scope today with a green floor (PN1), and a list it cannot parse reads
+as a list with nothing in it (PN2). Both are the failure the brief names as the worst one.
+
+### Provenance
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), the principal-named review tier, checked at
+  selection. Worktree `/Users/mike/worktrees/fable/atelier-160-1340-1952/atelier`, read-only
+  to this session except this file; HEAD `a03e6ae5`.
+- **Spawn:** a headless orchestrator session (Opus 5.5), itself started by drain session
+  `21a271a5` (Opus 5.5). Both are rule-4 off-tier orchestrators holding the context partition:
+  they form no finding and write no severity. Neither wrote the brief, the sibling or the delta.
+  The barred sessions are `fb2c22e6`, `58027096` and `d0ca5d24` with everything it started; this
+  session was started and instructed by none of them. No contact from the author's chain.
+- **Authority for Fable time:** the principal's drain order, `/fable-drain` invoked 2026-11-16
+  06:53 NZDT; it lapses at the weekly reset (2026-11-15 23:00 UTC) and a pass already running may
+  finish. The brief's "waiting on the principal's explicit approval of Fable work" is met by it.
+- **The orchestrator's direction, as received** (process only; no question about the delta, no
+  pointer at a risk, no request to revise a finding): the item and worktree paths; read the brief
+  and `REVIEW.md`; prefix `PN`; the sibling was removed from the worktree on purpose and is not to
+  be sought elsewhere; read `6607c0eb` only through `coldsweep --commit --path`; keep a running
+  log of checks and evidence at a named user-local file; write only that log and this file; no
+  git write; live systems read-only, a write-needing check marked NOT RUN; `/usr/bin/python3`;
+  `nice -n 10`, one suite at a time, `uptime` before heavy steps, children probed sequentially;
+  refer to orchestrators by session id and to children by count or type only; append act 1
+  below a `---` divider and stop; act 2 arrives by message with the sibling's path.
+- **What was read.** The brief whole; `docs/method/REVIEW.md` whole; the delta body-free
+  (`tools/coldsweep.py --commit 6607c0eb` with the six `--path`s, and `641f017f` with two); at
+  HEAD: `tools/pdlistscan.py`, `tools/test_pdlistscan.py`, `tools/test_personal_data.py`,
+  `docs/PERSONAL-DATA.md`, `tools/allowmarker.py`, the marker lines of `tools/leakscan.py`, the
+  helpers of `tools/report.py`, `tools/floor.py` (the `Scanner` class, the VISIBILITY docstring,
+  `check_visibility`, `github_visibility`, the run loop, `advisory_count_rx`),
+  `.atelier-floor.json`, both floor workflow files, the `pdlistscan` and `attribscan` sections of
+  `tools/README.md`, `CHANGELOG.md` lines 19–29 and 60–100, `docs/build/REPO-STANDARD.md` lines
+  200–226, `docs/build/templates/CLAUDE.md` lines 145–162, the date line of `tools/attribscan.py`
+  and the three lines of `tools/namescan.py` that use `pdlistscan`. `floor.py --declarations`
+  output, whose `pdlistscan` block says "no verdict has read it" and nothing evaluative.
+  `coldsweep` listed the two board-store paths `641f017f` touched by name; neither was opened.
+  **Not opened:** the sibling, `docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`, any
+  prior verdict, the four barred board items, the commit body. The onramp's session-log step was
+  skipped (rule 2). Every sweep ran through `coldsweep` with the brief's five `--also-exclude`s;
+  `--include-barred` was not used.
+- **Exposure, disclosed.** The fleet probe put every child's path and name in this session's
+  context (not in any record). The harness loaded user-level instruction files and a memory
+  index that hold private context; none of it bears on this delta.
+- **Environment.** `/usr/bin/python3` is 3.9.6, and the yardstick `tools/test_personal_data.py`
+  fails to import on it (`str | None` at line 52 with no `from __future__` import). `python3` on
+  `PATH` is 3.14.6, as the brief says; every suite below ran on 3.14.6. `pdlistscan.py` itself
+  carries the future import and ran on both.
+- **Load:** 5–10 on 12 cores throughout; every suite under `nice -n 10`, one at a time.
+
+### Commit ledger
+
+| Commit | Read body-free | Findings |
+|---|---|---|
+| `6607c0eb` (the delta) | yes, `coldsweep --commit`, six `--path`s | PN1–PN12 |
+| `641f017f` (coverage line, `115/130`) | yes, two `--path`s | none of its own; PN7 touches it |
+
+Nothing else has landed on the four paths since (`git log 6607c0eb..HEAD -- …` printed only
+`641f017f`).
+
+### Re-run ledger
+
+| Line | Result |
+|---|---|
+| `test_pdlistscan` | 24 tests OK, 5.3 s (also 24 OK on 3.9.6) |
+| `test_personal_data` | 11 tests OK, 0.9 s on 3.14.6; import error on 3.9.6 (above) |
+| `test_floor`, alone | 255 tests OK, 271 s; the worktree untouched after (`git status`) |
+| `pdlistscan.py --selftest` | `selftest OK`, exit 0 |
+| `pdlistscan.py --root .` | clean, advisory 0, coverage 1283 files · 188823 lines, exit 0 |
+| same, `--json` | `clean: true`, `in_scope: true`, exit 0 |
+| `floor.py --list --root . \| grep pdlistscan` | `pdlistscan enforced fleet decl 2/5 …` |
+| fleet probe, today | 23 roots (22 children + atelier's main checkout): 23/23 exit 0 |
+| fleet probe, date patched to the flip | 21/23 exit 0, **2 exit 1** (PN5) |
+
+The fleet probe was rebuilt as a read-only script over `floorfleet --json`'s child list, one
+child at a time, each run twice (the worktree's scanner, then a scratch copy with the date set
+to 2000-01-01), with `gh repo view --json visibility` per child. Where my counts differ from the
+record: the record had 22 roots and atelier the only repo in scope; today there are 23 roots and
+three in scope, because two children have declared `"visibility": "public"` since 2026-11-09.
+Each of the two has no `docs/PERSONAL-DATA.md`, so each carries one `no-list` finding that warns
+today and blocks at the flip. GitHub says public for four children: those two, and two that
+declare no visibility key at all (PN1).
+
+### Lens 1 — approach and assumptions
+
+The problem is the right one: a test in atelier's suite reaches no child, and the floor is where
+a child inherits a guard. The altitude is defensible too: the list is per repo, so a floor
+scanner reading each repo's own list is the right shape, and the alternative `160/630` leaves
+open (the rule living in the stamped floor block) would still need a per-repo list of places.
+What the design does not carry is the list's grammar (PN2) and the rule's text (PN4): the
+scanner enforces a file shape no document outside atelier's own list states, and a condition
+("the file must exist") the standard says the opposite of.
+
+Load-bearing assumptions, named by me and then the brief's, each with its probe:
+
+- **A1. Scope by declaration — DAMAGED, live.** The fleet probe found two children GitHub
+  reports public with no `visibility` key: `pdlistscan` prints "not in scope" and exits 0 in
+  both. The cross-check does not turn the gap red: `check_visibility` returns a 🟡 partial for
+  "nothing declared", by design (`floor.py` docstring: "nothing declared … never block"), and
+  `main` calls `github_visibility()` only when `cfg.visibility` is set, so the floor never learns
+  those repos are public. Neither half of the assumption holds. → PN1.
+- **A2. Parity with the in-suite test — DAMAGED.** Same parser, globs and scopes, but not the
+  same exemption or the same reads: the test exempts `tools/` and `instruments/` for markers
+  only and reads holders everywhere (PD1 names three `tools/` files); the scanner skips both
+  kinds under both prefixes. The scanner also skips files over 4 MiB, which the test does not.
+  The three checks the test makes that the scanner does not (closed set, stale place, place
+  exists) are not named in "what it does not see". → PN3, PN7.
+- **A3. Marker grammar — DAMAGED.** A mention inside a code span is a marker to `pdlistscan` and
+  not to `leakscan` (probe P1: `unlisted-marker`); the unscoped form, which `leakscan` honours
+  as an excuse for an email or a phone number, is the one form `pdlistscan` never reads (probe
+  P2: both scanners clean). Case and underscore differences are inert because `leakscan`'s
+  compare is case-sensitive. → PN6.
+- **A4. Holders — DAMAGED, minor.** Exact-substring-per-line finds every holder the scanner
+  opens; the files it skips can hold the string unseen: a 4.5 MiB text file, a file with one NUL
+  byte and a UTF-16 file each held it and the run was clean, with no skipped count on the
+  coverage line (probe P8). → PN7.
+- **A5. The exemption — DAMAGED.** `tools/leakscan.py` at the root marks any repo that has a
+  file by that name: a one-line stub in a public scratch repo switched the scan off over
+  `tools/` and `instruments/` (probe P5). It also takes away something the in-suite test reads
+  (A2). → PN3.
+- **A6. The list is read as written — DAMAGED.** Five shapes (`### PD1 —`, `## PD1—x`,
+  `- **Data**: `, `## pd1 —`, an empty list) each parsed to zero entries and the run was clean
+  while a stray holder stood in `docs/` (probe P3). Nothing fails loud. → PN2.
+- **A7. The date — CONFIRMED.** `warn_only_today` compares the UTC date strictly before the
+  constant (`test_the_date_is_read_strictly_before`); a scratch copy with the date in the past
+  exits 1 and `--warn` exits 0 (P12); through `floor.py --plane hook` and `--plane ci` on a
+  public scratch repo, the real tools gave `rc 0, advisory 2` and the flipped copy `rc 1` on
+  both planes; neither template carries `--warn`; the advisory form does. Nothing at run time
+  moves it.
+
+### Lens 2 — correctness and quality
+
+The code is small, stdlib-only and readable, and on its own fixtures it is right: the tests
+pin scope, the three kinds, the exemption, untracked files, the date, `--warn` and the JSON
+shape, and `test_floor` pins the count contract on both sides. Where it departs from its claims:
+
+- **"This is the same check"** (docstring, README, CHANGELOG): not the same exemption, not the
+  same reads, and three of the test's checks absent and unsaid (PN3, PN7).
+- **"the exemption `tools/test_personal_data.py` makes"** (docstring): the test's exemption is
+  for markers only (PN3).
+- **"No child declares itself public with a list yet, so today it reads only atelier: 21
+  children are out of scope, and atelier is clean"** (README, a live surface) and **"Atelier is
+  the only repo in scope"** (CHANGELOG): true on 2026-11-09, false at HEAD on 2026-11-15 (PN5).
+- **"an unparseable config … is a broken scan (exit 2)"** (README exit-code table): true for
+  JSON that does not parse; a config whose `visibility` is `"Public"` or `"internal"` is read
+  as out of scope and exits 0 when the scanner runs alone, while `floor.py` refuses it (PN9).
+- The help text, the `why`, the `Declares` block and the exit-code table otherwise agree with
+  the code.
+
+### Lens 3 — completeness and harvest
+
+- The date, the exit codes, the scope and the `--warn` posture say the same thing on every
+  surface that states them (`pdlistscan.py`, `tools/README.md`, `CHANGELOG.md`, `floor.py`'s
+  registry): 2027-03-08 throughout, four weeks after `attribscan`'s 2027-02-08 as stated.
+- Of the in-suite checks the scanner lacks, a public child needs the **closed set** most: it is
+  what makes a list that parses to nothing fail instead of pass (PN2). The stale-place and
+  place-exists checks are hygiene a child can live without; their absence should be said.
+- Tests that stay green on a broken change: removing the continuation-line join in
+  `parse_list` passes all 24 tests and yields 78 findings on the real list (PN8). Removing the
+  `rel == LIST_PATH` skip fails two tests (caught).
+- A fresh fleet probe before the flip is recorded nowhere a reader will meet it: the README's
+  sentence is a snapshot with no date, and it is already wrong (PN5).
+- Harvest: `report.with_id` / `finding_dicts` give ten scanners namespaced finding IDs; this one
+  prints `[unlisted-marker]` and emits no `id` (PN11). `leakscan.parse_allow` and
+  `allowmarker.blank_code_spans` already exist and are not used (PN6). The mirror sweep: every
+  registry scanner but `board` has a README section; the standard and the child template say
+  the opposite of the scanner on a missing list (PN4) and do not mention the floor check.
+
+### Lens 4 — security and privacy
+
+Weighed against OWASP ASVS 5.0 (fetched, not recalled: V1 encoding, V2 validation, V5 file
+handling, V14 data protection, V16 logging; the items named below).
+
+- **The personal string is never reprinted** (16.5.1, 16.2.5): the text output names the entry
+  id and the marker's scope only, and the JSON carries the same fields; probe P11 checked both
+  outputs by substring. ✅
+- **Output encoding** (16.4.1, log injection): the detail goes through `report.safe_text`; the
+  **path does not**, and a path carrying a bidi override reached the terminal raw (P7b). The
+  same is true of `leakscan`'s finding line, so this is a floor-wide class, noted here (PN10).
+  JSON output is escaped by `json.dumps`.
+- **Hostile paths** (5.3.2): a tracked symlink to a file outside the tree is followed and read,
+  and a listed string in it is reported by the symlink's path (P6): a widening of what is read,
+  bounded by the repo's own commit. Dangling and directory symlinks skip without a crash. A
+  non-UTF-8 tracked name could not be built here (APFS refuses it, NOT RUN); by code,
+  `tracked()` decodes strictly, so it would raise and `guarded_main` would print a traceback and
+  exit 2: fail closed, noisy (PN10).
+- **Hostile list** (1.3.12, 5.2.1): forty `**/` segments matched in 0.18 s, correct result; the
+  globs are compiled with `re.escape` on every literal; files over 4 MiB are not read (the
+  limit that also makes PN7). No ReDoS reachable from the list.
+- **Where a reader of the public repo sees what the scanner cannot:** the skipped files of PN7;
+  anything under `tools/` or `instruments/` in a repo with a `tools/leakscan.py` (PN3); a line
+  excused by an unscoped marker (PN6); any repo GitHub shows public that declares no visibility
+  (PN1). These are the privacy findings of this pass; each is a design gap before it is a code
+  one.
+- **`/security-review`: NOT RUN, discharged by grounds.** It reads the session's pending diff,
+  which here is the orchestrator's deletion of the barred sibling, so running it would feed
+  deferred material into this pass (the SL2 class); the delta is landed, not pending; and the
+  scanner excludes markdown, so its pass over the doc surfaces would be empty.
+
+### The standing checklist
+
+- **V1** No claim stronger than its evidence: breached on four surfaces, PN3 (same check; the
+  test's exemption), PN5 (fleet state), PN9 (exit-code table).
+- **V2** Re-run every recorded claim: done, ledger above; the fleet probe no longer reproduces
+  (PN5); the 21 tests at landing are 24 at HEAD, all green.
+- **V3** A changed rule swept to every mirror: the scanner's rule (a public repo must carry the
+  list) reached neither `REPO-STANDARD.md` nor the child `CLAUDE.md` template, which say the
+  opposite (PN4); the standard does not name the floor check beside "a test keeps it".
+- **V4** One fact, one home: `PERSONAL_SCOPES`, `MARKER_RX`, `glob_rx`, `ticks` and
+  `parse_list` are a second copy of the yardstick's (declared in the docstring: "the scanner
+  keeps its own copy"), and the marker grammar is a third copy beside `allowmarker` (PN6). The
+  date has one home with stamped mentions. Noted under PN6; no separate finding.
+- **V5** No internal contradiction: the standard says a missing list means no exceptions; the
+  scanner says it is a finding (PN4). Cross-references checked for the rule reached:
+  `260/050`'s check is in `floor.check_visibility` and does what the docstring says, which is
+  less than the brief's A1 assumed (PN1).
+- **V6** Security and privacy: lens 4 above; `/security-review` discharged with grounds.
+- **V7** Spawn provenance: stated in the brief and repeated above.
+
+### Findings
+
+Severities: MAJOR / MODERATE / minor / note. Each is the principal's to decide (`REVIEW.md`
+rule 3: guard code that enforces doctrine); counsel is labelled and kept beneath.
+
+**PN1 — MAJOR. A public repo that declares no visibility is unguarded, and the floor never
+reds the gap.** `declared_public` returns false for a missing key, so the scanner says "not in
+scope" and exits 0. `floor.check_visibility` returns a 🟡 partial for "nothing declared" and
+never red, and `floor.main` asks GitHub only when a declaration exists, so the floor cannot
+even see that the repo is public. Live on 2026-11-15: two children GitHub reports public
+declare no key; both print "not in scope", exit 0, and have no `docs/PERSONAL-DATA.md` (with
+scope forced on a scratch copy, each reports `no-list`). The brief's A1 ("either every public
+repo declares, or the cross-check turns the gap red") is false on both halves. The CI plane
+already has GitHub's answer for free (the event payload `github_visibility` reads).
+*Counsel:* on the CI plane, treat GitHub-says-public as in scope (the floor passes the
+scanner `--public`, or the scanner reads `GITHUB_EVENT_PATH` itself), or make "undeclared and
+GitHub says public" red in `check_visibility`; on the hook plane, which has no network, the
+declaration stays the key and the README should say so plainly.
+
+**PN2 — MAJOR. A list the parser cannot read is a list with nothing in it, and the run is
+clean.** `parse_list` keys on `## PDn ` and `- **Field:**` exactly; `### PD1 —`, `## PD1—x`,
+`- **Data**: `, `## pd1 —` and an empty file each parsed to zero entries, and a public scratch
+repo holding the pinned string in `docs/` reported clean with a healthy coverage line (probe
+P3). Nothing fails loud: no stderr, exit 0. The in-suite test's closed set (`EXPECTED_IDS`)
+catches this for atelier; the floor has no equivalent, no child has a list yet, and no template
+or document outside atelier's own list states the grammar, so the first child list will be
+hand-written from `REPO-STANDARD.md`'s prose, which names the fields and not their spelling.
+*Counsel:* an in-scope list that parses to zero entries, or an entry with no `Data` or no
+`May stand in`, is a broken scan (exit 2, `ConfigError`), not a clean one; print the entry and
+pinned-string counts on the coverage line; ship a `docs/PERSONAL-DATA.md` template with
+`create-repo`.
+
+**PN3 — MODERATE. The mechanism exemption is wider than the yardstick's, is keyed on a
+one-line file, and "the same check" overclaims.** The in-suite test exempts `tools/` and
+`instruments/` for markers only and reads holders everywhere (PD1 names three `tools/` files,
+which the test holds to account); the scanner skips both kinds under both prefixes, so a listed
+string in an unnamed `tools/` or `instruments/` file is seen by atelier's suite and not by the
+floor. The key is `tools/leakscan.py` existing: a `# stub` by that name in a public scratch
+repo switched the scan off over both prefixes (probe P5). The docstring's "the exemption
+`tools/test_personal_data.py` makes" is not what the test makes, and "the same check" (docstring,
+README, CHANGELOG) is not the same on reads, exemption or the three checks it lacks (closed set,
+stale place, place exists), whose absence "what it does not see" does not state.
+*Counsel:* exempt markers only, as the test does; key the exemption on the floor telling the
+scanner it is scanning atelier (or drop it and name the fixture files in atelier's list); add
+the three missing checks to "what it does not see".
+
+**PN4 — MODERATE. The scanner and the standard disagree on a missing list.**
+`REPO-STANDARD.md` § personal data: "A repo with no such file holds no exceptions"; the child
+`CLAUDE.md` template: "a repo without that file holds none". The scanner makes the missing file
+a finding (`no-list`) that blocks a public repo from 2027-03-08, and returns before reading
+anything else, so markers in such a repo are never reported (probe P13; coverage 0 files,
+"scanned nothing", `in_scope: true`). Live: both declared-public children carry exactly this
+finding and nothing else has been read in either. One of the two texts is wrong.
+*Counsel:* if the rule is that a public repo must carry the list even when empty, sweep the
+standard and the template and say why (the file is where "none" is written down); if the rule
+stays, treat a missing list as zero entries and scan markers anyway. Either way, do not return
+before the markers are read.
+
+**PN5 — MODERATE. The recorded fleet state is stale on a live surface, and the flip has no
+dated probe ahead of it.** README: "No child declares itself public with a list yet, so today
+it reads only atelier: 21 children are out of scope, and atelier is clean"; CHANGELOG: "Atelier
+is the only repo in scope". On 2026-11-15: 22 children, two declared public and in scope, each
+with one finding that exits 1 with the date patched to the flip. The recorded 22/22 at the flip
+is 21/23 now. Nothing on the board or in the README names a probe to run before 2027-03-08.
+*Counsel:* the README drops the fleet sentence (a README is not a probe record) or dates it;
+a dated fleet probe goes on the board before the flip, as the brief's lens 3 asks.
+
+**PN6 — MODERATE. The marker grammar is a third copy and differs from `leakscan` in both
+directions.** (a) A mention inside a code span counts: "Write `leakscan:allow:email: why`" in a
+public child's docs is an `unlisted-marker` (probe P1), where `leakscan` blanks code spans
+(AM3). In atelier today the two such mentions outside `tools/` sit in `CHANGELOG.md`, a named
+place, so no false positive yet. (b) The unscoped form `leakscan:allow: <reason>` exempts every
+structural rule in `leakscan`, including `email`, `nz-phone` and the rest of `PERSONAL_SCOPES`
+bar `local-term`, and is the one form `pdlistscan` never reads: an email with an unscoped marker
+in a public repo passed both scanners with no entry naming the file (probe P2). The docstring
+names (b) a non-goal ("the leak scanner's to judge"); the leak scanner judges the shape, not the
+grant, so the non-goal fences off the risk the guard exists for. (c) `[a-z0-9,-]` against
+`allowmarker`'s `[A-Za-z0-9_-]`: inert, since `leakscan`'s compare is case-sensitive (P14).
+*Counsel:* use `leakscan.parse_allow` (already imported by the test and by `namescan`) and
+`allowmarker.blank_code_spans`; count an unscoped marker as a personal-data marker when the
+line also matches a personal structural rule, or at least print how many stand in unnamed files.
+
+**PN7 — minor. Skipped files can hold a listed string unseen and uncounted.** A 4.5 MiB text
+file, a file with a NUL byte and a UTF-16 file each held the pinned string; the run was clean
+and the coverage line said "1 tracked file(s) opened" with no skipped count (probe P8). The
+yardstick has no size cap. *Counsel:* print `K skipped (binary, oversize)` on the coverage line
+and scan oversized text in a streaming pass.
+
+**PN8 — minor. The tests stay green on a broken parser.** Removing the continuation-line join
+in `parse_list` passes all 24 tests; against the real list it yields 78 findings, because every
+real entry wraps `May stand in`. No fixture wraps a field. *Counsel:* wrap one field in the
+fixture `LIST`.
+
+**PN9 — minor. The scanner alone accepts any visibility value silently.** `"Public"`, `"PUBLIC"`
+and `"internal"` read as out of scope, exit 0 (probe P10); `floor.py` refuses them as a config
+error. The README's own usage lines run the scanner alone. *Counsel:* raise `ConfigError` for a
+value outside `floor.VISIBILITIES`.
+
+**PN10 — note. Output and path handling.** Finding paths are printed raw (a bidi control in a
+path reached the terminal, P7b); the detail goes through `safe_text`. `leakscan` prints paths
+the same way, so this is a floor-wide class. A tracked symlink to a file outside the tree is
+read and reported by the symlink's path (P6); a non-UTF-8 tracked name would raise in
+`tracked()` and exit 2 with a traceback (by code; NOT RUN, APFS refuses the name).
+
+**PN11 — note. No namespaced finding ID.** Ten scanners use `report.with_id` and
+`finding_dicts`; this one prints `[unlisted-marker]` and its JSON has no `id`. `attribscan`
+shares the gap, so it is a `320/810`-slice pattern rather than this delta's alone.
+
+**PN12 — note. Altitude.** A floor scanner reading each repo's own list is the right shape;
+what the design did not carry across is the list's grammar (PN2) and the rule's text (PN4).
+`160/630`'s open alternative would not remove either need.
+
+### Follow-up checklist
+
+- [ ] PN1 — the principal's call on scope: declaration, or GitHub's answer where the plane has
+      it. Then `floor.py` and/or `pdlistscan.py`, README, docstring, a test per plane.
+- [ ] PN2 — zero-entry and malformed-entry lists fail closed; entry counts on the coverage
+      line; a list template for children.
+- [ ] PN3 — exemption narrowed to markers and keyed on atelier itself; "same check" and "what
+      it does not see" corrected.
+- [ ] PN4 — one rule on a missing list, swept to `REPO-STANDARD.md` and the child template;
+      no early return before markers are read.
+- [ ] PN5 — README fleet sentence removed or dated; a dated fleet probe boarded before
+      2027-03-08.
+- [ ] PN6 — marker reading through `leakscan.parse_allow` with code spans blanked; a decision on
+      the unscoped form.
+- [ ] PN7, PN8, PN9 — coverage skipped count; a wrapped fixture field; refuse unknown
+      visibility values.
+- [ ] PN10, PN11 — floor-wide: path escaping and finding IDs, boarded against the class, not
+      this scanner alone.
+- [ ] Act 2: open the sibling and the barred records, screen the commit body, append
+      `### Reconcile`.
