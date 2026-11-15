@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the thirteen technical fixes he approved in
+- [ ] 🎯 **Rule-4 cold pass queued: the thirteen technical fixes he approved in
       one list (`160/050`, `090`, `100`, `220`, `470`, `490`, `520`, `560`, `590`,
       `300`, `570`, `430`, `680`).** Scanners in every child changed, and several
       passes had a MAJOR. The authoring session (a principal-opened Opus 5.5
@@ -32,3 +32,16 @@
       74f2b8cd, 722ac2e2 and what it started). The sibling is held out of the worktree until
       act 1 is committed. The item's "waits for the principal's explicit permission for
       Fable work" is met by that drain order.
+      ✅ PASS RAN 2026-11-15 UTC (Fable 5.1 reviewer, act 1 `94a12966`, act 2 folded with
+      the sibling): **PASS-WITH-FINDINGS — 0 MAJOR, 2 MODERATE, 7 minor, 4 notes**
+      (`TL1`–`TL13`, verdict in the brief above). No standing MAJOR. The scanner changes hold
+      at HEAD and no child's blocking result changed on this machine.
+      🎯 **The principal's to rule (rule 3: the work is doctrine by function, so every finding
+      is his; recorded, nothing applied):** MODERATE first. `TL1` the fleet board reports full
+      term cover where the hook refuses a set-but-empty `ATELIER_LEAKSCAN_TERMS`; `TL2` the
+      hand-up landing duty is a prose trigger, already unmet by two open hand-ups, and its
+      push-time lint is unfiled and unowned. Then minor `TL3`–`TL8` and `TL12`, notes
+      `TL9`–`TL11` and `TL13`, each with counsel in the verdict. *Recommendation, for one
+      bulk ask:* approve the counselled fixes as a list, with `TL2`'s lint filed as its own
+      item. *Routing:* fixes land in atelier (`tools/` scanners, `PROPAGATION.md`,
+      `CLAUDE.md` step 6); the open hand-ups are landed under the existing read-order duty.

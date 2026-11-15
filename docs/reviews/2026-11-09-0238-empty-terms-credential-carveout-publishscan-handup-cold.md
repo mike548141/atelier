@@ -7,8 +7,11 @@ pass. A session that cannot run on it stops (rule 4).
 **Status:** act 1 written 2026-11-15 UTC by a Fable 5.1 reviewer in worktree
 `atelier-160-1220-2002`, under a headless Opus 5.5 orchestrator started by drain session
 `21a271a5` (the principal's `/fable-drain` order of 2026-11-16 NZDT); PASS-WITH-FINDINGS, 0 MAJOR,
-2 MODERATE, 6 minor, 3 notes; act 2 (reconcile) follows the sibling's release. Brief written
-2026-11-09 UTC by session `9bb1b984`, a headless Opus 5.5 brief-writer.
+2 MODERATE, 6 minor, 3 notes (act 1, committed `94a12966`); act 2 (reconcile) written
+2026-11-15 UTC by the same reviewer after the sibling's release, restated PASS-WITH-FINDINGS, 0
+MAJOR, 2 MODERATE, 7 minor, 4 notes. Sibling folded below the verdict
+2026-11-15 UTC by the orchestrator. Brief written 2026-11-09 UTC by session `9bb1b984`, a
+headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1220-rule-4-cold-pass-queued-thirteen-technical-fixes.md`.
 **Size of this pass:** medium: about 785 changed lines across four fixes, three of them scanners
@@ -230,7 +233,8 @@ verdict in `docs/reviews/` (for this delta chiefly
 `docs/reviews/2026-10-03-0357-publishscan-round-2-cold.md` and
 `docs/reviews/2026-09-25-0715-report-up-duty-cold.md`), this brief's sibling
 `docs/reviews/2026-11-09-0238-empty-terms-credential-carveout-publishscan-handup-cold.deferred.md`
-(a held-back file; by count: 13 questions, 3 facts), every item under
+(a held-back file; by count: 13 questions, 3 facts; folded below the verdict 2026-11-15 and
+the file removed), every item under
 `docs/roadmap/160-doctrine-review-owed/` beyond its title, which includes this delta's four intent
 records (`090`, `100`, `470`, `300`), and every delta commit's message body.
 
@@ -511,3 +515,181 @@ process at a time, `python3` = 3.14.6 from `PATH`.
 - [ ] TL9 · TL10 · TL11 (notes; take or decline when the above lands)
 - [ ] act 2: reconcile against the sibling (13 questions, 3 facts) and the barred records, then
       the orchestrator folds the sibling
+
+### Reconcile — act 2, 2026-11-15 UTC
+
+Act 1 was committed as `94a12966` before anything below was opened. Then, in this order: the held
+sibling (13 questions, 3 facts), the five commit bodies, the four prior verdicts named in the
+brief (the AR, AB, PL and RU finding texts and their reconcile sections), the four intent records
+and the pointer, and the one line of `docs/SESSIONS.md` that names this pass. The acceptance test
+prints `"Approve all 13"` as the brief says. Nothing in act 1 is revised; two findings and one note
+are formed here and marked so.
+
+#### Against the sibling's questions
+
+1. **Stranding by an empty list.** Driven end to end: `floor.py --plane hook` in a scratch repo
+   with a comments-only list refuses with `BLOCKED by: leakscan`, the AR3 sentence, and the floor's
+   own "exit 2 means the scan itself could not run" line. Not a stranding: the remedy is actable,
+   the list lives outside every repo so no child can ship a stub, and a new machine with no list
+   meets AP4's refusal exactly as before the delta. TL10 stands on the wording.
+2. **Does the carve-out close every credential shape?** No, and the delta does not claim so: it
+   is line-local by design. TL7 (the entropy net's charset) stands; TL12 below is the other gap.
+3. Answered under 1; also probed with the environment value set but empty (same refusal).
+4. **Whose fact is "CI passes no `--require-terms`"?** The floor registry's (`tools/floor.py`
+   `ci=` for leakscan); every child's caller runs that registry. A child could only add the flag
+   through its declared `flags`, which is its own, visible choice.
+5. **The shapes.** JSON, `client_secret`, `passwd`, prefixed keys (`REDIS_PASSWORD`,
+   `AWS_SECRET_ACCESS_KEY`) block; `password_hash:` and `Authorization: Bearer SHA256:…` stay
+   suppressed (`\b` after the key word; judged acceptable, recorded in act 1 as not raised). The
+   reverse holds: `ssh_host_key_fingerprint`, `key_fingerprint`, a `known_hosts`-style line stay
+   suppressed, so E3's ruled use is intact. Key on the line above, an array element, a block scalar
+   and a heredoc: all clean with one suppression (TL12).
+6. **Does the location line carry a value?** No: `path:line` only, in human and JSON output,
+   confirmed in the floor run and the code.
+7. **Exempted paths in a public CI log.** Each is already a tracked path in a public tree, and
+   the `why` is the registry's generic reason; nothing new is disclosed. In a private repo the log
+   is private. Act 1 judged this and raised nothing.
+8. **`.lower()`, not `.casefold()`.** `ß` stays `ß` and `İ` lowers to `i̇`; the registry's globs are
+   ASCII, so a non-ASCII name matches none of them either way. Two tracked paths differing only
+   by case both red and, the hatch being case-sensitive, one can be exempted alone. The old match
+   reached `.github/release_history`, `.ci/job_history` and everything under a `._x/` directory;
+   the new one does not, and nested `.bash_history` still reds (tests PL6, re-run).
+9. **`--end-of-options`.** Git 2.24 (2019). Local git 2.50.1; CI is `ubuntu-latest`, well past
+   it; `signscan` runs on the CI plane and in `signfleet`, not in the commit hook.
+10. **Rule 3's AR8 sentence and its mirrors.** The review-brief skill (l.135) and the template
+    reviews README carry "the principal's to decide" and not the "name any prior answer" clause;
+    the queue-run skill has no ask mechanics at all (sweep: no hit). The clause governs the asker,
+    and no skill states how asks are made, so no mirror site exists yet to sweep; recorded, not a
+    finding.
+11. **"Repo token" and "item and index only".** Inside the estate a session knows the private names
+    through leakscan's term list, which `namescan` (landed later, `160/360`) now reads for
+    exactly this on the message plane; for a repo it has never heard of the check is unanswerable,
+    and the duty being the principal's repos makes that honest. A filing that opens a new board
+    section also adds that section's `README.md`, which the "nothing else" test would flag (TL13).
+12. **No `gh`, unauthenticated `gh`, a cold reviewer.** The step states no behaviour for the first
+    two; TL3 covers the third, and the sibling's point sharpens it: an open hand-up's title is a
+    child's claim about the doctrine (#135's title is one), met before the brief.
+13. **Scope edges.** A fork of a public child by someone else is outside "the principal's repos"
+    (and outside `606e6dcf`'s "owns or controls", which agrees). Private-first with no fix ever
+    made: the public item never lands, which is the ordinary trade of private disclosure, and
+    `SECURITY.md` says plainly there is no response-time commitment. Not a finding.
+
+#### Against the facts held back
+
+- The brief-writer's re-runs (2026-11-09: 1,086 named tests; 2,718 in discover, about 647 s)
+  agree in shape with mine (1,202 and 3,134; the suites have grown in the six days between).
+- `/usr/bin/python3` (3.9.6) fails `test_floor` and `test_floorfleet` on a `X | None` annotation
+  evaluated at import: consistent with the tools' use of PEP 604 unions; the brief's "the
+  `python3` first on `PATH`" is the right instruction, and the pinned 3.12 in CI is unaffected.
+- The prior-pass tallies the brief's selection rests on read as stated on the four items.
+
+#### Against the author's account (commit bodies, intent records)
+
+- **TL1 stands.** `db8c44b7`'s body says the board "no longer calls an empty list full cover";
+  true for the empty list, and the same commit's set-but-empty refusal was not carried to the
+  board. AR3's counsel named the empty value as a shape to treat as explicit; the applier did so
+  in the scanner and not in `terms_state`.
+- **TL2 stands, and the record overstates.** RU2's counsel had two halves: write the merge-time
+  check as a command, and "queue the rung-2 instrument as its own item". `3312cdbd`'s body says the
+  second "is not filed here", yet item `160/300` records "RU2–RU6, RU12 as counselled" and "every
+  finding is now applied or routed". RU4's own evidence (three hand-ups open, thirteen commits from
+  three sessions, none landing them) is the shape the forge shows again now.
+- **TL4 stands, sharper.** The "eleven" is RU12's 2026-09-17 batch (eleven hand-ups, six number
+  collisions, several of them filed over the channel rather than as PRs); the "three weeks" is
+  nowhere in RU4 (whose open PRs were six days old) and matches only #67. Two records were merged
+  into one sentence.
+- **TL7 stands.** AB1 named the mechanism (the value class stops at the separator, the net finds
+  the body) and offered three options; the applier took the first. AB1's probe fixture, like the
+  test's, has no `/`, so neither pass measured the charset edge.
+- **TL6, TL5, TL3 stand**; nothing in the bodies or records speaks to them.
+- **PL2's "consider refusing a bare `*`"** was not applied; `3b002d51`'s body says so, the
+  CHANGELOG does not. The visible hatch meets PL2's stated aim, and the record on `160/470` routes
+  PL9 to the principal; no finding.
+- **AR2, AR4.** AR2's counsel (read the bypass) is answered by the 2026-10-16 bypass removal, so
+  "largely moot" is fair; AR4 (the ADR's `review:` line) was fixed before this delta, as claimed.
+- **AR8** is applied as counselled; the sibling's question 10 is the only open thread.
+
+#### Findings formed at reconcile
+
+- **TL12 — minor, formed at reconcile (from the sibling's question 5).** The carve-out switch is
+  line-local, so a fingerprint-shaped credential whose key sits on the line above stays suppressed:
+  a YAML list under `api_keys:`, a block scalar under `password: >`, a heredoc assigned to `TOKEN`,
+  each scans clean with one counted suppression (probed at HEAD; the same shapes on one line
+  block). Same class as AB1, less common spelling, pre-existing scope of E3's line model.
+  *Counsel:* carry the credential-key state forward over a YAML block scalar or list and a heredoc
+  until the indentation or terminator closes it, or record the shape as an accepted residual under
+  the README's documented limits.
+- **TL13 — note, formed at reconcile (from the sibling's question 11).** Board sections carry a
+  `README.md`; a hand-up that opens a new section adds it, and the merge-time check's "the filed
+  item, the regenerated index and nothing else" would flag a correct filing. *Counsel:* "and the
+  section's README where the section is new".
+
+#### Overall, restated
+
+**PASS-WITH-FINDINGS — 0 MAJOR, 2 MODERATE (TL1, TL2), 7 minor (TL3–TL8, TL12), 4 notes (TL9–TL11,
+TL13).** No act-1 severity moved. The scanner changes hold at HEAD and across the fleet; the hand-up
+doctrine's trigger needs a tool behind it and its lint needs an owner.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`94a12966` before the
+rebase onto `main`); folded here verbatim (headings demoted two levels) and the sibling file
+removed, per the brief. The orchestrator (a headless Opus 5.5 session started by drain session
+`21a271a5`, itself Opus 5.5) held the partition, formed no finding and wrote no severity.*
+
+### Held back — the empty term list, the credential carve-out, publishscan, the hand-up route
+
+Opened only once the reviewer's own findings are durably written (`REVIEW.md` rule 1). A floor,
+never a fence. Written by the brief-writer, session `9bb1b984`, which did not author the delta.
+
+#### The pointer's own questions
+
+1. Can refusing an empty term list strand a child?
+2. Does the secret carve-out close every credential shape?
+
+#### The brief-writer's questions
+
+3. Who is on the hook plane with a comments-only list: a fresh clone, a new machine, a child that
+   ships a stub file? Is exit 2 a blocked commit with a remedy they can act on, or a stranding? What
+   does the same list do under `floor.py --plane hook` end to end?
+4. "CI passes no `--require-terms`, so no child's CI changes": is that a fact about every child's
+   `floor.yml` caller, or only the reusable workflow's default?
+5. The carve-out turns on "a line that names a credential key". Build the shapes: YAML with the key
+   on the line above, JSON, `Authorization:`, `client_secret`, `passwd`, a key with a suffix or
+   prefix, an array, a heredoc. Then the reverse: a legitimate `ssh_key_fingerprint: SHA256:…` or a
+   `known_hosts` line. Does the restored block now fire on the use E3 was built to exempt?
+6. A secretscan suppression is now printed as `path:line`. Does any printed line carry the
+   suppressed value, in a public CI log?
+7. Publishscan's first ten hidden paths print on every run and `--json` carries them all, in public
+   CI logs. What does a path disclose in a repo whose ignore file exists because the path is
+   sensitive?
+8. "Case folded": `.casefold()` or `.lower()`? Non-ASCII (`ß`, dotted `İ`). On a case-sensitive
+   filesystem can two tracked paths differ only by case, one allowed? `.*_history` and `._*` moving
+   to basename-only: what did the old match reach that the new one does not?
+9. `--end-of-options` in `signscan`: which git version introduced it, and which git runs on each
+   plane?
+10. Does the `REVIEW.md` rule 3 sentence (an ask names any prior answer) reach its mirrors: the
+    skill's rule, `docs/build/templates/docs/reviews/README.md`, the queue-run prompt?
+11. Hand-up check: "a `report-` head with no repo token unless that repo is public". How does a
+    session know what a repo token is, in a repo it has never heard of? "Files that are the item and
+    the index only": does that refuse a filing that adds a new section?
+12. The read-order step adds `gh pr list` to every atelier session open. What happens with no `gh`,
+    with `gh` unauthenticated, or under a cold reviewer, and is a PR title then part of the
+    reviewer's pre-brief exposure?
+13. "The duty is the principal's repos": is a fork of a public child inside or outside it? The
+    private-first path for a vulnerability: where does the public item land if the fix is never
+    made?
+
+#### Facts held back
+
+- **Re-run lines, 2026-11-09 UTC, machine load about 9 at the start, run from the worktree root
+  (the `cd tools` line from `tools/`).** `python3` was 3.14.6. Every `--selftest` named in the
+  brief exit 0; the combined unittest line, 1,086 tests, exit 0; `floor.py --plane ci --root .` exit 0,
+  with `pathscan` warn-only findings; the full `unittest discover -s tools` under `nice`: 2,718 tests
+  in about 647 s, OK, exit 0.
+- **Interpreter:** under `/usr/bin/python3` (3.9.6) `test_floor` and `test_floorfleet` exit 1 with
+  `TypeError: unsupported operand type(s) for |: 'type' and 'NoneType'`. The brief-writer did not
+  trace the source. CI pins 3.12.
+- **The prior-pass result by item, read from the board** (why these four and not the other nine):
+  `160/090` FAIL with 2 MAJOR and a stated stay-open; `160/470` 1 MAJOR; `160/300` 1 MAJOR;
+  `160/100` 0 MAJOR. The other nine each 0 MAJOR, several marked closed on that pass.

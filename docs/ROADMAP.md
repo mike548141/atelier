@@ -368,7 +368,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: a malformed allow-marker goes strict after a…](roadmap/160-doctrine-review-owed/1190-rule-4-cold-pass-queued-strict-markers-and-lowering.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccmail's cache is private and expires, and…](roadmap/160-doctrine-review-owed/1200-rule-4-cold-pass-queued-ccmail-cache-and-recorded-reach.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the estate root as an ordinary private repo…](roadmap/160-doctrine-review-owed/1210-rule-4-cold-pass-queued-estate-root-reviewer-side-two-steps.md)
-- [~] ⏳ [Rule-4 cold pass queued: the thirteen technical fixes he approved in…](roadmap/160-doctrine-review-owed/1220-rule-4-cold-pass-queued-thirteen-technical-fixes.md)
+- [ ] 🎯 [Rule-4 cold pass queued: the thirteen technical fixes he approved in…](roadmap/160-doctrine-review-owed/1220-rule-4-cold-pass-queued-thirteen-technical-fixes.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the board-states design (310/160, 310/060).](roadmap/160-doctrine-review-owed/1230-rule-4-cold-pass-queued-board-states-design.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the report-only switch barred on the board…](roadmap/160-doctrine-review-owed/1240-rule-4-cold-pass-queued-board-check-bar-membership-review-cadence.md)
 - [ ] ⏳ [Rule-4 cold pass queued: his method for asking, and an answer is not…](roadmap/160-doctrine-review-owed/1250-rule-4-cold-pass-queued-asking-method-and-answer-versus-ruling.md)
