@@ -3,7 +3,8 @@
 **Board:** `docs/roadmap/160-doctrine-review-owed/1410-rule-4-cold-pass-queued-namescan.md`
 **Status:** RUN. Act 1 (the verdict below the divider) written 2026-11-15 UTC by a Fable 5.1 cold
 reviewer, spawned by a headless orchestrator under drain session `21a271a5`; act 2 (reconcile
-against the sibling and the barred records) pending. Brief written 2026-11-14 UTC by a headless
+against the sibling and the barred records) written the same day; sibling folded below the
+verdict. Overall FAIL, 14 findings (2 MAJOR). Brief written 2026-11-14 UTC by a headless
 Opus 5.5 brief-writer (`cclive` lists it as session `51ccf0f9`).
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4.
@@ -267,7 +268,8 @@ build.
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/` (the earlier pass that raised `NP2` included), the queue pointer above,
 this brief's sibling
-`docs/reviews/2026-11-14-0239-namescan-private-names-branches-titles-cold.deferred.md`, the three
+`docs/reviews/2026-11-14-0239-namescan-private-names-branches-titles-cold.deferred.md` (since
+folded below the verdict and the file removed), the three
 delta commits' message bodies, and the two intent records whole:
 `docs/roadmap/160-doctrine-review-owed/360-rule-4-cold-pass-queued-the-naming-precedence.md` and
 `docs/roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md`.
@@ -644,3 +646,177 @@ repo with a scratch bare remote instead (lens 1, NA1).
 - [ ] `NS9` do not clean history with `#`.
 - [ ] `NS10` PROPAGATION.md rung sentence; `declares.rule`.
 - [ ] Act 2: reconcile against the sibling and the barred records.
+
+### Reconcile
+
+Act 2, 2026-11-15 UTC, after act 1 was committed unrevised as `6b4bbedd`. Opened: the held
+sibling (one file, read in place, not copied); the queue pointer `160/1410`; `160/360` and
+`320/810` whole; the three commit bodies (`git log -1 --format=%b`); the prior verdict
+`2026-09-25-0715-naming-precedence-cold.md` at its `NP2` paragraph only. Nothing else barred was
+opened. Act-1 text above is untouched.
+
+**The sibling.** It is a floor and says so; it records no probe past the re-run lines, which
+match mine (its 2,325 titles on 2026-11-14 became my 2,336). Its twelve questions, each against
+the act-1 probe that answers it:
+
+- Q1 push-time refs → `NS2`: no surface holding the list reads a ref named at push; CI reads the
+  name without the list. Its note that this estate's own worktree sessions push from a detached
+  HEAD sharpens `NS2`'s weight: the message plane reads no branch at all on that path.
+- Q2 CI with no list → `NS3`: the stdout cover note and `--json` say so; the floor's `--list`
+  line, the README, docstring, changelog and floor comment do not.
+- Q3 PR titles and the stale sentence → `NS2` and `NS10`: nothing reads a pull-request title;
+  `PROPAGATION.md:797–799` is stale for the commit-time rung and still true for the push-time
+  one, and its `GUARDS.md` citation reaches nothing.
+- Q4 self-exemption → `NS4`, confirmed in both shapes it asks about; one body marker does exempt
+  the branch as well, which the author's EXEMPTION paragraph intends and which stands as design.
+- Q5 separators → `NS1`: `-` and `/` bound; `_`, digits and case changes do not; multi-word terms
+  never match a ref.
+- Q6 leak through the check → NA4 confirmed for findings and `--json` (the excerpt is two
+  characters of the term, or leakscan's `redact` of a structural span); the `allowmarker` note is
+  `NS8`.
+- Q7 option injection → `NS7`, confirmed as a write (`--output`), bounded to the command line by
+  `FORBIDDEN_FLAGS` and argparse; a one-line hardening, recorded as minor.
+- Q8 comment-char stripping on CI → `NS9`, confirmed: a `#`-led title escapes the range plane.
+- Q9 scope key → `NS6`: nothing checks the declaration against the forge; 2 of 21 local children
+  are public there and undeclared.
+- Q10 malformed floor config → confirmed: `pdlistscan.ConfigError` is a `RuntimeError`,
+  `guarded_main` turns it into the shared `cannot read` line and exit 2, with the path and the
+  JSON error the user can clear. That the hook then blocks is read from `.githooks/commit-msg`
+  (`|| status=1`), not probed.
+- Q11 the clean head's wording → **`NS13`, note, formed at reconcile.** `render` says "on the
+  pushed range" for every `--range` spec: my own re-run of `--range HEAD` over the whole history
+  printed "no private name in a branch or title on the pushed range" for 2,336 titles that were
+  never a pushed range. The sibling asked; act 1 printed the evidence and did not read it. One
+  word: say "the range" unless the spec was `pushed`.
+- Q12 test gaps → `NS5` covers the two that cannot fail; **`NS14`, note, formed at reconcile:**
+  no test covers a structural shape in a title, the `GITHUB_HEAD_REF` / `GITHUB_REF_NAME` read
+  on the CI plane, `--json`, or the stderr channel. Each was probed in act 1 and behaved; none
+  is pinned.
+
+**The author's account.** Three things it adds, none of which moves a severity:
+
+- `160/360`'s landing note records that "the counsel's pre-push shape was not built: the
+  commit-msg hook reads the branch at commit time, so a branch renamed afterwards is seen only by
+  CI's pushed-range report". So the rung gap in `NS2` was known and disclosed on the board item,
+  not on the delta's own surfaces, and the pull-request title is named nowhere in the account.
+  The disclosure's second half is `NS3`'s overclaim in another home: CI's pushed-range report
+  holds no term list, so it does not see a renamed branch's private *name*. `320/810` repeats it
+  ("until then their CI report is the only cover"). `NS2` stays MAJOR: a board note the principal
+  does not read, which itself overstates the fallback, does not stand in for the claim sites.
+- The prior pass's `NP2` counsel was precisely the pre-push rung on the machine that holds the
+  list, "failing that, state … that the four surfaces are unwatched". The build took neither
+  branch of that counsel in its own text. `NS2`'s counsel restates `NP2`'s, which is to say the
+  class has recurred once in doctrine and once in code.
+- The changelog's "atelier the only repo in scope" and the body's "21 of 21 exit 0" were true at
+  the landing commit (`320/810`: "atelier in scope, the other 20 out", 2026-11-10); 3 children
+  declare public at HEAD. `NS6`'s stale-claim clause is a change since landing, not an error at
+  it; the 2 undeclared public repos are the finding. `320/810` also says each flip "needs a fresh
+  fleet probe before its date", which is where `NS1`'s "before the flip" belongs.
+- `ba55be27`'s body explains the `Unmet` rule declaration: "a citation that does not resolve
+  would be worse than Unmet, so every stated one is pinned to resolve". `NS10`'s counsel is
+  therefore a *resolving* citation of `PROPAGATION.md` § *The route* rule 2, not a loosening.
+- The brief's acceptance test holds as written: the principal's words fix "built, warns first,
+  blocks on a staggered date", and the delta meets all three. Every finding here is against the
+  harm the brief says to judge by and against the delta's own claims, not against his words.
+
+**Overall, restated: FAIL** — 2 MAJOR (`NS1`, `NS2`) · 4 MODERATE (`NS3`–`NS6`) · 4 minor
+(`NS7`–`NS10`) · 4 note (`NS11`–`NS14`; `NS13` and `NS14` formed at reconcile). The fold of the
+sibling below this line is the orchestrator's.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Held out of the review worktree by the orchestrator until the reviewer's act-1 findings
+were committed (`6b4bbedd`), then released to the reviewer for act 2; folded here verbatim
+(headings demoted two levels) and the sibling file removed, per the brief. Act 1 was
+committed locally as `52a3b0c4` and landed on `main` as `6b4bbedd` after a rebase, content
+unchanged; the orchestrator corrected that one hash in the reconcile's first line (form only).
+The orchestrator, a headless Claude Opus 5.5 session started by drain session `21a271a5`,
+formed no finding and wrote no severity.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-14-0239-namescan-private-names-branches-titles-cold.md`
+(`REVIEW.md` rule 1). Written 2026-11-14 UTC by the brief-writer (`cclive` lists it as session
+`51ccf0f9`), which authored none of the delta. Open this only after act 1 is committed. Everything
+here is a floor, never a fence, and none of it is a finding: the brief-writer read the code once
+and probed none of these past what is recorded below.
+
+#### What the barred intent records say, in brief
+
+- `160/360` carries, under the earlier pass's summary, the author's landing note for this check:
+  `NP2` built 2026-11-10 as `tools/namescan.py`, and **the counsel's pre-push shape was not
+  built**: the commit-msg hook reads the branch at commit time, so a branch renamed afterwards is
+  seen only by CI's pushed-range report. The same item carries a 2026-11-09 note that `NP5` is
+  still the principal's.
+- `320/810` records the slice-5 landing with the same measurement and fleet probe the changelog
+  states, "Tests: 14 … plus `tools/test_commitmsg.py` (12)", that the date is the run's choice
+  (four weeks after the three already set, in the order built), and that existing clones need
+  `tools/commit-msg.sample` installed for the message-plane checks to run, with `floorfleet` not
+  yet checking for that hook.
+- The landing commit's body says the failure "had recurred in head refs", and gives the same
+  measurement and probe.
+
+#### The brief-writer's own questions
+
+1. **Push-time refs.** The harm in the doctrine was a head ref and a title in a public PR list. A
+   ref named only at push (`git push origin HEAD:<name>`, the form this estate's own worktree
+   sessions use from a detached HEAD) never passes a commit-msg hook that can see it, and
+   `commitmsg.branch` returns empty on a detached HEAD, so the message plane reads no branch at
+   all there. Which surface, if any, reads such a ref before it is public?
+2. **CI with no term list.** The CI template has no `--require-terms`, and a hosted runner has no
+   `~/.claude/leakscan-terms.txt`. So on CI the check reads structural shapes only, which do not
+   include a repo or client name. The cover note says so on stdout; does anything a reader of the
+   board or the floor list sees say so? Is CI's "clean" for the pushed ref name meaningful?
+3. **PR titles and bodies.** `NP2` and `PROPAGATION.md` rule 2 name PR titles; nothing here reads
+   one. `PROPAGATION.md` § *Report without harming the parent* still says a branch-name and title
+   lint "is not built". Stale now, or still true for the push-time rung? Either way, V3.
+4. **A subject cannot exempt itself.** `scan_message` calls `allowmarker.present` on the whole
+   message, subject included. Does a title of the form `x: <name> namescan:allow: y` exempt itself?
+   And does one body marker also exempt the branch name, which the author may not have looked at?
+5. **Ref-name separators.** Branch names use `-`, `_` and `/` where a term list holds words. Does a
+   term bound by `\b` still match `report-<name>-1`? (The test says yes for `-`.) What of
+   `report_<name>`, `<name>/x`, a camel-cased or squashed form?
+6. **Leak through the check.** The excerpt is leakscan's redacted excerpt cut to 60 characters.
+   Is that excerpt redaction of the term, or of the span around it? What does `--json` carry, and
+   the stderr note `allowmarker` prints for an unparseable marker ("the head of the marker, up to
+   forty glued characters")? A public repo's CI log is public.
+7. **Option injection.** `--range` is passed straight to `git log` after the format argument. A
+   spec beginning with `-` (for example `--output=<path>`) is read as an option. Only a local user
+   or a template sets it, so is this a finding or a one-line hardening?
+8. **Comment-char stripping on CI.** `commits()` cleans each pushed message with `#` as the comment
+   character, so a title starting with `#` is dropped and the next non-blank line read as the
+   subject. Does a title like `#123: <name>` escape the CI report?
+9. **Scope key.** A repo public on the forge but not declaring `"visibility": "public"` is silently
+   out of scope (`not declared public: out of scope.`, exit 0). Is the declaration checked against
+   the forge anywhere?
+10. **Malformed floor config.** `pdlistscan.declared_public` raises its own `ConfigError`, a
+    `RuntimeError` subclass, so `guarded_main` turns it into exit 2. Confirm, and confirm the
+    message-plane hook then blocks the commit (fail-closed) for a reason the user can clear.
+11. **The clean head on a whole-history run** says "on the pushed range" for any `--range`, not only
+    `pushed`.
+12. **Tests.** No test covers a structural shape in a title, the CI plane's `GITHUB_HEAD_REF` /
+    `GITHUB_REF_NAME` read, `--json`, or the NA4 property on stderr. The 14 tests count matches
+    HEAD.
+
+#### What the brief-writer ran, and what it got
+
+All from the worktree root on 2026-11-14 UTC unless stated, foreground, load average 4 to 6 on 12
+cores, at `origin/main` `461fdf92`, on a detached HEAD.
+
+- `merge-base --is-ancestor` on `6b6110c9`, `b74cd5ef` and `ba55be27`: all ancestors.
+- `cd tools && python3 -m unittest test_namescan`: 14 tests, OK, about 3 s.
+- `cd tools && python3 -m unittest test_commitmsg`: 12 tests, OK, exit 0.
+- `cd tools && python3 -m unittest test_floor.MsgPlaneTest`: 10 tests, OK, exit 0.
+- `cd tools && python3 -m unittest test_precommit.CommitMsgHookTest`: 7 tests, OK, exit 0.
+- `python3 tools/namescan.py --selftest`: `selftest OK — namescan`, exit 0.
+- `python3 tools/namescan.py --range pushed --root . --warn`: exit 0, clean, with the note "no
+  pushed range known: reading HEAD only"; advisory count 0.
+- `python3 tools/namescan.py --range HEAD --root . --warn`: clean over 2,325 commits (the landing
+  measured 2,285), with this machine's term list present; about 0.5 s.
+- `python3 tools/namescan.py --range nosuch..HEAD --root . --warn`: exit 2, git's own error text.
+- `python3 tools/floor.py --plane msg --list --root .`: `namescan enforced fleet decl 0/5`.
+- The `coldsweep --commit 6b6110c9` line in the brief, with the five non-tool paths: exit 0, no body
+  printed, the two board-store files left out by default.
+- `git status --short` after the test runs: empty.
+- **Not run:** the fleet probe over child checkouts, a read of the forge's PR titles and head refs,
+  and any probe of the questions above. All are left whole to the pass.
