@@ -336,7 +336,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: board.py sorts item and section numbers as…](roadmap/160-doctrine-review-owed/987-rule-4-cold-pass-queued-board-sorts-numbers-as-numbers.md)
 - [ ] ⏳ [Rule-4 cold pass queued: datescan's blockquoted lines report their…](roadmap/160-doctrine-review-owed/988-rule-4-cold-pass-queued-datescan-reports-what-it-let-pass.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccapple, a read-only search of the Apple…](roadmap/160-doctrine-review-owed/989-rule-4-cold-pass-queued-ccapple.md)
-- [~] ⏳ [Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS, IPTC,…](roadmap/160-doctrine-review-owed/990-rule-4-cold-pass-queued-g3-field-level-and-nz-phone-digest-guard.md)
+- [ ] 🎯 [Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS, IPTC,…](roadmap/160-doctrine-review-owed/990-rule-4-cold-pass-queued-g3-field-level-and-nz-phone-digest-guard.md)
 - [ ] ⏳ [Rule-4 cold pass queued: cctranscript reads a task notification the…](roadmap/160-doctrine-review-owed/991-rule-4-cold-pass-queued-notification-records-one-way.md)
 - [ ] ⏳ [Rule-4 cold pass queued: every scanner's --selftest prints only its…](roadmap/160-doctrine-review-owed/992-rule-4-cold-pass-queued-quiet-selftests.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose resolves a shell variable in a…](roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md)

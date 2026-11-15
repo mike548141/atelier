@@ -4,10 +4,11 @@
 function, rule 3).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN, 2026-11-15 UTC: PASS-WITH-FINDINGS (0 MAJOR, 1 MODERATE, 3 minor, 4
-notes), by a Fable 5.1 reviewer under the principal's 2026-11-16 drain order; act 2 (reconcile
-with the sibling) pending. Brief written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus
-5.5 brief-writer.
+**Status:** VERDICT COMPLETE, 2026-11-15 UTC: PASS-WITH-FINDINGS (0 MAJOR, 1 MODERATE, 3 minor,
+5 notes, one formed at reconcile), by a Fable 5.1 reviewer under the principal's 2026-11-16
+drain order; act 1 committed at `464c4748`, act 2 (reconcile) appended; every finding is the
+principal's to decide (rule 3), none applied. Brief written 2026-11-09 UTC by session
+`d4a0fcf3`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/990-rule-4-cold-pass-queued-g3-field-level-and-nz-phone-digest-guard.md`.
 **Size of this pass:** large: three commits, about 1,030 lines of binary-format parsing in a
@@ -177,7 +178,8 @@ nice -n 10 python3 -m unittest discover -s tools
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-`docs/reviews/2026-11-09-0207-g3-field-level-nz-phone-digest-cold.deferred.md` (a held-back file; by
+`docs/reviews/2026-11-09-0207-g3-field-level-nz-phone-digest-cold.deferred.md`
+(folded below the verdict at phase 2; the file is removed) (a held-back file; by
 count: 9 questions, 2 facts), every other item under `docs/roadmap/160-doctrine-review-owed/` beyond
 its title, every delta commit's message body, and these intent records beyond their first line:
 
@@ -467,3 +469,154 @@ process.
 - [ ] GF8: no action; recorded.
 - [ ] Act 2: reconcile against the sibling and the barred records; the orchestrator folds the
       sibling and commits.
+
+### Reconcile (act 2), 2026-11-15 UTC
+
+Act 1 was committed unrevised at `de0ec3ef` before anything below was opened. The orchestrator's
+release message named one file, the held sibling at a path under the user's configuration
+directory (nine questions, two facts, and the brief-writer's re-run results), and opened the
+rest of the phase-2 material. I then read: the sibling whole; the three delta commits' message
+bodies; `020/450` and `320/470` whole; board items `160/980` and `160/990` whole; the prior G3
+verdict `docs/reviews/2026-10-26-0928-g3-grace-metadata-sets-cold.md` where it names the dates
+(GM7) and `020/450`; the author session's log `docs/sessions/2026-11-03-0630-queue-run-4c65.md`
+and the two later logs that repeat its hand-off lines; and the grep hits for `2026-12-18`,
+`type-level` and `320/470` across the records. Three more probes ran on synthetic bytes.
+
+**Against the author's account (commit bodies, `020/450`, the session log).** The bodies claim
+what act 1 found: names only; `<set>:unknown` blocks until named; the type-level migration; the
+digest guard's separator rule; "whole-tree scan exit 0 before and after". That last claim re-ran
+at HEAD: `nice -n 10 python3 tools/leakscan.py --root . .` exit 0 (allow-marker notes only).
+The brief-writer's held re-runs (395, 102 and 2,643 tests at `b1f9499`) are consistent with
+mine at HEAD (422, 110 and 3,134); the growth is later commits. The held fact that `29021b9` is
+a pre-rebase hash and `2ba261b` the landed one matches what I read; `e269f594` was handled as a
+non-goal in act 1.
+
+**Per finding.**
+
+- **GF1 (MODERATE) stands, sharpened.** The records confirm the date is the author's: `020/450`
+  framed the migration as a choice to "weigh" ("landing before the cut-off, or accepting
+  type-level lines with a warning for one more grace"); part 1's body says "a month after the
+  2026-11-18 grace ends"; the author's log hands it on as a cleanup ("G3's type-level warnings
+  end 2026-12-18; delete that path after it"), and two later session logs carry the same line
+  as "unchanged". The one ruling round on these dates (`160/980`, Mike's answers of 2026-11-08)
+  put 2026-11-18 to him and he made it firm; 2026-12-18 was never put to him, on any record I
+  found. Sibling Q8 asks what happens to the children on the day: by count only, `160/980`'s
+  round named three wired children with owed lines at the earlier cut-off; whether any holds a
+  type-level line for a read set I did not probe (child repos are read-only to this pass and
+  were not opened). The warning prints on every scan from the day a child's pin reaches this
+  code, so an affected child is told; who chose the day it is told to meet is the open point.
+  *Counsel unchanged:* one ask, two live options, recorded on the constant, README and
+  CHANGELOG.
+- **GF2 (minor) stands.** `020/450`'s own decisions repeat the README's sentence ("a bare name
+  after a `set:Field` continues that set"), so the author's account carries the same gap.
+  Sibling Q9 asked exactly whether a parse slip can widen a line to another set: this is the
+  one case, and it widens to the `unknown` set, failing closed.
+- **GF3 (minor) stands.** No record mentions the legacy root; the design account ("an element
+  outside xmpmeta/RDF/Description is `xmp:unknown`") was written without it in view.
+- **GF4 (minor) stands.** Documentation only; nothing in the records bears on it.
+- **GF5 (note) stands.** Sibling Q1 is the same suspicion at the other end (what a 16+ run
+  permits a number to sit in): act 1's probe answers both; the floor is right and unpinned.
+- **GF6 (note) stands.** Not in any record.
+- **GF7 (note) stands.** The body and `320/470` record the pick ("option 1 ... options 2 and 3
+  not taken: the guard removes the cause") with the measured instance (3 of 88 digests in a
+  child's record). Sibling Q1 names the same residual. The pick is well-grounded and still his
+  to confirm.
+- **GF8 (note) confirmed on Q6.** Probe: a packet that binds the prefix `dc` to a foreign URI
+  yields `xmp:dc:creator`. Sibling Q6's question ("can that make a hostile URI read as `dc`")
+  is answered yes, with the same assessment: no privilege gain, values still scanned.
+
+**Sibling questions not already covered.** Q2 (`_HEX_CHARS` defined after its user): a module
+global read at call time; no import cycle exists (`leakscan` is imported, it imports nothing
+that imports it back); harmless. Q3 (Exif walker): endianness, offsets, loops and caps are
+tested (`ExifFieldParsing`), and a GPS IFD reached twice is walked once (`seen`); what cannot be
+walked is `exif:unknown`. Q5 (a nested value under a benign top-level XMP name): the keep is as
+wide as the top-level property by the recorded decision ("a property's value, structure
+included, is one field"); the name still says what the property is, the values are run through
+the text rules, and naming sub-paths would be unbounded. No finding. Q7 (`%XX` injective): yes.
+Every byte outside the safe set, `%` included, encodes as `%XX`, so the literal keyword
+`%75nknown` encodes as `png-text:%2575nknown` while `unknown` encodes as `png-text:%75nknown`;
+no two keywords share a key, and neither collides with the parse-failure field.
+
+**Formed at reconcile, on sibling Q4:**
+
+**GF9 — note (formed at reconcile).** *GPS tag numbers in a chained IFD are named in Exif
+vocabulary.* The walker names a tag by the IFD *kind* it was reached through: behind the GPS
+pointer (0x8825) tags 0x0002 and 0x0004 are `gps:GPSLatitude` and `gps:GPSLongitude` (probe,
+control); the same numbers in an IFD reached by IFD0's next-IFD chain are
+`exif:InteroperabilityVersion` and `exif:0x0004` (probe). That is the format's own reading too
+(a chained IFD is IFD1, the thumbnail directory, not GPS), so no ordinary tool writes GPS there
+and no consumer would read it as GPS; a committer who moved bytes there could as well put them
+anywhere. The point is only that a human reading `exif:0x0004` cannot tell from the name what
+the value is, which is already the README's stated residual for every by-number tag.
+*Counsel:* none beyond the README's existing line on by-number tags; recorded so Q4 has an
+answer with evidence.
+
+**Overall, restated: PASS-WITH-FINDINGS** — 0 MAJOR · 1 MODERATE (GF1) · 3 minor (GF2, GF3,
+GF4) · 5 notes (GF5–GF9, GF9 formed at reconcile). Every finding is the principal's to decide
+(rule 3); nothing has been applied. The orchestrator folds the sibling in below this and
+commits; I touched no file but this brief and the open review log.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`de0ec3ef`, landed on
+`main` as `464c4748`); folded here verbatim (headings demoted two levels) and the sibling file
+removed, per the brief. The orchestrator (a headless Opus 5.5 session started by drain session
+`21a271a5`, itself Opus 5.5) held the partition, formed no finding and wrote no severity.*
+
+### Sibling to the g3-field-level-nz-phone-digest cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-11-09-0207-g3-field-level-nz-phone-digest-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-11-09 UTC by the brief-writer, session `d4a0fcf3` (Opus 5.5), named in the
+brief's provenance; it forms no finding and assigns no severity. Fold this file in below the
+reconcile and delete it at phase 2.
+
+#### Re-run results held back from the brief
+
+Run once by the brief-writer, 2026-11-09 UTC, from the worktree root at `b1f9499`, machine load
+averages 10 to 22 throughout:
+
+- `python3 -m unittest discover -s tools -p test_leakscan.py`: exit 0 (Ran 395 tests).
+- `python3 -m unittest discover -s tools -p test_report.py`: exit 0 (Ran 102 tests).
+- `python3 tools/leakscan.py --selftest`: exit 0 (selftest OK).
+- Full suite, `nice -n 10 python3 -m unittest discover -s tools`, Python 3.14.6: 2,643 tests, OK,
+  exit 0, 1,167 s. An earlier run on the system Python 3.9.6: 2,307 tests, 4 import errors
+  (`test_floor`, `test_floorfleet`, `test_personal_data`, `test_precommit`: a module-level `str |
+  None` annotation) and 1 timeout under load (`test_spellscan.BoundedMemory`, which passed alone on
+  3.14).
+
+#### Prior records on nearby surfaces (named by filename, not opened unless the brief says so, not exhaustive)
+
+- `docs/reviews/2026-10-26-0928-g3-grace-metadata-sets-cold.md`
+
+#### Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. `_phone_inside_hex_digest`: a real NZ number glued to hex letters, for example in a URL or an id
+   `abcd0211234567ef`. What does a 16+ hex run permit that a person's number can sit in? Option 2
+   and 3 in `320/470` were not taken.
+2. `_HEX_CHARS` is defined after the function. Harmless, but the function reads a module global:
+   fine under an import cycle?
+3. The Exif walker: endianness, offsets past the block, IFD loops, a SubIFD or the GPS IFD reached
+   twice. Does a crafted file make it report a benign field while GPS sits unread, and does unread
+   map to `unknown`?
+4. A tag the table does not name: named `0x....` and kept by a line that lists it. Can one manifest
+   line keep a GPS tag under a hex name that a human reads as harmless?
+5. XMP: "one field per top-level property" with a value and its structure as one field. A property
+   that nests GPS or a person's name under a benign top-level name: is the keep too wide? The
+   principal's example is GPS versus camera model.
+6. The XML parse: entity expansion, a packet split across APP1 and extended XMP, duplicate
+   properties in two `rdf:Description`s, a namespace prefix redeclared to look like `dc:`.
+   "Well-known namespaces use their usual prefix whatever the packet declares": can that make a
+   hostile URI read as `dc`?
+7. PNG `%XX` keywords and the `%75nknown` escape: is the encoding injective, so one field cannot
+   read as another?
+8. The dated flip: on 2026-12-18 type-level lines stop keeping. What happens to the children that
+   hold them, and is every affected child warned by then?
+9. `bare 2:090 continues the same set` and comma-merged fields: can a parse slip widen a line to
+   another set?
+
+#### Facts held back from the brief
+
+- The item cites `29021b9` for part 1. That hash is not on `main`; `2ba261b` is the landed commit
+  with the same subject. The brief names `2ba261b`.
+- `e269f59` (the G3 application) touched the same paths at 2026-11-09 UTC; the item predates it.

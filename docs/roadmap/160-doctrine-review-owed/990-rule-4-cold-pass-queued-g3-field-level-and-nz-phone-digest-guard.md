@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS,
+- [ ] 🎯 **Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS,
       IPTC, XMP, PNG text) field by field, with a dated migration for
       type-level lines, and `nz-phone` skips digit runs inside hex digests
       (`020/450` parts 1 and 2, `320/470`).**
@@ -35,3 +35,32 @@
       and what it started). The sibling is held out of the worktree until act 1
       is committed. The item's "waits for the principal's explicit permission
       for Fable work" is met by that drain order.
+      ✅ PASS RAN 2026-11-15 UTC, Fable 5.1 reviewer under Mike's drain order;
+      orchestrator as claimed above (off-tier, formed no finding). Verdict
+      **PASS-WITH-FINDINGS**: 0 MAJOR · 1 MODERATE (GF1) · 3 minor (GF2–GF4) ·
+      5 notes (GF5–GF9, GF9 formed at reconcile). No MAJOR stands. Act 1 was
+      committed before the sibling was released; the sibling is folded into
+      the brief below the verdict. Re-runs green (422 + 110 + selftest, whole
+      suite 3134 OK).
+      🎯 Owed to Mike (rule 3, doctrine by function; every finding is his,
+      nothing applied):
+      - **GF1 (MODERATE), time-sensitive:** from 2026-12-18 `leakscan` blocks
+        every child's whole-set image-metadata line (`exif`, `iptc`, `xmp`,
+        `png-text`), and the code, README and CHANGELOG say no setting can
+        move that date. The date was the authoring run's choice and was never
+        put to him (his 2026-11-08 ruling made only the earlier 2026-11-18
+        grace firm). Options: (a) confirm 2026-12-18 as a fleet mandate;
+        (b) keep it warn-only until he rules, as the guard's who/when warning
+        already does. Reviewer's counsel: put it to him in plain words and
+        label whose date it is on the constant, README and CHANGELOG once he
+        has spoken (one line each).
+      - Minor, bulk-approvable: GF2 (a bare `unknown` after a named field is
+        read as the whole unknown set), GF3 (the older `x:xapmeta` XMP root
+        reads as unknown; verify the spec first), GF4 (a stale docstring).
+      - Notes, no fix asked: GF5 (pin the hex-run floor with a 15/16 test
+        pair), GF6 (the empty-block remedy is never printed), GF7 (the
+        nz-phone narrowing was the author's pick of three options; a one-line
+        confirmation), GF8, GF9 (recorded residuals).
+      Routing: fixes land in `tools/leakscan.py`, its tests and README once he
+      rules; verdict and reconcile in
+      `docs/reviews/2026-11-09-0207-g3-field-level-nz-phone-digest-cold.md`.
