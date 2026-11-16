@@ -32,7 +32,7 @@ without inventing a hidden id neither file otherwise carries), and one or
 more `sources`, each a `{path, heading}` pair naming the exact Markdown
 heading the bullet is filed under. NOT EVERY BULLET IS MAPPED: the floor
 region has nine bullets and this map carries six. The three left out —
-**Source & drift**, **Estate resources — point up, don't re-derive**, and
+**Source & drift**, **Estate resources — one home, the estate root**, and
 **This repo's visibility** — cite no source-doc section at all in their own
 text (the first is PROPAGATION's own pin-bump mechanism describing itself,
 the second points at a private estate-root repo outside atelier's `docs/

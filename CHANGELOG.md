@@ -5,6 +5,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-16 — the floor's estate and visibility bullets, `320/370`, `320/410`, `320/620`, `320/650`)
+- **The canonical floor's visibility bullet** reads `Verify: <visibility
+  check>`: the check is now a slot the child fills (`gh repo view … --json
+  visibility` with a GitHub remote; `git remote` printing nothing with none),
+  replacing the `<owner/repo>` placeholder a repo with no remote could not
+  fill. `create-repo` fills the new slot; `pins.py` still fills the retired
+  token for a child pinned before today.
+- **The estate-resources bullet** states where estate facts live, so the estate
+  root reads it true of itself, and adds the write-up duty: a fact of that kind
+  learned elsewhere goes up to the root with its source and date (never a
+  secret's value). Taking the verbatim copy moves a child's own block text,
+  never deletes it. Every child takes both at its next pin bump.
+
 ### Added (2026-11-16 — an edit to the agent's grant asks for the principal's words, `115/110`)
 - **`quotescan` reads the authority surfaces**: a commit changing
   `docs/method/AUTONOMY.md`, the always-confirm floor (the `floor:begin` region

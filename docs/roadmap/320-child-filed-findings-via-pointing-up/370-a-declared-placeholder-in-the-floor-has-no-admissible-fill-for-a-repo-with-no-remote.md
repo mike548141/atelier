@@ -1,4 +1,4 @@
-- [~] **REPORT — `<owner/repo>` is a declared placeholder in the `floor`
+- [x] **REPORT — `<owner/repo>` is a declared placeholder in the `floor`
       region with no admissible fill for a child that has no git remote, so
       that child follows every instruction correctly and still ships a floor
       line naming a check nothing in it can run** `[S][doctrine]` — filed
@@ -79,5 +79,20 @@
       own copy (a reword reds regardless of `narrow=`), and it did not work
       around the rule quietly — the workaround destroys the only evidence
       atelier would get.
+      ✅ **Resolved 2026-11-16 — the house's choice, not the principal's**
+      (queue run 78ca, under this item and `320/620`). **Taken:** the fixed
+      command became a slot. The floor's last bullet now reads `Verify:
+      <visibility check>`, and `<owner/repo>` is retired: a repo with a GitHub
+      remote fills `gh repo view <owner>/<name> --json visibility`, one with
+      none fills `git remote` printing nothing, so no copy names a check that
+      cannot run where it stands (`PROPAGATION.md` § *The standard child
+      doctrine block*). `create-repo` fills the new slot; `tools/pins.py`
+      still fills the retired token at an older pin, and a test proves a
+      remote-less fill reads identical. **Not taken:** (1) a precondition
+      clause beside the fixed command, which left the remote-less child still
+      shipping an unrunnable command, only now explained; (2) a filler value
+      such as `none` for `<owner/repo>`, the same defect with a label. The
+      slot moves a per-repo fact out of the verbatim text, which narrows
+      nothing: the check is still owed and still stated in every copy.
       🔒 CLAIMED 2026-11-16T12:07Z (claimed 2026-11-16-1207, wt: qr-78ca-floorb) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

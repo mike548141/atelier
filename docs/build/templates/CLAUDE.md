@@ -4,12 +4,13 @@
   The block below (## Doctrine — inherited from atelier) is the STANDARD
   DOCTRINE BLOCK. Its canonical text lives in atelier's
   docs/method/PROPAGATION.md — this is a stamped copy, not a second source.
-  create-repo fills the four placeholders (<atelier-path>, <SHA>, <owner/repo>,
-  <visibility fact>) at scaffold time. In bundled (plugin-only) mode the heading
-  and the Source & drift bullet are substituted verbatim from PROPAGATION.md
-  § The bundled-mode variant (placeholders <plugin-path>, <VERSION>) — never
-  improvised. When atelier's apex or floor changes, a
-  pin bump reviews this wording too (PROPAGATION § the standard child block).
+  create-repo fills the four placeholders (<atelier-path>, <SHA>,
+  <visibility fact>, <visibility check>) at scaffold time. In bundled
+  (plugin-only) mode the heading and the Source & drift bullet are
+  substituted verbatim from PROPAGATION.md § The bundled-mode variant
+  (placeholders <plugin-path>, <VERSION>) — never improvised. When atelier's
+  apex or floor changes, a pin bump reviews this wording too (PROPAGATION
+  § the standard child block).
 
   Everything below the block is repo-specific onramp — fill it with grounded
   content for THIS repo; delete the guidance comments as you go.
@@ -111,17 +112,19 @@ in atelier and is read on demand — never wholesale.
   tools setting, never `../`, so it resolves from a worktree too. A failed
   command is *no result*, not *no drift*; any output means the house doctrine
   moved — read it, then bump the pin above deliberately.
-- **Estate resources — point up, don't re-derive:** providers & account plans,
+- **Estate resources — one home, the estate root:** providers & account plans,
   financial constraints & plan entitlements, licences, credentials and the
   estate inventory live in the operator's **private estate-root repo**
-  (atelier's private counterpart). Reference it for these; never re-derive
-  them locally or copy its contents down. The **expected toolbox** (which
-  tools to expect, and how to find them) is atelier's: `method/TOOLBOX.md`.
-  The root is a private repo like any other: it may be named, and in a
-  public tree what it holds and its condition go by type only
-  (`RECORD.md` § *The record is public*).
-- **This repo's visibility:** <visibility fact>. Verify:
-  `gh repo view <owner/repo> --json visibility`.
+  (atelier's private counterpart) and nowhere else. Every other repo reads them
+  there, never re-derives them or copies the root's contents down, and writes a
+  fact of this kind it learns (an invoice, a mail, a provider's page, the
+  principal's word; never a secret's value) up to the root with its source and
+  date; where the root cannot be reached, it holds the fact in its own record
+  marked owed to the root. The **expected toolbox** (which tools to expect, and
+  how to find them) is atelier's: `method/TOOLBOX.md`. The root is a private
+  repo like any other: it may be named, and in a public tree what it holds and
+  its condition go by type only (`RECORD.md` § *The record is public*).
+- **This repo's visibility:** <visibility fact>. Verify: <visibility check>.
 <!-- stamp:end -->
 
 ---

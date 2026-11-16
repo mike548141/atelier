@@ -18,7 +18,7 @@ PROPAGATION = ROOT / "docs" / "method" / "PROPAGATION.md"
 TEMPLATE = ROOT / "docs" / "build" / "templates" / "CLAUDE.md"
 
 BLOCK_HEADING = "## Doctrine — inherited from atelier (pinned"
-PLACEHOLDERS = {"<atelier-path>", "<SHA>", "<owner/repo>", "<visibility fact>"}
+PLACEHOLDERS = {"<atelier-path>", "<SHA>", "<visibility fact>", "<visibility check>"}
 
 
 def canonical_block() -> str:
@@ -395,8 +395,8 @@ TEMPLATES_DIR = ROOT / "docs" / "build" / "templates"
 STAMP_INVENTORY = {
     ("CLAUDE.md", "<atelier-path>"),
     ("CLAUDE.md", "<SHA>"),
-    ("CLAUDE.md", "<owner/repo>"),
     ("CLAUDE.md", "<visibility fact>"),
+    ("CLAUDE.md", "<visibility check>"),
     ("CONTRIBUTING.md", "<atelier-path>"),
     ("docs/reviews/README.md", "<atelier-path>"),
 }

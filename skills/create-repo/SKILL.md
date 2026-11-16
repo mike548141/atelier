@@ -140,7 +140,10 @@ git config user.email "<git_identity.email>"
      named in the design ADR). Its placeholders are `<plugin-path>` (the
      plugin's install directory — `$SRC`, absolute) and `<VERSION>` (the
      `version` in `$SRC/.claude-plugin/plugin.json`).
-   - `<owner/repo>` → `<remote.account>/<name>` (once the remote exists).
+   - `<visibility check>` → the check that answers it in this repo:
+     `` `gh repo view <remote.account>/<name> --json visibility` `` once a
+     GitHub remote exists; with no remote, `` `git remote` prints nothing ``
+     (PROPAGATION.md § *The standard child doctrine block*).
    - `<visibility fact>` → e.g. "PRIVATE (a push is not publication; making it
      public is a floor action)". The block's canonical text is atelier's
      PROPAGATION.md — the template carries a stamped copy; don't paraphrase it.
@@ -159,7 +162,7 @@ git config user.email "<git_identity.email>"
 
    ```sh
    grep -rn --exclude-dir=.git \
-       '<atelier-path>\|<SHA>\|<owner/repo>\|<visibility fact>\|<plugin-path>\|<VERSION>' . \
+       '<atelier-path>\|<SHA>\|<visibility check>\|<visibility fact>\|<plugin-path>\|<VERSION>' . \
                                         # expect: no hits ANYWHERE (all filled)
    # then run the block's own drift check VERBATIM —
    # live mode; expect empty (a failed step is no result, not no drift).

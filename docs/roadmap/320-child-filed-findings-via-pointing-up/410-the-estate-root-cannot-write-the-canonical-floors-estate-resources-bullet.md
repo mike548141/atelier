@@ -1,4 +1,4 @@
-- [~] 🔎 **Hand-up: the canonical floor's `estate resources` bullet is
+- [x] 🔎 **Hand-up: the canonical floor's `estate resources` bullet is
       unwritable by the estate root itself — it instructs a repo to reference
       a repo that it IS — and the 2026-09-19 verbatim rule has just removed
       the local adaptation that used to cover the gap.** Filed from a private
@@ -80,5 +80,21 @@
       this finding does not argue against it. What is reported is that its
       interaction with one bullet, and with the record-store protection, has an
       unreachable state in it for at least one class of repo.
+      ✅ **Resolved 2026-11-16 — the house's choice, not the principal's**
+      (queue run 78ca). **Taken: (b).** The bullet now states where estate
+      facts live (the root, "and nowhere else") and tells *every other* repo to
+      read them there, so the root reads it true of itself and a child reads
+      it as a pointer; its lead-in is now *Estate resources — one home, the
+      estate root*. **The second half** is answered outside the floor, in
+      § *The standard child doctrine block* (*The safety floor never
+      narrows*): taking the verbatim copy moves a child's own block text
+      (pin history, incidents, lessons) below the stamp or into its records,
+      and anything that would be dropped instead is shown to the principal
+      first, as for a record store. Verbatim and show-first now point the
+      same way. **Not taken: (a)**, an estate-root exception, because it
+      grants an exception to a floor bullet, which is the principal's to give,
+      and (b) makes it unnecessary; **(c)**, a per-role floor, because it is
+      the heaviest and would reopen the verbatim ruling for every bullet to
+      fix one.
       🔒 CLAIMED 2026-11-16T12:07Z (claimed 2026-11-16-1207, wt: qr-78ca-floorb) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

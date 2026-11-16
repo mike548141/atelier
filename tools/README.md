@@ -1078,9 +1078,10 @@ red every stale child for being stale, which the pin table already reports as
 `behind`. The row says `floor moved since the pin` when the text itself has
 changed since, so a copy that is verbatim but out of date shows as both. The four
 placeholders a child fills (`<SHA>`, `<atelier-path>`, `<visibility fact>`,
-`<owner/repo>`) are read from the child's own lines and put back before the
-comparison, because `stampscan` compares literally and a filled copy would
-otherwise never match; a placeholder left unfilled is `drift`.
+`<visibility check>`; `<owner/repo>` at a pin before 2026-11-16) are read from
+the child's own lines and put back before the comparison, because `stampscan`
+compares literally and a filled copy would otherwise never match; a placeholder
+left unfilled is `drift`.
 
 **Report-only until 2026-12-09, then blocking** (Mike, 2026-11-09: *"The approve
 the report only option for 1 month and then we move to blocking per option 2"*,

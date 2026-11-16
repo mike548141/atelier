@@ -84,13 +84,14 @@ still holds in full.
 ## The standard child doctrine block
 
 Copy this to the **top** of a child repo's `CLAUDE.md`, fill the four
-placeholders (`<atelier-path>`, `<SHA>`, `<owner/repo>`, `<visibility fact>`
-— quote the path if it contains spaces; the sibling-relative `../atelier` is
-the house shape), and keep it **deliberately lean**: the block is the hottest
-read path in the fleet — every child session pays its length at every open —
-so a line earns its place or moves behind a pointer. **Structural rule (SR2,
-2026-07-20; the number dropped after review, 2026-07-21):** one bullet per
-irreducible floor concern — **nine** today (the apex, the always-stop floor,
+placeholders (`<atelier-path>`, `<SHA>`, `<visibility fact>`,
+`<visibility check>` — quote the path if it contains spaces; the
+sibling-relative `../atelier` is the house shape), and keep it **deliberately
+lean**: the block is the hottest read path in the fleet — every child session
+pays its length at every open — so a line earns its place or moves behind a
+pointer. **Structural rule (SR2, 2026-07-20; the number dropped after review,
+2026-07-21):** one bullet per irreducible floor concern — **nine** today (the
+apex, the always-stop floor,
 asking, concurrency, session rhythm, doctrine problems point up, source & drift,
 estate resources, this repo's visibility), each as tight as it can be while
 stating its concern in full and pointing up for the rest. *(The count read
@@ -110,6 +111,17 @@ figures are both retired — the first was dead on arrival, the second tracked t
 measurement it claimed to be independent of.) `create-repo` stamps it on new
 repos; existing repos are retrofitted once. Everything below the block is
 repo-specific onramp.
+
+**The two visibility slots are the child's facts, not the house's text**
+(`320/370`, `320/620`; the house's choice, 2026-11-16). `<visibility check>` is
+the check that answers the question in that repo:
+`gh repo view <owner>/<name> --json visibility` where it has a GitHub remote;
+where it has none, `git remote` printing nothing (nothing of it is published),
+so the copy never names a check that cannot run there. It replaced a fixed
+`gh repo view` command, which a repo with no remote could fill with nothing
+true. A child re-fills either slot in place when its fact changes (published,
+a remote added, renamed); the floor-copy check reads each fill out of the copy,
+so a re-fill is not drift.
 
 **Left behind the pointer, by decision** (`160/310` HF8, 2026-11-09): the
 verify-the-act rule (confirm each act by its own output, never by the absence of
@@ -214,17 +226,19 @@ in atelier and is read on demand — never wholesale.
   tools setting, never `../`, so it resolves from a worktree too. A failed
   command is *no result*, not *no drift*; any output means the house doctrine
   moved — read it, then bump the pin above deliberately.
-- **Estate resources — point up, don't re-derive:** providers & account plans,
+- **Estate resources — one home, the estate root:** providers & account plans,
   financial constraints & plan entitlements, licences, credentials and the
   estate inventory live in the operator's **private estate-root repo**
-  (atelier's private counterpart). Reference it for these; never re-derive
-  them locally or copy its contents down. The **expected toolbox** (which
-  tools to expect, and how to find them) is atelier's: `method/TOOLBOX.md`.
-  The root is a private repo like any other: it may be named, and in a
-  public tree what it holds and its condition go by type only
-  (`RECORD.md` § *The record is public*).
-- **This repo's visibility:** <visibility fact>. Verify:
-  `gh repo view <owner/repo> --json visibility`.
+  (atelier's private counterpart) and nowhere else. Every other repo reads them
+  there, never re-derives them or copies the root's contents down, and writes a
+  fact of this kind it learns (an invoice, a mail, a provider's page, the
+  principal's word; never a secret's value) up to the root with its source and
+  date; where the root cannot be reached, it holds the fact in its own record
+  marked owed to the root. The **expected toolbox** (which tools to expect, and
+  how to find them) is atelier's: `method/TOOLBOX.md`. The root is a private
+  repo like any other: it may be named, and in a public tree what it holds and
+  its condition go by type only (`RECORD.md` § *The record is public*).
+- **This repo's visibility:** <visibility fact>. Verify: <visibility check>.
 ```
 <!-- floor:end -->
 
@@ -271,11 +285,16 @@ lines); undeclared, a drop reds. Four boundaries on that:
   2026-11-09 and put to the principal the same day).
   The floor is the one text that must bind where nothing else of the child's
   is read, so a child that finds a line of it wrong reports it upward
-  (§ *Pointing up*) instead of dropping it locally. The declaration above
-  stays for any other stamped region; as of 2026-11-09 the floor is the only
-  one. **What reaches a child's copy:** nothing in the child's own CI, since
-  `stampscan` cannot resolve a child's `source=` (ST3); `tools/pins.py`
-  compares each child's copy with the floor *as it stood at that child's pin*
+  (§ *Pointing up*) instead of dropping it locally. Taking the verbatim copy
+  moves a child's own text, never deletes it: what an old block accumulated
+  inside it (pin history, incidents, lessons) goes below the stamp or into
+  the child's records, and anything that would be dropped instead is shown
+  to the principal first, as for a record store (`320/410`, the house's
+  choice, 2026-11-16). The declaration above stays for any other stamped
+  region; as of 2026-11-09 the floor is the only one. **What reaches a child's
+  copy:** nothing in the child's own CI, since `stampscan` cannot resolve a
+  child's `source=` (ST3); `tools/pins.py` compares each child's copy with the
+  floor *as it stood at that child's pin*
   (verbatim at its pin, not at today's text) and reports the ones that differ.
   That is report-only until 2026-12-09 and fails the fleet check from then
   (`160/340`, the principal's words of 2026-11-09). What fails is a copy that
@@ -295,6 +314,11 @@ plans and financial constraints, credentials, shared tooling) live in a separate
 **private estate-root repo** — the knowing-root that atelier deliberately is not
 (atelier is public and holds no inventory). Every child inherits both pointers:
 up to atelier for *how we work*, up to the estate root for *what the estate has*.
+The line runs both ways: an estate fact a session learns outside the root goes
+up to it with its source and date, since a child session never reads the
+root's own onramp (`320/650`). And it states where the facts live rather than
+telling a repo to reference another, so the root reads it true of itself
+(`320/410`; both the house's choice, 2026-11-16).
 The estate root is a private repo like any other: it may be named, in a private
 or a public tree, and what it holds and the condition it is in go by type only
 in a public record (`RECORD.md` § *The record is public*). Its contents are

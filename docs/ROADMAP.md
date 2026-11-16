@@ -411,6 +411,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose check 14, a child's atelier pin and…](roadmap/160-doctrine-review-owed/1560-rule-4-cold-pass-queued-ccclose-pin-and-floor-check.md)
 - [ ] ⏳ [Rule-4 cold pass queued: tools around the authority surface —…](roadmap/160-doctrine-review-owed/1570-rule-4-cold-pass-queued-authority-surface-tools.md)
 - [ ] ⏳ [Rule-4 cold pass queued: PRINCIPLES.md §11, evaluation by first…](roadmap/160-doctrine-review-owed/1580-rule-4-cold-pass-queued-first-principles-evaluation.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the floor bundle — the visibility check…](roadmap/160-doctrine-review-owed/1590-rule-4-cold-pass-queued-floor-bundle-visibility-slot-estate-root.md)
 
 ## build/ layer — open strands
 
@@ -660,11 +661,11 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [blockscan cannot see a change to a mapped section's SUBSECTIONS, and…](roadmap/320-child-filed-findings-via-pointing-up/340-blockscans-map-cannot-see-a-subsection.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/350-a-peer-can-stage-into-the-shared-index-while-your-commit-hooks-run.md)
 - ✅ [REPORT — 115/200's owed work is done from the child's side: the…](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
-- [~] [REPORT — <owner/repo> is a declared placeholder in the floor region…](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
+- ✅ [REPORT — <owner/repo> is a declared placeholder in the floor region…](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
 - ✅ 🎯 [The floor's visibility bullet reads as a one-time check, and may name…](roadmap/320-child-filed-findings-via-pointing-up/380-the-floor-s-public-tense-and-whether-it-should-name-the-root.md)
 - ✅ 🎯 [MISSING HOUSE RULE — a check in the same shell invocation as the act…](roadmap/320-child-filed-findings-via-pointing-up/390-missing-house-rule-a-check-in-the-same-invocation-as-the-act-is-not-a-check.md)
 - [ ] 🔎 [CANDIDATE HOUSE RULE — verify a figure correction in the RENDERED…](roadmap/320-child-filed-findings-via-pointing-up/400-count-survivors-in-the-rendered-artefact-not-the-source-you-edited.md)
-- [~] 🔎 [Hand-up: the canonical floor's estate resources bullet is unwritable…](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
+- ✅ 🔎 [Hand-up: the canonical floor's estate resources bullet is unwritable…](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
 - [ ] 🔎 [Hand-up: a queued-review pointer may name a moving bound, and…](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
 - ✅ 🔎 [Hand-up: nothing catches an orphaned session-detail file once the…](roadmap/320-child-filed-findings-via-pointing-up/430-no-floor-check-catches-an-orphaned-session-detail-file.md)
 - [ ] 🔎 [A review file's follow-up list and the board item that points at it…](roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md)
@@ -685,10 +686,10 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: the floor's Estate resources bullet covers facts — don't…](roadmap/320-child-filed-findings-via-pointing-up/590-the-estate-resources-bullet-covers-facts-not-access-or-write-back.md)
 - ✅ 🔎 [Hand-up from a private child: at the hook plane the content scanners…](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md)
-- [~] 🔎 [Hand-up: a child's own visibility fact sits inside its verbatim floor…](roadmap/320-child-filed-findings-via-pointing-up/620-a-childs-own-visibility-fact-sits-inside-the-verbatim-floor.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- ✅ 🔎 [Hand-up: a child's own visibility fact sits inside its verbatim floor…](roadmap/320-child-filed-findings-via-pointing-up/620-a-childs-own-visibility-fact-sits-inside-the-verbatim-floor.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md)
 - [ ] 🔎 [Hand-up: a cross-estate question gets answered from one repo's tree,…](roadmap/320-child-filed-findings-via-pointing-up/640-a-question-about-the-estate-is-answered-from-one-tree.md)
-- [~] 🔎 (claimed 2026-11-16-1207, wt: qr-78ca-floorb) [Hand-up: an estate fact learned…](roadmap/320-child-filed-findings-via-pointing-up/650-an-estate-fact-learned-in-a-child-has-no-rule-to-travel-up.md)
+- ✅ 🔎 [Hand-up: an estate fact learned in a child has no rule sending it up…](roadmap/320-child-filed-findings-via-pointing-up/650-an-estate-fact-learned-in-a-child-has-no-rule-to-travel-up.md)
 - [ ] 🔎 [Hand-up: the house assumes every repo is a direct sibling of the…](roadmap/320-child-filed-findings-via-pointing-up/660-grouping-children-into-folders-breaks-the-sibling-convention.md)
 - ✅ 🔎 [SUPERSEDED 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/670-the-session-open-restore-left-a-net-change-that-reverses-a-ruling.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->

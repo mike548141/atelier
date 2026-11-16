@@ -555,6 +555,19 @@ class FloorCopyReport(unittest.TestCase):
         info = self._eval(self._child("short", self.v1, stamped(dropped, begin)))
         self.assertEqual(info.copy, pins.COPY_DRIFT, "the floor is verbatim; narrow= buys nothing")
 
+    def test_the_visibility_check_slot_takes_any_fill_and_a_refill(self):
+        # 320/370 + 320/620: the check is a slot, so a repo with no remote has a
+        # true fill, and a child that re-fills either visibility slot when its
+        # fact changes still reads identical.
+        region = FLOOR_V1[:5] + ["- **This repo's visibility:** <visibility fact>. Verify: <visibility check>."]
+        self.assertIn("<visibility check>", pins.COPY_PLACEHOLDERS)
+        for fact, check in (("PRIVATE, no remote", "`git remote` prints\n  nothing"),
+                            ("PUBLIC", "`gh repo view example/child --json visibility`")):
+            text = "\n".join(region).replace("<SHA>", "abc1234").replace(
+                "<atelier-path>", "../atelier").replace("<visibility fact>", fact).replace(
+                "<visibility check>", check)
+            self.assertEqual(stampscan_check(text, region), pins.COPY_IDENTICAL, check)
+
     def test_an_unfilled_placeholder_is_drift_and_names_the_line(self):
         raw = f"(pinned `atelier@{self.v1[:7]}`)\n" + stamped("\n".join(FLOOR_V1))
         info = self._eval(self._child("raw", self.v1, raw))
@@ -709,12 +722,14 @@ class FloorCopyReport(unittest.TestCase):
     def test_the_four_placeholders_are_the_only_angle_tokens_in_the_real_floor_region(self):
         # If the floor gains a fifth placeholder, filling it would silently stop
         # working; this fails first. Reads atelier's own PROPAGATION.md (the one
-        # this script lives in), never a child.
+        # this script lives in), never a child. A retired token (320/370) is
+        # still filled for older pins but must not reappear in today's text.
         import stampscan
         text = (TOOLS_DIR.parent / "docs" / "method" / "PROPAGATION.md").read_text()
         region = stampscan.extract_region(text, "floor")
         tokens = set(re.findall(r"<[A-Za-z][^<>]*>", "\n".join(region)))
-        self.assertEqual(tokens, set(pins.COPY_PLACEHOLDERS))
+        self.assertEqual(tokens, set(pins.CURRENT_PLACEHOLDERS))
+        self.assertLessEqual(set(pins.RETIRED_PLACEHOLDERS), set(pins.COPY_PLACEHOLDERS))
 
 
 def stampscan_check(child_text, canonical_region):

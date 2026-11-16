@@ -72,7 +72,8 @@ Two things the comparison needs that `stampscan` alone cannot give:
     whether the floor text itself has moved since the pin (`floor moved`), so a
     child that is verbatim but out of date shows as both.
   - the four placeholders a child fills (`<SHA>`, `<atelier-path>`,
-    `<visibility fact>`, `<owner/repo>`) are read out of the child's own lines
+    `<visibility fact>`, `<visibility check>`; `<owner/repo>` at a pin before
+    2026-11-16) are read out of the child's own lines
     and put back into the reference before `stampscan` compares, so a compliant
     copy reads `identical`. Anything else that differs is `drift`.
 REPORT-ONLY until `COPY_BLOCKS_FROM` (2026-12-09), the date printed on every run.
@@ -162,9 +163,13 @@ ACTIONABLE = {STATUS_BEHIND, STATUS_AHEAD, STATUS_DIVERGED, STATUS_UNKNOWN, STAT
 # once it has passed and the blocking is wanted for good.
 COPY_BLOCKS_FROM = datetime.date(2026, 12, 9)
 
-# The four values a child fills into the floor block. A line of the canonical
-# region may carry one or more; anything else in the region is literal.
-COPY_PLACEHOLDERS = ("<SHA>", "<atelier-path>", "<visibility fact>", "<owner/repo>")
+# The values a child fills into the floor block (four in any one text). A line
+# of the canonical region may carry one or more; anything else in it is literal.
+# `<visibility check>` replaced `<owner/repo>` on 2026-11-16 (320/370); the
+# retired token stays so a child pinned before then is still filled at its pin.
+CURRENT_PLACEHOLDERS = ("<SHA>", "<atelier-path>", "<visibility fact>", "<visibility check>")
+RETIRED_PLACEHOLDERS = ("<owner/repo>",)
+COPY_PLACEHOLDERS = CURRENT_PLACEHOLDERS + RETIRED_PLACEHOLDERS
 _PLACEHOLDER_RX = re.compile("(" + "|".join(re.escape(t) for t in COPY_PLACEHOLDERS) + ")")
 
 COPY_IDENTICAL = "identical"      # word for word the floor at the child's pin
