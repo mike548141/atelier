@@ -4,8 +4,10 @@
 function; one change is to `floor.py`, which every child runs).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** BRIEF ONLY. Not run. Held for the principal's explicit approval of the Fable pass.
-Written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5 brief-writer.
+**Status:** ACT 1 WRITTEN 2026-11-16 UTC — PASS-WITH-FINDINGS (0 MAJOR · 2 MODERATE · 4 minor ·
+2 note), by a Fable 5.1 reviewer under an off-tier orchestrator (provenance in the verdict); act 2
+(reconcile against the held sibling) pending. Brief written 2026-11-09 UTC by session `d16dc612`,
+a headless Opus 5.5 brief-writer; the pass ran under the principal's drain order of 2026-11-16.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1150-rule-4-cold-pass-queued-guard-and-evidence-doctrine-batch.md`
 (barred until phase 2).
@@ -243,3 +245,241 @@ Never revise act-1 text. Then fold the sibling in below the reconcile and delete
 Every finding on this delta is the principal's to decide (rule 3): record all, apply nothing.
 Counsel per finding is welcome, labelled as counsel and kept beneath it.
 
+
+---
+
+## Verdict — act 1 (phase 1), 2026-11-16 UTC
+
+### Provenance (rule 4, V7)
+
+- **Reviewer:** this session, on **Fable 5.1** (`claude-fable-5-1`), tier checked at selection.
+  Run through the Agent SDK on the principal's Platform API credit, no claude.ai connectors (none
+  needed). Day of run: 2026-11-16 UTC (`date -u`, 06:34 at open).
+- **How spawned:** by a headless orchestrator session (Opus 5.5), itself started by drain session
+  `1e053526` (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold the context partition,
+  form no finding and write no severity, and neither wrote the brief or the work. I was not started
+  or instructed by any barred session (`722ac2e2` and its workers, `d16dc612`, `74f2b8cd`). No
+  contact from any of them during the pass.
+- **The approval this brief's Status line waited for**, the principal's drain order of 2026-11-16,
+  as relayed in the spawn prompt, verbatim: *"I want to use things other than my weekly budget to
+  clear as many fable reviews as possible like using fable drain. I thought we could start by using
+  up all the API credits I have."* and *"As always you must ensure that nothing harms the integrity
+  or quality of the review process and verdicts, for example if the review is done by API it must be
+  as good as running it locally"*.
+- **Spawn prompt, the direction it carried (process only; no question about the delta, no pointer
+  to where the risk lives), verbatim excerpts:** *"The brief's `.deferred.md` sibling has been
+  removed from the worktree on purpose and held elsewhere. Do NOT look for it in git history, other
+  checkouts, scratchpads or tmp, and do not read the brief's barred list (rule 2) until act 2 is
+  released. Act 1 is written and handed back BEFORE you see the sibling."* · *"The brief file only
+  (no other repo file): act 1 appended below a `---` divider; update the brief's Status line"* · a
+  running review log outside the repo, *"Commands, files and evidence only"* · *"No commit, no
+  push, no git writes of any kind"* · *"LIVE SYSTEMS: read-only reads of live systems are allowed
+  as the review needs them ... NO live writes of any kind"* · *"Child repos (the floorfleet run)
+  are read-only and counted, never named"* · load rules (`nice -n 10`, one suite at a time, single
+  process) · *"End your reply with exactly: the verdict line ... and the words 'ACT 1 SAVED'. Then
+  stop and wait: the orchestrator commits act 1, then messages you the held sibling's path to
+  release act 2."* The barred set is the brief's own list; the orchestrator added nothing to it.
+  The release message is recorded in act 2.
+- **Worktree:** `/Users/mike/worktrees/fable/atelier-160-1150-0632/atelier`, detached at
+  `9edde0ad`; `git merge-base --is-ancestor 28c67b4a HEAD` exit 0. Read-only to me except this
+  file. The sibling shows as a pending deletion (` D`) in `git status`; I did not seek it.
+- **What I read:** this brief whole; `docs/method/REVIEW.md` whole; the nine delta commits through
+  `coldsweep.py --commit` (subject, stat, diff; "message body not printed" on each; `--path` scoped
+  as the brief lists; `git show --stat --format='%h %s'` confirmed no commit touched a path the
+  scoping hid); the delta files at HEAD and `git diff 28c67b4a HEAD` on them; the cross-referenced
+  sections of `EVIDENCE.md`, `CONCURRENCY.md`, `COMMUNICATION.md`, `ECONOMICS.md`,
+  `PRINCIPLES.md`, `GUARDS.md`; `tools/floor.py` (the seam, the registry, `Config.load`),
+  `tools/floorfleet.py`, `tools/report.py`, `tools/blockscan.py`; board item **titles only** by
+  `ls` for `180/010`, `020/220`, `115/120`, `020/460`, and the programme README of `020/` at lines
+  283–292 (not on the barred list; it holds the premise `MECHANISMS.md` cites). I opened none of
+  the barred records, no commit body, no prior verdict, no session log. My harness loaded
+  user-level and repo instruction files and a memory index, which carry private context this
+  verdict does not. The start-up session-log step was skipped (REVIEW rule 2).
+- **Method record:** every command, file range and result is in the running log the spawn prompt
+  names (`atelier-160-1150-0632.md` in the drain's notes), appended to this file at the fold.
+- **`/security-review`: NOT RUN**, discharged by grounds. It reads the session's pending diff, and
+  this worktree's pending diff is the deliberate deletion of the sibling: a run would have printed
+  the deferred material into my context before act 1 was written (the SL2 shape). The one code
+  diff was weighed by hand under lens 4 instead.
+
+### Load-bearing assumptions, named first and probed
+
+| # | Assumption the work rests on | Probe | Result |
+|---|---|---|---|
+| A1 | The eight additions say what the principal picked and no more | Each delta section read against the acceptance list | Confirmed for all eight; the one premise he approved inside a pick that is false is GEB2 |
+| A2 | The bidi escape changes nothing in the fleet today | 22 child configs and 44 workflow/pins files scanned read-only for U+202A–202E, U+2066–2069: 0 hits; fleet JSON with the escape disabled on a scratch copy vs enabled: byte-identical, 23 children | Confirmed |
+| A3 | The seam is the only place child config text reaches a terminal | `Config.load` read; `floorfleet.py` imports `floor.strip_controls` (line 1041) and uses it on `ref` and lines | Confirmed for config text; but other tracked text now takes other seams (GEB6) |
+| A4 | The grounded reproductions in the GUARDS additions reproduce | Registry at `28c67b4a` and at HEAD counted | Damaged: GEB1 |
+| A5 | "Not mechanisable" (§17) is true | The delta's own `MECHANISMS.md` table and board `020/460` title | Damaged: GEB2 |
+| A6 | Each cross-reference reaches the rule it names | Every pointer in the delta followed to its target text | One dangles by rule: GEB3; the rest hold |
+| A7 | Doctrine text is the right altitude for five of the eight (review questions, no scanner) | Lens 1 reasoning below | Confirmed as the approved choice; see GEB2 for the stated reason |
+
+### Lens 1 — approach and assumptions
+
+The right problem, at the right altitude. All five rules bind as review questions with no scanner,
+which is consistent with the programme's premise (directive first) and with each pick. Homes are
+defensible: §16–§18 extend `EVIDENCE.md`'s run of "a claim is never stronger than its evidence"
+rules; the corroborate-from-artefacts rule sits where the irreversible act lives; the two guard
+rules sit beside the fourth requirement they refine. Two premises inside the text do not survive
+probing (GEB1, GEB2); neither invalidates the rule it sits under, but both would mislead the next
+reader who trusts the doctrine's account of the tree.
+
+### Lens 2 — correctness and quality
+
+Honest about done versus stubbed: each addition says "answer, not a ruling"; GUARDS says the
+audit of atelier's own guards is unmeasured; MECHANISMS says it is "not a decision tree anyone
+ruled". The code does what its changelog line says, and its tests exercise the three edges that
+matter (idempotence, key collision, the rendered line). Overclaims: GEB1 (a "reproduced here" that
+would not reproduce), GEB4 (six instances, four listed), GEB8 (an "only this mechanism" that is
+not so).
+
+### Lens 3 — completeness and harvest
+
+V3 sweep: `MECHANISMS.md` is indexed in `README.md`, `docs/method/README.md` (item 17) and the
+changelog; no template, skill or build doc carries a method-doc index it is missing from. The
+floor's seam is described in `floorfleet.py`'s comments as dropping C0, which stays true. What the
+work left undeclared: a home for write-then-rename (GEB5). What arrived after it and diverged
+from its ruling: two more bidi homes (GEB6, HEAD-state, not the delta's authorship).
+
+### Lens 4 — security and privacy (V6)
+
+The floor change, by hand. The override and isolate set is escaped after the C0/C1 strip, on
+keys and values at any depth, through the one seam both the floor and the fleet board read, so the
+spoof (a reordered line over a red result) is closed on both surfaces at once. Error paths echo
+no raw child text (`Config.load` prints the decoder's message and an escaped key). Keys that
+collapse onto a literal marker refuse loudly (tested). Residuals, all by the pick: joiners,
+zero-width spaces and the marks pass through; a config may type the literal marker `<U+202E>` and
+read as if escaped (harmless: nothing reorders); homoglyphs are out of scope. Doctrine text has no
+input surface; no personal data entered the delta (the de-naming of a child in `EVIDENCE.md` is a
+later commit). The catalogue check for this class (CWE-150, CWE-117) is what `report.py` cites for
+its own seam; the floor's seam now covers the same vectors for config text.
+
+### The standing checklist
+
+- **V1** — GEB1, GEB4, GEB8: three claims stronger than their evidence.
+- **V2** — Re-run: all five re-run lines (ledger below), the child-config claim and the
+  byte-identical claim; all reproduce. The GUARDS "reproduced here" does not (GEB1).
+- **V3** — Swept; no missing mirror (lens 3).
+- **V4** — GEB5 (a rule with its home undeclared); GEB6 (three homes for the bidi set at HEAD).
+- **V5** — Cross-references checked for the rule reached: CONCURRENCY line 296 "Verify the act,
+  not the absence of an error" is the bullet directly above the new one; EVIDENCE §14, §15 and §1
+  hold what §16 and DATA-PROTECTION cite; COMMUNICATION "The reply plane is UNWIRED" holds
+  MECHANISMS' axis-1 example; ECONOMICS "Heavy skills are episodic costs" holds axis 4; ADR 0006,
+  `commands/`, `instruments/browser-fetch/` (an MCP server on the official SDK, with a venv) all
+  exist as described. Dangling by rule: GEB3. Internal contradiction: GEB2.
+- **V6** — Lens 4 above; scanner NOT RUN with grounds.
+- **V7** — Provenance above.
+
+### Per-commit ledger
+
+| Commit | Read body-free | Findings |
+|---|---|---|
+| `8a58b882` floor + tests | yes | GEB7 (note); GEB6 bears on it at HEAD |
+| `9f5736cb` §16 | yes | none |
+| `6643d5ec` §17 + CONCURRENCY bullet | yes | GEB2 |
+| `23b8570f` §18 | yes | none |
+| `79db6ed9` DATA-PROTECTION | yes | GEB5 |
+| `9d652f4b` GUARDS, forbid or cheap | yes | none |
+| `7688af74` GUARDS, who from whom | yes | GEB1, GEB4 |
+| `32b18fe5` MECHANISMS + two indexes | yes | GEB3, GEB8 |
+| `28c67b4a` changelog | yes | none; both of its live claims re-driven and true |
+
+### Findings
+
+Every finding is the principal's to decide (rule 3); nothing applied. Counsel is labelled.
+
+**GEB1 — MODERATE.** `docs/method/GUARDS.md` § *Declare the threat model*, second bullet:
+*"(reproduced here by reading `tools/floor.py`'s registry: most hook-plane checks render absolute
+worktree paths)"*. At the landing commit, 11 of the registry's 16 hook-plane templates already
+carried `--staged` (`320/600`, landed 2026-11-03 in two commits, six days before this sentence was
+written); at HEAD, 12 of 19. The registry's own comments give as the reason the exact hazard this
+bullet presents as live: "a working-tree read let one writer's unstaged draft block another's
+commit". So the reproduction stated in the present tense would not reproduce on the day it was
+written (V2), and the doctrine contradicts the code it cites (V5). The rule above it stands; the
+grounding misleads the next reader into believing the hook plane reads the worktree.
+*Counsel:* date the reproduction to the filing (2026-08-19), name `320/600` as the fix that a
+"who from whom" declaration would have made visible earlier, and list the hook checks that still
+read the tree (at HEAD: the whole-tree link check and the warn-only checks) as the honest residue.
+
+**GEB2 — MODERATE.** `docs/method/EVIDENCE.md` §17: *"**No guard:** the class is not
+mechanisable, since nothing inspects a session's shell invocations"*. The same delta's
+`MECHANISMS.md` table says a hook *"Intercepts a tool call or turn, unasked"* (`PreToolUse`), and
+the board holds `020/460` (session hooks as a house enforcement plane). A `PreToolUse` hook
+receives the shell command string before it runs; a check for a read verb chained by `&&`, `;` or
+`|` to an irreversible verb is mechanisable, at least as an advisory. The no-guard decision is the
+principal's answer and stands; the reason written into doctrine is false by the delta's own page,
+and a false "cannot" forecloses the question for every future reader (V5; rule 3's "informed"
+condition). *Counsel:* replace the reason with the true one (no hook plane is wired yet; `020/460`
+owns the question), keep "no guard today".
+
+**GEB3 — minor.** `docs/method/MECHANISMS.md` axis 1: *"The programme's premise is directive
+first, enforced second (`GUARDS.md`)"*. `GUARDS.md` does not state that premise; its home is the
+`020/` programme README, § *All doctrine directive first, enforced second (Mike, 2026-08-09)*, a
+board record. A pointer to a file that does not hold the rule is dangling by rule (V5).
+*Counsel:* point at the home, or lift the premise into `GUARDS.md` in his words so doctrine does
+not depend on a board README.
+
+**GEB4 — minor.** `GUARDS.md` § *Declare the threat model*: *"Six instances in one evening across
+three parallel sessions ... :"* is followed by four bullets. The count and the list disagree (V1).
+*Counsel:* say "four of the six" or list all six.
+
+**GEB5 — minor.** `docs/method/DATA-PROTECTION.md`: *"The write-then-rename convention belongs in
+whatever governs how a tool is written"*. No such home exists (`tools/README.md`, `docs/build/`
+and the rest of `docs/method/` carry no rename rule); the convention is placed here while the
+text says its home is elsewhere and unnamed. `GUARDS.md` § *A rule with no home is not a rule*
+(V4). *Counsel:* declare this file the home, or name the file that is.
+
+**GEB6 — minor, formed on the tree at HEAD, not on the delta's authorship.** The bidi set now
+has three homes in `tools/` with three behaviours: `floor.py` escapes to `<U+XXXX>` and leaves
+joiners (his pick, `020/350`); `blockscan.py` `_UNSAFE_RX` escapes as `\xNN`/`\uNNNN` and
+includes joiners and zero-width characters; `report.py` `_MESSAGE_CONTROL_RX` drops the bidi set
+silently and `safe_text` drops every `Cf`. The last two landed on 2026-11-09 after this delta's
+landing commit, so the delta ignored nothing; but the pick's stated rationale ("a reader should see
+that one was there rather than have it vanish") is now contradicted on two surfaces that print
+tracked text to the same terminal (V4). *Counsel:* one seam, as `strip_controls`'s docstring
+already argues for the floor and the fleet board; the principal decides whether his answer on
+`020/350` binds the other two.
+
+**GEB7 — note.** `tools/floor.py` `strip_controls` docstring opens *"Remove C0 control
+characters (and DEL)"* while `CONTROL_CHARS_RE` has covered C1 since FR3; the delta edited that
+sentence and kept the stale clause. Pre-dates the delta.
+
+**GEB8 — note.** `MECHANISMS.md` axis 2: *"An MCP server sits available to be queried repeatedly
+mid-reasoning, which none of the others do"*. An instrument is also called repeatedly
+mid-reasoning through the shell tool; the real distinction is a typed tool surface against a
+shell. Overclaim (V1).
+
+### Overall
+
+**PASS-WITH-FINDINGS** — 0 MAJOR · 2 MODERATE · 4 minor · 2 note.
+
+The eight rules match what was picked and are honest about their status; the two MODERATE
+findings are false premises inside the text, not wrong rules. No scope was cut silently.
+
+### Re-run ledger
+
+Python on `PATH` is 3.14.6 (`/usr/bin/python3` is 3.9.6, used only for my own helper scripts). All
+suites under `nice -n 10`, single process, one at a time; `uptime` read before each (load 3.6 at
+open, rising to 13 while several reviews ran).
+
+| Line | Result |
+|---|---|
+| `python3 -m unittest discover -s tools -p test_floor.py` (the brief's `cd tools && ... test_floor`, run without a persisting `cd`) | exit 0, 255 tests OK, 248 s |
+| `python3 tools/floor.py --plane ci --root <worktree>` | exit 0; advisory and report-only lines, nothing blocked |
+| `python3 tools/floor.py --plane hook --root <worktree>` | exit 0; nothing blocked |
+| `python3 -m unittest discover -s tools` | exit 0, 3134 tests OK, 896 s (one selftest warned that a synthetic over-cap fixture was not read whole, by design) |
+| `python3 tools/floorfleet.py --root <estate parent> --json` to scratch, read by count | exit 0; 23 children, 0 unenrolled; with the escape disabled on a scratch copy of `tools/`: byte-identical JSON (24,867 bytes each) |
+| Child configs scanned read-only for the escaped set | 22 configs, 0 carry any of it (0 carry zero-width or C0/C1 either); 44 workflow and pins files, 0 |
+
+No check needed a live write; nothing is NOT RUN on those grounds. Scratch copies and JSON were
+deleted at close.
+
+### Follow-up checklist
+
+- [ ] GEB1 — re-ground the hook-plane sentence; cite `320/600`.
+- [ ] GEB2 — restate §17's no-guard reason; hand the hook question to `020/460`.
+- [ ] GEB3 — point the premise at its home or lift it into `GUARDS.md`.
+- [ ] GEB4 — reconcile "six" with the four listed.
+- [ ] GEB5 — name write-then-rename's home.
+- [ ] GEB6 — one seam for the bidi set, or a ruling that the three may differ.
+- [ ] GEB7, GEB8 — wording.
