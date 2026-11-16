@@ -96,7 +96,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Mechanise the private-repo × posture join](roadmap/030-enforcement-propagation-the-estate-rollo/070-mechanise-the-private-repo-posture-join.md)
 - [ ] [2 repos still owe the declaration — blocked by their own reds.](roadmap/030-enforcement-propagation-the-estate-rollo/080-2-repos-still-owe-the-declaration-blocked-by-t.md)
 - ✅ [Adoption is a chicken-and-egg problem and I improvised twice.](roadmap/030-enforcement-propagation-the-estate-rollo/090-adoption-is-a-chicken-and-egg-problem-and-i-im.md)
-- [ ] [--no-verify is the real hole, and nothing sees it.](roadmap/030-enforcement-propagation-the-estate-rollo/100-no-verify-is-the-real-hole-and-nothing-sees-it.md)
+- ✅ [--no-verify is the real hole, and nothing sees it.](roadmap/030-enforcement-propagation-the-estate-rollo/100-no-verify-is-the-real-hole-and-nothing-sees-it.md)
 - ✅ [The floor drift check can never fire against a stale checkout — the…](roadmap/030-enforcement-propagation-the-estate-rollo/110-the-floor-drift-check-can-never-fire-against-a.md)
 - [ ] [Every child inlines the same stale-HEAD drift bullet — a fleet sweep…](roadmap/030-enforcement-propagation-the-estate-rollo/120-every-child-inlines-the-same-stale-head-drift.md)
 - ✅ 🔎 [The inlined floor says "everything recoverable — just proceed", and…](roadmap/030-enforcement-propagation-the-estate-rollo/130-the-floor-says-everything-recoverable-just-pro.md)
