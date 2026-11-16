@@ -17,6 +17,11 @@ atelier. **Worktree:** `~/worktrees/atelier-review-integrity`. No Fable used, no
 - `EVIDENCE.md`: moved one `pathscan:allow` marker onto the line that now holds its path (a
   rewrap in `13a5a6b2` had left it a line below, so any commit touching `docs/method/` red on
   it). Wording unchanged.
+- On his word, `160/1460` now names the drain session `21a271a5` as the background, with his
+  full message quoted. He then pasted the drain's reviewer-log summary as his example, so
+  `REVIEW.md` and the review-brief skill now match it: method in order and per check, every
+  check's command or file and line, every finding and non-finding with its deciding criterion,
+  a third party reaching the same verdict, and his "within the realms" limit.
 
 ## Left owed
 

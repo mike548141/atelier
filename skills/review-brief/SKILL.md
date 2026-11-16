@@ -123,11 +123,14 @@ every mirror site · V4 one fact, one home · V5 no internal contradiction ·
 V6 security & privacy · V7 a rule-4 pass states its spawn provenance. A line
 with nothing to bite on is discharged in one line with grounds. Land findings
 numbered, each with the reasoning from evidence to conclusion and a counselled
-fix where you can. **Record your method beside them**: what you examined
-(paths, commits, commands and what they returned), what you attacked and how,
-what you did not examine and why. The method is as much the result as the
-verdict is: a verdict a second reader cannot re-trace is incomplete
-(`REVIEW.md` § *The lifecycle*, the principal's ruling of 2026-11-15).
+fix where you can. **Record your method beside them**: what you examined, in
+what order, for which of the brief's checks, and what you left out and why;
+every check with its exact command or file and line, and its result; and for
+every finding and every non-finding, the evidence and the criterion that decides
+it. The method is as much the result as the verdict is: a third party should be
+able to re-run it and reach the same verdict, and a verdict they cannot is
+incomplete (`REVIEW.md` § *The lifecycle*, the principal's ruling of
+2026-11-15).
 Close with a verdict (**PASS**, **PASS-WITH-FINDINGS** or **FAIL**, the house's
 usual verdict words) appended below a divider in the brief, so the brief and its
 verdict live together as the record. **Who applies a finding depends on what was

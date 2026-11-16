@@ -7,7 +7,8 @@
       *Delta, scoped to paths:* `docs/method/REVIEW.md` (the lifecycle's verdict step; the new
       paragraph *A verdict is only as trustworthy as the method behind it*; the *Not a rubber
       stamp* bullet's pointer to it) and `skills/review-brief/SKILL.md` (its mirror under
-      *Running it and landing the verdict*): the commit that adds this item, on `main`.
+      *Running it and landing the verdict*): the commit that adds this item, on `main`, and
+      the later commit that brings both to the drain's level of detail (below).
       *Principal's words, verbatim, 2026-11-15 UTC (2026-11-16 NZDT), unprompted, asking it be
       added to the doctrine:* *"If its not already in the doctrine I have a thought to add to it -
       a review must have irrefutable integrity to promote trust in the reviwers verdict. So its
@@ -39,13 +40,23 @@
       yet in `REVIEW.md`, so the pass should judge whether they belong in this rule or in their
       own item. The transcript is the principal's record, not this repo's; a cold reviewer reads
       it only after its own findings are written, the same as deferred material.
+      *The drain's practice, which the second commit follows:* on 2026-11-15 UTC the principal
+      pasted, as his example of what he meant, the drain session's own summary of its reviewer
+      log (verbatim): *"Every reviewer's log now records: / Its method: what it examined, in what
+      order, for which of the brief's checks, and what it left out and why. / Every check: the
+      exact command or file and line, and the result. / Every finding and every non-finding: the
+      evidence, and the rule or criterion that decides it. / The test is that a third party could
+      re-run the method and reach the same verdict."* The second commit also binds his
+      "within the realms" limit: the record is the open account of the work, since a model's
+      internal deliberation cannot be extracted. The running log, a review sealed while it runs,
+      and its opening at the fold stay outside `REVIEW.md` for the pass to judge.
       *Questions worth the pass's time:* whether the four listed parts of the method record
       capture his words or narrow or widen them; whether "incomplete" needs a consequence the
       doctrine can ground, or would be invented; whether `reviewscan` or another guard should
       check for the record, and whether a heading-keyed check would be gamed; whether the
       paragraph sits in the right section; any other mirror site the sweep missed; whether the
       method record should cite the reviewer's working notes once the review is complete, given
-      his point that the secrecy ends then; how "within the realms that calude will allow" fits
-      the rule, given a model cannot fully report its own reasoning.
+      his point that the secrecy ends then; whether the "within the realms" sentence states his
+      limit or stretches it.
       *Review:* no brief yet. Neither this session nor anyone it starts may write the brief or
       run the pass.

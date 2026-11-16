@@ -503,17 +503,27 @@ artefact**, not a throwaway chat:
 **A verdict is only as trustworthy as the method behind it** (the principal's
 ruling, 2026-11-15 UTC, in his words: *"a review must have irrefutable integrity
 to promote trust in the reviwers verdict. So its reasoning and methdology are as
-important as its verdicts"*). A reader who cannot see how a verdict was reached
-can only take it on faith, and review exists so that nothing is taken on faith.
-So every verdict records, beside its findings: **what it examined** (paths,
-commits, commands run and what they returned); **what it set out to attack, and
-how**; **what it did not examine, and why**; and, for each finding and for the
-overall verdict, **the reasoning from evidence to conclusion** — enough that a
-second reader can re-run each check and either reach the same result or name
-the step where they part. This binds a FAIL as much as a PASS: a MAJOR finding
-with no visible reasoning is no more trustworthy than a clean verdict with no
-trail (*What review is not*). A verdict without that record is incomplete,
-however right its findings turn out to be.
+important as its verdicts. Within the realms that calude will allow noting the
+model extraction limitations"*). A reader who cannot see how a verdict was
+reached can only take it on faith, and review exists so that nothing is taken on
+faith. So every verdict carries an open record of the work:
+
+- **Its method:** what it examined, in what order, for which of the brief's
+  checks and lenses, and what it left out and why.
+- **Every check:** the exact command, or file and line, and what it returned.
+- **Every finding and every non-finding:** the evidence, and the rule or
+  criterion that decides it.
+
+The test is that a third party could re-run the method and reach the same
+verdict. It binds a FAIL as much as a PASS: a MAJOR finding with no visible
+evidence is no more trustworthy than a clean verdict with no trail (*What review
+is not*). His limit is part of the rule, not a loophole: a model's own internal
+deliberation is sealed by its platform and cannot be extracted, so the record is
+the open account of the work, written as the reviewer goes — checks and
+evidence, not a transcript of thought. A verdict without that record is
+incomplete, however right its findings turn out to be. Grounded in the weekly
+Fable drain (2026-11-15), whose reviewers keep this record as a running log that
+is appended to the review verbatim when the pass ends.
 
 **Applying decisions to doctrine — and when the cycle stops.** Applying
 decided findings to doctrine text is itself a doctrine edit and earns a
