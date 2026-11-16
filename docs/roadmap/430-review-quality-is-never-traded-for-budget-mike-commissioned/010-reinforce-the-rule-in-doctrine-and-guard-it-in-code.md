@@ -64,3 +64,10 @@
       WITHDRAWN by Mike the same night, before any pass ran: the line above
       asks only for a pass on the wording once it exists. Kept at
       [withdrawn/2026-11-01-1154-review-never-thinned-for-budget-cold](../../reviews/withdrawn/2026-11-01-1154-review-never-thinned-for-budget-cold.md).
+      - 🔀 Tidied 2026-11-16 (C0557, verified high; Mike approved 2026-11-16):
+        not an ask of Mike. He commissioned this on 2026-10-04 in his own words
+        (lines 3-16); what is owed (line 41 on) is the doctrine wording and its
+        guards, agent work. The brief he withdrew (lines 63-66) was for a design
+        pass, not a question to him. Nothing above was changed; the original
+        text is as it was. To revert: delete this line (its commit is listed in
+        `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
