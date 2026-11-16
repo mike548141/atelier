@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: `REVIEW.md` has no shape for a live-only top-up of a
+- [~] 🔎 **Hand-up: `REVIEW.md` has no shape for a live-only top-up of a
       degraded pass** `[doctrine]`. Handed up from a private child on
       2026-10-28 under `PROPAGATION.md` § *Pointing up*, by the session that
       wrote the briefs below (an Opus brief-writer, not a reviewer). Formed
@@ -38,3 +38,5 @@
       or judged its adequacy is barred from the follow-up.
       review: not warranted — a hand-up of a gap; the fix is atelier's to
       decide, and its own cold pass will follow whatever it decides.
+      🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-review) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

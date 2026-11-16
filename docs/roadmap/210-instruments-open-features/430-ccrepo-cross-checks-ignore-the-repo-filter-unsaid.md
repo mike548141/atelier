@@ -1,4 +1,4 @@
-- [ ] 🔎 **`ccrepo`'s two cross-checks run over the whole scope when a
+- [~] 🔎 **`ccrepo`'s two cross-checks run over the whole scope when a
       `--repo` filter is set, and the output does not say so.** Found
       2026-11-12 on a run that excluded one repo with `--repo '!name'`; the
       reconciliation lines then carried totals that included the excluded
@@ -16,3 +16,5 @@
       total, or offer a flag to suppress them; consider whether the ccusage
       check can be run on the filtered sessions, since ccusage reports per
       session. Test with a fixture that filters one repo out.
+      🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-ccrepo) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

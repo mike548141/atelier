@@ -1,4 +1,4 @@
-- [ ] **A guard reports whether its rule fired at all, and over what — so
+- [~] **A guard reports whether its rule fired at all, and over what — so
       "clean" and "scanned nothing" stop looking identical.** The cheapest
       finding of the whole commission, and it is imported rather than invented:
       assertion verification calls this vacuity, and treats a property that
@@ -89,3 +89,5 @@
             scanner's output through, so the lines already reach its stream),
             and the label plane (a job or board named for a property it does not
             cover), which no coverage line reaches.
+      🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-floorpy) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

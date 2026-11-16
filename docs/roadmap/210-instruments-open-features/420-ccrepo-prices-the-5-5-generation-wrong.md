@@ -1,4 +1,4 @@
-- [ ] 🔎 **`ccrepo` prices the 5.5 generation wrong: Haiku 5.5 counts at $0,
+- [~] 🔎 **`ccrepo` prices the 5.5 generation wrong: Haiku 5.5 counts at $0,
       and Opus 5.5, Sonnet 5.5 and Fable 5.1 take an older model's rate by
       prefix match.** Found 2026-11-12 by the principal's session after a
       routine run; the principal asked for it on the board (his words:
@@ -33,3 +33,5 @@
       (README § *`opus-5` had no price*): never fit a price to the logs.
       **Why it matters now:** atelier `440/010` (effective first, then
       efficient, real spend counted) will lean on this tool's per-job cost.
+      🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-ccrepo) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

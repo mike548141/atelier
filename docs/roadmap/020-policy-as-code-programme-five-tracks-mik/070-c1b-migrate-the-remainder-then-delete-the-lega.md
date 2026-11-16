@@ -1,4 +1,4 @@
-- [ ] **C1b — migrate the remainder, then delete the legacy spelling.**
+- [~] **C1b — migrate the remainder, then delete the legacy spelling.**
       **THE 2026-08-09 ESTATE PASS DISCHARGED MOST OF IT** (Mike directed
       the run at the close walk-through; live measurement first — the
       recorded 17-across-10 was stale): of the nine legacy declarations
@@ -41,3 +41,5 @@
         because this ask is not Mike's (tidy line above). Original: that line
         began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-floorpy) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

@@ -1,4 +1,4 @@
-- [ ] **Reinforce in doctrine that a review is never cut down to fit a
+- [~] **Reinforce in doctrine that a review is never cut down to fit a
       budget, and guard it in code where a guard can reach**
       `[M][doctrine][code]`. Mike commissioned this, 2026-10-04. Verbatim:
 
@@ -75,3 +75,5 @@
         because this ask is not Mike's (tidy line above). Original: that line
         began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-review) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

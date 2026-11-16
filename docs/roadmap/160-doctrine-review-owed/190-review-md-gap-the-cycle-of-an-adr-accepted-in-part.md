@@ -1,4 +1,4 @@
-- [ ] **REVIEW.md gap — what is the review cycle of an ADR *accepted in
+- [~] **REVIEW.md gap — what is the review cycle of an ADR *accepted in
   part*?** Queued 2026-08-15 from the estate root: its cold pass on an ADR the
   principal accepted in part (two questions ruled, two deliberately deferred)
   found no house convention for whether the rule-4 cycle closes on the ruled
@@ -9,3 +9,5 @@
   nothing. The pass closed the cycle on the ruled half and said so; the
   doctrine should say which reading is right so the next partly-ruled record
   does not re-derive it. Doctrine edit → rule 4 binds on the fix.
+      🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-review) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).
