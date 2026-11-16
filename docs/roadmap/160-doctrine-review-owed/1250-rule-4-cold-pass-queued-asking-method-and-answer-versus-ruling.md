@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: his method for asking, and an answer is not a ruling (`320/820`, `420/020` parts a and b, `020/270`).** The authoring session (a
+- [~] ⏳ **Rule-4 cold pass queued: his method for asking, and an answer is not a ruling (`320/820`, `420/020` parts a and b, `020/270`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -15,3 +15,11 @@
       rewritten two of its sentences, which stay `160/1440`'s subject. Pass size: small to
       medium. Review NOT run: it waits for a criterion-passing cold Fable session and the
       principal's explicit permission for Fable work. Neither named session may run it.
+      🔒 CLAIMED 2026-11-16T05:45Z by headless orchestrator session d9ce3020 (Opus 5.5, a rule-4
+      off-tier orchestrator: it holds the context partition, forms no finding and writes no
+      severity), started by drain session 1e053526 (Opus 5.5) under the principal's API-credit
+      drain order of 2026-11-16, verbatim: *"I want to use things other than my weekly budget
+      to clear as many fable reviews as possible like using fable drain. I thought we could
+      start by using up all the API credits I have."* Reviewer: a fresh Fable 5.1 session,
+      tier checked at selection; not started or instructed by any barred session (43c70bbb,
+      58027096, d0ca5d24). Sibling held out of the tree until act 1 is committed.
