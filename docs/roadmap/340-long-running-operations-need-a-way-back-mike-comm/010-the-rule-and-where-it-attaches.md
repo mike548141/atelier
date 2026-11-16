@@ -31,3 +31,9 @@
   - [ ] **Where it lives.** It extends an existing principle rather than opening a
         new one, so it belongs with the undo rule, not in a new section. One
         paragraph, with the three questions as its body.
+      - 🔀 Tidied 2026-11-16 (C0554, verified high; Mike approved 2026-11-16):
+        not an ask of Mike. He commissioned the long-running-operations rule
+        (the section's title); naming it and attaching it to the undo principle
+        (line 1) is agent work. Nothing above was changed; the original text is
+        as it was. To revert: delete this line (its commit is listed in
+        `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
