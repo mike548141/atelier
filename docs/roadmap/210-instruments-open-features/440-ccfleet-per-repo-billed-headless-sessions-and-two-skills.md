@@ -1,4 +1,4 @@
-- [~] 🛠️ **`ccfleet`, the `fleet-sweep` and `review-drain` skills, and the
+- [ ] 🛠️ **`ccfleet`, the `fleet-sweep` and `review-drain` skills, and the
       `modelguard` hook: the fleet kits versioned in atelier.** Built
       2026-11-14 by session 559edaec (Opus 5.5, headless, started by an
       estate health sweep, orchestrator session 58027096).
@@ -39,9 +39,15 @@
       interface; the queue tool itself stays the adopter's. A sandboxed
       API-credit route the source kit described was dropped: its own review
       had failed and it is estate-specific.
-      **Still owed:** a `man/ccfleet.1` page and the trimmed `--help` the
-      two-register convention asks for (`--doc` prints the full reference
-      today); and the rule-4 cold pass, queued as
+      **Done 2026-11-16 (queue run 78ca):** `instruments/man/ccfleet.1`
+      (full reference, lints clean at STYLE level) and `--help` trimmed to a
+      one-screen digest ending *Full manual: man ccfleet*; two tests in
+      `instruments/test_ccfleet.py` pin the digest and that every flag
+      `--help` prints is in the page. `--doc` is kept (both skills cite it).
+      **Still owed:** the rule-4 cold pass, queued as
       [`160/1450`](../160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md).
+      Found in passing: the source docstring (`--doc`) lists exit code 4
+      (queue empty), but nothing returns it; the page says so. The code or
+      the docstring wants a ruling, left for the cold pass.
       🔒 CLAIMED 2026-11-16T11:31Z (claimed 2026-11-16-1131, wt: qr-78ca-ccfleet) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

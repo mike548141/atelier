@@ -1,0 +1,767 @@
+.TH CCFLEET 1 "2026-11-16" "atelier instruments" "User Commands"
+.SH NAME
+ccfleet \- run headless Claude Code sessions across a fleet of repos, each
+billed to its own repo
+.SH SYNOPSIS
+.B ccfleet
+.RB [ \-\-config
+.IR path ]
+.RB [ \-\-by
+.IR id ]
+.B check
+.br
+.B ccfleet
+.RI [ common ]
+.B gate
+.br
+.B ccfleet
+.RI [ common ]
+.B run
+.I repo
+.BI \-\-prompt " file"
+.RB [ \-\-label
+.IR name ]
+.RB [ \-\-model
+.IR id ]
+.RB [ \-\-set
+.IR K=V ]...
+.RB [ \-\-keep ]
+.RB [ \-\-in
+.IR worktree ]
+.RB [ \-\-dry\-run ]
+.br
+.B ccfleet
+.RI [ common ]
+.B drive
+.I jobs
+.RB [ \-\-max
+.IR n ]
+.RB [ \-\-serial\-per\-repo ]
+.RB [ \-\-dry\-run ]
+.br
+.B ccfleet
+.RI [ common ]
+.B drain
+.RB [ \-\-max
+.IR n ]
+.RB [ \-\-dry\-run ]
+.br
+.B ccfleet
+.RI [ common ]
+.B pass
+.I repo item brief
+.RB [ \-\-dry\-run ]
+.br
+.B ccfleet
+.RI [ common ]
+.B resume
+.I repo worktree session
+.BI \-\-prompt " file"
+.RB [ \-\-item
+.IR item ]
+.RB [ \-\-set
+.IR K=V ]...
+.br
+.B ccfleet
+.RB [ \-\-doc ]
+.br
+.B ccfleet
+.BR \-h " | " \-\-help
+.SH DESCRIPTION
+Cost tools such as
+.BR ccrepo (1)
+label usage by the working directory a session was started in.
+A subagent started from inside another session runs in its parent's directory,
+so work done for one repo by a subagent of another is billed to the parent's
+repo, not the repo it was for.
+The fix is structural: each repo's work runs as its own
+.B claude \-p
+session, started inside a worktree of that repo whose last path component is
+the repo's name.
+Doing that by hand for a dozen repos, without taking a laptop past its limits,
+is what
+.B ccfleet
+is for.
+.PP
+It makes the worktree, renders a prompt template into the session's prompt,
+launches the session under
+.BR nice (1),
+reads the session's own verdict from its output, writes that to a result file,
+and puts the worktree away.
+The
+.B drive
+and
+.B drain
+commands do this for many repos in turn, starting a new session only while the
+machine's load, free memory and free disk all have room.
+.PP
+.B ccfleet
+holds no estate knowledge of its own.
+The repo list, the model tier of each repo, notes about each, the review queue,
+the principal's words and the budget's reset time all come from a JSON config
+that the adopter keeps (see
+.BR CONFIG ).
+A fictional example ships as
+.IR instruments/ccfleet.example.json .
+Keep the real one outside any public repo: it names repos and can carry
+the principal's own words.
+.PP
+It is Python, not shell, on purpose.
+A shell reads a script as it runs, so editing a driver mid-run broke every
+running job's tail.
+Python compiles the whole file at start, so a running driver is immune;
+a job started after an edit runs the edited copy.
+.SS What every launch does
+These are fixed, because each was learned from a real run.
+.IP \(bu 2
+.B claude \-p
+is started with standard input from
+.IR /dev/null .
+Otherwise a "no stdin" warning lands in the JSON output and the result cannot
+be read.
+.IP \(bu 2
+Every launch names its model with
+.BR \-\-model .
+A launch with none inherits the default tier without saying so.
+The model comes from, in order,
+.BR \-\-model ,
+a job's
+.B MODEL=
+field, the repo's
+.B model
+in the config, and the config's
+.BR default_model .
+A pass (see
+.BR pass )
+uses
+.B pass_model
+first.
+.IP \(bu 2
+The worktree is
+.IR <worktrees_root>/<label>-<HHMM>/<repo> ,
+with the time in UTC.
+Its basename is the repo, because that basename is the billing key.
+.IP \(bu 2
+The session runs with the
+.B nice
+value the config sets, so a busy fleet does not starve the machine's own work.
+.SS The private-name guard
+A prompt bound for a public repo, or for one whose visibility is unknown, is
+refused before any worktree is made if it contains a private name.
+The private names are the config's
+.B private_names
+plus every repo the config marks private.
+A name matches as a whole word, in any case.
+Visibility comes from the repo's
+.B visibility
+in the config, else from
+.B gh repo view
+when
+.BR gh (1)
+is installed; if neither answers, the repo is treated as public.
+.PP
+The guard is a literal match.
+It catches the names listed and nothing that was forgotten.
+.SS The headroom gate
+A start may go only when every reading has room.
+Load counts as held when the one-minute or five-minute average reaches
+.BR gate.max_load .
+Memory holds when the free percentage is below
+.BR gate.min_mem_pct .
+It reads
+.BR memory_pressure (1)
+on macOS and
+.I /proc/meminfo
+elsewhere, and an unreadable figure holds, unless
+.B min_mem_pct
+is 0.
+Disk holds when the free space under
+.B worktrees_root
+is below
+.B gate.min_disk_gb
+gigabytes.
+.SH COMMANDS
+.TP
+.B check
+Validate the config and print what it resolves to, as JSON, without the
+.B vars
+values (their names are listed).
+The output includes private names and repo notes: do not paste it anywhere
+public.
+.TP
+.B gate
+Print one headroom reading and whether a start may go now:
+.B go
+(exit 0) or
+.B hold
+(exit 1).
+.TP
+.BI run " repo"
+Run one session for
+.IR repo .
+It checks that
+.I repo
+is a git checkout under
+.BR repos_root ,
+fetches it (unless
+.BR \-\-dry\-run ),
+makes the worktree, renders the template, launches, harvests the result, and
+removes the worktree.
+With a remote, the worktree is detached at the remote's default branch.
+With none, it is a new branch
+.I fleet/<label>-<HHMMSS>
+off the configured mainline, deleted again with the worktree.
+.IP
+The session is told how to land its work.
+With a remote: pull with rebase from the default branch, then push to it
+(unless the repo's own instructions require a pull request).
+With none: rebase onto the mainline and fast-forward the primary checkout,
+never pushing.
+.TP
+.BI drive " jobs"
+Run a jobs file.
+Each job is started as its own
+.B ccfleet run
+child, in file order, at most
+.B \-\-max
+at once, one start per
+.B stagger_seconds
+and only while the gate has room.
+A job whose result file for today (UTC) already exists is skipped, so running
+the same file again resumes it.
+.TP
+.B drain
+Keep review passes running from the adopter's own queue until the queue is
+empty, the budget's reset arrives, the stop file appears, the budget runs out,
+or three passes in a row end badly.
+Passes already running are left to finish.
+It prints
+.B DRAIN EXIT:
+and the reason when it ends.
+.TP
+.BI pass " repo item brief"
+One drain pass; the command
+.B drain
+starts for each pick.
+It needs
+.B pass_prompt
+in the config.
+It makes the worktree, checks that the brief file exists in it (so the brief
+has been pushed), claims the item through the queue's
+.B take
+command, runs the orchestrator session under
+.BR pass_model ,
+and, on a clean end, releases the claim and removes the worktree.
+A pass that ends any other way keeps both, so it can be resumed.
+.TP
+.BI resume " repo worktree session"
+Finish a pass a usage limit cut off, in its own session:
+.B claude \-p \-\-resume
+.IR session ,
+started in the kept worktree, with a fresh prompt from
+.BR \-\-prompt .
+When it ends
+.B DONE
+and
+.B \-\-item
+was given, the claim is released and the worktree removed.
+It starts nothing else.
+.SH OPTIONS
+.SS Common
+.TP
+.BI \-\-config " path"
+The JSON config.
+Without it,
+.B $CCFLEET_CONFIG
+is used; with neither the command refuses with exit 64.
+.TP
+.BI \-\-by " id"
+The orchestrating session's id, filled into prompts as
+.BR {BY} .
+Default:
+.BR $CCFLEET_BY ,
+else
+.BR unknown .
+.TP
+.B \-\-doc
+Print the long reference text kept in the source, and exit.
+This page is the fuller and the better-kept reference.
+.TP
+.BR \-h ", " \-\-help
+Print a one-screen digest.
+A command takes
+.B \-\-help
+for its own flags.
+.SS Of run, drive, drain, pass
+.TP
+.B \-\-dry\-run
+Do everything up to the launch, print what would start, and start nothing.
+No worktree is made and nothing is fetched.
+A dry
+.B drive
+or
+.B drain
+also skips the stagger and the gate.
+.SS Of run
+.TP
+.BI \-\-prompt " file"
+The prompt template.
+Required.
+.TP
+.BI \-\-label " name"
+Names the worktree's parent folder, the log and the result file.
+Characters outside letters, digits, dot, underscore and hyphen become hyphens.
+Default: the repo.
+.TP
+.BI \-\-model " id"
+The model for this launch.
+Overrides every other source.
+.TP
+.BI \-\-set " K=V"
+Fill
+.B {K}
+in the template; repeatable.
+A value written
+.BI @file: path
+takes that file's text, for a multi-line task.
+.B MODEL=
+sets the model, below
+.BR \-\-model .
+.TP
+.B \-\-keep
+Leave the worktree in place afterwards.
+.TP
+.BI \-\-in " worktree"
+Adopt an existing worktree instead of making one, to fold earlier work.
+Its basename must be the repo's name (a differently named directory would bill
+some other label), and it is kept afterwards, because it is the caller's.
+.SS Of drive and drain
+.TP
+.BI \-\-max " n"
+Most sessions at once.
+Default: the config's
+.BR max_concurrent .
+.TP
+.B \-\-serial\-per\-repo
+Of
+.BR drive :
+never two jobs for one repo at once, so a repo has one writer.
+.SH JOBS FILE
+A tab-separated file for
+.BR drive ,
+one job a line: the repo, a label, the prompt template's path, then any number
+of
+.IB KEY = VALUE
+fields that fill
+.B {KEY}
+in that template.
+.B MODEL=
+sets the job's model; a value written
+.BI @file: path
+takes that file's text.
+A line that is blank or starts with
+.B #
+is skipped.
+A line with fewer than three fields is refused with exit 64.
+A trailing field with no
+.B =
+is ignored.
+.SH TEMPLATES
+A prompt is a text file with
+.B {UPPER_CASE}
+placeholders.
+These are always filled:
+.TP
+.B {REPO} {GH} {BR} {VIS}
+The repo's name, its GitHub path (or its remote, or
+.BR "(no remote)" ),
+its mainline branch, and its visibility.
+.TP
+.B {WT} {PRIMARY} {SCRATCH}
+The session's worktree, the primary checkout, and a scratch folder,
+.IR <kit_dir>/scratch/<repo>/ .
+.TP
+.B {LANDING}
+How to land work, as above.
+.TP
+.B {NOTES} {BY} {DATE}
+The repo's notes (default
+.BR none ),
+the
+.B \-\-by
+id, and today's UTC date.
+.TP
+.B {PIN}
+Empty unless the config's
+.B vars
+or the job supplies it.
+.PP
+Then come the config's
+.B vars
+and the job's own fields.
+A
+.B pass
+adds
+.B {ITEM}
+and
+.BR {BRIEF} ;
+a
+.B resume
+adds
+.BR {SESSION}
+and
+.BR {ITEM} .
+A placeholder left unfilled is a refusal (exit 5), never a silent gap.
+.SH CONFIG
+JSON.
+Required:
+.TP
+.B kit_dir
+Where logs, results, scratch folders, the stop file and the driver lock live.
+.TP
+.B repos_root
+Primary checkouts are at
+.IR <repos_root>/<repo> .
+.TP
+.B worktrees_root
+Job worktrees go under here.
+.TP
+.B default_model
+The model a job uses when neither it nor its repo names one.
+.PP
+Optional:
+.TP
+.B claude_bin
+The executable.
+Default:
+.BR claude .
+.TP
+.B claude_args
+Extra arguments for every launch, such as a permission mode.
+A headless session has no one to ask, so it works with whatever permissions
+these grant.
+Choose them on purpose.
+.TP
+.B nice
+The
+.BR nice (1)
+adjustment.
+Default 5; 0 turns it off.
+.TP
+.B max_concurrent
+Default for
+.BR \-\-max .
+Default 4.
+.TP
+.B stagger_seconds
+The pause after each start, so memory and load can show it.
+Default 90.
+.TP
+.B poll_seconds
+How often the drivers look again.
+Default 30.
+.TP
+.B gate
+.IR max_load ,
+.IR min_mem_pct
+and
+.IR min_disk_gb ;
+defaults are twice the core count, 25 and 20.
+.TP
+.B reset_utc
+.B YYYY\-MM\-DDTHH:MM
+in UTC.
+No session starts at or after it; this is a budget's reset time.
+.TP
+.B private_names
+Names a public repo's prompt must never contain.
+.TP
+.B vars
+Template variables for every job.
+.TP
+.B repos
+Per repo:
+.BR model ,
+.BR notes ,
+.B visibility
+(public or private),
+.B github
+(the path, when the remote does not give it) and, for a repo with no remote,
+.BR branch
+(default
+.BR main ).
+.PP
+For
+.B drain
+and
+.BR pass :
+.TP
+.B pass_prompt
+The orchestrator prompt template, one per pass.
+.TP
+.B pass_model
+The orchestrator's model.
+The reviewer's own tier is the prompt's business.
+.TP
+.B queue
+.BR next ,
+.B take
+and
+.BR release :
+see below.
+.SH THE QUEUE INTERFACE
+The review queue is the adopter's own tool; ccfleet only calls it.
+Each of the three entries is an argument list, with a leading
+.B ~
+expanded and
+.B {NAME}
+placeholders filled before the call.
+An unknown placeholder is left as it is.
+.TP
+.B next
+Prints
+.I repo item brief
+(the brief as a path inside the repo) for the next pass to run, or nothing
+when none is launchable.
+Only the last line of output is read.
+.B {LAUNCHED}
+is the path of a file listing what this drain has started (one
+.I repo item brief
+a line), so the queue can skip them, and
+.B {BY}
+is the orchestrator id.
+.TP
+.B take
+Claims the pass.
+Any nonzero exit means another session holds it, and the pass is not run.
+It can use every prompt value, and
+.BR {ITEM} ,
+.B {BRIEF}
+and
+.BR {LOG} .
+.TP
+.B release
+Frees the claim after a pass ends
+.B DONE
+or
+.BR SKIPPED ;
+a pass that ends any other way keeps its claim.
+It can use
+.BR {ITEM} ,
+.B {BRIEF}
+and
+.BR {SESSION} .
+.SH RESULTS
+The session's output is read as JSON, tolerating a warning line before it.
+Its result text is searched for lines like
+.B RESULT: DONE
+and the last one is the verdict: one or two capital-letter words.
+No such line, or unreadable output, reads as
+.BR UNKNOWN .
+A run past a usage limit ends with no such line, which is how a spent budget
+shows up from outside.
+.PP
+The command prints
+.B START
+and
+.B END
+lines (the
+.B END
+carries the exit code, the verdict, the session id and the result path).
+The result text is written to
+.IR <kit_dir>/results/<date>/<label>.md ,
+with the session id in a comment on its first line.
+.PP
+The
+.B drain
+reads a pass's last
+.B END
+line.
+.B DONE
+and
+.B SKIPPED
+reset its count of bad ends;
+.B BUDGET EXHAUSTED
+stops it;
+anything else counts one bad end, and three in a row stop it.
+.SH FILES
+.TP
+.I <kit_dir>/logs/<label>-<HHMM>.json
+A session's raw output; a
+.I .err
+file beside it holds its standard error.
+An adopted worktree adds
+.I \-in\-<HHMMSS>
+to the name.
+.TP
+.I <kit_dir>/logs/run\-<label>.out, pass\-*.out
+What each child
+.B ccfleet
+printed, for a drive or a drain.
+.TP
+.I <kit_dir>/results/<date>/
+One result file per label, per UTC day.
+.TP
+.I <kit_dir>/scratch/<repo>/
+A folder for the session's own working files.
+.TP
+.I <kit_dir>/driver.pid, driver.log
+The driver lock and the driver's log, in UTC.
+.TP
+.I <kit_dir>/launched\-<date>.txt
+What a drain has started today.
+.TP
+.I <kit_dir>/stop
+See
+.BR "STOPPING" .
+.SH STOPPING
+.B touch
+.I <kit_dir>/stop
+ends launching cleanly: sessions already running finish, and nothing new
+starts.
+Both
+.B drive
+and
+.B drain
+honour it, and neither removes it, so delete it before the next driver.
+.PP
+One driver may run per
+.IR kit_dir :
+a second
+.B drive
+or
+.B drain
+refuses while the first's process is alive.
+A stale lock left by a dead process is ignored.
+.SH EXAMPLES
+Check a config, then the machine's headroom:
+.PP
+.RS
+.nf
+ccfleet \-\-config fleet.json check
+ccfleet \-\-config fleet.json gate
+.fi
+.RE
+.PP
+See what a run would launch, starting nothing:
+.PP
+.RS
+.nf
+ccfleet \-\-config fleet.json run example\-app \e
+    \-\-prompt task.md \-\-set TASK=@file:task.txt \-\-dry\-run
+.fi
+.RE
+.PP
+Drive a jobs file, two at once, one per repo:
+.PP
+.RS
+.nf
+ccfleet \-\-config fleet.json \-\-by 1edeadf7 drive jobs.tsv \e
+    \-\-max 2 \-\-serial\-per\-repo
+.fi
+.RE
+.PP
+Drain the review queue, then end it early:
+.PP
+.RS
+.nf
+ccfleet \-\-config fleet.json drain
+touch ~/fleet\-kit/stop
+.fi
+.RE
+.SH EXIT STATUS
+.TP
+.B 0
+The command ran.
+For
+.B run
+and
+.BR pass ,
+the session's own verdict is in its
+.B END
+line and result file, not in the exit code.
+.B gate
+exits 0 for go.
+.TP
+.B 1
+Setup failed: a repo that is not a git checkout, a git command that refused, a
+brief missing from the branch (a pass), a bad
+.BR \-\-in ,
+or another driver already running.
+.B gate
+exits 1 for hold.
+.TP
+.B 2
+Claim refused: another session holds the item.
+.TP
+.B 3
+The reset time has been reached; nothing was started.
+.TP
+.B 5
+Refused by the private-name guard, or a placeholder was left unfilled.
+.TP
+.B 64
+Usage: no config, a config missing a required key, a malformed jobs line, or
+.B drain
+or
+.B pass
+without the config they need.
+.PP
+A mistake in the command line itself is caught by the argument parser first,
+which exits 2.
+Exit code 4 is reserved for an empty queue but is not returned: an empty queue
+ends
+.B drain
+with exit 0 and a
+.B DRAIN EXIT
+line.
+.SH ENVIRONMENT
+.TP
+.B CCFLEET_CONFIG
+The config path, when
+.B \-\-config
+is not given.
+.TP
+.B CCFLEET_BY
+The default for
+.BR \-\-by .
+.SH NOTES
+Sessions started this way take real time and real budget.
+.BR run ,
+.BR drive ,
+.BR drain ,
+.B pass
+and
+.B resume
+all launch them; only
+.BR check ,
+.B gate
+and
+.B \-\-dry\-run
+do not.
+.PP
+Workers run their own tests niced and single-process, and a prompt should say
+so: parallel test runs inside headless sessions have taken a 16 GB laptop past
+a load of 100.
+.PP
+Never give a worker a repo's work as an Agent subagent of the orchestrator:
+that is the billing mistake this tool exists to avoid.
+.PP
+Requires Python 3.8 or later and
+.BR git (1);
+.BR gh (1)
+is used only for a repo whose visibility the config does not state.
+The
+.B fleet\-sweep
+and
+.B review\-drain
+skills drive this tool, and
+.I tools/modelguard.py
+is a hook that blocks a launch that names no model.
+.SH SEE ALSO
+.BR ccrepo (1),
+.BR cclive (1),
+.BR claude (1),
+.BR nice (1),
+.BR git\-worktree (1),
+.BR gh (1)

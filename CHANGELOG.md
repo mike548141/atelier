@@ -26,7 +26,9 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 - **`tools/modelguard.py`**: a `PreToolUse` hook that blocks an `Agent` call or a
   `claude` launch that names no model. Not wired by the plugin; the snippet is
   in `tools/README.md`. 3 tests.
-- Owed: `man/ccfleet.1`, and the rule-4 cold pass (`160/1450`).
+- **`instruments/man/ccfleet.1`** (210/440): the full reference, and `ccfleet --help`
+  trimmed to a one-screen digest that points at it; a test pins every flag in
+  `--help` to the page. Still owed: the rule-4 cold pass (`160/1450`).
 
 ### Added (2026-11-10 — every check states five things, reported only, `115/120` step 0)
 - **Every registry check now carries a `Declares` beside its `why`**: rule

@@ -502,7 +502,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [🔧 ccmail gains a headers-only read: a message's transport headers…](roadmap/210-instruments-open-features/410-ccmail-reads-transport-headers-without-a-body.md)
 - [ ] 🔎 [ccrepo prices the 5.5 generation wrong: Haiku 5.5 counts at $0, and…](roadmap/210-instruments-open-features/420-ccrepo-prices-the-5-5-generation-wrong.md)
 - ✅ 🔎 [ccrepo's two cross-checks run over the whole scope when a --repo…](roadmap/210-instruments-open-features/430-ccrepo-cross-checks-ignore-the-repo-filter-unsaid.md)
-- [~] (claimed 2026-11-16-1131, wt: qr-78ca-ccfleet) [🛠️ ccfleet, the fleet-sweep and…](roadmap/210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md)
+- [ ] [🛠️ ccfleet, the fleet-sweep and review-drain skills, and the modelguard…](roadmap/210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

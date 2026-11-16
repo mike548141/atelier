@@ -632,29 +632,48 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
 # ---------- CLI ----------
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(prog="ccfleet", description="Per-repo billed headless sessions across a fleet, "
-                                 "load-gated. Full reference: the module docstring (ccfleet --doc).")
-    ap.add_argument("--config")
-    ap.add_argument("--by", default=os.environ.get("CCFLEET_BY", "unknown"))
-    ap.add_argument("--doc", action="store_true", help="print the full reference and exit")
-    sub = ap.add_subparsers(dest="cmd")
-    sub.add_parser("check")
-    sub.add_parser("gate")
-    p = sub.add_parser("run")
-    p.add_argument("repo"); p.add_argument("--prompt", required=True); p.add_argument("--label")
-    p.add_argument("--model"); p.add_argument("--set", action="append", default=[]); p.add_argument("--keep", action="store_true")
-    p.add_argument("--in", dest="existing", metavar="WT")
-    p.add_argument("--dry-run", action="store_true")
-    p = sub.add_parser("drive")
-    p.add_argument("jobs"); p.add_argument("--max", type=int); p.add_argument("--serial-per-repo", action="store_true")
-    p.add_argument("--dry-run", action="store_true")
-    p = sub.add_parser("drain")
-    p.add_argument("--max", type=int); p.add_argument("--dry-run", action="store_true")
-    p = sub.add_parser("pass")
-    p.add_argument("repo"); p.add_argument("item"); p.add_argument("brief"); p.add_argument("--dry-run", action="store_true")
-    p = sub.add_parser("resume")
-    p.add_argument("repo"); p.add_argument("worktree"); p.add_argument("session"); p.add_argument("--prompt", required=True)
-    p.add_argument("--item"); p.add_argument("--set", action="append", default=[])
+    ap = argparse.ArgumentParser(
+        prog="ccfleet", formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Run headless Claude Code sessions across a fleet of repos, each started inside a\n"
+                    "worktree named for its repo (so per-repo cost tools bill that repo), and only\n"
+                    "while the machine has headroom.",
+        epilog="Every estate value (repos, tiers, queue, reset time) comes from a JSON config:\n"
+               "--config PATH or $CCFLEET_CONFIG. `run`, `drive`, `drain`, `pass` and `resume`\n"
+               "start real sessions; --dry-run prints the launch instead.\n"
+               "Exit: 0 ran, 1 setup failed, 2 claim refused, 3 reset reached, 5 refused by the\n"
+               "private-name guard, 64 usage.\n"
+               "Full manual: man ccfleet")
+    ap.add_argument("--config", metavar="PATH", help="the JSON config (else $CCFLEET_CONFIG)")
+    ap.add_argument("--by", metavar="ID", default=os.environ.get("CCFLEET_BY", "unknown"),
+                    help="the orchestrating session's id, filled into prompts as {BY}")
+    ap.add_argument("--doc", action="store_true", help="print the long reference text and exit")
+    sub = ap.add_subparsers(dest="cmd", metavar="COMMAND")
+    sub.add_parser("check", help="validate the config and print what it resolves to")
+    sub.add_parser("gate", help="print the headroom reading; exit 0 if a start may go now")
+    p = sub.add_parser("run", help="one headless session for REPO in a fresh worktree")
+    p.add_argument("repo"); p.add_argument("--prompt", required=True, metavar="FILE", help="prompt template")
+    p.add_argument("--label", help="names the worktree, log and result file")
+    p.add_argument("--model", help="the model (else job MODEL=, repo model, default_model)")
+    p.add_argument("--set", action="append", default=[], metavar="K=V", help="fill {K} in the template")
+    p.add_argument("--keep", action="store_true", help="keep the worktree afterwards")
+    p.add_argument("--in", dest="existing", metavar="WT", help="adopt an existing worktree (kept)")
+    p.add_argument("--dry-run", action="store_true", help="print the launch, start nothing")
+    p = sub.add_parser("drive", help="run a jobs file under the headroom gate")
+    p.add_argument("jobs", help="TSV: repo, label, prompt, then KEY=VALUE fields")
+    p.add_argument("--max", type=int, help="most jobs at once (else config max_concurrent)")
+    p.add_argument("--serial-per-repo", action="store_true", help="never two jobs of one repo at once")
+    p.add_argument("--dry-run", action="store_true", help="print the launches, start nothing")
+    p = sub.add_parser("drain", help="keep review passes running from the config's queue")
+    p.add_argument("--max", type=int, help="most passes at once (else config max_concurrent)")
+    p.add_argument("--dry-run", action="store_true", help="print the launches, start nothing")
+    p = sub.add_parser("pass", help="one drain pass (drain starts these)")
+    p.add_argument("repo"); p.add_argument("item"); p.add_argument("brief")
+    p.add_argument("--dry-run", action="store_true", help="print the launch, start nothing")
+    p = sub.add_parser("resume", help="finish a cut-off pass in its own session")
+    p.add_argument("repo"); p.add_argument("worktree"); p.add_argument("session")
+    p.add_argument("--prompt", required=True, metavar="FILE", help="prompt template")
+    p.add_argument("--item", help="the queue item; released when the pass ends DONE")
+    p.add_argument("--set", action="append", default=[], metavar="K=V", help="fill {K} in the template")
     a = ap.parse_args(argv)
     if a.doc:
         print(__doc__)

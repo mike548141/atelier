@@ -6,6 +6,7 @@ import importlib.machinery
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -285,6 +286,37 @@ class EndToEnd(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")))
         # an unclean pass keeps its worktree for a resume
         self.assertEqual(len(os.listdir(os.path.join(self.tmp, "wt"))), 3)
+
+
+class HelpAndManual(unittest.TestCase):
+    """The two-register convention: --help is a digest that points at the man
+    page, and the page covers every flag --help prints."""
+    SUBCOMMANDS = ["check", "gate", "run", "drive", "drain", "pass", "resume"]
+
+    def help_text(self, *argv):
+        r = subprocess.run([sys.executable, TOOL, *argv, "--help"], capture_output=True, text=True,
+                           stdin=subprocess.DEVNULL)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return r.stdout
+
+    def test_top_level_help_is_a_digest_pointing_at_the_manual(self):
+        text = self.help_text()
+        self.assertIn("man ccfleet", text)
+        self.assertLessEqual(len(text.splitlines()), 40)
+        for sub in self.SUBCOMMANDS:
+            self.assertIn(sub, text)
+
+    def test_the_man_page_covers_every_flag_and_command_help_prints(self):
+        with open(os.path.join(HERE, "man", "ccfleet.1"), encoding="utf-8") as fh:
+            page = fh.read().replace("\\-", "-")  # roff writes a literal hyphen as \-
+        flags = set(re.findall(r"--[a-z][a-z-]*", self.help_text()))
+        for sub in self.SUBCOMMANDS:
+            flags.update(re.findall(r"--[a-z][a-z-]*", self.help_text(sub)))
+        self.assertIn("--serial-per-repo", flags)  # the harvest reached the subcommands
+        missing = sorted(f for f in flags if f not in page)
+        self.assertEqual(missing, [], "flags in --help but absent from man/ccfleet.1")
+        for sub in self.SUBCOMMANDS:
+            self.assertRegex(page, r"\.B(R)? " + sub + r"\b", f"no entry for {sub}")
 
 
 if __name__ == "__main__":
