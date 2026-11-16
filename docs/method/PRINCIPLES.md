@@ -497,7 +497,7 @@ application data cannot.
 
 ## 10. Posture — strength is what you are free to do
 
-The other nine principles ask how a thing should be built. This one asks what
+Principles §1–9 ask how a thing should be built. This one asks what
 being strong is *for*, and answers: **freedom of action.** A posture is measured
 by what it lets you do, never by what it forbids.
 
@@ -567,6 +567,91 @@ arriving after the work is grounds to declare, never to unwire, and declaring
 "forbids the act" is not a failure grade. (The device-joining case in the
 quote has no home doc yet; the `ACCESS.md` pointer that once claimed it was
 dropped as wrong on the principal's ruling, 2026-08-23.)
+
+## 11. Evaluation — reason from first principles, not by analogy
+
+*The other principles say how to build and what strength is for. This one says
+how an option is judged before anything is built, and above all how one is
+turned down.*
+
+**The rule.** Boil the question down to the parts you know are true, and build
+the answer up from there. What it replaces is reasoning by analogy or
+convention: others went a different way, the market never adopted it, it has
+always cost this much. Those are evidence to weigh, never verdicts to inherit.
+(Mike's meaning, aligned 2026-07-25 when he agreed this belongs in atelier,
+captured in paraphrase on board item `160/150`.)
+
+**The teaching case** is the principal's own, as he gave it: an external
+illustration, not re-measured here. SpaceX broke a rocket down to the cost of
+its raw materials, found that came to about 2% of the finished price, concluded
+the rest was industry markup rather than physics, and built and reused from the
+fundamentals. The price was a convention. The materials and the physics were
+the fundamentals.
+
+**The rigour, and the failure mode, live in *you know are true*.** The method
+is only as sound as the sorting at its base: telling a real fundamental from a
+convention smuggled in as one. From inside the argument a smuggled convention
+looks exactly like a fundamental. *It costs too much*, *nobody sells a part for
+it*, *that isn't how it's done*: an evaluation resting on any of these is
+reasoning by analogy in first principles' clothes. So ask of every base claim
+what kind of barrier it is. A law of physics or mathematics is a fundamental. A
+price, a market's choice, the products on sale today or a toolchain's current
+limit is a state of the world, and states move.
+
+The failure runs the other way too. First principles is not a licence to
+ignore evidence, or to press on because the idea is believed in. It raises the
+bar for a rejection; it does not remove the bar, and it does not lift the
+evidence duty. A claimed fundamental is a claim ([`EVIDENCE.md`](EVIDENCE.md)
+§1), and *impossible* is the strongest claim there is: "it cannot work" from
+reading alone is not accepted while a cheap test exists (`EVIDENCE.md` §19).
+
+**The practice: grade a rejection, never just state it.** Grounded in a private
+child at an early research stage, designing across hardware and firmware where
+there is little convention to copy. That frontier is what forced the method to
+mature there first. Its rule: before an option is rejected, it is graded by the
+kind of barrier actually in the way, and the grade is written down.
+
+| Grade | The barrier | What it licenses |
+|---|---|---|
+| **Impossible** | A law of physics or mathematics | A terminal rejection. Cite the law. |
+| **Forbidden** | A named invariant: a privacy, security or safety line the owner set | A terminal rejection. Cite the invariant. Reopening it means the principal changes the invariant, never a cost or technology input. |
+| **Improbable** | Possible, but the odds or economics are poor on today's inputs | Not now. Name the input that would change the answer. |
+| **Not-yet-known-how** | Nobody can do it yet, at the stated scope | Not now. Watch the field, and name what would move it. |
+| **Done-but-elsewhere** | Solved, in a different context | A presumption to adopt or adapt, not a "not now" (§8: never re-solve a solved problem). |
+
+Four parts of the practice came from the child's own cold review and use, each
+a correction the first version needed:
+
+- **Every grade carries its scope.** A grade without one overclaims. A part with
+  no peripheral for a function makes that function impossible *on that part*,
+  not impossible. The scopes in use: the universe (a law), this part (a named
+  component fact), this toolchain (a named library or platform limit), and this
+  market today (a named regulatory or economic state). The grade with its scope
+  is what a later session checks before treating a "no" as durable.
+- **Cost is a bar, not a verdict, and market non-adoption is weak evidence.** A
+  thing the market has not adopted may be early, badly packaged, blocked by a
+  patent, or never tried by anyone with the right context. The grade governs
+  the record, not the spend: an `Improbable` grade with a cheap reopening input
+  is not an approval to spend against it. Whether to spend stays with the
+  always-confirm floor ([`AUTONOMY.md`](AUTONOMY.md)).
+- **A not-now grade is watched, not filed away.** Each `Forbidden`,
+  `Improbable` or `Not-yet-known-how` rejection gets a row in one register,
+  naming the option, its grade and its reopening input, added in the same
+  change that grades it. Without the register, *watch the field* names nobody
+  who watches.
+- **The decision template asks for the grade.** A record's rejected options
+  with no grade make an incomplete record, and the child's decision template
+  and review checklist both say so. atelier's own template
+  (`docs/decisions/template.md`) does not ask yet; that is owed.
+
+(Grounded: the child's decision record, 2026-07-25, cold-reviewed 2026-07-27
+and amended 2026-09-27 on the principal's rulings. The `Forbidden` grade, the
+scope, the register and the grade-versus-spend line all came from that review.
+It found one more thing worth carrying: two of the child's earlier "never"
+verdicts had not been re-graded when the rule landed, though the rule said they
+would be. A rule that re-grades past verdicts has to do the sweep, not announce
+it. The child's record becomes a pointer here once its pin reaches this
+section.)
 
 ---
 

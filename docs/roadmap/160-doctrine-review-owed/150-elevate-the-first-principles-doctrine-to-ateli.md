@@ -1,4 +1,4 @@
-- [~] **Elevate the first-principles doctrine to atelier** (Mike, 2026-07-25) —
+- [x] **Elevate the first-principles doctrine to atelier** (Mike, 2026-07-25) —
   a child repo (kāinga) holds a **first-principles / evaluation doctrine**; a
   prior session judged it *"may deserve elevation to atelier — it governs how any
   repo evaluates, not just kāinga"*, and **Mike agrees**. The argument for
@@ -25,5 +25,15 @@
   (hardware) the rest don't — a frontier with little convention to copy *forces*
   first-principles reasoning, so its evaluation doctrine matured there first.
   This is the first concrete instance of the cross-repo up-flow captured below.
+      ✅ DONE 2026-11-16 UTC: the child's doctrine was located (a decision
+      record, cold-reviewed and amended on the principal's rulings) and landed
+      as `docs/method/PRINCIPLES.md` §11 *Evaluation — reason from first
+      principles, not by analogy*: the generic rule, the rigour and failure
+      mode, the teaching case, and the child's grading practice described by
+      class only. A section of PRINCIPLES rather than its own doc: it is a
+      standard designs are measured against. The teaching case names the
+      company only; the person's name is not on the closed personal-data list.
+      atelier's decision template does not ask for the grade yet, said owed in
+      the section. Rule-4 cold pass owed; the orchestrator queues it.
       🔒 CLAIMED 2026-11-16T12:07Z (claimed 2026-11-16-1207, wt: qr-78ca-firstp) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

@@ -252,7 +252,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Glossary ratify pass (Mike)](roadmap/160-doctrine-review-owed/120-glossary-ratify-pass-mike.md)
 - [ ] [Define complex vs complicated in the glossary](roadmap/160-doctrine-review-owed/130-define-complex-vs-complicated-in-the-glossary.md)
 - [ ] [Propagate the widened apex floor to the fleet children](roadmap/160-doctrine-review-owed/140-propagate-the-widened-apex-floor-to-the-fleet.md)
-- [~] (claimed 2026-11-16-1207, wt: qr-78ca-firstp) [Elevate the first-principles doctrine…](roadmap/160-doctrine-review-owed/150-elevate-the-first-principles-doctrine-to-ateli.md)
+- ✅ [Elevate the first-principles doctrine to atelier](roadmap/160-doctrine-review-owed/150-elevate-the-first-principles-doctrine-to-ateli.md)
 - [ ] [Cross-repo learning: atelier distils domain-diverse children (Mike,…](roadmap/160-doctrine-review-owed/160-cross-repo-learning-atelier-distils-domain-div.md)
 - ✅ [Principle: solve once, reuse the building block (Mike, 2026-07-25)](roadmap/160-doctrine-review-owed/170-principle-solve-once-reuse-the-building-block.md)
 - ✅ 🎯 [Rule-4 review RAN 2026-08-17 (tier: Fable; pass type: doctrine cold…](roadmap/160-doctrine-review-owed/180-rule-4-review-queued-tier-fable-pass-type-doc.md)
@@ -410,6 +410,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: an allow-marker scope with no reason exempts…](roadmap/160-doctrine-review-owed/1550-rule-4-cold-pass-queued-allow-marker-scope-without-reason.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose check 14, a child's atelier pin and…](roadmap/160-doctrine-review-owed/1560-rule-4-cold-pass-queued-ccclose-pin-and-floor-check.md)
 - [ ] ⏳ [Rule-4 cold pass queued: tools around the authority surface —…](roadmap/160-doctrine-review-owed/1570-rule-4-cold-pass-queued-authority-surface-tools.md)
+- [ ] ⏳ [Rule-4 cold pass queued: PRINCIPLES.md §11, evaluation by first…](roadmap/160-doctrine-review-owed/1580-rule-4-cold-pass-queued-first-principles-evaluation.md)
 
 ## build/ layer — open strands
 
