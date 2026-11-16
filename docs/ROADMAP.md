@@ -202,7 +202,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/115-guardrail-architecture-mike-commissioned/360-a-bare-dot-scope-makes-the-staged-plane-scan-nothing.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/115-guardrail-architecture-mike-commissioned/370-secrets-posture-heading-says-the-dial-is-not-yet-built.md)
 - ✅ [The scanners' exempted test files rest on a promise nothing checks:…](roadmap/115-guardrail-architecture-mike-commissioned/380-the-scanners-exempt-test-files-hold-a-promise-nothing-checks.md)
-- [~] 🤔 (claimed 2026-11-16-1155, wt: qr-78ca-binary) [Investigate scanning inside binary…](roadmap/115-guardrail-architecture-mike-commissioned/390-investigate-scanning-inside-binary-files.md)
+- [ ] 🤔 [Investigate scanning inside binary files.](roadmap/115-guardrail-architecture-mike-commissioned/390-investigate-scanning-inside-binary-files.md)
 - ✅ 🔎 [pointerscan misses a RAN stamp that carries a time, so four landed…](roadmap/115-guardrail-architecture-mike-commissioned/400-pointerscan-misses-a-ran-stamp-carrying-a-time.md)
 - [ ] 🔎 [EVIDENCE.md §17 says its class is not mechanisable because "nothing…](roadmap/115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md)
 
