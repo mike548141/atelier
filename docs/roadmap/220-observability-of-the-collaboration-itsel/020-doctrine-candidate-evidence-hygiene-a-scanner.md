@@ -1,4 +1,4 @@
-- [ ] 🎯 **Doctrine candidate — evidence hygiene: a scanner that greps for the
+- [ ] **Doctrine candidate — evidence hygiene: a scanner that greps for the
       name of a failure finds the sessions that discussed it.** The first cut of
       the incident scanner text-matched a refusal string and counted its own
       scanning session, inflating one class threefold. The general rule: when an
@@ -13,3 +13,7 @@
         (line 1); it asks him nothing. Nothing above was changed; the original
         text is as it was. To revert: delete this line (its commit is listed in
         `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      - 🔀 2026-11-16 (C0545): removed the 🎯 marker from this item's first line,
+        because this ask is not Mike's (tidy line above). Original: that line
+        began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
+        in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).

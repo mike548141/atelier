@@ -35,13 +35,13 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md)*
 
-- [ ] 🎯 [The five red floors themselves are now open work.](roadmap/020-policy-as-code-programme-five-tracks-mik/010-the-five-red-floors-themselves-are-now-open-wo.md)
+- [ ] [The five red floors themselves are now open work.](roadmap/020-policy-as-code-programme-five-tracks-mik/010-the-five-red-floors-themselves-are-now-open-wo.md)
 - [ ] 🎯 [B4 — the roadmap-deletion guard: BUILT, MEASURED, and deliberately…](roadmap/020-policy-as-code-programme-five-tracks-mik/020-b4-the-roadmap-deletion-guard-built-measured-a.md)
 - ✅ 🎯 [C5 re-ruling owed — the composed term-list execution was reverted on…](roadmap/020-policy-as-code-programme-five-tracks-mik/030-c5-re-ruling-owed-the-composed-term-list-execu.md)
 - [ ] 🎯 [A scanner's verdict has two states and needs three — "found, and all…](roadmap/020-policy-as-code-programme-five-tracks-mik/040-a-scanner-s-verdict-has-two-states-and-needs-t.md)
 - ✅ 🎯 [The join C5 guards was written twice more on 2026-08-09, both times…](roadmap/020-policy-as-code-programme-five-tracks-mik/050-the-join-c5-guards-was-written-twice-more-on-2.md)
 - ✅ [floorfleet's remaining child-authored text surfaces.](roadmap/020-policy-as-code-programme-five-tracks-mik/060-floorfleet-s-remaining-child-authored-text-sur.md)
-- [ ] 🎯 [C1b — migrate the remainder, then delete the legacy spelling.](roadmap/020-policy-as-code-programme-five-tracks-mik/070-c1b-migrate-the-remainder-then-delete-the-lega.md)
+- [ ] [C1b — migrate the remainder, then delete the legacy spelling.](roadmap/020-policy-as-code-programme-five-tracks-mik/070-c1b-migrate-the-remainder-then-delete-the-lega.md)
 - [ ] [C2 — retire the remainder.](roadmap/020-policy-as-code-programme-five-tracks-mik/080-c2-retire-the-remainder.md)
 - ✅ [C3 — a sanctioned adoption path.](roadmap/020-policy-as-code-programme-five-tracks-mik/090-c3-a-sanctioned-adoption-path.md)
 - [ ] [C4 — make the local bypass visible.](roadmap/020-policy-as-code-programme-five-tracks-mik/100-c4-make-the-local-bypass-visible.md)
@@ -57,8 +57,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
 - ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled…](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
 - [ ] 🎯 [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await…](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
-- [ ] 🎯 [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
-- [ ] 🎯 [(b) The half with no owner: doctrine that reaches the moment of…](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
+- [ ] [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
+- [ ] [(b) The half with no owner: doctrine that reaches the moment of…](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
 - ✅ 🎯 [The posture change this implies — stated so it is ruled, not assumed.](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
 - ✅ [The REPO-plane numbers are still unruled](roadmap/020-policy-as-code-programme-five-tracks-mik/260-the-repo-plane-numbers-are-still-unruled.md)
@@ -498,8 +498,8 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/220-observability-of-the-collaboration-itsel/README.md)*
 
-- [ ] 🎯 [Doctrine candidate — the mechanical instruments cannot see a trust…](roadmap/220-observability-of-the-collaboration-itsel/010-doctrine-candidate-the-mechanical-instruments.md)
-- [ ] 🎯 [Doctrine candidate — evidence hygiene: a scanner that greps for the…](roadmap/220-observability-of-the-collaboration-itsel/020-doctrine-candidate-evidence-hygiene-a-scanner.md)
+- [ ] [Doctrine candidate — the mechanical instruments cannot see a trust…](roadmap/220-observability-of-the-collaboration-itsel/010-doctrine-candidate-the-mechanical-instruments.md)
+- [ ] [Doctrine candidate — evidence hygiene: a scanner that greps for the…](roadmap/220-observability-of-the-collaboration-itsel/020-doctrine-candidate-evidence-hygiene-a-scanner.md)
 - [ ] [The forward test the trust analysis could not run.](roadmap/220-observability-of-the-collaboration-itsel/030-the-forward-test-the-trust-analysis-could-not.md)
 - [ ] [Session hygiene, measured: cap messages, not minutes.](roadmap/220-observability-of-the-collaboration-itsel/040-session-hygiene-measured-cap-messages-not-minu.md)
 - [ ] [The Context Atlas is a first mockup, unrefined, and the archive run…](roadmap/220-observability-of-the-collaboration-itsel/050-the-context-atlas-is-a-first-mockup-unrefined.md)
@@ -549,7 +549,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Grab the AI chat (Teams, 15/7/26) with a colleague](roadmap/270-open-questions/020-grab-the-ai-chat-teams-15-7-26-with-a-colleagu.md) <!-- datescan:allow: verbatim; wrapscan:allow: marker-inflated line -->
 - ✅ [The Laws are a ladder — but a ladder needs a world-model to climb…](roadmap/270-open-questions/030-the-laws-are-a-ladder-but-a-ladder-needs-a-wor.md)
 - [ ] [Accountability and authority must match — in both directions](roadmap/270-open-questions/040-accountability-and-authority-must-match-in-bot.md)
-- [ ] 🎯 ["One task per session" — does ECONOMICS.md say what the principal…](roadmap/270-open-questions/050-one-task-per-session-does-the-doctrine-say-what-was-directed.md)
+- [ ] ["One task per session" — does ECONOMICS.md say what the principal…](roadmap/270-open-questions/050-one-task-per-session-does-the-doctrine-say-what-was-directed.md)
 
 ## Cross-session channel — coordination git cannot carry (Mike commissioned 2026-08-17)
 
@@ -579,7 +579,7 @@ then `python3 tools/board.py rebuild`.
 
 - ✅ 🎯 [The posture section, and the fourth requirement it puts on every guard](roadmap/300-posture-recover-cheaply-mike-commissioned/010-the-posture-section-and-the-guard-test.md)
 - ✅ [🚩 Re-rank the open guard work against the fourth requirement — and…](roadmap/300-posture-recover-cheaply-mike-commissioned/020-re-rank-the-guard-board-against-the-test.md)
-- [ ] 🎯 [The census: what would this estate actually NOTICE, and what can it…](roadmap/300-posture-recover-cheaply-mike-commissioned/030-what-would-this-estate-actually-notice.md)
+- [ ] [The census: what would this estate actually NOTICE, and what can it…](roadmap/300-posture-recover-cheaply-mike-commissioned/030-what-would-this-estate-actually-notice.md)
 - [ ] 🎯 [Rule-4 cold pass owed on the posture section and the fourth guard…](roadmap/300-posture-recover-cheaply-mike-commissioned/040-rule-4-cold-pass-queued-the-posture.md)
 
 ## Pointing up — the child-to-parent route (Mike commissioned 2026-08-18)
@@ -697,13 +697,13 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md)*
 
-- [ ] 🎯 [Give the rule a home, then sweep for where the house already breaks…](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
+- [ ] [Give the rule a home, then sweep for where the house already breaks…](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
 
 ## ⏳ Long-running operations need a way back — Mike-commissioned, 2026-08-22
 
 *[Narrative](roadmap/340-long-running-operations-need-a-way-back-mike-comm/README.md)*
 
-- [ ] 🎯 [Name the rule, and attach it to the undo principle rather than beside…](roadmap/340-long-running-operations-need-a-way-back-mike-comm/010-the-rule-and-where-it-attaches.md)
+- [ ] [Name the rule, and attach it to the undo principle rather than beside…](roadmap/340-long-running-operations-need-a-way-back-mike-comm/010-the-rule-and-where-it-attaches.md)
 
 ## 🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23
 
@@ -765,7 +765,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/README.md)*
 
-- [ ] 🎯 [Reinforce in doctrine that a review is never cut down to fit a…](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/010-reinforce-the-rule-in-doctrine-and-guard-it-in-code.md)
+- [ ] [Reinforce in doctrine that a review is never cut down to fit a…](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/010-reinforce-the-rule-in-doctrine-and-guard-it-in-code.md)
 
 ## Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)
 

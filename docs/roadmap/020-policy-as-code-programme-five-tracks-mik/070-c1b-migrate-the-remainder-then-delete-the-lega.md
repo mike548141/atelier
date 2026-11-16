@@ -1,4 +1,4 @@
-- [ ] 🎯 **C1b — migrate the remainder, then delete the legacy spelling.**
+- [ ] **C1b — migrate the remainder, then delete the legacy spelling.**
       **THE 2026-08-09 ESTATE PASS DISCHARGED MOST OF IT** (Mike directed
       the run at the close walk-through; live measurement first — the
       recorded 17-across-10 was stale): of the nine legacy declarations
@@ -37,3 +37,7 @@
         which is agent build work in atelier. Nothing above was changed; the
         original text is as it was. To revert: delete this line (its commit is
         listed in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      - 🔀 2026-11-16 (C0497): removed the 🎯 marker from this item's first line,
+        because this ask is not Mike's (tidy line above). Original: that line
+        began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
+        in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).

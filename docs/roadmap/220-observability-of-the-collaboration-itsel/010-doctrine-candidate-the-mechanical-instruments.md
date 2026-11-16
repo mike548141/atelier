@@ -1,4 +1,4 @@
-- [ ] 🎯 **Doctrine candidate — the mechanical instruments cannot see a trust
+- [ ] **Doctrine candidate — the mechanical instruments cannot see a trust
       failure, and `EVIDENCE.md` should say so.** Tool errors, dropped
       connections and exhausted windows measure whether the machinery ran.
       Trust is damaged by work that ran perfectly and was wrong, unverified, or
@@ -14,3 +14,7 @@
         (lines 1-2); it asks him nothing. Nothing above was changed; the
         original text is as it was. To revert: delete this line (its commit is
         listed in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      - 🔀 2026-11-16 (C0544): removed the 🎯 marker from this item's first line,
+        because this ask is not Mike's (tidy line above). Original: that line
+        began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
+        in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).

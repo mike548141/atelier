@@ -1,4 +1,4 @@
-- [ ] 🎯 **(b) The half with no owner: doctrine that reaches the moment of
+- [ ] **(b) The half with no owner: doctrine that reaches the moment of
       decision.** A guard fires *after* the act — at commit, at CI — on a
       choice already made. Doctrine's other job is to change the reasoning
       that produces the act, so the guard finds nothing to catch. That is a
@@ -15,3 +15,7 @@
         above was changed; the original text is as it was. To revert: delete
         this line (its commit is listed in
         `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      - 🔀 2026-11-16 (C0500): removed the 🎯 marker from this item's first line,
+        because this ask is not Mike's (tidy line above). Original: that line
+        began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
+        in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).

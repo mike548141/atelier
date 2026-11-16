@@ -1,4 +1,4 @@
-- [ ] 🎯 **"One task per session" — does ECONOMICS.md say what the principal
+- [ ] **"One task per session" — does ECONOMICS.md say what the principal
       directed? (Mike, 2026-10-03)** His words, verbatim, on being shown the
       rule quoted back at him by a session explaining its own token spend:
 
@@ -46,3 +46,7 @@
         comes back through review (lines 35-36). Nothing above was changed; the
         original text is as it was. To revert: delete this line (its commit is
         listed in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      - 🔀 2026-11-16 (C0546): removed the 🎯 marker from this item's first line,
+        because this ask is not Mike's (tidy line above). Original: that line
+        began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
+        in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).

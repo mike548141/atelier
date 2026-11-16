@@ -1,4 +1,4 @@
-- [ ] 🎯 **The five red floors themselves are now open work.** `--status` found
+- [ ] **The five red floors themselves are now open work.** `--status` found
       them; it does not fix them. Each is a real finding in a child repo and
       each is that repo's own call to clear (the same reasoning as the
       bootstrap reds already recorded below). Deliberately not named here with
@@ -11,3 +11,7 @@
         changed; the original text is as it was. To revert: delete this line
         (its commit is listed in
         `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      - 🔀 2026-11-16 (C0495): removed the 🎯 marker from this item's first line,
+        because this ask is not Mike's (tidy line above). Original: that line
+        began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
+        in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).

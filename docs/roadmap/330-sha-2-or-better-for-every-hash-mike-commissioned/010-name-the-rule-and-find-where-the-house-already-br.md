@@ -1,4 +1,4 @@
-- [ ] 🎯 **Give the rule a home, then sweep for where the house already breaks
+- [ ] **Give the rule a home, then sweep for where the house already breaks
       it.** Two halves, and the second is the one that earns the item.
   - [ ] **Where the rule lives.** It is a *how we build* preference, not a safety
         floor — nothing catches fire if a hash is weak, so it does not belong at
@@ -30,3 +30,7 @@
         (line 1) is agent work. Nothing above was changed; the original text is
         as it was. To revert: delete this line (its commit is listed in
         `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      - 🔀 2026-11-16 (C0553): removed the 🎯 marker from this item's first line,
+        because this ask is not Mike's (tidy line above). Original: that line
+        began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
+        in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).

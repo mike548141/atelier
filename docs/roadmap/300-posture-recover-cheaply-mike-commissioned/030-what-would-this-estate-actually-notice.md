@@ -1,4 +1,4 @@
-- [ ] 🎯 **The census: what would this estate actually NOTICE, and what can it
+- [ ] **The census: what would this estate actually NOTICE, and what can it
       actually RESTORE?** `[L][ops]` — Mike ruled 2026-08-17 that this is looked
       at next. It is the posture's precondition, not an extension of it.
       **The question, in checkable terms.** For each class of failure the
@@ -26,3 +26,7 @@
         here. Nothing above was changed; the original text is as it was. To
         revert: delete this line (its commit is listed in
         `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      - 🔀 2026-11-16 (C0547): removed the 🎯 marker from this item's first line,
+        because this ask is not Mike's (tidy line above). Original: that line
+        began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
+        in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
