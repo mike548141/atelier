@@ -394,6 +394,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the doctrine edits that record the…](roadmap/160-doctrine-review-owed/1440-rule-4-cold-pass-queued-the-2026-11-12-answers.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccfleet, the fleet-sweep and review-drain…](roadmap/160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a verdict records its method and reasoning.](roadmap/160-doctrine-review-owed/1460-rule-4-cold-pass-queued-a-verdict-records-its-method.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the floor's Asking bullet says "same turn",…](roadmap/160-doctrine-review-owed/1470-rule-4-cold-pass-queued-floor-asking-bullet-same-turn.md)
 
 ## build/ layer — open strands
 
@@ -761,7 +762,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [An answer to a session's question is not a ruling. Records must tell…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
 - [ ] 🎯 [What the 2026-11-09 ruling round left open.](roadmap/420-when-to-ask-mike-commissioned/030-what-the-722a-ruling-round-left-open.md)
 - ✅ [The two-step ask stalled the walk-through between questions.](roadmap/420-when-to-ask-mike-commissioned/040-the-two-step-ask-stalled-the-run-between-questions.md)
-- [~] (claimed 2026-11-16-1052, wt: none) [The floor's Asking bullet still says "(one…](roadmap/420-when-to-ask-mike-commissioned/050-the-floor-still-says-one-extra-turn.md)
+- ✅ [The floor's Asking bullet still says "(one extra turn)".](roadmap/420-when-to-ask-mike-commissioned/050-the-floor-still-says-one-extra-turn.md)
 
 ## Review quality is never traded for budget (Mike commissioned, 2026-10-04)
 

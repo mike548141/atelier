@@ -148,8 +148,8 @@ in atelier and is read on demand — never wholesale.
   `AskUserQuestion`), never buried in prose; with no device (a non-interactive
   run, a scheduled batch, a harness without one) the same content goes in
   prose. The account must have *reached* the principal before the choice is
-  put — always as a finished message of its own, ahead of the device, in every
-  view (one extra turn) — and the device carries only the choice; never trim
+  put — always written out as text first, then the device carries the choice
+  alone, in the same turn; never end the turn between them — and never trim
   the account to fit. Give the real options, each with its pros, cons,
   impacts, risks, costs and any other consideration that bears on the choice,
   plus **a recommendation** with its reasoning shown. Every fact in the ask is
