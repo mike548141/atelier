@@ -77,7 +77,7 @@
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
       🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-review) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
-      ⏳ 2026-11-17 (queue run 78ca): slice 1 of (a) landed. `docs/method/REVIEW.md`,
+      🧩 2026-11-16 (queue run 78ca): slice 1 of (a) landed. `docs/method/REVIEW.md`,
       the paragraph *Budget decides how many reviews run and when, never how a
       review is run*, quotes his words and points at `ECONOMICS.md` § *Know the
       marginal cost of the running model* for the tier version instead of

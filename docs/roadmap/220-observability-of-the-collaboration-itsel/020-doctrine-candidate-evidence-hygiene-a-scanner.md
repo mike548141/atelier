@@ -1,4 +1,4 @@
-- [x] **DONE 2026-11-17** (wt: qr-78ca-evidence) **Doctrine candidate — evidence hygiene: a scanner that greps for the
+- [x] **DONE 2026-11-16** (wt: qr-78ca-evidence) **Doctrine candidate — evidence hygiene: a scanner that greps for the
       name of a failure finds the sessions that discussed it.** The first cut of
       the incident scanner text-matched a refusal string and counted its own
       scanning session, inflating one class threefold. The general rule: when an
@@ -17,6 +17,6 @@
         because this ask is not Mike's (tidy line above). Original: that line
         began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
-      ✅ 2026-11-17 (wt: qr-78ca-evidence): `EVIDENCE.md` §21 (a scanner of one's own logs keys to markers), folded with `220/010` as one section. Rule-4 review owed at landing.
+      ✅ 2026-11-16 (wt: qr-78ca-evidence): `EVIDENCE.md` §21 (a scanner of one's own logs keys to markers), folded with `220/010` as one section. Rule-4 review owed at landing.
       🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-evidence) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

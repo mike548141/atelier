@@ -36,7 +36,7 @@
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
       🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-principles) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
-      - 2026-11-17: the rule and its class line landed in
+      - 2026-11-16: the rule and its class line landed in
         `docs/method/PRINCIPLES.md` §5 (not `CONVENTIONS.md`, which declares the
         frame a value is read against; this is a build-time security choice),
         with the upstream-checksum, git-id and format-mandated exemptions.

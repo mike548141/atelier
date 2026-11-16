@@ -1,4 +1,4 @@
-- [x] **DONE 2026-11-17** (wt: qr-78ca-evidence) 🔑 **The second instance is the INVERSE of `010`, and it is the more
+- [x] **DONE 2026-11-16** (wt: qr-78ca-evidence) 🔑 **The second instance is the INVERSE of `010`, and it is the more
       dangerous half: a client timeout read as a failed WRITE.** Found live in
       docker-heap on 2026-08-24 by the peer session, within the hour of `010`
       being filed, on the same middleware and under the same host load.
@@ -47,6 +47,6 @@
         pair only exists because one session published its failure and the other
         recognised its own shape in it — which is the argument in `010`'s last
         line, arriving a second time without being sought.
-      ✅ 2026-11-17 (wt: qr-78ca-evidence): `EVIDENCE.md` §18 extended (a client's signal is evidence about the client; re-query before retrying a write), folded with `320/230`. Rule-4 review owed at landing.
+      ✅ 2026-11-16 (wt: qr-78ca-evidence): `EVIDENCE.md` §18 extended (a client's signal is evidence about the client; re-query before retrying a write), folded with `320/230`. Rule-4 review owed at landing.
       🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-evidence) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

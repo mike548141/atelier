@@ -43,7 +43,7 @@
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
       🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-principles) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
-      - 2026-11-17: landed in `docs/method/PRINCIPLES.md` §1, a bullet directly after
+      - 2026-11-16: landed in `docs/method/PRINCIPLES.md` §1, a bullet directly after
         *build the way back before the way forward*: the three questions, the
         half-looks-like test and the threshold (longer than a session, or loss not
         recoverable elsewhere) as this item proposed it.

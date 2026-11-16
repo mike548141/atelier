@@ -36,11 +36,13 @@ held person-local, not in this repo.
 
 ## Session hygiene
 
-- **One task per session — a coherent *line* of work, not a single checkbox.**
-  Related, already-grounded work sharing the context is the *same* task; keep
-  going. Break for a genuine reason (an unrelated pivot, a principal-only
-  decision, a real unreviewed dependency, cache/context degradation), **not
-  because one item went green**. Then write the `SESSIONS.md` entry, start fresh.
+- **Stay in one line of work; an unrelated pivot earns a fresh session.** The
+  cost is context carried for no use, not tasks done: several tasks in one
+  session is the expected case. Related, already-grounded work sharing the
+  context is the *same* line; keep going. Break for a genuine reason (an
+  unrelated pivot, a principal-only decision, a real unreviewed dependency,
+  cache/context degradation), **not because one item went green**. Then write
+  the `SESSIONS.md` entry, start fresh.
 - **Match the ceremony to the risk** — reviews, sweeps, session breaks are
   *spend*; apply them in proportion to the cost of being wrong, not uniformly.
 - **Never switch model mid-session** — the prompt cache is per-model.

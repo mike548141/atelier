@@ -1,4 +1,4 @@
-- [x] **DONE 2026-11-17** (wt: qr-78ca-evidence) 🔎 **MISSING HOUSE RULE — list what already exists before adding a
+- [x] **DONE 2026-11-16** (wt: qr-78ca-evidence) 🔎 **MISSING HOUSE RULE — list what already exists before adding a
       resource to an estate, and read the neighbouring file before inventing a
       pattern** `[S][doctrine]` — hand-up from a private child repo, filed
       2026-10-11 via `PROPAGATION.md` § *Pointing up*. Class only: no repo,
@@ -46,6 +46,6 @@
         CLAUDE.md; nearest are REVIEW.md lens 3 and PROPAGATION.md 'Check the
         parent's file first', both on other subjects. The incident is child-
         side, not verifiable here.
-      ✅ 2026-11-17 (wt: qr-78ca-evidence): `EVIDENCE.md` §20. Doctrine only, as filed; the child-side lint is the child's to build. Rule-4 review owed at landing.
+      ✅ 2026-11-16 (wt: qr-78ca-evidence): `EVIDENCE.md` §20. Doctrine only, as filed; the child-side lint is the child's to build. Rule-4 review owed at landing.
       🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-evidence) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

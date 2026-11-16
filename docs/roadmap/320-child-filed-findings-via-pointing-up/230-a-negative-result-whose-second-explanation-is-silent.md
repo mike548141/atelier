@@ -1,4 +1,4 @@
-- [x] **DONE 2026-11-17** (wt: qr-78ca-evidence) 🔎 **MISSING HOUSE RULE — the method has no name for *a negative result
+- [x] **DONE 2026-11-16** (wt: qr-78ca-evidence) 🔎 **MISSING HOUSE RULE — the method has no name for *a negative result
       whose second explanation is silent*, though it already reasons that way
       case by case** — filed from a private child 2026-09-08 via
       `PROPAGATION.md` § *Pointing up*, by direct write into the parent's tree,
@@ -134,6 +134,6 @@
         which is § *Pointing up*'s own instruction: narrow locally **and**
         report up, never work around in silence. If the house rules the
         prescribed form must be used, this branch can be renamed and re-pushed.
-      ✅ 2026-11-17 (wt: qr-78ca-evidence): `EVIDENCE.md` §18 extended (silent second explanation; one rule with the control, the one-or-two question left open there). The protocol half (the `PROPAGATION.md` pin-versus-head drift check) is not fixed here and stays the separate item the filing names. Rule-4 review owed at landing.
+      ✅ 2026-11-16 (wt: qr-78ca-evidence): `EVIDENCE.md` §18 extended (silent second explanation; one rule with the control, the one-or-two question left open there). The protocol half (the `PROPAGATION.md` pin-versus-head drift check) is not fixed here and stays the separate item the filing names. Rule-4 review owed at landing.
       🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-evidence) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
