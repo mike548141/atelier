@@ -1,4 +1,4 @@
-- [ ] 🛠️ **`ccfleet`, the `fleet-sweep` and `review-drain` skills, and the
+- [~] 🛠️ **`ccfleet`, the `fleet-sweep` and `review-drain` skills, and the
       `modelguard` hook: the fleet kits versioned in atelier.** Built
       2026-11-14 by session 559edaec (Opus 5.5, headless, started by an
       estate health sweep, orchestrator session 58027096).
@@ -43,3 +43,5 @@
       two-register convention asks for (`--doc` prints the full reference
       today); and the rule-4 cold pass, queued as
       [`160/1450`](../160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md).
+      🔒 CLAIMED 2026-11-16T11:31Z (claimed 2026-11-16-1131, wt: qr-78ca-ccfleet) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).
