@@ -3,8 +3,9 @@
 **Pass type:** doctrine cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-15 UTC — PASS-WITH-FINDINGS (0 MAJOR · 1 MODERATE · 3 minor ·
-2 note, HU1–HU6). Act 2 (reconcile) waits on the sibling's release after act 1 is committed.
+**Status:** RAN — act 1 2026-11-15 UTC, act 2 (reconcile) 2026-11-16 UTC. PASS-WITH-FINDINGS
+(0 MAJOR · 1 MODERATE · 4 minor · 3 note, HU1–HU8; HU7, HU8 formed at reconcile). Findings are the
+principal's to decide (rule 3); the sibling is folded in below by the orchestrator.
 **Sizing:** **small** — one commit, about 50 lines of doctrine across three surfaces and one stamped
 copy.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1050-rule-4-cold-pass-queued-report-up-privacy-clause.md`.
@@ -457,3 +458,249 @@ count as output): that is exactly HU1's commit-body gap.
 - [ ] HU6 — widen section `320`'s purpose line, or name another home.
 - [ ] Not a finding here, for `3312cdbd`'s own pass: § *Report without harming the parent* says the
       branch-and-title lint "is not built"; `namescan` exists since.
+
+### Reconcile (act 2, 2026-11-16 UTC)
+
+Opened after act 1 was committed as `e10058e3` (brief only, unrevised): the held sibling; the
+message bodies of `94df4aad` and `6bea4d10`; the queue pointer `160/1050`; the intent record
+`160/300`; the prior verdict `docs/reviews/2026-09-25-0715-report-up-duty-cold.md` (RU1, RU2,
+RU8–RU11, its counsel, reconcile and overall); the session index lines for 2026-11-08 and
+2026-11-09 and the author's record `docs/sessions/2026-11-08-1059-ruling-round-722a.md`. No act-1
+text is revised. Two findings are formed here and marked as such.
+
+**Against the sibling's questions.**
+
+- *Pointer:* "every surface a hand-up creates" — HU1 is the answer (the commit body is the surface
+  left out); "the stamped copy and its canonical region still agree" — confirmed, identical.
+- *Q1* (step 1 says the item carries "the incident"; the floor says class only): not weighed in
+  act 1. **HU7 — minor (V5), formed at reconcile.** § *The route* step 1 (603–606) tells the
+  filer the item carries "the incident, the class it belongs to, and the doctrine file"; rule 2
+  (641–645) and the floor say the class and never the specifics. They reconcile — § *The duty*
+  wants evidence, and an incident can be told as its class — but step 1 gives no cue that the
+  incident is told that way, and a filer reads step 1 before rule 2. *Counsel:* "carrying the
+  incident, told as its class (rule 2), …".
+- *Q2* (surfaces not named): the lens-4 table holds the slug, the commit body, a PR comment, the
+  CI log and the author line. The peer-channel message, which the sibling adds, is not published:
+  it travels between sessions on one machine, and the atelier session that files from it becomes
+  the writer — which is HU3's actor. Nothing further.
+- *Q3* (does `CLAUDE.md`'s citation reach rule 2): yes, lens 2.
+- *Q4* (who decides "private"; a repo about to go public; a public repo reporting about a private
+  sibling): the floor's own visibility fact decides (A1). A hand-up publishes to atelier the
+  moment it is pushed, so present visibility is the right test for the filer's own name, and the
+  `320/380` "is public, or is ever made public" test governs the child's tree, not this. The third
+  case is a gap: **HU8 — note, formed at reconcile.** The clause binds "a private repo" naming
+  "itself or its contents"; a public child's hand-up that names a private sibling's contents or
+  condition is reached only by `RECORD.md` § *The record is public* (the join rule), once the item
+  is atelier's record — a file the child's floor does not point at from this bullet. *Counsel:*
+  "names no private repo's contents, its own or another's".
+- *Q5* (two commits; landing = queuing): HU4 reached it cold. With the pointer now read: its delta
+  is **scoped to paths and names no SHA**, so `6bea4d10`'s rewrap of `PROPAGATION.md` is inside
+  its scope and the follow-up "widen the pointer" is already met; "one commit" was the brief's
+  narrowing, not the pointer's. The pointer landed in the commit after the landing, pushed
+  together (one CI run, at `6bea4d10`): TA9's series reading, and `6bea4d10`'s body says the
+  pointer was "written here at the landing". HU4's severity stands as written; the owed action
+  reduces to none.
+- *Q6* (does `stampscan` red or warn): HU2, sharpened — atelier's CI runs it `--warn` (advisory,
+  `.github/workflows/ci.yml` line 199), it is not in the floor registry's plane tables, and in a
+  child it cannot run (ST3). The changelog's "reds" is true of none of the three places.
+
+**Against the author's account.**
+
+- `94df4aad`'s body names the same five surfaces as the floor and says "stampscan: identical"
+  (re-run, true). The list follows RU1's counsel verbatim ("branch, title, subject, body, item";
+  RU1 itself said "four irretractable surfaces"), so **HU1 is a gap in the applied counsel carried
+  faithfully into the floor, not a misapplication**. The severity stands: the floor is the text a
+  child obeys, and the body it omits is published all the same.
+- `6bea4d10`'s body: "rewraps one over-long line in PROPAGATION.md" — HU4, as found.
+- The intent record: the option Mike picked read "describe a problem by its type, never name the
+  reporting repo or its contents"; the applied clause matches it. The record already lists, as
+  needing his word, RU1's second counsel (`blockscan`'s subsection map, or accepting `320/340`'s
+  residual) and **RU9's other option, retitling section `320`** — which is HU6's subject. HU6
+  stands as the open half of RU9, and the ask to him should name that earlier note so he rules
+  with it in front of him (AR8).
+- The prior verdict: RU8 counted 40 items in `320` (87 now); RU10's counsel named "the grammar,
+  the tri-state and the rebuild" and never numbering, so **HU5 is the applier's word, not the
+  prior pass's**. RU2 recorded two closed PRs carrying a private child's name in head ref and
+  title; the live read in act 1 found every open and recently merged hand-up compliant, which is
+  consistent with RU1's own note that post-ruling filers had read the section.
+- The 2026-11-08 record names `160/300` among the items applied and says nothing more about this
+  delta; no framing met there or in the session index.
+- The brief-writer's disclosed exposure matches what the sibling holds; its two re-run lines
+  reproduce (stamp identical; hook and CI exit 0 at HEAD).
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE · 4 minor · 3 note (HU1–HU8).**
+HU7 (minor) and HU8 (note) were formed at reconcile; HU1–HU6 stand as written. No MAJOR, so under
+`REVIEW.md` § *Applying decisions to doctrine* the cycle closes here: what remains is decided into
+the backlog, and the application does not spawn another full ceremony. Every finding is the
+principal's to decide (rule 3); nothing was applied. Counsel is beneath each finding, labelled.
+
+- [ ] HU7 — step 1: "the incident, told as its class (rule 2)".
+- [ ] HU8 — the floor clause reaches another private repo's contents too.
+- [ ] HU4 — no action owed: the pointer is path-scoped and already covers `6bea4d10`.
+- [ ] HU6 — put to him beside the intent record's note on RU9's retitle option.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-16)
+
+*Released to the reviewer only after its act-1 findings were committed (`e10058e3`, local; it
+landed on `main` as `33ed4cbd` after the rebase onto newer commits, and the reconcile and log above
+and below cite the pre-rebase hash verbatim); folded here verbatim (headings demoted two levels)
+and the sibling file removed, per the brief. The orchestrator (headless Opus 5.5 session
+`9ec596e5`, started by drain session `21a271a5`, itself Opus 5.5) held the partition, formed no
+finding and wrote no severity. The weekly usage limit cut the reviewer off during act 1; it was
+resumed in the same session after the reset, on the principal's resume order.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-09-0126-report-up-privacy-clause-cold.md` (`REVIEW.md` rule 1).
+Written 2026-11-09 UTC by session `84e3aa7f`, the brief-writer, which authored none of the delta.
+Open this only after act 1 is committed. Everything here is a floor, never a fence, and none of it
+is a finding.
+
+#### The queue pointer's questions (author-written, verbatim)
+
+> whether the clause closes RU1's leak path on every surface a hand-up creates; whether the stamped
+copy and its canonical region still agree.
+
+#### The brief-writer's own questions
+
+1. § *The route* step 1 (unchanged) still says the item carries "the incident". The floor bullet now
+says class only. Do they agree, and which one does a child in a hurry obey?
+2. List every surface a hand-up creates that the clause does not name: the item's file name and
+slug, the commit *body*, a PR comment, CI logs, a co-author line, the peer-channel message.
+3. `CLAUDE.md` cites "§ *The route*, rule 2". Does that reach the rule, not only the file (V5)?
+4. A "private" repo is the trigger. Who decides, and what of a repo about to go public or a public
+repo reporting about a private sibling?
+5. The landing commit and the pointer commit are separate (`94df4aad`, then `6bea4d10`). Check
+against rule 4's landing-equals-queuing.
+6. "Reds a stale copy": run the claim. Does `stampscan` red it, or warn?
+
+#### What the brief-writer ran, and what it got
+
+- `stamp`: exit 0; one stamped block verified identical to its canonical region.
+- `floor`: at c132cc1c: hook exit 0, ci exit 0. pathscan reports 3 findings, warn-only:
+  docs/method/EVIDENCE.md:427, docs/method/session-open/session-open-prompt.md:13 and
+  docs/method/session-open/template-history.md:10 (paths that do not exist from the repo root).
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*The reviewer's work log, kept outside the worktree while the pass ran and read by no other session
+until act 2 was saved; appended here verbatim at the fold (headings demoted two levels, form only)
+and the working file deleted.*
+
+### Review log — atelier 160/1050, report-up privacy clause cold pass
+
+Reviewer: Fable 5.1 (claude-fable-5-1). Spawned by orchestrator session 9ec596e5 (Opus 5.5), itself
+started by drain session 21a271a5 (Opus 5.5). Worktree: /Users/mike/worktrees/fable/atelier-160-1050-2217/atelier
+Started 2026-11-15 UTC (local 2026-11-16 11:20 NZDT). Commands, files and evidence only.
+
+#### Steps
+
+1. `git merge-base --is-ancestor 94df4aad HEAD` -> exit 0. HEAD = f24bbaf9. uptime load 4.53.
+2. Read brief docs/reviews/2026-11-09-0126-report-up-privacy-clause-cold.md lines 1-206 in full.
+   Barred list noted: ROADMAP-DONE.md, SESSIONS.md, docs/sessions/, prior verdicts in docs/reviews/,
+   the queue pointer 160/1050, the sibling .deferred.md, delta commit message bodies, intent record
+   160/300 beyond its first line.
+3. Read docs/method/REVIEW.md lines 25-561 (rules 1-4, four lenses, re-run rule, V1-V7, lifecycle,
+   method-trail ruling 2026-11-15).
+4. `python3 tools/coldsweep.py --root . --commit 94df4aad --path docs/method/PROPAGATION.md --path
+   docs/build/templates/CLAUDE.md --path CLAUDE.md --path CHANGELOG.md` -> subject, stat, diff only;
+   4 files, +49/-14; body not printed; no board file touched; no barred file touched.
+5. `git log --oneline 94df4aad..HEAD -- <4 delta paths>` -> 290 commits since; of note 3312cdbd
+   (160/300 RU2-RU6, RU12 applied, same intent record), 9c8cb7e7 (320/330), e76250cf, 38536e4c,
+   6b6110c9 (tools: warn on private names in branch names and commit titles), 49f3d407 (leakscan
+   --messages), 55f23034 (commit-message plane).
+6. `coldsweep --commit 3312cdbd` scoped to delta paths -> read body-free; it edits § The duty, § The
+   route step 1 (RU6 block), § Report without harming the parent (parent's half, RU2-RU4, RU12),
+   CLAUDE.md read-order step 6, CHANGELOG. It does not touch the floor region or the template.
+7. Read at HEAD: docs/method/PROPAGATION.md 115-229 (floor region) and 475-864 (§ Pointing up whole);
+   CLAUDE.md 36-66 (read order step 6, § Hard constraints).
+8. Read at HEAD: docs/build/templates/CLAUDE.md 85-105 (stamped bullet); CHANGELOG.md 1437-1458
+   (the delta's entry; `diff` against 94df4aad's lines 8-29 -> IDENTICAL); docs/method/PROPAGATION.md
+   225-374 (stamp mechanics, § The bundled-mode variant); docs/roadmap/README.md whole (74 lines);
+   docs/roadmap/320-*/README.md 1-25; newest 320 item (860) lines 1-12; RECORD.md 497-544
+   (§ The record is public); tools/README.md § namescan (1998-2030); tools/blockscan_map.json 48-66.
+9. `ls docs/roadmap/320*/ | grep -c .md` -> 87 items (RU8 "many more than nine" holds).
+   `ls docs/roadmap/320*/ | grep ^340` -> 340-blockscans-map-cannot-see-a-subsection.md exists.
+10. Line widths: `git show 94df4aad:<file> | awk 'length>100'` -> PROPAGATION.md line 529 = 102 cols
+    (the RU8 sentence); CLAUDE.md 86 = 202 (pre-existing allow-marked identity line); CHANGELOG many
+    pre-existing. HEAD: PROPAGATION.md none. `git log -S'<the 102-col text>'` -> rewrapped by
+    6bea4d10 "board: land 160/300's privacy clause; queue its cold pass as 160/1050" (the commit
+    after 94df4aad). coldsweep --commit 6bea4d10 scoped to delta paths -> only PROPAGATION.md,
+    +4/-4, the rewrap; 3 board files left out by default (index, 1050 pointer, 300 record).
+    wrapscan on the 94df4aad copy (scratchpad) -> clean (limit 85, "materially over"); so no floor
+    break, a house-width slip only.
+11. coldsweep sweeps (barred set + both board items excluded): 'class only|names itself|repo token|
+    hosts, clients' -> hits only in CHANGELOG, CLAUDE.md:72-73, templates/CLAUDE.md:100-101,
+    PROPAGATION.md:198-199, 654, 739, 793, 836, 845. 'Doctrine problems point up' -> template:90,
+    PROPAGATION:188, blockscan_map.json:55 (anchor unchanged by the delta), CHANGELOG. -i 'hand-up|
+    pointing up|...' -> no copy of the route in skills/; REPO-BOUNDARY.md 88-133 cites § Pointing up
+    only; docs/ROADMAP.md index lines 636 and 679 carry a child repo token in a title / file name
+    (items 280 and 710, both pre-clause).
+12. Live reads (read-only `gh`): `gh run list --commit <full sha>` -> 94df4aad: no run (pushed with
+    6bea4d10); 6bea4d10: floor success 2026-11-08T11:31Z. `gh pr list --state open --json
+    number,title,headRefName,createdAt` -> 2 open hand-ups (#135, #136), both head refs of the form
+    report-<subject>-<HHMM> with no repo token; #135 title says "a hand-up from a private child";
+    #136 title carries an item number (020/470) and no hand-up word.
+13. `nice -n 10 python3 tools/stampscan.py --root . .` -> clean, 1 stamped block verified,
+    docs/build/templates/CLAUDE.md:18 [identical] matches canonical region 'floor' (105 lines); exit 0.
+14. `nice -n 10 python3 tools/floor.py --plane hook --root .` (load 3.5 before) -> every enforced
+    check ✅; warn-only: harvestscan, pointerscan, pathscan, indexscan, sweepscan. attribscan read 0
+    files on this plane (nothing staged), stated by the tool.
+15. `nice -n 10 python3 tools/floor.py --plane ci --root .` -> exit 0; secretscan 28 and leakscan 3
+    advisory (non-blocking by design); namescan, quotescan warn-only; declarations 🟡 (21 checks, 0
+    meet all five). Output kept at scratchpad/floor-ci.txt.
+16. `grep -n -i floor tools/pins.py` -> the floor-copy report (160/340) lives in pins.py, reference =
+    floor text at the child's pin; report-only until 2026-12-09 (confirms PROPAGATION 270-279).
+    `gh pr view <135|136> --json body` grepped for 'hand-up|private child' -> 1 hit each (counts
+    only). `git log --merges --oneline -12` -> subjects read "land hand-up #n", no child named.
+    `gh repo view mike548141/<repo> --json visibility` for the two repos whose tokens sit in index
+    lines 636/679 (items 320/280, 320/710) -> both PUBLIC, so allowed by the rule.
+    `grep -n 'NNN|next free|allocate' docs/roadmap/README.md` -> line 4 only (file-name shape; no
+    allocation rule).
+17. Act 1 appended below the `---` divider (brief lines 207-449) at ~22:29Z. Findings: HU1 MODERATE
+    (floor's surface list closed; commit body omitted), HU2 minor (changelog names stampscan; the
+    mechanism is pins.py, report-only until 2026-12-09), HU3 minor (CLAUDE.md sentence binds an
+    actor not its reader), HU4 minor (two commits; 102-col line rewrapped by 6bea4d10), HU5 note
+    (README holds no numbering rule), HU6 note (section 320 named child-filed). Sound: A1, A2, A5,
+    A6; stamped copy identical; RU8-RU10 present at HEAD; cross-refs reach their rules.
+18. INTERRUPTED by the weekly usage limit at ~22:30Z after step 17, before the Status line and the
+    brief scanners. RESUMED 2026-11-15T23:54Z in the same session on the principal's resume order.
+    Verified on disk: brief 449 lines with act 1 intact; log through step 14; scratchpad at94/ and
+    floor-ci.txt survive. Edited the Status line and added an interruption note to the provenance.
+    No finding or severity formed or changed after the resume. Sibling not sought or opened.
+19. Brief scanners from the worktree on the brief: datescan ✓, spellscan ✓ (file skipped by
+    .spellscanignore, scanned nothing — stated), wrapscan ✓ (same, .wrapscanignore), linkscan ✓ (0
+    internal links; the sibling link is a bare path, not a link, so no expected hit), leakscan ✓,
+    reviewscan ✓ (1 brief keeps deferred material out). Reflowed my act-1 lines to ≤100 characters
+    (`awk length` counts bytes; measured in characters with python3). Status line updated.
+20. Final width pass: all act-1 lines ≤100 characters; leakscan and datescan rerun clean. ACT 1 SAVED 2026-11-15T23:56Z.
+
+#### Act 2 (reconcile), 2026-11-16 UTC
+
+21. Orchestrator reported act 1 committed as e10058e3 (brief only, +256/-2). `git log -1` confirms;
+    `git status` shows only the deleted sibling. Read the held sibling at
+    ~/.claude/fable-held/atelier--2026-11-09-0126-report-up-privacy-clause-cold.deferred.md whole
+    (the pointer's two questions; six brief-writer questions; its runs: stampscan identical, floor
+    hook/ci exit 0 at c132cc1c, pathscan 3 warn-only).
+22. Read the barred records: `git log -1 --format=%B` for 94df4aad and 6bea4d10 (message bodies);
+    the queue pointer 160/1050 whole (delta "scoped to paths", no SHA named); the intent record
+    160/300 whole (72 lines: Mike's 2026-11-08 answer "Add privacy line now" and the option text;
+    APPLIED 2026-11-08; 2026-11-09 "Approve all 13"); prior verdict
+    docs/reviews/2026-09-25-0715-report-up-duty-cold.md lines 350-392 (RU1, RU2), 479-510
+    (RU8-RU11), 546-556 (counsel), 581-592 and 630-640 (reconcile), 679-680 (overall);
+    docs/SESSIONS.md index lines 335-340; docs/sessions/2026-11-08-1059-ruling-round-722a.md
+    (grep: 160/300 at line 14 only; 160/1050 at 58, 67).
+23. `grep stampscan .github/workflows/ci.yml` -> runs as `--warn` (advisory, atelier-only, line 199);
+    stampscan is not in the floor registry's plane tables (the hook/ci summaries of steps 14-15
+    list no stampscan). Answers sibling Q6: it warns in atelier and cannot run in a child.
+24. Appended `### Reconcile (act 2, 2026-11-16 UTC)` beneath the act-1 verdict. Formed at reconcile:
+    HU7 minor (§ The route step 1 "carrying the incident" vs the class-only floor; prompted by the
+    brief-writer's Q1) and HU8 note (a public child naming a private sibling's contents is reached
+    only by RECORD.md's join rule, not the floor clause; prompted by Q4). HU4's owed action reduces to
+    none: the pointer is path-scoped and names no SHA. HU1 is a gap in RU1's own counsel carried
+    faithfully; HU5 is the applier's word (RU10 never said numbering); HU6 is the open half of RU9,
+    already noted in the intent record as needing his word. Overall restated: PASS-WITH-FINDINGS
+    0 MAJOR · 1 MODERATE · 4 minor · 3 note. Status line updated to RAN. Act-1 text unrevised.
+25. Scanners on the brief after act 2 (datescan, spellscan, wrapscan, linkscan, leakscan, reviewscan)
+    rerun from the worktree; all act-2 lines ≤100 characters. Sibling not modified, not deleted.
+ACT 2 logged 2026-11-16T00:00Z
