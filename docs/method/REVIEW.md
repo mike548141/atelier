@@ -411,6 +411,9 @@ that fails from the place it names costs the reviewer its first act (grounded in
 PF10, a 2026-10-16 brief whose test line failed from the repo root); the
 review-brief skill carries the compressed copy (`160/930`, BF5, applied
 2026-11-09).
+The negative counterpart is `EVIDENCE.md` §19: a verdict that something
+*cannot* work, built from reading alone, is not accepted while a cheap,
+disposable test exists (`320/570`).
 
 ## The standing checklist — seven checks every review runs unasked
 
