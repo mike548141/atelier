@@ -54,18 +54,24 @@ stopped instead of re-deriving it:
 - **`SESSIONS.md` is an append-only index** — one entry per session, newest last,
   read at session start (tail it). Append-only is a rule about **content** — an
   entry is never edited or reordered once written — **not a fixed home**: like
-  the roadmap, an index that outgrows its budget **rotates**. The recent tail
-  stays in `SESSIONS.md`; older entries relocate **verbatim** to a
-  `SESSIONS-ARCHIVE.md` growth store (grepped on demand, never loaded whole) —
-  the same current-truth/history split as `ROADMAP`→`ROADMAP-DONE`, and the
-  answer to the one move a bloated *already-split* index otherwise lacks.
-  `tools/sizescan.py` does not measure the index's length — it has no size check
-  (Mike's ruling, 2026-10-05: no arbitrary line or size limits) — and nothing
-  else reads the index for its shape, so a regression back to a flat log is
+  the roadmap, the index may **rotate**. The recent tail stays in
+  `SESSIONS.md`; older entries relocate **verbatim** to a `SESSIONS-ARCHIVE.md`
+  growth store (grepped on demand, never loaded whole) — the same
+  current-truth/history split as `ROADMAP`→`ROADMAP-DONE`. (Grounded
+  2026-07-14: the cold review found the append-only rule and a size budget
+  colliding with no sanctioned move for an index that had already done the
+  split; Mike decided the move.) **A reading cost owes a rotation, never a
+  length.** Nothing measures the index's length (Mike's ruling, 2026-10-05: no
+  arbitrary line or size limits; sizescan's size advisory went 2026-10-16), and
+  length is not what the index costs: the read order loads its tail, which
+  costs the same at 400 lines as at 4,000. So the move is sanctioned, not
+  scheduled: a session rotates when getting its bearings from the index takes
+  more than that tail, and says so in its entry. *(This trigger is the house
+  reading recorded at `115/330`, 2026-11-16, not a ruling.)* What keeps the
+  tail cheap is the entry shape, one line with detail in a file, and nothing
+  reads the index for that shape, so a regression back to a flat log is
   detected by no tool and by no scheduled review: it relies on the writing
-  session's discipline and the next session noticing. (Grounded 2026-07-14:
-  the cold review found the append-only rule and the budget colliding with no
-  sanctioned move for an index that had already done the split.) A cold
+  session's discipline and the next session noticing. A cold
   reviewer does not read this tail: it skips the session-log step of the read
   order (`REVIEW.md` rule 2, *the reviewer's start-up reading*), so a closing
   entry carries no duty about deferred material.

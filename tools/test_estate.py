@@ -3,13 +3,16 @@
 The worktree cases use a real `git worktree add` on a fixture, because the
 finding they pin (`320/180`) is exactly the gap between a real linked worktree
 and the main checkout: same scanner, byte-identical files, opposite verdict.
-The layout cases pin `320/660`: repos in group folders, one setting.
+The layout cases pin `320/660`: repos in group folders, one setting. The
+floor's drift check is pinned here too, on the same worktree fixture: it is
+the onramp half of `320/180`, and it is run as the floor prints it.
 """
 
 import contextlib
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -299,6 +302,63 @@ class DiscoverWalksGroups(unittest.TestCase):
         found = pins.discover([self.base], moved, quiet=True, grouped=True)
         self.assertNotIn(moved.resolve(), [p.resolve() for p in found])
         self.assertIn("alpha", {p.name for p in found})
+
+
+class FloorDriftCheckFromAWorktree(Fixture):
+    """The canonical floor's drift command, extracted from PROPAGATION.md and
+    run by a shell as a child session would. It once climbed `../atelier`,
+    which exits 128 with empty stdout from a worktree (`320/180`); it now
+    reads the hooks' tools setting, which every worktree of the child shares."""
+
+    def floor_command(self, sha):
+        text = (TOOLS.parent / "docs" / "method" / "PROPAGATION.md").read_text()
+        region = text[text.index("<!-- floor:begin -->"):
+                      text.index("<!-- floor:end -->")]
+        bullet = region[region.index("**Source & drift:**"):]
+        m = re.search(r"session start run `(.*?)` —", bullet, re.S)
+        self.assertIsNotNone(m, "the Source & drift bullet lost its command")
+        return m.group(1).replace("<SHA>", sha)
+
+    def run_floor(self, cwd, sha):
+        return subprocess.run(["bash", "-c", self.floor_command(sha)], cwd=cwd,
+                              capture_output=True, text=True, env=self.env)
+
+    def setUp(self):
+        super().setUp()
+        self.commit_and_worktree()
+        src = self.base / "upstream"
+        (src / "tools").mkdir(parents=True)
+        (src / "tools" / "keep").write_text("")
+        _git(src, "init", "-q", "-b", "main")
+        _git(src, "add", "-A")
+        _git(src, "commit", "-q", "-m", "pinned")
+        self.pin = subprocess.run(
+            ["git", "-C", str(src), "rev-parse", "HEAD"], capture_output=True,
+            text=True, check=True, env=self.env).stdout.strip()
+        _git(src, "commit", "-q", "--allow-empty", "-m", "moved since the pin")
+        self.atelier = self.parent / "atelier-elsewhere"
+        _git(self.base, "clone", "-q", str(src), str(self.atelier))
+
+    def test_drift_prints_from_the_main_checkout_and_from_a_worktree(self):
+        _git(self.main, "config", "hooks.atelierTools", str(self.atelier / "tools"))
+        for cwd in (self.main, self.wt):
+            r = self.run_floor(cwd, self.pin)
+            self.assertEqual(r.returncode, 0, f"{cwd}: {r.stderr}")
+            self.assertIn("moved since the pin", r.stdout, cwd)
+
+    def test_no_drift_is_empty_output_and_exit_zero(self):
+        _git(self.main, "config", "hooks.atelierTools", str(self.atelier / "tools"))
+        head = subprocess.run(
+            ["git", "-C", str(self.atelier), "rev-parse", "origin/main"],
+            capture_output=True, text=True, check=True, env=self.env).stdout.strip()
+        r = self.run_floor(self.wt, head)
+        self.assertEqual((r.returncode, r.stdout), (0, ""), r.stderr)
+
+    def test_no_setting_fails_loudly_rather_than_reading_as_current(self):
+        r = self.run_floor(self.wt, self.pin)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertEqual(r.stdout, "")
+        self.assertTrue(r.stderr.strip(), "a failure must say so on stderr")
 
 
 if __name__ == "__main__":

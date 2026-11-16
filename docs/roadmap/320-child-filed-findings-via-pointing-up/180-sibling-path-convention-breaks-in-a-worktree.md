@@ -1,4 +1,4 @@
-- [~] **REPORT — the `../<sibling>` path convention every child inherits
+- [x] **REPORT — the `../<sibling>` path convention every child inherits
       resolves only from a main checkout, so it breaks in the worktree the
       concurrency doctrine tells sessions to take by default — and the house's
       own drift-check instruction is one of the things that breaks**
@@ -107,5 +107,22 @@
         carries it. That edit is a floor change and is not made here. Until it
         lands, this item stays open. See `320/660` for the setting and the
         children's own references.
+      - 2026-11-16 — ✅ **Instruction half done; the item is closed.** The
+        canonical floor's **Source & drift** bullet (`PROPAGATION.md`, stamped
+        byte-identical in `docs/build/templates/CLAUDE.md`) now finds the
+        parent through the hooks' tools setting, `ATELIER_TOOLS` or else
+        `hooks.atelierTools`, then fetches and logs as before. That setting
+        names atelier itself, is absolute in every child measured (`320/660`),
+        and lives in the config every worktree of the child shares.
+        `ATELIER_ESTATE_ROOT` was not used: it names the folder, not atelier,
+        and unset (the default) it would need a `../` fallback, the thing that
+        broke. With no setting the path is `/` and git fails on stderr with a
+        non-zero exit, so the check cannot read as current. Point 4 of
+        § *The mechanism* and `create-repo`'s stamp check carry the same form.
+        `tools/test_estate.py` runs the command as the floor prints it, from a
+        real main checkout and a linked worktree: drift prints from both, no
+        drift is empty and exit 0, and no setting fails loudly (two of the three
+        fail against the old text). Each child takes it at its next pin bump;
+        the children's own `../atelier` references stay with `320/660`.
       🔒 CLAIMED 2026-11-16T11:22Z (claimed 2026-11-16-1122, wt: qr-78ca-record) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

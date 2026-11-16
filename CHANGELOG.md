@@ -5,6 +5,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-16 — the floor's drift check runs from a worktree, `320/180`)
+- **The canonical floor's Source & drift command** finds the parent through the
+  hooks' tools setting (`ATELIER_TOOLS`, else `hooks.atelierTools`) instead of
+  `../atelier`, which exited 128 with empty stdout from a linked worktree. With
+  no setting it fails on stderr, never reads as current. Every child takes it
+  at its next pin bump. `create-repo`'s stamp check runs the same form; 3 tests
+  in `tools/test_estate.py` run it from a real worktree.
+
 ### Added (2026-11-14 — the fleet kits versioned: `ccfleet`, two skills, `modelguard`, `210/440`)
 - **`instruments/ccfleet`** runs headless Claude Code sessions across a fleet of
   repos, each inside a worktree whose basename is its repo, so per-repo cost

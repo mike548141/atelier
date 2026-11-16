@@ -196,7 +196,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [conflictscan and leakscan report the wrong line number on the staged…](roadmap/115-guardrail-architecture-mike-commissioned/300-two-staged-guards-report-the-wrong-line-number.md)
 - ✅ 🔎 [conflictscan's open-conflict state runs across staged hunks](roadmap/115-guardrail-architecture-mike-commissioned/310-conflictscan-open-conflict-state-runs-across-hunks.md)
 - ✅ 🔎 [Three small gaps in the floor's tests and count contract](roadmap/115-guardrail-architecture-mike-commissioned/320-three-small-floor-test-and-contract-gaps.md)
-- [~] 🔎 (claimed 2026-11-16-1122, wt: qr-78ca-record) [RECORD.md's index rotation has…](roadmap/115-guardrail-architecture-mike-commissioned/330-record-md-rotation-trigger-has-no-signal.md)
+- ✅ 🔎 [RECORD.md's index rotation has lost its trigger](roadmap/115-guardrail-architecture-mike-commissioned/330-record-md-rotation-trigger-has-no-signal.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md)
 - [ ] 🔎 [A cloud session cannot satisfy the hook plane's leakscan term…](roadmap/115-guardrail-architecture-mike-commissioned/350-a-cloud-session-cannot-satisfy-the-hook-planes-term-requirement.md)
 - ✅ [DONE 2026-10-18](roadmap/115-guardrail-architecture-mike-commissioned/360-a-bare-dot-scope-makes-the-staged-plane-scan-nothing.md)
@@ -402,6 +402,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: a guard's own-work convention is a shared…](roadmap/160-doctrine-review-owed/1510-rule-4-cold-pass-queued-guard-convention-and-point-of-use-wording.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a relayed ruling never overrides a direct…](roadmap/160-doctrine-review-owed/1520-rule-4-cold-pass-queued-relay-test-bound-session-hygiene.md)
 - [ ] ⏳ [Rule-4 cold pass queued: floor.py refuses the bare-list spelling of…](roadmap/160-doctrine-review-owed/1530-rule-4-cold-pass-queued-floor-retires-bare-list-spelling.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the floor's drift check finds atelier by the…](roadmap/160-doctrine-review-owed/1540-rule-4-cold-pass-queued-floor-drift-by-setting-and-record-rotation.md)
 
 ## build/ layer — open strands
 
@@ -632,7 +633,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🤔 [CANDIDATE HOUSE RULE — the prescribed open-time sync command can fail…](roadmap/320-child-filed-findings-via-pointing-up/150-the-open-time-sync-command-s-error-text-names-a-cause-that-is-not-the-cause.md)
 - [ ] [REPORT — a child cannot stamp its inlined floor at all: source= may…](roadmap/320-child-filed-findings-via-pointing-up/160-stampscan-cannot-stamp-across-a-repo-boundary.md)
 - [ ] [REPORT — four verified pathscan false-positive classes from a second…](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
-- [~] [REPORT — the ../<sibling> path convention every child inherits…](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
+- ✅ [REPORT — the ../<sibling> path convention every child inherits…](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
 - ✅ 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both…](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)
 - ✅ 🛑 [REPORT — an unresolved merge conflict shipped to a PUBLIC main and…](roadmap/320-child-filed-findings-via-pointing-up/200-no-floor-scanner-reads-a-conflict-marker.md)
 - ✅ [REPORT — CONCURRENCY.md's session-start bookend tells every session…](roadmap/320-child-filed-findings-via-pointing-up/210-the-session-start-autostash-contradicts-the-shared-checkout-premise.md)

@@ -2667,10 +2667,11 @@ shell does not reach a hook started by an editor, while a `git config --global`
 line reaches every repo. Unset means direct siblings, and nothing changes. A
 value that is not an absolute directory is reported on stderr and ignored.
 
-**What it does not do**, named: it resolves references for the tools. It does
-not fix the onramp's `git -C "<atelier-path>" log` command in the verbatim floor,
-which still fails from a worktree (the half `320/180` keeps open), and it cannot
-land anything on a host with no parent checkout at all (`320/660`'s addendum).
+**What it does not do**, named: it resolves references for the tools. The
+floor's drift check is not keyed to it: that command finds the parent through
+the hooks' tools setting instead, which names atelier itself (`320/180`). And it
+cannot land anything on a host with no parent checkout at all (`320/660`'s
+addendum).
 
 ## `allowmarker.py` — Allow markers and ignore files
 
