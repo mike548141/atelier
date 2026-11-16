@@ -1,4 +1,4 @@
-- [ ] **"One task per session" — does ECONOMICS.md say what the principal
+- [~] **"One task per session" — does ECONOMICS.md say what the principal
       directed? (Mike, 2026-10-03)** His words, verbatim, on being shown the
       rule quoted back at him by a session explaining its own token spend:
 
@@ -50,3 +50,5 @@
         because this ask is not Mike's (tidy line above). Original: that line
         began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-conc) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

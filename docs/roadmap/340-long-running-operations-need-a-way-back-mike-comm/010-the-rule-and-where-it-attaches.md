@@ -1,4 +1,4 @@
-- [ ] **Name the rule, and attach it to the undo principle rather than beside
+- [~] **Name the rule, and attach it to the undo principle rather than beside
       it.** The house already says *do not do what you cannot undo*. The extension:
       **an operation long enough to be interrupted needs a defined behaviour for
       being interrupted** — before it is started, not after it fails.
@@ -41,3 +41,5 @@
         because this ask is not Mike's (tidy line above). Original: that line
         began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-principles) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

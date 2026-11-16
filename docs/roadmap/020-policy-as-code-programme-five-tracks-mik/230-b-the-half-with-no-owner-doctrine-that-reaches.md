@@ -1,4 +1,4 @@
-- [ ] **(b) The half with no owner: doctrine that reaches the moment of
+- [~] **(b) The half with no owner: doctrine that reaches the moment of
       decision.** A guard fires *after* the act — at commit, at CI — on a
       choice already made. Doctrine's other job is to change the reasoning
       that produces the act, so the guard finds nothing to catch. That is a
@@ -19,3 +19,5 @@
         because this ask is not Mike's (tidy line above). Original: that line
         began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-guards) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

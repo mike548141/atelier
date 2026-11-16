@@ -1,4 +1,4 @@
-- [ ] 🔑 **The fifth instance is not a report — it is a GUARD, and that is the
+- [~] 🔑 **The fifth instance is not a report — it is a GUARD, and that is the
       version of this that cannot be double-checked.** Found 2026-08-23 in
       docker-heap, from a completely different direction to the other four, which
       is the best evidence available that the pattern is real rather than one
@@ -49,3 +49,5 @@
         are allowed to differ. Sits beside `360` — *name what you launch* — which
         is the same problem approached from the launch side rather than the
         recognition side.
+      🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-guards) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

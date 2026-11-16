@@ -1,4 +1,4 @@
-- [ ] 🔎 **The dispatch brief binds scratch, worktree and kills, and says nothing about
+- [~] 🔎 **The dispatch brief binds scratch, worktree and kills, and says nothing about
       how much of the test suite a worker may run at once.** Queue run d0ca5d24,
       2026-11-09 UTC: four workers, each told to run the full suite as `RECORD.md`'s
       bar asks, drove the machine to a load of 310 on 12 cores within minutes. A peer
@@ -15,3 +15,5 @@
       `test_templates`, `test_floor`), which a change to a shared file adds to its
       own run. It is doctrine and touches `RECORD.md`'s full-suite bar, so it wants
       care rather than a one-line patch.
+      🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-conc) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

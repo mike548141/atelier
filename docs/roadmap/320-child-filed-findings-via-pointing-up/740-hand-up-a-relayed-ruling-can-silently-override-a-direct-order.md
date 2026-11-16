@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: a peer's relayed ruling can override an order the
+- [~] 🔎 **Hand-up: a peer's relayed ruling can override an order the
       principal gave the receiving session directly, and no rule says which
       wins** `[doctrine]`. Handed up from a private child on 2026-10-26
       under `PROPAGATION.md` § *Pointing up*, from one live instance (Opus
@@ -33,3 +33,5 @@
       until atelier rules.
       review: not warranted — a hand-up of one observed instance; the rule
       is atelier's to decide.
+      🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-conc) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

@@ -1,4 +1,4 @@
-- [ ] **Give the rule a home, then sweep for where the house already breaks
+- [~] **Give the rule a home, then sweep for where the house already breaks
       it.** Two halves, and the second is the one that earns the item.
   - [ ] **Where the rule lives.** It is a *how we build* preference, not a safety
         floor — nothing catches fire if a hash is weak, so it does not belong at
@@ -34,3 +34,5 @@
         because this ask is not Mike's (tidy line above). Original: that line
         began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-principles) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

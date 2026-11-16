@@ -58,7 +58,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled…](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
 - [ ] 🎯 [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await…](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
 - [ ] [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
-- [ ] [(b) The half with no owner: doctrine that reaches the moment of…](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
+- [~] [(b) The half with no owner: doctrine that reaches the moment of…](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
 - ✅ 🎯 [The posture change this implies — stated so it is ruled, not assumed.](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
 - ✅ [The REPO-plane numbers are still unruled](roadmap/020-policy-as-code-programme-five-tracks-mik/260-the-repo-plane-numbers-are-still-unruled.md)
@@ -428,7 +428,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
 - ✅ 🔎 [A worker's review pointer cites its own branch or pre-merge hashes,…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/190-worker-pointers-cite-a-branch-the-merge-deletes.md)
-- [ ] 🔎 [The dispatch brief binds scratch, worktree and kills, and says…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/200-the-dispatch-brief-carries-no-bound-on-test-runs.md)
+- [~] 🔎 (claimed 2026-11-16-1111, wt: qr-78ca-conc) [The dispatch brief binds scratch,…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/200-the-dispatch-brief-carries-no-bound-on-test-runs.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
@@ -554,7 +554,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Grab the AI chat (Teams, 15/7/26) with a colleague](roadmap/270-open-questions/020-grab-the-ai-chat-teams-15-7-26-with-a-colleagu.md) <!-- datescan:allow: verbatim; wrapscan:allow: marker-inflated line -->
 - ✅ [The Laws are a ladder — but a ladder needs a world-model to climb…](roadmap/270-open-questions/030-the-laws-are-a-ladder-but-a-ladder-needs-a-wor.md)
 - [ ] [Accountability and authority must match — in both directions](roadmap/270-open-questions/040-accountability-and-authority-must-match-in-bot.md)
-- [ ] ["One task per session" — does ECONOMICS.md say what the principal…](roadmap/270-open-questions/050-one-task-per-session-does-the-doctrine-say-what-was-directed.md)
+- [~] ["One task per session" — does ECONOMICS.md say what the principal…](roadmap/270-open-questions/050-one-task-per-session-does-the-doctrine-say-what-was-directed.md)
 
 ## Cross-session channel — coordination git cannot carry (Mike commissioned 2026-08-17)
 
@@ -684,7 +684,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/710-rpi-hand-up-a-rollout-row-backwards-wrapscan-blind-to-split-boards.md)
 - ✅ [FIXED 2026-10-18](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
 - ✅ 🔎 [Hand-up: the paragraph projection joins a wrapped claim into one…](roadmap/320-child-filed-findings-via-pointing-up/730-hand-up-the-paragraph-projection-joins-a-claim-into-an-index-line-wrapscan-refuses.md)
-- [ ] 🔎 [Hand-up: a peer's relayed ruling can override an order the principal…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)
+- [~] 🔎 (claimed 2026-11-16-1111, wt: qr-78ca-conc) [Hand-up: a peer's relayed ruling…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)
 - ✅ 🔎 [Hand-up: a one-line claim still overruns the index line, so 320/730's…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
 - ✅ 🔎 [Hand-up: REVIEW.md has no shape for a live-only top-up of a degraded…](roadmap/320-child-filed-findings-via-pointing-up/760-hand-up-review-md-has-no-shape-for-a-live-only-top-up-of-a-degraded-pass.md)
 - [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
@@ -702,13 +702,13 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md)*
 
-- [ ] [Give the rule a home, then sweep for where the house already breaks…](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
+- [~] [Give the rule a home, then sweep for where the house already breaks…](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
 
 ## ⏳ Long-running operations need a way back — Mike-commissioned, 2026-08-22
 
 *[Narrative](roadmap/340-long-running-operations-need-a-way-back-mike-comm/README.md)*
 
-- [ ] [Name the rule, and attach it to the undo principle rather than beside…](roadmap/340-long-running-operations-need-a-way-back-mike-comm/010-the-rule-and-where-it-attaches.md)
+- [~] [Name the rule, and attach it to the undo principle rather than beside…](roadmap/340-long-running-operations-need-a-way-back-mike-comm/010-the-rule-and-where-it-attaches.md)
 
 ## 🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23
 
@@ -728,7 +728,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/370-the-report-can-lie-while-the-work-is-fine/README.md)*
 
 - ✅ 🎯 [Decide whether "prefer artefacts over reports" earns a line, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
-- [ ] [🔑 The fifth instance is not a report — it is a GUARD, and that is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
+- [~] [🔑 The fifth instance is not a report — it is a GUARD, and that is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
 - ✅ [🎭 The sixth instance is the checker written to enforce this item, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/030-the-sixth-instance-was-the-checker-written-for-370.md)
 
 ## 🔇 Silence read as an answer — 2026-08-24
