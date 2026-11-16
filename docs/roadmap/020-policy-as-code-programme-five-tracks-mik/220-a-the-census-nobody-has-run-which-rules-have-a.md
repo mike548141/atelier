@@ -1,4 +1,4 @@
-- [~] **(a) The census nobody has run: which rules have a forcing function,
+- [ ] **(a) The census nobody has run: which rules have a forcing function,
       and which do not.** ADR 0008 made enforcement *propagate*; it never
       established what proportion of doctrine is enforced at all. No one has
       enumerated the rules and asked of each: what happens if this is broken,
@@ -43,6 +43,26 @@
         found and not fixed here: `EVIDENCE.md` §17 says nothing inspects a
         session's shell commands, and `tools/modelguard.py` does (census row
         CON21); it is owed its own board item.
+      - 2026-11-16, slice 2 done (queue run 78ca): `00-APEX.md`,
+        `AUTONOMY.md`, `GUARDS.md` and `PROPAGATION.md` censused rule by rule
+        in `docs/method/census/2026-11-16-1204-apex-autonomy-guards-propagation.md`,
+        the floor region counted once, in PROPAGATION. 129 rules: 27 enforced
+        (19 of them partial), 101 directive-only (36 with a breach visible in
+        the diff), 1 unenforceable and accepted. Running total over both
+        slices: 287 rules, 46 enforced, 234 directive-only, 7 accepted. The
+        `115/110` headline is checked against the tree: APEX still has no
+        check; the always-confirm floor has two of eleven stops enforced. The
+        file ranks five more diff-visible guard candidates for `020/240`, and
+        names three doctrine defects, each owed its own board item and not
+        fixed here: visibility declared in two homes with nothing joining them;
+        the floor block's stop list differing from `AUTONOMY.md` § *Always
+        confirm*; and `PROPAGATION.md`'s parent-enforces-more rule against
+        atelier's deliberately atelier-only CI steps. Remaining in
+        `docs/method/`: `ACCESS`, `COMMUNICATION`, `CONVENTIONS`,
+        `DATA-PROTECTION`, `DOCUMENTATION`, `ECONOMICS`, `EVIDENCE`,
+        `GLOSSARY`, `MECHANISMS`, `PRINCIPLES`, `REACH`, `SECRETS`, `SIGNING`,
+        `STORAGE`, `TOOLBOX` and `docs/method/session-open/`; then the doctrine
+        outside `docs/method/`.
       🔒 CLAIMED 2026-11-16T11:40Z (claimed 2026-11-16-1140, wt: qr-78ca-census) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
       🔒 CLAIMED 2026-11-16T11:55Z (claimed 2026-11-16-1155, wt: qr-78ca-census2) by queue-run
