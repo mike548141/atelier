@@ -69,14 +69,42 @@ class TestMarkerGrammar(unittest.TestCase):
         # after the colon is simply the reason, so a scoped spelling is accepted.
         self.assertTrue(am.present(am.marker_rx(M), f"{M}:rule: why"))
 
-    def test_scope_without_reason_reads_as_unscoped_with_scope_as_reason(self):
-        # Existing behaviour, pinned not endorsed (reported to the principal):
-        # `m:allow:kind` with no trailing reason backtracks to the unscoped
-        # form, whose reason is the word `kind`, so it exempts EVERYTHING.
-        rx = am.marker_rx(M, scope="one", group="kind")
-        self.assertEqual(am.scope_of(rx, f"{M}:relative-time"), "")
-        rx = am.marker_rx(M, scope="list", group="rule")
-        self.assertEqual(am.scopes_of(rx, f"{M}:a,b"), frozenset())
+    def test_scope_without_reason_exempts_nothing(self):
+        # 115/230 item 1, endorsed: `m:allow:kind` with no reason used to back
+        # off to the unscoped form, read `kind` as its reason and exempt EVERY
+        # kind on the line. A marker with no reason exempts nothing, so it is
+        # now a mention, noted as unparseable; no grace (none was in use).
+        one = am.marker_rx(M, scope="one", group="kind")
+        lst = am.marker_rx(M, scope="list", group="rule")
+        for text in (f"{M}:relative-time", f"x <!-- {M}:relative-time -->",
+                     f"{M}:relative-time.", f"{M}:relative-time \t",
+                     f"{M}:relative-time\nreason on the next line",
+                     f"{M}:a,b", f"{M}:a,b -->", f"{M}:a,"):
+            with self.subTest(text=text):
+                self.assertIsNone(am.scope_of(one, text))
+                self.assertIsNone(am.scopes_of(lst, text))
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            am.scope_of(one, f"{M}:no-reason-here")
+        self.assertIn("present but unparseable", err.getvalue())
+        self.assertIn(f"{M}:no-reason-here", err.getvalue())
+
+    def test_scope_without_reason_leaves_the_other_shapes_alone(self):
+        # Not this shape, so read exactly as before: a well-formed scope, the
+        # unscoped form, a glued word then a space and more words (a reason
+        # written without its leading space), a glued word then a quote (a
+        # marker quoted in source), and a later well-formed marker on the line.
+        one = am.marker_rx(M, scope="one", group="kind")
+        self.assertEqual("kind", am.scope_of(one, f"{M}:kind: why"))
+        self.assertEqual("", am.scope_of(one, f"{M}: why"))
+        self.assertEqual("", am.scope_of(one, f"{M}:kind why it is fine"))
+        self.assertEqual("", am.scope_of(one, f'"{M}:kind"'))
+        self.assertEqual("email", am.scope_of(
+            one, f"{M}:ipv4. then <!-- {M}:email: real reason -->"))
+        # An unscoped pattern has no scope to forget a reason for.
+        unscoped = am.marker_rx(M)
+        text = f"{M}:kind why"
+        self.assertFalse(am.is_scope_without_reason(unscoped, text, unscoped.search(text)))
 
     def test_unscoped_same_line_does_not_cross_newline(self):
         rx = am.marker_rx(M)
@@ -406,11 +434,14 @@ class TestMalformedMarkers(unittest.TestCase):
             self.assertTrue(am.present(rx, f"{M}:ipv4:"[:-1] + ": why"))
             self.assertTrue(am.present(rx, f"{M}:foo: why"))
 
-    def test_a_bare_scope_word_with_no_second_colon_is_unchanged(self):
-        # The one shape this cannot tell from `m:allow:reason` (a reason with no
-        # leading space); named in the README, not silently changed.
-        with at(AFTER):
-            self.assertEqual("", am.scope_of(self.ONE, f"{M}:relative-time"))
+    def test_a_bare_scope_word_with_no_second_colon_exempts_nothing(self):
+        # Not the malformed shape (no second colon, so no warning and no grace)
+        # but 115/230 item 1's: a scope with no reason, which exempts nothing
+        # on both sides of the date.
+        for day in (DURING, AFTER):
+            with self.subTest(day=day), at(day):
+                self.assertIsNone(am.scope_of(self.ONE, f"{M}:relative-time"))
+                self.assertEqual([], am.malformed_seen())
 
     def test_the_cut_off_is_a_constant_with_no_override(self):
         src = (Path(am.__file__)).read_text(encoding="utf-8")
@@ -667,8 +698,9 @@ class TestCovers(unittest.TestCase):
         self.assertFalse(am.is_blanket("alpha", self.K))
 
     def test_a_scope_naming_no_kind_still_covers_every_kind(self):
-        # Existing, not endorsed: the 115/230 item-1 class, kept so that no
-        # live marker narrows until that item is ruled.
+        # Existing, not endorsed: the 115/230 item-1 class (a reasoned marker
+        # whose scope names no kind), still open on that item, kept so that no
+        # live marker narrows until it is ruled.
         self.assertTrue(am.covers("gamma", "alpha", self.K))
         self.assertTrue(am.is_blanket("gamma", self.K))
 

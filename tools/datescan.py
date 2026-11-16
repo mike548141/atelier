@@ -95,13 +95,14 @@ same shape as the sibling scanners:
     too — both are accepted trade-offs, not new blind spots.
 
   * THE ALLOW MARKER / IGNORE FILE. A line carrying `datescan:allow: <reason>`
-    anywhere is exempt from every check on that line (same contract as
-    leakscan/linkscan). Tighter than sibling parity by one notch (the S3 cold
-    review's DSR8): the marker must sit at a word boundary and be followed by
-    a non-empty reason, so prose that merely *mentions* the marker text — with
-    no colon-and-reason after it — does not silently exempt the line. A glob
-    in `.datescanignore` at the scan root exempts a path wholesale (mirrors
-    every sibling scanner's ignore file).
+    anywhere is exempt from every check on that line; the scoped form
+    `datescan:allow:<kind>: <reason>` exempts that one kind only. The grammar
+    is the shared one (`allowmarker.py`, first tightened here as the S3 cold
+    review's DSR8 and since followed by every sibling): the marker sits at a
+    word boundary and is followed by a colon and a non-empty reason, so prose
+    that merely *mentions* the marker text, or a scope with no reason after
+    it, exempts nothing. A glob in `.datescanignore` at the scan root exempts
+    a path wholesale (mirrors every sibling scanner's ignore file).
 
 REPORT-ONLY (115/090, Mike's answer 2026-11-03: "Carry on to datescan", the
 leakscan tier built the same way: nothing that blocks today stops blocking).
@@ -182,9 +183,10 @@ import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
 import report  # noqa: E402
 
-# A line carrying this marker is intentionally exempt from every check on that
-# line. Keep the reason on the same line so the exemption is self-documenting
-# and greppable, same contract as the sibling scanners.
+# A line carrying this marker is intentionally exempt: from every check on that
+# line in the unscoped form, from one kind in the scoped form. Keep the reason
+# on the same line so the exemption is self-documenting and greppable, same
+# contract as the sibling scanners.
 ALLOW_MARKER = "datescan:allow"
 
 # DSR8 (tightened past the bare-substring read the siblings once had; every

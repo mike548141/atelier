@@ -2704,6 +2704,8 @@ the deliberate whole-line case (`method/GUARDS.md`, *Granularity*).
 | `indexscan` | one index entry (`date-mismatch` form) | `date-mismatch`; the bare form names the entry |
 | `conflictscan`, `wrapscan` | a line | none: text after the colon is the reason |
 | `blockscan`, `stampscan` | a block | none; the reason may start on the next line |
+| `attribscan` | a list block | none; the reason may start on the next line |
+| `namescan`, `quotescan` | a commit message | none; the reason may start on the next line |
 
 A scope that names none of a scanner's kinds keeps the old whole-unit reach in
 `licenscan`, `sizescan`, `pointerscan`, `pathscan` and `reviewscan`, and
@@ -2722,17 +2724,23 @@ period"*):
   the scope word as the reason, which exempted every rule on the line. Before
   `MALFORMED_GRACE_UNTIL` in `allowmarker.py` (**2026-12-09**) it still does, and
   each run warns on stderr naming the marker. From that date it exempts nothing.
-  The date is one constant with no flag or environment variable to move it. A
-  marker with a single word and no second colon (`leakscan:allow:ipv4`) is
-  indistinguishable from an unscoped marker whose reason has no leading space and
-  is still read that way; write the space.
+  The date is one constant with no flag or environment variable to move it.
+- A **scope with no reason** (`115/230` item 1) exempts nothing, at once and
+  with no grace: `datescan:allow:relative-time` or `leakscan:allow:email,ipv4`
+  with nothing after the scope, or with only `-->`, a full stop or the line's
+  end. It used to be read as the unscoped form with the scope word as its
+  reason, which exempted every kind on the line. A census of the estate before
+  the change found none in use. A glued word followed by a space and more words
+  (`datescan:allow:historical record`) is still read as an unscoped marker whose
+  reason lacks its leading space; write the space.
 - A marker **inside an inline code span** is a mention and exempts nothing, in
   every scanner. Put the syntax in backticks to document it. A prose mention
   outside a code span that happens to fit the grammar still counts; that residual
   is inherent to the grammar.
 - A line that carries the **marker word but no recognised allowance** (a marker
-  with no reason, a broken scope after the grace, a prose mention outside a code
-  span) gets one stderr note per distinct marker head per run: `allow-marker
+  with no reason, a scope with no reason, a broken scope after the grace, a
+  prose mention outside a code span) gets one stderr note per distinct marker
+  head per run: `allow-marker
   present but unparseable, so it allows nothing` (`110/010`). A note only: it
   shows the marker's head and never the line, changes no result or exit status,
   and fires on any line a reader is asked about, finding or not.

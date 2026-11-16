@@ -370,10 +370,11 @@ EXEMPTIONS, same three-layer shape as the sibling scanners:
     exempt real paths; a template that reaches for `MM`/`DD` in practice
     always writes `YYYY` first.
   * THE ALLOW MARKER / IGNORE FILE. `pathscan:allow: <reason>` anywhere on a
-    line exempts every candidate on that line — same tightened contract as
-    `datescan` (word-boundary, colon, non-empty reason so a bare mention of
-    the marker text doesn't accidentally exempt itself). A glob in
-    `.pathscanignore` at the scan root exempts a path wholesale.
+    line exempts every candidate on that line. The grammar is the shared one
+    (`allowmarker.py`: word boundary, colon, non-empty reason), so a bare
+    mention of the marker text, or a scope with no reason after it, exempts
+    nothing. A glob in `.pathscanignore` at the scan root exempts a path
+    wholesale.
 
 STATED RESIDUAL, HONESTLY (do not round this to "solved" or "clean"):
 

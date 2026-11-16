@@ -186,7 +186,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [One child declares a narrowed floor and reds from now on](roadmap/115-guardrail-architecture-mike-commissioned/200-one-child-declares-a-narrowed-floor-and-now-reds.md)
 - [ ] 🔎 [A session's default python3 is too old to load three of the guard…](roadmap/115-guardrail-architecture-mike-commissioned/210-the-guard-suite-cannot-run-on-the-machine-it-guards.md)
 - [ ] 🎯 [The streaming line readers are three or four different mechanisms,…](roadmap/115-guardrail-architecture-mike-commissioned/220-the-line-readers-are-three-mechanisms-not-one-with-parameters.md)
-- [~] 🔎 [Single-sourcing the allow-marker grammar surfaced four divergences,…](roadmap/115-guardrail-architecture-mike-commissioned/230-four-allow-marker-divergences.md)
+- [ ] 🔎 [Single-sourcing the allow-marker grammar surfaced four divergences,…](roadmap/115-guardrail-architecture-mike-commissioned/230-four-allow-marker-divergences.md)
 - ✅ 🔎 [Three enforced scanners still describe themselves as advisory](roadmap/115-guardrail-architecture-mike-commissioned/240-three-enforced-scanners-call-themselves-advisory.md)
 - ✅ 🔎 [pointerscan still walks the whole tree, harness worktrees included](roadmap/115-guardrail-architecture-mike-commissioned/250-pointerscan-still-walks-the-whole-tree.md)
 - ✅ 🔎 [Two blocking guards never scan a staged file whose path git quotes](roadmap/115-guardrail-architecture-mike-commissioned/260-staged-plane-guards-skip-git-quoted-paths.md)
@@ -403,6 +403,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: a relayed ruling never overrides a direct…](roadmap/160-doctrine-review-owed/1520-rule-4-cold-pass-queued-relay-test-bound-session-hygiene.md)
 - [ ] ⏳ [Rule-4 cold pass queued: floor.py refuses the bare-list spelling of…](roadmap/160-doctrine-review-owed/1530-rule-4-cold-pass-queued-floor-retires-bare-list-spelling.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's drift check finds atelier by the…](roadmap/160-doctrine-review-owed/1540-rule-4-cold-pass-queued-floor-drift-by-setting-and-record-rotation.md)
+- [ ] ⏳ [Rule-4 cold pass queued: an allow-marker scope with no reason exempts…](roadmap/160-doctrine-review-owed/1550-rule-4-cold-pass-queued-allow-marker-scope-without-reason.md)
 
 ## build/ layer — open strands
 

@@ -42,12 +42,16 @@ WHAT IT FAILS CLOSED ON (160/480, the cold pass on this module; Mike
     longer backs off to the unscoped form and exempts the whole line. Before
     `MALFORMED_GRACE_UNTIL` it still does, with a stderr warning; from that date
     it exempts nothing (AM2, and LK1 which is the same finding);
+  * a SCOPE WITH NO REASON (`m:allow:kind`, `m:allow:a,b`, nothing after it)
+    exempts nothing, at once: it used to back off the same way (`115/230`
+    item 1; a census of the estate first found none in use, so no grace);
   * a mention of the syntax inside an inline code span is not a marker (AM3);
   * a reader asks the pattern for its own scope group, so the group name is
     stated once (AM8).
 
 The `\\s*` separator exists for the multi-line marker searches (`blockscan`'s
-region text, `stampscan`'s block head); every other site reads one line.
+region text, `stampscan`'s block head, `attribscan`'s list block, the commit
+message `namescan` and `quotescan` read); every other site reads one line.
 
 THE UNIT OF REUSE is the `tools/` directory. The scanners import this module,
 `filewalk` and `report`, so a single scanner file copied alone does not run.
@@ -269,6 +273,35 @@ def is_malformed(rx: "re.Pattern[str]", text: str, m: "re.Match[str]",
     return mal is not None
 
 
+# 115/230 item 1: A SCOPE WITH NO REASON. `m:allow:relative-time` with nothing
+# after it (or `-->`, a full stop, a line end: anything that cannot start a
+# reason) is a scoped marker that forgot its reason. The optional scope group
+# used to back off and read the scope word as an unscoped reason, so the marker
+# exempted EVERY kind on its line, the opposite of "a marker with no reason
+# exempts nothing". It now exempts nothing, at once (no grace: the census
+# before the fix found none in use in the estate), and the reader's
+# "present but unparseable" note names it. A glued scope followed by a SPACE and
+# words (`m:allow:kind why`) still reads as an unscoped reason, as before: that
+# is the shape an author writing a reason without its leading space produces.
+def _no_reason_rx(marker: str) -> "re.Pattern[str]":
+    return re.compile(r"\b" + re.escape(marker) + r":" + _SCOPE_LIST + r",?"
+                      r"(?![A-Za-z0-9_,:-])[ \t]*(?:$|(?=[^ \t]))(?!" + REASON_START + r")")
+
+
+def is_scope_without_reason(rx: "re.Pattern[str]", text: str, m: "re.Match[str]",
+                            group: str | None = None) -> bool:
+    """Did match `m` of scoped pattern `rx` read a scope with NO reason
+    (`m:allow:kind`, `m:allow:a,b`) as an unscoped marker whose reason is the
+    scope word? (115/230 item 1.) A well-formed scoped marker has its scope in
+    the group, so it is never this."""
+    reg = _SCOPED.get(rx)
+    if reg is None:
+        return False
+    if m.group(_group_of(rx, group)):
+        return False
+    return _no_reason_rx(reg[0]).match(text, m.start()) is not None
+
+
 def _warn_malformed(text: str, m: "re.Match[str]", rx: "re.Pattern[str]") -> None:
     reg = _SCOPED[rx]
     head = _malformed_rx(reg[0]).match(text, m.start())
@@ -293,7 +326,8 @@ def _read(rx: "re.Pattern[str]", text: str, group: str | None):
     """The first marker match that counts, or None. Code spans are blanked
     first (AM3). A malformed match counts before `MALFORMED_GRACE_UNTIL`, with
     a warning, and is skipped after it (AM2): the strict read goes on to any
-    well-formed marker later on the line."""
+    well-formed marker later on the line. A scope with no reason (115/230
+    item 1) never counts."""
     group = _group_of(rx, group)
     reg = _SCOPED.get(rx)
     if reg is not None and reg[0] not in text:
@@ -304,6 +338,8 @@ def _read(rx: "re.Pattern[str]", text: str, group: str | None):
             if not in_malformed_grace():
                 continue
             _warn_malformed(text, m, rx)
+        elif is_scope_without_reason(rx, text, m, group):
+            continue
         return m, group
     _note_unparseable(rx, text)
     return None
@@ -358,10 +394,12 @@ def covers(scope: str | None, kind: str, kinds: frozenset[str]) -> bool:
       * `""` (the unscoped form) exempts every kind, as before;
       * a scope that NAMES one of `kinds` exempts that kind only — the new,
         narrower hatch, and the one a printed finding ID points at;
-      * any other scope exempts every kind, as before. Not endorsed: it is the
-        same widening as `115/230` item 1 (a malformed marker exempts more,
-        not less), kept until that item is ruled, because refusing it would
-        void any live marker written that way.
+      * any other scope exempts every kind, as before. Not endorsed: it is
+        the same class of widening as `115/230` item 1 (a marker that names
+        too little exempts more, not less). Item 1 itself, a scope with no
+        reason, is closed; this half, a REASONED marker whose scope names no
+        kind, is still open on that item, because refusing it would void any
+        live marker written that way.
 
     The rule-matching scanners (`secretscan`, `datescan`, `linkscan`,
     `leakscan`, `spellscan`) do not use this: there an unknown scope already
