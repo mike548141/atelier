@@ -1,4 +1,4 @@
-- [~] 🔥 **The apex and the always-confirm floor have no mechanical backing at
+- [ ] 🔥 **The apex and the always-confirm floor have no mechanical backing at
       all — the highest-stakes rules in the estate are the least enforced.**
       A rule-by-rule enforcement map of the four governing documents, run
       2026-08-15. **`00-APEX.md` is 100% prose-only**: not one rule in the file
@@ -31,3 +31,21 @@
       are small, and both guard acts the record classes as irreversible.
       🔒 CLAIMED 2026-11-16T11:40Z (claimed 2026-11-16-1140, wt: qr-78ca-autonomy) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
+      Progress 2026-11-16: both reachable pieces now exist. The push-time
+      visibility check was already built (`260/050`): `check_visibility` in
+      `tools/floor.py` asks GitHub on every CI run and reds only a repo
+      declared private that GitHub says is public; every other mismatch, an
+      unreadable answer or no declaration is 🟡. The diff-path trigger is built
+      as an extension of `quotescan`, not a new scanner (same evidence, planes,
+      reader and marker): a commit that changes `docs/method/AUTONOMY.md`, the
+      floor region of `docs/method/PROPAGATION.md` or a stamped copy of it in a
+      `CLAUDE.md`, or the `permissions` key of a `.claude/settings*.json`, with
+      no quotation of the principal and no reasoned marker, gets a 🟡 line per
+      surface asking for his words in the body. Advisory on every plane and
+      date, never blocking (`tools/README.md` § quotescan). Remains: the apex
+      rules (honesty, claim strength, surface a dilemma), the review
+      independence criterion in full, the reading order and queue text never
+      overriding doctrine, which leave no artefact a commit gate can read and
+      wait on item `100`'s before-plane; and, inside the authority slice, an
+      unstamped floor copy, a child's autonomy block outside the floor stamp
+      and a widening through any settings key but `permissions`.

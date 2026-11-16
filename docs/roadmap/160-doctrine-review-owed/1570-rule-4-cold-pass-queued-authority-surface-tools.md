@@ -1,6 +1,7 @@
 - [ ] ⏳ **Rule-4 cold pass queued: tools around the authority surface —
       `flipcheck`, a read-only report of the pre-flip platform settings with a
-      pointer to it from `AUTONOMY.md`'s gate (`260/130`).** The authoring
+      pointer to it from `AUTONOMY.md`'s gate (`260/130`), and `quotescan`'s
+      warn-only line when a commit edits the agent's grant (`115/110`).** The authoring
       session (queue run 78ca9153, Opus 5.5, principal-opened, 2026-11-16 UTC,
       which dispatched the worker that wrote it) queues this and does not take
       it.
@@ -10,8 +11,17 @@
       the always-confirm floor's own document, and any edit to it earns one.
       *Delta, scoped to paths:* `tools/flipcheck.py`, `tools/test_flipcheck.py`,
       `tools/README.md`, `docs/method/AUTONOMY.md` (one sentence in the
-      pre-flip gate): the commit that closes `260/130`, on `main`.
+      pre-flip gate): the commit that closes `260/130`, on `main`; and
+      `tools/quotescan.py`, `tools/test_quotescan.py`, `tools/commitmsg.py`,
+      `tools/floor.py` (quotescan's declarations), `tools/README.md`,
+      `CHANGELOG.md`: the later commit that lands `115/110`'s authority
+      advisory.
       *What to test hardest:* that every call is a GET (no `--method`, no
       field flags) and a refused read can never print as "set"; the
       private-repo "not available" paths are proved only by stubbed 403/404,
-      the live read was of this public repo alone (2026-11-16T11:42Z).
+      the live read was of this public repo alone (2026-11-16T11:42Z). For
+      the advisory: that an authority finding can never block, whatever the
+      prompt plane's blocking date; the surfaces it cannot see (an unstamped
+      floor copy, a child's autonomy block outside the stamp, other settings
+      keys, an untracked `settings.local.json`); measured over atelier's
+      history, 26 of 2,465 commits would have drawn the line.

@@ -160,6 +160,20 @@ class RealCommitTest(Base):
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("warning; blocking from 2027-05-31", r.stderr)
 
+    def test_a_path_scoped_commit_changing_a_floor_stamp_warns_and_lands(self):
+        """115/110: the floor is compared through the index git built for the
+        hook, so a `git commit -- <path>` reads the side it is committing."""
+        stamp = ("<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor -->\n"
+                 "- confirm first\n<!-- stamp:end -->\n")
+        (self.root / "CLAUDE.md").write_text(stamp, encoding="utf-8")
+        _git(self.root, "add", "CLAUDE.md")
+        _git(self.root, "commit", "-q", "-m", "add")
+        (self.root / "CLAUDE.md").write_text(stamp.replace("confirm first", "proceed"),
+                                             encoding="utf-8")
+        r = _git(self.root, "commit", "-m", "docs: tidy", "--", "CLAUDE.md")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("🟡 quotescan: CLAUDE.md changes the always-confirm floor", r.stderr)
+
 
 class RangePlaneTest(Base):
     def test_a_range_commit_without_a_quote_reports_and_exits_zero(self):
@@ -182,6 +196,144 @@ class RangePlaneTest(Base):
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
             rc = q.main(["--range", "nosuch..HEAD", "--warn", "--root", str(self.root)])
         self.assertEqual(rc, 2)
+
+
+FLOOR_TEXT = ("intro\n<!-- floor:begin -->\n- confirm before a public flip\n"
+              "<!-- floor:end -->\noutro\n")
+STAMPED = ("# repo\n\n<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor -->\n"
+           "- confirm before a public flip\n<!-- stamp:end -->\n\nnotes\n")
+SETTINGS = '{"model": "a", "permissions": {"allow": ["Read"]}}\n'
+
+
+class AuthoritySurfaceTest(Base):
+    """115/110: an edit to the agent's grant of authority, with no quotation of
+    the principal, gets a 🟡 line and never blocks, on any date."""
+
+    def setUp(self):
+        super().setUp()
+        files = {q.AUTONOMY_PATH: "grant\n", q.FLOOR_SOURCE: FLOOR_TEXT,
+                 "CLAUDE.md": STAMPED, ".claude/settings.json": SETTINGS}
+        for rel, text in files.items():
+            (self.root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.root / rel).write_text(text, encoding="utf-8")
+        _git(self.root, "add", "-A")
+        _git(self.root, "commit", "-q", "-m", "surfaces")
+
+    def _stage(self, rel, text):
+        (self.root / rel).write_text(text, encoding="utf-8")
+        _git(self.root, "add", rel)
+
+    def _advisory(self, out):
+        import floor
+        return floor._read_advisory_count(out, "quotescan")
+
+    def test_an_autonomy_edit_warns_and_never_blocks(self):
+        self._stage(q.AUTONOMY_PATH, "grant widened\n")
+        for today in (datetime.date(2026, 11, 16), datetime.date(2030, 1, 1)):
+            with self.subTest(today=today):
+                rc, out = self.run_main("--message-file", self._msg("docs: tidy\n"),
+                                        today=today)
+                self.assertEqual(rc, 0, out)
+                self.assertIn(f"🟡 quotescan: {q.AUTONOMY_PATH} changes the autonomy grant", out)
+                self.assertIn("quote them in the commit body", out)
+                self.assertEqual(self._advisory(out), 1)
+
+    def test_a_quote_or_a_reasoned_marker_clears_it(self):
+        self._stage(q.AUTONOMY_PATH, "grant widened\n")
+        for msg in ('docs: grant\n\nHe said: "yes, widen it"\n',
+                    "docs: grant\n\n> yes, widen it\n",
+                    "docs: grant\n\nquotescan:allow: a link rename\n"):
+            with self.subTest(msg=msg):
+                rc, out = self.run_main("--message-file", self._msg(msg))
+                self.assertEqual(rc, 0, out)
+                self.assertIn("clean", out)
+
+    def test_the_floor_region_is_a_surface_the_rest_of_the_file_is_not(self):
+        self._stage(q.FLOOR_SOURCE, FLOOR_TEXT.replace("outro", "after"))
+        rc, out = self.run_main("--message-file", self._msg("docs: tidy\n"))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("clean", out)
+        self._stage(q.FLOOR_SOURCE, FLOOR_TEXT.replace("confirm before", "proceed on"))
+        rc, out = self.run_main("--message-file", self._msg("docs: tidy\n"))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("changes the always-confirm floor", out)
+
+    def test_a_stamped_copy_in_claude_md_is_a_surface(self):
+        self._stage("CLAUDE.md", STAMPED.replace("notes", "more notes"))
+        rc, out = self.run_main("--message-file", self._msg("docs: tidy\n"))
+        self.assertIn("clean", out)
+        self._stage("CLAUDE.md", STAMPED.replace("confirm before", "proceed on"))
+        rc, out = self.run_main("--message-file", self._msg("docs: tidy\n"))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("CLAUDE.md changes the always-confirm floor", out)
+
+    def test_removing_the_stamp_reads_as_a_change(self):
+        self._stage("CLAUDE.md", "# repo\n\nnotes\n")
+        rc, out = self.run_main("--message-file", self._msg("docs: tidy\n"))
+        self.assertIn("changes the always-confirm floor", out)
+
+    def test_the_permissions_key_is_a_surface_other_keys_are_not(self):
+        sp = ".claude/settings.json"
+        self._stage(sp, SETTINGS.replace('"a"', '"b"'))
+        rc, out = self.run_main("--message-file", self._msg("chore: model\n"))
+        self.assertIn("clean", out)
+        self._stage(sp, SETTINGS.replace('["Read"]', '["Read", "Bash"]'))
+        rc, out = self.run_main("--message-file", self._msg("chore: allow\n"))
+        self.assertEqual(rc, 0, out)
+        self.assertIn(f"{sp} changes a permission allowlist", out)
+
+    def test_a_new_settings_file_with_permissions_and_a_deleted_grant(self):
+        nested = "sub/.claude/settings.local.json"
+        (self.root / nested).parent.mkdir(parents=True)
+        (self.root / nested).write_text(SETTINGS, encoding="utf-8")
+        _git(self.root, "add", "-f", nested)  # a global ignore may name it
+        rc, out = self.run_main("--message-file", self._msg("chore: add\n"))
+        self.assertIn(f"{nested} changes a permission allowlist", out)
+        _git(self.root, "reset", "-q")
+        _git(self.root, "rm", "-q", q.AUTONOMY_PATH)
+        rc, out = self.run_main("--message-file", self._msg("chore: drop\n"))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("changes the autonomy grant", out)
+
+    def test_a_prompt_finding_still_blocks_beside_an_advisory_one(self):
+        self._stage_prompt()
+        self._stage(q.AUTONOMY_PATH, "grant widened\n")
+        rc, out = self.run_main("--message-file", self._msg("docs: tidy\n"),
+                                today=datetime.date(2027, 6, 1))
+        self.assertEqual(rc, 1, out)
+        self.assertIn("commit blocked", out)
+        self.assertIn("🟡 quotescan", out)
+        self.assertEqual(self._advisory(out), 1, "the authority line is the advisory")
+
+    def test_the_ci_plane_names_the_commit_and_reports_only(self):
+        self._stage(q.AUTONOMY_PATH, "grant widened\n")
+        _git(self.root, "commit", "-q", "-m", "docs: tidy")
+        rc, out = self.run_main("--range", "HEAD^..HEAD", "--warn")
+        self.assertEqual(rc, 0, out)
+        sha = _git(self.root, "rev-parse", "--short=12", "HEAD").stdout.strip()
+        self.assertIn(f"🟡 quotescan: {sha} {q.AUTONOMY_PATH}", out)
+        self.assertIn("A pushed message cannot be changed now", out)
+
+    def test_a_repo_with_none_of_the_surfaces_is_clean(self):
+        """A child that carries none of these files: no error, no finding."""
+        (self.root / "other.txt").write_text("2\n", encoding="utf-8")
+        _git(self.root, "add", "other.txt")
+        _git(self.root, "commit", "-q", "-m", "x")
+        rc, out = self.run_main("--range", "HEAD^..HEAD", "--warn")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("clean", out)
+
+    def test_json_states_kind_and_surface(self):
+        self._stage(q.AUTONOMY_PATH, "grant widened\n")
+        rc, out = self.run_main("--message-file", self._msg("docs: tidy\n"), "--json")
+        import json
+        doc = json.loads(out)
+        self.assertFalse(doc["blocking"])
+        self.assertEqual(doc["advisory"], 1)
+        self.assertEqual(doc["findings"], [{"where": "this commit",
+                                            "paths": [q.AUTONOMY_PATH],
+                                            "kind": "authority",
+                                            "surface": "the autonomy grant"}])
 
 
 if __name__ == "__main__":

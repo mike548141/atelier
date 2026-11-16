@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-16 — an edit to the agent's grant asks for the principal's words, `115/110`)
+- **`quotescan` reads the authority surfaces**: a commit changing
+  `docs/method/AUTONOMY.md`, the always-confirm floor (the `floor:begin` region
+  of `PROPAGATION.md`, or a stamped copy of it in a `CLAUDE.md`), or the
+  `permissions` key of a `.claude/settings*.json`, with no quotation and no
+  reasoned marker, prints one `🟡` line per surface asking for the principal's
+  words in the commit body. Advisory on every plane and date, never blocking;
+  the findings join the board's advisory count. Every child gets it on its next
+  CI run, and one that carries none of the files gets nothing.
+
 ### Changed (2026-11-16 — the floor's drift check runs from a worktree, `320/180`)
 - **The canonical floor's Source & drift command** finds the parent through the
   hooks' tools setting (`ATELIER_TOOLS`, else `hooks.atelierTools`) instead of

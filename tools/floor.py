@@ -1234,21 +1234,33 @@ SCANNERS: tuple[Scanner, ...] = (
         # commit-message plane, because the say-so lives in the message; CI reads
         # the pushed range and only reports. The warning period is the date in
         # quotescan (`QUOTE_WARN_UNTIL`), so `--warn` stays out of the msg template.
+        # 115/110 added the authority surfaces (AUTONOMY.md, the floor region and
+        # its stamped copies in CLAUDE.md, a settings file's `permissions`): the
+        # same evidence, reported as advisory findings on every plane and every
+        # date, never blocking, because the principal edits them himself. No new
+        # entry: same planes, reader and marker, only the paths and severity.
         hook=None,
         msg=["--message-file", "{msgfile}", "--root", "{root}"],
         ci=["--warn", "--range", "pushed", "--root", "{root}"],
         advisory=["--warn", "--message-file", "{msgfile}", "--root", "{root}"],
-        why="a commit touching the principal's prompt carries his words",
+        why="a commit touching the principal's prompt, or the agent's grant of "
+            "authority, carries his words",
         advisory_count=True,
         declares=Declares(
-            rule=Unmet("names board 160/900 finding QK1, no passage of a "
-                       "rule", _OWED),
-            grounding=Unmet("160/900's finding is named; no test names it",
+            rule=Unmet("the prompt slice names board 160/900 finding QK1, no "
+                       "passage of a rule; the authority slice (115/110) backs "
+                       "AUTONOMY.md's Always confirm, widening your own "
+                       "authority, and one field cannot state both", _OWED),
+            grounding=Unmet("160/900's finding and 115/110's enforcement map "
+                            "are named; neither is an incident a test replays",
                             _OWED),
-            purpose_gap="the rule wants his say-so on a change to his prompt; "
-                        "the check reads the form of a quotation and cannot "
-                        "tell whose it is",
-            window=Unmet("reads the message and the guarded paths; "
+            purpose_gap="the rule wants his say-so on a change to his prompt "
+                        "or to the agent's grant; the check reads the form of "
+                        "a quotation and cannot tell whose it is, and an "
+                        "unstamped floor copy or a widening through any "
+                        "settings key but permissions is invisible to it",
+            window=Unmet("reads the message, the guarded paths, the floor "
+                         "region and stamps, and the permissions key; "
                          + _MARKER_OPEN, _OWED),
             posture=_POSTURE_UNDECLARED,
         ),

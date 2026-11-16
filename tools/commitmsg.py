@@ -117,6 +117,14 @@ def commit_files(root: Path, sha: str) -> list[str]:
     return [p for p in out.stdout.split("\0") if p] if out.returncode == 0 else []
 
 
+def show(root: Path, rev_path: str) -> str | None:
+    """One side of a path, `<rev>:<path>` (or `:<path>`, the index git set for
+    the hook), as text; None where the path does not exist there. Read by
+    `quotescan`'s authority surfaces, which compare a region before and after."""
+    out = _git(root, "cat-file", "blob", rev_path)
+    return out.stdout if out.returncode == 0 else None
+
+
 def pushed_range(root: Path, env: dict | None = None) -> tuple[str, str]:
     """(git log spec, note) for the commits this CI run covers. Inside Actions
     the event's own `before` or a pull request's base; anywhere else, and for a

@@ -2027,7 +2027,7 @@ carry a hit. Exit codes: `0` nothing blocking · `1` a finding on the message
 plane on or after the date · `2` the scan is broken, including `--require-terms`
 with no list on this machine.
 
-## `quotescan.py` — a commit touching the principal's prompt carries his words (warning until 2027-05-31)
+## `quotescan.py` — a commit touching the principal's prompt, or the agent's grant of authority, carries his words (prompt: warning until 2027-05-31; authority: advisory, never blocks)
 
 Board `160/900` QK1's second counsel, the sixth slice of `320/810`.
 `docs/method/session-open/session-open-prompt.md` is his text, and a cold pass
@@ -2048,8 +2048,35 @@ is the run's choice) a finding on the message plane is reported and exits `0`; o
 and after it, it exits `1`, unless `--warn`. A line `quotescan:allow: <reason>`
 exempts it; a bare marker exempts nothing. Measured over atelier: 19 commits
 touch the prompt and 8 carry a quote (42%), so about 1 in 120
-commits meets it. Exit codes: `0` nothing blocking · `1` a finding on the message
-plane on or after the date · `2` the scan is broken.
+commits meets it. Exit codes: `0` nothing blocking (an authority finding never
+blocks) · `1` a prompt finding on the message plane on or after the date · `2`
+the scan is broken.
+
+**The authority surfaces (board `115/110`).** `AUTONOMY.md`'s always-confirm
+floor forbids *widening your own authority*, and an agent editing its own grant
+passed every check in the registry. The same evidence answers it, so the same
+check reads it: a commit that changes one of these with no quotation and no
+reasoned marker gets one `🟡` line per surface, naming the file and asking for the
+principal's words in the commit body.
+
+| Surface | What counts as a change |
+|---|---|
+| `docs/method/AUTONOMY.md` | any change, deletion included |
+| the always-confirm floor | the text between `floor:begin` and `floor:end` in `docs/method/PROPAGATION.md`, and every `stamp:begin source=docs/method/PROPAGATION.md region=floor` block in a file named `CLAUDE.md` (a child's inlined floor, the template's copy); markers parsed by `stampscan`, so an edit elsewhere in the file is not one, and breaking a stamp is |
+| a permission allowlist | the parsed `permissions` value of a `.claude/settings*.json` at any depth; another key is not one |
+
+It is **advisory on every plane and every date** and never blocks:
+`QUOTE_WARN_UNTIL` does not reach it, and the principal edits these files
+himself. The findings join the advisory count the floor board reads. Measured
+over atelier's 2,465 commits on 2026-11-16: 47 change a surface and 21 carry a
+quote or marker; `AUTONOMY.md` 25 (8 quoted), the floor 25 (14), an allowlist 2
+(0). So about 1 commit in 95 would see the line. A repo that
+carries none of the files gets nothing, and no error. It cannot see a floor copy
+with no stamp or outside a `CLAUDE.md`, a child's autonomy block outside the
+floor stamp, a widening through another settings key (a hook, an MCP switch), or
+a settings file git does not carry. It is an extension of this check, not a new
+scanner, because the evidence, the planes, the reader and the marker are this
+check's already.
 
 ## `pdlistscan.py` — in a public repo, personal data stands only where the closed list names it (warning until 2027-03-08)
 
