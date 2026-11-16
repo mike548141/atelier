@@ -1,4 +1,4 @@
-- [ ] **A hook that checks, without the model having to remember, that a
+- [~] **A hook that checks, without the model having to remember, that a
       child's floor copy and pin are current, and fails noisy when they are
       not.** A hand-up from a private child, 2026-11-14, on the principal's
       instruction. Work to pick up under `020/460`; nothing here is designed
@@ -54,3 +54,10 @@
       exist in a cloud session, `020/460`).
       🔒 CLAIMED 2026-11-16T11:22Z (claimed 2026-11-16-1122, wt: qr-78ca-ccclose) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
+      💬 2026-11-16 UTC, the principal's answer to options offered (an answer,
+      not a ruling), asked whether a hook should check the pin and floor copy
+      at each session open as well as at close: *"Build the open hook
+      (Recommended)"*. The option read: a warn-only SessionStart hook printing a
+      loud line when the floor is out of date, about 1 s per child session.
+      🔒 CLAIMED 2026-11-16T19:21Z (claimed 2026-11-16-1921, wt: qr-78ca-openhook) by
+      queue-run session 78ca9153 (Opus 5.5, principal-opened).
