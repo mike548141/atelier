@@ -1,4 +1,4 @@
-- [~] **(a) The census nobody has run: which rules have a forcing function,
+- [ ] **(a) The census nobody has run: which rules have a forcing function,
       and which do not.** ADR 0008 made enforcement *propagate*; it never
       established what proportion of doctrine is enforced at all. No one has
       enumerated the rules and asked of each: what happens if this is broken,
@@ -63,6 +63,25 @@
         `GLOSSARY`, `MECHANISMS`, `PRINCIPLES`, `REACH`, `SECRETS`, `SIGNING`,
         `STORAGE`, `TOOLBOX` and `docs/method/session-open/`; then the doctrine
         outside `docs/method/`.
+      - 2026-11-16, slice 3 done (queue run 78ca): `EVIDENCE.md`,
+        `ECONOMICS.md`, `COMMUNICATION.md` and `DATA-PROTECTION.md` censused
+        rule by rule, as they stand after the same day's changes, in
+        `docs/method/census/2026-11-16-1220-evidence-economics-communication-data.md`.
+        94 rules: 9 enforced (all partial), 81 directive-only (20 with a
+        breach visible in the diff), 4 unenforceable and accepted. Running
+        total over three slices: 381 rules, 55 enforced, 315 directive-only,
+        11 accepted; EVIDENCE §17 is counted twice (EVI24 and `CON21`), so 380
+        distinct. The file ranks five more diff-visible guard candidates for
+        `020/240`, led by a path filter on the floor workflow, and names a
+        before-plane pair (one question per ask; no reference ids in the ask
+        box) for `115/100`. Doctrine defects named and not fixed: §17's ground
+        (already `115/410`); §19's "pointer still owed" that has landed; §7's
+        banned words against `datescan`'s deliberate exclusions; ECONOMICS
+        naming the model roster it says stays person-local; DATA-PROTECTION's
+        write-then-rename rule with no home. Remaining in `docs/method/`:
+        `ACCESS`, `CONVENTIONS`, `DOCUMENTATION`, `GLOSSARY`, `MECHANISMS`,
+        `PRINCIPLES`, `REACH`, `SECRETS`, `SIGNING`, `STORAGE`, `TOOLBOX` and
+        `docs/method/session-open/`; then the doctrine outside `docs/method/`.
       🔒 CLAIMED 2026-11-16T11:40Z (claimed 2026-11-16-1140, wt: qr-78ca-census) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
       🔒 CLAIMED 2026-11-16T11:55Z (claimed 2026-11-16-1155, wt: qr-78ca-census2) by queue-run
