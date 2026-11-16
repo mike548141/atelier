@@ -1,4 +1,4 @@
-- [~] **A hook that checks, without the model having to remember, that a
+- [x] **A hook that checks, without the model having to remember, that a
       child's floor copy and pin are current, and fails noisy when they are
       not.** A hand-up from a private child, 2026-11-14, on the principal's
       instruction. Work to pick up under `020/460`; nothing here is designed
@@ -61,3 +61,15 @@
       loud line when the floor is out of date, about 1 s per child session.
       🔒 CLAIMED 2026-11-16T19:21Z (claimed 2026-11-16-1921, wt: qr-78ca-openhook) by
       queue-run session 78ca9153 (Opus 5.5, principal-opened).
+      **Done, 2026-11-16 (UTC), queue run 78ca: the hook half.** `tools/floorhook.py`
+      is a warn-only `SessionStart` hook that runs `pins.py` (still the only
+      judge) and reaches the same verdicts as check 14: a loud line when the floor
+      copy differs, or the pin is behind and the floor moved since it, or the pin
+      is ahead, diverged, unknown or missing; one quiet line for a pin behind with
+      the floor unchanged; one user-only line when current; silence for a repo that
+      is not a child; and `no result: <reason>` for any failure to measure (no
+      checkout, failed fetch, 10 s timeout, unreadable output), never "current". It
+      always exits 0. Tests: `tools/test_floorhook.py` (20, synthetic fixtures);
+      wiring and limits: `tools/README.md` section `floorhook.py`. Not wired: the
+      orchestrator adds the user-level `hooks.SessionStart` entry, since a settings
+      edit is the principal's machine, not a worker's.

@@ -2240,6 +2240,39 @@ user-level `~/.claude/settings.json` or a repo's `.claude/settings.json`:
 The plugin does not wire it for you: a hook that denies tool calls is the
 adopter's choice to switch on. Tests: `tools/test_modelguard.py`.
 
+## `floorhook.py` — a child's session says at open whether its floor is current
+
+Not a commit gate: a Claude Code `SessionStart` hook, the open-time half of
+`instruments/ccclose` check 14 (board `020/470`; the principal chose it with
+*"Build the open hook (Recommended)"*). It runs `tools/pins.py --json --log
+--atelier <checkout> --child <repo>` and reads the answer, so `pins.py` stays the
+only judge and the verdicts match ccclose's:
+
+| Result | What the session sees |
+|---|---|
+| Floor copy differs; pin behind **and** the floor changed since the pin; pin ahead, diverged, unknown, or missing | A loud `FLOOR OUT OF DATE` line to the model (told to say so first) and to the user |
+| Pin behind, floor unchanged since it (or the copy in a report-only state) | One quiet line to the model |
+| Current | One short line to the user only |
+| Not a child: atelier itself, not a git repo, no `atelier@<sha>` pin and no floor stamp in `CLAUDE.md` | Nothing |
+| No atelier checkout, a failed fetch, a 10 s timeout (`FLOORHOOK_TIMEOUT`), output that does not parse | `no result: <reason>`, never "current" |
+
+It never blocks and always exits 0 (a `SessionStart` hook cannot block, and any
+other exit code shows as a hook error); a crash inside it is itself a `no result`.
+The atelier checkout is the first holding `tools/pins.py` of `$ATELIER_TOOLS`,
+`git config hooks.atelierTools` (the parent of either), then the checkout the
+script lives in. It costs about a second a session (the fetch). The limits are
+`020/460`'s: a hook fails open, can be switched off, and is absent from a cloud
+session, so `ccclose` check 14 stays the backstop. Wiring, in the user-level
+`~/.claude/settings.json` (the matcher keeps it off `clear` and `compact`):
+
+```json
+"hooks": {"SessionStart": [{"matcher": "startup|resume", "hooks": [
+    {"type": "command", "command": "python3 <atelier>/tools/floorhook.py",
+     "timeout": 20}]}]}
+```
+
+The plugin does not wire it for you. Tests: `tools/test_floorhook.py`.
+
 ## `blockscan.py` — a ruling that moves doctrine moves the child block too (advisory, atelier-only)
 
 `stampscan` checks a **child's** inlined copy of the floor block against
