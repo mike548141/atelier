@@ -24,3 +24,9 @@
         Compression, encoding, key sizes, cipher suites and RNG sources are the
         same shape. Worth one line alongside the rule, because the next instance
         will not be a hash.
+      - 🔀 Tidied 2026-11-16 (C0553, verified high; Mike approved 2026-11-16):
+        not an ask of Mike. He commissioned the SHA-2 rule (the section's
+        title); giving it a home and sweeping for where the house breaks it
+        (line 1) is agent work. Nothing above was changed; the original text is
+        as it was. To revert: delete this line (its commit is listed in
+        `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
