@@ -1,0 +1,18 @@
+- [ ] ⏳ **Rule-4 cold pass queued: `floor.py` refuses the bare-list spelling
+      of `advisory`, `scope` and `flags` (C1 phase 2, `020/070`), and prints
+      its own coverage line (`115/130`).** The authoring session (queue run
+      78ca9153, Opus 5.5, principal-opened, 2026-11-16 UTC, which dispatched
+      the worker that wrote it) queues this and does not take it.
+      *Tier:* Fable, the principal-named review tier, checked at selection; the
+      pass waits for his explicit permission for Fable work.
+      *Pass type:* cold pass on a blocking guard's behaviour change, per
+      `method/REVIEW.md` rule 4: children fetch the floor at `@main`, so the
+      refusal reaches every child's next CI run.
+      *Delta, scoped to paths:* `tools/floor.py`, `tools/test_floor.py`,
+      `tools/README.md`: the commit that closes `020/070`, on `main`.
+      *What to test hardest:* the zero-users premise (the worker and the
+      orchestrator each counted 0 bare-list uses across 22 sibling configs on
+      2026-11-16; a child cloned later or a config outside the sweep is the
+      gap); the `--json` field set lost `legacy` with no consumer found; the
+      coverage line counts checks run, not the scanners' own coverage lines;
+      `floorfleet.py` still words a bare list as "migrate it".

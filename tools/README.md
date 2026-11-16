@@ -621,7 +621,11 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
   subtree (a networking repo, a private repo with a shareable `tiki/`), declare
   it in the repo's `.atelier-floor.json`, never in the hook: `"scope":
   {"leakscan": {"paths": ["tiki/"], "why": "..."}}`, and `flags` for
-  `--disable`. The floor renders the paths as the guard's staged positionals.
+  `--disable`. On a check that may be softened the object carries `paths` (or
+  `args`) with no `why`. The bare-list spelling of `advisory`, `scope` and
+  `flags` is retired (C1 phase 2, `020/070`): it is a config error that names
+  the object spelling. The floor renders the paths as the guard's staged
+  positionals.
   A staged positional is a repo-root-relative path in git's own spelling and
   case: the guard lets git say what it names and exits 2 for one git does not
   know (a typo, `Docs` for `docs`), never a clean pass over nothing.
@@ -2380,6 +2384,20 @@ The full contract is the docstring of `tools/floor.py` (§ *The repo-local seam*
 and the `.atelier-floor.json` bullet in `docs/build/REPO-STANDARD.md`. Check the
 hook with `python3 tools/floor.py --list --plane hook`, then stage a deliberate
 defect and watch the commit block.
+
+## `floor.py`'s own `coverage:` line (`115/130`)
+
+After its board, floor prints one line in the shape every tree scanner prints,
+counting checks rather than files: `coverage: 20 check(s) run · 21 check(s)
+listed`. A check counts as run only when floor invoked it; one disabled,
+skipped (off this plane, or no tree to read), missing, or refused before it
+started is listed and not run. When none ran, the line ends with the shared
+"scanned nothing" warning, so a floor that executed nothing no longer reads
+like a clean one. `--json` carries the same counts as a `coverage` key
+(`checks_run`, `checks_listed`, `scanned_nothing`) and a `ran` flag on each
+result. Informational only: no exit status moves. Floor does not add up the
+scanners' own lines: their units differ, and reading them back would mean
+capturing output it streams live.
 
 ## `floor.py --declarations` — every check states five things (`115/120`)
 

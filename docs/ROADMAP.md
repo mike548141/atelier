@@ -41,7 +41,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [A scanner's verdict has two states and needs three — "found, and all…](roadmap/020-policy-as-code-programme-five-tracks-mik/040-a-scanner-s-verdict-has-two-states-and-needs-t.md)
 - ✅ 🎯 [The join C5 guards was written twice more on 2026-08-09, both times…](roadmap/020-policy-as-code-programme-five-tracks-mik/050-the-join-c5-guards-was-written-twice-more-on-2.md)
 - ✅ [floorfleet's remaining child-authored text surfaces.](roadmap/020-policy-as-code-programme-five-tracks-mik/060-floorfleet-s-remaining-child-authored-text-sur.md)
-- [~] [C1b — migrate the remainder, then delete the legacy spelling.](roadmap/020-policy-as-code-programme-five-tracks-mik/070-c1b-migrate-the-remainder-then-delete-the-lega.md)
+- ✅ [C1b — migrate the remainder, then delete the legacy spelling.](roadmap/020-policy-as-code-programme-five-tracks-mik/070-c1b-migrate-the-remainder-then-delete-the-lega.md)
 - [ ] [C2 — retire the remainder.](roadmap/020-policy-as-code-programme-five-tracks-mik/080-c2-retire-the-remainder.md)
 - ✅ [C3 — a sanctioned adoption path.](roadmap/020-policy-as-code-programme-five-tracks-mik/090-c3-a-sanctioned-adoption-path.md)
 - [ ] [C4 — make the local bypass visible.](roadmap/020-policy-as-code-programme-five-tracks-mik/100-c4-make-the-local-bypass-visible.md)
@@ -177,7 +177,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of…](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at…](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
 - [ ] 🎯 [Every guard declares the purpose it answers to, and proves it fires…](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
-- [~] [A guard reports whether its rule fired at all, and over what — so…](roadmap/115-guardrail-architecture-mike-commissioned/130-a-guard-reports-whether-its-rule-fired-at-all.md)
+- [ ] [A guard reports whether its rule fired at all, and over what — so…](roadmap/115-guardrail-architecture-mike-commissioned/130-a-guard-reports-whether-its-rule-fired-at-all.md)
 - ✅ 🔥 [The scheduled estate conformance job has never once been green — 19…](roadmap/115-guardrail-architecture-mike-commissioned/140-the-estate-conformance-job-has-never-once-been.md)
 - [ ] [What actually reaches a child, measured 2026-08-15 — and it is about…](roadmap/115-guardrail-architecture-mike-commissioned/150-what-reaches-a-child-measured-and-it-is-about.md)
 - [ ] [The floor a child inherits is a records-hygiene floor, and the…](roadmap/115-guardrail-architecture-mike-commissioned/160-the-child-floor-is-a-records-hygiene-floor-not.md)
@@ -401,6 +401,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: two PRINCIPLES.md bullets — say what being…](roadmap/160-doctrine-review-owed/1500-rule-4-cold-pass-queued-principles-interruption-and-hashes.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a guard's own-work convention is a shared…](roadmap/160-doctrine-review-owed/1510-rule-4-cold-pass-queued-guard-convention-and-point-of-use-wording.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a relayed ruling never overrides a direct…](roadmap/160-doctrine-review-owed/1520-rule-4-cold-pass-queued-relay-test-bound-session-hygiene.md)
+- [ ] ⏳ [Rule-4 cold pass queued: floor.py refuses the bare-list spelling of…](roadmap/160-doctrine-review-owed/1530-rule-4-cold-pass-queued-floor-retires-bare-list-spelling.md)
 
 ## build/ layer — open strands
 

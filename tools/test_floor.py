@@ -53,6 +53,11 @@ sys.path.insert(0, str(TOOLS_DIR))
 import floor  # noqa: E402
 
 
+# A live advisory in the one accepted spelling, for tests about something
+# other than the spelling itself (C1 phase 2, 020/070, retired the bare list).
+_DATED = {"why": "fixture", "review-by": "2999-01-01"}
+
+
 def _cfg(payload: object) -> floor.Config:
     with tempfile.TemporaryDirectory() as td:
         p = Path(td)
@@ -109,7 +114,7 @@ class RegistryTest(unittest.TestCase):
         for name in self.UNSOFTENABLE:
             with self.subTest(name=name):
                 with self.assertRaises(floor.ConfigError):
-                    _cfg({"advisory": [name]})
+                    _cfg({"advisory": {name: _DATED}})
 
     def test_hygiene_checks_can_re_baseline(self):
         for name in ("sizescan", "datescan", "wrapscan", "spellscan"):
@@ -287,7 +292,8 @@ class ConfigTest(unittest.TestCase):
             self.assertEqual(states[s.name], want, f"{s.name} must default on")
 
     def test_advisory_and_disabled_are_honoured(self):
-        cfg = _cfg({"advisory": ["wrapscan"], "disabled": {"spellscan": "no prose"}})
+        cfg = _cfg({"advisory": {"wrapscan": _DATED},
+                    "disabled": {"spellscan": "no prose"}})
         states = _states("ci", cfg)
         self.assertEqual(states["wrapscan"], "advisory")
         self.assertEqual(states["spellscan"], "disabled")
@@ -311,11 +317,12 @@ class ConfigTest(unittest.TestCase):
 
     def test_rejects_softening_a_boundary_check(self):
         with self.assertRaises(floor.ConfigError):
-            _cfg({"advisory": ["secretscan"]})
+            _cfg({"advisory": {"secretscan": _DATED}})
 
     def test_rejects_contradictory_declaration(self):
         with self.assertRaises(floor.ConfigError):
-            _cfg({"advisory": ["wrapscan"], "disabled": {"wrapscan": "both"}})
+            _cfg({"advisory": {"wrapscan": _DATED},
+                  "disabled": {"wrapscan": "both"}})
 
     def test_rejects_malformed_config(self):
         for payload in ([1, 2, 3], "nope"):
@@ -344,7 +351,7 @@ class ScopeAndFlagsTest(unittest.TestCase):
     legitimately vary, and the line between them and *softening* a check."""
 
     def test_override_expands_to_every_subtree(self):
-        cfg = _cfg({"scope": {"wrapscan": ["docs/method", "docs/build"]}})
+        cfg = _cfg({"scope": {"wrapscan": {"paths": ["docs/method", "docs/build"]}}})
         rendered = floor._render(floor.BY_NAME["wrapscan"].ci, Path("/repo"),
                                  cfg, "wrapscan")
         self.assertTrue(rendered[-1].endswith("docs/build"))
@@ -352,7 +359,7 @@ class ScopeAndFlagsTest(unittest.TestCase):
         self.assertIn("--root", rendered)
 
     def test_override_does_not_leak_to_other_scanners(self):
-        cfg = _cfg({"scope": {"wrapscan": ["docs/method", "docs/build"]}})
+        cfg = _cfg({"scope": {"wrapscan": {"paths": ["docs/method", "docs/build"]}}})
         rendered = floor._render(floor.BY_NAME["datescan"].ci, Path("/repo"),
                                  cfg, "datescan")
         self.assertEqual(len(rendered), len(floor.BY_NAME["datescan"].ci))
@@ -360,7 +367,7 @@ class ScopeAndFlagsTest(unittest.TestCase):
     def test_rejects_empty_override(self):
         """Narrowing a check to nothing is a silent hole, not a scope."""
         with self.assertRaises(floor.ConfigError):
-            _cfg({"scope": {"wrapscan": []}})
+            _cfg({"scope": {"wrapscan": {"paths": []}}})
 
     def test_networking_repo_case(self):
         """The worked case that forced this feature: a networking repo scans
@@ -385,12 +392,12 @@ class ScopeAndFlagsTest(unittest.TestCase):
         advisory downgrade that bypasses every rule on `advisory` — including
         on a scanner that has no advisory form at all."""
         with self.assertRaises(floor.ConfigError):
-            _cfg({"flags": {"secretscan": ["--warn"]}})
+            _cfg({"flags": {"secretscan": {"args": ["--warn"], "why": "w"}}})
 
     def test_flags_cannot_change_a_checks_mode(self):
         for bad in (["--json"], ["--selftest"], ["--check"]):
             with self.assertRaises(floor.ConfigError):
-                _cfg({"flags": {"sizescan": bad}})
+                _cfg({"flags": {"sizescan": {"args": bad}}})
 
     def test_staged_scope_is_repo_relative_never_absolute(self):
         """A fail-OPEN shape, pinned because it exits 0 and reads as a clean pass.
@@ -535,7 +542,8 @@ class LocalSeamTest(unittest.TestCase):
     def test_local_check_can_be_softened_by_the_same_two_spellings(self):
         """One vocabulary. A reader of a board should not need to know whether a
         softened check was inherited or declared to know what happened to it."""
-        soft = _cfg({"local": {"tripwire": dict(self.DECL)}, "advisory": ["tripwire"]})
+        soft = _cfg({"local": {"tripwire": dict(self.DECL)},
+                     "advisory": {"tripwire": _DATED}})
         self.assertEqual(_states("hook", soft)["tripwire"], "advisory")
         off = _cfg({"local": {"tripwire": dict(self.DECL)},
                     "disabled": {"tripwire": "rewriting the blocklist"}})
@@ -549,7 +557,8 @@ class LocalSeamTest(unittest.TestCase):
         """One fact, one home. `scope`/`flags` bend a check the child did not
         write; a local check's own scope and arguments sit beside it, so nobody
         has to read two blocks to know what actually ran."""
-        for block in ({"scope": {"t": ["src"]}}, {"flags": {"t": ["--quiet"]}}):
+        for block in ({"scope": {"t": {"paths": ["src"]}}},
+                      {"flags": {"t": {"args": ["--quiet"]}}}):
             with self.assertRaises(floor.ConfigError):
                 _cfg({"local": {"t": dict(self.DECL)}, **block})
 
@@ -742,7 +751,7 @@ class LocalSeamInvocationTest(unittest.TestCase):
             root = self._repo(td, {"run": "tools/tripwire.py", "why": "w"},
                               "import sys; sys.exit(3)")
             cfg = json.loads((root / floor.CONFIG_NAME).read_text())
-            cfg["advisory"] = ["tripwire"]
+            cfg["advisory"] = {"tripwire": _DATED}
             (root / floor.CONFIG_NAME).write_text(json.dumps(cfg), encoding="utf-8")
             r = self._floor(root)
             self.assertEqual(r.returncode, 0, r.stderr)
@@ -893,7 +902,8 @@ class InvocationTest(unittest.TestCase):
                 with self.subTest(scope=bad, plane=plane):
                     with tempfile.TemporaryDirectory() as td:
                         (Path(td) / floor.CONFIG_NAME).write_text(
-                            json.dumps({"scope": {"secretscan": [bad]}}),
+                            json.dumps({"scope": {"secretscan": {
+                                "paths": [bad], "why": "fixture"}}}),
                             encoding="utf-8")
                         r = self._run("--plane", plane, "--root", td)
                         self.assertEqual(r.returncode, 1, r.stdout)
@@ -1019,19 +1029,32 @@ class InvocationTest(unittest.TestCase):
             self.assertFalse(results["wrapscan"]["expired"])
             self.assertEqual(results["wrapscan"]["reason"], "adopting")
 
-    def test_the_legacy_bare_list_still_parses_and_says_it_is_legacy(self):
-        """The transition (ruled 2026-07-28). Children fetch atelier@main at CI
-        run time, so a hard error on the old spelling would break every child's
-        CI the afternoon this lands. The bare list parses, marks itself, and
-        becomes an error in phase 2 — a transition, not a dialect."""
+    def test_the_retired_bare_list_is_refused_with_the_spelling_to_use(self):
+        """C1 phase 2 (020/070). The bare list parsed through the transition
+        (ruled 2026-07-28) so children's CI did not break on one afternoon; once
+        a sweep found no child still carrying it, the transition ended. It is
+        now a config error on every plane, and the message names the object
+        spelling, because the remedy is one edit and a refusal that does not
+        say what to write instead sends the reader to the source."""
+        for plane in ("hook", "ci"):
+            with self.subTest(plane=plane), tempfile.TemporaryDirectory() as td:
+                (Path(td) / "docs").mkdir()
+                r = self._cfg_run(td, {"advisory": ["wrapscan"]}, plane)
+                self.assertEqual(r.returncode, 1, r.stdout)
+                self.assertIn("retired in C1 phase 2", r.stderr)
+                self.assertIn('"review-by": "YYYY-MM-DD"', r.stderr)
+
+    def test_the_legacy_field_is_gone_from_the_json(self):
+        """The `legacy` result field only ever marked the retired spelling, so
+        it went with it rather than lingering as an always-false key."""
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "docs").mkdir()
-            r = self._cfg_run(td, {"advisory": ["wrapscan"]}, "ci", "--json")
+            r = self._cfg_run(td, {"advisory": {"wrapscan": _DATED}},
+                              "ci", "--json")
             self.assertEqual(r.returncode, 0, r.stderr)
             results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
-            self.assertTrue(results["wrapscan"]["legacy"])
+            self.assertNotIn("legacy", results["wrapscan"])
             self.assertEqual(results["wrapscan"]["state"], "advisory")
-            self.assertFalse(results["wrapscan"]["expired"])
 
     def test_narrowing_a_boundary_check_states_why(self):
         """A1 option (b), deferred out of the A1 ruling into C1 and ruled there
@@ -1088,26 +1111,30 @@ class InvocationTest(unittest.TestCase):
         self.assertEqual(cfg.flags["datescan"].args, ("--some-repo-tuning",))
         self.assertEqual(cfg.flags["datescan"].why, "")
 
-    def test_a_legacy_flags_list_on_a_boundary_check_now_bites(self):
-        """Mike ruled bite-now (2026-08-09), over the ride-C1-phase-2 deferral
-        this test used to pin: a bare list cannot carry a `why`, which is
-        exactly why it may not tune a never-softened check. The remedy in the
-        error is the reasoned spelling — one line for the affected repo."""
+    def test_a_bare_flags_list_on_a_boundary_check_bites(self):
+        """Mike ruled bite-now (2026-08-09): a bare list cannot carry a `why`,
+        so it may not tune a never-softened check. C1 phase 2 then refused the
+        spelling everywhere; the error names the object spelling and the
+        `why` such a check needs."""
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "docs").mkdir()
             r = self._cfg_run(td, {"flags": {"leakscan": ["--disable", "ipv4"]}})
             self.assertEqual(r.returncode, 1, r.stdout)
-            self.assertIn("needs a `why`", r.stdout + r.stderr)
+            self.assertIn("retired in C1 phase 2", r.stderr)
+            self.assertIn('"args"', r.stderr)
+            self.assertIn('"why"', r.stderr)
 
-    def test_a_legacy_flags_list_on_a_softenable_check_still_parses(self):
-        """The bite is scoped to checks with no advisory form; a softenable
-        check's legacy list keeps parsing until C1 phase 2 retires the
-        spelling everywhere — that flag day stays C1's, not EP1(b)'s.
-        Judged at the parse seam: no softenable scanner accepts a bespoke
-        runtime flag, so a full run would test the scanner's argv parser,
-        not this rule."""
-        cfg = _cfg({"flags": {"datescan": ["--some-tuning"]}})
-        self.assertTrue(cfg.flags["datescan"].legacy)
+    def test_a_bare_flags_list_on_a_softenable_check_is_refused_too(self):
+        """C1 phase 2 (020/070): the flag day EP1(b) left to C1 has come. A
+        softenable check's list no longer parses either; its object form
+        carries `args` alone (pinned above). Judged at the parse seam: no
+        softenable scanner accepts a bespoke runtime flag, so a full run would
+        test the scanner's argv parser, not this rule."""
+        for bare in (["--some-tuning"], "--some-tuning"):
+            with self.subTest(bare=bare):
+                with self.assertRaises(floor.ConfigError) as cm:
+                    _cfg({"flags": {"datescan": bare}})
+                self.assertIn("retired in C1 phase 2", str(cm.exception))
 
     def test_a_reasoned_flags_override_still_tunes_the_check(self):
         """The reason is a record, never an argument. If the `why` reached argv
@@ -1123,7 +1150,7 @@ class InvocationTest(unittest.TestCase):
     def test_rejects_an_empty_flags_override(self):
         """A declaration with no arguments in it tunes nothing and reads as
         though it did — the same call as an empty `scope`."""
-        for payload in ({"flags": {"leakscan": []}},
+        for payload in ({"flags": {"leakscan": {"args": [], "why": "w"}}},
                         {"flags": {"leakscan": {"args": []}}}):
             with self.subTest(payload=payload), \
                     self.assertRaises(floor.ConfigError):
@@ -1137,7 +1164,7 @@ class InvocationTest(unittest.TestCase):
             _cfg({"flags": {"leakscan": {"args": ["--disable", "ipv4"],
                                          "whys": "typo"}}})
 
-    def test_a_legacy_scope_list_on_a_boundary_check_now_bites(self):
+    def test_a_bare_scope_list_on_a_boundary_check_bites(self):
         """The scope twin of the flags bite above (Mike ruled 2026-08-09):
         narrowing a boundary check without a stated reason is the EP1 hole,
         whatever spelling carries it."""
@@ -1145,15 +1172,27 @@ class InvocationTest(unittest.TestCase):
             (Path(td) / "docs").mkdir()
             r = self._cfg_run(td, {"scope": {"leakscan": ["docs"]}})
             self.assertEqual(r.returncode, 1, r.stdout)
-            self.assertIn("needs a `why`", r.stdout + r.stderr)
+            self.assertIn("retired in C1 phase 2", r.stderr)
+            self.assertIn('"paths"', r.stderr)
 
-    def test_a_legacy_scope_list_on_a_softenable_check_still_parses(self):
-        """atelier's own config is this exact shape (wrapscan/spellscan scoped
-        to the doctrine surface, bare lists) — the bite must not reach it."""
-        with tempfile.TemporaryDirectory() as td:
-            (Path(td) / "docs").mkdir()
-            r = self._cfg_run(td, {"scope": {"wrapscan": ["docs"]}})
-            self.assertEqual(r.returncode, 0, r.stderr)
+    def test_a_bare_scope_list_on_a_softenable_check_is_refused_too(self):
+        """C1 phase 2 (020/070). This shape used to be exempt because atelier's
+        own config carried it; that config was migrated first, so the refusal
+        reaches it now, as a one-edit fix the message spells out."""
+        for bare in (["docs"], "docs"):
+            with self.subTest(bare=bare), tempfile.TemporaryDirectory() as td:
+                (Path(td) / "docs").mkdir()
+                r = self._cfg_run(td, {"scope": {"wrapscan": bare}})
+                self.assertEqual(r.returncode, 1, r.stdout)
+                self.assertIn("retired in C1 phase 2", r.stderr)
+                self.assertIn('"wrapscan": {"paths": [...]}', r.stderr)
+
+    def test_atelier_s_own_config_parses_in_the_one_spelling(self):
+        """The repo that ships the floor runs it on itself: if its own
+        `.atelier-floor.json` held a retired spelling, every commit here would
+        stop. Pinned so the migration cannot quietly be undone."""
+        cfg = floor.Config.load(TOOLS_DIR.parent)
+        self.assertIn("wrapscan", cfg.scope)
 
     def test_partial_scope_drift_on_a_softenable_check_is_visible(self):
         """TA3. The blocking guard covers only checks with no advisory form, so
@@ -1164,7 +1203,8 @@ class InvocationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "docs").mkdir()
             (Path(td) / floor.CONFIG_NAME).write_text(
-                json.dumps({"scope": {"wrapscan": ["docs", "gone"]}}), encoding="utf-8")
+                json.dumps({"scope": {"wrapscan": {"paths": ["docs", "gone"]}}}),
+                encoding="utf-8")
             r = self._run("--plane", "ci", "--root", td, "--json")
             self.assertEqual(r.returncode, 0, r.stderr)
             results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
@@ -1178,7 +1218,8 @@ class InvocationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "docs").mkdir()
             (Path(td) / floor.CONFIG_NAME).write_text(
-                json.dumps({"scope": {"wrapscan": ["docs"]}}), encoding="utf-8")
+                json.dumps({"scope": {"wrapscan": {"paths": ["docs"]}}}),
+                encoding="utf-8")
             r = self._run("--plane", "ci", "--root", td, "--json")
             results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
             self.assertEqual(results["wrapscan"]["partial"], "")
@@ -1205,7 +1246,8 @@ class InvocationTest(unittest.TestCase):
         the no-advisory-form scanners lose it."""
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / floor.CONFIG_NAME).write_text(
-                json.dumps({"scope": {"wrapscan": ["nosuchtree"]}}), encoding="utf-8")
+                json.dumps({"scope": {"wrapscan": {"paths": ["nosuchtree"]}}}),
+                encoding="utf-8")
             r = self._run("--plane", "ci", "--root", td, "--json")
             self.assertEqual(r.returncode, 0, r.stderr)
             results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
@@ -1327,7 +1369,7 @@ class ReportedNoteTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "docs").mkdir()
             (Path(td) / floor.CONFIG_NAME).write_text(
-                json.dumps({"scope": {"wrapscan": ["docs", "gone"]}}),
+                json.dumps({"scope": {"wrapscan": {"paths": ["docs", "gone"]}}}),
                 encoding="utf-8")
             r = self._run("--plane", "ci", "--root", td, "--json")
             results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
@@ -2602,17 +2644,20 @@ class BarredAdvisoryTest(unittest.TestCase):
         with self.assertRaises(floor.ConfigError):
             self._load_on("2027-03-01", self.DECLARED)
 
-    def test_the_bare_list_spelling_is_barred_too(self):
-        """A pre-C1 declaration has no reason and no date, and is the form one
-        child still carries."""
-        self._load_on(self.GRACE_LAST_DAY, {"advisory": ["sizescan"]})
-        with self.assertRaises(floor.ConfigError):
-            self._load_on(self.BARRED_DAY, {"advisory": ["sizescan"]})
+    def test_the_bare_list_spelling_is_refused_on_either_side_of_the_bar(self):
+        """A pre-C1 declaration has no reason and no date. It was barred from
+        the date with everything else; C1 phase 2 (020/070) has since retired
+        the spelling outright, so it is refused before the date as well."""
+        for day in (self.GRACE_LAST_DAY, self.BARRED_DAY):
+            with self.subTest(day=day):
+                with self.assertRaises(floor.ConfigError):
+                    self._load_on(day, {"advisory": ["sizescan"]})
 
     def test_the_other_softenable_checks_are_untouched(self):
         for name in ("wrapscan", "datescan", "spellscan", "publishscan"):
             with self.subTest(name=name):
-                cfg = self._load_on("2999-01-01", {"advisory": [name]})
+                cfg = self._load_on("2999-01-01",
+                                    {"advisory": {name: _DATED}})
                 self.assertIn(name, cfg.advisory)
 
     def test_a_reasoned_disable_is_barred_too_from_the_same_date(self):
@@ -3358,6 +3403,66 @@ class DeclarationSurfaceTest(unittest.TestCase):
                     self.assertEqual(rc, want)
                     self.assertIn("declarations:", err)
 
+
+
+class FloorCoverageLineTest(unittest.TestCase):
+    """115/130: floor prints a `coverage:` line of its own, in the shape every
+    tree scanner prints, counting checks rather than files. Without it a run in
+    which nothing executed (every check disabled, skipped or refused before it
+    started) shows a column of marks and exits 0, the same as a full run."""
+
+    @staticmethod
+    def _results(*ran: bool) -> list:
+        return [floor.Result(f"c{i}", "enforced" if r else "skipped", 0,
+                             ran=r) for i, r in enumerate(ran)]
+
+    def test_the_line_counts_checks_run_against_checks_listed(self):
+        line = floor.coverage_summary(self._results(True, True, False))
+        self.assertEqual(line.strip(),
+                         "coverage: 2 check(s) run · 3 check(s) listed")
+
+    def test_a_run_where_nothing_ran_says_so(self):
+        line = floor.coverage_summary(self._results(False, False))
+        self.assertIn("coverage: 0 check(s) run · 2 check(s) listed", line)
+        self.assertIn("scanned nothing: no checks were evaluated", line)
+        self.assertEqual(floor.coverage_json(self._results(False, False)),
+                         {"checks_run": 0, "checks_listed": 2,
+                          "scanned_nothing": True})
+
+    def test_known_zeros_are_kept_in_the_json_twin(self):
+        self.assertEqual(floor.coverage_json([]),
+                         {"checks_run": 0, "checks_listed": 0,
+                          "scanned_nothing": True})
+
+    def test_a_real_run_prints_the_line_and_its_json_agrees(self):
+        """End to end on a tiny tree: the line reaches stderr beside the board,
+        the --json document carries the same counts, and the per-result `ran`
+        flags add up to them. A skipped check (one declared off this plane)
+        is listed and not run, so the two numbers differ on a normal run.
+        The exit status is the floor's own and unchanged by the line."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            argv = [sys.executable, str(TOOLS_DIR / "floor.py"),
+                    "--plane", "ci", "--root", td]
+            text = subprocess.run(argv, capture_output=True, text=True)
+            doc = subprocess.run(argv + ["--json"], capture_output=True,
+                                 text=True)
+        self.assertEqual(text.returncode, doc.returncode)
+        data = json.loads(doc.stdout)
+        cov = data["coverage"]
+        self.assertEqual(cov["checks_run"],
+                         sum(1 for r in data["results"] if r["ran"]))
+        # main() appends `visibility` inside Actions and `commit-msg` on the
+        # hook plane; neither is a check the plan listed, so neither counts.
+        listed = [r for r in data["results"]
+                  if r["name"] not in ("visibility", "commit-msg")]
+        self.assertEqual(cov["checks_listed"], len(listed))
+        self.assertGreater(cov["checks_run"], 0)
+        self.assertFalse(cov["scanned_nothing"])
+        skipped = [r for r in data["results"] if r["state"] == "skipped"]
+        self.assertTrue(all(not r["ran"] for r in skipped))
+        self.assertIn(f"  coverage: {cov['checks_run']} check(s) run · "
+                      f"{cov['checks_listed']} check(s) listed", text.stderr)
 
 if __name__ == "__main__":
     unittest.main()

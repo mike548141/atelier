@@ -1,4 +1,4 @@
-- [~] **C1b — migrate the remainder, then delete the legacy spelling.**
+- [x] **C1b — migrate the remainder, then delete the legacy spelling.**
       **THE 2026-08-09 ESTATE PASS DISCHARGED MOST OF IT** (Mike directed
       the run at the close walk-through; live measurement first — the
       recorded 17-across-10 was stale): of the nine legacy declarations
@@ -41,5 +41,21 @@
         because this ask is not Mike's (tidy line above). Original: that line
         began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      **Phase 2 done 2026-11-16.** Re-verified first: a read-only sweep of 21
+      sibling repos' `.atelier-floor.json` (working tree, `HEAD` and the
+      remote-tracking copy) and five worktree copies found 0 using the bare-list
+      spelling of `advisory`, `scope` or `flags`; atelier's own config already
+      used the object form. `tools/floor.py` now refuses all three bare lists
+      at parse (a config error, as the `Advisory` docstring promised once the
+      board was clean), each message naming the object spelling to write
+      instead. The `legacy` field is gone from `Advisory`, `Scope`, `Flags` and
+      the `--json` results, with the 🟡 "pre-C1 declaration, migrate it"
+      render. The selftest's reject cases moved to the object spelling so each
+      still exercises its own rule rather than passing on the retired one.
+      Tests in `tools/test_floor.py`; `tools/README.md` names the reason-free
+      object form for softenable checks. Not touched: `disabled`'s bare string
+      (a separate warn-first rule, 320/800), and `floorfleet`'s board, which
+      still reads a bare list as "migrate it" (true, and now also a floor
+      error).
       🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-floorpy) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

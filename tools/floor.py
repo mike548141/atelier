@@ -181,8 +181,10 @@ or a positional matching no staged path, shrinks cover without touching it
 (ADR 0008 cold pass, EP1; `scope` ruled 2026-07-28, `flags` 2026-08-04). On a
 SOFTENABLE check both keys stay reason-free: narrowing a prose check to the
 doctrine surface is an ordinary layout fact, and demanding a sentence for it
-would make the rule ceremony. Bare-list spellings still parse through the C1
-transition; they cannot carry a reason at all.
+would make the rule ceremony, so there the object carries `paths` (or `args`)
+alone. The bare-list spellings of all three keys, which could carry no reason
+at all, were a C1 transition and are retired (C1 phase 2, 020/070): each is now
+a config error that names the object spelling.
 
 Which checks may be softened is NOT the child's call: a scanner is softenable
 exactly when its registry entry carries an advisory form (`advisory=`
@@ -385,14 +387,13 @@ class Advisory:
     and more visible opt-out, has always required a stated reason; the softer
     one required nothing, which is backwards (Track C, C1, ruled 2026-07-28).
 
-    `legacy` marks a declaration still in the bare-list spelling. Those parse
-    during the transition and render 🟡 every run, so the estate migrates
-    without a flag day; the spelling becomes a hard error once the board is
-    clean (C1 phase 2). A declaration in the NEW spelling is held to the full
-    rule immediately — there is no half-migrated state to reason about."""
+    The bare list parsed through a transition, rendering 🟡 every run so the
+    estate could migrate without a flag day. C1 phase 2 (020/070) retired it
+    once no child carried it: `_load_advisory` now refuses it with the object
+    spelling in the message, so a declaration is held to the full rule or not
+    accepted — there is no half-migrated state to reason about."""
     why: str = ""
     review_by: str | None = None  # ISO 8601 date, per CONVENTIONS.md
-    legacy: bool = False
     # Who may move the date: "mandate" (tighten only), "default" (any move), or
     # None, unlabelled, which reads as a mandate (GUARDS.md, 160/450). Optional
     # so no declaration in the field goes red the day the key lands.
@@ -418,7 +419,6 @@ class Scope:
     smaller than its tree — not dated debt waiting to be cleared."""
     paths: tuple[str, ...] = ()
     why: str = ""
-    legacy: bool = False
 
 
 @dataclass(frozen=True)
@@ -439,7 +439,6 @@ class Flags:
     about itself, not dated debt waiting to be cleared."""
     args: tuple[str, ...] = ()
     why: str = ""
-    legacy: bool = False
 
 
 @dataclass(frozen=True)
@@ -1515,8 +1514,8 @@ def strip_controls(value: object) -> object:
 def _load_disabled(raw: object) -> tuple[dict[str, str], dict[str, str]]:
     """Parse `disabled`: name -> reason, and name -> review-by where declared.
 
-    Two spellings, like `advisory` during C1. The legacy bare string is a reason
-    with no end date; the object form is `{"why": ..., "review-by": ...}`. A
+    Two spellings, as `advisory` had during C1. The legacy bare string is a
+    reason with no end date; the object form is `{"why": ..., "review-by": ...}`. A
     missing date is NOT an error (320/800: warn-first, no repo goes red the day
     this lands); a date that is present must be a real ISO 8601 one, as for an
     advisory, because a malformed date is a typo to be told about, not debt."""
@@ -1560,19 +1559,27 @@ def _load_disabled(raw: object) -> tuple[dict[str, str], dict[str, str]]:
 
 
 def _load_advisory(raw: object) -> dict[str, Advisory]:
-    """Parse `advisory`, accepting both spellings during the C1 transition.
+    """Parse `advisory`: one spelling, the object.
 
-      ["wrapscan"]                                  legacy — parses, renders 🟡
       {"wrapscan": {"why": "...", "review-by": "YYYY-MM-DD"}}   the rule
+      ["wrapscan"]                       retired — a config error (C1 phase 2)
 
-    The legacy form exists so the schema can land without breaking every
-    child's CI on the same afternoon (children fetch atelier@main at run time,
-    so a hard error here is a flag day for the whole estate). It is a
-    transition, not a dialect: phase 2 removes it."""
+    The bare list parsed through the C1 transition so the schema could land
+    without breaking every child's CI on the same afternoon (children fetch
+    atelier@main at run time, so a hard error here is a flag day for the whole
+    estate). It was a transition, not a dialect: phase 2 (020/070) removed it
+    after a sweep found no child still carrying it, and the refusal names the
+    spelling that replaces it, because the remedy is one edit."""
     if raw is None:
         return {}
     if isinstance(raw, (list, tuple)):
-        return {str(name): Advisory(legacy=True) for name in raw}
+        raise ConfigError(
+            f"{CONFIG_NAME}: `advisory` is a bare list of names, the spelling "
+            "retired in C1 phase 2 — it carries no reason and no end date. "
+            "Declare each softened check as an object: "
+            '{"advisory": {"<scanner>": {"why": "...", '
+            '"review-by": "YYYY-MM-DD"}}}'
+        )
     if not isinstance(raw, dict):
         raise ConfigError(
             f"{CONFIG_NAME}: `advisory` must be an object of "
@@ -1642,14 +1649,16 @@ def _load_advisory(raw: object) -> dict[str, Advisory]:
 
 
 def _load_scope(raw: object) -> dict[str, Scope]:
-    """Parse `scope`, accepting both spellings during the same transition.
+    """Parse `scope`: one spelling, the object.
 
-      {"wrapscan": ["docs"]}                        legacy — parses, renders 🟡
-      {"leakscan": {"paths": ["tiki/"], "why": "..."}}          the rule
+      {"wrapscan": {"paths": ["docs"]}}                         softenable
+      {"leakscan": {"paths": ["tiki/"], "why": "..."}}          boundary
+      {"wrapscan": ["docs"]}             retired — a config error (C1 phase 2)
 
-    On a scanner with no advisory form the legacy spelling is REJECTED at
-    `Config.validate` (bite-now, 2026-08-09) — it cannot state a reason, and
-    narrowing a boundary check without one is the hole EP1 named.
+    The bare list could never state a reason, so it was refused on a boundary
+    check first (bite-now, 2026-08-09) and kept parsing on a softenable one
+    until C1 phase 2 (020/070) retired it everywhere. The refusal names the
+    object spelling, since the remedy is one edit.
 
     The `why` is required only for a scanner with no advisory form; a softenable
     check's scope is an ordinary layout fact (A1(b), ruled 2026-07-28). That
@@ -1664,18 +1673,17 @@ def _load_scope(raw: object) -> dict[str, Scope]:
     for name, decl in raw.items():
         name = str(name)
         if isinstance(decl, (str, list, tuple)):
-            entries = [decl] if isinstance(decl, str) else list(decl or ())
-            if not entries:
-                raise ConfigError(
-                    f"{CONFIG_NAME}: `scope.{name}` is empty — an override that "
-                    "narrows a check to nothing is a silent hole, not a scope"
-                )
-            out[name] = Scope(paths=tuple(str(e) for e in entries), legacy=True)
-            continue
+            raise ConfigError(
+                f"{CONFIG_NAME}: `scope.{name}` is a bare path list, the "
+                "spelling retired in C1 phase 2. Write it as "
+                f'`"{name}": {{"paths": [...]}}`, with a `"why"` beside '
+                f"`paths` if {name} is a boundary or integrity check that may "
+                "never be softened"
+            )
         if not isinstance(decl, dict):
             raise ConfigError(
-                f"{CONFIG_NAME}: `scope.{name}` must be a list of paths, or an "
-                "object with `paths` and `why`"
+                f"{CONFIG_NAME}: `scope.{name}` must be an object with `paths` "
+                "(and `why`, on a check that may never be softened)"
             )
         raw_paths = decl.get("paths", [])
         if isinstance(raw_paths, str):
@@ -1698,13 +1706,14 @@ def _load_scope(raw: object) -> dict[str, Scope]:
 
 
 def _load_flags(raw: object) -> dict[str, Flags]:
-    """Parse `flags`, accepting both spellings on the same transition terms.
+    """Parse `flags`: one spelling, the object, on the same terms as `scope`.
 
-      {"datescan": ["--some-tuning"]}                legacy — parses
-      {"leakscan": {"args": ["--disable", "ipv4"], "why": "..."}}    the rule
+      {"datescan": {"args": ["--some-tuning"]}}                  softenable
+      {"leakscan": {"args": ["--disable", "ipv4"], "why": "..."}}    boundary
+      {"datescan": ["--some-tuning"]}    retired — a config error (C1 phase 2)
 
-    As with `scope`, the legacy spelling is rejected at `Config.validate` on a
-    scanner with no advisory form (bite-now, 2026-08-09).
+    As with `scope`, the bare list was refused on a boundary check first
+    (bite-now, 2026-08-09) and retired everywhere by C1 phase 2 (020/070).
 
     `args` rather than `flags` for the inner key: it is the word the local seam
     already uses for exactly this thing (`local.<name>.args`), and
@@ -1721,19 +1730,17 @@ def _load_flags(raw: object) -> dict[str, Flags]:
     for name, decl in raw.items():
         name = str(name)
         if isinstance(decl, (str, list, tuple)):
-            entries = [decl] if isinstance(decl, str) else list(decl or ())
-            if not entries:
-                raise ConfigError(
-                    f"{CONFIG_NAME}: `flags.{name}` is empty — a declaration "
-                    "with no arguments in it tunes nothing, and reads as though "
-                    "it did"
-                )
-            out[name] = Flags(args=tuple(str(e) for e in entries), legacy=True)
-            continue
+            raise ConfigError(
+                f"{CONFIG_NAME}: `flags.{name}` is a bare argument list, the "
+                "spelling retired in C1 phase 2. Write it as "
+                f'`"{name}": {{"args": [...]}}`, with a `"why"` beside '
+                f"`args` if {name} is a boundary or integrity check that may "
+                "never be softened"
+            )
         if not isinstance(decl, dict):
             raise ConfigError(
-                f"{CONFIG_NAME}: `flags.{name}` must be a list of arguments, or "
-                "an object with `args` and `why`"
+                f"{CONFIG_NAME}: `flags.{name}` must be an object with `args` "
+                "(and `why`, on a check that may never be softened)"
             )
         raw_args = decl.get("args", [])
         if isinstance(raw_args, str):
@@ -2034,30 +2041,30 @@ class Config:
         this accepts, because a config file is a claim and a keyword argument
         is just a shorthand."""
         if isinstance(self.advisory, (list, tuple, set)):
-            self.advisory = {str(n): Advisory(legacy=True) for n in self.advisory}
+            self.advisory = {str(n): Advisory() for n in self.advisory}
         else:
             self.advisory = {
-                str(n): (v if isinstance(v, Advisory) else Advisory(legacy=True))
+                str(n): (v if isinstance(v, Advisory) else Advisory())
                 for n, v in dict(self.advisory).items()}
         normalised: dict[str, Scope] = {}
         for name, value in dict(self.scope).items():
             if isinstance(value, Scope):
                 normalised[str(name)] = value
             elif isinstance(value, str):
-                normalised[str(name)] = Scope(paths=(value,), legacy=True)
+                normalised[str(name)] = Scope(paths=(value,))
             else:
                 normalised[str(name)] = Scope(
-                    paths=tuple(str(p) for p in (value or ())), legacy=True)
+                    paths=tuple(str(p) for p in (value or ())))
         self.scope = normalised
         flagged: dict[str, Flags] = {}
         for name, value in dict(self.flags).items():
             if isinstance(value, Flags):
                 flagged[str(name)] = value
             elif isinstance(value, str):
-                flagged[str(name)] = Flags(args=(value,), legacy=True)
+                flagged[str(name)] = Flags(args=(value,))
             else:
                 flagged[str(name)] = Flags(
-                    args=tuple(str(a) for a in (value or ())), legacy=True)
+                    args=tuple(str(a) for a in (value or ())))
         self.flags = flagged
 
     def scanner(self, name: str) -> Scanner | None:
@@ -2155,13 +2162,11 @@ class Config:
             for p in sc.paths:
                 _reject_escaping_scope(f"scope.{name}", p)
             # A1(b): narrowing a check that may NEVER be softened states why.
-            # Only checkable here, where the registry lookup lives. The legacy
-            # bare-list spelling gets NO exemption on these checks (Mike ruled
-            # bite-now, 2026-08-09, over the ride-C1-phase-2 deferral): it
-            # cannot carry a `why`, which is exactly why it may not narrow a
-            # boundary check — the remedy is the reasoned spelling, one line.
-            # Softenable checks keep parsing the legacy form until C1 phase 2
-            # retires that spelling everywhere.
+            # Only checkable here, where the registry lookup lives. (The bare
+            # list, which could carry no `why`, bit here first — Mike ruled
+            # bite-now, 2026-08-09 — and is now refused at parse everywhere,
+            # C1 phase 2. What reaches this line is an object, or the keyword
+            # shorthand a caller in Python builds.)
             scanner = self.scanner(name)
             if (not sc.why
                     and scanner is not None and scanner.advisory is None):
@@ -2236,10 +2241,9 @@ class Config:
             # a rule switched off by name, or a positional matching no staged
             # path, shrinks cover without touching it. On a check that may never
             # be softened that is a cover decision, so it goes on the record the
-            # way a disabled one does. The legacy list spelling gets NO
-            # exemption here (Mike ruled bite-now, 2026-08-09) — it cannot
-            # carry a `why`, so on these checks it may not tune anything; the
-            # remedy is the reasoned spelling named below.
+            # way a disabled one does. (The bare list, which could carry no
+            # `why`, bit here first — bite-now, 2026-08-09 — and is now refused
+            # at parse everywhere, C1 phase 2.)
             scanner = self.scanner(name)
             if (not fl.why
                     and scanner is not None and scanner.advisory is None):
@@ -2270,8 +2274,9 @@ class Result:
     # NEVER blocks — a commit failing on a date somebody set months earlier is
     # how a forcing function turns into a --no-verify habit — so this is a
     # reporting state only: red on the floor line and on the board, and nowhere
-    # in the exit code (ruled 2026-07-28). `legacy` marks the pre-C1 spelling,
-    # still parsing through the transition.
+    # in the exit code (ruled 2026-07-28). (A `legacy` field once marked the
+    # pre-C1 bare-list spelling; C1 phase 2 refused that spelling at parse and
+    # removed the field, 020/070.)
     review_by: str = ""
     expired: bool = False
     # How long an expired advisory has been standing, in words ("3 days over"),
@@ -2282,7 +2287,6 @@ class Result:
     # 2026-07-28). Always present, empty when there is nothing to say, so a
     # --json consumer's field set stays comparable run to run.
     days_over: str = ""
-    legacy: bool = False
     # A `disabled` check with no end date declared (the legacy bare string, or
     # an object that left `review-by` out). A warning, never a block (320/800).
     # Always present so a --json consumer's field set stays comparable.
@@ -2307,6 +2311,12 @@ class Result:
     # comparable run to run. A report, never a block: the block is the config
     # error from that date.
     barred_from: str = ""
+    # Did the scanner actually execute on this run (115/130)? True only on the
+    # one path that invoked it; a disabled, skipped, missing, unexecutable or
+    # scope-refused check is False whatever its state says. This is what the
+    # floor's own `coverage:` line counts, and it is per result so a --json
+    # consumer can tell which checks were the ones that ran. Always present.
+    ran: bool = False
 
     @property
     def failed(self) -> bool:
@@ -2942,6 +2952,7 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         expired = bool(adv and adv.expired(today))
         results.append(Result(
             scanner.name, state, rc, local=scanner.is_local, partial=partial,
+            ran=True,
             reason=(adv.why if adv else ""),
             review_by=(adv.review_by or "" if adv else ""),
             expired=expired,
@@ -2949,7 +2960,6 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             # function of the results it is handed.
             days_over=(_days_over(adv.review_by or "", today) if expired
                        else ""),
-            legacy=bool(adv and adv.legacy),
             advisory=advisory_findings,
             kind=(adv.kind or "" if adv else ""),
             date_note=(later.get(scanner.name, "") if adv else ""),
@@ -2983,11 +2993,8 @@ def render(results: list[Result], plane: str) -> str:
         # is 🔴 and says so — it does not block (a commit failing on a date set
         # months ago is how a forcing function becomes a --no-verify habit), it
         # just stops looking like a decision anyone is still standing behind.
-        if r.state == "advisory" and not r.failed:
-            if r.legacy:
-                mark = "🟡"
-            elif r.expired:
-                mark = "🔴"
+        if r.state == "advisory" and not r.failed and r.expired:
+            mark = "🔴"
         # E6b's board leg. A check that REPORTED findings without blocking on
         # them says so here, every run, with the number — because the whole
         # bargain of the advisory tier is that widening detection costs a
@@ -3034,10 +3041,7 @@ def render(results: list[Result], plane: str) -> str:
                             r.date_note and f"🟡 {r.date_note}") if s]
         note = f"  ({'; '.join(said)})" if said else ""
         if r.state == "advisory":
-            if r.legacy:
-                note += ("  ⚠️  no reason or review date — pre-C1 declaration, "
-                         "migrate it")
-            elif r.review_by:
+            if r.review_by:
                 # How long it has stood, not just that it stood too long: the
                 # count is what separates "expired on Friday" from "abandoned
                 # in March", and it belongs where a commit is being made (C1F2).
@@ -3085,6 +3089,41 @@ def render(results: list[Result], plane: str) -> str:
                 "declared private and GitHub\nsays it is public. Make it "
                 "private again first; the rest follows (260/050).")
     return "\n".join(lines)
+
+
+# THE FLOOR'S OWN COVERAGE LINE (115/130). Every tree scanner prints
+# `coverage: N file(s) opened · M <unit>` through `report.coverage_line`, and
+# floor passes those lines through on its stream. What none of them can say is
+# the floor's own half: how many of the checks it planned it actually ran. A
+# run where every check was disabled, skipped for a missing tree, or refused
+# before it started prints a column of ⏭ marks and exits 0, which reads like a
+# clean floor; this line says how many ran, and warns when none did. The unit
+# is the check, not the file: summing files across scanners would add unlike
+# things and count a file once per check that opened it. Reading each
+# scanner's own line back would need floor to capture output it streams live
+# (TA4's call, above), so it does not. Informational only: no exit status
+# moves.
+def coverage_counts(results: list[Result]) -> tuple[int, int]:
+    """(checks run, checks listed) over the scanner results of one run. The
+    caller passes the plan's results only, never the `commit-msg` or
+    `visibility` lines main() appends, which are not checks the plan made."""
+    return sum(1 for r in results if r.ran), len(results)
+
+
+def coverage_summary(results: list[Result]) -> str:
+    """The floor's line, in the shared shape every scanner prints."""
+    import report  # beside this file, as for every scanner it runs
+    ran, listed = coverage_counts(results)
+    return report.coverage_line(
+        ran, listed, noun="check(s) run", unit="check(s) listed",
+        files_what="checks", units_what="checks")
+
+
+def coverage_json(results: list[Result]) -> dict:
+    """The `--json` twin: known zeros kept, one new top-level key."""
+    ran, listed = coverage_counts(results)
+    return {"checks_run": ran, "checks_listed": listed,
+            "scanned_nothing": ran == 0}
 
 
 # THE DECLARATION READER (115/120, step 0). Reported only: nothing here touches
@@ -3453,8 +3492,9 @@ def _selftest() -> int:
           subtrees(root, Config(local=(Scanner("x", [], [], [], "w", run="c.py",
                                                scope_paths=("src",)),)), "x") == ["src"])
 
-    # Softening a local check uses the SAME two spellings as everything else.
-    soft = {"local": tripwire["local"], "advisory": ["tripwire"]}
+    # Softening a local check uses the SAME spelling as everything else.
+    soft = {"local": tripwire["local"],
+            "advisory": {"tripwire": {"why": "w", "review-by": "2999-01-01"}}}
     with tempfile.TemporaryDirectory() as td:
         p = Path(td)
         (p / CONFIG_NAME).write_text(json.dumps(soft), encoding="utf-8")
@@ -3479,14 +3519,15 @@ def _selftest() -> int:
     rejects("local as a list", {"local": [{"name": "t"}]})
     rejects("local tuned through the fleet blocks",
             {"local": {"t": {"run": "x.py", "why": "w"}},
-             "flags": {"t": ["--quiet"]}})
+             "flags": {"t": {"args": ["--quiet"]}}})
 
     rejects("unknown scanner", {"disabled": {"nosuchscan": "why"}})
-    rejects("empty scope override", {"scope": {"wrapscan": []}})
+    rejects("empty scope override", {"scope": {"wrapscan": {"paths": []}}})
     # The sharpest one: --warn via `flags` would be an advisory downgrade that
     # bypasses every guard on `advisory`, on a scanner that has no advisory form.
-    rejects("softening flag smuggled in", {"flags": {"secretscan": ["--warn"]}})
-    rejects("mode flag smuggled in", {"flags": {"sizescan": ["--json"]}})
+    rejects("softening flag smuggled in",
+            {"flags": {"secretscan": {"args": ["--warn"], "why": "w"}}})
+    rejects("mode flag smuggled in", {"flags": {"sizescan": {"args": ["--json"]}}})
     # G3: leakscan's listing mode exits 0 without scanning — a reasoned
     # override must not be able to turn the boundary into a listing.
     rejects("listing mode smuggled in",
@@ -3508,11 +3549,18 @@ def _selftest() -> int:
     # stops the rest going unremarked on a check nobody may soften.
     rejects("reasonless flags on an unsoftenable check",
             {"flags": {"leakscan": {"args": ["--disable", "ipv4"]}}})
-    rejects("empty flags override", {"flags": {"leakscan": []}})
+    rejects("empty flags override",
+            {"flags": {"leakscan": {"args": [], "why": "w"}}})
     rejects("reasonless disable", {"disabled": {"spellscan": "  "}})
-    rejects("unsoftenable advisory", {"advisory": ["secretscan"]})
-    rejects("advisory+disabled", {"advisory": ["wrapscan"],
+    dated = {"why": "w", "review-by": "2999-01-01"}
+    rejects("unsoftenable advisory", {"advisory": {"secretscan": dated}})
+    rejects("advisory+disabled", {"advisory": {"wrapscan": dated},
                                   "disabled": {"wrapscan": "x"}})
+    # C1 phase 2 (020/070): the bare-list spellings are retired on all three
+    # keys, softenable checks included — none of them can carry a reason.
+    rejects("retired bare advisory list", {"advisory": ["wrapscan"]})
+    rejects("retired bare scope list", {"scope": {"wrapscan": ["docs"]}})
+    rejects("retired bare flags list", {"flags": {"datescan": ["--x"]}})
     rejects("disabled as a list", {"disabled": ["spellscan"]})
     rejects("not an object", [1, 2, 3])
 
@@ -3644,6 +3692,9 @@ def main(argv: list[str] | None = None) -> int:
     ci = args.plane == "ci" and os.environ.get("GITHUB_ACTIONS") == "true"
     results = run(args.plane, root, tools, cfg, ci, json_mode=args.json,
                   msg_file=args.message_file)
+    # Snapshot before the two non-check lines below join the list, so the
+    # coverage line counts the plan and nothing else (115/130).
+    plan_results = list(results)
     if args.plane == "hook":
         # One line, on the plane every existing clone runs on every commit.
         note = commit_msg_hook_note(root)
@@ -3662,10 +3713,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.json:
         print(json.dumps({"plane": args.plane, "root": str(root),
                           "results": [r.__dict__ for r in results],
+                          "coverage": coverage_json(plan_results),
                           "declarations": declarations_report(cfg, tools, root)},
                          indent=2))
     else:
         print(render(results, args.plane), file=sys.stderr)
+        print(coverage_summary(plan_results), file=sys.stderr)
         if args.plane == "ci":
             print(declarations_line(declarations_report(cfg, tools, root)),
                   file=sys.stderr)

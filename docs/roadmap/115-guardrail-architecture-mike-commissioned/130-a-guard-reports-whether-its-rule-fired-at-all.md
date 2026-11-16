@@ -1,4 +1,4 @@
-- [~] **A guard reports whether its rule fired at all, and over what — so
+- [ ] **A guard reports whether its rule fired at all, and over what — so
       "clean" and "scanned nothing" stop looking identical.** The cheapest
       finding of the whole commission, and it is imported rather than invented:
       assertion verification calls this vacuity, and treats a property that
@@ -89,5 +89,18 @@
             scanner's output through, so the lines already reach its stream),
             and the label plane (a job or board named for a property it does not
             cover), which no coverage line reaches.
+      - [ ] 🔧 **Landed 2026-11-16 — `floor.py`'s own line; the label plane
+            remains.** After its board, floor prints `coverage: N check(s) run ·
+            M check(s) listed` through `report.coverage_line`, counting checks
+            rather than files (summing files across scanners would add unlike
+            units, and reading each scanner's line back would mean capturing
+            output floor streams live, TA4's call). A check counts as run only
+            when floor invoked it; when none ran, the shared "scanned nothing"
+            warning prints. `--json` carries a `coverage` key (`checks_run`,
+            `checks_listed`, `scanned_nothing`) and a `ran` flag per result.
+            Pinned in `tools/test_floor.py` (`FloorCoverageLineTest`); described
+            in `tools/README.md`. **Still open:** the label plane (a job or
+            board named for a property it does not cover), which no coverage
+            line reaches.
       🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-floorpy) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
