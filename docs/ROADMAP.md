@@ -363,7 +363,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: five session-doctrine additions the…](roadmap/160-doctrine-review-owed/1140-rule-4-cold-pass-queued-session-doctrine-batch.md)
 - [ ] 🎯 [Rule-4 cold pass queued: eight guard and evidence additions the…](roadmap/160-doctrine-review-owed/1150-rule-4-cold-pass-queued-guard-and-evidence-doctrine-batch.md)
 - [ ] ⏳ [Rule-4 cold pass queued: seven propagation additions the principal…](roadmap/160-doctrine-review-owed/1160-rule-4-cold-pass-queued-propagation-doctrine-batch.md)
-- [ ] ⏳ [Rule-4 cold pass queued: ccclose --identifiers credits on evidence…](roadmap/160-doctrine-review-owed/1170-rule-4-cold-pass-queued-identifiers-on-evidence-and-the-same-item-stop.md)
+- [~] ⏳ [Rule-4 cold pass queued: ccclose --identifiers credits on evidence…](roadmap/160-doctrine-review-owed/1170-rule-4-cold-pass-queued-identifiers-on-evidence-and-the-same-item-stop.md)
 - [ ] ⏳ [Rule-4 cold pass queued: held-back review notes leave the shared…](roadmap/160-doctrine-review-owed/1180-rule-4-cold-pass-queued-review-notes-date-kind-and-visibility.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a malformed allow-marker goes strict after a…](roadmap/160-doctrine-review-owed/1190-rule-4-cold-pass-queued-strict-markers-and-lowering.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccmail's cache is private and expires, and…](roadmap/160-doctrine-review-owed/1200-rule-4-cold-pass-queued-ccmail-cache-and-recorded-reach.md)
