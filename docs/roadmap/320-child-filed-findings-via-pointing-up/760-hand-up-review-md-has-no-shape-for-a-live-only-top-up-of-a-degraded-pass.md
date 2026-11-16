@@ -1,4 +1,4 @@
-- [~] 🔎 **Hand-up: `REVIEW.md` has no shape for a live-only top-up of a
+- [x] 🔎 **Hand-up: `REVIEW.md` has no shape for a live-only top-up of a
       degraded pass** `[doctrine]`. Handed up from a private child on
       2026-10-28 under `PROPAGATION.md` § *Pointing up*, by the session that
       wrote the briefs below (an Opus brief-writer, not a reviewer). Formed
@@ -40,3 +40,11 @@
       decide, and its own cold pass will follow whatever it decides.
       🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-review) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
+      ✅ Applied 2026-11-17 (queue run 78ca): `docs/method/REVIEW.md`, the
+      paragraph *A degraded pass is topped up*, beside the withdrawal rule: the
+      top-up may read the earlier verdict first, names the anchoring, scopes to
+      the missing checks and answers suffices-or-full-re-run. It also settles
+      the orchestrator question by the existing spawn criterion: a session that
+      built the harness or wrote the triage the top-up judges is barred. Not
+      added under rule 4 itself, to keep one home. A doctrine edit, so the cold
+      pass is owed (rule 4).

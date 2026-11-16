@@ -251,7 +251,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Cross-repo learning: atelier distils domain-diverse children (Mike,…](roadmap/160-doctrine-review-owed/160-cross-repo-learning-atelier-distils-domain-div.md)
 - ✅ [Principle: solve once, reuse the building block (Mike, 2026-07-25)](roadmap/160-doctrine-review-owed/170-principle-solve-once-reuse-the-building-block.md)
 - ✅ 🎯 [Rule-4 review RAN 2026-08-17 (tier: Fable; pass type: doctrine cold…](roadmap/160-doctrine-review-owed/180-rule-4-review-queued-tier-fable-pass-type-doc.md)
-- [~] (claimed 2026-11-16-1102, wt: qr-78ca-review) [REVIEW.md gap — what is the review…](roadmap/160-doctrine-review-owed/190-review-md-gap-the-cycle-of-an-adr-accepted-in-part.md)
+- ✅ [REVIEW.md gap — what is the review cycle of an ADR accepted in part?](roadmap/160-doctrine-review-owed/190-review-md-gap-the-cycle-of-an-adr-accepted-in-part.md)
 - ✅ 🔎 [/security-review reads the session's pending diff, not the path it is…](roadmap/160-doctrine-review-owed/195-security-review-reads-the-worktree-not-the-target.md)
 - ✅ [Apex: the principal's authority is absolute; his rulings are…](roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md)
 - ✅ [Rule-4 cold pass — apex: authority absolute, rulings conditioned —…](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
@@ -396,6 +396,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: a verdict records its method and reasoning.](roadmap/160-doctrine-review-owed/1460-rule-4-cold-pass-queued-a-verdict-records-its-method.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's Asking bullet says "same turn",…](roadmap/160-doctrine-review-owed/1470-rule-4-cold-pass-queued-floor-asking-bullet-same-turn.md)
 - [ ] ⏳ [Rule-4 cold pass queued: EVIDENCE.md §18 extended and §19–§21 added…](roadmap/160-doctrine-review-owed/1480-rule-4-cold-pass-queued-evidence-batch-18-to-21.md)
+- [ ] ⏳ [Rule-4 cold pass queued: three REVIEW.md paragraphs — a verdict…](roadmap/160-doctrine-review-owed/1490-rule-4-cold-pass-queued-review-partial-topup-budget.md)
 
 ## build/ layer — open strands
 
@@ -684,7 +685,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Hand-up: the paragraph projection joins a wrapped claim into one…](roadmap/320-child-filed-findings-via-pointing-up/730-hand-up-the-paragraph-projection-joins-a-claim-into-an-index-line-wrapscan-refuses.md)
 - [ ] 🔎 [Hand-up: a peer's relayed ruling can override an order the principal…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)
 - ✅ 🔎 [Hand-up: a one-line claim still overruns the index line, so 320/730's…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
-- [~] 🔎 (claimed 2026-11-16-1102, wt: qr-78ca-review) [Hand-up: REVIEW.md has no shape…](roadmap/320-child-filed-findings-via-pointing-up/760-hand-up-review-md-has-no-shape-for-a-live-only-top-up-of-a-degraded-pass.md)
+- ✅ 🔎 [Hand-up: REVIEW.md has no shape for a live-only top-up of a degraded…](roadmap/320-child-filed-findings-via-pointing-up/760-hand-up-review-md-has-no-shape-for-a-live-only-top-up-of-a-degraded-pass.md)
 - [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
 - [ ] [Turn conflictscan's tool-markup rule from advisory to blocking once…](roadmap/320-child-filed-findings-via-pointing-up/780-the-tool-markup-advisory-goes-blocking-once-the-estate-is-clean.md)
 - ✅ [Hand-up: secretscan flags every body line of a PEM public…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
@@ -769,7 +770,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/README.md)*
 
-- [~] [Reinforce in doctrine that a review is never cut down to fit a…](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/010-reinforce-the-rule-in-doctrine-and-guard-it-in-code.md)
+- [ ] [Reinforce in doctrine that a review is never cut down to fit a…](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/010-reinforce-the-rule-in-doctrine-and-guard-it-in-code.md)
 
 ## Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)
 

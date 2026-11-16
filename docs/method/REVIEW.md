@@ -565,6 +565,44 @@ withdrawn pass queued carries forward, because a real defect will be found
 independently by the accepted pass, and that independence is the point of the
 redo. The worked mechanics live in `docs/reviews/withdrawn/README.md`.
 
+**A verdict accepted in part closes on the half that was ruled; the half
+deferred becomes its own pointer** (`160/190`, from a private sibling's cold
+pass, RC10, 2026-08-15; this is the repo's reading of the gap, not a ruling in
+the principal's words). Where the principal rules some of a record's questions
+and deliberately defers others, the close test above applies to the ruled half
+only. The record says it was **accepted in part**: which questions were ruled,
+which were deferred, and his words on the deferral. The ruled half is decided,
+applied and closed by the usual steps, and is not held open for a deferral that
+has no date. The deferred half is not dropped — dropping it is the silent
+omission this doctrine forbids — so it gets its own pointer (a `⏳` where it is
+doctrine, per rule 4; a board item otherwise) carrying the deferral, and a pass
+on it opens a fresh cycle when he takes it up. The record's status line says
+*accepted in part* and its `review:` line points at the deferred pointer, so no
+reader mistakes a half-ruled record for a settled one.
+
+**A degraded pass is topped up, never silently accepted — and the top-up
+answers whether it was enough** (`320/760`, handed up from a private child,
+2026-10-28; the repo's reading, not yet a ruling). The withdrawal rule above
+covers a pass that is *not accepted*. A pass that ran on the named tier but
+could not make a check its brief treated as load-bearing, for want of a
+network, a keychain or a connector, is **degraded**: its findings stand and
+its evidence is short. Where the principal chooses to close the gap without a
+full re-run, the repair is a **top-up**: a fresh cold pass scoped to the
+missing checks only. It differs from a withdrawn pass's redo in the one respect
+that matters: it **must read the earlier verdict first**, to say of each
+earlier finding whether the live evidence confirms, changes or refutes it, so
+rule 2's bar cannot hold and the departure is disclosed, never worked round.
+Three duties follow. The top-up names the anchoring on the earlier verdict as
+a residual risk. It states what it scoped out. And it answers, with reasons,
+**whether the top-up suffices or a full re-run is owed**: a judgement for the
+reviewer to give and the principal to take, never the author's, the same
+asymmetry as rule 3. **Who may orchestrate it:** rule 4's orchestrator clause
+relaxes the tier, not the spawn criterion. A session that built the degraded
+pass's harness, or wrote the triage that called the pass degraded, is the
+author of exactly what the top-up's last question judges, so the criterion
+bars it from starting or instructing the top-up; an orchestrator that did
+neither is not barred on this ground.
+
 ## Whether work earns a review at all — calibrate to risk
 
 The lifecycle above is the *full* ceremony; **not all work earns it.** The
@@ -688,6 +726,30 @@ Either way the review stays **pre-scoped and short — short in ceremony, never
 in scope**: "scoped" bounds the *subject* handed to the reviewer, and within
 that subject the scope mandate above governs everything examined. It is still
 spend — so it lives inside `ECONOMICS.md`'s marginal-cost self-check.
+
+**Budget decides how many reviews run and when, never how a review is run**
+(the principal's commission, 2026-10-04, `430/010`, slice 1: the wording; the
+guards in code and the resume record are not built). Several sessions were
+offering to thin brief and review work to save money, and he said, verbatim:
+
+> Remember that review work / sessions are never allowed to down grade
+> the integrity or quality of the review process to meet a budget.
+> Quality is more important than cost.
+> If we run out of budget then we will resume the work when the budget
+> replenishes
+
+`ECONOMICS.md` § *Know the marginal cost of the running model* already holds
+this for the reviewer's tier: the cap never moves work down-tier, and at the cap
+the choice is delay or pay. This is the same rule for the review's shape, depth
+and brief. Risk (*Whether
+work earns a review at all*) decides whether a review is owed and of what kind;
+once owed, no budget shrinks it. So a cheaper-per-pass offer, such as one
+reviewer shared across several queued passes, a leaner brief or a skipped
+re-run, is a downgrade, and the session facing an empty allowance stops at a
+safe point and records the pause rather than closing the pass; it resumes when
+the budget replenishes. What counts as the whole process at each scale, how a
+paused pass is recorded and picked up, and what a guard can enforce remain
+owed (`430/010`).
 
 ## What review is not
 
