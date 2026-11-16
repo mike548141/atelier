@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `/atelier:queue-run` reads the committed
+- [ ] 🎯 **Rule-4 cold pass queued: `/atelier:queue-run` reads the committed
       prompt and warns on a pending edit, and the teardown rule's three legs
       (`160/900`, QK1 and its counsel applied).** The command every queue run
       starts from now runs only committed text. The authoring session (a
@@ -36,3 +36,25 @@
       sibling is held out of the worktree until act 1 is committed. The item's
       "waits for the principal's explicit permission for Fable work" is met by
       that drain order.
+      ⚠️ PASS RAN 2026-11-16 UTC (Fable 5.1 reviewer, act 1 committed before the sibling opened, act 2
+      folded with the sibling; the weekly usage limit cut act 1 and the same reviewer resumed on
+      the principal's resume order): **PASS-WITH-FINDINGS — 0 MAJOR, 3 MODERATE, 3 minor,
+      4 notes** (`QC1`–`QC10`, verdict in the brief). No standing MAJOR.
+      🎯 **The principal's to rule (rule 3; recorded, nothing applied):** MODERATE first. `QC1`
+      the "nothing but delivery" test pins five substrings per block, so most planted rule
+      insertions pass green while the changelog and skill claim every added paragraph fails;
+      `QC2` the skill says committed text "has met the pre-commit hook, the tests and review",
+      which overclaims and contradicts its own README; `QC3` the threat note's controls do not
+      reach a local install, where what the committed read buys is a trace, not a check (counsel:
+      fail closed when `git show` fails on a checkout). Then minor `QC4` (the "answer, not a
+      ruling" relabel reached 1 of 4 surfaces), `QC5` ("closing paragraph" misplaces the away
+      sentence), `QC9` (the session-open README still says the say-so check is not built); notes
+      `QC6` (the principal's own prompt still says the command "cannot differ" from the file; his
+      text, his call), `QC7` (a symlinked or nested plugin root fits neither named shape), `QC8`
+      (leg 3 is evidence for session workers only), `QC10` (the opening report does not say which
+      commit's prompt ran). Each carries counsel in the verdict. With no MAJOR, `REVIEW.md`'s
+      close rule applies: the rulings go to the backlog with no further queued pass.
+      *Recommendation, for one bulk ask:* approve the counselled fixes as a list, `QC1`–`QC3`
+      first. *Routing:* fixes land in atelier (`skills/queue-run/SKILL.md`,
+      `tools/test_queue_run_single_source.py`, `docs/method/session-open/README.md`,
+      `CHANGELOG.md`).

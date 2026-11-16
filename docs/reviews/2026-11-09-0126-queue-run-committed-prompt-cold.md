@@ -3,9 +3,11 @@
 **Pass type:** code and doctrine cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-15 UTC by a Fable 5.1 reviewer under the principal's drain order
-of 2026-11-15 UTC (resumed after a usage-limit cut on his word); PASS-WITH-FINDINGS, 0 MAJOR. Act 2
-(the reconcile) waits on the orchestrator's release of the held sibling.
+**Status:** PASS RAN, acts 1 and 2, by a Fable 5.1 reviewer under the principal's drain order of
+2026-11-15 UTC (act 1 written 2026-11-15 UTC after a usage-limit cut and his word to resume; act 2
+written 2026-11-16 UTC). PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 3 minor · 4 note (QC1–QC10),
+all the principal's to decide. The sibling is folded beneath the reconcile by the
+orchestrator.
 **Sizing:** **medium** — one commit, 303 lines over eight files: a skill, its test, and four
 doctrine surfaces, with process behaviour to re-drive.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1060-rule-4-cold-pass-queued-queue-run-reads-the-committed-prompt.md`.
@@ -176,7 +178,7 @@ after the reviewer's phase-1 findings are committed -->
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, The earlier verdict is
 `docs/reviews/2026-10-18-0517-queue-run-carries-the-brief-cold.md`. the queue pointer above, this
-brief's sibling `docs/reviews/2026-11-09-0126-queue-run-committed-prompt-cold.deferred.md`, every
+brief's sibling (its `.deferred.md` file, now folded below the verdict), every
 delta commit's message body, and the intent record
 `docs/roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md`
 beyond its first line (the title).
@@ -492,3 +494,287 @@ orchestrator to re-drive leg 2: destructive. `/security-review`: discharged abov
 - [ ] QC6 — his own text; his call whether lines 18–19 of the prompt change.
 - [ ] QC7, QC8 — notes; counsel above if he wants them.
 - [ ] Act 2: open the sibling and the barred records on release; reconcile beneath this verdict.
+
+### Reconcile — act 2, written 2026-11-16 UTC
+
+**Opened after act 1 was committed (`bf5e9312`) and the orchestrator released it:** the held
+`.deferred.md` sibling (read at the orchestrator's user-local path, read-only, not copied; the fold
+beneath this section is the orchestrator's); the queue pointer `160/1060` and the intent record
+`160/900` whole; the message bodies of `663b978a` and `07892b82`; the prior verdict
+`docs/reviews/2026-10-18-0517-queue-run-carries-the-brief-cold.md` at QK1, QK6, QK9 and its whole
+reconcile; `docs/SESSIONS.md` index lines for the 2026-10-18 and 2026-10-25 runs; the author's
+session record `docs/sessions/2026-11-08-1059-ruling-round-722a.md` to line 40; `tools/quotescan.py`
+header and `floor.py`'s message-plane wiring. **Not opened:** any other session record, any other
+prior verdict, `docs/ROADMAP-DONE.md` beyond a search that returned nothing for `160/900`,
+`160/1060` or `180/090`. Act-1 text above is unchanged; every change of view is stated here.
+
+**The sibling.** The pointer's two questions and eight of the brief-writer's; nothing in it is a
+finding, and nothing in it steered act 1, which was written before it was opened. Its re-run
+results agree with mine in substance (56 tests then at `c132cc1c`, 60 now at HEAD, the two modules
+having grown; the git triple the same). Its `pathscan` note, that the prompt's line 13 names a
+`../atelier` path that does not resolve from the repo root, is the reason the bundled doctrine
+path exists (QK3) and stands.
+
+**Per finding, against the sibling's questions and the author's account:**
+
+- **QC1 — stands, MODERATE, strengthened.** The author's account says the test "bars new rules and
+  unknown files in the skill body" (`663b978a` body) and the intent record says QK9 was applied
+  "as counselled". QK9's counsel was *"a check that the skill's body, comment aside, contains
+  nothing but the pointer lines"*; what landed is five anchor substrings per block. The test's
+  own comment claims it closes QK9's mutation m2 (a new instruction the prompt never had); my
+  m-c and m-d are m2's shape and pass. The sibling's Q5 (what checks that a session actually
+  read HEAD) is the same gap one level up: the test pins words, not behaviour, and the opening
+  line "ran the committed copy" is self-report (QC10 below gives it a checkable trace).
+- **QC2 — stands, MODERATE.** Q3 is the question. `HEAD:` is whichever commit is checked out:
+  a feature branch, a detached head, an unpushed commit, a clone behind `origin/main`. The
+  README's third bullet already concedes committed is not reviewed; the skill's sentence does
+  not. No record claims otherwise.
+- **QC3 — stands, MODERATE; one fact added, one strengthened.** Added: QK1's second counsel was
+  built on 2026-11-10 as `tools/quotescan.py` on the commit-message plane (the intent record;
+  warn-only until 2027-05-31 by the run's own choice; it reads the *form* of a quote, never
+  whose words), so a local commit touching the prompt now meets one more check when the
+  commit-msg hook is installed and not bypassed. That does not change the analysis: a
+  user-level process bypasses hooks with one flag, and a form check cannot tell his words from
+  anyone's. Strengthened by Q4: `git -C <root> show` runs under that repo's own config, so the
+  same process can alias `show` or set a `core.pager` and have the "committed read" print what
+  it likes; the threat note's "cannot make the command run it unless it also commits" is wrong
+  in one more way. Q1 (what makes `git show` fail on demand): a renamed or untracked prompt
+  path, a damaged object store, no `git` on `PATH`; step 3 then reads the working file and
+  *says so*, which is a disclosed fail-open, not a silent one. Counsel for the principal, added:
+  fail closed instead (stop and say the committed copy could not be read) on a checkout where
+  `git show` fails; keep the working-file read for the no-checkout case only.
+- **QC4 — stands, minor.** `07892b82`'s body says it "labels Mike's pick in the skill comment as
+  his answer": one surface, by its own account. The intent record carries the 💬 mark correctly.
+- **QC5 — stands, minor.** Q6: the record shows he was told the away sentence rides every
+  command-started run (`180/090`'s 🚩, and the prior reconcile at QK7, "so he knows"); the
+  inference is his to own and the position word is the only defect.
+- **QC6 — stands, note.** QK1's own text in the prior verdict read the same sentence as "true of
+  the working tree and false of the reviewed text"; after the delta it is true of the committed
+  copy and false of the file he edits, which is the inverse. His to decide; counsel unchanged.
+- **QC7 — stands, note, with Q2's case added.** A case-folding disk returns the on-disk spelling
+  from `rev-parse --show-toplevel`; a root given in another case fails the text compare the
+  same way a symlink does. The counsel (test by `ls-files --error-unmatch`) covers both.
+- **QC8 — stands, note.** The pointer's second question (followable by a separate-session worker)
+  is answered yes by the text itself; QC8 is the inverse case. Q7's three parts: `lsof +D` is
+  slow on a large tree and the rule's safety does not depend on its speed; a worker still
+  pushing while the orchestrator merges is safe because a pushed branch is at a whole commit;
+  a worktree left when no marker comes is the rule's stated cost, said out loud in the report.
+  QK6's counsel was applied as written.
+
+**Findings formed at reconcile (marked as such):**
+
+### QC9 — minor — The README says the say-so check "is not built"; it was, on 2026-11-10
+
+*(Formed at reconcile, from Q8 and the intent record.)*
+
+`docs/method/session-open/README.md` lines 50–52: *"Nothing yet reads whether a commit to this file
+carries the principal's say-so: that check is not built (`160/900` QK1 counsel, awaiting his
+ruling)."* True when the delta landed on 2026-11-09. `tools/quotescan.py` landed the next day
+(the intent record's entry; `CHANGELOG.md` 2026-11-10; wired as `MSG_CHECKS` in `floor.py`), and
+the README's only later commit (`9f3ece82`) did not touch the sentence. Not the delta's defect;
+a V3 staleness at HEAD in the file this pass reviews.
+
+*Counsel:* replace the sentence with what quotescan does and does not read (form, not
+authorship; warn until 2027-05-31), so the threat note's second bullet names all its catches.
+
+### QC10 — note — The opening report does not say which commit's prompt ran
+
+*(Formed at reconcile, from the pointer's first question and Q3, Q5.)*
+
+A stale clone, a feature branch or a detached head all pass steps 1–2 and run older or
+sideways committed text; the report says "the committed copy" and nothing else, so neither the
+principal nor a later reader can tell which text a run followed, and the test's "ran HEAD" is
+unverifiable (Q5).
+
+*Counsel:* add one line to the opening report: the short SHA of the prompt's last commit (`git
+-C <root> log -1 --format=%h -- <prompt>`) and whether `HEAD` is behind `origin/main`. One line,
+and the self-report becomes a trace a reader can check against `main`.
+
+**Revised overall: PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE (QC1, QC2, QC3) · 3 minor (QC4,
+QC5, QC9) · 4 note (QC6, QC7, QC8, QC10).** Changes from act 1: QC1 and QC3 strengthened on the
+records, no severity moved; QC9 and QC10 added at reconcile. Because no MAJOR stands, `REVIEW.md`'s
+close rule applies: the application of these rulings closes without another queued pointer, and
+what remains is decided into the backlog. Every finding is the principal's to decide (rule 3);
+nothing is applied. Follow-up checklist additions: QC9 — the README sentence; QC10 — the one
+report line; QC3 — the fail-closed counsel.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-16)
+
+*Released to the reviewer only after its act-1 findings were committed (the commit "reviews
+160/1060: act 1 of the queue-run committed-prompt cold pass", `bf5e9312` before it was rebased onto
+`main`); folded here verbatim (headings demoted two levels) and the sibling file removed, per the
+brief. The orchestrator (headless Opus 5.5 session `9cdae066`, started by drain session
+`21a271a5`, itself Opus 5.5) held the partition, formed no finding and wrote no severity.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-09-0126-queue-run-committed-prompt-cold.md` (`REVIEW.md` rule 1).
+Written 2026-11-09 UTC by session `84e3aa7f`, the brief-writer, which authored none of the delta.
+Open this only after act 1 is committed. Everything here is a floor, never a fence, and none of it
+is a finding.
+
+#### The queue pointer's questions (author-written, verbatim)
+
+> whether an agent following the skill can still end up running uncommitted prompt text (a checkout
+that is not the plugin root, a detached head, a stale clone); whether the three-leg teardown rule is
+followable by a separate-session worker.
+
+#### The brief-writer's own questions
+
+1. Step 3's fallback reads the working file when `git show` fails. What can make `git show` fail on
+demand, and is that a fail-open route to the very text the rule refuses?
+2. "Prints that same path": a path compared as text, on a machine with symlinks and a case-folding
+disk. What happens with a symlinked plugin root?
+3. `HEAD` is whichever branch the checkout is on: a feature branch, a detached head, an unpushed
+commit. Does "committed" deliver what the skill says it delivers?
+4. `git status` and `git show` in the plugin root run under that repo's config. Does the threat note
+account for it?
+5. The test pins text in a skill an agent then interprets. What checks that a session actually read
+HEAD?
+6. The away-cadence inference: is it what the prompt says, and did the principal say so for every
+run started by the command?
+7. Three-leg teardown: `lsof +D` cost and reliability on a large worktree; a worker still pushing
+while the orchestrator merges; worktrees left forever when the marker never comes.
+8. A later series of commits touched these doctrine files after `663b978a`. Check the delta's text
+still stands at HEAD.
+
+#### What the brief-writer ran, and what it got
+
+- `qr`: python3 3.14: 56 tests OK, exit 0.
+- `skillcmds`: the first prints the worktree root; the prompt is 161 lines at HEAD; 0 lines pending.
+- `floor`: at c132cc1c: hook exit 0, ci exit 0. pathscan reports 3 findings, warn-only:
+  docs/method/EVIDENCE.md:427, docs/method/session-open/session-open-prompt.md:13 and
+  docs/method/session-open/template-history.md:10 (paths that do not exist from the repo root).
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*The Fable 5.1 reviewer's own work log, kept while it ran and unread by any other session until
+act 2 was saved; appended verbatim (headings demoted two levels). Form fixes only, if any, are
+listed here: none beyond the heading demotion.*
+
+### Work log — atelier 160/1060 cold pass (Fable 5.1 reviewer)
+
+Worktree: /Users/mike/worktrees/fable/atelier-160-1060-2215/atelier
+Brief: docs/reviews/2026-11-09-0126-queue-run-committed-prompt-cold.md
+Spawned by headless orchestrator 9cdae066 (Opus 5.5), itself by drain session 21a271a5 (Opus 5.5).
+Public-safe log: commands, files, evidence only.
+
+#### Act 1
+
+- 2026-11-15T22:17Z `date -u; uptime` -> load 5.78. `git status --short` -> only ` D` of the
+  .deferred.md sibling (removed on purpose, rule 1). HEAD 30c61dbd (board claim commit).
+- Read brief in full (lines 1-218).
+- Read docs/method/REVIEW.md whole (698 lines): rules 1-4, lenses, V1-V7, the 2026-11-15 method
+  record ruling (verdict must record what it examined and reasoning).
+- `git merge-base --is-ancestor 663b978a HEAD` -> exit 0 (delta is in the tree).
+- `git log --oneline 663b978a..HEAD -- <8 delta paths>`: many later commits; per path:
+  SKILL.md only 07892b82; test file none; session-open/README.md only 9f3ece82;
+  CONCURRENCY.md 15; RECORD.md 13; docs/method/README.md 3.
+- `tools/coldsweep.py --root <wt> --commit 663b978a --path x8` -> exit 0, 539 lines to scratch
+  delta.diff; read whole. Banner: body not printed, 0 board files, 0 barred files touched.
+- `coldsweep --commit 07892b82 --path skills/queue-run/SKILL.md --path docs/method/RECORD.md`:
+  a 4-line SKILL header reflow ("Mike's answer, 2026-11-08") and a RECORD.md reflow. Its 4
+  board files left out by default (not read).
+- Read at HEAD: skills/queue-run/SKILL.md (whole, 66 lines); tools/test_queue_run_single_source.py
+  (whole, 161); docs/method/session-open/README.md (whole, 132); session-open-prompt.md (whole,
+  161; read to test the skill, its wording is a non-goal); CONCURRENCY.md 840-1290 (interrupted
+  session + § Orchestrated queue runs); RECORD.md 90-215 (identifiers block, close rules);
+  tools/test_templates.py 540-640 (queue-run pins); README.md 95-125; docs/method/README.md tail;
+  session-open/dispatch-brief.md (whole); .claude-plugin/plugin.json + marketplace.json;
+  COMMUNICATION.md 360-395 (answer vs ruling record marks).
+- Board items read, NOT barred by the brief, disclosed: 180/090 (one text for command and hand
+  copy) and 180/020 (teardown hand-up). Neither is the intent record or the pointer.
+- coldsweep sweeps (barred set excluded by default + the two --also-exclude): 'Keep edit; read
+  committed only' -> CHANGELOG:1470, session-open/README.md:37, test docstring:12 (no "answer"
+  label on any of the three; SKILL header got it in 07892b82). 'WORKER DONE|harness.s notice|...'
+  -> CONCURRENCY.md x3, dispatch-brief.md:34, board 180/020, 180/120 only (no child template
+  restates the teardown rule). "an answer, not a ruling|Mike's answer" -> rule home is
+  COMMUNICATION.md ~line 362-380 plus many stamped uses.
+- Probe, local plugin install (read-only; registry fields allowlisted; paths not recorded): the
+  harness registry lists a cache installPath (version 0.2.0, installed 2026-10-18T00:08Z,
+  pinned sha b12c76d2) that is NOT a git checkout and whose files equal that sha's tree plus 69
+  working-tree strays (.DS_Store, __pycache__). Its skills dir lacks review-drain and fleet-sweep
+  (added 2026-11-14, 4bfb4e16) yet both appear in this session's skill list => the harness loads
+  the plugin in place from the clone; the cache is a stale 2026-10-18 artefact. Clone: realpath ==
+  path; `rev-parse --show-toplevel` == plugin root; HEAD on main; prompt has 0 pending edits.
+- Web doc check (haiku web-fetch agent, code.claude.com plugin docs): relative-path plugins in a
+  locally added marketplace load in place; CLAUDE_PLUGIN_ROOT points at the source directory;
+  edits take effect at next session start or /reload-plugins; nothing said about git.
+- Probe: `echo ${CLAUDE_PLUGIN_ROOT:-UNSET}` in the Bash tool -> UNSET. Invoked the Skill tool on
+  atelier:queue-run ONLY to read the rendered text (did not follow it): the harness substitutes
+  ${CLAUDE_PLUGIN_ROOT} with the clone's absolute path in the skill body, so steps 1-2 run as
+  written. The rendered path is a private home path; not recorded.
+- Re-run: floor --plane hook exit 0 (all enforced checks green); --plane ci exit 0 (🟡
+  declarations advisory only). `cd tools && python3 -m unittest test_queue_run_single_source
+  test_templates` -> 60 tests OK. Git triple from worktree root: toplevel printed; 161 lines;
+  0 pending.
+- Mutation probes on scratch copies of SKILL.md + the real test (scratch mut/run.py):
+  m-a 4th list item "commit with --no-verify" -> passes green; m-b paragraph naming tools/floor.py
+  -> caught (delivery_only + known_files); m-c rule paragraph containing "committed copy" ->
+  passes; m-d rule paragraph containing "session-open prompt" -> passes; m-e paragraph naming
+  settings.toml + a URL -> passes; m-f paraphrase of a prompt rule -> passes (known limit);
+  m-g control, delete "do not open the working file" -> caught.
+- Full suite (`nice -n 10 python3 -m unittest discover -s tools`, load 2.45 at start, 2026-11-15
+  ~22:25Z) was moved to the background by the shell cap at 600 s and then cut with the session by
+  the weekly usage limit at ~22:30Z: no summary line, process gone. Partial output showed no F/E.
+- INTERRUPTED by the weekly usage limit during act 1, ~2026-11-15T22:30Z. Resumed 2026-11-15T23:54Z
+  on Mike's order "resume to finish everything that was partly done i.e. in-progress". Brief file
+  unchanged (act 1 not yet saved); worktree still ` D` sibling only, HEAD 30c61dbd; scratch files
+  survived. Re-running the full suite to a scratch file with an exit line (load 3.41 at start).
+- 2026-11-16T00:0xZ: Status line edited; act 1 appended below a `---` divider (verdict,
+  provenance incl. the interruption, acceptance test, assumptions A1-A7, four lenses, V1-V7,
+  QC1-QC8 with severities 0 MAJOR / 3 MODERATE / 2 minor / 3 note, per-commit ledger, re-run
+  ledger with a FULL-SUITE-RESULT placeholder, NOT RUN list, follow-ups). Prose rewrapped to
+  <=100 columns by a scratch script; table rows left wide (wrapscan exempts table rows,
+  tools/wrapscan.py _is_table_row; an accepted brief in docs/reviews has 19 such rows).
+  Self-check for private paths/names in the act-1 text: none (two "shed" hits were inside
+  "finished").
+- Waiting on the full-suite re-run (background, exit line in scratch suite2.txt) before running
+  the repo gates on the brief (one heavy process at a time).
+- Full suite re-run finished 2026-11-16T00:06Z: "Ran 3134 tests in 728.990s", OK, exit 0 (scratch
+  suite2.txt). Placeholder in the re-run ledger replaced with that result.
+- Gates on the brief: `floor.py --plane hook` exit 0 but it reads the staged set (0 briefs seen);
+  `floor.py --plane ci` (whole tree, working files) exit 0, no finding names the brief; the
+  individual scanners were then run directly on the brief file (next entry).
+- Scratch mutation trees (mut/) deleted; scratch keeps only the diff and gate/suite outputs.
+- Direct scanner runs on the brief file (--root <wt> <brief>): datescan 0 findings (494 lines
+  read); reviewscan "1 review brief(s) keep deferred material out of the brief"; leakscan 0;
+  attribscan clean. wrapscan and spellscan opened 0 files: docs/reviews is in .wrapscanignore and
+  .spellscanignore, so the brief's own <=100-column rule is the one that binds (0 prose lines over
+  100 by awk; table rows exempt). quotescan and pdlistscan take no file argument; both were green
+  in the whole-tree ci plane (exit 0).
+- 2026-11-16T00:1xZ ACT 1 SAVED in the brief (unstaged; the orchestrator commits). Worktree:
+  ` M` the brief, ` D` the sibling. Stopping; waiting for the release message before act 2.
+
+#### Act 2 (released by the orchestrator after act 1 was committed as bf5e9312)
+
+- 2026-11-16T00:10Z act 1 confirmed committed as bf5e9312 (brief only). Release received.
+- Read the held sibling (orchestrator's user-local path, read-only, not copied anywhere): the
+  pointer's two questions verbatim; eight brief-writer questions; its re-run results (56 tests at
+  c132cc1c; pathscan 3 warn-only findings incl. session-open-prompt.md:13).
+- Read the barred records: queue pointer 1060 (whole); intent record 900 (whole: Mike's 💬
+  answer of 2026-11-08, the APPLIED entry, his 2026-11-09 answers on QK4/QK5, and QK1's second
+  counsel BUILT 2026-11-10 as tools/quotescan.py, warn until 2027-05-31); commit bodies of
+  663b978a and 07892b82 (`git show -s --format=%B`); prior verdict
+  docs/reviews/2026-10-18-0517-...-cold.md: QK1, QK6, QK9 findings (lines 379-405, 512-528,
+  561-589) and the whole reconcile (659-770); SESSIONS.md index lines 324-326; session record
+  docs/sessions/2026-11-08-1059-ruling-round-722a.md lines 1-40; tools/quotescan.py header;
+  floor.py msg-plane wiring (MSG_CHECKS). ROADMAP-DONE.md: grep for 160/900, 160/1060, 180/090
+  returned nothing (not read further).
+- 2026-11-16T00:2xZ `### Reconcile` appended beneath the act-1 verdict: what was opened / not
+  opened; the sibling's questions answered per finding; author's account screened (663b978a body
+  claims "bars new rules" -> QC1 strengthened: the test's own comment claims m2 is closed and
+  m-c/m-d show it is not; 07892b82 body confirms the one-surface relabel -> QC4); QC3 gains
+  quotescan (built 2026-11-10, form-only, warn until 2027-05-31) and Q4's repo-config vector;
+  reconcile-formed QC9 (minor: README "not built" sentence stale at HEAD since quotescan) and
+  QC10 (note: opening report does not say which commit's prompt ran). Overall restated: 0 MAJOR
+  / 3 MODERATE / 3 minor / 4 note (QC1-QC10); no severity moved. Status line updated to PASS RAN.
+  Two long headings shortened to fit 100 columns. Act-1 text untouched.
+- Gates after act 2: see the next entry.
+- Gates after act 2: datescan 0, leakscan 0, attribscan 0 (598 lines read each); reviewscan "1
+  review brief(s) keep deferred material out of the brief"; whole-tree `floor.py --plane ci` exit
+  0 (🟡 declarations advisory only); 0 prose lines over 100 characters in acts 1-2 (table rows
+  exempt); no private path or held-store name in the brief.
+- 2026-11-16T00:14Z ACT 2 SAVED (brief unstaged; the orchestrator commits and folds the sibling).
+  Scratch holds only the delta diff and gate/suite outputs; the orchestrator's own scratch files
+  were left alone. No git writes, no live writes, no file outside the brief and this log touched.
