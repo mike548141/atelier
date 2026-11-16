@@ -4,8 +4,9 @@
 function: review doctrine, the floor and the fleet view).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 RUN 2026-11-16 UTC by a Fable 5.1 reviewer under a headless Opus 5.5
-orchestrator started by drain session `1e053526` (verdict below); act 2 (reconcile) pending.
+**Status:** PASS RAN 2026-11-16 UTC, acts 1 and 2, by a Fable 5.1 reviewer under a headless
+Opus 5.5 orchestrator started by drain session `1e053526`: PASS-WITH-FINDINGS (verdict and
+reconcile below; the held-back sibling and the review log are folded below them).
 Brief written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1180-rule-4-cold-pass-queued-review-notes-date-kind-and-visibility.md`
@@ -501,3 +502,164 @@ All from the worktree root, `nice -n 10`, one process at a time, exit codes read
 - [ ] `RNV7` "every agent" → "every in-process subagent".
 - [ ] `RNV8` the recipe onto `dispatch-brief.md`; fix the changelog's "owed" line.
 - [ ] `RNV9` one render test. `RNV10` one docstring sentence.
+
+### Reconcile (act 2, 2026-11-16 UTC)
+
+Opened after act 1 was committed (`70359809`): the held sibling (one file, at a user-local path
+outside the repo, given by the orchestrator at release), the queue pointer, the three intent
+records, the two prior verdicts (`2026-09-25-0715` scratch clause, `2026-10-03-0357` date kind;
+finding headings and the findings this delta applied), and the four commit bodies. The
+whole-suite run landed after the act-1 save: `unittest discover -s tools` — 3,134 tests, OK, exit
+0, 813 s (one run; the brief-writer saw 2,643 at `457615cc`).
+
+**The sibling's questions.** (1) Outside Actions the check adds no line (test
+`test_a_local_run_adds_no_visibility_line`, re-run green), and every surface bounds "detects" to
+CI: the docstring, `REPO-STANDARD.md`, the changelog. (2) The sibling sits in `docs/reviews/` in
+the tree while a brief is written and is committed there; the orchestrator removes it at claim
+and holds it where the rule says. The rule names the holder's location, not its role, so a
+headless brief-writer is covered; `review-drain`'s orchestrator prompt step 3 is the mechanism,
+and this pass ran that way. (3) At a repo's first commit `HEAD:.atelier-floor.json` is unreadable
+and `moved_later` returns nothing (test `test_no_readable_head…`, green); a shallow clone has a
+HEAD and compares normally. No finding.
+
+**The pointer's questions.** Can a reviewer still reach held-back notes: on a same-user machine,
+yes by path, which the doctrine says plainly; what changed is the prompt-free `cat` from a shared
+scratchpad (`RNV7` narrows "every agent" to in-process subagents). Does an unlabelled date read
+as a mandate strand a child: not stranded (the line is warn-only) but misreported, for dates the
+principal ruled defaults (`RNV2`). Can the cross-check pass while a repo is public: yes when it
+declares public (correct), when it declares nothing (🟡), and on a re-run that replays a
+pre-flip payload with no token to ask live (`RNV1`).
+
+**Per finding against the author's account and the prior verdicts.**
+
+- `RNV1` — **anticipated by the author, recorded only in the closed intent record:** `260/050`'s
+  closing note lists "exporting the token in the floor template" among follow-ups not built; no
+  board item, and none of the delta's own surfaces (docstring, changelog, `README`) qualifies the
+  "live answer wins" claim. Severity unchanged: the gap was known and left unsaid where a reader
+  of the code would meet it.
+- `RNV2` — the mandate reading applies the prior pass's `DK11` counsel ("the meantime reads as
+  mandate", pointing at the stricter-reading rule), and the pick carried "DK2–DK10 as counselled";
+  `160/450`'s closing note records "labelling each child's existing dates is that child's own
+  edit". Neither weighed the C1b default ruling in the same subsection, and no item queues the
+  labelling. Unchanged; the ask to the principal is the same.
+- `RNV3` — **anticipated:** the commit body says "Not built: … the board column"; the intent
+  record lists "a fleet column". Known, not queued. Unchanged.
+- `RNV4` — not anticipated. Unchanged.
+- `RNV5` — the word "staged" comes from `DK2`'s counsel ("already sees the staged
+  `.atelier-floor.json`"); the code built from it reads the working tree. Unchanged.
+- `RNV6` — not anticipated (`DK9` was about the pattern path). Unchanged.
+- `RNV7` — the expiry test's wording comes from `SK8(b)`'s counsel; the "every agent" premise is
+  `SK1`'s, measured on in-process subagents. Unchanged, minor.
+- `RNV8` — `SK3`'s counsel named `skills/queue-run/SKILL.md` step 5, which the delta records as
+  owed; by then `180/120` had landed the skeleton that is the real mirror. Unchanged.
+- `RNV9`, `RNV10` — not anticipated. Unchanged.
+- The brief-writer's held facts match act 1's reading of both scope cuts (`RNV2`, and the
+  "stricter checks" half of the `260/050` pick, which the brief named a non-goal and act 1 left
+  there; at HEAD `pdlistscan` and `namescan` have since begun it, `RNV10`).
+
+No finding formed at reconcile. No act-1 severity moved. The brief-writer's fleet facts of
+2026-11-09 (0 kinds, 0 children declaring visibility) against this pass's (0 kinds; 10 of 22
+declare) show the key being adopted by hand, repo by repo, with no board view of it (`RNV3`).
+
+**Overall, restated: PASS-WITH-FINDINGS** — 0 MAJOR · 3 MODERATE (`RNV1`, `RNV2`, `RNV3`) ·
+5 minor (`RNV4`–`RNV8`) · 2 note (`RNV9`, `RNV10`). Every finding is the principal's to decide;
+nothing applied.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-16)
+
+The text below is the brief's held-back sibling,
+`2026-11-09-0153-review-notes-date-kind-and-visibility-cold.deferred.md`, copied verbatim. It was
+removed from the review worktree before the reviewer started, held outside the tree until act 1
+was committed (`70359809`), then released to the reviewer for act 2. The orchestrator forms no
+finding and has not edited it; the sibling file itself is deleted in the fold commit, so the
+brief's mentions of it by name now point here.
+
+# Deferred reading for `2026-11-09-0153-review-notes-date-kind-and-visibility-cold.md`
+
+Open only after your act-1 findings are committed (`docs/method/REVIEW.md` rule 1). Fold into the
+brief below the reconcile, then delete this file. A floor, never a fence.
+
+## The queue pointer's questions (the author's framing, verbatim)
+
+> whether a reviewer can still reach held-back notes; whether an unlabelled date read as a mandate
+strands a child; whether the cross-check can pass while a repo is public.
+
+## The brief-writer's questions
+
+1. Outside Actions, what does the visibility check do, and is the "detects" claim bounded to CI in
+every surface?
+2. Where does the `.deferred.md` sibling actually sit in the brief-writer flow, and does the rule's
+named location cover a headless brief-writer?
+3. How does `floor.py`'s hook-plane comparison against HEAD behave at a repo's first commit or a
+shallow clone?
+
+## What the brief-writer held back
+
+- The principal's answer on `260/050` says public repos get the stricter checks; the changelog names
+  what a public declaration tightens as not built.
+- The principal's answer on `160/450` says existing dates get labelled; the changelog says none is
+  labelled by this change, each repo's own edit, and which kind needs the principal.
+
+## Re-run results (2026-11-09 UTC, at `457615cc`)
+
+`test_floor`: 187 tests, OK, exit 0. `test_floorfleet`: 119 tests, OK, exit 0. `test_coldsweep`: 37
+tests, OK, exit 0, under `/usr/bin/python3` 3.9, and again inside the full suite under 3.14.
+`floor.py --plane ci`: exit 0, with 28 `secretscan` advisories reported and not blocking. `--plane
+hook`: exit 0. Full suite under `python3` 3.14: 2,643 tests, OK, exit 0, 1,228 s at a load of about
+20. `gh repo view --json visibility`: PUBLIC, exit 0. `floorfleet --json`: exit 0; 23 rows, 1
+parent, 21 wired children, 1 absent. `advisory_kind` set on 0 of 23 rows; `visibility` declared by 0
+of 20 wired children with a config, 1 with no config.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log — atelier 160/1180 cold pass (RNV)
+
+Reviewer: Fable 5.1 (tier checked at selection), spawned by a headless Opus 5.5 orchestrator
+started by drain session 1e053526. Platform API credit lane. Worktree:
+/Users/mike/worktrees/fable/atelier-160-1180-0816/atelier (referred to below as WT).
+Commands, files, evidence only. No secrets, no live captures.
+
+## Setup (2026-11-16 08:17 UTC)
+- `uptime` -> load 2.56 3.26 3.03 (16 GB laptop, several passes running). OK to proceed.
+- `git -C WT status --short` -> only ` D docs/reviews/...cold.deferred.md` (expected: sibling removed on purpose).
+- `git merge-base --is-ancestor 595db812 HEAD` -> exit 0 (landing commit present).
+- `python3 --version` -> 3.14.6 on PATH; /usr/bin/python3 -> 3.9.6.
+- Read the brief in full (lines 1-237).
+
+## Reading (act 1)
+- Read `docs/method/REVIEW.md` lines 25-300 (rules 1-4), 302-460 (lenses, re-run rule, V1-V7), 460-570 (lifecycle, method record). Verdict shape taken from there.
+- `wc -l` on the 16 delta paths at HEAD (floor.py 3676, floorfleet.py 1944, coldsweep.py 559, test_floor.py 3363 ...).
+- `git log --oneline 595db812..HEAD -- <16 delta paths>` -> 60 commits since the delta on those paths (the brief said 7 at 457615cc). Delta hunks checked at HEAD below, by function, not by reading 60 commits.
+- Ran the brief's four `coldsweep.py --commit` lines (d7abac17, db2c39f9, c4424324, 595db812), each exit 0, output to scratch (/tmp/rnv-1180-scratch/c1..c4.diff; 191/659/427/36 lines); each footer: "message body not printed", 0 board-store files, 0 rule-2 barred files touched. Read all four diffs in full. Every commit read body-free: yes.
+
+## Checks at HEAD (act 1)
+- `grep -n` floor.py at HEAD: DATE_KINDS 309, VISIBILITIES 313, _github_get 2495, github_visibility 2507, check_visibility 2534, moved_later 2573, main ci block 3644-3660. `git diff 595db812..HEAD -- tools/floor.py tools/floorfleet.py tools/coldsweep.py | grep` on the delta's names: no +/- lines on visibility/moved_later/date_note/kind functions (one new comment at floor.py:1137, pdlistscan reads the declared visibility); the delta's code is unchanged at HEAD.
+- `.github/workflows/floor.yml` lines 118-140: the "scanner floor" step runs `floor.py --plane ci --root repo --tools atelier/tools` with NO `env:`; the only token export in the file is `GH_TOKEN` on the signature step (line 182). `grep -rn GITHUB_TOKEN` over .github/, docs/build/templates/, skills/: no hit. So `github_visibility()`'s `env.get("GITHUB_TOKEN")` is always None in the house workflow. Candidate finding (RNV1).
+- `tools/floorfleet.py` at HEAD: `grep -n -i visibility` -> one unrelated comment (line 617). The board does not read or show `visibility`. Candidate finding (RNV3).
+- `.atelier-floor.json` (house): `"visibility": "public"`; no `advisory` block, so no dated advisory and no `kind` in the house config.
+- `docs/ROADMAP.md` (index; not barred): no open item for labelling existing dates, for a house-date declaration, or for "what a public declaration tightens" (greps: label, mandate, kind, tighten, house date). 390/020's title is the always-confirm visibility rule; the item (not barred, read) records the principal's 2026-11-09 answer "Yes, add to daily check" and that the daily visibility check lives on a private board: the delta's cross-reference reaches a real rule (V5 ok).
+- `docs/method/CONCURRENCY.md` 995-1035 at HEAD: the scratch clause as landed (595db812 wording). `docs/method/GUARDS.md` 383-440: the kind subsection. `docs/method/PROPAGATION.md` 390-393; `docs/build/REPO-STANDARD.md` 123-140; `docs/build/templates/CONTRIBUTING.md` 58-80; `docs/method/REVIEW.md` 92-105 (rule 1 "only where the deferred bytes never sit on a path the reviewer is given"). All four say the same rule (V4/V5 ok for the kind rule's wording; see RNV2 for its substance).
+- GUARDS.md 420-421 says floor.py "compares the staged `review-by` with HEAD's"; `moved_later` takes `cfg` from `Config.load(root)`, which reads the working-tree file (test `test_the_note_is_a_report_and_never_blocks_the_hook` writes the new config and never stages it, and expects the note). "staged" is not what the code does. Candidate minor (RNV5).
+- `tools/coldsweep.py` 420-440 at HEAD: the empty `--also-exclude` warning sits after `walk()`, which `--commit` mode returns before (line 421), so `--commit ... --also-exclude <typo>` is silent. Candidate minor (RNV6).
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md`: exists (ls only; barred, not read).
+- urllib probe (`inspect.getsource(HTTPRedirectHandler.redirect_request)` on python3 3.14): only content-length/content-type are dropped on redirect; an Authorization header follows a redirect to any host. Note-level while no token is wired (RNV1 counsel).
+- Probe of the scratch-namespacing test (CONCURRENCY.md 1015-1020): an in-process subagent (Agent tool, haiku) reported CLAUDE_CODE_SESSION_ID equal to this reviewer's and its task output landed under this session's tasks directory: "equal means shared" holds for that shape. This reviewer itself (an SDK child session, CLAUDE_CODE_CHILD_SESSION=1) has its own session id and its tool-results spill is keyed by it. The rule's test is sound; its premise ("every agent is handed the orchestrator's own scratchpad") is true of in-process subagents, not of headless child sessions. Confirmed, with that nuance recorded in the verdict. Probe marker /tmp/rnv-probe-1180 deleted at cleanup.
+- Brief's coldsweep sweep command (four --also-exclude, pattern "visibility"): exit 0, stderr empty (all four bars matched files); 44 hits over 839 files, 560 excluded as barred. Sweep for "reads as a mandate": 8 hits (CHANGELOG, GUARDS, PROPAGATION, floor.py x2, floorfleet.py x2, test_floorfleet). Sweep for where deferred siblings are held: skills/review-drain/orchestrator-prompt.md step 3 puts the sibling in {HELD_DIR} "outside any temp directory" (a later commit, agrees with the rule).
+- skills/create-repo: scaffolds `.atelier-floor.json` with no `visibility` key (grep: only instance.yaml's remote visibility and the CLAUDE.md template's visibility fact). Candidate minor (RNV4).
+- Tests (one at a time, nice -n 10, from WT/tools): test_floor 255 tests OK exit 0 (171 s); test_floorfleet 127 OK exit 0; test_coldsweep 56 OK exit 0.
+- Re-run ledger (from WT root, nice -n 10, one at a time): `floor.py --plane ci --root .` exit 0 (21 checks, declarations line 🟡 as expected); `floor.py --plane hook --root .` exit 0; `gh repo view mike548141/atelier --json visibility` -> {"visibility":"PUBLIC"} exit 0.
+- Live re-drive of the CI visibility path from this machine: `env -u GITHUB_TOKEN GITHUB_ACTIONS=true GITHUB_REPOSITORY=mike548141/atelier GITHUB_EVENT_PATH=/nonexistent floor.py --plane ci --json` -> exit 0, visibility result "declared public, but GitHub's answer could not be read — not checked this run". Cause isolated: python3 3.14 on this machine fails TLS verification (URLError CERTIFICATE_VERIFY_FAILED, no local issuer); an environment limit, not the code's. `curl` unauthenticated GET /repos/mike548141/atelier -> HTTP 200, x-ratelimit-limit 60, remaining 58; GET on a nonexistent slug -> 404 (what a private repo returns without a token). The unreadable-answer branch rendered 🟡 and exit 0 as claimed.
+- Fleet counts (direct read of each sibling's .atelier-floor.json under the fleet root, /usr/bin/python3, counts only): 22 repos with a floor config; visibility public 4, private 6, absent 12, other 0; dated advisories 4, kinds: mandate 0, default 0, unlabelled 4; legacy-list advisories 0. `floorfleet.py` cannot report visibility (it does not read the key), so the brief's "visibility the fleet view reports" line was met by this direct read instead.
+- A one-shot in-process subagent (Agent tool, haiku) was spawned solely to report its CLAUDE_CODE_SESSION_ID and whether a scratchpad path was named to it (result: same session id as this reviewer; no path named). No finding rests on its output; it informs the RNV7 nuance only, which also rests on this reviewer's own env.
+- Whole suite: `(cd WT/tools && nice -n 10 python3 -m unittest discover -s .)` started in the foreground 2026-11-16 ~08:33 UTC; it exceeded the 600 s foreground limit and the harness moved it to the background on its own. Result recorded below when it lands (not a second copy).
+- Orchestrator contact (process only): a resume message after this reviewer's turn ended early, telling it to carry on in the foreground, use its own results, disclose the helper, and spawn no further background work. No question about the delta, no pointer to risk.
+- Act-1 text checks on the brief: datescan clean (503 lines), leakscan clean, attribscan clean, reviewscan ok (deferred material kept out), pdlistscan whole tree clean (1263 files); spellscan and wrapscan skip docs/reviews by their ignore files (scanned nothing), so widths were checked with awk: no verdict line over 100 characters (two lines over 100 bytes are en-dash/emoji width only). The brief-writer's own lines 1-198 carry the file's pre-existing long command lines, untouched.
+- Whole suite (discover) at act-1 save: still running at act-1 save
+- Act 1 written to the brief below a --- divider; Status line updated to ACT 1 RUN. Verdict: PASS-WITH-FINDINGS, 0 MAJOR, 3 MODERATE (RNV1-RNV3), 5 minor (RNV4-RNV8), 2 note (RNV9-RNV10). Scratch /tmp/rnv-1180-scratch kept until act 2 for the discover output, then deleted.
+- Whole suite landed after the act-1 save: `python3 -m unittest discover -s tools` -> Ran 3134 tests in 813 s, OK, exit 0 (one run only; restated in act 2, act-1 text left unrevised).
+
+## Act 2 (2026-11-16 UTC)
+- Opened after act 1 committed (70359809): the held sibling at the orchestrator-given user-local path (one file); the queue pointer (docs/roadmap/160-doctrine-review-owed/1180-...); the three intent records (160/380, 160/450, 260/050 — the answer and closing notes); prior verdicts docs/reviews/2026-10-03-0357-date-kind-rule-cold.md (finding headings; DK2 270-280, DK11 441-446) and docs/reviews/2026-09-25-0715-scratchpad-clause-cold.md (headings; SK3 420-430, SK8 468-478); `git log -1 --format=%B` of d7abac17, db2c39f9, c4424324, 595db812.
+- Evidence used in the reconcile: 260/050 closing note lists "exporting the token in the floor template" and "a fleet column" as follow-ups not built (RNV1, RNV3 anticipated, not queued); c4424324 body says "Not built: ... the board column"; DK11 counsel is the source of "reads as a mandate" (RNV2); DK2 counsel is the source of "staged" (RNV5); SK3 named queue-run SKILL.md step 5 (RNV8); SK8(b) is the source of the session-id expiry test (RNV7). Sibling's three questions answered from act-1 evidence (tests re-run in act 1; review-drain orchestrator-prompt step 3).
+- Whole suite: 3134 tests OK, exit 0, 813 s (landed after the act-1 save; restated in the reconcile).
+- Reconcile appended beneath the verdict; act-1 text unrevised; no finding formed at reconcile; no severity moved. Scanners over the brief after act 2: see the last run. Scratch /tmp/rnv-1180-scratch deleted.

@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: held-back review notes leave the shared
+- [ ] 🎯 **Rule-4 cold pass queued: held-back review notes leave the shared
       scratch (`160/380`), a dated rule carries a readable kind (`160/450`),
       and a repo declares its visibility (`260/050`).** The authoring session
       (a principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in
@@ -33,3 +33,23 @@
       item waits for. Reviewer: a fresh Fable 5.1 session, tier checked at selection; not
       started or instructed by any barred session (722ac2e2 and its workers, d16dc612,
       74f2b8cd). Sibling held out of the tree until act 1 is committed.
+      ✅ PASS RAN 2026-11-16 (act 1 `70359809`, reconcile and fold after it), Fable 5.1
+      reviewer under the headless orchestrator above: **PASS-WITH-FINDINGS**, 0 MAJOR ·
+      3 MODERATE · 5 minor · 2 note (`RNV1`–`RNV10`); whole suite 3,134 tests OK. No MAJOR
+      stands. Verdict, reconcile, folded sibling and review log are in the brief.
+      🎯 *Owed to the principal (rule 3: every finding is his; nothing applied):*
+      `RNV2` (MODERATE) is a real ask: four dated advisories across the fleet carry no kind,
+      and the new rule reads an unlabelled date as a mandate, though the one date class he
+      ruled on (C1b) is a default. Options: (a) he labels each of the four (one item listing
+      them with origin); (b) until labelled, the floor says "kind not recorded" with no
+      mandate reading; (c) keep the mandate reading only for dates not C1b-derived.
+      Reviewer's counsel: (a), with (b) or (c) meanwhile, his call which. `RNV1` (MODERATE):
+      the CI visibility check is handed no token, so its live read is dead for private
+      repos; counsel wires `GITHUB_TOKEN` into the reusable floor step and names the
+      answer's source. `RNV3` (MODERATE): the fleet board does not read `visibility`
+      (12 of 22 repos undeclared, unseen); counsel teaches `floorfleet.py` the key.
+      Minors `RNV4`–`RNV8` and notes `RNV9`–`RNV10` are one-line fixes listed in the brief's
+      follow-up checklist; bulk approval fits them. *Routing:* fixes land in atelier
+      (`tools/floor.py`, `tools/floorfleet.py`, `.github/workflows/floor.yml`,
+      `docs/method/GUARDS.md`, `create-repo`); a change to the floor workflow reaches every
+      child's next CI run.
