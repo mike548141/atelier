@@ -1,9 +1,10 @@
 # Cold pass — the principal's method for asking, and an answer is not a ruling
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1250-rule-4-cold-pass-queued-asking-method-and-answer-versus-ruling.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `43c70bbb`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** ACT 1 WRITTEN 2026-11-16 UTC, PASS-WITH-FINDINGS (0 MAJOR, 3 MODERATE, 3 minor,
+4 notes); act 2 (reconcile and fold) pending. Brief written 2026-11-14 UTC by a headless Opus 5.5
+brief-writer (`cclive` lists it as session `43c70bbb`). Run under the principal's drain order of
+2026-11-16.
 
 **Pass type:** doctrine cold pass, per `docs/method/REVIEW.md` rule 4 (the section that says how
 every session asks the principal, and how every record marks what he said, is doctrine by text and
@@ -268,3 +269,287 @@ restated. Never revise act-1 text. Then fold the sibling in below the reconcile 
 
 The work is doctrine by function, so every finding is the principal's to decide (rule 3): record
 all, apply nothing. Counsel per finding is welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict — act 1 (2026-11-16 UTC)
+
+### Provenance (V7)
+
+Reviewer: Fable 5.1 (`claude-fable-5-1`), tier checked at selection, in review worktree
+`/Users/mike/worktrees/fable/atelier-160-1250-0545/atelier` at HEAD `73f1cc9a` (the claim commit;
+`e7370f78` is an ancestor, exit 0). Spawned by headless orchestrator session `d9ce3020` (Opus 5.5),
+itself started by drain session `1e053526` (Opus 5.5). Both are off-tier orchestrators under
+REVIEW.md rule 4's reviewer-plus-orchestrator shape: they hold the context partition, formed no
+finding and wrote no severity. Neither wrote the brief or any of the delta, and this session was
+not started or instructed by the brief's barred sessions (`43c70bbb`, `58027096`, `d0ca5d24`).
+The run is the principal's API-credit drain of 2026-11-16, not his weekly plan budget.
+
+**The spawn prompt, as process direction only** (rule 4: what the orchestrator told the reviewer
+is in the record): the item number, the worktree and brief paths, the barred set (the brief's list
+plus the sibling, removed from the worktree on purpose), the deliverable's shape (act 1 below a
+`---` divider in this file; a running work log at
+`/Users/mike/.claude/fable-drain/notes/atelier-160-1250-0545.md`, the one other file I may write),
+load and live-system rules, and the release timing (act 2 after act 1 is committed). It carried no
+question about the delta, no pointer to where the risk lives, and no request to revise a finding.
+No contact from any author or brief-writer session.
+
+**What I read.** The brief whole; `REVIEW.md` rules 1–4, scope, re-run and V1–V7; the delta
+through `coldsweep --commit e7370f78` and `2a6d7a41` (`--path docs/method/COMMUNICATION.md`),
+both body-free; the acceptance-test ranges exactly (`320/820` lines 1–97, `420/020` lines 1–32,
+`020/270` lines 1–3); the `020` README § P5; `COMMUNICATION.md`, `RECORD.md`, `00-APEX.md`,
+`GLOSSARY.md`, `CONCURRENCY.md` § *The channel*, `PROPAGATION.md` § *Pointing up*,
+`docs/build/templates/CLAUDE.md`, `skills/session-onramp/SKILL.md`, `docs/PERSONAL-DATA.md`, the
+ADR `docs/decisions/2026-11-09-board-states-design.md` (lines 86–92, 232–240), the fleet-sweep
+prompts; board items `115/270` (lines 38–50), `310/060`, `310/160`, `320/060`, `320/100` (five
+lines each around their ⚖️ marks); commit subjects only via `git log`; one `--stat`. The
+session-log step was skipped. No prior verdict, no session log, no commit body, no `160/` item
+beyond its title, and nothing of `420/` beyond the stated range.
+
+**Exposure, disclosed.** (1) My second `coldsweep` sweep (pattern `ruling round|four per box|up
+to four`) carried the brief's excludes but not the hand-up file, so it printed one barred line:
+`320/820` line 100, the author's landing note, one sentence saying the 2026-11-09 round asked up
+to four questions per box. It is the author's account of the claim AQ5 tests. AQ5 was formed on
+lines 1–97 and the doctrine text, which hold no evidence for the sentence; the exposure changed
+nothing and is recorded here. (2) `coldsweep --commit 2a6d7a41 --path …` and the brief's sweep
+printed the file names (titles) of board items left out, including `420/030`, `420/040` and
+`160/1440`; titles only. (3) The harness loaded user-level and repo instruction files and a memory
+index at start, which hold private context this verdict does not carry; nothing there is an
+account of this delta.
+
+### Load-bearing assumptions, named first (lens 1)
+
+- **A1 — A public doctrine section is the right home for one principal's asking preferences, by
+  name.** Confirmed. `COMMUNICATION.md` § *Two things, kept separate* makes the practice shareable
+  and the instance personal, and the section already carries his dated words (2026-08-19,
+  2026-08-23). The four-line list is the worked example under that framing; the practice it
+  states (one at a time, long form in text, a short box that stands alone) travels to any
+  principal, and `PD4` grants the first name. Probe: lines 14–33 and `docs/PERSONAL-DATA.md`.
+- **A2 — The hand-up's evidence supports the practice bullets as written.** Confirmed with one
+  exception. Every quote in the delta matches the hand-up or `420/020` character for character
+  after whitespace normalisation (a script compared the four-line list and the 2026-10-03 quote;
+  the shorter reaction quotes were compared by eye). The provenance paragraph labels the last
+  three bullets as reactions and the others' examples as single cases, which is the honest
+  altitude. The exception is the 2026-11-09 four-per-box example, which the hand-up does not hold
+  (AQ5).
+- **A3 — A record-writer can apply the answer/ruling split from the text alone.** Partly damaged.
+  The provenance test is clear (his words, or his pick from a session's options). What the split
+  changes for the session holding the record is not stated (AQ2), and which surfaces the marks
+  bind is not stated (AQ6).
+- **A4 — The delta still reads true beside `2a6d7a41`.** Confirmed for the delta's text. The
+  bullet ending "so the two-step rule above rests on its own grounds" still points at a two-step
+  rule (now text then device in one turn) whose ground is his 2026-11-12 words, not focus mode.
+  The "goes both ways … not settled here" sentence was replaced whole, and nothing else in the
+  delta depends on it. The child template, however, now states the superseded two-turn form
+  beside the gap AQ1 records; that contradiction is `160/1440`'s subject and is named there, not
+  rated here.
+- **A5 — "No scanner holds this" is a fair reading of P5.** Confirmed. The `020` README § P5 and
+  § *Why no fix exists* say the rule was built, run over 6,764 replies, fired on 90.6% and was
+  deleted the same day; the delta's "one attempt on one corpus" is more careful than `020/270`'s
+  "No scanner can hold this".
+
+### Per-lens answers
+
+**Lens 1 — approach.** Right problem, right home: the section that says how an ask reaches him is
+where his method belongs, and the record-marks rule belongs beside the definition it serves.
+The split holds at two of the three edges the brief names: typed replies were "the case between"
+at the delta and are settled at HEAD; a ruling given inside a reply is covered by "unless he says
+it is one". The third edge, an answer later cited as authority, is where the delta is thinnest:
+it says what an answer is not, never what it is for (AQ2).
+
+**Lens 2 — correctness.** Quotes verbatim; counts and dates match their records; pointers resolve
+(ledger below). Three overclaims: the trimmed quote (AQ3), the "one such reply" count (AQ4) and
+the uncited four-per-box example (AQ5).
+
+**Lens 3 — harvest.** Of the surfaces the brief lists, `RECORD.md` points at the section (one
+home, V4 kept), `REVIEW.md` rule 3 is unchanged and consistent, `00-APEX.md` defines reserved
+decisions and challengeability without touching the split (no contradiction), the fleet-sweep
+prompts (2026-11-14, after both commits) carry the split in HEAD's settled form, and
+`skills/session-onramp/SKILL.md` holds nothing on asking (nothing to mirror). Two surfaces were
+not swept: the child template's asking bullet and the glossary (AQ1). The ADR of the same day
+defines the marks a second time (AQ6).
+
+**Lens 4 — security and privacy (V6).** Design altitude: the delta publishes his words verbatim,
+typos included, which is the house's own standard for his words and carries nothing beyond
+`PD4` (his first name); no other person is named; the `[it]` redaction is kept; "several
+repositories" and "one session, 2026-11-06 to 11-08" are class-only, and nothing in the delta
+names a child, a host, a session id or a path. The hand-up's lines 1–97 name a harness ("VS
+Code") and date ranges, which identify no repository. The board records the sweep touched carry a
+session id, but they are not the delta. Nothing falls outside `docs/PERSONAL-DATA.md`'s closed
+list. Code altitude: `/security-review` discharged on grounds: the delta is three markdown files
+with no code, and the tool excludes markdown, so a run would be empty; not invoked.
+
+### Standing checklist V1–V7
+
+- **V1** — bites: AQ3, AQ4, AQ5, AQ9.
+- **V2** — all four re-run lines reproduce (ledger below); the recorded figures re-checked by the
+  cheapest read-only route, with the two that cannot be re-run named.
+- **V3** — bites: AQ1 (template bullet, glossary). Other mirrors checked and sound (lens 3).
+- **V4** — bites: AQ6 (the ADR's second definition of the marks).
+- **V5** — bites: AQ6 (surface scope). Cross-references, with the rule each reaches:
+  `CONCURRENCY.md` § *The channel* (line 564) holds the talk-while-working mechanism the "check
+  parallel sessions" bullet relies on; the rule itself is stated in the delta, so the pointer is
+  to the means, which is fine. `PROPAGATION.md` § *Pointing up* (line 475) holds the hand-up
+  route. `§ When to ask` holds the away-mode rule the delta defers to. `320/110` holds the
+  frame-answer rule the surrounding text cites. `115/270` line 42 is a ⚖️ line on a typed reply
+  to a two-option question, as described. `310/080` and `320/510` exist with the titles the delta
+  summarises. The title-versus-distinction tension is acknowledged in the delta (AQ10, note).
+- **V6** — lens 4 above; clean.
+- **V7** — provenance above, repeating the brief's and adding the orchestrators.
+
+### Per-claim ledger
+
+| Claim (brief § *The claims*) | Result |
+|---|---|
+| Four-line list and the follow-up quoted verbatim | Verbatim, but a fragment (AQ3); one of the hand-up's two follow-ups carried (AQ7) |
+| Provenance paragraph: his method / reactions / single cases | Honest, except one example is not from the hand-up (AQ5) |
+| "An account the session has only read … has reached nobody"; focus-mode agnostic | Matches hand-up § 4 (four asks, nineteen asks, no text written); sound |
+| "The ceiling above is the tool's and never a target"; four-question sentence reworded | Sound at HEAD; "still asked up to four per box" uncited (AQ5) |
+| An answer: work proceeds; no ruling's weight unless he says so | His words carried verbatim; the consequence of the split is undefined (AQ2) |
+| The record marks; "a pick is never written as ruled"; older ⚖️ prove nothing | 💬 shape on 2026-11-09 records confirmed (about 40 lines); older ⚖️ weighed notes confirmed; "one such reply" undercounts (AQ4); surface scope unstated (AQ6) |
+| Unmet-term check: no scanner; built and deleted 2026-08-09; 90.6% of 6,764 | Matches the `020` README § P5; `git log -- tools/` shows the 2026-08-09 commit with no P5 code in tools, consistent with deletion before commit; measurement itself not reproducible |
+| `CHANGELOG.md`: "Doctrine wording only; no scanner or tool changes" | Stat: 3 markdown files, +115/−7; sound |
+| `RECORD.md`: "A pick is an answer and not a ruling; that section holds the difference and the marks" | Present at HEAD; pointer resolves; sound |
+
+### Findings
+
+**AQ1 — MODERATE (V3, lens 3). The child template's asking bullet and the glossary were not
+swept.** `docs/build/templates/CLAUDE.md` lines 48–61, the asking bullet every child inlines,
+restates the device rule, the two-step shape, the content owed and the recommendation, and
+carries neither "one question at a time" nor the answer/ruling split; it points at
+`COMMUNICATION.md` § only for "how it travels". A child session reads its `CLAUDE.md` every
+session and the pointed section on demand, so the practice he pasted three times reaches the
+fleet by pointer only, while the parts of the rule the bullet does inline are the ones he did not
+write. `GLOSSARY.md` defines *Principal* and *Authority tier* and has no entry for *ruling* or
+*answer*, though the two classes now carry fleet-wide marks. The `CHANGELOG.md` line "Doctrine
+wording only" is true of what changed and silent on the mirror. Beside this, outside the delta:
+the same bullet still says "always as a finished message of its own … (one extra turn)", which
+HEAD's same-turn rule contradicts; that is `160/1440`'s subject and is named here so the sweep is
+done once.
+*Counsel:* one clause in the template bullet ("one question at a time; the long form in text, the
+box short, no reference IDs") and one glossary entry for the pair, stamped from the section.
+
+**AQ2 — MODERATE (lens 1). The split is defined by where a decision came from, not by what it
+changes.** The delta says an answer "does not carry a ruling's weight unless he says it is one"
+and that "work proceeds on it", and nowhere says what a ruling's weight buys. In the tree, both
+bind alike: `RECORD.md`'s two rules rest on an answer ("Adopt both rules", 2026-11-08) and bind;
+`REVIEW.md` rule 2's reader-side rule rests on an answer ("Fix the reviewer's side", 2026-11-09)
+and binds; `00-APEX.md` § *authority absolute* defines reserved decisions and challengeability
+without the split. A session that holds an answer-based rule and asks "may I revise this on my
+own judgement, re-ask it, or cite it to settle a dispute in a child" finds no text. The label is
+kept honestly and changes nothing a session does, which is the state the brief's first worst
+failure describes from the other side: not a session's framing written up as his authority, but
+his authority and a session's framing given the same force under different marks.
+*Counsel:* two sentences beneath the two bullets: an answer settles the question as asked, in the
+session's frame, and the frame stays the session's, open to re-asking or to challenge by
+re-briefing without his authority being in question; a ruling settles the matter in his words and
+changes only on his word.
+
+**AQ3 — MODERATE (V5, V1). The section's founding quote is trimmed without a mark, and the cut
+removes the context the section itself demands.** The hand-up (lines 19–30) gives the paste
+whole: it opens *"ask me the questions or decisions you need to finish this work. But when you
+ask me a question use the method I described in the atelier doctrine i.e."* and then the four
+lines. The delta quotes the four lines only, with no ellipsis, under "His method, as he wrote
+it", and paraphrases the opening as "as the method they were to use". The dropped line is the
+hand-up's headline fact: he said the method was already in doctrine, and it was not. Two
+consequences. A reader cannot tell the list is a fragment. And the house has not found where he
+first "described" it: the hand-up's grep found nothing, so either an earlier, fuller statement
+exists somewhere the sweep did not reach, or he was recalling his own practice; the delta closes
+that question by omission. The ⚖️ bullet forty lines below says his words are "recorded verbatim,
+with the context it was given in".
+*Counsel:* restore the opening line inside the quote, or mark the cut and add one sentence: he
+said it was already in doctrine; the hand-up found it was not; this section is where it now
+lives.
+
+**AQ4 — minor (V1). "One such reply stands marked ⚖️ (`115/270`)" undercounts at the delta's own
+commit.** Four more ⚖️ lines record typed replies to a session's question, all committed before
+`e7370f78` (2026-11-09 12:56 UTC): `310/060` line 79 and `310/160` line 11 (asked by the queue
+run, 2026-11-09), `320/060` line 63 and `320/100` line 92 (the same six-checks reply, recorded
+twice), in commits `7d5e2f7b` (00:46 UTC) and `56e45a3b` (03:17 UTC). The same-day ADR counted
+⚖️ 44 and 💬 66 across items. The sentence reads as a count, and the count sizes the open sweep
+(part c) at one when it is at least five. HEAD restates it as "One older reply" (`2a6d7a41`,
+`160/1440`'s subject), so the number survives the rewrite.
+*Counsel:* "several replies stand marked ⚖️, for example `115/270`; the sweep counts them".
+
+**AQ5 — minor (V1). "The ruling round of 2026-11-09 still asked up to four per box" has no
+evidence in the text, and the provenance sentence does not cover it.** The hand-up as filed says
+"No instance of a four-question box was traced for this filing" (§ 2). The delta's provenance
+paragraph says "All of it was gathered from transcripts in several repositories, 2026-10-30 to
+11-08, and handed up", which this example was not: it is an observation of the 2026-11-09 round,
+made after the hand-up, by whoever wrote the delta, and nothing says so. Disclosed above: my
+sweep showed me one barred line that is the author's account of it; the finding stands on the
+doctrine text and the hand-up alone.
+*Counsel:* either cite what the sentence rests on (the round's board records, which are in the
+tree) or label it as the author session's own observation, not the hand-up's.
+
+**AQ6 — minor (V4, V5). The marks have a second definition, and the rule does not say which
+surfaces it binds.** `docs/decisions/2026-11-09-board-states-design.md` line 236 defines ⚖️ and
+💬 in its own words and says "the doctrine stays `420/020`'s", a board item; the delta names the
+section as the home (`RECORD.md`: "that section holds the difference and the marks") and cites
+neither the ADR nor the ADR it. Separately, "A line recording his decision carries one of the two
+marks" is read by the ADR as item lines, and by the fleet-sweep prompts as records a session
+writes, while the delta's own neighbours in doctrine prose cite picks with no mark
+(`COMMUNICATION.md` "(Approved 2026-11-09, `320/110`, as Mike's pick …)", `RECORD.md` "Mike
+chose both from options …", `REVIEW.md` rule 2). Either the rule binds board and record lines
+only, and should say so, or three doctrine lines beside it already break it.
+*Counsel:* one clause naming the surfaces (board items and session records; doctrine prose cites
+in words), and a stamp on the ADR's copy pointing at the section.
+
+**AQ7 — note. One of the hand-up's two follow-ups is not carried.** The delta quotes the
+2026-11-05 follow-up; the 2026-11-06 one (*"detailed context with impacts, risks, benefits etc in
+the session transcript and using askuserquestion"*) is dropped, and `CHANGELOG.md` says "the
+follow-up". Harmless in substance (the hand-up notes "benefits" is the apex's "pros"), but the
+"in his words" claim is one quote short of its source.
+
+**AQ8 — note (lens 1, home). The unmet-term check sits inside an axis bullet.** It is a
+writing-time rule for the agent, placed as the third aside in the *Accessibility of the language*
+bullet of § *The axes a calibration covers*, a list of what a person-level calibration covers;
+the bullet now runs 24 lines. § *The meta-rules* line 102 already lists the checkable neighbours
+of this class (a reference code used before it is explained, an acronym never expanded), and P5
+shows this one is the un-checkable member of that family, so it may read better beside them. The
+ask bullet's cross-reference ("the term check in the language axis above") resolves, so this is a
+taste call, recorded and not rated.
+
+**AQ9 — note (V1). "The self-affirming loop he named the same day" is not in his quoted words.**
+`420/020` lines 1–32 quote him and the phrase is the record's own sentence attributing the naming
+to him; the rest of the item is barred to me, so I could not confirm he used the words.
+*Counsel:* quote the words where the record keeps them, or write "the loop the record names".
+
+**AQ10 — note (V5). Title against distinction, acknowledged.** The section is titled *Asking for
+a ruling* and `RECORD.md` points at it by that title in the sentence that says a pick is not a
+ruling. The delta names the tension in one sentence and leaves the title; that is consistent and
+is recorded for the sweep, not rated.
+
+### Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR, 3 MODERATE (AQ1–AQ3), 3 minor (AQ4–AQ6), 4 notes (AQ7–AQ10).**
+The delta records his words faithfully and labels its evidence at the right altitude; what it
+misses is the mirror every child reads, the consequence that would make the split more than a
+label, and the context line of its own founding quote. The work is doctrine by function, so every
+finding is the principal's to decide (rule 3): recorded, nothing applied; counsel sits beneath
+each, labelled.
+
+### Re-run ledger
+
+| Line (from the worktree root; `python3` = 3.14.6 on `PATH`) | Exit |
+|---|---|
+| `git merge-base --is-ancestor e7370f78 HEAD` | 0 |
+| `python3 tools/coldsweep.py --selftest` | 0 (`selftest OK`) |
+| `python3 tools/coldsweep.py --root . --commit e7370f78 > /dev/null` | 0 |
+| `nice -n 10 python3 tools/floor.py --plane ci --root .` (alone, load 3.4 before) | 0; secretscan 🟡 28 advisory, leakscan 🟡 3 advisory, every enforced check ✅ |
+
+Recorded figures: 90.6% of 6,764 and 2026-08-09 match the `020` README § P5 and the 2026-08-09
+`tools/` commit subject; the measurement itself is **not re-run** (the reply corpus is not in the
+repo). "Three times on 2026-11-05", "asked four times", "four asks", "nineteen asks" match the
+hand-up as filed; the transcripts are **not re-run** (house rule). "No scanner or tool changes"
+matches the commit stat. Both long quotes match their sources by script.
+
+### Follow-up checklist
+
+- [ ] AQ1–AQ10 to the principal, as one plain-language list with the three MODERATE first.
+- [ ] AQ1's template clause lands with a stamp and a `test_templates` update, in the same change.
+- [ ] AQ4 and AQ6 feed `420/020` part c (the sweep): count the ⚖️ typed replies, settle the marks'
+      surface scope, stamp the ADR's copy.
+- [ ] AQ5: the author names what the four-per-box sentence rests on, at act 2.
+- [ ] `160/1440` takes the template's "one extra turn" with its own subject (named under AQ1).
+- [ ] Act 2: open the sibling and the barred records; reconcile per finding; fold.
