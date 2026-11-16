@@ -1,4 +1,4 @@
-- [~] 🔎 **Hand-up: under the new visibility slot (`320/370`), a child whose
+- [x] 🔎 **Hand-up: under the new visibility slot (`320/370`), a child whose
       visibility fact wraps before "Verify:" fails the floor-copy check as
       unfilled.** Handed up 2026-11-16 UTC by a private child's live session,
       by cross-session message to queue run 78ca9153, class only. The
@@ -17,3 +17,7 @@
       wrapped case.
       🔒 CLAIMED 2026-11-16 (wt: none) by queue-run session 78ca9153 (Opus 5.5,
       principal-opened).
+      ✅ FIXED 2026-11-16 UTC: the canonical bullet is two lines, the fact then
+      `Verify: <visibility check>.`; test added; the reproduced case fills. No
+      child had bumped to the one-line form yet except the reporter. Cold pass:
+      added to `160/1590`.

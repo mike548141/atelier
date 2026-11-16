@@ -124,7 +124,8 @@ in atelier and is read on demand — never wholesale.
   how to find them) is atelier's: `method/TOOLBOX.md`. The root is a private
   repo like any other: it may be named, and in a public tree what it holds and
   its condition go by type only (`RECORD.md` § *The record is public*).
-- **This repo's visibility:** <visibility fact>. Verify: <visibility check>.
+- **This repo's visibility:** <visibility fact>.
+  Verify: <visibility check>.
 <!-- stamp:end -->
 
 ---

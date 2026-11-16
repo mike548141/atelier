@@ -568,6 +568,17 @@ class FloorCopyReport(unittest.TestCase):
                 "<visibility check>", check)
             self.assertEqual(stampscan_check(text, region), pins.COPY_IDENTICAL, check)
 
+    def test_a_long_visibility_fact_wraps_inside_its_own_slot(self):
+        # 320/870: the check sits on its own canonical line, so a fact that
+        # runs long wraps inside its slot and both slots still fill.
+        region = FLOOR_V1[:5] + ["- **This repo's visibility:** <visibility fact>.",
+                                 "  Verify: <visibility check>."]
+        text = "\n".join(region).replace("<SHA>", "abc1234").replace(
+            "<atelier-path>", "../atelier").replace(
+            "<visibility fact>", "PRIVATE, with a fact long enough that it\n  runs onto a second line").replace(
+            "<visibility check>", "`gh repo view example/child --json visibility`")
+        self.assertEqual(stampscan_check(text, region), pins.COPY_IDENTICAL)
+
     def test_an_unfilled_placeholder_is_drift_and_names_the_line(self):
         raw = f"(pinned `atelier@{self.v1[:7]}`)\n" + stamped("\n".join(FLOOR_V1))
         info = self._eval(self._child("raw", self.v1, raw))
