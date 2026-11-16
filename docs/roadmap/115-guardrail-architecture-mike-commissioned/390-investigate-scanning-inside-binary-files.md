@@ -1,4 +1,4 @@
-- [ ] 🤔 **Investigate scanning inside binary files.** No guard reads a
+- [~] 🤔 **Investigate scanning inside binary files.** No guard reads a
       binary's contents beyond image metadata: not pixels, not the insides of
       other formats, and `secretscan` reads no binary at all. So an exemption
       over a binary can only cover the whole file, and a secret or personal
@@ -8,3 +8,5 @@
       (`160/650`). Scope: which binary kinds the estate actually tracks, what
       each could hide, and what reading them would cost; ranked by value like
       any other work (`020/240`).
+      🔒 CLAIMED 2026-11-16T11:55Z (claimed 2026-11-16-1155, wt: qr-78ca-binary) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).
