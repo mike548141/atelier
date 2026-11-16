@@ -4,9 +4,9 @@
 change is to the floor block every child copies).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-16 UTC (FAIL: 1 MAJOR, 4 MODERATE, 1 minor, 3 notes); act 2
-(reconcile) pending the sibling's release. Written 2026-11-09 UTC by session `d16dc612`, a headless
-Opus 5.5 brief-writer.
+**Status:** PASS RAN 2026-11-16 UTC (FAIL: 1 MAJOR, 4 MODERATE, 1 minor, 3 notes); act 1
+`b0f99e31`, reconcile beneath it, the sibling folded below the verdict and the review log opened
+at the end. Written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1160-rule-4-cold-pass-queued-propagation-doctrine-batch.md`
 (barred until phase 2).
@@ -493,3 +493,387 @@ Not run: nothing needing a live write was needed. Child repos: not opened.
 - [ ] PRB6: one clause.
 - [ ] PRB7: hand to `160/300`'s application owner.
 - [ ] Act 2: reconcile against the sibling and the barred records; fold the log in.
+
+### Reconcile (act 2, 2026-11-16 UTC)
+
+Opened after act 1 was committed and pushed unrevised as `b0f99e31`. The orchestrator's release
+message was process only (the sibling's path, the records now open, the shape of this section,
+the scanners to run); it is in the log. Read: the sibling, the seven commit bodies, the queue
+pointer, the seven intent records, the prior pointing-up verdict's PU-2 passages, and the
+authoring session's record. Act-1 text above is unchanged.
+
+**Against the sibling's questions.**
+
+- *Pointer question 1, can the any-two-repos route leak on a public target?* On a public target
+  the section applies rule 2 of § *The route* unchanged, so no: sound. The leak I found is the
+  edge the question did not point at: a private target that later goes public, and the sender's
+  own record (PRB1). Formed in act 1, not here.
+- *Pointer question 2, does § Splitting a repo claim more than its grounding?* No: it claims
+  less, and lists what it could not ground. The defect is where the claim sits, not its size
+  (PRB5). The author's commit body cites stub-don't-fabricate; my counsel, a stub marker or a
+  hold on `320/580`, is the same rule applied.
+- *Brief-writer question 1, which worked examples were left, and on a stated ground?* Left on
+  the two stated grounds (provenance citations; acts done to a repo): `README.md:6,20,27,134`,
+  `00-APEX.md:281-282`, `PRINCIPLES.md:17`, `docs/method/README.md:53,59,77`, `AUTONOMY.md:264`,
+  `GUARDS.md:519` (his verbatim words). Left on no stated ground: `DOCUMENTATION.md:123,208,238,
+  245`, `CONCURRENCY.md:196`, and the product token in `ECONOMICS.md:206-209` (PRB3).
+- *Brief-writer question 2, is the floor-block change visible to a child at its next pin bump,
+  and what does `stampscan` report before then?* Moot since `e76250cf` the same day replaced the
+  bullet in both copies (PRB8). In atelier `stampscan` reports the template identical. From a
+  child before its bump, `310/020`'s record says `stampscan`'s child-side `source=` resolution
+  is not wired, so it would report nothing on the drift; read from the record, not re-driven.
+- *Held-back facts:* both match what act 1 found independently.
+
+**Against the author's account (commit bodies and intent records).**
+
+- PRB1: the bodies and `310/120`, `310/140` key the relaxation on the target's visibility and
+  weigh no later flip; `310/120` itself hedges ("it likely relaxes"), and `320/380`'s record, in
+  the same approved list, argues the public-candidate class the rule ignores. Stands, MAJOR.
+- PRB2: `310/020`'s record says the enumerator "needs a machine-readable marker on the child
+  side"; the delta put the marker in the parent's prose and not in the block the child side
+  carries. Stands.
+- PRB3: `9c8cb7e7`'s body names the nine files and the two carve-outs; nothing accounts for the
+  three unswept files. Stands.
+- PRB4: sharpened. The prior verdict records PU-2 as *ruled* "keep the naming, drop the veil",
+  with the date carried "so the naming reads as his decision, not drift"; `320/330`'s record
+  calls it "Mike's own explicit call"; the commit body calls it "PU-2's choice" and the text at
+  HEAD says only "PU-2". The recorded one-line recommendation he approved does not mention the
+  earlier ruling, and the session record has him saying the round was asking overlapping
+  questions, so the ask that overturned a ruling reached him as one line among twenty. Rule 3:
+  his word stands; the briefing is open to challenge, by re-briefing. Stands; counsel unchanged,
+  with the re-brief now the main step.
+- PRB5: `320/580`'s record says the children "can supply their records for the extraction on
+  request" and marks the review "owed to atelier at extraction"; the delta did not request them.
+  Stands.
+- PRB6: the record names a precedent file in the private root; doctrine still points at nothing
+  it defines. Stands, minor.
+- PRB7, PRB8, PRB9: notes, unchanged. `d57ba4cc`'s body claims re-run: `stampscan` identical
+  (act 1) and `test_templates` 48 tests OK (act 2).
+
+**Formed at reconcile:** none.
+
+**Overall, restated: FAIL — 1 MAJOR, 4 MODERATE, 1 minor, 3 notes** (PRB1-PRB9); every finding
+the principal's to decide; nothing applied.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-16)
+
+The text below is the brief's held-back sibling,
+`2026-11-09-0153-propagation-doctrine-batch-cold.deferred.md`, copied verbatim. It was removed
+from the review worktree before the reviewer started, held outside the tree until act 1 was
+committed (`b0f99e31`), then released to the reviewer for act 2. The orchestrator forms no finding
+and has not edited it; the sibling file itself is deleted in the fold commit, so the brief's
+mentions of it by name now point here.
+
+# Deferred reading for `2026-11-09-0153-propagation-doctrine-batch-cold.md`
+
+Open only after your act-1 findings are committed (`docs/method/REVIEW.md` rule 1). Fold into the
+brief below the reconcile, then delete this file. A floor, never a fence.
+
+## The queue pointer's questions (the author's framing, verbatim)
+
+> whether the any-two-repos route can leak on a public target; whether § *Splitting a repo* claims
+more than its grounding.
+
+## The brief-writer's questions
+
+1. Which worked examples did the sweep leave, and is each one left on a stated ground?
+2. Is the floor-block change visible to a child at its next pin bump, and what does `stampscan`
+report before then?
+
+## What the brief-writer held back
+
+- The changelog says acts done to a repo and provenance citations were left pending the principal's
+  word.
+- The grounding for § *Splitting a repo* is one hand-up's testimony, per the changelog.
+
+## Re-run results (2026-11-09 UTC, at `457615cc`)
+
+`floor.py --plane ci`: exit 0, with 28 `secretscan` advisories reported and not blocking.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log — atelier 160/1160 cold pass, propagation doctrine batch (prefix PRB)
+
+Reviewer: Fable 5.1 (claude-fable-5-1), tier checked at selection. Spawned by a headless
+orchestrator (Opus 5.5), itself started by drain session 1e053526 (Opus 5.5); both off-tier
+orchestrators, no finding formed. Worktree:
+`/Users/mike/worktrees/fable/atelier-160-1160-0757/atelier`. Day: 2026-11-16 UTC.
+Brief: `docs/reviews/2026-11-09-0153-propagation-doctrine-batch-cold.md`.
+Sibling `.deferred.md` absent from the worktree by design (act 1 partition); not sought.
+
+## Act 1 steps
+
+1. 07:59 UTC `uptime` -> load 2.53 3.21 3.13 (16 GB laptop, several passes). `git status --short`
+   shows only the sibling deletion (` D docs/reviews/...deferred.md`). HEAD = 532080c5 (board claim
+   commit). `python3 --version` = 3.14.6 on PATH.
+2. Read the brief in full (lines 1-238). Noted: acceptance test = "Approve all 20" pick on
+   2026-11-09 covering 320/380, 320/330, 310/020, 390/010, 310/120+140, 320/580; seven commits
+   d57ba4cc 9c8cb7e7 cb742b46 4dcdcecf 3f3cf5be 9ff7f778 38aab8b1; landing 38aab8b1; re-run line
+   `floor.py --plane ci`; barred list (rule 2) = ROADMAP-DONE, SESSIONS.md, sessions/, prior
+   verdicts in docs/reviews/, sibling, commit bodies, queue pointer, seven intent records.
+3. Read `docs/method/REVIEW.md` lines 25-300 (rules 1-4) and 300-560 (lenses, re-run, V1-V7,
+   lifecycle, method record). Takeaways used: rule 4 provenance in the verdict incl. the spawn
+   prompt's direction; V5's cross-reference test (rule reached, not file found); lens 4 discharge
+   shape for `/security-review`.
+4. `git merge-base --is-ancestor 38aab8b1 HEAD` exit 0 (landing commit present). `git log
+   --oneline 38aab8b1..HEAD -- <12 delta paths>` printed 69 commits (brief said 10 at 457615cc).
+   Of those, 14 touch PROPAGATION.md / templates/CLAUDE.md / REPO-BOUNDARY.md.
+5. Seven body-free reads via `tools/coldsweep.py --root <wt> --commit <sha> --path ...` exactly as
+   the brief's lines (run from a bash script in scratch because the zsh Bash tool does not
+   word-split a variable). All seven exit 0, "message body not printed", 0 barred files touched.
+   Outputs kept in scratch `scratch-160-1160/<sha>.diff` (751 lines total), deleted at the end.
+   - d57ba4cc: floor bullet "is public, or is ever made public" + one sentence on spelling the
+     path, in both PROPAGATION.md:204-207 and templates/CLAUDE.md:112-115; a 320/380 note added
+     at PROPAGATION.md ~271.
+   - 9c8cb7e7: 9 files; private child names replaced with "a private child" in worked examples,
+     bearings, instances; PROPAGATION § The route rule 2 gains the "same precedence reaches this
+     doctrine's own prose" paragraph; RECORD.md § The record is public gains the exception.
+     Noted: § The instance and CONCURRENCY's bearing previously read "named on the principal's
+     ruling (2026-08-22, PU-2)"; after, "on PU-2" / "from 2026-08-22, PU-2" (the words "the
+     principal's ruling" removed at both sites).
+   - cb742b46: `Pending upstream:` marker paragraph in § The route rule 3; closing-the-loop line
+     runs the grep at pin bump.
+   - 4dcdcecf: six lines "Only parent and child is modelled here" at the end of § Who is a child.
+   - 3f3cf5be: new § The same route between any two repos (44 lines), rules 1-4 + "Not decided".
+   - 9ff7f778: REPO-BOUNDARY.md § Splitting a repo (61 lines), eleven points, corrections list,
+     "what could not be grounded" list; cites PROPAGATION's re-drive rule.
+   - 38aab8b1: CHANGELOG entry, six bullets. Counted the sweep: 8 method files + build README = 9,
+     matches "eight method files and the build README". "No scanner or tool is built": true.
+6. Later commits on the three core files read body-free the same way (scratch `later-<sha>.diff`):
+   3312cdbd (160/300: parent-side duties, private-first route, adopter shapes "a fork and pull
+   request, or an issue"), e76250cf (020/050: the estate root is named like any private repo;
+   REMOVES d57ba4cc's floor-bullet sentence in both the canonical region and the template and
+   marks the 320/380 note "Superseded the same day"), 0b29bf4e (miscount fix, unrelated lines),
+   606e6dcf, 2dd4aafd, 920d63f3, 2a6d7a41, d1189996 (not on the delta's sections). So at HEAD the
+   d57ba4cc wording is gone; its reasoning paragraph (present-tense visibility test fails for a
+   public-candidate repo) stays at PROPAGATION.md:265-274 with the supersession marker.
+   CHANGELOG.md:534-562 carries the 020/050 entry.
+7. Re-run line: `uptime` load 2.12; `nice -n 10 python3 tools/floor.py --plane ci --root <wt>` from
+   the worktree root: exit 0; all enforced checks green; secretscan 28 and leakscan 3 advisory
+   (reported, not blocking); output in scratch `floor-ci.out`.
+8. `tools/stampscan.py --root <wt> templates/CLAUDE.md PROPAGATION.md`: exit 0, 1 block
+   "[identical] matches canonical region 'floor' (105 lines)". The template and canonical copy
+   agree at HEAD.
+9. Live read-only: `gh repo view mike548141/<child> --json visibility,isPrivate` for the two
+   children the sweep kept by name (and atelier): all three PUBLIC. The rule's "a public child
+   may be named" holds for both kept names.
+10. Sweeps with coldsweep (barred paths excluded by default; board files dropped by me from the
+    counts): private child names from the diff itself, on doctrine surfaces only (docs/method,
+    docs/build, skills, README.md, CLAUDE.md), reported here by file:line only, never the name:
+    GUARDS.md:519 (inside a verbatim quote of the principal); the extraction-origin repo token:
+    PRINCIPLES.md:17, docs/method/README.md:53,59,77, DOCUMENTATION.md:15,18,74,123,208,238,245,
+    00-APEX.md:281-282, AUTONOMY.md:264 (grant table), README.md:6,20,27,134, CLAUDE.md:62.
+    README.md:27 states that repo and its product are "named throughout as provenance — the
+    private repo". The product token appears in 15 doctrine/tool files incl. ECONOMICS.md (the
+    veiled sentence keeps it), CONCURRENCY.md:196 (a bearing), DOCUMENTATION.md (12).
+11. `Pending upstream` / `owed upstream` surfaces: templates/CLAUDE.md:99 and PROPAGATION.md:197
+    (the stamped block: "hold it in this repo's record marked owed upstream" — no marker, date or
+    item), CONCURRENCY.md:145 (historical bearing), GUARDS.md:432 (consistent), PROPAGATION.md
+    rule 3 and same-route rule 3 (the marker). No skill mentions it.
+12. "registry": PROPAGATION.md:473 (the 390/010 line) and ~690 ("the registry wiring stampscan is
+    waiting on"); nothing defines it in atelier. "local-path convention": 0 hits at HEAD.
+13. `docs/roadmap/320-.../230-a-negative-result-whose-second-explanation-is-silent.md` exists
+    (title only read); REPO-BOUNDARY's "compare 320/230" reaches a matching subject.
+14. Read at HEAD: PROPAGATION.md 599-714 (§ The route), 714-760 (§ Report without harming),
+    814-860 (§ The same route), 858-880 (§ The instance), 528-547 (re-drive rule), 455-475,
+    190-200; templates/CLAUDE.md 95-125; REPO-BOUNDARY.md 1-20 and outline; GUARDS.md 430-434,
+    515-522; CONCURRENCY.md 129-134, 143-147, 196; DOCUMENTATION.md 13-19, 121-125, 206-209.
+15. Left out and why: `docs/sessions/`, `docs/SESSIONS.md`, `docs/ROADMAP-DONE.md`, every prior
+    verdict in `docs/reviews/`, the queue pointer, the seven intent records beyond their titles
+    and every delta commit body (rule 2, until act 2). The sibling is absent from the worktree
+    and was not sought. Child repos: not opened (counted only, via the live visibility read).
+    The enumerator tool and fleet pin bumps: the brief's non-goal; not probed.
+
+## Candidate findings (evidence -> rule)
+
+- PRB1 MAJOR. PROPAGATION.md:835-840 (same-route rule 2) keys redaction on the target's present
+  visibility and lets "names, hosts, the sender's own detail" into a private target's PR, board
+  item and history; 851-857 has the sender name "where it filed in its own record" with no key on
+  the sender's visibility. PROPAGATION.md:265-274 (the delta's own 320/380 note, kept at HEAD)
+  argues a present-tense visibility test fails on a public-candidate repo; 276-289 (020/050) says
+  the name beside what a repo holds "stays barred" and pushed history is for good; REPO-BOUNDARY
+  83-96 (same delta) describes a private repo's content moving to a new public repo. Breaks V5
+  and lens 4 (leak by design), RECORD.md § The record is public.
+- PRB2 MODERATE. Marker rule at PROPAGATION.md:676-689 vs the stamped block at 197 and the
+  template at 99 ("marked owed upstream"), identical per stampscan: the surface every child reads
+  was not updated. Breaks V3/V4.
+- PRB3 MODERATE. Sweep incomplete and the veil nominal: DOCUMENTATION.md:123 (bearing), 208, 238,
+  245; CONCURRENCY.md:196 (bearing, product token); ECONOMICS.md:206-209 keeps the product token
+  README.md:27 ties to the private repo; SIGNING.md:174,199,201 de-named an adoption ladder the
+  rule says is outside it. Breaks V1 (rule claims examples name no private child; the tree still
+  identifies one in one hop), V3.
+- PRB4 MODERATE. "the principal's ruling" dropped from PROPAGATION § The instance (860-863) and
+  CONCURRENCY.md:132-133 when an answer replaced PU-2's naming. Breaks REVIEW.md rule 3 (AR8:
+  rule with the earlier word in front of him) and the history-kept norm; whether the ask named the
+  ruling is act-2 work.
+- PRB5 MODERATE. REPO-BOUNDARY.md:85-96 admits the section is un-re-driven testimony while citing
+  PROPAGATION.md:528-536, which bars un-re-driven mechanism claims from house text. Breaks V5;
+  the pick's "children's records supplied privately" was not met (disclosed as owed).
+- PRB6 minor. PROPAGATION.md:470-474 points at "the estate root's registry", defined nowhere in
+  atelier (only other mention ~690). V5 cross-reference test: no rule reached.
+- PRB7 note. Same-route rule 3 (841-843: no write access => an issue) vs 3312cdbd's adopter
+  shapes at 437-442 (a fork and pull request, or an issue). Formed against HEAD; later work.
+- PRB8 note. d57ba4cc's live wording is gone at HEAD (e76250cf); note kept with a marker. Sound.
+- PRB9 note. The doctrine's own example line matches `grep -rn 'Pending upstream:'` in atelier.
+
+## Checked and sound
+- Changelog counts (8+1 files; six bullets, seven items). Floor exit 0. Stamped copy identical.
+  Two kept child names are PUBLIC on a live read. 320/230 exists. Same-route rule 4's branch
+  form matches § Report without harming (738-741). The marker's "shape 3" exists (678-684).
+  No code in the delta: `/security-review` has nothing to read.
+
+## Act 1 close
+
+16. 08:08 UTC: verdict appended below a `---` divider in the brief; Status line updated to
+    "ACT 1 WRITTEN 2026-11-16 UTC (FAIL: 1 MAJOR, 4 MODERATE, 1 minor, 3 notes)". Severities and
+    ids as in the candidate list above (PRB1-PRB9); no candidate dropped or added at write-up.
+17. Scanners over the brief from the worktree's own `tools/`: datescan exit 0, 0 findings;
+    leakscan exit 0, 0 findings; spellscan and wrapscan exit 0 but skip `docs/reviews/` by their
+    ignore files (scanned nothing), so width checked by `awk length > 100`: no verdict line over
+    100 after the re-run ledger was rewritten as a list. The brief-writer's own lines 39, 87-88,
+    100, 136, 191-195 exceed 100 (command and path lines); left as written, not mine.
+18. Scratch directory `~/.claude/fable-drain/notes/scratch-160-1160/` (diff captures, floor and
+    scanner outputs, two shell scripts) deleted. No live capture was kept anywhere.
+19. No git write made. Worktree state: ` D` the sibling (orchestrator's), ` M` the brief (mine).
+
+## Appendix — the spawn prompt, verbatim (one estate folder token redacted as <private parent
+folder>; the orchestrator's text, process only)
+
+You are the cold reviewer for one rule-4 doctrine pass in the public repo `atelier`.
+
+WHO YOU ARE
+- Item: `atelier:160/1160` — cold pass on seven propagation-doctrine additions.
+- Worktree (your review worktree; name it in the verdict):
+  "/Users/mike/worktrees/fable/atelier-160-1160-0757/atelier". Use absolute paths and
+  `git -C "<worktree>"`; never `cd`. Double-quote every path in every shell command (paths may
+  contain spaces).
+- Brief: "/Users/mike/worktrees/fable/atelier-160-1160-0757/atelier/docs/reviews/
+  2026-11-09-0153-propagation-doctrine-batch-cold.md". Read it in full first and follow it, plus
+  `docs/method/REVIEW.md` for the verdict shape and the standing checklist V1–V7. Finding prefix:
+  `PRB`.
+
+PROVENANCE (state it in your verdict)
+- You run on Fable 5.1; tier checked at selection.
+- You were spawned by a headless orchestrator session (Opus 5.5), itself started by drain session
+  1e053526 (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold the context partition,
+  form no finding and write no severity. Session 1e053526 wrote no brief and no delta.
+- You were not started or instructed by any session the brief bars: 722ac2e2 and every worker it
+  dispatched, d16dc612, 74f2b8cd.
+- You run under the principal's API-credit drain order of 2026-11-16, verbatim: "I want to use
+  things other than my weekly budget to clear as many fable reviews as possible like using fable
+  drain. I thought we could start by using up all the API credits I have." and "As always you
+  must ensure that nothing harms the integrity or quality of the review process and verdicts, for
+  example if the review is done by API it must be as good as running it locally". That order is
+  the approval of Fable the brief's Status line waits for.
+
+THE PARTITION
+- The brief's `.deferred.md` sibling was removed from the worktree on purpose. Do not look for it
+  in git history, other checkouts, scratchpads, ~/.claude, or tmp. Respect every item on the
+  brief's rule-2 barred list until act 2 is released. The orchestrator will release the sibling
+  to you by message after act 1 is committed.
+
+WHY THE LOG EXISTS (the principal, 2026-11-16, verbatim): "The main reason I prompted this
+earlier in the session is a review must have irrefutable integrity to promote trust in the
+reviwers verdict. So its reasoning and methdology are as important as its verdicts. Within the
+realms that calude will allow noting the model extraction limitations"
+REVIEW LOG: keep a running work log at
+"/Users/mike/.claude/fable-drain/notes/atelier-160-1160-0757.md" — the one file outside the
+brief you may write. Commands, files and evidence only. As you work, append: each step you took
+(the command run, or the file and line range read) and what that showed; each candidate finding
+with that evidence and the rule or requirement it breaks; and each item you checked and found
+sound, with that evidence. Also what was examined in what order, for which lens, and what was
+left out and why. Enough detail that someone else could repeat the steps. It is the audit trail
+of the review and what you read first if you are interrupted; the verdict itself goes only in
+the brief. No secrets or live captures in it. It stays private while the pass runs and is
+appended verbatim to the brief at the fold, in this PUBLIC repo — so the same public-repo rules
+below apply to its content.
+
+WHAT YOU MAY WRITE
+- The review log above, and otherwise ONLY the brief file:
+  - act 1 appended below a `---` divider;
+  - an updated Status line (never "fold-in owed");
+  - the file's own column width (≤ 100), absolute dates from `date -u` only, ISO 8601 in your
+    own prose; verbatim source text takes a `datescan:allow` marker. Before finishing each act,
+    run the worktree's own `python3 "<worktree>/tools/datescan.py"`, `spellscan`, `wrapscan` and
+    `leakscan` (check `--help` for args) over the brief and fix your own text.
+- Do NOT fold the sibling yourself in act 2 and do not delete it: the orchestrator does the fold.
+  In act 2 write only `### Reconcile` beneath your verdict.
+
+WHAT YOU MUST NOT DO
+- No commit, no push, no other git writes (read-only git only). Edit no other file in the
+  worktree; never mutate `tools/` or `instruments/`. Probes run on scratch copies and synthetic
+  fixtures under your scratchpad only, deleted when you finish; leave no live captures in
+  scratch.
+- No GUI apps. Use `/usr/bin/python3` for ad-hoc scripts, but the brief's re-run lines and the
+  repo's tools need `python3` on PATH (3.10+); /usr/bin/python3 is 3.9. Never run an installed
+  tool by bare name from PATH; use the worktree's own copy. macOS has no `timeout`.
+- Never print a secret. Allowlist fields before printing any provider or live read; never dump a
+  user, key or certificate object raw.
+- LIVE SYSTEMS: read-only reads of live systems are allowed as the review needs them (the
+  principal, 2026-11-09, verbatim: "reads of live systems is fine as needed, Reviews that need
+  writes should be de-priortised"). A read means nothing on the target changes; if a verb's
+  effect is unsure, treat it as a write. NO live writes of any kind; a check that would need one
+  is marked NOT RUN with the reason and what it would have shown.
+- LOAD: several passes run at once on a 16 GB laptop. Check `uptime` first. Run any test suite
+  under `nice -n 10`, one suite at a time, single process (no xdist, `-n auto` or parallel
+  runners), and prefer the targeted tests a finding needs over the whole suite. Foreground, long
+  timeout.
+- PUBLIC REPO: refer to orchestrators by session id only. Never write a session NAME, a private
+  repo's name or path, any `<private parent folder>/...` path, a worktree path under the home
+  directory that names a private repo, or any estate fact; children are counted, never named;
+  quote no secret, placeholder token or email address. This binds the log too.
+
+HOW TO FINISH
+- Act 1: when your verdict is durably written in the brief, end your reply with: the verdict
+  line, the tally, the brief path, and the exact words "ACT 1 SAVED". Then stop and wait; act 1
+  is committed by the orchestrator before the sibling is released.
+- Act 2 (only after the orchestrator messages you the held sibling's path): read that one file
+  and the brief's barred records, write `### Reconcile` per the brief, never revising act-1 text,
+  and end with "ACT 2 SAVED".
+
+## Act 2 steps
+
+20. Release message received from the orchestrator (verbatim): "Act 1 is committed and pushed to
+    origin/main unrevised (b0f99e31); act 2 may begin. You may now read this one held file, the
+    brief's deferred sibling: "/Users/mike/.claude/fable-held/atelier--2026-11-09-0153-propagation-
+    doctrine-batch-cold.deferred.md". The brief's rule-2 barred records are open to you from now on
+    as well (delta commit bodies, the queue pointer, the intent records, prior verdicts, the session
+    log), per the brief's Phase 2. Write only `### Reconcile` beneath your verdict in the brief,
+    never revising act-1 text, and keep appending to your review log. Do NOT fold or delete the
+    sibling and do not edit the held copy: the orchestrator does the fold. Same rules as before: no
+    git writes, public-repo rules bind (no private names or paths, children by count), dates from
+    `date -u`, ≤ 100 columns, run the worktree's datescan/spellscan/wrapscan/leakscan on the brief
+    before finishing. End with "ACT 2 SAVED"." Process only; no question about the delta.
+21. Read the held sibling at the released path (33 lines): the pointer's two questions (leak on a
+    public target; Splitting claiming more than its grounding), the brief-writer's two (which
+    examples were left and on what ground; floor-block visibility at pin bump and stampscan before
+    it), two held-back facts (carve-outs pending his word; one hand-up grounds the split section),
+    and the 2026-11-09 floor result (exit 0, 28 secretscan advisories).
+22. `git log -1 --format='%s%n%n%b'` for the seven delta commits. d57ba4cc's body claims
+    "stampscan reports identical and test_templates passes"; 9c8cb7e7's lists the nine files and
+    calls PU-2 a "choice"; 3f3cf5be's: "a private target may be sent specifics but never a
+    secret"; 9ff7f778's cites stub-don't-fabricate; 38aab8b1 has no body. All Sonnet-trailered.
+23. Read the queue pointer (160/1160) and the seven intent records whole. 320/330's record names
+    PU-2 as "Mike's own explicit call — PU-2, 2026-08-22" and its recorded one-line recommendation
+    is "public doctrine names no private child repo in worked examples". 310/120's record hedges
+    the relaxation ("it likely relaxes"); 310/140's says the rule "wants to key on the target's
+    visibility"; neither weighs a target that later goes public, though 320/380's record in the
+    same list argues that class. 310/020's record: the enumerator "needs a machine-readable marker
+    on the child side". 390/010's record names a registry file in the private root as the
+    precedent (not reproduced here). 320/580's record: "The children can supply their records for
+    the extraction on request" and "review: owed to atelier at extraction".
+24. Prior verdict `docs/reviews/2026-08-21-0820-pointing-up-cold.md` lines 192-215 and 408-418:
+    PU-2 was decided as "ruled 'keep the naming, drop the veil'", each naming "carrying the
+    ruling's date so the naming reads as his decision, not drift". The authoring session's record
+    `docs/sessions/2026-11-08-1059-ruling-round-722a.md` (69 lines, read whole, names masked in my
+    reading): 20 doctrine additions approved in one list; his words "I think you might be asking
+    very similar or overlapping questions repeatedly?"; no per-item summary text recorded.
+25. Re-run of d57ba4cc's claim: `nice -n 10 python3 -m unittest tools.test_templates` from the
+    worktree: 48 tests OK (load 3.10). stampscan identical was re-run in act 1 (step 8).
+26. No finding formed or changed at reconcile; severities unchanged. Reconcile appended beneath
+    the act-1 verdict; act-1 text untouched (verified by diff against b0f99e31's copy).
+27. 08:14 UTC: Status line updated to "ACT 2 WRITTEN ... fold of the sibling owed to the
+    orchestrator". `diff` of b0f99e31's copy against the brief: only the two Status lines differ
+    above the reconcile. Scanners over the brief: datescan, spellscan, wrapscan, leakscan all exit
+    0; no verdict or reconcile line over 100 columns. Sibling not folded, not edited, not deleted
+    (the orchestrator's act). No git write made. Pass ends here.
