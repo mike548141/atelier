@@ -39,3 +39,10 @@
       [`2026-10-03-0153-fable-cold-passes-and-the-ruling-agenda.md`](../../sessions/2026-10-03-0153-fable-cold-passes-and-the-ruling-agenda.md)
       § *What the session got wrong*, last bullet. Filed rather than fixed in
       passing, per the onramp's report-your-problems rule.
+      - 🔀 Tidied 2026-11-16 (C0546, verified high; Mike approved 2026-11-16):
+        not an ask of Mike. He asked for a job to look at the wording (line 7,
+        "Add a job to the board to look at that"), and line 28 says "Look at it;
+        nothing is decided here", so the looking is agent work; any rewording
+        comes back through review (lines 35-36). Nothing above was changed; the
+        original text is as it was. To revert: delete this line (its commit is
+        listed in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
