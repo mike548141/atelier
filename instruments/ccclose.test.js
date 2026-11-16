@@ -135,7 +135,7 @@ esac
 }
 
 const ID_ORDER = ['worktrees', 'branches', 'pushed', 'prs', 'session-record', 'board', 'claims',
-  'floor', 'reviews', 'bypasses', 'tree', 'subagents', 'scratch'];
+  'floor', 'reviews', 'bypasses', 'tree', 'subagents', 'scratch', 'pin'];
 
 
 // --- subagent fixtures ---------------------------------------------------
@@ -354,7 +354,7 @@ test('a tidy close passes every check that applies and exits 0', () => {
   const j = json(w, root, ['--session', 'sess-tidy']);
   assert.deepEqual(j.checks.map((c) => c.id), ID_ORDER);
   const want = { worktrees: 'pass', branches: 'pass', pushed: 'pass', prs: 'na', 'session-record': 'pass',
-    board: 'na', claims: 'na', floor: 'na', reviews: 'na', bypasses: 'pass', tree: 'pass', subagents: 'na', scratch: 'na' };
+    board: 'na', claims: 'na', floor: 'na', reviews: 'na', bypasses: 'pass', tree: 'pass', subagents: 'na', scratch: 'na', pin: 'na' };
   for (const [id, st] of Object.entries(want)) assert.equal(j.by[id].status, st, `${id}: ${j.by[id].summary}`);
   assert.equal(j.code, 0);
   assert.equal(j.verdict.status, 'pass');
@@ -2069,4 +2069,210 @@ test('commitCommandsIn marks a rebase, a pull --rebase and a message-less amend 
   assert.deepEqual(k('cd /elsewhere && git commit -q -m "a: b"'), [['commit', false, 'a: b', '/elsewhere']]);
   assert.deepEqual(k('git -C sub commit -q -m "a: b"'), [['commit', false, 'a: b', '/r/sub']]);
   assert.deepEqual(k('git -C "$D" commit -q -m "a: b"'), [['commit', false, 'a: b', null]]);
+});
+
+
+// --- check 14: the atelier pin and floor copy (020/470) ---------------------
+//
+// Synthetic only: a throwaway "atelier" (a git repo with a local bare origin,
+// atelier's own pins.py and its helpers copied in, and a PROPAGATION.md with a
+// floor region) and a throwaway child stamped with that floor. Nothing here
+// reads a real sibling repo or the network. $CCCLOSE_ATELIER points the check at
+// the fixture; the pins.py that runs is the repo's real one.
+
+const TOOLS = path.join(__dirname, '..', 'tools');
+const PINS_FILES = ['pins.py', 'estate.py', 'stampscan.py', 'filewalk.py', 'allowmarker.py', 'report.py'];
+const FLOOR = [
+  '## Doctrine — inherited from atelier (pinned `atelier@<SHA>`)',
+  '',
+  '- **Rule one:** keep the safety rule verbatim.',
+  '- **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`.',
+  '- **This repo\'s visibility:** <visibility fact>.',
+];
+const propagation = (region) => `# PROPAGATION\n\nprose\n\n<!-- floor:begin -->\n\`\`\`markdown\n${region.join('\n')}\n\`\`\`\n<!-- floor:end -->\n\ntail\n`;
+const filledFloor = (region, sha) => region.join('\n').replace('<SHA>', sha.slice(0, 7))
+  .replace('<atelier-path>', '../atelier').replace('<visibility fact>', 'PRIVATE by design');
+const stampedClaude = (body) => `# child\n\n<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor -->\n${body}\n<!-- stamp:end -->\n`;
+
+// An atelier fixture with one commit holding FLOOR; returns { dir, sha }.
+function atelierFixture(w, name = 'atelier') {
+  const dir = path.join(w.base, name);
+  const bare = path.join(w.base, `${name}.git`);
+  fs.mkdirSync(path.join(dir, 'tools'), { recursive: true });
+  for (const f of PINS_FILES) fs.copyFileSync(path.join(TOOLS, f), path.join(dir, 'tools', f));
+  write(dir, 'docs/method/PROPAGATION.md', propagation(FLOOR));
+  sh(w, w.base, ['init', '-q', '--bare', '-b', 'main', bare]);
+  sh(w, dir, ['init', '-q', '-b', 'main']);
+  sh(w, dir, ['remote', 'add', 'origin', bare]);
+  commit(w, dir, 'floor v1', NOW - 3 * 24 * 60 * MIN);
+  sh(w, dir, ['push', '-q', '-u', 'origin', 'main']);
+  return { dir, bare, sha: sh(w, dir, ['rev-parse', 'HEAD']) };
+}
+// A child pinned at `sha`, its floor copy `body`.
+function childFixture(w, sha, body, name = 'child') {
+  const root = repo(w, name);
+  write(root, 'CLAUDE.md', stampedClaude(body));
+  commit(w, root, 'claude', NOW - 3 * 24 * 60 * MIN + MIN);
+  return root;
+}
+const pinEnv = (a, extra = {}) => ({ CCCLOSE_ATELIER: a.dir, ...extra });
+const pinCheck = (w, root, a, extra) => json(w, root, [], pinEnv(a, extra));
+
+test('check 14: a current pin with an identical floor copy passes, and says so', () => {
+  const w = world();
+  const a = atelierFixture(w);
+  const root = childFixture(w, a.sha, filledFloor(FLOOR, a.sha));
+  const j = pinCheck(w, root, a);
+  assert.equal(j.by.pin.status, 'pass', j.by.pin.summary);
+  assert.match(j.by.pin.summary, new RegExp(`pin ${a.sha.slice(0, 7)} is current with origin/main; floor copy identical`));
+  assert.equal(j.by.pin.label, 'Atelier pin and floor copy current');
+});
+
+// Two commits on atelier's mainline that leave the floor region alone.
+function advanceUnrelated(w, a) {
+  write(a.dir, 'docs/method/other.md', 'x\n');
+  commit(w, a.dir, 'unrelated change one', NOW - 2 * 24 * 60 * MIN);
+  write(a.dir, 'docs/method/other.md', 'y\n');
+  commit(w, a.dir, 'unrelated change two', NOW - 24 * 60 * MIN);
+  sh(w, a.dir, ['push', '-q', 'origin', 'main']);
+}
+
+test('check 14: a pin behind with the floor unchanged only warns, with the commits listed, and exits 0', () => {
+  const w = world();
+  const a = atelierFixture(w);
+  const root = childFixture(w, a.sha, filledFloor(FLOOR, a.sha));
+  advanceUnrelated(w, a);
+  const j = pinCheck(w, root, a);
+  assert.equal(j.by.pin.status, 'warn', j.by.pin.summary);
+  assert.match(j.by.pin.summary, new RegExp(`pin ${a.sha.slice(0, 7)} is 2 commit\\(s\\) behind origin/main; floor unchanged since the pin; read the delta when convenient`));
+  assert.ok(j.by.pin.items.some((l) => /unrelated change two/.test(l)), 'lists the commits the child would inspect');
+  assert.doesNotMatch(j.by.pin.summary, /current with/);
+  assert.equal(j.code, 0);
+  assert.match(ccclose(w, root, [], pinEnv(a)).out, /⚠️ Atelier pin and floor copy current +pin [0-9a-f]{7} is 2 commit/);
+});
+
+test('check 14: a pin behind AND the floor changed since the pin fails, and exits non-zero', () => {
+  const w = world();
+  const a = atelierFixture(w);
+  const root = childFixture(w, a.sha, filledFloor(FLOOR, a.sha));
+  advanceUnrelated(w, a);
+  const moved = FLOOR.map((l) => l.replace('verbatim', 'verbatim, always'));
+  write(a.dir, 'docs/method/PROPAGATION.md', propagation(moved));
+  commit(w, a.dir, 'floor v2', NOW - 60 * MIN);
+  sh(w, a.dir, ['push', '-q', 'origin', 'main']);
+  const j = pinCheck(w, root, a);
+  assert.equal(j.by.pin.status, 'fail', j.by.pin.summary);
+  assert.match(j.by.pin.summary, /is 3 commit\(s\) behind origin\/main, and the safety floor has changed since the pin: read the delta and bump the pin to pick it up/);
+  assert.doesNotMatch(j.by.pin.summary, /differs/, 'the copy still matches the floor at ITS pin');
+  assert.equal(j.code, 1);
+  assert.match(ccclose(w, root, [], pinEnv(a)).out, /❌ Atelier pin and floor copy current +pin [0-9a-f]{7} is 3 commit/);
+});
+
+test('check 14: it measures the published mainline, so a local-only atelier commit is not drift', () => {
+  const w = world();
+  const a = atelierFixture(w);
+  const root = childFixture(w, a.sha, filledFloor(FLOOR, a.sha));
+  write(a.dir, 'docs/method/other.md', 'unpushed\n');
+  commit(w, a.dir, 'not yet pushed', NOW - 60 * MIN);
+  assert.equal(pinCheck(w, root, a).by.pin.status, 'pass');
+});
+
+test('check 14: a floor copy that differs from atelier\'s floor fails even with a current pin', () => {
+  const w = world();
+  const a = atelierFixture(w);
+  const drifted = filledFloor(FLOOR, a.sha).replace('keep the safety rule verbatim', 'keep the safety rule, roughly');
+  const root = childFixture(w, a.sha, drifted);
+  const j = pinCheck(w, root, a);
+  assert.equal(j.by.pin.status, 'fail', j.by.pin.summary);
+  assert.match(j.by.pin.summary, /floor copy differs from atelier's floor at the pin/);
+  assert.doesNotMatch(j.by.pin.summary, /stale/);
+  assert.equal(j.code, 1);
+});
+
+test('check 14: a pin that is not a commit atelier knows fails, naming the checkout', () => {
+  const w = world();
+  const a = atelierFixture(w);
+  const root = childFixture(w, a.sha, filledFloor(FLOOR, 'abcdef0123456789'));
+  const j = pinCheck(w, root, a);
+  assert.equal(j.by.pin.status, 'fail', j.by.pin.summary);
+  assert.match(j.by.pin.summary, /pin abcdef0 is not a commit in the atelier checkout/);
+});
+
+test('check 14: atelier itself, and a repo that pins nothing, are not children and do not fail', () => {
+  const w = world();
+  const a = atelierFixture(w);
+  const own = json(w, a.dir, [], pinEnv(a));
+  assert.equal(own.by.pin.status, 'na');
+  assert.match(own.by.pin.summary, /^not a child — this is atelier itself/);
+  const plain = repo(w, 'plain');
+  write(plain, 'CLAUDE.md', '# plain\n\nno pin here\n');
+  commit(w, plain, 'claude', NOW - 3 * 24 * 60 * MIN + MIN);
+  const p = json(w, plain, [], pinEnv(a));
+  assert.equal(p.by.pin.status, 'na');
+  assert.match(p.by.pin.summary, /^not a child — CLAUDE\.md carries no atelier pin or floor stamp/);
+  assert.equal(p.code, 0);
+});
+
+test('check 14: no atelier checkout is "no result" with the reason, never "current"', () => {
+  const w = world();
+  const a = atelierFixture(w);
+  const root = childFixture(w, a.sha, filledFloor(FLOOR, a.sha));
+  const j = json(w, root, [], { CCCLOSE_ATELIER: path.join(w.base, 'nowhere') });
+  assert.equal(j.by.pin.status, 'warn');
+  assert.match(j.by.pin.summary, /^no result — \$CCCLOSE_ATELIER \(.*nowhere\) has no tools\/pins\.py/);
+  assert.doesNotMatch(j.by.pin.summary, /current/);
+  assert.equal(j.code, 0);    // unknown is a look, not a verdict of drift
+  assert.equal(j.verdict.status, 'warn');
+});
+
+test('check 14: a failed fetch is "no result" with pins.py\'s own reason, never "current"', () => {
+  const w = world();
+  const a = atelierFixture(w);
+  const root = childFixture(w, a.sha, filledFloor(FLOOR, a.sha));
+  sh(w, a.dir, ['remote', 'set-url', 'origin', path.join(w.base, 'gone.git')]);
+  const j = pinCheck(w, root, a);
+  assert.equal(j.by.pin.status, 'warn', j.by.pin.summary);
+  assert.match(j.by.pin.summary, /^no result — pins\.py exited 2: .*could not fetch origin/);
+  assert.doesNotMatch(j.by.pin.summary, /current with/);
+});
+
+// A fixture atelier whose pins.py is a stand-in script: the check's handling of
+// a hang and of unreadable output, without depending on how the real one fails.
+function standInPins(w, body, name = 'atelier-standin') {
+  const a = atelierFixture(w, name);
+  fs.writeFileSync(path.join(a.dir, 'tools', 'pins.py'), body);
+  return a;
+}
+
+test('check 14: a pins.py that outruns the time limit is "no result", not a hang or a pass', () => {
+  const w = world();
+  const a = standInPins(w, 'import time\ntime.sleep(30)\n');
+  const root = childFixture(w, a.sha, filledFloor(FLOOR, a.sha));
+  const t0 = Date.now();
+  const j = pinCheck(w, root, a, { CCCLOSE_PINS_TIMEOUT: '1' });
+  assert.ok(Date.now() - t0 < 15000, 'the limit is enforced');
+  assert.equal(j.by.pin.status, 'warn');
+  assert.match(j.by.pin.summary, /^no result — pins\.py did not finish within 1 s/);
+});
+
+test('check 14: output that does not parse, or a status ccclose does not know, is "no result"', () => {
+  const w = world();
+  const a = standInPins(w, 'print("all is well")\n');
+  const root = childFixture(w, a.sha, filledFloor(FLOOR, a.sha));
+  const j = pinCheck(w, root, a);
+  assert.equal(j.by.pin.status, 'warn');
+  assert.match(j.by.pin.summary, /^no result — pins\.py printed nothing readable/);
+  const b = standInPins(w, 'import json\nprint(json.dumps({"children":[{"name":"child","status":"fresh-as-a-daisy","copy":"identical"}]}))\n', 'atelier-standin-b');
+  const k = pinCheck(w, root, b);
+  assert.equal(k.by.pin.status, 'warn');
+  assert.match(k.by.pin.summary, /^no result — pins\.py reported a status ccclose does not know/);
+});
+
+test('check 14: the checkout this script lives in is used when nothing names one', () => {
+  const w = world();
+  const root = childFixture(w, 'abcdef0123456789', filledFloor(FLOOR, 'abcdef0123456789'));
+  const at = cc.locateAtelier({ commonDir: path.join(root, '.git'), root }, { ATELIER_ESTATE_ROOT: path.join(w.base, 'estate-root') });
+  // This test file runs from atelier or one of its worktrees, so the first
+  // candidate is its main checkout: it carries tools/pins.py.
+  assert.ok(at.dir && fs.existsSync(path.join(at.dir, 'tools', 'pins.py')), JSON.stringify(at));
 });

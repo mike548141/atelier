@@ -18,8 +18,9 @@ that it is ready to close.
 That declaration is a claim, and it needs evidence: worktrees and branches put
 away, commits pushed, pull requests merged, the session record written, the
 board rebuilt, no claim left live, the floor green on what was pushed, reviews
-queued where they are owed, every subagent finished, and nothing left in the
-scratch folder.
+queued where they are owed, every subagent finished, nothing left in the
+scratch folder, and, in a repo that pins atelier, the pin and the inlined
+floor copy current.
 A session that answers those from its own memory is answering from the thing
 that drifts most in a long session.
 .PP
@@ -29,7 +30,7 @@ through
 .BR gh (1),
 and of the session's own transcript.
 It prints the standard outputs (the session id, its transcript, its time
-window, the repo and its head), thirteen checks in a fixed order, the
+window, the repo and its head), fourteen checks in a fixed order, the
 principal's close-out asks found in the transcript, and a one-line verdict.
 It changes nothing.
 .SS The session and its window
@@ -301,6 +302,65 @@ No transcript, or a transcript with no environment record, is not
 applicable.
 The walk stops at 10000 entries and then says
 .BR "at least" .
+.TP
+.B Atelier pin and floor copy current
+Only for a child of atelier: a repo whose
+.I CLAUDE.md
+carries an
+.BI atelier@ sha
+pin or a floor stamp.
+Atelier itself, and any repo that pins nothing, are not applicable ("not a
+child").
+For a child it runs atelier's own
+.I tools/pins.py
+for that one repo (\fB\-\-json \-\-log \-\-atelier\fP
+.I checkout
+.B \-\-child
+.IR repo ),
+so there is one judge of "current" and "identical", and it prints:
+.RS
+.IP \(bu 2
+.B pass
+\(em the pin is the published mainline and the floor copy is word for word the
+floor at that pin.
+.IP \(bu 2
+.B fail
+\(em the floor copy differs from the floor at the pin; or the pin is behind
+.I and
+the safety floor has changed since the pin (the floor text at the pin against
+the floor text at the mainline), so the child should read the delta and bump
+the pin; or the pin is ahead of or diverged from the mainline, names no commit
+the checkout knows, or is missing while the floor is stamped; or pins.py would
+fail the copy today for another reason (its report-only period for an
+unstamped copy ends on the date pins.py prints).
+Atelier moves many times a day, so lag alone is never a failure.
+.IP \(bu 2
+.B warn
+\(em the pin is behind but the floor is unchanged since the pin
+("pin N commit(s) behind; floor unchanged since the pin; read the delta when
+convenient", with the first five commits listed); or
+.BR "no result" ,
+with the reason (no atelier checkout found, a failed fetch, no output within
+the time limit, output that did not parse), or a current pin whose floor copy
+could not yet be shown identical (unstamped, skipped) and is not yet failing.
+A line that says "no result" never says "current".
+.RE
+.IP
+The atelier checkout is
+.B $CCCLOSE_ATELIER
+if set; otherwise the main checkout of the atelier this
+.B ccclose
+belongs to, then
+.IB $ATELIER_ESTATE_ROOT /atelier \fR,
+then a sibling of the repo named
+.IR atelier .
+This is the one check that touches the network and writes anything:
+pins.py fetches
+.B origin
+in the atelier checkout (its remote-tracking refs only, never a working tree,
+and nothing in the repo under check), because a stale comparison would read
+as current.
+The limit is 20 seconds.
 .SS Asked of this close \(em answer each
 After the checks,
 .B ccclose
@@ -569,6 +629,21 @@ executable to run.
 Default:
 .BR gh .
 The tests point it at a stub.
+.TP
+.B CCCLOSE_ATELIER
+The atelier checkout the pin check measures against, and whose
+.I tools/pins.py
+it runs.
+If set it is used as given: a wrong value is "no result", not a fall-back.
+.TP
+.B CCCLOSE_PINS_TIMEOUT
+The pin check's time limit, in seconds.
+Default: 20.
+.TP
+.B ATELIER_ESTATE_ROOT
+Where the pin check looks for an
+.I atelier
+checkout when it has no better answer.
 .SH EXAMPLES
 Check the current session's close, from the repo it worked in:
 .PP
@@ -619,7 +694,10 @@ that is not a directory.
 .SH NOTES
 .B ccclose
 is read-only.
-It never commits, pushes, fetches, removes a worktree or edits a file.
+It never commits, pushes, removes a worktree or edits a file in the repo it
+checks, and fetches nothing there.
+The one exception is the pin check, which fetches in the \fIatelier\fP checkout
+(see that check).
 Every git call runs with
 .BR \-\-no\-optional\-locks ,
 because a plain
@@ -635,6 +713,8 @@ and only when
 is installed and
 .B gh auth status
 succeeds; otherwise the pull request and floor checks are unknown.
+The pin check also needs network for pins.py's fetch, and says "no result"
+when it cannot.
 .PP
 It does not check whether the session's findings (defects, learnings,
 evidence, assumptions) reached the record.

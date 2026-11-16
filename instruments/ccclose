@@ -7,7 +7,7 @@
  * owed" is a claim that must carry its evidence. This is that evidence, read
  * from the repo, the host and the session's own transcript rather than from the
  * session's memory, which is the thing that drifts in a long session. It prints
- * the standard outputs (session id, transcript, window), thirteen checks in a
+ * the standard outputs (session id, transcript, window), fourteen checks in a
  * fixed order, the principal's close-out asks found in the transcript, and a
  * one-line verdict. The design of record is instruments/ccclose.design.md.
  *
@@ -24,14 +24,20 @@
  * READ-ONLY. It never commits, pushes, fetches, removes a worktree or edits a
  * file. "Pushed" therefore means "in a remote-tracking ref as of the last
  * fetch". The only network is `gh`, and only when gh is present and
- * authenticated; otherwise those checks print unknown, never a pass.
+ * authenticated; otherwise those checks print unknown, never a pass. The one
+ * exception is the pin check (check 14), which runs atelier's tools/pins.py:
+ * that fetches origin into the ATELIER checkout (remote-tracking refs only; it
+ * touches no working tree and nothing in the repo under check). A failed fetch
+ * or a missing checkout prints "no result", never "current".
  *
  * The transcript is streamed a line at a time. The prompt classifiers are
  * cctranscript's own (required from beside this file), so a ref printed here
  * opens the same exchange in cctranscript.
  *
- * Test seam: $CCCLOSE_GH names the gh executable (default "gh"), so the tests
- * can stand a stub in for the network.
+ * Test seams: $CCCLOSE_GH names the gh executable (default "gh"), so the tests
+ * can stand a stub in for the network. $CCCLOSE_ATELIER names the atelier
+ * checkout the pin check measures against, and $CCCLOSE_PINS_TIMEOUT its
+ * time limit in seconds (default 20); both are documented in the man page.
  */
 const fs = require('node:fs');
 const os = require('node:os');
@@ -58,7 +64,9 @@ OPTIONS
 Checks worktrees, branches, pushes, PRs, the session record, the board, live
 claims, the floor at the pushed head, review pointers, workaround-shaped
 commands (a refused delete re-routed among them), the working tree, the
-session's subagents and its scratch folder, lists the principal's close-out
+session's subagents and its scratch folder, and, in a repo that pins atelier,
+whether the pin and the floor copy are current (runs atelier's pins.py: it
+fetches the atelier checkout's origin; a failure prints "no result"), lists the principal's close-out
 asks, and ends with the identifiers block.
 Read-only. Exit 0 when no check fails.  Full manual: man ccclose`;
 
@@ -1460,6 +1468,127 @@ function checkTree(repo) {
   return check('tree', L, 'warn', `${dirty.length} uncommitted change(s) — cannot be attributed (they may be a live peer's)`, dirty, dirty.length);
 }
 
+// --- the atelier pin and floor copy (020/470) ----------------------------
+//
+// A child repo pins atelier (`atelier@<sha>` in CLAUDE.md) and inlines atelier's
+// safety floor between stamp markers. Today the drift check is a line the model
+// runs by hand at session start; the principal asked for it to fail noisy
+// without the model having to remember (board 020/470). This is the ccclose
+// half: it runs atelier's own tools/pins.py for this one repo and reports what
+// it found. It never re-implements the comparison, so there is one judge of
+// "current" and "identical".
+//
+// Fail noisy: a stale pin, or a floor copy that differs, is a failing line. Any
+// failure to GET an answer (no atelier checkout, a failed fetch, a timeout,
+// output that does not parse) is "no result" with the reason and a warn, which
+// is never read as current.
+const PIN_IN_CLAUDE = /atelier@[0-9a-f]{7,40}\b/i;
+const FLOOR_STAMP = /^<!--\s*stamp:begin\s+source=docs\/method\/PROPAGATION\.md\s+region=floor\b/m;
+const CLAUDE_MD_MAX = 2 * 1024 * 1024;     // pins.py's own cap: bigger is not read
+const PINS_TIMEOUT_S = 20;
+
+function claudeMdText(root) {
+  const p = path.join(root, 'CLAUDE.md');
+  try {
+    if (fs.statSync(p).size > CLAUDE_MD_MAX) return null;
+    return fs.readFileSync(p, 'utf8');
+  } catch { return null; }
+}
+
+// The atelier checkout to measure against, as { dir } or { why }. $CCCLOSE_ATELIER
+// wins and is never second-guessed: if it is set and wrong, that is the answer.
+// Otherwise the checkout this script lives in (its MAIN checkout, from a
+// worktree too), then $ATELIER_ESTATE_ROOT/atelier, then a sibling of the repo
+// under check.
+function locateAtelier(repo, env = process.env) {
+  const has = (d) => isFile(path.join(d, 'tools', 'pins.py'));
+  if (env.CCCLOSE_ATELIER) {
+    const d = path.resolve(env.CCCLOSE_ATELIER);
+    return has(d) ? { dir: d } : { why: `$CCCLOSE_ATELIER (${d}) has no tools/pins.py` };
+  }
+  const tried = [];
+  const own = run('git', ['--no-optional-locks', '-C', __dirname, 'rev-parse', '--path-format=absolute', '--git-common-dir'], __dirname, 5000);
+  if (own.ok && own.out.trim()) {
+    const d = path.dirname(own.out.trim());
+    if (has(d)) return { dir: d };
+    tried.push(d);
+  }
+  const cands = [];
+  if (env.ATELIER_ESTATE_ROOT) cands.push(path.join(env.ATELIER_ESTATE_ROOT, 'atelier'));
+  const main = repo.commonDir ? path.dirname(repo.commonDir) : repo.root;
+  cands.push(path.join(path.dirname(main), 'atelier'));
+  for (const d of cands) { if (has(d)) return { dir: d }; tried.push(d); }
+  return { why: `no atelier checkout found (looked in ${tried.join(', ')}; set $CCCLOSE_ATELIER)` };
+}
+
+const PIN_LABEL = 'Atelier pin and floor copy current';
+const noPin = (why) => check('pin', PIN_LABEL, 'warn', `no result — ${why}`);
+
+function checkPin(repo, env = process.env) {
+  if (!repo.isGit) return check('pin', PIN_LABEL, 'na', NOT_GIT);
+  if (isFile(path.join(repo.root, 'tools', 'pins.py')) && isFile(path.join(repo.root, 'docs', 'method', 'PROPAGATION.md'))) {
+    return check('pin', PIN_LABEL, 'na', 'not a child — this is atelier itself (nothing pins it)');
+  }
+  const text = claudeMdText(repo.root);
+  if (text === null || !(PIN_IN_CLAUDE.test(text) || FLOOR_STAMP.test(text))) {
+    return check('pin', PIN_LABEL, 'na', 'not a child — CLAUDE.md carries no atelier pin or floor stamp');
+  }
+  const at = locateAtelier(repo, env);
+  if (at.why) return noPin(at.why);
+  const secs = Number(env.CCCLOSE_PINS_TIMEOUT) > 0 ? Number(env.CCCLOSE_PINS_TIMEOUT) : PINS_TIMEOUT_S;
+  const r = run('python3', ['-I', path.join(at.dir, 'tools', 'pins.py'), '--json', '--log', '--atelier', at.dir, '--child', repo.root], at.dir, secs * 1000);
+  // pins exits 1 for "not current" and still prints its JSON; 2 means it could
+  // not measure at all (a failed fetch, no origin/main); anything else, or no
+  // exit code, is a run that did not finish.
+  if (r.code === null) return noPin(`pins.py did not finish within ${secs} s or could not run (${clip(r.err, 120) || 'no detail'})`);
+  if (r.code !== 0 && r.code !== 1) return noPin(`pins.py exited ${r.code}: ${clip(r.err || r.out, 200) || 'no output'}`);
+  let j, c;
+  try {
+    j = JSON.parse(r.out);
+    c = Array.isArray(j.children) ? j.children[0] : null;
+  } catch { c = null; }
+  if (!c || typeof c.status !== 'string') return noPin(`pins.py printed nothing readable (${clip(r.err || r.out, 160) || 'no output'})`);
+
+  const ref = j.ref || 'origin/main';
+  const pin = c.pin ? String(c.pin).slice(0, 7) : null;
+  const problems = [];   // fail: an integrity problem, or the safety floor is out of date
+  const notes = [];      // warn: worth a look, not a verdict of drift
+  const items = [];
+  if (c.status === 'behind') {
+    // Atelier moves many times a day, so lag alone is not a failure, and a
+    // reflex bump is not wanted (a peer moving on is a signal to read the delta
+    // and decide). The principal asked about the SAFETY RULES being current:
+    // that is the floor, so it fails only when the floor text moved since the pin.
+    const lag = `pin ${pin} is ${c.behind} commit(s) behind ${ref}`;
+    if (c.floor_moved === true) problems.push(`${lag}, and the safety floor has changed since the pin: read the delta and bump the pin to pick it up`);
+    else if (c.floor_moved === false) notes.push(`${lag}; floor unchanged since the pin; read the delta when convenient`);
+    else notes.push(`${lag}; whether the floor changed since the pin could not be read, so read the delta`);
+    for (const l of (c.log || []).slice(0, 5)) items.push(l);
+    if ((c.log || []).length > 5) items.push(`… and ${c.log.length - 5} more commit(s) to inspect`);
+  } else if (c.status === 'ahead') problems.push(`pin ${pin} is ahead of ${ref} by ${c.ahead} commit(s) — not a commit atelier published`);
+  else if (c.status === 'diverged') problems.push(`pin ${pin} has diverged from ${ref} (${c.behind} behind, ${c.ahead} ahead)`);
+  else if (c.status === 'unknown') problems.push(`pin ${pin} is not a commit in the atelier checkout ${at.dir}${c.copy_detail ? ` (${c.copy_detail})` : ''}`);
+  else if (c.status === 'no-pin') problems.push('the floor is stamped but CLAUDE.md names no atelier pin');
+  else if (c.status !== 'current') return noPin(`pins.py reported a status ccclose does not know: ${clip(c.status, 40)}`);
+
+  const failing = new Set(((j.floor_copy || {}).failing) || []);
+  const copyDetail = clip(c.copy_detail || '', 200);
+  if (c.copy === 'drift' || c.copy === 'malformed') {
+    problems.push(`floor copy differs from atelier's floor at the pin${copyDetail ? ` (${copyDetail})` : ''}`);
+  } else if (failing.has(c.name) && c.status !== 'unknown') {
+    problems.push(`floor copy fails pins.py's check (${c.copy}${copyDetail ? `: ${copyDetail}` : ''})`);
+  }
+  if (problems.length) return check('pin', PIN_LABEL, 'fail', [...problems, ...notes].join('; '), items);
+  if (c.copy === 'identical') {
+    if (!notes.length) return check('pin', PIN_LABEL, 'pass', `pin ${pin} is current with ${ref}; floor copy identical`);
+    return check('pin', PIN_LABEL, 'warn', `${notes.join('; ')}; floor copy identical`, items);
+  }
+  // Floor copy not shown identical and not yet a failure (report-only states:
+  // unstamped, no-reference, skipped, unchecked): say so, never "current".
+  notes.push(`the floor copy is ${c.copy}${copyDetail ? ` — ${copyDetail}` : ''}`);
+  return check('pin', PIN_LABEL, 'warn', notes.join('; '), items);
+}
+
 // --- the identifiers block -------------------------------------------------
 //
 // RECORD.md asks every detail record and closing message to end with an
@@ -2003,6 +2132,7 @@ async function collect(opts, gathered) {
     checkTree(repo),
     await checkSubagents(file, t),
     checkScratch(t),
+    checkPin(repo),
   ];
   const commitsIn = repo.isGit && w ? windowCommits(repo, w, ['--branches', '--remotes']) : null;
   const unpushed = repo.isGit && w && repo.remotes.length ? windowCommits(repo, w, ['--branches', '--not', '--remotes']) : null;
@@ -2105,4 +2235,4 @@ async function main() {
 if (require.main === module) main();
 
 module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
-  judgeAgent, FRESH_MS, board, CLAIM_LINE, worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };
+  judgeAgent, FRESH_MS, checkPin, locateAtelier, board, CLAIM_LINE, worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };

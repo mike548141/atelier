@@ -153,6 +153,7 @@ and an absent input never crashes the run.
 | 11 | Working tree clean | `git status` | never; dirty is ⚠️ | not a git repo |
 | 12 | Subagents finished | the session's `subagents/` directory beside its transcript, and the parent transcript's `<task-notification>`s and `tool_result`s | an agent with no finished final turn and no completed, killed or stopped notification | no transcript; no `subagents/` directory |
 | 13 | Scratch folder empty | the scratch folder the transcript's environment attachment records | never; anything left is ⚠️ | no transcript; no environment record |
+| 14 | Atelier pin and floor copy current | atelier's `tools/pins.py --json --child <repo>` (fetches origin in the atelier checkout) | the floor copy differs from the floor at the pin, the pin is behind **and** the floor has changed since it, or the pin is ahead, diverged or unknown (`020/470`) | not a child: atelier itself, or no pin or floor stamp in `CLAUDE.md` |
 
 Why four checks can never fail:
 
@@ -261,6 +262,22 @@ Per workflow, the latest run counts. Any `failure`, `timed_out`,
 ("pending"), which is the honest form RECORD allows. No run at all is ⚠️. `gh`
 missing or not authenticated is ⚠️ unknown, never a pass.
 
+**The pin check (14), precisely** (`020/470`; the principal: "build it into
+ccclose as a post tidy up"). It runs atelier's own `pins.py` for the one repo
+rather than comparing anything itself, so `pins.py` stays the one judge. It is
+the exception to "read-only": `pins.py` fetches `origin` in the atelier checkout
+(remote-tracking refs only), because a comparison against a stale ref would read
+as current. Fail noisy on the safety rules, which are the floor and not the
+pin: a drifted copy, or a pin behind while the floor text has changed since it
+(`pins.py`'s `floor_moved`), is ❌ and exits 1. A pin merely behind, floor
+unchanged, is ⚠️ with the commits listed: atelier moves dozens of commits a day,
+and a peer moving on is a signal to read the delta and decide, not to bump by
+reflex. Ahead, diverged and unknown pins stay ❌ (integrity). Any
+failure to get an answer (no checkout, a failed fetch, a 20 s timeout, output
+that does not parse) is ⚠️ "no result" with the reason, never "current". The
+other attachment point he named, a `SessionStart` hook, is not built here: it
+changes every session on his machine and is his call.
+
 **Detected, not hard-coded.** Atelier's conventions are the first adapter, and
 each is found by looking:
 
@@ -304,7 +321,7 @@ error, and a listed non-ask costs one line of answer.
 
 ## 10. Output
 
-A header block of standard outputs, the thirteen check lines, the asks, then one
+A header block of standard outputs, the fourteen check lines, the asks, then one
 verdict line, for example `❌ not ready to close: 2 fail · 1 unknown · 6 pass ·
 2 not applicable · 3 asks to answer`. The field set is stable: every check
 prints every run, zeros print, and a figure the tool could not read prints
@@ -353,7 +370,7 @@ not spawn it. The orchestrating session queues the `⏳`.
 `ccclose --identifiers` prints the block `RECORD.md` asks every detail record and
 closing message to end with ("read fresh at close, never recalled"; asked for by
 Mike, 2026-10-18, board item `210/280`). It prints only a `## Identifiers`
-heading and seven fields in `RECORD.md`'s order, and runs none of the thirteen
+heading and seven fields in `RECORD.md`'s order, and runs none of the fourteen
 checks: it shares their reads (`gather()`: session, transcript, window, repo,
 board, `gh`, branches) but not their verdicts, so it never waits on
 `board.py --check` or a floor run. It exits `0`, since it is a record and not a

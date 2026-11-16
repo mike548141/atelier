@@ -81,7 +81,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/020-policy-as-code-programme-five-tracks-mik/440-one-specific-reason-may-keep-several-named-metadata-sets.md)
 - ✅ [G3 keeps image metadata field by field, not by data type.](roadmap/020-policy-as-code-programme-five-tracks-mik/450-g3-keeps-image-metadata-field-by-field-not-by-data-type.md)
 - [ ] [Claude Code session hooks as a house enforcement plane: decide which…](roadmap/020-policy-as-code-programme-five-tracks-mik/460-claude-code-session-hooks-as-a-house-enforcement-plane.md)
-- [~] [A hook that checks, without the model having to remember, that a…](roadmap/020-policy-as-code-programme-five-tracks-mik/470-a-hook-that-fails-noisy-when-a-child-floor-copy-is-stale.md)
+- [ ] [A hook that checks, without the model having to remember, that a…](roadmap/020-policy-as-code-programme-five-tracks-mik/470-a-hook-that-fails-noisy-when-a-child-floor-copy-is-stale.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -404,6 +404,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: floor.py refuses the bare-list spelling of…](roadmap/160-doctrine-review-owed/1530-rule-4-cold-pass-queued-floor-retires-bare-list-spelling.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's drift check finds atelier by the…](roadmap/160-doctrine-review-owed/1540-rule-4-cold-pass-queued-floor-drift-by-setting-and-record-rotation.md)
 - [ ] ⏳ [Rule-4 cold pass queued: an allow-marker scope with no reason exempts…](roadmap/160-doctrine-review-owed/1550-rule-4-cold-pass-queued-allow-marker-scope-without-reason.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccclose check 14, a child's atelier pin and…](roadmap/160-doctrine-review-owed/1560-rule-4-cold-pass-queued-ccclose-pin-and-floor-check.md)
 
 ## build/ layer — open strands
 
