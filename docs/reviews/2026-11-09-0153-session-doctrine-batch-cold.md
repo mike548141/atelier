@@ -4,9 +4,10 @@
 governs every later session).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-16 UTC on Fable 5.1: PASS-WITH-FINDINGS (0 MAJOR, 2 MODERATE,
-6 minor, 2 note, SDB1–SDB10); act 2 (reconcile) owed once the sibling is released. Brief written
-2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5 brief-writer.
+**Status:** PASS RAN 2026-11-16 UTC on Fable 5.1, act 1 and reconcile written:
+PASS-WITH-FINDINGS (0 MAJOR, 2 MODERATE, 5 minor, 3 note, SDB1–SDB10); sibling and review log
+folded below the reconcile. Brief written 2026-11-09 UTC by session `d16dc612`, a headless Opus
+5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1140-rule-4-cold-pass-queued-session-doctrine-batch.md`
 (barred until phase 2).
@@ -173,7 +174,8 @@ reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-(`2026-11-09-0153-session-doctrine-batch-cold.deferred.md`), every delta commit's message body, the
+(`2026-11-09-0153-session-doctrine-batch-cold.deferred.md`, now folded below the reconcile),
+every delta commit's message body, the
 queue pointer
 `docs/roadmap/160-doctrine-review-owed/1140-rule-4-cold-pass-queued-session-doctrine-batch.md`, and
 the intent records beyond their titles:
@@ -478,3 +480,233 @@ Children: 0 read (none in scope).
 - [ ] If SDB1's re-brief is taken, one list to him, item by item, in plain words.
 - [ ] Any application of rulings here is a doctrine edit and earns its own cold pass unless this
       pass's MAJOR count (0) closes the cycle (`REVIEW.md`, *when the cycle stops*).
+
+### Reconcile — act 2, 2026-11-16 UTC
+
+**Release message, recorded by the receiver (rule 4):** after act 1 landed on `main` as
+`4067468c`, the orchestrator sent, in substance: act 1 is committed unrevised; the held sibling may
+be read at its path outside the worktree, plus the barred records and the commit bodies, per Phase
+2; append `### Reconcile` only, never revising act-1 text; keep the log; do not fold or delete (the
+orchestrator folds); same house rules; run the date and wrap scanners; end with "ACT 2 SAVED". It
+carried no question about the delta, no pointer to risk and no request to revise a finding.
+
+**Opened at act 2:** the sibling (one pointer block, two questions, one fact, one re-run result, as
+the brief counted); the queue pointer `160/1140`; the five intent records whole; the six commit
+bodies (`git log -1 --format=%b`); `docs/SESSIONS.md` by grep for the five item ids only (one
+filing-day entry, 2026-09-29, not opened). No prior verdict opened: none bears on these sections.
+
+**The sibling's questions, answered.**
+- *Queue pointer: do the two sentences added beyond the approved lines (`320/110`, `420/010`)
+  follow from them?* Both come from the intent records, not from the writer: the frame-answer
+  rule is `320/110`'s own analysis ("nothing tells a session to re-examine the form when a
+  principal answers the frame"), and "his message did not lift the floor" is `420/010`'s first
+  bullet. They follow from the items; they are not in the one-line picks. That is SDB1's case,
+  and it is wider than two sentences: `420/010`'s "candidate shape, none chosen" lists seven
+  rules, and the delta carries six of them (all but the notification check) under a pick that
+  named two. The commit bodies say so plainly, so the author's account is honest; the gap is in
+  what the principal was shown.
+- *Queue pointer: can talk-first reach a cold reviewer?* No, as written: § Talk first bars it
+  and the pointer reaches § *What the channel is not*'s side-door bullet and `REVIEW.md` rule 4
+  (act 1, assumption 6). `280/050` itself names `280/040` as the constraint. No finding.
+- *Brief-writer 1: does a new section restate a rule homed elsewhere?* One: the away cadence and
+  the prompt claim, in `COMMUNICATION.md` § When to ask and `CONCURRENCY.md` § Orchestrated queue
+  runs (SDB3). The cost clause and the side-door bullet are cited with pointers, not restated.
+- *Brief-writer 2: what did he approve, and does the longer text stay inside it?* He approved,
+  per each item's 💬 line, "the recommendation on this item" after a one-line summary, in one
+  *"Approve all 20"*. The longer text stays inside the **items** (every rule traces to a candidate
+  or an analysis line there) and goes past the **lines** (SDB1). `410/010`'s "scratch repo not
+  adopted" does follow from the pick, which chose two of the item's three candidates.
+- *The held fact* (one list, one-line summaries) is confirmed by the five 💬 lines.
+- *Re-run:* the sibling's `floor.py --plane ci` exit 0 with 28 `secretscan` advisories at
+  `457615cc` matches mine at `e0e4632f` (exit 0, 28 advisories).
+
+**Per-finding notes against the records and the author's account.**
+- **SDB1 — stands, MODERATE.** Sharpened: the additions are the items' own candidates, carried
+  into doctrine by a worker that read them, and each commit body lists what it adds. Nothing was
+  invented; what is missing is his sight of them. The re-brief is cheap because the list already
+  exists in the bodies.
+- **SDB2 — stands, MODERATE.** `410/010` names `280/050` ("talk first to a live session in that
+  repo") as a candidate route, so the pointer is the item's framing; the conflict with "queue,
+  never deliver" and the pointer reaching no hand-on rule are unchanged. The item also names
+  `310/140` (a PR as carrier), which the delta leaves open.
+- **SDB3 — stands, minor.** The commit body says "the session-open prompt is untouched", which is
+  true; the "closing paragraph" claim was inherited from the `160/900` QK7 wording in
+  `CONCURRENCY.md` and copied, not checked.
+- **SDB4 — revised at reconcile: note, not minor.** `360/010` carries the sentence word for word,
+  with "`Invalid credentials` and a lockout", and says it "happened in the commissioning incident,
+  twice over". The delta follows its intent record. What remains is that the item's own evidence
+  sits in a private child's records, which this pass cannot reach; the group narrative records one
+  failed login. The counsel narrows to: cite the item.
+- **SDB5 — stands, minor.** The in-quotes paraphrases are the item's: `420/010` writes *"I won't
+  be here for several hours"* in italics and *"don't ask"*; his words are in the group README and
+  the prompt. The drift started at the item and the delta carried it into doctrine.
+- **SDB6 — stands, minor; not the delta's fault.** `2a6d7a41` post-dates the landing by three
+  days; the sentence was true when written and is stale at HEAD. Recorded against HEAD.
+- **SDB7 — stands, minor.** "name that login in the announcement" is the delta's own sentence;
+  the item's rate-limit bullet asks for a line on the surface, not for the login in the hello.
+- **SDB8 — stands, note.** The items' 💬 lines date the answer "2026-11-09" without a zone; the
+  delta copied the item date.
+- **SDB9 — stands, note, outside the delta.** The intent record and the group narrative both
+  carry the join, by name; flagged by class, not quoted.
+- **SDB10 — stands, minor.** The DONE line says "the home-directory onramp itself is his, and
+  personal, so it is not built here"; honest, and no item tracks it.
+
+**Commit bodies screened:** five bodies give the account their diffs show, each naming the
+approval as a pick and not a ruling, each naming what it leaves open; the changelog commit has
+no body. No body claims more than its diff. No finding formed at reconcile; one revised (SDB4).
+
+**Overall line, restated:** PASS-WITH-FINDINGS — 0 MAJOR, 2 MODERATE (SDB1, SDB2), 5 minor
+(SDB3, SDB5, SDB6, SDB7, SDB10), 3 note (SDB4, SDB8, SDB9). Every finding is the principal's to
+decide; nothing applied.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-16)
+
+The text below is the brief's held-back sibling,
+`2026-11-09-0153-session-doctrine-batch-cold.deferred.md`, copied verbatim. It was removed from
+the review worktree before the reviewer started, held outside the tree until act 1 was committed
+(`4067468c`), then released to the reviewer for act 2. The orchestrator forms no finding and has
+not edited it; the sibling file itself is deleted in the fold commit, so the brief carries the
+whole record.
+
+# Deferred reading for `2026-11-09-0153-session-doctrine-batch-cold.md`
+
+Open only after your act-1 findings are committed (`docs/method/REVIEW.md` rule 1). Fold into the
+brief below the reconcile, then delete this file. A floor, never a fence.
+
+## The queue pointer's questions (the author's framing, verbatim)
+
+> whether the two sentences the writer added beyond the approved lines (in `320/110` and `420/010`)
+follow from them; whether talk-first can reach a cold reviewer.
+
+## The brief-writer's questions
+
+1. Does any new section restate a rule already homed elsewhere in `docs/method/`?
+2. When the approved line was a one-line summary, what did the principal actually approve, and does
+the longer text stay inside it?
+
+## What the brief-writer held back
+
+- The approval was given in one list after one-line summaries, per each item's note.
+
+## Re-run results (2026-11-09 UTC, at `457615cc`)
+
+`floor.py --plane ci`: exit 0, with 28 `secretscan` advisories reported and not blocking.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log — atelier 160/1140, session-doctrine batch cold pass (prefix SDB)
+
+Reviewer: Fable 5.1. Worktree: /Users/mike/worktrees/fable/atelier-160-1140-0848/atelier
+Brief: docs/reviews/2026-11-09-0153-session-doctrine-batch-cold.md
+Started 2026-11-16T08:50Z. Commands, files, evidence only.
+
+## Act 1
+
+- 08:50Z `uptime`: load 3.56 4.84 4.34 (16 GB laptop, several passes). `date -u` = 2026-11-16.
+- `git status --short`: only ` D docs/reviews/...deferred.md` (sibling removed on purpose). HEAD e0e4632f.
+- `git merge-base --is-ancestor 22347dd1 HEAD` exit 0: landing commit present.
+- `git log --oneline 22347dd1..HEAD -- <4 delta paths>`: 66 commits (brief said 14 at 457615cc). Must
+  read the three method files at HEAD and diff the delta sections against the delta commits.
+- `python3 --version` = 3.14.6 on PATH. `tools/coldsweep.py --help` read: --commit prints subject,
+  stat, diff, never body; --path scopes.
+- `grep -rn "SDB1\b" docs/reviews`: only this brief. Prefix free.
+- Read brief lines 1-224 whole.
+- Read `docs/method/REVIEW.md` lines 25-300 (rules 1-4), 302-566 (lenses, re-run, V1-V7, lifecycle,
+  open-record ruling 2026-11-15).
+- Six delta commits read with `tools/coldsweep.py --root <W> --commit <sha> --path <paths>` exactly
+  as the brief lists; every run exit 0, "message body not printed", 0 board-store files, 0 barred
+  files touched. Diffs noted:
+  - 2d685d7c CONCURRENCY.md +49/-1: new `## Beyond the repo` (rules 1-2, rate-limited API para,
+    "Not decided, and not built"); hello bullet gains "Off-repo claims ... ride in the same hello".
+  - 96b8be7b COMMUNICATION.md +24: "First, establish that there is a decision" block inserted in
+    § Asking for a ruling before "Use the harness's structured decision device".
+  - 1db64e22 COMMUNICATION.md +46 new `## When to ask` (table, three bullets, away mode, not
+    decided); CONCURRENCY.md orchestrated-run "When to ask is per run too" bullet points at it.
+  - 12a0433c CONCURRENCY.md +37/-1: `### Talk first` inserted before `### What the channel carries`;
+    cue 3 "Ask, when a channel exists" gains "and asks the owner before it works around".
+  - 8edaf16c RECORD.md +42: new `## A session with no repo` before `## Decisions`.
+  - 22347dd1 CHANGELOG.md +26: "Added (2026-11-08 — five session-and-ask doctrine additions)".
+- Scratch script `/tmp/sdb-scratch/sweep.sh` (coldsweep with the brief's six --also-exclude, -i)
+  swept: park and proceed; away mode phrases; talk first; owner marker/Beyond the repo; session with
+  no repo; find out first; "negoitate"; "when to ask rather than if"; "don.t stop to ask";
+  rate-limited. Hits: the three method files, CHANGELOG 972-991, docs/ROADMAP.md index lines,
+  group READMEs 360/410, `skills/session-onramp/SKILL.md:46` (Beyond the repo, cclive), 
+  `instruments/cclive.design.md` (3), `docs/method/PROPAGATION.md:853` (talk-first message),
+  board items 310/140, 320/820, 160/1290. No skill or template restates park-and-proceed or the
+  away cadence. "when to ask rather than if" appears nowhere outside the barred item (the 420 group
+  README carries it, in a longer quote).
+- Read at HEAD: CONCURRENCY.md 60-85 (cue 3), 200-251 (Beyond the repo), 564-662 (channel, laws,
+  Talk first, hello), 693-716 (cost clause), 717-733 (publication boundaries), 734-757 (what the
+  channel is not), 851-912 (Surviving an interrupted session), 1300-1335 (orchestrated-run bullets);
+  COMMUNICATION.md 14-33, 214-260, 330-433; RECORD.md 234-275, 497-543; AUTONOMY.md 40-60,
+  140-165; DATA-PROTECTION.md headings; 00-APEX.md account lines (grep); CONVENTIONS.md UTC rows;
+  docs/method/README.md 43-47, 60-64, 105-109; skills/session-onramp/SKILL.md 25-70;
+  docs/method/session-open/session-open-prompt.md tail (HEAD, and the blob at 22347dd1 and
+  457615cc via `git show <sha>:<path>`, which prints no commit message); group READMEs
+  docs/roadmap/{360,280,420,410}-*/README.md whole (not on the barred list); board item 320/820
+  lines 1-3, 45-55 and 180/090 lines 1-12 (not barred).
+- `git diff --stat 22347dd1 HEAD -- <3 method files>`: 356+/138-. Hunks touching the delta's own
+  sections: CONCURRENCY cue 3 (expanded, 2d685d7c's clause kept), Beyond the repo (cclive paragraph
+  added, 6197df86). § Talk first, hello bullet, COMMUNICATION decision block and § When to ask,
+  RECORD § A session with no repo: no hunks since landing. `coldsweep --commit 2a6d7a41 --path
+  docs/method/COMMUNICATION.md` read body-free: the account-then-device rule now "in the same turn".
+- Re-run: `uptime` load 5.55; `nice -n 10 python3 tools/floor.py --plane ci --root <W>` exit 0,
+  output in /tmp/sdb-scratch/floor.out: every enforced check ✅ except 🟡 secretscan (28 advisory)
+  and 🟡 leakscan (3 advisory); no advisory names a delta file (grep of the output). datescan,
+  wrapscan, spellscan enforced and ✅.
+- Cross-references reached (V5): § What the channel is not holds the "side door into a review"
+  bullet (CONCURRENCY 745-747); § Surviving an interrupted session holds "write the open question
+  into the durable record" (880-886); § Claiming work holds orphan claims on evidence never a timer
+  (537, 906); § Re-run, don't reason holds the four-rounds/two-corrections cost (710-716); § The
+  record is public and DATA-PROTECTION.md exist; COMMUNICATION's calibration pattern/instance split
+  is lines 14-33; CONCURRENCY orchestrated-run bullet 1317-1327 points at § When to ask.
+- Evidence checks: group README 360 records the named-vs-random container attribution and the tool
+  restarting its own unnamed verifier (matches § Beyond the repo rule 1); it records ONE failed
+  login against a rate-limited API and infers a lockout; no error text. The session-open prompt's
+  away paragraph is followed by two more paragraphs at 457615cc, 22347dd1 and HEAD. 420 README
+  quotes his words: "Try not to stop and ask me questions until you have done all the work. I
+  won't be here to answer for several hours". Tests: no tools/test_*.py pins these sections
+  (grep "When to ask|Talk first|Beyond the repo|no repo" over tools/test_*.py: none).
+- Candidate findings formed (evidence above): one-line picks vs rules added (rule 3 informed
+  approval); RECORD hand-on by message vs § What the channel is not "queue, never deliver" and
+  § Talk first not holding a hand-on rule; "closing paragraph" false at landing and HEAD, and the
+  away cadence stated twice; `Invalid credentials` + lockout stronger than the visible record;
+  two in-quotes paraphrases of his words; "the turn ends" vs the 2026-11-12 same-turn rule;
+  a login named in a hello with no by-role/abridge clause; local approval date unmarked at rest;
+  the approved onramp file has no item or owner; the grounding narrative's repo-to-posture join
+  (outside the delta, by class).
+- Left out: the 66 later commits beyond their hunks on the delta sections (read by diff, not one
+  by one); `/security-review` (no code; discharged); the barred item files, sibling, commit
+  bodies, SESSIONS.md, docs/sessions/, prior verdicts (rule 2, act 2). No live system read was
+  needed. Scratch: /tmp/sdb-scratch (sweep.sh, floor.out), deleted at the end of act 1.
+- 08:59Z act 1 appended to the brief below a `---` divider; Status line updated (ACT 1 WRITTEN
+  2026-11-16 UTC, PASS-WITH-FINDINGS 0/2/6/2). Scanners on the brief, each by worktree path with
+  `--root <W>`: datescan exit 0 (479 lines read), reviewscan exit 0 (1 brief keeps deferred
+  material out), leakscan exit 0 (0 findings); wrapscan and spellscan exit 0 but read 0 files
+  (docs/reviews is in their ignore files), so widths were checked by awk: 0 prose lines > 100
+  columns after rewrapping five of my own lines. `git status --short`: only the brief modified and
+  the sibling deleted. Scratch /tmp/sdb-scratch removed. ACT 1 SAVED; waiting for the sibling path.
+
+## Act 2
+
+- Release message received after act 1 was committed on main (4067468c), process only: the held
+  sibling's path (one file outside the worktree), the barred records and commit bodies now open;
+  append `### Reconcile` only; keep logging; no fold, no delete; same house rules; run the date
+  and wrap scanners; end with "ACT 2 SAVED". No question about the delta, no pointer to risk.
+- Read: the sibling whole (pointer block, 2 questions, 1 fact, re-run: floor exit 0 with 28
+  secretscan advisories at 457615cc); queue pointer 160/1140 whole; the five intent records whole;
+  six commit bodies via `git log -1 --format='%s%n%n%b'`; `grep` of docs/SESSIONS.md for the five
+  ids (one 2026-09-29 filing entry; not opened). No prior verdict opened.
+- Evidence found: 420/010's "candidate shape, none chosen" lists seven rules; the delta carries six;
+  its first bullet has "His message did not lift the floor" and the italic "I won't be here for
+  several hours". 320/110's analysis has the frame-answer sentence; its candidate rule block is the
+  three-way sort. 360/010 carries "`Invalid credentials` and a lockout ... happened in the
+  commissioning incident, twice over" verbatim. 410/010 names 280/050 and 310/140 as candidate
+  hand-on routes and its DONE line says the onramp "is his, and personal, so it is not built here".
+  Each item's 💬 line: "Approve all 20" after one-line summaries. Commit bodies list the additions
+  and the open parts; 22347dd1 has no body.
+- Reconcile appended: SDB4 revised to note (follows its intent record); all others stand; no new
+  finding. Overall restated: 0 MAJOR, 2 MODERATE, 5 minor, 3 note.
+- Scanners on the brief after act 2: datescan, wrapscan, leakscan, reviewscan (exit codes in the
+  shell output); widths by awk: 0 prose lines > 100 columns. `git status --short`: brief modified,
+  sibling deleted, nothing else. ACT 2 SAVED.
