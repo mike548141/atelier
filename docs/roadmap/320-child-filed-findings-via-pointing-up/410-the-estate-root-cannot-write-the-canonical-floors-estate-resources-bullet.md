@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: the canonical floor's `estate resources` bullet is
+- [~] 🔎 **Hand-up: the canonical floor's `estate resources` bullet is
       unwritable by the estate root itself — it instructs a repo to reference
       a repo that it IS — and the 2026-09-19 verbatim rule has just removed
       the local adaptation that used to cover the gap.** Filed from a private
@@ -80,3 +80,5 @@
       this finding does not argue against it. What is reported is that its
       interaction with one bullet, and with the record-store protection, has an
       unreachable state in it for at least one class of repo.
+      🔒 CLAIMED 2026-11-16T12:07Z (claimed 2026-11-16-1207, wt: qr-78ca-floorb) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

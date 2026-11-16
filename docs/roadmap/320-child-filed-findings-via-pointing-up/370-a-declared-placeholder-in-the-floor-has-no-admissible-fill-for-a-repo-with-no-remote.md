@@ -1,4 +1,4 @@
-- [ ] **REPORT — `<owner/repo>` is a declared placeholder in the `floor`
+- [~] **REPORT — `<owner/repo>` is a declared placeholder in the `floor`
       region with no admissible fill for a child that has no git remote, so
       that child follows every instruction correctly and still ships a floor
       line naming a check nothing in it can run** `[S][doctrine]` — filed
@@ -79,3 +79,5 @@
       own copy (a reword reds regardless of `narrow=`), and it did not work
       around the rule quietly — the workaround destroys the only evidence
       atelier would get.
+      🔒 CLAIMED 2026-11-16T12:07Z (claimed 2026-11-16-1207, wt: qr-78ca-floorb) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

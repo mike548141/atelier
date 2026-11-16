@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: an estate fact learned in a child has no rule sending it
+- [~] 🔎 **Hand-up: an estate fact learned in a child has no rule sending it
       up to the estate root** `[S][doctrine]`. Handed up by a private child
       on 2026-10-17, under `PROPAGATION.md` § *Pointing up*. **Missing
       rule.** **Evidence, as the child records it:** a session working in
@@ -23,3 +23,5 @@
       "and a fact about the estate learned in this repo is recorded in the
       estate root, with its provenance, not here". Whether it belongs in
       the floor or in `PROPAGATION.md` is atelier's to decide.
+      🔒 CLAIMED 2026-11-16T12:07Z (claimed 2026-11-16-1207, wt: qr-78ca-floorb) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

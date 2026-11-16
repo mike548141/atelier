@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: a child's own visibility fact sits inside its verbatim floor copy, so when the fact changes the child cannot keep it true** `[S][doctrine]`. Handed up by a child's session on 2026-10-17, for atelier to consider. A suspicion of a wrong rule, with one measured instance; no fix proposed. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [~] 🔎 **Hand-up: a child's own visibility fact sits inside its verbatim floor copy, so when the fact changes the child cannot keep it true** `[S][doctrine]`. Handed up by a child's session on 2026-10-17, for atelier to consider. A suspicion of a wrong rule, with one measured instance; no fix proposed. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 
       **What was measured.** The floor's visibility bullet is copied into each
       child's onramp verbatim, and the 2026-09-19 *floor copy verbatim* ruling
@@ -25,3 +25,5 @@
       may re-fill; `320/360` records exactly that. The real residue: stampscan
       has no placeholder handling (a filled `<SHA>` reds), and nothing says
       a fill is re-editable. The 310 rename remark holds. Overlaps `320/370`.
+      🔒 CLAIMED 2026-11-16T12:07Z (claimed 2026-11-16-1207, wt: qr-78ca-floorb) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

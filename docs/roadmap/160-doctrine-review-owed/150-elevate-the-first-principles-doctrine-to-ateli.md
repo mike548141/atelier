@@ -1,4 +1,4 @@
-- [ ] **Elevate the first-principles doctrine to atelier** (Mike, 2026-07-25) —
+- [~] **Elevate the first-principles doctrine to atelier** (Mike, 2026-07-25) —
   a child repo (kāinga) holds a **first-principles / evaluation doctrine**; a
   prior session judged it *"may deserve elevation to atelier — it governs how any
   repo evaluates, not just kāinga"*, and **Mike agrees**. The argument for
@@ -25,3 +25,5 @@
   (hardware) the rest don't — a frontier with little convention to copy *forces*
   first-principles reasoning, so its evaluation doctrine matured there first.
   This is the first concrete instance of the cross-repo up-flow captured below.
+      🔒 CLAIMED 2026-11-16T12:07Z (claimed 2026-11-16-1207, wt: qr-78ca-firstp) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).
