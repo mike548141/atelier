@@ -5,7 +5,8 @@
 pass. A session that cannot run on it stops (rule 4).
 **Status:** VERDICT WRITTEN 2026-11-15 UTC, both acts — PASS-WITH-FINDINGS (0 MAJOR · 2 MODERATE
 · 6 minor · 2 note after reconcile), by a Fable 5.1 reviewer under the principal's drain order of
-2026-11-16 NZDT; the ten findings await the principal's decisions (rule 3).
+2026-11-16 NZDT; the ten findings await the principal's decisions (rule 3). The sibling
+is folded below the verdict.
 **Sizing:** **small** — one commit, 130 changed lines of an ADR plus a ten-line doctrine paragraph;
 no code.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1090-rule-4-cold-pass-queued-private-state-type-only.md`.
@@ -159,7 +160,7 @@ after the reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, the queue pointer above, this brief's sibling
-`docs/reviews/2026-11-09-0126-private-state-type-only-cold.deferred.md`, every delta commit's
+(its `.deferred.md` file, now folded below the verdict), every delta commit's
 message body, and the intent record
 `docs/roadmap/260-sharing-public-since-2026-07-10-adr-0005/080-p6-rpi-f5-estate-internal-context-accumulating.md`
 beyond its first line (the title).
@@ -545,3 +546,196 @@ at `ce0e1cc2` pathscan is clean on both planes. Resolved since.
 **Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 6 minor · 2 note** (TY3
 lowered to minor at reconcile; TY10 added at reconcile). No MAJOR, so the application of these
 rulings closes without a further pass.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-15)
+
+*Released to the reviewer only after its act-1 findings were committed (`f082493f` on `main`,
+`b5353ca4` before the rebase); folded here verbatim (headings demoted two levels) and the sibling
+file removed, per the brief. The orchestrator (headless Opus 5.5 session `6dd1e8d3`, started by
+drain session `21a271a5`, itself Opus 5.5) held the partition, formed no finding and wrote no
+severity. The weekly usage limit cut act 2 at its first step; the same reviewer resumed it after
+the reset on the principal's resume order.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-09-0126-private-state-type-only-cold.md` (`REVIEW.md` rule 1).
+Written 2026-11-09 UTC by session `84e3aa7f`, the brief-writer, which authored none of the delta.
+Open this only after act 1 is committed. Everything here is a floor, never a fence, and none of it
+is a finding.
+
+#### The queue pointer's questions (author-written, verbatim)
+
+> whether the condition/act line is drawable by a session at write time; whether the drafter's two
+readings follow from the posture.
+
+#### The brief-writer's own questions
+
+1. The table allows "Session ran in `widget-api` to land item X". The Decision lists "the work in
+flight inside it" as type-only. Do they agree?
+2. "Landed a fix for X" is an act that discloses a prior condition. Which side of the line is it?
+3. A type read beside a roster published in the same record: when does "a private child" stop being
+type-only, and does the "a type only one repo fits" reading reach the join across sentences?
+4. The draft's Consequences said a B-or-C outcome would state the rule at the point of use, in the
+session-record and review-brief templates, per this repo's rule-grammar finding. The accepted
+Consequences state it only in `RECORD.md`. Silent scope-cut, or a decision? Check the templates
+(V3).
+5. `RECORD.md` says "Ruled 2026-11-08" and, in the same line, "not his own words". Does the house's
+vocabulary allow that?
+6. "Worked examples in doctrine keep their names": check against the later `9c8cb7e7` commit's rule.
+7. The landing commit and the pointer commit are separate (`38536e4c`, then `7ad98503`).
+
+#### What the brief-writer ran, and what it got
+
+- `floor`: at c132cc1c: hook exit 0, ci exit 0. pathscan reports 3 findings, warn-only:
+  docs/method/EVIDENCE.md:427, docs/method/session-open/session-open-prompt.md:13 and
+  docs/method/session-open/template-history.md:10 (paths that do not exist from the repo root).
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*The Fable 5.1 reviewer's own work log, kept while it ran and unread by any other session until
+act 2 was saved; appended verbatim (headings demoted two levels). Form fixes only, if any, are
+listed here: none beyond the heading demotion.*
+
+### Review log — atelier 160/1090, private-state type-only cold pass (TY)
+
+Reviewer: Fable 5.1 (claude-fable-5-1). Spawned by headless orchestrator session 6dd1e8d3
+(Opus 5.5), started by drain session 21a271a5 (Opus 5.5). Worktree: a drain worktree of atelier at
+ce0e1cc2. Day: 2026-11-15 UTC (22:11 UTC at start). Brief:
+docs/reviews/2026-11-09-0126-private-state-type-only-cold.md. Sibling `.deferred.md` held out
+(shows as deleted in `git status`; expected, not opened).
+
+Commands, files and evidence only. No secrets, no live captures, no private repo names.
+
+#### Act 1
+
+- 22:11 UTC `date -u; git rev-parse --short HEAD; git status --short; git merge-base
+  --is-ancestor 38536e4c HEAD` -> HEAD ce0e1cc2; status shows only ` D docs/reviews/...deferred.md`;
+  ancestor exit 0 (delta is in the tree). `python3 --version` -> 3.14.6. `uptime` load 7.14.
+- Read brief whole (lines 1-199). Read `docs/method/REVIEW.md` whole (698 lines): rules 1-4,
+  lenses, V1-V7, method-record requirement (lines 503-516).
+- 22:11 UTC `nice -n 10 python3 tools/floor.py --plane hook --root <wt>` -> exit 0; 13 enforced
+  checks pass, 5 warn-only (harvestscan, pointerscan, pathscan, indexscan, sweepscan) report 0.
+  Output kept in scratchpad `floor-hook.txt` (deleted at finish).
+- 22:12 UTC `nice -n 10 python3 tools/floor.py --plane ci --root <wt>` -> exit 0. One advisory:
+  pointerscan 2 finding(s), both "queue state", on `160/1420` and `160/994` pointers (other
+  drain claims; not this pass). namescan and quotescan report clean on HEAD only.
+- 22:12 UTC `python3 tools/coldsweep.py --root <wt> --commit 38536e4c --path <4 delta paths>` ->
+  exit 0, 220 lines; subject + stat + diff only, body not printed; 0 board files touched, 0 barred.
+  Stat: CHANGELOG +15; ADR 129 lines changed; decisions/README 2; RECORD.md +10.
+- Read the full diff. Delta content: ADR Status draft->accepted (Decided 2026-11-08); provenance
+  note (pick from offered options, not his words; drafter's readings marked); Decision (posture C,
+  what must be type-only, what stays allowed, table of 3x2 examples, narrow join rule stays as
+  floor, Part (b) "answered by the same line", forward only, enforcement by discipline); Rejected
+  A and B; Consequences (RECORD gains rule stated once; one-question test; scanner item "in the
+  200 section" to re-specify; forward-only; estate reach via pin). RECORD.md § The record is public
+  gains one paragraph. README index line. CHANGELOG entry.
+- `git log --oneline 38536e4c..HEAD -- <4 paths>` -> 66 commits touched one of the four paths.
+  Per path: ADR touched once since (e76250cf); RECORD.md 11 times; README 5; CHANGELOG many.
+- `git log --format='%h %ci %s' 38536e4c^..7ad98503` -> landing 38536e4c at 2026-11-08 12:31:16 UTC;
+  pointer commit 7ad98503 at 12:32:07 UTC (51 s later; stat: ROADMAP.md, RECORD.md 2 lines, the
+  1090 pointer, the 260/080 item). Pointer NOT in the landing commit; next commit of the series.
+- coldsweep `--commit 7ad98503 --path docs/method/RECORD.md` -> "Ruled 2026-11-08" became
+  "Decided 2026-11-08". `--commit 9c8cb7e7 --path docs/method/RECORD.md` -> 320/330: worked
+  examples in doctrine name no private child; "(e.g. <three names>)" removed from the join rule.
+  `--commit e76250cf --path RECORD.md --path <ADR>` -> ADR gains a "Correction, 2026-11-09"
+  blockquote inside Decision (below the table) superseding "worked examples keep their names";
+  RECORD.md gains "The estate-root repo gets no stricter rule" paragraph.
+- Read RECORD.md 497-543 at HEAD (section whole) and 33-48 (smallest unit of the record = the
+  comment and the commit message) and 112-132 (closing-entry identifier block).
+  FINDING candidate: line 123-124 "A private repo is named generically in a public record
+  (§ The record is public)" = posture B wording, citing the section that now says the name is
+  allowed. `git blame -L123,124 --line-porcelain` -> author-time 1792295250 = 2026-10-18T03:47Z,
+  summary "record: session id first, identifiers last (180/070, 180/080)". Pre-dates the delta;
+  not swept by it.
+- coldsweep tree sweep (with the two --also-exclude) for
+  `sensitive posture|private repos generic|type[- ]only|by (its )?type only|act done to|
+  condition .*type` -> 29 hits / 841 files, 568 excluded as barred. Mirror sites found:
+  CHANGELOG 568, 1337-1341, 4452-4479; docs/build/templates/CLAUDE.md:120 (estate-root line
+  only); AUTONOMY.md:58; PROPAGATION.md 218, 293, 313, 668; RECORD.md; decisions/README:46;
+  roadmap 030/070 and 110/README:18. No hit in skills/ or commands/ for the type-only rule.
+- Read PRINCIPLES.md § 6 (224-248): the sweep surface list = docs/, skills/, commands/,
+  docs/build/templates/, children's floor blocks.
+- `grep -n private` over skills, docs/build, REVIEW.md: skills/fleet-sweep/{task,worker,brief}-
+  prompt.md and skills/review-drain/{SKILL,orchestrator-prompt}.md say "Never name or point at a
+  private repo, the estate root ..." (posture B / stricter); review-brief SKILL.md: 0 mentions.
+  `git log --diff-filter=A` -> all four landed 2026-11-14 (4bfb4e16, 210/440), after the delta.
+- `python3 tools/namescan.py --help` + tools/README.md 1998-2024: in a public repo, no private
+  name in a branch name or commit title; term source = leakscan's; warning until 2027-05-03;
+  landed after the delta (6b6110c9). Contradicts ADR "naming in any other context stays allowed"
+  on that surface; neither text names the other.
+- Read PROPAGATION.md 599-654 (§ The route rules 1-2; rule 2 outranks naming rules for a
+  filing's surfaces) and 655-680 (320/330 precedence; acts stay allowed); child template
+  CLAUDE.md 85-130 (hand-up class-only rule; estate-root line carries "condition by type only";
+  the general rule is not in the floor block). AUTONOMY.md 50-64 (pre-flip scrub references the
+  rule). decisions/README.md 1-44 (lifecycle: after acceptance append a dated Addendum, never
+  edit).
+- Scanner item: `cat docs/roadmap/030-enforcement-propagation-the-estate-rollo/070-mechanise-
+  the-private-repo-posture-join.md` -> still specified on the join (name beside debt/security
+  posture); not re-specified. `ls docs/roadmap/200-*` -> one section, one item (080 registry
+  location). ADR Consequences say "the 200 section": wrong section.
+- reviewscan.py 138-150 + 618: review-line grammar example `**Review**: queued —
+  docs/reviews/<brief>.md`; ADR's line names no pointer and no brief.
+- coldsweep 'infra repo' -> 10 hits; ADR uses it as a type in 3 places; REPO-STANDARD uses it
+  generically. No public roster states how many infra repos the fleet has (README 17-22, 67,
+  124, 128 checked by line).
+- commands/fleet-pins.md (36 lines) read; skills/fleet-pins/SKILL.md absent; grep public|record
+  -> 0. The instrument's purpose line: "who is stale, by how much" per child.
+- Scratch probe `probe_state_join.py` (/usr/bin/python3 -I): loads the leakscan local term list
+  (32 terms, never printed) and scans non-barred prose surfaces (CHANGELOG, README, docs/method,
+  docs/build, docs/decisions, skills, commands, docs/roadmap minus the two barred items, tools/
+  and instruments/ README) for a line holding a term AND state vocabulary -> 0 lines / 0 files.
+  Records (SESSIONS.md, sessions/, reviews/, ROADMAP-DONE) excluded as barred; re-run owed in
+  act 2 over them, counts only. Script deleted at finish.
+- /security-review: NOT RUN. Grounds: delta is markdown only (the scanner excludes that class,
+  a clean pass weighs as nothing), and the tree is dirty with this brief for the whole act.
+- Act 1 verdict appended to the brief below a `---` divider (brief now 458 lines): provenance,
+  acceptance test read cold, 6 assumptions, 4 lenses, V1-V7, per-commit ledger, TY1-TY9,
+  overall PASS-WITH-FINDINGS 0 MAJOR / 3 MODERATE / 4 minor / 2 note, re-run ledger, follow-ups.
+  Status line updated to "ACT 1 WRITTEN 2026-11-15 UTC ...; act 2 pending".
+- 22:24 UTC re-ran `nice -n 10 python3 tools/floor.py --plane hook --root <wt>` over the dirty
+  brief -> exit 0; same pointerscan advisory only. `git status --short` -> ` D` sibling (held
+  out), ` M` the brief. No git write by me.
+- Scratch files deleted: probe_state_join.py, delta.diff, floor-hook.txt, floor-ci.txt,
+  floor-hook-2.txt. Nothing else written outside this log and the brief.
+- ACT 1 SAVED 2026-11-15 ~22:25 UTC. Sibling not opened. Waiting for the release message.
+- 22:26 UTC corrected two mis-written hours above (23:xx -> 22:xx) and the verdict's time span (22:11-22:25).
+- 22:27 UTC bare tree-wide `python3 tools/{wrapscan,datescan,spellscan,linkscan}.py --root .`:
+  datescan exit 0, linkscan exit 0; wrapscan exit 1 (61 findings, limit 85) and spellscan exit 1
+  (4 findings), none in this brief (its filename absent from both outputs; files listed in the
+  command output of this step). The floor hook plane, the gate, passed exit 0 at 22:24 UTC.
+  Scratchpad holds three `.log` files not written by me (c1.log, p1.log, push1.log); left alone.
+- 22:28 UTC wrapscan's 61 findings by file recorded in this step's output; brief hits 0.
+- ACT 2 released 22:28 UTC; act 1 committed as b5353ca4. Reading the sibling, the commit body, the pointer, the intent record.
+
+#### Act 2
+
+- 22:29 UTC 2026-11-15 released by the orchestrator (act 1 committed b5353ca4). Read: the held
+  sibling (one file, outside the tree; 7 brief-writer questions + the pointer's 2; its floor run at
+  c132cc1c: hook 0, ci 0, pathscan 3 warn-only); `git log -1 --format=%B 38536e4c` (body);
+  the queue pointer `160/1090` whole; the intent record `260/080` whole.
+- Probe 2 (`/usr/bin/python3 -I`, leak term list x state vocabulary over the record surfaces:
+  SESSIONS.md, sessions/, reviews/, ROADMAP-DONE.md, the two board items) -> 568 files, 0 lines.
+- Probe 3 (same, plus candidate sibling names = directory names under the estate folder, 31
+  names, never printed): overlap between sibling names and the leak term list = 0 of 31. So
+  probes 1-2 were NOT sensitive to repo names: the act-1 claim "false-positive floor of zero"
+  for an aid built on the leak scanner's terms is hollow, and namescan (same term source) does
+  not bar a private repo's name today. Correction owed in Reconcile against TY3 and assumption 4.
+  Sibling-name x state-word counts (upper bound: the name list includes public repos, and the
+  state regex is crude): RECORDS 1158 files, 1051 lines name a sibling, 139 name + state word,
+  0 of those in files dated 2026-11-09 or later (SESSIONS.md 60, ROADMAP-DONE 11, rest spread);
+  OTHER non-barred surfaces 82 files, 97 name lines, 6 name + state (CHANGELOG 4, SIGNING 1,
+  ADR 0006 1), 0 dated 2026-11-09 or later.
+- ~22:30 UTC usage limit cut the session. Resumed 2026-11-15 23:55 UTC (after the 23:00 UTC reset) on Mike's order "resume to finish
+  everything that was partly done i.e. in-progress" (relayed by the orchestrator).
+- 23:57 UTC Reconcile appended (brief now 547 lines): acceptance test verified against
+  the intent record's option bullet (the ruling-round record quotes no option text); author's
+  account consistent; per-finding notes; TY3 lowered to minor (namescan's term source holds no
+  repo name: contradiction latent, text leg stands); TY10 minor formed at reconcile (sibling Q1:
+  "work in flight" type-only vs the allowed "Session ran in X to land item X"); act-1 assumption 4
+  probe claim withdrawn and replaced by the sibling-name probe counts. Status line updated to
+  VERDICT WRITTEN, both acts. Overall restated: PASS-WITH-FINDINGS 0 MAJOR / 2 MODERATE /
+  6 minor / 2 note.
+- Floor hook plane over the edited brief -> exit 0 (output in this step). Scratch probes
+  probe2.py, probe3.py and floor-hook-3.txt deleted. Sibling not folded, not moved, not deleted.
+- ACT 2 SAVED 2026-11-15T23:57Z.
+- 23:58 UTC re-wrapped one reconcile line (was 101 chars); act-1 text untouched; no reconcile line over 100 chars.
