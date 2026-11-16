@@ -18,10 +18,34 @@
       answers, findings and a checklist and asked for no method. A rough sweep found a method or
       coverage heading in 17 of 307 files under `docs/reviews/`; one verdict (`C5R8`) already
       raised a missing method as a finding.
+      *Background, where the words came from:* the principal's weekly Fable drain session,
+      `21a271a5` (Claude Code transcript, 2026-11-15 17:53 UTC onward, in a private repo; he
+      pointed to it, 2026-11-15 UTC, as the place with more background and discussion). The
+      sentence first came at 20:15 UTC, while he was discussing a reviewer's working-notes file
+      and whether a resumed reviewer keeps its earlier reasoning; at 20:18 he asked for it to be
+      passed to atelier verbatim. His full message at 20:15, verbatim: *"Regarding the open
+      working-notes file. The main reason I prompted this earlier in the session is a review must
+      have irrefutable integrity to promote trust in the reviwers verdict. So its reasoning and
+      methdology are as important as its verdicts. Within the realms that calude will allow
+      noting the model extraction limitations. / Extending on this point I do also see some value
+      in the working-notes file to be able to ensure a resumed reviewer picks up everything from
+      before it was interrupted. / Finally none of this can be allowed to reduce the quality and
+      integrity of the review, it makes sense that a review is private / secret while its running
+      and no other session is allowed to influence or effect that review short of my order as
+      principal and for things like a review that is going to crash the system or do something
+      harmful. But once the review is complete that veil of secrecy is no longer required"*. This
+      delta binds only the first paragraph. His limit on it ("within the realms that calude will
+      allow noting the model extraction limitations") and the second and third paragraphs are not
+      yet in `REVIEW.md`, so the pass should judge whether they belong in this rule or in their
+      own item. The transcript is the principal's record, not this repo's; a cold reviewer reads
+      it only after its own findings are written, the same as deferred material.
       *Questions worth the pass's time:* whether the four listed parts of the method record
       capture his words or narrow or widen them; whether "incomplete" needs a consequence the
       doctrine can ground, or would be invented; whether `reviewscan` or another guard should
       check for the record, and whether a heading-keyed check would be gamed; whether the
-      paragraph sits in the right section; any other mirror site the sweep missed.
+      paragraph sits in the right section; any other mirror site the sweep missed; whether the
+      method record should cite the reviewer's working notes once the review is complete, given
+      his point that the secrecy ends then; how "within the realms that calude will allow" fits
+      the rule, given a model cannot fully report its own reasoning.
       *Review:* no brief yet. Neither this session nor anyone it starts may write the brief or
       run the pass.
