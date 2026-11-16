@@ -159,6 +159,23 @@ restating (principle 1, applied to itself).
    leverage documentation reaches the reader where they already are (the error
    at the failure site, the docstring at the call site, the `--help` at the
    prompt), pitched at their level — not a level-up in a wiki they must go find.
+6. **A rule is worded for the moment of decision.** A guard fires after the
+   act, on a choice already made; only the wording reaches the reasoning that
+   makes it. So a rule's own sentence names the situation the reader will be
+   standing in when they decide, then the act ("when you are about to X, do
+   Y"), and is not keyed to a condition a scanner could evaluate ("no X in
+   file Y"). This is `PROPAGATION.md` § *When a rule keeps breaking* rung 1
+   made an obligation on every rule up front, not a remedy after the third
+   breakage (`020/230`, on the floor `020/240` set). **The cost is the limit
+   on it:** the situation is a clause in the rule's own sentence, never a
+   directive preamble bolted onto each rule, because doctrine length is not
+   free and a reader who meets the same opening on every rule skims all of
+   them (`020/250`). A rule whose first sentence already names the situation
+   has met it; one that would need a paragraph to do so is reworded or split,
+   not padded. It binds new and changed rules as a review question
+   (*could a reader find this from where they stand?*), with no scanner: where
+   one is worth building is `020/220`'s census to say. Agent-drafted
+   from those items, not a ruling of Mike's.
 
 ## The AI consumer — the record doctrine is already this standard
 

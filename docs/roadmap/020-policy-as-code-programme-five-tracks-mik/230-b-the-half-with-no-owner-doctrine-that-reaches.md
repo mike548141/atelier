@@ -1,4 +1,4 @@
-- [~] **(b) The half with no owner: doctrine that reaches the moment of
+- [x] **(b) The half with no owner: doctrine that reaches the moment of
       decision.** A guard fires *after* the act — at commit, at CI — on a
       choice already made. Doctrine's other job is to change the reasoning
       that produces the act, so the guard finds nothing to catch. That is a
@@ -19,5 +19,14 @@
         because this ask is not Mike's (tidy line above). Original: that line
         began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      - [x] ✅ **DONE 2026-11-16 — APPLIED** by queue run 78ca (a Sonnet
+        worker, to be read by the orchestrator before landing):
+        `DOCUMENTATION.md` principle 6, *A rule is worded for the moment of
+        decision*. Home chosen there because the obligation is about how a
+        rule is worded for its reader (principle 5's neighbour), where
+        `GUARDS.md` governs what follows a guard firing; `PROPAGATION.md`
+        already holds the floor (`020/240`) and is pointed to. Carries the
+        `020/250` cost guard: a clause in the rule's own sentence, never a
+        preamble. A review question, no scanner. Cold pass owed.
       🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-guards) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

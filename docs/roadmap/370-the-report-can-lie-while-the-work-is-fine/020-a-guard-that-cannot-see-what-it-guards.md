@@ -1,4 +1,4 @@
-- [~] 🔑 **The fifth instance is not a report — it is a GUARD, and that is the
+- [x] 🔑 **The fifth instance is not a report — it is a GUARD, and that is the
       version of this that cannot be double-checked.** Found 2026-08-23 in
       docker-heap, from a completely different direction to the other four, which
       is the best evidence available that the pattern is real rather than one
@@ -49,5 +49,13 @@
         are allowed to differ. Sits beside `360` — *name what you launch* — which
         is the same problem approached from the launch side rather than the
         recognition side.
+  - [x] ✅ **DONE 2026-11-16 — APPLIED** by queue run 78ca (a Sonnet worker, to
+        be read by the orchestrator before landing): `GUARDS.md` gains *Where a
+        guard recognises its own work by a convention, the convention is a
+        shared invariant*, beside the threat-model section. Stated as a review
+        question, not a ruling of Mike's; no scanner (there is no grep for a
+        convention forked between copies). Its siblings did not land in
+        `GUARDS.md`: `010` is in `DATA-PROTECTION.md`, `030` in
+        `EVIDENCE.md` §18, and the section points to both. Cold pass owed.
       🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-guards) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

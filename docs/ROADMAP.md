@@ -58,7 +58,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled…](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
 - [ ] 🎯 [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await…](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
 - [ ] [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
-- [~] [(b) The half with no owner: doctrine that reaches the moment of…](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
+- ✅ [(b) The half with no owner: doctrine that reaches the moment of…](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
 - ✅ 🎯 [The posture change this implies — stated so it is ruled, not assumed.](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
 - ✅ [The REPO-plane numbers are still unruled](roadmap/020-policy-as-code-programme-five-tracks-mik/260-the-repo-plane-numbers-are-still-unruled.md)
@@ -399,6 +399,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: EVIDENCE.md §18 extended and §19–§21 added…](roadmap/160-doctrine-review-owed/1480-rule-4-cold-pass-queued-evidence-batch-18-to-21.md)
 - [ ] ⏳ [Rule-4 cold pass queued: three REVIEW.md paragraphs — a verdict…](roadmap/160-doctrine-review-owed/1490-rule-4-cold-pass-queued-review-partial-topup-budget.md)
 - [ ] ⏳ [Rule-4 cold pass queued: two PRINCIPLES.md bullets — say what being…](roadmap/160-doctrine-review-owed/1500-rule-4-cold-pass-queued-principles-interruption-and-hashes.md)
+- [ ] ⏳ [Rule-4 cold pass queued: a guard's own-work convention is a shared…](roadmap/160-doctrine-review-owed/1510-rule-4-cold-pass-queued-guard-convention-and-point-of-use-wording.md)
 
 ## build/ layer — open strands
 
@@ -729,7 +730,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/370-the-report-can-lie-while-the-work-is-fine/README.md)*
 
 - ✅ 🎯 [Decide whether "prefer artefacts over reports" earns a line, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
-- [~] [🔑 The fifth instance is not a report — it is a GUARD, and that is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
+- ✅ [🔑 The fifth instance is not a report — it is a GUARD, and that is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
 - ✅ [🎭 The sixth instance is the checker written to enforce this item, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/030-the-sixth-instance-was-the-checker-written-for-370.md)
 
 ## 🔇 Silence read as an answer — 2026-08-24

@@ -148,6 +148,39 @@ Whether the shared-checkout hazards already recorded in `CONCURRENCY.md`
 (absorbing a peer's work with a wide add; destroying a peer's hunks with a wide
 revert) are the same finding at guard-design level is likewise open.
 
+### Where a guard recognises its own work by a convention, the convention is a shared invariant
+
+A guard that must tell *its own work* from everyone else's often does it by a
+**convention, not a fact**: a name prefix, a path, a marker string. Where it
+does, **state the convention where the guard lives**, above the code that
+depends on it, and say which parts of a copy may differ and which may not. A
+rule that lives only in a playbook beside the guard is one the next copy does
+not carry: duplicating a file duplicates its data and silently forks its
+conventions.
+
+Grounded in `370/020` (a child repo, 2026-08-23). One tool existed as three
+copies that had drifted in both directions, with different internal names: a
+work root, a container-name prefix, and the filename of the self-extracted
+worker copy. Its guard restarted the containers that consume a folder and
+excluded the tool's own long jobs by matching two strings, the name prefix and
+the script name, both because either alone had already failed once. Given a job
+started from the other copy it matched neither, raised no error, found nothing
+to exclude, and would have restarted a live 366 GB transfer. The fix was one
+line in the file's own header: *filenames may vary, internal names must not*.
+
+The sentence is `370`'s own with one noun changed: **a guard that cannot
+recognise the state it exists to detect is not a guard.** It is worse than the
+report cases there in one way: a report has a reader who can corroborate it
+against the artefacts, and a guard's whole purpose is to fire when nobody is
+looking, so the prevention has to be structural. The neighbouring answers are
+`EVIDENCE.md` §18 (a check shown once to display its failing state) and
+`DATA-PROTECTION.md` (corroborate from artefacts), which cover the check and
+the report. This covers the guard.
+
+It binds new guard work as a review question: *what does this guard match to
+know a thing is its own, and where is that written?* Agent-drafted from
+`370/020`, not a ruling of Mike's, and unaudited against atelier's own guards.
+
 ## Before building a check: the evidence window
 
 Ask this of a proposed check before any of it is written. Its answer can refuse
