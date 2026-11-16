@@ -9,3 +9,9 @@
       rung 1, framing at the point of use — but only as **remediation, after
       recorded breakage**. This makes it a design obligation on every rule,
       up front.
+      - 🔀 Tidied 2026-11-16 (C0500, verified high; Mike approved 2026-11-16):
+        not an ask of Mike. It is a design obligation on how doctrine is worded
+        (lines 10-11), agent work; the item puts no question to him. Nothing
+        above was changed; the original text is as it was. To revert: delete
+        this line (its commit is listed in
+        `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
