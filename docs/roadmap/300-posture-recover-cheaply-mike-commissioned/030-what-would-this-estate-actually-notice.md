@@ -19,3 +19,10 @@
       restoring, and *"we would notice"* has no equivalent cheap proof — so it
       is the leg most likely to be assumed and the one the census exists to
       test. Expect the detection half to be weaker than the restore half.
+      - 🔀 Tidied 2026-11-16 (C0547, verified high; Mike approved 2026-11-16):
+        not an ask of Mike. That this is looked at next is already recorded at
+        line 2; doing the census is agent work, and lines 10-14 say it runs in a
+        session outside atelier, with only the generalised finding coming back
+        here. Nothing above was changed; the original text is as it was. To
+        revert: delete this line (its commit is listed in
+        `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
