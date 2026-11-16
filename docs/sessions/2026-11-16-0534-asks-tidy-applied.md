@@ -44,3 +44,22 @@ To revert every row at once: `git revert 2e95a91b^..2c931341`.
 Nothing from this run. The 🎯 flags on the eleven not-his items are left as they were (the
 approval was to add lines, not change flags); a later session may lift them on the principal's
 word.
+
+## Follow-up: the 🎯 flags lifted (2026-11-16, 0636 UTC)
+
+💬 Asked the same day whether to remove the 🎯 flag from the items marked closed or not his ask,
+so the next de-dupe does not list them as his again, the principal picked, verbatim, *"Remove
+them (Recommended)"*. That is an answer to an offered option, not a ruling. Session `3cf3696a`
+(Claude Opus 5.5, headless, started by the same sweep) applied it in **one commit, `80406fc3`**
+(`docs: remove 🎯 from asks the 2026-11-16 tidy-up closed`).
+
+Each of the eleven not-his items above had exactly one 🎯, on its first line, the ask its tidy
+line sits under. Only that 🎯 and its trailing space were removed; no other text, checkbox or
+marker changed. Each item gained one line under its tidy line, starting `🔀 2026-11-16 (<row>)`,
+saying the marker was removed, why, and how to revert. The board index was rebuilt in the same
+commit, since it reads each item's first line.
+
+- **Done (11):** C0495, C0497, C0499, C0500, C0544, C0545, C0546, C0547, C0553, C0554, C0557.
+- **Held:** none. C0333 (`020/120`) was a pointer, not a not-his row, and was outside this
+  follow-up; C0308 and C0311 have no copy here.
+- **To revert, restoring all eleven flags at once:** `git revert 80406fc3`.
