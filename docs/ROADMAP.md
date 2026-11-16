@@ -398,6 +398,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's Asking bullet says "same turn",…](roadmap/160-doctrine-review-owed/1470-rule-4-cold-pass-queued-floor-asking-bullet-same-turn.md)
 - [ ] ⏳ [Rule-4 cold pass queued: EVIDENCE.md §18 extended and §19–§21 added…](roadmap/160-doctrine-review-owed/1480-rule-4-cold-pass-queued-evidence-batch-18-to-21.md)
 - [ ] ⏳ [Rule-4 cold pass queued: three REVIEW.md paragraphs — a verdict…](roadmap/160-doctrine-review-owed/1490-rule-4-cold-pass-queued-review-partial-topup-budget.md)
+- [ ] ⏳ [Rule-4 cold pass queued: two PRINCIPLES.md bullets — say what being…](roadmap/160-doctrine-review-owed/1500-rule-4-cold-pass-queued-principles-interruption-and-hashes.md)
 
 ## build/ layer — open strands
 
@@ -702,13 +703,13 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md)*
 
-- [~] [Give the rule a home, then sweep for where the house already breaks…](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
+- [ ] [Give the rule a home, then sweep for where the house already breaks…](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
 
 ## ⏳ Long-running operations need a way back — Mike-commissioned, 2026-08-22
 
 *[Narrative](roadmap/340-long-running-operations-need-a-way-back-mike-comm/README.md)*
 
-- [~] [Name the rule, and attach it to the undo principle rather than beside…](roadmap/340-long-running-operations-need-a-way-back-mike-comm/010-the-rule-and-where-it-attaches.md)
+- ✅ [Name the rule, and attach it to the undo principle rather than beside…](roadmap/340-long-running-operations-need-a-way-back-mike-comm/010-the-rule-and-where-it-attaches.md)
 
 ## 🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23
 

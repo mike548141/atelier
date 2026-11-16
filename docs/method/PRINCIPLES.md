@@ -50,6 +50,27 @@ service beats total failure.
   carrying the rope on the way in). A destructive verb with no stated way back is
   not finished. (See [`DATA-PROTECTION.md`](DATA-PROTECTION.md); serves
   precedence rule 1.)
+- **Say what being interrupted looks like, before starting.** The way back
+  above covers an operation that is *wrong*; one long enough to be interrupted
+  fails differently, by stopping at a state that is neither the before nor the
+  after and may *look like* the after. So an operation longer than a session, or
+  touching data whose loss is not recoverable from elsewhere, gets three answers
+  in advance. **Does it survive the operator going away?** Detached, supervised
+  or restartable, checked against what the host actually offers: a foreground
+  process over SSH is none of those, and the right answer can differ with who is
+  driving. **Can it resume without redoing the work, and can an interruption
+  leave something that looks finished but is not?** The first is efficiency; the
+  second is correctness (a half-copied file sitting at its real name). **How is
+  completion proven, not assumed?** A verification pass that runs whether or not
+  the operation reported success, because the interesting case reported nothing
+  at all. Verification must not be asked to carry the whole load: it catches the
+  truncation, but not creating it is the better design. The test is not "is this
+  reversible" but "what does half of this look like, and would I be able to
+  tell?" The same shape covers a bulk API job, a multi-hour build, a batch of
+  writes to a third party and an agent loop that outlives its session. Below the
+  threshold it is not a checklist: a short operation's interruption is obvious
+  and harmless, and a rule that fires on every command gets skipped. (Mike's
+  commission, 2026-08-22: roadmap 340/010.)
 - **Design the way out before the way in.** Before adopting an external
   dependency — a library, a service, a platform — first establish how you keep
   working *without* it: a fallback, an export/migration path, a swappable seam,
@@ -220,6 +241,26 @@ watchdog poll.
   threat trains bypass* — Zero Trust is the target; each unmet tenet is a stated,
   tracked debt, not a silent miss. (See [`AUTONOMY.md`](AUTONOMY.md),
   [`DATA-PROTECTION.md`](DATA-PROTECTION.md).)
+- **Hashes: SHA-2 or stronger, never MD5 or SHA-1 for what we emit.** Any hash
+  or checksum the estate writes (a verification pass, a manifest, a cache key, a
+  fingerprint) uses the SHA-2 family or stronger: SHA-256/512, SHA-3, BLAKE2/3.
+  MD5 and SHA-1 never serve anything that must resist tampering, and are out by
+  default elsewhere too: that MD5 is adequate against accidental corruption is
+  true and beside the point, because a weak primitive written into one script
+  gets copied into a context where collision resistance matters, and the copy
+  carries no memory of the reasoning that excused it. SHA-256 costs approximately
+  nothing. *The scope is what we emit, not what we verify against:* an upstream
+  vendor's published MD5 is theirs to choose and checking against it is right;
+  git's own object ids, a format that mandates its checksum (PNG's CRC-32) and a
+  document quoting a historical digest are not ours to change. It sits here, not
+  in [`CONVENTIONS.md`](CONVENTIONS.md): that doc declares the *frame* a value
+  is read against, this is a build-time security choice. Whether it can be
+  checked mechanically is a separate, later question; a scanner would fire on
+  every exemption above. *The class it belongs to:* where the principal holds a
+  standing preference about a primitive (compression, encoding, key size, cipher
+  suite, RNG source), do not pick one silently on adequacy grounds; take the
+  stated one, or ask. (Mike's commission, 2026-08-22, *"sha2 or better that
+  is"*: roadmap 330/010.)
 
 ## 6. Legibility — observable, provenanced
 

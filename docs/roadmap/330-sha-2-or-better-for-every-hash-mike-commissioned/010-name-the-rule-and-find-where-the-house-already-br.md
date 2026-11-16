@@ -1,6 +1,6 @@
-- [~] **Give the rule a home, then sweep for where the house already breaks
+- [ ] **Give the rule a home, then sweep for where the house already breaks
       it.** Two halves, and the second is the one that earns the item.
-  - [ ] **Where the rule lives.** It is a *how we build* preference, not a safety
+  - [x] **Where the rule lives.** It is a *how we build* preference, not a safety
         floor — nothing catches fire if a hash is weak, so it does not belong at
         the apex. Likely `PRINCIPLES.md` or the conventions surface, as one line:
         **use SHA-2 or stronger (sha256/sha512, SHA-3, BLAKE2/3) for any hashing
@@ -18,7 +18,7 @@
         on git's own object ids. The estate already carries a lesson about guards
         that flag more noise than signal. **Decide the rule first; decide whether
         it is mechanically checkable second, and separately.**
-  - [ ] 🔑 **Carry the class, not just the instance.** The useful generalisation is
+  - [x] 🔑 **Carry the class, not just the instance.** The useful generalisation is
         broader than hashing: **where the principal has a standing preference about
         a primitive, the agent should not pick one silently on adequacy grounds.**
         Compression, encoding, key sizes, cipher suites and RNG sources are the
@@ -36,3 +36,20 @@
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
       🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-principles) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
+      - 2026-11-17: the rule and its class line landed in
+        `docs/method/PRINCIPLES.md` §5 (not `CONVENTIONS.md`, which declares the
+        frame a value is read against; this is a build-time security choice),
+        with the upstream-checksum, git-id and format-mandated exemptions.
+        **Sweep, atelier only (tools/, instruments/, docs/, skills/, hooks and CI,
+        read-only): no break found.** Everything we emit is SHA-256
+        (`tools/leakscan.py:1580`, `instruments/ccarchive:660,797`,
+        `instruments/ccmail:962`). Not breaks: `tools/secretscan.py:678-687`
+        recognises MD5 fingerprints on read (emits none); `zlib.crc32` in
+        `tools/leakscan.py:3492` builds PNG chunks and `crc32` in
+        `instruments/ccmail.test.js:31` / `tools/test_leakscan.py:2243` builds
+        PNG/zip fixtures (format-mandated). Two past review records ran `md5` as
+        a same-file check (`docs/reviews/2026-10-18-0511-template-history-privacy-cold.md`,
+        `docs/reviews/2026-08-15-1033-communication-floor-cold.md`), records not
+        tooling, kept as written. Nothing is owed for atelier. **Still owed:** the
+        sweep of the child repos (outside this repo), and the separate decision on
+        whether a scanner is worth it.
