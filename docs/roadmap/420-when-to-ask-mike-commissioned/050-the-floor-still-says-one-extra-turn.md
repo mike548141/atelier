@@ -1,4 +1,4 @@
-- [ ] **The floor's *Asking* bullet still says "(one extra turn)".** A
+- [~] **The floor's *Asking* bullet still says "(one extra turn)".** A
       hand-up from a private child, found 2026-11-13 UTC at a pin bump to
       `2a6d7a4`. `COMMUNICATION.md` § *Asking for a ruling* now says the
       account is written as text first and the device follows **in the same
@@ -14,3 +14,5 @@
       **Owed (atelier's):** align the floor region with `COMMUNICATION.md`
       and say so in the fleet's next pin bump. The child stopped at the
       report and copied the floor as it stands.
+      🔒 CLAIMED 2026-11-16T10:52Z (claimed 2026-11-16-1052, wt: none) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).
