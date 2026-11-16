@@ -1,4 +1,4 @@
-- [ ] **(a) The census nobody has run: which rules have a forcing function,
+- [~] **(a) The census nobody has run: which rules have a forcing function,
       and which do not.** ADR 0008 made enforcement *propagate*; it never
       established what proportion of doctrine is enforced at all. No one has
       enumerated the rules and asked of each: what happens if this is broken,
@@ -66,4 +66,6 @@
       🔒 CLAIMED 2026-11-16T11:40Z (claimed 2026-11-16-1140, wt: qr-78ca-census) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
       🔒 CLAIMED 2026-11-16T11:55Z (claimed 2026-11-16-1155, wt: qr-78ca-census2) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).
+      🔒 CLAIMED 2026-11-16T12:13Z (claimed 2026-11-16-1213, wt: qr-78ca-census3) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

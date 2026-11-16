@@ -57,7 +57,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
 - ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled…](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
 - [ ] 🎯 [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await…](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
-- [ ] [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
+- [~] [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
 - ✅ [(b) The half with no owner: doctrine that reaches the moment of…](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
 - ✅ 🎯 [The posture change this implies — stated so it is ruled, not assumed.](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
