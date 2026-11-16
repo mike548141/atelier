@@ -1,4 +1,4 @@
-- [ ] **REPORT — the `../<sibling>` path convention every child inherits
+- [~] **REPORT — the `../<sibling>` path convention every child inherits
       resolves only from a main checkout, so it breaks in the worktree the
       concurrency doctrine tells sessions to take by default — and the house's
       own drift-check instruction is one of the things that breaks**
@@ -107,3 +107,5 @@
         carries it. That edit is a floor change and is not made here. Until it
         lands, this item stays open. See `320/660` for the setting and the
         children's own references.
+      🔒 CLAIMED 2026-11-16T11:22Z (claimed 2026-11-16-1122, wt: qr-78ca-record) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

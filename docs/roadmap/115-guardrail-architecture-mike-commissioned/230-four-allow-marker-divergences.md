@@ -1,4 +1,4 @@
-- [ ] 🔎 **Single-sourcing the allow-marker grammar surfaced four
+- [~] 🔎 **Single-sourcing the allow-marker grammar surfaced four
       divergences, and one of them widens an exemption** `[S][tools]`. Found
       2026-10-03 by `080` part 2, which preserved every one of them on
       purpose, because unifying is a behaviour change and needs a decision.
@@ -27,3 +27,5 @@
       widens. Closing it would void any live marker written in that shape,
       in atelier or a child, so a fix needs a count of such markers across
       the estate first. That is the 2026-08-09 lesson in reverse.
+      🔒 CLAIMED 2026-11-16T11:22Z (claimed 2026-11-16-1122, wt: qr-78ca-allow) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

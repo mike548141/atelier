@@ -1,4 +1,4 @@
-- [ ] 🔎 **RECORD.md's index rotation has lost its trigger** `[S][doctrine]`.
+- [~] 🔎 **RECORD.md's index rotation has lost its trigger** `[S][doctrine]`.
       Found 2026-10-16 by the `270` (c) worker, not changed there, because
       it is doctrine beyond that item. `docs/method/RECORD.md` § *The session
       log* says `SESSIONS.md`, like the roadmap, "rotates" once it "outgrows
@@ -11,3 +11,5 @@
       open), rotation at a fixed calendar boundary, or dropping the rotation
       sentence because the per-file detail split already keeps the index
       lean. Whichever it is must not reintroduce a line or size limit.
+      🔒 CLAIMED 2026-11-16T11:22Z (claimed 2026-11-16-1122, wt: qr-78ca-record) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

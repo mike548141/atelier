@@ -1,4 +1,4 @@
-- [ ] **A hook that checks, without the model having to remember, that a
+- [~] **A hook that checks, without the model having to remember, that a
       child's floor copy and pin are current, and fails noisy when they are
       not.** A hand-up from a private child, 2026-11-14, on the principal's
       instruction. Work to pick up under `020/460`; nothing here is designed
@@ -36,3 +36,5 @@
       - Both, or the hook with `ccclose` as the backstop, are possible.
         `020/460`'s gaps apply: a hook fails open, can be switched off, and does
         not exist in a cloud session.
+      🔒 CLAIMED 2026-11-16T11:22Z (claimed 2026-11-16-1122, wt: qr-78ca-ccclose) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).
