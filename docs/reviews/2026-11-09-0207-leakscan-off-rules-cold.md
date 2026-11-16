@@ -578,3 +578,102 @@ averages 10 to 22 throughout:
 - At this HEAD the ci plane prints `leakscan advisory: 3 finding(s)` on this repo, all
   `diagnosis-key` shape.
 - `tools/test_floor.py` fails to import on the system Python 3.9.6 here; passes on 3.14.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+Appended by drain session 21a271a5 at its close (2026-11-16): this pass ran
+before the fold step that appends the log, so the log stayed in a
+user-local file. Text below is the reviewer's, unedited.
+
+# Review log — atelier 160/994, leakscan off-rules cold pass
+
+Reviewer: Fable 5.1, spawned by a headless Opus 5.5 orchestrator under drain session 21a271a5.
+Worktree: /Users/mike/worktrees/fable/atelier-160-994-1934/atelier
+Brief: docs/reviews/2026-11-09-0207-leakscan-off-rules-cold.md (sibling removed from the worktree).
+Log opened 2026-11-15 19:36 UTC. Act 1 entries below are written before the sibling is released.
+
+## Act 1
+
+- 19:36 UTC: uptime load 8.58; tree clean apart from the deliberately deleted sibling.
+  `git merge-base --is-ancestor e8614ec HEAD` exit 0: the tree holds the delta.
+- Read in full: the brief; REVIEW.md lines 300-500 (lenses, V1-V7, lifecycle).
+- Read body-free via coldsweep --commit: 0477462 (8 files, 705+/65-) and e8614ec (SECRETS.md only;
+  3 board files left out by default). Design note unchanged since landing (empty diff to HEAD).
+- Acceptance grep prints both labels: "leakscan first", "Report-only for off rules".
+- HEAD state: STRUCTURAL has 15 rules (matches the design's "fifteen"), WITHDRAWN = diagnosis-key,
+  SHADOWED_BY = {ipv6: (mac-address,)}; BLOCKING_AT_115_090 pin list unchanged since landing.
+- Floor at HEAD: leakscan entry advisory=None, advisory_count=True; floor captures and echoes the
+  check's whole stdout on both planes (floor.py ~2857), so the hits reach the CI log and the hook's
+  terminal, not just the count. pre-commit.sample runs floor --plane hook with no redirect.
+- CLI probes on synthetic fixtures (scratch): --disable binary-unlisted exit 2 (refused as unknown,
+  not in STRUCTURAL); --disable diagnosis-key exit 2 with the withdrawn message; --disable local-term
+  exit 2; combined fixture with --disable ipv4,mac-address: email+ipv6 block (exit 1), ipv4,
+  diagnosis-key, mac-address report; JSON clean=False blocked=True counts {blocking 2, advisory 3};
+  the MAC duplicate (ipv6 blocks + mac-address reports) matches design § 5. Ignore glob with a
+  reason exempts a report-only hit and is counted in the suppressed line (1 file). Staged plane
+  from inside a scratch git repo with --disable ipv4: exit 0, REPORT-ONLY block shown. Floor hook
+  plane with flags {--disable ipv4}: exit 0, board line "🟡 leakscan enforced (🟡 1 advisory ...)".
+- Sweeps (coldsweep, brief pattern + 'no advisory form|E6a'): mirror sites found at CHANGELOG:107
+  (2026-11-10 --messages entry: "leakscan has no advisory form", unqualified), README:567 ("floor
+  entry still has no advisory form", true of the floor FORM), ADR 0008:200 (historical AP2 text).
+  datescan copied the off-rules pattern (160/988's subject, out of scope).
+- GUARDS.md § Ruled 2026-11-09 (lowered responses need a reason and an end date) classes scope/flags
+  as "not as a lowering", end date none, and says whether narrowing counts as lowering a response is
+  undecided (020/170). Since 115/090 --disable is a block->advisory response change, not a narrowing
+  (the design itself says it "narrows nothing at all"). Candidate finding, lens 1 / V5.
+- Candidate note: _active_rules docstring at leakscan.py:890 carries a stray run of spaces and an
+  over-long line (from a later commit, not this delta).
+- Blast-radius re-run (V2) started in the background: pre (0477462^) vs post (0477462) tools archived
+  to scratch, 30 repos whole tree, plus declared flags/scope runs, counts only. Census: 30 git repos,
+  3 declare leakscan flags, 2 declare scope.
+- Blast-radius re-run finished 2026-11-15 ~19:57 UTC (782 s, nice -n 10, counts only): 30 repos,
+  34 runs (4 repos declare leakscan flags or scope), exit code and blocking count identical in every
+  run, pre vs post tool. Withdrawn diagnosis-key on a whole-tree run: 4 repos at 1, 1, 3, 11 (exactly
+  § 6's figures). Disabled-class declared runs: 58, 260, 6216 (§ 6 recorded 56, 241, 2,652 on
+  2026-11-03; repo content has moved in 12 days; the 3rd repo's whole-tree run shows 11
+  diagnosis-key hits where § 6 said 10 inside scope). Structure reproduces; magnitudes drifted.
+- Re-run line 1 (/usr/bin/python3 = 3.9): test_leakscan Ran 422 OK, exit 0. Line 2: selftest OK,
+  exit 0. Line 4: floor --plane ci --root <worktree> exit 0; atelier's own board line reads
+  "🟡 leakscan enforced (... 3 advisory finding(s))", consistent with the 3 whole-tree hits.
+- Re-run line 3 under /usr/bin/python3 (3.9) fails to import: test_floor needs 3.11+. The brief says
+  use the PATH python3, which is 3.14; re-running line 3 and line 5 on that interpreter.
+- Lens 4 code read: `_KEY_LEAD` is an alternation of zero-width anchors; the diagnosis-key regex has
+  no nested quantifier; gate requires "diagnos" + a key tail. Excerpts go through redact() (3+2
+  chars + length) on the report-only block as on the blocking one.
+- Re-run line 3 on PATH python3 (3.14), cwd=tools via subprocess: Ran 255 OK, exit 0 (251 s).
+- Mutation probe (scratch copy of tools at HEAD, whole test_leakscan.py per mutation, py3.14):
+  KILLED: M1 blocks ignores disabled (12 fails); M2 blocks ignores withdrawn (4); M3 shadow only by
+  blocking shadowers (1); M3b shadow by any shadower (1); M4 cap counts advisory as blocking (1);
+  M5 json clean counts advisory (1); M6 exit counts advisory (4); M7 render_human unfiltered (2);
+  M8 withdraw nz-ird by name (3 fails, 15 errors); M9 Finding defaults advisory (17); M10 path-name
+  drops response (1). SURVIVED: M11 staged call site drops disabled; M12 metadata call site drops
+  disabled; M13 withdrawn-refusal branch removed (unknown-name check still exits 2).
+- Decided not to raise: the CI-log exposure of redacted report-only excerpts (content already in the
+  tree; redact keeps 3+2 chars; noted under lens 4); README:567 and floor.py:503 "no advisory form"
+  (true of the floor FORM); ADR 0008:200 (historical record); datescan's copy (160/988).
+- Findings formed: LO1 MODERATE (--disable is now a response lowering; GUARDS 2026-11-09 table and
+  020/170 leave it unclassed), LO2 minor (CHANGELOG:107 unqualified mirror), LO3 minor (M11/M12
+  test gap), LO4 note (M13), LO5 note (§ 6 magnitudes drifted), LO6 note (docstring).
+- Full suite (line 5) running on py3.14 under nice from the worktree root.
+- Full suite (line 5, py3.14, nice): Ran 3134 OK, exit 0, 1,095 s.
+- Act 1 appended to the brief 2026-11-15 ~20:40 UTC; Status line updated to VERDICT / act 2 pending.
+  Tables rewritten as lists so no verdict line exceeds 100 columns. Gates on the brief: datescan,
+  spellscan, wrapscan, linkscan all exit 0 (spellscan/wrapscan ignore docs/reviews by their ignore
+  files; linkscan checked 0 links). Overall: PASS-WITH-FINDINGS, 0 MAJOR, 1 MODERATE, 2 minor,
+  3 notes. Scratch fixtures, tool copies and the scratch git repo deleted. Nothing committed.
+
+## Act 2 (opened after act 1 committed at 0c3f5c06)
+
+- Read: the held sibling (7 questions, 2 facts, re-run results); intent record 115/090 whole; EI6
+  record (EI5, EI6, rulings); 00-APEX.md § authority/informed rulings; author sessions' 115/090
+  lines; both commit bodies; the queue pointer; status/overall lines of the 2026-10-17 pass.
+- Q1 answered by act-1 lens 4 (redacted; blocking set unmoved). Q2: count is the consumer; no fleet
+  view (LO1 evidence). Q3: pin list hand-kept, STRUCTURAL ⊆ pinned not asserted -> LO7 minor, formed
+  at reconcile. Q4: blocks() is the only path (A2, M9). Q5: LO1's substance; intent record's first
+  answer said --disable should be weighed, build did not. Q6: one SHADOWED_BY entry, MAC only.
+  Q7: re-brief recorded in the item; informed-ruling test met for the second answer.
+- Author's account matches the delta. Item record says largest 2,662; design § 6 says 2,652 -> LO8
+  note, formed at reconcile. Sibling's 3.9 import error on test_floor reproduced in act 1.
+- Reconcile appended; Status updated (acts 1 and 2 written; sibling folded by the orchestrator).
+  Act-1 text untouched (diff shows only the Status lines removed, nothing below the divider).
+  Overall restated: PASS-WITH-FINDINGS, 0 MAJOR, 1 MODERATE, 3 minor, 4 notes. Gates run (below).

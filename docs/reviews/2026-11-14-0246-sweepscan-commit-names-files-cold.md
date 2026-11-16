@@ -770,3 +770,113 @@ Read 2026-11-14 UTC at `461fdf92`, git 2.50.1, Python 3.14.6.
    other health-sweep sessions were live, so `sweepscan` would have warned on a whole-index commit
    there. `ba55be27` (after the delta) added the entry's `declares=` block, whose `purpose_gap` reads
    "the check sees the commit's form, and a named foreign path still lands".
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+Appended by drain session 21a271a5 at its close (2026-11-16): this pass ran
+before the fold step that appends the log, so the log stayed in a
+user-local file. Text below is the reviewer's, unedited.
+
+# Review log — atelier 160/1400, sweepscan cold pass (Fable 5.1)
+
+Open by design. Checks and evidence only; no secrets, captures, transcript lines, child names.
+
+## Act 1
+
+- 2026-11-15T19:41Z start. Worktree HEAD 2fb235a6. `git status`: only the orchestrator's
+  removal of the .deferred.md sibling (partition held). `f9def52d` is an ancestor of HEAD.
+  `ATELIER_WHOLE_INDEX` NOT set in my environment (env grep count 0). git 2.50.1 (Apple
+  Git-155). `/usr/bin/python3` is 3.9.6; brief-writer used 3.14.6 — record both.
+  `git worktree list` in my review tree: 6 entries (mine included; other drain worktrees exist).
+  Load average ~8–10 at start; everything heavy runs under nice -n 10, one at a time.
+- Read brief in full and docs/method/REVIEW.md. Skipped the session-log step (rule 2).
+- Delta read with `coldsweep.py --root W --commit f9def52d` (subject, stat, diff; body not printed;
+  3 board files left out). Six files, +461/-10. sweepscan.py and test_sweepscan.py unchanged since.
+- Acceptance records read within the given ranges only (060 lines 1-70, 810 lines 1-14).
+- Registry entry at HEAD read (floor.py 1166-1201) incl. the later `declares=` block; HOOK_ONLY at
+  1333; plan() at 2445; run() 2626-2960; Result.failed 2312 (warn-only + rc!=0 => failed).
+- Mirror sweep with coldsweep + the brief's three --also-exclude: hits only in CHANGELOG, ROADMAP
+  index line, GUARDS.md:636 (GIT_INDEX_FILE in the msg-plane table, not about sweepscan), 115/120
+  item (name only), tools/README, floor.py, test_floor.py, filewalk/report/commitmsg (env drop
+  comments). NO hit in CONCURRENCY.md, GUARDS.md prose, skills/, docs/build templates for
+  `sweepscan` or `ATELIER_WHOLE_INDEX` => the marker and the check have no doctrine mirror (SV3a).
+- Re-run list: merge-base OK; coldsweep OK; `sweepscan --selftest` OK (3.9); `sweepscan --root W`
+  "no commit in progress", count 0, rc 0; `floor.py --selftest` ok (21 scanners); test_sweepscan
+  11 tests OK in 11.2 s on 3.14 (fails to IMPORT on /usr/bin/python3 3.9: `dict | None` at module
+  level; README 2741 documents tests need 3.11+ => discharged, not a finding); test_floor 255 OK in
+  250 s on 3.14, tree clean after.
+- P1 (scratch repo, printing hook + sweepscan): form table confirmed on git 2.50.1: plain/--amend/
+  --allow-empty -> `index`; -a/-i -> `index.lock`; -o/`--`/bare path/--amend -o/--amend -- p ->
+  `next-index-<pid>.lock`. Same from a linked worktree (GIT_DIR=.git/worktrees/<n>). WA1, WA2 OK.
+- P1 index isolation: path staged in w2 is invisible to `git diff --cached` in main (0 vs 1).
+- P1 marker: inherited two `sh -c` levels down -> "declared"; marker + `-- a` -> "names its files";
+  `=0` -> declared (any non-empty); empty -> not set. WA4 confirmed (visible, and nothing records it).
+- P1 crafted GIT_INDEX_FILE=.git/next-index-crafted.lock -> false clean "names its files" (note N2).
+- P1 worktrees: locked worktree with dir removed -> counted live (3); unlocked removed -> prunable,
+  not counted (2). WA6 partly damaged (locked edge).
+- P1 broken scan: bogus GIT_DIR -> rc 2; root not a repo -> rc 2. WA8 scanner side OK.
+- P1b (clean tree) replay states: clean `merge --no-ff` via pre-merge-commit: index_base=index,
+  MERGE_HEAD=n at hook time -> sweepscan WARNS (SV2). Conflicted merge + commit: MERGE_HEAD=y ->
+  exempt; partial commit during merge refused by git ("cannot do a partial commit during a merge").
+  Revert conflict + commit: exempt. Rebase stopped: fresh commits exempt (two in a row); after
+  `rebase --continue` finished: REBASE_HEAD=y, rebase-dir=n. rebase -i edit step: fresh commit
+  exempt. pull --rebase --autostash stopped: fresh commit exempt.
+- P9 (clean re-probe): REBASE_HEAD survives `--continue` completion for the merge backend,
+  `rebase -i`, and `pull --rebase --autostash`; persists across checkout; `--abort`/`--quit` rc 128;
+  `git status` silent; cleared only by a later CLEAN rebase/pull --rebase or `update-ref -d`. Every
+  fresh plain commit in that state judged "replaying commits already written" (SV1 MAJOR).
+- P8 live read (counts only, ~2026-11-15T20:00Z): atelier main checkout no replay ref; my worktree
+  none; 22 children: 0 main checkouts, 0 of 3 linked worktrees with a replay ref; atelier's 6 linked
+  worktrees: 0. No checkout is silenced by SV1 today.
+- P2 real .githooks/pre-commit + ATELIER_TOOLS=W/tools in a scratch repo: plain commit from main ->
+  ⚠ "2 worktrees", count 1; `-- a` -> clean "names its files", `b` left staged; plain from linked
+  worktree via `git -C` -> ⚠; marker -> clean "declared". WA3 confirmed. Hook output = 108 lines
+  for one plain commit (N3). The commits were blocked by other scanners (no docs in the scratch
+  repo), irrelevant to WA3.
+- P4 stub sweepscan exiting 2 through the real floor: floor rc 1, summary "❌ sweepscan warn-only",
+  "BLOCKED by: ... sweepscan ...", "exit 2 means the scan itself could not run"; the commit did not
+  land. WA8 floor side confirmed.
+- P3 scratch clone `--list` on hook and ci at f9def52d~1 vs f9def52d, self and a child-like config
+  with a hook-only local check: the ONLY diff is the added sweepscan line (hook: warn-only; ci:
+  skipped). Local hook-only check listed `skipped` on ci both before and after. WA7 confirmed.
+- P6 fleet probe (read-only, counts only): 22 children discovered; plain run exit 0 in 22/22; with
+  GIT_INDEX_FILE injected in the subprocess env only: exit 0 in 22/22, 2 would warn (worktree counts
+  3 and 4); 20 have one worktree. Author's 21/21 + 5 warn is a different day.
+- P5 transcripts (one niced process, counts only, 5,099 files, 8.9 GB read, nothing written):
+  my classification (named = ` -- `|--only|-o ; all-time; window 2026-11-01..2026-11-09 UTC):
+  atelier all-time 2,543 lines, 94% whole; window 536, 75% whole; other repos all-time 15,239,
+  94%; window 1,645, 84%; largest single other folder 4,111, 85% (window 305, 52%). Delta: 2,510/
+  88%, 373/46%, 3,530/97%, 157/79%. Direction holds; figures not reproducible (method unstated).
+  In-worktree split NOT measurable: the session folder keeps the start cwd after EnterWorktree
+  (heuristic saw 6%).
+- /security-review: NOT RUN; it reads the session's pending diff, which in my tree is this brief and
+  the removed sibling (REVIEW.md: never over a brief), and cannot be aimed at a landed commit.
+- Decided not to raise: `--json` clean:true with finding:true (note); `--amend`/`--allow-empty`
+  warn (consistent); stale GIT_INDEX_FILE in a shell makes a hand run warn (harmless); Python 3.9
+  test import failure (documented); V4 copies of the form table in README/CHANGELOG (note).
+- Act 1 appended to the brief below a `---` divider: provenance, pinned bound f9def52d, four
+  lenses, V1–V7, WA1–WA9 table, per-claim ledger, SV1 MAJOR / SV2–SV4 MODERATE / SV5–SV6 minor /
+  N1–N8 notes, overall FAIL, re-run ledger, follow-up checklist. Status line updated to PASS RUN.
+- Gates on the brief: datescan clean (585 lines); wrapscan and spellscan ignore docs/reviews by
+  their ignore files (scanned nothing), so prose width hand-checked: seven lines at 101–104 cols
+  rewrapped; table rows left long (not prose). reviewscan: brief keeps deferred material out.
+  Manual US-spelling grep over my act: none.
+- Scratch left in my scratchpad only: p1, p1b, p2, p3clone, p3child, p4tools, p7, p9 (throwaway
+  repos and a tools copy). No transcript extract on disk; p5 printed counts only.
+- Tree: only the sibling's removal (orchestrator's) and the brief (mine). No commit, no staging.
+  ACT 1 SAVED, waiting for the sibling's release.
+
+## Act 2
+
+- Orchestrator committed act 1 as 514eb4e5 and released the sibling path. Read: the sibling (12
+  questions, 6 facts), 060 line 71+, 810 line 15+, pointer 160/1400 whole, commit body of f9def52d.
+  Three other briefs name sweepscan; all BRIEF ONLY, no verdict; another pass's .deferred.md not
+  opened.
+- Probe p10: `cherry-pick -n` then hand commit: CHERRY_PICK_HEAD absent before and after, so not
+  exempt (sibling Q8 half-answer). floorfleet's "skipped" vocabulary is CI conclusions (Q10).
+- Fact 1 (060): the no-date call was put to Mike 2026-11-12 UTC, after landing, as an answer from
+  options ("Warn, measure first (Recommended)"), owing a yield count. Settles SV4's open question;
+  severity unchanged. No finding formed at reconcile. Commit body screened: counts only.
+- `### Reconcile` appended; act-1 text untouched; overall line restated FAIL 1/3/2/8.
+- Gates: datescan clean; prose ≤100 cols checked by character count; reviewscan OK. No commit, no
+  staging. ACT 2 SAVED.

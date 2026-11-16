@@ -637,3 +637,106 @@ averages 10 to 22 throughout:
 - `tools/test_precommit.py` fails to import on the system Python 3.9.6 here; passes on 3.14.
 - `staged_blob` is the reader `secretscan`'s `--staged` body exemption later reuses (pass
   `160/1030`, whose verdict the brief-writer read).
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+Appended by drain session 21a271a5 at its close (2026-11-16): this pass ran
+before the fold step that appends the log, so the log stayed in a
+user-local file. Text below is the reviewer's, unedited.
+
+# Review log — atelier 160/998 — cold pass on pre-merge-commit hook + staged scanners
+
+Reviewer: Fable 5.1. Worktree: /Users/mike/worktrees/fable/atelier-160-998-1937/atelier.
+Spawned by a headless Opus 5.5 orchestrator under drain session 21a271a5. Prefix HS.
+Started 2026-11-15T19:38Z (UTC). uptime load 14.14 at start (many reviews running).
+
+## Setup
+- git status: only the sibling .deferred.md shows deleted (expected partition). HEAD 41c29978.
+- `git merge-base --is-ancestor 38bdcb1 HEAD` exit 0: tree holds the delta.
+- Read in full: the brief; docs/method/REVIEW.md (681 lines). Did NOT read SESSIONS.md,
+  docs/sessions/, any prior verdict, the sibling, barred roadmap items, commit bodies.
+
+## Delta read (body-free)
+- coldsweep --commit for b5e6ead, 625f29a, 7673da1, 38bdcb1 with the brief's --path list: exit 0 each;
+  2590 lines read into scratch; no message body printed. Board files left out by default.
+- Since-landed on delta paths: 50+ commits; per-file history checked. Hooks unchanged since.
+  report.py gained 160/800 pins (STAGED_DIFF_CMD --no-relative etc.), 160/950 scope reader,
+  refuse_other_repo (QS3). The five scanners gained coverage lines (115/130), allow-marker
+  grammar (160/480), selftest quiet. None re-touched scan_staged's logic.
+- Brief's coldsweep sweep run (343 hits / 678 files, 742 excluded as barred). Hits read.
+
+## Checks and results
+- pre-commit hook is POSIX sh (no bashisms); `sh pre-commit` dispatch sound. Tracked hooks ==
+  samples (diff: identical). Both executable.
+- floor runner: subprocess.run(argv) list, no shell, no cwd override -> scanners run in the hook's
+  cwd (git sets it to the top-level). PLANES = ("hook","ci"); msg plane separate -> README's
+  "planes defaults to both hook and ci" TRUE. Collision -> ConfigError TRUE. Missing local script
+  -> BLOCKING TRUE (floor.py ~2666). run path inside repo (lexical + resolved) TRUE.
+- reviewscan staged_kind vs _is_decisions_dir/_is_reviews_dir: parity (docs/ parent, templates,
+  .deferred.md, README.md, BOUNDARY).
+- sizescan _staged_candidates vs iter_candidates: parity on names/dirs/ROOT_ONLY/ignored archive;
+  divergence: dir parts root-relative (staged) vs walk-base-relative (tree) under a narrow scope
+  such as docs/sessions. Docstring names it. Not raised (edge, documented).
+- CHANGELOG: entries for 115/340 (1768), 320/560, 320/600 slices 1 and 2 (1745, 1671) present; the
+  merge-hook entry states floorfleet does not yet report a missing merge hook. V3 satisfied there.
+- filewalk.py:101-102 "The three boundary guards avoid this with --staged; the others do not" is
+  STALE at HEAD (five content scanners + attribscan + board now --staged). Candidate minor.
+- README says nothing about ignore globs / floor json being read from DISK in --staged mode.
+
+## Probes (scratch repos under the session scratchpad, deleted at the end)
+- A: hook reach on git 2.50.1 (Apple Git-155), marker hooks. pre-commit RAN for: plain commit,
+  rebase -i reword (clean), cherry-pick --continue after hand-resolved conflict, merge --squash +
+  commit, commit --amend, commit -a (GIT_INDEX_FILE=.git/index.lock), commit -o (next-index-*.lock).
+  pre-commit did NOT run for: cherry-pick (plain, -e), revert (--no-edit, default w/ editor),
+  rebase clean, rebase --continue after conflict, merge --ff-only, git am. pre-merge-commit RAN for
+  merge --no-ff (control). Re-verified rebase --continue (no hook, rebase completed, a.txt=Z) and
+  cherry-pick --continue (PRE-COMMIT-RAN) with visible output. => GUARDS table wrong in two cells
+  (cherry-pick --continue; rebase -i reword) and silent on ff merge / pull / am. FINDING.
+- B: sizescan --check --staged over a 2.4 MB staged README (header-only read): exit 0, stderr empty.
+  Coverage line says "1 file opened · 0 lines read — scanned nothing" — tree mode prints the same
+  for that file -> 115/130's quirk, not this delta. Generator-finalisation check (-X dev,
+  gc.collect): nothing printed. Not raised.
+- D: diff.relative=true. From repo root: reviewscan/sizescan --staged exit 1 (correct). From
+  subdir docs/: reviewscan --staged exit 0 "not in scope ... scanned nothing" over a staged record
+  with NO review line (FALSE PASS); sizescan exit 2 (cat-file :0:ROADMAP.md fails: fail closed);
+  spellscan (reader pins --no-relative) exit 1 (correct). Hooks run from the root so the hook
+  plane is unaffected. FINDING (staged_paths lacks the 160/800 pins).
+- E: staged US spelling under docs/frozen/. E1 no ignore file: exit 1. E2 reasoned
+  .spellscanignore on DISK only (untracked): exit 0, "1 file(s) by .spellscanignore" -> the hook
+  passes a commit whose ignore file will not be in it. E3 ignore STAGED but deleted from disk:
+  exit 1 (blocked) -> globs come from disk, not the index. (E2 first try with an unreasoned line:
+  exit 2, the allow grammar failing closed; fine.) FINDING minor (unstated residual; class-wide).
+- F: cwd = this worktree, --root = scratch repo with a staged defect. spellscan, wrapscan,
+  datescan, reviewscan, sizescan --staged: all exit 0 (read THIS cwd's index under the other
+  repo's rules). secretscan --staged: exit 2 with the QS3 refusal. FINDING.
+- G: scratch child with the tracked hooks, hooks.atelierTools -> this worktree's tools,
+  .atelier-floor.json {"docs":"docs"} (a first try with "licence" blocked on licenscan: my setup).
+  G1 unstaged BAD draft + commit of another file: exit 0 (no false block). G2 commit -a with BAD
+  on disk: BLOCKED by spellscan (temp index read). G3 commit -o docs/a.md: BLOCKED. G4 merge
+  --no-ff of a --no-verify side branch with a US spelling: BLOCKED via pre-merge-commit, HEAD
+  unmoved. G5a chmod -x pre-commit, merge: still BLOCKED (sh dispatch). G5b invalid (reset --hard
+  restored the tracked hook's mode).
+- X: clean check: a mode-644 pre-commit (hooksPath and legacy) is SKIPPED by this git with a
+  hint; mode 755 runs. Sample's rationale stands.
+
+## Re-run ledger (python3 = /Library/Frameworks/Python.framework/Versions/3.14/bin/python3, 3.14.6)
+- 1 cd tools && nice -n 10 python3 -m unittest test_precommit: Ran 30, OK, exit 0 (99.8 s).
+- 2 test_spellscan: exit 0 (OK).
+- 3 test_wrapscan: Ran 71, OK, exit 0.
+
+## Mutations (scratch copies of tools/ under the scratchpad)
+- M1 staged_blob drops GIT_INDEX_FILE from its env: StagedPlane classes of spellscan(10), wrapscan(10), datescan(12), reviewscan(13), sizescan(13) ALL GREEN. Live: temp index (GIT_INDEX_FILE) holding BAD over a real index holding GOOD -> original exit 1, mutant exit 0 "clean". The env-inheritance claim is untested by the delta tests (probe G2/G3 show the live hook path is right).
+- M2 staged_paths --diff-filter ACMR -> ACM: reviewscan(13) and sizescan(13) StagedPlane GREEN. Live: `git mv notes/<rec>.md docs/decisions/<rec>.md` (R100, no review line): original exit 1, mutant exit 0. No test covers a rename.
+- M3 pre-merge-commit `exec sh` -> direct `exec`: MergeHookTest(8) GREEN. Live, sibling pre-commit mode 644: shipped hook -> scanners run, BLOCKED by spellscan; mutant -> merge refused too (exit 1, head unmoved) but with no scanner verdict. "cannot turn into a skip" holds either way; sh buys a real verdict. Untested; note only.
+- M4 sizescan _staged_candidates skips the .sizescanignore check: StagedPlane(13) GREEN. Live: staged ROADMAP-DONE.md with a live marker under a reasoned .sizescanignore: original exit 0 ("1 file(s) by .sizescanignore"), tree mode exit 0, mutant exit 1. No test covers an ignored archive store in staged mode.
+- Re-run 4 test_datescan: Ran 100 OK. 5 test_reviewscan: Ran 70 OK. 6 test_sizescan: Ran 117 OK. 7 floor.py --plane hook --root .: exit 0; pathscan 1 finding (EVIDENCE.md:431 missing path, unrelated, warn-only); no barred path named in the output.
+
+## Act 1
+- Act 1 appended to the brief 2026-11-15 UTC; Status line updated. Gates on the brief: datescan 0, spellscan 0, linkscan 0, wrapscan --limit 100: 0.
+- Verdict: PASS-WITH-FINDINGS, 0 MAJOR, 3 MODERATE (HS1 GUARDS table; HS2 refuse_other_repo missing; HS3 staged_paths unpinned), 3 minor (HS4 disk policy; HS5 four surviving mutants; HS6 filewalk stale), 4 notes.
+- Scratch probe repos and mutant copies deleted; small text outputs kept until act 2 closes.
+- Re-run 8 full suite: Ran 3134 OK exit 0 (1148.9 s). Ledger line filled; gates re-run on the brief: all exit 0. ACT 1 SAVED 2026-11-15 UTC.
+
+## Act 2 (2026-11-15 UTC)
+- Act 1 committed as 38d41ee6 by the orchestrator. Opened: the held sibling (8 questions, 2 facts), the three intent records, the 160/998 item, the four commit bodies, bearing lines of the two staged-positional-reader verdicts, session-store lines. No new finding. HS2/HS3 traced: QS3 found 2026-10-26, refuse_other_repo landed 6467729 (2026-11-09), --no-relative pin ea8de0f (2026-11-09), both after the 2026-11-03 delta and neither reaching the five new readers. HS1: the intent record measured plain cherry-pick/rebase/revert and rebase --continue only; the row generalised past the measurement.
+- Reconcile appended; Status line updated; gates on the brief re-run (see exits above in this shell). Scratch text outputs deleted. ACT 2 SAVED.

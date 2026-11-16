@@ -834,3 +834,116 @@ cores, at `origin/main` `2c1f0296`.
 - `merge-base --is-ancestor` on `20e7fc35` and `641f017f`: both ancestors of `2c1f0296`.
 - **Not run:** the fleet probe over child checkouts (left whole to the pass), and any probe of the
   questions above.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+Appended by drain session 21a271a5 at its close (2026-11-16): this pass ran
+before the fold step that appends the log, so the log stayed in a
+user-local file. Text below is the reviewer's, unedited.
+
+# Review log — atelier 160/1330 attribscan cold pass (worktree atelier-160-1330-1950)
+
+Reviewer: Fable 5.1 cold reviewer, spawned by a headless Opus 5.5 orchestrator under drain session
+21a271a5. Started 2026-11-15 19:52 UTC. Log opened empty (no prior content).
+
+## Act 1
+
+- 19:52 UTC: read the brief in full. Sibling .deferred.md shows deleted in git status (expected).
+- 19:55–20:05 UTC: re-run ledger all reproduced (python3 3.14.6, git 2.50.1; /usr/bin/python3 3.9.6 for my probes):
+  test_attribscan 36 OK exit 0; test_floor.AdvisoryCountContract 33 OK exit 0 (54 s; it printed a board
+  rebuild line but `git status` shows the worktree unchanged); --selftest OK exit 0; whole tree `docs`:
+  848 findings, 337 of 1218 files, exit 0 (EXPOSURE: the first 40 listed lines include excerpts from
+  docs/ROADMAP-DONE.md, a barred record; I read 2 of them in the head of the output, nothing else);
+  --against HEAD^ clean exit 0; --against nosuchrev exit 2; floor --list: attribscan enforced fleet decl 1/5.
+- Delta read body-free via coldsweep for 20e7fc35 (6 files) and 641f017f (2 attribscan files). No commit
+  touched attribscan after 641f017f. floor.py changed 7 times since (none touch the attribscan entry
+  except the decl column added by ba55be27).
+- CANDIDATE (record): CHANGELOG.md at HEAD line 280 is an EMPTY heading "Added (2026-11-10 — blockscan
+  reads edits inside mapped sub-sections)" and line 307 repeats that heading dated 2026-11-09 with the
+  body. The landing diff of 20e7fc35 shows it inserted the attribscan entry between the blockscan heading
+  and its body and re-dated the copy. Two dates for one entry; an orphan heading.
+- CANDIDATE (A6): floor.py ~2740 selects `scanner.advisory` on the CI plane for a softened child unless the
+  scanner has a msg plane. attribscan's advisory argv is `--warn --staged ...`; on CI the index is clean so it
+  reads nothing: probed (scratch repo advci) -> exit 0, "0 file(s) read", coverage line says scanned nothing,
+  while the CI argv on the same repo blocks (exit 1 on the flip copy). The registry comment admits "on CI
+  that is an empty diff"; README/CHANGELOG say only "an advisory form for adoption".
+- Detector probes (probe_detector.py, scratch copy): recall on 27 paraphrased attributions = 3 fire (11%);
+  false clears: "no transcript", any quoted token ("docs", "--warn", "done", "no"), a quoted reason in
+  another scanner's allow marker, 100/200, "session deadbeef", "ADR 9999", a demotion phrase about
+  something else, a blockquote of anybody, inch marks 5"/3". Generic senses all fire (court ruled, ruled
+  notebook, Monday's ruling, Court's directive, Python's directive, he directed the film). Controls: the
+  excerpt is sanitised (bidi stripped); NBSP survives in the word field (Cc/Cf only). Pathological lines
+  <= 1.3 s per MB. Evidence 4 lines away in the same paragraph: finding (window cap). Nested sub-item
+  quote does not clear the parent item.
+- Plane probes (probe_planes.sh, scratch repos): rewrap / move (--no-renames) / record-store split of OLD
+  unquoted lines all re-judged and BLOCK on the flip copy (1, 1, 5 findings); evidence deleted beside an
+  unchanged attribution: not seen (0 files read); 3-commit push: HEAD^ reads only the tip (clean), HEAD~3
+  would block; shallow clone depth 1: "first commit: nothing to compare", passes (floor.yml fetches depth 0,
+  so only a child with its own shallow workflow is exposed); CRLF fine; quote in a later commit clears.
+- Security probes: --against option values (--all, --output=..., -q, --no-index, ranges, @{u}, :/x) all
+  exit 2, no file written; hostile file NAME with ESC and U+202E on the TREE plane reaches the terminal raw
+  (f.path is not passed through report.safe_text; leakscan prints f.path raw too, so it is a sibling
+  convention); --json escapes it; symlink under docs to a file outside the repo: tree plane tracebacks,
+  exit 2 (relative_to ValueError), no leak; symlink to an in-repo non-.md file is read through; repo config
+  diff.interHunkContext=3 + diff.suppressBlankEmpty=true, or GIT_DIFF_OPTS=-u5, on the against plane:
+  DiffReadError traceback, exit 2 (fail closed, but a crash, not a message; the staged plane pins these via
+  report._DIFF_PINS and attribscan's own _git does not); file named '*.md' and a macron path both read fine.
+- Mutants (probe_mutants.sh, scratch copies; suite OK = gap): SURVIVED: `_in_scope` disabled on the against
+  plane (no CI-plane scope test); `--no-renames` dropped (no test); excerpt truncation dropped (trivial).
+  KILLED: path/excerpt sanitising, WINDOW, date gate both ways, board index skip, quote-in-code, bare
+  marker, tree never blocks, blockquote evidence, transcript citation, --warn, ruled-out. Two mutants were
+  non-mutants (first-commit check, .md filter already implied by the pathspec); one patch failed to apply.
+- Precision sampler (probe_precision.py, 653 non-barred .md under docs; barred paths excluded by prefix):
+  391 attribution lines -> 249 findings, 89 quote-cleared, 48 citation-cleared (37 board ids), 4 demotion,
+  1 blockquote. Seed-1330 samples judged by hand: FINDINGS 30 = 20 target form, 6 generic/future/hedged
+  ("await Mike's ruling round" x3, "not a ruled decision tree", "may have been ruled", "unwired or ruled
+  harmful"), 2 supported but unseen (a 5-line verbatim quote past the window: 210/230:30; a link to
+  ROADMAP-DONE.md), 2 headings with the words below a blank line. QUOTE-CLEARED 25 = 15 his words or his
+  recorded pick, 5 cleared by a quotation that is not his, 5 meta/generic lines. CITATION-CLEARED 12 = 4 cite
+  the record of the ruling, 4 cleared by an unrelated board id, 4 generic lines.
+- Long-quote probe: identical text, quote closing on line 3 -> 0; on line 5 -> 1 finding (WINDOW cut).
+  Heading + blank + quoted body -> 1 finding. Link to a record file / commit hash / date alone -> finding.
+- Macron names: Ngāio's ruling 0, Ngaio's 1, McDonald's 0, Māori's directive 0 (ASCII [A-Z][a-z]+).
+- Hostile names on the AGAINST plane: ESC and U+202E reach the output raw (f.path unsanitised); JSON escapes.
+- GIT_EXTERNAL_DIFF on a clean-config repo: fine (--no-ext-diff), exit 0 with the expected warning.
+- Fleet probe (probe_fleet.py, read-only, pins.discover one level under the main checkout's parent): 22
+  children + atelier = 23 repos, all with a records tree; CI argument today: 0 non-zero; flip copy: 0
+  non-zero; 0 exit-2. Whole-tree share 1,504 of 6,208 .md (24%); children 1,168 of 5,055; highest child
+  share 4 of 11 (36%). CHANGELOG recorded 1,372 of 5,144 (27%) and 21 children on 2026-11-09: drift by
+  growth, same shape. No child named anywhere.
+- ASVS 5.0 grounding fetched by a haiku web-fetch subagent (formed no finding): 16.4.1 (log injection, L2),
+  2.2.1 (input validation, L1), 1.2.5 (OS command injection, L1). --against option values all refused.
+- Decided NOT to raise: option injection via --against (all probes exit 2, nothing written); pathological
+  lines (<=1.3 s/MB); CRLF; '*.md' and macron file names; the `decl 1/5` column (ba55be27, later work, not
+  this pass); the four-week date chain (blockscan 2027-01-11 + 28 d = 2027-02-08, pdlistscan 2027-03-08:
+  consistent); GIT_EXTERNAL_DIFF (handled).
+- 20:20 UTC: writing act 1.
+- 20:35 UTC: act 1 appended to the brief below a `---` divider; Status line updated. Gates over the
+  brief: datescan clean, linkscan clean (no internal links), leakscan clean, spellscan/wrapscan ignore
+  docs/reviews by their ignore files (covered nothing; widths checked by hand, <= 100 chars for my lines).
+  attribscan's first run warned 3 times on MY lines 583/587/588: inline code spans wrapped across a line
+  break mis-pair the backticks and expose example text -> confirmed by a clean probe (wrapped: 1 finding
+  on `ruled`; unwrapped: 0) -> added as AT15 (minor) and rewrapped my lines.
+- VERDICT act 1: FAIL — 1 MAJOR (AT1, flip) · 5 MODERATE (AT2 long quote past window, AT3 moves/splits
+  re-judged, AT4 advisory reads nothing on CI, AT5 tip-only CI, AT6 unsanitised path) · 6 minor (AT7
+  diff pins, AT8 CHANGELOG headings, AT9 test gaps, AT10 ASCII names, AT11 generic senses, AT15 wrapped
+  code spans) · 3 note (AT12 symlinks, AT13 privacy weigh-up, AT14 wording). Owed ask: whether the
+  2027-02-08 flip stands as built; counsel (b) stay warn-only and re-date after AT1–AT5 are fixed and
+  cold-reviewed. Scratch files kept until act 2 (then deleted). Waiting for the orchestrator's release
+  of the sibling.
+
+## Act 2
+
+- Released by the orchestrator: act 1 committed as c1973db6. Opening the held sibling, the two intent
+  records, the queue pointer, the author's and brief-writer's session records, and the commit bodies.
+- Read: held sibling (10 questions; its re-runs match mine in every exit code), 320/100 (author's own
+  2026-11-12 precision measurement: 62 real of 200 across 30 repos, ~31%, "must not block as built",
+  owed fixes listed; nothing landed since), 320/810, pointer 160/1330, both session records, SESSIONS.md
+  tail, ROADMAP-DONE (no mention), four prior 2026-11-14 verdicts (mentions in passing), both commit bodies.
+- Reconcile: all act-1 findings stand; AT1 gains the author's corroborating measurement and a record-side
+  note (the measurement sits under the proposal only, not on any scanner surface). One finding formed at
+  reconcile from sibling Q6: AT16 note, one reasoned marker exempts every attribution in its block
+  (probe: 3 attributions + 1 marker in a paragraph -> 0; marker in its own paragraph -> 2). Commit bodies
+  change nothing. Overall restated FAIL — 1 MAJOR · 5 MODERATE · 6 minor · 4 note. Status line updated.
+- Gates re-run over the brief after the append: see the session reply; scratch files deleted.
+- Final gates after the Status reword: attribscan clean, datescan clean, linkscan clean, leakscan clean (exit 0 each); widths <= 100 for my lines. ACT 2 SAVED.

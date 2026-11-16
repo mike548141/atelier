@@ -863,3 +863,76 @@ on 12 cores.
   against each child that declares public; each exit 0, `in_scope` true, one `no-list`.
 - Not run: the 22-repo probe with the date patched to the flip (no recorded command; left to the
   pass), and any probe of questions 2 to 11.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+Appended by drain session 21a271a5 at its close (2026-11-16): this pass ran
+before the fold step that appends the log, so the log stayed in a
+user-local file. Text below is the reviewer's, unedited.
+
+# Review log — atelier 160/1340, pdlistscan cold pass (prefix PN)
+
+Reviewer: Fable 5.1. Worktree: /Users/mike/worktrees/fable/atelier-160-1340-1952/atelier
+Started 2026-11-15 19:54 UTC. Load at start: 18.35 (12 cores). HEAD a03e6ae5.
+Sibling .deferred.md removed from the worktree by the orchestrator (git status shows D). Not opened.
+
+## Act 1 checks
+
+- 2026-11-15 19:54 UTC: `git merge-base --is-ancestor 6607c0eb HEAD` printed nothing -> delta present.
+- Read the brief in full. Reading docs/method/REVIEW.md next.
+- Read docs/method/REVIEW.md whole (rules 1-4, lenses, V1-V7).
+- Delta read body-free: `coldsweep --commit 6607c0eb --path x6` (subject, stat, diff only; "message body not printed"). Later commit 641f017f read the same way (coverage line, 115/130). `git log --oneline 6607c0eb..HEAD -- <4 paths>` printed only 641f017f, as the brief recorded.
+- Context read (not barred): tools/pdlistscan.py at HEAD, tools/test_pdlistscan.py, tools/test_personal_data.py, docs/PERSONAL-DATA.md, tools/allowmarker.py, leakscan.py marker lines (grep), report.py helpers, floor.py (Scanner class, VISIBILITY docstring, check_visibility, github_visibility, run loop, advisory_count_rx), .atelier-floor.json, docs/build/templates/workflows/floor.yml, .github/workflows/floor.yml (grep), tools/README.md pdlistscan + attribscan sections, CHANGELOG.md lines 19-29 and 60-100, REPO-STANDARD.md lines 200-226, templates/CLAUDE.md 145-162, attribscan.py date line, namescan.py lines that import pdlistscan. `floor.py --declarations` output (decl 2/5 for pdlistscan; one line says "no verdict has read it", not an account of the work). Not opened: the sibling, SESSIONS.md, docs/sessions, ROADMAP-DONE, any prior verdict, the four barred board items, the commit body. Onramp session-log step skipped (cold reviewer).
+- Environment: /usr/bin/python3 is 3.9.6; the yardstick tools/test_personal_data.py fails to IMPORT on it (`str | None` without a future import, line 52). PATH python3 is 3.14.6 as the brief says; all suites below run on 3.14.6 unless noted. pdlistscan.py itself has the future import and runs on 3.9.6.
+
+## Re-run ledger (2026-11-15 UTC, load 5-10 on 12 cores, nice -n 10, one suite at a time)
+- test_pdlistscan: 24 tests OK (5.3 s) on 3.14.6; also 24 OK on 3.9.6.
+- test_personal_data: 11 tests OK (0.9 s) on 3.14.6 (import error on 3.9.6, see above).
+- test_floor: 255 tests OK (271 s), alone. Printed "✓ board: docs/ROADMAP.md rebuilt (13 lines)" from a temp fixture; `git status` afterwards shows only the orchestrator's sibling deletion, so the worktree was not touched.
+- `pdlistscan.py --selftest` -> "selftest OK", rc 0.
+- `pdlistscan.py --root <worktree>` -> clean, advisory 0, coverage 1283 files / 188823 lines, rc 0. `--json` same, in_scope true, rc 0.
+- `floor.py --list --root <worktree> | grep pdlistscan` -> "pdlistscan enforced fleet decl 2/5 ...". Also present on `--plane hook` and `--plane ci` lists for a public scratch repo.
+- Fleet probe (scratch/fleet_probe.py, READ-ONLY, sequential, `gh repo view --json visibility` per child): 22 children + atelier's main checkout = 23 roots. Today: 23/23 exit 0. Date patched to the past on a scratch copy: 21/23 exit 0, 2 exit 1. In scope: atelier + 2 children that declare "public" (both have no docs/PERSONAL-DATA.md -> one `no-list` finding each, coverage 0 files). GitHub says public for 4 children: the 2 declared ones and 2 that declare NO visibility key (out of scope, "not in scope", exit 0). With scope forced on a scratch copy, those 2 would each report `no-list` too. Declared values across children: public 2, private 7, no key 12, no config 2 (one child's cfg state counted from the floorfleet JSON).
+- The brief's recorded probe (22/22 exit 0 at the flip; atelier the only repo in scope) no longer holds: 2 children now declare public.
+
+## Scratch probes (scratch/probes.py, probes2.py; invented string zzhandle77; all repos deleted at the end)
+- P1 code-span mention "Write `leakscan:allow:email: why`" in docs/guide.md of a public repo -> unlisted-marker (leakscan blanks code spans; pdlistscan does not). FALSE POSITIVE class.
+- P2 unscoped marker on a line with an email in docs/ -> pdlistscan clean; leakscan clean (structural + local). The gap is live and stated in the docstring as a non-goal.
+- P3 list shapes: `### PD1 —`, `## PD1—x` (no space), `- **Data**: ` (colon outside bold), `## pd1 —`, and an empty list file: ALL rc 0, no findings, no stderr, while docs/stray.md holds the pinned string. Entries silently dropped.
+- P4 wrapped `May stand in` continuation line honoured (clean when the wrapped glob names the holder).
+- P5 public repo with tools/leakscan.py = "# stub": listed string in tools/notes.md and a personal marker in instruments/x.md -> clean. One-line file switches off two prefixes. The yardstick exempts those prefixes for MARKERS only (its holder test reads tools/; PD1 names three tools/ files).
+- P6 symlinks: tracked symlink to a file OUTSIDE the tree holding the string -> unlisted-holder reported by the symlink's path (reads outside the tree); dangling symlink and symlink to a directory -> no crash, no finding.
+- P7 non-UTF-8 path: NOT RUN, APFS refuses the name (Errno 92). By code: `tracked()` decodes strictly -> UnicodeDecodeError -> guarded_main traceback, exit 2 (fail closed, noisy). Bidi control in a path name: printed raw in the text output (detail goes through safe_text; path does not; leakscan prints paths raw too).
+- P8 skipped holders: 4.5 MiB text file, a NUL-byte file, a UTF-16 file, each holding the string -> clean; coverage "1 tracked file(s) opened" with no skipped count.
+- P9 glob of 40 `**/` segments: 0.18 s, correct finding. No ReDoS.
+- P10 `"visibility": "Public"`, "PUBLIC", "internal" -> scanner alone: out of scope, rc 0. Through floor.py: config error, rc 1, "`visibility` must be one of 'public', 'private'".
+- P11 text and --json output never contain the pinned string (checked by substring).
+- P12 flipped date copy: rc 1, blocking true; `--warn` rc 0.
+- P13 public repo, no list, a personal marker in docs/x.md -> only `no-list`; coverage 0 files, scanned_nothing true. Markers never read when the list is missing.
+- P14 `leakscan:allow:Email:`, `email,nz_phone`, `email, ipv4` -> not counted (leakscan's compare is case-sensitive and the malformed form is in grace until 2026-12-09, so no behavioural gap); `leakscan:allow:email:` with no reason -> counted.
+- Floor planes on a public scratch repo with 2 findings, real tools: hook and ci both run pdlistscan with rc 0, advisory 2 (floor rc 1 came from other scanners on the bare repo). Flipped copy: rc 1 on both planes. The date reaches both planes; no `--warn` in either template.
+- Mutations on scratch copies of tools/ (never the worktree): m1 drop the `rel == LIST_PATH` skip -> 2 tests fail (caught). m2 drop the continuation-line join in parse_list -> all 24 tests pass; on the real list it yields 78 findings. Tests stay green on that break.
+- Mirror check: every registry scanner except `board` has a `## x.py` section in tools/README.md; REPO-STANDARD § personal data and templates/CLAUDE.md say "a repo with no such file holds no exceptions" / "holds none" while the scanner makes a missing file a finding. REPO-STANDARD says "a test keeps it matching the tree" (atelier) and does not mention the floor check for children. CHANGELOG 2026-11-10 entry lists pdlistscan among scanners the coverage slice did not take; 641f017f then added it (consistent at HEAD).
+- Dates: attribscan 2027-02-08 + 28 d = 2027-03-08 (README "four weeks after" holds). The date appears in pdlistscan.py, README, CHANGELOG, all 2027-03-08.
+- Code-span mentions of personal-scope markers outside tools/ in atelier today: 2, both in CHANGELOG.md (a named place), so no false positive in atelier yet. Unscoped markers outside tools/: 6 lines in 4 files.
+- Finding IDs: pdlistscan prints `[unlisted-marker]`, not `[pdlistscan:unlisted-marker]`, no `id` in JSON; ten scanners use report.with_id/finding_dicts; attribscan also does not.
+- OWASP ASVS 5.0 items fetched by a Haiku web-fetch agent (V1 encoding, V2 validation, V5 file handling, V14 data protection, V16 logging): 16.4.1 log injection encoding; 1.3.12 ReDoS; 5.3.2 path validation; 16.5.1 / 16.2.5 no sensitive data in errors/logs; 5.2.1 size limits. Weighed in lens 4.
+- /security-review: NOT RUN. The worktree's pending diff is the orchestrator's deletion of the barred sibling, so the scanner would read deferred material; the delta is landed, and the scanner's markdown exclusion makes its pass over the doc surfaces empty anyway. Discharged by grounds in the verdict.
+- Not raised: hostile glob timing (P9 fine); JSON output escaping (json.dumps escapes controls); symlink reads (the repo's own symlink; noted under PN10 only); `MAX_LISTED` cap (over_cap_line used); the CHANGELOG placement (reverse-chronological, correct); `decl 2/5` declarations (115/120 is open fleet-wide, not this delta's).
+
+## Act 1 written 2026-11-15 ~20:20 UTC
+- Verdict appended below `---` in the brief; Status line updated to "ACT 1 RUN 2026-11-15 UTC ... act 2 pending".
+- Gates on the brief: datescan clean (663 lines), spellscan and wrapscan skip docs/reviews by ignore file (expected), linkscan clean (no link to the sibling written), leakscan clean. Character width of every verdict line <= 100 (byte width over 100 only where a line carries em dashes; the brief-writer's lines 1, 49, 263, 275-277 were over 100 bytes before this pass).
+- Scratch repos under the scratchpad (probes/, probes2/, tools_m1, tools_m2, tools_flipped, tools_forced, tools_plain, fleet.json) deleted after the gates ran.
+- Overall: FAIL — 2 MAJOR (PN1, PN2), 4 MODERATE (PN3-PN6), 3 minor (PN7-PN9), 3 notes (PN10-PN12). Sibling NOT opened. Waiting for act 2.
+
+## Act 2 (started 2026-11-15 ~20:30 UTC; act 1 committed as 84428ec7 on main)
+- Opened the held sibling (14 questions + the brief-writer's run ledger) and the commit body of 6607c0eb (`git log -1 --format=%B`). Now opening the four barred board items and the prior verdicts on the list.
+- Read: queue pointer 160/1340, 160/630 (whole), 320/810 (whole), 260/050 (whole), the 2026-10-04 pii-by-purpose verdict (heads + PI1/PI2 lines), the 160/1120 brief head (unrun, BRIEF ONLY), the 160/1180 pointer (unrun; its third question is "whether the cross-check can pass while a repo is public", which overlaps PN1), docs/SESSIONS.md line 355 and the author's session record 2026-11-09-1233 (one list line names pdlistscan; no account of its design).
+- Sibling vs act 1: Q1/Q2 = PN1+PN5 (sibling counted 6 private / 3 public / 12 none on 2026-11-14; I count 7 / 2 / 12 + 2 no-config on 2026-11-15 across 22 children: one declaration differs, which root is not recoverable); Q3/Q4 = PN3; Q5 = PN6 (the sibling left the other direction unprobed; P2 probed it); Q6 = PN7; Q9 = PN2; Q10 = PN10 (its question answered: exit 2 with traceback); Q11 = my V4 note; Q12 confirmed (dates); Q13 test counts 21 -> 24 explained by 641f017f; Q14 CHANGELOG placement, no finding. Q7 (hook reads the working tree, not the index) and Q8 (any entry's place licenses any marker) were not raised in act 1 -> probing Q7 now; both become reconcile-formed findings.
+- Board: 320/810 carries an open, undated bullet "Each flip needs a fresh fleet probe before its date" — so the probe obligation IS on the board; PN5's second half narrows to "undated and the README sentence stale".
+- Commit body screened: claims "the same check" (PN3), "22 of 22 ... atelier the only repo in scope" (PN5; true at landing), "Tests: 21" (true then). No framing beyond the docstring's.
+- Q7 probed on a scratch repo (deleted after): string staged then reverted in the working copy -> clean (hook misses it; CI on the pushed tree catches it); string in the working tree but not staged -> reported. -> PN13 minor, formed at reconcile. Q8 -> PN14 note, formed at reconcile (parity with the yardstick; a design question).
+- Reconcile appended; Status updated to "ACT 1 and ACT 2 RUN 2026-11-15 UTC ...". Sibling and held copy untouched; no git write.
+- Gates on the brief after act 2: see the run below (datescan, spellscan, wrapscan, linkscan, leakscan). Verdict + reconcile lines all <= 100 characters.
+- Overall restated: FAIL — 2 MAJOR, 4 MODERATE, 4 minor, 4 notes. ACT 2 done 2026-11-15 ~20:45 UTC.

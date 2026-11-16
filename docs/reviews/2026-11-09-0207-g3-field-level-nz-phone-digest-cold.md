@@ -620,3 +620,126 @@ averages 10 to 22 throughout:
 - The item cites `29021b9` for part 1. That hash is not on `main`; `2ba261b` is the landed commit
   with the same subject. The brief names `2ba261b`.
 - `e269f59` (the G3 application) touched the same paths at 2026-11-09 UTC; the item predates it.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+Appended by drain session 21a271a5 at its close (2026-11-16): this pass ran
+before the fold step that appends the log, so the log stayed in a
+user-local file. Text below is the reviewer's, unedited.
+
+# Review log: atelier 160/990, G3 field-level and nz-phone digest cold pass
+
+Reviewer: Fable 5.1, cold pass, worktree /Users/mike/worktrees/fable/atelier-160-990-1955/atelier.
+Spawned by a headless Opus 5.5 orchestrator started by drain session 21a271a5; under Mike's
+2026-11-16 06:53 NZDT `/fable-drain` order. Not started or instructed by d4a0fcf3, 74f2b8cd or
+4c65083c. Sibling .deferred.md removed from the worktree by the orchestrator (git status shows
+it deleted); I will not look for it anywhere.
+
+## Act 1 log (written before the sibling is released)
+
+- 2026-11-15T19:56Z uptime: load 9.89 12.17 10.08; several reviews running. Will nice everything.
+- Read the brief in full and docs/method/REVIEW.md in full.
+- `git merge-base --is-ancestor 1297df4 HEAD` exit 0: the delta is in the tree.
+- Acceptance-test span command run: two quoted spans printed (fields vs data types; one reason
+  may cover fields A, B, C if specific). Nothing else of 020/450 read beyond its first line.
+- Read only the first line of 020/450 and 320/470 (both `[x]` done 2026-11-03).
+- `git log --oneline 1297df4..HEAD -- <delta paths>`: ~50 commits since, including e269f594
+  (G3 cold pass application, a brief non-goal except as it bears on HEAD) and 57719bfa
+  (bracketed byte fields are not phones; 320/850, 320/840), which touches nz-phone.
+- Read body-free via coldsweep --commit (subject, stat, diff only): 7bc0f87 (124 lines), 2ba261b
+  (1,335), 1297df4 (1,357). coldsweep left the board-store files out by default (2 in 7bc0f87).
+  I named no board file with --path. The nz-phone commit did not touch test_report.py or
+  README.md (coldsweep said so).
+- Read at HEAD: leakscan.py 355-375 (nz-phone rule), 640-760 (validators, both hex guards),
+  1120-1260 (block comment, dates), 1260-1600 (manifest grammar), 1590-2430 (parsers, walkers,
+  check_binary), 2660-2775 (--binary-entries), render_type_level, JSON, selftest; README.md
+  350-515; CHANGELOG.md 1723-1745, 1786-1812; test_leakscan.py 2561-3410 (every delta test class);
+  GUARDS.md 380-430 (mandate/default dates); 320/810 lines 70-85 (names 2026-12-18 as an
+  existing flip, not barred).
+- RE-RUN 1: `nice -n 10 python3 -m unittest discover -s tools -p test_leakscan.py` exit 0,
+  Ran 422 tests OK (48.6 s). Load at start 9.89.
+- RE-RUN 2: test_report.py exit 0, Ran 110 tests OK (14.2 s).
+- RE-RUN 3: `python3 tools/leakscan.py --selftest` exit 0, "selftest OK".
+- Sweeps (coldsweep, brief's exclusions): the function-name pattern hits only leakscan.py,
+  test_leakscan.py, test_report.py:691, README.md:487, CHANGELOG 1738/1806, and 320/850 (the
+  later byte-field hand-up). The date/type-level pattern adds README 484-491, 578, CHANGELOG
+  1723-1806, the exception-register ADR line 97/524 (mentions only), 020/150, 020/440, 320/810:78.
+  No mirror in docs/method or skills states the type-level date: one home (README) plus
+  CHANGELOG. V3/V4 look clean for the date; checking README 578 next.
+- Candidate GF (governance): TYPE_LEVEL_UNTIL 2026-12-18 is the author's pick (CHANGELOG: "a
+  month after the G3 grace ends"), fleet-wide, blocking, "no flag or setting moves the date",
+  and no surface a child reads says whose choice it is or its kind (GUARDS: an unlabelled date
+  reads as a mandate). Same README (382-385) has the provenance warning deferring its block
+  date to Mike explicitly. 320/810:78 shows the pattern (agent-chosen flip dates) already named
+  as owed to him for later flips. Will reconcile against the sibling in act 2.
+- Candidate GF (doc drift): inspect_media_fields docstring (leakscan.py 2297-2303) still says
+  "(Exif and GPS so far, 020/450)" and "(None, [], [])" for a 4-tuple return, after part 2.
+- Checked, not raising: _HEX_CHARS defined after the function that uses it (module level, fine
+  at call time). str.isdigit on Unicode digits: the hex scan stops at once, so the match is
+  <16 and never skipped. Expat: DOCTYPE and entity decl both fail the packet; param entities
+  never; tests cover a bomb.
+- Probes (scratch, synthetic bytes only, /private/tmp scratchpad, deleted at the end):
+  - XMP legacy root `x:xapmeta` -> ['xmp:unknown']; `x:xmpmeta` control -> ['xmp:exif:GPSLatitude'].
+    Bare rdf:RDF root reads. NUL-padded packet -> unknown; space-padded reads.
+  - XMP prefix `q` bound to two URIs in two Descriptions -> both keys spelled `xmp:q:...`; one URI
+    under two prefixes -> one spelling (first declared). Names come from the packet.
+  - Exif: empty IFD0 -> []; `Exif\x00\xff` pad -> exif:unknown (fails closed); SubIFD 0x014A ->
+    exif:0x014A.
+  - Hex guard boundary: `0212345678abcdef` (16) skipped, `0212345678abcde` (15) flagged; uppercase  <!-- leakscan:allow:nz-phone: synthetic test fixture in the reviewer's log, not a number -->
+    digest skipped; plain phone flagged. Boundary holds at HEAD.
+  - Mutations on a scratch copy: `_HEX_RUN_MIN = 12` -> PhoneInsideHexDigest + ByteField 15 tests OK
+    (survives); `>` for `>=` -> 6 tests OK (survives). Dropping the GPS pointer -> 19 failures
+    (caught). Ignoring attribute-form XMP properties -> 6 failures 2 errors (caught). Grace never
+    ending -> 4 failures (caught).
+  - `parse_scope("exif:Model,unknown")` -> (['exif:Model', 'unknown'], None): the bare `unknown`
+    after a field is the whole `unknown` SET, not `exif:unknown`. README 436-437 says bare names
+    continue the set. Fails closed later (stale `unknown` line + unkept `exif:unknown`).
+  - Type-level `exif` line over an empty-IFD Exif block: before the date warns "carries no
+    fields"; on the date blocks "name its fields: it carries none"; `--binary-entries` prints
+    nothing for it. Control: the file with no set line is clean (rc 0). Remedy is deleting the line
+    and nothing says so. Rare shape.
+- Checked, not raising: main always builds a Tally (leakscan.py 3215), so the type-level warning
+  living in the tally is never dropped in production. TYPE_LEVEL_UNTIL is read only by
+  in_type_level_grace and for printing: "no flag moves it" holds. README/CHANGELOG/code agree on
+  "strictly before the date keeps, from the date blocks".
+- /security-review NOT RUN: it reads the session's pending diff, which here is the removed sibling
+  (the SL2 exposure) and then this brief; the delta is landed, not pending. Code-altitude read done
+  by hand against ASVS V5/V12 input-handling classes (entity expansion, decompression bomb,
+  unbounded counts and loops, memory, output leakage); findings GF8 note only.
+- Whole-suite re-run started 2026-11-15T20:08Z under nice, moved to background at 600 s (load
+  10-13 with other reviews). Waiting for it before writing the re-run ledger.
+- RE-RUN 4: `nice -n 10 python3 -m unittest discover -s tools` exit 0, Ran 3134 tests in 1118 s,
+  OK (load 9-18 with other reviews; single process).
+- Act 1 written into the brief below a `---` divider (469 lines total), Status line updated.
+  `python3 tools/datescan.py <brief>` exit 0, clean. Width: every line I wrote is <= 100; the
+  over-100 lines left are the brief-writer's (title, paths, commands).
+- Verdict: PASS-WITH-FINDINGS, 0 MAJOR, 1 MODERATE (GF1 type-level date's authority), 3 minor
+  (GF2 bare `unknown` continuation, GF3 x:xapmeta reads as unknown, GF4 docstring), 4 notes
+  (GF5 floor unpinned by tests, GF6 empty-set remedy, GF7 nz-phone narrowing is the author's
+  pick, GF8 names from the packet / per-file memory).
+- Scratch probes, mutated copy and dumped diffs deleted. Nothing committed; the sibling stays
+  deleted in the worktree for the orchestrator. Waiting for the sibling's path for act 2.
+
+## Act 2 log
+
+- Orchestrator released the sibling (one file under ~/.claude/fable-held/) after committing act 1
+  at de0ec3ef. Read: sibling whole (9 questions, 2 facts, brief-writer's re-runs), the three
+  commit bodies, 020/450 and 320/470 whole, 160/980 and 160/990 whole, the 160/980 prior verdict's
+  GM7 lines, session log 2026-11-03-0630 (author) and the two later logs' hand-off lines, and the
+  record-wide grep for 2026-12-18 / type-level / 320/470.
+- GF1 sharpened: 020/450 framed the migration as a choice to "weigh"; the author's log hands the
+  date on as a cleanup; 160/980's ruling round (2026-11-08) put 2026-11-18 to Mike ("Firm") and
+  never 2026-12-18. No record puts the type-level date to him. Stands, MODERATE.
+- Re-ran the author's "whole-tree scan exit 0" claim: `nice -n 10 python3 tools/leakscan.py
+  --root . .` exit 0 at HEAD (allow-marker notes only, no finding).
+- Probes for sibling Q4/Q6/Q7: GPS tag numbers behind pointer 0x8825 -> gps:GPSLatitude/
+  GPSLongitude; the same numbers in a chained IFD -> exif:InteroperabilityVersion, exif:0x0004
+  (new note GF9, formed at reconcile). Foreign URI bound to prefix dc -> xmp:dc:creator (confirms
+  GF8 and answers Q6 yes). %XX encoding injective: literal '%75nknown' -> %2575nknown.
+- Q2, Q3, Q5, Q7, Q9 answered without a new finding (reasons in the brief's Reconcile). Q8: child
+  repos not opened (read-only to the pass); by count, 160/980 named three children with owed lines
+  at the earlier cut-off.
+- Reconcile appended, Status line updated to VERDICT COMPLETE; datescan on the brief exit 0;
+  all my lines <= 100 columns. Final: PASS-WITH-FINDINGS, 0 MAJOR, 1 MODERATE, 3 minor, 5 notes.
+- Scratch probes deleted; the rerun-*.txt outputs (test counts only, no secrets) deleted too.
+  Nothing committed or pushed. The sibling is left for the orchestrator to fold.

@@ -732,3 +732,60 @@ Read 2026-11-14 UTC at `d3293d93`, by building inputs from parts in a scratch sc
 6. In `secretscan.scan_lines`, `_dedupe_same_span` runs first (an entropy finding is dropped on any
    line holding a `named` or `assigned`-kind finding), then `_scope_exempts` drops findings a marker
    covers. At the parent, the exemption test was `scope in ("", f.rule)`.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+Appended by drain session 21a271a5 at its close (2026-11-16): this pass ran
+before the fold step that appends the log, so the log stayed in a
+user-local file. Text below is the reviewer's, unedited.
+
+# Review log: atelier 160/1370 cold pass (phone byte field; assigned-rule spelling)
+
+Reviewer: Fable 5.1, spawned by a headless per-pass orchestrator under drain session 21a271a5.
+Worktree: /Users/mike/worktrees/fable/atelier-160-1370-1957/atelier (read-only except the brief).
+Rule: checks and evidence only; no secrets, no phone digits, no live captures.
+
+## Act 1
+
+- 2026-11-15T19:59:05Z log opened; brief read in full; REVIEW.md read next
+- Tree: HEAD cd7baa44; only the sibling's deletion dirty (by design). `git merge-base --is-ancestor 57719bfa HEAD` exit 0: pin confirmed.
+- Nine later commits touch the delta paths (list matches the brief's claim of nine).
+- Load at start: averages 7.4/10.8/9.9 on this laptop; all tests will run niced, one at a time.
+- Read the delta body-free via `coldsweep --commit 57719bfa` (exit 0; 3 board files left out, 0 barred files touched). Message body not seen.
+- Read the two filings' acceptance ranges only (320/850 lines 1-27; 320/840 lines 1-21).
+- Re-runs (niced, sequential): leakscan --selftest OK; secretscan --selftest OK; the two named classes 18 tests OK; full three-module line exit 0 (count in full3.log).
+- Scratch worktree of the parent (57719bfa~1 = a9c58551) added under the scratchpad for old-vs-new probes.
+- Code reads: leakscan validator skips are NOT tallied (Tally has note_marker and note_unknown_scope only); the --messages plane calls scan_text so shares VALIDATORS; secretscan readers of a rule name found at: --disable unknown check (ALL_RULES), _active_named (NAMED names only), assigned_off (RULE_ALIASES keys), names_no_rule (ALL_RULES, case-insensitive), _scope_exempts (canonical, case-sensitive), tally.note_marker(f.rule) and JSON by_allow_marker_rule (finding name).
+- Mirror sweep: README secretscan paragraph updated by the delta; README has no per-rule leakscan table naming nz-phone (no mirror owed there); no skill/template/.github file names the `assigned` rule; no `secretscan:allow:assigned` marker in the non-test tree; test_allowmarker already used the short spelling as a "real" scope.
+- Full three-module line: Ran 758 tests, OK (74 s niced).
+- Probe (scratchpad probe.py, inputs built from parts; old = parent a9c58551, new = HEAD):
+  - YA1: regex admits all-digit lengths 8 (landline prefix), 9 (both classes), 10 (mobile). Bracketed exactly: 9 -> flagged old and new; 10 -> flagged old and new; 8 -> flagged old, EXEMPT new. No complete NZ number is 8 digits, so no real number lost, but the brief's YA1 wording ("odd or caught by the ten-digit exception") is false for 8; the delta's own test pins the 8-digit field as passing, and the filing's shape is that length.
+  - YA2: 10-digit mobile with 2 hex letters adjoined inside the brackets -> exempt new; 9-digit (either class) + 1 hex letter -> exempt new; 10-digit + 1 hex (odd) -> still flags. Changelog's "a bracketed unseparated ten-digit number still flags" holds only for the exact-span form; the docstring says "that IS the match" (precise).
+  - YA3: email msgid, tel: autolink, html-tag-ish, plus/paren/dashed/spaced forms, one-sided brackets, template placeholders (9 and 10), 0x-prefixed runs: all unchanged (still flag). Generic-type shape with an 8-digit all-digit parameter and adjacent `<f><f>` fields: now exempt (not realistic text).
+  - YA4: 21-line synthetic corpus without a complete bracket: 0 moved. Whole tree, parent vs HEAD leakscan --json: both clean, 0 findings, identical sets. --messages plane calls scan_text, so shares VALIDATORS; smoke on HEAD~5..HEAD ran (0 findings in 5 messages).
+  - leakscan marker on a now-exempt byte field: by_marker={} (the marker is unused and uncounted; not counted as naming no rule either).
+  - YA5: library + CLI: `assigned` and `assigned-secret` both disable the rule at HEAD (parent refused the long form, exit 2); `Assigned` refused exit 2 both trees (fail closed); typo refused both. Marker: short spelling exempts at HEAD (inert at parent, and parent counted it as a REAL scope: unknown=0); long spelling exempts in both, parent counted it as naming no rule (the filing's defect); typo counted 1 both. Mixed-case marker `Assigned-Secret`: not exempt at HEAD, counted 0 naming no rule (count is case-insensitive via allowmarker.names_no_rule, match is case-sensitive via _scope_exempts). Same for `ASSIGNED` (both trees).
+  - YA6: two-token line (assigned secret + separate entropy token): entropy dropped by dedupe in both trees with or without a marker; the short marker exempts only the assigned-secret finding. No widening beyond the aliased rule. `assigned` collides with no NAMED name; canonical_rule is identity for every single-spelling rule; alias values are in ALL_RULES.
+  - JSON: by_allow_marker_rule keys the short marker under `assigned-secret` at HEAD.
+- YA7: no `secretscan:allow:assigned` marker in atelier's non-test tree; children not supplied -> unverified.
+- YA8: NOT RUN (no child checkouts). Shape concern: exit code cannot show a line moving from marked/flagged to unflagged in a child that was green before and after.
+- Lens 3: leakscan's own marker names vs STRUCTURAL: marker set adds `local-term` and `diagnosis-key` by design (BY_NAME includes withdrawn rules); no finding-name/rule-list split there. datescan/linkscan/spellscan print the same "naming no rule" count via allowmarker; they have no --disable. README 824-831 all <= 95 columns.
+- Disclosure: my hand-written mirror grep (not coldsweep) printed three lines of the 160/1370 pointer (1, 9, 13: the title, the pointer's two "questions worth the pass's time", the brief path) and three of the 160/990 pointer (3, 18, 21). Both questions are already the brief's YA1 and YA6 in substance; they steered no finding. The prescribed coldsweep line then ran clean of barred paths (exit 0, 739 files excluded).
+- /security-review: NOT RUN. It reads the session's pending diff; here that is the deleted sibling (its text would print as removed lines) and my own brief edit, and the Python delta is landed, not pending.
+- Board index (not an item file): 160/990, the digest guard's own cold pass, shows `[~] ⏳` (claimed, no verdict), so the brief's non-goal "their own earlier passes" rests on a pass not yet returned.
+- Code regions hash identically at 57719bfa and HEAD (byte_field body f3020eddbd15; alias region 9eb5ba935ea5).
+- Act 1 verdict appended to the brief 2026-11-15T20:12Z: PASS-WITH-FINDINGS, 0 MAJOR / 2 MODERATE (YB1 fleet-proof measure; YB2 silent validator subtraction vs rule (b)) / 3 minor (YB3 case split count-vs-match; YB4 changelog ten-digit sentence overbroad, no adjoined-hex test; YB5 docstring range and silence on eight) / 3 note (YB6 dead markers uncounted; YB7 non-goal rests on 160/990 pending; YB8 polish). Status line updated.
+- Gates over the brief: datescan, spellscan, wrapscan, leakscan, linkscan, reviewscan all exit 0.
+- Scratch parent worktree removed and pruned; probe captures deleted; probe.py and full3.log kept in the scratchpad (no phone digits in either).
+- Act 1 complete; sibling not opened. Waiting for the held path.
+- 2026-11-15T20:17:24Z tables in the verdict reflowed to wrapped lists (same words); verdict has 0 lines over 100 columns; six gates re-run, all exit 0. ACT 1 SAVED; stopping until the held path arrives.
+
+## Act 2
+
+- Orchestrator released the held sibling path after committing act 1 (fa2bfe2e). Read: the sibling (11 questions, 6 facts, matching the brief's count); 320/850 line 28+ and 320/840 line 22+ (the author's landing notes); the 160/1370 pointer whole; the commit body of 57719bfa; the 160/990 brief's Status line (still BRIEF ONLY in this tree, so no prior verdict on the digest guard to reconcile against).
+- Author's account adds, beyond the changelog: "no finding appeared" (850) / "no finding changed" (840) across the 30 checkouts, i.e. a finding-count measure beside the exit code; the one child's nz-phone marker count fell 70 -> 6; the "naming no rule" count fell 12, 10, 4 -> 0 in three children; "No child carries a marker in the short spelling"; the case mismatch recorded as "Not changed". Commit body: co-authored by the worker (Sonnet 5.5); tests 409 + 266 OK; the exact-span ten-digit rationale ("would be a false negative on a real number").
+- Sibling facts 1-6 agree with my probes (fact 1 = eight passes; fact 2 = adjoined byte passes; fact 3 = one-sided bracket flags; fact 4 = test_allowmarker's real-scope case; fact 6 = dedupe-then-exempt order).
+- Fact 5 closed: tools/test_secretscan.py is in .secretscanignore (line 12); secretscan over it at HEAD exit 0, suppressed by the ignore.
+- Reconcile appended 2026-11-15T20:19Z. YB1 moves MODERATE -> minor (the author's notes carry finding-count and marker-count measures beside the exit code; what stands is the changelog's weaker sentence, no listing of the 64 moved lines, planes unnamed). YB2-YB8 stand. Formed at reconcile: YB9 note (a narrower reconciliation existed: short spelling in --disable only; the widening is empty across the fleet by the author's measure); YB10 note (test_allowmarker's real-scope case made true by behaviour, not re-read). Sibling Q5, Q6, Q10 answered from act-1 probes; no boundary gap between the two guards (even 8-14 new; 15 odd flags; 16+ digest).
+- Reconciled tally: 0 MAJOR / 1 MODERATE / 4 minor / 5 note. Overall PASS-WITH-FINDINGS restated.
+- 2026-11-15T20:21:06Z reconcile: 0 lines over 100 columns; six gates exit 0; act-1 text byte-identical to fa2bfe2e (pure append). Sibling not folded, nothing deleted: the orchestrator folds. ACT 2 SAVED.
