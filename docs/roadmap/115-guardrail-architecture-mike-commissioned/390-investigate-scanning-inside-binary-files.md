@@ -1,4 +1,4 @@
-- [ ] 🤔 **Investigate scanning inside binary files.** No guard reads a
+- [~] 🤔 **Investigate scanning inside binary files.** No guard reads a
       binary's contents beyond image metadata: not pixels, not the insides of
       other formats, and `secretscan` reads no binary at all. So an exemption
       over a binary can only cover the whole file, and a secret or personal
@@ -21,3 +21,11 @@
       author fields no guard sees today); archive descent and a printable-string
       pass follow; OCR is out under the zero-dependency rule. Accepting the gap
       is the stated alternative.
+      💬 2026-11-16 UTC, the principal's answer to options offered (an answer,
+      not a ruling), told that all 37 tracked Office/PDF files sit in 3 private
+      repos and the orchestrator recommended holding behind a pre-flip gate
+      line: *"Build the reader"*. The option read: a ~300–450 line
+      standard-library reader for Office then PDF metadata under leakscan's
+      binary-file check, plus one Fable cold review.
+      🔒 CLAIMED 2026-11-16T19:25Z (claimed 2026-11-16-1925, wt: qr-78ca-docreader) by
+      queue-run session 78ca9153 (Opus 5.5, principal-opened).
