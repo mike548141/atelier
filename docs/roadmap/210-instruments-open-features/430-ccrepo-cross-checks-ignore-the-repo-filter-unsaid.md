@@ -1,4 +1,4 @@
-- [~] 🔎 **`ccrepo`'s two cross-checks run over the whole scope when a
+- [x] 🔎 **`ccrepo`'s two cross-checks run over the whole scope when a
       `--repo` filter is set, and the output does not say so.** Found
       2026-11-12 on a run that excluded one repo with `--repo '!name'`; the
       reconciliation lines then carried totals that included the excluded

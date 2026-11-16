@@ -76,13 +76,89 @@ test('a bare number still means "always" — the pre-interval form keeps working
 });
 
 test('a time-bounded price resolves at the message timestamp, both sides of the date', () => {
-  // sonnet-5 ships as two intervals: $2 through 2026-08-31, $3 from 2026-09-01.
-  assert.equal(r.priceBase('sonnet-5', null, '2026-07-26T07:00:00.000Z'), 2, 'intro rate before the boundary');
-  assert.equal(r.priceBase('sonnet-5', null, '2026-08-31T23:59:59.000Z'), 2, 'the "to" bound is inclusive');
-  assert.equal(r.priceBase('sonnet-5', null, '2026-09-01T00:00:00.000Z'), 3, 'the "from" bound is inclusive');
-  assert.equal(r.priceBase('sonnet-5', null, '2027-05-05T00:00:00.000Z'), 3, 'open-ended at the far end');
+  // A synthetic two-interval entry ($2 through 2026-08-31, $3 from 2026-09-01):
+  // the shape sonnet-5 once shipped in, kept as a fixture because the form is
+  // still legal even though the shipped table no longer uses it.
+  const table = { 'stepped-1': [{ to: '2026-08-31', base: 2 }, { from: '2026-09-01', base: 3 }] };
+  assert.equal(r.priceBase('stepped-1', table, '2026-07-26T07:00:00.000Z'), 2, 'rate before the boundary');
+  assert.equal(r.priceBase('stepped-1', table, '2026-08-31T23:59:59.000Z'), 2, 'the "to" bound is inclusive');
+  assert.equal(r.priceBase('stepped-1', table, '2026-09-01T00:00:00.000Z'), 3, 'the "from" bound is inclusive');
+  assert.equal(r.priceBase('stepped-1', table, '2027-05-05T00:00:00.000Z'), 3, 'open-ended at the far end');
   // The boundary is the UTC *date*, and the stamps are Z — no local-day guess.
-  assert.equal(r.priceBase('sonnet-5', null, '2026-08-31T11:30:00.000Z'), 2);
+  assert.equal(r.priceBase('stepped-1', table, '2026-08-31T11:30:00.000Z'), 2);
+});
+
+test('sonnet-5 is a flat $2: the published 2026-09-01 rise to $3 never happened', () => {
+  // Anthropic's pricing page (read 2026-11-16): the introductory $2/$10 "is now
+  // the standard price"; the scheduled increase "will not occur".
+  for (const ts of ['2026-07-26T07:00:00.000Z', '2026-09-01T00:00:00.000Z', '2027-05-05T00:00:00.000Z']) {
+    assert.equal(r.priceBase('sonnet-5', null, ts), 2);
+  }
+});
+
+// --- the 5.5 generation (published 2026-11-16) ---------------------------
+// Expected figures are the page's own, per MTok: Opus 5.5 $4 in / $20 out /
+// $0.20 cache read; Sonnet 5.5 $2 / $10 / $0.10; Fable 5.1 $10 / $50 / $0.25;
+// Fable 5.2 $8 / $40 / $0.20; Haiku 5.5 $0.10 / $0.50 / $0.01 to 100K prompt
+// tokens, $0.50 / $2.50 / $0.05 above.
+
+const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} !~ ${b}`);
+
+test('5.5 generation: exact base prices, not the older sibling by prefix', () => {
+  assert.equal(r.priceBase('opus-5-5'), 4);
+  assert.equal(r.priceBase('sonnet-5-5'), 2);
+  assert.equal(r.priceBase('fable-5-1'), 10);
+  assert.equal(r.priceBase('fable-5-2'), 8);
+  assert.equal(r.priceBase('haiku-5-5'), 0.1, 'haiku-5-5 no longer counts at $0');
+  assert.equal(r.priceBase('opus-5'), 5, 'opus-5 itself is unchanged');
+  assert.equal(r.priceBase('fable-5'), 10);
+});
+
+test('5.5 generation: cache reads use the published per-model rate, not 0.1x', () => {
+  const read = { cacheRead: 1e6 };
+  near(r.messageCost('opus-5-5', read).cost, 0.20);
+  near(r.messageCost('sonnet-5-5', read).cost, 0.10);
+  near(r.messageCost('fable-5-1', read).cost, 0.25);
+  near(r.messageCost('fable-5-2', read).cost, 0.20);
+  near(r.messageCost('fable-5', read).cost, 1.00, 'fable-5 keeps the standard 0.1x');
+  near(r.messageCost('opus-5', read).cost, 0.50);
+  near(r.messageCost('sonnet-5', read).cost, 0.20);
+  // The other four classes keep the standard multipliers: Opus 5.5 = 4 / 20 / 5 / 8.
+  near(r.messageCost('opus-5-5', { input: 1e6 }).cost, 4);
+  near(r.messageCost('opus-5-5', { output: 1e6 }).cost, 20);
+  near(r.messageCost('opus-5-5', { write5m: 1e6 }).cost, 5);
+  near(r.messageCost('opus-5-5', { write1h: 1e6 }).cost, 8);
+  near(r.messageCost('fable-5-1', { input: 1e6, output: 1e6 }).cost, 60);
+  near(r.messageCost('fable-5-2', { input: 1e6, output: 1e6 }).cost, 48);
+});
+
+test('haiku-5-5 is priced by prompt length: input + cache read + cache write over 100K', () => {
+  // Up to 100K: $0.10 in, $0.50 out, $0.125 write5m, $0.20 write1h, $0.01 read.
+  // Over 100K: $0.50 / $2.50 / $0.625 / $1.00 / $0.05.
+  near(r.messageCost('haiku-5-5', { input: 1e6 }).cost, 0.5, 'a 1M-token prompt is in the long tier: $0.50 per MTok');
+  const short = { input: 50000, output: 1e6, cacheRead: 50000 };           // prompt = 100,000 exactly
+  near(r.messageCost('haiku-5-5', short).cost, (50000 * 0.1 + 1e6 * 0.5 + 50000 * 0.01) / 1e6, '100,000 is NOT over the threshold');
+  const long = { input: 50000, output: 1e6, cacheRead: 50001 };            // prompt = 100,001
+  near(r.messageCost('haiku-5-5', long).cost, (50000 * 0.5 + 1e6 * 2.5 + 50001 * 0.05) / 1e6, 'over: $0.50 in, $2.50 out, $0.05 read');
+  // Cache writes count toward the prompt length too, and price at 1.25x / 2x the tier base.
+  const w = { write5m: 60000, write1h: 50000 };                            // prompt = 110,000
+  near(r.messageCost('haiku-5-5', w).cost, (60000 * 0.625 + 50000 * 1.0) / 1e6);
+  // A cached request's reads count: a tiny new input with a big cache hit is still long.
+  near(r.messageCost('haiku-5-5', { input: 10, cacheRead: 200000 }).cost, (10 * 0.5 + 200000 * 0.05) / 1e6);
+  // The long tier is haiku-5-5 only: haiku-4-5 has none.
+  near(r.messageCost('haiku-4-5', { input: 1e6 }).cost, 1);
+});
+
+test('priceMatch: dated ids are exact; a shorter key matching by prefix is flagged', () => {
+  assert.deepEqual(r.priceMatch('haiku-4-5-20251001'), { key: 'haiku-4-5', exact: true });
+  assert.deepEqual(r.priceMatch('opus-5-5'), { key: 'opus-5-5', exact: true });
+  assert.deepEqual(r.priceMatch('opus-5-5-20261101'), { key: 'opus-5-5', exact: true });
+  assert.deepEqual(r.priceMatch('sonnet-4-20250514'), { key: 'sonnet-4', exact: true });
+  // The next generation: no exact entry, so it rides on the previous one's price.
+  assert.deepEqual(r.priceMatch('opus-5-6'), { key: 'opus-5', exact: false });
+  assert.deepEqual(r.priceMatch('fable-5-3'), { key: 'fable-5', exact: false });
+  assert.deepEqual(r.priceMatch('haiku-5-6'), null, 'no key at all stays unpriced, not prefix-priced');
+  assert.equal(r.priceMatch('gpt-4'), null);
 });
 
 test('a date inside no interval is unpriced, never snapped to the nearest one', () => {
@@ -1219,4 +1295,98 @@ test('contract: a transcript copied from a renamed checkout does not relabel the
     assert.deepEqual(j.rows.map((x) => x.repo), ['new-name']);
     assert.ok(Math.abs(j.rows[0].cost - 60) < 1e-9);
   }
+});
+
+// --- live-mode end-to-end: cross-check scope label, prefix-fallback warning ----
+// Drives the real CLI over a synthetic HOME (two repos, one session each) with a
+// stub `ccusage` first on PATH, so the whole-scope cross-checks run offline. Names
+// are invented; nothing here reads the host's real logs, billing file or ccusage.
+
+function makeLiveFixture() {
+  const home = fs.mkdtempSync(pathMod.join(os.tmpdir(), 'ccrepo-live-'));
+  const bin = pathMod.join(home, 'bin');
+  fs.mkdirSync(bin);
+  const sessions = [];
+  const mk = (repo, uuid, model, input, output) => {
+    const dir = pathMod.join(home, '.claude', 'projects', `-home-dev-${repo}`);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(pathMod.join(dir, `${uuid}.jsonl`), [
+      JSON.stringify({ type: 'summary', cwd: `/home/dev/${repo}` }),
+      JSON.stringify({
+        type: 'assistant', sessionId: uuid, timestamp: '2026-11-02T12:00:00.000Z', requestId: `req-${uuid}`,
+        message: { id: `msg-${uuid}`, model: `claude-${model}`, usage: { input_tokens: input, output_tokens: output } },
+      }),
+    ].join('\n') + '\n');
+    sessions.push({ period: uuid, totalCost: 0, modelBreakdowns: [] });
+  };
+  // alpha-fx: opus-5-5, $4 in + $20 out = $24.  beta-fx: opus-5-6 (no exact entry,
+  // so it rides on opus-5's $5/$25 by prefix), $5 + $25 = $30.
+  mk('alpha-fx', 'aaaaaaaa-0000-4000-8000-000000000001', 'opus-5-5', 1e6, 1e6);
+  mk('beta-fx', 'bbbbbbbb-0000-4000-8000-000000000002', 'opus-5-6', 1e6, 1e6);
+  fs.writeFileSync(pathMod.join(bin, 'ccusage'),
+    `#!/bin/sh\necho '${JSON.stringify({ session: sessions })}'\n`, { mode: 0o755 });
+  fs.writeFileSync(pathMod.join(home, '.claude', 'ccrepo-billing.json'),
+    JSON.stringify({ currency: 'USD', plan: { name: 'Test plan', monthlyCost: 100, covers: ['opus'] } }));
+  return home;
+}
+function runLive(home, extra = []) {
+  const ledger = pathMod.join(home, 'rollup.json');
+  return execFileSync(process.execPath, [pathMod.join(__dirname, 'ccrepo'), '--fx', 'usd', ...extra], {
+    encoding: 'utf8',
+    env: { HOME: home, PATH: `${pathMod.join(home, 'bin')}:/usr/bin:/bin`, CCREPO_ROLLUP: ledger },
+  });
+}
+
+test('a repo filter labels both cross-checks as whole scope, filters not applied', () => {
+  const home = makeLiveFixture();
+  const out = runLive(home, ['-g', 'repo', '--repo', '!beta-fx']);
+  // The table honours the filter: the excluded repo is absent, TOTAL is alpha's $24.
+  assert.ok(!/beta-fx/.test(out.split('\n').filter((l) => /^\s*·/.test(l)).join('\n')), 'excluded repo not in the table');
+  // ...and each cross-check line says it did not.
+  const ccu = out.split('\n').find((l) => /Reconciled vs ccusage/.test(l));
+  const spend = out.split('\n').find((l) => /Actual spend vs estimate/.test(l));
+  assert.match(ccu, /Reconciled vs ccusage \(whole scope, filters not applied: repo=!beta-fx\):/);
+  assert.match(spend, /Actual spend vs estimate \(whole scope, filters not applied: repo=!beta-fx\):/);
+  // The scope's own total is on the line: both repos, $24 + $30 = $54 (not alpha's $24).
+  assert.match(spend, /\$54\.00 API-list-price estimate/);
+  assert.match(ccu, /\$54\.00 mine/);
+});
+
+test('with no dimension filter the cross-check lines carry no scope caveat', () => {
+  const home = makeLiveFixture();
+  const out = runLive(home, ['-g', 'repo']);
+  assert.match(out, /Reconciled vs ccusage:/);
+  assert.match(out, /Actual spend vs estimate:/);
+  assert.ok(!/filters not applied/.test(out));
+  // A date filter is applied by both checks, so it is not a caveat either.
+  const dated = runLive(home, ['-g', 'repo', '--since', '20261101']);
+  assert.ok(!/filters not applied/.test(dated));
+});
+
+test('--context counts as a filter the cross-checks ignore', () => {
+  const home = makeLiveFixture();
+  const out = runLive(home, ['-g', 'repo', '--context', '1k-']);
+  assert.match(out, /Reconciled vs ccusage \(whole scope, filters not applied: context=1k-\):/);
+});
+
+test('--json reports which filters the cross-checks did not honour', () => {
+  const home = makeLiveFixture();
+  const j = JSON.parse(runLive(home, ['--json', '-g', 'repo', '--repo', '!beta-fx']));
+  assert.deepEqual(j.meta.crossCheckFiltersNotApplied, { repo: '!beta-fx' });
+  assert.equal(j.meta.filters.repo, '!beta-fx');
+  const bare = JSON.parse(runLive(home, ['--json', '-g', 'repo']));
+  assert.deepEqual(bare.meta.crossCheckFiltersNotApplied, {}, 'always present, empty when nothing is hidden');
+});
+
+test('a model priced only by prefix fallback is warned about, exact ones are not', () => {
+  const home = makeLiveFixture();
+  const out = runLive(home, ['-g', 'repo']);
+  const w = out.split('\n').find((l) => /prefix fallback/.test(l));
+  assert.ok(w, 'warning printed');
+  assert.match(w, /opus-5-6 as opus-5 \(1 msgs\)/);
+  assert.ok(!/opus-5-5 as/.test(w), 'the exact opus-5-5 entry is not flagged');
+  const j = JSON.parse(runLive(home, ['--json', '-g', 'repo']));
+  assert.deepEqual(j.meta.prefixPriced, [{ model: 'opus-5-6', messages: 1, key: 'opus-5' }]);
+  // Priced, not zeroed: beta-fx's $30 is counted at the older sibling's rate.
+  assert.ok(Math.abs(j.rows.find((x) => x.repo === 'beta-fx').cost - 30) < 1e-9);
 });

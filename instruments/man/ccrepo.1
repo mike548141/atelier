@@ -445,14 +445,37 @@ The built-in price table records, per model, the USD list price per million
 tokens. The other four token classes derive from that base by Anthropic's
 standard multipliers \(em output at 5\(mu, cache read at 0.1\(mu, a 5-minute
 cache write at 1.25\(mu and a 1-hour cache write at 2\(mu \(em so one base
-number prices all five classes. Model names match by longest prefix, so a dated
-model id such as
+number prices all five classes, with two published departures. Cache reads
+cost 0.05\(mu on
+.I opus\-5\-5
+and
+.IR sonnet\-5\-5 ,
+and 0.025\(mu on
+.I fable\-5\-1
+and
+.IR fable\-5\-2 .
+.I haiku\-5\-5
+is priced by prompt length: a message whose prompt (input plus cache read plus
+cache write tokens) exceeds 100,000 tokens pays the $0.50 tier base instead of
+$0.10, the other classes keeping their multipliers. Model names match by longest
+prefix, so a dated model id such as
 .I haiku\-4\-5\-20251001
 resolves to the
 .I haiku\-4\-5
 base. A model absent from the table is counted at
 .B $0
-and flagged, never silently guessed.
+and flagged, never silently guessed. A model that only a
+.I shorter
+key prefixes (a new
+.I opus\-5\-6
+against
+.IR opus\-5 )
+is priced at that older sibling's rate and flagged as
+.B priced by prefix fallback\c
+\&, because nobody has confirmed that rate for it; add an exact entry. The
+.B \-\-json
+meta lists these as
+.IR prefixPriced .
 .PP
 A price is effective
 .I from
@@ -469,11 +492,11 @@ June's rate. A timestamp that falls inside no interval is
 \(em counted at $0 and flagged, exactly as an unknown model is, never snapped to
 the nearest interval. The footnote distinguishes the two gaps, because a model
 missing from the table needs a price added while a model already in it needs an
-interval widened. The shipped table uses this for
-.IR sonnet\-5 ,
-whose introductory rate runs through 2026-08-31 and reverts the day after: both
-figures are entered, each correct on its own side of the date, so the change
-needs nobody to remember it.
+interval widened. The shipped table uses no dated entry at present; it once
+held
+.I sonnet\-5
+this way, but Anthropic's pricing page now says its $2 introductory rate is the
+standard one and the 2026-09-01 rise will not occur, so it is a flat $2.
 .PP
 The table is a snapshot, checked against ccusage's own per-model cost on real
 logs at the time it was taken. Because list prices move, every run reconciles
@@ -489,7 +512,16 @@ table \(em drop an updated
 or edit the built-in snapshot. Because ccusage cannot honour
 .BR ccrepo 's
 non-date filters, the cross-check is computed over the date-comparable scope,
-not the fully filtered display set.
+not the fully filtered display set. The same holds for the actual-spend
+footnote, whose plan fee is global. When any dimension filter or
+.B \-\-context
+is set, both lines therefore read
+.RB \(lq "(whole scope, filters not applied: repo=!name)" \(rq
+and their totals include what the filters removed from the table; the
+.B \-\-json
+meta carries the same list as
+.IR crossCheckFiltersNotApplied .
+Date filters are applied by both checks and are not listed.
 .SH BILLING
 By default every figure is an API-equivalent estimate at list prices. A
 machine-local

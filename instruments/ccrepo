@@ -59,7 +59,9 @@ const symbolFor = (code) => SYMBOLS[code] || '';
 // USD list price per *million* input tokens, standard tier, keyed by short model
 // name (claude- stripped) via longest-prefix match. The other four token classes
 // derive from the input base by Anthropic's standard multipliers (output 5×,
-// cache read 0.1×, cache write-5m 1.25×, cache write-1h 2×). Snapshot 2026-07-17;
+// cache read 0.1×, cache write-5m 1.25×, cache write-1h 2×), except where TUNING
+// records a published departure (cache read on the 5.5 and Fable 5.1+ models, the
+// Haiku 5.5 prompt-length tier). Snapshot 2026-07-17, 5.5 generation 2026-11-16;
 // each base was cross-checked against ccusage's own per-model cost on real logs
 // and came out to a clean round number, so the multiplier model is exact. Update
 // here (or drop ~/.claude/ccrepo-pricing.json to override) when list prices move;
@@ -86,22 +88,49 @@ const symbolFor = (code) => SYMBOLS[code] || '';
 //              same as opus-4-8). Before this, opus-5 fell through unpriced and
 //              1,314 messages in one live drive counted at $0 — the ⚠ footnote
 //              was firing, which is how it surfaced.
-//   sonnet-5 — $2 is the INTRODUCTORY rate, published as running through
-//              2026-08-31; the standard rate is $3 from 2026-09-01. Both are
-//              entered, each correct on its own side of the date, so the revert
-//              needs nobody to remember it. Published numbers, not fitted ones.
+//   sonnet-5 — was entered as $2 to 2026-08-31 then $3. Anthropic's pricing page
+//              (read 2026-11-16) now says the $2/$10 introductory price "is now
+//              the standard price" and the 2026-09-01 increase "will not occur",
+//              so the entry is a bare $2. The dated form stays legal; it is just
+//              not in use at present.
+// The 5.5 generation (read 2026-11-16 from
+// https://platform.claude.com/docs/en/about-claude/pricing):
+//   opus-5-5 $4/$20, sonnet-5-5 $2/$10, haiku-5-5 $0.10/$0.50 for prompts up to
+//   100,000 tokens, fable-5-1 $10/$50, fable-5-2 $8/$40. Cache write and output
+//   keep the standard multipliers; cache READ does not (see TUNING below).
+// Names ending in a date stamp (haiku-4-5-20251001) resolve to their family key
+// and count as an exact match; any other longer name that only a SHORTER key
+// prefixes (opus-4-7 against opus-4-8) is priced by prefix fallback, which the
+// footnote warns about — see priceMatch.
 const PRICING = {
+  'opus-5-5': 4,
   'opus-5': 5,
   'opus-4-8': 5,
+  'fable-5-2': 8,
+  'fable-5-1': 10,
   'fable-5': 10,
-  'sonnet-5': [
-    { to: '2026-08-31', base: 2 },      // introductory rate
-    { from: '2026-09-01', base: 3 },    // standard rate
-  ],
+  'sonnet-5-5': 2,
+  'sonnet-5': 2,
+  'sonnet-4-6': 3,
+  'sonnet-4-5': 3,
   'sonnet-4': 3,
+  'haiku-5-5': 0.1,
   'haiku-4-5': 1,
 };
 const MULT = { output: 5, cacheRead: 0.1, write5m: 1.25, write1h: 2 };
+// Per-model departures from MULT, by the same longest-prefix match as PRICING.
+// Published 2026-11-16: cache hits cost 0.05x base on Opus 5.5 and Sonnet 5.5
+// and 0.025x on Fable 5.1 and 5.2 (every other model keeps 0.1x). Haiku 5.5 is
+// priced by prompt length: a request whose prompt (input + cache read + cache
+// write tokens) exceeds `longOver` pays `longBase` instead, the other classes
+// keeping MULT. Not overridable from ccrepo-pricing.json (base prices only).
+const TUNING = {
+  'opus-5-5': { cacheRead: 0.05 },
+  'sonnet-5-5': { cacheRead: 0.05 },
+  'fable-5-2': { cacheRead: 0.025 },
+  'fable-5-1': { cacheRead: 0.025 },
+  'haiku-5-5': { longOver: 100000, longBase: 0.5 },
+};
 
 // Load a machine-local price override, merged over the built-in table. Never in
 // a repo (list prices aren't secret, but the override path keeps corrections out
@@ -145,16 +174,36 @@ function loadPricing(file) {
 // model isn't in the table at all. Split out from priceBase so the unpriced
 // footnote can tell "no such model" from "no price on that date" — different
 // gaps, different fixes.
-function priceEntry(short, table) {
-  const t = table || PRICING;
-  const n = (short || '').toLowerCase();
+function longestKey(t, n) {
   let best = null;
   for (const key of Object.keys(t)) {
     if (n === key || n.startsWith(key)) {
       if (best === null || key.length > best.length) best = key;
     }
   }
+  return best;
+}
+function priceEntry(short, table) {
+  const t = table || PRICING;
+  const best = longestKey(t, (short || '').toLowerCase());
   return best === null ? null : t[best];
+}
+// What the remainder after a matched key may be for the match to count as exact:
+// nothing, an 8-digit date stamp, "-latest", or a bracket/at suffix.
+const EXACT_TAIL = /^(?:|-\d{8}.*|-latest|\[.*|@.*)$/;
+// { key, exact } for a short model name, or null. exact=false means the name is
+// longer than the key in a way that is not a date stamp, i.e. the price is the
+// shorter key's by prefix and nobody has confirmed it for this model.
+function priceMatch(short, table) {
+  const t = table || PRICING;
+  const n = (short || '').toLowerCase();
+  const key = longestKey(t, n);
+  return key === null ? null : { key, exact: EXACT_TAIL.test(n.slice(key.length)) };
+}
+// The per-model multiplier overrides for a short name, or {}.
+function tuningFor(short) {
+  const key = longestKey(TUNING, (short || '').toLowerCase());
+  return key === null ? {} : TUNING[key];
 }
 // The base price in force at `ts`, or null. A bare number is always in force. For
 // an interval list, the first interval containing the timestamp's UTC *date*
@@ -185,12 +234,16 @@ function priceBase(short, table, ts) {
 // (cost 0) for synthetic/unknown models and for dates outside every interval,
 // both surfaced in the drift report.
 function messageCost(short, t, table, ts) {
-  const base = priceBase(short, table, ts);
+  let base = priceBase(short, table, ts);
   if (base === null) return { cost: 0, priced: false };
+  const tune = tuningFor(short);
+  const promptTokens = (t.input || 0) + (t.cacheRead || 0) + (t.write5m || 0) + (t.write1h || 0);
+  if (tune.longOver !== undefined && promptTokens > tune.longOver) base = tune.longBase;
+  const readMult = tune.cacheRead !== undefined ? tune.cacheRead : MULT.cacheRead;
   const cost = (
     (t.input || 0) * base +
     (t.output || 0) * base * MULT.output +
-    (t.cacheRead || 0) * base * MULT.cacheRead +
+    (t.cacheRead || 0) * base * readMult +
     (t.write5m || 0) * base * MULT.write5m +
     (t.write1h || 0) * base * MULT.write1h
   ) / 1e6;
@@ -654,7 +707,7 @@ function stableStringify(o) {
 // filters, dates, FX) is applied downstream over the cached events, so it never
 // belongs here. A signature mismatch ⇒ the ledger for that root is rebuilt whole.
 function recipeSig(pricing, coversDesc) {
-  return stableStringify({ pricing: pricing || {}, covers: coversDesc || null });
+  return stableStringify({ pricing: pricing || {}, tuning: TUNING, covers: coversDesc || null });
 }
 // Load the ledger, or a fresh empty one. Malformed / wrong-schema ⇒ fresh (with a
 // warning), never fatal — a corrupt speed cache must never break the tool.
@@ -872,7 +925,7 @@ function readAllEvents(covers, pricing, rollup) {
 
   let dirs;
   try { dirs = fs.readdirSync(root); }
-  catch { return { events: [], repoLabels, unpriced: new Map(), evicted, rollup: rollup ? { path: rollup.path, hits, misses } : null }; }
+  catch { return { events: [], repoLabels, unpriced: new Map(), viaPrefix: new Map(), evicted, rollup: rollup ? { path: rollup.path, hits, misses } : null }; }
   for (const enc of dirs) {
     // _external is ccarchive's reserved home for the archived history.jsonl, not a
     // repo folder — never a session log to price. _untrusted holds files ccarchive
@@ -934,6 +987,7 @@ function readAllEvents(covers, pricing, rollup) {
 
   const events = [...byKey.values(), ...noKey];
   const unpriced = new Map();
+  const viaPrefix = new Map();   // model -> { messages, key }: priced by a shorter key's prefix only
   // Why a message is unpriced decides what you do about it, so the tally carries
   // the reason. A model absent from the table needs a price added; a model that
   // *is* in the table needs an interval widened to cover that date. Derived here
@@ -947,9 +1001,16 @@ function readAllEvents(covers, pricing, rollup) {
       const prev = unpriced.get(e.model) || { messages: 0, reason };
       prev.messages += 1;
       unpriced.set(e.model, prev);
+    } else if (e.priced) {
+      const m = priceMatch(e.model, pricing);
+      if (m && !m.exact) {
+        const prev = viaPrefix.get(e.model) || { messages: 0, key: m.key };
+        prev.messages += 1;
+        viaPrefix.set(e.model, prev);
+      }
     }
   }
-  return { events, repoLabels, unpriced, evicted, rollup: rollup ? { path: rollup.path, hits, misses } : null };
+  return { events, repoLabels, unpriced, viaPrefix, evicted, rollup: rollup ? { path: rollup.path, hits, misses } : null };
 }
 
 // --- reconciliation against ccusage --------------------------------------
@@ -1334,9 +1395,9 @@ function printMatrix(cols, dataRows, totalRow) {
 // dollars genuinely billed rather than a second cost oracle. Observable by design:
 // it shows its inputs (what makes up "billed", the months in scope, the estimate)
 // so the delta can be re-derived from the line, not just trusted.
-function spendFootnote(sr, billing, money) {
+function spendFootnote(sr, billing, money, scopeTag = '') {
   if (!sr.available) {
-    console.log(`  Actual spend vs estimate: unavailable — ${sr.reason}.`);
+    console.log(`  Actual spend vs estimate${scopeTag}: unavailable — ${sr.reason}.`);
     return;
   }
   const s = sr.delta >= 0 ? '+' : '−';
@@ -1349,15 +1410,31 @@ function spendFootnote(sr, billing, money) {
     const span = sr.covered.length > 1 ? `${sr.covered[0]}…${sr.covered[sr.covered.length - 1]}` : sr.covered[0];
     basis = `${sr.covered.length} invoiced period(s): ${span}`;
   }
-  console.log(`  Actual spend vs estimate: ${money(sr.billed)} billed (${basis}) vs ${money(sr.estimate)} API-list-price estimate — Δ ${s}${money(Math.abs(sr.delta))} (${pctStr}) over ${sr.months.length} month(s).`);
+  console.log(`  Actual spend vs estimate${scopeTag}: ${money(sr.billed)} billed (${basis}) vs ${money(sr.estimate)} API-list-price estimate — Δ ${s}${money(Math.abs(sr.delta))} (${pctStr}) over ${sr.months.length} month(s).`);
   if (sr.mode === 'usage' && sr.gaps && sr.gaps.length) {
     console.log(`  ⚠ Actual-spend comparison partial: no billed figure for ${sr.gaps.join(', ')} (${sr.gaps.length} month(s) uncovered); delta covers ${sr.covered.length} of ${sr.months.length}.`);
   }
 }
 
+// The filters the two cross-checks do NOT honour, as { flag-or-dim: spec }. The
+// ccusage check and the actual-spend check both run over the whole date-comparable
+// scope (the plan fee is global; ccusage cannot filter by repo), so any dimension
+// or --context filter leaves their totals wider than the table beside them. Date
+// filters are not listed: both checks do apply those. {} when nothing is hidden.
+function crossCheckScope(ctx) {
+  const o = {};
+  for (const [dim, v] of Object.entries(ctx.filterSpecs || {})) o[dim] = v;
+  if (ctx.contextArg != null) o.context = ctx.contextArg;
+  return o;
+}
+
 function renderHuman(root, ctx) {
-  const { keys, currency, rate, converted, rateSource, billing, actualUSD, unpriced, recon, spendRecon } = ctx;
+  const { keys, currency, rate, converted, rateSource, billing, actualUSD, unpriced, viaPrefix, recon, spendRecon } = ctx;
   const { n, money, pct, ctx: fctx } = fmts(rate, currency);
+  const hidden = crossCheckScope(ctx);
+  const scopeTag = Object.keys(hidden).length
+    ? ` (whole scope, filters not applied: ${Object.entries(hidden).map(([k, v]) => `${k}=${v}`).join(' ')})`
+    : '';
   const mHeads = metricHeads(currency, billing);
   const mCells = (sessions, agg, peaks) => {
     const c = [n(sessions), n(agg.messages), n(agg.inputTokens), n(agg.outputTokens), n(agg.cacheCreationTokens),
@@ -1409,7 +1486,7 @@ function renderHuman(root, ctx) {
   if (recon) {
     const d = recon;
     const s = d.delta >= 0 ? '+' : '−';
-    console.log(`  Reconciled vs ccusage: ${money(d.myTot)} mine vs ${money(d.cuTot)} ccusage — Δ ${s}${money(Math.abs(d.delta))} (${d.pct >= 0 ? '+' : ''}${(d.pct * 100).toFixed(2)}%) over ${d.matched} session(s).`);
+    console.log(`  Reconciled vs ccusage${scopeTag}: ${money(d.myTot)} mine vs ${money(d.cuTot)} ccusage — Δ ${s}${money(Math.abs(d.delta))} (${d.pct >= 0 ? '+' : ''}${(d.pct * 100).toFixed(2)}%) over ${d.matched} session(s).`);
     const worst = d.models.filter((m) => Math.abs(m.pct) > 0.01 && Math.abs(m.delta) > 0.005 && isFinite(m.pct)).slice(0, 3);
     if (worst.length) console.log(`  Largest per-model Δ: ${worst.map((m) => `${m.model} ${m.pct >= 0 ? '+' : ''}${(m.pct * 100).toFixed(1)}%`).join(', ')}.`);
     if (d.myOnly || d.cuOnly) console.log(`  ${d.myOnly} session(s) only in logs, ${d.cuOnly} only in ccusage (scope/pruning differences).`);
@@ -1426,13 +1503,17 @@ function renderHuman(root, ctx) {
     if (noModel.length) console.log(`  ⚠ Unpriced model(s): ${noModel.join(', ')} — counted at $0; add to the price table.`);
     if (noDate.length) console.log(`  ⚠ Priced model(s) with uncovered dates: ${noDate.join(', ')} — counted at $0; widen an interval to cover them.`);
   }
+  if (viaPrefix && viaPrefix.size) {
+    const list = [...viaPrefix].map(([m, v]) => `${m} as ${v.key} (${v.messages} msgs)`).join(', ');
+    console.log(`  ⚠ Priced by prefix fallback only: ${list} — the rate is an assumption, not a published figure; add an exact entry.`);
+  }
   if (billing) {
     const covers = billing.covers.length ? billing.covers.join(', ') : '(none listed)';
     const basisLabel = billing.basis === 'covered' ? 'covered-token share' : 'total-token share (no covered-model usage in range)';
     console.log(`  Est is the API-equivalent estimate; Actual applies your plan: ${billing.name}, ${money(billing.monthlyCostUSD)}/mo covering ${covers}.`);
     console.log(`  Covered-model tokens cost $0 marginal; the flat plan fee is apportioned by ${basisLabel}, plus any uncovered per-token spend.`);
     console.log(`  Plan fee shown is one month; over a multi-month range true outlay is (months × fee).`);
-    if (spendRecon) spendFootnote(spendRecon, billing, money);
+    if (spendRecon) spendFootnote(spendRecon, billing, money, scopeTag);
     if (billing.caveat) console.log(`  Note: ${billing.caveat}.`);
   } else {
     console.log(`  Cost is an API-equivalent estimate (list prices), not your subscription bill.`);
@@ -1511,6 +1592,8 @@ function buildMeta(ctx) {
     } : null,
     spendReconciliation: spendMeta(ctx),
     unpriced: ctx.unpriced ? [...ctx.unpriced].map(([m, v]) => ({ model: m, messages: v.messages, reason: v.reason })) : [],
+    prefixPriced: ctx.viaPrefix ? [...ctx.viaPrefix].map(([m, v]) => ({ model: m, messages: v.messages, key: v.key })) : [],
+    crossCheckFiltersNotApplied: crossCheckScope(ctx),
   };
 }
 
@@ -1582,7 +1665,7 @@ async function main() {
   const rollup = (fromArchive && !noRollup)
     ? { path: rollupFile(), sig: recipeSig(pricing, billing ? { covers: billing.plan.covers, perTokenModels: billing.perTokenModels } : null) }
     : null;
-  const { events, unpriced, evicted, rollup: rollupStats } = readAllEvents(covers, pricing, rollup);
+  const { events, unpriced, viaPrefix, evicted, rollup: rollupStats } = readAllEvents(covers, pricing, rollup);
 
   const dimFilter = buildDimFilter(filterSpecs);
   const dayNum = (ts) => timeBucket(ts, 'day').replace(/-/g, '');
@@ -1674,7 +1757,7 @@ async function main() {
 
   const ctx = {
     keys, sortSpecs, top: topN, currency, rate, converted, rateSource,
-    billing: billingView, actualUSD, unpriced, recon, spendRecon, filterSpecs, contextArg, since, until, range,
+    billing: billingView, actualUSD, unpriced, viaPrefix, recon, spendRecon, filterSpecs, contextArg, since, until, range,
     source: fromArchive ? 'archive' : 'live', archiveRoot: fromArchive ? archiveRoot() : null,
     evicted, materialise, rollupStats, rollupOff: fromArchive && noRollup,
   };
@@ -1690,7 +1773,8 @@ if (require.main === module) {
 
 module.exports = {
   symbolFor, shortModel, timeBucket, isoWeek,
-  PRICING, priceBase, priceEntry, baseAt, messageCost, loadPricing,
+  PRICING, TUNING, priceBase, priceEntry, priceMatch, baseAt, messageCost, loadPricing,
+  crossCheckScope,
   zeroAgg, addTo, cacheHitRate, label, cwdLabelFor, ledgerLabelFits,
   quantile, contextStats, bumpPeak, fmtTokens,
   parseContextAmount, parseContextRange, sessionPeaks, buildContextFilter,

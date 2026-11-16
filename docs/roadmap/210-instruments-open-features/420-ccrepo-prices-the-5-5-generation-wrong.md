@@ -1,4 +1,4 @@
-- [~] 🔎 **`ccrepo` prices the 5.5 generation wrong: Haiku 5.5 counts at $0,
+- [ ] 🔎 **`ccrepo` prices the 5.5 generation wrong: Haiku 5.5 counts at $0,
       and Opus 5.5, Sonnet 5.5 and Fable 5.1 take an older model's rate by
       prefix match.** Found 2026-11-12 by the principal's session after a
       routine run; the principal asked for it on the board (his words:
@@ -35,3 +35,10 @@
       efficient, real spend counted) will lean on this tool's per-job cost.
       🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-ccrepo) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
+      Progress 2026-11-16: exact entries (Opus 5.5, Sonnet 5.5, Haiku 5.5
+      with its 100K prompt-length tier, Fable 5.1 and 5.2), per-model cache-read
+      rates, Sonnet 5 corrected to a flat $2 and the prefix-fallback warning
+      landed in `instruments/ccrepo`, from the official pricing page read
+      2026-11-16 (platform.claude.com/docs/en/about-claude/pricing). Remains:
+      the ccusage cross-check on the operator's real logs, which a worker
+      confined to synthetic fixtures could not run.
