@@ -1,4 +1,4 @@
-- [ ] 🔎 **A `gh api` read of the pre-flip platform settings** `[S][tools]`.
+- [~] 🔎 **A `gh api` read of the pre-flip platform settings** `[S][tools]`.
       Filed 2026-11-09 by `260/070`, which wrote the gate as a list a session
       follows and left the tool to this item. Today nothing reads these
       settings as a gate: `tools/publishscan.py` judges the tracked path set and
@@ -13,3 +13,5 @@
       free-plan repo, so the report must say *not available* rather than fail.
       Not built because `260/070` scoped it out. Not owed before a flip: the
       gate itself is the doctrine, and this only automates reading it.
+      🔒 CLAIMED 2026-11-16T11:40Z (claimed 2026-11-16-1140, wt: qr-78ca-gh) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

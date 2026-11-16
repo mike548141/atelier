@@ -1,4 +1,4 @@
-- [ ] 🔥 **The apex and the always-confirm floor have no mechanical backing at
+- [~] 🔥 **The apex and the always-confirm floor have no mechanical backing at
       all — the highest-stakes rules in the estate are the least enforced.**
       A rule-by-rule enforcement map of the four governing documents, run
       2026-08-15. **`00-APEX.md` is 100% prose-only**: not one rule in the file
@@ -29,3 +29,5 @@
       edits to `AUTONOMY.md` or a permission allowlist, and a push-time check
       comparing declared repo visibility against the platform's answer. Both
       are small, and both guard acts the record classes as irreversible.
+      🔒 CLAIMED 2026-11-16T11:40Z (claimed 2026-11-16-1140, wt: qr-78ca-autonomy) by queue-run
+      session 78ca9153 (Opus 5.5, principal-opened).

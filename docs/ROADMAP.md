@@ -57,7 +57,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
 - ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled…](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
 - [ ] 🎯 [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await…](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
-- [ ] [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
+- [~] [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
 - ✅ [(b) The half with no owner: doctrine that reaches the moment of…](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
 - ✅ 🎯 [The posture change this implies — stated so it is ruled, not assumed.](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
@@ -175,7 +175,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Single-source the scanner harness, re-grounded on Mike's own upstream…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's…](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of…](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
-- [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at…](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
+- [~] 🔥 (claimed 2026-11-16-1140, wt: qr-78ca-autonomy) [The apex and the always-confirm…](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
 - [ ] 🎯 [Every guard declares the purpose it answers to, and proves it fires…](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
 - [ ] [A guard reports whether its rule fired at all, and over what — so…](roadmap/115-guardrail-architecture-mike-commissioned/130-a-guard-reports-whether-its-rule-fired-at-all.md)
 - ✅ 🔥 [The scheduled estate conformance job has never once been green — 19…](roadmap/115-guardrail-architecture-mike-commissioned/140-the-estate-conformance-job-has-never-once-been.md)
@@ -551,7 +551,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
 - ✅ 🔎 [P9 — what the flip's transcripts add to the pre-flip gate](roadmap/260-sharing-public-since-2026-07-10-adr-0005/110-p9-what-the-flip-transcripts-add-to-the-gate.md)
 - ✅ 🔎 [publishscan's default and staged planes miss any path git quotes](roadmap/260-sharing-public-since-2026-07-10-adr-0005/120-publishscan-misses-non-ascii-paths.md)
-- [ ] 🔎 [A gh api read of the pre-flip platform settings](roadmap/260-sharing-public-since-2026-07-10-adr-0005/130-a-gh-api-read-of-the-pre-flip-platform-settings.md)
+- [~] 🔎 (claimed 2026-11-16-1140, wt: qr-78ca-gh) [A gh api read of the pre-flip platform…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/130-a-gh-api-read-of-the-pre-flip-platform-settings.md)
 
 ## Open questions
 
