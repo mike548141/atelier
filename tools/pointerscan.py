@@ -313,10 +313,12 @@ _RESOLVED = re.compile(r"\*\*taken\*\*"
 # ran 2026-08-05"). Deliberately NOT `_REVIEWED`: a pointer queuing a further
 # pass links the verdicts before it, so a verdict link is provenance, not
 # landing. A dated RAN stamp or a stated cycle outcome is the item speaking
-# about its own pass.
+# about its own pass. The date ends on a not-a-digit lookahead, never `\b`: an
+# ISO 8601 stamp with a time ("RAN 2026-11-15T20:40Z") has no word boundary
+# between the day and the `T` (board 115/400).
 _LANDED = re.compile(
-    r"\bRAN\s+\d{4}-\d{2}-\d{2}\b"
-    r"|(?i:\bpass(?:es)?\s+ran\s+\d{4}-\d{2}-\d{2}\b)"
+    r"\bRAN\s+\d{4}-\d{2}-\d{2}(?!\d)"
+    r"|(?i:\bpass(?:es)?\s+ran\s+\d{4}-\d{2}-\d{2}(?!\d))"
     r"|\bcycle\s+(?:CLOSED|CLOSES|stays\s+OPEN)\b")
 # The state line's own title claiming a queued or owed pass — the words a
 # pointer's title carries ("Rule-4 cold pass queued: …", "Rule-4 review

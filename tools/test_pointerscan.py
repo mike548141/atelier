@@ -274,6 +274,13 @@ class QueueStateTest(unittest.TestCase):
                 "      - [ ] **The pass RAN 2026-09-26; the cycle CLOSES.**\n")
         self.assertEqual(dets(text), [])
 
+    def test_a_ran_stamp_with_a_time_is_silent(self):
+        """115/400: an ISO 8601 stamp with a time has no word boundary
+        between the day and the T; the drain writes it that way."""
+        text = ("- [ ] 🎯 **Rule-4 cold pass queued: x.** Delta: y.\n"
+                "      ✅ PASS RAN 2026-11-15T20:40Z UTC (acts 1 and 2).\n")
+        self.assertEqual(dets(text), [])
+
     def test_a_backticked_glyph_in_a_title_is_a_mention(self):
         """An item ABOUT pointers names the glyph in a code span."""
         text = (f"- [ ] 🔎 **What a `{Q}` review pointer becomes when its "
