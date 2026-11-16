@@ -4,8 +4,9 @@
 change is to the floor block every child copies).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** BRIEF ONLY. Not run. Held for the principal's explicit approval of the Fable pass.
-Written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5 brief-writer.
+**Status:** ACT 1 WRITTEN 2026-11-16 UTC (FAIL: 1 MAJOR, 4 MODERATE, 1 minor, 3 notes); act 2
+(reconcile) pending the sibling's release. Written 2026-11-09 UTC by session `d16dc612`, a headless
+Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1160-rule-4-cold-pass-queued-propagation-doctrine-batch.md`
 (barred until phase 2).
@@ -235,3 +236,260 @@ Never revise act-1 text. Then fold the sibling in below the reconcile and delete
 Every finding on this delta is the principal's to decide (rule 3): record all, apply nothing.
 Counsel per finding is welcome, labelled as counsel and kept beneath it.
 
+---
+
+## Verdict — act 1 (cold pass, 2026-11-16 UTC)
+
+### Provenance (V7, rule 4)
+
+- **Reviewer:** this session, on **Fable 5.1** (`claude-fable-5-1`), the principal-named review
+  tier, checked at selection. Ran on 2026-11-16 UTC in the review worktree
+  `/Users/mike/worktrees/fable/atelier-160-1160-0757/atelier` at HEAD `532080c5` (the board claim
+  commit); `38aab8b1` is an ancestor (`merge-base --is-ancestor` exit 0).
+- **Spawn:** a headless orchestrator session (Opus 5.5), itself started by drain session
+  `1e053526` (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold the context partition,
+  form no finding and write no severity; `1e053526` wrote no brief and no delta. The spawn prompt
+  was process only: paths, the brief, the review-log file, the barred set (the brief's rule-2 list,
+  with the sibling removed from the worktree until act 1 is committed), load and live-system rules,
+  the deliverable's shape and release timing. It carried no question about the delta, no pointer
+  to where the risk lives and no request about any finding. Its text is appended to the review
+  log, which is folded into this file at the fold. The release message is recorded in act 2.
+- **Not started or instructed by** any session the brief bars: `722ac2e2` and its workers,
+  `d16dc612`, `74f2b8cd`. No contact with any of them before or during this pass.
+- **Approval:** the principal's API-credit drain order of 2026-11-16, verbatim: *"I want to use
+  things other than my weekly budget to clear as many fable reviews as possible like using fable
+  drain. I thought we could start by using up all the API credits I have."* and *"As always you
+  must ensure that nothing harms the integrity or quality of the review process and verdicts, for
+  example if the review is done by API it must be as good as running it locally"*.
+- **What I read:** this brief whole; `docs/method/REVIEW.md` 25-560; the seven delta commits
+  body-free via `coldsweep --commit` (ledger below); the delta files at HEAD at the sections named
+  in the log; eight later commits on the three core files, body-free, to know HEAD's state. **Not
+  read:** the sibling (absent from the worktree by design; not sought), `docs/SESSIONS.md`,
+  `docs/sessions/`, `docs/ROADMAP-DONE.md`, every prior verdict, the queue pointer, the seven
+  intent records beyond their titles, every commit body. The onramp's session-log step was
+  skipped (rule 2). Child repos were not opened; one live read-only `gh repo view` per kept name
+  checked visibility, and the result is reported by count. The brief said 10 commits followed the
+  landing on the delta's paths; at `532080c5` there are 69, 14 of them on the three core files.
+- **Method record:** the running log at `~/.claude/fable-drain/notes/atelier-160-1160-0757.md`
+  holds every command, file and line range in order, with what each showed; it is appended to this
+  file verbatim at the fold.
+
+### Lens 1 — approach and assumptions (named by me, then probed)
+
+- **A1. The one-line picks are the scope; the wording may go past them.** Probed each item's
+  wording against the pick in the acceptance test. `310/020`, `390/010`, `310/120`+`140` match
+  their picks line for line. `320/330` goes past its pick in one direction (it withdraws a naming
+  that an earlier text called the principal's ruling, and drops those words: PRB4) and stops short
+  in another (it sweeps nine files where the rule it writes says "a public doctrine file": PRB3).
+  `320/580`'s pick commissioned a section "the children's records supplied privately"; the delta
+  wrote a draft from one hand-up, says the records are owed, and sits in the standard (PRB5).
+  `320/380` matched its pick and was then superseded the same day by other work (PRB8).
+- **A2. "Redaction keys on the target's visibility" is a safe test.** Damaged: the same delta's
+  own `320/380` paragraph (kept at HEAD, PROPAGATION.md:297-305) argues that a present-tense
+  visibility test fails on a public-candidate repo, and the delta's own "Splitting a repo" section
+  describes content leaving a private repo for a public one. PRB1.
+- **A3. The stamped child block is what a child reads.** Confirmed by the delta's own `d57ba4cc`,
+  which edited the block for `320/380`; not carried through for `310/020`, whose marker the block
+  does not mention. PRB2.
+- **A4. The canonical region and the template agree.** Confirmed: `stampscan` reports the
+  template's one block identical to region `floor` (105 lines), exit 0.
+- **A5. The two children kept by name are public.** Confirmed by live read: both PUBLIC.
+- **A6. "A private child" hides the child.** Damaged: `README.md:27` names the extraction-origin
+  repo and its product as "the private repo", and the delta leaves the product token in the
+  very sentence it veiled (ECONOMICS.md:206-209). PRB3.
+- **Right problem, right altitude?** Four of the six are at the right altitude (marker, model
+  scope, generic route, the floor's tense). The naming rule is below its altitude: it treats a
+  symptom (names in worked examples) while the surfaces that identify the repo are carved out
+  "pending his word". The split section is above its grounding.
+
+### Lens 2 — correctness and quality
+
+The changelog's claims reproduce: eight method files plus the build README (counted from the
+diff), no tool built, the marker and the generic route as described, the parent-and-child line,
+the draft section with its "could not be grounded" list. Honesty is good throughout: every item
+says "an answer, not a ruling"; the split section says what it could not ground; the route says
+what is undecided. Two overclaims by omission: the naming rule claims its examples "name no
+private child repo" while the tree identifies one in one hop (PRB3), and the withdrawal of PU-2's
+naming no longer says a ruling is what it withdrew (PRB4). One silent-scope point: the marker's
+point-of-use surface was not changed (PRB2).
+
+### Lens 3 — completeness and harvest
+
+V3 sweep: the marker rule has two unswept mirror sites, the stamped block and the template
+(PRB2). The naming rule has unswept sites in `DOCUMENTATION.md`, `CONCURRENCY.md` and
+`ECONOMICS.md` (PRB3). What exists that the delta ignored: the floor's visibility declaration
+(`260/050`, `c4424324`), which gives the generic route a declared visibility to key on instead
+of a present-tense read (counsel under PRB1). Index surfaces: `docs/build/README.md:13` describes
+`REPO-BOUNDARY.md` in a way the new section does not contradict; `CHANGELOG.md:534-562` records
+the same-day supersession of `320/380`.
+
+### Lens 4 — security and privacy
+
+No code changed; `/security-review` reads a pending diff, the worktree carries this brief and the
+sibling's deletion, and markdown is outside its reach: discharged, weighed as nothing. At the
+altitude of the rules: the generic route's rule 2 is a leak by design on a visibility flip and on
+the sender's record (PRB1, MAJOR). The naming sweep adds no new exposure and removes little real
+exposure (PRB3). No private child's name, path or excerpt appears in this verdict; the log masks
+them too. Nothing in the delta carries a secret or placeholder token.
+
+### The standing checklist
+
+- **V1** — PRB3 (a protection claimed that the tree does not give). Changelog counts: sound.
+- **V2** — the one re-run line reproduces (ledger below). `stampscan`: identical. Visibility of
+  the two kept names: PUBLIC, live.
+- **V3** — PRB2, PRB3.
+- **V4** — PRB2 (point-of-use copy not updated). `RECORD.md`'s copy of the naming exception is a
+  stamped pointer to PROPAGATION rule 2: sound.
+- **V5** — PRB1 (delta disagrees with itself), PRB4, PRB5, PRB6, PRB7. Cross-references checked
+  for the rule reached: same-route rule 4 reaches the branch form at 738-741 (sound); rule 3's
+  "shape 3 above" reaches hold-and-flag at 678-684 (sound); `320/230` exists and matches the
+  silent-skip subject (sound); "the estate root's registry" reaches nothing (PRB6).
+- **V6** — lens 4 above; PRB1.
+- **V7** — stated above and in the brief.
+
+### Per-commit ledger
+
+| commit | read body-free | findings |
+|---|---|---|
+| `d57ba4cc` | yes | PRB8 (superseded at HEAD by `e76250cf`); its kept reasoning feeds PRB1 |
+| `9c8cb7e7` | yes | PRB3, PRB4 |
+| `cb742b46` | yes | PRB2, PRB9 |
+| `4dcdcecf` | yes | PRB6 |
+| `3f3cf5be` | yes | PRB1, PRB7 |
+| `9ff7f778` | yes | PRB5 |
+| `38aab8b1` | yes | none; counts verified |
+
+### Findings
+
+Severity scale used: **MAJOR** — followed as written, the rule produces the harm the doctrine
+exists to prevent, or a claim that would propagate false; **MODERATE** — the rule misleads or
+misses a surface it binds, without producing the harm by itself; **minor** — wording or a
+dangling reach; **note** — an observation, nothing owed.
+
+**PRB1 — MAJOR.** *The generic route's redaction test is present-tense and one-sided, and the
+delta itself says why that fails.* `PROPAGATION.md:835-840` (§ *The same route*, rule 2): a
+private target "may be sent specifics (names, hosts, the sender's own detail), because the
+filing publishes nothing to a wider audience". Those specifics land in the target's PR, board
+item and history. `PROPAGATION.md:297-305`, written by the same delta and kept at HEAD, argues
+that a present-tense visibility test "returns false on every read of a private-now,
+public-candidate repo until the day it flips, by which time the content it exists to keep out is
+committed". `PROPAGATION.md:318` says the name beside what a repo holds "stays barred" and that
+pushed history is for good; `REPO-BOUNDARY.md:83-96`, same delta, describes a private repo's
+content moving into a new public repo. So rule 2, followed as written, writes hosts into a
+target that the batch's own text expects to go public, with no retraction. Second edge, same
+rule: `851-856` has the sender name "where it filed in its own record", keyed on nothing; a
+public sender's record then names a private target beside the subject it filed, which is the
+join `RECORD.md` § *The record is public* bars. Breaks V5 and lens 4. The pick's words were
+"redaction keyed on the target's visibility", so the text matches the pick; the finding is on the
+briefing he had when he picked (rule 3: open to challenge on the briefing, by re-briefing).
+*Counsel:* key rule 2 on the target's **declared** visibility (`260/050`, the floor's visibility
+declaration) **and** no public candidacy on its board; carry specifics by a channel that does not
+enter the target's history (the peer channel, or the private estate root) and keep the PR to the
+class; add one clause keying the sender's own record on the sender's visibility.
+
+**PRB2 — MODERATE.** *The marker is not on the surface a child reads.* `PROPAGATION.md:687-699`
+makes every pending-upstream line and every hold-and-flag note begin `Pending upstream:` with a
+date and an item, and rests the whole benefit on one grep. The stamped child block says "hold it
+in this repo's record marked owed upstream" (`PROPAGATION.md:197`, `templates/CLAUDE.md:99`,
+identical by `stampscan`), with no marker, date or item; the same delta edited that block in
+`d57ba4cc` and had the occasion. A child that follows its block writes a line the grep misses,
+and the enumerator the convention prepares for will walk nothing. Breaks V3 and V4. *Counsel:*
+one clause in the canonical region and the template together, so the fleet picks it up at the
+next pin bump; and the same-route rule 3's "with the `Pending upstream:` marker" then reaches a
+block that says so.
+
+**PRB3 — MODERATE.** *The naming sweep is partial and the veil it installs is nominal.* The rule
+(`PROPAGATION.md:666-676`) binds "a public doctrine file"; the sweep touched nine. Unswept, on
+doctrine surfaces, reported by file and line only: `DOCUMENTATION.md:123` (a bearing attributing
+a discriminator to the origin repo by name), `:208`, `:238`, `:245`; `CONCURRENCY.md:196` (a
+bearing that names the product); `ECONOMICS.md:206-209`, where the sentence the sweep veiled
+keeps the product token that `README.md:27` ties to "the private repo" by name, so the veil
+lifts in one hop. The carve-out for "provenance citations ... pending his word" leaves
+`README.md:20,27` naming the origin as private, which makes every "a private child" beside that
+product identifiable. In the other direction, `SIGNING.md:174,199,201` de-named an activation
+ladder, which is an "act done to a repo" the rule says is outside it. No new exposure; the claim
+"names no private child repo" is stronger than the tree (V1), and the sweep is incomplete (V3).
+*Counsel:* put the provenance-citation question to him now, with this finding, rather than
+leaving it "pending his word" beside a rule that depends on the answer; until then, say in rule 2
+that the veil is forward-only and does not hide the extraction origin.
+
+**PRB4 — MODERATE.** *A recorded ruling was replaced by an answer, and the words recording the
+ruling were removed.* Before `9c8cb7e7`, § *The instance* read "named on the principal's ruling
+(2026-08-22, PU-2)" and `CONCURRENCY.md`'s bearing "named on the principal's ruling, 2026-08-22
+— PU-2". After: "This text named the repo from 2026-08-22, on PU-2 ... withdrawn on 2026-11-09,
+`320/330`, by rule 2 above" (`PROPAGATION.md:860-863`) and "named here from 2026-08-22, PU-2,
+until `320/330` withdrew it" (`CONCURRENCY.md:138-139`). The text now says a pick replaced
+"PU-2's choice"; it no longer says that choice was his ruling. Either the old text was wrong, in
+which case the delta should say so, or a fact left the record. `REVIEW.md` rule 3 (AR8) needs the
+earlier word in front of him when he decides; whether the 2026-11-09 ask named the ruling is act-2
+work on the barred record. *Counsel:* restore "the principal's ruling" to both parentheticals;
+if the ask did not name PU-2 as his ruling, re-brief (rule 3).
+
+**PRB5 — MODERATE.** *A section that cites the rule it breaks.* `REPO-BOUNDARY.md:85-96` says
+every element is one hand-up's testimony and that "atelier has not re-driven it", citing
+`PROPAGATION.md:528-536`: "A hand-up's mechanism claim is re-driven before it becomes house
+text ... Before atelier writes a mechanism into a method file it runs the mechanism, and the
+record says it did." The section is in the build standard that every boundary decision reads;
+"draft" and "checklist to test" do not move it out. The pick commissioned the section with "the
+children's records supplied privately"; they were not, and the delta says the extraction and
+its cold review are owed. Honest, and still the thing the rule bars. Breaks V5. *Counsel:* keep
+the eleven points under a stub marker that says "not house text until re-driven", or hold them
+on `320/580` until the records arrive; the "could not be grounded" list is the right shape and
+should travel with them.
+
+**PRB6 — minor.** `PROPAGATION.md:469-473` sends other relationships to "the estate root's
+registry", which nothing in atelier defines; the only other mention (`:697`) is a wiring
+`stampscan` waits on. The pointer reaches no rule (V5's cross-reference test). By design it is
+private, so say so: "defined per estate, in its private root". One clause.
+
+**PRB7 — note, formed against HEAD, caused by later work.** Same-route rule 3
+(`PROPAGATION.md:841-843`): no write access to the target "means an issue". `3312cdbd`
+(`160/300`, after this delta) gives an adopter without access "hold-and-flag, a fork and pull
+request, or an issue" (`:495-499`). The two disagree on whether a fork PR is a shape. For the
+owner of `160/300`'s application, not this delta's.
+
+**PRB8 — note.** `d57ba4cc`'s floor wording is gone at HEAD: `e76250cf` (`020/050`, the same day)
+replaced the estate-resources bullet in both copies and marked the `320/380` note "Superseded".
+The note still says the test "now reads ..." as history, with the marker; `CHANGELOG.md:562`
+records the change. Nothing owed on this delta.
+
+**PRB9 — note.** The doctrine's own example line (`PROPAGATION.md:693`) matches
+`grep -rn 'Pending upstream:'` over atelier's tree. Harmless for a child (its block does not carry
+the phrase, which is PRB2's point); worth a word if the enumerator ever walks the parent.
+
+### Overall
+
+**FAIL — 1 MAJOR, 4 MODERATE, 1 minor, 3 notes** (PRB1-PRB9). The MAJOR is one rule that,
+followed as written, carries private matter into a target the same batch expects to become
+public; the rest are reach and record defects. Every finding is the principal's to decide
+(rule 3): recorded, nothing applied.
+
+### Re-run ledger
+
+- `nice -n 10 python3 tools/floor.py --plane ci --root .` — worktree root, load 2.12: exit 0;
+  every enforced check green; secretscan 28 and leakscan 3 advisory, reported, not blocking.
+- `python3 tools/stampscan.py --root . docs/build/templates/CLAUDE.md docs/method/PROPAGATION.md`
+  — exit 0; 1 block identical to canonical region `floor` (105 lines).
+- `gh repo view <owner/child> --json visibility,isPrivate`, twice, live and read-only — both
+  PUBLIC (children by count).
+- `python3 tools/coldsweep.py --root . --commit <sha> --path ...`, seven times as the brief's
+  lines — all exit 0, "message body not printed", 0 barred files touched.
+- `git merge-base --is-ancestor 38aab8b1 HEAD` — exit 0.
+- Over this file after writing: `datescan` exit 0 (0 findings), `leakscan` exit 0 (0 findings);
+  `spellscan` and `wrapscan` skip `docs/reviews/` by their ignore files and scanned nothing, so
+  width was checked by hand: no verdict line over 100 columns.
+
+Not run: nothing needing a live write was needed. Child repos: not opened.
+
+### Follow-up checklist
+
+- [ ] PRB1: the principal's decision on the generic route's rule 2, re-briefed with the
+      contradiction in front of him (`260/050` gives a declared visibility to key on).
+- [ ] PRB2: marker clause in the stamped block, canonical region and template together.
+- [ ] PRB3: the provenance-citation question put to him; sweep the three unswept files or state
+      the veil's limit in rule 2.
+- [ ] PRB4: restore "the principal's ruling" at two sites; act 2 checks whether the ask named it.
+- [ ] PRB5: stub marker or hold on `320/580` until the children's records arrive.
+- [ ] PRB6: one clause.
+- [ ] PRB7: hand to `160/300`'s application owner.
+- [ ] Act 2: reconcile against the sibling and the barred records; fold the log in.
