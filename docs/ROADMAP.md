@@ -81,6 +81,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/020-policy-as-code-programme-five-tracks-mik/440-one-specific-reason-may-keep-several-named-metadata-sets.md)
 - ✅ [G3 keeps image metadata field by field, not by data type.](roadmap/020-policy-as-code-programme-five-tracks-mik/450-g3-keeps-image-metadata-field-by-field-not-by-data-type.md)
 - [ ] [Claude Code session hooks as a house enforcement plane: decide which…](roadmap/020-policy-as-code-programme-five-tracks-mik/460-claude-code-session-hooks-as-a-house-enforcement-plane.md)
+- [ ] [A hook that checks, without the model having to remember, that a…](roadmap/020-policy-as-code-programme-five-tracks-mik/470-a-hook-that-fails-noisy-when-a-child-floor-copy-is-stale.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -760,6 +761,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [An answer to a session's question is not a ruling. Records must tell…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
 - [ ] 🎯 [What the 2026-11-09 ruling round left open.](roadmap/420-when-to-ask-mike-commissioned/030-what-the-722a-ruling-round-left-open.md)
 - ✅ [The two-step ask stalled the walk-through between questions.](roadmap/420-when-to-ask-mike-commissioned/040-the-two-step-ask-stalled-the-run-between-questions.md)
+- [ ] [The floor's Asking bullet still says "(one extra turn)".](roadmap/420-when-to-ask-mike-commissioned/050-the-floor-still-says-one-extra-turn.md)
 
 ## Review quality is never traded for budget (Mike commissioned, 2026-10-04)
 
