@@ -4,10 +4,10 @@
 child would build to, doctrine by function).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** act 1 (verdict) written 2026-11-16 UTC by a Fable 5.1 reviewer under the principal's
-2026-11-16 drain order; act 2 (reconcile) pending the sibling's release; the fold is the
-orchestrator's. Brief written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5
-brief-writer.
+**Status:** PASS RAN 2026-11-16 UTC. Act 1 (verdict) and act 2 (reconcile) written by a
+Fable 5.1 reviewer under the principal's 2026-11-16 drain order; sibling and review log folded
+below by the orchestrator. Overall: FAIL, 1 MAJOR, 2 MODERATE, 3 minor, 5 note. Brief written
+2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1130-rule-4-cold-pass-queued-exception-register-redraft.md`
 (barred until phase 2).
@@ -177,7 +177,8 @@ reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-(`2026-11-09-0153-exception-register-redraft-cold.deferred.md`), every delta commit's message body,
+(`2026-11-09-0153-exception-register-redraft-cold.deferred.md`, folded below the verdict
+on 2026-11-16), every delta commit's message body,
 the queue pointer
 `docs/roadmap/160-doctrine-review-owed/1130-rule-4-cold-pass-queued-exception-register-redraft.md`,
 and the intent records beyond their titles:
@@ -498,3 +499,313 @@ re-think. Every finding is the principal's to decide (rule 3); nothing is applie
 - [ ] ERD9 — Q1's two readings put to him with acceptance
 - [ ] ERD10 — CHANGELOG entry for the 2026-11-09 redraft and rework
 - [ ] Act 2: reconcile against the sibling, the prior verdict and the intent records
+
+### Reconcile
+
+Written 2026-11-16 UTC, after act 1 was committed unrevised (`7076d6c3` on `origin/main`) and the
+orchestrator released the sibling by message. Act-1 text above is untouched.
+
+**Release message, in substance (rule 4):** act 1 committed and pushed unrevised as `7076d6c3`;
+the sibling's path, a held copy outside the worktree, read-only; leave to read the barred records
+the brief names; append this section only; never revise act 1; do not fold or delete the sibling;
+the same house rules; run the gates before finishing; end with the restated line. No question
+about the delta, no pointer to where risk lives, no request to revise a finding.
+
+**Opened in phase 2, and only these:** the sibling (one pointer block, three questions, two held
+facts, one re-run result); the queue pointer `160/1130`; the intent records `160/650` whole and
+`110/100` to its part-2 design note (about 150 lines); the prior verdict
+`docs/reviews/2026-10-04-2215-exception-register-design-cold.md` lenses, findings and reconcile
+(lines 236–660); the two delta commits' bodies (`git log --format=%b`), plus one unrelated
+neighbour the same command printed; the session index's two lines naming the register (both
+2026-10); the author's ruling-round record's summary lines 20–32 and the brief-writer's record's
+one line on `160/1130`; `git log -S` on `tools/floor.py` for one date. Not opened: the rest of
+those records, any other verdict, the children.
+
+#### Against the pointer's questions (the author's framing)
+
+1. **Does the both-forms transition keep every child green?** By design, yes: T0 reads both
+   forms, a legacy exemption exempts exactly what it does now, and no register file means no
+   change (§ 6). The floorfleet re-run shows 22 wired children that would all meet T0 that way.
+   The one condition the design states and cannot prove on paper is the T1 precondition (an
+   older tool on a migrated repo); § 9 proof 5 owns it. Act 1 found no path to a red child at
+   T0. What it found is at T1: ERD1's clause decides what "migrated" means for the stores and,
+   on one reading, T2's "zero unmigrated" never arrives.
+2. **Can the provenance record be forged cheaply?** Yes, and the ADR says so in terms (§ 3 "a
+   claim, not proof"). The controls are the ones XR5 asked for — `ref`, content-hash ids,
+   append-only with a CI re-check, the commit as the witness of when, `by=CHOOSE` with no
+   `human` default, `unknown` for migration — and act 1 confirmed each is in the text. The
+   residual is sampling, which the design names. No finding beyond act 1's lens-4 item 1.
+3. **Are XR1–XR16 each closed as claimed?** Thirteen are, on the prior verdict's own words:
+   XR1 (both forms, dated T2, fleet count, hook-tool precondition), XR3 (claim narrowed; the
+   three reason-free exemptions the reconcile said belonged in it are named in § 1), XR5, XR7
+   (canonical token, `v1`, per-scanner work priced), XR8 (the second counsel taken; my probe
+   reproduced the author's), XR9, XR10 (his Q2), XR11 (his Q4, out to `115/390`), XR12 (the two
+   dropped qualifiers are back in Context; unit-level markers and the four non-`allowmarker`
+   scanners named), XR13 (every point, including `review-kind` and the dead-glob caveat), XR14
+   (five proofs, two extended), XR15 (two sizes were put to him; he chose large; the cost is
+   stated), XR16 (quoted whole). Three are closed in the main and open at one edge, and the
+   edges are act 1's findings: XR2's stale pass is rule-free and CI-side as counselled, but its
+   domain of entries is undefined (ERD2); XR4's `file` level got the decidable test the counsel
+   asked for in `fixture` only — `generated` and `store` did not (ERD1, ERD3); XR6's lens-3
+   half ("what happens to markers inside frozen records — 87 marker-shaped strings sit in
+   `docs/reviews/` alone") was answered by the one clause ERD1 is about, and the population has
+   grown to 269 lines since.
+
+#### Against the brief-writer's questions
+
+1. **Did any prior answer depend on the in-place shape the rework dropped?** One. The redraft
+   kept each marker where it lived, so a frozen record needed nothing: its marker stayed, with
+   or without fields. The central shape has to move the exemption out of the file, and for
+   files that are never edited it reached for a directory-wide `store` class. ERD1 is the cost
+   of that shape change, not of his choice: the choice was "one central file", and a per-file
+   or token entry written from the frozen marker is as central as a glob. The hybrid (`ex=<id>`)
+   also carried `110/010`'s orphan check for free; the central design's equivalent is the stale
+   pass, which is why ERD2's definition matters more here than it would have under the redraft.
+2. **Union merge: two grants that conflict, and a removal?** A removal never happens by design,
+   and the probe shows why that is load-bearing (an adjacent deletion resurrects). Two grants
+   for the same token from two sessions do not conflict in git: both land, both are live, and
+   the design does not say which applies — in effect the larger `n` and the union of both
+   `why`s. Neither the duplicate-id check (the ids differ) nor the stale pass sees it. Formed
+   at reconcile: ERD11, below.
+3. **Where does a child's existing marker read differently under the register during the
+   both-forms period?** Nowhere, by § 6 T0's words, and nothing in the design changes the
+   marker reader; the one change to how a marker reads in that period is `allowmarker.py`'s
+   malformed-marker grace ending 2026-12-09, which is independent of this design. § 9 proof 1
+   and proof 5 are the tests. No finding.
+
+#### Against the author's account and the held facts
+
+- The landing commit's body says what the ADR says, with one claim act 1 re-ran: *"a
+  throwaway-repo probe confirmed union's resurrection trap, which append-only closes"* —
+  reproduced (adjacent case). The author's record summarises the delta as "for him to decide"
+  and claims nothing further.
+- Held fact 1 (the four answers are in): confirmed by `160/650`'s record of them, which matches
+  the brief's quotation and the ADR's § *Open questions*.
+- Held fact 2 (the rework went against the recommendation; § 8 was written after the choice):
+  consistent with the ADR's own Drafting history. It changes no finding; it is why § 8 reads as
+  a priced cost rather than an argument, which is the right register.
+- The sibling's re-run results at `457615cc` match mine in shape (floor exit 0; 23 rows, 1
+  absent); the brief-writer did not re-derive § *What exists*, and act 1 did.
+
+#### Per act-1 finding
+
+- **ERD1 (MAJOR) — stands.** The prior pass raised the frozen-record question at lens 3 and
+  did not number it; this is the first time it has a finding. `110/100` carries his words that
+  decide it: *"if it were one string in the file then only that string should be excluded"*.
+  The intent record also records that he closed `115/170` on *"balancing importance and
+  priority"*, which is a reason to prefer the cheapest bound (per-file `store` entries or an
+  `expect` count) over a new mechanism.
+- **ERD2 (MODERATE) — stands; new.** No released surface defines a live entry.
+- **ERD3 (MODERATE) — stands; new.** XR13 asked for the walk case and got it; the class cases
+  were not asked for and are not answered.
+- **ERD4 — re-rated at reconcile from minor to note.** `git log -S` shows `disabled` gained its
+  `review-by` on 2026-11-10 (`06248fba`), the day after the delta; the sentence was true when
+  written and the prior pass agreed with it at `1685fd8`. It is stale, not wrong, and the fix
+  is one clause at acceptance. The act-1 text stands as written; this note is the rating.
+- **ERD5 (minor) — stands; new.** `160/650` records Q2 as "points to the record holding his
+  words", which does not say the record must be in the same repo; the ADR's "tracked in this
+  repo" is the writer's tightening.
+- **ERD6 (minor) — stands.** The prior pass's XR2 reconcile noted the hook is "the weakest
+  place to hang a block"; ERD6 asks for the opposite — a cheap rule-free check there — and the
+  two are compatible: check what the staged blob decides, never what matched.
+- **ERD7, ERD8 (minor, note) — stand; new.**
+- **ERD9 (note) — stands.** `160/650`'s own closing line records the same two readings as the
+  writer's, so the record already carries them to him; this note only asks that they be put
+  with the acceptance rather than left in the item.
+- **ERD10 (note) — stands.**
+
+#### Formed at reconcile
+
+**ERD11 — note (formed at reconcile) — Two live entries for one token are silently additive.**
+Two sessions may each grant the same `tok` in the same file with different `n`, `why` or `by`;
+union merge lands both, the ids differ, and § 2's duplicate check and § 5's stale pass see
+nothing. The wider `n` governs by accident. *Counsel:* the listing flags more than one live
+entry for a (`guard`, `rule`, `path`, `tok`) key, and the CI print of added entries names an
+existing live twin when one exists — the same shape leakscan already uses for a digest twin.
+
+#### Overall, restated
+
+**FAIL — 1 MAJOR (ERD1) · 2 MODERATE (ERD2, ERD3) · 3 minor (ERD5, ERD6, ERD7) · 5 note (ERD4
+re-rated, ERD8, ERD9, ERD10, ERD11 formed at reconcile).** Eleven findings. The sixteen prior
+findings are closed as claimed in thirteen cases and closed in the main with one open edge in
+three (XR2, XR4, XR6), and those three edges are ERD2, ERD3 and ERD1. The MAJOR count fell from
+three to one, so the cycle is converging (`REVIEW.md` § *Applying decisions to doctrine*), and
+it does not yet close. Nothing applied; every finding is the principal's.
+
+Added to the follow-up checklist:
+
+- [ ] ERD11 — the listing and the CI print flag a live twin for one token
+- [ ] ERD4 — rated note; one clause at acceptance
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-16)
+
+The text below is the brief's held-back sibling,
+`2026-11-09-0153-exception-register-redraft-cold.deferred.md`, copied verbatim. It was removed
+from the review worktree before the reviewer started, held outside the tree until act 1 was
+committed (`7076d6c3`), then released to the reviewer for act 2. The orchestrator forms no
+finding and has not edited it; the sibling file itself is deleted in the fold commit.
+
+# Deferred reading for `2026-11-09-0153-exception-register-redraft-cold.md`
+
+Open only after your act-1 findings are committed (`docs/method/REVIEW.md` rule 1). Fold into the
+brief below the reconcile, then delete this file. A floor, never a fence.
+
+## The queue pointer's questions (the author's framing, verbatim)
+
+> whether the both-forms transition really keeps every child green; whether the provenance record
+can be forged cheaply; whether XR1–XR16 are each closed as claimed.
+
+## The brief-writer's questions
+
+1. Reworking to the central shape after a redraft: did any answer to a prior finding depend on the
+in-place shape the rework dropped?
+2. Union merge on an append-only file: what happens to two grants that conflict, and to a removal?
+3. Where does a child's existing marker read differently under the register than under today's
+reader during the both-forms period?
+
+## What the brief-writer held back
+
+- The pointer said the pass was best run after the four questions were answered. They now are
+  (`160/650`; ADR § *Open questions for Mike*), so that condition is met.
+- The rework went against the option recommended to the principal on Q1; the design's reasoning and
+  the costs in § 8 were written after that choice.
+
+## Re-run results (2026-11-09 UTC, at `457615cc`)
+
+`floorfleet --json`: exit 0; 23 rows, 1 parent, 21 wired children, 1 absent. `floor.py --plane ci`:
+exit 0. **Not run by the brief-writer:** re-deriving the figures in the ADR's § *What exists,
+measured*.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log — atelier 160/1130, cold pass on the exception-register ADR redraft (ERD)
+
+Reviewer: Fable 5.1. Orchestrators: a headless Opus 5.5 session, started by drain session
+1e053526 (Opus 5.5); both off-tier, form no finding. Worktree: the review worktree for
+160/1130 (repo-relative paths below). Day: 2026-11-16 UTC.
+
+## Act 1
+
+- 06:13 UTC `uptime`: load 3.73 4.03 4.29 (16 GB laptop, several passes). `date -u`: Mon Nov 16
+  06:13:58 UTC 2026. `git status --short`: only the planned deletion of the brief's `.deferred.md`
+  sibling. HEAD 97206464 (board claim).
+- Read the brief `docs/reviews/2026-11-09-0153-exception-register-redraft-cold.md` lines 1–223
+  whole; read `docs/method/REVIEW.md` lines 1–709 whole (rules 1–4, standing checklist V1–V7,
+  verdict shape, method-record requirement).
+- Did NOT read: `docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`, any file in
+  `docs/reviews/` other than the brief, the queue pointer, the intent records beyond their
+  titles, any commit message body.
+- `git merge-base --is-ancestor 7c2beaea HEAD` → exit 0. `git log --oneline 7c2beaea..HEAD -- <ADR>
+  <README>` → three commits (dd3d60d4, e36cedcb, db8c44b7); coldsweep `--commit` on each showed
+  they touch only `docs/decisions/README.md` with unrelated index lines; the ADR is unchanged
+  since 7c2beaea. Subject is the ADR at HEAD (532 lines), read whole; README (50 lines) read whole.
+- `python3 tools/coldsweep.py --root . --commit c687e446 --path <ADR> --path <README>` → exit 0,
+  531 lines (diff + stat, no body); same for 7c2beaea → exit 0, 771 lines (230 removed, 360 added).
+  Both kept in scratch, read for the ledger. Removed by the rework: the small design's `ex=<id>`
+  marker-plus-entry-file shape (§ 4 of the redraft), "keep each exemption where it lives".
+- Counts re-derived (V2):
+  - ignore files: 9 `.<scanner>ignore` files; non-blank non-comment lines 2+8+2+1+4+1+8+2+8 = 36.
+    Matches the ADR's "36 reasoned lines across 9 ignore files".
+  - `.atelier-floor.json`: `scope` holds wrapscan, spellscan, pathscan = 3. Matches.
+  - `nice -n 10 python3 tools/floor.py --plane ci --root .` → exit 0 (06:19 UTC, load 3.40).
+    "by allow-marker" per guard: secretscan 16, leakscan 91, linkscan 4, datescan 7, spellscan 2,
+    pathscan 10, indexscan 10 (= 140 over 7 guards), plus licenscan "6 declaration(s)". The ADR's
+    "136 across 8 guards" was measured 2026-11-09; HEAD has moved a week. Same shape, small drift.
+  - "26 exception mechanisms" comes from the part-1 audit record, barred beyond its title until
+    phase 2: not re-derived in act 1.
+  - markers by store (tracked files carrying `scan:allow`): docs/reviews 174 files / 269 lines
+    (reviewscan 164, leakscan 21, sizescan 18, indexscan 12, namescan 8, stampscan 7); docs/sessions
+    23 files / 26 lines (leakscan 12, linkscan 5, datescan 5, …); docs/roadmap 36 lines (secretscan
+    3, …). Used for ERD1.
+- Tool facts checked:
+  - `tools/floor.py` 130–150: `disabled` carries `review-by` (warns when missing or passed) →
+    the ADR's "Only the floor's `advisory` carries an expiry" is wrong (ERD4). Lines 1536–1560:
+    unknown keys under `disabled.<name>` raise ConfigError → "refuses unknown keys" holds.
+  - `.github/workflows/floor.yml` 85–97: both checkouts `fetch-depth: 0` → "full history" holds.
+  - `docs/build/templates/workflows/floor.yml` 95: `uses: …/floor.yml@main` → children at main.
+  - `commands/install-hook.md` 37–42: hook resolves tools via `hooks.atelierTools` → shared dir.
+  - `tools/leakscan.py` 1308–1348: PROVENANCE_KINDS 3 kinds; `_SESSION_RX` accepts `unknown` and
+    8-char ids; comment 1313–1314 says a manifest line "migrates as it is" to the held register;
+    2694–2698 helper writes the full `CLAUDE_CODE_SESSION_ID`; 2826 `_staged_manifest` reads the
+    manifest from the index on the hook plane; MIN_DIGEST_HEX 16, up to 64 parses.
+  - `tools/secretscan.py` 1246 `_looks_binary` on the first 8192 bytes; 482 HIGH_ENTROPY_RX `{32,}`.
+  - `tools/allowmarker.py` imported by 19 scanners; publishscan, signscan, harvestscan, board do not.
+  - reason-free exemptions named in § 1: reviewscan `deferral` scope (reviewscan.py 194–201),
+    wrapscan sibling-marker padding (wrapscan.py 120–134), sizescan retired budget token (266–270).
+  - unit-level markers: reviewscan whole record (173), licenscan declaration, stampscan block,
+    pointerscan pointer, sizescan header — as § What exists says.
+  - `docs/method/GUARDS.md` 577–597 Who, why, when: "who and when come from version control";
+    narrowed 2026-11-09 for the manifest; 314–350 Granularity (line/check/repo; rule-scoped
+    narrowing); 383–400 mandate/default. `docs/method/RECORD.md` 497 § The record is public.
+    `docs/decisions/2026-08-05-1233-…` exists. `docs/method/CONCURRENCY.md` 1016–1019: a subagent's
+    `CLAUDE_CODE_SESSION_ID` equalled its parent's on 2026-09-25 → "shares its parent's ID" has a
+    recorded basis.
+  - cited board items exist by title: 115/050, 115/390, 160/650, 160/980, 160/1130, 420/020,
+    020/150, 110/100, 110/110. `python3 tools/reviewscan.py --root . .` → exit 0 (8 records carry
+    a review line).
+  - no `.gitattributes` in the tree; no template ships one (`grep merge=union` over docs/build,
+    skills, commands → nothing); Consequences lists the line as build work. No CHANGELOG entry
+    names c687e446 or 7c2beaea (grep '160/650|redraft|rework|central file'); the sibling draft ADR
+    2026-11-09-1334 has one (CHANGELOG 28, 217). Templates shipping markers/ignore files: none
+    found under docs/build/templates (only floor.yml and instance.yaml.example match the grep).
+- Union-merge probe, throwaway repo under scratch (deleted after), `merge=union` on the file:
+  concurrent appends merge clean, both kept; rebase clean, both kept; deleting the FIRST line
+  beside an append: deletion held (no resurrection); deleting the LAST line beside an append:
+  the deleted line CAME BACK (merge and rebase) → the ADR's adjacent-hunk trap confirmed; both
+  sides appending the identical line → one copy, clean; one side appending without a trailing
+  newline → clean, file left without a trailing newline; without the attribute → CONFLICT (UU).
+- `nice -n 10 python3 tools/floorfleet.py --root <the directory holding the main checkout and its
+  sibling clones> --json` → exit 0 (06:21 UTC, load 4.21): 32 entries, 29 git repos, 22 pinned;
+  23 children, state wired 22 / absent 1; counted only, none named, output kept in scratch.
+- `/security-review`: NOT RUN. No code in the delta; the worktree's pending diff is this brief's
+  deleted sibling, so the scanner could only read deferred material. Discharged by grounds.
+- Sentence attribution (grep in the two diffs): "Only the floor's advisory…" added in c687e446;
+  "covered by one `store` entry", "need only the `class`", "Stale entries **block**", "and is
+  reported" added in 7c2beaea.
+- Left out: the three later README commits' other hunks (not this delta); any child's content
+  (counted only); the 26-mechanism figure (barred source); tests (no code in the delta).
+- 06:24–06:30 UTC: Status line updated (act 1 written, act 2 pending, fold is the
+  orchestrator's); verdict appended below a `---` divider (brief now 500 lines). Findings:
+  ERD1 MAJOR (`store` class widening over live record stores; counts above), ERD2 MODERATE
+  (live/superseded/retired undefined against the stale pass; § 2 "reported" vs § 5 "block"),
+  ERD3 MODERATE (`rule` required vs class entries), ERD4 minor (`disabled` expiry), ERD5 minor
+  (`ref` in-repo only), ERD6 minor (hook staleness over staged files), ERD7 minor (newline in
+  multi-word count), ERD8 note (trailing newline, union edge), ERD9 note (Q1 readings for his
+  ruling), ERD10 note (no CHANGELOG entry). Overall FAIL 1/2/4/3.
+- Gates over the brief: `datescan` clean (1 file, 500 lines); `reviewscan` clean (deferred
+  material kept out); `spellscan` and `wrapscan` scope out docs/reviews (scanned nothing);
+  whole-tree `leakscan` and `secretscan` name no line of the brief; my prose lines (≥ 224,
+  excluding table rows) all ≤ 100 characters; grep for common US spellings → none.
+  `git status --short`: only the planned sibling deletion and the modified brief.
+- Scratch: `floor-ci.txt`, `floorfleet.json/.err`, two coldsweep diffs remain under the scratch
+  directory for act 2; the two probe repos were deleted. All to be removed after act 2.
+- ACT 1 complete; stopped before any barred file. Waiting for the sibling's path.
+
+## Act 2
+
+- Release message received from the orchestrator: act 1 committed and pushed unrevised as
+  7076d6c3 on origin/main; the sibling's path given (a held copy outside the worktree, read-only);
+  permission to read the barred records; append `### Reconcile` only; do not fold or delete the
+  sibling; same house rules; run the gates before finishing. No question about the delta, no
+  pointer to risk, no request to revise.
+- Read in phase 2: the held sibling (pointer block, 3 questions, 2 held facts, re-run results at
+  457615cc); the queue pointer `160/1130`; intent `160/650` whole; intent `110/100` lines 1–150;
+  prior verdict `docs/reviews/2026-10-04-2215-exception-register-design-cold.md` lines 236–500
+  (lenses, XR1–XR14) and 538–660 (reconcile, XR15, XR16); `git log -2 --format=%b 7c2beaea`
+  (the landing body plus one unrelated neighbour); `docs/SESSIONS.md` grep for the register (two
+  2026-10 index lines only); author's record `docs/sessions/2026-11-08-1059-…` lines 20–32;
+  brief-writer's record `docs/sessions/2026-11-09-0153-…` line 23. `git log -S
+  disabled_review_by -- tools/floor.py` → 06248fba 2026-11-10: `disabled` gained `review-by`
+  the day after the delta, so ERD4's sentence was true when written → re-rated to note.
+- Checked the XR trace: 13 closed as claimed; XR2, XR4, XR6 closed in the main with one open
+  edge each (ERD2, ERD3, ERD1). Prior lens 3 named the frozen-record question unnumbered ("87
+  marker-shaped strings in docs/reviews"); now 269 lines; ERD1 is its first finding.
+- Brief-writer's Q2 produced ERD11 (note, formed at reconcile): two live entries for one token
+  are additive and unseen by the duplicate-id and stale checks.
+- `### Reconcile` appended (release message in substance, what was opened, the seeded
+  questions, per-finding notes, ERD11, restated overall). Gates over the brief: datescan clean;
+  spellscan and wrapscan scope out docs/reviews (scanned nothing); reviewscan clean; whole-tree
+  leakscan and secretscan name no line of the brief; reconcile prose lines ≤ 100 characters.
+  `git status --short`: only the sibling deletion and the modified brief. Scratch directory
+  removed (floor and floorfleet outputs, coldsweep diffs); no captures left.
+- Restated overall: FAIL — 1 MAJOR, 2 MODERATE, 3 minor, 5 note (11 findings). ACT 2 complete.
