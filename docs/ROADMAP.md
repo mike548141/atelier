@@ -205,6 +205,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🤔 [Investigate scanning inside binary files.](roadmap/115-guardrail-architecture-mike-commissioned/390-investigate-scanning-inside-binary-files.md)
 - ✅ 🔎 [pointerscan misses a RAN stamp that carries a time, so four landed…](roadmap/115-guardrail-architecture-mike-commissioned/400-pointerscan-misses-a-ran-stamp-carrying-a-time.md)
 - [ ] 🔎 [EVIDENCE.md §17 says its class is not mechanisable because "nothing…](roadmap/115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md)
+- [ ] 🔎 [A repo declares its visibility in two places, CLAUDE.md and…](roadmap/115-guardrail-architecture-mike-commissioned/420-a-repo-declares-its-visibility-twice-and-nothing-compares.md)
+- [ ] 🔎 [The floor block's always-confirm stop list differs from AUTONOMY.md §…](roadmap/115-guardrail-architecture-mike-commissioned/430-the-floors-stop-list-differs-from-autonomy-always-confirm.md)
+- [ ] 🔎 [PROPAGATION.md calls a parent enforcing what its children do not a…](roadmap/115-guardrail-architecture-mike-commissioned/440-parent-only-checks-versus-the-parent-child-parity-rule.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
