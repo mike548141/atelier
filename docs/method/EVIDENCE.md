@@ -498,8 +498,8 @@ confirmed it; a disposable container with its own storage then showed it worked
 in roughly twenty minutes. The incident is the child's own account, not
 re-measured here. It sits beside §18, which covers a probe that returned
 nothing; this covers the probe never run. The re-run discipline for
-positives is `REVIEW.md` § *Re-run every "live-proven" claim*; a pointer from
-there to this section is still owed.)
+positives is `REVIEW.md` § *Re-run every "live-proven" claim*, which points
+back here.)
 
 ## 20. List what exists before adding a resource
 

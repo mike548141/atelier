@@ -208,6 +208,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A repo declares its visibility in two places, CLAUDE.md and…](roadmap/115-guardrail-architecture-mike-commissioned/420-a-repo-declares-its-visibility-twice-and-nothing-compares.md)
 - [ ] 🔎 [The floor block's always-confirm stop list differs from AUTONOMY.md §…](roadmap/115-guardrail-architecture-mike-commissioned/430-the-floors-stop-list-differs-from-autonomy-always-confirm.md)
 - [ ] 🔎 [PROPAGATION.md calls a parent enforcing what its children do not a…](roadmap/115-guardrail-architecture-mike-commissioned/440-parent-only-checks-versus-the-parent-child-parity-rule.md)
+- [ ] 🔎 [Three doctrine defects the enforcement census found in slice 3.](roadmap/115-guardrail-architecture-mike-commissioned/450-census-slice-3-doctrine-defects.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
