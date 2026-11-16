@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the exception-register design, redrafted
+- [~] ⏳ **Rule-4 cold pass queued: the exception-register design, redrafted
       on its failed pass's counsel (`160/650`, `110/100`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session 722ac2e2, 2026-11-09, in
       its ruling round, which dispatched the worker that wrote it) queues
@@ -27,3 +27,12 @@
       2026-11-09: his four answers are in (`160/650`; the ADR's
       open-questions section), so the *best run after* note above is
       met.
+      🔒 CLAIMED 2026-11-16T06:12Z by headless orchestrator session (Opus 5.5, a rule-4 off-tier
+      orchestrator: it holds the context partition, forms no finding and writes no
+      severity), started by drain session 1e053526 (Opus 5.5) under the principal's API-credit
+      drain order of 2026-11-16, verbatim: *"I want to use things other than my weekly budget
+      to clear as many fable reviews as possible like using fable drain. I thought we could
+      start by using up all the API credits I have."* That order is the approval of Fable this
+      item waits for. Reviewer: a fresh Fable 5.1 session, tier checked at selection; not
+      started or instructed by any barred session (722ac2e2 and its workers, d16dc612,
+      74f2b8cd). Sibling held out of the tree until act 1 is committed.
