@@ -59,4 +59,9 @@
       his point that the secrecy ends then; whether the "within the realms" sentence states his
       limit or stretches it.
       *Review:* no brief yet. Neither this session nor anyone it starts may write the brief or
-      run the pass.
+      run the pass. The principal's answer, 2026-11-16 00:4x UTC, to the authoring session's
+      ask whether to put it in this week's drain, verbatim: *"the next appropriate session can
+      write the brief and the next time I run a fable drain this review can be run"*. So: the
+      brief goes to the next session that passes rule 4's criterion and is writing briefs (an
+      Opus brief-writer, no Fable); the pass is in scope for his next weekly drain, not before,
+      and that drain is his to start. An answer, not a ruling: it covers this item only.
