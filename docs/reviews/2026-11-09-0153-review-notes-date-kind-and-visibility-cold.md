@@ -4,8 +4,9 @@
 function: review doctrine, the floor and the fleet view).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** BRIEF ONLY. Not run. Held for the principal's explicit approval of the Fable pass.
-Written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5 brief-writer.
+**Status:** ACT 1 RUN 2026-11-16 UTC by a Fable 5.1 reviewer under a headless Opus 5.5
+orchestrator started by drain session `1e053526` (verdict below); act 2 (reconcile) pending.
+Brief written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1180-rule-4-cold-pass-queued-review-notes-date-kind-and-visibility.md`
 (barred until phase 2).
@@ -235,3 +236,268 @@ Never revise act-1 text. Then fold the sibling in below the reconcile and delete
 Every finding on this delta is the principal's to decide (rule 3): record all, apply nothing.
 Counsel per finding is welcome, labelled as counsel and kept beneath it.
 
+
+---
+
+## Verdict — act 1 (2026-11-16 UTC)
+
+**Overall: PASS-WITH-FINDINGS** — 0 MAJOR, 3 MODERATE, 5 minor, 2 note (`RNV1`–`RNV10`).
+
+### Provenance (rule 4, V7)
+
+- **Reviewer:** Fable 5.1, the principal-named tier, checked at selection. Spawned by a headless
+  Opus 5.5 orchestrator session, itself started by drain session `1e053526` (Opus 5.5). Both are
+  rule-4 off-tier orchestrators: they hold the context partition, formed no finding and wrote no
+  severity. `1e053526` wrote no brief and no delta. This pass ran on the Platform API credit lane
+  under the principal's drain order of 2026-11-16; quality was not traded for cost.
+- **Not started or instructed by** any barred session: `722ac2e2` and its workers, `d16dc612`,
+  `74f2b8cd`. Contact after the spawn: one orchestrator message, process only (a resume after this
+  reviewer's turn ended early: carry on in the foreground, use own results, disclose any helper,
+  spawn no further background work). It carried no question about the delta and no pointer to
+  where the risk lives.
+- **Spawn prompt, in substance:** worktree path (below), brief path, the two files writable, the
+  rule-2 bars (the `.deferred.md` sibling removed from the worktree on purpose, never to be sought
+  in git history, other checkouts, scratch or `~/.claude`; `SESSIONS.md`, `docs/sessions/`, prior
+  verdicts, the queue pointer and intent records beyond titles, delta commit bodies), load and
+  live-system rules (reads only, no writes), public-repo wording rules, the act-1/act-2 shape and
+  the running review log. The log is appended verbatim at the fold.
+- **Worktree:** `/Users/mike/worktrees/fable/atelier-160-1180-0816/atelier`, read-only except this
+  file. `git merge-base --is-ancestor 595db812 HEAD` exits 0. HEAD is 60 commits past the landing
+  commit on the delta's paths (the brief counted 7 at `457615cc`); the delta's hunks were checked
+  for drift by function (none on the three features; one later comment at `floor.py:1137`).
+- **What was read:** the brief; `REVIEW.md` rules 1–4, lenses, V1–V7 and the lifecycle; the four
+  commits body-free through `coldsweep.py --commit` (ledger below); the delta's files at HEAD; the
+  board index `docs/ROADMAP.md` and three board items that are not barred (`390/020`, `180/120`,
+  `180/200`) to check cross-references; `skills/review-drain/orchestrator-prompt.md`,
+  `docs/method/session-open/dispatch-brief.md`, `.github/workflows/floor.yml` and the child
+  template workflow. **Not read:** the session log, `docs/sessions/`, any prior verdict, the queue
+  pointer, the three intent records beyond their titles, any commit body, the sibling.
+- **Helper disclosed:** one in-process subagent (Agent tool, Haiku) was spawned for a single
+  measurement (its own session id and whether a scratchpad path was named to it). No finding rests
+  on its output; it informs the nuance in `RNV7`, which also rests on this reviewer's own
+  environment. No other helper; no background work after the orchestrator's instruction.
+- **Residual exposure, named:** the delta carries finding ids (`SK1`, `SK9`, `DK1`, `DK2`, `DK8`,
+  `DK9`, `DK11`) and the principal's answers; the brief said so. The board index showed item
+  titles only. Nothing read gave an evaluative account of the work.
+
+### Method
+
+Order: brief in full; `REVIEW.md` for the verdict shape; tree and landing-commit check; the four
+commits body-free; the delta's hunks at HEAD and their drift; mirror sites by `coldsweep` sweeps
+(`"visibility"`, `reads as a mandate`, where deferred siblings are held); the workflow that runs
+the floor in CI; the re-run list; probes (below); then findings. Left out: 56 of the 60 later
+commits on the delta's paths, read only as subjects; the whole-suite run's result, which had not
+landed when this act was written (see the re-run ledger). Every command and what it returned is in
+the review log, appended at the fold.
+
+### Lens 1 — approach and load-bearing assumptions
+
+- **A1 (`260/050`): "the live API answer wins over the event payload."** Damaged. The code reads
+  `GITHUB_TOKEN` from the environment; the house workflow's floor step exports no token, and Actions
+  exports none by default. Unauthenticated, a private repo's `GET /repos/<slug>` is a 404 (curl:
+  nonexistent slug → 404, the same answer a private repo gives), so the live read fails and the
+  payload answers for exactly the repos the check exists for; a public repo's read shares the
+  runner IP's 60-per-hour limit (curl: `x-ratelimit-limit: 60`). `RNV1`.
+- **A2 (`160/450`): "an unlabelled date reads as a mandate, the stricter reading."** Damaged in
+  substance. The one fleet date on record, the C1b horizon, was ruled a default (GUARDS.md's own
+  grounding, 2026-08-09); every dated advisory in the fleet is unlabelled (4 of 4); so the tool
+  now reads ruled defaults as mandates. `RNV2`.
+- **A3 (`160/380`): "every agent is handed the orchestrator's own scratchpad."** Confirmed for an
+  in-process subagent (the helper's session id equalled this reviewer's; its output landed under
+  this session's task directory); not true of a headless child session (this reviewer has its own
+  session id and its own spill, keyed by it). The rule's conclusion survives on the same-user
+  reachability the doctrine already states; the premise is narrower than written. `RNV7`.
+- **A4: the fleet board shows what the floor config declares.** Damaged for `visibility`: the
+  board does not read the key. `RNV3`.
+- **Right problem, right altitude?** Yes for all three: a read surface named as such, a label the
+  checkers read, a declaration checked against the live state. The acceptance picks are met in
+  shape; the gaps are in wiring (`RNV1`), in the default the label takes (`RNV2`) and in the one
+  view that would show the declaration fleet-wide (`RNV3`).
+
+### Lens 2 — correctness and quality, claim by claim
+
+- `CONCURRENCY.md` § *Orchestrated queue runs*: says what the changelog claims; the "one command"
+  test of whether the rule is spent was re-driven (A3) and gives "shared" for the subagent shape,
+  as the text says it did on 2026-09-25. The claim that the 2026-09-25 batch held twenty siblings
+  in the scratchpad and moved them is in barred records and was not re-run.
+- `REVIEW.md` rule 1: the qualified "structural" wording is present at HEAD (lines 92–105) and
+  agrees with `CONCURRENCY.md`. Rule 2's "four times" matches `tools/README.md`.
+- `floor.py` `kind`: validated (`DateKindTest`, 255 tests green), shown on the line and in
+  `--json`; `moved_later` reports and never blocks (test re-run). Doctrine says it compares the
+  *staged* date; the code reads the working tree. `RNV5`.
+- `floorfleet.py` `kind`: shown; "date kind not recorded" said aloud (127 tests green).
+- `coldsweep.py` empty `--also-exclude`: warns on the pattern path (56 tests green); silent in
+  `--commit` mode. `RNV6`. The brief's own sweep command: all four bars matched files, no warning.
+- `visibility`: key validated; the breach case is the one red and renders the loud block
+  (`VisibilityDeclarationTest` green). Live path re-driven from this machine only as far as the
+  unreadable-answer branch (🟡, exit 0, as claimed); TLS verification fails for the stock python
+  here, an environment limit, so the 200 path was re-driven with curl.
+- Honesty: "Not built" lines are present for the house-date declaration and the daily check. The
+  changelog calls the dispatch-sentence mirror "owed" in the queue-run prompt and skill, which hold
+  no rule; the actual mirror site already existed. `RNV8`.
+
+### Lens 3 — completeness and harvest
+
+- The acceptance pick on `160/450` reads "existing dates get labelled"; none were, no ask to the
+  principal was queued, and the board index holds no item for it. `RNV2`.
+- `create-repo` scaffolds no `visibility`, so every new repo starts 🟡 in CI. `RNV4`.
+- A test that stays green on a broken check: the hook-plane date note has no render test. `RNV9`.
+- What already exists that this ignored: `session-open/dispatch-brief.md` (landed 2026-11-03,
+  `180/120`) is the copyable home of the scratch obligation; the delta's recipe did not reach it
+  and the changelog pointed elsewhere. `RNV8`.
+
+### Lens 4 — security and privacy (V6)
+
+Threats enumerated for the new code: (1) token exfiltration — the slug is validated before any
+URL is built and the URL is a literal `https://api.github.com/...`; no token is wired today
+(`RNV1`); if one is, `urllib` forwards `Authorization` on a redirect to any host (CPython
+`redirect_request` drops only content headers, checked on the python on `PATH`), so the wiring
+should pair with a redirect-refusing opener; (2) rate limit or outage — falls through to the
+payload, then to 🟡, never red, confirmed by test and by the re-drive; (3) a spoofed event payload
+— `GITHUB_EVENT_PATH` is runner-owned; a forked PR cannot change the caller's repository object;
+(4) red-build denial of service — only a declared-private-but-public repo reds, which no outsider
+can cause; (5) privacy — a private repo's `"visibility": "private"` line and the `::error` text
+carry no secret and no personal data; the `160/380` rule itself tightens confidentiality and says
+honestly that a same-user machine is no partition. `/security-review` **discharged by grounds**:
+it reads the session's pending diff, which here is this brief and a deleted sibling, never the
+landed delta; the code surface (one HTTPS GET, one `git show`) was read by hand against the list
+above. Over markdown its pass would be empty in any case.
+
+### Standing checklist
+
+- **V1** — one overclaim found (`RNV5`, "staged"); one premise wider than its evidence (`RNV7`).
+- **V2** — every re-run line re-run (ledger below); the live API read re-driven as far as this
+  machine allows and the gap named.
+- **V3** — mirrors swept: `GUARDS.md`, `PROPAGATION.md`, `REPO-STANDARD.md`, the CONTRIBUTING
+  template, `floor.py` docstring, `floorfleet.py`, `tools/README.md`, `CHANGELOG.md` all state the
+  kind rule the same way; `create-repo` and `dispatch-brief.md` are the two mirrors missed
+  (`RNV4`, `RNV8`).
+- **V4** — one home each: the kind rule in `GUARDS.md`, the scratch rule in `CONCURRENCY.md`, the
+  visibility rule in `floor.py`'s docstring with `REPO-STANDARD.md` pointing at it. Held.
+- **V5** — cross-references checked for the rule reached: `390/020` holds the daily-check answer
+  (read; the item is not barred); `REVIEW.md` rule 1 ↔ `CONCURRENCY.md` agree; `docs/sessions/
+  2026-09-20-1053-…` exists (not read). One contradiction: the mandate default against the ruled
+  default (`RNV2`).
+- **V6** — above. **V7** — provenance stated in the brief and repeated above.
+
+### Per-commit ledger
+
+| Commit | Read body-free | Findings |
+|---|---|---|
+| `d7abac17` (`160/380`) | yes, `coldsweep --commit`, 4 files | `RNV7`, `RNV8` |
+| `db2c39f9` (`160/450`) | yes, 12 files | `RNV2`, `RNV5`, `RNV6`, `RNV9` |
+| `c4424324` (`260/050`) | yes, 5 files | `RNV1`, `RNV3`, `RNV4`, `RNV10` |
+| `595db812` (`160/380`) | yes, 1 file | none |
+
+### Findings
+
+**RNV1 — MODERATE — the CI visibility check never has a token, so its designed live read is
+dead for private repos.** `github_visibility()` reads `GITHUB_TOKEN` from the environment
+(`tools/floor.py` 2507–2531). `.github/workflows/floor.yml`'s "scanner floor" step (lines
+133–134) exports no `env:`; the only token in the file is `GH_TOKEN` on the signature step; the
+child template exports none; Actions does not export the token by itself. Unauthenticated, a
+private repo answers 404, so the branch the docstring calls the point ("the state NOW", defeating
+a replayed payload on a re-run) falls through to the payload for every private repo, and a public
+repo's read shares the runner IP's 60-per-hour limit. The result line does not say which source
+answered, so "GitHub agrees" from a stale payload reads the same as a live read. The test passes a
+token under a name the workflow never sets, so it stays green with the wiring absent. Rule: V1
+(claim stronger than its evidence), lens 3 (a test that stays green on a broken check).
+*Counsel:* add `env: GITHUB_TOKEN: ${{ github.token }}` to the floor step of the reusable
+workflow (children call it, so one edit reaches the fleet); have the result say `live` or
+`payload`; when a token travels, use an opener that refuses redirects.
+
+**RNV2 — MODERATE — "an unlabelled date reads as a mandate" reads the fleet's ruled defaults as
+mandates, and the labelling the acceptance pick asked for was neither done nor queued.** GUARDS.md
+413–418 sets the default and its own grounding (437–441) records the one fleet date ever ruled, the
+C1b horizon, as a **default**. Fleet count (direct read, 22 configs): 4 dated advisories, all
+unlabelled, 0 mandate, 0 default. So the board tells each of them "reads as a mandate until the
+principal says", and a child extending one gets a hook line saying it may not, for a date class he
+ruled may be extended. The same subsection says such a date "has no kind on record", which the
+grounding paragraph contradicts. The pick ("existing dates get labelled") is unmet; the changelog
+says labelling "needs the principal" but no ask was queued and the board index has no item. Rule:
+V5, the acceptance test, rule 3 (an answer applied past what was picked). *Counsel:* one board
+item listing the 4 dates with their origin, asking him to label each; and, until then, have the
+unlabelled reading say "kind not recorded" without a mandate reading, or keep the mandate reading
+only for dates that are not C1b-derived. His call which.
+
+**RNV3 — MODERATE — the fleet board cannot show `visibility`, so 12 of 22 repos' silence is
+invisible fleet-wide.** `floorfleet.py` does not read the key (grep: no hit). `floor.py`'s
+docstring (lines 138–140) says the board shows the declarations "so … is a visible board state
+rather than an absence nobody can see"; `REPO-STANDARD.md` lists `visibility` among what the
+config decides; the brief's re-run line assumed the fleet view reports it. Today an undeclared
+repo surfaces only as one 🟡 line inside its own CI log. Counts: public 4, private 6, absent 12.
+Rule: lens 3 (harvest), V4 (the board is the declarations' one view). *Counsel:* read the key in
+`_read_declarations`, print it per repo, say "not declared" aloud as the kind line does.
+
+**RNV4 — minor — `create-repo` scaffolds no `visibility`, so every new repo starts 🟡.** The
+skill's instance profile already carries the remote's visibility (`instance.yaml.example` line
+21; `SKILL.md` 79, 225), so the value is in hand at scaffold time. Rule: V3. *Counsel:* write the
+key from the profile when the floor config is scaffolded.
+
+**RNV5 — minor — GUARDS.md says the hook compares the *staged* `review-by` with HEAD's; the code
+compares the working tree.** `moved_later` takes `cfg` from `Config.load(root)`, which reads the
+file on disk (`floor.py` 2076); the delta's own test writes the new config and never stages it,
+and expects the note. A date edited but not staged is reported as moving; a date staged then
+reverted on disk is not. Rule: V1. *Counsel:* either read `:.atelier-floor.json` from the index
+on the hook plane, or say "the working tree's" in GUARDS.md 420.
+
+**RNV6 — minor — the empty `--also-exclude` warning does not fire in `--commit` mode.**
+`coldsweep.py` 421 returns from `show_commit` before the walk at 426 where the check sits
+(429–438). A brief that pairs `--commit` with a mistyped bar gets silence, the case DK9 was about.
+Rule: lens 2. *Counsel:* run the check in `show_commit` too, against the tree.
+
+**RNV7 — minor — "every agent is handed the orchestrator's own scratchpad" is true of in-process
+subagents and not of headless child sessions.** Probe: a subagent spawned by this reviewer
+reported the same session id and its output landed under this session's task directory
+(shared); this reviewer, a headless child, has its own session id and its own spill keyed by it
+(not shared). `CONCURRENCY.md` 1002–1004 says "every agent". The conclusion stands on the
+same-user clause the text already carries. Rule: V1. *Counsel:* "every in-process subagent", and
+keep the same-user sentence as the operative reason.
+
+**RNV8 — minor — the recipe's mirror site exists and the delta neither updated nor named it.**
+`docs/method/session-open/dispatch-brief.md` (landed 2026-11-03, `180/120`) is the copyable home of
+the scratch obligation; its line 19 says "unique to this worker" and nothing of
+`<orchestrator scratchpad>/<worker-name>/`. The changelog calls the mirror "owed" in the queue-run
+prompt and skill, which hold no rule. Rule: V3, lens 3. *Counsel:* put the recipe on line 19 and
+drop the changelog's "owed" line or point it at the skeleton.
+
+**RNV9 — note — no test renders the hook-plane date note.** `DateKindTest` checks `date_note`
+through `--json` only; the `🟡 {r.date_note}` term in `render` (`floor.py`, the `said` list) can be
+removed and every test stays green. *Counsel:* one `assertIn("🟡 review-by moved later", …)` on
+`render([...], "hook")`.
+
+**RNV10 — note, formed at HEAD not against the delta — `floor.py`'s VISIBILITY docstring says
+"what a public declaration tightens … is not built yet"; at HEAD `pdlistscan` and `namescan` read
+the declared visibility.** True when landed; stale now. *Counsel:* for the applier, one sentence.
+
+### Re-run ledger
+
+All from the worktree root, `nice -n 10`, one process at a time, exit codes read explicitly:
+
+- `cd tools && python3 -m unittest test_floor` — 255 tests, OK, exit 0 (171 s).
+- `cd tools && python3 -m unittest test_floorfleet` — 127 tests, OK, exit 0.
+- `cd tools && python3 -m unittest test_coldsweep` — 56 tests, OK, exit 0.
+- `python3 tools/floor.py --plane ci --root .` — exit 0. `--plane hook` — exit 0.
+- `python3 -m unittest discover -s tools` — started in the foreground; it outran the foreground
+  limit and the harness moved it to the background on its own. Its result was not in hand when
+  this act was written; it is recorded in the review log when it lands and restated in act 2.
+- `gh repo view --json visibility` — `PUBLIC`, exit 0 (a read).
+- Fleet, by count (direct read of each sibling's floor config, read-only; `floorfleet.py` cannot
+  report visibility, `RNV3`): 22 configs; visibility public 4, private 6, absent 12; dated
+  advisories 4, kinds mandate 0, default 0, unlabelled 4; legacy lists 0.
+- Live visibility path with Actions variables set and no token: 🟡 "answer could not be read",
+  exit 0 — the stock python on this machine fails TLS verification (environment, not code); curl
+  on the same URL: 200, `x-ratelimit-limit: 60`; a nonexistent slug: 404.
+- NOT RUN: nothing needed a live write.
+
+### Follow-up checklist (the principal's to decide; nothing applied)
+
+- [ ] `RNV1` wire the token into the floor step; name the answer's source.
+- [ ] `RNV2` rule on the 4 unlabelled dates and on what an unlabelled date reads as.
+- [ ] `RNV3` teach the fleet board the `visibility` key.
+- [ ] `RNV4` scaffold `visibility` from the instance profile.
+- [ ] `RNV5` "staged" → the working tree, or read the index.
+- [ ] `RNV6` warn in `--commit` mode too.
+- [ ] `RNV7` "every agent" → "every in-process subagent".
+- [ ] `RNV8` the recipe onto `dispatch-brief.md`; fix the changelog's "owed" line.
+- [ ] `RNV9` one render test. `RNV10` one docstring sentence.
