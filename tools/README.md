@@ -2342,6 +2342,24 @@ complete. Each module's docstring is its full manual.
   running atelier's floor. It enumerates conformance rather than assuming it
   (ADR 0008; `docs/method/PROPAGATION.md`).
 
+## `flipcheck.py` — a read-only report of the pre-flip platform settings (`260/130`)
+
+`python3 tools/flipcheck.py <owner/name> [<owner/name> ...] [--json]` reads, per
+named repo, the five settings `docs/method/AUTONOMY.md`'s gate reads before a
+flip: the wiki, the Actions policy, fork-PR approval, private vulnerability
+reporting, and rulesets or branch protection. It prints a table of the value
+read (and `--json` the same), with the house value beside the two that have one
+(wiki off, private vulnerability reporting enabled). Report only: every call is
+a bare `gh api` GET, and a test pins that. A read it cannot make, such as
+fork-PR approval or branch protection on a private free-plan repo, prints `not
+available` with the reason `gh` gave, makes the setting `partial` or `not
+available`, and never fails the run or reads as set. Exit 0 whatever it could not
+read, 2 for an argument that is not `owner/name`. It is a new tool rather than a
+`floorfleet` subcommand because it takes named repos, not a discovered fleet, and
+needs the reason for a failed read, which `floorfleet._gh_json` throws away; it
+borrows `floorfleet`'s `gh` runner. Tests: `tools/test_flipcheck.py`, `gh`
+stubbed.
+
 ## `local` in `.atelier-floor.json` — a repo adds a check of its own
 
 The hook set is atelier's, and that reads as "a child cannot add one". It can: a

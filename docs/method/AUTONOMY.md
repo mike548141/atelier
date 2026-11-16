@@ -84,7 +84,8 @@ are hard or impossible to undo:
     (`build/REPO-STANDARD.md`, SECURITY.md); and rulesets or branch protection
     (`rulesets`, `rules/branches/<branch>`). Where no house value is ruled, as
     for Actions policy and fork-PR approval, the value read goes in front of the
-    confirmation.
+    confirmation. `tools/flipcheck.py <owner/name>` makes these reads and
+    prints them (`260/130`).
   - **Flip and harden are one sitting.** Branch protection and fork-PR approval
     cannot be set while a repo is private on the free plan, so they are set
     straight after the visibility change, the gate names that unprotected

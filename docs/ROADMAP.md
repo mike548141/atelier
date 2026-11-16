@@ -405,6 +405,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's drift check finds atelier by the…](roadmap/160-doctrine-review-owed/1540-rule-4-cold-pass-queued-floor-drift-by-setting-and-record-rotation.md)
 - [ ] ⏳ [Rule-4 cold pass queued: an allow-marker scope with no reason exempts…](roadmap/160-doctrine-review-owed/1550-rule-4-cold-pass-queued-allow-marker-scope-without-reason.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose check 14, a child's atelier pin and…](roadmap/160-doctrine-review-owed/1560-rule-4-cold-pass-queued-ccclose-pin-and-floor-check.md)
+- [ ] ⏳ [Rule-4 cold pass queued: tools around the authority surface —…](roadmap/160-doctrine-review-owed/1570-rule-4-cold-pass-queued-authority-surface-tools.md)
 
 ## build/ layer — open strands
 
@@ -551,7 +552,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
 - ✅ 🔎 [P9 — what the flip's transcripts add to the pre-flip gate](roadmap/260-sharing-public-since-2026-07-10-adr-0005/110-p9-what-the-flip-transcripts-add-to-the-gate.md)
 - ✅ 🔎 [publishscan's default and staged planes miss any path git quotes](roadmap/260-sharing-public-since-2026-07-10-adr-0005/120-publishscan-misses-non-ascii-paths.md)
-- [~] 🔎 (claimed 2026-11-16-1140, wt: qr-78ca-gh) [A gh api read of the pre-flip platform…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/130-a-gh-api-read-of-the-pre-flip-platform-settings.md)
+- ✅ 🔎 [A gh api read of the pre-flip platform settings](roadmap/260-sharing-public-since-2026-07-10-adr-0005/130-a-gh-api-read-of-the-pre-flip-platform-settings.md)
 
 ## Open questions
 
