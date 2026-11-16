@@ -712,6 +712,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Hand-up from a private child: secretscan calls a marker "naming no…](roadmap/320-child-filed-findings-via-pointing-up/840-hand-up-secretscan-finding-name-and-rule-list-disagree.md)
 - ✅ [Hand-up from a private child: leakscan's nz-phone rule fires on…](roadmap/320-child-filed-findings-via-pointing-up/850-hand-up-leakscan-nz-phone-fires-on-bracketed-hex-byte-strings.md)
 - ✅ [Hand-up from a private child: leakscan G3 has no form for a binary…](roadmap/320-child-filed-findings-via-pointing-up/860-hand-up-g3-has-no-form-for-a-generated-binary.md)
+- [~] 🔎 [Hand-up: under the new visibility slot (320/370), a child whose…](roadmap/320-child-filed-findings-via-pointing-up/870-hand-up-a-wrapped-visibility-bullet-fails-the-floor-copy-check.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
