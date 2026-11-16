@@ -1,4 +1,4 @@
-- [~] **Give a deferment an expiry at every granularity, not just `advisory`.**
+- [ ] **Give a deferment an expiry at every granularity, not just `advisory`.**
       Raised by the ruling above. Today `review-by` is a floor-config field, so
       the only declarable deferment is a whole check. The two cases just dated
       are path-level, and a line marker has the same hole — `<guard>:allow:` is
@@ -11,5 +11,25 @@
       plus board rendering, and it wants its own session. Until it exists,
       a path-level deferment's date is a promise, not a gate — which is
       precisely the thing `GUARDS.md` says a deferment must not be.
+      **Slice 1 built 2026-11-16 (queue run 78ca): the shared parser and one
+      adopter.** `allowmarker.ignore_deferments` reads `review-by: YYYY-MM-DD`
+      from a glob's attached comment (stanza or trailing reason) with the
+      loader's own grammar, marks a date lapsed when strictly before the UTC
+      date given, and reports an unreadable value as malformed rather than
+      dropping it. `wrapscan` is the first adopter: a `deferments:` line after
+      its `suppressed:` line, 🟡 per lapsed or malformed date, `deferments` in
+      `--json`. **Warn-only**: no exit status changes, because children run
+      the floor at `@main`. Syntax documented in `tools/README.md`
+      § *Allow markers and ignore files*. **Remaining:** (1) adopt the reader
+      in the other ignore-file scanners, `leakscan` (and `.leakscanbinaries`),
+      `secretscan`, `conflictscan`, `datescan`, `licenscan`, `linkscan`,
+      `indexscan`, `pathscan`, `sizescan`, `spellscan`, `stampscan`;
+      (2) render it on the floor line and the fleet board (`floor.py`,
+      `floorfleet.py`) as an advisory's expiry is; (3) the announced switch
+      from 🟡 to red when lapsed; (4) the line-marker granularity the item
+      names, which this glob reader does not cover. The cold pass is owed at
+      (3), the slice that makes a lapsed date block: that is where the syntax
+      becomes a commitment children build to (orchestrator 78ca9153's call,
+      2026-11-16; this slice is additive and warn-only).
       🔒 CLAIMED 2026-11-16T11:55Z (claimed 2026-11-16-1155, wt: qr-78ca-expiry) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).

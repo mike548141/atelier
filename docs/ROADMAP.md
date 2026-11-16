@@ -151,7 +151,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Eight children carry a floor block that predates four doctrine…](roadmap/110-estate-duplication-exception-audit-mike/030-eight-children-carry-a-floor-block-that-predat.md)
 - [ ] [shed narrows the floor legitimately and undeclarably.](roadmap/110-estate-duplication-exception-audit-mike/040-shed-narrows-the-floor-legitimately-and-undecl.md)
 - [ ] [The economics-doc duplication — the audit's headline, and Mike's…](roadmap/110-estate-duplication-exception-audit-mike/050-the-economics-doc-duplication-the-audit-s-head.md)
-- [~] (claimed 2026-11-16-1155, wt: qr-78ca-expiry) [Give a deferment an expiry at every…](roadmap/110-estate-duplication-exception-audit-mike/060-give-a-deferment-an-expiry-at-every-granularit.md)
+- [ ] [Give a deferment an expiry at every granularity, not just advisory.](roadmap/110-estate-duplication-exception-audit-mike/060-give-a-deferment-an-expiry-at-every-granularit.md)
 - ✅ [The unreasoned advisories are already in hand — do not re-file.](roadmap/110-estate-duplication-exception-audit-mike/070-the-unreasoned-advisories-are-already-in-hand.md)
 - [ ] [Make the estate's floor state answer "passing", not just "wired".](roadmap/110-estate-duplication-exception-audit-mike/080-make-the-estate-s-floor-state-answer-passing-n.md)
 - [ ] [Triage the four red floors.](roadmap/110-estate-duplication-exception-audit-mike/090-triage-the-four-red-floors.md)

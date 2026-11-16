@@ -648,6 +648,123 @@ class TestUnknownScopeTally(unittest.TestCase):
         self.assertEqual(1, json.loads(r.stdout)["suppressed"]["markers_naming_no_rule"], r.stderr)
 
 
+class TestReviewBy(unittest.TestCase):
+    """110/060 slice 1: a glob's attached comment may date the deferment with
+    `review-by: YYYY-MM-DD`; lapsed is strictly before the UTC date given."""
+
+    TODAY = "2026-11-17"
+
+    def defs(self, text, today=TODAY):
+        return am.ignore_deferments(text, today)
+
+    def test_stanza_date_covers_every_glob_in_the_stanza(self):
+        d = self.defs("# old drafts, fix them. review-by: 2026-01-01\na/\nb/\n\nc/  # why\n")
+        self.assertEqual([(2, "a/", "2026-01-01"), (3, "b/", "2026-01-01"), (5, "c/", None)],
+                         [(x.line, x.glob, x.review_by) for x in d])
+        self.assertTrue(d[0].lapsed and d[1].lapsed)
+        self.assertFalse(d[2].lapsed)
+
+    def test_trailing_reason_can_carry_the_date(self):
+        [d] = self.defs("docs/x.md  # draft, review-by: 2027-03-01\n")
+        self.assertEqual("2027-03-01", d.review_by)
+        self.assertFalse(d.lapsed)
+
+    def test_lapsed_is_strictly_before_today(self):
+        on, before = (self.defs(f"g  # review-by: {x}\n")[0]
+                      for x in (self.TODAY, "2026-11-16"))
+        self.assertFalse(on.lapsed)
+        self.assertTrue(before.lapsed)
+
+    def test_today_may_be_a_date_object(self):
+        [d] = am.ignore_deferments("g  # review-by: 2026-11-16\n",
+                                   datetime.date(2026, 11, 17))
+        self.assertTrue(d.lapsed)
+
+    def test_malformed_dates_are_reported_never_dropped(self):
+        for bad in ("soon", "2026-13-01", "2026-02-30", "26-11-17", ""):
+            with self.subTest(bad=bad):
+                [d] = self.defs(f"# review-by: {bad}\ng\n")
+                self.assertIsNone(d.review_by)
+                self.assertFalse(d.lapsed)
+                self.assertEqual((bad,), d.malformed)
+
+    def test_two_different_dates_on_one_glob_are_malformed(self):
+        [d] = self.defs("# review-by: 2027-01-01\ng  # review-by: 2027-02-01\n")
+        self.assertIsNone(d.review_by)
+        self.assertEqual(("2027-01-01", "2027-02-01"), d.malformed)
+
+    def test_the_same_date_twice_is_one_date(self):
+        [d] = self.defs("# review-by: 2027-01-01\ng  # review-by: 2027-01-01\n")
+        self.assertEqual("2027-01-01", d.review_by)
+
+    def test_trailing_punctuation_is_prose_not_the_date(self):
+        [d] = self.defs("# revisit (review-by: 2027-01-01).\ng\n")
+        self.assertEqual("2027-01-01", d.review_by)
+
+    def test_a_word_merely_ending_in_review_by_is_not_the_token(self):
+        [d] = self.defs("# pre-review-by: 2020-01-01 is not ours\ng\n")
+        self.assertIsNone(d.review_by)
+        self.assertEqual((), d.malformed)
+
+    def test_no_comment_and_unrelated_reasons_have_no_date(self):
+        d = self.defs("# a plain reason\ng\nh  # another\n")
+        self.assertEqual([None, None], [x.review_by for x in d])
+        self.assertEqual([(), ()], [x.malformed for x in d])
+
+    def test_blank_line_ends_the_dated_stanza(self):
+        d = self.defs("# review-by: 2020-01-01\ng\n\n# fresh reason\nh\n")
+        self.assertEqual(["2020-01-01", None], [x.review_by for x in d])
+
+    def test_absent_file_reads_as_none(self):
+        with tempfile.TemporaryDirectory() as td:
+            self.assertEqual([], am.read_ignore_deferments(Path(td), ".demoscanignore"))
+
+    def test_file_reader_defaults_to_the_utc_clock(self):
+        with tempfile.TemporaryDirectory() as td:
+            Path(td, ".demoscanignore").write_text("g  # review-by: 2026-11-16\n")
+            with mock.patch.object(am, "_utc_today", return_value=datetime.date(2026, 11, 16)):
+                self.assertFalse(am.read_ignore_deferments(Path(td), ".demoscanignore")[0].lapsed)
+            with mock.patch.object(am, "_utc_today", return_value=datetime.date(2026, 11, 17)):
+                self.assertTrue(am.read_ignore_deferments(Path(td), ".demoscanignore")[0].lapsed)
+
+    def test_report_lines_print_known_zeros(self):
+        self.assertEqual(
+            ["  deferments: 0 deferment(s) with review-by · 0 lapsed · 0 malformed"],
+            am.deferment_lines(".demoscanignore", [], self.TODAY))
+
+    def test_report_lines_flag_lapsed_and_malformed_in_amber(self):
+        d = self.defs("# review-by: 2026-11-16\na\n\n# review-by: 2026-11-01\nb\n\n"
+                      "# review-by: 2099-01-01\nc\n\n# review-by: soon\nd\n")
+        lines = am.deferment_lines(".demoscanignore", d, self.TODAY)
+        self.assertEqual("  deferments: 3 deferment(s) with review-by · 2 lapsed · 1 malformed",
+                         lines[0])
+        self.assertIn("🟡 .demoscanignore:2 'a' review-by 2026-11-16 LAPSED (1 day over)", lines[1])
+        self.assertIn("'b' review-by 2026-11-01 LAPSED (16 days over)", lines[2])
+        self.assertIn("🟡 .demoscanignore:11 'd' review-by unreadable: 'soon'", lines[3])
+        self.assertEqual(4, len(lines))
+
+    def test_an_echoed_glob_is_neutralised(self):
+        d = self.defs("docs/\u202egnp.md\x1b[2J  # review-by: 2020-01-01\n")
+        out = "\n".join(am.deferment_lines(".demoscanignore", d, self.TODAY))
+        for bad in ("\u202e", "\x1b"):
+            self.assertNotIn(bad, out)
+
+    def test_json_surface_lists_only_dated_or_malformed_globs(self):
+        d = self.defs("# review-by: 2020-01-01\na\n\n# why\nb\n\n# review-by: x\nc\n")
+        self.assertEqual(
+            [{"line": 2, "glob": "a", "review_by": "2020-01-01", "lapsed": True, "malformed": []},
+             {"line": 8, "glob": "c", "review_by": None, "lapsed": False, "malformed": ["x"]}],
+            am.deferments_dict(d))
+
+    def test_the_glob_set_matches_the_loader(self):
+        # One grammar: every glob the loader returns is a deferment, in order.
+        text = "# r\na\nb  # r2\n\n# r3 review-by: 2027-01-01\nc\n"
+        with tempfile.TemporaryDirectory() as td:
+            Path(td, ".demoscanignore").write_text(text)
+            self.assertEqual(am.load_ignore_globs(Path(td), ".demoscanignore"),
+                             [x.glob for x in self.defs(text)])
+
+
 class TestCensus(unittest.TestCase):
     def test_census_lists_malformed_markers_and_skips_good_ones_and_code(self):
         with tempfile.TemporaryDirectory() as td:

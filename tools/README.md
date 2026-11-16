@@ -2804,6 +2804,42 @@ is a literal character that negates nothing, and `g/` or a bare directory name
 `g` matches everything beneath it. A glob that can never match exempts nothing,
 silently; write each glob as a path from the repo root.
 
+**A dated deferment** (`110/060`, slice 1). A glob meant to be fixed rather
+than accepted can carry an expiry: write `review-by: YYYY-MM-DD` in the comment
+attached to it, either the stanza above or its trailing `# reason`. A stanza's
+date covers every glob in that stanza.
+
+```text
+# Drafts still being rewrapped; fix them, do not keep them. review-by: 2027-01-31
+docs/drafts/
+docs/notes/scratch.md  # imported as-is, review-by: 2027-02-28
+```
+
+`allowmarker.ignore_deferments(text, today)` reads it with the same grammar as
+the loader. It returns each glob with its date (or none) and marks the date
+lapsed when it is strictly before `today`, a UTC date, the comparison a floor
+`advisory`'s `review-by` uses. An unreadable value is **reported, never
+dropped**: `review-by: soon`, an impossible date such as `2026-02-30`, an empty
+value, or two different dates on one glob each count as malformed. The token is
+`review-by:` as a whole word, so `pre-review-by:` is not it.
+
+**The first adopter is `wrapscan`**, which prints one more stable line after its
+`suppressed:` line, known zeros included, then one 🟡 line per lapsed or
+unreadable date. `--json` carries the same facts under `deferments`. Run on
+2026-11-16:
+
+```text
+  deferments: 2 deferment(s) with review-by · 1 lapsed · 1 malformed
+    🟡 .wrapscanignore:2 'docs/drafts/' review-by 2026-01-31 LAPSED (289 days over)
+    🟡 .wrapscanignore:7 'docs/bad/' review-by unreadable: 'soon' (write one YYYY-MM-DD date)
+```
+
+**Warn-only for now.** A lapsed or unreadable date changes no exit status.
+Children run atelier's floor at `@main`, so making it block is a separate, announced
+step. The other scanners' ignore files and the floor line and fleet board
+rendering are later slices of `110/060`. Until a scanner adopts the reader, a
+`review-by:` in its ignore file is still only a comment.
+
 ## Tests
 
 ```sh

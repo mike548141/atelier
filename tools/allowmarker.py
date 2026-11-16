@@ -63,6 +63,7 @@ import datetime
 import fnmatch
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 # First character of a reason: a word character or an opening quote.
@@ -444,9 +445,17 @@ def read_reasoned_parts(f: Path) -> list[tuple[int, str, str, str | None]]:
     absent file reads as no entries."""
     if not f.exists():
         return []
+    return reasoned_parts_from_text(
+        f.read_text(encoding="utf-8", errors="replace"))
+
+
+def reasoned_parts_from_text(text: str) -> list[tuple[int, str, str, str | None]]:
+    """`read_reasoned_parts` over text already in hand (110/060): the one
+    grammar, so the review-by reader and the glob loader cannot disagree on
+    which comment block belongs to which glob."""
     out: list[tuple[int, str, str, str | None]] = []
     stanza: list[str] = []
-    for n, raw in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+    for n, raw in enumerate(text.splitlines(), 1):
         line = raw.strip()
         if not line:
             stanza = []
@@ -526,6 +535,137 @@ def ignored(rel: str, globs: list[str]) -> bool:
     path from the repo root."""
     return any(fnmatch.fnmatch(rel, g) or fnmatch.fnmatch(rel, g.rstrip("/") + "/*")
                for g in globs)
+
+
+# ------------------------------------------------------------- review-by --
+#
+# 110/060: a path-level deferment can carry an expiry. An optional
+# `review-by: YYYY-MM-DD` in the comment attached to a glob (the stanza above
+# it, or its trailing `# reason`) dates the deferment, the way an `advisory`'s
+# `review-by` dates a whole check. This reader only says what the file
+# declares and which dates have passed; what a lapsed date costs is the
+# caller's (warn-only in its first adopter, wrapscan).
+
+# The token: the word `review-by`, a colon, then whatever runs to the next
+# space. The run is read whole and judged afterwards, so `review-by: soon`,
+# `review-by: 2026-13-01` and a bare `review-by:` are each REPORTED as
+# malformed, never skipped as if no date had been written.
+_REVIEW_BY_RX = re.compile(r"(?<![\w-])review-by:[ \t]*(\S*)")
+_ISO_DATE_RX = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+@dataclass(frozen=True)
+class Deferment:
+    """One ignore-file glob and the `review-by` its attached comment carries.
+
+    `review_by` is the ISO date when exactly one well-formed date is declared,
+    else None. `malformed` holds the unreadable token(s) when a `review-by:` is
+    written but no single valid date can be read from it (a bad date, an empty
+    value, or two different dates on one glob); `lapsed` is True when
+    `review_by` is strictly before the date the caller judged against, the
+    same comparison as a floor advisory's (`floor.Advisory.expired`)."""
+    line: int
+    glob: str
+    review_by: str | None
+    lapsed: bool = False
+    malformed: tuple[str, ...] = ()
+
+
+def _read_review_by(comment: str) -> tuple[str | None, tuple[str, ...]]:
+    tokens = _REVIEW_BY_RX.findall(comment)
+    good: list[str] = []
+    bad: list[str] = []
+    for tok in tokens:
+        # A trailing full stop or comma is prose punctuation, not the date.
+        tok = tok.rstrip(".,;)")
+        if _ISO_DATE_RX.fullmatch(tok):
+            try:
+                datetime.date.fromisoformat(tok)
+            except ValueError:
+                bad.append(tok)
+                continue
+            good.append(tok)
+        else:
+            bad.append(tok)
+    if bad:
+        return None, tuple(bad)
+    dates = sorted(set(good))
+    if len(dates) > 1:
+        return None, tuple(dates)
+    return (dates[0] if dates else None), ()
+
+
+def ignore_deferments(text: str, today: str | datetime.date) -> list[Deferment]:
+    """Every glob in an ignore file's `text`, in file order, with the
+    `review-by` its attached comment declares (or None) and whether that date
+    has lapsed against `today` (a UTC date, ISO string or `date`).
+
+    The attached comment is the stanza above the glob AND its trailing
+    `# reason`, read by the same grammar as `load_ignore_globs`
+    (`reasoned_parts_from_text`): a stanza's date covers every glob in it, and a
+    blank line ends it. Reasons are not checked here; that is the loader's job,
+    so a caller runs both."""
+    today_s = today.isoformat() if isinstance(today, datetime.date) else today
+    out: list[Deferment] = []
+    for n, glob, trailing, stanza in reasoned_parts_from_text(text):
+        comment = " ".join(c for c in (stanza or "", trailing) if c)
+        by, bad = _read_review_by(comment)
+        out.append(Deferment(n, glob, by, by is not None and by < today_s, bad))
+    return out
+
+
+def read_ignore_deferments(root: Path, filename: str,
+                           today: str | datetime.date | None = None) -> list[Deferment]:
+    """`ignore_deferments` over `<root>/<filename>`; an absent file is none.
+    `today` defaults to the UTC clock (`_utc_today`, which tests patch)."""
+    f = root / filename
+    if not f.exists():
+        return []
+    return ignore_deferments(f.read_text(encoding="utf-8", errors="replace"),
+                             today if today is not None else _utc_today())
+
+
+def deferment_lines(filename: str, deferments: list[Deferment],
+                    today: str | datetime.date | None = None) -> list[str]:
+    """The warn-only report for a scanner's human output: one stable count line,
+    known zeros printed, then one 🟡 line per lapsed or malformed date.
+
+    `  deferments: N deferment(s) with review-by · M lapsed · K malformed`.
+    Warn-only by design in this slice (110/060): the line changes no exit
+    status, so a child running the floor at @main is never blocked by it."""
+    # A glob is text a pull request can land: echo it through the one shared
+    # neutraliser (160/790 HX2). Imported here, so the rest of this module
+    # keeps needing nothing but the standard library.
+    import report
+    _printable = report.safe_text
+    dated = [d for d in deferments if d.review_by is not None]
+    lapsed = [d for d in dated if d.lapsed]
+    bad = [d for d in deferments if d.malformed]
+    out = [f"  deferments: {len(dated)} deferment(s) with review-by · "
+           f"{len(lapsed)} lapsed · {len(bad)} malformed"]
+    today_d = today or _utc_today()
+    today_s = today_d.isoformat() if isinstance(today_d, datetime.date) else today_d
+    for d in lapsed:
+        days = (datetime.date.fromisoformat(today_s)
+                - datetime.date.fromisoformat(d.review_by)).days
+        # Worded as the floor line words an expired advisory (`floor._days_over`).
+        over = "1 day over" if days == 1 else f"{days} days over"
+        out.append(f"    🟡 {filename}:{d.line} '{_printable(d.glob)}' review-by "
+                   f"{d.review_by} LAPSED ({over})")
+    for d in bad:
+        shown = ", ".join(f"'{_printable(t)}'" for t in d.malformed)
+        out.append(f"    🟡 {filename}:{d.line} '{_printable(d.glob)}' review-by "
+                   f"unreadable: {shown} (write one YYYY-MM-DD date)")
+    return out
+
+
+def deferments_dict(deferments: list[Deferment]) -> list[dict]:
+    """The JSON surface: one object per glob that declares a review-by, read
+    well or not, so a later slice (the floor line, the fleet board) reads the
+    same facts the human line prints."""
+    return [{"line": d.line, "glob": d.glob, "review_by": d.review_by,
+             "lapsed": d.lapsed, "malformed": list(d.malformed)}
+            for d in deferments if d.review_by is not None or d.malformed]
 
 
 # ---------------------------------------------------------------- census --

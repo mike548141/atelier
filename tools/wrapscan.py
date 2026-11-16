@@ -241,9 +241,18 @@ class Tally:
     # run over nothing cannot print the same clean result as a run over docs.
     files_opened: int = 0
     lines_read: int = 0
+    # 110/060 - the `review-by` dates `.wrapscanignore`'s globs declare, read
+    # by the shared `allowmarker.read_ignore_deferments`. wrapscan is the
+    # first adopter; a lapsed or unreadable date WARNS and never blocks.
+    deferments: list = field(default_factory=list)
 
     def coverage(self) -> str:
         return report.coverage_line(self.files_opened, self.lines_read)
+
+    def deferment_report(self) -> str:
+        """`  deferments: N deferment(s) with review-by · M lapsed · K
+        malformed`, then one 🟡 line per lapsed or unreadable date."""
+        return "\n".join(allowmarker.deferment_lines(IGNORE_FILE, self.deferments))
 
     @property
     def marker_total(self) -> int:
@@ -557,11 +566,19 @@ def _scan_numbered_lines(path: str, numbered_lines, limit: int = LINE_LIMIT,
 IgnoreFileError = allowmarker.IgnoreFileError
 
 
-def load_ignore_globs(root: Path) -> list[str]:
+IGNORE_FILE = ".wrapscanignore"
+
+
+def load_ignore_globs(root: Path, tally: "Tally | None" = None) -> list[str]:
     """Globs from `.wrapscanignore`, each of which MUST carry a stated reason.
     Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
-    scanner supplies only its own ignore-file name."""
-    return allowmarker.load_ignore_globs(root, ".wrapscanignore")
+    scanner supplies only its own ignore-file name. With a `tally`, the
+    globs' `review-by` dates are read into it too (110/060), after the
+    reasons are checked, so an unreasoned glob still refuses first."""
+    globs = allowmarker.load_ignore_globs(root, IGNORE_FILE)
+    if tally is not None:
+        tally.deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
+    return globs
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
@@ -600,7 +617,7 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str],
 
 def scan_paths(paths: list[Path], root: Path, limit: int = LINE_LIMIT,
                tally: "Tally | None" = None) -> list[Finding]:
-    globs = load_ignore_globs(root)
+    globs = load_ignore_globs(root, tally)
     findings: list[Finding] = []
     for md in iter_markdown(paths, root, globs, tally):
         findings.extend(scan_file(md, _rel(md, root), limit, tally))
@@ -618,7 +635,7 @@ def scan_staged(added: dict[str, set[int]], root: Path, limit: int = LINE_LIMIT,
     (CI's), and an unstaged edit on disk is nobody's business here. Reading the
     working tree instead is what let one writer's draft block another's commit
     and let a staged defect pass once its disk copy was fixed."""
-    globs = load_ignore_globs(root)
+    globs = load_ignore_globs(root, tally)
     findings: list[Finding] = []
     for rel in sorted(added):
         if Path(rel).suffix.lower() not in MARKDOWN_SUFFIXES:
@@ -641,7 +658,8 @@ def render_human(findings: list[Finding], limit: int,
                  tally: "Tally | None" = None) -> str:
     if not findings:
         out = report.clean_head("wrapscan", f"no prose lines over {limit} columns.")
-        return out + ("\n" + tally.summary() + "\n" + tally.coverage()
+        return out + ("\n" + tally.summary() + "\n" + tally.deferment_report()
+                      + "\n" + tally.coverage()
                       if tally is not None else "")
     lines = [report.findings_head("wrapscan", len(findings),
                                   tail=f" (limit {limit} columns).")]
@@ -650,6 +668,7 @@ def render_human(findings: list[Finding], limit: int,
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.append(tally.deferment_report())
         lines.append(tally.coverage())
     lines.append("\n  A real over-wrap: rewrap the prose at the house width (~80 cols).")
     lines.append(f"  A deliberate exemption: append '<!-- {ALLOW_MARKER}: <reason> -->'")
@@ -742,6 +761,7 @@ def _main(argv: list[str] | None = None) -> int:
                 "by_allow_marker": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
+            "deferments": allowmarker.deferments_dict(tally.deferments),
             "coverage": report.coverage_dict(tally.files_opened,
                                              tally.lines_read),
         }, indent=2))

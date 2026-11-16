@@ -397,6 +397,66 @@ class Allowances(unittest.TestCase):
         self.assertIn("0 by allow-marker", ws.Tally().summary())
 
 
+class IgnoreFileReviewBy(unittest.TestCase):
+    """110/060 slice 1: wrapscan is the first adopter of the shared review-by
+    reader. A lapsed or unreadable date prints 🟡 and never changes the exit
+    status (warn-only until a later slice switches blocking on)."""
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="wrapscan-reviewby-"))
+        self.addCleanup(shutil.rmtree, self.root, True)
+        (self.root / "docs").mkdir()
+        (self.root / "docs" / "ok.md").write_text("Short line.\n")
+        (self.root / ".wrapscanignore").write_text(
+            "# drafts, rewrap them. review-by: 2020-01-01\ndocs/drafts/\n\n"
+            "docs/later/  # review-by: 2999-12-31\n\n"
+            "# review-by: soon\ndocs/bad/\n\n# plain reason\ndocs/plain/\n")
+
+    def _run(self, *extra):
+        import contextlib
+        import io
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = ws.main(["--root", str(self.root), *extra, str(self.root / "docs")])
+        return rc, buf.getvalue()
+
+    def test_summary_counts_dated_lapsed_and_malformed(self):
+        rc, out = self._run()
+        self.assertEqual(0, rc, out)
+        self.assertIn("  deferments: 2 deferment(s) with review-by · 1 lapsed · 1 malformed", out)
+        self.assertIn("🟡 .wrapscanignore:2 'docs/drafts/' review-by 2020-01-01 LAPSED", out)
+        self.assertIn("🟡 .wrapscanignore:7 'docs/bad/' review-by unreadable: 'soon'", out)
+
+    def test_a_lapsed_date_never_changes_the_exit_status_with_findings(self):
+        (self.root / "docs" / "long.md").write_text(
+            "word " * 30 + "\n")
+        rc, out = self._run()
+        self.assertEqual(1, rc, out)   # the finding blocks; the date does not add to it
+        self.assertIn("1 lapsed", out)
+
+    def test_json_carries_the_deferments(self):
+        import json
+        rc, out = self._run("--json")
+        self.assertEqual(0, rc)
+        got = json.loads(out)["deferments"]
+        self.assertEqual([2, 4, 7], [d["line"] for d in got])
+        self.assertEqual([True, False, False], [d["lapsed"] for d in got])
+
+    def test_no_ignore_file_prints_known_zeros(self):
+        (self.root / ".wrapscanignore").unlink()
+        rc, out = self._run()
+        self.assertEqual(0, rc)
+        self.assertIn("  deferments: 0 deferment(s) with review-by · 0 lapsed · 0 malformed", out)
+
+    def test_an_unreasoned_glob_still_refuses_first(self):
+        (self.root / ".wrapscanignore").write_text("docs/x/\n")
+        import contextlib
+        import io
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            rc = ws.main(["--root", str(self.root), str(self.root / "docs")])
+        self.assertEqual(2, rc)
+
+
 class BoundedMemory(unittest.TestCase):
     """020/380 — applying 020/370's bounded-memory fix to wrapscan. Mike's
     ruling, verbatim: "it should not matter how much it scans it should no
