@@ -383,13 +383,19 @@ dependency* between two pieces of work; mere sequence is not one.
 The prompt cache is **per-model** and the whole context is resent every turn, so
 context size and continuity are the levers:
 
-1. **One task per session — but a task is a coherent *line* of work, not a single
-   checkbox.** The cost is *pivoting to an unrelated task*: that drags the old
-   task's tokens along every turn for no benefit. Related, already-grounded work
-   sharing the same context is the *same* task — keep going through it. Break for a
-   genuine reason (an unrelated pivot, a decision only the principal can make, a
-   real unreviewed dependency, or context/cache degradation), **not because one
-   item went green**. Then wrap up (write the session record) and start fresh.
+1. **Stay in one line of work; an unrelated pivot earns a fresh session.** The
+   cost is *context carried for no use*, not the number of tasks done: a session
+   that pivots to an unrelated task drags the old task's tokens along every turn
+   for no benefit. Several tasks in one session is the expected case. Related,
+   already-grounded work sharing the same context is the *same* line, so keep
+   going through it, and a second task that uses what the session already holds
+   belongs in it. Break for a genuine reason (an unrelated pivot, a decision only
+   the principal can make, a real unreviewed dependency, or context/cache
+   degradation), **not because one item went green**. Then wrap up (write the
+   session record) and start fresh. (Reworded 2026-11-16, `270/050`: the old
+   lead-in, "One task per session", was quoted back by a session as a rule it
+   had broken, and Mike's correction, 2026-10-03, verbatim: *"I expect you to do
+   more than one task in each claude session transcript"*.)
 2. **Never switch model mid-session.** The cache is per-model — a switch
    re-processes the entire context at full input price and loses the prior
    model's thinking continuity. Switch at session boundaries.
@@ -423,8 +429,8 @@ context size and continuity are the levers:
    don't push a degrading context to the end of the list: use the economics to
    pick a **safe stopping point**, write the record, put the work away, and hand
    the remainder to a fresh session. A clean handoff of half the list beats a
-   muddy completion of all of it — item 1's "one task per session" seen from the
-   overload side. (Grounded 2026-07-20, Mike.)
+   muddy completion of all of it — item 1's rule that an unrelated pivot earns a
+   fresh session, seen from the overload side. (Grounded 2026-07-20, Mike.)
 
 Keep the every-session read path lean: **bulk — completed detail, append-only
 logs, verbose specs — does not accumulate in the docs a session loads at start**

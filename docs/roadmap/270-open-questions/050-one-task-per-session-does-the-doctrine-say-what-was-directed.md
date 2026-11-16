@@ -1,4 +1,4 @@
-- [~] **"One task per session" — does ECONOMICS.md say what the principal
+- [x] **"One task per session" — does ECONOMICS.md say what the principal
       directed? (Mike, 2026-10-03)** His words, verbatim, on being shown the
       rule quoted back at him by a session explaining its own token spend:
 
@@ -52,3 +52,17 @@
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
       🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-conc) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
+      Done 2026-11-16 (queue run 78ca9153, `ECONOMICS.md` § *Session hygiene*
+      item 1, item 7's back-reference): lead-in reworded so the quotable part
+      carries the real rule, an unrelated pivot earns a fresh session, with the
+      cost stated as context carried rather than tasks done and "several tasks
+      in one session is the expected case" said outright. The line between a
+      second task and a pivot is drawn there: a task that uses what the session
+      already holds belongs in it. Extraction checked: the rule's origin is the
+      2026-07-11 right-size-the-ceremony session, where he observed that "one
+      thing per session" was being over-applied, and the record's own words
+      then targeted an unrelated pivot, so the old lead-in over-said what the
+      body meant. Not done here: the condensed copy in
+      `docs/build/templates/docs/ECONOMICS.md` carries the same lead-in and is
+      outside this change's files (no test pins it). Review pointer: the
+      orchestrator writes it at the landing.

@@ -1,4 +1,4 @@
-- [~] 🔎 **The dispatch brief binds scratch, worktree and kills, and says nothing about
+- [x] 🔎 **The dispatch brief binds scratch, worktree and kills, and says nothing about
       how much of the test suite a worker may run at once.** Queue run d0ca5d24,
       2026-11-09 UTC: four workers, each told to run the full suite as `RECORD.md`'s
       bar asks, drove the machine to a load of 310 on 12 cores within minutes. A peer
@@ -17,3 +17,15 @@
       care rather than a one-line patch.
       🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-conc) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
+      Done 2026-11-16 (queue run 78ca9153): the bound is a line in
+      `session-open/dispatch-brief.md`, with its grounding row, and the rule it
+      points at is a new paragraph in `CONCURRENCY.md` after *The machine is
+      shared too*: a worker runs the modules for what it changed, under `nice`,
+      adds `test_allowmarker`, `test_report`, `test_templates` and `test_floor`
+      when it changes a shared file, and the full suite is the orchestrator's or
+      CI's at the landing. All four modules exist under `tools/`;
+      `test_templates.py` passes and nothing pins the brief's text. Not done
+      here: `RECORD.md`'s full-suite bar (line 207) is untouched, as the new
+      paragraph says where it is met; whether that bar wants its own pointer is
+      for the review. The fleet-sweep and review-drain skill prompts carry their
+      own bounds blocks and were left as they are.

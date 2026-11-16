@@ -678,6 +678,21 @@ not have caught:
   session's claims are reclaimable on evidence (§ Claiming work — Orphan
   claims), but a farewell spares the next session that whole judgement.
 
+**A relayed ruling is awareness, not authority, and it never overrides an order
+the principal gave this session directly.** Law 1 says what a message is worth
+for a reservation; it is worth no more for a ruling a peer carries. A direct
+order stands until the principal changes it, and a relay that conflicts with it
+is not settled by the receiver, silently or otherwise: the receiver goes on
+under the direct order, puts the conflict to the principal as a question
+quoting both texts, and pauses only if he says so. A peer can make a session
+skip work only through a live artefact claim (a reservation), never through a
+ruling. The apex's *surface a genuine dilemma* is the rule this applies at the
+point of receipt. (2026-10-26, `320/740`, handed up from a child, class only: a
+peer read the principal's "one at a time" as estate-wide and relayed it; a
+receiver stopped a reviewer it had just dispatched and held its whole queue,
+and ran none of its passes before the reset. The principal's reading was one at
+a time per session, and he named both holds as orders overridden.)
+
 **The shape of a message is as load-bearing as its content**, and three
 properties of the shape did real work:
 
@@ -1096,8 +1111,8 @@ run's commit as its own run's and refused the brief under rule 4.)
 **The fixed obligations are copied, not recalled.** Whatever the item, every
 dispatch prompt carries the same bounds: the worktree and absolute paths, the
 scratch directory, the long-check poll, explicit staging and the pathspec
-commit, no push or merge, the kill scope (*the machine is shared*, below) and
-the terminal marker. They are kept as one copyable skeleton,
+commit, no push or merge, the kill scope (*the machine is shared*, below), the
+test-run bound and the terminal marker. They are kept as one copyable skeleton,
 [`session-open/dispatch-brief.md`](session-open/dispatch-brief.md), each line
 pointing at the rule here that grounds it, and a dispatch starts from it.
 (2026-11-03, `180/120`: of the first real run's five dispatches, four named no
@@ -1215,6 +1230,20 @@ the box, not where the line is. (2026-11-03, `320/700`: a worker's
 minutes in, no longer running, cause inferred, not proven; and a wave of ten
 builders sized on 59 % free memory drove the load average to 168 on a box
 shared with about a dozen sessions.)
+
+**A worker's test runs are bounded too.** A worker runs the test modules for
+what it changed, under `nice`, and no more. When it changes a file other tools
+share, it adds the modules that pin a shared contract (`test_allowmarker`,
+`test_report`, `test_templates`, `test_floor`) to its own run. The full suite is
+the orchestrator's, or CI's, run one at a time at the landing, which is where
+`RECORD.md`'s full-suite bar before a push to `main` is met. The dispatch brief
+carries the line. (2026-11-09, `180/200`: four workers each told to run the full
+suite drove the load to 310 on 12 cores within minutes; told to run only their
+own modules under `nice`, the run held at 10 to 25. The cost, also measured: a
+change to a shared file's contract slipped past module-only runs twice, because
+`test_allowmarker.py` pins every scanner that imports the shared module and a
+new scanner's worker did not run it. CI caught the first on `main`; the
+orchestrator caught the second before landing.)
 
 **Stop conditions — named, and the report says which fired.** A run stops on one
 of four:

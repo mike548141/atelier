@@ -1,4 +1,4 @@
-- [~] 🔎 **Hand-up: a peer's relayed ruling can override an order the
+- [x] 🔎 **Hand-up: a peer's relayed ruling can override an order the
       principal gave the receiving session directly, and no rule says which
       wins** `[doctrine]`. Handed up from a private child on 2026-10-26
       under `PROPAGATION.md` § *Pointing up*, from one live instance (Opus
@@ -35,3 +35,12 @@
       is atelier's to decide.
       🔒 CLAIMED 2026-11-16T11:11Z (claimed 2026-11-16-1111, wt: qr-78ca-conc) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
+      Done 2026-11-16 (queue run 78ca9153): gap re-checked on this tree, no
+      existing home or near-duplicate (`grep -rn relay docs/method` finds only
+      the "relay what was ruled" send-list line and the primary-source rule).
+      The candidate rule is now a paragraph in `CONCURRENCY.md` § *What the
+      channel carries*, after the message-class list it qualifies: a relay is
+      awareness, a direct order stands, a conflict goes to the principal as a
+      question with both texts, a pause only on his word, a peer can skip you
+      only through a live claim. Review pointer: the orchestrator writes it at
+      the landing.

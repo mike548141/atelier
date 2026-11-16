@@ -400,6 +400,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: three REVIEW.md paragraphs — a verdict…](roadmap/160-doctrine-review-owed/1490-rule-4-cold-pass-queued-review-partial-topup-budget.md)
 - [ ] ⏳ [Rule-4 cold pass queued: two PRINCIPLES.md bullets — say what being…](roadmap/160-doctrine-review-owed/1500-rule-4-cold-pass-queued-principles-interruption-and-hashes.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a guard's own-work convention is a shared…](roadmap/160-doctrine-review-owed/1510-rule-4-cold-pass-queued-guard-convention-and-point-of-use-wording.md)
+- [ ] ⏳ [Rule-4 cold pass queued: a relayed ruling never overrides a direct…](roadmap/160-doctrine-review-owed/1520-rule-4-cold-pass-queued-relay-test-bound-session-hygiene.md)
 
 ## build/ layer — open strands
 
@@ -430,7 +431,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
 - ✅ 🔎 [A worker's review pointer cites its own branch or pre-merge hashes,…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/190-worker-pointers-cite-a-branch-the-merge-deletes.md)
-- [~] 🔎 (claimed 2026-11-16-1111, wt: qr-78ca-conc) [The dispatch brief binds scratch,…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/200-the-dispatch-brief-carries-no-bound-on-test-runs.md)
+- ✅ 🔎 [The dispatch brief binds scratch, worktree and kills, and says…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/200-the-dispatch-brief-carries-no-bound-on-test-runs.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
@@ -556,7 +557,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Grab the AI chat (Teams, 15/7/26) with a colleague](roadmap/270-open-questions/020-grab-the-ai-chat-teams-15-7-26-with-a-colleagu.md) <!-- datescan:allow: verbatim; wrapscan:allow: marker-inflated line -->
 - ✅ [The Laws are a ladder — but a ladder needs a world-model to climb…](roadmap/270-open-questions/030-the-laws-are-a-ladder-but-a-ladder-needs-a-wor.md)
 - [ ] [Accountability and authority must match — in both directions](roadmap/270-open-questions/040-accountability-and-authority-must-match-in-bot.md)
-- [~] ["One task per session" — does ECONOMICS.md say what the principal…](roadmap/270-open-questions/050-one-task-per-session-does-the-doctrine-say-what-was-directed.md)
+- ✅ ["One task per session" — does ECONOMICS.md say what the principal…](roadmap/270-open-questions/050-one-task-per-session-does-the-doctrine-say-what-was-directed.md)
 
 ## Cross-session channel — coordination git cannot carry (Mike commissioned 2026-08-17)
 
@@ -686,7 +687,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/710-rpi-hand-up-a-rollout-row-backwards-wrapscan-blind-to-split-boards.md)
 - ✅ [FIXED 2026-10-18](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
 - ✅ 🔎 [Hand-up: the paragraph projection joins a wrapped claim into one…](roadmap/320-child-filed-findings-via-pointing-up/730-hand-up-the-paragraph-projection-joins-a-claim-into-an-index-line-wrapscan-refuses.md)
-- [~] 🔎 (claimed 2026-11-16-1111, wt: qr-78ca-conc) [Hand-up: a peer's relayed ruling…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)
+- ✅ 🔎 [Hand-up: a peer's relayed ruling can override an order the principal…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)
 - ✅ 🔎 [Hand-up: a one-line claim still overruns the index line, so 320/730's…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
 - ✅ 🔎 [Hand-up: REVIEW.md has no shape for a live-only top-up of a degraded…](roadmap/320-child-filed-findings-via-pointing-up/760-hand-up-review-md-has-no-shape-for-a-live-only-top-up-of-a-degraded-pass.md)
 - [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
