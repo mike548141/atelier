@@ -8,3 +8,8 @@
       a tool-use profile that grouped by parent directory filed every repo's
       subagent work into one bucket and reported a research-heavy repo as 2%
       research against a corrected 50.6%.
+      - 🔀 Tidied 2026-11-16 (C0545, verified high; Mike approved 2026-11-16):
+        not an ask of Mike. It is a doctrine candidate for an agent to write up
+        (line 1); it asks him nothing. Nothing above was changed; the original
+        text is as it was. To revert: delete this line (its commit is listed in
+        `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
