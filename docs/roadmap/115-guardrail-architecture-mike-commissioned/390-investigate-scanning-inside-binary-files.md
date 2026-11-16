@@ -1,4 +1,4 @@
-- [~] 🤔 **Investigate scanning inside binary files.** No guard reads a
+- [x] 🤔 **Investigate scanning inside binary files.** No guard reads a
       binary's contents beyond image metadata: not pixels, not the insides of
       other formats, and `secretscan` reads no binary at all. So an exemption
       over a binary can only cover the whole file, and a secret or personal
@@ -29,3 +29,24 @@
       binary-file check, plus one Fable cold review.
       🔒 CLAIMED 2026-11-16T19:25Z (claimed 2026-11-16-1925, wt: qr-78ca-docreader) by
       queue-run session 78ca9153 (Opus 5.5, principal-opened).
+      ✅ **BUILT 2026-11-16** by a worker of queue run 78ca: the Office (OOXML)
+      then PDF metadata reader, inside `leakscan`'s G3 gate (`tools/leakscan.py`,
+      the "G3 documents" block; `tools/README.md` § *Binary files (G3)*). New
+      sets `office-props` (creator, lastModifiedBy, Company, Manager),
+      `office-custom`, `office-comments` and `pdf-info` (Author and non-standard
+      keys), plus a PDF's XMP as the existing `xmp` set; every value read goes
+      through the ordinary rules and term list. Standard library only, every
+      read capped (zip directory, member count, declared size, per-part
+      inflation, PDF windows and inflation budget), expat with DOCTYPE and
+      entities refused, and a bounded-memory regression test in the `020/380`
+      shape. **Rollout:** everything the reader adds warns until
+      `DOCUMENT_UNTIL` = **2027-01-18** (UTC) and blocks from it; the file
+      gate's own dates are unchanged. Estate probe (this worktree's leakscan,
+      read-only, over 29 sibling repos): 0 change to any repo's blocking
+      findings or exit code; 53 new warnings in 3 repos, by class 41
+      `binary-metadata` (office-props 12, office-custom 9, pdf-info 6, xmp 14)
+      and 12 text-rule hits (ipv4 5, local-term 5, nz-phone 2). The 5 ipv4 hits
+      are a browser user-agent version (`Chrome/x.0.0.0`) in a PDF `Creator`,
+      the rule's noise rather than the reader's; PDF dates were dropped from
+      the text scan after they produced 7 card-checksum false positives.
+      *review: Fable cold pass to be queued by the orchestrator.*

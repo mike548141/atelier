@@ -46,8 +46,12 @@ A tracked BINARY's body cannot be read, so since G3 (ruled 2026-08-04) it
 blocks until a reasoned, hash-bound `.leakscanbinaries` entry accepts its exact
 bytes; PNG/JPEG/WebP metadata is walked, text metadata scanned, and every
 named metadata set it carries (Exif, IPTC, XMP, ICC, text chunks, comments)
-blocking until a reasoned line keeps that set. Each manifest line also records
-WHO allowed it and WHEN (`by=… session=… on=…`; a line without them warns).
+blocking until a reasoned line keeps that set. Office Open XML and PDF files
+are read the same way since 115/390 (people-naming properties, custom
+properties, comments, the PDF Info dictionary and XMP); what that reader adds
+warns until `DOCUMENT_UNTIL` (2027-01-18) and blocks from it. Each
+manifest line also records WHO allowed it and WHEN (`by=… session=… on=…`;
+a line without them warns).
 Until `BINARY_GRACE_UNTIL` (2026-11-18, firm for every child) these G3 findings
 warn and do not block — the one, dated exception to "no advisory form" for a
 rule that blocks. See the G3 block below and the leakscan section of
@@ -87,6 +91,7 @@ import sys
 import tempfile
 import unicodedata
 import xml.parsers.expat as _expat
+import zipfile
 import zlib
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
@@ -497,6 +502,9 @@ class Tally:
     # 160/980 GM5: manifest lines that record no who/when, as warnings that
     # never block. Kept out of the findings for the same reason.
     provenance_warnings: list = field(default_factory=list, compare=False)
+    # 115/390: what the document reader finds before `DOCUMENT_UNTIL`, as
+    # warnings that never block. Kept out of the findings for the same reason.
+    document_warnings: list = field(default_factory=list, compare=False)
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
@@ -551,6 +559,8 @@ class Tally:
                  f"warned, not blocking, before {TYPE_LEVEL_UNTIL.isoformat()}",
                  f"{len(self.provenance_warnings)} manifest line(s) with no who/when "
                  "warned, not blocking",
+                 f"{len(self.document_warnings)} document metadata finding(s) "
+                 f"warned, not blocking, before {DOCUMENT_UNTIL.isoformat()}",
                  report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS),
                  f"{self.unknown_scope_markers} marker(s) naming no rule"]
         return report.suppressed_line(parts, breakdown=self.by_marker,
@@ -1144,11 +1154,18 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 #     is accepted with a warning until `TYPE_LEVEL_UNTIL`. ICC profiles and JPEG
 #     comments have no fields to name and stay whole-set.
 #
+#   * DOCUMENTS (115/390): Office Open XML and PDF metadata is read too, into
+#     the sets `office-props`, `office-custom`, `office-comments`, `pdf-info`
+#     and `xmp`; see the "G3 documents" block below. What that reader adds
+#     warns until `DOCUMENT_UNTIL` and blocks from it.
+#
 # What it cannot see, stated so nobody infers cover that is not there: the
 # pixels themselves (no OCR — the entry's reason is the human attesting to
-# them); metadata in any other format (GIF, TIFF, HEIC/AVIF, PDF, Office
-# documents, fonts, archives — for these the file line accepts the whole
-# file, metadata included); JPEG segments after the first start-of-scan, and
+# them); metadata in any other format (GIF, TIFF, HEIC/AVIF, fonts, archives,
+# legacy Office and OpenDocument — for these the file line accepts the whole
+# file, metadata included), and in Office and PDF files everything but the
+# metadata the document reader names; JPEG segments after the first
+# start-of-scan, and
 # JPEG APPn segments other than APP1, APP2 (ICC) and APP13; the CONTENT of an
 # ICC profile (named by presence, never read); the VALUES of Exif and IPTC
 # fields (named, never read; XMP and PNG text values are run through the text
@@ -1178,10 +1195,23 @@ METADATA_SETS = {
     "iptc": "IPTC / Photoshop resources: JPEG APP13, ImageMagick raw iptc/8bim "
             "profile",
     "xmp": "XMP packet: JPEG APP1 (and extended), WebP XMP, PNG "
-           "XML:com.adobe.xmp, ImageMagick raw xmp profile",
+           "XML:com.adobe.xmp, ImageMagick raw xmp profile, a PDF's XMP "
+           "packets and metadata streams",
     "icc": "ICC colour profile: PNG iCCP, JPEG APP2 ICC_PROFILE, WebP ICCP",
     "png-text": "PNG tEXt/zTXt/iTXt text chunks (other than XMP)",
     "jpeg-comment": "JPEG COM comment segments",
+    # 115/390: documents. Read for Office Open XML (docx, xlsx, pptx and their
+    # template and macro forms) and PDF.
+    "office-props": "Office properties naming a person or organisation: "
+                    "docProps/core.xml creator and lastModifiedBy, "
+                    "docProps/app.xml Company and Manager",
+    "office-custom": "Office custom properties (docProps/custom.xml)",
+    "office-comments": "Office comment parts and their author lists (Word, "
+                       "Excel and PowerPoint comments, threaded comments, "
+                       "people, persons and comment authors)",
+    "pdf-info": "PDF Info dictionary: Author, and every key outside the "
+                "standard Title, Subject, Keywords, Creator, Producer, "
+                "CreationDate, ModDate and Trapped",
     "unknown": "metadata or structure the walker cannot identify or read: an "
                "unrecognised APP1, a segment past the cap or undecodable, a "
                "structure that cannot be walked",
@@ -1241,6 +1271,36 @@ BINARY_GRACE_UNTIL = datetime.date(2026, 11, 18)
 # 2026-11-18 has a month to migrate. Delete the warning path once it passes.
 TYPE_LEVEL_UNTIL = datetime.date(2026, 12, 18)
 TYPE_LEVEL_RULE = "binary-type-level"
+
+# THE DOCUMENT READER'S WARN-FIRST DATE (115/390) — a third cut-off, for new
+# findings only.
+#
+# `115/390` reads inside Office Open XML and PDF files, which until then G3
+# accepted whole by their file line. The principal's answer to options offered
+# (2026-11-16, "Build the reader") was to build it; the rollout terms were the
+# queue run's: children run atelier's floor at @main, so a reader that blocked
+# on landing would turn a child red the day it shipped. Until this date every
+# NEW finding the reader produces warns and does not fail the exit code: a
+# `binary-metadata` finding for a document set (`office-props`,
+# `office-custom`, `office-comments`, `pdf-info`, and the `xmp` and `unknown`
+# sets when a document carries them), and a text-rule hit in a document's
+# metadata. What G3 already did to these files is untouched: `binary-unlisted`,
+# `binary-changed` and `binary-stale-entry` block from `BINARY_GRACE_UNTIL`
+# as before. The date is the queue run's pick, at least 30 days after the
+# build (2026-11-16), set past the type-level cut-off so no child meets two
+# new kinds of block on one day. Like the others it is one constant compared
+# with the UTC clock, with no flag, env var or config key to move it. Delete
+# the warning path, `in_document_grace` and its callers once it passes.
+DOCUMENT_UNTIL = datetime.date(2027, 1, 18)
+# The formats the warn-first date covers: `zip` is a zip the reader refused
+# before it could tell whether it is an Office file (past a cap, or broken).
+DOCUMENT_FORMATS = frozenset({"ooxml", "pdf", "zip"})
+
+
+def in_document_grace(today: datetime.date | None = None) -> bool:
+    """True strictly before `DOCUMENT_UNTIL` (UTC). Tests patch
+    `_utc_today`."""
+    return (today or _utc_today()) < DOCUMENT_UNTIL
 
 
 def in_type_level_grace(today: datetime.date | None = None) -> bool:
@@ -1392,7 +1452,7 @@ def parse_scope(scope: str) -> tuple[list[str], str | None]:
         elif sep:
             return [], (f"'{head}' has no fields to name — fields are read for "
                         f"{', '.join(FIELD_SETS)}")
-        elif tok in METADATA_SETS:
+        elif tok in METADATA_SETS and tok not in _FIELDS_ONLY:
             keys.append(tok)
             cur = None
             continue
@@ -1681,7 +1741,12 @@ FIELD_NAMES = {
     "gps": frozenset(GPS_TAGS.values()),
 }
 # Every set whose fields are read; `field_valid` knows each one's vocabulary.
-FIELD_SETS = ("exif", "gps", "iptc", "xmp", "png-text")
+FIELD_SETS = ("exif", "gps", "iptc", "xmp", "png-text", "office-props",
+              "office-custom", "pdf-info")
+# The document sets (115/390) are field sets from the start, so a line never
+# keeps one whole: `office-props` alone is refused like `gps` alone. Only the
+# four image sets that predate field reading keep a type-level form.
+_FIELDS_ONLY = ("office-props", "office-custom", "pdf-info")
 _EXIF_POINTERS = {0x8769: "exif", 0x8825: "gps", 0xA005: "exif"}
 _EXIF_MAX_IFDS = 16          # IFDs walked in one block (a real one has 3-5)
 _EXIF_MAX_ENTRIES = 1024     # entries read from ONE IFD (the count is a u16)
@@ -1997,6 +2062,24 @@ _PNG_KEYWORD_OK = frozenset(b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx
 _PNG_KEYWORD_RX = re.compile(r"^(?:[A-Za-z0-9_.-]|%[0-9A-F]{2}){1,237}$")
 
 
+# 115/390: a document field named by the file (an Office custom property, a
+# PDF Info key) is written like a PNG keyword, up to 255 bytes.
+_TOKEN_FIELD_RX = re.compile(r"^(?:[A-Za-z0-9_.-]|%[0-9A-F]{2}){1,765}$")
+OFFICE_PROP_FIELDS = ("creator", "lastModifiedBy", "Company", "Manager")
+
+
+def token_field(field_set: str, raw: bytes) -> str:
+    """`<field_set>:<name>` for a field the file names itself, percent-encoded
+    outside `[A-Za-z0-9_.-]`; an empty or over-long name is
+    `<field_set>:unknown`, and a name that is itself `unknown` is `%75nknown`."""
+    if not 1 <= len(raw) <= 255:
+        return f"{field_set}:unknown"
+    if raw == b"unknown":
+        return f"{field_set}:%75nknown"
+    return f"{field_set}:" + "".join(chr(b) if b in _PNG_KEYWORD_OK else f"%{b:02X}"
+                                     for b in raw)
+
+
 def png_text_field(keyword: bytes) -> str:
     """The field key for a PNG text chunk keyword: percent-encoded outside
     `[A-Za-z0-9_.-]`, so it is one token in the manifest; a keyword outside
@@ -2020,7 +2103,12 @@ def field_valid(field_set: str, name: str) -> bool:
         return (name in FIELD_NAMES.get(field_set, ())
                 or bool(_HEX_TAG_RX.match(name)))
     if name == "unknown":
-        return field_set in ("iptc", "xmp", "png-text")
+        return field_set in ("iptc", "xmp", "png-text", "office-props",
+                             "office-custom", "pdf-info")
+    if field_set == "office-props":
+        return name in OFFICE_PROP_FIELDS
+    if field_set in ("office-custom", "pdf-info"):
+        return bool(_TOKEN_FIELD_RX.match(name))
     if field_set == "iptc":
         return (name in _IPTC_NAMES or bool(_IPTC_NUM_RX.match(name))
                 or bool(_IPTC_RES_RX.match(name)))
@@ -2039,6 +2127,12 @@ _FIELD_HELP = {
     "xmp": "<prefix>:<Property>, each written in full, such as xmp:dc:creator",
     "png-text": "the chunk keyword, spaces and punctuation as %XX, such as "
                 "png-text:Creation%20Time",
+    "office-props": "creator, lastModifiedBy, Company or Manager, such as "
+                    "office-props:creator",
+    "office-custom": "the property's name, spaces and punctuation as %XX, such "
+                     "as office-custom:Client%20Name",
+    "pdf-info": "the Info key, spaces and punctuation as %XX, such as "
+                "pdf-info:Author",
 }
 _FIELD_HELP["gps"] = _FIELD_HELP["exif"]
 
@@ -2286,6 +2380,612 @@ def _webp_metadata(fh, size: int, texts: list, found: list, fields: list) -> Non
         pos += 8 + n + (n & 1)
 
 
+# --- G3 documents (115/390): Office Open XML and PDF metadata ---------------
+#
+# The census (`docs/method/census/2026-11-16-1206-binary-kinds-investigation.md`)
+# ranked these two first: the only kinds where a standard-library read sees the
+# real risk (who wrote a document, for whom, and what was said about it) at low
+# cost. The principal's answer to options offered, 2026-11-16: "Build the
+# reader". The shape is the image walkers': each named set a file carries
+# blocks until a reasoned line keeps it, and every text value found is run
+# through the ordinary rules and term list, kept or not.
+#
+# OFFICE (zip of XML). The zip is untrusted input, so it is opened only inside
+# caps: the end-of-central-directory record is read first and a Zip64 archive,
+# more than `_ZIP_MAX_MEMBERS` members or a central directory over
+# `_ZIP_MAX_CD_BYTES` is `unknown` before `zipfile` builds its member list (a
+# list as long as the archive says, so the cap is what bounds memory). A zip
+# declaring more than `_ZIP_MAX_UNCOMPRESSED` bytes in all is `unknown` too.
+# Only the property and comment parts are inflated, each read through
+# `read(cap + 1)` so a member that inflates past `META_SEGMENT_CAP` is refused
+# at the cap whatever its header claims, and under a whole-file budget
+# (`_OOXML_MAX_PARTS`, `_OOXML_MAX_BYTES`). XML is parsed by expat as a stream,
+# never a tree, with a DOCTYPE, an entity declaration or an external entity
+# refused (`_xml_walk`), which closes entity expansion. A zip with no
+# `[Content_Types].xml` is not an Office file and is not read: archives are a
+# later rank of the census, and G3's file line still accepts them whole.
+#
+# Which fields gate. The properties gate only where a person or organisation is
+# named (`OFFICE_PROP_FIELDS`), the parts the brief named: core creator and
+# lastModifiedBy, app Company and Manager. Every other core and app value
+# (title, subject, keywords, description, template, sheet and slide titles) is
+# still text-scanned, so a listed name or an address in a title still hits; it
+# does not need a line. Custom properties gate field by field (their names are
+# the file's own, so any of them may be a client or a person), and comment
+# parts gate as one set with no fields, like a JPEG comment: a comment is
+# prose, and its authors are listed in it.
+#
+# PDF. Read in bounded windows, never whole: one pass finds the trailer's
+# `/Info` reference (the last one, which is the newest revision's), any
+# `/Encrypt`, object streams, XMP packets and compressed XML metadata streams;
+# a second finds the Info object, top level or inside an object stream. Object
+# and metadata streams are inflated with `zlib` only (FlateDecode with no
+# predictor), each to `META_SEGMENT_CAP` and all of them to `_PDF_INFLATE_BUDGET`.
+# Info's Author and every key outside the standard set gate as `pdf-info`
+# fields; Title, Subject, Keywords, Creator, Producer and the dates are text-
+# scanned only, for the reason the Office title is. An XMP packet is the
+# `xmp` set, read field by field exactly as an image's is. An encrypted PDF,
+# an Info reference that resolves to nothing readable, or a stream the reader
+# cannot decode is `unknown` (or `<set>:unknown`), never clean.
+#
+# What it cannot see: a document's body (the text of a page, a cell, a slide),
+# tracked changes, embedded files and images (a JPEG's Exif inside a PDF or a
+# docx), macros, external links, legacy `.doc`/`.xls`, OpenDocument, and PDF
+# strings in an encrypted file. Those stay the file line's human check.
+_ZIP_MAX_MEMBERS = 10_000
+_ZIP_MAX_CD_BYTES = 1 * 1024 * 1024
+_ZIP_MAX_UNCOMPRESSED = 1 * 1024 * 1024 * 1024
+_OOXML_MAX_PARTS = 256
+_OOXML_MAX_BYTES = 16 * 1024 * 1024
+_OOXML_CORE = "docprops/core.xml"
+_OOXML_APP = "docprops/app.xml"
+_OOXML_CUSTOM = "docprops/custom.xml"
+_OOXML_COMMENT_RX = re.compile(
+    r"^(?:word/(?:comments[a-z]*|people)\.xml|xl/comments\d*\.xml"
+    r"|xl/threadedcomments/[^/]+\.xml|xl/persons/[^/]+\.xml"
+    r"|ppt/comments/[^/]+\.xml|ppt/commentauthors\.xml|ppt/authors\.xml)$")
+_OOXML_COMMENT_TYPE_RX = re.compile(
+    r"(?i)(?:comments|commentauthors|threadedcomments|\.authors|people|person)\+xml$")
+_XML_AUTHOR_ATTRS = frozenset({"author", "initials", "displayName", "userId", "name"})
+_XML_BREAK_ELEMENTS = frozenset({"p", "comment", "cm", "threadedComment", "person",
+                                 "cmAuthor", "author", "text", "si"})
+
+
+class _XmlRefused(Exception):
+    pass
+
+
+def _xml_walk(data: bytes) -> tuple[list, str] | None:
+    """`(children, flat text)` of an XML part, or None when it does not parse
+    or declares a DOCTYPE or entity. `children` is the root's child elements
+    as `[local name, {attribute local name: value}, [text pieces]]`; the flat
+    text is every character run plus the author-like attribute values, broken
+    at paragraph-like elements. Streamed by expat, so nothing is built that
+    the part's own (capped) size does not bound."""
+    kids: list = []
+    flat: list[str] = []
+    depth = 0
+
+    def refuse(*_a):
+        raise _XmlRefused
+
+    def start(name, attrs):
+        nonlocal depth
+        depth += 1
+        local = name.rpartition(" ")[2]
+        a = {k.rpartition(" ")[2]: v for k, v in attrs.items()}
+        if depth == 2:
+            kids.append([local, a, []])
+        for k, v in a.items():
+            if k in _XML_AUTHOR_ATTRS and v.strip():
+                flat.append(f"\n{k}: {v}\n")
+
+    def end(name):
+        nonlocal depth
+        if depth >= 3 and kids:
+            kids[-1][2].append("\n")
+        depth -= 1
+        if name.rpartition(" ")[2] in _XML_BREAK_ELEMENTS:
+            flat.append("\n")
+
+    def chars(text):
+        flat.append(text)
+        if depth >= 2 and kids:
+            kids[-1][2].append(text)
+
+    p = _expat.ParserCreate(None, " ")
+    p.SetParamEntityParsing(_expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    p.StartDoctypeDeclHandler = refuse
+    p.EntityDeclHandler = refuse
+    p.ExternalEntityRefHandler = refuse
+    p.StartElementHandler = start
+    p.EndElementHandler = end
+    p.CharacterDataHandler = chars
+    try:
+        p.Parse(data, True)
+    except (_XmlRefused, _expat.ExpatError, ValueError):
+        return None
+    return kids, "".join(flat)
+
+
+def _zip_refusal(fh, size: int) -> str | None:
+    """Why the zip's end-of-central-directory record puts it past the caps, or
+    None when it is inside them. Read before `zipfile` sees the file."""
+    tail_len = min(size, 22 + 65535)
+    fh.seek(size - tail_len)
+    tail = fh.read(tail_len)
+    at = tail.rfind(b"PK\x05\x06")
+    if at < 0 or at + 22 > len(tail):
+        return "has no end-of-central-directory record"
+    _sig, _d, _cd, _nd, total, cd_size, cd_off, _c = struct.unpack(
+        "<IHHHHIIH", tail[at:at + 22])
+    if (at >= 20 and tail[at - 20:at - 16] == b"PK\x06\x07") or total == 0xFFFF \
+            or cd_size == 0xFFFFFFFF or cd_off == 0xFFFFFFFF:
+        return "is a Zip64 archive"
+    if total > _ZIP_MAX_MEMBERS:
+        return f"declares {total} members, past the {_ZIP_MAX_MEMBERS} cap"
+    if cd_size > _ZIP_MAX_CD_BYTES:
+        return f"has a central directory past the {_ZIP_MAX_CD_BYTES}-byte cap"
+    return None
+
+
+def _ooxml_metadata(fh, size: int, texts: list, found: list, fields: list) -> str | None:
+    """Walk an Office Open XML file's properties and comment parts. Returns
+    the format read: `ooxml`, `zip` for a zip refused before it could be told
+    apart (past a cap), or None for a zip that is not an Office file."""
+    why = _zip_refusal(fh, size)
+    if why:
+        found.append(("unknown", f"zip {why}: not read"))
+        return "zip"
+    fh.seek(0)
+    zf = zipfile.ZipFile(fh)
+    infos = zf.infolist()
+    lower = [(i.filename.lower(), i) for i in infos]
+    ctypes = [i for n, i in lower if n == "[content_types].xml"]
+    if not ctypes:
+        return None
+    if len(infos) > _ZIP_MAX_MEMBERS:
+        found.append(("unknown", f"Office zip of {len(infos)} members, past the "
+                                 f"{_ZIP_MAX_MEMBERS} cap: not read"))
+        return "ooxml"
+    if sum(i.file_size for i in infos) > _ZIP_MAX_UNCOMPRESSED:
+        found.append(("unknown", "Office zip declaring past "
+                                 f"{_ZIP_MAX_UNCOMPRESSED} bytes uncompressed: not read"))
+        return "ooxml"
+    budget = {"parts": _OOXML_MAX_PARTS, "bytes": _OOXML_MAX_BYTES}
+
+    def part(info) -> bytes | None:
+        if (info.flag_bits & 0x1 or info.file_size > META_SEGMENT_CAP
+                or budget["parts"] <= 0 or budget["bytes"] <= 0):
+            return None
+        budget["parts"] -= 1
+        try:
+            with zf.open(info) as m:
+                data = m.read(META_SEGMENT_CAP + 1)
+        except Exception:  # noqa: BLE001 — any refusal by zipfile reads as unread
+            return None
+        budget["bytes"] -= len(data)
+        return data if len(data) <= META_SEGMENT_CAP else None
+
+    # Parts are found by their usual names AND by the content types the
+    # package declares, so a renamed properties or comments part is still read.
+    kinds: dict[str, str] = {}
+    raw = part(ctypes[-1])
+    walked = _xml_walk(raw) if raw is not None else None
+    if walked is None:
+        found.append(("unknown", "Office [Content_Types].xml (unreadable, past the "
+                                 "cap or does not parse)"))
+    else:
+        for local, attrs, _t in walked[0]:
+            ctype = attrs.get("ContentType", "")
+            name = attrs.get("PartName", "").lstrip("/").lower()
+            if local != "Override" or not name:
+                continue
+            if ctype.endswith("core-properties+xml"):
+                kinds[name] = "core"
+            elif ctype.endswith("extended-properties+xml"):
+                kinds[name] = "app"
+            elif ctype.endswith("custom-properties+xml"):
+                kinds[name] = "custom"
+            elif _OOXML_COMMENT_TYPE_RX.search(ctype):
+                kinds[name] = "comments"
+    for name, info in lower:
+        kind = kinds.get(name) or {_OOXML_CORE: "core", _OOXML_APP: "app",
+                                   _OOXML_CUSTOM: "custom"}.get(name)
+        if kind is None and _OOXML_COMMENT_RX.match(name):
+            kind = "comments"
+        if kind is None:
+            continue
+        _ooxml_part(kind, info.filename, part(info), texts, found, fields)
+    return "ooxml"
+
+
+def _ooxml_part(kind: str, member: str, data: bytes | None, texts: list,
+                found: list, fields: list) -> None:
+    """One properties or comments part: its set and fields, and its text."""
+    label = f"Office {member}"
+    walked = _xml_walk(data) if data is not None else None
+    if kind == "comments":
+        found.append(("office-comments", label))
+        if walked is None:
+            found.append(("unknown", f"{label} (unreadable, past the cap or does "
+                                     "not parse)"))
+        else:
+            texts.append((label, walked[1]))
+        return
+    set_name = "office-custom" if kind == "custom" else "office-props"
+    if walked is None:
+        found.append((set_name, label))
+        fields.append((set_name, label, [f"{set_name}:unknown"]))
+        return
+    keys: list[str] = []
+    lines: list[str] = []
+    for local, attrs, pieces in walked[0]:
+        value = "".join(pieces).strip()
+        if kind == "custom":
+            name = attrs.get("name", "")
+            keys.append(token_field("office-custom", name.encode("utf-8")))
+            lines.append(f"{name}: {value}")
+            continue
+        if not value:
+            continue
+        lines.append(f"{local}: {value}")
+        if local in OFFICE_PROP_FIELDS:
+            keys.append(f"office-props:{local}")
+    if keys:
+        found.append((set_name, label))
+        fields.append((set_name, label, sorted(set(keys))))
+    if lines:
+        texts.append((label, "\n".join(lines)))
+
+
+_PDF_WINDOW = 1 * 1024 * 1024
+_PDF_OVERLAP = 8 * 1024          # longest token a window match may need whole
+_PDF_OBJ_READ = 64 * 1024        # bytes read for one object's dictionary
+_PDF_MAX_OBJSTM = 4096
+_PDF_MAX_PACKETS = 64
+_PDF_INFLATE_BUDGET = 64 * 1024 * 1024
+_PDF_INFO_REF_RX = re.compile(rb"/Info\s*(\d{1,10})\s+(\d{1,5})\s+R")
+_PDF_ENCRYPT_RX = re.compile(rb"/Encrypt\s*(?:\d|<<)")
+_PDF_OBJSTM_RX = re.compile(rb"/Type\s*/ObjStm(?![A-Za-z0-9])")
+_PDF_XPACKET_RX = re.compile(rb"<\?xpacket\s+begin")
+_PDF_XMLSTREAM_RX = re.compile(rb"/Subtype\s*/XML(?![A-Za-z0-9])")
+_PDF_STREAM_RX = re.compile(rb">>\s*stream(?:\r\n|\n|\r)")
+_PDF_FLATE_RX = re.compile(rb"/Filter\s*(?:\[\s*)?/FlateDecode\s*\]?")
+_PDF_STANDARD_KEYS = frozenset({"Title", "Subject", "Keywords", "Creator",
+                                "Producer", "CreationDate", "ModDate", "Trapped"})
+_PDF_DATE_RX = re.compile(r"^D:\d{4,14}(?:[Zz+\-](?:\d{2}'?(?:\d{2}'?)?)?)?$")
+_PDF_WS = frozenset(b" \t\r\n\f\x00")
+_PDF_DELIM = frozenset(b"()<>[]{}/%")
+_PDF_MAX_DEPTH = 64
+# A bare token (a number, true, false, null), with ` <gen> R` when it is an
+# indirect reference.
+_PDF_TOKEN_RX = re.compile(rb"[^\s()<>\[\]{}/%]+(?:\s+\d+\s+R(?![A-Za-z0-9]))?")
+
+
+def _pdf_windows(fh, size: int):
+    """`(offset, bytes, limit)` windows over the file: a match is taken from
+    a window only if it starts before `limit`, so each start is seen once, and
+    the overlap lets a match up to `_PDF_OVERLAP` long be seen whole."""
+    pos = 0
+    while pos < size:
+        fh.seek(pos)
+        buf = fh.read(_PDF_WINDOW + _PDF_OVERLAP)
+        last = pos + len(buf) >= size
+        yield pos, buf, (len(buf) if last else _PDF_WINDOW)
+        if last:
+            return
+        pos += _PDF_WINDOW
+
+
+def _pdf_skip_ws(data: bytes, i: int) -> int:
+    n = len(data)
+    while i < n:
+        if data[i] in _PDF_WS:
+            i += 1
+        elif data[i] == 0x25:                     # % comment to end of line
+            while i < n and data[i] not in (0x0A, 0x0D):
+                i += 1
+        else:
+            return i
+    return i
+
+
+def _pdf_literal(data: bytes, i: int) -> tuple[bytes | None, int]:
+    """A `( … )` string at `i`: its bytes and the index after it, or
+    `(None, -1)` when it does not close inside `data`."""
+    out = bytearray()
+    depth, i, n = 1, i + 1, len(data)
+    esc = {0x6E: 0x0A, 0x72: 0x0D, 0x74: 0x09, 0x62: 0x08, 0x66: 0x0C}
+    while i < n:
+        c = data[i]
+        if c == 0x5C:
+            i += 1
+            if i >= n:
+                break
+            e = data[i]
+            if e in esc:
+                out.append(esc[e])
+                i += 1
+            elif 0x30 <= e <= 0x37:
+                j = i
+                while j < n and j < i + 3 and 0x30 <= data[j] <= 0x37:
+                    j += 1
+                out.append(int(data[i:j], 8) & 0xFF)
+                i = j
+            elif e == 0x0D:
+                i += 2 if data[i + 1:i + 2] == b"\n" else 1
+            elif e == 0x0A:
+                i += 1
+            else:
+                out.append(e)
+                i += 1
+            continue
+        if c == 0x28:
+            depth += 1
+        elif c == 0x29:
+            depth -= 1
+            if depth == 0:
+                return bytes(out), i + 1
+        out.append(c)
+        i += 1
+    return None, -1
+
+
+def _pdf_name(data: bytes, i: int) -> tuple[bytes, int]:
+    """A `/Name` at `i`, `#xx` escapes decoded, and the index after it."""
+    j = i + 1
+    while j < len(data) and data[j] not in _PDF_WS and data[j] not in _PDF_DELIM:
+        j += 1
+    raw = data[i + 1:j]
+    return re.sub(rb"#([0-9A-Fa-f]{2})", lambda m: bytes([int(m.group(1), 16)]),
+                  raw), j
+
+
+def _pdf_skip_container(data: bytes, i: int) -> int:
+    """The index after the dictionary or array opening at `i`, strings inside
+    it skipped as strings; -1 when it does not close or nests too deep."""
+    depth, n = 0, len(data)
+    while i < n:
+        if data.startswith(b"<<", i) or data[i] == 0x5B:
+            depth += 1
+            if depth > _PDF_MAX_DEPTH:
+                return -1
+            i += 1 if data[i] == 0x5B else 2
+        elif data.startswith(b">>", i) or data[i] == 0x5D:
+            depth -= 1
+            i += 1 if data[i] == 0x5D else 2
+            if depth == 0:
+                return i
+        elif data[i] == 0x28:
+            _s, i = _pdf_literal(data, i)
+            if i < 0:
+                return -1
+        elif data[i] == 0x3C:
+            j = data.find(b">", i)
+            if j < 0:
+                return -1
+            i = j + 1
+        elif data[i] == 0x25:
+            i = _pdf_skip_ws(data, i)
+        else:
+            i += 1
+    return -1
+
+
+def _pdf_text(raw: bytes) -> str:
+    """A PDF text string: UTF-16BE or UTF-8 by its byte-order mark, otherwise
+    PDFDocEncoding, read as Latin-1 (the two agree on what the rules match)."""
+    if raw.startswith(b"\xfe\xff"):
+        return raw[2:].decode("utf-16-be", errors="replace")
+    if raw.startswith(b"\xef\xbb\xbf"):
+        return raw[3:].decode("utf-8", errors="replace")
+    return raw.decode("latin-1")
+
+
+def _pdf_value(data: bytes, i: int) -> tuple[str | None, int]:
+    """One value at `i`: its text when it is a string, None otherwise, and the
+    index after it (-1 when it cannot be read)."""
+    if data.startswith(b"<<", i) or data[i:i + 1] == b"[":
+        return None, _pdf_skip_container(data, i)
+    if data[i:i + 1] == b"(":
+        raw, j = _pdf_literal(data, i)
+        return (_pdf_text(raw) if raw is not None else None), j
+    if data[i:i + 1] == b"<":
+        j = data.find(b">", i)
+        if j < 0:
+            return None, -1
+        hexd = re.sub(rb"[^0-9A-Fa-f]", b"", data[i + 1:j])
+        return _pdf_text(bytes.fromhex((hexd + b"0" * (len(hexd) % 2)).decode())), j + 1
+    if data[i:i + 1] == b"/":
+        return None, _pdf_name(data, i)[1]
+    m = _PDF_TOKEN_RX.match(data, i)
+    return None, (m.end() if m else -1)
+
+
+def _pdf_dict(data: bytes) -> dict[bytes, str | None] | None:
+    """The top-level keys of the first dictionary in `data`, each with its
+    text if it is a string; None when no dictionary parses whole."""
+    i = data.find(b"<<")
+    if i < 0:
+        return None
+    i += 2
+    out: dict[bytes, str | None] = {}
+    while True:
+        i = _pdf_skip_ws(data, i)
+        if i >= len(data):
+            return None
+        if data.startswith(b">>", i):
+            return out
+        if data[i:i + 1] != b"/" or len(out) >= _FIELDS_PER_SET_CAP:
+            return None
+        key, i = _pdf_name(data, i)
+        i = _pdf_skip_ws(data, i)
+        if i >= len(data):
+            return None
+        value, i = _pdf_value(data, i)
+        if i < 0:
+            return None
+        out[key] = value
+
+
+def _pdf_stream_at(fh, size: int, off: int, budget: dict) -> tuple[bytes | None, bytes | None]:
+    """`(dictionary bytes, inflated stream)` for the stream object whose
+    dictionary holds byte `off`. The stream is None when it is not plain
+    FlateDecode, does not inflate, inflates past `META_SEGMENT_CAP`, or the
+    file's inflation budget is spent; the dictionary is None when the object
+    cannot be found around `off`."""
+    start = max(0, off - 4096)
+    fh.seek(start)
+    buf = fh.read(off - start + _PDF_OBJ_READ)
+    rel = off - start
+    head = buf.rfind(b"obj", 0, rel)
+    m = _PDF_STREAM_RX.search(buf, rel)
+    if head < 0 or m is None:
+        return None, None
+    d = buf[head + 3:m.start() + 2]
+    if (not _PDF_FLATE_RX.search(d) or b"/DecodeParms" in d
+            or b"/Predictor" in d or budget["inflate"] <= 0):
+        return d, None
+    z = zlib.decompressobj()
+    out = bytearray()
+    fh.seek(start + m.end())
+    tail = b""
+    while not z.eof:
+        chunk = tail or fh.read(64 * 1024)
+        if not chunk:
+            return d, None
+        room = min(META_SEGMENT_CAP, budget["inflate"]) + 1 - len(out)
+        try:
+            piece = z.decompress(chunk, room)
+        except zlib.error:
+            return d, None
+        out += piece
+        if len(out) > min(META_SEGMENT_CAP, budget["inflate"]):
+            budget["inflate"] = 0
+            return d, None
+        tail = z.unconsumed_tail
+        if tail and not piece:
+            return d, None
+    budget["inflate"] -= len(out)
+    return d, bytes(out)
+
+
+def _pdf_find_object(fh, size: int, num: int, gen: int, objstms: list,
+                     budget: dict) -> bytes | None:
+    """The bytes of object `num gen` (from its `obj` keyword on, at most
+    `_PDF_OBJ_READ`): the last top-level definition, else the last one in an
+    object stream. None when neither is found or readable."""
+    rx = re.compile(rb"(?<![0-9])%d\s+%d\s+obj(?![A-Za-z0-9])" % (num, gen))
+    at = -1
+    for base, buf, limit in _pdf_windows(fh, size):
+        for m in rx.finditer(buf):
+            if m.start() >= limit:
+                break
+            at = base + m.end()
+    if at >= 0:
+        fh.seek(at)
+        return fh.read(_PDF_OBJ_READ)
+    hit = None
+    for off in objstms:
+        d, data = _pdf_stream_at(fh, size, off, budget)
+        if d is None or data is None:
+            continue
+        n_m = re.search(rb"/N\s+(\d{1,7})", d)
+        f_m = re.search(rb"/First\s+(\d{1,9})", d)
+        if not n_m or not f_m:
+            continue
+        first = int(f_m.group(1))
+        nums = [int(x) for x in re.findall(rb"\d+", data[:first])][:2 * int(n_m.group(1))]
+        it = iter(nums)
+        pairs = list(zip(it, it))          # (object number, offset)
+        for k, (obj, rel) in enumerate(pairs):
+            if obj == num:
+                end = first + pairs[k + 1][1] if k + 1 < len(pairs) else len(data)
+                hit = data[first + rel:end]
+    return hit
+
+
+def _pdf_metadata(fh, size: int, texts: list, found: list, fields: list) -> None:
+    info_ref = None
+    encrypted = False
+    objstms: list[int] = []
+    packets: list[int] = []
+    xml_streams: list[int] = []
+    over = []
+    for base, buf, limit in _pdf_windows(fh, size):
+        for m in _PDF_INFO_REF_RX.finditer(buf):
+            if m.start() < limit:
+                info_ref = (int(m.group(1)), int(m.group(2)))
+        encrypted = encrypted or any(m.start() < limit
+                                     for m in _PDF_ENCRYPT_RX.finditer(buf))
+        for rx, into, cap in ((_PDF_OBJSTM_RX, objstms, _PDF_MAX_OBJSTM),
+                              (_PDF_XPACKET_RX, packets, _PDF_MAX_PACKETS),
+                              (_PDF_XMLSTREAM_RX, xml_streams, _PDF_MAX_PACKETS)):
+            for m in rx.finditer(buf):
+                if m.start() >= limit:
+                    break
+                if len(into) >= cap:
+                    over.append(rx)
+                    break
+                into.append(base + m.start())
+    if encrypted:
+        found.append(("unknown", "PDF is encrypted: its metadata strings cannot be read"))
+        return
+    if over:
+        found.append(("unknown", "PDF holds more object or metadata streams than the "
+                                 "reader's caps: not all were read"))
+    budget = {"inflate": _PDF_INFLATE_BUDGET}
+    if info_ref is not None:
+        label = "PDF Info dictionary"
+        obj = _pdf_find_object(fh, size, *info_ref, objstms, budget)
+        info = _pdf_dict(obj) if obj is not None else None
+        if info is None:
+            found.append(("pdf-info", label))
+            fields.append(("pdf-info", label, ["pdf-info:unknown"]))
+        else:
+            keys, lines = [], []
+            for key, value in info.items():
+                name = key.decode("latin-1")
+                # An empty string carries nothing, as an empty Office field;
+                # a value that is not a string (a reference, a number, a
+                # dictionary) is unread, so it gates.
+                gated = name == "Author" or name not in _PDF_STANDARD_KEYS
+                if gated and (value is None or value.strip()):
+                    keys.append(token_field("pdf-info", key))
+                # A well-formed PDF date is digits by the format, and its
+                # 14-digit run passes the card checksum often enough to be
+                # noise (measured on the estate's PDFs), so it is not scanned.
+                # Anything else in a date key is.
+                if value and value.strip() and not (
+                        name in ("CreationDate", "ModDate")
+                        and _PDF_DATE_RX.match(value.strip())):
+                    lines.append(f"{name}: {value}")
+            if keys:
+                found.append(("pdf-info", label))
+                fields.append(("pdf-info", label, sorted(set(keys))))
+            if lines:
+                texts.append((label, "\n".join(lines)))
+    for off in packets:
+        fh.seek(off)
+        buf = fh.read(META_SEGMENT_CAP)
+        end = buf.find(b"<?xpacket end")
+        close = buf.find(b"?>", end) if end >= 0 else -1
+        label = "PDF XMP packet"
+        packet = buf[:close + 2] if close >= 0 else None
+        _note_xmp(label, packet, found, fields)
+        if packet is not None:
+            texts.append((label, packet.decode("utf-8", errors="replace")))
+    for off in xml_streams:
+        d, data = _pdf_stream_at(fh, size, off, budget)
+        if d is None or b"/Filter" not in d or not re.search(rb"/Type\s*/Metadata", d):
+            continue                   # not a metadata stream, or uncompressed
+        label = "PDF XMP metadata stream"  # (an uncompressed one is a packet above)
+        _note_xmp(label, data, found, fields)
+        if data is not None:
+            texts.append((label, data.decode("utf-8", errors="replace")))
+
+
 def inspect_media(fh) -> tuple[str | None, list[tuple[str, str]], list[tuple[str, str]]]:
     """`inspect_media_fields` without the field detail: `(format, texts, found)`."""
     fmt, texts, found, _fields = inspect_media_fields(fh)
@@ -2293,8 +2993,10 @@ def inspect_media(fh) -> tuple[str | None, list[tuple[str, str]], list[tuple[str
 
 
 def inspect_media_fields(fh) -> tuple[str | None, list, list, list]:
-    """`(format, text segments, metadata found, fields)` for a PNG, JPEG or WebP
-    file object; `(None, [], [])` for anything else. Text segments are
+    """`(format, text segments, metadata found, fields)` for a PNG, JPEG,
+    WebP, Office Open XML (`ooxml`) or PDF file object, or `zip` for a zip the
+    document reader refused before it could tell (115/390); `(None, [], [],
+    [])` for anything else, a zip that is not an Office file included. Text segments are
     `(label, decoded text)` to be scanned; metadata found is `(set, label)`
     for every segment, text or opaque, with `set` a key of `METADATA_SETS`.
     Every read is bounded (`META_SEGMENT_CAP`, or the format's own 64 KiB
@@ -2304,7 +3006,7 @@ def inspect_media_fields(fh) -> tuple[str | None, list, list, list]:
     fh.seek(0, os.SEEK_END)
     size = fh.tell()
     fh.seek(0)
-    head = fh.read(12)
+    head = fh.read(1024)
     texts: list[tuple[str, str]] = []
     found: list[tuple[str, str]] = []
     fields: list[tuple[str, str, list[str]]] = []
@@ -2314,6 +3016,19 @@ def inspect_media_fields(fh) -> tuple[str | None, list, list, list]:
         fmt, walker = "jpeg", _jpeg_metadata
     elif head[:4] == b"RIFF" and head[8:12] == b"WEBP":
         fmt, walker = "webp", _webp_metadata
+    elif head.startswith(b"PK\x03\x04") or b"%PDF-" in head:
+        # 115/390. A document reader that raises fails CLOSED: what it could
+        # not read is `unknown`, never clean.
+        fmt = "pdf" if b"%PDF-" in head and not head.startswith(b"PK") else "zip"
+        try:
+            if fmt == "pdf":
+                _pdf_metadata(fh, size, texts, found, fields)
+            else:
+                fmt = _ooxml_metadata(fh, size, texts, found, fields)
+        except Exception as e:  # noqa: BLE001 — fail closed, named below
+            found.append(("unknown", f"{fmt.upper()} structure cannot be read "
+                                     f"({e.__class__.__name__})"))
+        return fmt, texts, found, fields
     else:
         return None, texts, found, fields
     try:
@@ -2367,20 +3082,38 @@ def check_binary(path: Path, rel: str, entry: BinaryEntry | None,
         tally.files_opened += 1
         tally.binaries_checked += 1
 
+    # 115/390: before `DOCUMENT_UNTIL` what the document reader adds (a
+    # document's metadata sets and the text-rule hits in its metadata) is held
+    # apart as a warning, kept OUT of the findings as type-level warnings are,
+    # so no caller can take one for a block. The file's own gate
+    # (unlisted, changed, stale) is not the reader's and is untouched.
+    doc_warn = False
+
     def gate(rule: str, excerpt: str) -> None:
-        _record(findings, tally, Finding(rel, 0, rule, "binary", "high", excerpt, "binary"))
+        f = Finding(rel, 0, rule, "binary", "high", excerpt, "binary")
+        if doc_warn and rule == "binary-metadata":
+            if tally is not None:
+                tally.document_warnings.append(f)
+            return
+        _record(findings, tally, f)
 
     try:
         with open(path, "rb") as fh:
             digest = _sha256_file(fh)
-            _fmt, texts, found, fields = inspect_media_fields(fh)
+            fmt, texts, found, fields = inspect_media_fields(fh)
     except OSError as e:
         gate("binary-unlisted", f"unreadable ({e.__class__.__name__})")
         return findings
+    doc_warn = fmt in DOCUMENT_FORMATS and in_document_grace()
     for label, text in texts:
-        for f in scan_text(rel, text, local_terms, disabled, tally, honour_markers=False):
+        for f in scan_text(rel, text, local_terms, disabled,
+                           None if doc_warn else tally, honour_markers=False):
             f.where = f"metadata {label}"
-            findings.append(f)
+            if doc_warn:
+                if tally is not None:
+                    tally.document_warnings.append(f)
+            else:
+                findings.append(f)
     accepted = entry is not None and entry.matches(digest)
     present = metadata_sets(found)
     keys_by_set = metadata_fields(fields)
@@ -2945,6 +3678,27 @@ def render_type_level(warns: list[Finding]) -> list[str]:
     return lines
 
 
+def render_documents(warns: list[Finding]) -> list[str]:
+    """115/390: what the document reader found before `DOCUMENT_UNTIL`, each
+    naming the date it starts to block and its remedy."""
+    if not warns:
+        return []
+    cut = DOCUMENT_UNTIL.isoformat()
+    lines = [f"⚠ leakscan: {len(warns)} document metadata finding(s) (Office, PDF) "
+             f"— WARNING ONLY until {cut}, blocking from {cut}:"]
+    for f in sorted(warns, key=lambda x: (x.path, x.where, x.line, x.rule)):
+        remedy = (_grace_remedy(f.rule) if f.rule == "binary-metadata" else
+                  "remove the value from the document's properties")
+        lines.append(report.with_id(
+            f"  {_where(f)}  [warn until {cut}] {f.rule} → {f.excerpt}"
+            f" — blocks from {cut}; remedy: {remedy}", "leakscan", f.rule))
+    lines.append(f"  Before {cut}: clear the properties, comments and Info you have "
+                 "no need for (that changes the bytes: re-list the file), and keep "
+                 f"the rest with `leakscan --binary-entries` lines in {BINARY_MANIFEST}.")
+    lines.append("")
+    return lines
+
+
 PROVENANCE_LIST_CAP = 20
 
 
@@ -3034,13 +3788,17 @@ def render_human(findings: list[Finding], warning: str | None,
     lines.extend(render_grace(grace or []))
     lines.extend(render_type_level(typewarn or []))
     lines.extend(render_provenance(provwarn or []))
+    docwarn = tally.document_warnings if tally is not None else []
+    lines.extend(render_documents(docwarn))
     if not findings and not over_cap:
         cover = "structural + local" if scanned_local else "structural only"
         lines.append(f"✓ leakscan clean ({cover})."
                      + (f" The G3 warning(s) above block from "
                         f"{BINARY_GRACE_UNTIL.isoformat()}." if grace else "")
                      + (f" The type-level warning(s) above are refused from "
-                        f"{TYPE_LEVEL_UNTIL.isoformat()}." if typewarn else ""))
+                        f"{TYPE_LEVEL_UNTIL.isoformat()}." if typewarn else "")
+                     + (f" The document warning(s) above block from "
+                        f"{DOCUMENT_UNTIL.isoformat()}." if docwarn else ""))
         if tally is not None:
             lines.append(tally.summary())
             lines.append(tally.coverage())
@@ -3378,6 +4136,13 @@ def _main(argv: list[str] | None = None) -> int:
                 "warnings": report.finding_dicts("leakscan", typewarn,
                                                  lambda f: f.rule),
             },
+            "binary_documents": {
+                "until": DOCUMENT_UNTIL.isoformat(),
+                "active": in_document_grace(),
+                "warnings": report.finding_dicts("leakscan",
+                                                 tally.document_warnings,
+                                                 lambda f: f.rule),
+            },
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
@@ -3519,6 +4284,18 @@ def _selftest() -> int:
     _f, texts, _o = inspect_media(png(b"tEXt", b"Author\x00jane.doe@example.com"))  # leakscan:allow: selftest fixture
     if not any(f.rule == "email" for _l, t in texts for f in scan_text("t", t, [])):
         print("FAIL: PNG tEXt metadata not scanned as text")
+        ok = False
+    # G3 documents (115/390): a docx's creator is a field, its text is scanned.
+    zbuf = io.BytesIO()
+    with zipfile.ZipFile(zbuf, "w") as z:
+        z.writestr("[Content_Types].xml", "<Types/>")
+        z.writestr("docProps/core.xml", '<p xmlns:dc="d"><dc:creator>'
+                   'jane.doe@example.com</dc:creator></p>')  # leakscan:allow: selftest fixture
+    zbuf.seek(0)
+    fmt, texts, _o, fields = inspect_media_fields(zbuf)
+    if (fmt, [k for _s, _l, ks in fields for k in ks]) != ("ooxml", ["office-props:creator"]) \
+            or not any(f.rule == "email" for _l, t in texts for f in scan_text("t", t, [])):
+        print("FAIL: Office core properties not read")
         ok = False
     print("selftest OK" if ok else "selftest FAILED")
     return 0 if ok else 1

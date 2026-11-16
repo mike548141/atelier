@@ -337,8 +337,8 @@ glob is the wrong tool for it.
 
 ### Binary files (G3): blocked until a person has looked
 
-leakscan can't read the body of a binary file: the pixels of an image, a
-PDF, an archive, a font. Until G3 it skipped them in silence. Now a **tracked**
+leakscan can't read the body of a binary file: the pixels of an image, the
+pages of a PDF, an archive, a font. Until G3 it skipped them in silence. Now a **tracked**
 binary blocks (Mike ruled this 2026-08-04, funded 2026-08-09). It passes once
 a reasoned entry in **`.leakscanbinaries`** at the repo root accepts its exact
 bytes, and a reasoned line keeps each metadata set it carries:
@@ -500,10 +500,59 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   JPEG or WebP. A raw `exif`, `iptc` or `xmp` profile that doesn't decode is
   reported as **UNREADABLE** and blocks as `<set>:unknown`; it is never
   clean.
+- **Office and PDF files: their metadata, read since `115/390`.** The census
+  of binary kinds (`docs/method/census/2026-11-16-1206-binary-kinds-investigation.md`)
+  ranked these first, and the principal's answer to options offered on
+  2026-11-16 was *"Build the reader"*. It uses only the standard library, and
+  each document set blocks like an image's until a line keeps it:
+
+  | Set | What it is | Kept by |
+  |---|---|---|
+  | `office-props` | `docProps/core.xml` `creator` and `lastModifiedBy`, `docProps/app.xml` `Company` and `Manager`: the properties that name a person or organisation | field: `office-props:creator,lastModifiedBy` |
+  | `office-custom` | `docProps/custom.xml` custom properties, named by the file | field: `office-custom:Client%20Name` |
+  | `office-comments` | comment parts and their author lists: Word comments and people, Excel comments, threaded comments and persons, PowerPoint comments and comment authors | the set: `office-comments` |
+  | `pdf-info` | the PDF Info dictionary's `Author`, and every key outside the standard `Title`, `Subject`, `Keywords`, `Creator`, `Producer`, `CreationDate`, `ModDate`, `Trapped` | field: `pdf-info:Author` |
+  | `xmp` | a PDF's XMP packets and compressed XMP metadata streams, read field by field as an image's are | field: `xmp:dc:creator` |
+
+  ```
+  5e0a91c7d2b84f36:office-props:creator  docs/plan.docx  # the author credit the licence needs
+  b7c2e8a0f4d61935:pdf-info:Author  docs/brochure.pdf  # our organisation as author
+  ```
+
+  `office-props`, `office-custom` and `pdf-info` have no type-level form: the
+  set's name alone is refused, as `gps` alone is, so a line always names its
+  fields. Every other property value (title, subject, keywords, description,
+  sheet and slide titles, a PDF's Title, Creator and Producer) is not gated,
+  but every value read, gated or not, goes through the normal rules and term
+  list, so a listed name in a title or an email in a comment is a finding. The
+  one exception is a PDF `CreationDate` or `ModDate` that is a well-formed PDF
+  date (`D:` and digits): its 14-digit run passes the card checksum often
+  enough to be noise, so it is not scanned; any other value there is.
+  Parts are found by their usual paths and by the content types the package
+  declares. A zip with no `[Content_Types].xml` is not an Office file and is
+  not read; the file line still accepts it whole.
+
+  The reader is untrusted-input code, so it is capped. A zip's
+  end-of-central-directory record is read before `zipfile` opens it: a Zip64
+  archive, more than 10,000 members, or a central directory over 1 MiB is
+  `unknown`, and so is a zip declaring more than 1 GiB uncompressed. Only the
+  properties and comment parts are inflated, each to 1 MiB (a part that
+  inflates further is `<set>:unknown`, whatever its header claims), at most
+  256 parts and 16 MiB a file. XML is parsed as a stream by expat with any
+  DOCTYPE, entity declaration or external entity refused, so no entity is ever
+  expanded. A PDF is read in 1 MiB windows, never whole: the newest trailer's
+  `/Info` reference, then the Info object, top level or inside a FlateDecode
+  object stream; streams are inflated to 1 MiB each and 64 MiB a file. An
+  encrypted PDF, an Info reference that resolves to nothing readable, malformed
+  XML or a dictionary that does not parse is `unknown` or `<set>:unknown`, which
+  blocks until named. It is never clean.
 - **What it can't see.** The pixels: no OCR, so the reason *is* the human
-  check. Metadata in any other format (GIF, TIFF, HEIC/AVIF, PDF, Office files,
-  fonts, archives), where the file line accepts the whole file, metadata
-  included. Two guards are weaker than they may read: a set line's reason may
+  check. Metadata in any other format (GIF, TIFF, HEIC/AVIF, fonts, archives,
+  legacy `.doc`/`.xls`, OpenDocument), where the file line accepts the whole
+  file, metadata included. In an Office or PDF file, everything but the
+  metadata above: the body (page, cell and slide text), tracked changes,
+  embedded files and images (a photo's Exif inside a docx or PDF), macros and
+  external links. Two guards are weaker than they may read: a set line's reason may
   not repeat the file line's, but that is textual equality, so a one-character
   difference loads, and whether a reason is specific stays the person's call;
   and the JPEG walker's cost is linear in a run of degenerate markers (a
@@ -566,6 +615,20 @@ reasoned floor `scope` that leaves a tree out is still on the record, and
 declared, not quiet. (A `.leakscanignore` glob used to be a second one; it no
 longer is, above.) leakscan's floor entry still has no advisory form.
 
+**The document reader warns first, until 2027-01-18.** Children run this
+floor at `@main`, so a reader that blocked on landing would turn a child red
+the day it shipped. Until `DOCUMENT_UNTIL` (2027-01-18, UTC) everything the
+Office and PDF reader adds prints as a warning that names the date and the
+remedy, and none fails the exit code: a `binary-metadata` finding for a
+document's sets (the five above, and `unknown`), and a rule's hit in a
+document's metadata. From that date they block like any other. The file's own
+gate is not the reader's, so `binary-unlisted`, `binary-changed` and
+`binary-stale-entry` on an Office or PDF file keep the adoption grace's date
+above. The date was the queue run's pick: more than 30 days after the build
+(2026-11-16), and a month after the type-level cut-off, so no child meets two
+new kinds of block on one day. Like the others, nothing moves it.
+`--json` carries the warnings under `binary_documents`.
+
 **Adopting it: one commit, before the cut-off.**
 
 ```sh
@@ -575,7 +638,7 @@ python3 <atelier>/tools/leakscan.py --root . --binary-entries   # prints the lin
 `--binary-entries` prints a file line for every tracked binary that no entry
 accepts yet (new, or changed since listed), and one `<digest>:<set>` line for
 each metadata set it carries that no line keeps, or one `<digest>:<set>:<Field>`
-line for each Exif, GPS, IPTC, XMP or PNG text field. A type-level line on one
+line for each Exif, GPS, IPTC, XMP, PNG text, Office or PDF Info field. A type-level line on one
 of those sets is listed again as its field lines, with a note that it is replaced. Merge the fields that share
 one need into one line. Each line ends with the who/when note
 (`# by=… session=… on=…`, above). It writes **no reason**, and

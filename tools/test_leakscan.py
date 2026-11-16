@@ -3806,6 +3806,11 @@ class BinaryNamedSets(_TreeCase):
             "png-text": [_png((b"tEXt", b"Title\x00a diagram"))],
             "jpeg-comment": [_jpeg((0xFE, b"a comment"))],
             "unknown": [_jpeg((0xE1, b"NotExif\x00")), _png()[:-12]],
+            # 115/390: the document sets (fixtures built further down).
+            "office-props": [_ooxml({"docProps/core.xml": _core()})],
+            "office-custom": [_ooxml({"docProps/custom.xml": _CUSTOM})],
+            "office-comments": [_ooxml({"word/comments.xml": _COMMENTS})],
+            "pdf-info": [_pdf((2, b"<< /Author (A) >>"))],
         }
         for want, images in cases.items():
             for data in images:
@@ -4441,6 +4446,455 @@ class WithdrawnRuleReports(_CliCase):
             "t", "diagnosis: Foobaritis  # leakscan:allow:diagnosis-key: fixture",
             [], frozenset(), tally))
         self.assertEqual({"diagnosis-key": 1}, tally.by_marker)
+
+
+
+# ===========================================================================
+# G3 documents (115/390): Office Open XML and PDF metadata. Every fixture is
+# built here from bytes (a zip made with zipfile, a PDF typed out), never a
+# real file; every name and address in them is fictional.
+# ===========================================================================
+import zipfile as _zipfile  # noqa: E402
+
+_CT_NS = b"http://schemas.openxmlformats.org/package/2006/content-types"
+_CORE_TYPE = b"application/vnd.openxmlformats-package.core-properties+xml"
+
+
+def _content_types(*overrides):
+    body = b"".join(b'<Override PartName="/%s" ContentType="%s"/>' % (n, t)
+                    for n, t in overrides)
+    return (b'<?xml version="1.0" encoding="UTF-8"?><Types xmlns="' + _CT_NS + b'">'
+            b'<Default Extension="xml" ContentType="application/xml"/>' + body
+            + b"</Types>")
+
+
+def _core(creator=b"Kiri Example", modified_by=b"", title=b"Plan"):
+    return (b'<?xml version="1.0"?><cp:coreProperties xmlns:cp="http://schemas.'
+            b'openxmlformats.org/package/2006/metadata/core-properties" '
+            b'xmlns:dc="http://purl.org/dc/elements/1.1/">'
+            b"<dc:creator>" + creator + b"</dc:creator>"
+            b"<cp:lastModifiedBy>" + modified_by + b"</cp:lastModifiedBy>"
+            b"<dc:title>" + title + b"</dc:title>"
+            b"<dcterms:created xmlns:dcterms=\"http://purl.org/dc/terms/\">"
+            b"2026-01-01T00:00:00Z</dcterms:created></cp:coreProperties>")
+
+
+_APP = (b'<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/'
+        b'extended-properties" xmlns:vt="v"><Application>Writer</Application>'
+        b"<Company>Fictional Widgets</Company><Manager>Aroha Sample</Manager>"
+        b"<TitlesOfParts><vt:vector><vt:lpstr>Sheet1</vt:lpstr>"
+        b"<vt:lpstr>Budget</vt:lpstr></vt:vector></TitlesOfParts></Properties>")
+_CUSTOM = (b'<Properties xmlns:vt="v"><property fmtid="{x}" pid="2" '
+           b'name="Client Name"><vt:lpwstr>Imaginary Ltd</vt:lpwstr></property>'
+           b'<property fmtid="{x}" pid="3" name="Ref"><vt:i4>7</vt:i4></property>'
+           b"</Properties>")
+_COMMENTS = (b'<w:comments xmlns:w="w"><w:comment w:id="0" w:author="Kiri Example" '
+             b'w:initials="KE"><w:p><w:r><w:t>mail kiri.example@example.org '
+             b"about it</w:t></w:r></w:p></w:comment></w:comments>")
+
+
+def _ooxml(parts, content_types=None, method=_zipfile.ZIP_DEFLATED):
+    buf = io.BytesIO()
+    with _zipfile.ZipFile(buf, "w", method) as z:
+        if content_types is not False:
+            z.writestr("[Content_Types].xml", content_types or _content_types())
+        for name, data in parts.items():
+            z.writestr(name, data)
+    return buf.getvalue()
+
+
+def _pdf(*objects, trailer=b"<< /Root 1 0 R /Info 2 0 R >>"):
+    """A small PDF: a binary comment (so it is read as a binary), the
+    objects as given (`(number, body bytes)`), and a trailer."""
+    out = b"%PDF-1.7\n%\x00\xe2\xe3\n1 0 obj\n<< /Type /Catalog >>\nendobj\n"
+    for num, body in objects:
+        out += b"%d 0 obj\n" % num + body + b"\nendobj\n"
+    return out + b"trailer\n" + trailer + b"\nstartxref\n0\n%%EOF\n"
+
+
+def _objstm(objects):
+    """An object stream holding `(number, body)` pairs, FlateDecode."""
+    head, body = b"", b""
+    for num, data in objects:
+        head += b"%d %d " % (num, len(body))
+        body += data + b" "
+    comp = _zlib.compress(head + body)
+    return (b"<< /Type /ObjStm /N %d /First %d /Filter /FlateDecode /Length %d >>\n"
+            b"stream\n" % (len(objects), len(head), len(comp)) + comp + b"\nendstream")
+
+
+_XMP_PACKET = (b'<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta '
+               b'xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/'
+               b'1999/02/22-rdf-syntax-ns#"><rdf:Description xmlns:dc="http://'
+               b'purl.org/dc/elements/1.1/"><dc:creator>Kiri Example</dc:creator>'
+               b'</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>')
+
+
+def _inspect(data):
+    return ls.inspect_media_fields(io.BytesIO(data))
+
+
+def _keys(fields, name):
+    return sorted({k for s, _l, ks in fields if s == name for k in ks})
+
+
+class OfficeReader(unittest.TestCase):
+    """The Office read: the properties that name a person or organisation, the
+    custom properties and the comment parts, each a named set."""
+
+    def test_core_and_app_people_fields_are_read_by_name(self):
+        fmt, texts, found, fields = _inspect(_ooxml({
+            "docProps/core.xml": _core(modified_by=b"Aroha Sample"),
+            "docProps/app.xml": _APP}))
+        self.assertEqual("ooxml", fmt)
+        self.assertEqual(["office-props:Company", "office-props:Manager",
+                          "office-props:creator", "office-props:lastModifiedBy"],
+                         _keys(fields, "office-props"))
+        # The title, the application and the sheet names are scanned, not gated.
+        joined = "\n".join(t for _l, t in texts)
+        for value in ("title: Plan", "Application: Writer", "Budget"):
+            self.assertIn(value, joined)
+
+    def test_an_empty_people_field_carries_nothing(self):
+        _f, _t, found, fields = _inspect(_ooxml({
+            "docProps/core.xml": _core(creator=b"", modified_by=b"  ")}))
+        self.assertEqual([], _keys(fields, "office-props"))
+        self.assertNotIn("office-props", [s for s, _l in found])
+
+    def test_custom_properties_are_fields_named_by_the_file(self):
+        _f, texts, _found, fields = _inspect(_ooxml({"docProps/custom.xml": _CUSTOM}))
+        self.assertEqual(["office-custom:Client%20Name", "office-custom:Ref"],
+                         _keys(fields, "office-custom"))
+        self.assertIn("Client Name: Imaginary Ltd", "\n".join(t for _l, t in texts))
+
+    def test_comments_are_one_set_and_their_text_and_authors_are_scanned(self):
+        _f, texts, found, fields = _inspect(_ooxml({"word/comments.xml": _COMMENTS}))
+        self.assertIn(("office-comments", "Office word/comments.xml"), found)
+        self.assertEqual([], [f for f in fields if f[0] == "office-comments"])
+        text = "\n".join(t for _l, t in texts)
+        self.assertIn("author: Kiri Example", text)
+        rules = [f.rule for _l, t in texts for f in ls.scan_text("t", t, [])]
+        self.assertIn("email", rules)
+
+    def test_a_part_is_found_by_its_declared_content_type_too(self):
+        ct = _content_types((b"meta/who.xml", _CORE_TYPE))
+        _f, _t, _found, fields = _inspect(_ooxml({"meta/who.xml": _core()}, ct))
+        self.assertEqual(["office-props:creator"], _keys(fields, "office-props"))
+
+    def test_a_zip_that_is_not_an_office_file_is_not_read(self):
+        fmt, texts, found, fields = _inspect(_ooxml({"a.txt": b"hello"},
+                                                    content_types=False))
+        self.assertEqual((None, [], [], []), (fmt, texts, found, fields))
+
+    def test_too_many_members_is_unknown_before_the_member_list_is_built(self):
+        data = _ooxml({f"x/{i}.xml": b"<a/>" for i in range(20)})
+        with unittest.mock.patch.object(ls, "_ZIP_MAX_MEMBERS", 8), \
+                unittest.mock.patch.object(_zipfile, "ZipFile",
+                                           side_effect=AssertionError("opened")):
+            fmt, _t, found, _fields = _inspect(data)
+        self.assertEqual("zip", fmt)
+        self.assertEqual(["unknown"], [s for s, _l in found])
+        self.assertIn("past the 8 cap", found[0][1])
+
+    def test_a_huge_declared_uncompressed_size_is_unknown(self):
+        data = _ooxml({"docProps/core.xml": _core()})
+        with unittest.mock.patch.object(ls, "_ZIP_MAX_UNCOMPRESSED", 64):
+            fmt, texts, found, _fields = _inspect(data)
+        self.assertEqual("ooxml", fmt)
+        self.assertEqual(["unknown"], [s for s, _l in found])
+        self.assertEqual([], texts)
+
+    def test_a_member_that_inflates_past_the_cap_is_unknown_not_read(self):
+        bomb = (b'<cp:coreProperties xmlns:cp="c" xmlns:dc="d"><dc:creator>'
+                + b" " * (ls.META_SEGMENT_CAP + 10) + b"x</dc:creator></cp:coreProperties>")
+        data = _ooxml({"docProps/core.xml": bomb})
+        self.assertLess(len(data), 64 * 1024)          # tiny on disk
+        _f, texts, _found, fields = _inspect(data)
+        self.assertEqual(["office-props:unknown"], _keys(fields, "office-props"))
+        self.assertEqual([], texts)
+
+    def test_malformed_xml_is_unknown(self):
+        _f, _t, _found, fields = _inspect(_ooxml({
+            "docProps/core.xml": b"<cp:coreProperties><dc:creator>x</oops>"}))
+        self.assertEqual(["office-props:unknown"], _keys(fields, "office-props"))
+        _f, _t, found, _fields = _inspect(_ooxml({"word/comments.xml": b"<a><b></a>"}))
+        self.assertEqual(["office-comments", "unknown"], sorted(s for s, _l in found))
+
+    def test_a_doctype_or_entity_is_refused_and_never_expanded(self):
+        laughs = (b'<?xml version="1.0"?><!DOCTYPE x [<!ENTITY a "aaaaaaaaaa">'
+                  + b"".join(b'<!ENTITY %c "&%c;&%c;&%c;&%c;&%c;&%c;&%c;&%c;&%c;&%c;">'
+                             % ((98 + i,) + (97 + i,) * 10) for i in range(9))
+                  + b']><cp:coreProperties xmlns:cp="c" xmlns:dc="d"><dc:creator>&j;'
+                  b"</dc:creator></cp:coreProperties>")
+        _f, texts, _found, fields = _inspect(_ooxml({"docProps/core.xml": laughs}))
+        self.assertEqual(["office-props:unknown"], _keys(fields, "office-props"))
+        self.assertEqual([], texts)
+
+    def test_an_encrypted_member_is_unknown(self):
+        data = bytearray(_ooxml({"docProps/core.xml": _core()},
+                                method=_zipfile.ZIP_STORED))
+        # Set the encryption flag on the member in its local header (flags at
+        # +6) and its central-directory header (flags at +8).
+        name = b"docProps/core.xml"
+        local = data.find(name)
+        central = data.find(name, local + 1)
+        data[data.rfind(b"PK\x03\x04", 0, local) + 6] |= 0x01
+        data[data.rfind(b"PK\x01\x02", 0, central) + 8] |= 0x01
+        _f, _t, _found, fields = _inspect(bytes(data))
+        self.assertEqual(["office-props:unknown"], _keys(fields, "office-props"))
+
+    def test_a_truncated_zip_is_unknown(self):
+        data = _ooxml({"docProps/core.xml": _core()})
+        fmt, _t, found, _fields = _inspect(data[: len(data) // 2])
+        self.assertEqual("zip", fmt)
+        self.assertEqual(["unknown"], [s for s, _l in found])
+
+
+class PdfReader(unittest.TestCase):
+    """The PDF metadata slice: the Info dictionary and XMP, read in bounded
+    windows, never the page text."""
+
+    INFO = (b"<< /Author (Kiri Example) /Producer (Writer) /Title (Plan \\(draft\\)) "
+            b"/ClientRef <FEFF0041006E> /Nested << /A [1 2 (x)] >> >>")
+
+    def test_author_and_custom_keys_gate_and_every_string_is_scanned(self):
+        fmt, texts, found, fields = _inspect(_pdf((2, self.INFO)))
+        self.assertEqual("pdf", fmt)
+        self.assertEqual(["pdf-info:Author", "pdf-info:ClientRef", "pdf-info:Nested"],
+                         _keys(fields, "pdf-info"))
+        text = "\n".join(t for _l, t in texts)
+        for value in ("Author: Kiri Example", "Producer: Writer",
+                      "Title: Plan (draft)", "ClientRef: An"):
+            self.assertIn(value, text)
+
+    def test_a_well_formed_date_is_not_scanned_and_anything_else_there_is(self):
+        info = (b"<< /CreationDate (D:20260101093000+13'00') /ModDate (D:20260101093000Z00'00')"
+                b" /Producer (W) >>")
+        _f, texts, _found, _fields = _inspect(_pdf((2, info)))
+        self.assertEqual([("PDF Info dictionary", "Producer: W")], texts)
+        _f, texts, _found, _fields = _inspect(_pdf((2, b"<< /ModDate (call 021 555 1234) >>")))
+        self.assertEqual([("PDF Info dictionary", "ModDate: call 021 555 1234")], texts)
+
+    def test_standard_keys_alone_do_not_gate(self):
+        _f, texts, found, _fields = _inspect(_pdf((2, b"<< /Producer (W) /CreationDate (D:2026) >>")))
+        self.assertNotIn("pdf-info", [s for s, _l in found])
+        self.assertTrue(texts)
+
+    def test_an_empty_author_carries_nothing_and_a_reference_is_unread(self):
+        _f, _t, _found, fields = _inspect(_pdf((2, b"<< /Author () /Owner 9 0 R >>")))
+        self.assertEqual(["pdf-info:Owner"], _keys(fields, "pdf-info"))
+
+    def test_info_inside_an_object_stream_is_read(self):
+        data = _pdf((3, _objstm([(2, self.INFO)])),
+                    trailer=b"<< /Root 1 0 R /Info 2 0 R >>")
+        _f, _t, _found, fields = _inspect(data)
+        self.assertIn("pdf-info:Author", _keys(fields, "pdf-info"))
+
+    def test_the_newest_trailer_names_the_info_object(self):
+        data = _pdf((2, b"<< /Producer (old) >>"), (5, b"<< /Author (Kiri Example) >>"),
+                    trailer=b"<< /Info 2 0 R >>\n%%EOF\ntrailer\n<< /Info 5 0 R >>")
+        _f, _t, _found, fields = _inspect(data)
+        self.assertEqual(["pdf-info:Author"], _keys(fields, "pdf-info"))
+
+    def test_windows_see_a_match_that_straddles_their_edge(self):
+        data = _pdf((2, self.INFO))
+        with unittest.mock.patch.object(ls, "_PDF_WINDOW", 37), \
+                unittest.mock.patch.object(ls, "_PDF_OVERLAP", 40):
+            _f, _t, _found, fields = _inspect(data)
+        self.assertIn("pdf-info:Author", _keys(fields, "pdf-info"))
+
+    def test_an_info_reference_that_resolves_to_nothing_is_unknown(self):
+        _f, _t, _found, fields = _inspect(_pdf((4, b"<< >>")))
+        self.assertEqual(["pdf-info:unknown"], _keys(fields, "pdf-info"))
+
+    def test_an_unterminated_info_dictionary_is_unknown(self):
+        _f, texts, _found, fields = _inspect(_pdf((2, b"<< /Author (Kiri ")))
+        self.assertEqual(["pdf-info:unknown"], _keys(fields, "pdf-info"))
+
+    def test_an_encrypted_pdf_is_unknown_and_not_parsed(self):
+        data = _pdf((2, self.INFO), trailer=b"<< /Info 2 0 R /Encrypt 9 0 R >>")
+        _f, texts, found, fields = _inspect(data)
+        self.assertEqual(["unknown"], [s for s, _l in found])
+        self.assertEqual(([], []), (texts, fields))
+
+    def test_an_xmp_packet_is_the_xmp_set_read_by_field(self):
+        _f, texts, _found, fields = _inspect(_pdf((2, b"<< >>"), (4, _XMP_PACKET)))
+        self.assertEqual(["xmp:dc:creator"], _keys(fields, "xmp"))
+        self.assertTrue(any("Kiri Example" in t for _l, t in texts))
+
+    def test_a_compressed_metadata_stream_is_inflated_and_read(self):
+        comp = _zlib.compress(_XMP_PACKET.replace(b"<?xpacket", b"<?xpkt"))
+        stream = (b"<< /Type /Metadata /Subtype /XML /Filter /FlateDecode /Length %d >>\n"
+                  b"stream\n" % len(comp) + comp + b"\nendstream")
+        _f, _t, _found, fields = _inspect(_pdf((2, b"<< >>"), (6, stream)))
+        self.assertEqual(["xmp:dc:creator"], _keys(fields, "xmp"))
+
+    def test_a_metadata_stream_that_inflates_past_the_cap_is_unknown(self):
+        comp = _zlib.compress(b" " * (ls.META_SEGMENT_CAP + 10))
+        stream = (b"<< /Type /Metadata /Subtype /XML /Filter /FlateDecode /Length %d >>\n"
+                  b"stream\n" % len(comp) + comp + b"\nendstream")
+        _f, _t, _found, fields = _inspect(_pdf((2, b"<< >>"), (6, stream)))
+        self.assertEqual(["xmp:unknown"], _keys(fields, "xmp"))
+
+    def test_a_packet_with_no_end_is_unknown(self):
+        _f, _t, _found, fields = _inspect(_pdf((4, b'<?xpacket begin="" ?><x:xmpmeta')))
+        self.assertEqual(["xmp:unknown"], _keys(fields, "xmp"))
+
+
+class DocumentGate(_TreeCase):
+    """The rollout: the reader's findings warn until `DOCUMENT_UNTIL` and
+    block from it; the file's own gate is untouched by it."""
+
+    DOC = _ooxml({"docProps/core.xml": _core(creator=b"kiri.example@example.org"),
+                  "word/comments.xml": _COMMENTS})
+
+    def run_main(self, day, *extra):
+        out, err = io.StringIO(), io.StringIO()
+        with _on(day), contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ls.main(["--root", str(self.tmp), str(self.tmp),
+                          "--terms", str(self.terms), *extra])
+        return rc, out.getvalue(), err.getvalue()
+
+    def listed(self, data=None):
+        data = data or self.DOC
+        self.put("plan.docx", data)
+        self.manifest(f"{_sha(data)}  plan.docx  # synthetic fixture, reviewed  "
+                      "by=agent session=test1234 on=2026-11-16\n")
+        return data
+
+    def test_the_date_is_its_own_and_at_least_30_days_after_the_build(self):
+        self.assertIsInstance(ls.DOCUMENT_UNTIL, _dt.date)
+        self.assertGreaterEqual(ls.DOCUMENT_UNTIL, _dt.date(2026, 11, 16) + _dt.timedelta(days=30))
+        self.assertGreater(ls.DOCUMENT_UNTIL, ls.TYPE_LEVEL_UNTIL)
+        self.assertTrue(ls.in_document_grace(ls.DOCUMENT_UNTIL - _dt.timedelta(days=1)))
+        self.assertFalse(ls.in_document_grace(ls.DOCUMENT_UNTIL))
+
+    def test_before_the_date_the_new_findings_warn_and_exit_0_after_the_g3_grace(self):
+        self.listed()
+        rc, out, _err = self.run_main(ls.DOCUMENT_UNTIL - _dt.timedelta(days=1))
+        self.assertEqual(0, rc, out)
+        self.assertIn("WARNING ONLY until " + ls.DOCUMENT_UNTIL.isoformat(), out)
+        self.assertIn("office-props:creator", out)
+        self.assertIn("office-comments", out)
+        self.assertIn("email", out)
+        self.assertIn("document metadata finding(s) warned", out)
+
+    def test_the_warnings_are_kept_out_of_the_findings(self):
+        self.listed()
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        rules = sorted({f.rule for f in tally.document_warnings})
+        self.assertEqual(["binary-metadata", "email"], rules)
+
+    def test_from_the_date_they_block(self):
+        self.listed()
+        rc, out, _err = self.run_main(ls.DOCUMENT_UNTIL)
+        self.assertEqual(1, rc, out)
+        self.assertIn("binary-metadata", out)
+        self.assertIn("email", out)
+        self.assertNotIn("WARNING ONLY until " + ls.DOCUMENT_UNTIL.isoformat(), out)
+
+    def test_the_file_gate_is_not_softened_by_the_document_date(self):
+        self.put("plan.docx", self.DOC)
+        tally = ls.Tally()
+        with _on(ls.BINARY_GRACE_UNTIL):
+            self.assertEqual(["binary-unlisted"], [f.rule for f in self.scan(tally=tally)])
+        self.assertTrue(tally.document_warnings)
+
+    def test_image_metadata_hits_still_block_inside_the_window(self):
+        self.put("a.png", _png((b"tEXt", b"Author\x00kiri.example@example.org")))
+        with _on(ls.DOCUMENT_UNTIL - _dt.timedelta(days=1)):
+            self.assertIn("email", self.rules())
+
+    def test_kept_fields_and_sets_stop_the_gate_but_not_the_text_scan(self):
+        data = self.listed()
+        d = _sha(data)
+        self.manifest(f"{d}  plan.docx  # synthetic fixture, reviewed\n"
+                      f"{d}:office-props:creator  plan.docx  # the author credit\n"
+                      f"{d}:office-comments  plan.docx  # the review trail\n")
+        with _on(ls.DOCUMENT_UNTIL):
+            self.assertEqual(["email", "email"], self.rules())
+
+    def test_a_document_set_has_no_type_level_line(self):
+        d = _sha(b"x")
+        for scope, needle in (("office-props", "alone would keep"),
+                              ("pdf-info", "alone would keep"),
+                              ("office-props:Author", "unknown office-props field"),
+                              ("pdf-info:Bad Name", "no file line")):
+            self.manifest(f"{d}  a.pdf  # ok\n{d}:{scope}  a.pdf  # need\n")
+            with self.assertRaises(ls.BinaryManifestError) as cm:
+                ls.load_binary_manifest(self.tmp)
+            self.assertIn(needle, str(cm.exception), scope)
+        self.manifest(f"{d}  a.pdf  # ok\n{d}:pdf-info:Author,Client%20Ref  a.pdf  # need\n"
+                      f"{d}:office-comments  a.pdf  # need two\n")
+        entry = ls.load_binary_manifest(self.tmp)["a.pdf"]
+        self.assertEqual({"pdf-info:Author", "pdf-info:Client%20Ref", "office-comments"},
+                         set(entry.sets))
+
+    def test_a_pdf_is_gated_the_same_way(self):
+        data = _pdf((2, TestPdfInfo.INFO))
+        self.listed(data)
+        with _on(ls.DOCUMENT_UNTIL):
+            fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertIn("pdf-info:Author", fs[0].excerpt)
+
+    @unittest.mock.patch.dict(os.environ, {"CLAUDE_CODE_SESSION_ID": "abcd1234"})
+    def test_binary_entries_lists_the_document_fields(self):
+        self.put("plan.docx", self.DOC)
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ls.main(["--root", str(self.tmp), "--binary-entries"])
+        self.assertEqual(0, rc)
+        d = _sha(self.DOC)
+        self.assertEqual(sorted([f"{d}  plan.docx", f"{d}:office-props:creator  plan.docx",
+                                 f"{d}:office-comments  plan.docx"]),
+                         sorted(_bare(out.getvalue()).splitlines()))
+
+    def test_json_carries_the_document_warnings(self):
+        self.listed()
+        rc, out, _err = self.run_main(ls.DOCUMENT_UNTIL - _dt.timedelta(days=1), "--json")
+        self.assertEqual(0, rc)
+        doc = json.loads(out)
+        self.assertEqual([], doc["findings"])
+        self.assertTrue(doc["binary_documents"]["active"])
+        self.assertEqual(ls.DOCUMENT_UNTIL.isoformat(), doc["binary_documents"]["until"])
+        self.assertIn("leakscan:binary-metadata",
+                      [w["id"] for w in doc["binary_documents"]["warnings"]])
+
+
+TestPdfInfo = PdfReader
+
+
+class DocumentBoundedMemory(BoundedMemory):
+    """020/380 for the document reader (115/390): a PDF is read in windows
+    and an Office zip inflates only its small parts, so peak memory must not
+    grow with the file. A 1 MiB pair against a 16 MiB pair, each file listed
+    so the run exits 0 on any date, and with metadata that gates nothing."""
+
+    SMALL_BYTES = 1 * 1024 * 1024
+    LARGE_BYTES = 16 * 1024 * 1024
+    # Grounded in the design: one PDF window (`_PDF_WINDOW + _PDF_OVERLAP`) is
+    # the largest buffer either reader holds for these files (no stream here
+    # is inflated, and the zip member read is a few hundred bytes); 4x that
+    # leaves room for allocator noise, far below the 15 MiB a whole-file read
+    # of the larger input would add.
+    GROWTH_BOUND_BYTES = 4 * (ls._PDF_WINDOW + ls._PDF_OVERLAP)
+
+    @staticmethod
+    def _build(target_bytes, path):
+        tree = path.parent
+        pad = b"\x00" * target_bytes
+        pdf = _pdf((2, b"<< /Producer (Writer) >>"),
+                   (3, b"<< /Length %d >>\nstream\n" % len(pad) + pad + b"\nendstream"))
+        docx = _ooxml({"docProps/app.xml": b"<Properties><Application>Writer"
+                                           b"</Application></Properties>",
+                       "word/media/pad.bin": pad}, method=_zipfile.ZIP_STORED)
+        (tree / "a.pdf").write_bytes(pdf)
+        (tree / "b.docx").write_bytes(docx)
+        (tree / ls.BINARY_MANIFEST).write_text(
+            f"{_sha(pdf)}  a.pdf  # synthetic fixture  by=agent session=test1234 on=2026-11-16\n"
+            f"{_sha(docx)}  b.docx  # synthetic fixture  by=agent session=test1234 on=2026-11-16\n")
 
 
 if __name__ == "__main__":

@@ -691,6 +691,9 @@ class TestScannerLinePins(unittest.TestCase):
                                       f"{m.TYPE_LEVEL_UNTIL.isoformat()} · "
                                       "0 manifest line(s) with no who/when warned, "
                                       "not blocking · "
+                                      "0 document metadata finding(s) warned, "
+                                      "not blocking, before "
+                                      f"{m.DOCUMENT_UNTIL.isoformat()} · "
                                       f"0 beyond {CAP} · "
                                       "0 marker(s) naming no rule")
         self.assertEqual(m.render_human([], None, True, t).splitlines()[0],
