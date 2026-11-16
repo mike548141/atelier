@@ -30,3 +30,10 @@
       the legacy bare-list spelling from `floor.py` — follows the migration**
       and must not be skipped: a transition spelling still parsing after the
       horizon is C1's own decay, one level up.
+      - 🔀 Tidied 2026-11-16 (C0497, verified high; Mike approved 2026-11-16):
+        not an ask of Mike. The date question is settled at lines 12-15 ("RULED
+        2026-08-09: the uniform 2026-09-01 was a DEFAULT"); what stays open is
+        Phase 2 at lines 15-16, deleting the legacy spelling from `floor.py`,
+        which is agent build work in atelier. Nothing above was changed; the
+        original text is as it was. To revert: delete this line (its commit is
+        listed in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
