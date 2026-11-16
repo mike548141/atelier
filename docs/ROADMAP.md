@@ -395,6 +395,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ccfleet, the fleet-sweep and review-drain…](roadmap/160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a verdict records its method and reasoning.](roadmap/160-doctrine-review-owed/1460-rule-4-cold-pass-queued-a-verdict-records-its-method.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's Asking bullet says "same turn",…](roadmap/160-doctrine-review-owed/1470-rule-4-cold-pass-queued-floor-asking-bullet-same-turn.md)
+- [ ] ⏳ [Rule-4 cold pass queued: EVIDENCE.md §18 extended and §19–§21 added…](roadmap/160-doctrine-review-owed/1480-rule-4-cold-pass-queued-evidence-batch-18-to-21.md)
 
 ## build/ layer — open strands
 
@@ -500,8 +501,8 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/220-observability-of-the-collaboration-itsel/README.md)*
 
-- [~] [Doctrine candidate — the mechanical instruments cannot see a trust…](roadmap/220-observability-of-the-collaboration-itsel/010-doctrine-candidate-the-mechanical-instruments.md)
-- [~] [Doctrine candidate — evidence hygiene: a scanner that greps for the…](roadmap/220-observability-of-the-collaboration-itsel/020-doctrine-candidate-evidence-hygiene-a-scanner.md)
+- ✅ [DONE 2026-11-17](roadmap/220-observability-of-the-collaboration-itsel/010-doctrine-candidate-the-mechanical-instruments.md)
+- ✅ [DONE 2026-11-17](roadmap/220-observability-of-the-collaboration-itsel/020-doctrine-candidate-evidence-hygiene-a-scanner.md)
 - [ ] [The forward test the trust analysis could not run.](roadmap/220-observability-of-the-collaboration-itsel/030-the-forward-test-the-trust-analysis-could-not.md)
 - [ ] [Session hygiene, measured: cap messages, not minutes.](roadmap/220-observability-of-the-collaboration-itsel/040-session-hygiene-measured-cap-messages-not-minu.md)
 - [ ] [The Context Atlas is a first mockup, unrefined, and the archive run…](roadmap/220-observability-of-the-collaboration-itsel/050-the-context-atlas-is-a-first-mockup-unrefined.md)
@@ -630,7 +631,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🛑 [REPORT — an unresolved merge conflict shipped to a PUBLIC main and…](roadmap/320-child-filed-findings-via-pointing-up/200-no-floor-scanner-reads-a-conflict-marker.md)
 - ✅ [REPORT — CONCURRENCY.md's session-start bookend tells every session…](roadmap/320-child-filed-findings-via-pointing-up/210-the-session-start-autostash-contradicts-the-shared-checkout-premise.md)
 - ✅ [REPORT — the read-the-output rule covers an unread check and not an…](roadmap/320-child-filed-findings-via-pointing-up/220-read-the-output-does-not-say-verify-the-act-happened.md)
-- [~] 🔎 [MISSING HOUSE RULE — the method has no name for a negative result…](roadmap/320-child-filed-findings-via-pointing-up/230-a-negative-result-whose-second-explanation-is-silent.md)
+- ✅ 🔎 [DONE 2026-11-17](roadmap/320-child-filed-findings-via-pointing-up/230-a-negative-result-whose-second-explanation-is-silent.md)
 - ✅ 🛑 [A possessive or plural form evades a local-term, and leakscan then…](roadmap/320-child-filed-findings-via-pointing-up/240-a-possessive-evades-a-term-and-the-scanner-says-clean.md)
 - ✅ 🛑 [The block still carries DA1's overturned wording](roadmap/320-child-filed-findings-via-pointing-up/250-the-block-still-carries-the-wording-da1-overturned.md)
 - ✅ 🔎 [The canonical floor block's drift command reads ..HEAD, so a child…](roadmap/320-child-filed-findings-via-pointing-up/260-the-drift-command-pins-a-child-to-whatever-branch-the-parent-is-parked-on.md)
@@ -661,10 +662,10 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Sessions kept placing the tool list in a private repo and crediting…](roadmap/320-child-filed-findings-via-pointing-up/510-sessions-credited-mike-with-a-private-tool-list.md)
 - [ ] 🔎 [Hand-up: nothing at session open, or before "verified", reads the…](roadmap/320-child-filed-findings-via-pointing-up/520-nothing-reads-the-published-ci-conclusion.md)
 - [ ] 🔎 [Hand-up from a private child: a repo that holds one network's desired…](roadmap/320-child-filed-findings-via-pointing-up/530-a-network-tree-repo-trips-the-floor-s-scanners-by-construction.md)
-- [~] 🔎 [MISSING HOUSE RULE — list what already exists before adding a…](roadmap/320-child-filed-findings-via-pointing-up/540-missing-house-rule-list-what-exists-before-adding-a-resource.md)
+- ✅ 🔎 [DONE 2026-11-17](roadmap/320-child-filed-findings-via-pointing-up/540-missing-house-rule-list-what-exists-before-adding-a-resource.md)
 - [ ] 🔎 [Hand-up: no floor scanner reads a commit message, so a term that is…](roadmap/320-child-filed-findings-via-pointing-up/550-no-scanner-reads-a-commit-message-body.md)
 - ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md)
-- [~] 🔎 [MISSING HOUSE RULE — a "this cannot work" built only from reading is…](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
+- [ ] 🔎 [MISSING HOUSE RULE — a "this cannot work" built only from reading is…](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
 - ✅ 🎯 [MISSING HOUSE RULE — the house has no method for splitting one repo…](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
 - [ ] 🔎 [Hand-up: the floor's Estate resources bullet covers facts — don't…](roadmap/320-child-filed-findings-via-pointing-up/590-the-estate-resources-bullet-covers-facts-not-access-or-write-back.md)
 - ✅ 🔎 [Hand-up from a private child: at the hook plane the content scanners…](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
@@ -733,7 +734,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/380-silence-read-as-an-answer/README.md)*
 
 - ✅ 🎯 [Decide whether "make the instrument show a positive first" earns a…](roadmap/380-silence-read-as-an-answer/010-make-the-instrument-show-a-positive-first.md)
-- [~] [🔑 The second instance is the INVERSE of 010, and it is the more…](roadmap/380-silence-read-as-an-answer/020-a-client-timeout-is-not-evidence-the-server-did-nothing.md)
+- ✅ [DONE 2026-11-17](roadmap/380-silence-read-as-an-answer/020-a-client-timeout-is-not-evidence-the-server-did-nothing.md)
 
 ## Repo relationships beyond the parent/child tree (Mike commissioned, 2026-09-12)
 

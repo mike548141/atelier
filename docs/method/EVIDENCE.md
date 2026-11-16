@@ -411,6 +411,44 @@ pool/under-test                     ->    0   # a measured absence
 
 Without the first line the second is indistinguishable from a broken tool.
 
+**Why the control is needed: the negative has a second explanation that is
+silent.** An empty listing, a missing directory, a zero count or a setting that
+had no effect reads as "it is not there". The other reading is that the
+observer could not see it, or the mechanism quietly declined to act, and the
+two produce byte-identical output. The failure presents as a successful check,
+which is why review passes it. Instances, by mechanism: an artefact absent from
+the live tree that sat in a backup nobody opened; an empty listing on a
+filesystem that was never mounted; zero entries, exit 0, from a snapshot
+automount that had not yet materialised; a port mapping the network driver
+silently dropped; a setting that a sibling image reads from a different
+variable name; a rejected configuration key, logged where nobody reads, with
+the default silently standing; a record of a copy that evidenced the attempt
+and never the bytes; a self-test that had been crashing for eight days and so
+counted nothing and reported nothing. This is not §14 (an instrument the agent
+built reporting on itself) and not §3 or §13 (which rank the strength of a
+*positive* claim; neither says what a negative is worth). Two limits, left
+open: whether a signal that *is* emitted but where no one observes is the same
+class as no signal at all, and whether a positive action silently no-opped is
+a neighbouring class rather than this one.
+
+**A client's signal is evidence about the client, not about the server.** A
+timeout says the answer did not arrive. It says nothing about whether the work
+was done, or whether the state is empty. So the obvious repair for the above,
+"check the exit code", can make the opposite error: a non-zero exit with the
+work completed. The same control applies to a write:
+
+- **Before retrying a write, re-query the state.** A client error is never the
+  sole basis for repeating a non-idempotent operation. This half is the more
+  dangerous, because the wrong belief is about an act already taken and the
+  natural correction doubles it.
+- **A re-query during the same outage is not corroboration.** It is the same
+  silence answering a second question. Satisfy yourself the instrument can
+  currently *see* a positive (the control above) before the re-query counts.
+- **An unhealthy transport is a reason to stop and re-establish, not to
+  proceed carefully.** Any conclusion drawn while it is down, read or write,
+  either direction, is worth nothing, and neither session noticed the window
+  until afterwards.
+
 (Grounded: a child, 2026-08-24, found across two concurrent sessions, not
 within either. One query timed out and returned nothing; the other returned
 rows from a different pool. The conclusion was in fact right, which is why
@@ -418,7 +456,102 @@ this is doctrine: a defect invisible when it does no harm has to be designed
 out, not noticed. Mike adopted it as its own rule, beside `DATA-PROTECTION.md`'s
 corroborate-from-artefacts rule rather than inside it, on 2026-11-09 (board
 item `380/010`; his pick from options offered). Review question, not a
-scanner.)
+scanner. Extended with the
+silent-second-explanation class (nine instances, `320/230`, filed from two
+private children 2026-09-08; each read its own four back against source) and
+the client-timeout half (`380/020`, two concurrent sessions, 2026-08-24, same
+night and opposite directions, neither able to see its own defect). One of the
+nine was the method's own drift check, not a child's misreading: its
+prescribed range compared against the head of a shared checkout, so
+faithful copying gave a false negative in one child and a false positive in
+another. `SIGNING.md` already records one such instance as a one-off. The
+protocol defect in that check is atelier's and is raised separately, not
+fixed here.)
+
+## 19. "It cannot work" from reading alone is not accepted while a cheap test exists
+
+A claim of impossibility is a claim (§1) and inherits the weakest tier it rests
+on. A verdict built only from documentation, release notes and issue trackers
+is `ai-inference` or `secondary-commentary` (§2), however many sessions agree
+with it: each confirmation re-reads the same kinds of source, so agreement adds
+nothing (§13, *A second voice is not a second angle*). **Before a session
+records that something cannot work, it asks whether a cheap, safe, disposable
+test exists. If one does, the test is run and its result is what gets
+written.** If none exists, the verdict says so and is labelled reading-only,
+not stated as fact.
+
+Two contributing errors, both generic:
+
+- **Scored as a set.** A request for three things is not a request for a set.
+  A verdict that tests whether all three can coexist, finds they cannot, and
+  answers no has dropped the part that worked alone. State the negative per
+  part and offer the part that works.
+- **A document looks like progress.** Research produces a page; a throwaway
+  test produces one word, worked or did not. The page feels like more work and
+  so wins over the word that is worth more.
+
+Disposability is the test of whether to run it, and most tests are disposable.
+Anything that touches live data, costs money or cannot be undone stays under
+the existing stops. (Grounded: a private child, filed 2026-10-11, board item
+`320/570`. A "not possible" verdict stood for about a week and five sessions
+confirmed it; a disposable container with its own storage then showed it worked
+in roughly twenty minutes. The incident is the child's own account, not
+re-measured here. It sits beside §18, which covers a probe that returned
+nothing; this covers the probe never run. The re-run discipline for
+positives is `REVIEW.md` § *Re-run every "live-proven" claim*; a pointer from
+there to this section is still owed.)
+
+## 20. List what exists before adding a resource
+
+An error message says what the tool wants, never what the estate already has.
+The shortest edit that silences it is to declare something new, and that is the
+edit to distrust. **Before adding a resource of any kind (network, volume,
+secret, dataset, directory, queue, DNS record), list the ones that exist; the
+command is one line and takes seconds. Before inventing a pattern, read the file
+beside the one being edited**, because a stack with five working members
+already answers most questions about the sixth. This is "verify before acting"
+(§13) applied at the moment an error tempts the fastest edit: the failure is not
+ignorance of the rule but reaching for the edit that quietens the message.
+
+The cost is not cosmetic. A resource created without explicit settings takes
+auto-allocated defaults, and those can be the exact class an earlier fix
+removed, with a written warning that any later resource would bring it back.
+(Grounded: a private child, filed 2026-10-11, board item `320/540`. A stack's
+external network was reported not found; a session declared two new ones
+although the estate already held the networks and a sibling file in the same
+directory was attached to them. The new networks were auto-allocated an address
+family the deploy engine could not parse, which re-broke a solved problem and
+blocked every deploy of the stack until traced. The incident is the child's own
+account, unevidenced at atelier's end. Doctrine only: a lint cannot know the
+estate. A child that keeps one canonical file of its shared resources can flag
+any new declaration outside it, which is that child's to build.)
+
+## 21. The mechanical instruments cannot see a trust failure, and a scanner of one's own logs must key to markers
+
+Two rules about reading the agent's own session history as evidence.
+
+**Mechanical health is not trust.** Tool errors, dropped connections and
+exhausted windows measure whether the machinery ran. Trust is damaged by work
+that ran perfectly and was wrong, unverified, or not the agent's decision to
+make, and no harness counter sees that. So a clean error profile is no evidence
+of a sound session, and an instrument built from those counters must not report
+"healthy" as though it had looked at the thing that matters (§14). (Grounded:
+board item `220/010`. On the named days every harness error class was at or
+below the estate rate, with tool failures at 0.71 times it and no limit,
+overflow or compaction events, while the principal's own corrective language
+carried trust markers at 5.8 times and frustration markers at 3.9 times.)
+
+**An agent analysing its own logs is inside its own corpus.** A scanner that
+greps for the name of a failure finds the sessions that discussed it, the
+scanning session included. A signal therefore keys to a marker the harness
+sets, never to prose, and a grouping keys to the identity the harness records,
+never to a path that merely resembles it. (Grounded: board item `220/020`,
+same session. The first cut of an incident scanner text-matched a refusal
+string and counted its own run, inflating one class threefold. A tool-use
+profile that grouped subagent work by parent directory filed every repo's
+into one bucket and reported a research-heavy repo as 2% research against a
+corrected 50.6%.) Both are review questions rather than scanners: nothing can
+tell a prose match from a marker match without reading the instrument.
 
 ---
 

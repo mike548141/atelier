@@ -1,4 +1,4 @@
-- [~] 🔎 **MISSING HOUSE RULE — a "this cannot work" built only from reading is
+- [ ] 🔎 **MISSING HOUSE RULE — a "this cannot work" built only from reading is
       not accepted while a cheap, disposable test exists** `[S][doctrine]` —
       hand-up from a private child repo, filed 2026-10-11 via `PROPAGATION.md`
       § *Pointing up*. Class only: no repo, host, product, person or date
@@ -61,5 +61,6 @@
         bars a negative reached by reading alone. The quoted 'validated means
         it started' line appears nowhere in atelier, so that supporting claim
         is unsupported here. The incident is child-side.
+      ⚠️ 2026-11-17 (wt: qr-78ca-evidence): partial. `EVIDENCE.md` §19 landed. Still owed: the pointer from `REVIEW.md` § *Re-run every "live-proven" claim*, left to the worker that owns `REVIEW.md` in this run. Rule-4 review owed at landing.
       🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-evidence) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
