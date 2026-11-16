@@ -4,8 +4,9 @@
 function: a rule of the public repo and a test that enforces it).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** act 1 written 2026-11-16 UTC on Fable 5.1: FAIL (1 MAJOR, 3 MODERATE, 3 minor,
-PCL1–PCL7); act 2 reconcile pending the sibling's release. Brief written 2026-11-09 UTC by session
+**Status:** PASS RAN 2026-11-16 UTC on Fable 5.1: FAIL (1 MAJOR, 3 MODERATE, 3 minor,
+PCL1–PCL7); act 1 verdict (committed `e5b187a1`) and act 2 reconcile below the divider; the
+held-back sibling is folded below the reconcile. Brief written 2026-11-09 UTC by session
 `d16dc612`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1120-rule-4-cold-pass-queued-personal-data-closed-list.md`
@@ -441,3 +442,267 @@ naming a rule the delta replaced. The other hits (`COMMUNICATION.md:25`, `TOOLBO
 
 Every finding is the principal's to decide (rule 3); nothing applied. Act 2 (`### Reconcile`)
 follows once the sibling is released.
+
+### Reconcile (act 2, written 2026-11-16 UTC, after the act-1 commit `e5b187a1`)
+
+**Overall, restated: FAIL — 1 MAJOR, 3 MODERATE, 3 minor, 0 notes (PCL1–PCL7).** Nothing in
+act 1 is revised; PCL7 is extended here and the extension is marked.
+
+**Opened at act 2:** the held sibling (one pointer block, three questions, one fact, the
+brief-writer's re-run results); the queue pointer `1120` and the intent record `630` whole; the
+prior verdict `docs/reviews/2026-10-04-2215-pii-by-purpose-cold.md` (PI1–PI11, its follow-ups);
+the delta's commit body (`git log -1 --format=%B 920cfed1`). Two further probes ran, named below.
+No session log was opened: nothing a finding needed was there.
+
+**The pointer's two questions.**
+
+- *Whether the test can be satisfied while personal data stands unlisted:* yes, by two routes,
+  one by design and one not. By design, data the list never pins (PD4, PD5, and any name nobody
+  listed) is left to the leak scanner, and the list and `pdlistscan` say so. Not by design: PCL2,
+  where an unscoped marker makes the leak scanner stand aside as well, so the three gates agree
+  on green over an unlisted address. The answer to the pointer's question is PCL2.
+- *Whether the private-repo grant wording follows his 2026-10-03 words:* the intent record now
+  carries his second answer of 2026-11-09, *"Ordering the work is permission"*, re-put in plain
+  terms, which it records as confirming the wording the standard carries. So the wording in the
+  standard is answer-backed, and act 1 raised no finding on it. PCL3 is the mirror, not the
+  wording: the answer-backed sentence reaches no child.
+
+**The brief-writer's three questions.**
+
+1. *The unit of "listed":* a backticked string under an entry's `Data`, matched as a
+   case-sensitive substring of each tracked text file. Not counted: a case variant, a given name
+   alone (PD4), a wrapped name across a line break, a commit header or body, a binary. Probed at
+   act 1 (0 case variants, 0 binaries) and at act 2 (0 wrapped full names outside named places),
+   so none of these holds a leak today; the gap that does matter is the marker, PCL2.
+2. *Does the private-repo grant stay narrow once a session judges what the work needs:* the
+   standard gives it the purpose test (a placeholder or an invented example would fail it) and
+   the duty to mark the judgement as the session's own call and ask when unsure, which is as
+   narrow as an unreadable grant can be made in prose; no scanner can read it, as `pdlistscan`
+   says. The duty is only as good as its reach, and it reaches no child: PCL3.
+3. *Every surface the old claim stood on, stamped copies included:* the sweep reached PI6's list
+   except one (`tools/licenscan.py`, below) and did not reach `COMMUNICATION.md:172`; stamped
+   copies in children were not read by this pass (read-only, counted) and the delta's own account
+   says they keep the old sentence: PCL4, PCL7.
+
+**The held-back fact** (the first name unpinnable) matches act 1's A3 and the test's `UNPINNED_IDS`;
+nothing changes.
+
+**Re-run results against the brief-writer's:** identical in kind (11 OK; CI exit 0 with the
+`secretscan` advisories; hook exit 0); mine at `be9b3ad0`, with `pdlistscan` in the floor since.
+
+**Per finding, against the prior verdict, the intent record and the author's account.**
+
+- **PCL1 (MAJOR) — new.** PI2's counsel was the sentence the delta wrote ("in his words, and the
+  list is closed until he adds to it"), and the commit body says the standard and `CLAUDE.md`
+  carry it. Nothing in the intent record, the pointer or the body says PD2–PD5 were put to him,
+  and his answer of 2026-11-09 picked the shape of the rule, not the entries. The *his call* form
+  is the delta's own addition; no counsel asked for it. Stands as new, MAJOR.
+- **PCL2 (MODERATE) — new.** The intent record lists "a scanner that enforces the closed list" as
+  not done, for him, and then records `pdlistscan` landing; the prior verdict's probes B, C and G
+  (PI2) showed a scoped marker with a thin reason passing the guard, and the delta's test closes
+  that form. The unscoped form was not probed then and is not counted now. Stands.
+- **PCL3 (MODERATE) — new; partly foreseen.** PI7 said a child reading only its stamped template
+  does not get a complete rule; the author's account says PI7 was taken and the changelog says a
+  child now gets the whole rule. The half missing is the half his second answer added after PI7
+  was written, so the overclaim is the delta's. Stands.
+- **PCL4 (MODERATE) — half recorded, half new.** The intent record holds "whether the rule moves
+  into the stamped floor block" as open, for him, and the changelog says children keep the old
+  sentence; neither is a board item, so a reader of the board finds no owner. The file-set,
+  templates and scaffold gap is new. Stands; counsel unchanged.
+- **PCL5 (minor) — derived from PI3's counsel.** PI3 asked the standard to "cite `GUARDS.md` for
+  what binds now and name the register as the coming home", and the delta did exactly that. The
+  sentence overstates what the citation reaches; the defect is the wording, not the counsel.
+  Stands as minor.
+- **PCL6 (minor) — new.** PI1 noted the commit-header identity is "a record, though not one where
+  it appears"; the delta's PD5 records it and adds the bodies clause. Stands.
+- **PCL7 (minor) — extended at reconcile, marked as such.** PI6 named `tools/licenscan.py`'s
+  docstring among the eleven surfaces; the delta's path list omits that file, and at HEAD its
+  lines 5 and 10 still read "keeps personal/estate data out" and "no personal data", the absolute
+  form the delta replaced elsewhere. So PI6's sweep is ten of eleven, plus `COMMUNICATION.md:172`,
+  which PI6 did not list. Severity unchanged (minor); the follow-up gains one file.
+
+**The author's account** (commit body and changelog) is accurate on what it changed and honest on
+what it left: it names the scanner as not done and the children as not updated. Where it is
+stronger than its evidence is the three places act 1 names (V1), none of which the body itself
+asserts; the "whole rule" claim is the changelog's.
+
+**Follow-ups, restated:** PCL1–PCL7 as listed above, with PCL7 now also naming
+`tools/licenscan.py` lines 5 and 10. The cycle stays open (a MAJOR stands); every finding is the
+principal's to decide (rule 3), nothing applied.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-16)
+
+The text below is the brief's held-back sibling,
+`2026-11-09-0153-personal-data-closed-list-cold.deferred.md`, copied verbatim. It was removed from
+the review worktree before the reviewer started, held outside the tree until act 1 was committed
+(`e5b187a1`), then released to the reviewer for act 2. The orchestrator forms no finding and has
+not edited it; the sibling file itself is deleted in the fold commit, so the brief's mentions of it
+by name now point here.
+
+# Deferred reading for `2026-11-09-0153-personal-data-closed-list-cold.md`
+
+Open only after your act-1 findings are committed (`docs/method/REVIEW.md` rule 1). Fold into the
+brief below the reconcile, then delete this file. A floor, never a fence.
+
+## The queue pointer's questions (the author's framing, verbatim)
+
+> whether the test can be satisfied while personal data stands unlisted; whether the private-repo
+grant wording follows his 2026-10-03 words.
+
+## The brief-writer's questions
+
+1. What is the test's unit of "listed", and what spelling of a listed datum would it not count?
+2. Does "the principal's order for the work is the grant" stay narrow once a session has to judge
+what the work needs?
+3. Every surface the old claim stood on: did the sweep reach them all, including stamped copies?
+
+## What the brief-writer held back
+
+- One entry (the first name used as the doctrine's voice) is stated as unpinnable; the changelog
+  says so.
+
+## Re-run results (2026-11-09 UTC, at `457615cc`)
+
+`test_personal_data`: 11 tests, OK, exit 0. `floor.py --plane ci`: exit 0, with 28 `secretscan`
+advisories reported and not blocking. `--plane hook`: exit 0.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log — atelier 160/1120 cold pass (personal-data closed list)
+
+Reviewer: Fable 5.1 (claude-fable-5-1). Spawned by a headless Opus 5.5 orchestrator under drain
+session 1e053526. Worktree: /Users/mike/worktrees/fable/atelier-160-1120-0742/atelier (HEAD be9b3ad0,
+origin/main). Sibling .deferred.md deleted from the worktree on purpose; not sought.
+
+## Act 1
+
+- 2026-11-16T07:43Z `uptime` -> load 3.39/2.91/2.97 (16 GB laptop, several passes running). OK to
+  proceed under nice.
+- `git status --short` -> only ` D docs/reviews/...deferred.md`. `git log --oneline -3` -> be9b3ad0
+  claim commit on top of 160/1170 fold.
+- Read the brief in full (lines 1-220): acceptance test = principal's answers "Honest claim + only
+  you grant" and "Ordering the work is permission"; delta = commit 920cfed1, 16 paths; re-run lines
+  = unittest test_personal_data, floor.py --plane ci, floor.py --plane hook; bars = ROADMAP-DONE,
+  SESSIONS, sessions/, docs/reviews/ prior verdicts, sibling, commit bodies, queue pointer 1120,
+  intent record 630 beyond title.
+- Read `docs/method/REVIEW.md` lines 25-301 (rules 1-4), 302-566 (lenses, re-run, V1-V7,
+  lifecycle, method record). Verdict shape taken from there.
+- `git merge-base --is-ancestor 920cfed1 HEAD` -> exit 0.
+- Delta read body-free: `coldsweep.py --root . --commit 920cfed1 --path <16 paths>` -> 780 lines to
+  scratch /tmp/pcl-delta.txt, read whole. coldsweep footer: subject, stat and diff of 16 files;
+  body not printed; 0 board files; 0 rule-2 files touched.
+- `git log --oneline 920cfed1..HEAD -- <16 paths> | wc -l` -> 76 (brief said 27 at 457615cc).
+  `docs/PERSONAL-DATA.md` and `tools/test_personal_data.py`: 0 commits since the delta.
+  `docs/build/REPO-STANDARD.md`, `CLAUDE.md`: no personal/grant lines changed since (git diff grep).
+  Templates CLAUDE.md/CONTRIBUTING.md changed since (40+/23-), none of it the personal-data rule
+  (diff read line by line; hunks are the floor stop list, the asking device, cclive, the pin check,
+  the root-naming rule, the review step, claim JSON).
+- Subjects since on these paths that touch the subject: 6607c0eb "pdlistscan: in a public repo,
+  personal data stands only where the closed list names it" (the scanner follow-up the delta left
+  open), 1b4d51f8 principles §9. pdlistscan landed 6607c0eb; its own pass is board 1340 (index).
+- CI: `.github/workflows/ci.yml:108` runs `python3 -m unittest discover -s tools -p 'test_*.py'`,
+  so test_personal_data is in the suite CI runs. floor.py does not run tests (grep: 0).
+- Lens 1 assumptions I named: A1 the test sees every tracked file (binary/case) · A2 the test runs in
+  a gate · A3 "closed" is enforced · A4 globs anchor · A5 the marker check covers every
+  personal-data allow-marker · A6 the list's own grants meet the grant rule it states · A7 mirror
+  sites carry the whole rule (templates, standard file set, create-repo) · A8 pointers reach the
+  rule they cite (GUARDS, ADR 0005/0007, register draft, AUTONOMY) · A9 the list's places pass the
+  purpose test · A10 PD5's commit-body claim matches history.
+- A1 probe (/usr/bin/python3 over `git ls-files`): 1402 tracked, 0 binary, 0 case-variants of the
+  three pinned strings. Sound.
+- A4: `glob_rx` appends `\Z`, `re.match` anchors the start; `*` stays in a segment. Sound.
+- A5 probe: `tools/leakscan.py:107-109` grammar: `leakscan:allow: <reason>` (unscoped) exempts
+  every STRUCTURAL rule; `MARKER_RX` in the test needs `allow:<scope>:` so the unscoped form is
+  invisible to it; test docstring says it "is counted separately" (nothing counts it);
+  pdlistscan docstring says the unscoped form "is the leak scanner's to judge" but leakscan honours
+  it. Scratch probe: `git clone` of the worktree to /tmp/pcl-scratch/clone, added
+  `docs/method/ZZ-PROBE.md` holding an example.org email + `<!-- leakscan:allow: probe reason -->`,
+  `git add` in the clone only. `python3.14 -m unittest test_personal_data` -> 11 tests OK;
+  `leakscan.py --root . docs/method/ZZ-PROBE.md` -> exit 0, "allow-marker breakdown: email×1";
+  `pdlistscan.py --root .` -> clean, exit 0. Three gates green on an email in an unlisted file.
+  Scratch removed after. Tree today: unscoped markers outside tools/ and instruments/ at
+  CHANGELOG.md:2753,2764,3263; docs/method/SIGNING.md:120 (a vendor noreply address);
+  docs/roadmap/110-.../README.md:26 (a PCIe lane string); skills/create-repo/instance.yaml.example:16
+  (an RFC 2606 placeholder). None personal; the route is open, not used. -> candidate PCL2.
+- Scoped personal markers outside tools/ and instruments/ (coldsweep, file only): CHANGELOG.md,
+  CLAUDE.md, docs/PERSONAL-DATA.md, docs/roadmap/115-.../230-...md. All in PD1/PD2/PD3 named places
+  (CHANGELOG.md, CLAUDE.md, docs/PERSONAL-DATA.md, docs/roadmap/**). Sound.
+- A6: `docs/PERSONAL-DATA.md` "Granted by": PD1 his words 2026-10-03 (quoted in REPO-STANDARD,
+  verified at lines 177-190); PD2-PD5 "his call" citing ADR 0005. ADR 0005 lines 28-70 read: an
+  agent-written decision record, "accepted knowingly", "the name is attribution"; grep for
+  quoted words of him (`*"`, "verbatim", "his words") -> see next call. The standard's rule
+  (REPO-STANDARD lines 198-203): "In a public repo only the principal grants an exception, in his
+  own words, and the list is closed until he adds to it... it never adds an entry itself." The
+  list's own "Granted by" paragraph defines "his call" to admit a decision record. -> candidate
+  PCL1.
+- A7: child template CLAUDE.md lines 147-160 and CONTRIBUTING 109-113 at HEAD carry the default,
+  purpose test, list file, public-repo grant and marker-not-a-grant; NEITHER carries the
+  private-repo half ("the order for the work is the grant; record, mark as own call, ask when
+  unsure", REPO-STANDARD lines 201-203). CHANGELOG delta entry claims "a child reading only its
+  own files gets the whole rule". -> candidate PCL3.
+  REPO-STANDARD "The standard file set" (line 48-100): no `docs/PERSONAL-DATA.md`; `ls
+  docs/build/templates/docs` -> no PERSONAL-DATA template; create-repo SKILL.md grep -> no mention.
+  Standard line 204-207 says "One list per repo... A repo with no such file holds no exceptions".
+  -> candidate PCL4.
+- A8: GUARDS.md grep personal/entry/register: line 197 (a reasoned marker brings context inside
+  the window), 270, 456 (a marker lowers a blocking finding to nothing), 590 (register 110/100
+  replaces it). No rule about a marker pairing with a list entry. Standard line 208-209 says "The
+  guard rules for the marker that pairs with an entry are in method/GUARDS.md". -> candidate PCL5
+  (V5 pointer reaches no such rule). ADR 0007 names allowed_signers (lines 20,47,69) - sound.
+  Register draft (decisions/2026-10-03-0641) is a draft, "Mike rules on acceptance", owes 160/1130;
+  the standard calls it "where the per-exception record is heading" - honest, sound. AUTONOMY lines
+  45-57: making public / widening is a floor action - sound.
+- A9: `mike548141` in tools/floorfleet.py:1595,1604, tools/test_floorfleet.py:57,124,
+  tools/test_templates.py:131,197: the owner-classifier and the template's real workflow address;
+  a placeholder would not serve (the classifier tells the real owner from a fork). Sound.
+- A10: `git log --format=%b | grep -c` (counts only, no body read): email 1, account name 4.
+  PD5 says "commit headers only. It is not a licence for the same details in a commit message
+  body" while history holds one body with the email. -> candidate PCL6 (minor).
+- Old framing sweep (coldsweep, pattern shareable repo|no-personal-data|declared where it
+  appears|declared allowance|repo that can go public|fewest exceptions): live hits
+  docs/method/COMMUNICATION.md:172 "the no-personal-data boundary" (a live doctrine sentence);
+  COMMUNICATION.md:25 and TOOLBOX.md:26 are a quoted correction; the rest are history (CHANGELOG,
+  ADR 2026-07-15) or the test's own stale-phrase list. -> candidate PCL7 (minor, V3).
+- Re-run 1: `cd tools && nice -n 10 python3.14 -m unittest test_personal_data` -> Ran 11, OK, exit 0.
+- Re-run 2: `nice -n 10 python3.14 tools/floor.py --plane ci --root .` -> exit 0; 167 lines; every
+  scanner ✓ incl. leakscan (structural + local) and pdlistscan; pointerscan ⚠ 4 queue-state on
+  items 1080, 1250, 1420, 994 (other passes' claims, not this delta).
+- Re-run 3: `nice -n 10 python3.14 tools/floor.py --plane hook --root .` -> exit 0; 99 lines; all ✓;
+  same pointerscan ⚠. `uptime` before the heavy runs: load 2.68.
+- Register parse check: see next call (ids, pinned counts, place globs).
+- ADR 0005 grep: 0 lines with a quotation of him (`*"`), 0 "verbatim"/"his words". PD2-PD5 rest on
+  an agent-written record. PCL1 confirmed.
+- Register parse (python3.14, import test_personal_data): PD1 1 string / 17 globs, PD2 1 / 5,
+  PD3 2 / 5, PD4 0, PD5 0; matches the file. A4 confirmed.
+- Verdict appended to the brief below `---` at 2026-11-16T07:52Z: FAIL, PCL1 MAJOR, PCL2-PCL4
+  MODERATE, PCL5-PCL7 minor. Status line updated. Findings in order of severity: PCL1 grant form
+  "his call" vs "in his own words"; PCL2 unscoped-marker route (probe above); PCL3 private-repo
+  half absent from child templates; PCL4 list file absent from file set/templates/scaffold, no
+  board item; PCL5 GUARDS pointer; PCL6 PD5 vs commit bodies; PCL7 COMMUNICATION.md:172.
+- Gates on the brief (python3.14 tools/<gate>.py --root . <brief>): datescan 0, spellscan 0,
+  wrapscan 0, linkscan 0, leakscan 0 (structural + local), reviewscan 0, attribscan 0. Lines over
+  100 columns: only in the brief-writer's part (title, two command lines, table rows); none in the
+  verdict's prose beyond table rows.
+- Left out and why: child repos (not needed for a finding; read-only, counted); `/security-review`
+  (landed delta, nothing pending but the removed sibling); the sibling, prior verdicts, session
+  logs, commit bodies, items 630/1120 (rule 2, until act 2). Scratch /tmp/pcl-scratch removed;
+  /tmp/pcl-*.txt are command captures of this repo's own output, no live captures.
+- ACT 1 SAVED 2026-11-16T07:5xZ. Waiting for the orchestrator's release of the sibling for act 2.
+
+## Act 2 (released by the orchestrator after e5b187a1)
+
+- Opened: the held sibling at the orchestrator's path (3 questions, 1 fact, pointer block,
+  re-run results at 457615cc: 11 OK / ci 0 / hook 0); `git log -1 --format=%B 920cfed1` (body:
+  PI1/PI2 account, "PI3-PI10 take the reviewer's counsel", "no scanner behaviour changed");
+  queue pointer 1120 whole; intent record 630 whole (his two answers of 2026-11-09; "Not done,
+  for him": scanner, stamped-block move, private-repo wording; pdlistscan landed);
+  prior verdict 2026-10-04-2215 lines 363-500 (PI1-PI11) and 531-546 (follow-ups).
+- Probe: wrapped full name across a line break (/usr/bin/python3 regex over git ls-files) -> 0
+  hits outside named places. Probe: `grep -n -i "shareable|go public|personal" tools/licenscan.py`
+  -> lines 5 and 10 still carry the absolute form; licenscan.py is not in the delta's 16 paths
+  though PI6 listed it. PCL7 extended at reconcile (marked), severity unchanged.
+- Reconcile appended; overall restated FAIL (1 MAJOR, 3 MODERATE, 3 minor). PCL1, PCL2, PCL6 new;
+  PCL3 new/partly foreseen by PI7; PCL4 half recorded in the intent record (no board item); PCL5
+  derived from PI3's counsel. Act-1 text untouched.
+- Gates re-run on the brief: see the command output in the session (all expected 0).
+- ACT 2 SAVED. Sibling not folded or deleted (the orchestrator folds).
