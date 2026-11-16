@@ -517,13 +517,13 @@ faith. So every verdict carries an open record of the work:
 The test is that a third party could re-run the method and reach the same
 verdict. It binds a FAIL as much as a PASS: a MAJOR finding with no visible
 evidence is no more trustworthy than a clean verdict with no trail (*What review
-is not*). His limit is part of the rule, not a loophole: a model's own internal
-deliberation is sealed by its platform and cannot be extracted, so the record is
-the open account of the work, written as the reviewer goes — checks and
-evidence, not a transcript of thought. A verdict without that record is
-incomplete, however right its findings turn out to be. Grounded in the weekly
-Fable drain (2026-11-15), whose reviewers keep this record as a running log that
-is appended to the review verbatim when the pass ends.
+is not*). A verdict without that record is incomplete, however right its
+findings turn out to be. Where the model or the harness will not let part of the
+record be written, that is a limit to manage, never a reason to drop the record
+or the review (`AUTONOMY.md` § *A limit the tooling imposes is managed, never
+fatal*). Grounded in the weekly Fable drain (2026-11-15), whose reviewers keep
+this record as a running log that is appended to the review verbatim when the
+pass ends.
 
 **Applying decisions to doctrine — and when the cycle stops.** Applying
 decided findings to doctrine text is itself a doctrine edit and earns a

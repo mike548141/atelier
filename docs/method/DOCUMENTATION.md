@@ -186,6 +186,11 @@ vendor's docs; they never mirror them.
   places the vendor docs are wrong, silent, or surprising. This is earned,
   grounded knowledge: exactly the class atelier prizes, and precisely what a
   vendor cannot document for you.
+- **The doctrine's own tooling is a platform too.** The model and the harness a
+  session runs on are vendor platforms like any other: the doctrine does not
+  restate the limits their maker enforces, only how a session manages meeting
+  one (`AUTONOMY.md` § *A limit the tooling imposes is managed, never fatal*,
+  the principal's ruling of 2026-11-16).
 - **Version-pin the pointer.** Vendor docs move underneath you, so a pointer
   carries its own proving rung: "verified against RouterOS 7.x", not a bare
   link (principle 3, applied to the seam itself).

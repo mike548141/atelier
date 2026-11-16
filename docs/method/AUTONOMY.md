@@ -184,6 +184,43 @@ worked"*. The block was an over-broad deny rule in the principal's settings,
 narrowed the same evening on his say-so; a parallel session that hit the same
 refusal asked instead, and the rule was fixed at the source.)
 
+## A limit the tooling imposes is managed, never fatal
+
+The model and the harness carry limits that their maker sets and enforces: a
+usage cap, a session or context cap, a safeguard that declines a request, a
+sandbox with no network. The doctrine does not restate them. They are the
+maker's to enforce and to change, and a copy here becomes drift the day they
+change (the principal's ruling, 2026-11-16 UTC, verbatim: *"We should not be
+replicating third party or external constraints into the doctrine. For example
+if Anthropic change then the doctrine is drift, and its not my expectation it is
+theres. Claude is enforcing this within their products (either model and/or
+harness) and they dont need us to reinforce that. However the doctrine should
+help sessions how to navigate when it hits limits imposed by the harness or
+model etc. So that they are managed exceptions and not a fatal condition to the
+work in the session"*; the same reason as `DOCUMENTATION.md` § *The vendor-docs
+seam*). What the doctrine owns is what a session does when it meets one:
+
+- **Name it.** Say which limit stopped what, in the record and to the principal,
+  in plain words. A limit met in silence becomes a stall nobody can see.
+- **Keep the work resumable.** Close per item so a cut costs at most the item in
+  flight (`CONCURRENCY.md`, *session cap*), and keep what a resume needs: the
+  item, the agent, how far it got.
+- **Carry on with what does not depend on it.** Other items, other repos, the
+  half that is not blocked.
+- **Change the request, never smuggle it.** Where a request itself was declined,
+  narrow it to what the work needs and try again; never reach the declined
+  effect by another route (*A refused call is an ask, never an obstacle*,
+  above). Where the narrowing would cost the work its quality, stop and ask.
+- **Hand it up when the session cannot manage it,** with what was hit and what a
+  yes would unblock.
+
+(Grounded twice. 2026-10-17: a weekly usage cap cut three review agents within a
+minute of spawning; once it lifted, each was resumed by its saved agent id and
+disclosed the interruption. 2026-11-15 UTC: a model safeguard declined two drain
+orchestrators at their first message; narrowing the reviewer-log wording to
+checks and evidence let both run, and the drain's own instructions record the
+narrowing and why.)
+
 ## Who acts — capability earns authority over live systems
 
 This is a *second axis*, orthogonal to the floor above. The floor classes **what

@@ -50,14 +50,29 @@
       "within the realms" limit: the record is the open account of the work, since a model's
       internal deliberation cannot be extracted. The running log, a review sealed while it runs,
       and its opening at the fold stay outside `REVIEW.md` for the pass to judge.
+      *Widened 2026-11-16 UTC, the third commit:* the second commit had written his "within
+      the realms" limit into `REVIEW.md` as a restatement of a model constraint. On being
+      asked to check that reading, he ruled, verbatim: *"We should not be replicating third
+      party or external constraints into the doctrine. For example if Anthropic change then
+      the doctrine is drift, and its not my expectation it is theres. Claude is enforcing this
+      within their products (either model and/or harness) and they dont need us to reinforce
+      that. However the doctrine should help sessions how to navigate when it hits limits
+      imposed by the harness or model etc. So that they are managed exceptions and not a fatal
+      condition to the work in the session"*. So the third commit takes the restatement out of
+      `REVIEW.md`, adds `AUTONOMY.md` § *A limit the tooling imposes is managed, never fatal*
+      (how a session meets a model or harness limit), and extends `DOCUMENTATION.md`'s
+      vendor-docs seam to the doctrine's own tooling. The same pass covers it: whether the new
+      section stays clear of restating any vendor limit itself, whether "change the request,
+      never smuggle it" squares with *A refused call is an ask*, and whether its two grounding
+      cases carry it.
       *Questions worth the pass's time:* whether the four listed parts of the method record
       capture his words or narrow or widen them; whether "incomplete" needs a consequence the
       doctrine can ground, or would be invented; whether `reviewscan` or another guard should
       check for the record, and whether a heading-keyed check would be gamed; whether the
       paragraph sits in the right section; any other mirror site the sweep missed; whether the
       method record should cite the reviewer's working notes once the review is complete, given
-      his point that the secrecy ends then; whether the "within the realms" sentence states his
-      limit or stretches it.
+      his point that the secrecy ends then; the "within the realms" question is now settled by his
+      2026-11-16 ruling above.
       *Review:* no brief yet. Neither this session nor anyone it starts may write the brief or
       run the pass. The principal's answer, 2026-11-16 00:4x UTC, to the authoring session's
       ask whether to put it in this week's drain, verbatim: *"the next appropriate session can

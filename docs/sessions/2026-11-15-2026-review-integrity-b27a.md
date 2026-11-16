@@ -22,6 +22,14 @@ atelier. **Worktree:** `~/worktrees/atelier-review-integrity`. No Fable used, no
   `REVIEW.md` and the review-brief skill now match it: method in order and per check, every
   check's command or file and line, every finding and non-finding with its deciding criterion,
   a third party reaching the same verdict, and his "within the realms" limit.
+- On his ruling of 2026-11-16 UTC that the doctrine must not restate limits the model or
+  harness maker enforces, only how a session manages meeting one: the restatement this session
+  had written into `REVIEW.md` is out; `AUTONOMY.md` gains *A limit the tooling imposes is
+  managed, never fatal*; `DOCUMENTATION.md`'s vendor-docs seam names the doctrine's own tooling.
+  The principal's user-level drain instructions carried the same restatement and now point to
+  the new section instead. `160/1460` is widened to cover it.
+- His answer on `160/1460`: the next fit session writes the brief; the pass runs in his next
+  Fable drain.
 
 ## Left owed
 
