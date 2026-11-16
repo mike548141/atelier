@@ -4,10 +4,12 @@
 function; one change is to `floor.py`, which every child runs).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-16 UTC — PASS-WITH-FINDINGS (0 MAJOR · 2 MODERATE · 4 minor ·
-2 note), by a Fable 5.1 reviewer under an off-tier orchestrator (provenance in the verdict); act 2
-(reconcile against the held sibling) pending. Brief written 2026-11-09 UTC by session `d16dc612`,
-a headless Opus 5.5 brief-writer; the pass ran under the principal's drain order of 2026-11-16.
+**Status:** PASS RAN 2026-11-16 UTC. Act 1 (verdict, on main at `b3f090c2`) and act 2
+(reconcile) written by a Fable 5.1 reviewer under an off-tier orchestrator and the principal's
+2026-11-16 drain order; sibling and review log folded below by the orchestrator. Overall:
+PASS-WITH-FINDINGS, 0 MAJOR · 2 MODERATE · 4 minor · 2 note; every finding awaits the
+principal's decision (rule 3), nothing applied. Brief written 2026-11-09 UTC by session
+`d16dc612`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1150-rule-4-cold-pass-queued-guard-and-evidence-doctrine-batch.md`
 (barred until phase 2).
@@ -190,7 +192,7 @@ reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-(`2026-11-09-0153-guard-and-evidence-doctrine-batch-cold.deferred.md`), every delta commit's message
+(folded below the verdict, § *Deferred sibling*), every delta commit's message
 body, the queue pointer
 `docs/roadmap/160-doctrine-review-owed/1150-rule-4-cold-pass-queued-guard-and-evidence-doctrine-batch.md`,
 and the intent records beyond their titles:
@@ -483,3 +485,186 @@ deleted at close.
 - [ ] GEB5 — name write-then-rename's home.
 - [ ] GEB6 — one seam for the bidi set, or a ruling that the three may differ.
 - [ ] GEB7, GEB8 — wording.
+
+### Reconcile — act 2 (phase 2), 2026-11-16 UTC
+
+**Opened after act 1 was committed (`f3cc4a98`), on the orchestrator's release message (recorded in
+the review log):** the sibling; the queue pointer; the eight intent records whole; the nine commit
+bodies (`git log -1 --format=%B`); the three prior verdicts in `docs/reviews/` that name any of the
+eight items, read at their matching lines only (`2026-08-09-0823` names `020/350` as the queued
+decision; `2026-08-22-0031` names `320/050` as a proposal then existing; `2026-11-09-0207`, the
+`320/600` pass, lists `320/050` among board items it met by line and did not read). Not opened:
+`docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`; the author's account is complete in
+the bodies and the intent records. No act-1 text is revised.
+
+**The queue pointer's two questions.** *Restates a rule already homed elsewhere:* none of the eight
+does; §17 and §18 each say which neighbouring rule they sit beside and how they differ, and the
+reading holds. The two home defects found are a premise cited to the wrong file (GEB3) and a rule
+placed while naming its home as elsewhere (GEB5). *Does the escape reach every surface that prints
+a child's config:* yes. Both readers of `.atelier-floor.json` pass the parsed document through the
+one seam (`floor.py` `Config.load`; `floorfleet.py` line 1041), and `floorfleet` also runs its
+workflow `ref` and each `floor.yml` line through it (lines 248 and 757). The brief-writer's
+question 1 asked the wider form, child-sourced text of any kind: the pre-commit hook text is read
+and only tested for a substring, never printed; the local-read texts feed `classify`, whose
+state and detail strings are fixed literals; the one child-sourced string printed raw is the
+repo's directory name (and, with `--from-github`, its slug, which the forge restricts to ASCII).
+A directory name is set by the operator, not by the child's content, so it is outside the item's
+scope; recorded here as checked, not as a finding. Tracked text printed by the scanners goes
+through `report.py`'s seam, which is GEB6.
+
+**The brief-writer's question 2** (a child's first honest compliance step): each rule states it.
+§16: capture the fixture and record program, version and date; §17: run the check alone, read it,
+then act; §18: one extra call against a known-present case, printed on the line above. The
+`CONCURRENCY.md` pointer bullet does not say whether it is copied into the child doctrine block;
+the bullet above it says it is not, and the pointer route reaches the child either way.
+
+**Per finding, against the sibling and the author's account:**
+
+- **GEB1 — stands, strengthened.** The intent record (`320/050`) gives the reproduction with its
+  date and count: *"11 of the 15 hook-plane checks render absolute worktree paths and 4 take
+  `--staged`"*, as of the filing on 2026-08-19. The delta dropped the date and the count and wrote
+  "most", in the present tense, six days after `320/600` had inverted the ratio (11 of 16 staged
+  at landing). The commit body repeats the stale shape as a current fact: *"floor reads the
+  worktree, not the staged set"*. The `320/600` pass's own verdict (`2026-11-09-0207`) was in the
+  tree when the sentence was written. Counsel unchanged: date it, cite `320/600`, name the residue.
+- **GEB2 — stands, strengthened.** The intent record said *"⚠️ What is not established:
+  whether the class is mechanisable. Nothing here inspects a session's shell invocations"*. The
+  recommendation hardened "not established" into "(not mechanisable)", and the doctrine states it
+  as fact; the commit body says the same. So the principal approved a one-line summary carrying a
+  claim its own source marked open, which is the rule-3 "informed" condition this finding turns
+  on. The decision (no guard) stands as his answer; the stated ground does not.
+- **GEB3 — stands.** The intent record cites the premise as *"the policy-as-code programme's own
+  premise (directive first, enforced second)"* and, in its closing note, *"GUARDS.md's enforcement
+  premise"*; the delta copied the second attribution. The premise's home is the programme README
+  (his words, 2026-08-09), not `GUARDS.md`.
+- **GEB4 — stands, counsel refined.** The intent record's wording is *"Six instances, four shapes,
+  one evening, three parallel sessions"*, then four numbered shapes plus two run-level members. The
+  delta kept "six instances" and dropped "four shapes". Counsel: restore "in four shapes".
+- **GEB5 — stands.** The phrase is copied from the intent record (*"belongs in whatever governs
+  how tools are written rather than in a scanner"*). A board item may leave a home open; doctrine
+  placed in a file is that file's rule or it is homeless.
+- **GEB6 — stands as filed** (HEAD-state; the two later seams post-date the delta). The intent
+  record `020/350` framed the decision for the floor's seam only; nothing in the account reaches
+  `report.py` or `blockscan.py`.
+- **GEB7 — stands.** Not addressed by any account.
+- **GEB8 — stands.** The phrase *"which none of the others do"* is copied from the intent record's
+  candidate axes.
+
+**Against the author's account generally.** The commit bodies claim nothing the diffs do not show.
+`8a58b882`'s "12 failures on the old seam" was not re-driven (the old seam is gone); its two live
+claims were, and reproduce. `32b18fe5`'s correction of the item's premise (browser-fetch is
+in-estate, not third-party) is right: the item said *"adopted once (browser-fetch, third-party)
+but never built in-estate"* and `instruments/browser-fetch/server.py` is in this repo. The §18
+example in doctrine is genericised from the intent record's named pools and named child, which is
+the right call for a public doctrine file.
+
+**Re-run results against the sibling's (2026-11-09 at `457615cc`):** `test_floor` 187 then, 255
+now; the full suite 2,643 then, 3,134 now, both OK (the tree grew by 66 commits on the delta's
+paths); both planes exit 0 then and now; `floorfleet` 23 rows then and 23 now; children carrying
+the escaped set 0 of 21 then, 0 of 22 configs now; the before-and-after byte comparison the
+brief-writer did not run was run here and is byte-identical.
+
+**No finding formed at reconcile.** The sibling's questions were both answered by act-1 probes
+already run; nothing in the barred records changed a severity.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 4 minor · 2 note.** Every
+finding is the principal's to decide (rule 3); nothing applied.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-16)
+
+The text below is the brief's held-back sibling,
+`2026-11-09-0153-guard-and-evidence-doctrine-batch-cold.deferred.md`, copied verbatim. It was
+removed from the review worktree before the reviewer started, held outside the tree until act 1 was
+committed (locally as `f3cc4a98`, the hash the reviewer's own text cites; it landed on
+main as `b3f090c2` after a rebase onto concurrent work), then released to the reviewer for act 2. The orchestrator forms no finding
+and has not edited it; the sibling file itself is deleted in the fold commit.
+
+# Deferred reading for `2026-11-09-0153-guard-and-evidence-doctrine-batch-cold.md`
+
+Open only after your act-1 findings are committed (`docs/method/REVIEW.md` rule 1). Fold into the
+brief below the reconcile, then delete this file. A floor, never a fence.
+
+## The queue pointer's questions (the author's framing, verbatim)
+
+> whether any addition restates a rule already homed elsewhere; whether escaping in `strip_controls`
+reaches every surface that prints a child's config.
+
+## The brief-writer's questions
+
+1. Which printing surfaces of `floor.py` and `floorfleet.py` carry child-sourced text and do not
+pass through `strip_controls`?
+2. §16–§18 as read by a child: what would a child's first honest compliance step be, and does the
+rule say so?
+
+## What the brief-writer held back
+
+- The changelog carries a measured claim about the fleet (byte-identical report); it is in the
+  re-run list.
+
+## Re-run results (2026-11-09 UTC, at `457615cc`)
+
+`test_floor`: 187 tests, OK, exit 0. `floor.py --plane ci`: exit 0, with 28 `secretscan` advisories
+reported and not blocking. `--plane hook`: exit 0. Full suite under `python3` 3.14: 2,643 tests, OK,
+exit 0, 1,228 s at a load of about 20. `floorfleet --json`: exit 0; 23 rows, 1 parent, 21 wired
+children, 1 absent. Children whose `.atelier-floor.json` carries a bidi override or isolate
+character: 0 of 21. The before-and-after comparison of the fleet report was not run.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log — atelier 160/1150, cold pass on the guard and evidence doctrine batch
+
+Reviewer: Fable 5.1 (claude-fable-5-1), Agent SDK lane on Platform API credit.
+Spawned by a headless orchestrator (Opus 5.5), started by drain session 1e053526 (Opus 5.5).
+Worktree: /Users/mike/worktrees/fable/atelier-160-1150-0632/atelier (detached HEAD 9edde0ad).
+Brief: docs/reviews/2026-11-09-0153-guard-and-evidence-doctrine-batch-cold.md. Prefix GEB.
+Sibling .deferred.md absent from the worktree on purpose (git status shows ` D`); not sought.
+
+## Act 1
+
+- 2026-11-16T06:34Z `date -u` -> Mon Nov 16 06:34:02 UTC 2026. `uptime` load 3.57 3.17 3.57 (16 GB laptop, several reviews live).
+- `git merge-base --is-ancestor 28c67b4a HEAD` exit 0. HEAD 9edde0ad. python3 on PATH = 3.14.6; /usr/bin/python3 = 3.9.6.
+- Read the brief whole (246 lines).
+- Read docs/method/REVIEW.md whole (708 lines) for rules 1-4, the four lenses, V1-V7 and the verdict/method-record shape.
+- `git log --oneline 28c67b4a..HEAD -- <the ten delta paths>` -> 66 commits (brief said 16 at 457615cc). None of them is a delta commit; checked by diffing the delta's sections at HEAD against the landing commit (below).
+- `git show --stat --format='%h %s' <sha>` for each of the nine (subject + stat only, no body): every one touches only delta paths; no board-store or barred file was hidden by the brief's `--path` scoping.
+- Nine `coldsweep.py --root <worktree> --commit <sha> --path ...` reads, exit 0 each, saved to scratch /tmp/geb-1150-scratch/c1..c9 and read whole. Each printed "message body not printed", 0 board-store files, 0 rule-2 barred files. Per-commit: 8a58b882 floor.py+test_floor.py (BIDI_CHARS_RE, strip_controls escapes to <U+XXXX>, 5 new tests); 9f5736cb EVIDENCE §16; 6643d5ec EVIDENCE §17 + CONCURRENCY bullet; 23b8570f EVIDENCE §18; 79db6ed9 DATA-PROTECTION new section; 9d652f4b GUARDS "Choosing between them"; 7688af74 GUARDS "Declare the threat model"; 32b18fe5 MECHANISMS.md new + README.md + method/README.md item 17; 28c67b4a CHANGELOG Added block.
+- Candidate (from reading 7688af74): GUARDS "Declare the threat model" says "Six instances in one evening across three parallel sessions ... :" then lists four bullets. Check at HEAD before forming.
+- Candidate (from reading 32b18fe5 vs 6643d5ec): MECHANISMS axis 4 "A scanner runs near-free on every commit once built" vs EVIDENCE §17 instance 4 "staged in the minutes the slow floor took". Weigh as V5.
+- Decision: /security-review NOT RUN. The worktree's pending diff is the deliberate deletion of the brief's .deferred.md sibling (git status ` D`); a pending-diff scanner would print the deleted sibling's content into my context before act 1 is written (REVIEW.md lens 4, SL2 caution). Discharged by grounds; floor.py diff weighed by hand instead.
+- Delta sections at HEAD: `git diff 28c67b4a HEAD -- <doc paths>` touches EVIDENCE.md only outside §16-18 (§3 pointer, §15 grounding de-named, bearing line de-named); GUARDS.md additions (lines 81-150 at HEAD) byte-for-byte the landing text; DATA-PROTECTION.md and MECHANISMS.md unchanged since landing. EVIDENCE headings at HEAD: §1-§18 contiguous, §16-18 are the delta.
+- Cross-refs reached (V5): CONCURRENCY.md line 296 "Verify the act, not the absence of an error" is the bullet directly above the delta's line-320 bullet -> "mirror of the bullet above" holds. EVIDENCE §14 (instrument must not lie), §15 (test cannot falsify its own code), §1 (provenance) all hold the rules DATA-PROTECTION/§16 cite. COMMUNICATION.md:111 "The reply plane is UNWIRED (Mike, 2026-08-15)" holds MECHANISMS' axis-1 remedy example. ECONOMICS.md:412 "Heavy skills are episodic costs" holds axis 4. docs/decisions/0006-instruments-in-atelier.md exists. commands/ exists (4 entries). instruments/browser-fetch/server.py line 3: "MCP server ... built on the official mcp SDK (FastMCP, stdio)"; setup line 11 creates a venv -> MECHANISMS table row and axis-4 claim hold. GUARDS "directive first, enforced second": grep found no such phrase in GUARDS.md (check PRINCIPLES/other home later).
+- Board titles cited by the delta (not barred, titles only): 180/010 "the plugin was never installed so the hand-carried prompt never stopped" (matches MECHANISMS); 020/220 "the census nobody has run: which rules have a..." (matches §17 "the kind 020/220 exists to count"); 115/120 "every guard declares the purpose it answers to" (matches GUARDS 320/050 "registry slot of 115/120"); 020/460 cites MECHANISMS.md (a later item pointing at the delta).
+- Mirror sites (V3): MECHANISMS.md listed in README.md:73, docs/method/README.md:91 (item 17), CHANGELOG. docs/build/REPO-STANDARD.md and PRINCIPLES.md reference GUARDS.md by rule, not as an index of method docs -> no stale index found. PRINCIPLES §6 sweep surface list = docs/, skills/, commands/, docs/build/templates/, inlined floor blocks. Grep of skills/ and docs/build for "control character|bidi|strip_controls": none. tools/floorfleet.py comments (lines 237, 748) say "floor.strip_controls drops the C0 range wholesale" — still true; they do not claim C0 is the whole behaviour. tools/README.md:2277 says another tool prints "heading text and map paths ... with control and bidi characters escaped" -> check for a second bidi set (V4) below.
+- `nice -n 10 python3 -m unittest discover -s "<worktree>/tools" -p test_floor.py` (PATH python3 3.14.6; equivalent to the brief's `cd tools && python3 -m unittest test_floor`, written without a persisting cd): exit 0, "Ran 255 tests in 248.385s OK". A fixture printed "board: docs/ROADMAP.md rebuilt (13 lines)" (a temp dir); worktree git status unchanged afterwards (only the sibling's ` D`).
+- Hook-plane registry claim (GUARDS 320/050 bullet 2, "reproduced here by reading tools/floor.py's registry: most hook-plane checks render absolute worktree paths"): `git show 28c67b4a:tools/floor.py` (file content only) -> 16 `hook=[` templates, 11 carry `--staged`; at HEAD 19 templates, 12 with `--staged`. `git log --format='%h %ad %s' -S'320/600' -- tools/floor.py` -> 7673da13 and 38bdcb1b, both 2026-11-03, "read the staged index at the hook, not the disk (320/600)". So on 2026-11-09, when the sentence was written as present-tense doctrine, most hook-plane checks read the index, not the worktree. CANDIDATE GEB finding (V1/V2/V5).
+- Candidate: GUARDS 320/050 "Six instances ... :" followed by four bullets (V1, minor).
+- Child configs, read-only count via /usr/bin/python3 -I helper over the estate's sibling clones: 22 `.atelier-floor.json` found, 0 carry any of U+202A-202E/U+2066-2069, 0 carry zero-width/marks, 0 carry C0/C1; 44 workflow/pins files, 0 carry the bidi set. Supports the changelog's "No local child's config carries any".
+- Fleet report byte comparison (re-drives the changelog's "byte-identical before and after"): copied tools/ to scratch, replaced BIDI_CHARS_RE in the copy with a never-matching pattern, ran `floorfleet.py --atelier <worktree> --root <estate parent dir> --json` from the copy and from the worktree (read-only; local file reads), both exit 0, `cmp` -> byte-identical, 24867 bytes each; JSON read back: 23 children, 0 unenrolled. Scratch copy and JSON deleted at close.
+- `nice -n 10 python3 tools/floor.py --plane ci --root <worktree>` exit 0 (advisory and report-only findings printed, nothing blocked; "declarations: 21 checks, 0 meet all five" is the 115/120 step-0 report, not the delta). Load at start 9.17.
+- `nice -n 10 python3 tools/floor.py --plane hook --root <worktree>` exit 0, nothing blocked. Load at start 10.46 (several reviews live).
+- V4 probe: `grep -n -i '202a|2066|bidi' tools/*.py` -> three homes for the bidi set: floor.py BIDI_CHARS_RE (escape `<U+XXXX>`, joiners left), tools/blockscan.py:883 `_UNSAFE_RX` (escape `\xNN`/`\uNNNN`, INCLUDES U+200B-200F, U+2060-2064, U+FEFF), tools/report.py:104 `_MESSAGE_CONTROL_RX` (DROPS the bidi set silently; `safe_text` drops all Cf). `git log -S'u2066' --format='%h %ad %s'` -> f62b5c45 (160/730) and 09940dfa (160/430), both 2026-11-09; `merge-base --is-ancestor` shows both are AFTER the delta's landing 28c67b4a. So not something the delta ignored; drift from the 020/350 pick after it. Candidate minor, labelled HEAD-state.
+- Config.load error path (floor.py 2076-2092): a JSON error raises ConfigError with the decoder's message (position only); the collapse refusal carries the stripped key repr. No raw child text reaches the terminal before the seam. Sound.
+- `grep -rn -i 'directive first' docs README.md skills` (excluding barred stores): the premise lives at docs/roadmap/020-.../README.md:285 "### All doctrine directive first, enforced second (Mike, 2026-08-09)"; GUARDS.md has no such statement (its two "directive" uses, lines 158 and 172, are the evidence-window section landed later). MECHANISMS.md:32 cites GUARDS.md for it. Candidate GEB (V5 dangling by rule).
+- `grep -rn -i 'rename' tools/README.md docs/build docs/method`: write-then-rename appears only in the delta's DATA-PROTECTION paragraph, which says it "belongs in whatever governs how a tool is written". No such home exists. Candidate minor.
+- EVIDENCE §17 "nothing inspects a session's shell invocations" vs MECHANISMS table "Hook | PreToolUse, Stop and kin | Intercepts a tool call or turn, unasked" and board 020/460 (title: Claude Code session hooks as a house enforcement plane). A PreToolUse hook receives the shell command before it runs. Candidate GEB (V5 within the delta; lens 1 premise).
+- Board 020/460 title read by `ls` only.
+- Full suite started in the background at load ~10: `nice -n 10 python3 -m unittest discover -s <worktree>/tools` -> scratch discover.out; result recorded below when it ends.
+- 06:50Z act 1 appended to the brief below `---` (provenance, assumptions table A1-A7, four lenses, V1-V7, per-commit ledger, GEB1-GEB8, overall PASS-WITH-FINDINGS 0/2/4/2, re-run ledger with one placeholder for the running full suite, follow-ups). Status line updated (never "fold-in owed").
+- Checked docs/build/templates/CLAUDE.md for a method-doc index: it carries pointers to PROPAGATION/ECONOMICS/TOOLBOX/CONCURRENCY/REVIEW only, no enumerated list -> no V3 miss for MECHANISMS.md.
+- Brief max line length 245 pre-verdict (code blocks and long paths); my prose kept at <= 100.
+- Full suite: `nice -n 10 python3 -m unittest discover -s <worktree>/tools` exit 0, "Ran 3134 tests in 896.296s OK" (load peaked 16.8 during the run with other reviews live; eased to 2.8 at its end). Placeholder in the re-run ledger filled.
+- Scanners over the brief: datescan exit 0 clean (485 lines read); linkscan exit 0 (no internal links in the brief); spellscan and wrapscan skip docs/reviews by the repo's ignore files ("scanned nothing"), so both were re-run on a scratch copy of the brief outside that ignore: spellscan clean (485 lines), wrapscan `--limit 100` clean. awk width check: no prose line in the verdict over 100 columns after one rewrap (V5 bullet).
+- No allow markers added. No file written other than the brief and this log. Scratch directory /tmp/geb-1150-scratch (commit diffs, test outputs, fleet JSON, patched tools copy, brief copy) deleted at the end of act 1.
+- Act 1 handed back for commit; act 2 (reconcile) waits for the orchestrator's release message.
+
+## Act 2
+
+- Release message from the orchestrator, verbatim: "Act 1 is committed (f3cc4a98, brief file only, unrevised). Act 2 is now released. You may now read this one held file, the brief's deferred sibling: "/Users/mike/.claude/fable-held/atelier--2026-11-09-0153-guard-and-evidence-doctrine-batch-cold.deferred.md". Then do the brief's Phase 2: open the barred records it lists (rule 2 lifts now), screen the nine delta commits' message bodies, and append `### Reconcile` beneath your verdict in the brief: per-finding notes against the sibling's questions and the author's account, any finding formed at reconcile marked as such, and the overall line restated. Never revise act-1 text. Update the Status line (never "fold-in owed"). Do NOT fold or delete the sibling yourself: the orchestrator folds it. Append your act-2 steps to the same review log. Same rules as before: write only the brief and the log, no git writes, niced single-process tests, public repo (no private names, paths, secrets), run datescan/linkscan over the brief before finishing. End with "ACT 2 SAVED"." It carried no question about the delta and no pointer to where the risk lives.
+- Read the sibling whole (pointer-block questions, 2 brief-writer questions, 1 held fact, re-run results at 457615cc).
+- `git log -1 --format='%s%n%n%b' <sha>` for the nine delta commits: bodies read. 7688af74's body restates "floor reads the worktree, not the staged set"; 6643d5ec's body states "not mechanisable".
+- Read the queue pointer whole and the eight intent records whole. Key lines: 320/050 "11 of the 15 hook-plane checks render absolute worktree paths and 4 take --staged" (filed 2026-08-19) and "Six instances, four shapes"; 320/390 "What is not established: whether the class is mechanisable"; 370/010 "belongs in whatever governs how tools are written"; 400/010 "which none of the others do", "browser-fetch, third-party ... never built in-estate"; 380/010 example used named pools (genericised in the delta).
+- `grep -ln` of the eight item ids over docs/reviews/*.md -> three prior verdicts; read at the matching lines only (0823:421, 0031:114/117/190, 0207:272-284). None bears on a finding.
+- Q1 probe: floorfleet.py `_read_local` (384-391) feeds classify; state/detail literals at 826-828; hook text (707) substring-tested only; `name=repo.name` (1065) printed raw in render (directory name / GitHub slug, not config text). floor.py `_heading_set` (3115) is the blockscan map check; headings are compared, not printed by floor.py.
+- Appended `### Reconcile` beneath the verdict; act-1 text untouched. Status line updated to VERDICT COMPLETE. No finding formed at reconcile; overall restated 0/2/4/2.
+- Not opened in act 2: docs/SESSIONS.md, docs/sessions/, docs/ROADMAP-DONE.md.
+- Final: datescan and linkscan exit 0 over the brief after two rewraps in the reconcile; spellscan and wrapscan --limit 100 clean on a scratch copy; scratch deleted. Act 2 handed back; the sibling is left for the orchestrator to fold.
