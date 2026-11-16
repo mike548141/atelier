@@ -15,3 +15,9 @@
       directive-only · unenforceable, accepted** — the last reasoned and
       dated to the `GUARDS.md` bar. An unenforceable rule is a lawful
       outcome; an *unexamined* one is the defect.
+      - 🔀 Tidied 2026-11-16 (C0499, verified high; Mike approved 2026-11-16):
+        not an ask of Mike. A census of which rules have a forcing function
+        (lines 1-4) is agent work in atelier; the item asks him nothing. Nothing
+        above was changed; the original text is as it was. To revert: delete
+        this line (its commit is listed in
+        `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
