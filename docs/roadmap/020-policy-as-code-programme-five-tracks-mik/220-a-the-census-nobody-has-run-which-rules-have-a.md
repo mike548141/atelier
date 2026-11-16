@@ -25,5 +25,23 @@
         because this ask is not Mike's (tidy line above). Original: that line
         began `- [ ] 🎯`. To revert: git revert this repo's marker commit (listed
         in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      - 2026-11-16, slice 1 done (queue run 78ca): `RECORD.md`, `REVIEW.md`
+        and `CONCURRENCY.md` censused rule by rule in
+        `docs/method/census/2026-11-16-1142-record-review-concurrency.md`.
+        158 rules: 19 enforced (11 of them partial), 133 directive-only (35
+        with a breach visible in the diff), 6 unenforceable and accepted. The
+        file ranks five diff-visible guard candidates for `020/240`. The
+        `115/110` map has no file of its own, so `00-APEX.md` and
+        `AUTONOMY.md` are owed a written census too. Remaining in
+        `docs/method/`: `ACCESS`, `COMMUNICATION`, `CONVENTIONS`,
+        `DATA-PROTECTION`, `DOCUMENTATION`, `ECONOMICS`, `EVIDENCE`,
+        `GLOSSARY`, `GUARDS`, `MECHANISMS`, `PRINCIPLES`, `PROPAGATION`,
+        `REACH`, `SECRETS`, `SIGNING`, `STORAGE`, `TOOLBOX` and
+        `docs/method/session-open/`; then the doctrine outside
+        `docs/method/` (build docs, ADRs, skills, commands, templates,
+        validators). One doctrine defect
+        found and not fixed here: `EVIDENCE.md` §17 says nothing inspects a
+        session's shell commands, and `tools/modelguard.py` does (census row
+        CON21); it is owed its own board item.
       🔒 CLAIMED 2026-11-16T11:40Z (claimed 2026-11-16-1140, wt: qr-78ca-census) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
