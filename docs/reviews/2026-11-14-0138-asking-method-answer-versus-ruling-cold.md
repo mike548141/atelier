@@ -1,8 +1,9 @@
 # Cold pass — the principal's method for asking, and an answer is not a ruling
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1250-rule-4-cold-pass-queued-asking-method-and-answer-versus-ruling.md`
-**Status:** ACT 1 WRITTEN 2026-11-16 UTC, PASS-WITH-FINDINGS (0 MAJOR, 3 MODERATE, 3 minor,
-4 notes); act 2 (reconcile and fold) pending. Brief written 2026-11-14 UTC by a headless Opus 5.5
+**Status:** VERDICT COMPLETE 2026-11-16 UTC, PASS-WITH-FINDINGS (0 MAJOR, 3 MODERATE, 3 minor,
+6 notes, two of them formed at reconcile); act 1 committed `44743bd1`, act 2 reconciled; the
+sibling is folded below. Findings await the principal (rule 3). Brief written 2026-11-14 UTC by a headless Opus 5.5
 brief-writer (`cclive` lists it as session `43c70bbb`). Run under the principal's drain order of
 2026-11-16.
 
@@ -221,9 +222,9 @@ cheapest read-only route and say which you could not re-run and why.
 <!-- reviewscan:allow:deferral: this section BARS reading and carries no deferred content; the deferred material lives in the sibling .deferred.md under the rule-1 split, opened only after the reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
-verdict in `docs/reviews/`, this brief's sibling
-`docs/reviews/2026-11-14-0138-asking-method-answer-versus-ruling-cold.deferred.md` (a held-back
-file; by count: 14 questions, 7 facts), every item under `docs/roadmap/160-doctrine-review-owed/`
+verdict in `docs/reviews/`, this brief's sibling (a held-back file, folded below the verdict at
+the pass's close under *Deferred sibling, folded below the verdict*; by count: 14 questions,
+7 facts), every item under `docs/roadmap/160-doctrine-review-owed/`
 beyond its title, every commit's message body, and these records beyond the `sed` ranges in *The
 acceptance test*:
 
@@ -553,3 +554,297 @@ matches the commit stat. Both long quotes match their sources by script.
 - [ ] AQ5: the author names what the four-per-box sentence rests on, at act 2.
 - [ ] `160/1440` takes the template's "one extra turn" with its own subject (named under AQ1).
 - [ ] Act 2: open the sibling and the barred records; reconcile per finding; fold.
+
+### Reconcile (act 2, 2026-11-16 UTC)
+
+Opened after act 1 was committed as `44743bd1`: the sibling (14 questions, 7 facts), `320/820`
+line 98 onward, `420/020` line 33 onward, `420/010`, `420/030`, `420/040`, `020/270` line 4
+onward, the `160/1250` pointer whole, and both commit bodies (`e7370f78`'s is the subject and a
+trailer only; `2a6d7a41`'s names its seven answers and queues `160/1440`). No prior verdict was
+needed. Act-1 text above is unrevised.
+
+**Against the pointer's questions (sibling 1–2).** Q1 is answered by AQ3–AQ5 and AQ7: the
+bullets' grounding is labelled honestly except the four-per-box example, and the founding quote
+is a fragment. Q2: `e7370f78`'s typed-replies sentence was honest when it landed ("not settled
+here"), and the author's `420/020` 🤔 sub-bullet said the same ("left open … his to say"). After
+his 2026-11-12 pick nothing in the delta still says it is open: `CHANGELOG.md` names only the
+sweep and the guard as open, `RECORD.md` says nothing of it, and `420/020` carries the 💬 entry.
+`420/030` still lists it "as unsettled" in a list marked asked and answered, which is history,
+not a live claim.
+
+**Per finding, against the brief-writer's questions and the author's account.**
+
+- **AQ1 (template, glossary).** Sibling Q9 asks the same. The author's landing notes say nothing
+  of the template, and `2a6d7a41`'s body lists the template among the surfaces it touched for
+  `cclive`, not for the ask rule, so the mirror was not swept by either commit. Q14 and
+  `320/820`'s landing note settle the turn question's history: between 2026-11-09 and 11-12 the
+  tree agreed with itself (section and template both said the message ends its turn, after his
+  "Always, as two steps" pick); the contradiction arrived with `2a6d7a41`, which is why it is
+  `160/1440`'s and not rated here. AQ1 stands as written.
+- **AQ2 (consequence undefined).** Sibling Q5 asks whether "work proceeds on it" grants weight
+  he did not give or rightly stops an answer being ignored. Both: it is the author's sentence,
+  not his, and it is the right sentence as far as it goes, since `420/010` shows answers driving
+  work the same day. What AQ2 records is that it is the only sentence about consequence. The
+  author's account adds nothing on this. Stands.
+- **AQ3 (trimmed quote).** Not asked by the sibling; the author's landing note says the section
+  "carries his written method verbatim", which is true of the four lines and silent on the
+  dropped opening. Stands.
+- **AQ4 (count).** The author's `420/020` part (b) note counted "about 14 of 33 ⚖️ board lines
+  concern a ruling or answer" by keyword, then wrote "one typed reply stands marked ⚖️" twice
+  (the 🤔 sub-bullet and the 2026-11-12 entry). Sibling fact 5 gives the same 14-of-33. The
+  keyword count already said more than one such line existed; the doctrine sentence took the one
+  example the author had in hand as the count. Stands.
+- **AQ5 (four per box).** The author's account is `320/820` line 100 and `420/030` ("This round
+  asked up to four per box"): an observation of the 2026-11-09 round, made by the author, as act
+  1 inferred. The counsel narrows: `420/030` is a board record in the tree, so the sentence can
+  cite it. Sibling Q10 asks whether the dated incident belongs in a practice bullet and whether
+  "ruling round" is itself the conflation: see AQ12 below. Stands, minor.
+- **AQ6 (second definition; surface scope).** Sibling Q8 asks what mark a session's own weighed
+  note carries after the delta. The ADR answers it ("a session's own call carries neither") and
+  the delta does not, which is the second-home problem AQ6 records from the other side. Sibling
+  Q7's sweep, re-run here: no doctrine line landed after 2026-11-09 calls a pick "ruled" (the two
+  hits are the delta's own sentence and his verbatim "as I've ruled" in `420/040`), so the rule is
+  kept in the doctrine that states it. Stands.
+- **AQ7–AQ10 (notes).** Q6 (title) is AQ10: the one acknowledging sentence is enough for a
+  reader who reaches it, and the title is a sweep matter. Q13 (home of the term check) is AQ8;
+  on V4, "The box makes sense on its own" points at the check and does not copy it, so one home
+  holds. Q11 (privacy): the author's records name session ids and a harness, the delta names
+  neither; lens 4 holds. Q12 (the channel): § *Talk first* gives the means, asking the owner of
+  work you meet, and no method for discovering an answer given elsewhere beyond that; the
+  pointer is to a means, as act 1 read it, and the duty is satisfiable by asking peers. Q4 (the
+  "rests on its own grounds" sentence): true at HEAD, as A4 found; the nineteen same-turn asks
+  are evidence for same-turn text, and the bullet rightly declines to claim them either way.
+- **Sibling facts.** Fact 2 corrects the brief's "three files": the commit also touched
+  `docs/ROADMAP.md` and four board items, which `coldsweep --commit` left out by default. All
+  markdown; the `CHANGELOG.md` line "no scanner or tool changes" holds and fact 6 confirms no
+  test names the file. Facts 1, 4 and 5 match act 1's re-runs and counts. Fact 7: `160/1440` has
+  no brief, so AQ1's template-turn note is the first written record of that contradiction beside
+  `420/040`.
+
+**Findings formed at reconcile, marked as such.**
+
+**AQ11 — note, formed at reconcile (sibling Q3, V1). "One was built on 2026-08-09 and deleted
+the same day" names a scanner where the record names a rule.** The `020` README § P5 says the
+unintroduced-term *rule* (P5, one check inside `plainscan`) was written, measured and deleted
+that day; `plainscan` itself lived from 2026-08-09 to 2026-09-18 (`f1d5b5e9`), and the
+2026-08-09 commit's tools diff holds no P5 code, consistent with the rule never being committed.
+"No scanner holds this. One was built …" reads as a whole scanner tried and dropped;
+`CHANGELOG.md`'s "A scanner for this was measured and rejected" says the same. The measurement
+and its date are right; what was tried is slightly overstated.
+*Counsel:* "a rule for it was built inside the prose scanner of the day".
+
+**AQ12 — note, formed at reconcile (sibling Q10, V5). The section calls the 2026-11-09 round a
+"ruling round" in the paragraph that says what it produced were answers.** The round's own
+records mark its outcomes 💬 "an answer, not a ruling" (about forty lines), and `420/030` carries
+the same name. It is house vocabulary (31 hits across the tree) and no reader will mistake the
+label for a classification, so a note only; the sweep in part (c) is the place to decide whether
+the phrase keeps its name.
+
+**Overall, restated.** **PASS-WITH-FINDINGS — 0 MAJOR, 3 MODERATE (AQ1–AQ3), 3 minor
+(AQ4–AQ6), 6 notes (AQ7–AQ12, the last two formed at reconcile).** Nothing in the sibling or the
+author's account moves a severity. Every finding is the principal's to decide (rule 3); nothing
+applied.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-16)
+
+The text below is the brief's `.deferred.md` sibling, verbatim, as the brief-writer wrote it. The
+orchestrator (session `d9ce3020`, off-tier, forms no finding) held it outside the tree while the
+pass ran, released it to the reviewer only after act 1 was committed (`44743bd1`), and folds it
+here at the close so the questions and facts the reconcile answers sit beside it. Nothing in it is
+a finding; the verdict and reconcile above are the reviewer's.
+
+# Held back — the principal's method for asking, and an answer is not a ruling
+
+Opened only once the reviewer's own findings are durably written (`REVIEW.md` rule 1). A floor,
+never a fence. Written by the brief-writer (`cclive` lists it as session `43c70bbb`), which did not
+author the delta. Nothing here is a finding: these are questions, and facts read off the machine.
+
+## The pointer's own questions
+
+1. Does any bullet claim more than its grounding?
+2. Is the sentence on words he types in reply to a question honest about what is unsettled? Since
+   queued, `2a6d7a41` replaced that sentence on his 2026-11-12 pick. Was `e7370f78`'s version honest
+   when it landed, and does anything else the delta wrote (`CHANGELOG.md`, `RECORD.md`, the open 🤔
+   sub-bullet in `420/020`) still say the question is open?
+
+## The brief-writer's questions
+
+3. "One was built on 2026-08-09 and deleted the same day." `git log` shows a scanner scoped on
+   2026-08-10 and removed on 2026-09-18 (fact 3). Was it the P5 rule inside that scanner, not the
+   scanner, that was built and deleted the same day? If so, does the sentence misstate what was
+   tried?
+4. The "Written to him" bullet ends: "so the two-step rule above rests on its own grounds". At HEAD
+   the rule above is text then device in the same turn, and the bullet's own nineteen same-turn
+   asks now read as support for it. Does the sentence still say something true?
+5. "Work proceeds on it, because it is his decision on what was asked" is not in his words. Does it
+   give an answer weight he did not grant, or rightly stop an answer being ignored? Does it sit
+   with the apex's "rulings conditioned on being informed"?
+6. The section's title, *Asking for a ruling*, and the apex's "governance ruling" use the word the
+   new distinction reserves for his own words. One sentence acknowledges it. Is that enough, or is
+   it a contradiction every reader meets before the definition (V5)?
+7. "A pick is never written as 'ruled'." Sweep `docs/method/` for lines landed after 2026-11-09 that
+   still call a pick a ruling. Is the rule followed in the doctrine that states it?
+8. ⚖️ "also tag[s] a session's own weighed note" in older lines. After this delta, what mark does a
+   session's own weighed note carry? If none, will the old use keep growing?
+9. The child template's asking bullet (`docs/build/templates/CLAUDE.md`, lines 48–61 at
+   2026-11-14) carries neither one question at a time nor the answer/ruling marks, and still says
+   "(one extra turn)". Was the template a mirror site this delta owed (V3), or `160/1440`'s ground,
+   or neither because it only points?
+10. "The ruling round of 2026-11-09 still asked up to four per box" is a dated incident inside a
+    practice bullet. Is a practice bullet its right home, and is calling it a "ruling round" an
+    instance of the conflation the same section forbids?
+11. Privacy: "One session, 2026-11-06 to 11-08", the four quoted replies, and "nineteen asks" come
+    from one child's transcript. Does any of it let a reader with access to the estate pick out
+    which child or session, against the hand-up's class-only filing?
+12. "Check parallel sessions before asking, by `CONCURRENCY.md` § *The channel*". Does that section
+    give a session a way to find out that he has already answered the same question in another
+    session? Or is the pointer a name for a duty with no method?
+13. The unmet-term check sits in § *The axes a calibration covers*, a list of what calibration
+    covers. Is a writing-time rule at home there, and is it one home with "The box makes sense on
+    its own", which cites it (V4)?
+14. The hand-up's part 3 (whether "completed message" means "end the turn") got "no rewording" in
+    the landing note. The 2026-11-12 change then reversed the reading. Did leaving part 3 alone
+    leave a contradiction in the tree between 2026-11-09 and 2026-11-12, and is any of it still
+    there?
+
+## Facts read off the machine (2026-11-14 UTC, from the worktree root)
+
+1. Re-run lines: `git merge-base --is-ancestor e7370f78 HEAD` exit 0; `coldsweep --selftest` exit
+   0; `coldsweep --commit e7370f78` exit 0, 180 lines; `coldsweep --commit 2a6d7a41 --path
+   docs/method/COMMUNICATION.md` exit 0, 69 lines; `floor.py --plane ci --root .` exit 0, 34.7 s
+   wall clock under `nice -n 10`, Python 3.14.6. The acceptance lines: `grep -c` prints 1; the
+   2026-10-03 quote is present within lines 1–32 (wrapped across lines, so a one-line `grep -o` of
+   the whole sentence misses it); the option label is present.
+2. `e7370f78`'s stat: `CHANGELOG.md`, `docs/ROADMAP.md`, `docs/method/COMMUNICATION.md`,
+   `docs/method/RECORD.md` and four board item files. Markdown only.
+3. `git log -- docs/method/COMMUNICATION.md` lists `e390382a` (2026-08-10, subject begins
+   "plainscan: scope the repo plane") and `f1d5b5e9` (2026-09-18, subject "merge: plainscan removed
+   on Mike's ruling; engine archived (020/360)").
+4. The `020` section README's P5 account: "90.6% of 6,764 replies fired", 23,857 findings, with a
+   three-row table of fixes (90.7%, 90.7%, 90.6%).
+5. ⚖️ appears in 28 files under `docs/roadmap/` and in none of `docs/ROADMAP.md`'s lines. The
+   author's landing note in `420/020` gives "about 14 of 33 ⚖️ board lines", by a keyword count.
+6. No file matching `tools/test_*.py` or `instruments/*.test.js` names `COMMUNICATION`.
+7. Neighbouring passes: `160/1210` (the two-step rule as `0ba1ba03` wrote it) has an unrun brief,
+   `docs/reviews/2026-11-09-0238-estate-root-reader-side-two-steps-cold.md`; `160/1440` (the
+   2026-11-12 answers, `2a6d7a41`) had no brief in `docs/reviews/` when this was written.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log — atelier 160/1250 (rule-4 cold pass: asking method; answer vs ruling)
+
+Reviewer: Fable 5.1 (claude-fable-5-1). Worktree:
+`/Users/mike/worktrees/fable/atelier-160-1250-0545/atelier`. Spawned by headless orchestrator
+session `d9ce3020` (Opus 5.5), itself started by drain session `1e053526` (Opus 5.5); both off-tier,
+hold the context partition, form no finding. API-credit drain, 2026-11-16.
+
+All commands run from the worktree root with absolute paths. `python3` on PATH used for re-run
+lines; version recorded below. Barred reads honoured: no session logs, no prior verdicts, no commit
+bodies, no sibling, item text beyond stated ranges.
+
+## Act 1 log
+
+- 05:46 UTC `uptime`: load 5.90 5.78 4.91. `date -u`: 2026-11-16 05:46:53 UTC. Tree: only the
+  sibling `.deferred.md` shows deleted (partition). HEAD 73f1cc9a.
+- Read the brief whole (271 lines).
+- Read `docs/method/REVIEW.md` lines 25-300 (rules 1-4), 300-330 (scope/lenses), 394-470 (re-run,
+  V1-V7).
+- Re-run lines 1-3, from worktree root, `python3` = /Library/Frameworks/Python.framework/Versions/3.14/bin/python3 (3.14.6):
+  `git merge-base --is-ancestor e7370f78 HEAD` exit 0; `coldsweep --selftest` exit 0 ("selftest OK");
+  `coldsweep --root . --commit e7370f78 > /dev/null` exit 0.
+- Read the delta body-free: `python3 tools/coldsweep.py --root . --commit e7370f78` (3 files, +115/-7;
+  5 board files left out by default, not read via --path).
+- Read `2a6d7a41` body-free with `--path docs/method/COMMUNICATION.md` (21/21 lines; the two rewrites
+  the brief names: same-turn two-step; typed replies are answers).
+- Acceptance test: `grep -c 'ask one question at a time'` on 320/820 -> 1; `grep -o '"Answer unless I
+  say ruling (Recommended)"'` on 420/020 -> matched, exit 0; `sed -n '1,32p'` 420/020 read; `sed -n
+  '1,3p'` 020/270 read; `sed -n '1,97p'` 320/820 read. Nothing beyond those ranges opened.
+- Read at HEAD: `docs/method/COMMUNICATION.md` 1-33 (practice/instance split), 55-76 (language axis
+  with the unmet-term check), 86-110 (meta-rules; checkable defects list), 214-303 (§ Asking for a
+  ruling up to the delta's part), 304-388 via the two diffs. `docs/method/RECORD.md` 335-362.
+  `docs/method/00-APEX.md` 68-108 (§ authority absolute / rulings conditioned).
+  `docs/build/templates/CLAUDE.md` 46-62 (the asking bullet). `skills/session-onramp/SKILL.md`
+  grep for ask/ruling/answer/device: nothing on asking. `docs/method/GLOSSARY.md` entry list and
+  47-52: no entry for ruling or answer. `docs/PERSONAL-DATA.md` whole (PD1-PD4).
+  `docs/method/CONCURRENCY.md` 564-582 (§ The channel exists at 564; holds the talk-while-working
+  mechanism). `docs/method/PROPAGATION.md` § Pointing up exists at 475.
+- Grounding of the 90.6% claim: `docs/roadmap/020-.../README.md` 390-427 and 420-445 (P5 built,
+  measured, rejected 2026-08-09; 90.6% of 6,764; "Why no fix exists"). `git log` subjects on
+  `tools/` 2026-08-08..11: b879b021 "plainscan: P5 built, measured, rejected" 2026-08-09; its
+  `--stat` and `git show --format= b879b021 -- tools/` (no body) show only a test-isolation change
+  in tools, no P5 code: consistent with the rule deleted before commit. The measurement itself
+  cannot be re-run (the reply corpus is not in the repo): NOT RE-RUN beyond the record.
+- Item titles (file names only) for 310/080, 320/510, 115/270, 420/040, 420/010, 160/270,
+  160/1210, 160/1440 via `ls`. `115/270` lines 38-50: line 42 is a ⚖️ line on a typed free-text
+  reply to a two-option question, as the delta says.
+- Brief's coldsweep sweep run verbatim (173 hits over 674 files; 730 excluded). Saved by the
+  harness to a tool-results file, read with grep. Found: ~40 board lines of the shape "💬 Mike's
+  answer, 2026-11-09 (to options queue run ... offered; an answer, not a ruling ...)" (claim
+  holds); older ⚖️ lines tagging a session's own weighed note (e.g. GUARDS.md:72, 010/110:23;
+  claim holds); and four ⚖️ lines recording typed replies to a session's question, all dated
+  2026-11-09: 310/060:79, 310/160:11, 320/060:63, 320/100:92. Also the ADR
+  `docs/decisions/2026-11-09-board-states-design.md` lines 90 and 236 (defines the marks; counts
+  ⚖️ 44 · 💬 66), and `skills/fleet-sweep/*prompt.md` carrying the answer/💬 rule.
+- Dated the four ⚖️ lines by `git log --format='%h %ci %s' -S'⚖️ **Mike' -- <file>` (subjects
+  only): 7d5e2f7b 2026-11-09 13:46 +1300 and 56e45a3b 2026-11-09 16:17 +1300; the delta e7370f78 is
+  2026-11-10 01:56 +1300. So all four predate the delta.
+- Second sweep `'ruling round|four per box|up to four'` with the brief's excludes EXCEPT the
+  hand-up file (my omission): it printed one barred line, 320/820 line 100 (the author's landing
+  note: "round asked up to four questions per box, against the method this item records").
+  Exposure disclosed in the verdict; it changed no finding (AQ5 was formed on lines 1-97 and the
+  doctrine text, which hold no evidence for the sentence).
+- Mechanical quote compare (python, whitespace-normalised): the four-line list in COMMUNICATION.md
+  == hand-up lines; the 2026-10-03 quote in COMMUNICATION.md == 420/020 lines 5-12. Both True.
+- Floor: `uptime` load 3.38 before; `nice -n 10 python3 tools/floor.py --plane ci --root .` exit 0
+  (secretscan 🟡 28 advisory, leakscan 🟡 3 advisory, all enforced checks ✅). Capture deleted.
+- `fleet-sweep` prompt lines dated 4bfb4e16 2026-11-14 (after the delta and after 2a6d7a41).
+- Not read: session logs, docs/sessions, docs/reviews verdicts, the sibling, 160/ items beyond
+  titles, 420/ beyond 420/020 lines 1-32, 320/820 beyond line 97 (except the one line above),
+  020/270 beyond line 3, any commit body. `/security-review` not invoked (no code in the delta).
+
+## Candidate findings (act 1)
+
+- AQ1 MODERATE V3: `docs/build/templates/CLAUDE.md` 48-61 asking bullet carries neither "one
+  question at a time" nor answer-vs-ruling; GLOSSARY.md has no ruling/answer entry.
+- AQ2 MODERATE lens 1: split defined by provenance, not consequence; RECORD.md two rules and
+  REVIEW.md rule 2 reader-side rule rest on answers and bind the same as rulings.
+- AQ3 MODERATE V5/V1: the four-line quote drops its first line ("use the method I described in the
+  atelier doctrine") with no mark; the section demands context for his words.
+- AQ4 minor V1: "one such reply stands marked ⚖️" undercounts by four at the delta's own commit.
+- AQ5 minor V1: "ruling round of 2026-11-09 still asked up to four per box" has no evidence in the
+  text; the hand-up traced no four-question box; provenance sentence claims all came from the
+  hand-up.
+- AQ6 minor V4/V5: marks defined in the ADR too with no pointer; the marks rule's surface scope
+  unstated while neighbouring doctrine lines citing picks carry no mark.
+- AQ7-AQ10 notes: 2026-11-06 follow-up dropped; term-check home; "self-affirming loop he named"
+  unverifiable from permitted reads; title vs distinction acknowledged.
+- Sound: all quotes verbatim; counts 6,764/90.6%/2026-08-09, three times, four times, nineteen,
+  four asks match the records; CHANGELOG "no scanner or tool changes" matches the stat; 💬 shape
+  on 2026-11-09 records holds; older ⚖️ weighed notes exist; 310/080 and 320/510 exist with the
+  titles claimed; RECORD.md pointer resolves; APEX consistent; lens 4 clean.
+- Act 1 verdict written below a `---` divider in the brief; Status line updated. Scanners on the
+  brief: datescan, spellscan, wrapscan, linkscan, leakscan all exit 0 (spellscan and wrapscan
+  ignore docs/reviews by their ignore files). Lines over 100 columns in my text are table rows
+  only (404-412, 539). `git status`: only the brief modified and the sibling deleted (partition).
+- Overall: PASS-WITH-FINDINGS, 0 MAJOR, 3 MODERATE, 3 minor, 4 notes. ACT 1 SAVED 2026-11-16 UTC.
+
+## Act 2 log
+
+- Act 1 committed as 44743bd1 (orchestrator). Sibling released at the held path outside the
+  worktree; read whole (14 questions, 7 facts). Now opening the barred records and commit bodies.
+- Read after release: 320/820 lines 98-end (landing note: part 3 "no rewording"; the 2026-11-09
+  round "asked up to four questions per box"); 420/020 lines 33-end (parts a-d; "about 14 of 33
+  ⚖️ board lines"; 🤔 typed replies left open; 💬 2026-11-12 "Answer unless I say ruling");
+  420/010, 420/030 ("This round asked up to four per box"; the d0ca5d24 list asked 2026-11-12),
+  420/040 (the turn stall, fixed by 2a6d7a41); 020/270 line 4-end; 160/1250 pointer whole;
+  `git log -1 --format=%B` for e7370f78 (subject + trailer only) and 2a6d7a41.
+- Sibling Q7 re-run: `git log --since=2026-11-09 -p -- docs/method/ | grep '^+.*ruled'`: hits are
+  the delta's own sentences and his verbatim "as I've ruled" (2a6d7a41). No pick called "ruled".
+- Sibling Q12: CONCURRENCY.md 582-640 (§ Three laws, § Talk first): the channel gives a means to
+  ask peers; no discovery method beyond asking.
+- Reconcile written beneath the verdict; Status updated to VERDICT COMPLETE. No act-1 text
+  changed. Two notes formed at reconcile: AQ11 (rule vs scanner, Q3), AQ12 ("ruling round", Q10).
+  No severity moved. Scanners on the brief: datescan, spellscan, wrapscan, linkscan, leakscan all
+  clean. `git status`: brief modified, sibling deleted, nothing else.
+- Overall restated: PASS-WITH-FINDINGS, 0 MAJOR, 3 MODERATE, 3 minor, 6 notes. ACT 2 SAVED
+  2026-11-16 UTC.
