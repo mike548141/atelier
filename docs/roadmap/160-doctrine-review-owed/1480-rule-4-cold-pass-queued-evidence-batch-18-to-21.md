@@ -15,3 +15,10 @@
       incidents are the children's accounts, not re-measured here; whether
       §18's extension makes one class of what `320/230` left as an open
       question (one class or two).
+      *Approval:* the principal, 2026-11-17 UTC, through the device at the
+      authoring run's close, his pick verbatim: *"API credit if parity"*
+      (option text: *"Run them on the API credit lane where a pass can match
+      laptop quality; any that can't wait for the drain."*). So: on the API
+      credit only, where the pass reaches laptop parity; a pass that cannot
+      waits for his next weekly drain. The authoring run (78ca9153) neither
+      briefs nor starts it.

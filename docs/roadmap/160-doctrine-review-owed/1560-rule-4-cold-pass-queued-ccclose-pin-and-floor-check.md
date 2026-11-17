@@ -24,3 +24,10 @@
       strictly read-only. For the hook: it must never block a session or read a
       failure to measure as current; it runs at every child session start on
       the principal's machine (measured 1.4–1.6 s), wired at user level.
+      *Approval:* the principal, 2026-11-17 UTC, through the device at the
+      authoring run's close, his pick verbatim: *"API credit if parity"*
+      (option text: *"Run them on the API credit lane where a pass can match
+      laptop quality; any that can't wait for the drain."*). So: on the API
+      credit only, where the pass reaches laptop parity; a pass that cannot
+      waits for his next weekly drain. The authoring run (78ca9153) neither
+      briefs nor starts it.

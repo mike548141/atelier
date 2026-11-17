@@ -13,3 +13,10 @@
       *What to test hardest:* principle 6 must not become the preamble
       `020/250` warns against, and must not restate `PROPAGATION.md`'s
       `020/240` floor; both texts say they are agent-drafted, not rulings.
+      *Approval:* the principal, 2026-11-17 UTC, through the device at the
+      authoring run's close, his pick verbatim: *"API credit if parity"*
+      (option text: *"Run them on the API credit lane where a pass can match
+      laptop quality; any that can't wait for the drain."*). So: on the API
+      credit only, where the pass reaches laptop parity; a pass that cannot
+      waits for his next weekly drain. The authoring run (78ca9153) neither
+      briefs nor starts it.

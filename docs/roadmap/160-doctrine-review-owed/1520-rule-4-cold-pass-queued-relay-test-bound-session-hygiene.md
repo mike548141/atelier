@@ -21,3 +21,10 @@
       skills' own bounds blocks (`fleet-sweep`, `review-drain`) do not carry
       the new line; the child template's copy of `ECONOMICS.md` is updated in
       a later commit of the same run.
+      *Approval:* the principal, 2026-11-17 UTC, through the device at the
+      authoring run's close, his pick verbatim: *"API credit if parity"*
+      (option text: *"Run them on the API credit lane where a pass can match
+      laptop quality; any that can't wait for the drain."*). So: on the API
+      credit only, where the pass reaches laptop parity; a pass that cannot
+      waits for his next weekly drain. The authoring run (78ca9153) neither
+      briefs nor starts it.
