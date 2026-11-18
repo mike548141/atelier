@@ -455,15 +455,24 @@ and the job's own fields.
 A
 .B pass
 adds
-.B {ITEM}
+.BR {ITEM} ,
+.B {BRIEF}
 and
-.BR {BRIEF} ;
-a
+.BR {REVIEW_LOG} ,
+the path of the reviewer's private log,
+.IR <kit_dir>/review\-logs/<repo>\-<item>.md ,
+outside any repo; its folder is made, the file is not.
+A
 .B resume
 adds
-.BR {SESSION}
+.B {SESSION}
 and
-.BR {ITEM} .
+.BR {ITEM} ,
+and with
+.B \-\-item
+the same
+.B {REVIEW_LOG}
+the pass had, so a revived reviewer finds its log.
 A placeholder left unfilled is a refusal (exit 5), never a silent gap.
 .SH CONFIG
 JSON.
@@ -722,6 +731,10 @@ One result file per label, per UTC day.
 .TP
 .I <kit_dir>/scratch/<repo>/
 A folder for the session's own working files.
+.TP
+.I <kit_dir>/review\-logs/
+Each pass's private review log while it runs; the pass's own fold moves it
+into the review and deletes it, so the folder is empty after a clean drain.
 .TP
 .I <kit_dir>/driver.pid, driver.log
 The driver lock and the driver's log, in UTC.

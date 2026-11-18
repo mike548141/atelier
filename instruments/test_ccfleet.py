@@ -464,6 +464,19 @@ class EndToEnd(unittest.TestCase):
         self.assertEqual(rd(os.path.join(self.tmp, "kit", launched)), "beta\t020\tdocs/the brief.md\n")
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "kit", "max")), "the live ceiling is tidied")
 
+    def test_a_pass_and_its_resume_share_one_review_log_path(self):
+        wr(os.path.join(self.tmp, "queue.txt"), "beta 160/030 docs/brief.md\n")
+        wr(self.prompt, "Log {REVIEW_LOG}\n")
+        r = self.cli("drain", env={**self.env, "FAKE_RESULT": "FAILED"})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        want = os.path.join(self.tmp, "kit", "review-logs", "beta-160-030.md")
+        self.assertEqual(self.calls()[0]["argv"][-1], f"Log {want}\n")
+        self.assertTrue(os.path.isdir(os.path.dirname(want)))
+        (wt,) = [os.path.join(self.tmp, "wt", d, "beta") for d in os.listdir(os.path.join(self.tmp, "wt"))]
+        r = self.cli("resume", "beta", wt, "sess-beta", "--prompt", self.prompt, "--item", "160/030")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(self.calls()[1]["argv"][-1], f"Log {want}\n")
+
     def test_drain_with_an_empty_queue_exits_4(self):
         wr(os.path.join(self.tmp, "queue.txt"), "")
         r = self.cli("drain")

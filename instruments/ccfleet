@@ -100,6 +100,9 @@ Template variables always filled: {REPO} {GH} {BR} {VIS} {PIN} {WT} {PRIMARY}
 {LANDING} {NOTES} {SCRATCH} {BY} {DATE}, plus config `vars`, plus the job's own.
 {PIN}, when the template uses it and nothing supplies it, is the repo's atelier
 pin (tools/pins.py, else the CLAUDE.md atelier@<sha>), else UNRESOLVED.
+A pass adds {ITEM} {BRIEF} {REVIEW_LOG} (<kit_dir>/review-logs/<repo>-<item>.md,
+the reviewer's private log; the same path for its resume); a resume adds
+{SESSION} {ITEM} and, with --item, {REVIEW_LOG}.
 A {UPPER_CASE} placeholder left unfilled is a refusal, not a silent gap.
 
 Exit codes: 0 ran (the session's own verdict is in its END line and result
@@ -897,6 +900,12 @@ def ended_hooks(cfg, values, result, sid, log, item, brief):
     return ok
 
 
+def review_log(cfg, repo, item):
+    """The pass's private review log: one path per repo and item, outside any
+    repo, the same for a pass and its resume, so a revived reviewer finds it."""
+    return os.path.join(cfg["kit_dir"], "review-logs", safe(f"{repo}-{item}") + ".md")
+
+
 def one_pass(cfg, repo, item, brief, by, dry):
     """One review pass: worktree, claim, the orchestrator session, release on a clean end."""
     template = cfg.get("pass_prompt")
@@ -914,8 +923,11 @@ def one_pass(cfg, repo, item, brief, by, dry):
     def post(values, result, sid, log):
         ended_hooks(cfg, values, result, sid, log, item, brief)
 
+    log_path = review_log(cfg, repo, item)
+    if not dry:
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
     return run_one(cfg, repo, expand(template), label=label, model=cfg.get("pass_model"),
-                   extra={"ITEM": item, "BRIEF": brief}, by=by, dry=dry,
+                   extra={"ITEM": item, "BRIEF": brief, "REVIEW_LOG": log_path}, by=by, dry=dry,
                    pre=None if dry else pre, post=None if dry else post, check_file=brief,
                    clean=release_on(cfg))[0]
 
@@ -925,6 +937,9 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
     model = cfg.get("pass_model") or cfg["repos"].get(repo, {}).get("model") or cfg["default_model"]
     facts = repo_facts(cfg, repo, fetch=False)
     extra = {k: read_at_file(v) for k, v in extra.items()}
+    if item:
+        extra.setdefault("REVIEW_LOG", review_log(cfg, repo, item))
+        os.makedirs(os.path.dirname(extra["REVIEW_LOG"]), exist_ok=True)
     template_text = read_template(template)
     values = base_values(cfg, repo, facts, wt, by, {**extra, "SESSION": sid, "ITEM": item or ""},
                          template_text)

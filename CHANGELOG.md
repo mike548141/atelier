@@ -42,6 +42,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   through `tools/pins.py`, else the `CLAUDE.md` pin, else `UNRESOLVED`, said
   aloud. **`drain` exits 4** when the queue was empty and nothing started, as
   its reference always said. 17 new tests in `instruments/test_ccfleet.py`.
+- **`review-drain` keeps a private review log per pass**: `ccfleet pass` fills
+  `{REVIEW_LOG}` (`<kit_dir>/review-logs/<repo>-<item>.md`, the same path for
+  the pass's `resume`). The reviewer records its checks and evidence there;
+  no other session reads it while the pass runs; the fold appends it verbatim
+  to the review and deletes it. The close checks the folder is empty and
+  counts verdicts from the result rows, never from memory. Every prompt path
+  is double-quoted.
 
 ### Changed (2026-11-16 — the floor's estate and visibility bullets, `320/370`, `320/410`, `320/620`, `320/650`)
 - **The canonical floor's visibility bullet** reads `Verify: <visibility
