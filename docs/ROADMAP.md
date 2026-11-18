@@ -644,7 +644,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a…](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
 - [ ] [REPORT — secretscan's suppression units cannot reach a finding inside…](roadmap/320-child-filed-findings-via-pointing-up/140-secretscan-has-no-suppression-unit-for-generated-json.md)
 - [ ] 🤔 [CANDIDATE HOUSE RULE — the prescribed open-time sync command can fail…](roadmap/320-child-filed-findings-via-pointing-up/150-the-open-time-sync-command-s-error-text-names-a-cause-that-is-not-the-cause.md)
-- [ ] [REPORT — a child cannot stamp its inlined floor at all: source= may…](roadmap/320-child-filed-findings-via-pointing-up/160-stampscan-cannot-stamp-across-a-repo-boundary.md)
+- ✅ [REPORT — a child cannot stamp its inlined floor at all: source= may…](roadmap/320-child-filed-findings-via-pointing-up/160-stampscan-cannot-stamp-across-a-repo-boundary.md)
 - [ ] [REPORT — four verified pathscan false-positive classes from a second…](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
 - ✅ [REPORT — the ../<sibling> path convention every child inherits…](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
 - ✅ 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both…](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)

@@ -1,4 +1,4 @@
-- [ ] **REPORT — a child cannot stamp its inlined floor at all: `source=` may
+- [x] **REPORT — a child cannot stamp its inlined floor at all: `source=` may
       not leave `--root`, and every child must reword the canonical region
       anyway, so no correct child copy can be character-identical** `[M][tools]`
       — filed from a private child, 2026-09-06, via § *Pointing up*. Both
@@ -226,3 +226,21 @@
       its worker's report:** `stampscan --help`, both invocations above with
       their exit codes captured separately from any pipe, and a grep of the
       bare run's output for `CLAUDE.md` returning zero.
+
+      ✅ **Closed 2026-11-18** (`450/010` row 10, a worker of session
+      84b7932e, Opus 5.5). **Both obstacles are answered for the one stamp
+      that crosses a repo boundary, the floor, by `tools/pins.py`, not by
+      `stampscan`.** Obstacle 1: `pins` reads the floor at the child's own pin
+      with `git show <pin>:docs/method/PROPAGATION.md` (pin-aware, the answer
+      the ask's third sketch reached for) and never resolves `source=` through
+      the child's tree. Obstacle 2: it reads each placeholder's fill out of the
+      child's own lines and puts it back before `stampscan`'s comparison (the
+      first sketch, built under `160/340` and `320/370`). What was missing was a
+      verdict a child could run on itself: `pins.py --floor --child .` now
+      gives exactly that, offline, exit 0 verbatim, 1 differs, 2 no answer.
+      Measured on two private children's current copies: both `identical`.
+      **Left as it is, on purpose:** `stampscan` keeps its source confinement
+      (the 2026-07-26 traversal finding), its bare run in a child still scans
+      `docs/` and not `CLAUDE.md` (this item's third corroboration), and its
+      registry wiring stays barred (`020/110`); a child has no reason to run it
+      on the floor now. No stamp other than the floor crosses a repo boundary.

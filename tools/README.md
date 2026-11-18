@@ -1105,6 +1105,7 @@ python3 tools/pins.py --child ../ros     # report only named repo(s) (repeatable
 python3 tools/pins.py --root ~/code      # search a different root (repeatable)
 python3 tools/pins.py --json             # machine-readable, for a dashboard / CI gate
 python3 tools/pins.py --check            # exit 1 if any child is not current, or from 2026-12-09 its floor copy fails (CI/hooks)
+python3 tools/pins.py --floor --child . # a child's own floor-copy verdict, offline: 0 verbatim, 1 differs, 2 no answer
 python3 tools/pins.py --selftest         # prove the parse + classification offline
 ```
 
@@ -1163,9 +1164,36 @@ would otherwise fail, so a clean fleet makes no call; if GitHub cannot be
 reached, or the repo has no GitHub remote, the child is not exempt and its line
 says the archive state was not established. `--json` `floor_copy` carries
 `would_fail`, `failing` and `archived_exempt` beside `differing`.
-This is a fleet view run from atelier, not a child's own
-CI, so a child's copy is still not checked at its own commit (`stampscan`
-cannot resolve a child's `source=`, ST3); the fleet report is what reaches it.
+The fleet view runs from atelier; `--floor` (below) is the same comparison for
+a child to run on itself.
+
+### A child's own floor check (`--floor`, `450/010` row 10)
+
+Two estate children each wrote a verifier of their own for one question, *is
+our inlined floor word for word atelier's at our pin*, because `stampscan` cannot
+answer it in a child (`320/160`: `source=` resolves only inside its `--root`,
+and a filled placeholder reads as drift). The report above already answers both,
+so `--floor` is that comparison alone:
+
+```sh
+python3 <atelier>/tools/pins.py --floor --child .          # from the child's root
+python3 <atelier>/tools/pins.py --floor --child . --json   # one verdict per child
+```
+
+| Exit | Means |
+|---|---|
+| `0` | every copy is `identical` to the floor at its own pin |
+| `1` | a copy is `drift`, `unstamped`, `malformed` or `skipped`: re-copy it |
+| `2` | no answer: no pin, a pin this checkout does not hold, a pin from before the region was marked, CLAUDE.md unreadable, no atelier checkout. Never a pass |
+
+It differs from the fleet report in three ways, each deliberate. **The pin's
+staleness is not asked**: a stale pin is a deliberate bump, not a finding, and
+the row still says `floor moved since the pin`. **Nothing is fetched**: the
+verdict reads the floor at the child's pin, which the checkout holds or does
+not, so it runs offline (in CI, check atelier out with full history).
+**The 2026-12-09 date does not apply**: it governs the fleet's `--check`; a
+child asking for its own verdict asked to be told now. `--child .` resolves
+to the child's own name. The fleet report and `--check` are unchanged.
 
 Discovery walks one level under each search root (default: the estate root when
 one is set, else atelier's parent dir; see below for group folders)

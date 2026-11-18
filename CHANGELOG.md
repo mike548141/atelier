@@ -5,6 +5,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-18 — a child's own floor check, `450/010` row 10)
+- **`tools/pins.py --floor`**: the floor-copy comparison alone, offline, for a
+  child to run on itself (`pins.py --floor --child .`): exit 0 when the copy is
+  word for word the floor at the child's own pin, 1 when it differs or is
+  unstamped or malformed, 2 when it cannot be compared, never a pass. Two
+  estate children each kept a private verifier for this because `stampscan`
+  cannot resolve a child's `source=` and reads a filled placeholder as drift
+  (`320/160`, now closed); `pins` already answered both, so those copies can
+  retire. Measured on both: each reads `identical`, and one child's own
+  verifier now exits 2 on the `<visibility check>` slot it predates. Opt-in:
+  the fleet report, `--check` and its 2026-12-09 date are unchanged.
+
 ### Added (2026-11-18 — one home and one prefix, `450/010` rows 3, 5, 14)
 - **A bare `/atelier` menu** (`instruments/atelier-menu`): a user-level skill
   that lists every `/atelier:` command from the plugin's own front matter.

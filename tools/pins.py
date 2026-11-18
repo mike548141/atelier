@@ -26,6 +26,11 @@ claims to be.
                        unstamped, is malformed or cannot be compared (an
                        archived repo is exempt)
   pins --log           also print the commits each stale child would inspect
+  pins --floor         only the floor-copy verdict, offline: 0 every copy is
+                       word for word the floor at its own pin, 1 a copy
+                       differs (or is unstamped or malformed), 2 no answer.
+                       A child runs this on itself instead of its own verifier:
+                       `python3 <atelier>/tools/pins.py --floor --child .`
 
 The reference is the parent's *published* mainline (`origin/main`, after a
 `git fetch`), the same reference a child's own session-start drift check uses
@@ -95,6 +100,23 @@ the line says the archive state was not established. Two states are still only
 reported, never failed: `skipped` (a `stampscan:allow` marker; the floor's own
 stamp no longer honours one, so this is the legacy reading) and `unchecked`
 (CLAUDE.md could not be read after its pin was).
+
+THE CHILD'S OWN VERBATIM CHECK (`--floor`, `450/010` row 10). Two children
+each wrote a verifier of their own for this one question, because `stampscan`
+cannot answer it in a child (`320/160`: it resolves `source=` only inside its own
+`--root`, and it reads a filled placeholder as drift). The comparison above
+already answers both, so `--floor` is that comparison and nothing else, for a
+child to run on itself: the pin's staleness is not asked (a pin bump is a
+deliberate act, and `behind` would red every child the day atelier moves), no
+fetch is made (the verdict reads the floor at the child's own pin, which the
+local checkout holds or does not), and the `COPY_BLOCKS_FROM` date does not
+apply (that date governs the fleet's `--check`; a child asking for its own
+verdict asked to be told). Exit 0 every copy identical; 1 a copy differs, is
+unstamped, malformed or carries a skip marker; 2 the question could not be
+answered (no pin, a pin this checkout does not hold, a pin from before the
+region was marked, CLAUDE.md unreadable, no atelier checkout). A 2 is never a
+pass. The atelier checkout must hold the child's pin: in CI, fetch it with full
+history.
 
 Zero third-party dependencies; stdlib only — a peer who adopts atelier runs it
 with the system python3 and no install.
@@ -733,6 +755,83 @@ def cmd_report(args) -> int:
     return 1 if not_current else 0
 
 
+# The `--floor` verdicts. A copy in one of these states is a finding the child
+# can fix; a copy in any other non-identical state could not be judged at all.
+FLOOR_FINDINGS = (COPY_DRIFT, COPY_UNSTAMPED, COPY_MALFORMED, COPY_SKIPPED)
+
+
+def floor_verdict(info: ChildPin) -> tuple[int, str]:
+    """(exit code, why) for one child under `--floor`: 0 identical, 1 a finding,
+    2 no answer. A child with no pin has no reference to read, so no answer."""
+    if info.pin is None:
+        return 2, "no `atelier@<sha>` pin in CLAUDE.md, so there is no floor text to compare with"
+    if info.copy == COPY_IDENTICAL:
+        return 0, ""
+    if info.copy in FLOOR_FINDINGS:
+        return 1, info.copy_detail
+    return 2, info.copy_detail or "the copy could not be compared"
+
+
+def cmd_floor(args) -> int:
+    """`--floor`: the floor-copy verdict alone, offline, for a child to run on
+    itself (see THE CHILD'S OWN VERBATIM CHECK in the module docstring)."""
+    try:
+        atelier = resolve_atelier(args.atelier)
+        # Local HEAD only feeds the "floor moved since the pin" note; the verdict
+        # reads the floor at each child's own pin, so nothing is fetched.
+        head = git(["-C", str(atelier), "rev-parse", "HEAD"]).stdout.strip()
+    except GitError as e:
+        print(f"pins: {e}", file=sys.stderr)
+        print("pins: pass --atelier <path> to an atelier checkout that holds the pin.",
+              file=sys.stderr)
+        return 2
+    if args.child:
+        children = []
+        for c in args.child:
+            p = Path(c).expanduser().resolve()
+            if not p.is_dir():
+                print(f"pins: named child not found: {p}", file=sys.stderr)
+                return 2
+            children.append(p)
+    else:
+        roots = [Path(r).expanduser() for r in args.root] if args.root \
+            else [estate.parent(atelier)]
+        children = discover(roots, atelier)
+    if not children:
+        print("pins: no child to check, which is no answer, not a pass", file=sys.stderr)
+        return 2
+
+    cache: dict = {}
+    infos = [evaluate(atelier, head, c, False, cache)
+             for c in sorted(children, key=lambda p: p.name.lower())]
+    verdicts = [(i, *floor_verdict(i)) for i in infos]
+    code = (2 if any(v == 2 for _, v, _ in verdicts)
+            else 1 if any(v == 1 for _, v, _ in verdicts) else 0)
+    if args.json:
+        print(json.dumps({
+            "atelier": str(atelier),
+            "exit": code,
+            "children": [{"name": i.name, "path": i.path, "pin": i.pin,
+                          "copy": i.copy, "floor_moved": i.floor_moved,
+                          "exit": v, "detail": why} for i, v, why in verdicts],
+        }, indent=2))
+        return code
+    width = max(len(i.name) for i in infos)
+    print(f"floor copy, each against the floor text at its own pin  (atelier {atelier})")
+    for i, v, why in verdicts:
+        mark = {0: "✓", 1: "✗", 2: "?"}[v]
+        moved = "  floor moved since the pin (bump when you next read the delta)" \
+            if i.floor_moved else ""
+        print(f"  {mark} {i.name:<{width}}  {i.copy:<12} pin {(i.pin or '-')[:7]}{moved}")
+        if why:
+            print(f"      {why[:240]}")
+    print({0: "verbatim: every copy is word for word the floor at its pin.",
+           1: "drift: a copy differs from the floor at its own pin. Re-copy it "
+              "from the canonical region; only the placeholder fills may differ.",
+           2: "no answer: at least one copy could not be compared. This is not a pass."}[code])
+    return code
+
+
 # --------------------------------------------------------------------------- #
 # rendering
 # --------------------------------------------------------------------------- #
@@ -864,6 +963,10 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--check", action="store_true",
                     help="exit 1 if any child is not current (for CI/hooks)")
+    ap.add_argument("--floor", action="store_true",
+                    help="only the floor-copy verdict, offline, against each child's own "
+                         "pin: exit 0 verbatim, 1 differs, 2 no answer (a child runs "
+                         "`pins.py --floor --child .` on itself)")
     ap.add_argument("--selftest", action="store_true", help="run built-in checks and exit")
     ap.set_defaults(func=cmd_report)
     return ap
@@ -874,6 +977,8 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     if getattr(args, "selftest", False):
         return _selftest()
+    if getattr(args, "floor", False):
+        return cmd_floor(args)
     return args.func(args)
 
 

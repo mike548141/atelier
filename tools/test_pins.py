@@ -730,6 +730,73 @@ class FloorCopyReport(unittest.TestCase):
             "would_fail": ["edited"], "failing": [], "archived_exempt": []})
         self.assertEqual(payload["children"][0]["copy"], "drift")
 
+    def _floor(self, *children, today=datetime.date(2026, 11, 9)):
+        """`pins --floor` over the named children: (exit, stdout). No --head:
+        the fixture atelier has no remote, so a fetch would fail with exit 2."""
+        out = self.tmp / "floor.txt"
+        argv = ["--atelier", str(self.atelier), "--floor"]
+        for c in children:
+            argv += ["--child", str(c)]
+        with mock.patch.object(pins, "_utc_today", return_value=today), \
+                open(out, "w") as fh, mock.patch.object(sys, "stdout", fh):
+            code = pins.main(argv)
+        return code, out.read_text()
+
+    def test_floor_mode_is_the_childs_own_verbatim_check(self):
+        # 450/010 row 10: what two children each built a private verifier for.
+        # A copy verbatim to its own (stale) pin passes: staleness is not asked,
+        # and nothing is fetched (this fixture has no remote at all).
+        old = self._child("old", self.v1, stamped(filled(FLOOR_V1, self.v1)))
+        code, text = self._floor(old)
+        self.assertEqual(code, 0, text)
+        self.assertIn("floor moved since the pin", text)
+        # The fleet report on the same child is non-zero for the stale pin.
+        self.assertEqual(self._run("--child", str(old)), 1)
+
+    def test_floor_mode_reds_a_differing_copy_before_the_cut_off(self):
+        # The child asked for its own verdict, so the fleet's report-only date
+        # does not hold the drift back (the fleet --check still does: above).
+        edited = self._child("edited", self.v2, stamped(
+            filled(FLOOR_V2, self.v2).replace("always", "sometimes")))
+        code, text = self._floor(edited, today=datetime.date(2026, 11, 9))
+        self.assertEqual(code, 1, text)
+        self.assertIn("drift", text)
+        self.assertEqual(self._run("--child", str(edited), "--check",
+                                   today=datetime.date(2026, 11, 9)), 0,
+                         "the fleet check is unchanged: report-only until the date")
+        unstamped = self._child("plain", self.v1, f"(pinned `atelier@{self.v1[:7]}`)\n")
+        self.assertEqual(self._floor(unstamped)[0], 1, "no stamp is a finding the child can fix")
+
+    def test_floor_mode_no_answer_is_never_a_pass(self):
+        for name, pin, text in (
+                ("nopin", None, stamped(filled(FLOOR_V1, self.v1))),
+                ("lost", "deadbeef", "(pinned `atelier@deadbeef`)\n"
+                 + stamped(filled(FLOOR_V1, "deadbeef"))),
+                ("ancient", self.v0, f"(pinned `atelier@{self.v0[:7]}`)\n")):
+            d = self._child(name, pin, text)
+            if pin is None:
+                (d / "CLAUDE.md").write_text(text.replace(f"atelier@{self.v1[:7]}", "atelier"))
+            code, out = self._floor(d)
+            self.assertEqual(code, 2, f"{name}: {out}")
+            self.assertIn("not a pass", out)
+        # A finding beside an unanswerable child still exits 2: no full answer.
+        good = self._child("good", self.v2, stamped(filled(FLOOR_V2, self.v2)))
+        self.assertEqual(self._floor(good, self.parent / "ancient")[0], 2)
+        code, out = self._floor(self.parent / "missing")
+        self.assertEqual(code, 2)
+
+    def test_floor_mode_json_carries_each_verdict(self):
+        good = self._child("good", self.v2, stamped(filled(FLOOR_V2, self.v2)))
+        out = self.tmp / "floor.json"
+        with open(out, "w") as fh, mock.patch.object(sys, "stdout", fh):
+            code = pins.main(["--atelier", str(self.atelier), "--floor", "--json",
+                              "--child", str(good)])
+        payload = json.loads(out.read_text())
+        self.assertEqual(code, 0)
+        self.assertEqual(payload["exit"], 0)
+        self.assertEqual([(c["name"], c["copy"], c["exit"]) for c in payload["children"]],
+                         [("good", "identical", 0)])
+
     def test_the_four_placeholders_are_the_only_angle_tokens_in_the_real_floor_region(self):
         # If the floor gains a fifth placeholder, filling it would silently stop
         # working; this fails first. Reads atelier's own PROPAGATION.md (the one
