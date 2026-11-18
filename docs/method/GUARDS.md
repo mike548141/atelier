@@ -602,6 +602,10 @@ guard in that state passes it a `not_in_scope` reason, and the line then reads
 `not in scope here: <why>`, with no warning glyph and no "covers nothing"
 alarm, because the guard did not fail to look, it had nothing to check.
 
+And **which tree**: a count is no help when it counted the wrong checkout. A
+guard's summary names the tree it read, so a run that drifted to another
+checkout shows it (`tools/treeline.py`, `450/010` row 9; the floor prints it).
+
 A repo's live allowances are a standing, reviewable inventory. That inventory is
 also, unavoidably, a map of where the guards are not looking — so on a public
 repo it is itself part of the publication surface, which is the boundary

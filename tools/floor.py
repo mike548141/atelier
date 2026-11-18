@@ -3131,6 +3131,13 @@ def coverage_summary(results: list[Result]) -> str:
         files_what="checks", units_what="checks")
 
 
+def tree_summary(root: Path, tools: Path) -> str | None:
+    """The floor's tree line: the tree it read and the tools that read it, in
+    the shared shape (`treeline.py`). None when `ATELIER_NO_TREE_LINE` is set."""
+    import treeline  # beside this file, as report is
+    return treeline.line(root, tools)
+
+
 def coverage_json(results: list[Result]) -> dict:
     """The `--json` twin: known zeros kept, one new top-level key."""
     ran, listed = coverage_counts(results)
@@ -3731,6 +3738,12 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(render(results, args.plane), file=sys.stderr)
         print(coverage_summary(plan_results), file=sys.stderr)
+        # Which tree that was, and whose scanners read it (450/010 row 9):
+        # `--root` defaults to the cwd, so a drifted shell scans the wrong
+        # checkout and still prints green. Informational; never an exit.
+        tree = tree_summary(root, tools)
+        if tree:
+            print(tree, file=sys.stderr)
         if args.plane == "ci":
             print(declarations_line(declarations_report(cfg, tools, root)),
                   file=sys.stderr)

@@ -910,7 +910,7 @@ recoveries: atelier session 45's survival audit (2026-07-12) and the cmd+Q sweep
 | --- | --- |
 | Working tree | no uncommitted, no untracked |
 | Sync vs `origin/main` | 0/0 ahead/behind |
-| Stashes | none unexpected |
+| Stashes | none unexpected (`tools/stashscan.py`; the stack is shared by every worktree) |
 | Orphan worktrees / branches | none without live work |
 | Reflog after the last close | nothing stranded past the last logged close |
 

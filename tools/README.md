@@ -2384,6 +2384,7 @@ prints the same list and exits 1 when there is one, for a health sweep.
 
 The plugin does not wire it for you. Tests: `tools/test_prefixhook.py`.
 
+<<<<<<< HEAD
 ## `secretguard.py` — a Bash command that would print a secret file is refused
 
 Not a commit gate: a Claude Code `PreToolUse` hook (board `450/010` row 6; first
@@ -2459,6 +2460,56 @@ has, and an enforced new floor check would reach every child at its next run
 (children float at `floor.yml@main`). A child that wants it on its commit gate
 runs it from its own `local` block through a one-line in-repo caller (the seam
 takes only a script inside the repo). Tests: `tools/test_deadhook.py`.
+=======
+## `stashscan.py` — an old entry on the shared stash stack is named at session open
+
+Not a floor check: a CLI and a Claude Code `SessionStart` hook (board `450/010`
+row 7, first built in an estate child repo). `refs/stash` lives in the common git
+dir, so the primary checkout and every worktree share one stack, and a bare
+`git stash pop` anywhere pops `stash@{0}`, whoever made it (CONCURRENCY.md
+§ Integration hygiene says how residue gets there; the recovery sweep's
+*Stashes* row asks for none unexpected). It lists any entry whose committer date
+is before today on the machine's local calendar, flags `autostash` entries, and
+says to look with `git stash show -p` and never to pop, apply or drop another
+session's work. It only reads: `rev-parse` and `stash list`.
+
+`stashscan.py [--repo DIR] [--now ISO] [-v]` exits 0 (none older than today,
+the count printed), 1 (residue, every entry listed) or 2 (could not check), and
+prints the tree line. `--hook` is the session-open form: one JSON object when
+there is residue, a `no result` line to the model when git fails inside a
+checkout, nothing otherwise; always exit 0. Not on the floor: a CI clone's stack
+is always empty, and on the commit hook a peer's stash would nag every commit
+for work that is not the committer's. Wiring, user-level:
+
+```json
+"hooks": {"SessionStart": [{"matcher": "startup|resume", "hooks": [
+    {"type": "command", "command": "python3 <atelier>/tools/stashscan.py --hook",
+     "timeout": 10}]}]}
+```
+
+A rebase *stopped* by a conflict keeps its autostash under
+`.git/rebase-merge/`, off the stack, until it ends; this cannot see that one.
+The plugin does not wire it for you. Tests: `tools/test_stashscan.py`.
+
+## `treeline.py` — the line naming the tree a check read
+
+A helper, not a check (board `450/010` row 9, first built in an estate child
+repo, where a session's verification ran green against a checkout without the
+change after its shell drifted out of its worktree). `treeline.line(root,
+tools=None)` returns one line, two spaces in like the `coverage:` line:
+
+    tree /work/demo · main@1a2b3c4 · worktree · tools /work/atelier/tools · main@5d6e7f8
+
+naming the root the check actually read (passed in by the caller, never derived
+from the cwd), its `branch@sha` or `detached@sha` or `no commits yet`, and
+`worktree`, `REBASE IN PROGRESS`, `not a git checkout` or `⚠ not the git root:
+<top>` where true; with `tools`, `tools in-tree` or the tools checkout and its
+head. It never raises and never changes an exit. `ATELIER_NO_TREE_LINE=1` turns
+it off. The floor prints it after its coverage line (`floor.py`'s `--root`
+defaults to the cwd, so that is where a drifted shell shows); `stashscan.py`
+prints it too. Other scanners do not yet. No Node twin: no instrument is yet a
+check whose verdict a wrong tree falsifies. Tests: `tools/test_treeline.py`.
+>>>>>>> 719e609a (tools: warn on old shared-stash residue, and name the tree a check read)
 
 ## `blockscan.py` — a ruling that moves doctrine moves the child block too (advisory, atelier-only)
 

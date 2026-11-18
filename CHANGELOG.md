@@ -29,6 +29,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   says whether the clone's commits are scanned at all, worktree-safe.
   `/atelier:install-hook` runs it as its proof step. Not a floor check.
 
+### Added (2026-11-18 — two collaboration guards homed, `450/010` rows 7 and 9)
+- **`tools/stashscan.py`**: warns when the git stash stack, which the primary
+  checkout and every worktree share, holds an entry older than today (local
+  day), naming autostash entries. Read-only; a CLI (exit 0/1/2) and a
+  `SessionStart` hook (`--hook`), deliberately not a floor check. First built
+  in an estate child repo; the recovery sweep's *Stashes* row now points at it.
+- **`tools/treeline.py`**: the second line a check prints naming the tree it
+  read (path, `branch@sha` or detached, worktree, rebase in progress, and whose
+  tools ran). The floor prints it after its `coverage:` line on every plane,
+  informational only; `ATELIER_NO_TREE_LINE=1` turns it off. GUARDS.md
+  § coverage gains the one-sentence rule. First built in an estate child repo.
+
 ### Added (2026-11-18 — one home and one prefix, `450/010` rows 3, 5, 14)
 - **A bare `/atelier` menu** (`instruments/atelier-menu`): a user-level skill
   that lists every `/atelier:` command from the plugin's own front matter.
