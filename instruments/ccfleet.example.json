@@ -12,6 +12,7 @@
   "gate": {"max_load": 24, "min_mem_pct": 25, "min_disk_gb": 20},
   "reset_utc": "2030-01-06T23:00",
   "private_names": ["example-private-root", "example-client"],
+  "env": {"EXAMPLE_TOOL_HOME": "~/tools"},
   "vars": {
     "ASK": "\"Bring every repo up to a healthy state.\" (the principal's words, quoted verbatim from your own record)",
     "RULINGS_FILE": "~/private/rulings.md",
@@ -31,6 +32,10 @@
   "queue": {
     "next": ["python3", "~/private/review_queue.py", "next", "--skip-file", "{LAUNCHED}"],
     "take": ["python3", "~/private/review_queue.py", "take", "{REPO}:{ITEM}", "--by", "{BY}", "--brief", "{BRIEF}"],
-    "release": ["python3", "~/private/review_queue.py", "release", "{REPO}:{ITEM}", "--by", "{BY}"]
+    "release": ["python3", "~/private/review_queue.py", "release", "{REPO}:{ITEM}", "--by", "{BY}"],
+    "ended": ["python3", "~/private/review_queue.py", "update", "{REPO}:{ITEM}", "--by", "{BY}",
+              "--set", "session={SESSION}", "--set", "result={RESULT}", "--set", "log={LOG}"],
+    "release_on": ["DONE", "SKIPPED"],
+    "stop_on": ["BUDGET EXHAUSTED"]
   }
 }

@@ -16,6 +16,33 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   outside `/atelier:`, and the rule it trips in `MECHANISMS.md` § *Where it
   lives and what it is called*.
 
+### Changed (2026-11-18 — `ccfleet`'s generic gaps closed so an estate can switch onto it, `450/010`)
+- **Every session `ccfleet` starts runs with
+  `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0`**, over a new config `env` map of
+  extra variables. Without it `claude -p` kills a background subagent about
+  ten minutes after the orchestrator's last turn, so a drain's reviewer died
+  mid-act.
+- **The verdict is read from the session's transcript** when the last turn
+  printed no `RESULT:` line (a session woken by a background notification);
+  only entries since the launch count, under `$CLAUDE_CONFIG_DIR` or
+  `~/.claude`. A finished pass no longer reads as `UNKNOWN`, keeps its claim,
+  and counts toward the three bad ends that stop a drain.
+- **The drain's queue contract**: `next` may print tab-separated fields (a
+  name may hold a space), the launched list is now tab-separated, and a pick
+  already launched is taken as nothing launchable. Optional `queue.ended`
+  hook (`{SESSION}` `{RESULT}` `{WT}` `{LOG}`), and `queue.release_on` /
+  `queue.stop_on` lists of `RESULT` words replace the fixed DONE/SKIPPED and
+  BUDGET EXHAUSTED.
+- **Pacing**: a stop file older than the driver is ignored and logged; the
+  ceiling is live in `<kit_dir>/max`; children start in their own session so
+  they survive the driver's terminal; the launched list is keyed by
+  `reset_utc` when one is set.
+- **`resume`** fills every value `run` fills and exits 2 when the queue
+  refuses the release (the worktree is kept). **`{PIN}`** resolves per repo
+  through `tools/pins.py`, else the `CLAUDE.md` pin, else `UNRESOLVED`, said
+  aloud. **`drain` exits 4** when the queue was empty and nothing started, as
+  its reference always said. 17 new tests in `instruments/test_ccfleet.py`.
+
 ### Changed (2026-11-16 — the floor's estate and visibility bullets, `320/370`, `320/410`, `320/620`, `320/650`)
 - **The canonical floor's visibility bullet** reads `Verify: <visibility
   check>`: the check is now a slot the child fills (`gh repo view … --json

@@ -1,4 +1,4 @@
-.TH CCFLEET 1 "2026-11-16" "atelier instruments" "User Commands"
+.TH CCFLEET 1 "2026-11-18" "atelier instruments" "User Commands"
 .SH NAME
 ccfleet \- run headless Claude Code sessions across a fleet of repos, each
 billed to its own repo
@@ -145,6 +145,25 @@ Its basename is the repo, because that basename is the billing key.
 The session runs with the
 .B nice
 value the config sets, so a busy fleet does not starve the machine's own work.
+.IP \(bu 2
+The session's environment always sets
+.BR CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0 ,
+over the config's
+.B env
+too.
+Without it
+.B claude \-p
+kills a background subagent about ten minutes after the orchestrator's last
+turn, so a reviewer still working on its second act died mid-act.
+.IP \(bu 2
+A child that
+.B drive
+or
+.B drain
+starts runs in a session of its own, so closing the driver's terminal does
+not end it or the
+.B claude
+it started.
 .SS The private-name guard
 A prompt bound for a public repo, or for one whose visibility is unknown, is
 refused before any worktree is made if it contains a private name.
@@ -232,12 +251,17 @@ the same file again resumes it.
 .TP
 .B drain
 Keep review passes running from the adopter's own queue until the queue is
-empty, the budget's reset arrives, the stop file appears, the budget runs out,
+empty, the budget's reset arrives, the stop file appears, a pass ends with a
+.B RESULT
+in
+.BR queue.stop_on ,
 or three passes in a row end badly.
 Passes already running are left to finish.
 It prints
 .B DRAIN EXIT:
 and the reason when it ends.
+A drain that started nothing exits 4 when the queue was empty and 3 when the
+reset had come; one that started a pass exits 0.
 .TP
 .BI pass " repo item brief"
 One drain pass; the command
@@ -251,20 +275,34 @@ has been pushed), claims the item through the queue's
 .B take
 command, runs the orchestrator session under
 .BR pass_model ,
-and, on a clean end, releases the claim and removes the worktree.
+and, when its
+.B RESULT
+is in
+.BR queue.release_on ,
+releases the claim and removes the worktree.
 A pass that ends any other way keeps both, so it can be resumed.
+Either way the
+.B queue.ended
+command, if set, is called.
 .TP
 .BI resume " repo worktree session"
 Finish a pass a usage limit cut off, in its own session:
 .B claude \-p \-\-resume
 .IR session ,
 started in the kept worktree, with a fresh prompt from
-.BR \-\-prompt .
-When it ends
-.B DONE
+.BR \-\-prompt ,
+which gets every value a
+.B run
+gets (see
+.BR TEMPLATES ).
+When it ends with a
+.B RESULT
+in
+.B queue.release_on
 and
 .B \-\-item
 was given, the claim is released and the worktree removed.
+A release the queue refuses is printed, keeps the worktree and exits 2.
 It starts nothing else.
 .SH OPTIONS
 .SS Common
@@ -392,9 +430,24 @@ the
 id, and today's UTC date.
 .TP
 .B {PIN}
-Empty unless the config's
+The repo's atelier pin, when the template uses it and neither the config's
 .B vars
-or the job supplies it.
+nor the job supplies it.
+It is read with
+.I tools/pins.py
+from the atelier named by
+.BR vars.ATELIER ,
+else the one this file lives in, run as
+.B pins.py \-\-head \-\-child
+on the primary checkout.
+Failing that, it is the first
+.BI atelier@ sha
+in the repo's
+.I CLAUDE.md
+on the mainline.
+Failing both, it is the word
+.B UNRESOLVED
+and the command prints why, so a prompt never carries an empty pin.
 .PP
 Then come the config's
 .B vars
@@ -479,6 +532,12 @@ Names a public repo's prompt must never contain.
 .B vars
 Template variables for every job.
 .TP
+.B env
+Extra environment variables for every session, as
+.IR NAME : value .
+.B check
+prints their names, not their values.
+.TP
 .B repos
 Per repo:
 .BR model ,
@@ -507,7 +566,12 @@ The reviewer's own tier is the prompt's business.
 .BR next ,
 .B take
 and
-.BR release :
+.BR release ,
+optionally
+.BR ended ,
+.B release_on
+and
+.BR stop_on :
 see below.
 .SH THE QUEUE INTERFACE
 The review queue is the adopter's own tool; ccfleet only calls it.
@@ -523,13 +587,18 @@ Prints
 .I repo item brief
 (the brief as a path inside the repo) for the next pass to run, or nothing
 when none is launchable.
-Only the last line of output is read.
+Only the last non-blank line of output is read.
+A line with a tab is split on tabs, so a field may hold a space; a line with
+none is split on white space.
 .B {LAUNCHED}
 is the path of a file listing what this drain has started (one
+tab-separated
 .I repo item brief
 a line), so the queue can skip them, and
 .B {BY}
 is the orchestrator id.
+A pick already on that list is taken as nothing launchable, so a queue that
+ignores the list cannot start one pass over and over.
 .TP
 .B take
 Claims the pass.
@@ -541,22 +610,72 @@ and
 .BR {LOG} .
 .TP
 .B release
-Frees the claim after a pass ends
+Frees the claim after a pass ends with a
+.B RESULT
+in
+.B release_on
+(default
 .B DONE
-or
-.BR SKIPPED ;
+and
+.BR SKIPPED );
 a pass that ends any other way keeps its claim.
 It can use
 .BR {ITEM} ,
-.B {BRIEF}
+.BR {BRIEF} ,
+.BR {SESSION} ,
+.B {RESULT}
 and
-.BR {SESSION} .
+.BR {LOG} .
+A nonzero exit is printed; for
+.B resume
+it keeps the worktree and exits 2.
+.TP
+.B ended
+Optional.
+Called after every pass and every resume, whatever its
+.BR RESULT ,
+with the same values as
+.BR release ,
+for instance to record the session, log and worktree on the claim.
+A nonzero exit is printed and otherwise ignored.
+.TP
+.B release_on
+A list of
+.B RESULT
+words after which the claim is released and the worktree removed.
+In a drain they also reset the count of bad ends.
+Default:
+.B DONE
+and
+.BR SKIPPED .
+.TP
+.B stop_on
+A list of
+.B RESULT
+words that stop the drain.
+Default:
+.BR "BUDGET EXHAUSTED" .
 .SH RESULTS
 The session's output is read as JSON, tolerating a warning line before it.
 Its result text is searched for lines like
 .B RESULT: DONE
 and the last one is the verdict: one or two capital-letter words.
-No such line, or unreadable output, reads as
+.B claude \-p
+prints only the last turn.
+A session whose last turn followed a background notification can print one
+with no such line, though its report was written earlier.
+Then the session's own transcript,
+.IR <config>/projects/*/<session>.jsonl ,
+is read, where
+.I <config>
+is
+.B $CLAUDE_CONFIG_DIR
+or
+.IR ~/.claude ,
+and the newest assistant text with such a line written since the launch
+gives the verdict.
+The result file then says it was read from the transcript.
+No such line anywhere, or unreadable output, reads as
 .BR UNKNOWN .
 A run past a usage limit ends with no such line, which is how a spent budget
 shows up from outside.
@@ -577,12 +696,11 @@ The
 reads a pass's last
 .B END
 line.
-.B DONE
-and
-.B SKIPPED
-reset its count of bad ends;
-.B BUDGET EXHAUSTED
-stops it;
+A verdict in
+.B queue.stop_on
+stops it; one in
+.B queue.release_on
+resets its count of bad ends;
 anything else counts one bad end, and three in a row stop it.
 .SH FILES
 .TP
@@ -608,8 +726,18 @@ A folder for the session's own working files.
 .I <kit_dir>/driver.pid, driver.log
 The driver lock and the driver's log, in UTC.
 .TP
-.I <kit_dir>/launched\-<date>.txt
-What a drain has started today.
+.I <kit_dir>/launched\-reset\-<reset>.txt
+What a drain has started for the budget ending at
+.B reset_utc
+(written without its colon), so a drain that crosses midnight keeps one list.
+With no
+.BR reset_utc ,
+.I launched\-<date>.txt
+per UTC day.
+.TP
+.I <kit_dir>/max
+The live ceiling while a driver runs; see
+.BR STOPPING .
 .TP
 .I <kit_dir>/stop
 See
@@ -623,7 +751,22 @@ Both
 .B drive
 and
 .B drain
-honour it, and neither removes it, so delete it before the next driver.
+honour it, and neither removes it.
+A stop file written before the driver started is ignored, and the driver's
+log says so once: one left from an earlier run would otherwise end a new run
+before it started anything.
+To stop that run, touch it again.
+.PP
+The ceiling is live.
+A driver writes its starting
+.B \-\-max
+to
+.I <kit_dir>/max
+and reads it again on every loop, so editing the number lowers or raises it
+without a stop; the log records each change.
+0 holds every new start.
+Sessions already running are never stopped by it.
+The file is removed when the driver ends.
 .PP
 One driver may run per
 .IR kit_dir :
@@ -693,9 +836,16 @@ exits 1 for hold.
 .TP
 .B 2
 Claim refused: another session holds the item.
+For
+.BR resume ,
+the queue refused the release.
 .TP
 .B 3
 The reset time has been reached; nothing was started.
+.TP
+.B 4
+.B drain
+found the queue empty and started nothing.
 .TP
 .B 5
 Refused by the private-name guard, or a placeholder was left unfilled.
@@ -709,12 +859,6 @@ without the config they need.
 .PP
 A mistake in the command line itself is caught by the argument parser first,
 which exits 2.
-Exit code 4 is reserved for an empty queue but is not returned: an empty queue
-ends
-.B drain
-with exit 0 and a
-.B DRAIN EXIT
-line.
 .SH ENVIRONMENT
 .TP
 .B CCFLEET_CONFIG
@@ -725,6 +869,14 @@ is not given.
 .B CCFLEET_BY
 The default for
 .BR \-\-by .
+.TP
+.B CLAUDE_CONFIG_DIR
+Where session transcripts are looked for; default
+.IR ~/.claude .
+.TP
+.B CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS
+Set to 0 for every session ccfleet starts; see
+.BR DESCRIPTION .
 .SH NOTES
 Sessions started this way take real time and real budget.
 .BR run ,

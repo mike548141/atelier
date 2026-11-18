@@ -33,7 +33,19 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
   * A run past a usage limit ends with no RESULT line (read as UNKNOWN). The
     drain stops after three unclean ends in a row, which is how a spent budget
     shows up from outside.
-  * A `touch <kit_dir>/stop` ends launching cleanly; running jobs finish.
+  * Every session runs with CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0. Without
+    it `claude -p` kills a background subagent about ten minutes after the
+    orchestrator's last turn, so a reviewer working on act 2 died mid-act.
+  * `claude -p` prints only the last turn. A session whose last turn followed
+    a background notification printed no RESULT line though its report was
+    written; the harvest then reads the session's own transcript.
+  * A `touch <kit_dir>/stop` ends launching cleanly; running jobs finish. A
+    stop file older than the driver is ignored (and logged): last week's file
+    once ended a new run before it started anything.
+  * The ceiling is live: <kit_dir>/max holds it while a driver runs; edit the
+    number to pace a run without stopping it.
+  * Children start in their own session, so closing the driver's terminal
+    does not end the sessions it started.
 
 Usage:
   ccfleet check                       validate the config and print what it resolves to
@@ -48,7 +60,8 @@ Usage:
 
 JOBS is a TSV file, one job per line: repo, label, prompt template, then any
 number of KEY=VALUE fields that fill {KEY} in that template (MODEL=<id> sets the
-model; a value written @file:PATH takes that file's text, for a multi-line task). '#' lines and blank lines are skipped. A job whose result file for today
+model; a value written @file:PATH takes that file's text, for a multi-line
+task). '#' lines and blank lines are skipped. A job whose result file for today
 already exists is skipped, so re-running a drive resumes it.
 
 CONFIG is JSON (see instruments/ccfleet.example.json, every value fictional):
@@ -62,8 +75,10 @@ CONFIG is JSON (see instruments/ccfleet.example.json, every value fictional):
   reset_utc       "YYYY-MM-DDTHH:MM": no new start at or after it (a budget reset)
   private_names   names a public repo's prompt must never contain
   vars            template variables for every job (the principal's words, paths)
+  env             extra environment variables for every session (NAME: value)
   repos           {name: {model, notes, visibility, github}}  per-repo facts
-  queue           drain only: {next, take, release} argv lists (see below)
+  queue           drain only: {next, take, release[, ended]} argv lists, and
+                  release_on / stop_on lists of RESULT words (see below)
   pass_prompt     drain only: the per-pass orchestrator prompt template
   pass_model      drain only: the orchestrator's model (the reviewer's tier is the prompt's business)
 
@@ -71,23 +86,32 @@ THE QUEUE INTERFACE (drain). The review queue itself is the adopter's own tool;
 ccfleet only calls it. Each entry is an argv list; {REPO} {ITEM} {BRIEF} {BY}
 {WT} {LOG} are filled in before the call.
   next     prints "REPO ITEM BRIEF_RELPATH" for the next pass to run, or nothing
-           when the queue is empty. It is called with the launched list's path
-           in {LAUNCHED} (one "REPO ITEM BRIEF" per line) so it can skip them.
+           when the queue is empty; tab-separated when a field may hold a
+           space. It is called with the launched list's path in {LAUNCHED}
+           (one tab-separated "REPO ITEM BRIEF" per line) so it can skip them.
   take     claims the pass; a nonzero exit means someone else holds it (skip).
-  release  frees the claim after a pass ends DONE or SKIPPED.
+  release  frees the claim after a pass ends with a RESULT in release_on
+           (default DONE, SKIPPED); a refusal is printed and, for resume, exit 2.
+  ended    optional: called after every pass or resume, any RESULT, with
+           {SESSION} {RESULT} {LOG} {WT} filled (to record them on the claim).
+  stop_on  RESULT words that stop the drain (default BUDGET EXHAUSTED).
 
 Template variables always filled: {REPO} {GH} {BR} {VIS} {PIN} {WT} {PRIMARY}
 {LANDING} {NOTES} {SCRATCH} {BY} {DATE}, plus config `vars`, plus the job's own.
+{PIN}, when the template uses it and nothing supplies it, is the repo's atelier
+pin (tools/pins.py, else the CLAUDE.md atelier@<sha>), else UNRESOLVED.
 A {UPPER_CASE} placeholder left unfilled is a refusal, not a silent gap.
 
 Exit codes: 0 ran (the session's own verdict is in its END line and result
-file) · 1 setup failed · 2 claim refused · 3 reset reached · 4 queue empty ·
-5 refused by the private-name guard or an unfilled placeholder · 64 usage.
+file) · 1 setup failed · 2 claim refused (or a release refused) · 3 reset
+reached · 4 queue empty (a drain that started nothing) · 5 refused by the
+private-name guard or an unfilled placeholder · 64 usage.
 Runtime: Python 3.8 or later, standard library only; git on PATH; gh optional
 (visibility lookup when a repo's config does not state it).
 """
 import argparse
 import datetime as dt
+import glob
 import json
 import os
 import re
@@ -100,6 +124,12 @@ import time
 EXIT_SETUP, EXIT_CLAIM, EXIT_RESET, EXIT_EMPTY, EXIT_GUARD, EXIT_USAGE = 1, 2, 3, 4, 5, 64
 PLACEHOLDER = re.compile(r"\{([A-Z][A-Z0-9_]*)\}")
 RESULT_RX = re.compile(r"RESULT:\s*\**\s*([A-Z]+(?: [A-Z]+)?)")
+PIN_RX = re.compile(r"atelier@([0-9a-f]{7,40})\b", re.I)
+# Without this, `claude -p` kills a background subagent about ten minutes after
+# the orchestrator's last turn: a reviewer still working on act 2 dies mid-act.
+CEILING_VAR = "CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS"
+RELEASE_ON = ["DONE", "SKIPPED"]
+STOP_ON = ["BUDGET EXHAUSTED"]
 
 
 class Refusal(Exception):
@@ -142,7 +172,21 @@ def load_config(path):
     cfg.setdefault("private_names", [])
     cfg.setdefault("vars", {})
     cfg.setdefault("repos", {})
+    if not isinstance(cfg.setdefault("env", {}), dict):
+        raise Refusal(EXIT_USAGE, f"config {path}: env must be an object of NAME: value")
+    q = cfg.get("queue") or {}
+    for k, default in (("release_on", RELEASE_ON), ("stop_on", STOP_ON)):
+        if not isinstance(q.get(k, default), list):
+            raise Refusal(EXIT_USAGE, f"config {path}: queue.{k} must be a list of RESULT words")
     return cfg
+
+
+def release_on(cfg):
+    return list((cfg.get("queue") or {}).get("release_on", RELEASE_ON))
+
+
+def stop_on(cfg):
+    return list((cfg.get("queue") or {}).get("stop_on", STOP_ON))
 
 
 def reset_reached(cfg, at=None):
@@ -268,9 +312,10 @@ def private_hits(cfg, text, visibility):
     return sorted(n for n in names if re.search(r"(?<![\w-])" + re.escape(n) + r"(?![\w-])", text, re.I))
 
 
-def build_prompt(cfg, template_path, values):
-    with open(expand(template_path), encoding="utf-8") as f:
-        text, left = render(f.read(), values)
+def build_prompt(cfg, template_path, values, template_text=None):
+    if template_text is None:
+        template_text = read_template(template_path)
+    text, left = render(template_text, values)
     if left:
         raise Refusal(EXIT_GUARD, f"unfilled placeholder(s) in {template_path}: {', '.join('{'+k+'}' for k in left)}")
     hits = private_hits(cfg, text, values.get("VIS", "UNKNOWN"))
@@ -282,8 +327,59 @@ def build_prompt(cfg, template_path, values):
 
 # ---------- one session ----------
 
-def harvest(log_path):
-    """(result text, session id, RESULT word) from a `claude -p --output-format json` log."""
+def config_dir():
+    """Claude Code's own directory: $CLAUDE_CONFIG_DIR, else ~/.claude."""
+    return expand(os.environ.get("CLAUDE_CONFIG_DIR") or "~/.claude")
+
+
+def message_text(msg):
+    """The text blocks of a transcript message, joined."""
+    if not isinstance(msg, dict):
+        return ""
+    c = msg.get("content")
+    if isinstance(c, str):
+        return c
+    if isinstance(c, list):
+        return "\n".join(b.get("text", "") for b in c if isinstance(b, dict) and b.get("type") == "text")
+    return ""
+
+
+def transcript_result(sid, since=None):
+    """The newest assistant text carrying a RESULT: line in the session's own
+    transcript (<config dir>/projects/*/<sid>.jsonl), or "". Entries stamped
+    before `since` (ISO UTC) are not read, so a resumed session never takes an
+    earlier run's verdict."""
+    if not sid or not re.fullmatch(r"[A-Za-z0-9_-]+", sid):
+        return ""
+    best = ("", -1, "")
+    for path in glob.glob(os.path.join(glob.escape(config_dir()), "projects", "*", sid + ".jsonl")):
+        try:
+            with open(path, encoding="utf-8", errors="replace") as f:
+                lines = f.readlines()
+        except OSError:
+            continue
+        for n, line in enumerate(lines):
+            try:
+                e = json.loads(line)
+            except ValueError:
+                continue
+            if not isinstance(e, dict) or e.get("type") != "assistant":
+                continue
+            ts = str(e.get("timestamp") or "")
+            if since and ts and ts < since:
+                continue
+            text = message_text(e.get("message"))
+            if RESULT_RX.search(text) and (ts, n) >= best[:2]:
+                best = (ts, n, text)
+    return best[2]
+
+
+def harvest(log_path, since=None):
+    """(result text, session id, RESULT word) from a `claude -p --output-format json` log.
+    `claude -p` prints only the last turn. A session whose last turn came after
+    a background notification (a subagent finishing) can print a line with no
+    RESULT in it while its real report sits earlier; then the transcript is
+    read for the newest assistant text that has one."""
     try:
         with open(log_path, encoding="utf-8", errors="replace") as f:
             s = f.read()
@@ -295,6 +391,11 @@ def harvest(log_path):
     except (ValueError, AttributeError):
         text, sid = s[-4000:], ""
     found = RESULT_RX.findall(text)
+    if not found and sid:
+        t = transcript_result(sid, since)
+        if t:
+            text = "(read from the session transcript: the last turn printed no RESULT line)\n" + t
+            found = RESULT_RX.findall(t)
     return text, sid, (found[-1] if found else "UNKNOWN")
 
 
@@ -317,10 +418,24 @@ def session_argv(cfg, model, prompt, resume=None):
     return argv
 
 
+def session_env(cfg):
+    """The launch environment: ours, the config's `env`, and the wait ceiling
+    switched off, always (see CEILING_VAR)."""
+    env = dict(os.environ)
+    env.update({str(k): str(v) for k, v in cfg.get("env", {}).items()})
+    env[CEILING_VAR] = "0"
+    return env
+
+
 def launch(cfg, argv, cwd, log):
     # stdin from /dev/null, always: see the module docstring.
     with open(log, "w") as out, open(log + ".err", "w") as err:
-        return subprocess.run(argv, cwd=cwd, stdin=subprocess.DEVNULL, stdout=out, stderr=err).returncode
+        return subprocess.run(argv, cwd=cwd, stdin=subprocess.DEVNULL, stdout=out, stderr=err,
+                              env=session_env(cfg)).returncode
+
+
+def iso_now():
+    return f"{now_utc():%Y-%m-%dT%H:%M:%S}"
 
 
 def read_at_file(v):
@@ -335,9 +450,69 @@ def safe(s):
     return re.sub(r"[^A-Za-z0-9._-]+", "-", s).strip("-")
 
 
+def resolve_pin(cfg, facts):
+    """(pin, source) for a repo: tools/pins.py's reading of its checkout, else
+    the first atelier@<sha> in its CLAUDE.md on the mainline (or in the
+    checkout), else ("UNRESOLVED", why). Atelier is vars.ATELIER, else the
+    checkout this file lives in."""
+    atelier = expand(cfg["vars"].get("ATELIER") or
+                     os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    pins = os.path.join(atelier, "tools", "pins.py")
+    primary = facts["primary"]
+    if os.path.isfile(pins):
+        try:
+            r = subprocess.run([sys.executable, pins, "--atelier", atelier, "--head", "--child", primary,
+                                "--json"], capture_output=True, text=True, timeout=120,
+                               stdin=subprocess.DEVNULL)
+            kids = json.loads(r.stdout).get("children") or []
+            if kids and kids[0].get("pin"):
+                return str(kids[0]["pin"]).lower(), "pins.py"
+        except (OSError, subprocess.SubprocessError, ValueError, AttributeError):
+            pass
+    text = git("show", f"{facts['defref']}:CLAUDE.md", cwd=primary, check=False)
+    if not text:
+        try:
+            with open(os.path.join(primary, "CLAUDE.md"), encoding="utf-8", errors="replace") as f:
+                text = f.read()
+        except OSError:
+            text = ""
+    m = PIN_RX.search(text)
+    if m:
+        return m.group(1).lower(), "CLAUDE.md"
+    why = "pins.py found none" if os.path.isfile(pins) else f"no {pins}"
+    return "UNRESOLVED", f"{why}, and CLAUDE.md has no atelier@<sha>"
+
+
+def base_values(cfg, repo, facts, wt, by, extra, template_text, branch_name=None):
+    """Every template value a session gets. {PIN} is resolved only when the
+    template uses it and nothing supplied it; an unresolved pin is filled as
+    UNRESOLVED and said, never left silently empty."""
+    scratch = os.path.join(cfg["kit_dir"], "scratch", safe(repo))
+    values = {**{k: str(v) for k, v in cfg["vars"].items()}, **{k: str(v) for k, v in extra.items()},
+              "REPO": repo, "GH": facts["gh"], "BR": facts["branch"], "VIS": facts["visibility"],
+              "WT": wt, "PRIMARY": facts["primary"], "LANDING": landing_text(facts, wt, branch_name),
+              "NOTES": cfg["repos"].get(repo, {}).get("notes", "none"), "SCRATCH": scratch + "/",
+              "BY": by, "DATE": f"{now_utc():%Y-%m-%d}"}
+    if "PIN" not in values and "{PIN}" in template_text:
+        values["PIN"], source = resolve_pin(cfg, facts)
+        if values["PIN"] == "UNRESOLVED":
+            print(f"PIN UNRESOLVED for {repo}: {source}; the prompt says UNRESOLVED", flush=True)
+        else:
+            print(f"PIN {values['PIN']} for {repo} (from {source})", flush=True)
+    values.setdefault("PIN", "")
+    return values
+
+
+def read_template(path):
+    with open(expand(path), encoding="utf-8") as f:
+        return f.read()
+
+
 def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown",
-            dry=False, keep=False, pre=None, post=None, check_file=None, existing=None):
-    """Make the worktree, render, launch, harvest, clean up. Returns (exit, RESULT word)."""
+            dry=False, keep=False, pre=None, post=None, check_file=None, existing=None,
+            clean=("DONE", "SKIPPED")):
+    """Make the worktree, render, launch, harvest, clean up. Returns (exit, RESULT word).
+    With a `post` hook, the worktree is removed only for a RESULT in `clean`."""
     if reset_reached(cfg):
         print(f"RESET reached; not starting {label or repo}")
         return EXIT_RESET, "RESET"
@@ -358,13 +533,9 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     log = os.path.join(logs, os.path.basename(os.path.dirname(wt))
                        + (f"-in-{now_utc():%H%M%S}" if existing else "") + ".json")
     branch_name = None if (facts["remote"] or existing) else f"fleet/{label}-{now_utc().strftime('%H%M%S')}"
-    values = {**{k: str(v) for k, v in cfg["vars"].items()}, **{k: str(v) for k, v in extra.items()},
-              "REPO": repo, "GH": facts["gh"], "BR": facts["branch"], "VIS": facts["visibility"],
-              "WT": wt, "PRIMARY": facts["primary"], "LANDING": landing_text(facts, wt, branch_name),
-              "NOTES": cfg["repos"].get(repo, {}).get("notes", "none"), "SCRATCH": scratch + "/",
-              "BY": by, "DATE": day}
-    values.setdefault("PIN", "")
-    prompt = build_prompt(cfg, template, values)
+    template_text = read_template(template)
+    values = base_values(cfg, repo, facts, wt, by, extra, template_text, branch_name)
+    prompt = build_prompt(cfg, template, values, template_text)
     argv = session_argv(cfg, model, prompt)
     if dry:
         print(f"DRY {repo} model={model} vis={facts['visibility']} wt={wt}")
@@ -399,16 +570,16 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
             cleanup()
             return code, "UNKNOWN"
     print(f"START {now_utc():%Y-%m-%dT%H:%M:%SZ} {label} model={model} wt={wt} log={log}", flush=True)
+    since = iso_now()
     rc = launch(cfg, argv, wt, log)
-    text, sid, result = harvest(log)
+    text, sid, result = harvest(log, since)
     out = os.path.join(results, f"{label}.md")
     with open(out, "w", encoding="utf-8") as f:
         f.write(f"<!-- session {sid} -->\n{text}\n")
     print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={sid} out={out}", flush=True)
-    finished = result in ("DONE", "SKIPPED")
     if post:
-        post(values, finished, sid)
-    if not keep and (finished or not post):
+        post(values, result, sid, log)
+    if not keep and (result in clean or not post):
         cleanup()
     return 0, result
 
@@ -465,125 +636,265 @@ def self_argv(args_common, *rest):
     return [sys.executable, os.path.abspath(__file__), *args_common, *rest]
 
 
+def spawn(argv, out_path):
+    """A child ccfleet in its own session, so it and its `claude` survive the
+    driver's terminal closing (a hangup goes to the terminal's session only)."""
+    with open(out_path, "w") as out:
+        return subprocess.Popen(argv, stdout=out, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                                start_new_session=True)
+
+
+class Pacing:
+    """What a driver re-reads every loop: the stop file and the live ceiling.
+
+    The stop file counts only when written after this driver started: one left
+    by an earlier run is ignored, and the log says so once. The ceiling is the
+    file <kit_dir>/max, written with the starting value when the driver starts
+    and removed when it ends; edit the number mid-run to lower or raise it
+    (0 holds every new start). Running sessions are never stopped by it."""
+
+    def __init__(self, cfg, max_n):
+        self.cfg, self.n = cfg, max_n
+        self.started = int(time.time())  # whole seconds: a coarse mtime still compares right
+        self.stop_path = os.path.join(cfg["kit_dir"], "stop")
+        self.max_path = os.path.join(cfg["kit_dir"], "max")
+        self.said_stale = self.said_bad = False
+        with open(self.max_path, "w") as f:
+            f.write(f"{max_n}\n")
+
+    def stop(self):
+        try:
+            m = os.path.getmtime(self.stop_path)
+        except OSError:
+            return False
+        if m < self.started:
+            if not self.said_stale:
+                when = dt.datetime.fromtimestamp(m, dt.timezone.utc)
+                say(self.cfg, f"stop file ignored: written {when:%Y-%m-%dT%H:%MZ}, before this driver "
+                              f"started; touch it again to stop this run, or delete it")
+                self.said_stale = True
+            return False
+        return True
+
+    def max(self):
+        try:
+            with open(self.max_path) as f:
+                text = f.read().strip()
+        except OSError:
+            return self.n
+        try:
+            v = int(text)
+            if v < 0:
+                raise ValueError
+        except ValueError:
+            if not self.said_bad:
+                say(self.cfg, f"max file unreadable ({text[:20]!r}); keeping {self.n}")
+                self.said_bad = True
+            return self.n
+        self.said_bad = False
+        if v != self.n:
+            say(self.cfg, f"max {self.n} -> {v} (from {self.max_path})")
+            self.n = v
+        return self.n
+
+    def close(self):
+        try:
+            os.remove(self.max_path)
+        except OSError:
+            pass
+
+
 def drive(cfg, jobs, common, max_n, serial_per_repo, dry):
     """Start jobs in order, up to max_n at once, one per stagger, only with headroom.
     serial_per_repo: never two jobs of one repo at once (one writer per repo)."""
     kit, day = cfg["kit_dir"], now_utc().strftime("%Y-%m-%d")
     os.makedirs(os.path.join(kit, "logs"), exist_ok=True)
     queue, running, last_hold = list(jobs), {}, 0
+    pace = Pacing(cfg, max_n)
     say(cfg, f"drive up: {len(queue)} jobs, max {max_n}{', serial per repo' if serial_per_repo else ''}")
-    while queue or running:
-        for p in [p for p in running if p.poll() is not None]:
-            say(cfg, f"done {running.pop(p)['label']} rc={p.returncode}")
-        if os.path.exists(os.path.join(kit, "stop")) and queue:
-            say(cfg, f"stop file: {len(queue)} jobs not started")
-            queue = []
-        busy = {j["repo"] for j in running.values()}
-        nxt = next((j for j in queue if not (serial_per_repo and j["repo"] in busy)), None)
-        if nxt and os.path.exists(os.path.join(kit, "results", day, nxt["label"] + ".md")):
-            queue.remove(nxt)
-            say(cfg, f"skip {nxt['label']} (result exists for {day})")
-            continue
-        if nxt and len(running) < max_n:
-            reading = read_headroom(cfg)
-            if gate_ok(cfg["gate"], reading) or dry:
+    try:
+        while queue or running:
+            for p in [p for p in running if p.poll() is not None]:
+                say(cfg, f"done {running.pop(p)['label']} rc={p.returncode}")
+            if queue and pace.stop():
+                say(cfg, f"stop file: {len(queue)} jobs not started")
+                queue = []
+            busy = {j["repo"] for j in running.values()}
+            nxt = next((j for j in queue if not (serial_per_repo and j["repo"] in busy)), None)
+            if nxt and os.path.exists(os.path.join(kit, "results", day, nxt["label"] + ".md")):
                 queue.remove(nxt)
-                rest = ["run", nxt["repo"], "--prompt", nxt["prompt"], "--label", nxt["label"]]
-                for k, v in nxt["vars"].items():
-                    rest += ["--set", f"{k}={v}"]
-                if dry:
-                    rest.append("--dry-run")
-                with open(os.path.join(kit, "logs", f"run-{nxt['label']}.out"), "w") as out:
-                    p = subprocess.Popen(self_argv(common, *rest), stdout=out, stderr=subprocess.STDOUT,
-                                         stdin=subprocess.DEVNULL)
-                running[p] = nxt
-                say(cfg, f"start {nxt['label']} ({len(running)}/{max_n}, {describe(reading)})")
-                if not dry:
-                    time.sleep(cfg["stagger_seconds"])
+                say(cfg, f"skip {nxt['label']} (result exists for {day})")
                 continue
-            if time.time() - last_hold > 600:
-                say(cfg, f"holding: {describe(reading)}")
-                last_hold = time.time()
-        time.sleep(0.2 if dry else cfg["poll_seconds"])
+            ceiling = pace.max()
+            if nxt and len(running) < ceiling:
+                reading = read_headroom(cfg)
+                if gate_ok(cfg["gate"], reading) or dry:
+                    queue.remove(nxt)
+                    rest = ["run", nxt["repo"], "--prompt", nxt["prompt"], "--label", nxt["label"]]
+                    for k, v in nxt["vars"].items():
+                        rest += ["--set", f"{k}={v}"]
+                    if dry:
+                        rest.append("--dry-run")
+                    p = spawn(self_argv(common, *rest), os.path.join(kit, "logs", f"run-{nxt['label']}.out"))
+                    running[p] = nxt
+                    say(cfg, f"start {nxt['label']} ({len(running)}/{ceiling}, {describe(reading)})")
+                    if not dry:
+                        time.sleep(cfg["stagger_seconds"])
+                    continue
+                if time.time() - last_hold > 600:
+                    say(cfg, f"holding: {describe(reading)}")
+                    last_hold = time.time()
+            time.sleep(0.2 if dry else cfg["poll_seconds"])
+    finally:
+        pace.close()
     say(cfg, "drive down")
 
 
 def queue_call(cfg, name, values):
     argv = [os.path.expanduser(PLACEHOLDER.sub(lambda m: str(values.get(m.group(1), m.group(0))), a))
             for a in cfg["queue"][name]]
-    return subprocess.run(argv, capture_output=True, text=True)
+    return subprocess.run(argv, capture_output=True, text=True, stdin=subprocess.DEVNULL)
+
+
+def parse_pick(stdout):
+    """The queue's last non-blank line as fields: tab-separated when it has a
+    tab (names with spaces survive), else split on whitespace."""
+    lines = [l for l in stdout.splitlines() if l.strip()]
+    if not lines:
+        return []
+    line = lines[-1]
+    if "\t" in line:
+        return [f.strip() for f in line.split("\t")]
+    return line.split()
+
+
+def launched_path(cfg):
+    """One launched list per budget (keyed by reset_utc) when a reset is set,
+    so a drain crossing UTC midnight keeps one list; else one per UTC day."""
+    r = cfg.get("reset_utc")
+    tag = f"reset-{safe(r.replace(':', ''))}" if r else f"{now_utc():%Y-%m-%d}"
+    return os.path.join(cfg["kit_dir"], f"launched-{tag}.txt")
+
+
+def read_launched(path):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return {tuple(parse_pick(l)[:3]) for l in f if l.strip()}
+    except OSError:
+        return set()
+
+
+END_RESULT_RX = re.compile(r" result=(.*?) session=")
 
 
 def drain(cfg, common, max_n, dry):
     """Keep up to max_n review passes running from the adopter's queue until it is
-    empty, the reset arrives, the stop file appears, or the budget runs out."""
+    empty, the reset arrives, the stop file appears, or the budget runs out.
+    Returns the exit code: 4 when the queue was empty before any pass started,
+    3 when the reset had come before any pass started, else 0."""
     if not cfg.get("queue") or not all(k in cfg["queue"] for k in ("next", "take", "release")):
         raise Refusal(EXIT_USAGE, "drain needs queue.next, queue.take and queue.release in the config")
     kit = cfg["kit_dir"]
     os.makedirs(os.path.join(kit, "logs"), exist_ok=True)
-    launched = os.path.join(kit, f"launched-{now_utc():%Y-%m-%d}.txt")
+    launched = launched_path(cfg)
     open(launched, "a").close()
-    running, bad, stop, empty, last_hold = {}, 0, None, False, 0
-    say(cfg, f"drain up: max {max_n}, gate {cfg['gate']}")
-    while True:
-        for p in [p for p in running if p.poll() is not None]:
-            pick, out = running.pop(p)
-            empty = False  # a slot freed: the queue may have something again
-            with open(out, errors="replace") as f:
-                end = [l for l in f if l.startswith("END ")]
-            if p.returncode == EXIT_RESET:
-                stop = stop or "reset"
-            elif not end:
-                say(cfg, f"{pick} ended early rc={p.returncode}")
-            else:
-                say(cfg, f"{pick} {end[-1].strip()}")
-                if "result=DONE" in end[-1] or "result=SKIPPED" in end[-1]:
-                    bad = 0
-                elif "result=BUDGET EXHAUSTED" in end[-1]:
-                    stop = "budget"
+    clean, halt = release_on(cfg), stop_on(cfg)
+    running, bad, stop, empty, last_hold, started = {}, 0, None, False, 0, 0
+    pace = Pacing(cfg, max_n)
+    say(cfg, f"drain up: max {max_n}, gate {cfg['gate']}, launched list {launched}")
+    try:
+        while True:
+            for p in [p for p in running if p.poll() is not None]:
+                pick, out = running.pop(p)
+                empty = False  # a slot freed: the queue may have something again
+                with open(out, errors="replace") as f:
+                    end = [l for l in f if l.startswith("END ")]
+                m = END_RESULT_RX.search(end[-1]) if end else None
+                if p.returncode == EXIT_RESET:
+                    stop = stop or "reset"
+                elif not m:
+                    say(cfg, f"{pick} ended early rc={p.returncode}")
                 else:
-                    bad += 1
-                    stop = stop or ("failures" if bad >= 3 else None)
-        if os.path.exists(os.path.join(kit, "stop")):
-            stop = stop or "stopfile"
-        if reset_reached(cfg):
-            stop = stop or "reset"
-        if stop or empty:
-            if not running:
-                break
-            time.sleep(0.2 if dry else cfg["poll_seconds"])
-            continue
-        if len(running) < max_n:
-            reading = read_headroom(cfg)
-            if gate_ok(cfg["gate"], reading) or dry:
-                r = queue_call(cfg, "next", {"LAUNCHED": launched, "BY": common_by(common)})
-                pick = r.stdout.strip().splitlines()[-1].split() if r.stdout.strip() else []
-                if len(pick) < 3:
-                    empty = True
-                    say(cfg, "queue: nothing launchable now")
-                    continue
-                with open(launched, "a") as f:
-                    f.write(" ".join(pick[:3]) + "\n")
-                out = os.path.join(kit, "logs", f"pass-{safe(pick[0] + '-' + pick[1])}-{now_utc():%H%M%S}.out")
-                rest = ["pass", *pick[:3]] + (["--dry-run"] if dry else [])
-                with open(out, "w") as fh:
-                    p = subprocess.Popen(self_argv(common, *rest), stdout=fh, stderr=subprocess.STDOUT,
-                                         stdin=subprocess.DEVNULL)
-                running[p] = (" ".join(pick[:2]), out)
-                say(cfg, f"started {pick[0]} {pick[1]} ({len(running)}/{max_n}, {describe(reading)})")
-                if not dry:
-                    time.sleep(cfg["stagger_seconds"])
+                    say(cfg, f"{pick} {end[-1].strip()}")
+                    if m.group(1) in halt:
+                        stop = stop or f"result {m.group(1)}"
+                    elif m.group(1) in clean:
+                        bad = 0
+                    else:
+                        bad += 1
+                        stop = stop or ("failures" if bad >= 3 else None)
+            if pace.stop():
+                stop = stop or "stopfile"
+            if reset_reached(cfg):
+                stop = stop or "reset"
+            if stop or empty:
+                if not running:
+                    break
+                time.sleep(0.2 if dry else cfg["poll_seconds"])
                 continue
-            if time.time() - last_hold > 600:
-                say(cfg, f"holding starts: {describe(reading)}")
-                last_hold = time.time()
-        time.sleep(0.2 if dry else cfg["poll_seconds"])
-    say(cfg, f"drain down: {stop or 'queue empty'}")
-    print(f"DRAIN EXIT: {stop or 'queue empty'}")
+            ceiling = pace.max()
+            if len(running) < ceiling:
+                reading = read_headroom(cfg)
+                if gate_ok(cfg["gate"], reading) or dry:
+                    r = queue_call(cfg, "next", {"LAUNCHED": launched, "BY": common_by(common)})
+                    pick = parse_pick(r.stdout)
+                    if len(pick) < 3 or not all(pick[:3]):
+                        empty = True
+                        say(cfg, "queue: nothing launchable now")
+                        continue
+                    if tuple(pick[:3]) in read_launched(launched):
+                        # A queue that ignores {LAUNCHED} would start one pass over and over.
+                        empty = True
+                        say(cfg, f"queue offered {' '.join(pick[:2])} again, already launched; "
+                                 f"treated as nothing launchable")
+                        continue
+                    with open(launched, "a") as f:
+                        f.write("\t".join(pick[:3]) + "\n")
+                    out = os.path.join(kit, "logs", f"pass-{safe(pick[0] + '-' + pick[1])}-{now_utc():%H%M%S}.out")
+                    rest = ["pass", *pick[:3]] + (["--dry-run"] if dry else [])
+                    p = spawn(self_argv(common, *rest), out)
+                    running[p] = (" ".join(pick[:2]), out)
+                    started += 1
+                    say(cfg, f"started {pick[0]} {pick[1]} ({len(running)}/{ceiling}, {describe(reading)})")
+                    if not dry:
+                        time.sleep(cfg["stagger_seconds"])
+                    continue
+                if time.time() - last_hold > 600:
+                    say(cfg, f"holding starts: {describe(reading)}")
+                    last_hold = time.time()
+            time.sleep(0.2 if dry else cfg["poll_seconds"])
+    finally:
+        pace.close()
+    why = stop or "queue empty"
+    say(cfg, f"drain down: {why} ({started} started)")
+    print(f"DRAIN EXIT: {why}")
+    if started == 0 and why == "queue empty":
+        return EXIT_EMPTY
+    if started == 0 and why == "reset":
+        return EXIT_RESET
+    return 0
 
 
 def common_by(common):
     return common[common.index("--by") + 1] if "--by" in common else "unknown"
+
+
+def ended_hooks(cfg, values, result, sid, log, item, brief):
+    """After a pass (or a resume) ends: release the claim when the RESULT is in
+    queue.release_on, checking the exit code, then call queue.ended if set.
+    Returns False when a release was refused."""
+    hv = {**values, "ITEM": item or "", "BRIEF": brief or "", "SESSION": sid, "RESULT": result, "LOG": log}
+    ok = True
+    if result in release_on(cfg) and item:
+        r = queue_call(cfg, "release", hv)
+        if r.returncode:
+            ok = False
+            print(f"release refused rc={r.returncode}: {r.stdout.strip()} {r.stderr.strip()}".rstrip(), flush=True)
+    if (cfg.get("queue") or {}).get("ended"):
+        r = queue_call(cfg, "ended", hv)
+        if r.returncode:
+            print(f"queue.ended failed rc={r.returncode}: {r.stderr.strip()}".rstrip(), flush=True)
+    return ok
 
 
 def one_pass(cfg, repo, item, brief, by, dry):
@@ -600,31 +911,40 @@ def one_pass(cfg, repo, item, brief, by, dry):
             return EXIT_CLAIM
         return 0
 
-    def post(values, finished, sid):
-        if finished:
-            queue_call(cfg, "release", {**values, "ITEM": item, "BRIEF": brief, "SESSION": sid})
+    def post(values, result, sid, log):
+        ended_hooks(cfg, values, result, sid, log, item, brief)
 
     return run_one(cfg, repo, expand(template), label=label, model=cfg.get("pass_model"),
                    extra={"ITEM": item, "BRIEF": brief}, by=by, dry=dry,
-                   pre=None if dry else pre, post=None if dry else post, check_file=brief)[0]
+                   pre=None if dry else pre, post=None if dry else post, check_file=brief,
+                   clean=release_on(cfg))[0]
 
 
 def resume(cfg, repo, wt, sid, template, item, extra, by):
     """Finish one pass a usage limit cut off: resume its own session, start nothing new."""
     model = cfg.get("pass_model") or cfg["repos"].get(repo, {}).get("model") or cfg["default_model"]
     facts = repo_facts(cfg, repo, fetch=False)
-    values = {**{k: str(v) for k, v in cfg["vars"].items()}, **extra, "REPO": repo, "WT": wt, "SESSION": sid,
-              "ITEM": item or "", "BY": by, "VIS": facts["visibility"], "GH": facts["gh"],
-              "BR": facts["branch"], "LANDING": landing_text(facts, wt, None), "DATE": f"{now_utc():%Y-%m-%d}"}
-    prompt = build_prompt(cfg, template, values)
-    os.makedirs(os.path.join(cfg["kit_dir"], "logs"), exist_ok=True)
+    extra = {k: read_at_file(v) for k, v in extra.items()}
+    template_text = read_template(template)
+    values = base_values(cfg, repo, facts, wt, by, {**extra, "SESSION": sid, "ITEM": item or ""},
+                         template_text)
+    prompt = build_prompt(cfg, template, values, template_text)
+    for d in ("logs", os.path.join("scratch", safe(repo))):
+        os.makedirs(os.path.join(cfg["kit_dir"], d), exist_ok=True)
     log = os.path.join(cfg["kit_dir"], "logs", f"resume-{safe(repo + '-' + (item or sid))}-{now_utc():%H%M}.json")
     print(f"START {now_utc():%Y-%m-%dT%H:%M:%SZ} resume {repo} {item or ''} of {sid}", flush=True)
+    since = iso_now()
     rc = launch(cfg, session_argv(cfg, model, prompt, resume=sid), wt, log)
-    _, _, result = harvest(log)
-    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result}", flush=True)
-    if result == "DONE" and item and cfg.get("queue", {}).get("release"):
-        queue_call(cfg, "release", {**values, "BRIEF": ""})
+    _, new_sid, result = harvest(log, since)
+    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={new_sid or sid} out={log}",
+          flush=True)
+    if not cfg.get("queue"):
+        return 0
+    released = ended_hooks(cfg, values, result, new_sid or sid, log, item, "")
+    if not released:
+        print(f"the claim on {repo}:{item} is still held; worktree kept: {wt}", flush=True)
+        return EXIT_CLAIM
+    if item and result in release_on(cfg):
         git("worktree", "remove", "--force", wt, cwd=facts["primary"], check=False)
     return 0
 
@@ -640,8 +960,8 @@ def main(argv=None):
         epilog="Every estate value (repos, tiers, queue, reset time) comes from a JSON config:\n"
                "--config PATH or $CCFLEET_CONFIG. `run`, `drive`, `drain`, `pass` and `resume`\n"
                "start real sessions; --dry-run prints the launch instead.\n"
-               "Exit: 0 ran, 1 setup failed, 2 claim refused, 3 reset reached, 5 refused by the\n"
-               "private-name guard, 64 usage.\n"
+               "Exit: 0 ran, 1 setup failed, 2 claim refused, 3 reset reached, 4 queue empty,\n"
+               "5 refused by the private-name guard, 64 usage.\n"
                "Full manual: man ccfleet")
     ap.add_argument("--config", metavar="PATH", help="the JSON config (else $CCFLEET_CONFIG)")
     ap.add_argument("--by", metavar="ID", default=os.environ.get("CCFLEET_BY", "unknown"),
@@ -672,7 +992,7 @@ def main(argv=None):
     p = sub.add_parser("resume", help="finish a cut-off pass in its own session")
     p.add_argument("repo"); p.add_argument("worktree"); p.add_argument("session")
     p.add_argument("--prompt", required=True, metavar="FILE", help="prompt template")
-    p.add_argument("--item", help="the queue item; released when the pass ends DONE")
+    p.add_argument("--item", help="the queue item; released when the pass ends clean (queue.release_on)")
     p.add_argument("--set", action="append", default=[], metavar="K=V", help="fill {K} in the template")
     a = ap.parse_args(argv)
     if a.doc:
@@ -685,8 +1005,9 @@ def main(argv=None):
         cfg = load_config(a.config)
         common = (["--config", a.config] if a.config else []) + ["--by", a.by]
         if a.cmd == "check":
-            print(json.dumps({k: v for k, v in cfg.items() if k != "vars"}, indent=1))
-            print(f"vars: {', '.join(sorted(cfg['vars'])) or 'none'}; reset reached: {reset_reached(cfg)}")
+            print(json.dumps({k: v for k, v in cfg.items() if k not in ("vars", "env")}, indent=1))
+            print(f"vars: {', '.join(sorted(cfg['vars'])) or 'none'}; env: {', '.join(sorted(cfg['env'])) or 'none'} "
+                  f"(+ {CEILING_VAR}=0); reset reached: {reset_reached(cfg)}")
             return 0
         if a.cmd == "gate":
             reading = read_headroom(cfg)
@@ -703,8 +1024,7 @@ def main(argv=None):
             return 0
         if a.cmd == "drain":
             with DriverLock(cfg["kit_dir"]):
-                drain(cfg, common, a.max or cfg["max_concurrent"], a.dry_run)
-            return 0
+                return drain(cfg, common, a.max or cfg["max_concurrent"], a.dry_run)
         if a.cmd == "pass":
             return one_pass(cfg, a.repo, a.item, a.brief, a.by, a.dry_run)
         if a.cmd == "resume":
