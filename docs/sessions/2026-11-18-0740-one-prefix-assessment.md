@@ -56,4 +56,13 @@ review-tier model was used and no review was run or briefed.
 ## Left owed
 
 `450/010` rows 2, 11, 12 and the child follow-ups; cold passes `160/1450` (normal),
-`160/1610` and `160/1620` (low); secretguard's wiring, the principal's call.
+`160/1610` and `160/1620` (low).
+
+## Two last answers
+
+- 💬 Switch secretguard on for every session: his pick *"Switch it on (Recommended)"*. Wired
+  user-level after five probes (`.env` and a private key refused; `.env.example`, `grep -c` and
+  `ls` allowed). The service-estate child drops its own copy at its next sweep.
+- 💬 Commit the uncommitted edit to the session-open prompt as his: *"Yes, commit it
+  (Recommended)"*. Committed as `227cd0d6`, his words verbatim with only the line breaks moved to
+  pass `wrapscan`.

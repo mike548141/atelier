@@ -121,8 +121,8 @@
         `next` and `take --set`, and a base drain config exists, unused.
       - ✅ Row 6 `tools/secretguard.py` and row 8 `tools/deadhook.py`
         (`cdfadc75`). `deadhook --status` is now `/atelier:install-hook`'s
-        proof step. secretguard is built, not wired: switching on a hook
-        that refuses commands in every repo is the principal's call.
+        proof step. secretguard wired user-level on the principal's pick,
+        *"Switch it on (Recommended)"*.
       - ✅ Row 7 `tools/stashscan.py` (wired at session open) and row 9
         `tools/treeline.py`, which the floor now prints under its coverage
         line, so every child's next floor run shows one more line
