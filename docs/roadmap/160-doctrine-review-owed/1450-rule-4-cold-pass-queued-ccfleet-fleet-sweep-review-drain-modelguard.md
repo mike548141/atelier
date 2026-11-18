@@ -27,3 +27,6 @@
       weekly drain only after this pass is clean, and for this one pass
       *"Normal priority (Recommended)"* (his pick; the rest of `450`'s
       passes are low). **Drain priority: normal (principal, 2026-11-18).**
+      **Widened again 2026-11-18:** add `1eb42f54` (three faults the first
+      real estate run found: fresh `kit_dir`, failing queue `next`, dry
+      passes' `END` line). The brief covers `main` at or after it.

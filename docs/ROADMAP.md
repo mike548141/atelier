@@ -416,6 +416,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the floor bundle — the visibility check…](roadmap/160-doctrine-review-owed/1590-rule-4-cold-pass-queued-floor-bundle-visibility-slot-estate-root.md)
 - [ ] ⏳ [Rule-4 cold pass queued: leakscan's G3 reads Office and PDF metadata,…](roadmap/160-doctrine-review-owed/1600-rule-4-cold-pass-queued-office-pdf-metadata-reader.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the /atelier menu, ccstatusline, prefixhook,…](roadmap/160-doctrine-review-owed/1610-rule-4-cold-pass-queued-one-prefix-menu-statusline-prefixhook.md)
+- [ ] ⏳ [Rule-4 cold pass queued: secretguard, deadhook, stashscan, treeline…](roadmap/160-doctrine-review-owed/1620-rule-4-cold-pass-queued-secretguard-deadhook-stashscan-treeline-pins-floor.md)
 
 ## build/ layer — open strands
 

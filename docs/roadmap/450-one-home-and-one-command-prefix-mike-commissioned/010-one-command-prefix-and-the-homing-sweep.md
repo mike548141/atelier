@@ -109,6 +109,43 @@
         (Recommended)"*. So row 2 waits for a clean `160/1450` and then
         switches at a gap between drains, never mid-drain; his drain command
         keeps working until then. Row 1, the sweep, switches now.
+      - ✅ Row 1, the sweep: switched. The estate root holds the private
+        config and rulings file, the user-level settings point the skill at
+        it, one real `run` on a small repo ended `DONE` and billed to that
+        repo, and the old `/estate-health` link is removed. The run found
+        three `ccfleet` faults (fresh `kit_dir` crash; a failing queue read
+        as empty; dry passes logged as ended early), fixed in `1eb42f54`.
+        🚩 The machine had 20–22 GB free against the sweep's 20 GB gate, so
+        a full sweep will hold until disk is freed.
+      - ✅ Row 2 prep (no switch): the estate's queue tool gained the tab
+        `next` and `take --set`, and a base drain config exists, unused.
+      - ✅ Row 6 `tools/secretguard.py` and row 8 `tools/deadhook.py`
+        (`cdfadc75`). `deadhook --status` is now `/atelier:install-hook`'s
+        proof step. secretguard is built, not wired: switching on a hook
+        that refuses commands in every repo is the principal's call.
+      - ✅ Row 7 `tools/stashscan.py` (wired at session open) and row 9
+        `tools/treeline.py`, which the floor now prints under its coverage
+        line, so every child's next floor run shows one more line
+        (`ef4972e6`; informational, never an exit code).
+      - ✅ Row 10: `tools/pins.py --floor --child .` gives a child its own
+        offline floor-copy verdict (`262658e0`); both children's copies
+        read `identical` under it. `320/160` closed.
+      - ✅ Row 13 judged, not built: one instance, tied to one repo's export
+        script and naming the estate root; generalising it would invent a
+        pattern, not ground one. It stays in its repo.
+      - Still open: row 2 (waits on `160/1450`), row 11 (waits on the
+        batch conditions), row 12 (the generic half of the estate's queue
+        reader as atelier's reference queue; optional, after row 2).
+      - **Child follow-ups**, for each child's own session or the next
+        sweep (queue, never deliver): the service-estate child moves its
+        secret paths into secretguard's config and drops its own hook, and
+        drops its dead-hook check for `deadhook.py`; the app child drops its
+        stash check for `stashscan.py` and its tree line for `treeline.py`;
+        the two children with their own floor verifiers switch to `pins.py
+        --floor`; the estate root retires its model-hook copy (no longer
+        wired). Exact steps are in the session record.
+      - Cold passes: `160/1620` (rows 6–10, low); `160/1450` widened again
+        to `1eb42f54` (normal).
 
       **How to re-run the scan**: list each repo's tracked
       `tools/ scripts/ bin/ hooks/ .claude/` files, keep those dense in
