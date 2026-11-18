@@ -2384,7 +2384,6 @@ prints the same list and exits 1 when there is one, for a health sweep.
 
 The plugin does not wire it for you. Tests: `tools/test_prefixhook.py`.
 
-<<<<<<< HEAD
 ## `secretguard.py` — a Bash command that would print a secret file is refused
 
 Not a commit gate: a Claude Code `PreToolUse` hook (board `450/010` row 6; first
@@ -2460,7 +2459,7 @@ has, and an enforced new floor check would reach every child at its next run
 (children float at `floor.yml@main`). A child that wants it on its commit gate
 runs it from its own `local` block through a one-line in-repo caller (the seam
 takes only a script inside the repo). Tests: `tools/test_deadhook.py`.
-=======
+
 ## `stashscan.py` — an old entry on the shared stash stack is named at session open
 
 Not a floor check: a CLI and a Claude Code `SessionStart` hook (board `450/010`
@@ -2509,7 +2508,6 @@ it off. The floor prints it after its coverage line (`floor.py`'s `--root`
 defaults to the cwd, so that is where a drifted shell shows); `stashscan.py`
 prints it too. Other scanners do not yet. No Node twin: no instrument is yet a
 check whose verdict a wrong tree falsifies. Tests: `tools/test_treeline.py`.
->>>>>>> 719e609a (tools: warn on old shared-stash residue, and name the tree a check read)
 
 ## `blockscan.py` — a ruling that moves doctrine moves the child block too (advisory, atelier-only)
 
