@@ -17,6 +17,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   verifier now exits 2 on the `<visibility check>` slot it predates. Opt-in:
   the fleet report, `--check` and its 2026-12-09 date are unchanged.
 
+### Added (2026-11-18 — two guards homed from an estate child repo, `450/010` rows 6 and 8)
+- **`tools/secretguard.py`**: a `PreToolUse` hook refusing a Bash command
+  that would print a secret file, generalised from a copy first built in an
+  estate child repo. Secret paths, the "use this instead" pointer, masked
+  readers and their raw-value flag now come from a user-level file and a
+  repo-level `.atelier/secret-paths`, over a small built-in set of
+  universally secret shapes. Not wired by the plugin.
+- **`tools/deadhook.py`**: exits 1 while a dead floor hook sits in the
+  default hooks directory beside a configured `core.hooksPath`; `--status`
+  says whether the clone's commits are scanned at all, worktree-safe.
+  `/atelier:install-hook` runs it as its proof step. Not a floor check.
+
 ### Added (2026-11-18 — one home and one prefix, `450/010` rows 3, 5, 14)
 - **A bare `/atelier` menu** (`instruments/atelier-menu`): a user-level skill
   that lists every `/atelier:` command from the plugin's own front matter.

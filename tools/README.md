@@ -2384,6 +2384,82 @@ prints the same list and exits 1 when there is one, for a health sweep.
 
 The plugin does not wire it for you. Tests: `tools/test_prefixhook.py`.
 
+## `secretguard.py` — a Bash command that would print a secret file is refused
+
+Not a commit gate: a Claude Code `PreToolUse` hook (board `450/010` row 6; first
+built in an estate child repo, homed here). It denies a Bash command whose stage
+runs a printing verb (`cat`, `head`, `tail`, `less`, `grep`, `sed`, `awk`, `jq`
+and kin) and names a secret path, because reading a whole config file for one
+value puts every credential in it into the transcript. It lets through a read
+inside `$( )` (a value fed to a program), output piped into `sha256sum` or `wc`,
+`grep`/`rg` with `-c`/`-l`/`-q`, `sed -i`, `ls`/`stat`, heredoc bodies, and a
+stage that runs a configured masked reader. It is a pattern match on command
+text: a seatbelt against the reflex `cat`, not a wall
+(`python -c "print(open(...).read())"` passes). A malformed payload or an
+unreadable config never blocks.
+
+Secret paths come from config, never from the script. A small built-in set of
+universally secret shapes (`.env` and `.env.*` but not `.env.example` and kin,
+`*.env`, the four `id_*` private-key names, `*.key`, `privkey*.pem`,
+`*-key.pem`, `.netrc`, `.pgpass`, `.git-credentials`, `.aws/credentials`,
+`/run/secrets/`) is deliberately small: `*.pem` and `credentials.json` are left
+out because each is as often harmless. Then a user-level file
+(`$SECRETGUARD_PATHS`, else `$CLAUDE_CONFIG_DIR/secretguard-paths`, default
+`~/.claude/secretguard-paths`, beside leakscan's term list) and a repo-level
+`.atelier/secret-paths` found from the session's cwd upward. One entry a line:
+
+```text
+/srv/example/secrets/        # ends in /: everything under it
+*/stacks/*.env               # has a /: the whole path or any tail; * crosses /
+forwarding.secret            # no /: the base name
+!fixtures/*.env              # exempt what an include matched
+pointer: Use tools/config-read.py, which masks credentials.
+reader: config-read.py       # a masked reader: a stage running it is exempt
+reader: gamectl.py config show   # ... only with these words after it
+reveal: --reveal             # the reader's raw-value flag: refused into a display or a file
+defaults: off                # drop the built-in set
+```
+
+`--show [DIR]` prints the effective config and where each line came from;
+`--try 'CMD'` prints the verdict for one command. Wiring, user-level so it
+covers every repo:
+
+```json
+"hooks": {"PreToolUse": [{"matcher": "Bash", "hooks": [
+    {"type": "command", "command": "/usr/bin/python3 -I <atelier>/tools/secretguard.py"}]}]}
+```
+
+The plugin does not wire it for you: a hook that denies tool calls is the
+adopter's choice to switch on. Tests: `tools/test_secretguard.py`, which carry
+the first-built copy's own selftest over with its paths moved into config.
+
+## `deadhook.py` — are this clone's hooks on, and is a dead hook there to mislead
+
+Board `450/010` row 8; first built in an estate child repo, homed here. Plain
+`tools/deadhook.py` exits 1 while a floor hook (`pre-commit`,
+`pre-merge-commit`, `commit-msg`) that is not a `*.sample` sits in the clone's
+default hooks directory while `core.hooksPath` sends git elsewhere: git never
+runs it, but a reader looking for "the hook" finds it first. The legacy
+per-clone install leaves exactly that behind once a clone moves to a tracked
+`.githooks/`. `--status` answers "are my commits being scanned?", which no
+check inside the hook can (if the hook is off, nothing in it runs): the hooks
+directory git runs, whether its `pre-commit` is executable, whether the scanners
+resolve (`ATELIER_TOOLS`, then `hooks.atelierTools`, then in-repo `tools/`, as
+the hook resolves them), a missing `pre-merge-commit` or `commit-msg` (⚠️),
+and any dead hook (a non-floor one is named and fails nothing). It is
+worktree-safe: hooks are read from `git rev-parse --git-common-dir`, and when an
+absolute `core.hooksPath` arms another tree's copy it says so and compares this
+tree's copy byte for byte (a difference warns, never fails: commits are still
+scanned). `--warn` turns 1 into 0; `-C DIR` reads another clone; exit 2 outside
+a git work tree. `/atelier:install-hook` runs `--status` as its proof step.
+
+Not a floor check, by choice. The floor's checks judge tracked content on the
+hook and CI planes; a dead hook is clone-local state that a CI checkout never
+has, and an enforced new floor check would reach every child at its next run
+(children float at `floor.yml@main`). A child that wants it on its commit gate
+runs it from its own `local` block through a one-line in-repo caller (the seam
+takes only a script inside the repo). Tests: `tools/test_deadhook.py`.
+
 ## `blockscan.py` — a ruling that moves doctrine moves the child block too (advisory, atelier-only)
 
 `stampscan` checks a **child's** inlined copy of the floor block against

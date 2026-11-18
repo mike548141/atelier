@@ -44,6 +44,10 @@ Do this:
 
 4. **Prove it once** (don't assume — this is the whole point of the hook):
    - Confirm the scanners are reachable: `python3 "$(git config hooks.atelierTools)/secretscan.py" --selftest`.
+   - Ask the clone whether its hooks are on: `python3 "${CLAUDE_PLUGIN_ROOT}/tools/deadhook.py" --status`.
+     It names the directory git runs hooks from, whether the scanners resolve,
+     and any dead hook left beside the live ones (exit 1 if commits would go
+     unscanned or a dead floor hook is present).
    - Optionally stage a throwaway line containing a well-formed test secret, attempt
      a commit, and confirm the hook **blocks** it (exit non-zero); then remove it
      and confirm a clean commit **passes**. Report the result honestly.
