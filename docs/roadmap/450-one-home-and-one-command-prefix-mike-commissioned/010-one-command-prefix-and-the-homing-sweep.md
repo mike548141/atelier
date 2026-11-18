@@ -47,6 +47,17 @@
         | 11 | Four separate "review on the API" runners (SDK lane, split reviewer, batch trial, a client batch reader) → one atelier lane | estate root + a private child | L, 3–5 | the principal's 2026-11-16 batch conditions (runner built, own cold pass, `030/420` MAJORs fixed) |
         | 12 | The review-queue reader (reads `docs/reviews/*.deferred.md`, atelier's own shape) → ccfleet's default queue | estate root | M | after 2 |
         | 13 | Private-pointer guard for an export tree: check overlap with `pointerscan` first | one infra child | S to judge | nothing |
+        | 14 | A bare `/atelier` that prints the menu of every `/atelier:` command | new | S | nothing |
+
+        💬 Row 14 was offered after the principal pressed Enter on `/atelier`
+        and `/atelier:` expecting the list (the picker shows it only while
+        typing). Asked whether to add it, his answer, 2026-11-18, verbatim:
+        *"yes"*. How: a plugin skill is always `/atelier:<name>`, so a bare
+        `/atelier` has to be a user-level skill named `atelier`. Version its
+        definition here and link it into `~/.claude/skills/`, the way the
+        estate kits are linked. Build the menu at run time from the plugin's
+        `skills/` and `commands/` front matter, never from a typed list, so a
+        new command appears without an edit.
 
         Stays where it is: business connectors (an accounting MCP),
         service and infrastructure tools, and each estate's repo list,
