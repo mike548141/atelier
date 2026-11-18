@@ -843,7 +843,11 @@ exits 0 for go.
 Setup failed: a repo that is not a git checkout, a git command that refused, a
 brief missing from the branch (a pass), a bad
 .BR \-\-in ,
-or another driver already running.
+another driver already running, or (for
+.BR drain )
+a queue
+.B next
+that failed, which is never read as an empty queue.
 .B gate
 exits 1 for hold.
 .TP

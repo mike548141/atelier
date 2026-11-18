@@ -61,6 +61,9 @@ FAKE_QUEUE = textwrap.dedent("""\
     def fields(line):
         return tuple(line.split("\\t") if "\\t" in line else line.split())
     if cmd == "next":
+        if os.environ.get("FAKE_QUEUE_RC_NEXT"):
+            print("queue tool broke", file=sys.stderr)
+            sys.exit(int(os.environ["FAKE_QUEUE_RC_NEXT"]))
         with open(rest[0]) as f:
             launched = {{fields(l) for l in f.read().splitlines()}}
         if os.environ.get("FAKE_QUEUE_IGNORE_LAUNCHED"):
@@ -482,6 +485,30 @@ class EndToEnd(unittest.TestCase):
         r = self.cli("drain")
         self.assertEqual(r.returncode, cf.EXIT_EMPTY, r.stderr)
         self.assertIn("DRAIN EXIT: queue empty", r.stdout)
+
+    def test_a_failing_queue_next_is_not_an_empty_queue(self):
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\n")
+        r = self.cli("drain", env={**self.env, "FAKE_QUEUE_RC_NEXT": "3"})
+        self.assertEqual(r.returncode, cf.EXIT_SETUP, r.stdout + r.stderr)
+        self.assertIn("DRAIN EXIT: queue error", r.stdout)
+        self.assertIn("queue next failed rc=3: queue tool broke", rd(os.path.join(self.tmp, "kit", "driver.log")))
+        self.assertEqual(self.calls(), [])
+
+    def test_a_fresh_kit_dir_is_made_by_the_driver(self):
+        self.cfg["kit_dir"] = os.path.join(self.tmp, "fresh", "kit")
+        self.write_cfg()
+        wr(os.path.join(self.tmp, "queue.txt"), "")
+        r = self.cli("drain")
+        self.assertEqual(r.returncode, cf.EXIT_EMPTY, r.stdout + r.stderr)
+
+    def test_a_dry_drain_reads_its_passes_as_ended(self):
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\nbeta 020 docs/brief.md\n")
+        r = self.cli("drain", "--max", "1", "--dry-run")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        log = rd(os.path.join(self.tmp, "kit", "driver.log"))
+        self.assertNotIn("ended early", log)
+        self.assertEqual(log.count("result=DRY"), 2)
+        self.assertEqual(self.calls(), [])
 
     def test_a_queue_offering_a_launched_pass_again_is_not_rerun(self):
         wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\n")

@@ -5,6 +5,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-18 — three `ccfleet` faults a first real estate run found, `450/010`)
+- **A fresh `kit_dir` is made by the driver lock**: `drive` and `drain` no
+  longer crash on a directory that does not exist yet.
+- **A failing queue `next` stops the drain with exit 1** (`queue error`),
+  never read as an empty queue (exit 4), which had looked like nothing to do.
+- **A dry-run pass prints its `END` line** (`result=DRY`), so a dry drain no
+  longer logs every pick as "ended early" or counts it toward the stop.
+
 ### Added (2026-11-18 — a child's own floor check, `450/010` row 10)
 - **`tools/pins.py --floor`**: the floor-copy comparison alone, offline, for a
   child to run on itself (`pins.py --floor --child .`): exit 0 when the copy is

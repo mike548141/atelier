@@ -106,7 +106,7 @@ the reviewer's private log; the same path for its resume); a resume adds
 A {UPPER_CASE} placeholder left unfilled is a refusal, not a silent gap.
 
 Exit codes: 0 ran (the session's own verdict is in its END line and result
-file) · 1 setup failed · 2 claim refused (or a release refused) · 3 reset
+file) · 1 setup failed (or the queue's next failed) · 2 claim refused (or a release refused) · 3 reset
 reached · 4 queue empty (a drain that started nothing) · 5 refused by the
 private-name guard or an unfilled placeholder · 64 usage.
 Runtime: Python 3.8 or later, standard library only; git on PATH; gh optional
@@ -544,6 +544,9 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
         print(f"DRY {repo} model={model} vis={facts['visibility']} wt={wt}")
         print(f"DRY worktree add from {facts['defref']}; log={log}")
         print("DRY argv: " + " ".join(argv[:-1]) + f" <prompt {len(prompt)} chars> < /dev/null")
+        # The same END line a real run prints, so a dry drain reads its passes
+        # as ended rather than "ended early".
+        print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc=0 result=DRY session=- out={log}", flush=True)
         return 0, "DRY"
     for d in (logs, results, scratch, os.path.dirname(wt)):
         os.makedirs(d, exist_ok=True)
@@ -596,6 +599,9 @@ class DriverLock:
         self.path = os.path.join(kit, "driver.pid")
 
     def __enter__(self):
+        # A fresh kit_dir does not exist yet; the lock is the first thing a
+        # driver writes, so it makes the directory (found on a first real run).
+        os.makedirs(os.path.dirname(self.path), exist_ok=True)
         if os.path.exists(self.path):
             try:
                 with open(self.path) as f:
@@ -821,7 +827,7 @@ def drain(cfg, common, max_n, dry):
                     say(cfg, f"{pick} {end[-1].strip()}")
                     if m.group(1) in halt:
                         stop = stop or f"result {m.group(1)}"
-                    elif m.group(1) in clean:
+                    elif m.group(1) in clean or m.group(1) == "DRY":
                         bad = 0
                     else:
                         bad += 1
@@ -840,6 +846,13 @@ def drain(cfg, common, max_n, dry):
                 reading = read_headroom(cfg)
                 if gate_ok(cfg["gate"], reading) or dry:
                     r = queue_call(cfg, "next", {"LAUNCHED": launched, "BY": common_by(common)})
+                    if r.returncode:
+                        # A queue tool that fails is not an empty queue: reading it as
+                        # one would end a drain with budget unspent and say all is well.
+                        stop = stop or "queue error"
+                        say(cfg, f"queue next failed rc={r.returncode}: "
+                                 f"{(r.stderr or r.stdout).strip()[:300]}")
+                        continue
                     pick = parse_pick(r.stdout)
                     if len(pick) < 3 or not all(pick[:3]):
                         empty = True
@@ -871,6 +884,8 @@ def drain(cfg, common, max_n, dry):
     why = stop or "queue empty"
     say(cfg, f"drain down: {why} ({started} started)")
     print(f"DRAIN EXIT: {why}")
+    if why == "queue error":
+        return EXIT_SETUP
     if started == 0 and why == "queue empty":
         return EXIT_EMPTY
     if started == 0 and why == "reset":
