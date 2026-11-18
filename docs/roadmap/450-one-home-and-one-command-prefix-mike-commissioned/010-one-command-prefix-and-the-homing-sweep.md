@@ -69,10 +69,25 @@
         passes, each waiting for the principal's approval of review-tier
         time.
 
-      **Decisions owed when this is picked up** (ask in the device):
-      the colon form; whether to switch the two estate kits to the
-      general skills now; the order of rows 6–13; review-tier time for
-      the passes. **How to re-run the scan**: list each repo's tracked
+      **The principal's answers, 2026-11-18, verbatim, each to one
+      question the session put** (answers, not rulings):
+      - Colon form: *"that is fine"*.
+      - Switch the two estate kits to the general skills now, retiring
+        the old names: *"yes"*.
+      - The homing rows: *"I will accept your recommendation on these"*.
+        This is also the telling his condition asked for, so the moves the
+        table lists are cleared, in the session's recommended order:
+        14, 3, 5, 4 (atelier only, small); then 1, 2, 12 (the switch);
+        then 6–9 and 13 (guards, each child dropping its copy after); then
+        10; last 11, which still waits on his 2026-11-16 batch conditions.
+      - Review-tier time: *"during the drain as usual, a lower priority
+        for these vs other work"*. So each strand's cold pass is briefed
+        as normal and runs in his weekly drain, after the drain's other
+        work. The drain config has no per-item priority yet; until it
+        does, each brief's item carries the words "drain priority: low
+        (principal, 2026-11-18)" for the drain's picker to read.
+
+      **How to re-run the scan**: list each repo's tracked
       `tools/ scripts/ bin/ hooks/ .claude/` files, keep those dense in
       collaboration terms (claude, fable, transcript, subagent, worktree,
       session log, board, cold pass), and drop floor copies; plus
