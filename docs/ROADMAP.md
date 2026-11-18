@@ -796,3 +796,9 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md)*
 
 - [ ] 🎯 [Update the doctrine's economics so "the right model for the job"…](roadmap/440-economics-effective-then-efficient-mike-commissioned/010-update-economics-effective-then-efficient-and-count-real-spend.md)
+
+## One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)
+
+*[Narrative](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md)*
+
+- [ ] 🎯 [Every slash command under /atelier:, and every collaboration tool…](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/010-one-command-prefix-and-the-homing-sweep.md)
