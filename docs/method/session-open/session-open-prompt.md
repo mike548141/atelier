@@ -155,7 +155,10 @@ this work done as you can
 
 Once all that is done review all my prompts in this session, both at the
 turn and mid-turn, and make sure you have done everything I asked fully.
-Review your replies to capture open actions, questions, decisions you asked
-of me.
+Review your replies in each turn to capture open actions, questions,
+decisions you asked of me. I do not always read all the replies so its easy
+for me to miss important information. Summarise the whole session transcript
+succintly, and organise your close out message by the topic(s) discussed in
+this session.
 Make sure everything is ready to close this session and run ccclose. This includes recording
 decisions, evidence, learnings, and questions to ask me later.
