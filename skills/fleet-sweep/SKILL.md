@@ -1,6 +1,6 @@
 ---
 name: fleet-sweep
-description: Bring every child repo of an atelier estate to a healthy state — latest atelier pin with the floor re-copied verbatim, CI green at the pushed head, conformance with the current doctrine, every owed review briefed, the principal's queue of asks de-duplicated, every one-file record store split — each repo's work run as a headless session inside that repo so per-repo cost tools bill the repo. Use when the principal asks for a health sweep, to "bring the repos up to healthy", to bump every pin, or for one repo by name.
+description: Bring every child repo of an atelier estate to a healthy state — latest atelier pin with the floor re-copied verbatim, CI green at the pushed head, conformance with the current doctrine, every owed review briefed, the principal's queue of asks de-duplicated, every one-file record store split, nothing left behind by past sessions — each repo's work run as a headless session inside that repo so per-repo cost tools bill the repo. Use when the principal asks for a health sweep, to "bring the repos up to healthy", to bump every pin, or for one repo by name.
 ---
 
 # Fleet health sweep
@@ -14,7 +14,7 @@ both before step 1; quote the principal's words from there, never from memory.
 
 ## What healthy means here
 
-A repo is healthy when all six hold. The principal may narrow or extend the
+A repo is healthy when all seven hold. The principal may narrow or extend the
 list in the rulings file; that file wins.
 
 1. **Pin current**: the atelier pin is origin/main's, and the floor copy is
@@ -34,6 +34,16 @@ list in the rulings file; that file wins.
    file per session (RECORD.md); board → per-item files plus the generated
    index, done items included; any other one-file list of entries → one file
    per entry with an index.
+7. **Nothing left behind** by past sessions. Per repo: no stale open pull
+   requests or branches, no leftover worktrees, stashes or untracked files, no
+   claim held by a session that is no longer live. Per machine: no orphaned
+   session or tool processes, no dead worktree or temporary directories, no
+   temporary configuration a session added and forgot (a scheduled job, a
+   permission or firewall rule, a service override). Act on what is provably
+   this sweep's own or provably stale: merged into the mainline, its owner not
+   live (`cclive`), nothing holding it open (`lsof`). Everything else goes to
+   the principal as a list with its evidence. Never delete work you cannot
+   prove is spent; a removal is reported with its proof.
 
 ## The billing rule (why the shape is what it is)
 
@@ -52,7 +62,10 @@ as a headless session in atelier, not as an Agent.
    `gh run list -L 3`; per repo, whether the hook plane carries
    `.githooks/commit-msg` (a repo without it skips commit-message checks
    silently; the fix is a copy of `tools/commit-msg.sample`); and the form of
-   each record store (healthy item 6). The orchestrator's own repo counts too.
+   each record store (healthy item 6); and the machine's leftovers (healthy
+   item 7: `cclive`, `ps` for orphaned session and tool processes, the
+   worktree and temporary directories, temporary configuration). The
+   orchestrator's own repo counts too.
    Archived repos are exempt. A repo with no pin and not archived is a scope
    question for the principal.
 2. **Digest**, if none exists for origin/main's short SHA: one headless Opus
@@ -83,21 +96,33 @@ as a headless session in atelier, not as an Agent.
      ([`brief-prompt.md`](brief-prompt.md)), one writer at a time per repo
      (`drive --serial-per-repo`). Put healthy item 4's definition of *owed* in
      every writer's prompt. Never brief work this session built.
-   - **6b. Asks de-duplicated** (item 5), in three phases. Per repo, a cheap
-     headless session extracts every open item waiting on the principal to
-     `<scratch>/<repo>/asks.tsv` (id, kind, 12-word gist, date, the words
-     that make it the principal's). Once, an Opus session in the estate root
-     finds duplicates within and across repos, items answered elsewhere (it
-     searches the other repos' records for the answer) and items overtaken
-     by events. Per repo again, only mechanical fixes are applied:
-     cross-link duplicates to one home, mark answered with the citation.
-     Merging or closing on a judgement goes to the principal as one list.
-     Never delete a record; supersede it.
+   - **6b. Asks de-duplicated** (item 5), in three phases and a check. Per
+     repo, a cheap headless session extracts every open item waiting on the
+     principal to `<scratch>/<repo>/asks.tsv` (id, kind, 12-word gist, date,
+     the words that make it the principal's). Once, an Opus session in the
+     estate root finds duplicates within and across repos, items answered
+     elsewhere (it searches the other repos' records for the answer) and
+     items overtaken by events. Per repo again, only mechanical fixes are
+     applied: cross-link duplicates to one home, mark answered with the
+     citation. Merging or closing on a judgement goes to the principal as one
+     list. Never delete a record; supersede it.
+     **The check (phase 2b), before any bulk ask**: an Opus session reads
+     every judgement row in its source context (the item, its thread, the
+     record it cites), not the 12-word gist. It splits the rows by what
+     "approve" would do, and a row that is really a question is asked as a
+     question: it is never offered for approval. A gist alone once put rows
+     in front of the principal that could not be approved with confidence.
+   - **6c. Leftovers** (item 7): the machine's leftovers from step 1, acted
+     on or listed by the same rule as the workers'.
 7. **Report to the principal**, outcome first: a table per repo (pin, CI,
-   conformance, reviews pending, briefs written and still to write, 🎯
-   decisions owed, actions owed, open work with an hours estimate), then the
-   asks: the account as text, then the question device in the same turn
-   (`COMMUNICATION.md`).
+   conformance, leftovers cleared and listed, reviews pending, briefs written
+   and still to write, 🎯 decisions owed, actions owed, open work with an
+   hours estimate), then the asks: the account as text, then the question
+   device in the same turn (`COMMUNICATION.md`). Before asking anything,
+   search every repo's records (board items, session logs, decision records,
+   review files) for the principal's earlier answer to the same question; one
+   found is cited and marked answered, never asked again. Give each ask its
+   evidence up front: what it is, where it came from, what each answer does.
 8. **Close**: the orchestrator's session record names every worker session id
    and commit; no job worktree is left behind.
 

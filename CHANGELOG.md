@@ -49,6 +49,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   to the review and deletes it. The close checks the folder is empty and
   counts verdicts from the result rows, never from memory. Every prompt path
   is double-quoted.
+- **`fleet-sweep` gains healthy item 7, nothing left behind**: per repo, stale
+  pull requests, branches, worktrees, stashes, untracked files and dead
+  claims; per machine, orphaned processes, dead worktree and temporary
+  directories, forgotten temporary configuration. What is provably stale is
+  cleared with its proof; the rest is listed for the principal. The worker
+  prompt gains step 2b and a `LEFTOVERS:` report line. The asks de-duplication
+  gains a check before any bulk ask (each judgement row read in its source
+  context; a question is never offered for approval), and the report searches
+  every repo for the principal's earlier answer before asking again.
 
 ### Changed (2026-11-16 — the floor's estate and visibility bullets, `320/370`, `320/410`, `320/620`, `320/650`)
 - **The canonical floor's visibility bullet** reads `Verify: <visibility
