@@ -2336,6 +2336,26 @@ session, so `ccclose` check 14 stays the backstop. Wiring, in the user-level
 
 The plugin does not wire it for you. Tests: `tools/test_floorhook.py`.
 
+## `prefixhook.py` — a skill or command outside `/atelier:` is named at session open
+
+Not a commit gate: a Claude Code `SessionStart` hook, the tripwire for
+`docs/method/MECHANISMS.md` § *Where it lives and what it is called* (board
+`450/010`). It lists every entry in the user-level `~/.claude/skills/` other than
+`atelier` (the bare menu) and `synced` (the account's synced skills), every file
+in `~/.claude/commands/`, and every entry in the session repo's own
+`.claude/skills/` or `.claude/commands/`, and says so to the user and the model.
+Nothing found, nothing said. It never blocks and always exits 0. `--check [DIR]`
+prints the same list and exits 1 when there is one, for a health sweep.
+`CLAUDE_CONFIG_DIR` overrides `~/.claude`. Wiring, user-level:
+
+```json
+"hooks": {"SessionStart": [{"matcher": "startup|resume", "hooks": [
+    {"type": "command", "command": "python3 <atelier>/tools/prefixhook.py",
+     "timeout": 10}]}]}
+```
+
+The plugin does not wire it for you. Tests: `tools/test_prefixhook.py`.
+
 ## `blockscan.py` — a ruling that moves doctrine moves the child block too (advisory, atelier-only)
 
 `stampscan` checks a **child's** inlined copy of the floor block against

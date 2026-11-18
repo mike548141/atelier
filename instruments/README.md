@@ -27,6 +27,8 @@ standard-library Python); each documents its own runtime.
 | `ccpdf`         | extend    | A PDF page renderer built on macOS's own PDFKit, installed as `pdftoppm` — the binary Claude Code's file reader shells out to. Without it, a PDF on disk is still unreadable. |
 | `ccapple`       | extend    | Read-only search of the Apple apps' local stores on a Mac — Contacts, Messages, Calendar, Reminders, Notes, Photos and the Home layout — which a session otherwise cannot reach, because the apps are GUI-only. Opens each SQLite store read-only and immutable, refuses to run without a filter, caps every search, never decrypts a locked note and never selects a credential column. Standard-library Python. |
 | `ccfleet`       | extend    | Runs headless Claude Code sessions across a fleet of repos, each one started inside a worktree whose basename is its repo, so per-repo cost tools bill the repo it was for (an Agent subagent bills its parent's). A load-, memory- and disk-gated driver starts jobs one at a time (`drive`, optionally one per repo at a time), or keeps review passes running from the adopter's own queue (`drain`, `resume`). Every estate value (repo list, notes, tiers, the principal's words, reset time) comes from a private JSON config; `ccfleet.example.json` is a fictional one. Refuses a public repo's prompt that names a configured private name. The `fleet-sweep` and `review-drain` skills drive it. `--help` is a one-screen digest; `man ccfleet` is the full reference. Standard-library Python. |
+| `ccstatusline`  | observe   | A Claude Code status line that shows a bright badge whenever the session is not on the build model (red when it is on the review model), then hands the same payload to ccusage's own status line. Build and review model are set by `ATELIER_BUILD_MODEL` / `ATELIER_REVIEW_MODEL` (default `opus` / `fable`). Wire it as `statusLine.command` in `settings.json`. POSIX shell and `jq`. |
+| `atelier-menu`  | extend    | The bare `/atelier` command: a user-level skill that prints every `/atelier:` command the plugin ships, read from the plugin's own front matter at run time so it never goes stale. A plugin's skills are always `/atelier:<name>`, so this one has to live outside the plugin; the installer links it into `~/.claude/skills/atelier`. Standard-library Python. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
 The Node CLIs are converging on a concise `-h`/`--help` digest plus a fuller
@@ -113,7 +115,8 @@ after adding an instrument or on a fresh laptop:
 
 It symlinks each CLI into `~/.local/bin` and each `man/*.1` page into
 `~/.local/share/man/man1` (auto-found by `man` because `~/.local/bin` is on
-`PATH`), so `man ccarchive` works after install.
+`PATH`), so `man ccarchive` works after install. It also links `atelier-menu/`
+into `~/.claude/skills/atelier`, which gives the bare `/atelier` menu command.
 
 Requirements: `node` on `PATH` (any recent LTS) for all of them except `ccapple`
 and `ccfleet`, which need `python3` (3.8 or later) and nothing else (`ccfleet`

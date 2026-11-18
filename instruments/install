@@ -2,6 +2,7 @@
 # install — publish this instruments/ dir onto the machine:
 #   * each CLI  → a symlink in ~/.local/bin (on PATH)
 #   * each man page (man/*.1) → a symlink in ~/.local/share/man/man1 (on MANPATH)
+#   * atelier-menu/ → ~/.claude/skills/atelier (the bare /atelier menu)
 #
 # Idempotent: safe to re-run after adding a tool or on a fresh machine. Only
 # touches symlinks it owns (ones pointing back into this dir); never clobbers
@@ -73,6 +74,22 @@ if [ -d "$MAN_DEST" ]; then
     rm "$plink"
     echo "clean $(basename "$plink") — stale man link removed ($ptarget)"
   done
+fi
+
+# The bare /atelier menu (board 450/010 row 14): a user-level skill, because a
+# plugin's own skills are always /atelier:<name>. Linked as a directory so the
+# skill and its menu.py stay one versioned unit here. Same ownership rule as
+# above: never clobber a real directory of the same name.
+SKILL_DEST="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"
+if [ -d "$BIN_DIR/atelier-menu" ]; then
+  mkdir -p "$SKILL_DEST"
+  slink="$SKILL_DEST/atelier"
+  if [ -e "$slink" ] && [ ! -L "$slink" ]; then
+    echo "skip  atelier skill — a real directory already exists at $slink" >&2
+  else
+    ln -sfn "$BIN_DIR/atelier-menu" "$slink"
+    echo "skill atelier -> $slink"
+  fi
 fi
 
 case ":$PATH:" in

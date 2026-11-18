@@ -51,6 +51,36 @@ needs to fire, say it once, in its home, and point at it.
    neither of the others does (`instruments/browser-fetch/` carries its own
    venv and browsers).
 
+## Where it lives and what it is called
+
+Whatever mechanism is chosen, a thing that helps the principal work with
+Claude has **one home, atelier**, and a skill or slash command has **one
+prefix, `/atelier:`**. The principal commissioned this on 2026-11-18 (his
+words in board section `450`): he wanted every customisation "under one /
+command so that they are easy to find as a group", because sessions had
+named skills "whatever name made sense to you at the time".
+
+- **A skill or command is born in the plugin** (`skills/` or `commands/`),
+  which names it `/atelier:<name>`. Not in `~/.claude/skills/`, not in
+  `~/.claude/commands/`, not in a repo's `.claude/`.
+- **The one exception is the bare `/atelier` menu** (`instruments/atelier-menu`),
+  which has to be user-level because no plugin skill can answer a bare
+  prefix. It lists the plugin's commands from their own front matter.
+- **Private content does not move the home.** This repo is public. When a
+  skill needs an estate's repo list, rulings or results, the skill is general
+  and lives here; the estate's values sit in a private config it reads (the
+  split `210/440` made: `ccfleet`'s JSON config, the drain's queue). A skill
+  that cannot be split that way is a finding for the board, not a reason to
+  ship it under another name.
+- **The tripwire:** `tools/prefixhook.py`, wired as a `SessionStart` hook,
+  names any skill or command outside the prefix at session open; `--check`
+  gives a health sweep the same list as an exit code. It warns, never blocks:
+  a misplaced skill costs findability, not harm (axis 1).
+- **Moving an existing tool here from another repo is told to the principal
+  first**, item by item. His condition, 2026-11-18, verbatim: *"tell me
+  before you make changes like pulling a tool from another repo into
+  atelier"*.
+
 ## Worked reading
 
 - *"Never commit a credential"*: blockable, machine-decidable, estate-wide,

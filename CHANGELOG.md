@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-18 — one home and one prefix, `450/010` rows 3, 5, 14)
+- **A bare `/atelier` menu** (`instruments/atelier-menu`): a user-level skill
+  that lists every `/atelier:` command from the plugin's own front matter.
+  `instruments/install` links it into `~/.claude/skills/atelier`.
+- **`instruments/ccstatusline`**: the status line that shows a badge when the
+  session is not on the build model, versioned here (it lived unversioned in
+  one machine's `~/.claude`); models set by environment, not hard-coded.
+- **`tools/prefixhook.py`**: a `SessionStart` hook naming any skill or command
+  outside `/atelier:`, and the rule it trips in `MECHANISMS.md` § *Where it
+  lives and what it is called*.
+
 ### Changed (2026-11-16 — the floor's estate and visibility bullets, `320/370`, `320/410`, `320/620`, `320/650`)
 - **The canonical floor's visibility bullet** reads `Verify: <visibility
   check>`: the check is now a slot the child fills (`gh repo view … --json

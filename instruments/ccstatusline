@@ -1,0 +1,52 @@
+#!/bin/sh
+# ccstatusline — a Claude Code status line that shouts when the session is NOT
+# on the build model, then hands the same payload to ccusage's own status line.
+#
+# Why (board 450/010 row 5): ccusage prints the model in the same neutral
+# colour as everything else, so a session on the review model is easily
+# mistaken for the build model and expensive build work gets done on the wrong
+# one. This prepends a bright badge whenever the active model is not the build
+# model: silent on the build model, impossible to miss otherwise. It lived
+# unversioned in one machine's ~/.claude until 2026-11-18.
+#
+# Wire it in settings.json:  "statusLine": {"type": "command",
+#                              "command": "ccstatusline", "padding": 0}
+# (after ./instruments/install puts it on PATH; a full path also works).
+#
+# Environment:
+#   ATELIER_BUILD_MODEL   substring of the build model's id   (default: opus)
+#   ATELIER_REVIEW_MODEL  substring of the review model's id  (default: fable)
+#   CCUSAGE               ccusage binary (default: ccusage on PATH, then
+#                         ~/.npm-global/bin/ccusage); absent → badge only
+#
+# Reads the status-line JSON on stdin once; never changes it. Needs jq.
+
+case "${1:-}" in
+  -h|--help)
+    sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0 ;;
+esac
+
+build="${ATELIER_BUILD_MODEL:-opus}"
+review="${ATELIER_REVIEW_MODEL:-fable}"
+
+input=$(cat)
+model=$(printf '%s' "$input" | jq -r '.model.id // .model.display_name // ""' 2>/dev/null)
+lower=$(printf '%s' "$model" | tr '[:upper:]' '[:lower:]')
+
+case "$lower" in
+  "")            badge="" ;;                       # no model info: don't guess
+  *"$build"*)    badge="" ;;                       # the build model: stay quiet
+  *"$review"*)   badge=$(printf '\033[41;97;1m ⚠ %s — REVIEW MODEL, NOT %s \033[0m ' \
+                   "$(printf '%s' "$review" | tr '[:lower:]' '[:upper:]')" \
+                   "$(printf '%s' "$build" | tr '[:lower:]' '[:upper:]')") ;;
+  *)             badge=$(printf '\033[43;30;1m ⚠ %s (not %s) \033[0m ' "$model" "$build") ;;
+esac
+
+printf '%s' "$badge"
+
+cc="${CCUSAGE:-}"
+[ -n "$cc" ] || cc=$(command -v ccusage 2>/dev/null)
+[ -n "$cc" ] || { [ -x "$HOME/.npm-global/bin/ccusage" ] && cc="$HOME/.npm-global/bin/ccusage"; }
+[ -n "$cc" ] && printf '%s' "$input" | "$cc" statusline
+exit 0
