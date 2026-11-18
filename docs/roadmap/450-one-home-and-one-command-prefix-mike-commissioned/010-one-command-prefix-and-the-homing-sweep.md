@@ -87,6 +87,29 @@
         does, each brief's item carries the words "drain priority: low
         (principal, 2026-11-18)" for the drain's picker to read.
 
+      **Progress, 2026-11-18 (session 84b7932e):**
+      - ✅ Row 14, `/atelier` menu: `instruments/atelier-menu`, linked by
+        the installer; a headless run of `/atelier` printed the table.
+      - ✅ Row 5, `instruments/ccstatusline`, wired as the user-level
+        status line; the unversioned copy removed.
+      - ✅ Row 3, the rule in `MECHANISMS.md` and `tools/prefixhook.py`,
+        wired at session open. It names the two estate commands until they
+        retire: that is the true state, not noise to silence.
+      - ✅ Row 4, the user-level model hook now runs `tools/modelguard.py`
+        (`/usr/bin/python3 -I`); a read-only gap analysis found its logic
+        identical to the estate copy, and four probes behaved. The estate
+        copy is left as history for its own repo to retire.
+      - ✅ Rows 1–2 prerequisite: `ccfleet`'s generic gaps closed
+        (`17f158d2`, `d9d1589e`, `a025636e`), among them the background
+        wait ceiling, whose absence kills a reviewer mid-pass.
+      - Cold passes queued: `160/1610` (rows 14, 5, 3; low) and `160/1450`
+        widened to the gap fixes (normal; it gates row 2).
+      - 💬 Asked when the drain should switch, given the gap analysis found
+        faults that lose paid review work, his pick: *"After its review
+        (Recommended)"*. So row 2 waits for a clean `160/1450` and then
+        switches at a gap between drains, never mid-drain; his drain command
+        keeps working until then. Row 1, the sweep, switches now.
+
       **How to re-run the scan**: list each repo's tracked
       `tools/ scripts/ bin/ hooks/ .claude/` files, keep those dense in
       collaboration terms (claude, fable, transcript, subagent, worktree,

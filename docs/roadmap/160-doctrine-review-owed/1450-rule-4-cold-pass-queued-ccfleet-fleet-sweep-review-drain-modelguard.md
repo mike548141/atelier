@@ -16,3 +16,14 @@
       *Intent record:*
       [`../210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md`](../210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md).
       No brief yet: a brief-writer that is not session 559edaec writes it.
+      **Widened 2026-11-18 (session 84b7932e, board `450/010`):** the
+      delta now also covers the three commits that closed `ccfleet`'s
+      generic gaps and added to both skills (`17f158d2`, `d9d1589e`,
+      `a025636e`, landed by `a025636e`). Write the brief over the code as it
+      stands at that head, so the paid pass reviews what will run. Neither
+      session 559edaec nor session 84b7932e (which commissioned the gap
+      fixes) writes the brief. **This pass gates the estate's drain switch**
+      (`450/010` row 2): the principal chose, 2026-11-18, to switch the
+      weekly drain only after this pass is clean, and for this one pass
+      *"Normal priority (Recommended)"* (his pick; the rest of `450`'s
+      passes are low). **Drain priority: normal (principal, 2026-11-18).**
