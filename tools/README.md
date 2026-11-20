@@ -103,8 +103,14 @@ that. `--rebuild --from-index` regenerates from the same staged plane, so a
 claimer at a dirty primary checkout (`CONCURRENCY.md` § Claiming work) never
 absorbs a sibling's unstaged line; it is the remedy the hook prints on a
 staged-plane failure. The docstring of `tools/board.py` is canonical for the
-mechanism and its live residuals. Done items render `✅` in the index
-— never `[x]`, so sizescan's cold-content gate cannot fire on a generated line.
+mechanism and its live residuals. The index opens with a summary table of
+sections (open, claimed, `🎯` and `⏳` counts) and lists only unfinished items
+beneath it; a section with nothing owed keeps its table row alone (`010/210`).
+It never writes `[x]`, so sizescan's cold-content gate cannot fire on a
+generated line. Until 2026-12-04 `--check` also accepts an index in the
+previous full form (every item listed, done ones as `✅`), prints ⚠️ with the
+date and the rebuild command, and passes; from that day the full form is stale
+like any other mismatch (`FULL_FORM_ACCEPTED_UNTIL`; removal is `010/250`).
 A repo with no `docs/roadmap/` directory (worktree plane) or none tracked in
 the index (staged plane) is out of scope and passes saying so.
 Every string the generator writes into the index has to be true in a repo that

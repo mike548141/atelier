@@ -52,8 +52,23 @@ the worktree already IS the committed tree there, and `--staged` would answer
 a question CI cannot ask (BS1 → `010/020`, FUNDED 2026-08-17, landed
 2026-09-20). Two sessions closing different items both regenerate; if their
 index hunks collide, the resolution is deterministic — regenerate again after
-the merge. The index renders done items as `✅`, never `[x]`, so `sizescan`'s
-cold-content gate (a `[x]` on the hot path) can never fire on a generated line.
+the merge. The index never writes `[x]`, so `sizescan`'s cold-content gate (a
+`[x]` on the hot path) can never fire on a generated line.
+
+WHAT THE INDEX LISTS (010/210, the principal's pick 2026-11-20, "Summary + open
+only"). The index is read at every session open, and it carried one line per
+item whatever its state: on this board 814 lines, 17 of 46 sections with
+nothing owed. So it now opens with a SUMMARY TABLE, one row per section with
+its counts of open `[ ]`, claimed `[~]`, waiting-on-the-principal (`🎯` on the
+state line) and review-queued (`⏳` on the state line) items, then lists ONLY
+the unfinished items under each section that has any. "Unfinished" is a
+marker that is not `[x]`, or a `⏳` anywhere on the state line: the review
+queue is the count of `⏳` state lines (`roadmap/README.md`), so a `[x]` line
+still carrying `⏳` stays listed and counted rather than vanishing from the
+count, and pointerscan's miscount warning still has something to point at. A
+section with nothing listed takes its table row alone, marked `✅`, and no
+heading below. Item files are untouched; a finished item is one click away.
+The grace for children that still hold the full form is the LEGACY block.
 
 The index opens with a GENERATED marker line. Scanners that lint *item* grammar
 (`pointerscan`) skip any file carrying it — the index's one-line renderings are
@@ -135,8 +150,9 @@ import re
 import subprocess
 import sys
 import unicodedata
+from datetime import date, datetime, timezone
 from pathlib import Path
-from typing import NamedTuple
+from typing import Callable, NamedTuple
 
 # `harvestscan` already named and solved this exact problem (HV4): which
 # version of a tracked file a check should read — the WORKTREE (what's on
@@ -545,8 +561,42 @@ def index_entry(text: str, rel_link: str) -> str | None:
     state = item_state(text)
     if state is None:
         return None
+    return _state_entry(state, rel_link)
+
+
+def _state_entry(state: ItemState, rel_link: str) -> str:
     return index_line(state.marker, state.rest, rel_link, head=state.head,
                       markers=projected_markers(state))
+
+
+def _head_flags(state: ItemState) -> str:
+    """The flags on the state line, read as `index_line` reads them: the first
+    physical line only, with code spans blanked (a backticked glyph is a
+    mention, 130/020)."""
+    return CODE_SPAN_RE.sub(" ", state.head)
+
+
+def is_unfinished(state: ItemState) -> bool:
+    """Is this item listed in the index (010/210)? A marker other than `[x]`,
+    or a `⏳` on the state line: the review queue is the count of `⏳` state
+    lines, so a done item that still carries one stays in that count."""
+    return state.marker != "[x]" or "⏳" in _head_flags(state)
+
+
+# The summary table's count columns, in order: (header, test on a listed item).
+SUMMARY_COLUMNS: tuple[tuple[str, Callable[[ItemState], bool]], ...] = (
+    ("Open", lambda s: s.marker == "[ ]"),
+    ("Claimed", lambda s: s.marker == "[~]"),
+    ("🎯 Waiting", lambda s: "🎯" in _head_flags(s)),
+    ("⏳ Review", lambda s: s.marker == "⏳" or "⏳" in _head_flags(s)),
+)
+
+
+def _table_cell(text: str) -> str:
+    """`text` safe inside a table cell's link text: links flattened, brackets
+    and pipes as character references (a bare `|` splits the cell)."""
+    text = LINK_RE.sub(r"\1", text)
+    return _escape_link_text(text).replace("|", "&#124;")
 
 
 def section_title(readme_text: str, fallback: str) -> str:
@@ -763,6 +813,7 @@ def build_index(
     board: Path,
     source: str = WORKTREE,
     _read: tuple[bool, list[_Section]] | None = None,
+    full: bool = False,
 ) -> tuple[str, list[str]]:
     """(index text, problems). Deterministic: sorted dirs, sorted files.
 
@@ -773,6 +824,9 @@ def build_index(
     already paid for the read (`run_check`'s scope check) hand its result in
     rather than paying for a second `git ls-files`/`git show` pass per item —
     internal only, no test or caller outside this module should pass it.
+
+    `full` renders the PREVIOUS form, every item listed and no summary table,
+    for the grace in `run_check` alone (LEGACY, 010/210).
     """
     problems: list[str] = []
     parts: list[str] = [GENERATED_LINE, ""]
@@ -806,32 +860,78 @@ def build_index(
     problems.extend(number_collisions(
         [name for name, _, _ in sections], BOARD_DIR, "section"))
 
+    rows: list[str] = []
+    totals = [0] * len(SUMMARY_COLUMNS)
+    body: list[str] = []
     for sec_name, rtext, items in sections:
         problems.extend(number_collisions(
             [name for name, _ in items], f"{BOARD_DIR}/{sec_name}", "item"))
-        parts.append(f"## {section_title(rtext or '', sec_name)}")
-        parts.append("")
+        title = section_title(rtext or "", sec_name)
+        entries: list[str] = []
+        counts = [0] * len(SUMMARY_COLUMNS)
+        for fname, text in items:
+            state = item_state(text)
+            if state is None:
+                problems.append(
+                    f"{BOARD_DIR}/{sec_name}/{fname}: no state line — an item "
+                    "file opens with its checkbox line (`- [ ] …`), before any "
+                    "prose")
+                continue
+            if not full and not is_unfinished(state):
+                continue
+            entries.append(_state_entry(state, f"roadmap/{sec_name}/{fname}"))
+            for i, (_, hit) in enumerate(SUMMARY_COLUMNS):
+                if hit(state):
+                    counts[i] += 1
+        for i, n in enumerate(counts):
+            totals[i] += n
+
+        # A section's row links its narrative; with no README it has nothing
+        # to link, and a link to a missing file is a linkscan finding.
+        cell = _table_cell(title)
+        if rtext is not None:
+            cell = f"[{cell}](roadmap/{sec_name}/README.md)"
+        if not entries:
+            cell = f"✅ {cell}"
+        rows.append(f"| {cell} | " + " | ".join(map(str, counts)) + " |")
+
+        if not full and not entries:
+            continue              # nothing owed: its table row is its one line
+        body.append(f"## {title}")
+        body.append("")
         if rtext is not None:
             # Link TEXT, not just the target: the old text repeated the path,
             # and pathscan resolves both halves of a link, so every section
             # produced one finding per commit in any repo that scans the index
             # (49 in the first child to adopt). A generated file that always
             # fires a warn-only check is a check nobody reads.
-            parts.append(f"*[Narrative](roadmap/{sec_name}/README.md)*")
-            parts.append("")
-        wrote = False
-        for fname, text in items:
-            entry = index_entry(text, f"roadmap/{sec_name}/{fname}")
-            if entry is None:
-                problems.append(
-                    f"{BOARD_DIR}/{sec_name}/{fname}: no state line — an item "
-                    "file opens with its checkbox line (`- [ ] …`), before any "
-                    "prose")
-                continue
-            parts.append(entry)
-            wrote = True
-        if wrote:
-            parts.append("")
+            body.append(f"*[Narrative](roadmap/{sec_name}/README.md)*")
+            body.append("")
+        if entries:
+            body.extend(entries)
+            body.append("")
+
+    if not full:
+        # Every line here is a table row (wrapscan exempts those) or kept
+        # inside 85 columns by hand, so the summary passes the prose gates in
+        # a repo with no ignore file, as the item lines do.
+        parts.append("## Summary")
+        parts.append("")
+        parts.append("Only unfinished items are listed below; a finished item "
+                     "stays in its own file.")
+        parts.append("A ✅ section has nothing owed and no list. 🎯 and ⏳ "
+                     "count items on the state")
+        parts.append("line, so they overlap Open and Claimed.")
+        parts.append("")
+        parts.append("| Section | " + " | ".join(
+            h for h, _ in SUMMARY_COLUMNS) + " |")
+        parts.append("| :-- | " + " | ".join(
+            "--:" for _ in SUMMARY_COLUMNS) + " |")
+        parts.extend(rows)
+        parts.append("| **All sections** | " + " | ".join(
+            map(str, totals)) + " |")
+        parts.append("")
+    parts.extend(body)
     text = "\n".join(parts).rstrip() + "\n"
     return text, problems
 
@@ -856,12 +956,51 @@ def advisory_count_line(n: int) -> str:
     return f"  {ADVISORY_COUNT_PREFIX} {n} finding(s) — reported, not blocking."
 
 
-def run_check(root: Path, fix: bool, source: str = WORKTREE) -> int:
+# --- LEGACY: the full-form grace (010/210) ---------------------------------
+# Children run this tool from atelier `main` against their own committed
+# index, so the day the summary + open-only form landed every child's index
+# read stale and its `board` check, which blocks, went red. The 010/170
+# precedent: for a stated span `--check` also accepts an index that matches
+# the PREVIOUS renderer (`build_index(full=True)`: every item listed, no
+# summary), says so with ⚠️ and the rebuild command, and passes. `--rebuild`
+# always writes the new form. The 14-day span is the worker's pick under the
+# orchestrator's brief ("about 14 days out"), not a ruling.
+#
+# REMOVAL LIST (board 010/250), all of it, after the date: this block
+# (`FULL_FORM_ACCEPTED_UNTIL`, `_today_utc`, `_full_form_accepted`), the
+# `today` parameter and the grace branch of `run_check`, the `full` parameter
+# of `build_index` and its two `not full` tests (the summary then always
+# renders and an `[x]` item is always skipped), the `date`/`datetime`/
+# `timezone` imports, `test_board.py`'s `FullFormGrace` class, and the
+# grace sentences in `tools/README.md` and `docs/roadmap/README.md`.
+FULL_FORM_ACCEPTED_UNTIL = date(2026, 12, 4)   # the first day it is refused
+
+
+def _today_utc() -> date:
+    return datetime.now(timezone.utc).date()
+
+
+def _full_form_accepted(have: str, board: Path, source: str,
+                        read: tuple[bool, list[_Section]] | None,
+                        today: date) -> bool:
+    """Is `have` the previous full form of this board, inside the grace?"""
+    if today >= FULL_FORM_ACCEPTED_UNTIL:
+        return False
+    old, _ = build_index(board, source=source, _read=read, full=True)
+    return have == old
+# --- end LEGACY -------------------------------------------------------------
+
+
+def run_check(root: Path, fix: bool, source: str = WORKTREE,
+              today: date | None = None) -> int:
     """`source=INDEX` is the hook's plane (`--staged` / `--from-index`): the
     scope check, the built `want`, and (when not fixing) the `have` it is
     compared against are ALL read from the git index rather than the disk —
     reading the index for one side and the disk for the other would just move
-    the plane confusion this item exists to close, not close it."""
+    the plane confusion this item exists to close, not close it.
+
+    `today` is the clock the full-form grace reads (LEGACY, 010/210); a test
+    passes it, everyone else gets the UTC date."""
     if source == INDEX and not _is_git_repo(root):
         print(f"✗ board: --staged/--from-index needs a git repository at "
               f"{root} — it reads the git index, which does not exist "
@@ -920,6 +1059,15 @@ def run_check(root: Path, fix: bool, source: str = WORKTREE) -> int:
         # hook-side symptom of.
         remedy += " --from-index"
     plane = "the staged " if source == INDEX else ""
+    if have != want and _full_form_accepted(
+            have, board, source, read, today or _today_utc()):
+        # LEGACY (010/210): the previous form, inside its grace.
+        print(f"⚠️  board: {INDEX_REL} is in the previous full form (every "
+              "item listed). It is accepted until "
+              f"{FULL_FORM_ACCEPTED_UNTIL.isoformat()} and stale from that "
+              f"day. Rebuild it now to the summary + open-only form: "
+              f"{remedy}   (then stage the index)")
+        return 1 if problems else 0
     if have != want:
         print(f"✗ board: {INDEX_REL} is stale against {plane}{BOARD_DIR}/ — "
               f"run: {remedy}   (then stage the index; "
@@ -1057,8 +1205,12 @@ def selftest() -> int:
               not any(line.rstrip().endswith(FLAGS)
                       for line in text.splitlines()
                       if line.startswith("- ")))
-        check("done renders ✅ never [x]",
-              "- ✅ [Shipped thing]" in text and "- [x]" not in text)
+        # 010/210: a finished item is not listed, and `[x]` never appears.
+        check("a done item is not listed, and never as [x]",
+              "Shipped thing" not in text and "- [x]" not in text)
+        check("the summary counts the section",
+              "| [Track A — live exposure](roadmap/10-track-a/README.md) "
+              "| 3 | 2 | 1 | 1 |" in text)
         check("claim fragment surfaced",
               "(claimed 2026-08-15-0610, wt: b)" in text)
         check("pointer glyph kept", "- ⏳ [" in text)

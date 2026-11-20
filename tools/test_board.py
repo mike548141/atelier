@@ -6,7 +6,8 @@ What carries the weight here, shaped by the defects the split exists to end:
     the estate's most-recorded defect class, so staleness detection is the
     contract: any item edit must flip `check` red until `rebuild` runs.
   * `[x]` NEVER REACHES THE INDEX. `sizescan`'s cold-content gate fires on a
-    `[x]` item on the hot path; the index renders done items as ✅ precisely so
+    `[x]` item on the hot path. The index lists only unfinished items (010/210),
+    and the previous full form, kept for a grace, rendered done items as ✅, so
     a generated line can never trip a gate meant for hand-written content.
   * GRACEFUL OUT-OF-SCOPE IS NOT FAIL-OPEN. A repo with no `docs/roadmap/` is
     not using the split board; exiting 0 there is the scoped-scanner posture,
@@ -71,12 +72,17 @@ class Index(unittest.TestCase):
             "- [x] **Fix the fail-open gate** — done\n", encoding="utf-8")
         self.assertEqual(board.run_check(self.root, fix=False), 1)
 
-    def test_done_renders_check_emoji_never_bracket_x(self):
+    def test_done_is_not_listed_and_never_renders_bracket_x(self):
+        """010/210: a finished item leaves the index; the previous full form
+        (kept for the grace) rendered it ✅. Neither form writes `[x]`."""
         (self.sec / "20-done.md").write_text(
             "- [x] **Shipped** — landed and verified\n", encoding="utf-8")
         text = self.rebuild()
-        self.assertIn("- ✅ [Shipped]", text)
+        self.assertNotIn("Shipped", text)
         self.assertNotIn("- [x]", text)
+        full, _ = board.build_index(self.root / board.BOARD_DIR, full=True)
+        self.assertIn("- ✅ [Shipped]", full)
+        self.assertNotIn("- [x]", full)
 
     def test_numbers_sort_as_numbers_not_text(self):
         """010/200: a `1000-` item sorted before `130-` as text. Items and
@@ -873,8 +879,9 @@ class StagedPlane(unittest.TestCase):
         self.assertIn("A sibling's item", rebuilt,
                       "the sibling's last COMMITTED content is still there — "
                       "this is a plane fix, not a data-loss fix")
-        # And the claimer's OWN staged edit is fully reflected.
-        self.assertIn("✅ [Fix the fail-open gate]", rebuilt)
+        # And the claimer's OWN staged edit is fully reflected: the item is
+        # finished, so it leaves the list (010/210).
+        self.assertNotIn("Fix the fail-open gate", rebuilt)
 
     def test_argv_wires_staged_and_from_index_flags(self):
         argv_check = ["--check", "--staged", "--root", str(self.root)]
@@ -1128,6 +1135,204 @@ class DefaultRootIsTheGitToplevel(unittest.TestCase):
             rc, out = self.run_main("--check")
         self.assertEqual(0, rc, out)
         self.assertIn("not in scope", out)
+
+
+def _summary_row(text: str, title: str) -> list[str]:
+    """The count cells of the summary row whose section cell names `title`."""
+    for line in text.splitlines():
+        if line.startswith("| ") and title in line.split(" | ")[0]:
+            return [c.strip() for c in line.strip("| \n").split(" | ")[1:]]
+    raise AssertionError(f"no summary row for {title!r} in:\n{text}")
+
+
+class SummaryAndOpenOnly(unittest.TestCase):
+    """010/210, the principal's pick 2026-11-20 ("Summary + open only"): a
+    table of sections with their counts, then only the unfinished items; a
+    section with nothing owed takes its table row alone."""
+
+    def setUp(self):
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        self.root = Path(td.name)
+        self.sec = make_board(self.root)
+        files = {
+            "20-claimed.md":
+                "- [~] **Mid-flight** (claimed 2026-11-20-0900, wt: b)\n",
+            "30-pointer.md": "- [ ] ⏳ **Rule-4 cold pass queued** — delta\n",
+            "40-bare-pointer.md": "- ⏳ Rule-4 review queued — delta x..y\n",
+            "50-done.md": "- [x] **Shipped long ago** — landed\n",
+            "60-done-ruling.md": "- [x] 🎯 **Ruled and done** — closed\n",
+            "70-mention.md":
+                "- [ ] **About the `🎯` and `⏳` glyphs** — a mention\n",
+        }
+        for name, body in files.items():
+            (self.sec / name).write_text(body, encoding="utf-8")
+        done = self.root / board.BOARD_DIR / "20-all-done"
+        done.mkdir()
+        (done / "README.md").write_text("# All done here\n", encoding="utf-8")
+        (done / "10-a.md").write_text("- [x] **Finished A**\n",
+                                      encoding="utf-8")
+        (done / "20-b.md").write_text("- [x] **Finished B**\n",
+                                      encoding="utf-8")
+        empty = self.root / board.BOARD_DIR / "30-empty"
+        empty.mkdir()
+        (empty / "README.md").write_text("# Nothing filed yet\n",
+                                         encoding="utf-8")
+        board.run_check(self.root, fix=True)
+        self.text = (self.root / board.INDEX_REL).read_text(encoding="utf-8")
+
+    def test_the_summary_counts_each_column(self):
+        # Open: 10-open-item, 30-pointer, 70-mention. Claimed: 20. 🎯: the
+        # open item only (a done 🎯 and a backticked one do not count). ⏳:
+        # the flagged pointer and the bare one.
+        self.assertEqual(["3", "1", "1", "2"],
+                         _summary_row(self.text, "Track A — live exposure"))
+        self.assertEqual(["3", "1", "1", "2"],
+                         _summary_row(self.text, "**All sections**"))
+
+    def test_the_summary_links_each_sections_narrative(self):
+        self.assertIn("| [Track A — live exposure](roadmap/10-track-a/"
+                      "README.md) |", self.text)
+
+    def test_only_unfinished_items_are_listed(self):
+        for listed in ("10-open-item.md", "20-claimed.md", "30-pointer.md",
+                       "40-bare-pointer.md", "70-mention.md"):
+            self.assertIn(listed, self.text)
+        for gone in ("50-done.md", "60-done-ruling.md", "Finished A"):
+            self.assertNotIn(gone, self.text)
+        self.assertNotIn("- ✅", self.text)
+        self.assertNotIn("- [x]", self.text)
+
+    def test_a_finished_section_takes_its_table_row_alone(self):
+        self.assertIn("| ✅ [All done here](roadmap/20-all-done/README.md) "
+                      "| 0 | 0 | 0 | 0 |", self.text)
+        self.assertNotIn("## All done here", self.text)
+        self.assertEqual(1, self.text.count("roadmap/20-all-done/"))
+
+    def test_a_section_with_no_items_collapses_the_same_way(self):
+        self.assertIn("| ✅ [Nothing filed yet](roadmap/30-empty/README.md) "
+                      "| 0 | 0 | 0 | 0 |", self.text)
+        self.assertNotIn("## Nothing filed yet", self.text)
+
+    def test_a_done_item_still_carrying_the_review_glyph_stays_listed(self):
+        """The review queue is the count of `⏳` state lines, so a `[x]` line
+        that still carries one is counted and shown, not hidden: pointerscan
+        warns on that miscount, and the index should not mask it."""
+        (self.sec / "80-x-still-queued.md").write_text(
+            "- [x] ⏳ **Verdict landed, glyph left on** — miscount\n",
+            encoding="utf-8")
+        board.run_check(self.root, fix=True)
+        text = (self.root / board.INDEX_REL).read_text(encoding="utf-8")
+        self.assertIn("- ✅ ⏳ [Verdict landed", text)
+        self.assertEqual("3", _summary_row(text, "Track A")[3])
+
+    def test_a_pipe_in_a_section_title_does_not_split_the_cell(self):
+        sec = self.root / board.BOARD_DIR / "40-piped"
+        sec.mkdir()
+        (sec / "README.md").write_text("# A | B [c](d)\n", encoding="utf-8")
+        (sec / "10-x.md").write_text("- [ ] **X**\n", encoding="utf-8")
+        text, _ = board.build_index(self.root / board.BOARD_DIR)
+        row = next(l for l in text.splitlines() if "40-piped" in l
+                   and l.startswith("| "))
+        self.assertEqual(4, row.count(" | "), row)
+        self.assertIn("[A &#124; B c](roadmap/40-piped/README.md)", row)
+
+    def test_a_section_without_a_readme_has_no_link_to_break(self):
+        sec = self.root / board.BOARD_DIR / "50-no-readme"
+        sec.mkdir()
+        (sec / "10-x.md").write_text("- [ ] **X**\n", encoding="utf-8")
+        text, _ = board.build_index(self.root / board.BOARD_DIR)
+        self.assertIn("| 50-no-readme | 1 | 0 | 0 | 0 |", text)
+
+    def test_the_new_form_passes_wrapscan_and_every_link_resolves(self):
+        import re
+        import wrapscan
+        self.assertEqual([], wrapscan.scan_text("ROADMAP.md", self.text))
+        docs = self.root / "docs"
+        targets = re.findall(r"\]\((roadmap/[^)]+)\)", self.text)
+        self.assertTrue(targets)
+        for t in targets:
+            self.assertTrue((docs / t).is_file(), t)
+
+
+class FullFormGrace(unittest.TestCase):
+    """LEGACY (010/210, removed by 010/250). Children run this tool from
+    atelier `main` against their own committed index, which is in the full
+    form the day this lands. Until `FULL_FORM_ACCEPTED_UNTIL` the check
+    accepts it with a notice; from that day it is stale like any other."""
+
+    def setUp(self):
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        self.root = Path(td.name)
+        self.sec = make_board(self.root)
+        (self.sec / "20-done.md").write_text("- [x] **Shipped**\n",
+                                             encoding="utf-8")
+        full, _ = board.build_index(self.root / board.BOARD_DIR, full=True)
+        (self.root / board.INDEX_REL).write_text(full, encoding="utf-8")
+        self.before = board.FULL_FORM_ACCEPTED_UNTIL.fromordinal(
+            board.FULL_FORM_ACCEPTED_UNTIL.toordinal() - 1)
+
+    def check(self, today, source=board.WORKTREE) -> tuple[int, str]:
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = board.run_check(self.root, fix=False, source=source,
+                                 today=today)
+        return rc, out.getvalue()
+
+    def test_the_full_form_passes_with_a_notice_inside_the_grace(self):
+        rc, out = self.check(self.before)
+        self.assertEqual(0, rc, out)
+        self.assertIn("⚠️", out)
+        self.assertIn(board.FULL_FORM_ACCEPTED_UNTIL.isoformat(), out)
+        self.assertIn("rebuild", out)
+
+    def test_the_full_form_is_stale_from_the_end_date(self):
+        rc, out = self.check(board.FULL_FORM_ACCEPTED_UNTIL)
+        self.assertEqual(1, rc, out)
+        self.assertIn("is stale", out)
+
+    def test_the_new_form_passes_without_a_notice(self):
+        board.run_check(self.root, fix=True)
+        rc, out = self.check(self.before)
+        self.assertEqual(0, rc, out)
+        self.assertNotIn("⚠️", out)
+
+    def test_a_stale_full_form_is_not_accepted(self):
+        """The grace accepts the full form of THIS board, not any old text."""
+        (self.sec / "30-new.md").write_text("- [ ] **New since**\n",
+                                            encoding="utf-8")
+        rc, out = self.check(self.before)
+        self.assertEqual(1, rc, out)
+
+    def test_rebuild_writes_the_new_form(self):
+        board.run_check(self.root, fix=True)
+        text = (self.root / board.INDEX_REL).read_text(encoding="utf-8")
+        self.assertIn("## Summary", text)
+        self.assertNotIn("Shipped", text)
+
+    def test_the_grace_holds_on_the_staged_plane(self):
+        _git(self.root, "init", "-q")
+        _git(self.root, "add", "-A")
+        rc, out = self.check(self.before, source=board.INDEX)
+        self.assertEqual(0, rc, out)
+        self.assertIn("⚠️", out)
+        rc, out = self.check(board.FULL_FORM_ACCEPTED_UNTIL,
+                             source=board.INDEX)
+        self.assertEqual(1, rc, out)
+
+    def test_the_real_cli_says_so_and_passes(self):
+        """The floor runs the CLI, not `run_check`: the notice and exit 0
+        must reach a subprocess on today's clock while the grace runs."""
+        import datetime as _dt
+        if _dt.datetime.now(_dt.timezone.utc).date() >= \
+                board.FULL_FORM_ACCEPTED_UNTIL:
+            self.skipTest("the grace has ended; 010/250 removes this class")
+        r = subprocess.run([sys.executable, str(TOOLS_DIR / "board.py"),
+                            "--check", "--root", str(self.root)],
+                           capture_output=True, text=True)
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertIn("previous full form", r.stdout)
 
 
 if __name__ == "__main__":

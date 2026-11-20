@@ -6,34 +6,73 @@ Board doctrine and the checkbox legend:
 [roadmap/README.md](roadmap/README.md). One item per file; edit the item,
 then `python3 tools/board.py rebuild`.
 
+## Summary
+
+Only unfinished items are listed below; a finished item stays in its own file.
+A ✅ section has nothing owed and no list. 🎯 and ⏳ count items on the state
+line, so they overlap Open and Claimed.
+
+| Section | Open | Claimed | 🎯 Waiting | ⏳ Review |
+| :-- | --: | --: | --: | --: |
+| [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 7 | 0 | 1 | 0 |
+| [Policy-as-code programme — five tracks (Mike approved 2026-07-27)](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md) | 17 | 0 | 4 | 0 |
+| [Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)](roadmap/030-enforcement-propagation-the-estate-rollo/README.md) | 9 | 0 | 0 | 0 |
+| ✅ [Principal-set dates: mandate vs default (Mike, 2026-08-09)](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md) | 0 | 0 | 0 | 0 |
+| [🤔 Trust-failure handling as a skill — idea to consider (Mike, 2026-08-02)](roadmap/050-trust-failure-handling-as-a-skill-idea-t/README.md) | 1 | 0 | 0 | 0 |
+| ✅ [🤔 A fourth rung for the credential ladder — no credential at rest (Mike, 2026-08-03)](roadmap/060-a-fourth-rung-for-the-credential-ladder/README.md) | 0 | 0 | 0 | 0 |
+| [🤔 Rotatable vs unrotatable exposure — history rewrite as a legitimate remedy (Mike, 2026-08-06)](roadmap/070-rotatable-vs-unrotatable-exposure-histor/README.md) | 1 | 0 | 0 | 0 |
+| [PRINCIPLES §9 — the time dimension, and what it now obliges (Mike, 2026-08-08)](roadmap/080-principles-9-the-time-dimension-and-what/README.md) | 1 | 0 | 0 | 0 |
+| [The floor-at-head all-clear has a cancelled-run hole (found 2026-08-09)](roadmap/090-the-floor-at-head-all-clear-has-a-cancel/README.md) | 1 | 0 | 0 | 0 |
+| ✅ [spellscan's reason class silently voided live allow-markers — CLOSED 2026-08-09](roadmap/100-spellscan-s-reason-class-silently-voided/README.md) | 0 | 0 | 0 | 0 |
+| [Estate duplication + exception audit (Mike commissioned 2026-08-09)](roadmap/110-estate-duplication-exception-audit-mike/README.md) | 7 | 0 | 1 | 0 |
+| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 17 | 0 | 3 | 0 |
+| ✅ [test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md) | 0 | 0 | 0 | 0 |
+| ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
+| ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
+| ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 128 | 0 | 52 | 54 |
+| [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
+| ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
+| ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
+| [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
+| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 11 | 0 | 4 | 0 |
+| [Observability of the collaboration itself (2026-07-30)](roadmap/220-observability-of-the-collaboration-itsel/README.md) | 4 | 0 | 0 | 0 |
+| [File-size hygiene (new 2026-07-14)](roadmap/230-file-size-hygiene-new-2026-07-14/README.md) | 2 | 0 | 1 | 0 |
+| [North star — context follows the person, work follows anywhere](roadmap/240-north-star-context-follows-the-person-wo/README.md) | 2 | 0 | 0 | 0 |
+| ✅ [Session archive — decided 2026-07-23](roadmap/250-session-archive-decided-2026-07-23/README.md) | 0 | 0 | 0 | 0 |
+| [Sharing — public since 2026-07-10 (ADR 0005)](roadmap/260-sharing-public-since-2026-07-10-adr-0005/README.md) | 5 | 0 | 0 | 0 |
+| [Open questions](roadmap/270-open-questions/README.md) | 3 | 0 | 0 | 0 |
+| [Cross-session channel — coordination git cannot carry (Mike commissioned 2026-08-17)](roadmap/280-cross-session-channel-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
+| [Ruling round 2026-08-17 — the cold-run findings (Mike)](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/README.md) | 2 | 0 | 2 | 0 |
+| [Posture — strength is what you are free to do (Mike commissioned 2026-08-17)](roadmap/300-posture-recover-cheaply-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
+| [Pointing up — the child-to-parent route (Mike commissioned 2026-08-18)](roadmap/310-pointing-up-the-child-to-parent-route/README.md) | 5 | 0 | 2 | 0 |
+| [Findings filed from a child via § *Pointing up* (2026-08-18)](roadmap/320-child-filed-findings-via-pointing-up/README.md) | 27 | 0 | 4 | 0 |
+| ✅ [🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md) | 0 | 0 | 0 | 0 |
+| ✅ [⏳ Long-running operations need a way back — Mike-commissioned, 2026-08-22](roadmap/340-long-running-operations-need-a-way-back-mike-comm/README.md) | 0 | 0 | 0 | 0 |
+| [🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23](roadmap/350-verification-must-be-exact-not-probable-mike-comm/README.md) | 1 | 0 | 1 | 0 |
+| ✅ [🔀 Concurrency doctrine stops at the repo edge — Mike-commissioned, 2026-08-23](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/README.md) | 0 | 0 | 0 | 0 |
+| ✅ [🎭 The report can lie while the work is fine — 2026-08-23](roadmap/370-the-report-can-lie-while-the-work-is-fine/README.md) | 0 | 0 | 0 | 0 |
+| ✅ [🔇 Silence read as an answer — 2026-08-24](roadmap/380-silence-read-as-an-answer/README.md) | 0 | 0 | 0 | 0 |
+| [Repo relationships beyond the parent/child tree (Mike commissioned, 2026-09-12)](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/README.md) | 1 | 0 | 1 | 0 |
+| ✅ [Choosing among implementation mechanisms (Mike commissioned, 2026-09-16)](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/README.md) | 0 | 0 | 0 | 0 |
+| ✅ [Sessions without a repo (Mike commissioned, 2026-09-29)](roadmap/410-sessions-without-a-repo-mike-commissioned/README.md) | 0 | 0 | 0 | 0 |
+| [When to ask — keeping work flowing (Mike commissioned, 2026-10-01)](roadmap/420-when-to-ask-mike-commissioned/README.md) | 2 | 0 | 2 | 0 |
+| [Review quality is never traded for budget (Mike commissioned, 2026-10-04)](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/README.md) | 1 | 0 | 0 | 0 |
+| [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
+| [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
+| **All sections** | 264 | 0 | 82 | 54 |
+
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
 *[Narrative](roadmap/010-board-store-migration-per-item-files-mik/README.md)*
 
-- ✅ [Migrate the board to per-item files + generate the index](roadmap/010-board-store-migration-per-item-files-mik/010-migrate-the-board-to-per-item-files-generate-t.md)
-- ✅ [board --check reads the worktree, not the staged plane.](roadmap/010-board-store-migration-per-item-files-mik/020-board-check-staged-plane-seam.md)
-- ✅ [Fleet rollout of the split board](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md)
-- ✅ [Sweep monolith-era board wording across the doctrine surface.](roadmap/010-board-store-migration-per-item-files-mik/040-monolith-era-wording-sweep.md)
 - [ ] 🛑 [The board-store cold pass RAN 2026-08-15 and the cycle stays OPEN — a…](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md)
-- ✅ 🔥 [board aborted on the floor's own argv — FIXED 2026-08-17.](roadmap/010-board-store-migration-per-item-files-mik/060-the-board-check-aborted-on-the-floor-s-own-argv.md)
-- ✅ 🔎 [The generated index fails two of the floor's own scanners, and only…](roadmap/010-board-store-migration-per-item-files-mik/070-the-index-fails-two-scanners-it-generates-into.md)
-- ✅ 🔎 [The generated index tells every child to run a file it does not have…](roadmap/010-board-store-migration-per-item-files-mik/080-generated-banner-names-a-path-only-atelier-has.md)
-- ✅ 🔎 [board's action word is the only bare positional in the registry, and…](roadmap/010-board-store-migration-per-item-files-mik/090-board-s-action-word-is-the-only-bare-positional.md)
 - [ ] 🎯 [A child has used &#91;~&#93; for partially delivered where the house means…](roadmap/010-board-store-migration-per-item-files-mik/100-ros-carries-38-items-using-a-different-tilde.md)
-- ✅ 🔥 [The mixed-root scan — BUILT 2026-08-23](roadmap/010-board-store-migration-per-item-files-mik/110-relative-path-args-resolve-against-cwd-not-root.md)
-- ✅ 🔥 [The unseen duplicate number — FIXED 2026-08-23](roadmap/010-board-store-migration-per-item-files-mik/120-board-py-cannot-see-a-duplicate-section-number.md)
 - [ ] 🔎 [A claim on a long-titled item fails the wrapscan floor — on the…](roadmap/010-board-store-migration-per-item-files-mik/130-a-claim-fragment-on-a-long-title-fails-wrapscan.md)
-- ✅ 🔎 [index_title's fallback swallows the claim fragment into the generated…](roadmap/010-board-store-migration-per-item-files-mik/140-index-title-fallback-swallows-the-claim-fragment.md)
-- ✅ 🔥 [board called a current index stale from every worktree of atelier,…](roadmap/010-board-store-migration-per-item-files-mik/150-board-judged-the-tree-from-the-tool-s-own-path.md)
-- ✅ 🎯 [CF3's dirty-sibling stop is now stricter than its cause requires —…](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
-- ✅ [DONE 2026-10-18](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
-- ✅ 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
-- ✅ [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
-- ✅ 🔎 [A four-digit item number sorts out of order, and the review section…](roadmap/010-board-store-migration-per-item-files-mik/200-a-four-digit-item-number-sorts-out-of-order.md)
-- [ ] [The index lists every finished item, so finished work is read at…](roadmap/010-board-store-migration-per-item-files-mik/210-the-index-lists-every-finished-item.md)
 - [ ] [The pre-split archives sit outside the board's store.](roadmap/010-board-store-migration-per-item-files-mik/220-the-pre-split-archives-sit-outside-the-store.md)
 - [ ] [Every repo keeps the house board, and the health sweep enforces it.](roadmap/010-board-store-migration-per-item-files-mik/230-every-repo-keeps-the-house-board.md)
 - [ ] 🔎 [The repo template still scaffolds the old one-file board, so every…](roadmap/010-board-store-migration-per-item-files-mik/240-the-repo-template-still-scaffolds-the-old-board.md)
+- [ ] [Remove the full-form index grace once 2026-12-04 has passed.](roadmap/010-board-store-migration-per-item-files-mik/250-remove-the-full-form-index-grace-after-its-date.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
@@ -41,51 +80,21 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] [The five red floors themselves are now open work.](roadmap/020-policy-as-code-programme-five-tracks-mik/010-the-five-red-floors-themselves-are-now-open-wo.md)
 - [ ] 🎯 [B4 — the roadmap-deletion guard: BUILT, MEASURED, and deliberately…](roadmap/020-policy-as-code-programme-five-tracks-mik/020-b4-the-roadmap-deletion-guard-built-measured-a.md)
-- ✅ 🎯 [C5 re-ruling owed — the composed term-list execution was reverted on…](roadmap/020-policy-as-code-programme-five-tracks-mik/030-c5-re-ruling-owed-the-composed-term-list-execu.md)
 - [ ] 🎯 [A scanner's verdict has two states and needs three — "found, and all…](roadmap/020-policy-as-code-programme-five-tracks-mik/040-a-scanner-s-verdict-has-two-states-and-needs-t.md)
-- ✅ 🎯 [The join C5 guards was written twice more on 2026-08-09, both times…](roadmap/020-policy-as-code-programme-five-tracks-mik/050-the-join-c5-guards-was-written-twice-more-on-2.md)
-- ✅ [floorfleet's remaining child-authored text surfaces.](roadmap/020-policy-as-code-programme-five-tracks-mik/060-floorfleet-s-remaining-child-authored-text-sur.md)
-- ✅ [C1b — migrate the remainder, then delete the legacy spelling.](roadmap/020-policy-as-code-programme-five-tracks-mik/070-c1b-migrate-the-remainder-then-delete-the-lega.md)
 - [ ] [C2 — retire the remainder.](roadmap/020-policy-as-code-programme-five-tracks-mik/080-c2-retire-the-remainder.md)
-- ✅ [C3 — a sanctioned adoption path.](roadmap/020-policy-as-code-programme-five-tracks-mik/090-c3-a-sanctioned-adoption-path.md)
 - [ ] [C4 — make the local bypass visible.](roadmap/020-policy-as-code-programme-five-tracks-mik/100-c4-make-the-local-bypass-visible.md)
 - [ ] [D2 residue — stampscan registry wiring stays barred on ST3.](roadmap/020-policy-as-code-programme-five-tracks-mik/110-d2-residue-stampscan-registry-wiring-stays-bar.md)
-- ✅ 🎯 [D3 — signscan cannot fail CI.](roadmap/020-policy-as-code-programme-five-tracks-mik/120-d3-signscan-cannot-fail-ci.md)
 - [ ] [D4 — the repo-local seam has no adopters.](roadmap/020-policy-as-code-programme-five-tracks-mik/130-d4-the-repo-local-seam-has-no-adopters.md)
 - [ ] 🎯 [E6 — the floor's posture, and the dial that makes it reachable. RULED…](roadmap/020-policy-as-code-programme-five-tracks-mik/140-e6-the-floor-s-posture-and-the-dial-that-makes.md)
-- ✅ [DONE 2026-10-18](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
-- ✅ [E9 — every scanner walks gitignored nested worktrees, and counts the…](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
-- ✅ 🎯 [F1 — rebuild the block-vs-advise model from base. REBUILT 2026-08-05…](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md)
 - [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
 - [ ] [The measurement that supports it, and its limits.](roadmap/020-policy-as-code-programme-five-tracks-mik/190-the-measurement-that-supports-it-and-its-limit.md)
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
-- ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled…](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
 - [ ] 🎯 [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await…](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
 - [ ] [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
-- ✅ [(b) The half with no owner: doctrine that reaches the moment of…](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
-- ✅ 🎯 [The posture change this implies — stated so it is ruled, not assumed.](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
-- ✅ [The REPO-plane numbers are still unruled](roadmap/020-policy-as-code-programme-five-tracks-mik/260-the-repo-plane-numbers-are-still-unruled.md)
-- ✅ [Carry P5's finding into part (b).](roadmap/020-policy-as-code-programme-five-tracks-mik/270-carry-p5-s-finding-into-part-b.md)
-- ✅ [Watch the live hook for two failure modes](roadmap/020-policy-as-code-programme-five-tracks-mik/280-watch-the-live-hook-for-two-failure-modes.md)
-- ✅ [The backlog.](roadmap/020-policy-as-code-programme-five-tracks-mik/290-the-backlog.md)
 - [ ] [Generalise the finding, don't just fix this doc.](roadmap/020-policy-as-code-programme-five-tracks-mik/300-generalise-the-finding-don-t-just-fix-this-doc.md)
-- ✅ 🔥 [The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it…](roadmap/020-policy-as-code-programme-five-tracks-mik/310-the-reply-gate-is-unwired-destroy-it-or-repur.md)
-- ✅ 🔥 [linkscan's reference-style blindness — FIXED 2026-08-23](roadmap/020-policy-as-code-programme-five-tracks-mik/320-linkscan-is-blind-to-reference-style-link-des.md)
-- ✅ [The 2026-08-09 measurement checked for the three-channel blind spot —…](roadmap/020-policy-as-code-programme-five-tracks-mik/330-the-2026-08-09-measurement-checked-for-the-blind-spot.md)
-- ✅ [Pin the three softenable-set prose lists to Scanner.advisory (AP2,…](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
-- ✅ 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept (FR3's…](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
-- ✅ 🎯 [Remove plainscan: the reply hook destroyed, the engine archived](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
-- ✅ 🔥 [DEFECT — secretscan's memory grows with what it scans: ~9 GB over one…](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
-- ✅ 🔥 [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
-- ✅ 🔎 [Parallel workers in one run share a scratchpad path, and one silently…](roadmap/020-policy-as-code-programme-five-tracks-mik/390-parallel-workers-share-one-scratchpad-path.md)
-- ✅ 🔥 [harvestscan's vanished-item check is quadratic in the number of…](roadmap/020-policy-as-code-programme-five-tracks-mik/400-harvestscans-similarity-pass-is-quadratic.md)
 - [ ] 🔎 [GUARDS.md § Adoption assumes every guard can install advisory-first,…](roadmap/020-policy-as-code-programme-five-tracks-mik/410-adoption-assumes-advisory-first.md)
-- ✅ [BUILT 2026-10-18](roadmap/020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md)
-- ✅ [DONE 2026-10-18](roadmap/020-policy-as-code-programme-five-tracks-mik/440-one-specific-reason-may-keep-several-named-metadata-sets.md)
-- ✅ [G3 keeps image metadata field by field, not by data type.](roadmap/020-policy-as-code-programme-five-tracks-mik/450-g3-keeps-image-metadata-field-by-field-not-by-data-type.md)
 - [ ] [Claude Code session hooks as a house enforcement plane: decide which…](roadmap/020-policy-as-code-programme-five-tracks-mik/460-claude-code-session-hooks-as-a-house-enforcement-plane.md)
-- ✅ [A hook that checks, without the model having to remember, that a…](roadmap/020-policy-as-code-programme-five-tracks-mik/470-a-hook-that-fails-noisy-when-a-child-floor-copy-is-stale.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -96,33 +105,16 @@ then `python3 tools/board.py rebuild`.
 - [ ] [The four archetypes need naming as a class.](roadmap/030-enforcement-propagation-the-estate-rollo/030-the-four-archetypes-need-naming-as-a-class.md)
 - [ ] [assigned-secret findings in service configuration.](roadmap/030-enforcement-propagation-the-estate-rollo/040-assigned-secret-findings-in-service-configurat.md)
 - [ ] [Structural leakscan reds across several private repos.](roadmap/030-enforcement-propagation-the-estate-rollo/050-structural-leakscan-reds-across-several-privat.md)
-- ✅ [A private-key-header that was prose, not key material](roadmap/030-enforcement-propagation-the-estate-rollo/060-a-private-key-header-that-was-prose-not-key-ma.md)
 - [ ] [Mechanise the private-repo × posture join](roadmap/030-enforcement-propagation-the-estate-rollo/070-mechanise-the-private-repo-posture-join.md)
 - [ ] [2 repos still owe the declaration — blocked by their own reds.](roadmap/030-enforcement-propagation-the-estate-rollo/080-2-repos-still-owe-the-declaration-blocked-by-t.md)
-- ✅ [Adoption is a chicken-and-egg problem and I improvised twice.](roadmap/030-enforcement-propagation-the-estate-rollo/090-adoption-is-a-chicken-and-egg-problem-and-i-im.md)
-- ✅ [--no-verify is the real hole, and nothing sees it.](roadmap/030-enforcement-propagation-the-estate-rollo/100-no-verify-is-the-real-hole-and-nothing-sees-it.md)
-- ✅ [The floor drift check can never fire against a stale checkout — the…](roadmap/030-enforcement-propagation-the-estate-rollo/110-the-floor-drift-check-can-never-fire-against-a.md)
 - [ ] [Every child inlines the same stale-HEAD drift bullet — a fleet sweep…](roadmap/030-enforcement-propagation-the-estate-rollo/120-every-child-inlines-the-same-stale-head-drift.md)
-- ✅ 🔎 [The inlined floor says "everything recoverable — just proceed", and…](roadmap/030-enforcement-propagation-the-estate-rollo/130-the-floor-says-everything-recoverable-just-pro.md)
 - [ ] 🔎 [The dirty-checkout claiming rule yields to a file, then tells you to…](roadmap/030-enforcement-propagation-the-estate-rollo/140-cf3-s-claiming-rule-collapses-on-a-monolithic.md)
-
-## Principal-set dates: mandate vs default (Mike, 2026-08-09)
-
-*[Narrative](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md)*
-
-- ✅ [Capture → doctrine: when the principal sets a date for the fleet, the…](roadmap/040-principal-set-dates-mandate-vs-default-m/010-capture-doctrine-when-the-principal-sets-a-dat.md)
 
 ## 🤔 Trust-failure handling as a skill — idea to consider (Mike, 2026-08-02)
 
 *[Narrative](roadmap/050-trust-failure-handling-as-a-skill-idea-t/README.md)*
 
 - [ ] [When a trust failure occurs in-session, handle it deterministically —…](roadmap/050-trust-failure-handling-as-a-skill-idea-t/010-when-a-trust-failure-occurs-in-session-handle.md)
-
-## 🤔 A fourth rung for the credential ladder — no credential at rest (Mike, 2026-08-03)
-
-*[Narrative](roadmap/060-a-fourth-rung-for-the-credential-ladder/README.md)*
-
-- ✅ [Extend the credential preference ladder so the standing credential is…](roadmap/060-a-fourth-rung-for-the-credential-ladder/010-extend-the-credential-preference-ladder-so-the.md)
 
 ## 🤔 Rotatable vs unrotatable exposure — history rewrite as a legitimate remedy (Mike, 2026-08-06)
 
@@ -142,210 +134,89 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] [Worth watching, not yet worth mechanising.](roadmap/090-the-floor-at-head-all-clear-has-a-cancel/010-worth-watching-not-yet-worth-mechanising.md)
 
-## spellscan's reason class silently voided live allow-markers — CLOSED 2026-08-09
-
-*[Narrative](roadmap/100-spellscan-s-reason-class-silently-voided/README.md)*
-
 ## Estate duplication + exception audit (Mike commissioned 2026-08-09)
 
 *[Narrative](roadmap/110-estate-duplication-exception-audit-mike/README.md)*
 
-- ✅ [Make a voided allowance visible.](roadmap/110-estate-duplication-exception-audit-mike/010-make-a-voided-allowance-visible.md)
-- ✅ 🔎 [Five pre-existing worktree.py defects, found by that fix and…](roadmap/110-estate-duplication-exception-audit-mike/020-five-pre-existing-worktree-py-defects-found-by.md)
 - [ ] [Eight children carry a floor block that predates four doctrine…](roadmap/110-estate-duplication-exception-audit-mike/030-eight-children-carry-a-floor-block-that-predat.md)
 - [ ] [shed narrows the floor legitimately and undeclarably.](roadmap/110-estate-duplication-exception-audit-mike/040-shed-narrows-the-floor-legitimately-and-undecl.md)
 - [ ] [The economics-doc duplication — the audit's headline, and Mike's…](roadmap/110-estate-duplication-exception-audit-mike/050-the-economics-doc-duplication-the-audit-s-head.md)
 - [ ] [Give a deferment an expiry at every granularity, not just advisory.](roadmap/110-estate-duplication-exception-audit-mike/060-give-a-deferment-an-expiry-at-every-granularit.md)
-- ✅ [The unreasoned advisories are already in hand — do not re-file.](roadmap/110-estate-duplication-exception-audit-mike/070-the-unreasoned-advisories-are-already-in-hand.md)
 - [ ] [Make the estate's floor state answer "passing", not just "wired".](roadmap/110-estate-duplication-exception-audit-mike/080-make-the-estate-s-floor-state-answer-passing-n.md)
 - [ ] [Triage the four red floors.](roadmap/110-estate-duplication-exception-audit-mike/090-triage-the-four-red-floors.md)
 - [ ] 🎯 [The exception audit above checked reason-presence and effectiveness —…](roadmap/110-estate-duplication-exception-audit-mike/100-two-granularities-the-2026-08-09-audit-never-asked-about.md)
-- ✅ 🔥 [The content guards walk the whole filesystem, untracked trees…](roadmap/110-estate-duplication-exception-audit-mike/110-guards-walk-untracked-trees.md)
-- ✅ 🔥 [pathscan and linkscan are unbounded on one large file](roadmap/110-estate-duplication-exception-audit-mike/120-pathscan-and-linkscan-are-unbounded-on-one-big-file.md)
-- ✅ 🔎 [leakscan and secretscan scan at roughly 0.5–1 MB/s, so a 128 MB repo…](roadmap/110-estate-duplication-exception-audit-mike/130-leakscan-and-secretscan-scan-under-1-mb-per-second.md)
-- ✅ 🔥 [leakscan, secretscan and conflictscan's line reader re-slices the…](roadmap/110-estate-duplication-exception-audit-mike/140-the-line-reader-re-slices-per-line.md)
 
 ## Guardrails for atelier and its children (Mike commissioned 2026-08-15)
 
 *[Narrative](roadmap/115-guardrail-architecture-mike-commissioned/README.md)*
 
-- ✅ 🎯 [Mint the evidence-window rule as guard-design doctrine — Mike's call.](roadmap/115-guardrail-architecture-mike-commissioned/010-mint-the-evidence-window-rule-as-guard-design.md)
-- ✅ 🎯 [Confidence on a fact: stored field, or computed? Mike's call, and it…](roadmap/115-guardrail-architecture-mike-commissioned/020-confidence-on-a-fact-stored-field-or-computed.md)
-- ✅ 🔥 [stampscan's verdicts are inverted against the doctrine it enforces —…](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md)
-- ✅ 🔎 [The withdrawn-review convention rests on a premise that now has a…](roadmap/115-guardrail-architecture-mike-commissioned/040-the-withdrawn-review-premise-has-a-counterexam.md)
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to…](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
-- ✅ 🔎 [A coined paraphrase is still presented on the board as a child repo's…](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped…](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
-- ✅ [Single-source the scanner harness, re-grounded on Mike's own upstream…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's…](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of…](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at…](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
 - [ ] 🎯 [Every guard declares the purpose it answers to, and proves it fires…](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
 - [ ] [A guard reports whether its rule fired at all, and over what — so…](roadmap/115-guardrail-architecture-mike-commissioned/130-a-guard-reports-whether-its-rule-fired-at-all.md)
-- ✅ 🔥 [The scheduled estate conformance job has never once been green — 19…](roadmap/115-guardrail-architecture-mike-commissioned/140-the-estate-conformance-job-has-never-once-been.md)
 - [ ] [What actually reaches a child, measured 2026-08-15 — and it is about…](roadmap/115-guardrail-architecture-mike-commissioned/150-what-reaches-a-child-measured-and-it-is-about.md)
 - [ ] [The floor a child inherits is a records-hygiene floor, and the…](roadmap/115-guardrail-architecture-mike-commissioned/160-the-child-floor-is-a-records-hygiene-floor-not.md)
-- ✅ 🎯 [The guard layer is consuming the programme — the proportionality…](roadmap/115-guardrail-architecture-mike-commissioned/170-the-guard-layer-is-consuming-the-programme.md)
-- ✅ [Machine-check the main boundary ADR 0008's control clause names (AP1,…](roadmap/115-guardrail-architecture-mike-commissioned/180-machine-check-the-main-branch-boundary.md)
-- ✅ [One child declares a narrowed floor and reds from now on](roadmap/115-guardrail-architecture-mike-commissioned/200-one-child-declares-a-narrowed-floor-and-now-reds.md)
 - [ ] 🔎 [A session's default python3 is too old to load three of the guard…](roadmap/115-guardrail-architecture-mike-commissioned/210-the-guard-suite-cannot-run-on-the-machine-it-guards.md)
 - [ ] 🎯 [The streaming line readers are three or four different mechanisms,…](roadmap/115-guardrail-architecture-mike-commissioned/220-the-line-readers-are-three-mechanisms-not-one-with-parameters.md)
 - [ ] 🔎 [Single-sourcing the allow-marker grammar surfaced four divergences,…](roadmap/115-guardrail-architecture-mike-commissioned/230-four-allow-marker-divergences.md)
-- ✅ 🔎 [Three enforced scanners still describe themselves as advisory](roadmap/115-guardrail-architecture-mike-commissioned/240-three-enforced-scanners-call-themselves-advisory.md)
-- ✅ 🔎 [pointerscan still walks the whole tree, harness worktrees included](roadmap/115-guardrail-architecture-mike-commissioned/250-pointerscan-still-walks-the-whole-tree.md)
-- ✅ 🔎 [Two blocking guards never scan a staged file whose path git quotes](roadmap/115-guardrail-architecture-mike-commissioned/260-staged-plane-guards-skip-git-quoted-paths.md)
-- ✅ 🔎 [Three defects found while adding finding IDs](roadmap/115-guardrail-architecture-mike-commissioned/270-three-defects-found-adding-finding-ids.md)
-- ✅ 🔎 [An added line can pose as a diff header in secretscan's staged plane](roadmap/115-guardrail-architecture-mike-commissioned/280-an-added-line-can-pose-as-a-diff-header-in-secretscan.md)
-- ✅ 🔎 [Three guard descriptions disagree with their own code](roadmap/115-guardrail-architecture-mike-commissioned/290-three-guards-describe-a-response-tier-their-code-lacks.md)
-- ✅ 🔎 [conflictscan and leakscan report the wrong line number on the staged…](roadmap/115-guardrail-architecture-mike-commissioned/300-two-staged-guards-report-the-wrong-line-number.md)
-- ✅ 🔎 [conflictscan's open-conflict state runs across staged hunks](roadmap/115-guardrail-architecture-mike-commissioned/310-conflictscan-open-conflict-state-runs-across-hunks.md)
-- ✅ 🔎 [Three small gaps in the floor's tests and count contract](roadmap/115-guardrail-architecture-mike-commissioned/320-three-small-floor-test-and-contract-gaps.md)
-- ✅ 🔎 [RECORD.md's index rotation has lost its trigger](roadmap/115-guardrail-architecture-mike-commissioned/330-record-md-rotation-trigger-has-no-signal.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md)
 - [ ] 🔎 [A cloud session cannot satisfy the hook plane's leakscan term…](roadmap/115-guardrail-architecture-mike-commissioned/350-a-cloud-session-cannot-satisfy-the-hook-planes-term-requirement.md)
-- ✅ [DONE 2026-10-18](roadmap/115-guardrail-architecture-mike-commissioned/360-a-bare-dot-scope-makes-the-staged-plane-scan-nothing.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/115-guardrail-architecture-mike-commissioned/370-secrets-posture-heading-says-the-dial-is-not-yet-built.md)
-- ✅ [The scanners' exempted test files rest on a promise nothing checks:…](roadmap/115-guardrail-architecture-mike-commissioned/380-the-scanners-exempt-test-files-hold-a-promise-nothing-checks.md)
-- ✅ 🤔 [Investigate scanning inside binary files.](roadmap/115-guardrail-architecture-mike-commissioned/390-investigate-scanning-inside-binary-files.md)
-- ✅ 🔎 [pointerscan misses a RAN stamp that carries a time, so four landed…](roadmap/115-guardrail-architecture-mike-commissioned/400-pointerscan-misses-a-ran-stamp-carrying-a-time.md)
-- ✅ 🔎 [EVIDENCE.md §17 says its class is not mechanisable because "nothing…](roadmap/115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md)
 - [ ] 🔎 [A repo declares its visibility in two places, CLAUDE.md and…](roadmap/115-guardrail-architecture-mike-commissioned/420-a-repo-declares-its-visibility-twice-and-nothing-compares.md)
 - [ ] 🔎 [The floor block's always-confirm stop list differs from AUTONOMY.md §…](roadmap/115-guardrail-architecture-mike-commissioned/430-the-floors-stop-list-differs-from-autonomy-always-confirm.md)
-- ✅ 🔎 [PROPAGATION.md calls a parent enforcing what its children do not a…](roadmap/115-guardrail-architecture-mike-commissioned/440-parent-only-checks-versus-the-parent-child-parity-rule.md)
 - [ ] 🔎 [Three doctrine defects the enforcement census found in slice 3.](roadmap/115-guardrail-architecture-mike-commissioned/450-census-slice-3-doctrine-defects.md)
-- ✅ 🔎 [leakscan's ipv4 rule reads a browser version string (Chrome/x.0.0.0)…](roadmap/115-guardrail-architecture-mike-commissioned/460-ipv4-rule-reads-a-browser-version-as-an-address.md)
-- ✅ 🔥 [allowmarker.py cannot be loaded by file path since 2026-11-17, and…](roadmap/115-guardrail-architecture-mike-commissioned/470-allowmarker-cannot-be-loaded-by-file-path-since-a-dataclass.md)
-- ✅ [Both leakscan metadata cut-offs move to blocking from 2026-11-20, on…](roadmap/115-guardrail-architecture-mike-commissioned/480-both-leakscan-metadata-cut-offs-move-to-today.md)
 - [ ] [Remove leakscan's now-dead type-level and document warn-only paths.](roadmap/115-guardrail-architecture-mike-commissioned/490-remove-leakscan-s-dead-type-level-and-document-warn-paths.md)
-
-## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
-
-*[Narrative](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md)*
-
-- ✅ 🔥 [Two tests fail intermittently in the full-suite run and pass when the…](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/010-two-tests-fail-intermittently-in-the-full-suit.md)
-
-## A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)
-
-*[Narrative](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md)*
-
-- ✅ 🔎 [Two of the three pointers on this board have already been taken and…](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/010-two-of-the-three-pointers-on-this-board-have-a.md)
-- ✅ [The board miscounted the review queue — make its markers unambiguous…](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/020-the-board-miscounted-the-review-queue-fix-it-among-claude-sessions.md)
-- ✅ [FIXED 2026-10-18](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/030-the-brief-bars-the-commit-body-but-names-no-command-that-avoids-it.md)
-
-## AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)
-
-*[Narrative](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md)*
-
-- ✅ 🔎 [The machine-check half — the second thing Mike ruled, and it is not…](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/010-the-machine-check-half-the-second-thing-mike-r.md)
-- ✅ 🔎 [ADR 0008's clause is now closer to true and still not true.](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/020-adr-0008-s-clause-is-now-closer-to-true-and-st.md)
-
-## The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)
-
-*[Narrative](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md)*
 
 ## Doctrine — review-owed
 
 *[Narrative](roadmap/160-doctrine-review-owed/README.md)*
 
 - [ ] 🎯 [The cctranscript --search cycle CLOSED 2026-08-15 (0 MAJOR); CS1–CS14…](roadmap/160-doctrine-review-owed/010-rule-4-review-queued-tier-fable-pass-type-code.md)
-- ✅ 🎯 [The child-membership + work-locality cycle CLOSED 2026-08-09 (0…](roadmap/160-doctrine-review-owed/020-the-child-membership-work-locality-cycle-close.md)
-- ✅ 🎯 [The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await…](roadmap/160-doctrine-review-owed/030-the-principles-9-cycle-closed-2026-08-09-0-maj.md)
-- ✅ 🎯 [The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6…](roadmap/160-doctrine-review-owed/040-the-cancelled-run-clause-cycle-closed-2026-08.md)
-- ✅ 🎯 [Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle…](roadmap/160-doctrine-review-owed/050-five-rule-4-fable-cold-passes-ran-2026-08-05-e.md)
 - [ ] 🎯 [A seventh pass: the F1/GUARDS.md rebuild + the twelve-scanner…](roadmap/160-doctrine-review-owed/060-a-seventh-pass-the-f1-guards-md-rebuild-the-tw.md)
 - [ ] 🎯 [A sixth pass the same day: the sitting's five doctrine edits,…](roadmap/160-doctrine-review-owed/070-a-sixth-pass-the-same-day-the-sitting-s-five-d.md)
-- ✅ [Rule-4 review queued (tier: Fable; pass type: code cold pass) — the…](roadmap/160-doctrine-review-owed/080-rule-4-review-queued-tier-fable-pass-type-code.md)
-- ✅ 🎯 [Rule-4 review queued (tier: Fable; pass type: code cold pass, the EP…](roadmap/160-doctrine-review-owed/090-rule-4-review-queued-tier-fable-pass-type-code.md)
-- ✅ 🎯 [The E6b + E3 cycle CLOSED 2026-08-09 (0 MAJOR); AB1–AB6 await Mike's…](roadmap/160-doctrine-review-owed/100-the-e6b-e3-cycle-closed-2026-08-09-0-major-ab1.md)
-- ✅ 🎯 [The E7 leakscan cycle CLOSED 2026-08-09 (0 MAJOR); LK1–LK6 + a G2…](roadmap/160-doctrine-review-owed/110-the-e7-leakscan-cycle-closed-2026-08-09-0-majo.md)
 - [ ] 🎯 [Glossary ratify pass (Mike)](roadmap/160-doctrine-review-owed/120-glossary-ratify-pass-mike.md)
 - [ ] [Define complex vs complicated in the glossary](roadmap/160-doctrine-review-owed/130-define-complex-vs-complicated-in-the-glossary.md)
 - [ ] [Propagate the widened apex floor to the fleet children](roadmap/160-doctrine-review-owed/140-propagate-the-widened-apex-floor-to-the-fleet.md)
-- ✅ [Elevate the first-principles doctrine to atelier](roadmap/160-doctrine-review-owed/150-elevate-the-first-principles-doctrine-to-ateli.md)
 - [ ] [Cross-repo learning: atelier distils domain-diverse children (Mike,…](roadmap/160-doctrine-review-owed/160-cross-repo-learning-atelier-distils-domain-div.md)
-- ✅ [Principle: solve once, reuse the building block (Mike, 2026-07-25)](roadmap/160-doctrine-review-owed/170-principle-solve-once-reuse-the-building-block.md)
-- ✅ 🎯 [Rule-4 review RAN 2026-08-17 (tier: Fable; pass type: doctrine cold…](roadmap/160-doctrine-review-owed/180-rule-4-review-queued-tier-fable-pass-type-doc.md)
-- ✅ [REVIEW.md gap — what is the review cycle of an ADR accepted in part?](roadmap/160-doctrine-review-owed/190-review-md-gap-the-cycle-of-an-adr-accepted-in-part.md)
-- ✅ 🔎 [/security-review reads the session's pending diff, not the path it is…](roadmap/160-doctrine-review-owed/195-security-review-reads-the-worktree-not-the-target.md)
-- ✅ [Apex: the principal's authority is absolute; his rulings are…](roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md)
-- ✅ [Rule-4 cold pass — apex: authority absolute, rulings conditioned —…](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
-- ✅ 🎯 [The board-generator cycle CLOSED 2026-08-17 (0 MAJOR); BG1–BG14 await…](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
 - [ ] 🎯 [The ruling-round-application cycle CLOSED 2026-08-17 (0 MAJOR);…](roadmap/160-doctrine-review-owed/230-rule-4-cold-pass-queued-the-0817-ruling-round.md)
 - [ ] 🛑 [The coldsweep pass RAN 2026-08-17 and the cycle stays OPEN — three…](roadmap/160-doctrine-review-owed/240-rule-4-cold-pass-queued-coldsweep.md)
-- ✅ [A queued pointer at 240 instructs its own reviewer, and pointerscan…](roadmap/160-doctrine-review-owed/250-a-queued-pointer-instructs-its-own-reviewer.md)
-- ✅ 🎯 [Rule-4 cold pass queued — the BS1 wording ruling applied (the…](roadmap/160-doctrine-review-owed/260-rule-4-cold-pass-queued-bs1-wording.md)
-- ✅ 🎯 [Rule-4 cold pass queued — the ruling-ask rules (device, verified…](roadmap/160-doctrine-review-owed/270-rule-4-cold-pass-queued-decision-asks.md)
-- ✅ 🎯 [Rule-4 cold pass queued — the pointing-up rulings applied (PU-1…](roadmap/160-doctrine-review-owed/280-rule-4-cold-pass-queued-pointing-up-rulings-applied.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the ruling-ask rule widened and pushed to…](roadmap/160-doctrine-review-owed/290-rule-4-cold-pass-queued-ask-rule-to-children.md)
-- ✅ 🎯 [Rule-4 cold pass queued — the doctrine-reporting duty, the route's…](roadmap/160-doctrine-review-owed/300-rule-4-cold-pass-queued-report-up-duty.md)
-- ✅ 🎯 [Rule-4 cold pass queued — the 2026-09-18 hand-up fixes to the…](roadmap/160-doctrine-review-owed/310-rule-4-cold-pass-queued-the-0918-hand-up-fixes.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the 2026-09-18 floor-registry code: a…](roadmap/160-doctrine-review-owed/320-rule-4-cold-pass-queued-the-0918-registry-code.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the 2026-09-19 tier ruling: orchestration…](roadmap/160-doctrine-review-owed/330-rule-4-cold-pass-queued-the-tier-ruling.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the floor is copied verbatim (115/030): one…](roadmap/160-doctrine-review-owed/340-rule-4-cold-pass-queued-the-floor-verbatim-ruling.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the 2026-09-20 scanner code: secretscan…](roadmap/160-doctrine-review-owed/350-rule-4-cold-pass-queued-the-bounded-memory-and-declared-roots-code.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the naming precedence: rule 2 governs every…](roadmap/160-doctrine-review-owed/360-rule-4-cold-pass-queued-the-naming-precedence.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the bounded-guard-layer conversion:…](roadmap/160-doctrine-review-owed/370-rule-4-cold-pass-queued-the-bounded-guard-layer.md)
-- ✅ 🎯 [Rule-4 cold pass queued — the scratch-space clause: a worker's…](roadmap/160-doctrine-review-owed/380-rule-4-cold-pass-queued-the-scratchpad-clause.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the staged-plane board check and its…](roadmap/160-doctrine-review-owed/390-rule-4-cold-pass-queued-the-staged-plane-check.md)
 - [ ] 🎯 [Rule-4 cold pass queued — harvestscan's prefix-filter rewrite…](roadmap/160-doctrine-review-owed/400-rule-4-cold-pass-queued-the-harvestscan-prefix-filter.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the linked-worktree skip across eleven…](roadmap/160-doctrine-review-owed/410-rule-4-cold-pass-queued-the-linked-worktree-skip.md)
 - [ ] 🎯 [Rule-4 cold pass queued — the single-sourced file walk (115/080 part…](roadmap/160-doctrine-review-owed/420-rule-4-cold-pass-queued-the-single-sourced-file-walk.md)
-- ✅ 🎯 [Rule-4 cold pass queued: stampscan --require-stamps and blockscan's…](roadmap/160-doctrine-review-owed/430-rule-4-cold-pass-queued-the-cover-switch-and-unmapped-headings.md)
 - [ ] 🎯 [Rule-4 cold pass queued: cctranscript's archive-pool speedup…](roadmap/160-doctrine-review-owed/440-rule-4-cold-pass-queued-the-archive-pool-speedup.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the mandate-versus-default date rule…](roadmap/160-doctrine-review-owed/450-rule-4-cold-pass-queued-the-date-kind-rule.md)
-- ✅ [Rule-4 cold pass queued: ccarchive's manifest checkpoints and…](roadmap/160-doctrine-review-owed/460-rule-4-cold-pass-queued-the-manifest-checkpoints.md)
-- ✅ 🎯 [Rule-4 cold pass queued: publishscan's round-2 denylist (260/040).](roadmap/160-doctrine-review-owed/470-rule-4-cold-pass-queued-publishscan-round-2.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the shared allow-marker grammar and ignore…](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
-- ✅ 🎯 [Rule-4 cold pass queued: pathscan's brace expansion and inline ./…](roadmap/160-doctrine-review-owed/490-rule-4-cold-pass-queued-pathscan-brace-expansion.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the expected toolbox and its install rule…](roadmap/160-doctrine-review-owed/500-rule-4-cold-pass-queued-the-expected-toolbox.md)
-- ✅ [Rule-4 cold pass queued: ccarchive's heal pulled (210/170, MC1).](roadmap/160-doctrine-review-owed/510-rule-4-cold-pass-queued-the-heal-pulled.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the queue-run skill's sync step gains the…](roadmap/160-doctrine-review-owed/520-rule-4-cold-pass-queued-queue-run-sync-gate.md)
 - [ ] 🛑 [Rule-4 cold pass queued: REPO-STANDARD's remote-creation authority,…](roadmap/160-doctrine-review-owed/530-rule-4-cold-pass-queued-remote-creation-authority.md)
 - [ ] 🛑 [Rule-4 cold pass queued: "harvest" scoped to monolithic boards across…](roadmap/160-doctrine-review-owed/540-rule-4-cold-pass-queued-harvest-only-on-a-monolithic-board.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the worktree venv sentence follows STORAGE…](roadmap/160-doctrine-review-owed/550-rule-4-cold-pass-queued-worktree-venv.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the concurrency cue count (200/100 C5).](roadmap/160-doctrine-review-owed/560-rule-4-cold-pass-queued-three-cues.md)
-- ✅ 🎯 [Rule-4 cold pass queued: SECRETS' stated-bridge pointers repointed to…](roadmap/160-doctrine-review-owed/570-rule-4-cold-pass-queued-stated-bridge-pointer.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the review-brief skill stops telling the…](roadmap/160-doctrine-review-owed/580-rule-4-cold-pass-queued-review-brief-rule-3.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the template reviews README names tiers, not…](roadmap/160-doctrine-review-owed/590-rule-4-cold-pass-queued-template-tiers-not-models.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the file walk enumerates through git…](roadmap/160-doctrine-review-owed/600-rule-4-cold-pass-queued-git-enumerated-walk.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the template reviews README's trigger list…](roadmap/160-doctrine-review-owed/610-rule-4-cold-pass-queued-template-review-triggers.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the always-confirm list's copies match…](roadmap/160-doctrine-review-owed/620-rule-4-cold-pass-queued-floor-list-membership.md)
-- ✅ 🎯 [Rule-4 cold pass queued: personal data held by purpose, with recorded…](roadmap/160-doctrine-review-owed/630-rule-4-cold-pass-queued-pii-by-purpose.md)
 - [ ] 🎯 [Rule-4 cold pass queued: pathscan and linkscan stream and cap…](roadmap/160-doctrine-review-owed/640-rule-4-cold-pass-queued-bounded-pathscan-linkscan.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the exception-register design, before it is…](roadmap/160-doctrine-review-owed/650-rule-4-cold-pass-queued-exception-register-design.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the linear line reader in three guards…](roadmap/160-doctrine-review-owed/660-rule-4-cold-pass-queued-linear-reader.md)
 - [ ] 🎯 [Rule-4 cold pass queued: ccarchive hardening (210/210).](roadmap/160-doctrine-review-owed/670-rule-4-cold-pass-queued-ccarchive-hardening.md)
-- ✅ 🎯 [Rule-4 cold pass queued: cctranscript's first-prompt prefix read…](roadmap/160-doctrine-review-owed/680-rule-4-cold-pass-queued-first-prompt-prefix.md)
 - [ ] 🛑 [Rule-4 cold pass queued: one unambiguous review-pointer state…](roadmap/160-doctrine-review-owed/690-rule-4-cold-pass-queued-the-pointer-state.md)
 - [ ] 🛑 [Rule-4 cold pass queued: indexscan, the generic index-integrity guard…](roadmap/160-doctrine-review-owed/700-rule-4-cold-pass-queued-indexscan.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the standing reviewer checklist and the…](roadmap/160-doctrine-review-owed/710-rule-4-cold-pass-queued-checklist-and-test-rule.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the per-rule pre-filter gates in leakscan…](roadmap/160-doctrine-review-owed/720-rule-4-cold-pass-queued-scanner-gates.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the shared exit and reporting contract…](roadmap/160-doctrine-review-owed/730-rule-4-cold-pass-queued-the-report-contract.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the pre-flip gate additions and publishscan…](roadmap/160-doctrine-review-owed/740-rule-4-cold-pass-queued-the-pre-flip-gate.md)
 - [ ] 🛑 [Rule-4 cold pass queued: allow-markers that name a kind, and finding…](roadmap/160-doctrine-review-owed/750-rule-4-cold-pass-queued-marker-kinds-and-ids.md)
 - [ ] 🛑 [Rule-4 cold pass queued: guards read git-quoted paths (115/260,…](roadmap/160-doctrine-review-owed/760-rule-4-cold-pass-queued-quoted-paths.md)
-- ✅ [Estate survey: which repos hold Fable-dependent work, and which owe a…](roadmap/160-doctrine-review-owed/770-estate-survey-fable-work-and-unwritten-briefs.md)
 - [ ] 🛑 [Rule-4 cold pass queued: agreement is not corroboration, minted in…](roadmap/160-doctrine-review-owed/780-rule-4-cold-pass-queued-agreement-is-not-corroboration.md)
-- ✅ 🎯 [Rule-4 cold pass queued: no hatch silences sizescan's cold-content…](roadmap/160-doctrine-review-owed/790-rule-4-cold-pass-queued-sizescan-cold-content-hatches.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the staged diff read by its structure…](roadmap/160-doctrine-review-owed/800-rule-4-cold-pass-queued-staged-diff-structural-reader.md)
-- ✅ 🎯 [Rule-4 cold pass queued: indexscan's date rule (320/430).](roadmap/160-doctrine-review-owed/810-rule-4-cold-pass-queued-indexscan-date-rule.md)
 - [ ] 🛑 [Rule-4 cold pass queued: ADR 0008's boundary amendment and the…](roadmap/160-doctrine-review-owed/820-rule-4-cold-pass-queued-adr-0008-boundary-amendment.md)
-- ✅ 🎯 [Rule-4 cold pass queued: staged findings at their real line (115/300).](roadmap/160-doctrine-review-owed/830-rule-4-cold-pass-queued-staged-real-line-numbers.md)
 - [ ] 🛑 [Rule-4 cold pass queued: licenscan's warn tier made real (115/290).](roadmap/160-doctrine-review-owed/840-rule-4-cold-pass-queued-licenscan-advisory-tier.md)
-- ✅ 🎯 [Rule-4 cold pass queued: sizescan's size advisory removed (115/270 c).](roadmap/160-doctrine-review-owed/850-rule-4-cold-pass-queued-size-advisory-removed.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the floor's advisory count scoped to its…](roadmap/160-doctrine-review-owed/860-rule-4-cold-pass-queued-advisory-count-per-scanner.md)
 - [ ] 🛑 [Rule-4 cold pass queued: ccclose, the close-out checker (020/180).](roadmap/160-doctrine-review-owed/870-rule-4-cold-pass-queued-ccclose.md)
-- ✅ 🎯 [Rule-4 cold pass queued: cctranscript's harness classification…](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
 - [ ] 🛑 [Rule-4 cold pass queued: ccmail stops sending the operator to --auth…](roadmap/160-doctrine-review-owed/890-rule-4-cold-pass-queued-ccmail-auth-advice.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the queue-run skill carries the whole run…](roadmap/160-doctrine-review-owed/900-rule-4-cold-pass-queued-queue-run-carries-the-brief.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the deferral's side doors (320/720).](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the close declaration covers subagents…](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
-- ✅ 🎯 [Cold pass queued: the opening prompt's template history, for privacy…](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the staged-positional reader the three…](roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md)
-- ✅ 🎯 [Rule-4 cold pass queued: ccclose --identifiers credits commits on…](roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md)
-- ✅ 🎯 [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
-- ✅ 🎯 [Rule-4 cold pass queued: G3 lands with a dated grace, metadata is…](roadmap/160-doctrine-review-owed/980-rule-4-cold-pass-queued-g3-grace-and-metadata-sets.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the claimed index line fitted to wrapscan,…](roadmap/160-doctrine-review-owed/985-rule-4-cold-pass-queued-claimed-index-line-fit.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the orchestrator writes the review pointer…](roadmap/160-doctrine-review-owed/986-rule-4-cold-pass-queued-orchestrator-writes-the-pointer.md)
 - [ ] ⏳ [Rule-4 cold pass queued: board.py sorts item and section numbers as…](roadmap/160-doctrine-review-owed/987-rule-4-cold-pass-queued-board-sorts-numbers-as-numbers.md)
@@ -428,6 +299,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: leakscan's ipv4 rule skips a user-agent…](roadmap/160-doctrine-review-owed/1640-rule-4-cold-pass-queued-ipv4-user-agent-and-grace-removal.md)
 - [ ] ⏳ [Rule-4 cold pass queued: three doctrine corrections — PROPAGATION.md…](roadmap/160-doctrine-review-owed/1650-rule-4-cold-pass-queued-parent-only-checks-fresh-gate-evidence-17.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a drain ranks and routes the whole queue…](roadmap/160-doctrine-review-owed/1660-rule-4-cold-pass-queued-drain-ranks-and-routes-first.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the generated board index becomes a summary…](roadmap/160-doctrine-review-owed/1670-rule-4-cold-pass-queued-index-summary-and-open-only.md)
 
 ## build/ layer — open strands
 
@@ -435,106 +307,33 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] [Code-signing standard across the fleet](roadmap/170-build-layer-open-strands/010-code-signing-standard-across-the-fleet.md)
 
-## Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)
-
-*[Narrative](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md)*
-
-- ✅ [INSTALLED AND CARRIED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md)
-- ✅ [ADOPTED 2026-10-18, option 3](roadmap/180-orchestrated-queue-runs-from-hand-carrie/020-teardown-inferred-from-git-is-not-the-same-as-stopped.md)
-- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/030-the-canonical-session-open-prompt-is-not-the-one-in-use.md)
-- ✅ [RESTORED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/040-four-prompt-lines-come-back.md)
-- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/050-the-public-plugin-tracks-every-commit.md)
-- ✅ [LANDED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/060-the-opening-prompt-template-history-from-the-transcripts.md)
-- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/070-session-id-at-open-and-no-date-line.md)
-- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/080-the-useful-identifiers-at-the-tail.md)
-- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/090-one-text-for-the-command-and-the-hand-copy.md)
-- ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/100-the-four-guard-rails-move-into-the-prompt.md)
-- ✅ [REVIEWED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/110-review-the-first-real-queue-run.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/120-dispatch-prompts-drop-the-scratch-and-marker-obligations.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/130-briefs-landed-on-scanner-results-not-read.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/140-the-run-stopped-by-judgement-with-work-untriaged.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/150-close-decisions-not-put-through-the-device.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/160-worktree-names-do-not-say-which-session.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
-- ✅ 🔎 [A worker's review pointer cites its own branch or pre-merge hashes,…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/190-worker-pointers-cite-a-branch-the-merge-deletes.md)
-- ✅ 🔎 [The dispatch brief binds scratch, worktree and kills, and says…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/200-the-dispatch-brief-carries-no-bound-on-test-runs.md)
-
-## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
-
-*[Narrative](roadmap/190-security-doctrine-vs-public-good-practic/README.md)*
-
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
 *[Narrative](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md)*
 
-- ✅ [Build a generic mechanism keeping any hand-maintained index true to…](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
-- ✅ [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
-- ✅ 🎯 [R1 — the recurrence count has to become mechanical, and the mining…](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md)
-- ✅ [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
-- ✅ [Codify V1–V7 as the always-loaded reviewer checklist](roadmap/200-anti-slop-invariant-registry-promote-rec/050-codify-v1-v7-as-the-always-loaded-reviewer-che.md)
 - [ ] [Two-layer acceptance criteria, one verification pass.](roadmap/200-anti-slop-invariant-registry-promote-rec/060-two-layer-acceptance-criteria-one-verification.md)
-- ✅ [Enforcement seam — how does an invariant get checked?](roadmap/200-anti-slop-invariant-registry-promote-rec/070-enforcement-seam-how-does-an-invariant-get-che.md)
 - [ ] [Where does the registry live? — the SCANNER half is answered and…](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
-- ✅ 🔎 [Two corroboration failures worth minting, both self-caught by the…](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
-- ✅ 🔎 [The R2 survey found eleven places where the doctrine's own copies…](roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md)
-- ✅ 🔎 [The mining record behind this section, and this section's README, say…](roadmap/200-anti-slop-invariant-registry-promote-rec/110-the-mining-record-and-this-readme-are-stale.md)
 
 ## instruments/ — open features
 
 *[Narrative](roadmap/210-instruments-open-features/README.md)*
 
-- ✅ 🔎 [ccarchive exits 1 on every scheduled run, and the board did not know](roadmap/210-instruments-open-features/010-ccarchive-exits-1-on-every-scheduled-run-and-t.md)
 - [ ] 🎯 [ccarchive: encryption at rest — BUILD not started; one decision open…](roadmap/210-instruments-open-features/020-ccarchive-encryption-at-rest-build-not-started.md)
 - [ ] 🎯 [The one decision, and it gates the build: where does the crypto come…](roadmap/210-instruments-open-features/030-the-one-decision-and-it-gates-the-build-where.md)
 - [ ] 🤔 [Per-transcript topic capture — idea to consider (Mike, 2026-08-02; no…](roadmap/210-instruments-open-features/040-per-transcript-topic-capture-idea-to-consider.md)
-- ✅ 🔎 [Archive-mode pool construction dominates every --from-archive run,…](roadmap/210-instruments-open-features/050-archive-mode-pool-construction-dominates-every.md)
 - [ ] [Context as a share of the window](roadmap/210-instruments-open-features/060-context-as-a-share-of-the-window.md)
-- ✅ [finished counts logs, not successes — and a dead agent still leaves a…](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
-- ✅ [--think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
 - [ ] [Subagent logs are outside every cctranscript view.](roadmap/210-instruments-open-features/090-subagent-logs-are-outside-every-cctranscript-v.md)
-- ✅ 🔥 [cctranscript never reads the principal's mid-turn messages, and its…](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
-- ✅ [pins.py enumerates CWD-relative and reports a wrong denominator from…](roadmap/210-instruments-open-features/110-pins-py-enumerates-cwd-relative-and-lies-from-a-worktree.md)
 - [ ] 🔎 [Drive binaries have the gap ccmail just closed for mail](roadmap/210-instruments-open-features/120-drive-binaries-have-the-same-gap-ccmail-just-closed.md)
-- ✅ 🎯 [Rule-4 review queued (tier: Fable; pass type: code + doctrine cold…](roadmap/210-instruments-open-features/130-ccmail-rule-4-review-queued.md)
 - [ ] 🎯 [ccgrab — a web-media capture instrument (Mike commissioned…](roadmap/210-instruments-open-features/140-ccgrab-web-media-capture-instrument.md)
-- ✅ 🔎 [Why is the source smaller than the archived copy? — the shrink…](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
-- ✅ 🎯 [ccarchive's summary counts files, and Mike's own read of the tool is…](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)
-- ✅ 🔎 [ccarchive's manifest lags its own mirror in 14 files, so the shrink…](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
-- ✅ 🔎 [--list --from-archive still fully gunzips every local mirror for its…](roadmap/210-instruments-open-features/180-first-prompt-column-gunzips-every-mirror.md)
-- ✅ [ccarchive --install-schedule recreates a login job Mike removed —…](roadmap/210-instruments-open-features/190-ccarchive-remove-install-schedule.md)
-- ✅ [A run aborts on one evicted iCloud mirror instead of skipping it](roadmap/210-instruments-open-features/200-ccarchive-aborts-on-an-evicted-icloud-mirror.md)
-- ✅ [ccarchive hardening — build the cold passes' counsel so an ordinary…](roadmap/210-instruments-open-features/210-ccarchive-hardening-batch.md)
 - [ ] [💡 IDEA ONLY — do not build until Mike says to start: keep whole…](roadmap/210-instruments-open-features/220-whole-document-history-like-git.md)
-- ✅ [ccarchive: bring back a schedule, as a real calendar schedule, not a…](roadmap/210-instruments-open-features/230-ccarchive-a-real-calendar-schedule.md)
 - [ ] 🔎 [ccarchive's design charter, in Mike's words, checked against the tool](roadmap/210-instruments-open-features/240-ccarchive-design-charter.md)
-- ✅ 🔎 [cctranscript counts some harness text as the principal's prompts](roadmap/210-instruments-open-features/250-cctranscript-counts-harness-text-as-prompts.md)
-- ✅ 🔎 [A harness notification reads two ways depending on its record type](roadmap/210-instruments-open-features/260-notification-records-read-two-ways.md)
-- ✅ [ccmail sent the operator to ccmail --auth, a client-ID setup he…](roadmap/210-instruments-open-features/270-ccmail-sent-the-operator-to-a-setup-he-did-not-need.md)
-- ✅ [BUILT 2026-10-18](roadmap/210-instruments-open-features/280-ccclose-prints-the-identifiers-block.md)
-- ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md)
-- ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/300-plain-ccclose-ends-with-the-identifiers-block.md)
-- ✅ [DONE 2026-10-18](roadmap/210-instruments-open-features/310-ccclose-cannot-read-a-commit-message-from-a-file.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/320-ccclose-misses-author-backdated-commits.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/210-instruments-open-features/330-ccclose-lists-a-worktree-path-with-an-unexpanded-variable.md)
-- ✅ [ccapple looks for the store before it checks that a filter was given,…](roadmap/210-instruments-open-features/340-ccapple-checks-the-store-before-the-filter.md)
 - [ ] 🎯 [An API-credit cold-pass instrument: run a briefed review pass on the…](roadmap/210-instruments-open-features/350-an-api-credit-cold-pass-instrument.md)
-- ✅ [ccclose --identifiers drops a worktree made in a shell loop, and the…](roadmap/210-instruments-open-features/360-ccclose-drops-a-loop-made-worktree-without-saying-so.md)
-- ✅ 🔎 [ccclose --identifiers lists board items in text order, so 160/1000…](roadmap/210-instruments-open-features/370-ccclose-sorts-board-ids-as-text.md)
-- ✅ 🔎 [ccclose classes a subagent that is still running as "cut mid-flight".](roadmap/210-instruments-open-features/380-ccclose-classes-a-running-subagent-as-cut.md)
-- ✅ 🔎 [The Python test suite needs 3.11 or later and does not say so.](roadmap/210-instruments-open-features/390-the-suite-needs-python-3-11-and-does-not-say-so.md)
-- ✅ 🔎 [A failed agent notification is a status ccclose does not know, and…](roadmap/210-instruments-open-features/400-a-failed-agent-notification-is-a-status-ccclose-does.md)
-- ✅ [🔧 ccmail gains a headers-only read: a message's transport headers…](roadmap/210-instruments-open-features/410-ccmail-reads-transport-headers-without-a-body.md)
-- ✅ 🔎 [ccrepo prices the 5.5 generation wrong: Haiku 5.5 counts at $0, and…](roadmap/210-instruments-open-features/420-ccrepo-prices-the-5-5-generation-wrong.md)
-- ✅ 🔎 [ccrepo's two cross-checks run over the whole scope when a --repo…](roadmap/210-instruments-open-features/430-ccrepo-cross-checks-ignore-the-repo-filter-unsaid.md)
 - [ ] [🛠️ ccfleet, the fleet-sweep and review-drain skills, and the modelguard…](roadmap/210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
 *[Narrative](roadmap/220-observability-of-the-collaboration-itsel/README.md)*
 
-- ✅ [DONE 2026-11-16](roadmap/220-observability-of-the-collaboration-itsel/010-doctrine-candidate-the-mechanical-instruments.md)
-- ✅ [DONE 2026-11-16](roadmap/220-observability-of-the-collaboration-itsel/020-doctrine-candidate-evidence-hygiene-a-scanner.md)
 - [ ] [The forward test the trust analysis could not run.](roadmap/220-observability-of-the-collaboration-itsel/030-the-forward-test-the-trust-analysis-could-not.md)
 - [ ] [Session hygiene, measured: cap messages, not minutes.](roadmap/220-observability-of-the-collaboration-itsel/040-session-hygiene-measured-cap-messages-not-minu.md)
 - [ ] [The Context Atlas is a first mockup, unrefined, and the archive run…](roadmap/220-observability-of-the-collaboration-itsel/050-the-context-atlas-is-a-first-mockup-unrefined.md)
@@ -554,10 +353,6 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Two-tier person-context portability.](roadmap/240-north-star-context-follows-the-person-wo/010-two-tier-person-context-portability.md)
 - [ ] [Resume any project from any device, anywhere](roadmap/240-north-star-context-follows-the-person-wo/020-resume-any-project-from-any-device-anywhere.md)
 
-## Session archive — decided 2026-07-23
-
-*[Narrative](roadmap/250-session-archive-decided-2026-07-23/README.md)*
-
 ## Sharing — public since 2026-07-10 (ADR 0005)
 
 *[Narrative](roadmap/260-sharing-public-since-2026-07-10-adr-0005/README.md)*
@@ -565,16 +360,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] [One real peer adoption](roadmap/260-sharing-public-since-2026-07-10-adr-0005/010-one-real-peer-adoption.md)
 - [ ] [Practice/instance restructure](roadmap/260-sharing-public-since-2026-07-10-adr-0005/020-practice-instance-restructure.md)
 - [ ] [Exercise the interactive fill + bundled-mode scaffold end-to-end](roadmap/260-sharing-public-since-2026-07-10-adr-0005/030-exercise-the-interactive-fill-bundled-mode-sca.md)
-- ✅ [P2a — teach publishscan the shapes the fleet actually has.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/040-p2a-teach-publishscan-the-shapes-the-fleet-act.md)
-- ✅ 🎯 [P3 — the floor does not know whether a repo is public, and it should…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/050-p3-the-floor-does-not-know-whether-a-repo-is-p.md)
 - [ ] [P4 — rpi F9, routed upward: the ci plane calls leakscan without…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/060-p4-rpi-f9-routed-upward-the-ci-plane-calls-lea.md)
-- ✅ [P5 — rpi F10, routed upward: the publish-safety checklist gates repo…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/070-p5-rpi-f10-routed-upward-the-publish-safety-ch.md)
-- ✅ 🎯 [P6 — rpi F5: estate-internal context accumulating in public records.…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/080-p6-rpi-f5-estate-internal-context-accumulating.md)
-- ✅ [P7 — harvest the rpi publication properly.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/090-p7-harvest-the-rpi-publication-properly.md)
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
-- ✅ 🔎 [P9 — what the flip's transcripts add to the pre-flip gate](roadmap/260-sharing-public-since-2026-07-10-adr-0005/110-p9-what-the-flip-transcripts-add-to-the-gate.md)
-- ✅ 🔎 [publishscan's default and staged planes miss any path git quotes](roadmap/260-sharing-public-since-2026-07-10-adr-0005/120-publishscan-misses-non-ascii-paths.md)
-- ✅ 🔎 [A gh api read of the pre-flip platform settings](roadmap/260-sharing-public-since-2026-07-10-adr-0005/130-a-gh-api-read-of-the-pre-flip-platform-settings.md)
 
 ## Open questions
 
@@ -582,38 +369,26 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] [Map and understand the difference between honesty (that claude does…](roadmap/270-open-questions/010-map-and-understand-the-difference-between-hone.md)
 - [ ] [Grab the AI chat (Teams, 15/7/26) with a colleague](roadmap/270-open-questions/020-grab-the-ai-chat-teams-15-7-26-with-a-colleagu.md) <!-- datescan:allow: verbatim; wrapscan:allow: marker-inflated line -->
-- ✅ [The Laws are a ladder — but a ladder needs a world-model to climb…](roadmap/270-open-questions/030-the-laws-are-a-ladder-but-a-ladder-needs-a-wor.md)
 - [ ] [Accountability and authority must match — in both directions](roadmap/270-open-questions/040-accountability-and-authority-must-match-in-bot.md)
-- ✅ ["One task per session" — does ECONOMICS.md say what the principal…](roadmap/270-open-questions/050-one-task-per-session-does-the-doctrine-say-what-was-directed.md)
 
 ## Cross-session channel — coordination git cannot carry (Mike commissioned 2026-08-17)
 
 *[Narrative](roadmap/280-cross-session-channel-mike-commissioned/README.md)*
 
-- ✅ 🎯 [The channel as a concurrency primitive — a new section in…](roadmap/280-cross-session-channel-mike-commissioned/010-the-channel-as-a-concurrency-primitive.md)
 - [ ] [🚩 The floor clause has to reach 11 children, and each child adopts it…](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
 - [ ] 🎯 [The channel-section cycle CLOSED 2026-08-17 (0 MAJOR); CH1–CH16 await…](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
-- ✅ [DONE 2026-11-03](roadmap/280-cross-session-channel-mike-commissioned/040-the-channel-can-contaminate-review-independence.md)
-- ✅ 🎯 [Talk first — the channel as a session's first preference, with git…](roadmap/280-cross-session-channel-mike-commissioned/050-talk-first-the-channel-as-first-preference.md)
 
 ## Ruling round 2026-08-17 — the cold-run findings (Mike)
 
 *[Narrative](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/README.md)*
 
-- ✅ 🎯 [RULED 2026-08-17 — "Accept, and write the rule."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/010-the-orchestrator-tier-clause.md)
-- ✅ 🎯 [RULED 2026-08-17 — "Ratify, but not at the floor."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/020-aa7-ratified-but-not-at-the-floor.md)
-- ✅ 🎯 [RULED 2026-08-17 — "RECORD.md + GUARDS.md."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/030-rg4-the-earned-rules-get-homes.md)
-- ✅ 🎯 [RULED 2026-08-17 — "Build a guard."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/040-build-the-cold-sweep-guard.md)
 - [ ] 🎯 [RULED 2026-08-17 (second sitting, 1045 UTC) — BS1: "Wording now +…](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/050-bs1-wording-now-fund-the-staged-plane-build.md)
 - [ ] 🎯 [RULED 2026-08-17 (second sitting, 1045 UTC) — BG1/BG2: "Apply as…](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/060-bg1-bg2-apply-as-counselled.md)
-- ✅ 🎯 [RULED 2026-08-17 (second sitting, 1045 UTC) — CMF1, verbatim: "Do a…](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/070-cmf1-fable-repurpose-review-else-destroy.md)
 
 ## Posture — strength is what you are free to do (Mike commissioned 2026-08-17)
 
 *[Narrative](roadmap/300-posture-recover-cheaply-mike-commissioned/README.md)*
 
-- ✅ 🎯 [The posture section, and the fourth requirement it puts on every guard](roadmap/300-posture-recover-cheaply-mike-commissioned/010-the-posture-section-and-the-guard-test.md)
-- ✅ [🚩 Re-rank the open guard work against the fourth requirement — and…](roadmap/300-posture-recover-cheaply-mike-commissioned/020-re-rank-the-guard-board-against-the-test.md)
 - [ ] [The census: what would this estate actually NOTICE, and what can it…](roadmap/300-posture-recover-cheaply-mike-commissioned/030-what-would-this-estate-actually-notice.md)
 - [ ] 🎯 [Rule-4 cold pass owed on the posture section and the fourth guard…](roadmap/300-posture-recover-cheaply-mike-commissioned/040-rule-4-cold-pass-queued-the-posture.md)
 
@@ -621,20 +396,10 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/310-pointing-up-the-child-to-parent-route/README.md)*
 
-- ✅ 🎯 [The upstream route, and the two block defects that caused the instance](roadmap/310-pointing-up-the-child-to-parent-route/010-the-pointing-up-route-and-the-two-block-fixes.md)
-- ✅ 🎯 [Nothing enumerates what the estate owes the house — the upstream…](roadmap/310-pointing-up-the-child-to-parent-route/020-nothing-enumerates-what-the-estate-owes-the-house.md)
-- ✅ [🚩 Ten children carry both block defects, and each clears them at its…](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
 - [ ] 🎯 [Queue the block-trim finding in cbom — AFTER this cycle's review…](roadmap/310-pointing-up-the-child-to-parent-route/040-queue-the-block-trim-finding-in-cbom-after-the-cycle.md)
-- ✅ [Rule-4 review RUN and RULED (tier: Fable; pass type: doc cold pass) —…](roadmap/310-pointing-up-the-child-to-parent-route/050-rule-4-cold-pass-queued-pointing-up.md)
 - [ ] 🎯 [The board's state vocabulary is too narrow to index work by](roadmap/310-pointing-up-the-child-to-parent-route/060-the-board-state-vocabulary-is-too-narrow-to-index-by.md)
 - [ ] [🚩 Two board markers mean different things in a child than they do here,…](roadmap/310-pointing-up-the-child-to-parent-route/070-two-markers-mean-different-things-in-a-child.md)
 - [ ] 🔎 [2cd4730 attributes a proposal to Mike that he did not make, and it…](roadmap/310-pointing-up-the-child-to-parent-route/080-a-capture-attributes-a-proposal-to-mike-that-he-did-not-make.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
-- ✅ [The route's three shapes — WRITTEN 2026-08-23](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
-- ✅ ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
-- ✅ 🎯 [§ Pointing up only names atelier as a parent — Mike commissioned,…](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
-- ✅ 🎯 [CLASS — the parent holds accommodations its children cannot inherit,…](roadmap/310-pointing-up-the-child-to-parent-route/130-the-parent-holds-accommodations-the-child-cannot-inherit.md)
-- ✅ 🎯 [A PR as the carrier for an idea or finding between any two repos, not…](roadmap/310-pointing-up-the-child-to-parent-route/140-a-pr-as-the-carrier-between-any-two-repos.md)
 - [ ] 🔎 [Design exercise: refine how we manage work using the board, from the…](roadmap/310-pointing-up-the-child-to-parent-route/160-design-exercise-how-we-manage-work-on-the-board.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
@@ -642,105 +407,32 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/320-child-filed-findings-via-pointing-up/README.md)*
 
 - [ ] 🔥 [pathscan reds on three reference shapes that are never real, and the…](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
-- ✅ 🎯 [PROPOSAL for GUARDS.md — strict where we author, forgiving where we…](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
-- ✅ 🎯 [PROPOSAL — capture, do not compose: a hand-written fixture can only…](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
-- ✅ 🔎 [By-call enforcement resolves through a working tree, so "fresh"…](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
-- ✅ 🎯 [PROPOSAL for GUARDS.md — a guard's THREAT MODEL is a property to…](roadmap/320-child-filed-findings-via-pointing-up/050-proposal-a-guard-declares-who-it-protects-from-whom.md)
 - [ ] 🎯 [PROPOSAL for the floor + GUARDS.md — where siblings exist, require a…](roadmap/320-child-filed-findings-via-pointing-up/060-proposal-the-floor-requires-a-path-scoped-commit.md)
-- ✅ 🎯 [PROPOSAL — a transcript has three principal-authored channels, and a…](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal…](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
-- ✅ [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
 - [ ] 🎯 [PROPOSAL — the damaging attribution carries NO QUOTATION MARKS, so…](roadmap/320-child-filed-findings-via-pointing-up/100-unquoted-attribution-is-invisible-to-quotescan-and-a-corroboration-for-070.md)
-- ✅ 🎯 [PROPOSAL — § Asking for a ruling tells a session HOW to ask and never…](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
-- ✅ 🔎 [CF3's branch list stopped answering the sibling-dirty case when the…](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
 - [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a…](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
 - [ ] [REPORT — secretscan's suppression units cannot reach a finding inside…](roadmap/320-child-filed-findings-via-pointing-up/140-secretscan-has-no-suppression-unit-for-generated-json.md)
 - [ ] 🤔 [CANDIDATE HOUSE RULE — the prescribed open-time sync command can fail…](roadmap/320-child-filed-findings-via-pointing-up/150-the-open-time-sync-command-s-error-text-names-a-cause-that-is-not-the-cause.md)
-- ✅ [REPORT — a child cannot stamp its inlined floor at all: source= may…](roadmap/320-child-filed-findings-via-pointing-up/160-stampscan-cannot-stamp-across-a-repo-boundary.md)
 - [ ] [REPORT — four verified pathscan false-positive classes from a second…](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
-- ✅ [REPORT — the ../<sibling> path convention every child inherits…](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
-- ✅ 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both…](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)
-- ✅ 🛑 [REPORT — an unresolved merge conflict shipped to a PUBLIC main and…](roadmap/320-child-filed-findings-via-pointing-up/200-no-floor-scanner-reads-a-conflict-marker.md)
-- ✅ [REPORT — CONCURRENCY.md's session-start bookend tells every session…](roadmap/320-child-filed-findings-via-pointing-up/210-the-session-start-autostash-contradicts-the-shared-checkout-premise.md)
-- ✅ [REPORT — the read-the-output rule covers an unread check and not an…](roadmap/320-child-filed-findings-via-pointing-up/220-read-the-output-does-not-say-verify-the-act-happened.md)
-- ✅ 🔎 [DONE 2026-11-16](roadmap/320-child-filed-findings-via-pointing-up/230-a-negative-result-whose-second-explanation-is-silent.md)
-- ✅ 🛑 [A possessive or plural form evades a local-term, and leakscan then…](roadmap/320-child-filed-findings-via-pointing-up/240-a-possessive-evades-a-term-and-the-scanner-says-clean.md)
-- ✅ 🛑 [The block still carries DA1's overturned wording](roadmap/320-child-filed-findings-via-pointing-up/250-the-block-still-carries-the-wording-da1-overturned.md)
-- ✅ 🔎 [The canonical floor block's drift command reads ..HEAD, so a child…](roadmap/320-child-filed-findings-via-pointing-up/260-the-drift-command-pins-a-child-to-whatever-branch-the-parent-is-parked-on.md)
 - [ ] [REPORT — datescan enforces the SHAPE of a date and cannot enforce its…](roadmap/320-child-filed-findings-via-pointing-up/270-datescan-enforces-the-shape-of-a-date-and-cannot-enforce-its-frame.md)
 - [ ] [💡 PROPOSAL, hand-up from faves — a RENDERED board view, offered to…](roadmap/320-child-filed-findings-via-pointing-up/280-proposal-a-rendered-board-view-for-every-repo.md)
-- ✅ [Two secretscan defects](roadmap/320-child-filed-findings-via-pointing-up/290-secretscan-reads-published-urls-as-credentials-and-mis-locates-findings-in-paths-with-spaces.md)
-- ✅ 🎯 [A ruling that changes doctrine has no check that the child block's…](roadmap/320-child-filed-findings-via-pointing-up/300-a-ruling-that-moves-doctrine-has-no-check-the-block-copy-moved.md)
 - [ ] 🎯 [Should pathscan block instead of warn?](roadmap/320-child-filed-findings-via-pointing-up/310-should-pathscan-block-instead-of-warn.md)
-- ✅ 🔎 [Hand-up: the run-open role check still sends the tier question back…](roadmap/320-child-filed-findings-via-pointing-up/320-the-run-open-role-check-sends-the-tier-question-back-to-the-principal.md)
-- ✅ 🎯 [Does the new naming precedence reach doctrine's own prose?](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
-- ✅ 🔎 [blockscan cannot see a change to a mapped section's SUBSECTIONS, and…](roadmap/320-child-filed-findings-via-pointing-up/340-blockscans-map-cannot-see-a-subsection.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/350-a-peer-can-stage-into-the-shared-index-while-your-commit-hooks-run.md)
-- ✅ [REPORT — 115/200's owed work is done from the child's side: the…](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
-- ✅ [REPORT — <owner/repo> is a declared placeholder in the floor region…](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
-- ✅ 🎯 [The floor's visibility bullet reads as a one-time check, and may name…](roadmap/320-child-filed-findings-via-pointing-up/380-the-floor-s-public-tense-and-whether-it-should-name-the-root.md)
-- ✅ 🎯 [MISSING HOUSE RULE — a check in the same shell invocation as the act…](roadmap/320-child-filed-findings-via-pointing-up/390-missing-house-rule-a-check-in-the-same-invocation-as-the-act-is-not-a-check.md)
 - [ ] 🔎 [CANDIDATE HOUSE RULE — verify a figure correction in the RENDERED…](roadmap/320-child-filed-findings-via-pointing-up/400-count-survivors-in-the-rendered-artefact-not-the-source-you-edited.md)
-- ✅ 🔎 [Hand-up: the canonical floor's estate resources bullet is unwritable…](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
 - [ ] 🔎 [Hand-up: a queued-review pointer may name a moving bound, and…](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
-- ✅ 🔎 [Hand-up: nothing catches an orphaned session-detail file once the…](roadmap/320-child-filed-findings-via-pointing-up/430-no-floor-check-catches-an-orphaned-session-detail-file.md)
 - [ ] 🔎 [A review file's follow-up list and the board item that points at it…](roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md)
 - [ ] 🔎 [A wrapped claim does not project into the index, a &#93; in a title…](roadmap/320-child-filed-findings-via-pointing-up/450-a-wrapped-claim-does-not-project-and-two-more-from-a-child-s-cold-passes.md)
-- ✅ 🔎 [MISSING HOUSE RULE — what a review pointer becomes when its verdict…](roadmap/320-child-filed-findings-via-pointing-up/460-missing-rule-what-a-review-pointer-becomes-when-its-verdict-lands.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the doctrine's own sync command (git pull…](roadmap/320-child-filed-findings-via-pointing-up/480-a-rebase-pull-after-a-local-merge-flattens-it-and-orphans-cited-hashes.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md)
-- ✅ [PROPOSAL, hand-up from a private child — sessions cannot find tools…](roadmap/320-child-filed-findings-via-pointing-up/500-sessions-cannot-find-installed-tools-toolbox-has-no-locator.md)
-- ✅ 🔎 [Sessions kept placing the tool list in a private repo and crediting…](roadmap/320-child-filed-findings-via-pointing-up/510-sessions-credited-mike-with-a-private-tool-list.md)
 - [ ] 🔎 [Hand-up: nothing at session open, or before "verified", reads the…](roadmap/320-child-filed-findings-via-pointing-up/520-nothing-reads-the-published-ci-conclusion.md)
 - [ ] 🔎 [Hand-up from a private child: a repo that holds one network's desired…](roadmap/320-child-filed-findings-via-pointing-up/530-a-network-tree-repo-trips-the-floor-s-scanners-by-construction.md)
-- ✅ 🔎 [DONE 2026-11-16](roadmap/320-child-filed-findings-via-pointing-up/540-missing-house-rule-list-what-exists-before-adding-a-resource.md)
 - [ ] 🔎 [Hand-up: no floor scanner reads a commit message, so a term that is…](roadmap/320-child-filed-findings-via-pointing-up/550-no-scanner-reads-a-commit-message-body.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md)
-- ✅ 🔎 [MISSING HOUSE RULE — a "this cannot work" built only from reading is…](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
-- ✅ 🎯 [MISSING HOUSE RULE — the house has no method for splitting one repo…](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
 - [ ] 🔎 [Hand-up: the floor's Estate resources bullet covers facts — don't…](roadmap/320-child-filed-findings-via-pointing-up/590-the-estate-resources-bullet-covers-facts-not-access-or-write-back.md)
-- ✅ 🔎 [Hand-up from a private child: at the hook plane the content scanners…](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md)
-- ✅ 🔎 [Hand-up: a child's own visibility fact sits inside its verbatim floor…](roadmap/320-child-filed-findings-via-pointing-up/620-a-childs-own-visibility-fact-sits-inside-the-verbatim-floor.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
-- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md)
 - [ ] 🔎 [Hand-up: a cross-estate question gets answered from one repo's tree,…](roadmap/320-child-filed-findings-via-pointing-up/640-a-question-about-the-estate-is-answered-from-one-tree.md)
-- ✅ 🔎 [Hand-up: an estate fact learned in a child has no rule sending it up…](roadmap/320-child-filed-findings-via-pointing-up/650-an-estate-fact-learned-in-a-child-has-no-rule-to-travel-up.md)
 - [ ] 🔎 [Hand-up: the house assumes every repo is a direct sibling of the…](roadmap/320-child-filed-findings-via-pointing-up/660-grouping-children-into-folders-breaks-the-sibling-convention.md)
-- ✅ 🔎 [SUPERSEDED 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/670-the-session-open-restore-left-a-net-change-that-reverses-a-ruling.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
-- ✅ 🔎 [Hand-up: a scanner's --selftest prints its fixture findings in the…](roadmap/320-child-filed-findings-via-pointing-up/690-a-scanner-selftest-prints-fixture-findings-in-the-floors-own-shape.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
-- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md)
-- ✅ 🔎 [DONE 2026-11-03](roadmap/320-child-filed-findings-via-pointing-up/710-rpi-hand-up-a-rollout-row-backwards-wrapscan-blind-to-split-boards.md)
-- ✅ [FIXED 2026-10-18](roadmap/320-child-filed-findings-via-pointing-up/720-hand-up-a-brief-writers-session-log-tells-the-next-reviewer-what-it-held-back.md)
-- ✅ 🔎 [Hand-up: the paragraph projection joins a wrapped claim into one…](roadmap/320-child-filed-findings-via-pointing-up/730-hand-up-the-paragraph-projection-joins-a-claim-into-an-index-line-wrapscan-refuses.md)
-- ✅ 🔎 [Hand-up: a peer's relayed ruling can override an order the principal…](roadmap/320-child-filed-findings-via-pointing-up/740-hand-up-a-relayed-ruling-can-silently-override-a-direct-order.md)
-- ✅ 🔎 [Hand-up: a one-line claim still overruns the index line, so 320/730's…](roadmap/320-child-filed-findings-via-pointing-up/750-hand-up-a-one-line-claim-still-overruns-the-index-line.md)
-- ✅ 🔎 [Hand-up: REVIEW.md has no shape for a live-only top-up of a degraded…](roadmap/320-child-filed-findings-via-pointing-up/760-hand-up-review-md-has-no-shape-for-a-live-only-top-up-of-a-degraded-pass.md)
 - [ ] 🔎 [Hand-up: reviewscan does not see decision records named by number,…](roadmap/320-child-filed-findings-via-pointing-up/770-hand-up-reviewscan-reads-numbered-decision-records-as-none.md)
 - [ ] [Turn conflictscan's tool-markup rule from advisory to blocking once…](roadmap/320-child-filed-findings-via-pointing-up/780-the-tool-markup-advisory-goes-blocking-once-the-estate-is-clean.md)
-- ✅ [Hand-up: secretscan flags every body line of a PEM public…](roadmap/320-child-filed-findings-via-pointing-up/790-hand-up-secretscan-flags-every-body-line-of-a-public-certificate.md)
 - [ ] 🔎 [A floor disabled entry carries a reason but no end date, so it cannot…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
 - [ ] 🔎 [Build the six checks he chose, warnings first, then blocking, each…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
-- ✅ 🔎 [Hand-up: the principal's method for asking a question is not in…](roadmap/320-child-filed-findings-via-pointing-up/820-hand-up-the-principals-asking-method-is-not-in-doctrine.md)
-- ✅ 🔎 [Hand-up: a dangling section citation in RECORD.md, and a count that…](roadmap/320-child-filed-findings-via-pointing-up/830-two-small-doctrine-defects-a-dangling-section-and-a-miscount.md)
-- ✅ [Hand-up from a private child: secretscan calls a marker "naming no…](roadmap/320-child-filed-findings-via-pointing-up/840-hand-up-secretscan-finding-name-and-rule-list-disagree.md)
-- ✅ [Hand-up from a private child: leakscan's nz-phone rule fires on…](roadmap/320-child-filed-findings-via-pointing-up/850-hand-up-leakscan-nz-phone-fires-on-bracketed-hex-byte-strings.md)
-- ✅ [Hand-up from a private child: leakscan G3 has no form for a binary…](roadmap/320-child-filed-findings-via-pointing-up/860-hand-up-g3-has-no-form-for-a-generated-binary.md)
-- ✅ 🔎 [Hand-up: under the new visibility slot (320/370), a child whose…](roadmap/320-child-filed-findings-via-pointing-up/870-hand-up-a-wrapped-visibility-bullet-fails-the-floor-copy-check.md)
 - [ ] 🔎 [Hand-up: pathscan cannot tell a historical record from a live page,…](roadmap/320-child-filed-findings-via-pointing-up/880-hand-up-pathscan-cannot-tell-a-historical-record-from-a-live-page.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
-
-## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
-
-*[Narrative](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md)*
-
-- ✅ [Give the rule a home, then sweep for where the house already breaks…](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
-
-## ⏳ Long-running operations need a way back — Mike-commissioned, 2026-08-22
-
-*[Narrative](roadmap/340-long-running-operations-need-a-way-back-mike-comm/README.md)*
-
-- ✅ [Name the rule, and attach it to the undo principle rather than beside…](roadmap/340-long-running-operations-need-a-way-back-mike-comm/010-the-rule-and-where-it-attaches.md)
 
 ## 🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23
 
@@ -748,56 +440,18 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] 🎯 [Decide whether this becomes a rule, and where it lives — then sweep…](roadmap/350-verification-must-be-exact-not-probable-mike-comm/010-decide-the-rule-then-sweep-for-discounted-checks.md)
 
-## 🔀 Concurrency doctrine stops at the repo edge — Mike-commissioned, 2026-08-23
-
-*[Narrative](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/README.md)*
-
-- ✅ 🎯 [Decide the cheap rules first — naming and announcing — and treat…](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/010-name-what-you-launch-then-widen-the-announcement.md)
-- ✅ 🎯 [Cross-repo session coordination — Mike commissioned, 2026-09-12.](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/020-parallel-sessions-across-different-repos-have-no-shared-view.md)
-
-## 🎭 The report can lie while the work is fine — 2026-08-23
-
-*[Narrative](roadmap/370-the-report-can-lie-while-the-work-is-fine/README.md)*
-
-- ✅ 🎯 [Decide whether "prefer artefacts over reports" earns a line, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
-- ✅ [🔑 The fifth instance is not a report — it is a GUARD, and that is the…](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
-- ✅ [🎭 The sixth instance is the checker written to enforce this item, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/030-the-sixth-instance-was-the-checker-written-for-370.md)
-
-## 🔇 Silence read as an answer — 2026-08-24
-
-*[Narrative](roadmap/380-silence-read-as-an-answer/README.md)*
-
-- ✅ 🎯 [Decide whether "make the instrument show a positive first" earns a…](roadmap/380-silence-read-as-an-answer/010-make-the-instrument-show-a-positive-first.md)
-- ✅ [DONE 2026-11-16](roadmap/380-silence-read-as-an-answer/020-a-client-timeout-is-not-evidence-the-server-did-nothing.md)
-
 ## Repo relationships beyond the parent/child tree (Mike commissioned, 2026-09-12)
 
 *[Narrative](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/README.md)*
 
-- ✅ 🎯 [No doctrine models a repo-to-repo relationship other than…](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/010-consumer-and-subject-cluster-relationships-have-no-model.md)
 - [ ] 🎯 [shed and client-data repos rely on an "always confirm" floor rule,…](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/020-shed-and-client-data-repos-rely-on-a-confirm-rule-not-a-control.md)
-
-## Choosing among implementation mechanisms (Mike commissioned, 2026-09-16)
-
-*[Narrative](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/README.md)*
-
-- ✅ 🎯 [No doctrine says which mechanism a new need should take — four are…](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/010-no-doctrine-says-which-mechanism-a-new-need-should-take.md)
-
-## Sessions without a repo (Mike commissioned, 2026-09-29)
-
-*[Narrative](roadmap/410-sessions-without-a-repo-mike-commissioned/README.md)*
-
-- ✅ 🎯 [No doctrine covers a session with no tree — decide what a repo-less…](roadmap/410-sessions-without-a-repo-mike-commissioned/010-no-doctrine-covers-a-session-with-no-tree.md)
 
 ## When to ask — keeping work flowing (Mike commissioned, 2026-10-01)
 
 *[Narrative](roadmap/420-when-to-ask-mike-commissioned/README.md)*
 
-- ✅ 🎯 [An ask stops the whole run — decide when a session asks, and what it…](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
 - [ ] 🎯 [An answer to a session's question is not a ruling. Records must tell…](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
 - [ ] 🎯 [What the 2026-11-09 ruling round left open.](roadmap/420-when-to-ask-mike-commissioned/030-what-the-722a-ruling-round-left-open.md)
-- ✅ [The two-step ask stalled the walk-through between questions.](roadmap/420-when-to-ask-mike-commissioned/040-the-two-step-ask-stalled-the-run-between-questions.md)
-- ✅ [The floor's Asking bullet still says "(one extra turn)".](roadmap/420-when-to-ask-mike-commissioned/050-the-floor-still-says-one-extra-turn.md)
 
 ## Review quality is never traded for budget (Mike commissioned, 2026-10-04)
 

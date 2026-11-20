@@ -5,6 +5,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-20 — the board index shows what is owed, `010/210`)
+- **`board.py` writes a summary table and the unfinished items only.** The
+  index opens with one row per section (open, claimed, `🎯` and `⏳` counts,
+  and a total), then lists only items whose marker is not `[x]` or whose state
+  line carries `⏳`. A section with nothing owed keeps its table row alone.
+  Item files are untouched. Picked by the principal from offered options
+  ("Summary + open only"). atelier's own index went from 816 lines to 470.
+- **Children: rebuild your index before 2026-12-04.** Until then `board
+  --check` also accepts the previous full form of your board, prints ⚠️ with
+  the date and the rebuild command, and passes; from 2026-12-04 the full form
+  is stale and the check blocks. Run `board.py --rebuild` (the command your
+  index's preamble names) and commit the result. Removal is `010/250`.
+
 ### Changed (2026-11-20 — a drain ranks and routes the whole queue first, `160/1660`)
 - **`ccfleet drain` requires `queue.ranked`** and calls it once before the
   first pick; any nonzero exit starts nothing (`DRAIN EXIT: not ranked`,

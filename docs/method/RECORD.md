@@ -415,7 +415,12 @@ defect classes drove the split, each grounded in this repo's own history:
 
 A completed item simply flips `[x]` **in its own file, in the commit that
 finishes the work** — there is no harvest step, and the harvest's red-window
-failure mode is retired with it. Pre-split completed detail stays frozen in
+failure mode is retired with it. The index then stops listing it: it shows
+a summary table of sections (open, claimed, waiting on the principal and
+review-queued counts) and only the unfinished items beneath, and a section
+with nothing owed keeps its table row alone (`010/210`, 2026-11-20). The
+read at session open is then what is owed, not the board's whole history; the
+legend is in `roadmap/README.md`. Pre-split completed detail stays frozen in
 `ROADMAP-DONE.md` (append-only, grepped on demand). A repo that has not
 adopted the split keeps the monolithic form; the relocation discipline for it
 — completed detail out of the hot path, specs grepped on demand — remains as

@@ -18,6 +18,17 @@ Sequencing rule from the 2026-07-10 review still binds: **mechanism before more
 content** — a repo that inherits docs but not the propagation + review cadence
 has inherited the costume, not the doctrine.
 
+**The index shows what is owed, not what is done** (`010/210`; Mike's pick on
+2026-11-20, "Summary + open only"). It opens with a summary table, one row per
+section, counting open `[ ]`, claimed `[~]`, `🎯` (waiting on the principal)
+and `⏳` (review queued) items; `🎯` and `⏳` are read off the state line, so
+they overlap the first two. Below it, each section that still owes work lists
+only its unfinished items: a marker other than `[x]`, or a `⏳` on the state
+line. A section with nothing owed keeps its table row, marked `✅`, and nothing
+else. A finished item stays in its own file, one click from its section's
+narrative. Until 2026-12-04 the `board` check also accepts an index in the
+previous form, every item listed, and says so; `--rebuild` writes the new one.
+
 Checkbox states — a **work-owed tri-state**, never a disposition (Mike's
 ruling, 2026-07-**23**; the 2026-07-22 date this legend carried until
 2026-08-19 was the day the *question* was captured, not the day it was
@@ -37,7 +48,7 @@ bar stops rather than takes**; the taker writes the brief
 no new state — the tri-state and `⏳` above, read strictly). `⏳` on a state
 line means a review is queued and its pass has not returned a verdict; a pass
 running under a claim keeps it. So the review queue is the count of `⏳` state
-lines — the index's `- ⏳` lines — never of titles that say "queued", which
+lines — the index's `⏳ Review` total — never of titles that say "queued", which
 keep their words as record. The commit that lands a verdict takes the `⏳` off
 that pointer's state line, in the item's own file, and the tri-state takes
 over: `[ ]` while work is still owed, with the owed work named in the item —
