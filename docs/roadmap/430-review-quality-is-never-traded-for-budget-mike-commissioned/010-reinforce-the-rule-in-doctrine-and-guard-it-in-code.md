@@ -1,4 +1,4 @@
-- [~] **Reinforce in doctrine that a review is never cut down to fit a
+- [ ] **Reinforce in doctrine that a review is never cut down to fit a
       budget, and guard it in code where a guard can reach**
       `[M][doctrine][code]`. Mike commissioned this, 2026-10-04. Verbatim:
 
@@ -104,3 +104,6 @@
       rule-4 pass and the principal. Still owed: (c) the guard in code, (d)
       the resume record, and the rule-4 cold pass on the wording of both
       slices, which a Fable session this run did not start must take.
+      🔓 2026-11-20 UTC: queue run 08cd3b95 releases its claim with slice 2
+      landed; (c) the guard in code, (d) the resume record and the rule-4
+      passes (`160/1490`, `160/1630`) remain, open to any session.
