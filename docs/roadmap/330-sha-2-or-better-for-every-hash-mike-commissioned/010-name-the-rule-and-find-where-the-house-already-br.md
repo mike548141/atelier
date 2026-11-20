@@ -1,4 +1,4 @@
-- [ ] **Give the rule a home, then sweep for where the house already breaks
+- [~] **Give the rule a home, then sweep for where the house already breaks
       it.** Two halves, and the second is the one that earns the item.
   - [x] **Where the rule lives.** It is a *how we build* preference, not a safety
         floor — nothing catches fire if a hash is weak, so it does not belong at
@@ -53,3 +53,5 @@
         tooling, kept as written. Nothing is owed for atelier. **Still owed:** the
         sweep of the child repos (outside this repo), and the separate decision on
         whether a scanner is worth it.
+      🔒 CLAIMED 2026-11-20T07:40Z (claimed 2026-11-20-0740, wt: atelier-qr-08cd-hashsweep) by queue-run
+      session 08cd3b95 (Opus 5.5, principal-opened). Scope: the read-only sweep of the child repos.

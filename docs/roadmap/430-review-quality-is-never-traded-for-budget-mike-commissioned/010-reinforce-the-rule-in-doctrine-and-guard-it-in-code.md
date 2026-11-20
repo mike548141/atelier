@@ -1,4 +1,4 @@
-- [ ] **Reinforce in doctrine that a review is never cut down to fit a
+- [~] **Reinforce in doctrine that a review is never cut down to fit a
       budget, and guard it in code where a guard can reach**
       `[M][doctrine][code]`. Mike commissioned this, 2026-10-04. Verbatim:
 
@@ -84,3 +84,5 @@
       repeating it. Still owed: `ECONOMICS.md` and the review-brief skill
       wording, (b) the macro and micro definition, (c) the guard in code, (d)
       the resume record, and the rule-4 pass on the wording.
+      🔒 CLAIMED 2026-11-20T07:40Z (claimed 2026-11-20-0740, wt: atelier-qr-08cd-review) by queue-run
+      session 08cd3b95 (Opus 5.5, principal-opened). Scope: slice 2: ECONOMICS.md and review-brief wording, the macro and micro definition (b).

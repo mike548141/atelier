@@ -28,7 +28,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [CF3's dirty-sibling stop is now stricter than its cause requires —…](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
 - ✅ [DONE 2026-10-18](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
 - ✅ 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
-- [ ] [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
+- [~] [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
 - ✅ 🔎 [A four-digit item number sorts out of order, and the review section…](roadmap/010-board-store-migration-per-item-files-mik/200-a-four-digit-item-number-sorts-out-of-order.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
@@ -209,7 +209,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [The floor block's always-confirm stop list differs from AUTONOMY.md §…](roadmap/115-guardrail-architecture-mike-commissioned/430-the-floors-stop-list-differs-from-autonomy-always-confirm.md)
 - [ ] 🔎 [PROPAGATION.md calls a parent enforcing what its children do not a…](roadmap/115-guardrail-architecture-mike-commissioned/440-parent-only-checks-versus-the-parent-child-parity-rule.md)
 - [ ] 🔎 [Three doctrine defects the enforcement census found in slice 3.](roadmap/115-guardrail-architecture-mike-commissioned/450-census-slice-3-doctrine-defects.md)
-- [ ] 🔎 [leakscan's ipv4 rule reads a browser version string (Chrome/x.0.0.0)…](roadmap/115-guardrail-architecture-mike-commissioned/460-ipv4-rule-reads-a-browser-version-as-an-address.md)
+- [~] 🔎 (claimed 2026-11-20, wt: atelier-qr-08cd-graces) [leakscan's ipv4 rule reads a…](roadmap/115-guardrail-architecture-mike-commissioned/460-ipv4-rule-reads-a-browser-version-as-an-address.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -514,7 +514,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [The Python test suite needs 3.11 or later and does not say so.](roadmap/210-instruments-open-features/390-the-suite-needs-python-3-11-and-does-not-say-so.md)
 - ✅ 🔎 [A failed agent notification is a status ccclose does not know, and…](roadmap/210-instruments-open-features/400-a-failed-agent-notification-is-a-status-ccclose-does.md)
 - ✅ [🔧 ccmail gains a headers-only read: a message's transport headers…](roadmap/210-instruments-open-features/410-ccmail-reads-transport-headers-without-a-body.md)
-- [ ] 🔎 [ccrepo prices the 5.5 generation wrong: Haiku 5.5 counts at $0, and…](roadmap/210-instruments-open-features/420-ccrepo-prices-the-5-5-generation-wrong.md)
+- [~] 🔎 [ccrepo prices the 5.5 generation wrong: Haiku 5.5 counts at $0, and…](roadmap/210-instruments-open-features/420-ccrepo-prices-the-5-5-generation-wrong.md)
 - ✅ 🔎 [ccrepo's two cross-checks run over the whole scope when a --repo…](roadmap/210-instruments-open-features/430-ccrepo-cross-checks-ignore-the-repo-filter-unsaid.md)
 - [ ] [🛠️ ccfleet, the fleet-sweep and review-drain skills, and the modelguard…](roadmap/210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md)
 
@@ -722,7 +722,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md)*
 
-- [ ] [Give the rule a home, then sweep for where the house already breaks…](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
+- [~] [Give the rule a home, then sweep for where the house already breaks…](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
 
 ## ⏳ Long-running operations need a way back — Mike-commissioned, 2026-08-22
 
@@ -791,7 +791,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/README.md)*
 
-- [ ] [Reinforce in doctrine that a review is never cut down to fit a…](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/010-reinforce-the-rule-in-doctrine-and-guard-it-in-code.md)
+- [~] [Reinforce in doctrine that a review is never cut down to fit a…](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/010-reinforce-the-rule-in-doctrine-and-guard-it-in-code.md)
 
 ## Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)
 

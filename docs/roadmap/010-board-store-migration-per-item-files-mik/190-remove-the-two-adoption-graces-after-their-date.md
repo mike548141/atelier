@@ -1,4 +1,4 @@
-- [ ] **Remove the two adoption graces once 2026-11-18 has passed.**
+- [~] **Remove the two adoption graces once 2026-11-18 has passed.**
       Two grace periods were landed on 2026-10-18, both on Mike's answers
       that day, and both end on 2026-11-18. In `tools/board.py` it is the
       LEGACY block (`LEGACY_INDEX_ACCEPTED_UNTIL`, `_item_state_v1`,
@@ -35,3 +35,5 @@
       children's indexes rebuilt the same hour; it no longer waits on this item.
       Probe the same day: with the clock at 2026-11-18, every child passes the
       board check, so removing the board grace reds none.
+      🔒 CLAIMED 2026-11-20T07:40Z (claimed 2026-11-20-0740, wt: atelier-qr-08cd-graces) by queue-run
+      session 08cd3b95 (Opus 5.5, principal-opened). Scope: both graces removed, children probed first.

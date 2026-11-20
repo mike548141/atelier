@@ -1,4 +1,4 @@
-- [ ] 🔎 **`ccrepo` prices the 5.5 generation wrong: Haiku 5.5 counts at $0,
+- [~] 🔎 **`ccrepo` prices the 5.5 generation wrong: Haiku 5.5 counts at $0,
       and Opus 5.5, Sonnet 5.5 and Fable 5.1 take an older model's rate by
       prefix match.** Found 2026-11-12 by the principal's session after a
       routine run; the principal asked for it on the board (his words:
@@ -42,3 +42,5 @@
       2026-11-16 (platform.claude.com/docs/en/about-claude/pricing). Remains:
       the ccusage cross-check on the operator's real logs, which a worker
       confined to synthetic fixtures could not run.
+      🔒 CLAIMED 2026-11-20T07:40Z (claimed 2026-11-20-0740, wt: inline, no worktree) by queue-run
+      session 08cd3b95 (Opus 5.5, principal-opened). Scope: the ccusage cross-check on the operator's real logs.
