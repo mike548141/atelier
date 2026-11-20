@@ -1,4 +1,4 @@
-- [~] **Remove the two adoption graces once 2026-11-18 has passed.**
+- [x] **Remove the two adoption graces once 2026-11-18 has passed.**
       Two grace periods were landed on 2026-10-18, both on Mike's answers
       that day, and both end on 2026-11-18. In `tools/board.py` it is the
       LEGACY block (`LEGACY_INDEX_ACCEPTED_UNTIL`, `_item_state_v1`,
@@ -37,3 +37,22 @@
       board check, so removing the board grace reds none.
       🔒 CLAIMED 2026-11-20T07:40Z (claimed 2026-11-20-0740, wt: atelier-qr-08cd-graces) by queue-run
       session 08cd3b95 (Opus 5.5, principal-opened). Scope: both graces removed, children probed first.
+      ✅ **Done 2026-11-20 UTC (queue run 08cd, worker):** both graces removed
+      by the `LEGACY` comment's full list. `tools/board.py`: the LEGACY block,
+      `LEGACY_INDEX_ACCEPTED_UNTIL`, `today`, `_today_utc`, `_run_check`'s
+      tuple (it returns the exit code; `main` prints `board advisory: 0`),
+      `_entry`, `escape`, `legacy` and the `date`/`datetime`/`timezone`/
+      `Callable` imports. `_EDGE_LEAD_RE` and `_EDGE_TRAIL_RE` STAY: the
+      comment's list names them, but the current strip reads them. In
+      `tools/leakscan.py`: `BINARY_GRACE_UNTIL`, `in_binary_grace`,
+      `render_grace`, the `grace` argument of `render_human`, the
+      `binary_grace` key in `--json` and the summary's G3 field. Tests: the
+      `LegacyGrace` class, the byte-identity, staged-plane and advisory-one
+      tests, `test_floor.py`'s `_graced_board_repo` helper and its grace test,
+      and `BinaryGrace` (now `BinaryGate`: the post-date blocking tests kept).
+      Docs updated: `tools/README.md`, `docs/method/SECRETS.md`, comments that
+      cited `BINARY_GRACE_UNTIL`; records untouched.
+      Probe before removing (read-only, counts only): 17 children with a
+      board, 0 red on `board --check`; 29 sibling repos leak-scanned, 2 red
+      on the binary rules (33 findings, the same before and after). The
+      per-repo list is in the run's scratch only.
