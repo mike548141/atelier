@@ -19,8 +19,8 @@
       `test_allowmarker.TestLoadsByFilePath` loads the module by path in a fresh
       interpreter (control: the old module fails that load with the error
       above); `tools/README.md` says the module must stay so. Checked in the
-      child: its hook check now exits 0 on Python 3.14, and the old module and
-      the new both load on the system 3.9 except for the dataclass. One other
+      child: its hook check now exits 0, and the new module loads by path on
+      Python 3.14 and on the system 3.9. One other
       test in that child fails for its own reason (a temporary venv without a
       linter), unrelated to this. The child's own item that the filing worker
-      could not commit is the next thing filed there.
+      could not commit was then filed there, its hook passing.

@@ -1,18 +1,18 @@
-- [~] **Give the rule a home, then sweep for where the house already breaks
+- [x] **Give the rule a home, then sweep for where the house already breaks
       it.** Two halves, and the second is the one that earns the item.
   - [x] **Where the rule lives.** It is a *how we build* preference, not a safety
         floor — nothing catches fire if a hash is weak, so it does not belong at
         the apex. Likely `PRINCIPLES.md` or the conventions surface, as one line:
         **use SHA-2 or stronger (sha256/sha512, SHA-3, BLAKE2/3) for any hashing
         or checksum; never MD5 or SHA-1.**
-  - [ ] **Then sweep the estate's own tools.** The commission is only worth the
+  - [x] **Then sweep the estate's own tools.** The commission is only worth the
         filing if the house obeys it. `grep -rn "md5\|sha1"` across `atelier/tools`
         and the children — verification scripts, manifest builders, cache keys,
         fingerprints, test fixtures. 🔎 **Expect false positives worth keeping:**
         a `.md5` file published by an upstream vendor is theirs to choose, and
         checking a download against it is correct even though the algorithm is
         weak. The rule governs what *we* emit, not what we verify against.
-  - [ ] ⚠️ **Do not turn this into a scanner without thinking.** A `hashscan`
+  - [x] ⚠️ **Do not turn this into a scanner without thinking.** A `hashscan`
         would be cheap to write and would fire on every legitimate
         upstream-checksum case, on documentation quoting a historical digest, and
         on git's own object ids. The estate already carries a lesson about guards
@@ -55,3 +55,24 @@
         whether a scanner is worth it.
       🔒 CLAIMED 2026-11-20T07:40Z (claimed 2026-11-20-0740, wt: atelier-qr-08cd-hashsweep) by queue-run
       session 08cd3b95 (Opus 5.5, principal-opened). Scope: the read-only sweep of the child repos.
+      ✅ **Closed 2026-11-20 UTC by queue run 08cd3b95: the child sweep, and
+      the scanner question.** A read-only sweep of the 30 child repos' tracked
+      text (`git grep -I -i` over md5, sha1, shasum, md5sum, sha1sum, HMAC-SHA1,
+      `dgst`, `usedforsecurity` and kin): 1,600 line hits in 13 repos. By class:
+      6 break the rule (3 distinct: an MD5 drift-check manifest of our own
+      config files in a README, and a bare `shasum`, which defaults to SHA-1,
+      in a how-to snippet and its archived copy), 4 unsure (a network renderer
+      emitting SNMPv3 auth as SHA-1 and offering SHA-1 for OSPF auth, exempt
+      only if the device offers nothing stronger), 16 exempt by format (git
+      blob ids, a WebSocket and a console handshake already on a child's
+      exception list, a third-party API's OAuth 1.0a, rsync's own checksum),
+      0 upstream-checksum checks, and 1,574 not a use (tools that detect weak
+      hashes in scanned systems, findings, records, fixtures). Each finding is
+      queued on its own repo's board (three items, one per repo), not fixed
+      from here. The per-repo table is user-local, outside this public repo.
+      **No scanner.** Measured: 6 true lines in 1,600, under half a percent,
+      and every true one is prose or a shell snippet in a document, the shape
+      a grep cannot tell from a quoted digest or a detection rule. The one
+      child that needed a mechanical guard already carries its own. The rule
+      stays in `PRINCIPLES.md` §5 and is applied at authoring time; revisit
+      only if a sweep finds a break in code we run.
