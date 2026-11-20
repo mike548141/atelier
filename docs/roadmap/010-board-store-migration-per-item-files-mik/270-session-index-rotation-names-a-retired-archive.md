@@ -1,4 +1,4 @@
-- [ ] **The session-index rotation rule names a store the archive cut
+- [x] **The session-index rotation rule names a store the archive cut
       retires.** Filed 2026-11-20 by session 19378351. RECORD.md § *The
       session log* lets the index rotate: older index lines move verbatim to a
       `SESSIONS-ARCHIVE.md` growth store. On 2026-11-20 the principal picked
@@ -23,3 +23,26 @@
       script), `SESSIONS.md` is removed, and every rule, tool, template and
       skill that reads or appends to it changes; atelier first, then the
       health sweep carries it to the children.
+      **DONE in atelier, 2026-11-20 UTC** (a worker of session 19378351,
+      Opus 5.5). A dating note first: the answer above was given at about
+      20:25 UTC on 2026-11-20 (`5d82e25a`); "2026-11-21" is the New Zealand
+      date, so the work below carries 2026-11-20. `b68cf410`:
+      `tools/archivecut.py` retires the index, and any frozen session
+      archive, into `docs/sessions/`, files only. Each entry goes word for
+      word into the session file it links, right after that file's `# `
+      heading (so the title stays first and the line reads as the file's
+      summary), under "From the retired session log" and a comment carrying
+      its line numbers; an entry linking no session file gets a new file
+      named for its date, with a day counter where it states no time. The
+      rest goes fenced into `docs/sessions/README.md`. The proof (multiset,
+      every link mapping back, a byte-for-byte rebuild from the outputs as
+      written) must pass or nothing is written, and the archive route no
+      longer writes index lines. RECORD.md, CONCURRENCY.md's recovery
+      sweep, CLAUDE.md, REPO-STANDARD, the template, `create-repo`,
+      `fleet-sweep` and `ccclose` moved to the folder; `ccclose` accepts a
+      kept index until 2026-12-04 (`010/290` removes the grace).
+      `e5f9f245`: atelier's own run, 340 entries (295 placed, 45 new
+      files), proof and `--verify` passing. A read-only dry run on fourteen
+      children found every session log would pass its proof. Cold pass
+      queued: `160/1700`. Each child's own run rides on the health sweep
+      (`010/230`, healthy item 6 now names it).

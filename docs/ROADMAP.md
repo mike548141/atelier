@@ -14,7 +14,7 @@ line, so they overlap Open and Claimed.
 
 | Section | Open | Claimed | 🎯 Waiting | ⏳ Review |
 | :-- | --: | --: | --: | --: |
-| [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 9 | 0 | 1 | 0 |
+| [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 8 | 0 | 1 | 0 |
 | [Policy-as-code programme — five tracks (Mike approved 2026-07-27)](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md) | 17 | 0 | 4 | 0 |
 | [Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)](roadmap/030-enforcement-propagation-the-estate-rollo/README.md) | 9 | 0 | 0 | 0 |
 | ✅ [Principal-set dates: mandate vs default (Mike, 2026-08-09)](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md) | 0 | 0 | 0 | 0 |
@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 130 | 0 | 52 | 56 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 131 | 0 | 52 | 57 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 270 | 0 | 82 | 57 |
+| **All sections** | 270 | 0 | 82 | 58 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -73,7 +73,6 @@ line, so they overlap Open and Claimed.
 - [ ] [The pre-split archives sit outside the board's store.](roadmap/010-board-store-migration-per-item-files-mik/220-the-pre-split-archives-sit-outside-the-store.md)
 - [ ] [Every repo keeps the house board, and the health sweep enforces it.](roadmap/010-board-store-migration-per-item-files-mik/230-every-repo-keeps-the-house-board.md)
 - [ ] [Remove the full-form index grace once 2026-12-04 has passed.](roadmap/010-board-store-migration-per-item-files-mik/250-remove-the-full-form-index-grace-after-its-date.md)
-- [ ] [The session-index rotation rule names a store the archive cut retires.](roadmap/010-board-store-migration-per-item-files-mik/270-session-index-rotation-names-a-retired-archive.md)
 - [ ] 🔎 [archivecut in the field: five rough edges from its first fleet run.](roadmap/010-board-store-migration-per-item-files-mik/280-archivecut-in-the-field-five-rough-edges.md)
 - [ ] [Remove the retired-session-index grace once 2026-12-04 has passed.](roadmap/010-board-store-migration-per-item-files-mik/290-remove-the-retired-session-index-grace-after.md)
 
@@ -305,6 +304,7 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [Rule-4 cold pass queued: the generated board index becomes a summary…](roadmap/160-doctrine-review-owed/1670-rule-4-cold-pass-queued-index-summary-and-open-only.md)
 - [ ] ⏳ [Rule-4 cold pass queued: tools/archivecut.py and atelier's cut of its…](roadmap/160-doctrine-review-owed/1680-rule-4-cold-pass-queued-archivecut.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the repo template scaffolds the per-item…](roadmap/160-doctrine-review-owed/1690-rule-4-cold-pass-queued-template-scaffolds-the-store-board.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the session log's one-file index retired…](roadmap/160-doctrine-review-owed/1700-rule-4-cold-pass-queued-session-index-retired.md)
 
 ## build/ layer — open strands
 
