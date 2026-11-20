@@ -14,7 +14,7 @@ line, so they overlap Open and Claimed.
 
 | Section | Open | Claimed | 🎯 Waiting | ⏳ Review |
 | :-- | --: | --: | --: | --: |
-| [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 7 | 0 | 2 | 0 |
+| [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 8 | 0 | 2 | 0 |
 | [Policy-as-code programme — five tracks (Mike approved 2026-07-27)](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md) | 17 | 0 | 4 | 0 |
 | [Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)](roadmap/030-enforcement-propagation-the-estate-rollo/README.md) | 9 | 0 | 0 | 0 |
 | ✅ [Principal-set dates: mandate vs default (Mike, 2026-08-09)](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md) | 0 | 0 | 0 | 0 |
@@ -46,7 +46,7 @@ line, so they overlap Open and Claimed.
 | [Ruling round 2026-08-17 — the cold-run findings (Mike)](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/README.md) | 2 | 0 | 2 | 0 |
 | [Posture — strength is what you are free to do (Mike commissioned 2026-08-17)](roadmap/300-posture-recover-cheaply-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
 | [Pointing up — the child-to-parent route (Mike commissioned 2026-08-18)](roadmap/310-pointing-up-the-child-to-parent-route/README.md) | 5 | 0 | 2 | 0 |
-| [Findings filed from a child via § *Pointing up* (2026-08-18)](roadmap/320-child-filed-findings-via-pointing-up/README.md) | 27 | 0 | 4 | 0 |
+| [Findings filed from a child via § *Pointing up* (2026-08-18)](roadmap/320-child-filed-findings-via-pointing-up/README.md) | 28 | 0 | 4 | 0 |
 | ✅ [🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [⏳ Long-running operations need a way back — Mike-commissioned, 2026-08-22](roadmap/340-long-running-operations-need-a-way-back-mike-comm/README.md) | 0 | 0 | 0 | 0 |
 | [🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23](roadmap/350-verification-must-be-exact-not-probable-mike-comm/README.md) | 1 | 0 | 1 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 267 | 0 | 83 | 57 |
+| **All sections** | 269 | 0 | 83 | 57 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -74,6 +74,7 @@ line, so they overlap Open and Claimed.
 - [ ] [Every repo keeps the house board, and the health sweep enforces it.](roadmap/010-board-store-migration-per-item-files-mik/230-every-repo-keeps-the-house-board.md)
 - [ ] [Remove the full-form index grace once 2026-12-04 has passed.](roadmap/010-board-store-migration-per-item-files-mik/250-remove-the-full-form-index-grace-after-its-date.md)
 - [ ] 🎯 [The session-index rotation rule names a store the archive cut retires.](roadmap/010-board-store-migration-per-item-files-mik/270-session-index-rotation-names-a-retired-archive.md)
+- [ ] 🔎 [archivecut in the field: five rough edges from its first fleet run.](roadmap/010-board-store-migration-per-item-files-mik/280-archivecut-in-the-field-five-rough-edges.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
@@ -437,6 +438,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🔎 [A floor disabled entry carries a reason but no end date, so it cannot…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
 - [ ] 🔎 [Build the six checks he chose, warnings first, then blocking, each…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
 - [ ] 🔎 [Hand-up: pathscan cannot tell a historical record from a live page,…](roadmap/320-child-filed-findings-via-pointing-up/880-hand-up-pathscan-cannot-tell-a-historical-record-from-a-live-page.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [ ] 🔎 [licenscan cannot read a CC0-1.0 licence file, so a child that…](roadmap/320-child-filed-findings-via-pointing-up/890-licenscan-cannot-read-a-cc0-licence.md)
 
 ## 🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23
 
