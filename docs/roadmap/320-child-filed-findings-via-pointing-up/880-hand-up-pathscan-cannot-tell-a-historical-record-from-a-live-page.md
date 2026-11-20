@@ -61,3 +61,17 @@
       **Owed:** a ruling on which of these, then the build and its cold
       pass. Until then a child's records keep their paths as written and the
       warn-only count stays high.
+
+      **Added 2026-11-20 by session 19378351** (the board-doctrine session,
+      on a peer's forwarded finding). The closed-item share needs no folder
+      rule and no move: a board item's state is its first line, so
+      `pathscan` can treat an item whose state line is `[x]` as a record, the
+      same as `RECORDS_GLOBS`, and keep scanning open items. In the reporting
+      child that is about 800 of the 1,154 findings. A done/ folder on close
+      was put to the principal by that child's session and is ruled out by
+      his words to this session the same day: *"I never said the file gets
+      moved, my intention is the file stays as you described and it builds
+      up git history as its edited etc."* The pre-split archive section
+      (`990-done-before-the-split/`, `010/220`) is already in
+      `RECORDS_GLOBS`. The remaining classes above (dated research notes, a
+      mixed decision register) still need their own answer.
