@@ -48,7 +48,7 @@
         {"path": "docs/method/CONCURRENCY.md", "heading": "## Claiming work — make selection collide like naming does"},
         {"path": "docs/method/CONCURRENCY.md", "heading": "## Stay in your lane"},
         {"path": "docs/method/ECONOMICS.md", "heading": "## Session hygiene (both models)"},
-        {"path": "docs/method/RECORD.md", "heading": "## The session log — an append-only index with detail on demand"}
+        {"path": "docs/method/RECORD.md", "heading": "## The session log — one file per session, and the folder is the index"}
       ]
     },
     "doctrine-problems": {
