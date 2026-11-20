@@ -88,7 +88,7 @@ SEP_ANY_SPACE = r"\s*"
 # per distinct marker per run, on stderr. ON and after it, it is a mention: it
 # exempts nothing. The cut-off lives in this one constant, compared with the UTC
 # clock; there is no flag, environment variable or config key that moves it
-# (the same shape as leakscan's `BINARY_GRACE_UNTIL`). Delete the warning path
+# (the same shape as leakscan's `TYPE_LEVEL_UNTIL`). Delete the warning path
 # and `in_malformed_grace` once the date has passed; the strict read stays.
 MALFORMED_GRACE_UNTIL = datetime.date(2026, 12, 9)
 

@@ -684,8 +684,6 @@ class TestScannerLinePins(unittest.TestCase):
                                       ".leakscanignore · 0 rule(s) disabled · "
                                       "0 binary file(s) by .leakscanbinaries · "
                                       "0 untracked binary file(s) not gated · "
-                                      "0 G3 finding(s) warned, not blocking, before "
-                                      f"{m.BINARY_GRACE_UNTIL.isoformat()} · "
                                       "0 type-level metadata entr(y/ies) warned, "
                                       "not blocking, before "
                                       f"{m.TYPE_LEVEL_UNTIL.isoformat()} · "

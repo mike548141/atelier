@@ -22,7 +22,6 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from datetime import date
 from pathlib import Path
 from unittest import mock
 
@@ -334,12 +333,6 @@ class SmallTitleDefects(unittest.TestCase):
         self.assertEqual("A title", board.index_title("**— A title:**"))
         self.assertEqual("A title", board.index_title("A title —"))
 
-    def test_the_legacy_projection_keeps_the_old_strip(self):
-        # The grace-period index is byte-identical to the old rendering, which
-        # took the dashes off a flag. Until the grace ends that must hold.
-        self.assertEqual("list is slow", board.index_title(
-            "**`--list` is slow**", escape=False, legacy=True))
-
     def test_a_claim_inside_a_wrapped_bold_title_stays_out_of_the_title(self):
         rest = ("**A title that wraps (claimed 2026-10-18-0900, wt: x) "
                 "onto a second line**")
@@ -545,135 +538,8 @@ class LogicalFirstParagraph(unittest.TestCase):
         self.assertTrue(line.startswith("- [~] [About the"), line)
 
 
-class LegacyGrace(unittest.TestCase):
-    """010/170's grace period: `--check` accepts an index rendered by the
-    PREVIOUS projection until `LEGACY_INDEX_ACCEPTED_UNTIL`, says so when it
-    does, and refuses it from that date. Synthetic fixtures only."""
-
-    BEFORE = board.LEGACY_INDEX_ACCEPTED_UNTIL.fromordinal(
-        board.LEGACY_INDEX_ACCEPTED_UNTIL.toordinal() - 1)
-    ON = board.LEGACY_INDEX_ACCEPTED_UNTIL
-
-    def setUp(self):
-        self._td = tempfile.TemporaryDirectory()
-        self.root = Path(self._td.name)
-        self.sec = make_board(self.root)
-        # An item the two projections render differently: a wrapped claim.
-        (self.sec / "20-wrapped.md").write_text(
-            "- [~] **A claimed item whose title fills the first\n"
-            "      line** (claimed 2026-01-02-0304, wt: example-wt)\n",
-            encoding="utf-8")
-        self.board = self.root / board.BOARD_DIR
-        self.index = self.root / board.INDEX_REL
-        self.new, _ = board.build_index(self.board)
-        self.old, _ = board.build_index(self.board,
-                                        _entry=board._index_entry_v1)
-        self.assertNotEqual(self.new, self.old, "fixture must discriminate")
-
-    def tearDown(self):
-        self._td.cleanup()
-
-    def check(self, today) -> tuple[int, str]:
-        import contextlib
-        import io
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            rc = board.run_check(self.root, fix=False, today=today)
-        return rc, buf.getvalue()
-
-    def test_check_passes_on_a_new_form_index(self):
-        self.index.write_text(self.new, encoding="utf-8")
-        for today in (self.BEFORE, self.ON):
-            rc, out = self.check(today)
-            self.assertEqual(rc, 0, out)
-            self.assertNotIn("PREVIOUS projection", out)
-
-    def test_check_passes_on_an_old_form_index_before_the_date(self):
-        self.index.write_text(self.old, encoding="utf-8")
-        rc, out = self.check(self.BEFORE)
-        self.assertEqual(rc, 0, out)
-        self.assertIn("PREVIOUS projection", out)
-        self.assertIn("rebuild", out)
-        self.assertIn(self.ON.isoformat(), out)
-
-    def test_check_fails_on_an_old_form_index_from_the_date(self):
-        self.index.write_text(self.old, encoding="utf-8")
-        rc, out = self.check(self.ON)
-        self.assertEqual(rc, 1, out)
-        self.assertIn("stale", out)
-        self.assertNotIn("PREVIOUS projection", out)
-
-    def test_check_fails_on_an_index_that_matches_neither(self):
-        self.index.write_text(self.new.replace("example-wt", "other-wt"),
-                              encoding="utf-8")
-        rc, out = self.check(self.BEFORE)
-        self.assertEqual(rc, 1, out)
-        self.assertIn("stale", out)
-
-    def test_rebuild_always_writes_the_new_form(self):
-        self.index.write_text(self.old, encoding="utf-8")
-        board.run_check(self.root, fix=True, today=self.BEFORE)
-        self.assertEqual(self.index.read_text(encoding="utf-8"), self.new)
-
-    def test_the_legacy_renderer_reads_the_first_line_only(self):
-        self.assertIn("- [~] [A claimed item whose title fills the first](",
-                      self.old)
-
-    def test_the_end_date_is_pinned(self):
-        """160/970 PP3. Every other test here derives from the constant, so
-        moving it left them green. Mike made 2026-11-18 firm, UTC, no flag."""
-        self.assertEqual(date(2026, 11, 18), board.LEGACY_INDEX_ACCEPTED_UNTIL)
-
-    def test_the_default_date_is_todays_utc_date(self):
-        """160/970 PP3. `_today_utc` was reached by no test: they all inject
-        `today`. Here it is the clock that decides."""
-        self.index.write_text(self.old, encoding="utf-8")
-        for fake, want_rc in ((self.BEFORE, 0), (self.ON, 1)):
-            buf = io.StringIO()
-            with mock.patch.object(board, "_today_utc", return_value=fake), \
-                    contextlib.redirect_stdout(buf):
-                rc = board.run_check(self.root, fix=False)
-            self.assertEqual(want_rc, rc, buf.getvalue())
-
-    def test_the_notice_says_utc_and_points_a_wrapscan_child_at_the_readme(self):
-        """160/970 PP8 and PP1: the zone, and the standing advice that the
-        projected index is not rewrappable by hand."""
-        self.index.write_text(self.old, encoding="utf-8")
-        _, out = self.check(self.BEFORE)
-        self.assertIn("(UTC)", out)
-        self.assertIn("wrapscan", out)
-        self.assertIn("tools/README.md", out)
-
-    def test_a_notice_beside_a_real_failure_says_which_one_fails(self):
-        """160/970 PP8: the grace notice used to print as an 'accepted' line
-        directly beside exit 1, which read as if the index were the failure."""
-        self.index.write_text(self.old, encoding="utf-8")
-        (self.sec / "30-no-state.md").write_text("prose first\n", encoding="utf-8")
-        rc, out = self.check(self.BEFORE)
-        self.assertEqual(1, rc, out)
-        self.assertIn("a notice, not the failure", out)
-
-    def test_the_legacy_renderer_reproduces_the_pre_delta_tool_byte_for_byte(self):
-        """160/970 PP3. `_index_entry_v1` was pinned by nothing but a reviewer's
-        probe. These strings are what the tool printed before 010/170 landed,
-        for the shapes children's committed indexes hold; if the grace's
-        renderer drifts, a child's old-form index stops being accepted."""
-        cases = [
-            ("- [ ] 🎯 **Fix the fail-open gate** — it exits 0\n      continuation\n",
-             "- [ ] 🎯 [Fix the fail-open gate](roadmap/a/b.md)"),
-            ("- [~] (claimed 2026-01-02-0304, wt: example-wt) **A claimed item**\n",
-             "- [~] (claimed 2026-01-02-0304, wt: example-wt) [A claimed item](roadmap/a/b.md)"),
-            ("- [ ] a plain title with no bold at all, carried on a single line of text well past the cap of seventy chars\n",
-             "- [ ] [a plain title with no bold at all, carried on a single line of text…](roadmap/a/b.md)"),
-            ("- [x] **Done thing** <!-- datescan:allow: synthetic -->\n",
-             "- ✅ [Done thing](roadmap/a/b.md) <!-- datescan:allow: synthetic -->"),
-            ("- [ ] **About the `⏳` glyph** and `(claimed x)` mention\n",
-             "- [ ] [About the glyph](roadmap/a/b.md)"),
-            ("- ⏳ 🔎 **Queued review pointer** thing\n",
-             "- ⏳ 🔎 [Queued review pointer](roadmap/a/b.md)"),
-        ]
-        for text, want in cases:
-            self.assertEqual(want, board._index_entry_v1(text, "roadmap/a/b.md"), text)
+class ItemParagraph(unittest.TestCase):
+    """The indented-only continuation rule of `item_state` (010/170)."""
 
     def test_a_continuation_must_be_indented_to_join_the_paragraph(self):
         """160/970 PP3: the indented-only rule. An unindented line after the
@@ -685,8 +551,8 @@ class LegacyGrace(unittest.TestCase):
 
 class AdvisoryCount(unittest.TestCase):
     """160/970 PP5: every `--check` prints one `board advisory: N finding(s)`
-    line, which `floor.py` reads into the floor's board. N is 1 on a run that
-    used the grace, else 0. A missing line would read as -1 (a drifted
+    line, which `floor.py` reads into the floor's board. N is always 0 (every
+    board finding blocks). A missing line would read as -1 (a drifted
     contract), so it prints on the not-in-scope path too."""
 
     def run_main(self, root: Path, *args: str) -> tuple[int, str]:
@@ -709,24 +575,6 @@ class AdvisoryCount(unittest.TestCase):
             rc, out = self.run_main(root)
         self.assertEqual(0, rc, out)
         self.assertIn("board advisory: 0 finding(s)", out)
-
-    def test_a_grace_run_prints_a_one(self):
-        with tempfile.TemporaryDirectory() as td:
-            root = Path(td)
-            sec = make_board(root)
-            (sec / "20-wrapped.md").write_text(
-                "- [~] **A claimed item whose title fills the first\n"
-                "      line** (claimed 2026-01-02-0304, wt: example-wt)\n",
-                encoding="utf-8")
-            old, _ = board.build_index(root / board.BOARD_DIR,
-                                       _entry=board._index_entry_v1)
-            (root / board.INDEX_REL).write_text(old, encoding="utf-8")
-            until = board.LEGACY_INDEX_ACCEPTED_UNTIL
-            with mock.patch.object(board, "_today_utc",
-                                   return_value=until.fromordinal(until.toordinal() - 1)):
-                rc, out = self.run_main(root)
-        self.assertEqual(0, rc, out)
-        self.assertIn("board advisory: 1 finding(s) — reported, not blocking.", out)
 
     def test_a_stale_index_prints_a_zero_and_still_fails(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1037,35 +885,6 @@ class StagedPlane(unittest.TestCase):
         self.assertEqual(board.main(argv_rebuild), 0)
 
 
-    def test_the_grace_holds_on_the_staged_plane(self):
-        """010/170: `--staged` reads the same comparison, so an old-form
-        STAGED index passes with the notice before the date, and fails from
-        it, exactly as the worktree plane does."""
-        import contextlib
-        import io
-        (self.sec / "20-wrapped.md").write_text(
-            "- [~] **A claimed item whose title fills the first\n"
-            "      line** (claimed 2026-01-02-0304, wt: example-wt)\n",
-            encoding="utf-8")
-        old, _ = board.build_index(self.root / board.BOARD_DIR,
-                                   _entry=board._index_entry_v1)
-        (self.root / board.INDEX_REL).write_text(old, encoding="utf-8")
-        _git(self.root, "add", "-A")
-        until = board.LEGACY_INDEX_ACCEPTED_UNTIL
-        before = until.fromordinal(until.toordinal() - 1)
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            rc = board.run_check(self.root, fix=False, source=board.INDEX,
-                                 today=before)
-        self.assertEqual(rc, 0, buf.getvalue())
-        self.assertIn("PREVIOUS projection", buf.getvalue())
-        self.assertIn("--from-index", buf.getvalue())
-        with contextlib.redirect_stdout(io.StringIO()):
-            rc = board.run_check(self.root, fix=False, source=board.INDEX,
-                                 today=until)
-        self.assertEqual(rc, 1)
-
-
 LONG_PATH = ("roadmap/320-child-filed-findings-via-pointing-up/"
              "730-an-item-whose-slug-runs-on-and-on-for-a-long-while-yes.md")
 
@@ -1174,15 +993,6 @@ class BracketsInATitle(unittest.TestCase):
                                 "roadmap/a/b.md")
         (root / "ROADMAP.md").write_text(line + "\n", encoding="utf-8")
         self.assertEqual([], linkscan.scan_paths([root / "ROADMAP.md"], root))
-
-    def test_the_legacy_projection_is_byte_identical(self):
-        # The grace accepts a child's committed old-form index exactly; escaping
-        # must not reach it.
-        self.assertEqual(
-            "- [ ] [Fix the [~] marker](roadmap/a/b.md)",
-            board._index_entry_v1("- [ ] **Fix the [~] marker**\n",
-                                  "roadmap/a/b.md"))
-
 
 class IndexLineWidthOnRealOutput(unittest.TestCase):
     """160/220, BG3 — "the generated index passes `wrapscan` in any repo" was a

@@ -131,13 +131,11 @@ Each index line is projected from the item's **logical first paragraph** (board
 blank line, an unindented line or a line that opens a new block. A bold title
 that wraps renders whole and a `(claimed …)` fragment wrapped onto line two
 shows; flags still read the state line alone, and a code span is read across the
-joined paragraph, so an odd backtick pairs with one on a later line. **Until
-2026-11-18 (UTC)** `--check` also accepts an index in the previous first-line
-form. It prints a ⚠️ notice, and a `board advisory: 1 finding(s)` line that
-`floor.py` shows as `🟡 board` on its summary, so the notice survives a green
-run. From that date the old form is stale like any other mismatch. The date is
-firm and no flag moves it; the removal list is the `LEGACY` comment in
-`board.py`.
+joined paragraph, so an odd backtick pairs with one on a later line. Until
+2026-11-18 `--check` also accepted an index in the previous first-line form;
+that grace is removed (`010/190`) and the old form is stale like any other
+mismatch. `--check` still prints a `board advisory: 0 finding(s)` line, which
+`floor.py` reads into its summary (every board finding blocks, so it is 0).
 
 **reviewscan** (a records-hygiene check) proves only **presence**: a decision
 record carries *a* review line. Whether "not warranted" was the honest call —
@@ -487,10 +485,10 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   `TYPE_LEVEL_UNTIL` (2026-12-18, UTC) it still does, and each scan prints a
   warning that names the fields the file carries and asks for field-level
   lines. From that day it keeps nothing: the set blocks as `binary-metadata`
-  until fields are named. A month after the grace ends, so a child that listed
-  by type before 2026-11-18 has until 2026-12-18 to move to field-level lines.
-  `icc`, `jpeg-comment` and `unknown` have no fields and are unaffected. Like
-  the grace, no flag or setting moves the date.
+  until fields are named. A month after the G3 grace ended, so a child that
+  listed by type before 2026-11-18 had until 2026-12-18 to move to field-level
+  lines. `icc`, `jpeg-comment` and `unknown` have no fields and are unaffected.
+  Like the G3 grace was, no flag or setting moves the date.
 - **Text sets are still scanned.** `png-text`, `xmp` and `jpeg-comment` are
   decoded and run through the normal rules and term list, kept or not.
   Keeping a set states a need; it doesn't stop the scan. Allow-markers
@@ -588,26 +586,21 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
   structural rules. Every accepted binary is counted in the `suppressed:`
   line.
 
-**The adoption grace, until 2026-11-18, and it is firm.** On roadmap `020/150`
+**The adoption grace ended 2026-11-18 and is removed (`010/190`).** On roadmap `020/150`
 (2026-10-18) Mike chose, through the decision device, the option labelled
 *"Grace period (Recommended)"*. The option's own text was the queue run's, not
 his words: *unlisted files print a warning naming a cut-off date (~30 days),
 then start blocking; no child goes red today; each lists its files when
-convenient*. So until `BINARY_GRACE_UNTIL` (2026-11-18, UTC) the four gate
+convenient*. So from 2026-10-18 to 2026-11-18 (UTC) the four gate
 findings, `binary-unlisted`, `binary-changed`, `binary-metadata` and
-`binary-stale-entry`, print as warnings. Each names the date and its remedy,
-and none fails the exit code. From that date they block exactly as above.
-The day was the queue run's pick on "~30 days"; Mike made it firm on
-2026-11-08 (*"Firm; queue fixes now"*): **2026-11-18 stands for every child.**
-Each child that would fail gets an item on its own board to strip or list
-before then, and a child not worked by the date goes red until it is. In
-`GUARDS.md`'s terms it is a mandate, not a default: a child may list or strip
-earlier, or argue an exemption through its parent, and none can move the
-date. Nothing else is graced: every other rule, including a hit in an image's
-text metadata, blocks today. This is the one exception to leakscan having no
+`binary-stale-entry`, printed as warnings naming the date and the remedy, and
+none failed the exit code. The day was the queue run's pick on "~30 days";
+Mike made it firm on 2026-11-08 (*"Firm; queue fixes now"*): **2026-11-18
+stood for every child.** The date has passed and the warn-only path is gone:
+the four findings block exactly as above, and leakscan is back to having no
 advisory form for a rule that blocks (E6a; rules that are off report, above).
-It is dated and has no flag, env var or config key, so nothing can move it.
-floor.py refuses any `flags` argument that is, or abbreviates, a mode flag
+There was never a flag, env var or config key that moved it, and there is none
+that softens the gate now. floor.py refuses any `flags` argument that is, or abbreviates, a mode flag
 (`--binary-entries`, `--selftest`, `--warn`, `--json`, `--check`) or one that
 re-aims the check (`--root`, `--terms`, `--staged`), and any `scope` path
 starting with `-`. Those were the only *unrecorded* ways to skip the gate: a
@@ -623,8 +616,8 @@ remedy, and none fails the exit code: a `binary-metadata` finding for a
 document's sets (the five above, and `unknown`), and a rule's hit in a
 document's metadata. From that date they block like any other. The file's own
 gate is not the reader's, so `binary-unlisted`, `binary-changed` and
-`binary-stale-entry` on an Office or PDF file keep the adoption grace's date
-above. The date was the queue run's pick: more than 30 days after the build
+`binary-stale-entry` on an Office or PDF file block, as they have since the
+adoption grace ended. The date was the queue run's pick: more than 30 days after the build
 (2026-11-16), and a month after the type-level cut-off, so no child meets two
 new kinds of block on one day. Like the others, nothing moves it.
 `--json` carries the warnings under `binary_documents`.
@@ -1150,8 +1143,8 @@ left unfilled is `drift`.
 **Report-only until 2026-12-09, then blocking** (Mike, 2026-11-09: *"The approve
 the report only option for 1 month and then we move to blocking per option 2"*,
 option 2 being *block any repo whose copy differs*). `COPY_BLOCKS_FROM` is one
-dated constant compared with the UTC clock, in `leakscan`'s `BINARY_GRACE_UNTIL`
-style: no flag, env var or config key moves it, and the date prints on every run
+dated constant compared with the UTC clock, in the style of `leakscan`'s
+dated cut-offs: no flag, env var or config key moves it, and the date prints on every run
 and in `--json` (`floor_copy`). From it a `drift` copy fails `--check` and the
 exit code like a stale pin. Four states block, not only `drift`: Mike's answer
 of 2026-11-09 to a later ask, *"Require a stamp by 9 Dec"*, adds `unstamped` (no

@@ -135,9 +135,8 @@ import re
 import subprocess
 import sys
 import unicodedata
-from datetime import date, datetime, timezone
 from pathlib import Path
-from typing import Callable, NamedTuple
+from typing import NamedTuple
 
 # `harvestscan` already named and solved this exact problem (HV4): which
 # version of a tracked file a check should read — the WORKTREE (what's on
@@ -308,7 +307,7 @@ def _escape_link_text(text: str) -> str:
     return text.replace("[", "&#91;").replace("]", "&#93;")
 
 
-def index_title(rest: str, escape: bool = True, legacy: bool = False) -> str:
+def index_title(rest: str) -> str:
     """The index line's link text: the item's bold title, links flattened.
 
     The fallback strips the claim first. `TITLE_RE` wants a CLOSED `**…**` span
@@ -318,12 +317,9 @@ def index_title(rest: str, escape: bool = True, legacy: bool = False) -> str:
     result rendered the claim twice on one line, once from `index_line` and
     once swallowed into the title (reported by a child, 2026-08-17).
 
-    `[` and `]` come out as character references (`escape`; 320/450 §2). Only
-    the LEGACY projection passes `escape=False`, to stay byte-identical, and it
-    passes `legacy=True`, which keeps the two defects below exactly as they were
-    rendered (010/180).
+    `[` and `]` come out as character references (320/450 §2).
 
-    Two defects 010/180 closed, both skipped for `legacy`:
+    Two defects 010/180 closed:
       * A claim fragment INSIDE a closed bold span (a claim helper that writes
         it on line two of a wrapped title) projected into the title as well as
         the claim slot. It is cut out of the span; a backticked `(claimed …)`
@@ -333,23 +329,20 @@ def index_title(rest: str, escape: bool = True, legacy: bool = False) -> str:
         it stands alone (`- title`, `title -`), not when it opens a word."""
     m = TITLE_RE.search(rest)
     raw = m.group(1) if m else CLAIM_RE.sub("", rest)
-    if m and not legacy:
+    if m:
         for c in reversed(list(CLAIM_RE.finditer(_mask_code(raw)))):
             raw = raw[:c.start()] + " " + raw[c.end():]
     raw = LINK_RE.sub(r"\1", raw)
     raw = raw.replace("*", "").replace("`", "")
-    if legacy:
-        raw = raw.strip(" —-:")
-    else:
-        raw = _EDGE_LEAD_RE.sub("", raw)
-        raw = _EDGE_TRAIL_RE.sub("", raw)
+    raw = _EDGE_LEAD_RE.sub("", raw)
+    raw = _EDGE_TRAIL_RE.sub("", raw)
     for f in FLAGS:
         raw = raw.replace(f, "")
     raw = " ".join(raw.split())
     if len(raw) > TITLE_MAX:
         raw = raw[:TITLE_MAX].rsplit(" ", 1)[0] + "…"
     raw = raw or "(untitled)"
-    return _escape_link_text(raw) if escape else raw
+    return _escape_link_text(raw)
 
 
 def _leading_glyph(head: str, drop: str = "") -> str:
@@ -554,99 +547,6 @@ def index_entry(text: str, rel_link: str) -> str | None:
         return None
     return index_line(state.marker, state.rest, rel_link, head=state.head,
                       markers=projected_markers(state))
-
-
-# ---------------------------------------------------------------------------
-# LEGACY PROJECTION — the grace period for children (010/170).
-#
-# `board --check` blocks in every child's CI (`floor.yml@main`) and has no
-# advisory form, so the projection change above would have turned every
-# child's committed index stale at its next run, with nothing changed in the
-# child. Mike, 2026-10-18, agreeing to the queue run's recommendation: "build
-# it with a one-release grace period, where the check accepts both the old and
-# the new index, and tell the children".
-#
-# So `--check` also accepts an index rendered by the PREVIOUS projection —
-# first physical line only — until LEGACY_INDEX_ACCEPTED_UNTIL, and says so
-# when it does. From that date the old form is stale like any other mismatch.
-#
-# THE DATE IS UTC. `_today_utc()` reads UTC, so on a machine at UTC+13 the
-# hook's answer flips at 13:00 local on 2026-11-18, the first day it is refused.
-# The span, 2026-10-18 to 2026-11-18, is 31 days of acceptance. It was the
-# queue-run orchestrator's choice, not a ruling: Mike's words were "one-release
-# grace period", this repo tags no release, and nothing in it grounds a pin-bump
-# cadence to size a span by.
-#
-# THE NOTICE REACHES THE FLOOR'S BOARD. `main` prints one `board advisory: N
-# finding(s)` line on every `--check` (N is 1 on a day the grace is used), which
-# `floor.py` reads into a `🟡` count (`advisory_count`, 160/970 PP5). Before
-# that, the only signal that survived a green summary was the CHANGELOG.
-#
-# TO REMOVE THE GRACE (160/970, PP4: the list the first version left short).
-# Delete, in `tools/board.py`: this block down to END LEGACY (the constant, the
-# two `_v1` functions, `_legacy_accepted`); the one branch in `run_check` that
-# calls `_legacy_accepted`, with the `today` parameter and `_today_utc` it
-# alone uses; the `_entry` parameter of `build_index` (its only other caller
-# passes the default) and the `escape` and `legacy` parameters of `index_title`, whose only
-# `escape=False` and `legacy=True` caller is `_index_entry_v1`, with `_EDGE_LEAD_RE` and
-# `_EDGE_TRAIL_RE`; and the `date`, `datetime`,
-# `timezone` and `Callable` imports once nothing else needs them. In
-# `tools/test_board.py`: the `LegacyGrace` class, the byte-identity test in
-# `BracketsInATitle`, the `StagedPlane` grace test and `AdvisoryCount`'s grace
-# test, all of which read the constant, so the module fails to IMPORT if the
-# constant goes first; and `test_floor.py`'s `_graced_board_repo` helper with
-# the two tests that use it. The
-# advisory count line stays (it prints 0 and `floor.py` still reads it); drop it
-# only together with `advisory_count=True` for `board` in `floor.py` and its
-# contract tests in `test_floor.py`. Then run the whole `tools` suite.
-LEGACY_INDEX_ACCEPTED_UNTIL = date(2026, 11, 18)  # first day it is refused
-
-
-def _item_state_v1(text: str) -> tuple[str, str] | None:
-    """LEGACY (grace only): (marker, rest-of-FIRST-LINE), the pre-010/170 read."""
-    for line in text.splitlines():
-        s = line.strip()
-        if not s or s.startswith("<!--"):
-            continue
-        m = STATE_RE.match(line)
-        return (m.group(1), m.group(2)) if m else None
-    return None
-
-
-def _index_entry_v1(text: str, rel_link: str) -> str | None:
-    """LEGACY (grace only): the pre-010/170 index line, kept verbatim so the
-    old rendering is reproduced byte for byte — every field off line one."""
-    state = _item_state_v1(text)
-    if state is None:
-        return None
-    marker, rest = state
-    glyph = {"[ ]": "- [ ]", "[~]": "- [~]", "[x]": "- ✅", "⏳": "- ⏳"}[marker]
-    bare = CODE_SPAN_RE.sub(" ", rest)
-    line = glyph
-    flags = "".join(f for f in FLAGS if f in bare and f != marker)
-    if flags:
-        line += f" {flags}"
-    if marker == "[~]":
-        m = CLAIM_RE.search(rest)
-        if m:
-            line += f" {m.group(0)}"
-    line += f" [{index_title(rest, escape=False, legacy=True)}]({rel_link})"
-    for c in ALLOW_COMMENT_RE.findall(rest):
-        line += f" {c}"
-    return line
-
-
-def _legacy_accepted(board: Path, source: str,
-                     read: tuple[bool, list[_Section]] | None,
-                     have: str, today: date | None) -> bool:
-    """LEGACY (grace only): does `have` equal the OLD projection's rendering,
-    on a day the old form is still accepted?"""
-    if (today or _today_utc()) >= LEGACY_INDEX_ACCEPTED_UNTIL:
-        return False
-    old, _ = build_index(board, source=source, _read=read,
-                         _entry=_index_entry_v1)
-    return have == old
-# --------------------------------------------------------------- END LEGACY
 
 
 def section_title(readme_text: str, fallback: str) -> str:
@@ -863,7 +763,6 @@ def build_index(
     board: Path,
     source: str = WORKTREE,
     _read: tuple[bool, list[_Section]] | None = None,
-    _entry: Callable[[str, str], str | None] = index_entry,
 ) -> tuple[str, list[str]]:
     """(index text, problems). Deterministic: sorted dirs, sorted files.
 
@@ -874,8 +773,6 @@ def build_index(
     already paid for the read (`run_check`'s scope check) hand its result in
     rather than paying for a second `git ls-files`/`git show` pass per item —
     internal only, no test or caller outside this module should pass it.
-    `_entry` is the per-item renderer: `index_entry`, or the LEGACY
-    `_index_entry_v1` that `run_check`'s grace compares against.
     """
     problems: list[str] = []
     parts: list[str] = [GENERATED_LINE, ""]
@@ -924,7 +821,7 @@ def build_index(
             parts.append("")
         wrote = False
         for fname, text in items:
-            entry = _entry(text, f"roadmap/{sec_name}/{fname}")
+            entry = index_entry(text, f"roadmap/{sec_name}/{fname}")
             if entry is None:
                 problems.append(
                     f"{BOARD_DIR}/{sec_name}/{fname}: no state line — an item "
@@ -946,16 +843,6 @@ def _is_git_repo(root: Path) -> bool:
     return r.returncode == 0 and r.stdout.strip() == "true"
 
 
-def _today_utc() -> date:
-    return datetime.now(timezone.utc).date()
-
-
-def run_check(root: Path, fix: bool, source: str = WORKTREE,
-              today: date | None = None) -> int:
-    """The exit code of `_run_check`; see it."""
-    return _run_check(root, fix, source, today)[0]
-
-
 ADVISORY_COUNT_PREFIX = "board advisory:"
 
 
@@ -963,27 +850,23 @@ def advisory_count_line(n: int) -> str:
     """The one line that always says how many findings this run reported
     without blocking, zero included (the reasoning is
     `secretscan.advisory_count_line`'s; `floor.py` reads this line off the run
-    into its board, 160/970 PP5). For the board that count is 1 on a run that
-    used the LEGACY grace, else 0."""
+    into its board, 160/970 PP5). Every board finding blocks, so for the board
+    the count is always 0; the line stays so `floor.py` reads a 0, not a
+    missing line (which reads as -1)."""
     return f"  {ADVISORY_COUNT_PREFIX} {n} finding(s) — reported, not blocking."
 
 
-def _run_check(root: Path, fix: bool, source: str = WORKTREE,
-               today: date | None = None) -> tuple[int, int]:
+def run_check(root: Path, fix: bool, source: str = WORKTREE) -> int:
     """`source=INDEX` is the hook's plane (`--staged` / `--from-index`): the
     scope check, the built `want`, and (when not fixing) the `have` it is
     compared against are ALL read from the git index rather than the disk —
     reading the index for one side and the disk for the other would just move
-    the plane confusion this item exists to close, not close it.
-
-    `today` (UTC; injectable for tests) decides whether the LEGACY projection
-    is still accepted — see LEGACY_INDEX_ACCEPTED_UNTIL. The grace sits in the
-    one comparison every `--check` makes, so it holds on both planes alike."""
+    the plane confusion this item exists to close, not close it."""
     if source == INDEX and not _is_git_repo(root):
         print(f"✗ board: --staged/--from-index needs a git repository at "
               f"{root} — it reads the git index, which does not exist "
               "without one", file=sys.stderr)
-        return 2, 0
+        return 2
     board = root / BOARD_DIR
     read: tuple[bool, list[_Section]] | None = None
     if source == INDEX:
@@ -992,13 +875,12 @@ def _run_check(root: Path, fix: bool, source: str = WORKTREE,
             print(f"✓ board not in scope — no {BOARD_DIR}/ directory tracked "
                   "in the index (this repo does not use the split board, or "
                   "not on this plane yet).")
-            return 0, 0
+            return 0
     elif not board.is_dir():
         print(f"✓ board not in scope — no {BOARD_DIR}/ directory "
               "(this repo does not use the split board).")
-        return 0, 0
+        return 0
     else:
-        # Read once: the grace below renders the same items a second time.
         read = _worktree_sections(board)
     want, problems = build_index(board, source=source, _read=read)
     for p in problems:
@@ -1015,7 +897,7 @@ def _run_check(root: Path, fix: bool, source: str = WORKTREE,
                   f"({len(want.splitlines())} lines).")
         else:
             print(f"✓ board: {INDEX_REL} already current.")
-        return (1 if problems else 0), 0
+        return 1 if problems else 0
     # `--check` (not fixing): the comparison target is plane-dependent too.
     # On the INDEX plane the question is "does what's STAGED already agree
     # with itself" — so `have` must be the staged blob (`git show :path`),
@@ -1038,29 +920,17 @@ def _run_check(root: Path, fix: bool, source: str = WORKTREE,
         # hook-side symptom of.
         remedy += " --from-index"
     plane = "the staged " if source == INDEX else ""
-    if have != want and _legacy_accepted(board, source, read, have, today):
-        until = LEGACY_INDEX_ACCEPTED_UNTIL.isoformat()
-        print(f"⚠️ board: {INDEX_REL} matches {plane}{BOARD_DIR}/ under the "
-              "PREVIOUS projection (each item's first physical line only), "
-              f"which is accepted until {until} (UTC) — from {until} it is "
-              f"stale. Run: {remedy}   and commit the index, any time before "
-              "then. If your `wrapscan` covers the generated index, scope it "
-              "off the index first (atelier's tools/README.md, board).")
-        if problems:
-            print("⚠️ board: the line above is a notice, not the failure: "
-                  "the ✗ line(s) above it are what fail this run.")
-        return (1 if problems else 0), 1
     if have != want:
         print(f"✗ board: {INDEX_REL} is stale against {plane}{BOARD_DIR}/ — "
               f"run: {remedy}   (then stage the index; "
               "after a merge conflict on the index, rebuilding IS the "
               "resolution)")
-        return 1, 0
+        return 1
     if not problems:
         plane = "the staged " if source == INDEX else ""
         print(f"✓ board index current — {INDEX_REL} matches {plane}"
               f"{BOARD_DIR}/.")
-    return (1 if problems else 0), 0
+    return 1 if problems else 0
 
 
 # ---------------------------------------------------------------------------
@@ -1427,11 +1297,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"✗ board: root {args.root} does not exist", file=sys.stderr)
         return 2
     source = INDEX if args.from_index else WORKTREE
-    rc, advisories = _run_check(root, fix=want_rebuild, source=source)
+    rc = run_check(root, fix=want_rebuild, source=source)
     if not want_rebuild:
         # Always printed, zero included, on every `--check`: `floor.py` reads
         # it (`advisory_count`), and a missing line reads as -1, not as 0.
-        print(advisory_count_line(advisories))
+        print(advisory_count_line(0))
     return rc
 
 

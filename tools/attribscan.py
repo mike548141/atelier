@@ -50,7 +50,7 @@ so a check that reddened on one would be a check nobody could clear.
 THE DATE. Before `ATTRIBUTION_WARN_UNTIL` a finding on the staged or CI plane is
 reported and exits 0. On and after it the finding exits 1, unless `--warn` was
 given. The constant is compared with the UTC clock; no flag, environment
-variable or config key moves it, in leakscan's `BINARY_GRACE_UNTIL` shape, and
+variable or config key moves it, in leakscan's `TYPE_LEVEL_UNTIL` shape, and
 `--warn` is the same advisory spelling every sibling takes. The date is the
 run's choice, not his (`320/810`): none before 2027-01-11, one check per four
 weeks, this one second.

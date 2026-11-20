@@ -52,10 +52,9 @@ properties, comments, the PDF Info dictionary and XMP); what that reader adds
 warns until `DOCUMENT_UNTIL` (2027-01-18) and blocks from it. Each
 manifest line also records WHO allowed it and WHEN (`by=… session=… on=…`;
 a line without them warns).
-Until `BINARY_GRACE_UNTIL` (2026-11-18, firm for every child) these G3 findings
-warn and do not block — the one, dated exception to "no advisory form" for a
-rule that blocks. See the G3 block below and the leakscan section of
-`tools/README.md`.
+From 2026-11-18 these G3 findings block like any other (the adoption grace
+that warned first is removed, `010/190`). See the G3 block below and the
+leakscan section of `tools/README.md`.
 
 Rules that are OFF report without blocking (115/090, Mike's answer
 2026-10-16: "Report-only for off rules"). A rule a repo turns off with
@@ -66,8 +65,7 @@ the exit code. Nothing that blocks today stops blocking; `test_leakscan.
 BlockingSetPinned` holds that. Design: `leakscan.off-rules.design.md`.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero):
-  0  clean, or report-only findings only (G3 grace warnings, before the
-     cut-off, do not change this either)
+  0  clean, or report-only findings only
   1  blocking findings (blocks the commit)
   2  usage / config error (a broken scan is NOT a pass)
 
@@ -491,9 +489,6 @@ class Tally:
     # exist, which are silently inert (the finding they were written for still
     # reports). Counted so a typo is visible on a clean run too.
     unknown_scope_markers: int = 0
-    # The G3 adoption grace (see `BINARY_GRACE_UNTIL`): gate findings printed
-    # as warnings, not counted in the exit code. Always 0 from the cut-off on.
-    binary_grace_warnings: int = 0
     # 020/450: type-level entries still accepted, as warnings, before
     # `TYPE_LEVEL_UNTIL`. Always 0 from that date on.
     # They are kept OUT of the findings, so no caller of `scan_paths` can take
@@ -553,8 +548,6 @@ class Tally:
                  f"{len(self.disabled_rules)} rule(s) disabled",
                  f"{self.binaries_by_manifest} binary file(s) by {BINARY_MANIFEST}",
                  f"{self.binaries_untracked} untracked binary file(s) not gated",
-                 f"{self.binary_grace_warnings} G3 finding(s) warned, not blocking, "
-                 f"before {BINARY_GRACE_UNTIL.isoformat()}",
                  f"{len(self.type_level_warnings)} type-level metadata entr(y/ies) "
                  f"warned, not blocking, before {TYPE_LEVEL_UNTIL.isoformat()}",
                  f"{len(self.provenance_warnings)} manifest line(s) with no who/when "
@@ -1085,8 +1078,8 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 # its owner and where it was taken, passed as "clean". The ruling: a tracked
 # binary that is unscannable, or that carries metadata, BLOCKS; a legitimate
 # one carries a one-time REASONED marker; leakscan keeps no advisory form
-# for a rule that blocks (E6a; rules that are off report, 115/090), with ONE
-# dated exception, the adoption grace below. This is the build
+# for a rule that blocks (E6a; rules that are off report, 115/090). A dated
+# adoption grace warned first and has ended (see below). This is the build
 # of that ruling:
 #
 #   * THE MARKER is an entry in `.leakscanbinaries` at the scan root —
@@ -1223,37 +1216,17 @@ META_SEGMENT_CAP = 1 * 1024 * 1024   # bytes of ONE metadata segment read or
 _ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9_,:.%%-]+))?"
                        r"[ \t]+\*?(?P<path>\S.*)$" % MIN_DIGEST_HEX)
 
-# THE ADOPTION GRACE — the one exception to E6a, and dated.
+# THE ADOPTION GRACE IS GONE (E6a restored, `010/190`).
 #
 # E6a: leakscan has no advisory form for a rule that blocks; every finding of
-# one blocks (rules that are off report, and never blocked, 115/090). On
-# 020/150, 2026-10-18, Mike chose, through the decision device, the option
-# labelled "Grace period (Recommended)". The option's own text was the queue
-# run's, not his words: "unlisted files print a warning naming a cut-off date
-# (~30 days), then start blocking. No child goes red today; each lists its
-# files when convenient." His choice of that option is the authority for this
-# exception, and it is the ONLY one: it covers the four G3 gate rules
-# (`BINARY_RULES`) and nothing else. Every other leakscan rule, including a
-# hit in an image's TEXT metadata, blocks as before.
-#
-# The exact date was the queue-run orchestrator's pick on that "~30 days"
-# (31 days after the answer was given). Mike made it FIRM on 2026-11-08
-# (160/980 GM7; his answer, "Firm; queue fixes now"): 2026-11-18 stands for
-# every child, each child that would fail gets an item on its own board to
-# strip or list before then, and a child not worked by the date goes red until
-# it is. In GUARDS' terms it is a mandate: a child may list or strip earlier
-# or argue an exemption through its parent, and none can move the date. Before
-# it, a G3 finding prints as a warning naming the date and the remedy and does
-# not fail the exit code; ON and after it, the finding blocks exactly as built. It is
-# unreachable after the date by construction: the cut-off lives in this one
-# constant and is compared with the UTC clock, and there is no flag, env var
-# or config key that moves it. A child's floor overrides cannot reach it
-# (floor.py refuses an abbreviated mode flag, and `--disable` refuses a
-# binary rule as unknown). The grace is not an advisory FORM in floor.py's
-# registry either: leakscan's `advisory` stays None, so it still "cannot be
-# softened". Delete this block, `in_binary_grace` and its callers once the
-# date has passed.
-BINARY_GRACE_UNTIL = datetime.date(2026, 11, 18)
+# one blocks (rules that are off report, and never blocked, 115/090). From
+# 2026-10-18 to 2026-11-18 the four G3 gate rules (`BINARY_RULES`) warned
+# instead, on Mike's choice of the grace option on 020/150 and his firm answer
+# that the date stood for every child (160/980 GM7). The date passed, the
+# warn-only path was removed, and the four rules block like every other. There is no flag,
+# env var or config key that softens them: floor.py refuses an abbreviated mode
+# flag, `--disable` refuses a binary rule as unknown, and leakscan's `advisory`
+# in floor.py's registry stays None.
 
 # THE TYPE-LEVEL CUT-OFF (020/450) — a second, later and narrower date.
 #
@@ -1265,10 +1238,10 @@ BINARY_GRACE_UNTIL = datetime.date(2026, 11, 18)
 # and asking for field-level entries. From it they stop keeping the sets whose
 # fields are read, and the set blocks as `binary-metadata`. Sets with no fields
 # to name (`icc`, `jpeg-comment`, `unknown`) keep their type-level entries
-# unchanged. Like the grace it is one constant compared with the UTC
+# unchanged. Like the G3 grace was, it is one constant compared with the UTC
 # clock, with no flag, env var or config key to move it; it is later than the
-# grace's end on purpose, so a child that listed its binaries by type before
-# 2026-11-18 has a month to migrate. Delete the warning path once it passes.
+# G3 grace's end (2026-11-18) on purpose, so a child that listed its binaries by
+# type before then had a month to migrate. Delete the warning path once it passes.
 TYPE_LEVEL_UNTIL = datetime.date(2026, 12, 18)
 TYPE_LEVEL_RULE = "binary-type-level"
 
@@ -1285,12 +1258,13 @@ TYPE_LEVEL_RULE = "binary-type-level"
 # `office-custom`, `office-comments`, `pdf-info`, and the `xmp` and `unknown`
 # sets when a document carries them), and a text-rule hit in a document's
 # metadata. What G3 already did to these files is untouched: `binary-unlisted`,
-# `binary-changed` and `binary-stale-entry` block from `BINARY_GRACE_UNTIL`
-# as before. The date is the queue run's pick, at least 30 days after the
-# build (2026-11-16), set past the type-level cut-off so no child meets two
-# new kinds of block on one day. Like the others it is one constant compared
-# with the UTC clock, with no flag, env var or config key to move it. Delete
-# the warning path, `in_document_grace` and its callers once it passes.
+# `binary-changed` and `binary-stale-entry` block, as they have since the
+# G3 adoption grace ended (2026-11-18). The date is the queue run's pick, at
+# least 30 days after the build (2026-11-16), set past the type-level cut-off
+# so no child meets two new kinds of block on one day. Like the others it is
+# one constant compared with the UTC clock, with no flag, env var or config key
+# to move it. Delete the warning path, `in_document_grace` and its callers
+# once it passes.
 DOCUMENT_UNTIL = datetime.date(2027, 1, 18)
 # The formats the warn-first date covers: `zip` is a zip the reader refused
 # before it could tell whether it is an Office file (past a cap, or broken).
@@ -1311,12 +1285,6 @@ def in_type_level_grace(today: datetime.date | None = None) -> bool:
 
 def _utc_today() -> datetime.date:
     return datetime.datetime.now(datetime.timezone.utc).date()
-
-
-def in_binary_grace(today: datetime.date | None = None) -> bool:
-    """True strictly before `BINARY_GRACE_UNTIL` (UTC). Tests patch
-    `_utc_today`; nothing a caller can pass at the command line reaches it."""
-    return (today or _utc_today()) < BINARY_GRACE_UNTIL
 
 
 def _grace_remedy(rule: str) -> str:
@@ -3637,25 +3605,6 @@ def _where(f: Finding) -> str:
     return f"{f.path} (in the path name)"
 
 
-def render_grace(grace: list[Finding]) -> list[str]:
-    """The G3 grace warnings: each names the cut-off date and its remedy."""
-    if not grace:
-        return []
-    cut = BINARY_GRACE_UNTIL.isoformat()
-    lines = [f"⚠ leakscan: {len(grace)} G3 binary finding(s) — WARNING ONLY until "
-             f"{cut}, blocking from {cut} (G3 adoption grace):"]
-    for f in sorted(grace, key=lambda x: (x.path, x.line, x.rule)):
-        lines.append(report.with_id(
-            f"  {_where(f)}  [warn until {cut}] {f.rule} → {f.excerpt}"
-            f" — blocks from {cut}; remedy: {_grace_remedy(f.rule)}",
-            "leakscan", f.rule))
-    lines.append(f"  Before {cut}: run `leakscan --binary-entries`, write a "
-                 "need-specific reason per file and per metadata set kept, strip "
-                 f"the rest, and commit {BINARY_MANIFEST}.")
-    lines.append("")
-    return lines
-
-
 def render_type_level(warns: list[Finding]) -> list[str]:
     """020/450: type-level entries still accepted, each naming the fields the
     file carries and the date they stop being accepted."""
@@ -3767,7 +3716,6 @@ def render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
 
 def render_human(findings: list[Finding], warning: str | None,
                  scanned_local: bool, tally: Tally | None = None,
-                 grace: list[Finding] | None = None,
                  typewarn: list[Finding] | None = None,
                  provwarn: list[Finding] | None = None) -> str:
     # 115/090: `findings` may carry report-only findings from rules that are
@@ -3785,7 +3733,6 @@ def render_human(findings: list[Finding], warning: str | None,
     lines: list[str] = []
     if warning:
         lines.append(f"⚠ {warning}")
-    lines.extend(render_grace(grace or []))
     lines.extend(render_type_level(typewarn or []))
     lines.extend(render_provenance(provwarn or []))
     docwarn = tally.document_warnings if tally is not None else []
@@ -3793,8 +3740,6 @@ def render_human(findings: list[Finding], warning: str | None,
     if not findings and not over_cap:
         cover = "structural + local" if scanned_local else "structural only"
         lines.append(f"✓ leakscan clean ({cover})."
-                     + (f" The G3 warning(s) above block from "
-                        f"{BINARY_GRACE_UNTIL.isoformat()}." if grace else "")
                      + (f" The type-level warning(s) above are refused from "
                         f"{TYPE_LEVEL_UNTIL.isoformat()}." if typewarn else "")
                      + (f" The document warning(s) above block from "
@@ -4081,18 +4026,8 @@ def _main(argv: list[str] | None = None) -> int:
             return rc
         findings = scan_paths(targets, root, local_terms, disabled, tally)
 
-    # THE G3 GRACE (see `BINARY_GRACE_UNTIL`): before the cut-off the four
-    # gate rules warn instead of blocking. Only those rules — a text-metadata
-    # hit is an ordinary rule's finding and still blocks. Findings past the
-    # materialisation cap were counted, never built, so they cannot be sorted
-    # by rule and stay blocking: fail closed.
     typewarn = tally.type_level_warnings
     provwarn = tally.provenance_warnings
-    grace: list[Finding] = []
-    if in_binary_grace():
-        grace = [f for f in findings if f.rule in BINARY_RULES]
-        findings = [f for f in findings if f.rule not in BINARY_RULES]
-        tally.binary_grace_warnings = len(grace)
     # 115/090: findings from rules that are off report without blocking. They
     # are kept out of `blocking`, which alone feeds the exit code.
     blocking = [f for f in findings if f.blocks]
@@ -4118,12 +4053,6 @@ def _main(argv: list[str] | None = None) -> int:
                 "findings": report.finding_dicts("leakscan", advisory,
                                                  lambda f: f.rule),
                 "over_cap": tally.advisory_over_cap,
-            },
-            "binary_grace": {
-                "until": BINARY_GRACE_UNTIL.isoformat(),
-                "active": in_binary_grace(),
-                "warnings": report.finding_dicts("leakscan", grace,
-                                                 lambda f: f.rule),
             },
             "binary_provenance": {
                 "form": PROVENANCE_FORM,
@@ -4161,7 +4090,7 @@ def _main(argv: list[str] | None = None) -> int:
                 binaries_checked=tally.binaries_checked),
         }, indent=2))
     else:
-        print(render_human(findings, warning, scanned_local, tally, grace, typewarn,
+        print(render_human(findings, warning, scanned_local, tally, typewarn,
                            provwarn))
 
     return report.exit_code(blocking_total)

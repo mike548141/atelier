@@ -31,7 +31,7 @@ is read like any other path.
 THE DATE. Before `PERSONAL_DATA_WARN_UNTIL` a finding is reported and exits 0.
 On and after it the finding exits 1 unless `--warn` was given. The constant is
 compared with the UTC clock; no flag, environment variable or config key moves
-it, in leakscan's `BINARY_GRACE_UNTIL` shape, and the date is the run's choice,
+it, in leakscan's `TYPE_LEVEL_UNTIL` shape, and the date is the run's choice,
 not his (`320/810`: four weeks after `attribscan`'s). No child declares itself
 public yet with a list, so today this reads only atelier.
 

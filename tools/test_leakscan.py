@@ -2215,10 +2215,11 @@ import subprocess as _subprocess  # noqa: E402
 import zlib as _zlib  # noqa: E402
 import datetime as _dt  # noqa: E402
 
-# The G3 adoption grace ends on `BINARY_GRACE_UNTIL`. Gate tests that pin the
-# BUILT behaviour run on that day (blocking); grace tests pick their own day.
-_CUTOFF = ls.BINARY_GRACE_UNTIL
-_BEFORE = _CUTOFF - _dt.timedelta(days=1)
+# The day the G3 adoption grace ended (010/190 removed it). The gate tests pin
+# the clock here: it is before the later `TYPE_LEVEL_UNTIL` and `DOCUMENT_UNTIL`
+# dates, so the tests that read those windows keep seeing the window they were
+# written in.
+_CUTOFF = _dt.date(2026, 11, 18)
 
 
 @contextlib.contextmanager
@@ -2234,7 +2235,7 @@ def _chdir(path):
 
 
 def _on(day):
-    """Run as if the UTC date were `day` — the only way to move the grace."""
+    """Run as if the UTC date were `day` — the only way to move the dated windows."""
     return unittest.mock.patch.object(ls, "_utc_today", return_value=day)
 
 
@@ -3497,15 +3498,12 @@ class BinaryGitTracking(_TreeCase):
         self.assertEqual(1, rc, out)
         self.assertIn("ipv4", out)
 
-    def test_staged_unlisted_binary_warns_before_the_cutoff_and_blocks_after(self):
-        # The hook plane honours the same G3 grace, on the same date.
+    def test_staged_unlisted_binary_blocks(self):
         self.put("img.bin", b"\x00\x01staged")
         self.git("add", ".")
-        rc, out = self.staged(_BEFORE)
-        self.assertEqual(0, rc, out)
-        self.assertIn(f"blocks from {_CUTOFF}", out)
         rc, out = self.staged(_CUTOFF)
         self.assertEqual(1, rc, out)
+        self.assertIn("binary-unlisted", out)
 
     def test_staged_text_hidden_by_a_binary_attribute_is_read(self):
         self.put(".gitattributes", "*.cfg binary\n")
@@ -3673,13 +3671,12 @@ class BinaryEntriesListing(_TreeCase):
         self.assertEqual(2, ls.main(["--root", str(self.tmp), "--binary-entries", "--json"]))
 
 
-class BinaryGrace(_TreeCase):
-    """The G3 adoption grace (Mike's answer on 020/150, 2026-10-18): before
-    `BINARY_GRACE_UNTIL` the four gate rules warn, naming the date and the
-    remedy, and do not fail the exit code; on and after it they block. Every
-    other rule is untouched by it."""
+class BinaryGate(_TreeCase):
+    """The four G3 gate rules block, with no warn-only window (the adoption
+    grace ended 2026-11-18 and 010/190 removed it). Every other rule is
+    untouched by the gate."""
 
-    BLOB = b"\x00\x01 grace fixture"
+    BLOB = b"\x00\x01 gate fixture"
 
     def run_main(self, day, *extra):
         out, err = io.StringIO(), io.StringIO()
@@ -3688,85 +3685,50 @@ class BinaryGrace(_TreeCase):
                           "--terms", str(self.terms), *extra])
         return rc, out.getvalue(), err.getvalue()
 
-    def test_the_cutoff_is_one_iso_date_and_grace_is_strictly_before_it(self):
-        self.assertIsInstance(_CUTOFF, _dt.date)
-        self.assertTrue(ls.in_binary_grace(_BEFORE))
-        self.assertFalse(ls.in_binary_grace(_CUTOFF))
-        self.assertFalse(ls.in_binary_grace(_CUTOFF + _dt.timedelta(days=400)))
-
-    def test_before_the_cutoff_an_unlisted_binary_warns_and_exits_0(self):
-        self.put("img.bin", self.BLOB)
-        rc, out, _err = self.run_main(_BEFORE)
-        self.assertEqual(0, rc, out)
-        warn = [l for l in out.splitlines() if "binary-unlisted" in l]
-        self.assertEqual(1, len(warn), out)
-        self.assertIn(_CUTOFF.isoformat(), warn[0])
-        self.assertIn("--binary-entries", warn[0])
-        self.assertIn("WARNING ONLY", out)
-        self.assertIn(f"1 G3 finding(s) warned, not blocking, before {_CUTOFF}", out)
-        self.assertIn(f"block from {_CUTOFF}", out)
-
-    def test_on_the_cutoff_the_same_tree_blocks(self):
+    def test_an_unlisted_binary_blocks(self):
         self.put("img.bin", self.BLOB)
         rc, out, _err = self.run_main(_CUTOFF)
         self.assertEqual(1, rc, out)
-        self.assertNotIn("WARNING ONLY", out)
         self.assertIn("binary-unlisted", out)
-        self.assertIn(f"0 G3 finding(s) warned, not blocking, before {_CUTOFF}", out)
 
-    def test_every_gate_rule_is_graced_and_names_its_remedy(self):
+    def test_nothing_warns_only_and_the_summary_has_no_grace_field(self):
+        self.put("img.bin", self.BLOB)
+        _rc, out, _err = self.run_main(_CUTOFF)
+        self.assertNotIn("WARNING ONLY until 2026-11-18", out)
+        self.assertNotIn("G3 finding(s) warned", out)
+        self.assertFalse(hasattr(ls, "BINARY_GRACE_UNTIL"))
+        self.assertFalse(hasattr(ls, "in_binary_grace"))
+
+    def test_every_gate_rule_blocks(self):
         self.put("changed.bin", self.BLOB + b"!")
         self.put("meta.png", _png((b"eXIf", b"MM\x00\x2a")))
         self.manifest(f"{_sha(self.BLOB)}  changed.bin  # reviewed fixture\n"
                       f"{_sha(self.BLOB)}  gone.bin  # was a fixture\n")
-        rc, out, _err = self.run_main(_BEFORE)
-        self.assertEqual(0, rc, out)
-        for rule, remedy in (("binary-changed", "--binary-entries"),
-                             ("binary-metadata", "strip the set"),
-                             ("binary-unlisted", "--binary-entries"),
-                             ("binary-stale-entry", "delete or re-path")):
-            lines = [l for l in out.splitlines() if f"] {rule} →" in l]
-            self.assertTrue(lines, f"{rule} missing:\n{out}")
-            for l in lines:
-                self.assertIn(f"blocks from {_CUTOFF}", l)
-                self.assertIn(remedy, l)
-        self.assertEqual(1, self.run_main(_CUTOFF)[0])
-
-    def test_non_binary_rules_are_untouched_by_the_grace(self):
-        self.put("notes.md", "write to a.b@example.com\n")
-        rc, out, _err = self.run_main(_BEFORE)
+        rc, out, _err = self.run_main(_CUTOFF)
         self.assertEqual(1, rc, out)
-        self.assertIn("email", out)
+        blocking = out.split("commit blocked.")[1]
+        for rule in ("binary-changed", "binary-metadata",
+                     "binary-unlisted", "binary-stale-entry"):
+            self.assertIn(rule, blocking, rule)
 
-    def test_a_text_metadata_hit_still_blocks_during_the_grace(self):
-        # The hit is an ordinary rule's (email), read out of the image: it is
-        # what the scan already did, so the grace does not reach it.
+    def test_a_text_metadata_hit_blocks_as_an_ordinary_rule(self):
         data = _png((b"tEXt", b"Author\x00a.b@example.com"))
         self.put("i.png", data)
-        rc, out, _err = self.run_main(_BEFORE)
+        rc, out, _err = self.run_main(_CUTOFF)
         self.assertEqual(1, rc, out)
         blocking = out.split("commit blocked.")[1]
         self.assertIn("email", blocking)
-        self.assertNotIn("binary-unlisted →", blocking)
 
-    def test_json_keeps_graced_findings_out_of_the_blocking_list(self):
+    def test_json_lists_a_gate_finding_as_blocking_with_no_grace_block(self):
         self.put("img.bin", self.BLOB)
-        rc, out, _err = self.run_main(_BEFORE, "--json")
-        self.assertEqual(0, rc)
-        doc = json.loads(out)
-        self.assertTrue(doc["clean"])
-        self.assertEqual([], doc["findings"])
-        self.assertEqual({"until": _CUTOFF.isoformat(), "active": True},
-                         {k: doc["binary_grace"][k] for k in ("until", "active")})
-        self.assertEqual(["leakscan:binary-unlisted"],
-                         [w["id"] for w in doc["binary_grace"]["warnings"]])
         rc, out, _err = self.run_main(_CUTOFF, "--json")
         self.assertEqual(1, rc)
         doc = json.loads(out)
-        self.assertFalse(doc["binary_grace"]["active"])
+        self.assertFalse(doc["clean"])
         self.assertEqual(["binary-unlisted"], [f["rule"] for f in doc["findings"]])
+        self.assertNotIn("binary_grace", doc)
 
-    def test_no_command_line_route_moves_the_cutoff(self):
+    def test_no_command_line_route_softens_the_gate(self):
         # Nothing to pass, so nothing a child's floor overrides could pass.
         for argv in (["--grace-until", "2099-01-01"], ["--grace"], ["--today", "2026-01-01"]):
             with self.subTest(argv=argv), contextlib.redirect_stderr(io.StringIO()):
@@ -3847,7 +3809,7 @@ class BinaryNamedSets(_TreeCase):
                          sorted(f.excerpt.split(":")[0] for f in self.scan()))
 
     def test_a_set_the_file_lacks_is_a_stale_line(self):
-        # Chosen: stale, so blocking (warning during the grace). The digest
+        # Chosen: stale, so blocking. The digest
         # binds the bytes, so the line was wrong when written; and a line per
         # set "just in case" is the blanket acceptance the answer forbids.
         data = self.png_icc()
@@ -4797,7 +4759,7 @@ class DocumentGate(_TreeCase):
     def test_the_file_gate_is_not_softened_by_the_document_date(self):
         self.put("plan.docx", self.DOC)
         tally = ls.Tally()
-        with _on(ls.BINARY_GRACE_UNTIL):
+        with _on(_CUTOFF):
             self.assertEqual(["binary-unlisted"], [f.rule for f in self.scan(tally=tally)])
         self.assertTrue(tally.document_warnings)
 

@@ -279,7 +279,7 @@ MAX_MAPPED_FILE_BYTES = 4 * 1024 * 1024
 # `subsection` finding is reported and exits 0; on and after it, it exits 1,
 # `--warn` or not. Compared with the UTC clock, with no flag, environment
 # variable or map key that moves it (the shape of leakscan's
-# `BINARY_GRACE_UNTIL`). A run's choice of date, not the principal's. The
+# `TYPE_LEVEL_UNTIL`). A run's choice of date, not the principal's. The
 # others in the staggered turn-on, four weeks apart: `attribscan` 2027-02-08,
 # and the closed personal-data check after that (`320/810` names them).
 SUBSECTION_WARN_UNTIL = datetime.date(2027, 1, 11)

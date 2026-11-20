@@ -21,6 +21,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   skill point at it: risk decides whether a review is owed; budget never
   shrinks one that is. Cold pass queued as `160/1630`.
 
+### Removed (2026-11-20 — the two adoption graces, past their date, `010/190`)
+- **`board --check` no longer accepts the previous index form.** The 2026-10-18
+  grace (`010/170`) ended on 2026-11-18; the old first-line-only projection, its
+  clock seam (`today`, `_today_utc`) and the `_entry`, `escape` and `legacy`
+  parameters are gone with it. The `board advisory: 0 finding(s)` line stays,
+  so `floor.py` still reads a 0. Every probed child passed the check first.
+- **`leakscan`'s G3 warn-only path is gone** (`BINARY_GRACE_UNTIL`,
+  `in_binary_grace`, the grace block in `--json` and its summary field). The four
+  binary gate rules block, as they have since 2026-11-18. The type-level and
+  document dates are untouched.
+
 ### Fixed (2026-11-18 — three `ccfleet` faults a first real estate run found, `450/010`)
 - **A fresh `kit_dir` is made by the driver lock**: `drive` and `drain` no
   longer crash on a directory that does not exist yet.

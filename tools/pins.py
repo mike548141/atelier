@@ -89,7 +89,7 @@ principal's answer of 2026-11-09 to a later ask, "Require a stamp by 9 Dec":
 `no-reference` (an old pin, from before the floor region was marked, or one this
 checkout does not hold: bumping the pin fixes it) and `malformed` (the stamp
 markers are broken, so the stamp is not there to read). One dated constant, as
-leakscan's `BINARY_GRACE_UNTIL`: no flag, env var or config key moves it.
+leakscan's `TYPE_LEVEL_UNTIL`: no flag, env var or config key moves it.
 **An archived repo is exempt.** A repo archived on GitHub can no longer be
 changed, so it can neither be stamped nor re-pinned. The tool asks GitHub, with
 `gh`, and only after the date and only for a child that would otherwise fail
@@ -180,7 +180,7 @@ ACTIONABLE = {STATUS_BEHIND, STATUS_AHEAD, STATUS_DIVERGED, STATUS_UNKNOWN, STAT
 # THE CUT-OFF. Report-only before this date (UTC), blocking from it: Mike,
 # 2026-11-09, `160/340` — "The approve the report only option for 1 month and
 # then we move to blocking per option 2". One constant compared with the UTC
-# clock, in leakscan's `BINARY_GRACE_UNTIL` style: no flag, env var or config key
+# clock, in leakscan's `TYPE_LEVEL_UNTIL` style: no flag, env var or config key
 # moves it, and the date is printed on every run. Delete the report-only path
 # once it has passed and the blocking is wanted for good.
 COPY_BLOCKS_FROM = datetime.date(2026, 12, 9)
