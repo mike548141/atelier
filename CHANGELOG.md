@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-20 — the repo template scaffolds the per-item board, `010/240`)
+- **`/atelier:create-repo` now produces the store form, not the retired
+  one-file board.** The template ships `docs/roadmap/README.md` (the
+  child-facing legend and the child's `board.py --rebuild` command), one
+  starter section with its own `README.md` and one starter item, and
+  `docs/ROADMAP.md` committed as the generated index of that tree. The skill
+  and `REPO-STANDARD.md` tell the scaffolder to regenerate the index after
+  replacing the starter item, never to hand-edit it. No template names
+  `ROADMAP-DONE.md` as a place to move work.
+- **Standardising a repo no longer treats the board as a content doc.** A
+  one-file board goes to the store conversion (the health sweep's healthy item
+  6), and a frozen `ROADMAP-DONE.md` or `SESSIONS-ARCHIVE.md` to
+  `tools/archivecut.py`. The session-log template now describes the one-line
+  index with detail in `docs/sessions/`, as `RECORD.md` does.
+- **`tools/test_templates.py` pins it** (`TemplateBoardTest`): the template
+  scaffolded into a temp dir passes `board.py --check`, the shipped index
+  equals a fresh rebuild, and a hand-edited index fails.
+
 ### Changed (2026-11-20 — the pre-split board archive is cut into the store, `010/220`)
 - **`docs/ROADMAP-DONE.md` is now the board section
   `docs/roadmap/990-done-before-the-split/`**: one `[x]` item file per entry

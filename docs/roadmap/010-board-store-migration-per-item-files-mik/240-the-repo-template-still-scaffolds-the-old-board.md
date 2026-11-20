@@ -1,4 +1,4 @@
-- [ ] 🔎 **The repo template still scaffolds the old one-file board, so every
+- [x] 🔎 **The repo template still scaffolds the old one-file board, so every
       new repo is born out of conformance.** Found 2026-11-20 by session
       19378351 while tracing why some adopted repos have no board.
       `docs/build/templates/docs/ROADMAP.md` is the pre-split monolith: it
@@ -13,3 +13,25 @@
       `010/210` lands; `tools/test_templates.py` pins it; the child repos
       adopted from the old template are covered by `010/230`'s sweep. Build
       after `010/210`, so the template carries the new index shape.
+      **DONE 2026-11-20 (worker of session 19378351, Opus 5.5).** The
+      template now ships the store form: `docs/roadmap/README.md` (the
+      child-facing legend, with the child's `--rebuild` command), one starter
+      section (`010-now-and-next/` with its `README.md` and one starter item),
+      and `docs/ROADMAP.md` **committed as the generated index** of that tree
+      (`board.py --rebuild --root docs/build/templates`). The template system
+      is a plain file copy, so a generated file travels; `create-repo` step 4
+      and REPO-STANDARD's new-repo step 3 then tell the scaffolder to rebuild
+      the index after replacing the starter item, never to hand-edit it. No
+      template names `ROADMAP-DONE.md`. The session-log template now says
+      what RECORD.md says (a one-line index, detail in `docs/sessions/`).
+      REPO-STANDARD's and the skill's *standardise* paths send a one-file board
+      to the store conversion (`fleet-sweep` healthy item 6) and a frozen
+      `ROADMAP-DONE.md` or `SESSIONS-ARCHIVE.md` to `tools/archivecut.py`.
+      `tools/test_templates.py` gains `TemplateBoardTest`: the template
+      scaffolded into a temp dir passes `board.py --check`, the shipped index
+      equals a fresh rebuild, a hand-edited one fails (the control), the
+      legend names the rebuild command, and no template names the archive
+      file. Review queued as `160/1690`. Not done here: the child repos
+      adopted from the old template (`010/230`'s sweep), and RECORD.md
+      § *The roadmap*, which still says pre-split detail "stays frozen in
+      `ROADMAP-DONE.md`" since `010/220` cut it (filed as `010/260`, not patched).

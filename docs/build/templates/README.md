@@ -10,7 +10,7 @@
 | Path | Purpose |
 |---|---|
 | `<subfolder>/` | **The deployable artefact** |
-| `docs/` | Architecture, roadmap, decisions, session log |
+| `docs/` | Architecture, roadmap (a `roadmap/` store and its generated index), decisions, session log |
 | `tools/` | Dev/CI helpers |
 
 ## Run it / Setup

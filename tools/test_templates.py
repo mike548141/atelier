@@ -10,6 +10,10 @@ diff, run on every suite run.
 """
 
 import re
+import shutil
+import subprocess
+import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -636,6 +640,89 @@ class QueueRunSkillTest(unittest.TestCase):
         self.assertNotIn("loses nothing", self.flat.lower())
         readme = " ".join((ROOT / "README.md").read_text().split()).lower()
         self.assertNotIn("loses nothing", readme)
+
+
+class TemplateBoardTest(unittest.TestCase):
+    """010/240: the template scaffolds the per-item board, not the retired
+    one-file form. Before this a repo adopted from the template started on a
+    board the health sweep then had to convert, and no test saw it because the
+    template's text was never read as a board. These tests read it as one: it
+    is scaffolded into a temp dir and handed to the real `board.py --check`."""
+
+    DOCS = TEMPLATES_DIR / "docs"
+    REBUILD = ('python3 "${ATELIER_TOOLS:-$(git config hooks.atelierTools)}"'
+               "/board.py --rebuild")
+
+    def _scaffold(self) -> Path:
+        tmp = Path(tempfile.mkdtemp(prefix="tpl-board-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        shutil.copytree(self.DOCS, tmp / "docs",
+                        ignore=shutil.ignore_patterns("decisions", "reviews"))
+        return tmp
+
+    def _board(self, flag: str, root: Path):
+        return subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "board.py"), flag,
+             "--root", str(root)], capture_output=True, text=True)
+
+    def test_store_form_is_shipped(self):
+        """The legend, one starter section with its README, one starter item
+        and the generated index: the minimum store."""
+        board = self.DOCS / "roadmap"
+        self.assertTrue((board / "README.md").is_file())
+        sections = [p for p in board.iterdir() if p.is_dir()]
+        self.assertEqual(1, len(sections), "one starter section")
+        self.assertTrue((sections[0] / "README.md").is_file())
+        items = [p for p in sections[0].glob("*.md") if p.name != "README.md"]
+        self.assertEqual(1, len(items), "one starter item")
+        self.assertRegex(items[0].read_text(), r"^- \[ \] ")
+        self.assertTrue((self.DOCS / "ROADMAP.md").is_file())
+
+    def test_legend_names_the_childs_rebuild_command(self):
+        legend = " ".join((self.DOCS / "roadmap" / "README.md")
+                          .read_text().split())
+        self.assertIn(" ".join(self.REBUILD.split()), legend)
+        for state in ("`[ ]`", "`[~]`", "`[x]`", "`⏳`"):
+            self.assertIn(state, legend)
+
+    def test_no_template_sends_work_to_an_archive_file(self):
+        """The one-file board's `ROADMAP-DONE.md` is retired; a done item
+        stays in its own file. No template may name it as a place to move
+        work to."""
+        hits = [p.relative_to(TEMPLATES_DIR).as_posix()
+                for p in TEMPLATES_DIR.rglob("*")
+                if p.is_file() and "ROADMAP-DONE" in p.read_text()]
+        self.assertEqual([], hits)
+
+    def test_scaffolded_board_passes_the_board_check(self):
+        """The index shipped in the template is the one `--rebuild` writes for
+        the template's own tree, so a repo scaffolded from it starts green."""
+        tmp = self._scaffold()
+        r = self._board("--check", tmp)
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+
+    def test_shipped_index_equals_a_fresh_rebuild(self):
+        tmp = self._scaffold()
+        r = self._board("--rebuild", tmp)
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertEqual((self.DOCS / "ROADMAP.md").read_text(),
+                         (tmp / "docs" / "ROADMAP.md").read_text(),
+                         "regenerate: board.py --rebuild --root "
+                         "docs/build/templates")
+
+    def test_a_hand_edited_index_fails_the_check(self):
+        """The negative control: the pass above is not vacuous."""
+        tmp = self._scaffold()
+        idx = tmp / "docs" / "ROADMAP.md"
+        idx.write_text(idx.read_text() + "\n- [ ] hand-typed\n")
+        self.assertNotEqual(0, self._board("--check", tmp).returncode)
+
+    def test_session_log_template_is_the_index_and_detail_form(self):
+        """RECORD.md's form: a one-line index, detail in docs/sessions/."""
+        text = (self.DOCS / "SESSIONS.md").read_text()
+        self.assertIn("docs/sessions/", text)
+        self.assertIn("index", text.splitlines()[0])
+        self.assertNotIn("SESSIONS-ARCHIVE", text)
 
 
 if __name__ == "__main__":

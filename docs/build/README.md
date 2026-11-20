@@ -23,8 +23,9 @@ it — a second copy drifts.
   (carrying the stamped doctrine block), CONTRIBUTING, CHANGELOG, LICENSE
   (Apache-2.0, the house default — verbatim text; the holder goes in the
   appendix line + NOTICE), NOTICE,
-  gitignore, the `.claude/` allowlist, the `docs/` set (ARCHITECTURE, ROADMAP,
-  SESSIONS, ECONOMICS, decisions/, reviews/), both CI workflows, and
+  gitignore, the `.claude/` allowlist, the `docs/` set (ARCHITECTURE, the
+  per-item `roadmap/` store with its generated ROADMAP index, SESSIONS,
+  ECONOMICS, decisions/, reviews/), both CI workflows, and
   `tools/linkscan.py`. One source, shared by the `create-repo` skill and the
   published methodology — moved here from the skill's private copy 2026-07-10 and
   scrubbed of instance residue (a hardcoded holder, a project name, a stale

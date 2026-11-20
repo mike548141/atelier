@@ -151,8 +151,18 @@ applied to repo docs: a claim no stronger than its evidence — see
 
 - **ARCHITECTURE.md** — compact current-truth: the stack and *why* it's that way.
   It compresses away the deliberation; the ADRs keep it.
-- **ROADMAP.md** — lean, read every session; once the board splits to one
-  file per item, a done item stays in its own file as `[x]`.
+- **roadmap/ and ROADMAP.md** — the board, one file per item
+  (`roadmap/<NNN>-<section>/<NNN>-<slug>.md`, each section with its own
+  `README.md`, and `roadmap/README.md` carrying the legend). `ROADMAP.md` is
+  the **generated index**, read every session: never hand-edited, rebuilt with
+  `python3 "${ATELIER_TOOLS:-$(git config hooks.atelierTools)}"/board.py
+  --rebuild` and checked by the floor's `board` check. A done item stays in its
+  own file as `[x]`; there is no archive file. The template ships the store
+  form, one starter section and its index, so a new repo is born in
+  conformance (`010/240`). A repo still on the retired one-file board is
+  converted by the health sweep (`skills/fleet-sweep`, healthy item 6), not by
+  hand-editing it into shape; a frozen `ROADMAP-DONE.md` or
+  `SESSIONS-ARCHIVE.md` is cut into its store by `tools/archivecut.py`.
 - **SESSIONS.md** — the append-only session index (detail-on-demand in
   `sessions/`). Tail-read at session start; append before finishing. This is
   `method/RECORD.md`'s mechanism — the repo just hosts it.
@@ -268,6 +278,9 @@ applied to repo docs: a claim no stronger than its evidence — see
 2. Seed the file set from `templates/`, sized to the type; put the product in its
    subfolder.
 3. Fill placeholders with grounded content; stub-and-flag what you can't ground.
+   Then **regenerate the board index** (`board.py --rebuild`, command above):
+   the starter item and section title are now yours, and the index is generated
+   from them, never hand-edited.
 4. Seed the first SESSIONS entry and, if the repo inherits house doctrine, stamp
    the CLAUDE.md doctrine block at the current atelier SHA
    (`method/PROPAGATION.md`).
@@ -291,9 +304,17 @@ applied to repo docs: a claim no stronger than its evidence — see
    tracking the allowlist — this step previously said to *commit* it, until
    the 2026-08-02 cold pass caught the sentence outliving the ruling, PS1).
    These are low-risk and uniform.
-3. For **content docs** (ARCHITECTURE / ROADMAP / ADRs): write only what you can
+3. For **content docs** (ARCHITECTURE / ADRs): write only what you can
    ground in the actual project. Otherwise stub-and-flag. **Don't churn blindly**
    — a plausible-but-wrong doc is a regression, not progress.
+   **The board is a record store, not a content doc:** a repo with no
+   `docs/roadmap/` gets the store form from the template (its `README.md`, one
+   starter section, then `board.py --rebuild`); a repo on the retired one-file
+   board (a monolithic `ROADMAP.md`) is **not rewritten here**, and its items
+   are not re-typed. It goes to the store conversion (`skills/fleet-sweep`,
+   healthy item 6). A frozen `ROADMAP-DONE.md` or `SESSIONS-ARCHIVE.md` goes to
+   `tools/archivecut.py`. An existing board's items are never overwritten by
+   the template.
 4. Commit (recoverable — proceed); offer the push if the repo is operated as a
    remote.
 

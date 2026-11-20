@@ -125,6 +125,17 @@ git config user.email "<git_identity.email>"
    say so (the apex applied to repo docs). LICENSE seeds from the templates
    (Apache-2.0, verbatim); fill its appendix line and the NOTICE copyright line
    with the year + `copyright_holder`. Apply `locale` spelling throughout.
+   **The board is the store form, not a file you type items into.** The template
+   ships `docs/roadmap/` (a `README.md` carrying the legend, one starter section
+   folder with its own `README.md`, one starter item file) and a generated
+   `docs/ROADMAP.md`. Replace the starter item and section title with the repo's
+   real first work (or stub-and-flag), then **regenerate the index — never
+   hand-edit it**: `python3 "$SRC/tools/board.py" --rebuild` (in a child the
+   rebuild command it writes is the portable `ATELIER_TOOLS` form, never your
+   absolute path), and run `python3 "$SRC/tools/board.py" --check` to confirm.
+   The index is not a template to fill: a hand-typed one fails the floor's
+   `board` check. No `ROADMAP-DONE.md` is seeded; a done item stays in its own
+   file as `[x]`.
 5. **Stamp the doctrine block** in `CLAUDE.md` (the keystone — every repo that
    inherits house doctrine gets it). Fill the four placeholders:
    - `<atelier-path>` → the **sibling-relative** path to the doctrine source
@@ -247,6 +258,15 @@ for **content docs** write only what you can
 ground, else stub-and-flag — don't churn blindly. If the repo inherits house
 doctrine and lacks the block, **stamp it** (step 5 above) at the current source
 SHA/version. Commit; offer the push if the principal operates it as a remote.
+
+**The board and the session log are record stores, not content docs.** If the
+repo has no `docs/roadmap/`, seed the store form from the templates (as in step
+4) rather than a one-file `ROADMAP.md`. If it has a **one-file board** (a
+monolithic `ROADMAP.md` of entries), do not rewrite it or re-type its items:
+point at the store conversion, which is healthy item 6 of `skills/fleet-sweep`.
+A frozen `ROADMAP-DONE.md` or `SESSIONS-ARCHIVE.md` is cut into its store by
+`tools/archivecut.py`. Never overwrite an existing board's item files with the
+template's starter ones.
 
 **Don't touch a third-party repo** — check the remote's owner first (a repo whose
 owner is not in your profile's `remote.account` is not yours to standardise).
