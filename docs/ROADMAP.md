@@ -210,6 +210,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [PROPAGATION.md calls a parent enforcing what its children do not a…](roadmap/115-guardrail-architecture-mike-commissioned/440-parent-only-checks-versus-the-parent-child-parity-rule.md)
 - [ ] 🔎 [Three doctrine defects the enforcement census found in slice 3.](roadmap/115-guardrail-architecture-mike-commissioned/450-census-slice-3-doctrine-defects.md)
 - [~] 🔎 (claimed 2026-11-20, wt: atelier-qr-08cd-graces) [leakscan's ipv4 rule reads a…](roadmap/115-guardrail-architecture-mike-commissioned/460-ipv4-rule-reads-a-browser-version-as-an-address.md)
+- [~] 🔥 (claimed 2026-11-20-0810, wt: inline, no worktree) [allowmarker.py cannot be loaded…](roadmap/115-guardrail-architecture-mike-commissioned/470-allowmarker-cannot-be-loaded-by-file-path-since-a-dataclass.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
