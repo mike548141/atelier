@@ -1,4 +1,4 @@
-- [~] 🔎 **`ccrepo` prices the 5.5 generation wrong: Haiku 5.5 counts at $0,
+- [x] 🔎 **`ccrepo` prices the 5.5 generation wrong: Haiku 5.5 counts at $0,
       and Opus 5.5, Sonnet 5.5 and Fable 5.1 take an older model's rate by
       prefix match.** Found 2026-11-12 by the principal's session after a
       routine run; the principal asked for it on the board (his words:
@@ -44,3 +44,21 @@
       confined to synthetic fixtures could not run.
       🔒 CLAIMED 2026-11-20T07:40Z (claimed 2026-11-20-0740, wt: inline, no worktree) by queue-run
       session 08cd3b95 (Opus 5.5, principal-opened). Scope: the ccusage cross-check on the operator's real logs.
+      ✅ **Closed 2026-11-20 UTC by queue run 08cd3b95: the ccusage cross-check
+      on the operator's real logs.** Window 2026-11-13 to 2026-11-19 local,
+      `ccrepo -g model --fx usd --no-billing --no-reconcile --json` against
+      `ccusage daily --breakdown --json` (ccusage 20.0.14, online pricing).
+      Token counts were identical for all five models, and the cost matched to
+      the cent on four: Opus 5.5 $963.65, Sonnet 5.5 $116.96, Fable 5.1
+      $589.60, Fable 5.2 $17.02 (ccrepo 0.02% lower, rounding). Haiku 5.5
+      differs: ccrepo $0.15, ccusage $0.11. Its cause was not isolated: ccrepo
+      prices two things the published table names, the over-100K prompt tier
+      (this window's Haiku sessions peaked at 118K) and the 1-hour cache-write
+      rate, and ccusage's Haiku figure fits the 5-minute write rate with no
+      tier. Four cents a week, so it is left as noted, not chased.
+      Two traps found on the way: `ccusage --offline` prices every 5.5 model
+      at $0 (its bundled table predates them), and `ccrepo`'s own reconcile
+      compares `ccusage session` totals, which carry tokens from before
+      `--since` for a session that straddles it, so a windowed run reads as
+      about 18% drift that is window clipping, not price. Compare a closed
+      window with `ccusage daily` instead.
