@@ -2996,6 +2996,9 @@ result type; the shared module owns the mechanism, so a change to it reaches all
 of them at once and a test pins each scanner's parameters.
 The scanners import it with `filewalk.py` and `report.py`, so the unit of reuse
 is the `tools/` directory and not any one scanner file.
+Other repos also load it by file path, without a `sys.modules` entry (a
+child's own hook does), so it must stay loadable that way: no `dataclass`,
+and `test_allowmarker.TestLoadsByFilePath` proves it on every run (`115/470`).
 
 **The marker** is `<scanner>:allow[:<scope>]: <reason>`, with a word boundary
 before `<scanner>`, a colon, then a reason that starts with a letter, digit,

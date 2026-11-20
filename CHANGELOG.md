@@ -5,6 +5,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-20 — `allowmarker.py` loads by file path again, `115/470`)
+- **`Deferment` is a `NamedTuple`, not a `dataclass`.** A child's hook that
+  loads the module with `spec_from_file_location`, without a `sys.modules`
+  entry, had failed every commit since `110/060` (2026-11-17), because
+  `dataclasses` looks the module up there. A test now loads it that way in a
+  fresh interpreter on every run.
+
 ### Changed (2026-11-20 — a review is never thinned to fit a budget, defined at both scales, `430/010` slice 2)
 - **`REVIEW.md` defines the whole review process** a downgrade is measured
   against: the pass (fresh reviewer, named tier, brief and sibling split, both

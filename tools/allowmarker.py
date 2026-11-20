@@ -63,7 +63,7 @@ import datetime
 import fnmatch
 import re
 import sys
-from dataclasses import dataclass
+from typing import NamedTuple
 from pathlib import Path
 
 # First character of a reason: a word character or an opening quote.
@@ -554,8 +554,7 @@ _REVIEW_BY_RX = re.compile(r"(?<![\w-])review-by:[ \t]*(\S*)")
 _ISO_DATE_RX = re.compile(r"\d{4}-\d{2}-\d{2}")
 
 
-@dataclass(frozen=True)
-class Deferment:
+class Deferment(NamedTuple):
     """One ignore-file glob and the `review-by` its attached comment carries.
 
     `review_by` is the ISO date when exactly one well-formed date is declared,
@@ -563,7 +562,11 @@ class Deferment:
     written but no single valid date can be read from it (a bad date, an empty
     value, or two different dates on one glob); `lapsed` is True when
     `review_by` is strictly before the date the caller judged against, the
-    same comparison as a floor advisory's (`floor.Advisory.expired`)."""
+    same comparison as a floor advisory's (`floor.Advisory.expired`).
+
+    A NamedTuple, not a dataclass: other repos load this module by file
+    path without registering it in `sys.modules`, and `dataclasses` looks
+    the class's module up there while it builds the class (`115/470`)."""
     line: int
     glob: str
     review_by: str | None

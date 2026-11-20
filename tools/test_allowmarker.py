@@ -835,3 +835,25 @@ class TestCovers(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestLoadsByFilePath(unittest.TestCase):
+    """Other repos load this module by file path, without registering it in
+    `sys.modules` (a child's own hook does), so nothing in it may need that
+    registration: a `dataclass` does, and broke every commit in such a child
+    from 2026-11-17 to 2026-11-20 (`115/470`). Run in a fresh interpreter so
+    this test's own import cannot mask the failure."""
+
+    def test_loads_without_a_sys_modules_entry(self):
+        path = Path(__file__).resolve().parent / "allowmarker.py"
+        code = (
+            "import importlib.util, sys\n"
+            f"spec = importlib.util.spec_from_file_location('allowmarker', {str(path)!r})\n"
+            "m = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(m)\n"
+            "assert 'allowmarker' not in sys.modules\n"
+            "print(m.ignore_deferments('a/**  # review-by: 2026-01-01\\n', '2026-02-01')[0].lapsed)\n"
+        )
+        r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout.strip(), "True")
