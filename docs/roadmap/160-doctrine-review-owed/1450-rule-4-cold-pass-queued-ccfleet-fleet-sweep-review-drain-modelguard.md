@@ -81,3 +81,12 @@
       pass, over a delta that has stopped moving: `cclive` at the update
       still showed both author sessions live, so the pass first re-checks
       the brief's since-line and stops if it is not empty.
+      🔀 **Correction, 2026-11-20 UTC (queue run 08cd3b95):** the line above
+      reading "The run that wrote the brief neither updates it nor starts the
+      pass" was this run's own wording, not the principal's, and it was too
+      wide. His words were "we can update the brief if things have changed";
+      a brief-writer that authored none of the delta may update its brief
+      (`REVIEW.md` rule 4 bars authors, and the brief-writer from running the
+      pass). So this run updated the brief and still neither starts nor runs
+      the pass. Before the pass: check that session 19378351, an author of
+      `bd9f6a9b`, has finished, and that the since-line in the brief is empty.
