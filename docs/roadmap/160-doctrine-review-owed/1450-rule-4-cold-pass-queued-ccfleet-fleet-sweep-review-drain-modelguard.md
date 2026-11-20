@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccfleet`, the `fleet-sweep` and
+- [~] ⏳ **Rule-4 cold pass queued: `ccfleet`, the `fleet-sweep` and
       `review-drain` skills, and `modelguard` (`210/440`).** A first-of-kind
       instrument that starts headless sessions with a permission mode
       across every repo, two skills that reach every plugin user, and a
@@ -30,3 +30,5 @@
       **Widened again 2026-11-18:** add `1eb42f54` (three faults the first
       real estate run found: fresh `kit_dir`, failing queue `next`, dry
       passes' `END` line). The brief covers `main` at or after it.
+      🔒 CLAIMED 2026-11-20T08:25Z (claimed 2026-11-20-0825, wt: atelier-qr-08cd-brief1450) by queue-run
+      session 08cd3b95 (Opus 5.5, principal-opened). Scope: write the brief and its held-back sibling; no pass run.

@@ -1,4 +1,4 @@
-- [ ] 🔎 **`EVIDENCE.md` §17 says its class is not mechanisable because
+- [~] 🔎 **`EVIDENCE.md` §17 says its class is not mechanisable because
       "nothing inspects a session's shell invocations"; `tools/modelguard.py`
       does.** Found 2026-11-16 UTC by the `020/220` census, slice 1 (row
       CON21), and checked by the orchestrator of queue run 78ca9153 the same
@@ -14,3 +14,5 @@
       gets a warn-only `PreToolUse` reader, ranked by `020/240`'s value test.
       Doctrine, so its own cold pass when changed. Not fixed in passing, per
       the house rule that a doctrine defect is reported, not patched quietly.
+      🔒 CLAIMED 2026-11-20T08:25Z (claimed 2026-11-20-0825, wt: atelier-qr-08cd-docfix) by queue-run
+      session 08cd3b95 (Opus 5.5, principal-opened). Scope: correct EVIDENCE.md §17 on modelguard.

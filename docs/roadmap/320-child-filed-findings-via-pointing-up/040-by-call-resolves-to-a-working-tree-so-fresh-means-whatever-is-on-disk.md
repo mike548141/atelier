@@ -1,4 +1,4 @@
-- [ ] 🔎 **By-call enforcement resolves through a *working tree*, so "fresh"
+- [~] 🔎 **By-call enforcement resolves through a *working tree*, so "fresh"
       currently means whatever is on disk — including a parent session's
       uncommitted mid-edit state** `[S][tool]` — raised from a private child
       2026-08-18 via § *Pointing up*, as a question rather than a finding, and
@@ -33,3 +33,5 @@
       **Related and worth pricing together rather than twice:** the estate has
       an open strand on whether the scanner harness should be single-sourced,
       and the answer there may make this moot or may make it sharper.
+      🔒 CLAIMED 2026-11-20T08:25Z (claimed 2026-11-20-0825, wt: atelier-qr-08cd-docfix) by queue-run
+      session 08cd3b95 (Opus 5.5, principal-opened). Scope: decide and word the mid-edit tree case.
