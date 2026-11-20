@@ -5,6 +5,43 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-20 — the session log is the folder; `SESSIONS.md` is retired, `010/270`)
+- **The session log is `docs/sessions/`, one file per session, and the
+  folder is the index.** No file lists the sessions: their names sort by start
+  time, so a session reads the newest few (`ls docs/sessions/[0-9]* | tail
+  -5`). The principal: *"This does not sound like doctrine, they should not be
+  in one big sessions file in the first place"*, then his pick, *"Retire
+  SESSIONS.md"*. The hand-appended index, its rotation rule and the
+  `SESSIONS-ARCHIVE.md` growth store are retired with it (`RECORD.md`
+  § *The session log*; `CONCURRENCY.md`'s recovery sweep now looks for a
+  closing session file; the onramp, `CLAUDE.md` read order and the closing
+  rule name the folder).
+- **`tools/archivecut.py --cut` retires a repo's index, and any frozen session
+  archive, losslessly and writes files only.** Each entry goes word for word
+  into the session file it links (right after its `# ` heading, under "From
+  the retired session log" and a comment giving its line numbers), or into a
+  new file named for its date where it links none; everything else goes into
+  `docs/sessions/README.md`, fenced. The proof (a multiset over every
+  non-blank line, every link mapping back, a byte-for-byte rebuild from the
+  outputs as written) must pass or nothing is written. The session-archive
+  route no longer writes index lines, so a rotation can never recreate the
+  file. `--verify` rebuilds from disk, including an archive cut by the
+  earlier route.
+- **Templates and skills:** the repo template ships `docs/sessions/README.md`
+  and no `SESSIONS.md`; `create-repo` writes a first session file; the health
+  sweep's healthy item 6 treats a kept index as a one-file store to retire.
+- **`ccclose`'s *Session record written* check reads the folder.** A commit
+  adding a session file passes.
+- **Notice to children:** nothing turns red the day this lands. Until
+  **2026-12-04** (the first day it is refused) `ccclose` still counts a commit
+  to a kept `docs/SESSIONS.md` as before, and names it as retired; from that
+  day only a session file counts. `pathscan`, `coldsweep` and `sizescan` keep
+  treating a kept `docs/SESSIONS.md` as a record until no repo has one
+  (`010/290`). Retire yours with `python3 <atelier>/tools/archivecut.py --cut
+  --root .`, commit, run `--verify`, and reword your onramp; the next health
+  sweep does it for you. A `docs/sessions/README.md` you already keep stays,
+  above the tool's part.
+
 ### Changed (2026-11-20 — the repo template scaffolds the per-item board, `010/240`)
 - **`/atelier:create-repo` now produces the store form, not the retired
   one-file board.** The template ships `docs/roadmap/README.md` (the

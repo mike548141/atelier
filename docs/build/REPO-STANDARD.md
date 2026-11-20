@@ -61,7 +61,8 @@ applied to repo docs: a claim no stronger than its evidence — see
 - **README.md** — public-facing: what it is, *why*, a structure table, run/setup,
   develop, licence.
 - **CLAUDE.md** — the AI session onramp. Session-start read order
-  (ARCHITECTURE → ROADMAP → tail of SESSIONS), hard constraints, layout, the dev
+  (ARCHITECTURE → ROADMAP → the newest few session files), hard constraints,
+  layout, the dev
   loop. For any repo that inherits house doctrine this also carries the standard
   doctrine block (inlined safety floor + SHA-pinned pointer + drift check) — its
   canonical text and wiring live in `method/PROPAGATION.md`, not here.
@@ -161,11 +162,16 @@ applied to repo docs: a claim no stronger than its evidence — see
   form, one starter section and its index, so a new repo is born in
   conformance (`010/240`). A repo still on the retired one-file board is
   converted by the health sweep (`skills/fleet-sweep`, healthy item 6), not by
-  hand-editing it into shape; a frozen `ROADMAP-DONE.md` or
-  `SESSIONS-ARCHIVE.md` is cut into its store by `tools/archivecut.py`.
-- **SESSIONS.md** — the append-only session index (detail-on-demand in
-  `sessions/`). Tail-read at session start; append before finishing. This is
-  `method/RECORD.md`'s mechanism — the repo just hosts it.
+  hand-editing it into shape; a frozen `ROADMAP-DONE.md` is cut into its
+  store by `tools/archivecut.py`.
+- **sessions/** — the session log: one file per session,
+  `<date>-<HHMM>-<slug>.md` named for its start in UTC, and the folder is the
+  index (no file lists it). Its `README.md` explains the folder. Read the
+  newest few at session start; write the session's own file before finishing.
+  This is `method/RECORD.md`'s mechanism — the repo just hosts it. A repo
+  still keeping the retired one-file index (`SESSIONS.md`, with any
+  `SESSIONS-ARCHIVE.md`) has it retired into the folder by
+  `tools/archivecut.py --cut` (`010/270`), never by hand.
 - **ECONOMICS.md** — the repo's model/token policy. General shape (which
   model builds, which reviews, session hygiene) is `method/ECONOMICS.md`;
   the repo file carries only what's repo-local, or points up entirely.
@@ -281,7 +287,7 @@ applied to repo docs: a claim no stronger than its evidence — see
    Then **regenerate the board index** (`board.py --rebuild`, command above):
    the starter item and section title are now yours, and the index is generated
    from them, never hand-edited.
-4. Seed the first SESSIONS entry and, if the repo inherits house doctrine, stamp
+4. Write the first session file and, if the repo inherits house doctrine, stamp
    the CLAUDE.md doctrine block at the current atelier SHA
    (`method/PROPAGATION.md`).
 5. Commit. Create the remote **private** by default. The authority to create
@@ -312,9 +318,9 @@ applied to repo docs: a claim no stronger than its evidence — see
    starter section, then `board.py --rebuild`); a repo on the retired one-file
    board (a monolithic `ROADMAP.md`) is **not rewritten here**, and its items
    are not re-typed. It goes to the store conversion (`skills/fleet-sweep`,
-   healthy item 6). A frozen `ROADMAP-DONE.md` or `SESSIONS-ARCHIVE.md` goes to
-   `tools/archivecut.py`. An existing board's items are never overwritten by
-   the template.
+   healthy item 6). A frozen `ROADMAP-DONE.md`, or a one-file session log
+   (`SESSIONS.md`, `SESSIONS-ARCHIVE.md`), goes to `tools/archivecut.py`. An
+   existing board's items are never overwritten by the template.
 4. Commit (recoverable — proceed); offer the push if the repo is operated as a
    remote.
 

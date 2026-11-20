@@ -18,7 +18,7 @@ Current truth, kept compact. The *why* behind contestable calls lives in
 
 ```
 <subfolder>/   # the deployable artefact
-docs/          # this file, ROADMAP (generated) + roadmap/, SESSIONS, decisions/, reviews/
+docs/          # this file, ROADMAP (generated) + roadmap/, sessions/, decisions/, reviews/
 tools/         # dev/CI helpers
 ```
 

@@ -7,7 +7,7 @@ on — the `.<tool>ignore` lookup, the repo-relative anchors, the `docs/`
 default. So a run given `--root X docs/thing.md` from inside repo Y read **Y's
 file under X's rules**, reported confidently, and nothing in the output said
 which tree either half came from. Every child repo carries `docs/ROADMAP.md`,
-`docs/method/`, `docs/SESSIONS.md` under the same names by design, so the path
+`docs/method/`, `docs/sessions/` under the same names by design, so the path
 collision the silent case needs is guaranteed rather than unlucky.
 
 WHY ONE TEST AND NOT ELEVEN. The fix is one line copied into eleven tools

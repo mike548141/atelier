@@ -717,12 +717,23 @@ class TemplateBoardTest(unittest.TestCase):
         idx.write_text(idx.read_text() + "\n- [ ] hand-typed\n")
         self.assertNotEqual(0, self._board("--check", tmp).returncode)
 
-    def test_session_log_template_is_the_index_and_detail_form(self):
-        """RECORD.md's form: a one-line index, detail in docs/sessions/."""
-        text = (self.DOCS / "SESSIONS.md").read_text()
-        self.assertIn("docs/sessions/", text)
-        self.assertIn("index", text.splitlines()[0])
-        self.assertNotIn("SESSIONS-ARCHIVE", text)
+    def test_session_log_template_is_the_folder_form(self):
+        """RECORD.md's form since `010/270` (2026-11-20): one file per
+        session in docs/sessions/, the folder is the index, and no file lists
+        it. The template ships the folder's README (the same words
+        archivecut writes when it retires a repo's index) and no index."""
+        self.assertFalse((self.DOCS / "SESSIONS.md").exists())
+        readme = (self.DOCS / "sessions" / "README.md").read_text()
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import archivecut
+        self.assertEqual(readme, archivecut.README_HEADER.rstrip("\n") + "\n")
+        self.assertIn("The folder is the index.", readme)
+        claude = (self.DOCS.parent / "CLAUDE.md").read_text()
+        self.assertIn("The newest few files in `docs/sessions/`", claude)
+        for name in ("CLAUDE.md", "CONTRIBUTING.md", "README.md",
+                     "docs/ARCHITECTURE.md", "docs/ECONOMICS.md"):
+            with self.subTest(name=name):
+                self.assertNotIn("SESSIONS", (self.DOCS.parent / name).read_text())
 
 
 if __name__ == "__main__":

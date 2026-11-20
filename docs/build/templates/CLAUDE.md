@@ -139,8 +139,10 @@ in atelier and is read on demand — never wholesale.
 
 1. `docs/ARCHITECTURE.md` — current truth: the stack and why.
 2. `docs/ROADMAP.md` — what's open.
-3. Tail of `docs/SESSIONS.md` — where the last session left off. A last commit
-   then silence with no closing entry means the last session either died
+3. The newest few files in `docs/sessions/` — where the last sessions left off
+   (`ls docs/sessions/[0-9]* | tail -5`; the folder is the session log, one
+   file per session, named for its start). A last commit
+   then silence with no closing session file means the last session either died
    mid-flight or is still live — run the read-first recovery sweep
    (`<atelier-path>/docs/method/CONCURRENCY.md` § Surviving an interrupted
    session) before assuming either. A cold reviewer skips this step: the log is
@@ -185,5 +187,6 @@ in atelier and is read on demand — never wholesale.
 
 - NZ English; macrons on te reo Māori.
 - Comments say *why*, not *what*; ADR the re-litigable decisions
-  (`docs/decisions/`); append a `docs/SESSIONS.md` entry before finishing.
+  (`docs/decisions/`); write the session's own file in `docs/sessions/`
+  (`<date>-<HHMM>-<slug>.md`, start time in UTC) before finishing.
 - Commit messages: `area: imperative subject`, why-dense body.

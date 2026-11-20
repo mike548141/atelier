@@ -2,19 +2,20 @@
 """sizescan — the signal that a current-truth file carries relocatable cold content.
 
 The operating model assumes a session resumes *cold* by reading a handful of
-files at the start: the roadmap (what's open), the session index (where the last
-one stopped), the README, the architecture note. That only stays cheap if those
-files stay honest. RECORD.md already prescribes the fix — a **current-truth /
+files at the start: the roadmap (what's open), the newest session files (where
+the last one stopped), the README, the architecture note. That only stays cheap
+if those files stay honest. RECORD.md already prescribes the fix — a **current-truth /
 history split**: `ROADMAP.md` holds what's open and completed detail moves to
-`ROADMAP-DONE.md`; `SESSIONS.md` is a one-line-per-session index and detail lives
-in `docs/sessions/`; specs live in a grepped-on-demand `SPECS.md`. The split
+the board's store; the session log is one file per session in `docs/sessions/`
+(its one-file index, `SESSIONS.md`, was retired 2026-11-20, `010/270`); specs
+live in a grepped-on-demand `SPECS.md`. The split
 works — but nothing *triggered* it. The discipline decayed silently: a roadmap
 grew past three thousand lines, each finished item accreting a running log of how
 it got done, and no signal fired. sizescan is that missing signal.
 
 **What it meters — cost is size × read-frequency** (Mike's ruling, 2026-07-20,
 which reversed an earlier line-count gate). A hot-path file — read every session
-(`CLAUDE`, `ROADMAP`, the `SESSIONS` tail, the start-path docs) — pays its length
+(`CLAUDE`, `ROADMAP`, the start-path docs) — pays its length
 at every open; a cold store — grepped on demand (`ROADMAP-DONE`, session detail,
 archives) — is nearly free. So the enemy is never *size*: it is **cold content
 sitting on the hot path** — completed work, closed cycles, resolved narrative
@@ -286,6 +287,9 @@ MARKER_SCAN_LINES = 15
 # in their header — a `sizescan:allow` or `sizescan:budget` from when length was
 # reported — or a `.sizescanignore` glob matching them is named as inert rather
 # than silently accepted (115/270 c). There is no number attached to any of them.
+# `SESSIONS.md` is the one-file session index retired 2026-11-20 (`010/270`);
+# it stays named while a repo the health sweep has not reached keeps one, and
+# `010/290` removes it once none does.
 HOT_PATH_FILES = frozenset({"ROADMAP.md", "SESSIONS.md", "README.md",
                             "ARCHITECTURE.md", "CLAUDE.md"})
 

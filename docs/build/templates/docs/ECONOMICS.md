@@ -42,7 +42,7 @@ held person-local, not in this repo.
   context is the *same* line; keep going. Break for a genuine reason (an
   unrelated pivot, a principal-only decision, a real unreviewed dependency,
   cache/context degradation), **not because one item went green**. Then write
-  the `SESSIONS.md` entry, start fresh.
+  the session file, start fresh.
 - **Match the ceremony to the risk** — reviews, sweeps, session breaks are
   *spend*; apply them in proportion to the cost of being wrong, not uniformly.
   Risk decides whether a review is owed and of what kind; once owed, no budget

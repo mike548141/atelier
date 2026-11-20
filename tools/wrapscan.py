@@ -12,7 +12,7 @@ cold review; Mike's ruling: option A). The recurring defect this tool targets
 `docs/build/`, and `docs/decisions/` bodies; there the corpus is genuinely
 near-clean and a finding is real signal. Scanning all of `docs/**` instead
 buries that signal under the record/log/review stores' *deliberate*
-one-line-per-entry format (`docs/SESSIONS.md`, `docs/sessions/`,
+one-line-per-entry format (`docs/sessions/` and the session index it replaced,
 `docs/reviews/`, `docs/decisions/README.md`'s index, harvested
 `*-DONE.md`/`*-ARCHIVE.md`) — hundreds of long-by-design grep-able lines that
 are not this repo's own wrapped prose, at roughly 6:1 noise to signal on the

@@ -24,7 +24,7 @@
 - Comments explain **why**, not what.
 - Contestable decisions get a short ADR in [`docs/decisions/`](docs/decisions/).
 - Session context: [`CLAUDE.md`](CLAUDE.md), [`docs/ROADMAP.md`](docs/ROADMAP.md),
-  tail of [`docs/SESSIONS.md`](docs/SESSIONS.md).
+  the newest few files in [`docs/sessions/`](docs/sessions/README.md).
 
 ## Licence
 

@@ -1282,11 +1282,11 @@ dangling pointer uses `linkscan:allow` / `.linkscanignore`.
 ## `sizescan.py` — keep cold content off the always-loaded files
 
 A session resumes cold by reading a handful of files at the start — the roadmap
-(what's open), the session index (where the last one stopped), the README, the
-architecture note. `RECORD.md` prescribes the fix for when they bloat — the
-**current-truth / history split** (open items stay; completed detail moves to
-`ROADMAP-DONE.md`; a flat session log becomes an index + `docs/sessions/`). The
-split works, but nothing *triggered* it: it got done once by hand and the
+(what's open), the newest session files (where the last one stopped), the
+README, the architecture note. `RECORD.md` prescribes the fix for when they
+bloat — the **current-truth / history split** (open items stay; completed
+detail moves to the board's store; a flat session log becomes one file per
+session in `docs/sessions/`). The split works, but nothing *triggered* it: it got done once by hand and the
 discipline decayed silently — a sibling roadmap reached 3000+ lines, each
 finished item accreting a running log of how it got done, no signal firing.
 `sizescan` is that missing signal.
@@ -1322,8 +1322,9 @@ its file's line count as context, never as a trigger.
 Scope, in two deliberate directions:
 
 - **Cold content is looked for in `ROADMAP.md` only**, wherever it lives. The
-  other current-truth names (`SESSIONS.md`, `ARCHITECTURE.md`, the root
-  `README.md` and `CLAUDE.md`) are no longer measured for anything; their first
+  other current-truth names (`ARCHITECTURE.md`, the root `README.md` and
+  `CLAUDE.md`, and a retired `SESSIONS.md` a repo not yet swept still keeps)
+  are no longer measured for anything; their first
   15 lines are still read, so that a hatch left in them is named as inert (below)
   rather than silently accepted. A nested `tools/README.md` is a reference index
   and is not read.
@@ -1722,22 +1723,37 @@ without `--warn`. Escape hatches mirror the sibling scanners:
 `<!-- spellscan:allow: <reason> -->` per line, a glob in `.spellscanignore` per
 path.
 
-## `archivecut.py` — the frozen pre-split archives, cut into their stores (`010/220`)
+## `archivecut.py` — one-file records, cut into their stores (`010/220`, `010/270`)
 
 Not a scanner: a one-off converter a repo runs once. `docs/ROADMAP-DONE.md`
 is cut into one `[x]` item file per entry in the board section
 `docs/roadmap/990-done-before-the-split/`, whose `README.md` keeps the
 archive's preamble, headings and every non-entry line verbatim with each entry
-replaced by a link to its file; `docs/SESSIONS-ARCHIVE.md` is cut into
-`docs/sessions/` detail files plus one index line each in `docs/SESSIONS.md`.
-The cut proves itself first (a multiset over every non-heading line, a
-byte-for-byte rebuild from the outputs, and every re-pointed link mapping back
-to its original text) and moves the file whole instead (`git mv`, route (b))
-where the proof fails. Every tracked Markdown link to the archive, both sides
-of `](`, is re-pointed. `--plan` (the default) writes nothing, `--cut` does
-it, `--verify` rebuilds each cut archive from disk and compares it with its
-last committed copy. The principal's pick, 2026-11-20: *"Split, fall back to
-move (Recommended)"*.
+replaced by a link to its file. The cut proves itself first (a multiset over
+every non-heading line, a byte-for-byte rebuild from the outputs, and every
+re-pointed link mapping back to its original text) and moves the file whole
+instead (`git mv`, route (b)) where the proof fails. The principal's pick,
+2026-11-20: *"Split, fall back to move (Recommended)"*.
+
+The one-file session log retires into `docs/sessions/`, files only (the
+principal's pick, 2026-11-20: *"Retire SESSIONS.md"*). Each entry of
+`docs/SESSIONS.md`, and of a frozen `docs/SESSIONS-ARCHIVE.md` where one is
+left, goes word for word into the session file it links, right after that
+file's `# ` heading, under the line "From the retired session log" and a
+comment giving its source and line numbers; an entry linking no session file
+gets a new file named for its date (`<date>-<HHMM>-<slug>.md` when it states
+its time, a day counter in place of the time when it does not). Every line
+that is not an entry goes word for word into `docs/sessions/README.md`,
+fenced, under comments giving its line numbers. The proof (a multiset over
+every non-blank line, every link mapping back, and a byte-for-byte rebuild of
+each log from the outputs as written) must pass or nothing is written; there
+is no fallback.
+
+Every tracked Markdown link to an archive or a retired log, both sides of
+`](`, is re-pointed (a retired log's home is the folder's README). `--plan`
+(the default) writes nothing, `--cut` does both, `--verify` rebuilds each cut
+archive and retired log from disk and compares it with its last committed
+copy.
 
 ## `harvestscan.py` — a removed roadmap item arrived somewhere (advisory only)
 
@@ -1844,7 +1860,8 @@ Registry-promoted 2026-08-05 (PS5): it runs warn-only on every child's hook
 and CI through the floor — the `--warn` sits in the registry template as one
 visible argument, because dropping it *is* the estate-wide flip to blocking
 and must never happen as a side effect. **Records are excluded by default**
-(FR2, ruled 2026-08-23): `docs/reviews`, `docs/sessions`, `docs/SESSIONS.md`,
+(FR2, ruled 2026-08-23): `docs/reviews`, `docs/sessions` (and a retired
+`docs/SESSIONS.md` a repo not yet swept still keeps),
 `docs/ROADMAP-DONE.md` (or the archive section it is cut into,
 `docs/roadmap/990-done-before-the-split`) and `CHANGELOG.md` name the tree as it stood when they
 were written and can never come clean without falsifying the record —
@@ -2000,8 +2017,11 @@ when the fix is one line.
 (`--warn` is in the template, as `pathscan`'s is; dropping it is the flip to
 blocking and is a separate ruling). Children float on `floor.py@main`, so the
 registry line reaches every child's next run — where it checks nothing until
-that child declares an index. atelier declares four: the decisions index, this
-catalogue, the instruments catalogue and the session log index.
+that child declares an index. atelier declares three: the decisions index, this
+catalogue and the instruments catalogue. Its session log index, the fourth,
+was retired on 2026-11-20 (`010/270`): the folder is the index, so there is
+nothing left to drift from it, and the declaration sits fenced, as a record,
+in `docs/sessions/README.md`.
 
 ```sh
 python3 tools/indexscan.py --root . .        # the floor's shape, without --warn

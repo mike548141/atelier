@@ -116,8 +116,9 @@ other repos would want the rule, it belongs upstream in atelier instead.
 - **Record real decisions.** A short ADR in [`docs/decisions/`](docs/decisions/)
   when a choice rejects a plausible alternative or rests on hard-won
   evidence; a code comment for reversible ones.
-- **Log the session.** Append a dated entry to
-  [`docs/SESSIONS.md`](docs/SESSIONS.md) before finishing.
+- **Log the session.** Write its own file in
+  [`docs/sessions/`](docs/sessions/README.md), named
+  `<date>-<HHMM>-<slug>.md` for its start in UTC, before finishing.
 
 ## Review
 

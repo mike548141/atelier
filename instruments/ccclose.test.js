@@ -346,8 +346,7 @@ test('an attachment notification (210/260) leaves ccclose numbering and cctransc
 test('a tidy close passes every check that applies and exits 0', () => {
   const w = world();
   const root = repo(w);
-  write(root, 'docs/SESSIONS.md', '# Sessions\n- [today](sessions/today.md)\n');
-  write(root, 'docs/sessions/today.md', '# today\n');
+  write(root, 'docs/sessions/2020-01-01-0000-today.md', '# today\n');
   commit(w, root, 'records: session close', NOW - 30 * MIN);
   sh(w, root, ['push', '-q', 'origin', 'main']);
   transcript(w, 'sess-tidy');
@@ -416,6 +415,51 @@ test('a merged branch that was not deleted is still not put away', () => {
   assert.equal(j.by.branches.status, 'fail');
   assert.deepEqual(j.by.branches.items, ['done-work (merged, not deleted)']);
   assert.equal(j.by.pushed.status, 'pass');
+});
+
+// Board 010/270: the folder is the log. A repo not yet swept may keep the
+// retired one-file index, which counts as before until the grace date.
+test('the session record is the folder: a session file passes, the retired index is named', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'docs/SESSIONS.md', '# Sessions\n');
+  write(root, 'docs/sessions/old.md', '# old\n');
+  commit(w, root, 'old log', NOW - 3 * 24 * 60 * MIN);
+  write(root, 'docs/sessions/today.md', '# today\n');
+  commit(w, root, 'records: session close', NOW - 30 * MIN);
+  transcript(w, 'sess-folder');
+  const j = json(w, root, ['--session', 'sess-folder']);
+  assert.equal(j.by['session-record'].status, 'pass', j.by['session-record'].summary);
+  assert.match(j.by['session-record'].summary, /1 commit\(s\) to docs\/sessions\/ in the window/);
+  assert.match(j.by['session-record'].summary, /docs\/SESSIONS.md is retired/);
+});
+
+test('an index line alone counts until the grace date, and fails from it', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'SESSIONS.md', '# Sessions\n');
+  commit(w, root, 'old log', NOW - 3 * 24 * 60 * MIN);
+  fs.appendFileSync(path.join(root, 'SESSIONS.md'), '- today\n');
+  commit(w, root, 'records: session close', NOW - 30 * MIN);
+  transcript(w, 'sess-grace');
+  let j = json(w, root, ['--session', 'sess-grace'], { CCCLOSE_TODAY: '2026-12-03' });
+  assert.equal(j.by['session-record'].status, 'pass', j.by['session-record'].summary);
+  assert.match(j.by['session-record'].summary, /retired index SESSIONS.md .* accepted until 2026-12-04/);
+  j = json(w, root, ['--session', 'sess-grace'], { CCCLOSE_TODAY: '2026-12-04' });
+  assert.equal(j.by['session-record'].status, 'fail', j.by['session-record'].summary);
+  assert.match(j.by['session-record'].summary, /only the retired index SESSIONS.md was written/);
+  // Beside a folder, an index line with no session file warns while the grace holds.
+  const w2 = world();
+  const root2 = repo(w2);
+  write(root2, 'SESSIONS.md', '# Sessions\n');
+  write(root2, 'sessions/old.md', '# old\n');
+  commit(w2, root2, 'old log', NOW - 3 * 24 * 60 * MIN);
+  fs.appendFileSync(path.join(root2, 'SESSIONS.md'), '- today\n');
+  commit(w2, root2, 'records: session close', NOW - 30 * MIN);
+  transcript(w2, 'sess-grace-2');
+  j = json(w2, root2, ['--session', 'sess-grace-2'], { CCCLOSE_TODAY: '2026-12-03' });
+  assert.equal(j.by['session-record'].status, 'warn', j.by['session-record'].summary);
+  assert.match(j.by['session-record'].summary, /no session file under sessions\//);
 });
 
 test('the session record is "written but not committed" when the log is only dirty', () => {
@@ -741,8 +785,7 @@ test('check 12 passes when every agent was reported or stopped on purpose', () =
 test('check 12 warns, and does not fail the close, for a finished agent whose result was never consumed', () => {
   const w = world();
   const root = repo(w);
-  write(root, 'docs/SESSIONS.md', '# Sessions\n- [today](sessions/today.md)\n');
-  write(root, 'docs/sessions/today.md', '# today\n');
+  write(root, 'docs/sessions/2020-01-01-0000-today.md', '# today\n');
   commit(w, root, 'records: session close', NOW - 30 * MIN);
   sh(w, root, ['push', '-q', 'origin', 'main']);
   agent(w, 'sess-agents-warn', 'a1111111', { turns: finishedTurns });

@@ -1085,37 +1085,56 @@ function checkPrs(repo, w, gh, branches) {
     mine.map((p) => `#${p.number} ${clip(p.title, 70)} (${p.headRefName})`));
 }
 
-// The session log adapter: docs/SESSIONS.md or SESSIONS.md, with a sessions/
-// detail store beside it when the repo keeps one.
+// The session log adapter. The log is the folder of session files,
+// docs/sessions/ or sessions/: the folder is the index, and no file lists it
+// (RECORD.md § The session log; board 010/270, the principal's pick
+// 2026-11-20, "Retire SESSIONS.md"). A repo the health sweep has not reached
+// yet may still keep the retired one-file index, docs/SESSIONS.md or
+// SESSIONS.md. Until RETIRED_INDEX_ACCEPTED_UNTIL a commit to it still counts
+// the way it did; from that day only a session file does (board 010/290
+// removes the grace).
+const RETIRED_INDEX_ACCEPTED_UNTIL = '2026-12-04';   // the first day it is refused
+
+// Today in UTC, as YYYY-MM-DD. CCCLOSE_TODAY sets it, for the tests only.
+function todayUtc() {
+  const t = process.env.CCCLOSE_TODAY;
+  return /^\d{4}-\d{2}-\d{2}$/.test(t || '') ? t : new Date().toISOString().slice(0, 10);
+}
+
 function sessionLog(repo) {
-  for (const rel of ['docs/SESSIONS.md', 'SESSIONS.md']) {
-    if (isFile(path.join(repo.root, rel))) {
-      const detail = path.join(path.dirname(rel), 'sessions');
-      return { log: rel, detail: isDir(path.join(repo.root, detail)) ? detail : null };
-    }
-  }
-  return null;
+  const folder = ['docs/sessions', 'sessions'].find((rel) => isDir(path.join(repo.root, rel))) || null;
+  const index = ['docs/SESSIONS.md', 'SESSIONS.md'].find((rel) => isFile(path.join(repo.root, rel))) || null;
+  return folder || index ? { folder, index } : null;
 }
 
 function checkSessionRecord(repo, w) {
   const L = 'Session record written';
   if (!repo.isGit) return check('session-record', L, 'na', NOT_GIT);
   const s = sessionLog(repo);
-  if (!s) return check('session-record', L, 'na', 'no session log in this repo (looked for docs/SESSIONS.md, SESSIONS.md)');
+  if (!s) return check('session-record', L, 'na', 'no session log in this repo (looked for docs/sessions/, sessions/)');
   if (!w) return check('session-record', L, 'warn', NO_WINDOW);
-  const idx = windowCommits(repo, w, ['--branches', '--remotes'], ['--', s.log]);
-  const det = s.detail ? windowCommits(repo, w, ['--branches', '--remotes'], ['--', s.detail]) : [];
+  const det = s.folder ? windowCommits(repo, w, ['--branches', '--remotes'], ['--', s.folder]) : [];
+  const idx = s.index ? windowCommits(repo, w, ['--branches', '--remotes'], ['--', s.index]) : [];
   if (idx === null || det === null) return check('session-record', L, 'warn', 'git log failed');
-  const dirty = lines(git(repo.root, ['status', '--porcelain', '--', s.log, ...(s.detail ? [s.detail] : [])]).out);
-  const what = `${s.log}${s.detail ? ` + ${s.detail}/` : ''}`;
-  if (!idx.length) {
-    return check('session-record', L, 'fail', dirty.length
-      ? `written but not committed (${dirty.length} uncommitted change(s) in ${what})`
-      : `no commit in the window touches ${s.log}`, dirty);
+  const paths = [s.folder, s.index].filter(Boolean);
+  const dirty = lines(git(repo.root, ['status', '--porcelain', '--', ...paths]).out);
+  const folder = s.folder || 'docs/sessions';
+  const grace = todayUtc() < RETIRED_INDEX_ACCEPTED_UNTIL;
+  const note = s.index ? ` · ${s.index} is retired: atelier's tools/archivecut.py --cut retires it` : '';
+  if (det.length) {
+    if (dirty.length) return check('session-record', L, 'warn', `committed in the window, with ${dirty.length} further uncommitted change(s)${note}`, dirty);
+    return check('session-record', L, 'pass', `${det.length} commit(s) to ${s.folder}/ in the window${note}`);
   }
-  if (s.detail && !det.length) return check('session-record', L, 'warn', `index line committed in the window, but no detail file under ${s.detail}/`);
-  if (dirty.length) return check('session-record', L, 'warn', `committed in the window, with ${dirty.length} further uncommitted change(s)`, dirty);
-  return check('session-record', L, 'pass', `${idx.length} commit(s) to the index${s.detail ? `, ${det.length} to the detail store` : ''} in the window`);
+  if (idx.length) {
+    if (!grace) {
+      return check('session-record', L, 'fail', `only the retired index ${s.index} was written; the session record is a file under ${folder}/ (the index was accepted until ${RETIRED_INDEX_ACCEPTED_UNTIL})`);
+    }
+    if (s.folder) return check('session-record', L, 'warn', `index line committed in the window, but no session file under ${s.folder}/${note}`);
+    return check('session-record', L, 'pass', `${idx.length} commit(s) to the retired index ${s.index} in the window, accepted until ${RETIRED_INDEX_ACCEPTED_UNTIL}${note}`);
+  }
+  return check('session-record', L, 'fail', dirty.length
+    ? `written but not committed (${dirty.length} uncommitted change(s) in ${paths.map((x) => x.endsWith('.md') ? x : `${x}/`).join(' + ')})`
+    : `no commit in the window adds a session file under ${folder}/`, dirty);
 }
 
 // The board adapter. A generated board carries board.py's banner beside a

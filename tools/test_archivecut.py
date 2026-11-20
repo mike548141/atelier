@@ -6,8 +6,11 @@ over it), the fallback to a whole-file move when the proof fails (a line
 shaped like the cut's own link line, an archive with no `[x]` entries, a
 reference-style link cut away from its definition), link re-pointing on both
 sides of `](` and in reference definitions, anchors kept or dropped, a
-same-page anchor inside an entry, `--plan` writing nothing, and the session
-archive's cut and fallback. Stdlib only.
+same-page anchor inside an entry, `--plan` writing nothing, and (`010/270`)
+the session log's retirement into `docs/sessions/`: index lines placed in the
+files they link, new dated files for the rest, the README, the proof from
+disk, the refusals that write nothing, and an archive cut by the earlier
+route still verifying after the index goes. Stdlib only.
 """
 
 import contextlib
@@ -320,7 +323,10 @@ class Primitives(unittest.TestCase):
         self.assertEqual(len(edits), 1)
 
 
-class SessionCut(unittest.TestCase):
+class SessionRetire(unittest.TestCase):
+    """`010/270`: the one-file session log (the index, and a frozen archive
+    where one is left) retires into `docs/sessions/`, files only."""
+
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.tmp = Path(self._tmp.name)
@@ -328,49 +334,215 @@ class SessionCut(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
-    def test_cut_detail_files_index_block_and_proof(self):
+    def test_retires_index_and_archive_into_files_with_proof(self):
         r = make_repo(self.tmp, done=None, sessions_archive=SESSIONS_ARCHIVE)
+        second_before = r.read("docs/sessions/2026-01-03-01-second.md")
         code, out = run(["--cut", "--root", str(r.root)])
         self.assertEqual(code, 0, out)
-        self.assertIn("sessions: docs/SESSIONS-ARCHIVE.md — route: (a)", out)
+        self.assertIn("route: retired into the session folder", out)
         self.assertNotIn("FAIL", out)
+        self.assertFalse((r.root / "docs/SESSIONS.md").exists())
         self.assertFalse((r.root / "docs/SESSIONS-ARCHIVE.md").exists())
-        names = sorted(p.name for p in (r.root / "docs/sessions").glob("*archived*"))
-        self.assertEqual(names, [
-            "2026-01-02-archived-000-demo-session-log-archive.md",
-            "2026-01-02-archived-001-2026-01-02-first-session.md",
-            "2026-01-04-archived-002-2026-01-04-third-session.md"])
-        first = r.read("docs/sessions/" + names[1])
-        self.assertIn("](../decisions/0001.md)", first)
-        index = r.read("docs/SESSIONS.md")
-        # the block sits before the first existing entry, oldest first
-        self.assertLess(index.index(archivecut.BEGIN),
-                        index.index("2026-02-01 · newest"))
-        self.assertIn("- [2026-01-03 · second](sessions/2026-01-03-01-second.md)"
-                      " — already an\n  index line, kept as it stands.\n", index)
-        self.assertIn("(sessions/" + names[2] + ") — archived entry", index)
-        # the index's own link to the archive moved to the index itself
-        self.assertIn("Older entries: [`SESSIONS.md`](SESSIONS.md).", index)
+        # an index line goes into the file it links, after its heading
+        second = r.read("docs/sessions/2026-01-03-01-second.md")
+        self.assertTrue(second.startswith(
+            "# second\n\n" + archivecut.LOG_LABEL + "\n\n"
+            "<!-- archivecut:log-entry docs/SESSIONS-ARCHIVE.md 8+2 -->\n"
+            "- [2026-01-03 · second](2026-01-03-01-second.md) — already an\n"
+            "  index line, kept as it stands.\n\n"), second)
+        self.assertEqual(archivecut.without_entries(second), second_before)
+        newest = r.read("docs/sessions/2026-02-01-0900-newest.md")
+        self.assertIn("- [2026-02-01 · newest](2026-02-01-0900-newest.md)"
+                      " — the tail.\n", newest)
+        # an entry that links no session file gets a new file for its date;
+        # it states no time, so its name carries a day counter
+        made = r.read("docs/sessions/"
+                      "2026-01-02-01-first-session-built-the-thing-see.md")
+        self.assertIn("[`decisions/0001.md`](../decisions/0001.md)", made)
+        self.assertTrue(made.startswith(archivecut.LOG_LABEL))
+        self.assertTrue((r.root / "docs/sessions/"
+                         "2026-01-04-01-third-session-more-work.md").is_file())
+        # the preambles go to the README, fenced, word for word
+        readme = r.read("docs/sessions/README.md")
+        self.assertIn("Verbatim older entries rotated out of [`SESSIONS.md`]"
+                      "(SESSIONS.md).", readme)
+        self.assertLess(readme.index("`docs/SESSIONS-ARCHIVE.md`, retired"),
+                        readme.index("`docs/SESSIONS.md`, retired"))
+        r.commit()
         code, out = run(["--verify", "--root", str(r.root)])
         self.assertEqual(code, 0, out)
+        self.assertIn("PASS  docs/SESSIONS.md", out)
         self.assertIn("PASS  docs/SESSIONS-ARCHIVE.md", out)
         ok, lout = linkscan_ok(r.root)
         self.assertTrue(ok, lout)
 
-    def test_fallback_when_an_entry_has_no_date(self):
-        r = make_repo(self.tmp, done=None, sessions_archive=SESSIONS_ARCHIVE
-                      + "\n- **an undated entry**: no date anywhere.\n")
+    def test_plan_writes_nothing(self):
+        r = make_repo(self.tmp, done=None)
+        code, out = run(["--plan", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("PASS  docs/SESSIONS.md: the README and the session files", out)
+        self.assertEqual(git(r.root, "status", "--porcelain").stdout, "")
+
+    def test_verify_catches_a_changed_entry(self):
+        r = make_repo(self.tmp, done=None)
         code, out = run(["--cut", "--root", str(r.root)])
         self.assertEqual(code, 0, out)
-        self.assertIn("route: (b) moved whole", out)
-        self.assertTrue((r.root / "docs/sessions/SESSIONS-ARCHIVE.md").is_file())
-        self.assertIn("(sessions/SESSIONS-ARCHIVE.md)", r.read("docs/SESSIONS.md"))
-        moved = r.read("docs/sessions/SESSIONS-ARCHIVE.md")
-        self.assertIn("](../decisions/0001.md)", moved)
-        ok, lout = linkscan_ok(r.root)
-        self.assertTrue(ok, lout)
+        r.commit()
+        p = "docs/sessions/2026-02-01-0900-newest.md"
+        r.write(p, r.read(p).replace("the tail.", "the tale."))
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL  docs/SESSIONS.md", out)
+
+    def test_stated_time_names_the_new_file(self):
+        r = make_repo(self.tmp, done=None, extra={"docs/SESSIONS.md": SESSIONS
+                      + "- 2026-03-04 · 1415 UTC · a timed entry (no link)\n"
+                      + "- **2026-03-05 · ~0730 UTC** (bold) — approximate\n"})
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertTrue((r.root / "docs/sessions/"
+                         "2026-03-04-1415-a-timed-entry-no-link.md").is_file())
+        self.assertTrue((r.root / "docs/sessions/"
+                         "2026-03-05-0730-bold-approximate.md").is_file())
+
+    def test_writes_nothing_when_an_entry_has_no_date(self):
+        r = make_repo(self.tmp, done=None, extra={"docs/SESSIONS.md": SESSIONS
+                      + "- **an undated entry**: no date anywhere.\n"})
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL  every entry that links no session file carries "
+                      "a date", out)
+        self.assertTrue((r.root / "docs/SESSIONS.md").is_file())
+        self.assertFalse((r.root / "docs/sessions/README.md").exists())
+        self.assertEqual(git(r.root, "status", "--porcelain").stdout, "")
+
+    def test_writes_nothing_on_a_same_page_anchor_or_self_link(self):
+        for extra in ("- 2026-03-04 · see [above](#top)\n",
+                      "- 2026-03-04 · see [the log](SESSIONS.md)\n"):
+            with self.subTest(extra=extra):
+                tmp = tempfile.TemporaryDirectory()
+                self.addCleanup(tmp.cleanup)
+                r = make_repo(Path(tmp.name), done=None,
+                              extra={"docs/SESSIONS.md": SESSIONS + extra})
+                code, out = run(["--cut", "--root", str(r.root)])
+                self.assertEqual(code, 1, out)
+                self.assertIn("FAIL  every link in an entry still has a "
+                              "target", out)
+                self.assertTrue((r.root / "docs/SESSIONS.md").is_file())
+
+    def test_an_existing_readme_is_kept_above_the_tools_part(self):
+        r = make_repo(self.tmp, done=None, extra={
+            "docs/sessions/README.md": "# mine\n\nThe index is "
+                                       "[`../SESSIONS.md`](../SESSIONS.md).\n"})
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("docs/sessions/README.md already exists", out)
+        readme = r.read("docs/sessions/README.md")
+        self.assertTrue(readme.startswith("# mine\n\nThe index is "), readme)
+        self.assertIn("\n\n" + archivecut.INTRO_MARK + "\n", readme)
+        self.assertNotIn("# Session records", readme)
+        r.commit()
         code, out = run(["--verify", "--root", str(r.root)])
         self.assertEqual(code, 0, out)
+        ok, lout = linkscan_ok(r.root)
+        self.assertTrue(ok, lout)
+
+    def test_entry_linking_its_file_on_a_later_line_is_placed_there(self):
+        r = make_repo(self.tmp, done=None, extra={"docs/SESSIONS.md": SESSIONS
+                      + "- 2026-02-01 — the same session, linked later:\n"
+                        "  [detail](sessions/2026-02-01-0900-newest.md)\n"})
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        newest = r.read("docs/sessions/2026-02-01-0900-newest.md")
+        self.assertIn("  [detail](2026-02-01-0900-newest.md)\n", newest)
+        self.assertEqual(
+            [p.name for p in (r.root / "docs/sessions").glob("2026-02-01-*")],
+            ["2026-02-01-0900-newest.md"])
+
+    def test_non_canonical_link_maps_back(self):
+        r = make_repo(self.tmp, done=None, extra={"docs/SESSIONS.md": SESSIONS
+                      + "- [2026-03-04 · x](../docs/ROADMAP.md) — and "
+                        "[a tool](../tools/t.py)\n"})
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        names = [p.name for p in (r.root / "docs/sessions").glob("2026-03-04-*")]
+        self.assertEqual(len(names), 1)
+        text = r.read("docs/sessions/" + names[0])
+        self.assertIn("(../../docs/ROADMAP.md)", text)
+        self.assertIn("(../../tools/t.py)", text)
+        ok, lout = linkscan_ok(r.root)
+        self.assertTrue(ok, lout)
+
+    def test_no_final_newline_rebuilds(self):
+        r = make_repo(self.tmp, done=None, extra={
+            "docs/SESSIONS.md": SESSIONS + "- 2026-03-04 · last, no newline"})
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("final-newline=no", r.read("docs/sessions/README.md"))
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+
+    def test_an_archive_cut_before_010_270_still_verifies(self):
+        """The old route left an index block in `SESSIONS.md` and
+        `-archived-` detail files; retiring the index places the block's
+        lines in those files, and both logs still rebuild."""
+        archive = ("# arch\n\nSee [`SESSIONS.md`](SESSIONS.md).\n\n"
+                   "- **2026-01-02 (one)**: did a thing.\n")
+        r = make_repo(self.tmp, done=None, sessions_archive=archive)
+        pre = "2026-01-02-archived-000-arch.md"
+        one = "2026-01-02-archived-001-2026-01-02-one.md"
+        git(r.root, "rm", "-q", "docs/SESSIONS-ARCHIVE.md")
+        r.write("docs/sessions/" + pre,
+                "# arch\n\nSee [`SESSIONS.md`](../SESSIONS.md).\n\n")
+        r.write("docs/sessions/" + one, "- **2026-01-02 (one)**: did a thing.\n")
+        block = (archivecut.BEGIN + "\n"
+                 f"- [2026-01-02 · arch](sessions/{pre}) — archived preamble,"
+                 " verbatim in its file\n"
+                 f"- [2026-01-02 · 2026-01-02 (one)](sessions/{one}) — archived"
+                 " entry, verbatim in its file\n" + archivecut.END + "\n")
+        index = r.read("docs/SESSIONS.md").replace(
+            "Older entries: [`SESSIONS-ARCHIVE.md`](SESSIONS-ARCHIVE.md).\n\n", "")
+        r.write("docs/SESSIONS.md",
+                index.replace("- [2026-02-01", block + "- [2026-02-01"))
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("PASS  docs/SESSIONS.md", out)
+        self.assertIn("PASS  docs/SESSIONS-ARCHIVE.md: 2 detail files", out)
+
+
+class PlaceEntries(unittest.TestCase):
+    def test_insert_strip_round_trip(self):
+        ent = [("docs/SESSIONS.md", 3, 1, "- [x](y.md) — z\n")]
+        for original in (None, "", "# T\n", "# T\n\nbody\n", "no heading\n",
+                         "# T no newline", "body without newline"):
+            with self.subTest(original=original):
+                text = archivecut.insert_entries(original, ent)
+                got = archivecut.strip_entries(text)
+                self.assertIsInstance(got, tuple)
+                self.assertEqual(got[0], original)
+                self.assertEqual(got[1], ent)
+
+    def test_untouched_file_reads_as_not_present(self):
+        self.assertIs(archivecut.strip_entries("# T\n\nbody\n"),
+                      archivecut.NOT_PRESENT)
+
+    def test_entry_date_time(self):
+        f = archivecut.entry_date_time
+        self.assertEqual(f("- [2026-07-20 · ~1945 UTC · x](y)"),
+                         ("2026-07-20", "1945"))
+        self.assertEqual(f("- **2026-11-09 · 1242 UTC** (x)"),
+                         ("2026-11-09", "1242"))
+        self.assertEqual(f("- [2026-07-18 · 13:50 · Opus"), ("2026-07-18", "1350"))
+        self.assertEqual(f("- [2026-07-14 · cold review](x)"), ("2026-07-14", None))
+        self.assertEqual(f("- 2026-07-10 · 1157→234 lines"), ("2026-07-10", None))
+        self.assertEqual(f("- no date"), (None, None))
 
 
 if __name__ == "__main__":

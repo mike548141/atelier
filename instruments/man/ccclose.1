@@ -105,17 +105,21 @@ Needs a GitHub remote and a working
 .BR gh .
 .TP
 .B Session record written
-The session log is
+The session log is the folder of session files,
+.I docs/sessions/
+or
+.IR sessions/ ;
+the folder is the index.
+No commit in the window touching the folder fails; edits that are only
+uncommitted fail as
+.IR "written but not committed" .
+A repo that still keeps the retired one-file index,
 .I docs/SESSIONS.md
 or
 .IR SESSIONS.md ,
-with a
-.I sessions/
-detail store beside it when the repo keeps one.
-No commit in the window touching the log fails; edits that are only
-uncommitted fail as
-.IR "written but not committed" .
-An index line with no detail file warns.
+is named, and until 2026-12-04 a commit to it still counts: alone it
+passes, and beside a folder with no session file it warns.
+From that day it fails.
 .TP
 .B Board index rebuilt
 A generated board is a
@@ -608,10 +612,11 @@ files, read only.
 The session's scratch folder, as the transcript records it; listed, never
 changed.
 .TP
+.I docs/sessions/ \fRor\fP sessions/
+The session log, one file per session.
+.TP
 .I docs/SESSIONS.md \fRor\fP SESSIONS.md
-The session log, with its
-.I sessions/
-detail store.
+The retired one-file session index, read only while a repo still keeps it.
 .TP
 .I docs/ROADMAP.md \fRor\fP ROADMAP.md
 The board index, with its

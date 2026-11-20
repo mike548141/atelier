@@ -229,7 +229,9 @@ git config user.email "<git_identity.email>"
    a check **scoped**/**tuned** to its subject matter, declare that in
    `.atelier-floor.json` at the repo root — never by dropping a scanner. A
    declaration is visible estate-wide via `floorfleet`; a missing line is not.
-7. **Seed the first `docs/SESSIONS.md` entry**, commit, then create the remote and
+7. **Write the first session file**, `docs/sessions/<date>-<HHMM>-<slug>.md`
+   (the start time in UTC, from `date -u`; the template's
+   `docs/sessions/README.md` explains the folder), commit, then create the remote and
    push. The authority for creating a *new* remote repo is **the principal's ask
    itself** (they invoked create-repo; a repo on their own account is what they
    asked for) — not "push is recoverable", which justifies only the push. If the
@@ -264,8 +266,10 @@ repo has no `docs/roadmap/`, seed the store form from the templates (as in step
 4) rather than a one-file `ROADMAP.md`. If it has a **one-file board** (a
 monolithic `ROADMAP.md` of entries), do not rewrite it or re-type its items:
 point at the store conversion, which is healthy item 6 of `skills/fleet-sweep`.
-A frozen `ROADMAP-DONE.md` or `SESSIONS-ARCHIVE.md` is cut into its store by
-`tools/archivecut.py`. Never overwrite an existing board's item files with the
+A frozen `ROADMAP-DONE.md` is cut into its store by `tools/archivecut.py`, and
+a one-file session log (`SESSIONS.md`, with any `SESSIONS-ARCHIVE.md`) is
+retired into `docs/sessions/` by the same tool's `--cut` (`010/270`); never by
+hand. Never overwrite an existing board's item files with the
 template's starter ones.
 
 **Don't touch a third-party repo** — check the remote's owner first (a repo whose

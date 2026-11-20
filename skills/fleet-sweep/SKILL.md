@@ -31,13 +31,18 @@ list in the rulings file; that file wins.
    rulings and actions waiting on the principal, de-duplicated within and
    across repos, answered ones marked with the citation.
 6. **No record store kept as one growing file, and none missing**: session
-   log → index plus one file per session (RECORD.md); board → per-item files
+   log → the folder `docs/sessions/` alone, one file per session, the folder
+   its own index (RECORD.md; `010/270`, 2026-11-20); board → per-item files
    plus the generated index, done items included. A repo with **no board at
    all** fails this item too: it gets the empty store (`docs/roadmap/` with
-   its `README.md`, and the generated index). A frozen pre-split archive
-   (`ROADMAP-DONE.md`, `SESSIONS-ARCHIVE.md`) is cut into the store, entry by
-   entry, once roadmap `010/220` has built and proved the cut; until then it
-   is reported, not touched. Any other one-file list of entries → one file
+   its `README.md`, and the generated index). A repo still keeping a session
+   index (`docs/SESSIONS.md`, with any `SESSIONS-ARCHIVE.md`) fails it: atelier's
+   `tools/archivecut.py --cut` retires it into the folder with its proof, and
+   the worker then rewords the repo's own onramp and docs that tell a session
+   to read or append to it (a `docs/sessions/README.md` the repo already kept
+   is left above the tool's part, so its words need that reading too). A
+   frozen `ROADMAP-DONE.md` is cut into the store by the same tool, entry by
+   entry. Any other one-file list of entries → one file
    per entry with an index. **Exempt:** `CHANGELOG.md`, a release log in a
    standard format that outside readers expect and no session reads at
    start; and reference documents, which are not entry lists.

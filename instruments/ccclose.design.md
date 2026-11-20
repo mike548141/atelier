@@ -144,7 +144,7 @@ and an absent input never crashes the run.
 | 2 | Branches put away | local branches, tip commit time | a non-default branch whose tip is inside the window still exists (merged-but-not-deleted counts: CONCURRENCY § *Every branch ends put away*) | not a git repo |
 | 3 | Commits pushed | commits in the window that no remote-tracking ref contains | any | no remote |
 | 4 | PRs merged | `gh pr list --state open` | an open PR created in the window, or headed by one of this session's branches | no GitHub remote |
-| 5 | Session record | commits in the window touching the session log and its detail store | no index line written in the window, or written but not committed | no session log in the repo |
+| 5 | Session record | commits in the window touching the session folder (`docs/sessions/`); the retired one-file index still counts until 2026-12-04 | no session file written in the window, or written but not committed | no session log in the repo |
 | 6 | Board rebuilt | the board's own check (`board.py --check`) | the generated index is stale | no generated board |
 | 7 | No live claim | `[~]` lines in the board's item files | a `[~]` naming this session's id prefix, or dated inside the window | no board |
 | 8 | Floor at the pushed head | `gh run list --commit <full sha>` | a failed run, or a **cancelled** one (not a pass: RECORD § the floor at head) | nothing from the window reached the default branch; no workflows |
@@ -281,8 +281,10 @@ changes every session on his machine and is his call.
 **Detected, not hard-coded.** Atelier's conventions are the first adapter, and
 each is found by looking:
 
-- the session log is `docs/SESSIONS.md` or `SESSIONS.md`, with a `sessions/`
-  detail store beside it if one exists;
+- the session log is the folder `docs/sessions/` or `sessions/`, one file
+  per session (board `010/270` retired the one-file index on 2026-11-20; a
+  repo that still keeps `docs/SESSIONS.md` or `SESSIONS.md` is named, and its
+  commits count until 2026-12-04);
 - a *generated* board is a `ROADMAP.md` carrying board.py's generated banner
   beside a `roadmap/` item store; a hand-kept `ROADMAP.md` has claims but
   nothing to rebuild;

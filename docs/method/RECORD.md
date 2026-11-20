@@ -46,43 +46,46 @@ the reader at the site gets the comment, the re-litigator gets the ADR.)
 *(Added 2026-07-10, review B10 — `build/REPO-STANDARD.md` pointed here for this
 rule before it was written down; the practice long predates the paragraph.)*
 
-## The session log — an append-only index with detail on demand
+## The session log — one file per session, and the folder is the index
 
 Every working session leaves a trace, so the next one starts from where this one
 stopped instead of re-deriving it:
 
-- **`SESSIONS.md` is an append-only index** — one entry per session, newest last,
-  read at session start (tail it). Append-only is a rule about **content** — an
-  entry is never edited or reordered once written — **not a fixed home**: like
-  the roadmap, the index may **rotate**. The recent tail stays in
-  `SESSIONS.md`; older entries relocate **verbatim** to a `SESSIONS-ARCHIVE.md`
-  growth store (grepped on demand, never loaded whole) — the same
-  current-truth/history split the board makes (its frozen pre-split
-  archive, once `ROADMAP-DONE.md`, is cut into the store since `010/220`). (Grounded
-  2026-07-14: the cold review found the append-only rule and a size budget
-  colliding with no sanctioned move for an index that had already done the
-  split; Mike decided the move.) **A reading cost owes a rotation, never a
-  length.** Nothing measures the index's length (Mike's ruling, 2026-10-05: no
-  arbitrary line or size limits; sizescan's size advisory went 2026-10-16), and
-  length is not what the index costs: the read order loads its tail, which
-  costs the same at 400 lines as at 4,000. So the move is sanctioned, not
-  scheduled: a session rotates when getting its bearings from the index takes
-  more than that tail, and says so in its entry. *(This trigger is the house
-  reading recorded at `115/330`, 2026-11-16, not a ruling.)* What keeps the
-  tail cheap is the entry shape, one line with detail in a file, and nothing
-  reads the index for that shape, so a regression back to a flat log is
-  detected by no tool and by no scheduled review: it relies on the writing
-  session's discipline and the next session noticing. A cold
-  reviewer does not read this tail: it skips the session-log step of the read
-  order (`REVIEW.md` rule 2, *the reviewer's start-up reading*), so a closing
-  entry carries no duty about deferred material.
-- **Detail lives on demand** — when a session is substantial, its full detail
-  goes in a `docs/sessions/<date>-<HHMM>-<slug>.md` file and the index carries
-  a one-line pointer. (`HHMM` is the session's start time, 24-hour, in UTC —
+- **The session log is the folder `docs/sessions/`: one file per session, and
+  the folder is the index.** No file lists the sessions. Their names sort by
+  start time (next bullet), so a session getting its bearings reads the newest
+  few files (`ls docs/sessions/[0-9]* | tail -5` lists them) and opens an
+  older one only when a thread leads there. Append-only is a rule about
+  **content**: a session never edits or reorders another session's file; it
+  writes its own. `docs/sessions/README.md` explains the folder and is the
+  only file in it that is not a session record.
+  **The one-file index is retired** (2026-11-20, `010/270`). Until then a
+  hand-appended `SESSIONS.md` carried one line per session, newest last, read
+  by its tail, and could rotate older lines into a `SESSIONS-ARCHIVE.md`
+  growth store; it existed to keep the session-start read cheap while the
+  detail sat in files (the 2026-07-10 index/detail split, made for token
+  discipline), and date-named files sorting by start time do that with
+  nothing to append to. Asked where a rotated index tail should go, the
+  principal answered *"This does not sound like doctrine, they should not be in
+  one big sessions file in the first place"*, then picked *"Retire
+  SESSIONS.md"* from the routes offered. The rotation rule and its archive went
+  with the index. `tools/archivecut.py --cut` retires a repo's index, and any
+  archive, losslessly: each entry goes word for word into the session file it
+  links (or a new file named for its date where it links none) and everything
+  else into the folder's README, with a proof that rebuilds the old file byte
+  for byte; nothing is written if the proof fails. A cold reviewer does not
+  read the newest session files: it skips the session-log step of the read
+  order (`REVIEW.md` rule 2, *the reviewer's start-up reading*), so a session
+  record carries no duty about deferred material.
+- **A session file is named for the session's start** —
+  `docs/sessions/<date>-<HHMM>-<slug>.md`. (`HHMM` is the session's start time,
+  24-hour, in UTC —
   `date -u`, ADR 2026-07-15; the identifier is coordination-free per
   CONCURRENCY's record-identifier rule:
   built from facts the session already owns, safe to allocate at open, no
-  shared counter. Files named under the retired `NN` scheme keep their names.)
+  shared counter. Files named under the retired `NN` scheme keep their names,
+  and a file the retirement made for an entry that stated no time carries a
+  day counter in the time's place: neither is renamed to fake a time.)
   These identifiers are **long, lowercase and hyphenated by design** (a full
   slug runs 40+ chars); a downstream tool that quotes one — a registry
   validator, a secret/token scanner — must allow that shape rather than flag it
@@ -90,17 +93,20 @@ stopped instead of re-deriving it:
   truncating the slug away. *(Bearing: a sibling repo's registry validator
   tripped its token-shape guard on a 46-char id quoted verbatim; the estate's
   own entropy-based scanners pass these ids clean — a hyphenated date-slug
-  carries almost no entropy.)* Open the detail file only when a line needs
-  unpacking. This keeps the always-loaded index cheap (token discipline)
-  without losing depth.
-  - **A pointer to an addendum entry names the entry, not the file it extends.**
-    When a later session appends a `SESSIONS.md` entry continuing earlier work,
-    whatever points at it — a roadmap item, a review brief, a queue line — says
-    *the `SESSIONS.md` entry of `<date>`*. Linking the earlier session's detail
-    file sends the reader to a file the addendum was never written into: they
-    grep it, find nothing, and read the work with no intent record. (Grounded
-    2026-07-28: a cold pass followed exactly that pointer, found the named file
-    empty of the record, and reached its verdict before the addendum surfaced.)
+  carries almost no entropy.)* Because the name carries the order, the folder
+  needs no list kept beside it, and the start-of-session read stays the
+  newest few files whatever the folder's size.
+  - **A pointer to later work on an earlier session names the later record.**
+    When a later session continues earlier work, it writes its own file;
+    whatever points at the continuation — a roadmap item, a review brief, a
+    queue line — links that file, not the earlier session's. Linking the
+    earlier session's file sends the reader to a file the continuation was
+    never written into: they grep it, find nothing, and read the work with no
+    intent record. (Grounded 2026-07-28: a cold pass followed exactly that
+    pointer, found the named file empty of the record, and reached its verdict
+    before the addendum surfaced. That addendum was an index line; the
+    retirement placed every such line in the file it linked, so the old
+    pointers now land on their text.)
   - **A detail record ends with an identifiers block, and so does the closing
     message.** These are the handles a later session, a peer or the principal
     uses to find this session's work without reading the narrative. Each is
@@ -150,7 +156,7 @@ stopped instead of re-deriving it:
   all-done message**. The invariant that tests it: if the principal asks "ready
   to close?", the honest answer is *already* yes — the agent is never caught
   replying "wait, there are things to do first". What "tidied up" means is
-  **situation-dependent** — write the session entry, update the roadmap /
+  **situation-dependent** — write the session file, update the roadmap /
   changelog / follow-ups, commit and push, close out worktrees and PRs — take
   the subset the work actually left owing.
   - **The boundary is the balance.** The trigger is *completing* a sequence, not
@@ -161,7 +167,7 @@ stopped instead of re-deriving it:
     and drifted after a model change — the artefact was mandated, the signal
     wasn't; Mike sharpened the sequence-vs-within-sequence boundary the same day.)
   - **The all-clear carries its evidence.** The close message does not just
-    assert "done" — it *shows* what was captured and put away (session entry,
+    assert "done" — it *shows* what was captured and put away (session file,
     roadmap/records updated, commits pushed, worktrees/PRs closed, review queued
     if owed), so the principal closes on verifiable fact, not on trust. The form
     is free — a sentence, a checklist, a small table — but "nothing is owed" is
@@ -432,8 +438,8 @@ it was, and `sizescan` still polices it.
 
 **Bulk deletion from a record store is a show-first action, regardless of who
 created the mess** (the principal's ruling, 2026-08-04). Before removing a
-block from a record store — ROADMAP, SESSIONS, ADRs, reviews — either diff it
-and show the principal what goes, or ask. One message, and it removes the
+block from a record store — ROADMAP, session files, ADRs, reviews — either
+diff it and show the principal what goes, or ask. One message, and it removes the
 class. Two intuitions make an unshown deletion feel safe, and neither holds:
 *"it's my own mess"* — the sections encode the **principal's** rulings, not
 the agent's drafts, and deleting the record of another party's decisions is a
@@ -450,7 +456,8 @@ cannot see, and `AUTONOMY.md` § *Before you destroy or overwrite* carries the
 same duty at the general layer.
 
 This is one pattern the whole record shares: **current-truth files stay lean;
-history relocates to an on-demand store.** SESSIONS (index + `docs/sessions/`),
+history relocates to an on-demand store.** The session log (one file per
+session in `docs/sessions/`, the folder its own index),
 the board (generated index + per-item files; pre-split detail in its own
 archive section), a README that points into `docs/` — the same
 shape. The discipline decays silently, though: the split gets done once by hand,

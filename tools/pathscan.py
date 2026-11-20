@@ -1436,7 +1436,10 @@ def load_declared_roots(root: Path) -> list[str]:
 # DIRECTORY is expanded; a records file named explicitly as a path argument is
 # always scanned — the same contract other scanners' RECORDS_GLOBS use.
 # The board's pre-split archive section (`010/220`) holds the same frozen text
-# `ROADMAP-DONE.md` did, cut into item files by `tools/archivecut.py`.
+# `ROADMAP-DONE.md` did, cut into item files by `tools/archivecut.py`. The
+# one-file session index was retired into `docs/sessions/` on 2026-11-20
+# (`010/270`); its name stays here while a repo not yet swept keeps one, and
+# `010/290` removes it once none does.
 RECORDS_GLOBS = ["docs/SESSIONS.md", "docs/sessions", "docs/ROADMAP-DONE.md",
                  "docs/roadmap/990-done-before-the-split",
                  "docs/reviews", "CHANGELOG.md"]
@@ -1559,7 +1562,8 @@ def _main(argv: list[str] | None = None) -> int:
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--include-records", action="store_true",
                     help="also scan the records (docs/reviews, docs/sessions, "
-                         "docs/SESSIONS.md, docs/ROADMAP-DONE.md or its "
+                         "a retired docs/SESSIONS.md a repo still keeps, "
+                         "docs/ROADMAP-DONE.md or its "
                          "archive section docs/roadmap/990-done-before-the-"
                          "split, CHANGELOG.md), excluded by default since 2026-08-23 "
                          "(FR2): they name the tree as it stood when written "

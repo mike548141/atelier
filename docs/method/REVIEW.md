@@ -496,7 +496,7 @@ artefact**, not a throwaway chat:
    resolved-upward rule are the same act seen from governance and from layering:
    the principal decides, and the resolution lands in the parent. Once
    decided, fixes consolidate onto one ROADMAP follow-ups item; then tick
-   the ROADMAP pointer and add a `SESSIONS.md` entry.
+   the ROADMAP pointer and write the session's file in `docs/sessions/`.
 5. **Close** — a finding is only closed when its fix is itself verified, with a
    live proof where one exists. "Addressed the review" without exercising the fix
    is the apex violation the review existed to catch. When a review file's

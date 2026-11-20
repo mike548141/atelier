@@ -575,10 +575,13 @@ class AtelierAdoption(unittest.TestCase):
     declaration deleted in passing is noticed — an index that silently stops
     declaring is a check that silently stops running."""
 
-    def test_atelier_declares_its_four_indexes(self):
+    def test_atelier_declares_its_three_indexes(self):
+        """The fourth, the session index `docs/SESSIONS.md`, was retired on
+        2026-11-20 (`010/270`): the folder of session files is the index, so
+        nothing is left to drift from it."""
         repo = TOOLS_DIR.parent
         for rel in ("docs/decisions/README.md", "tools/README.md",
-                    "instruments/README.md", "docs/SESSIONS.md"):
+                    "instruments/README.md"):
             with self.subTest(index=rel):
                 decls, _, _ = indexscan.discover(repo / rel, rel)
                 self.assertTrue(decls, f"{rel} carries no indexscan:maps line")

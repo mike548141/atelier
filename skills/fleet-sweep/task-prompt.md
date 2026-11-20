@@ -15,7 +15,7 @@ Repo-specific notes from the orchestrator: {NOTES}
 ## Task (this run only)
 {TASK}
 
-Then: CI green at your pushed head (watch the runs, report conclusions with URLs; a green local suite is not evidence), and this repo's session-log entry for the work in its own format.
+Then: CI green at your pushed head (watch the runs, report conclusions with URLs; a green local suite is not evidence), and this repo's session file for the work (`docs/sessions/<date>-<HHMM>-<slug>.md`, start time in UTC).
 
 ## Final message (plain text, under 30 lines)
 REPO: {REPO}

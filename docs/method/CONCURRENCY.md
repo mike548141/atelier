@@ -21,7 +21,7 @@ git worktree add ~/worktrees/<repo>-<feature> -b <feature>
   in-repo `.venv`. A worktree does not carry the primary checkout's
   gitignored `.venv`, so a worktree that needs one makes its own, or points at
   the primary's explicitly.
-- Each parallel session = one worktree = one branch = one session-log entry that
+- Each parallel session = one worktree = one branch = one session file that
   names its worktree and branch.
 - They reconcile on `main` via PR/merge. `main` is the integration point; the
   worktrees are where divergence is allowed to happen.
@@ -322,10 +322,11 @@ enough.
   with `&&`, batched, piped) resolves after the act, so it guards nothing.
   Run it alone, read the output, then act. The rule, its five instances and
   why it has no guard are `EVIDENCE.md` §17 (`320/390`).
-- Append-tail files (session logs, changelogs) will conflict when concurrent
+- Append-tail files (a changelog) will conflict when concurrent
   sessions both append — that conflict is *expected and trivial*: keep both
   entries, chronological order, move on. Design shared records so this is the
-  worst case they present.
+  worst case they present. (The session log no longer is one: since 2026-11-20
+  it is one file per session, which two sessions cannot both append to.)
 - **Record identifiers are coordination-free — a counter is that conflict's
   silent sibling.** A next-N counter (session `NN`, ADR `NNNN`) is a shared
   resource git does not police: two sessions allocating from their own stale
@@ -901,7 +902,7 @@ carry, and how to make each survive:
 
 **Recovering after a cut — the sweep.** A session that opens onto possible
 interruption residue (the principal says a window or the editor died, or the
-read-order onramp finds a live-*looking* branch with no closing log entry) runs a
+read-order onramp finds a live-*looking* branch with no closing session file) runs a
 cheap, read-first sweep before starting new work — grounded in two real
 recoveries: atelier session 45's survival audit (2026-07-12) and the cmd+Q sweep
 (2026-07-20).
@@ -915,8 +916,9 @@ recoveries: atelier session 45's survival audit (2026-07-12) and the cmd+Q sweep
 | Reflog after the last close | nothing stranded past the last logged close |
 
 The resumer's tell is one question — **did the last session close clean, or die
-mid-flight?** A clean close leaves a session-log entry ending in a settled state;
-a death leaves a last commit then silence, no closing entry. The first needs only
+mid-flight?** A clean close leaves its session file in `docs/sessions/`, ending
+in a settled state; a death leaves a last commit then silence, and no session
+file for that work, or one that stops mid-account. The first needs only
 the normal onramp; the second warrants the sweep. Two lanes hold throughout: an
 orphan claim, worktree, or branch is reclaimed or put away on the evidence,
 never a timer (§ Claiming work — Orphan claims · § Every branch ends put

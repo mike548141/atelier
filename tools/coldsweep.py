@@ -60,8 +60,8 @@ blank line after its subject, or with CRLF line ends, cannot carry more than the
 first line out). The guarantee is "never printed", not "never requested".
 
 The rule-2 barred set applies to the diff as it does to the tree search: a
-landing commit usually edits `docs/SESSIONS.md`, which IS the author's account,
-so those hunks are left out and the run says which files it dropped, by name
+landing commit usually adds a session file under `docs/sessions/`, which IS
+the author's account, so those hunks are left out and the run says which files it dropped, by name
 only. `--also-exclude` adds to the set; `--include-barred` lifts it with the
 same disclosure banner. `--path` scopes the diff to given paths (repeatable).
 
@@ -106,6 +106,9 @@ from pathlib import Path
 # prevent. Kept as a tuple of path STRINGS and split into parts at use, never
 # matched as text against a search result.
 BARRED = (
+    # The one-file session index, retired 2026-11-20 (`010/270`): the folder
+    # below is the session log now. Still barred while a repo the health sweep
+    # has not reached keeps one; `010/290` removes it once none does.
     "docs/SESSIONS.md",
     "docs/sessions",
     "docs/ROADMAP-DONE.md",

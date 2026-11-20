@@ -1,36 +1,50 @@
 #!/usr/bin/env python3
-"""archivecut — cut a repo's frozen pre-split archives into the store form.
+"""archivecut — cut a repo's one-file records into their stores.
 
 WHY (board `010/220`, the principal's pick 2026-11-20: "Split, fall back to
-move")
+move"; and `010/270`, his pick 2026-11-20: "Retire SESSIONS.md")
 ---------------------------------------------------------------------------
-The board moved to one file per item on 2026-08-15 and the session log to an
-index plus detail files before that, but two archives were frozen in the old
-one-file form and left in `docs/`: `ROADMAP-DONE.md` (finished board work from
-before the split) and, in some children, `SESSIONS-ARCHIVE.md` (older session
-index entries rotated out). They are the last records outside their stores.
-This tool puts them in, by one of two routes, and says which ran:
+The board moved to one file per item on 2026-08-15, but its finished work
+from before the split stayed frozen in one file, `docs/ROADMAP-DONE.md`. The
+session log kept a hand-appended index, `docs/SESSIONS.md`, beside its folder
+of session files, and some children a frozen `SESSIONS-ARCHIVE.md` of older
+index entries as well. On the session log the principal said *"they should
+not be in one big sessions file in the first place"*: the date-named
+`docs/sessions/` folder is the index, and no file lists it. This tool puts
+each one-file record into its store, and says which route ran:
 
-  (a) CUT. Board: every top-level `- [x]` entry becomes its own item file in
+  BOARD (a) CUT. Every top-level `- [x]` entry becomes its own item file in
       one archive section, `docs/roadmap/990-done-before-the-split/`, whose
       `README.md` carries the archive's preamble, its headings and every line
       that was not an entry, verbatim and in order, each entry replaced by a
-      link to its item file. Sessions: every entry becomes a detail file in
-      `docs/sessions/` with a one-line index entry in `docs/SESSIONS.md`
-      (`method/RECORD.md`'s index/detail split); an entry that already IS an
-      index line (it links its own detail file) goes back to the index as it
-      stands.
-  (b) MOVE. Where the cut cannot prove itself lossless, the file moves whole
-      (`git mv`, so `git log --follow` keeps its history): the board archive
-      to `docs/roadmap/990-done-before-the-split/frozen/`, with a README that
-      points at it, and the session archive to `docs/sessions/`, with an index
-      line that points at it.
+      link to its item file.
+  BOARD (b) MOVE. Where the cut cannot prove itself lossless, the file moves
+      whole (`git mv`, so `git log --follow` keeps its history) to
+      `docs/roadmap/990-done-before-the-split/frozen/`, with a README that
+      points at it.
+  SESSIONS: RETIRE. `SESSIONS-ARCHIVE.md` (oldest first) and `SESSIONS.md`
+      leave, and only files are written. Each entry (a column-0 bullet with
+      its continuation) goes word for word into the session file it links:
+      the one it opens by linking, else the only one it links anywhere. It
+      sits right after that file's first line where that is a `# ` heading,
+      so the title stays first and the entry reads as the file's summary
+      (else at the top), under the line "From the retired session log" and a
+      comment giving its source and line numbers. An entry that links no
+      session file gets a new file, `<date>-<HHMM>-<slug>.md` when it states
+      its time straight after its date, `<date>-<NN>-<slug>.md` (its place
+      among that day's entries) when it does not: the time is never guessed.
+      Every line that is not an entry goes word for word into
+      `docs/sessions/README.md`, inside fences, under comments giving its line
+      numbers; a README the folder already had is kept, unchanged, above the
+      tool's part. There is no fallback: where the proof fails, nothing is
+      written. A session archive cut by the earlier route (an index block in
+      `SESSIONS.md`) still verifies after the index is retired.
 
 LOSSLESSNESS IS THE GATE, AND IT IS PROVEN, NOT EYED
 ----------------------------------------------------
 `010/030` records what the first child's split taught: verify as a multiset
-over every non-heading source line, never by eye. The cut proves three things
-before it writes anything, and falls back to (b) if any fails:
+over every non-heading source line, never by eye. The board cut proves three
+things before it writes anything, and falls back to (b) if any fails:
 
   1. MULTISET. Every non-heading source line appears in the outputs exactly as
      often as in the source, and the headings appear in the same order.
@@ -50,22 +64,35 @@ not map back.
 
 LINKS ACROSS THE TREE
 ---------------------
-Every Markdown link to the archive, in every tracked `.md` file, records
-included, is re-pointed to its new home. That changes a path and never a word.
+Every Markdown link to the archive (or to a retired session log, whose home
+is the folder's README), in every tracked `.md` file, records included, is
+re-pointed to its new home. That changes a path and never a word.
 Both sides of `](` are handled: where the link text is itself a path naming the
 archive, it is rewritten to the new path too, because `pathscan` reads both
 halves of a link. Inline links and reference definitions both count.
 
+THE SESSION LOG'S PROOF. Before anything is written: every non-blank line
+of the log(s) is in the outputs as often as in the source (a multiset); no
+source line is shaped like the tool's label or markers; every entry that
+needs a new file has a date; every link in an entry still has a target once
+the log is gone (a same-page anchor or a link to the log itself has none) and
+maps back exactly from its re-pointed form; and, parsing the outputs exactly
+as they will be written, the README and the session files rebuild each log
+byte for byte while every session file that already existed is unchanged but
+for the placed entries. `--verify` repeats the rebuild from disk against the
+log's last committed copy.
+
 USAGE
 -----
-    archivecut.py --plan   [--root R]   say which route each archive would take,
-                                        with the proof; write nothing (default)
+    archivecut.py --plan   [--root R]   say what each would do, with the
+                                        proof; write nothing (default)
     archivecut.py --cut    [--root R]   do it: write, `git rm` / `git mv`
-    archivecut.py --verify [--root R]   rebuild each cut archive from the files
-                                        on disk; compare with its last
-                                        committed copy
+    archivecut.py --verify [--root R]   rebuild each cut archive and retired
+                                        log from the files on disk; compare
+                                        with its last committed copy
 
-Exit 0 on success; 1 when `--verify` finds a mismatch or `--cut` cannot run;
+Exit 0 on success; 1 when `--verify` finds a mismatch or `--cut` cannot run
+(blocked, or a proof failed: then nothing is written);
 2 on a usage error. Stdlib only.
 """
 from __future__ import annotations
@@ -97,6 +124,8 @@ FROZEN_BOARD = f"{SECTION_DIR}/frozen/ROADMAP-DONE.md"
 SESSIONS_SRC = "docs/SESSIONS-ARCHIVE.md"
 SESSIONS_INDEX = "docs/SESSIONS.md"
 SESSIONS_DIR = "docs/sessions"
+# Where the earlier route moved a session archive it could not cut; it no
+# longer writes there, and --verify still reads one it finds.
 FROZEN_SESSIONS = f"{SESSIONS_DIR}/SESSIONS-ARCHIVE.md"
 
 MARKER = "<!-- archivecut:verbatim-below -->"
@@ -112,12 +141,11 @@ ENTRY_RE = re.compile(r"^- \[x\](?: |$)")
 SESSION_ENTRY_RE = re.compile(r"^[-*] ")
 # The board README's stand-in for a cut entry.
 REF_RE = re.compile(r"^- ✅ \[(\d{4}-[a-z0-9-]+)\]\(\1\.md\)$")
-# The session index's stand-in for an entry or preamble cut to a detail file.
+# The stand-in the earlier session-archive route (before `010/270`) wrote into
+# the index for an entry or preamble cut to a detail file; read by --verify.
 SESSION_REF_RE = re.compile(
     r"^- \[.*\]\(sessions/(\d{4}-\d{2}-\d{2}-archived-(\d{3})-[a-z0-9-]+\.md)\)"
     r" — archived (?:entry|preamble), verbatim in its file$")
-# An entry that is already an index line: it opens by linking its detail file.
-POINTER_RE = re.compile(r"^[-*] \[[^\]]*\]\(sessions/", re.S)
 DATE_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
 REF_DEF_RE = re.compile(r"^ {0,3}\[(?!\^)([^\]]+)\]:\s*\S")
 REF_USE_RE = re.compile(r"\[([^\]]+)\](?:\[([^\]]*)\])?(?![(:])")
@@ -467,7 +495,7 @@ def _repoint_tree(root: Path, plan: Plan, src: str, new_home: str,
     for path in tracked_md(root):
         if path in skip or path == src or ".claude/worktrees/" in path:
             continue
-        text = plan.writes.get(path)
+        text = plan.tree_writes.get(path, plan.writes.get(path))
         if text is None:
             try:
                 text = _read(root, path)
@@ -497,8 +525,8 @@ def _repoint_tree(root: Path, plan: Plan, src: str, new_home: str,
 
         new_text, edits = rewrite_links(text, target, text_side)
         if edits:
+            plan.link_files += path not in plan.tree_writes
             plan.tree_writes[path] = new_text
-            plan.link_files += 1
             plan.link_edits += len(edits)
 
 
@@ -706,46 +734,611 @@ def _move_board(root: Path, plan: Plan, sha: str) -> None:
     plan.writes[SECTION_README] = board_moved_readme(BOARD_SRC, sha)
 
 
-# ---- the session archive --------------------------------------------------
+# ---- the session log -------------------------------------------------------
+#
+# Retiring the one-file session log (`010/270`, the principal's pick
+# 2026-11-20: "Retire SESSIONS.md"). The folder of session files is the index;
+# no file in `docs/` keeps a list of them. Every entry of the index, and of a
+# frozen `SESSIONS-ARCHIVE.md` where one is left, goes word for word into a
+# session file: the file it opens by linking where that is a session file in
+# the folder, a new file named for its date otherwise. Everything that is not
+# an entry (the preamble, any heading or marker between entries) goes word for
+# word into `docs/sessions/README.md`, inside fences so it reads as a record
+# and no scanner acts on a marker in it. Marker comments carry each piece's
+# line numbers, so the log can be rebuilt from the folder byte for byte.
+
+LOG_SOURCES = (SESSIONS_SRC, SESSIONS_INDEX)   # oldest first
+SESSIONS_README = f"{SESSIONS_DIR}/README.md"
+
+LOG_LABEL = ("**From the retired session log**, word for word; only its link "
+             "paths were re-pointed for this folder:")
+ENTRY_MARK = "<!-- archivecut:log-entry {src} {start}+{count} -->"
+ENTRY_MARK_RE = re.compile(r"^<!-- archivecut:log-entry (\S+) (\d+)\+(\d+) -->$")
+REGION_MARK = "<!-- archivecut:log-text {src} {start}+{count} -->"
+REGION_MARK_RE = re.compile(r"^<!-- archivecut:log-text (\S+) (\d+)\+(\d+) -->$")
+RETIRED_MARK = ("<!-- archivecut:retired {src} lines={lines} "
+                "final-newline={nl} last={sha} -->")
+RETIRED_RE = re.compile(r"^<!-- archivecut:retired (\S+) lines=(\d+) "
+                        r"final-newline=(yes|no) last=(\S+) -->$")
+# An entry that opens by linking: `- [text](dest)`, the text allowed to wrap.
+OPENING_LINK_RE = re.compile(
+    r"^[-*] \[(?:[^\[\]]|\[[^\[\]]*\])*\]\(<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\)")
+# The time an entry states for itself, straight after its date:
+# `2026-07-20 · ~1945 UTC`, `**2026-11-09 · 1242 UTC**`, `2026-07-18 · 13:50`.
+STATED_TIME_RE = re.compile(
+    r"(\d{4}-\d{2}-\d{2})\**\s*·\s*~?([01]\d|2[0-3]):?([0-5]\d)"
+    r"(?=$|[\s*·\]),;])")
+FENCE_RUN_RE = re.compile(r"^ {0,3}(`+)")
+
+README_HEADER = """\
+# Session records
+
+One file per working session, named for the time the session started:
+`YYYY-MM-DD-HHMM-slug.md`, the time in UTC (the house doctrine's RECORD.md,
+§ *The session log*). The folder is the index. The names sort by start time,
+so a session getting its bearings reads the newest few files, for example the
+ones `ls docs/sessions/[0-9]* | tail -5` lists, and opens older ones only when
+it needs them. Some older names carry a two-digit counter where the time
+would be (`YYYY-MM-DD-NN-slug.md`). This README is the only file here that is
+not a session record.
+
+"""
+# Everything from this line down is the tool's; above it is the folder's own
+# README (the header above, or a README the repo already kept, unchanged).
+INTRO_MARK = "<!-- archivecut:retired-log-below -->"
+README_INTRO = """## The retired one-file session log
+
+This repo once kept a one-file session log beside this folder as well. It
+was retired by atelier's `archivecut.py`: each of its entries now sits, word
+for word, near the top of the session file it linked, or in a new file named
+for its date where it linked none, under the line "From the retired session
+log". Below is the rest of that file, word for word: its preamble and
+anything else that was not an entry, inside fences so that it is read as a
+record and nothing acts on it. The comment lines carry its line numbers, so
+`archivecut.py --verify` can rebuild the file from this folder byte for byte.
+"""
+
+
+class _NotPresent:
+    pass
+
+
+NOT_PRESENT = _NotPresent()
+
+
+def _core(entries: list[tuple[str, int, int, str]]) -> str:
+    out = [LOG_LABEL + "\n", "\n"]
+    for src, start, count, text in entries:
+        out.append(ENTRY_MARK.format(src=src, start=start, count=count) + "\n")
+        out.append(text if text.endswith("\n") else text + "\n")
+    return "".join(out)
+
+
+def insert_entries(original: str | None,
+                   entries: list[tuple[str, int, int, str]]) -> str:
+    """A session file with retired-log entries placed in it: right after its
+    first line where that is a `# ` heading (the title stays first and the
+    entry reads as the file's summary), else at the top. `original` None
+    means the file is new and holds the entries alone."""
+    core = _core(entries)
+    if original is None:
+        return core
+    lines = split_lines(original)
+    if lines and lines[0].startswith("# ") and lines[0].endswith("\n"):
+        return lines[0] + "\n" + core + "\n" + "".join(lines[1:])
+    return core + "\n" + original
+
+
+def strip_entries(text: str):
+    """The inverse of `insert_entries`: (original or None, entries), or
+    NOT_PRESENT when the file holds no placed entries, or None when it holds
+    something shaped like them that does not read back exactly."""
+    lines = split_lines(text)
+    if len(lines) > 2 and lines[0].startswith("# ") and lines[1] == "\n" \
+            and lines[2] == LOG_LABEL + "\n":
+        head, i = lines[0], 2
+    elif lines and lines[0] == LOG_LABEL + "\n":
+        head, i = None, 0
+    else:
+        return NOT_PRESENT
+    if i + 1 >= len(lines) or lines[i + 1] != "\n":
+        return None
+    j = i + 2
+    entries: list[tuple[str, int, int, str]] = []
+    while j < len(lines):
+        m = ENTRY_MARK_RE.match(lines[j].rstrip("\n"))
+        if not m:
+            break
+        count = int(m.group(3))
+        body = lines[j + 1:j + 1 + count]
+        if len(body) != count or count < 1:
+            return None
+        entries.append((m.group(1), int(m.group(2)), count, "".join(body)))
+        j += 1 + count
+    if not entries:
+        return None
+    rest = "".join(lines[j:])
+    if head is None:
+        if rest == "":
+            original = None
+        elif rest.startswith("\n"):
+            original = rest[1:]
+        else:
+            return None
+    else:
+        if not rest.startswith("\n"):
+            return None
+        original = head + rest[1:]
+    if insert_entries(original, entries) != text:
+        return None
+    return original, entries
+
+
+def without_entries(text: str) -> str:
+    """A session file's text as it was before entries were placed in it."""
+    got = strip_entries(text)
+    if isinstance(got, tuple):
+        return got[0] or ""
+    return text
+
+
+def _fence(body: str) -> str:
+    run = 2
+    for line in split_lines(body):
+        m = FENCE_RUN_RE.match(line)
+        if m:
+            run = max(run, len(m.group(1)))
+    return "`" * max(4, run + 1)
+
+
+def readme_text(sections: list[dict], prefix: str | None = None) -> str:
+    """The folder README: `prefix` (a README the repo already kept, as it
+    stands) or the tool's header, then the retired logs' sections."""
+    head = README_HEADER if prefix is None else prefix
+    out = [head, INTRO_MARK + "\n\n", README_INTRO]
+    for sec in sections:
+        out.append(f"\n### `{sec['src']}`, retired\n\n")
+        out.append(RETIRED_MARK.format(
+            src=sec["src"], lines=sec["nlines"],
+            nl="yes" if sec["final_nl"] else "no", sha=sec["sha"]) + "\n")
+        for start, count, body in sec["regions"]:
+            body = body if body.endswith("\n") else body + "\n"
+            fence = _fence(body)
+            out.append("\n" + REGION_MARK.format(src=sec["src"], start=start,
+                                                 count=count) + "\n")
+            out.append(fence + "\n" + body + fence + "\n")
+    return "".join(out)
+
+
+def readme_prefix(text: str) -> str | None:
+    """A README's own text, above the tool's part; None when it has none."""
+    k = text.find(INTRO_MARK + "\n")
+    if k < 0 or (k > 0 and text[k - 1] != "\n"):
+        return None
+    return text[:k]
+
+
+def parse_readme(text: str) -> list[dict] | None:
+    """The retired logs' sections, read back from the README; None unless the
+    README is exactly what `readme_text` writes for them."""
+    lines = split_lines(text)
+    sections: list[dict] = []
+    cur = None
+    i = 0
+    while i < len(lines):
+        s = lines[i].rstrip("\n")
+        m = RETIRED_RE.match(s)
+        if m:
+            cur = {"src": m.group(1), "nlines": int(m.group(2)),
+                   "final_nl": m.group(3) == "yes", "sha": m.group(4),
+                   "regions": []}
+            sections.append(cur)
+            i += 1
+            continue
+        m = REGION_MARK_RE.match(s)
+        if m:
+            if cur is None or m.group(1) != cur["src"]:
+                return None
+            start, count = int(m.group(2)), int(m.group(3))
+            if i + 2 + count >= len(lines):
+                return None
+            fence = lines[i + 1].rstrip("\n")
+            if not re.fullmatch(r"`{3,}", fence) \
+                    or lines[i + 2 + count].rstrip("\n") != fence:
+                return None
+            cur["regions"].append((start, count,
+                                   "".join(lines[i + 2:i + 2 + count])))
+            i += 3 + count
+            continue
+        i += 1
+    prefix = readme_prefix(text)
+    if prefix is None or readme_text(sections, prefix) != text:
+        return None
+    return sections
+
+
+def _entry_back(dest: str) -> str | None:
+    """A placed entry's link, mapped back to how the log wrote it."""
+    if SCHEME_RE.match(dest) or dest.startswith("/"):
+        return None
+    path, anchor = split_dest(dest)
+    if not path:
+        return None
+    if path.startswith("../"):
+        return join_dest(path[3:], anchor)
+    return join_dest("sessions/" + path, anchor)
+
+
+def _entry_forward(dest: str, errors: list[str]) -> str | None:
+    """A log entry's link, re-pointed for the folder one level down. A link
+    into the folder loses its `sessions/`; any other gains `../`. Both map
+    back exactly (`_entry_back`), which a normalised path would not: the log
+    may write `../docs/x.md` where `x.md` would do."""
+    if SCHEME_RE.match(dest) or dest.startswith("/"):
+        return None
+    path, anchor = split_dest(dest)
+    if not path:
+        errors.append(f"a same-page anchor (`{dest}`) has no page once the log goes")
+        return None
+    if norm(posixpath.join("docs", path)) in LOG_SOURCES:
+        errors.append(f"a link to the log itself (`{dest}`)")
+        return None
+    if path.startswith("sessions/"):
+        rest = path[len("sessions/"):]
+        if rest and "/" not in rest and rest not in (".", ".."):
+            return join_dest(rest, anchor)
+    return join_dest("../" + path, anchor)
+
+
+def _session_file(root: Path, dest: str) -> str | None:
+    """The name of the session file a log link reaches, when it is a file
+    directly in the folder (never the README)."""
+    path = split_dest(dest)[0]
+    if not path or SCHEME_RE.match(path) or path.startswith("/"):
+        return None
+    resolved = norm(posixpath.join("docs", path))
+    if posixpath.dirname(resolved) != SESSIONS_DIR:
+        return None
+    name = posixpath.basename(resolved)
+    if name == "README.md" or not name.endswith(".md") \
+            or not (root / resolved).is_file():
+        return None
+    return name
+
+
+def _pointer_target(root: Path, etext: str) -> str | None:
+    """The session file an entry belongs in: the one it opens by linking,
+    else the only one it links anywhere (an index line may put its link on
+    a later line). An entry linking two or more, none first, has no home."""
+    m = OPENING_LINK_RE.match(etext)
+    if m:
+        name = _session_file(root, m.group(1))
+        if name:
+            return name
+    found: list[str] = []
+
+    def collect(dest: str) -> None:
+        name = _session_file(root, dest)
+        if name and name not in found:
+            found.append(name)
+        return None
+
+    rewrite_links(etext, collect)
+    return found[0] if len(found) == 1 else None
+
+
+def entry_date_time(etext: str) -> tuple[str | None, str | None]:
+    """The date an entry opens with (its first line's first ISO date, else
+    the entry's) and the time it states straight after it, if any."""
+    first = etext.split("\n", 1)[0]
+    m = DATE_RE.search(first)
+    if not m:
+        m = DATE_RE.search(etext)
+        return (m.group(1) if m else None), None
+    t = STATED_TIME_RE.match(first, m.start())
+    if t and t.group(1) == m.group(1):
+        return m.group(1), t.group(2) + t.group(3)
+    return m.group(1), None
+
+
+def entry_slug(etext: str) -> str:
+    first = etext.split("\n", 1)[0]
+    t = re.sub(r"^[-*]\s+", "", first)
+    t = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", t)
+    t = re.sub(r"[*\[\]`]", "", t)
+    t = re.sub(r"^\s*\d{4}-\d{2}-\d{2}\s*(?:·\s*~?\d{2}:?\d{2}(?:\s*UTC)?\s*)?"
+               r"(?:·\s*)?", "", t)
+    return board.slug(t) if t.strip() else "session"
+
+
+def rebuild_log(sec: dict, entries: list[tuple[int, int, str]]) -> str | None:
+    """One retired log, rebuilt from its README section and its entries
+    (link paths already mapped back). A line nothing covers was blank."""
+    n = sec["nlines"]
+    slots: list[str | None] = [None] * n
+    for start, count, body in list(sec["regions"]) + entries:
+        ls = split_lines(body)
+        if len(ls) != count or start < 1 or start - 1 + count > n:
+            return None
+        for k, line in enumerate(ls):
+            if slots[start - 1 + k] is not None:
+                return None
+            slots[start - 1 + k] = line
+    out = [s if s is not None else "\n" for s in slots]
+    if not sec["final_nl"] and out:
+        if not out[-1].endswith("\n"):
+            return None
+        out[-1] = out[-1][:-1]
+    return "".join(out)
+
+
+def rebuild_logs(readme: str, files: dict[str, str]) -> dict[str, str | None] | None:
+    """Every retired log the README names, rebuilt from the README and the
+    session files' placed entries; None when the README does not read back."""
+    sections = parse_readme(readme)
+    if sections is None:
+        return None
+    by_src: dict[str, list[tuple[int, int, str]]] = {}
+    bad = False
+    for text in files.values():
+        got = strip_entries(text)
+        if got is None:
+            bad = True
+            continue
+        if got is NOT_PRESENT:
+            continue
+        for src, start, count, body in got[1]:
+            back, _ = rewrite_links(body, _entry_back)
+            by_src.setdefault(src, []).append((start, count, back))
+    out: dict[str, str | None] = {}
+    known = {sec["src"] for sec in sections}
+    for sec in sections:
+        out[sec["src"]] = None if bad else rebuild_log(sec, by_src.get(sec["src"], []))
+    for src in by_src:
+        if src not in known:
+            out[src] = None
+    return out
+
 
 def plan_sessions(root: Path) -> Plan:
-    plan = Plan("sessions", SESSIONS_SRC)
-    try:
-        text = _read(root, SESSIONS_SRC)
-    except UnicodeDecodeError:
-        text, plan.route = None, "move"
-        plan.reasons.append("not UTF-8")
-    if text is None and plan.route == "absent":
+    plan = Plan("sessions", " + ".join(LOG_SOURCES))
+    present = [s for s in LOG_SOURCES if (root / s).is_file()]
+    if not present:
         return plan
-    index = _read(root, SESSIONS_INDEX)
-    if index is None:
-        plan.route = "blocked"
-        plan.reasons.append(f"{SESSIONS_INDEX} does not exist")
+    plan.src = " + ".join(present)
+    texts: dict[str, str] = {}
+    for s in present:
+        try:
+            texts[s] = _read(root, s) or ""
+        except UnicodeDecodeError:
+            plan.route = "blocked"
+            plan.reasons.append(f"{s} is not UTF-8")
+    if (root / SESSIONS_README).exists():
+        try:
+            prior = _read(root, SESSIONS_README) or ""
+        except UnicodeDecodeError:
+            prior = None
+        if prior is None or INTRO_MARK in prior:
+            plan.route = "blocked"
+            plan.reasons.append(f"{SESSIONS_README} is not UTF-8 or already "
+                                "holds a retired log")
+    if plan.route == "blocked":
         return plan
-    if BEGIN in index:
-        plan.route = "blocked"
-        plan.reasons.append(f"{SESSIONS_INDEX} already holds a cut block")
-        return plan
-    if text is not None:
-        ok = _cut_sessions(root, plan, text, index)
-        plan.route = "cut" if ok else "move"
-    if plan.route == "move":
-        _move_sessions(root, plan, index)
-    # The index itself is re-pointed too: its own header may name the archive.
-    _repoint_tree(root, plan, SESSIONS_SRC, SESSIONS_INDEX,
-                  set(plan.writes) - {SESSIONS_INDEX}, set())
+    ok = _retire_log(root, plan, texts)
+    plan.route = "cut" if ok else "failed"
+    if ok:
+        for s in present:
+            _repoint_tree(root, plan, s, SESSIONS_README, set(present), set())
     return plan
 
 
-def _insert_block(index: str, block: str) -> str:
-    """The index with `block` before its first column-0 entry."""
-    lines = split_lines(index)
-    for i, line in enumerate(lines):
-        if SESSION_ENTRY_RE.match(line):
-            return "".join(lines[:i]) + block + "".join(lines[i:])
-    sep = "" if not index or index.endswith("\n") else "\n"
-    return index + sep + block
+def _retire_log(root: Path, plan: Plan, texts: dict[str, str]) -> bool:
+    proof = plan.proof
+    sdir = root / SESSIONS_DIR
+    existing = {p.name for p in sdir.iterdir()} if sdir.is_dir() else set()
+    taken = set(existing)
+    created: set[str] = set()
+    per_file: dict[str, list[tuple[str, int, int, str]]] = {}
+    sections: list[dict] = []
+    pieces: list[str] = []
+    day_count: Counter = Counter()
+    collisions = undated = placed = new = untimed = 0
+    for src in LOG_SOURCES:
+        if src not in texts:
+            continue
+        text = texts[src]
+        lines = split_lines(text)
+        for line in lines:
+            s = line.rstrip("\n")
+            if s == LOG_LABEL or ENTRY_MARK_RE.match(s) \
+                    or REGION_MARK_RE.match(s) or RETIRED_RE.match(s):
+                collisions += 1
+        regions: list[tuple[int, int, str]] = []
+        lineno = 1
+        for kind, blines in segment(text, SESSION_ENTRY_RE):
+            start = lineno
+            lineno += len(blines)
+            if kind == "text":
+                a, b = 0, len(blines)
+                while a < b and blines[a] == "\n":
+                    a += 1
+                while b > a and blines[b - 1] == "\n":
+                    b -= 1
+                if a < b:
+                    regions.append((start + a, b - a, "".join(blines[a:b])))
+                    pieces.append("".join(blines[a:b]))
+                continue
+            etext = "".join(blines)
+            pieces.append(etext)
+            date, hhmm = entry_date_time(etext)
+            if date:
+                day_count[date] += 1
+            target = _pointer_target(root, etext)
+            if target is None:
+                if date is None:
+                    undated += 1
+                    continue
+                slug_ = entry_slug(etext)
+                stem = f"{date}-{hhmm}-{slug_}" if hhmm \
+                    else f"{date}-{day_count[date]:02d}-{slug_}"
+                name, k = stem + ".md", 2
+                while name in taken:
+                    name, k = f"{stem}-{k}.md", k + 1
+                taken.add(name)
+                created.add(name)
+                target = name
+                new += 1
+                untimed += hhmm is None
+            else:
+                placed += 1
+            per_file.setdefault(target, []).append((src, start, len(blines), etext))
+        sections.append({"src": src, "nlines": len(lines),
+                         "final_nl": text == "" or text.endswith("\n"),
+                         "sha": last_commit(root, src), "regions": regions})
+    entries = placed + new
+    plan.items = entries
+    ok = _check(proof, True,
+                f"{entries} entries: {placed} placed in the session file they "
+                f"link, {new} in new files ({untimed} of them state no time, so "
+                "their names carry a day counter)")
+    ok &= _check(proof, undated == 0,
+                 f"every entry that links no session file carries a date for "
+                 f"its new file's name ({undated} do not)")
+    ok &= _check(proof, collisions == 0,
+                 "no source line is shaped like the retirement's own label or "
+                 f"markers ({collisions} found)")
+    already = sorted(n for n in per_file if n not in created and
+                     strip_entries(_read(root, f"{SESSIONS_DIR}/{n}") or "")
+                     is not NOT_PRESENT)
+    ok &= _check(proof, not already,
+                 f"no session file already holds placed entries ({len(already)} do)")
+    crossing = ref_labels_crossing(pieces)
+    ok &= _check(proof, not crossing,
+                 "no reference-style link is cut away from its definition"
+                 + (f" ({', '.join(crossing)})" if crossing else ""))
+    # (1) multiset: every non-blank source line is in the outputs as often
+    src_key: Counter = Counter()
+    for src, text in texts.items():
+        src_key.update(x.rstrip("\n") for x in split_lines(text) if x.strip())
+    out_key: Counter = Counter(x.rstrip("\n") for p in pieces
+                               for x in split_lines(p) if x.strip())
+    ok &= _check(proof, src_key == out_key,
+                 f"multiset of {sum(src_key.values())} non-blank source lines "
+                 "matches the outputs")
+    # (2) links re-pointed one level down, each mapping back exactly
+    errors: list[str] = []
+    writes: dict[str, str] = {}
+    n_links = 0
+    unmapped = 0
+    for name, ents in per_file.items():
+        moved_ents = []
+        for src, start, count, etext in ents:
+            body = etext if etext.endswith("\n") else etext + "\n"
+            moved, edits = rewrite_links(body, lambda d: _entry_forward(d, errors))
+            n_links += len(edits)
+            if rewrite_links(moved, _entry_back)[0] != body:
+                unmapped += 1
+            moved_ents.append((src, start, count, moved))
+        original = None if name in created \
+            else _read(root, f"{SESSIONS_DIR}/{name}")
+        writes[f"{SESSIONS_DIR}/{name}"] = insert_entries(original, moved_ents)
+    ok &= _check(proof, not errors,
+                 "every link in an entry still has a target once the log goes"
+                 + (f" ({'; '.join(sorted(set(errors))[:3])})" if errors else ""))
+    ok &= _check(proof, unmapped == 0,
+                 f"{n_links} link paths re-pointed for the folder, each maps "
+                 f"back to its original ({unmapped} entries do not)")
+    prior = _read(root, SESSIONS_README) if (root / SESSIONS_README).is_file() \
+        else None
+    if prior is not None:
+        prior = prior if prior.endswith("\n") else prior + "\n"
+        prior += "\n"
+        _check(proof, True, f"{SESSIONS_README} already exists: its own words "
+               "are kept above the retired log's part (read them: they may "
+               "still describe the index)")
+    readme = readme_text(sections, prior)
+    writes[SESSIONS_README] = readme
+    # (3) from the outputs as they will be written: every log rebuilds byte for
+    # byte, and every session file that existed is unchanged but for the entries
+    files = {p.rsplit("/", 1)[1]: t for p, t in writes.items()
+             if p != SESSIONS_README}
+    rebuilt = rebuild_logs(readme, files) or {}
+    for src, text in texts.items():
+        ok &= _check(proof, rebuilt.get(src) is not None
+                     and rebuilt[src].encode("utf-8") == text.encode("utf-8"),
+                     f"{src}: the README and the session files, as written, "
+                     "rebuild it byte for byte")
+    changed = [n for n in files if n not in created and
+               without_entries(files[n]) != _read(root, f"{SESSIONS_DIR}/{n}")]
+    ok &= _check(proof, not changed,
+                 f"{len(files) - len(created)} existing session files are "
+                 f"unchanged but for the placed entries ({len(changed)} are not)")
+    if ok:
+        plan.writes = writes
+    return ok
 
+
+# --------------------------------------------------------------------------
+# verify (from disk)
+# --------------------------------------------------------------------------
+
+def committed_source(root: Path, src: str) -> str | None:
+    """The last committed copy of `src`: HEAD's if it still has it, else the
+    parent of the commit that deleted (or moved) it."""
+    r = _git(root, "cat-file", "-e", f"HEAD:{src}")
+    if r.returncode == 0:
+        return _git(root, "show", f"HEAD:{src}").stdout
+    r = _git(root, "log", "-1", "--format=%H", "--diff-filter=DR", "--", src)
+    sha = r.stdout.strip()
+    if not sha:
+        return None
+    r = _git(root, "show", f"{sha}^:{src}")
+    return r.stdout if r.returncode == 0 else None
+
+
+def _verify_sessions(root: Path) -> list[str]:
+    out: list[str] = []
+    readme = _read(root, SESSIONS_README) if (root / SESSIONS_README).is_file() else None
+    retired: set[str] = set()
+    if readme is not None and not any(RETIRED_RE.match(x.rstrip("\n"))
+                                      for x in split_lines(readme)):
+        readme = None
+    if readme is not None:
+        sdir = root / SESSIONS_DIR
+        files = {p.name: _read(root, f"{SESSIONS_DIR}/{p.name}") or ""
+                 for p in sdir.glob("*.md") if p.name != "README.md"}
+        rebuilt = rebuild_logs(readme, files)
+        if rebuilt is None:
+            out.append(f"FAIL  {SESSIONS_README}: its retired-log sections do "
+                       "not read back")
+            return out
+        holding = sum(1 for t in files.values()
+                      if isinstance(strip_entries(t), tuple))
+        for src, text in rebuilt.items():
+            retired.add(src)
+            if (root / src).exists():
+                out.append(f"FAIL  {src}: retired, yet still in place")
+                continue
+            committed = committed_source(root, src)
+            ok = text is not None and committed is not None and text == committed
+            out.append(("PASS" if ok else "FAIL")
+                       + f"  {src}: the README and {holding} session files "
+                       "rebuild its last committed copy byte for byte")
+    # A session archive cut before `010/270`, into an index block.
+    if SESSIONS_SRC not in retired:
+        out.extend(_verify_archive_block(root))
+    if SESSIONS_INDEX not in retired:
+        if (root / SESSIONS_INDEX).exists():
+            out.append(f"--    {SESSIONS_INDEX}: still in place, not retired")
+        elif committed_source(root, SESSIONS_INDEX) is None:
+            out.append(f"--    {SESSIONS_INDEX}: never committed here")
+        else:
+            out.append(f"FAIL  {SESSIONS_INDEX}: gone, and {SESSIONS_README} "
+                       "does not record its retirement")
+    return out
+
+
+# The pre-`010/270` session-archive cut's index block, read back for --verify.
 
 def _extract_block(index: str) -> tuple[str, str] | None:
     """(block body, index without the block), or None."""
@@ -772,170 +1365,61 @@ def sessions_reconstruct(block: str, files: dict[str, str]) -> str | None:
     return "".join(pre + out)
 
 
-def _index_label(text: str) -> str:
-    t = text.replace("\n", " ")
-    t = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", t)
-    t = re.sub(r"[*`]", "", t)
-    t = re.sub(r"\s+", " ", t).strip()
-    if len(t) > 72:
-        t = t[:71].rstrip() + "…"
-    return board._escape_link_text(t)
+def _verify_archive_block(root: Path) -> list[str]:
+    """The pre-`010/270` session-archive cut: an index block in
+    `SESSIONS.md` and `-archived-` detail files. Once the index is retired,
+    both are read as they stood just before the commit that retired it (that
+    retirement re-pointed links in them and is proven on its own)."""
+    out: list[str] = []
+    src = committed_source(root, SESSIONS_SRC)
+    if (root / SESSIONS_SRC).exists():
+        out.append(f"--    {SESSIONS_SRC}: still in place, not cut")
+    elif src is None:
+        out.append(f"--    {SESSIONS_SRC}: never committed here")
+    elif (root / FROZEN_SESSIONS).is_file():
+        mv = Move(SESSIONS_SRC, "docs", FROZEN_SESSIONS, FROZEN_SESSIONS,
+                  frozenset([FROZEN_SESSIONS]))
+        back = unrelocate(_read(root, FROZEN_SESSIONS) or "", mv)[0]
+        out.append(("PASS" if back == src else "FAIL")
+                   + f"  {SESSIONS_SRC}: route (b), the moved file maps back")
+    else:
+        retire = None
+        if (root / SESSIONS_INDEX).is_file():
+            index = _read(root, SESSIONS_INDEX)
+        else:
+            retire = _git(root, "log", "-1", "--format=%H", "--diff-filter=DR",
+                          "--", SESSIONS_INDEX).stdout.strip() or None
+            index = _git(root, "show", f"{retire}^:{SESSIONS_INDEX}").stdout \
+                if retire else None
 
+        def detail(p: str) -> str:
+            if retire is None:
+                return _read(root, p) or ""
+            return _git(root, "show", f"{retire}^:{p}").stdout
 
-def _cut_sessions(root: Path, plan: Plan, text: str, index: str) -> bool:
-    proof = plan.proof
-    blocks = segment(text, SESSION_ENTRY_RE)
-    entries = [b for k, b in blocks if k == "entry"]
-    ok = _check(proof, bool(entries), f"{len(entries)} session entries found")
-    existing = {p.name for p in (root / SESSIONS_DIR).glob("*.md")} \
-        if (root / SESSIONS_DIR).is_dir() else set()
-    # The preamble: every text block before the first entry.
-    pre_lines: list[str] = []
-    while blocks and blocks[0][0] == "text":
-        pre_lines.extend(blocks.pop(0)[1])
-    first_date = None
-    for _, lines in [("x", pre_lines)] + [b for b in blocks if b[0] == "entry"]:
-        m = DATE_RE.search("".join(lines))
-        if m:
-            first_date = m.group(1)
-            break
-    files: dict[str, str] = {}
-    block_lines: list[str] = []
-    collisions = 0
-    undated = 0
-    pointers = details = 0
-    pre_name = None
-    if pre_lines:
-        h1 = next((x[2:].strip() for x in pre_lines if x.startswith("# ")),
-                  "session log archive")
-        pre_name = f"{first_date or '0000-00-00'}-archived-000-{board.slug(h1)}.md"
-        files[pre_name] = "".join(pre_lines)
-        block_lines.append(
-            f"- [{first_date} · {_index_label(h1)}](sessions/{pre_name})"
-            " — archived preamble, verbatim in its file\n")
-        undated += first_date is None
-    n = 0
-    for kind, lines in blocks:
-        if kind == "text":
-            for line in lines:
-                s = line.rstrip("\n")
-                if SESSION_REF_RE.match(s) or s in (BEGIN, END):
-                    collisions += 1
-            block_lines.extend(lines)
-            continue
-        etext = "".join(lines)
-        if SESSION_REF_RE.match(lines[0].rstrip("\n")):
-            collisions += 1
-        if POINTER_RE.match(etext):
-            pointers += 1
-            block_lines.extend(lines)
-            continue
-        details += 1
-        n += 1
-        m = DATE_RE.search(etext)
-        if not m:
-            undated += 1
-        date = m.group(1) if m else "0000-00-00"
-        title = _title(etext)
-        name = f"{date}-archived-{n:03d}-{board.slug(title)}.md"
-        files[name] = etext
-        nl = "\n" if lines[-1].endswith("\n") else ""
-        block_lines.append(
-            f"- [{date} · {_index_label(title)}](sessions/{name})"
-            f" — archived entry, verbatim in its file{nl}")
-    plan.items = details
-    ok &= _check(proof, n < 1000, f"{details} entries cut to detail files, "
-                 f"{pointers} already index lines kept as they stand")
-    ok &= _check(proof, undated == 0,
-                 f"every cut entry carries a date for its file name ({undated} do not)")
-    ok &= _check(proof, collisions == 0,
-                 "no source line is shaped like the cut's index line or block "
-                 f"marker ({collisions} found)")
-    clash = sorted(set(files) & existing)
-    ok &= _check(proof, not clash,
-                 f"no detail file name is already taken ({len(clash)} are)")
-    block = "".join(block_lines)
-    if block and not block.endswith("\n"):
-        block += "\n"
-    rebuilt = sessions_reconstruct(block, files)
-    ok &= _check(proof, rebuilt is not None
-                 and rebuilt.encode("utf-8") == text.encode("utf-8"),
-                 "the outputs, read in order, rebuild the source byte for byte")
-    src_lines = split_lines(text)
-    out_lines = [x for x in split_lines(block) if not SESSION_REF_RE.match(x.rstrip("\n"))]
-    for t in files.values():
-        out_lines.extend(split_lines(t))
-    key = lambda ls: Counter(x.rstrip("\n") for x in ls if not is_heading(x))  # noqa: E731
-    ok &= _check(proof, key(src_lines) == key(out_lines),
-                 f"multiset of {sum(1 for x in src_lines if not is_heading(x))} "
-                 "non-heading source lines matches the outputs")
-    crossing = ref_labels_crossing([block] + list(files.values()))
-    ok &= _check(proof, not crossing,
-                 "no reference-style link is cut away from its definition"
-                 + (f" ({', '.join(crossing)})" if crossing else ""))
-    self_target = f"{SESSIONS_DIR}/{pre_name}" if pre_name else SESSIONS_INDEX
-    reps = frozenset([self_target])
-    moves = {f"{SESSIONS_DIR}/{k}": Move(SESSIONS_SRC, "docs", f"{SESSIONS_DIR}/{k}",
-                                         self_target, reps) for k in files}
-    bmove = Move(SESSIONS_SRC, "docs", SESSIONS_INDEX, self_target, reps,
-                 SESSION_REF_RE)
-    moved = {p: relocate(files[p.rsplit("/", 1)[1]], mv)[0] for p, mv in moves.items()}
-    mblock, bedits = relocate(block, bmove)
-    n_links = len(bedits) + sum(len(relocate(files[p.rsplit("/", 1)[1]], mv)[1])
-                                for p, mv in moves.items())
-    back_files = {p.rsplit("/", 1)[1]: unrelocate(t, moves[p])[0] for p, t in moved.items()}
-    back_block = unrelocate(mblock, bmove)[0]
-    rebuilt2 = sessions_reconstruct(back_block, back_files)
-    ok &= _check(proof, rebuilt2 is not None
-                 and rebuilt2.encode("utf-8") == text.encode("utf-8"),
-                 f"{n_links} link paths re-pointed for the new depth, and the "
-                 "committed files rebuild the source byte for byte")
-    if self_target == SESSIONS_INDEX:
-        ok &= _check(proof, n_links == 0 or SESSIONS_SRC.split("/")[-1] not in text,
-                     "the archive's links to itself have a home to map back from")
-    if ok:
-        plan.writes = dict(moved)
-        plan.writes[SESSIONS_INDEX] = _insert_block(index, BEGIN + "\n" + mblock + END + "\n")
-    return ok
-
-
-def _move_sessions(root: Path, plan: Plan, index: str) -> None:
-    plan.writes = {}
-    plan.move_to = FROZEN_SESSIONS
-    line = ("- [the older entries, moved whole](sessions/SESSIONS-ARCHIVE.md)"
-            " — the session archive could not be cut with a proof, so it was"
-            " moved here by `tools/archivecut.py`\n")
-    plan.writes[SESSIONS_INDEX] = _insert_block(index, line)
-    try:
-        text = _read(root, SESSIONS_SRC) or ""
-    except UnicodeDecodeError:
-        return
-    mv = Move(SESSIONS_SRC, "docs", FROZEN_SESSIONS, FROZEN_SESSIONS,
-              frozenset([FROZEN_SESSIONS]))
-    moved, edits = relocate(text, mv)
-    back, _ = unrelocate(moved, mv)
-    _check(plan.proof, back == text,
-           f"route (b): {len(edits)} link paths re-pointed in the moved file, "
-           "each maps back to its original")
-    plan.writes[FROZEN_SESSIONS] = moved
-
-
-# --------------------------------------------------------------------------
-# verify (from disk)
-# --------------------------------------------------------------------------
-
-def committed_source(root: Path, src: str) -> str | None:
-    """The last committed copy of `src`: HEAD's if it still has it, else the
-    parent of the commit that deleted (or moved) it."""
-    r = _git(root, "cat-file", "-e", f"HEAD:{src}")
-    if r.returncode == 0:
-        return _git(root, "show", f"HEAD:{src}").stdout
-    r = _git(root, "log", "-1", "--format=%H", "--diff-filter=DR", "--", src)
-    sha = r.stdout.strip()
-    if not sha:
-        return None
-    r = _git(root, "show", f"{sha}^:{src}")
-    return r.stdout if r.returncode == 0 else None
+        got = _extract_block(index or "")
+        if got is None:
+            out.append(f"FAIL  {SESSIONS_SRC}: gone, and {SESSIONS_INDEX} holds "
+                       "no cut block")
+            return out
+        block = got[0]
+        names = [m.group(1) for line in split_lines(block)
+                 if (m := SESSION_REF_RE.match(line.rstrip("\n")))]
+        pre = next((n for n in names if "-archived-000-" in n), None)
+        self_target = f"{SESSIONS_DIR}/{pre}" if pre else SESSIONS_INDEX
+        reps = frozenset([self_target])
+        files = {}
+        for n in names:
+            p = f"{SESSIONS_DIR}/{n}"
+            files[n] = unrelocate(detail(p),
+                                  Move(SESSIONS_SRC, "docs", p, self_target, reps))[0]
+        back = unrelocate(block, Move(SESSIONS_SRC, "docs", SESSIONS_INDEX,
+                                      self_target, reps, SESSION_REF_RE))[0]
+        ok = sessions_reconstruct(back, files) == src
+        out.append(("PASS" if ok else "FAIL")
+                   + f"  {SESSIONS_SRC}: {len(names)} detail files and the "
+                   "index block rebuild its last committed copy byte for byte")
+    return out
 
 
 def verify(root: Path) -> list[str]:
@@ -976,42 +1460,7 @@ def verify(root: Path) -> list[str]:
             if spare:
                 out.append(f"FAIL  {SECTION_DIR}: {len(spare)} item files the "
                            "README does not link")
-    # sessions
-    src = committed_source(root, SESSIONS_SRC)
-    if (root / SESSIONS_SRC).exists():
-        out.append(f"--    {SESSIONS_SRC}: still in place, not cut")
-    elif src is None:
-        out.append(f"--    {SESSIONS_SRC}: never committed here")
-    elif (root / FROZEN_SESSIONS).is_file():
-        mv = Move(SESSIONS_SRC, "docs", FROZEN_SESSIONS, FROZEN_SESSIONS,
-                  frozenset([FROZEN_SESSIONS]))
-        back = unrelocate(_read(root, FROZEN_SESSIONS) or "", mv)[0]
-        out.append(("PASS" if back == src else "FAIL")
-                   + f"  {SESSIONS_SRC}: route (b), the moved file maps back")
-    else:
-        index = _read(root, SESSIONS_INDEX) or ""
-        got = _extract_block(index)
-        if got is None:
-            out.append(f"FAIL  {SESSIONS_SRC}: gone, and {SESSIONS_INDEX} holds "
-                       "no cut block")
-        else:
-            block = got[0]
-            names = [m.group(1) for line in split_lines(block)
-                     if (m := SESSION_REF_RE.match(line.rstrip("\n")))]
-            pre = next((n for n in names if "-archived-000-" in n), None)
-            self_target = f"{SESSIONS_DIR}/{pre}" if pre else SESSIONS_INDEX
-            reps = frozenset([self_target])
-            files = {}
-            for n in names:
-                p = f"{SESSIONS_DIR}/{n}"
-                files[n] = unrelocate(_read(root, p) or "",
-                                      Move(SESSIONS_SRC, "docs", p, self_target, reps))[0]
-            back = unrelocate(block, Move(SESSIONS_SRC, "docs", SESSIONS_INDEX,
-                                          self_target, reps, SESSION_REF_RE))[0]
-            ok = sessions_reconstruct(back, files) == src
-            out.append(("PASS" if ok else "FAIL")
-                       + f"  {SESSIONS_SRC}: {len(names)} detail files and the "
-                       "index block rebuild its last committed copy byte for byte")
+    out.extend(_verify_sessions(root))
     return out
 
 
@@ -1021,9 +1470,10 @@ def verify(root: Path) -> list[str]:
 
 def apply(root: Path, plan: Plan) -> None:
     if plan.route == "cut":
-        r = _git(root, "rm", "-q", "--", plan.src)
-        if r.returncode != 0:
-            (root / plan.src).unlink()
+        for src in plan.src.split(" + "):
+            r = _git(root, "rm", "-q", "--", src)
+            if r.returncode != 0 and (root / src).exists():
+                (root / src).unlink()
     elif plan.route == "move":
         dest = root / plan.move_to
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -1039,19 +1489,21 @@ def apply(root: Path, plan: Plan) -> None:
 
 
 def render(plan: Plan) -> str:
+    cut = {"board": "(a) cut into the store",
+           "sessions": "retired into the session folder"}[plan.kind]
     lines = [f"{plan.kind}: {plan.src} — route: "
-             + {"cut": "(a) cut into the store",
+             + {"cut": cut,
                 "move": "(b) moved whole (the cut could not prove itself)",
                 "absent": "nothing to do (no such file)",
-                "blocked": "blocked"}[plan.route]]
+                "blocked": "blocked",
+                "failed": "not retired: the proof failed, nothing is written"
+                }[plan.route]]
     for r in plan.reasons:
         lines.append(f"  reason: {r}")
     for p in plan.proof:
         lines.append(f"  {p}")
-    if plan.route == "cut":
-        what = "item files" if plan.kind == "board" else "detail files"
-        lines.append(f"  {plan.items} {what}"
-                     + (f" under {plan.headings} `## ` headings" if plan.kind == "board" else ""))
+    if plan.route == "cut" and plan.kind == "board":
+        lines.append(f"  {plan.items} item files under {plan.headings} `## ` headings")
     if plan.route == "move":
         lines.append(f"  moves to {plan.move_to}")
     if plan.route in ("cut", "move"):
@@ -1062,19 +1514,21 @@ def render(plan: Plan) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        description="Cut a repo's frozen pre-split archives (ROADMAP-DONE.md, "
-                    "SESSIONS-ARCHIVE.md) into the store form, with a proof; "
-                    "move them whole where the proof fails.")
+        description="Cut a repo's frozen pre-split board archive "
+                    "(ROADMAP-DONE.md) into the store form, and retire its "
+                    "one-file session log (SESSIONS.md, SESSIONS-ARCHIVE.md) "
+                    "into the docs/sessions/ folder, each with a proof.")
     act = ap.add_mutually_exclusive_group()
     act.add_argument("--plan", action="store_true",
-                     help="say which route each archive would take, with the "
-                          "proof; write nothing (the default)")
+                     help="say what each would do, with the proof; write "
+                          "nothing (the default)")
     act.add_argument("--cut", action="store_true",
                      help="carry the plan out: write the outputs, `git rm` or "
-                          "`git mv` the source, re-point links")
+                          "`git mv` the sources, re-point links")
     act.add_argument("--verify", action="store_true",
-                     help="rebuild each cut archive from the files on disk and "
-                          "compare it with its last committed copy")
+                     help="rebuild each cut archive and retired log from the "
+                          "files on disk and compare it with its last "
+                          "committed copy")
     ap.add_argument("--root", default=".", help="the repo (default: cwd)")
     args = ap.parse_args(argv)
     root = Path(args.root).resolve()
@@ -1087,13 +1541,18 @@ def main(argv: list[str] | None = None) -> int:
         print(render(p))
     if not args.cut:
         return 0
-    if any(p.route == "blocked" for p in plans):
-        print("archivecut: blocked; nothing written", file=sys.stderr)
+    if any(p.route in ("blocked", "failed") for p in plans):
+        print("archivecut: blocked or unproven; nothing written", file=sys.stderr)
         return 1
     # Board first; the session plan re-reads the tree so its link edits land
     # on top of the board's.
     apply(root, plans[0])
     second = plan_sessions(root)
+    if second.route in ("blocked", "failed"):
+        print(render(second))
+        print("archivecut: the session log no longer proves after the board "
+              "cut; the board cut stands, the log is untouched", file=sys.stderr)
+        return 1
     apply(root, second)
     return 0
 

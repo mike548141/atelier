@@ -25,8 +25,10 @@ private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`
    session, claim and worktree on this machine, in about two seconds.
 2. `docs/method/00-APEX.md` — the frame everything sits inside.
 3. `README.md` — what atelier is and its layers.
-4. Tail of `docs/SESSIONS.md` — where the last session left off. A last commit
-   then silence with **no closing entry** means the last session either died
+4. The newest few files in `docs/sessions/` — where the last sessions left off
+   (`ls docs/sessions/[0-9]* | tail -5`; the folder is the session log, one
+   file per session, named for its start). A last commit
+   then silence with **no closing session file** means the last session either died
    mid-flight **or is still live** — run the read-first recovery sweep
    (`docs/method/CONCURRENCY.md` § Surviving an interrupted session) before
    assuming either, and before starting new work. **A cold reviewer skips this
@@ -99,4 +101,6 @@ closed personal-data list is load-bearing continuously, not just at publish.
   timestamps at rest, local on presentation; ISO 8601 dates; UTF-8; NZD.
 - Git identity `Mike Clements <mike@cxi.nz>`; commit messages  <!-- leakscan:allow:email,local-term: author's own attribution; named worked example (ADR 0005), adopters substitute their own identity -->
   `area: imperative subject`, why-dense body, Co-Authored-By trailer.
-- Before finishing a session, append a `docs/SESSIONS.md` entry.
+- Before finishing a session, write its file in `docs/sessions/`
+  (`<date>-<HHMM>-<slug>.md`, the start time in UTC; `docs/method/RECORD.md`
+  § *The session log*). There is no index to append to.
