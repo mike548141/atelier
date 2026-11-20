@@ -1,5 +1,11 @@
 # Session — the TA application's terminal cold pass (cycle closed)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 216+1 -->
+- [2026-07-28 · 1134 UTC · TA application terminal cold pass — 0 MAJOR, Track A cycle CLOSED; TAA1–TAA3 to Mike (Fable, wt: ta-application-cold-pass)](2026-07-28-1134-ta-application-cold-pass.md) — the queued rule-4 pass on the TA1–TA9 application, taken by a Mike-spawned "do any review work" session (author of none of the chain): claim → taker brief → cold pass → every live claim re-run (both TA1 red legs rc 0→1, TA5 wired→absent, TA7 board from a real worktree, blast radius exact, 733 at `d80f9d8`, 759+207 at HEAD both environments) → verdict committed before the deferred material → reconcile, nothing overturned. **PASS-WITH-FINDINGS 0M/1m/3n**: TAA1 the scope guard's class-members comment landed still claiming shut members "(open)"; TAA2 a latent `elif` note-suppression; TAA3 AW6's second-pointer gap. Terminal per the close rule — the cycle closes, 🎯 TAA1–TAA3 decided into the backlog for Mike.
+
+
 - **Date**: 2026-07-28 11:34 UTC (claim) → 11:55 UTC (close)
 - **Tier / spawn**: Fable, opened by Mike with "Please do any review work" —
   the rule-4 worked example; this session authored nothing in the TA chain

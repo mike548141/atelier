@@ -1,5 +1,11 @@
 # 2026-09-16 · Which mechanism a new need should take
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 306+1 -->
+- [2026-09-16 · Which mechanism a new need should take (Sonnet 5, main, in place)](2026-09-16-which-mechanism-a-new-need-should-take.md) — Onramp found one commit from a separate sitting, `180/010` (2026-09-14): the plugin's `queue-run` skill shipped, was declared done, and was never actually installed anywhere, so the hand-carried prompt it retired never stopped — checked as a completed filing, not a live hazard, before proceeding. Mike: *"defining in the doctrine when is the appropriate situation to use code as policy, skills, custom built MCP's, or other features."* Checked first — `ADR 0006` stays scoped to the instruments-vs-estate/infra boundary, `ECONOMICS.md` only has criteria for sub-agents, `050/010` gestures at "skill not doctrine" for one incident class only — nothing answers the general question. Filed `400/010`: six mechanisms already in use by precedent alone, four candidate axes pulled from existing fragments (enforce-vs-judgement, automatic-intercept vs deliberate-invoke, per-repo vs estate-wide, standing cost), no decision tree composed. `180/010` folded in as live evidence for the same item — a skill built and declared done delivered nothing for two months because nobody installed it. Four pre-existing unmerged report-branch worktrees noted, not touched. **One more filed before close:** `ccarchive`'s summary counts files, never sessions — `captureClass()` already names a `transcript` class but the printed/`--json` reports collapse everything to one count; flagged that the class matches `.jsonl` at any depth (session + nested subagent logs together), so a raw class count isn't a *session* count and the build needs to decide which number it's giving (`210/160`). Nothing implemented across either item; floor green before both commits; no worktree, no PR opened this sitting.
+
+
 **Session:** Sonnet 5 (VS Code) · `main`, in place · two commits, nothing
 implemented, nothing claimed.
 

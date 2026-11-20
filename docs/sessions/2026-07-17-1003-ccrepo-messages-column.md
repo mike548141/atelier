@@ -1,5 +1,11 @@
 # 2026-07-17 · 1003 UTC · ccrepo — a Messages column + two roadmap items
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 112+1 -->
+- [2026-07-17 · 1003 UTC · ccrepo — a Messages column + two roadmap items (Opus)](2026-07-17-1003-ccrepo-messages-column.md) — Mike: since we deal in messages now, add a message count "the same way we report the number of sessions." Each message-grain event is one deduped assistant message, so `messages` threads through `zeroAgg`/`addTo` (=1 per event) and shows as a **Messages** column after **Sessions** in tree/`--flat`/`--json`/`--csv`. The two are different-on-purpose: Sessions is a **distinct** count, Messages **sums** (24,312 main + 1,423 subagent = 25,735; the 287 distinct sessions don't sum across kinds) — footnote says so. Also captured two Mike roadmap items under instruments/ccrepo: **tighten the ccusage reconciliation drift** (~0.05% → chase per-model residual, name causes) and **actual plan/usage spend vs the API estimate** (money-side analog of the ccusage cross-check; real-spend source stays in `~/.claude`). Man-page rollout note flipped to unblocked (v2 landed). 67 instrument tests; sizescan + linkscan clean.
+
+
 Small follow-on to the ccrepo v2 build, in an isolated worktree (`ccrepo-messages`)
 because a parallel review session is live (`worktree-fable-review`).
 

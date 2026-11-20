@@ -1,5 +1,11 @@
 # 2026-07-23 · 0149 UTC · SA1–SA9 ruled and applied — secrets/access cycle closed (Fable, wt: sa-rulings-apply)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 169+1 -->
+- [2026-07-23 · 0149 UTC · SA1–SA9 ruled + applied — secrets/access cycle CLOSED (Fable, wt: sa-rulings-apply)](2026-07-23-0149-sa-rulings-apply.md) — the SA decision set walked through plain-language with likely impacts; Mike ruled **accept-all** (SA4 = name the break-glass class, SA9 = repo-wide artefact sweep). Applied `f8350ee` by a non-author (claim `7f83142` on `main` first) as the **terminal application** of the no-MAJOR 1021 pass: live-session key caveat (no agent forwarding through untrusted hosts), honest watch leg (store-trail "where the store can provide one"), entropy-sufficiency minting bar with truncating-verifier honesty, the break-glass class named, NIST attribution precise, never-scrub scoped, one home for the exposure loop, central-auth pointer, artifact→artefact across living surfaces (immutable records untouched). Mid-run parallel-session flag verified disjoint before continuing (VP/D sets, not SA). Floor at the applied state: 330 + 139 tests OK, five scanners exit 0. Decisions stamped `86bad85`; item harvested to ROADMAP-DONE; **cycle closed, no further pointer.**
+
+
 **Ask:** continuation of "work through the open decisions one by one" — after
 QR1–QR9 closed, the SA set (secrets/access cold pass, PASS 0M/4m/4L/1n,
 2026-07-22 1021) was the next decision set owed to Mike.

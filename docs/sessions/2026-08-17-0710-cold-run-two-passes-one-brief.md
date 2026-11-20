@@ -1,5 +1,11 @@
 # 2026-08-17 · 0710 UTC · Two cold passes run, one brief written — and the orchestrator was off-tier (Opus orchestrator + Fable reviewers, wt: cold-run-0817-0710)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 279+1 -->
+- [2026-08-17 · 0710 UTC · Two cold passes run, one brief written — and the orchestrator was off-tier (Opus orchestrator + Fable reviewers, wt: cold-run-0817-0710)](2026-08-17-0710-cold-run-two-passes-one-brief.md) — Mike opened a cold session — *"Please do any review work and any work that is fable dependent"*, then *"Write briefs too if they are required"* — and the two-session split ran one turn further: the passes came from briefs two other sessions wrote and stopped on, and the brief this session wrote it stopped on in turn. **The departure to reject or accept:** cold passes are Fable's and this session is Opus. It put every unit of review judgement on Fable — one reviewer subagent per pass — and kept only what forms no finding, disclosing that in the claim commit, both pointers and both verdicts' provenance rather than letting it be discovered. Both cycles CLOSED at 0 MAJOR. **AA7:** the apex delta's conversion of an unbriefed approval from void to live-but-challengeable is the author's derivation — the ruling, read verbatim at reconcile, never mentions extracted approvals or `REVIEW.md` rule 3 — so it goes to Mike to ratify, not as decided. **RG2–RG4:** the reply-gate delta corrected an unchecked premise and its own corrections carry the same defect — a fourth surface still asserts a live reply plane, the *"said so visibly"* claim is established false, and the second rule it states as *earned* reached no live doctrine surface at all. Two findings about this session itself: a rule-4 brief ordered its reviewer into barred material because the delta commit packages its own records, and the cold-sweep exclusion-pattern defect fired for the third time — a mechanism question now, not another reminder.
+
+
 **Mike's instruction, verbatim, opening a cold session:** *"Please do any
 review work and any work that is fable dependent"*, and mid-turn: *"Write
 briefs too if they are required."*

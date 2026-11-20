@@ -1,5 +1,11 @@
 # 2026-07-20 · 18:30 · Recovery sweep after cmd+Q on multiple live sessions
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 129+1 -->
+- [2026-07-20 · 1830 UTC · recovery sweep after cmd+Q (Opus)](2026-07-20-1830-cmdq-recovery-sweep.md) — Mike cmd+Q'd VS Code with several sessions live, re-prompted each, then hit the session limit mid-action — asked each to verify nothing was lost and tidy up. **atelier: nothing lost, no mess** — working tree clean, `origin/main` 0/0, no stashes, no orphaned worktrees, and the reflog shows no work after the clean close at `dc7f67d` (the review-trigger/sizescan cycle closed terminal before the interrupt, addendum already logged). The interrupted session had committed+pushed its close, so nothing was in flight. **Boundary respected:** a sibling session is live in `ros` right now (its own recovery `45ec39c` at 18:20, `ros-ipv6` worktree already cleared, mid-work on `tiki/docs/GLOSSARY.md`) — tiki recovery + tiki's learnings-capture are that session's job per CONCURRENCY; this session read `ros` for the picture but changed nothing there. A stray `~/worktrees/.pytest_cache` noted, left as found (harmless, ros session's lane). Open unchanged: fleet re-stamp (deliberate item, not crash residue).
+
+
 **Trigger.** Mike cmd+Q'd VS Code while several Claude Code sessions were live,
 re-opened, re-prompted each, and hit the session limit mid-action — twice-cut.
 Asked each session to investigate, verify nothing was lost, and tidy any mess.

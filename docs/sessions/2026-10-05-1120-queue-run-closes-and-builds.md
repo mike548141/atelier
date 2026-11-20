@@ -1,5 +1,11 @@
 # 2026-10-05 · 1120 UTC — Queue run: closes on evidence, then builds
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 318+1 -->
+- [2026-10-05 · 1120 UTC · Queue run — closes on evidence, then builds (Opus 5.5 orchestrating, Opus 5.5 and Sonnet 5.5 workers)](2026-10-05-1120-queue-run-closes-and-builds.md) — Stopped on economics (orchestrator context ~386k) with the rest blocked on Mike, a Fable pass or a child session. **28 items closed** — first sitting 23: ten on evidence (three moot since plainscan's removal; `115/140` diagnosed — the conformance job is right, three children are red); `300/020` (every guard declared against the fourth requirement, seven forbid-only flagged); `130/020` (one unambiguous review-pointer state, with `130/010`, `320/460`); `210/180` (cctranscript first-prompt prefix read, CPU ~4× less); `110/130` (leakscan/secretscan per-rule gates, 3–4.6× faster, byte-identical, 1.15M-line fuzz); `200/010` (`indexscan`, a hand-kept index stays true to its directory); `200/050` (the standing reviewer checklist V1–V7); `115/080` part 3 (`report.py`, one exit/report contract for fourteen guards, 453/453 identical); `260/090` P7 (the `rpi` flip read from its transcripts — thinking blocks empty) with `260/040`; `115/240`, `115/250`, `200/110`. After Mike's four device answers: `200/020` signed off; `115/080` completed (markers that name a kind + finding IDs on nine guards); P9 `260/110` (pre-flip gate + `publishscan --history`); `260/120` and `115/260` (guards read git-quoted paths); `115/270` half. Nine Fable passes queued (`160/680`–`760`; take `720` and `760` first). Next pick: `115/280`. Recorded against itself: a device question built on an unchecked survey.
+
+
 **Tier:** Opus 5.5 orchestrating, stated at open per `ECONOMICS.md`
 § *The orchestrated-run tier split*. Workers: Opus 5.5 for doctrine-text and
 structural items, Sonnet 5.5 for pattern-following builds, each in its own

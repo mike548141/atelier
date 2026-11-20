@@ -1,5 +1,11 @@
 # 2026-07-21 · 0746 UTC · man-page rollout — cctranscript + ccrepo (Opus, orchestrated)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 139+1 -->
+- [2026-07-21 · 0746 UTC · man-page rollout — cctranscript + ccrepo (Opus, orchestrated, wt: worktree-manpages)](2026-07-21-0746-man-page-rollout-cctranscript-ccrepo.md) — Mike: hand a session queued work back-to-back to max plan use; first item **man pages**, Opus orchestrating Opus agents, worktree for parallel-session safety. Rolled the reviewed `--help`/`man` split (`ccarchive` worked example) out to the **two remaining installed CLIs**, closing the rollout — every tool the installer publishes now carries both registers. Approach: claim on `main` → worktree → **two Opus agents in parallel, one per tool, fully disjoint file sets, no-git-in-agents, orchestrator verifies + commits** (clean pattern, no index race). Each tool gains a full plain-language `man/<tool>.1` (mandoc-lint clean, `ccarchive.1` roff style) + a trimmed `--help` digest pointing at it (cctranscript 42→24, ccrepo 67→35; rationale/examples relocated so the page is the superset — can't drift). **EXIT STATUS enumerated against every `process.exit()` path** — the exact drift a prior ccarchive review caught, designed out at authoring (ccrepo now documents its 0/2/1 usage-vs-runtime split). +6 doc-convention tests. Verified independently: 92 instrument tests green · mandoc ×3 clean · installer drive publishes all three pages · leak/secret/link/size scans clean. **No review owed** — application of a reviewed convention, not new doctrine (rule 4). Landed via local `--no-ff` merge (signature-safe); worktree away.
+
+
 **Mike:** open a session, hand it queued work, and when it finishes start
 another — maximise plan use. First item: **man pages.** Orchestrate from an Opus
 session with Opus agents doing the work (Fable permitted as fallback); expect

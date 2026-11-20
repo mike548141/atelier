@@ -1,5 +1,11 @@
 # 2026-11-01 · 0618 UTC — `ccapple`, a read-only reader for the Apple apps' stores
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 331+1 -->
+- [2026-11-01 · 0618 UTC · `ccapple`, a read-only reader for the Apple apps' stores (Sonnet 5.5, wt: atelier-ccapple)](2026-11-01-0618-ccapple-instrument.md) — A new instrument so a session can search Contacts, Messages, Calendar, Reminders, Notes, Photos and Home read-only; ADR 0006 addendum, tests, man page.
+
+
 **Session:** worker, Claude Sonnet 5.5, in the worktree `atelier-ccapple` (branch
 `ccapple-instrument`, from `origin/main`). The primary checkout held another session's
 uncommitted work and was not touched.

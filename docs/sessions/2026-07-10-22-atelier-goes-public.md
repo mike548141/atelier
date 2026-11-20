@@ -1,5 +1,11 @@
 # 2026-07-10 · atelier goes public — ADR 0005, named worked example (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 44+1 -->
+- [2026-07-10 · atelier goes public — ADR 0005, named worked example (Opus)](2026-07-10-22-atelier-goes-public.md) — the CI-scan-distribution question, reframed by Mike into the floor action it made possible: **publish all of atelier**. A grounded publication-readiness audit first — hard boundary held (health/family/finance/address/pet/med terms all zero; leakscan + secretscan-over-44-commits + licenscan `--expect Apache-2.0` clean); the only exposures identity-not-data (Mike woven in by design; git history name/email). Mike's calls: **named worked example** (adopters *become the principal*; ros/tiki reframed as provenance), accept history, leave numen (in history too → a scrub is cosmetic, real removal is a rewrite he declined). **ADR 0005** supersedes 0003; README "If you're adopting this" + CLAUDE.md visibility PRIVATE→PUBLIC (making-public floor now *spent*, live floor is the next widening). leakscan earned its keep live — blocked the work twice on the author's own literal contact/health terms written into the *records themselves* (email in the ADR prose; enumerated med/family terms in the session file), each reworded to categories (the boundary biting its own author). Flipped act-then-record: local prep commit (hook clean) → `gh repo edit --visibility public` (verified `isPrivate: false`) → push (`22e41f9`). The opening CI-scan gap now *dissolves*: public means child CI can fetch the public scanners — wiring that + atelier's own CI are the unblocked next builds.
+
+
 Started as the CI-scan-distribution question (the thrice-deferred "how does a
 child run atelier's scanners in CI" gap). Mike reframed it in one move: *what if
 we publish all of atelier publicly, not just the scanners?* — which turned a

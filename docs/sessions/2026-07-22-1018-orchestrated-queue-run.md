@@ -1,5 +1,11 @@
 # 2026-07-22 · 1018 UTC · Orchestrated queue run — wave 1 (Fable orchestrator, Opus/Fable workers)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 160+1 -->
+- [2026-07-22 · 1018 UTC · Orchestrated queue run — ten items landed per-item; queue drained to the principal (Fable orchestrator, Opus/Fable workers)](2026-07-22-1018-orchestrated-queue-run.md) — the ratified queue-run pattern run live *and built into doctrine mid-run* (CONCURRENCY § Orchestrated queue runs + ECONOMICS tier split + `skills/queue-run`, `343def8`/`8111e9f` — rule-4 `⏳` queued, the run may not take it). Landed: the SECRETS/ACCESS `⏳` taken as a rule-4 worked example (**0M/4m/4L/1n terminal**, 🎯 SA1–SA8 to Mike); security canon gap map (A/B/E narrow, C reframed to mutable-tag CI actions, D dismissed); ECONOMICS.md rename executed (24 refs/16 files, nothing dangles, children re-point at pin bump); ccarchive `--restore` full+delta, dataless awareness (classifier proven on a real evicted file), and manifest signing (HMAC sidecar, off-archive key, caveat closed live) — instruments 109→132; ccrepo dedup defect found (last-wins kept zeroed tails) → drift 0.00% exact vs ccusage; anti-slop mining of all 47 reviews (330 findings → 5 scanner + 7 verifier candidates, 🎯); both cc-instruments questions answered by measurement (tool-result sidecar hole; keep-separate counselled). Stop condition: everything left is the principal's (🎯 backlog) or rule-4-barred. Honesty ledger in the record: three self-caught false alarms, the estimated-stamp defect twice-corrected, one worker API-drop resumed lossless. 🚩 stray `atelier-v2-plugin-deinstance` worktree left for Mike.
+
+
 **Shape:** Mike opened this session and pointed it at the shared queue ("progress
 any work you can without me"), Fable orchestrating from the primary checkout,
 workers in worktrees — the queue-run pattern the ROADMAP ratified 2026-07-22,

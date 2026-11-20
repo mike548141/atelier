@@ -1,5 +1,13 @@
 # 2026-07-19 · 0407 UTC · the combined cold pass taken — three doctrine deltas, one verdict (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 123+1 -->
+- [2026-07-19 · 0407 UTC · the combined cold pass taken (Fable)](2026-07-19-0407-combined-cold-pass-taken.md) — "Do any reviews, use a worktree": the three-delta `⏳` item (design-review section + commitment re-key + sizescan doctrine) taken by a rule-4-eligible session — claimed on `main` first, taker-wrote the brief (authors' accounts all below the divider; they seeded no questions), one cold reviewer with an auditable attack-surface→findings→reconcile commit trail, every recorded proof re-run. **PASS-WITH-FINDINGS, 3 MAJOR · 3 MEDIUM · 3 LOW, nothing applied** (`reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`). The doctrine content held; the **verification record** didn't: F1 the stamped `<atelier-path>` pointer is never filled in a create-repo child and the prove-the-stamp grep misses it (🚩 fleet re-stamp stays gated); F2 the "old link broken in every stamped child" claim is false on re-run — the conversion swapped a resolving link for a non-resolving placeholder while the record asserts the reverse; F3 `skills/review-brief` still carries the old artefact trigger (sweep never covered `skills/`). F8 rules the PRINCIPLES.md header question: genuine defect, re-key with the application. 🎯 **Mike's rulings owed on F1–F9** — counsel: take F1–F8, accept F9. Cycle open (3 MAJOR).
+<!-- archivecut:log-entry docs/SESSIONS.md 124+1 -->
+- [2026-07-19 · addendum · all nine findings ruled + applied (Fable)](2026-07-19-0407-combined-cold-pass-taken.md) — Mike: "I will take your recommendations and I want all of them fixed" — F1–F8 [fixed], F9 [accepted], applied same session by the taker (authored neither deltas nor verdict). create-repo fills + greps the whole stamped tree (F1, live-proven red/green in scratch); F2/F4's false claims corrected by dated addenda, originals standing; `skills/review-brief` re-keyed + marked stamped copy (F3); the gate wording's honest all-current edge stated (F5); "enforcement is structural" qualified until the `review:` templates land (F6); both stamped review surfaces pinned by drift tests, the old artefact phrases test-banned (F7, suite 267→274); PRINCIPLES.md header re-keyed (F8). Decisions stamped in the verdict. Application is doctrine ⇒ **⏳ applied-batch pass queued** (non-author taker); fleet re-stamp unblocked by F1 but held behind it.
+
+
 ## Trigger
 
 Mike opened a fresh session: "Do any reviews, use a worktree". One `⏳` item

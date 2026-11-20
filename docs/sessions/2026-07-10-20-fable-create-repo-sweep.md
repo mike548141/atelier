@@ -1,5 +1,11 @@
 # 2026-07-10 · the create-repo delivery-mechanism sweep: PASS-WITH-FINDINGS, gate cleared (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 42+1 -->
+- [2026-07-10 · the create-repo sweep: PASS-WITH-FINDINGS, gate cleared (Fable)](2026-07-10-20-fable-create-repo-sweep.md) — the brief run cold + driven twice: 10 findings C1–C10 all [fixed] + re-driven same session. Proven live: C1 a fresh clone loses hook+config and committed a planted secret green (fixed at the three places a clone looks); C2 the stamped drift check fatals on the unquoted spacey path (block quotes it; skill stamps `../atelier` + mechanical prove-the-stamp). C3 template-block ≡ PROPAGATION canonical pinned by tools/test_templates.py (suite 142→145); templates/LICENSE added; CI-scan gap + ATELIER_TOOLS trust stated; step-7 gate re-anchored to the ask. **Gate cleared — keeper repos may be scaffolded**; owed: the outward `gh repo create` live proof, ros/faves pin bumps.
+
+
 The brief run cold (`docs/reviews/2026-07-10-create-repo-rewire.md`, range
 `f72031c..92c0112` + the machine-local skill read in full), deep not fast, and
 **driven, not read**: floor re-run (142 tests, 3 selftests, leakscan/licenscan

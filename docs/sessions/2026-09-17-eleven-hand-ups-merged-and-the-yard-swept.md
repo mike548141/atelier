@@ -1,5 +1,11 @@
 # 2026-09-17 · Eleven hand-ups merged, and the yard swept
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 307+1 -->
+- [2026-09-17 · Eleven hand-ups merged, and the yard swept (Sonnet 5, wt: at-pr-tidy)](2026-09-17-eleven-hand-ups-merged-and-the-yard-swept.md) — Mike: *"tidy up the open PRs, branches, worktrees … use the right model for the job to best protect the data and the work."* 11 open PRs (#67–75, #79, #80), all child hand-ups filing `320/…` board items, 8 flagged `CONFLICTING` by GitHub — every one on the generated `docs/ROADMAP.md` index, never the item files. 🔎 **The real hazard was invisible to GitHub's own check**: `board.py`'s `number_collisions()` exists precisely because two new files never text-conflict even when their leading numbers do — six collisions found this way across the batch (320/140, 150 ×3, 160, 220, 240 ×2), none catchable by `mergeable: CONFLICTING` alone. A stray local ref `pr76` (2 commits, unreachable from any branch) looked stranded and wasn't — diffed empty against `main`'s current item, deleted. 🚀 **All 11 landed**: one integration worktree, sequential `--no-ff` merges in PR order (reporters' branches never rebased), `ROADMAP.md` regenerated not hand-merged, each collision resolved to the section's next free number and recorded in its own commit, full CI-plane floor + 261 node tests + Python suite green before push, fast-forward push, GitHub auto-closed all 11 and deleted their remote branches. **Confirmed on the pushed floor** (`gh run watch`), not the local scan. 🧹 4 worktrees, 11 PR branches, the stray ref and one stale already-merged branch (`feat/ccmail-delegation`) all removed; primary checkout fast-forwarded. Zero open PRs, zero stray worktrees/branches at close. ⚖️ Ran as one sequential pass rather than parallel agents — the eight conflicting PRs share one generated index and one number space, so parallel workers would have reintroduced the same collision class this sitting exists to catch.
+
+
 **Session:** Sonnet 5 (VS Code) · integration worktree `at-pr-tidy`, merged to
 `main` · 11 PRs landed, 4 worktrees + 6 branches removed, nothing built.
 

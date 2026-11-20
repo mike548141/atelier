@@ -1,5 +1,11 @@
 # 2026-07-13 · Session 51 — "decision" replaces "disposition"; four principal decisions land (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 74+1 -->
+- [2026-07-13 · "decision" replaces "disposition"; four principal decisions land (Fable)](2026-07-13-51-vocabulary-and-four-decisions.md) — Mike retired "disposition" ("it came out of your own deliberations") for **decision** across the living docs (`5bca7fa`; dated records keep their wording), then a plain-language walkthrough of every item owing him a ruling produced four: **REACH A1–A8 all [fixed]** — applied same session to REACH.md + AUTONOMY.md (A1's carve-out makes the two docs state one credential rule; A2 scopes session-riding to retrieval), decisions stamped, the application's own cold pass briefed **and RUN before close — PASS-WITH-FINDINGS, no MAJOR, cycle CLOSED; fidelity 8/8, H1–H8 backlogged** (`reviews/2026-07-13-reach-batch-applied.md`); **session-38 name × debt join scrubbed** from all three public spots, lesson kept, history noted as keeping the old wording; **next widening = v2 plugin** (de-instanced create-repo + worktree/fleet-pins commands — ROADMAP item, scoping first); **credential-registry home resolved** — it already exists as the private estate-root repo (verified; unnamed here by RECORD's own rule). The warn→block flip stayed parked as not-decidable-today. Incidental: restored ROADMAP's decapitated first-REACH-review bullet header.
+
+
 ## 1. Vocabulary: "disposition" retired for "decision"
 
 Opened as a roadmap walkthrough; Mike stopped on the word "disposition" — it

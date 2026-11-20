@@ -1,5 +1,11 @@
 # 2026-10-04 · 2329 UTC — ccarchive hardening: the archive copy is the truth
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 317+1 -->
+- [2026-10-04 · 2329 UTC · ccarchive hardening — the archive copy is the truth (Opus 5.5 orchestrating, Sonnet 5.5 and Opus 5.5 workers, wt: atelier-ccarchive-1005)](2026-10-04-2329-ccarchive-hardening.md) — Mike: *"I want to be able to rely on it to protect my session transcript data as I expect it too"*. Every open ccarchive ruling walked first: two rulings in his words (repair only on a proven failure, never adopt a planted file; a lock that can be seen stuck and cleared), his two-kind data model verbatim, encryption's crypto source answered C′. Then built in three parts and merged (`8540a1d`): atomic writes, skip-and-report, checked restore, schedule installer gone; signature checked before any write, signed intent journal, `_untrusted/`, lock; append-only records checked by signed prefix and never overwritten (`_anomalies/`), living documents versioned (`_versions/`), session counts. Closes `210/010`, `160`, `170`, `190`, `200`; `⏳ 160/670` queued. Then the first real run, Mike's one-off adoption of 44 orphaned mirrors, and a full `--verify`: 9,399 of 9,399 verified, 0 mismatched. Mid-run: the installer rebuilt as a real calendar schedule while his own machine stays manual (`210/230`, `eade807`); his seven-point charter recorded with a gap check (`210/240`); a git-like history idea filed (`210/220`). Recorded against itself: a worker recreated the removed login job via the PATH-installed old code, and `160` was built before it was claimed.
+
+
 **Tier:** Opus 5.5 orchestrating, stated at open per `ECONOMICS.md`
 § *The orchestrated-run tier split*. Workers: Sonnet 5.5 for parts A and C
 and a read-only inventory, Opus 5.5 for part B (the trust model, the

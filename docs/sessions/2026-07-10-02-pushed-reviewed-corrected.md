@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 24+1 -->
+- [2026-07-10 · pushed, reviewed, corrected](2026-07-10-02-pushed-reviewed-corrected.md) — private `mike548141/atelier` pushed; foundation review (2 Fable + 1 harvest) PASS-WITH-FINDINGS; autonomy-floor gaps closed; canonicality decided + APEX↔ros §0 DRY breach fixed; ROADMAP re-sequenced mechanism-before-content.
+
 **2026-07-10 — pushed, reviewed, corrected.** Repo created private
 `mike548141/atelier` and pushed. Global autonomy grant landed (commit+push+PR
 all work; floor holds). Ran the foundation review: 2 Fable reviewers

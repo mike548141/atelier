@@ -1,5 +1,11 @@
 # 2026-07-10 · child CI scanner floor — the public scanners now gate child repos (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 49+1 -->
+- [2026-07-10 · child CI scanner floor — the public scanners now gate child repos (Opus)](2026-07-10-27-child-ci-scanner-floor.md) — took the standing-open half of the CI story (sessions 23 + 26 both left it): **wire the public scanners into child CI**, unblocked by the public flip (ADR 0005). `docs/build/templates/workflows/floor.yml` — a language-agnostic scanner floor any doctrine-inheriting child drops in *beside* its `ci.yml` (correctness vs publish-safety, two files). It sibling-checks-out `mike548141/atelier` and runs its public secretscan/leakscan/linkscan against the child's own tree (`repo/`) on every push + PR — the CI backstop to the hook, which only guards its own clone. Design calls in the header not buried: **floats `atelier@main`** (a security floor wants newest; and avoids a second stamped-SHA drift surface — CLAUDE.md's pin stays the sole doctrine-version truth; `ref:` commented for reproducible-CI wanters), **leakscan structural-only** (machine-local term list — same honest scope as atelier's own `ci.yml`), **licenscan commented** (no-LICENSE hard-fails it → it's a *publish* gate, wrong to default-on for a private child like numen). Scoping to `repo/` is load-bearing (a whole-workspace scan false-positives on atelier's own fake-secret fixtures — proven). Known-failure driven (EVIDENCE §14): clean child 0/0/0, damaged child (real `AKIA…` + broken link) blocks — after a self-caught false start using the whitelisted AWS *example* secret. Wired into create-repo (seed step 3; step 6 "not wired yet" retired), REPO-STANDARD file set, pinned by 5 `test_templates.py` tests (one-source · repo-scoped · structural-only · licenscan-commented · least-priv; suite 190→195). **Left open:** not yet run on a real child (numen predates it); review-owed (net-new CI tooling).
+
+
 Took the standing-open half of the CI story that sessions 23 and 26 both left as
 their explicit "left open": **wire the public scanners into child CI**. It was
 blocked until session 22 flipped atelier public (ADR 0005) — a child's CI can

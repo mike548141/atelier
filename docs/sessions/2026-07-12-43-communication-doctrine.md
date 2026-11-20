@@ -1,5 +1,11 @@
 # 2026-07-12 · 43 — communication calibration doctrine (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 66+1 -->
+- [2026-07-12 · communication calibration doctrine (Fable)](2026-07-12-43-communication-doctrine.md) — Mike revisited the same-day "reply style is personal, no atelier artifact" call with a sharper split: the *values* stay in `~/.claude/` (the reframe stands), the *pattern* is shareable doctrine a peer adopter needs. **`method/COMMUNICATION.md`** built — TOOLBOX's practice/instance split applied to communication; axes grounded in the live instance (outcome-first ordering, structure-replaces-length density, visual structure with the colour-icons ✅❌⚠️ specificity confirmed earlier this same day, cognitive-load stance, tone *with dosage* — the overdone-wit case, locale, what-personal-context-is-for); meta-rules (serve-don't-recite, maintain-like-a-record with dated confirmations, person-local-never-copied); Mike's calibration included **scrubbed** as the ADR 0005 named worked example (health/workload/household motivators dropped, stated). Decline-then-revisit recorded honestly in the ROADMAP item, not silently edited. Cold review owed — logged with pre-seeded brief questions (does the worked example leak by implication; axes grounded or padded).
+
+
 Mike: "Atelier needs something along the same lines of how I like to work with
 you… put a version of the same thing that we stored in CLAUDE.md into atelier,
 it's fine to scrub personal info — it's how my peers will work better with you

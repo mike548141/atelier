@@ -1,5 +1,11 @@
 # Session — the guard governance frame, and a ruling Mike put back on the table
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 231+1 -->
+- [2026-08-02 · 2340 UTC · Track F — the guard governance frame; E6d put back on the table, cold pass queued (Opus, wt: none — inline on main)](2026-08-02-2340-guard-governance-frame.md) — Mike returned to E6d's escalate-only ruling unsure it was right, and set the handling himself: keep the ruling, record an open action to rebuild the model from base, run a cold Fable pass on the origin problem *before* any design. Two things are new. His decomposition is finer than E6d's — identification-confidence, then the *probability* of harm and the *impact* of harm as separate terms, where E6d collapses the last two; a correctly-identified credential can carry low probability of harm and that is not the same question as how bad it would be. And the concepts he listed (DRY policy-as-code, cannot-reduce-but-may-except, acceptance vs deferment, false-positive reporting, resolve/scope/soften, side-stepping) are a governance model that **six already-open items turn out to be instances of** — D4's zero adopters, C2's seventeen advisories, E1–E4 found ad hoc, Track A's scope fail-opens, C4's unobserved bypass, the never-expiring advisory. Recorded as Track F, F1. No candidate solution written in, deliberately: he invited a sketch and sketching would steer the queued pass. Honest notes — the frame is his and the six-item mapping is the agent's; his doubt and the E6 pass's own EI3 landed on the same soft spot independently; the leakscan/PII sweep is unswept for the third time.
+
+
 - **Date:** 2026-08-02, 2340 UTC
 - **Model:** Opus 5 (1M context), inline on `main`
 - **Ask:** record an open action to re-think the block-vs-advise model from

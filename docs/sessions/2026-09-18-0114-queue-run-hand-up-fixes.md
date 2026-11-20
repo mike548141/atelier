@@ -1,5 +1,11 @@
 # 2026-09-18 · Queue run — the hand-up fixes
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 308+1 -->
+- [2026-09-18 · Queue run — the hand-up fixes (Opus 5 orchestrating, Sonnet 5 workers)](2026-09-18-0114-queue-run-hand-up-fixes.md) — 22 items closed across three waves of isolation-worktree workers plus inline doctrine. Mike ruled five things in the question device, including a mid-session ask: **plainscan removed** (hook destroyed, engine archived at tag `archive/plainscan-2026-09-18`). Also built: **conflictscan** (enforced), leakscan plurals, and `worktree list` against `origin/main`. Built from the queue: the secretscan URL/`--staged` fixes, board flags, the floorfleet `main`-ruleset row, cctranscript's mid-turn channel, and four doctrine fixes (sync gates, **verify the act**, drift reads `origin/main`, the ask wording). Review sent two worker drafts back (a ref-renumbering, a signed-URL blind spot). 🛑 The run's own estate probe thrashed Mike's machine (~9 GB secretscan over the largest repo) until a peer session traced it; killed, filed `020/370`. Stopped with everything left blocked on rulings or Fable review. Queued `160/310`, `160/320`.
+
+
 **Session:** Opus 5 (VS Code) orchestrating, Sonnet 5 workers in isolation
 worktrees · `main` for claims and inline items · in progress; each item closes
 in its own commit, so this record grows per item.

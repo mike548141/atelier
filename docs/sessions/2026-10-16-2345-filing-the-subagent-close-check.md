@@ -1,5 +1,11 @@
 # 2026-10-16 · 2345 UTC — Filing: the close declaration must cover subagents
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 321+1 -->
+- [2026-10-16 · 2345 UTC · Filing: the close declaration must cover subagents (Fable 5.1, no repo, no workers)](2026-10-16-2345-filing-the-subagent-close-check.md) — Mike asked whether the sessions he had closed in the previous day left subagents running; he had been closing tabs on the "ready to close" signal alone. A fresh read of 30 sessions (21 closed, 240 subagents) found every close claim made with no agent still working, but eleven agents cut by the 07:35 UTC crash survived only because their sessions were resumed. Neither the doctrine nor `ccclose` reads subagents. Filed `020/420`: a twelfth `ccclose` check and the agent list in `RECORD.md`'s all-clear and `CONCURRENCY.md`'s close-out measurement, with the transcript facts the build needs. Nothing built, no claim taken.
+
+
 **Tier:** Fable 5.1, a session with no repo (the principal's home directory),
 touching atelier only to file one board item. No workers.
 

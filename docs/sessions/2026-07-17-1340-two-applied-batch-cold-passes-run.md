@@ -1,5 +1,11 @@
 # 2026-07-17 · 1340 UTC · the two queued applied-batch cold passes run (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 114+1 -->
+- [2026-07-17 · 1340 UTC · the two queued applied-batch cold passes run (Fable)](2026-07-17-1340-two-applied-batch-cold-passes-run.md) — the rule-4 taker Mike pointed at the queue claimed both `⏳` applied-batch items (`c10f73e`, solo on `main`), wrote refs-only briefs with the application-review sequencing, and spawned two cold reviewers; both were cut by the session limit mid-run and resumed with context intact (interruption + disclosures in each verdict). **Both PASS-WITH-FINDINGS with 0 MAJOR** — CLI-docs 2 MEDIUM · 3 LOW (sharpest: the man page's `EXIT STATUS` predates all four new non-zero exit paths), CONVENTIONS/UTC 1 MEDIUM · 5 LOW (sharpest: a seventh minting site `REVIEW.md:157` unannotated; plus one reconcile-stage drift — prior-F6's foreign-formats line silently dropped). All seven and six prior rulings respectively reconciled as implemented. Every recorded proof re-ran green (247 + 75 tests, drift tests, mandoc, five scans, installer drive, MANPATH empirics). Nothing applied — **both rulings are Mike's; 0 MAJOR ⇒ each cycle closes on his ruling** (🎯 ROADMAP). Stale `fable-review` worktree removed.
+
+
 ## Trigger
 
 Mike opened a fresh session: "do any review work queued". Two `⏳` items sat

@@ -1,5 +1,11 @@
 # 2026-08-15 · 1024 UTC · Four cold-pass briefs written, none run (Fable, wt: review-briefs-0815)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 271+1 -->
+- [2026-08-15 · 1024 UTC · Four cold-pass briefs written, none run (Fable, wt: review-briefs-0815)](2026-08-15-1024-review-briefs-written-not-run.md) — Mike opened a cold session: do any review work, any Fable-dependent work, write briefs for reviews that need them — and a session that writes a brief does NOT run the review; another cold session does. Five rule-4 `⏳` pointers were untaken and brief-less (board-store migration, Laws removal, `cctranscript --search`, the COMMUNICATION.md enforcement clause + the plainscan rescope — the last two share one brief). No unrun brief existed, so no review ran. Claim on `main` first (`35ce01d`), worktree, then four briefs each with a rule-1 `.deferred.md` sibling holding intent-record refs and the brief-writer's seeded questions — written from the delta and pointer only, intent records unopened. Pointers now say *brief written, review not run* in code spans (a link into `reviews/` reads to pointerscan as a verdict). Three observations left in the siblings, not raised: `board.py` derives index flags from raw first lines incl. code spans (`130-…/010` renders `⏳🔎`); `AUTONOMY.md`'s "dilemma never silently resolved" clause lost its anchor with the Laws; no CHANGELOG entry exists for plainscan/the hook. Floor green ci-plane, 105 briefs clean, pointerscan clean.
+
+
 **Mike's instruction, verbatim, opening a cold session:** *"As a cold session
 please do any review work, any work that is fable dependent, and write briefs
 for any reviews that need them. If you write the brief then do not run the

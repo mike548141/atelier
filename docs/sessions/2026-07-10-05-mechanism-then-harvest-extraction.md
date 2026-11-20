@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 27+1 -->
+- [2026-07-10 · mechanism, then the harvest extraction (Opus)](2026-07-10-05-mechanism-then-harvest-extraction.md) — EVIDENCE.md (A1), REVIEW.md (A2), RECORD.md (A3) written grounded-not-invented; PRINCIPLES.md extracted stub → canonical general spine; ros transitional DRY breach flagged + trim deferred to a focused ros session; pins bumped c3676ee→dde4170.
+
 **2026-07-10 — mechanism, then the harvest extraction (Opus, "keep going until
 economics say stop").** Followed the ROADMAP sequencing (mechanism before more
 content) end to end. **Propagation mechanism** built and proven — new

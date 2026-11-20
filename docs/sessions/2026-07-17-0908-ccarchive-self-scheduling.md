@@ -1,5 +1,11 @@
 # 2026-07-17 · 0908 UTC · ccarchive — self-installing schedule
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 107+1 -->
+- [2026-07-17 · 0908 UTC · ccarchive — self-installing schedule (Opus)](2026-07-17-0908-ccarchive-self-scheduling.md) — Mike: how does the schedule survive a new laptop — a feature in ccarchive? It was a hand-written launchd plist, reproducible by nothing (a new machine restores the tool via `install` but not the schedule). Made scheduling built-in: **`--install-schedule`** (writes + loads `com.ccarchive.archive` launchd agent, daily + RunAtLoad, idempotent, pointing at `~/.local/bin/ccarchive` + `process.execPath`, logging to `~/Library/Logs/ccarchive.log`), **`--schedule-status`** (read-only), **`--uninstall-schedule`**; non-macOS prints the cron line. New-machine recovery is now two documented commands (`./instruments/install` → `ccarchive --install-schedule`). +6 tests (18 total; pure builders incl. XML-escaping + read-only status spawn, never spawning install/uninstall to avoid mutating a dev's launchd). Driven live: status→install→status→RunAtLoad archived; migrated off the old hand-made `nz.cxi.ccarchive` agent (`launchctl list` now shows only the tool-managed one). No ADR change (doctrine unchanged); README updated. No new review owed.
+
+
 ## What prompted it
 
 Mike, right after the ccarchive session: "How do we re-establish the schedule if

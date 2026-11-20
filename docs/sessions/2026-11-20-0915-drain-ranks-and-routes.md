@@ -1,5 +1,11 @@
 # 2026-11-20 · 0915 UTC — A drain ranks and routes the whole queue first
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 370+1 -->
+- [2026-11-20 · 0915 UTC · A drain ranks and routes the whole queue first (Opus 5.5, principal-opened)](2026-11-20-0915-drain-ranks-and-routes.md) — `ccfleet drain` requires `queue.ranked`; review-drain skill section; cold pass queued as `160/1660`, no brief
+
+
 **Session:** `64f984ac`, Claude Opus 5.5, principal-opened in the VS Code extension.
 No review-tier model used; no review run. Peers live at open: queue run `08cd3b95` on
 this repo's primary checkout (its uncommitted `leakscan` work left untouched; this

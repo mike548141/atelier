@@ -1,5 +1,11 @@
 # Session — E6 intent cold pass, PASS-WITH-FINDINGS — EI1–EI6 to Mike
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 222+1 -->
+- [2026-07-29 · 1243 UTC · E6 intent cold pass — PASS-WITH-FINDINGS 1M/2M/1m/2n, EI1–EI6 to Mike (Fable, wt: e6-intent-cold-pass)](2026-07-29-1243-e6-intent-cold-pass.md) — first queue item for a Mike-spawned taker session (author of none of the E6 chain): claim on main → taker brief → cold design/intent pass with every factual claim re-run at HEAD → findings committed pre-reconcile → intent record opened after. Direction stands; EI1 (MAJOR) makes a named advisory-tier consumer a build precondition of E6b; EI2 keeps estate-detail impact declarations out of public children; EI3 keeps the severity matrix the principal's. Author's own two unresolved flags answered by convergent findings; the leakscan-PII companion sweep endorsed as open work. Cycle open pending rulings.
+
+
 - **Date:** 2026-07-29, 1243 UTC
 - **Model:** Fable 5 (1M context), wt: e6-intent-cold-pass
 - **Ask:** Mike — "tell me which repos have reviews waiting to kick off, then

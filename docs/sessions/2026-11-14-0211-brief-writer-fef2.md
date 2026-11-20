@@ -1,5 +1,11 @@
 # 2026-11-14 · 0211 UTC — Brief-writer: the cold-pass brief for 160/1300
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 350+1 -->
+- [2026-11-14 · 0211 UTC · Brief-writer: the cold-pass brief for 160/1300 (Opus 5.5, headless, started by an estate health sweep, orchestrator session 58027096; no review run)](2026-11-14-0211-brief-writer-fef2.md) — one brief with a held-back sibling over one commit, `dd3d60d4`; no Fable used, no pass run
+
+
 **Session:** `fef270f6` (as `cclive` lists it), Claude Opus 5.5, a headless brief-writer started by
 an estate health sweep, orchestrator session `58027096`, on the principal's instruction that a
 brief is written for every review known to be owed (Mike, 2026-11-14, verbatim: *"include all

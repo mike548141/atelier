@@ -1,5 +1,11 @@
 # 2026-07-28 · 0137 UTC · Track A application cold pass taken (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 209+1 -->
+- [2026-07-28 · 0137 UTC · Track A application cold pass taken (Fable, wt: atelier-review-0123-take)](2026-07-28-0137-track-a-application-cold-pass.md) — the queued rule-4 pass on the Track A application, taken by a Mike-spawned "do any review work" session (the worked example of rule 4's spawn criterion). **PASS-WITH-FINDINGS 1M/4m/4n**: all five ruled items verified faithfully applied, every before/after probe reproduced live at HEAD, both suites green with and without a machine term list. **The MAJOR (TA1), proven live**: the scope guard tests existence, not membership — a declared `scope` path resolving *outside* the repo (`/etc`, `..`) still vacates a boundary check, and a staged credential passes ✅ on the hook plane; the adjacent member of the ruled class, open under the delta's own shut-class claim (the same lexical-vs-resolved gap LS3 closed for local `run` paths, unclosed for fleet `scope`). Plus 4 minor (CI blocks the absolute-path case by traceback not message; silent partial drift on softenable scanners; `partial` read off argv can contradict the scanner's own cover report; the parent-row regex reads a commented-out invocation as wired) and 4 notes. Sequencing held — findings committed before the intent record or either prior verdict was opened. TA1–TA9 await Mike's ruling (rule 3); the MAJOR keeps the cycle open, so this application round earns a further cold pass once ruled.
+
+
 **Seat:** Fable, worktree `atelier-review-0123-take`.
 **Ask:** *"Please do any review work. There are parallel sessions so take
 precautions"* — the rule-4 worked example: the principal opening a fresh

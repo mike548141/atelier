@@ -1,5 +1,11 @@
 # 2026-08-06 · 1222 UTC · Orchestrated queue run — seven items, four rule-4 pointers
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 248+1 -->
+- [2026-08-06 · 1222 UTC · Orchestrated queue run — seven items, four rule-4 pointers (Fable orchestrating, Opus/Sonnet workers, five worktrees)](2026-08-06-1222-queue-run-scanner-floor-builds.md) — Mike's "carry on with anything unclaimed": claims landed on `main` first (`5d083b3`, with E1/E2's stale open-state corrected from the tree), then three waves — E7's funded leakscan build (key-context layer + canaries, path scanning, financial identifiers, opt-in derived forms; E4 + clock-times closed by the same D2 fix), E6b's secretscan advisory tier with all three ruled consumer legs + E3's counted fingerprint carve-out (first live run: 21 advisory findings, all hashes), the decisions-index catch-up, the EP1(b)+EP4–EP10 application (blast radius measured at zero; the ruling's "verified absent" found half-stale), and the floor-render batch (👁️ warn-only as a third honest board state, PS5's registry promotion reaching every child, C1F3's floorfleet strip proving live escape sequences were reaching the terminal). Suite 1060 → 1200; five merges, each closing its items + harvesting + queuing its pointer in the landing commit; pushed floor green per merge. Self-caught: the orchestrator's harvest text quoted the IPv6 doc prefix the entry described (reworded, describe-don't-quote), and the just-promoted pathscan caught the session's own index distillation naming a nonexistent path. Put-away debt cleared at onramp (merged PR #14 branch residue + a merged remote worktree branch deleted). Four ⏳ pointers queued, none takeable here (QR2); the decision queue for Mike (G3 funding, the E6b board interpretation, the EP1(b) legacy deferral, index generation, D1's identity-lines consequence, the standing 2026-08-05 residue rulings) handed over at close.
+
+
 - **Model**: Fable orchestrating (Mike's per-run call); Opus workers ×4, Sonnet
   worker ×1
 - **Worktrees**: e7-leakscan-build-0806 · e6b-secretscan-advisory-0806 ·

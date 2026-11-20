@@ -1,5 +1,11 @@
 # 2026-07-21 · 1233 UTC · Opus 4.8 (1M) · roadmap capture stream (Mike feeding ideas)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 144+1 -->
+- [2026-07-21 · 1233 UTC · roadmap capture stream (Opus 4.8 1M, main)](2026-07-21-1233-roadmap-capture-stream.md) — CAPTURE-ONLY, no code/no doctrine change. Parked 6 items from Mike's estate note session: **anti-slop invariant registry** (new strand, from thenewstack.io/engineering-ai-slop-registry — registry + >2×-promotion rule + two-layer criteria, positioned as extending floor-scanners/writer≠verifier/review-before-build); **MODEL-ECONOMICS→ECONOMICS** rename recommendation (now spans models+runners; rename-not-split; ref-sweep); **honesty vs truth vs transparency** (Mike's RAW to-do, do-not-interpret, apex-level); **grab-colleague-AI-chat** to-do (REDACTED — public repo; full pointer in operator's private note); **ccarchive metadata** + **cctranscript/ccarchive-merge** raw open questions. Lesson: capture-mode = park the line, don't answer (over-ran twice; → memory `feedback_capture_mode_default`).
+
+
 Capture-only: Mike fed a stream of ideas for the atelier roadmap during an
 estate note-capture session. Each parked in `docs/ROADMAP.md`, committed +
 pushed as it landed (scanners clean each time). Worked on `main` — finished doc

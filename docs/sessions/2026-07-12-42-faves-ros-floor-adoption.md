@@ -1,5 +1,11 @@
 # 2026-07-12 · faves + ros adopt the house floor (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 65+1 -->
+- [2026-07-12 · faves + ros adopt the house floor (Fable)](2026-07-12-42-faves-ros-floor-adoption.md) — "lets go with full adoption": the session-41 follow-up closed. Current `floor.yml` landed beside both bespoke `ci.yml`s, **both green on first run with verification actually verifying** (faves 9/9, ros 2/2, two planes). The load-bearing catches: both pins predated `allowed_signers` (adopted as-was, verification would have *silently skipped* — the pin bump was the fix, not hygiene), and ros's unpushed HEAD was unsigned (amend-signed; boundary stays honest). Green-by-charter, not by scrub: repo-type `--disable` tuning + reasoned ignore hatches for content the repos are chartered to hold, every ros exemption stating it dies at the publish-time scrub pass. licenscan enabled in both; four real link breaks fixed. Warn→block flip still open, Mike's call.
+
+
 **Ask:** the open follow-up from session 41 — faves and ros run bespoke
 `ci.yml`, never adopted `floor.yml`, so the fleet signing retrofit skipped
 their verification. Mike weighed full adoption vs injecting signing steps into

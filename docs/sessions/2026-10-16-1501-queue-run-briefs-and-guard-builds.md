@@ -1,5 +1,11 @@
 # 2026-10-16 · 1501 UTC — Queue run: the 21 briefs and the owed guard builds
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 320+1 -->
+- [2026-10-16 · 1501 UTC · Queue run: the 21 briefs and the owed guard builds (Opus 5.5 orchestrating, Sonnet 5.5 and Opus 5.5 workers)](2026-10-16-1501-queue-run-briefs-and-guard-builds.md) — Stopped on economics (context about 340k). **All 21 of atelier's missing rule-4 briefs written** (`160/500`–`760`) by Opus brief-writers that authored none of the deltas; none run. **Built:** licenscan's warn made real (`115/290`), sizescan's size advisory removed (`115/270` c, item done), staged findings at their real line (`115/300`), the floor's advisory count scoped per scanner (`115/320`), **`ccclose`, the close-out checker** (`020/180`; installed at the close on Mike's answer), and cctranscript no longer crediting harness text to Mike (`210/250`). `115/310` reproduced, but its fix was rejected after a realistic probe showed it lost a true finding. **Ten child hand-up PRs landed** (#98–#107, nine renumbered) and all thirteen items verified at HEAD: eleven confirmed, two partly. `115/090` was held because Mike's "leakscan first" answer met his own EI6 ruling (no leakscan advisory form), which the question never showed him. Re-briefed at the close, he answered "report-only for off rules": nothing that blocks today is demoted, and the build is owed. Passes queued `160/830`–`880`. Recorded against itself: the worker bounds omitted the UTC-date rule, and one cherry-pick skipped the hook.
+
+
 **Tier:** Opus 5.5 orchestrating, stated at open per `ECONOMICS.md`
 § *The orchestrated-run tier split*. Workers: Sonnet 5.5 for pattern-following
 tool fixes, each in its own isolation worktree and its own named scratch

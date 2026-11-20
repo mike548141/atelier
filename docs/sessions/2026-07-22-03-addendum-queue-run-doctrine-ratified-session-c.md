@@ -1,0 +1,4 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 149+1 -->
+- [2026-07-22 · addendum · queue-run doctrine RATIFIED; session closed (Fable, wt: queue-run-ratify-close)](../../docs/ROADMAP.md) — Mike: *"I like everything you have there"* ⇒ the orchestrated-queue-runs capture is ratified as counselled (method-layer pattern + `queue-run` skill), deliberately left unclaimed for a fresh session to build; the build earns the full rule-4 cycle when it lands. Session closes with two open hand-offs: that build, and the ⏳ application cold pass on `d553045` (this session is its applier, so ineligible). Session total: the full scope/lens-4 review cycle (claim → taker brief → two-hop cold pass 2M/3M/2L → Mike's accept-all → SL1–SL7 applied, suite 298→302 → application ⏳ queued) + the queue-run capture and ratification.

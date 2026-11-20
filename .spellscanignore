@@ -16,8 +16,8 @@ docs/sessions/
 # Review briefs/verdicts: frozen once landed; discuss US terms verbatim.
 docs/reviews/
 
-# The session index: hundreds of frozen one-line-per-session entries.
-docs/SESSIONS.md
+# The session index, docs/SESSIONS.md, was retired into docs/sessions/ on
+# 2026-11-20 (010/270); its entries are under the line above now.
 
 # Harvested/archived current-truth: preserved verbatim (the history half of
 # the current-truth/history split). The board's pre-split archive was cut

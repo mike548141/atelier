@@ -1,5 +1,11 @@
 # 2026-07-11 · the instruments code review's 10 findings, fixed + pinned (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 59+1 -->
+- [2026-07-11 · the instruments code review's 10 findings, fixed + pinned (Fable)](2026-07-11-37-instruments-review-findings-fixed.md) — the `8536971` review's report lived only in its session transcript; recovered via `cctranscript --json` (the `ref` scheme addressing its own review), recorded as `reviews/2026-07-11-instruments-test-floor-code-review.md`, and **all ten findings [fixed] + pinned** (suite 20→26, green in UTC/Halifax/Chatham). Floor pair: tz-fragile `--by-day` fixture → midday-UTC stamps; `test_*.js` → `*.test.js` with one honest correction — node:test rejects directory args on 22+, so CI + docs run the shell glob `node --test instruments/*.test.js` (future test files can't skip CI). Correctness: argv help/validation out of module load (require-survival pinned), `shortModel` total, `.session` envelope guard, symlink-proof walk, `main().catch`. Cleanups: `pt`/`paint` dedup, one `sessionRecord()` for all routes (real mtime in list view), `buildIndex()` returns its maps. Three cut-by-cap residuals recorded, deliberately unfixed. Both instruments re-driven live; 205 Python + 26 Node + scan quartet clean.
+
+
 Mike's ask: do all of atelier's review work, starting with the ten confirmed
 findings from the earlier code review of `8536971` (the instruments test
 floor) — still unfixed, and two of them affecting the floor that had just

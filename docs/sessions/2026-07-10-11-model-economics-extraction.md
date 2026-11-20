@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 33+1 -->
+- [2026-07-10 · MODEL-ECONOMICS.md: stub → canonical (Opus)](2026-07-10-11-model-economics-extraction.md) — promoted the stub to canonical: kept its shape (match-model-to-job, which-pool self-check, tiered authority, review triggering) and extracted the general session-hygiene mechanics + cache economics from ros (per-model cache, TTL churn, point-don't-paste, one-task, heavy-skills, hot-path-lean); estate-specific numbers stay person-local in ros with a foot-pointer naming the split; README/method-README/ROADMAP/CHANGELOG swept off "stub".
+
 **2026-07-10 (Opus) — MODEL-ECONOMICS.md: stub → canonical.** The extraction
 item after the P2 pin view, same session. The stub already carried the *shape*
 (match-model-to-job, know-which-pool self-check, one-doctrine/tiered-authority,

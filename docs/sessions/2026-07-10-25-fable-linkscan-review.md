@@ -1,5 +1,11 @@
 # 2026-07-10 · the linkscan review: PASS-WITH-FINDINGS, all five assumptions repaired, gate cleared (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 47+1 -->
+- [2026-07-10 · the linkscan review: PASS-WITH-FINDINGS, all five assumptions repaired, gate cleared (Fable)](2026-07-10-25-fable-linkscan-review.md) — the brief run cold + every proof re-driven: floor reproduced, then all five load-bearing assumptions damaged by probe — L1 a typo'd path arg scanned nothing and exited 0 (the §14 silent-success class, now exit 2), L2 case-mismatched links green on APFS / 404 on GitHub (on-disk casing walked, NFC/NFD-safe), L3 links escaping the repo root (new outside-root kind), L4+L5 anchor matching made exact like GitHub's after fixing the slugger's underscore divergence, L6 paren filenames parse, L7 fence tracker length/info-string-aware (shared tracker), L9 setext anchors minted (was FPing valid links). L8 root-relative /… verified against GitHub docs; L10 indented-code FP stated-not-fixed (the fix costs real FNs). Suite 171→187, tree rescanned clean. **Gate cleared** — ci.yml/pre-commit wiring left open for the next build session (a reviewer doesn't wire its own same-day fixes into the gate; fourth application of don't-stack).
+
+
 The brief run cold (`docs/reviews/2026-07-10-linkscan.md`), deep not fast, and
 **driven, not read**: floor re-run first (selftest OK, whole tree clean exit 0,
 171 tests OK, a planted break + bogus target both flagged exit 1), then a probe

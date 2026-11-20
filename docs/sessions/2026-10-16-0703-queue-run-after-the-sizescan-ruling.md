@@ -1,5 +1,11 @@
 # 2026-10-16 · 0703 UTC — Queue run after the sizescan ruling
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 319+1 -->
+- [2026-10-16 · 0703 UTC · Queue run after the sizescan ruling (Opus 5.5 orchestrating, Sonnet 5.5 workers)](2026-10-16-0703-queue-run-after-the-sizescan-ruling.md) — Stopped on economics (context past 370k), with the rest waiting on Mike or Fable. **Closed:** `200/090` ("agreement is not corroboration" minted in EVIDENCE), `160/770` (Mike's mid-run ask: a launch card per repo for all Fable-dependent work, kept user-local), `115/280` (the three staged guards read the diff by its structure, so an added `++ ` line can no longer hide what follows), and `320/430` (indexscan flags an index line dated before its file). **Landed, item still open:** `115/270` (a) and (b), where sizescan's cold-content gate has no hatch and lists the items, and (c) waits on Mike. Also `115/090`'s second-dial audit (2 of 16 guards have one). `140/020`'s ADR re-wording was drafted and held for Mike, because it is AR1's unruled fix. Filed `115/290` and `115/300`. Passes queued: `160/780`–`810`. 🛑 **At 07:35 UTC every VS Code process was SIGTERMed.** All three build workers died; they were discarded and rebuilt fresh, and every commit on `main` was re-verified. Recorded against itself: six agents in flight past the cap, a claim before reading, an unclaimed edit Mike rejected, and survey cards that summarised where they should have listed. **Six close decisions answered in the device:** sizescan's size advisory goes; ADR 0008's amendment landed and `main`'s admin bypass removed (signing now binds every account); leakscan gets the second dial first; licenscan's warn becomes real; the close-out checker is to be built; an Opus session writes atelier's 21 missing briefs.
+
+
 **Tier:** Opus 5.5 orchestrating, stated at open per `ECONOMICS.md`
 § *The orchestrated-run tier split*. Workers: Sonnet 5.5 for pattern-following
 builds, read-only triage and surveys, each in its own isolation worktree (if it

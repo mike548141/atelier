@@ -1,5 +1,11 @@
 # 2026-10-18 · 0458 UTC — Queue run: five cold-pass briefs, and the identifiers over-credit
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 325+1 -->
+- [2026-10-18 · 0458 UTC · Queue run: five cold-pass briefs, and the identifiers over-credit (Opus 5.5 orchestrating, two Opus 5.5 brief-writers, three Sonnet 5.5 workers, wt: atelier-qr-210-290, -briefs-1018, -115-360, -210-310, -records-1018)](2026-10-18-0458-queue-run-briefs-and-the-identifiers-fix.md) — the first real `/atelier:queue-run`, bare. Briefs for all five queued cold passes `160/900`–`940` landed (QK DS BF CV TH), none run. `115/360` closed: a bare `.` no longer empties a staged scan (`692c04a`, cold pass `160/950`). `210/290` closed: `ccclose --identifiers` credits commits on evidence, not the window (`0462173`, `621d18b`, cold pass `160/960`); its residue `210/310` closed too (`e78b6f1`), so the run's own close credits all its commits. Filed `210/330`. 🎯 `320/450` part 1 parked for a ruling (a board.py index change reds every child until it rebuilds). Stopped with the queue not drained, recorded as a judgement. Reopened on Mike's reply: scratch copies removed; `010/170` built with a grace to 2026-11-18 (`28ef94a`); PR #97 / G3 landed with a grace and metadata kept set by set (`b5a2c53`, `020/150`); cold passes `160/970`, `980`; graces' removal `010/190`.
+
+
 **Session:** `8e498ef1-c673-4bc6-a4ff-de0afec2e811`.
 **Tier:** Opus 5.5 orchestrating; two Opus 5.5 brief-writers; three Sonnet 5.5 workers.
 Worktrees `atelier-qr-210-290`, `-briefs-1018`, `-115-360`, `-210-310`, `-records-1018`.

@@ -1,5 +1,11 @@
 # 2026-07-14 · 23:10 · Fable — the estate leaves iCloud; STORAGE.md rewritten
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 96+1 -->
+- [2026-07-14 · 23:10 · Fable, the estate leaves iCloud — STORAGE.md rewritten](2026-07-14-2310-estate-leaves-icloud.md) — the owner-decided estate move (shed roadmap, 2026-07-14) executed: every repo copied iCloud → `~/.pets/` (byte-diff verified, fsck clean, all pushed), sibling-relative wiring survived intact, tiki venv now in-repo. This repo's edit: **STORAGE.md rewritten to the new topology** — three locations carry the four roles; the continuous-backup role iCloud filled splits across *push discipline* (offsite leg, new rule bullet: push early, push often) and *Time Machine → NAS*; the trade-off named (between push and TM snapshot, new work exists in one place); the churny-state gotcha generalised to *never let a sync engine hold the working copy*, estate-specific workarounds marked moot. `is_icloud()` tool checks + fixtures untouched — they detect a hazard that still exists for adopters.
+
+
 **What happened outside this repo (context):** the owner executed the
 2026-07-14 decision (recorded in shed's roadmap) to move every estate repo
 out of iCloud Drive to `~/.pets/` — a plain local path no sync engine

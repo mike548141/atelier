@@ -1,5 +1,11 @@
 # 2026-08-17 · 0900 UTC · Mike's ruling round on the cold run — four rulings, all applied (Opus, wt: rulings-0817)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 281+1 -->
+- [2026-08-17 · 0900 UTC · Mike's ruling round on the cold run — four rulings, all applied (Opus, wt: rulings-0817)](2026-08-17-0710-cold-run-two-passes-one-brief-rulings.md) — Same session as the 0710 cold run, second half: Mike opened the round himself (*"ask me any questions"*, then *"e.g. rulings etc"*) and ruled all four asks in one sitting, taking the cheap option on none of them. **"Accept, and write the rule"** — the off-tier orchestrator is accepted and `REVIEW.md` rule 4 now states what the named tier binds: the judgement that forms findings, not every hand a pass passes through, on two binding conditions (forms no finding, and discloses the arrangement before the findings). **"Ratify, but not at the floor"** — the apex keeps the stands-but-challengeable wording AA7 exposed as a derivation, and gains one exception: at the always-confirm floor an extracted approval is re-briefed *before* the irreversible action, never challenged after it; AA6 closes with it. **"RECORD.md + GUARDS.md"** — the homeless earned rule gets a doctrine surface, and its class gets one too (*a rule with no home is not a rule*). **"Build a guard"** — `tools/coldsweep.py` makes rule 2's exclusion the default and the wide sweep an explicit, banner-printing exception; it compares relative path *parts* rather than text prefixes, which is where the defect actually lived through three instances. Both landings queue their own `⏳`, scoped to paths not commits — the AA11 shape applied to its own successor. AA8–AA13 and RG1–RG3, RG5–RG9 stay unruled and unapplied.
+
+
 Continuation of the 0710 UTC cold run in the same session. That half ran two
 rule-4 passes and wrote a third brief; this half is what Mike did with the
 findings, and what the doctrine now says because of it.

@@ -1,5 +1,11 @@
 # 2026-07-11 · PRINCIPLES §8 — leverage / "productive laziness" (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 55+1 -->
+- [2026-07-11 · PRINCIPLES §8 — leverage / "productive laziness" (Opus)](2026-07-11-33-leverage-principle.md) — Mike named a principle mid-session and asked it be written for Claude models going forward: *strategic laziness is leverage — spend now (a work-avoiding design, or a reliable reusable tool) to save repeated work later and get consistent, robust outputs.* Added as **PRINCIPLES.md §8 "Leverage — invest now to stop paying later"** (appended, not renumbered — §5 is cross-referenced): two forms (**design out the work** — thin-anchor-fat-pointer/one-source; **build the reliable tool once** — the scan triad, the codified verb vs recurring hand-surgery, tied to EVIDENCE §14 build-it-honest), plus **the discipline** (payback needs real recurrence, never gold-plating; never a shortcut through §0–§2) and a **"One-off or recurring?"** situation test. Grounded not invented — the repo already *is* this principle. **Review-owed by its own rule** (doctrine text; flagged, not self-certified). Children inherit via the pointer (no edit); fleet reads behind again (real method/ change).
+
+
 Mike named a principle mid-session and asked it be written so it makes sense to
 Claude models going forward: *being lazy isn't always bad — doing something now
 that avoids or saves a lot of work later is beneficial, whether by a design

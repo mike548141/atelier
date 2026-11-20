@@ -1,5 +1,11 @@
 # Cross-session channel — primary source transcript (2026-08-17, 0343 UTC)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 277+1 -->
+- [2026-08-17 · 0343 UTC · Cross-session channel — primary source transcript (Opus, wt: channel-transcript-0816)](2026-08-17-0343-cross-session-channel-transcript.md) — A parallel atelier session, commissioned to make an inter-session message channel a doctrine primitive, asked for the raw exchange rather than this session's summary of it, on the apex ground that **a doctrine change rides on repeatable evidence, never testimony** — the board items record the *findings*, nothing durable recorded the *protocol behaviour* the doctrine would describe, and the transcript dies with the window. Correct, so it is kept: the four-round exchange with a `faves` session, verbatim, prioritised as the requester asked — the declaration of intent (identifies itself, names the rule it acts under, declares what it has **not** done before any content, hands over disposition authority); the claim this session re-ran instead of accepting, with the probe results and the `pathscan` correction that fell out (two partial guards whose union was assumed complete); and the child's unprompted withdrawal, its evidence volunteered *against* its own preferred fix, and the caveat that corrected this session's own filed item. One exchange is **abridged on purpose**: it enumerated which invariants a child's guard job covers, a repo-name-plus-coverage join that does not belong in a public tree — described, not quoted, with the omission stated in the file. Standing fact recorded rather than summarised: four findings crossed, no writes crossed, disposition stayed with the receiving repo every time, and **both load-bearing corrections came from a party re-running a claim rather than reasoning about it**.
+
+
 **What this is.** The verbatim inter-session exchange between an atelier session
 and a `faves` session on 2026-08-16/17. It is kept because another session is
 writing doctrine about that channel, and asked for the primary source rather

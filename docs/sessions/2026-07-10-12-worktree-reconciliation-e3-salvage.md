@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 34+1 -->
+- [2026-07-10 · parallel-worktree reconciliation + E3 salvage + cleanup (Opus)](2026-07-10-12-worktree-reconciliation-e3-salvage.md) — traced a dangling parallel worktree line (independent method-review verdict draft on atelier-method-review@3bfcbbc, never landed; main had its own reworked verdict); nothing lost (both pushed to origin). Side-by-side of the two verdicts: 12/14 findings common+on-main, 3 main-only (all done), 3 worktree-only — salvaged E3 (two-register EVIDENCE §1) to main (48fa5ff), P2/PR2 consciously dropped. Cleanup way-back-verified: archive tag + kept remote branch, removed worktree, deleted local branches.
+
 **2026-07-10 (Opus) — parallel-worktree reconciliation + E3 salvage + cleanup.**
 Mike asked whether a worktree he'd opened for parallel atelier work had
 completed/saved/closed cleanly, or been lost. Forensics: the worktree

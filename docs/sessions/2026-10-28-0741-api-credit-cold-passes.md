@@ -1,5 +1,11 @@
 # 2026-10-28 07:41 UTC — two cold passes run through the Claude Platform API
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 329+1 -->
+- [2026-10-28 · 0741 UTC · Two cold passes run through the Platform API, 160/950 and 160/970 (Opus 5.5 orchestrating, Fable 5.1 reviewers)](2026-10-28-0741-api-credit-cold-passes.md)
+
+
 **Model:** Claude Opus 5.5, session `f7b25adb`, orchestrating. Reviewers:
 Fable 5.1 at effort xhigh through an API harness with sandboxed,
 read-only tools (no network, no keychain, no connectors, no skills). The

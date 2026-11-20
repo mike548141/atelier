@@ -1,5 +1,11 @@
 # 2026-07-12 · session 48 — communication UX refinements + the close-ready signal
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 71+1 -->
+- [2026-07-12 · communication UX + the close-ready signal (Opus)](2026-07-12-48-communication-ux-and-close-signal.md) — Mike gave two calibration threads and one drift question. **Verdict UX:** widen the icon vocabulary past ✅❌⚠️ (🎉 🎯 🚩) under the guardrail he endorsed — *apt icon = signal, overused = noise*; surface act-on items (decisions/actions/cautions) in an eye-catching device *apart from the reasoning*; stop running text-heavy and jargon-laden. **Close-ready signal:** after a run of work, do the tidy-up unprompted and *say it's ready to close* — don't make him ask. He noticed this slipped "in the last day or so"; **honest diagnosis** — `RECORD.md` mandated the session-log *artifact* but never the *signal*, so it ran on soft habit and drifted after the opus[1m] switch; no single cause invented, encoding the habit is the fix. **Placed both layers** per COMMUNICATION's practice/instance split: `method/COMMUNICATION.md` gains the widened visual axis + a new accessibility-of-language axis (jargon/prose-wall costs a reread like a missing glyph), worked example updated; `method/RECORD.md` session-log gains "declare the close"; global `~/.claude/` carries the personal instance (plain-over-jargon, signal-when-wrapped). Maintenance the COMMUNICATION doctrine itself prescribes — no cold review owed.
+
+
 Conversational session, Opus 4.8 (1m). Mike gave two threads of calibration
 feedback and one direct question about a behaviour drift.
 

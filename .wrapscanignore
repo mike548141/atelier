@@ -21,9 +21,9 @@ docs/sessions/
 # no real doctrine-prose signal is lost by this entry.
 docs/reviews/
 
-# The session index: hundreds of one-line-per-session entries, some
-# deliberately very long (a session's whole scope on one grep-able line).
-docs/SESSIONS.md
+# The session index, docs/SESSIONS.md, was retired into docs/sessions/ on
+# 2026-11-20 (010/270): its long one-line entries sit in the session files,
+# covered by the entry above.
 
 # Harvested/archived current-truth: the same one-line-per-entry record
 # format, just moved out of the hot path. The board's pre-split archive was
@@ -35,7 +35,7 @@ docs/roadmap/990-done-before-the-split/
 *-ARCHIVE.md
 
 # The decisions index (WS6): a one-line-per-entry record, the same class as
-# SESSIONS.md — not an ADR body — even though it lives inside
+# the retired session index — not an ADR body — even though it lives inside
 # docs/decisions/, which is otherwise inside the doctrine-surface gate scope.
 docs/decisions/README.md
 

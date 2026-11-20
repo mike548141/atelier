@@ -1,5 +1,11 @@
 # Session — the floor's posture, and seventeen rulings
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 221+1 -->
+- [2026-07-29 · 0637 UTC · The floor's posture, and seventeen rulings — batch 1 of the verdict walk-through, E6 ruled, cold pass queued (Opus, wt: none — inline on main)](2026-07-29-0637-floor-posture-and-review-rulings.md) — Mike asked for the whole board in plain language, then a walk-through of the thirteen unruled verdicts. Batch 1 landed (TAA/C1F/ER/SF, 14 findings, `7422f2a`); two departed from counsel and carry their grounds. Then his own correction reframed the track: the `SLUG_RX` letters-only narrowing was never his intent, and looking for where the floor's purpose was written down found two unknowns — the two boundary scanners hold opposite postures with nothing recording the difference, and `secretscan`'s `severity` field is decorative, which is the whole explanation for the narrowing (one dial, so the only way to avoid crying wolf is to shrink detection). E6a–E6d ruled: posture into SECRETS.md, a real advisory tier, the carve-outs generalised, and impact as a second axis (escalate-only, repo-declared via the unadopted `local` seam, `confidence` × `impact` = computed `severity`). Honest notes: a crossed explanation Mike caught and paused, re-answered from a live six-shape probe that also falsified a reassurance the triage record still carries; the board went stale inside the hour under a parallel Track B session; the PII half of the stated intent was not swept.
+
+
 - **Date:** 2026-07-29, 0637 UTC (work began 2026-07-28 ~2300 UTC)
 - **Model:** Opus 5 (1M context), inline on `main`
 - **Ask:** a full list of open work and open decisions, then a walk-through of

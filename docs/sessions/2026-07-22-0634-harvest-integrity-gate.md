@@ -1,5 +1,11 @@
 # 2026-07-22 · 0634 UTC · Harvest-integrity gate built — sizescan checks the archive; tri-state ruled (Fable, wt: harvest-integrity-gate)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 154+1 -->
+- [2026-07-22 · 0634 UTC · harvest-integrity gate built — sizescan checks the archive; tri-state ruled; review queued ⏳ (Fable, wt: harvest-integrity-gate)](2026-07-22-0634-harvest-integrity-gate.md) — Mike ratified embedding the invariant in CI ("I like this idea"); sizescan now **gates on live state markers (`[ ]`/`[~]`/`⏳` list items) in archive stores** (`*-DONE.md`/`*-ARCHIVE.md`) — state coherence only, never [x]-delivery verification; on a hit the output prescribes investigate→recommend→never-silently-fix. Mike ruled the box grammar a **work-owed tri-state** mid-build ([x] = no more work owed, disposition in the item's dated note — supersedes the `[-]` counsel); his four-situation taxonomy is the test matrix (suite 302→314 green, selftest + live scan green). Five-state extension proposed; builder counselled against, captured as an open 🎯. **Review queued `⏳` for a non-author (rule 4) — the builder spawns nothing.**
+
+
 ## Trigger and ratification
 
 IR5's incident (an un-harvested `[x]` redding the floor) led Mike to ask

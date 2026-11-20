@@ -1,5 +1,11 @@
 # 2026-07-26 · 2210 UTC · Queue take — nine rule-4 cold passes in one fan-out (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 200+1 -->
+- [2026-07-26 · 2210 UTC · Queue take — nine rule-4 cold passes in one fan-out (Fable, wt: atelier-review-2210-take)](2026-07-26-2210-nine-review-queue-take.md) — Mike's "Please do any review work" met the whole `⏳` queue on the required tier: all nine items claimed on `main` first (`94275e6`), nine refs-only briefs committed cold (`9aef298`), nine fresh-context Fable reviewers fanned out (two-hop shape; agents ran no git; the taker verified a load-bearing claim per verdict before committing it). **All nine PASS-WITH-FINDINGS, 56 findings, nothing applied:** ADR 0008 **3M** (declared-cover-smaller-than-it-reads via the subtraction routes; a credential fixture survived a green floor) · pathscan **3M** keep-advisory (one live TP: `docs/build/README.md:28`) · stampscan **3M** do-NOT-wire (`--warn` still exits 2 at HEAD — reproduced) · local seam 3 medium (Actions log-command injection via child `why`; unguarded exec path; symlink escape) · RECORD pushed-floor **1M** (its "why" falsified by ADR 0008's one-registry design) · apex Zeroth **1M** (session-onramp skill still teaches the pre-Zeroth Laws) · EVIDENCE §13, apex accountability, PRINCIPLES way-out 0M each. Honesty ledger: taker saw the withdrawn pass's commit subject lines via a git grep (owned in every affected brief; reviewers never opened the quarantine); two brief errors caught by reviewers; several verdicts arrived stamped with the NZ-local date and were corrected to UTC before commit. 🎯 **Nine ruling sets await Mike (rule 3, plain-language walk-throughs owed one-by-one)**; the `⏳` queue is empty.
+
+
 **Provenance.** Mike opened a fresh session and pointed it at the queue
 ("Please do any review work") — the rule-4 worked example. The session ran on
 Fable, the required tier for cold passes (the principal's 2026-07-26 ruling

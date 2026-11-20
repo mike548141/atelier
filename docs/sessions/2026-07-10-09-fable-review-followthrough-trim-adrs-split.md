@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 31+1 -->
+- [2026-07-10 · review follow-through: ros trim + ADRs + SESSIONS split (Fable)](2026-07-10-09-fable-review-followthrough-trim-adrs-split.md) — the reviewer executing its own verdict: ros PRINCIPLES trimmed to bearings + case-law (ros 73fd50b, DRY breach closed), ADRs 0001–0004 written, SESSIONS.md split to this index + verbatim detail files; remaining P2 pin view + further extraction flagged as Opus work.
+
 **2026-07-10 (Fable) — review follow-through: ros trim + ADRs + SESSIONS
 split.** The reviewer executing its own verdict's follow-ups. **(1) ros
 PRINCIPLES trim** (the unblocked extraction item): ros `docs/PRINCIPLES.md`

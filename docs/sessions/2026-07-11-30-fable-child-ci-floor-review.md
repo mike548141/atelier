@@ -1,5 +1,11 @@
 # 2026-07-11 · the child-CI-floor review: PASS-WITH-FINDINGS, the class finally closed (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 52+1 -->
+- [2026-07-11 · the child-CI-floor review: PASS-WITH-FINDINGS, the class finally closed (Fable)](2026-07-11-30-fable-child-ci-floor-review.md) — the brief run cold, floor reproduced, numen logs re-read live, all nine assumptions probed. Headline: the d0870a4 masking fix closed the *instance*, not the class — secretscan+leakscan still hardcode-skipped `build`/`dist` (planted key in `docs/build/` scanned green, proven live), still phantom-succeeded on a nonexistent path (the L1 class), and the child ignore-file hatch was dead under exactly the floor.yml CWD (N1–N3, mirrored out from linkscan's reviewed patterns). floor.yml gains every-push triggers (a never-PR'd branch was scanned by nothing while the header claimed "every push"), a selftests step, and in-file FP-hatch docs (N4–N6). Six findings, all [fixed]+re-driven; suite 196→205. Floating `atelier@main` attacked and held (the fixes floating to every child bump-free is the argument); real-infra secret drive judged not owed (closed by composition). **Gate cleared**; follow-ups: numen re-copies floor.yml, atelier ci.yml shares the N4 trigger gap. Second review same session (related, no unreviewed dependency): the session-29 ceremony-calibration doctrine change (`cb37310`, merged as PR #2) — **PASS, no findings**; grounding probed not read (don't-stack genuinely un-codified pre-change; hygiene item 1's rationale was always pivot-cost), and this very session demonstrates both halves of the calibration.
+
+
 The brief (`docs/reviews/2026-07-11-child-ci-floor.md`) run cold — a fresh
 session that built none of it. Floor reproduced first (4 selftests, planted
 `docs/build/` break flags exit 1, suite 196 OK, triad clean), both numen runs

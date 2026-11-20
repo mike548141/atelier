@@ -1,5 +1,11 @@
 # 2026-08-09 · 0715 UTC · A duplicate C5 cold pass, its reconciliation, and one increment for the ruling (Fable, main)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 260+1 -->
+- 2026-08-09 · 0715 UTC · A duplicate C5 cold pass, reconciled — one increment for the ruling (Fable, main) — Mike opened this session for "any review work"; it read the C5 pointer's RUNNING as stale (verdictless brief, clean tree, no close entry) and re-ran the whole brief while the legitimate pass was landing `ceb8824` in parallel. Rule 2 held in shape: findings durably written outside the repo before the landed verdict was opened. Reconciliation: the 13-claim table reproduces independently probe-for-probe (including an empirical staged-plane proof and a positive control the landed pass did not run); the composition MAJORs C5R1/C5R2 were this pass's misses, two of them spot-verified after reading. One increment now sits beside C5R1–C5R12 on the item, Mike's to judge: option 1's records-path scope is forward-open — future record-entry joins would be counted, not commit-blocked — bounding C5R11's caught-at-commit evidence to the five live-file mentions. Lesson carried: a RUNNING pointer with no verdict means assume live, take different work. Detail: [sessions/2026-08-09-0715-c5-duplicate-pass-reconciliation.md](2026-08-09-0715-c5-duplicate-pass-reconciliation.md).
+
+
 Mike opened this session on Fable with "please do any review work". The C5
 cold-pass sub-item read **RUNNING** with no verdict appended and no closing
 session entry after the briefing commit; the tree was clean and no worktrees

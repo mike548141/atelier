@@ -1,5 +1,11 @@
 # 2026-07-22 · 1210 UTC · Orchestrated queue run — Fable orchestrator, Opus workers
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 162+1 -->
+- [2026-07-22 · 1210 UTC · Orchestrated queue run #2 — four items landed per-item; queue drained to the principal (Fable orchestrator, Opus+Fable workers)](2026-07-22-1210-orchestrated-queue-run.md) — the ratified pattern's second live run, on the principal's maximise-plan-use directive. Landed: the **v2-plugin de-instance ⏳ taken as a rule-4 worked example** (the 1018 run's "stray" re-read as a parked handoff on the evidence; two-hop cold pass, **PASS-WITH-FINDINGS 2M/3M/1L/2n**, 🎯 VP1–VP8 + merge to Mike — both MAJORs sit on the bundled-adopter path); **security-canon gaps A/B/C/E closed** (`85157c3` — every CI action SHA-pinned incl. child templates with live-verified SHAs ×2, root SECURITY.md + child template registered publish-time in REPO-STANDARD, REVIEW.md threat-pass + security-finding lifecycle, PRINCIPLES secure-by-default + supply-chain bearing; rule-4 ⏳ queued, barred to this run); **ccrepo actual-spend reconciliation** (`1711711` — machine-local plan/usage spend vs API estimate with honest degradation, 139 tests; pre-existing USD×rate² footnote defect found by the worker, verified and fixed; 🎯 config residue); **person-context portability design pass** (records-only — C1–C8, 8-threat pass, per-leg recommendations incl. the phone leg as a second system; 🎯 D1–D5). Stop: everything left is blocked — full 🎯 report + honesty ledger in the record; fleet pin adoption (12/12 behind) named out-of-lane, per-child follow-on. Stale `review-trigger-commitment` branch put away; v2 worktree deliberately remains (Mike's merge).
+
+
 The queue-run pattern (`CONCURRENCY.md` § Orchestrated queue runs, `skills/
 queue-run`) run on the principal's per-run directive: **maximise plan use**,
 any unclaimed work of the run's own selection, Fable orchestrates/reviews,

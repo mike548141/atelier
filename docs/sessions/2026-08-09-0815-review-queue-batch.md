@@ -1,5 +1,11 @@
 # 2026-08-09 · 0815–0905 UTC · The seven-pass review-queue batch
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 263+1 -->
+- [2026-08-09 · 0815 UTC · The seven-pass review-queue batch — every queued rule-4 pointer taken in one sitting (Fable orchestrating, seven Fable reviewers, wt: review-batch-0809-0815)](2026-08-09-0815-review-queue-batch.md) — Mike pointed a fresh session at the queue; all seven `⏳` cold passes claimed 0815 UTC and run in parallel under the orchestrator-held context partition (intent refs handed over only after each reviewer's findings were durably written — the REVIEW.md structural shape, first batch-wide exercise). **Six cycles CLOSED (0 MAJOR each), one stays OPEN**: the EP application returned **AP1 (MAJOR)** — ADR 0008's control clause names branch protection + signed commits as what makes the floating `@main` call safe, and its first live check failed (no protection, no rulesets, signing warn-first); reconcile classed it a descendant of EP7 with EP1–EP3's substance verified closed. Batch totals: 1 MAJOR, 12 MODERATE across 48+ findings; every re-run table reproduced (suite counts at landing commits, HEAD suites green, both scanner planes probed live, the hook driven in a scratch repo). Standouts for the ruling round: AB1 (E3 carve-out reaches credential-keyed assignments — exceeds the ruled scope), LK1 (malformed scoped marker fails open to all-structural), FR3 (C1F3 strip passes C1/bidi spoofing), CM1 (membership wording annexes third-party checkouts). Incidents: the live 0813 session's tree ate this session's first roadmap edits (moved to a worktree, nothing lost — claim from a worktree *before* the first edit); reviewscan read the briefs' deferral-barring sections as deferred content (scoped allow markers, honestly reasoned). Nothing applied, nothing ruled — the residue joins the scheduled ruling round.
+
+
 **Session:** Fable, spawned by Mike and pointed at the review queue — *"Please
 do any review work that waiting."* Rule 4's worked example, tier checked at
 selection. Worktree `review-batch-0809-0815`; orchestrator committed, reviewers

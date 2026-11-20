@@ -1,5 +1,11 @@
 # Size-signal rebalance — from a line-count budget to a cold-content gate
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 135+1 -->
+- [2026-07-20 · 2025 UTC · size-signal rebalance — line-count budget → cold-content gate (Opus, wt: atelier-size-signal-rebalance)](2026-07-20-2025-size-signal-rebalance-cold-content-gate.md) — Mike's queued follow-on, applied. **Ruling (2026-07-20):** cost is size × read-frequency, so `sizescan` now gates on relocatable **cold content** — a completed `[x]` item on a checkbox-worklog file (`ROADMAP.md`), lossless to harvest to `ROADMAP-DONE.md` — and **never on line count**, which is demoted to a pure **advisory** (a class reference point that reports but never fails a build). A file long purely from live current-truth (a wholly-open roadmap) is no longer penalised — this **dissolves the all-open-roadmap red** — and the number can't induce line-golf. Prose-shaped cold content + thinness stay caught at review, not measured. The static `GATED` set is gone (gating is content-driven). **Shipped:** `sizescan.py` (suite 267→282, selftest rewritten incl. the large-all-open-roadmap-does-not-gate reversal), `ci.yml`+`floor.yml` retitled, `RECORD.md` module doc, **SR2** — `PROPAGATION.md` child-block spec re-grounded to **~50 lines** (seven-concern shape, replacing the dead "~15"). **`main`'s floor turned green the RIGHT way** — the 4 inline `[x]` items harvested (2 were duplicate stubs already in DONE; 2 moved verbatim), not 15 lines trimmed; `sizescan --check` clean, exit 0. The 07-19 tripwire ruling is *superseded by append* (ROADMAP-DONE annotation + this entry), never by rewriting its immutable records. ⏳ **queued for independent review** (rule 4; SR2 rides the cycle; author does not self-review). At-rest UTC (`date -u`); local NZ date 2026-07-21.
+
+
 **2026-07-20 · ~2025 UTC · Opus · wt: `atelier-size-signal-rebalance`**
 
 Mike: *"Can you do the work queued for sizescan"* — the standing `⏳`/`[ ]`

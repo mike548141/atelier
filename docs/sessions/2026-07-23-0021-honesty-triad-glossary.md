@@ -1,5 +1,11 @@
 # 2026-07-23 · 0021 UTC · Honesty triad, lived experience, glossary seed
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 166+1 -->
+- [2026-07-23 · 0021 UTC · Honesty triad + lived experience + glossary seed (Fable, same session as the apex-adaptation entry)](2026-07-23-0021-honesty-triad-glossary.md) — Mike's second dictation wave encoded: **truth / honesty / transparency kept distinct** at the apex (`07cc855` — truth is what occurred, provable irrespective of observer; honesty the best and faithful interpretation of it, neither implying the other; transparency the inclusion of all relevant information — a component of honesty when withholding is purposeful, separable from it innocently when relevance hinges on the other party's knowledge), placed directly above the principal's-authority duty it explains; the SSH worked case closes with **lived experience** — the principal's months of daily use tripped the warning bell, and models earn the same bell by accumulating lived experience as recorded evidence. (b) ripple: EVIDENCE.md header now carries the truth bar; COMMUNICATION/REVIEW/AUTONOMY assessed no-change; child floors stale → propagation item widened. (c) **GLOSSARY.md seeded** (`c85712d` — thin anchor, tiki's admission rule, PROPOSED-then-ratify; 🎯 ratify pass queued). ⏳ apex review pointer widened to the five-commit delta + both intent records.
+
+
 **Second intent record for the ⏳ apex review** (same session as
 [`2026-07-22-2134-apex-adaptation.md`](2026-07-22-2134-apex-adaptation.md);
 this record covers `07cc855` + `c85712d`).

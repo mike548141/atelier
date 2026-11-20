@@ -1,5 +1,11 @@
 # 2026-07-22 · 0244 UTC · SL1–SL7 application cold pass — PASS no MAJOR, cycle closed (Fable, wt: scope-lens4-app-cold)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 150+1 -->
+- [2026-07-22 · 0244 UTC · SL1–SL7 application cold pass — PASS no MAJOR, cycle CLOSED (Fable, wt: scope-lens4-app-cold)](2026-07-22-0244-sl-application-cold-pass.md) — the queued `⏳` on `d553045` taken by a rule-4 taker (Mike-spawned "please do any review work"; claim `92a146f` on `main` first; prior verdict/intent record unread until the verdict committed). Every proof reproduced: suite 302 OK, **red leg re-driven** (pre-fix skill → 2 failures), floors green; lens 4's scanner **discharged with grounds per its own new reach-per-shape rule** — the text's first cold execution, clean. Reconcile: all seven [fixed] stamps corroborated, nothing overturned. Two LOW to backlog: AC1 (SL3's edit re-shipped the >80-col class SL7 fixed — 122-col template line) · AC2 (skill's scanner clause omits the exclusion-barred caution). Mid-pass concurrency flag from Mike resolved: two live branches, zero in-scope overlap ⇒ continued on the pinned ref. 🎯 **AC1–AC2 await Mike's ruling**; the scope/lens-4 cycle is closed terminal.
+
+
 ## The cycle
 
 The queued `⏳` on delta `d553045` (the application of Mike's accept-all on

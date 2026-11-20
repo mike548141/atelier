@@ -1,5 +1,11 @@
 # 2026-07-10 · create-repo rewired to inherit; templates moved into build/ (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 40+1 -->
+- [2026-07-10 · create-repo rewired to inherit; templates moved into build/ (Opus)](2026-07-10-18-create-repo-rewire.md) — the core Q1 fix, first stack on the cleared gate. `create-repo` was a second source of the standard (re-encoded file set/sizing/processes + a private `templates/` copy); made it a pure *delivery vehicle* over atelier as *source*. Keystone gap closed: the skill had **no CLAUDE.md template at all**, so every scaffolded repo was born with no doctrine block — PROPAGATION bypassed at birth. Templates moved skill→`docs/build/templates/` (18 files, one source), the missing CLAUDE.md template added carrying the stamped block, three instance-residue scrubs (NOTICE holder, "Nova", faves examples) + one live drift caught (MODEL-ECONOMICS template still naming ros canonical). Skill rewritten to point up + stamp the block/pin/scans, hard-depends on atelier, fails honestly if absent; its private templates removed after the atelier copy was pushed. leakscan clean; **not yet exercised on a real scaffold** — that + a Fable sweep are the owed items. ros pin unchanged (f72031c).
+
+
 The first stack on the cleared batch-review gate: the core Q1 fix. `create-repo`
 was a *second source* of the repo standard — it re-encoded the file set, sizing
 table, product-in-subfolder rule and processes from memory, alongside a private

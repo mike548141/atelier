@@ -1,5 +1,11 @@
 # 2026-08-15 · 0610 UTC · The board store migration — research, ruling, and the split (Opus research → Fable build, wt: board-per-item-0815)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 269+1 -->
+- [2026-08-15 · 0610 UTC · The board store migration — research, ruling, and the split (Opus research → Fable build, wt: board-per-item-0815)](2026-08-15-0610-board-store-migration.md) — Mike asked whether the record files should move to SQLite given three problems (concurrent-session corruption, file size, premature "done"); the research measured the fleet and history, an adversarial second pass at Mike's direction killed three of its own evidence claims and two design flaws before build, and Mike ruled: weekly ruling sitting + **option B, one file per roadmap item with a generated index**. Landed same session: `tools/board.py` + enforced `board` floor check on both planes, harvestscan/pointerscan adapted (+20 tests), all 4,063 board lines migrated to 27 sections / 118 item files with the index at 253 lines, `ROADMAP-DONE.md` frozen (the harvest step retires), doctrine moved with the mechanism (RECORD/CONCURRENCY/CLAUDE/board README + ADR with the ruling verbatim). Two live defects found in the build's own design and pinned by tests: one text cannot carry correct links at two depths (the index now links the preamble), and a projection inherits its source's allow-markers (datescan blocked the gap on day one). Verified, not asserted: linkscan + harvestscan clean across the move, suite green, every commit through the full hook. Follow-ups queued as items: the staged-plane seam, the fleet rollout 🎯, the wording sweep; rule-4 cold pass queued refs-only, this session queues and stops.
+
+
 Mike's ask, verbatim: *"I want you to look at the issues we have been having
 with (a) multiple sessions updating core files like sessions, roadmap etc
 concurrently, (b) the size of the files causing concern, (c) work being moved

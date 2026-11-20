@@ -1,0 +1,4 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 148+1 -->
+- [2026-07-22 · addendum · capture: orchestrated queue runs → doctrine? (Fable, wt: orchestration-doctrine-capture)](../../docs/ROADMAP.md) — Mike asked whether his queue-run orchestration prompt (drain the queue, orchestrator + worker agents, chain sessions, per-item close) should become doctrine rather than stay prompt-carried. Parked in ROADMAP with counsel: name the pattern in method/ (selection defaults, per-item durability for session caps, stop conditions + 🎯 end-of-run report, role check at open, tier split) + a `queue-run` skill; synergy noted (chained fresh sessions are natural rule-4 takers); plan-spend directives and the closing litany deliberately stay where they already bind. 🎯 Mike to ratify direction; review WARRANTED when built (rule-4 cycle).

@@ -1,5 +1,11 @@
 # 2026-07-10 · the post-method-review batch review: PASS-WITH-FINDINGS, gate cleared (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 39+1 -->
+- [2026-07-10 · the batch review: PASS-WITH-FINDINGS, gate cleared (Fable)](2026-07-10-17-fable-batch-review-gate-cleared.md) — the brief run cold, deep-not-fast: floor green (3 selftests, 133 tests, live runs — licenscan red on its own fixtures), 16 findings B1–B16, every one fixed in-repo + verified same session (2 backlog strands). Sharpest two were the batch's own defect class: B1 "live-proven clean" false at its recording commit (fixed, re-proven exit 0), B14 ACCESS pointing at an access map ros doesn't hold. Tool teeth: B2 `-only` SPDX mis-tier, B4 renamed-file staged hole (ACM→ACMR, proven live), B5 `--require-terms`, B7 stated residuals; suite 133→137. Backlog: ros access map; REVIEW.md "re-run live-proven claims". **Gate cleared — create-repo rewire unblocked.**
+
+
 The sweep session 16 briefed, run by a fresh Fable session per the
 independence-as-core doctrine (the builder was Opus; the reviewer shares none of
 its context). Deep-not-fast as authorised: every in-scope doc read whole, all

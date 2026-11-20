@@ -1,5 +1,11 @@
 # 2026-11-15 · 2026 UTC — A verdict records its method and reasoning
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 364+1 -->
+- [2026-11-15 · 2026 UTC · A verdict records its method and reasoning (Opus 5.5, principal-opened)](2026-11-15-2026-review-integrity-b27a.md) — the principal's words on review integrity bound into `REVIEW.md`'s verdict step and the review-brief skill; cold pass queued as `160/1460`, no brief; no Fable used
+
+
 **Session:** `b27a9a78` (as `cclive` lists it), Claude Opus 5.5, opened by the principal in
 atelier. **Worktree:** `~/worktrees/atelier-review-integrity`. No Fable used, no review run.
 

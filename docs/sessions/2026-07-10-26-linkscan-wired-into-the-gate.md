@@ -1,5 +1,11 @@
 # 2026-07-10 · linkscan wired into the gate — CI + pre-commit, whole-tree (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 48+1 -->
+- [2026-07-10 · linkscan wired into the gate — CI + pre-commit, whole-tree (Opus)](2026-07-10-26-linkscan-wired-into-the-gate.md) — took session 25's held-open wiring. CI: a `--selftest` line + a whole-tree `linkscan --root . .` step. Hook: linkscan added as a **whole-tree integrity** check, *not* `--staged` like the two boundary scanners — a link breaks when a *different* file is renamed/deleted, so the stale file is rarely the one in the diff; `run_scan` generalised to drop the hardcoded `--staged` and let each scanner declare its mode. The design call surfaced not buried: linkscan catches a *recoverable* defect (unlike a burned secret), but atelier pushes to main where CI runs *after* publication, so the hook is the only gate that catches a 404 before a reader does — wired into both, recoverability nuance + child-repo whole-tree-contract friction stated. Contract pinned by 3 new test_precommit tests incl. the whole-tree crux (a rename breaking an *unstaged* link blocks — staged-only would miss it); suite 187→190. Installed hook refreshed so the commit dogfoods it; four selftests + all four whole-tree scans clean locally; GitHub watched green post-push. **Left open:** child-CI scanner fetch (the other CI half).
+
+
 The build session after the linkscan review (session 25) cleared its gate. The
 reviewer deliberately didn't wire its own same-day fixes into the gate
 (don't-stack, fourth application); this session — fresh context, not the

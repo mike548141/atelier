@@ -1,5 +1,11 @@
 # 2026-10-17 · 0900 UTC · Review batch: the twenty-one briefed cold passes, and twelve briefs for the rest
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 322+1 -->
+- [2026-10-17 · 0900 UTC · Review batch: the twenty-one briefed cold passes, and twelve briefs for the rest (Fable 5.1 orchestrating, 21 Fable 5.1 reviewers, 3 Opus 5.5 brief-writers, wt: atelier-review-1017)](2026-10-17-0900-review-batch-twenty-one-cold-passes.md) — Mike: *"I want you to do all reviews and fable dependent work"*. **All 21 briefed rule-4 passes (`160/500`–`760`) ran and are verdicted on `main`**, one fresh Fable reviewer each under the reviewer-plus-orchestrator shape: 12 returned a MAJOR and wait for Mike (TB, RM, HM, WV, RB, TG, FM, PO, IX, PF, MK, QP), 9 closed clean (SY, TC, BR, TT, HD, FP, CK, GT, RT) — HD's re-review of the ccarchive hardening closes the cycle `160/460` and `510` were holding open. Totals 12 MAJOR · 52 MODERATE · 77 minor · 64 note; nothing applied. Twelve briefs written by Opus brief-writers for `160/780`–`890`, none run. Nine hand-up PRs (#108–#116) landed, two renumbered. Filed `130/030` (the brief bars the commit body but names no body-free command; five reviewers slipped the same way). Recorded against itself: the Fable weekly cap hit mid-wave (three reviewers resumed in place), machine load to 170 from another repo's fan-out (held at two agents), the session cut twice and resumed, and Mike prompted for approvals throughout because a live session's mode cannot be changed from inside.
+
+
 **Model:** Claude Fable 5.1 orchestrating; twenty-one fresh Fable 5.1 reviewers (one per
 pass); three Opus 5.5 brief-writers. **Worktree:** `atelier-review-1017`, branch
 `review-1017`, fast-forwarded onto `main` and pushed after every close.

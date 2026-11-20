@@ -1,5 +1,11 @@
 # 2026-07-11 · session 39 — the signing doctrine drafted (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 61+1 -->
+- [2026-07-11 · the signing doctrine drafted (Fable)](2026-07-11-39-signing-doctrine.md) — session 38's code-signing capture executed on Mike's ask ("draft the signing doctrine"): drafting was never blocked, only activation is, and the two are now cleanly split. **`method/SIGNING.md`** (meta section, beside RECORD/PROPAGATION — provenance *for* the record): what a signature honestly claims stated first (machine-key custody + tamper-evidence, *not* personal authorship — agent commits sign with the same machine key; the `Co-Authored-By` trailer keeps carrying authorship); layer 1 = SSH-native commit/tag signing fleet-wide (dedicated ed25519 signing key so auth/signing burn independently, machine-global config + create-repo-baked repo-local `commit.gpgsign=true`, one canonical **append-only `allowed_signers` tracked in atelier** as the durable verification plane — GitHub's badge dies if a key deregisters), CI verification from each repo's **adoption boundary** (history never rewritten to sign — ADR 0002's pins), key handling under SECRETS' person-level scope with cheap loss *and* cheap exposure; layer 2 (artifact signing + SBOM) stays deferred behind the first real release. **ADR 0007** accepted, activation pending — rejected GPG / sigstore-gitsign / no-signing / artifact-signing-now, each with why. Doctrine explicitly **decided-but-dormant** (stub-honestly): the activation ladder gates on Mike registering a signing key (trust surface, his act); steps 2–5 (machine config → create-repo → fleet retrofit → floor verify step) are agent-executable the day it lands. ROADMAP restructured accordingly; review-owed with the standing debt.
+
+
 Mike: "Can you draft the signing doctrine" — executing the doctrine half of
 session 38's code-signing capture. The drafting was never blocked; only
 activation (key registration) is, and the two are now cleanly separated.

@@ -1,5 +1,11 @@
 # 2026-10-03 · 0144 UTC — Queue run: the hand-up backlog and the tool defects
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 314+1 -->
+- [2026-10-03 · 0144 UTC · Queue run — the hand-up backlog and the tool defects (Opus 5.5 orchestrating, Sonnet 5.5 workers)](2026-10-03-0144-queue-run-handups-and-tool-defects.md) — Stopped on economics, with the rest blocked on rulings. Ten child hand-up PRs landed (renumbered into `320/410`–`490` and `180/020`) and one held for Mike (#92). `stampscan --require-stamps` (`320/130`) and blockscan's unmapped-heading report (`320/340`) landed, with `⏳ 160/430` queued. `210/150` answered: the sources were really edited. A manifest lag was found and filed as `210/170`. A pathscan fix was built for an unruled class and held as draft PR #96. `cctranscript`'s archive listing was halved (`210/050`, `⏳ 160/440`). Mike's mandate-versus-default date rule is now in `GUARDS.md` (`040/010`, `⏳ 160/450`). The `200/010` census found 22 hand-kept indexes in 14 repos, so the build stands. ccarchive's manifest now checkpoints and heals (`210/170`, `⏳ 160/460`). The R2 survey found 41 independent restatements and **eleven live contradictions**, filed as `200/100`. publishscan round 2 landed (`260/040`, `⏳ 160/470`). The scanners' allow-marker grammar is now single-sourced across fourteen guards with byte-identical output (`115/080` part 2, `⏳ 160/480`), and four divergences were filed as `115/230`. G3 (binary media) was built and **held for Mike** as draft PR #97, because landing it reds 7 children's CI. Three of this run's own errors are recorded and corrected in the open. **Second sitting:** `320/500` (expected toolbox), `200/100` (all eleven contradictions), and `110/110`, `120` and `140` (guards walk only what git could commit, stream big files, and read in linear time; the big repo's scans went from past the cap to 6–147 s) are closed. Mike's corrections are filed as `420/020` (an answer is not a ruling) and `320/510`. The exception-register design is drafted as an ADR.
+
+
 **Tier:** Opus 5.5 orchestrating, stated at open per `ECONOMICS.md`
 § *The orchestrated-run tier split*. Sonnet 5.5 workers in isolation
 worktrees, and Sonnet 5.5 read-only triage agents.

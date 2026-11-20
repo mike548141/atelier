@@ -1,5 +1,11 @@
 # 2026-07-23 · 0441 UTC · Orchestrated queue run — four items, one Opus session (Opus orchestrator)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 176+1 -->
+- [2026-07-23 · 0441 UTC · Orchestrated queue run — four items, one Opus session (Opus orchestrator; workers in isolated worktrees)](2026-07-23-0441-orchestrated-queue-run.md) — Mike's standing brief: maximise plan use, drain unclaimed queue, worktrees for parallel safety, Opus orchestrates + my choice of agent tiers. Claimed three on `main` first (`95cd222`, `[~]`), then a three-worker wave + a fourth once its files freed, **each with a full per-item close** (records the orchestrator's alone — no worker touched ROADMAP/CHANGELOG/SESSIONS, so four merges, zero record conflicts). Landed: **cc-tools flag-vocab audit** (Sonnet, `6796f81` — table in instruments/README, zero drift, 🎯 rule-direction ratify → Mike) · **apex three-element floor in-repo sweep** (Opus, `9040b02` — 6 surfaces, floor blocks byte-identical, fleet sweep split out; the closed apex-widening cycle's scheduled application, no new review) · **S3 datescan scanner** (Sonnet, `04103a9` — advisory-only `--warn`, 372 tools tests, ⏳ first-of-kind review queued, 60-finding honest baseline) · **ccrepo rollup precompute ledger** (Opus, `8a31b95` — 3.1× warm speedup, rollup==recompute proven live; endorsed per-file-not-per-period keying deviation on a correctness ground; 🎯 transparent-vs-opt-in → Mike). **Third-seat executor trial run 1: both Sonnet items PASSED** review no-hand-up/no-rework (first positive data point; one run ≠ standing claim, trial stays open). **Economics-judgement stop** — remaining items are heavier/focused-session work or stack review debt; chaining is Mike's. Floor green at head (tools 372, instruments 167, scanners exit 0, 0/0 sync).
+
+
 Mike opened this session and pointed it at the queue with a standing brief:
 *maximise plan use — pick unclaimed work, dispatch it, chain until the economics
 say stop; use worktrees (parallel sessions live); Opus orchestrates, my choice of

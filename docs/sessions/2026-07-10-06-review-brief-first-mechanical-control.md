@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 28+1 -->
+- [2026-07-10 · review brief + leakscan, then seed + hooks (Opus)](2026-07-10-06-review-brief-first-mechanical-control.md) — method/-layer Fable review briefed (gates further extraction); tools/leakscan.py built (structural + machine-local terms, bit on its own fixtures); term list seeded, hooks installed atelier + ros tiki/-scoped, tiki scrub live-validated; --disable + --staged subtree added.
+
 **2026-07-10 — review brief, then the first mechanical control (Opus, "keep
 going until economics say stop").** Session-start drift check fired as designed:
 `957fa08` surfaced past the `dde4170` pin — inspected, found session-log-only (no

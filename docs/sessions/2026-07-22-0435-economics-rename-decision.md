@@ -1,5 +1,11 @@
 # 2026-07-22 · 04:35 UTC · ECONOMICS.md rename — FinOps ruled out, decision stamped
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 153+1 -->
+- [2026-07-22 · 0435 UTC · ECONOMICS.md rename — FinOps ruled out, decision stamped (Fable)](2026-07-22-0435-economics-rename-decision.md) — Mike floated `FinOps` for the MODEL-ECONOMICS rename; assessed and ruled against (branded practice term vs spend doctrine; plain-over-jargon for a public audience; only vendor-flavoured name on a shelf of plain concept nouns), recorded on the roadmap item as a considered alternative (`9f08d91`). **Mike then decided: rename to `ECONOMICS.md`, do not split** — stamped DECIDED on the item (`687e8c9`). Execution (rename + PROPAGATION ref sweep) deliberately left queued for another session; the `[ ]` stays open.
+
+
 **Trigger.** Mike floated `FinOps` as an alternate name for
 `MODEL-ECONOMICS.md`, noting the roadmap already carried a rename item (it
 does — logged 2026-07-21, recommendation RENAME to `ECONOMICS.md`, do not

@@ -1,5 +1,11 @@
 # 2026-07-23 · 0346 UTC · archive sourcing finished + flag renamed
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 174+1 -->
+- [2026-07-23 · 0346 UTC · archive sourcing finished + flag renamed (Opus, wt: archive-sourcing-finish)](2026-07-23-0346-archive-sourcing-finish.md) — two follow-ups on the 0327 work. **(1)** Renamed `--archive` → `--from-archive` across cctranscript (code, HELP, man roff, tests, README, CHANGELOG, ROADMAP) — the bare form read like an imperative ("archive the transcripts"); the tool never shipped `--archive`, so the living records take the final name. **(2)** Built `ccrepo --from-archive`, closing the observe-side sourcing seam: totals now reach past Claude Code's prune horizon over the same mirror, same shared `--dest`/`$CCARCHIVE_DEST` resolution + one `readLogText` gunzip choke-point + `_external` skip. Key divergence from cctranscript — ccrepo reads *every* file, so an iCloud-evicted mirror is **skipped-by-default and counted** (`⚠` + `meta.evicted`), `--materialise` opts into reading (the ccarchive `--verify`/`--materialise` two-step Mike already ruled on). ccusage cross-check auto-off in archive mode (it reads the live store the pruned sessions have left) with a footnote; actual-spend reconciliation still runs. SF_DATALESS ported with the same sim seam. node 156→160, ccrepo 34→41 (spawn contract over a synthetic `.jsonl.gz`, evicted-skip + materialise round-trip); tools/ 331 OK; both man pages lint clean; drift guards green. Smoke: `-g month` over the archive shows 2026-06/07 rollups. Records: combined CHANGELOG + ROADMAP-DONE entries, README seam **closed on observe side**, only the deferred rollup *precompute* ledger remains. No doctrine authored ⇒ no review pointer owed.
+
+
 **Model:** Opus 4.8 · **Worktree:** archive-sourcing-finish · **Trigger:** two
 follow-ups from Mike on the 0327 cctranscript work — (1) rename `--archive` to
 `--from-archive` (the bare form read like an imperative, "archive the

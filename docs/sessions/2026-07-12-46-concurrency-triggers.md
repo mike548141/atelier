@@ -1,5 +1,11 @@
 # 2026-07-12 · 46 — concurrency triggers and sync bookends (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 69+1 -->
+- [2026-07-12 · concurrency triggers and sync bookends (Fable)](2026-07-12-46-concurrency-triggers.md) — Mike named his real working style (parallel sessions across repos, sometimes several on one repo, atelier/shed flowing down so nothing is fully independent) and asked if it could be managed better — sketching branch/worktree-per-session while honestly unsure it helps. Assessment first: the only real hazard is same-repo-multi-session, and the danger is the **shared uncommitted working tree** (silent clobber/absorb), not concurrent commits; the doctrine already existed (CONCURRENCY worktrees, PROPAGATION pin) but had **no firing condition** — session 45's survival audit was good habits standing in for a trigger. Codified on "yes codify it": CONCURRENCY gains *the trigger* (say-so-at-open + dirty-tree backstop), *the solo default* (no branch-per-session ceremony — Mike's sketch assessed as costing more than it buys for lone sessions), and *sync bookends* (pull `--rebase --autostash` at start, push per commit, append-tail conflicts expected-and-trivial); the child doctrine block gains a **Concurrency** line reaching the fleet on normal pin bumps; CLAUDE.md read order now opens with the bookend (lived this session — pulled before editing).
+
+
 Mike named his real working style and asked whether it could be managed
 better: multiple repos in parallel (one or more sessions each), sometimes
 multiple sessions on *one* repo, sometimes several repos from one session —

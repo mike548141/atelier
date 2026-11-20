@@ -1,5 +1,11 @@
 # 2026-07-10 · atelier's own CI — the floor, dogfooded (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 45+1 -->
+- [2026-07-10 · atelier's own CI — the floor, dogfooded (Opus)](2026-07-10-23-atelier-own-ci.md) — the self-contained half of the now-unblocked CI build: `.github/workflows/ci.yml` (job `floor`, push+PR) runs the floor every review asserted by hand — 3 scanner `--selftest`s, the 145-test tool suite, the scan triad over the whole tree (`licenscan --expect Apache-2.0`). Zero-dep stdlib → a runner needs only Python. One honest scope call, stated in the header not the fine print: **leakscan runs structural-only, deliberately without `--require-terms`**, because its literal term list is machine-local by design (`~/.claude`, never in a repo) — CI can't hold it and must not; full leakscan cover stays on the real-machine pre-commit hook. secretscan/licenscan run at full cover. Least-privilege (`contents: read`), concurrency-cancel. Grounded before claimed — ran the exact command set locally incl. a **simulated bare runner** (no HOME/global/system git config; still 145 OK) — then **watched not assumed** (REVIEW re-run rule): first GitHub run green 11s but flagged the Node-20 deprecation, bumped `checkout@v5`/`setup-python@v6`, re-ran green 7s / 11-of-11 / no annotation. Deliberately not stacked: the child-CI-fetch half and a markdown internal-link check (net-new tooling wanting its own review) left open.
+
+
 The natural next build off going-public (session 22): the CI-scan gap didn't just
 survive publication, it *dissolved* into a buildable. atelier's tools are zero-dep
 stdlib Python, so a public runner needs nothing but Python to run the exact floor

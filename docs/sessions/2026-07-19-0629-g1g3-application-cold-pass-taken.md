@@ -1,5 +1,13 @@
 # 2026-07-19 · 0629 UTC · the G1–G3 application cold pass taken (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 127+1 -->
+- [2026-07-19 · 0629 UTC · the G1–G3 application cold pass taken (Fable)](2026-07-19-0629-g1g3-application-cold-pass-taken.md) — "Do any review work": the queued `⏳` G1–G3-application item taken by a rule-4-eligible session (authored none of the chain) — claimed on `main`, taker-wrote the brief (verdict-file hunks + applier's log below the divider, pre-claim exposure named), auditable attack-surface→findings→reconcile trail (`bf5a5b9`→`4cbdb18`), every recorded proof re-run: suite 275 OK, G1's red leg 11 hits / green leg exit 1 on a full scaffold copy **with floor.yml present**, G2 bite-proven red/green, G3's three claims verified. **PASS — 0 MAJOR · 0 MEDIUM · 0 LOW + 1 note (N1: create-repo's machine-local vocabulary copy, prose-synced — unpinnable in-repo)**; reconcile found no discrepancy. First no-MAJOR pass ⇒ **terminal** per the close rule. 🎯 **Mike's ruling owed**: close the cycle (counsel: yes), accept N1 as named; on close the fleet re-stamp hold lifts.
+<!-- archivecut:log-entry docs/SESSIONS.md 128+1 -->
+- [2026-07-19 · addendum · cycle closed on Mike's ruling (Fable)](2026-07-19-0629-g1g3-application-cold-pass-taken.md) — Mike: "accepted" — the review-trigger/sizescan combined cycle **[closed]** on the terminal no-MAJOR pass (0407 → F1–F9 → 0544 → G1–G3 → 0629); N1 [accepted] as named. Decisions stamped in the verdict; ROADMAP item retired to the completed list; **fleet re-stamp unblocked** — the next open item there. Nothing to apply ⇒ no new ⏳, per the close rule.
+
+
 **Spawn**: Mike, "do any review work" — rule-4 eligible (this session authored
 none of the doctrine in the chain, the F1–F9 batch, the 0544 pass's G1–G3
 findings, or their application at `578d84d`).

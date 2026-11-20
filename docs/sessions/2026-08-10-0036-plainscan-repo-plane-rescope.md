@@ -1,5 +1,11 @@
 # 2026-08-10 · 0036 UTC · plainscan's repo plane rescoped to prose the principal reads
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 268+1 -->
+- [2026-08-10 · 0036 UTC · plainscan's repo plane rescoped to prose the principal reads (Fable, wt: plainscan-rescope-0810)](2026-08-10-0036-plainscan-repo-plane-rescope.md) — Mike proposed removing plainscan altogether — the trust review was about session replies, and "99% of the documentation … is … for consumption by yourself (claude) not me as the principal" — and asked for a challenge. The challenge held: full removal silently kills the reply gate (plain-reply.py imports scan_text and fails open), and the repo prose he does read — ruling asks, review briefs, public doctrine — is the estate's highest-stakes prose. His ruling, verbatim: "I accept your recommendation" — engine and reply gate untouched, repo plane scoped to human-read docs by excluding records (docs/SESSIONS.md, docs/sessions/, docs/ROADMAP-DONE.md), explicit selection still scanned, --include-records restoring the old scope. Measured 7,817 → 4,440 advisory findings (records carried 3,377). Edges pinned: ROADMAP.md never matches the ROADMAP-DONE.md glob. The backlog item's records half is settled by ruling; the 4,440 in human-read docs and the repo-plane numbers stay open. Module tests 47 → 51, suite 1,294 → 1,298, instruments exit 0. Under Mike's mid-turn parallel-sessions flag: claim commit before first edit, worktree, explicit-path staging throughout. The Stop hook blocked this session's own opening reply for two bare reference codes — the gate fired on its defender while its removal was being argued.
+
+
 **Session:** Fable, wt: plainscan-rescope-0810. Mike flagged parallel sessions
 mid-turn, so the lane was claimed on `main` and pushed (`a2ab913`) before the
 first edit, and every stage was explicit-path only.

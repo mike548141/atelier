@@ -1,5 +1,11 @@
 # 2026-08-09 · 0848 UTC · A mechanical floor under COMMUNICATION.md
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 261+1 -->
+- [2026-08-09 · 0848 UTC · A mechanical floor under COMMUNICATION.md — the one doctrine here with no scanner (Opus, wt: none — inline on main)](2026-08-09-0848-communication-enforced.md) — Mike, on a trust failure rather than a feature request: replies across all repos lack honesty, transparency and verification, over many days and many sessions, and *"adding rulings and principles to doctrine are being ignored — deterministic hard walls like policy-as-code"*. He named the failure modes and pointed at the transcripts. Measured: 6,704 replies of 200+ chars across 1,094 transcripts in 18 repos — bracketed aside 67.2% of replies, unexpanded acronym 55.5%, sentence over 35 words 36.8%, bare reference code 17.4%, and of every reference code's **first use in a session 86% arrived with no gloss** (1,457 bare, 236 glossed). The rate did not fall after the rules were written; reference-code density **rose** over the month, 4.04 → 7.23 per thousand words. Root cause was already documented and had been read as closed: COMMUNICATION.md's own enforcement clause said "write-time discipline is the *only* control". Built `plainscan` — four rules, two on a published standard (digital.govt.nz, expand on first use), one on dated house doctrine, and one, sentence length, on a **house call** flagged everywhere as such because two plain-language authorities were checked and neither publishes a cap. One engine, two planes: the floor registry for committed prose, and a `Stop` hook linting the agent's own reply and blocking it for rewrite. Honest limits — warn-only, so nothing is yet *prevented*; the Stop hook is **not installed** (a settings.json change in every repo, Mike's call), so the plane where every defect was measured is still unguarded; the scanner was written by the agent that wrote the corpus, so the doctrine change carries a ⏳ pointer; and this session's own replies would have failed the gate while writing it. Suite 1,257 + 207 green, floor green.
+
+
 **Session:** Opus, inline on `main` (read-first sweep clean; no parallel session
 evidence at start).
 **Trigger:** a trust failure, stated by Mike, not a feature request.

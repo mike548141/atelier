@@ -1,5 +1,11 @@
 # Session — B2+B3 floorfleet --status cold pass, PASS-WITH-FINDINGS — FS1–FS5 to Mike
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 223+1 -->
+- [2026-07-29 · 1251 UTC · B2+B3 floorfleet --status cold pass — PASS-WITH-FINDINGS 1M/2m/2n, FS1–FS5 to Mike (Fable, wt: b2b3-floorfleet-status-cold-pass)](2026-07-29-1251-b2b3-floorfleet-status-cold-pass.md) — second queue item for the taker session: claims re-run not read (795-test suite + selftest green; every classify_run branch selftested; --check compatibility proven live — exit 0 today WITH four red floors, --status exit 1; consumer mode run end to end, enumeration complete with the live all-repos token; both authority-declaration directions observed). Build sound; the MAJOR is the work's own defect class one level up — discovery declares no authority: a partial-sight token quietly renders a smaller cleaner board, and a failed CLAUDE.md read is confidently listed as 'no atelier pin' (the outsider test bakes the conflation in). Cycle open pending rulings.
+
+
 - **Date:** 2026-07-29, 1251 UTC
 - **Model:** Fable 5 (1M context), wt: b2b3-floorfleet-status-cold-pass
 - **Ask:** second queue item for the Mike-spawned "do review work" taker

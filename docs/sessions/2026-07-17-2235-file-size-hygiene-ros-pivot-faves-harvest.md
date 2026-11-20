@@ -1,5 +1,11 @@
 # 2026-07-17 · 2235 UTC · File-size hygiene — ros pivot, then the faves harvest (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 116+1 -->
+- [2026-07-17 · 2235 UTC · file-size hygiene — ros pivot, then the faves harvest (Opus)](2026-07-17-2235-file-size-hygiene-ros-pivot-faves-harvest.md) — Mike's theme *File-size hygiene (own focused sessions)*. Claimed the flagship **ros ROADMAP harvest** (now **4933 lines**, grown from the 3197 on file) and set up a worktree — but caught a **live ros session** actively claiming roadmap items (`495def8`, mid-`radius-home`), i.e. editing the very `docs/ROADMAP.md` a wholesale reorg would rewrite. **Released the claim, recorded a liveness-check hazard on the item** (a wholesale reorg can't run concurrent with an active ros session — "its own focused ros session" is literal), and pivoted to the quiet **faves** harvest. faves brought fully under budget, `sizescan` clean: `SESSIONS.md` **1157→234** (adopted the index **rotation** the ros/tiki convention implies but faves never made — recent tail stays, older entries verbatim → new `SESSIONS-ARCHIVE.md`); `ROADMAP.md` **766→299** (current-truth/history split — *resolved* items incl. decided-against ✗ and owner-parked → new `ROADMAP-DONE.md` behind lean pointers; relocation done by a **scripted line-range partition** with a coverage check + byte-identical verbatim assertion per block, heading set proven unchanged); `ARCHITECTURE.md` **276→250** (trimmed without losing facts — decided-history condensed, stale hosting row fixed, prose de-duplicated, the rot-prone `js/` module list condensed). Three faves commits `dba7658..ab6a12d`, ff-merged + pushed, worktree away. atelier ROADMAP: faves `[x]`, ros released with the hazard; kept atelier's own ROADMAP ≤300 (dogfood). No review owed (mechanical relocation, verified verbatim; no doctrine change).
+
+
 Mike's themed session: **File-size hygiene (own focused sessions)** and the
 doctrine backlog. Solo-ish on `main` alongside a live parallel atelier session
 (`instruments-audit`, ccarchive `--audit`) and a live **ros** session.

@@ -1,5 +1,13 @@
 # 2026-07-14 · 2142 — two tool principles codified; economics + review alignment confirmed (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 90+1 -->
+- [2026-07-14 · two tool principles codified; economics + review alignment confirmed (Fable)](2026-07-14-2142-two-tool-principles-alignment.md) — Mike's two practices land as hard rules in PRINCIPLES §2: **human-readable output carries a machine-readable twin** (`--json` + exit codes on any tool that prints for a human; web UIs exempt, their services still earn an API) and **a commodity sub-feature sits behind a swappable seam** (in-house PKI CA/secret store/web server is a default implementation of an interface, never a load-bearing wall; case: tiki's planned PKI CA, labelled a direction not a shipped seam). Alignment confirmed, no edits needed: model-economics framing matches MODEL-ECONOMICS + precedence rule 6 (one nuance — quality trades only within low-risk work, cost never buys down correctness); review framing matches REVIEW near-verbatim (lens 1, independence rules, principal decides doctrine findings). Owed: cold pass on the two new bullets (ROADMAP, review-owed).
+<!-- archivecut:log-entry docs/SESSIONS.md 91+1 -->
+- [2026-07-14 · addendum: API first + mobile-first responsive join §2 (Fable)](2026-07-14-2142-two-tool-principles-alignment.md) — same family, two more bullets beside the first pair: **API first** (capabilities land behind an API before any surface; every client rides the same contract — grounding stated honestly as consumption-side today, tiki driving RouterOS via REST) and **one responsive web app, mobile-first** (a separate mobile edition is DRY violated at the presentation layer; labelled adopted-practice-no-shipped-case-yet). ROADMAP cold-pass item widened two → four bullets.
+
+
 Mike brought two practices he wanted "represented in the right place in atelier
 for the child repos to use", plus two alignment questions ("does this match the
 doctrine?").

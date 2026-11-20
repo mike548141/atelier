@@ -1,5 +1,11 @@
 # 2026-07-11 · session 39 — the whole fleet adopted (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 62+1 -->
+- [2026-07-11 · the whole fleet adopted (Opus)](2026-07-11-39-fleet-adoption.md) — "adopt all the other repos I use Claude on." Settled the vocabulary (**child repos** in **the fleet**; the act is **adopting** = stamping the doctrine block + pin, per PROPAGATION), inventoried every repo, and brought **all 11 children current at `1588fda`** (`tools/pins.py` ✓). Newly adopted 7: `rpi`, `nova`, `Baby Brain`, `FoodTracker`, `ec2_builder`, `homenetwork`, `hitchbots_guide` (block + `floor.yml` + fail-closed hook, each proven blocking a planted key). Pin-bumped 4: `faves`/`ros`/`numen`/`docker-heap` — catching real block-wording drift (`record Mike's decision` → `record the principal's decision`; the bump carries wording, not just the SHA). `python-metaname` excluded (third-party, `metaname` org). **The scan floor earned its keep:** surfaced real secret debt in a few repos (tracked in those private repos, not detailed here — atelier is public), and one scary finding verified a false positive *before* reporting (an SSH FIDO algorithm name mistaken for an `sk-` API key). Handled per the session-38 policy: scaffold safely, treat captured-snapshot secrets as the owner's tracked debt, network repos get `--disable ipv4,ipv6,mac-address`. Owed to Mike: the rotations/purges (details private), the two app purpose one-liners, and registering an SSH signing key to activate the signing doctrine.
+
+
 Mike: "atelier is in a good place to adopt all the other repos I use Claude on —
 let's do that." Settled the vocabulary from `PROPAGATION.md` (**child repos** in
 **the fleet**; the act is **adopting** = stamping the doctrine block + pin), then

@@ -1,5 +1,11 @@
 # 2026-07-17 · 0810 UTC · ccarchive — durable transcript preservation
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 106+1 -->
+- [2026-07-17 · 0810 UTC · ccarchive — durable transcript preservation (Opus)](2026-07-17-0810-ccarchive-transcript-preservation.md) — Mike: "keep all my raw transcripts word-for-word, timestamps + model metadata, for reference" — both levers, compressed archive to iCloud. The raw `.jsonl` already *is* the complete record; the risk is `cleanupPeriodDays` (default 30) deleting it. New instrument **`ccarchive`** (a fourth `instruments/` verb, **preserve**, and its first *writing* one): incremental per-session gzip mirror `<rel>/<name>.jsonl.gz` — not a monolithic tarball (which would re-upload the whole blob to iCloud each run) — append-only (a source pruned by cleanup stays kept), byte-preserving so schema-drift-immune, dest runtime-derived from `$HOME` (no personal path in code). Found+fixed a re-archives-every-run bug (`Date` ms-truncation of the stamped mtime; fix: numeric-seconds stamp + 1 ms freshness tolerance). 12 new tests (46 total green); driven live (428 transcripts, 396→143 MB, idempotent, byte-identity, launchd RunAtLoad). Machine-local: launchd daily agent; `cleanupPeriodDays` raised then reverted at Mike's call (archive is the durable copy, keep the live dir lean). Reconciled with `ccrepo.design.md` §8: ccarchive subsumes the deferred retention-ledger's *survival* rationale (lossless raw beats lossy rollups), leaving it a precompute option. Moved to a worktree mid-session on Mike's parallel-session flag. Owed: ⏳ cold review of the ADR 0006 addendum (self-authored doctrine, rule 4); §8 cross-pointer left for the ccrepo session.
+
+
 ## What prompted it
 
 Mike: "Keep all my raw transcripts (word for word), including timestamps and any

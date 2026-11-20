@@ -1,5 +1,11 @@
 # 2026-08-09 · 0708 UTC · The C5 cold pass, and the `add -A` sweep that was owed (Opus orchestrating, one Fable reviewer)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 259+1 -->
+- [2026-08-09 · 0708 UTC · The C5 cold pass, and the `add -A` sweep that was owed (Opus orchestrating, one Fable reviewer)](2026-08-09-0708-c5-cold-pass-and-addall-sweep.md) — Mike asked for the full open-work list (112 items, 7 queued reviews, 25 of them blocked on his ruling rather than on capacity), then said he did not trust the session that re-measured C5. The rule-4 Fable pass came back PASS-WITH-FINDINGS, 2 MAJOR / 4 MODERATE / 3 minor / 3 notes: the distrust was misplaced about the measurement — all thirteen re-run claims reproduce exactly at the states the sweep measured, the best-verified figure set the programme has produced — and well placed about the framing, where the "sharpest cost" is mis-composed (one of the six children is public, so its lines are the guard working, and only ~6 of 58 are the prescribed onramp act) and the 2026-08-06 deletion precedent is misdescribed against its own ADR. C5R4 changes procedure rather than a fact: every atelier-side figure was falsified by drift within hours, so the re-ruling rides on classes, never a frozen number. The brief deliberately withheld the authoring session's own framing — the "question shrank after `c827705`" line — entering it as an assumption to attack instead, so it did not travel through the orchestrator. The `add -A` sweep the last close asked for ran across all 24 repos: 29 never-publish files, 27 safe, 2 tracked, zero exposed, so the guard was deliberately not built (recurrence earns a check, and the one instance was remediated in the commit that caused it) — but it found that one of the two remaining red floors is red for a cause nobody had named, its allowlist never untracked at all. Nothing ruled, no other repo touched, the live lines not scrubbed: all three are someone else's call or another session's lane.
+
+
 Mike opened with *"Give me a full list of work to do in this repo"*, then —
 reading the list back — sent the ask this session is really about:
 

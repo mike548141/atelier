@@ -1,5 +1,11 @@
 # 2026-07-25 · 06:45 UTC · Doctrine + design captures — first-principles, cross-repo learning, solve-once, ccarchive encryption
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 180+1 -->
+- [2026-07-25 · 0645 UTC · Doctrine + design captures — first-principles, cross-repo learning, solve-once, ccarchive encryption (Opus, conversational)](2026-07-25-0645-doctrine-design-captures.md) — continuation of the 0959 queue-run conversation; no builds, five ROADMAP-only captures (stub-don't-fabricate, content grounded in Mike's words not invented). **(1) Elevate kāinga's first-principles doctrine to atelier** (`6835ce1`/`e97c377`) — aligned meaning locked via the Musk/SpaceX example; rigour is in "the parts you *know* are true"; kāinga's research frontier is why it matured there first. **(2) Cross-repo learning** (`50fa4b7`) — the up-flow (child→atelier) complementing PROPAGATION's down-flow + lateral (child↔child); engine = deliberate domain diversity at different constraint-walls (faves no-wall, tiki hardware-wall, kāinga research frontier). **(3) Solve once, reuse the building block** (`58776c4`) — in-repo (tiki's one wire-protocol module, many consumers) + cross-repo (knowledge as building blocks); unifying claim reframes atelier as the fleet's shared library for knowledge; twin of one-fact-one-home. **(4) ccarchive encryption-at-rest, secure-by-default** (`b5e8d26`) — a design pass whose direction is encryption on by default, a loud plaintext opt-out, and live-decrypt in ccrepo/cctranscript; raises the bar on the ADP-E2E ruling; key-mgmt as the crux, solve-once reuse of the person-context age-capsule key infra, zero-dep-vs-crypto-dep the one design-pass Mike-decision. The first three + ccarchive form a coherent seam. Floor green throughout; no blocking decisions. NOT claimed: the parallel 2026-07-24 apex/principles commits.
+
+
 **Model:** Opus. **Nature:** conversational capture session (no builds) — Mike
 articulated several principles/directions and asked them noted for later. The
 substance lives in the ROADMAP items below (this record points, does not

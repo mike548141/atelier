@@ -1,5 +1,11 @@
 # 2026-07-10 · first keeper repo (numen) + fleet pin bumps + REVIEW re-run rule (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 43+1 -->
+- [2026-07-10 · first keeper repo (numen) + fleet pin bumps + REVIEW re-run rule (Opus)](2026-07-10-21-first-keeper-numen-pin-bumps.md) — closed the three owed items off the create-repo sweep. **Pin bumps:** ros f72031c→bbdeece (picked up the C2 quoted drift path) and faves dde4170→bbdeece (30 behind — also adopted the **P1 trust-surface floor clause** it had lagged since before the method review); fleet now all-current. **First keeper repo:** scaffolded **`numen`** (`mike548141/numen`, PRIVATE) — Mike's home-automation vision (an invisible, anticipatory household intelligence; "a great butler + house staff"), driven through the rewired create-repo live end-to-end and **the owed `gh repo create --push` step driven for the first time** (verified `isPrivate: true`). Sized honest as **pre-code**: stack a deliberate open decision, a **stated no-CI-gate** (nothing buildable + child scans can't run in CI yet), the pre-commit scan hook the only automated gate — proven live to block a planted `AKIA…` key and pass the real commit clean; stamp proven mechanically; no `settings.local.json` leaked. **Doctrine touch:** REVIEW.md gained "Re-run every 'live-proven' claim in scope" (a recorded proof can be stale by its own commit — re-run it, don't read it; grounded in B1 + C2), review-owed. B14 ros access map left for its own ros session.
+
+
 The post-sweep execution session: three owed items closed, one small doctrine
 touch. Order was pins-first (quick), then the keeper scaffold (the owed outward
 step), then the atelier record.

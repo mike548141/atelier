@@ -1,5 +1,11 @@
 # 2026-09-20 · 1053 UTC — Queue run: the loose ends the last run named
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 310+1 -->
+- [2026-09-20 · 1053 UTC · Queue run — the loose ends the last run named (Opus 5 orchestrating, Sonnet 5 workers) — index line added 2026-09-26 by a recovery sweep](2026-09-20-1053-queue-run-the-loose-ends.md) — The run claimed `020/390`, `020/400`, `010/020` and `020/160`, landed all four on `main` (last commit `e876f87`, 2026-09-20 12:36 UTC), and was cut off before close: its detail file records the scratchpad measurement, the PR #83/#85 merges and the E9 pruning, has no closing block, and — per three cold passes on its deltas (BA8, FW12, HP9) — carries no account of `010/020`, `020/400` or `115/080` part 1. Left as the cut left it; the surviving records are the commits and the items.
+
+
 **Tier:** Opus 5 (1M context) orchestrating, stated at open per `ECONOMICS.md`
 § *The orchestrated-run tier split* and the 2026-09-19 ruling; Sonnet 5 workers
 in isolation worktrees.

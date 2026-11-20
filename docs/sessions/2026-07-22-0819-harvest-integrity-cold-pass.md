@@ -1,5 +1,13 @@
 # 2026-07-22 · 0819 UTC · Harvest-integrity gate cold pass — PASS-WITH-FINDINGS, 1 MAJOR; HI-F1–F6 to Mike (Fable, main)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 155+1 -->
+- [2026-07-22 · 0819 UTC · Harvest-integrity gate cold pass — PASS-WITH-FINDINGS, 1 MAJOR; HI-F1–F6 to Mike (Fable, main)](2026-07-22-0819-harvest-integrity-cold-pass.md) — the queued `⏳` on `0bdccf3` taken by a rule-4 taker (Mike-spawned "please do any review work"; intent record unread until the verdict committed `0ce23e1`). Every delta claim reproduced: suite 314 OK, selftest OK, live `--check` green, four-situation taxonomy tested, tri-state coherent on all four surfaces, hatches can't silence the gate. **HI-F1 (MAJOR)**: archive stores inside skipped dirs (`sessions/`, `_archive/`…) are invisible to the gate while the clean banner claims coverage — reproduced, latent (fleet keeps stores at `docs/`, verified ×5). HI-F2 unclosed-fence swallow · HI-F3 RECORD.md account incomplete · HI-F4 template lacks the legend (MINOR) · HI-F5/F6 notes. Lens 4 discharged with grounds + manual pass clean. Reconcile: nothing overturned. 🎯 **HI-F1–F6 await Mike**; the MAJOR keeps the cycle open; queue empty.
+<!-- archivecut:log-entry docs/SESSIONS.md 156+1 -->
+- [2026-07-22 · addendum · HI-F1–F6 ruled + applied; application `⏳` queued (Fable, wt: hi-rulings-apply)](2026-07-22-0819-harvest-integrity-cold-pass.md) — Mike: *"I accept your recommendations on all"* ⇒ **HI-F1–F6 [fixed]** in `30d350c` (stores integrity-checked wherever they live — the dir skip bounds metering only; unclosed fences count their tail fail-safe, both counters in parity; RECORD.md names the gate; child template carries the tri-state legend; HI-F5/F6 documented as decisions). Suite 314→319, selftest + both original fail-open repros re-driven red→green, live scan green; verdict stamped `cfb0ae6`. Cycle stays open per the MAJOR: the application's own cold pass queued `⏳` for a non-author.
+
+
 ## Provenance and sequence
 
 The queue's one `⏳` — the rule-4 cold pass on delta `0bdccf3` — taken by a

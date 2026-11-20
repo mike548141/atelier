@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 25+1 -->
+- [2026-07-10 · estate-access + data covenant](2026-07-10-03-estate-access-data-covenant.md) — Mike's data covenant → method/DATA-PROTECTION.md; model-capability who-acts axis in AUTONOMY; estate-access expansion agreed (least-privilege, read-first, widen-in-rings); nas02 two-credential plane split.
+
 **2026-07-10 — estate-access + data covenant.** Also this session: Mike stated
 the **data covenant** ("always protect data, mine and others; I hate losing
 data") → new `method/DATA-PROTECTION.md` (read-before-write; verified way-back

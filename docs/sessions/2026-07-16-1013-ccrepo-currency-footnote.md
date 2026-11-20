@@ -1,5 +1,11 @@
 # 2026-07-16 · 1013 UTC · ccrepo — currency to a footnote, not a per-figure prefix
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 105+1 -->
+- [2026-07-16 · 1013 UTC · ccrepo — currency to a footnote, not a per-figure prefix (Opus)](2026-07-16-1013-ccrepo-currency-footnote.md) — Mike: ccrepo stamped the currency on every dollar figure (`NZ$412.14`); move it to a footnote near the `Rate:` line. CONVENTIONS' declare-once rule made literal on the instrument that inspired its currency analogy two sessions back — the currency is now named exactly twice (column header `Cost (NZD)` + footnote) and never per figure. `SYMBOLS` collapses the disambiguating dollar prefixes (`NZ$`/`US$`/`A$`/`C$`) to a plain `$`; `£`/`€`/`¥` unchanged; unknown codes drop to no marker (`symbolFor` → `''`). New footnote `All amounts shown in <currency>.` prints **always** (so `--fx usd`, which has no `Rate:` line, gets it too), directly above the rate line. Verified: 34 instrument tests green (`symbolFor` test updated to the new contract), both render paths driven live (NZD `$412.14` + footnote above rate; USD footnote present, no rate line). No review owed — instrument display change, self-verifying (ceremony ∝ risk).
+
+
 ## What prompted it
 
 Mike: ccrepo stamped the currency on every dollar figure (`NZ$412.14`); move

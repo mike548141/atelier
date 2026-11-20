@@ -1,5 +1,11 @@
 # 2026-09-11 · 1050 UTC · The shrink refusal, and what it actually compared
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 304+1 -->
+- [2026-09-11 · 1050 UTC · The shrink refusal, and what it actually compared (Opus 5 1M, main, in place)](2026-09-11-1050-the-shrink-refusal-and-what-it-actually-compared.md) — Mike brought a live `ccarchive` run that refused six files and exited non-zero, backed the guard, and asked why a source is smaller than its archived copy at all. Filed as `210/150`, deliberately separate from `210/010`: that item asks what to do about the class, and its three options all rest on a reading ("legitimately condensed") asserted at discovery and never checked against a mirror. 🔎 **The guard compares the source against the manifest's recorded byte count while the message claims the mirror** — one number only while the two agree, which this path never verifies; so mis-pairing has a second shape, a size record that outlived the copy it described (`370`'s class). Four discriminating hypotheses recorded, all read-only, with a warning that a `--force` run destroys the evidence separating them.
+
+
 **Session:** Opus 5 (1M context) · `main`, in place · one commit
 
 A short visit. Mike brought a live `ccarchive` run that refused six files and

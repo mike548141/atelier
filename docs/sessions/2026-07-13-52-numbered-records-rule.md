@@ -1,5 +1,11 @@
 # 2026-07-13 · 52 — numbered records under concurrency (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 75+1 -->
+- [2026-07-13 · numbered records under concurrency (Fable)](2026-07-13-52-numbered-records-rule.md) — a child repo's parallel-session number collision (two sessions both allocated 03 from stale views; renumbered 03→05 on human read-through) named the gap CONCURRENCY's append-tail bullet didn't cover: a next-N counter collides *silently* — differently named files, same number, no merge conflict. Codified (`e93e731`) as the append-tail bullet's sibling, three rules and still no locking: **allocate late** (N picked at landing, fresh pull immediately before, pushed at once — the allocate-to-push gap is the entire window), **provisional until pushed** (a loss costs one rename, not a reference cascade), **first landed wins** (the loser renumbers, mechanically). New record series should prefer coordination-free identifiers; counters stay only where the running number carries meaning. Fleet delivery via the child block's Concurrency line (canonical + template together, drift test green); RECORD.md points at the rule from the `<date>-NN` spec. This very entry allocated 52 the new way.
+
+
 Mike relayed an incident from a child repo the night before: a session-number
 collision under parallel sessions — s7 took 03+04 while another session had
 already used 03, resolved by renumbering 03→05 — and asked whether it could be

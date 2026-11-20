@@ -1,5 +1,11 @@
 # 2026-07-17 · 0921 UTC · ccrepo v2 — flexible grouping, filters, message-grain cost engine
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 109+1 -->
+- [2026-07-17 · 0921 UTC · ccrepo v2 — flexible grouping, filters, message-grain cost engine (Opus)](2026-07-17-0921-ccrepo-v2-grouping-cost-engine.md) — Mike: "build all the ccrepo related stuff we have talked about now." Built the design (`instruments/ccrepo.design.md`) in an isolated worktree alongside the live ccarchive session; PR #8. The pivot: **stop trusting ccusage for cost — compute it here, per message, reconcile against ccusage.** Message-grain engine reads the raw logs and prices each assistant message across five token classes (incl. the 5m/1h cache-write split) from a local table whose bases were validated against ccusage as clean round numbers (opus-4-8 $5 · fable-5 $10 · sonnet-5 $2 · sonnet-4-6 $3 · haiku-4-5 $1 /MTok in; ×5 out, ×0.1 read, ×1.25/×2 write) — **published, not fitted, so the drift check stays independent** and lands at **−0.05%**. Ordered `-g` grouping over repo/model/branch/kind/entrypoint/cc-version/agent/year–hour, any order (`--by-model`/`--by-day` dropped); filters mirror the vocabulary (OR within · `!` excludes · `*` globs · session UUID prefix); `--sort`; tree default + `--flat`/tidy `--json`/`--csv`; Sessions a distinct count at every level. Two build discoveries: subagent logs (`<session>/subagents/*.jsonl`) had to be walked recursively and folded into the parent session (~$167, closed the drift from −4% and powers the `kind` dim); and a truthy `'—'` repo default that blocked label re-resolution (fixed + regression test). Dedup keeps the **last** streamed line per `(message.id, requestId)` to match ccusage. 40 ccrepo tests (was 21), 58 instrument total; floor green (247 tool tests, all scans). ccarchive is design §8's retention-ledger — the two land together.
+
+
 The build of the design captured two sessions earlier in `instruments/ccrepo.design.md`.
 Mike: "build all the ccrepo related stuff we have talked about now — start coding."
 Done in an isolated worktree (`ccrepo-v2`) because a parallel session was live

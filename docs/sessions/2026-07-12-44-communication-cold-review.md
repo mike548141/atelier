@@ -1,5 +1,11 @@
 # 2026-07-12 · 44 — COMMUNICATION.md cold review cleared (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 67+1 -->
+- [2026-07-12 · COMMUNICATION.md cold review cleared (Fable)](2026-07-12-44-communication-cold-review.md) — the session-43 owed review RAN: **PASS-WITH-FINDINGS**, verdict in `reviews/2026-07-12-communication.md`. The sharpest question cleared decisively — the scrubbed worked example does *not* leak the personal layer by implication (identity × category-existence join, zero specifics, categories the boundary statement already publishes); reviewer barred from the person layer by the brief so the question was judged as a genuine outside reader. 4 findings C1–C4 all [fixed] same day, one theme: the doc held the boundary rigorously but was looser on itself (enforcement now stated as write-time-discipline-only; the not-even-private divergence from the portability north star surfaced, kept strict; the snapshot dated per EVIDENCE; the "works without knowing" overclaim sharpened). Review-owed queue empty.
+
+
 Mike: "Sounds like we have some reviews to do." One owed: the session-43 cold
 review of `method/COMMUNICATION.md`, pre-seeded questions already in the
 ROADMAP.

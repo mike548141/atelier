@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 35+1 -->
+- [2026-07-10 · EVIDENCE §13 + §14: A6/A7, extraction section closed (Opus)](2026-07-10-13-a6-a7-extraction-close.md) — last extraction line: source-acquisition escalation ladder (§13, active counterpart to §3 — climb to the *cost of being wrong*, state the gap when blocked) + honest-instrument doctrine (§14 — an instrument the agent builds is a source; its "ok"/"applied" is a claim the apex governs: verified-not-attempted, silent-success-is-a-defect, "unknown"-is-required, known-failure-test enforces). Grounded in §3/§11 + PRINCIPLES §6; ros diagnose/apply phantom-success named as the estate instance. Review-owed (doctrine text).
+
 **2026-07-10 (Opus) — EVIDENCE §13 + §14: A6/A7, closing the extraction section.**
 Mike: "keep going on Atelier work until economics says start a new session." The
 only open line in the extraction section was A6 (source-acquisition ladder) + A7

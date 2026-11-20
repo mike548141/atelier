@@ -1,5 +1,11 @@
 # Session — B4 harvestscan cold pass, PASS-WITH-FINDINGS — HV1–HV5 to Mike
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 224+1 -->
+- [2026-07-29 · 1306 UTC · B4 harvestscan cold pass — PASS-WITH-FINDINGS 1M/2m/2n, HV1–HV5 to Mike (Fable, wt: b4-harvestscan-cold-pass)](2026-07-29-1306-b4-harvestscan-cold-pass.md) — third and last queue item for the taker session, with the deferral exposure named (B4 shares its intent record with B2+B3, opened at that pass's reconcile). Replay harness rebuilt from the tool's pure functions; every recorded figure reproduced exactly (105/391 = 26.9%, 158 items; dd7fcb74 = 2 incl. the real loss). The MAJOR is on the verdict: the named-but-unmeasured bulk-delete scope measures at 6 in-scope commits ever, 3 warns, all justified, incident caught — and the entry's first-ranked strict delete-only shape would have missed the incident. Wire-scoped vs shelved re-put to Mike. Cycle open pending rulings.
+
+
 - **Date:** 2026-07-29, 1306 UTC
 - **Model:** Fable 5 (1M context), wt: b4-harvestscan-cold-pass
 - **Ask:** third queue item for the Mike-spawned "do review work" taker

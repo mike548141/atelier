@@ -1,5 +1,11 @@
 # 2026-11-14 · 0125 UTC — Mike's asks de-duplicated on the board
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 343+1 -->
+- [2026-11-14 · 0125 UTC · Mike's asks de-duplicated on the board (Opus 5.5, headless, started by an estate health sweep, orchestrator session 58027096)](2026-11-14-0125-asks-deduplicated.md) — three cross-link lines in `f89857d0` (`210/020` answered, `310/060` and `320/080` overtaken); applied 3, skipped 0; no review-tier model used.
+
+
 **Session:** `f229bf40`, Claude Opus 5.5, headless, started inside an atelier worktree by an
 estate health sweep, orchestrator session `58027096`, for one task: apply a cross-repo pass's
 proposed cross-links so an ask already answered or overtaken is not put to Mike again. No

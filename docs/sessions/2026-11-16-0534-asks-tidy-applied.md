@@ -1,5 +1,11 @@
 # 2026-11-16 · 0534 UTC — Asks de-dupe tidy-ups applied
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 365+1 -->
+- [2026-11-16 · 0534 UTC · Asks de-dupe tidy-ups applied (Opus 5.5, headless, started by an estate health sweep, orchestrator session 58027096)](2026-11-16-0534-asks-tidy-applied.md) — twelve approved rows, one added line and one commit each (eleven 🎯 items marked not his ask, `020/120` pointed at its home `170/010`), each revertible by `git revert`; two rows held (their asks live outside this repo); no Fable used
+
+
 **Session:** `0f2ea343` (as `cclive` lists it), Claude Opus 5.5, headless, started by an estate
 health sweep (orchestrator session `58027096`). **Worktree:** a detached worktree at
 `origin/main`. No Fable used, no review run.

@@ -1,5 +1,11 @@
 # 2026-07-11 · right-size the ceremony — calibrate review/session gates to risk (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 51+1 -->
+- [2026-07-11 · right-size the ceremony — calibrate review/session gates to risk (Opus)](2026-07-11-29-right-size-the-ceremony.md) — Mike's observation accepted: "one thing per session" was being over-applied and productivity degraded across the day; the driver was *not* economy (a fresh session is the pricier choice for related work) but an over-generalised rule + a pull to hand back at a safe green boundary. Found the record's actual words are narrower than my use: **"one task per session"** targets an *unrelated pivot* dragging stale tokens, not one-item-then-stop; **"don't-stack" was nowhere in the doctrine** — an un-codified session habit enforced as a rule, over-broadly. Captured proportionately (living the advice): MODEL-ECONOMICS gains **"Match the ceremony to the risk"** (gates/sweeps/session-breaks are *spend*, apply ∝ cost-of-being-wrong; what earns full ceremony vs. what's self-verifying; don't-stack codified with its narrow scope — an *unreviewed dependency*, not mere sequence) + a sharpened hygiene item 1; REVIEW gains a **"whether a change earns a review at all"** bearing pointing up. **Recursive check: this change is doctrine text, so by its own new rule it is review-owed — flagged, not self-certified, not merged by me.** Done in an isolated worktree (`gate-calibration`, off `bafeaa3`) to avoid clobbering a concurrent live session; handed back as a branch + PR for Mike to merge. Template MODEL-ECONOMICS copy deliberately untouched (separate templates pass).
+
+
 Mike's observation, accepted: I had been treating "one thing per session" as a
 near-law and advising a fresh session after each single item — and productivity
 was visibly degrading across the day. Examined honestly, the driver was **not**

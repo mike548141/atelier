@@ -1,5 +1,11 @@
 # 2026-07-10 · create-repo exercised end-to-end; scan-hook fail-open defect fixed (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 41+1 -->
+- [2026-07-10 · create-repo exercised end-to-end; scan-hook fail-open defect fixed (Opus)](2026-07-10-19-create-repo-exercise-hook-fix.md) — session 18's owed real-scaffold run, driven not read: scaffolded a real local git repo (seed → 3 renames → stamp → hook → commit). It paid for itself — surfaced a live **§14 silent-success defect** the scratch dry-run couldn't: `tools/pre-commit.sample` pointed at `$repo_root/tools/` and skipped silently when the scanners were absent; a child has none (they live in atelier), so the scaffolded hook committed a real `AKIA…` secret with a green exit. Fixed: resolve atelier's tools (`ATELIER_TOOLS` → `git config hooks.atelierTools` → in-repo fallback) + **fail closed**; step 6 bakes the path + prove-it-once. Re-proven fail-closed / blocks-secret / passes-clean / atelier-unaffected, then the contract **pinned by `tools/test_precommit.py`** (5 real-`git commit` tests; known-failure proven — the pre-fix sample commits the secret with exit 0); suite 137→142 OK. Surfaced-not-fixed: CI templates run no scanner (hook is the only gate) — folds into the deferred supply-chain call. Sweep **briefed not run** (independence): `docs/reviews/2026-07-10-create-repo-rewire.md` — range f72031c..92c0112 + the machine-local skill; 9 assumptions, sharpest three: clone-loses-hook-and-config, template-block drift, prose-stamp as memory-reborn. Gate raised: no keeper repo scaffolded until the verdict. Still owed: the outward `gh repo create` step. ros pin unchanged (f72031c).
+
+
 The first of session 18's two owed items: **exercise `create-repo` on a real
 scaffold**. Session 18 dry-ran only the mechanical core in scratch (seed +
 renames + placeholder fills + drift-check). This session did the parts the

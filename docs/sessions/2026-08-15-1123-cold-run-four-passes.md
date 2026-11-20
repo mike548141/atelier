@@ -1,5 +1,11 @@
 # 2026-08-15 · 1123 UTC · Four cold passes run, one brief written — the two-session split works (Fable, wt: cold-run-0815-1123)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 276+1 -->
+- [2026-08-15 · 1123 UTC · Four cold passes run, one brief written — the two-session split works (Fable, wt: cold-run-0815-1123)](2026-08-15-1123-cold-run-four-passes.md) — Mike opened a cold session under the standing instruction; four unrun briefs from the 1024 UTC session were the review work, and the one brief-less pointer (the reply-gate unwiring, `160-…/180`) got its brief from this session, which then stopped on it. Claim on `main` first (`3d0df11`), worktree, the four `.deferred.md` siblings moved out of the tree, one Fable reviewer per pass under an orchestrator-held partition, phase-1 verdict committed before each sibling was released, reconcile committed after. **Results:** board-store migration 🛑 1 MAJOR (BS1 — the hook-plane 'stale index cannot be committed' guarantee fails in two live-probed slips) / 4 MODERATE / 5 minor / 4 note, cycle OPEN; Laws removal 🎯 0 MAJOR / 3 MODERATE / 2 minor / 4 note, CLOSED; `cctranscript --search` 🎯 0 MAJOR / 3 MODERATE / 6 minor / 5 note, CLOSED; communication floor 🛑 FAIL — 1 MAJOR (CMF1 — the reply plane's premise is false by the hook contract, reached from the documentation before the reviewer read the unwiring commit) / 5 MODERATE / 2 minor / 2 note, OPEN. All findings are Mike's to rule. An API session limit killed two reviewers mid-flight; on Mike's *"pick up where you left off"* both were resumed from their own transcripts, not re-spawned, and disclose it. Own finding queued (`160-…/190`): `/security-review` reads the session's pending diff whatever path it is aimed at — three SL2 reproductions in one batch. All four pointers rewritten as ruling items with no queue glyph.
+
+
 **Mike's instruction, verbatim, opening a cold session:** *"As a cold session
 please do any review work, any work that is fable dependent, and write briefs
 for any reviews that need them. If you write the brief then do not run the

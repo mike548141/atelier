@@ -1,5 +1,13 @@
 # 2026-07-22 · 0257 UTC · Interruption-resilience cold pass — 0M/3M/2L, cycle closed; AC1–AC2 applied (Fable, wt: interruption-resilience-cold)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 151+1 -->
+- [2026-07-22 · 0257 UTC · interruption-resilience cold pass — 0M/3M/2L, cycle CLOSED; AC1–AC2 applied (Fable, wt: interruption-resilience-cold)](2026-07-22-0257-interruption-resilience-cold-pass.md) — the queued `⏳` on `9c11525` taken by the same rule-4 taker that closed the scope/lens-4 cycle (still non-author for this delta; warm problem-statement exposure named). **IR1 (M)**: the onramp tell "no closing entry means died mid-flight" also matches a live sibling — live-proven by this session's own commits. **IR2 (M)**: child template onramp lacks the firing pointer (the author's flagged question; counsel: propagate, IR1-corrected). **IR5 (M, [fixed])**: the authoring session left an un-harvested `[x]` — the shared floor ran RED on main for three pushes; harvested, floor re-proven green. IR3/IR4 (L) wrap + legend grammar. Sweep exercised live; suite 302 OK ×3. Also applied Mike's mid-turn accept of AC1–AC2 (stamped in the 0244 verdict). 🎯 **IR1–IR4 await Mike**; the `⏳` queue is empty.
+<!-- archivecut:log-entry docs/SESSIONS.md 152+1 -->
+- [2026-07-22 · addendum · IR1–IR4 applied; harvest-integrity invariant captured + first catch (Fable, wt: ir-rulings-apply)](2026-07-22-0257-interruption-resilience-cold-pass.md) — Mike: *"I take your recommendations on these"* ⇒ **IR1–IR4 [fixed]** as counselled (onramp tell now died-**or-live**; child template carries the firing pointer; rewraps; legend breadcrumb). Mike also raised: would anything catch a live checkbox accidentally harvested into ROADMAP-DONE? **Answer: no — and the first manual grep found one** (a `[ ]` parent with both children DONE; flipped with a dated note). Captured as the **harvest-integrity invariant** (no `[ ]`/`[~]`/`⏳` in the archive; counsel: extend sizescan; scanner finds → agent investigates → Mike decides; `[-]` dropped state for superseded; NOT delivery-verification). Suite 302 OK; floors green.
+
+
 ## The cycle
 
 The queued `⏳` on delta `9c11525` (CONCURRENCY § Surviving an interrupted

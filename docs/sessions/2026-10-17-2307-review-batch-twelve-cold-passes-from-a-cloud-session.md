@@ -1,5 +1,11 @@
 # 2026-10-17 · 2307 UTC · Review batch: the twelve briefed cold passes, run from a cloud session
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 323+1 -->
+- [2026-10-17 · 2307 UTC · Review batch: the twelve briefed cold passes, run from a cloud session (Fable 5.1 orchestrating, 12 Fable 5.1 reviewers, cloud container, branch claude/review-work-briefs-adj6ad)](2026-10-17-2307-review-batch-twelve-cold-passes-from-a-cloud-session.md) — Mike: *"As a cold session please do any review work, any work that is fable dependent, and write briefs for any reviews that need them"*. **All 12 briefed rule-4 passes (`160/780`–`890`) ran and are verdicted**, one fresh Fable reviewer each under the reviewer-plus-orchestrator shape; the claim landed on `main` by PR #118 before any pass ran, the verdicts by PR #119. Totals 7 MAJOR · 31 MODERATE · 55 minor · 51 note; six cycles stay open for Mike (EC, BY, LA, AV, MA on a MAJOR; CL on a FAIL — `ccclose`'s `--since` walk truncates on this repository's own history), six close (RN, SX, HX, DM, SZ, HC). No brief needed writing; the `⏳` queue is empty. Filed `115/350`: a cloud session cannot satisfy the hook plane's leakscan term requirement, so every commit here was `--no-verify` with the hook plane run by hand and disclosed; a full-cover leakscan run at the merged head is owed from a machine that holds the list. Recorded against itself: four container facts asserted from the system prompt and corrected by the reviewers (`gh` present, a real `gcloud`, `/root/.claude/` holding the live transcript store, a shallow clone), and one close blocked by a datescan red in a peer's unstaged verdict.
+
+
 **Model:** Claude Fable 5.1 orchestrating (the session opened on `claude-opus-5`; Mike switched
 it to `claude-fable-5-1` at about 23:09 UTC, before any claim or pass); twelve fresh Fable 5.1
 reviewers, one per pass; no brief-writers. **Where:** a Claude Code cloud container (4 CPUs, one

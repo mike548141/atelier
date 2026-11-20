@@ -1,5 +1,13 @@
 # 2026-07-21 · 0913 UTC · the review-line artefact cold pass: PASS 0M/1M/5L, rulings to Mike (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 142+1 -->
+- [2026-07-21 · 0913 UTC · review-line artefact cold pass — PASS 0M/1M/5L, rulings to Mike (Fable, wt: review-line-artefact-cold-pass)](2026-07-21-0913-review-line-artefact-cold-pass.md) — the queued `⏳` taken by a rule-4 taker (Mike-spawned "Please do any review work", authored none of `fa7a90f`); claim on `main` first, brief committed cold, findings committed before deferred material opened, reconcile appended. All proofs reproduced (293 tests, selftest, red/green legs, dogfood). **RS1 (MEDIUM)**: the silent-success hand-run — the decisions dir or a record file as path arg scans nothing, exits 0 (linkscan-L1 class; wired invocations unaffected). RS2 fence false-green · RS3 empty-field pass · RS4 boundary/typography residuals · RS5 REPO-STANDARD's three-scanner-stale enumeration · RS6 the 0820 addendum splice. Queue pointer was refs-only — first cycle to honour rule 4's ceiling. 🎯 **RS1–RS6 await Mike's ruling**; no MAJOR ⇒ the applying session closes the cycle.
+<!-- archivecut:log-entry docs/SESSIONS.md 143+1 -->
+- [2026-07-21 · addendum · review-line cycle CLOSED — Mike's accept-all applied terminal (Fable, wt: review-line-rs-apply)](2026-07-21-0913-review-line-artefact-cold-pass.md) — Mike ruled *"I accept your recommendations on all these"*: **RS1–RS6 [fixed]**, applied by the counsel's author as a terminal application (no-MAJOR ⇒ no further pointer; claim `8815f40` on `main` first, push deferred by a network outage). reviewscan: explicitly-named paths scanned never silently greened (RS1, red legs proven), fenced quotes excluded (RS2), non-empty value required (RS3), backdate residual stated + caps accepted (RS4); REPO-STANDARD scanner roster → non-staling pointer (RS5); 0820 splice unwound, annotated (RS6). Suite 293→298. Item harvested to ROADMAP-DONE; CHANGELOG closed; cycle closed.
+
+
 Mike: "Please do any review work." One `⏳` sat in the queue — the review-line
 artefact delta (`fa7a90f`: `tools/reviewscan.py` + templated `Review` field +
 wiring + `REVIEW.md`'s per-surface enforcement re-statement). This session

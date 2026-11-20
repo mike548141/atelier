@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 26+1 -->
+- [2026-07-10 · propagation mechanism built + children stamped](2026-07-10-04-propagation-mechanism-children-stamped.md) — method/PROPAGATION.md (thin anchor, fat pointer; SHA-as-version; layer-override rule; enforcement clause); ros + faves retrofitted with the stamped block at c3676ee; drift check behaviourally proven.
+
 **2026-07-10 — propagation mechanism built + children stamped.** Built the
 load-bearing "thin anchor, fat pointer" architecture the foundation review put
 ahead of all further extraction. New `method/PROPAGATION.md`: the mechanism (5

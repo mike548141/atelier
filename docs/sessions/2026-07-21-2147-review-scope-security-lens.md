@@ -1,5 +1,11 @@
 # 2026-07-21 · 2147 UTC · reviewer scope + security & privacy lens (Fable, main)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 145+1 -->
+- [2026-07-21 · 2147 UTC · reviewer scope + security & privacy lens 4 (Fable, main)](2026-07-21-2147-review-scope-security-lens.md) — Mike asked two questions of the review doctrine: does it mandate the widest possible reviewer scope (intent, decisions, assumptions, design, docs, test code, real-world behaviour, code), and is security & privacy clearly a must on every review? Audit: scope ⚠️ structurally close but enumerated-never-mandated (test code and work-docs unnamed — the same enumeration that let "no source code" shrink two past verdicts); security & privacy ❌ absent — zero mentions of security/privacy/threat/OWASP anywhere in review doctrine or templates. Mike: "go", caveating real-world testing *where it's possible to do so*. Delta `f9db922`: scope-mandate paragraph above the lenses (whole commitment; non-goals the only legitimate narrowing; lenses organise, never bound) and **security & privacy as lens 4** (design-altitude privacy weakness through injection/XSS at code altitude; likely vectors checked against OWASP Top 10/ASVS, not recalled; surface-free work discharges in one explicit line with grounds — omission is the bug); child review-floor template carries the same sentence, fleet adopts at pin bump; method/README three→four lenses. Self-authored doctrine ⇒ **⏳ rule-4 pointer queued refs-only** (non-author taker; this session spawns nothing). **Addendum (same session, `a059e49`):** Mike granted `/security-review` — lens 4 now runs the harness's security scanner where one ships, the mechanical floor under the lens, never a discharge of it; ⏳ pointer widened to both deltas.
+
+
 **Delta:** `f9db922` — `docs/method/REVIEW.md`, `docs/method/README.md`,
 `docs/build/templates/docs/reviews/README.md`.
 

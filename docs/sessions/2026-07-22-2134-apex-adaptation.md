@@ -1,5 +1,11 @@
 # 2026-07-22 · 2134 UTC · Apex gains its third element — adaptation is continuous
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 163+1 -->
+- [2026-07-22 · 2134 UTC · Apex third element — adaptation is continuous (Fable)](2026-07-22-2134-apex-adaptation.md) — Mike's dictation encoded at the apex: **"Adaptation is continuous"** now sits between "Honesty is absolute" and the Laws (`f52c50f` — the literal reading of "just below honesty"); we actively learn and gather evidence through everything we do and adapt by improving ourselves and our tools (strategy, methods/solutions, process, what we do and say — or don't), because we can always be better and the environment keeps changing. Subordination rationale (adaptation runs on evidence; honesty makes evidence trustworthy) and grounding (EVIDENCE/REVIEW/RECORD/PROPAGATION as the running machinery, PRINCIPLES §6) are agent-authored — named as attackable in the intent record. README apex summary matched. Extended same session (`1da0a3e`, second dictation): **don't fear the hard road** — spending time and effort to learn from real evidence beats the quick route, binding on every session and every model — and **doctrine changes ride on proof** — design/doctrine decisions must be evidence-based, hard-fact proven, and repeatable so they can be challenged and contrasted (heading widened to **doctrine *and design*** on Mike's follow-up). Third exchange grounded both bullets in the **ros SSH worked case** (`8d25fb3`) — verified against the ros record before encoding: the "key dead fleet-wide / blame strict-crypto / swap-or-password" testimony collapsed under challenge; the bench campaign proved agent key-crowding, and the evidence-based fix went the opposite direction (stronger key kept, strict policy kept, password auth off); genericised for the public repo. **⏳ rule-4 review queued** (self-authored; this session barred from spawning); **[ ] apex-floor propagation to children** queued, gated on the review.
+
+
 **Intent record for the ⏳ review of `f52c50f` + `1da0a3e` + `8d25fb3`.**
 
 ## What Mike said (the dictation, 2026-07-22 UTC)

@@ -1,5 +1,11 @@
 # 2026-07-17 · 0918 UTC · ccarchive — integrity manifest + --verify
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 108+1 -->
+- [2026-07-17 · 0918 UTC · ccarchive — integrity manifest + --verify (Opus)](2026-07-17-0918-ccarchive-integrity-verify.md) — Mike: is there a verify mechanism — how do we know restored files haven't been mutated, sha256? Gap: gzip's CRC-32 only proves a `.gz` is self-consistent, nothing binds archived content to what was captured. Added a **sha256 manifest** (`<dest>/manifest.json`, `{sha256,rawBytes,archivedAt}` per transcript's raw bytes, atomic write, sorted keys) and **`--verify`** (re-hash every `.gz` vs manifest → mismatch/missing/unmanifested, non-zero exit on failure). Manifest tracks the *archive* not live sources (a pruned source keeps its hash; first run backfills existing files from source or by decompressing the `.gz`). Honest limit documented: it's the trust anchor (defends accidental corruption; keep a copy separate for tamper-resistance). +7 tests (25 total; known-answer sha256, tamper→exit 1, missing→exit 1, pruned-entry survives). Driven live: built a 428-entry manifest (~1.5 s) → `--verify` = 428 verified, 0 mismatched, 0 missing. Also answered: **no man pages** for the cc tools (—h/README only; whether to add is Mike's convention call, queued). No new review owed.
+
+
 ## What prompted it
 
 Mike: "Is there a verify mechanism? How do we know the files we restore from

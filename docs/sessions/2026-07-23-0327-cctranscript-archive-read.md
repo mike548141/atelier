@@ -1,5 +1,11 @@
 # 2026-07-23 · 0327 UTC · cctranscript reads the ccarchive archive
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 173+1 -->
+- [2026-07-23 · 0327 UTC · cctranscript reads the ccarchive archive (Fable, wt: cctranscript-archive-read)](2026-07-23-0327-cctranscript-archive-read.md) — Mike's direct ask: keep live logs the default, add an option to read ccarchive's mirror. Built `--archive` (+ `--dest`/`$CCARCHIVE_DEST`, resolution shared verbatim with ccarchive; `--dest` implies `--archive`): every view — list, render, `--json`, UUID/prefix, `-n`/`--repo` — works over `<dest>/<repo>/<uuid>.jsonl.gz`, one `readLogText` gunzip choke-point keeps parsers byte-format-blind, an explicit `.jsonl.gz` path needs no flag, transcripts carry `source: archive`. Eviction-aware: `--list` never reads an iCloud-dataless mirror (SF_DATALESS ported from ccarchive, same test seam; listed with an `evicted` marker, `--repo`-matched by folder suffix), rendering one chosen session deliberately faults it back. Suite 150→156 + 331 tools OK; man page + `--help` under the drift guard; smoke against the real archive (31-turn render, `source: archive`). README sourcing-seam paragraph half-closed; ccrepo half recorded open in ROADMAP § ccrepo; CHANGELOG + ROADMAP-DONE entries. No doctrine authored ⇒ no review pointer owed.
+
+
 **Model:** Fable · **Worktree:** cctranscript-archive-read · **Trigger:** Mike's
 direct ask — "Extend cctranscript so it reads from the live files as it does
 today by default, but has an option to read from the same archive that

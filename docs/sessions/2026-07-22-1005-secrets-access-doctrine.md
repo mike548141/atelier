@@ -1,5 +1,11 @@
 # 2026-07-22 · 1005 UTC · Access-management doctrine — SECRETS.md expansion, review queued ⏳ (Fable, wt: secrets-access-mgmt)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 159+1 -->
+- [2026-07-22 · 1005 UTC · access-management doctrine — SECRETS.md expansion; gap analysis captured; review queued ⏳ (Fable, wt: secrets-access-mgmt)](2026-07-22-1005-secrets-access-doctrine.md) — Mike's in-conversation rulings became doctrine (`caa85fe`): **one credential, one entity, one system** (per-system minting; revocation independence — "a shared credential is a shared fate"; identity/authenticator split — correlate by name, never by value; privilege-split within an entity, the `sudo` shape); **asymmetric keys graded, not exempt** (one key across systems acceptable, fleet-wide blast radius named); **replaceability absolute — hesitation is the tell**; **minting at max entropy** (Kerckhoffs on credential shape — a leaked example teaches nothing; imposed caps the only allowed pattern); **exposure: watch → roll on confidence → automated + rehearsed** (cadence doubles as rehearsal); **never scrub immutable history** (rolled = dead text; residue is shape, priced to zero by design). Mid-turn widenings grounded before citing: NIST SP 800-63B rev 4 (final 2025-07-31) + OWASP secrets cheat sheet cited as corroboration, the one cadence divergence owned; OWASP's store audit trail absorbed as the watch leg's third surface; NCSC collection + pasted secure-SDLC checklist deliberately NOT crammed in — captured as the ROADMAP **security gap analysis** (corroboration named, candidate gaps listed). ACCESS.md step 2: minted-fresh-for-this-domain. Scans green. **Rule 4: review queued `⏳`, author spawned nothing.**
+
+
 ## Trigger
 
 Mike opened with "let's talk security, in particular access management — we

@@ -1,5 +1,11 @@
 # Session — sixteen rulings: the three cold passes walked through and ruled
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 225+1 -->
+- [2026-07-29 · 1340 UTC · Verdict walk-through: EI1–EI6, FS1–FS5, HV1–HV5 all ruled — harvestscan shelf OVERTURNED, wire scoped advisory (Fable, inline on main)](2026-07-29-1340-sixteen-rulings-walkthrough.md) — the taker session's own three verdicts walked through one-by-one in plain language with per-option impacts, choices in popups. E6: EI1 build-precondition (advisory consumer), EI3 corrected from pre-ruling to proposals-at-pickup, rest accepted. B2+B3: all five accepted, FS1 both legs. B4: HV1 wires harvestscan scoped to net-bulk-delete (≥50 lines) advisory-only on the pass's own measurement — the builder's do-not-wire verdict overturned by evidence, not opinion; HV5 lapsed. Three applications owed, each queueing its own rule-4 pointer; the E6 application needs a neutral hand (this session authored the verdicts).
+
+
 - **Date:** 2026-07-29, 1340 UTC (same session as the three passes)
 - **Model:** Fable 5 (1M context), inline on `main`
 - **Ask:** Mike — "yes ask away", after the taker session offered the

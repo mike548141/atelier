@@ -1,5 +1,11 @@
 # 2026-08-15 · 1031 UTC · The reply gate unwired — the guard was the defect
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 272+1 -->
+- [2026-08-15 · 1031 UTC · The reply gate unwired — the guard was the defect (Opus, wt: plain-reply-unwired-0816)](2026-08-15-1031-reply-gate-unwired.md) — Mike asked why sessions kept repeating verdicts and summaries. Every near-duplicate reply in 12 hours of transcripts traced to one cause: `plain-reply.py`, the `Stop` hook ruled live on 2026-08-09. **A `Stop` hook cannot un-print** — Claude Code streams the reply to the terminal and the hook fires afterwards, so a block appends a second full copy instead of replacing it. 24 sessions active, 16 hit, 29 turns blocked, 6 of them twice, **~123,500 characters of verdicts reprinted**; the gate built for readability was the largest single source of unreadable output. The reply carrying this diagnosis was itself blocked, for naming a rule code while explaining that rule. Mike ruled it out: *"not just USELESS but DANGEROUSLY bad"* — unwire now, then roadmap **destroy it or repurpose it as a silent data collector** to find the root cause of unusable replies. Unwired first (machine-local settings, verified), then roadmapped with his ruling verbatim, and **the false premise corrected in all three places that asserted it** (hook docstring, `tools/README.md`, `COMMUNICATION.md`) — each claimed a blocked reply is rewritten *before the principal reads it*, and none had been checked against a terminal. Repo plane untouched (warn-only, no such failure mode). Two rules earned: **a machine-decidable rule can still have no machine-deliverable remedy** — prove the enforcement point can deliver the fix, not just spot the fault; and **an approval is not the whole ruling** — Mike's reservations at the 2026-08-09 recommendation were never recorded, only his *"switch it on, proposed"*, so the objections that predicted this failure were never tested against the build. ⏳ cold review queued.
+
+
 **Model:** Opus · **Worktree:** `plain-reply-unwired-0816`
 
 ## What Mike asked

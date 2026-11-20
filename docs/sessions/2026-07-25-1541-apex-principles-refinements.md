@@ -1,5 +1,11 @@
 # 2026-07-25 · coda · Apex + principles refinements and two raw notes (inline Opus, on `main`, no worktree)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 181+1 -->
+- [2026-07-25 · coda · Apex + principles refinements + two raw notes (Opus, conversational) — the cluster the 0645 entry left unclaimed](2026-07-25-1541-apex-principles-refinements.md) — six `main` commits (2026-07-24), doc/doctrine only. **economics `preferred`-not-`welcome`** (`6ecfce0`) — cheaper-model-that-passes is *first choice*, short of *required*; lone soft-modal spot, rest already directive. **apex: authority rooted in accountability** (`4af5f3b`, `⏳`) — RASCI *Accountable* names the source the informed-principal section assumed (funds it / attributed to him / liabilities land on him ⇒ decisions his *because consequences are*). **apex: Asimov's Zeroth Law** — numbering ambiguous in the ask, surfaced via decision-prompt previews; Mike ruled **renumber** (`572dddd`) then **changed his mind** to the unnumbered **Zeroth above the Three Laws** (`672e838`, `⏳`); "Three Laws" language + 1–3 numbers/wording kept ⇒ off-by-one cost void; READMEs swept. **principles: "Design the way out before the way in"** (`e29c49a`, `⏳`) — adopt a dependency only once its exit exists; twin of "build the way back before the way forward"; grounded in zero-dep tooling + browser-fetch. **Two raw notes** (`9ff507b`) — Laws-are-a-ladder (verbatim + transcript id, do-not-interpret) + complex-vs-complicated (glossary, later). Naming item (`tools/`→`checks/`) parked low-pri. **Open 🎯:** Zeroth subordination-clause micro-choice (originals kept verbatim; Asimov-faithful clauses a small edit if Mike wants). 3 new `⏳` review-owed, none spawned; child apex-floor propagation still gated. Floor green at head (sizescan `--check` 0, linkscan/leakscan/secretscan clean).
+
+
 The **apex/principles/economics cluster** the 0645 sibling entry
 (`sessions/2026-07-25-0645-doctrine-design-captures.md`) explicitly left
 unclaimed — six commits on `main` (2026-07-24, 14:42→15:41 UTC), small-commit-

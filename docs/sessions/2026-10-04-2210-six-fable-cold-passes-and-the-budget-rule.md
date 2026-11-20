@@ -1,5 +1,11 @@
 # 2026-10-04 · 2210 UTC — Six Fable cold passes, sized to the allowance, and the rule that budget never thins a review
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 316+1 -->
+- [2026-10-04 · 2210 UTC · Six Fable cold passes, sized to the allowance, and the rule that budget never thins a review (Fable 5.1 orchestrating, six Fable 5.1 reviewers, wt: review-1004)](2026-10-04-2210-six-fable-cold-passes-and-the-budget-rule.md) — Mike: *"Do all cold reviews and any other work dependent on fable"*, then the allowance he had left, then two enlargements. Six of seventeen queued rule-4 passes ran, each with its own fresh reviewer and full brief: 9 MAJOR across four (HL ccarchive's heal pulled, XR the exception-register design — not accepted as drafted, PI personal data by purpose, LN the linear line reader), two cycles closed (GW, BP). Three passes independently found guards disagreeing about what a line is when the separator is not LF. Nothing applied. Mike's rule that a review is never cut down to fit a budget is filed as `430/010`, with this session's own offer to share a reviewer recorded as the instance. Eleven small doctrine passes stay queued.
+
+
 **Tier:** Fable 5.1 (`claude-fable-5-1`) orchestrating; six Fable 5.1 reviewer
 subagents, one per pass. Both review seats on the principal-named tier, so rule
 4's off-tier clause was not invoked; the reviewer-plus-orchestrator shape is

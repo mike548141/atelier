@@ -1,5 +1,13 @@
 # 2026-07-22 · 0943 UTC · HI application cold pass — terminal, cycle CLOSED; HA1–HA5 to Mike (Fable, main)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 157+1 -->
+- [2026-07-22 · 0943 UTC · HI application cold pass — terminal 0 MAJOR, cycle CLOSED; HA1–HA5 to Mike (Fable, main)](2026-07-22-0943-hi-application-cold-pass.md) — the queued rule-4 pass on `30d350c` taken by a Mike-spawned "do any review work" session (author of none of the chain): claim → taker brief → proofs re-run (suite 319, selftest, live scan, red leg at `30d350c^`) → verdict committed before the deferred material → reconcile, nothing overturned. **PASS-WITH-FINDINGS 0M/2M/3L**: HA1 the HI-F1 bypass reaches non-content dirs (`node_modules`/`.venv` probed red — the conflation traced to the 0819 counsel, applied faithfully); HA2 the fence fix narrows its fail-open, doesn't close it (count=0 demo; the comment's "never hide one" overclaims); HA3–HA5 CI comments / template legend / RECORD.md wording. Terminal per the close rule — the cycle closes, 🎯 HA1–HA5 decided into the backlog for Mike; the stale interruption-resilience roadmap section harvested with the close.
+<!-- archivecut:log-entry docs/SESSIONS.md 158+1 -->
+- [2026-07-22 · addendum · HA1–HA5 ruled + applied; skip classes split, fence recount whole-file (Fable, main)](2026-07-22-0943-hi-application-cold-pass.md) — Mike: *"accept your recommendation on all of them"* ⇒ **HA1–HA5 [fixed]** in `120b777`: non-content dirs never scanned vs growth stores integrity-checked; unbalanced fences recount the whole file (the stray-delimiter window closed, comment now truthful); CI surfaces, template legend, RECORD.md wording fixed. Suite 319→323 green, red leg reds exactly the four new tests, probes re-driven, floors green. Stamps in the verdict; residue harvested — queue and 🎯 backlog empty.
+
+
 ## Provenance and sequence
 
 The queue's one `⏳` — the rule-4 application pass on delta `30d350c` — taken

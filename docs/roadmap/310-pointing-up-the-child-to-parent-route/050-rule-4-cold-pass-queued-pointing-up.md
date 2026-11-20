@@ -42,4 +42,4 @@
       *Intent record:* Mike's commission and his 2026-08-18 ruling on the
       child-side allowance, in
       [`roadmap/310-…/README.md`](README.md), with the session's account in
-      [`SESSIONS.md`](../../SESSIONS.md).
+      [`../../sessions/README.md`](../../sessions/README.md).

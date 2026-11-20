@@ -1,5 +1,11 @@
 # 2026-08-15 · 1129 UTC · The principal's authority is absolute; his rulings are conditioned (Fable, wt: authority-absolute-0815)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 273+1 -->
+- [2026-08-15 · 1129 UTC · The principal's authority is absolute; his rulings are conditioned on being informed (Fable, wt: authority-absolute-0815)](2026-08-15-1129-authority-absolute.md) — Mike corrected the apex: the old section put the informed-condition on the *authority* ("not exercisable uninformed"); his ruling — authority absolute, never overruled by the agent even when it believes him uninformed, and it must never decay; what being informed conditions is the *ruling*, challengeable on that basis and, even informed, by an independent review session. Section retitled and rewritten with the ruling verbatim in the board item; an "extracted approval" now stands as his word but is open to challenge — raised *to* him by re-briefing, never by declining to obey. Restatements aligned in RECORD, AUTONOMY, CONCURRENCY, REVIEW rule 3, and the child floor block + template stamp (stampscan identical). Children pick the floor change up at their next pin bump. Same sitting: Mike ruled the "surface a genuine dilemma; never silently resolve it" line back in as **honesty doctrine** (transparency is a necessity of honesty) — restored to the apex § Honesty, the floor block + stamp, and the session-onramp skill under honesty, not the removed Laws. Rule-4 Fable cold pass queued refs-only; this session queues and stops.
+
+
 **Mike's ruling, verbatim** (same session as the Laws removal, immediately
 after it):
 

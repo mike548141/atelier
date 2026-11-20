@@ -1,5 +1,11 @@
 # 2026-07-20 · 13:02 UTC · Session-onramp operating-rhythm doctrine
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 132+1 -->
+- [2026-07-20 · 1302 UTC · Session-onramp operating-rhythm doctrine (Opus, wt: atelier-session-onramp-review)](2026-07-20-1302-session-onramp-operating-rhythm.md) — Mike asked to review atelier + children + past sessions for how he works with Claude, offering ~7 candidate standing per-session instructions. **Reframe:** 6 of 7 are already grounded doctrine in `method/*`; the gap is **reach** — the only always-loaded surface (the standard child doctrine block, `PROPAGATION.md`) inlines the *safety floor* only, so claim/economics/close never reach a session. Paused mid-task at Mike's word while a sibling session (`atelier-concurrency-assume-parallel`) held the same docs; resumed after it landed `295d94a` + a second landed `62fe96a`, rebased, re-validated. **Authored (home docs, applied):** (A) `CONCURRENCY.md` — a live `[~]` claim **outranks a standing instruction** to take that item; (B) `MODEL-ECONOMICS.md` item 7 — **surface the session boundary** + **stop safely under overload**; (C) `RECORD.md` — the declare-the-close all-clear **carries its evidence**, not a bare "done" (Mike's session-close communication point). **Dropped** "think step-by-step" (ungrounded); **folded** "focus on given work" → "stay in your lane". **Applied:** the child-block **Session rhythm** cue now lives in `PROPAGATION.md` + `build/templates/CLAUDE.md` (Mike ruled *yes*, decoupled from the concurrency-flip catch-up, which stays the concurrency cycle's job). **Follow-on (Mike commissioned, fresh session):** *rebalance the size signal* — meter the hot path, gate only on relocatable cold content, never on live fulsomeness (reverses the 07-19 budget-gate ruling); captured on ROADMAP with full design direction; `main`'s floor left **deliberately RED** until it lands (the red is the false signal being fixed, not a defect). ⏳ **queued for independent review** (rule 4; author does not self-review).
+
+
 **Trigger.** Mike asked for a review of atelier + children + past sessions to
 improve how he works with Claude, and offered ~7 candidate standing instructions
 he keeps re-typing into child-repo sessions (think step-by-step · worktrees +

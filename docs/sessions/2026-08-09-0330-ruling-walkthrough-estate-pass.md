@@ -1,5 +1,11 @@
 # 2026-08-09 · 0330 UTC · The ruling walk-through, and the estate pass it launched
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 256+1 -->
+- [2026-08-09 · 0330 UTC · The ruling walk-through + the estate advisory-clearing pass (Fable orchestrating, six Opus workers in child repos)](2026-08-09-0330-ruling-walkthrough-estate-pass.md) — six of seven queued questions put to Mike one by one (C5 dropped mid-walk: a parallel session held it) and every ruling stamped at the moment it was made: G3 funded as its own item; the estate-wide advisory-count view funded and homed at the estate root; EP1(b)'s legacy exemption ruled bite-now and APPLIED (suite → 1202); the index question ruled up to the generic estate-wide mechanism, census-first, counsel recorded; D1's consequence ruled scoped-markers and APPLIED (the deliberate `local-term` hatch — full local-cover scan green for the first time since 2026-08-05, suite → 1207); the residue ruling round scheduled as a dedicated sitting. Ruling six launched the estate pass: live measurement first (the recorded 17-across-10 was stale — nine legacy advisories across seven repos), all six workers stopped correctly on the latent untracked-allowlist CI break (ruled 2026-07-29, never executed in children), gate corrected, and the second round retired EIGHT advisories outright + migrated one (review-by 2026-09-01), untracked the allowlist in eight repos (one further remote found archived, reset clean, recorded), with two live GitHub floor runs proving the latent break fixed. One concurrency incident recorded honestly (a broad-staged parallel commit swept a worker's in-flight edits — content correct, attribution muddled). Two self-migrated repos' own later dates surfaced to Mike rather than rewritten.
+
+
 - **Model**: Fable orchestrating (continuation of the 2026-08-06 run session);
   Opus workers ×6 across six child repos
 - **Worktrees**: none in atelier (records + two small ruled builds inline on

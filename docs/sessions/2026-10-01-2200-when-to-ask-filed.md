@@ -1,5 +1,11 @@
 # 2026-10-01 · 2200 UTC · When to ask — filed (Opus 5.5, main, in place)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 313+1 -->
+- [2026-10-01 · 2200 UTC · When to ask — filed (Opus 5.5, main, in place)](2026-10-01-2200-when-to-ask-filed.md) — Mike: questions stop runs he is not watching, the cache expires and work waits on him unseen; *"Its about when to ask rather than if."* Checked against `AUTONOMY` (whether), `COMMUNICATION` (how) and `CONCURRENCY` (record a blocking question) — none covers timing — so filed as new section `420`: both costs, the doctrine that makes asking a reflex, and a candidate shape (sort by what a question blocks, front-load, park and proceed, proceed on recoverable assumptions, floor never assumed, presence as a mode, make the wait visible). Filed, not built.
+
+
 **Ask.** Mike: capture as a doctrine improvement *how we handle questions to
 keep work flowing but minimise unnecessary work, wrong work, unapproved actions
 etc that may come from not asking questions. Its about when to ask rather than

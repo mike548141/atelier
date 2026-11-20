@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 29+1 -->
+- [2026-07-10 · parallel-work tooling: worktree.py (Opus)](2026-07-10-07-parallel-work-tooling-worktree.md) — tools/worktree.py (start/list/land/remove) delivering CONCURRENCY's worktree-per-line with the doctrine baked in as guards (iCloud-base refusal, stale/dirty flags, no-lose-work remove); 12 tests + live round-trip; Mike handed the recipe to run the method/ review as a parallel line.
+
 **2026-07-10 (Opus) — parallel-work tooling: `worktree.py`.** Session-start drift
 check fired: atelier had moved 4 commits past ros's pin (957fa08) — the leakscan
 build from the prior session, not doctrine drift; noted, pin bump left to a ros

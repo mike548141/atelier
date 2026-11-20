@@ -1,5 +1,11 @@
 # 2026-07-10 · session 16 — the post-method-review batch: brief written, gate raised (Opus)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 38+1 -->
+- [2026-07-10 · review brief: the post-method-review batch, gate raised (Opus)](2026-07-10-16-review-brief-post-method-batch.md) — non-stacking Opus move on the flagged review debt: wrote the consolidated Fable brief for the `957fa08..f72031c` batch (`docs/reviews/2026-07-10-post-method-review-batch.md`) — five doctrine docs (EVIDENCE §13/§14, build/REPO-STANDARD, build/REPO-BOUNDARY, method/SECRETS, method/ACCESS) + the scan-triad approach review, 16 grounded assumptions to attack (scan false-negative classes the highest-stakes, `--selftest`-first, ros cross-read as the real-world check). ROADMAP review-gate section supersedes the scattered Review-owed tags; create-repo rewire stays blocked until the verdict. ros pin 3ba6275→f72031c (drift check fired, records-only).
+
+
 **Model:** Opus 4.8 (plan pool). No build spend flag — this session authored a
 review brief and records, not doctrine or code.
 

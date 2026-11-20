@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 32+1 -->
+- [2026-07-10 · the fleet pin view: tools/pins.py (Opus)](2026-07-10-10-fleet-pin-view.md) — built the last method-review backlog finding (P2): a read-only roll-up of every child's atelier pin vs HEAD (current/behind/ahead/diverged/unknown/no-pin, --log/--json/--check), the fleet companion to PROPAGATION's per-child drift check; deliberately never bumps (bumping stays per-repo human-in-the-loop); 12 tests, suite 86→98; live-proven faves 9 behind, ros current; PROPAGATION caveat updated to name it observability-not-enforcement.
+
 **2026-07-10 (Opus) — the fleet pin view: `tools/pins.py`.** Built the last open
 method-review [backlog] finding (P2), the mechanism-tier companion to
 PROPAGATION's per-child drift check. **The gap it closes:** the drift check is

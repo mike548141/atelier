@@ -1,5 +1,11 @@
 # 2026-11-20 · 0915 UTC — The board's next shape: open-only index, archives cut into the store, every repo on the board
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 371+1 -->
+- [2026-11-20 · 0915 UTC · The board's next shape: open-only index, archives cut into the store, every repo on the board (Opus 5.5, principal-opened)](2026-11-20-0915-board-doctrine-and-fleet-cut.md) — `010/210`, `220`, `230`, `240` built; nineteen children rebuilt, fifteen archives cut byte for byte (atelier's included), three repos given a board; three cold passes queued for Fable approval; no Fable used
+
+
 **Session:** `19378351`, Claude Opus 5.5, opened by the principal in the VS Code extension
 with a question about how the board works. Orchestrator; workers on Opus 5.5 (`010/210`,
 `010/220`) and Sonnet 5.5 (`010/240`) in their own worktrees; children's work run as

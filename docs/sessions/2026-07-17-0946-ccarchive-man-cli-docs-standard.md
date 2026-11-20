@@ -1,5 +1,11 @@
 # 2026-07-17 · 0946 UTC · man pages + the CLI-docs standard, ccarchive worked example
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 110+1 -->
+- [2026-07-17 · 0946 UTC · man pages + the CLI-docs standard (Opus)](2026-07-17-0946-ccarchive-man-cli-docs-standard.md) — Mike: I want both man pages and `--help` for CLI tools (man fuller/plain-language + examples; `--help` far more concise), and **capture the roles of each in atelier as doctrine children inherit**. Added the convention to `build/REPO-STANDARD.md` (§ Repo-craft conventions): `--help` = one-screen digest pointing at the manual; `man <tool>(1)` = the full plain-language reference (FILES/EXAMPLES/NOTES); the page is the superset so detail lives in one place and can't drift; ship roff in `man/`, installer publishes to MANPATH. Worked example landed with it: **`instruments/man/ccarchive.1`** (full manual, lints clean under `mandoc`), `ccarchive --help` trimmed 40→18 lines, and `instruments/install` now publishes man pages to `~/.local/share/man/man1` (auto-found via PATH) — fixing a latent bug where the bin loop symlinked *directories* (`man/`/`fixtures/`/`browser-fetch/`) into `~/.local/bin`. Also roadmapped Mike's four future ccarchive features (local-store audit; full/delta restore; **iCloud dataless/`SF_DATALESS` awareness**; **sign the manifest** → tamper-evident) + man rollout to cctranscript/ccrepo (ccrepo after v2). +2 tests (67 total). Self-authored doctrine ⇒ ⏳ cold review queued (rule 4). ccrepo left untouched (parallel session).
+
+
 ## What prompted it
 
 Two Mike asks in one thread:

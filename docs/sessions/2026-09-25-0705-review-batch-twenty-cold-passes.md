@@ -1,5 +1,11 @@
 # 2026-09-25 · 0705 UTC — Review batch: every queued rule-4 pass, in one run
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 311+1 -->
+- [2026-09-25 · 0705 UTC · Review batch — every queued rule-4 pass in one run: twenty verdicts, nine MAJORs (Fable 5.1 orchestrating, twenty Fable 5.1 reviewers, wt: review-batch-0925)](2026-09-25-0705-review-batch-twenty-cold-passes.md) — Mike: *"Please deliver all fable dependent work, and work that would be best delivered using fable."* All twenty `⏳` pointers claimed in one commit on `main`, twenty refs-only briefs generated from one template with every evaluative account held in uncommitted `.deferred.md` siblings, reviewers in four waves under the two-phase partition, twenty per-pass closes merged `--no-ff` and pushed (`63ae645`). 🔎 **Eight cycles stay OPEN on nine MAJORs** — among them a silent-green in two enforced staged-plane guards under `diff.noprefix` (RC1), ADR 0008 misstating `main`'s live ruleset (AR1), a stamped floor bullet that lets a private child name itself (RU1), and the harness handing every reviewer the orchestrator's own scratchpad (SK1, measured on this batch itself — the siblings were moved out mid-run). Twelve cycles close on no MAJOR. 209 findings in all (counts corrected 2026-09-26 — first written as ten/nine/eleven/210); **nothing applied — every one is Mike's to rule.** The 2026-09-20 run's missing index line added above by the recovery sweep.
+
+
 **Tier:** Fable 5.1 (`claude-fable-5-1`) orchestrating; twenty Fable 5.1
 reviewer subagents, one per pass. Both seats on the principal-named tier, so
 rule 4's off-tier clause was not invoked; the reviewer-plus-orchestrator shape

@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 36+1 -->
+- [2026-07-10 · build/ layer opened + secrets doctrine (Opus)](2026-07-10-14-build-layer-opened-secrets-boundary.md) — three grounded doctrine docs, each pointing up to method/ not copying it: `build/REPO-STANDARD.md` (A10 — the create-repo standard extracted: product-in-subfolder, sizing-to-type, honest-CI, the two processes; instance specifics stay in the skill), `method/SECRETS.md` (reproducible/re-mintable secrets → detect→rotate→burn-cost-is-minutes; closes AUTONOMY's forward-reference; slotted method/README #5), `build/REPO-BOUNDARY.md` (is-this-a-repo by independent-lifecycle discriminators → standalone/component/monorepo-folder; prefer reversible when ambiguous). Skipped the skill-rewire deliberately (don't stack delivery on unreviewed text). All review-owed; ros pin left at 3ba6275.
+
 **2026-07-10 (Opus) — build/ layer opened + the secrets doctrine.** Mike: "keep
 going on Atelier work until economics says start a new session." Extraction
 section was closed last session; the next sequenced theme is the **build/ layer**.

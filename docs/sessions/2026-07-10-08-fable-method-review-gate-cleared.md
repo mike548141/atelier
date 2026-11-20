@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 30+1 -->
+- [2026-07-10 · the gated method/ review: PASS-WITH-FINDINGS, gate cleared (Fable)](2026-07-10-08-fable-method-review-gate-cleared.md) — whole method/ layer reviewed at 957fa08; 10 findings [fixed] (trust-surface floor gap, REVIEW reframed to independence-as-core — the "Fable is the cheaper tier" premise was wrong), 3 [backlog] (pin view, ADRs, SESSIONS split); extraction unblocked, ros trim guidance in lens-1 answer 12.
+
 **2026-07-10 (Fable) — the gated method/ review: PASS-WITH-FINDINGS, gate
 cleared.** Ran the briefed review of the whole `method/` layer (PROPAGATION,
 EVIDENCE, REVIEW, RECORD, PRINCIPLES) at `957fa08`; verdict below the divider in

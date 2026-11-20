@@ -1,3 +1,8 @@
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 37+1 -->
+- [2026-07-10 · access-onboarding doctrine + licence gate (Opus)](2026-07-10-15-access-doctrine-licence-gate.md) — two non-stacking items: `method/ACCESS.md` (safe-access-onboarding runbook — sequences AUTONOMY/DATA-PROTECTION/SECRETS into grant-recorded→narrowest-cred→store-first→read-only-first-ring→destructive-gate-before-power→widen-in-rings→Zero-Trust; method/README #6) and `tools/licenscan.py` (A11 — pre-publish licence-consistency gate completing the leakscan·secretscan·licenscan triad; 3 checks, copyleft-into-permissive blocks; `--expect <SPDX>`; caught a real line-number bug + its own self-scan in the build; 35 tests, suite 98→133, atelier clean at Apache-2.0). A5 SBOM/signing deferred (tool-install floor + zero-dep break). ros pin left at 3ba6275; **review debt now the standout — next session a strong Fable-sweep candidate.**
+
 **2026-07-10 (Opus) — safe-access-onboarding doctrine + the licence gate.** Mike:
 "keep going on Atelier work until economics says start a new session." Session 14
 closed with a growing review batch and the sequencing note *don't stack delivery

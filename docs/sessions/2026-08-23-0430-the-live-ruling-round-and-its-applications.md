@@ -1,5 +1,11 @@
 # 2026-08-23 · 0430 UTC · The live ruling round, and its applications
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 298+1 -->
+- [2026-08-23 · 0430 UTC · The live ruling round, and its applications (Fable, wt: ruling-round-0823)](2026-08-23-0430-the-live-ruling-round-and-its-applications.md) — Mike's *"use askuserquestion for any rulings, questions, decisions required in the repo"* + *"pick up where you left off"*: the four open cycles' 44 findings put to him through structured asks — he took all four rounds, and mid-round set the course with the steer now verbatim in the DA verdict (over-thinking/over-engineering worry; the device used well — plain language, thought-out options and implications, a recommendation). 🎯 **Every finding ruled**: DA corrections + ONE folded paragraph; BW1's re-briefing (the hook condition said straight, five surfaces); PT1 homed in the registry folded with `115/120`; AP1 re-worded to the truth by appended ADR amendment with the machine-checked boundary funded (`115/180`), branch protection declined informed; FR2 records-excluding pathscan default, built into the tool. One ask re-put in lay terms after *"I dont understand this"* — the plain version ruled first try. 🚀 **All four applications landed the same sitting** (four commits, full floor each): rulings recorded and merged FIRST (PR #51) so no ruling could die with the session; suites 1,351 Python + 235 node green; the one staled precommit assertion updated to the new, earlier AP4 refusal. ✅ `160/080` closed terminal; ⏳ four application passes queued for non-author Fable sessions (`160/270`, `160/260`, `300/040`, `160/090`); 🎯 three new funded items (`115/180`, `020/340`, `020/350`).
+
+
 **Tier:** Fable (`claude-fable-5`). **Worktree:** `ruling-round-0823`.
 **Commission:** Mike — *"use askuserquestion for any rulings, questions,
 decisions required in the repo"*, then *"pick up where you left off"* —

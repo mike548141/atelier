@@ -1,5 +1,11 @@
 # 2026-11-18 · 0740 UTC — One command prefix and one home: assessed, nothing moved
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 368+1 -->
+- [2026-11-18 · 0740 UTC · One command prefix and one home: assessed, nothing moved (Opus 5.5, principal-opened)](2026-11-18-0740-one-prefix-assessment.md) — the plugin's commands already carry `/atelier:`; two user-level ones hold private estate content, so the route is the `210/440` switch; thirteen homing candidates sized on the board as `450/010`; then, on his answers, rows 1, 3–10, 13 and 14 built or switched, the drain held for its review
+
+
 **Session:** `84b7932e`, Claude Opus 5.5, principal-opened in the primary checkout. No
 review-tier model was used and no review was run or briefed.
 

@@ -1,5 +1,13 @@
 # 2026-07-13 · 11:30 — record identifiers go coordination-free (Fable)
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 76+1 -->
+- [2026-07-13 · record identifiers go coordination-free (Fable)](2026-07-13-1130-coordination-free-record-ids.md) — Mike challenged session 52's counter-keeping carve-out within minutes of it landing: the running number means nothing to him beyond chronology (the date already gives that), and mid-turn extended the ruling to ADRs and every similar series. The reframe: session 52 disciplined the shared counter; this removes it — identifiers are built from facts the session already owns (**date + slug**, plus `HHMM` start time where same-day order matters), so the silent-collision class is structurally gone: worst case is two sessions wanting the same *filename*, a visible trivial conflict. Reviews had already drifted to date+slug in practice, zero incidents. Codified (`93e3e85`): ADR `2026-07-13-coordination-free-record-identifiers` (first record named under the scheme it decides); CONCURRENCY's bullet rewritten (counter rules demoted to interim discipline for legacy repos); RECORD's session spec now `<date>-<HHMM>-<slug>`; child block + template together; REPO-STANDARD + decisions/reviews READMEs + ADR template (renamed off `0000-`) all recast. History never renumbered — ADR 0001–0007 and sessions through 52 keep their names. Children adopt at their next pin bump.
+<!-- archivecut:log-entry docs/SESSIONS.md 77+1 -->
+- [2026-07-13 · addendum: HHMM everywhere, interim counter rules retired (Fable)](2026-07-13-1130-coordination-free-record-ids.md) — the same conversation, two refinements from Mike (`11ef17b`, addendum in the session file and on the ADR): **one uniform form** — `YYYY-MM-DD-HHMM-slug.md` for every record series, ADRs and reviews included, dropping the per-series judgement clause; and the **interim counter rules retired** — hours old, zero adopters, and undeliverable by construction (the pin bump that would carry the interim discipline carries the coordination-free rule in the same block), so keeping them bought no coverage and invited two-scheme confusion. The drift test fired for real along the way: angle brackets in the child block are reserved for create-repo fill placeholders, so the pattern is spelled literally.
+
+
 The same conversation as session 52, reopened minutes after it closed: Mike
 challenged the counter-keeping carve-out in the fix just landed ("keep a
 counter only where the running number itself carries meaning") — the running

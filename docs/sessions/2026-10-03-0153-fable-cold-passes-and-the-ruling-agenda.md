@@ -1,5 +1,11 @@
 # 2026-10-03 · 0153 UTC — Fable cold passes on the queue run's work, and the ruling-round agenda
 
+**From the retired session log**, word for word; only its link paths were re-pointed for this folder:
+
+<!-- archivecut:log-entry docs/SESSIONS.md 315+1 -->
+- [2026-10-03 · 0153 UTC · Fable cold passes on the queue run's work, and the ruling-round agenda (Fable 5.1 orchestrating, seven Fable 5.1 reviewers, wt: atelier-review-430)](2026-10-03-0153-fable-cold-passes-and-the-ruling-agenda.md) — Mike: *"Do all cold reviews and any other work dependent on fable"*. atelier had no unrun pass at open; seven rule-4 passes then ran on a peer queue run's own deltas (160/430–490): 4 MAJOR · 20 MODERATE across seven verdicts, three cycles OPEN (MC, DK, PL), nothing applied. MC1 is the one not to leave: ccarchive's new heal can overwrite the good archived copy with `--verify` green. Also filed: a nine-sitting ruling-round agenda over 81 open 🎯 items and every unruled finding, and a fleet survey of Fable-dependent work kept user-local. Recorded against itself: the review worktree was cut before four deltas landed, one verdict rode in another pass's commit, and the economics self-check was never made until Mike asked.
+
+
 **Tier:** Fable 5.1 (`claude-fable-5-1`) orchestrating; seven Fable 5.1 reviewer
 subagents, one per pass; read-only inventory and survey subagents on Opus. Both
 review seats on the principal-named tier, so rule 4's off-tier clause was not
