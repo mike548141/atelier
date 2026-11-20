@@ -57,7 +57,8 @@ stopped instead of re-deriving it:
   the roadmap, the index may **rotate**. The recent tail stays in
   `SESSIONS.md`; older entries relocate **verbatim** to a `SESSIONS-ARCHIVE.md`
   growth store (grepped on demand, never loaded whole) — the same
-  current-truth/history split as `ROADMAP`→`ROADMAP-DONE`. (Grounded
+  current-truth/history split the board makes (its frozen pre-split
+  archive, once `ROADMAP-DONE.md`, is cut into the store since `010/220`). (Grounded
   2026-07-14: the cold review found the append-only rule and a size budget
   colliding with no sanctioned move for an index that had already done the
   split; Mike decided the move.) **A reading cost owes a rotation, never a
@@ -420,8 +421,11 @@ a summary table of sections (open, claimed, waiting on the principal and
 review-queued counts) and only the unfinished items beneath, and a section
 with nothing owed keeps its table row alone (`010/210`, 2026-11-20). The
 read at session open is then what is owed, not the board's whole history; the
-legend is in `roadmap/README.md`. Pre-split completed detail stays frozen in
-`ROADMAP-DONE.md` (append-only, grepped on demand). A repo that has not
+legend is in `roadmap/README.md`. Pre-split completed detail, once the frozen
+`ROADMAP-DONE.md`, is cut entry by entry into the section
+`docs/roadmap/990-done-before-the-split/` by `tools/archivecut.py`, proven
+byte for byte, or moved there whole where the proof fails (`010/220`,
+2026-11-20). A repo that has not
 adopted the split keeps the monolithic form; the relocation discipline for it
 — completed detail out of the hot path, specs grepped on demand — remains as
 it was, and `sizescan` still polices it.
@@ -447,15 +451,16 @@ same duty at the general layer.
 
 This is one pattern the whole record shares: **current-truth files stay lean;
 history relocates to an on-demand store.** SESSIONS (index + `docs/sessions/`),
-the board (generated index + per-item files; pre-split detail in
-`ROADMAP-DONE.md`), a README that points into `docs/` — the same
+the board (generated index + per-item files; pre-split detail in its own
+archive section), a README that points into `docs/` — the same
 shape. The discipline decays silently, though: the split gets done once by hand,
 then nothing fires when a file bloats again. So, for the one form a machine
 can name, it carries a **signal** — `tools/sizescan.py`. Cost is size ×
 read-frequency (Mike's ruling, 2026-07-20),
 so the signal keys on **relocatable cold content on the hot path**, not length:
 it **gates** on a completed `[x]` item in a checkbox-worklog file (a done item
-belongs in `ROADMAP-DONE.md`; left inline it is pure cost with a lossless fix),
+belongs in its own item file in the store; left inline it is pure cost with
+a lossless fix),
 and does not report line count at all (Mike's ruling, 2026-10-05: no arbitrary
 size limits; the old length advisory was removed 2026-10-16), because a file
 long purely from live current-truth has nothing to relocate. Resolved narrative
