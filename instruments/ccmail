@@ -1247,6 +1247,12 @@ async function cmdGet(messageId, selector, opts) {
 // returns only the headers it is asked for and never the body, so this mode
 // asks for exactly the list below and nothing else. Subject is deliberately
 // not on it: a route measurement has no use for what the mail was about.
+//
+// The second group names the system that made or relayed the message (a mail
+// client, an application, a bulk sender, a gateway, a platform's own stamps),
+// and the top-level Content-Type and labels say whether the content itself was
+// signed or encrypted (S/MIME, OpenPGP) or carries a protective marking. None
+// of them is the body; Content-Type is the outermost header only.
 // ---------------------------------------------------------------------------
 
 const TRANSPORT_HEADERS = [
@@ -1254,6 +1260,19 @@ const TRANSPORT_HEADERS = [
   'Received', 'Received-SPF',
   'Authentication-Results', 'ARC-Authentication-Results',
   'DKIM-Signature',
+  // which system made or relayed it
+  'Message-ID', 'Return-Path', 'Sender', 'Delivered-To', 'X-Original-To',
+  'X-Mailer', 'User-Agent', 'X-MimeOLE', 'X-Originating-IP',
+  'X-Google-Smtp-Source', 'X-SES-Outgoing', 'Feedback-ID', 'X-Report-Abuse',
+  'X-Mailgun-Sid', 'X-SG-EID', 'X-MC-User', 'X-PHP-Originating-Script',
+  'X-OriginatorOrg', 'X-MS-PublicTrafficType', 'X-MS-TrafficTypeDiagnostic',
+  'X-MS-Exchange-Organization-AuthAs', 'X-MS-Exchange-Organization-AuthSource',
+  'X-MS-Exchange-CrossTenant-AuthAs', 'X-MS-Exchange-CrossTenant-FromEntityHeader',
+  'X-MS-Exchange-CrossTenant-Id', 'X-Forefront-Antispam-Report',
+  'List-Id', 'List-Unsubscribe', 'Precedence', 'Auto-Submitted',
+  'ARC-Seal', 'X-Forwarded-To', 'X-Forwarded-For',
+  // whether the content is signed, encrypted or marked
+  'MIME-Version', 'Content-Type', 'msip_labels', 'X-Protective-Marking',
 ];
 
 function transportRequest() {
@@ -1271,7 +1290,9 @@ function transportText(message) {
     .filter((h) => want.has(String(h.name).toLowerCase()));
   const lines = [`# ccmail transport headers · message ${message.id || ''}`,
     `# fetched ${new Date().toISOString()} · format=metadata, no body requested`,
-    `# internalDate ${message.internalDate ? new Date(Number(message.internalDate)).toISOString() : ''}`, ''];
+    `# internalDate ${message.internalDate ? new Date(Number(message.internalDate)).toISOString() : ''}`,
+    `# sizeEstimate ${Number.isFinite(Number(message.sizeEstimate)) ? Number(message.sizeEstimate) : ''}`,
+    `# labels ${(Array.isArray(message.labelIds) ? message.labelIds : []).map((l) => String(l).replace(/[^\w-]/g, '')).join(',')}`, ''];
   for (const h of hs) lines.push(`${h.name}: ${String(h.value).replace(UNSAFE_HEADER_CHARS, ' ')}`);
   return lines.join('\n') + '\n';
 }
@@ -1392,8 +1413,9 @@ OUTPUT
   --text            also write a .txt sidecar for .docx/.xlsx/.pptx
   --json            machine-readable
   --limit <n>       --search result cap (default 10)
-  --headers         Received, authentication results and DKIM-Signature only,
-                    fetched with format=metadata: no body, no subject
+  --headers         Received, authentication results, DKIM-Signature, the
+                    sending-system stamps and the outer Content-Type, plus
+                    size and labels; format=metadata: no body, no subject
 
 NOTES
   Attachment bytes are never printed — ccmail writes files and gives you paths.

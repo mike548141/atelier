@@ -287,10 +287,19 @@ every
 .IR Received ,
 .IR Received\-SPF ,
 .IR Authentication\-Results ,
-.I ARC\-Authentication\-Results
+.IR ARC\-Authentication\-Results ,
+.IR DKIM\-Signature ,
+the headers that name the system that made or relayed the message
+.RI ( Message\-ID ,
+.IR X\-Mailer ,
+.IR User\-Agent ,
+platform and bulk\-sender stamps, list headers), and the outermost
+.IR Content\-Type ,
+.I msip_labels
 and
-.IR DKIM\-Signature .
-They are fetched with Gmail's
+.IR X\-Protective\-Marking ,
+which show whether the content was signed, encrypted or marked. The file's
+comment lines also carry the message's size estimate and labels. They are fetched with Gmail's
 .I format=metadata
 and that header list, so no body is requested and the subject is never
 fetched. It measures a mail route (the hops a message crossed, the TLS each

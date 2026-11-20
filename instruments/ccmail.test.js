@@ -863,6 +863,23 @@ test('transportText keeps every Received hop in order and drops headers it was n
   assert.ok(text.includes('DKIM-Signature: v=1; d=example.test; s=sel'));
 });
 
+test('the headers read also names the sending system and the content type, and still never the subject', () => {
+  const names = cc.transportRequest().metadataHeaders.map((h) => h.toLowerCase());
+  for (const h of ['message-id', 'x-mailer', 'user-agent', 'content-type', 'x-protective-marking']) {
+    assert.ok(names.includes(h), `${h} is asked for`);
+  }
+  assert.ok(!names.includes('subject') && !names.includes('thread-topic'));
+});
+
+test('transportText records the message size and labels as comment lines', () => {
+  const m = { id: 'x', sizeEstimate: 4321, labelIds: ['INBOX', 'CATEGORY_UPDATES', 'bad label\n'], payload: { headers: [] } };
+  const text = cc.transportText(m);
+  assert.ok(text.includes('# sizeEstimate 4321\n'));
+  assert.ok(text.includes('# labels INBOX,CATEGORY_UPDATES,badlabel\n'));
+  const bare = cc.transportText({ id: 'y', payload: { headers: [] } });
+  assert.ok(bare.includes('# sizeEstimate \n') && bare.includes('# labels \n'));
+});
+
 test('transportText neutralises control and bidirectional characters a sender planted', () => {
   const m = { id: 'x', payload: { headers: [{ name: 'Received', value: 'from a\x1b[31m by b‮ evil\r\nX: y' }] } };
   const line = cc.transportText(m).split('\n').find((l) => l.startsWith('Received:'));
