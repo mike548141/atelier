@@ -25,3 +25,12 @@
       record-path rule. Rides on the `160/1680` pass's delta when built.
       *Note 2026-11-20:* item 2 is moot since `010/270` retired the session
       index; the tool writes no index line now.
+      *Note 2026-11-20, from the session-log retirement run (23 children):*
+      item 2 came back in a new form. The label line the tool writes above
+      each placed entry ("**From the retired session log**, word for word;
+      …") is 101 columns, so `wrapscan` refused the first commit in about
+      ten children. Each exempted its session folder in `.wrapscanignore`
+      (atelier already exempts `docs/sessions/`), some the whole folder and
+      some `docs/sessions/2*.md`. No proof was weakened, but the line should
+      fit the limit for any repo cut later, and the exemptions now differ
+      from child to child. Item 5 also recurred (one child: a copied title).

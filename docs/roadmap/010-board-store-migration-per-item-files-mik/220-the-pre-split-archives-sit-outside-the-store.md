@@ -1,4 +1,4 @@
-- [ ] **The pre-split archives sit outside the board's store.** Filed
+- [x] **The pre-split archives sit outside the board's store.** Filed
       2026-11-20 by session 19378351. `ROADMAP-DONE.md` was frozen at the
       split (2026-08-15) and still sits in `docs/` in this repo and in about
       a dozen children; three children also keep a `SESSIONS-ARCHIVE.md` in
@@ -42,3 +42,11 @@
       `[x]` entries to cut); all three session archives would cut.
       **Still owed, so this stays open:** each child's own cut, run in that
       child by the health sweep (`010/230`), then `--verify` there.
+      **Closed 2026-11-20** (session 19378351): every child's own cut ran
+      in that child through the health sweep. Eleven board archives cut to
+      item files and one moved whole; the session archives cut with the
+      session-log retirement (`010/270`). Each proved byte for byte and
+      `--verify` passed in the child. Read from every child's
+      `origin` head the same day: no `ROADMAP-DONE.md` or
+      `SESSIONS-ARCHIVE.md` is left in any `docs/`. Rough edges the runs
+      met are in `010/280`.
