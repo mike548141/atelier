@@ -1,4 +1,4 @@
-- [ ] 🎯 **The session-index rotation rule names a store the archive cut
+- [ ] **The session-index rotation rule names a store the archive cut
       retires.** Filed 2026-11-20 by session 19378351. RECORD.md § *The
       session log* lets the index rotate: older index lines move verbatim to a
       `SESSIONS-ARCHIVE.md` growth store. On 2026-11-20 the principal picked
@@ -15,3 +15,11 @@
       place"*. So no route that keeps a growing session file stands: neither
       an archive file nor, read plainly, the hand-appended index itself. The
       reading and its shape are being put back to him before any build.
+      **Answered 2026-11-21 UTC** (his pick from offered options, an answer):
+      *"Retire SESSIONS.md"*: no index file at all; the date-named
+      `docs/sessions/` folder is the index, and a session starts by reading
+      the newest few files. The rotation rule goes with it. **Owed:** each
+      index line moves word for word into its session file (proved by
+      script), `SESSIONS.md` is removed, and every rule, tool, template and
+      skill that reads or appends to it changes; atelier first, then the
+      health sweep carries it to the children.
