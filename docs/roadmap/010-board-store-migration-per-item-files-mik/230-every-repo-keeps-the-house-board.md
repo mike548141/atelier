@@ -1,4 +1,4 @@
-- [ ] 🎯 **Every repo keeps the house board, and the health sweep enforces
+- [ ] **Every repo keeps the house board, and the health sweep enforces
       it.** Filed 2026-11-20 by session 19378351. Mike's words, 2026-11-20:
       *"I want all repos to use the doctrine way of managing work on its
       board. If the repo is archived or a fork of someone elses repo then it
@@ -19,3 +19,11 @@
       settled. Worker runs wait until he closes the board discussion (his
       words: *"first lets finish discussing how we manage the board and then
       also look at all other similar use cases like the SESSIONS file"*).
+      **Answers 2026-11-20** (Mike's picks from offered options, answers,
+      not rulings in his words): the never-adopted repo is to be *"Adopt it
+      fully"*; and `CHANGELOG.md` stays one file, *"Keep one file, exempt
+      (Recommended)"*: a release log in a standard format that readers of
+      the public repos expect, not read at session start, so healthy item
+      6 names it as an exemption rather than leaving it a question. The
+      session log needs no change: it is split everywhere, and its index is
+      tail-read.

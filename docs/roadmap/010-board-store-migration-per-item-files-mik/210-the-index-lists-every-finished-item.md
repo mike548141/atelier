@@ -1,4 +1,4 @@
-- [ ] 🎯 **The index lists every finished item, so finished work is read at
+- [ ] **The index lists every finished item, so finished work is read at
       every session start.** Filed 2026-11-20 by session 19378351. The
       generated `ROADMAP.md` carries one line per item whatever its state,
       and nothing in `tools/board.py` collapses a finished section. Measured
@@ -19,3 +19,12 @@
       review-queue reader and others), and sections are uneven (one board
       holds 290 open items in six sections), so a sections-only index does
       not bound what a session reads there. Build waits for his pick.
+      **Shape picked 2026-11-20** (Mike's pick from offered options, an
+      answer, not a ruling in his words): *"Summary + open only
+      (Recommended)"*: a table of sections at the top (open, claimed,
+      waiting on him, review-queued counts per section), then only the
+      unfinished items; an all-done section takes one line. The sections-only
+      index he floated is not taken now. **Owed:** the generator, its tests,
+      the legend in `roadmap/README.md` and RECORD.md § *The roadmap*, and a
+      rollout that does not turn every child's `board` check red the day the
+      generator changes (children run atelier's tools from `main`).

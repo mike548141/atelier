@@ -1,4 +1,4 @@
-- [ ] 🎯 **The pre-split archives sit outside the board's store.** Filed
+- [ ] **The pre-split archives sit outside the board's store.** Filed
       2026-11-20 by session 19378351. `ROADMAP-DONE.md` was frozen at the
       split (2026-08-15) and still sits in `docs/` in this repo and in about
       a dozen children; three children also keep a `SESSIONS-ARCHIVE.md` in
@@ -21,3 +21,8 @@
       lossless. Both repoint links inside records, which changes a path and
       never the words. Design to be settled with him before any build;
       atelier goes first as the worked example.
+      **Route picked 2026-11-20** (Mike's pick from offered options, an
+      answer): *"Split, fall back to move (Recommended)"*, covering both
+      `ROADMAP-DONE.md` and `SESSIONS-ARCHIVE.md`: route (a) with the
+      lossless proof, route (b) for any repo where the proof fails; atelier
+      first as the worked example, then the health sweep carries it.
