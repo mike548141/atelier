@@ -9,13 +9,13 @@
       (one choice: a dated index file inside `docs/sessions/`, so nothing
       returns to `docs/`). No repo has rotated since the split, so nothing is
       blocked meanwhile.
-      **His reply, 2026-11-21 UTC** (typed in answer to the three offered
+      **His reply, 2026-11-20 UTC** (typed in answer to the three offered
       routes, so an answer, not a ruling): *"This does not sound like
       doctrine, they should not be in one big sessions file in the first
       place"*. So no route that keeps a growing session file stands: neither
       an archive file nor, read plainly, the hand-appended index itself. The
       reading and its shape are being put back to him before any build.
-      **Answered 2026-11-21 UTC** (his pick from offered options, an answer):
+      **Answered 2026-11-20 UTC** (his pick from offered options, an answer):
       *"Retire SESSIONS.md"*: no index file at all; the date-named
       `docs/sessions/` folder is the index, and a session starts by reading
       the newest few files. The rotation rule goes with it. **Owed:** each
@@ -24,9 +24,9 @@
       skill that reads or appends to it changes; atelier first, then the
       health sweep carries it to the children.
       **DONE in atelier, 2026-11-20 UTC** (a worker of session 19378351,
-      Opus 5.5). A dating note first: the answer above was given at about
-      20:25 UTC on 2026-11-20 (`5d82e25a`); "2026-11-21" is the New Zealand
-      date, so the work below carries 2026-11-20. `b68cf410`:
+      Opus 5.5). A dating note first: the two lines above first said
+      "2026-11-21", the New Zealand date; the answer came at about 20:25 UTC
+      on 2026-11-20 (`5d82e25a`), and they are corrected to it. `b68cf410`:
       `tools/archivecut.py` retires the index, and any frozen session
       archive, into `docs/sessions/`, files only. Each entry goes word for
       word into the session file it links, right after that file's `# `

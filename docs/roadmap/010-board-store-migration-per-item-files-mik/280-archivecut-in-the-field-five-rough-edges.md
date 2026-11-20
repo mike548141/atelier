@@ -23,3 +23,5 @@
          blocking 2027-02-08. Moved records should be read as records.
       **Owed:** fix 1–4 in the tool and `board.py`; decide 5 with `attribscan`'s
       record-path rule. Rides on the `160/1680` pass's delta when built.
+      *Note 2026-11-20:* item 2 is moot since `010/270` retired the session
+      index; the tool writes no index line now.

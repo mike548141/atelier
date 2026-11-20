@@ -1442,7 +1442,7 @@ def load_declared_roots(root: Path) -> list[str]:
 # `010/290` removes it once none does.
 RECORDS_GLOBS = ["docs/SESSIONS.md", "docs/sessions", "docs/ROADMAP-DONE.md",
                  "docs/roadmap/990-done-before-the-split",
-                 "docs/reviews", "CHANGELOG.md"]
+                 "docs/reviews", "docs/method/census", "CHANGELOG.md"]
 
 
 def _rel(p: Path, root: Path) -> str:

@@ -66,7 +66,7 @@ index; its archive cut waits until it is idle.
 - `010/270` waits on the principal. Every child's atelier pin is far behind main; a pin
   sweep is the fleet-sweep's work, not taken here.
 
-## At close (2026-11-21 UTC, his picks from offered options)
+## At close (2026-11-20 UTC, about 20:25; his picks from offered options)
 
 - The three cold passes: *"Next weekly drain (Recommended)"*; nothing runs before it.
 - The fleet pin sweep: *"Later"*.
