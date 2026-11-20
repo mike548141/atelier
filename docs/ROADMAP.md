@@ -204,10 +204,10 @@ then `python3 tools/board.py rebuild`.
 - ✅ [The scanners' exempted test files rest on a promise nothing checks:…](roadmap/115-guardrail-architecture-mike-commissioned/380-the-scanners-exempt-test-files-hold-a-promise-nothing-checks.md)
 - ✅ 🤔 [Investigate scanning inside binary files.](roadmap/115-guardrail-architecture-mike-commissioned/390-investigate-scanning-inside-binary-files.md)
 - ✅ 🔎 [pointerscan misses a RAN stamp that carries a time, so four landed…](roadmap/115-guardrail-architecture-mike-commissioned/400-pointerscan-misses-a-ran-stamp-carrying-a-time.md)
-- [~] 🔎 (claimed 2026-11-20, wt: atelier-qr-08cd-docfix) [EVIDENCE.md §17 says its class…](roadmap/115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md)
+- ✅ 🔎 [EVIDENCE.md §17 says its class is not mechanisable because "nothing…](roadmap/115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md)
 - [ ] 🔎 [A repo declares its visibility in two places, CLAUDE.md and…](roadmap/115-guardrail-architecture-mike-commissioned/420-a-repo-declares-its-visibility-twice-and-nothing-compares.md)
 - [ ] 🔎 [The floor block's always-confirm stop list differs from AUTONOMY.md §…](roadmap/115-guardrail-architecture-mike-commissioned/430-the-floors-stop-list-differs-from-autonomy-always-confirm.md)
-- [~] 🔎 (claimed 2026-11-20, wt: atelier-qr-08cd-docfix) [PROPAGATION.md calls a parent…](roadmap/115-guardrail-architecture-mike-commissioned/440-parent-only-checks-versus-the-parent-child-parity-rule.md)
+- ✅ 🔎 [PROPAGATION.md calls a parent enforcing what its children do not a…](roadmap/115-guardrail-architecture-mike-commissioned/440-parent-only-checks-versus-the-parent-child-parity-rule.md)
 - [ ] 🔎 [Three doctrine defects the enforcement census found in slice 3.](roadmap/115-guardrail-architecture-mike-commissioned/450-census-slice-3-doctrine-defects.md)
 - ✅ 🔎 [leakscan's ipv4 rule reads a browser version string (Chrome/x.0.0.0)…](roadmap/115-guardrail-architecture-mike-commissioned/460-ipv4-rule-reads-a-browser-version-as-an-address.md)
 - ✅ 🔥 [allowmarker.py cannot be loaded by file path since 2026-11-17, and…](roadmap/115-guardrail-architecture-mike-commissioned/470-allowmarker-cannot-be-loaded-by-file-path-since-a-dataclass.md)
@@ -420,6 +420,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: secretguard, deadhook, stashscan, treeline…](roadmap/160-doctrine-review-owed/1620-rule-4-cold-pass-queued-secretguard-deadhook-stashscan-treeline-pins-floor.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a review is never thinned to fit a budget,…](roadmap/160-doctrine-review-owed/1630-rule-4-cold-pass-queued-review-never-thinned-slice-2.md)
 - [ ] ⏳ [Rule-4 cold pass queued: leakscan's ipv4 rule skips a user-agent…](roadmap/160-doctrine-review-owed/1640-rule-4-cold-pass-queued-ipv4-user-agent-and-grace-removal.md)
+- [ ] ⏳ [Rule-4 cold pass queued: three doctrine corrections — PROPAGATION.md…](roadmap/160-doctrine-review-owed/1650-rule-4-cold-pass-queued-parent-only-checks-fresh-gate-evidence-17.md)
 
 ## build/ layer — open strands
 
@@ -636,7 +637,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔥 [pathscan reds on three reference shapes that are never real, and the…](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
 - ✅ 🎯 [PROPOSAL for GUARDS.md — strict where we author, forgiving where we…](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
 - ✅ 🎯 [PROPOSAL — capture, do not compose: a hand-written fixture can only…](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
-- [~] 🔎 (claimed 2026-11-20, wt: atelier-qr-08cd-docfix) [By-call enforcement resolves…](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
+- ✅ 🔎 [By-call enforcement resolves through a working tree, so "fresh"…](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
 - ✅ 🎯 [PROPOSAL for GUARDS.md — a guard's THREAT MODEL is a property to…](roadmap/320-child-filed-findings-via-pointing-up/050-proposal-a-guard-declares-who-it-protects-from-whom.md)
 - [ ] 🎯 [PROPOSAL for the floor + GUARDS.md — where siblings exist, require a…](roadmap/320-child-filed-findings-via-pointing-up/060-proposal-the-floor-requires-a-path-scoped-commit.md)
 - ✅ 🎯 [PROPOSAL — a transcript has three principal-authored channels, and a…](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)

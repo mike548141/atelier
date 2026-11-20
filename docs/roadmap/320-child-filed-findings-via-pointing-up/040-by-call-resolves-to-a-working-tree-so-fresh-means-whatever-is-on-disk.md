@@ -1,4 +1,4 @@
-- [~] 🔎 **By-call enforcement resolves through a *working tree*, so "fresh"
+- [x] 🔎 **By-call enforcement resolves through a *working tree*, so "fresh"
       currently means whatever is on disk — including a parent session's
       uncommitted mid-edit state** `[S][tool]` — raised from a private child
       2026-08-18 via § *Pointing up*, as a question rather than a finding, and
@@ -35,3 +35,14 @@
       and the answer there may make this moot or may make it sharper.
       🔒 CLAIMED 2026-11-20T08:25Z (claimed 2026-11-20-0825, wt: atelier-qr-08cd-docfix) by queue-run
       session 08cd3b95 (Opus 5.5, principal-opened). Scope: decide and word the mid-edit tree case.
+      ✅ **DONE 2026-11-20 UTC** (queue run 08cd, a Sonnet worker): decided and
+      worded in `PROPAGATION.md` § *Enforcement propagates too*, as *A called
+      gate is only as fresh as the parent's working tree*. The trust note in
+      `tools/pre-commit.sample` does not cover the mid-edit tree: it answers
+      whose code the hook runs, not whether that code is finished. The existing
+      worktree default (`CONCURRENCY.md` § *The trigger*) is what narrows it;
+      the residue is a light write straight on the checkout children call.
+      Resolving scanners from a ref would close it, but that is a change to the
+      call mechanism, left with the open single-sourcing strand and not decided
+      here. No wording change to the trust note itself: it sits under `tools/`,
+      which this run did not touch. Doctrine change, so its cold pass is owed.
