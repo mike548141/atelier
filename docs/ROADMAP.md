@@ -212,6 +212,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [leakscan's ipv4 rule reads a browser version string (Chrome/x.0.0.0)…](roadmap/115-guardrail-architecture-mike-commissioned/460-ipv4-rule-reads-a-browser-version-as-an-address.md)
 - ✅ 🔥 [allowmarker.py cannot be loaded by file path since 2026-11-17, and…](roadmap/115-guardrail-architecture-mike-commissioned/470-allowmarker-cannot-be-loaded-by-file-path-since-a-dataclass.md)
 - ✅ [Both leakscan metadata cut-offs move to blocking from 2026-11-20, on…](roadmap/115-guardrail-architecture-mike-commissioned/480-both-leakscan-metadata-cut-offs-move-to-today.md)
+- [ ] [Remove leakscan's now-dead type-level and document warn-only paths.](roadmap/115-guardrail-architecture-mike-commissioned/490-remove-leakscan-s-dead-type-level-and-document-warn-paths.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
