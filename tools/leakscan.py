@@ -49,7 +49,7 @@ named metadata set it carries (Exif, IPTC, XMP, ICC, text chunks, comments)
 blocking until a reasoned line keeps that set. Office Open XML and PDF files
 are read the same way since 115/390 (people-naming properties, custom
 properties, comments, the PDF Info dictionary and XMP); what that reader adds
-warns until `DOCUMENT_UNTIL` (2027-01-18) and blocks from it. Each
+warned until `DOCUMENT_UNTIL` (2026-11-20, the principal's date) and blocks from it. Each
 manifest line also records WHO allowed it and WHEN (`by=… session=… on=…`;
 a line without them warns).
 From 2026-11-18 these G3 findings block like any other (the adoption grace
@@ -1274,7 +1274,11 @@ _ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9
 # clock, with no flag, env var or config key to move it; it is later than the
 # G3 grace's end (2026-11-18) on purpose, so a child that listed its binaries by
 # type before then had a month to migrate. Delete the warning path once it passes.
-TYPE_LEVEL_UNTIL = datetime.date(2026, 12, 18)
+# That date (2026-12-18) was the authoring run's. The principal moved it,
+# 2026-11-20, answering an ask that gave him both cut-offs and their reach:
+# "Move both to blocking from today" (`115/480`). No child carried a whole-set
+# line that day.
+TYPE_LEVEL_UNTIL = datetime.date(2026, 11, 20)
 TYPE_LEVEL_RULE = "binary-type-level"
 
 # THE DOCUMENT READER'S WARN-FIRST DATE (115/390) — a third cut-off, for new
@@ -1296,8 +1300,11 @@ TYPE_LEVEL_RULE = "binary-type-level"
 # so no child meets two new kinds of block on one day. Like the others it is
 # one constant compared with the UTC clock, with no flag, env var or config key
 # to move it. Delete the warning path, `in_document_grace` and its callers
-# once it passes.
-DOCUMENT_UNTIL = datetime.date(2027, 1, 18)
+# once it passes. The principal moved the date from 2027-01-18 to 2026-11-20,
+# in the same answer as `TYPE_LEVEL_UNTIL`'s: "Move both to blocking from
+# today" (`115/480`), told that 48 document findings in three siblings would
+# block from it.
+DOCUMENT_UNTIL = datetime.date(2026, 11, 20)
 # The formats the warn-first date covers: `zip` is a zip the reader refused
 # before it could tell whether it is an Office file (past a cap, or broken).
 DOCUMENT_FORMATS = frozenset({"ooxml", "pdf", "zip"})

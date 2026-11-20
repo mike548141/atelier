@@ -479,15 +479,15 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
 
   A set with over 1,024 distinct fields adds `<set>:unknown`. JPEG comments
   and ICC profiles have no fields to name and stay kept by set.
-- **Type-level lines, accepted with a warning until 2026-12-18.** A line
+- **Type-level lines, accepted with a warning until 2026-11-20.** A line
   written before fields were read (`<digest>:exif  path`, or `:iptc`, `:xmp`,
   `:png-text`) keeps the whole set, GPS included for Exif. Until
-  `TYPE_LEVEL_UNTIL` (2026-12-18, UTC) it still does, and each scan prints a
+  `TYPE_LEVEL_UNTIL` (2026-11-20, UTC) it still did, and each scan printed a
   warning that names the fields the file carries and asks for field-level
   lines. From that day it keeps nothing: the set blocks as `binary-metadata`
-  until fields are named. A month after the G3 grace ended, so a child that
-  listed by type before 2026-11-18 had until 2026-12-18 to move to field-level
-  lines. `icc`, `jpeg-comment` and `unknown` have no fields and are unaffected.
+  until fields are named. The date was first a run's pick, 2026-12-18; the
+  principal moved it to 2026-11-20, *"Move both to blocking from today"*
+  (`115/480`), when no child carried a whole-set line. `icc`, `jpeg-comment` and `unknown` have no fields and are unaffected.
   Like the G3 grace was, no flag or setting moves the date.
 - **Text sets are still scanned.** `png-text`, `xmp` and `jpeg-comment` are
   decoded and run through the normal rules and term list, kept or not.
@@ -608,18 +608,19 @@ reasoned floor `scope` that leaves a tree out is still on the record, and
 declared, not quiet. (A `.leakscanignore` glob used to be a second one; it no
 longer is, above.) leakscan's floor entry still has no advisory form.
 
-**The document reader warns first, until 2027-01-18.** Children run this
+**The document reader warned first, until 2026-11-20.** Children run this
 floor at `@main`, so a reader that blocked on landing would turn a child red
-the day it shipped. Until `DOCUMENT_UNTIL` (2027-01-18, UTC) everything the
+the day it shipped. Until `DOCUMENT_UNTIL` (2026-11-20, UTC) everything the
 Office and PDF reader adds prints as a warning that names the date and the
 remedy, and none fails the exit code: a `binary-metadata` finding for a
 document's sets (the five above, and `unknown`), and a rule's hit in a
 document's metadata. From that date they block like any other. The file's own
 gate is not the reader's, so `binary-unlisted`, `binary-changed` and
 `binary-stale-entry` on an Office or PDF file block, as they have since the
-adoption grace ended. The date was the queue run's pick: more than 30 days after the build
-(2026-11-16), and a month after the type-level cut-off, so no child meets two
-new kinds of block on one day. Like the others, nothing moves it.
+adoption grace ended. The date was first the queue run's pick, 2027-01-18; the
+principal moved it, with the type-level cut-off, to 2026-11-20: *"Move both to
+blocking from today"* (`115/480`), told that 48 document findings in three
+siblings would block from it. Like the others, no setting moves it.
 `--json` carries the warnings under `binary_documents`.
 
 **Adopting it: one commit, before the cut-off.**

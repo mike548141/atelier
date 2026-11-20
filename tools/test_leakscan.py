@@ -2816,7 +2816,8 @@ class BinaryFieldLevel(_TreeCase):
 
     def test_the_type_level_cutoff_is_a_later_iso_date(self):
         self.assertIsInstance(ls.TYPE_LEVEL_UNTIL, _dt.date)
-        self.assertGreaterEqual(ls.TYPE_LEVEL_UNTIL, _dt.date(2026, 12, 18))
+        # The principal's date (115/480); it moved from 2026-12-18.
+        self.assertEqual(ls.TYPE_LEVEL_UNTIL, _dt.date(2026, 11, 20))
         self.assertTrue(ls.in_type_level_grace(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1)))
         self.assertFalse(ls.in_type_level_grace(ls.TYPE_LEVEL_UNTIL))
 
@@ -4788,8 +4789,9 @@ class DocumentGate(_TreeCase):
 
     def test_the_date_is_its_own_and_at_least_30_days_after_the_build(self):
         self.assertIsInstance(ls.DOCUMENT_UNTIL, _dt.date)
-        self.assertGreaterEqual(ls.DOCUMENT_UNTIL, _dt.date(2026, 11, 16) + _dt.timedelta(days=30))
-        self.assertGreater(ls.DOCUMENT_UNTIL, ls.TYPE_LEVEL_UNTIL)
+        # The principal's date (115/480), the type-level cut-off's day too; it
+        # moved from 2027-01-18.
+        self.assertEqual(ls.DOCUMENT_UNTIL, _dt.date(2026, 11, 20))
         self.assertTrue(ls.in_document_grace(ls.DOCUMENT_UNTIL - _dt.timedelta(days=1)))
         self.assertFalse(ls.in_document_grace(ls.DOCUMENT_UNTIL))
 

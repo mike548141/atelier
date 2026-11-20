@@ -46,3 +46,16 @@
       principal's explicit permission for Fable work.
       🔓 2026-11-20 UTC: queue run 08cd3b95 releases its brief-writing claim at
       the landing; the pass itself stays open and `⏳`.
+      💬 **Fable approved for one pass, conditioned, 2026-11-20 UTC**, through the
+      device at queue run 08cd3b95's close, his answer verbatim, typed in place
+      of the options: *"I approve one pass so that ccfleet can be fixed and is
+      ready to use. But the parallel session working in this repo right now is
+      making changes based on my directions and they may change what it is the
+      reviewer is reviewing. Once that session is finished we can update the
+      brief if things have changed and then run the one fable review"*. So:
+      one Fable pass, run only after that session has finished; first check
+      `git log` on the delta paths since the brief's pinned head and, if they
+      moved, update the brief (by a session that may write it) before the pass.
+      The run that wrote the brief neither updates it nor starts the pass.
+      `cclive` at the time of the answer showed no other atelier session on
+      this machine, so which session he means is not identified here.

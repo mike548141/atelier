@@ -88,3 +88,11 @@
   practice of recording each admission with what it stretches. Nothing to add
   while the item is unbuilt — the addendum records a landing, and this has not
   landed.
+      💬 **Answered 2026-11-20 UTC: build it.** Asked through the device at
+      queue run 08cd3b95's close whether the item was an idea to keep or work
+      to build, his pick verbatim: *"Build it, one site first (Recommended)"*
+      (option text: *"A future run builds the no-dependency core: find the
+      page's video listing, then fetch the transcript and slides. It reports
+      anything it can't identify rather than guessing. Starts with one proven
+      site."*). So this is no longer idea-only: it is selectable, one proven
+      platform first, under the posture and scoping above.

@@ -5,6 +5,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-20 — both leakscan metadata cut-offs block from today, `115/480`)
+- **`TYPE_LEVEL_UNTIL` and `DOCUMENT_UNTIL` are 2026-11-20**, moved from
+  2026-12-18 and 2027-01-18, which were runs' picks. The principal, asked with
+  both dates and their reach, answered *"Move both to blocking from today"*.
+  Whole-set image-metadata lines and the document reader's findings now block
+  like any other. On the day, no child carried a whole-set line; 48 document
+  findings in three siblings block until each is listed field by field or
+  removed. The warn-only paths are now dead code, to be removed.
+
 ### Fixed (2026-11-20 — `allowmarker.py` loads by file path again, `115/470`)
 - **`Deferment` is a `NamedTuple`, not a `dataclass`.** A child's hook that
   loads the module with `spec_from_file_location`, without a `sys.modules`

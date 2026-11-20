@@ -64,3 +64,11 @@
       Routing: fixes land in `tools/leakscan.py`, its tests and README once he
       rules; verdict and reconcile in
       `docs/reviews/2026-11-09-0207-g3-field-level-nz-phone-digest-cold.md`.
+      💬 **Answered 2026-11-20 UTC** through the device at queue run 08cd3b95's
+      close. GF1, asked with both cut-offs and their reach, his answer verbatim:
+      *"Move both to blocking from today"*; applied the same hour as `115/480`.
+      GF2–GF4, his pick verbatim: *"Fix all three (Recommended)"* (option text:
+      *"A worker fixes them in a future run. The XMP one is checked against
+      the format's spec first."*). So GF2–GF4 are approved and owed, unclaimed;
+      GF3 verifies the XMP spec before it changes anything. Answers to asks,
+      not rulings in his own words.
