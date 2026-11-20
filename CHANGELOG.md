@@ -5,6 +5,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-20 — a review is never thinned to fit a budget, defined at both scales, `430/010` slice 2)
+- **`REVIEW.md` defines the whole review process** a downgrade is measured
+  against: the pass (fresh reviewer, named tier, brief and sibling split, both
+  phases, scope and lenses, every re-run line, a verdict with its method) and
+  the brief (what it must contain), each line pointing at the rule that
+  already binds it. `ECONOMICS.md`, the child template and the review-brief
+  skill point at it: risk decides whether a review is owed; budget never
+  shrinks one that is. Cold pass queued as `160/1630`.
+
 ### Fixed (2026-11-18 — three `ccfleet` faults a first real estate run found, `450/010`)
 - **A fresh `kit_dir` is made by the driver lock**: `drive` and `drain` no
   longer crash on a directory that does not exist yet.
