@@ -71,3 +71,23 @@ index; its archive cut waits until it is idle.
 - The three cold passes: *"Next weekly drain (Recommended)"*; nothing runs before it.
 - The fleet pin sweep: *"Later"*.
 - `010/270`: a typed reply, recorded in the item; its reading is being confirmed.
+
+## After the session-log retirement (2026-11-20 UTC, to about 23:40)
+
+- His pick on `010/270`, an answer: *"Retire SESSIONS.md"*. atelier went first
+  (`b68cf410`, `e5f9f245`); then the health sweep ran it in all 23 children, one headless
+  session per child. Every child's `docs/SESSIONS.md` is gone, each move proved byte for
+  byte, CI green at each pushed head where the child runs CI. The remaining frozen
+  archives were cut in the same runs, so `010/220` closed; `010/230` closed once a public
+  site with the floor but no onramp was adopted in standardise mode.
+- What broke first, in about ten children: the label line `archivecut` writes is wider
+  than the wrap limit, so the first commit was refused; each exempted its session folder.
+  Recorded on `010/280`.
+- One public child's contributor gate cross-matched the start times in the re-pointed
+  session links. Its owner repo's gate gained the relative-link form of an exemption the
+  principal had already answered for, with tests, and queued its own cold pass for his
+  approval. A subagent that wrote none of it read the child's packet; this session
+  attested that read and landed the change.
+- Owed to the principal, none started: the cold passes (`160/1670`–`1700` here, one in
+  the gate's repo), the fleet pin sweep (*"Later"*), and two public children with no
+  personal-data list.
