@@ -20,3 +20,5 @@
       ("unsure means the dearer route") hold against the principal's rule
       that review quality is never traded for price; is the quote and the
       paraphrase public-safe.
+      Folded into 160/1450's updated brief, 2026-11-20 UTC; closes on that
+      pass's verdict.

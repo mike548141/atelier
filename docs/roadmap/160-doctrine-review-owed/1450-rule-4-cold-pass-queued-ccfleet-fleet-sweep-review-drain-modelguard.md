@@ -70,3 +70,14 @@
       takes `c60dee8b` in, `160/1660` folds into it and closes on its
       verdict. Session 64f984ac is an author of this delta and neither
       briefs nor runs this pass.
+      **Brief updated 2026-11-20 UTC to `bd9f6a9b`** by a brief-writer
+      worker of queue run 08cd3b95 (which authored, started and
+      instructed none of the delta): it takes in `c60dee8b` (session
+      64f984ac, the ranking gate) and `bd9f6a9b` (session 19378351, the
+      fleet sweep's board and scope rules); no other commit touched the
+      delta paths. `160/1660` is folded in: one pass, one verdict, closing
+      both. Barred from running the pass now also: 64f984ac and 19378351
+      with all they started. The principal's approval stands for one Fable
+      pass, over a delta that has stopped moving: `cclive` at the update
+      still showed both author sessions live, so the pass first re-checks
+      the brief's since-line and stops if it is not empty.

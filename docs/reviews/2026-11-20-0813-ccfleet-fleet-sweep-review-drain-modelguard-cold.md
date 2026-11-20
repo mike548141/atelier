@@ -1,9 +1,19 @@
 # Cold pass — `ccfleet`, the `fleet-sweep` and `review-drain` skills, and `modelguard`
 
-**Board:** `docs/roadmap/160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md`
+**Board:** `docs/roadmap/160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md`,
+with `docs/roadmap/160-doctrine-review-owed/1660-rule-4-cold-pass-queued-drain-ranks-and-routes-first.md`
+folded in (one pass, one verdict, closing both)
 **Status:** BRIEF ONLY, not run. Written 2026-11-20 UTC by a brief-writer worker of queue run
-`08cd3b95` (Opus 5.5). Queued, waiting on the principal's explicit approval of Fable work; this
-brief is not that approval.
+`08cd3b95` (Opus 5.5), at `71c867bc`. **Updated 2026-11-20 UTC to `bd9f6a9b`** by a second
+brief-writer worker of the same run, taking in `c60dee8b` and `bd9f6a9b` (below) and folding in
+`160/1660`, whose subject is `c60dee8b`.
+**Approval:** the principal approved one Fable pass for this item on 2026-11-20 UTC, verbatim:
+*"I approve one pass so that ccfleet can be fixed and is ready to use. But the parallel session
+working in this repo right now is making changes based on my directions and they may change what
+it is the reviewer is reviewing. Once that session is finished we can update the brief if things
+have changed and then run the one fable review"*. One pass, covering `160/1660`'s subject too;
+run only once the delta has stopped moving (re-check the since-line under *What the work is*
+before you start, and stop if it is not empty).
 
 **Pass type:** code and design cold pass, per `docs/method/REVIEW.md` rule 4. Two skills that
 stamp behaviour into every plugin user, their prompt templates, and a hook that denies tool calls
@@ -11,9 +21,10 @@ are doctrine by function (rule 3); the instrument that runs them is reviewed wit
 commitment.
 **Tier:** Fable, the principal-named review tier, checked at selection by whoever takes the pass.
 A session that cannot run on it stops (rule 4).
-**Size of this pass:** large. Six commits; about 1,070 lines of standard-library Python, 630 lines
-of tests, a 940-line manual page, 330 lines of skill text and prompt templates, a 180-line hook with
-its 70-line test, and the README and changelog entries. Budget the time; never thin the pass to
+**Size of this pass:** large. Eight commits; at `bd9f6a9b`, about 1,090 lines of standard-library
+Python, 640 lines of tests, a 950-line manual page, 540 lines of skill text and prompt templates
+(all eight files of the two skills), a 180-line hook with its 70-line test, and the README and
+changelog entries. Budget the time; never thin the pass to
 fit it (`REVIEW.md`, *Budget decides how many reviews run and when, never how a review is run*).
 **Drain priority:** normal (principal, 2026-11-18), as the item records.
 
@@ -35,6 +46,14 @@ plugin user's session follows when the principal says "sweep the repos" or "drai
   a false allow costs nothing visible.
 - **A skill that stamps a wrong rule** into every adopter's sessions: the widest blast radius in
   the operating model (rule 4).
+- **The wrong reviews bought, or quality traded for price.** Since `c60dee8b` a drain starts
+  nothing until the adopter's queue says the whole queue is ranked and routed; the order and the
+  route decide which paid reviews run and on which budget. A gate that can be passed without a
+  ranking, or a routing rule that sends a review to a route that cannot match a local pass, spends
+  the budget against the principal's rule.
+- **A sweep that acts where it should ask.** Since `bd9f6a9b` the fleet sweep adopts every
+  unarchived, unforked repo with no pin and gives a repo with no board an empty store, rather
+  than putting either to the principal.
 
 ## Spawn provenance
 
@@ -42,15 +61,21 @@ plugin user's session follows when the principal says "sweep the repos" or "drai
   2026-11-14 by an estate health sweep, orchestrator session `58027096`) wrote the first landing.
   Queue run `78ca9153` (Opus 5.5, principal-opened, 2026-11-16) and its workers wrote the manual
   page and the `--help` digest. Session `84b7932e` (Opus 5.5, principal-opened, 2026-11-18) and the
-  workers it started wrote the gap fixes and the three fixes of the last commit.
+  workers it started wrote the gap fixes and the three fixes of `1eb42f54`. Session `64f984ac`
+  (Opus 5.5, principal-opened, 2026-11-20) wrote `c60dee8b`, the ranking gate, and queued its own
+  pass as `160/1660`. Session `19378351` (principal-opened, 2026-11-20) wrote `bd9f6a9b`: the
+  commit adds roadmap `010/240`, which names that session as its finder, and carries out what that
+  session's item `010/230` owes the skill (the commit's body was not read; a search of it for a
+  session id printed nothing).
 - **Who wrote this brief:** a brief-writer worker (Opus 5.5) of queue run `08cd3b95`, a
-  principal-opened orchestrator of 2026-11-20. Neither the worker nor its orchestrator authored,
-  started or instructed any part of the delta. **Off-tier for review, disclosed: the brief-writer
-  forms no finding and writes no severity**, and stops after writing. It ran no review and used no
-  Fable model. Queue run `08cd3b95` will not start the pass.
+  principal-opened orchestrator of 2026-11-20; a second worker of the same run updated it to
+  `bd9f6a9b`. Neither worker nor their orchestrator authored, started or instructed any part of
+  the delta. **Off-tier for review, disclosed: the brief-writers form no finding and write no
+  severity**, and stop after writing. They ran no review and used no Fable model. Queue run
+  `08cd3b95` will not start the pass.
 - **Barred from running this pass:** session `08cd3b95` and every worker it started (whoever
-  writes a brief does not run it); sessions `559edaec`, `58027096`, `78ca9153` and `84b7932e`, and
-  everything each of them started or instructed.
+  writes a brief does not run it); sessions `559edaec`, `58027096`, `78ca9153`, `84b7932e`,
+  `64f984ac` and `19378351`, and everything each of them started or instructed.
 - **Contact, disclosed (rule 4).** The brief-writer's only instruction came from its orchestrator
   `08cd3b95`: the item number, the rule-4 standing above, the delta's paths, the house form, and a
   list of where to test hardest (the permission-mode blast radius, the two skills' reach, the
@@ -58,6 +83,12 @@ plugin user's session follows when the principal says "sweep the repos" or "drai
   paid review work on a crash or a cap). That list restates the item's own pointer and the gating
   reason the board records; it is disclosed here because it shaped the brief's emphasis. No author
   session contacted the brief-writer.
+- **Contact for the update, disclosed.** The updating worker's only instruction came from the same
+  orchestrator: take in `c60dee8b`, `bd9f6a9b` and anything else on the delta paths since
+  `71c867bc`; fold in `160/1660` and its "what to test hardest"; find `bd9f6a9b`'s author. That
+  "what to test hardest" was written by `c60dee8b`'s author session (`64f984ac`) in its own queue
+  item, so its four points, folded into the lenses below and marked **(1660)**, are an author's
+  framing: a floor, never a fence. No author session contacted the updating worker.
 - **Who reviews:** a fresh Fable session started for this pass alone, by a session that passes rule
   4's criterion. An orchestrator may hold the context partition and commit the records off-tier,
   only if it forms no finding, writes no severity, and is disclosed in the claim, the pointer and
@@ -74,6 +105,16 @@ plugin user's session follows when the principal says "sweep the repos" or "drai
   message body. Its harness also loaded user-level and repo instruction files and a memory index,
   which hold private context this brief does not carry. Everything evaluative it formed is in the
   held-back sibling.
+- ⚠️ **Updating worker's exposure, disclosed:** its launch prompt; this brief and its sibling
+  whole; `160/1450` whole and `160/1660` whole (**both carry the authors' account**: the latter is
+  `c60dee8b`'s author's own pointer, and the former now records the delta moving); items
+  `010/230` and `010/240` whole (**both carry `bd9f6a9b`'s author's account** of the gap it
+  closes); the two new commits read body-free through `coldsweep`, plus one search of
+  `bd9f6a9b`'s body for a session id that printed nothing; the rule-4 paragraphs of `REVIEW.md` on
+  disclosed contact; a `cclive` listing; the results of the re-run lines at `bd9f6a9b`; two
+  searches of the session log and session records for the two authors' ids, which printed nothing.
+  It opened no prior verdict and no session record. Everything evaluative it formed is in the
+  sibling.
 
 ## The acceptance test
 
@@ -85,7 +126,15 @@ the doctrine it must keep:
   pass to come back clean. It is an answer to a question, not a ruling. The ruling that binds the
   drain's behaviour is quoted in `REVIEW.md` § *When to review*: *"Quality is more important than
   cost. If we run out of budget then we will resume the work when the budget replenishes"*. A
-  drain that cannot resume what a spent budget cut off fails that sentence.
+  drain that cannot resume what a spent budget cut off fails that sentence. For the ranking gate,
+  his words are quoted in the delta itself (`skills/review-drain/SKILL.md` § *Rank and route the
+  whole queue first*); judge the gate and the routing rule against them and against the quality
+  sentence above. For `bd9f6a9b`, his words of 2026-11-20, verbatim: *"I want all repos to use the
+  doctrine way of managing work on its board. If the repo is archived or a fork of someone elses
+  repo then it is an exception and its left as is"* · *"the estate health check skill needs to find
+  things like this and fix them when a repo does not meet doctribe rule like this"*; and two
+  answers (picks from offered options, not rulings): a never-adopted repo, *"Adopt it fully"*;
+  `CHANGELOG.md`, *"Keep one file, exempt (Recommended)"*.
 - **The rules the drain enforces on others.** `REVIEW.md` rule 1 (the deferred split and the
   context partition), rule 2 (barred reading), rule 4 (spawn criterion, tier at selection, the
   off-tier orchestrator's two conditions), *The lifecycle* (method record); `CONCURRENCY.md`
@@ -96,7 +145,7 @@ the doctrine it must keep:
 
 ## What the work is
 
-Six commits on `main`, in order:
+Eight commits on `main`, in order:
 
 - **`4bfb4e16`** — `instruments: version the fleet kits as ccfleet, two skills and modelguard
   (210/440)` (2026-11-14)
@@ -109,6 +158,12 @@ Six commits on `main`, in order:
   asking` (2026-11-18)
 - **`1eb42f54`** — `ccfleet: make a fresh kit_dir, stop on a failing queue, end dry passes`
   (2026-11-18)
+- **`c60dee8b`** — `review-drain: rank and route the whole queue before a drain starts`
+  (2026-11-20; the subject of `160/1660`, folded in)
+- **`bd9f6a9b`** — `fleet-sweep: a missing board fails health; forks exempt; no-pin repos
+  adopted` (2026-11-20)
+
+No other commit touched the delta paths between `71c867bc` and `bd9f6a9b`.
 
 Delta paths, read at HEAD and commit by commit:
 
@@ -119,28 +174,32 @@ Delta paths, read at HEAD and commit by commit:
 - `skills/review-drain/` (`SKILL.md`, `orchestrator-prompt.md`, `resume-prompt.md`,
   `fold-prompt.md`)
 - `tools/modelguard.py`, `tools/test_modelguard.py`, `tools/README.md` (§ *`modelguard.py`*)
-- `CHANGELOG.md`: the four entries dated 2026-11-14 and 2026-11-18 that name `ccfleet`, the two
-  skills or `modelguard`
+- `CHANGELOG.md`: the five entries dated 2026-11-14, 2026-11-18 and 2026-11-20 that name
+  `ccfleet`, the two skills or `modelguard`
 
 First confirm the tree holds the whole delta, then read each commit body-free:
 
 ```
-git merge-base --is-ancestor 1eb42f54 HEAD; echo $?
+git merge-base --is-ancestor bd9f6a9b HEAD; echo $?
 python3 tools/coldsweep.py --root . --commit 4bfb4e16 --path instruments --path skills \
   --path tools/modelguard.py --path tools/test_modelguard.py --path tools/README.md \
   --path CHANGELOG.md
 ```
 
-Repeat the `--commit` line for each of the other five commits. Plain `git show` is barred: it
+Repeat the `--commit` line for each of the other seven commits (`b2ea715c`, `17f158d2`,
+`d9d1589e`, `a025636e`, `1eb42f54`, `c60dee8b`, `bd9f6a9b`). Plain `git show` is barred: it
 prints the message body before the diff, and reading is atomic (rule 1). Several of these commits
-also touch the board, the intent record and a session record; those are barred until phase 2, so
-always pass `--path`.
+also touch the board, the intent record and a session record (`c60dee8b` adds a session record
+and `160/1660`; `bd9f6a9b` adds `010/240`); those are barred until phase 2, so always pass
+`--path`.
 
-Then check what has landed on the delta paths since: `git log --oneline 1eb42f54..HEAD --
+Then check what has landed on the delta paths since: `git log --oneline bd9f6a9b..HEAD --
 instruments/ccfleet instruments/ccfleet.example.json instruments/test_ccfleet.py
-instruments/man/ccfleet.1 skills/fleet-sweep skills/review-drain tools/modelguard.py
-tools/test_modelguard.py` (empty when this brief was written, at `71c867bc`). Review the code as
-it stands at your HEAD, and pin that SHA in your verdict's scope.
+instruments/man/ccfleet.1 instruments/README.md skills/fleet-sweep skills/review-drain
+tools/modelguard.py tools/test_modelguard.py` (empty when this brief was updated, at
+`bd9f6a9b`). The principal's approval is for a pass over a delta that has stopped moving: if this
+line is not empty, stop and hand back for the brief to be updated again. Otherwise review the code
+as it stands at your HEAD, and pin that SHA in your verdict's scope.
 
 **Machine-local surfaces no other review will catch** (read-only; report them in public-safe
 terms, never a home path or a private name):
@@ -152,6 +211,8 @@ terms, never a home path or a private name):
 - `~/.local/bin/ccfleet` is a link to the primary checkout's `instruments/ccfleet`.
 - The plugin manifest (`.claude-plugin/plugin.json`) declares no skill list; every directory
   under `skills/` ships to every plugin user.
+- Free disk sat near the gate's default floor (20 GB) at both writings, below it at the update, so
+  `gate` may answer "hold" on this machine for reasons unrelated to the code.
 
 ## The claims the delta makes
 
@@ -226,6 +287,41 @@ scope. Name your own load-bearing assumptions first (lens 1); these are a floor,
     payload never blocks; a script that launches `claude` itself is invisible, a stated limit.
 22. Its deny reason states the rule `ECONOMICS.md` holds, in words that agree with it.
 
+**Added by `c60dee8b`: the ranking gate (`160/1660`, folded in)**
+
+23. `drain` refuses a config whose `queue` lacks `ranked` ("a drain config without it is
+    refused"), and calls `ranked` once, with `{BY}`, "before the first pick"; any nonzero exit
+    "starts nothing": it prints `DRAIN EXIT: not ranked` and exits 1. The interface is "drain
+    only": `run`, `drive` and `resume` do not call it.
+24. `ranked` "exits 0 only when the whole queue, every repo's, has been ranked and routed for this
+    run"; "the adopter's queue judges; ccfleet only refuses".
+25. The skill's § *Rank and route the whole queue first*: it runs "every run, before any pass
+    starts"; "it is a gate, not a habit"; the adopter's queue makes `ranked` (and `next`) refuse
+    until this run's ranking is sealed. The rank order (the principal's direction first, then
+    importance, urgency, risk mitigated and value unlocked; a pass whose core needs a live write
+    last; a standing repo order breaks ties only); each review to "the cheapest route that reaches
+    local quality", among routes the principal has opened, and "unsure means the dearer route:
+    quality is never traded for price"; a seal that refuses while any ready review is missing,
+    unreasoned, on a closed route or dearer than it fits without saying why, and "lasts one
+    budget"; the expiring budget's route takes its own first, then any other route's not yet
+    started; a review briefed after the seal runs last on the local route until re-ranked.
+26. Mode 1 step 1 now names `queue.ranked`, and "the drain starts nothing until" the queue is
+    ranked, routed and sealed.
+27. The surfaces that state the queue interface agree on it: the docstring (`{next, ranked, take,
+    release[, ended]}`), the manual ("Each of the four entries"), the example config and the
+    changelog; two new tests pin the two refusals.
+
+**Added by `bd9f6a9b`: the fleet sweep's board and scope rules**
+
+28. Healthy item 6 now also fails a repo with "no board at all", which "gets the empty store"
+    (`docs/roadmap/` with its `README.md`, and the generated index); a frozen pre-split archive is
+    cut into the store "once roadmap `010/220` has built and proved the cut; until then it is
+    reported, not touched"; `CHANGELOG.md` and reference documents are exempt, with the grounds the
+    skill gives.
+29. The survey: "archived repos and forks of another owner's repo are exempt, and are left as they
+    are. Every other repo is in scope: one with no pin is adopted (`/atelier:create-repo`,
+    standardise mode), not put to the principal as a question."
+
 ## Scope
 
 The widest the work admits: intent, decisions, assumptions, design, docs, code, test code and live
@@ -242,6 +338,11 @@ and a non-goal that fences off the risk is a finding.
   `deadhook`, `stashscan`, `treeline`, `pins.py --floor`); they have their own passes. In scope
   only where the delta relies on them (`tools/pins.py` for `{PIN}`).
 - The user-level `fable-drain` skill the estate still runs; it is not in this repo.
+- Any estate's own `ranked` command, its ranking, routes and seal, and the batch and API-credit
+  routes themselves: the adopter's, kept private, as the skill says. Judge the gate's contract
+  and the skill's rules, with a synthetic `ranked` script.
+- Roadmap `010/210` and `010/220` (the index shape and the archive cut the skill defers to); they
+  are not built in this delta. In scope only as far as the skill relies on them.
 
 ## The four lenses
 
@@ -251,7 +352,11 @@ and a non-goal that fences off the risk is a finding.
    session's last text a sound signal for releasing a paid claim? Is a hook reading Bash text the
    right control for "every launch names its model"? Does putting these in a public plugin, so
    that every adopter receives two skills that run unattended sessions, match the repo's own rules
-   for a deliberate widening (`CLAUDE.md` § *Autonomy*; `AUTONOMY.md`)?
+   for a deliberate widening (`CLAUDE.md` § *Autonomy*; `AUTONOMY.md`)? Is an exit code from the
+   adopter's own command a sound gate for "rank first, every run", when ccfleet cannot see what
+   was ranked? **(1660)** Does the routing rule ("unsure means the dearer route") hold against the
+   principal's rule that review quality is never traded for price? Is adopting a no-pin repo
+   without asking the principal a reading of his words above, or a widening of them?
 2. **Correctness & quality.** Re-drive the claims above against the code, by probe, not by
    reading. Trace what survives, and where, when a pass is interrupted at each point of its life:
    before the claim, after the claim and before `START`, mid-session (a usage cap; a `SIGKILL`; a
@@ -259,6 +364,10 @@ and a non-goal that fences off the risk is a finding.
    the release. For each, say whether the claim, worktree, session id, review log and verdict can
    be recovered with what the tool and skill record, and whether `resume` can take it from there.
    Record each overclaim against the text that makes it, including any claim no test pins.
+   **(1660)** Can any drain path pick a pass before `ranked` returns 0: a dry run, a resume, a
+   restarted driver? Is a config with no `ranked` refused everywhere it should be and nowhere else
+   (`run` and `drive` do not need it)? For `bd9f6a9b`: what the sweep does to a repo with no
+   board, a fork and a no-pin repo, traced through the skill's own steps.
 3. **Completeness / harvest.** Every surface that states the queue contract, the exit codes, the
    template variables, the stop conditions or the drain's rules agrees (docstring, `--help`,
    manual, README, skills, prompts, changelog: V3 and V5). One home per fact (V4). Find tests that
@@ -273,21 +382,24 @@ and a non-goal that fences off the risk is a finding.
    output and session transcripts flowing into paths, argv, prompts and git commands; and, for
    `modelguard`, every way a launch with no model can pass the hook (a hook that fails open on a
    parse it cannot make is the same class as a false allow). Aim `/security-review` at the code
-   only from a clean tree; weigh a clean pass over markdown as nothing.
+   only from a clean tree; weigh a clean pass over markdown as nothing. **(1660)** Is the
+   principal's quote in the ranking section, and the paraphrase beside it, public-safe in a skill
+   every plugin user receives?
 
 Run the standing checklist V1–V7 unasked (`REVIEW.md` § *The standing checklist*).
 
 ## Re-run obligation
 
 Re-run, do not read. The brief-writer ran each line below once, on 2026-11-20 UTC, at `71c867bc`,
-from the places named; its results are held in the sibling. Read exit codes explicitly. Check
+and the updating worker ran every line again at `bd9f6a9b`, from the places named; both sets of
+results are held in the sibling. Read exit codes explicitly. Check
 `uptime` first; one heavy process at a time, under `nice -n 10`, foreground with a long timeout
 (the `ccfleet` suite takes about a minute).
 
 From the worktree root:
 
 ```
-git merge-base --is-ancestor 1eb42f54 HEAD; echo "exit=$?"
+git merge-base --is-ancestor bd9f6a9b HEAD; echo "exit=$?"
 mandoc -T lint -W style instruments/man/ccfleet.1; echo "exit=$?"
 python3 instruments/ccfleet --help; echo "exit=$?"
 ```
@@ -311,8 +423,9 @@ nice -n 10 /usr/bin/python3 -m unittest -q test_modelguard; echo "exit=$?"
 remote under a scratch `repos_root`; a config whose `kit_dir`, `repos_root` and `worktrees_root`
 are scratch directories, `claude_bin` set to `/usr/bin/false` (so nothing can start a real
 session), one repo marked public, one invented private name, a `pass_prompt` template, and a
-`queue` whose `next`/`take`/`release` are a small scratch script that offers one pick until it is
-in `{LAUNCHED}`. Then, with `--config` on each:
+`queue` whose `next`/`ranked`/`take`/`release` are a small scratch script that offers one pick
+until it is in `{LAUNCHED}` and whose `ranked` exit code you can set; a copy of the config with
+no `queue.ranked`, and its own `kit_dir`. Then, with `--config` on each:
 
 ```
 python3 instruments/ccfleet --config <cfg> check; echo "exit=$?"
@@ -323,8 +436,22 @@ python3 instruments/ccfleet --config <cfg> run <repo> --prompt <template naming 
 python3 instruments/ccfleet --config <cfg> --by <your id> drain --dry-run; echo "exit=$?"
 ```
 
-Read `<kit_dir>` afterwards: `driver.log`, and every file the dry runs left. The brief-writer ran
-this shape once; how it built its config is in the sibling.
+Then the ranking gate (**1660**), each against a fresh `kit_dir` unless the line says otherwise:
+
+```
+<ranked set to exit nonzero>  python3 instruments/ccfleet --config <cfg> --by <your id> \
+  drain --dry-run; echo "exit=$?"
+python3 instruments/ccfleet --config <cfg without ranked> --by <your id> drain --dry-run; \
+  echo "exit=$?"
+python3 instruments/ccfleet --config <cfg without ranked> run <repo> --prompt <template> \
+  --dry-run; echo "exit=$?"
+python3 instruments/ccfleet --config <cfg> --by <your id> drain --dry-run; echo "exit=$?"
+  # the same kit_dir as the first dry drain, the same day: a second rehearsal
+```
+
+Read `<kit_dir>` afterwards: `driver.log`, and every file the dry runs left, and the scratch
+queue script's own log of the calls it received, in order. The brief-writers ran this shape once
+each; how they built their configs is in the sibling.
 
 **Live behaviour.** The claims about real `claude -p` (stdin, the JSON log, the wait ceiling, the
 transcript store's layout and timestamps, the billing label) rest on a stand-in binary in the
@@ -364,20 +491,25 @@ rule 2's barred list.
 ## Deferred reading — do not open before your findings are durably written
 <!-- reviewscan:allow:deferral: this section BARS reading and carries no deferred content; the deferred material is held outside the repo under the rule-1 split and released only after the reviewer's phase-1 findings are committed -->
 
-Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
-verdict in `docs/reviews/`, every item under `docs/roadmap/160-doctrine-review-owed/` beyond its
-title, the six delta commits' message bodies, `docs/method/census/` (it holds other sessions'
-assessments of these tools), and beyond their first line:
+Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every
+prior verdict in `docs/reviews/`, every item under `docs/roadmap/160-doctrine-review-owed/` beyond
+its title (`160/1660` included), the eight delta commits' message bodies, `docs/method/census/`
+(it holds other sessions' assessments of these tools), and beyond their first line:
 
 - `docs/roadmap/210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md`
   (the intent record)
 - `docs/roadmap/450-one-home-and-one-command-prefix-mike-commissioned/010-one-command-prefix-and-the-homing-sweep.md`
   (it carries the authors' account of the gap fixes)
 - `docs/roadmap/115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md`
+- `docs/roadmap/010-board-store-migration-per-item-files-mik/230-every-repo-keeps-the-house-board.md`
+  (it carries `bd9f6a9b`'s author's account of the gap; the principal's words in it are quoted in
+  *The acceptance test* above)
+- `docs/roadmap/010-board-store-migration-per-item-files-mik/240-the-repo-template-still-scaffolds-the-old-board.md`
+  (added by `bd9f6a9b`; its author's account)
 
 **This brief's held-back sibling is not in the tree.** Whoever orchestrates the pass holds it
 outside the repo and every worktree, and releases it to you only after your act 1 is committed; by
-count it holds 14 questions and 6 facts. Never look for it in git history, other checkouts,
+count it holds 24 questions and 10 facts. Never look for it in git history, other checkouts,
 scratchpads or temporary directories. Run by hand with no orchestrator, you open it yourself, as a
 deliberate second act, after act 1 is committed, and disclose when.
 
@@ -392,6 +524,8 @@ python3 tools/coldsweep.py --root <your-worktree> \
   --also-exclude docs/roadmap/210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md \
   --also-exclude docs/roadmap/450-one-home-and-one-command-prefix-mike-commissioned/010-one-command-prefix-and-the-homing-sweep.md \
   --also-exclude docs/roadmap/115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md \
+  --also-exclude docs/roadmap/010-board-store-migration-per-item-files-mik/230-every-repo-keeps-the-house-board.md \
+  --also-exclude docs/roadmap/010-board-store-migration-per-item-files-mik/240-the-repo-template-still-scaffolds-the-old-board.md \
   --also-exclude docs/method/census \
   "ccfleet|modelguard|fleet-sweep|review-drain"
 ```
@@ -419,4 +553,6 @@ The skills, prompts and hook are doctrine by function, and the item queues the w
 rule-4 pass, so every finding is the principal's to decide (rule 3): record all, apply nothing.
 Counsel per finding is welcome, labelled as counsel and kept beneath it. The estate's drain switch
 waits on this verdict, so say plainly, in one line under the overall verdict, whether anything you
-found loses or misreads paid review work.
+found loses or misreads paid review work. The verdict closes `160/1660` as well as `160/1450`:
+name both items in its scope line, and give the ranking gate (claims 23 to 27) its own line in
+the per-lens answers, so `160/1660`'s close can cite it.
