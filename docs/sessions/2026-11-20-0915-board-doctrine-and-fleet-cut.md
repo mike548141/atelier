@@ -44,7 +44,7 @@ No review-tier model used; no review run.
 
 ## Children
 
-Nineteen children with a board rebuilt their index in the new form; twelve cut their
+Nineteen children with a board rebuilt their index in the new form; eleven cut their
 frozen board archive and three their session archive, each proved byte for byte by the
 tool, every one green on CI at its pushed head. One cut fell back to a whole-file move
 (no checkbox entries). Two adopted children without a board got one, and the
