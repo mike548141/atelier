@@ -32,3 +32,15 @@
       passes' `END` line). The brief covers `main` at or after it.
       🔒 CLAIMED 2026-11-20T08:25Z (claimed 2026-11-20-0825, wt: atelier-qr-08cd-brief1450) by queue-run
       session 08cd3b95 (Opus 5.5, principal-opened). Scope: write the brief and its held-back sibling; no pass run.
+      **Brief written 2026-11-20 UTC:**
+      [`docs/reviews/2026-11-20-0813-ccfleet-fleet-sweep-review-drain-modelguard-cold.md`](../../reviews/2026-11-20-0813-ccfleet-fleet-sweep-review-drain-modelguard-cold.md),
+      over `main` at `71c867bc` (all six delta commits, through
+      `1eb42f54`, plus the manual page). Its held-back sibling is held
+      user-local, outside the repo, every worktree and every
+      scratchpad. Brief-writer: a worker (Opus 5.5) of queue run
+      `08cd3b95`, which authored, started and instructed none of the
+      delta; it formed no finding and will not start the pass. Barred
+      from running it: `08cd3b95` and its workers, and `559edaec`,
+      `58027096`, `78ca9153`, `84b7932e` with all they started. The pass
+      stays `⏳` for a criterion-passing cold Fable session, on the
+      principal's explicit permission for Fable work.
