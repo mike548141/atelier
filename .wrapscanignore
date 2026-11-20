@@ -26,8 +26,11 @@ docs/reviews/
 docs/SESSIONS.md
 
 # Harvested/archived current-truth: the same one-line-per-entry record
-# format, just moved out of the hot path.
-docs/ROADMAP-DONE.md
+# format, just moved out of the hot path. The board's pre-split archive was
+# cut into its own section on 2026-11-20 (`010/220`, tools/archivecut.py):
+# its entries keep their old two-space indent, which the item-body exemption
+# does not cover, so the exemption follows the frozen text there.
+docs/roadmap/990-done-before-the-split/
 *-DONE.md
 *-ARCHIVE.md
 

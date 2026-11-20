@@ -10,4 +10,4 @@ grounded-budgets correction; the 2026-07-19 tripwire-split application, supersed
 by the cold-content rebalance; the **2026-07-20 size-signal rebalance to a
 cold-content gate + its rule-4 review (PASS 0M/2M/3L) + Mike's accept-all ruling
 applied 2026-07-21**; the fleet-wide `hooks.atelierTools` fix) →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).

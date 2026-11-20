@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-20 — the pre-split board archive is cut into the store, `010/220`)
+- **`docs/ROADMAP-DONE.md` is now the board section
+  `docs/roadmap/990-done-before-the-split/`**: one `[x]` item file per entry
+  (218), with the archive's preamble, its headings and every line that was not
+  an entry kept verbatim in the section's `README.md`. The principal's pick:
+  *"Split, fall back to move (Recommended)"*. Every link to the old file, 157
+  in 27 files and records included, now points at the section; a path changed,
+  never a word.
+- **New `tools/archivecut.py`** does it for any repo, for `ROADMAP-DONE.md`
+  and `SESSIONS-ARCHIVE.md` alike. It proves the cut lossless before writing
+  (a multiset over every non-heading line, a byte-for-byte rebuild, every
+  re-pointed link mapping back) and moves the file whole with `git mv` where
+  the proof fails. `--plan` writes nothing; `--verify` repeats the proof from
+  disk.
+- **The guards follow the archive:** `sizescan`'s harvest-integrity check reads
+  every file in the section, `pathscan` treats it as a record, `coldsweep` bars
+  it from a cold reviewer, and the spelling and wrap ignores name it.
+
 ### Changed (2026-11-20 — the board index shows what is owed, `010/210`)
 - **`board.py` writes a summary table and the unfinished items only.** The
   index opens with one row per section (open, claimed, `🎯` and `⏳` counts,

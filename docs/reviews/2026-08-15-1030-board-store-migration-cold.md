@@ -55,7 +55,7 @@ changelog) → `10354e3` (records + this review's queue pointer) → `2f07ee8`
    `README.md`, one `README.md` of narrative per section, one file per item;
    and [`docs/ROADMAP.md`](../ROADMAP.md), now a generated index. The
    pre-migration `docs/ROADMAP.md` is the parent of `a9abc26`.
-   [`docs/ROADMAP-DONE.md`](../ROADMAP-DONE.md) gained a frozen-store note.
+   [`docs/roadmap/990-done-before-the-split/README.md`](../roadmap/990-done-before-the-split/README.md) gained a frozen-store note.
 5. Doctrine moved with the mechanism: [`docs/method/RECORD.md`](../method/RECORD.md)
    § *The roadmap*, [`docs/method/CONCURRENCY.md`](../method/CONCURRENCY.md)
    § *Claiming work* (the split-board paragraphs), the repo

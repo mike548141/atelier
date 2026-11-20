@@ -1,0 +1,1 @@
+- [x] **10 repos declare Apache-2.0 and pass the gate.**

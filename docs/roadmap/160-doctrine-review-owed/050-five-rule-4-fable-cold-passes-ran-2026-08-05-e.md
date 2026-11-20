@@ -4,7 +4,7 @@
   plus the sixth and seventh passes' and the P6 ADR ruling — is the next
   dedicated sitting's main event, walked one by one in plain language.** The
   taker was a Mike-spawned session; the five pointers are harvested to
-  [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The 2026-08-05 queue take*.
+  [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The 2026-08-05 queue take*.
   Verdicts, most substantial first:
   the FS application closed the B2+B3 cycle
   ([verdict](../../reviews/2026-08-05-1244-fs-application-cold.md)) — FF1, a

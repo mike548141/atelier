@@ -12,7 +12,10 @@ docstring of `tools/board.py`) — and after a merge conflict on the index,
 rebuilding *is* the resolution, via `--rebuild --from-index` at a dirty
 checkout). The
 session-start read is the index; open item files on demand. Completed detail
-from before the split lives frozen in [`../ROADMAP-DONE.md`](../ROADMAP-DONE.md);
+from before the split, once the frozen `ROADMAP-DONE.md`, now sits in the
+archive section [`990-done-before-the-split/`](990-done-before-the-split/README.md),
+one `[x]` item file per entry, its headings and other text kept verbatim in
+that section's README (cut 2026-11-20 by `tools/archivecut.py`, `010/220`);
 a done item now simply stays in its file as `[x]` — there is no harvest step.
 Sequencing rule from the 2026-07-10 review still binds: **mechanism before more
 content** — a repo that inherits docs but not the propagation + review cadence

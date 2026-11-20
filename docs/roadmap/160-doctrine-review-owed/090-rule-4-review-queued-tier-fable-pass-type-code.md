@@ -15,7 +15,7 @@
   *Intent record:*
   [ADR 0008 cold pass](../../reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md)
   (EP1–EP10) + the 2026-08-04 ruling, harvested with the item to
-  [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The EP application*.
+  [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The EP application*.
   - [ ] 🛑 **The application pass RAN 2026-08-09 and the cycle stays OPEN — a
         new MAJOR stands.** The rule-4 Fable cold pass (taker: a Mike-spawned
         session, claimed 0815 UTC) returned PASS-WITH-FINDINGS — 1 MAJOR /

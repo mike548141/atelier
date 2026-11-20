@@ -12,7 +12,7 @@ queued below.
 
 **Both open consequences RULED 2026-08-09 (Mike), and a third clause added** —
 the three `[x]` items are harvested verbatim to
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *§9 ruled — retrofits bind, and a result
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *§9 ruled — retrofits bind, and a result
 carries its derivation*.
 
 **Still open — the estate consequence of the retrofit ruling:**

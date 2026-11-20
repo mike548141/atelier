@@ -45,7 +45,7 @@ subtracted, never what someone *intended* to subtract and failed to.
       noise-to-signal, Mike's 2026-07-23 frozen-history ruling, PS4's
       records-named-out ground (`b012884`). This also clears the atelier-side
       precondition **C1b phase 2** names. →
-      [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The parent states its own reasons*.
+      [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The parent states its own reasons*.
       ⚠️ **The `ros` half is NOT closed and was deliberately not delivered from
       here** — `ros`'s `flags.leakscan --disable ipv4,ipv6,mac-address` has the
       same defect (reasoned, but the reason sits in the sibling
@@ -63,7 +63,7 @@ subtracted, never what someone *intended* to subtract and failed to.
       the entry never listed — `start` producing `<repo>-<old>-<new>` — is the
       same root cause and is now covered. Identity now comes from the first
       entry of `git worktree list --porcelain`. →
-      [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *worktree.py asks the right
+      [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *worktree.py asks the right
       questions*.
 - **`remove` compares against local `main` — FIXED 2026-08-09.** Referent is
       now `origin/<main>` then local `<main>`, each verified real, and only

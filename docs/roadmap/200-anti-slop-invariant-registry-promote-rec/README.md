@@ -93,7 +93,7 @@ systematic REGISTRY and its promotion rule.
 Mining done 2026-07-22 (330 findings / 47 reviews → 5 scanner + 7 verifier
 candidates; record:
 [`sessions/2026-07-22-1036-invariant-candidates.md`](../../sessions/2026-07-22-1036-invariant-candidates.md))
-→ [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+→ [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 - **S1–S5 / V1–V7 ALL APPROVED 2026-07-23** (Mike, plain-language
   walk-through of the mining record's candidates; the PROPOSED-then-ratify
@@ -103,7 +103,7 @@ candidates; record:
   candidate) is thereby exercised end-to-end and stands as practice.
 **All five approved scanners S1–S5 are BUILT + wired advisory** (S1/S3/S5
 earlier; S2 `pathscan` `b738f21` + S4 `stampscan` `2fe97f3` this run — detail →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)). **S1/S3/S5 first-of-kind reviews are DONE**
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)). **S1/S3/S5 first-of-kind reviews are DONE**
 (S3 at 0618; S1 + S5 at 0707 — verdicts + follow-ons below). **S2 + S4 reviews
 were the open first-of-kind work at that point** — both ran 2026-07-26 (below;
 corrected 2026-10-05, `200/110`).
@@ -170,11 +170,11 @@ corrected 2026-10-05, `200/110`).
 *datescan (S3) review is DONE (2026-07-23) — verdict PASS-WITH-FINDINGS
 (0 MAJOR / 4 minor / 3 Low / 1 nit), NOT gate-ready (~75% baseline noise); brief
 [`docs/reviews/2026-07-23-0618-datescan-s3-cold.md`](../../reviews/2026-07-23-0618-datescan-s3-cold.md),
-detail → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md). Its follow-ons: the DSR-apply is
+detail → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md). Its follow-ons: the DSR-apply is
 now DONE (above); the flip precondition is met (above). S1/S5 follow-ons below:*
 
 *datescan DSR1–DSR8 apply + re-baseline DONE 2026-07-23 (queue run 0707, Sonnet
-`b7b292c`) — baseline 60→0, detail → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md). The
+`b7b292c`) — baseline 60→0, detail → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md). The
 flip follow-on stays open:*
 
 *datescan advisory→blocking flip — **RULED + DONE 2026-07-23 (Mike: "agree flip
@@ -183,25 +183,25 @@ child `floor.yml` template gained a docs-scoped datescan blocking step + its
 selftest, so children adopt at their next pin bump (re-baseline first — see the
 fleet-floor item below). Honest limit recorded in-gate: DSR3 narrowed `today`, so
 a bare "today = this date" claim with no cue passes silently — tighter but not
-exhaustive. → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) at next harvest.*
+exhaustive. → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) at next harvest.*
 *wrapscan (S1) first-of-kind review DONE 2026-07-23 (queue run 0707, cold Opus) —
 **PASS-WITH-FINDINGS 1M/3m/2L**, NOT gate-ready; MAJOR is gate-scope not
 detection (154/287 baseline is deliberate SESSIONS index rows). Brief
 [`docs/reviews/2026-07-23-0707-wrapscan-s1-cold.md`](../../reviews/2026-07-23-0707-wrapscan-s1-cold.md),
-detail → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md). Two follow-ons stay open:*
+detail → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md). Two follow-ons stay open:*
 
 *wrapscan (S1) review APPLIED + **FLIPPED TO BLOCKING** 2026-07-23 (queue run
 0959, apply `ceb3fda`, flip on Mike's ruling) — option-A doctrine-surface scope,
 WS1–WS6, gated scope 0 findings; atelier `ci.yml` dropped `--warn`, child
 `floor.yml` gained a blocking wrapscan step (child re-baselines its record stores
 first). An over-wide doctrine-prose line now fails the build. →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).*
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).*
 *spellscan (S5) first-of-kind review DONE 2026-07-23 (queue run 0707, cold Opus) —
 **PASS-WITH-FINDINGS 0M/2m/1L/1n**, NOT gate-ready; core safety proven (no wrong
 corrections), real latent bug SS1 found, license/practice exclusion ruled
 permanent. Brief
 [`docs/reviews/2026-07-23-0707-spellscan-s5-cold.md`](../../reviews/2026-07-23-0707-spellscan-s5-cold.md),
-detail → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md). Follow-ons stay open:*
+detail → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md). Follow-ons stay open:*
 
 *spellscan (S5) review APPLIED + **FLIPPED TO BLOCKING** 2026-07-23 (queue run
 0959, apply `b910962`/`4872f07`, flip on Mike's ruling) — SS1–SS4 + `catalogue`
@@ -215,11 +215,11 @@ findings (ADR 0007 "Artifact signing" = supply-chain term-of-art, allow-marked;
 one general-sense `artifact`→`artefact` fixed in a decision record). atelier
 `ci.yml` dropped `--warn`; child `floor.yml` gained a blocking spellscan step
 (child re-baselines first). license/practice exclusion PERMANENT (`practice`
-×178 correct NZ noun). → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md). (Adjacent, noted
+×178 correct NZ noun). → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md). (Adjacent, noted
 not acted: two `artifact→artefact` rename-notation *mentions* — a MENTION not a
 USE — a possible future heuristic extension.)*
 - **The floor-local-seam cycle — CLOSED, no ruling owed.** Its verdict pointer
-  was harvested 2026-08-09 → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The
+  was harvested 2026-08-09 → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The
   floor-local-seam cycle's verdict pointer, retired*. LS1–LS5 were ruled and
   applied 2026-07-27 as Track A's A4 and re-verified against live code at HEAD
   before the close; the `🎯` it carried until that harvest was residue, and it

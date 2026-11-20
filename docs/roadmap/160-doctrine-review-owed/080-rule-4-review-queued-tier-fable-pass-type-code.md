@@ -7,7 +7,7 @@
   line in `docs/decisions/README.md` + the CHANGELOG entry (landed
   2026-08-06, this commit). *Intent record:* the 2026-08-04 rulings on
   the render item and D1/PS5 (Track C / Track D) + the C1F3 finding, all
-  harvested with their items to [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+  harvested with their items to [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
   § *The floor-render batch*.
   - [ ] 🎯 **Cycle CLOSED 2026-08-09 (0 MAJOR); FR1–FR6 + FR2a await Mike's
         ruling round.** The rule-4 Fable cold pass (taker: a Mike-spawned

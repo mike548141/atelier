@@ -20,14 +20,14 @@ immutable session logs/ADRs, left as-is. Mike's call, not the agent's to execute
 Strand closed 2026-07-23 (queue run): the flag-vocabulary audit found zero
 drift (`85b17dd`, vocabulary table in `instruments/README.md`) and Mike
 ratified **flags-follow-operation** as the adopted principle → detail in
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 ### ccarchive (Mike, 2026-07-17)
 
 Restore (full + delta), dataless awareness, and manifest signing all built
 2026-07-22; the two open questions answered by measurement (tool-result
 sidecar capture hole; keep-separate counselled) → detail in
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md), record
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md), record
 [`sessions/2026-07-22-1050-cc-instruments-questions.md`](../../sessions/2026-07-22-1050-cc-instruments-questions.md).
 What remains is Mike's:
 
@@ -44,7 +44,7 @@ What remains is Mike's:
   now documented in a man-page CAPTURE section, 150 tests green. One
   operator note: the shrink guard covers memory files uniformly, so a
   legitimately condensed memory file needs `--force` — safe-over-silent.
-  Detail → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+  Detail → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 - **Capture the subagent `.meta.json` sidecar — BUILT 2026-08-09** (Mike
   ruled it a new capture class 2026-07-28). New `subagent-meta` class in
   `captureClass()`, scoped to `subagents/` rather than name-matched at any depth
@@ -56,7 +56,7 @@ What remains is Mike's:
   than reasoned. Tests 95 → 99, `mandoc -T lint` exit 0, no new flags.
   Every recorded figure was stale in the same direction (425 → 545 sidecars,
   66 KB → 85.8 KB) with the *shape* intact. →
-  [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The subagent metadata sidecar is
+  [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The subagent metadata sidecar is
   captured*.
 - **Backfill the sidecars — VERIFIED FREE 2026-08-09**, which is what the
   item asked for rather than a build. Confirmed two ways without mutating the
@@ -73,7 +73,7 @@ What remains is Mike's:
 
 The header's summary line gained a **context size** and a **subagent count**
 2026-07-26 (`19ef66d`, `2e8efb5`, `ae56b75`) → detail in
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) at next harvest. Open strands:
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) at next harvest. Open strands:
 
 - **Search across transcripts — BUILT 2026-08-09** (Mike's ask, 2026-07-26;
       design pass 2026-07-27). Whole-file regex gate first so a miss is never
@@ -85,7 +85,7 @@ The header's summary line gained a **context size** and a **subagent count**
       `--search` **is** the bulk read — so the note now states the
       flags-follow-operation rule in both directions and the table gains
       `--search`, `--since`/`--until` and `--top` as genuinely shared vocabulary.
-      → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *cctranscript learns to search*.
+      → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *cctranscript learns to search*.
       ⚠️ **DONE condition 13 is PARTIALLY met, and the design was wrong about
       why.** §4's "the refs are free" does not hold at file grain — an `N.M` ref
       counts every preceding turn, so parse-only-the-survivors and exact
@@ -102,7 +102,7 @@ Two further strands stay open, both deliberately not built:
 The **exact agent count** (started *vs* finished, unknown never printed as zero)
 was built 2026-07-26 — and the archive-mode blocker recorded against it turned
 out to be false, ccarchive having mirrored `subagents/` all along → detail in
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md). One strand opened by *using* it the same
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md). One strand opened by *using* it the same
 day:
 
 
@@ -117,7 +117,7 @@ real receipts, machine-local); archive sourcing (`--from-archive`, closing the
 observe-side seam alongside cctranscript) closed 2026-07-23; the **rollup
 precompute ledger** (`8a31b95`, 3.1× warm speedup, `rollup==recompute` proven
 live, per-file keying, transparent-by-default confirmed by Mike) closed
-2026-07-23 → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md); the **context-size column**
+2026-07-23 → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md); the **context-size column**
 (`Context med/max` — per-session peak windows, median beside max, with the full
 distribution in `--json`/`--csv`) closed 2026-07-26; the **`opus-5` price gap**
 (found and closed the same day — see below) closed 2026-07-26. **Strand reopened
@@ -133,14 +133,14 @@ CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
 
 The **time-bounded price table** (ask 1) landed 2026-07-26 (`7cf8163`, merged
 `70bc1ad`) and the **`-g session` dimension** (ask 3) with it → detail in
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md). Ask 1 also **dissolved the dated
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md). Ask 1 also **dissolved the dated
 `sonnet-5` watch**: both rates are entered, each correct on its own side of
 2026-08-31, so the section below is kept only for the reasoning. The three
 open asks:
 
 **v3 is COMPLETE** — all five asks landed 2026-07-26 (pricing intervals,
 `-g session`, `--context`, multi-key sort + `--top`, sectioned `--help`) →
-detail in [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+detail in [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 #### `-g session` — BUILT 2026-07-26 (v3 ask 3); grounding kept
 
@@ -227,4 +227,4 @@ agreed to the cent with a number taken from the list, not fitted to the logs.
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +
 ccrepo, all installed CLIs now carry a `man/<tool>.1` + trimmed `--help`, closed
-2026-07-21**) → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+2026-07-21**) → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).

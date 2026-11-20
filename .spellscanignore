@@ -20,8 +20,10 @@ docs/reviews/
 docs/SESSIONS.md
 
 # Harvested/archived current-truth: preserved verbatim (the history half of
-# the current-truth/history split).
-docs/ROADMAP-DONE.md
+# the current-truth/history split). The board's pre-split archive was cut
+# into its own section on 2026-11-20 (`010/220`, tools/archivecut.py); the
+# same frozen text, so the same exemption follows it there.
+docs/roadmap/990-done-before-the-split/
 *-DONE.md
 *-ARCHIVE.md
 

@@ -16,7 +16,7 @@
   `tools/test_floor.py` + the `ci.yml` consumer note + the `tools/README.md`
   check row + the CHANGELOG entry (landed 2026-08-06). *Intent record:*
   [E6 intent cold pass](../../reviews/2026-07-29-1243-e6-intent-cold.md)
-  (EI1–EI6) + the 2026-08-04 rulings in [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+  (EI1–EI6) + the 2026-08-04 rulings in [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
   § *E6b built*.
       💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered, after a
       one-line summary of each of thirteen; an answer, not a ruling):** *"Approve

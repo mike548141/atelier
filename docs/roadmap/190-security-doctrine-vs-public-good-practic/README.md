@@ -14,7 +14,7 @@ into that delta:
 Mapping done 2026-07-22 (record:
 [`sessions/2026-07-22-1025-security-canon-gap-map.md`](../../sessions/2026-07-22-1025-security-canon-gap-map.md)
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
-instance-layer) → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+instance-layer) → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 - **Already held — name, don't rebuild** (verified by the mapping,
   2026-07-22): automated scanning in the pipeline (the floor scanners), peer

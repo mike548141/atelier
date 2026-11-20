@@ -36,7 +36,7 @@ rulings are Mike's (REVIEW rule 3), and each application earns a further cold
 pass while a MAJOR stands.
 
 > 📦 **All 6 items complete, both cold passes, and the review cycle CLOSED**
->   → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) (A5a fixed 2026-07-27; A1–A4 + A5b
+>   → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) (A5a fixed 2026-07-27; A1–A4 + A5b
 >   landed 2026-07-27, worktree `track-a-fail-opens`; the application's own
 >   pass ruled and applied 2026-07-28, TA1–TA9, worktree
 >   `ta-findings-application`; the TA application's terminal cold pass ran
@@ -68,7 +68,7 @@ further down this file; they are pointed at, not restated.
   § *Doctrine — review-owed*. The first live run is the finding: **5 of 14
   repos read `wired ✅` and had been RED on their default branches since the
   2026-07-25 rollout**, unnoticed for three days. Detail →
-  [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+  [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 ### Track C — kill the advisory decay
 
@@ -81,7 +81,7 @@ undercount — the fourth wrong blast radius on this programme and the first tha
 
 > 📦 **C1 phase 1 complete, and its review cycle CLOSED** (schema, expiry,
 >   A1(b); rule-4 cold pass 2026-07-28, 0 MAJOR — terminal) →
->   [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md). What remains of C1 is C1b below —
+>   [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md). What remains of C1 is C1b below —
 >   the migration and the removal of the transition spelling.
 - **C1F3 residue — CLOSED 2026-08-06** (wt: floor-render-batch-0806):
       `floorfleet` now strips child-authored `why`/reason strings through
@@ -90,7 +90,7 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       one child's declarations were reaching the terminal; now zero, with
       ordinary text byte-identical) — plus a latent board-wide crash on an
       array-shaped child config fixed en route. Detail →
-      [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The floor-render batch*.
+      [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The floor-render batch*.
 - 🎯 **A warn-only registry scanner rendered `✅ enforced` — RULED
       2026-08-04 and BUILT 2026-08-06** (wt: floor-render-batch-0806): the
       board now has three legible states — `✅ enforced`, `advisory` (a
@@ -100,7 +100,7 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       itself, never a hand-maintained list, pinned both directions by
       selftest + suite. Exit codes unchanged: a warn-only check's
       environment error still blocks. E6b's 🟡 advisory-count note shares
-      no wording. Detail → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+      no wording. Detail → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
       § *The floor-render batch*.
 
 ### Track D — finish the registry
@@ -131,7 +131,7 @@ registry checks only.*
       reasons — 10 findings as the tally counts them, on 8 marker lines
       across 6 files; the findings figure is the denominator the scan
       itself reports, PD2 ruling 2026-08-06). Tests 53 → 73; the advisory `ci.yml` step now scans the
-      gateable surface. Detail → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+      gateable surface. Detail → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
       § *The 2026-08-06 queue take* (the pointer's delta, harvested at
       the review) and the CHANGELOG entry. **PS5 delivered 2026-08-06**
       (above); the blocking flip stays a separate later ruling.
@@ -140,7 +140,7 @@ registry checks only.*
 >   owed; the loader half was already landed — a parallel session's close
 >   (`21f4b36`) independently corrected the same stale claim minutes before
 >   this merge, from the tree not the entry) →
->   [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
+>   [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The 2026-08-06 queue take*.
 
 ### Track E — precision, so findings stay believed
 
@@ -167,7 +167,7 @@ adopter mistakes.*
       structural run exit 0). E4 and the clock-times boundary entry close
       with the same fix. G5 stays deferred (revisit on first real miss).
       Rulings verbatim + build detail and stated limits →
-      [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *E7 built*; sweep record:
+      [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *E7 built*; sweep record:
       [sweep record](../../sessions/2026-08-03-2050-leakscan-pii-sweep.md).
       Rule-4 ⏳ queued (§ *Doctrine — review-owed*).
 - **D1's consequence — RULED 2026-08-09 (Mike: scoped markers) and
@@ -191,7 +191,7 @@ adopter mistakes.*
       unrecognised licence now keeps the header checks (E1), and the sixteen
       unambiguous OSI trove classifiers resolve instead of flagging (E2).
       Rule-4 cold pass 2026-08-06 (0 MAJOR, terminal); LC residue ruled and
-      applied the same day. Detail → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+      applied the same day. Detail → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
       § *The licence gate learns proprietary*. (These two entries stood stale
       as open work until 2026-08-06 — the cycle-state residue class, corrected
       from the tree.)
@@ -199,19 +199,19 @@ adopter mistakes.*
       suppress): whole-shape fingerprint carve-out, both ruled spellings,
       canaried both directions — a fingerprint-prefixed body of the wrong
       length still blocks — and the suppression is counted in the tally,
-      never silent. → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *E6b built*.
+      never silent. → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *E6b built*.
 - **`PUBLIC_KEY_RX` subtracts silently — FIXED 2026-08-09.** It was a
       genuinely separate subtraction from the `public-key fingerprint(s)`
       counter that reads like it (E3's carve-out, counted inside the entropy
       loop; this one skipped the loop from outside it), settled by probe not by
       reading. Two real suppressions on the live tree were invisible. Counted
       now, suppression byte-identical, tests 122 → 134. →
-      [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *secretscan's last invisible
+      [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *secretscan's last invisible
       subtraction*.
 - **E4 — FIXED 2026-08-06 with E7's D2** (one fix, both entries): the
       IPv6-shape rule now requires `::` or four-plus groups; clock times,
       port maps, ratios and hex colour triplets pass, real addresses still
-      flag, tests both directions. → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+      flag, tests both directions. → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
       § *E7 built*.
 - **E8 — FIXED 2026-08-10**, the first child-reported defect to close under
       Track F. The reported diagnosis was wrong and the correction is the
@@ -224,7 +224,7 @@ adopter mistakes.*
       E8 entry itself, which the bug was mangling. Root-anchored paths are
       still skipped whole, the docstring's named false negative, now pinned
       by a test. Module tests 76 → 86. →
-      [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *E8 — pathscan truncated
+      [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *E8 — pathscan truncated
       root-anchored paths*.
 
 ### Track F — the guard governance model (Mike, 2026-08-02)
@@ -260,7 +260,7 @@ it keeps being broken. All are self-authored doctrine when they land ⇒ rule-4
 - **A state change and the bookkeeping the floor demands of it ship together**
   — enacted 2026-08-03 as two preamble clauses in this file (the `[x]`/harvest
   single commit, and the inline-claim close); grounding harvested to
-  [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md), rule-4 `⏳` queued in
+  [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md), rule-4 `⏳` queued in
   § *Doctrine — review-owed*.
 - **Bulk deletion from a record store is a show-first action** — Mike's call,
   it narrows agent autonomy → § *For your consideration* below.
@@ -278,7 +278,7 @@ both directions and are corrected in the harvest: the five stale residues were
 seven (two still live at HEAD, fixed 2026-08-03), the three grammar instances
 were 19 across history. Day-one proof: the live tree warned on exactly the
 specimens the build was funded to catch, fixed in the landing merge. Entries →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The ⏳ pointer grammar mechanised*;
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The ⏳ pointer grammar mechanised*;
 rule-4 `⏳` queued in § *Doctrine — review-owed*.
 
 
@@ -337,7 +337,7 @@ existed to prevent — a `Stop` hook cannot un-print, so each block appended a
 second copy of the verdict rather than replacing it. **Destroy-or-repurpose is
 Mike's open ruling** → item *The reply gate is UNWIRED* in this section. The
 repo plane is unaffected and stands. Detail harvested to
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The communication floor*.
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The communication floor*.
 
 - 🎯 **Repo plane rescoped to prose the principal reads — RULED and DELIVERED
       2026-08-10** (wt: plainscan-rescope-0810). Mike opened by proposing

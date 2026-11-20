@@ -15,7 +15,7 @@
 >   RULED 2026-08-06 (Mike, plain-language walk-through) and APPLIED the
 >   same day (wt: ruled-fixes-0806) — 11 fixed, 3 accepted as recorded,
 >   decisions stamped in the verdicts →
->   [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
+>   [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The 2026-08-06 queue take*.
 
 
 
@@ -48,7 +48,7 @@ terminal 2026-07-23; the v2-plugin cycle — 1215 pass → VP1–VP8 applied
 AWA1–AWA4 accept-all applied terminal 2026-07-23; the security-canon cycle —
 0222 pass 1M/1m/3L/1n → SC1–SC6 applied `c27189e` → 0330 rule-4 application
 pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 - 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 0M/3m/3n
   — [verdict](../../reviews/2026-07-26-2215-evidence-escalation-rung-cold.md); EE1–EE6

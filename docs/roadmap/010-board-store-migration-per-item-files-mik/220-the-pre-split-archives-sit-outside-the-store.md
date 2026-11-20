@@ -26,3 +26,19 @@
       `ROADMAP-DONE.md` and `SESSIONS-ARCHIVE.md`: route (a) with the
       lossless proof, route (b) for any repo where the proof fails; atelier
       first as the worked example, then the health sweep carries it.
+      **atelier's part done 2026-11-20** (a worker of session 19378351):
+      `tools/archivecut.py` builds both routes for both archives, and ran
+      route (a) here. `docs/ROADMAP-DONE.md` is now
+      [`990-done-before-the-split/`](../990-done-before-the-split/README.md):
+      218 `[x]` item files, the 62 `## ` headings and every non-entry line
+      kept verbatim in its README; the proof passed (multiset of 4,604
+      non-heading lines, byte-for-byte rebuild, 63 re-pointed links mapping
+      back), and `archivecut --verify` repeats it from disk. 157 links in 27
+      files across the tree were re-pointed, records included. The guards
+      that named the file now know the section (`sizescan` integrity,
+      `pathscan` records, `coldsweep`'s bar, the spelling and wrap ignores).
+      A dry run on every child that keeps one of these archives, no writes:
+      ten of twelve board archives would cut and two would move whole (no
+      `[x]` entries to cut); all three session archives would cut.
+      **Still owed, so this stays open:** each child's own cut, run in that
+      child by the health sweep (`010/230`), then `--verify` there.

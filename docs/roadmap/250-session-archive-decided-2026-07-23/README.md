@@ -6,4 +6,4 @@ encryption concern; one archive, tamper-checked, capture widened same day
 (sidecars + memory + prompt history). Consciously not taken: the NAS
 second leg and a rolling-retention clock — history is kept indefinitely
 unless Mike asks for a retention rule. Detail →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).

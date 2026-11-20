@@ -2,7 +2,7 @@
 
 Fixed at the class in `8276a54` (14 regex sites across 12 scanners, re-enumerated
 at HEAD before this close), and harvested the same day →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *spellscan's reason class silently voided
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *spellscan's reason class silently voided
 live allow-markers*. Both of the item's open threads — whether to widen to `\S`,
 and the check-the-siblings precondition — were closed by the shape of the fix
 rather than deferred. The class-level residue it *did* leave open (a marker that

@@ -52,7 +52,7 @@
             here by standing rule; the same convention as B1's scheduled
             job), as estate-state reporting rather than atelier
             machinery. Item queued below. Detail →
-            [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *E6b built*.
+            [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *E6b built*.
       - [ ] **Estate-wide advisory-count view (Mike ruled 2026-08-09).**
             One screen totalling each repo's secretscan advisory count
             across the estate. Lives in the private estate-root repo —
@@ -117,7 +117,7 @@
             and placeholder/indirection/path suppression keeps precedence
             (statements of what a value is *for*, not its variety). SF3's
             canary suite (16 shapes, count pinned, contract stated) now
-            guards the gate. Detail → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+            guards the gate. Detail → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
             § *secretscan residue + E6c*.
 
       **The split that makes the intent affordable** (recorded because it is

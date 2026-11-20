@@ -6,7 +6,7 @@ locally: one child's floor run passed, another failed on a real `leakscan`
 finding — the workflow itself ran clean in both, which is the end-to-end proof
 the mechanism works.
 
-> 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+> 📦 **2 completed items** in this section → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
 >   (the 13-repo wiring, and the repo-specific scoping preserved with it).
 
 - 🎯 **EP1–EP10 — RULED 2026-08-04 and the application DELIVERED
@@ -25,7 +25,7 @@ the mechanism works.
       from exempt to blocked. Verdict:
       [ADR 0008 cold pass](../../reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md);
       detail + the withdrawn-Opus-pass history →
-      [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The EP application*. The
+      [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The EP application*. The
       MAJORs keep the cycle open — the application's rule-4 pointer is
       queued in § *Doctrine — review-owed*.
 
@@ -41,14 +41,14 @@ per-repo detail belongs in the operator's private estate-root repo, and the
 triage list lives there. Only the *classes* are named below, because the classes
 are what generalise to any adopter.
 
-> 📦 **1 completed item** in this section → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+> 📦 **1 completed item** in this section → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
 >   (the tracked data export — ruled, executed, and the three things its triage
 >   surfaced that the original entry could not have known).
 
 - **Two clock times read as an IPv6 address — FIXED 2026-08-06** (found
       2026-07-26; ruled 2026-08-04 via E7's D2; one landing with E4): the
       rule now requires `::` or four-plus groups, must-flag/must-pass tests
-      both directions. → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *E7 built*.
+      both directions. → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *E7 built*.
 
 ### Candidate invariant — the public-record join, breached three times
 
@@ -106,7 +106,7 @@ the whole private estate for one boolean. It is used when the token happens to
 carry it and inferred from run history when it does not — a floor that has never
 run is the same practical absence whatever switched it off — and the board
 declares which authority answered. Detail →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 **5. `advisory` needs a stated reason and an expiry.** `disabled` requires a
 reason; `advisory` does not, and neither carries a review date. So an advisory
@@ -142,7 +142,7 @@ Four ways, same goal, very different blast radius:
 private estate-root repo. A (token in atelier's public CI) and C (local cron)
 closed unchosen; D (the session-close ritual) stayed rejected. All four options
 are preserved verbatim with their dispositions in
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md), because a decision is only legible beside
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md), because a decision is only legible beside
 what it was chosen over.
 
 **B1 IS LIVE — token minted and the job PROVEN end to end (2026-07-28).** Mike
@@ -156,7 +156,7 @@ token's.)* A
 clones**: 13 children plus the parent enumerated from GitHub, every run status
 read, exit 1 on the five red floors — failing for the right reason, which is the
 only kind of red worth having. Detail →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 > 🔎 **The degraded-authority path proved itself in production, not just in
 > tests.** The board printed *"Actions-off was INFERRED (not read) for 14
@@ -187,7 +187,7 @@ until a repo is already public is backwards.
 **Landed on 11 of 13.** 10 declare `Apache-2.0` and pass; 3 are `disabled` with
 a stated reason (below); one needed a false-positive marker.
 
-> 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+> 📦 **2 completed items** in this section → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
 
 
 ### For your consideration — ideas raised this session, not yet decided (2026-07-25)
@@ -202,8 +202,8 @@ The **tracked-shim check** landed 2026-07-26 — `floorfleet` now reports
 `shim:` (a repo fact, so `--remote` carries it estate-wide; all 13 children
 `current`) separately from `hook:` (still machine-local, since
 `core.hooksPath` never travels) → detail in
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 The **suggested-fix** strand closed 2026-07-26: `linkscan` now prints the
 replacement path where it is uniquely computable, advisory-only (`b89a306`)
-→ detail in [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+→ detail in [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).

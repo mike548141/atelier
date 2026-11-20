@@ -13,7 +13,7 @@
       exempt the term list) would hard-block that repo's future self-naming
       lines with no in-repo hatch — **this third premise is now measured
       and false; see the re-measurement below.** Full account:
-      [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *C5 executed* (correction).
+      [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *C5 executed* (correction).
 
       - [ ] 🎯 **COLD PASS RAN 2026-08-09 (tier: Fable, rule-4 spawn by Mike on
             his stated distrust of the authoring session): PASS-WITH-FINDINGS —

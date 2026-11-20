@@ -1,0 +1,1 @@
+- [x] Foundation review (2 Fable + 1 harvest) — `docs/reviews/2026-07-10-…`.

@@ -8,7 +8,7 @@ public as a **named worked example** (README "If you're adopting this"). What wa
 
 
 Completed sharing work (public release, the plugin bundle widening, atelier's own
-CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+CI, child-CI scanner floor, linkscan build + wiring) → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 ### Cold passes from the 2026-07-29 publish-surface + deferral session — RUN
 
@@ -66,7 +66,7 @@ reviewer pre-findings (the SL2 channel class, second live instance).
 
 > 📦 **Both cold passes ran 2026-08-03, both cycles CLOSED (terminal, no
 >   MAJOR), all six residue findings RULED and applied the same day** →
->   [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The two application passes —
+>   [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § *The two application passes —
 >   PA1–PA4, PSA1–PSA2*. Nothing open remains in this section.
 
 ### Publication surface — what a public repo reveals about its own defences (2026-07-29)
@@ -99,11 +99,11 @@ weaken the repo?"**
 **P1 — the command allowlist: RULED ⓑ (untrack everywhere, uniform) and
 applied 2026-07-29** — atelier + all four doctrine surfaces done, children at
 their next pin bump. Full ruling, its named cost, and what it does not undo →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § Sharing.
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § Sharing.
 
 **P2 — `publishscan` built and registry-wired blocking, 2026-07-29.** The class
 is mechanical now rather than a memory: it judges the **path**, not the
 contents — the one question no other scanner here asks, and the reason both
 content scanners passed `rpi`'s allowlist correctly. Build detail, provenance
 per pattern, and the stated residual →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § Sharing. Its cold pass is queued below.
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md) § Sharing. Its cold pass is queued below.

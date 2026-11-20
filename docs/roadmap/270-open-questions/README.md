@@ -14,12 +14,12 @@
   public children keep both triggers (free). The template itself stays
   two-trigger — it serves public repos too, and the N4 publish-safety
   rationale holds there. Full two-sided analysis preserved →
-  [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+  [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
 
 
 The `MODEL-ECONOMICS.md` → `ECONOMICS.md` rename was executed 2026-07-22
 (nothing dangles; children re-point at their next pin bump) →
-[`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+[`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).
 
-Resolved questions (docker-heap standardisation, estate credential governance) → [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md).
+Resolved questions (docker-heap standardisation, estate credential governance) → [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md).

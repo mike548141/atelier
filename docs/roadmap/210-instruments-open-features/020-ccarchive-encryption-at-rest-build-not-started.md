@@ -1,7 +1,7 @@
 - [ ] **ccarchive: encryption at rest — BUILD not started; one decision open (🎯 Mike)**
   The **design pass is done** (2026-07-26, `d913698`/`7701a62`) →
   [`instruments/ccarchive.encryption.design.md`](../../../instruments/ccarchive.encryption.design.md),
-  completed detail in [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md). Direction, shape,
+  completed detail in [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md). Direction, shape,
   key management, granularity, migration and DONE conditions are all settled
   there. Two roadmap premises were **corrected by measurement**: the zero-dep
   tension doesn't exist for the Node instruments (`node:crypto` has AEAD +

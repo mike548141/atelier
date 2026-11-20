@@ -19,7 +19,7 @@
   CHANGELOG entry (landed 2026-08-06) + the 2026-08-09 scoped-marker
   follow-up. *Intent record:*
   [sweep record](../../sessions/2026-08-03-2050-leakscan-pii-sweep.md) + the
-  2026-08-04 E7 ruling in [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)
+  2026-08-04 E7 ruling in [`../990-done-before-the-split/README.md`](../990-done-before-the-split/README.md)
   § *E7 built*.
       💬 **Mike's answer, 2026-11-09 (to options queue run 722ac2e2 offered; an
         answer, not a ruling):** *"Strict, with a warning period"*, put to him with `160/480` (LK1 is AM2): see that item's note.
