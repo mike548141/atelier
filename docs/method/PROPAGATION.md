@@ -983,10 +983,57 @@ pointed at it?" but:
 - **How would we know a repo never adopted it?** If the answer is "someone would
   notice", there is no answer. See the next section.
 
+**A called gate is only as fresh as the parent's working tree** (`320/040`).
+A child's hook finds the scanners through `hooks.atelierTools`, a path to the
+parent's checkout on disk, not a ref or a SHA. So *fresh* means whatever that
+tree holds at the instant of the commit, and a child that commits while a
+parent session is part-way through editing a scanner is gated by half-written
+code. That is the mirror of the stale copy above: the called gate can enforce
+a standard nobody has chosen yet, and still report success. No occurrence is
+recorded; this is a mechanism, not an incident.
+
+The hook's trust note does not cover it. That note (in `tools/pre-commit.sample`)
+answers a different threat, *whose code does the hook run*, and tells whoever
+sets the hook up to point it only at a tools directory they own. A directory
+you own can still be mid-edit. What narrows the exposure is already doctrine:
+write-heavy or multi-commit work on the parent happens in a worktree
+(`CONCURRENCY.md` § *The trigger*), so the checkout that children call stays at
+the last landed state. What stays open is a light write made straight on that
+checkout, and a session that skipped the worktree. Closing it fully would mean
+resolving the scanners from a ref instead of a path, a change to the call
+mechanism that is not made here and belongs with the open question of
+single-sourcing the scanner harness.
+
 The parent is not exempt. atelier runs the floor it ships, scoped by the same
 config a child uses. A parent enforcing something its children don't — or missing
 something they have — is this defect one level up, and is exactly how a
 "canonical" repo drifts from its own canon.
+
+**What the parent runs alone, and which of it is legitimate** (`115/440`).
+The sentence above is about a check a child could run. Three kinds of thing in
+atelier's own CI look like it and are not the same, and each is told apart by
+whether the check's subject exists in a child at all:
+
+- **Parent-only by nature.** The tool, instrument and man-page checks test
+  atelier's own code. `blockscan` checks that a ruling moves the doctrine
+  sections and scaffold template it maps, and every path its map names exists
+  only in atelier, so a registry line would exit 2 in every child. Nothing a
+  child holds is left unchecked, so there is no drift to hide.
+- **Parent-only for now, which is the defect one level up, named.**
+  `stampscan` compares a child's or the template's inlined copy of the floor
+  against its parent source, and it is wired advisory in atelier's CI alone
+  until child-side resolution is pin-aware (`ST3`, open). Children hold the
+  copies it exists to check and nothing checks them, so this is a gap held
+  open on purpose, not a design. It closes when the check reaches the registry.
+- **Not parent-only at all.** Commit-signature verification runs in every
+  child too, through `floor.yml`. The two differ in the trust root only:
+  atelier verifies against its own `allowed_signers` because it is the root, a
+  child against the copy at its pin.
+
+The test for a check that only the parent runs: *does what it checks exist
+anywhere but the parent?* If not, it is parent-only by nature, and the
+workflow step beside it says so. If yes, the parent is enforcing what its
+children do not, and the paragraph above applies in full.
 
 **A parent's local narrowing is written where its children can read it**
 (`310/130`, option a). A scope declaration, an exemption or any other

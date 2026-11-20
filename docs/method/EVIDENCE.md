@@ -377,10 +377,28 @@ shared checkout (`CONCURRENCY.md`), and land a worktree by
 The filing child's principal ruled this on 2026-09-06 and widened it from
 *destructive* to *any* act after a plain `git commit` swept a peer's work.
 Mike adopted it as house doctrine on 2026-11-09 (board item `320/390`; his pick
-from options offered, an answer, not a ruling in his words). **No guard:** the
-class is not mechanisable, since nothing inspects a session's shell
-invocations, so this rule has no forcing function and is counted as the kind
-`020/220` exists to count.
+from options offered, an answer, not a ruling in his words).
+
+**No guard yet, and the first reason given for it was wrong.** This section
+once said the class could not be mechanised because nothing inspects a
+session's shell invocations. On Claude Code that is false: a `PreToolUse` hook
+is handed the command text a session gives Bash, before it runs, and two
+atelier tools read it. `tools/modelguard.py` denies a `claude` start that names
+no model (it also reads the Agent tool's `model` field). `tools/secretguard.py`
+denies a command whose printing stage names a secret file. Each judges one
+command for one fixed pattern. Neither looks for a check chained to the act it
+guards, and nothing else does, so this rule still has no forcing function and
+is still counted as the kind `020/220` exists to count.
+
+What is open is whether a warn-only hook should read for `<check> && <act>`,
+`;` and pipes. The costs are real: it would fire on many harmless compound
+commands; both hooks above let a payload they cannot read through, so a hook
+fails open; a hook runs only where it is wired, and a session on another
+machine or in the cloud has none (`020/460`); and a script that chains the two
+inside itself is invisible to it, as `modelguard`'s own docstring says of a
+script that launches `claude`. Whether it earns its cost is the question of
+the value ranking in `PROPAGATION.md` § *When a rule keeps breaking*, not a
+reason found in this section.
 
 ## 18. A negative needs a positive control first
 
