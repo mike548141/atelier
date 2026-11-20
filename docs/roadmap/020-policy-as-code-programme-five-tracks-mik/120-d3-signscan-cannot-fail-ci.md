@@ -1,4 +1,4 @@
-- [ ] 🎯 **D3 — `signscan` cannot fail CI.** It is invoked with `--warn` on
+- [x] 🎯 **D3 — `signscan` cannot fail CI.** It is invoked with `--warn` on
       both planes, so an unsigned commit produces an annotation and never a
       red. That is the deliberate warn-first rollout state and it has outlived
       its purpose; the flip is Mike's, and it pairs with his key rotations.
@@ -10,3 +10,6 @@
         it is the home: track the flip there. Nothing above was changed; the
         original text is as it was. To revert: delete this line (its commit is
         listed in `docs/sessions/2026-11-16-0534-asks-tidy-applied.md`).
+      ✅ **Closed 2026-11-20 UTC by queue run 08cd3b95 as merged:** per the
+      tidy line above (approved 2026-11-16), the decision lives in `170/010`,
+      which stays open with the flip. Nothing here is lost; nothing is decided.

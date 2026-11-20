@@ -1,4 +1,4 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the queue-run skill carries the whole
+- [x] 🎯 **Rule-4 cold pass queued: the queue-run skill carries the whole
       run brief (`180/010`, `180/030`), and worker teardown (`180/020`).**
       (claimed 2026-10-25-2016, wt: atelier-cold-160-900; cold pass: a Fable 5.1
       reviewer under an Opus 5.5 orchestrator, session 52e11d15, which holds
@@ -85,3 +85,6 @@
       span of two or more words or a `>` line in its message, or a reasoned
       `quotescan:allow:` line. It reads the form, never whose words they are.
       Warns until 2027-05-31 (the run's choice of date), then blocks.
+      ✅ **Closed 2026-11-20 UTC by queue run 08cd3b95:** every finding is
+      answered and applied, the last one (QK1's second counsel) built as
+      `tools/quotescan.py` on 2026-11-10, so nothing of this cycle remains open.
