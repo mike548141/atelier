@@ -14,7 +14,7 @@ line, so they overlap Open and Claimed.
 
 | Section | Open | Claimed | 🎯 Waiting | ⏳ Review |
 | :-- | --: | --: | --: | --: |
-| [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 7 | 0 | 1 | 0 |
+| [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 6 | 0 | 1 | 0 |
 | [Policy-as-code programme — five tracks (Mike approved 2026-07-27)](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md) | 17 | 0 | 4 | 0 |
 | [Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)](roadmap/030-enforcement-propagation-the-estate-rollo/README.md) | 9 | 0 | 0 | 0 |
 | ✅ [Principal-set dates: mandate vs default (Mike, 2026-08-09)](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 269 | 0 | 82 | 58 |
+| **All sections** | 268 | 0 | 82 | 58 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -70,7 +70,6 @@ line, so they overlap Open and Claimed.
 - [ ] 🛑 [The board-store cold pass RAN 2026-08-15 and the cycle stays OPEN — a…](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md)
 - [ ] 🎯 [A child has used &#91;~&#93; for partially delivered where the house means…](roadmap/010-board-store-migration-per-item-files-mik/100-ros-carries-38-items-using-a-different-tilde.md)
 - [ ] 🔎 [A claim on a long-titled item fails the wrapscan floor — on the…](roadmap/010-board-store-migration-per-item-files-mik/130-a-claim-fragment-on-a-long-title-fails-wrapscan.md)
-- [ ] [Every repo keeps the house board, and the health sweep enforces it.](roadmap/010-board-store-migration-per-item-files-mik/230-every-repo-keeps-the-house-board.md)
 - [ ] [Remove the full-form index grace once 2026-12-04 has passed.](roadmap/010-board-store-migration-per-item-files-mik/250-remove-the-full-form-index-grace-after-its-date.md)
 - [ ] 🔎 [archivecut in the field: five rough edges from its first fleet run.](roadmap/010-board-store-migration-per-item-files-mik/280-archivecut-in-the-field-five-rough-edges.md)
 - [ ] [Remove the retired-session-index grace once 2026-12-04 has passed.](roadmap/010-board-store-migration-per-item-files-mik/290-remove-the-retired-session-index-grace-after.md)
