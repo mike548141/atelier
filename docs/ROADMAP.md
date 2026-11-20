@@ -33,6 +33,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [The index lists every finished item, so finished work is read at…](roadmap/010-board-store-migration-per-item-files-mik/210-the-index-lists-every-finished-item.md)
 - [ ] [The pre-split archives sit outside the board's store.](roadmap/010-board-store-migration-per-item-files-mik/220-the-pre-split-archives-sit-outside-the-store.md)
 - [ ] [Every repo keeps the house board, and the health sweep enforces it.](roadmap/010-board-store-migration-per-item-files-mik/230-every-repo-keeps-the-house-board.md)
+- [ ] 🔎 [The repo template still scaffolds the old one-file board, so every…](roadmap/010-board-store-migration-per-item-files-mik/240-the-repo-template-still-scaffolds-the-old-board.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 

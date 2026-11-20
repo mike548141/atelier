@@ -30,10 +30,17 @@ list in the rulings file; that file wins.
 5. **The principal's queue holds no duplicates**: open decisions, questions,
    rulings and actions waiting on the principal, de-duplicated within and
    across repos, answered ones marked with the citation.
-6. **No record store kept as one growing file**: session log → index plus one
-   file per session (RECORD.md); board → per-item files plus the generated
-   index, done items included; any other one-file list of entries → one file
-   per entry with an index.
+6. **No record store kept as one growing file, and none missing**: session
+   log → index plus one file per session (RECORD.md); board → per-item files
+   plus the generated index, done items included. A repo with **no board at
+   all** fails this item too: it gets the empty store (`docs/roadmap/` with
+   its `README.md`, and the generated index). A frozen pre-split archive
+   (`ROADMAP-DONE.md`, `SESSIONS-ARCHIVE.md`) is cut into the store, entry by
+   entry, once roadmap `010/220` has built and proved the cut; until then it
+   is reported, not touched. Any other one-file list of entries → one file
+   per entry with an index. **Exempt:** `CHANGELOG.md`, a release log in a
+   standard format that outside readers expect and no session reads at
+   start; and reference documents, which are not entry lists.
 7. **Nothing left behind** by past sessions. Per repo: no stale open pull
    requests or branches, no leftover worktrees, stashes or untracked files, no
    claim held by a session that is no longer live. Per machine: no orphaned
@@ -66,8 +73,10 @@ as a headless session in atelier, not as an Agent.
    item 7: `cclive`, `ps` for orphaned session and tool processes, the
    worktree and temporary directories, temporary configuration). The
    orchestrator's own repo counts too.
-   Archived repos are exempt. A repo with no pin and not archived is a scope
-   question for the principal.
+   Archived repos and forks of another owner's repo are exempt, and are left
+   as they are. Every other repo is in scope: one with no pin is adopted
+   (`/atelier:create-repo`, standardise mode), not put to the principal as
+   a question.
 2. **Digest**, if none exists for origin/main's short SHA: one headless Opus
    session in atelier reads `git diff <oldest pin> origin/main -- docs/method
    docs/build/templates` in full and writes the child obligations: mandatory on
