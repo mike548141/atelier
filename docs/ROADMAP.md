@@ -721,6 +721,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Hand-up from a private child: leakscan's nz-phone rule fires on…](roadmap/320-child-filed-findings-via-pointing-up/850-hand-up-leakscan-nz-phone-fires-on-bracketed-hex-byte-strings.md)
 - ✅ [Hand-up from a private child: leakscan G3 has no form for a binary…](roadmap/320-child-filed-findings-via-pointing-up/860-hand-up-g3-has-no-form-for-a-generated-binary.md)
 - ✅ 🔎 [Hand-up: under the new visibility slot (320/370), a child whose…](roadmap/320-child-filed-findings-via-pointing-up/870-hand-up-a-wrapped-visibility-bullet-fails-the-floor-copy-check.md)
+- [ ] 🔎 [Hand-up: pathscan cannot tell a historical record from a live page,…](roadmap/320-child-filed-findings-via-pointing-up/880-hand-up-pathscan-cannot-tell-a-historical-record-from-a-live-page.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
