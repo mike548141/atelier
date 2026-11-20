@@ -45,6 +45,50 @@ approval from there, never from memory.
    before any wait, schedule a long fallback wake-up. The driver's exit wakes
    the session anyway.
 
+## Rank and route the whole queue first
+
+Every run, before any pass starts. The principal, 2026-11-20, verbatim:
+*"when I run fable drain or its equivalent, and similar code/skills/whatever
+that get fable reviews completed like using Agent SDK or Batch API it should
+first look at all the reviews in all the repos to priortise the highest
+priority ones based on either my direction or the reviews importance, urgency,
+and the risks it mitigates or value of work it unlocks. Make sure that is
+built into them so it happens everytime I run it"*. The same day the principal added that
+each review goes to the cheapest route that still produces a review of the
+same standard as a local pass: a batch route first where a review fits it,
+then API credit, then the weekly budget, which a drain then uses up.
+
+It is a gate, not a habit. ccfleet's drain refuses a config without
+`queue.ranked` and starts nothing while it exits nonzero; the adopter's queue
+makes `ranked` (and `next`) refuse until this run's ranking is sealed. The
+ranking and routing are the adopter's, kept private:
+
+1. **Read every briefed, unrun review in every repo**, with what the judge
+   needs: the item, its age, the principal's words on it, dates ahead, what it
+   guards, what waits on its verdict, and what each route can and cannot do
+   for it.
+2. **Rank by judgement:** the principal's direction first (the words for this
+   run, then standing words on an item); then importance, urgency (a real
+   date first), the risk the review mitigates (credentials, public exposure,
+   live or irreversible paths, money) and the value of the work it unlocks; a
+   pass whose core needs a live write last; a standing repo order breaks ties
+   only.
+3. **Route each review to the cheapest route that reaches local quality**,
+   among the routes the principal has opened. A review needing probes or
+   re-run lines does not fit a single-request batch route; one needing tools
+   only the local session has fits only local. Unsure means the dearer route:
+   quality is never traded for price.
+4. **Seal it**, with the principal's words for this run (or "none given").
+   A seal refuses while any ready review is missing, unreasoned, on a closed
+   route, or on a dearer route than it fits without saying why the cheaper one
+   can't match. It lasts one budget.
+
+Each route takes only its own reviews, in rank order. The route that spends
+the expiring budget takes its own first, then any other route's not yet
+started: an expiring budget is lost at the reset, credit is not. A review
+briefed after the seal runs last on the local route until it is ranked and
+the ranking sealed again.
+
 ## Briefs are never left owed
 
 Writing a brief is not review work, so a review that "needs a brief" is a
@@ -62,7 +106,8 @@ Never brief a pass whose subject this session built.
    session did and did not do: which briefs it wrote, which writers it
    started), `pass_prompt` → [`orchestrator-prompt.md`](orchestrator-prompt.md),
    `pass_model` (the orchestrator's model; the reviewer's tier is the
-   prompt's). ccfleet keeps one launched list per budget (keyed by
+   prompt's), `queue.ranked` (the gate above). Then rank, route and seal the
+   queue (section above): the drain starts nothing until it is. ccfleet keeps one launched list per budget (keyed by
    `reset_utc`), and ignores a stop file older than the driver, saying so in
    its log.
 2. **Tell the live sessions once** (`ListAgents`, then `SendMessage`): quote

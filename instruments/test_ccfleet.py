@@ -279,6 +279,7 @@ class EndToEnd(unittest.TestCase):
                       "beta": {"visibility": "private"}},
             "pass_prompt": self.prompt, "pass_model": "model-pass",
             "queue": {"next": [self.queue, "next", "{LAUNCHED}"],
+                      "ranked": [self.queue, "ranked", "{BY}"],
                       "take": [self.queue, "take", "{REPO}:{ITEM}", "{BRIEF}"],
                       "release": [self.queue, "release", "{REPO}:{ITEM}"]},
         }
@@ -493,6 +494,22 @@ class EndToEnd(unittest.TestCase):
         self.assertIn("DRAIN EXIT: queue error", r.stdout)
         self.assertIn("queue next failed rc=3: queue tool broke", rd(os.path.join(self.tmp, "kit", "driver.log")))
         self.assertEqual(self.calls(), [])
+
+    def test_an_unranked_queue_starts_nothing(self):
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\n")
+        r = self.cli("drain", env={**self.env, "FAKE_QUEUE_RC_RANKED": "5"})
+        self.assertEqual(r.returncode, cf.EXIT_SETUP, r.stdout + r.stderr)
+        self.assertIn("DRAIN EXIT: not ranked", r.stdout)
+        self.assertEqual(rd(os.path.join(self.tmp, "ranked.log")), "orch-1\n")
+        self.assertEqual(self.calls(), [])
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "take.log")))
+
+    def test_a_drain_config_without_ranked_is_refused(self):
+        del self.cfg["queue"]["ranked"]
+        self.write_cfg()
+        r = self.cli("drain")
+        self.assertEqual(r.returncode, cf.EXIT_USAGE, r.stdout + r.stderr)
+        self.assertIn("queue.ranked", r.stdout + r.stderr)
 
     def test_a_fresh_kit_dir_is_made_by_the_driver(self):
         self.cfg["kit_dir"] = os.path.join(self.tmp, "fresh", "kit")

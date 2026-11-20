@@ -573,6 +573,7 @@ The reviewer's own tier is the prompt's business.
 .TP
 .B queue
 .BR next ,
+.BR ranked ,
 .B take
 and
 .BR release ,
@@ -584,7 +585,7 @@ and
 see below.
 .SH THE QUEUE INTERFACE
 The review queue is the adopter's own tool; ccfleet only calls it.
-Each of the three entries is an argument list, with a leading
+Each of the four entries is an argument list, with a leading
 .B ~
 expanded and
 .B {NAME}
@@ -608,6 +609,15 @@ a line), so the queue can skip them, and
 is the orchestrator id.
 A pick already on that list is taken as nothing launchable, so a queue that
 ignores the list cannot start one pass over and over.
+.TP
+.B ranked
+Exits 0 only when the whole queue, every repo's, has been ranked and routed
+for this run; called once before the first pick, with
+.BR {BY} .
+Any other exit starts nothing: the drain prints
+.B DRAIN EXIT: not ranked
+and exits 1.
+A drain config without it is refused.
 .TP
 .B take
 Claims the pass.

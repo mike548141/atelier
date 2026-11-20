@@ -426,6 +426,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: a review is never thinned to fit a budget,…](roadmap/160-doctrine-review-owed/1630-rule-4-cold-pass-queued-review-never-thinned-slice-2.md)
 - [ ] ⏳ [Rule-4 cold pass queued: leakscan's ipv4 rule skips a user-agent…](roadmap/160-doctrine-review-owed/1640-rule-4-cold-pass-queued-ipv4-user-agent-and-grace-removal.md)
 - [ ] ⏳ [Rule-4 cold pass queued: three doctrine corrections — PROPAGATION.md…](roadmap/160-doctrine-review-owed/1650-rule-4-cold-pass-queued-parent-only-checks-fresh-gate-evidence-17.md)
+- [ ] ⏳ [Rule-4 cold pass queued: a drain ranks and routes the whole queue…](roadmap/160-doctrine-review-owed/1660-rule-4-cold-pass-queued-drain-ranks-and-routes-first.md)
 
 ## build/ layer — open strands
 

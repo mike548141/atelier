@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-20 — a drain ranks and routes the whole queue first, `160/1660`)
+- **`ccfleet drain` requires `queue.ranked`** and calls it once before the
+  first pick; any nonzero exit starts nothing (`DRAIN EXIT: not ranked`,
+  exit 1), and a drain config without it is refused. The principal asked that
+  every drain first rank every review in every repo and route each to the
+  cheapest route that reaches local quality, every time it runs.
+- **The `review-drain` skill gains § *Rank and route the whole queue first*:**
+  direction first, then importance, urgency, risk mitigated and value
+  unlocked; routes cheapest first, unsure means dearer; a sealed ranking per
+  budget; the expiring budget's route spills to unstarted reviews last.
+
 ### Changed (2026-11-20 — both leakscan metadata cut-offs block from today, `115/480`)
 - **`TYPE_LEVEL_UNTIL` and `DOCUMENT_UNTIL` are 2026-11-20**, moved from
   2026-12-18 and 2027-01-18, which were runs' picks. The principal, asked with

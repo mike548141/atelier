@@ -77,7 +77,7 @@ CONFIG is JSON (see instruments/ccfleet.example.json, every value fictional):
   vars            template variables for every job (the principal's words, paths)
   env             extra environment variables for every session (NAME: value)
   repos           {name: {model, notes, visibility, github}}  per-repo facts
-  queue           drain only: {next, take, release[, ended]} argv lists, and
+  queue           drain only: {next, ranked, take, release[, ended]} argv lists, and
                   release_on / stop_on lists of RESULT words (see below)
   pass_prompt     drain only: the per-pass orchestrator prompt template
   pass_model      drain only: the orchestrator's model (the reviewer's tier is the prompt's business)
@@ -89,6 +89,10 @@ ccfleet only calls it. Each entry is an argv list; {REPO} {ITEM} {BRIEF} {BY}
            when the queue is empty; tab-separated when a field may hold a
            space. It is called with the launched list's path in {LAUNCHED}
            (one tab-separated "REPO ITEM BRIEF" per line) so it can skip them.
+  ranked   exits 0 only when the whole queue, every repo's, has been ranked
+           and routed for this run (the review-drain skill's first step);
+           called once before the first pick, with {BY}. Any other exit starts
+           nothing: the drain prints "DRAIN EXIT: not ranked" and exits 1.
   take     claims the pass; a nonzero exit means someone else holds it (skip).
   release  frees the claim after a pass ends with a RESULT in release_on
            (default DONE, SKIPPED); a refusal is printed and, for resume, exit 2.
@@ -801,14 +805,26 @@ def drain(cfg, common, max_n, dry):
     empty, the reset arrives, the stop file appears, or the budget runs out.
     Returns the exit code: 4 when the queue was empty before any pass started,
     3 when the reset had come before any pass started, else 0."""
-    if not cfg.get("queue") or not all(k in cfg["queue"] for k in ("next", "take", "release")):
-        raise Refusal(EXIT_USAGE, "drain needs queue.next, queue.take and queue.release in the config")
+    if not cfg.get("queue") or not all(k in cfg["queue"] for k in ("next", "ranked", "take", "release")):
+        raise Refusal(EXIT_USAGE, "drain needs queue.next, queue.ranked, queue.take and "
+                                  "queue.release in the config")
     kit = cfg["kit_dir"]
     os.makedirs(os.path.join(kit, "logs"), exist_ok=True)
     launched = launched_path(cfg)
     open(launched, "a").close()
     clean, halt = release_on(cfg), stop_on(cfg)
     running, bad, stop, empty, last_hold, started = {}, 0, None, False, 0, 0
+    # Rank and route the whole queue before any pass starts, every run: a
+    # drain that takes passes in whatever order the queue lists them spends
+    # the budget on the wrong reviews (the principal, 2026-11-20, in the
+    # review-drain skill). The adopter's queue judges; ccfleet only refuses.
+    r = queue_call(cfg, "ranked", {"BY": common_by(common)})
+    if r.returncode:
+        say(cfg, f"drain refused: queue not ranked (rc={r.returncode}): "
+                 f"{(r.stderr or r.stdout).strip()[:300]}")
+        print((r.stderr or r.stdout).strip())
+        print("DRAIN EXIT: not ranked")
+        return EXIT_SETUP
     pace = Pacing(cfg, max_n)
     say(cfg, f"drain up: max {max_n}, gate {cfg['gate']}, launched list {launched}")
     try:
