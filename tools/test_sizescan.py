@@ -22,6 +22,7 @@ import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
+from unittest import mock
 from pathlib import Path
 
 import sizescan
@@ -772,6 +773,41 @@ class HarvestIntegrity(_TreeTest):
     def test_sessions_archive_store_also_checked(self):
         self.write_text("docs/SESSIONS-ARCHIVE.md", "- [~] stranded claim\n")
         self.assertEqual(self.finding("docs/SESSIONS-ARCHIVE.md").live_items, 1)
+
+    # 010/220: `archivecut` cuts ROADMAP-DONE.md into one item file per entry
+    # in the board's pre-split archive section, so the store is a directory
+    # and every file in it, README included, holds finished history only.
+    ARCHIVE_SECTION = "docs/roadmap/990-done-before-the-split"
+
+    def test_archive_section_item_with_live_state_gates(self):
+        self.write_text(f"{self.ARCHIVE_SECTION}/0010-a.md", "- [x] fine\n")
+        self.write_text(f"{self.ARCHIVE_SECTION}/0020-b.md", "- [ ] reopened\n")
+        f = self.finding(f"{self.ARCHIVE_SECTION}/0020-b.md")
+        self.assertIsNotNone(f)
+        self.assertTrue(f.gated)
+        self.assertEqual(f.live_items, 1)
+        self.assertIsNone(self.finding(f"{self.ARCHIVE_SECTION}/0010-a.md"))
+
+    def test_archive_section_readme_is_checked_too(self):
+        self.write_text(f"{self.ARCHIVE_SECTION}/README.md",
+                        "# Done before the split\n- ⏳ queued here\n")
+        self.assertEqual(
+            self.finding(f"{self.ARCHIVE_SECTION}/README.md").live_items, 1)
+
+    def test_a_live_section_item_is_not_an_archive(self):
+        self.write_text("docs/roadmap/010-live/010-a.md", "- [ ] open work\n")
+        self.assertEqual(self.flagged(), [])
+
+    def test_archive_section_on_the_staged_plane(self):
+        rel = f"{self.ARCHIVE_SECTION}/0010-a.md"
+        self.write_text(rel, "- [~] claimed\n")
+        found = []
+        with mock.patch.object(sizescan, "_staged_physical_lines",
+                               lambda r: sizescan._iter_physical_lines(
+                                   self.tmp / r)):
+            found = sizescan.scan_staged({rel: None}, self.tmp)
+        self.assertEqual([f.path for f in found], [rel])
+        self.assertEqual(found[0].live_items, 1)
 
     # HI-F1: the growth-store directory skip bounds METERING, never integrity —
     # a store inside `sessions/`, `_archive/`, etc. is checked wherever it

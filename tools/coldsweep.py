@@ -109,6 +109,8 @@ BARRED = (
     "docs/SESSIONS.md",
     "docs/sessions",
     "docs/ROADMAP-DONE.md",
+    # The same frozen account, cut into item files (`010/220`).
+    "docs/roadmap/990-done-before-the-split",
     "docs/reviews",
 )
 

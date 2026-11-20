@@ -1330,7 +1330,10 @@ Scope, in two deliberate directions:
 - **It ignores the append-only stores** — `ROADMAP-DONE.md`, `CHANGELOG.md`,
   `SPECS.md`, and anything under `sessions/`, `reviews/`, `decisions/`, or archive
   dirs — for cold content. Those are the *destinations* the split moves detail
-  into. A named archive store inside one is still integrity-checked.
+  into. A named archive store inside one is still integrity-checked, and so is
+  every file in the board's pre-split archive section,
+  `docs/roadmap/990-done-before-the-split/` (`010/220`), where `archivecut`
+  puts a cut `ROADMAP-DONE.md`.
 
 **No marker and no ignore glob silences the cold-content gate, and from
 2026-12-09 neither does the floor** (`115/270`, Mike's ruling: no repo keeps a
@@ -1719,6 +1722,23 @@ without `--warn`. Escape hatches mirror the sibling scanners:
 `<!-- spellscan:allow: <reason> -->` per line, a glob in `.spellscanignore` per
 path.
 
+## `archivecut.py` — the frozen pre-split archives, cut into their stores (`010/220`)
+
+Not a scanner: a one-off converter a repo runs once. `docs/ROADMAP-DONE.md`
+is cut into one `[x]` item file per entry in the board section
+`docs/roadmap/990-done-before-the-split/`, whose `README.md` keeps the
+archive's preamble, headings and every non-entry line verbatim with each entry
+replaced by a link to its file; `docs/SESSIONS-ARCHIVE.md` is cut into
+`docs/sessions/` detail files plus one index line each in `docs/SESSIONS.md`.
+The cut proves itself first (a multiset over every non-heading line, a
+byte-for-byte rebuild from the outputs, and every re-pointed link mapping back
+to its original text) and moves the file whole instead (`git mv`, route (b))
+where the proof fails. Every tracked Markdown link to the archive, both sides
+of `](`, is re-pointed. `--plan` (the default) writes nothing, `--cut` does
+it, `--verify` rebuilds each cut archive from disk and compares it with its
+last committed copy. The principal's pick, 2026-11-20: *"Split, fall back to
+move (Recommended)"*.
+
 ## `harvestscan.py` — a removed roadmap item arrived somewhere (advisory only)
 
 The third member of `sizescan`'s family, and the only one that loses work: an
@@ -1825,7 +1845,8 @@ and CI through the floor — the `--warn` sits in the registry template as one
 visible argument, because dropping it *is* the estate-wide flip to blocking
 and must never happen as a side effect. **Records are excluded by default**
 (FR2, ruled 2026-08-23): `docs/reviews`, `docs/sessions`, `docs/SESSIONS.md`,
-`docs/ROADMAP-DONE.md` and `CHANGELOG.md` name the tree as it stood when they
+`docs/ROADMAP-DONE.md` (or the archive section it is cut into,
+`docs/roadmap/990-done-before-the-split`) and `CHANGELOG.md` name the tree as it stood when they
 were written and can never come clean without falsifying the record —
 `--include-records` widens deliberately, and a records file named explicitly
 as a path argument is always scanned.

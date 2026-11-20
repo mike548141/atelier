@@ -81,7 +81,9 @@ Scope — two directions, by design:
 2026-07-22, after a real incident: an un-harvested `[x]` on the hot path had
 already redded the floor for three pushes, and the first manual sweep of the
 archive found a `[ ]` parent whose children were all DONE). The named archive
-stores (`*-DONE.md`, `*-ARCHIVE.md`) record *finished* history, so a live state
+stores (`*-DONE.md`, `*-ARCHIVE.md`, and since 2026-11-20 every file in the
+board's pre-split archive section, `docs/roadmap/990-done-before-the-split/`,
+`010/220`) record *finished* history, so a live state
 marker there — an open `[ ]`, a claimed `[~]`, a queued `⏳` list item — is
 either a **botched harvest** (open work silently buried where no session will
 re-read it) or an **untrue state** (done work whose box was never flipped).
@@ -334,6 +336,24 @@ _LIVE_ITEM = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+(?:\[ \]|\[~\]|⏳)")
 
 def is_archive_store(basename: str) -> bool:
     return basename.endswith(ARCHIVE_STORE_SUFFIXES)
+
+
+# The board's pre-split archive SECTION (`010/220`, 2026-11-20).
+# `tools/archivecut.py` cuts a frozen `ROADMAP-DONE.md` into one `[x]` item
+# file per entry inside this section of `docs/roadmap/`, so the store is now a
+# directory, not a basename, and the harvest-integrity rule that bound the
+# file binds every file in it: finished history only.
+ARCHIVE_SECTION_DIRS = frozenset({"990-done-before-the-split"})
+
+
+def is_archive_path(basename: str, rel: str) -> bool:
+    """An archive store by name (`*-DONE.md`, `*-ARCHIVE.md`) or by place (a
+    file inside the board's pre-split archive section). `rel` is the path
+    relative to the scan root."""
+    if is_archive_store(basename):
+        return True
+    parts = rel.replace("\\", "/").split("/")[:-1]
+    return any(p in ARCHIVE_SECTION_DIRS for p in parts)
 
 # `README.md` and `CLAUDE.md` are current-truth only at the **repo root** — the
 # front door and the session onramp. A nested `tools/README.md` or
@@ -633,7 +653,8 @@ def _staged_physical_lines(rel: str):
 
 
 def _scan_file_metrics(path: Path, basename: str, item_slots: int = 0,
-                       lines=None) -> tuple[str, int, int, int, list[ColdItem]]:
+                       lines=None, archive: bool | None = None
+                       ) -> tuple[str, int, int, int, list[ColdItem]]:
     """Stream `path` once (twice only in the rare unbalanced-fence case) to
     compute `(header, line_count, cold_items, live_items, items)` without ever
     holding the whole file, or a per-line record of it, in memory (020/380).
@@ -659,7 +680,7 @@ def _scan_file_metrics(path: Path, basename: str, item_slots: int = 0,
         def lines():
             return _iter_physical_lines(path)
     want_cold = basename in COLD_CHECKBOX_FILES
-    want_live = is_archive_store(basename)
+    want_live = is_archive_store(basename) if archive is None else archive
 
     def one_pass(ignore_fences: bool):
         header_lines: list[str] = []
@@ -732,8 +753,8 @@ def iter_candidates(paths: list[Path], root: Path, globs: list[str],
         candidates = [base] if base.is_file() else _walk_files(base)
         for p in candidates:
             rp = p.resolve()
-            if rp in seen or (p.name not in HOT_PATH_FILES
-                              and not is_archive_store(p.name)):
+            arch = is_archive_path(p.name, _rel(p, root))
+            if rp in seen or (p.name not in HOT_PATH_FILES and not arch):
                 continue
             # Non-content dirs are never scanned at all (HA1); growth-store
             # dirs bound where cold content is looked for only — an archive
@@ -744,14 +765,14 @@ def iter_candidates(paths: list[Path], root: Path, globs: list[str],
             parts = _dir_parts(p, walk_base)
             if parts & NON_CONTENT_DIR_NAMES:
                 continue
-            if parts & STORE_DIR_NAMES and not is_archive_store(p.name):
+            if parts & STORE_DIR_NAMES and not arch:
                 if store_skipped is not None and p.name in COLD_CHECKBOX_FILES:
                     store_skipped.append(1)
                 continue
-            if p.name in ROOT_ONLY and rp.parent != root.resolve():
+            if p.name in ROOT_ONLY and rp.parent != root.resolve() and not arch:
                 continue
             if _ignored(_rel(p, root), globs):
-                if not evaluate_ignored or is_archive_store(p.name):
+                if not evaluate_ignored or arch:
                     if skipped is not None:
                         skipped.append(1)
                     continue
@@ -760,7 +781,8 @@ def iter_candidates(paths: list[Path], root: Path, globs: list[str],
 
 
 def _inert_hatches(basename: str, header: str, scope: str | None,
-                   ignored_by_glob: bool) -> list[str]:
+                   ignored_by_glob: bool, archive: bool | None = None
+                   ) -> list[str]:
     """The hatches present on this file that can exempt nothing (115/270 c),
     named for the report, so a stale marker never reads as if it still did
     something. Three things can still exempt, and only on an archive store: an
@@ -771,13 +793,15 @@ def _inert_hatches(basename: str, header: str, scope: str | None,
     not `harvest-integrity` (`cold-content`, the retired `size-advisory`), a glob
     over a hot-path file, and a leftover `sizescan:budget=N`. This invents no
     exemption: it only reports one that has stopped working."""
+    if archive is None:
+        archive = is_archive_store(basename)
     out = []
     if scope is not None and not (
-            is_archive_store(basename)
+            archive
             and allowmarker.covers(scope, "harvest-integrity", FINDING_KINDS)):
         out.append(f"{ALLOW_MARKER}:{scope} header" if scope
                    else f"{ALLOW_MARKER} header (unscoped)")
-    if ignored_by_glob and not is_archive_store(basename):
+    if ignored_by_glob and not archive:
         out.append(".sizescanignore glob")
     if _RETIRED_BUDGET_MARKER.search(header):
         out.append("sizescan:budget header")
@@ -798,7 +822,10 @@ def scan_paths(paths: list[Path], root: Path,
                                  store_skipped=store_skipped):
             yield (p.name, _rel(p, root),
                    lambda looked_at, slots, p=p: (
-                       _scan_file_metrics(p, p.name, slots) if looked_at
+                       _scan_file_metrics(p, p.name, slots,
+                                          archive=is_archive_path(
+                                              p.name, _rel(p, root)))
+                       if looked_at
                        else (_read_header(p), 0, 0, 0, [])))
     return _judge(sources(), globs, skipped, counts, inert, loose,
                   store_skipped)
@@ -813,24 +840,26 @@ def _staged_candidates(staged, globs: list[str], skipped: list[int],
     for rel in sorted(staged):
         rp = Path(rel)
         name = rp.name
-        if name not in HOT_PATH_FILES and not is_archive_store(name):
+        arch = is_archive_path(name, rel)
+        if name not in HOT_PATH_FILES and not arch:
             continue
         parts = set(rp.parts[:-1])
         if parts & NON_CONTENT_DIR_NAMES:
             continue
-        if parts & STORE_DIR_NAMES and not is_archive_store(name):
+        if parts & STORE_DIR_NAMES and not arch:
             if store_skipped is not None and name in COLD_CHECKBOX_FILES:
                 store_skipped.append(1)
             continue
-        if name in ROOT_ONLY and rp.parent != Path("."):
+        if name in ROOT_ONLY and rp.parent != Path(".") and not arch:
             continue
-        if _ignored(rel, globs) and is_archive_store(name):
+        if _ignored(rel, globs) and arch:
             skipped.append(1)
             continue
         yield (name, rel,
-               lambda looked_at, slots, rel=rel: (
+               lambda looked_at, slots, rel=rel, arch=arch: (
                    _scan_file_metrics(Path(rel), name, slots,
-                                      lines=lambda: _staged_physical_lines(rel))
+                                      lines=lambda: _staged_physical_lines(rel),
+                                      archive=arch)
                    if looked_at
                    else (_read_header(Path(rel),
                                       lines=lambda: _staged_physical_lines(rel)),
@@ -885,7 +914,8 @@ def _judge(sources, globs: list[str], skipped: list[int],
         # first-`MARKER_SCAN_LINES`-lines slice, so `parse_allow` needs no
         # change. A hot-path file with no cold-content convention is read for
         # its header alone: it has nothing to count, only hatches to name.
-        looked_at = name in COLD_CHECKBOX_FILES or is_archive_store(name)
+        arch = is_archive_path(name, rel)
+        looked_at = name in COLD_CHECKBOX_FILES or arch
         try:
             header, n, cold, live, items = read(looked_at, slots)
         except OSError as e:
@@ -903,7 +933,7 @@ def _judge(sources, globs: list[str], skipped: list[int],
         # A hatch is counted as a suppression only where it still exempts
         # something: an allow-marker on an archive store that covers its
         # harvest-integrity check. Every other hatch is inert (115/270 c).
-        exempt = (scope is not None and is_archive_store(name)
+        exempt = (scope is not None and arch
                   and allowmarker.covers(scope, "harvest-integrity",
                                          FINDING_KINDS))
         if exempt:
@@ -912,8 +942,9 @@ def _judge(sources, globs: list[str], skipped: list[int],
                 n_loose += 1
                 if loose is not None:
                     loose.append(LooseScope(rel, scope))
-        hatches = _inert_hatches(name, header, scope, _ignored(rel, globs))
-        if is_archive_store(name):
+        hatches = _inert_hatches(name, header, scope, _ignored(rel, globs),
+                                 archive=arch)
+        if arch:
             # Integrity only — an archive store holds no cold content to look
             # for. A live marker gates under --check; a clean archive stays
             # silent.

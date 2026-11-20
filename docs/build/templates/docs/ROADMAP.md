@@ -2,7 +2,9 @@
 
 Tick items as work lands. Keep this file honest — it's the cross-session
 memory of what's actually left — and lean: it's read at every session
-start. Move completed detail to ROADMAP-DONE.md once it grows.
+start. Once the board splits to one file per item (`tools/board.py`),
+a done item stays in its own file as `[x]`; there is no archive file
+to move it to.
 
 Checkbox states are a **work-owed tri-state**: `[ ]` work still owed ·
 `[~]` claimed/underway · `[x]` no more work owed — delivered, superseded,

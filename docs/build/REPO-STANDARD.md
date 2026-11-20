@@ -151,8 +151,8 @@ applied to repo docs: a claim no stronger than its evidence — see
 
 - **ARCHITECTURE.md** — compact current-truth: the stack and *why* it's that way.
   It compresses away the deliberation; the ADRs keep it.
-- **ROADMAP.md** — lean, read every session; spill completed detail to
-  `ROADMAP-DONE.md` once it grows.
+- **ROADMAP.md** — lean, read every session; once the board splits to one
+  file per item, a done item stays in its own file as `[x]`.
 - **SESSIONS.md** — the append-only session index (detail-on-demand in
   `sessions/`). Tail-read at session start; append before finishing. This is
   `method/RECORD.md`'s mechanism — the repo just hosts it.
