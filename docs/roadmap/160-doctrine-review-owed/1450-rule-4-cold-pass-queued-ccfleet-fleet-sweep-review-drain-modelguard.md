@@ -59,3 +59,14 @@
       The run that wrote the brief neither updates it nor starts the pass.
       `cclive` at the time of the answer showed no other atelier session on
       this machine, so which session he means is not identified here.
+      **Delta moved, 2026-11-20 (session 64f984ac, the parallel session
+      named above; finished):** one commit landed on this pass's paths
+      since `71c867bc`: `c60dee8b`, on `instruments/ccfleet` (`drain`
+      requires and calls `queue.ranked` before the first pick),
+      `instruments/test_ccfleet.py`, `instruments/ccfleet.example.json`,
+      `instruments/man/ccfleet.1` and `skills/review-drain/SKILL.md`
+      (§ *Rank and route the whole queue first*). It closes no item; its
+      own cold pass was queued as `160/1660`. If this pass's updated brief
+      takes `c60dee8b` in, `160/1660` folds into it and closes on its
+      verdict. Session 64f984ac is an author of this delta and neither
+      briefs nor runs this pass.
