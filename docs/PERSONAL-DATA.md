@@ -47,8 +47,8 @@ new entry in one may repeat a listed string, and may not add an unlisted one.
   `docs/build/REPO-STANDARD.md`, `docs/build/templates/workflows/floor.yml`,
   `docs/decisions/*.md`, `tools/floorfleet.py`, `tools/test_floorfleet.py`,
   `tools/test_templates.py`, and the record stores `docs/SESSIONS.md`,
-  `docs/reviews/*.md`, `docs/roadmap/**` (since 2026-11-20 it holds the
-  pre-split archive, `ROADMAP-DONE.md` until then, `010/220`),
+  `docs/reviews/*.md`, `docs/roadmap/**` (since 2026-11-20 it also holds the
+  pre-split board archive, cut into it by roadmap item 010/220),
   `docs/sessions/*.md`.
 
 ## PD2 — the author's full name

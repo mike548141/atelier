@@ -220,8 +220,13 @@ class BoardCut(unittest.TestCase):
         ok, lout = linkscan_ok(r.root)
         self.assertTrue(ok, lout)
         self.assertEqual(board_main(["--check", "--root", str(r.root)]), 0)
-        self.assertIn("990-done-before-the-split/0010-",
+        # the index lists only unfinished items (010/210), so the archive
+        # section shows as one finished row; its items stay in their files
+        self.assertIn("roadmap/990-done-before-the-split/README.md",
                       r.read("docs/ROADMAP.md"))
+        self.assertTrue(any(p.name.startswith("0010-") for p in
+                            (r.root / "docs/roadmap/990-done-before-the-split")
+                            .iterdir()))
 
     def test_links_repointed_both_sides_and_anchors(self):
         r = make_repo(self.tmp)
