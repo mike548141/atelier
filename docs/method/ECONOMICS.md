@@ -136,6 +136,11 @@ use — no flag for that; the guards are bulk-work-on-a-dear-meter and
 silent-cap-crossing. (Grounded 2026-07-23, Mike: "we never decay the quality or
 integrity of the work because the tank is low, we either stop/delay the work or
 I choose to pay usage fees.")
+Nor does the cap thin a review that is owed, in its shape, its depth or its
+brief: that is the same rule applied past the tier, and it lives in
+`REVIEW.md` § *When to review — inline or batched*, the paragraph
+*Budget decides how many reviews run and when, never how a review is run*,
+with the principal's words of 2026-10-04 and the whole process it protects.
 
 ## The compute pool — CI minutes
 
@@ -345,8 +350,10 @@ agent inline** — verify as you go, no context switch. When they don't, **queue
 batch** to run together later. Both are sanctioned for routine work; pick per
 cost and how blocking the result is. The exception is self-authored doctrine:
 there the spawn must be a non-author's, whichever path the economics favour
-(REVIEW rule 4). Either way a review stays *scoped and short*, and it is
-still spend — so it stays inside the marginal-cost self-check above.
+(REVIEW rule 4). Either way a review stays *scoped and short*, short in
+ceremony and never in scope, and it is still spend, so it stays inside the
+marginal-cost self-check above, which never thins an owed review to fit the
+allowance.
 
 ## Match the ceremony to the risk
 
@@ -370,6 +377,16 @@ proportionality test the same way built work does.)
   an already-reviewed tool into a gate, a refactor its suite fully covers, a
   records-only edit — these do not each earn a brief→verdict cycle. Demanding one
   is the overhead, not the safety.
+
+**Risk sets whether a review is owed and of what kind; budget never shrinks one
+that is owed.** The proportion above is a judgement about the cost of being
+wrong, made when deciding whether the work earns a review. It is not a dial a
+low allowance turns afterwards. Once the work earns the full ceremony, the whole
+process runs at both scales, the pass and the brief, or the work pauses until
+the budget replenishes. The rule, the principal's words and the definition of
+the whole process live in `REVIEW.md` § *When to review — inline or
+batched*, the paragraph *Budget decides how many reviews run and when, never
+how a review is run*.
 
 **What *don't-stack* actually covers.** The rule is narrow: *do not build a gate
 on top of unreviewed tooling or doctrine* — a gate is only as trustworthy as the

@@ -31,6 +31,8 @@ structural work, a silent-failure surface (a check whose green exit is read as
 "safe"), doctrine text, anything irreversible or public. **Self-verifying**
 (tests + dogfooding over already-reviewed machinery): most routine, mechanical
 changes. If it doesn't earn one, say so and stop — don't manufacture ceremony.
+That proportion decides whether a review is owed and of what kind, never how
+much of one runs: once owed, no budget thins it.
 
 ## Independence is the core, not capability
 
@@ -43,7 +45,15 @@ cold**, not in the window that built the work.
 
 ## Writing the brief (the ask, on top)
 
-A good brief is falsifiable and attackable. Include:
+A good brief is falsifiable and attackable, and it is never cut to fit a
+budget. Every part below that applies goes in. A cheaper shape, such as a
+leaner brief, a dropped re-run line or one reviewer shared across several
+passes, is a downgrade and not an option to offer. Out of allowance, stop at a
+safe point and record the pause; the work resumes when the budget replenishes.
+Canonical: `REVIEW.md` § *When to review — inline or batched*, the paragraph
+*Budget decides how many reviews run and when, never how a review is run*,
+which also lists the whole process at both scales, the pass and the brief.
+Include:
 
 1. **Subject under review** — point at the exact thing: the commits / files /
    branch if it's built, the design record or decision if it isn't; include

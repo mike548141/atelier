@@ -86,3 +86,21 @@
       the resume record, and the rule-4 pass on the wording.
       🔒 CLAIMED 2026-11-20T07:40Z (claimed 2026-11-20-0740, wt: atelier-qr-08cd-review) by queue-run
       session 08cd3b95 (Opus 5.5, principal-opened). Scope: slice 2: ECONOMICS.md and review-brief wording, the macro and micro definition (b).
+      🧩 2026-11-20 (queue run 08cd): slice 2 landed, the rest of (a) and all
+      of (b). `docs/method/ECONOMICS.md` § *Match the ceremony to the risk*
+      now says risk sets whether a review is owed and of what kind and budget
+      never shrinks one that is owed; § *Know the marginal cost of the running
+      model* and § *Triggering reviews* point at the `REVIEW.md` paragraph
+      rather than restating it. The review-brief skill says it where a
+      brief-writer decides whether a review is owed and where it starts the
+      brief, pointing at the same paragraph. The child template's
+      `docs/build/templates/docs/ECONOMICS.md` carries one line to match, the
+      V3 mirror. (b) is in `docs/method/REVIEW.md` beneath the slice-1
+      paragraph, *The whole process, at both scales*: each macro and micro
+      line cites the rule that already requires it, and adds none. One element
+      this item lists is not required anywhere on its own: one reviewer per
+      pass is practice, and the review-drain skill's shape, but no rule states
+      it with budget out of the picture; the text says so and leaves it to the
+      rule-4 pass and the principal. Still owed: (c) the guard in code, (d)
+      the resume record, and the rule-4 cold pass on the wording of both
+      slices, which a Fable session this run did not start must take.

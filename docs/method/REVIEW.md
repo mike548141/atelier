@@ -731,8 +731,9 @@ that subject the scope mandate above governs everything examined. It is still
 spend — so it lives inside `ECONOMICS.md`'s marginal-cost self-check.
 
 **Budget decides how many reviews run and when, never how a review is run**
-(the principal's commission, 2026-10-04, `430/010`, slice 1: the wording; the
-guards in code and the resume record are not built). Several sessions were
+(the principal's commission, 2026-10-04, `430/010`: the wording and the
+definition below; the guards in code and the resume record are not built).
+Several sessions were
 offering to thin brief and review work to save money, and he said, verbatim:
 
 > Remember that review work / sessions are never allowed to down grade
@@ -750,9 +751,70 @@ once owed, no budget shrinks it. So a cheaper-per-pass offer, such as one
 reviewer shared across several queued passes, a leaner brief or a skipped
 re-run, is a downgrade, and the session facing an empty allowance stops at a
 safe point and records the pause rather than closing the pass; it resumes when
-the budget replenishes. What counts as the whole process at each scale, how a
-paused pass is recorded and picked up, and what a guard can enforce remain
-owed (`430/010`).
+the budget replenishes. What counts as the whole process at each scale is
+defined next; how a paused pass is recorded and picked up, and what a guard can
+enforce, remain owed (`430/010`).
+
+**The whole process, at both scales: what a downgrade is measured against.**
+The same commission asked for the rule to reach "how to write a brief and the
+review process in macro and micro". This list adds no requirement of its own.
+Each line points at the rule that already makes it binding, and a review owes
+every line that applies to its shape. Dropping, thinning or merging any of them
+to fit an allowance is the downgrade the paragraph above forbids.
+
+*Macro: the pass.*
+
+- **A reviewer with fresh context**, never the session that built the work
+  (*Why review, and who reviews*). For self-authored doctrine, it comes from a
+  session the author neither started nor instructed (rule 4).
+- **On the tier the principal names**, checked at selection. A session that
+  cannot honour the tier stops (rule 4; `ECONOMICS.md` § *Know the marginal
+  cost of the running model*).
+- **The brief and its deferred sibling, split.** Seeded questions and other
+  deferred material sit in the `.deferred.md` sibling, never below a divider,
+  and under an orchestrator they stay behind the context partition (rule 1).
+- **Both phases, in order.** The reviewer's own findings are durably written
+  first. Only then does it open the deferred sibling and any prior verdict, to
+  reconcile, never to anchor (rules 1 and 2).
+- **The whole commitment as scope, all four lenses, and the standing checklist
+  V1 to V7**, each run, or discharged in one line with grounds (*What a review
+  actually checks*; *The standing checklist*).
+- **Every line on the brief's re-run list, re-run by the reviewer**, and every
+  other recorded proof in scope (*Re-run every "live-proven" claim in scope*;
+  V2).
+- **A verdict with its method record, in the same file as the brief**, its
+  findings decided by the hand rule 3 names (*The lifecycle*, steps 3 and 4,
+  and the principal's ruling of 2026-11-15 beneath them).
+
+*Micro: the brief.* The review-brief skill's § *Writing the brief* is the list
+a brief-writer works from. The requirements it compresses are these:
+
+- **The subject, pointed at exactly**, with the body-free command for reading a
+  landing commit and one `--also-exclude` on the sweep command for every path
+  the deferred reading bars (rule 2; the skill's item 1, SK9).
+- **The check that the reviewer's tree holds the delta**, `git merge-base
+  --is-ancestor`, run before any reading (the skill's item 1, DK8).
+- **The instruction to skip the session-log step**, in the brief and in the
+  spawn prompt (rule 2, *the reviewer's start-up reading*).
+- **Why the work earns a review**, naming its worst failure mode (the skill's
+  item 2).
+- **What the work is, its scope, the four lenses, and non-goals as the only
+  narrowing** (*The lifecycle* step 1; *What a review actually checks*).
+- **The load-bearing assumptions to attack**, as falsifiable claims (*The
+  lifecycle* step 1; the skill's item 4).
+- **The re-run list**, each line run once by the brief-writer from where the
+  brief says to run it (*Re-run every "live-proven" claim in scope*).
+- **Any prior verdict by pointer**, never quoted or summarised (rule 2).
+- **For a rule-4 pass, its spawn provenance** (rule 4; V7).
+- **The `Board:` and `Status:` header lines** (the skill's item 6;
+  `reviewscan` warns on a missing one and never blocks).
+
+**What the list does not settle.** One reviewer per pass is the house's
+practice, and the review-drain skill spawns one reviewer per pass, but no rule
+above states it for its own sake. Shared to save budget, a reviewer is a
+downgrade by the paragraph above. Whether one reviewer per pass binds with
+budget out of the picture is for the rule-4 pass on this wording to test and
+the principal to rule on.
 
 ## What review is not
 
