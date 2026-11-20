@@ -1200,6 +1200,68 @@ class IPv4SafeSet(unittest.TestCase):
         self.assertNotIn("ipv4", rules("example 198.51.100.7 in the manual"))
 
 
+class IPv4UserAgentVersion(unittest.TestCase):
+    """115/460 — a browser user-agent's four-part VERSION (`Chrome/120.0.0.0`)
+    has the shape of an address. A dotted quad directly after a capitalised
+    product token and a slash, ending the token, is skipped; every other
+    reading of a quad after a slash still reports."""
+
+    def test_the_user_agent_shape_is_skipped(self):
+        for line in (
+                "Chrome/120.0.0.0",
+                "Version/17.4.1.2",
+                "HeadlessChrome/120.0.0.0;",
+                'Creator "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+                '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"',
+                "(Edg/120.0.2210.91)",
+                "the `Chrome/120.0.0.0` token in a doc",
+                "OPR/105.0.0.0, Chrome/120.0.0.0"):
+            with self.subTest(line=line):
+                self.assertNotIn("ipv4", rules(line))
+
+    def test_a_real_address_still_reports_beside_one(self):
+        self.assertIn("ipv4", rules("Chrome/120.0.0.0 reached gateway 10.1.2.3"))
+        self.assertIn("ipv4", rules("from 10.1.2.3 with Chrome/120.0.0.0"))
+
+    def test_a_url_a_key_value_and_a_bare_address_still_report(self):
+        for line in ("see http://10.1.2.3/admin", "https://10.1.2.3/",
+                     "ip=10.1.2.3", "gateway 10.1.2.3", "10.1.2.3"):
+            with self.subTest(line=line):
+                self.assertIn("ipv4", rules(line))
+
+    def test_a_lowercase_path_component_still_reports(self):
+        # A directory, not a product token: the capital is the evidence.
+        for line in ("src/10.1.2.3", "logs/10.1.2.3 was noisy", "host/10.1.2.3",
+                     "chrome/10.1.2.3"):
+            with self.subTest(line=line):
+                self.assertIn("ipv4", rules(line))
+
+    def test_the_quad_must_end_the_token(self):
+        for line in ("Server/10.1.2.3.txt", "Server/10.1.2.3/path",
+                     "Chrome/1.2.3.4.5", "Server/10.1.2.3:8080"):
+            with self.subTest(line=line):
+                self.assertIn("ipv4", rules(line))
+
+    def test_the_token_must_start_the_word(self):
+        for line in ("a/Chrome/10.1.2.3", "host.Chrome/10.1.2.3",
+                     "my_Chrome/10.1.2.3", "x-Chrome/10.1.2.3"):
+            with self.subTest(line=line):
+                self.assertIn("ipv4", rules(line))
+
+    def test_a_bare_slash_before_a_quad_still_reports(self):
+        self.assertIn("ipv4", rules("/10.1.2.3"))
+        self.assertIn("ipv4", rules("a /10.1.2.3 b"))
+
+    def test_the_accepted_cost_is_a_capitalised_word_a_slash_and_an_address(self):
+        # Documented at `_UA_TOKEN_RX`: read as a version, and the allow-marker
+        # route stays open. Pinned so the cost is a decision, not a surprise.
+        self.assertNotIn("ipv4", rules("Server/10.1.2.3 down"))
+
+    def test_a_path_name_with_a_capitalised_dir_and_the_ext_reports(self):
+        fs = ls.scan_path_name("Logs/10.1.2.3.txt", [])
+        self.assertEqual(["ipv4"], [f.rule for f in fs])
+
+
 class AddressSuffixGuard(unittest.TestCase):
     """D4 (ruled 2026-08-04) — abbreviated and bare-word suffixes need at least
     one capitalised word in front of them."""

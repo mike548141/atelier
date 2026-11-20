@@ -595,6 +595,38 @@ def _ipv4_is_safe(text: str) -> bool:
     return text in SAFE_IP_EXACT or any(text.startswith(p) for p in SAFE_IP_PREFIXES)
 
 
+# 115/460: a browser's user-agent carries a four-part VERSION that has the shape
+# of an address (`Chrome/120.0.0.0`). The shape of the user-agent product token
+# is the evidence, and it is kept narrow so a real address still reports:
+#   * the quad sits directly after `Token/`, and `Token` is ONE capitalised
+#     alphanumeric run (`Chrome`, `Version`, `HeadlessChrome`, `OPR`). A
+#     lowercase directory (`src/192.0.2.3`, `logs/192.0.2.3.txt`), a URL
+#     (`http://192.0.2.1/`: the `/` follows another `/`, not a token), a
+#     `key=value` or a bare address all keep reporting;
+#   * the token starts the word: not preceded by a word character, `.`, `/`,
+#     `:` or `-`, so `a/Chrome/192.0.2.4` and `host.Chrome/192.0.2.4` still
+#     report;
+#   * the quad ends the token: only whitespace, a closing bracket, `;`, `,`, a
+#     quote or a backtick (or the end of the line) may follow, so
+#     `Server/192.0.2.3.txt` and `Server/192.0.2.3/path` still report, and so
+#     does a five-part number.
+# The cost is accepted: `Server/192.0.2.3 down` in prose, a capitalised word, a
+# slash and an address, is read as a version. The rule is `medium` and the
+# marker route stays open for that one.
+_UA_TOKEN_RX = re.compile(r"(?<![\w./:-])[A-Z][A-Za-z0-9]*/$")
+_UA_VERSION_END = frozenset(" \t)];,\"'`")
+
+
+def _ipv4_is_ua_version(m: "re.Match[str]") -> bool:
+    """Is this dotted quad the version of a user-agent product token?"""
+    line, start, end = m.string, m.start(), m.end()
+    if start < 2 or line[start - 1] != "/":
+        return False
+    if end < len(line) and line[end] not in _UA_VERSION_END:
+        return False
+    return _UA_TOKEN_RX.search(line, max(0, start - 64), start) is not None
+
+
 # --- placeholder suppression (G1's other half) ---------------------------
 #
 # The key-context rule fires on a LABEL, so without this it would fire on every
@@ -746,7 +778,7 @@ def _phone_inside_hex_byte_field(m: "re.Match[str]") -> bool:
 # rather than accreting as special cases inside the scan loop. A rule with no
 # entry here keeps every match.
 VALIDATORS: dict[str, "object"] = {
-    "ipv4": lambda m: not _ipv4_is_safe(m.group(0)),
+    "ipv4": lambda m: not (_ipv4_is_safe(m.group(0)) or _ipv4_is_ua_version(m)),
     "payment-card": lambda m: _luhn_ok(m.group(0)),
     "iban": lambda m: _iban_ok(m.group(0)),
     "nz-phone": lambda m: not (_phone_inside_hex_digest(m)

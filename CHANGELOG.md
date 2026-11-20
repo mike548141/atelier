@@ -32,6 +32,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   binary gate rules block, as they have since 2026-11-18. The type-level and
   document dates are untouched.
 
+### Fixed (2026-11-20 — `leakscan` reads a browser version as an address, `115/460`)
+- **`ipv4` skips the user-agent version shape** `Chrome/120.0.0.0`: a dotted
+  quad directly after one capitalised product token and a slash, ending the
+  token. A URL, `key=value`, a bare address, a lowercase directory (`src/`
+  then an address) and a five-part number all still report. Accepted cost: a
+  capitalised word, a slash and an address in prose reads as a version.
+  Measured on the estate: 14 findings gone, none an address.
+
 ### Fixed (2026-11-18 — three `ccfleet` faults a first real estate run found, `450/010`)
 - **A fresh `kit_dir` is made by the driver lock**: `drive` and `drain` no
   longer crash on a directory that does not exist yet.
