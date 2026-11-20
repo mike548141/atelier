@@ -1,4 +1,4 @@
-- [ ] 🎯 **Fleet rollout of the split board** — nine children split on
+- [x] **Fleet rollout of the split board** — nine children split on
       2026-08-17, two monolithic boards left; order and timing Mike's.
       atelier is the worked example (board-store ADR 2026-08-15) and its own
       split landed then. The rollout itself did not run from here: Mike sent
@@ -98,3 +98,13 @@
       current state is read on that child's own checkout (`board` there), and
       is not recorded in this public item. The guidance to later children is the
       corrected text above: no ignore-file pair and no vendored shim.
+      **CLOSED 2026-11-20 — the rollout is complete** (session 19378351,
+      re-measured on every repo under the estate root after a fetch, since
+      six local checkouts were behind their remote and read as unconverted
+      until fast-forwarded). Every adopted repo that keeps a board, archived
+      ones aside, now carries the per-item store and a generated index; the
+      last two monoliths were cut by the 2026-11-14 health sweep. The
+      ordering and timing ask is moot, so the 🎯 comes off. What remains is a
+      different class and is filed as its own items: repos with no board at
+      all (`010/230`), the frozen pre-split archives (`010/220`), and an
+      index that still lists every finished item (`010/210`).

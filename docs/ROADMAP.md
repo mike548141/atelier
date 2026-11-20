@@ -12,7 +12,7 @@ then `python3 tools/board.py rebuild`.
 
 - ✅ [Migrate the board to per-item files + generate the index](roadmap/010-board-store-migration-per-item-files-mik/010-migrate-the-board-to-per-item-files-generate-t.md)
 - ✅ [board --check reads the worktree, not the staged plane.](roadmap/010-board-store-migration-per-item-files-mik/020-board-check-staged-plane-seam.md)
-- [ ] 🎯 [Fleet rollout of the split board](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md)
+- ✅ [Fleet rollout of the split board](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md)
 - ✅ [Sweep monolith-era board wording across the doctrine surface.](roadmap/010-board-store-migration-per-item-files-mik/040-monolith-era-wording-sweep.md)
 - [ ] 🛑 [The board-store cold pass RAN 2026-08-15 and the cycle stays OPEN — a…](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md)
 - ✅ 🔥 [board aborted on the floor's own argv — FIXED 2026-08-17.](roadmap/010-board-store-migration-per-item-files-mik/060-the-board-check-aborted-on-the-floor-s-own-argv.md)
@@ -30,6 +30,9 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
 - ✅ [Remove the two adoption graces once 2026-11-18 has passed.](roadmap/010-board-store-migration-per-item-files-mik/190-remove-the-two-adoption-graces-after-their-date.md)
 - ✅ 🔎 [A four-digit item number sorts out of order, and the review section…](roadmap/010-board-store-migration-per-item-files-mik/200-a-four-digit-item-number-sorts-out-of-order.md)
+- [ ] 🎯 [The index lists every finished item, so finished work is read at…](roadmap/010-board-store-migration-per-item-files-mik/210-the-index-lists-every-finished-item.md)
+- [ ] 🎯 [The pre-split archives sit outside the board's store.](roadmap/010-board-store-migration-per-item-files-mik/220-the-pre-split-archives-sit-outside-the-store.md)
+- [ ] 🎯 [Every repo keeps the house board, and the health sweep enforces it.](roadmap/010-board-store-migration-per-item-files-mik/230-every-repo-keeps-the-house-board.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
