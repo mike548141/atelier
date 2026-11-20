@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `ccfleet`, the `fleet-sweep` and
+- [ ] ⏳ **Rule-4 cold pass queued: `ccfleet`, the `fleet-sweep` and
       `review-drain` skills, and `modelguard` (`210/440`).** A first-of-kind
       instrument that starts headless sessions with a permission mode
       across every repo, two skills that reach every plugin user, and a
@@ -44,3 +44,5 @@
       `58027096`, `78ca9153`, `84b7932e` with all they started. The pass
       stays `⏳` for a criterion-passing cold Fable session, on the
       principal's explicit permission for Fable work.
+      🔓 2026-11-20 UTC: queue run 08cd3b95 releases its brief-writing claim at
+      the landing; the pass itself stays open and `⏳`.

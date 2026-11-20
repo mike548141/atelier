@@ -400,7 +400,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: quotescan, a quote of the principal on…](roadmap/160-doctrine-review-owed/1420-rule-4-cold-pass-queued-quotescan.md)
 - [ ] ⏳ [Rule-4 cold pass queued: every check states its five declaration…](roadmap/160-doctrine-review-owed/1430-rule-4-cold-pass-queued-check-declarations-step-0.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the doctrine edits that record the…](roadmap/160-doctrine-review-owed/1440-rule-4-cold-pass-queued-the-2026-11-12-answers.md)
-- [~] ⏳ (claimed 2026-11-20, wt: atelier-qr-08cd-brief1450) [Rule-4 cold pass queued:…](roadmap/160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccfleet, the fleet-sweep and review-drain…](roadmap/160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a verdict records its method and reasoning.](roadmap/160-doctrine-review-owed/1460-rule-4-cold-pass-queued-a-verdict-records-its-method.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's Asking bullet says "same turn",…](roadmap/160-doctrine-review-owed/1470-rule-4-cold-pass-queued-floor-asking-bullet-same-turn.md)
 - [ ] ⏳ [Rule-4 cold pass queued: EVIDENCE.md §18 extended and §19–§21 added…](roadmap/160-doctrine-review-owed/1480-rule-4-cold-pass-queued-evidence-batch-18-to-21.md)
