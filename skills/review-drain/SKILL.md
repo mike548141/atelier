@@ -56,7 +56,13 @@ and the risks it mitigates or value of work it unlocks. Make sure that is
 built into them so it happens everytime I run it"*. The same day the principal added that
 each review goes to the cheapest route that still produces a review of the
 same standard as a local pass: a batch route first where a review fits it,
-then API credit, then the weekly budget, which a drain then uses up.
+then API credit, then the weekly budget, which a drain then uses up. The next
+day the principal sharpened "cheapest": a budget or credit that is lost at a
+set time is spent first when that time is near, since the aim is the most
+benefit from the whole spend rather than the lowest cost of one job, and no
+budget is free (a subscription pays for the included ones). So routing orders
+the routes by when the budget each draws lapses, soonest first, and the cost
+per review only breaks a tie.
 
 It is a gate, not a habit. ccfleet's drain refuses a config without
 `queue.ranked` and starts nothing while it exits nonzero; the adopter's queue
@@ -73,19 +79,23 @@ ranking and routing are the adopter's, kept private:
    live or irreversible paths, money) and the value of the work it unlocks; a
    pass whose core needs a live write last; a standing repo order breaks ties
    only.
-3. **Route each review to the cheapest route that reaches local quality**,
-   among the routes the principal has opened. A review needing probes or
+3. **Route each review to the route that reaches local quality and whose
+   budget lapses soonest**, among the routes the principal has opened; the
+   cost per review breaks a tie (two routes drawing one budget: the cheaper).
+   Each budget's lapse time is known before the seal (a credit's expiry is
+   read when the principal releases it). A review needing probes or
    re-run lines does not fit a single-request batch route; one needing tools
    only the local session has fits only local. Unsure means the dearer route:
    quality is never traded for price.
 4. **Seal it**, with the principal's words for this run (or "none given").
    A seal refuses while any ready review is missing, unreasoned, on a closed
-   route, or on a dearer route than it fits without saying why the cheaper one
-   can't match. It lasts one budget.
+   route, on a later route than the best it fits without saying why that one
+   can't match, or while two budgets are open and either lapse time is
+   unknown. It lasts one budget.
 
-Each route takes only its own reviews, in rank order. The route that spends
-the expiring budget takes its own first, then any other route's not yet
-started: an expiring budget is lost at the reset, credit is not. A review
+Each route takes only its own reviews, in rank order. The local route takes
+its own first, then any other route's not yet started, but never from a budget
+that lapses before its own: that budget keeps its reviews. A review
 briefed after the seal runs last on the local route until it is ranked and
 the ranking sealed again.
 

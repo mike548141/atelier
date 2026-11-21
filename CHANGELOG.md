@@ -91,6 +91,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   is stale and the check blocks. Run `board.py --rebuild` (the command your
   index's preamble names) and commit the result. Removal is `010/250`.
 
+### Changed (2026-11-21 — "cheapest" means the budget that lapses first, `160/1450`)
+- **The `review-drain` skill routes by when each budget lapses.** The
+  principal sharpened "cheapest": a budget or credit lost at a set time is
+  spent first when that time is near, since the aim is the most benefit from
+  the whole spend, and no budget is free. Routes are ordered soonest lapse
+  first, cost per review breaking a tie; a seal also refuses while two
+  budgets are open and either lapse time is unknown; the local route never
+  takes reviews from a budget that lapses before its own.
+
 ### Changed (2026-11-20 — a drain ranks and routes the whole queue first, `160/1660`)
 - **`ccfleet drain` requires `queue.ranked`** and calls it once before the
   first pick; any nonzero exit starts nothing (`DRAIN EXIT: not ranked`,

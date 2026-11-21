@@ -33,3 +33,16 @@ happens everytime I run it"*.
 ## Owed
 
 - `160/1660`: the rule-4 cold pass over this delta. Needs a brief; Fable-gated.
+
+## 2026-11-21: "cheapest" means the budget that lapses first
+
+- The principal clarified the routing: a budget or credit lost at a set time
+  goes first when that time is near; the aim is the most benefit from the whole
+  spend, and no budget is free. His words stay private (the figures in them
+  are financial); the skill carries a paraphrase.
+- `skills/review-drain/SKILL.md` § *Rank and route*: routes order by lapse time,
+  cost breaking a tie; the seal needs each open budget's lapse; the local route
+  never takes from a budget lapsing sooner. The adopter's queue tool got the
+  same change in the private estate root.
+- `160/1450` carries a delta note (its brief-writer, queue run 08cd3b95, told);
+  `160/1660` still folds into it.

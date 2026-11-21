@@ -94,3 +94,11 @@
       since-line was no longer empty: `b68cf410` (a worker of 19378351, already barred) reworded
       the fleet sweep's healthy item 6 and two prompt templates. Taken in as question 30; the
       rest of that commit stays with its own pass, `160/1700`. Since-line empty at `b68cf410`.
+      **Delta, 2026-11-21 (session 64f984ac, an author, so barred as before):**
+      the since-line is no longer empty: this commit rewrites
+      `skills/review-drain/SKILL.md` § *Rank and route the whole queue first*
+      so routes order by when each budget lapses, cost breaking a tie (the
+      principal's clarification of "cheapest"). Take it in before the pass,
+      as with `c60dee8b`; the question to add: does the lapse-first route and
+      the spill rule (the local route never takes from a budget lapsing
+      sooner) match the principal's words as summarised there.
