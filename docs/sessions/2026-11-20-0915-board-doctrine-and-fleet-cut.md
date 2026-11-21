@@ -91,3 +91,40 @@ index; its archive cut waits until it is idle.
 - Owed to the principal, none started: the cold passes (`160/1670`–`1700` here, one in
   the gate's repo), the fleet pin sweep (*"Later"*), and two public children with no
   personal-data list.
+
+## Close (2026-11-21 UTC, about 05:20)
+
+**Asked, and where each landed.** The board's design was explained and the
+fleet measured (`010/030` brought current, then closed). Every repo outside the
+archive and fork exemptions keeps the house board (`010/230`, closed), and the
+health sweep's skill now finds and fixes a repo that does not (healthy item 6:
+no board, a one-file session log, a frozen archive). A closed item stays in its
+own file; the index lists a summary and open work only, finished themes
+collapsed (`010/210`). The pre-split archives are cut into a store section
+(`010/220`, closed). The other one-file stores were reviewed: the session index
+is retired everywhere (`010/270`); the changelog stays one file, exempt. The
+two-level index he asked to be weighed was weighed and answered as summary plus
+open only. At his request, a peer session in the private engagement repo was
+briefed on the current rules for board, session log and changelog.
+
+**Decisions** (his picks from offered options are answers, quoted in
+`010/210`, `010/220`, `010/230`, `010/270`; his own words are quoted in those
+items too).
+
+**Learnings** (kept in this machine's session memory, not here): survey a child
+only after fetching it; ccfleet labels must be unique per job and one driver
+runs per kit; `blockscan` runs on the CI plane only, so a renamed method
+heading needs its map changed and the CI conclusion read before "done".
+
+**Questions for the principal, later** (none blocks anything):
+- Five cold passes wait for the next weekly drain: `160/1670`–`1700` here, and
+  one in the private gate's repo.
+- The fleet pin sweep: his answer was *"Later"*.
+- The estate-root repo's daily conformance check has failed since 2026-11-16,
+  because it counts a repo with Actions off by his ruling as red. Queue a fix
+  there?
+- Two public children have no personal-data list; their check starts blocking
+  on 2027-03-08, and only he can write the list.
+- A public site child serves its whole tree, so its new onramp files are
+  reachable at the site's address; moving the site to a subfolder is his call.
+- One adopted child's purpose is still unknown (its own board item).
