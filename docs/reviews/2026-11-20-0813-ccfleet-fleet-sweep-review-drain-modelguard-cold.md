@@ -6,7 +6,10 @@ folded in (one pass, one verdict, closing both)
 **Status:** BRIEF ONLY, not run. Written 2026-11-20 UTC by a brief-writer worker of queue run
 `08cd3b95` (Opus 5.5), at `71c867bc`. **Updated 2026-11-20 UTC to `bd9f6a9b`** by a second
 brief-writer worker of the same run, taking in `c60dee8b` and `bd9f6a9b` (below) and folding in
-`160/1660`, whose subject is `c60dee8b`.
+`160/1660`, whose subject is `c60dee8b`. **Updated again 2026-11-21 UTC to `b68cf410`** by the
+same run's orchestrator, which authored no part of the delta: that commit, by a worker of
+session `19378351` (already barred below), rewords the fleet sweep's healthy item 6 and two of
+its prompt templates for the session log's move into `docs/sessions/`.
 **Approval:** the principal approved one Fable pass for this item on 2026-11-20 UTC, verbatim:
 *"I approve one pass so that ccfleet can be fixed and is ready to use. But the parallel session
 working in this repo right now is making changes based on my directions and they may change what
@@ -21,7 +24,7 @@ are doctrine by function (rule 3); the instrument that runs them is reviewed wit
 commitment.
 **Tier:** Fable, the principal-named review tier, checked at selection by whoever takes the pass.
 A session that cannot run on it stops (rule 4).
-**Size of this pass:** large. Eight commits; at `bd9f6a9b`, about 1,090 lines of standard-library
+**Size of this pass:** large. Nine commits; at `bd9f6a9b`, about 1,090 lines of standard-library
 Python, 640 lines of tests, a 950-line manual page, 540 lines of skill text and prompt templates
 (all eight files of the two skills), a 180-line hook with its 70-line test, and the README and
 changelog entries. Budget the time; never thin the pass to
@@ -162,8 +165,12 @@ Eight commits on `main`, in order:
   (2026-11-20; the subject of `160/1660`, folded in)
 - **`bd9f6a9b`** — `fleet-sweep: a missing board fails health; forks exempt; no-pin repos
   adopted` (2026-11-20)
+- **`b68cf410`** — `sessions: retire the one-file index; the folder is the session log`
+  (2026-11-20 UTC; on the delta paths only `skills/fleet-sweep/SKILL.md`, `task-prompt.md` and
+  `worker-prompt.md`. The rest of that commit, the retirement tool and its doctrine, is the
+  subject of its own pass, `160/1700`; read it only as far as the sweep now relies on it.)
 
-No other commit touched the delta paths between `71c867bc` and `bd9f6a9b`.
+No other commit touched the delta paths between `71c867bc` and `b68cf410`.
 
 Delta paths, read at HEAD and commit by commit:
 
@@ -180,24 +187,25 @@ Delta paths, read at HEAD and commit by commit:
 First confirm the tree holds the whole delta, then read each commit body-free:
 
 ```
-git merge-base --is-ancestor bd9f6a9b HEAD; echo $?
+git merge-base --is-ancestor b68cf410 HEAD; echo $?
 python3 tools/coldsweep.py --root . --commit 4bfb4e16 --path instruments --path skills \
   --path tools/modelguard.py --path tools/test_modelguard.py --path tools/README.md \
   --path CHANGELOG.md
 ```
 
-Repeat the `--commit` line for each of the other seven commits (`b2ea715c`, `17f158d2`,
-`d9d1589e`, `a025636e`, `1eb42f54`, `c60dee8b`, `bd9f6a9b`). Plain `git show` is barred: it
+Repeat the `--commit` line for each of the other eight commits (`b2ea715c`, `17f158d2`,
+`d9d1589e`, `a025636e`, `1eb42f54`, `c60dee8b`, `bd9f6a9b`, `b68cf410`). Plain `git show` is barred: it
 prints the message body before the diff, and reading is atomic (rule 1). Several of these commits
 also touch the board, the intent record and a session record (`c60dee8b` adds a session record
-and `160/1660`; `bd9f6a9b` adds `010/240`); those are barred until phase 2, so always pass
+and `160/1660`; `bd9f6a9b` adds `010/240`; `b68cf410` touches doctrine, session records and
+the board); those are barred until phase 2, so always pass
 `--path`.
 
-Then check what has landed on the delta paths since: `git log --oneline bd9f6a9b..HEAD --
+Then check what has landed on the delta paths since: `git log --oneline b68cf410..HEAD --
 instruments/ccfleet instruments/ccfleet.example.json instruments/test_ccfleet.py
 instruments/man/ccfleet.1 instruments/README.md skills/fleet-sweep skills/review-drain
-tools/modelguard.py tools/test_modelguard.py` (empty when this brief was updated, at
-`bd9f6a9b`). The principal's approval is for a pass over a delta that has stopped moving: if this
+tools/modelguard.py tools/test_modelguard.py` (empty when this brief was updated again, at
+`b68cf410`). The principal's approval is for a pass over a delta that has stopped moving: if this
 line is not empty, stop and hand back for the brief to be updated again. Otherwise review the code
 as it stands at your HEAD, and pin that SHA in your verdict's scope.
 
@@ -322,6 +330,16 @@ scope. Name your own load-bearing assumptions first (lens 1); these are a floor,
     are. Every other repo is in scope: one with no pin is adopted (`/atelier:create-repo`,
     standardise mode), not put to the principal as a question."
 
+**Added by `b68cf410`: the sweep's record-store rule after the session log moved**
+
+30. Healthy item 6 now reads: session log → "the folder `docs/sessions/` alone, one file per
+    session, the folder its own index"; a repo "still keeping a session index (`docs/SESSIONS.md`,
+    with any `SESSIONS-ARCHIVE.md`) fails it", is retired by `tools/archivecut.py --cut` "with its
+    proof", and "the worker then rewords the repo's own onramp and docs that tell a session to read
+    or append to it". A frozen `ROADMAP-DONE.md` "is cut into the store by the same tool". The task
+    prompt now asks for "this repo's session file for the work (`docs/sessions/<date>-<HHMM>-<slug>.md`,
+    start time in UTC)" in place of "this repo's session-log entry".
+
 ## Scope
 
 The widest the work admits: intent, decisions, assumptions, design, docs, code, test code and live
@@ -399,7 +417,7 @@ results are held in the sibling. Read exit codes explicitly. Check
 From the worktree root:
 
 ```
-git merge-base --is-ancestor bd9f6a9b HEAD; echo "exit=$?"
+git merge-base --is-ancestor b68cf410 HEAD; echo "exit=$?"
 mandoc -T lint -W style instruments/man/ccfleet.1; echo "exit=$?"
 python3 instruments/ccfleet --help; echo "exit=$?"
 ```

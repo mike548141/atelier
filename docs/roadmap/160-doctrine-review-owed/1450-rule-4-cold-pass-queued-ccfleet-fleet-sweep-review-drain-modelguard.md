@@ -90,3 +90,7 @@
       pass). So this run updated the brief and still neither starts nor runs
       the pass. Before the pass: check that session 19378351, an author of
       `bd9f6a9b`, has finished, and that the since-line in the brief is empty.
+      🔁 **Brief updated again, 2026-11-21 UTC (queue run 08cd3b95, orchestrator):** the
+      since-line was no longer empty: `b68cf410` (a worker of 19378351, already barred) reworded
+      the fleet sweep's healthy item 6 and two prompt templates. Taken in as question 30; the
+      rest of that commit stays with its own pass, `160/1700`. Since-line empty at `b68cf410`.
