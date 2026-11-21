@@ -9,7 +9,9 @@ brief-writer worker of the same run, taking in `c60dee8b` and `bd9f6a9b` (below)
 `160/1660`, whose subject is `c60dee8b`. **Updated again 2026-11-21 UTC to `b68cf410`** by the
 same run's orchestrator, which authored no part of the delta: that commit, by a worker of
 session `19378351` (already barred below), rewords the fleet sweep's healthy item 6 and two of
-its prompt templates for the session log's move into `docs/sessions/`.
+its prompt templates for the session log's move into `docs/sessions/`. **Updated a third time
+2026-11-21 UTC to `e002ea22`**, by the same orchestrator, on a delta note from that commit's
+author session `64f984ac` (already barred).
 **Approval:** the principal approved one Fable pass for this item on 2026-11-20 UTC, verbatim:
 *"I approve one pass so that ccfleet can be fixed and is ready to use. But the parallel session
 working in this repo right now is making changes based on my directions and they may change what
@@ -24,7 +26,7 @@ are doctrine by function (rule 3); the instrument that runs them is reviewed wit
 commitment.
 **Tier:** Fable, the principal-named review tier, checked at selection by whoever takes the pass.
 A session that cannot run on it stops (rule 4).
-**Size of this pass:** large. Nine commits; at `bd9f6a9b`, about 1,090 lines of standard-library
+**Size of this pass:** large. Ten commits; at `bd9f6a9b`, about 1,090 lines of standard-library
 Python, 640 lines of tests, a 950-line manual page, 540 lines of skill text and prompt templates
 (all eight files of the two skills), a 180-line hook with its 70-line test, and the README and
 changelog entries. Budget the time; never thin the pass to
@@ -169,8 +171,10 @@ Eight commits on `main`, in order:
   (2026-11-20 UTC; on the delta paths only `skills/fleet-sweep/SKILL.md`, `task-prompt.md` and
   `worker-prompt.md`. The rest of that commit, the retirement tool and its doctrine, is the
   subject of its own pass, `160/1700`; read it only as far as the sweep now relies on it.)
+- **`e002ea22`** — `review-drain: route to the budget that lapses first, cost breaks a tie`
+  (2026-11-21 UTC; on the delta paths `skills/review-drain/SKILL.md` and its `CHANGELOG.md` entry)
 
-No other commit touched the delta paths between `71c867bc` and `b68cf410`.
+No other commit touched the delta paths between `71c867bc` and `e002ea22`.
 
 Delta paths, read at HEAD and commit by commit:
 
@@ -181,31 +185,31 @@ Delta paths, read at HEAD and commit by commit:
 - `skills/review-drain/` (`SKILL.md`, `orchestrator-prompt.md`, `resume-prompt.md`,
   `fold-prompt.md`)
 - `tools/modelguard.py`, `tools/test_modelguard.py`, `tools/README.md` (§ *`modelguard.py`*)
-- `CHANGELOG.md`: the five entries dated 2026-11-14, 2026-11-18 and 2026-11-20 that name
-  `ccfleet`, the two skills or `modelguard`
+- `CHANGELOG.md`: the entries dated 2026-11-14, 2026-11-18, 2026-11-20 and 2026-11-21 that
+  name `ccfleet`, the two skills or `modelguard`
 
 First confirm the tree holds the whole delta, then read each commit body-free:
 
 ```
-git merge-base --is-ancestor b68cf410 HEAD; echo $?
+git merge-base --is-ancestor e002ea22 HEAD; echo $?
 python3 tools/coldsweep.py --root . --commit 4bfb4e16 --path instruments --path skills \
   --path tools/modelguard.py --path tools/test_modelguard.py --path tools/README.md \
   --path CHANGELOG.md
 ```
 
-Repeat the `--commit` line for each of the other eight commits (`b2ea715c`, `17f158d2`,
-`d9d1589e`, `a025636e`, `1eb42f54`, `c60dee8b`, `bd9f6a9b`, `b68cf410`). Plain `git show` is barred: it
+Repeat the `--commit` line for each of the other nine commits (`b2ea715c`, `17f158d2`,
+`d9d1589e`, `a025636e`, `1eb42f54`, `c60dee8b`, `bd9f6a9b`, `b68cf410`, `e002ea22`). Plain `git show` is barred: it
 prints the message body before the diff, and reading is atomic (rule 1). Several of these commits
 also touch the board, the intent record and a session record (`c60dee8b` adds a session record
 and `160/1660`; `bd9f6a9b` adds `010/240`; `b68cf410` touches doctrine, session records and
-the board); those are barred until phase 2, so always pass
+the board; `e002ea22` adds a session record section and a delta note on `160/1450`); those are barred until phase 2, so always pass
 `--path`.
 
-Then check what has landed on the delta paths since: `git log --oneline b68cf410..HEAD --
+Then check what has landed on the delta paths since: `git log --oneline e002ea22..HEAD --
 instruments/ccfleet instruments/ccfleet.example.json instruments/test_ccfleet.py
 instruments/man/ccfleet.1 instruments/README.md skills/fleet-sweep skills/review-drain
-tools/modelguard.py tools/test_modelguard.py` (empty when this brief was updated again, at
-`b68cf410`). The principal's approval is for a pass over a delta that has stopped moving: if this
+tools/modelguard.py tools/test_modelguard.py` (empty when this brief was last updated, at
+`e002ea22`). The principal's approval is for a pass over a delta that has stopped moving: if this
 line is not empty, stop and hand back for the brief to be updated again. Otherwise review the code
 as it stands at your HEAD, and pin that SHA in your verdict's scope.
 
@@ -340,6 +344,18 @@ scope. Name your own load-bearing assumptions first (lens 1); these are a floor,
     prompt now asks for "this repo's session file for the work (`docs/sessions/<date>-<HHMM>-<slug>.md`,
     start time in UTC)" in place of "this repo's session-log entry".
 
+**Added by `e002ea22`: routes ordered by when each budget lapses**
+
+31. Step 3 now routes each review "to the route that reaches local quality and whose budget
+    lapses soonest", "the cost per review breaks a tie"; the seal refuses "while two budgets are
+    open and either lapse time is unknown"; and "the local route takes its own first, then any
+    other route's not yet started, but never from a budget that lapses before its own". The
+    skill's paragraph above step 1 paraphrases the principal's clarification; his words are kept
+    private (they carry figures), so the paraphrase is the public record. The author's own
+    question: do the lapse-first order and that spill rule match the clarification as the skill
+    states it? Also trace whether `ccfleet` or any other surface in the delta still says
+    "cheapest first" or lets the expiring budget's route spill as before.
+
 ## Scope
 
 The widest the work admits: intent, decisions, assumptions, design, docs, code, test code and live
@@ -417,7 +433,7 @@ results are held in the sibling. Read exit codes explicitly. Check
 From the worktree root:
 
 ```
-git merge-base --is-ancestor b68cf410 HEAD; echo "exit=$?"
+git merge-base --is-ancestor e002ea22 HEAD; echo "exit=$?"
 mandoc -T lint -W style instruments/man/ccfleet.1; echo "exit=$?"
 python3 instruments/ccfleet --help; echo "exit=$?"
 ```

@@ -102,3 +102,7 @@
       as with `c60dee8b`; the question to add: does the lapse-first route and
       the spill rule (the local route never takes from a budget lapsing
       sooner) match the principal's words as summarised there.
+      🔁 **Brief updated a third time, 2026-11-21 UTC (queue run 08cd3b95, orchestrator):**
+      `e002ea22` taken in as question 31, with the author's question attributed to it; the
+      principal's words stay private, the skill's paraphrase is what the reviewer reads.
+      Since-line empty at `e002ea22`.
