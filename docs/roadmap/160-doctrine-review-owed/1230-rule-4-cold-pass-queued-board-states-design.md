@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the board-states design (`310/160`, `310/060`).**
+- [~] ⏳ **Rule-4 cold pass queued: the board-states design (`310/160`, `310/060`).**
       Every board in the estate would change. The authoring session (a principal-opened Opus 5.5
       queue run, session 722ac2e2, 2026-11-09, in its ruling round, which
       dispatched the worker that wrote it) queues this and does not take it.
@@ -18,3 +18,12 @@
       `.deferred.md` sibling. Pass size: medium. Review NOT run: this pass
       waits for a criterion-passing cold Fable session and the principal's
       explicit permission for Fable work. Neither named session may run it.
+      🔒 2026-11-22T22:40Z: claimed for the Fable pass by a headless per-pass
+      orchestrator, session fce21971 (Opus 5.5, rule-4 off-tier orchestrator:
+      it holds the partition and forms no finding), started by drain session
+      eca14b23; the reviewer is a Fable 5.1 subagent, tier checked at
+      selection. Neither is barred by the brief. The approval this item waits
+      for is his drain order of 2026-11-23, verbatim: *"Start a fable drain or
+      whatever it is called now. Target 100% of weekly budget by 11.30am NZT
+      todat"*. The held-back sibling is partitioned out of the review tree
+      until act 1 is committed.
