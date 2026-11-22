@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the dispatch brief, the pathspec and
+- [~] ⏳ **Rule-4 cold pass queued: the dispatch brief, the pathspec and
       leaver's rules for the shared index, the long-check poll, the shared
       process table and load, worktree names, brief reading, the stop
       triage and the device at close (`180/120`–`180/160`, `320/350`,
@@ -30,3 +30,12 @@
       pass waits for a criterion-passing cold Fable session and the
       principal's explicit permission for Fable work. Neither named session
       may run it.
+      🔒 2026-11-22T22:50Z: claimed for the Fable pass by a headless per-pass
+      orchestrator, session 7968f851 (Opus 5.5, rule-4 off-tier orchestrator:
+      it holds the partition and forms no finding), started by drain session
+      eca14b23; the reviewer is a Fable 5.1 subagent, tier checked at
+      selection. Neither is barred by the brief. The approval this item waits
+      for is his drain order of 2026-11-23, verbatim: *"Start a fable drain or
+      whatever it is called now. Target 100% of weekly budget by 11.30am NZT
+      todat"*. The held-back sibling is partitioned out of the review tree
+      until act 1 is committed.
