@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: a floor `disabled` entry takes an end date, warn-first (`320/800`), and reviewscan's not-in-scope line (`320/770`).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: a floor `disabled` entry takes an end date, warn-first (`320/800`), and reviewscan's not-in-scope line (`320/770`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -24,3 +24,27 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ 2026-11-22T21:18Z: PASS RAN (Fable 5.1 reviewer; orchestrator session 92ba9071,
+      off-tier, held the partition, formed no finding), acts 1 and 2 complete
+      and the sibling folded:
+      [`docs/reviews/2026-11-14-0154-disabled-end-date-reviewscan-scope-cold.md`](../../reviews/2026-11-14-0154-disabled-end-date-reviewscan-scope-cold.md).
+      **Verdict: PASS-WITH-FINDINGS — 0 MAJOR · 5 MODERATE (DE1–DE5) ·
+      8 minor (DE6–DE11, DE13, DE14 at reconcile) · 1 note (DE12).** No MAJOR
+      stands. All nine re-run lines exit 0; the sibling-config proof
+      reproduces (23 configs, the record said 21).
+      🎯 Owed to the principal (rule 3: a gate and a guard's report line are
+      doctrine by function, so every finding is his to rule; nothing
+      applied). Plain briefing: a repo can now give a switched-off check an
+      end date, but a child can quietly push that date out (DE1), a date far
+      in the future looks healthier than no date at all (DE2), and the
+      warn-only stage has no date of its own for when it starts blocking
+      (DE5; only 3 such entries exist fleet-wide, all undated). On the scan
+      side, "not in scope" reads as all-clear where the house means the
+      opposite (DE3), and the commit hook never computes the new count (DE4).
+      Ask, in the reviewer's order: DE5 (warn until a date, then block?), DE2
+      (a limit on how far out `review-by` may be, on both lanes), DE1 (may a
+      child move a disabled date; give it a `kind`). Reviewer's counsel: a
+      build session takes DE1, DE3, DE4, DE6–DE10, DE13, DE14 once he has
+      ruled; DE11 as its own item under `115/130`; DE12 is record only.
+      Routing: a fix session in atelier once ruled; a re-pass only if he
+      asks.
