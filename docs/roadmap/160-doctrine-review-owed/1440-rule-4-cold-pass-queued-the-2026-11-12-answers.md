@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the doctrine edits that record the 2026-11-12 answers.** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: the doctrine edits that record the 2026-11-12 answers.** The authoring session (a
       principal-opened Opus 5.5 session, d0ca5d24, 2026-11-12 UTC) queues this
       and does not take it.
       *Tier:* Fable, the principal-named review tier, checked at selection;
@@ -32,3 +32,21 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      🎯 2026-11-22T20:35Z: PASS RAN (Fable 5.1 reviewer; orchestrator session b2fa9a58,
+      off-tier, formed no finding). Verdict **FAIL**: 1 MAJOR, 3 MODERATE,
+      2 minor, 4 note (AN1–AN10; none withdrawn or added at reconcile).
+      Standing MAJOR, AN1: the asking rule now says "text then device, same
+      turn" while its own paragraph still says the on-screen spelling was
+      shown false in a live display mode (2026-08-23); nothing records why
+      that no longer bears or that he chose the cost knowingly.
+      *Owed to the principal (rule 3, self-authored doctrine; all ten are
+      his):* AN1 (MAJOR); AN2, quoting his typed sentence unmarked and
+      reading "same turn" into it; AN3, the template and `PROPAGATION.md`
+      kept the old rule until `978008c7` (fixed at HEAD, record only); AN4,
+      `tools/floor.py` and the design note still call the allow-marker
+      question open; AN5–AN10, minor and notes. The reviewer's counsel
+      sits beneath each finding in the verdict. Routing: one ruling round
+      on AN1–AN6, then a build session applies what he picks; AN1 or AN2
+      change the asking rule, so a re-check pass follows those edits.
+      Review: `docs/reviews/2026-11-14-0300-the-2026-11-12-answers-cold.md`
+      (sibling folded, review log opened at the end).
