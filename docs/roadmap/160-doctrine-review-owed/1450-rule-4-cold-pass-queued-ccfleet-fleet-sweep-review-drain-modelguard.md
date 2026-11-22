@@ -139,3 +139,10 @@
       After the fixes, a re-check pass is owed and needs his Fable approval.
       🔓 2026-11-22 UTC: session 5106cf48 releases its claim; the item stays open for the
       principal's decision.
+      💬 **The principal's answer, 2026-11-22 UTC (session 5106cf48, AskUserQuestion; an
+      answer, not a ruling):** *"Fix all as advised (Recommended)"*, to an option reading: one
+      fix item for all 25 as counselled; the five judgement calls taken the reviewer's way
+      (adoption scoped to repos the config lists, never another owner's; unsure means the local
+      route; the example drops the bypass permission mode; the approval rule stays an adopter
+      setting, not generic doctrine; both skills stay in the plugin); then a canary on a
+      throwaway repo, then he is asked about the Fable re-check. Carried by `210/470`.
