@@ -260,7 +260,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🎯 [Rule-4 cold pass queued: his method for asking, and an answer is not…](roadmap/160-doctrine-review-owed/1250-rule-4-cold-pass-queued-asking-method-and-answer-versus-ruling.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose's fourth agent state, still running…](roadmap/160-doctrine-review-owed/1260-rule-4-cold-pass-queued-ccclose-running-state.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a floor disabled entry takes an end date,…](roadmap/160-doctrine-review-owed/1270-rule-4-cold-pass-queued-disabled-end-date-and-reviewscan-scope.md)
-- [~] ⏳ [Rule-4 cold pass queued: the floor's record-store carve-out…](roadmap/160-doctrine-review-owed/1280-rule-4-cold-pass-queued-record-store-floor-three-rules.md)
+- [ ] 🎯 [Rule-4 cold pass queued: the floor's record-store carve-out…](roadmap/160-doctrine-review-owed/1280-rule-4-cold-pass-queued-record-store-floor-three-rules.md)
 - [~] ⏳ [Rule-4 cold pass queued: cclive, a machine-wide view of live work…](roadmap/160-doctrine-review-owed/1290-rule-4-cold-pass-queued-cclive-instrument.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the evidence-window rule (115/010), the…](roadmap/160-doctrine-review-owed/1300-rule-4-cold-pass-queued-evidence-window-declaration-settings-gate.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a voided allow-marker is noted (110/010),…](roadmap/160-doctrine-review-owed/1310-rule-4-cold-pass-queued-voided-marker-note-review-header.md)
