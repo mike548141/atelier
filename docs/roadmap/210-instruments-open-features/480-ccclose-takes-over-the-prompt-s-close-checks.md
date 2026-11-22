@@ -1,4 +1,4 @@
-- [ ] 🎯 **`ccclose` takes over the close checks the session-open prompt still
+- [x] **`ccclose` takes over the close checks the session-open prompt still
       asks for in words.** The principal, 2026-11-22, verbatim: *"I want you to
       look at everything in the lastest version of the prompt in
       session-open-prompt.md and look at what would be more effectively built
@@ -61,3 +61,7 @@
       sure everything is ready"; and, since `210/490`, "Open by printing this
       session's ID". What stays: the summary by topic, the plain-language
       walk-through, whether the learnings reached the record.
+      **Prompt edited 2026-11-22**, after the walk-through above was put to
+      him line by line with the new text in full; his pick, verbatim: *"Make
+      the change (Recommended)"*. The close section is replaced as shown, and
+      the session-ID line at the top goes (`210/490` does its job).

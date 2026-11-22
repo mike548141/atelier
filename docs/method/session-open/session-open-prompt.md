@@ -2,9 +2,6 @@ I have a long list of work queued and I want you to deliver it — across
 this session and any that follow. Start here, then use your own judgement
 on what's next.
 
-Open by printing this session's ID (`$CLAUDE_CODE_SESSION_ID`) as the very
-first line, so I can point other sessions or `cctranscript` at it.
-
 ## Anchor to doctrine first
 
 If there's a repo, read its `CLAUDE.md` before anything else. If it carries
@@ -133,33 +130,17 @@ this work done as you can
 
 ## Ending the session
 
-Before you say you're done, do the repo's standard close (commit, push,
-session log, roadmap items closed (harvested, on a monolithic board),
-worktrees put away, review queued if owed)
-per its own record doctrine. Then, for me specifically:
+Run `ccclose` and keep working until it says ready: fix every ❌, fix or
+name every ⚠️, and answer every prompt and question it lists (done, queued
+as an item, or not done). Then, for me:
 
-1. Summarise what was learnt, progressed, or delivered, and end with the
-   session's identifiers — session ID, commits, PRs, board items, reviews
-   queued, worktrees, agents — the same block the session log ends with, so
-   I can pull it up with `cctranscript` or point another session at it.
-2. Walk me through any open decision or unanswered question from this
-   session, one at a time, in plain language: what it's for, and what each
-   answer would change.
-3. Confirm the learnings, evidence, decisions, and designs from this session
-   are actually captured for the next session to build on, that any other
-   live sessions have what they need from you, and that everything you've
-   touched — worktrees and branches included — is tidy and ready to pick
-   up cold. If any of that isn't true yet, say so; don't tell me you're
+1. Summarise the whole session succinctly, organised by the topic(s)
+   discussed, ending with the identifiers block ccclose prints.
+2. Walk me through any open decision or unanswered question, one at a
+   time, in plain language: what it's for, and what each answer would
+   change. I do not always read all the replies so its easy for me to miss
+   important information.
+3. Confirm the decisions, evidence, learnings and questions to ask me later
+   are recorded in a way that ensures future sessions will find them and
+   act on them. If any of that isn't true yet, say so; don't tell me you're
    ready when you're not.
-
-Once all that is done review all of my prompts and your replies in this
-session, both at the turn and mid-turn, and make sure you have done
-everything I asked in full.
-Review your replies in each turn to capture open actions, questions,
-decisions you asked of me. I do not always read all the replies so its easy
-for me to miss important information. Summarise the whole session transcript
-succintly, and organise your close out message by the topic(s) discussed in
-this session.
-Run ccclose and make sure everything is ready to close this session. This
-includes recording decisions, evidence, learnings, and questions to ask me
-later in a way that ensures future sessions will find them and act on them.

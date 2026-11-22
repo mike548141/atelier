@@ -62,11 +62,12 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
 
 - 2026-11-22, his answer (not a ruling): *"Build both now (Recommended)"*.
 - 2026-11-22, his words on the prompt edit, recorded on `210/480`.
+- 2026-11-22, after the line-by-line walk-through, his answer: *"Make the
+  change (Recommended)"*. The prompt's close section is the short form and
+  the session-ID line is gone; `210/480` closed.
 
 ## Owed
 
-- 🎯 `210/480`: walk him through each prompt line `ccclose` now answers, then
-  edit the prompt only on his go (the line list is on the item).
 - ⏳ `160/1710`: Fable cold pass on check 15, the listings and `idhook`;
   waits for his approval.
 - `210/500`: `modelguard` refuses a lookup of the `claude` binary.
@@ -80,7 +81,7 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
   `20fd0f09`, `e4d572d1`, `f003c8a3`, `2992dd9d` (this record), `8556061a`, and this note
 - **Pull requests**: none
 - **Board**: created `210/480`, `210/490`, `210/500`, `160/1710`; completed
-  `210/460`, `210/490`; `210/480` open (🎯)
+  `210/460`, `210/480`, `210/490`
 - **Worktrees and branches**: `atelier-ccclose-460-480` /
   `ccclose-460-480`, landed and removed
 - **Agents**: one Sonnet worker, reported
