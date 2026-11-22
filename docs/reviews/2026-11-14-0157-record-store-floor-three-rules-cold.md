@@ -1,9 +1,11 @@
 # Cold pass — the floor's record-store carve-out, `/security-review` in a shared worktree, no credential at rest, solve once at both scopes
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1280-rule-4-cold-pass-queued-record-store-floor-three-rules.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `b059d250`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** ACT 1 WRITTEN 2026-11-22 UTC — PASS-WITH-FINDINGS (1 MAJOR, 2 MODERATE, 2 minor,
+2 notes); act 2 (reconcile against the sibling) owed. Reviewer: Fable 5.1 under the principal's
+2026-11-23 NZDT drain order, run by orchestrator session `60287c5a` for drain session `eca14b23`.
+Brief written 2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as session
+`b059d250`).
 
 **Pass type:** doctrine cold pass, per `docs/method/REVIEW.md` rule 4 (the floor region every child
 inlines, a review lens, the credential ladder and a design principle are doctrine by text and by
@@ -248,3 +250,284 @@ restated. Never revise act-1 text. Then fold the sibling in below the reconcile 
 
 The work is doctrine by function, so every finding is the principal's to decide (rule 3): record
 all, apply nothing. Counsel per finding is welcome, labelled as counsel and kept beneath it.
+
+---
+
+# Verdict — act 1 (2026-11-22 UTC)
+
+**Overall: PASS-WITH-FINDINGS — 1 MAJOR (RC1), 2 MODERATE (RC2, RC3), 2 minor (RC4, RC5),
+2 notes (RC6, RC7).** The delta does what its four parts set out to do, and its quotes and
+pointers hold; the MAJOR is that the floor's new confirm-list entry has no home in the list
+`00-APEX.md` names as the one home, so the parent and its children now read the same act two ways.
+Per `REVIEW.md` § *Applying decisions to doctrine*, a MAJOR keeps the cycle open. Every finding is
+the principal's to decide (rule 3); counsel is labelled and sits beneath each.
+
+## Provenance (rule 4, V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), the principal-named tier, checked at selection.
+  Spawned by headless per-pass orchestrator session `60287c5a` (Opus 5.5), itself started by drain
+  session `eca14b23` (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold the context
+  partition, form no finding and write no severity. Neither wrote the brief or the delta, and
+  drain session `eca14b23` started no brief-writer. I was not started or instructed by any barred
+  session (`b059d250`, `58027096`, `d0ca5d24` or anything it started). No contact from the author
+  or the brief-writer reached me.
+- **Authority:** the principal's weekly Fable drain order of 2026-11-23 NZDT, verbatim: *"Start a
+  fable drain or whatever it is called now. Target 100% of weekly budget by 11.30am NZT todat"*
+  (his spelling, verbatim). It lapses at the reset (2026-11-22T23:00Z); a pass running then may
+  finish.
+- **Spawn prompt, as received (process only):** worktree path, brief path, the partition (the
+  sibling removed from my tree, its deletion left unstaged; no history, other checkouts or
+  scratch reads), what I may write (this file below the divider and the Status line; a running
+  review log outside the repo, appended verbatim at the fold), no commit/push/live write, load
+  rules (one suite at a time under `nice -n 10`), public-repo naming rules, and the finish shape.
+  It carried no question about the delta, no pointer to where risk lives and no request about any
+  finding. The release message for act 2 will be recorded in § *Reconcile*.
+- **Review worktree:** `/Users/mike/worktrees/fable/atelier-160-1280-2009/atelier`, detached at
+  `c4bc074b`. `git status` showed only the expected unstaged deletion of the sibling.
+- **What I read, in order:** this brief whole; `docs/method/REVIEW.md` whole; the delta body-free
+  (`coldsweep --commit 920d63f3`); the floor region and template at HEAD; `RECORD.md` 440-465;
+  `AUTONOMY.md` 8-20, 40-168, 274-290; `00-APEX.md` 83-90; `SECRETS.md` 30-105, 310-323;
+  `PRINCIPLES.md` 190-237, 265-289, 296-369, 612-630, 748; `PROPAGATION.md` headings and
+  1178; `EVIDENCE.md` headings; `CONVENTIONS.md` 57-59; `GLOSSARY.md` 60-68; `CONCURRENCY.md`
+  930 and 1015-1030; `skills/review-brief/SKILL.md` 94-112; `docs/build/templates/docs/reviews/
+  README.md` 24-40; `tools/blockscan_map.json` 1-40; `tools/test_templates.py` grep; tool
+  `--help` texts; `docs/PERSONAL-DATA.md` whole; `CHANGELOG.md` 598-616; two census records
+  under `docs/method/census/` (2026-11-16, not on the barred list, read after RC1 and RC2 were
+  formed); board rows `020/README` 262-270 and `300/020` 136-141 (not barred). Session-log step
+  skipped (rule 2). No prior verdict opened; the five 2026-08-15 and two 2026-07-21 verdict files
+  were listed by **name only**.
+- **Exposure, disclosed:** the brief's authorised `git show --format= b3101c3b` grep for the
+  quoted words also printed one `docs/SESSIONS.md` index line (a one-sentence account of the
+  2026-08-03 queueing). It steered no finding. The coldsweep sweep printed one-line hits from
+  non-barred board items; none carried an account of this delta.
+
+## Lens 1 — approach and assumptions (named first)
+
+- **A1 — the floor region is a copy and `AUTONOMY.md` § *Always confirm* is the list's home.**
+  Confirmed: `00-APEX.md` 85-87, *"the list is `AUTONOMY.md` § Always confirm, which holds it
+  once; `PROPAGATION.md`'s floor block carries the copy"*; `AUTONOMY.md` 40-42 and 154, *"this
+  file is where that list lives"*. The delta edits the copy and the template only → **RC1**.
+- **A2 — the 2026-08-04 ruling is show-first-or-ask, not stop-and-confirm.** Confirmed:
+  `RECORD.md` 446-449 (*"either diff it and show the principal what goes, or ask. One message"*),
+  `AUTONOMY.md` 280-285 (*"show what goes, or ask, before it is removed"*), and the house's own
+  guard re-rank (`300/020` line 139: *"Show first, then act. The bytes are recoverable."*). The
+  floor files the act under *Always stop and confirm* → **RC2**. The brief's lens-1 question is
+  answered: the floor says something **stricter** than `RECORD.md` and `AUTONOMY.md`, or is
+  ambiguous between the two, depending on how a reader weighs the rider against the heading.
+- **A3 — a wording rule is the right answer to a scanner that cannot be aimed.** Accepted. The
+  scanner is a harness command the repo cannot wrap, so no in-repo guard can refuse it; the
+  verifiable precondition the delta names (a clean worktree at the moment of aiming) is the one
+  control available. Where it belongs as well is the skill that writes briefs and the skill that
+  spawns batches → **RC3** (counsel).
+- **A4 — the credential rung is grounded enough to be a rung.** Confirmed as a labelled one-case
+  claim: the quote is verbatim (ledger below), the position in the ladder is reasoned in the text,
+  *tested* is made a condition, the minting credential is kept as debt, and the open questions
+  are named. One design gap at the seam with the secrets floor → **RC7** (note).
+- **A5 — the solve-once bullet is a principle, not a restatement.** It is mostly a restatement
+  and says so (*"the bullet above and one-source … already hold it"*); its new content is the
+  cross-repo reading through the three flows, each of which resolves. Honest; no finding beyond
+  the date stamp → **RC5**.
+- **A6 — the regions are unchanged at HEAD.** Confirmed: `git diff 920d63f3 HEAD -U0` hunk
+  headers on the six files all fall outside the four regions (old lines 127-143 and 29-47 for the
+  floor; 363-377 `REVIEW.md`; 79-100 `SECRETS.md`; 210-213, 313-328, 622 `PRINCIPLES.md`).
+- **A7 — the floor's own checks hold the new clause.** Confirmed for the copy-equals-canonical
+  test: `test_templates` 55 OK; `stampscan --require-floor-stamp` *"[identical] matches canonical
+  region 'floor' (109 lines)"*. Not held for co-change with the rule's source → **RC4**.
+
+## Lens 2 — correctness: per-claim ledger
+
+| Claim (brief § *The claims*) | Re-driven against | Result |
+|---|---|---|
+| Floor: bulk record deletion is always-confirm; "Everything else recoverable" | `PROPAGATION.md` 146-162 read as one sentence | Parses; "else" excludes the listed acts, so the old contradiction is closed in the floor. Semantics vs the ruling: RC2 |
+| Canonical region and template carry the same text | `stampscan`, `test_templates` | Holds (identical, 109 lines) |
+| "No child is changed by this" | commit stat (`--format=`): 11 files, all in atelier | Holds |
+| `/security-review` reads the pending diff, not a path | harness behaviour; cited 2026-08-15 verdicts | **Not re-run** in act 1 (read-only, no harness probe; verdicts barred). Act 2 |
+| Three reviewers in one batch (2026-08-15) | `ls docs/reviews` names only: five 2026-08-15 files | Count unverified: RC6 (note), act 2 |
+| Quote *"delete the credential entirely and make its rebuild cheap, automated and tested"*, captured 2026-08-03 | `git log --all -S` on two fragments → `b3101c3b` (2026-08-03T05:58Z); narrow grep of its added lines | **Holds character for character**; the source wraps across two lines, which is why a one-line `-S` on the whole sentence hits only the delta. Date holds (0557 UTC) |
+| Rung "sits below the triad … above a standing credential" | `SECRETS.md` 61-100 | Reasoned in the text; consistent with § 17 (enabling property) and § 310 (rotation cadence), both of which resolve |
+| "This is a one-case claim" and the open questions | `SECRETS.md` 90-100; `PRINCIPLES.md` 234 | Labelled at both sites; no second site drops the label |
+| §8: "Mike's principle (2026-07-25, captured in paraphrase)" | `git log -S'2026-07-25' -- PRINCIPLES.md`: only the delta and `de1049b3` | Date **not re-checkable** from non-barred sources (`RECORD.md` 457's 2026-07-25 is a different event). Act 2 against `160/170` |
+| §8: three flows "all in `PROPAGATION.md`" | headings 506, 24, 845 | Holds |
+| §8: "the lateral route is the youngest, written 2026-11-09" | `git log -S` on the heading → `3f3cf5be`, 2026-11-08T14:24Z | Off by one day: NZDT date at rest: RC5 |
+| `CHANGELOG.md`: "Doctrine wording only; no scanner or tool changes" | commit stat | Holds (markdown only) |
+| `RECORD.md`'s 2026-08-04 ruling date | `git log -S'show-first action'` → `53785b95` "the 2026-08-04 sitting's five small edits" | Consistent |
+
+## Lens 3 — completeness / harvest (V3, V4, V5)
+
+Surfaces that state the floor, the record-store rule, the scanner caution, the ladder or
+one-source, each checked at HEAD:
+
+- Floor region and template: identical (above). `GLOSSARY.md` 60-62 defines *Floor*; no entry
+  for *record store* (the floor and `RECORD.md` both define it by enumeration; not a finding).
+- `AUTONOMY.md` § *Always confirm*: **no record-store entry** (RC1). § *The one rule* (10-13)
+  and `docs/method/README.md` 14-15 still say *"proceed on anything recoverable"* with no
+  carve-out: the contradiction the delta closed in the floor stands at the home (RC1 evidence).
+- `00-APEX.md` 85-87: names the home the delta did not change (RC1).
+- `skills/review-brief/SKILL.md` 99-106 and `docs/build/templates/docs/reviews/README.md` 30-34:
+  restate lens 4's scanner guidance with the first caution only (RC3). `skills/review-drain/
+  SKILL.md` and `skills/queue-run/SKILL.md`: no mention of the scanner at all (RC3 counsel).
+- `PRINCIPLES.md` §5 and §2, `EVIDENCE.md` §9: consistent; the §8 bullet cites both correctly.
+- `tools/blockscan_map.json` *stop-and-confirm*: sources `00-APEX.md` only (RC4).
+- Cross-reference line (V5): every pointer the delta writes reaches the rule it names:
+  `SECRETS.md` § *The credential triad* (61); "the enabling property above" (17); "the rotation
+  cadence below" (310); `PROPAGATION.md` § *Pointing up* (506), § *The mechanism* (24), § *The
+  same route between any two repos* (845); `EVIDENCE.md` §9 (121); `PRINCIPLES.md` §2 DRY (89).
+
+## Lens 4 — security and privacy (V6)
+
+- **Design altitude, the rung:** as written it cannot lead a session to delete a credential it
+  cannot rebuild without first breaking its own condition (*"tested is a condition of the rung"*,
+  `SECRETS.md` 93-94), and it keeps the minting credential watched (*"stays a tracked debt"*,
+  bounded by the rotation cadence). One seam is unstated → RC7 (note).
+- **Design altitude, the floor:** the new "else" lets through only acts not in the list; bulk
+  record deletion is in the list, so nothing destructive newly passes. The residual risk is RC2's
+  ambiguity (a reader who takes "shown first" as the whole duty acts after showing, which is what
+  the ruling allows, so the risk is to consistency, not to data).
+- **Inference about the one-case child or tool:** `SECRETS.md` 90-92 names no child, platform or
+  tool; *"backup tool"* and *"delegation grant is standing-only"* describe a class. The §8
+  example (*"a network tool handles its wire protocol in one module"*) names no repo. Discharged.
+- **Personal data:** the delta adds *"Mike's words"* and *"Mike's principle"*: the first name in
+  the house's standing form; `pdlistscan` clean in the floor run. Nothing outside
+  `docs/PERSONAL-DATA.md`'s closed list.
+- **Code altitude:** no code in the delta. `/security-review` **NOT RUN**: it excludes markdown,
+  so a clean pass would be empty, and my worktree carries a pending diff (this verdict, the
+  sibling's deletion), the exact shape the delta's caution names. Discharged on those grounds.
+
+## Findings
+
+Severities: MAJOR / MODERATE / minor / note. All are the principal's to decide.
+
+### RC1 — MAJOR · the floor's new entry is absent from the list APEX names as its home (V3–V5)
+
+`00-APEX.md` 85-87 says the always-confirm list *"is `AUTONOMY.md` § Always confirm, which holds
+it once; `PROPAGATION.md`'s floor block carries the copy"*. The delta adds *bulk deletion from a
+record store* to the copy (`PROPAGATION.md` 147-150, template 33-36) and not to the home:
+`AUTONOMY.md` § *Always confirm* (44-146) has no such entry; the rule sits under § *Before you
+destroy or overwrite* (280-285) as a show-first act, and § *The one rule* (10-13) still reads
+*"Proceed on anything recoverable"* with no carve-out, as does `docs/method/README.md` 14-15. The
+floor is the region every child inlines, so a child reads the act as a floor stop while an atelier
+session consulting the named home reads it as show-then-act. The 2026-11-16 census record
+(`docs/method/census/2026-11-16-1204-apex-autonomy-guards-propagation.md` 347-351) states the same
+gap independently: *"The 'one list' of always-confirm stops is two lists."* The delta's own
+`CHANGELOG.md` line says *"`PROPAGATION.md` and the template change together"*; the home was not
+in the sweep. MAJOR because the surface is the floor, the two statements now disagree on the
+strength of the duty, and V4's rule (`EVIDENCE.md` §9; `PROPAGATION.md` § *One statement, stamped
+copies*) is the one the delta's own §8 bullet invokes.
+
+*Counsel:* decide RC2 first, then write the entry once at the home in the words that decision
+gives, re-derive the floor copy from it, and sweep § *The one rule* and `docs/method/README.md`
+14-15 for the carve-out. Map the home as a blockscan source (RC4) so the next drift is caught.
+
+### RC2 — MODERATE · confirm vs show-first: the floor says more than the ruling, or two things
+
+The floor lists the act under *"Always stop and confirm (the floor)"* with the rider *"shown first
+because recoverable bytes are the wrong test there"*. The ruling as recorded is show-first **or**
+ask, one message, then act (`RECORD.md` 446-449; `AUTONOMY.md` 280-285; the house's own reading
+in `300/020` line 139, *"Show first, then act."*). Position in the list makes the act a floor
+stop, to which `00-APEX.md` 112-118 attaches re-briefing before the act and the principal's
+confirmation; the rider says showing is the duty. A reader can take either. If the floor means
+confirm, it is stricter than the ruling and the two homes contradict; if it means show-first, the
+list heading mis-describes its own member. Neither is said.
+
+*Counsel:* one ruling settles it. If show-first stands, the clause belongs in its own sentence
+after the list (*"One act is show-first rather than confirm: …"*) so the heading stays true. If
+the principal upgrades it to confirm, `RECORD.md`, `AUTONOMY.md` and `300/020` record the upgrade
+in his words.
+
+### RC3 — MODERATE · the shared-worktree scanner caution has no mirror where briefs are written
+
+`REVIEW.md` lens 4 now carries two cautions. `skills/review-brief/SKILL.md` 99-106 and
+`docs/build/templates/docs/reviews/README.md` 30-34 restate the lens with the first caution only
+(*"never run it over a brief carrying deferred material"*); neither says the scanner reads the
+session's pending diff or that a shared worktree must be verifiably clean. `PRINCIPLES.md` §6
+277-287 names `skills/` and the templates as sweep surfaces. The brief-writer works from the
+skill, so the next brief tells a reviewer to *"aim it at the in-scope diff"* in a batch where
+aiming does nothing. `skills/review-drain/SKILL.md`, which spawns the very shape the caution
+names, does not mention the scanner.
+
+*Counsel:* one sentence in the skill and the template beside the first caution; and the
+review-drain skill's spawn prompt says whether the worktree is per-reviewer, so the reviewer knows
+which case it is in before it aims anything.
+
+### RC4 — minor · the co-change guard cannot see the new clause's source (lens 3, in scope)
+
+`tools/blockscan_map.json` 21-27 sources the *stop-and-confirm* bullet to `00-APEX.md` § *The
+principal's authority is absolute* only. Neither `AUTONOMY.md` § *Always confirm* (the named home)
+nor `RECORD.md` § *The roadmap — one file per item, a generated index* (the heading above the
+record-store rule, line 408) is mapped, so a change to the rule at either source raises no
+co-change warning for the floor. The delta added the clause without adding its source; the shape
+pre-dates it. `blockscan` and `test_blockscan` pass (exit 0) because the map resolves; the gap is
+coverage, not breakage.
+
+*Counsel:* add both headings as sources of the *stop-and-confirm* entry.
+
+### RC5 — minor · a local date at rest (V1, `CONVENTIONS.md`)
+
+`PRINCIPLES.md` 369: *"the lateral route is the youngest, written 2026-11-09"*. The commit that
+wrote § *The same route between any two repos* is `3f3cf5be`, authored 2026-11-09T03:24+13:00,
+which is **2026-11-08** UTC. `CONVENTIONS.md` 57 rules *"UTC at rest; local on presentation"*.
+One day, one stamp; doctrine is at rest.
+
+*Counsel:* `2026-11-08`.
+
+### RC6 — note · the three-reviewer reproduction is unverified in act 1
+
+`REVIEW.md` 372-374: *"Three reviewers in one batch (2026-08-15, the SL2 channel class) … each
+scanned the shared tree"*. Five verdict files carry that date (names only; all barred until act
+2). Whether exactly three ran the scanner and what each disclosed is checked at reconcile; this
+note exists so the check has an id.
+
+### RC7 — note · the rung's seam with the secrets floor is unstated
+
+`AUTONOMY.md` 127-137 puts *"regenerating credentials"* on the secrets floor and carves out only
+*use* of a provisioned credential through the resolving machinery. The rung has a run mint a
+credential and delete it on every use. `PRINCIPLES.md` §5 already frames external regeneration as
+*"behind a one-off human approval"* (216-218), and the rung sits under that bullet, but
+`SECRETS.md` 79-100 does not say that mint-per-run runs under that one-off grant rather than as a
+fresh floor stop each time. A reader of `SECRETS.md` alone cannot tell. One clause closes it.
+
+## Standing checklist V1–V7
+
+- **V1** — RC2 (the floor's heading claims confirm where the ruling grants show-first), RC5
+  (date). Every other claim re-driven holds or is carried to act 2 (ledger).
+- **V2** — all seven re-run lines pass (ledger below); recorded proofs: the quote and its date
+  hold; the 2026-08-04 date is consistent with its landing commit; the 2026-07-25 date and the
+  three reproductions are not re-checkable from non-barred sources in act 1 (said so; act 2).
+- **V3** — RC1 (the home, § *The one rule*, `method/README.md`), RC3 (skill, template README).
+- **V4** — RC1.
+- **V5** — RC2; the cross-reference line in lens 3 names the rule each pointer reaches.
+- **V6** — lens 4 above; `/security-review` NOT RUN with grounds.
+- **V7** — provenance stated above, repeating the brief's.
+
+## Re-run ledger
+
+All from the worktree, `python3` = 3.14.6 (first on `PATH`, as the brief says), one suite at a
+time under `nice -n 10`, foreground; `uptime` load 6.3 at start, 9.7 at the floor.
+
+| Line | Result |
+|---|---|
+| `git merge-base --is-ancestor 920d63f3 HEAD` | exit 0 |
+| `coldsweep.py --selftest` | selftest OK, exit 0 |
+| `coldsweep.py --root . --commit 920d63f3` | exit 0 (output read, body not printed) |
+| `unittest test_templates` (run as `python3 -m unittest discover -s tools -p test_templates.py`, the no-`cd` equivalent) | Ran 55 tests, OK, exit 0 |
+| `unittest test_blockscan` (same form) | Ran 58 tests in 41.1 s, OK, exit 0 |
+| `blockscan.py --root . .` | exit 0; advisory list of unmapped headings |
+| `nice -n 10 floor.py --plane ci --root .` | exit 0; 20 checks run, every enforced check green; secretscan 29 and leakscan 3 advisories, non-blocking. `stampscan` and `blockscan` are not on the ci plane |
+| extra: `stampscan.py --require-floor-stamp docs/build/templates/CLAUDE.md` | 1 block verified, identical, exit 0 |
+| brief's `coldsweep` sweep (three `--also-exclude`) | 95 hits over 748 files, 1017 barred files excluded, clean exit |
+
+Not run: `/security-review` (grounds in lens 4). Not re-checkable in act 1: the 2026-07-25 date,
+the three 2026-08-15 reproductions, the harness's pending-diff behaviour.
+
+## Follow-up checklist
+
+- [ ] Principal rules RC1 and RC2 together (one ask: confirm or show-first; one home).
+- [ ] Principal rules RC3 (sweep to the skill, the template README and the drain skill's prompt).
+- [ ] Principal rules RC4 (map the two source headings) and RC5 (`2026-11-08`).
+- [ ] Act 2: open the sibling and the barred records; RC6 count; the 2026-07-25 date against
+      `160/170`; screen the author's account; `### Reconcile` beneath this verdict.
+- [ ] After rulings: application by a hand that wrote neither the doctrine nor this verdict, with
+      its own `⏳` pointer (RC1 is MAJOR, so the cycle stays open).
+
+The full method record (every command and file range, in order) is the review log, appended
+verbatim at the fold.
