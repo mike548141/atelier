@@ -2,29 +2,44 @@
 
 The principal opens most working sessions with a prompt of his own: a standing
 brief that points the session at the repo's doctrine and says how he wants it
-to work, close and report. This directory keeps that prompt and the history
-of how it changed, and beside them the house's own dispatch brief, the bounds
-an orchestrator opens each worker with.
+to work, close and report. This directory keeps that prompt, and beside it the
+house's own dispatch brief, the bounds an orchestrator opens each worker with.
 
-- [`session-open-prompt.md`](session-open-prompt.md) is the **current** text,
-  and it is exactly what `/atelier:queue-run <this run's brief>` runs: the
-  skill loads this file and adds no rule of its own (only how to fetch it, the
-  bundled path of the doctrine and where the typed text goes), so the command
-  and the copy pasted by hand are one text (`180/090`;
+- [`session-open-prompt.md`](session-open-prompt.md) is the prompt, and it is
+  exactly what `/atelier:queue-run <this run's brief>` runs: the skill loads
+  this file and adds no rule of its own (only how to fetch it, the bundled
+  path of the doctrine and where the typed text goes), so the command and the
+  copy pasted by hand are one text (`180/090`;
   `tools/test_queue_run_single_source.py` guards it). It is the principal's
-  text: an agent changes it only on his say-so, quoted in the commit. Its own
-  git history runs back to a first
-  reconstruction made on 2026-09-16 (V1 to V9, folded in by subtree merge).
-- [`template-history.md`](template-history.md) is the **template history**:
-  one commit per version of the reusable part of the prompt, in the order the
-  versions were first used. Read it with
-  `git log --follow -p docs/method/session-open/template-history.md`. Each
-  commit's author date is when that version was first used (the first four
-  carry a wrong offset: see *What the history does not show*), and its message
-  says how many sessions used it.
+  text: an agent changes it only on his say-so, quoted in the commit.
+  **Its history is its git history, and nothing else.** There is no copy of
+  an old version anywhere in the tree. Every version since the first opener
+  of 2026-07-08 is a commit on this one path:
+
+  ```
+  git log --author-date-order -p -- docs/method/session-open/session-open-prompt.md
+  ```
+
+  Three lines of descent meet in it, each a real commit series with its
+  author date set to when the text was first used:
+
+  - **The mined template, versions 1 to 50** (2026-07-08 to 2026-10-17),
+    subjects `session-open template: version N of 50`. Mined from the
+    transcripts on 2026-10-18 (method below), first kept as a separate file,
+    `template-history.md`, and folded onto this path on 2026-11-22, when that
+    copy was retired. Each message counts the sessions its version opened.
+  - **The hand reconstruction, V1 to V9** (2026-07-13 to 2026-09-16), folded
+    in by subtree merge on 2026-09-16. Each is a whole prompt as pasted, not
+    only its reused part, so it and the mined series differ in what they
+    keep; neither is wrong.
+  - **The live file**, every edit since 2026-09-16, made in this repo.
+
+  Where the two reconstructions overlap in time, the log shows both. Each
+  commit's diff is against its own parent, so each series reads cleanly on
+  its own: add `--first-parent` for the live file alone.
 - [`dispatch-brief.md`](dispatch-brief.md) is the **dispatch brief**: the
   fixed bounds an orchestrator copies into every worker's opening prompt
-  (`180/120`). Unlike the two files above it is house text, not the
+  (`180/120`). Unlike the prompt it is house text, not the
   principal's, and it holds no rule of its own: each line points at the
   `CONCURRENCY.md` rule that grounds it.
 
@@ -53,7 +68,7 @@ This file is an instruction channel, so the threat is stated here:
 - **What the command does not guard.** The committed copy is what was
   committed, not what was reviewed: a commit that never met review still runs.
 
-## How the template history was built (2026-10-18, `180/060`)
+## How the mined template series was built (2026-10-18, `180/060`)
 
 The principal's rule, in his words: *"All the parts of the session opening
 prompt(s) that were re-used across more than one session transcript. By
@@ -96,20 +111,20 @@ The mining was done by a worker agent and checked by the orchestrating session
 before landing: the excluded units were read one by one, and every landed
 version passed the leak, secret, date and spelling scanners, with one
 exception: `catalog` in one version is the principal's own spelling, kept
-verbatim. The spellscan exemption for the history file (`.spellscanignore`)
-extends his 2026-07-23 ruling by analogy. That ruling names the frozen record
-stores, which is not this file, and he has not ruled on the extension.
+verbatim. While the series sat in its own file, a spellscan exemption covered
+it; the scanners read the tree, not history, so the exemption went with the
+file on 2026-11-22.
 
-## What the history does not show (cold pass, `160/940`)
+## What the mined series does not show (cold pass, `160/940`)
 
 A cold pass found no private detail and no single session's work in any of the
-50 versions. It also found these limits in how the history describes itself.
-The published commits are not rewritten to mend them.
+50 versions. It also found these limits in how the series describes itself.
 
-- **The first four author dates carry the wrong offset.** Versions 1 to 4 were
-  committed with a `+12:00` offset on a time that is UTC, and with the seconds
-  zeroed. Read their digits as UTC. Their messages ("First used … UTC") are
-  right, and the day and the order are right.
+- **The first four times have no seconds.** The retired copy committed
+  versions 1 to 4 with a `+12:00` offset on a time that is UTC; the 2026-11-22
+  replay onto this path carries the same digits as UTC, as each message
+  always said, and says so in the message. The seconds were zeroed at mining
+  and cannot be recovered.
 - **The session counts do not quite reconcile.** The messages of versions 5 to
   50 count 226 family sessions (142 first runs and 84 re-pastes), and versions
   1 to 4 add 25 precursor sessions. The family figure above is 228, so two

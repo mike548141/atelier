@@ -153,12 +153,14 @@ Try not to stop and ask me questions until you have done all the work. I
 won't be here to answer for several hours and I want you to get as much of
 this work done as you can
 
-Once all that is done review all my prompts in this session, both at the
-turn and mid-turn, and make sure you have done everything I asked fully.
+Once all that is done review all of my prompts and your replies in this
+session, both at the turn and mid-turn, and make sure you have done
+everything I asked in full.
 Review your replies in each turn to capture open actions, questions,
 decisions you asked of me. I do not always read all the replies so its easy
 for me to miss important information. Summarise the whole session transcript
 succintly, and organise your close out message by the topic(s) discussed in
 this session.
-Make sure everything is ready to close this session and run ccclose. This includes recording
-decisions, evidence, learnings, and questions to ask me later.
+Run ccclose and make sure everything is ready to close this session. This
+includes recording decisions, evidence, learnings, and questions to ask me
+later in a way that ensures future sessions will find them and act on them.
