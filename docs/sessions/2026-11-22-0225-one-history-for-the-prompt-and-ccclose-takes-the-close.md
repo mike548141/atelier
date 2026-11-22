@@ -41,6 +41,9 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
   separate hook message.
 - His prompt edit (the no-questions line moved into *Working with me*)
   landed as `996beee6`.
+- The floor at `2992dd9d` failed one new test on Linux (a peer exactly 3m
+  old printed "3m"; a sub-second age printed as a raw float). Fixed in
+  `8556061a`; the floor at `8556061a` is green.
 
 ## Learnt
 
@@ -74,7 +77,7 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
 - **Commits**: `8ef055ee` (fold merge, over the 50-commit replay
   `78aef09c..bbf5cf10`), `1924ff0d`, `c47115e2`, `83312040`, `9515ac7f`,
   `4a63f3cd`, `f088616a`, `996beee6`,
-  `20fd0f09`, `e4d572d1`, `f003c8a3`, and this record's commit
+  `20fd0f09`, `e4d572d1`, `f003c8a3`, `2992dd9d` (this record), `8556061a`, and this note
 - **Pull requests**: none
 - **Board**: created `210/480`, `210/490`, `210/500`, `160/1710`; completed
   `210/460`, `210/490`; `210/480` open (🎯)
