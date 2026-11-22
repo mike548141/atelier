@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: a malformed allow-marker goes strict after
+- [~] ⏳ **Rule-4 cold pass queued: a malformed allow-marker goes strict after
       a dated warning (`160/480`, `160/110`), and a check may be lowered only
       declared, reasoned and expiring (`020/170`).** The shared marker reader
       runs in every child. The authoring session (a principal-opened Opus 5.5
@@ -22,3 +22,12 @@
       brief-writer started by `74f2b8cd` (neither may run it); its
       held-back sibling holds one pointer block, 3 questions and 2
       facts. *Size:* large. The pass waits for his approval of Fable.
+      🔒 2026-11-22T19:58Z: claimed for the Fable pass by a headless per-pass
+      orchestrator, session c7e7ec68 (Opus 5.5, rule-4 off-tier orchestrator:
+      it holds the partition and forms no finding), started by drain session
+      eca14b23; the reviewer is a Fable 5.1 subagent, tier checked at
+      selection. Neither is barred by the brief. The approval is his drain
+      order of 2026-11-23, verbatim: *"Start a fable drain or whatever it is
+      called now. Target 100% of weekly budget by 11.30am NZT todat"*. The
+      held-back sibling is partitioned out of the review tree until act 1 is
+      committed.
