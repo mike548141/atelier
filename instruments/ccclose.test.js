@@ -36,7 +36,13 @@ function world() {
     GIT_CONFIG_GLOBAL: gitconfig, GIT_CONFIG_NOSYSTEM: '1',
     GIT_AUTHOR_NAME: 'T', GIT_AUTHOR_EMAIL: EMAIL, GIT_COMMITTER_NAME: 'T', GIT_COMMITTER_EMAIL: EMAIL,
     CCCLOSE_GH: path.join(base, 'no-gh-here'),
+    // The process table is a fixture too (check 15): a stub that prints
+    // <base>/ps.txt, empty unless a test writes it. No test reads the real one.
+    CCCLOSE_PS: path.join(base, 'ps-stub'),
   };
+  fs.writeFileSync(path.join(base, 'ps.txt'), '');
+  fs.writeFileSync(env.CCCLOSE_PS, `#!/bin/sh\ncat "${path.join(base, 'ps.txt')}"\n`);
+  fs.chmodSync(env.CCCLOSE_PS, 0o755);
   return { base, home, env };
 }
 
@@ -135,7 +141,7 @@ esac
 }
 
 const ID_ORDER = ['worktrees', 'branches', 'pushed', 'prs', 'session-record', 'board', 'claims',
-  'floor', 'reviews', 'bypasses', 'tree', 'subagents', 'scratch', 'pin'];
+  'floor', 'reviews', 'bypasses', 'tree', 'subagents', 'scratch', 'pin', 'launched'];
 
 
 // --- subagent fixtures ---------------------------------------------------
@@ -353,7 +359,7 @@ test('a tidy close passes every check that applies and exits 0', () => {
   const j = json(w, root, ['--session', 'sess-tidy']);
   assert.deepEqual(j.checks.map((c) => c.id), ID_ORDER);
   const want = { worktrees: 'pass', branches: 'pass', pushed: 'pass', prs: 'na', 'session-record': 'pass',
-    board: 'na', claims: 'na', floor: 'na', reviews: 'na', bypasses: 'pass', tree: 'pass', subagents: 'na', scratch: 'na', pin: 'na' };
+    board: 'na', claims: 'na', floor: 'na', reviews: 'na', bypasses: 'pass', tree: 'pass', subagents: 'na', scratch: 'na', pin: 'na', launched: 'pass' };
   for (const [id, st] of Object.entries(want)) assert.equal(j.by[id].status, st, `${id}: ${j.by[id].summary}`);
   assert.equal(j.code, 0);
   assert.equal(j.verdict.status, 'pass');
@@ -609,7 +615,9 @@ test('outside a git repo every repo check is not applicable and nothing crashes'
   fs.mkdirSync(plain);
   transcript(w, 'sess-plain');
   const j = json(w, plain, ['--session', 'sess-plain']);
-  for (const id of ID_ORDER.filter((x) => x !== 'bypasses')) assert.equal(j.by[id].status, 'na', id);
+  // Bypasses and launched work read the transcript and the host, not the repo.
+  for (const id of ID_ORDER.filter((x) => x !== 'bypasses' && x !== 'launched')) assert.equal(j.by[id].status, 'na', id);
+  assert.equal(j.by.launched.status, 'pass');
   assert.equal(j.code, 0);
   assert.equal(j.repo.isGit, false);
 });
@@ -1577,7 +1585,7 @@ test('--identifiers --json carries the same fields', () => {
   const j = JSON.parse(ccclose(w, root, ['--session', 'sess-id-15', '--identifiers', '--json']).out);
   assert.equal(j.form, 'identifiers');
   assert.deepEqual(Object.keys(j.commits), ['known', 'total', 'items', 'unbroken', 'range', 'unconfirmed', 'leftOut', 'evidenceUnreadable']);
-  assert.deepEqual(Object.keys(j), ['tool', 'form', 'session', 'commits', 'pullRequests', 'board', 'worktrees', 'agents', 'otherRepos', 'heuristic']);
+  assert.deepEqual(Object.keys(j), ['tool', 'form', 'session', 'commits', 'pullRequests', 'board', 'worktrees', 'agents', 'launched', 'otherRepos', 'heuristic']);
   assert.equal(j.session.id, 'sess-id-15');
 });
 
@@ -2318,4 +2326,294 @@ test('check 14: the checkout this script lives in is used when nothing names one
   // This test file runs from atelier or one of its worktrees, so the first
   // candidate is its main checkout: it carries tools/pins.py.
   assert.ok(at.dir && fs.existsSync(path.join(at.dir, 'tools', 'pins.py')), JSON.stringify(at));
+});
+
+// --- check 15: launched work finished (210/460) -----------------------------
+//
+// The process table is a fixture: <base>/ps.txt, printed by the CCCLOSE_PS stub
+// that world() installs. A line is `pid ppid etime argv... ENV=...`, as
+// `ps -Eww -axo pid=,ppid=,etime=,command=` prints it.
+
+const psLines = (w, lines) => fs.writeFileSync(path.join(w.base, 'ps.txt'), lines.join('\n') + '\n');
+const carrying = (sid, harness = 900) => `CLAUDE_CODE_SESSION_ID=${sid} CLAUDE_PID=${harness} HOME=/h`;
+const proc = (pid, ppid, etime, argv, sid, harness) => `${pid} ${ppid} ${etime} ${argv} ${carrying(sid, harness)}`;
+const useOf = (id, name, input, extra = {}) => ({ type: 'assistant', cwd: '/x', message: { model: 'claude-opus-5-5', content: [{ type: 'tool_use', id, name, input }] }, ...extra });
+const resultOf = (id, text, tur, isError = false) => ({ type: 'user', message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: id, content: text, is_error: isError }] }, toolUseResult: tur || { stdout: text } });
+const bgRun = (id, command, taskId, over = {}) => [
+  useOf(id, 'Bash', { command, run_in_background: true }),
+  resultOf(id, `Command running in background with ID: ${taskId}. Output is being written to: /x/${taskId}.output.`, { backgroundTaskId: taskId, ...over }),
+];
+const lw = (j) => j.by.launched;
+
+test('check 15 is the last of fifteen, with every count printed and zeros included', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-l0');
+  const j = json(w, root, ['--session', 'sess-l0']);
+  assert.equal(j.checks[j.checks.length - 1].id, 'launched');
+  assert.equal(lw(j).label, 'Launched work finished');
+  assert.equal(lw(j).status, 'pass');
+  assert.deepEqual(lw(j).counts, { processes: 0, background: 0, launches: 0, harness: 0, scheduled: 0, ended: 0, excluded: 0 });
+  assert.match(lw(j).summary, /^0 live process\(es\) · 0 background command\(s\) not ended · 0 detached launch\(es\) not shown finished · 0 harness-started item\(s\) not ended · 0 schedule\(s\) pending · 0 ended or stopped · 0 harness\/own process\(es\) excluded$/);
+  assert.deepEqual(Object.keys(lw(j).legs), ['processes', 'background', 'launches', 'harness']);
+  assert.equal(lw(j).allItems, undefined, 'the uncapped list stays out of --json');
+});
+
+test('check 15 leg 1: a process carrying the session id blocks, printed by pid, age and a few words of argv, never whole', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-l1');
+  psLines(w, [
+    proc(4321, 1, '01:02:03', '/opt/venv/bin/python3 worker.py --token=SECRETVALUE --mode fast extra-arg-after-limit', 'sess-l1'),
+    proc(4400, 1, '00:30', '/bin/other thing', 'another-session'),
+  ]);
+  const j = json(w, root, ['--session', 'sess-l1']);
+  assert.equal(lw(j).status, 'fail');
+  assert.equal(lw(j).counts.processes, 1);
+  assert.match(lw(j).items[0], /^❌ live process: pid 4321 · 62m · python3 worker\.py --token=…/);
+  const text = JSON.stringify(j);
+  assert.doesNotMatch(text, /SECRETVALUE|extra-arg-after-limit|HOME=/, 'the command line is never printed whole');
+  assert.equal(j.code, 1);
+  assert.match(ccclose(w, root, ['--session', 'sess-l1']).out, /❌ Launched work finished +1 live process\(es\)/);
+});
+
+test('check 15 leg 1: the harness, its early MCP servers and its MCP-named helpers are not flagged; a later helper is', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-l2');   // the first prompt is 60 minutes back
+  psLines(w, [
+    proc(900, 1, '03:00:00', '/usr/local/bin/claude', 'sess-l2'),                     // the harness itself
+    proc(901, 900, '02:59:50', 'node /srv/some-server/dist/index.js', 'sess-l2'),     // started before the first prompt
+    proc(902, 900, '00:10:00', 'npx -y @modelcontextprotocol/server-x', 'sess-l2'),   // started later, named as MCP
+    proc(903, 900, '00:10:00', '/bin/zsh -c sleep 600', 'sess-l2'),                   // a shell the session started: blocks
+  ]);
+  const j = json(w, root, ['--session', 'sess-l2']);
+  assert.equal(lw(j).counts.processes, 1);
+  assert.equal(lw(j).counts.excluded, 3);
+  assert.match(lw(j).items[0], /pid 903 · 10m · zsh -c sleep/);
+});
+
+test('check 15 leg 1: ccclose\'s own chain (itself, its ancestors, its children) is excluded', () => {
+  const sid = 'sess-own';
+  const table = new Map([
+    [900, { pid: 900, ppid: 1, ageSec: 7200, rest: `/usr/local/bin/claude ${carrying(sid)}` }],
+    [910, { pid: 910, ppid: 900, ageSec: 5, rest: `/bin/zsh -c node ccclose ${carrying(sid)}` }],
+    [process.pid, { pid: process.pid, ppid: 910, ageSec: 4, rest: `node ccclose ${carrying(sid)}` }],
+    [7777, { pid: 7777, ppid: process.pid, ageSec: 1, rest: `ps -Eww ${carrying(sid)}` }],
+    [8888, { pid: 8888, ppid: 900, ageSec: 3000, rest: `sleep 999 ${carrying(sid)}` }],
+  ]);
+  const live = cc.checkLaunched(null, sid, { ok: true, table }, NOW);
+  assert.equal(live.counts.processes, 1);
+  assert.match(live.items[0], /pid 8888/);
+  assert.equal(live.counts.excluded, 4);
+});
+
+test('check 15 leg 1: an unreadable process table is unknown, never a pass', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-l3');
+  const j = json(w, root, ['--session', 'sess-l3'], { CCCLOSE_PS: path.join(w.base, 'no-such-ps') });
+  assert.equal(lw(j).status, 'warn');
+  assert.match(lw(j).summary, /unknown: process table not read \(ps could not run/);
+  assert.equal(j.code, 0);
+  // With no transcript the other legs are unread, and the line says so.
+  const k = json(w, root, ['--session', 'no-such-session']);
+  assert.equal(lw(k).status, 'warn');
+  assert.match(lw(k).summary, /unknown: no transcript/);
+});
+
+test('check 15 is not applicable with no session at all', () => {
+  const w = world();
+  const root = repo(w);
+  const j = json(w, root, [], { CLAUDE_CODE_SESSION_ID: '' });
+  assert.equal(lw(j).status, 'na');
+});
+
+test('check 15 leg 2: a background command blocks until a terminal notification, or a stop, ends it', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-l4', [
+    ...bgRun('b1', 'make build', 'task1'),
+    viaAttachment('task1', 'completed'),
+    ...bgRun('b2', 'make slow', 'task2'),
+    viaAttachment('task2', 'killed'),
+    ...bgRun('b3', 'make forever', 'task3'),
+    ...bgRun('b4', 'make stopped-by-me', 'task4'),
+    useOf('s4', 'TaskStop', { task_id: 'task4' }), resultOf('s4', 'Successfully stopped task: task4', { task_id: 'task4' }),
+    ...bgRun('b5', 'make failed', 'task5'),
+    viaAttachment('task5', 'failed'),
+    // A launch whose call failed started nothing; one with no task id cannot be matched.
+    useOf('b6', 'Bash', { command: 'make never', run_in_background: true }), resultOf('b6', 'bad', { stdout: 'bad' }, true),
+    useOf('b7', 'Bash', { command: 'make idless', run_in_background: true }), resultOf('b7', 'started', { stdout: '' }),
+  ]);
+  const j = json(w, root, ['--session', 'sess-l4']);
+  assert.equal(lw(j).status, 'fail');
+  assert.equal(lw(j).counts.background, 2);
+  assert.equal(lw(j).counts.ended, 4);
+  const lines = lw(j).items.filter((x) => x.startsWith('❌'));
+  assert.equal(lines.length, 2);
+  assert.ok(lines.some((x) => /make forever — task task3: no terminal notification/.test(x)));
+  assert.ok(lines.some((x) => /make idless — no task id in its result/.test(x)));
+  assert.ok(lw(j).items.some((x) => /make stopped-by-me — stopped \(TaskStop\)/.test(x)));
+  assert.equal(lw(j).legs.background.length, 6);
+});
+
+test('check 15 leg 3: a command that lets go of work blocks, named by its command, unless shown finished', () => {
+  const w = world();
+  const root = repo(w);
+  const run = (id, command, text = '', over = {}) => [useOf(id, 'Bash', { command }), resultOf(id, text, { stdout: text }, !!over.error)];
+  transcript(w, 'sess-l5', [
+    ...run('c1', 'nohup python3 serve.py > serve.log 2>&1 &'),
+    ...run('c2', 'sleep 5 & wait'),
+    ...run('c3', 'tmux new-session -d -s w "claude -p hi"'),
+    ...run('c4', 'launchctl load ~/Library/LaunchAgents/x.plist'),
+    ...run('c5', 'launchctl unload ~/Library/LaunchAgents/x.plist'),
+    ...run('c6', 'git log --oneline'),
+    ...run('c7', 'echo "nohup is only a word here" && ls'),
+    ...run('c8', 'claude -p "a foreground run"'),
+    ...run('c9', 'nohup failing-thing &', '', { error: true }),
+    ...run('c10', 'setsid claude -p "go" > run.log 2>&1 < /dev/null & disown'),
+  ]);
+  const j = json(w, root, ['--session', 'sess-l5']);
+  assert.equal(lw(j).status, 'fail');
+  const bad = lw(j).items.filter((x) => x.startsWith('❌'));
+  assert.equal(bad.length, 3, bad.join('\n'));
+  assert.equal(lw(j).counts.launches, 3);
+  assert.ok(bad.some((x) => /nohup python3 serve\.py.* — & \+ nohup: the command let go of it and nothing shows it finished/.test(x)));
+  assert.ok(bad.some((x) => /tmux new-session -d -s w "claude -p hi" — tmux:/.test(x)));
+  assert.ok(bad.some((x) => /setsid claude -p "go".* — & \+ setsid \+ disown \+ headless claude:/.test(x)));
+  // Awaited in the same command, and launchctl removed by a later command: not blockers.
+  assert.ok(lw(j).items.some((x) => /sleep 5 & wait — the command waited/.test(x)));
+  assert.ok(lw(j).items.some((x) => /launchctl load .* — launchctl removed by a later command/.test(x)));
+});
+
+test('check 15 leg 3: a pid the command printed is read against the process table, alive or gone', () => {
+  const w = world();
+  const root = repo(w);
+  const run = (id, command, text) => [useOf(id, 'Bash', { command }), resultOf(id, text, { stdout: text })];
+  transcript(w, 'sess-l6', [
+    ...run('p1', 'sleep 900 > /dev/null 2>&1 & echo $!', '31337\n'),
+    ...run('p2', 'sleep 1 > /dev/null 2>&1 & echo $!', '31338\n'),
+    // A bare number with no $! asked for is a count, not a pid: unproven, not gone.
+    ...run('p3', 'sleep 3 & wc -l /etc/hosts', '31339\n'),
+  ]);
+  // sleep is an Apple platform binary: ps -E shows no environment, yet its pid is in the table.
+  psLines(w, ['31337 1 05:00 sleep 900', '31339 1 00:10 sleep 3']);
+  const j = json(w, root, ['--session', 'sess-l6']);
+  const bad = lw(j).items.filter((x) => x.startsWith('❌'));
+  assert.equal(bad.length, 2, bad.join('\n'));
+  assert.ok(bad.some((x) => /sleep 900.* — pid 31337 is still alive \(5m, sleep 900\)/.test(x)));
+  assert.ok(bad.some((x) => /sleep 3 & wc -l.* — &: the command let go of it/.test(x)));
+  assert.ok(lw(j).items.some((x) => /sleep 1 .* — pid 31338 is gone/.test(x)));
+  assert.equal(lw(j).counts.launches, 2);
+});
+
+test('check 15 leg 3: a launch a live process already accounts for is counted once, in leg 1', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-l7', [useOf('d1', 'Bash', { command: 'nohup python3 /w/crawler.py > c.log 2>&1 &' }), resultOf('d1', '', { stdout: '' })]);
+  psLines(w, [proc(5150, 1, '00:20:00', 'python3 /w/crawler.py', 'sess-l7')]);
+  const j = json(w, root, ['--session', 'sess-l7']);
+  assert.equal(lw(j).counts.processes, 1);
+  assert.equal(lw(j).counts.launches, 0);
+  assert.equal(lw(j).itemsTotal, 1);
+});
+
+test('check 15 leg 4: harness tools that start work elsewhere are listed; unfinished ones block, schedules warn', () => {
+  const w = world();
+  const root = repo(w);
+  const MS = NOW;
+  transcript(w, 'sess-l8', [
+    useOf('h1', 'Monitor', { command: 'tail -f build.log' }), resultOf('h1', 'Monitor started (task mon1, expires in 30m unless the source ends first).', { taskId: 'mon1', timeoutMs: 1800000, persistent: false }),
+    useOf('h2', 'Monitor', { command: 'watch done' }), resultOf('h2', 'Monitor started (task mon2, expires in 30m).', { taskId: 'mon2', timeoutMs: 1800000, persistent: false }),
+    viaAttachment('mon2', 'completed'),
+    useOf('h3', 'Workflow', { workflow: 'big-job' }), resultOf('h3', 'Workflow launched.', { stdout: '' }),
+    useOf('h4', 'RemoteTrigger', { action: 'run', trigger_id: 'trig_x' }), resultOf('h4', 'HTTP 200', { status: 200 }),
+    useOf('h5', 'RemoteTrigger', { action: 'get', trigger_id: 'trig_x' }), resultOf('h5', 'HTTP 200', { status: 200 }),
+    useOf('h6', 'CronCreate', { cron: '*/5 * * * *', prompt: 'x' }), resultOf('h6', 'Scheduled recurring job cron1.', { id: 'cron1', durable: false }),
+    useOf('h7', 'CronCreate', { cron: '0 9 * * *', prompt: 'x' }), resultOf('h7', 'Scheduled recurring job cron2.', { id: 'cron2', durable: true }),
+    useOf('h8', 'CronDelete', { id: 'cron2' }), resultOf('h8', 'Cancelled job cron2.', { id: 'cron2' }),
+    useOf('h9', 'ScheduleWakeup', { delaySeconds: 60, reason: 'r', prompt: 'p' }), resultOf('h9', 'Next wakeup scheduled', { scheduledFor: MS - 5 * MIN }),
+    useOf('h10', 'ScheduleWakeup', { delaySeconds: 1800, reason: 'r', prompt: 'p' }), resultOf('h10', 'Next wakeup scheduled', { scheduledFor: MS + 30 * MIN }),
+  ]);
+  const j = json(w, root, ['--session', 'sess-l8']);
+  assert.equal(lw(j).status, 'fail');
+  // Monitor mon1 (no notice, 30 min not yet elapsed from its call 20 min back), Workflow, RemoteTrigger run: three blockers.
+  assert.equal(lw(j).counts.harness, 3);
+  assert.equal(lw(j).counts.scheduled, 2);      // cron1 (session-only) and the pending wakeup
+  assert.equal(lw(j).counts.ended, 3);          // mon2 notified, cron2 deleted, the fired wakeup
+  const text = lw(j).items.join('\n');
+  assert.match(text, /❌ harness: .* Monitor tail -f build\.log — task mon1: no terminal notification/);
+  assert.match(text, /❌ harness: .* Workflow big-job — no task id in its result/);
+  assert.match(text, /❌ harness: .* RemoteTrigger run — no task id/);
+  assert.match(text, /⚠️ harness: .* cron \*\/5 \* \* \* \* — a schedule \(session-only: it ends with the session\)/);
+  assert.match(text, /✅ harness: .* wakeup in 60s — the wakeup has fired/);
+  assert.doesNotMatch(text, /RemoteTrigger get/);
+});
+
+test('check 15 leg 4: a Monitor past its time limit has ended; only schedules left: warn, exit 0', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-l9', [
+    { ...useOf('m1', 'Monitor', { command: 'old watch' }), timestamp: at(-50) },
+    { ...resultOf('m1', 'Monitor started (task monx).', { taskId: 'monx', timeoutMs: 600000, persistent: false }), timestamp: at(-50) },
+    useOf('w1', 'ScheduleWakeup', { delaySeconds: 1800 }), resultOf('w1', 'Next wakeup', { scheduledFor: NOW + 30 * MIN }),
+  ]);
+  const j = json(w, root, ['--session', 'sess-l9']);
+  assert.equal(lw(j).status, 'warn');
+  assert.equal(lw(j).counts.harness, 0);
+  assert.equal(j.code, 0);
+  assert.equal(j.verdict.status, 'warn');
+});
+
+test('check 15: the list is capped and the cut counted; --json carries counts and the capped legs', () => {
+  const w = world();
+  const root = repo(w);
+  const recs = [];
+  for (let i = 0; i < cc.CAP + 5; i++) recs.push(...bgRun(`bg${i}`, `job ${i}`, `tid${i}`));
+  transcript(w, 'sess-l10', recs);
+  const j = json(w, root, ['--session', 'sess-l10']);
+  assert.equal(lw(j).counts.background, cc.CAP + 5);
+  assert.equal(lw(j).items.length, cc.CAP);
+  assert.equal(lw(j).itemsTotal, cc.CAP + 5);
+  assert.equal(lw(j).legs.background.length, cc.CAP);
+  assert.match(ccclose(w, root, ['--session', 'sess-l10']).out, /… and 5 more/);
+});
+
+test('check 15 reads a PAST session\'s id too: --session names the transcript, and its processes are looked for', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-old');
+  psLines(w, [proc(6001, 1, '2-03:00:00', 'python3 orphan.py', 'sess-old')]);
+  const j = json(w, root, ['--session', 'sess-old'], { CLAUDE_CODE_SESSION_ID: 'a-different-live-session' });
+  assert.equal(lw(j).counts.processes, 1);
+  assert.match(lw(j).items[0], /pid 6001 · 2d · python3 orphan\.py/);
+});
+
+test('--identifiers: launched work is a sub-line of Agents, with every count, zeros included, and the field set holds', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-l11');
+  let out = idRun(w, root, 'sess-l11').out;
+  assert.deepEqual(headings(out), FIELDS);
+  assert.match(out, /- \*\*Agents\*\*: 0 · none launched\n  - other launched work: 0 live process\(es\) · 0 background command\(s\) not ended · 0 detached launch\(es\) not shown finished · 0 harness-started item\(s\) not ended · 0 schedule\(s\) pending · 0 ended or stopped\n/);
+  transcript(w, 'sess-l12', bgRun('q1', 'make x', 'qid'));
+  psLines(w, [proc(5555, 1, '00:01:40', 'python3 w.py', 'sess-l12')]);
+  out = idRun(w, root, 'sess-l12').out;
+  assert.match(out, /  - other launched work: 1 live process\(es\) · 1 background command\(s\) not ended/);
+  assert.match(out, /    - ❌ live process: pid 5555 · 2m · python3 w\.py/);
+  assert.match(out, /    - ❌ background command: .* make x — task qid/);
+  const j = parseId(w, root, 'sess-l12');
+  assert.equal(j.launched.known, true);
+  assert.equal(j.launched.counts.processes, 1);
+  assert.equal(j.launched.items.length, 2);
+});
+
+test('parseEtime and argvShown: the age forms ps prints, and an argv cut with its values hidden', () => {
+  assert.equal(cc.parseEtime('05:30'), 330);
+  assert.equal(cc.parseEtime('01:02:03'), 3723);
+  assert.equal(cc.parseEtime('2-03:00:00'), 2 * 86400 + 3 * 3600);
+  assert.equal(cc.parseEtime('garbage'), null);
+  assert.equal(cc.argvShown('/usr/bin/python3 run.py --key=abc123 --other tail HOME=/x'), 'python3 run.py --key=…');
+  assert.equal(cc.argvShown('curl -H Authorization: Bearer SECRET'), 'curl -H …');
 });

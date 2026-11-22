@@ -154,8 +154,10 @@ and an absent input never crashes the run.
 | 12 | Subagents finished | the session's `subagents/` directory beside its transcript, and the parent transcript's `<task-notification>`s and `tool_result`s | an agent with no finished final turn and no completed, killed or stopped notification | no transcript; no `subagents/` directory |
 | 13 | Scratch folder empty | the scratch folder the transcript's environment attachment records | never; anything left is ⚠️ | no transcript; no environment record |
 | 14 | Atelier pin and floor copy current | atelier's `tools/pins.py --json --child <repo>` (fetches origin in the atelier checkout) | the floor copy differs from the floor at the pin, the pin is behind **and** the floor has changed since it, or the pin is ahead, diverged or unknown (`020/470`) | not a child: atelier itself, or no pin or floor stamp in `CLAUDE.md` |
+| 15 | Launched work finished | the process table (`ps -Eww`), and the transcript's Bash calls and harness-tool calls | a live process of the session, a background command no terminal notification ended, a detached launch nothing shows finished, or a harness-started item not ended; **fails closed** | no session id and no transcript |
 
-Why four checks can never fail:
+Why four checks can never fail (check 15 can fail; its schedules and its
+unreadable-table state only warn, as set out under it):
 
 - **Reviews (9).** Whether work earns a review is a judgement (`REVIEW.md`
   § *calibrate to risk*): self-verifying work over reviewed machinery does not.
@@ -254,6 +256,114 @@ list to this check. Like the rest it is read-only. The session running the
 check is live, so its own still-running agents (a worker, a reviewer) show ❌
 (running) until they end: that is the intended answer to "ready to close?".
 
+**Launched work finished (15), precisely.** *(Added 2026-11-22, board item
+210/460.)* The principal's ruling, verbatim: *"Any work started by a session
+including sub agents, background tasks, sessions spawned or whatever must be
+checked for by ccclose and it must report that as a blocker to the session
+closing."* A session once declared itself ready to close while a detached
+headless run it had started was still working; check 12 had counted only the
+session's own agents, all reported. That run left no agent log: nothing in
+check 12's reads could see it.
+
+*New check, not a widening of 12.* The two read different things and fail
+differently. Check 12 reads files beside the transcript and judges each agent
+into six states (210/380, 210/400); this reads the host's process table and the
+transcript's own commands, and its rule is "what cannot be proven finished
+blocks". Folding it in would have changed 12's counts, which records already
+quote, and its numbering; it is appended as check 15, so the numbers 13 and 14
+(scratch, pin) that other documents cite stay put. The identifiers block's
+Agents field gains a sub-line for it rather than a new field (§15), so the
+seven-field set holds.
+
+The measurement behind it (2026-11-22, macOS, Darwin 25.6, Claude Code 2.1.330):
+the harness puts `CLAUDE_CODE_SESSION_ID` and `CLAUDE_PID` into the environment
+of every process a session's shell starts, and a detached child keeps both
+after it reparents to launchd. `ps -Eww` shows them for the user's own
+binaries. Two limits, both measured: Apple platform binaries (`/bin/sleep`,
+`/bin/sh`) show no environment to `ps -E`, so a bare `nohup sh -c …` is
+invisible to leg 1; and the harness's own MCP servers carry the same id.
+
+Four legs, each fail-closed:
+
+1. **Live processes.** Every process whose environment carries this session's
+   id, less the harness: the process whose pid is the `CLAUDE_PID` (read from
+   the carrier's environment, and from `ccclose`'s own), a direct child of it
+   that started before the session's first prompt (start = now − `etime`, ten
+   seconds of slack for etime's whole seconds), or a direct child whose command
+   names MCP (`mcp`, `modelcontextprotocol`, `mcp-server`); and `ccclose`'s own
+   chain: its pid, its ancestors up the table, and its children (the `ps` that
+   read the table). Each blocker prints its pid, its age and the first three
+   words of its argv, the program as a basename and any `name=value` word as
+   `name=…`. The argv is never printed whole: a command line can hold a secret.
+   The id is read from `ps` for any session `--session` names, so a past
+   session's orphans are found too.
+2. **Background shell commands.** A Bash call with `run_in_background: true`.
+   Its task id is in the launch's result (`toolUseResult.backgroundTaskId`, or
+   "Command running in background with ID: …"). It is ended by a terminal
+   `<task-notification>` for that id (`completed`, `killed`, `stopped`,
+   `failed`: all four mean the work is over), a successful `TaskStop` or
+   `KillShell` naming it, or a terminal status in its own result. A launch whose
+   call errored started nothing and is not listed. No recorded result, or no
+   task id in it, is a blocker: the end cannot be matched. *"Unless its process
+   is provably gone"* is read as "provably ended by the transcript": the shell
+   wrapper is an Apple binary, so the process table cannot prove a background
+   command gone by environment, and no pid is recorded for it.
+3. **Launch forms in the commands.** The command is read with its quoted text,
+   comments and heredoc bodies blanked (a word in a string, a `grep` pattern or
+   a comment is no launch), and `sh -c '…'` / `bash -c "…"` text is read too.
+   The forms: a control-operator `&` (not `&&`, `>&`, `&>`, `|&`, or an
+   unquoted URL's `&y=`), `nohup`, `setsid`, `disown`, `screen` and `tmux`
+   starting a session or window, `launchctl load|bootstrap|kickstart|submit|
+   start|enable`, `crontab` installing, and `at <time>`; `claude -p` is
+   named when one of those detaches it, and is no launch in the foreground,
+   where it ended with its own result (that is how its tool_result came back).
+   A launch is **shown finished** when its own command also ran `wait`; when a
+   later successful command undid it (`launchctl unload|remove|bootout`,
+   `crontab -r`, `atrm`, `tmux kill-session`, `screen -X quit`); or when a pid
+   it printed is gone from the table. A pid is read only where the command
+   asked for one (`echo $!`) or the output labels it (`pid: N`, `[1] N`): a
+   bare number is otherwise a count, and mistaking a count for a pid could read
+   a live launch as gone. A pid still in the table is a blocker whatever its
+   environment shows, which is how a platform binary's pid is caught. A launch
+   one of leg 1's processes already accounts for (its program or script is a
+   word of the command) is counted once, in leg 1. Anything else is a blocker
+   named by its command, cut to 70 characters, with "the command let go of it
+   and nothing shows it finished".
+4. **Harness tools that start work elsewhere.** `Workflow` and `Monitor` are
+   judged like a background command (a task id, a terminal notification, a
+   `TaskStop`; a Monitor also ends at its own time limit, `timeoutMs` past its
+   call, when it is not persistent). `RemoteTrigger` is listed for every action
+   but the read-only ones (`list`, `get`, `list_runs`); a `run` blocks, since
+   its end is not in the transcript, and a create or update is a schedule. A
+   **schedule** (`CronCreate`, `ScheduleWakeup`, a RemoteTrigger create) is
+   ⚠️, never ❌: the item says a schedule the principal asked for is reported,
+   not blocked, and *whether he asked for it is not in the transcript*, so
+   ccclose cannot tell and treats every schedule as a question, "left on
+   purpose?". A `CronDelete` of its id ends it; a wakeup whose `scheduledFor`
+   has passed has fired. Tools whose names say they start a session or agent
+   (`mcp__…session…` or `…agent…` with start, spawn, launch, create, new or
+   run in the name) are listed and block like a background command. A census
+   of 600 recent transcripts found none by that name; the list is a net and is
+   the weakest leg.
+
+States: ✅ every leg empty or every item ended, stopped, or never started;
+⚠️ a schedule is pending, or the process table could not be read (leg 1 is then
+unknown, and "no process" is never claimed), or there is no transcript (legs 2
+to 4 unread); ❌ any blocker in any leg; ➖ no session id and no transcript. An
+unreadable process table is ⚠️ and not ❌: a failed `ps` is not a finding that
+something runs, and the four-state rule is that nothing unread passes; it
+keeps the verdict out of "ready to close" either way. The line prints every
+count, zeros included: `N live process(es) · B background command(s) not
+ended · L detached launch(es) not shown finished · H harness-started item(s)
+not ended · S schedule(s) pending · E ended or stopped · X harness/own
+process(es) excluded`, then one line per item, problems first, under the
+25-line cap. `--json` adds `counts` and `legs` (`processes`, `background`,
+`launches`, `harness`, each the capped list). The process read is `ps -Eww
+-axo pid=,ppid=,etime=,command=`, through `$CCCLOSE_PS` when it is set (a path
+to a stub, the seam the tests use, mirroring `CCCLOSE_GH`); a run in which the
+session's own harness is live does not flag the harness itself. Read-only, as
+the rest.
+
 **Pass and fail on the floor (8), precisely.** The sha checked is the newest
 commit from the window that the default branch's remote-tracking ref contains,
 not the ref's head: a later push by another session evidences a different tree.
@@ -323,7 +433,7 @@ error, and a listed non-ask costs one line of answer.
 
 ## 10. Output
 
-A header block of standard outputs, the fourteen check lines, the asks, then one
+A header block of standard outputs, the fifteen check lines, the asks, then one
 verdict line, for example `❌ not ready to close: 2 fail · 1 unknown · 6 pass ·
 2 not applicable · 3 asks to answer`. The field set is stable: every check
 prints every run, zeros print, and a figure the tool could not read prints
@@ -338,6 +448,16 @@ error.
   findings reached the record is a reading of meaning. The tool proves a
   session record was written in the window (check 5). Whether it holds the
   learnings is for the asks list and the session's own answer.
+- **Launched work it cannot see (check 15).** An Apple platform binary shows no
+  environment to `ps -E`, so leg 1 cannot see a bare `nohup sh -c …`; leg 3
+  covers it from the command, and a launch no pid, wait or undo shows finished
+  is a blocker. A launch hidden inside a script file, a Python `Popen`, an
+  `ssh`, or any form not in leg 3's list is missed, not guessed. A background
+  command is proven ended only by the transcript (a notification, a stop, its
+  own result), never by the process table. Whether a schedule was asked for is
+  unknowable from the transcript, so each is ⚠️. A process that was reparented
+  under another session's id is not this session's. A dead process whose pid
+  was recycled reads as alive: it fails closed.
 - **Attribution under overlap** (§4). The window heuristic is the best a fresh
   read can do without a session id in every commit. It is printed, not hidden.
 
@@ -347,7 +467,10 @@ error.
 throwaway git repos and a fake `HOME` in a temporary directory, with synthetic
 transcripts, and for check 12 a synthetic `subagents/` tree beside them. No test reads the real `~/.claude` or a real repo. `gh` is
 replaced through `CCCLOSE_GH` (a path to a stub script), the same seam shape as
-ccarchive's `CCARCHIVE_SIMULATE_DATALESS`. The usual drift guards apply:
+ccarchive's `CCARCHIVE_SIMULATE_DATALESS`, and the process table through
+`CCCLOSE_PS` (a stub that prints a fixture file; every `world()` installs an
+empty one, so no test reads the real table). Check 15 has a fixture per leg.
+The usual drift guards apply:
 `--help` fits a screen and points at the man page, and every flag it prints is
 in the page.
 
@@ -372,7 +495,7 @@ not spawn it. The orchestrating session queues the `⏳`.
 `ccclose --identifiers` prints the block `RECORD.md` asks every detail record and
 closing message to end with ("read fresh at close, never recalled"; asked for by
 Mike, 2026-10-18, board item `210/280`). It prints only a `## Identifiers`
-heading and seven fields in `RECORD.md`'s order, and runs none of the fourteen
+heading and seven fields in `RECORD.md`'s order, and runs none of the fifteen
 checks: it shares their reads (`gather()`: session, transcript, window, repo,
 board, `gh`, branches) but not their verdicts, so it never waits on
 `board.py --check` or a floor run. It exits `0`, since it is a record and not a
@@ -430,7 +553,11 @@ prints one line, "N worktree adds not resolved", so a short list says so
   or not). Worktrees born in the window and branches with a tip in it are
   added, since those still exist and the repo can show them.
 - **Agents.** Check 12's per-agent reads, uncapped, because an identifier list
-  that stops at 25 stops being a record.
+  that stops at 25 stops being a record. A sub-line beneath it, *other launched
+  work*, carries check 15's counts (zeros included) and every item, uncapped
+  (210/460): the field set stays seven, and `--identifiers --json` gains a
+  `launched` key beside `agents`. `RECORD.md`'s Agents line says it covers
+  anything the session launched.
 
 The shell parsing is deliberately small (the first segment of a command, the
 common option forms). A form it cannot read is missed, not guessed, and the

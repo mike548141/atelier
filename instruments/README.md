@@ -20,7 +20,7 @@ standard-library Python); each documents its own runtime.
 |-----------------|-----------|---------------------------------------------------------------------|
 | `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage), plus how large sessions' context windows got. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. `--search <term>` asks the other question: which turns, across every session in scope, match a term or a `--regex`. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
-| `ccclose`       | observe   | The close-out checker. From a fresh read of the repo, GitHub and the session's own transcript, says whether a close left anything owing (worktrees, branches, pushes, PRs, the session record, the board, live claims, the floor at the pushed head, review pointers, workaround-shaped commands, subagents still running) and lists the principal's close-out asks for the session to answer. Read-only. |
+| `ccclose`       | observe   | The close-out checker. From a fresh read of the repo, GitHub and the session's own transcript, says whether a close left anything owing (worktrees, branches, pushes, PRs, the session record, the board, live claims, the floor at the pushed head, review pointers, workaround-shaped commands, subagents and anything else the session launched still running) and lists the principal's close-out asks for the session to answer. Read-only. |
 | `cclive`        | observe   | One view of live work across every repo on the machine, for a session to read at open: each repo's `[~]` claims at its newest integration ref, its worktrees and last-commit ages, the sessions and agents whose transcripts were written recently, keyed to the repo by their own working directory, and the load average. Says which roots it scanned and what it skipped, and prints its limits every run. Read-only; no network. |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `ccmail`        | extend    | Open the Gmail attachments the mailbox connector can only *name* — it lists filenames and attachment ids but has no call that returns bytes. Fetches them to disk with its own read-only grant so the ordinary Read tool can open them. `--headers` writes a message's transport headers alone (no body, no subject), to measure a mail route without reading the mail. |
@@ -398,7 +398,7 @@ usage records — the opposite treatment, for the opposite reason.
 tidy-up is done, and that "nothing is owed" must carry its evidence. `ccclose`
 is that evidence, read from the repo, from GitHub through `gh`, and from the
 session's own transcript, never from the session's memory. It prints the
-session id, transcript and window, fourteen checks in a fixed order (✅ pass ·
+session id, transcript and window, fifteen checks in a fixed order (✅ pass ·
 ❌ fail · ⚠️ partial or unknown · ➖ not applicable, with the reason), the
 principal's close-out asks found in the transcript under *Asked of this close —
 answer each*, and a verdict line. It exits 0 only when no check fails.
@@ -410,6 +410,11 @@ credited with each other's work. **The asks are a keyword match:** it lists, it
 does not judge. Repo conventions (session log, board, review paths) are
 detected, so it runs in any repo and a check whose input is absent says "not
 applicable" rather than pass. It is read-only: no fetch, no commit, no clean-up.
+Its launched-work check (15, `210/460`) fails closed: a live process carrying the
+session's id, a background command no notification ended, a detached launch
+(`nohup`, `&`, `setsid`, `tmux`, `launchctl`, ...) nothing shows finished, and
+harness-started work (`Workflow`, `Monitor`, `RemoteTrigger`) are blockers, and a
+schedule only warns. It reads the process table (`$CCCLOSE_PS` is the test seam).
 `gh` is optional (those checks read unknown without it), and `python3` runs the
 board's own `--check`. Its identifiers block (`--identifiers`, and the tail of a
 plain run) credits a commit as fact only when a `git commit` command of the

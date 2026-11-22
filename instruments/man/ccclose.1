@@ -19,8 +19,8 @@ That declaration is a claim, and it needs evidence: worktrees and branches put
 away, commits pushed, pull requests merged, the session record written, the
 board rebuilt, no claim left live, the floor green on what was pushed, reviews
 queued where they are owed, every subagent finished, nothing left in the
-scratch folder, and, in a repo that pins atelier, the pin and the inlined
-floor copy current.
+scratch folder, in a repo that pins atelier the pin and the inlined floor
+copy current, and nothing else the session launched still running.
 A session that answers those from its own memory is answering from the thing
 that drifts most in a long session.
 .PP
@@ -30,7 +30,7 @@ through
 .BR gh (1),
 and of the session's own transcript.
 It prints the standard outputs (the session id, its transcript, its time
-window, the repo and its head), fourteen checks in a fixed order, the
+window, the repo and its head), fifteen checks in a fixed order, the
 principal's close-out asks found in the transcript, and a one-line verdict.
 It changes nothing.
 .SS The session and its window
@@ -365,6 +365,121 @@ in the atelier checkout (its remote-tracking refs only, never a working tree,
 and nothing in the repo under check), because a stale comparison would read
 as current.
 The limit is 20 seconds.
+.TP
+.B Launched work finished
+Check 12 reads only the session's own agents.
+A session once declared itself ready to close while a detached headless
+run it had started was still working: that run left no agent log.
+The principal's ruling: any work a session started, "including sub agents,
+background tasks, sessions spawned or whatever", is a blocker to its close.
+This check reads four more places, and
+.B fails closed:
+what it cannot prove finished is \[u274C], and its line says why.
+It is the fifteenth check, after the pin check, so the numbers above hold.
+.RS
+.IP "1. Live processes."
+Every process whose environment carries this session's
+.B CLAUDE_CODE_SESSION_ID
+(the harness sets it for everything a session's shell starts, and a detached
+child keeps it after its parent goes), read from
+.BR "ps \-Eww \-axo pid=,ppid=,etime=,command=" .
+Excluded: the harness itself (the
+.B CLAUDE_PID
+in the environment), the MCP servers and helpers it started before the first
+prompt or whose command names MCP, and
+.BR ccclose 's
+own process, its ancestors and its children.
+Each is printed with its pid, its age and only the first three words of its
+argv, any \fBname=value\fP shown as \fBname=\[u2026]\fP:
+a command line can hold a secret, so it is never printed whole.
+.IP "2. Background commands."
+A Bash call with
+.B run_in_background
+whose task has no terminal
+.B <task-notification>
+.RB ( completed ", " killed ", " stopped " or " failed ),
+no successful
+.B TaskStop
+and no terminal status in its result.
+A call that errored started nothing and is not listed.
+.IP "3. Launch forms."
+A shell command that starts work and lets go of it:
+a control-operator
+.BR & ,
+.BR nohup ,
+.BR setsid ,
+.BR disown ,
+.BR screen " or " tmux
+starting a session,
+.BR "launchctl load" " (and " bootstrap ", " kickstart ", " submit ),
+.BR crontab " (installing)"
+and
+.BR at ,
+also inside
+.B "sh \-c"
+text.
+A word in a quotation, a comment or a heredoc is no launch, and a foreground
+.B "claude \-p"
+ended with its own result; a detached one is named
+.BR "headless claude" .
+A launch is shown finished when the command also ran
+.BR wait ;
+when a later command removed it
+.RB ( "launchctl unload" ", " "crontab \-r" ", " atrm ,
+.BR "tmux kill\-session" ", " "screen \-X quit" );
+or when the process id it printed
+.RB ( "echo $!" ,
+or a labelled pid) is not in the process table.
+A pid still in the table is a blocker whatever its environment shows.
+Anything else is a blocker named by its command, cut.
+This leg covers Apple platform binaries
+.RB ( /bin/sleep ", " /bin/sh ),
+whose environment
+.B "ps \-E"
+cannot show.
+A launch that leg 1 already lists is counted once, there.
+.IP "4. Harness tools that start work elsewhere."
+.BR Workflow ", " Monitor ", " RemoteTrigger " (every action but " list ,
+.BR get " and " list_runs ),
+.BR CronCreate ,
+.BR ScheduleWakeup ,
+and tools named for starting a session or an agent.
+A
+.B Workflow
+or
+.B Monitor
+blocks like a background command until it is ended (a notification, a
+.BR TaskStop ,
+or a Monitor's own time limit passed).
+A
+.B RemoteTrigger
+run blocks: its end is not in the transcript.
+A schedule
+.RB ( CronCreate ", " ScheduleWakeup ", a RemoteTrigger create or update)"
+only warns, never blocks, until deleted (\fBCronDelete\fP) or fired:
+whether the principal asked for it is not in the transcript, so every
+schedule is a question for the session, \fIleft on purpose?\fP
+.RE
+.IP
+The line counts every leg, zeros included (live processes, background
+commands not ended, detached launches not shown finished, harness-started
+items not ended, schedules pending, ended or stopped, processes excluded as
+the harness or
+.BR ccclose ),
+then lists problems first.
+A process table that could not be read, or no transcript, makes the line
+\[u26A0] unknown, never a pass.
+.B \-\-json
+adds
+.B counts
+and the capped lists per leg.
+Known limits: Apple platform binaries show no environment (leg 3 is the
+cover); a launch inside a script file, a Python
+.BR Popen ,
+or
+.B ssh
+is not read; and a process that has reparented under another session's id is
+not this session's.
 .SS Asked of this close \(em answer each
 After the checks,
 .B ccclose
@@ -579,6 +694,10 @@ Worktrees born inside the window and branches with a tip inside it are added.
 How many subagents the session launched, how each ended (the same six counts,
 failed included), and each one's short id and description.
 The list is whole, not capped.
+A sub-line,
+.BR "other launched work" ,
+gives the launched-work check's counts, zeros included, and each item, so the
+field set stays seven.
 .TP
 .B Other repos
 Not read by ccclose; always prints a fill-in-by-hand line.
@@ -626,6 +745,15 @@ item store when the board is generated.
 .TP
 .B CLAUDE_CODE_SESSION_ID
 The default session, set by Claude Code in every session's shell.
+.TP
+.B CCCLOSE_PS
+The
+.BR ps (1)
+executable the launched-work check reads the process table with, called as
+.B "ps \-Eww \-axo pid=,ppid=,etime=,command=" .
+Default:
+.BR ps .
+The tests point it at a stub, so none reads the real table.
 .TP
 .B CCCLOSE_GH
 The

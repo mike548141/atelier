@@ -132,7 +132,9 @@ stopped instead of re-deriving it:
     - **Worktrees and branches**: each one the session created, by path and
       branch, and whether it was put away. A removed worktree leaves no trace
       in git, so this list comes from the transcript.
-    - **Agents**: how many it launched and how each ended.
+    - **Agents**: how many it launched and how each ended, and the same for
+      anything else it launched (a background command, a detached run, a
+      schedule).
     - **Other repos** it wrote to, with their commits. A private repo is named
       generically in a public record (§ *The record is public*); the closing
       message to the principal names it.
@@ -192,14 +194,19 @@ stopped instead of re-deriving it:
       both deletes were refused, and asked nothing through the device; on
       reopening it said "the scratch folder is clean" with about 98 files
       still there.)
-    - **The evidence names every agent the session launched, and how each
-      ended**: reported back, or stopped on purpose and said so. It is read
-      from the agent list at that moment, never from memory, and `ccclose`'s
-      *Subagents finished* check reads it. A declaration made with an agent
-      still running is not a declaration: closing the tab kills that agent
-      silently, and the harness's "didn't finish" notice only appears if the
-      session is resumed (so the teardown rule in `CONCURRENCY.md`
-      § *Orchestrated queue runs* does not rest on that notice alone).
+    - **The evidence names every agent the session launched, and anything
+      else it launched, and how each ended**: reported back, or stopped on
+      purpose and said so. It is read from the agent list and the process
+      table at that moment, never from memory, and `ccclose`'s *Subagents
+      finished* and *Launched work finished* checks read them. A declaration
+      made with an agent, or any other work the session started, still running
+      is not a declaration: closing the tab kills that agent silently, and the
+      harness's "didn't finish" notice only appears if the session is resumed
+      (so the teardown rule in `CONCURRENCY.md` § *Orchestrated queue runs*
+      does not rest on that notice alone). The principal's ruling, 2026-11-22
+      (`210/460`): *"Any work started by a session including sub agents,
+      background tasks, sessions spawned or whatever must be checked for by
+      ccclose and it must report that as a blocker to the session closing."*
       (Grounded 2026-10-16, `020/420`: a read of 30 sessions found every close made with no agent still running, but eleven
       agents cut by a host crash survived only because their sessions were
       resumed.)

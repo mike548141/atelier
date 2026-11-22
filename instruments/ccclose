@@ -7,7 +7,7 @@
  * owed" is a claim that must carry its evidence. This is that evidence, read
  * from the repo, the host and the session's own transcript rather than from the
  * session's memory, which is the thing that drifts in a long session. It prints
- * the standard outputs (session id, transcript, window), fourteen checks in a
+ * the standard outputs (session id, transcript, window), fifteen checks in a
  * fixed order, the principal's close-out asks found in the transcript, and a
  * one-line verdict. The design of record is instruments/ccclose.design.md.
  *
@@ -35,7 +35,9 @@
  * opens the same exchange in cctranscript.
  *
  * Test seams: $CCCLOSE_GH names the gh executable (default "gh"), so the tests
- * can stand a stub in for the network. $CCCLOSE_ATELIER names the atelier
+ * can stand a stub in for the network; $CCCLOSE_PS names the ps executable the
+ * launched-work check (check 15) reads the process table with, so no test reads
+ * the real one. $CCCLOSE_ATELIER names the atelier
  * checkout the pin check measures against, and $CCCLOSE_PINS_TIMEOUT its
  * time limit in seconds (default 20); both are documented in the man page.
  */
@@ -64,10 +66,11 @@ OPTIONS
 Checks worktrees, branches, pushes, PRs, the session record, the board, live
 claims, the floor at the pushed head, review pointers, workaround-shaped
 commands (a refused delete re-routed among them), the working tree, the
-session's subagents and its scratch folder, and, in a repo that pins atelier,
-whether the pin and the floor copy are current (runs atelier's pins.py: it
-fetches the atelier checkout's origin; a failure prints "no result"), lists the principal's close-out
-asks, and ends with the identifiers block.
+session's subagents and its scratch folder, in a repo that pins atelier whether
+the pin and floor copy are current (runs atelier's pins.py: it fetches the
+atelier checkout's origin; a failure prints "no result"), and anything else the
+session launched still running (reads the process table, fails closed), lists
+the principal's close-out asks, and ends with the identifiers block.
 Read-only. Exit 0 when no check fails.  Full manual: man ccclose`;
 
 // The cap on every listed set. Counts stay whole; only the lists are cut.
@@ -784,6 +787,9 @@ async function readTranscript(file) {
     delPend: new Map(), refused: new Map(),
     // The harness's scratch folder for this session, from its environment record.
     scratch: null,
+    // Work the session launched (check 15, 210/460): what it started, what
+    // ended something, and when the principal first spoke.
+    firstPrompt: null, launched: [], launchById: new Map(), stopOps: [], stopById: new Map(),
   };
   let n = 0, k = 0;
   const rl = readline.createInterface({ input: fs.createReadStream(file), crlfDelay: Infinity });
@@ -805,6 +811,7 @@ async function readTranscript(file) {
       for (const b of o.message.content) {
         if (b && b.type === 'tool_result' && b.tool_use_id) {
           t.toolResults.set(b.tool_use_id, Number.isFinite(ms) ? ms : null);
+          noteLaunchResult(t, b.tool_use_id, b, o);
           noteCommandResult(t.cmds, b.tool_use_id, !!b.is_error, ms);
           if (t.pend.has(b.tool_use_id)) resolvePending(t, t.pend.get(b.tool_use_id), b, o);
           const del = t.delPend.get(b.tool_use_id);
@@ -846,6 +853,7 @@ async function readTranscript(file) {
       const content = o.message && Array.isArray(o.message.content) ? o.message.content : [];
       for (const b of content) {
         if (b.type !== 'tool_use') continue;
+        noteLaunch(t, b, ms, o.cwd);
         if (b.name === 'EnterWorktree' && b.id) t.pend.set(b.id, { enter: true });
         // Variables as they stood BEFORE this command: its own assignments are
         // read in order by worktreeAdds, and noteMessageSources folds them in.
@@ -877,6 +885,7 @@ async function readTranscript(file) {
       continue;
     } else continue;
     if (!principal) continue;
+    if (t.firstPrompt === null && Number.isFinite(ms)) t.firstPrompt = ms;
     if (channel === 'turn') t.turn++; else t.midTurn++;
     const found = askSentences(text);
     if (!found.length) continue;
@@ -1608,6 +1617,409 @@ function checkPin(repo, env = process.env) {
   return check('pin', PIN_LABEL, 'warn', notes.join('; '), items);
 }
 
+// --- check 15: launched work finished (210/460) ----------------------------
+//
+// The principal's ruling, 2026-11-22: "Any work started by a session including
+// sub agents, background tasks, sessions spawned or whatever must be checked
+// for by ccclose and it must report that as a blocker to the session closing."
+// Check 12 reads only the session's own agents. A session once declared itself
+// ready to close while a detached headless run it had started was still
+// working: that run left no agent log, so nothing here read it. This check
+// reads four more places, and FAILS CLOSED: what it cannot prove finished
+// blocks (❌), and the line says why.
+//
+//   1. live processes whose environment carries this session's id (the harness
+//      puts CLAUDE_CODE_SESSION_ID in the environment of everything a session's
+//      shell starts, and a detached child keeps it after reparenting);
+//   2. Bash calls with run_in_background that no terminal notification ended;
+//   3. launch forms in the shell commands (&, nohup, setsid, disown, screen,
+//      tmux, launchctl, crontab, at) neither leg 1 finds nor the transcript
+//      shows finished: the leg that covers Apple platform binaries, whose
+//      environment `ps -E` cannot show;
+//   4. harness tools that start work elsewhere (Workflow, Monitor,
+//      RemoteTrigger, CronCreate, ScheduleWakeup, session-starting tools).
+//
+// The process read is `ps -Eww -axo pid=,ppid=,etime=,command=`, through
+// $CCCLOSE_PS when set (a path to a stub, the tests' seam) so no test reads the
+// real process table. argv is printed cut to a few words and never whole: a
+// command line can hold a secret.
+
+const TERMINAL = new Set(['completed', 'killed', 'stopped', 'failed']);
+const ARGV_SHOWN = 3;
+const CMD_SHOWN = 70;
+const MCP_CMD = /\bmcp\b|modelcontextprotocol|mcp-server|-mcp\b/i;
+// Etime has whole-second resolution; a start read from it can sit a few seconds
+// either side of the true one.
+const START_SLACK_MS = 10000;
+
+function parseEtime(s) {
+  const m = /^(?:(\d+)-)?(?:(\d+):)?(\d+):(\d+)$/.exec(String(s));
+  return m ? (((+(m[1] || 0)) * 24 + (+(m[2] || 0))) * 60 + (+m[3])) * 60 + (+m[4]) : null;
+}
+function ageText(sec) {
+  if (sec === null) return 'unknown age';
+  if (sec < 90) return `${sec}s`;
+  if (sec < 5400) return `${Math.round(sec / 60)}m`;
+  if (sec < 172800) return `${Math.floor(sec / 3600)}h${String(Math.floor((sec % 3600) / 60)).padStart(2, '0')}m`;
+  return `${Math.floor(sec / 86400)}d`;
+}
+
+// The argv of a `ps -E` line is followed by the environment, both space-
+// separated. The first NAME=value word after the program is where the
+// environment starts (a program's own arguments may hold an `=`, so this is a
+// heuristic, and only ever shortens what is shown).
+function argvWords(rest) {
+  const words = rest.trim().split(/\s+/).filter(Boolean);
+  const at = words.findIndex((x, i) => i > 0 && /^[A-Z_][A-Z0-9_]*=/.test(x));
+  return at < 0 ? words : words.slice(0, at);
+}
+// Only the first few words, and only those that look like a program, a script
+// or a flag: a value after `=` is never printed.
+function argvShown(rest) {
+  const w = argvWords(rest);
+  if (!w.length) return '(no command)';
+  const shown = [path.basename(w[0]) || w[0]];
+  for (const x of w.slice(1, ARGV_SHOWN)) {
+    if (/[=:@]/.test(x) || x.length > 40) { shown.push(x.includes('=') ? `${x.split('=')[0]}=…` : '…'); continue; }
+    shown.push(x);
+  }
+  return clip(shown.join(' '), CMD_SHOWN);
+}
+
+// The process table, or why it could not be read.
+function readProcs(env = process.env) {
+  const bin = env.CCCLOSE_PS || 'ps';
+  const r = run(bin, ['-Eww', '-axo', 'pid=,ppid=,etime=,command='], process.cwd(), 20000);
+  if (r.code === null) return { ok: false, why: `ps could not run (${clip(r.err, 80) || 'no detail'})` };
+  if (!r.ok && !r.out.trim()) return { ok: false, why: `ps exited ${r.code}${r.err ? `: ${clip(r.err, 80)}` : ''}` };
+  const table = new Map();
+  for (const l of r.out.split('\n')) {
+    const m = /^\s*(\d+)\s+(\d+)\s+(\S+)\s+(.*)$/.exec(l);
+    if (!m) continue;
+    table.set(Number(m[1]), { pid: Number(m[1]), ppid: Number(m[2]), ageSec: parseEtime(m[3]), rest: m[4] });
+  }
+  return { ok: true, table };
+}
+
+// Leg 1. Every process carrying the session's id, less the harness (the claude
+// process itself, and the MCP servers and other helpers it started before the
+// first prompt or that its command names as MCP) and ccclose's own chain.
+function liveProcesses(procs, sid, firstPrompt, now, env = process.env) {
+  const carries = new RegExp(`(?:^|\\s)CLAUDE_CODE_SESSION_ID=${escapeRe(sid)}(?=\\s|$)`);
+  const carriers = [...procs.table.values()].filter((p) => carries.test(p.rest));
+  // ccclose's own chain: this process, its ancestors up the table, and what it
+  // started (the ps that read the table).
+  const own = new Set([process.pid]);
+  for (const p of procs.table.values()) if (own.has(p.ppid)) own.add(p.pid);       // what ccclose started
+  for (let p = procs.table.get(process.pid); p && !own.has(p.ppid) && p.ppid > 1; p = procs.table.get(p.ppid)) own.add(p.ppid);   // and its ancestors
+  const harness = new Set();
+  if (/^\d+$/.test(env.CLAUDE_PID || '')) harness.add(Number(env.CLAUDE_PID));
+  for (const p of carriers) { const m = /(?:^|\s)CLAUDE_PID=(\d+)(?=\s|$)/.exec(p.rest); if (m) harness.add(Number(m[1])); }
+  const kept = [];
+  let excluded = 0;
+  for (const p of carriers) {
+    const started = p.ageSec === null ? null : now - p.ageSec * 1000;
+    const early = started !== null && firstPrompt !== null && started <= firstPrompt + START_SLACK_MS;
+    if (own.has(p.pid) || harness.has(p.pid)
+      || (harness.has(p.ppid) && (early || MCP_CMD.test(argvWords(p.rest).slice(0, 4).join(' '))))) { excluded++; continue; }
+    kept.push(p);
+  }
+  return { kept, excluded };
+}
+
+// --- launch forms in a shell command (leg 3) ---------------------------------
+
+// The command with its quoted text, comments and heredoc bodies blanked, so a
+// word in a string, a grep pattern or a comment is no launch; and the quoted
+// strings, each with the word that led to it, so `sh -c '...'` can be read.
+function unquoteCode(code) {
+  let out = '', q = null, buf = '';
+  const quoted = [];
+  let word = '', prev = '';
+  const endWord = () => { if (word) { prev = word; word = ''; } };
+  for (let i = 0; i < code.length; i++) {
+    const c = code[i];
+    if (q) {
+      if (c === '\\' && q === '"' && i + 1 < code.length) { buf += code[++i]; continue; }
+      if (c === q) { quoted.push({ after: prev, text: buf }); q = null; buf = ''; out += 'Q'; word += 'Q'; continue; }
+      buf += c; continue;
+    }
+    if (c === '\\' && i + 1 < code.length) { i++; out += ' '; word += 'x'; continue; }
+    if (c === '"' || c === "'") { endWord(); q = c; continue; }
+    if (c === '#' && (i === 0 || /[\s;&|(]/.test(code[i - 1]))) { while (i < code.length && code[i] !== '\n') i++; i--; continue; }
+    out += c;
+    if (/\s/.test(c) || ';&|()'.includes(c)) endWord(); else word += c;
+  }
+  return { plain: out, quoted };
+}
+
+const WRAPPERS = new Set(['command', 'time', 'exec', 'env', 'sudo', 'nice', 'builtin', 'caffeinate', 'timeout']);
+const KEYWORDS = new Set(['then', 'do', 'else', '{', '!']);
+// The command-position words of each segment, wrappers and assignments dropped.
+function segmentsOf(plain) {
+  return plain.split(/&&|\|\||[;&|\n(]/).map((s) => {
+    let w = s.trim().split(/\s+/).filter(Boolean);
+    while (w.length && (KEYWORDS.has(w[0]) || /^[A-Za-z_]\w*=/.test(w[0]) || WRAPPERS.has(w[0]) || (w[0].startsWith('-') && w.length > 1))) w = w.slice(1);
+    return w;
+  }).filter((w) => w.length);
+}
+const SHELLS = new Set(['sh', 'bash', 'zsh', 'dash', 'ksh']);
+
+function scanForms(code, forms, counters, depth) {
+  const { plain, quoted } = unquoteCode(codeOf(code));
+  // `&` as a control operator: not && , >& , &> , |& , <& , and followed by an
+  // end, a space or a separator (so an unquoted URL's &y= is no operator).
+  if (/(?<![&>|<])&(?![&>])(?=\s|$|[;)}])/.test(plain.replace(/\d>&\d/g, ''))) forms.add('&');
+  for (const w of segmentsOf(plain)) {
+    const [head, a] = w;
+    const base = path.basename(head);
+    if (base === 'wait') forms.add('wait');
+    else if (base === 'nohup' || base === 'setsid') forms.add(base);
+    else if (base === 'disown') forms.add('disown');
+    else if (base === 'launchctl') {
+      if (/^(load|bootstrap|kickstart|submit|start|enable)$/.test(a || '')) forms.add('launchctl');
+      if (/^(unload|remove|bootout|stop|disable)$/.test(a || '')) counters.add('launchctl');
+    } else if (base === 'crontab') {
+      if (w.slice(1).includes('-r')) counters.add('crontab');
+      else if (!w.slice(1).some((x) => /^-[lhV]/.test(x))) forms.add('crontab');
+    } else if (base === 'at') {
+      if (/^(now|noon|midnight|teatime|tomorrow|today|next|\d|-[fqmvtbd]$)/.test(a || '')) forms.add('at');
+    } else if (base === 'atrm') counters.add('at');
+    else if (base === 'screen') {
+      if (w.includes('-X') || w.includes('-x')) { if (w.includes('quit')) counters.add('screen'); }
+      else if (w.slice(1).some((x) => /^-[A-Za-z]*[dDmS]/.test(x))) forms.add('screen');
+    } else if (base === 'tmux') {
+      const sub = w.slice(1).find((x, i, arr) => !x.startsWith('-') && !(i > 0 && /^-[LSTc]$/.test(arr[i - 1])));
+      if (/^(new-session|new|new-window|neww|split-window|splitw|run-shell|run|respawn-pane)$/.test(sub || '')) forms.add('tmux');
+      if (/^kill-(session|server|window)$/.test(sub || '')) counters.add('tmux');
+    }
+    // A shell given code to run: read the code. (The launch may be inside it.)
+    if (depth < 2 && SHELLS.has(base) && w.includes('-c')) {
+      for (const qs of quoted) if (qs.after === '-c' && qs.text) scanForms(qs.text, forms, counters, depth + 1);
+    }
+  }
+  return plain;
+}
+
+// The launch forms of a command. A foreground `claude -p` ends with its own
+// result, so it is a launch only when something detaches it, and is then named
+// for what it is. `wait` (the command waits for its own jobs) comes back as
+// `waited`, so the caller can mark the launch awaited rather than let go of.
+function launchForms(command) {
+  if (typeof command !== 'string' || !command) return { forms: [], counters: [], waited: false };
+  const forms = new Set(), counters = new Set();
+  const plain = scanForms(command, forms, counters, 0);
+  const waited = forms.delete('wait');
+  if (forms.size && /(?:^|[\s;&|(])claude\b[^;&|\n]*\s(?:-p|--print)\b/.test(plain)) forms.add('headless claude');
+  return { forms: [...forms], counters: [...counters], waited };
+}
+
+// What a launch command printed that is a process id, and only where the
+// command asked for one ($!), or the output labels it: a bare number is
+// otherwise a count, and mistaking a count for a pid could read a live launch
+// as gone.
+function pidsOf(command, text) {
+  const out = new Set();
+  if (command.includes('$!')) for (const m of text.matchAll(/^\s*(\d{2,7})\s*$/gm)) out.add(Number(m[1]));
+  for (const m of text.matchAll(/\bpid[=: ]+(\d{2,7})\b/gi)) out.add(Number(m[1]));
+  for (const m of text.matchAll(/^\[\d+\]\s+(\d{2,7})\s*$/gm)) out.add(Number(m[1]));
+  return [...out];
+}
+
+// --- what the transcript records of launches --------------------------------
+
+const SESSION_START_TOOL = /^mcp__.*(?:session|agent)/i;
+const SESSION_START_VERB = /(?:start|spawn|launch|create|new|run)/i;
+const compactTur = (tur) => {
+  if (!tur || typeof tur !== 'object') return null;
+  const o = {};
+  for (const k of ['backgroundTaskId', 'taskId', 'task_id', 'id', 'workflowId', 'runId', 'scheduledFor', 'timeoutMs', 'persistent', 'durable', 'recurring', 'status']) {
+    if (tur[k] !== undefined) o[k] = tur[k];
+  }
+  return o;
+};
+
+// Called for each assistant tool_use while the log streams. Pushes onto
+// t.launched (what was launched) and t.stopOps (what ended something);
+// noteLaunchResult fills the result in when it lands.
+function noteLaunch(t, b, ms, cwd) {
+  const input = b.input && typeof b.input === 'object' ? b.input : {};
+  const ts = Number.isFinite(ms) ? ms : null;
+  const add = (e) => {
+    const x = { id: b.id || null, ts, name: b.name, cwd: cwd || null, result: null, ...e };
+    t.launched.push(x);
+    if (b.id) t.launchById.set(b.id, x);
+  };
+  const stop = (kind, ref) => {
+    const s = { kind, ref: ref || null, ts, ok: null };
+    t.stopOps.push(s);
+    if (b.id) t.stopById.set(b.id, [...(t.stopById.get(b.id) || []), s]);
+  };
+  const name = b.name;
+  if (name === 'Bash') {
+    const command = typeof input.command === 'string' ? input.command : '';
+    if (input.run_in_background === true) { add({ leg: 'background', command }); return; }
+    const { forms, counters, waited } = launchForms(command);
+    if (forms.length) add({ leg: 'launch', command, forms, waited });
+    for (const kind of counters) stop(kind, null);
+    return;
+  }
+  if (name === 'TaskStop' || name === 'KillShell') { stop('task', input.task_id || input.shell_id); return; }
+  if (name === 'CronDelete') { stop('cron', input.id); return; }
+  if (name === 'RemoteTrigger') {
+    const action = String(input.action || '');
+    if (/^(list|get|list_runs|get_run|read)$/i.test(action)) return;
+    add({ leg: 'harness', tool: name, command: `RemoteTrigger ${action || '?'}`, schedule: !/^run/i.test(action) });
+    return;
+  }
+  if (name === 'CronCreate') { add({ leg: 'harness', tool: name, command: `cron ${clip(input.cron || '', 30)}`, schedule: true }); return; }
+  if (name === 'ScheduleWakeup') { add({ leg: 'harness', tool: name, command: `wakeup in ${input.delaySeconds || '?'}s`, schedule: true }); return; }
+  if (name === 'Workflow' || name === 'Monitor') {
+    add({ leg: 'harness', tool: name, command: `${name} ${clip(input.command || input.workflow || input.name || input.script || '', 50)}`.trim(), schedule: false });
+    return;
+  }
+  if (SESSION_START_TOOL.test(name) && SESSION_START_VERB.test(name)) add({ leg: 'harness', tool: name, command: clip(`${name} ${JSON.stringify(input)}`, 60), schedule: false });
+}
+
+function noteLaunchResult(t, id, b, o) {
+  for (const s of t.stopById.get(id) || []) s.ok = !b.is_error;
+  const e = t.launchById.get(id);
+  if (!e) return;
+  e.result = { isError: !!b.is_error, text: resultText(b, o).slice(0, 4000), tur: compactTur(o && o.toolUseResult) };
+}
+
+// The id the harness gave a background task, Monitor or workflow, from the
+// structured result first, then its text.
+function taskIdOf(e) {
+  const tur = e.result && e.result.tur ? e.result.tur : {};
+  for (const k of ['backgroundTaskId', 'taskId', 'task_id', 'workflowId', 'runId', 'id']) if (typeof tur[k] === 'string' && tur[k]) return tur[k];
+  const text = e.result ? e.result.text : '';
+  const m = /running in background with ID:\s*([A-Za-z0-9_-]+)/.exec(text) || /\(task ([A-Za-z0-9_-]+)[,)]/.exec(text)
+    || /\b(?:job|task|run|workflow)[ _-]?id[: ]+([A-Za-z0-9_-]{6,})/i.exec(text);
+  return m ? m[1] : null;
+}
+
+// How one launched thing stands. { state, status, why }: `ended` and `stopped`
+// pass; `scheduled` warns; everything else blocks, and says why.
+function judgeLaunched(e, t, procs, now, handled) {
+  const stops = t.stopOps.filter((s) => s.ok === true);
+  const res = e.result;
+  if (res && res.isError) return { state: 'never-started', status: 'pass', why: 'its call failed, so nothing started' };
+  if (e.leg === 'background' || (e.leg === 'harness' && !e.schedule)) {
+    const id = taskIdOf(e);
+    if (!res) return { state: 'unknown', status: 'fail', why: 'no result was recorded for the launch, so its end cannot be matched' };
+    if (!id) return { state: 'unknown', status: 'fail', why: 'no task id in its result, so no notification can be matched to it: stop it or check it ended' };
+    const note = t.notes.get(id);
+    if (note && TERMINAL.has(note.status)) return { state: 'ended', status: 'pass', why: `${note.status} notification` };
+    if (stops.some((s) => s.kind === 'task' && s.ref === id)) return { state: 'stopped', status: 'pass', why: 'stopped (TaskStop)' };
+    if (res.tur && res.tur.status && TERMINAL.has(String(res.tur.status))) return { state: 'ended', status: 'pass', why: `result says ${res.tur.status}` };
+    if (e.tool === 'Monitor' && res.tur && Number.isFinite(res.tur.timeoutMs) && res.tur.persistent === false && e.ts !== null && e.ts + res.tur.timeoutMs < now) {
+      return { state: 'ended', status: 'pass', why: 'its time limit has passed' };
+    }
+    return { state: 'running', status: 'fail', why: `task ${id}: no terminal notification (completed, killed, stopped or failed) and no stop recorded` };
+  }
+  if (e.leg === 'harness') {      // a schedule
+    if (e.tool === 'CronCreate') {
+      const id = res && res.tur ? res.tur.id : null;
+      if (id && stops.some((s) => s.kind === 'cron' && s.ref === id)) return { state: 'stopped', status: 'pass', why: 'deleted (CronDelete)' };
+      const how = res && res.tur && res.tur.durable === false ? 'session-only: it ends with the session' : 'it outlives the session';
+      return { state: 'scheduled', status: 'warn', why: `a schedule (${how}); a schedule the principal asked for is fine to leave, so answer: left on purpose?` };
+    }
+    if (e.tool === 'ScheduleWakeup' && res && res.tur && Number.isFinite(res.tur.scheduledFor) && res.tur.scheduledFor < now) {
+      return { state: 'ended', status: 'pass', why: 'the wakeup has fired' };
+    }
+    return { state: 'scheduled', status: 'warn', why: 'a schedule still pending; closing cancels a session wakeup. Answer: left on purpose?' };
+  }
+  // leg 'launch': a shell command that let go of what it started.
+  if (e.waited) return { state: 'ended', status: 'pass', why: 'the command waited for its own jobs' };
+  const later = (kind) => t.stopOps.some((s) => s.ok === true && s.kind === kind && s.ts !== null && e.ts !== null && s.ts >= e.ts);
+  for (const f of e.forms) {
+    const kind = { launchctl: 'launchctl', crontab: 'crontab', at: 'at', tmux: 'tmux', screen: 'screen' }[f];
+    if (kind && later(kind)) return { state: 'stopped', status: 'pass', why: `${kind} removed by a later command` };
+  }
+  const pids = res ? pidsOf(e.command, res.text) : [];
+  if (pids.length && procs.ok) {
+    const alive = pids.filter((p) => procs.table.has(p));
+    if (alive.length) {
+      const p = procs.table.get(alive[0]);
+      return { state: 'running', status: 'fail', why: `pid ${p.pid} is still alive (${ageText(p.ageSec)}, ${argvShown(p.rest)})` };
+    }
+    return { state: 'ended', status: 'pass', why: `pid ${pids.join(', ')} is gone` };
+  }
+  if (e.leg === 'launch' && handled && handled(e)) return { state: 'covered', status: 'pass', why: 'found live by the process read (leg 1)' };
+  const forms = e.forms.join(' + ');
+  return { state: 'unproven', status: 'fail',
+    why: `${forms}: the command let go of it and nothing shows it finished${pids.length ? ' (its pid could not be read: no process table)' : procs.ok ? '' : ' (the process table could not be read)'}; stop it by its pid or show it ended` };
+}
+
+const LEG_TAG = { process: 'live process', background: 'background command', launch: 'detached launch', harness: 'harness' };
+
+// The check. `procs` is the process table (readProcs) or null when it was not
+// read; t the transcript or null.
+function checkLaunched(t, sid, procs, now = Date.now(), env = process.env) {
+  const L = 'Launched work finished';
+  const none = { processes: 0, background: 0, launches: 0, harness: 0, scheduled: 0, ended: 0, excluded: 0 };
+  const bare = (status, summary) => ({ ...check('launched', L, status, summary), counts: null, legs: null });
+  if (!sid && !t) return bare('na', 'not applicable — no session id and no transcript, so nothing can be matched to a session');
+  const first = t ? (t.firstPrompt !== null ? t.firstPrompt : t.first) : null;
+  const items = [];   // { leg, status, text }
+  const counts = { ...none };
+  let psWhy = null;
+  let live = { kept: [], excluded: 0 };
+  if (!sid) psWhy = 'no session id, so no process can be matched to it';
+  else if (!procs || !procs.ok) psWhy = procs ? procs.why : 'the process table was not read';
+  else live = liveProcesses(procs, sid, first, now, env);
+  counts.excluded = live.excluded;
+  for (const p of live.kept) {
+    counts.processes++;
+    items.push({ leg: 'process', status: 'fail', pid: p.pid, ageSec: p.ageSec, argv: argvShown(p.rest),
+      text: `pid ${p.pid} · ${ageText(p.ageSec)} · ${argvShown(p.rest)} — carries this session's id; stop it by its pid, or wait for it` });
+  }
+  // A launch a live process already accounts for is named once, in leg 1: the
+  // process's program or script is a word of the launch command.
+  const handled = (e) => live.kept.some((p) => {
+    const w = argvWords(p.rest).slice(0, 2).map((x) => path.basename(x)).filter((x) => x.length >= 3);
+    return w.some((x) => e.command.includes(x));
+  });
+  if (t) {
+    for (const e of t.launched) {
+      const j = judgeLaunched(e, t, procs || { ok: false }, now, handled);
+      const when = e.ts === null ? 'unknown time' : `${utc(e.ts)} UTC`;
+      if (j.state === 'never-started') continue;
+      const key = e.leg === 'background' ? 'background' : e.leg === 'launch' ? 'launches' : 'harness';
+      if (j.state === 'covered') continue;
+      if (j.status === 'fail') counts[key]++;
+      else if (j.state === 'scheduled') counts.scheduled++;
+      else counts.ended++;
+      items.push({ leg: e.leg, status: j.status, state: j.state, ts: e.ts ? new Date(e.ts).toISOString() : null, tool: e.tool || null,
+        text: `${when} · ${clip(e.command, CMD_SHOWN)} — ${j.why}` });
+    }
+  }
+  const order = { fail: 0, warn: 1, pass: 2 };
+  items.sort((a, b) => order[a.status] - order[b.status]);
+  const blocking = counts.processes + counts.background + counts.launches + counts.harness;
+  const unreadable = psWhy !== null || !t;
+  const status = blocking ? 'fail' : (counts.scheduled || unreadable) ? 'warn' : 'pass';
+  const parts = [`${counts.processes} live process(es)`, `${counts.background} background command(s) not ended`,
+    `${counts.launches} detached launch(es) not shown finished`, `${counts.harness} harness-started item(s) not ended`,
+    `${counts.scheduled} schedule(s) pending`, `${counts.ended} ended or stopped`, `${counts.excluded} harness/own process(es) excluded`];
+  let summary = parts.join(' · ');
+  if (psWhy !== null) summary += ` · unknown: process table not read (${psWhy}), so a live process cannot be ruled out`;
+  if (!t) summary += ' · unknown: no transcript, so background, launched and harness-started work was not read';
+  const lines = items.map((x) => `${ICON[x.status]} ${LEG_TAG[x.leg]}: ${x.text}`);
+  const total = lines.length;
+  const legs = {
+    processes: items.filter((x) => x.leg === 'process').slice(0, CAP),
+    background: items.filter((x) => x.leg === 'background').slice(0, CAP),
+    launches: items.filter((x) => x.leg === 'launch').slice(0, CAP),
+    harness: items.filter((x) => x.leg === 'harness').slice(0, CAP),
+  };
+  const out = { ...check('launched', L, status, summary, lines, total), counts, legs, psRead: psWhy === null, psWhy };
+  // The uncapped list is for the identifiers block, and stays out of --json.
+  Object.defineProperty(out, 'allItems', { value: items, enumerable: false });
+  return out;
+}
+
 // --- the identifiers block -------------------------------------------------
 //
 // RECORD.md asks every detail record and closing message to end with an
@@ -1982,6 +2394,13 @@ function identifiersWorktrees({ repo, w, t, branches }) {
   return { known: true, items, unresolved: t.unresolvedAdds || 0 };
 }
 
+// Check 15's reads for the identifiers block: counts and every item, uncapped.
+function launchedIdentifiers(c) {
+  if (!c.counts) return { known: false, why: c.summary };
+  return { known: true, status: c.status, counts: c.counts, psRead: c.psRead, psWhy: c.psWhy,
+    items: c.allItems.map((x) => ({ leg: x.leg, status: x.status, text: x.text })) };
+}
+
 async function collectIdentifiers(g) {
   const { file, t, w, sessionId, repo, b, gh, branches } = g;
   const sub = await checkSubagents(file, t, true);
@@ -2010,6 +2429,7 @@ async function collectIdentifiers(g) {
     agents: sub.counts
       ? { known: true, counts: sub.counts, items: sub.agents.map((a) => ({ id: a.id, short: a.short, description: a.description, end: a.end })) }
       : { known: false, why: sub.summary },
+    launched: launchedIdentifiers(checkLaunched(t, g.sessionId, g.procs)),
     otherRepos: 'not read by ccclose',
     heuristic: ID_HEURISTIC,
   };
@@ -2096,6 +2516,14 @@ function renderIdentifiers(r) {
     list(`- **Agents**: ${k.agents} · ${k.reported} reported · ${k.stopped} stopped on purpose · ${k.unconsumed} result never consumed · ${k.running} still running · ${k.cut} cut mid-flight · ${k.failed} failed`,
       a.items.map((x) => `${x.short} ${clip(x.description || '(no description)', 60)} — ${x.end}`));
   }
+  // Launched work other than agents (210/460), a sub-line so the field set holds.
+  const lw = r.launched;
+  if (!lw.known) o.push(`  - other launched work: ${BY_HAND(lw.why)}`);
+  else {
+    const k = lw.counts;
+    o.push(`  - other launched work: ${k.processes} live process(es) · ${k.background} background command(s) not ended · ${k.launches} detached launch(es) not shown finished · ${k.harness} harness-started item(s) not ended · ${k.scheduled} schedule(s) pending · ${k.ended} ended or stopped${lw.psRead ? '' : ` · process table not read (${lw.psWhy}), so a live process cannot be ruled out`}`);
+    for (const x of lw.items) o.push(`    - ${ICON[x.status]} ${LEG_TAG[x.leg]}: ${x.text}`);
+  }
   o.push(`- **Other repos**: ${r.otherRepos} — fill in by hand`);
   o.push('');
   o.push(`*Attribution: ${r.heuristic}.*`);
@@ -2131,12 +2559,14 @@ async function gather(opts) {
   const needGh = repo.isGit && repo.github;
   const gh = needGh ? ghReady(repo) : { reason: 'not needed' };
   const branches = repo.isGit ? sessionBranches(repo, w) : null;
-  return { sid, source, file, t, readErr, live, w, sessionId, repo, b, gh, branches };
+  // The process table (check 15); read once for both forms.
+  const procs = sessionId ? readProcs() : null;
+  return { sid, source, file, t, readErr, live, w, sessionId, repo, b, gh, branches, procs };
 }
 
 async function collect(opts, gathered) {
   const g = gathered || await gather(opts);
-  const { sid, source, file, t, readErr, live, w, sessionId, repo, b, gh, branches } = g;
+  const { sid, source, file, t, readErr, live, w, sessionId, repo, b, gh, branches, procs } = g;
   const checks = [
     checkWorktrees(repo, w),
     checkBranches(repo, w),
@@ -2152,6 +2582,7 @@ async function collect(opts, gathered) {
     await checkSubagents(file, t),
     checkScratch(t),
     checkPin(repo),
+    checkLaunched(t, sessionId, procs),
   ];
   const commitsIn = repo.isGit && w ? windowCommits(repo, w, ['--branches', '--remotes']) : null;
   const unpushed = repo.isGit && w && repo.remotes.length ? windowCommits(repo, w, ['--branches', '--not', '--remotes']) : null;
@@ -2253,5 +2684,5 @@ async function main() {
 
 if (require.main === module) main();
 
-module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
+module.exports = { launchForms, readProcs, checkLaunched, parseEtime, argvShown, parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
   judgeAgent, FRESH_MS, checkPin, locateAtelier, board, CLAIM_LINE, worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };

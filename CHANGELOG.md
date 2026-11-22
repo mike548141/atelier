@@ -5,6 +5,32 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-22 — `ccclose` blocks a close while anything the session launched still runs, `210/460`)
+- **`ccclose` has a fifteenth check, *Launched work finished*, and it fails
+  closed.** The principal's ruling: *"Any work started by a session including
+  sub agents, background tasks, sessions spawned or whatever must be checked for
+  by ccclose and it must report that as a blocker to the session closing."* A
+  session had declared itself ready to close while a detached headless run it
+  started was still working; check 12 sees only the session's own agents. The
+  new check reads four things: live processes whose environment carries the
+  session's id (the harness, its early MCP servers and `ccclose`'s own chain
+  excluded; PID, age and the first three words of argv, never the whole
+  command); background Bash calls no terminal notification or `TaskStop`
+  ended; launch forms in the transcript's commands (`&`, `nohup`, `setsid`,
+  `disown`, `screen`, `tmux`, `launchctl`, `crontab`, `at`) that no printed pid,
+  `wait` or later undo shows finished, which also covers Apple platform
+  binaries that `ps -E` cannot show; and harness tools that start work
+  elsewhere (`Workflow`, `Monitor`, `RemoteTrigger`, and session-starting
+  tools). A schedule (`CronCreate`, `ScheduleWakeup`) only warns: whether the
+  principal asked for it is not in the transcript. An unreadable process table
+  is unknown, never a pass. It is appended after the pin check, so check
+  numbers 13 and 14 stay put; the identifiers block's Agents field gains an
+  *other launched work* sub-line (still seven fields); `--json` gains
+  `counts` and per-leg lists. `$CCCLOSE_PS` is the test seam for the process
+  read. `RECORD.md`'s Agents line and its close-evidence bullet widen from
+  agents to anything the session launched. See `instruments/ccclose.design.md`
+  and `man ccclose`.
+
 ### Added (2026-11-22 — every session opens showing its two ids, `210/490`)
 - **`tools/idhook.py`**: a `SessionStart` hook that shows the session's
   messaging name and its transcript id from the first moment, and asks the
