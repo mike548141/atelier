@@ -20,7 +20,7 @@ standard-library Python); each documents its own runtime.
 |-----------------|-----------|---------------------------------------------------------------------|
 | `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage), plus how large sessions' context windows got. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. `--search <term>` asks the other question: which turns, across every session in scope, match a term or a `--regex`. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
-| `ccclose`       | observe   | The close-out checker. From a fresh read of the repo, GitHub and the session's own transcript, says whether a close left anything owing (worktrees, branches, pushes, PRs, the session record, the board, live claims, the floor at the pushed head, review pointers, workaround-shaped commands, subagents and anything else the session launched still running) and lists the principal's close-out asks for the session to answer. Read-only. |
+| `ccclose`       | observe   | The close-out checker. From a fresh read of the repo, GitHub and the session's own transcript, says whether a close left anything owing (worktrees, branches, pushes, PRs, the session record, the board, live claims, the floor at the pushed head, review pointers, workaround-shaped commands, subagents and anything else the session launched still running) and lists every ask, the questions put to the principal, the other repos touched and the other live sessions for the session to answer. Read-only. |
 | `cclive`        | observe   | One view of live work across every repo on the machine, for a session to read at open: each repo's `[~]` claims at its newest integration ref, its worktrees and last-commit ages, the sessions and agents whose transcripts were written recently, keyed to the repo by their own working directory, and the load average. Says which roots it scanned and what it skipped, and prints its limits every run. Read-only; no network. |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `ccmail`        | extend    | Open the Gmail attachments the mailbox connector can only *name* — it lists filenames and attachment ids but has no call that returns bytes. Fetches them to disk with its own read-only grant so the ordinary Read tool can open them. `--headers` writes a message's transport headers alone (no body, no subject), to measure a mail route without reading the mail. |
@@ -400,8 +400,10 @@ is that evidence, read from the repo, from GitHub through `gh`, and from the
 session's own transcript, never from the session's memory. It prints the
 session id, transcript and window, fifteen checks in a fixed order (✅ pass ·
 ❌ fail · ⚠️ partial or unknown · ➖ not applicable, with the reason), the
-principal's close-out asks found in the transcript under *Asked of this close —
-answer each*, and a verdict line. It exits 0 only when no check fails.
+four listings (every prompt the principal gave under *Asked in this session —
+answer each*, the questions put to him, the other repos the session touched with
+the same checks run there, and the other live sessions), a verdict line and the
+identifiers block. It exits 0 only when no check fails, here or in another repo.
 
 Two things it says on every run, because they bound what it can prove.
 **Attribution is a heuristic:** "this session's" work is what is dated inside

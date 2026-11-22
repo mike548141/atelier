@@ -1297,7 +1297,7 @@ The same run brief fixed three things the report carries (homed 2026-10-18,
   prompt he gave this session, and every question, action or decision the run
   put to him, mid-turn as well as at the turn. Each one is either done or
   named in the report as open. An ask that reached the transcript but not the
-  board is the gap this closes; `ccclose`'s *Asked of this close* list is the
+  board is the gap this closes; `ccclose`'s *Asked in this session* list is the
   instrument for it.
 
 The brief also sets how the run talks to the principal while it works

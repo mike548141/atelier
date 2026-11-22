@@ -30,8 +30,10 @@ through
 .BR gh (1),
 and of the session's own transcript.
 It prints the standard outputs (the session id, its transcript, its time
-window, the repo and its head), fifteen checks in a fixed order, the
-principal's close-out asks found in the transcript, and a one-line verdict.
+window, the repo and its head), fifteen checks in a fixed order, four listings
+(every prompt the principal gave, the questions put to him, the other repos
+the session touched, the other live sessions), a one-line verdict, and the
+identifiers block.
 It changes nothing.
 .SS The session and its window
 The session is
@@ -480,27 +482,91 @@ or
 .B ssh
 is not read; and a process that has reparented under another session's id is
 not this session's.
-.SS Asked of this close \(em answer each
-After the checks,
-.B ccclose
-lists the principal's prompts that hold a close-out instruction, as short
-quotes with their UTC time, their channel
-.RI ( turn " or " mid-turn )
-and the ref
+.SS Asked in this session \(em answer each
+After the checks, four listings carry what the session-open prompt used to ask
+the session to do from memory.
+Each is a listing: the tool lists and the session answers.
+They are not checks, so the fifteen stay fixed.
+A failing repo check in another repo fails the close, as at home; an
+unanswered question, a live peer or a warning elsewhere is only
+\[u26A0]; none of the rest can fail.
+.PP
+.B Asked in this session \(em answer each: done / queued (item) / not done
+lists every prompt the principal gave, turn and mid-turn, as a short quote
+(cut to 200 characters) with its UTC time, its channel and the ref
 .BR cctranscript (1)
 gives the same exchange.
 The principal's prompts are chosen by cctranscript's rules (not every
 mid-turn record is the principal typing), less records marked as meta and
-text that is only a harness wrapper.
+text that is only a harness wrapper; the answer to one of his own questions
+is not a prompt.
+The session answers each one: done, queued with its board item, or not done.
+At most 40 are listed, and the whole count prints.
 .PP
-The match is a
-.BR "keyword heuristic" .
-A sentence is listed when it has a strong close phrase (close out, ready to
-close, before you finish, tidy up, wrap up, leave it clean), or both a cue
-(make sure, remember to, check that, record, update) and an object (session
-log, roadmap, board, changelog, worktree, branch, PR, push, learnings,
-defects, evidence, assumptions, decisions, questions).
-It lists; it does not judge whether an ask was met.
+A
+.B [close]
+tag marks the prompts that the older close-keyword heuristic would have
+listed: a sentence with a strong close phrase (close out, ready to close,
+before you finish, tidy up, wrap up, leave it clean), or both a cue (make
+sure, remember to, check that, record, update) and an object (session log,
+roadmap, board, changelog, worktree, branch, PR, push, learnings, defects,
+evidence, assumptions, decisions, questions).
+It errs towards listing, and it does not judge whether an ask was met.
+.PP
+.B Questions put to the principal
+lists each
+.B AskUserQuestion
+call with its header and text and its answer, taken from the call's result.
+A question is
+.B not answered
+when its result is an error (the session ended first, or he declined), when no
+result was recorded, or when it is one of several in a call and has no answer.
+An answered question is \[u2705], for the session to act on; an unanswered one
+is \[u26A0], to be recorded on the board, never a failure.
+Beneath it are the
+.BR "call-out lines" :
+the session's own reply lines that carry \[u1F3AF] (a decision or action
+that is the principal's) or \[u23F3] (time-sensitive, waiting on him), each
+distinct line once, for the session to answer or queue.
+.PP
+.B Other repos touched
+reads the repos the session worked in from the transcript: each Bash
+record's working directory, each
+.B cd
+and
+.B git \-C
+in a command, the folder of a file it wrote or edited, and the worktree paths
+it created.
+Each goes to its nearest existing ancestor and its git top level; a repo that
+shares the checked repo's git common dir (its own worktrees included) is the
+home repo, and the scratch folder, temp folders and
+.I ~/.claude
+are never counted.
+A path in no repo any more (a put-away worktree, a plain folder) is counted as
+unresolved, not guessed, and the identifiers block says how many.
+Up to twelve repos are read.
+For each, the checks that are local git reads run over the same window:
+worktrees put away, branches put away, commits pushed, the session record, no
+live claim, and a clean working tree (not the PR, floor, board or pin checks).
+The session record is judged only where the session committed in the window: a
+repo it only read owes none.
+A failing check there fails the close, and the exit status is 1.
+The attribution heuristic applies there as at home.
+.PP
+.B Other live sessions in these repos
+lists the other sessions whose transcript or agent log was written in the last
+ten minutes and whose last working directory is in the checked repo or one it
+touched, using
+.BR cclive (1)'s
+own reads.
+The session checked, and the one running
+.BR ccclose ,
+are not other.
+Each is \[u26A0], to answer: do they have what they need from you?
+None is \[u2796].
+It never fails.
+A quiet transcript may be a slow agent, and a session waiting on its operator
+writes nothing, so this is a floor, not a count.
 .SH OPTIONS
 .TP
 .BI \-\-session " id" | path
@@ -525,6 +591,14 @@ Machine-readable output: the same content, with each check's status as
 uncapped counts beside the capped lists, and
 .B null
 wherever a figure is unknown.
+Fields are only ever added: the listings are
+.BR askedAll ", " questions ", " otherRepos " and " liveSessions ,
+and the verdict gains
+.BR prompts ", " openQuestions ", " liveSessions ", " otherRepos ,
+.BR otherRepoFail " and " otherRepoWarn ;
+the verdict's
+.B fail
+includes a failing check in another repo.
 .TP
 .B \-\-identifiers
 Print only the identifiers block that
@@ -700,7 +774,13 @@ gives the launched-work check's counts, zeros included, and each item, so the
 field set stays seven.
 .TP
 .B Other repos
-Not read by ccclose; always prints a fill-in-by-hand line.
+The repos read from the transcript (see
+.BR "Other repos touched" ),
+one line each with its commits from the window and the status of its checks
+when not clean, the count of paths it could not place (fill in by hand), and a
+note that a private repo is named generically in a public record.
+With no transcript it prints
+.BR "by hand" .
 .PP
 The last line is an italic note of how commits and board movement were
 attributed.
@@ -709,12 +789,17 @@ The field set is the same on every run: every check prints, zeros print, and a
 figure the tool could not read prints
 .BR unknown ,
 never 0.
-Each listed set is capped at 25 lines, followed by the number not shown.
-The last line is the verdict, for example:
+Each listed set is capped at 25 lines (40 for the prompts), followed by the
+number not shown.
+The verdict comes before the identifiers block and is the line to quote, for
+example:
 .PP
 .RS
 .nf
-\[u274C] not ready to close \[u00B7] 2 fail \[u00B7] 1 unknown or partial \[u00B7] 6 pass \[u00B7] 2 not applicable \[u00B7] 3 ask(s) to answer
+\[u274C] not ready to close \[u00B7] 2 fail \[u00B7] 1 unknown or partial
+\[u00B7] 6 pass \[u00B7] 9 not applicable \[u00B7] 12 prompt(s) to answer
+(3 close-shaped) \[u00B7] 1 unanswered question(s) \[u00B7] 2 other live
+session(s) \[u00B7] 3 other repo(s) touched
 .fi
 .RE
 .SH FILES
@@ -861,6 +946,7 @@ The design of record is
 .IR instruments/ccclose.design.md .
 .SH SEE ALSO
 .BR cctranscript (1),
+.BR cclive (1),
 .BR ccrepo (1),
 .BR ccarchive (1),
 .BR gh (1),

@@ -414,33 +414,141 @@ of the last fetch", and the output says so. The only network is `gh`, only when
 ⚠️ unknown. `board.py --check` is the one subprocess outside git and gh, and it
 only reads.
 
-## 9. Asked of this close — answer each
+## 9. What the prompt asks in words: four listings
 
-After the checks, the principal's prompts (turn and mid-turn, §6's rules) that
-contain a close-out-shaped instruction are listed as short quotes, each with
-its UTC time, its channel and its cctranscript ref, under the heading
-**"Asked of this close — answer each"**. The tool lists; it does not judge
-whether each was met. The session answers each in its close message.
+*(Rebuilt 2026-11-22, board item 210/480; the principal: "I want you to look at
+everything in the lastest version of the prompt in session-open-prompt.md and
+look at what would be more effectively built into ccclose rather than being in
+the prompt".)* After the checks, four listings carry what the session-open
+prompt used to ask the session to do from memory. Each is a **listing**: the
+tool lists, the session answers. They are not check numbers (the fifteen stay
+fixed). Only two things reach the verdict, and neither can be a mere listing:
+a repo check that fails in another repo is ❌ like at home, and an unanswered
+question, a live peer or a warning elsewhere is ⚠️.
 
-The match is a **keyword heuristic**, stated in the output. A sentence is
-listed when it has a strong close phrase ("close out", "ready to close",
-"before you finish", "tidy up", "wrap up", "leave … clean"), or when it has
-both a cue ("make sure", "remember to", "check that", "record", "update") and
-an object ("session log", "roadmap", "board", "changelog", "worktree",
-"branch", "PR", "push", "learnings", "defects", "evidence", "assumptions",
-"decisions", "questions"). It errs towards listing. A missed ask is the costly
-error, and a listed non-ask costs one line of answer.
+### 9.1 Asked in this session — answer each: done / queued (item) / not done
+
+Every principal prompt, turn and mid-turn (§6's rules: the same
+`classifyUserRecord` and `isHumanQueuedCommand`, the same exchange numbers, so
+each cctranscript ref opens the same exchange), with its UTC time, its channel,
+its ref and a quote cut to 200 characters. Harness text, meta records and an
+`AskUserQuestion` result are not prompts (the answer to his own question is not
+a fresh ask). The session answers each: *done*, *queued* with its board item, or
+*not done*.
+
+A **`[close]`** tag marks each prompt the old close-keyword heuristic would have
+listed, so that signal is not lost. A sentence is tagged when it has a strong
+close phrase ("close out", "ready to close", "before you finish", "tidy up",
+"wrap up", "leave … clean"), or both a cue ("make sure", "remember to", "check
+that", "record", "update") and an object ("session log", "roadmap", "board",
+"changelog", "worktree", "branch", "PR", "push", "learnings", "defects",
+"evidence", "assumptions", "decisions", "questions"). It errs towards tagging. The
+JSON `asked` field is that old list, unchanged; `askedAll` is the new one
+(`total`, `closeShaped`, `items`).
+
+The list is capped at 40 (a bound on the page, not on the count: the whole
+count prints, and "cctranscript lists every one"). It is higher than the 25 of a
+check's list because the point of the list is that none is missed. The
+verdict's `asks` field keeps its meaning (the close-shaped count); the line
+reads `N prompt(s) to answer (K close-shaped)`, and the JSON verdict gains
+`prompts`.
+
+### 9.2 Questions put to the principal
+
+Every `AskUserQuestion` call in the transcript, one line per question: its
+header and text (cut to 110) and its answer. The answer is the
+`toolUseResult.answers` entry for that question (the text form,
+`"question"="label"`, is the fallback). A question is **not answered** when its
+result is an error (the call was interrupted because the session ended, or he
+declined), when no result was recorded, or when a multi-question call has no
+answer for it. ✅ answered (listed so the session acts on it), ⚠️ not answered,
+with the reason: "open question: record it on the board". It is never ❌.
+
+Beneath it, **call-out lines**: assistant text lines that carry 🎯 (a decision or
+action that is his) or ⏳ (time-sensitive, waiting on him), cut to 200, each
+distinct line once. These are the session's own side of the conversation, which
+nothing read before; a call-out is "an open ask: answered or queued?", not a
+warning on its own (every session has some). The JSON is `questions` (`total`,
+`open`, `items`, `callouts`).
+
+### 9.3 Other repos touched
+
+The session-open prompt asks to deal with "everything you've touched"; the
+identifiers block printed "fill in by hand". The repos are now read from the
+transcript: each Bash record's `cwd`, each `cd <dir>` and `git -C <dir>` in a
+command (a relative one against the cwd), the folder of a file the session
+wrote or edited (Write, Edit, NotebookEdit), and the worktree paths it created
+(the same list the identifiers block reads). Each directory goes to its nearest
+**existing** ancestor, then to its git top level and common dir. A repo sharing
+the checked repo's common dir is the home repo (its own worktrees included) and
+is not "other". The scratch folder, a temp folder and `~/.claude` are never
+counted. A directory that is in no repo any more (a put-away worktree of another
+repo, a plain folder) is **unresolved**: counted, never guessed. Up to 12 repos
+are read; the rest are counted as not read.
+
+For each repo the checks that make sense are run, all local git reads, over the
+**same window**: worktrees put away, branches put away, commits pushed, session
+record, no live claim, working tree clean. Not PRs or the floor (network), not
+the board rebuild or the pin (subprocesses, and the pin fetches). They run on the
+repo's main checkout where it exists (a repo's branches, pushes and claims are
+repo-wide), else the top level the session used. **One refinement:** the session
+record is judged only in a repo where the session committed in the window. A repo
+it only read owes no record, and a ❌ there would be a false one; it reads ➖
+"no commit from the window in this repo". A failing check in another repo is ❌
+like at home: it counts in the verdict's `fail` and the exit code is 1. The
+attribution heuristic of §4 applies, and the output says so (the heuristic line).
+
+Printed as a compact block per repo: the repo's status, its path, its window
+commit count, one line of the six statuses, then the summary and up to three
+items of each failing or warning check. The identifiers block's **Other repos**
+field now carries the repo names with their commits and how many paths were
+unresolved ("fill in by hand" stays for those), and a note that a private repo is
+named generically in a public record (`RECORD.md` § *The record is public*):
+the block is pasted into records, and ccclose cannot tell which repos are
+private. `--json` keeps the `otherRepos` string of the identifiers form (now the
+names) and adds `touched`; the default form's JSON gains `otherRepos`.
+
+### 9.4 Other live sessions
+
+The other live sessions in the same repos (the checked repo and those touched),
+by cclive's own reads, required and not copied (`collectTranscripts`,
+`tailInfo`): a transcript or an agent log written in the last 10 minutes
+(check 12's bound, `FRESH_MS`) whose last recorded working directory sits in one
+of those repos (same git common dir). The session checked, and the session
+running ccclose, are not "other". It is ⚠️ with "answer: do they have what they
+need from you?", each with its short id, repo, working directory, branch, how
+long ago it wrote and its title, and **never ❌**; ➖ when there are none. cclive
+is required at call time, not at load: cclive requires ccclose for `FRESH_MS`,
+so a top-level require would be a cycle. `module.exports` is set before `main()`
+runs for the same reason. A transcript folder that cannot be read is ⚠️
+unknown, not "none". Limits are cclive's: a quiet transcript may be a slow
+agent, a session open and waiting writes nothing, and another machine's
+sessions are invisible.
+
+### 9.5 The identifiers block in the default run
+
+The default output ends with the `## Identifiers` block after the verdict, so the
+close is one command (this was built earlier, board 210/300, and is kept);
+`--identifiers` alone prints only the block; `--json` keeps the checks and the
+listings above, and the block's own JSON is `--identifiers --json`.
 
 ## 10. Output
 
-A header block of standard outputs, the fifteen check lines, the asks, then one
-verdict line, for example `❌ not ready to close: 2 fail · 1 unknown · 6 pass ·
-2 not applicable · 3 asks to answer`. The field set is stable: every check
-prints every run, zeros print, and a figure the tool could not read prints
-`unknown`, never `0`. Listed items are capped (25 per check, 25 asks), with the
-number not shown. `--json` carries the same content, uncapped counts beside the
-capped lists. Exit `0` when no check fails, `1` when any fails, `2` on a usage
-error.
+A header block of standard outputs, the fifteen check lines, the four listings
+of §9 (every ask, the questions put to the principal, the other repos touched,
+the other live sessions), then one verdict line, for example `❌ not ready to
+close · 2 fail · 1 unknown or partial · 6 pass · 9 not applicable · 12
+prompt(s) to answer (3 close-shaped) · 1 unanswered question(s) · 2 other live
+session(s) · 3 other repo(s) touched`, then the identifiers block (§15). The
+field set is stable: every check prints every run, zeros print, and a figure the
+tool could not read prints `unknown`, never `0`. Listed items are capped (25 per
+check, 40 prompts), with the number not shown. `--json` carries the same
+content, uncapped counts beside the capped lists, and only ever gains fields:
+the new counts are `verdict.prompts`, `openQuestions`, `liveSessions`,
+`otherRepos`, `otherRepoFail` and `otherRepoWarn`, and the new top-level keys
+`askedAll`, `questions`, `otherRepos` and `liveSessions`. The verdict's `fail`
+now includes a failing check in another repo. Exit `0` when no check fails
+(here or in another repo), `1` when any fails, `2` on a usage error.
 
 ## 11. Not mechanised, and said so
 
@@ -458,6 +566,16 @@ error.
   unknowable from the transcript, so each is ⚠️. A process that was reparented
   under another session's id is not this session's. A dead process whose pid
   was recycled reads as alive: it fails closed.
+- **What the listings cannot judge (§9).** Whether each prompt was done, whether
+  a question put to him is the one a board item names, whether a call-out is
+  still open, and whether a live peer has what it needs: all are the session's
+  answer, which is why they are listings. A prompt typed in a form the harness
+  does not record as the principal's, or a question asked in prose rather than
+  through the device, is not read. Other repos are read from directories the
+  transcript names: a repo the session worked in through a script, an `ssh` or a
+  path built by a command is missed, and a put-away worktree of another repo is
+  counted unresolved, not placed. A repo touched only by a read can show a
+  warning (an old dirty tree) the session did not make.
 - **Attribution under overlap** (§4). The window heuristic is the best a fresh
   read can do without a session id in every commit. It is printed, not hidden.
 
@@ -470,6 +588,11 @@ replaced through `CCCLOSE_GH` (a path to a stub script), the same seam shape as
 ccarchive's `CCARCHIVE_SIMULATE_DATALESS`, and the process table through
 `CCCLOSE_PS` (a stub that prints a fixture file; every `world()` installs an
 empty one, so no test reads the real table). Check 15 has a fixture per leg.
+Each §9 listing has its own: every ask (the close tag, the cap, results and harness text excluded), the questions (answered,
+interrupted, declined, absent, multi-question, call-outs), other repos (a
+failing one, a visited one, the home repo's worktrees and the scratch folder
+excluded, the unresolved count), and live sessions (live, stale, elsewhere, none)
+over a fake `HOME` whose `projects/` folder holds the peers' transcripts.
 The usual drift guards apply:
 `--help` fits a screen and points at the man page, and every flag it prints is
 in the page.
@@ -502,8 +625,10 @@ board, `gh`, branches) but not their verdicts, so it never waits on
 verdict. `--json` gives the same fields as JSON, as there was nothing to design.
 
 The field set is stable (§10): an empty field prints `none`, a field the tool
-cannot derive prints `by hand — <why>` and never a guess, and `Other repos`
-always prints the by-hand line, because nothing here can see another repo.
+cannot derive prints `by hand — <why>` and never a guess. `Other repos` printed
+the by-hand line until 210/480 (§9.3), because nothing here could see another
+repo; it now names the repos read from the transcript, and prints by hand only
+for the paths it could not place, or when there is no transcript.
 
 - **Commits.** Three tiers, because the window alone credits a concurrent
   session's work as the session's own (§15.1). *Credited*, oldest first, as
@@ -558,6 +683,10 @@ prints one line, "N worktree adds not resolved", so a short list says so
   (210/460): the field set stays seven, and `--identifiers --json` gains a
   `launched` key beside `agents`. `RECORD.md`'s Agents line says it covers
   anything the session launched.
+- **Other repos.** *(210/480.)* The repos §9.3 found, one line each (name, the
+  commits from the window, and the status of its checks when not clean), the
+  count of unresolved paths with "fill in by hand", and the note on naming a
+  private repo generically.
 
 The shell parsing is deliberately small (the first segment of a command, the
 common option forms). A form it cannot read is missed, not guessed, and the

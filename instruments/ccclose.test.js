@@ -572,7 +572,7 @@ test('with no transcript the window is unknown, and attribution checks say so ra
   assert.equal(j.prompts.turn, null);
   const text = ccclose(w, root, ['--session', 'no-such-session']);
   assert.match(text.out, /Commits {5}unknown in the window/);
-  assert.match(text.out, /asks unknown/);
+  assert.match(text.out, /prompts unknown/);
 });
 
 test('the session defaults to $CLAUDE_CODE_SESSION_ID and resolves in any project folder', () => {
@@ -654,12 +654,13 @@ test('the field set is stable: every check prints on every run, in one order', (
   const b = json(w, path.join(w.base), ['--session', 'nothing']);
   assert.deepEqual(a.checks.map((c) => c.id), ID_ORDER);
   assert.deepEqual(b.checks.map((c) => c.id), ID_ORDER);
-  for (const k of ['tool', 'session', 'window', 'repo', 'commits', 'prompts', 'models', 'checks', 'asked', 'verdict']) {
+  for (const k of ['tool', 'session', 'window', 'repo', 'commits', 'prompts', 'models', 'checks', 'asked', 'askedAll', 'questions', 'otherRepos', 'liveSessions', 'verdict']) {
     assert.ok(k in a && k in b, k);
   }
   const text = ccclose(w, root, ['--session', 'sess-stable']).out;
-  assert.match(text, /Asked of this close — answer each/);
+  assert.match(text, /Asked in this session — answer each: done \/ queued \(item\) \/ not done/);
   assert.match(text, /keyword heuristic/);
+  for (const head of ['Questions put to the principal', 'Other repos touched', 'Other live sessions in these repos']) assert.match(text, new RegExp(head));
   assert.match(text, /Heuristic +"this session's" = dated inside the window/);
 });
 
@@ -1196,7 +1197,7 @@ test('--identifiers prints only the block, in RECORD order, with every field (th
   assert.deepEqual(headings(r.out), FIELDS);
   assert.doesNotMatch(r.out, /close-out check|Checks\n|verdict/);
   assert.match(r.out, /- \*\*Session\*\*: sess-id-1 · Opus 5\.5 · \d{4}-\d\d-\d\d \d\d:\d\d to \d{4}-\d\d-\d\d \d\d:\d\d UTC\n/);
-  assert.match(r.out, /- \*\*Other repos\*\*: not read by ccclose — fill in by hand\n/);
+  assert.match(r.out, /- \*\*Other repos\*\*: none found\n/);
   assert.match(r.out.trimEnd().split('\n').pop(), /^\*Attribution: commits and board movement above the unconfirmed lines are matched to commit commands/);
 });
 
@@ -1585,7 +1586,7 @@ test('--identifiers --json carries the same fields', () => {
   const j = JSON.parse(ccclose(w, root, ['--session', 'sess-id-15', '--identifiers', '--json']).out);
   assert.equal(j.form, 'identifiers');
   assert.deepEqual(Object.keys(j.commits), ['known', 'total', 'items', 'unbroken', 'range', 'unconfirmed', 'leftOut', 'evidenceUnreadable']);
-  assert.deepEqual(Object.keys(j), ['tool', 'form', 'session', 'commits', 'pullRequests', 'board', 'worktrees', 'agents', 'launched', 'otherRepos', 'heuristic']);
+  assert.deepEqual(Object.keys(j), ['tool', 'form', 'session', 'commits', 'pullRequests', 'board', 'worktrees', 'agents', 'launched', 'otherRepos', 'touched', 'heuristic']);
   assert.equal(j.session.id, 'sess-id-15');
 });
 
@@ -2616,4 +2617,266 @@ test('parseEtime and argvShown: the age forms ps prints, and an argv cut with it
   assert.equal(cc.parseEtime('garbage'), null);
   assert.equal(cc.argvShown('/usr/bin/python3 run.py --key=abc123 --other tail HOME=/x'), 'python3 run.py --key=…');
   assert.equal(cc.argvShown('curl -H Authorization: Bearer SECRET'), 'curl -H …');
+});
+
+// --- 210/480: what the prompt asked in words --------------------------------
+
+const human = (text) => ({ type: 'attachment', attachment: { type: 'queued_command', commandMode: 'prompt', origin: { kind: 'human' }, prompt: text } });
+const prompt = (text) => ({ type: 'user', message: { role: 'user', content: text } });
+const say = (text) => ({ type: 'assistant', message: { model: 'claude-opus-5-5', content: [{ type: 'text', text }] } });
+const ask = (id, questions) => useOf(id, 'AskUserQuestion', { questions });
+const q = (header, question) => ({ header, question, multiSelect: false, options: [{ label: 'A' }, { label: 'B' }] });
+const answered = (id, answers) => resultOf(id, `Your questions have been answered: ${Object.entries(answers).map(([k, v]) => `"${k}"="${v}"`).join(', ')}. You can now continue.`, { answers });
+
+test('210/480 every ask: every principal prompt is listed with its ref, the close-shaped ones tagged, answers and harness text left out', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-a1', [
+    prompt('Please close out the session and record the learnings'),
+    human('Also rename the helper to something clearer'),
+    prompt('<task-notification><task-id>t</task-id><status>completed</status></task-notification>'),
+    ask('qa', [q('Pick', 'Which one?')]), answered('qa', { 'Which one?': 'A' }),
+    prompt('And add a changelog line for it'),
+  ]);
+  const j = json(w, root, ['--session', 'sess-a1']);
+  const all = j.askedAll;
+  assert.equal(all.total, 4);          // the opening prompt, the close ask, the mid-turn one, the changelog one
+  assert.equal(all.closeShaped, 1);
+  assert.deepEqual(all.items.map((x) => [x.channel, x.ref, x.close]),
+    [['turn', '1', false], ['turn', '2', true], ['mid-turn', '2+1', false], ['turn', '4', false]]);
+  assert.ok(all.items.every((x) => !/Which one|answered/.test(x.quote)), 'a tool result is not a prompt');
+  assert.equal(j.asked.total, 1, 'the old close-shaped list is unchanged');
+  assert.match(j.verdict.line, /4 prompt\(s\) to answer \(1 close-shaped\)/);
+  assert.equal(j.verdict.prompts, 4);
+  assert.equal(j.verdict.asks, 1);
+  const text = ccclose(w, root, ['--session', 'sess-a1']).out;
+  assert.match(text, /Asked in this session — answer each: done \/ queued \(item\) \/ not done/);
+  assert.match(text, /  2\. .* UTC · turn 2 \[close\] · "Please close out the session/);
+  assert.match(text, /  3\. .* UTC · mid-turn 2\+1 · "Also rename the helper/);
+  assert.doesNotMatch(text, /turn 1 \[close\]/);
+  assert.match(text, /4 prompt\(s\), 1 close-shaped/);
+});
+
+test('210/480 every ask: the list is capped and the whole count printed', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-a2', Array.from({ length: 45 }, (_, i) => prompt(`Do task number ${i}`)));
+  const j = json(w, root, ['--session', 'sess-a2']);
+  assert.equal(j.askedAll.total, 46);
+  assert.equal(j.askedAll.items.length, 40);
+  assert.match(ccclose(w, root, ['--session', 'sess-a2']).out, /… and 6 more \(46 in all; cctranscript lists every one\)/);
+});
+
+test('210/480 questions: each AskUserQuestion is listed with its answer, or why it has none; an unanswered one warns, never fails', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-q1', [
+    ask('q1', [q('Build', 'Build it now?')]), answered('q1', { 'Build it now?': 'Yes (Recommended)' }),
+    ask('q2', [q('Cut', 'Cut the extra?')]),
+    resultOf('q2', "[Tool call interrupted: the session ended before this call's result was recorded, so its outcome is unknown.]", "[Tool call interrupted]", true),
+    ask('q3', [q('Never', 'Never answered?')]),
+    ask('q4', [q('One', 'First of two?'), q('Two', 'Second of two?')]), answered('q4', { 'First of two?': 'X' }),
+    useOf('q5', 'AskUserQuestion', { questions: [q('Rej', 'Declined?')] }),
+    resultOf('q5', "The user doesn't want to proceed with this tool use.", { stdout: '' }, true),
+    say('Here is the plan.\n🎯 **Your call:** whether to ship now.\nBody text.\n⏳ Waiting on your word for the merge.\n🎯 **Your call:** whether to ship now.'),
+  ]);
+  const j = json(w, root, ['--session', 'sess-q1']);
+  const items = j.questions.items;
+  assert.equal(j.questions.total, 6);
+  assert.equal(j.questions.open, 5 - 1);   // q1 and the first of q4 answered: 6 questions, 4 not
+  const by = Object.fromEntries(items.map((x) => [x.question.split(':')[0], x]));
+  assert.equal(by.Build.answered, true);
+  assert.equal(by.Build.answer, 'Yes (Recommended)');
+  assert.match(by.Cut.why, /interrupted before he answered/);
+  assert.match(by.Never.why, /no result recorded/);
+  assert.equal(by.One.answered, true);
+  assert.match(by.Two.why, /no answer recorded for this question/);
+  assert.match(by.Rej.why, /declined/);
+  assert.equal(j.questions.callouts.total, 2, 'a repeated call-out line counts once');
+  assert.match(j.questions.callouts.items[0].text, /^🎯 \*\*Your call:\*\* whether to ship now\./);
+  assert.equal(j.code, 0, 'an unanswered question never fails the close');
+  assert.equal(j.verdict.status, 'warn');
+  assert.match(j.verdict.line, /4 unanswered question\(s\)/);
+  const text = ccclose(w, root, ['--session', 'sess-q1']).out;
+  assert.match(text, /✅ .* · Build: Build it now\? — answered: Yes \(Recommended\)/);
+  assert.match(text, /⚠️ .* · Never: Never answered\? — NOT answered: no result recorded/);
+  assert.match(text, /6 question\(s\), 4 unanswered/);
+  assert.match(text, /Call-out lines \(🎯 or ⏳\) in the session's own replies: 2, each an open ask/);
+});
+
+test('210/480 questions: none asked prints a known zero, and no transcript prints unknown', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-q2');
+  const text = ccclose(w, root, ['--session', 'sess-q2']).out;
+  assert.match(text, /none asked \(AskUserQuestion\)\n  0 question\(s\), 0 unanswered\n  Call-out lines \(🎯 or ⏳\) in the session's own replies: 0\n/);
+  const k = json(w, root, ['--session', 'no-such']);
+  assert.equal(k.questions.total, null);
+  assert.equal(k.askedAll.total, null);
+  assert.match(k.verdict.line, /prompts unknown · questions unknown/);
+});
+
+// A second repo with an unpushed commit from the window, and a third that was
+// only visited. The transcript's Bash records carry the directories.
+function twoRepoWorld(sid, extra = []) {
+  const w = world();
+  const root = repo(w);
+  const other = repo(w, 'other');
+  const calm = repo(w, 'calm');
+  write(other, 'docs/sessions/README.md', 'the session log\n');
+  commit(w, other, 'other: seed the session folder', NOW - 2 * 24 * 60 * MIN);
+  write(other, 'o.txt', 'o\n');
+  commit(w, other, 'other: work', NOW - 30 * MIN);
+  const recs = [
+    bashUse('o1', 'ls', other), bashUse('o2', `cd ${calm} && git log -1`, root),
+    bashUse('o3', `git -C ${other} status`, root),
+    bashUse('o4', 'ls', '/nonexistent-dir-xyz/sub'),
+    ...extra,
+  ];
+  transcript(w, sid, recs);
+  return { w, root, other, calm };
+}
+
+test('210/480 other repos: a repo the session worked in elsewhere gets the repo checks, and a failure there fails the close', () => {
+  const { w, root, other } = twoRepoWorld('sess-r1');
+  const j = json(w, root, ['--session', 'sess-r1']);
+  const o = j.otherRepos;
+  assert.equal(o.known, true);
+  assert.deepEqual(o.items.map((x) => x.name).sort(), ['calm', 'other']);
+  const rep = Object.fromEntries(o.items.map((x) => [x.name, x]));
+  assert.equal(rep.other.root, fs.realpathSync(other));
+  assert.equal(rep.other.commitsInWindow, 1);
+  assert.equal(rep.other.status, 'fail');
+  assert.deepEqual(rep.other.checks.map((c) => c.id), ['worktrees', 'branches', 'pushed', 'session-record', 'claims', 'tree']);
+  const st = Object.fromEntries(rep.other.checks.map((c) => [c.id, c.status]));
+  assert.equal(st.pushed, 'fail');
+  assert.equal(st['session-record'], 'fail', 'the session committed there and wrote no record');
+  assert.equal(rep.calm.status, 'pass');
+  assert.equal(rep.calm.commitsInWindow, 0);
+  assert.equal(rep.calm.checks.find((c) => c.id === 'session-record').status, 'na', 'a repo only visited owes no record');
+  assert.equal(o.unresolved, 1, 'the path that is in no repo is counted');
+  assert.equal(j.verdict.otherRepoFail, 2);
+  assert.equal(j.verdict.fail, 2);
+  assert.equal(j.code, 1);
+  assert.match(j.verdict.line, /2 other repo\(s\) touched/);
+  const text = ccclose(w, root, ['--session', 'sess-r1']).out;
+  assert.match(text, /❌ other · .*other · 1 commit\(s\) in the window\n +✅ worktrees · ✅ branches · ❌ pushed · ❌ record · ➖ claims · ✅ tree/);
+  assert.match(text, /✅ calm · .* 0 commit\(s\) in the window/);
+  assert.match(text, /1 path\(s\) the session worked in could not be placed in a repo/);
+});
+
+test('210/480 other repos: the home repo\'s own worktrees and scratch folders are not other repos; a worktree path created counts toward its repo', () => {
+  const w = world();
+  const root = repo(w);
+  const wt = path.join(w.base, 'wt-home');
+  sh(w, root, ['worktree', 'add', '-q', '-b', 'side', wt]);
+  const other = repo(w, 'elsewhere');
+  const otherWt = path.join(w.base, 'wt-elsewhere');
+  sh(w, other, ['worktree', 'add', '-q', '-b', 'side2', otherWt]);
+  transcript(w, 'sess-r2', [bashUse('h1', 'ls', wt), bashUse('h2', 'ls', otherWt),
+    { type: 'attachment', attachment: { type: 'environment', snapshot: { scratchpadDirectory: path.join(w.base, 'scratch') } } }]);
+  fs.mkdirSync(path.join(w.base, 'scratch'));
+  const j = json(w, root, ['--session', 'sess-r2']);
+  assert.deepEqual(j.otherRepos.items.map((x) => x.name), ['elsewhere'], 'the home worktree and the scratch folder are no other repo');
+  assert.equal(j.otherRepos.items[0].root, fs.realpathSync(other), 'checks run on the main checkout, not the linked worktree');
+});
+
+test('210/480 other repos: the identifiers line names them with their commits, counts what it could not place, and says how to name a private one', () => {
+  const { w, root } = twoRepoWorld('sess-r3');
+  const out = idRun(w, root, 'sess-r3').out;
+  assert.deepEqual(headings(out), FIELDS);
+  assert.match(out, /- \*\*Other repos\*\* \(2\):\n  - other — 1 commit\(s\) in the window; its checks: fail\n  - calm — 0 commit\(s\) in the window\n/);
+  assert.match(out, /  - 1 path\(s\) could not be placed in a repo — fill in by hand\n/);
+  assert.match(out, /  - name a private repo generically in a public record/);
+  assert.doesNotMatch(out, /fill in by hand\n.*\n## /);
+  const j = parseId(w, root, 'sess-r3');
+  assert.equal(j.otherRepos, 'other, calm');
+  assert.equal(j.touched.known, true);
+  assert.equal(j.touched.items.length, 2);
+  assert.equal(j.touched.unresolved, 1);
+  // Nothing found, and no transcript, each print a known state rather than a stale fill-in line.
+  const w2 = world();
+  const root2 = repo(w2);
+  transcript(w2, 'sess-r4');
+  assert.match(idRun(w2, root2, 'sess-r4').out, /- \*\*Other repos\*\*: none found\n/);
+  assert.match(idRun(w2, root2, 'no-such').out, /- \*\*Other repos\*\*: by hand — no transcript/);
+});
+
+test('210/480 other repos: a plain run exits 0 when every other repo is clean', () => {
+  const w = world();
+  const root = repo(w);
+  const calm = repo(w, 'calm');
+  write(root, 'docs/sessions/2020-01-01-0000-x.md', '# x\n');
+  commit(w, root, 'records: session close', NOW - 30 * MIN);
+  sh(w, root, ['push', '-q', 'origin', 'main']);
+  transcript(w, 'sess-r5', [bashUse('c1', `cd ${calm} && git log -1`, root)]);
+  const j = json(w, root, ['--session', 'sess-r5']);
+  assert.equal(j.otherRepos.items.length, 1);
+  assert.equal(j.verdict.otherRepoFail, 0);
+  assert.equal(j.code, 0);
+  assert.equal(j.verdict.status, 'pass');
+  assert.match(j.verdict.line, /^✅ ready to close/);
+});
+
+// Another session's transcript, written now (live) or a while ago (stale), with
+// the working directory it recorded.
+function peerSession(w, id, cwd, { agoMin = 0, title = 'A peer job' } = {}) {
+  const p = path.join(w.home, '.claude', 'projects', 'proj', `${id}.jsonl`);
+  const recs = [{ type: 'user', timestamp: new Date(NOW).toISOString(), cwd, gitBranch: 'main', message: { role: 'user', content: 'hello' } },
+    { type: 'ai-title', aiTitle: title }];
+  fs.writeFileSync(p, recs.map((r) => JSON.stringify(r)).join('\n') + '\n');
+  const t = new Date(Date.now() - agoMin * MIN);
+  fs.utimesSync(p, t, t);
+}
+
+test('210/480 live sessions: another session written in the last ten minutes in these repos is listed as a warning, never a failure', () => {
+  const { w, root, other } = twoRepoWorld('sess-s1');
+  sh(w, other, ['push', '-q', 'origin', 'main']);
+  peerSession(w, 'peer-in-root', root, { title: 'Peer in the root repo' });
+  peerSession(w, 'peer-in-other', other, { agoMin: 3, title: 'Peer in a touched repo' });
+  peerSession(w, 'peer-stale', root, { agoMin: 40 });
+  peerSession(w, 'peer-elsewhere', path.join(w.base, 'unrelated'), {});
+  fs.mkdirSync(path.join(w.base, 'unrelated'));
+  const j = json(w, root, ['--session', 'sess-s1']);
+  const l = j.liveSessions;
+  assert.equal(l.known, true);
+  assert.deepEqual(l.items.map((x) => x.session).sort(), ['peer-in-other', 'peer-in-root']);
+  assert.ok(!l.items.some((x) => x.session === 'sess-s1'), 'the session checked is not another');
+  assert.equal(j.verdict.liveSessions, 2);
+  assert.match(j.verdict.line, /2 other live session\(s\)/);
+  const text = ccclose(w, root, ['--session', 'sess-s1']).out;
+  assert.match(text, /Other live sessions in these repos — answer: do they have what they need from you\?\n  ⚠️ peer-in- · repo · /);
+  assert.match(text, /⚠️ peer-in- · other · .* · written 3m\d+s ago · Peer in a touched repo/);
+});
+
+test('210/480 live sessions: none is a known zero (➖), and a live peer alone only asks for a look: exit 0', () => {
+  const w = world();
+  const root = repo(w);
+  write(root, 'docs/sessions/2020-01-01-0000-x.md', '# x\n');
+  commit(w, root, 'records: session close', NOW - 30 * MIN);
+  sh(w, root, ['push', '-q', 'origin', 'main']);
+  transcript(w, 'sess-s2');
+  let j = json(w, root, ['--session', 'sess-s2']);
+  assert.equal(j.liveSessions.known, true);
+  assert.deepEqual(j.liveSessions.items, []);
+  assert.match(ccclose(w, root, ['--session', 'sess-s2']).out, /  ➖ none \(no other transcript written in the last 10 min/);
+  assert.equal(j.verdict.status, 'pass');
+  peerSession(w, 'peer-x', root);
+  j = json(w, root, ['--session', 'sess-s2']);
+  assert.equal(j.verdict.status, 'warn');
+  assert.equal(j.code, 0);
+  assert.match(j.verdict.line, /^⚠️ no check fails; some need a look/);
+});
+
+test('210/480 the default run is one command: the four listings, the verdict, then the identifiers block; --identifiers alone is the block', () => {
+  const { w, root } = twoRepoWorld('sess-o1');
+  const out = ccclose(w, root, ['--session', 'sess-o1']).out;
+  const at = (s) => out.indexOf(s);
+  const order = ['\nChecks\n', '\nAsked in this session', '\nQuestions put to the principal', '\nOther repos touched', '\nOther live sessions in these repos', '\n❌ not ready to close', '\n## Identifiers\n'];
+  const pos = order.map(at);
+  assert.ok(pos.every((x) => x >= 0), JSON.stringify(pos));
+  assert.deepEqual([...pos].sort((a, b) => a - b), pos, 'in this order');
+  const alone = idRun(w, root, 'sess-o1').out;
+  assert.ok(alone.startsWith('## Identifiers\n'));
+  assert.doesNotMatch(alone, /Asked in this session|Other live sessions/);
 });

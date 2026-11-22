@@ -5,6 +5,30 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-22 — `ccclose` takes over the close checks the session-open prompt asked in words, `210/480`)
+- **Four listings after the checks, so the close is one command.** The
+  principal: *"I want you to look at everything in the lastest version of the
+  prompt in session-open-prompt.md and look at what would be more effectively
+  built into ccclose rather than being in the prompt"*. *Asked in this session
+  — answer each* lists every principal prompt, turn and mid-turn, with its
+  `cctranscript` ref (a `[close]` tag keeps the old close-keyword signal); the
+  session answers each done, queued (item) or not done. *Questions put to the
+  principal* lists each `AskUserQuestion` with its answer, or why it has none
+  (an unanswered one is ⚠️ and never ❌), and the 🎯 or ⏳ call-out lines in the
+  session's own replies. *Other repos touched* reads the repos from the
+  transcript's working directories, `cd`s, `git -C`s, written files and
+  worktree paths, and runs the repo checks that are local git reads on each over
+  the same window; a failing check there fails the close like one at home, and
+  the identifiers block's *Other repos* line names them (it said "fill in by
+  hand") and counts the paths it could not place. *Other live sessions in these
+  repos* uses `cclive`'s own reads and is ⚠️ to answer, never ❌.
+- **Compatible.** `--json` only gains fields (`askedAll`, `questions`,
+  `otherRepos`, `liveSessions` and new verdict counts); the old `asked` list is
+  unchanged; the verdict line gains counts and `fail` now includes another
+  repo's failing check. The default run already ended with the identifiers
+  block (`210/300`). `CONCURRENCY.md` names the renamed list. The prompt's own
+  close section is the principal's to shrink, and is not touched.
+
 ### Added (2026-11-22 — `ccclose` blocks a close while anything the session launched still runs, `210/460`)
 - **`ccclose` has a fifteenth check, *Launched work finished*, and it fails
   closed.** The principal's ruling: *"Any work started by a session including

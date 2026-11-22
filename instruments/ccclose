@@ -8,8 +8,10 @@
  * from the repo, the host and the session's own transcript rather than from the
  * session's memory, which is the thing that drifts in a long session. It prints
  * the standard outputs (session id, transcript, window), fifteen checks in a
- * fixed order, the principal's close-out asks found in the transcript, and a
- * one-line verdict. The design of record is instruments/ccclose.design.md.
+ * fixed order, four listings (every prompt the principal gave, the questions put
+ * to him, the other repos the session touched, the other live sessions), a
+ * one-line verdict and the identifiers block. The design of record is
+ * instruments/ccclose.design.md.
  *
  * ATTRIBUTION IS A HEURISTIC, and the output says so on every run: "this
  * session's" commits, branches, worktrees, claims and PRs are the ones dated
@@ -65,12 +67,12 @@ OPTIONS
 
 Checks worktrees, branches, pushes, PRs, the session record, the board, live
 claims, the floor at the pushed head, review pointers, workaround-shaped
-commands (a refused delete re-routed among them), the working tree, the
-session's subagents and its scratch folder, in a repo that pins atelier whether
-the pin and floor copy are current (runs atelier's pins.py: it fetches the
-atelier checkout's origin; a failure prints "no result"), and anything else the
-session launched still running (reads the process table, fails closed), lists
-the principal's close-out asks, and ends with the identifiers block.
+commands (a refused delete re-routed among them), the working tree, subagents,
+the scratch folder, in a repo that pins atelier the pin and floor copy (runs
+pins.py: it fetches the atelier checkout's origin), and anything else the
+session launched still running (reads the process table; fails closed). Lists
+every prompt you gave, each question put to you, the other repos touched (the
+same checks there) and the other live sessions; ends with the identifiers block.
 Read-only. Exit 0 when no check fails.  Full manual: man ccclose`;
 
 // The cap on every listed set. Counts stay whole; only the lists are cut.
@@ -790,6 +792,12 @@ async function readTranscript(file) {
     // Work the session launched (check 15, 210/460): what it started, what
     // ended something, and when the principal first spoke.
     firstPrompt: null, launched: [], launchById: new Map(), stopOps: [], stopById: new Map(),
+    // Every principal prompt (210/480), the questions put to him, the
+    // assistant's own call-out lines, and the directories the session worked in.
+    prompts: [], promptsTotal: 0,
+    questions: [], questionById: new Map(),
+    callouts: [], calloutsTotal: 0, calloutSeen: new Set(),
+    dirs: new Set(),
   };
   let n = 0, k = 0;
   const rl = readline.createInterface({ input: fs.createReadStream(file), crlfDelay: Infinity });
@@ -812,6 +820,7 @@ async function readTranscript(file) {
         if (b && b.type === 'tool_result' && b.tool_use_id) {
           t.toolResults.set(b.tool_use_id, Number.isFinite(ms) ? ms : null);
           noteLaunchResult(t, b.tool_use_id, b, o);
+          noteQuestionResult(t, b.tool_use_id, b, o);
           noteCommandResult(t.cmds, b.tool_use_id, !!b.is_error, ms);
           if (t.pend.has(b.tool_use_id)) resolvePending(t, t.pend.get(b.tool_use_id), b, o);
           const del = t.delPend.get(b.tool_use_id);
@@ -852,8 +861,11 @@ async function readTranscript(file) {
       if (m) t.models.add(m);
       const content = o.message && Array.isArray(o.message.content) ? o.message.content : [];
       for (const b of content) {
+        if (b && b.type === 'text') { noteCallouts(t, b.text, ms); continue; }
         if (b.type !== 'tool_use') continue;
         noteLaunch(t, b, ms, o.cwd);
+        noteQuestion(t, b, ms);
+        noteDirs(t, b, o.cwd);
         if (b.name === 'EnterWorktree' && b.id) t.pend.set(b.id, { enter: true });
         // Variables as they stood BEFORE this command: its own assignments are
         // read in order by worktreeAdds, and noteMessageSources folds them in.
@@ -888,6 +900,10 @@ async function readTranscript(file) {
     if (t.firstPrompt === null && Number.isFinite(ms)) t.firstPrompt = ms;
     if (channel === 'turn') t.turn++; else t.midTurn++;
     const found = askSentences(text);
+    t.promptsTotal++;
+    if (t.prompts.length < ASK_CAP) {
+      t.prompts.push({ ts: Number.isFinite(ms) ? new Date(ms).toISOString() : null, channel, ref, quote: clip(text, 200), close: found.length > 0 });
+    }
     if (!found.length) continue;
     t.asksTotal++;
     if (t.asks.length < CAP) {
@@ -1715,13 +1731,25 @@ function liveProcesses(procs, sid, firstPrompt, now, env = process.env) {
   const harness = new Set();
   if (/^\d+$/.test(env.CLAUDE_PID || '')) harness.add(Number(env.CLAUDE_PID));
   for (const p of carriers) { const m = /(?:^|\s)CLAUDE_PID=(\d+)(?=\s|$)/.exec(p.rest); if (m) harness.add(Number(m[1])); }
+  // The harness's own helpers: a child of the harness started before the first
+  // prompt or named as MCP, and everything such a helper started in turn (an
+  // MCP server is often `npm exec` -> `node`, a grandchild). The closure runs
+  // over the whole table, since a wrapper that is an Apple binary shows no
+  // environment and would break the chain if only carriers were followed.
+  const helper = new Set();
+  for (const p of procs.table.values()) {
+    const started = p.ageSec === null ? null : now - p.ageSec * 1000;
+    const early = started !== null && firstPrompt !== null && started <= firstPrompt + START_SLACK_MS;
+    if (harness.has(p.ppid) && !harness.has(p.pid) && (early || MCP_CMD.test(argvWords(p.rest).slice(0, 4).join(' ')))) helper.add(p.pid);
+  }
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const p of procs.table.values()) if (!helper.has(p.pid) && !harness.has(p.pid) && helper.has(p.ppid)) { helper.add(p.pid); grew = true; }
+  }
   const kept = [];
   let excluded = 0;
   for (const p of carriers) {
-    const started = p.ageSec === null ? null : now - p.ageSec * 1000;
-    const early = started !== null && firstPrompt !== null && started <= firstPrompt + START_SLACK_MS;
-    if (own.has(p.pid) || harness.has(p.pid)
-      || (harness.has(p.ppid) && (early || MCP_CMD.test(argvWords(p.rest).slice(0, 4).join(' '))))) { excluded++; continue; }
+    if (own.has(p.pid) || harness.has(p.pid) || helper.has(p.pid)) { excluded++; continue; }
     kept.push(p);
   }
   return { kept, excluded };
@@ -2401,8 +2429,14 @@ function launchedIdentifiers(c) {
     items: c.allItems.map((x) => ({ leg: x.leg, status: x.status, text: x.text })) };
 }
 
+function otherReposText(o) {
+  if (!o.known) return `not read (${o.why})`;
+  return o.items.length ? o.items.map((r) => r.name).join(', ') : 'none';
+}
+
 async function collectIdentifiers(g) {
   const { file, t, w, sessionId, repo, b, gh, branches } = g;
+  const extras = await readExtras(g);
   const sub = await checkSubagents(file, t, true);
   const attrib = attributeCommits(repo, w, await commitEvidence(file, t));
   let board = { known: false, why: NOT_GIT };
@@ -2430,7 +2464,13 @@ async function collectIdentifiers(g) {
       ? { known: true, counts: sub.counts, items: sub.agents.map((a) => ({ id: a.id, short: a.short, description: a.description, end: a.end })) }
       : { known: false, why: sub.summary },
     launched: launchedIdentifiers(checkLaunched(t, g.sessionId, g.procs)),
-    otherRepos: 'not read by ccclose',
+    // The string stays (a field is never changed, only added to): the repo
+    // names, or why there are none to name. `touched` is the structured form.
+    otherRepos: otherReposText(extras.other),
+    touched: extras.other.known
+      ? { known: true, unresolved: extras.other.unresolved, capped: extras.other.capped || 0,
+        items: extras.other.items.map((r) => ({ name: r.name, root: r.root, commitsInWindow: r.commits, status: r.status })) }
+      : { known: false, why: extras.other.why },
     heuristic: ID_HEURISTIC,
   };
 }
@@ -2524,10 +2564,253 @@ function renderIdentifiers(r) {
     o.push(`  - other launched work: ${k.processes} live process(es) · ${k.background} background command(s) not ended · ${k.launches} detached launch(es) not shown finished · ${k.harness} harness-started item(s) not ended · ${k.scheduled} schedule(s) pending · ${k.ended} ended or stopped${lw.psRead ? '' : ` · process table not read (${lw.psWhy}), so a live process cannot be ruled out`}`);
     for (const x of lw.items) o.push(`    - ${ICON[x.status]} ${LEG_TAG[x.leg]}: ${x.text}`);
   }
-  o.push(`- **Other repos**: ${r.otherRepos} — fill in by hand`);
+  // Other repos (210/480): read from the transcript's own working directories,
+  // `cd`s, `git -C`s and worktree paths, and the repo checks run on each.
+  const tr = r.touched;
+  if (!tr.known) o.push(`- **Other repos**: ${BY_HAND(tr.why)}`);
+  else if (!tr.items.length) {
+    o.push(`- **Other repos**: none found${tr.unresolved ? ` · ${tr.unresolved} path(s) could not be placed in a repo — fill in by hand` : ''}`);
+  } else {
+    list(`- **Other repos** (${tr.items.length}):`, tr.items.map((x) => `${x.name} — ${x.commitsInWindow === null ? 'commits unknown' : `${x.commitsInWindow} commit(s) in the window`}${x.status === 'pass' ? '' : `; its checks: ${x.status}`}`));
+    if (tr.capped) o.push(`  - ${tr.capped} more not read`);
+    if (tr.unresolved) o.push(`  - ${tr.unresolved} path(s) could not be placed in a repo — fill in by hand`);
+    o.push('  - name a private repo generically in a public record (RECORD.md § The record is public); the closing message to the principal names it');
+  }
   o.push('');
   o.push(`*Attribution: ${r.heuristic}.*`);
   return o.join('\n');
+}
+
+// --- what the prompt asked in words (210/480) --------------------------------
+//
+// Four reads that used to live in the session-open prompt as sentences the
+// session answered from memory: every ask, every question put to the principal,
+// the other repos the session touched, and the other live sessions. Each is a
+// listing for the session to answer. None is a check number: the fifteen stay
+// fixed, and only an unanswered question, a live peer or a dirty or unpushed
+// repo elsewhere reaches the verdict (a repo check that fails elsewhere fails
+// the close, as at home; the rest are at most a warning).
+
+// Every principal prompt is listed (the point is "everything I asked"), so the
+// cap is higher than the 25 of a check's list; the count is printed whole.
+const ASK_CAP = 40;
+
+// The assistant's own call-out lines: a line that carries 🎯 (a decision or
+// action that is the principal's) or ⏳ (time-sensitive, waiting on him).
+const CALLOUT_RE = /[🎯⏳]/u;
+function noteCallouts(t, text, ms) {
+  if (typeof text !== 'string' || !CALLOUT_RE.test(text)) return;
+  for (const raw of text.split('\n')) {
+    if (!CALLOUT_RE.test(raw)) continue;
+    const line = clip(raw.replace(/^[\s>*#-]+/, ''), 200);
+    if (!line || t.calloutSeen.has(line)) continue;
+    t.calloutSeen.add(line);
+    t.calloutsTotal++;
+    if (t.callouts.length < CAP) t.callouts.push({ ts: Number.isFinite(ms) ? new Date(ms).toISOString() : null, text: line });
+  }
+}
+
+// AskUserQuestion: each call's questions, then the result that answers them.
+// The result carries `toolUseResult.answers` ({question: chosen label}); the
+// text form ("<question>"="<label>") is the fallback. An error result is not an
+// answer: the session ended first, or the principal declined.
+function noteQuestion(t, b, ms) {
+  if (b.name !== 'AskUserQuestion') return;
+  const qs = b.input && Array.isArray(b.input.questions) ? b.input.questions : [];
+  const q = {
+    id: b.id || null, ts: Number.isFinite(ms) ? ms : null,
+    items: qs.map((x) => ({ header: x && typeof x.header === 'string' ? x.header : '', question: x && typeof x.question === 'string' ? x.question : '' })),
+    result: null,
+  };
+  t.questions.push(q);
+  if (b.id) t.questionById.set(b.id, q);
+}
+const ANSWER_PAIR = /"((?:[^"\\]|\\.)*)"\s*=\s*"((?:[^"\\]|\\.)*)"/g;
+function noteQuestionResult(t, id, b, o) {
+  const q = t.questionById.get(id);
+  if (!q) return;
+  const text = typeof b.content === 'string' ? b.content : cct.extractText(b.content);
+  const tur = o && o.toolUseResult;
+  let answers = {};
+  if (tur && typeof tur === 'object' && tur.answers && typeof tur.answers === 'object') answers = { ...tur.answers };
+  else if (!b.is_error) for (const m of text.matchAll(ANSWER_PAIR)) answers[m[1].replace(/\\(.)/g, '$1')] = m[2].replace(/\\(.)/g, '$1');
+  q.result = { isError: !!b.is_error, text: clip(text, 160), answers };
+}
+
+// One line per question: ✅ answered with the chosen label, ⚠️ not answered with
+// why. A multi-question call lists each question.
+function questionEntries(t) {
+  const out = [];
+  for (const q of t.questions) {
+    const items = q.items.length ? q.items : [{ header: '', question: '(no question text)' }];
+    for (const it of items) {
+      const label = clip(it.header ? `${it.header}: ${it.question}` : it.question, 110);
+      const r = q.result;
+      let answered = false, answer = null, why = null;
+      if (!r) why = 'no result recorded (the session ended or the call is still waiting)';
+      else if (r.isError) {
+        why = /interrupted|session ended/i.test(r.text) ? 'the call was interrupted before he answered'
+          : /doesn'?t want|declin|reject|denied/i.test(r.text) ? 'he declined to answer' : `the call failed (${clip(r.text, 60)})`;
+      } else {
+        const a = r.answers[it.question];
+        if (typeof a === 'string' && a) { answered = true; answer = clip(a, 100); }
+        else if (Object.keys(r.answers).length === 0) why = 'a result with no readable answer';
+        else why = 'no answer recorded for this question';
+      }
+      out.push({ ts: q.ts === null ? null : new Date(q.ts).toISOString(), question: label, answered, answer, why });
+    }
+  }
+  return out;
+}
+
+// --- the directories a session worked in -------------------------------------
+
+const CD_RE = /(?:^|[\n;&|(]\s*)cd\s+("[^"]*"|'[^']*'|[^\s;&|()]+)/g;
+const GIT_C_RE = /\bgit\s+(?:[^|;&\n]*?\s)?-C\s+("[^"]*"|'[^']*'|[^\s;&|]+)/g;
+const DIRS_CAP = 2000;
+// A Bash record's cwd, each `cd <dir>` and `git -C <dir>` in the command (a
+// relative one resolved against the cwd), and the folder of a file the session
+// wrote or edited. Worktree paths the session created come from t.worktrees.
+function noteDirs(t, b, cwd) {
+  const input = b.input && typeof b.input === 'object' ? b.input : {};
+  const add = (d) => { if (d && t.dirs.size < DIRS_CAP) t.dirs.add(path.normalize(d)); };
+  if (b.name === 'Bash') {
+    if (typeof cwd === 'string' && cwd) add(cwd);
+    const command = typeof input.command === 'string' ? input.command : '';
+    if (!command) return;
+    const code = codeOf(command);
+    const base = typeof cwd === 'string' && cwd ? cwd : null;
+    const word = (w) => resolvePath(w.replace(/^(["'])(.*)\1$/, '$2'), base, new Map(), null);
+    if (code.includes('cd')) for (const m of code.matchAll(CD_RE)) add(word(m[1]));
+    if (code.includes('-C')) for (const m of code.matchAll(GIT_C_RE)) add(word(m[1]));
+  } else if ((b.name === 'Write' || b.name === 'Edit' || b.name === 'NotebookEdit') && typeof input.file_path === 'string' && path.isAbsolute(input.file_path)) {
+    add(path.dirname(input.file_path));
+  }
+}
+
+// Where the session worked that is a git repo other than the one checked.
+// Each directory is taken to its nearest existing ancestor, then to its git
+// top level and common dir; a repo sharing the checked repo's common dir (its
+// own worktrees) is the home repo, not another. A directory under the scratch
+// folder or a temp folder is no repo of interest and is not counted. One that
+// is in no git repo any more (a put-away worktree, a plain folder) is counted
+// as unresolved, so the identifiers line says how many it could not place.
+const gitOut = (dir, args) => { const r = git(dir, args); return r.ok ? r.out.trim() : null; };
+function otherReposTouched(t, repo, w, sid) {
+  if (!t) return { known: false, why: 'no transcript, so the repos the session worked in cannot be read', items: [], unresolved: 0 };
+  // Scratch and temp folders and ~/.claude are never worth a "could not place"
+  // count; a git repo found under one still counts (a fixture, a clone).
+  const quietRoots = [t.scratch, '/tmp', '/private/tmp', os.tmpdir(), path.join(os.homedir(), '.claude')].filter(Boolean).map((r) => safeReal(r));
+  const quiet = (d) => quietRoots.some((r) => d === r || d.startsWith(r + path.sep) || safeReal(d).startsWith(r + path.sep));
+  const home = safeReal(os.homedir());
+  const homeCommon = repo.isGit && repo.commonDir ? safeReal(repo.commonDir) : null;
+  const dirs = new Set(t.dirs);
+  for (const wt of t.worktrees) if (wt.path) dirs.add(path.normalize(wt.path));
+  const groups = new Map();      // common dir -> { root, top, dirs }
+  const known = [];              // resolved top levels, to skip dirs under them
+  let unresolved = 0;
+  for (const d of [...dirs].sort()) {
+    if (!path.isAbsolute(d)) continue;
+    if (known.some((k) => d === k.top || d.startsWith(k.top + path.sep))) continue;
+    let p = d;
+    while (!isDir(p) && path.dirname(p) !== p) p = path.dirname(p);
+    if (p === '/' || safeReal(p) === home) { if (!quiet(d)) unresolved++; continue; }
+    const top = gitOut(p, ['rev-parse', '--show-toplevel']);
+    const common = top && gitOut(p, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+    if (!top || !common) { if (!quiet(d)) unresolved++; continue; }
+    known.push({ top });
+    const key = safeReal(common);
+    if (homeCommon && key === homeCommon) continue;
+    const g = groups.get(key) || { common: key, tops: new Set() };
+    g.tops.add(top);
+    groups.set(key, g);
+  }
+  const items = [];
+  let capped = 0;
+  for (const g of groups.values()) {
+    // Checks run against the main checkout where it exists (a repo's branches,
+    // pushes and claims are repo-wide), else the top level the session used.
+    const main = path.basename(g.common) === '.git' ? path.dirname(g.common) : null;
+    const root = main && isDir(main) ? main : [...g.tops][0];
+    if (items.length >= OTHER_REPO_CAP) { capped++; continue; }
+    const rf = repoFacts(root);
+    if (!rf.isGit) { unresolved++; continue; }
+    items.push(otherRepoReport(rf, w, sid));
+  }
+  items.sort((a, b) => (b.commits || 0) - (a.commits || 0) || (a.name < b.name ? -1 : 1));
+  return { known: true, items, unresolved, capped };
+}
+const OTHER_REPO_CAP = 12;
+
+// The repo checks that make sense elsewhere, over the same window: all local
+// git reads (no gh, no fetch, no pin). The session record is judged only where
+// the session committed: a repo it merely read has no record to owe.
+function otherRepoReport(rf, w, sid) {
+  const b = board(rf);
+  const wrote = rf.isGit && w ? windowCommits(rf, w, ['--branches', '--remotes']) : null;
+  const record = wrote !== null && !wrote.length
+    ? check('session-record', 'Session record written', 'na', 'no commit from the window in this repo, so nothing written here')
+    : checkSessionRecord(rf, w);
+  const checks = [checkWorktrees(rf, w), checkBranches(rf, w), checkPushed(rf, w), record, checkClaims(rf, w, b, sid), checkTree(rf)];
+  const status = checks.some((c) => c.status === 'fail') ? 'fail' : checks.some((c) => c.status === 'warn') ? 'warn' : 'pass';
+  return { name: path.basename(rf.root), root: rf.root, commits: wrote === null ? null : wrote.length, status, checks };
+}
+
+// --- other live sessions in the same repos -----------------------------------
+//
+// cclive's own reads, required rather than copied: a transcript written in the
+// last FRESH_MS (ten minutes, check 12's bound) and the cwd it recorded. A
+// session counts when that cwd sits in the checked repo or one the session
+// touched (same git common dir). The session being checked, and the one running
+// ccclose, are not "other". Required here and not at the top: cclive requires
+// ccclose for FRESH_MS, so a top-level require would be a cycle.
+function otherLiveSessions(g, others) {
+  let cl;
+  try { cl = require(path.join(__dirname, 'cclive')); } catch (e) { return { known: false, why: `cclive could not be loaded (${clip(e.message, 80)})`, items: [] }; }
+  const projects = path.join(os.homedir(), '.claude', 'projects');
+  const now = Date.now();
+  const { fresh, stats } = cl.collectTranscripts(projects, now, FRESH_MS);
+  if (!stats.readable) return { known: false, why: `the transcripts folder is unreadable (${stats.error}), so live sessions are unknown, not zero`, items: [] };
+  const mine = new Set([g.sessionId, process.env.CLAUDE_CODE_SESSION_ID].filter(Boolean));
+  const commons = new Map();      // safeReal(common dir) -> repo name
+  const addRepo = (root) => {
+    const c = gitOut(root, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+    if (c) commons.set(safeReal(c), path.basename(c) === '.git' ? path.basename(path.dirname(c)) : path.basename(root));
+  };
+  if (g.repo.isGit) addRepo(g.repo.root);
+  for (const r of others.items || []) addRepo(r.root);
+  const bySession = new Map();
+  for (const f of fresh) {
+    if (mine.has(f.session)) continue;
+    const e = bySession.get(f.session) || { session: f.session, lastMs: 0, parent: null };
+    if (f.mtimeMs > e.lastMs) e.lastMs = f.mtimeMs;
+    e.parent = f.agent ? path.join(path.dirname(path.dirname(path.dirname(f.file))), `${f.session}.jsonl`) : f.file;
+    bySession.set(f.session, e);
+  }
+  const items = [];
+  for (const e of bySession.values()) {
+    if (!isFile(e.parent)) continue;
+    const info = cl.tailInfo(e.parent);
+    if (!info.cwd || !path.isAbsolute(info.cwd)) continue;
+    let p = info.cwd;
+    while (!isDir(p) && path.dirname(p) !== p) p = path.dirname(p);
+    const c = gitOut(p, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+    const repoName = c && commons.get(safeReal(c));
+    if (!repoName) continue;
+    items.push({ session: e.session, short: e.session.slice(0, 8), repo: repoName, where: tildePath(info.cwd), branch: info.branch || null,
+      title: info.title ? clip(info.title, 60) : null, lastWritten: new Date(e.lastMs).toISOString(), agoMs: Math.max(0, now - e.lastMs) });
+  }
+  items.sort((a, b) => a.agoMs - b.agoMs);
+  return { known: true, items };
+}
+
+// Computed once per run (both forms print it) and kept on the gathered facts.
+async function readExtras(g) {
+  if (g.extras) return g.extras;
+  const other = otherReposTouched(g.t, g.repo, g.w, g.sessionId);
+  const live = otherLiveSessions(g, other);
+  g.extras = { other, live };
+  return g.extras;
 }
 
 // --- assemble and render -------------------------------------------------
@@ -2587,11 +2870,28 @@ async function collect(opts, gathered) {
   const commitsIn = repo.isGit && w ? windowCommits(repo, w, ['--branches', '--remotes']) : null;
   const unpushed = repo.isGit && w && repo.remotes.length ? windowCommits(repo, w, ['--branches', '--not', '--remotes']) : null;
   const count = (s) => checks.filter((c) => c.status === s).length;
-  const v = { fail: count('fail'), warn: count('warn'), pass: count('pass'), na: count('na'), asks: t ? t.asksTotal : null };
-  v.status = v.fail ? 'fail' : v.warn ? 'warn' : 'pass';
-  v.line = `${ICON[v.status]} ${v.fail ? 'not ready to close' : v.warn ? 'no check fails; some need a look' : 'ready to close'}`
+  // The four listings of 210/480. A failing repo check in another repo fails
+  // the close like one at home; an unanswered question, a live peer and a warn
+  // elsewhere only ask for a look.
+  const { other, live: liveSess } = await readExtras(g);
+  const questions = t ? questionEntries(t) : null;
+  const otherChecks = other.items.flatMap((r) => r.checks);
+  const otherFail = otherChecks.filter((c) => c.status === 'fail').length;
+  const otherWarn = otherChecks.filter((c) => c.status === 'warn').length;
+  const openQuestions = questions ? questions.filter((q) => !q.answered).length : null;
+  const v = {
+    fail: count('fail') + otherFail, warn: count('warn'), pass: count('pass'), na: count('na'), asks: t ? t.asksTotal : null,
+    prompts: t ? t.promptsTotal : null, openQuestions, liveSessions: liveSess.known ? liveSess.items.length : null,
+    otherRepos: other.known ? other.items.length : null, otherRepoFail: otherFail, otherRepoWarn: otherWarn,
+  };
+  const looks = v.warn + otherWarn + (openQuestions || 0) + (v.liveSessions || 0);
+  v.status = v.fail ? 'fail' : looks ? 'warn' : 'pass';
+  v.line = `${ICON[v.status]} ${v.fail ? 'not ready to close' : looks ? 'no check fails; some need a look' : 'ready to close'}`
     + ` · ${v.fail} fail · ${v.warn} unknown or partial · ${v.pass} pass · ${v.na} not applicable`
-    + ` · ${v.asks === null ? 'asks unknown' : `${v.asks} ask(s) to answer`}`;
+    + ` · ${v.prompts === null ? 'prompts unknown' : `${v.prompts} prompt(s) to answer (${v.asks} close-shaped)`}`
+    + ` · ${openQuestions === null ? 'questions unknown' : `${openQuestions} unanswered question(s)`}`
+    + ` · ${v.liveSessions === null ? 'live sessions unknown' : `${v.liveSessions} other live session(s)`}`
+    + ` · ${v.otherRepos === null ? 'other repos unknown' : `${v.otherRepos} other repo(s) touched`}`;
   return {
     tool: 'ccclose',
     session: {
@@ -2615,10 +2915,19 @@ async function collect(opts, gathered) {
     models: t ? t.models : null,
     checks,
     asked: { heuristic: ASK_HEURISTIC, total: t ? t.asksTotal : null, items: t ? t.asks : [] },
+    // Added with 210/480; nothing above changed.
+    askedAll: { total: t ? t.promptsTotal : null, closeShaped: t ? t.asksTotal : null, items: t ? t.prompts : [] },
+    questions: { total: questions ? questions.length : null, open: openQuestions, items: questions || [],
+      callouts: { total: t ? t.calloutsTotal : null, items: t ? t.callouts : [] } },
+    otherRepos: { known: other.known, why: other.why || null, unresolved: other.unresolved, capped: other.capped || 0,
+      items: other.items.map((r) => ({ name: r.name, root: r.root, commitsInWindow: r.commits, status: r.status,
+        checks: r.checks.map((c) => ({ id: c.id, label: c.label, status: c.status, summary: c.summary, items: c.items, itemsTotal: c.itemsTotal })) })) },
+    liveSessions: { known: liveSess.known, why: liveSess.why || null, items: liveSess.items },
     verdict: v,
   };
 }
 
+const OTHER_SHORT = { worktrees: 'worktrees', branches: 'branches', pushed: 'pushed', 'session-record': 'record', claims: 'claims', tree: 'tree' };
 const num = (x) => (x === null || x === undefined ? 'unknown' : String(x));
 
 function render(r) {
@@ -2648,14 +2957,67 @@ function render(r) {
     if (c.itemsTotal > c.items.length) out.push(`       … and ${c.itemsTotal - c.items.length} more`);
   }
   out.push('');
-  out.push(`Asked of this close — answer each  (${ASK_HEURISTIC})`);
-  if (r.asked.total === null) out.push('  unknown — no transcript');
-  else if (!r.asked.items.length) out.push('  none found');
+  // Every ask: all the principal's prompts, turn and mid-turn, each answered
+  // done, queued (item) or not done. [close] marks the keyword heuristic's
+  // close-out-shaped ones, the signal the old list carried (210/480).
+  const aa = r.askedAll;
+  out.push('Asked in this session — answer each: done / queued (item) / not done');
+  out.push(`  (every principal prompt, turn and mid-turn; [close] = ${ASK_HEURISTIC})`);
+  if (aa.total === null) out.push('  unknown — no transcript');
+  else if (!aa.items.length) out.push('  none found');
   else {
-    r.asked.items.forEach((a, i) => {
-      out.push(`  ${i + 1}. ${a.ts ? utc(Date.parse(a.ts)) + ' UTC' : 'unknown time'} · ${a.channel} ${a.ref} · "${a.quote}"`);
+    aa.items.forEach((a, i) => {
+      out.push(`  ${i + 1}. ${a.ts ? utc(Date.parse(a.ts)) + ' UTC' : 'unknown time'} · ${a.channel} ${a.ref}${a.close ? ' [close]' : ''} · "${a.quote}"`);
     });
-    if (r.asked.total > r.asked.items.length) out.push(`  … and ${r.asked.total - r.asked.items.length} more`);
+    if (aa.total > aa.items.length) out.push(`  … and ${aa.total - aa.items.length} more (${aa.total} in all; cctranscript lists every one)`);
+    else out.push(`  ${aa.total} prompt(s), ${aa.closeShaped} close-shaped`);
+  }
+  out.push('');
+  // Questions put to the principal, and the assistant's own call-out lines.
+  const qs = r.questions;
+  out.push('Questions put to the principal — an unanswered one: record it on the board');
+  if (qs.total === null) out.push('  unknown — no transcript');
+  else {
+    if (!qs.items.length) out.push('  none asked (AskUserQuestion)');
+    for (const q of qs.items.slice(0, CAP)) {
+      out.push(`  ${q.answered ? '✅' : '⚠️'} ${q.ts ? utc(Date.parse(q.ts)) + ' UTC' : 'unknown time'} · ${q.question} — ${q.answered ? `answered: ${q.answer}` : `NOT answered: ${q.why}`}`);
+    }
+    if (qs.items.length > CAP) out.push(`  … and ${qs.items.length - CAP} more`);
+    out.push(`  ${qs.total} question(s), ${qs.open} unanswered`);
+    out.push(`  Call-out lines (🎯 or ⏳) in the session's own replies: ${qs.callouts.total}${qs.callouts.total ? ', each an open ask: answered or queued?' : ''}`);
+    for (const c of qs.callouts.items) out.push(`    - ${c.ts ? utc(Date.parse(c.ts)) + ' UTC · ' : ''}${c.text}`);
+    if (qs.callouts.total > qs.callouts.items.length) out.push(`    … and ${qs.callouts.total - qs.callouts.items.length} more`);
+  }
+  out.push('');
+  // Other repos the session worked in.
+  const or = r.otherRepos;
+  out.push('Other repos touched — the same checks as at home, over the same window');
+  if (!or.known) out.push(`  unknown — ${or.why}`);
+  else {
+    if (!or.items.length) out.push('  none');
+    for (const rp of or.items) {
+      out.push(`  ${ICON[rp.status]} ${rp.name} · ${tildePath(rp.root)} · ${rp.commitsInWindow === null ? 'commits unknown' : `${rp.commitsInWindow} commit(s) in the window`}`);
+      out.push(`       ${rp.checks.map((c) => `${ICON[c.status]} ${OTHER_SHORT[c.id] || c.id}`).join(' · ')}`);
+      for (const c of rp.checks.filter((x) => x.status === 'fail' || x.status === 'warn')) {
+        out.push(`       ${ICON[c.status]} ${c.label}: ${c.summary}`);
+        for (const it of c.items.slice(0, 3)) out.push(`         - ${it}`);
+        if (c.itemsTotal > Math.min(3, c.items.length)) out.push(`         … and ${c.itemsTotal - Math.min(3, c.items.length)} more`);
+      }
+    }
+    if (or.capped) out.push(`  … and ${or.capped} more repo(s) not checked`);
+    out.push(`  ${or.unresolved} path(s) the session worked in could not be placed in a repo (a put-away worktree, a plain folder): add by hand any that was a repo`);
+  }
+  out.push('');
+  // Other live sessions in the same repos.
+  const ls = r.liveSessions;
+  out.push('Other live sessions in these repos — answer: do they have what they need from you?');
+  if (!ls.known) out.push(`  ⚠️ unknown — ${ls.why}`);
+  else if (!ls.items.length) out.push('  ➖ none (no other transcript written in the last 10 min whose working directory is in these repos)');
+  else {
+    for (const x of ls.items.slice(0, CAP)) {
+      out.push(`  ⚠️ ${x.short} · ${x.repo} · ${x.where}${x.branch ? ` (${x.branch})` : ''} · written ${cct.humanDelta(x.agoMs, false)} ago${x.title ? ` · ${x.title}` : ''}`);
+    }
+    if (ls.items.length > CAP) out.push(`  … and ${ls.items.length - CAP} more`);
   }
   out.push('');
   out.push(r.verdict.line);
@@ -2682,7 +3044,7 @@ async function main() {
   process.exit(r.verdict.fail ? 1 : 0);
 }
 
-if (require.main === module) main();
-
 module.exports = { launchForms, readProcs, checkLaunched, parseEtime, argvShown, parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
   judgeAgent, FRESH_MS, checkPin, locateAtelier, board, CLAIM_LINE, worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };
+
+if (require.main === module) main();
