@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the evidence-window rule (`115/010`), the check declaration standard's design (`115/120`), the pre-flip settings gate (`260/070`), the moving-bound sentence (`320/420`).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: the evidence-window rule (`115/010`), the check declaration standard's design (`115/120`), the pre-flip settings gate (`260/070`), the moving-bound sentence (`320/420`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -25,3 +25,22 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ PASS RAN 2026-11-22 UTC (Fable 5.1 reviewer, both acts; off-tier
+      orchestrator session 3715b04c, started by drain session eca14b23, formed
+      no finding): **PASS-WITH-FINDINGS, 0 MAJOR, 3 MODERATE, 8 minor,
+      3 notes** (EW1–EW14; EW10–EW14 formed at reconcile). Verdict, sibling
+      and review log are folded into
+      `docs/reviews/2026-11-14-0211-evidence-window-declaration-settings-gate-cold.md`.
+      No MAJOR stands. The MODERATEs: EW1, the warn-only carve-out has no
+      re-entry when a check moves from warn to block; EW2, two census cells
+      contradict the tests and the ❌ propagated (verdict's words); EW3, the
+      settings gate enumerates no threats and misses settings a flip exposes.
+      🎯 Owed to the principal (rule 3, self-authored doctrine): a ruling on
+      every finding, EW1–EW14, to accept or reject each; the reviewer's
+      counsel sits beneath each finding in the verdict. Nothing is applied.
+      Routing once ruled: EW2 re-marks the census (step 0's `Unmet` text
+      follows under `160/1430`); EW3 and EW10 land in the design note and
+      `AUTONOMY.md`, with the settings tool's read list following under
+      `260/130`; EW1 takes a `GUARDS.md` sentence and a `test_floor.py` pin;
+      EW11 bears on `320/420` part (b) before it is built; the minors are
+      one-line doctrine or design-note edits, each queuing its own pointer.
