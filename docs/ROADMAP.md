@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 128 | 4 | 60 | 50 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 129 | 3 | 61 | 49 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 268 | 4 | 90 | 52 |
+| **All sections** | 269 | 3 | 91 | 51 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
