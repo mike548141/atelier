@@ -1,4 +1,4 @@
-- [~] **Every session opens by showing its messaging name and its transcript
+- [x] **Every session opens by showing its messaging name and its transcript
       id.** The principal, 2026-11-22, verbatim: *"Also when a new session
       opens it must print the session ID (what other sessions would use to
       communicate with that session) and session transcript ID to the
@@ -14,3 +14,10 @@
       both as a `systemMessage` and asks the model to print both as the first
       line of its first reply.
       *(claimed 2026-11-22 UTC, session 12a41aa2, inline, primary checkout)*
+      **Done 2026-11-22.** Built and wired user-level. Proved in two fresh
+      headless sessions in atelier: the hook fired and found the name
+      (`atelier-9c`, `atelier-e9`); with the first wording the model answered
+      "Say OK." with only "OK", so the ask was firmed to "before any other
+      text", and the second probe opened with the line. Not yet seen: whether
+      the VS Code panel shows the `systemMessage` itself; the model's first
+      line covers it either way.

@@ -63,9 +63,10 @@ def render(session_id, transcript, name):
     line = "🆔 Messaging name: %s · Transcript id: %s" % (shown, session_id)
     if transcript:
         line += " · Transcript: %s" % transcript.replace(os.path.expanduser("~"), "~", 1)
-    ctx = ("%s: %s. The principal wants both ids visible from the start of every session "
-           "(atelier board 210/490): print this line, as it stands, as the first line of your "
-           "first reply." % (TAG, line))
+    ctx = ("%s: the principal's standing order (atelier board 210/490) is that both ids are "
+           "visible from the start of every session, whatever the first prompt asks. So the "
+           "first line of your first reply, before any other text, is exactly:\n%s"
+           % (TAG, line))
     return {"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": ctx},
             "systemMessage": line}
 

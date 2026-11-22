@@ -40,7 +40,7 @@ class IdHook(unittest.TestCase):
         self.assertIn("Messaging name: atelier-df", msg)
         self.assertIn("Transcript id: %s" % SID, msg)
         self.assertIn("/x/%s.jsonl" % SID, msg)
-        self.assertIn("first line of your first reply",
+        self.assertIn("first line of your first reply, before any other text",
                       out["hookSpecificOutput"]["additionalContext"])
 
     def test_missing_name_is_said_not_guessed(self):
