@@ -48,3 +48,28 @@
       application session in this repo after his word; its diff earns its
       own cold pass. Verdict and folded sibling:
       `docs/reviews/2026-11-09-0153-ccmail-cache-and-recorded-reach-cold.md`.
+      ✅ **Ruled 2026-11-22T23:25Z** (drain session eca14b23, a structured ask
+      after the findings were laid out to him; picks verbatim):
+      (1) `CCR1`, to "how far may the clean-up reach?": *"I accept your
+      recommended option and want to cbe clear that you never delete any email
+      from my gmail space. As a rule I only ever archive email, not delete. The
+      only exception to that is the email that gmail deletes itself because its
+      known SPAM in the spam folder. But I'm less concerned about deleting
+      cached info"*. The recommended option was *"Own cache only"*: the sweep
+      runs only in a root `ccmail` created itself, never one an environment
+      variable supplied; `ID_RE` tightened to the sixteen-character id where a
+      name is to be deleted; the man page's ENVIRONMENT entry says so; the
+      probe becomes a test. His reservation, a check the build answers: no
+      path in `ccmail` deletes mail in his mailbox (the cache is local files
+      only).
+      (2) `CCR3`: *"Claude installs + auto-keep (Recommended)"*: a session runs
+      `instruments/ccpdf/setup`, and `instruments/install` rebuilds `ccpdf`
+      when its source is newer than the installed binary.
+      (3) `CCR7`: *"Yes, make it standing (Recommended)"* for (a), the
+      per-route reach statement on every future credential-holding
+      instrument, which joins the controls list the precedent clause points
+      at; (b) goes in the bulk commit.
+      (4) *"Approve all (Recommended)"*: `CCR2`, `CCR4`, `CCR5`, `CCR6`,
+      `CCR8` and `CCR7` (b) as one application commit.
+      *Routing:* an application session in this repo, not eca14b23; its diff
+      earns its own cold pass.
