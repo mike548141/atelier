@@ -18,6 +18,12 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
    start (`210/490`).
 5. *"committ it"*: his own edit to the prompt.
 6. His close-out paragraph.
+7. Mid-turn, verbatim: *"Also do the same for anything else that we can
+   build as deterministic code and hook into sessions instead of using the
+   prompt. But be mindful in all of these changes that I only use the prompt
+   when I think its useful too, there are some sessions where I purposely
+   dont want to give some of the commands that are in the template
+   prompt"*.
 
 ## What happened
 
@@ -41,6 +47,23 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
   separate hook message.
 - His prompt edit (the no-questions line moved into *Working with me*)
   landed as `996beee6`.
+- **The prompt's close section is the short form** (`7700128d`), on his
+  answer after the line-by-line walk-through; `210/480` closed.
+- **`210/510`**, a hand-up (#139, landed by hand since its index copy
+  conflicted): check 15 flagged the `grep` that `ccclose` was piped into.
+  This session's own close hit it too. Fixed (`54f91ad3`): everything under
+  ccclose's parent shell is its own command, unless that parent is the
+  harness.
+- **His caveat sorted the rest three ways:** a hook runs in every session, so
+  only rules binding every session go there (`idhook`; `210/530`, a commit
+  gate for review independence, queued); a command the prompt runs stays
+  opt-in (`ccclose`, and now `ccopen`); and how a run should go stays prompt
+  words. "Never start a successor" must not become a hook: his Fable drains
+  launch sessions on purpose.
+- **`210/520` `ccopen`** built by a second Sonnet worker (worktree
+  `atelier-qr-12a4-ccopen`): seven reads at open, one verdict; 34 tests;
+  landed (`6be35af7`, `1568acce`), installed onto PATH, dogfooded on atelier.
+  Cold pass queued: `160/1720`.
 - The floor at `2992dd9d` failed one new test on Linux (a peer exactly 3m
   old printed "3m"; a sub-second age printed as a raw float). Fixed in
   `8556061a`; the floor at `8556061a` is green.
@@ -57,6 +80,10 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
   real asks: the keyword filter was the gap `210/480` closes.
 - A fresh session read the principal's own uncommitted edit as this
   session's work. Dirty work proves someone is editing, not who.
+- This session stamped its claims in the item's last paragraph; `cclive`
+  reads a claim's stamp only near the checkbox line (where `CONCURRENCY.md`
+  puts it), so its own `ccopen` worktree read as left by no live session.
+  Stamp the claim on the checkbox line.
 
 ## Decided
 
@@ -68,8 +95,10 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
 
 ## Owed
 
-- ⏳ `160/1710`: Fable cold pass on check 15, the listings and `idhook`;
-  waits for his approval.
+- 🎯 `210/520`: the prompt edit for `ccopen`, after a walk-through.
+- ⏳ `160/1710` (check 15, the listings, `idhook`, the `210/510` fix) and
+  `160/1720` (`ccopen`): Fable cold passes; wait for his approval.
+- `210/530`: the review-independence commit gate.
 - `210/500`: `modelguard` refuses a lookup of the `claude` binary.
 
 ## Identifiers
@@ -78,12 +107,15 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
 - **Commits**: `8ef055ee` (fold merge, over the 50-commit replay
   `78aef09c..bbf5cf10`), `1924ff0d`, `c47115e2`, `83312040`, `9515ac7f`,
   `4a63f3cd`, `f088616a`, `996beee6`,
-  `20fd0f09`, `e4d572d1`, `f003c8a3`, `2992dd9d` (this record), `8556061a`, and this note
-- **Pull requests**: none
-- **Board**: created `210/480`, `210/490`, `210/500`, `160/1710`; completed
-  `210/460`, `210/480`, `210/490`
+  `20fd0f09`, `e4d572d1`, `f003c8a3`, `2992dd9d` (this record), `8556061a`, `5847bf5d`, `7700128d`, `54f91ad3`,
+  `950e2591`, `49c09213`, `6be35af7`, `1568acce`, `b006af15`, and this note
+- **Pull requests**: #139 (a child's hand-up), landed by hand and closed
+- **Board**: created `210/480`, `210/490`, `210/500`, `210/520`, `210/530`,
+  `160/1710`, `160/1720`; landed `210/510` (#139); completed `210/460`,
+  `210/480`, `210/490`, `210/510`; `210/520` open (🎯)
 - **Worktrees and branches**: `atelier-ccclose-460-480` /
-  `ccclose-460-480`, landed and removed
-- **Agents**: one Sonnet worker, reported
+  `ccclose-460-480` and `atelier-qr-12a4-ccopen` / `ccopen`, landed and
+  removed
+- **Agents**: two Sonnet workers, both reported
 - **Other repos**: none; user-level `~/.claude/settings.json` gained the
   `idhook` entry
