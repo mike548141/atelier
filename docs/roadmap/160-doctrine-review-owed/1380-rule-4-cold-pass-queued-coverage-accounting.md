@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: coverage accounting: a scan of nothing no longer reads as clean (`115/130`, eleven scanners).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: coverage accounting: a scan of nothing no longer reads as clean (`115/130`, eleven scanners).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -24,3 +24,23 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ 2026-11-22: PASS RAN. Fable 5.1 reviewer, both acts, orchestrated by session
+      ea866db1 for drain session eca14b23; sibling folded, review log opened in
+      the brief. Verdict: PASS-WITH-FINDINGS, 0 MAJOR · 2 MODERATE · 5 minor ·
+      2 note (`VC1`–`VC9`, `VC9` formed at reconcile). No standing MAJOR. Both
+      incidents are caught, not-in-scope is honest, no exit code moved.
+      🎯 Owed to the principal (rule 3: guard code and doctrine, so every
+      finding is his to rule; nothing applied): `VC1` MODERATE, the
+      "scanned nothing" warning fires on every routine code-only commit on the
+      hook plane and never says why (reviewer's counsel: say "not in scope
+      here" when nothing staged is a file the check reads); `VC2` MODERATE, the
+      `GUARDS.md` "every guard" sentence is unenforced and three scanners added
+      since print no coverage line (counsel: a floor pin over every registry
+      scanner, and bring the three in); minor `VC3` (floor counts a refused
+      check as run), `VC4` (two scanners skip the line on findings), `VC6`
+      (docs gaps, a dead `§ coverage` citation), `VC7` (a missing pin),
+      `VC9` (the head line still says clean on a scan of nothing); notes
+      `VC5`, `VC8` (wording). Recommendation: approve all as one fix item,
+      `VC1` and `VC2` first. Routing: a fix item under section 115 once he
+      rules; the item's title says "eleven scanners" where the delta reached
+      twenty (record nit, left as written).

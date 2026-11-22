@@ -1,10 +1,10 @@
 # Cold pass — coverage accounting: a scan of nothing no longer reads as clean
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1380-rule-4-cold-pass-queued-coverage-accounting.md`
-**Status:** RAN, act 1 — PASS-WITH-FINDINGS (0 MAJOR · 2 MODERATE · 4 minor · 2 note), 2026-11-22
-UTC, Fable 5.1; act 2 (reconcile) owed. Brief written 2026-11-14 UTC by a headless Opus 5.5
-brief-writer (`cclive` lists it as session `2a99cef1`); run under the principal's drain order of
-2026-11-23 NZDT.
+**Status:** PASS RUN, both acts — PASS-WITH-FINDINGS (0 MAJOR · 2 MODERATE · 5 minor ·
+2 note), 2026-11-22 UTC, Fable 5.1; the sibling folded in below the verdict by the orchestrator
+on 2026-11-22. Brief written 2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as
+session `2a99cef1`); run under the principal's drain order of 2026-11-23 NZDT.
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4: a shared reporting helper and its
 use in twenty floor scanners, plus a doctrine sentence in `docs/method/GUARDS.md`, all
@@ -541,3 +541,379 @@ No line was NOT RUN. Scratch repos and outputs were deleted at the end of act 1.
       next pass can re-drive it exactly.
 
 Act 2 (`### Reconcile`) follows once this act is committed and the sibling is released.
+
+### Reconcile (act 2, 2026-11-22 UTC)
+
+Opened after act 1 was committed (`b514a34f`): the held sibling (the brief-writer's re-run table
+and five leads), the message bodies of `aca05c14`, `641f017f` and `ef00f8b5`, the queue pointer,
+the intent record `115/130` whole with its three landing notes, and the prior verdicts that
+mention the line. Act-1 text above is unrevised; corrections are stated here.
+
+**Against the sibling's leads.**
+
+- *A1 lead (publishscan constant, reviewscan mirror)* → `VC5` found the same by reading and
+  probed both to zero; the sibling's open question (non-zero over nothing) is answered no.
+- *A4 lead (ten warnings on an empty stage; whether a real hook run looks like that)* → `VC1`
+  answers it: a real code-only commit on a tree with docs prints seven. The two prior verdicts
+  that met the empty-stage reading (`2026-11-09-0126-ladder-floor-cold.md` 717,
+  `2026-11-09-0126-git-resolved-staged-scope-cold.md` 407) recorded it as an observation, not a
+  finding; this pass is the first to weigh it against the item's third failure mode.
+- *A2 / wording lead (the head line still says "clean")* → not weighed in act 1. Formed here as
+  `VC9` below.
+- *A6 lead (three post-delta scanners; 16 lines against 17 rows)* → `VC2`. The count has since
+  moved to 17 lines for 20 checks on the CI plane (licenscan joined the registry); the three
+  scanners still print none.
+- *The probe has no recorded command* → act 1 said the same (V2) and rebuilt it; the follow-up
+  checklist already asks for the command to be recorded.
+- The sibling's re-run table of 2026-11-14 matches mine within normal variance; `test_leakscan`
+  grew from 422 to 469 tests and `test_sizescan` from 117 to 121 in the week between.
+
+**Against the author's account.**
+
+- `aca05c14`'s body says the first probe's only scanned-nothing result was indexscan "in every
+  child"; `641f017f` then made that the not-in-scope form. My rebuild on five children shows
+  reviewscan warning on two (no post-boundary decision records) and pdlistscan on one (public,
+  list absent). Either the author's five children differ from mine or those states arose since;
+  neither reading changes a finding.
+- The bodies say 55 runs then 60 runs; `CHANGELOG.md` and the landing note carry 60. Consistent
+  with the scanner sets of each slice; no contradiction.
+- The 2026-11-16 landing note (the floor's own line, `ba55be27`) says "a check counts as run only
+  when floor invoked it" and `tools/README.md` 2765–2777 says the same, adding that one "refused
+  before it started is listed and not run". That is the design `VC3` describes: a check floor
+  invoked that then refused itself (exit 2) counts as run. `VC3` stands as minor; the author's
+  account shows the choice was deliberate, and the `floor.py` docstring's "unexecutable … is
+  False" is the overclaim, not the code.
+- **Correction to `VC6`.** Act 1 said `tools/README.md` "never mentions the coverage line". My
+  act-1 grep stopped at ten hits (`head`), and the released reads show the README documents the
+  floor's own line at 2765–2777 ("in the shape every tree scanner prints"). What stands: no
+  README section describes the per-scanner `coverage:` line beside the per-scanner
+  `suppressed:` lines it does document, and the "GUARDS.md § coverage" citation still reaches no
+  heading. `VC6` stays minor with that narrower wording.
+- The queue pointer's title still says "eleven scanners" although the brief and both commits
+  cover twenty; a record nit for the orchestrator's fold, not a finding on the work.
+
+**Finding formed at reconcile.**
+
+- **VC9 — minor (formed at reconcile, from the sibling's A2 lead).** On a scan of nothing the
+  scanner's first line still reads `✓ <name> clean — …` and the floor board still renders ✅;
+  only the third line differs. Evidence from act 1: every empty-repo run opened `✓ … clean`
+  (18 scanners), and the worktree's empty-stage hook run showed ✅ against all 19 checks while
+  ten of their lines said `covers nothing`. The floor already has a state for "told the check
+  ran, not what it checked" (`Result.partial`, `floor.py` 2278–2283, rendered 🟡); a check whose
+  own line says it covered nothing is that state, and the board does not show it. Counsel: let
+  the floor read `scanned_nothing` from the `--json` twin, or have `report.clean_head` take the
+  coverage into its wording, so the glyph and the first line agree with the third.
+
+**Overall line restated:** PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 5 minor · 2 note
+(`VC1`–`VC9`; `VC9` formed at reconcile; `VC6` narrowed as stated above).
+
+- [ ] `VC9` — the clean head line and the floor glyph on a scan of nothing (added to the
+      follow-up checklist above; the principal's to decide).
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+*Released to the reviewer only after its act-1 findings were committed (`b514a34f`); folded here
+verbatim (headings demoted two levels to sit under this one) and the sibling file removed, per
+the brief. The orchestrator (headless Claude Opus 5.5 session `ea866db1`, started by drain session
+`eca14b23`) held the partition, formed no finding and wrote no severity.*
+
+### Deferred — coverage accounting cold pass (brief-writer's held-back material)
+
+**Board:** `docs/roadmap/160-doctrine-review-owed/1380-rule-4-cold-pass-queued-coverage-accounting.md`
+**Status:** sibling of the unrun brief `2026-11-14-0259-coverage-accounting-cold.md`, written
+2026-11-14 UTC by the brief-writer (session `2a99cef1`). Open only after phase-1 findings are
+committed; fold in below the reconcile, then delete.
+
+The brief-writer forms no finding and writes no severity. What follows is what it saw while
+grounding the brief, held back so it cannot steer phase 1. Weigh each as a lead, not a result.
+
+#### Re-run results, 2026-11-14 UTC (load 3–5 on 12 cores, Python 3.14.6)
+
+All exit 0, one at a time from `tools/`:
+
+| module | tests | seconds |
+|---|---|---|
+| `test_report` | 110 | 12 |
+| `test_datescan` | 100 | 13 |
+| `test_wrapscan` | 71 | 16 |
+| `test_spellscan` | 90 | 22 |
+| `test_conflictscan` | 88 | 16 |
+| `test_harvestscan` | 54 | 23 |
+| `test_pointerscan` | 52 | 6 |
+| `test_indexscan` | 57 | 12 |
+| `test_licenscan` | 79 | 3 |
+| `test_reviewscan` | 70 | 10 |
+| `test_publishscan` | 60 | 28 |
+| `test_sizescan` | 117 | 14 |
+| `test_secretscan` | 272 | 20 |
+| `test_leakscan` | 422 | 43 |
+| `test_linkscan` | 89 | 6 |
+| `test_pathscan` | 172 | 14 |
+| `test_attribscan` | 36 | 7 |
+| `test_blockscan` | 58 | 36 |
+| `test_pdlistscan` | 24 | 5 |
+| `test_signscan` | 18 | 49 |
+| `test_stampscan` | 125 | 11 |
+
+- `tools/floor.py --root .` (default plane, clean tree, nothing staged): exit 0, 29 s, 16
+  `coverage:` lines, **10 of them `scanned nothing`**.
+- `tools/floor.py --plane ci --root .`: exit 0, 33 s, 16 `coverage:` lines, 0 `scanned nothing`.
+- Empty scratch repo, `spellscan --root <scratch>`: exit 0; output opens `✓ spellscan clean —
+  no US spellings found.` and its third line is the `scanned nothing` warning.
+
+#### Leads the brief-writer noticed (not findings)
+
+- **A1:** `publishscan`'s unit count is `len(NEVER_PUBLISH)`, a constant (69 at HEAD), so only its
+  path count can reach zero. `reviewscan` passes `n_checked` as both counts. Whether either can
+  report non-zero over nothing evaluated is the reviewer's to probe.
+- **A4:** the default-plane floor run above printed the warning ten times on a clean tree with
+  nothing staged. Whether a real hook run ever looks like that, and whether ten warnings there
+  are signal or noise, is open.
+- **A2 / wording:** the empty-repo run still leads with `✓ … clean`. The warning avoids "clean",
+  but the scanner's own first line does not; whether the pair reads as the item's opening claim
+  wants is the reviewer's call.
+- **A6:** `sweepscan`, `namescan` and `quotescan` (added after `641f017f`) do not call
+  `report.coverage_line` at HEAD (by `grep`). `floor.py --list --root .` shows 19 rows (`board`
+  and `sweepscan` among them; `blockscan`, `signscan` and `stampscan` are not rows there), while
+  both floor runs printed 16 coverage lines, one fewer than the 17 rows left after `board` and
+  `sweepscan`. Which rows print none, and whether the `GUARDS.md` "every guard" sentence binds
+  them, is open.
+- The five-checkout probe is recorded only as counts in `CHANGELOG.md`; no command was found.
+
+#### Nothing else is deferred
+
+The brief-writer read no commit body and no prior verdict, so it holds no author account beyond
+what the brief's exposure line names.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*Appended by the orchestrator at the fold (session `ea866db1`), verbatim, headings demoted two
+levels to sit under this one; the working file was then deleted.*
+
+### Review log — atelier board 160/1380, coverage accounting cold pass
+
+Reviewer: Fable 5.1 (tier checked at selection). Orchestrator: session ea866db1 (Opus 5.5,
+off-tier, forms no finding), started by drain session eca14b23 (Opus 5.5). Worktree:
+`/Users/mike/worktrees/fable/atelier-160-1380-2242/atelier`. Brief:
+`docs/reviews/2026-11-14-0259-coverage-accounting-cold.md`. Commands, files, evidence only.
+Act 1 entries are written before the sibling `.deferred.md` is opened.
+
+#### Act 1
+
+- 2026-11-22T22:44Z `date -u`; `uptime` load 13.86 on 12 cores (several passes run at once).
+  `git status --short` shows only one deletion, the sibling
+  `docs/reviews/2026-11-14-0259-coverage-accounting-cold.deferred.md` (the partition, left
+  alone). HEAD 585b7d6b (claim commit).
+- Read the brief whole (lines 1-289). Read `docs/method/REVIEW.md` lines 418-530 (standing
+  checklist V1-V7, lifecycle, open-record ruling).
+- `git merge-base --is-ancestor aca05c14 HEAD` and `641f017f HEAD`: both present, nothing printed.
+- `git log --oneline 641f017f..HEAD -- tools/report.py docs/method/GUARDS.md tools/*scan.py`:
+  20 commits now (brief saw 7 on 2026-11-14). Subjects only read. None names coverage.
+- `git diff --stat aca05c14^ aca05c14` and `641f017f^ 641f017f`: 28 and 32 paths; no message body
+  printed by `diff --stat`. Board-store paths (`docs/ROADMAP.md`, the `115/130` item) not opened.
+- `tools/coldsweep.py --commit aca05c14 --path tools/report.py --path tools/test_report.py --path
+  docs/method/GUARDS.md --path CHANGELOG.md` and the same for `641f017f`: read body-free. Both
+  `coverage_line`/`coverage_dict` versions, the GUARDS.md paragraph and both CHANGELOG entries read.
+- Read at HEAD: `tools/report.py` 585-670 (`coverage_line`, `coverage_dict`);
+  `docs/method/GUARDS.md` 575-610 (the paragraph plus the treeline paragraph after it).
+- `grep -n "coverage_line\|coverage_dict" tools/*.py` (non-test): 23 scanners call it plus
+  `tools/floor.py` 3107-3135 (`coverage_counts`/`coverage_summary`, landed since the delta in
+  `ba55be27`). Not calling it: `sweepscan`, `namescan`, `quotescan` (all three in the floor
+  registry `SCANNERS`, `tools/floor.py` 1166-1230) and `stashscan` (not a floor check).
+  Registry membership by `grep -c '^        "<name>",' tools/floor.py`: blockscan, signscan,
+  stampscan, stashscan 0; sweepscan, namescan, quotescan, licenscan 1.
+- Read `tools/reviewscan.py` 560-665: `n_checked = len(records) + len(briefs)`, passed twice
+  (`coverage_line(n_checked, n_checked, unit="check(s) run")`); the coverage line is printed on the
+  two clean paths only (lines 649, 658), never when `failures` or `misplaced` is non-empty.
+- Read `tools/publishscan.py` 408-420: second count is `len(NEVER_PUBLISH)`, a constant.
+- Read every call site's unit/noun arguments (linkscan 126-131, pathscan 520-525, harvestscan
+  741-771, pointerscan 881-932, indexscan 280-300, leakscan 530-545, signscan 200-222, pdlistscan
+  295-320, sizescan 1060-1072). Every noun, unit, `files_what`, `units_what` and `not_in_scope`
+  string is a literal in source; none interpolates a path or config value.
+- Read `tools/indexscan.py` 454-478 (`discover`), 690-712, 755-785; `DECL_START_RX` line 201
+  (`^\s{0,3}<!--\s*indexscan:maps\b`); a malformed declaration raises `ConfigError` (exit 2).
+  `out_of_scope` = `files_opened > 0 and declarations == 0`.
+- Read `tools/pdlistscan.py` 155-175, 205-230, 270-320: a missing `.atelier-floor.json` is "not
+  public" (out of scope); an unreadable or malformed one raises `ConfigError`.
+- `grep -n -B3 "files_opened += 1|..."` over the prose scanners: increments sit at the top of each
+  per-file scan function (after the file is read), e.g. datescan 635, spellscan 597, wrapscan 497,
+  conflictscan 429/589, secretscan 1428/1778/1797/2043, leakscan 3089/3325/4023, linkscan 822,
+  pathscan 1243, sizescan 932, stampscan 988, licenscan 539.
+- Mirror sites: `grep -rn -i "coverage[:_ ]|coverage line|scanned nothing"` over md, yml, json, sh,
+  py and js files outside the scanners and barred records: only `CHANGELOG.md` and `GUARDS.md`
+  describe the line.
+  `tools/README.md` documents the `suppressed:` line for several scanners (592, 1373, 1381, 1397,
+  1413, 1522) and never mentions the coverage line. `tools/test_floor.py` 3393-3448 pins the
+  floor's own line.
+- `CHANGELOG.md` 281-284 (treeline entry, `450/010`) says "GUARDS.md § coverage gains the
+  one-sentence rule"; GUARDS.md has no heading named coverage, the sentence sits in the paragraph
+  at 603-605.
+- Interpreters: `/usr/bin/python3` is 3.9.6; `python3` on PATH is
+  `/Library/Frameworks/Python.framework/Versions/3.14/bin/python3` 3.14.6. The tools use
+  `str | None` in signatures, so they run on 3.14 by that absolute path; my own scripts run on
+  `/usr/bin/python3`.
+- Built scratch repos in the scratchpad (`build_scratch.sh`): r_empty, r_onefile, r_allignored
+  (every `.<scanner>ignore` names the one file), r_binonly (one staged binary), r_findings
+  (conflict marker, >100-col line, bad dates, dangling link), r_indexdecl, r_indexindent (the
+  declaration indented four spaces), r_public, r_publicbroken (malformed floor config). Old tools
+  extracted with `git archive aca05c14^ tools` (40 scanner files), HEAD tools copied for mutation
+  (48). 23 children under the local checkout root carry `.atelier-floor.json` (count only).
+- 2026-11-22T22:50Z `uptime`: load 25.67 on 12 cores. Probes run one at a time under `nice -n 10`.
+
+##### Probes (direct, scratch repos; `probe_direct.py` runs each scanner with and without `--json`)
+- r_empty: all 18 scanners that take `--root` alone print `coverage:` with the ⚠️ warning and
+  exit 0; `--json` carries a `coverage` key with `scanned_nothing: true`. pdlistscan prints `not in
+  scope
+  here` (no floor config). sweepscan prints no coverage line, no `coverage` key. namescan,
+  quotescan, licenscan, blockscan, signscan need their own arguments (exit 2 here; driven below).
+- r_onefile (one 3-line README): prose scanners print `1 file(s) opened · 3 line(s) read`;
+  linkscan `1 Markdown file(s) opened · 0 internal link(s) checked — ⚠️` (no links, a true zero);
+  pathscan the same for path references; sizescan `1 file(s) opened · 0 line(s) read — ⚠️`
+  (README is a candidate opened for its header; `COLD_CHECKBOX_FILES = {"ROADMAP.md"}`, sizescan
+  301); indexscan `not in scope here: no index declares a mapped directory.` with
+  `in_scope: false`; reviewscan/harvestscan/pointerscan 0/0 ⚠️.
+- r_allignored, reasoned globs (`README.md  # probe…` in every `.<scanner>ignore`): datescan,
+  wrapscan, spellscan, linkscan, pathscan, indexscan, stampscan print `0 file(s) opened` ⚠️, exit 0,
+  `suppressed: … 1 file(s) by .<scanner>ignore` beside it (incident 2 caught). secretscan,
+  leakscan, conflictscan read the ignore files themselves (14-15 files), no warning (correct).
+  Unreasoned globs exit 2 (`allowmarker.load_ignore_globs`, 504-520), a config error.
+- Incident 1 (absolute path): `<scanner> --root r_onefile <abs path outside root>` scans that file
+  (`1 file(s) opened`); a missing or no-match path is `path does not exist`, exit 2 (eight
+  scanners). `--root r_allignored <abs path of the ignored README>`: spellscan, wrapscan,
+  datescan, linkscan print `0 file(s) opened` ⚠️ with `1 file(s) by .<scanner>ignore`, exit 0.
+- r_findings (conflict marker, long line, bad dates, dangling link): conflictscan, linkscan,
+  datescan, wrapscan, pathscan exit 1 and print the coverage line on the findings path.
+- r_findings2 (`.env`, US spelling, IPv4, synthetic AKIA key): spellscan, leakscan, secretscan
+  exit 1 with the line; **publishscan exits 1 with 0 coverage lines**. licenscan on r_empty
+  (`✗ … unrecognised`, exit 1) prints the line. By code: publishscan 540-560 and 718-735 print
+  `_coverage_line` only in the `else` (clean) branch; reviewscan 649/658 the same (both clean
+  paths, never when `failures` or `misplaced`); attribscan 492, stampscan `_coverage_tail`
+  (1080, 1105) and sizescan 1069 print on both.
+- r_review (one post-boundary ADR with no review line): reviewscan exit 1, human output has 0
+  `coverage` lines, `--json` has the key.
+- indexscan: r_indexdecl with `dir=` only → `match= is required`, exit 2; with `match=*.md` →
+  `2 Markdown file(s) opened · 1 declaration(s) checked`, `in_scope: true` (a missing-dir
+  finding, my fixture's path). r_indexindent (declaration indented four spaces) → `not in scope
+  here`, `in_scope: false`: the indented comment is not matched by `DECL_START_RX` (0-3 spaces).
+- pdlistscan: r_public (declares public, no list file) → `no-list` warning finding and
+  `0 tracked file(s) opened · 0 line(s) read — ⚠️`, `in_scope: true`; r_publicbroken (malformed
+  JSON) → `cannot read …/.atelier-floor.json`, exit 2 (a broken config is a broken scan).
+- signscan `--repo r_onefile --boundary HEAD` (empty range): `0 commit(s) examined · 0
+  signature(s) verified — ⚠️ scanned nothing: no commits were evaluated`, exit 0; `--json` key is
+  `files_opened: 0` (the dict has no noun key). `--rev HEAD` on an unsigned commit: FAIL, exit 1,
+  `1 commit(s) examined · 1 signature(s) verified`.
+- namescan and quotescan `--root r_public --range HEAD..HEAD` (an empty range, repo declared
+  public): `✓ namescan clean — no private name in a branch or title on the pushed range.`, exit 0,
+  no coverage line; quotescan the same. blockscan `--root <worktree>`: `7 file(s) opened · 4541
+  line(s) read`, `coverage` key present.
+- floor on scratch repos, run from the worktree cwd: secretscan/leakscan/conflictscan refuse
+  `--staged` when cwd is another repo (exit 2) and the floor's line still says `12 check(s) run ·
+  19 check(s) listed` (`Result.ran=True` is set at floor.py 2967 for any invoked check; the
+  docstring at 2326-2331 says an unexecutable or scope-refused check is False).
+- floor hook plane from inside r_pyonly (one `.py` staged, no docs tree): 3 ⚠️ (linkscan 0
+  links, reviewscan 0 records, sizescan 0 lines), 2 not-in-scope, 7 skipped `(no docs tree)`.
+  r_binonly: leakscan blocks the binary; secretscan `0 file(s) opened` ⚠️ (reads no binary).
+- floor hook plane from inside r_docsrepo (docs tree, roadmap, ADR, LICENSE; a code-only
+  change staged): **7 ⚠️ scanned-nothing lines** (reviewscan, sizescan, datescan, wrapscan,
+  spellscan, pathscan, attribscan), 2 not-in-scope, exit 1 (board check; unrelated). CI plane on
+  the same repo: 2 ⚠️ (pathscan, attribscan first-commit).
+- Re-run obligation, floor on the worktree (cwd the worktree, `--root .`): default (hook) plane
+  2026-11-22T23:01Z-23:02Z, exit 0, 17 `coverage:` lines, **10 `scanned nothing`** (nothing is
+  staged: secretscan, leakscan, conflictscan, reviewscan, publishscan, sizescan, datescan,
+  wrapscan, spellscan, attribscan), 0 not-in-scope, floor line `19 check(s) run · 19 check(s)
+  listed`. CI plane 23:03Z-23:04Z, exit 0, 17 `coverage:` lines, 0 `scanned nothing`, 0
+  not-in-scope, 1 skipped (sweepscan), floor line `20 check(s) run · 21 check(s) listed`;
+  namescan and quotescan ran and printed no coverage line. Outputs kept in the scratchpad only.
+- Read `tools/test_floor.py` 3390-3450: the floor's pins build `Result(..., ran=r)` by hand and
+  the end-to-end pin checks `ran` adds up; no pin drives a check to exit 2 and asserts `ran`.
+
+##### Re-run ledger and tests
+- `cd tools && python3 -m unittest test_report`: Ran 110, OK (13 s), 2026-11-22T23:05Z.
+- The twenty scanner test modules one at a time under `nice -n 10`, 23:05Z-23:15Z: all OK
+  (datescan, wrapscan, spellscan, conflictscan, harvestscan 54, pointerscan 53, indexscan 57,
+  licenscan, reviewscan 70, publishscan 60, sizescan, secretscan, leakscan, linkscan 89, pathscan,
+  attribscan 36, blockscan 58, pdlistscan 24, signscan, stampscan). Load 7-9 throughout.
+- OWASP ASVS 4.0.3 V7 fetched from the ASVS repository (raw `0x15-V7-Error-Logging.md`): V7.1.1
+  (no credentials or payment details in logs), V7.1.2 (no other sensitive data), V7.3.1 (encode
+  data to prevent log injection). Checked against the line: every string it prints is a literal
+  in source or an integer; `not_in_scope` reasons are the two literals in indexscan 292 and
+  pdlistscan 316; no path, glob, config value or file content reaches the line or the dict.
+- Mutation probe on the scratch copy of tools (`mutate.py`, `mutate2.py`; the worktree untouched):
+  26 mutations, 25 CAUGHT by the scanner's own module (counter starting at 1, off-by-one, double
+  count, helper warning on AND instead of OR, json `scanned_nothing` constant, indexscan
+  out-of-scope with no file opened, signscan verified mirroring examined, pdlistscan never
+  scanning). 1 SURVIVED: pdlistscan printing `not in scope here` on a public repo while still
+  scanning (`test_pdlistscan.py` 230-232 asserts the count prefix with `assertIn` and the absence
+  of "scanned nothing", never the absence of "not in scope here"; the `--json` `in_scope` pin at
+  213/258 does not cover the human line).
+
+##### The five-checkout probe (`probe5.py`, 23:26Z-23:38Z, read-only, cwd each child)
+- The first five floor-adopting children by sorted path; 18 scanners (the 20 minus signscan and
+  blockscan, which need a trust list or a map); old tools at `aca05c14^` against HEAD's copy; 180
+  runs, 90 pairs, 89 identical exit codes. The one difference: child 4, leakscan, old 1, new 0;
+  the old run's findings were ipv4 ×12, email ×2, metadata ×1 by rule kind, rules that later
+  commits changed (`af74cf91`, `5c2fc7e6`, `51720d97`), not a coverage effect. harvestscan on
+  child 4 hit my 240 s cap on the new tools (its known quadratic walk), so that pair has no
+  coverage line to read. New-tool runs with no coverage line: none other.
+- `scanned nothing` on real children: reviewscan on children 3 and 5 (no post-boundary decision
+  records), pdlistscan on child 5 (declared public, list absent). `not in scope here`: pdlistscan
+  on children 1-3 (not declared public), indexscan on child 5. Children 1-3 ran in about 9 s each
+  per tool set; children 4 and 5 took about 700 s each (large trees, 36 runs each).
+- The brief's recorded probe ("five child checkouts, 60 runs, exit codes identical") records no
+  command, no child set and no scanner set, so it cannot be re-driven exactly; 60 is consistent
+  with 12 scanners × 5 children under the first commit's set. My 90-pair rebuild differs by one
+  pair, explained above.
+
+##### Closing act 1
+- Verdict appended to the brief below a `---` divider; the header Status line updated to RAN,
+  act 1, PASS-WITH-FINDINGS (0 MAJOR · 2 MODERATE · 4 minor · 2 note), act 2 owed.
+- On the brief file from the worktree: `datescan`, `wrapscan`, `spellscan`, `linkscan` all exit 0;
+  `leakscan` and `secretscan` over the brief and this log exit 0 (2 files, 708 lines). The two
+  ledger tables were rewritten as lists to keep every line within 100 characters.
+- Scratch repos, the old/new tool copies and every captured output deleted from the scratchpad;
+  only my probe scripts remain there. No live system was written; no git command that writes ran.
+- 2026-11-22T23:45Z act 1 saved. The sibling and the barred records stay unopened until act 2.
+
+#### Act 2 (after the orchestrator's release, act 1 committed as b514a34f)
+
+- 2026-11-22T23:5xZ `git log -1`: b514a34f "reviews 160/1380: act 1 of the Fable cold pass on
+  coverage accounting". `git status --short`: only the sibling deletion.
+- Read the held sibling at the one path the orchestrator gave (under `~/.claude/fable-held/`),
+  whole: the brief-writer's 2026-11-14 re-run table (21 modules, all OK), two floor runs (16
+  coverage lines each, 10 and 0 `scanned nothing`), the spellscan empty-repo run, and five leads
+  (A1 publishscan constant and reviewscan mirror; A4 ten warnings on an empty stage; A2 the head
+  line still says "clean"; A6 the three post-delta scanners and 16 lines against 17 rows; no
+  recorded probe command).
+- Read the commit bodies of `aca05c14`, `641f017f`, `ef00f8b5` (`git log -1 --format=%B`):
+  `aca05c14` records 55 runs on five children with indexscan the only scanned-nothing result;
+  `641f017f` records 60 runs, "one extra line each (indexscan one line shorter)", blockscan
+  probed on this repo only, floor left to another lane. `ef00f8b5` is the claim, no account.
+- Read the queue pointer `160/1380` whole (title still says "eleven scanners"; the claim note of
+  2026-11-22T22:42Z names this pass's orchestrator and reviewer) and the intent record `115/130`
+  whole, including its three landing notes (2026-11-09, 2026-11-10, 2026-11-16). The third
+  landing note says the floor's own line is "described in `tools/README.md`" and "a check counts
+  as run only when floor invoked it".
+- `grep -n "coverage:\|check(s) run\|coverage line\|coverage_line" tools/README.md`: lines 2560,
+  2569, 2765-2777. `tools/README.md` 2765-2777 is a section on the floor's own `coverage:` line:
+  "A check counts as run only when floor invoked it; one disabled, skipped …, missing, or refused
+  before it started is listed and not run". No README section describes the per-scanner line;
+  `grep -n "scanned nothing\|file(s) opened"`: only 2772 (the floor section). **Correction to
+  act 1:** my act-1 README grep piped through `head` and stopped at ten hits, so VC6's "never
+  mentions the coverage line" is too strong; the per-scanner claim stands, the floor's line is
+  documented. Recorded in the reconcile, act-1 text unrevised.
+- `grep -n "coverage_line\|scanned nothing" docs/reviews/*.md` (prior verdicts, released):
+  `2026-11-09-0126-ladder-floor-cold.md` 717 and `2026-11-09-0126-git-resolved-staged-scope-cold.md`
+  407 both record "nothing staged so the staged scanners report scanned nothing" as an observed
+  reading, neither as a finding; `2026-07-10-linkscan.md` L1 is the typo'd-path incident, fixed as
+  a usage error (the exit-2 behaviour I probed). No prior verdict reviewed the coverage line.
+- `### Reconcile` appended beneath the act-1 verdict: per-lead and per-account notes, the `VC6`
+  correction, `VC9` formed at reconcile (clean head line and ✅ glyph on a scan of nothing), the
+  overall line restated (0 MAJOR · 2 MODERATE · 5 minor · 2 note). Header Status updated to acts
+  1 and 2. Nothing folded, nothing deleted; the sibling stays where it is for the orchestrator.
+- On the brief alone from the worktree: datescan, wrapscan, spellscan, linkscan exit 0 (no
+  sibling-link hit: the brief names the sibling in backticks, not as a link); leakscan and
+  secretscan over the brief and this log exit 0. This log keeps every line within 100 characters
+  (the width the brief passes at); wrapscan's 85-column default flags it as a file outside
+  `docs/reviews`, which is where the fold puts it.
+- 2026-11-22T23:52Z act 2 saved. No git write ran; `git status --short` shows the sibling
+  deletion and the modified brief only.
