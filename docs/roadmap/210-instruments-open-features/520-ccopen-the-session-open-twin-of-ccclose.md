@@ -1,4 +1,4 @@
-- [~] **`ccopen`: the session-open twin of `ccclose`, so the prompt's opening
+- [ ] 🎯 **`ccopen`: the session-open twin of `ccclose`, so the prompt's opening
       checks run as code.** The principal, 2026-11-22, verbatim: *"Also do
       the same for anything else that we can build as deterministic code and
       hook into sessions instead of using the prompt. But be mindful in all of
@@ -27,3 +27,10 @@
       page, tests with a fixture per read, as `ccclose` has. A rule-4 cold
       pass is owed on the build.
       *(claimed 2026-11-22 UTC, session 12a41aa2, wt: atelier-qr-12a4-ccopen)*
+      **Built 2026-11-22** (session 12a41aa2; its Sonnet worker): seven reads,
+      one verdict, `--json`, `--no-fetch`; 34 tests; dogfooded on atelier.
+      Cold pass queued: `160/1720`. **Owed, so this stays open:** the prompt
+      edit, on the same terms as `210/480` (walk him through first). Left
+      alone on purpose: naming `ccopen` in `CLAUDE.md`'s read order, which
+      every atelier session follows with or without the prompt; that is his
+      call under the 2026-11-22 caveat above.
