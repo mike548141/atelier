@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `cclive`, a machine-wide view of live work (`360/020`).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: `cclive`, a machine-wide view of live work (`360/020`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -23,3 +23,18 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ PASS RAN 2026-11-22T20:52Z (both acts, Fable 5.1 reviewer; orchestrator
+      35fdc260 for drain session eca14b23 formed no finding): **FAIL**, 2
+      MAJOR, 4 MODERATE, 5 minor, 3 notes (`LV1`–`LV14`; `LV12`–`LV14`
+      formed at reconcile). Verdict, reconcile, folded sibling and the
+      reviewer's log are in the brief. Standing MAJORs: `LV1`, every claim
+      the drain writes (`🔒 <date>: claimed for …`, a later paragraph) reads
+      as undated and quiet, because the stamp reader knows one writer's
+      grammar; `LV2`, `--json` is cut at 64 KiB when piped, so the man page's
+      own `| jq` example fails.
+      🎯 Owed to the principal (rule 3: each changes what the view says;
+      nothing applied): `LV1` (fix the reader, the drain's claim form, or
+      both; link `320/450`) and `LV2` first, then `LV3`, `LV4`, `LV5`,
+      `LV8`, then `LV6`, `LV7`, `LV9`, `LV12`, `LV13`; notes `LV10`,
+      `LV11`, `LV14` need no ruling. Routing: a build session in atelier
+      applies what he rules, then a fresh cold re-check of the reader.

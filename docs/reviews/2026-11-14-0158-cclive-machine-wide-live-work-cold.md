@@ -1,10 +1,11 @@
 # Cold pass — `cclive`, a machine-wide view of live work
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1290-rule-4-cold-pass-queued-cclive-instrument.md`
-**Status:** ACT 1 RUN, 2026-11-22 UTC, by a Fable 5.1 reviewer under the principal's drain order of
-2026-11-23 NZDT: **FAIL** (2 MAJOR, 4 MODERATE, 3 minor, 2 notes; `LV1`–`LV11`), verdict below the
-divider. Act 2 (reconcile against the held sibling and the barred records) not yet run. Brief written
-2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as session `c4d93896`).
+**Status:** RUN, both acts, 2026-11-22 UTC, by a Fable 5.1 reviewer under the principal's drain
+order of 2026-11-23 NZDT: **FAIL** (2 MAJOR, 4 MODERATE, 5 minor, 3 notes; `LV1`–`LV14`, of which
+`LV12`–`LV14` were formed at reconcile), verdict and `### Reconcile` below the divider. Findings
+await the principal's decision (rule 3); nothing applied. Brief written 2026-11-14 UTC by a headless
+Opus 5.5 brief-writer (`cclive` lists it as session `c4d93896`).
 
 **Pass type:** code cold pass, first of its kind, per `docs/method/REVIEW.md` rule 4: the first
 instrument that looks across every repo on the machine at live work.
@@ -214,8 +215,8 @@ after the reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, the queue pointer above, this brief's sibling
-`docs/reviews/2026-11-14-0158-cclive-machine-wide-live-work-cold.deferred.md`, every delta commit's
-message body, and the intent record
+`docs/reviews/2026-11-14-0158-cclive-machine-wide-live-work-cold.deferred.md` (folded below the
+verdict at phase 2, the file removed), every delta commit's message body, and the intent record
 `docs/roadmap/360-concurrency-beyond-the-repo-mike-commissioned/020-parallel-sessions-across-different-repos-have-no-shared-view.md`
 beyond its first bullet (the principal's 2026-09-12 words).
 
@@ -573,3 +574,330 @@ transcript was written after `now` was taken). `ago()` clamps the text view. Cla
 - [ ] Act 2: reconcile against the held sibling and the barred records; screen the commit bodies.
 - [ ] Scratch deleted at the end of act 1: the scratch estate, scratch `HOME`, mutation copies and
       the live captures under the reviewer scratch directory.
+
+### Reconcile
+
+Act 2, 2026-11-22 UTC, after act 1 was committed unrevised (`118742b8`). Released to me by the
+orchestrator's message naming one file: the held sibling, read at its user-local path (the
+orchestrator folds it; I neither pasted nor deleted it). Then opened: the queue pointer `160/1290`,
+the intent record `360/020` whole, the four commit bodies (`2c6df437`, `6890e9db`, `6197df86`,
+`1568acce`), the prior verdicts and session records that name `cclive`, and board item `320/450`.
+Nothing read here revises act-1 text; two findings and one note were formed at reconcile and are
+marked so.
+
+**The sibling's nine questions, against act 1.** The brief-writer read the code once and probed
+nothing; its questions are a floor. Six land on findings I had already formed from my own probes,
+one adds a wording point, two open findings I had not formed:
+
+- *Q1 (quiet footnote for a repo with no `main`/`master`)* → `LV7`, probed (P7) with the repo the
+  sibling asked for; the footnote is false for it and its held claim is unseen. Agreed.
+- *Q2 (worktree names matched machine-wide)* → `LV5`. Confirmed in code (`liveNames` at
+  `cclive:546` is one set over every repo) and in scratch within one repo (P8); the cross-repo
+  case follows from the same set and needs no second probe. Agreed, and `LV5` already carries it.
+- *Q3 (indistinguishable rows)* → `LV5`. The sibling saw four such rows on 2026-11-14; I saw six
+  on 2026-11-22. Same class, now with the drain's layout named as the cause.
+- *Q4 (session id read from title text after the stamp)* → **`LV12`, formed at reconcile.**
+- *Q5 (the `released` filter)* → **`LV13`, formed at reconcile.**
+- *Q6 (unsanitised repo name and root paths)* → `LV6`, probed (P3). Root paths are the operator's
+  own arguments or environment and were not added to the finding; the repo name was.
+- *Q7 (a session in a removed worktree lands under elsewhere)* → no finding. The path no longer
+  exists, so there is nothing on disk that ties it to a repo; printing it under *elsewhere* with
+  its path is the honest reading, and the alternative (guessing the repo from the path's shape)
+  would be the blank-that-reads-as-something the design refuses. Counsel only: the *elsewhere*
+  header could say *or in a directory that no longer exists*.
+- *Q8 (exit 0 for an unreadable root while the store reads)* → no new finding; a wording point
+  added to `LV9` here: the man page's *exit 0 … including a partial one that says what it could
+  not read* is the full statement, the help's *2 … nothing could be read* is consistent with it
+  (a partial read is not nothing), but a caller reading only the exit code learns nothing about a
+  root it mistyped. Counsel: the help text could carry the man page's clause.
+- *Q9 (is the idle-open limit prominent enough)* → no finding; it bears on `LV1`'s counsel. The
+  limits block is the last thing printed and the row marks say `quiet` unqualified; a reader who
+  takes `quiet` as *free to take* has to reach the bottom to be corrected. Counsel: qualify the mark
+  inline (`quiet (no live match)`) or print the limits block first.
+
+**LV12 — minor, formed at reconcile. A commit SHA or hex-looking word on the stamp line is read as
+the session.** `SESSION_ID` takes the first 8-hex token with a letter after the stamp on that
+line; probed on the pure parser: `(claimed 2026-11-09-1312 at 3cf4041d, session aaaa1111)` gives
+`session: 3cf4041d`, so the claim is `quiet` while `aaaa1111` is live, or `live` if some session
+happens to share the SHA's first eight hex. No stamp on this repo's board writes a SHA before the
+id (my sweep of every `claimed 20` line), so it is latent here; the drain's long stamps are the
+likeliest place for one to appear. *Counsel:* prefer a token that follows `session` where one
+exists, else the first 8-hex token.
+
+**LV13 — minor, formed at reconcile. A held claim whose title mentions `released` is uncounted or
+undated.** `cclive:286` voids a stamp when its line matches `/released|🔓/i` anywhere, title text
+included; probed on the pure parser: a left-margin `- [~] (claimed …, session aaaa1111) **Ship the
+released-notes job**` reads `dated: false, session: null`, and an indented `[~]` with the same title
+is dropped from the claim list altogether; a title saying `release` (no `d`) is unaffected.
+*Counsel:* match `released` only inside the claim fragment (the bracketed `(claimed …)` span, or
+the words after the stamp up to the closing bracket), not across the line.
+
+**LV14 — note, formed at reconcile. The `LV1` class was known to a later author and routed around,
+not filed.** The body of `1568acce` (ccopen, 2026-11-22) says: *Undated `[~]` lines are counted, not
+judged, since a stamp outside an item's first lines reads as undated.* That is `LV1`'s mechanism,
+seen from the consumer, and the consumer's answer was to count and not judge. No board item names
+the class (a sweep of `docs/roadmap` for *undated* finds only unrelated uses); `PROPAGATION.md`
+§ *Report your problems* asks for the item. It adds weight to `LV1` (the failure was observable by
+2026-11-22 at the latest) and to `LV8` (no test pinned it). The item that carries `LV1` should link
+`320/450`, where the index's own wrapped-claim class (BS2) is filed: three readers of one grammar,
+each guessing differently, is the shape that item already describes from the first reader's side.
+
+**The author's account, screened.** The body of `6890e9db` states the premise `LV1` attacks (*stamps
+are read across the item's first paragraph because claims wrap onto line two*) and the two shared
+exports; it answers none of the findings, and nothing in it was framing I had not already met in
+the design note. `2c6df437`'s body restates the design's sources and limits. `6197df86`'s body says
+the `CONCURRENCY.md` sentence is for *a session reading the rules at open*, which is why `LV1`'s
+cost is what it is. The author's session record (2026-11-09) lists the build in one line and records
+the machine's load, not the claim grammar. The brief-writer's record says what the brief says, and
+its re-run figures (32/32; 111/111 for `ccclose` then, 153 now after later commits; 4 dated claims
+and 9 no-board repos on 2026-11-14 against 3 and 5 on 2026-11-22; two *elsewhere* sessions in
+removed worktrees) agree with mine where the estate has not moved.
+
+**The pointer's three questions.** *Can a quiet line still read as nothing happening?* Yes, two
+ways: `LV7` (a starred repo with a held claim) and, on the claim rows themselves, `LV1`. *Can repo
+matching credit a session to the wrong repo?* Not by prefix (A4 confirmed; P5); the nested-repo
+case is a documented one-level walk. *Does it stay read-only on every path?* Yes (A5; P4).
+
+**The intent record and prior verdicts.** `360/020`'s DONE note describes what the design says and
+claims nothing the tool does not do, except that *`[~]` claims at the newest integration ref* is the
+object of `LV3`. The `160/1020` verdict's reconcile extended a sort question to `cclive` and found
+no board-id parsing there; still true. The `2026-11-09-0238` verdict counselled adding the open-PR
+read to `cclive`; open PRs are this brief's non-goal and stay out. No prior verdict touched the
+claim reader. No finding of mine is withdrawn or re-graded.
+
+**Overall, restated: FAIL — 2 MAJOR (`LV1`, `LV2`), 4 MODERATE (`LV3`, `LV4`, `LV5`, `LV8`), 5
+minor (`LV6`, `LV7`, `LV9`, `LV12`, `LV13`), 3 notes (`LV10`, `LV11`, `LV14`).** Rule 3 holds:
+nothing applied; the principal decides, with `LV1`'s writer-side half (the drain's claim form) and
+`320/450` in front of him.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+*Released to the reviewer only after its act-1 findings were committed (`118742b8` before the
+rebase onto `main`); folded here verbatim (headings demoted two levels) and the sibling file
+removed, per the brief. The orchestrator (a headless Opus 5.5 session, `35fdc260`, started by drain
+session `eca14b23`, itself Opus 5.5) held the partition, formed no finding and wrote no severity.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-14-0158-cclive-machine-wide-live-work-cold.md` (`REVIEW.md` rule
+1). Written 2026-11-14 UTC by the brief-writer (`cclive` lists it as session `c4d93896`), which
+authored none of the delta. Open this only after act 1 is committed. Everything here is a floor,
+never a fence, and none of it is a finding: the brief-writer read the code once and probed none of
+these past what is recorded below.
+
+#### The brief-writer's own questions
+
+1. **The quiet footnote.** A repo whose claims are unknown because it has *no main or master ref*
+   (not because it has no board) still lands on the quiet line with a `*`, and the footnote reads
+   "no board, so claims are unknown". Does the footnote say something false for that repo, and can
+   such a repo be quiet while a session holds a claim on another branch? (No repo on this machine
+   hit that path on 2026-11-14; build one.)
+2. **Worktree names are matched globally.** `markLive` builds the set of live worktree basenames
+   across *every* repo, then marks a claim live when its `wt:` name is in that set. Linked worktrees
+   commonly share a basename with their repo (a worktree of repo `x` checked out at
+   `.../something/x`). Can a claim in one repo be marked `live` by a live worktree of the same
+   basename in another repo, and then mark that repo's same-named worktrees live too (A3, A4)?
+3. **Indistinguishable rows.** On 2026-11-14 four live sessions in one repo all printed `where` as
+   the repo's own name and four worktree lines all read `<repo>  (no branch)  … [detached]`. The
+   row shows the basename, not the path. Can a reader tell which session holds which worktree?
+4. **The session id on a claim** is the first 8-hex token with a letter anywhere *after the stamp
+   on the stamp line*, which can include title text: a commit SHA prefix or a hex-looking word.
+   Can a claim be credited to the wrong session, or marked live by an unrelated one?
+5. **The released filter** voids a stamp if the stamp line contains `released` anywhere. For an
+   indented `[~]` that also drops the claim entirely. Is a held claim whose title mentions a
+   release silently uncounted?
+6. **Unsanitised names.** Transcript text, claim titles, branches and worktree names pass through
+   `printable`/`clip`. The repo name in each repo header and in the quiet list, and root paths, do
+   not. Can a directory name under a root carry a terminal escape into the output?
+7. **Sessions in a removed worktree** land under *elsewhere* even when the path was a worktree of a
+   scanned repo minutes ago (two did on 2026-11-14, both brief-writers whose worktrees had just
+   been removed). Is that the honest reading, or does it hide that the session belonged to a repo?
+8. **Exit codes.** `--root /nonexistent-dir` exits 0 when the transcript store is readable: the
+   root prints UNREADABLE and nothing under it is scanned. Is exit 0 consistent with the help
+   text's "2 bad usage or nothing could be read", and with a caller that reads only the exit code?
+9. **A1, the idle-open session.** A session open and waiting on its operator writes nothing, so
+   its worktree reads `quiet` after ten minutes. The limit is printed. Is it prominent enough for
+   a session that reads `quiet` as "free to take"?
+
+#### What the brief-writer ran, and what it got
+
+All from the worktree root on 2026-11-14 UTC, foreground, load average 12.9 to 14 on 12 cores.
+
+- `node --test instruments/cclive.test.js`: 32 tests, 32 pass, 0 fail, about 14 s.
+- `nice node --test instruments/ccclose.test.js`: 111 tests, 111 pass, 0 fail, about 148 s.
+- `mandoc -T lint -W style instruments/man/cclive.1`: no output, exit 0.
+- `instruments/cclive`: exit 0. 30 repos scanned under the default root, 2 skipped (not git
+  repos); 8 fresh transcripts; totals sessions 8, agents 0, claims 54 (4 dated, 50 undated; 9 repos
+  unknown), worktrees 5; 4 repos active, 26 quiet; 2 sessions under *elsewhere*.
+- `instruments/cclive --json`: exit 0. Of 30 repos, 9 had `claimsWhy` "no board" (all quiet), none
+  had "no main or master ref"; 17 quiet with claims known; 4 active.
+- `instruments/cclive --root /nonexistent-dir`: exit 0. `--fresh 0`: exit 2 (bad usage).
+- The three `coldsweep --commit` lines in the brief: each exit 0. The sweep line with the three
+  `--also-exclude` paths: exit 0.
+- `merge-base --is-ancestor` on all three commits: each an ancestor of the brief's base,
+  `58f612b7`.
+- The installed `cclive` on `PATH` is a symlink into the principal's primary checkout, not the
+  review worktree.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log — atelier 160/1290, cold pass on `cclive` (Fable 5.1 reviewer)
+
+Audit trail. Commands, files, evidence only. No secrets, no live captures, no private repo names or
+paths (public-repo rules). Verdict lives only in the brief.
+
+Worktree: /Users/mike/worktrees/fable/atelier-160-1290-2013/atelier
+Brief: docs/reviews/2026-11-14-0158-cclive-machine-wide-live-work-cold.md
+Reviewer: Fable 5.1 spawned by headless orchestrator 35fdc260 (Opus 5.5) under drain eca14b23.
+
+## Act 1 steps
+- 2026-11-22T20:16:15Z Read brief in full (257 lines) and REVIEW.md rules 1-4, lenses, V1-V7, lifecycle step 3.
+- 2026-11-22T20:19Z Tree check: HEAD 3cf4041d; `git merge-base --is-ancestor` for 2c6df437, 6890e9db, 6197df86 printed
+  nothing (all present). HEAD contains origin/main. `git status`: only the sibling deletion (left alone).
+- Since-log on delta paths: one later commit touched `instruments/cclive`: 1568acce (one line, adds `readRepo`
+  to module.exports; read body-free via coldsweep --commit --path). `git diff --stat 6890e9db HEAD` on delta
+  paths: only cclive (that 1 line) and instruments/README.md (ccopen's row/column, out of scope).
+- Body-free reads (coldsweep --commit, --path): 2c6df437 design note; 6890e9db design-note hunks + ccclose export
+  line; 6197df86 CHANGELOG/CONCURRENCY/README hunks; 1568acce cclive. No `git show` used. Read at HEAD in full:
+  instruments/cclive (730), cclive.test.js (440), cclive.design.md (171), man/cclive.1 (187).
+- ccclose pieces read (lines 1160-1200, 1201-1202, 1350, 3063-3067): board() adapter (docs/ROADMAP.md or
+  ROADMAP.md; items dir when the GENERATED banner is in the first 512 bytes), CLAIM_LINE /^\s*[-*]\s+\[~\]/,
+  CLAIM_TIME, FRESH_MS = 600000, exports, `if (require.main === module) main()` (module load has no side
+  effect). cctranscript requires node builtins only.
+- CLAUDE_CONFIG_DIR: honoured by ccfleet/install only; cclive line 712 and ccclose line 137/2786 hardcode
+  ~/.claude/projects. Noted (minor, consistent with ccclose).
+- Mirror sites (coldsweep 'cclive', barred excluded; the --also-exclude for the sibling matched no file, as
+  expected in this partition): CLAUDE.md:24, docs/build/templates/CLAUDE.md:64, PROPAGATION.md:178,
+  CONCURRENCY.md:205-206, CHANGELOG.md:616-626, instruments/README.md rows 24 and table col, man pages of
+  ccclose/ccopen/ccfleet, skills/fleet-sweep/SKILL.md, ccopen (requires cclive). All describe it as read-only,
+  run at open. No contradiction found between them on what it reads.
+- CI wiring: .github/workflows/ci.yml:115 `node --test instruments/*.test.js`, :132 `mandoc -T lint
+  instruments/man/*.1`. cclive.test.js is picked up by the glob.
+- Live store layout (counts only): 396 project dirs, 1590 session jsonl, 603 subagents dirs, 3883 agent logs.
+  Record types in the 5 newest transcripts include `ai-title` (64), `cwd` rides on user/assistant/attachment
+  records; 1 of 5 files had >1 distinct cwd (cwd does move within a session, so the "last cwd" rule is sound).
+- Real claim stamps on this repo's board (coldsweep -i '\bclaimed 20', barred items excluded): queue-run form
+  `🔒 CLAIMED 2026-11-16T11:02Z (claimed 2026-11-16-1102, wt: qr-78ca-floorpy) by queue-run` on line 2+ of
+  items; drain form (160/1000:22, 160/1120:28) `🔒 CLAIMED 2026-11-15T21:29Z UTC for the cold pass, in Mike's
+  weekly Fable drain (his` wrapping over 5+ lines with the session id on a later line; and the CURRENT drain's
+  form (160/1280:18, disclosed board-store read of a non-barred item; c4bc074b touched docs/ROADMAP.md and that
+  item): `🔒 2026-11-22T20:10Z: claimed for the Fable pass by a headless per-pass` — date BEFORE the word
+  `claimed`, at line 18 of a 26-line item, session id `eca14b23` on a later line. None of the five non-barred
+  current-drain items (1190, 1280, 1440, 997, 999) contains `claimed 20` or `CLAIMED`.
+- LIVE RUN from the worktree, 2026-11-22T20:22Z (load 9.9 on 12 cores): text exit 0 in 2.0 s; --json exit 0;
+  text 4,253 B, JSON 70,234 B. Header: root ~/.pets (default), 30 repos, skipped 3 (two non-git dirs named for
+  worktrees and one non-git dir); transcripts 1590 sessions, 88 agent logs walked, 18 fresh. TOTAL sessions
+  14, agents 10, claims 56 (3 dated, 53 undated; 5 repos unknown), worktrees 16, repos 6 active, 24 quiet of
+  30. Limits printed (3 lines). Default root from a linked worktree resolved to the estate parent (PU-5 ok).
+- Live atelier section (public repo): ref origin/main; sessions 7 (6 in worktrees all named `atelier`, branch
+  `HEAD`; 1 in primary on main), agents 6; claims 6 (0 dated, 6 undated: 160/1190, 1280, 1290, 1440, 997, 999
+  = the six passes of THIS drain, all held right now); worktrees 6, every one named `atelier`, branch None
+  (detached), all live. My own session 35fdc260 shown with `self: true`, where ['atelier'], agents 1,
+  lastWrittenAgoMs -1 (negative: written during the run). 160/1290's title withheld from my inspection.
+- Live other repos (type-only): one repo with 46 undated claims and no session; two repos with dated claims
+  (1 and 2) and live worktrees but live_claims 0 in both; 5 repos `no board`; 24 quiet. Worktree basenames:
+  16 worktrees, 9 distinct basenames; one basename used 6 times, one 3 times. 10 sessions sit in a worktree
+  whose basename equals its repo's name (6 atelier).
+- Re-run ledger: `nice -n 10 node --test instruments/cclive.test.js` 32 pass 0 fail, 16.4 s, exit 0.
+  `mandoc -T lint -W style instruments/man/cclive.1` silent, exit 0. `cclive --root /nonexistent-dir` exit 0,
+  header `UNREADABLE (ENOENT)`, transcripts still read. `cclive --fresh 0` exit 2 with the usage error.
+  `cclive --help` exit 0.
+- PIPE PROBE: `cclive --json | wc -c` three runs: 65536, 70241, 70240 vs 70242 to a file. The man page example
+  `cclive --json | jq '.totals'` failed: `jq: parse error: Unfinished string at EOF`, jq exit 5. Control:
+  `node -e 'console.log("x".repeat(1e6)); process.exit(0)' | wc -c` = 131072. Cause: main() calls
+  console.log then process.exit(0) (cclive:723-725); on macOS a pipe is written asynchronously and exit drops
+  the unflushed tail at the 64 KiB pipe buffer.
+- SCRATCH PROBES (script: scratchpad/reviewer/probes.sh; scratch HOME, scratch estate, tool run unmodified
+  from the worktree by absolute path; all deleted at the end of act 1). Results:
+  - P1 real `git grep -z -n -A 4` shape is `ref:path NUL lno NUL text` for match and context alike (od
+    dump), so parseClaims's row grammar holds against real git. A stamp wrapped to line 2 -> dated, session
+    aaaa1111, live (ok). A drain-style `🔒 CLAIMED ...` paragraph after a blank line -> UNDATED, no session,
+    quiet while its session bbbb2222 is live (false quiet). A stamp whose session id falls on the next
+    physical line (`... by drain` / `session cccc3333`) -> dated, session None, quiet while cccc3333 is
+    live (false quiet): cclive:290 reads ids from the stamp line only.
+  - P2 (A2) local main carries a newer unrelated commit; origin/main carries the `[~]` claim: ref chosen
+    `main`, claims 0. The claim in a ref on this machine is invisible, while the limits line says only "a
+    claim not yet in a ref here is unseen".
+  - P3 (lens 4) a repo directory named with ESC `[31m` and U+202E: the text view's repo header (cclive:672)
+    printed both raw (1 line with ESC, 1 with U+202E; `cat -v` shows `rep^[[31mo`); the quiet-line names
+    (cclive:690) take the same path. A non-repo dir with ESC in the skipped list printed sanitised
+    (cclive:653 uses printable). JSON carries the raw name (escaped by JSON.stringify; acceptable).
+  - P4 (A5) 89 files under the scratch estate (.git dirs, trees) and the scratch transcript store: sizes,
+    mtime_ns and sha1 identical before and after three runs (text, --json, --all). No write found.
+  - P5 (A4) cwd in a non-repo sibling `p5-notes` -> elsewhere (correct: the `/` boundary holds). cwd in a
+    nested git repo inside a scanned repo -> credited to the outer repo's primary (documented one-level walk;
+    noted, not a finding).
+  - P7 (A6) a repo whose only branch is `develop`, with a board and a held `[~]` claim: claimsWhy = 'no main
+    or master ref', board = docs/roadmap, quiet = true; the quiet line prints `p7*` with the footnote
+    "(* no board, so claims are unknown)". The footnote is false for it (there is a board) and the held claim
+    is invisible.
+  - P8 (A3) two worktrees of one repo with the same basename (the drain layout `<repo>-<item>/<repo>`), a
+    session live in one, a claim naming `wt: p8` with a dead session id: the claim is live (ok), BOTH
+    worktrees are marked live (cclive:554 matches by basename), and the two `wt` rows print identically
+    (`wt p8 (no branch) ... live [detached]`), as do the session `where` names.
+  - P9 negative `lastWrittenAgoMs` seen only in the live JSON (-1 ms for my own session); `ago()` clamps the
+    text. Trivial.
+  - P10 default root from this linked worktree resolves to the estate parent (30 repos). ok.
+  - P11 hand-kept docs/ROADMAP.md board end to end: claim id `docs/ROADMAP.md:4`, dated, wt read. ok.
+- Doctrine's claim grammar: CONCURRENCY.md:394 example `(claimed 2026-07-13-2140, wt: atelier-reach-h2)`;
+  tools/board.py:210 `CLAIM_RE = r"\(claimed [^)]*\)"` (index surfaces that fragment; :288-291 records the
+  line-2 wrap fix). The current drain's `🔒 <date>: claimed for the Fable pass ...` at item line 18 matches
+  neither CLAIM_RE nor cclive's CLAIM_STAMP (`claimed <date>`), and sits outside the first paragraph.
+- pins.py discover docstring (tools/pins.py:568-580): "A hidden folder or a symlink is not walked, and is
+  named as skipped"; cclive:182 follows a symlinked directory and does not skip hidden ones. The design's
+  "as tools/pins.py discover walks" (design § 5) is not exact.
+- Mirror sites at HEAD read: CLAUDE.md:24-25, templates/CLAUDE.md:63-65, PROPAGATION.md:177-179 ("every
+  live session, claim and worktree on this machine, about 2 s"), CONCURRENCY.md:205-210. Consistent with
+  each other; the "every ... claim" wording is wider than the tool (roots only, main/master only).
+- ASVS 4.0.3 items fetched from the OWASP repo (raw.githubusercontent.com, v4.0.3 tag) and checked against
+  the code: 5.1.3 positive validation of input (parseArgs: allow-list of flags, --fresh > 0) ok; 5.2.2
+  sanitise unstructured data (printable/clip on transcript fields, branch, worktree name, skipped names;
+  NOT on the repo name, P3); 5.3.1 output encoding for the interpreter (terminal: same gap as P3; JSON:
+  JSON.stringify) ; 5.3.8 OS command injection (execFile/spawnSync with argument arrays, no shell; ref comes
+  from for-each-ref's fixed candidates; board path from ccclose; `--` before the path) ok; 12.3.1 path
+  traversal (roots are the operator's own arguments; transcript paths come from readdir) ok.
+- MUTATION RUNS (script scratchpad/reviewer/mutate.sh; scratch copies of cclive, cclive.test.js, ccclose,
+  cctranscript; one suite at a time, niced; the worktree untouched). Each run 32 pass 0 fail:
+  m1 liveNames = every worktree name (a claim naming a QUIET worktree reads live) SURVIVED;
+  m2 locate without the `/` boundary (a sibling dir `alpha-x` credits to `alpha`) SURVIVED;
+  m3 git without --no-optional-locks SURVIVED (the "writes nothing" test cannot see an index lock);
+  m4 primary checkout added to liveWorktrees SURVIVED, but it is an equivalent mutant (markLive only walks
+  linked worktrees), so not counted;
+  m5 `git grep -A 4` -> `-A 0` (a stamp wrapped to line 2 never read end to end) SURVIVED: the wrapped-stamp
+  behaviour is tested only against synthetic rows (grepRow), never through real git;
+  m6 buildIndex without the longest-path-first sort SURVIVED (no fixture nests a worktree inside its repo,
+  the EnterWorktree shape `<repo>/.claude/worktrees/<name>`);
+  m7 quiet ignoring read errors SURVIVED (no fixture has a repo whose git read fails).
+  Controls: m8 (printable on the repo name) and m9 (process.exitCode instead of process.exit) both stay
+  green, so both fixes are test-neutral.
+- Re-run: `nice -n 10 node --test instruments/ccclose.test.js` 153 pass 0 fail, 395 s, exit 0 (load 5.7-7.4).
+- /security-review: discharged with grounds (the worktree's only pending change is the held sibling's
+  deletion; the scanner reads the session's pending diff). Manual ASVS pass recorded above instead.
+- 2026-11-22T20:41Z-20:55Z Act 1 written into the brief below a `---` divider: provenance, lenses, A0-A6,
+  V1-V7, per-commit ledger, findings LV1-LV11 (2 MAJOR: LV1 live claims read undated/quiet, LV2 piped JSON
+  truncated; 4 MODERATE: LV3 one-ref claims, LV4 id read from the stamp line only, LV5 basename identity,
+  LV8 six surviving mutations; 3 minor: LV6 raw repo name (security), LV7 footnote, LV9 overclaims; 2
+  notes: LV10 hard-coded store, LV11 negative age), overall FAIL, re-run ledger, follow-up checklist.
+  Status line updated to ACT 1 RUN / FAIL. Nothing applied (rule 3).
+- Scratch deleted at the end of act 1: probes.sh, mutate.sh, probes/, mut/, live/ (the live text and JSON
+  captures) under the reviewer scratch directory. Act 2 needs nothing from scratch.
+- 2026-11-22T20:45:43Z datescan re-run on the brief after rewrapping; column check; leakscan on the brief. Act 1 saved (uncommitted; the orchestrator commits).
+- 2026-11-22T20:47:16Z ACT 2 released by the orchestrator (act 1 committed as 118742b8). Reading the sibling at the released path and the barred records.
+## Act 2 steps
+- Read the released sibling (9 questions, brief-writer's re-run results of 2026-11-14), the four commit
+  bodies (`git log -1 --format=%B`), pointer 160/1290, intent record 360/020, docs/sessions
+  2026-11-09-1233-queue-run-d0ca.md:20-40 and 2026-11-14-0158-brief-writer-c4d9.md:1-40, board item
+  320/450:1-40, prior verdicts 2026-11-09-0126 (ccclose board order) lines 368-372/553-557 and
+  2026-11-09-0238 lines 424-428. grep over docs/roadmap for 'undated|claim stamp|stamp grammar|CLAIM_RE':
+  no item files the undated-stamp class.
+- Q5/Q4 probe on the pure parser (node -e, read-only require of the worktree's cclive): left-margin claim
+  with "released" in the title -> dated false, session null; indented same -> dropped; "release" (no d)
+  unaffected; `(claimed <date> at 3cf4041d, session aaaa1111)` -> session 3cf4041d. Both real -> LV12, LV13
+  (minor, formed at reconcile). 1568acce's body ("Undated [~] lines are counted, not judged, since a stamp
+  outside an item's first lines reads as undated") -> LV14 (note, formed at reconcile: known, unfiled).
+- Sibling Q1->LV7, Q2/Q3->LV5, Q6->LV6, Q7 no finding (honest), Q8 wording point added under LV9 in the
+  reconcile, Q9 counsel under LV1. Brief-writer's 2026-11-14 figures consistent with mine (ccclose
+  111->153 tests after later commits; estate moved: 4->3 dated, 9->5 no-board).
+- `### Reconcile` appended; Status line updated (both acts run, FAIL, LV1-LV14). Act-1 text unrevised.
+- 2026-11-22T20:50:11Z Act 2 gates: datescan, width, leakscan on the brief; diff against 118742b8 checked for changed act-1 lines; no reviewer scratch exists. ACT 2 SAVED (uncommitted; the orchestrator commits).
+- 2026-11-22T20:50:40Z Final gates after trimming three reconcile lines: datescan clean, no verdict line over 100 columns. ACT 2 SAVED.
