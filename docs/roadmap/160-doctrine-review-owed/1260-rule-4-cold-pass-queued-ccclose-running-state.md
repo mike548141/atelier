@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: ccclose's fourth agent state, still running (`210/380`).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: ccclose's fourth agent state, still running (`210/380`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -24,3 +24,29 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ 2026-11-22T22:42Z: PASS RAN (Fable 5.1, both acts; orchestrator as claimed).
+      **Verdict: PASS-WITH-FINDINGS — 0 MAJOR, 2 MODERATE, 2 minor, 1 note
+      (`LV1`–`LV5`).** No standing MAJOR. MODERATE: `LV1`, the parent-clock
+      test in `runningVerdict` never decides a verdict (0 differences over
+      4.4 M probe cases), yet the code comment, design note, manual and
+      `CHANGELOG.md` call it a second signal, and its one test uses a parent
+      record stamped in the future; `LV2`, the bound's error is stated one way
+      only: the census's own 0.1 % tail past 600 s, and the harness moving an
+      over-cap command to the background, make a working agent read as cut,
+      while the design note says it "never calls a live agent dead". Minor:
+      `LV3` the census has no dated home (five copies); `LV4` two cosmetic
+      branches unpinned. Note `LV5`, a past `--session` read is judged by the
+      wall clock. No finding formed at reconcile; sibling question 5 (does the
+      harness write to a dead agent's file) stays open, unprobed. Suite 153/153,
+      manual lint clean, live proof matched the design note.
+      🎯 **Owed to him (rule 3, every finding is his):** (1) `LV2`, should
+      the running/cut lines state both error directions and drop "never calls
+      a live agent dead", with either a margin above the harness cap or a cut
+      line that prints the silence length (counsel: yes, the line that prints
+      the silence length); (2) `LV1`, remove the parent-clock test and its
+      four statements, or make it a signal that can occur (counsel: remove);
+      (3) bulk-approve `LV3`–`LV4` as one application commit, `LV5` for
+      awareness. Recommendation: approve all three, `LV2` first. *Routing:* an
+      application session in this repo after his word; its diff earns its
+      own cold pass. Verdict, folded sibling and review log:
+      `docs/reviews/2026-11-14-0154-ccclose-running-state-cold.md`.
