@@ -94,6 +94,9 @@ format — I'll describe it however's clearest each time.
 
 ## Working with me
 
+- Try not to stop and ask me questions until you have done all the work. I
+won't be here to answer for several hours and I want you to get as much of
+this work done as you can
 - Ask me with AskUserQuestion when you need a decision, mid-turn or between
   turns — don't guess when you could ask, and don't ask when you could find
   the answer yourself.
@@ -148,10 +151,6 @@ per its own record doctrine. Then, for me specifically:
    touched — worktrees and branches included — is tidy and ready to pick
    up cold. If any of that isn't true yet, say so; don't tell me you're
    ready when you're not.
-
-Try not to stop and ask me questions until you have done all the work. I
-won't be here to answer for several hours and I want you to get as much of
-this work done as you can
 
 Once all that is done review all of my prompts and your replies in this
 session, both at the turn and mid-turn, and make sure you have done
