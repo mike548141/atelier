@@ -3,8 +3,9 @@
 **Pass type:** doctrine cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** BRIEF WRITTEN 2026-11-09 UTC. The pass has NOT run and waits for the principal's
-explicit approval for Fable work.
+**Status:** ACT 1 WRITTEN 2026-11-22 UTC — PASS-WITH-FINDINGS (0 MAJOR, 3 MODERATE, 3 minor), by
+a Fable 5.1 reviewer under the principal's drain order of 2026-11-23 NZDT. Act 2 (reconcile
+against the sibling) pending; findings are the principal's to decide (rule 3).
 **Sizing:** **small** — one commit, about 75 lines of doctrine, with measured figures that can be
 re-derived from transcripts by count.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1100-rule-4-cold-pass-queued-three-channels.md`.
@@ -194,3 +195,260 @@ act-1 text. Then fold the sibling in below the reconcile and delete it.
 
 Every finding is the principal's to decide (rule 3): record all, apply nothing. Counsel per finding
 is welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict — act 1 (cold, before the sibling)
+
+**Overall: PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE (CN1, CN2, CN5) · 3 minor (CN3, CN4, CN6).**
+The two rules the section lands are sound and well placed; what misses is the mechanism the
+section states for the third channel, the section's own compliance with the rule it imposes on
+audits, and the house instrument's third-channel gap, which nothing tracks.
+
+### Provenance (V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), tier checked at selection; the principal-named
+  review tier. Ran on 2026-11-22 UTC (2026-11-23 NZDT), in review worktree
+  `/Users/mike/worktrees/fable/atelier-160-1100-2236/atelier`, detached at `b1307b77`.
+- **Spawn:** started by headless per-pass orchestrator session `23e95a19` (Opus 5.5), itself
+  started by drain session `eca14b23` (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold
+  the context partition, form no finding and write no severity. Neither wrote the brief or the
+  delta. The reviewer was not started or instructed by `722ac2e2` (or anything it started),
+  `84e3aa7f` or `74f2b8cd`, the three the brief bars. No contact from the author or the
+  brief-writer during the pass.
+- **Orchestrator direction received (process only):** the paths and worktree, the barred set as
+  the brief states it plus the sibling removed from the tree, the two files I may write (this
+  brief and a review log at `~/.claude/fable-drain/notes/atelier-160-1100-2236.md`), the gates to
+  run, the load rules, the act-1/act-2 shape and the release timing. It carried no question
+  about the delta, no pointer to where a risk lives and no request about any finding.
+- **Approval:** the principal's drain order of 2026-11-23 NZDT, verbatim, *"Start a fable drain
+  or whatever it is called now. Target 100% of weekly budget by 11.30am NZT todat"*. It is the
+  explicit Fable approval the Status line above waited for.
+- **What I read, disclosed:** this brief whole; `REVIEW.md` whole; the delta body-free through
+  `coldsweep --commit b12c4b15` with the four `--path`s; the later one-sentence edit to the section
+  body-free through `coldsweep --commit e7370f78 --path docs/method/RECORD.md`; the four delta
+  files at HEAD around the touched lines; `COMMUNICATION.md` 214–300; `GUARDS.md` 685–735;
+  `PERSONAL-DATA.md` 1–80; `CONVENTIONS.md` lines 57–59; `instruments/cctranscript` 30–80 and
+  555–625 plus the `searched` lines, its man page 270–320, `instruments/README.md` 350–362;
+  `tools/quotescan.py` 1–25; `docs/decisions/2026-11-09-board-states-design.md` 45–60 (a decision
+  record, not barred, which carries an account of `210/100`'s effect; it steered no finding);
+  `docs/method/census/2026-11-16-1204-apex-autonomy-guards-propagation.md` 365–385; the
+  `CHANGELOG.md` entry and its neighbours' headings; first lines (titles) only of board items
+  `210/100`, `320/080`, `320/100`, `160/1250` and the open `210` items; `docs/ROADMAP.md` line
+  245 as a `coldsweep` hit (this pass's index line, title only). I did **not** open
+  `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, any other file in
+  `docs/reviews/`, the sibling, the queue pointer, the intent record beyond its title, or any
+  commit message body. My harness loaded user-level and repo instruction files and a memory
+  index, which hold private context this verdict does not carry. Transcripts under
+  `~/.claude/projects/` were read read-only and by count only; no text from them is quoted here.
+- **Later edit noted (scope):** `e7370f78` (2026-11-10 UTC, subject `board: queue the cold pass
+  on the asking doctrine (160/1250)`) added one sentence to the section ("A pick is an answer and
+  not a ruling; that section holds the difference and the marks"). It belongs to `160/1250`'s
+  delta by that pointer's title; I read it body-free, formed no finding on it, and note only that
+  it agrees with `COMMUNICATION.md` § *Asking for a ruling*.
+
+### Method, in order
+
+1. Acceptance test read; `git merge-base --is-ancestor b12c4b15 HEAD` exit 0. Floor reproduced
+   at HEAD on both planes (re-run ledger below).
+2. Lens 1: the load-bearing assumptions named from the delta's own text (next section), before
+   any probe.
+3. Lens 2: the delta read body-free; each cross-reference followed to the rule it reaches at HEAD
+   and at the delta commit; the arithmetic of the figures checked; the record-shape claims
+   tested against the live transcript store, by count, with two scripts under my scratchpad
+   (deleted at the end of the pass); the house instrument's own census of the same shapes read
+   as the comparison.
+4. Lens 3: `coldsweep` mirror sweep for the section's vocabulary; board titles for an item that
+   tracks the instrument's third-channel gap; templates and skills for a stamped copy.
+5. Lens 4: privacy of the figures and the prose (no transcript text, children by type, the
+   first name within the closed list); `/security-review` discharged with grounds.
+6. Standing checklist V1–V7; per-commit ledger; findings; follow-ups. The running log holds
+   every command, path and count behind each line.
+
+### Lens 1 — load-bearing assumptions, named then probed
+
+- **A1. There are exactly three channels, and they are three record types a filter tells apart.**
+  *Damaged.* Live store, 2026-11-22: every one of the 1,339 question-box answers is a
+  `type == "user"` record (a `tool_result` block answering an `AskUserQuestion` call, with a
+  top-level `toolUseResult`); all 11,693 mid-turn messages are `type == "attachment"` ·
+  `queued_command`. Two record types, three shapes. The house instrument says the same
+  (`cctranscript` header, lines 74–75: a pick "arrives as a tool_result, reachable only via
+  --tools"). → **CN1.** And "three" is a closed count of live-typing record channels; his words
+  also arrive relayed inside a peer session's message (1,036 `origin.kind: peer` records in main
+  session files, which the section classes as injected) and through the instruction files the
+  harness loads. → **CN6.**
+- **A2. Authorship can be told from record fields, and the pre-field records need a rule.**
+  *Confirmed.* `commandMode` + `origin.kind` separate human (2,396), origin-absent (228), peer
+  (1,036) and task-notification (3,729) in main session files; the instrument's `isHumanQueued
+  Command` encodes exactly this and fails closed on an unknown kind. The schema has moved since
+  the census: a `humanTurn` key (983 records) and an `origin.kind` of `coordinator` (305, agent
+  files) now exist. The section's "need their own rule, not a silent drop" is the right shape.
+- **A3. The loss is scope, not sampling noise.** *Confirmed in direction, unrepeatable in
+  magnitude.* 965 / (3,013 + 965) = 24.3% as stated. On the 2026-11-22 live store (main session
+  files, the house's authorship rule on both channels) typed mid-turn is 29.4% of typed messages
+  (2,628 against 6,297) and the human share of mid-turn records is 35.5% (doctrine: 43.3%). The
+  2026-08-21 corpus itself is gone from the live store, which the harness prunes, so the
+  historic figures cannot be re-derived by anyone later, and the section does not say what
+  corpus they came from. → **CN2, CN3.**
+- **A4. A pick is binding as an answer, not a ruling, and the two homes agree.** *Confirmed.*
+  `GUARDS.md` 724–727 says "as binding as one in the opening prompt"; `RECORD.md` at HEAD says "an
+  answer and not a ruling"; `COMMUNICATION.md` 214–300 holds the distinction and its marks.
+  Binding governs acting on it; ruling governs whose words the doctrine may carry. No conflict.
+- **A5. "Written down before the turn ends" is workable.** *Not probed* (no live instance to
+  drive); noted as a clause a session can meet only if the instruction arrives with turn left.
+  No finding.
+- **The brief's account of the work** ("about 75 lines of doctrine, with measured figures that
+  can be re-derived from transcripts by count"): the line count holds (76 insertions); the
+  re-derivation claim holds for direction only, as A3 says. Noted against the brief, not the
+  delta.
+
+### Lens 2 — correctness and quality
+
+- **CN1 (MODERATE).** `RECORD.md` 366–369 (delta): *"In a Claude Code transcript these are stored
+  as three different record types, and a read that filters on the first (`type == "user"`) drops
+  the other two silently."* The pick is itself a `type == "user"` record; the filter keeps it and
+  a reader that then takes `message.content` as a string sees nothing in it. The effect the
+  sentence names (the pick is lost) is right; the mechanism is wrong, and `320/080` is to build
+  its corpus on this section. The instrument's own history is the accurate account: a read keyed
+  on `type === 'user' && !toolUseResult` sees channel 1 only (`cctranscript` 555–562).
+- **CN2 (MODERATE).** `RECORD.md` 386–395: *"Measured across the estate's transcripts
+  (2026-08-21, classified identically on both channels)"*. The section's second rule is that an
+  audit "says which of the three channels it read" and "states that corpus"; its own grounding
+  names "both channels" in a three-channel section without saying the third was not counted,
+  gives no corpus bounds (which store, which date range, which session files), and says
+  "classified identically" without saying how channel 1's authorship was told (on the live store
+  78% of string-content user records in main session files are harness task notifications, and
+  headless sessions' opening prompts are machine text). V5: the section's evidence fails the
+  section's test.
+- **CN3 (minor).** `RECORD.md` 397–399: *"Only **43.3%** of mid-turn records are typed by the
+  principal; the rest are task notifications, messages from other sessions and system reminders"*.
+  Present tense, undated, in doctrine: on 2026-11-22 the figure is 35.5%. And neither the
+  instrument's 2026-09-18 census nor the live count finds a system-reminder shape in the mid-turn
+  channel (task notifications and peer messages only); system reminders arrive in channel-1
+  records. V1.
+- **CN4 (minor).** `CHANGELOG.md` 1717 heads the entry *"(2026-11-09 — …)"*; the commit landed
+  2026-11-08 11:56 UTC (`TZ=UTC git log --date=iso-local b12c4b15`), and the entry's own body
+  dates the pick "2026-11-08". `CONVENTIONS.md` line 57: UTC at rest. The three neighbouring
+  headings (1702, 1736; commits 12:04–12:32 UTC) share the class; `datescan` checks the shape,
+  not the frame. Mixed frames inside one entry.
+- Arithmetic, cross-references, past tense for `cctranscript`'s one-channel read (`210/100` is
+  closed and the instrument reads two channels at HEAD), the acceptance test's attribution
+  ("Adopt both rules", marked as an answer): all sound.
+
+### Lens 3 — completeness and harvest
+
+- **CN5 (MODERATE).** The rule's first subject in this house is `cctranscript`, the instrument an
+  audit of "what did he ask for" runs (the in-repo instance: `docs/decisions/2026-11-09-board-
+  states-design.md` 50–54, a record that said he never typed two markers because the read
+  predated `210/100`). At HEAD it reads channels 1 and 2 and names what it searched by *layer*
+  ("searched prompts+replies…", "Tool output not searched…"), never by the section's three
+  channels, and a pick is "undistinguished from other tool output" even with `--tools` (its own
+  header). No board item queues the third channel (`grep` over every item naming `cctranscript`
+  for pick / question-box / `AskUserQuestion`: none; the open `210` items by title: none). The
+  delta's "Not done here" names `320/080` and `320/100` only. The rule landed without a home for
+  the house's own compliance with it.
+- **V3 mirror sites:** `GUARDS.md` pointer, `README.md` index line and `CHANGELOG.md` entry all
+  present and consistent at HEAD. No copy in `docs/build/` or `skills/`, and none is owed: the
+  rule is parent doctrine read on demand, not floor text. Discharged.
+- **V4 one home:** the rule lives in `RECORD.md`; `GUARDS.md` carries a pointer, not a copy;
+  `CHANGELOG.md` is a record. The figures are repeated in `CHANGELOG.md` as a record of what
+  landed. Discharged.
+- **Name collision, note only:** `tools/quotescan.py` exists at HEAD (`115/110`, `160/900` QK1)
+  and reads the *form* of a commit message; its docstring defers the corpus problem to
+  `320/080`, whose proposal is also called `quotescan`. Not this delta's defect; `320/080`'s
+  taker should know.
+- **CN6 (minor).** Lens 1's second half. The section's binary (his typing vs injected text)
+  has a third case the house produces every drain: his words relayed verbatim inside a peer
+  session's message (this pass's spawn prompt quotes his drain order that way). An audit built
+  on the section as written classes the record as injected and the words as not his; "He never
+  asked for that" can then be false for words he did say. The section's second rule (state the
+  corpus) contains the fix; the text should name the case so a corpus builder does not learn it
+  from a wrong count.
+
+### Lens 4 — security and privacy
+
+- The section carries counts, a harness field name and children by type; no transcript text, no
+  private repo name, no path. "Mike" is PD4 of the closed list. Checked line by line. Clean.
+- My own re-derivation: two scripts under the session scratchpad, read-only over
+  `~/.claude/projects/`, printing aggregate counts and field names only; outputs held in the
+  scratchpad and deleted at the end of the pass; counts only in this verdict and the log.
+- `/security-review`: **NOT RUN, discharged.** The delta is landed markdown, which the scanner
+  excludes, and the worktree is dirty with the sibling's removal and this brief; a clean pass
+  would be definitionally empty. Weighed as nothing.
+- No live write of any kind was made.
+
+### Standing checklist V1–V7
+
+- **V1** — CN1, CN2, CN3: three claims stronger than their evidence, one of mechanism, two of
+  measurement.
+- **V2** — floor re-run on both planes, exit 0 each; the figures re-derived in direction on the
+  live store; the historic corpus is not recoverable (CN2 asks the section to say what it was).
+- **V3** — mirrors present and consistent; no stamped copy owed. Discharged.
+- **V4** — one home. Discharged.
+- **V5** — cross-references reach their rules: `COMMUNICATION.md` § *Asking for a ruling* (the
+  device rule and answer-vs-ruling, line 214 at HEAD, 205 at the delta); `GUARDS.md` § *A rule
+  with no home is not a rule* (the homing test, 685 / 350); `210/100` exists and is closed. The
+  internal contradiction is CN2: the section's own audit does not meet the section's rule.
+- **V6** — lens 4 above; scanner discharged with grounds.
+- **V7** — provenance above and in the brief.
+
+### Per-commit ledger
+
+- `b12c4b15` (the delta) — read body-free: yes, `coldsweep --commit` with the four `--path`s.
+  Findings: CN1, CN2, CN3, CN4, CN5, CN6.
+- `e7370f78` (later; one sentence in the section; `160/1250`'s delta by that pointer's title) —
+  read body-free: yes, `coldsweep --commit --path docs/method/RECORD.md`. Findings: none; outside
+  this pass.
+
+### Re-run ledger
+
+- `nice -n 10 python3 tools/floor.py --plane hook --root .` at HEAD `b1307b77`: exit 0; 19 of 19
+  checks run, every enforced check green, warn-only checks clean.
+- `nice -n 10 python3 tools/floor.py --plane ci --root .`: exit 0; 20 of 21 run; advisories only:
+  secretscan 29, leakscan 3, pointerscan 10 (1 grammar, 9 queue state, on other passes' pointers),
+  declarations 0 of 21 meet all five.
+- 965 / (3,013 + 965) = 24.26%, printed as 24.3%. As stated.
+- Live count, 2026-11-22, main session files, house authorship rule on both channels: typed
+  opening 6,297; typed mid-turn 2,628 (29.4%); mid-turn human share 35.5%; picks 1,339, every one
+  a `type == "user"` record.
+- `/security-review`: NOT RUN — discharged, grounds in lens 4.
+
+### Findings
+
+- **CN1 — MODERATE.** The pick channel's record mechanics are misstated: picks are
+  `type == "user"` records, so "three different record types" and "a `type == "user"` filter
+  drops the other two" are both false for channel 3 (`RECORD.md` 366–369). *Counsel:* reword to
+  two record types and three shapes, and name the real trap: a read keyed on user records
+  without tool results sees channel 1 only; a pick lives in a `tool_result` answering
+  `AskUserQuestion`.
+- **CN2 — MODERATE.** The grounding paragraph does not meet the section's own second rule: no
+  corpus bounds, two channels named as "both" in a section about three, no statement of how
+  channel-1 authorship was told (`RECORD.md` 386–395). *Counsel:* one clause naming the store,
+  the date bounds and the two channels counted, and that picks were not; the method may point at
+  the intent record, which rule 2 governs.
+- **CN3 — minor.** The 43.3% figure is undated present tense in doctrine and names a record kind
+  (system reminders) the mid-turn channel does not carry (`RECORD.md` 397–399). *Counsel:* date it
+  as the first figure is dated; "task notifications and peer sessions' messages".
+- **CN4 — minor.** `CHANGELOG.md` 1717 is dated on the local day; the commit and the entry's own
+  body are 2026-11-08 UTC; the class is shared with the batch's neighbours. *Counsel:* `2026-11-08`;
+  a board item for the class if the principal wants the frame checked, since `datescan` reads
+  shape only.
+- **CN5 — MODERATE.** The house's own audit instrument reads two of the three channels, names
+  layers rather than channels, and nothing on the board tracks the third; the delta's non-goals
+  omit it. *Counsel:* a `210` item: `cctranscript` reads a pick as the principal's answer (not
+  bare tool output) and its search footer names the three channels it read and did not.
+- **CN6 — minor.** The typing-versus-injected binary misses his words relayed inside a peer
+  session's message; the heading's closed count of "three" is the confident shape the section
+  warns against. *Counsel:* one sentence naming the relayed case as a corpus rule, and "three
+  channels in the transcript" rather than "three ways".
+
+Every finding is the principal's to decide (rule 3); nothing is applied here.
+
+### Follow-up checklist
+
+- [ ] Principal rules on CN1–CN6 (each may be fixed, backlogged or rejected with grounds).
+- [ ] If CN5 is accepted: a `210` item for `cctranscript`'s third channel and channel-named footer.
+- [ ] `320/080`'s taker reads CN1, CN2 and CN6 before building the corpus, and knows a
+      `tools/quotescan.py` already exists under that name.
+- [ ] If CN4's class is accepted: a check or a habit for UTC-day headings in `CHANGELOG.md`.
+- [ ] Act 2: reconcile against the sibling and the barred records; screen the commit body.
