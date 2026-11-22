@@ -4,11 +4,11 @@
 function, rule 3).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-22 UTC — PASS-WITH-FINDINGS (0 MAJOR, 2 MODERATE, 4 minor,
-2 note), by a Fable 5.1 reviewer under orchestrator session `e55d14f5` (drain session `eca14b23`),
-on the principal's drain order of 2026-11-23 NZDT. Act 2 (reconcile against the sibling and the
-commit bodies) follows once act 1 is committed. Every finding awaits the principal's decision
-(rule 3). Brief written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5 brief-writer.
+**Status:** PASS RAN, acts 1 and 2 complete, folded 2026-11-22 UTC — PASS-WITH-FINDINGS (0 MAJOR,
+2 MODERATE, 5 minor, 3 note), by a Fable 5.1 reviewer under orchestrator session `e55d14f5`
+(drain session `eca14b23`), on the principal's drain order of 2026-11-23 NZDT. The sibling is folded
+below the verdict. Every finding awaits the principal's decision (rule 3). Brief written 2026-11-09
+UTC by session `d4a0fcf3`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/997-rule-4-cold-pass-queued-floor-region-skip-and-markup-rule.md`.
 **Size of this pass:** medium: two commits, about 280 lines across two scanners that reach every
@@ -170,8 +170,7 @@ nice -n 10 python3 -m unittest discover -s tools
 <!-- reviewscan:allow:deferral: this section BARS reading and carries no deferred content; the deferred material lives in the sibling .deferred.md under the rule-1 split, opened only after the reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
-verdict in `docs/reviews/`, this brief's sibling
-`docs/reviews/2026-11-09-0207-floor-region-skip-markup-rule-cold.deferred.md` (a held-back file; by
+verdict in `docs/reviews/`, this brief's sibling (a held-back file, now folded below the verdict under *Deferred sibling*; by
 count: 7 questions, 0 facts), every other item under `docs/roadmap/160-doctrine-review-owed/` beyond
 its title, every delta commit's message body, and these intent records beyond their first line:
 
@@ -478,3 +477,407 @@ repo carrying the canonical source)"). *Counsel:* one sentence naming the conven
 - [ ] FK6 — pin the hidden inventory, or move the allowance to the canonical line.
 - [ ] FK7, FK8 — record only.
 - [ ] Act 2: reconcile against the sibling (7 questions, 0 facts) and the commit bodies.
+
+### Reconcile (act 2, 2026-11-22 UTC)
+
+Read after act 1 was committed (`072e3f2a`): the held sibling (7 questions, 0 facts, the
+brief-writer's re-run results), the two commit bodies, both intent records whole, the `160/997`
+pointer, and the one prior record the sibling names
+(`docs/reviews/2026-10-16-1510-expected-toolbox-cold.md`, the pass on the floor sentence that
+introduced the path; it holds nothing on the child-side resolution). Act-1 text above is unrevised.
+
+**The brief-writer's re-run results against mine.** Same six lines, same exits. Counts have grown
+with the tree since 2026-11-09 (154 → 172 pathscan tests, 84 → 88 conflictscan, 2 643 → 3 382 in
+the full suite, 1 167 s → 1 163 s). Its note that the system Python 3.9.6 cannot import four test
+modules (`str | None` at module level) explains why the brief fixes `python3` to the PATH 3.14; the
+two module suites and the mutations I ran on 3.9.6 imported fine, so nothing in the ledger depends
+on that.
+
+**Per seeded question.**
+
+1. *Keys on the file's absence; a child with its own `docs/method/PROPAGATION.md`, or a parent
+   that deletes it.* Found independently as **FK8** (note). The author's account (commit body,
+   docstring) states the convention half-way; nothing names it as a convention. Unchanged.
+2. *Who checks the skipped block if stampscan is warn-only or disabled in a child; "not silent" on
+   every plane?* Found independently as **FK1** (MODERATE), and the answer is sharper than the
+   question: `stampscan` does not run in a child on any plane; the checkers are `pins --floor` and
+   `floorhook`, atelier-side or session-start, warn-only until 2026-12-09. The commit subject and
+   body ("which stampscan checks") repeat the overclaim. Unchanged.
+3. *A child's own text inside the markers, with a bad path, skipped silently; does stampscan run on
+   every file pathscan does?* Partly **FK6**; and one new fact: `pins` and `floorhook` read only the
+   child's root `CLAUDE.md` (`pins.py` lines 5, 88, 148 of `floorhook.py`), while pathscan skips a
+   floor block in *any* file. Counted read-only across the 29 repos: 22 stamps in root `CLAUDE.md`
+   and **9 more files in 8 repos** carry the floor stamp elsewhere; pathscan now skips those and no
+   runner compares them. → **FK10, formed at reconcile.**
+4. *`clean` false for advisories: did it keep its meaning?* Before the delta `clean` ⇔ exit 0;
+   now `clean` can be false at exit 0. The docstring's "keeps its meaning — nothing found at all" is
+   a redefinition in effect. No in-tree consumer reads conflictscan's JSON `clean` (grep of
+   `tools/`, `instruments/`, workflows), and the README and CHANGELOG announce `blocked` and
+   `counts`. No finding; recorded as answered.
+5. *The ignore entries exempt two frozen records from the conflict-marker check too; proportionate?*
+   **FK7** (note), unchanged. The body's "records are history and are not rewritten" is the stated
+   ground; `RECORD.md` 58 and 312 carry the append-only principle.
+6. *`TOOL_CLOSE_RX` on an indented or fenced quote; `TOOL_OPEN_RX` unanchored at the end — does the
+   doctrine about this tool start a line with `<parameter name=`?* Tested and measured: an indented
+   quote is clean by test (`test_anything_not_exactly_the_shape_is_clean`); the intent record and
+   this brief quote the tags mid-line or in backticks; the JSON re-run over this tree found 0
+   advisories and the estate count found 0 column-0 opener lines anywhere. No finding. (Act 1's
+   **FK5** stands on the other side of the same regexes: the openers are ungrounded.)
+7. *Can a flood of advisory findings consume the shared materialisation budget, so a real conflict
+   marker is counted but never listed?* Yes, by construction: `Tally.take_finding_slot` draws both
+   tiers from one `_materialized` counter (lines 240–252), so after 50 000 advisory findings a
+   later conflict marker goes to `findings_over_cap` — it still moves the exit code to 1 and prints
+   the over-cap line, but its path and line are never listed. `test_cap_counts_advisory_overflow_
+   separately` pins exactly this split. Pathological (fifty thousand leaked lines first), and the
+   gate still fires. → **FK9, formed at reconcile.**
+
+**Against the author's account (commit bodies, intent records).** Both bodies say the floor skip
+was *option 3* of `320/610`; the record also offered *option 2*, the allow-marker carried in the
+canonical text, and neither the body nor the record says why 3 was chosen over 2 — this is FK6's
+counsel, known to the author and not weighed in writing. Both bodies repeat "one edit" (FK3) and
+"which stampscan checks" (FK1). The `92dd817` body's "children float at floor@main" is the blast
+radius FK2 rests on. The `320/490` record names the real leak shape (`</content>` then
+`</invoke>`), which the estate count confirmed, and proposes the two opener shapes without an
+instance (FK5). The `320/610` record confirms pathscan is warn-only in children ("It is warn-only
+there, so nothing blocks"), the mitigation that keeps FK1 out of MAJOR. Nothing in the records
+changes any act-1 severity.
+
+**FK9 — note, formed at reconcile — One materialisation budget for two tiers.** After 50 000
+advisory findings a real conflict marker is counted, blocks, and is not listed by path. *Counsel:*
+a separate budget per tier, or let blocking findings pre-empt an advisory slot.
+
+**FK10 — minor, formed at reconcile — A floor stamp outside root `CLAUDE.md` is skipped by
+pathscan and compared by nobody.** `pins`/`floorhook` read root `CLAUDE.md` only; the skip applies
+to any file; 9 such files exist in 8 repos today. *Counsel:* either confine the skip to the file the
+checkers read, or have `pins --floor` walk every stamped file.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR, 2 MODERATE (FK1, FK2), 5 minor (FK3–FK6,
+FK10), 3 note (FK7, FK8, FK9).** Every finding is the principal's to decide (rule 3); nothing
+applied.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+The text below is the brief's `.deferred.md` sibling, verbatim, held out of the review tree until
+the reviewer's act 1 was committed (`49427c4d` on main) and released to the reviewer for
+act 2 only. Orchestrator session `e55d14f5` folded it here unchanged and removed the sibling file;
+it forms no finding and assigns no severity. The sibling's own headings are kept as written.
+
+# Sibling to the floor-region-skip-markup-rule cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-11-09-0207-floor-region-skip-markup-rule-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-11-09 UTC by the brief-writer, session `d4a0fcf3` (Opus 5.5), named in the
+brief's provenance; it forms no finding and assigns no severity. Fold this file in below the
+reconcile and delete it at phase 2.
+
+## Re-run results held back from the brief
+
+Run once by the brief-writer, 2026-11-09 UTC, from the worktree root at `b1f9499`, machine load
+averages 10 to 22 throughout:
+
+- `python3 -m unittest discover -s tools -p test_pathscan.py`: exit 0 (Ran 154 tests).
+- `python3 -m unittest discover -s tools -p test_conflictscan.py`: exit 0 (Ran 84 tests).
+- `python3 tools/pathscan.py --selftest`: exit 0 (selftest OK — pathscan).
+- `python3 tools/conflictscan.py --selftest`: exit 0 (selftest OK — conflictscan).
+- `python3 tools/conflictscan.py --root . . --json`: exit 0 (}).
+- Full suite, `nice -n 10 python3 -m unittest discover -s tools`, Python 3.14.6: 2,643 tests, OK,
+  exit 0, 1,167 s. An earlier run on the system Python 3.9.6: 2,307 tests, 4 import errors
+  (`test_floor`, `test_floorfleet`, `test_personal_data`, `test_precommit`: a module-level `str |
+  None` annotation) and 1 timeout under load (`test_spellscan.BoundedMemory`, which passed alone on
+  3.14).
+
+## Prior records on nearby surfaces (named by filename, not opened unless the brief says so, not exhaustive)
+
+- `docs/reviews/2026-10-16-1510-expected-toolbox-cold.md`
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. The skip keys on the file's absence: a child that holds a `docs/method/PROPAGATION.md` of its
+   own, or a parent that deletes it. Does the test then flip for reasons nothing states?
+2. Who checks the skipped block if `stampscan` is warn-only or disabled in a child? The docstring
+   says "not silent": is that true on every plane and for a child that disables it?
+3. A child's own text placed inside the stamp markers, with a bad path: skipped silently. An
+   unterminated `stamp:begin` near the top of a long file skips the rest. Does stampscan run on
+   every file pathscan does?
+4. `clean: not findings and not blocking_total and not advisory_total`: the docstring says `clean`
+   keeps its meaning. Did it? A consumer gating on `clean` sees a new false.
+5. The `.conflictscanignore` entries exempt two frozen records from conflict-marker checks too,
+   which the comment names. Is that hole proportionate, given the rule is advisory and an
+   allow-marker cannot be added?
+6. `TOOL_CLOSE_RX` needs the whole line; an indented or fenced quote of the markup? `TOOL_OPEN_RX`
+   has no end anchor: prose or docs that start a line with `<parameter name=`? The doctrine about
+   this tool does that.
+7. The cap accounting (`advisory_over_cap`): can a flood of advisory findings consume the shared
+   materialisation budget, so a real conflict marker is counted but never listed?
+
+## Facts held back from the brief
+
+None.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log — atelier 160/997, floor-region skip + tool-markup advisory (cold pass)
+
+Reviewer: Fable 5.1 (claude-fable-5-1), tier checked at selection. Spawned by orchestrator session
+e55d14f5 (Opus 5.5), itself started by drain session eca14b23 (Opus 5.5); both off-tier rule-4
+orchestrators holding the context partition, forming no finding, writing no severity. Neither wrote
+the brief or the delta. Not started or instructed by d4a0fcf3, 74f2b8cd or 4c65083c.
+Review tree: /Users/mike/worktrees/fable/atelier-160-997-2004/atelier (HEAD 755185a9).
+Brief: docs/reviews/2026-11-09-0207-floor-region-skip-markup-rule-cold.md.
+Scratchpad for probes: the session scratchpad only; deleted at finish.
+All commands run from the review tree with `git -C` / absolute paths; `/usr/bin/python3` unless a
+re-run line says `python3` (noted per line).
+
+## Act 1
+
+### Step 1 — orientation (2026-11-22T20:06Z)
+- Read the brief whole (lines 1–212). Barred list noted: ROADMAP-DONE, SESSIONS, docs/sessions/,
+  prior verdicts, the .deferred sibling (shown deleted in the tree; expected, not sought), other
+  160/ items beyond title, delta commit bodies, the two 320/ intent records beyond line 1.
+- `uptime`: load 5.55 (16 GB laptop, several passes running). Heavy lines will run under nice.
+- `git status --short`: only ` D` of the sibling. `git rev-parse HEAD` = 755185a9.
+- `git merge-base --is-ancestor 92dd817 HEAD` exit 0; same for 24ac5b8 exit 0. Delta is in HEAD.
+- Reading docs/method/REVIEW.md (835 lines) whole for verdict shape and V1–V7; docs/method/GUARDS.md
+  (780 lines) whole as the acceptance-test yardstick the brief names.
+
+### Step 2 — the delta, body-free (2026-11-22T20:10Z)
+- `/usr/bin/python3 tools/coldsweep.py --root . --commit 24ac5b8 --path <the 9 delta paths>`: exit 0;
+  subject + stat + diff of 4 files (CHANGELOG.md, tools/README.md, tools/pathscan.py,
+  tools/test_pathscan.py); 2 board files left out by default; body not printed. Read whole.
+- Same for `--commit 92dd817`: exit 0; 7 files (.conflictscanignore, CHANGELOG.md, tools/README.md,
+  tools/conflictscan.py, tools/floor.py, tools/test_conflictscan.py, tools/test_floor.py); 3 board
+  files left out by default (incl. the 160/997 pointer and the 320/490 intent record). Read whole
+  from the saved tool output. coldsweep's note: `--path` for files a commit did not touch printed a
+  "matched no changed file" note; harmless.
+- `git log --oneline 92dd817..HEAD -- <8 delta paths>`: about 80 commits touch these paths since the
+  landing (shared tool files; e.g. 115/130 coverage lines, 160/xxx applications). None by subject is
+  a follow-up to 320/610 or 320/490. So I review the delta AS IT STANDS AT HEAD (755185a9), reading
+  the HEAD files, and use the two commit diffs to know what the delta introduced.
+- Read docs/method/REVIEW.md whole (verdict shape, rules 1–4, V1–V7, method-record requirement) and
+  docs/method/GUARDS.md whole (narrow/noisy/reasoned/declared; acceptance vs deferment; "a repo may
+  lower a check's response only with a written reason and an end date"; a guard that cannot
+  recognise the state it exists to detect is not a guard; evidence window).
+
+### Lens 1 — my own load-bearing assumptions, named before probing
+A1. (pathscan skip) "stampscan checks the floor region in a child, so skipping it is not silent"
+    holds only if stampscan (a) runs in a child's CI, (b) can reach the canonical text there, and
+    (c) is enforced, not advisory/disabled. To probe: floor.py registry, stampscan.py child path.
+A2. (pathscan skip) The skip is whole-region, keyed on the root lacking docs/method/PROPAGATION.md.
+    Probe: what else the region could hide (child-relative paths), and a child holding a same-named
+    file of its own.
+A3. (conflictscan markup) The regexes recognise the leak the rule exists for. The opener matched is
+    `<parameter name=` but the closer matched is `</content>`, not `</parameter>`; the harness's real
+    tags may carry a namespace prefix. Probe: tag shapes present in tracked files across the estate
+    (count only), and the delta's own fixtures.
+A4. (conflictscan markup) An undated in-tool advisory tier is a deferment with no expiry. Probe:
+    GUARDS § Acceptance and deferment; the house's dated-grace precedents (leakscan G3, blockscan,
+    allowmarker MALFORMED_GRACE_UNTIL).
+A5. (both) Comments/docstrings at HEAD agree with the code (V5). Probe: read HEAD files.
+
+### Step 3 — HEAD reads and the facts behind A1–A5 (2026-11-22T20:12Z to 20:20Z)
+- Read tools/conflictscan.py whole at HEAD (894 lines). Delta code at HEAD: lines 83–100 (fifth
+  shape docstring), 153–157 (exit codes), 220–225 (Tally cap counters), 285–307 (TOOL_* constants),
+  318–324 (Finding.blocks), 332–358 (advisory_count_line, _tool_markup_finding), 361–367 (_record),
+  403 (_line_finding falls through to tool markup), 637–699 (render), 773–798 (totals, JSON, exit).
+- Read tools/pathscan.py lines 730–830 at HEAD (stamp regex copy, floor_region_skipped, _FenceState
+  with in_region) and grep of `skip_floor` sites (lines 1302–1323: scan_text/scan_file derive it from
+  root). pathscan has no --staged mode: whole tree on both planes (floor.py 1014–1030), and its
+  registry entry is `--warn` on hook, ci AND advisory (floor.py lines 1030–1039 by grep): pathscan is
+  warn-only in every child. So the skip removes a WARNING line, never a block.
+- Read tools/stampscan.py lines 1–60: "REVIEWED, WIRED ADVISORY IN ATELIER ONLY … deliberately NOT in
+  the floor.py registry, NOT in the reusable floor.yml, and NOT in the pre-commit hook … any
+  scaffolded child that ran this scanner would exit 2". `grep -n stampscan tools/floor.py` → no hits.
+  `.github/workflows/ci.yml:198–199` runs it `--warn` in atelier only. So A1(a) is FALSE as worded:
+  stampscan the scanner never runs in a child. What does check a child's floor copy: tools/pins.py
+  (`pins --floor`, `check_copy` lines 288–304, uses stampscan.find_stamp_blocks/evaluate_block as a
+  library; COPY_MALFORMED in FLOOR_FINDINGS, line 760) run from atelier or by hand, and
+  tools/floorhook.py (warn-only SessionStart hook, lines 3–17, 215–228). No child-side CI plane runs
+  either: `grep -rn "pins.py|--floor|floorhook" docs/build/templates .github/workflows` → nothing;
+  `floor.yml` does not exist at the repo root (ls). pins blocks only from COPY_BLOCKS_FROM
+  2026-12-09 (pins.py:186), and only when someone runs it.
+- Re-drove the "malformed is not silent" claim through the runner children have:
+  `pins.check_copy("t", <template with its stamp:end removed>, floor_region_at(W,"HEAD"))` →
+  ('malformed', 'stamp:begin at line 19 was never closed with a stamp:end before end of file').
+  A one-line edit inside the region → 'drift'. The template's OWN copy → 'drift' (detail: unfilled
+  placeholders <SHA>, <atelier-path>, <visibility check>, <visibility fact>, and the heading line not
+  in the canonical region); that is the template, not a child, and stampscan runs --warn on it.
+- GUARDS facts used: § Acceptance and deferment (a deferment carries a reason AND an expiry;
+  "a deferment that cannot lapse is an acceptance that never admitted what it was"); § Ruled
+  2026-11-09 ("a lowering with no end date is not a lowering this model allows"; line marker and
+  ignore glob stay acceptances); § Where a guard recognises its own work by a convention; § Before
+  building a check (evidence window); § What every check declares (grounding and replay: each
+  incident by reference, with a test that replays it).
+- Dated-grace precedents in tools/ (grep `_UNTIL|_FROM = `): attribscan ATTRIBUTION_WARN_UNTIL
+  2027-02-08; blockscan SUBSECTION_WARN_UNTIL 2027-01-11; namescan NAME_WARN_UNTIL 2027-05-03;
+  pdlistscan PERSONAL_DATA_WARN_UNTIL 2027-03-08; quotescan QUOTE_WARN_UNTIL 2027-05-31; leakscan
+  TYPE_LEVEL_UNTIL / DOCUMENT_UNTIL 2026-11-20; allowmarker MALFORMED_GRACE_UNTIL 2026-12-09; pins
+  COPY_BLOCKS_FROM 2026-12-09; floor.py sizescan bars 2026-12-09; board FULL_FORM_ACCEPTED_UNTIL
+  2026-12-04. conflictscan's tool-markup tier: no date constant (grep of conflictscan.py for
+  `date(`/`UNTIL`/`FROM`: none). Board item 320/780 (read whole; not barred) is event-dated ("once
+  no child's tree carries the leak"), probed 2026-11-06: 8 findings in three children.
+- allowmarker.load_ignore_globs (lines 504–523): an ignore glob is "a whole path, every rule,
+  indefinitely"; optional `review-by:` (110/060, lines 540+). conflictscan's marker is unscoped
+  (`marker_rx(ALLOW_MARKER)`, line 185; docstring 188–196 says one rule per line, so no scope).
+- Brief's coldsweep sweep (exact command from the brief, run from the worktree): exit 0, 63 hits over
+  748 files, 1017 excluded as barred. Hits are the delta's own files, CHANGELOG, README, ROADMAP line
+  440 (320/780's title), 320/780 and 115/220 items, leakscan/secretscan/linkscan siblings. Nothing
+  barred was opened. The sweep showed me 320/780's title and two fragments; I then read that item
+  whole, which the brief does not bar.
+- RECORD.md grep (`append-only|rewritten`): lines 58, 312 state the append-only principle for
+  records, which the .conflictscanignore stanzas rely on.
+
+### Step 4 — probes (synthetic fixtures in the scratchpad; children read-only, counts only)
+P1 (A2, what the skip hides): copied docs/build/templates/CLAUDE.md into a scratch "child" root and
+  ran `pathscan.scan_text` with skip_floor=False then True. OFF: 9 missing-path findings; ON: 8. The
+  region spans template lines 19–129; the ONLY finding inside it is ('method/TOOLBOX.md', 124). So
+  today the whole-region skip hides exactly one line's path, as the docstring says.
+P2 (regex cost, lens 4): timed pathscan._STAMP_BEGIN_RX (identical to stampscan's by the pin test)
+  on `<!-- stamp:begin source=a region=b narrow=` + N spaces + `z` through `_FenceState(True)
+  .is_content`: N=10000 → 413 ms, N=40000 → 7031 ms (quadratic; `.+?` then `\s*-->`). Trailing
+  whitespace is neutralised by `line.strip()`; an interior run is not. pathscan's LINE_WINDOW_BYTES is
+  256 KiB (pathscan.py:841) so one crafted line costs on the order of minutes. With skip_floor=False
+  (atelier itself) the same line costs 0.0 ms, because _in_floor_region is not called. TOOL_CLOSE_RX
+  on a 4 MB rest: 3.2 ms (linear).
+P3 (mutations; scratch copy of tools/ at HEAD, `diff -q` proved identical before each run; each run
+  `nice -n 10 /usr/bin/python3 -m unittest discover -s <scratch>/tools -p <file>`; file restored
+  from HEAD after each):
+  M1 pathscan: ignore source/region identity → FAILED 1 (test_other_region_or_source_is_not_skipped).
+  M2 pathscan: never leave the region → FAILED 3 (continuation window, fence inside region, same path
+     outside). M3 pathscan: skip everywhere → FAILED 1 (canonical_source_in_tree). All three caught.
+  M4 conflictscan: TOOL_CLOSE_RX widened to also match `</parameter>` → only the control failure
+     (below): SURVIVES. The tests do not pin which closing tags are NOT the shape.
+  M5 conflictscan: drop `is_final_window` on the closer → SURVIVES (behaviour-neutral for a bare
+     closer: an overlong line never has an empty rest; untested but harmless).
+  M6 conflictscan: advisory counted in the exit code → FAILED 3 (never_blocks, json_shape, control):
+     caught. M7 sanity (closer blind on line 2) → FAILED 11: the suite reaches the shapes.
+  CONTROL: unmutated scratch copy → FAILED 1: test_absolute_staged_path_is_refused, because the
+  scratch dir is not inside a git repo (refusal text differs). In the worktree the same suite is OK
+  (step 5). So M4 and M5's single failure is the control's, not the mutation's.
+P4 (estate, counts only; script estate_probe.py in the scratchpad, `nice -n 10`): 29 git repos
+  beside atelier's main checkout (via tools/estate.py), 22 carry the floor stamp. Tag-shape lines in
+  tracked text files across all 29: `</content>` 2 (1 repo), `</invoke>` 1 (1 repo), `</parameter>`
+  0, namespaced closers 0, `<invoke name=` 0, `<parameter name=` 0, namespaced openers 0, closer with
+  trailing text 0. pathscan findings hidden by the skip (forced off minus derived): exactly 1 in each
+  of the 22 stamped repos, 0 in each of the 7 unstamped; no errors. conflictscan at HEAD over each
+  repo: unexempted tool-markup advisories {3} in one repo, 0 elsewhere; blocking findings 0
+  everywhere. (320/780 recorded 8 in three repos on 2026-11-06; two have since cleaned or exempted.)
+  No path, repo name or line was printed.
+
+### Step 5 — the brief's re-run lines (2026-11-22T20:18Z, PATH python3 = 3.14.6, niced, sequential)
+- test_pathscan.py: exit 0, Ran 172 tests OK (17.4 s). test_conflictscan.py: exit 0, Ran 88 OK
+  (16.1 s). pathscan --selftest: exit 0 "selftest OK — pathscan". conflictscan --selftest: exit 0
+  "selftest OK — conflictscan". conflictscan --root . . --json: exit 0; clean true, blocked false,
+  counts {blocking 0, advisory 0}, suppressed {0 by marker, 2 files by ignore glob}, coverage 1763
+  files / 336382 lines; stderr carried two allowmarker notes ("allow-marker present but
+  unparseable … `conflictscan:allow`" and "`conflictscan:allow:`"), sourced to the test fixture at
+  test_conflictscan.py:286 and a bare mention; pre-existing allowmarker behaviour, not this delta.
+- Full suite `nice -n 10 python3 -m unittest discover -s tools`: started 20:22Z; result below.
+- floor.py 2872–2887: the advisory count is read from the scanner's stdout whenever
+  `advisory_count` is set, on any plane, and skipped on exit 2. Not a finding.
+
+### Step 6 — verdict written (2026-11-22T20:4xZ)
+- Appended act 1 to the brief below a `---` divider: provenance, method, lenses, A1–A5, V1–V7,
+  per-commit ledger, FK1–FK8, overall, re-run ledger, follow-ups. Overall PASS-WITH-FINDINGS,
+  0 MAJOR / 2 MODERATE / 4 minor / 2 note.
+- Criteria used per finding: FK1 GUARDS § Before building a check (licensing context inside the
+  window) + V1/V5; FK2 GUARDS § Acceptance and deferment + § Ruled 2026-11-09; FK3 V5; FK4 OWASP
+  ASVS V5 input validation (regex backtracking) + measured cost; FK5 GUARDS § What every check
+  declares (grounding and replay) + M4; FK6 GUARDS rule (a) narrowest scope; FK7 GUARDS (c),
+  recorded; FK8 GUARDS § convention is a shared invariant.
+- Non-findings, with evidence: the four conflict shapes unchanged (lines 383–402; 88 tests; selftest
+  exit 1 on markers); exit code tracks blocking only (M6 caught; JSON re-run); fence/region
+  interplay (tests + M2); the regex copy pinned (test_regexes_and_floor_identity_match_stampscan);
+  the CHANGELOG's estate measurement (P4: 22×1, 7×0); the closer shapes match the estate's real
+  leaks (P4: 3 lines, all caught); allow-marker on a closer line exempts and is counted
+  (test_reasoned_allow_marker…); the ignore file is reasoned (load_ignore_globs); /security-review
+  discharged with grounds (pending diff is the sibling removal and this brief).
+
+### Spawn prompt (verbatim, as REVIEW.md rule 4 asks the reviewer to record)
+```
+You are the cold reviewer for one rule-4 Fable review pass in the atelier repo.
+
+WHO YOU ARE
+- Item: atelier board `160/997` (docs/roadmap/160-doctrine-review-owed/997-rule-4-cold-pass-queued-floor-region-skip-and-markup-rule.md — you may read only its title, per the brief's barred list).
+- Worktree (your review tree): "/Users/mike/worktrees/fable/atelier-160-997-2004/atelier". Use absolute paths and `git -C "<worktree>"` everywhere; never `cd`. Paths may contain spaces: double-quote every path in every shell command.
+- Brief: "/Users/mike/worktrees/fable/atelier-160-997-2004/atelier/docs/reviews/2026-11-09-0207-floor-region-skip-markup-rule-cold.md". Read it in full first and follow it, plus "docs/method/REVIEW.md" in the worktree for the verdict shape.
+
+PROVENANCE (state this in your verdict)
+- You are Fable 5.1, tier checked at selection. You were spawned by headless per-pass orchestrator session e55d14f5 (Opus 5.5), itself started by drain session eca14b23 (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold the context partition, form no finding and write no severity. Neither wrote the brief or the delta. Session eca14b23 wrote no brief and no delta and started no brief-writer for this pass.
+- The brief bars sessions d4a0fcf3, 74f2b8cd and 4c65083c (with everything 4c65083c started). You were not started or instructed by any of them.
+- You run under the principal's weekly drain order of 2026-11-23, verbatim: "Start a fable drain or whatever it is called now. Target 100% of weekly budget by 11.30am NZT todat".
+
+THE PARTITION
+- The brief's `.deferred.md` sibling was removed from the worktree on purpose (the worktree shows it as deleted; that is expected). Do not look for it in git history, other checkouts, scratchpads, tmp or anywhere else, and do not run `git show`/`git diff`/`git log -p` on it. It is released to you only after act 1 is committed. Honour every other barred-reading line in the brief too (use `tools/coldsweep.py` as the brief says).
+
+WHY THE LOG EXISTS (principal, 2026-11-16, verbatim): "The main reason I prompted this earlier in the session is a review must have irrefutable integrity to promote trust in the reviwers verdict. So its reasoning and methdology are as important as its verdicts. Within the realms that calude will allow noting the model extraction limitations". So your log records the method: what you examined, in what order, for which lens, what you left out and why, every check with its exact command or file and line range, and for each finding and non-finding the evidence and the criterion that decides it, enough for a third party to re-run the method and reach the same verdict. Where the harness won't let part of it be written, manage the limit as atelier `docs/method/AUTONOMY.md` § "A limit the tooling imposes is managed, never fatal" says.
+
+REVIEW LOG (principal, 2026-11-16: a review's work must be open and checkable once it is complete)
+- Keep a running work log at "/Users/mike/.claude/fable-drain/notes/atelier-160-997-2004.md". It is the one file outside the brief you may write. Commands, files and evidence only. As you work, append: each step you took (the command run, or the file and line range read) and what it showed; each candidate finding with that evidence and the rule or requirement it breaks; each item you checked and found sound, with that evidence. Enough detail that someone else could repeat the steps. It is the audit trail of the review and what you read first if you are interrupted; the verdict itself goes only in the brief. No secrets or live captures in it. Write act 1 entries before the sibling is released.
+- It is private while the pass runs and is appended verbatim to the brief at the fold, in a PUBLIC repo: write no private repo name or path, no session name, no estate fact, no email address in it.
+
+WHAT YOU MAY WRITE
+- The review log above, and otherwise only the brief file:
+  - act 1 appended below a `---` divider, in the shape the brief's Process section sets (finding prefix `FK`);
+  - an updated Status line in the brief (never "fold-in owed");
+  - keep the file's own column width (prose wrapped at ≤ 100 columns), absolute dates only, ISO-8601 in your own prose; verbatim source text that trips a date gate takes a `datescan:allow` marker. Run the repo's date/wrap scanners on the brief before finishing (e.g. `/usr/bin/python3 tools/datescan.py` and `tools/wrapscan.py` from the worktree; check their --help for the right form).
+- Do not edit any other file in the worktree.
+
+WHAT YOU MUST NOT DO
+- No commit, no push, no write to GitHub. The orchestrator commits.
+- No GUI apps. Use `/usr/bin/python3` (macOS has no `timeout`), or `python3` where the brief's re-run lines say so (note which you used). Never run an installed tool by bare name from PATH.
+- Never print a secret or personal data. Exercise tools on scratch copies or synthetic fixtures under your own scratchpad, and delete them when you finish; leave no captures in scratch.
+- LIVE SYSTEMS: read-only reads of live systems are allowed as the review needs them (principal, 2026-11-09, verbatim: "reads of live systems is fine as needed, Reviews that need writes should be de-priortised"). A read means nothing on the target changes; if a verb's effect is unsure, treat it as a write. NO live writes of any kind; a check that would need one is marked NOT RUN with the reason. Allowlist fields before printing (provider reads can carry credentials); never dump a user, key or certificate object raw.
+- Child repos are read-only and are reported by count only, never by name or path.
+
+LOAD (the principal's instruction is to keep this 16 GB laptop from crashing; several passes run at once)
+- Check `uptime` before heavy runs. Run any test suite under `nice -n 10`, one suite at a time, single process (no xdist, no `-n auto`, no parallel runners), in the foreground with a long timeout. Prefer the targeted tests a finding needs over the whole suite; run the full-suite re-run line once, niced.
+
+PUBLIC REPO
+- atelier is PUBLIC. In the brief and the log, refer to orchestrators by session id only ("drain session eca14b23", "orchestrator session e55d14f5"). Never write a session NAME, a private repo's name or path, or any estate fact.
+
+HOW TO FINISH
+- Act 1: after writing your verdict into the brief and your log entries, STOP and end your reply with: the overall verdict, the tally (counts by severity), the brief path, and the exact line "ACT 1 SAVED".
+- You will then receive a message releasing the sibling's held copy for act 2. Do act 2 exactly as the brief's Process says (### Reconcile under your verdict, never revising act-1 text), but do NOT fold the sibling into the brief and do NOT delete any file: the orchestrator does the fold. End act 2 with the restated overall line and the exact line "ACT 2 SAVED".
+```
+
+### Step 7 — scanners over the brief; the full-suite line (2026-11-22T20:36Z to 20:4xZ)
+- `/usr/bin/python3 tools/datescan.py --root . <brief>`: clean, 1 file / 479 lines read, 0 advisory.
+  `wrapscan.py` and `spellscan.py`: the brief is excluded by `.wrapscanignore` / `.spellscanignore`
+  (docs/reviews), so they covered nothing; my own wrap was checked by character count: after the
+  divider no non-table line exceeds 100 characters (one was 101 and was re-wrapped). `reviewscan.py`:
+  "1 review brief(s) keep deferred material out of the brief"; no finding.
+- Status line replaced (ACT 1 WRITTEN …; never "fold-in owed").
+- Full suite, first attempt (20:22Z, load 9.9 rising to 20.7): moved to the background at the
+  600 s foreground limit and killed at the background limit with no `Ran` line, so NOT a result.
+  Second attempt started 20:42Z, `nice -n 10 python3 -m unittest discover -s tools`, one process,
+  40-minute allowance; result recorded below when it returns.
+- Full suite, second attempt: `nice -n 10 python3 -m unittest discover -s tools` from the worktree,
+  one process, started 20:42Z, finished 21:01Z: "Ran 3382 tests in 1163.497s", "OK", exit 0. Ledger
+  row filled. Capture deleted; the scratchpad holds nothing of mine.
+- Act 1 complete at 2026-11-22T21:02Z. Overall PASS-WITH-FINDINGS — 0 MAJOR, 2 MODERATE (FK1, FK2),
+  4 minor (FK3–FK6), 2 note (FK7, FK8). Waiting for the sibling's release for act 2.
+
+## Act 2 (2026-11-22T21:0xZ, after act 1 was committed as 072e3f2a)
+- Released sibling read whole (the orchestrator's held copy, read-only): 7 seeded questions, 0 facts,
+  the brief-writer's re-run results (154/84 tests then; 2 643 full suite on 3.14.6; 3.9.6 import
+  errors in four test modules), one prior record named.
+- `git log -1 --format=%B 24ac5b8` and `92dd817`: bodies read. Both say "option 3 of the item" and
+  "which stampscan checks" / "one edit"; 92dd817 says "children float at floor@main".
+- Read whole: docs/roadmap/320-…/610-…md (options 1–4 offered; verified at HEAD 2026-10-16: pathscan
+  warn-only in children); docs/roadmap/320-…/490-…md (real shape `</content>` then `</invoke>`;
+  proposed openers without an instance); the 160/997 pointer; grep of
+  docs/reviews/2026-10-16-1510-expected-toolbox-cold.md for toolbox/pathscan/child (its pathscan
+  line is a re-run line; nothing on child resolution).
+- Facts for the questions: `grep -n CLAUDE.md tools/pins.py` (lines 5, 52, 88, 102, 140, 152) and
+  tools/floorhook.py (5, 24, 148, 207): both read the child's root CLAUDE.md only. `grep` for a
+  consumer of conflictscan's JSON `clean` across tools/, instruments/, workflows: none (hits are
+  selftest temp dirs and prose). Count-only probe across the 29 repos: 22 floor stamps in root
+  CLAUDE.md, 9 in other files across 8 repos.
+- Appended `### Reconcile` beneath the act-1 verdict: per-question notes, author's account screened,
+  two findings formed at reconcile (FK9 note: one materialisation budget for both tiers, pinned by
+  test_cap_counts_advisory_overflow_separately; FK10 minor: a stamp outside root CLAUDE.md is
+  skipped by pathscan and compared by nobody). Act-1 text untouched. Overall restated:
+  PASS-WITH-FINDINGS — 0 MAJOR, 2 MODERATE, 5 minor, 3 note.
+- datescan over the brief after the append: clean. Width: no non-table line over 100 characters.
+- Sibling not folded, nothing deleted (the orchestrator folds). Scratchpad holds only the
+  orchestrator's own commit-claim.log; nothing of mine remains.
