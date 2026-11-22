@@ -1,4 +1,4 @@
-- [ ] 🎯 **`ccopen`: the session-open twin of `ccclose`, so the prompt's opening
+- [x] **`ccopen`: the session-open twin of `ccclose`, so the prompt's opening
       checks run as code.** The principal, 2026-11-22, verbatim: *"Also do
       the same for anything else that we can build as deterministic code and
       hook into sessions instead of using the prompt. But be mindful in all of
@@ -34,3 +34,7 @@
       alone on purpose: naming `ccopen` in `CLAUDE.md`'s read order, which
       every atelier session follows with or without the prompt; that is his
       call under the 2026-11-22 caveat above.
+      **Prompt edited 2026-11-22**, after the line-by-line walk-through with
+      the new opening in full; his pick, verbatim: *"Make the change
+      (Recommended)"*. The anchor section runs `ccopen` and acts on its kind;
+      the pin and interrupted-session bullets go.

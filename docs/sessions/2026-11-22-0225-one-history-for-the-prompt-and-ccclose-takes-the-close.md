@@ -63,7 +63,9 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
 - **`210/520` `ccopen`** built by a second Sonnet worker (worktree
   `atelier-qr-12a4-ccopen`): seven reads at open, one verdict; 34 tests;
   landed (`6be35af7`, `1568acce`), installed onto PATH, dogfooded on atelier.
-  Cold pass queued: `160/1720`.
+  Cold pass queued: `160/1720`. After the walk-through he picked *"Make
+  the change (Recommended)"*: the prompt's opening runs `ccopen`, and the
+  pin and interrupted-session bullets went; `210/520` closed.
 - The floor at `2992dd9d` failed one new test on Linux (a peer exactly 3m
   old printed "3m"; a sub-second age printed as a raw float). Fixed in
   `8556061a`; the floor at `8556061a` is green.
@@ -95,7 +97,6 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
 
 ## Owed
 
-- 🎯 `210/520`: the prompt edit for `ccopen`, after a walk-through.
 - ⏳ `160/1710` (check 15, the listings, `idhook`, the `210/510` fix) and
   `160/1720` (`ccopen`): Fable cold passes; wait for his approval.
 - `210/530`: the review-independence commit gate.
@@ -112,7 +113,7 @@ principal-opened in the VS Code extension. One Sonnet 5.5 worker built the
 - **Pull requests**: #139 (a child's hand-up), landed by hand and closed
 - **Board**: created `210/480`, `210/490`, `210/500`, `210/520`, `210/530`,
   `160/1710`, `160/1720`; landed `210/510` (#139); completed `210/460`,
-  `210/480`, `210/490`, `210/510`; `210/520` open (🎯)
+  `210/480`, `210/490`, `210/510`, `210/520`
 - **Worktrees and branches**: `atelier-ccclose-460-480` /
   `ccclose-460-480` and `atelier-qr-12a4-ccopen` / `ccopen`, landed and
   removed

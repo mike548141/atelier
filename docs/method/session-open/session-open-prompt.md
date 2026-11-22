@@ -4,32 +4,32 @@ on what's next.
 
 ## Anchor to doctrine first
 
-If there's a repo, read its `CLAUDE.md` before anything else. If it carries
-the atelier floor block (pinned `atelier@<sha>`) — or this session is
-running in atelier itself — treat this as an **atelier orchestrated queue
-run**: read the *current* `../atelier/docs/method/CONCURRENCY.md` §
-*Orchestrated queue runs*, not whatever a stale pin last captured — it's the
-pattern this whole brief invokes, and its sibling docs (`ECONOMICS.md`,
-`RECORD.md`, `REVIEW.md`) cover claiming, concurrency, and close discipline
-in more current detail than anything below. Follow them rather than
-re-deriving your own version. (`/atelier:queue-run` runs exactly this file,
-so the command and this text cannot differ.) Say which model you're on in
-your first report, then get on with it — don't ask me which tier to use, and
-don't stop because a more capable one exists. Stop if the work outruns you,
-or a review needs a tier you are not, and say so.
+Run `ccopen` first and act on what it reports before starting new work.
 
-If the repo has none of that — no `CLAUDE.md`, no floor block, no roadmap
-doc — run the minimum viable version instead, and say plainly that's what
-you're doing: queue = `docs/ROADMAP.md` or the repo's nearest equivalent
-(name which you used); claim = edit the item's own line to mark it taken,
-with a timestamp, committed and pushed to `main` *before* you start the
-work; close = commit, push, and leave a dated note of what happened
-somewhere a future session will actually read it.
+If it says this is atelier itself or a child repo, treat this as an
+**atelier orchestrated queue run**: read the *current*
+`../atelier/docs/method/CONCURRENCY.md` § *Orchestrated queue runs*, not
+whatever a stale pin last captured — it's the pattern this whole brief
+invokes, and its sibling docs (`ECONOMICS.md`, `RECORD.md`, `REVIEW.md`)
+cover claiming, concurrency, and close discipline in more current detail
+than anything below. Follow them rather than re-deriving your own version.
+(`/atelier:queue-run` runs exactly this file, so the command and this text
+cannot differ.) Say which model you're on in your first report, then get on
+with it — don't ask me which tier to use, and don't stop because a more
+capable one exists. Stop if the work outruns you, or a review needs a tier
+you are not, and say so.
 
-If there's **no repo at all** — I'm scoping a new one, or I deliberately
-want your thinking unconstrained by an existing repo's content — skip all
-of the above; there's nothing to anchor to yet. Work straight from the work
-list below and the sections that follow.
+If it says the repo has no doctrine, run the minimum viable version instead,
+and say plainly that's what you're doing: queue = the file `ccopen` names,
+or the repo's nearest equivalent (name which you used); claim = edit the
+item's own line to mark it taken, with a timestamp, committed and pushed to
+`main` *before* you start the work; close = commit, push, and leave a dated
+note of what happened somewhere a future session will actually read it.
+
+If it says there's **no repo at all** — I'm scoping a new one, or I
+deliberately want your thinking unconstrained by an existing repo's content
+— there's nothing to anchor to yet. Work straight from the work list below
+and the sections that follow.
 
 ## This run
 
@@ -82,12 +82,6 @@ format — I'll describe it however's clearest each time.
   plainly what you assumed.
 - Keep draining the queue until the economics favour a fresh session, or you
   have another good reason to stop — and tell me which one fired.
-- If a peer or parent repo (e.g. atelier) has moved on since this repo last
-  pinned it, that's a signal to go read the delta and decide deliberately
-  whether to bump the pin — not something to do automatically.
-- If a session gets interrupted, the next one should investigate, salvage,
-  and pick back up safely per the repo's recovery doctrine before assuming a
-  clean slate.
 
 ## Working with me
 
