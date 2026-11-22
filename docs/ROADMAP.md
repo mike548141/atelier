@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 127 | 5 | 70 | 40 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 128 | 4 | 71 | 39 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 267 | 5 | 100 | 42 |
+| **All sections** | 268 | 4 | 101 | 41 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -225,7 +225,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🎯 [Rule-4 cold pass queued: G3 keeps image metadata (Exif, GPS, IPTC,…](roadmap/160-doctrine-review-owed/990-rule-4-cold-pass-queued-g3-field-level-and-nz-phone-digest-guard.md)
 - [ ] ⏳ [Rule-4 cold pass queued: cctranscript reads a task notification the…](roadmap/160-doctrine-review-owed/991-rule-4-cold-pass-queued-notification-records-one-way.md)
 - [ ] ⏳ [Rule-4 cold pass queued: every scanner's --selftest prints only its…](roadmap/160-doctrine-review-owed/992-rule-4-cold-pass-queued-quiet-selftests.md)
-- [~] ⏳ [Rule-4 cold pass queued: ccclose resolves a shell variable in a…](roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md)
+- [ ] 🎯 [Rule-4 cold pass queued: ccclose resolves a shell variable in a…](roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md)
 - [ ] 🎯 [Rule-4 cold pass queued: leakscan's rules that are off report without…](roadmap/160-doctrine-review-owed/994-rule-4-cold-pass-queued-leakscan-reports-off-rules.md)
 - [~] ⏳ [Rule-4 cold pass queued: the dispatch brief, the pathspec and…](roadmap/160-doctrine-review-owed/995-rule-4-cold-pass-queued-dispatch-brief-and-shared-surfaces.md)
 - [~] ⏳ [Rule-4 cold pass queued: a loose end makes the close "not ready until…](roadmap/160-doctrine-review-owed/996-rule-4-cold-pass-queued-close-loose-ends-and-routed-refusals.md)

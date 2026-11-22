@@ -4,11 +4,11 @@
 function, rule 3).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-22 UTC by a Fable 5.1 reviewer under orchestrator session
-`a8755ef4` (drain session `eca14b23`, the principal's drain order of 2026-11-23 NZDT):
-PASS-WITH-FINDINGS, 1 MAJOR · 1 MODERATE · 3 minor · 2 notes. Act 2 (reconcile against the
-sibling) pending. Brief written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5
-brief-writer.
+**Status:** PASS RAN, acts 1 and 2 written 2026-11-22 UTC by a Fable 5.1 reviewer under orchestrator
+session `a8755ef4` (drain session `eca14b23`, the principal's drain order of 2026-11-23 NZDT): act 1
+committed as `0129890d`, act 2 (reconcile) written 2026-11-22 UTC by the same reviewer:
+PASS-WITH-FINDINGS, 1 MAJOR · 1 MODERATE · 3 minor · 3 notes (WT1–WT8). The sibling is folded below
+the verdict. Brief written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/993-rule-4-cold-pass-queued-ccclose-worktree-variables.md`.
 **Size of this pass:** small: about 50 lines of code across two commits.
@@ -162,8 +162,8 @@ nice -n 10 python3 -m unittest discover -s tools
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-`docs/reviews/2026-11-09-0207-ccclose-worktree-variables-cold.deferred.md` (a held-back file; by
-count: 5 questions, 1 facts), every other item under `docs/roadmap/160-doctrine-review-owed/` beyond
+`docs/reviews/2026-11-09-0207-ccclose-worktree-variables-cold.deferred.md` (now folded below;
+by count: 5 questions, 1 facts), every other item under `docs/roadmap/160-doctrine-review-owed/` beyond
 its title, every delta commit's message body, and these intent records beyond their first line:
 
 - `docs/roadmap/210-instruments-open-features/330-ccclose-lists-a-worktree-path-with-an-unexpanded-variable.md`
@@ -427,3 +427,337 @@ trim the parenthetical to "the committer date, which the author date never chang
 - [ ] WT5: a test for the snapshot (assignment after the add, same command).
 - [ ] WT6, WT7: wording in the design note and code comment.
 - [ ] Reconcile (act 2) against the sibling and the commit bodies; restate the overall line.
+
+### Reconcile (act 2, 2026-11-22 UTC, after act 1 was committed as `0129890d`)
+
+Opened at act 2: the sibling (5 questions, 1 fact, the brief-writer's re-run results), the two
+intent records whole, board item `160/993` whole, both delta commit bodies, and the prior
+verdicts named by the sibling or found by grep (`2026-10-17-1010`, `2026-10-26-0917`,
+`2026-10-18-0506`, `2026-11-09-0126` on `210/360`, `2026-11-09-0153` on `160/960`), read for
+overlap only. No act-1 text is revised. Four more unit probes were run for the sibling's
+questions 3 and 4 (listed under question 3 below); one note was formed at reconcile (WT8).
+
+**The brief-writer's re-runs against mine.** Node suite exit 0 both times (brief-writer 215 s at
+`b1f9499`; this pass 365 s at HEAD, 153 tests). Python suite OK both times (brief-writer 2,643
+tests in 1,167 s on 3.14.6; this pass 3,382 tests in 1,261 s on the same interpreter, after a
+first attempt the harness stopped). The growth is the tree's, not a discrepancy. The 3.9.6 import
+errors the sibling names were not met: `python3` first on PATH here is 3.14.6, as the brief asks.
+
+**Per question.**
+
+1. *A dropped add leaves the close check blind; at these two commits, does anything say so?*
+   Agreed, and act 1 reads it the same way: at `1550874` a drop was silent (`worktreeAdds`
+   returned `[]` and nothing counted it); `03d8503` (`210/360`, pass `160/1010`) added the count
+   and the "N worktree adds not resolved" line, so at HEAD a silence is no longer possible for
+   the parent transcript. No finding here at HEAD. The silence that remains is the subagent
+   caller's (WT4): its count is still discarded, which the `210/360` verdict also observed in
+   passing (its lens-2 text, not a numbered finding) and which act 1 numbers.
+2. *The transcript-wide map is stale across a fresh shell; is a path then confidently wrong?*
+   Yes: this is WT1, formed at act 1 from a live probe before the sibling was read, and the
+   brief-writer's own premise ("the Bash tool does not persist env") is the same observation
+   from the other side of the partition. Two independent arrivals at one defect. The commit body
+   and the intent record both present the cross-command reading as the fix's design ("the
+   `210/310` reading"), which confirms the flaw is shared with the message-file reader; act 1's
+   follow-up on `210/310` stands. Severity unchanged: MAJOR.
+3. *Subshell, `if`, `for`, pipeline, reassignment after use, `export`, quoting.* Probed at act 2,
+   same harness as act 1 (`cc.worktreeAdds(cmd, '/r')`): `if false; then W=/w/if; fi; git
+   worktree add --detach $W` → `/w/if` (the branch never ran); `echo x | W=/w/pipe cat; git
+   worktree add --detach $W` → `/w/pipe` (a pipeline-stage prefix assignment, counted because the
+   `;` after it satisfies the separator test); `export W=/w/exp && …` → `/w/exp` (correct);
+   `W=/w/a && git worktree add --detach $W && W=/w/b && git worktree add --detach $W` →
+   `/w/a`, `/w/b` (correct: each add sees the assignment before it). `for` is `210/360`'s and
+   was reviewed there (CW1–CW8). The `if` and pipeline shapes join WT3's list (heredoc body,
+   subshell, quoted prefix value); they do not change its severity: each needs the variable to
+   be unset in the real shell at the add, which the same-command shapes rarely are. Where the
+   brief-writer's reassignment question meets WT2 is the non-literal reassignment, which act 1
+   found and the author's "last assignment wins" test does not cover (it tests two literals).
+4. *`$HOME`, `~`, `${VAR:-default}`: literal or guess?* Probed: `${W:-/w/dflt}` → dropped (the
+   `${NAME}` form admits a bare name only, so the residual `$` fails `expandVars`); `$HOME/wt` →
+   dropped unless the transcript assigned `HOME` a literal (then that literal is used, which is
+   what a shell would do too); `~/wt` → resolved through `os.homedir()` of the process running
+   `ccclose`, the same user as the session on this machine. None guesses; `$HOME` is dropped
+   where it could nearly always be resolved, which costs a count line, never a wrong path. No
+   finding; recorded as WT8 (note, formed at reconcile).
+5. *A rebase's committer date credits a rebasing session with others' commits; is that named
+   beside the heuristic?* Partly. The code comment (`ccclose` 960–962) names "a rebase" beside
+   the import; the design note (62–63) names only the import, and the man page (60–61) neither.
+   Since `160/960`, a commit in the window is credited only on a command of the session naming
+   its subject, and a rebase's recommits are otherwise printed as unconfirmed, so the heuristic
+   is bounded in code; the prose understates it. This belongs with WT7 (note): its counsel widens
+   to "name the rebase case on the three prose surfaces, as the code comment does".
+
+**Against the author's account (commit bodies, intent records).**
+
+- `1550874` body: "the way `210/310`'s message-file reader does" — WT6 stands: the two readers
+  differ on a relative literal (resolve-at-assignment against the cwd versus resolve-at-use
+  against `cd`/`-C`); the worktree reading is the shell's.
+- `1550874` body: "last assignment wins" — true among literals only; WT2 stands.
+- `1550874` body: "The transcript reader snapshots its variables before folding in each command,
+  so the command's own assignments are read in order" — true, and untested; WT5 stands.
+- `1550874` body and `210/330`: "A prefix assignment … is not counted: bash expands `$W` before
+  the assignment applies" — correct and tested (mutation b); the quoted-value exception (WT3,
+  probe E) is contrived.
+- `210/330` records that on the day the real worktree still existed and was listed from `git
+  worktree list`, "so nothing was lost": that is why the pre-delta defect was a wrong entry
+  beside a right one. After the delta, the WT1 path has no right entry beside it once the
+  worktree is put away, which is the usual state at close.
+- `a6dd65a` body and `210/320`: "No behaviour change", "the premise did not hold" — confirmed by
+  the diff (a comment) and by mutation d. The item's closing diagnosis (script-made commits print
+  as unconfirmed) is what the new test pins. WT7 is wording only.
+
+**Overlap with prior verdicts.** `2026-11-09-0126` (`210/360`, CW1–CW8) reviewed `loopsAround`
+and the count line, and mentioned the subagent caller's discarded `stats` in its lens-2 text;
+WT4 numbers that and adds the empty variable map. No CW finding covers WT1, WT2, WT3, WT5 or WT6.
+`2026-11-09-0153` (`160/960`) covers the evidence tier WT4's line belongs to, not the worktree
+reading. `2026-10-17-1010`, `2026-10-26-0917` and `2026-10-18-0506` predate the delta and do not
+touch it. No finding-prefix collision: `WT` is unused elsewhere in `docs/reviews/`.
+
+**Formed at reconcile.**
+
+**WT8 — note (formed at reconcile) — `$HOME` and `${VAR:-default}` are dropped, never guessed.**
+`expandVars` admits `$NAME` and `${NAME}` only, so a parameter expansion with an operator and an
+environment variable the transcript never assigned both leave the add unresolved and counted.
+That is the conservative side, and it is the right side; it is noted because `$HOME` is common
+in this estate's commands and a session reading the "N not resolved" line should know this is
+one cause. *Counsel:* none needed; a one-line mention beside the count line's explanation would
+save a reader a search.
+
+**Overall line restated: PASS-WITH-FINDINGS — 1 MAJOR (WT1), 1 MODERATE (WT2), 3 minor (WT3,
+WT4, WT5), 3 notes (WT6, WT7, WT8).** The sibling's questions confirmed WT1 independently, widened
+WT3 and WT7 without changing a severity, and added one note. Every finding is the principal's to
+decide (rule 3); nothing is applied. The sibling is left in place for the orchestrator to fold.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+*Released to the reviewer only after its act-1 findings were committed (locally `0129890d`, the hash
+the reviewer's text cites; it lands on `main` under a new hash when rebased with this fold); folded
+here verbatim (headings demoted two levels, no word changed; one heading line is over 100 columns as
+the sibling wrote it) and the sibling file removed, per the brief. The orchestrator, headless Opus
+5.5 session `a8755ef4` started by drain session `eca14b23`, held the partition, formed no finding
+and wrote no severity; drain session `eca14b23` wrote no brief and no delta and started no
+brief-writer for this pass.*
+
+### Sibling to the ccclose-worktree-variables cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-11-09-0207-ccclose-worktree-variables-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-11-09 UTC by the brief-writer, session `d4a0fcf3` (Opus 5.5), named in the
+brief's provenance; it forms no finding and assigns no severity. Fold this file in below the
+reconcile and delete it at phase 2.
+
+#### Re-run results held back from the brief
+
+Run once by the brief-writer, 2026-11-09 UTC, from the worktree root at `b1f9499`, machine load
+averages 10 to 22 throughout:
+
+- `node --test instruments/ccclose.test.js`: exit 0 (ℹ duration_ms 214628.846232).
+- Full suite, `nice -n 10 python3 -m unittest discover -s tools`, Python 3.14.6: 2,643 tests, OK,
+  exit 0, 1,167 s. An earlier run on the system Python 3.9.6: 2,307 tests, 4 import errors
+  (`test_floor`, `test_floorfleet`, `test_personal_data`, `test_precommit`: a module-level `str |
+  None` annotation) and 1 timeout under load (`test_spellscan.BoundedMemory`, which passed alone on
+  3.14).
+
+#### Prior records on nearby surfaces (named by filename, not opened unless the brief says so, not exhaustive)
+
+- `docs/reviews/2026-10-17-1010-ccclose-close-checker-cold.md`
+- `docs/reviews/2026-10-26-0917-identifiers-credit-on-evidence-cold.md`
+
+#### Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. A dropped add leaves the close check blind to a real worktree. Later `03d8503` counts the
+   unresolved. At these two commits, does anything say an add was dropped? A guess is prevented, a
+   silence is not.
+2. The transcript-wide variable map: a variable assigned in one shell command and reused in a later
+   one that ran in a fresh shell (the Bash tool does not persist env). Is the map then stale, so a
+   path is confidently wrong?
+3. `a.at < m.index` and the `[;&|\n]` test: an assignment inside a subshell, an `if`, a `for`, or a
+   pipeline; one reassigned after use; `export`; quoting. Does any give a path that was not the one
+   used?
+4. `$HOME`, `~` and `${VAR:-default}` in `expandVars`: which are literal, and which guess?
+5. The window: the committer date of a rebase is the rebase's. A session that only rebases others'
+   commits is credited with them. Is that named beside the heuristic?
+
+#### Facts held back from the brief
+
+- Later commits touch the same file (`1569e64`, `3de818b`, `03d8503`, `5f7c2b0`, `457f374`,
+  `4e3b398`); three are under their own passes.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*Form fixes only: headings demoted two levels. No public-repo gate blocked a token, so no
+placeholder was substituted.*
+
+### Review log — atelier 160/993, ccclose worktree variables cold pass
+
+Reviewer: Fable 5.1 (claude-fable-5-1). Spawned by orchestrator session a8755ef4 (Opus 5.5),
+started by drain session eca14b23 (Opus 5.5). Review worktree:
+/Users/mike/worktrees/fable/atelier-160-993-2223/atelier. Brief:
+docs/reviews/2026-11-09-0207-ccclose-worktree-variables-cold.md.
+
+#### Act 1
+
+- 2026-11-22T22:24Z `uptime`: load 8.62 7.72 15.09 (several passes running). `date -u`:
+  Sun Nov 22 22:24:43 UTC 2026. `git status --short`: only ` D` of the brief's `.deferred.md`
+  sibling (expected partition). HEAD 5c8bc4399deddd2bd699cbd357f0dff9ee10d1a9.
+- Read the brief in full (203 lines). Pass prefix WT; lenses 1–4; V1–V7; re-run lines:
+  `node --test instruments/ccclose.test.js`, `nice -n 10 python3 -m unittest discover -s tools`.
+  Barred until act 2: ROADMAP-DONE, SESSIONS, sessions/, prior verdicts, sibling, 160/* beyond
+  title, commit bodies, 210/330 and 210/320 beyond first line.
+- Read `docs/method/REVIEW.md` §§ Independence (rules 1–4), standing checklist V1–V7, lifecycle
+  (verdict shape, method record).
+- `git merge-base --is-ancestor 1550874 HEAD` → 0; same for a6dd65a → 0. Delta is in the tree.
+- Since-line `git log --oneline 1550874..HEAD -- <4 delta paths>`: 16 commits, among them
+  03d8503d (210/360 for-loops, non-goal), 5f7c2b0c (210/370), 4e3b3984 (160/960 credits a commit
+  only on evidence), 457f374d, 1bc89816, e4d572d1, 20fd0f09, 54f91ad3, 1568acce (ccopen twin).
+- `coldsweep --commit a6dd65a --path ×5`: body-free. 47+/2−. Code change = a 3-line comment
+  on `inWindow` only (no logic change); test adds `commitBackdated` + one test (author date 90d
+  back, committer in window; a scripted backdated commit prints unconfirmed); man page +2 lines;
+  design note +2 lines; CHANGELOG entry says "pinned, not changed".
+- `coldsweep --commit 1550874 --path ×5`: body-free. 114+/10−. `worktreeAdds(command, cwd,
+  vars=new Map())`: `assignmentsIn(command)` for same-command assigns, env = transcript vars
+  overlaid by assigns whose text before the add contains `[;&|\n]` (prefix-assignment exclusion);
+  `expand()` only when word has `$` or backtick; null/'' target → `continue` (drop); cd/-C dirs
+  expanded, unknown dir only drops a relative target; branch `pos[1]` expanded.
+  `notePending(..., vars)`; `readTranscript` snapshots `varsBefore = new Map(t.msg.vars)` BEFORE
+  `noteMessageSources` folds the command's own assignments in. 5 unit tests + 1 integration test.
+  Design note, man page, CHANGELOG each gain one statement.
+- grep at HEAD: `worktreeAdds` defined 347 (now takes `stats`), callers at 735 (`notePending`)
+  and 2269 (passes `new Map()` — an empty vars map — candidate to probe). `expandVars` 567.
+  `inWindow` 963, used 972, 1051, 1090, 1304, 1314, 2435.
+- Read at HEAD: `instruments/ccclose` 300–405 (worktreeAdds + loopsAround), 520–600
+  (commitCommandsIn tail, LITERAL_ASSIGN, assignmentsIn, expandVars, resolvePath), 648–683
+  (MsgEvidence, noteMessageSources: `ev.vars.set` for every literal assign; a NON-literal
+  assignment is not recorded and does not unset), 725–740 (notePending), 748–765
+  (resolvePending: adds → t.worktrees, unresolved counted), 860–885 (readTranscript varsBefore
+  snapshot), 955–975 (inWindow, sinceArg, windowCommits: `%ct`, `--since` with one day slack),
+  2200–2290 (commitEvidence: subagent transcripts; line 2269 calls `worktreeAdds(cmd, cwd,
+  new Map(), {unresolved:0})` — empty vars, stats discarded), 2412–2440 (worktree check),
+  257–292 (shellWords, unquote, resolveFrom). `git()` = execFile with `-C root`, no shell.
+- Read at HEAD: man page 60–61, 545–552, 755–768; design note 59–64, 668–680, 776–786;
+  CHANGELOG 2213–2240. Test file 1–175 (fixtures), 1140–1162 and 1595 (helpers), 1322–1452.
+- Mirror sweep: `grep -rln "worktreeAdds|WT_ADD|worktree add" instruments/` → ccclose,
+  ccclose.design.md, man/ccclose.1, ccfleet, man/ccfleet.1 (ccfleet: to check whether it parses
+  adds or only runs them). `ccopen` has no worktree-add parser. `instruments/README.md` 23 and
+  25 describe ccclose/ccopen at summary level only (no variable statement to mirror).
+- Brief's coldsweep sweep ('worktreeAdds|expandVars|varsBefore|inWindow'): 58 hits over 748
+  files, 1005 excluded as barred; hits only in instruments/ccclose (19), ccclose.test.js (38),
+  CHANGELOG.md (1). No second implementation outside ccclose.
+- PROBE (harness, live, read-only): Bash call 1 `PROBE_WT_993=probe_value_from_call_one; export
+  PROBE_WT_993; echo "[$PROBE_WT_993]"; pwd` → `[probe_value_from_call_one]`, pwd = worktree.
+  Bash call 2 `echo "[${PROBE_WT_993:-unset}]"; pwd` → `[unset]`, pwd = worktree. So on this
+  harness the cwd persists between tool calls and a shell variable does NOT (the tool's own
+  description says the same: "Shell state (env vars, functions) does not persist"). Bears on the
+  delta's claim that a variable is read "from a literal assignment ... before it in the
+  transcript": an earlier call's `W=/p` is not set when a later call runs `git worktree add $W`.
+  Candidate WT1.
+- RE-RUN 1 (2026-11-22T22:30Z, load 14.70 at start): `nice -n 10 node --test
+  instruments/ccclose.test.js` from the worktree root → exit 0; tests 153, pass 153, fail 0;
+  365 s. Output kept in scratch (rerun-node.txt), not in the record.
+- PROBE (unit, `node -e` requiring the worktree's instruments/ccclose, cwd '/r', no transcript
+  vars unless stated) `cc.worktreeAdds(cmd, '/r', vars)`:
+  A `W=/w/a; W=$(mktemp -d); git worktree add --detach $W` → [{path:/w/a}]  (stale literal kept;
+    claim says a `$(...)` leaves the path unknown and the add DROPPED)
+  B `W=/w/a; W=$OTHER; git worktree add --detach $W` → [{path:/w/a}]  (same)
+  C `W=/w/a; unset W; git worktree add --detach $W` → [{path:/w/a}]  (same)
+  D `cat > f.sh <<'EOF'\nW=/evil\nEOF\ngit worktree add --detach $W` → [{path:/evil}]
+    (an assignment inside a heredoc body is read as live)
+  E `W="a|b" git worktree add --detach $W` → [{path:/r/a|b}]  (prefix assignment counted because
+    the quoted value holds a separator char; contrived)
+  F `git worktree add --detach $W; W=/w/late` → []  (correct: assignment after the add ignored)
+  G vars {W:/w/old}; `W=$(mktemp -d); git worktree add --detach $W` → [{path:/w/old}]  (stale
+    transcript literal survives a non-literal reassignment)
+  H `( W=/w/sub ); git worktree add --detach $W` → [{path:/w/sub}]  (subshell scope not seen)
+  I `W='$X'; git worktree add --detach $W` → []  (correct, conservative)
+  J `R=/repo && git -C $R worktree add -b b rel` → [{path:/repo/rel, branch:b}]  (correct)
+  K `W=rel && cd /other && git worktree add -b b $W` → [{path:/other/rel}]  (correct for a shell;
+    NOTE the message-file reader's `envAt` resolves a relative literal at assignment against the
+    command's cwd instead, so "the same reading as message files" is not exact)
+  L control `W=/w/one && git worktree add --detach $W origin/main` → [{path:/w/one}]
+- MUTATIONS on a scratch copy of instruments/{ccclose,cctranscript,cclive,ccclose.test.js}
+  (scratchpad mut-*/; `perl -0pi` one edit each, confirmed by diff; `nice -n 10 node --test
+  --test-name-pattern=<p> ccclose.test.js`):
+  a `const varsBefore = t.msg.vars;` (live reference, not a snapshot), p='worktree|210/330|210/360'
+    → exit 0, 16/16 PASS. The snapshot's reason is untested. Candidate WT (test gap).
+  b drop the `/[;&|\n]/.test(...)` prefix-assignment guard → exit 1, 15/16; red: "worktreeAdds
+    drops a path it cannot resolve rather than invent one". Guard is tested.
+  c `expandVars` returns '' for an unknown name → exit 1, 12/16, 4 red. Drop rule is tested.
+  d `windowCommits` format `%ct` → `%at`, p='210/320|committer' → exit 1, 0/1; red: the 210/320
+    test. The committer-date test bites on an author-date reading.
+- Line 2269 (`commitEvidence`, subagent transcripts): `worktreeAdds(cmd, cwd, new Map(),
+  {unresolved:0})` — the per-subagent `ev.vars` (built two lines above by noteMessageSources) is
+  not passed and the stats object is discarded. Evidence is the line itself; no fixture probe run.
+- V3/V4 mirrors: code comment (ccclose 300–312), design note 59–64 and 668–680, man page 60–61
+  and 755–761, CHANGELOG 2224–2240 all state the same rule; README 23/25 summary-level only;
+  ccfleet 549 and man/ccfleet.1 730 are unrelated mentions. No contradiction among mirrors.
+- Rendering (ccclose 2553–2562): a worktree prints as `~/path (branch x) — worktree still
+  present|put away; branch ...`; `via` is not printed, so a path reads as fact.
+- `git()` (line 116) = execFile `git --no-optional-locks -C root ...`, no shell; resolved paths
+  reach `isDir` (statSync), `safeReal` (realpathSync) and `tildePath` only.
+- `which python3` → /Library/Frameworks/Python.framework/Versions/3.14/bin/python3 (3.14.6).
+- PROBE (end to end, scratch `probe-varsbefore.js`: a throwaway git repo, a fake HOME with one
+  synthetic transcript whose single Bash command is `git worktree add --detach $W origin/main;
+  W=<base>/wt-late` with a non-error "Preparing worktree" result; `node <copy>/ccclose --session
+  sess-pv --identifiers --json`): pristine copy → `worktrees.items = []`, `unresolved = 1`
+  (correct); mutation a (live reference instead of the `varsBefore` snapshot) → items =
+  [`<base>/wt-late`], unresolved = 0: an invented path, and the suite stayed green on it
+  (mutation a above). Candidate WT5 (test gap) confirmed with its consequence.
+- RE-RUN 2 started 2026-11-22T22:30Z (load 16.59): `nice -n 10 python3 -m unittest discover -s
+  tools` from the worktree root, output to scratch rerun-py.txt; moved to the background by the
+  harness at the 600 s mark and still running at 22:52Z (load 20.70); result recorded below when
+  it ends.
+- Act-1 verdict appended to the brief below a `---` divider; Status line updated (ACT 1 WRITTEN,
+  PASS-WITH-FINDINGS, 1 MAJOR · 1 MODERATE · 3 minor · 2 notes; act 2 pending).
+- Gates on the brief (`python3 tools/<x>.py --root <worktree> <brief>`): datescan exit 0, clean
+  (428 lines read); spellscan exit 0 but scanned nothing (docs/reviews is in .spellscanignore);
+  wrapscan exit 0 but scanned nothing (.wrapscanignore); linkscan exit 0, clean (no internal
+  links). Hand check `awk 'length > 100'`: pre-existing long lines 1, 41, 161, 169, 180, 181 are
+  the brief-writer's; mine over 100 are table rows (250–255, 268–274, 407, 415–416) and one
+  prose line (236) to be rewrapped.
+- Scratch cleaned: mutation copies, probe scripts and fixture dirs removed; only the two re-run
+  output files remain until the pass ends.
+- RE-RUN 2, attempt 1: started 2026-11-22T22:30Z, moved to the background by the harness at
+  600 s, then STOPPED by the harness's background time limit at about 23:05Z without reaching
+  the summary line (load 14–24 throughout; other passes running). Output kept as
+  rerun-py-attempt1-killed.txt in scratch (dots only, no failures printed up to the stop).
+  Restarted 2026-11-22T23:06Z as a background run with the longest allowed limit (2 h), same
+  command, same cwd, load 7.64 at restart.
+- RE-RUN 2, attempt 2 (2026-11-22T23:06Z → 23:26Z): `nice -n 10 python3 -m unittest discover -s
+  tools` from the worktree root → exit 0; `Ran 3382 tests in 1260.839s` · `OK`. Another pass's
+  identical suite ran at the same time from its own worktree (seen by `lsof -d cwd`), left alone.
+  Re-run ledger in the brief filled; the stopped attempt is recorded there too.
+- Final checks: datescan exit 0 clean (428 lines), linkscan exit 0 clean; no placeholder left;
+  every prose line of the verdict ≤ 100 columns after rewrapping (table rows run longer, as the
+  brief-writer's own lines 1, 41, 161, 169, 180, 181 do). `git status --short`: only the brief
+  modified (+229/−3 at the Status line) and the orchestrator's partition deletion of the sibling.
+  Scratch: my files removed; the three `*.log` files there are the orchestrator's, untouched.
+- ACT 1 complete 2026-11-22T23:3xZ. Verdict: PASS-WITH-FINDINGS — WT1 MAJOR, WT2 MODERATE,
+  WT3–WT5 minor, WT6–WT7 notes. Not opened: the sibling, any barred record, any commit body.
+
+#### Act 2
+
+- 2026-11-22T23:3xZ: orchestrator confirms act 1 committed (0129890d) and releases the sibling at
+  the held path. Opening now: the sibling, intent records 210/330 and 210/320 whole, board item
+  160/993 whole, both delta commit bodies (`git log -1 --format=%B`).
+- Read the sibling whole (5 questions, 1 fact, brief-writer's re-runs: node exit 0 215 s; python
+  2,643 OK 1,167 s on 3.14.6). Read 210/330 and 210/320 whole, 160/993 whole, both commit bodies.
+- Prior-verdict overlap: `grep -ln "worktreeAdds|expandVars|persist"` over docs/reviews → three
+  files: 2026-11-09-0126 (210/360, CW1–CW8; its lens-2 text at 361–362 notes the subagent
+  caller's discarded stats, no numbered finding; none covers WT1/2/3/5/6), 2026-11-09-0153
+  (160/960; evidence tier, not the worktree reading), 2026-10-18-0506 (predates). The sibling's
+  two named priors (2026-10-17-1010, 2026-10-26-0917) grep'd: no variable-expansion content.
+  No `WT` prefix elsewhere in docs/reviews.
+- PROBES for sibling Q3/Q4 (`cc.worktreeAdds(cmd,'/r')`): `if false; then W=/w/if; fi; git
+  worktree add --detach $W` → /w/if; `echo x | W=/w/pipe cat; git worktree add --detach $W` →
+  /w/pipe; `export W=/w/exp && …` → /w/exp (correct); `W=/w/a && add $W && W=/w/b && add $W` →
+  /w/a, /w/b (correct); `${W:-/w/dflt}` → []; `$HOME/wt` → []; `~/wt` → <homedir>/wt;
+  `HOME=/h && … $HOME/wt` → /h/wt.
+- Reconcile appended beneath the verdict: per-question notes, author's account checked, overlap
+  recorded, WT8 (note) formed at reconcile, overall line restated (1 MAJOR · 1 MODERATE · 3 minor
+  · 3 notes). Status line updated to act 2 written; sibling not folded, not deleted.
+- Final gates after act 2: datescan exit 0 clean, linkscan exit 0 clean (spellscan/wrapscan skip
+  docs/reviews by ignore file); no prose line of the verdict over 100 columns; no private path,
+  email or estate fact in the added text. `git status --short`: only the brief modified (+102
+  against the act-1 commit) and the orchestrator's partition deletion; the held sibling is in
+  place, unfolded. No scratch files of mine remain.
+- ACT 2 complete 2026-11-22T23:4xZ. Overall restated: PASS-WITH-FINDINGS — WT1 MAJOR, WT2
+  MODERATE, WT3–WT5 minor, WT6–WT8 notes (WT8 formed at reconcile).

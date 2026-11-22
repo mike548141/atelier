@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `ccclose` resolves a shell variable in
+- [ ] 🎯 **Rule-4 cold pass queued: `ccclose` resolves a shell variable in
       a worktree add's path and drops one it cannot, and pins the
       committer-date window (`210/330`, `210/320`).** `ccclose`'s
       identifiers block is pasted into records as fact. So the authoring
@@ -29,3 +29,23 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ PASS RAN 2026-11-22 UTC (Fable 5.1 reviewer under orchestrator
+      session a8755ef4, drain session eca14b23; acts 1 and 2 written, the
+      sibling and the review log folded into the brief):
+      **PASS-WITH-FINDINGS — 1 MAJOR · 1 MODERATE · 3 minor · 3 notes
+      (WT1–WT8).** Standing MAJOR, WT1: the "assigned earlier in the
+      transcript" rule reads a variable the shell no longer had (shell state
+      does not survive a tool call), so `ccclose` can list a worktree at a
+      path that was never made. MODERATE WT2: a non-literal reassignment or
+      `unset` leaves the earlier literal in force. Minor WT3 (scope-blind
+      assignment scan), WT4 (subagent caller passes an empty variable map and
+      drops its count), WT5 (the snapshot is untested); notes WT6–WT8
+      (wording; `$HOME` and `${VAR:-default}` are dropped, never guessed).
+      `210/320` (committer-date window) is sound.
+      🎯 Owed to the principal (rule 3, every finding is doctrine by
+      function): rule WT1–WT8. Counsel in the brief: for WT1, read variables
+      from the same command only, or prove persistence per harness, and open
+      a follow-up on the message-file reader (`210/310`), which shares the
+      assumption (the reviewer's counsel; the orchestrator forms no view).
+      Routing: once ruled, the fixes go to the instruments section (`210`)
+      as `ccclose` items.
