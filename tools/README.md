@@ -2425,6 +2425,26 @@ prints the same list and exits 1 when there is one, for a health sweep.
 
 The plugin does not wire it for you. Tests: `tools/test_prefixhook.py`.
 
+## `idhook.py` — every session opens showing its two ids
+
+Not a commit gate: a Claude Code `SessionStart` hook (board `210/490`). It
+shows the principal the session's **messaging name** (what another session
+passes to `SendMessage`, read from `~/.claude/sessions/<pid>.json`) and its
+**transcript id** (the session UUID that `cctranscript` and
+`ccclose --session` take), with the transcript's path. They are shown as a
+`systemMessage`, and the model is asked to print the same line first in its
+first reply, so they reach him on every surface. A name not yet written prints
+as "not yet assigned", never a guess. It never blocks and always exits 0.
+`CLAUDE_CONFIG_DIR` overrides `~/.claude`. Wiring, user-level:
+
+```json
+"hooks": {"SessionStart": [{"matcher": "startup|resume", "hooks": [
+    {"type": "command", "command": "python3 <atelier>/tools/idhook.py",
+     "timeout": 10}]}]}
+```
+
+The plugin does not wire it for you. Tests: `tools/test_idhook.py`.
+
 ## `secretguard.py` — a Bash command that would print a secret file is refused
 
 Not a commit gate: a Claude Code `PreToolUse` hook (board `450/010` row 6; first

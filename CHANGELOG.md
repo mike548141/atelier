@@ -5,6 +5,11 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-22 — every session opens showing its two ids, `210/490`)
+- **`tools/idhook.py`**: a `SessionStart` hook that shows the session's
+  messaging name and its transcript id from the first moment, and asks the
+  model to print both as its first line.
+
 ### Changed (2026-11-20 — the session log is the folder; `SESSIONS.md` is retired, `010/270`)
 - **The session log is `docs/sessions/`, one file per session, and the
   folder is the index.** No file lists the sessions: their names sort by start
