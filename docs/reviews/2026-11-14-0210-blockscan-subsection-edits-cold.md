@@ -1,9 +1,9 @@
 # Cold pass — `blockscan` reads edits inside mapped sub-sections, warning until 2027-01-11
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1320-rule-4-cold-pass-queued-blockscan-subsections.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `99821c6a`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** ACT 1 RUN 2026-11-22 UTC on Fable 5.1 — PASS-WITH-FINDINGS (0 MAJOR, 4 MODERATE,
+6 minor, 4 notes); act 2 (reconcile against the sibling) pending. Brief written 2026-11-14 UTC by
+a headless Opus 5.5 brief-writer (`cclive` lists it as session `99821c6a`).
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4: self-authored guard code, the
 first of six staggered checks that turn from warning to blocking on a date in code.
@@ -261,3 +261,300 @@ revise act-1 text. Then fold the sibling in below the reconcile and delete it.
 `REVIEW.md` rule 3): the author applies nothing on its own, and neither does the reviewer. Record
 all; the findings are the principal's to decide, after a plain-language account. Counsel per
 finding is welcome, labelled as counsel and kept beneath it.
+
+---
+
+## Verdict — act 1, 2026-11-22 UTC
+
+### Provenance
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), the principal-named review tier, checked at
+  selection. Ran 2026-11-22 20:56–21:20 UTC in the review worktree
+  `/Users/mike/worktrees/fable/atelier-160-1320-2054/atelier` at HEAD `f68a9393`, read-only but
+  for this file and a private work log (appended at the fold).
+- **How spawned:** by a headless per-pass orchestrator, session `b5776fd4` (Opus 5.5), itself
+  started by drain session `eca14b23` (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold
+  the context partition and commit records, form no finding and write no severity. Neither wrote
+  the brief or the delta. The reviewer was not started or instructed by `99821c6a`, `58027096` or
+  `d0ca5d24`. The Fable approval is the principal's drain order of 2026-11-23 NZDT, verbatim:
+  *"Start a fable drain or whatever it is called now. Target 100% of weekly budget by 11.30am NZT
+  todat"*.
+- **Partition honoured:** the sibling `.deferred.md` was removed from the worktree before the pass
+  began and was not sought in history, other checkouts or scratch. `docs/ROADMAP-DONE.md`,
+  `docs/SESSIONS.md`, `docs/sessions/`, every prior verdict in `docs/reviews/`, the queue pointer,
+  the message body of `6a4eeee2`, `320/340` beyond its opening paragraph and `320/810` beyond its
+  first bullet were not opened. `--include-barred` was not used.
+- **What was read:** this brief; `docs/method/REVIEW.md` § *The standing checklist* and § *What a
+  review owes* (lines 400–470, 760–830); the delta `6a4eeee2` body-free through `coldsweep
+  --commit --path` ×4; the four later commits on the scanner's paths the same way (`641f017f`,
+  `c6b1432e`, `734930ef`, `1d9be0fc`; the brief saw one on 2026-11-14, there are four now);
+  `tools/blockscan.py` whole at HEAD; `tools/test_blockscan.py` fixture and the delta's two test
+  classes; `tools/blockscan_map.json`; `.github/workflows/ci.yml` lines 1–40, 75–77, 198–229;
+  `tools/README.md` § blockscan at HEAD; the `CHANGELOG.md` entry; `tools/leakscan.py:1281`;
+  the permitted openings of `320/340` and `320/810`; `docs/ROADMAP.md` (grep only); the ASVS 5.0
+  chapter V1 text (lens 4). Interpreters: the suite and the tool ran on Python 3.14.6 by absolute
+  path (`/Library/Frameworks/Python.framework/Versions/3.14/bin/python3`, the brief's PATH
+  `python3`); `--check` was also run under `/usr/bin/python3` 3.9.6 (same output, exit 0).
+
+### The acceptance test, answered
+
+- **His words** — warn first, then block, staggered: built. A `subsection` finding exits 0 before
+  2027-01-11 UTC and 1 on and after it, `--warn` or not; nothing at run time moves the date (A5).
+- **The defect** — an edit inside an unmapped subsection of a mapped section now fires on both
+  co-change planes, on the nearest mapped ancestor, and the apex case still answers to its own
+  bullet (A1, probes P2 and P15). Replayed over history, the author's 14 commits reproduce exactly,
+  every one a real `###` edit beneath a mapped `##` (ten under PROPAGATION § *Pointing up*, four
+  under CONCURRENCY § *The channel*), the first of them the very edits `320/340` found.
+- **Where it falls short:** the claim that the CI step turns red on the date holds only for the
+  last commit of a push (SU1); the tool's own `--check` report still tells a reader the edit is
+  invisible (SU2); and on the flip day, with the step's `--warn`, the output says "not blocking
+  this build" and exits 1 (SU3). None is a false negative in the check itself.
+
+### Lens 1 — approach and assumptions
+
+- **A1 (nearest mapped ancestor; never wrong, twice or none).** Confirmed by probe: an unmapped
+  `###` under a mapped `##` fires the `##`'s bullet only (P2); a `####` under an unmapped `###`
+  under a mapped `##` fires the `##`'s bullet (P15); a `####` under a mapped `###` fires that
+  `###`'s bullet, not the enclosing `##`'s (delta test). One nuance: the real map ties `### The
+  principal's authority…` to two bullets, so a `####` beneath it fires twice, once per bullet
+  (P1), exactly as the direct rule does for that shared section. Consistent, not wrong; counts
+  inflate.
+- **A2 (keyed by heading text and occurrence).** Damaged in the small. A rename with the body
+  unchanged yields two findings, both worded "changed" (P3); inserting a same-named subsection
+  before an existing one yields two, one for the untouched body that slid to occurrence 1 (P5); a
+  reorder with bodies unchanged is invisible (P4), which is defensible. No case hid a real change.
+  The key ignores level, so a `###` and a `####` with the same text under one parent share a key:
+  not probed in the real docs, where no such pair exists. SU8.
+- **A3 (one notion of a heading across the three readers).** Not true, latently. `extract_section`
+  (the direct rule's slice) is fence-blind and cuts at any `#`-leading line; `_headings` (used by
+  `check_unmapped` and the new `_subsections`) is fence-aware and drops level 1. Probe P6: a
+  fenced `## fake` inside a mapped section, then an edit after the fence, is clean on both the
+  direct rule (slice ends at the fence) and the sub-section check (no subsection owns it). On the
+  real docs all twelve mapped slices end where the fence-aware reader puts the next heading, and
+  PROPAGATION.md's two fence-blind heading-like lines (134, 376) sit outside every mapped slice,
+  so the gap is not live today. Pre-existing class (b) of the docstring; SU11.
+- **A4 (`--against HEAD^` on CI sees every commit that reaches `main`).** False. `ci.yml` runs on
+  every push with `fetch-depth: 0`, and `HEAD^` is the pushed head's parent, so a push of two or
+  more commits is checked only for its last. Probe P12: a subsection edit in commit 1 of a
+  two-commit push, an unrelated commit 2 → `--against HEAD^` exit 0 clean; `--against HEAD~2`
+  exit 1. The direct rule inherits the same blind spot; the delta's text ("turns red on that date")
+  rests on it. SU1.
+- **A5 (flips on the UTC day, nothing moves it).** Confirmed. `_utc_today()` is
+  `datetime.now(timezone.utc).date()`; the constant is compared with `<`; grep finds no flag,
+  environment variable or map key reaching it; tests patch `_utc_today` only. The one input is the
+  runner's clock. Note: `render_human` reads the clock again (`today=None`), so at the midnight
+  boundary the header and the exit code could disagree (P14; SU13).
+- **A6 (heading-derived membership beats the two candidates).** Confirmed on the evidence: the 14
+  historical hits were all under headings nobody had mapped, so an opt-in or a per-subsection map
+  would have missed every one until someone widened it; the derived form has no map to go stale.
+- **Altitude.** The right problem: the gap `320/340` found was real and recurrent (14 of the
+  commits that could be replayed). The shape is where this pass has a reservation: from 2027-01-11
+  the *derived* signal (an edit beneath a cited section) blocks CI while the *direct* signal (an
+  edit to the cited section's own lines) stays `--warn` advisory. On that day editing `### The
+  route` reds the build and editing `## Pointing up`'s own paragraph does not. The author discloses
+  the split ("whose flip stays a separate ruling") and is right that the direct rule is not one of
+  the six; the inversion is still his to look at. SU5.
+
+### Lens 2 — correctness and quality
+
+- The sub-section logic is sound where probed: nearest mapped ancestor (P2, P15), both-bullets-
+  moved → `moved` (test and M8 caught), one side moved → finding naming the other (test), marker
+  in the subsection (test) or in a bullet (P9) → `skipped`, bare marker exempts nothing (test),
+  added and removed subsections count (tests), `--against` plane live (test and M9 caught), date
+  strictly before (test and M4 caught), hostile heading text escaped on both outputs (P10).
+- **Overclaims, against the text that makes them:**
+  - Module docstring THE DATE and `CHANGELOG.md`: "in `.github/workflows/ci.yml`'s `--against
+    HEAD^ --warn` step" / "so the CI step … turns red on that date" — only for a push's last
+    commit (SU1).
+  - `check_unmapped` docstring (blockscan.py:587–591) and the `--check` trailer (910–912): "an
+    edit under an unmapped subsection is invisible to the co-change rule" / "An edit under one of
+    these is invisible to the co-change rule" — no longer true for the "under mapped" rows on
+    `--staged` and `--against` (SU2).
+  - blockscan.py:1123: "(--warn: advisory only — not blocking this build.)" printed when a
+    violation and a blocking `subsection` finding coexist under `--warn`, exit 1 (SU3).
+  - `CHANGELOG.md` and the `320/810` first-bullet record: "replayed over … 124 doctrine
+    commits" — the 14 reproduce; the 124 does not (SU9).
+  - README § exit codes, help text, constant comment: accurate as far as probed.
+- Quality notes: `_subsections` re-parses the whole doc twice per (bullet, source) pair; the
+  mapped docs are small, so this is cosmetic. `_render_base`'s "N mapped section(s) checked"
+  counts subsection `moved`/`skipped` notes as sections; cosmetic.
+
+### Lens 3 — completeness and harvest
+
+- **Surfaces stating the date or posture (V3, V4, V5):** `blockscan.py` (docstring, constant,
+  help, exit table), `tools/README.md` § blockscan, `CHANGELOG.md`, `attribscan.py`'s "four weeks
+  after blockscan's sub-section date" and the `320/810` first bullet agree on 2027-01-11, UTC, no
+  flag, `--warn` does not soften. One fact, one home: the date is the constant and every prose copy
+  names it. Unswept: `ci.yml`'s step name and comment still read "advisory" (SU4); the `--check`
+  trailer and `check_unmapped` docstring still read "invisible" (SU2).
+- **Tests that stay green on a broken change (mutation on a scratch copy, 18 tests each):**
+  M1 fence handling removed from `_headings` → survived: `test_a_fenced_heading_does_not_cut_a_
+  subsection_short` fences a level-1 line, which `_headings` drops regardless, so it proves
+  nothing about fences (SU6). M2 occurrence counting dropped → survived. M3 bullet-marker
+  exemption removed → survived. M5 line number off → survived. M6 JSON `until` wrong →
+  survived. M7 nearest MAPPED ancestor replaced by nearest ancestor → survived: a false-negative
+  mutation (a `####` under an unmapped `###` would go unreported) no test catches (SU7). Caught:
+  M4 (`<=`), M8 (`moved` on one side), M9 (`--against` guard inverted).
+- **A fresh fleet probe before the flip:** his shape in `320/810`'s first bullet is "Probe every
+  child before each flip". Nothing in the readable index (`docs/ROADMAP.md`, grep for the date,
+  "flip", "probe") schedules one, and nothing visible schedules a look at who owns the 14 "under
+  mapped" headings before they start blocking (SU14). The barred records may hold it; act 2 checks.
+
+### Lens 4 — security and privacy (mandatory)
+
+- **New output goes through the same controls:** `_render_subsections` passes `source_path` and
+  `detail` through `_safe`; `detail` embeds heading text via `!r`. Probe P10 (a heading carrying
+  U+202E and ESC): human output shows `‮\x1b`, JSON is encoder-escaped, no raw control or
+  bidi character on either. `f.bullet` prints unescaped in both the new and the old renderers; it
+  is a map key, in-repo data, the same exposure the direct rule always had.
+- **Can a hostile heading or map entry widen what is read or printed?** No new path: headings only
+  become dictionary keys and text; the map's paths go through the unchanged `git show <rev>:<path>`
+  readers and the `--check` plane's existing outside-root refusal (CU6). The delta adds no
+  subprocess argument, no file write and no new input source.
+- **Is a subsection-only edit a new way past the guard?** The opposite: it closes one. The ways
+  still past it are the inherited ones: a multi-commit push on CI (SU1), text after a fenced
+  heading-like line in a mapped section (SU11), a second `#` title (documented), and the unwired
+  hook plane (documented WIRING RESIDUAL).
+- **Pre-existing, disclosed:** `--against REV` is passed to git as `REV:path` with no
+  `--end-of-options`, so `--against=--output=<file>` reaches git as an option (P11; it failed only
+  because the target name ends in `:docs/…`). The flag predates the delta; its one caller is
+  `ci.yml` with `HEAD^`. SU12.
+- **ASVS, checked not recalled** (OWASP ASVS 5.0, chapter V1 *Encoding and Sanitization*, fetched
+  from the project's repository 2026-11-22): 1.1.2 (output encoding or escaping "as a final step
+  before being used by the interpreter") — met for the terminal and JSON contexts by `_safe` and
+  the encoder; 1.2.5 (protect against OS command injection, parameterised OS calls) — the calls
+  are argument lists, not shells, and the one option-injection seam is P11, pre-existing. The
+  chapter has no explicit bidi/control-character requirement; `_safe` goes beyond it.
+- **`/security-review`:** discharged by grounds. It reads this session's pending diff, which is
+  only the partition's deletion, and this session cannot point it at a scratch clone. Grounds: the
+  delta introduces no new input source, subprocess argument or write, and the one new output path
+  was probed directly (P10).
+
+### The standing checklist
+
+- **V1** — three claims stronger than their evidence: the CI red on the date (SU1), the `--check`
+  "invisible" wording in reverse (SU2), the 124 denominator (SU9).
+- **V2** — every re-run line re-run (ledger below); the 21-child and 124-commit probes rebuilt.
+- **V3** — swept: README, CHANGELOG, docstring, help, exit table, attribscan's cross-reference.
+  Missed: `ci.yml` step name and comment (SU4); `check_unmapped` docstring and trailer (SU2).
+- **V4** — the date has one home (`SUBSECTION_WARN_UNTIL`); prose copies name the constant.
+- **V5** — contradictions: tool output versus tool behaviour (SU2, SU3); `clean` means two things
+  (SU10). Cross-references checked for the rule reached: the constant comment's "the shape of
+  leakscan's `TYPE_LEVEL_UNTIL`" reaches `leakscan.py:1281`, a dated constant of the same shape
+  (fixed by `734930ef` from a name that no longer existed); "`attribscan` 2027-02-08" is 28 days
+  on; "CU5, CU10 of the 160/430 pass" is a prior verdict, barred until act 2.
+- **V6** — lens 4 above; `/security-review` discharged by grounds.
+- **V7** — stated above and in the brief.
+
+### Commit ledger
+
+| Commit | Read body-free | Findings |
+|---|---|---|
+| `6a4eeee2` | yes (`coldsweep --commit --path` ×4) | SU1–SU10, SU13, SU14; SU11–12 inherited |
+| `641f017f` | yes (coverage wrapper only) | none |
+| `c6b1432e` | yes (one docstring name) | none |
+| `734930ef` | yes (constant comment cross-reference) | none; fixes a dangling name |
+| `1d9be0fc` | yes (map heading rename) | none |
+
+### Findings
+
+- **SU1 — MODERATE.** On CI, `--against HEAD^` compares only the last commit of a push, so a
+  subsection edit in an earlier commit of the same push lands green on and after 2027-01-11
+  (probe P12: two-commit push, exit 0; `HEAD~2`, exit 1). The docstring and `CHANGELOG.md` say
+  the CI step "turns red on that date". Inherited from the direct rule's wiring, not introduced
+  here, but the delta's blocking claim and the brief's A4 rest on it. Not MAJOR because the check
+  itself has no false negative; the plane it runs on does. *Counsel:* compare against the push's
+  base (`github.event.before`, or the merge-base with the target on the PR plane), or say in the
+  docstring and CHANGELOG that CI reads one commit per push.
+- **SU2 — MODERATE.** The `--check` trailer ("An edit under one of these is invisible to the
+  co-change rule", blockscan.py:910–912) and `check_unmapped`'s docstring (587–591) are false
+  for the 14 "under mapped" rows the new check now reads on `--staged` and `--against` (P13). On
+  the flip day a reader of `--check` is told the edit is invisible while `--against` reds. V5.
+  *Counsel:* split the report: "under mapped" rows are now checked (warning until the date), the
+  rest remain unseen.
+- **SU3 — MODERATE.** With `--warn` (the CI step's flag), a violation and a blocking `subsection`
+  finding together, the output prints "(--warn: advisory only — not blocking this build.)" and
+  exits 1 (P8; blockscan.py:1123 gates on violations and `--warn` only). On the exact day the step
+  starts failing, its last line says it is not. *Counsel:* gate the trailer on `not
+  subsection_blocks` too, or print the blocking line last.
+- **SU4 — minor.** `ci.yml`'s step name "blockscan --against HEAD^ (co-change — advisory,
+  atelier-only)" and its comment say advisory with no mention that the step blocks for
+  `subsection` findings from 2027-01-11. A mirror site unswept (V3). *Counsel:* one clause in the
+  step name or comment, with the date.
+- **SU5 — MODERATE (design, for the principal).** From 2027-01-11 the derived signal (an edit
+  beneath a cited section) blocks CI while the direct signal (an edit to the cited section's own
+  lines) stays advisory. Disclosed by the author as a separate ruling; the ordering is still
+  inverted. *Counsel:* either bring the direct rule's flip forward to the same date, or hold the
+  subsection flip until the direct rule's date is ruled, so the stronger signal never blocks later
+  than the weaker.
+- **SU6 — minor.** `test_a_fenced_heading_does_not_cut_a_subsection_short` fences a level-1 line
+  (`# not a heading`), which `_headings` drops whether or not it honours fences; mutation M1
+  (fence handling removed) passes it. *Counsel:* fence a `##`- or `###`-leading line.
+- **SU7 — minor.** Test gaps the mutations expose: M7 (nearest *mapped* ancestor replaced by
+  nearest ancestor — a false negative for a `####` under an unmapped `###` under a mapped `##` —
+  survives; the code is right, P15), M2 (duplicate headings), M3 (marker in a bullet exempting a
+  subsection edit), M5 (reported line), M6 (JSON `until`). *Counsel:* one test each; M7 first.
+- **SU8 — minor.** A rename of an unmapped subsection with its body unchanged reports two
+  findings worded "changed"; inserting a same-named subsection before an existing one reports two,
+  one for the body that slid to occurrence 1 (P3, P5). The key also ignores heading level. Noise,
+  not a miss. *Counsel:* word a one-sided key as added or removed, and consider keying by
+  (level, text, occurrence).
+- **SU9 — minor.** "Replayed over … 124 doctrine commits, 14 would have warned" (`CHANGELOG.md`,
+  `320/810`): the 14 reproduce exactly; no reconstruction yields 124 (183 commits touch a mapped
+  file before the delta; 130 have every mapped file on both sides; 77 run clear of a config error
+  with the delta's map). The record states a denominator it does not define. *Counsel:* record the
+  commit set or the command.
+- **SU10 — note.** `--json` `clean` is true for a pre-date `subsection` finding (exit 0) but false
+  for a `violation` under `--warn` (also exit 0): two meanings of `clean` under the two warn
+  postures. Documented in the README; a consumer of `clean` learns nothing of the warning.
+- **SU11 — note (pre-existing).** `extract_section` is fence-blind; `_headings` is fence-aware.
+  Text after a fenced heading-like line inside a mapped section is invisible to both the direct
+  rule and the sub-section check (P6). Not live in the current docs (a3 probe). Class (b) of the
+  docstring, now with a second reader that disagrees with the first.
+- **SU12 — note (pre-existing).** `--against REV` reaches git as `REV:path` without
+  `--end-of-options`; an option-shaped REV is parsed as an option (P11). The flag's only caller is
+  `ci.yml`. *Counsel:* `git show --end-of-options <spec>`.
+- **SU13 — note.** `_main` computes `subsection_blocks` from one clock read and `render_human`
+  takes another (`today=None`); across midnight UTC the header could say warning while the exit
+  is 1. *Counsel:* pass the same `today` to both.
+- **SU14 — minor.** Nothing visible schedules the pre-flip fleet probe his shape asks for ("Probe
+  every child before each flip", `320/810` first bullet) or a look at who owns the 14 "under
+  mapped" headings before 2027-01-11; the only probe on record is the build-day one. The barred
+  records may carry it; act 2 reconciles.
+
+**Overall: PASS-WITH-FINDINGS — 0 MAJOR, 4 MODERATE (SU1, SU2, SU3, SU5), 6 minor (SU4, SU6,
+SU7, SU8, SU9, SU14), 4 notes (SU10–SU13).** The check does what the defect needed and the
+principal ordered; what falls short is the plane it runs on, the words around it, and the tests
+that would hold it there.
+
+### Re-run ledger
+
+| Line | Result |
+|---|---|
+| unit tests (`discover -s tools -p test_blockscan.py`, 3.14.6) | 58 OK, 45.4 s, exit 0 (53 + 5) |
+| `blockscan.py --selftest` | selftest OK, exit 0 |
+| `blockscan.py --root . --check` | exit 0; 61 unmapped, 14 under mapped; 7 files · 4541 lines |
+| `blockscan.py --root . --against HEAD^ --warn` | clean, exit 0 |
+| same with `--json` | `clean` true, `subsection` {0, false, 2027-01-11}, exit 0 |
+| `--check --warn` under `/usr/bin/python3` 3.9.6 | exit 0, same output |
+| 21-child probe, rebuilt (read-only) | 22 of 22 exit 2 before and after, both modes |
+| 124-commit replay, rebuilt (map as of `6a4eeee2`) | 14 fire, all real; 183 / 130 / 77, not 124 |
+
+All re-runs niced, foreground, one heavy process at a time; load 7–13 on 12 cores throughout.
+Scratch copies and repos deleted.
+
+### Follow-up checklist
+
+- [ ] SU1: decide the CI comparison base (push base or merge-base) or state the one-commit limit.
+- [ ] SU2: reword the `--check` trailer and `check_unmapped` docstring for the rows now checked.
+- [ ] SU3: gate the `--warn` advisory trailer on no blocking `subsection` finding.
+- [ ] SU4: sweep `ci.yml`'s step name and comment with the date.
+- [ ] SU5: the principal rules on the order of the two flips.
+- [ ] SU6, SU7: fence a `##` line in the fence test; add the M7, M2, M3, M5, M6 tests.
+- [ ] SU8: word one-sided keys as added or removed.
+- [ ] SU9: record the replay's commit set.
+- [ ] SU14: schedule the pre-flip fleet probe and an owner for the 14 "under mapped" headings.
+- [ ] Act 2: reconcile against the sibling and the barred records; fold; record who applies.
+
+Who applies: none of the above is the author's or the reviewer's to apply (`REVIEW.md` rule 3,
+guard code); all are recorded for the principal after a plain-language account.
