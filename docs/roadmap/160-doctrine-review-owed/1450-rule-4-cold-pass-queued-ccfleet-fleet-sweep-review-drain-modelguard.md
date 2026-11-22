@@ -106,3 +106,10 @@
       `e002ea22` taken in as question 31, with the author's question attributed to it; the
       principal's words stay private, the skill's paraphrase is what the reviewer reads.
       Since-line empty at `e002ea22`.
+      🔒 CLAIMED 2026-11-22T01:16Z (claimed 2026-11-22-0116, wt: atelier-rv1450) by session
+      5106cf48 (Opus 5.5, principal-opened), as orchestrator of the one approved Fable pass.
+      Off-tier, disclosed: it forms no finding and writes no severity; it holds the context
+      partition, spawns one fresh Fable reviewer in its own worktree and commits the records.
+      Checked first: the since-line is empty at `e002ea22`; author sessions 64f984ac and
+      19378351 have finished (no live atelier session but this one). Not barred: it authored,
+      started and instructed none of the delta and wrote no brief.
