@@ -113,3 +113,29 @@
       Checked first: the since-line is empty at `e002ea22`; author sessions 64f984ac and
       19378351 have finished (no live atelier session but this one). Not barred: it authored,
       started and instructed none of the delta and wrote no brief.
+      ❌ **PASS RAN 2026-11-22** (one fresh Fable reviewer on the laptop, the principal's
+      2026-11-20 approval, in worktree `atelier-rv1450`, under the off-tier orchestrator session
+      5106cf48, which formed no finding; act 1 at `1b98b593`, act 2 and the folded sibling at
+      `a297c90c`, in
+      [`docs/reviews/2026-11-20-0813-ccfleet-fleet-sweep-review-drain-modelguard-cold.md`](../../reviews/2026-11-20-0813-ccfleet-fleet-sweep-review-drain-modelguard-cold.md),
+      pinned at `f767033a`). **FAIL — 2 MAJOR · 10 MODERATE · 10 minor · 3 notes** (FL1–FL25;
+      FL23–FL25 formed at reconcile). **Paid review work can be lost or misread: yes.**
+      **MAJOR:** **FL1** a cut-off pass can be read as DONE, its claim released and its worktree
+      force-removed with the verdict uncommitted; **FL2** the launched list records offers, not
+      starts, so a dry run or an outage ends a later drain on a false "queue empty".
+      **MODERATE:** FL3 a killed pass leaves no session id; FL4 the close step deletes a waiting
+      pass's live log; FL5 the sweep's staleness test fits a cut-off pass's worktree; FL6 `run`
+      deletes a cut-off worker's work; FL7 `modelguard` passes 23 launch shapes with no model;
+      FL8 the sweep's "adopt every no-pin repo" widens the principal's words and has no step;
+      FL9 the reviewer prompt drops two rule-2/4 reader duties; FL10 no threat enumeration, and
+      the example ships the widest permission mode; FL11 the lapse-first routing drops "when
+      near" and keeps "unsure means the dearer route"; FL23 the private-name guard misses names
+      joined by `-` or `_`. Minor FL12–FL19, FL24, FL25; notes FL20 (a canary cut-off-and-resume
+      before any real drain), FL21 (shipping the two skills to every plugin user is the
+      principal's call), FL22.
+      🎯 **The principal's (rule 3):** every finding, nothing applied. The estate's drain switch
+      (`450/010` row 2) stays off: this pass did not come back clean. Judgement calls inside the
+      batch: FL8, FL11 (readings of his words), FL10, FL18 (where an approval rule lives), FL21.
+      After the fixes, a re-check pass is owed and needs his Fable approval.
+      🔓 2026-11-22 UTC: session 5106cf48 releases its claim; the item stays open for the
+      principal's decision.

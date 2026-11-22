@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: a drain ranks and routes the whole queue
+- [x] **Rule-4 cold pass queued: a drain ranks and routes the whole queue
       before any pass starts — `ccfleet`'s required `queue.ranked` gate and
       the `review-drain` skill's § *Rank and route the whole queue first*.**
       Written by session 64f984ac (Opus 5.5, principal-opened, 2026-11-20
@@ -22,3 +22,8 @@
       paraphrase public-safe.
       Folded into 160/1450's updated brief, 2026-11-20 UTC; closes on that
       pass's verdict.
+      ✅ **CLOSED 2026-11-22 on `160/1450`'s verdict** (one Fable pass, both items; see that
+      item for the run and the findings). The ranking gate's own line (lens 2, claims 23–27): as
+      built the gate holds for `drain`; "on the code and contract alone, `160/1660`'s subject is
+      sound; its doctrine text is not yet". Its open findings: FL11 (routing text), FL16 (a pass
+      started by hand asks no ranking), FL19 (exit-code line). They are decided with `160/1450`.

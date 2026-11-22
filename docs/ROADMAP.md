@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 131 | 0 | 52 | 57 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 130 | 0 | 52 | 56 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 268 | 0 | 82 | 58 |
+| **All sections** | 267 | 0 | 82 | 57 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -298,7 +298,6 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [Rule-4 cold pass queued: a review is never thinned to fit a budget,…](roadmap/160-doctrine-review-owed/1630-rule-4-cold-pass-queued-review-never-thinned-slice-2.md)
 - [ ] ⏳ [Rule-4 cold pass queued: leakscan's ipv4 rule skips a user-agent…](roadmap/160-doctrine-review-owed/1640-rule-4-cold-pass-queued-ipv4-user-agent-and-grace-removal.md)
 - [ ] ⏳ [Rule-4 cold pass queued: three doctrine corrections — PROPAGATION.md…](roadmap/160-doctrine-review-owed/1650-rule-4-cold-pass-queued-parent-only-checks-fresh-gate-evidence-17.md)
-- [ ] ⏳ [Rule-4 cold pass queued: a drain ranks and routes the whole queue…](roadmap/160-doctrine-review-owed/1660-rule-4-cold-pass-queued-drain-ranks-and-routes-first.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the generated board index becomes a summary…](roadmap/160-doctrine-review-owed/1670-rule-4-cold-pass-queued-index-summary-and-open-only.md)
 - [ ] ⏳ [Rule-4 cold pass queued: tools/archivecut.py and atelier's cut of its…](roadmap/160-doctrine-review-owed/1680-rule-4-cold-pass-queued-archivecut.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the repo template scaffolds the per-item…](roadmap/160-doctrine-review-owed/1690-rule-4-cold-pass-queued-template-scaffolds-the-store-board.md)
