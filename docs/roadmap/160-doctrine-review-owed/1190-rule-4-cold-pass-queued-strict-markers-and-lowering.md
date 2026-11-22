@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: a malformed allow-marker goes strict after
+- [ ] 🎯 **Rule-4 cold pass queued: a malformed allow-marker goes strict after
       a dated warning (`160/480`, `160/110`), and a check may be lowered only
       declared, reasoned and expiring (`020/170`).** The shared marker reader
       runs in every child. The authoring session (a principal-opened Opus 5.5
@@ -31,3 +31,27 @@
       called now. Target 100% of weekly budget by 11.30am NZT todat"*. The
       held-back sibling is partitioned out of the review tree until act 1 is
       committed.
+      ✅ 2026-11-22: PASS RAN, both acts, on Fable 5.1 (orchestrator session
+      c7e7ec68, started by drain session eca14b23; neither forms a finding).
+      **Verdict: PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 4 minor · 3
+      notes** (SML1–SML10); no finding formed or changed at reconcile.
+      *Standing MAJOR:* none. The strongest: SML1 (MODERATE, security), the
+      grace warning and `--census` print a marker head raw (control and bidi
+      characters, a glued token echoed in full), the class AM9 fixed only on
+      the ignore-loader path.
+      🎯 *His to rule (rule 3), all ten, nothing applied:* SML1 neutralise
+      both echo paths and pin them (recommended: yes, `report.safe_text`
+      plus a cap, as the later 110/010 note does); SML2 a run-time count of
+      grace-honoured markers through 2026-12-09 and a census that tells a
+      fixture from a live marker (recommended: yes, mirroring AM10); SML3
+      the ignore-file glob is both a check-level lowering and an undated
+      acceptance in GUARDS: either it takes an end date like `advisory`, or
+      it moves to the Line row (the reviewer gives no pick; the wording went
+      past his "Allow if declared + expiring" answer); SML4–SML7 minor doc
+      and grammar fixes (one statement of the rule, Repo rows in the
+      lowering table, the glued-reason sentence, the wrapped-code-span
+      caveat); SML8–SML10 notes. Counsel sits beneath each finding.
+      *Routing:* the rulings go to him in one bulk list; a build session
+      applies what he approves; SML1 and SML2 matter before the grace date,
+      2026-12-09. Verdict, reconcile, folded sibling and the reviewer's log:
+      the brief.

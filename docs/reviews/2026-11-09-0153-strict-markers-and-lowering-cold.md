@@ -4,10 +4,10 @@
 function: the shared marker reader in every child, and guard doctrine).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-22 UTC: PASS-WITH-FINDINGS (0 MAJOR, 3 MODERATE, 4 minor,
-3 notes); act 2 (reconcile) pending the sibling's release. Run on Fable 5.1 under the principal's
-drain order of 2026-11-23 NZDT. Brief written 2026-11-09 UTC by session `d16dc612`, a headless
-Opus 5.5 brief-writer.
+**Status:** RAN 2026-11-22 UTC, both acts: PASS-WITH-FINDINGS (0 MAJOR, 3 MODERATE, 4 minor,
+3 notes), reconciled against the sibling and the prior verdicts; SML1–SML10 await the
+principal's ruling (rule 3). Run on Fable 5.1 under the principal's drain order of 2026-11-23
+NZDT. Brief written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1190-rule-4-cold-pass-queued-strict-markers-and-lowering.md`
 (barred until phase 2).
@@ -186,7 +186,8 @@ reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-(`2026-11-09-0153-strict-markers-and-lowering-cold.deferred.md`), every delta commit's message body,
+(`2026-11-09-0153-strict-markers-and-lowering-cold.deferred.md`, now folded below the
+verdict), every delta commit's message body,
 the queue pointer
 `docs/roadmap/160-doctrine-review-owed/1190-rule-4-cold-pass-queued-strict-markers-and-lowering.md`,
 and the intent records beyond their titles:
@@ -516,3 +517,382 @@ only, by the worktree's own tools, and are counted, never named.
 - [ ] SML8 README `linkscan` row; SML9 CHANGELOG AM11 wording; SML10 recorded for the ruling
 - Reviewer's log (commands, evidence, method, the discarded probe):
   `~/.claude/fable-drain/notes/atelier-160-1190-1958.md`, to be folded in at act 2.
+
+### Reconcile (act 2) — written 2026-11-22 UTC
+
+Opened after act 1 was committed unrevised (`ecd5f61c` in the review worktree): the held sibling
+(one pointer block, 3 questions, 2 facts, a re-run ledger), the queue pointer, the three intent
+records, both delta commit bodies, and the two prior verdicts
+(`2026-10-03-0357-shared-allow-marker-grammar-cold.md` AM1–AM13 and their reconcile;
+`2026-08-09-0826-e7-leakscan-build-cold.md` LK1, LK6). `docs/sessions/` was not opened: no
+session file names the grace constant or either answer (`grep -l` over the folder), so there
+was no author account there to screen. No act-1 text is revised.
+
+**Against the pointer's two questions.**
+
+- *Whether any malformed form still exempts after the date.* No AM2 shape does: the six shapes
+  in `TestMalformedMarkers.BROKEN` and the four in `test_leakscan.MalformedScopedMarkers` return
+  `None` / report both leaks at 2026-12-09 in the tests, and the whole suite and the CI floor
+  read the same with the clock at 2026-12-10 (act-1 ledger). The reasonless-scope shape
+  (`m:allow:kind`, `115/230` item 1) was still honoured at this delta and was closed with no
+  grace by `2b8bcd92`. The strict read also reaches one shape nobody intended, a glued reason
+  with a later colon (SML6); the census lists it, so a repo finds it before the date.
+- *Whether the new rule covers every way a repo can soften a check.* No: the lowering table has
+  no Repo row for not-wired, adopt mode or a bypassed hook (SML5), and the ignore-file glob is
+  both a Check-level lowering and an undated acceptance in the same file (SML3).
+
+**Against the brief-writer's three questions.**
+
+1. *Patch the date in a scratch copy: does every malformed form stop exempting on every
+   reader?* Done the other way round, moving the clock and not the constant, because the tests
+   pin dates relative to the constant (my first attempt moved the constant and failed by its own
+   change; recorded and discarded in the log). Every scoped reader (`scope_of`, `scopes_of`,
+   hence every `parse_allow` built on them) stops; the unscoped readers (`present`:
+   `conflictscan`, `wrapscan`, `blockscan`, `stampscan`) have no malformed notion by design and
+   read a scope as text of the reason, which the README states. 3382 tests OK at 2026-12-10.
+2. *What does a child see on the day, and is there a path from "the date passed" to a noisy red
+   with no one told?* On 2026-12-09 UTC a marker honoured the day before is a mention: the
+   finding it hid reports with its file and line, the exit goes red, and (since `55c7d409`) a
+   stderr note names the marker head. At this delta the finding alone was the signal; it names
+   the line, so the red is not blind. The census found 0 live markers in 22 wired children, so
+   no red is expected. What no one is told *before* the day is SML2: nothing counts honoured
+   markers through the period, so a child that adds one on 2026-12-01 learns on 2026-12-09.
+3. *Is every softening on the table, and is "visible in the fleet view" true for each row?*
+   Not every softening (SML5). Row by row at HEAD: `advisory` yes (dated, red when passed);
+   `disabled` yes since `320/800` (dated, 🟡 undated, 🔴 passed); `scope`/`flags` honestly "not
+   as a lowering"; markers and globs "counted in the scan's suppressed line", which is per scan,
+   not the fleet view: the fleet board shows no marker or glob count (SML2 for the grace case).
+
+**Against what the brief-writer held back.** (a) AM11: matches SML9; the sentence landed in
+`db2c39f9` (`160/450`), an ancestor of `6d26b058`. (b) The grace date is one constant and the
+warning path's deletion is left for after it: so the code comment says (`allowmarker.py`
+91–92); no finding, the strict read stays.
+
+**Against the author's account (commit bodies).** "A census of every floor-bearing repo under
+the estate found no live malformed marker, only mentions in code spans" reproduces: my one
+fleet row is a mention in a code span that wraps (SML7). "Tests fail before / pass after (old
+src with new tests)" and "fleet probe, old vs new tools ... no scanner's result changed" are the
+author's figures: I did not rebuild the pre-delta tools to re-drive them, and record them as
+the author's, not mine. "The whole suite passes on the real date and with the clock set past
+the grace date" reproduces (act-1 ledger). The doctrine commit's "a table sets each lowering
+mechanism against it so the gaps are a list" is the claim SML5 qualifies.
+
+**Against the prior verdicts.**
+
+- **AM2 / LK1.** Counsel was "make it a mention ... sweep the fleet's live markers first"; LK1's
+  reviewer argued MAJOR and asked for two canaries. The delta does both, through the grace the
+  principal picked, and the canaries exist (`test_leakscan.MalformedScopedMarkers`, a line
+  bearing two leaks). The 2026-10-03 reconcile's flag, that the blast radius is every child's
+  boundary guards through one function, is what the grace answers: 0 live markers, so the
+  under-block it keeps alive until 2026-12-09 is known to hide nothing as of 2026-11-22.
+- **AM3.** Counsel applied as written (one shared helper, stampscan's precedent); "prose
+  mentions stay the documented residual" is in the README. SML7 adds a second residual the
+  prior pass did not name: a code span that wraps.
+- **AM9.** Counsel "reuse the control-character stripping" was applied to the ignore-loader
+  path only; the two print sites this delta added did not take it (SML1). The prior pass graded
+  the glob echo a note (a committed file, a run already at exit 2). SML1 stays MODERATE on its
+  own grounds: the census runs at exit 0 over any tree, tracked or not, and prints the head
+  beside a file path; the grace warning runs on every scan's stderr, which on a public repo is
+  a public Actions log; and a glued token is echoed in full. The later note (`55c7d409`) shows
+  the house knew the rule when it wrote the third site.
+- **AM10.** Applied on five scanners; SML8 is the README row that did not follow `linkscan`'s
+  kind set. **AM4** applied for `pathscan` and `reviewscan`; the "any other scope exempts every
+  kind" half of `covers` stays open on `115/230`, as the docstring says, and is not a finding
+  here. **AM5, AM6, AM7, AM8, AM12, AM13, LK2–LK4, LK6**: applied as counselled; nothing to add.
+- **The 2026-10-03 census** counted about 90 live markers in atelier and none in the AM2 shapes;
+  my census at HEAD lists 11 malformed-shaped rows, all fixtures or a docstring. Consistent.
+
+**Formed at reconcile:** none. No act-1 finding changes severity or status.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE (SML1, SML2, SML3) · 4 minor
+(SML4–SML7) · 3 notes (SML8–SML10).** Every finding is the principal's to decide (rule 3);
+counsel sits beneath each. The sibling is folded in below by the orchestrator.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+The text below is the brief's held-back sibling, verbatim, as the brief-writer wrote it on
+2026-11-09 UTC. It was partitioned out of the review tree before the reviewer started, held
+outside the repository while act 1 ran, and released to the reviewer only after act 1 was
+committed (`ecd5f61c` in the review worktree). The reviewer read it for act 2 (`### Reconcile`
+above). The off-tier orchestrator (session c7e7ec68, Opus 5.5) folded it here and forms no
+finding; only its headings are demoted two levels so they nest under this one.
+
+### Deferred reading for `2026-11-09-0153-strict-markers-and-lowering-cold.md`
+
+Open only after your act-1 findings are committed (`docs/method/REVIEW.md` rule 1). Fold into the
+brief below the reconcile, then delete this file. A floor, never a fence.
+
+#### The queue pointer's questions (the author's framing, verbatim)
+
+> whether any malformed form still exempts after the date; whether the new rule covers every way a
+repo can soften a check.
+
+#### The brief-writer's questions
+
+1. Patch the date in a scratch copy to after the cut-over: does every malformed form stop exempting
+on every reader?
+2. What does a child see on the day, and is there any path from "the date passed" to a noisy red
+with no one told?
+3. The lowering table: is every softening a child can do on the table, and is the "visible in the
+fleet view" claim true for each?
+
+#### What the brief-writer held back
+
+- The changelog credits a review-brief skill sentence to this work (AM11); the skill file is not in
+  `6d26b058`'s file list. Check where that sentence landed.
+- The grace date is a code constant, 2026-12-09; the cleanup of the warning path is left for after
+  it.
+
+#### Re-run results (2026-11-09 UTC, at `457615cc`)
+
+`test_allowmarker`: 55 tests, OK, exit 0, under `/usr/bin/python3` 3.9, and again inside the full
+suite under 3.14. `test_leakscan`: 395 OK. `test_pathscan`: 154 OK. `test_report`: 102 OK.
+`test_reviewscan`: 49 OK. All exit 0. `allowmarker --census --root .`: exit 0, 11 malformed markers
+(10 in test files, 1 in a scanner's source). `floor.py --plane ci`: exit 0, with 28 `secretscan`
+advisories reported and not blocking. `--plane hook`: exit 0. Full suite under `python3` 3.14: 2,643
+tests, OK, exit 0, 1,228 s at a load of about 20. `floorfleet --json`: exit 0; 23 rows, 1 parent, 21
+wired children, 1 absent. Census over the 21 wired children: 1 hit, in 1 child, in a markdown file;
+0 non-zero exits.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+The Fable 5.1 reviewer's running work log, kept outside the repository while the pass ran and
+appended here unchanged at the fold by the orchestrator; only its headings are demoted two levels
+so they nest under this one.
+
+### Review log — atelier 160/1190 cold pass (SML)
+
+Reviewer: Fable 5.1 (claude-fable-5-1), spawned by per-pass orchestrator c7e7ec68 (Opus 5.5), itself
+started by drain session eca14b23 (Opus 5.5). Worktree:
+`/Users/mike/worktrees/fable/atelier-160-1190-1958/atelier`, HEAD `3232a7c3`.
+Run day: 2026-11-22 UTC (20:00 UTC start). Evidence and commands only; verdict lives in the brief.
+
+#### Act 1
+
+##### Setup
+- `uptime` 20:00 UTC: load 5.85 8.25 7.21 (16 GB laptop, other passes live). Heavy steps niced.
+- `git merge-base --is-ancestor 44f66053 HEAD` → exit 0. Tree holds the landing commit.
+- `git status --short` → only ` D docs/reviews/...deferred.md` (the sibling, removed by the
+  orchestrator on purpose; not looked for).
+- `python3 --version` → 3.14.6 (tests need 3.10+).
+- Read the brief in full: `docs/reviews/2026-11-09-0153-strict-markers-and-lowering-cold.md` lines
+  1–235.
+- Read `docs/method/REVIEW.md` lines 25–300 (rules 1–4), 302–460 (lenses, re-run, V1–V7),
+  460–607 (lifecycle, method record, application pass).
+- `coldsweep --help` read. Commits since the delta on the delta paths (`git log --oneline
+  44f66053..HEAD -- <delta paths>`): 98 commits (brief said 4 at 457615cc). Those touching the
+  marker reader itself: `55c7d409` (unparseable-marker message; reviewscan warns on review
+  headers), `2b8bcd92` (a scope with no reason exempts nothing, 115/230 item 1), `a78ee8b0`
+  (load by file path again, 115/470). GUARDS.md touched by `571cd373`, `920d63f3` and others.
+  Method: review the delta's two commits body-free, then read the delta files at HEAD, then read
+  the post-delta commits on `allowmarker.py` body-free (coldsweep --commit --path) to see what
+  changed on top before forming findings about HEAD behaviour.
+
+##### Delta read (body-free)
+- `python3 tools/coldsweep.py --root . --commit 6d26b058 --path <26 paths>` → exit 0, 1936 lines
+  to scratch; read in full (lines 1–1936). 26 files, +1112/−80. 6 board-store files left out
+  by default (not read); 0 rule-2 barred files touched.
+- `python3 tools/coldsweep.py --root . --commit 44f66053 --path CHANGELOG.md --path
+  docs/method/GUARDS.md --path docs/method/README.md` → exit 0, 113 lines; read in full. 3
+  files. 1 board-store file left out (E6 item; not read).
+- Post-delta commits on the reader, body-free: `coldsweep --commit 55c7d409 --path
+  tools/allowmarker.py --path tools/test_allowmarker.py --path tools/README.md` (247 lines; adds
+  the 110/010 "present but unparseable" stderr note, sanitised to printable ASCII, head ≤ 40
+  chars); `--commit 2b8bcd92` (236 lines; 115/230 item 1: a scope with no reason exempts nothing
+  at once, no grace; `is_scope_without_reason`); `--commit a78ee8b0` (92 lines; Deferment becomes
+  a NamedTuple so a child can load the module by file path). All three read in full.
+- HEAD files read in full: `tools/allowmarker.py` lines 1–750; `docs/method/GUARDS.md` lines
+  35–114 (fourth requirement), 347–570 (Granularity, Acceptance/deferment, Provenance, the
+  2026-11-09 ruled subsection and its table), heading outline of the whole file.
+
+##### Re-run ledger (act 1)
+All from the worktree root, `python3` 3.14.6 on PATH, niced, one at a time, exit codes read.
+- `(cd tools && nice -n 10 python3 -m unittest test_allowmarker)` → exit 0, Ran 84 OK.
+- `(cd tools && nice -n 10 python3 -m unittest test_leakscan)` → exit 0, Ran 471 OK.
+- `(cd tools && nice -n 10 python3 -m unittest test_pathscan)` → exit 0, Ran 172 OK.
+- `(cd tools && nice -n 10 python3 -m unittest test_report)` → exit 0, Ran 110 OK.
+- `(cd tools && nice -n 10 python3 -m unittest test_reviewscan)` → exit 0, Ran 70 OK.
+- `python3 tools/allowmarker.py --census --root .` → exit 0; 11 rows, all in `tools/`:
+  `tools/indexscan.py:134` (a docstring that shows the form), `tools/test_allowmarker.py` ×6,
+  `tools/test_leakscan.py` ×2, `tools/test_reviewscan.py` ×2 (fixtures). Summary line: "11
+  malformed scoped marker(s); each exempts its whole line until 2026-12-09 and nothing after".
+  So the census cannot tell a fixture from a live marker; the CHANGELOG's "only documentation
+  mentions" holds for atelier by inspection, not by the tool.
+- `nice -n 10 python3 tools/floor.py --plane ci --root .` → exit 0; 20 checks run, 21 listed.
+  Scanner stderr passes through the floor: 3 `allowmarker: warning: malformed allow-marker`
+  lines (heads `secretscan:allow:a,b:`, `leakscan:allow:ipv4:`, `leakscan:allow:email, ipv4:`,
+  all from `tools/test_allowmarker.py` fixtures, which `.leakscanignore`/`.secretscanignore`
+  do not exempt) and 7 `allowmarker: note: ... present but unparseable` lines (110/010,
+  post-delta). So "every run warns on stderr" holds through the floor; the warnings fire on
+  atelier's own fixtures.
+- `nice -n 10 python3 tools/floor.py --plane hook --root .` → exit 0; 19 run, 19 listed; no
+  malformed warning on the hook plane (staged set empty in this worktree apart from the sibling
+  deletion).
+- `nice -n 10 python3 -m unittest discover -s tools` → started 20:12 UTC, moved to background by
+  the harness at 600 s; result recorded below when it finished.
+
+##### Probes (scratch, read-only import of the worktree's `tools/`)
+- `probe1.py`/`probe2.py` (scratchpad, `/usr/bin/python3 -I`, `sys.path` → worktree `tools/`,
+  clock patched via `mock.patch.object(am, "_utc_today")`):
+  - P1: `demoscan:allow:historical record: see ADR 0005` (a glued reason with no leading space
+    and a colon later) → DURING: `""` + malformed warning; AFTER (2026-12-09): `None` + note.
+    README § Fails closed says a glued word then a space and more words "is still read as an
+    unscoped marker whose reason lacks its leading space". False when the reason holds a colon
+    within 80 chars. The census lists the shape (`leakscan:allow:ipv4 why:` row in P5), so a
+    repo would find it. → candidate SML (minor, V1).
+  - P2b: `demoscan:allow:a\x1b[2J‮EVIL\r\x07: why` → grace warning echoes ESC, U+202E,
+    CR, BEL raw to stderr (`_warn_malformed` prints `head.group(0)` unneutralised).
+  - P3b: `census_line("x leakscan:allow:a\x1b[2J‮EVIL: why")` → head carries ESC and
+    U+202E raw; `main()` prints it with `print(f"{rel}:{n}: {head}")`, no `report.safe_text`.
+  - P4b: `demoscan:allow:<an AKIA-prefixed 20-character example token>,: why` (a trailing comma makes it malformed) → the
+    grace warning echoes the token. Contrast: the post-delta 110/010 note (`_note_unparseable`)
+    maps non-printables to `?` and caps at 40 chars; AM9 in this delta pins the ignore-loader
+    path through `report.broken`. → candidate SML (security, MODERATE; the class of 160/730 RT3).
+  - P5: census vs reader agree on 6 shapes (`ipv4 why: more`, `ipv4:why`, `a,b,: x`,
+    `assigned: ok`, `ipv4:  `, `ipv4: -->`).
+  - P6: `re.compile` returns the cached object for identical arguments, so `_SCOPED` keyed by
+    pattern is stable: same object, both registered.
+  - P7: `"demoscan:allow:kind"` (quoted in source) → `""` at AFTER, as the 2b8bcd92 test says.
+- Mirror-site sweeps (`sweep.sh`: `coldsweep --root . --also-exclude <4 board items> <pattern>`,
+  831 barred files excluded each time, board hits dropped from the print):
+  - `gitignore-style` → 1 hit, a test comment. The seven ignore-file headers and
+    `docs/build/templates/` (only `gitignore` there) carry no stale wording. V3 clean for AM6.
+  - `escalate.only|never lower|only raise` → GUARDS.md 478–532, method/README.md:86,
+    CHANGELOG, `docs/method/census/2026-11-16-1204-...md:183` (GRD19). No stale E6d(i)
+    wording elsewhere.
+  - `MALFORMED_GRACE_UNTIL|2026-12-09` → the constant has one home (allowmarker.py:93); GUARDS
+    377, README 3105 and the census record restate the date as prose.
+  - `where the claim rots` → GUARDS.md:511 (condition 4, unchanged) and :536 (the ruled
+    subsection says it is stricter). Both statements stand in one file.
+  - `declared and expiring|declared \+ expiring` → GUARDS 522/525/560, CHANGELOG.
+- AM11 check: `skills/review-brief/SKILL.md:72` has the `merge-base --is-ancestor` line; `git log
+  -S'is-ancestor' -- skills/review-brief/SKILL.md` → `db2c39f9` (160/450), and `git merge-base
+  --is-ancestor db2c39f9 6d26b058` → exit 0. The skill text predates the delta; the delta touched
+  no `skills/` file (`git diff-tree --name-only -r 6d26b058`: 26 non-board files, 0 under
+  `skills/`). The CHANGELOG line "the review-brief skill says to check ... (AM11)" is true as a
+  fact and not a change this commit made. → note.
+- `secretscan.ALL_RULES` (line 1272) is a frozenset of names, so `names_no_rule(scope,
+  ALL_RULES)` compares names. Sound.
+- `linkscan.FINDING_KINDS` = {missing-file, missing-anchor, outside-root} (line 508; kind used at
+  777–787); README table row (3077) lists two kinds. → candidate SML (minor, V4/V5).
+- Rule (b) check: `grep -n "malformed_seen\|in_malformed_grace\|MALFORMED_GRACE" tools/*.py`
+  outside allowmarker.py and the tests → only a comment in floor.py:330. No scanner Tally, no
+  `--json` field and no floorfleet column counts a marker honoured through the grace;
+  `malformed_seen()` has no caller but tests. The exempted line is counted under "by
+  allow-marker" like a well-formed one; the stderr warning is the only signal. Contrast AM10,
+  which got `markers_naming_no_rule` on the line and in JSON. → candidate SML (MODERATE).
+- `tools/floorfleet.py --help` read (discovery root defaults to atelier's parent dir; `--json`).
+- GUARDS.md 571–660 read (Fail noisy then subtract: "count of what was suppressed and by which
+  mechanism"; Who why when; Visibility; Side-stepping).
+
+##### Candidate findings consolidated before the verdict (evidence above)
+1. Grace warning and census echo the marker head raw (ESC, bidi, CR, BEL, a glued token):
+   allowmarker.py `_warn_malformed` 306–318 and `main` 737–738; probes P2b/P3b/P4b. Class of
+   160/730 RT3; AM9 in this delta pinned the ignore-loader path but not the two new print sites.
+2. Nothing counts the grace exemptions: no Tally field, no JSON, no fleet column; the hand census
+   of 2026-11-09 is the only count the 30-day period ever gets (GUARDS § Fail noisy "count of what
+   was suppressed and by which mechanism"; acceptance test "count broken markers across every
+   repo first ... while items are queued"). Evidence: grep above; census output lists fixtures and
+   live markers alike.
+3. GUARDS § Provenance: the ruled subsection (522–539) exempts line markers AND ignore-file globs
+   from the end date as "acceptances", while § Granularity (352–356) places the ignore-file glob
+   at the *Check* level, and the subsection says the end date is "always required" at the check
+   level. The glob carve-out is the author's reading, not in the principal's pick ("a check's
+   response ... written reason and an end date"). At HEAD the table's row 4 ("none, by design")
+   is also behind the machinery: 110/060 (`2522f4fe`) gave globs an optional `review-by`
+   (allowmarker.py 540–671).
+4. The canonical invariant block (GUARDS 496–514, "Expiring, where the claim rots") was left as
+   written; the stricter ruled rule sits below it as a subsection that says it is "stricter than
+   condition 4". One rule, two statements, the earlier one weaker (V4/V5).
+5. The lowering table (544–549) omits the Repo level that § Granularity names (not wired, adopt
+   mode, bypassed hook) though the subsection claims to be stricter "at the check and repo
+   levels" and says "the gap is a list and not a feeling". § Adoption (752–756) says adopt mode
+   is a deferment with reason and expiry; the bypassed hook has neither and is not in the list.
+6. README § Fails closed: "A glued word followed by a space and more words ... is still read as an
+   unscoped marker whose reason lacks its leading space" is false when the reason holds a colon
+   within 80 chars (P1): such a marker warns now and exempts nothing from 2026-12-09.
+7. README table row `linkscan` names two kinds; code `FINDING_KINDS` has three (`outside-root`).
+8. CHANGELOG AM11 line reads as a change made here; the skill text predates the delta (db2c39f9).
+9. Census cannot tell a fixture from a live marker (11 rows at HEAD, all fixtures/docstrings), and
+   its rows are not public-safe-neutralised (see 1).
+- Full suite: the first `unittest discover` (20:12 UTC) was killed by the harness when my turn
+  ended while it ran in the background; no summary. Re-run 20:27 UTC, same line, niced, kept
+  alive across foreground waits: `Ran 3382 tests in 1204.758s`, `OK`, exit 0 (load 10–17 while
+  it ran; two other passes' suites ran at the same time).
+- Fleet: `nice -n 10 python3 tools/floorfleet.py --root <the directory holding the main checkout
+  and its siblings> --json` → exit 0, 24 rows (1 parent, 22 wired children, 1 absent). Per wired
+  child `python3 tools/allowmarker.py --census --root <child>` (worktree's own copy, totals only):
+  rows per child sorted `[0×21, 1]`, total 1. The one row: a `.md` under `docs/`, head
+  `pathscan:allow:missing-path:`, an HTML-comment syntax mention inside a backtick code span that
+  wraps to the next line (masked shape: `xx xxxx xx xxxxx. *xxx:* xxxxxx \`<!--
+  pathscan:allow:missing-path:`), no path-like token on the line. The reader today returns `""`
+  (exempts the line) with the malformed warning; `blank_code_spans` is per line, so a wrapped
+  code span does not hide its mention. So the CHANGELOG's "no live malformed marker, only
+  documentation mentions" reproduces (1 mention in 22 children, 0 live), and the AM3 advice "put
+  the syntax in backticks" fails when the span wraps, a documented limit (docstring 141–147,
+  test `test_a_multiline_text_is_blanked_line_by_line`). → candidate SML (minor).
+- Fleet lowering counts from the same JSON: 3 children with a floor `disabled` entry, all 3 with
+  no `disabled_review_by`; 2 with an `advisory`; 6 with `scope` or `flags`. So the ruled rule
+  ("a lowering with no end date is not a lowering this model allows") is unmet live by 3
+  `disabled` and 6 `scope/flags` lowerings, warned only (320/800), as the table at HEAD says.
+- Dated-clock probe: `cp -R tools` to scratch `tb/`, `sed` the constant to 2026-01-01, `nice -n 10
+  python3 -m unittest discover -s tools` there (result below).
+  Result of the first form: `Ran 3375`, `FAILED (failures=38, errors=93)`. Not usable as
+  evidence: 91 of the 93 errors are `FileNotFoundError` (the scratch copy had `tools/` only, no
+  `docs/`, no `.git`), and moving the CONSTANT to 2026-01-01 put the tests' pinned `DURING`
+  (2026-11-09) after it, so the grace tests failed by my own change, not by the clock. Probe
+  artefact, discarded. Second form below: a local clone of the whole worktree, `_utc_today`
+  patched to 2026-12-10 (the clock moves, the constant stays), full discover.
+  Second form: `git clone --local` of the worktree into scratch, detached at `3232a7c3`,
+  `_utc_today` patched to return 2026-12-10, `nice -n 10 python3 -m unittest discover -s tools`
+  → `Ran 3382 tests in 979.314s`, `OK`, exit 0. No test depends on the real clock being inside
+  the grace: the suite reads the same on 2026-12-10. Then `floor.py --plane ci --root .` in the
+  same clone (result below). Clone deleted after.
+  `floor.py --plane ci --root .` in the clock-advanced clone → exit 0, 20 checks run, 0
+  `malformed allow-marker` warnings, 11 `present but unparseable` notes (the three fixture
+  warnings became notes). atelier's own CI stays green on 2026-12-09.
+
+##### Method summary (act 1)
+Order: brief → REVIEW.md → the two delta commits body-free → the three post-delta reader commits
+body-free → HEAD files (allowmarker.py whole; GUARDS.md's changed and neighbouring sections;
+README § Allow markers) → the brief's re-run lines, one at a time, niced → scratch probes on a
+read-only import → mirror-site sweeps with coldsweep → fleet census by count → dated-clock
+probe on a scratch clone → verdict. Left out: the sibling, session logs, prior verdicts, the
+pointer and intent records, commit bodies (rule 2, act 2); `/security-review` (discharged by
+grounds in the verdict: the worktree carries a deliberate pending deletion and this brief, so
+its pending-diff read could not be aimed at the delta without a scratch reproduction, and the
+lens-4 work was done by direct probes on the new print and read paths instead).
+
+##### Act 1 close
+- Verdict appended to the brief below `---` (lines 237–518); Status line updated to "ACT 1
+  WRITTEN 2026-11-22 UTC: PASS-WITH-FINDINGS (0 MAJOR, 3 MODERATE, 4 minor, 3 notes)".
+- `python3 tools/datescan.py --root <worktree> <brief>` → clean, exit 0, 518 lines read.
+- `python3 tools/wrapscan.py --root <worktree> <brief>` → exit 0 (the file is under
+  `.wrapscanignore`); by hand, no verdict prose line exceeds 100 characters; table rows do, as
+  the brief's own and GUARDS.md's tables do.
+- Scratch cleaned: probe scripts, fleet JSON, scratch copies and clone removed; the delta diffs
+  and test outputs remain in the session scratchpad only.
+- Not read in act 1: the sibling, session logs, prior verdicts, the pointer, the intent records,
+  commit bodies, board files.
+
+#### Act 2 (released by c7e7ec68 after commit ecd5f61c)
+- Read: the held sibling (one file, 37 lines: pointer block, 3 questions, 2 held-back facts, the
+  2026-11-09 re-run ledger at 457615cc); the queue pointer `160/1190` whole; `git log -1
+  --format=%B` for `6d26b058` and `44f66053`; intent records `160/480` (59 lines), `160/110`
+  (28), `020/170` (126) whole; prior verdict `2026-10-03-0357-...` lines 374–460 (AM2–AM11),
+  485 (census row), 515–570 (reconcile); prior verdict `2026-08-09-0826-...` lines 261–280
+  (LK1), 397–405 (LK6). `grep -l "MALFORMED_GRACE\|Allow if declared\|Strict, with a warning"
+  docs/sessions/*.md` → no file; `docs/sessions/` not opened.
+- Checks against the sibling: Q1 answered by the act-1 clock probe (clock moved, not the
+  constant); Q2 by reading `_read`/`55c7d409` and the census count; Q3 by the HEAD table and
+  the fleet JSON columns (`disabled_review_by`, `advisory`, `scope`, `flags`). Held-back fact
+  (a) = SML9 (db2c39f9 is an ancestor of 6d26b058, act 1); (b) = allowmarker.py 91–92 comment.
+- Author's figures not re-driven and recorded as the author's: "tests fail before / pass after"
+  and the old-vs-new fleet probe (no pre-delta tools rebuilt).
+- `### Reconcile` appended beneath the verdict; no act-1 text changed; no finding formed at
+  reconcile; severities unchanged. Status line updated (not "fold-in owed"). Sibling not folded
+  and not deleted (the orchestrator does that).
+- `python3 tools/datescan.py --root <worktree> <brief>` after act 2: one hit, my own reconcile
+  text ("today" at line 586) → reworded to "as of 2026-11-22"; re-run clean, exit 0, 608 lines
+  read. No reconcile prose line exceeds 100 characters. Tree: only the brief modified and the
+  sibling's deletion; nothing else touched, no commit.
