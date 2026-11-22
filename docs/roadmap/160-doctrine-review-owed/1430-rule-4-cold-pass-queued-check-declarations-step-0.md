@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: every check states its five declaration fields (`115/120`, step 0).** The authoring session (a
+- [~] ⏳ **Rule-4 cold pass queued: every check states its five declaration fields (`115/120`, step 0).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -12,3 +12,12 @@
       an estate health sweep, `docs/reviews/2026-11-14-0318-check-declarations-step-0-cold.md`,
       held-back material in its `.deferred.md` sibling. Waiting on Mike's Fable approval;
       sessions 263945c1, 58027096 and d0ca5d24 may not run it.
+      🔒 2026-11-22T22:49Z: claimed for the Fable pass by a headless per-pass
+      orchestrator, session cd7d5f1e (Opus 5.5, rule-4 off-tier orchestrator:
+      it holds the partition and forms no finding), started by drain session
+      eca14b23; the reviewer is a Fable 5.1 subagent, tier checked at
+      selection. Neither is barred by the brief. The approval this item waits
+      for is his drain order of 2026-11-23, verbatim: *"Start a fable drain or
+      whatever it is called now. Target 100% of weekly budget by 11.30am NZT
+      todat"*. The held-back sibling is partitioned out of the review tree
+      until act 1 is committed.
