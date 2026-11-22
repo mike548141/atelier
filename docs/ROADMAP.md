@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 128 | 4 | 64 | 46 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 127 | 5 | 64 | 46 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 268 | 4 | 94 | 48 |
+| **All sections** | 267 | 5 | 94 | 48 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -242,7 +242,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🎯 [Rule-4 cold pass queued: git resolves a staged scan's positional…](roadmap/160-doctrine-review-owed/1070-rule-4-cold-pass-queued-git-resolves-the-staged-scope.md)
 - [ ] 🎯 [Rule-4 cold pass queued: G3 records who and when on every manifest…](roadmap/160-doctrine-review-owed/1080-rule-4-cold-pass-queued-g3-who-when-and-gate-order.md)
 - [ ] 🎯 [Rule-4 cold pass queued: a private repo's state goes by type in…](roadmap/160-doctrine-review-owed/1090-rule-4-cold-pass-queued-private-state-type-only.md)
-- [ ] ⏳ [Rule-4 cold pass queued: the principal speaks through three channels…](roadmap/160-doctrine-review-owed/1100-rule-4-cold-pass-queued-three-channels.md)
+- [~] ⏳ [Rule-4 cold pass queued: the principal speaks through three channels…](roadmap/160-doctrine-review-owed/1100-rule-4-cold-pass-queued-three-channels.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the ladder gains a floor: framing always, a…](roadmap/160-doctrine-review-owed/1110-rule-4-cold-pass-queued-ladder-floor.md)
 - [ ] 🎯 [Rule-4 cold pass queued: personal data in a public repo is one closed…](roadmap/160-doctrine-review-owed/1120-rule-4-cold-pass-queued-personal-data-closed-list.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the exception-register design, redrafted on…](roadmap/160-doctrine-review-owed/1130-rule-4-cold-pass-queued-exception-register-redraft.md)
