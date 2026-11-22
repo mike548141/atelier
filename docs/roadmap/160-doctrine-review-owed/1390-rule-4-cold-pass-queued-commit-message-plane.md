@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the commit-message plane: a `commit-msg` hook and `floor.py --plane msg` (`320/810`).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: the commit-message plane: a `commit-msg` hook and `floor.py --plane msg` (`320/810`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -23,3 +23,21 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ PASS RAN 2026-11-22 UTC (Fable 5.1 reviewer; orchestrator session 21422696
+      for drain session eca14b23; act 1 `74d733a0`). Verdict **FAIL —
+      1 MAJOR, 2 MODERATE, 4 minor, 2 notes** (MP1–MP9; MP9 formed at reconcile), in
+      `docs/reviews/2026-11-14-0258-commit-message-plane-cold.md`.
+      **Standing MAJOR, MP1:** a title or line that starts with the comment character (`#`) is
+      read by neither plane, because the reader strips those lines as git's editor cleanup does,
+      while `-m`/`-F` commits keep them; such a commit lands unread.
+      🎯 **Owed to the principal (rule 3: plane is doctrine by function, the author applies
+      nothing).** One bulk ask, recommendation first: *approve fixing MP1–MP9 as the reviewer's
+      counsel says, in a fresh build session, then a Fable re-check of MP1–MP3 before the
+      2027-05-03 and 2027-05-31 flips (Recommended)*; or rule per finding; or hold. MP1–MP3 bear
+      on whether those flips should happen on the plane as built: MP1 (MAJOR, above); MP2
+      (MODERATE) a child's `flags: ["--help"]` turns a msg check into a silent exit 0; MP3
+      (MODERATE) a child's `scope` with a missing path skips a msg check, exit 0. Minor: MP4
+      refusal untested, MP5 hook's `python3` guard lacks pre-commit's remedy, MP6 GUARDS.md omits
+      the paths the plane misses, MP7 four mirror sites; notes MP8, MP9.
+      Routing: the fixes are atelier build work (`tools/commitmsg.py`, `tools/floor.py`,
+      `.githooks/commit-msg`, docs); nothing routes to a child.

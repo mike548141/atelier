@@ -1,9 +1,10 @@
 # Cold pass — the commit-message plane: a `commit-msg` hook and `floor.py --plane msg`
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1390-rule-4-cold-pass-queued-commit-message-plane.md`
-**Status:** act 1 written 2026-11-22 UTC by a Fable 5.1 cold reviewer (orchestrator session
-`21422696`, drain session `eca14b23`); act 2 (reconcile) owed. Brief written 2026-11-14 UTC by a
-headless Opus 5.5 brief-writer (`cclive` lists it as session `3e2239de`).
+**Status:** PASS RAN, folded 2026-11-22 UTC: acts 1 and 2 by a Fable 5.1 cold reviewer (orchestrator
+session `21422696`, drain session `eca14b23`); overall FAIL, 9 findings (1 MAJOR). The sibling is
+folded below the verdict and the reviewer's work log is opened at the end. Brief written
+2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as session `3e2239de`).
 
 **Pass type:** code cold pass, first of its kind, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
@@ -594,3 +595,388 @@ cores), 2026-11-22 21:15Z–21:22Z:
 - [ ] Rule 3: the principal rules each; the author applies nothing on its own. MP1–MP3 bear on
       whether the 2027-05-03 and 2027-05-31 flips happen on the plane as built.
 - [ ] Act 2: open the sibling and the barred records; append `### Reconcile`.
+
+### Reconcile (act 2), 2026-11-22 UTC
+
+Opened after act 1 was committed (`0a2502f4`): the held sibling
+`2026-11-14-0258-commit-message-plane-cold.deferred.md`; the queue pointer (board `160/1390`);
+intent records `320/810` and `320/550` whole; the message bodies of `55f23034`, `6b6110c9` and
+`49f3d407`; and, for overlap only, the finding lines of the two prior verdicts on the plane's
+specimens (`2026-11-14-0239` namescan, `2026-11-14-0322` quotescan). Act-1 text above is
+unrevised. Two further read-only probes were run for the sibling's questions 2 and 3 (log step 15).
+
+**Against the sibling's twelve questions.**
+1. `-h` through `flags`: carried to a real config and a real commit in act 1 (P8) → **MP2**, with
+   what the sibling did not have: the floor renders a misdiagnosing 🔴 and exits 0, and the commit
+   lands.
+2. The advisory form drops `--require-terms`: probed in act 2. With no term list on the machine,
+   the advisory argv prints *"scanned STRUCTURAL patterns only. Set $ATELIER_LEAKSCAN_TERMS or
+   create ~/.claude/leakscan-terms.txt for full cover"* and exits 0, under a `⚠️ advisory` floor
+   line with the child's `why` and `review-by`. That is leakscan's own hook/advisory convention
+   (`floor.py` line 1312 region; namescan verdict NS12 reads it the same way), a declared and
+   dated softening, visible on both lines. Not a finding.
+3. A user who cannot clear the refusal: probed in act 2 with `HOME` redirected so no user-level
+   list exists. The msg argv exits 2 with *"--require-terms set but no local term list found
+   (--terms, $ATELIER_LEAKSCAN_TERMS, or ~/.claude/leakscan-terms.txt)"*: three remedies, none the
+   bypass. A repo without `"visibility": "public"` prints *"not declared public: out of scope"*
+   and exits 0 before any term check, so a private repo is never refused on this ground. MH2
+   holds here; the one MH2 gap found is **MP5**.
+4. "Silently" against "finds out": **MP7(c)**; both are true of different things (the tracked
+   file in a repo that has not adopted the hook plane at all, against a clone whose hook plane
+   runs), and the `fleet-sweep` line should say which.
+5. "Once": the docstring of `commit_msg_hook_note` says a clone finds out "on its own next
+   commit, once, in a line"; P13 shows the note on every hook-plane run until the hook is there,
+   which is the better behaviour and not what "once" says. → **MP9**, formed at reconcile.
+6. The note in a linked worktree: P13 drove relative, absolute and unset `core.hooksPath` in a
+   main checkout and a linked worktree; the path named is the one git will run. MH4 confirmed.
+7. The message-file path: measured (log step 7, P1b): `.git/COMMIT_EDITMSG` relative to the top
+   level in a main checkout, absolute under the common dir in a linked worktree, cwd set by git to
+   the top level in both; the scanners resolve it against that cwd and read it (P1, P2).
+8. Which commands run `commit-msg`: the matrix in log step 7 → **MP6**.
+9. CI comment char: the CI half of **MP1**. The two prior verdicts found this half (namescan NS9,
+   minor; quotescan QT2, MODERATE, "latent": 38 such lines in 17 of 2,343 messages, 0 findings).
+   Neither drove the msg plane, which is the blocking plane: P5 shows `-m "# …"` passes the hook
+   unread and lands. MP1's MAJOR stands on that half; its counsel differs from QT2's ("`clean()`
+   belongs to the hook's file only") because the hook's file is exactly where git may keep the
+   `#` line, so the hook's cleaning must follow git's decision too, not only history's.
+10. The selftest's guard: mutation (e) in act 1. The selftest alone does not catch an unnamed msg
+    reader; `MsgPlaneTest.test_only_a_check_written_for_it_declares_msg` catches the registry →
+    `MSG_CHECKS` direction and the two per-specimen tests pin the other. MH6's nuance, no finding.
+11. Tools-dir resolution: lens 4; the same two sources and order as `pre-commit`; **MP7(d)** for
+    the missing trust note.
+12. `str.format` on templates: P4; every template element is a registry literal and a child's
+    `flags` are appended as separate argv items, never formatted. Confirmed.
+
+**Against the intent records and the pointer.** `320/810` says twice that `floorfleet` does not
+yet check for this hook, so the author knew the gap **MP7(a)** names; no board item carries it,
+which is why it stays a finding. `320/550` part (b) is recorded as not built for the reason the
+brief gives; nothing in this pass changes that. The pointer scopes the delta to the hook commit
+and lists `tools/commitmsg.py` and the refused flags; the brief's fold of `6b6110c9` and
+`49f3d407` is right, and **MP1** lives in the folded reader.
+
+**Against the commit bodies.** `55f23034`'s body claims "(measured)" for `pre-commit` running
+before the message exists, and the single-line clone note; both hold. `6b6110c9`'s fleet probe
+("21 of 21 exit 0") belongs to namescan's pass and was not re-run here. `49f3d407`'s body matches
+its diff. No body changes a finding or its severity.
+
+**Against the prior verdicts, overlap only.** NS9 and QT2 ⊂ MP1 (above). NS12 answers the
+sibling's question 3 the same way this pass measured it. QT6 (a message-only amend removes a
+quote) is a quotescan reading, not a plane route: the matrix shows `commit --amend` runs the hook,
+so the amended message is read. No other NS or QT finding is on the plane.
+
+**MP9 — note (formed at reconcile). `commit_msg_hook_note`'s docstring says "once"; the note
+prints on every hook-plane run until the hook exists.** `floor.py` line 2631. The behaviour is
+the right one (a clone that ignores the line is told again); the word is wrong. *Counsel:* "on
+each commit until it is installed".
+
+**Overall, restated: FAIL — 1 MAJOR, 2 MODERATE, 4 minor, 2 notes (MP1–MP9; MP9 formed at
+reconcile).** MP1–MP3 bear on whether the 2027-05-03 and 2027-05-31 flips should happen on the
+plane as built. Findings are the principal's to rule (rule 3); the author applies nothing.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+The text below is the brief's `.deferred.md` sibling, verbatim, held out of the review tree until
+the reviewer's act 1 was committed (`74d733a0` on main) and released to the reviewer for
+act 2 only. Orchestrator session `21422696` folded it here unchanged and removed the sibling file;
+it forms no finding and assigns no severity. The sibling's own headings are kept as written.
+
+# Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-14-0258-commit-message-plane-cold.md` (`REVIEW.md` rule 1).
+Written 2026-11-14 UTC by the brief-writer (`cclive` lists it as session `3e2239de`), which
+authored none of the delta. Open this only after act 1 is committed. Everything here is a floor,
+never a fence, and none of it is a finding: the brief-writer read the code once and probed none of
+these past what is recorded below.
+
+## What the barred intent records say, in brief
+
+- `320/810` records the plane's landing (2026-11-10) as `floor.py --plane msg`,
+  `.githooks/commit-msg` beside `pre-commit`, and a `msg` template on `Scanner` absent by default;
+  that a clone predating the hook is told by one line on its own next commit and nothing reaches
+  into it; and, twice, that **`floorfleet` does not yet check for this hook**, so until each
+  existing clone installs `tools/commit-msg.sample` the two message checks do not run there and
+  their CI report is the only cover.
+- `320/550` records part (a), `leakscan --messages`, as built and report-only, and part (b), the
+  same rules on this plane, as **not built**: wiring it is one registry line, but `leakscan` has
+  no advisory form and blocks on a hit, so it would be a blocking check over every message body
+  from day one with no warn-first period and no fleet measure behind it.
+- The queue pointer scopes the delta to "the commit that adds the hook", but lists
+  `tools/commitmsg.py` (added by `6b6110c9`, the namescan landing) and "the refused flags" (added
+  by `49f3d407`, the `leakscan --messages` landing). The brief folds both in.
+
+## The brief-writer's own questions
+
+1. **`-h` through `flags`.** `forbidden_flags` judges only names longer than two characters that
+   start `--` against a blocklist that has no `--help`. At the function, `-h`, `--help` and `--he`
+   are all allowed (see the run below). Every atelier scanner uses argparse, where `-h` prints help
+   and exits 0 without scanning. If `Config.load` does not refuse it by another route, a child's
+   `flags: {"namescan": ["-h"]}` turns the check into a guaranteed pass on every plane. This is
+   fleet-wide, not new with this plane, but it answers the pointer's second question directly.
+   Not driven through a real config.
+2. **The advisory form drops `--require-terms`.** namescan's `msg` template carries
+   `--require-terms`; its `advisory` template does not. A child declaring namescan advisory gets a
+   msg-plane run that passes silently with no term list. Is that the softening the advisory
+   declaration is meant to grant, or a fail-closed argument lost on the way?
+3. **A user who cannot clear the refusal.** namescan's msg template carries `--require-terms`, so
+   in a repo declared public, a clone with no local term list (an outside contributor to a public
+   repo, or a fresh machine) has every commit refused with exit 2, before and after the flip date.
+   Is the text it prints enough to clear it without `--no-verify`? Does the scope check
+   ("not declared public") run before the term-list check, so a private repo is never affected?
+4. **"Silently" against "finds out".** `skills/fleet-sweep/SKILL.md` lines 53–54 say a repo
+   without `.githooks/commit-msg` "skips commit-message checks silently"; the README, CHANGELOG
+   and `floor.py` say such a clone is told on its own next commit. Both may be true of different
+   things (the tracked file against the installed hook); V5 either way.
+5. **"Once."** `commit_msg_hook_note`'s docstring says a clone finds out "on its own next commit,
+   once, in a line". The code returns the note on every hook-plane run until the hook exists.
+6. **The note in a linked worktree.** It builds the hook path as `root / <git rev-parse
+   --git-path hooks/commit-msg>`. With `core.hooksPath` relative (`create-repo` sets it to
+   `.githooks`), absolute or unset, in a linked worktree, does the path resolve to the hook git
+   will actually run? (`create-repo` already records one worktree-only failure of this family: a
+   relative `hooks.atelierTools` that blocked every worktree commit.)
+7. **The message-file path.** git passes the hook a path; in a linked worktree or from a
+   subdirectory, is it relative, and relative to what? `floor.py` hands it on unchanged in the
+   scanners' argv. Check the scanners' working directory against it.
+8. **Which commands run `commit-msg`.** `GUARDS.md` names `git commit` and a merge. The table above
+   that paragraph was measured for `pre-commit`; nothing says the same was measured for
+   `commit-msg` on `cherry-pick -e`, `revert` (which opens an editor by default), `rebase -i`
+   reword, `merge --squash` then commit, or `commit --amend`.
+9. **CI comment char.** `commits()` cleans every pushed message with `#`, ignoring the repo's
+   `core.commentChar`, so a title beginning `#` is dropped on CI and the next line read as the
+   title, while on the msg plane the repo's comment char is used. Two planes, two readings.
+10. **The selftest's guard.** "no existing registry entry reads a message by accident" asserts only
+    that no entry has both a `hook` and a `msg` template. `MSG_CHECKS` is said to be "named so a
+    test notices"; check which test compares it to the registry, in both directions.
+11. **The hook's tools-dir resolution.** `ATELIER_TOOLS` or `hooks.atelierTools` can point the hook
+    at any `floor.py`; `python3` comes off `PATH`. Same shape as `pre-commit`, so likely not new,
+    but the plane inherits it.
+12. **`str.format` on templates.** `_render` formats each template element with the message path
+    as a value; a path containing braces is safe as a value. Confirm no template element is built
+    from user input.
+
+## What the brief-writer ran, and what it got
+
+All from the worktree root on 2026-11-14 UTC, foreground, load average 4 to 6 on 12 cores, at
+`origin/main` `854838f8`, on a detached HEAD.
+
+- `merge-base --is-ancestor` on `55f23034`, `6b6110c9`, `b74cd5ef`, `49f3d407` and `ba55be27`: all
+  ancestors.
+- `cd tools && python3 -m unittest test_floor.MsgPlaneTest`: 10 tests, OK, exit 0.
+- `cd tools && python3 -m unittest test_precommit.CommitMsgHookTest`: 7 tests, OK, about 3.5 s.
+- `cd tools && python3 -m unittest test_commitmsg`: 12 tests, OK, about 2 s.
+- `python3 tools/floor.py --selftest`: `floor selftest: ok (21 scanners, 0 failure(s))`, exit 0.
+- `python3 tools/floor.py --plane msg --list --root .`: two rows, `namescan` and `quotescan`, both
+  `enforced`, `fleet`; exit 0.
+- `python3 tools/floor.py --plane msg --root .`: the `--message-file` refusal, exit 1.
+- `floor.py --plane msg` with a scratch message file holding a plain title: both checks clean,
+  both advisory counts 0, `✅` on both rows, exit 0.
+- `diff .githooks/commit-msg tools/commit-msg.sample`: identical.
+- `floor.forbidden_flags(['-h', '--help', '--he', '--mess', '--ran'])`: `['--mess', '--ran']`.
+  The three help spellings pass the function; not carried to a real config.
+- Not run: any hook install, any scratch-repo commit through the hook, any fleet probe, and
+  `/security-review`.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log: atelier 160/1390, the commit-message plane (Fable 5.1 cold pass)
+
+Reviewer: Fable 5.1, spawned by orchestrator session 21422696 (Opus 5.5), itself started by drain
+session eca14b23. Worktree: /Users/mike/worktrees/fable/atelier-160-1390-2107/atelier (HEAD
+ccae1163). Python used for every `python3` line: /usr/bin/python3 is 3.9.6; `python3` on PATH is
+3.14.6 (the brief's). Where I say `python3` below I used the PATH one (3.14.6) so the re-run
+matches the brief-writer's interpreter; `/usr/bin/python3` where noted.
+
+## Act 1
+
+### Step 1, 2026-11-22T21:09Z: state and delta presence
+- `date -u` → 2026-11-22T21:09Z. `uptime` load 6.88 (12 cores).
+- `git status --short` → only the expected ` D docs/reviews/...cold.deferred.md`.
+- `merge-base --is-ancestor` for 55f23034 6b6110c9 b74cd5ef 49f3d407 ba55be27 → all present.
+- `git log --oneline 854838f8..HEAD -- <plane files>` → three commits landed since the brief:
+  ef4972e6, b462fd7d, cf648679 (subjects only read). To be read body-free via coldsweep.
+- git 2.50.1 (Apple Git-155).
+
+### Step 2, 21:10Z: read the brief whole, then REVIEW.md (§ Independence, § The standing checklist
+V1–V7, § The lifecycle, § A verdict is only as trustworthy as the method). Barred list noted; the
+sibling `.deferred.md` not opened; no session log, prior verdict, pointer or intent record read.
+
+### Step 3, 21:11Z: body-free delta reads (lens 2), all via `tools/coldsweep.py --commit ... --path`
+- 55f23034 (10 paths, 621 lines of output, exit 0): hook + sample, floor.py msg plane, tests,
+  GUARDS/README/CHANGELOG/install-hook/create-repo hunks. Read whole.
+- 6b6110c9 (`tools/commitmsg.py`, `tools/test_commitmsg.py`, exit 0): read whole.
+- 49f3d407 (floor.py FORBIDDEN_FLAGS hunk + test, exit 0): read whole.
+- b74cd5ef, ba55be27, ef4972e6, b462fd7d, cf648679: floor.py/commitmsg.py hunks only, grepped for
+  `msg`/`message` lines; only the quotescan entry, MSG_CHECKS, the `--declarations` exemption in
+  `main`, and a coverage-line comment touch the plane.
+- No `git show`; no message body read.
+
+### Step 4, 21:13Z: floor.py at HEAD (lens 1, 2): lines 425–470 (Flags), 570–600 (template,
+warns_only), 1195–1260 (namescan, quotescan entries), 1300–1350 (FORBIDDEN_FLAGS,
+forbidden_flags, MSG_CHECKS), 1395–1402 (PLANES, MSG_PLANE), 2140–2270 (Config.validate),
+2272–2345 (Result, failed), 2411–2530 (_render, plan), 2628–2900 (commit_msg_hook_note, run),
+2975–3040 (render), 3380–3395 (selftest msg lines), 3655–3754 (parser, main).
+Observations carried to probes: `scope` on a softenable check with a missing path reaches the
+`skipped` branch (2851) with exit 0; `forbidden_flags` ignores names of length ≤ 2 and anything
+not starting with `--`; `advisory` on the msg plane selects the advisory argv, which still carries
+`{msgfile}`; `disabled` on namescan/quotescan is allowed with a reason; the note is appended in
+`main` on the hook plane only and only when some registry entry declares `msg`.
+
+### Step 5, 21:14Z: mirror sites (lens 3, V3–V5) by coldsweep over the tree with the brief's four
+exclusions, pattern `commit-msg` (files: floor.py, the two hook copies, README, test_precommit,
+test_floor, test_deadhook, CHANGELOG, test_quotescan, deadhook.py, fleet-sweep SKILL, create-repo
+SKILL, install-hook.md, quotescan.py, namescan.py, commitmsg.py, GUARDS.md, the census, and three
+board files read for the matching line only) and `pre-merge-commit`. Read with context:
+`skills/fleet-sweep/SKILL.md` 72–84; `tools/deadhook.py` 3–13, 59, 111–115, 208–238;
+`docs/method/GUARDS.md` 658–684; `tools/README.md` 709–718, 2137–2142, 2500–2513; `CHANGELOG.md`
+497–510; `skills/create-repo/SKILL.md` 196–211; `commands/install-hook.md` whole;
+`.githooks/pre-merge-commit` whole; `.githooks/pre-commit` 1–92; `tools/floorfleet.py` hook lines
+(15, 30, 37, 107–113, 675–700: the `shim:` column reads `.githooks/pre-commit` only);
+`tools/test_precommit.py` class/test list and 143–175; `tools/test_floor.py` MsgPlaneTest 184–262.
+
+### Step 6, 21:15Z: the brief's re-run list, from the worktree, `python3` = 3.14.6 on PATH, under
+`nice -n 10`, one suite at a time, load 3.9–6.9 on 12 cores
+- `test_floor.MsgPlaneTest`: Ran 10 tests, OK, exit 0.
+- `test_precommit.CommitMsgHookTest`: Ran 7 tests, OK, exit 0.
+- `test_commitmsg`: Ran 12 tests, OK, exit 0.
+- `floor.py --selftest`: "floor selftest: ok (21 scanners, 0 failure(s))", exit 0.
+- `floor.py --plane msg --list --root .`: namescan enforced fleet decl 0/5; quotescan enforced
+  fleet decl 1/5; exit 0.
+- `floor.py --plane msg --root .`: "floor: --message-file goes with --plane msg, and is required
+  there — BLOCKING (fail closed)." exit 1.
+- `floor.py --plane msg --root . --message-file <scratch plain title>`: ✅ namescan, ✅ quotescan,
+  "coverage: 2 check(s) run · 2 check(s) listed", exit 0 (detached HEAD: branch read as empty).
+- `diff .githooks/commit-msg tools/commit-msg.sample && echo IDENTICAL`: IDENTICAL.
+- `forbidden_flags(['-h', '--help', '--he', '--mess', '--ran'])` → `['--mess', '--ran']`: `-h`,
+  `--help` and `--he` pass the blocklist. Carried to a scratch repo in step 8.
+
+### Step 7, 21:17Z: MH1 matrix, scratch repo with a logging `commit-msg` hook (`mh1.sh`), git 2.50.1
+Hook RAN for: `commit -m`, `-F`, `-C HEAD`, `-c HEAD`, `--amend --no-edit`, `--amend` (editor),
+`--fixup`, `--allow-empty -m`, commit from a subdirectory (cwd reset to the top level, file arg
+`.git/COMMIT_EDITMSG` relative), clean `merge --no-ff` (file arg `.git/MERGE_MSG`), `merge --squash`
+then `commit`, merge stopped on a conflict then `commit`, `rebase -i` reword. GIT_INDEX_FILE was
+`.git/index` in every case. Hook DID NOT RUN for: `commit --no-verify`, `cherry-pick` (with and
+without `-e`), `revert` (with and without an editor), a non-interactive `rebase`. The
+linked-worktree
+line of this first matrix was a probe artefact (the hook file was untracked, so the worktree had
+none); re-measured in step 8 P1/P1b: it runs, and git passes an ABSOLUTE path
+(`<common dir>/worktrees/<name>/COMMIT_EDITMSG`) with cwd at the worktree top.
+
+### Step 8, 21:18Z: scratch tools copy + scratch repos with the REAL hook (`mh3.sh`,
+`ATELIER_TOOLS` → the scratch copy; nothing in the worktree touched)
+- P0 clean commit, main checkout, relative hooksPath: ✅ both checks, exit 0.
+- P1 linked worktree, relative hooksPath, `.githooks` tracked: hook ran, ✅ both, exit 0.
+- P2 relative `--message-file` from another cwd: resolved against the process cwd; works.
+- P3 missing message file: both scanners "cannot read ...: No such file or directory", exit 2 →
+  ❌ both, "BLOCKED by: namescan, quotescan", floor's exit-2 note printed, hook adds the
+  `--no-verify` line.
+- P4 message-file path with spaces and braces (`m {1}.txt`): ✅ both; `{msgfile}` is substituted,
+  not re-parsed.
+- P5 a message whose first line starts with `#`, committed with `-m`: `commitmsg.read_message` →
+  subject read by the plane is the NEXT line (`'body'`); the commit landed with subject
+  `# a title starting with hash`. The plane never read the title that landed. → MP1.
+- P6 `core.commentChar=';'` honoured (`; comment` stripped, subject `title`); `auto` reads as `#`.
+- P7 latin-1 bytes: ✅ both (errors="replace").
+- P8 `flags.namescan.args=["--help"]` (no `why` required): namescan prints usage, exits 0; floor
+  renders `🔴 namescan enforced (🔴 declares an advisory count and printed none — the count
+  contract has drifted, not the findings)`; floor exit 0; a REAL commit with this config landed
+  (subject `z1 with help flag`). `-h` and `--he` behave the same. → MP2.
+- P8d `flags.namescan.args=["--terms=/dev/null"]`: refused at config load (ConfigError). Good.
+- P9 `scope.namescan.paths=["nosuchdir"]` (no `why` required): `⏭ namescan skipped (no nosuchdir
+  tree in this repo)`, floor exit 0; the message was never read. → MP3. P9b scope on an existing
+  path: runs and reads the message.
+- P10 `disabled.namescan="because"`: `⏭ namescan disabled (because) ⚠️ no end date ...`; exit 0.
+  Visible and declared: by design, not a finding.
+- P11 `advisory.namescan`: advisory argv carries `--warn` AND `{msgfile}`; message still read;
+  `⚠️ namescan advisory (w) [review by 2027-01-01]`. P11b on `--plane ci` the ci argv is kept
+  (`⚠️ namescan advisory`, `👁️ quotescan warn-only`), as the delta claims.
+- P12 `--plane ci` outside Actions: both specimens print "(no pushed range known: reading HEAD
+  only)" and render 👁️ warn-only; exit 0. MH5's "says what it did not see" holds at the specimen.
+- P13 `commit_msg_hook_note` on the hook plane: fires with hooksPath unset and no hook (names
+  `.git/hooks/commit-msg`); quiet with an executable hook in `.git/hooks`; fires with
+  `core.hooksPath=.githooks` and the hook only in `.git/hooks` (dead); fires on a non-executable
+  hook; quiet when executable; quiet with an absolute hooksPath; fires in a linked worktree whose
+  tree lacks `.githooks/commit-msg` (`git rev-parse --git-path hooks/commit-msg` → relative
+  `.githooks/commit-msg`). `--json`: result `('commit-msg', 'skipped', 0, 'this clone has no
+  commit-msg hook...')` present; `coverage` counts the plan only (12 run · 19 listed).
+
+### Step 9, 21:21Z: mutations on a scratch copy of tools (`mut.py`), targeted tests only
+- (a) refusal in `main` removed → `MsgPlaneTest` exit 0: NOT caught. Reason confirmed by running
+  the mutant: `--plane msg` with no file hands each scanner `--message-file ""` and both refuse
+  ("give exactly one of --message-file and --range", exit 2), so `main` returns 1 anyway. → MP4.
+- (b) plan lists a msg check on the hook plane → exit 1: caught (`_states("hook")` assertion).
+- (c) note fires always → exit 1: caught (`test_commit_msg_note`).
+- (d) datescan grows a `msg` template → MsgPlaneTest exit 1 and selftest FAILED (1 failure): caught.
+- (e) MSG_CHECKS forgets namescan → MsgPlaneTest exit 1: caught; selftest exit 0: the selftest
+  alone does not catch an unnamed msg reader, the unit test does (MH6 nuance).
+- (f) loosening the `len > 2`/`--` guard so `-h` is judged → MsgPlaneTest and ConfigTest exit 0:
+  no test pins `-h` as allowed, so the fix for MP2 is unconstrained by the suite.
+
+### Step 10, 21:21Z: child checkouts, read-only, counts only (`kids.sh`; `git config --get`,
+`git rev-parse --git-path`, file tests; nothing written). 29 child repos; 22 carry
+`.atelier-floor.json`; 23 track `.githooks/pre-commit`; 22 track `.githooks/commit-msg`; 24 set
+`core.hooksPath`; 22 have a `commit-msg` hook that git would run (exists and executable). One child
+tracks `pre-commit` without `commit-msg`; the hook-plane note covers it on its next commit.
+
+### Step 11: lens 4 by hand. `ATELIER_TOOLS`/`hooks.atelierTools` steer what `python3` runs: same
+trust class and same resolution order as `pre-commit` (its TRUST NOTE, lines 47–51); git clones
+neither. argv lists, no shell, in the hook (quoted) and in floor (`subprocess.run(argv)`).
+`_event_base` validates the sha by `SHA_RX` and rejects all-zero; `pushed_range` only ever builds
+`<sha>..HEAD`, `HEAD^..HEAD` or `HEAD`. `commit_files` passes a parsed sha to `git diff-tree` with
+no `--` and no `SHA_RX` check; a fake record needs a NUL inside a commit body, which git refuses,
+so not reachable; hardening counsel only (MP8). Ref names cannot carry control characters (git
+refname rules), so `branch()` cannot inject into a log. ASVS items (5.1 input validation, 5.3.8
+OS command injection, 7.1 log content) cited from memory: no network tool was used, so this part
+of lens 4 is RECALLED, not checked against the published text, and the verdict says so.
+`/security-review` not aimed: the pending diff in this worktree is the brief itself.
+
+Scratch left: `$SCRATCH/reviewer/{tools,r,r2,rwt,rwt2,mh1repo,mh1wt,loghooks,odd dir,*.sh,*.py,
+*.txt,*.diff,*.log}`; deleted at the end of the pass.
+
+### Step 12, 21:27Z: gates over the brief from the worktree (`tools/<scanner>.py --root . <brief>`):
+datescan 0, spellscan 0, wrapscan 0 (docs/reviews/ is in `.wrapscanignore`, so I checked widths
+by `awk`: my prose is ≤ 100 columns; four of my table rows and several of the brief-writer's
+lines run longer), linkscan 0, leakscan 0, reviewscan 0, secretscan 0. pathscan 1: it names the
+brief-writer's line 281, the § Deferred reading path to the sibling, which is absent from this
+partition on purpose; not my text, left as is. The same gates over this log: datescan 0,
+spellscan 0, leakscan 0; wrapscan reported 63 lines over its 85-column default, which the
+docs/reviews/ convention (≤ 100) does not bind to, and no line here exceeds 100 after a rewrap.
+`git status --short`: only the expected ` D` sibling and ` M` brief. Scratch directory deleted.
+Act 1 ends 2026-11-22T21:29Z. The sibling has not been opened.
+
+## Act 2
+
+### Step 13, 2026-11-22T21:30Z: act 1 committed by the orchestrator as 0a2502f4 (brief only).
+Sibling released at
+  `~/.claude/fable-held/atelier--2026-11-14-0258-commit-message-plane-cold.deferred.md`.
+Now reading, in this order: the sibling whole; the queue pointer (board 160/1390); intent records
+320/810 and 320/550 whole; the message bodies of 55f23034, 6b6110c9, 49f3d407 (`git log -1
+--format=%B`); the namescan and quotescan sibling briefs' status lines only, for any prior verdict
+touching the plane.
+
+### Step 14, 21:31Z: read the sibling whole (12 questions, the brief-writer's runs); the pointer
+160/1390; 320/810 and 320/550 whole; `git log -1 --format=%B` for 55f23034, 6b6110c9, 49f3d407;
+the finding lines of docs/reviews/2026-11-14-0239 (namescan, NS1–NS12) and 2026-11-14-0322
+(quotescan, QT1–QT14), then NS9, NS12, QT2, QT6 in full for overlap with MP1 and the sibling's Q3.
+
+### Step 15, 21:32Z: two read-only probes for the sibling's Q2 and Q3, scratch public repo, `HOME`
+redirected to an empty directory so no user-level term list resolves, `ATELIER_LEAKSCAN_TERMS`
+unset:
+- msg argv (`--require-terms`): exit 2, "namescan: --require-terms set but no local term list
+  found (--terms, $ATELIER_LEAKSCAN_TERMS, or ~/.claude/leakscan-terms.txt)".
+- advisory argv (`--warn`, no `--require-terms`): exit 0, "✓ namescan clean ... (no local term
+  list found — scanned STRUCTURAL patterns only. Set $ATELIER_LEAKSCAN_TERMS or create
+  ~/.claude/leakscan-terms.txt for full cover.)".
+- same clone with `{}` as its floor config: "not declared public: out of scope", exit 0, before
+  the term check. Earlier (first attempt, real HOME) the user-level list on this machine made the
+  msg argv pass clean; nothing live was touched.
+Scratch deleted.
+
+### Step 16, 21:34Z: `### Reconcile` appended beneath the act-1 verdict; act-1 text unrevised; MP9
+(note) formed at reconcile; Status line updated to act 2. Overall restated: FAIL — 1 MAJOR,
+2 MODERATE, 4 minor, 2 notes (MP1–MP9).
+
+### Step 17, 21:34Z: gates over the brief after act 2: datescan 0, spellscan 0, linkscan 0,
+leakscan 0, secretscan 0, reviewscan 0; pathscan names only the brief-writer's lines 271, 278
+and 281 (the barred-list paths, two of which were retired on 2026-11-20 and the sibling absent
+from this partition), none mine. Log: datescan 0, spellscan 0, leakscan 0, every line ≤ 100
+characters. `git status --short`: the expected ` D` sibling and ` M` brief only. Act 2 ends
+2026-11-22T21:34Z.
