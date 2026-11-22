@@ -41,3 +41,9 @@
       through": his text, so only on his words. A rule-4 cold pass is owed on
       the build (Fable, on his approval).
       *(claimed 2026-11-22-0248 UTC, session 12a41aa2, wt: atelier-ccclose-460-480; the principal: "Build both now (Recommended)")*
+      **The prompt edit, the principal mid-build, verbatim:** *"Whatever gets
+      built into ccclose should be remvoed from the prompt but I want to
+      understand that before you change the prompt template"*. So once the
+      build lands: show him each prompt line that goes, what in ccclose now
+      does its job, and the resulting text; change the file only after he has
+      it in hand and says go.
