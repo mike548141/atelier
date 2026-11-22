@@ -1731,6 +1731,20 @@ function liveProcesses(procs, sid, firstPrompt, now, env = process.env) {
   const harness = new Set();
   if (/^\d+$/.test(env.CLAUDE_PID || '')) harness.add(Number(env.CLAUDE_PID));
   for (const p of carriers) { const m = /(?:^|\s)CLAUDE_PID=(\d+)(?=\s|$)/.exec(p.rest); if (m) harness.add(Number(m[1])); }
+  // The rest of ccclose's own command (210/510): `ccclose | grep` runs both
+  // under one shell, so the grep is a sibling, not launched work. Everything
+  // under ccclose's parent shell is this one tool call; a `&` inside it is
+  // still read by leg 3 from the transcript. Never when the parent is the
+  // harness itself, whose descendants are everything.
+  const me = procs.table.get(process.pid);
+  if (me && me.ppid > 1 && !harness.has(me.ppid)) {
+    const call = new Set([me.ppid]);
+    for (let grew = true; grew;) {
+      grew = false;
+      for (const p of procs.table.values()) if (!call.has(p.pid) && call.has(p.ppid)) { call.add(p.pid); grew = true; }
+    }
+    for (const pid of call) own.add(pid);
+  }
   // The harness's own helpers: a child of the harness started before the first
   // prompt or named as MCP, and everything such a helper started in turn (an
   // MCP server is often `npm exec` -> `node`, a grandchild). The closure runs

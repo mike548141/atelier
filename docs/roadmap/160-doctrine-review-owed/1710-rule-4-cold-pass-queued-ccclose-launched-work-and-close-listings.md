@@ -12,7 +12,8 @@
       `instruments/ccclose.test.js`, `instruments/man/ccclose.1`,
       `instruments/ccclose.design.md`, `instruments/README.md`,
       `docs/method/RECORD.md`, `docs/method/CONCURRENCY.md`: the two commits
-      that close `210/460` and build `210/480`, on `main`; and
+      that close `210/460` and build `210/480`, and the later one that closes
+      `210/510`, on `main`; and
       `tools/idhook.py`, `tools/test_idhook.py`, `tools/README.md`: the
       commits that close `210/490`.
       *What to test hardest:* the principal's ruling quoted on `210/460`, that

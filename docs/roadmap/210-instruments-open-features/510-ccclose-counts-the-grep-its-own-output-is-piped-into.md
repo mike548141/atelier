@@ -1,4 +1,4 @@
-- [ ] **Hand-up from a private child: `ccclose` blocks a close on the
+- [x] **Hand-up from a private child: `ccclose` blocks a close on the
       `grep` its own output is piped into.** Seen 2026-11-22. When a
       session runs `ccclose … | grep …` from the Bash tool, *Launched work
       finished* fails with one `live process: ugrep -G --ignore-files` that
@@ -16,3 +16,8 @@
     within a second of `ccclose` itself); or say in `--help` and `man
     ccclose` to write the output to a file, never pipe it. Add the piped
     case to the check's tests.
+  - **Done 2026-11-22** (session 12a41aa2, which built check 15 and hit the
+    same false positive at its own close): the first fix: everything under
+    `ccclose`'s parent shell is excluded, unless that parent is the harness;
+    a `&` in the same command is still read by leg 3. Test: the piped case
+    and the harness-parent case. Covered by the `160/1710` cold pass.

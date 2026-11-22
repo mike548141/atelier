@@ -292,7 +292,10 @@ Four legs, each fail-closed:
    seconds of slack for etime's whole seconds), or a direct child whose command
    names MCP (`mcp`, `modelcontextprotocol`, `mcp-server`); and `ccclose`'s own
    chain: its pid, its ancestors up the table, and its children (the `ps` that
-   read the table). Each blocker prints its pid, its age and the first three
+   read the table), and the rest of its own command: everything under its
+   parent shell, so the `grep` in `ccclose | grep` is not launched work
+   (`210/510`), unless that parent is the harness. A `&` inside the same
+   command is still read by leg 3. Each blocker prints its pid, its age and the first three
    words of its argv, the program as a basename and any `name=value` word as
    `name=…`. The argv is never printed whole: a command line can hold a secret.
    The id is read from `ps` for any session `--session` names, so a past

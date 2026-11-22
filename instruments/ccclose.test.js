@@ -2409,6 +2409,24 @@ test('check 15 leg 1: ccclose\'s own chain (itself, its ancestors, its children)
   assert.equal(live.counts.excluded, 4);
 });
 
+test('check 15 leg 1: the grep ccclose is piped into is its own command, not launched work (210/510)', () => {
+  const sid = 'sess-pipe';
+  const table = new Map([
+    [900, { pid: 900, ppid: 1, ageSec: 7200, rest: `/usr/local/bin/claude ${carrying(sid)}` }],
+    [910, { pid: 910, ppid: 900, ageSec: 5, rest: `/bin/zsh -c ccclose | grep x ${carrying(sid)}` }],
+    [process.pid, { pid: process.pid, ppid: 910, ageSec: 4, rest: `node ccclose ${carrying(sid)}` }],
+    [7001, { pid: 7001, ppid: 910, ageSec: 1, rest: `ugrep -G --ignore-files x ${carrying(sid)}` }],
+    [8888, { pid: 8888, ppid: 1, ageSec: 600, rest: `python3 detached.py ${carrying(sid)}` }],
+  ]);
+  const live = cc.checkLaunched(null, sid, { ok: true, table }, NOW);
+  assert.equal(live.counts.processes, 1, 'the sibling grep is excluded; the detached run still blocks');
+  assert.match(live.items[0], /pid 8888/);
+  // Run straight from the harness, the parent is the harness: nothing widens.
+  table.set(process.pid, { pid: process.pid, ppid: 900, ageSec: 4, rest: `node ccclose ${carrying(sid)}` });
+  table.set(8889, { pid: 8889, ppid: 900, ageSec: 900, rest: `/bin/zsh -c sleep 900 ${carrying(sid)}` });
+  assert.ok(cc.checkLaunched(null, sid, { ok: true, table }, NOW).items.some((x) => /pid 8889/.test(x)));
+});
+
 test('check 15 leg 1: an unreadable process table is unknown, never a pass', () => {
   const w = world();
   const root = repo(w);

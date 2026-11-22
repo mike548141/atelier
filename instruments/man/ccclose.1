@@ -390,7 +390,11 @@ Excluded: the harness itself (the
 in the environment), the MCP servers and helpers it started before the first
 prompt or whose command names MCP, and
 .BR ccclose 's
-own process, its ancestors and its children.
+own process, its ancestors, its children, and the rest of its own command
+line (the
+.B grep
+in
+.BR "ccclose | grep" ).
 Each is printed with its pid, its age and only the first three words of its
 argv, any \fBname=value\fP shown as \fBname=\[u2026]\fP:
 a command line can hold a secret, so it is never printed whole.
