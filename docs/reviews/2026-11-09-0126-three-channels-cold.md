@@ -3,9 +3,10 @@
 **Pass type:** doctrine cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-22 UTC — PASS-WITH-FINDINGS (0 MAJOR, 3 MODERATE, 3 minor), by
+**Status:** ACT 2 WRITTEN 2026-11-22 UTC — PASS-WITH-FINDINGS (0 MAJOR, 3 MODERATE, 4 minor), by
 a Fable 5.1 reviewer under the principal's drain order of 2026-11-23 NZDT. Act 2 (reconcile
-against the sibling) pending; findings are the principal's to decide (rule 3).
+against the sibling) done; the sibling is folded below the verdict by the orchestrator and its
+file removed. Findings are the principal's to decide (rule 3).
 **Sizing:** **small** — one commit, about 75 lines of doctrine, with measured figures that can be
 re-derived from transcripts by count.
 **Queue pointer:** `docs/roadmap/160-doctrine-review-owed/1100-rule-4-cold-pass-queued-three-channels.md`.
@@ -157,7 +158,8 @@ after the reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, the queue pointer above, this brief's sibling
-`docs/reviews/2026-11-09-0126-three-channels-cold.deferred.md`, every delta commit's message body,
+`docs/reviews/2026-11-09-0126-three-channels-cold.deferred.md` (now folded below; the file is
+removed), every delta commit's message body,
 and the intent record
 `docs/roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md`
 beyond its first line (the title).
@@ -452,3 +454,330 @@ Every finding is the principal's to decide (rule 3); nothing is applied here.
       `tools/quotescan.py` already exists under that name.
 - [ ] If CN4's class is accepted: a check or a habit for UTC-day headings in `CHANGELOG.md`.
 - [ ] Act 2: reconcile against the sibling and the barred records; screen the commit body.
+
+### Reconcile — act 2 (after the sibling)
+
+Opened on 2026-11-22 UTC, after act 1 was committed unrevised as `58fefeaa` (brief file only), on
+the orchestrator's release message, which named the held sibling's path and nothing else. Read in
+this phase: the sibling; the queue pointer `160/1100` whole; the intent record `320/070` whole;
+the commit bodies of `b12c4b15` (the delta) and `8ef6d59c` (the pointer commit); `docs/sessions/
+2026-08-21-2312-three-channels-and-the-instrument-that-reads-one.md` lines 65–110 (the
+measurement session) and `docs/sessions/2026-11-08-1059-ruling-round-722a.md` lines 15–30 (the
+author's record); item `320/100` lines 53–56; `instruments/ccclose` 225–236 and 2625–2660; the
+headline lines of the prior verdict `docs/reviews/2026-10-17-1010-harness-classification-cold.md`.
+No act-1 text is revised.
+
+**Per finding, against the sibling and the author's account.**
+
+- **CN1** stands. The intent record states the shapes correctly at field level (opening
+  `type:"user"`; mid-turn `type:"attachment"` · `queued_command`; a pick "arriving as a
+  `tool_result`") and then says a `type == "user"` filter "drops the second and third silently";
+  the 2026-08-21 session says the same. The delta compressed the field-level account into "three
+  different record types" and carried the filter claim over. So the mechanism error originates in
+  the filing and the delta inherited it; the counsel is unchanged. The pointer's second question
+  ("whether the authorship caveat is stated so an audit can follow it") lands here: the record's
+  account is followable, the doctrine's is not quite.
+- **CN2** stands, narrowed. The intent record and the measurement session hold most of what the
+  doctrine omits: "the whole live store", both channels classified the same way, the per-repo
+  breakdown, and the first pass's 33.5% error. Neither counts the third channel, and neither
+  gives date bounds or the authorship method for channel 1. The record also names several child
+  repos by name in the per-repo breakdown, which `260/080`'s later posture (public records
+  describe a private repo's state by type) would now bar; that is the record's, not the delta's,
+  and is listed as a follow-up. Counsel stands: one clause in doctrine naming the corpus and the
+  two channels counted, pointing at the record for the rest.
+- **CN3** stands. "System reminders arrive in both records" comes verbatim from the 2026-08-21
+  session and the intent record; it was the first pass's explanation of its own over-count, not
+  a census of the mid-turn channel. The 43.3% is dated in the record (2026-08-21) and undated in
+  the doctrine. Unchanged.
+- **CN4** stands. The commit bodies and the author's record add nothing on the date frame.
+- **CN5** stands, sharpened by the sibling's question 5. `ccclose` reads all three channels: a
+  `queued_command` attachment (line 232), a user record without `toolUseResult` (236), and an
+  `AskUserQuestion` answer as `toolUseResult.answers` (2630–2650). So the house has one instrument
+  that reads the third channel as his answer and one, `cctranscript`, the search-and-audit tool,
+  that does not and names no channel. The 2026-08-21 session already said of the third channel
+  that "a patch that adds only `queued_command` must not claim the principal's input is covered";
+  `210/100` closed with exactly that patch and nothing queued the remainder. Counsel unchanged.
+- **CN6** stands, with the sibling's question 2 folded in: a slash command's typed arguments
+  arrive inside a `<command-name>` wrapper in a channel-1 record (261 such records in the live
+  store), and the prior verdict `2026-10-17-1010` found HC1 (MODERATE) exactly there, "`<command-
+  args>` holds the principal's words, and ccclose drops them", applied by `457f374d`. That is a
+  fourth shape his words take, within channel 1, that a wrapper-stripping read loses. The relayed
+  peer message remains the case the section does not name.
+
+**The sibling's remaining questions.**
+
+- Q1 (binding versus answer): act 1's A4 — they agree; binding governs acting, ruling governs
+  whose words doctrine carries. No finding.
+- Q3 (3,020 and 1,305): neither figure is in the intent record, the commit body or any session
+  record; both come from item `320/100` lines 53–56, the second child's corroboration. The
+  doctrine cites `210/100` for the instrument and nothing for these two. Folded into CN2's
+  counsel: the clause that names the corpus names `320/100` for the second repo's figures.
+- Q4 (before the turn ends): act 1's A5. The pointer's first question is the same ("decidable in
+  the moment"). The rule names the three kinds that stand (a rule, a ruling, a scope), which is
+  decidable; the deadline binds only a turn with time left. No finding; the rule's "where later
+  sessions will see it" already carries the useful half.
+- Q6 (landing and pointer in separate commits): **CN7 — minor, formed at reconcile.** The delta
+  is `b12c4b15`; the pointer is its child commit `8ef6d59c`, thirty-six minutes later by author
+  date, with the body "a rule-4 pointer is written at the landing". `REVIEW.md` rule 4 reads
+  "landing = queuing… in the same commit that lands the work", and TA9 accepted a pointer minutes
+  after a series "meeting the rule's intent while its grammar named no commit". This case is the
+  queue-run pattern (a worker commits, the orchestrator reads and points), so it will recur every
+  run; the window is one commit and was probably closed by one push, which I cannot verify from a
+  worktree. *Counsel:* either the pattern's landing step amends the pointer into the worker's
+  commit, or rule 4 names the orchestrator pattern as the TA9 allowance. Principal's to decide.
+
+**The brief-writer's re-run.** Its floor at `c132cc1c`: hook and ci exit 0, three `pathscan`
+warnings. Mine at `b1307b77`: both exit 0, `pathscan` clean. Consistent; the three paths were
+fixed between.
+
+**Commit-body screen.** `b12c4b15`'s body restates the section's figures and attribution, adds no
+claim the section lacks and names no private repo. `8ef6d59c`'s body says doctrine changed so the
+pointer was written "at the landing"; see CN7.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE (CN1, CN2, CN5) · 4 minor (CN3,
+CN4, CN6, CN7).** CN7 is the one finding formed at reconcile. Every finding is the principal's to
+decide; nothing is applied.
+
+**Follow-ups added at reconcile.**
+
+- [ ] The intent record `320/070` names several child repos in its per-repo breakdown; whether
+      `260/080`'s posture reaches existing board records is the principal's call.
+- [ ] CN7: the queue-run landing step and rule 4's "same commit" wording, one of them to move.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+*Released to the reviewer only after its act-1 findings were committed (locally `58fefeaa`, the
+hash the reviewer's text cites; landed as `f87c2979` when rebased before this fold); folded here
+verbatim (headings demoted two levels, no line wrapped, no word changed) and the sibling file
+removed, per the brief. The orchestrator, headless
+Opus 5.5 session `23e95a19` started by drain session `eca14b23`, held the partition, formed no
+finding and wrote no severity; drain session `eca14b23` wrote no brief and no delta and started no
+brief-writer for this pass.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-09-0126-three-channels-cold.md` (`REVIEW.md` rule 1). Written
+2026-11-09 UTC by session `84e3aa7f`, the brief-writer, which authored none of the delta. Open this
+only after act 1 is committed. Everything here is a floor, never a fence, and none of it is a
+finding.
+
+#### The queue pointer's questions (author-written, verbatim)
+
+> whether 'meant to stand' is decidable by a session in the moment; whether the authorship caveat is
+stated so an audit can follow it.
+
+#### The brief-writer's own questions
+
+1. `GUARDS.md` now says something he "chose in the question box" is as binding as the opening
+prompt. The house also holds that a pick from offered options is an answer, not a ruling. Do the two
+agree?
+2. Is three the right number? A slash command's typed arguments, a Stop-hook's feedback, a pasted
+message: check against what the transcripts hold, and against the later `457f374d` commit.
+3. Where do 3,020 and 1,305 come from? Find each figure's source.
+4. "Before the turn ends" is the homing deadline. Is it followable for a turn that is mid-work when
+the instruction arrives?
+5. Who else in the instruments reads a single channel today, not only `cctranscript`?
+6. The landing commit and the pointer commit are separate (`b12c4b15`, then `8ef6d59c`).
+
+#### What the brief-writer ran, and what it got
+
+- `floor`: at c132cc1c: hook exit 0, ci exit 0. pathscan reports 3 findings, warn-only:
+  docs/method/EVIDENCE.md:427, docs/method/session-open/session-open-prompt.md:13 and
+  docs/method/session-open/template-history.md:10 (paths that do not exist from the repo root).
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*Form fixes only: headings demoted two levels; three lines over 100 columns left as written
+(`docs/reviews/` is outside wrapscan's reach, and wrapping would touch the reviewer's text). No
+public-repo gate blocked a token, so no placeholder was needed.*
+
+### Review log — atelier 160/1100, cold pass on 320/070 (three channels)
+
+Reviewer: Fable 5.1 (claude-fable-5-1), spawned by orchestrator session 23e95a19 (Opus 5.5),
+started by drain session eca14b23 (Opus 5.5). Worktree:
+`/Users/mike/worktrees/fable/atelier-160-1100-2236/atelier`. Finding prefix `CN`.
+Commands, files and evidence only. No transcript text. Public-safe.
+
+#### Act 1
+
+- 2026-11-22T22:38Z `date -u`; `uptime` load 7.70 11.43 14.05.
+- `git merge-base --is-ancestor b12c4b15 HEAD` exit 0. HEAD = b1307b77. `git status --short`:
+  only ` D docs/reviews/2026-11-09-0126-three-channels-cold.deferred.md` (orchestrator's
+  partition; left alone). `python3 --version` = 3.14.6.
+- Read brief `docs/reviews/2026-11-09-0126-three-channels-cold.md` lines 1–197 in full.
+- Read `docs/method/REVIEW.md` lines 1–835 in full (verdict shape, rules 1–4, V1–V7).
+- `python3 tools/coldsweep.py --root "$W" --commit b12c4b15 --path docs/method/RECORD.md --path
+  docs/method/GUARDS.md --path docs/method/README.md --path CHANGELOG.md` exit 0: subject, stat,
+  diff of 4 files (76+ / 2-), body not printed; 0 board-store files touched; 0 barred files
+  touched. Delta: RECORD.md +49 (new section "What the principal said arrives three ways"),
+  GUARDS.md +5 (one paragraph under "A rule with no home is not a rule"), README.md ±5 (RECORD
+  line), CHANGELOG.md +19.
+- `git log --oneline b12c4b15..HEAD -- <4 paths>`: ~110 commits since, mostly CHANGELOG.md.
+  Next: diff the three doctrine files since the delta to see whether the section moved.
+- `git diff b12c4b15..HEAD --stat -- RECORD.md GUARDS.md README.md`: all three moved since (RECORD
+  +245/-, GUARDS +382, README +19). `grep -n "What the principal said arrives three ways"`: the
+  section is at RECORD.md:358 at HEAD; GUARDS.md:724-727 holds the pointer paragraph; README.md:106-108
+  the index line; CHANGELOG.md:1717-1735 the entry. Mirror sites intact.
+- Read RECORD.md 340-420 at HEAD (the section and its neighbours). One sentence differs from the
+  delta: "A pick is an answer and not a ruling; that section holds the difference and the marks."
+  `git log -S'an answer and not a ruling; that section' -- docs/method/RECORD.md` = e7370f78
+  (2026-11-10 01:56 +1300, subject "board: queue the cold pass on the asking doctrine (160/1250)").
+  Read body-free: `coldsweep.py --commit e7370f78 --path docs/method/RECORD.md` exit 0 (+2/-1,
+  that sentence only; 5 board-store files left out by default, not read). 160/1250's first line
+  (title only) says it covers 320/820, 420/020 a+b, 020/270: the answer-vs-ruling doctrine. So the
+  later sentence belongs to another queued pass; no finding formed on it here.
+- Cross-references reached (V5): `COMMUNICATION.md` § "Asking for a ruling — the ask goes in the
+  device, the account beside it" exists at HEAD (line 214) and at the delta commit (line 205);
+  read 214-300 at HEAD: it holds the device rule and the answer/ruling distinction with its marks.
+  `GUARDS.md` § "A rule with no home is not a rule" exists at HEAD (685) and at the delta (350);
+  read 685-735 at HEAD: holds the homing test; the delta's paragraph sits at 724-727 unchanged.
+- `docs/PERSONAL-DATA.md` lines 1-80: PD4 allows the first name "Mike" in doctrine. The section's
+  use of "Mike" is within the closed list. Checked sound.
+- Commit dates: `git log -1 --format=%ai/%ci b12c4b15` = author 2026-11-09 00:56 +1300, committer
+  01:33 +1300; `TZ=UTC git log --date=iso-local` = 2026-11-08 11:56 UTC. Neighbours 7ad98503
+  (260/080), 4458a157 (020/240), 920cfed1 (160/630) all landed 2026-11-08 12:04-12:32 UTC.
+  CHANGELOG.md headings at 1702, 1717, 1736 all say "(2026-11-09 — …)"; 1754 says 2026-11-08.
+  `CONVENTIONS.md` line 57: "UTC at rest; local on presentation"; line 59: prose stamps
+  `YYYY-MM-DD`. The delta's heading date is the local day, not the UTC day, and the entry's own
+  body dates the pick "2026-11-08". -> candidate CN4 (minor, class shared with the batch).
+- Mirror sweep: `coldsweep.py --root W --also-exclude <pointer> --also-exclude <intent record> -i
+  'three channels|three ways|question-box pick|mid-turn (message|instruction)'`: 54 hits over 936
+  files, 817 excluded as barred. Hits outside the delta's four files: docs/ROADMAP.md:245 (this
+  pass's index line, title only), docs/decisions/2026-11-09-board-states-design.md:52,
+  docs/method/census/2026-11-16-1204-…md:375, instruments/README.md:356, instruments/cctranscript
+  (comments), cctranscript.test.js, man/cctranscript.1. No hit in docs/build/ or skills/
+  (`grep -rn -i "mid-turn|three channels" docs/build skills` = none). No stamped copy exists.
+- Board titles read (first line only): 210/100 "[x] cctranscript never reads the principal's
+  mid-turn messages…" (closed); 320/080 "[ ] PROPOSAL — quotescan…" (open); 320/100 "[ ]
+  PROPOSAL — the damaging attribution carries NO QUOTATION MARKS…" (open); 160/1250 (above).
+  `grep -il cctranscript docs/roadmap/*/*.md | xargs grep -il "AskUserQuestion|question-box|
+  question box|pick"`: no item queues cctranscript's reading of question-box picks. Open 210
+  items listed by title: none covers it either. -> candidate CN5.
+- Instrument census (house's own account of the record shapes): instruments/cctranscript lines
+  30-80 and 555-625. Header comment: a mid-turn message "never becomes a type:"user" record — it
+  logs as type:"attachment" · attachment.type:"queued_command""; "Still NOT covered: an
+  AskUserQuestion answer arrives as a tool_result, reachable only via --tools, undistinguished
+  from other tool output". isHumanQueuedCommand: commandMode "prompt" + origin.kind "human" or
+  origin absent = human; "peer" and "task-notification" = not human; census of ~4,100 records
+  2026-09-18. Search output (lines 1367-1376) prints `searched <layers>` and "Tool output not
+  searched…": layers named, the pick channel not named. man/cctranscript.1 270-320 and
+  instruments/README.md 350-362 say the same: prompts, replies, mid-turn, harness; picks absent.
+- tools/quotescan.py lines 1-25: a quotescan already exists at HEAD (115/110, 160/900 QK1) that
+  reads the FORM of a commit message; its docstring says the corpus problem is 320/080's. Name
+  collision with the delta's "320/080 (quotescan)" noted; not this delta's defect.
+- docs/decisions/2026-11-09-board-states-design.md 45-60 (decision record, not barred): a record
+  stated the principal "never typed" two markers; he had, in two mid-turn messages; cctranscript
+  could not see them until 2026-09-18. In-repo instance of the confident negative. Disclosed read.
+- docs/method/census/2026-11-16-1204-…md 365-385: notes GUARDS points at the section and slice 1
+  counted no rule from it. Not this delta's defect. Disclosed read.
+- CHANGELOG.md 2705-2720: the 210/100 entry ("cctranscript reads the principal's mid-turn
+  messages without moving any published ref"). Consistent with the section's past tense.
+
+##### Transcript re-derivation (lens 4 terms: read-only, by count only, no text printed)
+
+- `du -sh ~/.claude/projects` = 9.9G; 5,534 .jsonl files (live store; Claude Code prunes it after
+  cleanupPeriodDays, so the 2026-08-21 corpus is not recoverable from it).
+- Script 1 `count_channels.py` (scratchpad; /usr/bin/python3 -I; nice -n 10; exit 0; prints
+  aggregate counts and field names only). Results, 2026-11-22T22:4xZ:
+  - Record `type` values: user 455,620; assistant 771,105; attachment 336,662; others (no text
+    channel). queued_command attachments 11,693 of 44 attachment types.
+  - AskUserQuestion tool_use 1,342 (main files); matching tool_result records 1,339, EVERY one a
+    `type == "user"` record (content list of tool_result, top-level toolUseResult present).
+  - queued_command by (commandMode, origin.kind), main-session files: prompt/human 2,396;
+    prompt/ABSENT 228; prompt/peer 1,036; task-notification/ABSENT 2,312;
+    task-notification/task-notification 1,417. Agent files add task-notification 3,982,
+    None/coordinator 305, None/peer 17. New keys seen: `humanTurn` (983 records), origin.kind
+    `coordinator` (305). No `system-reminder` shape in this channel.
+  - type:"user" string-content, not isMeta, main files: 5,645, of which 4,402 open with
+    `<task-notification`, 261 with `<command-name`, 245 `<local-command`, 737 plain.
+- Script 2 `count_ratio.py` (same terms; exit 0): main-session files, non-sidechain records.
+  typed opening (plain + slash) 6,297; harness-led 5,187; typed mid-turn (house rule) 2,628;
+  other mid-turn: peer 1,036, not-prompt 3,732; picks 1,339. Share mid-turn 29.4% (doctrine:
+  24.3% at 2026-08-21); mid-turn human share 35.5% (doctrine: 43.3%, undated). Direction of both
+  claims confirmed on the 2026-11-22 store; magnitudes moved. `opening.typed` still includes
+  machine-written opening prompts of headless sessions, so it overstates his typing: the
+  channel-1 authorship problem the section says it handled ("classified identically") without
+  saying how.
+- Arithmetic: 965 / (3,013 + 965) = 24.26% -> 24.3% as stated. Sound.
+
+##### Re-run ledger
+
+- `nice -n 10 python3 tools/floor.py --plane hook --root W` exit 0 (19 checks run / 19 listed;
+  every enforced check green; warn-only checks clean). Output in scratchpad floor-hook.txt.
+- `nice -n 10 python3 tools/floor.py --plane ci --root W` exit 0 (20 run / 21 listed; secretscan
+  29 advisory, leakscan 3 advisory, pointerscan 10 advisory: 1 grammar, 9 queue state, on other
+  passes' pointers by path; declarations 0/21 meet all five, advisory). floor-ci.txt.
+- `/security-review`: NOT RUN, discharged: landed markdown delta; the worktree is dirty with the
+  sibling's deletion and this brief; the scanner excludes markdown. Weighed as nothing.
+- `uptime` before each heavy command: load 7.70 / 16.60 / 76.94 / 31.05 / 9.79 (other passes).
+
+##### Candidate findings formed (act 1)
+
+- CN1 MODERATE — RECORD.md:366-369 (delta) "stored as three different record types, and a read
+  that filters on the first (type == "user") drops the other two silently". Live: picks are
+  type:"user" records (1,339 of 1,339). Two record types, three shapes. Instrument's own
+  comment agrees (cctranscript:555-562, 74-75). Breaks V1 / lens 2.
+- CN2 MODERATE — RECORD.md:386-395 grounding paragraph: names no corpus bounds, two channels
+  ("both channels") in a three-channel section without saying the third was unread, and no
+  method for channel-1 authorship. Breaks the section's own rule 2 (V5), V1.
+- CN3 minor — RECORD.md:397-399 "Only 43.3% of mid-turn records are typed by the principal"
+  undated present tense; names system reminders in that channel, unsupported by either census.
+- CN4 minor — CHANGELOG.md:1717 heading dated 2026-11-09, commit 2026-11-08 UTC; CONVENTIONS
+  UTC at rest; the entry's body says 2026-11-08. Class shared with three neighbours.
+- CN5 MODERATE — harvest: the house audit instrument reads two of three channels, names layers
+  not channels, no board item queues the third channel; the delta's "Not done here" omits it.
+- CN6 minor — lens 1: "three" is a closed count; his words also arrive relayed inside a peer
+  message (origin.kind peer, 1,036 records, classed "injected") and by instruction files; the
+  heading's confident count is the shape the section warns against.
+- Checked sound: GUARDS "as binding" vs RECORD "an answer and not a ruling" (binding ≠ ruling,
+  COMMUNICATION 214-300 holds the distinction); "Mike" within PD4; cross-refs reach their rules;
+  no private name or transcript text in the delta; child repos by type only; wrapscan/spellscan/
+  datescan green at HEAD on both planes.
+
+##### Act 1 written and gated
+
+- 2026-11-22T22:59Z–23:03Z: Status line updated (ACT 1 WRITTEN, PASS-WITH-FINDINGS 0/3/3); verdict
+  appended below a `---` divider in the brief (provenance, method, lenses, V1–V7, ledgers, CN1–CN6
+  with counsel, follow-ups). Tables converted to lists so no new line exceeds 100 characters; the
+  only lines over 100 are the brief-writer's own paths and commands (lines 11, 82, 162, 172, 173).
+- Gates: `floor.py --plane hook --root W` with the edited brief in the tree: exit 0, no finding on
+  the brief. Individually on the brief: datescan exit 0 (454 lines read), leakscan exit 0 (454
+  lines), linkscan exit 0 (no internal links), reviewscan exit 0 (deferred material kept out),
+  wrapscan and spellscan exit 0 but "scanned nothing" (docs/reviews is in .wrapscanignore and
+  .spellscanignore); widths and NZ English checked by hand instead.
+- Scratch deleted: both count scripts and their outputs, the three floor outputs. Nothing left in
+  the scratchpad. `git status --short`: ` D …deferred.md` (orchestrator's) and ` M …cold.md` (the
+  brief). No commit, no push, no live write.
+- Act 1 ends here. Act 2 waits for the orchestrator's release message naming the held sibling.
+
+#### Act 2
+
+- 2026-11-22T23:04Z: release received from the orchestrator; act 1 committed as 58fefeaa (brief
+  file only), verified by `git log -1 HEAD`. Sibling read at the released path (its questions:
+  pointer Q×2, brief-writer Q1–Q6; its floor at c132cc1c hook/ci exit 0, 3 pathscan warnings).
+- Read whole: queue pointer 160/1100; intent record 320/070 (names several child repos by name in
+  a per-repo breakdown; not repeated in the verdict). Commit bodies: b12c4b15 (restates the
+  section; nothing new), 8ef6d59c (pointer commit, parent = b12c4b15, "a rule-4 pointer is
+  written at the landing"). `git rev-parse 8ef6d59c^` = b12c4b15.
+- `grep -n "3,020|3020|1,305|1305" docs/sessions/*.md`: no source (one unrelated hit). Whole-store
+  grep: both figures come from item 320/100 lines 53–56 only.
+- docs/sessions/2026-08-21-2312-… lines 65–110: "Measured across the whole live store"; first
+  pass 4,433 vs 2,237 (33.5%) over-counted injected text; corrected 3,013 vs 965; "system
+  reminders arrive in both records" is the over-count's explanation; third channel named as a
+  tool_result and "a patch that adds only queued_command must not claim the principal's input is
+  covered". docs/sessions/2026-11-08-1059-ruling-round-722a.md 15–30: 320/070 among the items
+  applied; no further account.
+- instruments/ccclose 225–236 (reads queued_command and user-without-toolUseResult) and
+  2625–2660 (reads AskUserQuestion answers via toolUseResult.answers): ccclose reads all three
+  channels; cctranscript does not. Sharpens CN5.
+- Prior verdict 2026-10-17-1010-harness-classification-cold.md headline lines: HC1 MODERATE
+  "<command-args> holds the principal's words, and ccclose drops them"; applied by 457f374d.
+  Folded into CN6 as a channel-1 sub-shape.
+- Reconcile written beneath the act-1 verdict: CN1–CN6 stand (CN2 narrowed, CN5 and CN6
+  sharpened); CN7 minor formed at reconcile (landing and pointer in separate commits; the
+  queue-run pattern makes it recur; TA9 precedent). Overall restated 0/3/4. Status line updated
+  to ACT 2 WRITTEN. No act-1 text revised. Sibling not folded, nothing deleted.
+- Gates after act 2: floor hook plane exit 0 (no finding on the brief); datescan, linkscan,
+  leakscan, reviewscan each exit 0 on the brief; widths checked by hand (only the brief-writer's
+  five path/command lines exceed 100). Scratch outputs deleted. `git status --short`: ` D
+  …deferred.md`, ` M …cold.md`. No commit, no push, no live write.
