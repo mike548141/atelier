@@ -34,9 +34,16 @@ plain words with one bulk question. Then his close-out paragraph, pasted mid-tur
   uncommitted edits to a delta path in its own worktree. Look at live author sessions'
   worktrees (`git worktree list`, then `git -C <wt> diff --stat`) before claiming.
 
+## Decided
+
+- 2026-11-22 UTC, the principal's answer to the bulk question (an answer, not a ruling),
+  verbatim: *"Fix all as advised (Recommended)"*. Recorded on `160/1450` with the option
+  text; carried by the new fix item `210/470` (`8594f576`).
+
 ## Owed
 
-- The principal's bulk decision on FL1–FL25 (asked at this session's close).
-- After the fixes: a re-check Fable pass, which needs his approval.
+- `210/470`: fix FL1–FL25 as counselled, MAJORs first; then the canary (a throwaway repo,
+  cut off on purpose and resumed); then ask the principal for the Fable re-check pass, which
+  a session that wrote none of the fixes runs. The drain switch waits for it to be clean.
 - Left untouched: an uncommitted edit to `docs/method/session-open/session-open-prompt.md` in
   the primary checkout, not made by this session (it matches the close-out paragraph he pasted).
