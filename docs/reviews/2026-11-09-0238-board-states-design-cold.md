@@ -5,8 +5,8 @@ only the build*. A file format every repo's board is read through is doctrine by
 Nothing is built, and that is no reason to shrink the verdict.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** RUN 2026-11-22 UTC on Fable 5.1 — act 1 written: PASS-WITH-FINDINGS, 0 MAJOR ·
-3 MODERATE · 3 minor · 2 note; act 2 (reconcile against the sibling) pending. Brief written
+**Status:** RUN 2026-11-22 UTC on Fable 5.1, acts 1 and 2 written and folded:
+PASS-WITH-FINDINGS, 0 MAJOR · 3 MODERATE · 4 minor · 3 note (two formed at reconcile). Brief written
 2026-11-09 UTC by session `9bb1b984`, a headless Opus 5.5 brief-writer; the pass ran under the
 principal's drain order of 2026-11-23 NZDT.
 **Queue pointer:**
@@ -170,7 +170,7 @@ seed.
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-`docs/reviews/2026-11-09-0238-board-states-design-cold.deferred.md` (a held-back file; by count: 15
+(folded below the verdict at the fold; a held-back file; by count: 15
 questions, 2 facts), every item under `docs/roadmap/160-doctrine-review-owed/` beyond its title, every
 delta commit's message body, and these intent records beyond the acceptance lines above:
 
@@ -457,3 +457,531 @@ words, their aliases, the target form in-repo and cross-repo, and which phase re
       wording) stand confirmed by this pass's re-runs and can be applied on his word.
 - [ ] Act 2: open the sibling (15 questions, 2 facts) and the barred records, screen the delta
       commits' bodies, reconcile below.
+
+### Reconcile
+
+Written 2026-11-22 UTC after act 1 was committed as `1235389b`, unrevised. Opened at this step: the
+sibling (15 questions, 2 facts), the bodies of `e36cedcb` and `16ee3f09`, `310/060` and `310/160`
+whole, and the pointer `160/1230`. Act-1 text above is unchanged.
+
+**The author's account.** Both commit bodies restate the design and add no claim the text does not
+make. `310/160`'s drafted and revised notes and his three answers match the design's *Decided by
+him* table word for word. `310/060`'s option list confirms the design's "option 1" is the renderer
+reading prose and "option 2" the disposition field, which closes the one line my ledger marked NOT
+RUN. The pointer discloses the orchestrator arrangement, as rule 4 requires.
+
+**The sibling's facts.** The brief-writer's re-runs (`board --check` exit 0, `test_board` exit 0)
+match mine. It confirmed the five regex names and tested none; testing them is what BT3 found.
+
+**Per finding, against the sibling's questions:**
+
+- **BT1** meets Q2 and Q12. Q12 asks what stops a parent not declaring its children: nothing, and
+  the check sees only a contradiction in a declaration that exists. That is the same gap as BT1 seen
+  from the rule's side; the 94 ticked parents with open bodies are the measured case of an
+  undeclared parent. BT1 stands.
+- **BT2** meets Q2 and Q7. Q7 asks whether `[~]`-as-part-done is one child's habit: the census says
+  42 of 43 fleet non-claims sit in one board, but `310/070` and `010/100` record two children that
+  reached for `[~]` independently, so it is a vocabulary gap with one heavy user. BT2's point is
+  narrower and unchanged: whatever the box means, the fragment the check reads is not where the
+  boards write it.
+- **BT3** meets Q3 in part. Stands.
+- **BT4** is Q14. The sibling asked whether the 2026-11-18 date was realistic; it had already passed
+  and the grace it named was already removed. Stands as written.
+- **BT5**, **BT6** — not raised by the sibling; Q9 asked for a fresh census and BT6 holds its
+  figures. Stand.
+- **BT7** is Q13. The sibling points at `RECORD.md` § *The record is public*, which I had not cited:
+  it says naming a private sibling is not itself the harm; the harm is the name coupled to its
+  sensitive posture, and the test is whether the name is load-bearing for the lesson. That sharpens
+  BT7 rather than changing it: `moved to <repo> <item>` couples a private name to that repo's board
+  state, and the design should say which join is allowed on a public board. Stands, with that
+  section added to its grounds.
+- **BT8** meets Q11. How a check knows which work is his: the design's own *Basis* column (his words
+  or his answer, recorded) gives the trace, a ⚖️ or 💬 beside the `[-]`, but the design does not
+  say the check requires it. That belongs in the grammar table BT8 asks for. Stands.
+- **Q4, Q5, Q6, Q8, Q15** — read and discharged, no finding: step 2 is explicit that only a line a
+  child marks anew renders differently, so a tool update alone stales no committed index (Q4);
+  `board.py` squeezes the title to the room the prefix leaves (`WRAP_COLS` 85, `TITLE_MIN` 24,
+  `_fit_title`), so a longer prefix shortens the title and fits (Q5); *Problems* 3 keeps its
+  "about half" tied to the 40-item sample and the revised question says so again, so it is a sample
+  proportion stated as one, though it is the sample I did not re-draw (Q6); 8 is `⏳` as the marker
+  and 162 is `⏳` as a flag on `[ ]` lines, which the table's row names, and the re-run gives 7 and
+  91 (Q8); the word and the field sit on the state line beside the box and are checked against it,
+  so they are not the second home the 2026-08-15 decision refused, which was a field duplicating the
+  box elsewhere in the file (Q15).
+
+**Formed at reconcile, from the sibling's questions (marked as such):**
+
+**BT9 — note, formed at reconcile (Q3). "Additive" is proven for CI, not for a local checkout
+behind `main`.** A child's session or pre-commit hook runs whichever atelier checkout its links
+point at. A `[-]` written while that checkout predates step 1 reds the writer's own `board --check`
+(`STATE_RE` no match, "no state line", exit 1) while CI on `floor.yml@main` passes. The red lands on
+the hand that wrote the box, so it is not unannounced; it is a pin-lag the design does not mention.
+*Counsel: one sentence in step 1 naming it, and the pin-bump step that closes it.*
+
+**BT10 — minor, formed at reconcile (Q10). The one departure from his words is argued, not asked.**
+His commission puts *"a mixed status or an in-progress"* inside the no-more-work class; the design
+splits it (in-progress is live, a mixed parent is closed with a roll-up) and says so plainly, but
+the point is not among the questions he was asked, and the three he answered did not touch it. For
+doctrine he commissioned, a departure from his words is his to confirm, not the author's to settle
+by argument (`REVIEW.md` rule 3). Breaks lens 1's "honestly framed" test for the questions.
+*Counsel: add it to the open question as a confirmation: "your 'mixed' class becomes a roll-up, not
+a state, for this reason; confirm or say otherwise".*
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 4 minor · 3 note** (act 1's 0 ·
+3 · 3 · 2, plus BT10 minor and BT9 note formed at reconcile). No act-1 finding was changed by the
+sibling or the author's account; two gained grounds (BT7, BT8).
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+*Released to the reviewer only after its act-1 findings were committed (`1235389b` on `main`);
+folded here verbatim (headings demoted two levels) and the sibling file removed, per the brief. The
+orchestrator (headless session `fce21971`, Opus 5.5, started by drain session `eca14b23`, itself
+Opus 5.5) held the partition, formed no finding and wrote no severity.*
+
+### Held back — the board-states design
+
+Opened only once the reviewer's own findings are durably written (`REVIEW.md` rule 1). A floor,
+never a fence. Written by the brief-writer, session `9bb1b984`, which did not author the delta.
+
+#### The pointer's own questions
+
+1. Does the migration keep every child green?
+2. Do the measurements support the model?
+
+#### The brief-writer's questions
+
+3. "Additive" rests on children reading atelier's tools at `floor.yml@main`. What about the local
+   hook's copy, a child with an older checkout of atelier, or a `[-]` written while a sibling
+   session's tools predate step 1? `board --check` exits 1 on an unknown box: is there a window in
+   which a new box reds a run?
+4. Step 1 says "nothing renders differently". The rendering table gives `[/]`, `[-]` and a waiting
+   field new index text. Which step actually changes the index, and does that stale a committed
+   index in a child that takes a tool update and no item change?
+5. A longer index-line prefix (`- [ ] ⏸️ him`, a roll-up count): does it still fit `wrapscan`'s
+   width, and `sizescan`'s hot-path rules?
+6. The design says the table's samples are "not extrapolated". Problem 3 says "about half … is not
+   takeable", and the outcome rests on it. Is that extrapolation?
+7. Problem 2 is a house-wide claim on `[~]`. The table says 35 of the 36 non-claim `[~]` sit in one
+   child. Is that a state vocabulary problem or one child's habit?
+8. The census shows `⏳` as a first-line state 8 times and on 162 open items' state lines. Reconcile
+   the two counts: what is the 162 counting that the 8 is not?
+9. 1,245 + 1,189 + 52 + 8 = 2,494 and 1,189 − 45 = 1,144. Those two add up. Do the other figures
+   survive a fresh census at a fresh date, and how much have the boards moved?
+10. The design departs from his two-tier words on "mixed", and says so "plainly". It is not among the
+    three questions put to him. Should it be? Are the three questions the ones that are really his?
+11. "Who may set what": `[-] not-required` is "Mike only" on "work Mike commissioned". How does a
+    session or a check know which work that is, across 2,494 items that do not record it?
+12. A parent is "declared and checked". What stops a parent simply not declaring its children? Does
+    the check catch the absence, or only a contradiction in a declaration that exists?
+13. `(waiting: <repo>)`, `[-] moved to X` and the roll-up put a repo name on a public index line.
+    What does `RECORD.md` § *The record is public* say about a private repo's name beside its
+    state, and does the design's grammar invite exactly that join in a public tree?
+14. Phase 2's grace is tied to `010/190` and 2026-11-18. Is that date realistic given this draft is
+    not ruled, and what happens to two graces if it slips?
+15. Rejected shape C cites a 2026-08-15 store decision. Does `(waiting: …)` plus `children:` plus the
+    tier-2 word amount to the second state vocabulary that decision refused, on the item's first line
+    rather than in frontmatter?
+
+#### Facts held back
+
+- **Re-run lines, 2026-11-09 UTC, run from the worktree root (the `cd tools` line from `tools/`).**
+  `python3` was 3.14.6. `board.py --check --root .` exit 0; `test_board` exit 0.
+- The brief-writer confirmed `STATE_RE` is in `tools/board.py`, `_MARKER` in `tools/pointerscan.py`,
+  `ITEM_RE` in `tools/harvestscan.py`, `_COLD_ITEM` and `_LIVE_ITEM` in `tools/sizescan.py`, and
+  `ITEM_STATE`/`STATE_LINE`/`CLAIM_LINE` names in `instruments/ccclose`. It did not test what each
+  does. It re-ran no census and no transcript search.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*The reviewer's work log, kept outside the worktree while the pass ran and read by no other session
+until act 2 was saved; appended here verbatim at the fold (headings demoted two levels, form only)
+and the working file deleted. One form fix at the fold: a `secretscan` allow-marker on one script
+line, a print label the scanner read as an assigned secret.*
+
+### Review log — atelier 160/1230, two-tier board states design cold pass
+
+Reviewer: Fable 5.1 (claude-fable-5-1), spawned by orchestrator fce21971 (Opus 5.5), itself by drain
+session eca14b23. Worktree: /Users/mike/worktrees/fable/atelier-160-1230-2240/atelier
+Brief: docs/reviews/2026-11-09-0238-board-states-design-cold.md
+
+#### Act 1 steps
+
+- 2026-11-22T22:42Z `uptime`: load 11.39 14.03 14.78 (shared laptop; heavy lines under nice -n 10).
+  `git status --short`: only ` D docs/reviews/...deferred.md` (partition, expected). HEAD c8d776d0.
+- Read the brief whole (214 lines).
+- Read `docs/method/REVIEW.md` whole (rules 1-4, lenses, standing checklist V1-V7, lifecycle).
+- Acceptance test: ran the brief's two `sed -n` ranges on `310/060` (only those ranges; the file is
+  otherwise barred). Ruling 1 (2026-08-18): vocabulary is atelier's to set, child repos propose.
+  Commission 2 (2026-11-09): two tiers/classes, general class "no more work to be done on this item
+  and any children" with child classes done / not required / superseded / duplicate / mixed or
+  in-progress; "Run a design exercise based on the lived experiences of our past sessions".
+- `git merge-base --is-ancestor e36cedcb HEAD` -> exit 0 (delta is in the tree).
+- `git log --oneline e36cedcb..HEAD -- <delta paths>`: two later commits touch the paths:
+  16ee3f09 "decisions: revise the board-states draft to his answers (310/160)" (design only, +87/-59)
+  and dd3d60d4 "doctrine: land the evidence-window rule and the declaration standard's design"
+  (README.md only, adds an unrelated line; the board-states README line is unchanged).
+- `python3 tools/coldsweep.py --root . --commit e36cedcb` -> exit 0, subject+stat+diff only (319-line
+  design + 1 README line). Then `--commit 16ee3f09 --path <design>` and `--commit dd3d60d4 --path
+  README` -> exit 0 each; no message body read. The revision retitles "waiting as a field" to "a
+  blocker as a field", adds "Decided by him, 2026-11-09" (3 answers), narrows (waiting:) to real
+  blockers, drops `(waiting: fable)`, withdraws the register quote, leaves ONE question (does a real
+  blocker get a mark). Design says "The re-review is queued as 160/1230 and runs on this revised text".
+- CANDIDATE (V4/V5): `docs/decisions/README.md:50` still summarises v1 ("waiting is a field, never a
+  state"); the revised design says a blocker is a field and maybe-later gets no mark. Stale summary
+  at the index, one fact two homes drifting. Severity to settle: minor.
+- Pointer title read by `ls` only: 1230-rule-4-cold-pass-queued-board-states-design.md (body barred).
+- coldsweep pattern search (brief's line, 3 --also-exclude) -> hits in CHANGELOG.md, the design,
+  tools/board.py:204 STATE_RE, tools/harvestscan.py:174 ITEM_RE, tools/pointerscan.py:250 _MARKER,
+  tools/sizescan.py:309/338, instruments/ccclose:2086-2098; 6 roadmap hits (titles not read).
+- Readers grep (`[~]|[x]|[ ]|⏳` across tools/ instruments/ skills/): the design's table names
+  board.py, pointerscan, harvestscan, sizescan, ccclose, a private child's queue tool, floor/floorfleet
+  (none). NOT in the table but reading state: instruments/cclive (STATE_MARK /^\s*[-*]\s+\[~\]\s*/,
+  line 232; imports CLAIM_LINE from ccclose, line 32; distinguishes dated claims), instruments/ccopen
+  (line 356, uses cclive's dated claims), tools/archivecut.py:665 (board.item_state(...).marker !=
+  "[x]"), skills/review-drain/orchestrator-prompt.md:21,26 and fold-prompt.md:13 (flip `[ ]`/`⏳` ->
+  `[~]` -> `[ ] 🎯`), skills/fleet-sweep/worker-prompt.md:22 (`⏳` state lines = reviews pending).
+  floorfleet.py:1334 uses ⏳ as a run-status glyph only: design's "reads no item state" holds.
+- Mirror sites (grep count of state-glyph lines): CONCURRENCY.md 20, roadmap/README.md 22,
+  tools/README.md 10, RECORD.md 7, REVIEW.md 7, GUARDS.md 2, template ROADMAP.md 2, instruments/README
+  2, PROPAGATION.md 1, templates/CLAUDE.md 1, REPO-STANDARD.md 1, README.md 1. The design's legend
+  list names roadmap/README.md, template ROADMAP.md, children's copies, CONCURRENCY § Claiming work
+  only. RECORD.md:488 and tools/README.md:1304 state the harvest-integrity gate's live-marker set
+  (`[ ]`/`[~]`/`⏳`) which `[/]` would join: mirror sites not named.
+- board.py:946-957 ADVISORY_COUNT_PREFIX / advisory_count_line: "Every board finding blocks, so for
+  the board the count is always 0" -> design's "board --check blocks and has no advisory form" is
+  accurate for findings; a warn channel exists in form (the count line), unused. Confirmed.
+- pointerscan.py:415 `[x]` never a pointer; :241 QUEUED="⏳"; _MARKER accepts [ xX~]. Confirmed.
+- ccclose:1201 CLAIM_LINE = /^\s*[-*]\s+\[~\]/ counts every [~] bullet (indented too) as a claim ->
+  design's claim about ccclose confirmed. cclive (232, 286) and ccopen (356) count DATED claims only,
+  so the "36 non-claims read as claims" cost is ccclose's, not cclive's: design silent on both.
+- Legend docs/roadmap/README.md:35-49 read: "work-owed tri-state, never a disposition (Mike's
+  ruling, 2026-07-23 ...)", "never a fourth bracket". The design calls the 2026-07-23 pick an
+  answer (420/020). Tension to test: 420/020 (read, allowed) defines ruling = his words verbatim,
+  answer = pick from options; 310/080 (read, allowed) records the 2026-07-23 pick "Keep three
+  (Recommended)" as a *ruling* and says he never typed [-]/[^]; design says 310/080 is wrong on the
+  typing (mid-turn messages invisible to cctranscript before 2026-09-18, 210/100) -> to verify by a
+  read-only transcript search, count/existence only.
+- 310/070 read (allowed): a child's `[~]` = part-done OR claimed; `⏳` = waiting on the owner; options
+  (a)-(d). 010/100 read (allowed): 38 `[~]` in one child without claims; "38 judgements, not a
+  migration". Design's citations of both hold.
+- `python3 tools/board.py --check --root .` (nice) -> exit 0, "board index current", advisory 0.
+- Local census frame: 24 repos under the pets root have docs/roadmap/; 22 float on floor.yml@main;
+  1 has a single-file board only. Design measured "twelve split boards (atelier and eleven
+  children)" on 2026-11-09. Reported by count only.
+- `( cd tools && nice -n 10 python3 -m unittest test_board )` -> "Ran 109 tests in 23.884s OK", exit 0.
+- Census re-run (read-only, every repo under the pets root with docs/roadmap/, items = `<section>/*.md`
+  minus README.md, state via board.item_state imported from this worktree's tools/board.py).
+  Frames: all 24 split boards; the 22 that float on floor.yml@main; the 12 largest.
+  floor.yml@main 22: items 2,733; `[ ]` 1,194 · `[x]` 1,489 · `[~]` 43 · `⏳` 7; no-state 0;
+  `[x]` with a non-delivery word in the first 260 chars of the paragraph 66 (word set: supersed|not
+  required|not needed|no longer required/needed/wanted|duplicate|moved to|declined|dropped|
+  withdrawn|retracted|closed as); `[~]` with "(claimed" in board.py's paragraph 0, anywhere in the
+  file 15 of 44 (all frames), word "claimed" in paragraph 11; non-claim `[~]` per board sorted
+  [42,1,0,...] (one child dominates, as the design says of 35); `⏳` on a `[ ]` head 91 (144 in the
+  12 largest, 149 in all 24), with a review word 28; 🎯 on `[ ]` head 293; `[ ]` with
+  DONE/FIXED/BUILT/LANDED/SHIPPED/RAN in first 260 chars 98; sections 234, mixed 91; files with an
+  indented checkbox 402; `[x]` files holding an indented `[ ]`/`[~]`/`⏳` 94 (175 in all 24);
+  RULED 327 files · ⚖️ 25 · 💬 53 (all 24: 378 · 54 · 149). Design (2026-11-09, 12 boards): 2,494
+  items; 1,245/1,189/52/8; 45; 16 of 52; 162; 412; 60; 96 of 172; 491/132; 337/44/66. Direction
+  reproduces on every row; exact figures do not (two weeks' growth, unstated word sets, and the
+  "state paragraph" the design counted claims on is not board.py's).
+- Claim-position debug (counts only): across the 44 `[~]` items the first line carrying "claimed"
+  is line index 0 once, else 3-10 (after a block start), so board.py's paragraph never holds the
+  fragment. Atelier's own 6 live `[~]` items: "(claimed" nowhere in the file, word "claimed" in the
+  paragraph for all 6; the generated index's 6 `- [~]` lines carry no `(claimed` fragment.
+- `[x]` set size (22 boards): 1,489 items, 7.57 MB, ~1.89 M tokens at 4 bytes/token: design's "about
+  7 MB, around 2 million tokens" holds.
+- State lines already using `[/]` or `[-]` across the 22 boards: 0 and 0 (clean namespace). One
+  atelier file mentions `[/]`: 310/160, the barred intent record (not read).
+- Sample re-draw (seed 1230, random.sample over the 94 fleet `[x]` items with an open indented
+  box; 12 drawn; judged on the first open sub-line's first 110 chars, printed to my context only):
+  9 read as real open work (a decision owed, an owner action, a live-proof step, a renewal date, an
+  escrow copy, a config defect, ordered to-dos), 3 as prose carrying a box (a "what is left open"
+  note, a pattern note, a struck-through line). Design's sample: 3 of 16 real work, 13 prose.
+- `instruments/cctranscript --list --all --json`: 1,620 sessions (design: 1,208 on 2026-11-09).
+- `cctranscript --search 'supersceeded' --all --json` (layers prompts+replies): swept 1,621, matched
+  8, hits 16. Session 1b189e23 hits: ref 6 role=you 2026-07-22T04:31:07Z; ref 8+1 role=you-mid
+  2026-07-22T06:35:40Z. Timestamps are Z (UTC): design's "When (UTC)" column holds. Hits also in
+  the author session 722ac2e2 (harness/claude roles, 2026-11-09): not read.
+- `--search 'superceeded'`: swept 1,622, matched 2, hits 3; 1b189e23 ref 8+2 role=you-mid
+  2026-07-22T06:38:45Z, excerpt carries `[^]`. `--search 'work declined'`: 1b189e23 ref 8+2 excerpt
+  carries `[-]`, `[^]`, `[~]`, `[ ]`. => He typed `[-]` and `[^]` in his own mid-turn channel, three
+  minutes after 8+1: the design's correction of 310/080 is CONFIRMED (310/080 verified turn 6 only).
+- `--search 'machine-separable' --all --json` (prompts+replies): 1 session (a child, 2026-08-18
+  harness), the 2026-07-23 option text not reached. With `--tools`: 64f68104 ref 14, role=tool
+  2026-07-23T02:06:19Z and role=result 2026-07-23T02:16:54Z, excerpt carries "Revisit only if":
+  the condition sat in the option text and the pick is a tool result => an answer under 420/020,
+  as the design says. 310/080's 02:16:54 UTC matches.
+- 010/190 head (3 lines): `[x]` "Remove the two adoption graces once 2026-11-18 has passed";
+  `git log -S` shows 734930ef removed them and ddc868ff added the current full-form grace to
+  2026-12-04 (board.py:976; roadmap/README.md:32; tools/README.md:110). Design migration step 6
+  says "after 010/190 retires the 2026-11-18 grace": stale reference.
+- ADR 2026-08-05 lines 174-175, 261 read: posture C (private repo's internal state by type only in
+  a public record; naming for an act/role allowed). COMMUNICATION.md 363-386 read: ⚖️/💬 marks; the
+  design's "Answer or ruling" paragraph agrees. CHANGELOG 2350-2360 read (grace notice).
+- harvestscan.py 255-290 read: an unmatched line ends the current item silently (no red), so a
+  `[-]` line before readers change is dropped from the fingerprint, not red.
+
+#### Scripts used (scratch, deleted at finish; reproduced here for the record)
+```
+import sys, re, os, glob
+from pathlib import Path
+sys.path.insert(0, "/Users/mike/worktrees/fable/atelier-160-1230-2240/atelier/tools")
+import board
+PETS = Path("/Users/mike/.pets")
+CODE = re.compile(r"`[^`]*`")
+NONDELIV = re.compile(r"supersed|not required|not needed|no longer (?:required|needed|wanted)|duplicate|moved to|declined|dropped|withdrawn|retracted|closed as", re.I)
+DONEW = re.compile(r"\b(DONE|FIXED|BUILT|LANDED|SHIPPED|RAN)\b")
+SUB = re.compile(r"^\s+[-*]\s+(\[[ x~]\]|⏳)")
+SUBOPEN = re.compile(r"^\s+[-*]\s+(\[[ ~]\]|⏳)")
+REVW = re.compile(r"review|pass|brief|verdict|fable", re.I)
+def floats(repo):
+    wf = repo / ".github" / "workflows"
+    if not wf.is_dir(): return False
+    for f in wf.glob("*.yml"):
+        if "atelier/.github/workflows/floor.yml@main" in f.read_text(errors="ignore"): return True
+    return False
+rows = []
+for repo in sorted(PETS.iterdir()):
+    b = repo / "docs" / "roadmap"
+    if not b.is_dir(): continue
+    c = dict(repo=repo.name, fleet=floats(repo), items=0, none=0, st={"[ ]":0,"[x]":0,"[~]":0,"⏳":0},
+             x_nondeliv=0, tilde_claim=0, tilde_noclaim=0, tilde_released=0, hour_open=0, hour_open_review=0,
+             tgt_open=0, open_done_word=0, sections=0, mixed=0, files_sub=0, x_with_open_sub=0,
+             ruled=0, scales=0, speech=0)
+    for sec in sorted(p for p in b.iterdir() if p.is_dir()):
+        c["sections"] += 1
+        has_x = has_live = False
+        for f in sorted(sec.glob("*.md")):
+            if f.name == "README.md": continue
+            t = f.read_text(encoding="utf-8", errors="replace")
+            c["items"] += 1
+            st = board.item_state(t)
+            if st is None:
+                c["none"] += 1; continue
+            m = st.marker; c["st"][m] += 1
+            head = CODE.sub(" ", st.head); rest = st.rest
+            if m == "[x]":
+                has_x = True
+                if NONDELIV.search(CODE.sub(" ", rest)[:260]): c["x_nondeliv"] += 1
+            else:
+                has_live = True
+            if m == "[~]":
+                if "(claimed" in CODE.sub(" ", rest): c["tilde_claim"] += 1
+                else: c["tilde_noclaim"] += 1
+                if re.search(r"released|stale", rest, re.I): c["tilde_released"] += 1
+            if m == "[ ]":
+                if "⏳" in head:
+                    c["hour_open"] += 1
+                    if REVW.search(rest[:260]): c["hour_open_review"] += 1
+                if "🎯" in head: c["tgt_open"] += 1
+                if DONEW.search(rest[:260]): c["open_done_word"] += 1
+            lines = t.splitlines()
+            if any(SUB.match(l) for l in lines): c["files_sub"] += 1
+            if m == "[x]" and any(SUBOPEN.match(l) for l in lines): c["x_with_open_sub"] += 1
+            if "RULED" in t: c["ruled"] += 1
+            if "⚖️" in t: c["scales"] += 1
+            if "💬" in t: c["speech"] += 1
+        if has_x and has_live: c["mixed"] += 1
+    rows.append(c)
+def tot(rs, k):
+    if k == "st":
+        o = {"[ ]":0,"[x]":0,"[~]":0,"⏳":0}
+        for r in rs:
+            for kk in o: o[kk] += r["st"][kk]
+        return o
+    return sum(r[k] for r in rs)
+def report(label, rs):
+    print(f"== {label}: {len(rs)} boards ==")
+    for k in ["items","none","st","x_nondeliv","tilde_claim","tilde_noclaim","tilde_released","hour_open","hour_open_review","tgt_open","open_done_word","sections","mixed","files_sub","x_with_open_sub","ruled","scales","speech"]:
+        print(f"  {k}: {tot(rs,k)}")
+    print("  items per board (sorted, anonymous):", sorted((r["items"] for r in rs), reverse=True))
+    print("  non-claim [~] per board (sorted):", sorted((r["tilde_noclaim"] for r in rs), reverse=True))
+report("all split boards", rows)
+report("floor.yml@main boards", [r for r in rows if r["fleet"]])
+big = sorted(rows, key=lambda r: -r["items"])[:12]
+report("twelve largest boards", big)
+```
+
+```
+import sys, re, random
+from pathlib import Path
+sys.path.insert(0, "/Users/mike/worktrees/fable/atelier-160-1230-2240/atelier/tools")
+import board
+PETS = Path("/Users/mike/.pets")
+SUBOPEN = re.compile(r"^\s+[-*]\s+(\[[ ~]\]|⏳)")
+def floats(repo):
+    wf = repo / ".github" / "workflows"
+    return wf.is_dir() and any("atelier/.github/workflows/floor.yml@main" in f.read_text(errors="ignore") for f in wf.glob("*.yml"))
+cands = []; xbytes = 0; xn = 0; slash = dash = 0
+for repo in sorted(PETS.iterdir()):
+    b = repo / "docs" / "roadmap"
+    if not b.is_dir() or not floats(repo): continue
+    for f in sorted(b.glob("*/*.md")):
+        if f.name == "README.md": continue
+        t = f.read_text(encoding="utf-8", errors="replace")
+        if re.search(r"^- \[/\]", t, re.M): slash += 1
+        if re.search(r"^- \[-\]", t, re.M): dash += 1
+        st = board.item_state(t)
+        if st is None: continue
+        if st.marker == "[x]":
+            xbytes += len(t.encode()); xn += 1
+            subs = [l.strip() for l in t.splitlines() if SUBOPEN.match(l)]
+            if subs: cands.append(subs)
+print(f"[x] items: {xn}; total bytes: {xbytes/1e6:.2f} MB; ~tokens at 4 bytes/token: {xbytes/4/1e6:.2f} M")  # secretscan:allow:assigned-secret: a print label (bytes per token), no secret
+print(f"state lines already using [/]: {slash}; [-]: {dash}")
+random.seed(1230)
+pick = random.sample(cands, 12)
+for i, subs in enumerate(pick, 1):
+    print(f"--- sample {i}: {len(subs)} open sub-line(s); first: {subs[0][:110]}")
+```
+
+#### Act 1 written
+- 2026-11-22T22:57Z appended the verdict below a `---` divider in the brief (file now 458 lines);
+  Status line updated to RUN / act 1 / PASS-WITH-FINDINGS 0 MAJOR · 3 MODERATE · 3 minor · 2 note.
+  `awk 'length > 100'` on the brief: every over-width line is in the brief-writer's own text
+  (lines 43-190: paths and an allow-marker), none in the verdict.
+- Findings: BT1 MODERATE (sub-line sample does not reproduce: 9/12 real work vs design's 3/16;
+  94 fleet `[x]` with open bodies stay ✅), BT2 MODERATE (`(claimed …)` fragment: 0/44 in
+  board.py's paragraph, atelier's own 6 claims carry none; step 5 would red live claims), BT3
+  MODERATE (readers/mirrors census short: cclive, ccopen, archivecut, two skills' prompts,
+  RECORD.md/tools README gate sets, warn channel unbuilt), BT4 minor (step 6 names a retired grace),
+  BT5 minor (decisions/README.md:50 stale), BT6 minor (census method unrecorded; direction only),
+  BT7 note (public-index surface of `moved to`/`(waiting: <repo>)`, posture C), BT8 note (word
+  grammar under-specified).
+- Scratch files (census.py, sample.py, claimdbg.py, atclaims.py, s1-s5.json with transcript
+  excerpts, test_board.out) deleted after the scanners ran; scripts are reproduced above.
+
+#### Orchestrator spawn prompt, verbatim (rule 4: what the orchestrator told the reviewer)
+```
+You are the cold REVIEWER for one rule-4 design cold pass in the atelier repo (PUBLIC repo).
+
+WHO YOU ARE
+- Item: atelier board `160/1230` (Rule-4 cold pass: the two-tier board states design).
+- Review worktree (absolute; use `git -C "<path>"` and absolute paths, never `cd`; double-quote
+  every path in every shell command, since paths may hold spaces):
+  "/Users/mike/worktrees/fable/atelier-160-1230-2240/atelier"
+- Brief: "/Users/mike/worktrees/fable/atelier-160-1230-2240/atelier/docs/reviews/2026-11-09-0238-board-states-design-cold.md"
+- Read the brief in full first and follow it, plus `docs/method/REVIEW.md` (in the worktree) for
+  the verdict shape. The brief's `cd tools && ...` and `cd ..` lines: run them as `python3 -m
+  unittest test_board` with the tools directory as an absolute `-s`/path argument, or a subshell
+  `( cd "<worktree>/tools" && nice -n 10 python3 -m unittest test_board )`; that is equivalent.
+
+PROVENANCE (state it in your verdict)
+- You are Fable 5.1, the principal-named review tier, checked at selection.
+- You were spawned by headless per-pass orchestrator session fce21971 (Opus 5.5), itself started
+  by drain session eca14b23 (Opus 5.5). Both are rule-4 off-tier orchestrators: they hold the
+  context partition, form no finding and write no severity. Neither wrote the brief or any of the
+  delta.
+- Barred sessions named by the brief: 9bb1b984, 74f2b8cd, and 722ac2e2 with everything it
+  started. You were not started or instructed by any of them.
+- You run under Mike's (the principal's) weekly drain order of 2026-11-23, verbatim: "Start a
+  fable drain or whatever it is called now. Target 100% of weekly budget by 11.30am NZT todat".
+  That is the explicit Fable approval the brief says this pass waits for.
+
+THE PARTITION
+The brief's `.deferred.md` sibling was removed from the worktree on purpose (it shows as a deleted
+file in `git status`; that is expected and is not yours to restore). Do not look for it in git
+history, `git show`/`git cat-file` of any ref, other checkouts or worktrees, scratchpads, /tmp, or
+`~/.claude`. Honour every other rule-2 bar in the brief's "Deferred reading" section. The
+orchestrator will hand you the sibling's path after act 1 is committed.
+
+LOAD (the laptop is shared with several running passes on 16 GB; Mike's instruction is to keep it
+from crashing)
+Check `uptime` first. Run any test suite or heavy command under `nice -n 10`, one at a time,
+single process (no xdist, `-n auto` or parallel runners), foreground with a long timeout. Prefer
+the targeted tests a finding actually needs over the whole suite. Use the census and
+transcript-search re-runs the brief asks for, but one at a time.
+
+LIVE SYSTEMS
+Read-only reads of live systems are allowed as the review needs them (Mike, 2026-11-09, verbatim:
+"reads of live systems is fine as needed, Reviews that need writes should be de-priortised"). A
+read means nothing on the target changes; if a verb's effect is unsure, treat it as a write. NO
+live writes of any kind: no push, no write to GitHub, no network service changed. A check that
+would need a write is marked NOT RUN with the reason. Allowlist fields before printing, because
+provider reads can carry credentials; never dump a user, key or certificate object raw. Never
+print a secret or personal data. Leave no captures in scratch: probes use scratch copies and
+synthetic fixtures under your scratchpad, deleted when you finish. Child repos are read-only and
+reported by count only, never by name or path. Transcripts are private: quote only what the design
+already quotes. Use `/usr/bin/python3` for your own scripts (macOS has no `timeout`); for the
+repo's tools use `python3 tools/<x>.py` / `instruments/<x>` from the worktree, never an installed
+tool by bare name from PATH. No GUI apps.
+
+WHAT YOU MAY WRITE
+1. The brief file above, and only it, inside the repo: act 1 appended below a `---` divider;
+   update its **Status:** line (never "fold-in owed"). Keep the file's column width (prose wrapped
+   at <= 100 columns), absolute ISO 8601 dates from `date -u` only, NZ English. This repo is
+   PUBLIC: no secret, email address, private repo name or path, session NAME, or estate fact; refer
+   to orchestrators by session id only. Before finishing each act, run the repo's own scanners over
+   the brief from the worktree root, e.g. `python3 tools/leakscan.py --root "<worktree>" "<brief>"`
+   and any datescan/spellscan/wrapscan equivalents under `tools/` (check `--help`), and fix your
+   own text so the commit gate passes; a verbatim quote that trips a gate gets an allow marker,
+   never an edit to the quote.
+2. Your REVIEW LOG at "/Users/mike/.claude/fable-drain/notes/atelier-160-1230-2240.md": the one
+   file outside the brief you may write. Commands, files and evidence only. As you work, append:
+   each step you took (the command run, or the file and line range read) and what that showed;
+   each candidate finding with that evidence and the rule or requirement it breaks; and each item
+   you checked and found sound, with that evidence. Enough detail that someone else could repeat
+   the steps. It is the audit trail of the review, and it is what you read first if you are
+   interrupted and resumed. The verdict itself goes only in the brief. No secrets or live captures
+   in it. Write your act 1 entries before the sibling is released.
+
+WHAT YOU MUST NOT DO
+No commit, no push, no git writes of any kind (no add, stash, checkout, reset). Edit no other repo
+file.
+
+HOW TO FINISH
+- Act 1: per the brief's Phase 1. When act 1 is fully written in the brief, end your reply with:
+  the overall verdict line, the tally by severity, the brief path, and the literal words "ACT 1
+  SAVED". Then stop and wait; the orchestrator commits act 1 and then sends you the sibling's held
+  path.
+- Act 2 (only after you receive that message): read that one file, the barred records and the
+  delta commit's body as the brief's Phase 2 allows, then append `### Reconcile` beneath your
+  verdict with per-finding notes, any finding formed at reconcile marked as such, and the overall
+  line restated. Never revise act-1 text. Do NOT fold the sibling into the brief or delete
+  anything: the orchestrator does the fold. End with the restated verdict, tally, and "ACT 2
+  SAVED".
+```
+(Reproduced from the reviewer's context; line-wrapped at 100 columns, words unchanged.)
+
+#### Scanners over the brief (act 1)
+- leakscan --root . <brief>: clean, exit 0 (459 lines).
+- datescan: 1 finding at :370 "this week" (my text) -> replaced with "on 2026-11-22 UTC"; re-run
+  clean.
+- spellscan, wrapscan: the file is excluded by .spellscanignore / .wrapscanignore (scanned
+  nothing); `awk 'length > 100'` shows no verdict line over 100 columns.
+- reviewscan: in scope as a brief; "1 review brief(s) keep deferred material out of the brief", ok.
+- pathscan: 3 findings, all in the brief-writer's lines 171 and 173 (docs/ROADMAP-DONE.md and
+  docs/SESSIONS.md, named as rule-2 barred conventions and absent in this repo; the sibling
+  .deferred.md, absent only by the partition). Not my text; left for the orchestrator's fold (the
+  fold prompt fixes the sibling link). Flagged in the act-1 hand-back.
+- `git status --short` after writing: only ` M <brief>` and the partition's ` D` sibling.
+
+#### Act 2
+- Release message received from orchestrator fce21971: act 1 committed as 1235389b, unrevised;
+  sibling path given (user-level held folder). Read the sibling whole: 15 questions, 2 facts, as
+  the brief said. Read `git log -1 --format=%B` for e36cedcb and 16ee3f09 (author's accounts).
+  Read 310/160 whole, 310/060 whole, 160/1230 whole (now unbarred).
+- Author's account vs delta: both bodies restate the design; nothing in them contradicts the text or
+  adds a claim the design does not make. 310/160's DRAFTED/REVISED notes and his three answers match
+  the design's "Decided by him" table. 310/060's options list confirms the design's "option 1" =
+  renderer from prose, "option 2" = disposition field (closes my NOT RUN line).
+- Sibling facts: brief-writer's re-runs (board --check exit 0, test_board exit 0) match mine; it
+  confirmed regex names only, tested none (BT3 is what testing them found).
+- Sibling Q3 (local checkout behind main reds a new box): not in act 1; forms BT9 note at reconcile.
+  Q10 ("mixed" departure argued, not asked): not in act 1; forms BT10 minor at reconcile.
+  Q5 (index width): board.py WRAP_COLS 85, TITLE_MIN 24, _fit_title squeezes the title to the room
+  the prefix leaves (lines 233-234, 496-500): fits by construction, no finding.
+- Appended `### Reconcile` beneath the verdict (brief now 532 lines): author's account, sibling
+  facts, per-finding notes BT1-BT8 against Q1-Q15, Q4/Q5/Q6/Q8/Q15 discharged with grounds, BT9
+  note and BT10 minor formed at reconcile and marked so. Overall restated: PASS-WITH-FINDINGS,
+  0 MAJOR · 3 MODERATE · 4 minor · 3 note. RECORD.md § The record is public (line 527) read for
+  BT7's grounds.
+- Width check in characters (python, tables excluded): act-2 line re-wrapped (BT9, no words
+  changed). Three ACT-1 prose lines run 101-114 characters (lines 250, 256, 371 at this point; the
+  BT2 paragraph and two provenance bullets); act 1 is committed unrevised, so left for the
+  orchestrator's form-only fix at the fold. wrapscan ignores this path, so no gate reds on them.
+- Scanners after act 2: leakscan clean; datescan clean (532 lines); reviewscan ok. pathscan's 3
+  brief-writer findings (lines 171, 173) unchanged, not mine.
+- Status line updated: acts 1 and 2 written; tally 0 · 3 · 4 · 3; "the fold is the orchestrator's".
+- Scratch: empty of my files. No git command other than reads was run in either act.
