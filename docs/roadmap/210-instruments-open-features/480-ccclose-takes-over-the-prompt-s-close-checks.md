@@ -1,4 +1,4 @@
-- [~] 🎯 **`ccclose` takes over the close checks the session-open prompt still
+- [ ] 🎯 **`ccclose` takes over the close checks the session-open prompt still
       asks for in words.** The principal, 2026-11-22, verbatim: *"I want you to
       look at everything in the lastest version of the prompt in
       session-open-prompt.md and look at what would be more effectively built
@@ -47,3 +47,17 @@
       build lands: show him each prompt line that goes, what in ccclose now
       does its job, and the resulting text; change the file only after he has
       it in hand and says go.
+      **Built 2026-11-22** (session 12a41aa2; its Sonnet worker): every
+      prompt, turn and mid-turn, listed with its ref (`[close]` tags the old
+      keyword hits); every `AskUserQuestion` with its answer, and the
+      session's 🎯/⏳ lines; other repos touched, each run through the repo
+      checks; other live sessions in those repos. The identifiers block
+      already ended the default run (`210/300`). Cold pass queued: `160/1710`.
+      **Owed, and why this stays open:** the prompt edit, on the terms above.
+      The lines ccclose now answers, for the walk-through: the standard-close
+      list in *Ending the session*; "review all of my prompts and your
+      replies … everything I asked in full"; "Review your replies in each turn
+      to capture open actions, questions, decisions"; "Run ccclose and make
+      sure everything is ready"; and, since `210/490`, "Open by printing this
+      session's ID". What stays: the summary by topic, the plain-language
+      walk-through, whether the learnings reached the record.

@@ -1,4 +1,4 @@
-- [~] 🔥 **`ccclose` must block a close while anything the session launched
+- [x] 🔥 **`ccclose` must block a close while anything the session launched
       is still running, not only its subagents.** A hand-up from a private
       child, 2026-11-22. The principal's ruling, verbatim: *"Any work started
       by a session including sub agents, background tasks, sessions spawned or
@@ -51,3 +51,11 @@
       (`CONCURRENCY.md` § *Orchestrated queue runs*, `RECORD.md` close-out)
       widens to "anything the session launched".
       *(claimed 2026-11-22-0248 UTC, session 12a41aa2, wt: atelier-ccclose-460-480; the principal: "Build both now (Recommended)")*
+      **Done 2026-11-22** (session 12a41aa2; built by its Sonnet worker):
+      check 15, *Launched work finished*, appended after the pin check so
+      13 and 14 keep their numbers; the four legs as above, fail closed, an
+      unreadable process table ⚠️ and a schedule ⚠️ (whether he asked for it is
+      not in the transcript). 152 ccclose tests pass; on the authoring
+      session's own transcript it read 0 running and 4 harness helpers
+      excluded. Known false positive: a parallel tool call of the same session
+      can show as a live process. Cold pass queued: `160/1710`.
