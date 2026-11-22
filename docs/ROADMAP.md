@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 122 | 10 | 65 | 45 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 123 | 9 | 66 | 44 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 262 | 10 | 95 | 47 |
+| **All sections** | 263 | 9 | 96 | 46 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -267,7 +267,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🎯 [Rule-4 cold pass queued: blockscan reads edits inside mapped…](roadmap/160-doctrine-review-owed/1320-rule-4-cold-pass-queued-blockscan-subsections.md)
 - [ ] 🎯 [Rule-4 cold pass queued: attribscan, an attribution to the principal…](roadmap/160-doctrine-review-owed/1330-rule-4-cold-pass-queued-attribscan.md)
 - [ ] 🎯 [Rule-4 cold pass queued: pdlistscan, personal data in a public repo…](roadmap/160-doctrine-review-owed/1340-rule-4-cold-pass-queued-pdlistscan.md)
-- [~] ⏳ [Rule-4 cold pass queued: ccclose names a failed agent as its own…](roadmap/160-doctrine-review-owed/1350-rule-4-cold-pass-queued-ccclose-failed-state.md)
+- [ ] 🎯 [Rule-4 cold pass queued: ccclose names a failed agent as its own…](roadmap/160-doctrine-review-owed/1350-rule-4-cold-pass-queued-ccclose-failed-state.md)
 - [~] ⏳ [Rule-4 cold pass queued: one helper resolves ../<sibling> from a…](roadmap/160-doctrine-review-owed/1360-rule-4-cold-pass-queued-estate-helper-sibling-resolution.md)
 - [ ] 🎯 [Rule-4 cold pass queued: nz-phone passes a bracketed byte field…](roadmap/160-doctrine-review-owed/1370-rule-4-cold-pass-queued-phone-byte-field-rule-spelling.md)
 - [~] ⏳ [Rule-4 cold pass queued: coverage accounting: a scan of nothing no…](roadmap/160-doctrine-review-owed/1380-rule-4-cold-pass-queued-coverage-accounting.md)

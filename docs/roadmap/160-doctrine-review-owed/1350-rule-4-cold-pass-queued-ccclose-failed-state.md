@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `ccclose` names a `failed` agent as its own state (`210/400`).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: `ccclose` names a `failed` agent as its own state (`210/400`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -23,3 +23,32 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ 2026-11-22T23:00Z: PASS RAN (Fable 5.1, both acts; orchestrator as claimed).
+      **Verdict: FAIL — 1 MAJOR, 2 MODERATE, 5 minor, 2 notes (`FA1`–`FA10`;
+      `FA10` formed at reconcile).** Standing MAJOR: `FA1`, a `failed`
+      notification is read as the agent's end even when the agent was resumed
+      after it, so a working agent reads `failed` (the brief's worst failure, a
+      live agent called dead); the store holds 48 agents resumed after a
+      `failed`, and no test pins the case. MODERATE: `FA2`, "none ending on
+      `end_turn`" is measured only over agents whose latest notification is
+      `failed` (47 resumed ones end on it); `FA10`, a foreground agent whose
+      launch `tool_result` is an error, with no notification, reads
+      `reported`, a pass (`is_error` is never read; one real case in the
+      store). Minor: `FA3` two design-note rows omit `failed`; `FA4` changelog
+      says "fifth" state, it is the sixth; `FA5` the census has four homes, its
+      total stale; `FA6` the `failed` line names no contrary evidence; `FA7`
+      a plain user record can set `failed` (no threat line). Notes: `FA8` why a
+      `failed` agent blocks a close is unstated; `FA9` check 15 passes a
+      `failed` launch that check 12 fails. Suite 153/153, manual lint clean,
+      census figures reproduced (50 and 0; total now 3,915), live proof read.
+      🎯 **Owed to him (rule 3, every finding is his):** (1) `FA1`, give the
+      `failed` branch the `completed` branch's resume test, with tests both
+      ways (reviewer's counsel: yes); (2) `FA10`, an error launch result with
+      no notification becomes at most a warn, or `failed` (counsel: yes, one
+      of the two); (3) `FA8`, is a `failed` agent a close blocker or a warning
+      (counsel: his call; lost work matches `cut`); (4) bulk-approve `FA2`–`FA7`
+      as one application commit, `FA9` for awareness. Recommendation: approve
+      (1), (2) and (4), `FA1` first, and rule (3). *Routing:* an application
+      session in this repo after his word; its diff earns its own cold pass.
+      Verdict, folded sibling and review log:
+      `docs/reviews/2026-11-14-0242-ccclose-failed-state-cold.md`.
