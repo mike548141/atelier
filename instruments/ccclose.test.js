@@ -2846,7 +2846,8 @@ test('210/480 live sessions: another session written in the last ten minutes in 
   assert.match(j.verdict.line, /2 other live session\(s\)/);
   const text = ccclose(w, root, ['--session', 'sess-s1']).out;
   assert.match(text, /Other live sessions in these repos — answer: do they have what they need from you\?\n  ⚠️ peer-in- · repo · /);
-  assert.match(text, /⚠️ peer-in- · other · .* · written 3m\d+s ago · Peer in a touched repo/);
+  assert.match(text, /⚠️ peer-in- · other · .* · written 3m(\d+s)? ago · Peer in a touched repo/);
+  assert.doesNotMatch(text, /written \d+\.\d+ms ago/, 'an age prints whole milliseconds');
 });
 
 test('210/480 live sessions: none is a known zero (➖), and a live peer alone only asks for a look: exit 0', () => {

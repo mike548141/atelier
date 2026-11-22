@@ -2798,7 +2798,7 @@ function otherLiveSessions(g, others) {
     const repoName = c && commons.get(safeReal(c));
     if (!repoName) continue;
     items.push({ session: e.session, short: e.session.slice(0, 8), repo: repoName, where: tildePath(info.cwd), branch: info.branch || null,
-      title: info.title ? clip(info.title, 60) : null, lastWritten: new Date(e.lastMs).toISOString(), agoMs: Math.max(0, now - e.lastMs) });
+      title: info.title ? clip(info.title, 60) : null, lastWritten: new Date(e.lastMs).toISOString(), agoMs: Math.max(0, Math.round(now - e.lastMs)) });
   }
   items.sort((a, b) => a.agoMs - b.agoMs);
   return { known: true, items };
