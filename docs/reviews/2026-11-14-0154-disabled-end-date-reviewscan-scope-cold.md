@@ -1,9 +1,10 @@
 # Cold pass — a floor `disabled` entry takes an end date, and reviewscan's not-in-scope line
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1270-rule-4-cold-pass-queued-disabled-end-date-and-reviewscan-scope.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `48ef9c3e`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** ACT 1 WRITTEN, 2026-11-22 UTC, by a Fable 5.1 reviewer under drain session
+`eca14b23` (orchestrator `92ba9071`); PASS-WITH-FINDINGS, 0 MAJOR · 5 MODERATE · 6 minor · 1
+note; the sibling is unopened and the reconcile (act 2) is owed. Brief written 2026-11-14 UTC by a
+headless Opus 5.5 brief-writer (`cclive` lists it as session `48ef9c3e`).
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4 (a gate and a guard's report
 line are doctrine by function, rule 3).
@@ -269,3 +270,271 @@ restated. Never revise act-1 text. Then fold the sibling in below the reconcile 
 The work is a gate and a guard's report, doctrine by function, so every finding is the principal's
 to decide (rule 3): record all, apply nothing. Counsel per finding is welcome, labelled as counsel
 and kept beneath it.
+
+---
+
+## Verdict (act 1, written 2026-11-22 UTC before the sibling was opened)
+
+**Overall: PASS-WITH-FINDINGS — 0 MAJOR · 5 MODERATE · 6 minor · 1 note.** The delta does what
+its two items asked, in the shape both filed, and every recorded proof reproduces. The findings
+are about force and vocabulary, not mechanics: the new end date has weaker governance than the
+advisory date it copies, a date nobody can reach reads as the healthiest line on the board, the
+"not in scope" wording now collides with the house's coverage vocabulary, the count is absent on
+the plane every commit runs, and the warn-first staging is itself an undated deferment of the
+rule it serves. All are the principal's to rule (rule 3); counsel sits under each, labelled.
+
+### Provenance (V7)
+
+- **Reviewer:** Fable 5.1, the principal-named review tier, checked at selection. Review
+  worktree: `/Users/mike/worktrees/fable/atelier-160-1270-2049/atelier`, at `32c35772`
+  (`06248fba` is an ancestor: `git merge-base --is-ancestor` exit 0).
+- **Spawn:** a headless per-pass orchestrator, session `92ba9071` (Opus 5.5), itself started by
+  drain session `eca14b23` (Opus 5.5). Both are rule-4 off-tier orchestrators: they held the
+  context partition, formed no finding and wrote no severity. Neither wrote the brief or any of
+  the delta. I was not started or instructed by `48ef9c3e`, `58027096` or `d0ca5d24`.
+- **Approval:** the principal's drain order of 2026-11-23 NZDT (2026-11-22 UTC), verbatim:
+  *"Start a fable drain or whatever it is called now. Target 100% of weekly budget by 11.30am NZT
+  todat"*.
+- **What I read:** this brief; `docs/method/REVIEW.md` (lenses, checklist, rule 4); the three
+  `sed` ranges in *The acceptance test*, exactly; the delta body-free through `coldsweep`
+  (subject, stat, diff; 3 board files left out); the three tools, `report.py`, the four test
+  files, `GUARDS.md` §§ 417–470, 522–569, 594–603, `tools/README.md`, `CHANGELOG.md`'s entry,
+  the adopter template, the guards census rows, both workflows, and `docs/ROADMAP.md`'s index
+  rows for 320/770, 320/800 and 160/1270 (titles and state only). Later commits named by the
+  brief were read as subject and stat only (`git show --format='%h %s' --stat`). **Not read:**
+  any session log, any prior verdict, the sibling, any commit body, the two records past their
+  ranges, any item under `160/` past its title. The mirror sweep ran through `coldsweep` with the
+  brief's three `--also-exclude`s (350 hits over 748 files; 1013 files excluded as barred); I did
+  not pass `--include-barred`. The fleet board's footer printed the folder it searched; nothing
+  from that read is recorded here but counts.
+- **Review log:** a running record of every command, read and probe was kept outside the tree
+  and is folded in at phase 2.
+
+### Load-bearing assumptions, named first, then tested
+
+| # | Assumption | Result |
+|---|---|---|
+| A1 | The pick needs reason AND end date; warn-first is a staging, and a staging needs a date | Damaged: the staging is undated (DE5) |
+| A2 | The `disabled` date behaves exactly like the `advisory` date | Damaged: no `kind`, no move-later report (DE1); the board drops a malformed one (DE6) |
+| A3 | A far-future date must not read healthier than no date | Damaged: it is the calmest line (DE2) |
+| A4 | Every reader of `disabled` carries the date | Confirmed: floor line, floor `--json`, board, board `--json` (`asdict`) all carry it; only `moved_later` does not (DE1) |
+| A5 | "not in scope" is distinguishable from "clean" on every surface the old word was read | Partly: human line and `--json` yes; the floor's board line is `✅ reviewscan enforced` either way (DE11); the words contradict the coverage line (DE3) |
+| A6 | The new walk obeys the bounded-walk discipline and does not double-count | Damaged in the small: a third `rglob`, descends into `.git/` and nested worktrees (DE8) |
+| A7 | No non-string `why` or `review-by` is silently accepted as valid | Partly: non-string dates are refused; non-string reasons pass as their repr (DE7) |
+
+### Per-lens answers
+
+1. **Approach.** Warn-first is a defensible fleet shape and the one the item filed (320/800 line
+   4); its defect is that nothing dates it (DE5). The parallel map is the right design and every
+   rendering reader carries it (A4), but the one *governance* reader, `moved_later`, was not
+   taught it and `kind` is refused (DE1). For reviewscan, a wording change at the same exit
+   status was the minimum option 320/770 offered and is faithful to it; the word chosen has since
+   been given a precise, opposite meaning by the coverage work (DE3), and the board line a CI
+   reader meets is unchanged (DE11).
+2. **Correctness.** Every spelling and type of a `disabled` entry was driven through load, run,
+   render, `--json`, `--list` and the board (ledger below): the parser's refusals are right, no
+   branch touches an exit status, the sizescan bar still bites a dated entry, the `--list` state
+   column is unchanged so both workflows' `awk` filters still skip a disabled check. Defects:
+   the count is never computed on the staged plane (DE4); the board states "no end date" for a
+   date the floor refuses (DE6); a non-string reason passes (DE7).
+3. **Completeness.** Mirror sites: `tools/README.md`, `floor.py`'s docstring, `GUARDS.md`'s table
+   and paragraph and `CHANGELOG.md` all carry the new spelling consistently. The adopter template
+   never describes `disabled` at all (DE10). The docstring sentence 320/770 falsified still
+   stands (DE9). The walk is a duplicate of one the tool already makes (DE8).
+4. **Security & privacy.** *Design altitude:* the new shape does give a repo a quieter line than
+   it had: before, every disabled check printed the same way; now a repo that writes
+   `"review-by": "2999-01-01"` prints the calmest line on the board, calmer than a repo that
+   wrote nothing (DE2). A count and a date carry no child detail onto the public board; the
+   `why` text was already printed there. *Code altitude:* untrusted JSON is type-checked for the
+   date and not for the reason (DE7); the tree walk follows no symlink but does enter `.git/` and
+   nested worktrees (DE8). `/security-review`: **NOT RUN**, with grounds under V6.
+
+### The standing checklist
+
+- **V1** — Two claims outrun their evidence: the numbered count on the hook plane (DE4) and the
+  "all predate the convention" sentence (DE9). The rest hold (ledger).
+- **V2** — Every re-run line re-run, every one exit 0 (ledger). The sibling-config proof
+  reproduces with 23 configs where the record said 21: all 23 load identically under
+  `06248fba^` and `06248fba`, 0 errors. The 320/770 fixture reproduces as fixture B.
+- **V3** — Swept with `coldsweep`. Updated: README, docstring, GUARDS, CHANGELOG. Unaffected and
+  checked: both workflows' `--list | awk` filters (probe: the disabled row is still dropped),
+  `docs/decisions/0008` (a frozen record; its "with a stated reason" is history). Silent: the
+  adopter template (DE10). The census rows GRD17/GRD18 cite `_load_advisory` and `moved_later`
+  only, which is accurate, and is DE1 seen from the other side.
+- **V4** — One fact, one home: the spelling is stated in the docstring, README and GUARDS table,
+  in agreement; `_days_over` stays a pinned twin by prior decision. Discharged.
+- **V5** — Four internal contradictions: DE1 (GUARDS' date-governance text vs a date it does not
+  govern), DE3 (the output's first line vs its coverage line, and vs GUARDS §594–603), DE5
+  (GUARDS' ruling text vs its table), DE6 (the board vs the floor on a malformed date). Cross-
+  references reached: `(320/800)` and `(020/170)` in GUARDS and README land on the open item and
+  the pick line respectively.
+- **V6** — `/security-review` NOT RUN: it reads the session's *pending* diff, and the only pending
+  change in this worktree is the removal of the barred sibling, so aiming it would feed me rule-2
+  material; the landed delta is not pending. The code-altitude pass was done by hand (lens 4).
+- **V7** — Stated above.
+
+### Per-claim ledger
+
+| Claim (the delta's words) | Result |
+|---|---|
+| Legacy string or `{"why","review-by"}`; the bare string still parses | Holds (probe: 33 cases) |
+| Missing or passed date warns on the floor line and the board, never changes exit | Holds: rc 0 in all four fixtures; `--json` carries `undated`, `expired`, `days_over` |
+| 🟡 when undated, 🔴 when passed | Holds on the board; on the floor line undated keeps `⏭` with a `⚠️` note (DE10) |
+| A present date must be a real ISO 8601 one | Holds for `floor.py`; `floorfleet` drops instead of reports (DE6) |
+| A reasonless disable stays refused | Holds for blank/absent/null `why` (`validate`); a non-string `why` passes as its repr (DE7) |
+| The 2026-12-09 bar on `disabled.sizescan` is unchanged and bites a dated entry | Holds (`test_floor` pins it; `validate` calls `disabled_barred` before any date logic) |
+| GUARDS: `review-by` optional for now; fleet view dated/🟡/🔴 | Holds as written; is the staging DE5 names |
+| reviewscan: zero matches print "not in scope", exit unchanged | Holds; the words collide with the later coverage vocabulary (DE3) |
+| Counts `NNNN-slug.md` records it did not read; `--json` carries `unread_numbered_records` | Holds on the tree plane; **false on `--staged`** (DE4); over-counts in the single-file shape and across nested trees (DE8) |
+| CHANGELOG: reading dates from numbered records stays open | Holds (320/770 open on the index) |
+
+### Findings
+
+**DE1 — MODERATE — the `disabled` end date is outside the date governance the `advisory` date
+has.** `_load_disabled` refuses `kind` (probe: `has unknown key(s): kind`), and `moved_later`
+loads only `advisory` from HEAD and iterates only `cfg.advisory` (`floor.py` 2595–2625). Probe: a
+scratch repo whose HEAD declared both dates as 2027-01-01, with both moved to 2030-01-01 in the
+working copy, got the move-later note for the advisory and nothing for the disabled check.
+`GUARDS.md` § *Who may move a deferment's date* says an unlabelled `review-by` the children are
+held to reads as a mandate and that a mandate moving later is reported at the commit. So the
+*harder* opt-out now carries a date a child may push out silently, forever. V5; lens 1.
+*Counsel:* accept `kind` on the `disabled` object with the same `DATE_KINDS`, extend
+`moved_later` to `disabled_review_by`, pin both with tests; or write into GUARDS why a disabled
+date is exempt.
+
+**DE2 — MODERATE — a date nobody can reach reads as the healthiest line.** Board: `⏭ b disabled
+until 2999-01-01 — obj` beside `🟡 a disabled — no end date …`; floor line: `[review by
+2999-01-01]`, indistinguishable from `[review by 2027-03-01]`. No horizon check exists for either
+`disabled` or `advisory` (the gap is pre-existing on `advisory`; the delta copies it onto the
+check that is off entirely). Against the pick's own word, *expiring*, a 2999 date expires in form
+only, and it is the one new way this shape makes a disabled check *quieter* than before (lens 4,
+design altitude). *Counsel (the horizon is the principal's number):* refuse, or mark 🟡, a
+`review-by` more than N months out, on both lanes; or print the span on the line so a long one is
+seen.
+
+**DE3 — MODERATE — "not in scope" now says the opposite of what the house means by it, and the
+output disagrees with itself.** Fixture B (two numbered records): line 1 `✓ reviewscan not in
+scope for decision records — 0 … matched (2 numbered … not read …)`; line 3 `coverage: 0 file(s)
+opened · 0 check(s) run — ⚠️ scanned nothing: … covers nothing.` Since the delta, `GUARDS.md`
+§594–603 and `report.coverage_line(not_in_scope=…)` define "not in scope" as *"the guard did not
+fail to look, it had nothing to check"*, with no alarm. Over a repo with 167 numbered records the
+guard had plenty to check and could not; that is the alarm case, and the `✓` glyph plus the
+phrase claim the benign one. `--json` carries `scanned_nothing: true` but no `in_scope`. Two
+states collapse into one wording: an empty decisions dir (fixture A, genuinely nothing) and a
+numbered-only one (fixture B, the gap). V5; lens 1. *Counsel:* fixture A takes
+`coverage_line(not_in_scope="no dated decision records")` and `coverage_dict(in_scope=False)`;
+fixture B keeps the alarm vocabulary, loses the `✓`, and says "read none of N records: named by
+number, no date to gate on".
+
+**DE4 — MODERATE — the count is never computed on the plane every commit runs.** `main`'s
+`--staged` branch calls `_render` without `unread_numbered` (`reviewscan.py` 777–778). Probe: a
+scratch repo with one numbered record staged printed the not-in-scope line with no count and
+`"unread_numbered_records": 0`, a known zero that reads as "none". The CHANGELOG, README and
+docstring state the count without qualifying the plane. On the tree plane the count appears only
+in the zero-match branch; a mixed repo (this one: 8 numbered, 8 dated) never hears of its numbered
+records on the human line, only in `--json`. V1. *Counsel:* count staged paths whose parent is a
+decisions dir and whose name matches `NUMBERED_NAME`; test it; qualify the docs or print the
+count on the clean line too.
+
+**DE5 — MODERATE — the warn-first staging is itself an undated deferment of the rule it serves.**
+`GUARDS.md` §526–531 carries the pick as *"a lowering with no end date is not a lowering this
+model allows"*; the table at §547 says `review-by` is *"optional for now"*; §566 says *"making it
+a block needs a date and a fleet probe first"*, and names no date and no item but the open
+320/800. The house dated its own earlier stagings (C1's horizon 2026-09-01; the sizescan bar
+2026-12-09); this one has no end. The fleet probe the paragraph asks for was run here read-only:
+22 repo rows, 3 `disabled` entries fleet-wide, all three undated (🟡 as of 2026-11-22), none
+dated, none expired; under `06248fba^` and `06248fba` all 23 sibling configs load identically.
+So a block
+would turn three entries red and nothing else; the cost is known and small. The item filed
+warn-first (320/800 line 4) before the work, so this is disclosed staging, not a hidden cut, and
+the principal has not ruled on the staging itself: his pick was *"Allow if declared + expiring"*.
+V5; lens 1. *Counsel:* add a dated bar in the pattern of `DISABLED_BARRED_FROM` (warn until the
+date, block after), with the date his; and put to him in one line whether warn-first until that
+date is what his pick meant.
+
+**DE6 — minor — the board tells a false story about a malformed date.** `floorfleet._disabled`
+drops a `review-by` that is not a real ISO date and the board then prints `🟡 … disabled — no end
+date` (probe: `"soon"`, an ISO-shaped day that does not exist in its month, an integer, and an
+object with an unknown key all render so). Each of those is a `ConfigError` in `floor.py`, so the
+child's floor is blocked while its board row says "add a date". The `_advisories` twin passes the
+string through and `_days_over` prints "date unreadable"; `tools/README.md` §3156 states the house
+rule for the wrapscan twin: *"An unreadable value is reported, never dropped"*. An object with no
+`why` renders in the healthy `⏭ … until` style with an empty reason. V5. *Counsel:* keep the raw
+string and print `review-by unreadable: 'soon'`, as the advisory and wrapscan lanes do.
+
+**DE7 — minor — a non-string reason passes the "stated reason" gate as its repr.** Probe: legacy
+`5`, `null`, `["a"]` and object `"why": 7`, `"why": {"a": 1}` load as reasons `"5"`, `"None"`,
+`"['a']"`, `"7"`, `"{'a': 1}"`; `_load_advisory` has the same `str(decl.get("why"))`. Dates are
+type-checked (`true`, an integer, a list are refused); `review-by` of `""`, `null` or `false` is
+silently undated, indistinguishable from an omission. Lens 4, code altitude; pre-existing for the
+legacy string, copied into the object form. *Counsel:* require `why` to be a non-blank string in
+both loaders; treat a present-but-falsy `review-by` as the typo it is.
+
+**DE8 — minor — a third full walk that enters `.git/` and nested worktrees, and counts the whole
+directory in the single-file shape.** `count_unread_numbered` repeats the `rglob("docs/decisions")`
+`find_records` and `find_briefs` already make (three walks per run; 42 / 14 / 10 ms on this tree,
+unbounded elsewhere). Fixture G: records under `.git/x/docs/decisions` and `.worktrees/w1/…` were
+counted (3 where the repo holds 1); `find_records` shares the walk, so it would *read* a dated
+record there too (pre-existing). Fixture D: naming one numbered file reported `3 numbered …
+not read`. Symlinks are not followed (fixture H), consistent with `find_records`. Lens 4, code
+altitude; tests cover none of these shapes. *Counsel:* collect numbered names during
+`find_records`'s walk, skip `.git` and registered worktrees, count only the named file in the
+file shape.
+
+**DE9 — minor — a sentence the hand-up falsified still stands.** `reviewscan.py` §83–84: records
+named under the numeric scheme *"all predate the convention and are skipped by construction"*.
+320/770 §16–19 measured 167 such records on one child with eleven from the last 30 days. The
+delta appended a sentence after it rather than correcting it. V1. *Counsel:* "in this repo they
+predate the convention; a child's may not (320/770)".
+
+**DE10 — minor — the two surfaces and the adopter's home drift.** Floor line: mark stays `⏭` and
+the note carries `⚠️ no end date … (020/170); warning only`; board: the mark is `🟡`;
+`GUARDS.md`'s table describes the board only. The floor-line note cites `020/170`, an atelier
+board number no child can resolve (advisory lines cite none). The adopter template
+(`docs/build/templates/CONTRIBUTING.md` §58–100) documents `advisory`'s `review-by` and `kind` and
+never shows a `disabled` entry, so a new adopter learns the new spelling only from `tools/README.md`
+or the module docstring. V3. *Counsel:* one mark per state on both surfaces; drop the board
+number from the child-facing line; add the `disabled` object to the template beside `advisory`.
+
+**DE11 — minor — where a CI reader meets it, nothing changed.** Over a numbered-only tree the
+floor's board line is `✅ reviewscan enforced`, identical to a full-cover clean; the new words are
+in the scanner's passthrough stdout only. The floor reads a scanner's exit and its advisory count,
+never its coverage line, so this is systemic to 115/130 and not the delta's doing, but it is the
+worst case the brief names and the surface the brief's lens 1 asks about. *Counsel:* the floor
+reads `scanned_nothing` from each scanner's coverage line (or `--json`) and marks the row 🟡 as
+it does `partial`; one mechanism for every scanner.
+
+**DE12 — note — the fleet, for the record.** Read-only local board: 22 rows; 3 `disabled` entries,
+all undated, none expired; 4 advisory lines; 23 sibling floor configs load identically under the
+parent and the delta commit (the record said 21; the fleet has grown). A `--remote` read was not
+run: the local read answered every question this pass had, and the remote one adds a network
+read with no new fact about the delta.
+
+### Re-run ledger
+
+| Line | Exit | Note |
+|---|---|---|
+| `git merge-base --is-ancestor 06248fba HEAD` | 0 | |
+| `coldsweep --root . --commit 06248fba` | 0 | 717 lines; body not printed |
+| `reviewscan --selftest` | 0 | |
+| `reviewscan --root . .` | 0 | clean — 8 records, 254 briefs; coverage 262/262 |
+| `floorfleet --selftest` | 0 | |
+| `unittest test_reviewscan` | 0 | 70 tests, 14.7 s |
+| `unittest test_floorfleet` | 0 | 127 tests, 17.5 s |
+| `unittest test_report` | 0 | 110 tests, 14.6 s |
+| `unittest test_floor` | 0 | 260 tests, 301 s under `nice -n 10`, load 9–10 |
+| `floorfleet` (local, no `--remote`) | 0 | counts only, capture deleted |
+| sibling configs under `06248fba^` / `06248fba` | — | 23 / 23 identical, 0 errors |
+| `/security-review` | NOT RUN | pending diff is the barred sibling's removal (V6) |
+
+Fixtures and probe scripts lived in the session scratchpad only; no file in the tree or in any
+child was changed. Load was checked before each heavy run (`uptime`: 6.6–9.9).
+
+### Follow-up checklist
+
+- 🎯 Principal: DE5 (warn until a date, then block; is warn-first what the pick meant), DE2 (a
+  horizon for `review-by`, both lanes), DE1 (may a child move a disabled date; `kind` on it).
+- Build session, after his word: DE1, DE3, DE4, DE6, DE7, DE8, DE9, DE10; DE11 as its own item
+  under 115/130.
+- Act 2: reconcile against the sibling's 12 questions and 11 facts, the two records' author
+  accounts and the commit body; nothing above is revised.
