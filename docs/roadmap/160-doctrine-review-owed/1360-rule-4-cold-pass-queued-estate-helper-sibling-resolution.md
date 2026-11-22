@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: one helper resolves `../<sibling>` from a worktree and from group folders (`320/180`, `320/660`, tools half).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: one helper resolves `../<sibling>` from a worktree and from group folders (`320/180`, `320/660`, tools half).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -23,3 +23,31 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ PASS RAN 2026-11-22T23:28Z: **PASS-WITH-FINDINGS, 0 MAJOR, 1 MODERATE, 6 minor,
+      6 note** (SB1–SB13; SB12 and SB13 formed at reconcile), by the Fable 5.1
+      reviewer under orchestrator 5bb9889e; act 1, reconcile, folded sibling
+      and review log in
+      `docs/reviews/2026-11-14-0227-estate-helper-sibling-resolution-cold.md`.
+      No MAJOR stands. The `..` half of `320/180` closes as claimed; the
+      group-folder half of `320/660` rests on an existence rule wider than its
+      stated residual.
+      🎯 **Owed ask, the principal's (rule 3), recorded under his drain
+      ruling of 2026-11-02 not to be asked mid-drain:** SB1 (MODERATE). With
+      the estate-root setting on, every non-hidden, non-repo folder under the
+      root counts as a group folder, so a stale copy there (an archive, a
+      parent one level too high) makes a missing reference read as found,
+      and a link that is dead for every reader passes under an `outside-root`
+      marker. It is opt-in and unset by default, which is why it is not
+      MAJOR. Options: (a) adopt the reviewer's counsel: a group folder must
+      hold at least one repo, a landing counts only when its first part is a
+      repo, and two same-named repos in two groups are reported as
+      ambiguous; (b) keep the rule and name the class in the residual only;
+      (c) withdraw group-folder landings until the child half of `320/660`
+      is designed. Recommendation: (a), since it keeps the feature and
+      closes the false "found".
+      *Routing:* SB2–SB4, SB8, SB12, SB13 are text and residual corrections;
+      SB5 one meaning for the setting across `estate.py` and `ccclose`; SB6
+      three missing tests; SB7, SB9 the `pins` funnel count and stderr
+      quoting. These are queue-run work once SB1 is ruled, since they touch
+      the same scanners. SB10 and SB11 are counsel for when the child half of
+      `320/660` is designed. Nothing applied.

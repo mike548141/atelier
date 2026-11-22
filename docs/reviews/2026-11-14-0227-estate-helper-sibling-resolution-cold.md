@@ -1,10 +1,12 @@
 # Cold pass — `estate.py`, one helper for where `../<sibling>` lands
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1360-rule-4-cold-pass-queued-estate-helper-sibling-resolution.md`
-**Status:** ACT 1 WRITTEN 2026-11-22 UTC by a Fable 5.1 cold reviewer under orchestrator session
-`5bb9889e` (drain `eca14b23`): PASS-WITH-FINDINGS, 0 MAJOR, 1 MODERATE, 6 minor, 4 note. Act 2
-(reconcile) pending the sibling's release. Brief written 2026-11-14 UTC by a headless Opus 5.5
-brief-writer (`cclive` lists it as session `cdb0c296`).
+**Status:** PASS-WITH-FINDINGS (0 MAJOR, 1 MODERATE, 6 minor, 6 note). Act 1 run 2026-11-22 UTC
+by a Fable 5.1 reviewer under off-tier orchestrator `5bb9889e`, in the principal's weekly drain of
+2026-11-23 NZDT (drain session `eca14b23`); act 2, the reconcile against the sibling, 2026-11-22
+UTC; sibling and review log folded below. Every finding that changes what a scanner reports is the
+principal's to decide (rule 3); nothing applied. Brief written 2026-11-14 UTC by a headless Opus
+5.5 brief-writer (`cclive` lists it as session `cdb0c296`).
 
 **Pass type:** code cold pass, per `docs/method/REVIEW.md` rule 4.
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
@@ -250,8 +252,9 @@ after the reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, the queue pointer above, this brief's sibling
-`docs/reviews/2026-11-14-0227-estate-helper-sibling-resolution-cold.deferred.md`, the delta
-commit's message body, and the two intent records beyond what *The acceptance test* above
+`docs/reviews/2026-11-14-0227-estate-helper-sibling-resolution-cold.deferred.md` (now folded
+below; by count: nine questions and a run record), the delta commit's message body,
+and the two intent records beyond what *The acceptance test* above
 summarises:
 `docs/roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md`
 and
@@ -632,3 +635,469 @@ step). Scratch fixtures and the scratch `tools/` copy were deleted at the end of
 - [ ] SB10, SB11: counsel for the principal when the child half of `320/660` is designed.
 - [ ] Act 2: open the sibling and the barred records on the orchestrator's release, write `###
       Reconcile`, restate the overall line.
+
+### Reconcile (act 2, 2026-11-22 UTC)
+
+Opened on the orchestrator's release, after act 1 was committed as `b02232d3`: the held sibling (its
+nine questions and its run record), the queue pointer `160/1360`, the intent records `320/180` and
+`320/660` with the author's landing notes, the delta's commit body, and the two prior verdicts that
+mention the items (`2026-09-25-0715` HF10 and `2026-11-09-0207`: passing references, nothing to
+reconcile). The release message was process only. Act-1 text above is unrevised.
+
+**Against the sibling's questions.** The brief-writer's nine questions and my findings overlap
+heavily and disagree nowhere; where they overlap, act 1 carries the probe the sibling did not run.
+
+- Q1 (an oracle in the repo's hands) is SB-A2: steerable only by a write to the gitdir, not by
+  tracked content (gitlink / "Invalid path", probed).
+- Q2 (two or more climbs from the main) is my L1 probe: `../../x` from a worktree reads the same
+  absolute path the physical read from the main checkout already did. No new reach, no finding.
+- Q3 (`linkscan` builds the view on any missing target) is SB3, measured: two git runs on one
+  in-repo `missing-file` with no `..` link.
+- Q4 (`outside-root` swallows `missing-file`) is SB1 and SB-A4. Its question, *was it suppressed
+  before, from a main checkout?*: no. From the main checkout the grouped `../sibling` path does not
+  exist physically either, so the old verdict was `missing-file`, which an `outside-root` marker
+  does not match (L5a: unset exit 1, set exit 0).
+- Q5 (the cache key) is SB6 and SB-A7, with one addition the sibling's wording invites: a fleet tool
+  scanning several children is served correctly, because the key carries the root and each root's
+  view reads that root's config; only a config change for the *same* root within one process is
+  stale.
+- Q6 (group folder by negation) is SB1 and SB-A5. The sibling names a folder of linked worktrees,
+  which I did not: each worktree has a `.git` file, the folder holding them has none, so it is a
+  group folder, and a worktree named after a sibling lands a reference at that worktree's commit.
+  Same class, worth naming under SB1.
+- Q7 (two definitions of a group folder) I did not raise. See SB12 below.
+- Q8 (the fallback change for a submodule's or bare repo's worktree) I did not raise. See SB13
+  below.
+- Q9 (machine-local ignored files) is SB8. The brief-writer saw nine such references on 2026-11-14
+  and asked whether it is harvest or a separate item; I saw five on 2026-11-22. The author's own
+  account answers the routing: `320/180` was **closed** on 2026-11-16, so SB8's counsel to name it
+  there is superseded. It wants its own item.
+
+**Against the author's account** (commit body, `320/180` and `320/660` landing notes):
+
+- The body's *"One root cause: the checkout's location was read as if it named the estate"* is the
+  framing SB8 narrows. The author's own probe (29 child main checkouts unchanged; 4 child worktrees,
+  `pathscan` findings only fell) is consistent with SB-A3 and does not claim worktree and main now
+  agree, so there is no contradiction, only a residual the text does not name.
+- *"7 of the 24 fail against the previous scanners"*: the suite had 24 tests on 2026-11-14 (sibling)
+  and 27 on 2026-11-22 (`da6d8dfd` added three). Consistent with the run drift in the ledger
+  (`test_pins` 37 → 43 with `--floor`; `pathscan` 88 → 99 as the board grew; `pins` 32/29/22 →
+  33/29/23). Not re-run against the previous scanners: my mutation m1 is a different cut and happens
+  to fail seven of the same suite's tests.
+- The author's probe over 29 child main checkouts and 4 child worktrees was **not re-run** (V2): it
+  reads 29 private repos under drain load, its results could be stated only as counts, and the class
+  it checks is covered by the atelier main-versus-worktree comparison and the fixtures. Recorded as
+  read, not verified.
+- `320/180`'s closure chose `ATELIER_TOOLS` for the floor's drift check and says why the estate-root
+  setting was not used: *"it names the folder, not atelier, and unset (the default) it would need a
+  `../` fallback"*. That bears on SB5, SB10 and SB11: the setting's consumers are the three
+  scanners, the three fleet views and `ccclose` (with its own meaning), and nothing child-facing.
+  The reasoning also supports SB11's point that the name promises more than the folder.
+- `320/660` lists *"read a list of group folders"* among the shapes the child named. That shape
+  would have avoided SB1's negation rule; the author chose the negation and did not record why.
+  Counsel under SB1 stands; the principal's to weigh.
+- `320/660`'s landing note repeats the funnel claim (*"printing which group folders it walked and
+  what it skipped"*); SB7's double count is not addressed there.
+- No prior verdict bears on the findings; none reconciles away.
+
+**Findings formed at reconcile** (from the sibling's floor, probed against the code I had already
+read; marked as such):
+
+- **SB12 — note, formed at reconcile.** *Two homes decide what a group folder is.*
+  `estate._View.repo_parents` skips hidden, symlinked, non-directory and `.git`-bearing entries
+  silently; `pins.discover` tests `.git` first, then hidden and symlinked, names the skipped, and
+  warns on an unreadable folder. They differ on a symlinked repo at level 1 (`pins` counts it, as
+  before the delta; `estate` would skip it) and on reporting. One fact, two homes (V4); the delta's
+  own claim is *one answer*. *Counsel:* `pins` takes its group-folder test from `estate`.
+- **SB13 — note, formed at reconcile.** *A behaviour change in `pins.main_checkout` and
+  `floorfleet.main_checkout` is unnamed where their readers look.* For a submodule's or a bare
+  repo's worktree the old twins returned the common dir's parent (`<super>/.git/modules` or the
+  folder holding `x.git`); the new helper returns the path given. The new answer is the safer one,
+  and `estate.py`'s `_checkout_of` says so, but the two wrappers' docstrings and the changelog
+  present the move as a pure de-duplication. Documentation, not behaviour.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR, 1 MODERATE, 6 minor, 6 note** (act 1's 4 notes
+plus SB12 and SB13, formed at reconcile). SB1 is unchanged by anything the sibling or the author's
+account holds, and the sibling's own Q4 and Q6 reach the same class without a probe.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+*Released to the reviewer only after its act-1 findings were committed (locally `b02232d3`, the
+hash the reviewer's text cites; it lands under a new hash when rebased at this fold); folded here
+verbatim (headings demoted two levels, 0 line(s) over 100 columns wrapped at word
+boundaries, no word changed) and the sibling file removed, per the brief. The orchestrator,
+headless Opus 5.5 session `5bb9889e` started by drain session `eca14b23`, held the partition,
+formed no finding and wrote no severity; drain session `eca14b23` wrote no brief and no delta and
+started no brief-writer for this pass.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-14-0227-estate-helper-sibling-resolution-cold.md` (`REVIEW.md`
+rule 1). Written 2026-11-14 UTC by the brief-writer (`cclive` lists it as session `cdb0c296`),
+which authored none of the delta. Open this only after act 1 is committed. Everything here is a
+floor, never a fence, and none of it is a finding: the brief-writer read the code once and probed
+none of these past what is recorded below.
+
+#### The brief-writer's own questions
+
+1. **An oracle in the repo's own hands (SB-A2).** `main_checkout` and `_View` trust whatever
+   `--git-common-dir` prints. A worktree's `.git` file and its `commondir` are local files; can a
+   crafted layout name a "main checkout" anywhere on disk, so that `pathscan` reports a `..`
+   reference as found because a file of that name exists at an arbitrary place? Is that reachable
+   from content a contributor commits, or only from local layout?
+2. **Two or more climbs from the main checkout.** The single-climb rule bounds only the
+   group-folder landings. The main-checkout landing joins any `rel` onto the main checkout,
+   however many `..` it has. Does `../../../x` from a worktree read somewhere the physical path
+   from the main checkout would also read (same answer, fine), or somewhere above the operator's
+   folder that the delta's "escape" question means?
+3. **`linkscan` runs `landings` on every missing target**, not only on a target that leaves the
+   repo. `landings` returns nothing for an in-repo target, but builds the per-root view (two git
+   runs, `rev-parse` and `config --get` when the environment variable is unset) on first use. Does
+   the cost claim ("a scan with no failing `..` token never runs git") hold for `linkscan`, or only
+   for `pathscan`, whose call is guarded by `".." in token`?
+4. **`outside-root` swallows `missing-file`.** A link that exists only in some *other* same-named
+   repo in another group folder, or in an archive the setting points at, now reports
+   `outside-root`. If that line carries an `outside-root` allow marker, the finding is suppressed
+   entirely. Was it suppressed before the change, from a main checkout, for the same link?
+5. **The cache key.** `_VIEWS` is keyed on the scan root and `ATELIER_ESTATE_ROOT` only; the git
+   config carrier is read once into the view. Is there any in-process path (tests, a fleet tool
+   scanning several children) where the config differs per repo but the key does not?
+6. **Group folder by negation.** Every non-hidden, non-symlink, non-repo directory under the
+   estate root becomes a place a sibling may land, including a downloads folder, a folder of
+   linked worktrees, or a scratch folder holding stale clones of a repo. Is that SB-A1 in another
+   form?
+7. **Two definitions of a group folder.** `estate.repo_parents` and `pins.discover` each decide
+   what a group folder is, with near-identical but separate code (one skips an unreadable folder
+   silently, the other warns). One fact, two homes (V4)?
+8. **A submodule's or bare repo's worktree.** The delta changes `floorfleet`'s and `pins`'
+   `main_checkout` for those two cases from "the common dir's parent" to "the path given". Is that
+   behaviour change named anywhere a reader of the fleet tools would see it?
+9. **Machine-local files.** From the main checkout, `pathscan` resolved nine in-repo references
+   (`.claude/worktrees`, `.claude/settings.json`) that the same scan from a worktree reported as
+   missing: ignored local files present only in the main checkout. That is not this delta's `..`
+   path, but it is the same class `320/180` reported (same scanner, same content, different
+   verdict by checkout). In scope as harvest, or a separate item?
+
+#### What the brief-writer ran, and what it got
+
+All on 2026-11-14 UTC, foreground, load average 3.9 to 5.1 on 12 cores, neither carrier of the
+setting present, from the review worktree at `d3293d93` unless stated.
+
+- `cd tools && python3 -m unittest test_estate`: 24 tests, OK, exit 0, about 6 s.
+- `test_pins`: 37 tests, OK, exit 0, about 29 s. `test_pathscan`: 172 tests, OK, exit 0, about 13 s.
+  `test_linkscan`: 89 tests, OK, exit 0, about 6 s. `test_signfleet`: 21 tests, OK, exit 0, about
+  8 s.
+- `python3 tools/pathscan.py --root . .`: exit 1, 88 findings. `linkscan`: exit 0, 1230 Markdown
+  files, 1620 internal links, 4 suppressed by allow marker (all `missing-file`).
+- The same `pathscan` from the main checkout, at `2a6d7a41`: 79 findings. The difference was nine
+  in-repo references to ignored local files (question 9) plus line-number drift in one README;
+  no `..` reference differed.
+- `python3 tools/pins.py`: exit 1 (at least one child not current). Funnel line: 32 entries, 29
+  git repos, 22 carry a pin; no grouped-layout line, as expected with the setting unset.
+- `git merge-base --is-ancestor c1af4465 HEAD`: exit 0. `git log c1af4465..HEAD` on the two
+  `estate` files: empty; on the callers: nine commits.
+- The `coldsweep --commit` line in the brief, as written: exit 0. The sweep line with the
+  four `--also-exclude` paths: exit 0.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*Form fixes only: headings demoted two levels; 120 line(s) over 100 columns wrapped at word
+boundaries, no word changed. No public-repo gate blocked a token, so no placeholder was needed.*
+
+### Review log — atelier 160/1360, estate.py sibling-resolution cold pass
+
+Reviewer: Fable 5.1 (claude-fable-5-1). Spawned by headless per-pass orchestrator 5bb9889e (Opus
+5.5),
+started by drain session eca14b23 (Opus 5.5). Worktree:
+/Users/mike/worktrees/fable/atelier-160-1360-2247/atelier
+Brief: docs/reviews/2026-11-14-0227-estate-helper-sibling-resolution-cold.md
+Interpreter for every python step: /usr/bin/python3 (brief says python3; noted).
+
+#### Act 1
+
+- 2026-11-22T22:53:20Z Read brief in full (lines 1-297). Read docs/method/REVIEW.md lines 1-460
+  (rules 1-4, lenses, V1-V7).
+- uptime at start: load 32 (12 cores). HEAD 24b8e2b7. `git merge-base --is-ancestor c1af4465 HEAD`
+  exit 0.
+- /usr/bin/python3 is 3.9.6; PATH python3 is 3.14.6 (brief says 3.14.6 on PATH; confirmed).
+- `/usr/bin/python3 tools/coldsweep.py --root . --commit c1af4465 --path <10 delta paths>` >
+  scratchpad/delta.diff,
+  exit 0, 1045 lines; coldsweep footer: body not printed, 3 board-store files left out, 0 rule-2
+  files touched.
+  Read the whole diff (lines 1-1045). Delta = CHANGELOG +18, tools/README.md +42, estate.py +218
+  (new),
+  floorfleet -15/+8, linkscan +13, pathscan +33, pins +109/-63, signfleet +7, test_estate.py +305
+  (new), test_pins +6.
+- `git log --oneline c1af4465..HEAD -- <delta paths>`: 32 commits touch callers/README; only
+  da6d8dfd touches
+  tools/test_estate.py (+61, FloorDriftCheckFromAWorktree, the onramp half, own pass 160/1540);
+  tools/estate.py
+  unchanged since c1af4465, so the delta diff IS estate.py at HEAD. `git diff --stat c1af4465 HEAD`
+  on callers:
+  pins +122 (hunks at 117, 370, 510, 728-838 new --floor subcommand incl. a third
+  `estate.parent(atelier)` call
+  site, 859, 869: discover() body untouched), pathscan +45 (tally/coverage, not the resolver),
+  linkscan +22,
+  floorfleet +7.
+- `grep -n "estate\." tools/{pathscan,linkscan,pins,floorfleet,signfleet}.py` at HEAD: call sites as
+  in the
+  delta plus pins.py:798 (--floor). `grep -rln "import estate"`: 5 callers + test_estate.
+- filewalk.py:127-143: `_GIT_ENV_DROP = (GIT_DIR, GIT_WORK_TREE, GIT_INDEX_FILE, GIT_PREFIX)`;
+  `_GIT_SAFE =
+  ("-c", "core.fsmonitor=false")`. GIT_CONFIG_GLOBAL / GIT_CONFIG_NOSYSTEM pass through, so
+  test_estate's
+  `_hermetic_env` reaches estate's git calls (hermetic against the operator's real global config).
+- `from __future__ import annotations`: present in pins, floorfleet, signfleet, pathscan, linkscan,
+  filewalk;
+  absent in estate.py, which uses only `set[str]` at runtime (3.9-safe) and string annotations
+  otherwise.
+  `(cd tools && /usr/bin/python3 -c "import estate, pins, pathscan, linkscan, floorfleet,
+  signfleet")` -> ok on 3.9.6.
+- coldsweep sweep 'ATELIER_ESTATE_ROOT|atelierEstateRoot' (barred excluded; the .deferred.md
+  exclusion warns
+  "matches no file", expected: it was removed from the worktree): 23 hits. Surfaces:
+  CHANGELOG:555-556,
+  tools/README.md:1112,1857,3039-3040, estate.py:21-22,55-56, floorfleet.py:1751 (--help),
+  pathscan.py:176,
+  pins.py:576-577,955, signfleet.py:312, board item 160/1540:19, instruments/ccclose:1545,1561 (+
+  test,
+  man pages ccclose.1:360,865, ccopen.1:248). No hit in docs/method, docs/build/templates, skills.
+- da6d8dfd body-free via coldsweep: stat = CHANGELOG, docs/build/templates/CLAUDE.md,
+  PROPAGATION.md, RECORD.md,
+  skills/create-repo/SKILL.md, tools/README.md, tools/test_estate.py. Its CHANGELOG hunk: the
+  floor's drift
+  command finds the parent through ATELIER_TOOLS / hooks.atelierTools, NOT the estate-root setting.
+- tools/README.md:3027-3052 estate section at HEAD: "used by pathscan, linkscan, pins, floorfleet
+  and signfleet";
+  the "What it does not do" paragraph was rewritten by da6d8dfd (drift check not keyed to it).
+- tools/estate.py:3-6 docstring: "shared by pathscan, linkscan, pins and floorfleet" (signfleet
+  absent).
+- pathscan.py:1107-1118 `_exists_under` (exists, or extensionless + .md/.markdown retry);
+  linkscan.py:578-584
+  `resolve` (leading / -> root-relative, else md_file.parent / path); linkscan.py:686-696
+  `_within_root`.
+- Own-way main-checkout lookups at c1af4465 (`git grep -n git-common-dir c1af4465 -- tools
+  instruments`):
+  tools/worktree.py:180, instruments/cclive:146, instruments/ccclose:895,1693. At HEAD also:
+  deadhook.py:75,
+  stashscan.py:84, treeline.py:82, floorhook.py:126, ccclose:928,1554,2297,2735,2793,2813.
+  instruments/ccclose:1547-1571 `locateAtelier` reads env ATELIER_ESTATE_ROOT only (no git-config
+  carrier) and
+  tries `<root>/atelier` only (no group folders); gained in 74a0ceaf (after the delta).
+- --help at HEAD: pins, floorfleet, signfleet say "default: ATELIER_ESTATE_ROOT, else atelier's
+  parent dir"
+  (git-config carrier not named). pathscan/linkscan --help: 0 mentions of estate/worktree/sibling.
+- docs/method/PROPAGATION.md:229,317,323,336-341: "estate root" there means the estate's private
+  ROOT REPO, a
+  different thing from the folder ATELIER_ESTATE_ROOT names.
+- Pre-existing `..` tests: test_linkscan.py:294 `[x](../outside.md)`; test_pathscan.py:941 declared
+  root
+  `../outside`. test_pins.py:241 WorktreeResolution (PU-5) copies estate.py into its fixture tools/.
+- My env: ATELIER_ESTATE_ROOT unset; `git config --get hooks.atelierEstateRoot` from the worktree
+  exit 1 (unset).
+- PROBES (scratch, scratch HOME, GIT_CONFIG_GLOBAL=empty file, GIT_CONFIG_NOSYSTEM=1,
+  PYTHONDONTWRITEBYTECODE=1,
+  /usr/bin/python3 3.9.6, importing the worktree's tools/estate.py read-only): scripts
+  scratchpad/probe1.py
+  (fixtures p1/) and probe2.py (p2/). Results, by layout:
+  L1 main+worktree elsewhere: main_checkout(wt)=main; from main/sub too (raw --git-common-dir prints
+  ../.git);
+     landings(wt, ../sibling/docs/target.md)=[estate/sibling/docs/target.md]; from main []; wt/sub
+     climbs
+     from the repo top; two climbs from wt -> [L1/etc/hosts] (main.parent.parent/etc/hosts);
+     inside-repo [].
+     Worktree nested INSIDE main (main/.wt/n): main_checkout=main, landing correct. pathscan
+     main/wt/nested/
+     wt-sub all (0, []). linkscan main (1, [missing-file, outside-root]).
+  L2 bare+worktree: common dir = bare.git -> main_checkout(bw)=bw, landings [] (safe fallback, as
+  documented).
+  L3 submodule: common dir = super/.git/modules/sub -> main_checkout=sub itself, landings [] (as
+  documented).
+  L4 --separate-git-dir: common dir = gd/sep.git for BOTH sep and its worktree sepwt;
+  main_checkout(sepwt)=sepwt
+     (fallback; the main is sep); landings []; pathscan sep (0,[]) vs sepwt (1,[missing-path]) ->
+     the 320/180
+     divergence persists for this layout. Not named in the residuals. CANDIDATE SB (minor).
+  L5 SB-A1: (a) setting=the correct estate root, archive/sibling/docs/old.md stale copy, child in
+  themeA
+     referencing ../sibling/docs/old.md: pathscan unset (1, 3x missing-path); with setting (0, []).
+     landings =
+     [estate/sibling/.., estate/archive/sibling/.., estate/sibling/sibling/..,
+     estate/themeA/sibling/..]
+     (every non-repo dir under the root is a group folder, the non-repo sibling fixture included).
+     ../README.md (one-climb FILE token) -> [estate/README.md, archive/README.md, sibling/README.md,
+     themeA/README.md]. linkscan with `linkscan:allow:outside-root` marker: unset (1,[missing-file])
+     ->
+     with setting (0, []): a link dead for every live reader is silenced by an outside-root marker
+     once a
+     stale copy exists anywhere under the root. CANDIDATE SB (SB-A1/SB-A4/SB-A5).
+     (b) setting=a repo's path: repo_parents=[main, main/docs]; (c) one level too high:
+     repo_parents=[L5,
+     L5/estate], lands through the extra level; (d) a bare.git folder is read as a group folder.
+  L6 SB-A2: (a) rewriting wt/.git `gitdir:` to another repo's gitdir -> main_checkout(wt)=that repo,
+     landings move to its neighbourhood, pathscan finding dropped. (a2) same via the gitdir's
+     commondir file.
+     Both need write access to the operator's gitdir, not repo content. (b) tracked content cannot
+     carry a
+     .git file: `git add -A` records evil as a gitlink (160000); `add -f evil/.git` exit 128 "in
+     submodule";
+     `update-index --cacheinfo evil/.git` exit 128 "Invalid path". SB-A2 HOLDS against contributor
+     content.
+     (c) group folder named "x\npins: searched FORGED": pins stderr carries a forged line beginning
+     "pins: searched FORGED (1); skipped ..." (names printed raw); estate's warning prints the value
+     via repr
+     (newline escaped). main_checkout(Path('-c')) -> fallback, no injection ( -C takes it as the
+     dir).
+  L7 SB-A6: alias -> themeB/alpha symlink at level 1 + physical alpha in group; grouped: returned
+     [alpha, standalone] (2) but stderr "3 are git repos, 3 carry an atelier pin" (the .git check
+     precedes the
+     symlink check, so a symlinked repo at level 1 is counted; dedup is on the list only).
+     Ungrouped: 2/2,
+     consistent. CANDIDATE SB (minor).
+  L8 SB-A7: one-climb token, root in g/main, estate root set by git config AFTER the first
+  landings() call:
+     before []; after config without forget() [] (STALE); after forget() [L8/sib/docs/t.md,
+     L8/g/sib/..,
+     L8/sib/sib/..]. Key = (root, env var) ignores the config carrier. Only reachable inside one
+     process.
+     warn-once: 3 bad values (two equal) -> 2 warning lines.
+  L9 cost (PATH shim logging every git argv): pathscan no `..`/resolving `..` -> estate 0 git; one
+  failing
+     `..` -> rev-parse 1 + config 1 = 2 estate git runs; ten failing tokens in five files -> still
+     2.
+     linkscan with ONE in-repo missing-file and NO `..` link -> 2 estate git runs; nothing broken ->
+     0.
+     Docstring says "runs it once per root" and "no `..` token that fails ... never runs git".
+     CANDIDATE SB
+     (minor, V1). pins --head count inconclusive (fixture exited before discovery; not pursued).
+- Live census (read-only, os.scandir on the main checkout's parent; counts only): 34 entries, 33
+  dirs, 0 symlinks,
+  0 hidden dirs, 30 repos, 3 non-repo non-hidden dirs (= group folders if the setting were set),
+  holding 0
+  subdirectories and 0 repos. So on this machine the setting would add 3 empty group folders and
+  change nothing.
+- RE-RUN 1 (worktree tools cwd, PYTHONDONTWRITEBYTECODE=1, nice -n 10, /usr/bin/python3 3.9.6):
+  `python3 -m unittest test_estate` -> Ran 27 tests in 12.0s, OK. Load 7.5 before.
+- MUTATIONS (scratchpad/mutate.py: fresh copy of tools/ per mutation under scratchpad/tools_mut,
+  test_estate run
+  there; the 3 FloorDriftCheckFromAWorktree ERRORs in every run are a scratch artefact: they read
+  TOOLS.parent/docs/method/PROPAGATION.md, absent beside the copy; they pass in the worktree):
+  m1 landings always [] -> 7 failures (suite is live). m3 repos read as group folders -> 1 failure
+  (caught).
+  m9 linkscan landing branch removed -> 3 failures (caught). m10 pins group walk no longer skips
+  atelier -> 1
+  failure (caught). UNCAUGHT: m2 `ups == 1` -> `ups >= 1` (multi-climb tokens land under the estate
+  root) 0
+  failures; m4 pathscan `_lands_on_a_sibling` anchors = [root] only (file and docs anchors dropped)
+  0 failures;
+  m7 cache key drops the env carrier 0 failures. CANDIDATE SB (test gaps, minor).
+- RE-RUNS 2-5 (same form): test_pins Ran 43 in 46.8s OK; test_pathscan Ran 172 in 29.0s OK;
+  test_linkscan Ran 89 in
+  9.7s OK; test_signfleet Ran 21 in 10.9s OK. Parity: test_estate under PATH python3 3.14.6 Ran 27
+  in 15.0s OK.
+- RE-RUN 6 worktree: `pathscan.py --root . .` exit 1 (99 findings, all missing-path in docs/roadmap
+  records and
+  one tools/README.md:68 `../../tools/x.py` worked example; records never come clean per its own
+  docstring);
+  `linkscan.py --root . .` exit 0 (1571 files, 1656 links, 4 suppressed by missing-file markers).
+- RE-RUN 7: `pins.py` exit 1 (58 stdout lines; stderr "searched <root> — 33 entries, 29 are git
+  repos, 23 carry
+  an atelier pin"; no "grouped layout" line, setting unset). Names withheld.
+- RE-RUN 8 main checkout (read-only, at dc07f9d6, an ancestor of wt HEAD 24b8e2b7; 50 files differ,
+  23 under
+  docs/roadmap): pathscan 94 findings vs wt 99; only-wt 5, all "`.claude/worktrees` does not exist"
+  in five board
+  files that are byte-identical in both checkouts (diff --stat empty); `.claude/worktrees` is an
+  ignored,
+  untracked directory present in the main checkout and absent in the worktree. The one `..` finding
+  (tools/README.md:68) is identical on both sides. linkscan 0 vs 0. So: `..` tokens now agree across
+  checkouts;
+  in-repo tokens naming untracked paths still diverge (320/180 symptom by another mechanism, outside
+  the
+  delta's `..` claim, not named as a residual). CANDIDATE SB (note/minor).
+- ASVS (Haiku web-fetch agent, read-only; 5.0 URLs 404, read 4.0.3 V12 and V5): 12.3.1 path
+  traversal from
+  user-submitted filename metadata; 12.3.2 LFI; 12.3.5 and 5.3.8 OS command injection via file
+  metadata /
+  parameterised OS calls; no ASVS item on symlink following or on disclosing filesystem paths in
+  logs.
+- /security-review NOT RUN: `git status --short` in the worktree shows ` D
+  docs/reviews/...deferred.md` (the
+  partition's deletion) as the only pending change; the scanner reads the pending diff, which would
+  print the
+  barred sibling. Discharged by grounds; lens 4 run by hand (L6, L9, ASVS above).
+- ACT 1 WRITTEN 2026-11-22T23:15Z-23:35Z UTC: appended below a `---` divider to the brief; Status
+  line
+  replaced (ACT 1 WRITTEN ... PASS-WITH-FINDINGS, 0 MAJOR, 1 MODERATE, 6 minor, 4 note; act 2
+  pending).
+  Findings SB1 (MODERATE, group-folder existence rule / outside-root marker silences a dead link),
+  SB2 (minor, --separate-git-dir worktree still diverges), SB3 (minor, COST paragraph wrong twice),
+  SB4 (minor, carriers and tool list inconsistent across surfaces), SB5 (minor, ccclose
+  locateAtelier
+  second meaning), SB6 (minor, three untested behaviours), SB7 (minor, pins funnel double count),
+  SB8 (note, untracked-content divergence), SB9 (note, raw names on pins stderr), SB10 (note,
+  altitude
+  unargued), SB11 (note, "estate root" two meanings).
+- Gates on the brief by path (/usr/bin/python3 tools/<gate>.py --root . <brief>): datescan clean
+  (one
+  `datescan:allow` marker on the principal's verbatim "11.30am ... todat"); wrapscan and spellscan
+  report
+  docs/reviews ignored by their ignore files (scanned nothing); linkscan clean (0 links); reviewscan
+  clean.
+  pathscan on the brief alone flags the brief-writer's own barred-file references (lines 242, 251,
+  253) and
+  three of my fixture tokens; the tree run excludes docs/reviews by default (0 findings there over
+  752
+  files), so no marker added. Tables rewritten as bullets and every act-1 line reflowed to <= 100
+  columns
+  (rewrap.py, fix2.py, fix3.py in the scratchpad); the brief-writer's own over-width lines left as
+  written.
+- Cleanup: scratch fixtures p1/, p2/, tools_mut/ and all live captures (pins.out/err, scanner
+  JSON/text,
+  suite outputs) deleted. Left in the scratchpad: my probe scripts and delta.diff (body-free). Files
+  there
+  that are not mine (commit1.log, commit2.log, land.sh, resolve.sh) were not opened or touched.
+- `git status --short`: ` D ...deferred.md` (the partition) and ` M ...cold.md` (this verdict). No
+  git writes
+  by me. Sibling not opened. Waiting for the orchestrator's release message before act 2.
+
+#### Act 2
+
+- Release message from orchestrator 5bb9889e (process only): act 1 committed as b02232d3 (brief
+  only, text
+  unrevised); may read the one held file
+  /Users/mike/.claude/fable-held/atelier--2026-11-14-0227-estate-helper-
+  sibling-resolution-cold.deferred.md plus the barred records the brief names for phase 2; write ###
+  Reconcile;
+  never revise act 1; do not fold or delete; same rules; end "ACT 2 SAVED". It carried no question
+  about the
+  delta and no request about any finding.
+- Read (all allowed in act 2): the held sibling in full (9 questions + the brief-writer's run record
+  of
+  2026-11-14: 24 estate tests, 88 pathscan findings vs 79 from the main checkout, nine
+  ignored-local-file
+  references); board item 160/1360 (pointer, claim); `git log -1 --format=%B c1af4465` (commit
+  body);
+  docs/roadmap/320-.../180-... and 660-... whole (author's landing notes; 320/180 closed 2026-11-16
+  via
+  ATELIER_TOOLS, ATELIER_ESTATE_ROOT deliberately not used there); grep of docs/reviews for the
+  items: two prior
+  verdicts (2026-09-25-0715 line 474/534/579, 2026-11-09-0207 line 246/757), passing mentions only.
+- Mapping: Q1->SB-A2, Q2->L1 two-climb probe (no finding), Q3->SB3, Q4->SB1/SB-A4 (answer: not
+  suppressed
+  before; L5a), Q5->SB6/SB-A7 (+ per-root key serves fleets correctly), Q6->SB1/SB-A5 (+ worktrees
+  folder
+  named), Q7->SB12 formed at reconcile (two group-folder definitions, V4), Q8->SB13 formed at
+  reconcile
+  (fallback change unnamed in wrappers/changelog), Q9->SB8 (320/180 closed, so SB8 wants its own
+  item).
+- Author's 29-checkout / 4-worktree probe NOT re-run (private repos, load, counts-only output; class
+  covered by
+  the atelier main-vs-worktree comparison and fixtures). Recorded as read, not verified.
+- ### Reconcile appended 2026-11-22T23:2xZ-23:4xZ; overall restated PASS-WITH-FINDINGS 0 MAJOR, 1
+  MODERATE,
+  6 minor, 6 note. `git diff HEAD -- <brief>` shows 0 removed lines (act 1 as committed in b02232d3,
+  unrevised). Reconcile reflowed to <= 100 chars (fix4.py, reconcile region only). Gates on the
+  brief:
+  datescan, wrapscan, spellscan, linkscan, reviewscan all clean. No git writes; sibling not folded
+  or deleted.
