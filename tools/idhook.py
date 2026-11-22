@@ -13,8 +13,8 @@ different things:
   - the transcript id: the session UUID, the name of its transcript file,
     which `cctranscript` and `ccclose --session` take.
 
-  idhook.py      SessionStart hook: reads the hook JSON on stdin (session_id,
-                 transcript_path), prints one JSON object: a `systemMessage`
+  idhook.py      SessionStart hook: reads the hook JSON on stdin (session_id),
+                 prints one JSON object: a `systemMessage`
                  for the principal and `additionalContext` asking the model to
                  print both as the first line of its first reply (the path
                  that shows on every surface). Never blocks; always exits 0.
@@ -58,11 +58,11 @@ def find_name(session_id, wait=RETRY_S):
         time.sleep(0.2)
 
 
-def render(session_id, transcript, name):
+def render(session_id, name):
+    """The line shows the two ids and nothing else: no transcript path
+    (principal, 2026-11-22: "I only want the first two")."""
     shown = name or "not yet assigned (ListAgents shows it)"
     line = "🆔 Messaging name: %s · Transcript id: %s" % (shown, session_id)
-    if transcript:
-        line += " · Transcript: %s" % transcript.replace(os.path.expanduser("~"), "~", 1)
     ctx = ("%s: the principal's standing order (atelier board 210/490) is that both ids are "
            "visible from the start of every session, whatever the first prompt asks. So the "
            "first line of your first reply, before any other text, is exactly:\n%s"
@@ -82,7 +82,7 @@ def main():
         sid = data.get("session_id") or os.environ.get("CLAUDE_CODE_SESSION_ID")
         if not sid:
             return 0
-        out = render(sid, data.get("transcript_path"), find_name(sid))
+        out = render(sid, find_name(sid))
         print(json.dumps(out, ensure_ascii=False))
     except BaseException:       # a hook error helps no one; say nothing
         pass

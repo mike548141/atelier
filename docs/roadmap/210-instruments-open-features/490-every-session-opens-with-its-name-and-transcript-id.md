@@ -23,3 +23,9 @@
       the model's first line carried both ids; the panel showed no separate
       `systemMessage` line. So in VS Code the model's line is the one that
       shows, and it does.
+      **Trimmed 2026-11-22.** The principal, verbatim, quoting the line a
+      fresh shed session opened with: *"when ccopen runs for a new session I
+      only want the first two. I dont want "Transcript:
+      ~/.claude/projects/…/<id>.jsonl""*. The line now carries the messaging
+      name and the transcript id only; the path is gone from both the
+      `systemMessage` and the model's first line (session 057cdb77).

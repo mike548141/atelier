@@ -5,6 +5,11 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-22 — the opening id line drops the transcript path, `210/490`)
+- **`tools/idhook.py` shows the two ids and nothing else.** The principal:
+  *"I only want the first two"*. The `Transcript: ~/.claude/projects/…`
+  path is no longer printed.
+
 ### Added (2026-11-22 — `ccopen`, the session-open twin of `ccclose`, `210/520`)
 - **The opening reads, run as code.** The principal: *"Also do the same for
   anything else that we can build as deterministic code and hook into sessions

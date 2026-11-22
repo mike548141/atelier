@@ -39,7 +39,8 @@ class IdHook(unittest.TestCase):
         msg = out["systemMessage"]
         self.assertIn("Messaging name: atelier-df", msg)
         self.assertIn("Transcript id: %s" % SID, msg)
-        self.assertIn("/x/%s.jsonl" % SID, msg)
+        self.assertNotIn("/x/%s.jsonl" % SID, msg)   # two ids only, no path
+        self.assertNotIn("Transcript:", msg)
         self.assertIn("first line of your first reply, before any other text",
                       out["hookSpecificOutput"]["additionalContext"])
 
