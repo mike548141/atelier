@@ -1161,3 +1161,378 @@ listed names: an approval that carries a figure or an estate fact is published b
 - [ ] `FL12`–`FL19`: minor; batchable.
 - [ ] `FL20`: a canary cut-off-and-resume on a throwaway repo before any real drain on `ccfleet`.
 - [ ] Act 2: open the sibling and the barred records, screen the ten commit bodies, reconcile.
+
+### Reconcile (act 2, 2026-11-22 UTC)
+
+**Provenance of act 2.** Act 1 was committed unrevised as `1b98b593` by orchestrator `5106cf48`
+before anything below was opened; my worktree was at that commit, clean, when I began
+(2026-11-22T01:52Z). The release message, verbatim except that one absolute path is shortened to
+a bracketed placeholder (a home path may not enter this public repo):
+
+> Release for act 2: your act 1 is committed on main as 1b98b593, unrevised (your worktree is now
+> at that commit, clean).
+>
+> The held-back sibling is at [user-local review-siblings folder]/atelier--2026-11-20-0813-ccfleet-fleet-sweep-review-drain-modelguard-cold.deferred.md
+> (read it there; do not copy it into the repo except as the brief's Phase 2 says, folded in
+> below your reconcile). The barred records the brief lists are now open to you.
+>
+> Do act 2 exactly as the brief's Phase 2 says: append `### Reconcile` beneath your verdict, never
+> revise act-1 text, mark any finding formed at reconcile as such, restate the overall line, then
+> fold the sibling's content in below the reconcile. Keep public-safe (no home paths, private
+> names, estate facts). Same process rules as before: edit only the brief file, no git writes,
+> foreground probes, `date -u`. Quote this release message verbatim in the reconcile's
+> provenance.
+>
+> When done, reply in at most five lines: act 2 written; the restated overall line with counts by
+> severity; any finding added, raised or lowered at reconcile; and the one-line answer on whether
+> anything loses or misreads paid review work.
+
+**Opened in act 2, in this order:** the sibling whole (10 facts, 24 questions); the ten commits'
+message bodies; the intent record `210/440` whole; `160/1450` and `160/1660` whole; `010/230`
+whole; `115/410` whole. Not opened, with grounds: `450/010` and `010/240` (the commit bodies and
+`160/1450` already carry the authors' account of the gap fixes and of the template defect, and
+no finding turns on them); `docs/method/census`, the session records and `docs/ROADMAP-DONE.md`
+(no finding cites them). Two short probes were added (below). Act-1 text is unchanged.
+
+**The orchestrator against the barred list.** `160/1450`'s claim line records that `5106cf48`
+authored, started and instructed none of the delta and wrote no brief, and discloses the
+off-tier arrangement in the claim. Act 1 said I had no evidence either way; the record now
+supplies it.
+
+#### Against the authors' account (commit bodies and the intent record)
+
+- **`17f158d2`'s body** gives the transcript fallback's reason as I read it from the code: a
+  session woken by a background notification read as UNKNOWN. It says "only entries since the
+  launch count, so a resume never takes an earlier verdict". Nothing in it considers an error end
+  or an earlier non-report line. `FL1` stands.
+- **`1eb42f54`'s body** names the cost of a false "nothing to do": "a broken queue tool ended a
+  drain as 'nothing to do' with budget unspent". `FL2` is the same failure reached by a broken
+  *pass* and by a rehearsal, which that fix did not cover. Stands.
+- **`4bfb4e16`'s body and `210/440`** hold no enumeration of who could steer an unattended
+  session. `160/1450`'s own pointer names the class ("starts headless sessions with a permission
+  mode across every repo") as the reason for this pass, and no more. `FL10` stands; its act-1
+  caveat (the intent record might hold one) is discharged: it does not.
+- **`210/440`** records the principal's question of 2026-11-13 and his pick of the split ("the
+  general parts come here, after a scrub"), an answer, not a ruling. That is a recorded call to
+  home the skills in this repo; it does not address their shipping in the plugin bundle
+  separately. `FL21` stays a note, narrowed to that.
+- **`010/230`** confirms `FL8`'s reading and strengthens it: the answer *"Adopt it fully"* is
+  recorded there as being about "the never-adopted repo", one repo, and the item records that
+  adoption as already done by the sweep. The skill turns that answer into a standing rule for
+  every unpinned repo. `FL8` stands at MODERATE.
+- **`bd9f6a9b`'s body** says the sweep "put an unpinned repo to him as a question" and now does
+  not; it names no step that carries adoption out. `FL8`(b) stands.
+- **`e002ea22`'s body** repeats "spent first when that time is near" and then "orders routes by
+  when each budget lapses". The dropped condition is in the author's own summary. `FL11` stands.
+- **`b2ea715c`'s body and `210/440`** left the exit-4 question "for the cold pass": `drain` now
+  returns 4 for an empty queue with nothing started (R14, P3). Closed by `17f158d2`.
+- **`210/440`** says "the six-part definition of healthy"; the skill has had seven since
+  `a025636e`. The record is history and is not stale text to fix.
+
+#### Against the sibling's questions
+
+| Q | Outcome |
+|---|---|
+| Q1 | **Found in act 1** as `FL2` (R14, P3); F3 and F8 observed the same list and the same exit 4. |
+| Q2 | **Found in act 1** as `FL14` (P10, P16): a second upper-case word is taken; `**RESULT:** DONE` reads DONE; the template line `<DONE\|…>` matches nothing, so a quoted template after the real line does not displace it. |
+| Q3 | **Found in act 1** as `FL3` (P6a, P6b). |
+| Q4 | **Not found in act 1. New at reconcile: `FL25`.** |
+| Q5 | **Found in act 1** as `FL2` (P4, by a failed fetch) with `FL12` (P11) for the placeholders; the exit-5 and exit-2 children take the same "ended early" path. Not separately probed with a misconfigured `pass_prompt`. |
+| Q6 | **Partly found** (`FL17`: check-then-write, and act 1's reading of the uncaught `PermissionError` did not reach the finding's text; it belongs there). Two `resume`s of one session at once: nothing prevents it; added to `FL17` here. |
+| Q7 | **Found in act 1** as `FL7` for `ANTHROPIC_MODEL=` anywhere, `-lc`/`-ic`, `sudo -u`, `eval`, the heredoc skipper, `--model` with no value, the tool name `Task`. `xargs -I{}` is denied (P12). `exec -a name` and the hook's absence in a cloud session were not probed. |
+| Q8 | **Not found in act 1. New at reconcile: `FL24`.** |
+| Q9 | **Not found in act 1**, where assumption A6 was marked as standing. **New at reconcile: `FL23`**, and A6 is damaged by it. |
+| Q10 | **Partly found** (`FL17`, P15, for the path form). A `--set` value with no `=`: probed now, a `ValueError` traceback, exit 1; added to `FL17`. Argv injection through `{RESULT}`, `{SESSION}`, `{LOG}`: none, every call is an argv list (lens 4). |
+| Q11 | **Checked in act 1** (R16): 17, 19, 36, 37, 40, 42. The two changelog counts are right. |
+| Q12 | **Checked in act 1**: every assistant entry sampled has one timestamp shape, so the string comparison orders correctly; subagent files sit below the glob; `resume` takes the new id when one is printed. |
+| Q13 | Not examined in act 1. Read now: the skill's rule 1 says "Take the recommended default, put the question on the board item"; the orchestrator prompt narrows it ("Finding rulings and any other question go on the board item as owed asks … Mechanical choices: take the sensible default"). The skill's wider wording can be read as deciding the principal's question by its recommended option. Added to `FL19` as a wording disagreement; not probed against `COMMUNICATION.md`, which I searched and found no matching rule text in. |
+| Q14 | Answered above: seven everywhere in the delta; exit 4 closed. |
+| Q15 | **Partly found** (`FL19`: "four entries", the exit-code line). The `drain` function's own docstring still says "4 …, 3 …, else 0" though it returns 1 for "not ranked" and for a queue error; the README row does not name `ranked`. Added to `FL19`. |
+| Q16 | Observed in act 1's logs and not raised: `ranked` runs before the reset check (P14's past-reset drain called `ranked`, then exited 3) and under `--dry-run` (R10), so a rehearsal calls the adopter's real `ranked` with whatever side effect it has. Added to `FL16`. |
+| Q17 | **Not found in act 1.** Added to `FL11` at reconcile: the section says "Every run, before any pass starts" and quotes "everytime I run it", and also that the seal "lasts one budget", so a second drain in one budget passes on the first run's seal. |
+| Q18 | `FL11` covers "unsure means the dearer route". The sibling adds that the spill rule can move a review off a route the adopter's principal has ruled it must use; "among the routes the principal has opened" is the only guard in the text. I did not judge it against any estate's ruling (a non-goal). Added to `FL11` as an open question. |
+| Q19 | `FL22` judged the quote and paraphrase for privacy. The sibling's other point holds and was missed: the paraphrase ("The same day the principal added that…", "The next day the principal sharpened…") is in the writer's words and is not marked as a paraphrase or as an answer, so it reads as his ruling. The quote also names a user-level skill. Added to `FL22`. |
+| Q20 | Checked in act 1: the manual says a dry drive or drain "skips the stagger and the gate". By design and documented. |
+| Q21 | The `010/220` reference left with `b68cf410`; item 6 now cites `010/270`. A shipped skill still points at the home repo's board. Added to `FL19`. |
+| Q22 | **Found in act 1** as `FL8`; confirmed by `010/230` above. |
+| Q23 | Not examined: the index shape and `010/240` are outside the delta (non-goals `010/210`, `010/220`). Left open, said here. |
+| Q24 | Not examined in act 1. `RECORD.md` mentions a changelog once, in a close list, and states no rule on splitting one; I found no contradiction and did not sweep the template or the standard. |
+
+The sibling's facts F1, F2, F7 and F8 agree with my re-run ledger wherever both ran the same
+line (42 tests on both interpreters; exit codes 0, 5, 1, 64, 0, 4). F8's `gate` "hold" on disk
+did not recur: free disk was 32 GB during this pass.
+
+#### Findings formed at reconcile
+
+**FL23 — MODERATE (privacy) — formed at reconcile, from Q9.** The private-name guard's boundary
+treats `-` and `_` as part of a word, so a listed name joined to other text is not matched.
+Probe (2026-11-22, `private_hits` called directly, name `privroot`, a repo `client-x` marked
+private): `/kits/privroot-kit/scratch/`, `/wts/privroot-1430/app`, `privroot_notes` and
+`atelier--privroot` all return no hit; `/src/privroot/x` and "see privroot here" hit. The second
+form is the worktree parent ccfleet itself builds (`<label>-<HHMM>`), the first is an ordinary
+way to name a `kit_dir`, and the last is the form `orchestrator-prompt.md` step 3 uses for held
+copies. Each reaches a public repo's prompt through `{WT}`, `{SCRATCH}` or `{LANDING}`. The
+manual says a name "matches as a whole word"; act 1 took that as the stated design and marked
+assumption A6 as standing. It is damaged: this is a name that *was* listed and is not caught.
+**Criterion:** claim 2. **Recurrence prevention:** treat only letters and digits as word
+characters at the boundary, and test the forms ccfleet itself generates.
+
+**FL24 — minor — formed at reconcile, from Q8 and F6.** The skill says "Every brief has a
+`.deferred.md` sibling (the queue finds a brief by it)", `brief-prompt.md` writes one in the
+tree, and `orchestrator-prompt.md` step 3 moves it out when the pass starts, saying "A
+sibling-less brief skips act 2". This repo's own queue runs hold a sibling user-local from the
+moment it is written, as this pass's was (`160/1450`). Such a brief has no in-tree sibling: a
+queue built to the skill would not offer it, and an orchestrator following step 3 would run it
+with no act 2 and nothing to fold. Reading of the texts, not probed. **Criterion:** V5 between
+the skill and `CONCURRENCY.md` § *Orchestrated queue runs*.
+
+**FL25 — minor — formed at reconcile, from Q4.** `launch` (`instruments/ccfleet` 437–441) has no
+time limit, and once a drain is stopping it waits for every running pass (855–859). A session
+that never exits holds its slot, keeps the driver and its lock alive past the reset, and is
+never reported. Reading of the code, not probed.
+
+#### Additions to act-1 findings (formed at reconcile; severities unchanged)
+
+- `FL11`: the seal "lasts one budget" against "Every run" (Q17); the spill rule against a route
+  a principal has ruled a review must use (Q18, open).
+- `FL16`: `ranked` is called under `--dry-run` and before the reset check (Q16).
+- `FL17`: `--set` with no `=` is a traceback; nothing stops two `resume`s of one session; the
+  uncaught `PermissionError` in `DriverLock` (Q6, Q10).
+- `FL19`: the `drain` function's docstring on its return codes; the README row not naming
+  `ranked`; the skill's rule 1 wording against its own orchestrator prompt; `010/270` cited in a
+  shipped skill (Q13, Q15, Q21).
+- `FL22`: the paraphrase is unmarked and reads as the principal's ruling; the quote names a
+  user-level skill (Q19).
+
+#### Per-finding state after reconcile
+
+`FL1`–`FL22` stand as written in act 1, at their act-1 severities; none is raised, lowered or
+withdrawn. `FL8` is confirmed by a record. `FL10`'s and `FL21`'s caveats are discharged as
+above. Assumption A6 moves from "stands as stated" to damaged (`FL23`). Of the sibling's 24
+questions, act 1 had found 10 outright (Q1, Q2, Q3, Q5, Q7, Q11, Q12, Q14 in part, Q20, Q22),
+4 in part (Q6, Q10, Q15, Q18), and missed 6 that now carry text (Q4, Q8, Q9, Q13, Q16, Q17,
+with Q19 and Q21 as additions); Q23 and Q24 stay unexamined, with grounds. Act 1 raised nine
+findings no sibling question reaches (`FL1`, `FL4`, `FL5`, `FL6`, `FL9`, `FL13`, `FL15`, `FL18`,
+`FL20`).
+
+**Overall, restated: FAIL — 2 MAJOR, 10 MODERATE, 10 minor, 3 notes** (25 findings,
+`FL1`–`FL25`; three formed at reconcile: `FL23` MODERATE, `FL24` and `FL25` minor).
+
+**Does anything lose or misread paid review work? Yes, unchanged:** `FL1`, `FL4` and `FL5` can
+lose or misread it; `FL2` ends a drain on a false "queue empty"; `FL3` leaves a killed pass with
+no recorded session id. Nothing found at reconcile adds to or removes from that list.
+
+**Follow-up, added:** `FL23` is a privacy finding with its recurrence-prevention step above;
+`FL24` and `FL25` join the minor batch. Before this file is committed, the fold below should be
+read for public safety by whoever commits it: the sibling was written to be folded, and its Q18
+quotes a fragment of one estate's ruling and its F4 names a user-level skill.
+
+## Deferred sibling, folded below the verdict (reviewer, 2026-11-22)
+
+Held out of the tree, user-local, by the brief-writers' orchestrator and then by orchestrator
+`5106cf48`; released to the reviewer only after act 1 was committed as `1b98b593`; folded here by
+the reviewer on that orchestrator's instruction. The text below is the sibling's, verbatim and
+whole, with no change of mine.
+
+# Deferred sibling — `ccfleet`, the two skills and `modelguard` (cold pass, `160/1450`)
+
+Held back from the brief `docs/reviews/2026-11-20-0813-ccfleet-fleet-sweep-review-drain-modelguard-cold.md`
+under `REVIEW.md` rule 1. Written 2026-11-20 UTC by the brief-writer worker of queue run `08cd3b95`
+(Opus 5.5), which forms no finding: everything below is a question or a suspicion to test, never a
+verdict. Held user-local, outside the repo, every worktree and every scratchpad. **Open only after
+your act 1 is committed.** Reconcile against it; never let it revise act 1.
+
+Updated 2026-11-20 UTC to `bd9f6a9b` by a second brief-writer worker of the same run: F7–F10
+and Q15–Q24 are its additions; `160/1660` is folded in.
+
+There is no prior verdict on this delta: no earlier cold pass of `160/1450` ran. Neighbouring
+passes on other `450/010` tools are `160/1610` and `160/1620`; none covers this delta.
+
+## Facts (10)
+
+- **F1. Re-run results, 2026-11-20 UTC, at `71c867bc`.** `git merge-base --is-ancestor 1eb42f54
+  HEAD` exit 0. From `instruments/`: `nice python3 -m unittest -v test_ccfleet` ran 40 tests, OK,
+  exit 0, about 71 s on Python 3.14.6; under `/usr/bin/python3` (3.9.6) 40 tests, OK, exit 0, about
+  57 s. From `tools/`: `test_modelguard` 3 tests OK, exit 0, on both interpreters. `mandoc -T lint
+  -W style instruments/man/ccfleet.1` printed nothing, exit 0. `python3 instruments/ccfleet --help`
+  exit 0, ending "Full manual: man ccfleet". A hand probe of the hook with `claude -p "x"` printed a
+  well-formed deny, exit 0.
+- **F2. The synthetic dry run, as built.** A no-remote git repo `demo-app` (one empty commit) under
+  a scratch `repos/`; config: scratch `kit_dir`/`repos_root`/`worktrees_root`, `default_model`
+  `claude-sonnet-5-5`, `claude_bin` `/usr/bin/false`, `private_names` `["secret-root"]`,
+  `repos.demo-app.visibility` `public`, a one-line `pass_prompt` template, `pass_model`
+  `claude-opus-5-5`, and a queue script whose `next` printed `demo-app<TAB>160/001<TAB>docs/reviews/x.md`
+  until that line appeared in `{LAUNCHED}`, and whose `take`/`release` exited 0. Results: `check`
+  exit 0; `gate` "go" exit 0 (load about 7/13/27, memory 70 %, disk 21 GB free against a 20 GB <!-- datescan:allow: load averages, not a date -->
+  default floor); `run --dry-run` printed three `DRY` lines and an `END ... result=DRY` line, exit
+  0, and made no worktree; the same run with a template naming `secret-root` exit 5, "refused:
+  the prompt for demo-app (PUBLIC) names private name(s) secret-root"; `drain --dry-run` exit 0,
+  "DRAIN EXIT: queue empty", driver log "(1 started)".
+- **F3. What the dry drain left behind.** After `drain --dry-run`, `<kit_dir>` held `driver.log`,
+  `logs/`, and `launched-2026-11-20.txt` containing the line `demo-app<TAB>160/001<TAB>docs/reviews/x.md`.
+  The brief-writer did not test what a real drain run next on the same budget key does with it.
+- **F4. Environment.** The user-level hook runs the primary checkout's `tools/modelguard.py` under
+  `/usr/bin/python3 -I` (3.9.6); `~/.local/bin/ccfleet` links to the primary checkout; the
+  estate's user-level `fable-drain` skill still exists beside the `atelier` menu skill (row 2 not
+  switched). The machine had about 21 GB of disk free, one above the gate's default floor.
+- **F5. The orchestrator's framing**, disclosed: the brief-writer's launch prompt listed what to
+  test hardest, in these words: "it starts headless sessions with a permission mode across every
+  repo (blast radius, what a misconfig does), two skills that reach every plugin user, a hook that
+  denies tool calls (false allow is the silent failure), the gap fixes and 1eb42f54's three faults,
+  and whether the drain loses paid review work on a crash or cap (the reason the principal gated
+  the switch on this pass)".
+- **F6. This brief's own sibling is user-local**, per `CONCURRENCY.md` § *Orchestrated queue runs*
+  (held-back material never in a scratchpad or a reviewer's working directory). The
+  `review-drain` skill and its `brief-prompt.md` assume an in-tree `.deferred.md` sibling ("the
+  queue finds a brief by it"); see Q8.
+
+- **F7. Re-run results at `bd9f6a9b`, 2026-11-20 UTC (~10:20Z), by the updating worker.** `git
+  merge-base --is-ancestor bd9f6a9b HEAD` exit 0 (and `1eb42f54` exit 0). `mandoc -T lint -W
+  style` printed nothing, exit 0. `--help` exit 0, ending "Full manual: man ccfleet"; it does not
+  mention `ranked` (the one-screen digest names no queue entries). `test_ccfleet`: 42 tests OK,
+  exit 0, about 71 s on 3.14.6 and 57 s on `/usr/bin/python3` 3.9.6 (40 at `71c867bc`, so
+  `c60dee8b` added the two refusal tests). `test_modelguard`: 3 tests OK, exit 0, on both. A hand
+  probe of the hook with `claude -p "x"` printed a well-formed deny, exit 0. Load was about
+  10/7/9 on 12 cores; free disk 19 GB.
+- **F8. The synthetic dry run at `bd9f6a9b`**, built as F2 plus a `ranked` entry in the queue
+  script (exit code from an env var, default 0), a copy of the config with no `queue.ranked` and its
+  own `kit_dir`, and a call log the script appends to. Results: `check` exit 0. `gate` "hold" exit
+  1 (disk 19 GB against the 20 GB floor). `run --dry-run` with a one-line template (no `{ITEM}`)
+  exit 0, three `DRY` lines and an `END ... result=DRY` line, no worktree made; a template using
+  `{ITEM}` under `run` exit 5 "unfilled placeholder(s) ... {ITEM}" (`run` does not fill `ITEM`;
+  expected, but note it if a reviewer copies the drain's template into a `run` line); the
+  private-name template exit 5, the same refusal text as F2. Drain with `ranked` exiting 5: exit
+  1, stdout a blank line then "DRAIN EXIT: not ranked"; driver log "drain refused: queue not
+  ranked (rc=5): " with nothing after the colon (the script printed nothing); no `next` or `take`
+  call. Drain on the config with no `ranked`: exit 64, "drain needs queue.next, queue.ranked,
+  queue.take and queue.release in the config". `run --dry-run` on that same config: exit 0 (not
+  refused). Drain dry, `ranked` 0: exit 0, "DRAIN EXIT: queue empty", one pass started and ended
+  `result=DRY`, **while `gate` on the same config said hold**; the driver log's "started" line
+  shows disk 19 GB. A second dry drain on the same `kit_dir` the same day: exit 4 "queue empty", "0
+  started" (F3's launched list, now observed: Q1). The call log, in order: `ranked`, `ranked`,
+  `next` x3, `ranked`, `next` — `ranked` is called once per drain, including the refused one and
+  both dry ones.
+- **F9. Authorship and liveness at the update.** `bd9f6a9b`'s author is attributed to session
+  `19378351` on the grounds that the commit adds `010/240` ("Found 2026-11-20 by session
+  19378351") and does what that session's `010/230` owes; its body was searched for an 8-hex id and
+  printed none. `cclive` at about 10:17Z showed **both `64f984ac` and `19378351` still live** (last
+  transcript writes 40 s and 1 s before), `19378351` committing in its own worktree: its unlanded
+  commit there (`board: index shows a section summary and only unfinished items`) touches
+  `tools/board.py`, `tools/README.md` (the `board.py` section, not `modelguard`'s),
+  `docs/method/RECORD.md` and `010/210`, none of this pass's delta paths, but it changes the
+  index shape the sweep's "generated index" (claim 28) produces. The board's note that
+  `64f984ac` had "finished" predates this listing.
+- **F10. `160/1660`'s own pointer, disclosed.** Written by `c60dee8b`'s author session
+  `64f984ac`; its "what to test hardest", folded into the brief's lenses as marked **(1660)**,
+  verbatim: "can any drain path pick a pass before `ranked` returns 0 (dry runs, a resume, a
+  restarted driver); is a config with no `ranked` refused everywhere it should be and nowhere else
+  (the `run` and `drive` subcommands do not need it); does the skill's routing rule ("unsure means
+  the dearer route") hold against the principal's rule that review quality is never traded for
+  price; is the quote and the paraphrase public-safe".
+
+## Questions (24) — the brief-writer's suspicions, untested unless F1–F3 or F7–F8 say so
+
+- **Q1. Does a dry drain poison the real one?** `drain --dry-run` appends each pick to the
+  launched list (F3), and a pick already in that list is "treated as nothing launchable". Does a
+  rehearsal on the day (or the budget key) of a real drain make the real drain start nothing and
+  exit 4 "queue empty"? Is that compatible with claim 4 ("start nothing") and the help text?
+- **Q2. The `RESULT` pattern.** `RESULT:\s*\**\s*([A-Z]+(?: [A-Z]+)?)` takes a second upper-case
+  word after a space: does `RESULT: DONE I landed it` read `DONE I`, so a finished pass keeps its
+  claim, keeps its worktree and counts toward the three-bad stop? What about `**RESULT:** DONE`,
+  or a report that quotes the template line `RESULT: <DONE|SKIPPED|...>` after the real one
+  (`found[-1]` takes the last)?
+- **Q3. A killed pass loses its session id?** The session id comes only from the JSON log, written
+  when `claude -p` exits. On a `SIGKILL`, a reboot or a crash of the `pass` child, the log is
+  empty, `queue.ended` is never called, and `resume` needs `SESSION`. What does an adopter have
+  to find it by (the transcript store, by the worktree's cwd)? Is that written anywhere in the
+  skill's Mode 2?
+- **Q4. A hung session holds a slot for ever?** `launch` has no timeout. Does a `claude -p` that
+  never exits block a slot and, at the reset, keep the drain alive with no bound?
+- **Q5. A pass refused before launch.** A pass child that exits 5 (an unfilled placeholder or the
+  private-name guard) or 2 (claim refused) prints no `END` line, is logged "ended early", is not
+  counted bad, and stays in the launched list. With a misconfigured `pass_prompt` (for example the
+  shipped `orchestrator-prompt.md` needs `{APPROVAL}`, `{HOLDS}`, `{PROVENANCE}`, `{HELD_DIR}` and
+  `{REVIEW_MODEL}`, while Mode 1 step 1 names only the first three and the example config sets
+  none), does the drain walk the whole queue refusing every pass and then exit 0? Is that a
+  "fail closed" the operator can see?
+- **Q6. `DriverLock`.** `os.kill(pid, 0)` raising `PermissionError` (a pid reused by another
+  user's process) is not caught; pid reuse by any live process blocks every later driver. `pass`
+  and `resume` take no lock: can two `resume`s of one session run at once?
+- **Q7. `modelguard` false allows to probe:** `ANTHROPIC_MODEL=` anywhere in the text (an `echo`)
+  passes the whole command; `zsh -lc "claude -p x"` (`-lc` is not `-c`); `sudo -u someone claude
+  -p x` and `exec -a name claude -p x` (a wrapper flag that takes a value: the value is read as the
+  head); `xargs -I{} claude -p {}`; `eval "claude -p x"`; `echo "<<EOF"` on one line and a launch
+  on the next (the heredoc skipper runs to a terminator that never comes); `--model` with no value
+  or an empty one; an `Agent` call with any non-empty `model` string; the tool name `Task`; the
+  hook missing in a cloud session. Which are real on the harness, and which matter?
+- **Q8. The partition's home.** `orchestrator-prompt.md` step 3 copies an in-tree `.deferred.md`
+  to `{HELD_DIR}` and `rm`s it from the worktree, uncommitted. The sibling then sits in the repo's
+  git history, which the reviewer is only asked not to read. Atelier's own rule holds siblings out
+  of the tree (F6). Does the skill contradict `CONCURRENCY.md` and `REVIEW.md` rule 1 (V5)? Would a
+  queue that "finds a brief by its sibling" ever offer this brief?
+- **Q9. The private-name guard's word boundary.** `(?<![\w-])name(?![\w-])` misses a name joined
+  by `-` or `_` to other text (`atelier--name`, `name_notes`, a worktree label `name-1430`). Does
+  any prompt variable ccfleet itself fills (`{WT}`, `{SCRATCH}`, `{LANDING}`, `{PRIMARY}`) carry a
+  private repo's name in such a joined form into a public repo's prompt, unguarded?
+- **Q10. Path and argv inputs.** A repo name from the queue's `next` or the jobs file goes into
+  `os.path.join(repos_root, repo)` and into `git worktree add`; `../` or an absolute path? A
+  `--set` value with no `=` raises an uncaught `ValueError`. The queue argv is filled with values
+  from a session's output (`{RESULT}`, `{SESSION}`, `{LOG}`): any argv injection?
+- **Q11. The changelog's counts.** "17 tests" (2026-11-14) plus "17 new tests" (2026-11-18) plus
+  the manual tests and `1eb42f54`'s additions: do they sum to the 40 the suite runs today?
+- **Q12. The transcript harvest.** `since` is `YYYY-MM-DDTHH:MM:SS` with no zone; transcript
+  timestamps carry milliseconds and `Z`. The string comparison happens to order correctly; does it
+  for every entry shape? Does `glob` over `projects/*/<sid>.jsonl` ever pick a subagent's file, or
+  miss a resumed session's new id?
+- **Q13. `review-drain` rule 1** ("take the recommended default" during a drain): does it agree
+  with `COMMUNICATION.md` and the apex on the principal's decisions, given it says the question
+  goes on the board?
+- **Q14. The intent record says the healthy definition is "six-part"**, the skill says "all seven
+  hold" after `a025636e`, and the skill's description lists seven: is there any other stale count
+  (V5), and is the `--doc` exit-code-4 question the intent record left "for the cold pass" now
+  closed by `17f158d2`'s change?
+- **Q15. Surfaces on `ranked`.** The `drain` docstring still says it returns "4 ..., 3 ..., else
+  0", but it now returns 1 when not ranked; the manual says "each of the four entries" while
+  `ended` is a fifth, optional one; the README's `ccfleet` row and `--help` do not name `ranked`.
+  Which of these is a V3/V5 disagreement, and does the exit-code list in each surface still agree
+  (claim 13)?
+- **Q16. When `ranked` runs.** It is called before the driver checks the reset, before the
+  launched list or the stop file is read, and under `--dry-run` (F8). Does a dry rehearsal call the
+  adopter's real `ranked` (with any side effect it has, such as sealing)? Does a drain started
+  after the reset call `ranked` first and only then exit 3? Is the refusal's stdout (a blank line
+  when the queue printed nothing) good enough for an operator?
+- **Q17. One call, then trust.** ccfleet calls `ranked` once per drain; the skill puts on the
+  adopter's queue that `next` also refuses until the seal, and that a review briefed after the seal
+  "runs last on the local route until it is ranked and the ranking sealed again". ccfleet cannot
+  see any of it. Is "every run" (the principal's "everytime I run it") met when the seal "lasts one
+  budget", so a restarted driver mid-budget passes on an earlier run's seal? Does that contradict
+  "every run, before any pass starts"?
+- **Q18. Routing against rulings.** "Unsure means the dearer route" and "the route that spends the
+  expiring budget takes ... any other route's not yet started": can the second move a review off a
+  route the principal has ruled it must use (a batch-fit review "must use the batch API rather than
+  local weekly claude budget" in the estate's own ruling), or onto a route that cannot match a
+  local pass? Is "among the routes the principal has opened" the only guard?
+- **Q19. The quote and the paraphrase.** The skill, shipped to every plugin user, quotes the
+  principal verbatim, naming "fable drain", "Agent SDK" and "Batch API", then says "The same day
+  the principal added that ..." in the writer's words. Is the paraphrase marked as such, or does it
+  read as his ruling (answers are not rulings; capture his words verbatim)? Is the quote
+  public-safe (names a model tier and a private skill's name)?
+- **Q20. The dry drain and the gate.** F8: `gate` said hold, yet the dry drain started its one
+  pass. Is the gate skipped in dry mode by design, and do the docstring, `--help` and manual say
+  so? Does a dry drain then rehearse anything the real one would do under the same load?
+- **Q21. A board item number in a shipped skill.** `fleet-sweep` item 6 now waits on "roadmap
+  `010/220`" having "built and proved the cut": an atelier board item every adopter receives but
+  cannot judge. V4/V5 and the public-plugin reach: should a skill depend on the home repo's board?
+- **Q22. Adopt without asking.** "One with no pin is adopted ... not put to the principal as a
+  question." The principal's words cover the board rule and an archived/fork exception; his answer
+  "Adopt it fully" was for one named never-adopted repo. Does the skill generalise an answer into
+  a rule (answers are not rulings)? How is "a fork of another owner's repo" detected (the forge's
+  fork flag, the owner, a local-only repo with no remote)? What does standardise mode write
+  unasked into a repo nobody chose?
+- **Q23. "The generated index".** The empty store gets "the generated index", in whichever shape
+  `board.py` writes at the time; `010/210` (F9: `19378351`'s unlanded change) is about to change
+  that shape, and `010/240` says the repo template still scaffolds the old board. Does the sweep
+  give a no-board repo a store that the next sweep then flags?
+- **Q24. The `CHANGELOG.md` exemption.** Does it agree with `docs/method/RECORD.md`'s one-file
+  rule as that file stands (V5), and does any other surface (the create-repo template, the
+  standard) still count a changelog as an entry list to split?
