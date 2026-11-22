@@ -6,7 +6,8 @@ doctrine by function through ADR 0006's controls).
 pass. A session that cannot run on it stops (rule 4).
 **Status:** RUN. Act 1 (phase 1) written 2026-11-22 UTC by a Fable 5.1 reviewer under the
 orchestrator of drain session `eca14b23`; verdict FAIL (1 MAJOR, 2 MODERATE, 4 minor, 1 note). Act
-2 (reconcile) follows the sibling's release.
+2 (reconcile) written 2026-11-22 UTC by the same reviewer after the sibling's release; the
+verdict stands unchanged. Sibling and review log folded below by the orchestrator, 2026-11-22.
 Brief written 2026-11-09 UTC by session `d16dc612`, a headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/1200-rule-4-cold-pass-queued-ccmail-cache-and-recorded-reach.md`
@@ -176,7 +177,8 @@ reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-(`2026-11-09-0153-ccmail-cache-and-recorded-reach-cold.deferred.md`), every delta commit's message
+(`2026-11-09-0153-ccmail-cache-and-recorded-reach-cold.deferred.md`, now folded
+below the verdict and removed), every delta commit's message
 body, the queue pointer
 `docs/roadmap/160-doctrine-review-owed/1200-rule-4-cold-pass-queued-ccmail-cache-and-recorded-reach.md`,
 and the intent records beyond their titles:
@@ -518,3 +520,373 @@ Children: none read; none needed.
 5. Phase 2 of this pass: reconcile against the sibling, then fold.
 
 *Act 1 ends here. Nothing above is revised in act 2.*
+
+### Reconcile (act 2, phase 2, 2026-11-22 UTC)
+
+Opened after act 1 was committed (`00b8e4b5`), on the orchestrator's release message, which
+named one path and nothing else: the held sibling (one pointer block, three questions, two
+facts, the brief-writer's re-run results), the delta commit's message body, the queue pointer
+`160/1200`, the intent record `210/130`, and the prior verdict
+`docs/reviews/2026-09-25-0715-ccmail-build-cold.md` (its findings CC1–CC4, CC9, CC10 and its
+reconcile notes on CC1 and CC2). Not opened: `docs/sessions/`; nothing there was needed to
+reconcile and the brief's barred list is honoured by default.
+
+**The sibling's questions, answered against act 1.**
+
+- *Pointer: can the sweep delete anything outside its own cache?* Yes: CCR1, formed in act 1
+  before this question was read. The author's commit body lists the refusals (link, home, root,
+  work tree) and says tests pin them; it is silent on `CCMAIL_DEST`, which is the route.
+- *Pointer: is the threat table complete?* Two gaps, both act-1 findings: the cache row credits
+  a lock against an adversary it does not bind (CCR6), and no row covers the sweep's root being
+  supplied from the environment (CCR1). The unscrubbed listing lines (CCR5) are a near miss of the
+  filename row rather than a missing row.
+- *Brief-writer 1: is every sweep limit pinned by a test that fails if the limit is removed?*
+  Yes, less one: lens 3 and A6 in act 1. The `/` refusal is read, not run; no test can own `/`.
+- *Brief-writer 2: `rmSync` on a directory, a symlink swapped in during the walk.* Answered by
+  reading `cacheHygiene`: the entry is `lstat`ed (a link is skipped), then resolved with
+  `realpathSync`, then its resolved parent must equal the resolved root, and `rmSync` is handed
+  the **resolved** string, never the entry's name. A swap before resolution is caught by the
+  parent check; a swap after it changes nothing, because the deletion is addressed by a real path
+  under the root; and `rmSync` unlinks a link met inside the tree rather than following it (the
+  act-1 test re-run). What the check buys is that no name under the root can steer the deletion
+  outside the root. The residual is a same-user race on the contents of a folder already judged
+  expired, by a principal who could delete them directly. No finding.
+- *Brief-writer 3: does the stated reach hold for the identity the cloud login actually carries,
+  and is that checkable read-only?* Not checkable from this repository: the reach is a statement
+  about the identity's registration in the Workspace admin console, which neither `ccmail` nor
+  anything in the tree can read. A live read of the admin API would print estate facts and was
+  not needed for any finding, so it was NOT RUN. The act-1 live read did establish that the route
+  the statement describes was **not live** on 2026-11-22 while the one-mailbox keychain route was,
+  which is the fact a reader of the reach statement needs beside it.
+
+**The held facts.** Both were found independently in act 1: the sweep's run on every working
+command including `--status` is A7 and is the lever CCR1's probe used; the registry entry owed
+outside this repository is noted under the acceptance test and CCR7 and raises nothing new. The
+brief-writer's re-run counts (62 tests at `457615cc`) differ from act 1's 67 by the five tests
+the later `--headers` commits added.
+
+**Per finding, against the author's account and the prior verdict.**
+
+- **CCR1 — stands, MAJOR.** The author anticipated the class (the pointer's first question) and
+  answered it for four roots; `CCMAIL_DEST` is a fifth, documented in the same man page the
+  commit body cites, and it is the one the probe used. The prior verdict asked for the lock and a
+  documented clear (CC2); the sweep is the applier's design, so the reach of its root is the
+  applier's to have bounded.
+- **CCR2 — stands, MODERATE; the prior verdict strengthens it.** Its reconcile quotes the
+  2026-09-09 record's strongest form of the claim, *"adds no credential to the estate at all"*,
+  as the sentence CC1 was about. That sentence stands verbatim in `instruments/ccmail` at HEAD
+  (lines 395–396), two months after the finding and in the file the delta edited to answer it.
+- **CCR3 — stands, MODERATE.** The prior CC4 was found on a fresh build from HEAD; the applier
+  fixed the source and wrote "re-run setup" in two places; the installed binary is still the one
+  CC4 measured. The prior CC10 was the same class, an owed operator step (then `--auth`) left
+  undone for seventeen days; this one is at fourteen. Counsel unchanged: make the deployed state
+  checkable rather than owed.
+- **CCR4 — stands, minor.** Not anticipated anywhere. The intent record's answer line says
+  "a 30-day expiry"; the man page's "nothing has been written for 30 days" is the exact meaning.
+- **CCR5 — stands, minor.** The prior CC5 and CC11 asked for the name scrub; the applier's
+  changelog widened the claim to "listings" without widening the code.
+- **CCR6 — stands, minor, with its frame corrected.** The prior CC2 named the threat as
+  world-readable files under a 022 umask, that is, other local principals, and the lock answers
+  that threat exactly as counselled. The finding is only that the addendum's table places the row
+  under an adversary heading (a compromised session as the operator) the lock does not bind, and
+  should say which adversary it does.
+- **CCR7 — stands, minor; its origin is now known.** The standing per-route requirement is the
+  prior reviewer's *recurrence prevention* under CC1, which said it should join *"the ADR's
+  controls list for future credential-holding instruments"*. The applier wrote it as a paragraph
+  of the addendum and left the controls list at four, so the counsel was applied in substance and
+  not in the place it named (V4), and the commit body states it as a bare "must". The principal's
+  answer covered the reach being written down; the requirement on future instruments was never
+  put to him, so it stays his to confirm. The 30-day figure is the option text's, as the intent
+  record's answer line shows.
+- **CCR8 — stands, note.** CC11 asked for "a `request()` timeout"; the idle timeout is a fair
+  reading of it, and only the changelog's wording overstates.
+
+**Prior findings as applied, checked where act 1 reached them.** CC1: written down, four places
+(CCR2 for the remnants). CC2: lock and sweep built (CCR1, CCR4, CCR6 on the design). CC3: table
+present (CCR6 on one row). CC4: built in source (CCR3 on deployment). CC5, CC6, CC7, CC8, CC11:
+confirmed in code and tests. CC9: the fallback line marked; the registry entry owed, disclosed.
+CC10: overtaken; the keychain route was live on 2026-11-22 and the delegation route was not.
+CC12, CC13: records, not reached.
+
+**Screening the commit body.** It carries the author's account only: the pick, the finding ids
+and one line each. Nothing in it names a reviewer, a question for this pass, or contact with
+this review chain. The queue pointer's claim block discloses the orchestrator shape as rule 4
+requires. No finding was formed at reconcile.
+
+**Overall, restated: FAIL — 1 MAJOR (CCR1), 2 MODERATE (CCR2, CCR3), 4 minor (CCR4–CCR7),
+1 note (CCR8).** Every finding is the principal's to decide (rule 3); nothing was applied.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+*Released to the reviewer only after its act-1 findings were committed (`00b8e4b5`, local, landed
+with this fold); folded here verbatim (headings demoted two levels) and the sibling file removed,
+per the brief. The orchestrator, a headless Opus 5.5 session started by drain session `eca14b23`,
+held the partition, formed no finding and wrote no severity; drain session `eca14b23` wrote no
+brief and no delta and started no brief-writer for this pass.*
+
+### Deferred reading for `2026-11-09-0153-ccmail-cache-and-recorded-reach-cold.md`
+
+Open only after your act-1 findings are committed (`docs/method/REVIEW.md` rule 1). Fold into the
+brief below the reconcile, then delete this file. A floor, never a fence.
+
+#### The queue pointer's questions (the author's framing, verbatim)
+
+> whether the sweep can delete anything outside its own cache; whether the addendum's threat table
+is complete.
+
+#### The brief-writer's questions
+
+1. Is every limit the sweep's comment names pinned by a test that would fail if the limit were
+removed?
+2. `rmSync` on a directory, a symlink swapped in during the walk: what does the real path check buy
+at that moment?
+3. Does the stated reach hold for the identity the cloud login actually carries, and is that claim
+checkable read-only?
+
+#### What the brief-writer held back
+
+- The sweep runs on every working run, `--status` included (`instruments/ccmail`, the housekeeping
+  block); there is no separate command.
+- The changelog says a private-registry entry is owed outside this repository.
+
+#### Re-run results (2026-11-09 UTC, at `457615cc`)
+
+`ccmail.test.js`: 62 tests, 62 pass, exit 0. `swiftc` build to scratch: exit 0. `ccpdf/selftest`:
+exit 0, "selftest ok". No live `ccmail` run was made by the brief-writer.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*Form fixes only: headings demoted two levels; three lines over 100 columns wrapped, and in one of
+them the orchestrator's session-scratchpad path shortened to `<scratchpad>`. No public-repo gate
+blocked a token, so no placeholder was otherwise needed.*
+
+### Review log: atelier 160/1200, ccmail cache + recorded reach cold pass
+
+Reviewer: Fable 5.1 (claude-fable-5-1), spawned by a headless per-pass orchestrator (Opus 5.5),
+itself started by drain session eca14b23.
+Worktree: /Users/mike/worktrees/fable/atelier-160-1200-1953/atelier
+Brief: docs/reviews/2026-11-09-0153-ccmail-cache-and-recorded-reach-cold.md
+Scratch: <scratchpad>/reviewer/ (the orchestrator's session scratchpad)
+
+#### Act 1
+
+- 2026-11-22T19:55Z read the brief whole (lines 1-219).
+- `git merge-base --is-ancestor c23fb6f1 HEAD` exit 0. HEAD = origin/main = f5e4802e.
+  `git status --short`: only ` D docs/reviews/...deferred.md` (expected partition removal).
+- `git log --oneline c23fb6f1..HEAD -- <delta paths>`: ~90 commits touch the paths since the delta
+  (mostly CHANGELOG.md); on ccmail itself: 9fc40236 (--headers), 5a90b0d4 (--headers names system
+  and content type), 5914535b (man wrap). Will read these commits body-free via coldsweep.
+- uptime load 10.80 at start; heavy lines under nice -n 10, one at a time.
+- Read docs/method/REVIEW.md: lines 25-300 (rules 1-4), 302-340 (lenses), 394-460 (re-run, V1-V7),
+  530-560 (application pass), 760-818 (deliverable shape).
+- `python3 tools/coldsweep.py --root . --commit c23fb6f1 --path <8 delta paths>` exit 0 -> scratch
+  delta.diff, 1775 lines; read whole. Footer: body not printed, 0 board files, 0 barred files.
+- Now reading instruments/ccmail at HEAD whole, ccmail.test.js, man page, README section, ADR 0006,
+  and the 3 later ccmail commits (9fc40236, 5a90b0d4, 5914535b) body-free.
+- Read instruments/ccmail at HEAD: lines 1-600, 1000-1250, 1380-1507 (header, config, keychain,
+  routes, resolver, api, names, cache sweep, consent, status, get, headers, main).
+- Body-free reads of the later commits on the delta's paths: 9fc40236 (--headers, 288 lines),
+  5a90b0d4 (header list, 126 lines), 5914535b (man wrap, 23 lines). All exit 0, body not printed.
+- Read ADR 0006 lines 150-222 (controls list, 2026-09-09 amendment) and headings; man page .SH/.SS
+  map (What the routes reach is .SS under .SH AUTHORISATION, lines 151-186); man ENVIRONMENT
+  lines 436-451 (CCMAIL_DEST: "Base directory for downloads, replacing the cache default", silent
+  on the sweep); README lines 100-125, 686-700, 712.
+- Test suite exposure check: grep spawnSync/PATH/HOME in ccmail.test.js: every spawn of the tool
+  sets HOME=<tmp>, PATH=/nonexistent, CCMAIL_CONFIG=<none>; in-process keychain tests use fake
+  spawn results. Only the 'every working run tidies' test deletes XDG_CACHE_HOME/CCMAIL_DEST from
+  its env; the id-refusal and --get tests inherit them (sweep lands on CCMAIL_DEST if set).
+- coldsweep tree sweep (-i 'stores nothing|adds nothing|...|your own mailbox and nothing else',
+  both board items --also-exclude): stale wording at instruments/ccmail:39, :235, :394-396, :1422
+  (HELP: "on your own mailbox and nothing else"); ADR 0006:202, :210 (2026-09-09 amendment bullet
+  "The preferred route stores nothing at all", unmarked). 828 files excluded as barred.
+- RE-RUN 1: `CCMAIL_DEST=<scratch>/ccmail-dest nice -n 10 node --test instruments/ccmail.test.js`
+  exit 0; tests 67 pass 67 fail 0 skipped 0 (node v24.18.0). Load 4.6 at start. Scratch dest was
+  chmod'd to 0700 by the run (the sweep ran on CCMAIL_DEST).
+- RE-RUN 2: `nice -n 10 swiftc -O instruments/ccpdf/pdfrender.swift -o <scratch>/pdftoppm` exit 0;
+  `nice -n 10 bash instruments/ccpdf/selftest <scratch>/pdftoppm` exit 0, "selftest ok ... pixel
+  budget enforced" (4 CoreGraphics error lines on stderr, from the sed-edited PDFs).
+- `mandoc -T lint -W style instruments/man/ccmail.1` exit 0, no output.
+- PROBE renew (scratch probe-renew.js, requires the worktree ccmail as a module): write x.pdf,
+  age folder+file 29 days, re-fetch identical bytes via writeAttachments -> file reused, newest
+  mtime NOT renewed; cacheHygiene with now+2d removes the folder. Code comment (ccmail ~line 611,
+  "a re-fetch into a folder renews it") is false for the identical re-fetch. Candidate minor.
+- PROBE dest (scratch probe-dest.sh): CCMAIL_DEST=<scratch>/probe-dest holding folders 2024, 1,
+  cafe, deadbeef, Invoices, each aged 40 days; HOME=<scratch>, PATH=/nonexistent, no config;
+  `node ccmail --status` exit 1 (no route) and stderr `cache  made 1 path(s) private; removed 4
+  message folder(s) not touched for 30+ days (<dest>)`; after: only Invoices remains; dest mode
+  755 -> 700. CONFIRMS: the sweep deletes operator folders under CCMAIL_DEST. Man page: a chosen
+  --dest "is never swept"; CCMAIL_DEST "Base directory for downloads, replacing the cache default".
+  Candidate MAJOR (the brief's named worst failure: a sweep that deletes outside its own cache).
+- LIVE READ (allowed by the brief; route names and booleans only): `CCMAIL_DEST=<scratch>
+  node instruments/ccmail --status --json` exit 0, filtered by a python script to:
+  authorised True; delegation live False; keychain live True; retentionDays 30; dest == scratch;
+  1 stderr line (the cache line). Captures deleted. Nothing on Google changed (token mint = read).
+- Installed renderer ($XDG_BIN_HOME or ~/.local/bin/pdftoppm): exists, not a symlink, modified
+  2026-09-09T15:02+1200, i.e. before the delta: the pixel budget is NOT in the binary the file
+  reader runs. Setup not run by me (barred). Candidate MODERATE.
+- PROBE hostile PDF (scratch mk_hostile_pdf.py: /OpenAction Launch /usr/bin/touch <marker>, page
+  /AA /O Launch, catalog /AA /WC JavaScript): scratch pdftoppm -jpeg -r 100 -f 1 -l 1 exit 0,
+  marker NOT created, out-1.jpg written, stderr empty. ADR claim "did nothing in PDFKit" holds.
+- Read pdfrender.swift 95-165: budget check (wantW*wantH > maxPixels -> fail) precedes CGContext
+  creation; CCPDF_MAX_PIXELS validated finite >= 1; -r validated finite > 0. Claim holds.
+- unzip bound: unzipEntry maxBuffer 256 MiB, unzipList 32 MiB (ccmail:752-764). "Bounded" holds.
+- Raw listing prints: ccmail:1117-1118 (--search rows: subject, from, date) and :1134 (list header:
+  subject, from, date) print sender strings unscrubbed; printable() applied to filenames only.
+  Read-confirmed (deterministic template strings). Candidate minor.
+- SECRETS.md grep (blast radius/least/reach): the least leg at :61-66 speaks of blast radius; no
+  home for a per-route reach line there. Tree-wide coldsweep found no other surface describing
+  route 1 as storing nothing beyond ADR/README/man/ccmail.
+- Sound, checked: ID_RE guards every URL/path splice of an operator-given id (requireMessageId in
+  cmdList/cmdGet/--headers); writePrivate wx + lstat + byte compare; mkdirSync mode 0700 (umask can
+  only tighten); tightenTree skips symlinks; rmSync on a real dir only after realpath parent ==
+  root; sweep refuses symlink/home/root/worktree roots (tests pin all but `/`); PKCE S256 verifier
+  64 chars, state 24 bytes, callback without state answered 400 and ignored; token exchange sends
+  code_verifier; idle timeout 60 s on every request; keychain exit 44 vs other failures; --status
+  prints retentionDays; man page section the --status text points at exists (AUTHORISATION).
+- NOT RUN: a real --auth consent (mints a grant: a write); `/security-review` (reads the session's
+  pending diff, which here is only the removed sibling) discharged by a hand pass against OWASP
+  ASVS V12 file handling and the OAuth native-app guidance; instruments/ccpdf/setup (barred).
+
+##### Spawn prompt (attached per REVIEW.md rule 4; process only, no question about the delta)
+The orchestrator's message to the reviewer, in full:
+```
+You are the cold reviewer for atelier board item `160/1200`: the rule-4 code cold pass on
+`ccmail`'s private, expiring cache and its written-down domain-wide reach.
+
+WHO YOU ARE
+- Worktree (absolute; use `git -C "<worktree>"`, never `cd`): <worktree>. Double-quote every path
+  in every shell command.
+- Brief: <worktree>/docs/reviews/2026-11-09-0153-ccmail-cache-and-recorded-reach-cold.md. Read it
+  in full FIRST and follow it (its lenses, re-run list, house rules, barred reading, finding prefix
+  `CCR`, process). Read `docs/method/REVIEW.md` for the verdict shape and the standing checklist
+  V1–V7.
+- Scratchpad for your probes, fixtures and builds: <scratchpad>/reviewer/ (create it). Delete your
+  probes and fixtures there when you finish each act.
+
+PROVENANCE (state this in your verdict)
+- You are Fable 5.1, tier checked at selection. You were spawned by a headless per-pass
+  orchestrator session (Opus 5.5), itself started by drain session eca14b23 (Opus 5.5). Both are
+  rule-4 off-tier orchestrators: they hold the context partition, form no finding and write no
+  severity. Drain session eca14b23 wrote no brief and no delta and started no brief-writer for
+  this pass.
+- The brief's barred sessions are `722ac2e2` and every worker it dispatched, `d16dc612`, and
+  `74f2b8cd`. You were not started or instructed by any of them.
+- You run under the principal's drain order, 2026-11-23, verbatim: "Start a fable drain or
+  whatever it is called now. Target 100% of weekly budget by 11.30am NZT todat". The approval
+  lapses at the reset, 2026-11-22 23:00 UTC; a pass already running may finish.
+- The worktree is at origin/main and contains the delta commit `c23fb6f1` (verified:
+  `git merge-base --is-ancestor c23fb6f1 HEAD` exits 0). Re-check it yourself.
+
+THE PARTITION
+- The brief's `.deferred.md` sibling was removed from this worktree on purpose (it shows as a
+  deleted file in `git status`; that is expected, do not restore it). Do not look for it in git
+  history, `git show`, other checkouts, other worktrees, scratchpads, tmp, `~/.claude/fable-held/`,
+  or anywhere else. Honour every rule-2 bar the brief lists (prior verdicts, sessions logs, the
+  queue pointer, the intent record beyond its title, commit message bodies). The orchestrator will
+  send you the sibling's path after act 1 is committed.
+
+WHAT YOU MAY WRITE
+- Only two files: (1) the brief file itself, and (2) your review log (below). Nothing else in the
+  worktree. No commit, no push, no other git writes; the orchestrator commits.
+- Act 1 goes below a `---` divider at the end of the brief. Update the brief's Status line to say
+  the pass ran (act 1 / act 2 as appropriate); never write "fold-in owed".
+- Wrap prose at ≤ 100 columns, absolute ISO 8601 dates from `date -u`, NZ English. Before
+  finishing each act, run the repo's own gate on the brief, e.g. `python3 "<worktree>/tools/
+  datescan.py" --root "<worktree>" "<brief path>"` (check `--help` for the exact form; also try
+  spellscan/wrapscan if they exist in `tools/`) and fix your own text until clean. Verbatim source
+  text that a gate flags takes an allow marker; never edit a quote.
+- This repo is PUBLIC. Refer to the orchestrator and the drain session by session id only. Never
+  write a session NAME, the name or path of any private repo, any path under the user's home that
+  names a private repo, any estate fact, email address, secret, placeholder token, or child repo
+  name/path (children by count only).
+
+LIVE SYSTEMS
+- Read-only reads of live systems are allowed as the review needs them (principal, 2026-11-09,
+  verbatim: "reads of live systems is fine as needed, Reviews that need writes should be
+  de-priortised"). A read means nothing on the target changes; if a verb's effect is unsure, treat
+  it as a write. NO live writes of any kind; a check that would need one is marked NOT RUN with the
+  reason and what it would have shown.
+- Per the brief: `ccmail`'s sweep runs on every working run, `--status` included, and deletes
+  files: ALWAYS run it with `CCMAIL_DEST` set to a directory under your scratchpad, never against
+  the real cache. Read no mailbox: no real message id, no `--search`. Report route names and
+  booleans only.
+- Allowlist fields before printing anything from a provider or keychain read, since such reads can
+  carry credentials; never dump a user, key, token or certificate object raw; never print a secret
+  or keychain value. Leave no live captures in scratch.
+- Never run an installed tool by bare name from PATH; use the worktree's own copy. Do not run
+  `instruments/ccpdf/setup`. Never mutate the worktree's `tools/` or `instruments/`; probe on
+  scratch copies.
+- Python: use `/usr/bin/python3` for your own scripts where it suffices; the brief notes the repo's
+  tests need the `python3` on PATH (3.10+), so use that only where the brief says. No GUI apps;
+  never `open` anything.
+
+LOAD (the principal's instruction is to keep this 16 GB laptop from crashing; several passes run
+at once)
+- Check `uptime` before heavy lines. Run any test suite or build under `nice -n 10`, one at a
+  time, single process (no parallel runners), foreground with a long timeout. Prefer the targeted
+  tests a finding needs over whole suites.
+
+REVIEW LOG (principal, 2026-11-16: a review's work must be open and checkable once complete)
+- Keep a running work log at ~/.claude/fable-drain/notes/atelier-160-1200-1953.md. It is the one
+  file outside the brief you may write. Commands, files and evidence only.
+- As you work, append: each step you took (the command run, or the file and line range read) and
+  what it showed; each candidate finding with that evidence and the rule or requirement it breaks;
+  each item you checked and found sound, with that evidence; what you left out and why. Enough
+  detail that someone else could repeat the steps and reach the same verdict. If you are
+  interrupted and resumed, read this log first.
+- No secrets, tokens or live captures in it. The verdict itself goes only in the brief. Act 1
+  entries are written before the sibling is released. It is private while the pass runs and is
+  opened (appended to the brief) at the fold.
+
+HOW TO FINISH
+- Act 1: finish the full phase-1 verdict in the brief per its Process section, run the gates, then
+  end your reply with: the overall verdict line, the tally by severity, the brief path, and the
+  exact words "ACT 1 SAVED". Then stop and wait; do not open the sibling until the orchestrator
+  sends you its path.
+- Act 2 (after the orchestrator's message): read only the one held file it names, then do phase 2
+  per the brief (`### Reconcile`, never revise act-1 text). Do NOT fold the sibling into the brief
+  and do not delete anything: the orchestrator does the fold. End with "ACT 2 SAVED".
+```
+(Transcribed in full; the only edits are `<worktree>` and `<scratchpad>` for the two long
+absolute paths, which appear in the log header above.)
+
+##### Act 1 close, 2026-11-22 ~20:15 UTC
+- Verdict appended to the brief below `---`; Status line updated to RUN / act 1 written.
+- Findings: CCR1 MAJOR (CCMAIL_DEST swept; man page says a chosen dest is never swept), CCR2
+  MODERATE (stale "stores nothing"/"your own mailbox" wording at ccmail:39,235,394,1422 and ADR
+  0006:165,202,210), CCR3 MODERATE (installed pdftoppm dated 2026-09-09, budget not deployed),
+  CCR4 minor (identical re-fetch does not renew), CCR5 minor (search/list print sender headers
+  raw), CCR6 minor (0700/0600 credited against a same-user adversary), CCR7 minor (standing
+  requirement + "operator's ruling" go past the pick), CCR8 note (idle vs request timeout; test
+  env inherits XDG_CACHE_HOME/CCMAIL_DEST; `/` refusal untestable). Overall FAIL.
+- Gates on the brief: datescan exit 0 clean; reviewscan exit 0 (deferred material kept out);
+  spellscan exit 0 on a scratch copy (the repo ignores docs/reviews); wrapscan ignores
+  docs/reviews, so a character-count check was run by hand: all act-1 prose lines <= 100.
+- Scratch cleaned: probes, fixtures, the scratch renderer, captured diffs and run logs deleted.
+- No git write. `git status --short`: the brief modified; the sibling's removal (pre-existing).
+
+#### Act 2 (released by the orchestrator after local commit 00b8e4b5)
+- Read the held sibling:
+  ~/.claude/fable-held/atelier--2026-11-09-0153-ccmail-cache-and-recorded-reach-cold.deferred.md
+  (31 lines): pointer's two questions (sweep reach outside its cache; threat-table completeness),
+  3 brief-writer questions (limits pinned by tests; rmSync vs a swapped-in symlink; whether the
+  stated reach holds for the identity the cloud login carries, checkable read-only), 2 held facts
+  (sweep on every run incl. --status; registry entry owed outside the repo), re-run results at
+  457615cc (62 tests then; 67 at HEAD because --headers added 5).
+- Opening the barred records: commit body of c23fb6f1, the queue pointer, intent record 210/130,
+  prior verdict docs/reviews/2026-09-25-0715-ccmail-build-cold.md.
+- Read: `git log -1 --format=%B c23fb6f1` (the body: the pick, CC ids one line each, "Future
+  credential-holding instruments must state that line", "tests pin it" for four roots; silent on
+  CCMAIL_DEST); the queue pointer (claim block discloses the orchestrator shape); intent record
+  210/130 (the 💬 answer line names "private permissions and a 30-day expiry" as the option's
+  text; CC10 overtaken; CC1(iii) not built); prior verdict lines 359-415 (CC1-CC4), 449-468
+  (CC9, CC10), 593-603 (reconcile on CC1, CC2). docs/sessions/ not opened (not needed).
+- Reconcile written beneath the act-1 verdict; no act-1 text revised; no finding formed at
+  reconcile. Key links: CCR7(a) traces to the prior CC1 "recurrence prevention", which named the
+  controls list; CCR2 strengthened by the prior reconcile's quoted sentence surviving at
+  ccmail:395-396; CCR3 is the same class as the prior CC10 (owed operator step left undone).
+  Sibling Q2 (rmSync race) answered by reading cacheHygiene: deletion addressed by the resolved
+  path under the resolved root; no finding. Sibling Q3 (reach of the real identity) NOT RUN:
+  not readable from the repo; an admin-API read would print estate facts and no finding needed it.
+- Status line updated: act 2 written, verdict unchanged. Gates re-run (see the verdict's own
+  text for results). Scratch left empty. No git write; the sibling untouched (orchestrator folds).
