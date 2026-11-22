@@ -18,6 +18,8 @@
       headless sessions in atelier: the hook fired and found the name
       (`atelier-9c`, `atelier-e9`); with the first wording the model answered
       "Say OK." with only "OK", so the ask was firmed to "before any other
-      text", and the second probe opened with the line. Not yet seen: whether
-      the VS Code panel shows the `systemMessage` itself; the model's first
-      line covers it either way.
+      text", and the second probe opened with the line. Seen by the principal
+      the same day (a screenshot of a fresh VS Code session, `atelier-c3`):
+      the model's first line carried both ids; the panel showed no separate
+      `systemMessage` line. So in VS Code the model's line is the one that
+      shows, and it does.
