@@ -1,9 +1,9 @@
 # Cold pass — the evidence-window rule, the check declaration standard, the pre-flip settings gate, and the pinned review bound
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1300-rule-4-cold-pass-queued-evidence-window-declaration-settings-gate.md`
-**Status:** BRIEF ONLY, not run. Written 2026-11-14 UTC by a headless Opus 5.5 brief-writer
-(`cclive` lists it as session `fef270f6`). Queued, waiting on the principal's explicit approval of
-Fable work; this brief is not that approval.
+**Status:** ACT 1 WRITTEN 2026-11-22 UTC (PASS-WITH-FINDINGS, 0 MAJOR, 3 MODERATE); act 2
+owed. Brief written 2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as
+session `fef270f6`); run 2026-11-22 UTC by a Fable 5.1 reviewer under the 2026-11-23 drain order.
 
 **Pass type:** doctrine cold pass, per `docs/method/REVIEW.md` rule 4 (self-authored doctrine and a
 design every check will be built to).
@@ -325,3 +325,295 @@ restated. Never revise act-1 text. Then fold the sibling in below the reconcile 
 The work is self-authored doctrine and a design others will build to, so every finding is the
 principal's to decide (rule 3): record all, apply nothing. Counsel per finding is welcome, labelled
 as counsel and kept beneath it.
+
+---
+
+## Verdict — act 1 (cold pass, 2026-11-22 UTC)
+
+**Status of this pass:** act 1 written 2026-11-22 UTC; act 2 (reconcile) owed; fold by the
+orchestrator.
+
+### Provenance (rule 4, V7)
+
+- **Reviewer:** Fable 5.1 (`claude-fable-5-1`), the principal-named review tier, checked at
+  selection. The reviewer alone read the delta, answered the lenses, formed every finding and
+  assigned every severity below.
+- **Spawn:** a headless per-pass orchestrator, session `3715b04c` (Opus 5.5), itself started by
+  the drain session `eca14b23` (Opus 5.5), under the principal's drain order of 2026-11-23 NZDT
+  (verbatim: *"Start a fable drain or whatever it is called now. Target 100% of weekly budget by
+  11.30am NZT todat"*). Both are rule-4 off-tier orchestrators, disclosed here before the
+  findings: they hold the context partition, form no finding and write no severity. Neither
+  wrote the brief or any of the delta. Neither the reviewer nor either orchestrator was started
+  or instructed by the barred sessions `fef270f6`, `58027096` or `d0ca5d24`, and no contact with
+  the author came after the spawn.
+- **Orchestrator direction received** (process only, summarised; no question about the delta, no
+  pointer to risk): the worktree and brief paths; read the brief and `REVIEW.md`; run commands
+  with absolute paths; the partition (the `.deferred.md` sibling removed from the tree, not to be
+  recovered from history or other checkouts; rule-2 material barred until act 2); live systems
+  read-only with field allowlists; `nice`, one suite at a time, single process; write only this
+  file and a private running log; act-1 verdict shape as the brief lists it; stop after act 1 and
+  wait for the release message.
+- **Worktree:** a review worktree of this repository at `4613ca76`, detached, holding the delta
+  (`git merge-base --is-ancestor dd3d60d4 HEAD` → exit 0). Read-only to the reviewer except this
+  file. Its only working-tree change is the sibling's deletion, which is the partition.
+- **What was read, in order:** this brief whole; `docs/method/REVIEW.md` (rules 1–4, lenses,
+  V1–V7, lifecycle, the method-record ruling, the macro/micro list); the four acceptance-test
+  `sed` ranges exactly as given; the delta body-free (`tools/coldsweep.py --commit dd3d60d4`,
+  exit 0, 7 files, 366+/3−); the three later `GUARDS.md` hunks body-free; the author's deferral
+  item `260/130` by `--path` (disclosed: a board file); `GUARDS.md`, `AUTONOMY.md`, `REVIEW.md`,
+  `REPO-STANDARD.md`, the design note and `CHANGELOG.md` at HEAD; `tools/floor.py` and the
+  sixteen tools and test modules at a scratch checkout of `dd3d60d4` (removed before this was
+  written); `tools/floor.py`, `tools/README.md` § flipcheck and `tools/flipcheck.py`'s docstring
+  at HEAD (step-0-class evidence of what was built after the delta, disclosed); board items
+  `260/110` and the `docs/method/census/` rows the sweep surfaced; GitHub's plans page and the
+  Actions-permissions REST reference, read-only. **Not read:** the session log, any prior verdict,
+  the sibling, any commit body, any `160/` item beyond its title, the four records past their
+  `sed` ranges. The onramp's board index and commit subjects were met; none read as the author's
+  account.
+- **Pinned bound:** the pointer's "the commit that closes `115/010`, on `main`" is pinned to
+  **`dd3d60d4`** (one commit), as the brief pins it; the pin is recorded here as the scope. The
+  delta is also judged as it stands at HEAD `4613ca76`.
+
+### Per-lens answers
+
+**Lens 1 — approach and assumptions.** A window test is the right gate on building a check: it
+asks the one question that the recorded build failures could have answered before code (the
+three worked cases hold against the tools, LA3). Its weak joint is the carve-out: *"a check that
+only warns does not enforce, so this rule does not bar it"* keeps the rule only while the check
+stays warn-only, and nothing — in the doctrine, the design or the built reader — re-asks the
+question when a warn becomes a block (EW1). A declaration on the registry entry is the right
+home (the principal ruled the slot, 2026-08-23), five fields are a defensible set, and warn-first
+is the posture his earlier words set for new checks; "on every check now" is met in form by
+step 0. A doctrine checklist is a first step for a pre-flip settings gate, and the delta says so
+by filing the tool; but the list is the child's five findings carried over, with no enumeration
+of what a flip exposes, so it cannot say whether it is complete (EW3). Pinning to a fixed SHA
+fixes the reviewed delta and only freezes the bound; later edits to the same surfaces depend on
+each queuing its own pointer, which the sentence does not say (EW6).
+
+**Lens 2 — correctness and quality.** The claims hold against the tree with these exceptions:
+two census cells are contradicted by the test module they describe and the ❌ propagated into
+step 0 (EW2); the "private on the free plan" cause bundles a plan-gated setting with a
+visibility-gated one (EW5); the design note's *Not decided here* and *Status* are stale at HEAD
+(EW4, EW9). Nothing is stated as his ruling that was not given: the two answers are quoted and
+labelled answers, and the "enforce" reading is owned as the doc's. The census's "best meet three
+of five" is a reader's count the machine reads as 2/5 (EW7).
+
+**Lens 3 — completeness and harvest.** Mirror sites: `REPO-STANDARD.md` points at the gate (one
+home, V4 kept); `REVIEW.md` rule 4 carries the sentence; the census docs of 2026-11-16 index all
+four as rows (GRD7, GRD9, AUT8, REV16). No skill, command or template restates the gate, the
+window rule or the declaration standard, so there was nothing to sweep (V3 discharged); the
+create-repo skill and the `CLAUDE.md` template carry only the visibility fact. Checks outside the
+registry the rule reaches are named by the design (group E) and the three checks added since
+arrived with a `Declares` (`floor.py --list` shows `decl n/5` on all 19). Settings the gate
+should read and does not: EW3.
+
+**Lens 4 — security and privacy.** `/security-review` cannot reach this delta: markdown is
+excluded by that scanner, so its clean pass is empty and is weighed as nothing. The gate is a
+publication control and its design enumerates no threats; the live reads against this repo show
+exposure- and protection-bearing settings it does not read (EW3). The reads it names need the
+`repo` scope and, for Actions permissions, repository admin, which a session that can flip a
+repo already holds; the recorded values (policy words, ruleset names, booleans) carry no secret
+and may sit in a public record. The delta names the child by type only ("the first child's
+post-flip review", "the networking case"): nothing a public record should describe by type is
+named. Reads for this pass printed allowlisted fields only.
+
+### V1–V7
+
+- **V1.** Mostly held; three overclaims, each small: the free-plan cause (EW5), the design note's
+  Status at HEAD (EW9), and the census legend not matching its marks (EW2).
+- **V2.** Every line of the re-run list re-run (ledger below); all reproduce. The implied proof
+  "the endpoints were read live" re-checked: all seven answered on 2026-11-22.
+- **V3.** Discharged with grounds: no restatement surface outside `docs/` exists for these four
+  rules (sweep and grep of `skills/`, `commands/`, `docs/build/templates/`).
+- **V4.** Kept: `REPO-STANDARD.md` points, does not copy. One drift: the open allow-marker
+  question is now answered in `GUARDS.md` and still open in the design note (EW4).
+- **V5.** Two contradictions at HEAD, both time-made: EW4 and EW9. Cross-references checked for
+  the rule reached: the design note's link to `GUARDS.md` § *What every check declares* reaches
+  that section; `REPO-STANDARD.md`'s pointer reaches the gate bullet in § Always confirm;
+  `GUARDS.md`'s link to the design note resolves.
+- **V6.** Run as lens 4; EW3 is its finding.
+- **V7.** Provenance stated in the brief and repeated above.
+
+### Load-bearing assumptions — damaged or confirmed
+
+- **LA1 — part-confirmed, not probed to the count.** The three worked cases match the tools; the
+  counter-case shape is the right negation of the predicate. The divergence count the grounds
+  rest on lives in `115/010` past line 33 and in `docs/reviews/`, both barred until act 2; the
+  delta itself says "not re-measured here" (honest, V1). Re-measured at reconcile.
+- **LA2 — damaged (EW1).** Probe: `floor.py` at HEAD checks `Window.fits` for membership only
+  (line 3313); `WINDOW_FITS` has no tie to `warn_only`; three checks carry `outside-warn-only`;
+  the indexscan and pathscan registry comments call the flip to blocking "one visible argument
+  and a separate ruling" and name no re-run of the window questions; `GUARDS.md` and the design
+  note contain no such sentence (grep). A check can be declared warn-only, pass the gate, and
+  later block on a context it cannot see with the gate never asked again.
+- **LA3 — confirmed.** `datescan.py` lines 7 and 121–124 (the third clause "NOT mechanically
+  checked", intent unseen); `harvestscan.py` lines 40–70 (the widening measured by `--replay`,
+  two folds); `floor.py` line 163 (`flags` → `leakscan --disable ipv4` with its `why`);
+  `pointerscan` registry `warn_only=True`, "judgement-adjacent text"; `harvestscan` registry
+  "cannot ground its constant".
+- **LA4 — damaged in two cells (EW2); otherwise confirmed.** All four ✅ replays exist at
+  `dd3d60d4` (`test_publishscan.py:43`, `test_pointerscan.py:106`, `test_board.py:758`,
+  `test_indexscan.py:242`); the two posture ✅ are declared in registry comments (`floor.py`
+  lines 626–648, 833–835) and nowhere else carries either word; the 16 `why` strings cite no
+  document. `test_licenscan.py` lines 100–108 hold a firing test tied to a named review finding.
+- **LA5 — confirmed with one gap.** `_load_declares` (HEAD lines 1808–1840) returns `None` on
+  any shape error, never a `ConfigError`. Warn-only checks fit as `outside-warn-only`. A
+  marker-carrying check has no `fits` value of its own: after the 2026-11-12 answer a reasoned
+  marker brings the context inside, so it reads `inside`, and `leakscan`'s HEAD window text
+  still waits on the question (EW4, note).
+- **LA6 — damaged in part (EW3).** Each of the five settings answers by the named endpoint
+  (seven GETs, 2026-11-22). The settings it names are some of those through which a flip exposes
+  a repo, not all: read-only GETs on this public repo returned `has_issues: true`,
+  `has_projects: true`, `allow_forking: true`, `secret_scanning: disabled`,
+  `push_protection: disabled`, and the wiki, pages and discussions off.
+- **LA7 — half damaged (EW5).** Branch protection: GitHub's plans page lists "Protected branches"
+  under Pro and Team as a private-repository feature and not under Free, so on Free it is
+  public-only (holds). Fork-PR approval: the private-repository counterpart is a different
+  endpoint, which answered HTTP 422 "not allowed for public repositories" on this repo, and the
+  approval endpoint is documented for public forks: it is unavailable on a private repo on every
+  plan. Both halves make the window unavoidable; the stated cause is wrong for one. Could not be
+  tested by a flip or any write (NOT RUN, by the brief). Rulesets: the docs name Team and
+  Enterprise, yet this Free public repo has an active ruleset, so platform docs and reads
+  disagree; the delta's "One flip's observation" is the right hedge.
+- **LA8 — confirmed as far as it goes (EW6).** `git rev-list --count dd3d60d4..2c1f0296` = 58;
+  17 of them touched the delta's paths. The pin restores the queued delta exactly. What it does
+  not do is say that later commits on the same surfaces are reviewed only by their own pointers;
+  `pointerscan` has no handling of a symbolic bound (grep empty; part (b) open, as the delta
+  says).
+- **LA9 — confirmed.** *"Everything, on every check now"* was put to him with `115/010` and
+  `115/120` together (both items record it); it licenses landing both as doctrine with the
+  cost named. `260/070` adds a stop to the always-confirm floor, a narrowing: `AUTONOMY.md`
+  (lines 120–124) requires his words to *widen* authority, not to add a stop, so no word of his
+  was owed; `320/420`(a) writes down the practice the one instance used. Both are self-authored
+  doctrine and are reviewed by this pass, which is the rule-4 answer.
+
+### Per-claim ledger
+
+| Claim (as extracted in the brief) | Result |
+|---|---|
+| Evidence-window predicate; three questions; a failing check "is not built" | Holds; carve-out gap EW1 |
+| Each outcome has a real case (`datescan`, `harvestscan`, `flags`) | Holds (LA3) |
+| Warn-only does not enforce; the reading is the doc's, not his | Honest; gap EW1 |
+| "It can be shown wrong"; grounds not re-measured; one counter-case | Holds as stated; LA1 deferred |
+| Applies to existing checks; a failure is a finding, never a revert | Holds; consistent with GRD2 |
+| Adopted on the 2026-11-09 answer; wording from `115/010` | Holds (acceptance test) |
+| Five fields in one declaration; none goes red or is unwired | Holds; built so (step 0) |
+| Citation is not catch; a replay fails when the check stops firing | Holds; GRD10 says the tool checks resolve only |
+| Schema; grammars; machine/reviewer split; malformed → missing | Holds (LA5) |
+| Step 0 one lane, then groups A–D, then E | Holds; E's new checks carry `Declares` |
+| All 16 fail; best meet three of five; 56 of 80 owed; per-check table | Two cells wrong (EW2); counts differ from the tool's (EW7) |
+| `why` strings cite nothing in any of the 16 | Holds |
+| "7 of 15" and "at least four" re-read | Holds as stated |
+| Gate reads five settings by named endpoints; unruled value in front | Endpoints answer; list un-enumerated (EW3) |
+| Branch protection and fork-PR approval unavailable on private free plan | Half right (EW5) |
+| Rule 4: taker pins a moving bound; one case grew four commits | Holds; silent on later commits (EW6) |
+| Changelog: doctrine and one design note, no tool changes | Holds at the commit |
+| Design note Status "nothing built and no check changed" | False at HEAD since 2026-11-10 (EW9) |
+
+### Findings
+
+- **EW1 — MODERATE — the warn-only carve-out has no re-entry.** `GUARDS.md` § *Before building
+  a check* exempts a check that only warns, and neither that section, the design note nor the
+  built reader re-runs the three questions when a warn-only check moves to blocking.
+  `Window.fits = "outside-warn-only"` is a terminal value (`floor.py` line 3313 tests membership
+  only; three checks carry it at HEAD); the registry comments make the flip to blocking "one
+  visible argument and a separate ruling" with no window re-check named. So a check can be
+  declared warn-only, pass the gate, and later block on a rule whose licensing context it cannot
+  see, which is what the rule exists to refuse. *Counsel:* one sentence in the section — a move
+  from warn to block re-asks the three questions and rewrites `fits` — and a `test_floor.py` pin
+  that a non-`warn_only` check may not carry `outside-warn-only`.
+- **EW2 — MODERATE — two census cells contradict the tests, and the ❌ propagated.** `licenscan`
+  *Incident and replay* ❌: `tools/test_licenscan.py::test_only_suffix_header_still_blocks`
+  ("the end-to-end teeth for B2": a GPL-2.0-only header in a permissive repo must block) is a
+  firing test tied to a named review finding, and the schema's own `Grounding.incident` grammar
+  admits "a verdict path", so the legend gives 🟡 at least. `licenscan` *Rule* ❌: its docstring
+  cites `115/290` (ruled 2026-10-16) and `AUTONOMY`'s making-public floor; the legend's 🟡 is
+  "names a document, a board item or a review with no section". Step 0 wrote both as
+  `Unmet("no incident named")` and `Unmet("no rule text cited")` (`floor.py` lines 1281–1287 at
+  HEAD). The root is the legend: its 🟡 wording does not say the citation must be *of the rule
+  served* or the incident *of the defect class*, so the ❌ cells for `publishscan` and
+  `licenscan` (Rule) and `spellscan`, `wrapscan`, `licenscan` (Incident) cannot be re-derived
+  from it; for `spellscan` and `wrapscan` the tests name exemption findings (SS1, SS3, WS2,
+  WS4), so ❌ is right on the standard's definition and wrong on the legend's words. *Counsel:*
+  restate the legend (a citation *of the rule the check serves*; an incident *of the defect
+  class the check exists to catch*), re-mark `licenscan`, and let "56 of 80" move.
+- **EW3 — MODERATE — the settings gate enumerates no threats, and misses settings a flip
+  changes.** The five settings are the child's P5 findings carried over; `REVIEW.md` lens 4
+  makes threat enumeration a first-class design step and its absence the finding. Read-only
+  GETs against this repo on 2026-11-22 returned settings the gate does not read: secret
+  scanning and push protection both `disabled` (free on public repos, so a flip is the moment
+  they become available and are missed), `has_issues: true` (the inbound surface `publishscan`'s
+  F1 grounding names), `has_projects: true`, `allow_forking: true`, and `has_pages`,
+  `has_discussions` (off here; each a publication or inbound surface), plus deploy keys,
+  webhooks and Actions secrets (0, 0, 0 here), which `AUTONOMY.md` already names as "new trust
+  surfaces". `flipcheck.py` reads the same five. The bullet "The gate reads the platform's
+  settings, not only the tree" reads as complete. This is the finding nearest MAJOR: the brief's
+  worst failure is a setting published unexamined. *Counsel:* a short enumeration in the design
+  (content planes: wiki, pages; inbound: issues, discussions, fork PRs and their workflows;
+  trust: keys, hooks, secrets, apps; protection: rulesets, push protection), the read list
+  derived from it, and the "no house value" rule applied per setting.
+- **EW4 — minor — the allow-marker question is answered in one home and open in another.**
+  `GUARDS.md` at HEAD (2a6d7a41) records the 2026-11-12 answer; the design note, untouched since
+  landing, still says *Not decided here: whether an allow-marker brings a licensing context inside
+  the window* and that group A "cannot finish without it"; `leakscan`'s HEAD window text still
+  waits on it. *Counsel:* one line in the design note pointing at the answer; the registry text
+  is `160/1430`'s.
+- **EW5 — minor — one cause for two differently gated settings.** "Branch protection and fork-PR
+  approval cannot be set while a repo is private on the free plan": branch protection is
+  plan-gated (public-only on Free), fork-PR approval is visibility-gated on every plan (its
+  private counterpart is a different endpoint; HTTP 422 on this public repo). The hardening step
+  after a flip is the same, so the rule's effect stands; the stated cause is half wrong, and the
+  design-note deferral item repeats it. *Counsel:* "cannot be set on a private repository (fork-PR
+  approval, any plan; branch protection, on the free plan)".
+- **EW6 — minor — the pin freezes the bound and says nothing about what it leaves out.** The
+  rule-4 sentence restores the queued delta (58 commits, 17 on the delta's paths, would have
+  been swept by a literal `..HEAD` at the brief-writer's HEAD) but is silent that later commits on
+  the same surfaces are reviewed only by their own pointers, which landing = queuing requires and
+  nothing checks (part (b) open). A taker could read the pin as closing them. *Counsel:* one
+  clause: "later commits on the same surfaces stay with their own pointers".
+- **EW7 — note — two counts of one thing.** The census's "the best meet three of five" is the
+  reader's count; `floor.py --declarations` at HEAD reads the best at 2/5 and "0 meet all five",
+  because the machine says only `resolves` for Rule. The design says the machine says less, so
+  this is not a contradiction, but the totals will be compared. *Counsel:* one sentence in the
+  census saying the tool's `n/5` reads lower by design.
+- **EW8 — note — LA1 deferred.** The divergence count behind "It can be shown wrong" is in
+  barred material; the delta says "not re-measured here". Re-measured at reconcile.
+- **EW9 — minor — the design note's Status is stale at HEAD.** Its header reads "proposed (design
+  only; nothing built and no check changed)" and the decisions index says "design only", while
+  step 0 landed 2026-11-10 and every registry check carries a `Declares`. `GUARDS.md` was updated
+  for it (ba55be27); the note and the index were not. *Counsel:* a dated Status line and index
+  phrase.
+
+### Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR, 3 MODERATE (EW1, EW2, EW3), 4 minor (EW4, EW5, EW6, EW9),
+2 notes (EW7, EW8).** Every finding is the principal's to decide (rule 3); nothing applied.
+
+### Re-run ledger (V2)
+
+| Line | Result 2026-11-22 UTC |
+|---|---|
+| `git merge-base --is-ancestor dd3d60d4 HEAD` | exit 0 |
+| `coldsweep.py --root . --commit dd3d60d4` | exit 0; 7 files, 366+/3−, body not printed |
+| `floor.py --root . --list` | exit 0; 19 checks, `decl n/5` column present |
+| `floor.py --root . --declarations` | exit 0; "21 checks, 0 meet all five" |
+| `reviewscan.py --root . .` | exit 0; 254 briefs clean |
+| `pointerscan.py --root . .` | exit 0; 877 files, 1162 items |
+| `cd tools && python3 -m unittest …` (three targets) | OK, 114 tests in 38.9 s (brief: 113) |
+| Seven live GETs | all answered; wiki off, PUBLIC, Actions all/read, approval `first_time_contributors`, PVR enabled, one active ruleset, three branch rules |
+
+Each tool was run as `/usr/bin/python3 tools/<x>.py` under `nice`, one at a time. **NOT RUN:**
+any flip or settings write (LA7's "cannot be set" tested from documentation and GETs only).
+
+### Follow-up checklist
+
+- [ ] Principal rules on EW1–EW9 (rule 3); the author may add counsel beneath each.
+- [ ] Act 2: open the sibling and the barred records; re-measure LA1; screen the commit body;
+      append `### Reconcile`.
+- [ ] If EW2 is accepted: re-mark `licenscan`, restate the legend, re-total; step 0's `Unmet`
+      text follows under `160/1430`.
+- [ ] If EW3 is accepted: the enumeration lands in the design note and `AUTONOMY.md`, and
+      `flipcheck.py`'s read list follows under `260/130`.
+- [ ] If EW1 is accepted: the re-ask sentence in `GUARDS.md` and a `test_floor.py` pin.
+- [ ] EW4, EW5, EW9: one-line edits, each a doctrine or design-note edit that queues its own
+      pointer.
