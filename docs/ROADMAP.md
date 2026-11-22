@@ -268,7 +268,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🎯 [Rule-4 cold pass queued: attribscan, an attribution to the principal…](roadmap/160-doctrine-review-owed/1330-rule-4-cold-pass-queued-attribscan.md)
 - [ ] 🎯 [Rule-4 cold pass queued: pdlistscan, personal data in a public repo…](roadmap/160-doctrine-review-owed/1340-rule-4-cold-pass-queued-pdlistscan.md)
 - [~] ⏳ [Rule-4 cold pass queued: ccclose names a failed agent as its own…](roadmap/160-doctrine-review-owed/1350-rule-4-cold-pass-queued-ccclose-failed-state.md)
-- [ ] ⏳ [Rule-4 cold pass queued: one helper resolves ../<sibling> from a…](roadmap/160-doctrine-review-owed/1360-rule-4-cold-pass-queued-estate-helper-sibling-resolution.md)
+- [~] ⏳ [Rule-4 cold pass queued: one helper resolves ../<sibling> from a…](roadmap/160-doctrine-review-owed/1360-rule-4-cold-pass-queued-estate-helper-sibling-resolution.md)
 - [ ] 🎯 [Rule-4 cold pass queued: nz-phone passes a bracketed byte field…](roadmap/160-doctrine-review-owed/1370-rule-4-cold-pass-queued-phone-byte-field-rule-spelling.md)
 - [~] ⏳ [Rule-4 cold pass queued: coverage accounting: a scan of nothing no…](roadmap/160-doctrine-review-owed/1380-rule-4-cold-pass-queued-coverage-accounting.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the commit-message plane: a commit-msg hook…](roadmap/160-doctrine-review-owed/1390-rule-4-cold-pass-queued-commit-message-plane.md)

@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: one helper resolves `../<sibling>` from a worktree and from group folders (`320/180`, `320/660`, tools half).** The authoring session (a
+- [~] ⏳ **Rule-4 cold pass queued: one helper resolves `../<sibling>` from a worktree and from group folders (`320/180`, `320/660`, tools half).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -14,3 +14,12 @@
       with its `.deferred.md` sibling. Neither session may run the pass. Review NOT
       run. The pass waits for a criterion-passing cold Fable session and the
       principal's explicit permission for Fable work.
+      🔒 2026-11-22T22:48Z: claimed for the Fable pass by a headless per-pass
+      orchestrator, session 5bb9889e (Opus 5.5, rule-4 off-tier orchestrator:
+      it holds the partition and forms no finding), started by drain session
+      eca14b23; the reviewer is a Fable 5.1 subagent, tier checked at
+      selection. Neither is barred by the brief. The approval this item waits
+      for is his drain order of 2026-11-23, verbatim: *"Start a fable drain or
+      whatever it is called now. Target 100% of weekly budget by 11.30am NZT
+      todat"*. The held-back sibling is partitioned out of the review tree
+      until act 1 is committed.
