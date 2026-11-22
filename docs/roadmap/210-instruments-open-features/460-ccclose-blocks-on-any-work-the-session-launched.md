@@ -1,4 +1,4 @@
-- [ ] 🔥 **`ccclose` must block a close while anything the session launched
+- [~] 🔥 **`ccclose` must block a close while anything the session launched
       is still running, not only its subagents.** A hand-up from a private
       child, 2026-11-22. The principal's ruling, verbatim: *"Any work started
       by a session including sub agents, background tasks, sessions spawned or
@@ -50,3 +50,4 @@
       for each leg. Any doctrine sentence that says close waits for agents
       (`CONCURRENCY.md` § *Orchestrated queue runs*, `RECORD.md` close-out)
       widens to "anything the session launched".
+      *(claimed 2026-11-22-0248 UTC, session 12a41aa2, wt: atelier-ccclose-460-480; the principal: "Build both now (Recommended)")*

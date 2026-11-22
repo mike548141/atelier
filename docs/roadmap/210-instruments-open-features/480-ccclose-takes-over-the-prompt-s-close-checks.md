@@ -1,4 +1,4 @@
-- [ ] 🎯 **`ccclose` takes over the close checks the session-open prompt still
+- [~] 🎯 **`ccclose` takes over the close checks the session-open prompt still
       asks for in words.** The principal, 2026-11-22, verbatim: *"I want you to
       look at everything in the lastest version of the prompt in
       session-open-prompt.md and look at what would be more effectively built
@@ -40,3 +40,4 @@
       it says ready, answer what it lists, then summarise and walk me
       through": his text, so only on his words. A rule-4 cold pass is owed on
       the build (Fable, on his approval).
+      *(claimed 2026-11-22-0248 UTC, session 12a41aa2, wt: atelier-ccclose-460-480; the principal: "Build both now (Recommended)")*
