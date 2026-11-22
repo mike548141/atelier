@@ -1,10 +1,11 @@
 # Cold pass — a voided allow-marker is noted, and a review file's header lines warn
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1310-rule-4-cold-pass-queued-voided-marker-note-review-header.md`
-**Status:** ACT 1 WRITTEN 2026-11-22 UTC by a Fable 5.1 cold reviewer (drain session `eca14b23`,
-per-pass orchestrator `1cdcd5c7`): PASS-WITH-FINDINGS, 0 MAJOR, 3 MODERATE, 2 minor, 1 note.
-Act 2 (reconcile against the sibling) pending. Brief written 2026-11-14 UTC by a headless Opus 5.5
-brief-writer (`cclive` lists it as session `64377cac`).
+**Status:** VERDICT COMPLETE 2026-11-22 UTC, both acts, by a Fable 5.1 cold reviewer (drain
+session `eca14b23`, per-pass orchestrator `1cdcd5c7`): PASS-WITH-FINDINGS, 0 MAJOR, 3 MODERATE,
+2 minor, 1 note; the reconcile changed no severity. Findings await the principal's decision
+(rule 3). Brief written 2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as
+session `64377cac`).
 
 **Pass type:** code cold pass per `docs/method/REVIEW.md` rule 4: shared guard code that every
 child repo's floor runs, and doctrine text (the review-brief skill, the reviews template,
@@ -258,8 +259,8 @@ after the reviewer's phase-1 findings are committed -->
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, the queue pointer above, this brief's sibling
-`docs/reviews/2026-11-14-0225-voided-marker-note-review-header-cold.deferred.md`, the delta
-commits' message bodies, and the two intent records whole:
+`docs/reviews/2026-11-14-0225-voided-marker-note-review-header-cold.deferred.md` (now folded below), the
+delta commits' message bodies, and the two intent records whole:
 `docs/roadmap/110-estate-duplication-exception-audit-mike/010-make-a-voided-allowance-visible.md`
 and `docs/roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md`.
 Both carry the author's landing account and probe figures under the proposal, and reading is
@@ -648,3 +649,326 @@ count grew by twenty.
       waits more than a week are stale on arrival; the taker re-derives both, as here.
 
 Act 1 ends here. Act 2 follows as `### Reconcile` once the sibling is released.
+
+### Reconcile — act 2, 2026-11-22 UTC
+
+Opened after act 1 was committed (`3dd15f49`, this file only, unrevised), on the orchestrator's
+release message, verbatim: *"Act 1 is committed (3dd15f49, brief file only, unrevised). Act 2 may
+now begin. You may now read the held sibling, this one file: … plus the records the brief opens at
+phase 2 (the barred intent records, queue pointer, the delta commits' message bodies, prior
+verdicts as the brief allows). … Do NOT fold the sibling in or delete anything: the orchestrator
+does the fold."* Process only; it carried no question about the delta. Read, in this order: the
+held sibling (one file, from the orchestrator's holding directory, outside every worktree); the
+intent records `110/010` and `320/440` whole; the queue pointer `160/1310`; the message bodies of
+`55c7d409`, `aca05c14`, `1c6fb376`, `b2da72ea`, `a78ee8b0` and `2b8bcd92`. The brief names no
+prior verdict, so none was opened. Act-1 text above is unchanged.
+
+**What the sibling and the author's account add, in brief.** The author probed leakscan,
+secretscan and reviewscan old-against-new across 30 local repositories (exit code and stdout
+*length* identical everywhere); after the word-end tightening the note fired in two repos, four
+times in this repo's own tooling source and once in one child's secretscan run, every one a
+mention. For the header half, with the boundary pushed back for a count only, 736 of 738 review
+files across 17 repos lacked a `board:` line and 480 a dated `Status:`, which is why the boundary
+is forward-looking. `320/440` is kept open on purpose for blocking, with a probe plan: count the
+review files dated on or after the boundary that lack the lines, per child, and read what the
+warning has caught; if it catches nothing, close as warn-only. The queue pointer's two questions
+(can the note fire on a working marker; can a backdated file escape) were already in the brief as
+A1 and A5, so the pointer added no framing I had not met.
+
+**Per finding, against the sibling and the author's account.**
+
+- **VH1 (MODERATE, glued secret) — stands, unchanged.** Neither the sibling nor either landing
+  note considers a secret glued to the marker; the commit body repeats the claim ("shows the marker
+  head, never the line"). `2b8bcd92`'s body says the note "names" a scope with no reason, which is
+  the shape that echoes a token written as the scope; that pass (`160/1550`) should carry VH1
+  forward.
+- **VH2 (MODERATE, no locator or machine surface) — stands, sharpened by the account.** The author
+  states the limit and the reason: printing beside the finding "would mean changing each
+  scanner's render path (15 sites), which was not done". The reason is a cost, not a constraint,
+  and the author's own probe shows the cost of the omission: the five notes it found could be
+  called mentions only because the author went and looked; a child's CI reader cannot. The
+  account also measures the mention noise at "a few stderr lines", which on this repo is now six
+  per run (VH5) and will rise as fixtures are added. The sibling's question 2 (is stderr passed
+  through?) is answered in A7: yes on the hook, inside a collapsed group in CI.
+- **VH3 (MODERATE, filename boundary; bears on blocking) — stands, and now bears on the author's
+  own probe plan.** `320/440`'s plan for the blocking decision counts "review files dated on or
+  after the boundary that lack the lines". That count inherits the blind spot: an undated or
+  backdated file is neither counted nor warned, so the probe can read "the warning caught
+  nothing" while non-conforming files pass unseen. The sibling's question 5 (a good-faith
+  backdated name) is the house's own convention: a file is named for its start time, so a brief
+  begun before 2026-11-10 and finished after it is out of scope by design, and nothing catches a
+  name that does not match `RECORD_NAME` at all. The close rule "if the warning catches nothing,
+  close as warn-only" also conflates two things the fixture separates: a check that catches
+  nothing because the template is doing the work (this repo's 254 briefs, all compliant), and a
+  check that catches nothing because the miss is out of its scope.
+- **VH4 (minor, reader tolerances) — stands; one sub-point sharpened at reconcile.** The sibling's
+  question 4 asks whether `Board:` should check that the named item file exists. It is cheap on
+  the disk plane (`root / value` exists) and matches the proposal's aim, a pointer a reader can
+  follow; on the staged plane the target may be in the same commit, so the index would have to be
+  consulted. Added to VH4(d)'s counsel as an option, formed at reconcile, severity unchanged.
+- **VH5 (minor, CI visibility and six false notes) — stands.** The author's probe found four
+  mention notes in this repo on 2026-11-09 (two scanners); the floor now prints six (conflictscan
+  joined), all from `tools/`'s own fixtures and regex sources. The account calls this the
+  `160/480` AM3 residual; it is, and it is also the noise the brief warned about, on the repo whose
+  sessions write the doctrine.
+- **VH6 (note, six homes) — stands.** Not addressed by the sibling or the account.
+
+**The sibling's questions, answered.** (1) No scanner reads one line with two patterns for one
+word: all eighteen definitions are one pattern per scanner, and the two scanners with two call
+sites (`namescan`, `stampscan`) use one pattern each. The sibling's premise is also wrong on one
+point: a `conflictscan:allow:<kind>: <reason>` line read by the unscoped conflictscan pattern is
+*accepted*, not noted, because the reason may start with any word character and so begins at
+`<kind>` (A1, "unscoped pattern meets scoped marker of own word"). (2) Answered above and in A7.
+(3) Both: the check is proven on real misses in fixtures (the bare staged file drew the stanza on
+both planes); in this repo the template is doing the work, which is the check working, and the
+close rule in `320/440` should not read it as the check being useless. (4) Folded into VH4.
+(5) Folded into VH3.
+
+**Corrections to act 1 formed at reconcile:** none to its findings or severities. One count: the
+author's "15 reader call sites" is 20 at HEAD across 17 scanners (attribscan, namescan and
+quotescan joined the shared readers after the landing); immaterial to any finding.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE (VH1, VH2, VH3) · 2 minor (VH4,
+VH5) · 1 note (VH6).** The findings are the principal's to decide (rule 3); the author applies
+nothing on its own. The sibling is folded in below by the orchestrator, not by me.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+*Released to the reviewer only after its act-1 findings were committed (locally `3dd15f49`, the hash
+the reviewer's text cites; it lands rebased with this fold); folded here verbatim (headings demoted
+two levels, 0 line(s) over 100 columns wrapped at word boundaries, no word changed) and the sibling
+file removed, per the brief. The orchestrator, headless Opus 5.5 session `1cdcd5c7` started by drain
+session `eca14b23`, held the partition, formed no finding and wrote no severity; drain session
+`eca14b23` wrote no brief and no delta and started no brief-writer for this pass.*
+
+### Held back — do not open before your findings are durably written
+
+Sibling of `docs/reviews/2026-11-14-0225-voided-marker-note-review-header-cold.md` (`REVIEW.md`
+rule 1). Written 2026-11-14 UTC by the brief-writer (`cclive` lists it as session `64377cac`),
+which authored none of the delta. Open this only after act 1 is committed. Everything here is a
+floor, never a fence, and none of it is a finding: the brief-writer read the code once and probed
+none of these past what the brief's re-run list records.
+
+#### What the barred intent records say, in brief
+
+- `110/010` carries the author's landing note (2026-11-09, queue run `d0ca5d24`): the note covers
+  15 reader call sites with no scanner file changed; an old-against-new probe of `leakscan` and
+  `secretscan` in each of 30 local repositories, one at a time under `nice`, found exit code and
+  stdout length identical everywhere. After a tightening (the word must end at a colon, a space or
+  the line's end) the note fired in 2 repos: twice per scanner in atelier's own tooling source and
+  once in one child's `secretscan` run, every one a mention, none a genuinely voided marker. Its
+  conclusion: the estate held no voided marker of that shape on that date. It states the same
+  limits the brief extracts (stderr, not the finding line; fires on any line a reader is asked
+  about; a prose mention outside a code span is noted, the residual `160/480` AM3 names).
+- `320/440` carries the author's landing note: proposal items 1 and 2 built warn-only, 3 and 4 not
+  built by design; the same 30-repo probe found exit code and stdout length identical (no review
+  file was dated on or after the boundary then). With the boundary pushed back for a count only,
+  736 of 738 review files across 17 repos had no `board:` line and 480 had no dated `Status:` line.
+  The item stays open on purpose for blocking, which "needs its own date and a fleet probe at that
+  date"; if the warning is not read or catches nothing by then, it closes as warn-only.
+- Earlier on `320/440`, the child's own measurement of the drift ("one in five") was corrected by
+  the filer the same day to **unmeasured**; the class survived the correction.
+
+#### The brief-writer's own questions
+
+1. **A scoped marker read by an unscoped pattern.** `conflictscan` and `wrapscan` build their
+   pattern with no scope. A line carrying `conflictscan:allow:<kind>: <reason>` allows nothing
+   there and is noted, correctly. But is there any scanner that reads the same line with two
+   patterns for one word (scoped and unscoped), so that the one that does not match notes a line
+   the other honoured?
+2. **The note in CI.** The note goes to stderr. Does `tools/floor.py` (and the pre-commit hook)
+   pass a scanner's stderr through, or keep only its exit code and stdout? If stderr is dropped,
+   the note is invisible exactly where `110/010` said the reader already is.
+3. **Today's briefs are the first in scope.** Every brief named for 2026-11-10 or later is under
+   check 3. On 2026-11-14 at `d3293d93` the scanner printed no `⚠` stanza over this repo, so every
+   such brief carried both lines. Is that the check working, or the template doing the work and
+   the check untested on real misses?
+4. **Any `.md` passes `Board:`.** `_BOARD_PATH` is `\S\.md\b`, so `**Board:** see README.md`
+   passes, as does a path to an item file that does not exist. The docstring says "naming its item
+   file". Is existence worth checking, given the proposal's aim is a pointer a reader can follow?
+5. **The boundary is a filename.** A brief-writer or reviewer that names a file for the day the
+   work was done rather than the day it was written produces a backdated name in good faith. How
+   common is that shape in the house's own naming rule (HHMM from `date -u`), and does anything
+   catch it?
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*Form fixes only: headings demoted two levels; 1 line(s) over 100 columns wrapped at word
+boundaries, no word changed. No public-repo gate blocked a token, so no placeholder was needed.*
+
+### Review log — atelier 160/1310 (voided-marker note + review-header check), Fable 5.1 cold pass
+
+Reviewer: Fable 5.1, spawned by per-pass orchestrator 1cdcd5c7 (Opus 5.5), itself from drain
+session eca14b23 (Opus 5.5). Worktree:
+/Users/mike/worktrees/fable/atelier-160-1310-2246/atelier (read-only except the brief).
+Brief: docs/reviews/2026-11-14-0225-voided-marker-note-review-header-cold.md
+Started 2026-11-22T22:48Z. uptime load 25.65 (many passes running); one heavy process at a time.
+
+#### Method (planned)
+1. Read brief in full; REVIEW.md (verdict shape); 110 section README (not barred).
+2. Confirm delta present (merge-base 55c7d409). List later commits on subject files.
+3. Read landing commit body-free via coldsweep, code first then prose. Read later commits on the
+   subject files body-free.
+4. Read tools/allowmarker.py and tools/reviewscan.py at HEAD whole; reader call sites in scanners.
+5. Lenses: approach, correctness, completeness/harvest, security/privacy.
+6. Probes A1–A7 in scratch; re-run the recorded proofs.
+7. Write act 1 under --- in the brief; run datescan/wrapscan on the brief.
+Barred and NOT opened: .deferred.md sibling (anywhere), docs/ROADMAP-DONE.md, docs/SESSIONS.md,
+docs/sessions/, prior verdicts in docs/reviews/, queue pointer 160/1310, items 110/010 and 320/440,
+commit message bodies.
+
+#### Steps
+- 22:48Z `uptime` -> load 25.65; `date -u` -> Sun Nov 22 22:48 UTC 2026. git status: only the
+  expected deletion of the .deferred.md sibling. HEAD 3e581375.
+- Read brief whole (307 lines).
+- `git merge-base --is-ancestor 55c7d409 HEAD` -> present (nothing printed).
+- `git log --oneline 55c7d409..HEAD -- <subject files>` -> 14 commits (brief listed 3 as of
+  2026-11-14): b68cf410 734930ef a78ee8b0 2f3aed4b 2522f4fe 2b8bcd92 9e0ac28f bc383fb1 aa3409b0
+  aa7746e8 a879c93a b2da72ea 1c6fb376 aca05c14. a78ee8b0 and 2b8bcd92 touch allowmarker.py.
+- grep reader call sites: 20 call sites across 17 scanner files (attribscan, blockscan, datescan,
+  conflictscan, licenscan, linkscan, pointerscan, leakscan, quotescan, reviewscan, pathscan,
+  namescan x2, spellscan, sizescan, stampscan x2, secretscan, wrapscan).
+- /usr/bin/python3 is 3.9.6 (brief-writer used 3.14.6); will check `python3` on PATH too.
+- Read docs/method/REVIEW.md whole (835 lines) for the verdict shape and rules 1-4, V1-V7.
+- Read docs/roadmap/110-.../README.md (not barred): the incident class (9 markers, 3 children,
+  REASON_START `\w` gap, fixed 8276a54).
+- coldsweep --commit 55c7d409 (code paths) -> scratch delta-code.diff, 600 lines; read whole.
+  coldsweep --commit 55c7d409 (prose paths) -> delta-prose.diff, 116 lines; read whole. Board-store
+  files left out by default (3), as the brief requires. No message body printed.
+- coldsweep --commit for the 14 later commits, scoped to the subject files -> scratch later-*.diff.
+- Read tools/allowmarker.py at HEAD whole (751 lines); tools/reviewscan.py 160-290, 388-508,
+  554-662; grep of def/returns.
+- Read tools/floor.py 2850-2925 (scanner subprocess: stdout -> child_stdout, stderr inherited;
+  CI wraps each scanner in ::group::), tools/floorhook.py 60-140 (Claude Code pin hook; captures
+  both streams but is not the scanner runner), tools/pre-commit.sample (runs floor.py --plane
+  hook), .github/workflows/floor.yml (runs floor.py --plane ci, python 3.12).
+- grep ALLOW_RX definitions: all 18 scanner patterns are built by allowmarker.marker_rx, so
+  _MARKER_OF covers every reader pattern (claim "one change covers the class" holds on this
+  axis).
+
+#### Candidate findings (to probe)
+- C1 (A3): the note's head regex `[^\s<>`]{0,40}` runs across colons; a token glued to the
+  marker (`secretscan:allow:ghp_...` with no reason) would be echoed, up to 40 chars, to stderr
+  in CI. _warn_malformed stops at the second colon; the note does not. PROBE.
+- C2 (A5): _header_in_scope keys on RECORD_NAME; a review file whose name carries no date (or an
+  earlier date) is a "brief" for find_briefs/scan_brief yet exempt from check 3 on both planes.
+  Is anything a backstop? PROBE + grep.
+- C3 (A6): _NEXT_FIELD requires bold `**Field**`; a plain `Tier: ... 2026-11-10` line after a
+  wrapped Status: would be read as the status date. Also Board: in a fenced block; H2 title.
+  PROBE.
+- C4 (A7): in CI the stanza/note land inside a collapsed ::group:: when the scanner exits 0;
+  on the hook they reach the terminal. Confirm by reading floor.py registry/planes.
+- C5: blockscan `any(present(rx, t) for t in texts)`: a block whose first text has the word but
+  no marker and a later text a good marker is allowed AND noted. Edge; note only.
+- 22:54Z `uptime` load 23; `PYTHONPATH=tools nice -n 10 python3 -m unittest test_allowmarker
+  test_reviewscan` (python3 = 3.14.6 on PATH) -> Ran 154 tests OK (brief recorded 134 on
+  2026-11-14; the suite grew). One malformed-marker warning printed by a test fixture, expected.
+- Read later commits body-free: aca05c14 (coverage line in reviewscan _render; two tests),
+  1c6fb376 + b2da72ea (test pins only), a78ee8b0 (Deferment dataclass -> NamedTuple so a child can
+  load allowmarker by file path; test), 2b8bcd92 (115/230 item 1: a scope with no reason exempts
+  nothing and is NOTED; _no_reason_rx, is_scope_without_reason; has its own pointer 160/1550),
+  734930ef (comment word change), 2522f4fe (review-by deferments; no note/header change). The seven
+  doctrine commits (a879c93a aa7746e8 aa3409b0 bc383fb1 9e0ac28f 2f3aed4b b68cf410): grep for
+  Board/Status/header shows only 2f3aed4b adds REVIEW.md micro-list line "The Board: and Status:
+  header lines (the skill's item 6; reviewscan warns ... never blocks)". Consistent with the delta.
+- Read tools/floor.py 700-740 (reviewscan registry: hook plane --staged, ci whole tree,
+  advisory=None), 3390-3400 (cannot be softened), 3711 (ci = plane ci AND GITHUB_ACTIONS), 2919
+  (::error:: only on rc != 0; grep finds no ::warning::).
+- Read report.py 270-335: staged_paths() = `git diff --cached --name-only --diff-filter=ACMR`;
+  no status letter kept (so "new file" is not known to reviewscan's staged plane; it keys on name).
+- Read skills/review-brief/SKILL.md 122-124 (item 6), template README 89-93, tools/README.md
+  1466-1472 and 2401-2406, CHANGELOG entry (in the diff), REVIEW.md step 5 (503-504) and micro
+  list (809-810): the two-line grammar is restated in each; they agree. atelier has no
+  docs/reviews/README.md (so no mirror there).
+- Read secretscan.py 1100-1120 and leakscan.py 995-1012: both ask the reader on EVERY line that
+  contains the marker word (`if ALLOW_MARKER in line`), finding or not. conflictscan.py 430-440:
+  asks only on a finding line. So for leakscan/secretscan the note is not tied to a finding.
+- Probe script scratch/probe_note.py (imports the worktree modules read-only; A2 patches a COPY of
+  allowmarker.py in scratch and loads it by file path). Results:
+  A1 (19 shapes): every well-formed marker quiet, incl. scoped/unscoped, unscoped pattern on a
+    scoped marker of its own word, broken+good in both orders (AFTER grace), block text with the
+    marker or the reason on a later line, cross-scanner, HTML comment, prefix word `scan:allow`
+    vs `leakscan:allow` both ways, `leakscan:allowed`, quoted source string. CONFIRMED.
+    Stated limit reproduced: a prose mention `write leakscan:allow on the line` is NOTED.
+    Pre-existing (160/480 grace, non-goal): `m:allow:ipv4 m:allow:email: ok` DURING grace reads
+    as malformed, warns and exempts the whole line; AFTER it reads {email}.
+  A2: old grammar REASON_START `[\w]` on a scratch copy: two quoted-reason markers (the incident
+    class) -> None, None; ONE note, head `leakscan:allow:`; no file, no line, no count. The note
+    fires on the shape but is not locatable and dedupe collapses nine incidents into one line.
+  A3: `secretscan:allow:ghp_<36>` (fake PAT, no reason) -> note head echoes 39 chars of the
+    token; `secretscan:allow:AKIAIOSFODNN7EXAMPLE` -> full id echoed; `leakscan:allow:https:// <!-- secretscan:allow:aws-access-key-id: AWS's published documentation example key, a probe fixture in the reviewer's log --> <!-- leakscan:allow:aws-access-key-id: same documentation example key, a probe fixture -->
+    user:S3cr3tPw@host.example/p` AFTER grace -> password echoed (DURING grace the malformed <!-- leakscan:allow:email: synthetic URL user-info on an RFC-2606 example host, a probe fixture in the reviewer's log -->
+    warning stops at the second colon: `leakscan:allow:https:`). ANSI/control chars -> `?`.
+    The docstring's "never the line, so a line that holds a secret is not echoed" fails for a
+    secret glued to the marker. The test suite covers only a space-separated secret.
+  A5: _header_in_scope: `2026-11-09-2359-x.md`, `cold-pass.md`, `20261110-x.md`, `x-2026-11-10.md`
+    all False while staged_kind says 'brief' for each. grep of tools/ finds no scanner enforcing
+    review-file names (pathscan only treats docs/reviews as a records dir).
+  A6 (19 shapes): canonical OK; Board naming a review .md accepted; Board value wrapped onto the
+    next line -> FALSE 'board' warning; Status wrapped then a BOLD field with a date -> correct
+    'status' warning; Status wrapped then a PLAIN `Tier:` or a bullet with a date -> accepted
+    (false pass); Board inside a ``` fence in the header -> accepted; H2 title -> both warn;
+    fields at line 61 -> both warn; invalid date 2026-13-45 accepted; `none:` and `NONE —`
+    accepted; table rows warn.
+- `git archive 0be93efc tools` and `git archive 55c7d409 tools` into scratch (read-only git).
+  A4 CI plane: `floor.py --plane ci --root <worktree> --tools <scratch tools>` old then new under
+  nice: exit 1 both (pre-existing on this tree with 2026-11-09 tools: leakscan 4, board stale,
+  pathscan 3 - unrelated to the delta); stdout diff EMPTY; stderr +6 lines, all notes:
+  conflictscan x2, leakscan x2, secretscan x2. CONFIRMED: no result or exit moved.
+  Located the six by coldsweep (barred excluded): tools/pdlistscan.py:81 and
+  tools/test_personal_data.py:43 quote the regex `leakscan:allow:([a-z0-9,-]+):`; the bare and
+  colon-only heads come from tools/test_conflictscan.py, tools/test_secretscan.py,
+  tools/test_leakscan.py fixtures. All six are false notes on the house's own clean tree.
+- Recorded re-run lines at HEAD: reviewscan --root . . exit 0, no stanza, 254 briefs, 0 stderr;
+  leakscan exit 0 notes 2; secretscan exit 0 notes 2; (conflictscan exit 0 notes 2).
+- Scratch fixture repo (git init, one commit, then staged: docs/reviews/2026-11-10-0900-new-bare.md,
+  2026-11-09-2359-old-bare.md, cold-pass-undated.md, 2026-11-10-0901-good.md, notes.py with
+  `leakscan:allow:ipv4`, `secretscan:allow:`, a good conflictscan marker). First run from the
+  wrong cwd: staged scanners refuse (exit 2) by design; re-run from inside the fixture:
+  hook plane old/new exit 0 both; stdout diff = the 4-line ⚠ stanza naming ONLY new-bare (the
+  backdated and undated files escape on the hook plane too); stderr new-only: one note
+  `secretscan:allow:`. With HEAD tools: notes `secretscan:allow:` and `leakscan:allow:ipv4`
+  (the no-reason shape, noted since 2b8bcd92).
+- wrapscan: docs/reviews/ is in .wrapscanignore (WS1) and LINE_LIMIT is 85; the brief's 100-column
+  rule is the brief's own, kept by hand.
+- /security-review NOT RUN: it reads the session's pending diff, and this worktree's only pending
+  change is the deletion of the barred .deferred.md sibling, so running it would feed that file's
+  content back (REVIEW.md SL2 class). Manual code-altitude pass instead (see verdict, lens 4).
+
+#### Findings formed (act 1)
+VH1 MODERATE (A3) glued secret echoed by the note. VH2 MODERATE (A2, approach) note carries no
+locator or count, stderr only, no machine surface; unparseable_seen() has no caller. VH3 MODERATE
+(A5) boundary keys on the filename; undated/backdated names escape both planes; no backstop; bears
+on blocking. VH4 minor (A6) header-reader tolerance gaps. VH5 minor (A7) CI visibility + six false
+notes on atelier's own tree. VH6 note (V3/V4) grammar restated in five homes, unstamped.
+- 23:10Z act 1 appended to the brief below `---`; Status line updated (ACT 1 WRITTEN 2026-11-22).
+- Checks on the brief: datescan clean, spellscan clean, reviewscan exit 0 (1 brief, no stanza).
+  secretscan first flagged my A3 prose (the vendor example key id and a URL with a password,
+  quoted literally) and leakscan warned on the quoted malformed shape: rewrote A3 to describe the
+  shapes without quoting them; both now clean. pathscan: my two path mentions rewritten (a reviews
+  README that does not exist; the retired indexes); 4 remaining hits are the brief-writer's own
+  lines 248/259/261 (the barred-list paths, two since retired, and the removed sibling), not mine
+  to edit; docs/reviews is excluded by default on a tree run, so the floor does not red on them.
+  All my lines <= 100 columns (two tables rewritten as lists). wrapscan: docs/reviews ignored.
+- Scratch cleaned: fixture repo, the two tool archives and every scanner capture deleted; kept
+  probe_note.py and the body-free commit diffs for act 2.
+- ACT 1 SAVED at 23:1x UTC. Waiting for the sibling's path.
+
+#### Act 2 (reconcile)
+- Release message from orchestrator 1cdcd5c7, verbatim: "Act 1 is committed (3dd15f49, brief file
+  only, unrevised). Act 2 may now begin. You may now read the held sibling, this one file:
+  "/Users/mike/.claude/fable-held/atelier--2026-11-14-0225-voided-marker-note-review-header-cold.deferred.md",
+  plus the records the brief opens at phase 2 (the barred intent records, queue pointer, the delta
+  commits' message bodies, prior verdicts as the brief allows). Append `### Reconcile` ... Do NOT
+  fold the sibling in or delete anything: the orchestrator does the fold." Process only; no
+  question about the delta.
+- Read: the held sibling (one file); 110/010 and 320/440 whole; pointer 160/1310; bodies of
+  55c7d409 aca05c14 1c6fb376 b2da72ea a78ee8b0 2b8bcd92. No prior verdict named; none opened.
+- Reconcile written 23:15Z: all six findings stand, severities unchanged. Sharpened: VH2 (author's
+  stated reason is a cost, not a constraint; author's probe itself needed a human to classify the
+  mentions), VH3 (320/440's blocking probe plan inherits the filename blind spot; its close rule
+  conflates "template did the work" with "miss out of scope"), VH4(d) (+ existence check option,
+  formed at reconcile). Sibling Q1 premise corrected (an unscoped pattern ACCEPTS word:kind: reason;
+  A1 probe). Count correction: 15 call sites (author) vs 20 at HEAD. Status line -> VERDICT
+  COMPLETE 2026-11-22.
+- Scratch cleaned entirely (probe script, diffs). ACT 2 SAVED.
