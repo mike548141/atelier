@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: a loose end makes the close "not ready
+- [~] ⏳ **Rule-4 cold pass queued: a loose end makes the close "not ready
       until you decide", a refused call is an ask and never routed around,
       and ccclose's scratch-folder check and refused-delete re-route flag
       (`180/170`, `180/180`).** This is standing close and autonomy doctrine
@@ -23,3 +23,12 @@
       its `.deferred.md` sibling. Pass size: medium. Review NOT run: this pass
       waits for a criterion-passing cold Fable session and the principal's
       explicit permission for Fable work. Neither named session may run it.
+      🔒 2026-11-22T22:34Z: claimed for the Fable pass by a headless per-pass
+      orchestrator, session 7dbb6565 (Opus 5.5, rule-4 off-tier orchestrator:
+      it holds the partition and forms no finding), started by drain session
+      eca14b23; the reviewer is a Fable 5.1 subagent, tier checked at
+      selection. Neither is barred by the brief. The approval this item waits
+      for is his drain order of 2026-11-23, verbatim: *"Start a fable drain or
+      whatever it is called now. Target 100% of weekly budget by 11.30am NZT
+      todat"*. The held-back sibling is partitioned out of the review tree
+      until act 1 is committed.
