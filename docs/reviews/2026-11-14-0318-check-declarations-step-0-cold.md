@@ -1,10 +1,11 @@
 # Cold pass — every check states its five declaration fields (`115/120`, step 0)
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1430-rule-4-cold-pass-queued-check-declarations-step-0.md`
-**Status:** ACT 1 WRITTEN 2026-11-22 UTC (PASS-WITH-FINDINGS, 0 MAJOR, 2 MODERATE); act 2, the
-reconcile against the sibling, pending. Brief written 2026-11-14 UTC by a headless Opus 5.5
-brief-writer (`cclive` lists it as session `263945c1`); run under the principal's drain order of
-2026-11-23 NZDT by a Fable 5.1 reviewer (see the verdict below).
+**Status:** PASS RAN, folded 2026-11-22 UTC: PASS-WITH-FINDINGS, 0 MAJOR, 2 MODERATE (CD1, CD2),
+5 minor, 7 notes. Act 1 and act 2 written by a Fable 5.1 reviewer; sibling folded below the
+verdict. Brief written 2026-11-14 UTC by a headless Opus 5.5 brief-writer (`cclive` lists it as
+session `263945c1`); run under the principal's drain order of 2026-11-23 NZDT (see the verdict
+below).
 
 **Pass type:** code cold pass, first of its kind, per `docs/method/REVIEW.md` rule 4 (a schema and
 reader every check in the estate now carries, in the floor every child floats on).
@@ -258,8 +259,8 @@ a config in a scratch directory instead.
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-`docs/reviews/2026-11-14-0318-check-declarations-step-0-cold.deferred.md` (a held-back file; by
-count: 14 questions, 10 facts), every item under `docs/roadmap/160-doctrine-review-owed/` beyond its
+`2026-11-14-0318-check-declarations-step-0-cold.deferred.md` (a held-back file, now folded below
+the verdict; by count: 14 questions, 10 facts), every item under `docs/roadmap/160-doctrine-review-owed/` beyond its
 title, every commit's message body, and
 `docs/roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md`
 from line 71 onward (the author's landing notes, and a later answer that `2a6d7a41` carries into
@@ -604,3 +605,403 @@ statement that the record has since decided.
 - [ ] CD8–CD10, CD12: notes to carry into the group lanes; none needs its own item.
 - [ ] The brief's *Since the delta* paragraph: a brief-writer's staleness, not the work's; the
       review-brief skill may want a "re-check the since-line at claim" step.
+
+### Reconcile
+
+Act 2, 2026-11-22 UTC, after act 1 was committed (`8f96202b`). Read now: the sibling (14
+questions, 10 facts), the commit body of `ba55be27`, item `115/120` from line 71 (the author's
+landing notes and the 2026-11-12 answer), and the `160/1430` pointer. No act-1 text is revised.
+
+**Against the sibling's questions.**
+
+- Q1 (a resolving citation names the rule it claims): lens 2 answered it independently; all
+  seven reach the rule the check serves. No change.
+- Q2 (an `Unmet` reading as met in any view): LA4 confirmed; no surface does. The inverse route,
+  `met` with nothing behind it, is CD1.
+- Q3 (`window met` on `fits="outside-warn-only"`): `GUARDS.md`'s pass bar is "inside the window, or
+  outside with its way out named", so `met` is the right word for a stated way out; what a `decl
+  N/5` reader cannot tell is "stated" from "right", which CD12 already says of the purpose gap.
+  CD12 now reads as covering the window too; no new finding.
+- Q4 (the marker question stale in six declarations, README and a test): CD2, formed before the
+  sibling was opened, with the same four sites. Whose job: the landing note on `115/120` records
+  the 2026-11-12 answer and says "Group A is no longer waiting on it", so the session that recorded
+  it (`d0ca5d24`, per the item) had the mirror list in hand and swept `GUARDS.md` only. The counsel
+  under CD2 stands.
+- Q5 (is any met gap a restated mechanism; is "not identical to `why`" the bar meant): read at
+  reconcile, each of the 16 `met` gaps names a need of the rule and what the check reads instead;
+  the six that would have failed the design's bar are stated `Unmet` ("technique limits only"). The
+  machine's bar is weaker than the design's words and CD12 says so. No new finding.
+- Q6 (`reviewed` as any non-empty string): CD1, exactly, probed before the sibling was opened. The
+  landing note confirms the intent the code does not check: "`reviewed` (a verdict reading each
+  cited rule against its check) is what takes any rule from `resolves` to `met`".
+- Q7 (an incident as any existing file): I had read the code and not weighed it. Probe (b)
+  accepted a scratch symlink under `docs/decisions/`, not a verdict, as an incident, so the
+  evidence exists:
+  **CD13 — note, formed at reconcile.** `_read_grounding` accepts any `_safe_rel` path that
+  `is_file()` as an incident, so `README.md` would stand where the design says "a verdict path".
+  Same class as CD1 (an existence test looser than the design's words); the registry's three stated
+  incidents are a board item and two `injected:` labels, so today's count is unaffected.
+  *Counsel:* require `docs/reviews/` for a path incident, or widen the design's words.
+- Q8 (one broken test file erases the whole declaration): CD3.
+- Q9 (does each replay fail when the check stops firing): LA3, with the publishscan caveat.
+- Q10 (`--plane hook --json` computes the report): I confirmed LA6 "by structure" for the callers
+  that exist. The sibling's sharper point is right: **CD14 — note, formed at reconcile.** The
+  README's "the hook plane prints nothing and pays nothing" is true of every hook caller today
+  (none passes `--json`) and false of the plane: `test_the_json_key_is_present_on_every_run` pins
+  that `--plane hook --json` carries the key, which means it read every cited file and parsed
+  every replay module. A statement about callers worded as one about the plane. *Counsel:* say
+  "the hooks' invocation" in README and the class docstring, or skip the report on `hook`.
+- Q11, Q12 (what the fleet line and the CI line count): CD10 already says the line gives no account
+  of what is outside it; the sibling adds that the fleet line is atelier's registry only (an empty
+  `Config()`) and a child's CI line is atelier's 21 plus that child's `local` checks, with no
+  origin split. Both are now part of CD10's note; no new finding.
+- Q13 (`::` commands and symlinks): lens 4; the `::` vector is closed by `strip_controls` at the
+  parse seam and by the reader never printing a reason at column 0; the symlink gap is CD4.
+- Q14 (three census ✅ windows moved to `Unmet`): the commit body says it openly ("three windows
+  the census marked as met are not `met` here") and gives the reason. A departure from step 0's
+  letter ("`Unmet` wherever the census has no ✅") in the direction of honesty, recorded in the
+  per-claim ledger as such; the design note's own "Not decided here" named the question, so the
+  design foresaw it. No finding. The landing note's "the checks in Group E that lean on a marker"
+  misnames attribscan, namescan and quotescan, which are registry checks, not group E (note only).
+
+**Against the sibling's facts.** Fact 1's totals (22 met, 7 resolves, 76 unmet, 0 missing) match
+my hand count (LA11). Facts 2 and 3
+are stale at this HEAD (260 tests, four later commits), as act 1 says. Fact 8 (`GOOD` cites
+`docs/x.md`, a form the grammar does not know) confirms that `DeclarationConfigTest` tests <!-- pathscan:allow: a fixture string quoted from DeclarationConfigTest.GOOD, not a repo path -->
+loading, not resolving; the resolving tests are in `DeclarationReaderTest`, so no gap. Fact 10 is
+CD11.
+
+**Against the author's account.** The commit body's four claims checked: all 21 state all five ✓;
+every stated citation and replay pinned to resolve ✓ (the registry test); the marker question
+"stays open" ✓ on 2026-11-10 and stale since 2026-11-12 (CD2); old against new on five children
+identical ✓ re-driven on five, both planes. The landing note's "probe on five children, one at a
+time" matches the re-drive shape. Nothing in the body or the notes was formed into a finding
+except where act 1 had already found it.
+
+**Overall, restated.** PASS-WITH-FINDINGS — 0 MAJOR, 2 MODERATE (CD1, CD2), 5 minor (CD3–CD7),
+7 notes (CD8–CD14; CD13 and CD14 formed at reconcile).
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-22)
+
+Preface (orchestrator, session cd7d5f1e, which forms no finding): the text below is the brief's
+held-back sibling, `2026-11-14-0318-check-declarations-step-0-cold.deferred.md`, verbatim. It was
+removed from the review worktree before the reviewer started, held outside the repo, and released
+to the reviewer only after act 1 was committed (`8f96202b` before rebase). The reviewer read it for
+act 2 (`### Reconcile` above). The separate file is removed in the fold commit; this copy is its
+record.
+
+# Held back — every check states its five declaration fields (`115/120`, step 0)
+
+Opened only once the reviewer's own findings are durably written (`REVIEW.md` rule 1). A floor,
+never a fence. Written by the brief-writer (`cclive` lists it as session `263945c1`), which did not
+author the delta. Nothing here is a finding: these are questions, and facts read off the machine.
+
+## The pointer's own questions
+
+1. Does a `Declares` citation that resolves actually name the rule it claims?
+2. Can an `Unmet` read as met in any view?
+
+## The brief-writer's questions
+
+3. The design note's table makes `window` `met` whenever a `fits` value is present. Three checks
+   declare `fits="outside-warn-only"`, a statement that the licensing context is *outside* their
+   window, and each reads `window ✅ met`. Does `met` there tell a reader the field is stated, or
+   that the check passes the window test? Is a reader of `decl N/5` able to tell which?
+4. `_MARKER_OPEN` says the fits answer "waits on the open question whether an allow-marker brings
+   the licensing context inside the window". `2a6d7a41` (2026-11-12) recorded the principal's answer
+   in `GUARDS.md`, and `tools/floor.py`, `tools/README.md` ("One question is carried, not settled")
+   and the test that pins the text were not touched after it. Are six declarations, a README
+   paragraph and a test now stating an open question that the record says is answered? Whose job
+   was the sweep (V3)?
+5. `purpose_gap` reads `met` when it is non-empty and not, case-insensitively, the `why` string
+   verbatim. Is any of the registry's stated gaps a restated mechanism the test cannot see, and is
+   "not identical to `why`" the bar the design note's "not the `why` text" meant?
+6. `rule` turns `met` on any non-empty `reviewed` string. Nothing checks that it names a verdict
+   file, or that the verdict read this rule against this check. Is that the machine's half, or a
+   way to reach `met` with no verdict?
+7. A grounding `incident` is accepted when it is `injected: …`, `board NNN/NNN`, or *any* file path
+   that exists inside the base, not only a verdict under `docs/reviews/`. Could `README.md` stand
+   as an incident? Does that match "a board item, a verdict path"?
+8. `test_an_unreadable_replay_file_never_raises` asserts only that `grounding` reads `missing`. In
+   `read_declaration`, any exception in any field sends all five fields to `missing`. Is one broken
+   test file elsewhere in the repo meant to erase a check's whole declaration, including fields that
+   resolved? Is `missing` (not declared) the honest state for "declared, and the reader failed"?
+9. Two of the three replays name `injected:` incidents; the third names `board 010/020`. Does each
+   replay fail when its check stops firing (LA3), or does it test a neighbouring behaviour?
+10. `--json` on *any* plane, including `--plane hook --json`, computes `declarations_report`, which
+    reads every cited file and parses every replay module. The hooks call `--plane hook` without
+    `--json` today. Does "the hook plane pays nothing" hold for every caller, or only for the
+    one invocation the hooks make?
+11. `floorfleet`'s line is built from `floor.Config()`, an empty config, against this checkout's
+    tree. It cannot see any child's `local` checks or their declarations. Does a fleet-board line
+    that reads "21 checks" for every child say what it covers?
+12. The CI line goes to stderr only on a text run; a `--plane ci --json` run carries the key and no
+    line. The floor workflow runs the text plane (`floor.yml` line 134), so the line reaches every
+    child's CI log, read from atelier's registry. Does a child reader of that line know it counts
+    atelier's checks plus that child's `local` ones, and nothing of the child's purpose?
+13. A child's `local.<name>.declares` text reaches `--declarations` output verbatim. If a floor
+    workflow ever prints that table, or a reason string, inside Actions, can a crafted reason emit a
+    `::` workflow command? Is `_safe_rel` enough against a symlink inside the child that points out
+    of it (`Path.is_file` follows links)?
+14. The census marked three windows as met that step 0 states as `Unmet` (per the commit body,
+    barred until phase 2). Was moving a census ✅ to `Unmet` within step 0's brief ("`Unmet`
+    wherever the census has no ✅"), or a departure from the design the principal approved?
+
+## Facts read off the machine (2026-11-14 UTC, worktree at `672acdd9`)
+
+1. `python3 tools/floor.py --root . --declarations --json`: 21 checks, 0 meet all five; field
+   states across all 105 fields: 22 `met`, 7 `resolves`, 76 `unmet`, 0 `missing`. The commit body
+   gives the same three totals.
+2. `cd tools && python3 -m unittest test_floor`: 255 tests, OK, about 184 s. `test_floorfleet`: 127
+   tests, OK, about 14 s.
+3. `git log --oneline ba55be27..HEAD -- tools/floor.py tools/floorfleet.py tools/test_floor.py
+   tools/test_floorfleet.py` prints nothing.
+4. `docs/method/GUARDS.md` at HEAD has `## Before building a check: the evidence window` (line 151)
+   and `## What every check declares` (line 214).
+5. `test_the_open_marker_question_is_carried_not_settled` pins `_MARKER_OPEN` in the `window` of
+   `leakscan`, `sizescan`, `datescan`, `attribscan`, `namescan` and `quotescan`.
+6. The floor workflow parses `floor.py --list --plane ci` with
+   `awk '$2!="disabled" && $3!="local"{print $1}'` (`.github/workflows/floor.yml` line 126). The
+   new column comes after the origin column, so `$2` and `$3` keep their meaning; at HEAD the parse
+   printed 21 names, including the 12-character `conflictscan`.
+7. `.githooks/pre-commit` line 84 runs `floor.py --plane hook --root … --tools …`, with no `--json`.
+8. `DeclarationConfigTest.GOOD` uses `"rule": ["docs/x.md"]`, which is not a form the citation
+   grammar knows; it tests loading, not resolving.
+9. The 2026-11-12 allow-marker answer is recorded in `115/120` line 96 onward and, through
+   `2a6d7a41`, in `GUARDS.md` § *Before building a check*.
+10. The design note's status line still reads "proposed (design only; nothing built and no check
+    changed)" at HEAD, after step 0 built it.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+# Review log — atelier 160/1430, cold pass on check declarations step 0 (`ba55be27`)
+
+Reviewer: Fable 5.1. Worktree: `/Users/mike/worktrees/fable/atelier-160-1430-2248/atelier`.
+Started 2026-11-22T22:51Z. Commands, files and evidence only. Act 1 entries are written
+before the `.deferred.md` sibling is released.
+
+## Setup
+
+- `git status --short` → only ` D docs/reviews/...deferred.md` (the partition, expected).
+  HEAD `e24ff31f`. `git merge-base --is-ancestor ba55be27 HEAD` → exit 0 (re-run line 1 OK).
+- Read the brief in full (lines 1–302).
+- Read `docs/method/REVIEW.md` § What a review actually checks, § Re-run every live-proven claim,
+  § The standing checklist (lines 302–460) for lenses and V1–V7.
+- Read the acceptance test: item `115/120` lines 1–70 only (`sed -n '1,70p'`). Line 70 holds the
+  principal's answer *"Everything, on every check now"*. Lines 71+ not read (barred).
+- `python3 tools/coldsweep.py --root <worktree> --commit ba55be27` → scratch `delta.txt`
+  (1,449 lines; subject, stat, diff; body not printed; 2 board-store files left out). Read in
+  full: CHANGELOG entry, GUARDS.md paragraph, README section, floor.py (schema, 21 Declares,
+  `_load_declares`, reader, `main`), floorfleet line, test_floor.py (4 new classes), test_floorfleet.
+- Read `docs/decisions/2026-11-09-1334-check-declaration-standard.md` in full (the spec; disclosed).
+- Read `docs/method/GUARDS.md` lines 184–284 (§ Before building a check; § What every check
+  declares) at HEAD, and lines 35–80 (§ The fourth requirement, posture table).
+- `coldsweep --commit 2a6d7a41 --path docs/method/GUARDS.md`: the hunk replaces "Not settled
+  here: whether an allow-marker counts..." with "A reasoned allow-marker counts as bringing the
+  missing context inside the window" (the principal's pick, 2026-11-12 UTC). Evidence for LA10.
+- `coldsweep --commit 4bfb4e16 --path tools/README.md`: one unrelated section added at line 2188;
+  the `--declarations` section untouched.
+- `git log --oneline ba55be27..HEAD -- tools/floor.py tools/floorfleet.py tools/test_floor.py
+  tools/test_floorfleet.py` → FOUR commits (the brief said none at `672acdd9`; HEAD has moved):
+  `734930ef` (test_floor.py only, graces), `ef4972e6` (floor.py: `tree_summary`, a stderr line
+  before the declarations line), `b462fd7d` (floor.py: quotescan's `why` and its `Declares` text
+  rewritten), `cf648679` (floor.py/test_floor.py: flags spelling + coverage line; no Declares hunk).
+  Each read body-free with `coldsweep --commit <sha> --path ...`.
+
+## Re-run list (V2), at HEAD e24ff31f
+
+1. `git merge-base --is-ancestor ba55be27 HEAD` → 0.
+2. `coldsweep --commit ba55be27` → 0 (above).
+3. `python3 tools/floor.py --root <worktree> --declarations` → 0; 148 lines; header
+   "floor declarations — 21 checks, 0 meet all five". Saved as scratch `decl.txt`.
+4. `... --declarations --json` → 0; saved `decl.json`.
+5. `... --list --plane ci` → 0; 21 rows, each `name state fleet decl N/5 why`.
+6. `... --list --plane ci | awk '$2!="disabled" && $3!="local"{print $1}'` → 21 names.
+7–8. test_floor / test_floorfleet: see below.
+
+## LA11 — counts re-derived by hand from the diff, before running the reader
+
+Per check, fields that the reader's rules would call `met` (text non-empty and != why; Window
+with a valid fits; posture one of two words; grounding with every replay resolving; rule met only
+with `reviewed` set, which no registry entry sets): secretscan 0, leakscan 1, conflictscan 0,
+linkscan 0, reviewscan 1, publishscan 2, sizescan 2, board 1, datescan 1, wrapscan 0, spellscan 1,
+harvestscan 1, pointerscan 2, pathscan 1, indexscan 2, attribscan 1, pdlistscan 2, sweepscan 2,
+namescan 0, quotescan 1, licenscan 1 = 22 met fields; 7 `resolves` rules (leakscan, reviewscan,
+board, spellscan, pointerscan, pdlistscan, sweepscan); 0 meet all five. The `--list` run printed
+exactly these 21 N values. LA11 confirmed.
+
+## Surfaces and callers (LA5, LA6, LA9)
+
+- `.github/workflows/floor.yml` line 126: `floor.py --list --plane ci --root repo | awk '$2!=
+  "disabled" && $3!="local"{print $1}'` (columns 1–3 unchanged; `decl N/5` is columns 4–5);
+  line 134: `floor.py --plane ci --root repo --tools atelier/tools` (no `--json`).
+- `tools/pre-commit.sample` line 84: `floor.py --plane hook --root ... --tools ...` (no `--json`);
+  `commit-msg.sample` line 46: `--plane msg`. No hook caller passes `--json` or `--list`.
+- `.github/workflows/ci.yml` lines 100–103, 181: same two shapes for atelier itself; lines 199,
+  227–229 run `stampscan` and `blockscan` outside the registry (group E, on CI).
+- `floor.py main` (delta lines 964–1013 of `delta.txt`): declarations computed on `--declarations`,
+  `--list`, any `--json` run, and the stderr CI line when `plane == "ci"` and not `--json`. The
+  hook plane without `--json` never reaches `declarations_report`. Exit is
+  `1 if any(r.failed ...) else 0` with no read of the report.
+- Other `--list` consumers found by grep: `docs/build/templates/CONTRIBUTING.md:45` (human-read),
+  `tools/test_templates.py` (asserts the command string exists), `test_floor.py`. None parses a
+  column past `$3`.
+- `floor.py github_visibility` (lines 2528–2555) reaches the network only when
+  `GITHUB_REPOSITORY` matches a slug; a local `--plane ci` run makes no request.
+
+## LA1 — the Unmet reasons against each docstring (grep, `tools/<x>.py`)
+
+secretscan: docstring line 10 names "the SECRETS doctrine"; line 44 cites `SECRETS.md § The
+boundary's posture` — a SECTION is named; `SECRETS.md` line 223 has that heading. The Unmet
+reason "no section" is inaccurate (candidate finding). conflictscan line 5 `320/200` ✓. linkscan
+line 4 PROPAGATION.md, no section ✓. reviewscan line 60 F6 ✓. publishscan line 13/54 F1 ✓.
+sizescan line 13 "three thousand lines", 117–124 the ruling restated ✓. datescan line 4 seam S3,
+line 9 five-file sweep ✓. wrapscan line 4 seam S1 ✓. spellscan line 7 CONVENTIONS.md ✓.
+harvestscan line 75 HV1, lines 50/91/113 `--replay` by hand ✓. pointerscan line 10 "REVIEW.md
+rule 4"; rule 4 is at REVIEW.md line 203, inside § Independence is more than fresh context (line
+25; next `##` is line 302) so the citation reaches the rule ✓. pathscan line 4 seam S2 ✓.
+indexscan line 4 `200/010`; test_indexscan line 3/227 `320/430` ✓. attribscan line 4 `320/100` ✓.
+pdlistscan line 4 `160/630` ✓; docstring does not name REPO-STANDARD, the cited § Repo-craft
+conventions (REPO-STANDARD.md line 188) holds the purpose test (lines 193–213) ✓. sweepscan line
+4 `320/060`, line 37 CONCURRENCY.md; § The trigger — assume you are not the only session is at
+CONCURRENCY.md line 29 ✓. namescan line 4 NP2/160/360 ✓. quotescan line 5 QK1/160/900 ✓.
+licenscan: no rule text, no incident in docstring ✓. leakscan line 5 cites "REPO-STANDARD.md §
+Personal data" (a bullet, not a heading); the registry cites the real heading ✓.
+sizescan posture_cost "(from 2026-12-09)" matches the registry comment `ADVISORY_BARRED_FROM` ✓.
+
+## LA3 — the three stated replays, read (ast print of each method)
+
+- publishscan `PatternTest.test_the_grounded_pattern_reds`: asserts `publishscan.matches(
+  ".claude/settings.json")` is non-None and names "unprompted". Fails if the pattern stops
+  matching the incident path; does not drive the tracked-file walk or the exit code. Partial ✓.
+- board `StagedPlane.test_slip_a_is_caught_on_the_staged_plane`: real git repo, stages the item,
+  rebuilds on disk, asserts `run_check(source=INDEX)` returns 1. Fails if the check stops firing ✓.
+- pointerscan `GrammarTest.test_the_live_specimen_is_flagged`: feeds the real instance-1 pointer
+  text, asserts detector "grammar" fires with 2 reasons ✓. Its docstring calls the text "instance
+  1, still standing when this shipped": a live specimen, while the registry labels the incident
+  `injected: ...` (candidate note: wrong incident class).
+
+## LA10 — mirrors at HEAD still saying the marker question is open (grep)
+
+`tools/floor.py` 613–626 (comment and `_MARKER_OPEN`, used by 6 windows), `tools/README.md` 2813
+("One question is carried, not settled"), `tools/test_floor.py` 3086 (test pins the Unmet),
+`CHANGELOG.md` 404 ("stays open"). Against: `GUARDS.md` lines 234–242 at HEAD (answered
+2026-11-12), and `docs/method/census/2026-11-16-1204-...md` row GRD8 "enforced (blocks)".
+Accurate when landed (2026-11-10, GUARDS.md then read "Not settled here"); stale at HEAD.
+
+## Scratch child probe (LA2, LA5, LA7, LA8, lens 4) — `scratchpad/probe-child`, never a real child
+
+Built a git repo with `docs/method/RULE.md` (heading "Real heading"), `tools/test_x.py` (class C,
+test_y), `tools/test_broken.py` (`def (:`), `tools/t.py` (exit 0), `docs/roadmap/010-x/020-y.md`,
+two symlinks to `/etc/hosts` (`docs/method/OUT.md`, `docs/decisions/out.md`), and six `local`
+checks with `declares` (saved in the probe's `.atelier-floor.json`). Ran
+`floor.py --root <probe> --tools <worktree>/tools --declarations` (exit 0; header "27 checks, 1
+meet all five"):
+- (a) `reviewed: "nothing at all"` + a resolving section citation + `purpose_gap: "x"` + a valid
+  Window and posture → `decl 5/5`, rule `met`. Nothing checks that `reviewed` names a file. LA2
+  DAMAGED (candidate CD finding). `test_floor.py` `test_a_citation_resolves_and_only_a_verdict_
+  makes_it_met` pins `reviewed="docs/reviews/x.md"` (a path that does not exist) as `met`.
+- (b) a citation to a symlink pointing outside the repo → "no such heading" (the target was
+  opened and read); an incident naming the `docs/decisions/out.md` symlink is accepted as a verdict
+  path (`is_file()` follows the link). `_safe_rel` is lexical only. LA8 damaged at the symlink
+  level (candidate minor).
+- (c) `..` segments and absolute paths in rule, incident and replay → "not a path inside the
+  repo" / "no such decision record" ✓.
+- (d) a replay naming a test file with a syntax error → ALL FIVE fields `missing — unreadable
+  declaration: invalid syntax`, including a rule that resolved and a met window and posture
+  (candidate finding: one bad replay path erases four honest fields and reuses `missing`).
+- (e) a rule string carrying `\n::error::injected line\n` → loaded as
+  `prose::error::injected line` (control characters stripped at the parse seam,
+  `floor.py` line 1474 `strip_controls`); `--json` escapes; the CI line prints counts only. No
+  new `::` vector reaches a CI log (nothing in `floor.yml`/`ci.yml` runs `--declarations`).
+- (f) an unknown key inside `declares` → all `missing — not declared, or malformed`; a typo of the
+  key itself (`declare`) → `ConfigError`, exit 1 (pre-existing strictness). LA7 confirmed.
+- LA5: `--plane ci` and `--plane hook`, text and `--json`, on the probe with every `declares`
+  present and again with every `declares` stripped (`probe-child-nodecl`): exit 1 both times on
+  both planes, from real scanner results (ci: `board` rc 1; hook: secretscan, leakscan,
+  conflictscan, attribscan rc 2 on my fixtures); the sorted result tuples are identical with and
+  without declares; `meet_all_five` 1 vs 0. No exit read a declaration. Confirmed.
+- Old `floor.py` (`ba55be27^`) on the probe config: `ConfigError: unknown 'declares'`, exit 1.
+  A child that declares while a stale atelier checkout serves its hook fails closed (seam
+  strictness, pre-existing; note only).
+- New test count at `ba55be27`: DeclarationRegistryTest 6, DeclarationReaderTest 13,
+  DeclarationConfigTest 4, DeclarationSurfaceTest 5 = 28 (+ DeclarationLineTest 1) ✓.
+- `git diff ba55be27 HEAD -- tools/README.md`: no line of the `--declarations` section changed.
+- V3 mirrors of the seam contract: `floor.py` module docstring § THE REPO-LOCAL SEAM (line 204+)
+  lists `run`, `why`, `planes`, `args`, `scope` and not `declares`; `docs/build/REPO-STANDARD.md`
+  has no `declares`; README line 2757 names those two as "the full contract" (candidate minor).
+- Design note status line at HEAD: "proposed (design only; nothing built and no check changed)";
+  `docs/decisions/README.md` line 49: "proposed, design only, review owed" (stale once step 0
+  landed; candidate note).
+
+## Live re-drive (V2), read-only, children counted not named
+
+Driver `scratchpad/redrive.py`: old (`ba55be27^`) and new (`ba55be27`) tools dirs extracted with
+`git archive` into scratch; per child, `floor.py --plane {ci,hook} --root <child> --tools <ver>
+--json` under `nice -n 10`, GITHUB_* env unset (no network); compares exit codes and the sorted
+(name, state, rc, ran) result set. 22 children carry `.atelier-floor.json` on this machine; one
+is dirty (skipped, another session's); atelier itself excluded.
+- First attempt (background, cwd = scratch): the CI plane on a 415-file child ran > 10 min under
+  load 8–17 and the task was killed when my turn ended; the hook plane from a scratch cwd was
+  degenerate (the `--staged` scanners exit 2: "reads the git index of the directory it is run
+  in, and that is not the repo --root names"). Driver patched to `cwd=<child>`; children re-chosen
+  by tracked-file count (117–193 files); reruns in the foreground.
+- Hook plane, five children, 2026-11-22 ~23:23Z: old exit 1 = new exit 1 on each; sorted result
+  sets identical; 19–20 results each; the only non-zero result is `board` rc 1 (the staged board
+  check read outside a commit), on old and new alike. New `--json` adds the `declarations` key.
+- CI plane, the same five, ~23:24–23:25Z, 6–9 s per run: old exit 1 = new exit 1 on each; result
+  sets identical; 21–22 results; the only non-zero result is `board` rc 1 on every child with both
+  tool versions (the extracted 2026-11-09 `board.py` reading indexes rebuilt by today's board.py:
+  a vintage artefact, identical across the pair, so the comparison stands). The delta's claim
+  "identical exit codes and result sets on five children, CI and hook planes" reproduces.
+  Detail files: `scratchpad/child{1..5}-{ci,hook}.detail.txt`; no child name in this log.
+
+## Test suites (re-run lines 7–8), foreground, `nice -n 10`, one at a time
+
+- `python3 -m unittest test_floor` with the system `/usr/bin/python3` (3.9): ImportError, the suite
+  refuses < 3.11. Re-run with `/usr/local/bin/python3` (3.14.6): `Ran 260 tests in 326.573s OK`
+  (23:26–23:31Z). The brief's 255/184 s predates five later tests; load was 4–9.
+- `python3 -m unittest test_floorfleet` (3.14.6): `Ran 127 tests in 16.431s OK`. The rendered board
+  carried `🟡 declarations: 21 checks, 0 meet all five (floor.py --declarations)`.
+- `git status --short` after both: only the sibling deletion and the brief (my act 1). Worktree
+  otherwise untouched.
+
+## Act 1 written
+
+- Verdict appended below `---` in the brief (file now ~604 lines); Status line updated to "ACT 1
+  WRITTEN 2026-11-22 UTC ... act 2 pending". Findings CD1–CD12: 0 MAJOR, 2 MODERATE (CD1 reviewed is
+  free text; CD2 marker question stale at HEAD), 5 minor (CD3 unreadable replay collapses all five
+  fields; CD4 symlink containment; CD5 secretscan reason false; CD6 quotescan reason false at HEAD;
+  CD7 seam contract homes lack `declares`), 5 notes (CD8–CD12).
+- Scanners on the brief from the worktree root: datescan 0, wrapscan 0, spellscan 0, linkscan 0,
+  reviewscan 0, leakscan 0 (0 findings); pathscan exit 1 with 3 findings, all on the brief-writer's
+  lines 259/261 (record files retired since 2026-11-14 and the removed sibling), none on act-1 text;
+  pathscan is warn-only in the registry. My one line naming those files was reworded. Prose lines of
+  act 1 checked at ≤ 100 characters.
+- `/security-review` NOT RUN: the pending diff is the deleted sibling.
+- Left out and why: the registry's 18 `Unmet` groundings were not mutation-tested (no replay exists
+  to mutate); `--include-barred` never used; no child written to; scratch probes stay in the
+  scratchpad (no live captures).
+
+## Act 2 (reconcile), 2026-11-22 ~23:45Z, after act 1 committed as `8f96202b`
+
+- Read the released sibling (14 questions, 10 facts), `git log -1 --format=%B ba55be27` (the body),
+  item `115/120` lines 71+ (landing notes; the 2026-11-12 answer), the `160/1430` pointer.
+- Q1→lens 2; Q2→LA4/CD1; Q3→CD12 (GUARDS.md bar "outside with its way out named"); Q4→CD2 (the
+  item's third bullet shows the recording session had the list); Q5→16 met gaps re-read, CD12;
+  Q6→CD1 (landing note states the intent); Q7→new CD13 note (probe (b) had accepted a non-verdict
+  path as an incident); Q8→CD3; Q9→LA3; Q10→new CD14 note (README's "pays nothing" is about callers,
+  `--plane hook --json` reads everything; pinned by test); Q11/Q12→CD10; Q13→lens 4 + CD4;
+  Q14→commit body discloses the three ✅→Unmet moves; no finding; landing note misnames the three
+  new checks as group E (note).
+- Facts: 1 matches LA11; 2, 3 stale at HEAD; 8 confirms ConfigTest tests loading only; 10 = CD11.
+- Appended `### Reconcile`; act-1 text unrevised. Overall restated: 0 MAJOR, 2 MODERATE, 5 minor,
+  7 notes. Sibling not folded, nothing deleted (the orchestrator folds).
+- Scanners on the brief after act 2 (worktree root): datescan 0 (one slash-date in my fact line
+  reworded to words), wrapscan 0, spellscan 0, linkscan 0, leakscan 0, reviewscan 0; pathscan's
+  remaining hits are the brief-writer's lines 259/261 only (two retired record files, the removed
+  sibling); one fixture string quoted from the tests carries the repo's pathscan allow-marker.
+  Act-2 prose ≤ 100 characters. `git status`: only the sibling deletion and the brief. No commit.
+- Scratch left in the session scratchpad only: `delta.txt`, the commit dumps, `decl.*`, `list.txt`,
+  `probe-child*/`, `old/`, `new/`, `redrive.py`, `child{1..5}-*.detail.txt` (scanner result tuples
+  and local paths; no secrets, no provider reads). Finished 2026-11-22T23:43Z.

@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: every check states its five declaration fields (`115/120`, step 0).** The authoring session (a
+- [ ] 🎯 **Rule-4 cold pass queued: every check states its five declaration fields (`115/120`, step 0).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -21,3 +21,20 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ 2026-11-22T23:44Z: PASS RAN (Fable 5.1 reviewer; orchestrator session cd7d5f1e, started
+      by drain session eca14b23, formed no finding). Verdict PASS-WITH-FINDINGS: 0
+      MAJOR, 2 MODERATE (CD1, CD2), 5 minor (CD3–CD7), 7 notes (CD8–CD14, two formed
+      at reconcile). No standing MAJOR. Verdict, reconcile, folded sibling and review
+      log are in the brief.
+      🎯 Mike's to rule (rule 3, record all, apply nothing), plain:
+      CD1: a child's declaration can claim a rule was reviewed with any text at all,
+      and its "meets all five" count rises; should `reviewed` have to name a real
+      verdict file? Recommended: yes, checked like a citation.
+      CD2: six checks still print the allow-marker question as open, though the
+      2026-11-12 answers in `GUARDS.md` settled it; who restates them? Recommended:
+      the `160/1440` pass or the group-A lane, retiring the four stale statements
+      together.
+      CD3–CD7: two small reader hardenings (an unparseable test file, symlinks), two
+      wrong reasons in the registry, one doc mirror; recommended as one `floor.py`
+      lane, in a bulk yes. CD8–CD14: notes carried into the group lanes.
+      Routing: findings land in a build lane on `tools/floor.py`; none is applied.
