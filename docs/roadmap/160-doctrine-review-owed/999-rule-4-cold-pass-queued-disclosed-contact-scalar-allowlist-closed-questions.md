@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: disclosed contact with a review chain,
+- [ ] 🎯 **Rule-4 cold pass queued: disclosed contact with a review chain,
       the non-scalar field under an allowlist, and closing a house question
       locally (`280/040`, `320/090`, `310/090`).** This is standing review,
       secrets and propagation doctrine every repo reads. So the authoring
@@ -31,3 +31,30 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ 2026-11-22T20:37Z: PASS RAN (Fable 5.1, both acts; orchestrator as claimed).
+      **Verdict: PASS-WITH-FINDINGS — 0 MAJOR, 4 MODERATE, 7 minor, 4 note
+      (`DC1`–`DC11`, `N1`–`N4`, `R1`).** No standing MAJOR: the three
+      paragraphs are grounded and unchanged since landing; the defects are in
+      what each leaves out. MODERATE: `DC1`, contact the review chain starts
+      with the author has no named recorder; `DC2`, the contact record may be
+      a paraphrase where the sibling clause demands verbatim; `DC3`, the
+      non-scalar refinement hangs off a field-allowlist duty no house
+      doctrine states; `DC4`, the drain's orchestrator prompt (the rule's one
+      operational copy) omits the non-scalar clause. Minor: `DC5`, the floor
+      block a child reads carries only shape one; `DC6`, shape two has no
+      procedure; `DC7`, the chain list omits the orchestrator; `DC8`, "within
+      the hour" overstated; `DC9`–`DC11` (formed at reconcile), the receiver
+      is never told to identify the sender, nothing says what a disclosed
+      contact decides, and a kept scalar can itself be the secret.
+      🎯 **Owed to him (rule 3, every finding is his):** (1) `DC3`, whether
+      the house states the base duty (allowlist provider fields before
+      printing) in `SECRETS.md` so the refinement has something to refine;
+      (2) `DC1` + `DC9` + `DC2` + `DC10` together, how disclosed contact is
+      recorded (counsel: the receiver records every message by sender id,
+      verbatim, and the principal judges it at acceptance); (3) bulk-approve
+      the remaining wording fixes `DC4`–`DC8`, `DC11` and the notes as one
+      application commit. Recommendation: approve all three, `DC3` and `DC4`
+      first because they bear on live reads. *Routing:* an application
+      session in this repo after his word; its diff earns its own cold pass.
+      Verdict, folded sibling and review log:
+      `docs/reviews/2026-11-09-0207-contact-scalar-allowlist-closed-questions-cold.md`.
