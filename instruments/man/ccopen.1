@@ -1,0 +1,317 @@
+.TH CCOPEN 1 "2026-11-22" "atelier instruments" "User Commands"
+.SH NAME
+ccopen \- read what a session is opening onto, and whether anything is owing
+.SH SYNOPSIS
+.B ccopen
+.RB [ \-\-root
+.IR dir ]
+.RB [ \-\-json ]
+.RB [ \-\-no\-fetch ]
+.br
+.B ccopen
+.BR \-h " | " \-\-help
+.SH DESCRIPTION
+A session that opens onto a repo is meant to sync first, look for other live
+sessions, notice an interrupted predecessor's leavings, land any hand-up pull
+requests, check its atelier pin, and read the newest session files.
+Those steps are prose, in
+.IR CLAUDE.md ,
+in the session-open prompt and in the recovery sweep of
+.IR CONCURRENCY.md .
+A session that narrates them from habit can skip one without anyone seeing.
+.PP
+.B ccopen
+runs them as code, from a fresh read of the repository, the host and GitHub:
+seven reads in a fixed order, then one verdict line.
+It is the twin of
+.BR ccclose (1),
+which does the same for the close, and it reuses that tool's reads and
+.BR cclive (1)'s
+rather than copying them.
+.PP
+.B ccopen
+is a command the session-open prompt runs, never a hook.
+The principal uses the prompt only when he thinks it useful, and some sessions
+purposely leave some of its commands out.
+Nothing wires
+.B ccopen
+to session start, so a session opened without the prompt never runs it.
+.SS The reads
+Each read ends in one of four states:
+.B \[u2705]
+ready,
+.B \[u26A0]
+look,
+.B \[u274C]
+recover first, and
+.B \[u2796]
+not applicable, which means its input is absent and the line says why.
+A read never reports a pass for something it could not read: an unreadable
+input is
+.B \[u26A0]
+unknown, with the reason.
+Every run prints the same fields in the same order, known zeros included.
+Lists are capped at five per kind, with the cut counted.
+.TP
+.B Kind of session
+Atelier itself (a
+.I tools/pins.py
+beside
+.IR docs/method/PROPAGATION.md );
+a child of atelier (a pin
+.I atelier@<sha>
+or the floor stamp in
+.IR CLAUDE.md ),
+naming the pin and its queue file;
+a repo without doctrine, which is
+.B \[u26A0]
+because the prompt's minimum viable version applies, and which names the queue
+file it found (\fIdocs/ROADMAP.md\fR or \fIROADMAP.md\fR) or says there is none;
+or no repo at all.
+.TP
+.B Sync
+The branch and head, the working-tree files changed (listed), and ahead and
+behind against the branch's upstream, else the remote's default branch.
+A dirty tree is
+.B \[u26A0]
+and says that someone else may be editing: take a worktree, never autostash.
+A branch behind a clean tree is
+.B \[u26A0]
+with the pull command, \fBgit pull \-\-rebase\fR, to run on a clean tree only.
+Unpushed commits, a diverged branch, a detached HEAD and a failed fetch warn
+too, each in words.
+.TP
+.B Live work
+.BR cclive 's
+read, for this repo alone: transcripts written in the last ten minutes whose
+working directory is in it, the \fB[~]\fR claims matched to them (by the
+session id or worktree the claim stamp names), and the worktrees they are in.
+The calling session
+.RB ( $CLAUDE_CODE_SESSION_ID )
+is left out, so it never reports itself.
+Any other live session, live claim or live worktree is
+.BR \[u26A0] :
+coordinate, take a worktree, skip an item with a live claim.
+A repo with no board prints its claims as unknown, never zero.
+.TP
+.B Interrupted predecessor
+The recovery sweep, run on every open and not only on its tell: a session that
+died mid-flight leaves a last commit, then silence, and no closing session
+file, but a tool cannot read silence, and the sweep is cheap.
+It reports what no live session explains: dated claims no live session or
+worktree matches (an undated \fB[~]\fR is counted and not judged, because its
+stamp was not found), linked worktrees other than this one that no live session
+is in, each with its changed-file count, local branches that are not the
+default, not this one, not held by a worktree and not the head of an open pull
+request, each marked merged or not merged, and stash entries.
+Any of them is
+.B \[u274C]
+recover first.
+The number of commits on the integration branch after the newest commit to the
+session folder is printed as context and drives no state: in a repo with
+parallel sessions it is nonzero most of the time.
+.TP
+.B Hand-up PRs
+Open pull requests whose head ref starts
+.I report\-
+or
+.IR handup/ ,
+or whose title says hand-up (needs a GitHub remote and a working
+.BR gh (1)).
+In atelier itself, any is
+.BR \[u274C] :
+a child's filed finding has no owner until atelier lands it.
+In another repo it is
+.BR \[u26A0] ,
+since landing is atelier's.
+The count of other open pull requests is printed.
+.B gh
+missing, not authenticated or failing is
+.B \[u26A0]
+unknown.
+.TP
+.B Pin currency
+.BR ccclose 's
+pin check, unchanged, for a child: atelier's
+.B tools/pins.py \-\-json \-\-child
+on the repo.
+A pin behind with the floor text unchanged is
+.B \[u26A0]
+(read the delta, then decide).
+A floor that has changed since the pin, a floor copy that differs, or a pin
+that is ahead, diverged or unknown is
+.BR \[u274C] .
+It is not applicable for atelier itself and for a repo with no pin.
+.TP
+.B Newest session files
+The newest three names in the session folder
+.RI ( docs/sessions/
+or
+.IR sessions/ )
+at the integration branch, newest first, so the session reads them.
+It names files and reads none.
+A repo that keeps only the retired one-file index is
+.B \[u26A0]
+and says to read it by hand.
+.SS The verdict
+The last line is one of
+.B "\[u2705] ready to start" ,
+.B "\[u26A0] look first: ..."
+or
+.B "\[u274C] recover first: ..." ,
+the last two naming each read that raised them in words.
+Recover first wins when both apply.
+.SH OPTIONS
+.TP
+.BI \-\-root " dir"
+The repo to read.
+Default: the current directory, resolved to its git top level.
+.TP
+.B \-\-json
+Machine-readable output: the same reads, every field present on every run, and
+the verdict as
+.IR status ,
+.IR text ,
+.I recover
+and
+.IR look .
+Lists carry up to 25 entries.
+.TP
+.B \-\-no\-fetch
+Do not run
+.B git fetch
+in the repo.
+The sync read is then as of the last fetch, and says so.
+The pin read is measured offline, against the atelier checkout's local HEAD
+(\fBpins.py \-\-head\fR), and says so.
+.TP
+.BR \-h ", " \-\-help
+A one-screen summary.
+.SH EXIT STATUS
+.TP
+.B 0
+No read is recover-first.
+Some may warn or be unknown; the verdict line says so.
+.TP
+.B 1
+At least one read is recover-first.
+.TP
+.B 2
+A usage error: an unknown flag, a flag with no value, or a
+.B \-\-root
+that is not a directory.
+.SH FILES
+.TP
+.I ~/.claude/projects/*/*.jsonl
+Claude Code's transcripts, whose modification times and working directories
+the live-work read uses (as
+.B cclive
+does).
+Read a bounded tail at a time, and only when fresh.
+.TP
+.I docs/ROADMAP.md, ROADMAP.md
+The board, read for claims at the newest of the repo's
+.IR main / master
+refs, local and remote.
+.TP
+.I docs/sessions/, sessions/
+The session folder, read at the integration branch.
+.SH ENVIRONMENT
+.B ccopen
+reuses
+.BR ccclose 's
+reads, so it honours the same test seams.
+.TP
+.B CLAUDE_CODE_SESSION_ID
+The calling session, left out of the live-work read and not charged with its
+own claims.
+Unset, nothing is left out and the sync and live reads say so.
+.TP
+.B CCCLOSE_GH
+The
+.B gh
+executable to run.
+Default:
+.BR gh .
+The tests point it at a stub.
+.TP
+.B CCCLOSE_ATELIER
+The atelier checkout the pin read measures against, and whose
+.I tools/pins.py
+it runs.
+If set it is used as given: a wrong value is "no result", not a fall-back.
+.TP
+.B CCCLOSE_PINS_TIMEOUT
+The pin read's time limit, in seconds.
+Default: 20.
+.TP
+.B ATELIER_ESTATE_ROOT
+Where the pin read looks for an
+.I atelier
+checkout when it has no better answer.
+.TP
+.B HOME
+Where the transcripts are found.
+.SH EXAMPLES
+.TP
+.B ccopen
+The reads and the verdict, from the repo you are in, at session open.
+.TP
+.B ccopen \-\-no\-fetch
+The same, with no network write; the counts are as of the last fetch.
+.TP
+.B ccopen \-\-root ~/.pets/atelier \-\-json | jq .verdict
+The verdict, for a tool.
+.SH NOTES
+.B ccopen
+is read-only, with one exception: it runs
+.B git fetch
+in the repo, says so on its
+.B Fetch
+line, and
+.B \-\-no\-fetch
+skips it.
+A fetch updates remote-tracking refs and touches no working tree.
+It never commits, pulls, removes a worktree or branch, drops a stash or edits
+a file.
+Every other git call runs with
+.BR \-\-no\-optional\-locks ,
+because a plain
+.B git status
+refreshes the index under
+.IR index.lock ,
+and on a checkout another session shares, that write can collide with its
+commit.
+The pin read also fetches, inside
+.BR pins.py ,
+in the atelier checkout (not in the repo read), unless
+.B \-\-no\-fetch
+is given.
+.PP
+.B "No live session matched is not proof that none exists."
+A session open and waiting on its operator writes nothing, so a quiet claim,
+worktree or branch can still belong to a live one, and a claim whose stamp
+falls outside the first lines of its item is read as undated.
+Another machine's sessions are invisible.
+So a recover-first on residue means: read it, and settle it on the evidence
+before new work.
+It never means the residue is yours to delete: an orphan is reclaimed on the
+evidence and never on a timer, and another session's recovery is not yours to
+run.
+.PP
+A cold reviewer does not run
+.BR ccopen .
+The session log is on the review rules' barred list, and the interrupted and
+session-file reads look at the record.
+.PP
+It does not read the principal's own words for the run, the contents of the
+files it names, or the reflog after the last close, and it cannot say whether
+a dirty tree is a predecessor's or a peer's.
+The design of record is
+.IR instruments/ccopen.design.md .
+.SH SEE ALSO
+.BR ccclose (1),
+.BR cclive (1),
+.BR gh (1),
+.BR git\-worktree (1),
+.BR git\-stash (1)

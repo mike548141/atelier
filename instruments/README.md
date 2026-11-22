@@ -22,6 +22,7 @@ standard-library Python); each documents its own runtime.
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. `--search <term>` asks the other question: which turns, across every session in scope, match a term or a `--regex`. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `ccclose`       | observe   | The close-out checker. From a fresh read of the repo, GitHub and the session's own transcript, says whether a close left anything owing (worktrees, branches, pushes, PRs, the session record, the board, live claims, the floor at the pushed head, review pointers, workaround-shaped commands, subagents and anything else the session launched still running) and lists every ask, the questions put to the principal, the other repos touched and the other live sessions for the session to answer. Read-only. |
 | `cclive`        | observe   | One view of live work across every repo on the machine, for a session to read at open: each repo's `[~]` claims at its newest integration ref, its worktrees and last-commit ages, the sessions and agents whose transcripts were written recently, keyed to the repo by their own working directory, and the load average. Says which roots it scanned and what it skipped, and prints its limits every run. Read-only; no network. |
+| `ccopen`        | observe   | The session-open twin of `ccclose`, run by the session-open prompt and never by a hook. From a fresh read of the repo, GitHub and `cclive`, says what a session is opening onto and whether anything is owing: the kind of session (atelier, a child with its pin, or a repo without doctrine), sync (dirty files, ahead/behind, after one `git fetch`), live work, an interrupted predecessor's leavings (claims, worktrees, branches, stashes no live session explains), open hand-up PRs, pin currency and the newest session files. Ends with one verdict: ready to start, look first, or recover first. Read-only apart from the fetch (`--no-fetch` skips it). |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `ccmail`        | extend    | Open the Gmail attachments the mailbox connector can only *name* — it lists filenames and attachment ids but has no call that returns bytes. Fetches them to disk with its own read-only grant so the ordinary Read tool can open them. `--headers` writes a message's transport headers alone (no body, no subject), to measure a mail route without reading the mail. |
 | `ccpdf`         | extend    | A PDF page renderer built on macOS's own PDFKit, installed as `pdftoppm` — the binary Claude Code's file reader shells out to. Without it, a PDF on disk is still unreadable. |
@@ -52,17 +53,19 @@ three of the rows below. `ccclose` took a column on 2026-10-16. It shares only
 thing), `--json` and `-h`; its result cap is `--limit`, as in `ccmail --search`.
 `cclive` took a column on 2026-11-09. It shares only `--json` and `-h`; its `--root` is a
 repeatable search root, the word `tools/pins.py` uses for it.
+`ccopen` took a column on 2026-11-22. It shares `--json` and `-h`, and takes `--root <dir>` as
+`ccclose` does; `--no-fetch` is its own, naming the one write it makes.
 
-| Flag | Meaning | `ccarchive` | `cctranscript` | `ccrepo` | `ccclose` | `ccapple` | `cclive` |
-|------|---------|:-----------:|:---------------:|:--------:|:---------:|:---------:|:--------:|
-| `--dest <dir>` | Where the archive lives (default iCloud Drive, or `$CCARCHIVE_DEST`) | write target | read target (implies `--from-archive`) | read target (implies `--from-archive`) | — | — (it reads the Apple apps' fixed store locations; `--db <path>` overrides one store) | — (it reads the live store only) |
-| `--from-archive` | Read `ccarchive`'s mirror instead of the live logs | — (it *is* the archive) | ✅ | ✅ | — (a session being closed is live) | — (it reads the live Apple stores; there is no mirror) | — (a live view reads the live store) |
-| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | ✅ (`--search`) | ✅ | — | — (it opens databases only, never an evicted file's bytes) | — (it reads a bounded tail of fresh files; an evicted file is never fresh) |
-| `--since` / `--until` | Bound to a local date range (`YYYYMMDD`), judged on each message's own timestamp | — | ✅ (`--search`) | ✅ | — (its window is the session's own) | ✅ (local days, `--until` inclusive; `YYYY-MM-DD` or `YYYYMMDD`) | — (`--fresh <minutes>` sets the live bound) |
-| `--top <n>` | Keep only the first n rows per level, after ordering | — | ✅ (`--search`) | ✅ | — (lists are capped at 25, the cut counted) | — (`--limit <n>` caps a filtered search's results, the word `ccmail --search` uses) | — (lists cap at five per repo, the cut counted; `--all` lifts it) |
-| `--json` | Machine-readable output; never styled | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `--repo` | The repo dimension | — | `--repo <name>` selects one repo to read | `--repo <list>` filters/groups (comma = OR, `!` excludes, `*` globs) | — (`--root <dir>` names the checkout to check, as the `tools/` scanners spell it) | — (no repo dimension) | — (`--root <dir>` is a repeatable search root, as `tools/pins.py` spells it) |
-| `-h`, `--help` | One-screen usage summary | ✅ | ✅ | ✅ | ✅ | ✅ (per subcommand) | ✅ |
+| Flag | Meaning | `ccarchive` | `cctranscript` | `ccrepo` | `ccclose` | `ccapple` | `cclive` | `ccopen` |
+|------|---------|:-----------:|:---------------:|:--------:|:---------:|:---------:|:--------:|:--------:|
+| `--dest <dir>` | Where the archive lives (default iCloud Drive, or `$CCARCHIVE_DEST`) | write target | read target (implies `--from-archive`) | read target (implies `--from-archive`) | — | — (it reads the Apple apps' fixed store locations; `--db <path>` overrides one store) | — (it reads the live store only) | — (it reads the live repo and store) |
+| `--from-archive` | Read `ccarchive`'s mirror instead of the live logs | — (it *is* the archive) | ✅ | ✅ | — (a session being closed is live) | — (it reads the live Apple stores; there is no mirror) | — (a live view reads the live store) | — (a session being opened is live) |
+| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | ✅ (`--search`) | ✅ | — | — (it opens databases only, never an evicted file's bytes) | — (it reads a bounded tail of fresh files; an evicted file is never fresh) | — |
+| `--since` / `--until` | Bound to a local date range (`YYYYMMDD`), judged on each message's own timestamp | — | ✅ (`--search`) | ✅ | — (its window is the session's own) | ✅ (local days, `--until` inclusive; `YYYY-MM-DD` or `YYYYMMDD`) | — (`--fresh <minutes>` sets the live bound) | — (it reads now, not a range) |
+| `--top <n>` | Keep only the first n rows per level, after ordering | — | ✅ (`--search`) | ✅ | — (lists are capped at 25, the cut counted) | — (`--limit <n>` caps a filtered search's results, the word `ccmail --search` uses) | — (lists cap at five per repo, the cut counted; `--all` lifts it) | — (lists cap at five per kind, the cut counted) |
+| `--json` | Machine-readable output; never styled | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `--repo` | The repo dimension | — | `--repo <name>` selects one repo to read | `--repo <list>` filters/groups (comma = OR, `!` excludes, `*` globs) | — (`--root <dir>` names the checkout to check, as the `tools/` scanners spell it) | — (no repo dimension) | — (`--root <dir>` is a repeatable search root, as `tools/pins.py` spells it) | — (`--root <dir>` names the checkout, as `ccclose` spells it) |
+| `-h`, `--help` | One-screen usage summary | ✅ | ✅ | ✅ | ✅ | ✅ (per subcommand) | ✅ | ✅ |
 
 **Note — `--materialise` is the worked example, and it now has a second act.**
 Until 2026-08-09 this note explained why `cctranscript` carried **no**
@@ -431,6 +434,37 @@ one; a worker dispatched as its own session has its own transcript, which is not
 read, so its commits print as unconfirmed. A `⏳` review item is read from an
 item's state line only. The design of record is `ccclose.design.md`; the full
 reference is `man ccclose`.
+
+## ccopen — the session-open reads, run as code
+
+`ccopen` is `ccclose`'s twin for the other end of a session. `CLAUDE.md`'s read
+order, the session-open prompt's anchor and its live-session and interruption
+lines, and `CONCURRENCY.md`'s recovery sweep are prose, and a session that
+narrates them from habit can skip one without anyone seeing. `ccopen` runs them
+from a fresh read of the repo, `gh` and `cclive`, and prints seven reads in a
+fixed order (✅ ready · ⚠️ look · ❌ recover first · ➖ not applicable, with the
+reason) then one verdict line: *ready to start*, *look first*, or *recover
+first*. It exits 1 only on a recover-first.
+
+**It is a command the session-open prompt runs, never a hook.** The principal
+uses the prompt only when he thinks it useful, and some sessions purposely leave
+some of its commands out, so a session opened without the prompt never runs it.
+
+The reads: the kind of session (atelier itself, a child with its pin, a repo
+without doctrine and the queue file it names, or no repo); sync (dirty files,
+ahead/behind after a `git fetch`: a dirty tree says to take a worktree and never
+autostash); live work (`cclive`'s read of this repo, the calling session left
+out); an interrupted predecessor (dated claims, worktrees, branches and stash
+entries no live session explains, which is the sweep run on every open); open
+hand-up PRs (❌ in atelier itself, where landing them is the first act); pin
+currency (`ccclose` check 14's own read); and the newest three session files by
+name. What it cannot read prints unknown, never a pass, and "no live session
+matched" is never proof of none, which the line and the man page say. Read-only
+apart from the fetch it announces (`--no-fetch` skips it, and the pin is then
+measured offline); the test seams are `ccclose`'s (`$CCCLOSE_GH`,
+`$CCCLOSE_ATELIER`). A cold reviewer does not run it: the session log is barred
+(`REVIEW.md` rule 2). The design of record is `ccopen.design.md`; the full
+reference is `man ccopen`.
 
 ## ccarchive — keeping transcripts past Claude Code's cleanup
 

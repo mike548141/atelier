@@ -1,0 +1,611 @@
+#!/usr/bin/env node
+/*
+ * ccopen — the session-open reads, run as code.
+ *
+ * The opening reads are prose: CLAUDE.md's read order, the session-open
+ * prompt's anchor, its live-session and interruption lines, and
+ * CONCURRENCY.md's recovery sweep. A session narrates them from habit, and one
+ * that skips a step skips it silently. This runs them from a fresh read of the
+ * repo, the host and GitHub, prints seven reads in a fixed order (kind of
+ * session, sync, live work, interrupted predecessor, hand-up PRs, pin currency,
+ * newest session files) and ends with one verdict line. The design of record is
+ * instruments/ccopen.design.md.
+ *
+ * IT IS A COMMAND THE SESSION-OPEN PROMPT RUNS, NEVER A HOOK. The principal
+ * uses the prompt only when he thinks it useful, and some sessions purposely
+ * leave some of its commands out: a session opened without the prompt must not
+ * run this. Nothing here is wired to session start.
+ *
+ * READ-ONLY, except one `git fetch` of the repo's remote, which it says it did
+ * (--no-fetch skips it). Every git call runs with --no-optional-locks, so the
+ * check does not take the index lock it would be reporting contention on. The
+ * only other network is `gh` (the hand-up read) and pins.py's own fetch in the
+ * atelier checkout (the pin read; --no-fetch measures offline instead). What
+ * cannot be read prints unknown, never a pass.
+ *
+ * The reads reuse ccclose and cclive by require, so the tools cannot disagree
+ * about the repo, the board, the pin or what "live" means. Test seams are
+ * ccclose's: $CCCLOSE_GH names the gh executable, $CCCLOSE_ATELIER the atelier
+ * checkout the pin read measures against, $CCCLOSE_PINS_TIMEOUT its limit.
+ */
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+
+const cc = require(path.join(__dirname, 'ccclose'));
+const cl = require(path.join(__dirname, 'cclive'));
+
+const { git, lines, clip, isDir, isFile } = cc;
+
+const HELP = `ccopen — what a session is opening onto, read fresh
+
+USAGE
+  ccopen [--root <dir>] [--json] [--no-fetch]
+
+OPTIONS
+  --root <dir>  The repo to read (default: the current directory).
+  --json        Machine-readable output.
+  --no-fetch    Do not git fetch the remote (the one write ccopen makes); the
+                sync read is then as of the last fetch, and the pin read is
+                measured offline against atelier's local HEAD.
+  -h, --help    This help.
+
+Seven reads, every run: kind of session, sync (dirty files, ahead/behind),
+live work (cclive's read of this repo, excluding this session), an interrupted
+predecessor (claims, worktrees, branches, stashes no live session explains),
+open hand-up PRs, pin currency (pins.py: it fetches the atelier checkout's
+origin), the newest three session files. Ends with a verdict: ready to start,
+look first, or recover first. A command the session-open prompt runs, never a
+hook. Exit 0, or 1 when a read is a recover-first, or 2 for bad usage.
+Full manual: man ccopen`;
+
+// A list shows this many entries per category; counts stay whole.
+const SHOW = 5;
+// The most a structured list carries in --json.
+const JSON_CAP = 25;
+
+// --- arguments -----------------------------------------------------------
+
+function parseArgs(argv) {
+  const opts = { root: null, json: false, noFetch: false, help: false };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '-h' || a === '--help') opts.help = true;
+    else if (a === '--json') opts.json = true;
+    else if (a === '--no-fetch') opts.noFetch = true;
+    else if (a === '--root') {
+      const v = argv[i + 1];
+      if (v === undefined || v.startsWith('--')) return { error: `${a} needs a value` };
+      opts.root = v;
+      i++;
+    } else return { error: `unknown argument '${a}'` };
+  }
+  return opts;
+}
+
+// --- small helpers -------------------------------------------------------
+
+const ICON = cc.ICON;
+const safeReal = (p) => { try { return fs.realpathSync(p); } catch { return p; } };
+const shortSha = (s) => (s ? s.slice(0, 8) : 'unknown');
+const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+const ago = (ms) => cl.ago(ms);
+
+// A read: the fixed field set every read carries. `flag` is the phrase the
+// verdict line uses when the read is not a pass; `advice` is what to do.
+function read(id, label, status, summary, extra = {}) {
+  return {
+    id, label, status, summary,
+    flag: extra.flag || null,
+    items: extra.items || [],
+    advice: extra.advice || [],
+    data: extra.data || {},
+  };
+}
+
+// The first `n` of a list as display lines, with the cut counted.
+function capped(list, fmt, noun, n = SHOW) {
+  const out = list.slice(0, n).map(fmt);
+  if (list.length > n) out.push(`… and ${list.length - n} more ${noun}`);
+  return out;
+}
+
+// --- the repo, and the fetch ---------------------------------------------
+
+function fetchRemote(repo, opts) {
+  if (!repo.isGit) return { state: 'none', detail: 'not a git repository' };
+  if (!repo.remote) return { state: 'none', detail: 'no remote' };
+  if (opts.noFetch) return { state: 'skipped', detail: '--no-fetch' };
+  const r = git(repo.root, ['fetch', '--quiet', repo.remote], 90000);
+  if (r.ok) return { state: 'fetched', detail: `git fetch ${repo.remote}` };
+  return { state: 'failed', detail: clip(r.err || (r.code === null ? 'git did not finish' : `exit ${r.code}`), 160) };
+}
+
+// The integration ref: the remote's default branch when there is one, else the
+// local one. The sessions folder, the newest commit and the branches' merged
+// state are all read here.
+function integrationRef(repo) {
+  if (repo.remoteRef) return repo.remoteRef;
+  if (repo.defaultBranch && git(repo.root, ['rev-parse', '--verify', '--quiet', `refs/heads/${repo.defaultBranch}`]).ok) {
+    return `refs/heads/${repo.defaultBranch}`;
+  }
+  return null;
+}
+const refShort = (ref) => (ref ? ref.replace(/^refs\/(?:heads|remotes)\//, '') : null);
+
+// --- read 1: kind of session ---------------------------------------------
+
+const PIN_SHA = /atelier@([0-9a-f]{7,40})\b/i;
+const L_KIND = 'Kind of session';
+
+function readKind(repo) {
+  if (!repo.isGit) {
+    return { kind: 'none', read: read('kind', L_KIND, 'na', 'not a git repository — no doctrine to anchor to; work from the brief', { data: { kind: 'no-repo', pin: null, queue: null } }) };
+  }
+  const root = repo.root;
+  const b = cc.board({ root });
+  const queue = b ? b.index : null;
+  if (isFile(path.join(root, 'tools', 'pins.py')) && isFile(path.join(root, 'docs', 'method', 'PROPAGATION.md'))) {
+    return { kind: 'atelier', read: read('kind', L_KIND, 'pass', `atelier itself — the doctrine is this repo${queue ? ` · queue ${queue}` : ''}`, { data: { kind: 'atelier', pin: null, queue } }) };
+  }
+  const text = cc.claudeMdText(root);
+  if (text !== null && (cc.PIN_IN_CLAUDE.test(text) || cc.FLOOR_STAMP.test(text))) {
+    const m = text.match(PIN_SHA);
+    const pin = m ? m[1].slice(0, 7) : null;
+    return { kind: 'child', read: read('kind', L_KIND, 'pass', `child of atelier — ${pin ? `pinned atelier@${pin}` : 'floor stamped, no pin named in CLAUDE.md'}${queue ? ` · queue ${queue}` : ' · no queue file'}`, { data: { kind: 'child', pin, queue } }) };
+  }
+  const why = text === null ? 'no CLAUDE.md' : 'CLAUDE.md carries no atelier pin or floor block';
+  const how = `${why}; run the prompt's minimum viable version and say so — queue = ${queue || 'none found (no docs/ROADMAP.md or ROADMAP.md)'}`;
+  return {
+    kind: 'none-doctrine',
+    read: read('kind', L_KIND, 'warn', `a repo without doctrine — ${how}`, {
+      flag: 'no doctrine here (minimum viable version applies)',
+      advice: ['claim by editing the item line, committed and pushed before the work; close with a dated note a later session will read'],
+      data: { kind: 'no-doctrine', pin: null, queue },
+    }),
+  };
+}
+
+// --- read 2: sync --------------------------------------------------------
+
+const L_SYNC = 'Sync';
+
+function readSync(repo, fetch, ref) {
+  if (!repo.isGit) return read('sync', L_SYNC, 'na', 'not a git repository', { data: syncData() });
+  const status = git(repo.root, ['status', '--porcelain=v1', '--untracked-files=normal']);
+  if (!status.ok) return read('sync', L_SYNC, 'warn', `unknown — git status failed (${clip(status.err, 100)})`, { flag: 'sync unknown', data: syncData() });
+  const dirty = lines(status.out);
+
+  // The branch's own upstream, else the default branch's remote ref.
+  let base = null;
+  const up = git(repo.root, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}']);
+  if (up.ok && up.out.trim()) base = up.out.trim();
+  else if (repo.remoteRef) base = refShort(repo.remoteRef);
+  let ahead = null, behind = null;
+  if (base) {
+    const lr = git(repo.root, ['rev-list', '--left-right', '--count', `HEAD...${base}`]);
+    const m = lr.ok ? lr.out.trim().match(/^(\d+)\s+(\d+)$/) : null;
+    if (m) { ahead = Number(m[1]); behind = Number(m[2]); }
+  }
+
+  const notes = [];
+  const advice = [];
+  const flags = [];
+  let state = 'pass';
+  const warn = () => { state = 'warn'; };
+
+  if (dirty.length) {
+    warn();
+    flags.push(`dirty tree (${dirty.length} changed)`);
+    advice.push('someone else may be editing: take a worktree, never autostash (CLAUDE.md step 1); dirty work that is yours, commit or back out first');
+  }
+  if (repo.branch === null) { warn(); flags.push('detached HEAD'); notes.push('HEAD is detached'); }
+  if (base === null) notes.push(repo.remote ? 'no upstream or default remote ref to compare against' : 'no remote, so ahead/behind does not apply');
+  else if (ahead === null) { warn(); flags.push('ahead/behind unreadable'); notes.push(`ahead/behind ${base} could not be read`); }
+  else {
+    if (behind > 0 && ahead > 0) { warn(); flags.push(`diverged from ${base}`); advice.push(`diverged: ${ahead} ahead, ${behind} behind ${base}; read what is on each side before merging or rebasing`); }
+    else if (behind > 0) {
+      warn(); flags.push(`behind ${base} by ${behind}`);
+      advice.push(dirty.length
+        ? `behind ${base} by ${behind}: pull only on a clean tree; sort the dirty files first (in a worktree, rebase the branch)`
+        : `behind ${base} by ${behind}: git pull --rebase`);
+    } else if (ahead > 0) { warn(); flags.push(`${plural(ahead, 'unpushed commit')} on ${base}`); advice.push(`${plural(ahead, 'commit')} not on ${base}: push them, or find out whose they are`); }
+  }
+  if (fetch.state === 'failed') { warn(); flags.push('fetch failed'); notes.push(`fetch failed (${fetch.detail}), so ahead/behind is as of the last fetch`); }
+  else if (fetch.state === 'skipped') notes.push('not fetched (--no-fetch): as of the last fetch');
+
+  const where = `${repo.branch || '(detached)'} @ ${shortSha(repo.head)}`;
+  const counts = ahead === null ? 'ahead/behind ?' : `${ahead} ahead, ${behind} behind ${base}`;
+  const fetched = fetch.state === 'fetched' ? ' (fetched)' : '';
+  const summary = `${where} · ${dirty.length ? `tree DIRTY, ${dirty.length} changed` : 'tree clean'} · ${counts}${fetched}${notes.length ? ` · ${notes.join('; ')}` : ''}`;
+  return read('sync', L_SYNC, state, summary, {
+    flag: flags.join('; ') || null,
+    items: capped(dirty, (l) => l.replace(/\s+/g, ' ').trim(), 'changed file(s)'),
+    advice,
+    data: { ...syncData(), branch: repo.branch, head: repo.head, base, ahead, behind, dirty: dirty.length, dirtyFiles: dirty.slice(0, JSON_CAP), fetch: fetch.state },
+  });
+}
+function syncData() {
+  return { branch: null, head: null, base: null, ahead: null, behind: null, dirty: null, dirtyFiles: [], fetch: null };
+}
+
+// --- read 3: live work ---------------------------------------------------
+
+const L_LIVE = 'Live work';
+
+// The whole of cclive's read, for this one repo: transcripts written in the
+// last ten minutes whose working directory is in it, claims matched to them,
+// worktrees they are in. The calling session is left out of the transcripts, so
+// it never reports itself as the other live session.
+async function liveRead(repo, selfId) {
+  const now = Date.now();
+  const rep = await cl.readRepo({ name: path.basename(repo.root), root: repo.root }, now);
+  const projects = path.join(os.homedir(), '.claude', 'projects');
+  const { fresh, stats } = cl.collectTranscripts(projects, now, cc.FRESH_MS);
+  const others = selfId ? fresh.filter((f) => f.session !== selfId) : fresh;
+  const index = cl.buildIndex([rep]);
+  const { liveShort, liveWorktrees } = cl.buildSessions(others, index, now, selfId);
+  cl.markLive([rep], liveShort, liveWorktrees);
+  return { rep, stats, now };
+}
+
+function readLive(repo, live) {
+  const noData = { sessions: null, agents: null, liveClaims: null, claimsTotal: null, claimsUndated: null, liveWorktrees: null, worktrees: null, claimsKnown: false, sessionList: [], claimList: [], worktreeList: [] };
+  if (!repo.isGit) return read('live', L_LIVE, 'na', 'not a git repository', { data: noData });
+  if (!live.stats.readable) {
+    return read('live', L_LIVE, 'warn', `unknown — the transcript store is unreadable (${live.stats.error}), so live sessions are unknown, not zero`, { flag: 'live work unknown', data: noData });
+  }
+  const rep = live.rep;
+  const mine = safeReal(repo.root);
+  const sessions = rep.sessions.filter((s) => !s.self);
+  const agents = sessions.reduce((n, s) => n + s.agents, 0);
+  const liveClaims = rep.claims.filter((c) => c.live);
+  const undated = rep.claims.filter((c) => !c.dated).length;
+  const linked = rep.worktrees.filter((w) => safeReal(w.path) !== mine);
+  const liveWts = linked.filter((w) => w.live);
+
+  const parts = [`${plural(sessions.length, 'other live session')} (${plural(agents, 'agent')})`];
+  if (rep.claimsKnown) parts.push(`${liveClaims.length} of ${plural(rep.claims.length, 'claim')} live (${undated} undated)`);
+  else parts.push(`claims ? (${rep.claimsWhy || 'unknown'})`);
+  parts.push(rep.worktreesKnown ? `${liveWts.length} of ${plural(linked.length, 'other linked worktree')} live` : 'worktrees ?');
+
+  const items = [
+    ...capped(sessions, (s) => `session ${s.short} · written ${ago(s.lastWrittenAgoMs)} ago · ${clip(s.where.join(', '), 50)}${s.branch ? ` (${clip(s.branch, 40)})` : ''}${s.title ? ` · ${clip(s.title, 50)}` : ''}`, 'session(s)'),
+    ...capped(liveClaims, (c) => `claim ${c.id} · ${ago(c.ageMs)} ago · live${c.session ? ` · session ${c.session}` : ''}${c.worktree ? ` · wt ${clip(c.worktree, 40)}` : ''}${c.title ? ` · ${clip(c.title, 50)}` : ''}`, 'live claim(s)'),
+    ...capped(liveWts, (w) => `worktree ${clip(w.name, 40)} · ${w.branch ? clip(w.branch, 40) : '(no branch)'} · live`, 'live worktree(s)'),
+  ];
+  const data = {
+    sessions: sessions.length, agents, liveClaims: rep.claimsKnown ? liveClaims.length : null,
+    claimsTotal: rep.claimsKnown ? rep.claims.length : null, claimsUndated: rep.claimsKnown ? undated : null, liveWorktrees: rep.worktreesKnown ? liveWts.length : null,
+    worktrees: rep.worktreesKnown ? linked.length : null, claimsKnown: rep.claimsKnown,
+    sessionList: sessions.slice(0, JSON_CAP).map((s) => ({ session: s.short, lastWrittenAt: s.lastWrittenAt, where: s.where, branch: s.branch, agents: s.agents, title: s.title })),
+    claimList: liveClaims.slice(0, JSON_CAP).map((c) => ({ id: c.id, claimedAt: c.claimedAt, session: c.session, worktree: c.worktree, title: c.title })),
+    worktreeList: liveWts.slice(0, JSON_CAP).map((w) => ({ name: w.name, branch: w.branch })),
+  };
+  const unread = rep.errors.length || rep.claimsWhy === 'git grep failed';
+  if (sessions.length || liveClaims.length || liveWts.length) {
+    return read('live', L_LIVE, 'warn', parts.join(' · '), {
+      flag: 'other live work in this repo',
+      items, advice: ['coordinate: take a worktree, skip any item with a live claim, and watch their changes in flight'], data,
+    });
+  }
+  if (unread) {
+    return read('live', L_LIVE, 'warn', `${parts.join(' · ')} · unknown — ${rep.errors.map((e) => clip(e, 80)).join('; ') || 'claims could not be read'}`, { flag: 'live work partly unread', items, data });
+  }
+  return read('live', L_LIVE, 'pass', `${parts.join(' · ')} · transcripts written in the last ${cc.FRESH_MS / 60000} min`, { items, data });
+}
+
+// --- the open PRs, once --------------------------------------------------
+
+function readPrs(repo) {
+  if (!repo.isGit) return { why: 'not a git repository', na: true };
+  if (!repo.github) return { why: 'no GitHub remote', na: true };
+  const gh = cc.ghReady(repo);
+  if (gh.reason) return { why: gh.reason };
+  const prs = cc.ghJson(gh, repo, ['pr', 'list', '--state', 'open', '--limit', '100', '--json', 'number,title,headRefName,createdAt,url']);
+  if (!Array.isArray(prs)) return { why: 'gh pr list failed' };
+  return { prs };
+}
+
+// --- read 4: interrupted predecessor -------------------------------------
+
+const L_INT = 'Interrupted predecessor';
+
+function stashes(repo) {
+  const r = git(repo.root, ['stash', 'list', '--format=%gd%x09%ct%x09%gs']);
+  if (!r.ok) return null;
+  return lines(r.out).map((l) => {
+    const [name, ct, ...subject] = l.split('\t');
+    return { name, ageMs: Date.now() - Number(ct) * 1000, subject: subject.join('\t') };
+  });
+}
+
+function localBranches(repo, ref) {
+  const r = git(repo.root, ['for-each-ref', '--format=%(refname:short)%09%(committerdate:unix)', 'refs/heads']);
+  if (!r.ok) return null;
+  return lines(r.out).map((l) => {
+    const [name, ct] = l.split('\t');
+    const merged = ref ? git(repo.root, ['merge-base', '--is-ancestor', `refs/heads/${name}`, ref]).ok : null;
+    return { name, ageMs: Date.now() - Number(ct) * 1000, merged };
+  });
+}
+
+// Commits on the integration ref after the newest commit that touched the
+// session folder: the sweep's tell ("a last commit, then silence, and no
+// closing session file"). Context only: in a repo with parallel sessions it is
+// nonzero most of the time, so it drives no state.
+function afterSessionFile(repo, ref) {
+  const folder = ['docs/sessions', 'sessions'].find((rel) => ref && git(repo.root, ['ls-tree', '--name-only', ref, `${rel}/`]).out.trim());
+  if (!ref) return { known: false, why: 'no integration ref' };
+  if (!folder) return { known: false, why: 'no session folder at the integration ref' };
+  const last = git(repo.root, ['log', '-1', '--format=%H', ref, '--', folder]);
+  if (!last.ok || !last.out.trim()) return { known: false, why: 'no commit touches the session folder' };
+  const n = git(repo.root, ['rev-list', '--count', `${last.out.trim()}..${ref}`]);
+  if (!n.ok) return { known: false, why: 'git rev-list failed' };
+  return { known: true, count: Number(n.out.trim()), folder };
+}
+
+function readInterrupted(repo, live, ref, prs, self8) {
+  const data0 = { quietClaims: null, undatedClaims: null, worktrees: null, branches: null, stashes: null, commitsAfterSessionFile: null, claimList: [], worktreeList: [], branchList: [], stashList: [] };
+  if (!repo.isGit) return read('interrupted', L_INT, 'na', 'not a git repository', { data: data0 });
+  const rep = live.rep;
+  const mine = safeReal(repo.root);
+  const unknown = [];
+
+  // Claims no live session or worktree matches (dated ones only: an undated
+  // left-margin [~] is a progress mark more often than a claim, as cclive says).
+  let claims = null;
+  if (rep.claimsKnown) claims = rep.claims.filter((c) => c.dated && !c.live && !(self8 && c.session === self8));
+  else if (rep.claimsWhy === 'git grep failed') unknown.push('claims');
+
+  // Linked worktrees other than this one that no live session is in.
+  let wts = null;
+  if (rep.worktreesKnown) {
+    wts = rep.worktrees.filter((w) => !w.live && safeReal(w.path) !== mine).map((w) => {
+      let changed = null;
+      if (!w.prunable && isDir(w.path)) {
+        const st = git(w.path, ['status', '--porcelain=v1']);
+        if (st.ok) changed = lines(st.out).length;
+      }
+      return { ...w, changed };
+    });
+  } else unknown.push('worktrees');
+
+  // Local branches no worktree holds, that are not the default or this one,
+  // nor the head of an open PR (in flight, listed by the hand-up read's count).
+  let branches = null;
+  const all = localBranches(repo, ref);
+  if (all) {
+    const held = new Set(rep.worktrees.map((w) => w.branch).filter(Boolean));
+    if (rep._primary && rep._primary.branch) held.add(rep._primary.branch);
+    const prHeads = new Set((prs.prs || []).map((p) => p.headRefName));
+    branches = all.filter((b) => b.name !== repo.defaultBranch && b.name !== repo.branch && !held.has(b.name) && !prHeads.has(b.name));
+  } else unknown.push('branches');
+
+  const st = stashes(repo);
+  if (st === null) unknown.push('stashes');
+
+  const after = afterSessionFile(repo, ref);
+
+  const counts = [
+    `${claims === null ? 'claims ?' : plural(claims.length, 'quiet claim')}`,
+    `${wts === null ? 'worktrees ?' : plural(wts.length, 'worktree') + ' left'}`,
+    `${branches === null ? 'branches ?' : plural(branches.length, 'branch', 'branches') + ' left'}`,
+    `${st === null ? 'stashes ?' : plural(st.length, 'stash entry', 'stash entries')}`,
+  ];
+  const undatedClaims = rep.claimsKnown ? rep.claims.filter((c) => !c.dated).length : null;
+  if (undatedClaims) counts[0] += ` (+${undatedClaims} undated, not judged)`;
+  if (rep.claimsWhy === 'no board') counts[0] = 'claims n/a (no board)';
+  else if (!rep.claimsKnown && rep.claimsWhy && rep.claimsWhy !== 'git grep failed') counts[0] = `claims ? (${rep.claimsWhy})`;
+
+  const items = [
+    ...capped(claims || [], (c) => `claim ${c.id} · ${ago(c.ageMs)} ago · no live session${c.session ? ` (names ${c.session})` : ''}${c.worktree ? ` · wt ${clip(c.worktree, 40)}` : ''}${c.title ? ` · ${clip(c.title, 50)}` : ''}`, 'quiet claim(s)'),
+    ...capped(wts || [], (w) => `worktree ${clip(w.name, 40)} · ${w.branch ? clip(w.branch, 40) : '(no branch)'} · last commit ${w.lastCommitAgoMs === null ? '?' : `${ago(w.lastCommitAgoMs)} ago`} · ${w.prunable ? 'directory missing (prunable)' : w.changed === null ? 'changed files unknown' : `${w.changed} changed`} · no live session`, 'worktree(s)'),
+    ...capped(branches || [], (b) => `branch ${clip(b.name, 50)} · ${b.merged === null ? 'merge state unknown' : b.merged ? 'merged, not deleted' : 'not merged'} · tip ${ago(b.ageMs)} ago`, 'branch(es)'),
+    ...capped(st || [], (s) => `${s.name} · ${ago(s.ageMs)} ago · ${clip(s.subject, 60)}`, 'stash entries'),
+  ];
+  const context = after.known
+    ? `${plural(after.count, 'commit')} on ${refShort(ref)} after the newest commit touching ${after.folder}/ (context only: normal while sessions are mid-run)`
+    : `commits after the newest session file: unknown (${after.why})`;
+  items.push(`context: ${context}`);
+
+  const residue = (claims ? claims.length : 0) + (wts ? wts.length : 0) + (branches ? branches.length : 0) + (st ? st.length : 0);
+  const data = {
+    quietClaims: claims ? claims.length : null, undatedClaims, worktrees: wts ? wts.length : null,
+    branches: branches ? branches.length : null, stashes: st ? st.length : null,
+    commitsAfterSessionFile: after.known ? after.count : null,
+    claimList: (claims || []).slice(0, JSON_CAP).map((c) => ({ id: c.id, claimedAt: c.claimedAt, session: c.session, worktree: c.worktree, title: c.title })),
+    worktreeList: (wts || []).slice(0, JSON_CAP).map((w) => ({ name: w.name, path: w.path, branch: w.branch, changed: w.changed, prunable: w.prunable })),
+    branchList: (branches || []).slice(0, JSON_CAP).map((b) => ({ name: b.name, merged: b.merged })),
+    stashList: (st || []).slice(0, JSON_CAP).map((s) => ({ name: s.name, subject: s.subject })),
+  };
+  const unprovable = prs.prs ? '' : ' Open-PR heads could not be read (gh), so a branch in flight may be listed.';
+  if (residue) {
+    const bits = [];
+    if (claims && claims.length) bits.push(plural(claims.length, 'quiet claim'));
+    if (wts && wts.length) bits.push(plural(wts.length, 'worktree') + ' left');
+    if (branches && branches.length) bits.push(plural(branches.length, 'branch', 'branches') + ' left');
+    if (st && st.length) bits.push(plural(st.length, 'stash entry', 'stash entries'));
+    return read('interrupted', L_INT, 'fail', counts.join(' · '), {
+      flag: `residue no live session explains (${bits.join(', ')})`,
+      items,
+      advice: [
+        'read the residue and settle it on the evidence before new work (CONCURRENCY.md § Surviving an interrupted session); reclaim or put away what is provably dead, never on a timer',
+        `no live session matched these, which is not proof of none: another session's recovery is not yours to run (§ Stay in your lane).${unprovable}`,
+      ],
+      data,
+    });
+  }
+  if (unknown.length) {
+    return read('interrupted', L_INT, 'warn', `${counts.join(' · ')} · unknown — ${unknown.join(', ')} could not be read`, { flag: `interruption sweep partly unread (${unknown.join(', ')})`, items, data });
+  }
+  return read('interrupted', L_INT, 'pass', counts.join(' · '), { items, data });
+}
+
+// --- read 5: hand-up PRs -------------------------------------------------
+
+const L_HANDUP = 'Hand-up PRs';
+const HANDUP_HEAD = /^(?:report-|handup\/)/;
+const HANDUP_TITLE = /hand-?up/i;
+
+function readHandups(repo, kind, prs) {
+  const empty = { handups: null, otherOpen: null, list: [] };
+  if (prs.na) return read('handups', L_HANDUP, 'na', prs.why, { data: empty });
+  if (!prs.prs) return read('handups', L_HANDUP, 'warn', `unknown — ${prs.why}`, { flag: 'hand-up PRs unknown (gh)', data: empty });
+  const hand = prs.prs.filter((p) => HANDUP_HEAD.test(p.headRefName || '') || HANDUP_TITLE.test(p.title || ''));
+  const other = prs.prs.length - hand.length;
+  const summary = `${plural(hand.length, 'hand-up PR')} open · ${other} other open`;
+  const data = { handups: hand.length, otherOpen: other, list: hand.slice(0, JSON_CAP).map((p) => ({ number: p.number, title: p.title, head: p.headRefName, url: p.url })) };
+  if (!hand.length) return read('handups', L_HANDUP, 'pass', summary, { data });
+  const items = capped(hand, (p) => `#${p.number} ${clip(p.title, 70)} (${clip(p.headRefName, 40)})`, 'hand-up PR(s)');
+  if (kind === 'atelier') {
+    return read('handups', L_HANDUP, 'fail', summary, {
+      flag: `${plural(hand.length, 'hand-up PR')} to land`, items,
+      advice: ["a child's filed finding has no owner until atelier lands it: landing one is the first act of the session that finds one (PROPAGATION.md § Report without harming the parent); land as-is, renumber collisions"],
+      data,
+    });
+  }
+  return read('handups', L_HANDUP, 'warn', summary, {
+    flag: `${plural(hand.length, 'hand-up-shaped PR')} open`, items,
+    advice: ["landing a hand-up is atelier's job, not this repo's: read it for the picture and change nothing"], data,
+  });
+}
+
+// --- read 6: pin currency ------------------------------------------------
+
+const L_PIN = 'Pin currency';
+
+function readPin(repo, kind, opts) {
+  if (!repo.isGit) return read('pin', L_PIN, 'na', 'not a git repository', { data: { offline: opts.noFetch } });
+  const c = cc.checkPin(repo, process.env, opts.noFetch ? ['--head'] : []);
+  const offline = opts.noFetch && c.status !== 'na' ? ' (offline: measured against atelier\'s local HEAD, --no-fetch)' : '';
+  const status = c.status === 'pass' ? 'pass' : c.status === 'fail' ? 'fail' : c.status === 'warn' ? 'warn' : 'na';
+  const flag = status === 'fail' ? `pin or floor copy not current (${clip(c.summary, 90)})`
+    : status === 'warn' ? `pin read: ${clip(c.summary, 100)}` : null;
+  return read('pin', L_PIN, status, `${c.summary}${offline}`, {
+    flag, items: capped(c.items || [], (s) => s, 'line(s)'),
+    advice: status === 'warn' && /behind/.test(c.summary) ? ['read the delta and decide deliberately whether to bump the pin: not automatic'] : [],
+    data: { offline: opts.noFetch },
+  });
+}
+
+// --- read 7: newest session files ----------------------------------------
+
+const L_FILES = 'Newest session files';
+
+function readFiles(repo, ref) {
+  const data = { folder: null, files: [], retiredIndex: null };
+  if (!repo.isGit) return read('files', L_FILES, 'na', 'not a git repository', { data });
+  const at = ref || 'HEAD';
+  for (const rel of ['docs/sessions', 'sessions']) {
+    const r = git(repo.root, ['ls-tree', '--name-only', at, `${rel}/`]);
+    if (!r.ok) continue;
+    const names = lines(r.out).map((p) => p.split('/').pop()).filter((n) => /^\d.*\.md$/.test(n)).sort();
+    if (!names.length && !r.out.trim()) continue;
+    const newest = names.slice(-3).reverse().map((n) => `${rel}/${n}`);
+    data.folder = rel;
+    data.files = newest;
+    if (!newest.length) return read('files', L_FILES, 'pass', `${rel}/ holds no session file yet (at ${refShort(at)})`, { data });
+    return read('files', L_FILES, 'pass', `${plural(names.length, 'session file')} in ${rel}/ at ${refShort(at)}; read the newest ${newest.length}`, { items: newest, data });
+  }
+  for (const idx of ['docs/SESSIONS.md', 'SESSIONS.md']) {
+    if (git(repo.root, ['cat-file', '-e', `${at}:${idx}`]).ok) {
+      data.retiredIndex = idx;
+      return read('files', L_FILES, 'warn', `no session folder; the retired one-file index ${idx} is all this repo keeps: read its newest entries by hand`, { flag: 'only the retired session index to read', data });
+    }
+  }
+  return read('files', L_FILES, 'na', 'no session log in this repo (looked for docs/sessions/, sessions/)', { data });
+}
+
+// --- the verdict ---------------------------------------------------------
+
+function verdictOf(reads) {
+  const recover = reads.filter((r) => r.status === 'fail').map((r) => r.flag || r.label);
+  const look = reads.filter((r) => r.status === 'warn').map((r) => r.flag || r.label);
+  if (recover.length) return { status: 'recover', text: `❌ recover first: ${recover.join('; ')}`, recover, look };
+  if (look.length) return { status: 'look', text: `⚠️ look first: ${look.join('; ')}`, recover, look };
+  return { status: 'ready', text: '✅ ready to start', recover, look };
+}
+
+// --- assembling ----------------------------------------------------------
+
+async function collect(opts, env = process.env) {
+  // A fetch that wants a password must fail, not wait on a terminal.
+  process.env.GIT_TERMINAL_PROMPT = '0';
+  const rootArg = path.resolve(opts.root || '.');
+  let repo = cc.repoFacts(rootArg);
+  const fetch = fetchRemote(repo, opts);
+  if (fetch.state === 'fetched') repo = cc.repoFacts(rootArg);   // the remote's refs may have appeared
+  const selfId = env.CLAUDE_CODE_SESSION_ID || null;
+  const self8 = selfId ? selfId.slice(0, 8) : null;
+  const ref = repo.isGit ? integrationRef(repo) : null;
+
+  const k = readKind(repo);
+  const prs = readPrs(repo);
+  const live = repo.isGit ? await liveRead(repo, selfId) : null;
+
+  const reads = [
+    k.read,
+    readSync(repo, fetch, ref),
+    repo.isGit ? readLive(repo, live) : readLive(repo, null),
+    repo.isGit ? readInterrupted(repo, live, ref, prs, self8) : readInterrupted(repo, null, ref, prs, self8),
+    readHandups(repo, k.kind, prs),
+    readPin(repo, k.kind, opts),
+    readFiles(repo, ref),
+  ];
+  return {
+    tool: 'ccopen',
+    generatedAt: new Date().toISOString(),
+    session: { id: selfId, excludedFromLiveWork: Boolean(selfId) },
+    repo: repo.isGit
+      ? { isGit: true, root: repo.root, branch: repo.branch, head: repo.head, defaultBranch: repo.defaultBranch, remote: repo.remote, integrationRef: refShort(ref) }
+      : { isGit: false, root: repo.root, branch: null, head: null, defaultBranch: null, remote: null, integrationRef: null },
+    fetch,
+    reads,
+    verdict: verdictOf(reads),
+  };
+}
+
+// --- output --------------------------------------------------------------
+
+function render(r) {
+  const out = [];
+  out.push(`ccopen · session-open check · ${path.basename(r.repo.root)}${r.repo.isGit ? '' : ' (not a git repo)'}`);
+  const row = (k, v) => out.push(`  ${k.padEnd(8)} ${v}`);
+  row('Time', `${cc.utc(Date.parse(r.generatedAt))} UTC`);
+  row('Repo', r.repo.isGit
+    ? `${r.repo.root} · ${r.repo.branch || '(detached)'} @ ${shortSha(r.repo.head)} · default ${r.repo.defaultBranch || 'unknown'}`
+    : `${r.repo.root} — not a git repository`);
+  row('Fetch', r.fetch.state === 'fetched' ? `${r.fetch.detail}: done (the one write ccopen makes)`
+    : r.fetch.state === 'skipped' ? 'skipped (--no-fetch): ahead/behind is as of the last fetch'
+      : r.fetch.state === 'failed' ? `FAILED (${r.fetch.detail}): ahead/behind is as of the last fetch`
+        : `none (${r.fetch.detail})`);
+  row('Session', r.session.id ? `${r.session.id} (this session, left out of the live-work read)` : 'unknown ($CLAUDE_CODE_SESSION_ID is not set), so no session is left out of the live-work read');
+  out.push('');
+  const w = Math.max(...r.reads.map((x) => x.label.length));
+  for (const x of r.reads) {
+    out.push(`${ICON[x.status]} ${x.label.padEnd(w)}  ${x.summary}`);
+    for (const it of x.items) out.push(`     - ${it}`);
+    for (const a of x.advice) out.push(`     → ${a}`);
+  }
+  out.push('');
+  out.push(r.verdict.text);
+  return out.join('\n');
+}
+
+// --- main ----------------------------------------------------------------
+
+async function main() {
+  const opts = parseArgs(process.argv.slice(2));
+  if (opts.error) { console.error(`ccopen: ${opts.error}\n\n${HELP}`); process.exit(2); }
+  if (opts.help) { console.log(HELP); process.exit(0); }
+  if (opts.root && !isDir(path.resolve(opts.root))) { console.error(`ccopen: --root ${opts.root} is not a directory`); process.exit(2); }
+  const r = await collect(opts);
+  if (opts.json) console.log(JSON.stringify(r, null, 2));
+  else console.log(render(r));
+  process.exit(r.verdict.status === 'recover' ? 1 : 0);
+}
+
+module.exports = { parseArgs, collect, render, verdictOf, readKind, readSync, readHandups, readFiles, integrationRef, HANDUP_HEAD, HANDUP_TITLE };
+
+if (require.main === module) main();

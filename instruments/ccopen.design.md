@@ -1,6 +1,6 @@
 # ccopen — the session-open reads, run as code
 
-Status: **designed 2026-11-22; the build follows this note** (board `210/520`).
+Status: **built 2026-11-22** (board `210/520`; design committed first).
 It is the twin of `ccclose` (`ccclose.design.md`, which it follows in shape:
 home, four states, read-only, stable fields, one verdict line) and scales that
 design down: seven reads instead of fifteen checks, and no transcript to
@@ -148,3 +148,22 @@ with the cut counted, and known zeros are printed.
   (`REVIEW.md` rule 2); a cold pass does not run `ccopen`, whose reads 4 and 7
   look at the record. This is a property of the prompt (a review brief never
   includes it), stated in the man page.
+
+## 9. Changes the build made to this note
+
+- **Test seams are `ccclose`'s, shared**: `$CCCLOSE_GH`, `$CCCLOSE_ATELIER`,
+  `$CCCLOSE_PINS_TIMEOUT`. `ccopen` calls `ccclose`'s `ghReady` and `checkPin`,
+  so a second set of names would only have been a second thing to keep equal.
+- **Undated `[~]` lines are counted and not judged** (read 4): `cclive` reads an
+  item's stamp from the first lines of its first paragraph, so a claim whose
+  stamp sits further down (this item's own is the worked case) reads as
+  undated, with no session or worktree named. Judging those would make most
+  boards recover-first, so they print as `(+N undated, not judged)`; a claim
+  matched to a live session is live whether dated or not (read 3).
+- **`ccclose`'s `checkPin` takes optional extra `pins.py` arguments**, so
+  `--no-fetch` can pass `--head`; and `ccclose` exports the helpers `ccopen`
+  reuses, `cclive` exports `readRepo`. Their own tests still pass.
+- **A worker's worktree can read as left.** A session working by absolute path
+  from another directory writes a transcript whose `cwd` is not its worktree,
+  and its claim may be undated, so nothing matches the worktree to it. Read 4
+  then lists it, and says that no live session matched is not proof of none.

@@ -5,6 +5,30 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-22 — `ccopen`, the session-open twin of `ccclose`, `210/520`)
+- **The opening reads, run as code.** The principal: *"Also do the same for
+  anything else that we can build as deterministic code and hook into sessions
+  instead of using the prompt. But be mindful in all of these changes that I
+  only use the prompt when I think its useful too, there are some sessions
+  where I purposely dont want to give some of the commands that are in the
+  template prompt"*. So `ccopen` is a command the session-open prompt runs and
+  never a hook: a session opened without the prompt never runs it. Seven reads
+  in a fixed order, then one verdict (`ready to start`, `look first`, `recover
+  first`): the kind of session (atelier, a child with its pin, a repo without
+  doctrine and its queue file, or no repo); sync (dirty files, ahead/behind
+  after a `git fetch`); live work (`cclive`'s read of this repo, the calling
+  session left out); an interrupted predecessor (dated claims, worktrees,
+  branches and stash entries no live session explains); open hand-up PRs; pin
+  currency (`ccclose` check 14's read); the newest three session files.
+  Read-only apart from the fetch it announces (`--no-fetch` skips it). What it
+  cannot read prints unknown, never a pass. Design `instruments/ccopen.design.md`,
+  manual `man ccopen`, tests `instruments/ccopen.test.js`. A rule-4 cold pass is
+  owed on the build.
+- **Two exports, no behaviour change.** `ccclose` exports the helpers `ccopen`
+  reuses (repo facts, `git`, `gh` readiness, the session-log and `CLAUDE.md`
+  readers, the pin patterns) and its pin check takes optional extra `pins.py`
+  arguments (`--head`, for an offline read); `cclive` exports `readRepo`.
+
 ### Changed (2026-11-22 — `ccclose` takes over the close checks the session-open prompt asked in words, `210/480`)
 - **Four listings after the checks, so the close is one command.** The
   principal: *"I want you to look at everything in the lastest version of the

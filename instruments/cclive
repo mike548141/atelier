@@ -727,4 +727,4 @@ async function main() {
 
 if (require.main === module) main();
 
-module.exports = { parseArgs, resolveRoots, discover, parseWorktrees, parseClaims, claimId, claimTitle, tailInfo, collectTranscripts, buildIndex, locate, buildSessions, markLive, assemble, render, ago, printable, LIMITS };
+module.exports = { readRepo, parseArgs, resolveRoots, discover, parseWorktrees, parseClaims, claimId, claimTitle, tailInfo, collectTranscripts, buildIndex, locate, buildSessions, markLive, assemble, render, ago, printable, LIMITS };

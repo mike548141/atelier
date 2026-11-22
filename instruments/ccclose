@@ -1568,7 +1568,9 @@ function locateAtelier(repo, env = process.env) {
 const PIN_LABEL = 'Atelier pin and floor copy current';
 const noPin = (why) => check('pin', PIN_LABEL, 'warn', `no result — ${why}`);
 
-function checkPin(repo, env = process.env) {
+// extraArgs are appended to pins.py's own: ccopen passes --head for an offline
+// read (pins.py then measures against the atelier checkout's local HEAD).
+function checkPin(repo, env = process.env, extraArgs = []) {
   if (!repo.isGit) return check('pin', PIN_LABEL, 'na', NOT_GIT);
   if (isFile(path.join(repo.root, 'tools', 'pins.py')) && isFile(path.join(repo.root, 'docs', 'method', 'PROPAGATION.md'))) {
     return check('pin', PIN_LABEL, 'na', 'not a child — this is atelier itself (nothing pins it)');
@@ -1580,7 +1582,7 @@ function checkPin(repo, env = process.env) {
   const at = locateAtelier(repo, env);
   if (at.why) return noPin(at.why);
   const secs = Number(env.CCCLOSE_PINS_TIMEOUT) > 0 ? Number(env.CCCLOSE_PINS_TIMEOUT) : PINS_TIMEOUT_S;
-  const r = run('python3', ['-I', path.join(at.dir, 'tools', 'pins.py'), '--json', '--log', '--atelier', at.dir, '--child', repo.root], at.dir, secs * 1000);
+  const r = run('python3', ['-I', path.join(at.dir, 'tools', 'pins.py'), '--json', '--log', ...extraArgs, '--atelier', at.dir, '--child', repo.root], at.dir, secs * 1000);
   // pins exits 1 for "not current" and still prints its JSON; 2 means it could
   // not measure at all (a failed fetch, no origin/main); anything else, or no
   // exit code, is a run that did not finish.
@@ -3059,6 +3061,7 @@ async function main() {
 }
 
 module.exports = { launchForms, readProcs, checkLaunched, parseEtime, argvShown, parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
-  judgeAgent, FRESH_MS, checkPin, locateAtelier, board, CLAIM_LINE, worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };
+  judgeAgent, FRESH_MS, checkPin, locateAtelier, board, CLAIM_LINE,
+  repoFacts, run, git, lines, clip, isDir, isFile, ghReady, ghJson, sessionLog, claudeMdText, PIN_IN_CLAUDE, FLOOR_STAMP, check, ICON, utc, worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };
 
 if (require.main === module) main();
