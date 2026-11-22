@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 128 | 4 | 52 | 58 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 127 | 5 | 52 | 58 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 268 | 4 | 82 | 60 |
+| **All sections** | 267 | 5 | 82 | 60 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -260,7 +260,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🎯 [Rule-4 cold pass queued: his method for asking, and an answer is not…](roadmap/160-doctrine-review-owed/1250-rule-4-cold-pass-queued-asking-method-and-answer-versus-ruling.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose's fourth agent state, still running…](roadmap/160-doctrine-review-owed/1260-rule-4-cold-pass-queued-ccclose-running-state.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a floor disabled entry takes an end date,…](roadmap/160-doctrine-review-owed/1270-rule-4-cold-pass-queued-disabled-end-date-and-reviewscan-scope.md)
-- [ ] ⏳ [Rule-4 cold pass queued: the floor's record-store carve-out…](roadmap/160-doctrine-review-owed/1280-rule-4-cold-pass-queued-record-store-floor-three-rules.md)
+- [~] ⏳ [Rule-4 cold pass queued: the floor's record-store carve-out…](roadmap/160-doctrine-review-owed/1280-rule-4-cold-pass-queued-record-store-floor-three-rules.md)
 - [ ] ⏳ [Rule-4 cold pass queued: cclive, a machine-wide view of live work…](roadmap/160-doctrine-review-owed/1290-rule-4-cold-pass-queued-cclive-instrument.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the evidence-window rule (115/010), the…](roadmap/160-doctrine-review-owed/1300-rule-4-cold-pass-queued-evidence-window-declaration-settings-gate.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a voided allow-marker is noted (110/010),…](roadmap/160-doctrine-review-owed/1310-rule-4-cold-pass-queued-voided-marker-note-review-header.md)

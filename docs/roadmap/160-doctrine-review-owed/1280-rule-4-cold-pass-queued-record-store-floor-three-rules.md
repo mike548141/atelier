@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the floor's record-store carve-out (`030/130`), the shared-worktree shape of `/security-review` (`160/195`), no credential at rest (`060/010`), solve once at both scopes (`160/170`).** The authoring session (a
+- [~] ⏳ **Rule-4 cold pass queued: the floor's record-store carve-out (`030/130`), the shared-worktree shape of `/security-review` (`160/195`), no credential at rest (`060/010`), solve once at both scopes (`160/170`).** The authoring session (a
       principal-opened Opus 5.5 queue run, session d0ca5d24, 2026-11-09 UTC,
       which dispatched the worker that wrote it) queues this and does not
       take it.
@@ -15,3 +15,12 @@
       files leave the four regions untouched. Pass size: small to medium. Review NOT run: it
       waits for a criterion-passing cold Fable session and the principal's explicit permission
       for Fable work. Neither named session may run it.
+      🔒 2026-11-22T20:10Z: claimed for the Fable pass by a headless per-pass
+      orchestrator, session 60287c5a (Opus 5.5, rule-4 off-tier orchestrator:
+      it holds the partition and forms no finding), started by drain session
+      eca14b23; the reviewer is a Fable 5.1 subagent, tier checked at
+      selection. Neither is barred by the brief. The approval this item waits
+      for is his drain order of 2026-11-23, verbatim: *"Start a fable drain or
+      whatever it is called now. Target 100% of weekly budget by 11.30am NZT
+      todat"*. The held-back sibling is partitioned out of the review tree
+      until act 1 is committed.
