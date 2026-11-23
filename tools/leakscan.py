@@ -525,6 +525,17 @@ class Tally:
     files_opened: int = 0
     lines_read: int = 0
     binaries_checked: int = 0
+    # 110/060 - the `review-by` dates `.leakscanignore`'s globs declare, and
+    # those on `.leakscanbinaries` lines (a binary accepted for now), read by
+    # `allowmarker.read_ignore_deferments`. A lapsed or unreadable date WARNS
+    # and never blocks.
+    deferments: list = field(default_factory=list)
+    binary_deferments: list = field(default_factory=list)
+
+    def deferment_report(self) -> str:
+        return allowmarker.deferment_report_multi(
+            [(IGNORE_FILE, self.deferments),
+             (BINARY_MANIFEST, self.binary_deferments)])
 
     def coverage(self) -> str:
         return report.coverage_line(
@@ -1080,11 +1091,14 @@ def _looks_binary(data: bytes) -> bool:
 IgnoreFileError = allowmarker.IgnoreFileError
 
 
+IGNORE_FILE = ".leakscanignore"
+
+
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.leakscanignore`, each of which MUST carry a stated reason.
     Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
     scanner supplies only its own ignore-file name."""
-    return allowmarker.load_ignore_globs(root, ".leakscanignore")
+    return allowmarker.load_ignore_globs(root, IGNORE_FILE)
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
@@ -3648,6 +3662,7 @@ def render_human(findings: list[Finding], warning: str | None,
         lines.append(f"✓ leakscan clean ({cover}).")
         if tally is not None:
             lines.append(tally.summary())
+            lines.append(tally.deferment_report())
             lines.append(tally.coverage())
         lines.append(advisory_count_line(len(advisory) + advisory_over))
         lines.extend(render_advisory(advisory, advisory_over))
@@ -3663,6 +3678,7 @@ def render_human(findings: list[Finding], warning: str | None,
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.append(tally.deferment_report())
         lines.append(tally.coverage())
     lines.append(advisory_count_line(len(advisory) + advisory_over))
     lines.append("\n  A true positive: remove the data (and rotate if it's a secret).")
@@ -3929,6 +3945,9 @@ def _main(argv: list[str] | None = None) -> int:
         findings = scan_paths(targets, root, local_terms, disabled, tally)
 
     provwarn = tally.provenance_warnings
+    tally.deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
+    tally.binary_deferments = allowmarker.read_ignore_deferments(
+        root, BINARY_MANIFEST)
     # 115/090: findings from rules that are off report without blocking. They
     # are kept out of `blocking`, which alone feeds the exit code.
     blocking = [f for f in findings if f.blocks]
@@ -3969,6 +3988,10 @@ def _main(argv: list[str] | None = None) -> int:
                 "binaries_by_manifest": tally.binaries_by_manifest,
                 "binaries_untracked_not_gated": tally.binaries_untracked,
             },
+            "deferments": (
+                allowmarker.deferments_dict(tally.deferments, IGNORE_FILE)
+                + allowmarker.deferments_dict(tally.binary_deferments,
+                                              BINARY_MANIFEST)),
             "coverage": dict(
                 report.coverage_dict(
                     tally.files_opened,

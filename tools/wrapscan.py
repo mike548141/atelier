@@ -252,7 +252,7 @@ class Tally:
     def deferment_report(self) -> str:
         """`  deferments: N deferment(s) with review-by · M lapsed · K
         malformed`, then one 🟡 line per lapsed or unreadable date."""
-        return "\n".join(allowmarker.deferment_lines(IGNORE_FILE, self.deferments))
+        return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
 
     @property
     def marker_total(self) -> int:

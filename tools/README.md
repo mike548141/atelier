@@ -3172,7 +3172,7 @@ is a literal character that negates nothing, and `g/` or a bare directory name
 `g` matches everything beneath it. A glob that can never match exempts nothing,
 silently; write each glob as a path from the repo root.
 
-**A dated deferment** (`110/060`, slice 1). A glob meant to be fixed rather
+**A dated deferment** (`110/060`, slices 1 and 2). A glob meant to be fixed rather
 than accepted can carry an expiry: write `review-by: YYYY-MM-DD` in the comment
 attached to it, either the stanza above or its trailing `# reason`. A stanza's
 date covers every glob in that stanza.
@@ -3191,10 +3191,15 @@ dropped**: `review-by: soon`, an impossible date such as `2026-02-30`, an empty
 value, or two different dates on one glob each count as malformed. The token is
 `review-by:` as a whole word, so `pre-review-by:` is not it.
 
-**The first adopter is `wrapscan`**, which prints one more stable line after its
-`suppressed:` line, known zeros included, then one 🟡 line per lapsed or
-unreadable date. `--json` carries the same facts under `deferments`. Run on
-2026-11-16:
+**Twelve scanners read it** (slice 1: `wrapscan`; slice 2, 2026-11-23:
+`leakscan`, `secretscan`, `conflictscan`, `datescan`, `licenscan`, `linkscan`,
+`indexscan`, `pathscan`, `sizescan`, `spellscan`, `stampscan`), each from its
+own `.<name>ignore`. `leakscan` also reads `.leakscanbinaries`, where the date
+dates a binary accepted for now; it prints one count line over both files and
+names the file on each 🟡 line and in each `--json` entry (`file`). Each prints
+one more stable line after its `suppressed:` line, known zeros included, then
+one 🟡 line per lapsed or unreadable date. `--json` carries the same facts under
+`deferments`. Run on 2026-11-16:
 
 ```text
   deferments: 2 deferment(s) with review-by · 1 lapsed · 1 malformed
@@ -3202,11 +3207,20 @@ unreadable date. `--json` carries the same facts under `deferments`. Run on
     🟡 .wrapscanignore:7 'docs/bad/' review-by unreadable: 'soon' (write one YYYY-MM-DD date)
 ```
 
+The shared calls are `allowmarker.read_ignore_deferments`, `deferment_report`
+(`deferment_report_multi` for `leakscan`) and `deferments_dict`; a scanner adds
+one `IGNORE_FILE` name and a `deferments` field to its tally. The scanners with
+no tally object (`sizescan`, `stampscan`) take an optional `deferments` argument
+to `render_human`, which prints nothing when it is `None`.
+`tools/test_ignore_deferments.py` runs the same checks over all eleven slice-2
+scanners (and `test_wrapscan.py` over `wrapscan`), so one that loses the wiring
+fails by name.
+
 **Warn-only for now.** A lapsed or unreadable date changes no exit status.
 Children run atelier's floor at `@main`, so making it block is a separate, announced
-step. The other scanners' ignore files and the floor line and fleet board
-rendering are later slices of `110/060`. Until a scanner adopts the reader, a
-`review-by:` in its ignore file is still only a comment.
+step. The floor line and fleet board rendering are later slices of `110/060`.
+A scanner not listed above has no ignore file of this kind; a `review-by:` in
+any other file is still only a comment.
 
 ## Tests
 

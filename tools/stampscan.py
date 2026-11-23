@@ -896,11 +896,14 @@ def _evaluate(block: StampBlock, canonical: list[str], floor: bool) -> Finding:
 IgnoreFileError = allowmarker.IgnoreFileError
 
 
+IGNORE_FILE = ".stampscanignore"
+
+
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.stampscanignore`, each of which MUST carry a stated reason.
     Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
     scanner supplies only its own ignore-file name."""
-    return allowmarker.load_ignore_globs(root, ".stampscanignore")
+    return allowmarker.load_ignore_globs(root, IGNORE_FILE)
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
@@ -1068,8 +1071,18 @@ def _coverage_tail(cov: dict | None) -> str:
     return "\n" + report.coverage_line(cov["files"], cov["lines"])
 
 
+def _deferment_tail(deferments: "list | None") -> str:
+    """110/060: the `review-by` report, on its own line(s) after the
+    suppressed line, or nothing when the caller has not read the dates (the
+    in-memory test paths). Warn-only: it never changes a verdict."""
+    if deferments is None:
+        return ""
+    return "\n" + allowmarker.deferment_report(IGNORE_FILE, deferments)
+
+
 def render_human(findings: list[Finding], files_by_glob: int = 0,
-                 lines_truncated: int = 0, cov: dict | None = None) -> str:
+                 lines_truncated: int = 0, cov: dict | None = None,
+                 deferments: "list | None" = None) -> str:
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     drifts = [f for f in findings if f.kind in _DRIFT_KINDS]
     notes = [f for f in findings if f.kind in _CLEAN_KINDS]
@@ -1077,6 +1090,7 @@ def render_human(findings: list[Finding], files_by_glob: int = 0,
     if not findings:
         return ("✓ stampscan clean — no stamped blocks found.\n"
                 + _suppression_line(findings, files_by_glob, lines_truncated)
+                + _deferment_tail(deferments)
                 + _coverage_tail(cov))
 
     lines: list[str] = []
@@ -1102,6 +1116,7 @@ def render_human(findings: list[Finding], files_by_glob: int = 0,
         for f in sorted(notes, key=lambda x: (x.path, x.line)):
             lines.append(f"    {f.path}:{f.line}  [{f.kind}] {f.detail}")
     lines.append(_suppression_line(findings, files_by_glob, lines_truncated)
+                 + _deferment_tail(deferments)
                  + _coverage_tail(cov))
     # The footer never offers a way out of a red it has just given (FV2): a
     # floor drift gets its own line, with no `narrow=` and no allow marker, and
@@ -1200,6 +1215,7 @@ def _main(argv: list[str] | None = None) -> int:
         print(f"stampscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
 
+    deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     drifts = [f for f in findings if f.kind in _DRIFT_KINDS]
 
@@ -1249,10 +1265,12 @@ def _main(argv: list[str] | None = None) -> int:
                 "files_by_ignore_glob": len(_skipped),
                 "lines_truncated": len(_truncated),
             },
+            "deferments": allowmarker.deferments_dict(deferments),
             "coverage": report.coverage_dict(cov["files"], cov["lines"]),
         }, indent=2))
     else:
-        print(render_human(findings, len(_skipped), len(_truncated), cov))
+        print(render_human(findings, len(_skipped), len(_truncated), cov,
+                           deferments))
         if drifts and args.warn and not errors:
             print("\n  (--warn: advisory only — drift not blocking this build.)")
 

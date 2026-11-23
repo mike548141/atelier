@@ -472,9 +472,16 @@ class Report:
     # the same result as a run over the repo.
     files_opened: int = 0
     lines_read: int = 0
+    # 110/060 - the `review-by` dates `.licenscanignore`'s globs declare
+    # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
+    # WARNS and never blocks.
+    deferments: list = field(default_factory=list)
 
     def coverage(self) -> str:
         return report.coverage_line(self.files_opened, self.lines_read)
+
+    def deferment_report(self) -> str:
+        return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
 
     @property
     def clean(self) -> bool:
@@ -622,11 +629,14 @@ def _judge(d: Declaration, repo: str | None,
 IgnoreFileError = allowmarker.IgnoreFileError
 
 
+IGNORE_FILE = ".licenscanignore"
+
+
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.licenscanignore`, each of which MUST carry a stated reason.
     Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
     scanner supplies only its own ignore-file name."""
-    return allowmarker.load_ignore_globs(root, ".licenscanignore")
+    return allowmarker.load_ignore_globs(root, IGNORE_FILE)
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
@@ -784,6 +794,7 @@ def render_human(rep: Report) -> str:
                 "licenscan", f"nothing blocks a publish — repo licence {lic}; "
                              "see the advisory findings below."))
         lines.append(_suppression_line(rep))
+        lines.append(rep.deferment_report())
         lines.append(rep.coverage())
         lines.append(advisory_count_line(len(advisory)))
         if advisory:
@@ -797,6 +808,7 @@ def render_human(rep: Report) -> str:
                                     "licenscan", f.kind))
     lines.append("")
     lines.append(_suppression_line(rep))
+    lines.append(rep.deferment_report())
     lines.append(rep.coverage())
     lines.append(advisory_count_line(len(advisory)))
     lines.append(f"\n  A false positive: append '# {ALLOW_MARKER}: <reason>' to the")
@@ -840,6 +852,7 @@ def _main(argv: list[str] | None = None) -> int:
     rep = scan_repo(root, files, args.expect)
     rep.files_by_glob = len(_skipped)
     rep.files_truncated = len(_truncated)
+    rep.deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
 
     blocking, advisory = rep.blocking, rep.advisory
     if args.json:
@@ -856,6 +869,7 @@ def _main(argv: list[str] | None = None) -> int:
             "repo_license_path": rep.repo_license_path,
             "findings": report.finding_dicts("licenscan", rep.findings,
                                              lambda f: f.kind),
+            "deferments": allowmarker.deferments_dict(rep.deferments),
             "coverage": report.coverage_dict(rep.files_opened,
                                              rep.lines_read),
         }, indent=2))

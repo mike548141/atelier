@@ -223,10 +223,17 @@ class Tally:
     # clean result as a run over everything.
     files_opened: int = 0
     lines_read: int = 0
+    # 110/060 - the `review-by` dates `.secretscanignore`'s globs declare
+    # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
+    # WARNS and never blocks.
+    deferments: list = field(default_factory=list)
     _materialized: int = field(default=0, repr=False, compare=False)
 
     def coverage(self) -> str:
         return report.coverage_line(self.files_opened, self.lines_read)
+
+    def deferment_report(self) -> str:
+        return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
 
     @property
     def marker_total(self) -> int:
@@ -1278,11 +1285,14 @@ ALL_RULES = frozenset({p.name for p in NAMED}
 IgnoreFileError = allowmarker.IgnoreFileError
 
 
+IGNORE_FILE = ".secretscanignore"
+
+
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.secretscanignore`, each of which MUST carry a stated reason.
     Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
     scanner supplies only its own ignore-file name."""
-    return allowmarker.load_ignore_globs(root, ".secretscanignore")
+    return allowmarker.load_ignore_globs(root, IGNORE_FILE)
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
@@ -1938,6 +1948,7 @@ def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
         if tally is not None:
             lines.append(tally.summary())
             lines.extend(_fingerprint_locations_line(tally))
+            lines.append(tally.deferment_report())
             lines.append(tally.coverage())
         lines.append(advisory_count_line(len(advisory) + advisory_over))
         if advisory:
@@ -1956,6 +1967,7 @@ def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
         lines.append("")
         lines.append(tally.summary())
         lines.extend(_fingerprint_locations_line(tally))
+        lines.append(tally.deferment_report())
         lines.append(tally.coverage())
     lines.append(advisory_count_line(len(advisory) + advisory_over))
     lines.append("\n  A true positive: remove the secret, move it to the secret store")
@@ -2059,6 +2071,7 @@ def _main(argv: list[str] | None = None) -> int:
             return rc
         findings = scan_paths(targets, root, disabled, tally)
 
+    tally.deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
     blocking = [f for f in findings if f.blocks]
     # 020/370 — a capped run's TRUE counts include what the cap counted but
     # never materialized (`Tally.take_finding_slot`); reading `len(findings)`
@@ -2095,6 +2108,7 @@ def _main(argv: list[str] | None = None) -> int:
                     "advisory": tally.advisory_over_cap,
                 },
             },
+            "deferments": allowmarker.deferments_dict(tally.deferments),
             "coverage": report.coverage_dict(tally.files_opened,
                                              tally.lines_read),
         }, indent=2))

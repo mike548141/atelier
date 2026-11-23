@@ -196,9 +196,16 @@ class Tally:
     # run over nothing cannot print the same clean result as a run over docs.
     files_opened: int = 0
     lines_read: int = 0
+    # 110/060 - the `review-by` dates `.spellscanignore`'s globs declare
+    # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
+    # WARNS and never blocks.
+    deferments: list = field(default_factory=list)
 
     def coverage(self) -> str:
         return report.coverage_line(self.files_opened, self.lines_read)
+
+    def deferment_report(self) -> str:
+        return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
 
     @property
     def marker_total(self) -> int:
@@ -682,11 +689,14 @@ def _scan_numbered_lines(path: str, numbered_lines, tally: "Tally | None" = None
 IgnoreFileError = allowmarker.IgnoreFileError
 
 
+IGNORE_FILE = ".spellscanignore"
+
+
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.spellscanignore`, each of which MUST carry a stated reason.
     Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
     scanner supplies only its own ignore-file name."""
-    return allowmarker.load_ignore_globs(root, ".spellscanignore")
+    return allowmarker.load_ignore_globs(root, IGNORE_FILE)
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
@@ -765,7 +775,8 @@ def scan_staged(added: dict[str, set[int]], root: Path,
 def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if not findings:
         out = report.clean_head("spellscan", "no US spellings found.")
-        return out + ("\n" + tally.summary() + "\n" + tally.coverage()
+        return out + ("\n" + tally.summary() + "\n" + tally.deferment_report()
+                      + "\n" + tally.coverage()
                       if tally is not None else "")
     lines = [report.findings_head("spellscan", len(findings))]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
@@ -778,6 +789,7 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.append(tally.deferment_report())
         lines.append(tally.coverage())
     lines.append("\n  A real US spelling: replace with the NZ-English form.")
     lines.append(f"  A legit API/tool term: inline-code it, add to ALLOWLIST_PHRASES,")
@@ -858,6 +870,7 @@ def _main(argv: list[str] | None = None) -> int:
         except OSError as e:
             return report.cannot_read("spellscan", e)
 
+    tally.deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
     if args.json:
         print(json.dumps({
             "clean": not findings,
@@ -870,6 +883,7 @@ def _main(argv: list[str] | None = None) -> int:
                 "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
+            "deferments": allowmarker.deferments_dict(tally.deferments),
             "coverage": report.coverage_dict(tally.files_opened,
                                              tally.lines_read),
         }, indent=2))

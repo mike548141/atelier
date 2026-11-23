@@ -229,9 +229,16 @@ class Tally:
     # over nothing cannot print the same clean result as a run over everything.
     files_opened: int = 0
     lines_read: int = 0
+    # 110/060 - the `review-by` dates `.datescanignore`'s globs declare
+    # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
+    # WARNS and never blocks.
+    deferments: list = field(default_factory=list)
 
     def coverage(self) -> str:
         return report.coverage_line(self.files_opened, self.lines_read)
+
+    def deferment_report(self) -> str:
+        return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
 
     @property
     def marker_total(self) -> int:
@@ -752,11 +759,14 @@ def _scan_numbered_lines(path: str, numbered_lines, tally: "Tally | None" = None
 IgnoreFileError = allowmarker.IgnoreFileError
 
 
+IGNORE_FILE = ".datescanignore"
+
+
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.datescanignore`, each of which MUST carry a stated reason.
     Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
     scanner supplies only its own ignore-file name."""
-    return allowmarker.load_ignore_globs(root, ".datescanignore")
+    return allowmarker.load_ignore_globs(root, IGNORE_FILE)
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
@@ -873,6 +883,7 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
                                  "no relative-time words or non-ISO dates found.")]
         if tally is not None:
             out.append(tally.summary())
+            out.append(tally.deferment_report())
             out.append(tally.coverage())
         return "\n".join(out + tail)
     lines = [report.findings_head("datescan", len(findings))]
@@ -885,6 +896,7 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     lines.append("  to the line, or add a path glob to .datescanignore.")
     if tally is not None:
         # 115/130: the findings path says what it covered too.
+        lines.append(tally.deferment_report())
         lines.append(tally.coverage())
     return "\n".join(lines + tail)
 
@@ -965,6 +977,7 @@ def _main(argv: list[str] | None = None) -> int:
     # `blocking`, which alone feeds the exit code.
     blocking = [f for f in findings if f.blocks]
     advisory = [f for f in findings if not f.blocks]
+    tally.deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
     if args.json:
         print(json.dumps({
             # `clean` and `findings` keep their meaning: BLOCKING findings
@@ -987,6 +1000,7 @@ def _main(argv: list[str] | None = None) -> int:
                 "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
+            "deferments": allowmarker.deferments_dict(tally.deferments),
             "coverage": report.coverage_dict(tally.files_opened,
                                              tally.lines_read),
         }, indent=2))

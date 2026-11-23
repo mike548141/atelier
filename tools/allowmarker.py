@@ -662,13 +662,37 @@ def deferment_lines(filename: str, deferments: list[Deferment],
     return out
 
 
-def deferments_dict(deferments: list[Deferment]) -> list[dict]:
+def deferment_report(filename: str, deferments: list[Deferment]) -> str:
+    """`deferment_lines` joined for a scanner's human output (110/060): the
+    one call every ignore-file scanner makes after its `suppressed:` line."""
+    return "\n".join(deferment_lines(filename, deferments))
+
+
+def deferment_report_multi(sources: list[tuple[str, list[Deferment]]]) -> str:
+    """`deferment_report` for a scanner with more than one dated file
+    (`leakscan`: `.leakscanignore` and `.leakscanbinaries`): ONE count line
+    over every file, then each file's 🟡 lines, each naming its file."""
+    parts = [deferment_lines(name, ds) for name, ds in sources]
+    dated = sum(1 for _, ds in sources for d in ds if d.review_by is not None)
+    lapsed = sum(1 for _, ds in sources for d in ds if d.lapsed)
+    bad = sum(1 for _, ds in sources for d in ds if d.malformed)
+    head = (f"  deferments: {dated} deferment(s) with review-by · "
+            f"{lapsed} lapsed · {bad} malformed")
+    return "\n".join([head] + [ln for p in parts for ln in p[1:]])
+
+
+def deferments_dict(deferments: list[Deferment],
+                    filename: str | None = None) -> list[dict]:
     """The JSON surface: one object per glob that declares a review-by, read
     well or not, so a later slice (the floor line, the fleet board) reads the
-    same facts the human line prints."""
-    return [{"line": d.line, "glob": d.glob, "review_by": d.review_by,
-             "lapsed": d.lapsed, "malformed": list(d.malformed)}
-            for d in deferments if d.review_by is not None or d.malformed]
+    same facts the human line prints. A scanner with several dated files names
+    the file in each object (`filename`); one with a single file need not."""
+    out = [{"line": d.line, "glob": d.glob, "review_by": d.review_by,
+            "lapsed": d.lapsed, "malformed": list(d.malformed)}
+           for d in deferments if d.review_by is not None or d.malformed]
+    if filename is not None:
+        out = [{"file": filename, **o} for o in out]
+    return out
 
 
 # ---------------------------------------------------------------- census --

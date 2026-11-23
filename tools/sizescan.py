@@ -529,11 +529,14 @@ def cold_item_count(text: str, basename: str) -> int:
 IgnoreFileError = allowmarker.IgnoreFileError
 
 
+IGNORE_FILE = ".sizescanignore"
+
+
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.sizescanignore`, each of which MUST carry a stated reason.
     Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
     scanner supplies only its own ignore-file name."""
-    return allowmarker.load_ignore_globs(root, ".sizescanignore")
+    return allowmarker.load_ignore_globs(root, IGNORE_FILE)
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
@@ -1053,7 +1056,8 @@ def render_human(findings: list[Finding], files_allowed: int = 0,
                  inert: list[InertHatch] | None = None,
                  loose: list[LooseScope] | None = None,
                  store_dirs: int = 0,
-                 coverage: "tuple[int, int] | None" = None) -> str:
+                 coverage: "tuple[int, int] | None" = None,
+                 deferments: "list | None" = None) -> str:
     # `inert` is every inert hatch the scan found; the ones on a cold-content
     # finding are printed under that finding, the rest in their own section.
     # Both count on the suppressed line.
@@ -1063,6 +1067,10 @@ def render_human(findings: list[Finding], files_allowed: int = 0,
     loose = loose or []
     tally = _suppression_line(files_allowed, files_by_glob, cold_over_cap,
                               n_inert, len(loose), store_dirs)
+    # 110/060: the `review-by` dates `.sizescanignore` declares, one stable
+    # line after the suppressed line; None for a caller that has not read them.
+    if deferments is not None:
+        tally += "\n" + allowmarker.deferment_report(IGNORE_FILE, deferments)
     # 115/130: `coverage` is (files opened, lines read); None for a caller that
     # does not have it (the tally line is then exactly what it always was).
     if coverage is not None:
@@ -1204,6 +1212,7 @@ def _main(argv: list[str] | None = None) -> int:
         except OSError as e:
             return report.cannot_read("sizescan", e)
 
+    deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
     if args.json:
         print(json.dumps({
             "clean": not findings,
@@ -1221,6 +1230,9 @@ def _main(argv: list[str] | None = None) -> int:
             # Roadmaps not read for cold content because they sit under a
             # store-named directory (160/790 HX3). Known zero printed too.
             "roadmaps_in_store_dirs": counts["roadmaps_in_store_dirs"],
+            # The `review-by` dates `.sizescanignore` globs declare (110/060);
+            # warn-only, never part of the verdict.
+            "deferments": allowmarker.deferments_dict(deferments),
             # Files opened and lines read (115/130): a run over nothing reads
             # `scanned_nothing: true` rather than `clean: true` alone.
             "coverage": report.coverage_dict(counts["files_opened"],
@@ -1236,7 +1248,8 @@ def _main(argv: list[str] | None = None) -> int:
         print(render_human(findings, counts["files_allowed"],
                            counts["files_by_glob"], counts["cold_over_cap"],
                            inert, loose, counts["roadmaps_in_store_dirs"],
-                           (counts["files_opened"], counts["lines_read"])))
+                           (counts["files_opened"], counts["lines_read"]),
+                           deferments))
 
     # Report-only by default: exit 0. --check gives teeth to what has a
     # pure-win remedy — relocatable cold content (a [x] item on the hot path) and

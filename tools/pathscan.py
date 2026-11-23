@@ -516,7 +516,14 @@ class Tally:
     # check reads differently from a tree whose references all resolve.
     files_opened: int = 0
     refs_checked: int = 0
+    # 110/060 - the `review-by` dates `.pathscanignore`'s globs declare
+    # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
+    # WARNS and never blocks.
+    deferments: list = field(default_factory=list)
     _materialized: int = field(default=0, repr=False, compare=False)
+
+    def deferment_report(self) -> str:
+        return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
 
     def coverage(self) -> str:
         return report.coverage_line(self.files_opened, self.refs_checked,
@@ -1327,11 +1334,14 @@ def scan_file(md_file: Path, root: Path, tally: "Tally | None" = None,
 IgnoreFileError = allowmarker.IgnoreFileError
 
 
+IGNORE_FILE = ".pathscanignore"
+
+
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.pathscanignore`, each of which MUST carry a stated reason.
     Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
     scanner supplies only its own ignore-file name."""
-    return allowmarker.load_ignore_globs(root, ".pathscanignore")
+    return allowmarker.load_ignore_globs(root, IGNORE_FILE)
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
@@ -1503,7 +1513,8 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if not findings and not over_cap:
         out = report.clean_head(
             "pathscan", "every candidate repo-path reference resolves.")
-        return out + ("\n" + tally.summary() + "\n" + tally.coverage()
+        return out + ("\n" + tally.summary() + "\n" + tally.deferment_report()
+                      + "\n" + tally.coverage()
                       if tally is not None else "")
     lines = [report.findings_head("pathscan", len(findings) + over_cap)]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
@@ -1520,6 +1531,7 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+        lines.append(tally.deferment_report())
         lines.append(tally.coverage())
     lines.append("\n  A real stale path: fix the reference (or restore/rename the target).")
     lines.append("  A false positive or deliberate stub: append "
@@ -1603,6 +1615,7 @@ def _main(argv: list[str] | None = None) -> int:
     except OSError as e:
         return report.cannot_read("pathscan", e)
 
+    tally.deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
     total = len(findings) + tally.findings_over_cap
     if args.json:
         payload = {
@@ -1617,6 +1630,7 @@ def _main(argv: list[str] | None = None) -> int:
                 "by_allow_marker_rule": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
+            "deferments": allowmarker.deferments_dict(tally.deferments),
             "coverage": report.coverage_dict(
                 tally.files_opened, tally.refs_checked,
                 unit_key="path_references_checked"),

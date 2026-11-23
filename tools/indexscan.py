@@ -233,10 +233,13 @@ class ConfigError(ValueError):
 IgnoreFileError = allowmarker.IgnoreFileError
 
 
+IGNORE_FILE = ".indexscanignore"
+
+
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.indexscanignore`, each carrying a stated reason —
     single-sourced in `tools/allowmarker.py`; this supplies only the name."""
-    return allowmarker.load_ignore_globs(root, ".indexscanignore")
+    return allowmarker.load_ignore_globs(root, IGNORE_FILE)
 
 
 @dataclass(frozen=True)
@@ -274,7 +277,14 @@ class Tally:
     # (`indexes` above counts only those that declared one), so a tree where
     # nothing declares reads differently from a tree with nothing in it.
     files_opened: int = 0
+    # 110/060 - the `review-by` dates `.indexscanignore`'s globs declare
+    # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
+    # WARNS and never blocks.
+    deferments: list = field(default_factory=list)
     _materialized: int = field(default=0, repr=False, compare=False)
+
+    def deferment_report(self) -> str:
+        return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
 
     @property
     def out_of_scope(self) -> bool:
@@ -323,7 +333,8 @@ class Tally:
                      f"{self.files_by_glob} file(s) by .indexscanignore",
                      report.cap_part(self.findings_over_cap,
                                      MAX_MATERIALIZED_FINDINGS)],
-                    breakdown=self.by_marker_kind))
+                    breakdown=self.by_marker_kind)
+                + "\n" + self.deferment_report())
 
 
 def parse_allow(line: str) -> tuple[str, str] | None:
@@ -832,6 +843,7 @@ def _main(argv: list[str] | None = None) -> int:
     except OSError as e:
         return report.cannot_read("indexscan", e)
 
+    tally.deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
     total = len(findings) + tally.findings_over_cap
     if args.json:
         print(json.dumps({
@@ -850,6 +862,7 @@ def _main(argv: list[str] | None = None) -> int:
                            "by_exclude": tally.by_exclude,
                            "by_before": tally.by_before,
                            "files_by_ignore_glob": tally.files_by_glob},
+            "deferments": allowmarker.deferments_dict(tally.deferments),
         }, indent=2))
     else:
         print(render_human(findings, tally))
