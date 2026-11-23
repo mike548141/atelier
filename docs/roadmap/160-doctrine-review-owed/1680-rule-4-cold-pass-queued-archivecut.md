@@ -20,7 +20,9 @@
       (`docs/method/RECORD.md`, four places reworded to the store form);
       widened 2026-11-23 by the commit for `010/280` items 1–4
       (`tools/archivecut.py`, `tools/board.py`'s `ARCHIVE_SECTION` rule, and
-      their tests).
+      their tests); widened 2026-11-23 again by the commit that has
+      `archivecut` find a session log at the repo root (`010/280`;
+      `tools/archivecut.py`, its tests, `tools/README.md`).
       *Suggested finding prefix:* `XC` (no collision in `docs/reviews` or the
       board at queuing).
       *What to test hardest:* can a cut pass its proof and still lose or

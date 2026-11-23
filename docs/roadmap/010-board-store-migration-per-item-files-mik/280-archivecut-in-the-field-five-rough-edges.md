@@ -1,4 +1,4 @@
-- [~] 🔎 **`archivecut` in the field: five rough edges from its first fleet
+- [ ] 🔎 **`archivecut` in the field: five rough edges from its first fleet
       run.** Filed 2026-11-20 by session 19378351 from the reports of the
       workers it ran in sixteen children (class only; every cut that ran
       proved byte for byte and landed with green CI). None lost data; each
@@ -57,4 +57,16 @@
       spelling is still read, so repos already cut still verify. Tests in
       `tools/test_archivecut.py`. **Still open:** root session-log sources,
       and item 5 (the `attribscan` record-path decision).
-      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-archroot)*
+      ✅ **2026-11-23 (queue run 608d8123, a Sonnet worker, read by the run
+      before landing):** root session-log sources. `SESSIONS-ARCHIVE.md` and
+      `SESSIONS.md` are each taken from `docs/` first, else the repo root;
+      with both copies of one, `docs/` wins and the plan names the other and
+      leaves it. A root log's links re-point two levels down and map back
+      exactly, so `--verify` proves it byte for byte. 46 tests in
+      `tools/test_archivecut.py`. Covered by `160/1680`, whose delta now
+      includes this commit. Seen, not fixed: placed entries gain `../` (or
+      `../../` from the root) per link, which can push a line past the
+      house width, and the `WRAP` report reads only re-pointed tree files,
+      not the placed session files. **Still open:** item 5 (the
+      `attribscan` record-path decision, the principal's), and that width
+      gap.
