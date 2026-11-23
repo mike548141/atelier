@@ -1,4 +1,4 @@
-- [~] **Give a deferment an expiry at every granularity, not just `advisory`.**
+- [ ] **Give a deferment an expiry at every granularity, not just `advisory`.**
       Raised by the ruling above. Today `review-by` is a floor-config field, so
       the only declarable deferment is a whole check. The two cases just dated
       are path-level, and a line marker has the same hole — `<guard>:allow:` is
@@ -33,4 +33,15 @@
       2026-11-16; this slice is additive and warn-only).
       🔒 CLAIMED 2026-11-16T11:55Z (claimed 2026-11-16-1155, wt: qr-78ca-expiry) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
-      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-expiry)*
+      **Slice 2 built 2026-11-23 (queue run 608d8123, a Sonnet worker, read
+      by the run before landing): part (1).** All eleven other ignore-file
+      scanners read `review-by` (`leakscan` over both `.leakscanignore` and
+      `.leakscanbinaries`, `secretscan`, `conflictscan`, `datescan`,
+      `licenscan`, `linkscan`, `indexscan`, `pathscan`, `sizescan`,
+      `spellscan`, `stampscan`), each printing the `deferments:` line
+      `wrapscan` prints and carrying `deferments` in `--json`; one helper,
+      `allowmarker.deferment_report`, serves all twelve (`wrapscan`'s output
+      unchanged). Warn-only: tests in `tools/test_ignore_deferments.py`
+      compare exit status with and without dates on a tree each scanner
+      blocks. **Remaining:** (2) the floor line and fleet board, (3) red
+      when lapsed, where the cold pass is owed, (4) line-marker granularity.

@@ -24,7 +24,7 @@ line, so they overlap Open and Claimed.
 | [PRINCIPLES §9 — the time dimension, and what it now obliges (Mike, 2026-08-08)](roadmap/080-principles-9-the-time-dimension-and-what/README.md) | 1 | 0 | 0 | 0 |
 | [The floor-at-head all-clear has a cancelled-run hole (found 2026-08-09)](roadmap/090-the-floor-at-head-all-clear-has-a-cancel/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [spellscan's reason class silently voided live allow-markers — CLOSED 2026-08-09](roadmap/100-spellscan-s-reason-class-silently-voided/README.md) | 0 | 0 | 0 | 0 |
-| [Estate duplication + exception audit (Mike commissioned 2026-08-09)](roadmap/110-estate-duplication-exception-audit-mike/README.md) | 6 | 1 | 1 | 0 |
+| [Estate duplication + exception audit (Mike commissioned 2026-08-09)](roadmap/110-estate-duplication-exception-audit-mike/README.md) | 7 | 0 | 1 | 0 |
 | [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 17 | 0 | 3 | 0 |
 | ✅ [test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 269 | 2 | 106 | 38 |
+| **All sections** | 270 | 1 | 106 | 38 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -141,7 +141,7 @@ line, so they overlap Open and Claimed.
 - [ ] [Eight children carry a floor block that predates four doctrine…](roadmap/110-estate-duplication-exception-audit-mike/030-eight-children-carry-a-floor-block-that-predat.md)
 - [ ] [shed narrows the floor legitimately and undeclarably.](roadmap/110-estate-duplication-exception-audit-mike/040-shed-narrows-the-floor-legitimately-and-undecl.md)
 - [ ] [The economics-doc duplication — the audit's headline, and Mike's…](roadmap/110-estate-duplication-exception-audit-mike/050-the-economics-doc-duplication-the-audit-s-head.md)
-- [~] (claimed 2026-11-16-1155, wt: qr-78ca-expiry) [Give a deferment an expiry at every…](roadmap/110-estate-duplication-exception-audit-mike/060-give-a-deferment-an-expiry-at-every-granularit.md)
+- [ ] [Give a deferment an expiry at every granularity, not just advisory.](roadmap/110-estate-duplication-exception-audit-mike/060-give-a-deferment-an-expiry-at-every-granularit.md)
 - [ ] [Make the estate's floor state answer "passing", not just "wired".](roadmap/110-estate-duplication-exception-audit-mike/080-make-the-estate-s-floor-state-answer-passing-n.md)
 - [ ] [Triage the four red floors.](roadmap/110-estate-duplication-exception-audit-mike/090-triage-the-four-red-floors.md)
 - [ ] 🎯 [The exception audit above checked reason-presence and effectiveness —…](roadmap/110-estate-duplication-exception-audit-mike/100-two-granularities-the-2026-08-09-audit-never-asked-about.md)
