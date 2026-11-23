@@ -17,3 +17,9 @@
       leak to delete, or a frozen record to exempt by named path) and this
       item as the deadline; the filer fixed nothing there. Re-run the same
       probe to see which are still open; flip when it reads zero.
+      **Probed again 2026-11-23 (queue run c7a1e36e), still blocked, and
+      narrower.** The same read-only probe over every git repo under the
+      estate root: this repo and every other child clean; one child carries
+      3 unexempted `tool-markup` findings, all in two frozen review records
+      (down from 8 across three children). Its own board item, filed
+      2026-11-06, still owns them. Flip when the probe reads zero.
