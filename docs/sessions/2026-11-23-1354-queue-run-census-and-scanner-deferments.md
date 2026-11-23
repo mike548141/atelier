@@ -67,6 +67,11 @@ from other repos' runs) and started at 15:55 UTC at load 5.
   on 2026-10-17/18 are signed by a key outside `allowed_signers`, and one
   2026-09-16 merge is unsigned; warn-first today, red at the flip.
 
+- **Hand-up PR #141** (a private child's, opened mid-run) landed as
+  `320/900`: outside a git work tree, `leakscan` and `secretscan` prune
+  skip-named directories without counting the files they skip. PR closed,
+  branch deleted.
+
 ## Misses, owned
 
 - **`main` went red twice.** (1) `110/060` slice 2 landed on module tests
