@@ -154,7 +154,7 @@ class CoverageLine(unittest.TestCase):
         out, code = ss.render_human(rep, warn=False)
         self.assertEqual(code, 0)
         self.assertIn("  coverage: 2 commit(s) examined \u00b7 1 signature(s) "
-                      "verified", out)
+                      "checked (1 good \u00b7 0 bad)", out)
         self.assertNotIn("scanned nothing", out)
 
     def test_a_failing_range_prints_it_too(self):
@@ -162,13 +162,13 @@ class CoverageLine(unittest.TestCase):
                                     warn=False)
         self.assertEqual(code, 1)
         self.assertIn("coverage: 1 commit(s) examined \u00b7 1 signature(s) "
-                      "verified", out)
+                      "checked (0 good \u00b7 1 bad)", out)
 
     def test_an_empty_range_says_scanned_nothing_and_still_passes(self):
         out, code = ss.render_human(self._report([]), warn=False)
         self.assertEqual(code, 0)
         self.assertIn("coverage: 0 commit(s) examined \u00b7 0 signature(s) "
-                      "verified", out)
+                      "checked (0 good \u00b7 0 bad)", out)
         self.assertIn("scanned nothing: no commits were evaluated", out)
 
     def test_only_server_commits_verify_nothing_here_and_say_so(self):
@@ -180,7 +180,23 @@ class CoverageLine(unittest.TestCase):
     def test_json_carries_the_same_coverage(self):
         rep = self._report([("github", "deferred"), ("machine", "good")])
         self.assertEqual({"files_opened": 2, "signatures_verified": 1,
-                          "scanned_nothing": False}, ss.coverage_dict(rep))
+                          "scanned_nothing": False, "signatures_checked": 1,
+                          "signatures_good": 1, "signatures_bad": 0},
+                         ss.coverage_dict(rep))
+
+    def test_a_bad_signature_is_checked_not_verified(self):
+        """115/510 item 3: the line once counted a failed signature as
+        verified. The old key keeps its value; the new keys tell the truth."""
+        rep = self._report([("machine", "good"), ("machine", "bad"),
+                            ("github", "deferred")])
+        out, _ = ss.render_human(rep, warn=True)
+        self.assertNotIn("signature(s) verified", out)
+        self.assertIn("2 signature(s) checked (1 good \u00b7 1 bad)", out)
+        d = ss.coverage_dict(rep)
+        self.assertEqual((2, 1, 1), (d["signatures_checked"],
+                                     d["signatures_good"],
+                                     d["signatures_bad"]))
+        self.assertEqual(2, d["signatures_verified"])
 
 
 class BoundedMemory(unittest.TestCase):

@@ -201,23 +201,38 @@ def _selftest() -> int:
     return 0 if ok else 1
 
 
+def _counts(report: dict) -> tuple[int, int, int]:
+    """(checked, good, bad) over the machine plane: a signature is checked
+    when git was asked to verify it, good only when it passed."""
+    machine = [r for r in report["results"] if r["plane"] == "machine"]
+    bad = sum(1 for r in machine if r["status"] == "bad")
+    return len(machine), len(machine) - bad, bad
+
+
 def coverage_line(report: dict) -> str:
     """115/130: how many commits were examined and how many signatures the
-    machine plane actually verified, so an empty range (or one made only of
-    server-minted commits, which are deferred) cannot read like a pass."""
-    results = report["results"]
-    verified = sum(1 for r in results if r["plane"] == "machine")
+    machine plane checked, so an empty range (or one made only of
+    server-minted commits, which are deferred) cannot read like a pass.
+    115/510 item 3: the unit says "checked" and splits good from bad, since
+    a failed signature is checked but not verified."""
+    checked, good, bad = _counts(report)
     return _report.coverage_line(
-        len(results), verified, unit="signature(s) verified",
+        len(report["results"]), checked,
+        unit=f"signature(s) checked ({good} good \u00b7 {bad} bad)",
         noun="commit(s) examined", files_what="commits",
         units_what="signatures")
 
 
 def coverage_dict(report: dict) -> dict:
-    results = report["results"]
-    return _report.coverage_dict(
-        len(results), sum(1 for r in results if r["plane"] == "machine"),
-        unit_key="signatures_verified")
+    """The `--json` twin. `signatures_verified` keeps its old key and value
+    for readers of the earlier shape (it counts signatures checked, bad ones
+    included: 115/510 item 3); the honest counts are added beside it."""
+    checked, good, bad = _counts(report)
+    d = _report.coverage_dict(
+        len(report["results"]), checked, unit_key="signatures_verified")
+    d.update(signatures_checked=checked, signatures_good=good,
+             signatures_bad=bad)
+    return d
 
 
 def render_human(report: dict, warn: bool) -> tuple[str, int]:
