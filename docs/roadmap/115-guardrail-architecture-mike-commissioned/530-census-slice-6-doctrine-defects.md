@@ -41,3 +41,9 @@
       5 (root `CLAUDE.md`'s widening sentence, which is the principal's
       autonomy floor: his word), 7 (a dated template clause, wants a
       design) and 8 (atelier's repo type, a choice).
+      *Item 5 withdrawn 2026-11-23 ~19:40 UTC (run 608d8123):* on a second
+      reading it is not a defect. The sentence is a rule about who may
+      widen publication (announce, publish a package, distribute a plugin
+      bundle), and it still reads true with the plugin's files in the
+      repo; put to the principal twice, the question did not make sense to
+      him, which is the run's failure to frame it, not his.

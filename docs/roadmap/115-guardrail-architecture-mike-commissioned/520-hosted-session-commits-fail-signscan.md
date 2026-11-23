@@ -21,7 +21,11 @@
       only signing key is atelier's own. So the key is held for a shared
       vendor identity, not for him, and adding it to `allowed_signers`
       would make a signature from that identity read as the house's.
-      Whether that one key signs for every customer is not visible from
-      here; that it is not his is. Pushing to his repo still needs his
+      **It is one key for every customer:** the signing key is the
+      vendor account's published `claude-prod-signing-key`, and the same
+      fingerprint signs cloud-session commits in three unrelated owners'
+      public repos (checked by `ssh-keygen -Y check-novalidate` over each
+      commit's signature). Trusting it would make any hosted-session
+      commit, anyone's, read as the house's. Pushing to his repo still needs his
       access, so the trust list's loss would be authorship proof, not
       write access.
