@@ -102,8 +102,9 @@ are.
 
 What you get:
 
-- **`/atelier:scan`** — run the four publish-safety scanners (secret · leak ·
-  licence · link) over any repo. Zero-dependency stdlib Python, bundled.
+- **`/atelier:scan`** — run four of the floor's scanners (secret · leak ·
+  licence · link) by hand over any repo; the full floor is `tools/floor.py`.
+  Zero-dependency stdlib Python, bundled.
 - **`/atelier:install-hook`** — install the fail-closed git pre-commit scan hook
   into the current repo (git hooks don't travel, so it's per-clone; and the
   hook's scanner path is pinned to the installed plugin *version*, which is

@@ -1,12 +1,15 @@
 ---
-description: Run atelier's publish-safety scanners (secret · leak · licence · link) over this repo and report findings.
+description: Run four of atelier's floor scanners (secret · leak · licence · link) by hand over this repo and report findings; the full floor is tools/floor.py.
 argument-hint: "[path] (optional; default: the whole repo)"
 allowed-tools: Bash(python3:*)
 ---
 
-Run atelier's four publish-safety scanners over the current repository and report
-what they find, honestly. They are zero-dependency stdlib Python and live in this
-plugin at `${CLAUDE_PLUGIN_ROOT}/tools/` — nothing to install. Scan target:
+Run four of atelier's floor scanners over the current repository and report what
+they find, honestly. This is a subset, not the floor: the full floor is the
+registry in `${CLAUDE_PLUGIN_ROOT}/tools/floor.py` (`--list` names every check),
+and the other checks — `publishscan`, `pdlistscan`, `sizescan`, `board` and the
+rest — are not run here. The four are zero-dependency stdlib Python and live in
+this plugin at `${CLAUDE_PLUGIN_ROOT}/tools/` — nothing to install. Scan target:
 `$ARGUMENTS` if given, otherwise the whole repo (`.`).
 
 Run all four from the repository root, in this order. Each exits **0** = clean,
