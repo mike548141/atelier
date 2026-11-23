@@ -35,7 +35,7 @@ line, so they overlap Open and Claimed.
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
 | [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
-| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 14 | 0 | 5 | 1 |
+| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 14 | 1 | 5 | 1 |
 | [Observability of the collaboration itself (2026-07-30)](roadmap/220-observability-of-the-collaboration-itsel/README.md) | 4 | 0 | 0 | 0 |
 | [File-size hygiene (new 2026-07-14)](roadmap/230-file-size-hygiene-new-2026-07-14/README.md) | 2 | 0 | 1 | 0 |
 | [North star — context follows the person, work follows anywhere](roadmap/240-north-star-context-follows-the-person-wo/README.md) | 2 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 268 | 2 | 106 | 38 |
+| **All sections** | 268 | 3 | 106 | 38 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -336,6 +336,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🎯🔥 [Fix ccfleet, fleet-sweep, review-drain and modelguard: findings…](roadmap/210-instruments-open-features/470-fix-ccfleet-and-its-two-skills-fl1-fl25.md)
 - [ ] ⏳ [A commit gate refuses a review claimed by the session that authored,…](roadmap/210-instruments-open-features/530-a-commit-gate-refuses-a-review-claim-by-its-author.md)
 - [ ] 🔎 [ccfleet's permission line cannot see what a session inherits, and a…](roadmap/210-instruments-open-features/560-ccfleet-cannot-see-inherited-permissions-and-a-kept-worktree-loses-its-claim.md)
+- [~] 🔥 (claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-claims) [modelguard…](roadmap/210-instruments-open-features/570-modelguard-refuses-ssh-as-the-claude-user.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
