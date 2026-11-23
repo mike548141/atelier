@@ -2352,20 +2352,32 @@ every guard in `020/380` is meant to reuse: build a small and a larger
 synthetic input, measure both, assert the growth is under a bound derived
 from the guard's own design (never from today's measurement).
 
-## `modelguard.py` — every Claude session a session starts names its model
+## `modelguard.py` — a net for Claude sessions started with no model
 
 Not a commit gate: a Claude Code `PreToolUse` hook. It denies an `Agent` call
-with no `model` (a fork is exempt: it always inherits) and a Bash command that
-starts or resumes a `claude` session with no `--model` (or `ANTHROPIC_MODEL=`),
-because a start that names no model silently inherits a tier, the choice
-ECONOMICS.md says is made on purpose. Management subcommands and heredoc bodies
-pass. It reads only the command text a session hands to Bash, so a script that
-launches `claude` itself is invisible to it; `instruments/ccfleet` always passes
-`--model` for that reason. A malformed payload never blocks. Wiring, in the
-user-level `~/.claude/settings.json` or a repo's `.claude/settings.json`:
+(`Task` on older harnesses) with no `model` (a fork is exempt: it always
+inherits; no other subagent type is) and a Bash command that starts or resumes a
+`claude` session with no `--model <id>` (or a non-empty `ANTHROPIC_MODEL=` on
+that command), because a start that names no model silently inherits a tier, the
+choice ECONOMICS.md says is made on purpose. It finds `claude` in command
+position past keywords, wrappers (`timeout`, `sudo -u`, `npx`, `find -exec` …)
+and the text a shell runs as code (`bash -c`, `eval`, `$( )`, a heredoc fed to a
+shell), and fails closed after a head it does not know. A lookup of the binary
+(`command -v claude`, `which`, `type`, `ls` of its path), management subcommands
+and heredoc bodies that are data pass.
+
+It is a net, not a proof. It reads only the command text a session hands to
+Bash, so a launch from inside a script or program is invisible to it
+(`instruments/ccfleet` always passes `--model` for that reason), as are aliases,
+shell functions, a variable set outside the command, and an `ANTHROPIC_MODEL`
+the parent environment exported. It checks that a model is named, not which.
+The docstring lists what it does not see; every bypass found joins the deny
+table in its tests. A malformed payload never blocks; a command naming `claude`
+that cannot be parsed is denied. Wiring, in the user-level
+`~/.claude/settings.json` or a repo's `.claude/settings.json`:
 
 ```json
-"hooks": {"PreToolUse": [{"matcher": "Agent|Bash", "hooks": [
+"hooks": {"PreToolUse": [{"matcher": "Agent|Task|Bash", "hooks": [
     {"type": "command", "command": "<atelier>/tools/modelguard.py"}]}]}
 ```
 
