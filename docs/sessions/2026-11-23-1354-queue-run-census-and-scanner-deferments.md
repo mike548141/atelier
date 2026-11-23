@@ -98,3 +98,22 @@ from other repos' runs) and started at 15:55 UTC at load 5.
 - The installed `ccfleet` on PATH runs from the primary checkout, which
   cannot pull while his prompt edit is uncommitted, so it still runs the
   old code.
+
+## Answers at close (2026-11-23 ~19:20–19:50 UTC)
+
+- The four Fable passes this run queued wait for his next weekly drain
+  (his pick, *"Next drain (Recommended)"*, on each item).
+- His prompt edit committed on his pick, *"Commit it (Recommended)"*,
+  rewrapped to the house width with no word changed; the primary checkout
+  then pulled, so the installed `ccfleet` runs current code.
+- The hosted-session signing key, measured on his question: it is the
+  vendor's production key, and it signs other owners' cloud-session
+  commits too. His pick, *"Accept + cloud hands back"*: accept the range as
+  history, keep the key out of `allowed_signers`, and hosted sessions hand
+  work back for a local session to land. Build owed, on `115/520`.
+- `115/530` item 5 withdrawn: not a defect, and the run could not frame it.
+- **Miss, owned:** the first close-out asks led with board ids and gave no
+  benefits or risks per option, against his standing rule; he said so, in
+  his words: *"I've told you SO MANY TIMES you need to give me context, not
+  IDs, impact analysis including benefits, risks, issues etc"*. The
+  re-asked question carried them and got an answer.
