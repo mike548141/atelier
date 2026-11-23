@@ -1638,11 +1638,16 @@ def review_log(cfg, repo, item, legacy=False):
     repo, the same for a pass and its resume, so a revived reviewer finds it.
     The name carries a short hash of the exact repo and item, so two pairs
     that fold to the same characters (app-web + 010, app + web/010) never
-    share a log. `legacy` gives the earlier, hashless name."""
+    share a log. The hash is SHA-256 (PRINCIPLES §5, SHA-2 or better;
+    `115/500`). `legacy` gives the earlier names a pass cut off before a
+    change may have left: a list, hashless first, then the SHA-1 name."""
     d = os.path.join(cfg["kit_dir"], "review-logs")
+    key = f"{repo}\0{item}".encode()
     if legacy:
-        return os.path.join(d, safe(f"{repo}-{item}") + ".md")
-    h = hashlib.sha1(f"{repo}\0{item}".encode()).hexdigest()[:8]
+        return [os.path.join(d, safe(f"{repo}-{item}") + ".md"),
+                os.path.join(d, f"{safe(repo)}-{safe(item)}-"
+                                f"{hashlib.new('sha1', key, usedforsecurity=False).hexdigest()[:8]}.md")]
+    h = hashlib.sha256(key).hexdigest()[:8]
     return os.path.join(d, f"{safe(repo)}-{safe(item)}-{h}.md")
 
 
@@ -1676,7 +1681,7 @@ def one_pass(cfg, repo, item, brief, by, dry):
         if r.returncode:
             print(f"claim refused: {r.stdout.strip()} {r.stderr.strip()}")
             return EXIT_CLAIM
-        for p in (log_path, review_log(cfg, repo, item, legacy=True)):
+        for p in (log_path, *review_log(cfg, repo, item, legacy=True)):
             set_aside_stale_log(cfg, p)
         return 0
 
@@ -1691,10 +1696,16 @@ def one_pass(cfg, repo, item, brief, by, dry):
 
 
 def pass_log(cfg, repo, item):
-    """The review log a pass on this item had: the hashed name, or the earlier
-    hashless one where only that exists (a pass cut off before the change)."""
-    path, old = review_log(cfg, repo, item), review_log(cfg, repo, item, legacy=True)
-    return old if os.path.exists(old) and not os.path.exists(path) else path
+    """The review log a pass on this item had: the current name, or an earlier
+    one where only that exists (a pass cut off before a change), newest
+    earlier name first."""
+    path = review_log(cfg, repo, item)
+    if os.path.exists(path):
+        return path
+    for old in reversed(review_log(cfg, repo, item, legacy=True)):
+        if os.path.exists(old):
+            return old
+    return path
 
 
 def resume(cfg, repo, wt, sid, template, item, extra, by):

@@ -979,6 +979,24 @@ class EndToEnd(unittest.TestCase):
         (moved,) = os.listdir(os.path.join(self.tmp, "kit", "review-logs", "withdrawn"))
         self.assertTrue(moved.endswith(os.path.basename(stale)))
 
+    def test_review_log_hash_is_sha2_and_earlier_names_are_still_found(self):
+        """115/500: the log name hashes with SHA-256; a log a pass left under
+        the SHA-1 or the hashless name is still the one pass_log finds, the
+        newer earlier name first, and the current name wins once it exists."""
+        import hashlib
+        kit = {"kit_dir": os.path.join(self.tmp, "kit")}
+        cur = cf.review_log(kit, "beta", "030")
+        self.assertTrue(cur.endswith("-" + hashlib.sha256(b"beta\x00030").hexdigest()[:8] + ".md"))
+        hashless, sha1 = cf.review_log(kit, "beta", "030", legacy=True)
+        self.assertEqual(cf.pass_log(kit, "beta", "030"), cur)
+        os.makedirs(os.path.dirname(cur))
+        wr(hashless, "oldest\n")
+        self.assertEqual(cf.pass_log(kit, "beta", "030"), hashless)
+        wr(sha1, "older\n")
+        self.assertEqual(cf.pass_log(kit, "beta", "030"), sha1)
+        wr(cur, "current\n")
+        self.assertEqual(cf.pass_log(kit, "beta", "030"), cur)
+
     def test_ranked_is_not_called_dry_or_after_the_reset(self):
         """FL16: a rehearsal and a drain past its reset never call queue.ranked."""
         wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\n")
