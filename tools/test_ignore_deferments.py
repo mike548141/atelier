@@ -104,7 +104,7 @@ def _licence_tree(root):
 
 def _dirty_licence(root):
     _licence_tree(root)
-    _write(root, "x.py", "# SPDX-License-Identifier: GPL-3.0-only\n")
+    _write(root, "x.py", "# SPDX-License-Identifier: GPL-3.0-only\n")  # licenscan:allow: test fixture, not a real header
 
 
 def _dirty_index(root):
