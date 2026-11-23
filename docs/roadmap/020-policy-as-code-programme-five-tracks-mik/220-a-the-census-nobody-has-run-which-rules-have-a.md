@@ -1,4 +1,4 @@
-- [~] **(a) The census nobody has run: which rules have a forcing function,
+- [ ] **(a) The census nobody has run: which rules have a forcing function,
       and which do not.** ADR 0008 made enforcement *propagate*; it never
       established what proportion of doctrine is enforced at all. No one has
       enumerated the rules and asked of each: what happens if this is broken,
@@ -126,4 +126,17 @@
         `SECURITY.md`, `README.md`; `docs/decisions/`; `skills/` and
         `commands/`; the validators' own stated rules; and
         `docs/PERSONAL-DATA.md`.
-      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-census6)*
+      - 2026-11-23, slice 6 done (same run): `docs/build/` (README,
+        `REPO-BOUNDARY.md`, `REPO-STANDARD.md`, the 24 template files) and
+        the root `CLAUDE.md`, `SECURITY.md` and `README.md`, in
+        `docs/method/census/2026-11-23-1730-build-boundary-standard-templates-root-files.md`.
+        68 rules: 25 enforced (19 partial), 43 directive-only (19 with a
+        breach visible in the diff), none accepted. Running total over six
+        slices: 628 rules (627 distinct), 104 enforced, 511 directive-only,
+        13 accepted. Guard candidates for `020/240`, led by workflow
+        hygiene (SHA-pinned actions and a declared `permissions:` block:
+        the `ci-python.yml` and `ci-static.yml` templates declare none, so
+        a child seeded from them takes the default token permissions).
+        Defects filed as `115/530`. **Remaining:** `docs/decisions/`;
+        `skills/`, `commands/` and the plugin manifests; the validators'
+        own stated rules; `docs/PERSONAL-DATA.md` and the index rules.
