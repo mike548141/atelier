@@ -25,12 +25,12 @@ line, so they overlap Open and Claimed.
 | [The floor-at-head all-clear has a cancelled-run hole (found 2026-08-09)](roadmap/090-the-floor-at-head-all-clear-has-a-cancel/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [spellscan's reason class silently voided live allow-markers — CLOSED 2026-08-09](roadmap/100-spellscan-s-reason-class-silently-voided/README.md) | 0 | 0 | 0 | 0 |
 | [Estate duplication + exception audit (Mike commissioned 2026-08-09)](roadmap/110-estate-duplication-exception-audit-mike/README.md) | 7 | 0 | 1 | 0 |
-| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 18 | 1 | 3 | 0 |
+| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 19 | 0 | 3 | 0 |
 | ✅ [test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 134 | 0 | 75 | 37 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 135 | 0 | 75 | 38 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 271 | 2 | 106 | 38 |
+| **All sections** | 273 | 1 | 106 | 39 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -167,7 +167,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🔎 [The floor block's always-confirm stop list differs from AUTONOMY.md §…](roadmap/115-guardrail-architecture-mike-commissioned/430-the-floors-stop-list-differs-from-autonomy-always-confirm.md)
 - [ ] 🔎 [Three doctrine defects the enforcement census found in slice 3.](roadmap/115-guardrail-architecture-mike-commissioned/450-census-slice-3-doctrine-defects.md)
 - [ ] 🔎 [Five defects the enforcement census found in slice 4.](roadmap/115-guardrail-architecture-mike-commissioned/500-census-slice-4-doctrine-defects.md)
-- [~] 🔎 (claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-defects5) [Defects…](roadmap/115-guardrail-architecture-mike-commissioned/510-census-slice-5-doctrine-defects.md)
+- [ ] 🔎 [Defects the enforcement census found in slice 5.](roadmap/115-guardrail-architecture-mike-commissioned/510-census-slice-5-doctrine-defects.md)
 - [ ] 🔎 [28 commits made by hosted cloud sessions fail signscan, and…](roadmap/115-guardrail-architecture-mike-commissioned/520-hosted-session-commits-fail-signscan.md)
 
 ## Doctrine — review-owed
@@ -308,6 +308,7 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [Rule-4 cold pass queued: ccopen, the session-open twin of ccclose…](roadmap/160-doctrine-review-owed/1720-rule-4-cold-pass-queued-ccopen.md)
 - [ ] ⏳ [Rule-4 cold pass queued: licenscan reads CC0-1.0, tells 0BSD from…](roadmap/160-doctrine-review-owed/1730-rule-4-cold-pass-queued-licenscan-cc0-0bsd-zlib.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccfleet launches with the config as the…](roadmap/160-doctrine-review-owed/1740-rule-4-cold-pass-queued-ccfleet-whole-grant-and-unlanded.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the slice-5 census corrections, five…](roadmap/160-doctrine-review-owed/1750-rule-4-cold-pass-queued-slice-5-factual-corrections.md)
 
 ## build/ layer — open strands
 
