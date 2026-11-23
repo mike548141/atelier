@@ -12,6 +12,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Least privilege: CI only reads the tree. A job that needs more (a PR
+# comment, a release upload) takes its own narrower block, not a wider top level.
+permissions:
+  contents: read
+
 jobs:
   links:
     name: local asset references resolve

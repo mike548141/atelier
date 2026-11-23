@@ -266,6 +266,31 @@ REVIEWS_TEMPLATE = ROOT / "docs" / "build" / "templates" / "docs" / "reviews" / 
 REVIEW_SKILL = ROOT / "skills" / "review-brief" / "SKILL.md"
 
 
+class WorkflowLeastPrivilegeTest(unittest.TestCase):
+    """Every workflow a child copies, and every one atelier runs, declares a
+    TOP-LEVEL `permissions: contents: read`. The floor tests above only look
+    for the substring; this one pins the block itself, across the whole set,
+    so a template added later without it fails here (board 115/530, item 1:
+    ci-python.yml and ci-static.yml shipped with none, so a child seeded from
+    them ran on the repository's default token)."""
+
+    BLOCK = re.compile(r"^permissions:\n  contents: read\s*$", re.M)
+
+    def test_every_workflow_template_declares_it(self):
+        files = sorted((ROOT / "docs" / "build" / "templates" / "workflows").glob("*.yml"))
+        self.assertGreaterEqual(len(files), 3, "workflow templates not found")
+        for f in files:
+            with self.subTest(template=f.name):
+                self.assertRegex(f.read_text(), self.BLOCK)
+
+    def test_every_atelier_workflow_declares_it(self):
+        files = sorted((ROOT / ".github" / "workflows").glob("*.yml"))
+        self.assertTrue(files, "atelier workflows not found")
+        for f in files:
+            with self.subTest(workflow=f.name):
+                self.assertRegex(f.read_text(), self.BLOCK)
+
+
 class ParentSelftestLoopTest(unittest.TestCase):
     """.github/workflows/ci.yml — atelier's own copy of the same loop.
 
