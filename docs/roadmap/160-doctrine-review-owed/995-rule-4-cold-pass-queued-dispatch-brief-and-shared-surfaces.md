@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the dispatch brief, the pathspec and
+- [ ] 🎯 **Rule-4 cold pass queued: the dispatch brief, the pathspec and
       leaver's rules for the shared index, the long-check poll, the shared
       process table and load, worktree names, brief reading, the stop
       triage and the device at close (`180/120`–`180/160`, `320/350`,
@@ -39,3 +39,21 @@
       whatever it is called now. Target 100% of weekly budget by 11.30am NZT
       todat"*. The held-back sibling is partitioned out of the review tree
       until act 1 is committed.
+      ✅ PASS RAN 2026-11-23T00:01Z: Fable 5.1 cold reviewer under headless orchestrator
+      7968f851 (Opus 5.5, off-tier, formed no finding), started by drain
+      session eca14b23. Verdict **PASS-WITH-FINDINGS**: MAJOR 0 · MODERATE 2
+      · minor 4 · note 4 (DB10 formed at reconcile). No MAJOR stands. Act 1
+      `4197b3a6`; act 2 and fold in the brief
+      [`../../reviews/2026-11-09-0207-dispatch-brief-shared-surfaces-cold.md`](../../reviews/2026-11-09-0207-dispatch-brief-shared-surfaces-cold.md).
+      🎯 Owed to the principal (doctrine by function, rule 3, all ten
+      findings; nothing applied): DB1 MODERATE, the prescribed `git diff
+      --cached` read and the prescribed `git commit -- <paths>` act on
+      different planes; DB2 MODERATE, the house's own review-drain dispatch
+      prompts do not carry the skeleton's bounds that "every dispatch
+      prompt" is said to carry; DB3–DB6 minor (no-push clause vs teardown's
+      pushed branch; 15-minute load figure vs the 1/5-minute gate; `lsof -p
+      <pid> -d cwd` ORs its selectors so it lists every process's cwd; a new
+      instruction channel with no threat stated); DB7–DB10 notes. Plain
+      ask, one question: accept the findings as written and route a fix
+      pass for DB1–DB6 (recommended), or rule each. Routing: a fresh
+      doctrine-edit session in atelier, not one that ran this pass.
