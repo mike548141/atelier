@@ -1,4 +1,4 @@
-- [~] **(a) The census nobody has run: which rules have a forcing function,
+- [ ] **(a) The census nobody has run: which rules have a forcing function,
       and which do not.** ADR 0008 made enforcement *propagate*; it never
       established what proportion of doctrine is enforced at all. No one has
       enumerated the rules and asked of each: what happens if this is broken,
@@ -157,4 +157,21 @@
         `instruments/README.md`, the `ccfleet` man page);
         `docs/PERSONAL-DATA.md`; atelier's `docs/roadmap/README.md` and
         `docs/reviews/README.md`.
-      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-census8)*
+      - 2026-11-23, slice 8 done (same run): `tools/floor.py`'s contract
+        and its 21 registry entries, `tools/README.md`,
+        `docs/PERSONAL-DATA.md` and `docs/roadmap/README.md`, with a
+        census-wide summary, in
+        `docs/method/census/2026-11-23-1836-validators-personal-data-roadmap-summary.md`.
+        109 new rules: 99 enforced (36 partial), 9 directive-only, 1
+        accepted. **Running total over eight slices: 853 rules (852
+        distinct), 248 enforced (147 partial), 591 directive-only, 14
+        accepted; 29.1% enforced, 20.8% without the validators' own
+        rows.** 203 directive-only rules show their breach in the diff;
+        the largest clusters: append-only records and their shape;
+        authority, grants and allowances; landing companions (a change to
+        a governed surface carries its companion line); workflow and
+        registry hygiene. Defects filed as `115/550`. **Remaining:**
+        slice 9, `instruments/README.md` and `instruments/man/ccfleet.1`;
+        then a re-sweep of slices 1–3 and the re-grades later slices
+        named (`AUT14`, half of `AUT15`, `AUT17`, `PRI8`), the
+        `*.design.md` notes and the scanner docstrings.
