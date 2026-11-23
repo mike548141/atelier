@@ -1,0 +1,16 @@
+- [ ] 🔎 **28 commits made by hosted cloud sessions fail `signscan`, and
+      `SIGNING.md` says nothing about them.** Found 2026-11-23 UTC by
+      `020/220` slice 5; re-run by queue run 608d8123 the same hour:
+      `signscan --allowed-signers allowed_signers --boundary 450b10d --warn`
+      over atelier's `main` gives 2575 good, 29 bad, 72 deferred (GitHub
+      web-flow). 28 of the bad are SSH-signed with a key not in
+      `allowed_signers` ("No principal matched"), committer `Claude`, dated
+      2026-10-17 and 2026-10-18 (the cloud Fable run of that weekend); one
+      is unsigned (`0a949b4b`). Under warn-first they are warnings; the
+      flip to blocking turns them red, and history cannot be re-signed
+      without a rewrite. What is owed: say in `SIGNING.md` how a commit
+      made by a hosted session is trusted (its key added to the trust list
+      with a validity window, a recorded exception for that range, or
+      hosted sessions barred from committing to `main`), and decide it
+      before the flip. Adding a key to the trust list widens who can sign
+      as the house, so the choice is the principal's.

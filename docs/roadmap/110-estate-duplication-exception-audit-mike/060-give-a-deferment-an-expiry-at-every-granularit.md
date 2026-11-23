@@ -1,4 +1,4 @@
-- [~] **Give a deferment an expiry at every granularity, not just `advisory`.**
+- [ ] **Give a deferment an expiry at every granularity, not just `advisory`.**
       Raised by the ruling above. Today `review-by` is a floor-config field, so
       the only declarable deferment is a whole check. The two cases just dated
       are path-level, and a line marker has the same hole — `<guard>:allow:` is
@@ -45,4 +45,16 @@
       compare exit status with and without dates on a tree each scanner
       blocks. **Remaining:** (2) the floor line and fleet board, (3) red
       when lapsed, where the cold pass is owed, (4) line-marker granularity.
-      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-expiry2)*
+      **Slice 3 built 2026-11-23 (same run, a Sonnet worker, read by the
+      run before landing): part (2).** The floor line shows a lapsed or
+      unreadable date as a 🟡 note on the check's line and a live one as
+      `[n deferment(s), next review by …]`, mirroring an advisory's expiry;
+      `floorfleet` gives each check with a dated deferment one row under the
+      repo; both carry `deferments` in `--json`. The floor reads each
+      check's ignore file through the scanners' own parser
+      (`allowmarker`'s check-to-file map, tested against each scanner's
+      file name), so the three surfaces cannot disagree. A repo with no
+      dates prints exactly what it did. Deliberately not mirrored: an
+      expired advisory's 🔴; a lapsed deferment stays 🟡. 422 floor tests
+      pass. **Remaining:** (3) red when lapsed, where the cold pass is
+      owed, and (4) line-marker granularity.

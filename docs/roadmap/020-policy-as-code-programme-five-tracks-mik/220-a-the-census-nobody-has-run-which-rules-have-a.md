@@ -1,4 +1,4 @@
-- [~] **(a) The census nobody has run: which rules have a forcing function,
+- [ ] **(a) The census nobody has run: which rules have a forcing function,
       and which do not.** ADR 0008 made enforcement *propagate*; it never
       established what proportion of doctrine is enforced at all. No one has
       enumerated the rules and asked of each: what happens if this is broken,
@@ -107,4 +107,22 @@
         `REACH`, `SECRETS`, `SIGNING`, `STORAGE`, `TOOLBOX` and
         `docs/method/session-open/`; then the doctrine outside
         `docs/method/`.
-      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-census5)*
+      - 2026-11-23, slice 5 done (same run): `REACH.md`, `SECRETS.md`,
+        `SIGNING.md`, `STORAGE.md`, `TOOLBOX.md` and
+        `docs/method/session-open/` in
+        `docs/method/census/2026-11-23-1651-reach-secrets-signing-storage-toolbox-session-open.md`.
+        73 rules: 19 enforced (14 partial), 54 directive-only (12 with a
+        breach visible in the diff), none accepted. Running total over five
+        slices: 560 rules (559 distinct), 79 enforced, 468 directive-only, 13
+        accepted. **`docs/method/` is now censused once, end to end.** Not
+        re-swept: 16 commits have touched slice 1–3 files since; `AUT17`
+        wants re-grading (partly enforced by a session hook now); slice 4's
+        `PRI8` is wrong for `instruments/browser-fetch` (ADR 0006's
+        addendum). Guard candidates for `020/240`, led by a check over
+        `allowed_signers` itself and a TOOLBOX-table completeness check
+        (8 of 13 instruments unlisted). Defects filed as `115/510`; the
+        signing finding as `115/520`. **Remaining:** the doctrine outside
+        `docs/method/`: `docs/build/` and its templates; root `CLAUDE.md`,
+        `SECURITY.md`, `README.md`; `docs/decisions/`; `skills/` and
+        `commands/`; the validators' own stated rules; and
+        `docs/PERSONAL-DATA.md`.
