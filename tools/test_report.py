@@ -639,7 +639,10 @@ class TestScannerLinePins(unittest.TestCase):
                          "covers nothing.\n"
                          "  suppressed: 0 by allow-marker · 0 by exclude= · "
                          "0 by before= · 0 file(s) by .indexscanignore · "
-                         f"0 beyond {CAP}")
+                         f"0 beyond {CAP}\n"
+                         # 110/060 slice 2: the review-by tally follows it.
+                         "  deferments: 0 deferment(s) with review-by · "
+                         "0 lapsed · 0 malformed")
         self.assertEqual(m.render_human([], t).splitlines()[0],
                          "✓ indexscan clean — no index declares a mapped directory "
                          "(nothing to check; adoption is opt-in per index).")
@@ -725,9 +728,11 @@ class TestScannerLinePins(unittest.TestCase):
         count = "  licenscan advisory: 0 finding(s) — reported, not blocking."
         # 115/130: the coverage line sits between the tally and the count.
         cov = report.coverage_line(0, 0)
+        # 110/060 slice 2: the review-by tally follows the suppressed line.
+        defer = "  deferments: 0 deferment(s) with review-by · 0 lapsed · 0 malformed"
         self.assertEqual(m.render_human(rep),
                          "✓ licenscan clean — repo licence MIT, all declarations "
-                         "agree.\n" + supp + "\n" + cov + "\n" + count)
+                         "agree.\n" + supp + "\n" + defer + "\n" + cov + "\n" + count)
         rep.findings.append(m.Finding("mismatch", "high", "msg", "a.txt", 3))
         lines = m.render_human(rep).splitlines()
         self.assertEqual(lines[0], "✗ licenscan: 1 finding(s) — repo licence MIT. "
