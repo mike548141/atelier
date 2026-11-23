@@ -652,17 +652,164 @@ class EndToEnd(unittest.TestCase):
         self.assertIn("result=ERROR", rd(os.path.join(self.tmp, "kit", "driver.log")))
 
     def test_a_worktree_holding_work_is_never_removed(self):
-        """FL1, FL6: a clean RESULT still keeps a tree with uncommitted files or
-        unpushed commits, and says why."""
+        """FL1, FL6, 210/560: a clean RESULT that leaves uncommitted files or
+        unpushed commits reads as UNLANDED, keeps the tree, and says why."""
         for flag, said in (("FAKE_DIRTY", "uncommitted"), ("FAKE_COMMIT", "on no remote branch")):
             r = self.cli("run", "alpha", "--prompt", self.prompt, "--label", flag.lower(),
                          env={**self.env, flag: "1"})
             self.assertEqual(r.returncode, 0, r.stderr)
-            self.assertIn("result=DONE", r.stdout)
+            self.assertIn("result=UNLANDED", r.stdout)
+            self.assertIn("the session said RESULT DONE but left", r.stdout)
             self.assertIn("KEPT worktree", r.stdout)
             self.assertIn(said, r.stdout)
+            day = os.listdir(os.path.join(self.tmp, "kit", "results"))[0]
+            res = rd(os.path.join(self.tmp, "kit", "results", day, flag.lower() + ".md"))
+            self.assertIn("result=UNLANDED -->", res.splitlines()[0])
+            self.assertIn("RESULT DONE read as UNLANDED", res)
         self.assertEqual(len(self.worktrees()), 2)
         self.assertTrue(any(os.path.exists(os.path.join(w, "left-behind.txt")) for w in self.worktrees()))
+
+    def test_a_clean_pass_that_leaves_unlanded_work_keeps_its_claim_and_resumes(self):
+        """210/560 part 2 (the principal, 2026-11-23: "Treat as not clean"): a
+        DONE pass whose worktree holds uncommitted work releases nothing, keeps
+        its worktree, counts as unclean, and its resume releases once it lands."""
+        q = self.cfg["queue"]
+        q["ended"] = [self.queue, "ended", "{REPO}:{ITEM}", "{RESULT}"]
+        self.write_cfg()
+        wr(os.path.join(self.tmp, "queue.txt"), "beta 030 docs/brief.md\n")
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("drain", "--max", "1", env={**self.env, "FAKE_DIRTY": "1"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")), "the claim was released")
+        self.assertEqual(rd(os.path.join(self.tmp, "ended.log")).split(), ["beta:030", "UNLANDED"])
+        (wt,) = self.worktrees()
+        self.assertTrue(os.path.exists(os.path.join(wt, "left-behind.txt")))
+        self.assertIn("result=UNLANDED", rd(os.path.join(self.tmp, "kit", "driver.log")))
+        # Resumed while the work is still unlanded: still not clean.
+        r = self.cli("resume", "beta", wt, "sess-beta", "--prompt", self.prompt, "--item", "030")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("result=UNLANDED", r.stdout)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")))
+        self.assertTrue(os.path.isdir(wt))
+        # Landed (here: the stray file removed), the resume releases and removes.
+        os.remove(os.path.join(wt, "left-behind.txt"))
+        r = self.cli("resume", "beta", wt, "sess-beta", "--prompt", self.prompt, "--item", "030")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("result=DONE", r.stdout)
+        self.assertEqual(rd(os.path.join(self.tmp, "release.log")).split(), ["beta:030"])
+        self.assertFalse(os.path.isdir(wt))
+
+    def test_unlanded_may_not_be_a_release_word(self):
+        self.cfg["queue"]["release_on"] = ["DONE", "UNLANDED"]
+        self.write_cfg()
+        r = self.cli("check")
+        self.assertEqual(r.returncode, cf.EXIT_USAGE)
+        self.assertIn("may not hold UNLANDED", r.stderr)
+
+    # ----- 210/560 part 1: the config is the whole grant -----
+
+    def user_settings(self, settings, claude_md=None):
+        d = self.env["CLAUDE_CONFIG_DIR"]
+        os.makedirs(d, exist_ok=True)
+        wr(os.path.join(d, "settings.json"), json.dumps(settings))
+        if claude_md is not None:
+            wr(os.path.join(d, "CLAUDE.md"), claude_md)
+
+    USER = {
+        "permissions": {"allow": ["Bash", "Edit"], "deny": ["Bash(rm -rf /)"], "ask": ["Bash(git push:*)"],
+                        "defaultMode": "auto", "additionalDirectories": ["/elsewhere"]},
+        "hooks": {"PreToolUse": [
+            {"matcher": "mcp__.*", "hooks": [{"type": "command", "command":
+                "echo '{\"hookSpecificOutput\":{\"permissionDecision\":\"allow\"}}'"}]},
+            {"matcher": "Bash", "hooks": [{"type": "command", "command": "python3 /guards/secretguard.py"},
+                                          {"type": "command", "command": "python3 /guards/noisy.py"}]}]},
+        "enabledPlugins": {"house@house": True}, "env": {"HOUSE": "1"}, "effortLevel": "high",
+    }
+
+    def test_a_launch_loads_no_user_grant_but_keeps_its_guards(self):
+        """The principal, 2026-11-23: "Config is the whole grant". No user-level
+        settings source loads; the settings file ccfleet writes carries the
+        user's guards (deny, ask, hooks) and equipment (plugins, env), never its
+        allow rules, default mode, extra directories or an approving hook."""
+        self.user_settings(self.USER, claude_md="# House rules\nNever push to main on a Friday.\n")
+        self.cfg["claude_args"] = ["--allowedTools", "Bash(git *)"]
+        self.cfg["drop_hooks"] = ["noisy.py"]
+        self.cfg["settings"] = {"permissions": {"allow": ["Read"]}, "env": {"FLEET": "1"}}
+        self.write_cfg()
+        r = self.cli("run", "alpha", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        argv = self.calls()[0]["argv"]
+        self.assertEqual(argv[argv.index("--setting-sources") + 1], "project,local")
+        got = json.loads(rd(argv[argv.index("--settings") + 1]))
+        perms = got["permissions"]
+        self.assertEqual(perms["allow"], ["Read"], "only the config's allow rules")
+        for k in ("defaultMode", "additionalDirectories"):
+            self.assertNotIn(k, perms)
+        self.assertEqual((perms["deny"], perms["ask"]), (["Bash(rm -rf /)"], ["Bash(git push:*)"]))
+        cmds = [h["command"] for g in got["hooks"]["PreToolUse"] for h in g["hooks"]]
+        self.assertEqual(cmds, ["python3 /guards/secretguard.py"], "guard kept; approving and dropped hooks out")
+        self.assertEqual(got["enabledPlugins"], {"house@house": True})
+        self.assertEqual(got["env"], {"HOUSE": "1", "FLEET": "1"})
+        self.assertEqual(got["effortLevel"], "high")
+        instructions = rd(argv[argv.index("--append-system-prompt-file") + 1])
+        self.assertIn("Never push to main on a Friday.", instructions)
+        self.assertEqual(argv[argv.index("--allowedTools") + 1], "Bash(git *)")
+        # The resume path launches the same way.
+        wt = os.path.join(self.tmp, "wt", "pass-9", "beta")
+        os.makedirs(os.path.dirname(wt))
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
+        self.cli("resume", "beta", wt, "sess-old", "--prompt", self.prompt)
+        argv = self.calls()[1]["argv"]
+        self.assertEqual(argv[argv.index("--setting-sources") + 1], "project,local")
+        self.assertEqual(json.loads(rd(argv[argv.index("--settings") + 1]))["permissions"]["allow"], ["Read"])
+        self.assertIn("--append-system-prompt-file", argv)
+
+    def test_no_user_settings_still_loads_no_user_source(self):
+        r = self.cli("run", "alpha", "--prompt", self.prompt, "--dry-run")
+        self.assertIn("--setting-sources project,local --settings", r.stdout)
+        self.assertNotIn("--append-system-prompt-file", r.stdout, "no user CLAUDE.md, nothing appended")
+        self.cli("run", "alpha", "--prompt", self.prompt)
+        argv = self.calls()[0]["argv"]
+        self.assertEqual(json.loads(rd(argv[argv.index("--settings") + 1])), {})
+
+    def test_an_unreadable_user_settings_file_refuses_before_any_start(self):
+        d = self.env["CLAUDE_CONFIG_DIR"]
+        os.makedirs(d, exist_ok=True)
+        wr(os.path.join(d, "settings.json"), "{not json")
+        r = self.cli("run", "alpha", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, cf.EXIT_SETUP, r.stdout + r.stderr)
+        self.assertIn("would drop their hooks and deny rules", r.stderr)
+        self.assertEqual(self.calls(), [])
+        self.assertEqual(os.listdir(os.path.join(self.tmp, "wt")), [])
+
+    def test_a_repos_own_grants_are_said_at_launch(self):
+        prim = os.path.join(self.tmp, "src", "alpha")
+        os.makedirs(os.path.join(prim, ".claude"))
+        wr(os.path.join(prim, ".claude", "settings.json"),
+           json.dumps({"permissions": {"allow": ["Bash"], "defaultMode": "acceptEdits"}}))
+        sh("git", "add", ".claude/settings.json", cwd=prim)
+        sh("git", *GIT_ID, "commit", "-q", "-m", "repo settings", cwd=prim)
+        sh("git", "push", "-q", "origin", "HEAD:main", cwd=prim)
+        r = self.cli("run", "alpha", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertRegex(r.stdout, r'WIDENED by the repo\'s own \.claude/settings\.json: allow \["Bash"\]; '
+                                   r'defaultMode "acceptEdits"')
+        self.assertLess(r.stdout.index("WIDENED"), r.stdout.index("START"))
+
+    def test_claude_args_may_not_take_the_settings_flags_back(self):
+        for args in (["--settings", "/x.json"], ["--setting-sources=user,project"],
+                     ["--append-system-prompt-file", "/x.md"]):
+            self.cfg["claude_args"] = args
+            self.write_cfg()
+            r = self.cli("check")
+            self.assertEqual(r.returncode, cf.EXIT_USAGE, args)
+            self.assertIn("so the config is the whole grant", r.stderr)
+        self.cfg["claude_args"] = []
+        for k, v in (("settings", ["x"]), ("drop_hooks", "noisy"), ("drop_hooks", [""])):
+            self.cfg[k] = v
+            self.write_cfg()
+            self.assertEqual(self.cli("check").returncode, cf.EXIT_USAGE, (k, v))
+            self.cfg.pop(k)
 
     def test_an_unclean_run_keeps_its_worktree_and_drive_runs_it_again(self):
         """FL6: run keeps the worktree unless the RESULT is clean; drive skips
@@ -743,6 +890,32 @@ class EndToEnd(unittest.TestCase):
         self.cfg["claude_args"] = []
         self.write_cfg()
         self.assertNotIn("PERMISSIONS", self.cli("check").stdout)
+        self.cfg["settings"] = {"permissions": {"allow": ["Bash(make *)"]}}
+        self.write_cfg()
+        self.assertIn("PERMISSIONS: every session starts with settings allow Bash(make *)", self.cli("check").stdout)
+        self.cfg["settings"] = {"permissions": {"defaultMode": "bypassPermissions"}}
+        self.write_cfg()
+        self.assertIn("PERMISSIONS: BYPASS", self.cli("check").stdout)
+
+    def test_check_says_the_config_is_the_whole_grant(self):
+        """210/560: check names the user-level grants left out, the hooks kept
+        and dropped, the appended instructions, and that a repo's own settings
+        still load."""
+        self.user_settings(self.USER, claude_md="rules\n")
+        self.cfg["drop_hooks"] = ["noisy.py"]
+        self.write_cfg()
+        out = self.cli("check").stdout
+        self.assertIn("GRANT: the config is the whole grant. No user-level settings load (--setting-sources "
+                      "project,local)", out)
+        self.assertIn("Left out: allow (2 rule(s)); defaultMode auto; additionalDirectories /elsewhere.", out)
+        self.assertIn("Kept: deny 1 rule(s), ask 1 rule(s), 1 hook command(s), effortLevel, enabledPlugins, env.",
+                      out)
+        self.assertIn("HOOK dropped: PreToolUse mcp__.* (approves tool calls)", out)
+        self.assertIn("HOOK dropped: PreToolUse Bash (drop_hooks 'noisy.py')", out)
+        self.assertIn("HOOK kept: PreToolUse Bash: python3 /guards/secretguard.py", out)
+        self.assertIn("INSTRUCTIONS: " + os.path.join(self.env["CLAUDE_CONFIG_DIR"], "CLAUDE.md") + " is appended",
+                      out)
+        self.assertIn("REPO SETTINGS: a repo's own .claude/settings.json", out)
 
     def test_check_names_the_placeholders_nothing_fills(self):
         """FL12: unset placeholders are named before a launch refuses them."""
@@ -1054,7 +1227,8 @@ class Config(unittest.TestCase):
         if text is not None:
             wr(path, text)
         return subprocess.run([sys.executable, TOOL, "--config", path, "check"], capture_output=True, text=True,
-                              stdin=subprocess.DEVNULL)
+                              stdin=subprocess.DEVNULL,
+                              env={**os.environ, "CLAUDE_CONFIG_DIR": os.path.join(self.tmp, "claude-config")})
 
     def test_unreadable_configs_exit_64(self):
         good = {"kit_dir": self.tmp, "repos_root": self.tmp, "worktrees_root": self.tmp, "default_model": "m"}

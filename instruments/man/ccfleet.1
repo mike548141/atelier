@@ -176,6 +176,30 @@ Without it
 kills a background subagent about ten minutes after the orchestrator's last
 turn, so a reviewer still working on its second act died mid-act.
 .IP \(bu 2
+The config is the whole grant.
+Every launch passes
+.B \-\-setting\-sources project,local
+so no user-level settings file loads, and
+.B \-\-settings
+with
+.IR <kit_dir>/settings/<session>.json ,
+a file ccfleet writes: the user-level settings less their allow rules,
+default mode, extra directories and any hook that approves tool calls, with
+the config's
+.B settings
+on top.
+Their deny and ask rules, other hooks, plugins and environment are kept:
+they restrict or equip a session, they do not widen what it may do.
+Before this a config that left a tool out could not stop it, because a
+headless session took the operator's own allow rules too.
+Leaving the user source out also leaves out the user-level
+.IR CLAUDE.md ,
+so ccfleet appends that file to the system prompt
+.RB ( \-\-append\-system\-prompt\-file ),
+and the operator's standing instructions still bind.
+A repo's own settings files still load; see
+.BR THREATS .
+.IP \(bu 2
 A child that
 .B drive
 or
@@ -245,6 +269,28 @@ line says so, and a bypass of every permission check says
 .BR "PERMISSIONS: BYPASS" ;
 see
 .BR THREATS .
+The config's
+.B settings
+permissions count as well.
+.IP
+A
+.B GRANT:
+line names what the user-level settings would have granted and is left
+out, and what is kept from them.
+Each user-level hook prints as
+.B HOOK kept:
+or
+.B HOOK dropped:
+with the reason: it approves tool calls, or a
+.B drop_hooks
+text matched it.
+An
+.B INSTRUCTIONS:
+line says whether a user-level
+.I CLAUDE.md
+is appended, and
+.B REPO SETTINGS:
+that a repo's own settings files still load.
 .IP
 It then lists the placeholders of
 .B pass_prompt
@@ -299,6 +345,28 @@ It is never removed by force.
 Any other end keeps it and prints a
 .B KEPT
 line saying why, so a cut-off session's work is never lost.
+A clean
+.B RESULT
+whose worktree still holds unlanded work is not clean: it reads as
+.B UNLANDED
+(see
+.BR RESULTS ),
+so no claim is released and the work stays tied to its item.
+Only a worktree adopted with
+.B \-\-in
+and no
+.B \-\-item
+is not judged, since it is the caller's.
+.IP
+Before
+.BR START ,
+a
+.B WIDENED
+line names each grant the worktree's own
+.I .claude/settings.json
+or
+.I .claude/settings.local.json
+makes: those files load with the project, beyond the config.
 .IP
 The session is told how to land its work.
 With a remote: pull with rebase from the default branch, then push to it
@@ -373,13 +441,16 @@ and, when its
 .B RESULT
 is in
 .BR queue.release_on ,
-releases the claim and removes the worktree (unless it holds unlanded work;
-see
-.BR run ).
+releases the claim and removes the worktree.
 A pass that ends any other way keeps both, so it can be resumed: an error
-end, a time limit, or a session killed with no
+end, a time limit, a session killed with no
 .B END
-line.
+line, or a clean
+.B RESULT
+that left unlanded work, which reads as
+.B UNLANDED
+(see
+.BR RESULTS ).
 A release the queue refuses keeps the worktree and exits 2.
 Either way the
 .B queue.ended
@@ -410,8 +481,10 @@ in
 .B queue.release_on
 and
 .B \-\-item
-was given, the claim is released and the worktree removed (unless it holds
-unlanded work).
+was given, the claim is released and the worktree removed; one that still
+leaves unlanded work reads as
+.B UNLANDED
+and keeps both.
 A release the queue refuses is printed, keeps the worktree and exits 2.
 Without
 .BR \-\-item ,
@@ -667,6 +740,35 @@ Choose them on purpose, the narrowest that does the work: see
 The example config sets none;
 .B check
 names any that widen what a session may do.
+They may not hold
+.BR \-\-setting\-sources ,
+.BR \-\-settings ,
+.B \-\-append\-system\-prompt
+or
+.BR \-\-append\-system\-prompt\-file :
+ccfleet sets those so the config is the whole grant.
+.TP
+.B settings
+Claude Code settings every session gets, on top of the user-level settings
+less their grants (see
+.BR "What every launch does" ).
+Objects merge key by key and lists join; any other value is the config's.
+Its
+.B permissions
+are part of the grant, with
+.BR claude_args ,
+and
+.B check
+names them.
+Default: none.
+.TP
+.B drop_hooks
+A list of texts: a user-level hook entry with a command that holds one of
+them is left out of every session.
+A hook whose command prints an allow decision is left out without being
+named, because it grants; one whose script answers allow cannot be seen
+from its command line, so name it here.
+Default: none.
 .TP
 .B session_timeout_minutes
 How long one session may run before it is ended.
@@ -809,8 +911,11 @@ in
 (default
 .B DONE
 and
-.BR SKIPPED );
-a pass that ends any other way keeps its claim.
+.BR SKIPPED )
+and leaves no unlanded work;
+a pass that ends any other way, or as
+.BR UNLANDED ,
+keeps its claim.
 It can use
 .BR {ITEM} ,
 .BR {BRIEF} ,
@@ -839,11 +944,14 @@ A nonzero exit is printed and otherwise ignored.
 .B release_on
 A list of
 .B RESULT
-words that make an end clean: the claim is released, the worktree removed
-(unless it holds unlanded work), and a
+words that make an end clean: the claim is released, the worktree removed,
+and a
 .B drive
 skips the job.
 In a drain they also reset the count of bad ends.
+A clean word whose worktree holds unlanded work reads as
+.B UNLANDED
+instead, which this list may not hold.
 Default:
 .B DONE
 and
@@ -909,6 +1017,29 @@ is never taken.
 The result file then says it was read from the transcript.
 No such line anywhere, or unreadable output, reads as
 .BR UNKNOWN .
+.PP
+A clean verdict (a word in
+.BR queue.release_on )
+whose worktree still holds uncommitted or untracked files, or commits on no
+remote branch, reads as
+.BR UNLANDED ,
+and an
+.B UNLANDED
+line before
+.B END
+says what was left.
+The result file starts by saying so.
+It is not clean: no release, the worktree is kept, a drive runs the job
+again, a drain counts a bad end, and
+.B resume
+can finish the pass.
+A
+.B DONE
+that left uncommitted work once released its claim, so the work was tied to
+no queue item.
+.B UNLANDED
+may not be in
+.BR queue.release_on .
 A run past a usage limit ends with no such line, which is how a spent budget
 shows up from outside.
 .PP
@@ -971,6 +1102,12 @@ pass's log by hand).
 .I <kit_dir>/children.tsv
 The children a driver started, so a later driver counts those still running
 against its ceiling, even after the driver that started them died.
+.TP
+.I <kit_dir>/settings/
+Each session's settings file and, when there is a user-level
+.IR CLAUDE.md ,
+its copy for the system prompt; owner-only, kept for reading back what a
+session was given.
 .TP
 .I <kit_dir>/locks/
 One lock per session being resumed.
@@ -1059,10 +1196,44 @@ and the jobs file's fields, the queue's picks, and the brief files a pass
 runs.
 .PP
 What bounds it is only this: the permission mode and tool rules in
-.BR claude_args ;
-the credentials the user running ccfleet holds; and the private-name guard,
+.B claude_args
+and the config's
+.BR settings ;
+the deny and ask rules and hooks kept from the user-level settings; the
+credentials the user running ccfleet holds; and the private-name guard,
 which checks only the names listed.
 A worktree is not a sandbox, and the gate bounds load, not actions.
+.PP
+The config is the whole grant except for these, which widen it:
+.IP \(bu 2
+The repo's own
+.I .claude/settings.json
+and
+.IR .claude/settings.local.json ,
+which load with its
+.I CLAUDE.md
+(Claude Code ties the two to one setting source).
+Each launch prints a
+.B WIDENED
+line for any allow rule, default mode, extra directory or approving hook
+they hold.
+.IP \(bu 2
+A kept user-level hook whose script answers allow.
+ccfleet drops a hook only when its command line shows the allow; name any
+other in
+.BR drop_hooks .
+.IP \(bu 2
+Managed (policy) settings, which always load.
+.PP
+Leaving the user source out narrows a session in other ways too: user-level
+skills, agents and commands under
+.I ~/.claude
+are not loaded, and
+.IR CLAUDE.md 's
+@-imports are not followed.
+Put what a session needs in a plugin (the kept
+.B enabledPlugins
+loads it) or in the repo.
 .PP
 So: use the narrowest permission mode that does the work; never run a bypass
 mode against a repo whose instruction files, pull requests or CI output
@@ -1127,7 +1298,8 @@ exits 0 for go.
 Setup failed: a repo that is not a git checkout, a git command that refused, a
 brief missing from the branch (a pass), a bad
 .BR \-\-in ,
-another driver already running, or (for
+a user-level settings file that cannot be read (launching without it would
+drop its guards), another driver already running, or (for
 .BR drain )
 a queue not ranked, a queue
 .B next

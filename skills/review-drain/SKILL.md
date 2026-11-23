@@ -212,8 +212,8 @@ brief a pass whose subject this session built.
   fold-prompt.md` on a cheaper tier, with a `--set` for each variable
   § *The variables the prompts need* lists for it). `--item` gives the fold
   `{ITEM}` and the pass's own `{REVIEW_LOG}`, and on a clean `RESULT` ccfleet
-  releases the claim and removes the worktree (never one holding unlanded
-  work); any other end keeps both. The held copy (`HELD`) is the drain
+  releases the claim and removes the worktree; any other end keeps both, and
+  so does a clean `RESULT` that leaves unlanded work (it reads `UNLANDED`). The held copy (`HELD`) is the drain
   session's to delete, once it has read the fold's result as `DONE`.
 - A sandboxed API route (no network, no `gh`, temp-only writes) cannot match a
   local pass whose brief leans on those; triage briefs before sending them
@@ -221,8 +221,10 @@ brief a pass whose subject this session built.
 - The passes run unattended in every listed repo, hold the user's git and
   forge credentials, and read text others can write (a repo's instruction
   file, a pull request, a CI log). Give them the narrowest permission mode
-  that does the work, never a bypass mode by default; `ccfleet --doc` says
-  who can steer such a session and what bounds it.
+  that does the work, never a bypass mode by default. ccfleet loads none of
+  the user-level settings' grants, so the config is the whole grant but for a
+  repo's own settings files; `ccfleet --doc` says who can steer such a
+  session and what bounds it.
 
 ## Mode 2: resume (after the reset, on the principal's word only)
 

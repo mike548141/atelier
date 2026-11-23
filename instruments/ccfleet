@@ -63,6 +63,20 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     that ends before its session starts is taken back off the list.
   * Children start in their own session, so closing the driver's terminal
     does not end the sessions it started.
+  * The config is the whole grant. A headless session would load the
+    operator's user-level settings, whose allow rules widened a config that
+    narrowed the tool list (a config without python3 ran python3). Every
+    launch passes --setting-sources project,local and a --settings file
+    ccfleet writes: the user-level settings less their allow rules, default
+    mode and extra directories, and less any hook that prints an allow
+    decision; their deny and ask rules, guard hooks, plugins and env are
+    kept. Leaving the user source out also leaves out the user-level
+    CLAUDE.md, so ccfleet appends it to the system prompt. A repo's own
+    settings files still load; a launch prints a WIDENED line for each grant.
+  * A clean RESULT that leaves unlanded work is not clean: it reads as
+    UNLANDED, the claim stays and the worktree is kept for a resume. A DONE
+    that left uncommitted work once released its claim, tying the work to no
+    queue item.
 
 Usage:
   ccfleet check [--prompt FILE ...] [--set K=V ...]
@@ -92,7 +106,11 @@ CONFIG is JSON (see instruments/ccfleet.example.json, every value fictional):
   worktrees_root  job worktrees go under here                            (required)
   default_model   the model a job runs on when neither job nor repo names one (required)
   claude_bin      default "claude";   claude_args  extra args, e.g. a permission mode
-                  (the narrowest that does the work: `check` names any set)
+                  (the narrowest that does the work: `check` names any set; never
+                  --setting-sources, --settings or --append-system-prompt[-file])
+  settings        Claude Code settings every session gets on top of the user-level
+                  ones less their grants: with claude_args, the whole grant
+  drop_hooks      texts: a user-level hook whose command holds one is left out
   session_timeout_minutes  default 480; 0 for no limit
   nice            default 5;  max_concurrent  default 4;  stagger_seconds  default 90;  poll_seconds 30
   gate            {max_load (default 2 x cores), min_mem_pct 25, min_disk_gb 20}
@@ -123,8 +141,9 @@ ccfleet only calls it. Each entry is an argv list; {REPO} {ITEM} {BRIEF} {BY}
   take     claims the pass, with {SESSION} (the id the session will have);
            a nonzero exit means someone else holds it (skip).
   release  frees the claim after a pass ends with a RESULT in release_on
-           (default DONE, SKIPPED); a refusal is printed, keeps the worktree
-           and exits 2 (pass, resume, run --item).
+           (default DONE, SKIPPED) and nothing unlanded (else UNLANDED: no
+           release); a refusal is printed, keeps the worktree and exits 2
+           (pass, resume, run --item).
   ended    optional: called after every pass, resume or run --item, any
            RESULT, with {SESSION} {RESULT} {LOG} {WT} filled (to record them).
   stop_on  RESULT words that stop the drain (default BUDGET EXHAUSTED).
@@ -184,6 +203,9 @@ PIN_RX = re.compile(r"atelier@([0-9a-f]{7,40})\b", re.I)
 # the orchestrator's last turn: a reviewer still working on act 2 dies mid-act.
 CEILING_VAR = "CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS"
 RELEASE_ON = ["DONE", "SKIPPED"]
+# A clean RESULT whose worktree still holds unlanded work reads as this word,
+# which no release_on may hold: the claim stays and the pass can be resumed.
+UNLANDED = "UNLANDED"
 STOP_ON = ["BUDGET EXHAUSTED"]
 TIMEOUT_RC = 124          # the exit code a session killed at its time limit is given
 QUEUE_TIMEOUT = 600       # seconds a queue command may take before it counts as failed
@@ -243,6 +265,15 @@ def load_config(path):
         raise Refusal(EXIT_USAGE, f"config {path}: session_timeout_minutes must be a number, 0 for none")
     if not isinstance(cfg["claude_args"], list):
         raise Refusal(EXIT_USAGE, f"config {path}: claude_args must be a list of arguments")
+    owned = sorted({str(a).split("=", 1)[0] for a in cfg["claude_args"]} & set(OWNED_FLAGS))
+    if owned:
+        raise Refusal(EXIT_USAGE, f"config {path}: claude_args may not set {', '.join(owned)}: ccfleet sets "
+                                  f"them so the config is the whole grant; put settings in `settings`")
+    if not isinstance(cfg.setdefault("settings", {}), dict):
+        raise Refusal(EXIT_USAGE, f"config {path}: settings must be a JSON object (Claude Code settings)")
+    dh = cfg.setdefault("drop_hooks", [])
+    if not isinstance(dh, list) or not all(isinstance(x, str) and x for x in dh):
+        raise Refusal(EXIT_USAGE, f"config {path}: drop_hooks must be a list of non-empty texts")
     if cfg.get("reset_utc"):
         try:
             parse_reset(cfg["reset_utc"])
@@ -262,6 +293,9 @@ def load_config(path):
     for k, default in (("release_on", RELEASE_ON), ("stop_on", STOP_ON)):
         if not isinstance(q.get(k, default), list):
             raise Refusal(EXIT_USAGE, f"config {path}: queue.{k} must be a list of RESULT words")
+    if UNLANDED in q.get("release_on", RELEASE_ON):
+        raise Refusal(EXIT_USAGE, f"config {path}: queue.release_on may not hold {UNLANDED}: it is the word "
+                                  f"for a clean end that left unlanded work, which keeps its claim")
     return cfg
 
 
@@ -304,8 +338,10 @@ def parse_sets(pairs):
 
 
 def permission_args(cfg):
-    """The claude_args that widen what an unattended session may do unasked,
-    and whether one of them is a bypass (nothing is asked at all)."""
+    """What the config grants an unattended session beyond asking (its
+    claude_args flags and its `settings` permissions), and whether any of it is
+    a bypass (nothing is asked at all). Since user-level settings are not
+    loaded, this is the whole grant but for a repo's own settings files."""
     args, found, bypass = cfg.get("claude_args") or [], [], False
     for i, a in enumerate(args):
         a = str(a)
@@ -317,7 +353,168 @@ def permission_args(cfg):
         found.append(f"{flag} {value}".strip())
         if flag == PERMISSION_FLAGS[0] or (flag == "--permission-mode" and value == "bypassPermissions"):
             bypass = True
+    perms = (cfg.get("settings") or {}).get("permissions")
+    for k in GRANT_KEYS if isinstance(perms, dict) else ():
+        v = perms.get(k)
+        if v:
+            found.append(f"settings {k} {', '.join(map(str, v)) if isinstance(v, list) else v}")
+            bypass = bypass or (k == "defaultMode" and v == "bypassPermissions")
     return found, bypass
+
+
+# ---------- the session's settings: the config is the whole grant ----------
+#
+# A headless session would otherwise load the operator's user-level settings,
+# whose allow rules, default mode and extra directories widen whatever the
+# config narrows (found 2026-11-23: a config without python3 in its tool list
+# ran python3 anyway). So every launch passes --setting-sources project,local,
+# which leaves the user-level settings file out, and --settings with a file
+# ccfleet writes: the user-level settings with their grants taken out (hooks,
+# deny and ask rules, plugins and env kept: they restrict or equip, they do
+# not grant), then the config's own `settings` on top. Leaving the user source
+# out also leaves out the user-level CLAUDE.md (checked against claude 2.1.x),
+# so ccfleet appends it to the system prompt (--append-system-prompt-file):
+# the operator's standing instructions still bind an unattended session.
+SETTING_SOURCES = "project,local"
+# The permission keys that widen what a session may do: never carried over.
+GRANT_KEYS = ("allow", "defaultMode", "additionalDirectories")
+# Launch flags ccfleet sets itself: in claude_args they would undo the above.
+OWNED_FLAGS = ("--setting-sources", "--settings", "--append-system-prompt", "--append-system-prompt-file")
+# A hook command that prints an allow decision approves tool calls: a grant.
+GRANTING_HOOK_RX = re.compile(r"permissionDecision\W{0,8}allow", re.I)
+
+
+def read_settings(path, required=True):
+    """A settings file as a dict; {} when it does not exist. One that cannot be
+    read is a refusal when `required` (the user's: launching without it would
+    silently drop its guard hooks and deny rules), else None."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            d = json.load(f)
+        if not isinstance(d, dict):
+            raise ValueError("not a JSON object")
+        return d
+    except FileNotFoundError:
+        return {}
+    except (OSError, ValueError) as e:
+        if not required:
+            return None
+        raise Refusal(EXIT_SETUP, f"cannot read the user settings {path} ({e}): launching without them "
+                                  f"would drop their hooks and deny rules")
+
+
+def merge_settings(base, over):
+    """`over` on top of `base`: objects merge key by key, lists join without
+    repeats, any other value is `over`'s."""
+    out = dict(base)
+    for k, v in over.items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = merge_settings(out[k], v)
+        elif isinstance(v, list) and isinstance(out.get(k), list):
+            out[k] = out[k] + [x for x in v if x not in out[k]]
+        else:
+            out[k] = v
+    return out
+
+
+def user_settings_path():
+    return os.path.join(config_dir(), "settings.json")
+
+
+def hook_commands(group):
+    return [str(h.get("command", "")) for h in group.get("hooks", []) if isinstance(h, dict)]
+
+
+def session_settings(cfg):
+    """(settings, notes): the user-level settings less their grants and less
+    the hooks that grant or that the config drops, with the config's own
+    `settings` on top; and what was left out, for `check` and the man page's
+    account. A hook command is dropped when it prints an allow decision or
+    holds a drop_hooks text; the other commands of its entry are kept."""
+    user = read_settings(user_settings_path())
+    notes = {"grants": [], "dropped_hooks": [], "kept_hooks": []}
+    perms = user.get("permissions")
+    if isinstance(perms, dict):
+        perms = dict(perms)
+        for k in GRANT_KEYS:
+            if k in perms:
+                v = perms.pop(k)
+                if k == "allow":
+                    notes["grants"].append(f"allow ({len(v) if isinstance(v, list) else v} rule(s))")
+                else:
+                    notes["grants"].append(f"{k} {', '.join(map(str, v)) if isinstance(v, list) else v}")
+        user = {**user, "permissions": perms}
+    hooks = user.get("hooks")
+    if isinstance(hooks, dict):
+        kept = {}
+        for event, groups in hooks.items():
+            for g in groups if isinstance(groups, list) else []:
+                if not isinstance(g, dict):
+                    continue
+                where = f"{event} {g.get('matcher', '*') or '*'}"
+                left = []
+                for h in g.get("hooks", []) if isinstance(g.get("hooks"), list) else []:
+                    c = str(h.get("command", "")) if isinstance(h, dict) else ""
+                    drop = [d for d in cfg.get("drop_hooks", []) if d in c]
+                    if GRANTING_HOOK_RX.search(c) or drop:
+                        why = f"drop_hooks {drop[0]!r}" if drop else "approves tool calls"
+                        notes["dropped_hooks"].append(f"{where} ({why})")
+                        continue
+                    left.append(h)
+                    notes["kept_hooks"].append(f"{where}: {c}")
+                if left:
+                    kept.setdefault(event, []).append({**g, "hooks": left})
+        user = {**user, "hooks": kept}
+    return merge_settings(user, cfg.get("settings") or {}), notes
+
+
+def session_files(cfg, sid, write=True):
+    """Write (unless not `write`) the session's settings file, and the
+    user-level CLAUDE.md as an instructions file when there is one, under
+    <kit_dir>/settings/. Returns their paths (the second None when there is no
+    user CLAUDE.md)."""
+    d = os.path.join(cfg["kit_dir"], "settings")
+    spath, ipath = os.path.join(d, f"{sid}.json"), os.path.join(d, f"{sid}-user-instructions.md")
+    umd = os.path.join(config_dir(), "CLAUDE.md")
+    if not os.path.isfile(umd):
+        ipath = None
+    if not write:
+        return spath, ipath
+    settings, _ = session_settings(cfg)
+    os.makedirs(d, exist_ok=True)
+    fd = os.open(spath, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
+        json.dump(settings, f, indent=1)
+    if ipath:
+        with open(umd, encoding="utf-8", errors="replace") as f:
+            text = f.read()
+        fd = os.open(ipath, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(f"# The operator's user-level instructions ({umd})\n\n"
+                    "ccfleet loads no user-level settings, so Claude Code does not load this file "
+                    "itself; it is passed here unchanged and binds as it would have.\n\n" + text)
+    return spath, ipath
+
+
+def repo_grants(wt):
+    """What a worktree's own settings files (the project and local sources,
+    which still load) grant, one line each: the config is not the whole grant
+    where these say something, and each launch says so."""
+    out = []
+    for rel in (os.path.join(".claude", "settings.json"), os.path.join(".claude", "settings.local.json")):
+        d = read_settings(os.path.join(wt, rel), required=False)
+        if d is None:
+            out.append(f"{rel}: unreadable (Claude Code ignores an invalid settings file)")
+            continue
+        perms = d.get("permissions") if isinstance(d.get("permissions"), dict) else {}
+        got = [f"{k} {json.dumps(perms[k])}" for k in GRANT_KEYS if perms.get(k)]
+        hooks = d.get("hooks") if isinstance(d.get("hooks"), dict) else {}
+        if any(GRANTING_HOOK_RX.search(c) for gs in hooks.values() if isinstance(gs, list)
+               for g in gs if isinstance(g, dict) for c in hook_commands(g)):
+            got.append("a hook that approves tool calls")
+        if got:
+            out.append(f"{rel}: {'; '.join(got)}")
+    return out
 
 
 # ---------- headroom gate ----------
@@ -569,10 +766,12 @@ def stamp_dir(root, label):
     return parent
 
 
-def session_argv(cfg, model, prompt, resume=None, session_id=None):
+def session_argv(cfg, model, prompt, resume=None, session_id=None, files=(None, None)):
     """The launch line. A new session is given its id up front (--session-id),
     so a session killed before it prints anything still has a known id: the
-    START line, the claim and the result file carry it, and `resume` can use it."""
+    START line, the claim and the result file carry it, and `resume` can use it.
+    `files` are the session's settings and user-instructions files
+    (session_files): no user-level settings load, so the config is the grant."""
     argv = []
     if cfg["nice"]:
         argv += ["nice", "-n", str(cfg["nice"])]
@@ -581,6 +780,12 @@ def session_argv(cfg, model, prompt, resume=None, session_id=None):
         argv += ["--resume", resume]
     elif session_id:
         argv += ["--session-id", session_id]
+    settings, instructions = files
+    argv += ["--setting-sources", SETTING_SOURCES]
+    if settings:
+        argv += ["--settings", settings]
+    if instructions:
+        argv += ["--append-system-prompt-file", instructions]
     argv += ["--model", model, *cfg["claude_args"], "--output-format", "json", prompt]
     return argv
 
@@ -730,6 +935,20 @@ def unlanded_work(wt, facts, branch_name=None):
     return ""
 
 
+def unlanded_verdict(wt, facts, branch_name, result, text):
+    """(text, RESULT) for a session that ended with a clean RESULT: UNLANDED,
+    with the reason put first in the text, when its worktree still holds work
+    that is on no remote branch; else both unchanged. An UNLANDED end is not
+    clean: no release, the worktree is kept, `resume` can finish it."""
+    why = unlanded_work(wt, facts, branch_name)
+    if not why:
+        return text, result
+    print(f"UNLANDED {wt}: the session said RESULT {result} but left {why}; read as not clean, so any "
+          f"claim stays and the worktree is kept (land it, or resume the session)", flush=True)
+    return (f"(RESULT {result} read as {UNLANDED}: the worktree {wt} holds {why}; never read as clean)\n"
+            + text), UNLANDED
+
+
 def remove_worktree(facts, wt, branch_name=None):
     """Remove a worktree only when it holds no unlanded work, never with
     --force; say why when it is kept. Returns True when it was removed."""
@@ -796,7 +1015,7 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     template_text = read_template(template)
     values = base_values(cfg, repo, facts, wt, by, {**extra, "SESSION": sid0}, template_text, branch_name)
     prompt = build_prompt(cfg, template, values, template_text)
-    argv = session_argv(cfg, model, prompt, session_id=sid0)
+    argv = session_argv(cfg, model, prompt, session_id=sid0, files=session_files(cfg, sid0, write=False))
     clean = release_on(cfg)
     if dry:
         print(f"DRY {repo} model={model} vis={facts['visibility']} wt={wt}")
@@ -806,6 +1025,9 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
         # as ended rather than "ended early".
         print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc=0 result=DRY session=- out={log}", flush=True)
         return 0, "DRY"
+    # Written before the worktree or the claim: a user settings file that
+    # cannot be read refuses the launch with nothing to undo.
+    argv = session_argv(cfg, model, prompt, session_id=sid0, files=session_files(cfg, sid0))
     for d in (logs, results, scratch, os.path.dirname(wt)):
         os.makedirs(d, exist_ok=True)
     if existing:
@@ -828,12 +1050,19 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
         if code:
             cleanup()
             return code, "UNKNOWN"
+    for line in repo_grants(wt):
+        print(f"WIDENED by the repo's own {line} (it loads with the project; man ccfleet, THREATS)", flush=True)
     print(f"START {now_utc():%Y-%m-%dT%H:%M:%SZ} {label} model={model} session={sid0} wt={wt} log={log}",
           flush=True)
     since = iso_now()
     rc = launch(cfg, argv, wt, log)
     text, sid, result = harvest(log, since, rc, known=clean + stop_on(cfg), stops=stop_on(cfg))
     sid = sid or sid0
+    if result in clean and (remove_adopted or not existing):
+        # The principal, 2026-11-23: a clean RESULT that leaves unlanded work
+        # is not clean. The claim stays and the pass can be resumed; only an
+        # adopted worktree with no item (the caller's own) is not judged.
+        text, result = unlanded_verdict(wt, facts, branch_name, result, text)
     out = os.path.join(results, f"{label}.md")
     with open(out, "w", encoding="utf-8") as f:
         f.write(f"<!-- session {sid} rc={rc} result={result} -->\n{text}\n")
@@ -1486,6 +1715,7 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
     values = base_values(cfg, repo, facts, wt, by, {**extra, "SESSION": sid, "ITEM": item or ""},
                          template_text)
     prompt = build_prompt(cfg, template, values, template_text)
+    files = session_files(cfg, f"resume-{sid}-{now_utc():%H%M%S}")
     for d in ("logs", os.path.join("scratch", safe(repo))):
         os.makedirs(os.path.join(cfg["kit_dir"], d), exist_ok=True)
     # Two resumes of one session at once would write one conversation twice.
@@ -1493,11 +1723,16 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
                   f"another resume of session {sid}", EXIT_CLAIM):
         log = os.path.join(cfg["kit_dir"], "logs",
                            f"resume-{safe(repo + '-' + (item or sid))}-{now_utc():%H%M}.json")
+        for line in repo_grants(wt):
+            print(f"WIDENED by the repo's own {line} (it loads with the project; man ccfleet, THREATS)",
+                  flush=True)
         print(f"START {now_utc():%Y-%m-%dT%H:%M:%SZ} resume {repo} {item or ''} of {sid}", flush=True)
         since = iso_now()
-        rc = launch(cfg, session_argv(cfg, model, prompt, resume=sid), wt, log)
+        rc = launch(cfg, session_argv(cfg, model, prompt, resume=sid, files=files), wt, log)
     known = release_on(cfg) + stop_on(cfg)
     _, new_sid, result = harvest(log, since, rc, known=known, stops=stop_on(cfg))
+    if result in release_on(cfg):
+        _, result = unlanded_verdict(wt, facts, None, result, "")
     print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={new_sid or sid} out={log}",
           flush=True)
     if not item:
@@ -1516,6 +1751,39 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
 
 # ---------- CLI ----------
 
+def check_settings(cfg):
+    """Say what a session's settings are: the user-level grants left out, what
+    is kept from that file, and each kept hook (a guard, or a grant if it
+    approves calls in a script ccfleet cannot read)."""
+    try:
+        settings, notes = session_settings(cfg)
+    except Refusal as e:
+        print(f"GRANT: REFUSED. {e}")
+        return
+    upath = user_settings_path()
+    left = "; ".join(notes["grants"]) or "nothing (it grants nothing)"
+    perms = settings.get("permissions") if isinstance(settings.get("permissions"), dict) else {}
+    kept = [f"{k} {len(perms[k])} rule(s)" for k in ("deny", "ask") if isinstance(perms.get(k), list)]
+    kept += [f"{len(notes['kept_hooks'])} hook command(s)"]
+    kept += [k for k in sorted(settings) if k not in ("permissions", "hooks")]
+    print(f"GRANT: the config is the whole grant. No user-level settings load (--setting-sources "
+          f"{SETTING_SOURCES}); a session gets {upath} less its grants, with the config's `settings` on "
+          f"top. Left out: {left}. Kept: {', '.join(kept)}.")
+    for h in notes["dropped_hooks"]:
+        print(f"HOOK dropped: {h}")
+    for h in notes["kept_hooks"]:
+        print(f"HOOK kept: {h}")
+    if notes["kept_hooks"]:
+        print("HOOKS: a kept hook runs with its full power; one whose script answers allow still grants "
+              "(ccfleet reads only the command line). Name it in drop_hooks to leave it out.")
+    umd = os.path.join(config_dir(), "CLAUDE.md")
+    print(f"INSTRUCTIONS: {umd} is appended to every session's system prompt (no user source loads it); "
+          f"its @-imports are not followed." if os.path.isfile(umd) else
+          f"INSTRUCTIONS: no {umd}; nothing is appended.")
+    print("REPO SETTINGS: a repo's own .claude/settings.json and .claude/settings.local.json still load, "
+          "with its CLAUDE.md; each launch prints a WIDENED line for what they grant (man ccfleet, THREATS).")
+
+
 def check(cfg, prompts, sets):
     """Print what the config resolves to, any permission widening, and the
     placeholders in the pass prompt (and each --prompt) that nothing fills.
@@ -1531,6 +1799,7 @@ def check(cfg, prompts, sets):
               f"unchecked. Use the narrowest mode that does the work.")
     elif perms:
         print(f"PERMISSIONS: every session starts with {'; '.join(perms)} (see man ccfleet, THREATS)")
+    check_settings(cfg)
     have = set(cfg["vars"]) | set(sets)
     templates = ([(cfg["pass_prompt"], PASS_FILLED)] if cfg.get("pass_prompt") else []) + \
                 [(t, set()) for t in prompts]
