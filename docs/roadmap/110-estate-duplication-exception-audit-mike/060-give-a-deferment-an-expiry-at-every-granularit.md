@@ -1,4 +1,4 @@
-- [ ] **Give a deferment an expiry at every granularity, not just `advisory`.**
+- [~] **Give a deferment an expiry at every granularity, not just `advisory`.**
       Raised by the ruling above. Today `review-by` is a floor-config field, so
       the only declarable deferment is a whole check. The two cases just dated
       are path-level, and a line marker has the same hole — `<guard>:allow:` is
@@ -33,3 +33,4 @@
       2026-11-16; this slice is additive and warn-only).
       🔒 CLAIMED 2026-11-16T11:55Z (claimed 2026-11-16-1155, wt: qr-78ca-expiry) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
+      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-expiry)*

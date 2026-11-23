@@ -1,4 +1,4 @@
-- [ ] 🔎 **`archivecut` in the field: five rough edges from its first fleet
+- [~] 🔎 **`archivecut` in the field: five rough edges from its first fleet
       run.** Filed 2026-11-20 by session 19378351 from the reports of the
       workers it ran in sixteen children (class only; every cut that ran
       proved byte for byte and landed with green CI). None lost data; each
@@ -57,3 +57,4 @@
       spelling is still read, so repos already cut still verify. Tests in
       `tools/test_archivecut.py`. **Still open:** root session-log sources,
       and item 5 (the `attribscan` record-path decision).
+      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-archroot)*
