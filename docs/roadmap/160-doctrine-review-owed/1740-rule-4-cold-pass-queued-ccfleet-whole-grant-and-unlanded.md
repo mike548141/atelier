@@ -12,7 +12,9 @@
       `instruments/test_ccfleet.py`, `instruments/man/ccfleet.1`,
       `instruments/ccfleet.example.json`, `instruments/README.md`,
       `skills/review-drain/SKILL.md`: the commit that closes `210/560`, on
-      `main`.
+      `main`; widened 2026-11-23 by the commit that moves the review-log
+      name to SHA-256 (`115/500` item 5; `instruments/ccfleet`'s
+      `review_log` and `pass_log`, and their test).
       *Intent record:*
       [`../210-instruments-open-features/560-ccfleet-cannot-see-inherited-permissions-and-a-kept-worktree-loses-its-claim.md`](../210-instruments-open-features/560-ccfleet-cannot-see-inherited-permissions-and-a-kept-worktree-loses-its-claim.md).
       *What to test hardest:* every path by which a launched session can

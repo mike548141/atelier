@@ -1,4 +1,4 @@
-- [ ] **Give a deferment an expiry at every granularity, not just `advisory`.**
+- [~] **Give a deferment an expiry at every granularity, not just `advisory`.**
       Raised by the ruling above. Today `review-by` is a floor-config field, so
       the only declarable deferment is a whole check. The two cases just dated
       are path-level, and a line marker has the same hole — `<guard>:allow:` is
@@ -45,3 +45,4 @@
       compare exit status with and without dates on a tree each scanner
       blocks. **Remaining:** (2) the floor line and fleet board, (3) red
       when lapsed, where the cold pass is owed, (4) line-marker granularity.
+      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-expiry2)*
