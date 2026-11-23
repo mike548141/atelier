@@ -15,6 +15,7 @@ route still verifying after the index goes. Stdlib only.
 
 import contextlib
 import io
+import re
 import subprocess
 import sys
 import tempfile
@@ -479,7 +480,7 @@ class SessionRetire(unittest.TestCase):
             "docs/SESSIONS.md": SESSIONS + "- 2026-03-04 · last, no newline"})
         code, out = run(["--cut", "--root", str(r.root)])
         self.assertEqual(code, 0, out)
-        self.assertIn("final-newline=no", r.read("docs/sessions/README.md"))
+        self.assertIn(" nl=no ", r.read("docs/sessions/README.md"))
         r.commit()
         code, out = run(["--verify", "--root", str(r.root)])
         self.assertEqual(code, 0, out)
@@ -683,8 +684,7 @@ class FieldEdges(unittest.TestCase):
         r = make_repo(self.tmp, done=None, sessions_archive=SESSIONS_ARCHIVE)
         code, out = run(["--cut", "--root", str(r.root)])
         self.assertEqual(code, 0, out)
-        # The README's `archivecut:retired` comment is also wide (92 columns);
-        # it is outside this test and reported on 010/280, not fixed here.
+        # The README's marker comments are held to the limit too (below).
         for p in sorted((r.root / "docs/sessions").glob("2*.md")):
             for f in wrapscan.scan_text(p.name, p.read_text(encoding="utf-8")):
                 self.fail(f"{p.name}:{f.line} is {f.length} columns")
@@ -703,6 +703,38 @@ class FieldEdges(unittest.TestCase):
             t = p.read_text(encoding="utf-8")
             if archivecut.LOG_LABEL in t:
                 p.write_text(t.replace(archivecut.LOG_LABEL, old), encoding="utf-8")
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("FAIL", out)
+
+    # -- item 2 (2026-11-23 form): the README's marker comment fits the limit
+
+    def test_the_retired_marker_comment_fits_the_house_limit(self):
+        # Fails on the old `final-newline=` spelling: 92 columns for the
+        # `-ARCHIVE` log with a short sha.
+        r = make_repo(self.tmp, done=None, sessions_archive=SESSIONS_ARCHIVE)
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        marks = [x for x in r.read("docs/sessions/README.md").splitlines()
+                 if archivecut.RETIRED_RE.match(x)]
+        self.assertGreaterEqual(len(marks), 1)
+        for x in marks:
+            self.assertLessEqual(len(x), wrapscan.LINE_LIMIT, x)
+        worst = archivecut.RETIRED_MARK.format(
+            src=archivecut.SESSIONS_SRC, lines=99999, nl="yes", sha="a" * 8)
+        self.assertLessEqual(len(worst), wrapscan.LINE_LIMIT, worst)
+
+    def test_a_readme_cut_under_the_old_marker_still_reads_and_verifies(self):
+        r = make_repo(self.tmp, done=None, sessions_archive=SESSIONS_ARCHIVE)
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        path = r.root / "docs/sessions/README.md"
+        t = path.read_text(encoding="utf-8")
+        old = re.sub(r" nl=(yes|no) ", r" final-newline=\1 ", t)
+        self.assertNotEqual(old, t)
+        path.write_text(old, encoding="utf-8")
+        self.assertIsNotNone(archivecut.parse_readme(old))
         r.commit()
         code, out = run(["--verify", "--root", str(r.root)])
         self.assertEqual(code, 0, out)

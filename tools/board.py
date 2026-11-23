@@ -268,6 +268,9 @@ class ItemState(NamedTuple):
     marker: str
     head: str
     lines: tuple[str, ...]
+    # A claim written as the item's last line, outside the first paragraph
+    # (`_trailing_claim`); "" when there is none, or the paragraph has its own.
+    trail: str = ""
 
     @property
     def rest(self) -> str:
@@ -282,6 +285,30 @@ class ItemState(NamedTuple):
 # line with no blank line between, and 45 items carried a flag glyph only in
 # that continuation prose, as a mention, never a flag.
 _BLOCK_START_RE = re.compile(r"([-*+]|\d+[.)])(\s|$)|>|<!--|```|~~~|#|\|")
+
+
+# The last line of an item, when it holds a claim and nothing else: the bare
+# fragment or the fragment in one pair of `*…*` (the italic form a claim helper
+# writes under a sub-block).
+_TRAILING_CLAIM_RE = re.compile(r"\*?(\(claimed [^()]*\))\*?")
+
+
+def _trailing_claim(lines: list[str], marker: str, paragraph: str) -> str:
+    """The claim fragment on the item's LAST non-blank line, else "" (320/450).
+
+    The paragraph read stops at a blank line or a new block, so a claim written
+    after a sub-block (numbered steps, `##` sections) never reached the index.
+    This reads that one place and no other: only a `[~]` item, only when its
+    first paragraph holds no claim of its own (a backticked MENTION there does
+    not count), only the final non-blank line, and only when that line is the
+    claim and nothing else. A claim in the middle of the body is prose."""
+    if marker != "[~]" or CLAIM_RE.search(_mask_code(paragraph)):
+        return ""
+    for last in reversed(lines):
+        if last.strip():
+            m = _TRAILING_CLAIM_RE.fullmatch(last.strip())
+            return m.group(1) if m else ""
+    return ""
 
 
 def item_state(text: str) -> ItemState | None:
@@ -316,7 +343,8 @@ def item_state(text: str) -> ItemState | None:
             if not c or not cont[0].isspace() or _BLOCK_START_RE.match(c):
                 break
             parts.append(c)
-        return ItemState(m.group(1), head, tuple(parts))
+        trail = _trailing_claim(lines[i + 1:], m.group(1), " ".join(parts))
+        return ItemState(m.group(1), head, tuple(parts), trail)
     return None
 
 
@@ -454,7 +482,8 @@ def _mask_code(text: str) -> str:
 
 def index_line(marker: str, rest: str, rel_link: str,
                head: str | None = None,
-               markers: list[str] | None = None) -> str:
+               markers: list[str] | None = None,
+               trail: str = "") -> str:
     """One generated index line for an item. `[x]` renders ✅ by design.
 
     `rest` is the logical first paragraph (`ItemState.rest`), `head` the first
@@ -472,6 +501,9 @@ def index_line(marker: str, rest: str, rel_link: str,
       * THE CLAIM reads `rest` with code spans blanked, so a claim wrapped onto
         line two projects, and a backticked `(claimed …)` MENTION in the prose
         is never mistaken for one.
+      * `trail` is a claim found on the item's last line (`_trailing_claim`);
+        it fills the claim slot only when `rest` has none, so the claim shows
+        once.
     """
     if head is None:
         head = rest
@@ -500,6 +532,8 @@ def index_line(marker: str, rest: str, rel_link: str,
         m = CLAIM_RE.search(_mask_code(rest))
         if m:
             line += f" {_claim_for_index(m.group(0), len(line))}"
+        elif trail:
+            line += f" {_claim_for_index(trail, len(line))}"
     # Squeeze the title to the room the prefix leaves (320/730). A no-op for an
     # unclaimed line, whose prefix is short; it bites when a claim is present.
     title = _fit_title(title, WRAP_COLS - len(line) - 2)
@@ -574,7 +608,7 @@ def index_entry(text: str, rel_link: str) -> str | None:
 
 def _state_entry(state: ItemState, rel_link: str) -> str:
     return index_line(state.marker, state.rest, rel_link, head=state.head,
-                      markers=projected_markers(state))
+                      markers=projected_markers(state), trail=state.trail)
 
 
 def _head_flags(state: ItemState) -> str:

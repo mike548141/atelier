@@ -818,10 +818,19 @@ ENTRY_MARK = "<!-- archivecut:log-entry {src} {start}+{count} -->"
 ENTRY_MARK_RE = re.compile(r"^<!-- archivecut:log-entry (\S+) (\d+)\+(\d+) -->$")
 REGION_MARK = "<!-- archivecut:log-text {src} {start}+{count} -->"
 REGION_MARK_RE = re.compile(r"^<!-- archivecut:log-text (\S+) (\d+)\+(\d+) -->$")
+# The README's marker comment is the tool's own too, and it was 92 columns for
+# the longer log name (`-ARCHIVE`) once a short sha was in: over `wrapscan`'s
+# limit (010/280, the 2026-11-23 note). `nl=` is the old `final-newline=`, 10
+# columns shorter and the same flag, so the line fits for either log name. The
+# old spelling is still read, and a README carrying it still verifies
+# (`_canonical_marks` rewrites it for the exact-text comparison), but only the
+# short one is written.
 RETIRED_MARK = ("<!-- archivecut:retired {src} lines={lines} "
-                "final-newline={nl} last={sha} -->")
+                "nl={nl} last={sha} -->")
 RETIRED_RE = re.compile(r"^<!-- archivecut:retired (\S+) lines=(\d+) "
-                        r"final-newline=(yes|no) last=(\S+) -->$")
+                        r"(?:final-newline|nl)=(yes|no) last=(\S+) -->$")
+LEGACY_RETIRED_RE = re.compile(r"^(<!-- archivecut:retired \S+ lines=\d+ )"
+                               r"final-newline=((?:yes|no) last=\S+ -->)$")
 # An entry that opens by linking: `- [text](dest)`, the text allowed to wrap.
 OPENING_LINK_RE = re.compile(
     r"^[-*] \[(?:[^\[\]]|\[[^\[\]]*\])*\]\(<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\)")
@@ -986,6 +995,14 @@ def readme_prefix(text: str) -> str | None:
     return text[:k]
 
 
+def _canonical_marks(text: str) -> str:
+    """`text` with each old-spelling `archivecut:retired` comment written the
+    way `readme_text` writes it now, so a README cut earlier compares equal."""
+    return "".join(LEGACY_RETIRED_RE.sub(r"\1nl=\2", ln.rstrip("\n"))
+                   + ("\n" if ln.endswith("\n") else "")
+                   for ln in split_lines(text))
+
+
 def parse_readme(text: str) -> list[dict] | None:
     """The retired logs' sections, read back from the README; None unless the
     README is exactly what `readme_text` writes for them."""
@@ -1020,7 +1037,7 @@ def parse_readme(text: str) -> list[dict] | None:
             continue
         i += 1
     prefix = readme_prefix(text)
-    if prefix is None or readme_text(sections, prefix) != text:
+    if prefix is None or readme_text(sections, prefix) != _canonical_marks(text):
         return None
     return sections
 

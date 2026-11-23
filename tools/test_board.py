@@ -463,6 +463,42 @@ class LogicalFirstParagraph(unittest.TestCase):
             "- [~] (claimed 2026-01-02-0304, wt: example-wt) [A claimed item "
             "whose title fills the…]("), line)
 
+    def test_a_trailing_claim_after_a_sub_block_projects(self):
+        # 320/450 (2026-11-23): a claim written as the item's last line, past a
+        # blank line or a numbered sub-block, sits outside the first paragraph.
+        for tail in ("\n      *(claimed 2026-01-02 UTC, session abc, wt: example-wt)*\n",
+                     "\n(claimed 2026-01-02 UTC, session abc, wt: example-wt)\n\n"):
+            line = self.line_for(
+                "31-trailing.md",
+                "- [~] **A claimed item**\n      with a second line.\n\n"
+                "      1. a step\n      2. another step\n" + tail)
+            self.assertTrue(line.startswith(
+                "- [~] (claimed 2026-01-02 UTC, session abc, wt: example-wt) "
+                "[A claimed item"), line)
+            self.assertEqual(line.count("(claimed"), 1, line)
+
+    def test_a_trailing_claim_is_narrow(self):
+        # Not the last line, not claim-only, not a [~] item, or the paragraph
+        # already has a claim: nothing is read from the tail.
+        claim = "(claimed 2026-01-02 UTC, wt: example-wt)"
+        cases = {
+            "32-mid.md": "- [~] **Mid**\n\n" + claim + "\n\nmore prose\n",
+            "33-prose.md": "- [~] **Prose**\n\nsee " + claim + " for who\n",
+            "34-open.md": "- [ ] **Open**\n\n" + claim + "\n",
+            "35-own.md": "- [~] **Own** (claimed 2026-02-03 UTC, wt: first)\n\n"
+                         + claim + "\n",
+            "36-mention.md": "- [~] **Mention** `(claimed x, wt: y)`\n\n" + claim + "\n",
+        }
+        want = {"32-mid.md": None, "33-prose.md": None, "34-open.md": None,
+                "35-own.md": "2026-02-03", "36-mention.md": "2026-01-02"}
+        for name, body in cases.items():
+            line = self.line_for(name, body)
+            if want[name] is None:
+                self.assertNotIn("(claimed", line, name)
+            else:
+                self.assertEqual(line.count("(claimed"), 1, line)
+                self.assertIn(f"(claimed {want[name]}", line, name)
+
     def test_the_allow_marker_still_propagates(self):
         # On the state line, as before, and from the continuation line the
         # wrapped title ends on — the text it exempts now reaches the index.
@@ -494,7 +530,8 @@ class LogicalFirstParagraph(unittest.TestCase):
         line = self.line_for(
             "80-blank.md",
             "- [~] **Title**\n\n"
-            "      (claimed 2026-01-02-0304, wt: after-a-blank)\n")
+            "      (claimed 2026-01-02-0304, wt: after-a-blank)\n\n"
+            "      prose after it, so it is not the item's last line.\n")
         self.assertNotIn("claimed", line)
 
     def test_a_marker_on_the_line_a_plain_title_reaches_into_travels(self):

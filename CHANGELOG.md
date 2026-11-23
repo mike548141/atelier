@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-23 — a trailing claim projects, `320/450`; the README marker fits, `010/280`)
+- **`board.py` reads a claim written as an item's last line.** A claim after a
+  blank line or a sub-block sat outside the first paragraph and never reached
+  the index. For a `[~]` item whose first paragraph holds no claim, the final
+  non-blank line is read when it is a claim and nothing else, bare or inside
+  `*…*`. Nothing else is read from the tail; the claim shows once.
+- **`archivecut.py`'s README marker comment fits 85 columns.** It read
+  `final-newline=` and ran to 92 for the `-ARCHIVE` log; it now reads `nl=`
+  (84 at worst). The old spelling is still read, and a README cut earlier
+  still passes `--verify`; only the short one is written.
+
 ### Changed (2026-11-23 — `archivecut` and the archive section, `010/280`, `320/450`)
 - **`tools/archivecut.py` finds a repo-root `ROADMAP-DONE.md`.** It looked in
   `docs/` only, so a child that kept its pre-split board at the root read

@@ -71,7 +71,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🎯 [A child has used &#91;~&#93; for partially delivered where the house means…](roadmap/010-board-store-migration-per-item-files-mik/100-ros-carries-38-items-using-a-different-tilde.md)
 - [ ] 🔎 [A claim on a long-titled item fails the wrapscan floor — on the…](roadmap/010-board-store-migration-per-item-files-mik/130-a-claim-fragment-on-a-long-title-fails-wrapscan.md)
 - [ ] [Remove the full-form index grace once 2026-12-04 has passed.](roadmap/010-board-store-migration-per-item-files-mik/250-remove-the-full-form-index-grace-after-its-date.md)
-- [~] 🔎 [archivecut in the field: five rough edges from its first fleet run.](roadmap/010-board-store-migration-per-item-files-mik/280-archivecut-in-the-field-five-rough-edges.md)
+- [~] 🔎 (claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-residue) [archivecut…](roadmap/010-board-store-migration-per-item-files-mik/280-archivecut-in-the-field-five-rough-edges.md)
 - [ ] [Remove the retired-session-index grace once 2026-12-04 has passed.](roadmap/010-board-store-migration-per-item-files-mik/290-remove-the-retired-session-index-grace-after.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
@@ -427,7 +427,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🔎 [CANDIDATE HOUSE RULE — verify a figure correction in the RENDERED…](roadmap/320-child-filed-findings-via-pointing-up/400-count-survivors-in-the-rendered-artefact-not-the-source-you-edited.md)
 - [ ] 🔎 [Hand-up: a queued-review pointer may name a moving bound, and…](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
 - [ ] 🔎 [A review file's follow-up list and the board item that points at it…](roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md)
-- [~] 🔎 [A wrapped claim does not project into the index, a &#93; in a title…](roadmap/320-child-filed-findings-via-pointing-up/450-a-wrapped-claim-does-not-project-and-two-more-from-a-child-s-cold-passes.md)
+- [~] 🔎 (claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-residue) [A wrapped…](roadmap/320-child-filed-findings-via-pointing-up/450-a-wrapped-claim-does-not-project-and-two-more-from-a-child-s-cold-passes.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the doctrine's own sync command (git pull…](roadmap/320-child-filed-findings-via-pointing-up/480-a-rebase-pull-after-a-local-merge-flattens-it-and-orphans-cited-hashes.md)
 - [ ] 🔎 [Hand-up: nothing at session open, or before "verified", reads the…](roadmap/320-child-filed-findings-via-pointing-up/520-nothing-reads-the-published-ci-conclusion.md)
 - [ ] 🔎 [Hand-up from a private child: a repo that holds one network's desired…](roadmap/320-child-filed-findings-via-pointing-up/530-a-network-tree-repo-trips-the-floor-s-scanners-by-construction.md)
