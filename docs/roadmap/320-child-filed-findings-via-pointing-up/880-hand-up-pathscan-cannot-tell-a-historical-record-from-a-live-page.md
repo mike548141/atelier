@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: `pathscan` cannot tell a historical record from a live
+- [~] 🔎 **Hand-up: `pathscan` cannot tell a historical record from a live
       page, so a path that was true when it was written reads as stale, and
       the records it already excludes miss the per-item board store** <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
       `[M][tools]`. Handed up 2026-11-20 UTC by a private child's session,
@@ -75,3 +75,4 @@
       (`990-done-before-the-split/`, `010/220`) is already in
       `RECORDS_GLOBS`. The remaining classes above (dated research notes, a
       mixed decision register) still need their own answer.
+      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-pathrec; part 1 only)*
