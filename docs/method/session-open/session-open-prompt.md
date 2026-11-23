@@ -124,9 +124,9 @@ this work done as you can
 
 ## Ending the session
 
-Run `ccclose` and keep working until it says ready: fix every ❌, fix or
-name every ⚠️, and answer every prompt and question it lists (done, queued
-as an item, or not done). Then, for me:
+Once everything is done run `ccclose` and keep working until it says
+ready: fix every ❌, fix or name every ⚠️, and answer every prompt and
+question it lists (done, queued as an item, or not done). Then, for me:
 
 1. Summarise the whole session succinctly, organised by the topic(s)
    discussed, ending with the identifiers block ccclose prints.
