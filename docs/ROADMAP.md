@@ -30,12 +30,12 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 133 | 0 | 75 | 36 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 134 | 0 | 75 | 37 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
 | [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
-| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 13 | 1 | 5 | 1 |
+| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 13 | 0 | 5 | 1 |
 | [Observability of the collaboration itself (2026-07-30)](roadmap/220-observability-of-the-collaboration-itsel/README.md) | 4 | 0 | 0 | 0 |
 | [File-size hygiene (new 2026-07-14)](roadmap/230-file-size-hygiene-new-2026-07-14/README.md) | 2 | 0 | 1 | 0 |
 | [North star — context follows the person, work follows anywhere](roadmap/240-north-star-context-follows-the-person-wo/README.md) | 2 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 270 | 1 | 106 | 37 |
+| **All sections** | 271 | 0 | 106 | 38 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -305,6 +305,7 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose check 15, launched work finished…](roadmap/160-doctrine-review-owed/1710-rule-4-cold-pass-queued-ccclose-launched-work-and-close-listings.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccopen, the session-open twin of ccclose…](roadmap/160-doctrine-review-owed/1720-rule-4-cold-pass-queued-ccopen.md)
 - [ ] ⏳ [Rule-4 cold pass queued: licenscan reads CC0-1.0, tells 0BSD from…](roadmap/160-doctrine-review-owed/1730-rule-4-cold-pass-queued-licenscan-cc0-0bsd-zlib.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccfleet launches with the config as the…](roadmap/160-doctrine-review-owed/1740-rule-4-cold-pass-queued-ccfleet-whole-grant-and-unlanded.md)
 
 ## build/ layer — open strands
 
@@ -336,7 +337,6 @@ line, so they overlap Open and Claimed.
 - [ ] [🛠️ ccfleet, the fleet-sweep and review-drain skills, and the modelguard…](roadmap/210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md)
 - [ ] 🎯🔥 [Fix ccfleet, fleet-sweep, review-drain and modelguard: findings…](roadmap/210-instruments-open-features/470-fix-ccfleet-and-its-two-skills-fl1-fl25.md)
 - [ ] ⏳ [A commit gate refuses a review claimed by the session that authored,…](roadmap/210-instruments-open-features/530-a-commit-gate-refuses-a-review-claim-by-its-author.md)
-- [~] (claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-ccfleet) [ccfleet's…](roadmap/210-instruments-open-features/560-ccfleet-cannot-see-inherited-permissions-and-a-kept-worktree-loses-its-claim.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
