@@ -152,7 +152,7 @@ _LICENSEREF_ID = re.compile(r"(?i)\b(LicenseRef-[A-Za-z0-9.\-]*[A-Za-z0-9])")
 # copyleft code cannot be relicensed under a permissive repo licence.
 PERMISSIVE = frozenset({
     "Apache-2.0", "MIT", "BSD-2-Clause", "BSD-3-Clause", "ISC",
-    "Unlicense", "BSL-1.0", "0BSD", "Zlib",
+    "Unlicense", "BSL-1.0", "0BSD", "Zlib", "CC0-1.0",
 })
 WEAK_COPYLEFT = frozenset({"MPL-2.0", "LGPL-2.1", "LGPL-3.0", "EPL-2.0"})
 STRONG_COPYLEFT = frozenset({"GPL-2.0", "GPL-3.0", "AGPL-3.0"})
@@ -187,13 +187,23 @@ _TEXT_SIGNATURES: list[tuple[str, tuple[str, ...]]] = [
     ("BSD-3-Clause", ("redistribution and use in source and binary forms",
                       "neither the name")),
     ("BSD-2-Clause", ("redistribution and use in source and binary forms",)),
-    ("ISC", ("permission to use, copy, modify, and/or distribute this software",)),
+    # ISC is 0BSD plus a notice-retention condition, and both open with the
+    # same grant sentence: ISC is told apart by that condition, and 0BSD is
+    # tested after it (320/890: a 0BSD body read as ISC).
+    ("ISC", ("permission to use, copy, modify, and/or distribute this software",
+             "provided that the above copyright notice and this permission "
+             "notice appear in all copies")),
     ("MIT", ("permission is hereby granted, free of charge, to any person "
              "obtaining a copy",)),
     ("Unlicense", ("this is free and unencumbered software released into the "
                    "public domain",)),
     ("0BSD", ("permission to use, copy, modify, and/or distribute this software "
               "for any purpose with or without fee is hereby granted",)),
+    ("Zlib", ("provided 'as-is', without any express or implied warranty",
+              "altered source versions must be plainly marked as such")),
+    # Public-domain dedications (320/890). The CC0 legal code names itself in
+    # its title line; the Unlicense is matched above.
+    ("CC0-1.0", ("cc0 1.0 universal",)),
 ]
 
 
@@ -220,6 +230,8 @@ _SPDX_ALIASES = {
     "isc": "ISC", "unlicense": "Unlicense", "the unlicense": "Unlicense",
     "bsl-1.0": "BSL-1.0", "boost": "BSL-1.0",
     "0bsd": "0BSD", "zlib": "Zlib",
+    "cc0-1.0": "CC0-1.0", "cc0": "CC0-1.0", "cc0 1.0": "CC0-1.0",
+    "cc0 1.0 universal": "CC0-1.0",
     "mpl-2.0": "MPL-2.0", "mpl 2.0": "MPL-2.0", "mozilla public license 2.0": "MPL-2.0",
     "epl-2.0": "EPL-2.0",
     # No -only/-or-later entries here: normalise_spdx strips those suffixes
@@ -255,6 +267,8 @@ _TROVE_CLASSIFIERS = {
     "boost software license 1.0 (bsl-1.0)": "BSL-1.0",
     "zlib/libpng license": "Zlib",
     "the unlicense (unlicense)": "Unlicense",
+    # Not under "OSI Approved", so its prefix is not stripped above (320/890).
+    "license :: cc0 1.0 universal (cc0 1.0) public domain dedication": "CC0-1.0",
     "gnu general public license v2 (gplv2)": "GPL-2.0",
     "gnu general public license v2 or later (gplv2+)": "GPL-2.0",
     "gnu general public license v3 (gplv3)": "GPL-3.0",

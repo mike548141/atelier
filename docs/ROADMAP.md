@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 132 | 0 | 75 | 35 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 133 | 0 | 75 | 36 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -46,7 +46,7 @@ line, so they overlap Open and Claimed.
 | [Ruling round 2026-08-17 — the cold-run findings (Mike)](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/README.md) | 2 | 0 | 2 | 0 |
 | [Posture — strength is what you are free to do (Mike commissioned 2026-08-17)](roadmap/300-posture-recover-cheaply-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
 | [Pointing up — the child-to-parent route (Mike commissioned 2026-08-18)](roadmap/310-pointing-up-the-child-to-parent-route/README.md) | 5 | 0 | 2 | 0 |
-| [Findings filed from a child via § *Pointing up* (2026-08-18)](roadmap/320-child-filed-findings-via-pointing-up/README.md) | 27 | 1 | 4 | 0 |
+| [Findings filed from a child via § *Pointing up* (2026-08-18)](roadmap/320-child-filed-findings-via-pointing-up/README.md) | 27 | 0 | 4 | 0 |
 | ✅ [🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [⏳ Long-running operations need a way back — Mike-commissioned, 2026-08-22](roadmap/340-long-running-operations-need-a-way-back-mike-comm/README.md) | 0 | 0 | 0 | 0 |
 | [🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23](roadmap/350-verification-must-be-exact-not-probable-mike-comm/README.md) | 1 | 0 | 1 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 268 | 6 | 105 | 37 |
+| **All sections** | 269 | 5 | 105 | 38 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -304,6 +304,7 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [Rule-4 cold pass queued: the session log's one-file index retired…](roadmap/160-doctrine-review-owed/1700-rule-4-cold-pass-queued-session-index-retired.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose check 15, launched work finished…](roadmap/160-doctrine-review-owed/1710-rule-4-cold-pass-queued-ccclose-launched-work-and-close-listings.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccopen, the session-open twin of ccclose…](roadmap/160-doctrine-review-owed/1720-rule-4-cold-pass-queued-ccopen.md)
+- [ ] ⏳ [Rule-4 cold pass queued: licenscan reads CC0-1.0, tells 0BSD from…](roadmap/160-doctrine-review-owed/1730-rule-4-cold-pass-queued-licenscan-cc0-0bsd-zlib.md)
 
 ## build/ layer — open strands
 
@@ -443,7 +444,6 @@ line, so they overlap Open and Claimed.
 - [ ] 🔎 [A floor disabled entry carries a reason but no end date, so it cannot…](roadmap/320-child-filed-findings-via-pointing-up/800-a-floor-disabled-entry-has-no-end-date.md)
 - [ ] 🔎 [Build the six checks he chose, warnings first, then blocking, each…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
 - [ ] 🔎 [Hand-up: pathscan cannot tell a historical record from a live page,…](roadmap/320-child-filed-findings-via-pointing-up/880-hand-up-pathscan-cannot-tell-a-historical-record-from-a-live-page.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
-- [~] 🔎 (claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-claims) [licenscan…](roadmap/320-child-filed-findings-via-pointing-up/890-licenscan-cannot-read-a-cc0-licence.md)
 
 ## 🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23
 

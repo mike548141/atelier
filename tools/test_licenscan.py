@@ -30,8 +30,20 @@ GPL3 = "GNU GENERAL PUBLIC LICENSE\nVersion 3, 29 June 2007"
 AGPL3 = "GNU AFFERO GENERAL PUBLIC LICENSE\nVersion 3, 19 November 2007"
 LGPL3 = "GNU LESSER GENERAL PUBLIC LICENSE\nVersion 3, 29 June 2007"
 MPL2 = "Mozilla Public License Version 2.0\n1. Definitions"
+# ISC's opening paragraph in full: its notice-retention clause is what tells
+# it apart from 0BSD, whose grant sentence is otherwise the same (320/890).
 ISC = ("ISC License\n\nPermission to use, copy, modify, and/or distribute this "
-       "software for any purpose with or without fee")
+       "software for any purpose with or without fee is hereby granted, "
+       "provided that the above copyright notice and this permission notice "
+       "appear in all copies.")
+ZERO_BSD = ("BSD Zero Clause License\n\nPermission to use, copy, modify, "
+            "and/or distribute this software for any purpose with or without "
+            "fee is hereby granted.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\"")
+ZLIB = ("This software is provided 'as-is', without any express or implied\n"
+        "warranty. ... 2. Altered source versions must be plainly marked as "
+        "such, and must not be misrepresented as being the original software.")
+CC0 = ("Creative Commons Legal Code\n\nCC0 1.0 Universal\n\n"
+       "    CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM")
 # A proprietary LICENSE body: present and deliberate, but no SPDX id names it.
 PROPRIETARY = ("Copyright (c) 2026 Fictional Holdings. ALL RIGHTS RESERVED.\n"
                "No licence to copy, modify or redistribute is granted.")
@@ -72,11 +84,33 @@ class IdentifyText(unittest.TestCase):
     def test_isc(self):
         self.assertEqual(lc.identify_license_text(ISC), "ISC")
 
+    def test_zero_bsd_is_not_isc(self):
+        # 320/890: 0BSD's body opens with ISC's grant sentence, minus the
+        # notice clause; it read as ISC before the clause joined ISC's needles.
+        self.assertEqual(lc.identify_license_text(ZERO_BSD), "0BSD")
+
+    def test_zlib(self):
+        self.assertEqual(lc.identify_license_text(ZLIB), "Zlib")
+
+    def test_cc0(self):
+        # 320/890: a child declaring CC0-1.0 failed --expect, the text unread.
+        self.assertEqual(lc.identify_license_text(CC0), "CC0-1.0")
+        self.assertEqual(lc.family("CC0-1.0"), "permissive")
+
     def test_unrecognised(self):
         self.assertIsNone(lc.identify_license_text("all rights reserved, no really"))
 
 
 class Normalise(unittest.TestCase):
+    def test_cc0_spellings(self):
+        # 320/890: the SPDX id, its common short forms, and PyPI's classifier,
+        # which sits outside "OSI Approved".
+        for raw in ("CC0-1.0", "cc0", "CC0 1.0", "CC0 1.0 Universal",
+                    "License :: CC0 1.0 Universal (CC0 1.0) Public Domain "
+                    "Dedication"):
+            with self.subTest(raw=raw):
+                self.assertEqual(lc.normalise_spdx(raw), "CC0-1.0")
+
     def test_bare_ids(self):
         self.assertEqual(lc.normalise_spdx("Apache-2.0"), "Apache-2.0")
         self.assertEqual(lc.normalise_spdx("MIT"), "MIT")
@@ -378,6 +412,12 @@ class Expect(unittest.TestCase):
 
     def test_expect_ok(self):
         rep = lc.scan_repo(lc.Path("."), [("LICENSE", APACHE)], "Apache-2.0")
+        self.assertTrue(rep.clean)
+
+    def test_expect_cc0_on_a_cc0_body(self):
+        # 320/890, the reported case end to end: a CC0 LICENSE and the
+        # declared "CC0-1.0" now agree, where it was an expect-mismatch.
+        rep = lc.scan_repo(lc.Path("."), [("LICENSE", CC0)], "CC0-1.0")
         self.assertTrue(rep.clean)
 
     def test_expect_accepts_alias(self):
