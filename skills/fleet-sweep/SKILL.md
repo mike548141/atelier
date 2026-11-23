@@ -120,13 +120,17 @@ as a headless session in atelier, not as an Agent.
    free disk have headroom, with a stagger between starts. `touch
    <kit_dir>/stop` ends launching. **One driver per `kit_dir`**: a second
    `drive` or `drain` on the same `kit_dir` is refused while one runs; give a
-   second, separate sweep its own `kit_dir`. A re-run skips a job only when
-   its result is a clean end; a job cut off (a nonzero exit, an error, no
-   RESULT line) keeps its worktree and its work, and runs again. A job whose
+   second, separate sweep its own `kit_dir`. One drive writes every result
+   under one day's folder, the day it started (UTC). A re-run skips a job
+   only when its result there is a clean end; a job cut off (a nonzero exit,
+   an error, no RESULT line, a time limit) keeps its worktree and its work,
+   and runs again. A re-run after UTC midnight of a drive begun the day
+   before passes `--day <that day>`, or every job runs again. A job whose
    worktree holds uncommitted work is never force-removed: the re-run or the
    principal's list takes it.
-6. **Read results** (`<kit_dir>/results/<date>/*.md`, in every dated folder
-   the run crossed, each under 40 lines; read those, not the JSON logs). Verify every claim that matters: `pins.py`
+6. **Read results** (`<kit_dir>/results/<day>/*.md`, the drive's one day
+   folder, each under 40 lines; read those, not the JSON logs; a kept
+   worktree is named on its job's `KEPT` line in `logs/run-<label>.out`). Verify every claim that matters: `pins.py`
    for the fleet, `gh run list` at each pushed head. A worker's "green" is not
    evidence; CI is.
    - **6a. Briefs owed** (item 4): one headless Opus brief-writer per brief
@@ -170,10 +174,11 @@ as a headless session in atelier, not as an Agent.
 ## The variables the prompts need
 
 ccfleet fills `{REPO}` `{GH}` `{BR}` `{VIS}` `{WT}` `{PRIMARY}` `{LANDING}`
-`{NOTES}` `{SCRATCH}` `{BY}` `{DATE}` on every launch, and `{PIN}` when a
-prompt uses it. The rest are the adopter's, in the config's `vars` or as a
-job's `KEY=VALUE`. ccfleet refuses to launch a prompt with a placeholder left
-unfilled, so a missing one fails closed; this list says which to set first.
+`{NOTES}` `{SCRATCH}` `{BY}` `{DATE}` `{SESSION}` on every launch, and `{PIN}`
+when a prompt uses it. The rest are the adopter's, in the config's `vars` or
+as a job's `KEY=VALUE`. ccfleet refuses to launch a prompt with a placeholder
+left unfilled, so a missing one fails closed; `ccfleet check --prompt <file>`
+names any first, and this list says which to set.
 
 | Prompt | The adopter sets |
 |---|---|

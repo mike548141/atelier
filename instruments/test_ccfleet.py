@@ -780,8 +780,11 @@ class EndToEnd(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertTrue(os.path.isdir(wt))
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")))
+        wr(self.prompt, "Fold {ITEM} with {REVIEW_LOG}\n")
         r = self.cli("run", "beta", "--prompt", self.prompt, "--in", wt, "--item", "020")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        want = cf.review_log({"kit_dir": os.path.join(self.tmp, "kit")}, "beta", "020")
+        self.assertEqual(self.calls()[-1]["argv"][-1], f"Fold 020 with {want}\n", "a fold gets the pass's log")
         self.assertEqual(rd(os.path.join(self.tmp, "release.log")).split(), ["beta:020"])
         self.assertFalse(os.path.isdir(wt))
         r = self.cli("run", "beta", "--prompt", self.prompt, "--item", "020")
@@ -800,7 +803,7 @@ class EndToEnd(unittest.TestCase):
         r = self.cli("drain")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertFalse(os.path.exists(stale))
-        (moved,) = os.listdir(os.path.join(self.tmp, "kit", "review-logs-stale"))
+        (moved,) = os.listdir(os.path.join(self.tmp, "kit", "review-logs", "withdrawn"))
         self.assertTrue(moved.endswith(os.path.basename(stale)))
 
     def test_ranked_is_not_called_dry_or_after_the_reset(self):
@@ -1067,13 +1070,35 @@ class Config(unittest.TestCase):
         cfg = cf.load_config(os.path.join(HERE, "ccfleet.example.json"))
         self.assertEqual(cf.permission_args(cfg)[1], False, "FL10: the example must not model the bypass")
 
-    def test_the_example_vars_fill_the_shipped_orchestrator_prompt(self):
-        """FL12: an adopter who copies the example gets a pass prompt with
-        nothing unset."""
+    # What each shipped prompt gets from ccfleet's own command (beyond
+    # ALWAYS_FILLED), and what its skill says is set per job or per call
+    # (--set or a jobs field) rather than in the config's vars.
+    SHIPPED = {
+        "review-drain/orchestrator-prompt.md": (cf.PASS_FILLED, set()),
+        "review-drain/resume-prompt.md": (cf.RESUME_FILLED, {"AGENT", "STATE"}),
+        "review-drain/fold-prompt.md": ({"ITEM", "REVIEW_LOG"}, {"BRIEF", "HELD"}),
+        "fleet-sweep/worker-prompt.md": (set(), set()),
+        "fleet-sweep/adopt-prompt.md": (set(), set()),
+        "fleet-sweep/task-prompt.md": (set(), {"TASK"}),
+        "fleet-sweep/brief-prompt.md": (set(), {"ITEM", "SUBJECT", "SOURCE", "QUOTE", "NOTE"}),
+    }
+
+    def test_the_example_vars_fill_every_shipped_prompt(self):
+        """FL12: an adopter who copies the example config, and sets what each
+        skill names per job or per call, leaves no placeholder of any shipped
+        prompt unfilled; every per-call name is in its skill's table."""
         cfg = cf.load_config(os.path.join(HERE, "ccfleet.example.json"))
-        prompt = os.path.join(os.path.dirname(HERE), "skills", "review-drain", "orchestrator-prompt.md")
-        names = set(cf.PLACEHOLDER.findall(rd(prompt)))
-        self.assertEqual(sorted(names - cf.ALWAYS_FILLED - cf.PASS_FILLED - set(cfg["vars"])), [])
+        skills = os.path.join(os.path.dirname(HERE), "skills")
+        shipped = {f"{d}/{f}" for d in ("review-drain", "fleet-sweep")
+                   for f in os.listdir(os.path.join(skills, d)) if f.endswith("-prompt.md")}
+        self.assertEqual(shipped, set(self.SHIPPED), "a prompt was added or removed: list it here")
+        for rel, (by_command, per_call) in sorted(self.SHIPPED.items()):
+            names = set(cf.PLACEHOLDER.findall(rd(os.path.join(skills, rel))))
+            unset = names - cf.ALWAYS_FILLED - by_command - per_call - set(cfg["vars"])
+            self.assertEqual(sorted(unset), [], rel)
+            skill = rd(os.path.join(skills, rel.split("/")[0], "SKILL.md"))
+            for name in sorted(per_call | (names - cf.ALWAYS_FILLED - by_command)):
+                self.assertIn(f"`{name}`", skill, f"{rel}: {name} is not in its skill's variables table")
 
 
 class HelpAndManual(unittest.TestCase):

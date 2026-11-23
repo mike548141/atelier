@@ -385,7 +385,7 @@ Either way the
 .B queue.ended
 command, if set, is called.
 A review log an earlier pass left at this pass's path is moved to
-.I <kit_dir>/review\-logs\-stale/
+.I <kit_dir>/review\-logs/withdrawn/
 once the claim is taken, so a new reviewer never starts from an earlier
 reviewer's account.
 .TP
@@ -510,6 +510,12 @@ claim through
 .BR queue.ended ),
 then remove the worktree unless it holds unlanded work.
 Any other end keeps both.
+The template also gets
+.B {ITEM}
+and the pass's own
+.BR {REVIEW_LOG} ,
+as for a
+.BR resume .
 A refused release exits 2.
 Without
 .B \-\-in
@@ -952,12 +958,15 @@ A folder for the session's own working files.
 .I <kit_dir>/review\-logs/
 Each pass's private review log while it runs; the pass's own fold moves it
 into the review and deletes it.
-After a drain the folder holds only the logs of passes whose claim is still
-held (cut off, refused release), kept for their resume.
+After a drain the folder holds, beside
+.IR withdrawn/ ,
+only the logs of passes whose claim is still held (cut off, refused
+release), kept for their resume.
 .TP
-.I <kit_dir>/review\-logs\-stale/
-Logs an earlier pass left behind, moved aside when a new pass of the item
-starts.
+.I <kit_dir>/review\-logs/withdrawn/
+Logs an earlier pass left behind, moved here, dated, when a new pass of the
+item takes its claim (and where the review\-drain skill moves a withdrawn
+pass's log by hand).
 .TP
 .I <kit_dir>/children.tsv
 The children a driver started, so a later driver counts those still running

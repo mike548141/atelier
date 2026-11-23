@@ -24,12 +24,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 - **Every new session gets its id up front** (`--session-id`), on its
   `START` line and in `take`'s `{SESSION}` (FL3). A refused release keeps a
   pass's worktree and exits 2; `run --in WT --item ITEM` is the fold's
-  launcher, releasing and putting the worktree away on a clean end (FL13).
+  launcher, filling `{ITEM}` and the pass's `{REVIEW_LOG}`, and releasing and
+  putting the worktree away on a clean end (FL13).
 - **RESULT words** keep a known phrase whole and otherwise take the first
   word, so `SKIPPED NEEDS LIVE WRITE` reads `SKIPPED`; bold and backticks are
   ignored (FL14). Review logs carry a hash of the exact repo and item, and a
-  log an earlier pass left is moved to `review-logs-stale/` when a new pass
-  takes the claim (FL15).
+  log an earlier pass left is moved, dated, to `review-logs/withdrawn/` when a
+  new pass takes the claim (FL15).
 - **Inputs and errors (FL17):** an unreadable or malformed config, a bad
   `reset_utc`, `--set` with no `=`, a repo given as a path and a negative
   `--max` exit 64 with a reason; `--max 0` is a ceiling of 0; a `resume`

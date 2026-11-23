@@ -136,9 +136,10 @@ that nothing fills.
 {PIN}, when the template uses it and nothing supplies it, is the repo's atelier
 pin (tools/pins.py, else the CLAUDE.md atelier@<sha>), else UNRESOLVED.
 A pass adds {ITEM} {BRIEF} {REVIEW_LOG} (<kit_dir>/review-logs/<repo>-<item>-<hash>.md,
-the reviewer's private log; the same path for its resume; a log an earlier pass
-left there is moved to review-logs-stale/ first); a resume adds {ITEM} and,
-with --item, {REVIEW_LOG}.
+the reviewer's private log; the same path for its resume and fold; a log an
+earlier pass left there is moved, dated, to review-logs/withdrawn/ first); a
+resume adds {ITEM} and, with --item, {REVIEW_LOG}; run --in WT --item ITEM (a
+fold) adds {ITEM} and {REVIEW_LOG} too.
 A {UPPER_CASE} placeholder left unfilled is a refusal, not a silent gap.
 
 Exit codes: 0 ran (the session's own verdict is in its END line and result
@@ -1418,11 +1419,12 @@ def review_log(cfg, repo, item, legacy=False):
 
 def set_aside_stale_log(cfg, path):
     """A fresh pass never inherits a log: one left at its path by an earlier
-    pass (failed, un-claimed or withdrawn) is moved to review-logs-stale/, so
-    the new reviewer is not handed an earlier reviewer's account."""
+    pass (failed, un-claimed or withdrawn) is moved, dated, to
+    review-logs/withdrawn/ (where the review-drain skill keeps a withdrawn
+    pass's log), so the new reviewer is not handed an earlier reviewer's account."""
     if not os.path.exists(path):
         return
-    d = os.path.join(cfg["kit_dir"], "review-logs-stale")
+    d = os.path.join(cfg["kit_dir"], "review-logs", "withdrawn")
     os.makedirs(d, exist_ok=True)
     dest = os.path.join(d, f"{now_utc():%Y%m%dT%H%M%SZ}-{os.path.basename(path)}")
     os.replace(path, dest)
@@ -1459,6 +1461,13 @@ def one_pass(cfg, repo, item, brief, by, dry):
                    pre=None if dry else pre, post=None if dry else post, check_file=brief)[0]
 
 
+def pass_log(cfg, repo, item):
+    """The review log a pass on this item had: the hashed name, or the earlier
+    hashless one where only that exists (a pass cut off before the change)."""
+    path, old = review_log(cfg, repo, item), review_log(cfg, repo, item, legacy=True)
+    return old if os.path.exists(old) and not os.path.exists(path) else path
+
+
 def resume(cfg, repo, wt, sid, template, item, extra, by):
     """Finish one pass a usage limit cut off: resume its own session, start nothing new."""
     check_repo_name(repo)
@@ -1471,10 +1480,7 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
     facts = repo_facts(cfg, repo, fetch=False)
     extra = {k: read_at_file(v) for k, v in extra.items()}
     if item:
-        path = review_log(cfg, repo, item)
-        old = review_log(cfg, repo, item, legacy=True)
-        # A pass cut off before the hashed name keeps its log where it was.
-        extra.setdefault("REVIEW_LOG", old if os.path.exists(old) and not os.path.exists(path) else path)
+        extra.setdefault("REVIEW_LOG", pass_log(cfg, repo, item))
         os.makedirs(os.path.dirname(extra["REVIEW_LOG"]), exist_ok=True)
     template_text = read_template(template)
     values = base_values(cfg, repo, facts, wt, by, {**extra, "SESSION": sid, "ITEM": item or ""},
@@ -1630,6 +1636,10 @@ def main(argv=None):
                 if not cfg.get("queue") or "release" not in cfg["queue"]:
                     raise Refusal(EXIT_USAGE, "--item needs queue.release in the config")
                 post = lambda values, result, sid, log: ended_hooks(cfg, values, result, sid, log, a.item, "")
+                # The fold gets the pass's own item and review log, as a resume does.
+                check_repo_name(a.repo)
+                sets.setdefault("ITEM", a.item)
+                sets.setdefault("REVIEW_LOG", pass_log(cfg, a.repo, a.item))
             return run_one(cfg, a.repo, a.prompt, label=a.label, model=a.model, extra=sets, by=a.by,
                            dry=a.dry_run, keep=a.keep, existing=a.existing, post=post,
                            remove_adopted=bool(a.item))[0]
