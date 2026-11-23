@@ -586,7 +586,7 @@ The sibling is not folded here and nothing is deleted: the orchestrator folds it
 ## Deferred sibling, folded below the verdict (orchestrator, 2026-11-23)
 
 *Released to the reviewer only after its act-1 findings were committed (locally `bfa5a17e`, the
-hash the reviewer's text cites; it lands under a new hash when rebased before this fold); folded
+hash the reviewer's text cites; landed as `38765963` when rebased before this fold); folded
 here verbatim (headings demoted two levels, no line wrapped: its one line over 100 columns is a
 heading, left as it is; no word changed) and the sibling file removed, per the brief. The
 orchestrator, headless Opus 5.5 session `7dbb6565` started by drain session `eca14b23`, held the partition,
