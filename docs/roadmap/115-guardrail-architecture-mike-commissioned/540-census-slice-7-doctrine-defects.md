@@ -1,4 +1,4 @@
-- [ ] 🔎 **Defects the enforcement census found in slice 7.** Found
+- [~] 🔎 **Defects the enforcement census found in slice 7.** Found
       2026-11-23 UTC by `020/220` slice 7
       (`docs/method/census/2026-11-23-1813-decisions-skills-commands-plugin.md`);
       reported, not fixed in passing. The orchestrator (queue run
@@ -20,3 +20,4 @@
          5 places in 3 wordings, the reviewer prompt in 2.
       6. **"Owed" in two senses** between `fleet-sweep` and `REVIEW.md`
          rule 4 (named as a doubt, not a verdict).
+      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-defects7; items 3–5 only)*
