@@ -1,4 +1,4 @@
-- [~] **(a) The census nobody has run: which rules have a forcing function,
+- [ ] **(a) The census nobody has run: which rules have a forcing function,
       and which do not.** ADR 0008 made enforcement *propagate*; it never
       established what proportion of doctrine is enforced at all. No one has
       enumerated the rules and asked of each: what happens if this is broken,
@@ -88,4 +88,22 @@
       session 78ca9153 (Opus 5.5, principal-opened).
       🔒 CLAIMED 2026-11-16T12:13Z (claimed 2026-11-16-1213, wt: qr-78ca-census3) by queue-run
       session 78ca9153 (Opus 5.5, principal-opened).
-      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-census4)*
+      - 2026-11-23, slice 4 done (queue run 608d8123): `ACCESS.md`,
+        `CONVENTIONS.md`, `DOCUMENTATION.md`, `GLOSSARY.md`, `MECHANISMS.md`
+        and `PRINCIPLES.md` censused rule by rule in
+        `docs/method/census/2026-11-23-1559-access-conventions-documentation-glossary-mechanisms-principles.md`.
+        106 rules: 5 enforced (all partial), 99 directive-only (60 with a
+        breach visible in the diff, 17 of them in a shape a scanner could
+        read), 2 unenforceable and accepted. Running total over four slices:
+        487 rules (486 distinct), 60 enforced, 414 directive-only, 13
+        accepted. Five more guard candidates ranked for `020/240`, led by a
+        weak-hash constructor check (PRI25; `instruments/ccfleet`'s SHA-1
+        log suffix breaches PRINCIPLES §5 today). Doctrine defects named and
+        not fixed: DOCUMENTATION principle 6 binds "as a review question"
+        nothing asks; no `--json` payload carries the version field
+        "versioned like an API" implies; PRINCIPLES' opening and precedence
+        still say §1–9 with §10–11 present; GLOSSARY's "stated bridge" points
+        at a §7 that covers one sense only. Remaining in `docs/method/`:
+        `REACH`, `SECRETS`, `SIGNING`, `STORAGE`, `TOOLBOX` and
+        `docs/method/session-open/`; then the doctrine outside
+        `docs/method/`.
