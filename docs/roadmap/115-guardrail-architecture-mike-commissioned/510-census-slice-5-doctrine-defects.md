@@ -1,4 +1,4 @@
-- [ ] 🔎 **Defects the enforcement census found in slice 5.** Found
+- [~] 🔎 **Defects the enforcement census found in slice 5.** Found
       2026-11-23 UTC by `020/220` slice 5
       (`docs/method/census/2026-11-23-1651-reach-secrets-signing-storage-toolbox-session-open.md`);
       reported, not fixed in passing. The signing finding is `115/520`.
@@ -22,3 +22,4 @@
          table of three.
       7. **"Posture" means two things**: `SECRETS.md` and the floor
          registry use the word differently.
+      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-defects5)*
