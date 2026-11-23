@@ -1,4 +1,4 @@
-- [~] 🔎 **`archivecut` in the field: five rough edges from its first fleet
+- [ ] 🔎 **`archivecut` in the field: five rough edges from its first fleet
       run.** Filed 2026-11-20 by session 19378351 from the reports of the
       workers it ran in sixteen children (class only; every cut that ran
       proved byte for byte and landed with green CI). None lost data; each
@@ -34,4 +34,21 @@
       some `docs/sessions/2*.md`. No proof was weakened, but the line should
       fit the limit for any repo cut later, and the exemptions now differ
       from child to child. Item 5 also recurred (one child: a copied title).
-      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-board)*
+      ✅ **Items 1, 3, 4 and item 2's new form done 2026-11-23** (queue run
+      c7a1e36e; a Sonnet worker, read by the run before landing). 1: the plan
+      prints `WRAP n line(s)` with file, line and width for each line a
+      re-point lengthens past the limit (not one already over, not in an
+      exempt file); prose is never re-wrapped. 3: the board archive is found
+      at the repo root when `docs/` has none; with both, `docs/` wins and the
+      other is named and left. 4: in `board.py`, a `[x]` item in
+      `990-done-before-the-split` is neither listed nor counted
+      (`ARCHIVE_SECTION`); atelier's own row went to zero (the one case,
+      `990/1170`, a review delivered 2026-07-22). 2: the label line is 76
+      columns; the old wording is still read, so repos already cut still
+      pass `--verify`. Tests in `tools/test_archivecut.py` and
+      `tools/test_board.py`. Covered by `160/1680`, whose delta now includes
+      this commit.
+      **Still open:** the `archivecut:retired` comment the tool writes into
+      `docs/sessions/README.md` is 92 columns, the same class as item 2;
+      session-log sources at the repo root are not looked for (the item named
+      only the board); and item 5, the `attribscan` record-path decision.

@@ -17,7 +17,10 @@
       (the removal of `docs/ROADMAP-DONE.md`, the new section, the link
       re-points): the commit that adds this item and its parent, which
       adds the tool; widened 2026-11-20 by the commit closing `010/260`
-      (`docs/method/RECORD.md`, four places reworded to the store form).
+      (`docs/method/RECORD.md`, four places reworded to the store form);
+      widened 2026-11-23 by the commit for `010/280` items 1–4
+      (`tools/archivecut.py`, `tools/board.py`'s `ARCHIVE_SECTION` rule, and
+      their tests).
       *Suggested finding prefix:* `XC` (no collision in `docs/reviews` or the
       board at queuing).
       *What to test hardest:* can a cut pass its proof and still lose or

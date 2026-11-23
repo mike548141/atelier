@@ -1,4 +1,4 @@
-- [~] 🔎 **A wrapped claim does not project into the index, a `]` in a title
+- [ ] 🔎 **A wrapped claim does not project into the index, a `]` in a title
       breaks its generated link, and the §10 declaration's home is ambiguous
       between GUARDS and practice** `[tool][doctrine]` — three findings handed
       up from a private child 2026-09-26 via § *Pointing up*, out of four
@@ -112,4 +112,15 @@
       escape still leaves a `](` that `linkscan` reads as a link. The legacy
       grace projection is unchanged. §3 awaits the principal's ruling and
       is the only part still open.
-      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-board)*
+      **2026-11-23, queue run c7a1e36e: parts 1 and 2 were already fixed**
+      and this item had not been told. `tools/board.py` reads an item's
+      logical first paragraph (`test_a_wrapped_claim_projects`), and
+      `_escape_link_text` writes `]` and `[` as entities in generated links
+      (tested in `tools/test_board.py`). Found by a worker sent to fix them.
+      **One gap it found:** a claim written as the item's last line, after a
+      blank line or a sub-block (numbered steps, `##` sections), sits outside
+      the first paragraph and still does not project; a claim with nothing
+      between it and the state line does. Reading a trailing claim-only line
+      would close it. **Still open here:** that gap, and part 3, the
+      question of where a non-guard §10 declaration lives (the `review:`
+      line, or a dated ADR section the line points at).
