@@ -23,3 +23,8 @@
          looks for, so it wants a read-both transition. It is also the one
          hit that stops a weak-hash guard (the census's top candidate for
          `020/240`) landing clean.
+      ✅ **Item 5 fixed 2026-11-23** (queue run 608d8123, inline): the log
+      name hashes with SHA-256; `pass_log` still finds a log left under the
+      SHA-1 or hashless name, and a fresh pass sets all three aside. Test
+      in `instruments/test_ccfleet.py`. Items 1–4 stay open: each is a
+      choice of which side moves.
