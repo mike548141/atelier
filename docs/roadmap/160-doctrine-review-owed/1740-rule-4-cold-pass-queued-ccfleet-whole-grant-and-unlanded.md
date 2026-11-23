@@ -24,3 +24,6 @@
       verdict against a worktree whose work is pushed on a branch other
       than its own, and against an adopted `--in` worktree.
       *Approval:* none yet; owed to the principal before the pass runs.
+      💬 **Answered 2026-11-23 ~19:20 UTC (session 608d8123, AskUserQuestion), his pick:** *"Next drain (Recommended)"*:
+      this pass and the other three of run 608d8123 (`160/1740`–`1770`)
+      wait for his next weekly drain.

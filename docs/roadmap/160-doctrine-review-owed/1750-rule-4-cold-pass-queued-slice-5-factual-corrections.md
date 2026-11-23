@@ -22,3 +22,6 @@
       reading `signatures_verified`; that each new TOOLBOX row matches the
       instrument's own help.
       *Approval:* none yet; owed to the principal before the pass runs.
+      💬 **Answered 2026-11-23 ~19:20 UTC (session 608d8123, AskUserQuestion), his pick:** *"Next drain (Recommended)"*:
+      this pass and the other three of run 608d8123 (`160/1740`–`1770`)
+      wait for his next weekly drain.

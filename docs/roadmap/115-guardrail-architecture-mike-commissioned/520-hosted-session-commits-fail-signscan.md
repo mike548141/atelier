@@ -14,3 +14,14 @@
       hosted sessions barred from committing to `main`), and decide it
       before the flip. Adding a key to the trust list widens who can sign
       as the house, so the choice is the principal's.
+      *Measured 2026-11-23 ~19:20 UTC (same run), for his question whether
+      trusting the key opens his risk to anyone using the hosted product:*
+      GitHub marks the 28 commits verified, against the committer account
+      `claude` (the vendor's no-reply address), not his account; his account's
+      only signing key is atelier's own. So the key is held for a shared
+      vendor identity, not for him, and adding it to `allowed_signers`
+      would make a signature from that identity read as the house's.
+      Whether that one key signs for every customer is not visible from
+      here; that it is not his is. Pushing to his repo still needs his
+      access, so the trust list's loss would be authorship proof, not
+      write access.
