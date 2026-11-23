@@ -429,7 +429,10 @@ STATED RESIDUAL, HONESTLY (do not round this to "solved" or "clean"):
     is true NOW and must resolve NOW.
     RECORDS are deliberately NOT gateable, and that includes two root-level
     `*.md` files: `CHANGELOG.md` and `ROADMAP-DONE.md` are records as much
-    as `docs/reviews/` and `docs/sessions/` are. A record legitimately names
+    as `docs/reviews/` and `docs/sessions/` are, and so is every CLOSED
+    board item (`docs/roadmap/<section>/<item>.md` whose state line is
+    `- [x]`, read by `board.item_state`; 320/880): open, claimed and
+    review-queued items, and section READMEs, stay scanned. A record legitimately names
     the tree as it stood when it was written — since-renamed tools, other
     repos' trees, ephemeral worktrees, gitignored paths — and this scanner
     has no time axis, so records can never come clean without mass
@@ -464,6 +467,7 @@ import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
 import report  # noqa: E402
 import estate  # noqa: E402
+import board  # noqa: E402  (only `item_state` and `BOARD_DIR`, 320/880)
 
 # A line carrying this marker is intentionally exempt from every check on
 # that line. Same tightened contract as datescan (DSR8): word boundary, then
@@ -1455,6 +1459,34 @@ RECORDS_GLOBS = ["docs/SESSIONS.md", "docs/sessions", "docs/ROADMAP-DONE.md",
                  "docs/reviews", "docs/method/census", "CHANGELOG.md"]
 
 
+# A board item's state is its first line (`board.item_state`), so a closed item
+# -- a `[x]` -- is a record the same as `ROADMAP-DONE.md` was: written when the
+# work closed, never meant to stay true as the tree moves (the principal,
+# 2026-11-20, 320/880). Read through board.py's own parser rather than a second
+# regex, so a state line means the same thing here as in the index. Only an
+# item file one level under a section counts (`docs/roadmap/<section>/<item>.md`);
+# a section `README.md` is narrative, not an item, and the board preamble is not
+# one either. Anything unreadable, empty or not a `[x]` -- open, claimed,
+# review-queued, malformed -- is LIVE: the failure direction is more findings,
+# never fewer. A state line is a line, so only the head of the file is read.
+_STATE_HEAD_BYTES = 8192
+
+
+def _closed_board_item(p: Path, rel: str) -> bool:
+    parts = PurePosixPath(rel.replace("\\", "/")).parts
+    base = PurePosixPath(board.BOARD_DIR).parts
+    if (len(parts) != len(base) + 2 or parts[:len(base)] != base
+            or not parts[-1].endswith(".md") or parts[-1] == "README.md"):
+        return False
+    try:
+        with open(p, "r", encoding="utf-8", errors="replace") as fh:
+            head = fh.read(_STATE_HEAD_BYTES)
+    except OSError:
+        return False
+    st = board.item_state(head)
+    return st is not None and st.marker == "[x]"
+
+
 def _rel(p: Path, root: Path) -> str:
     try:
         return str(p.resolve().relative_to(root.resolve()))
@@ -1486,7 +1518,9 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str],
                 if tally is not None:
                     tally.files_by_glob += 1
                 continue
-            if expanded and not include_records and _ignored(rel, RECORDS_GLOBS):
+            if expanded and not include_records and (
+                    _ignored(rel, RECORDS_GLOBS)
+                    or _closed_board_item(p, rel)):
                 if tally is not None:
                     tally.files_by_records += 1
                 continue
@@ -1577,7 +1611,9 @@ def _main(argv: list[str] | None = None) -> int:
                          "a retired docs/SESSIONS.md a repo still keeps, "
                          "docs/ROADMAP-DONE.md or its "
                          "archive section docs/roadmap/990-done-before-the-"
-                         "split, CHANGELOG.md), excluded by default since 2026-08-23 "
+                         "split, CHANGELOG.md, and any closed `[x]` board item "
+                         "under docs/roadmap/<section>/), excluded by default "
+                         "since 2026-08-23 "
                          "(FR2): they name the tree as it stood when written "
                          "and never come clean. A records file named "
                          "explicitly as a path argument is always scanned.")

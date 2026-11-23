@@ -1884,7 +1884,11 @@ and must never happen as a side effect. **Records are excluded by default**
 (FR2, ruled 2026-08-23): `docs/reviews`, `docs/sessions` (and a retired
 `docs/SESSIONS.md` a repo not yet swept still keeps),
 `docs/ROADMAP-DONE.md` (or the archive section it is cut into,
-`docs/roadmap/990-done-before-the-split`) and `CHANGELOG.md` name the tree as it stood when they
+`docs/roadmap/990-done-before-the-split`), `CHANGELOG.md` and **every closed
+board item** (`docs/roadmap/<section>/<item>.md` whose state line is `- [x]`,
+read by `board.py`'s own parser; open, claimed and review-queued items and a
+section `README.md` stay scanned, and an unreadable or malformed state line is
+live, `320/880`) name the tree as it stood when they
 were written and can never come clean without falsifying the record —
 `--include-records` widens deliberately, and a records file named explicitly
 as a path argument is always scanned.

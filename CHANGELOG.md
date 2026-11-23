@@ -5,6 +5,22 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-23 — `pathscan` treats a closed board item as a record, `320/880` part 1)
+- **A board item whose state line is `- [x]` is a record to `pathscan`**, excluded
+  and counted under "record file(s) excluded by default" exactly as
+  `ROADMAP-DONE.md` is. The per-item store moved done items out of that file into
+  `docs/roadmap/<section>/<item>.md`, so they were scanned as live pages and their
+  once-true paths read as stale; the principal ruled on 2026-11-20 that a path in
+  a historical record keeps the path as written. The state is read by
+  `board.item_state`, so it means here what it means in the index. Open, claimed
+  and review-queued items and section READMEs stay scanned; an empty, unreadable
+  or malformed first line is live (more findings, never fewer).
+  `--include-records` widens into them and a closed item named as a path argument
+  is always scanned. On atelier's own tree: 126 findings before, 72 after, 342
+  more files counted as records. Still warn-only; dated research folders, a
+  child-declared records folder, mixed files and a git time axis (parts 2 to 4)
+  are not built.
+
 ### Changed (2026-11-23 — `archivecut` finds a session log at the repo root, `010/280`)
 - **`tools/archivecut.py` retires a repo-root `SESSIONS.md` or
   `SESSIONS-ARCHIVE.md`.** It looked in `docs/` only, so a child that kept its

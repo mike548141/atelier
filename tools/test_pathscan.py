@@ -752,6 +752,69 @@ class WholeTreeAndExitCodes(unittest.TestCase):
         self.assertEqual(1, self._main(["--root", str(self.tmp),
                                         "--include-records"]))
 
+    # 320/880 part 1 -- a closed board item is a record.
+    ITEM = "docs/roadmap/010-a-section/020-an-item.md"
+
+    def _item(self, state, rel=None):
+        self._write(rel or self.ITEM,
+                    state + " **An item.**\n      body names `tools/ghost.py`\n")
+
+    def _scan(self, *extra):
+        tally = ps.Tally()
+        found = ps.scan_paths([self.tmp / "docs"], self.tmp, tally,
+                              include_records="--include-records" in extra)
+        return found, tally
+
+    def test_a_closed_board_item_is_a_record(self):
+        self._item("- [x]")
+        found, tally = self._scan()
+        self.assertEqual([], found)
+        self.assertEqual(1, tally.files_by_records)
+        self.assertEqual(0, self._main(["--root", str(self.tmp)]))
+
+    def test_an_open_or_claimed_board_item_is_still_scanned(self):
+        for state in ("- [ ]", "- [~]", "- ⏳"):
+            with self.subTest(state=state):
+                self._item(state)
+                found, tally = self._scan()
+                self.assertEqual(1, len(found))
+                self.assertEqual(0, tally.files_by_records)
+                self.assertEqual(1, self._main(["--root", str(self.tmp)]))
+
+    def test_a_closed_item_is_read_after_a_leading_allow_comment(self):
+        self._write(self.ITEM, "<!-- wrapscan:allow: x -->\n- [x] **I.**\n"
+                    "      `tools/ghost.py`\n")
+        self.assertEqual([], self._scan()[0])
+
+    def test_a_section_readme_is_not_an_item(self):
+        self._write("docs/roadmap/010-a-section/README.md",
+                    "- [x] looks like a state line\n`tools/ghost.py`\n")
+        self.assertEqual(1, len(self._scan()[0]))
+
+    def test_a_malformed_or_empty_first_line_is_live(self):
+        for text in ("", "\n\n", "prose first\n- [x] later\n`tools/ghost.py`\n",
+                     "-[x] no space\n`tools/ghost.py`\n",
+                     "- [X] capital\n`tools/ghost.py`\n",
+                     "- [?] other\n`tools/ghost.py`\n"):
+            with self.subTest(text=text):
+                self._write(self.ITEM, text)
+                found, tally = self._scan()
+                self.assertEqual(0, tally.files_by_records)
+                self.assertEqual(1 if "ghost" in text else 0, len(found))
+
+    def test_only_a_file_one_level_under_a_section_is_an_item(self):
+        # not a board item by position: too deep, or loose in the board dir
+        self._item("- [x]", "docs/roadmap/010-a-section/sub/020-deep.md")
+        self._item("- [x]", "docs/roadmap/020-loose.md")
+        self._item("- [x]", "docs/notes/020-elsewhere.md")
+        self.assertEqual(3, len(self._scan()[0]))
+
+    def test_closed_items_come_back_with_include_records_or_when_named(self):
+        self._item("- [x]")
+        self.assertEqual(1, len(self._scan("--include-records")[0]))
+        self.assertEqual(1, self._main(["--root", str(self.tmp),
+                                        str(self.tmp / self.ITEM)]))
+
     def test_a_record_named_explicitly_is_always_scanned(self):
         self._write("docs/reviews/old-review.md", "see `tools/ghost.py`\n")
         self.assertEqual(1, self._main(["--root", str(self.tmp),
