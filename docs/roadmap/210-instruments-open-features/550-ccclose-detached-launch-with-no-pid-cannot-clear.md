@@ -1,4 +1,4 @@
-- [~] **Hand-up from a private child: once a launch is detached, nothing
+- [x] **Hand-up from a private child: once a launch is detached, nothing
       the session does later clears `ccclose`'s ❌.** Seen 2026-11-22.
       A session ran `ccclose … &` and kept no pid. Hours later
       *Launched work finished* still failed with `detached launch: … — &:
@@ -29,4 +29,19 @@
     hand-up on the same defect had taken first. Same defect class as
     `210/540`; kept as its own item because its evidence differs (a
     `pgrep` that matched nothing, not a PID found earlier).
-      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-ccclose)*
+      Fixed together with `210/540`; its case is form (b).
+      ✅ **Done 2026-11-23** (queue run c7a1e36e; a Sonnet worker built it,
+      the run read it before landing). Check 15 now accepts, only from calls
+      made after the launch's result came back, and only as one simple
+      command: (a) a `ps -p` or `kill -0` read of a pid gone, the pid taken
+      from the launch's own result (now also `pgrep -l`/`-fl` lines) or from
+      a later `pgrep`/`ps` line whose argv is the launch's own; (b) a later
+      `pgrep -f` of a two-or-more-word plain substring of the launch command
+      that found nothing, shown as "gone, by command line (weaker than a
+      pid)"; (c) the launch's own redirect target read showing an exit or
+      END line. (b) and (c) count only when the command let go of exactly
+      one thing. A pid still in the table at close stays ❌. The ❌ text now
+      names all three; the man page and design note say the same and give
+      `… & echo $!` as the cheap prevention. Six tests, each with blocked
+      fixtures. Covered by the `160/1710` cold pass, whose delta now
+      includes this commit.

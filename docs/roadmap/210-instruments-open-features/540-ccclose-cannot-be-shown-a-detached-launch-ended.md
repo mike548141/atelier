@@ -1,4 +1,4 @@
-- [~] **`ccclose` check 15 gives no way to show a detached launch ended,
+- [x] **`ccclose` check 15 gives no way to show a detached launch ended,
       when its PID was never printed.** A hand-up from a private child,
       2026-11-23. A drain session started a detached driver
       (`python3 -c 'os.setsid(); os.execvp("nohup", …)' … &`) and three
@@ -27,4 +27,18 @@
       A launch form that prints its PID (`… & echo $!`) is the cheap
       prevention; the skill or doctrine that launches detached work could
       say so.
-      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-ccclose)*
+      ✅ **Done 2026-11-23** (queue run c7a1e36e; a Sonnet worker built it,
+      the run read it before landing). Check 15 now accepts, only from calls
+      made after the launch's result came back, and only as one simple
+      command: (a) a `ps -p` or `kill -0` read of a pid gone, the pid taken
+      from the launch's own result (now also `pgrep -l`/`-fl` lines) or from
+      a later `pgrep`/`ps` line whose argv is the launch's own; (b) a later
+      `pgrep -f` of a two-or-more-word plain substring of the launch command
+      that found nothing, shown as "gone, by command line (weaker than a
+      pid)"; (c) the launch's own redirect target read showing an exit or
+      END line. (b) and (c) count only when the command let go of exactly
+      one thing. A pid still in the table at close stays ❌. The ❌ text now
+      names all three; the man page and design note say the same and give
+      `… & echo $!` as the cheap prevention. Six tests, each with blocked
+      fixtures. Covered by the `160/1710` cold pass, whose delta now
+      includes this commit.

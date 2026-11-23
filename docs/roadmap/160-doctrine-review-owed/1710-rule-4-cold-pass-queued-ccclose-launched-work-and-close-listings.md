@@ -13,7 +13,8 @@
       `instruments/ccclose.design.md`, `instruments/README.md`,
       `docs/method/RECORD.md`, `docs/method/CONCURRENCY.md`: the two commits
       that close `210/460` and build `210/480`, and the later one that closes
-      `210/510`, on `main`; and
+      `210/510`, and the one that closes `210/540` and `210/550` (check 15
+      accepts later evidence that a detached launch ended), on `main`; and
       `tools/idhook.py`, `tools/test_idhook.py`, `tools/README.md`: the
       commits that close `210/490`.
       *What to test hardest:* the principal's ruling quoted on `210/460`, that
@@ -25,4 +26,7 @@
       `idhook`: it injects text into every session on the principal's machine
       at start, so what it may say and whether a hostile registry file could
       steer it.
+      For `210/540`/`550`: whether any of the three after-the-fact forms can
+      clear a launch that is still running (a pid reused, a pattern that
+      misses the live process, a stale result file from an earlier run).
       *Approval:* none yet; owed to the principal before the pass runs.
