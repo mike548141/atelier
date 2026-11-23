@@ -7,7 +7,7 @@ that losing any one location loses nothing.
 estate's worked example. A peer substitutes their own: the doctrine is the
 **roles**, not the Apple-shaped instances that fill them.)*
 
-## Three locations, four jobs
+## Three locations, three jobs
 
 | Location | Role | Property it provides |
 |---|---|---|

@@ -39,7 +39,8 @@ Read in this order:
    saved credentials that mint one; the principal grants across the line). The
    instruments' third verb — *extend reach*; the built instance is
    `instruments/browser-fetch/`.
-8. **`STORAGE.md`** — GitHub master, iCloud backup, laptop disposable.
+8. **`STORAGE.md`** — GitHub master, Time Machine for the whole machine,
+   laptop disposable.
 9. **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
    side-effects.
 10. **`TOOLBOX.md`** — keep a tool manifest; approved-but-missing may be
@@ -110,8 +111,8 @@ Read in this order:
 - **`SIGNING.md`** — provenance for the record: SSH-native commit/tag signing
   fleet-wide (what a signature honestly claims, the adoption boundary, key
   handling under SECRETS' scope), artefact signing deferred behind a stated
-  trigger. Standard decided (ADR 0007); dormant until the principal registers
-  a signing key — the activation ladder is in the doc.
+  trigger. Standard decided (ADR 0007); active since 2026-07-12, CI verification
+  warn-first — the activation ladder is in the doc.
 - **`PROPAGATION.md`** — how the house doctrine reaches every child repo without
   a second source of truth drifting: thin anchor (inlined safety floor, binds
   even unread) + fat pointer (SHA-pinned, drift-checked at session start). Also

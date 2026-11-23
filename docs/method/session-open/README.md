@@ -62,9 +62,11 @@ This file is an instruction channel, so the threat is stated here:
 - **What catches a hostile commit.** The pre-commit scanners (they judge
   shape, not intent), the four phrase pins in `tools/test_templates.py`
   (an edit that keeps those phrases passes), and a human reading the diff.
-  Nothing yet reads whether a commit to this file carries the principal's
-  say-so: that check is not built (`160/900` QK1 counsel, awaiting his
-  ruling).
+  `tools/quotescan.py` reads whether a commit to this file carries the
+  principal's say-so (`160/900` QK1 counsel): a message with no quotation
+  of two or more words is reported, warn-only until 2027-05-31 and blocking
+  from that date. It reads the form of a quotation, never whose words they
+  are.
 - **What the command does not guard.** The committed copy is what was
   committed, not what was reviewed: a commit that never met review still runs.
 
