@@ -6,9 +6,10 @@ a push is publication. But a git identity is an **assertion, not an
 authentication**: anyone can commit as anyone with two `git config` lines.
 Signing closes that gap mechanically (EVIDENCE §12 — enforce by machine, not
 by good intention). Standard decided 2026-07-11 (ADR 0007); **activated
-2026-07-12** — steps 1–3 of the ladder are live (a dedicated key registered,
-the machine wired, atelier's adoption boundary set at a commit that verifies
-on both planes), fleet retrofit + CI verification (steps 4–5) still pending.
+2026-07-12** — all five steps of the ladder are live (a dedicated key
+registered, the machine wired, atelier's adoption boundary set at a commit that
+verifies on both planes, the fleet retrofitted, CI verification in the floor
+workflows, warn-first). Flipping CI from warn to block has not happened.
 Written before activation deliberately, so the wiring landed against a stated
 standard rather than ad-hoc choices.*
 
@@ -127,16 +128,15 @@ would red-flag its own repo on first activation.
   `verified: true, reason: valid`). `gh` is already the house tool, so
   zero-dep survives.
 - **CI:** a `floor.yml` / `ci.yml` step runs both planes over commits **after
-  the adoption boundary** (see below). Two execution facts the step must
-  encode when it lands: the checkout needs `fetch-depth: 0` (the floor
-  template's default depth-1 sees no history), and the sweep is
-  `git rev-list <boundary>..HEAD`.
+  the adoption boundary** (see below). Two execution facts the step encodes:
+  the checkout needs `fetch-depth: 0` (the floor template's default depth-1
+  sees no history), and the sweep is `git rev-list <boundary>..HEAD`.
 
 What verification asserts, honestly: git checks the signing key is a *member*
 of `allowed_signers` — it does **not** bind key to committer identity (any
 listed key verifies any committer; proven live). The assurance is
 machine-level custody unless CI additionally compares the reported principal
-to the committer email — not wired; decide when step 5 lands.
+to the committer email — not wired, and the decision is still open.
 
 ## The adoption boundary — unsigned history is a fact, not a defect
 
@@ -259,6 +259,6 @@ unsigned commit changes the answer. **Run it before the flip, not after.**
 ## What lives elsewhere
 
 The key itself, its passphrase, and its vault location — personal, never in
-any repo (SECRETS). The per-repo wiring mechanics land in
-`build/REPO-STANDARD.md` when steps 3–5 execute; this doc stays the *why* and
-the standard's shape.
+any repo (SECRETS). The per-repo wiring mechanics are in
+`build/REPO-STANDARD.md` (step 3) and in the floor workflows (steps 4–5); this
+doc stays the *why* and the standard's shape.
