@@ -32,7 +32,7 @@ list in the rulings file; that file wins.
    across repos, answered ones marked with the citation.
 6. **No record store kept as one growing file, and none missing**: session
    log → the folder `docs/sessions/` alone, one file per session, the folder
-   its own index (RECORD.md; `010/270`, 2026-11-20); board → per-item files
+   its own index (RECORD.md § *The session log*); board → per-item files
    plus the generated index, done items included. A repo with **no board at
    all** fails this item too: it gets the empty store (`docs/roadmap/` with
    its `README.md`, and the generated index). A repo still keeping a session
@@ -53,9 +53,13 @@ list in the rulings file; that file wins.
    temporary configuration a session added and forgot (a scheduled job, a
    permission or firewall rule, a service override). Act on what is provably
    this sweep's own or provably stale: merged into the mainline, its owner not
-   live (`cclive`), nothing holding it open (`lsof`). Everything else goes to
-   the principal as a list with its evidence. Never delete work you cannot
-   prove is spent; a removal is reported with its proof.
+   live (`cclive`), nothing holding it open (`lsof`), and for a worktree a
+   clean tree (`git status --porcelain` empty) and no held claim naming it (a
+   board claim, or a review queue's claim on a pass cut off and kept for
+   resume). A worktree is removed without `--force`, so git itself refuses a
+   dirty one. Everything else goes to the principal as a list with its
+   evidence. Never delete work you cannot prove is spent; a removal is
+   reported with its proof.
 
 ## The billing rule (why the shape is what it is)
 
@@ -78,10 +82,17 @@ as a headless session in atelier, not as an Agent.
    item 7: `cclive`, `ps` for orphaned session and tool processes, the
    worktree and temporary directories, temporary configuration). The
    orchestrator's own repo counts too.
-   Archived repos and forks of another owner's repo are exempt, and are left
-   as they are. Every other repo is in scope: one with no pin is adopted
-   (`/atelier:create-repo`, standardise mode), not put to the principal as
-   a question.
+   **In scope: the repos the config lists**, and no others; a repo found on
+   disk or on the forge that the config does not list is reported to the
+   principal, never touched. Exempt even when listed, and left as they are:
+   an archived repo, a fork, and a repo whose owner is not in the profile's
+   `remote.account` (`create-repo`'s own check: another owner's repo is not
+   yours to standardise). Read all three from the forge (`gh repo view
+   <owner>/<name> --json isArchived,isFork,owner`); a repo whose owner cannot
+   be read (no remote) is listed for the principal, not adopted. A listed,
+   unexempt repo with no atelier pin is adopted in step 4 with
+   [`adopt-prompt.md`](adopt-prompt.md), not put to the principal as a
+   question: listing it in the config is what puts it in scope.
 2. **Digest**, if none exists for origin/main's short SHA: one headless Opus
    session in atelier reads `git diff <oldest pin> origin/main -- docs/method
    docs/build/templates` in full and writes the child obligations: mandatory on
@@ -90,26 +101,40 @@ as a headless session in atelier, not as an Agent.
 3. **Own repo inline**: bump the orchestrator's repo yourself (read its delta
    in full, re-copy the floor, record the bump in its own convention).
 4. **Write the jobs file** (`repo<TAB>label<TAB>prompt<TAB>KEY=VALUE...`):
-   red CI and the nearest dated gates first. Tier per `ECONOMICS.md`, the
+   red CI and the nearest dated gates first. **Every label is unique in the
+   file**: a label names one job's result (`results/<date>/<label>.md`), not
+   the batch, and ccfleet refuses a jobs file whose labels repeat before
+   anything starts. Use the repo's name, or the repo and the task. Tier per `ECONOMICS.md`, the
    cheapest that does the seat well: a cheaper tier where `pins.py` and CI
    would catch a worker's mistake; Opus where a mistake is silent or cannot be
    recalled (public repos, a client's repo, anything near secrets). The
    repo's notes in the config carry every fact a worker would otherwise
    fetch, and every ruling it must not cross. The worker prompt is
-   [`worker-prompt.md`](worker-prompt.md); a one-off task in a repo uses
-   [`task-prompt.md`](task-prompt.md) with `TASK=@file:<path>`.
+   [`worker-prompt.md`](worker-prompt.md); a repo being adopted uses
+   [`adopt-prompt.md`](adopt-prompt.md) (its pin cannot be read yet, so the
+   worker prompt's bump does not apply); a one-off task in a repo uses
+   [`task-prompt.md`](task-prompt.md) with `TASK=@file:<path>`. The variables
+   each prompt needs are in § *The variables the prompts need*.
 5. **Run**: `ccfleet --by <session-id> drive <jobs> --max 5` with
    `run_in_background`. The gate holds each start until load, free memory and
    free disk have headroom, with a stagger between starts. `touch
-   <kit_dir>/stop` ends launching. A re-run skips jobs with a result for today.
-6. **Read results** (`<kit_dir>/results/<date>/*.md`, each under 40 lines;
-   read those, not the JSON logs). Verify every claim that matters: `pins.py`
+   <kit_dir>/stop` ends launching. **One driver per `kit_dir`**: a second
+   `drive` or `drain` on the same `kit_dir` is refused while one runs; give a
+   second, separate sweep its own `kit_dir`. A re-run skips a job only when
+   its result is a clean end; a job cut off (a nonzero exit, an error, no
+   RESULT line) keeps its worktree and its work, and runs again. A job whose
+   worktree holds uncommitted work is never force-removed: the re-run or the
+   principal's list takes it.
+6. **Read results** (`<kit_dir>/results/<date>/*.md`, in every dated folder
+   the run crossed, each under 40 lines; read those, not the JSON logs). Verify every claim that matters: `pins.py`
    for the fleet, `gh run list` at each pushed head. A worker's "green" is not
    evidence; CI is.
    - **6a. Briefs owed** (item 4): one headless Opus brief-writer per brief
      ([`brief-prompt.md`](brief-prompt.md)), one writer at a time per repo
      (`drive --serial-per-repo`). Put healthy item 4's definition of *owed* in
-     every writer's prompt. Never brief work this session built.
+     every writer's prompt. The writer saves the brief's held-back sibling
+     straight to `HELD_DIR`, never in the tree (the `review-drain` skill,
+     § *Briefs are never left owed*). Never brief work this session built.
    - **6b. Asks de-duplicated** (item 5), in three phases and a check. Per
      repo, a cheap headless session extracts every open item waiting on the
      principal to `<scratch>/<repo>/asks.tsv` (id, kind, 12-word gist, date,
@@ -138,7 +163,24 @@ as a headless session in atelier, not as an Agent.
    found is cited and marked answered, never asked again. Give each ask its
    evidence up front: what it is, where it came from, what each answer does.
 8. **Close**: the orchestrator's session record names every worker session id
-   and commit; no job worktree is left behind.
+   and commit; no job worktree is left behind unaccounted: a kept one (a job
+   cut off, uncommitted work) is taken by a re-run or listed for the
+   principal with its evidence.
+
+## The variables the prompts need
+
+ccfleet fills `{REPO}` `{GH}` `{BR}` `{VIS}` `{WT}` `{PRIMARY}` `{LANDING}`
+`{NOTES}` `{SCRATCH}` `{BY}` `{DATE}` on every launch, and `{PIN}` when a
+prompt uses it. The rest are the adopter's, in the config's `vars` or as a
+job's `KEY=VALUE`. ccfleet refuses to launch a prompt with a placeholder left
+unfilled, so a missing one fails closed; this list says which to set first.
+
+| Prompt | The adopter sets |
+|---|---|
+| [`worker-prompt.md`](worker-prompt.md) | `ASK` (the principal's request, verbatim); `ATELIER` (the atelier checkout); `REVIEW_APPROVAL` (what review-tier work is approved, usually none); `DIGEST` (the step-2 digest's path) |
+| [`adopt-prompt.md`](adopt-prompt.md) | `ASK`; `ATELIER`; `REVIEW_APPROVAL` |
+| [`task-prompt.md`](task-prompt.md) | `ASK`; `REVIEW_APPROVAL`; `TASK` (`@file:<path>`) |
+| [`brief-prompt.md`](brief-prompt.md) | `ASK`; `HELD_DIR` (held siblings: outside the repo, every worktree and any scratchpad); per job `ITEM`, `SUBJECT`, `SOURCE`, `QUOTE`, `NOTE` |
 
 ## Limits paid for
 
@@ -148,6 +190,11 @@ as a headless session in atelier, not as an Agent.
 - Workers never run review-tier work or cold passes, never write to live
   systems, never touch secrets, history, visibility, Actions switches, or
   bulk-remove from a record store. Each is a stop-and-report.
+- The workers run unattended in every listed repo, hold the user's git and
+  forge credentials, and read text others can write (a repo's instruction
+  file, a pull request, a CI log). Give them the narrowest permission mode
+  that does the work, never a bypass mode by default; `ccfleet --doc` says
+  who can steer such a session and what bounds it.
 - `claude -p` needs stdin from `/dev/null`; ccfleet always does it.
 - A split of a record store runs only when `cclive` shows the repo idle, and
   proves line preservation by script.
