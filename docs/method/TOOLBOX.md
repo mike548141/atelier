@@ -58,6 +58,13 @@ how to install it when it is missing.
 | `terraform`, `wrangler`, `cloudflared` | infrastructure, Cloudflare | `wrangler`: npm global bin | Homebrew; `npm i -g wrangler` |
 | `nmap`, `openssl`, `sops`, `age`, `tcpdump`, `ike-scan` | network and security | `ike-scan`: per its repo's onramp | Homebrew (`tcpdump` and `openssl` ship with macOS) |
 | `tiki`, `cctranscript`, `ccrepo`, `ccmail`, `ccarchive`, `ccclose` | the estate's own tools | user bin | their repos' install steps (`instruments/` here) |
+| `cclive`, `ccopen` | live work on the machine; what a session is opening onto | user bin | `./instruments/install` |
+| `ccapple` | read-only search of the Apple apps' local stores | user bin | `./instruments/install` |
+| `ccfleet` | headless sessions across a fleet of repos, billed to each repo | user bin | `./instruments/install` |
+| `ccstatusline` | status line that flags a session off the build model; needs `jq` | user bin | `./instruments/install` |
+| `ccpdf` (installs as `pdftoppm`) | PDF page renderer on macOS's PDFKit, for the file reader | user bin | `instruments/ccpdf/setup`; needs `swiftc` (Xcode command-line tools) at build time |
+| `atelier-menu` | the bare `/atelier` command's menu | `~/.claude/skills/atelier` | `./instruments/install` |
+| `browser-fetch` | a browser when `WebFetch` and `curl` are blocked (MCP server) | its venv under `~/.cache` | `instruments/browser-fetch/setup`, which prints the MCP registration |
 
 **Known quirks, generic to macOS rather than to any one machine:**
 - macOS `openssl` is LibreSSL.
