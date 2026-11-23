@@ -4,9 +4,11 @@ atelier is a **public, solo-maintained** doctrine repository that also ships
 working tooling other repositories adopt — the `tools/` scanners and the
 `docs/build/templates/` a child repo copies. This policy covers vulnerabilities
 in *that* surface. It is deliberately short: the repo runs no service, holds no
-secrets, and takes no third-party dependencies (zero-dep stdlib Python and Node
-— see `tools/README.md`, "Supply chain"), so the realistic vulnerability classes
-are narrow.
+secrets, and its `tools/` scanners take no third-party dependencies (zero-dep
+stdlib Python and Node — see `tools/README.md`, "Supply chain"). The one
+exception is `instruments/browser-fetch`, which pins two Python dependencies
+(`instruments/browser-fetch/requirements.txt`) under ADR 0006's 2026-07-12
+addendum. The realistic vulnerability classes are narrow.
 
 ## Scope
 
