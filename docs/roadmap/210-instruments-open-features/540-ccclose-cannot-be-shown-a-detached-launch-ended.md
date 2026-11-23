@@ -12,6 +12,12 @@
       own result recorded") has no form the session can produce for a
       launch whose PID the launching command did not print, and the tool
       does not say what evidence it accepts.
+      **Read in the code (2026-11-23):** `judgeLaunched` takes PIDs only
+      from the launching command's own result, through `pidsOf`: an `$!`
+      echo, `pid=N`, or a `[1] N` job line. The driver's launch result did
+      print its PID, as `pgrep -fl` output (`71599 zsh drain-driver.sh`),
+      which none of the three patterns matches; and no later tool result
+      is consulted, so "show it ended" has no form after the fact.
       **Do:** say in the ❌ line and the man page what counts as "shown
       ended" for a detached launch; accept at least (a) a `ps -p`/`kill -0`
       read gone for a PID that appears in a later tool result whose command
