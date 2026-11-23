@@ -18,4 +18,23 @@
       that re-check to come back clean.
       *Who may not:* the authors barred on `160/1450` may fix (the bar is on reviewing), but the
       fixing session neither briefs nor runs the re-check.
-      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-ccfleet and atelier-qr-c7a1-skills)*
+      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: none · at: FL20 canary)*
+      ✅ **Fixes landed 2026-11-23** (queue run c7a1e36e; two Opus workers,
+      one on the `ccfleet` code, one on the two skills and `modelguard`,
+      reconciled into one account and read by the run before landing).
+      Every finding FL1–FL25 is applied as counselled, FL21 by confirming
+      no change; the five judgement calls went the reviewer's way. Beyond
+      the counsel, each stated in the commits: a stop word the session
+      printed (BUDGET EXHAUSTED) is honoured even on an error end; a session
+      gets its id up front (`--session-id`) rather than being looked up
+      later; a review the principal has tied to a route by name does not
+      spill until he rules (the spill question is written as open in the
+      skill); `modelguard` fails closed after an unknown head, so a rare
+      harmless command such as `docker run --name claude img` is refused.
+      Tests: 79 `test_ccfleet`, 6 `test_modelguard` (41 bypass shapes denied,
+      26 lookups passed), 55 `test_templates`, 12 single-source. Commits on
+      `main` from the one that rewrites `modelguard` through the one that
+      makes the skills say what the code does.
+      **Still owed here, in order:** the FL20 canary (running, local only,
+      Haiku sessions); then the ask for the Fable re-check of `160/1450`,
+      🎯 the principal's.
