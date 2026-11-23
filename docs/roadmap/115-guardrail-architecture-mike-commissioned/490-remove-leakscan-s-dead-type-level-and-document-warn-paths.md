@@ -1,4 +1,4 @@
-- [ ] **Remove `leakscan`'s now-dead type-level and document warn-only
+- [~] **Remove `leakscan`'s now-dead type-level and document warn-only
       paths.** Since 2026-11-20 both cut-offs have passed (`115/480`, the
       principal's answer *"Move both to blocking from today"*), so
       `in_type_level_grace`, `in_document_grace`, their callers, the
@@ -9,3 +9,4 @@
       reader of the removed `--json` keys across the estate first (read-only),
       and run `test_leakscan` plus the shared-contract modules. Filed
       2026-11-20 UTC by queue run 08cd3b95.
+      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-leakscan)*
