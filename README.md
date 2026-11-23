@@ -50,7 +50,10 @@ we work:
 | `docs/decisions/` | ADRs — decisions that rejected a real alternative |
 | `docs/reviews/` | peer-review briefs (work earns trust through independent review — see `method/REVIEW.md`) |
 | `tools/` | the mechanical controls that *enforce* the doctrine — e.g. `leakscan.py`, the pre-commit net catching the shape of personal/estate data before it is committed |
-| `instruments/` | tools that *observe* the collaboration — its cost (`ccrepo`) and its history (`cctranscript`); tools whose only value is the Claude teammateship (see `docs/decisions/0006-instruments-in-atelier.md`) |
+| `instruments/` | tools whose only value is the Claude teammateship — observing it (its cost, `ccrepo`; its history, `cctranscript`) or extending its reach (`browser-fetch`, `ccmail`) (see `docs/decisions/0006-instruments-in-atelier.md`) |
+| `skills/` | the plugin's six skills: `session-onramp`, `review-brief`, `queue-run`, `create-repo`, `fleet-sweep`, `review-drain` |
+| `commands/` | the plugin's slash commands: `scan`, `install-hook`, `worktree`, `fleet-pins` |
+| `.claude-plugin/` | the plugin and marketplace manifests that make this repo installable |
 
 ### `docs/method/` — the operating model
 
@@ -58,8 +61,9 @@ we work:
   everything else.
 - **`AUTONOMY.md`** — when the agent proceeds vs stops to ask; broad standing
   grant (commit/push/PR), with a fixed floor and per-repo narrowing.
-- **`STORAGE.md`** — GitHub = master, iCloud = backup/offline, laptop =
-  disposable; keep churn out of iCloud.
+- **`STORAGE.md`** — GitHub = master and device portability, the laptop's plain
+  local working copy = offline work, Time Machine to a local NAS = whole-machine
+  backup; the iCloud leg was retired 2026-07-14.
 - **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
   side-effects.
 - **`PRINCIPLES.md`** — the design principles, precedence ladder, and situation
@@ -119,6 +123,12 @@ What you get:
   to the house standard, stamped from **your own** instance profile
   (`~/.atelier/instance.yaml`, filled interactively on first run, never
   committed) — the skill carries no identity of its own.
+- **`fleet-sweep`** skill — bring every child repo of an estate to a healthy
+  state (latest pin, floor re-copied, CI green, owed reviews briefed), each
+  repo's work run as a headless session inside that repo.
+- **`review-drain`** skill — run briefed cold review passes across an estate on
+  the principal-named review tier, several at once under a load gate, until an
+  approved budget is used up.
 - **`/atelier:worktree`** — one worktree per line of work (wraps the bundled
   `tools/worktree.py`).
 - **`/atelier:fleet-pins`** — report which child repos are behind the doctrine
@@ -130,9 +140,9 @@ yourself.
 
 ## Status
 
-Early. The `method/` layer is standing up first; the `build/` layer (the
-`create-repo` standard) and the heavier extractions from `ros` follow. See
-`docs/ROADMAP.md`.
+The `method/` and `build/` layers are written and in use, and the plugin is
+packaged. Doctrine still awaiting an independent review is marked on the board
+(the ⏳ items), and what is open is in `docs/ROADMAP.md`.
 
 ## Sharing
 
