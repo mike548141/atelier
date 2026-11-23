@@ -1,4 +1,4 @@
-- [ ] **`ccclose` check 15 gives no way to show a detached launch ended,
+- [~] **`ccclose` check 15 gives no way to show a detached launch ended,
       when its PID was never printed.** A hand-up from a private child,
       2026-11-23. A drain session started a detached driver
       (`python3 -c 'os.setsid(); os.execvp("nohup", …)' … &`) and three
@@ -27,3 +27,4 @@
       A launch form that prints its PID (`… & echo $!`) is the cheap
       prevention; the skill or doctrine that launches detached work could
       say so.
+      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-ccclose)*

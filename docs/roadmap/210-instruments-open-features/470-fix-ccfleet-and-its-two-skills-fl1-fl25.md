@@ -1,4 +1,4 @@
-- [ ] 🔥 **Fix `ccfleet`, `fleet-sweep`, `review-drain` and `modelguard`: findings FL1–FL25 of
+- [~] 🔥 **Fix `ccfleet`, `fleet-sweep`, `review-drain` and `modelguard`: findings FL1–FL25 of
       the `160/1450` cold pass.** The principal's answer, 2026-11-22 UTC, verbatim: *"Fix all as
       advised (Recommended)"* (the option text is quoted on `160/1450`). Apply every finding as
       the verdict counsels:
@@ -18,3 +18,4 @@
       that re-check to come back clean.
       *Who may not:* the authors barred on `160/1450` may fix (the bar is on reviewing), but the
       fixing session neither briefs nor runs the re-check.
+      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-ccfleet and atelier-qr-c7a1-skills)*

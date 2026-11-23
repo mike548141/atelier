@@ -1,4 +1,4 @@
-- [ ] 🔎 **`ccfleet drive` keys "already done today" on the job's label
+- [~] 🔎 **`ccfleet drive` keys "already done today" on the job's label
       alone, so a jobs file that reuses one label runs one job and skips the
       rest.** Found 2026-11-20 by session 19378351. A 17-repo jobs file gave
       every line the label `board-1120`; the first job wrote
@@ -13,3 +13,4 @@
       **Shape:** key the result file on repo and label (or refuse a jobs file
       whose labels repeat, at load, before anything starts); say both rules
       in `--doc` and in `skills/fleet-sweep/SKILL.md` step 4.
+      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-ccfleet)*
