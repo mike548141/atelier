@@ -435,9 +435,37 @@ when a later command removed it
 .BR "tmux kill\-session" ", " "screen \-X quit" );
 or when the process id it printed
 .RB ( "echo $!" ,
-or a labelled pid) is not in the process table.
+a labelled pid, or a
+.BR "pgrep \-l" " line"
+of its own command) is not in the process table.
 A pid still in the table is a blocker whatever its environment shows.
 Anything else is a blocker named by its command, cut.
+It can be shown ended afterwards, by a later call that is one simple command
+(no
+.BR ; ", " && " or " |
+or a redirect)
+made after the launch's result came back:
+a
+.B "ps \-p"
+or
+.B "kill \-0"
+read of its pid gone (all of its pids, if it printed several);
+a
+.B "pgrep \-f"
+of two or more words of its own command line that found nothing,
+reported as "gone, by command line", which is weaker than a pid;
+or a read
+.RB ( cat ", " tail ", " head ", " grep ,
+and so on) of a file the launch itself writes to
+.RB ( "> file" ),
+whose output has an exit code
+.RB ( exit=0 )
+or a line of
+.BR END ", " DONE ", " FINISHED " or " COMPLETED .
+The pgrep and file forms are taken only for a launch that let go of one thing.
+A launch should print its pid,
+.BR "cmd & echo $!" ,
+which needs none of this.
 This leg covers Apple platform binaries
 .RB ( /bin/sleep ", " /bin/sh ),
 whose environment

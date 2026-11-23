@@ -2899,3 +2899,125 @@ test('210/480 the default run is one command: the four listings, the verdict, th
   assert.ok(alone.startsWith('## Identifiers\n'));
   assert.doesNotMatch(alone, /Asked in this session|Other live sessions/);
 });
+
+// --- check 15: showing a detached launch ended (210/540, 210/550) ------------
+//
+// A detached launch whose pid its command never printed has no pid for the
+// process table to read. These are the forms the session can show it ended
+// with later, read from the transcript: a ps -p / kill -0 read of its pid
+// gone, a pgrep -f of its own command line that found nothing, and its result
+// file read with an exit or END line. Each has a fixture that is accepted and
+// fixtures that must still block. They run in-process on a written transcript.
+
+async function shown(events, procs = { ok: false, why: 'not read' }) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccclose-ev-'));
+  const f = path.join(dir, 's.jsonl');
+  const recs = events.map((r, i) => ({ timestamp: new Date(NOW - 30 * MIN + i * 1000).toISOString(), ...r }));
+  fs.writeFileSync(f, recs.map((r) => JSON.stringify(r)).join('\n') + '\n');
+  const t = await cc.readTranscript(f);
+  const c = cc.checkLaunched(t, 'sess-ev', procs, NOW);
+  return { c, line: c.items.find((x) => /launch/.test(x)) || '' };
+}
+// A call and its result, in order. `err` makes it a failed call, as a nonzero exit is.
+const call = (id, command, text = '', err = false) => [useOf(id, 'Bash', { command }), resultOf(id, text, { stdout: text }, err)];
+const GONE = 'Exit code 1';           // what the harness prints for a command that exited 1
+const PS_HEAD = `${GONE}\n  PID TTY           TIME CMD`;
+const blocked = (r) => { assert.equal(r.c.counts.launches, 1, r.c.items.join('\n')); assert.match(r.line, /^❌ .*nothing shows it finished(?: \([^)]*\))?; stop it by its pid, or show it ended: a later ps -p\/kill -0 read of its pid gone, a pgrep -f of its command line that found nothing, or its result file read showing an exit or END line$/); };
+const ended = (r, re) => { assert.equal(r.c.counts.launches, 0, r.c.items.join('\n')); assert.equal(r.c.counts.ended, 1); assert.match(r.line, /^✅ detached launch: /); assert.match(r.line, re); };
+const DRIVER = 'python3 -c \'import os; os.setsid()\' drain-driver.sh --all > drive.log 2>&1 &';
+
+test('check 15 shown ended (a): a pid printed as pgrep -fl output, read gone by ps -p', async () => {
+  const launch = call('l1', `${DRIVER} sleep 1; pgrep -fl drain-driver.sh`, '71599 zsh drain-driver.sh\n');
+  ended(await shown([...launch, ...call('r1', 'ps -p 71599', PS_HEAD, true)]), /pid 71599 read gone by a later ps -p/);
+  // The same pid by kill -0, and by ps with -o and -p apart.
+  ended(await shown([...launch, ...call('r1', 'kill -0 71599', `${GONE}\n(eval):kill:1: kill 71599 failed: no such process`, true)]), /read gone by a later kill -0/);
+  ended(await shown([...launch, ...call('r1', 'ps -o pid=,command= -p 71599 2>/dev/null', GONE, true)]), /read gone by a later ps -p/);
+  // Blocks: another pid, a pid still listed, a pid not permitted, a read made
+  // before the launch's result came back, and a read with something else on the line.
+  blocked(await shown([...launch, ...call('r1', 'ps -p 71600', PS_HEAD, true)]));
+  blocked(await shown([...launch, ...call('r1', 'ps -p 71599', '  PID TTY TIME CMD\n71599 ?? 0:01.00 zsh drain-driver.sh')]));
+  blocked(await shown([...launch, ...call('r1', 'kill -0 71599', `${GONE}\nkill: kill 71599 failed: operation not permitted`, true)]));
+  blocked(await shown([...launch, ...call('r1', 'ps -p 71599; echo done', PS_HEAD, true)]));
+  blocked(await shown([...call('r1', 'ps -p 71599', PS_HEAD, true), ...launch]));
+  blocked(await shown([launch[0], useOf('r1', 'Bash', { command: 'ps -p 71599' }), launch[1], resultOf('r1', PS_HEAD, { stdout: PS_HEAD }, true)]));
+  // A pgrep line for some other process is not the launch's pid.
+  blocked(await shown([...call('l1', `${DRIVER} sleep 1; pgrep -fl drain`, '71599 zsh other-script.sh\n'), ...call('r1', 'ps -p 71599', PS_HEAD, true)]));
+});
+
+test('check 15 shown ended (a): a pid found by a later read of its command line, then read gone', async () => {
+  const launch = call('l1', DRIVER);
+  const find = call('f1', 'pgrep -fl drain-driver.sh', '71599 zsh drain-driver.sh\n');
+  ended(await shown([...launch, ...find, ...call('r1', 'ps -p 71599', PS_HEAD, true)]), /pid 71599 \(found by a later read of its command line\) read gone by a later ps -p/);
+  blocked(await shown([...launch, ...find]));                                                         // found, never shown gone
+  blocked(await shown([...launch, ...find, ...call('r1', 'ps -p 71600', PS_HEAD, true)]));            // another pid read gone
+  blocked(await shown([...launch, ...call('f1', 'pgrep -fl drain-driver.sh', '71599 zsh other-script.sh\n'), ...call('r1', 'ps -p 71599', PS_HEAD, true)]));
+  blocked(await shown([...launch, ...call('r1', 'ps -p 71599', PS_HEAD, true), ...find]));            // gone read came first
+  // Two launches in one command: a pid cannot be told to be either's.
+  blocked(await shown([...call('l1', 'python3 drain-driver.sh & python3 other-driver.sh &'), ...find, ...call('r1', 'ps -p 71599', PS_HEAD, true)]));
+});
+
+test('check 15 shown ended (a): a pid the process table does not hold, found by a later read, is gone', async () => {
+  const launch = call('l1', DRIVER);
+  const find = call('f1', 'pgrep -fl drain-driver.sh', '71599 zsh drain-driver.sh\n');
+  ended(await shown([...launch, ...find], { ok: true, table: new Map() }), /pid 71599 .* read gone by a later process table read/);
+  const table = new Map([[71599, { pid: 71599, ppid: 1, ageSec: 60, rest: 'zsh drain-driver.sh' }]]);
+  const r = await shown([...launch, ...find, ...call('r1', 'ps -p 71599', PS_HEAD, true)], { ok: true, table });
+  assert.match(r.line, /^❌ .*pid 71599 is still alive/, 'the table, read now, outranks an earlier read');
+});
+
+test('check 15 shown ended (b): a pgrep -f of the launch\'s own command line that found nothing is gone, by command line', async () => {
+  const launch = call('l1', 'ccclose --session abc-123 --json > out.json 2>&1 &');
+  ended(await shown([...launch, ...call('p1', "pgrep -fl 'ccclose --session abc-123'", GONE, true)]), /gone, by command line: a later pgrep -f 'ccclose --session abc-123' found nothing \(weaker than a pid\)/);
+  ended(await shown([...launch, ...call('p1', 'pgrep -f "ccclose --session" 2>/dev/null', GONE, true)]), /gone, by command line/);
+  // Blocks: one word, a pattern the command does not hold, one that matched
+  // something, regex syntax, no -f, a read before the launch, a compound
+  // line, and two launches in one command.
+  blocked(await shown([...launch, ...call('p1', 'pgrep -f ccclose', GONE, true)]));
+  blocked(await shown([...launch, ...call('p1', "pgrep -f 'ccclose --other'", GONE, true)]));
+  blocked(await shown([...launch, ...call('p1', "pgrep -fl 'ccclose --session'", '4242 node ccclose --session abc-123\n')]));
+  blocked(await shown([...launch, ...call('p1', "pgrep -f 'ccclose --sess.*'", GONE, true)]));
+  blocked(await shown([...launch, ...call('p1', "pgrep -f '[c]close --session'", GONE, true)]));
+  blocked(await shown([...launch, ...call('p1', "pgrep 'ccclose --session'", GONE, true)]));
+  blocked(await shown([...launch, ...call('p1', "pgrep -f 'ccclose --session' || echo gone", 'gone\n')]));
+  blocked(await shown([...launch, ...call('p1', "pgrep -f 'ccclose --session'; true", GONE, true)]));
+  blocked(await shown([...call('p1', "pgrep -f 'ccclose --session'", GONE, true), ...launch]));
+  blocked(await shown([...call('l1', 'ccclose --session abc-123 & ccclose --session def-456 &'), ...call('p1', "pgrep -f 'ccclose --session'", GONE, true)]));
+  // A pgrep that failed for another reason says nothing about the process.
+  blocked(await shown([...launch, ...call('p1', "pgrep -f 'ccclose --session'", `${GONE}\npgrep: command not permitted`, true)]));
+});
+
+test('check 15 shown ended (c): the launch\'s own result file, read after it, with an exit or END line', async () => {
+  const launch = call('l1', 'nohup ./run-job.sh > /w/job.res 2>&1 &');
+  for (const [out, re] of [['step 1\nexit=0\n', /shows "exit=0"/], ['finished ok\nEXIT=3\n', /shows "EXIT=3"/], ['exit code: 0\n', /shows "exit code: 0"/], ['rows 10\nEND\n', /shows "END"/], ['Done.\n', /shows "Done\."/], ['exited with code 1\n', /shows "exited with code 1"/]]) {
+    ended(await shown([...launch, ...call('c1', 'tail -3 /w/job.res', out)]), re);
+  }
+  ended(await shown([...launch, ...call('c1', 'cat /w/job.res', 'exit=0\n')]), /its result file \/w\/job\.res was read after the launch/);
+  ended(await shown([...launch, ...call('c1', 'grep -n exit /w/job.res', '7:exit=0\n')]), /result file/);
+  // A redirect to a quoted path, and inside sh -c, name the file as well.
+  ended(await shown([...call('l1', 'nohup ./run-job.sh > "/w/my job.res" &'), ...call('c1', 'cat "/w/my job.res"', 'exit=0\n')]), /my job\.res/);
+  ended(await shown([...call('l1', "sh -c './run-job.sh > /w/inner.res' &"), ...call('c1', 'cat /w/inner.res', 'exit=0\n')]), /inner\.res/);
+  // Blocks: no end line, a progress line with "done" in it, another file, a
+  // read before the launch, a read made as the launch ran, a failed read, a
+  // file written elsewhere by a compound read, /dev/null, and two launches.
+  blocked(await shown([...launch, ...call('c1', 'tail -3 /w/job.res', 'step 1\nstep 2\n')]));
+  blocked(await shown([...launch, ...call('c1', 'tail -3 /w/job.res', 'done with step 2\nexiting soon\n')]));
+  blocked(await shown([...launch, ...call('c1', 'tail -3 /w/other.res', 'exit=0\n')]));
+  blocked(await shown([...call('c1', 'tail -3 /w/job.res', 'exit=0\n'), ...launch]));
+  blocked(await shown([launch[0], useOf('c1', 'Bash', { command: 'cat /w/job.res' }), launch[1], resultOf('c1', 'exit=0\n', { stdout: 'exit=0\n' })]));
+  blocked(await shown([...launch, ...call('c1', 'cat /w/job.res', 'exit=0\n', true)]));
+  blocked(await shown([...launch, ...call('c1', 'cat /w/job.res; echo exit=0', 'exit=0\n')]));
+  blocked(await shown([...launch, ...call('c1', 'echo exit=0 > /w/job.res', 'exit=0\n')]));
+  blocked(await shown([...call('l1', 'nohup ./run-job.sh > /dev/null 2>&1 &'), ...call('c1', 'cat /dev/null', 'exit=0\n')]));
+  blocked(await shown([...call('l1', 'nohup ./a.sh > /w/a.res & nohup ./b.sh > /w/b.res &'), ...call('c1', 'cat /w/a.res', 'exit=0\n')]));
+});
+
+test('check 15 shown ended: the order of calls is kept, and the table-read pid path still works as before', async () => {
+  // A launch with its pid printed, the table not read, and no later read: still blocked, as before.
+  const r = await shown(call('l1', 'sleep 5 > /dev/null 2>&1 & echo $!', '31337\n'));
+  assert.match(r.line, /^❌ .*its pid could not be read: no process table\); stop it by its pid, or show it ended/);
+  ended(await shown([...call('l1', 'sleep 5 > /dev/null 2>&1 & echo $!', '31337\n'), ...call('r1', 'ps -p 31337', PS_HEAD, true)]), /pid 31337 read gone by a later ps -p/);
+  // All of several pids must be shown gone.
+  const two = call('l1', 'sleep 5 & echo pid=31337; sleep 6 & echo pid=31338', 'pid=31337\npid=31338\n');
+  blocked(await shown([...two, ...call('r1', 'ps -p 31337', PS_HEAD, true)]));
+  ended(await shown([...two, ...call('r1', 'ps -p 31337', PS_HEAD, true), ...call('r2', 'ps -p 31338', PS_HEAD, true)]), /pid 31337, 31338 read gone/);
+});

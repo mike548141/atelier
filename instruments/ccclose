@@ -792,6 +792,9 @@ async function readTranscript(file) {
     // Work the session launched (check 15, 210/460): what it started, what
     // ended something, and when the principal first spoke.
     firstPrompt: null, launched: [], launchById: new Map(), stopOps: [], stopById: new Map(),
+    // The shell reads that can show a detached launch ended (210/540, 210/550),
+    // in the order calls were made and results came back: seq counts both.
+    seq: 0, shell: [], shellById: new Map(),
     // Every principal prompt (210/480), the questions put to him, the
     // assistant's own call-out lines, and the directories the session worked in.
     prompts: [], promptsTotal: 0,
@@ -1809,16 +1812,23 @@ function segmentsOf(plain) {
 }
 const SHELLS = new Set(['sh', 'bash', 'zsh', 'dash', 'ksh']);
 
-function scanForms(code, forms, counters, depth) {
+function scanForms(code, forms, counters, depth, tally) {
   const { plain, quoted } = unquoteCode(codeOf(code));
   // `&` as a control operator: not && , >& , &> , |& , <& , and followed by an
   // end, a space or a separator (so an unquoted URL's &y= is no operator).
-  if (/(?<![&>|<])&(?![&>])(?=\s|$|[;)}])/.test(plain.replace(/\d>&\d/g, ''))) forms.add('&');
+  const amps = plain.replace(/\d>&\d/g, '').match(/(?<![&>|<])&(?![&>])(?=\s|$|[;)}])/g);
+  if (amps) forms.add('&');
+  if (tally) {
+    tally.amps += amps ? amps.length : 0;
+    // Where the code sends its output: the files it could write a result to.
+    for (const m of plain.matchAll(/(?:^|[\s;&|)])(?:\d|&)?>>?[ \t]*([^\s;&|<>()]+)/g)) if (m[1] !== 'Q') tally.targets.add(m[1]);
+    for (const qs of quoted) if (/^(?:\d|&)?>>?$/.test(qs.after) && qs.text) tally.targets.add(qs.text);
+  }
   for (const w of segmentsOf(plain)) {
     const [head, a] = w;
     const base = path.basename(head);
     if (base === 'wait') forms.add('wait');
-    else if (base === 'nohup' || base === 'setsid') forms.add(base);
+    else if (base === 'nohup' || base === 'setsid') { forms.add(base); if (tally) tally.kw++; }
     else if (base === 'disown') forms.add('disown');
     else if (base === 'launchctl') {
       if (/^(load|bootstrap|kickstart|submit|start|enable)$/.test(a || '')) forms.add('launchctl');
@@ -1839,7 +1849,7 @@ function scanForms(code, forms, counters, depth) {
     }
     // A shell given code to run: read the code. (The launch may be inside it.)
     if (depth < 2 && SHELLS.has(base) && w.includes('-c')) {
-      for (const qs of quoted) if (qs.after === '-c' && qs.text) scanForms(qs.text, forms, counters, depth + 1);
+      for (const qs of quoted) if (qs.after === '-c' && qs.text) scanForms(qs.text, forms, counters, depth + 1, tally);
     }
   }
   return plain;
@@ -1850,12 +1860,17 @@ function scanForms(code, forms, counters, depth) {
 // for what it is. `wait` (the command waits for its own jobs) comes back as
 // `waited`, so the caller can mark the launch awaited rather than let go of.
 function launchForms(command) {
-  if (typeof command !== 'string' || !command) return { forms: [], counters: [], waited: false };
+  if (typeof command !== 'string' || !command) return { forms: [], counters: [], waited: false, units: 0, targets: [] };
   const forms = new Set(), counters = new Set();
-  const plain = scanForms(command, forms, counters, 0);
+  const tally = { amps: 0, kw: 0, targets: new Set() };
+  const plain = scanForms(command, forms, counters, 0, tally);
   const waited = forms.delete('wait');
   if (forms.size && /(?:^|[\s;&|(])claude\b[^;&|\n]*\s(?:-p|--print)\b/.test(plain)) forms.add('headless claude');
-  return { forms: [...forms], counters: [...counters], waited };
+  // How many things the command let go of, at most: one `&` or one nohup/setsid
+  // each, so `nohup a > f &` is one. Evidence that is not a pid is accepted
+  // only for a single launch, since it cannot say which of several it shows.
+  const targets = [...tally.targets].filter((x) => x !== '/dev/null');
+  return { forms: [...forms], counters: [...counters], waited, units: Math.max(tally.amps, tally.kw, forms.size ? 1 : 0), targets };
 }
 
 // What a launch command printed that is a process id, and only where the
@@ -1867,7 +1882,33 @@ function pidsOf(command, text) {
   if (command.includes('$!')) for (const m of text.matchAll(/^\s*(\d{2,7})\s*$/gm)) out.add(Number(m[1]));
   for (const m of text.matchAll(/\bpid[=: ]+(\d{2,7})\b/gi)) out.add(Number(m[1]));
   for (const m of text.matchAll(/^\[\d+\]\s+(\d{2,7})\s*$/gm)) out.add(Number(m[1]));
+  // `pgrep -l`/`-fl` (or `ps -o pid,command`) lines, `PID argv`, where the
+  // command ran one and the line's argv is the launch's own (210/540).
+  if (/\b(?:pgrep|ps)\b/.test(command)) for (const x of pidLines(text)) if (matchesLaunch(x.argv, command)) out.add(x.pid);
   return [...out];
+}
+
+// `PID argv` lines of a pgrep -l / -fl / ps -o pid,command read.
+function pidLines(text) {
+  const out = [];
+  for (const m of String(text).matchAll(/^[ \t]*(\d{2,7})[ \t]+(\S.*?)[ \t]*$/gm)) out.push({ pid: Number(m[1]), argv: m[2] });
+  return out;
+}
+
+const INTERPRETERS = new Set(['sh', 'zsh', 'bash', 'dash', 'ksh', 'python', 'python3', 'node', 'nohup', 'setsid', 'env', 'sudo', 'ruby', 'perl', 'nice', 'caffeinate', 'time', 'exec', 'command']);
+const wordsOf = (x) => String(x).split(/[\s'"`;&|()<>=]+/).filter(Boolean);
+// Whether a process's argv is the launch's own: every word of it that is not a
+// shell or interpreter is a word of the launch command (as written, or by its
+// file name, since a path may be written relative), and at least one such word
+// is a script or program name long enough to be distinctive (8+ characters).
+// Anything else is some other process, and no evidence about the launch.
+function matchesLaunch(argv, command) {
+  const have = new Set(wordsOf(command));
+  const haveBase = new Set([...have].map((w) => path.basename(w)));
+  const own = wordsOf(argv).filter((w) => !INTERPRETERS.has(path.basename(w)));
+  if (!own.length) return false;
+  if (!own.every((w) => have.has(w) || haveBase.has(path.basename(w)))) return false;
+  return own.some((w) => path.basename(w).length >= 8);
 }
 
 // --- what the transcript records of launches --------------------------------
@@ -1900,11 +1941,13 @@ function noteLaunch(t, b, ms, cwd) {
     if (b.id) t.stopById.set(b.id, [...(t.stopById.get(b.id) || []), s]);
   };
   const name = b.name;
+  const seq = ++t.seq;
   if (name === 'Bash') {
     const command = typeof input.command === 'string' ? input.command : '';
-    if (input.run_in_background === true) { add({ leg: 'background', command }); return; }
-    const { forms, counters, waited } = launchForms(command);
-    if (forms.length) add({ leg: 'launch', command, forms, waited });
+    noteShell(t, b.id, command, seq);
+    if (input.run_in_background === true) { add({ leg: 'background', command, seq }); return; }
+    const { forms, counters, waited, units, targets } = launchForms(command);
+    if (forms.length) add({ leg: 'launch', command, forms, waited, units, targets, seq });
     for (const kind of counters) stop(kind, null);
     return;
   }
@@ -1926,10 +1969,49 @@ function noteLaunch(t, b, ms, cwd) {
 }
 
 function noteLaunchResult(t, id, b, o) {
+  const seq = ++t.seq;
   for (const s of t.stopById.get(id) || []) s.ok = !b.is_error;
+  noteShellResult(t, id, b, o, seq);
   const e = t.launchById.get(id);
   if (!e) return;
-  e.result = { isError: !!b.is_error, text: resultText(b, o).slice(0, 4000), tur: compactTur(o && o.toolUseResult) };
+  e.result = { isError: !!b.is_error, text: resultText(b, o).slice(0, 4000), tur: compactTur(o && o.toolUseResult), seq };
+}
+
+// --- shell reads that can show a launch ended (210/540, 210/550) -------------
+//
+// Kept for the commands that can: ps, kill, pgrep, and the readers (cat, tail,
+// head, grep, sed, awk, less, more, bat, rg). The last SHELL_KEEP are held.
+const SHELL_KEEP = 2000;
+const SHELL_HEAD = /^(?:(?:[A-Za-z_]\w*=\S*\s+)*)(ps|kill|pgrep|cat|tail|head|grep|egrep|sed|awk|less|more|bat|rg)\b/;
+const READERS = new Set(['cat', 'tail', 'head', 'grep', 'egrep', 'sed', 'awk', 'less', 'more', 'bat', 'rg']);
+
+// A line a launch writes when it finishes: an exit code, or END / DONE / FINISHED
+// / COMPLETED alone on the line. A word like "done" inside a progress line is
+// not one.
+const EXIT_LINE = /\bexit(?:ed)?(?:\s+with)?(?:[ _-]?(?:code|status))?\s*[:=]\s*\d{1,3}\b|\bexit(?:ed)?\s+(?:with\s+)?(?:code|status)\s+\d{1,3}\b|\b(?:rc|EXIT)=\d{1,3}\b/i;
+const END_LINE = /^\s*(?:=+\s*)?(?:END|DONE|FINISHED|COMPLETED?)\s*[:.!=-]*\s*(?:\d{4}-\d\d-\d\d\S*)?\s*=*\s*$/i;
+const endLineOf = (text) => {
+  for (const ln of String(text).slice(0, 400000).split('\n')) if (EXIT_LINE.test(ln) || END_LINE.test(ln)) return ln.trim().slice(0, 120);
+  return null;
+};
+
+function noteShell(t, id, command, seq) {
+  const m = SHELL_HEAD.exec(command.trim());
+  if (!id || !m) return;
+  const x = { id, seq, head: m[1], command: command.slice(0, 2000), resultSeq: null, isError: false, text: '', end: null };
+  t.shell.push(x);
+  t.shellById.set(id, x);
+  if (t.shell.length > SHELL_KEEP) t.shellById.delete(t.shell.shift().id);
+}
+
+function noteShellResult(t, id, b, o, seq) {
+  const x = t.shellById.get(id);
+  if (!x) return;
+  const text = resultText(b, o);
+  x.resultSeq = seq;
+  x.isError = !!b.is_error;
+  x.text = x.head === 'ps' || x.head === 'kill' || x.head === 'pgrep' ? text.slice(0, 3000) : '';
+  if (READERS.has(x.head) && !b.is_error) x.end = endLineOf(text);
 }
 
 // The id the harness gave a background task, Monitor or workflow, from the
@@ -1941,6 +2023,87 @@ function taskIdOf(e) {
   const m = /running in background with ID:\s*([A-Za-z0-9_-]+)/.exec(text) || /\(task ([A-Za-z0-9_-]+)[,)]/.exec(text)
     || /\b(?:job|task|run|workflow)[ _-]?id[: ]+([A-Za-z0-9_-]{6,})/i.exec(text);
   return m ? m[1] : null;
+}
+
+// --- showing a detached launch ended, from what the session read later -------
+//
+// Each reader takes only calls made AFTER the launch's result came back
+// (seq order, so a read issued in the same message as the launch does not
+// count), and a read of one simple command: no `;`, `&&`, `|`, `$(`, or
+// redirect but to /dev/null, so nothing else on the line can print the answer.
+const simpleCommand = (command) => {
+  const { plain } = unquoteCode(codeOf(command));
+  return !/[;&|\n`<>]|\$\(/.test(plain.replace(/\s*\d?>\s*\/dev\/null/g, '').replace(/\s*2>&1/g, ''));
+};
+const tokensOf = (command) => [...command.matchAll(/"((?:[^"\\]|\\.)*)"|'([^']*)'|(\S+)/g)]
+  .filter((m) => m[3] === undefined || !/^\d?>/.test(m[3]))      // a redirect is not an argument
+  .map((m) => m[1] !== undefined ? m[1] : m[2] !== undefined ? m[2] : m[3]);
+const readsAfter = (t, after) => t.shell.filter((x) => after !== null && after !== undefined && x.seq > after && x.resultSeq !== null && simpleCommand(x.command));
+// What a read printed, less the harness's own "Exit code N" line and its
+// empty-output note, and less a ps header.
+const bodyOf = (x) => x.text.split('\n').map((l) => l.trim()).filter((l) => l && !/^Exit code \d+$/.test(l) && l !== '(No output)' && !/^[A-Z%#][A-Z%#/ ]*$/.test(l));
+
+// A `ps -p <pid>` or `kill -0 <pid>` read, after `after`, that shows the pid gone.
+function pidReadGone(t, after, pid) {
+  for (const x of readsAfter(t, after)) {
+    const tok = tokensOf(x.command);
+    if (x.head === 'ps') {
+      const lists = [];
+      tok.forEach((w, i) => {
+        if (/^-[A-Za-z]*p$/.test(w) && tok[i + 1]) lists.push(tok[i + 1]);
+        const m = /^-p(\d[\d,]*)$/.exec(w);
+        if (m) lists.push(m[1]);
+      });
+      if (lists.some((l) => l.split(',').includes(String(pid))) && bodyOf(x).length === 0) return 'ps -p';
+    } else if (x.head === 'kill') {
+      const z = tok.indexOf('-0');
+      if (z < 0 || !x.isError) continue;
+      const pids = tok.slice(z + 1).filter((w) => /^\d+$/.test(w));
+      if (pids.includes(String(pid)) && /no such process/i.test(x.text) && !/not permitted/i.test(x.text)
+        && (pids.length === 1 || new RegExp(`\\b${pid}\\b`).test(x.text))) return 'kill -0';
+    }
+  }
+  return null;
+}
+
+// Pids, read after the launch, whose argv is the launch's own: `PID argv`
+// lines of a pgrep or ps read.
+function laterPids(t, e) {
+  const out = new Map();     // pid -> seq of the result that showed it
+  for (const x of t.shell) {
+    if (x.seq <= e.result.seq || x.resultSeq === null || (x.head !== 'pgrep' && x.head !== 'ps') || x.isError) continue;
+    for (const l of pidLines(x.text)) if (matchesLaunch(l.argv, e.command) && !out.has(l.pid)) out.set(l.pid, x.resultSeq);
+  }
+  return out;
+}
+
+// A `pgrep -f '<pattern>'` read, after the launch, that found nothing, where the
+// pattern is two or more words and a plain substring of the launch command.
+function pgrepGone(t, e) {
+  const have = e.command.replace(/\s+/g, ' ');
+  for (const x of readsAfter(t, e.result.seq)) {
+    if (x.head !== 'pgrep') continue;
+    const tok = tokensOf(x.command);
+    const args = tok.slice(1);
+    const flags = args.filter((w) => /^-/.test(w)), rest = args.filter((w) => !/^-/.test(w));
+    if (rest.length !== 1 || !flags.length || !flags.every((w) => /^-[flaiq]+$/.test(w)) || !flags.some((w) => w.includes('f'))) continue;
+    const pat = rest[0].replace(/\s+/g, ' ').trim();
+    if (pat.split(' ').length < 2 || pat.length < 8 || /[\[\](){}|*+?^$\\]/.test(pat) || !have.includes(pat)) continue;
+    if (x.isError && /^Exit code 1\b/.test(x.text.trim()) && bodyOf(x).length === 0) return pat;
+  }
+  return null;
+}
+
+// A file the launch itself writes (a redirect target), read after it by a plain
+// reader, whose output has an exit-code or END line.
+function resultFileEnded(t, e) {
+  for (const x of readsAfter(t, e.result.seq)) {
+    if (!READERS.has(x.head) || !x.end) continue;
+    const tok = tokensOf(x.command).slice(1);
+    const hit = e.targets.find((f) => tok.includes(f));
+    if (hit) return { file: hit, line: x.end };
+  }
+  return null;
 }
 
 // How one launched thing stands. { state, status, why }: `ended` and `stopped`
@@ -1982,18 +2145,41 @@ function judgeLaunched(e, t, procs, now, handled) {
     if (kind && later(kind)) return { state: 'stopped', status: 'pass', why: `${kind} removed by a later command` };
   }
   const pids = res ? pidsOf(e.command, res.text) : [];
-  if (pids.length && procs.ok) {
-    const alive = pids.filter((p) => procs.table.has(p));
-    if (alive.length) {
-      const p = procs.table.get(alive[0]);
-      return { state: 'running', status: 'fail', why: `pid ${p.pid} is still alive (${ageText(p.ageSec)}, ${argvShown(p.rest)})` };
-    }
-    return { state: 'ended', status: 'pass', why: `pid ${pids.join(', ')} is gone` };
+  const alive1 = (list) => {
+    const a = procs.ok ? list.filter((p) => procs.table.has(p)) : [];
+    if (!a.length) return null;
+    const p = procs.table.get(a[0]);
+    return { state: 'running', status: 'fail', why: `pid ${p.pid} is still alive (${ageText(p.ageSec)}, ${argvShown(p.rest)})` };
+  };
+  // A pid is gone when the table, read now, lacks it, or a later `ps -p` /
+  // `kill -0` read showed it gone. The table, when read, is the later word.
+  const goneBy = (p, from) => (procs.ok && !procs.table.has(p)) ? 'table' : pidReadGone(t, from, p);
+  if (pids.length) {
+    const live = alive1(pids);
+    if (live) return live;
+    const how = pids.map((p) => goneBy(p, res.seq));
+    if (how.every((h) => h === 'table')) return { state: 'ended', status: 'pass', why: `pid ${pids.join(', ')} is gone` };
+    if (how.every(Boolean)) return { state: 'ended', status: 'pass', why: `pid ${pids.join(', ')} read gone by a later ${how.find((h) => h !== 'table')}` };
   }
   if (e.leg === 'launch' && handled && handled(e)) return { state: 'covered', status: 'pass', why: 'found live by the process read (leg 1)' };
+  // No pid in the launch's own result, or one nothing read gone. The rest is
+  // read only for a single launch, and only from calls after its result.
+  if (res && e.units === 1) {
+    const found = laterPids(t, e);
+    if (found.size) {
+      const live = alive1([...found.keys()]);
+      if (live) return live;
+      const how = [...found].map(([p, at]) => goneBy(p, at));
+      if (how.every(Boolean)) return { state: 'ended', status: 'pass', why: `pid ${[...found.keys()].join(', ')} (found by a later read of its command line) read gone by a later ${how.find((h) => h !== 'table') || 'process table read'}` };
+    }
+    const pat = pgrepGone(t, e);
+    if (pat) return { state: 'ended', status: 'pass', why: `gone, by command line: a later pgrep -f '${clip(pat, 40)}' found nothing (weaker than a pid)` };
+    const file = resultFileEnded(t, e);
+    if (file) return { state: 'ended', status: 'pass', why: `its result file ${clip(file.file, 60)} was read after the launch and shows "${clip(file.line, 40)}"` };
+  }
   const forms = e.forms.join(' + ');
   return { state: 'unproven', status: 'fail',
-    why: `${forms}: the command let go of it and nothing shows it finished${pids.length ? ' (its pid could not be read: no process table)' : procs.ok ? '' : ' (the process table could not be read)'}; stop it by its pid or show it ended` };
+    why: `${forms}: the command let go of it and nothing shows it finished${pids.length ? ' (its pid could not be read: no process table)' : procs.ok ? '' : ' (the process table could not be read)'}; stop it by its pid, or show it ended: a later ps -p/kill -0 read of its pid gone, a pgrep -f of its command line that found nothing, or its result file read showing an exit or END line` };
 }
 
 const LEG_TAG = { process: 'live process', background: 'background command', launch: 'detached launch', harness: 'harness' };

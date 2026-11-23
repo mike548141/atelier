@@ -324,14 +324,62 @@ Four legs, each fail-closed:
    later successful command undid it (`launchctl unload|remove|bootout`,
    `crontab -r`, `atrm`, `tmux kill-session`, `screen -X quit`); or when a pid
    it printed is gone from the table. A pid is read only where the command
-   asked for one (`echo $!`) or the output labels it (`pid: N`, `[1] N`): a
+   asked for one (`echo $!`) or the output labels it (`pid: N`, `[1] N`, or a
+   `pgrep -l`/`-fl` line `PID argv` whose argv is the launch's own): a
    bare number is otherwise a count, and mistaking a count for a pid could read
    a live launch as gone. A pid still in the table is a blocker whatever its
    environment shows, which is how a platform binary's pid is caught. A launch
    one of leg 1's processes already accounts for (its program or script is a
    word of the command) is counted once, in leg 1. Anything else is a blocker
    named by its command, cut to 70 characters, with "the command let go of it
-   and nothing shows it finished".
+   and nothing shows it finished; stop it by its pid, or show it ended: a later
+   ps -p/kill -0 read of its pid gone, a pgrep -f of its command line that
+   found nothing, or its result file read showing an exit or END line".
+
+   **Shown ended after the fact (210/540, 210/550).** A launch whose pid its
+   command never printed used to have no way to clear: the ❌ said "show it
+   ended" and no later act counted. Three forms now do, read from the
+   transcript's own later calls. All are fail-closed: evidence that does not
+   match is no evidence, and the ❌ stays.
+   *Which calls count.* Only a call made after the launch's *result* came back
+   (calls and results are numbered in the order the log holds them, so a read
+   sent in the same message as the launch does not count), and only a read of
+   one simple command: no `;`, `&&`, `||`, `|`, `$(`, backtick or redirect
+   other than to `/dev/null`, so nothing else on the line can print the answer.
+   The last 2000 such reads are held (`ps`, `kill`, `pgrep`, and `cat`, `tail`,
+   `head`, `grep`, `sed`, `awk`, `less`, `more`, `bat`, `rg`).
+   (a) *A pid read gone.* The pids are those in the launch's own result in any
+   form above, or in a later `pgrep`/`ps` read whose `PID argv` line is the
+   launch's own (every word of the argv that is not a shell or interpreter is a
+   word of the launch command, and one of them is a name of 8+ characters).
+   Each is gone when the process table, read now, lacks it, or a later `ps -p
+   <pid>` printed nothing but a header, or `kill -0 <pid>` failed with "no such
+   process" (not "not permitted"). All of a launch's pids must be shown gone;
+   one still in the table is ❌ whatever an earlier read said.
+   (b) *Gone, by command line.* A later `pgrep -f` (flags from `f l a i q`
+   only, one pattern) that exited 1 and printed nothing, where the pattern is
+   two or more words, 8+ characters, has no regex syntax, and is a plain
+   substring of the launch command. It is ✅, worded "gone, by command line ...
+   (weaker than a pid)": it shows no process matched, not which one the launch
+   was. A pattern that is one word, or not in the command, or any `pgrep` that
+   printed a match, is not accepted.
+   (c) *Its result file.* A redirect target of the launch itself (`> f`, `>> f`,
+   `2> f`, `&> f`, quoted or inside `sh -c`; never `/dev/null`) named by a later
+   `cat`, `tail`, `head`, `grep`, `sed`, `awk`, `less`, `more`, `bat` or `rg`
+   whose successful output has a line that is an exit code (`exit=0`, `exit
+   code: 1`, `exited with code 0`, `rc=0`, `EXIT=3`) or `END`, `DONE`,
+   `FINISHED` or `COMPLETED` alone. "Done with step 3" is a progress line, not
+   an end.
+   (b) and (c), and a pid found by a later read, are taken only for a launch
+   that let go of one thing (one `&`, or one `nohup`/`setsid`): with two in the
+   command, a pattern, a file or a later pid cannot say which one it shows.
+   Not accepted, so a session does not hunt for them: a `ps -p` with `||
+   echo gone` after it (the read must be bare); a file that was not the
+   launch's own redirect target; `nohup sh -c '…'` (its inner redirects are not
+   read); and the `driver down` kind of log line, which is prose. A stale
+   result file from an earlier run reads as finished: write a fresh path per
+   launch. **Cheap prevention:** a launch should print its pid, `… & echo $!`,
+   which leg 3 reads at once and which needs none of the above.
 4. **Harness tools that start work elsewhere.** `Workflow` and `Monitor` are
    judged like a background command (a task id, a terminal notification, a
    `TaskStop`; a Monitor also ends at its own time limit, `timeoutMs` past its
@@ -561,7 +609,8 @@ now includes a failing check in another repo. Exit `0` when no check fails
   learnings is for the asks list and the session's own answer.
 - **Launched work it cannot see (check 15).** An Apple platform binary shows no
   environment to `ps -E`, so leg 1 cannot see a bare `nohup sh -c …`; leg 3
-  covers it from the command, and a launch no pid, wait or undo shows finished
+  covers it from the command, and a launch no pid, wait, undo or later read
+  (pid gone, `pgrep -f` empty, result file with an exit line) shows finished
   is a blocker. A launch hidden inside a script file, a Python `Popen`, an
   `ssh`, or any form not in leg 3's list is missed, not guessed. A background
   command is proven ended only by the transcript (a notification, a stop, its
