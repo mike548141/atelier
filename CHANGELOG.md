@@ -5,6 +5,33 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-23 — `modelguard`, `fleet-sweep` and `review-drain` fixed as the cold pass counselled, `210/470`, `210/500`)
+- **`tools/modelguard.py` finds `claude` in command position.** A cold pass
+  found 23 ordinary launch shapes it let through with no model (loop and `if`
+  bodies, `timeout`, `sudo -u`, `bash -lc`, `eval`, `find -exec`, backticks,
+  `npx`, a heredoc fed to a shell, a valueless `--model` …), and a lookup such
+  as `command -v claude` was refused. It now skips keywords and wrappers to
+  reach the command, reads the text a shell runs as code, fails closed after a
+  head it does not know, and passes a lookup of the binary. The `Task` tool
+  name is matched; a malformed payload exits cleanly. Its tests hold a table of
+  every bypass found, to grow with each new one, and a table of lookups that
+  must pass. The docstring and README say what it does not see: it is a net,
+  not a proof. Wiring matcher: `Agent|Task|Bash`.
+- **`review-drain`**: a pass is clean only on exit 0 with its final report; the
+  prompts write a `RESULT:` line only there and leave a cut-off worktree alone;
+  the launched list holds starts; Close keeps a still-claimed pass's log; the
+  reviewer prompt restores REVIEW.md's two reader duties; unsure routes local,
+  and the order when no lapse is near is stated; whether the review tier needs
+  approval is the adopter's setting. Resume and fold take `FINISH_WORDS` in
+  place of `APPROVAL`: **an adopter's resume and fold commands add `--set
+  FINISH_WORDS=…`**, and a pass's held sibling lives in `HELD_DIR` from the
+  moment it is written.
+- **`fleet-sweep`**: scope is the repos the config lists, less archived, forked
+  and other-owner ones; a new `adopt-prompt.md` carries adoption out; a jobs
+  file's labels are unique and one driver runs per `kit_dir`; a worktree is
+  stale only when clean and unclaimed, and is never force-removed. Both skills
+  list the variables each prompt needs.
+
 ### Changed (2026-11-22 — the opening id line drops the transcript path, `210/490`)
 - **`tools/idhook.py` shows the two ids and nothing else.** The principal:
   *"I only want the first two"*. The `Transcript: ~/.claude/projects/…`
