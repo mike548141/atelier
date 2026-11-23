@@ -1,4 +1,4 @@
-- [~] 🔎 **Defects the enforcement census found in slice 6.** Found
+- [ ] 🔎 **Defects the enforcement census found in slice 6.** Found
       2026-11-23 UTC by `020/220` slice 6
       (`docs/method/census/2026-11-23-1730-build-boundary-standard-templates-root-files.md`);
       reported, not fixed in passing.
@@ -26,4 +26,18 @@
       8. **Atelier declares no repo type**, so its missing
          `ARCHITECTURE.md` and `CONTRIBUTING.md` read the same as a sizing
          choice.
-      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-defects6)*
+      ✅ **Items 1–4 and 6 fixed 2026-11-23** (queue run 608d8123, a Sonnet
+      worker, read by the run before landing; full tools suite green,
+      3443 tests). 1: both CI templates declare `permissions: contents:
+      read` (no job needs more), and `WorkflowLeastPrivilegeTest` pins the
+      block in every template and every atelier workflow. 2: the build
+      README names `check_links.py`, the `SECURITY.md` template and three
+      CI workflows. 3: the `floor.yml` bullet describes the thin caller of
+      the reusable floor (ADR 0008); the man-page sentence counts six of
+      nine instruments pinning the flag superset (the census's "2 of 10"
+      did not match the tree). 4: `SECURITY.md` scopes the claim to
+      `tools/` and names the `browser-fetch` exception. 6: the root README
+      in its four places. Cold pass queued as `160/1760`. **Still open:**
+      5 (root `CLAUDE.md`'s widening sentence, which is the principal's
+      autonomy floor: his word), 7 (a dated template clause, wants a
+      design) and 8 (atelier's repo type, a choice).
