@@ -1757,7 +1757,14 @@ is no fallback.
 
 The board archive is looked for at `docs/ROADMAP-DONE.md` and at the repo root
 (`ROADMAP-DONE.md`); `docs/` wins when both exist, and the other is left alone
-(`010/280`). The tool re-points a path and never re-wraps prose, so a link that
+(`010/280`). So is each session log, on its own: `SESSIONS-ARCHIVE.md` and
+`SESSIONS.md` are taken from `docs/` first, else from the repo root, and the
+two may sit apart. With both copies of one log, the plan names the other
+("also exists and is left alone") and never touches it. A root log's links are
+read from the root and re-pointed for the folder two levels down
+(`../../README.md`), each mapping back exactly; its entries and the README
+sections carry the root name (`SESSIONS.md`), and `--verify` follows it. The
+tool re-points a path and never re-wraps prose, so a link that
 now runs a line past the house width is listed in the plan under `WRAP`, with
 its file and line, for the worker to wrap before the first commit. The label
 line above each placed log entry fits the same width; session files written

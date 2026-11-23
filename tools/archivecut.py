@@ -10,7 +10,9 @@ from before the split stayed frozen in one file, `docs/ROADMAP-DONE.md` (or
 when both exist, and the other is left alone). The
 session log kept a hand-appended index, `docs/SESSIONS.md`, beside its folder
 of session files, and some children a frozen `SESSIONS-ARCHIVE.md` of older
-index entries as well. On the session log the principal said *"they should
+index entries as well (either may sit at the repo root instead, where some
+children kept them; as with the board, `docs/` wins when both exist and the
+other is named and left alone). On the session log the principal said *"they should
 not be in one big sessions file in the first place"*: the date-named
 `docs/sessions/` folder is the index, and no file lists it. This tool puts
 each one-file record into its store, and says which route ran:
@@ -802,6 +804,12 @@ def _move_board(root: Path, plan: Plan, sha: str) -> None:
 # line numbers, so the log can be rebuilt from the folder byte for byte.
 
 LOG_SOURCES = (SESSIONS_SRC, SESSIONS_INDEX)   # oldest first
+# Where each may sit, most usual first (010/280): a child that kept its log at
+# the repo root, not in `docs/`, read "nothing to do", as the board did.
+LOG_HOMES = (
+    (SESSIONS_SRC, "SESSIONS-ARCHIVE.md"),
+    (SESSIONS_INDEX, "SESSIONS.md"),
+)
 SESSIONS_README = f"{SESSIONS_DIR}/README.md"
 
 # The label line is the tool's own prose, so it fits the house width (85; 010/280,
@@ -1042,46 +1050,75 @@ def parse_readme(text: str) -> list[dict] | None:
     return sections
 
 
-def _entry_back(dest: str) -> str | None:
-    """A placed entry's link, mapped back to how the log wrote it."""
+def log_src(root: Path, home: tuple[str, str]) -> str:
+    """Where this repo keeps one of its session logs (010/280): the first home
+    that is a file on disk, else (for `--verify`, after a retirement has
+    removed it) the first the git history knows, else the usual one."""
+    for cand in home:
+        if (root / cand).is_file():
+            return cand
+    for cand in home:
+        if committed_source(root, cand) is not None:
+            return cand
+    return home[0]
+
+
+def _depth(d: str) -> int:
+    return len([x for x in d.split("/") if x]) if d else 0
+
+
+def _folder_in(base: str) -> str:
+    """The session folder as a path from the directory `base` (a log's own)."""
+    return posixpath.relpath(SESSIONS_DIR, base or ".")
+
+
+def _entry_back(dest: str, base: str = "docs") -> str | None:
+    """A placed entry's link, mapped back to how the log wrote it. `base` is
+    the directory the log sat in (`docs`, or "" at the repo root)."""
     if SCHEME_RE.match(dest) or dest.startswith("/"):
         return None
     path, anchor = split_dest(dest)
     if not path:
         return None
+    up = "../" * (_depth(SESSIONS_DIR) - _depth(base))
+    if path.startswith(up):
+        return join_dest(path[len(up):], anchor)
     if path.startswith("../"):
-        return join_dest(path[3:], anchor)
-    return join_dest("sessions/" + path, anchor)
+        return None            # `_entry_forward` never writes it
+    return join_dest(_folder_in(base) + "/" + path, anchor)
 
 
-def _entry_forward(dest: str, errors: list[str]) -> str | None:
-    """A log entry's link, re-pointed for the folder one level down. A link
-    into the folder loses its `sessions/`; any other gains `../`. Both map
-    back exactly (`_entry_back`), which a normalised path would not: the log
-    may write `../docs/x.md` where `x.md` would do."""
+def _entry_forward(dest: str, errors: list[str], base: str = "docs",
+                   logs: tuple[str, ...] = LOG_SOURCES) -> str | None:
+    """A log entry's link, re-pointed for the folder below it. A link into the
+    folder loses its path to it (`sessions/` from `docs/`); any other gains
+    `../` for each level it goes down. Both map back exactly (`_entry_back`),
+    which a normalised path would not: the log may write `../docs/x.md` where
+    `x.md` would do."""
     if SCHEME_RE.match(dest) or dest.startswith("/"):
         return None
     path, anchor = split_dest(dest)
     if not path:
         errors.append(f"a same-page anchor (`{dest}`) has no page once the log goes")
         return None
-    if norm(posixpath.join("docs", path)) in LOG_SOURCES:
+    if norm(posixpath.join(base, path)) in logs:
         errors.append(f"a link to the log itself (`{dest}`)")
         return None
-    if path.startswith("sessions/"):
-        rest = path[len("sessions/"):]
+    into = _folder_in(base) + "/"
+    if path.startswith(into):
+        rest = path[len(into):]
         if rest and "/" not in rest and rest not in (".", ".."):
             return join_dest(rest, anchor)
-    return join_dest("../" + path, anchor)
+    return join_dest("../" * (_depth(SESSIONS_DIR) - _depth(base)) + path, anchor)
 
 
-def _session_file(root: Path, dest: str) -> str | None:
+def _session_file(root: Path, dest: str, base: str = "docs") -> str | None:
     """The name of the session file a log link reaches, when it is a file
     directly in the folder (never the README)."""
     path = split_dest(dest)[0]
     if not path or SCHEME_RE.match(path) or path.startswith("/"):
         return None
-    resolved = norm(posixpath.join("docs", path))
+    resolved = norm(posixpath.join(base, path))
     if posixpath.dirname(resolved) != SESSIONS_DIR:
         return None
     name = posixpath.basename(resolved)
@@ -1091,19 +1128,19 @@ def _session_file(root: Path, dest: str) -> str | None:
     return name
 
 
-def _pointer_target(root: Path, etext: str) -> str | None:
+def _pointer_target(root: Path, etext: str, base: str = "docs") -> str | None:
     """The session file an entry belongs in: the one it opens by linking,
     else the only one it links anywhere (an index line may put its link on
     a later line). An entry linking two or more, none first, has no home."""
     m = OPENING_LINK_RE.match(etext)
     if m:
-        name = _session_file(root, m.group(1))
+        name = _session_file(root, m.group(1), base)
         if name:
             return name
     found: list[str] = []
 
     def collect(dest: str) -> None:
-        name = _session_file(root, dest)
+        name = _session_file(root, dest, base)
         if name and name not in found:
             found.append(name)
         return None
@@ -1173,7 +1210,8 @@ def rebuild_logs(readme: str, files: dict[str, str]) -> dict[str, str | None] | 
         if got is NOT_PRESENT:
             continue
         for src, start, count, body in got[1]:
-            back, _ = rewrite_links(body, _entry_back)
+            back, _ = rewrite_links(
+                body, lambda d, b=posixpath.dirname(src): _entry_back(d, b))
             by_src.setdefault(src, []).append((start, count, back))
     out: dict[str, str | None] = {}
     known = {sec["src"] for sec in sections}
@@ -1186,8 +1224,15 @@ def rebuild_logs(readme: str, files: dict[str, str]) -> dict[str, str | None] | 
 
 
 def plan_sessions(root: Path) -> Plan:
-    plan = Plan("sessions", " + ".join(LOG_SOURCES))
-    present = [s for s in LOG_SOURCES if (root / s).is_file()]
+    plan = Plan("sessions", " + ".join(log_src(root, h) for h in LOG_HOMES))
+    present = []
+    for home in LOG_HOMES:
+        here = [c for c in home if (root / c).is_file()]
+        if here:
+            present.append(here[0])      # `docs/` first: it wins
+            for other in here[1:]:
+                plan.reasons.append(f"{other} also exists and is left alone; "
+                                    f"retiring {here[0]}")
     if not present:
         return plan
     plan.src = " + ".join(present)
@@ -1228,9 +1273,10 @@ def _retire_log(root: Path, plan: Plan, texts: dict[str, str]) -> bool:
     pieces: list[str] = []
     day_count: Counter = Counter()
     collisions = undated = placed = new = untimed = 0
-    for src in LOG_SOURCES:
-        if src not in texts:
-            continue
+    srcs = list(texts)           # oldest first, as `plan_sessions` read them
+    logs = tuple(dict.fromkeys((*srcs, *LOG_SOURCES)))
+    for src in srcs:
+        base = posixpath.dirname(src)
         text = texts[src]
         lines = split_lines(text)
         for line in lines:
@@ -1258,7 +1304,7 @@ def _retire_log(root: Path, plan: Plan, texts: dict[str, str]) -> bool:
             date, hhmm = entry_date_time(etext)
             if date:
                 day_count[date] += 1
-            target = _pointer_target(root, etext)
+            target = _pointer_target(root, etext, base)
             if target is None:
                 if date is None:
                     undated += 1
@@ -1319,9 +1365,11 @@ def _retire_log(root: Path, plan: Plan, texts: dict[str, str]) -> bool:
         moved_ents = []
         for src, start, count, etext in ents:
             body = etext if etext.endswith("\n") else etext + "\n"
-            moved, edits = rewrite_links(body, lambda d: _entry_forward(d, errors))
+            base = posixpath.dirname(src)
+            moved, edits = rewrite_links(
+                body, lambda d: _entry_forward(d, errors, base, logs))
             n_links += len(edits)
-            if rewrite_links(moved, _entry_back)[0] != body:
+            if rewrite_links(moved, lambda d: _entry_back(d, base))[0] != body:
                 unmapped += 1
             moved_ents.append((src, start, count, moved))
         original = None if name in created \
@@ -1409,18 +1457,29 @@ def _verify_sessions(root: Path) -> list[str]:
             out.append(("PASS" if ok else "FAIL")
                        + f"  {src}: the README and {holding} session files "
                        "rebuild its last committed copy byte for byte")
-    # A session archive cut before `010/270`, into an index block.
-    if SESSIONS_SRC not in retired:
-        out.extend(_verify_archive_block(root))
-    if SESSIONS_INDEX not in retired:
-        if (root / SESSIONS_INDEX).exists():
-            out.append(f"--    {SESSIONS_INDEX}: still in place, not retired")
-        elif committed_source(root, SESSIONS_INDEX) is None:
-            out.append(f"--    {SESSIONS_INDEX}: never committed here")
+    # A session archive cut before `010/270`, into an index block (that route
+    # only ever ran on `docs/`, so only a `docs/` archive is read for it).
+    archive, index = LOG_HOMES
+    if not retired.intersection(archive):
+        asrc = log_src(root, archive)
+        if asrc == SESSIONS_SRC:
+            out.extend(_verify_archive_block(root))
         else:
-            out.append(f"FAIL  {SESSIONS_INDEX}: gone, and {SESSIONS_README} "
-                       "does not record its retirement")
+            out.extend(_verify_unretired(root, asrc))
+    if not retired.intersection(index):
+        out.extend(_verify_unretired(root, log_src(root, index)))
     return out
+
+
+def _verify_unretired(root: Path, src: str) -> list[str]:
+    """A session log the README does not record as retired: still in place,
+    never committed, or gone with nothing to show for it."""
+    if (root / src).exists():
+        return [f"--    {src}: still in place, not retired"]
+    if committed_source(root, src) is None:
+        return [f"--    {src}: never committed here"]
+    return [f"FAIL  {src}: gone, and {SESSIONS_README} does not record its "
+            "retirement"]
 
 
 # The pre-`010/270` session-archive cut's index block, read back for --verify.
@@ -1609,7 +1668,8 @@ def main(argv: list[str] | None = None) -> int:
         description="Cut a repo's frozen pre-split board archive "
                     "(ROADMAP-DONE.md) into the store form, and retire its "
                     "one-file session log (SESSIONS.md, SESSIONS-ARCHIVE.md) "
-                    "into the docs/sessions/ folder, each with a proof.")
+                    "into the docs/sessions/ folder, each with a proof. Each "
+                    "is looked for in docs/ first, then at the repo root.")
     act = ap.add_mutually_exclusive_group()
     act.add_argument("--plan", action="store_true",
                      help="say what each would do, with the proof; write "

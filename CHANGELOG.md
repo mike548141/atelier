@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-23 — `archivecut` finds a session log at the repo root, `010/280`)
+- **`tools/archivecut.py` retires a repo-root `SESSIONS.md` or
+  `SESSIONS-ARCHIVE.md`.** It looked in `docs/` only, so a child that kept its
+  session log at the root read "nothing to do" (the board archive got this on
+  2026-11-23; the log was left out). Each log is taken from `docs/` first, else
+  the root, and the two may sit apart; with both copies of one, `docs/` wins and
+  the other is named in the plan and left alone. A root log's links are read from
+  the root and re-pointed two levels down (`../../README.md`), each mapping back
+  exactly, so `--verify` proves the root log byte for byte as it does a `docs/`
+  one. A `docs/` log is cut exactly as before.
+
 ### Changed (2026-11-23 — a trailing claim projects, `320/450`; the README marker fits, `010/280`)
 - **`board.py` reads a claim written as an item's last line.** A claim after a
   blank line or a sub-block sat outside the first paragraph and never reached

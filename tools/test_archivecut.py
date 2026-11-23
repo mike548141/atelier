@@ -741,5 +741,208 @@ class FieldEdges(unittest.TestCase):
         self.assertNotIn("FAIL", out)
 
 
+ROOT_SESSIONS = """\
+# demo session log (kept at the repo root)
+
+Older entries: [`SESSIONS-ARCHIVE.md`](SESSIONS-ARCHIVE.md).
+
+---
+
+- [2026-02-01 · newest](docs/sessions/2026-02-01-0900-newest.md) — the tail;
+  see [`docs/decisions/0001.md`](docs/decisions/0001.md).
+"""
+
+ROOT_ARCHIVE = """\
+# demo session log — archive
+
+Verbatim older entries rotated out of [`SESSIONS.md`](SESSIONS.md).
+
+- **2026-01-02 (first session)**: built the thing; see
+  [`README.md`](README.md) and [`tools/t.py`](tools/t.py).
+
+- [2026-01-03 · second](docs/sessions/2026-01-03-01-second.md) — already an
+  index line, kept as it stands.
+"""
+
+
+class RootSessionLogs(unittest.TestCase):
+    """010/280, the last residue of item 3: a session log kept at the repo
+    root (SESSIONS.md, SESSIONS-ARCHIVE.md) is found as the board archive is.
+    `docs/` wins per log when both exist, and the other is named and left."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.tmp = Path(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def root_repo(self, archive=True, index=True, docs_index=False) -> Repo:
+        r = make_repo(self.tmp, done=None)
+        if not docs_index:
+            git(r.root, "rm", "-q", "--", "docs/SESSIONS.md")
+        r.write("README.md", "# demo\n")
+        if index:
+            r.write("SESSIONS.md", ROOT_SESSIONS)
+        if archive:
+            r.write("SESSIONS-ARCHIVE.md", ROOT_ARCHIVE)
+        r.write("docs/notes.md", "# notes\n\nSee [log](../SESSIONS.md) and "
+                "[older](../SESSIONS-ARCHIVE.md).\n")
+        r.commit()
+        return r
+
+    def test_a_root_log_is_found_retired_and_verifies_byte_for_byte(self):
+        r = self.root_repo()
+        code, out = run(["--plan", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("sessions: SESSIONS-ARCHIVE.md + SESSIONS.md — route: "
+                      "retired into the session folder", out)
+        self.assertEqual(git(r.root, "status", "--porcelain").stdout, "")
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("FAIL", out)
+        self.assertFalse((r.root / "SESSIONS.md").exists())
+        self.assertFalse((r.root / "SESSIONS-ARCHIVE.md").exists())
+        # a placed entry: links re-pointed for the folder, from the root
+        newest = r.read("docs/sessions/2026-02-01-0900-newest.md")
+        self.assertIn("<!-- archivecut:log-entry SESSIONS.md 7+2 -->", newest)
+        self.assertIn("- [2026-02-01 · newest](2026-02-01-0900-newest.md)"
+                      " — the tail;\n  see [`docs/decisions/0001.md`]"
+                      "(../../docs/decisions/0001.md).\n", newest)
+        # an entry linking no session file gets a new dated file
+        made = list((r.root / "docs/sessions").glob("2026-01-02-*.md"))
+        self.assertEqual(1, len(made))
+        body = made[0].read_text(encoding="utf-8")
+        self.assertIn("[`README.md`](../../README.md)", body)
+        self.assertIn("[`tools/t.py`](../../tools/t.py)", body)
+        second = r.read("docs/sessions/2026-01-03-01-second.md")
+        self.assertIn("(2026-01-03-01-second.md) — already an", second)
+        readme = r.read("docs/sessions/README.md")
+        self.assertIn("`SESSIONS-ARCHIVE.md`, retired", readme)
+        self.assertIn("`SESSIONS.md`, retired", readme)
+        # links to the retired logs elsewhere in the tree follow them
+        notes = r.read("docs/notes.md")
+        self.assertIn("(sessions/README.md)", notes)
+        self.assertNotIn("SESSIONS", notes.replace("sessions/README.md", ""))
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("PASS  SESSIONS.md: the README and", out)
+        self.assertIn("PASS  SESSIONS-ARCHIVE.md: the README and", out)
+        self.assertNotIn("FAIL", out)
+        ok, lout = linkscan_ok(r.root)
+        self.assertTrue(ok, lout)
+
+    def test_verify_catches_a_changed_root_entry(self):
+        r = self.root_repo()
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        r.commit()
+        p = "docs/sessions/2026-02-01-0900-newest.md"
+        r.write(p, r.read(p).replace("the tail;", "the tale;"))
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL  SESSIONS.md", out)
+
+    def test_verify_catches_a_link_changed_in_a_root_entry(self):
+        r = self.root_repo()
+        run(["--cut", "--root", str(r.root)])
+        r.commit()
+        made = next((r.root / "docs/sessions").glob("2026-01-02-*.md"))
+        made.write_text(made.read_text(encoding="utf-8").replace(
+            "(../../README.md)", "(../../tools/t.py)"), encoding="utf-8")
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL  SESSIONS-ARCHIVE.md", out)
+
+    def test_docs_only_is_unchanged(self):
+        r = make_repo(self.tmp, done=None, sessions_archive=SESSIONS_ARCHIVE)
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("sessions: docs/SESSIONS-ARCHIVE.md + docs/SESSIONS.md "
+                      "— route: retired", out)
+        self.assertNotIn("left alone", out)
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("PASS  docs/SESSIONS.md", out)
+        self.assertIn("PASS  docs/SESSIONS-ARCHIVE.md", out)
+
+    def test_the_docs_log_wins_when_both_exist_and_the_root_one_is_left(self):
+        r = self.root_repo(archive=False, docs_index=True)
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("sessions: docs/SESSIONS.md — route: retired", out)
+        self.assertIn("reason: SESSIONS.md also exists and is left alone; "
+                      "retiring docs/SESSIONS.md", out)
+        self.assertFalse((r.root / "docs/SESSIONS.md").exists())
+        self.assertEqual(ROOT_SESSIONS, r.read("SESSIONS.md"))
+        self.assertEqual("", git(r.root, "status", "--porcelain", "--",
+                                 "SESSIONS.md").stdout)
+        # the docs copy was retired: its entry is placed, the root one's is not
+        self.assertIn("- [2026-02-01 · newest](2026-02-01-0900-newest.md)",
+                      r.read("docs/sessions/2026-02-01-0900-newest.md"))
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("PASS  docs/SESSIONS.md", out)
+        self.assertNotIn("FAIL", out)
+
+    def test_each_log_is_found_where_it_sits_when_they_sit_apart(self):
+        # the archive at the root, the index in docs/
+        r = self.root_repo(index=False, docs_index=True)
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("sessions: SESSIONS-ARCHIVE.md + docs/SESSIONS.md — "
+                      "route: retired", out)
+        self.assertNotIn("FAIL", out)
+        readme = r.read("docs/sessions/README.md")
+        self.assertLess(readme.index("`SESSIONS-ARCHIVE.md`, retired"),
+                        readme.index("`docs/SESSIONS.md`, retired"))
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("PASS  SESSIONS-ARCHIVE.md", out)
+        self.assertIn("PASS  docs/SESSIONS.md", out)
+
+    def test_an_entry_linking_the_root_log_itself_writes_nothing(self):
+        r = self.root_repo(archive=False)
+        r.write("SESSIONS.md", ROOT_SESSIONS + "\n- **2026-02-02 (x)**: see "
+                "[the log](SESSIONS.md).\n")
+        r.commit()
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 1, out)
+        self.assertIn("a link to the log itself", out)
+        self.assertTrue((r.root / "SESSIONS.md").is_file())
+        self.assertFalse((r.root / "docs/sessions/README.md").exists())
+
+    def test_awkward_root_links_still_prove_and_verify(self):
+        r = self.root_repo(archive=False)
+        r.write("SESSIONS.md", ROOT_SESSIONS + "\n- **2026-02-02 (x)**: see "
+                "[a](docs/sessions/../../README.md) and [b](docs/sessions/).\n")
+        r.commit()
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("FAIL", out)
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+
+    def test_the_link_maps_are_inverse_for_both_homes(self):
+        for base in ("docs", ""):
+            folder = "sessions" if base else "docs/sessions"
+            for dest in (f"{folder}/x.md", f"{folder}/x.md#a", "a.md",
+                         "a/b.md#c", "../up.md", f"{folder}/", f"{folder}/..",
+                         f"{folder}/a/b.md", f"{folder}/../a.md"):
+                errors: list[str] = []
+                fwd = archivecut._entry_forward(dest, errors, base)
+                self.assertEqual([], errors)
+                self.assertEqual(dest, archivecut._entry_back(fwd, base),
+                                 (base, dest))
+        self.assertEqual(
+            "x.md", archivecut._entry_forward("docs/sessions/x.md", [], ""))
+        self.assertEqual("../../a.md", archivecut._entry_forward("a.md", [], ""))
+
+
 if __name__ == "__main__":
     unittest.main()
