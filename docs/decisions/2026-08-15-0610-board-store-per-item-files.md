@@ -2,9 +2,11 @@
 
 **Status**: accepted • **Date**: 2026-08-15
 
-**Review**: queued — the ⏳ pointer in the board's migration item
-(`docs/roadmap/010-board-store-migration-per-item-files-mik/`), rule-4 cold
-pass on the landing delta.
+**Review**: ran — rule-4 cold pass on the landing delta, 2026-08-15,
+[`2026-08-15-1030-board-store-migration-cold.md`](../reviews/2026-08-15-1030-board-store-migration-cold.md)
+(1 MAJOR / 4 MODERATE / 5 minor / 4 note). BS1's outcome and the
+staged-plane check it funded are recorded in the amendments below. This line
+read `queued` until 2026-11-23, when a records sweep found the pass run.
 
 ## Context
 

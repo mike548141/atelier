@@ -1,6 +1,6 @@
 # Board states: two tiers, a tick that means done, and a blocker as a field
 
-**Status**: proposed (draft; binds nothing until Mike rules on it) •
+**Status**: draft (binds nothing until Mike rules on it) •
 **Date**: 2026-11-09 • **Revised**: 2026-11-09, to his three answers on the
 first version (recorded on `310/160`; see *Decided by him* below)
 

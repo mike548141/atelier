@@ -1,6 +1,6 @@
 # Every check declares five things: the schema, the report, and how far each check is
 
-**Status**: proposed (design only; nothing built and no check changed) •
+**Status**: draft (design only; nothing built and no check changed) •
 **Date**: 2026-11-09
 
 **Review**: owed. A rule-4 design cold pass before this is built to, because

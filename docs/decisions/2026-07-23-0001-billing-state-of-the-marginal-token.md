@@ -1,8 +1,13 @@
 # Billing state belongs to the marginal token, not the model
 
-**Status**: draft • **Date**: 2026-07-23
-**Review**: queued — the ⏳ pointer in `docs/ROADMAP.md` (economics rework,
-rule-4 cold pass; this record is the intent record, delta `dadde1d`)
+**Status**: accepted • **Date**: 2026-07-23
+**Review**: ran — rule-4 cold pass 2026-07-23 on the economics rework (this
+record is its intent record, delta `dadde1d`),
+[`2026-07-23-0222-economics-billing-states-cold.md`](../reviews/2026-07-23-0222-economics-billing-states-cold.md)
+(PASS-WITH-FINDINGS, 0 MAJOR / 4 minor / 3 low / 1 note); that file's
+*Decisions* section stamps accept-all as counselled (2026-07-23) and the
+findings were applied (`86f8530`), closing the cycle. This line read `queued`
+until 2026-11-23, when a records sweep found the cycle closed and corrected it.
 
 ## Context
 
@@ -69,3 +74,13 @@ Three principal rulings (Mike, 2026-07-23) set the shape:
 - Self-authored doctrine ⇒ REVIEW rule 4: the cold review is queued as a `⏳`
   pointer for a non-author to take; these edits are not trusted until it
   closes.
+
+## Addendum (2026-11-23) — status corrected from `draft`
+
+This record kept the word `draft` after its decision was in force, which the
+decisions README reads as "binding on nothing". The evidence that it was
+adopted, as of 2026-11-23: `method/ECONOMICS.md` and its build-layer template
+carry the rewritten billing-state sections this record's Consequences list, and
+the cold pass's findings were ruled accept-all as counselled by the principal
+and applied (**Review** line above). No dated acceptance was recorded at the
+time; the status is corrected to match practice, not dated to a ruling.

@@ -2,9 +2,13 @@
 
 **Status**: accepted • **Date**: 2026-08-05 (drafted) • **Decided**: 2026-11-08
 
-**Review**: queued — a rule-4 cold pass is owed on the doctrine edit this
-acceptance drove (`docs/method/RECORD.md` § *The record is public*); the ⏳
-pointer is written when that edit lands, by the landing session.
+**Review**: ran — rule-4 cold pass on the doctrine edit this acceptance drove
+(`docs/method/RECORD.md` § *The record is public*), verdict written 2026-11-15,
+[`2026-11-09-0126-private-state-type-only-cold.md`](../reviews/2026-11-09-0126-private-state-type-only-cold.md)
+(PASS-WITH-FINDINGS, 0 MAJOR / 2 MODERATE / 6 minor / 2 note). As that file's
+status line reads, the findings await the principal's decisions (rule 3), so
+the pass is done and the cycle is open on its findings. This line read `queued`
+until 2026-11-23, when a records sweep found the verdict written.
 
 > **Decided, with its provenance stated plainly.** On 2026-11-08 Mike chose
 > *"Type-only for private state"* from the options a session offered him in a

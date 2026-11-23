@@ -1,6 +1,6 @@
 # Review the design, not only the build
 
-**Status**: draft • **Date**: 2026-07-18
+**Status**: accepted • **Date**: 2026-07-18
 
 ## Context
 
@@ -115,3 +115,14 @@ narrowed to per-surface honesty accordingly. *(Restored 2026-07-21, RS6
 accept-all: the sentence above beginning "This record's Rejected section…"
 was orphaned here when this addendum was spliced into the 07-19 note; it is
 returned to the note it closes, and this addendum now stands whole.)*
+
+**Addendum 2026-11-23 (status corrected from `draft`):** this record kept the
+word `draft` after its decision was in force, which the decisions README reads
+as "binding on nothing". The evidence that it was adopted, as of 2026-11-23:
+the section it specifies is in `method/REVIEW.md`; the artefact it deferred is
+built (`tools/reviewscan.py`, addendum above); the combined cold pass's
+findings were ruled and applied by the principal
+(`../reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`, applied
+`9d95644`, then the G1-G3 pass); and the decision is the principal's own
+ruling, quoted in Context. No dated acceptance was recorded at the time; the
+status is corrected to match practice, not dated to a ruling.

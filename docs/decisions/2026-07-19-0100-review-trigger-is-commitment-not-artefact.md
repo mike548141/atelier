@@ -1,6 +1,6 @@
 # The review trigger is commitment, not artefact — fix the framing at source
 
-**Status**: draft • **Date**: 2026-07-19
+**Status**: accepted • **Date**: 2026-07-19
 
 **review**: ran — both deltas reviewed as one in the combined rule-4 cold pass
 [`2026-07-19-0407-review-trigger-sizescan-combined-cold.md`](../reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md)
@@ -130,3 +130,14 @@ finding stands for the children that *do* carry the file, and the fork→pointer
 conversion stands with it; what falls is only the causal embellishment ("the
 one an agent actually reads… the reason the amendment never reached the
 fleet"), which `4c17f59`'s immutable commit message also carries.
+
+## Addendum (2026-11-23) — status corrected from `draft`
+
+This record kept the word `draft` after its decision was in force, which the
+decisions README reads as "binding on nothing". The evidence that it was
+adopted, as of 2026-11-23: the re-keyed trigger and the reviews-template
+pointer are in `method/REVIEW.md` and the stamped template; the combined cold
+pass's findings F1-F9 were ruled by the principal and applied (`9d95644`); and
+the review cycle closed with the terminal no-MAJOR pass (**review** line
+above). No dated acceptance was recorded at the time; the status is corrected
+to match practice, not dated to a ruling.
