@@ -1,4 +1,4 @@
-- [ ] 🔎 **`archivecut` in the field: five rough edges from its first fleet
+- [~] 🔎 **`archivecut` in the field: five rough edges from its first fleet
       run.** Filed 2026-11-20 by session 19378351 from the reports of the
       workers it ran in sixteen children (class only; every cut that ran
       proved byte for byte and landed with green CI). None lost data; each
@@ -34,3 +34,4 @@
       some `docs/sessions/2*.md`. No proof was weakened, but the line should
       fit the limit for any repo cut later, and the exemptions now differ
       from child to child. Item 5 also recurred (one child: a copied title).
+      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-board)*

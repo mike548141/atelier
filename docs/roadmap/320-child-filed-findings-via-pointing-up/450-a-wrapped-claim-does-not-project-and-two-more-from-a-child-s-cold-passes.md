@@ -1,4 +1,4 @@
-- [ ] 🔎 **A wrapped claim does not project into the index, a `]` in a title
+- [~] 🔎 **A wrapped claim does not project into the index, a `]` in a title
       breaks its generated link, and the §10 declaration's home is ambiguous
       between GUARDS and practice** `[tool][doctrine]` — three findings handed
       up from a private child 2026-09-26 via § *Pointing up*, out of four
@@ -112,3 +112,4 @@
       escape still leaves a `](` that `linkscan` reads as a link. The legacy
       grace projection is unchanged. §3 awaits the principal's ruling and
       is the only part still open.
+      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-board)*
