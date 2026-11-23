@@ -1,4 +1,4 @@
-- [~] 🔎 **Defects the enforcement census found in slice 7.** Found
+- [ ] 🔎 **Defects the enforcement census found in slice 7.** Found
       2026-11-23 UTC by `020/220` slice 7
       (`docs/method/census/2026-11-23-1813-decisions-skills-commands-plugin.md`);
       reported, not fixed in passing. The orchestrator (queue run
@@ -20,4 +20,19 @@
          5 places in 3 wordings, the reviewer prompt in 2.
       6. **"Owed" in two senses** between `fleet-sweep` and `REVIEW.md`
          rule 4 (named as a doubt, not a verdict).
-      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-defects7; items 3–5 only)*
+      ✅ **Items 3–5 fixed 2026-11-23** (queue run 608d8123, a Sonnet
+      worker, read by the run before landing). 3: four `draft` records
+      whose own review stamps quote the principal's acceptance and whose
+      rules are built are `accepted`, each with a dated addendum naming the
+      evidence; the two `proposed` are `draft` (open designs); the
+      exception register stays `draft` (its re-review and ruling are
+      owed); four review lines that said "queued" beside a finished pass
+      now say it ran. 4: `/atelier:scan` and the root README say it runs
+      four of the floor's scanners and point at `tools/floor.py`; what it
+      runs is unchanged. 5: `session-onramp`'s companion list and both
+      manifest descriptions name all six skills and four commands. Seen,
+      not unified (a wording choice): the never-list's five forms and the
+      reviewer prompt's two, places listed in the worker's report and
+      the census rows. Cold pass queued as `160/1770`. **Still open:** 1
+      (install-hook untracked against ADR 0008), 2 (the manifest has no
+      `version` for `create-repo`'s proof), 6, and the never-list wording.
