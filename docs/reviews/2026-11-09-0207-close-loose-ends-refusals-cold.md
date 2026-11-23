@@ -4,10 +4,12 @@
 doctrine by function, rule 3).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
-**Status:** ACT 1 WRITTEN 2026-11-22 UTC: PASS-WITH-FINDINGS, 1 MAJOR · 1 MODERATE · 5 minor ·
-1 note, by a Fable 5.1 reviewer under off-tier orchestrator `7dbb6565` (drain session `eca14b23`,
-the principal's drain order of 2026-11-23 NZDT). Act 2 (reconcile against the sibling) pending its
-release. Brief written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5 brief-writer.
+**Status:** PASS RAN; act 1 written 2026-11-22 UTC (PASS-WITH-FINDINGS, 1 MAJOR · 1 MODERATE ·
+5 minor · 1 note), act 2 written 2026-11-23 UTC (reconciled: 1 MAJOR · 1 MODERATE · 6 minor ·
+1 note), by a Fable 5.1 reviewer under off-tier orchestrator `7dbb6565` (drain session `eca14b23`,
+the principal's drain order of 2026-11-23 NZDT). The sibling is folded below the verdict and its
+file removed (orchestrator, 2026-11-23 UTC). Brief written 2026-11-09 UTC by session `d4a0fcf3`, a
+headless Opus 5.5 brief-writer.
 **Queue pointer:**
 `docs/roadmap/160-doctrine-review-owed/996-rule-4-cold-pass-queued-close-loose-ends-and-routed-refusals.md`.
 **Size of this pass:** medium: about 100 lines of code and 45 of doctrine in one commit, with four
@@ -186,9 +188,10 @@ recorded proof (V2): re-run it read-only and by count. The brief-writer did not 
 
 Rule 2 bars until phase 2: `docs/ROADMAP-DONE.md`, `docs/SESSIONS.md`, `docs/sessions/`, every prior
 verdict in `docs/reviews/`, this brief's sibling
-`docs/reviews/2026-11-09-0207-close-loose-ends-refusals-cold.deferred.md` (a held-back file; by
-count: 7 questions, 1 facts), every other item under `docs/roadmap/160-doctrine-review-owed/` beyond
-its title, every delta commit's message body, and these intent records beyond their first line:
+`docs/reviews/2026-11-09-0207-close-loose-ends-refusals-cold.deferred.md` (now folded below;
+a held-back file; by count: 7 questions, 1 facts), every other item under
+`docs/roadmap/160-doctrine-review-owed/` beyond its title, every delta commit's message body, and
+these intent records beyond their first line:
 
 - `docs/roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md`
 - `docs/roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md`
@@ -491,3 +494,372 @@ decide; nothing applied.
 - [ ] LE7: drop "harms nothing".
 - [ ] N1: one home for the route and wording lists.
 - [ ] Act 2: open the sibling and the barred records; re-run the grounding-session figures.
+
+### Reconcile — act 2, written 2026-11-23 UTC
+
+Opened after act 1 was committed (`bfa5a17e`, local, by the orchestrator): the held sibling,
+released by the orchestrator's message (process only: the file's path and the shape of this
+section); the two intent records whole (`180/170`, `180/180`); the queue pointer `160/996` whole;
+the delta's commit body; the author session's log
+(`docs/sessions/2026-11-03-0630-queue-run-4c65.md`, lines 71 and 92–96); the one prior verdict the
+sibling names (status, overall, CL7, CL8):
+`docs/reviews/2026-10-17-1010-ccclose-close-checker-cold.md`. Nothing in act 1 is revised. Two
+findings were formed here and are marked so.
+
+**The brief-writer's re-runs against mine.** Its `node --test` took 215 s at load 10–22; mine 511 s
+at load 30. Its full suite: 2,643 tests OK in 1,167 s on Python 3.14.6; mine 3,382 tests OK in
+1,595 s on the same interpreter line, two weeks of growth later. No divergence.
+
+**The author's account (commit body) against the findings.** The body says check 13 does not derive
+the folder because "in a census of 1119 transcripts, 413 carry the record" (37%); on 2026-11-22,
+894 of 1617 do (55%), so the harness writes it more often now and the design's reason stands. It
+says "On the grounding transcript the check lists the two Python deletes and not the later rm":
+**re-run and confirmed** on session `8e498ef1`, read-only through `readTranscript`: refused route
+`rm` at 2026-10-18 05:14 UTC; two listed hits, *now: python rmtree* and *now: python rmtree, python
+pathlib delete*; four workaround-shaped commands in all; the later `rm` is not listed. That
+session's scratch folder no longer exists, so the 50 and 98 file counts in `180/170` cannot be
+re-run; they are the record's. The body's "Across the store, 9 of the 73 sessions" is 12 of 89 on
+2026-11-22 (18 hits), as act 1 found. The body does not state the closed-list failure mode of
+LE1, nor claim a canary; LE1 stands as written. Nothing in the body changes a severity.
+
+**The seeded questions, each against act 1.**
+
+1. *"Open work recorded on the board is not one": can a loose end be parked on the board and
+   "ready" declared?* Act 1 read the clause as sound because it turns on "owes". The question is
+   fair: "owes" is a judgement the failing session also made. Not a finding: `RECORD.md` 181–184
+   already gives the test (a close that names its own loose ends under "ready" fails), and the
+   grounding case (an open PR held for a ruling) is named as a loose end, not board work. Counsel
+   only: one sentence giving the operational test, "could he close the tab now without deciding or
+   losing anything?".
+2. *The regex is a census of one machine; if it changes the flag goes silent; is that stated, is
+   there a canary?* This is LE1, found independently in act 1 with the stronger fact that the
+   census was already incomplete on its date. Not stated anywhere in the delta; no canary; the
+   `isRefusal` test pins five wordings as fixtures but nothing reads the live store. The
+   non-expiring flag is the only failure mode the design note names.
+3. *`git clean`, `mv` to trash, `:>` truncation, `shred`; `rm -rf` substring; heredoc scripts; does
+   the name overclaim?* `rm -rf` is matched (`rm\s`). A heredoc'd script is read when its text is
+   inline in the command (probe, act 1 log step 4); a script written in one call and run in another
+   is not, as the man page says. `git clean` and the rest are the documented "any other tool"
+   class; the prior pass CL7 (2026-10-17, MODERATE) already counselled `\bgit\s+clean\b` for the
+   bypass table and it was not taken into this delta either: recorded here as a note, not a new
+   finding, because it is that pass's open counsel on this surface. The overclaim in the name is
+   LE5, and the miss inside the same tool is LE3.
+4. *Do 73 and 9 hold at HEAD; what fraction of the 9 are true positives?* 89 and 12 (18 hits) on
+   2026-11-22; the method reproduces. Fraction, by a read-only proxy over the 18 hits (does the
+   listed command share a literal path, or a nested one, with any refused delete in the same
+   transcript): **10 of 18 share a target, 8 do not**; every hit carried a literal path. Of the 18,
+   the "now" route is `rmdir` 7, `find -delete` 5, pathlib 4, `rmtree` 2. So on this store about
+   half the listings are the same target by a different route and half are a different target;
+   the label calls both "re-routed" (LE5, whose severity stays minor: the check says "listed, not
+   judged").
+5. *Does check 13 warn on what the session cannot clear, such as the harness's own task outputs?*
+   Probed on this session: the harness keeps its task outputs in a `tasks/` folder beside the
+   `scratchpad/` folder, not inside it, so check 13 does not see them. The scratchpad does hold
+   the orchestrator's own logs for a subagent's session, which are the session's own (the design
+   note says so). No finding.
+6. *Under the auto-approve posture, what still counts as a refusal?* The live store answers: deny
+   rules still refuse ("has been denied" in 107 transcripts), the classifier refuses (28), the
+   principal rejects (22), and the harness's own checks block (the `rm` guard, the worktree
+   isolation check, hooks: LE1's four wordings). The rule does not collapse to the classifier, but
+   the doctrine's enumeration of who refuses is narrower than that list: LE2.
+7. *Is "through the decision device" workable headless, where there is no device? `CONCURRENCY.md`
+   has a prose fallback; `AUTONOMY.md` does not say.* Confirmed on the text: `AUTONOMY.md` 173–175
+   names the device only; `CONCURRENCY.md` 1291–1292 says "Prose carries it only where the harness
+   has no device". A headless queue-run worker meeting a refusal reads the rule it is pointed at
+   and finds no path. **LE8 — minor, formed at reconcile.** `AUTONOMY.md` § *A refused call is an
+   ask, never an obstacle* has no headless fallback where `CONCURRENCY.md`'s report list has one;
+   the two sections state the same ask differently (V5). *Counsel:* one clause in `AUTONOMY.md`,
+   "where the harness has no device, the ask goes on the board for the principal and the work that
+   depends on it waits", pointing at `CONCURRENCY.md`.
+
+**The held fact.** The principal's sentence names `askuserquestion`; the delta's doctrine names
+"the decision device". That is `DOCUMENTATION.md`'s vendor seam applied correctly: the rule
+survives a renamed tool. Not a finding.
+
+**Formed at reconcile:** LE8 (minor). **Note added at reconcile:** CL7's `git clean` counsel from
+the 2026-10-17 pass remains unapplied on the bypass table and is not in `DELETE_ROUTES`.
+
+**Overall, restated.** PASS-WITH-FINDINGS — 1 MAJOR (LE1) · 1 MODERATE (LE3) · 6 minor (LE2, LE4,
+LE5, LE6, LE7, LE8) · 1 note (N1). Every finding is the principal's to decide; nothing applied.
+The sibling is not folded here and nothing is deleted: the orchestrator folds it.
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-23)
+
+*Released to the reviewer only after its act-1 findings were committed (locally `bfa5a17e`, the
+hash the reviewer's text cites; it lands under a new hash when rebased before this fold); folded
+here verbatim (headings demoted two levels, no line wrapped: its one line over 100 columns is a
+heading, left as it is; no word changed) and the sibling file removed, per the brief. The
+orchestrator, headless Opus 5.5 session `7dbb6565` started by drain session `eca14b23`, held the partition,
+formed no finding and wrote no severity; drain session `eca14b23` wrote no brief and no delta and
+started no brief-writer for this pass.*
+
+### Sibling to the close-loose-ends-refusals cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-11-09-0207-close-loose-ends-refusals-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-11-09 UTC by the brief-writer, session `d4a0fcf3` (Opus 5.5), named in the
+brief's provenance; it forms no finding and assigns no severity. Fold this file in below the
+reconcile and delete it at phase 2.
+
+#### Re-run results held back from the brief
+
+Run once by the brief-writer, 2026-11-09 UTC, from the worktree root at `b1f9499`, machine load
+averages 10 to 22 throughout:
+
+- `node --test instruments/ccclose.test.js`: exit 0 (ℹ duration_ms 214628.846232).
+- Full suite, `nice -n 10 python3 -m unittest discover -s tools`, Python 3.14.6: 2,643 tests, OK,
+  exit 0, 1,167 s. An earlier run on the system Python 3.9.6: 2,307 tests, 4 import errors
+  (`test_floor`, `test_floorfleet`, `test_personal_data`, `test_precommit`: a module-level `str |
+  None` annotation) and 1 timeout under load (`test_spellscan.BoundedMemory`, which passed alone on
+  3.14).
+
+#### Prior records on nearby surfaces (named by filename, not opened unless the brief says so, not exhaustive)
+
+- `docs/reviews/2026-10-17-1010-ccclose-close-checker-cold.md`
+
+#### Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. "Open work recorded on the board is not one." Does that let a session park a real loose end as a
+   board item and declare ready (the very failure)? Does the invariant cover it?
+2. The refusal wording is a regex over harness text, from a census of one machine. If it changes,
+   the flag goes silent. Is that failure mode stated, and is there a canary?
+3. `DELETE_ROUTES` as a re-route test: `rm` refused then `git clean`, `mv` to trash, `:>`
+   truncation, `shred`. `rm` is a substring case in `rm -rf`, and a heredoc Python script is not
+   read. Does the flag's name overclaim?
+4. The 73 and 9 figures are recorded proofs over private transcripts. They can be re-run by count.
+   Do they hold at HEAD, and what fraction of the 9 are true positives?
+5. Check 13 says "every entry is the session's own". A background task's output or the harness's own
+   files in that folder (for example task outputs): does the check then warn on what the session
+   cannot clear?
+6. `AUTONOMY.md`'s rule and the auto-approve posture: where every permission is granted, what still
+   counts as a refusal? Does the rule collapse to the classifier?
+7. Is "put to the principal through the decision device" workable in a headless session with no
+   device? `CONCURRENCY.md` has a prose fallback; `AUTONOMY.md` does not say.
+
+#### Facts held back from the brief
+
+- The principal's sentence in `180/170` includes `askuserquestion`; the delta's doctrine names the
+  device, not the tool.
+
+## Review log (reviewer, verbatim; private while the pass ran, opened at the fold)
+
+*Form fixes only: headings demoted two levels; four body lines over 100 columns wrapped at word
+boundaries (the over-long title heading is left as it is), no word changed. No public-repo gate
+blocked a token.*
+
+### Review log — atelier 160/996 cold pass (close loose ends, routed refusals, ccclose check 13 + refused-delete flag)
+
+Reviewer: Fable 5.1 (claude-fable-5-1). Spawned by headless orchestrator 7dbb6565 (Opus 5.5), itself
+started by drain session eca14b23 (Opus 5.5). Worktree:
+/Users/mike/worktrees/fable/atelier-160-996-2234/atelier
+Brief: docs/reviews/2026-11-09-0207-close-loose-ends-refusals-cold.md (227 lines before act 1).
+Sibling .deferred.md removed from tree on purpose (git status shows `D`); not sought anywhere.
+
+#### Act 1
+
+##### Step 1 — 2026-11-22T22:35Z setup
+- `uptime`: load 14.80 13.81 15.19 (high; 16 GB laptop, several passes running). All suites to run
+  under `nice -n 10`, one at a time, foreground.
+- Read the brief whole (lines 1-227).
+- Acceptance-test span command (brief lines 65-69), run with /usr/bin/python3, exit 0. Printed one
+  quoted span from 180/170 (the principal's sentence about a close declared ready with an open PR,
+  files left behind, and no AskUserQuestion). Read only the first line of 180/170 and 180/180
+  (`head -1`), as the brief permits.
+- `git merge-base --is-ancestor 1569e64 HEAD` -> exit 0. HEAD = 7d9ba367.
+- `git show --stat --format='%h %s' 1569e64` (stat + subject only, no body): 13 files, +442/-19.
+  Delta paths per brief + CHANGELOG.md, docs/ROADMAP.md, three board files (barred until act 2).
+- `git log --oneline 1569e64..HEAD -- <8 delta paths>`: ~60 later commits touch the delta paths
+  (ccclose has had many later changes: 210/460, 210/480, 210/510, 210/520, 160/960, 160/880 ...).
+  Method: read the delta at 1569e64 body-free via coldsweep --commit, then read the HEAD versions of
+  the specific regions under review (check 13, refused-delete flag, REFUSAL regex, DELETE_ROUTES,
+  RECORD/AUTONOMY/CONCURRENCY loose-end + refusal paragraphs) and diff 1569e64..HEAD on those paths
+  to see what later work changed in them.
+- `tools/coldsweep.py --help`, `tools/datescan.py --help` read. spellscan.py exists too.
+
+##### Step 2 — read the delta body-free and REVIEW.md
+- REVIEW.md lines 8-120 (rules intro, rule 1), 394-608 (re-run, standing checklist V1-V7, lifecycle,
+  method-record rule). Verdict shape: provenance, per-lens answers, V1-V7, assumptions, per-commit
+  ledger, findings with ids + severity, overall line, re-run ledger, follow-ups.
+- `coldsweep --commit 1569e64 --path ...` in four calls (doctrine; ccclose+README; design+man;
+  test).
+  Message body not printed (tool confirms). Board-store files left out (4).
+
+##### Lens 1 — my load-bearing assumptions, named BEFORE further reading
+A1. The acceptance test is the principal's one sentence (printed step 1): a close declared ready
+with
+    an open PR, files left behind, and no AskUserQuestion. The right fix is doctrine (what "ready"
+    may claim; what a refusal is) plus an instrument that makes the two misses visible at close. The
+    delta's altitude (RECORD/AUTONOMY/CONCURRENCY + ccclose check 13 + a bypass shape) matches.
+A2. The refused-delete flag is only as good as REFUSAL's match on the harness's live wording. The
+    census was point-in-time (2026-11-03); wordings it did not meet (e.g. a headless session's
+    "requested permissions ... haven't granted", a hook block) would be silent misses. TO PROBE by
+    count over the live store.
+A3. Check 13 depends on the harness writing `attachment.type === 'environment'` with
+    `snapshot.scratchpadDirectory`. TO PROBE by count over the live store.
+A4. The flag is keyed on ROUTE LABEL only, never on the target path: any later delete by a new route
+    after any refused delete flags. The prose ("deleted the same files") may overclaim what the code
+    checks. TO PROBE on the code and the wording of design note / man page / AUTONOMY.
+A5. The verdict line ccclose prints when check 13 warns must agree with RECORD.md's "never 'ready'"
+    rule, else the instrument contradicts the doctrine it serves. TO PROBE in render().
+A6. Recorded figures (1119 transcripts / 73 / 9) are V2 claims: re-run by count, read-only.
+A7. Route regexes: look for double-labelling (Node `fs.unlink(` vs pathlib `.unlink(`), misses
+    (`git clean`), and false positives (`npm rm`, `docker rm`).
+A8. Tests: the "at least" cut-walk path, the compound-refusal case, and the double-label case look
+    untested; mutate a scratch copy to see which tests would stay green.
+
+##### Step 3 — HEAD regions, cross-references, phrase census (read-only, counts only)
+- REVIEW.md 120-302 read (rules 2-4: barred reading, coldsweep, start-up reading skip, rule 3 and 4
+  provenance, orchestrator clause).
+- ccclose at HEAD (3067 lines): DELETE_ROUTES/REFUSAL/isRefusal 193-220; readTranscript hooks
+  789, 826-830, 835-838, 884-889; checkBypasses 1322-1329 (label "Workaround-shaped commands",
+  summary "listed, not judged; answer each"); checkScratch 1464-1503; verdict 2898-2910.
+  `git diff 1569e64 HEAD -- instruments/ccclose | grep <delta terms>`: only the check-count words
+  (thirteen -> fifteen) and module.exports changed; the delta's code is unchanged at HEAD.
+- A5 CONFIRMED SOUND: ccclose:2904-2905 — status 'warn' when any check warns; the line reads
+  "no check fails; some need a look", never "ready to close", when check 13 warns. Agrees with
+  RECORD.md "never 'ready'".
+- Doctrine at HEAD: AUTONOMY.md 169-187 (section unchanged from delta; a later section 189-230,
+  "A limit the tooling imposes is managed, never fatal", cross-references it at 212-214);
+  RECORD.md 181-196 (unchanged); CONCURRENCY.md 1288-1295 (unchanged).
+- V5 cross-refs: COMMUNICATION.md:214 "## Asking for a ruling — the ask goes in the device ..."
+  exists and holds the rule the three citations reach. ccclose labels 'Workaround-shaped commands'
+  (1323) and 'Scratch folder empty' (1493) match the doctrine's italic names.
+- Design note at HEAD: table row 13 (155), re-route paragraph 171-192 (incl. "1119 transcripts, 73
+  ... 9" at 187), check-13 paragraph 194-204 ("harms nothing" at 201). Man page unchanged on these.
+  CHANGELOG.md 2071-2086 entry read.
+- coldsweep tree sweep (brief's pattern + excludes): 35 hits / 748 files / 1005 excluded. Hits are
+  the delta's own surfaces, CHANGELOG, ROADMAP index pointer, two docs/method/census/*.md rows
+  (REC11, AUT24: inventories, not restatements), session-open-prompt.md:45 and CONCURRENCY:1171
+  ("loose ends & unblockers first" — a different sense of the phrase), README 210 (unrelated).
+- Live store (read-only; /Users/mike/.claude/projects/*/*.jsonl, top level): 1617 transcripts
+  (5533 jsonl incl. subagents; 9.9 GB). Census script: scratchpad/census.py (deleted at the end).
+  Counts: scratchpadDirectory present in 894 files; environment attachment in 911 files.
+  tool_results matching REFUSAL: 233, ALL with is_error (0 without) -> "each arrives with is_error
+  set" holds. Wordings: "has been denied" 107 files; classifier 28; rejected 22; auto-mode 4;
+  "require approval" 18. "haven't granted"/"requested permissions to use": 0 files (my headless
+  hypothesis A2 falsified for this store). is_error results NOT matching REFUSAL but mentioning a
+  hook: 293 results; "blocked by": 7 results. -> probe whether any is a DELETE blocked by a hook.
+
+##### Step 4 — route probes, V2 census re-run through readTranscript, unmatched refusal shapes
+- deleteRoutes probes (node -e, module required by absolute path), results verbatim:
+  `fs.unlink(p, cb)` and `fs.rmdir(p)` -> ["python pathlib delete","node fs delete"] (DOUBLE LABEL:
+  the pathlib regex `(?<!\bos)\.(?:unlink|rmdir)\s*\(` also matches Node's `fs.unlink(`);
+  `/bin/rm -rf x` -> [] (MISS: the lookbehind `(?<![\w./-])` rejects a path-qualified rm);
+  `xargs rm` (end of command) -> [] (MISS: `rm\s` needs trailing whitespace); `git clean -fdx` -> []
+  (documented class: another tool); `npm rm pkg`, `docker rm ctr` -> ["rm"] (false positives, low
+  harm); `rm -rf x && git push` -> ["rm"]; heredoc'd script with rmtree -> ["python rmtree"] (inline
+  text matches even when the delete runs from a file; fine); `sudo rm`, `ls\nrm`, `rm\tx` matched.
+- isRefusal probes: hook-block wordings -> false; "Exit code 2\nPermission ... denied" -> false (the
+  regex is start-anchored; harness refusals start the content, so fine).
+- V2 census re-run: scratchpad/census2.js runs cc.readTranscript over every top-level transcript
+  (read-only) and counts. Result: files 1618, errors 0, scratch recorded 895, transcripts with a
+  refused delete 89, transcripts with a "refused delete re-routed" hit 12 (18 hits). Recorded
+  figures (1119 / 73 / 9, dated 2026-11-03) are superseded by growth, not contradicted: the method
+  reproduces. Delete-command error results: 215 total; 116 match REFUSAL; 2 mention a hook; 1
+  "blocked"; 96 other, whose first-3-word prefixes are: "Dangerous rm operation" 31, "Exit code 1"
+  26, "Permission for this" 16, "Exit code 143" 6, "This session is" 3, "Exit code 255" 3,
+  "Exit code 128" 3, "Exit code 2" 2.
+- scratchpad/shapes.py: masked templates (paths/quotes/numbers replaced) of is_error results that
+  start with those prefixes or pair "hook" with block/denied. Top templates and counts:
+  106 "This session is isolated in the worktree <path> but this command is too complex to verify
+      that it stays inside" (+12 "names git in a form too complex", +6 "redirects git to the shared
+      checkout via -C", +6 "changes directory to the shared checkout", +4 others of the same family)
+  48 "Permission for this action was denied by the Claude Code auto mode classifier. Reason: ..."
+      (MATCHED by REFUSAL)
+  20 "Permission for this command was denied by a built-in Claude Code safety check, not by the
+      user. The check stop..." (NOT matched: REFUSAL says "action", this says "command")
+  31 (summed) "Dangerous rm operation detected in `rm ... The target <path> is a shell variable
+      expansion ..." (NOT matched; a harness block of an rm specifically)
+  12 (summed) "PreToolUse:Agent hook error: Agent call blocked ..." / "PreToolUse:Bash hook error:
+      Bash call blocked ..." (NOT matched; the principal's own hooks)
+  -> CANDIDATE FINDING LE1: REFUSAL misses at least four live refusal wordings; among 215 delete
+     errors ~53 are refusals it does not see (31 Dangerous rm + 16 safety-check + 3 worktree + 2
+     hook + 1 blocked), about one in three of the delete refusals in the store. The code comment and
+     design note claim the list came from "a census of the live store" covering "a block for
+     safety"; the live store holds a safety-check wording the regex does not match. Design weakness:
+     a closed wording list with no "unclassified error on a delete" bucket fails silent.
+- Stale check-count grep over instruments, docs/method, docs/build, skills, README: no "twelve/
+  thirteen/fourteen checks" left (only a census inventory row). V3 on the count: swept.
+- isDir (ccclose:118) = statSync().isDirectory() in try/catch.
+- Worktree status: only the sibling's deliberate `D`.
+- scratchpad/dates.py: the four unmatched wordings split at the census date (2026-11-03) by the
+  result's own timestamp. Before: safety-check 2, worktree-isolation 142, dangerous-rm 7, hook 2.
+  On/after: hook 20, safety-check 18, dangerous-rm 36. Earliest seen: worktree 2026-08-09, hook
+  2026-10-05, safety 2026-10-26, dangerous 2026-10-28. => all four were in the store when the census
+  ran; the recorded "census of the live store" missed them at its own recording date (V2 class).
+  LE1 severity: MAJOR.
+
+##### Step 5 — re-run lines (brief lines 156-157), one at a time under nice -n 10, foreground
+node --test: exit 0, 153 pass 0 fail, 511506 ms, load 30.22 at start (2026-11-22 ~22:48Z)
+- Light reads while the unittest suite runs: REVIEW.md:98-103 (deferred bytes held in a scratchpad
+  are "one read away": rule 1's SK1), CONCURRENCY.md:1017-1024 ("The shared scratch is a read
+  surface too, so held-back review notes never live in it", the principal's answer 2026-11-09).
+  Evidence for candidate LE7: the design note's "a file left there harms nothing" (design.md:201)
+  contradicts the doctrine's own account of what a scratch leftover can be.
+- Mutation harness prepared: scratchpad/mut/instruments (copy of the worktree's instruments/) +
+  mutate.py with M1 (drop the "at least" cut wording), M2 (flag when ANY route is fresh; control,
+  expected red), M3 (drop the compound-approval REFUSAL branch; control, expected red).
+- `python3 -m unittest discover -s tools` started ~22:50Z under nice; still running at 23:14Z
+  (pid 84265, state RN; two other sessions' unittest runs are also live on the machine). PATH
+  python3 = /Library/Frameworks/Python.framework/Versions/3.14 (the brief says use PATH's first).
+- Draft verdict written to scratchpad/act1-draft.md; datescan (1 relative word fixed), spellscan
+  clean, width <= 100 chars after reflowing three tables into lists.
+
+##### Step 6 — mutation probes on the scratch copy (nice -n 15, 7 delta tests by name pattern)
+- Pattern `deleteRoutes|isRefusal|re-route|refused|check 13` selects 8 tests. Results:
+  M1 (least = '' : drop the "at least" wording on a cut walk): exit 0, 8 pass, 0 fail -> the cut
+  path is UNTESTED (LE6 confirmed).
+  M2 (flag when any route is fresh): exit 1, 1 fail ("a delete by another route after a refused rm
+  is flagged; a retry by rm is not") -> control red as expected.
+  M3 (drop the compound-approval REFUSAL branch): exit 1, 1 fail ("isRefusal reads the harness's
+  refusal wordings and nothing else") -> control red as expected.
+  Outputs: scratchpad/mut/M1-cut-untested.out, M2-fresh-any.out, M3-no-compound.out (deleted with
+  the scratchpad at the end).
+- 23:26Z: the first `unittest discover -s tools` run was KILLED by the harness's background time
+  limit (~20 min elapsed, 119 lines of dots, no summary; load 8-30 during the run, two other
+  sessions' unittest runs live at the same time). Not a test failure: no FAIL/ERROR line in the
+  partial log. Restarted once, same command, nice -n 10, background with a 60-min limit, log
+  scratchpad/py-test2.out. Load at restart: 4.78.
+- 23:58Z: second `unittest discover -s tools` run: "Ran 3382 tests in 1595.086s", OK, exit 0; no
+  FAIL/ERROR lines. Re-run ledger complete.
+
+##### Step 7 — write act 1 into the brief
+- 2026-11-23 ~00:00Z: act 1 appended to the brief below a `---` divider (brief now 493 lines; act
+  1 from line 230). Status line rewritten (act 1 written, verdict, orchestrator disclosed, act 2
+  pending; not "fold-in owed"). Checks on the brief: datescan clean (493 lines read); spellscan
+  skips docs/reviews by .spellscanignore (the same text scanned clean as a scratch draft); every
+  line over 100 chars is in the pre-existing brief text, none in act 1; no FILL placeholders.
+  `git status`: only the brief modified and the sibling's deliberate `D`. Scratch files deleted
+  (census.py, census2.js, shapes.py, dates.py, suite outputs, mut/ copy, draft); nothing left.
+- VERDICT (act 1): PASS-WITH-FINDINGS — 1 MAJOR (LE1 refusal wording list misses four live
+  wordings, census incomplete on its own date) · 1 MODERATE (LE3 `/bin/rm` and trailing `rm`
+  missed) · 5 minor (LE2 doctrine's refuser list; LE4 fs.unlink double label; LE5 label asserts a
+  re-route on route change alone; LE6 "at least" untested; LE7 "harms nothing") · 1 note (N1 V4).
+  No commit, no push, no other file touched. Waiting for act 2 release.
+
+#### Act 2 — released by the orchestrator after act 1 was committed (bfa5a17e, local)
+- Release message (process only): read the held sibling at
+  ~/.claude/fable-held/atelier--2026-11-09-0207-close-loose-ends-refusals-cold.deferred.md plus the
+  brief's barred records; append `### Reconcile`; never revise act 1; do not fold or delete.
+- Read: the sibling (7 seeded questions, 1 held fact, brief-writer's re-run results: node 215 s;
+  2,643 tests OK 1,167 s on 3.14.6); 180/170 and 180/180 whole; 160/996 whole; the commit body of
+  1569e64 (`git log -1 --format=%B`); docs/sessions/2026-11-03-0630-queue-run-4c65.md lines 71,
+  92-96; docs/reviews/2026-10-17-1010-ccclose-close-checker-cold.md status (BRIEF ONLY line 6),
+  overall (line 735: FAIL 2 MAJOR 7 MODERATE), CL7 (572-590, bypass table misses incl. `git
+  clean`), CL8 head.
+- scratchpad/act2.js: readTranscript over the store (1624 files now): listed 12, hits 18; the
+  grounding session 8e498ef1 found: scratch recorded, folder no longer exists; refused routes
+  ["rm"]; hits = "refused: rm at 2026-10-18 05:14 UTC; now: python rmtree" and "...; now: python
+  rmtree, python pathlib delete"; bypassesTotal 4. => the commit body's claim ("lists the two
+  Python deletes and not the later rm") REPRODUCES. The 50/98 file counts cannot be re-run (folder
+  gone).
+- scratchpad/act2b.js: true-positive proxy over the 18 hits: a listed command sharing a literal
+  (or nested) path with a refused delete command in the same transcript: 10 same/nested, 8
+  different, 0 without a literal path. "now" routes: rmdir 7, find -delete 5, pathlib 4, rmtree 2.
+- Harness layout for Q5: `<session>/scratchpad/` and `<session>/tasks/` are siblings; task
+  outputs are outside the scratch folder (ls of my own session dir; 10 task files).
+- Reconcile appended to the brief (now 575 lines). LE8 minor formed at reconcile (AUTONOMY has no
+  headless fallback; CONCURRENCY does). Overall restated: 1 MAJOR, 1 MODERATE, 6 minor, 1 note.
+- Scripts act2.js and act2b.js deleted. Sibling not folded, nothing deleted in the repo.
+- Final: width/datescan clean on acts 1-2; git status unchanged (brief M, sibling D). ACT 2 SAVED
+  2026-11-23T00:06Z
