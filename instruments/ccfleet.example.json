@@ -5,10 +5,12 @@
   "worktrees_root": "~/worktrees/fleet",
   "default_model": "claude-sonnet-5-5",
   "claude_bin": "claude",
-  "claude_args": ["--dangerously-skip-permissions"],
+  "_claude_args": "None here on purpose. A headless session has no one to ask: whatever these grant, it does unattended with your credentials. Add the narrowest permission mode and tool rules that do the work; `ccfleet check` names any you set, and `man ccfleet` (THREATS) says what can steer such a session.",
+  "claude_args": [],
   "nice": 5,
   "max_concurrent": 4,
   "stagger_seconds": 90,
+  "session_timeout_minutes": 480,
   "gate": {"max_load": 24, "min_mem_pct": 25, "min_disk_gb": 20},
   "reset_utc": "2030-01-06T23:00",
   "private_names": ["example-private-root", "example-client"],
@@ -17,7 +19,13 @@
     "ASK": "\"Bring every repo up to a healthy state.\" (the principal's words, quoted verbatim from your own record)",
     "RULINGS_FILE": "~/private/rulings.md",
     "ATELIER": "~/src/atelier",
-    "REVIEW_APPROVAL": "No review-tier work is approved for this run."
+    "REVIEW_APPROVAL": "No review-tier work is approved for this run.",
+    "DIGEST": "~/private/fleet-digest.md",
+    "APPROVAL": "\"Run the briefed reviews until the budget is used.\" (the principal's words, verbatim, for this drain only)",
+    "HOLDS": "none",
+    "PROVENANCE": "This drain session wrote no brief and started no writer of any pass it runs.",
+    "REVIEW_MODEL": "claude-opus-5-5",
+    "HELD_DIR": "~/private/review-siblings"
   },
   "repos": {
     "example-app": {"model": "claude-sonnet-5-5", "visibility": "private",

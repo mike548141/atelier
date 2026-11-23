@@ -27,18 +27,31 @@ _loader.exec_module(cf)
 # `--output-format json` prints. With FAKE_TRANSCRIPT set, it writes its real
 # report (with the RESULT line) to a transcript under $CLAUDE_CONFIG_DIR and
 # prints a last turn with none, as a session woken by a background
-# notification does.
+# notification does. FAKE_RC, FAKE_IS_ERROR, FAKE_SILENT (exit 1, print
+# nothing), FAKE_SLEEP, FAKE_DIRTY (an untracked file), FAKE_COMMIT (an
+# unpushed commit) and FAKE_RESULT_<REPO> shape the cut-off cases.
 FAKE_CLAUDE = textwrap.dedent("""\
     #!@PY@
-    import datetime, json, os, sys
+    import datetime, json, os, subprocess, sys, time
     stdin = sys.stdin.read()
     rec = {"argv": sys.argv[1:], "cwd": os.getcwd(), "stdin": stdin, "posix_sid": os.getsid(0),
            "ceiling": os.environ.get("CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS"),
            "extra": os.environ.get("FAKE_EXTRA_ENV")}
     with open(os.environ["FAKE_CLAUDE_LOG"], "a") as f:
         f.write(json.dumps(rec) + "\\n")
-    sid = "sess-" + os.path.basename(os.getcwd()).replace(" ", "_")
-    report = "did the work\\nRESULT: " + os.environ.get("FAKE_RESULT", "DONE")
+    base = os.path.basename(os.getcwd())
+    sid = "sess-" + base.replace(" ", "_")
+    if os.environ.get("FAKE_SLEEP"):
+        time.sleep(float(os.environ["FAKE_SLEEP"]))
+    if os.environ.get("FAKE_DIRTY"):
+        open("left-behind.txt", "w").close()
+    if os.environ.get("FAKE_COMMIT"):
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-q",  # leakscan:allow:email: a fictional identity for a throwaway test commit
+                        "--allow-empty", "-m", "unpushed"], check=True)
+    if os.environ.get("FAKE_SILENT"):
+        sys.exit(1)
+    result = os.environ.get("FAKE_RESULT_" + base.upper(), os.environ.get("FAKE_RESULT", "DONE"))
+    report = "did the work\\nREPO: " + base + "\\nRESULT: " + result
     if os.environ.get("FAKE_TRANSCRIPT"):
         d = os.path.join(os.environ["CLAUDE_CONFIG_DIR"], "projects", "-enc-" + sid)
         os.makedirs(d, exist_ok=True)
@@ -48,7 +61,11 @@ FAKE_CLAUDE = textwrap.dedent("""\
                 f.write(json.dumps({"type": "assistant", "timestamp": ts,
                                     "message": {"content": [{"type": "text", "text": text}]}}) + "\\n")
         report = "Noted: the background task finished."
-    print(json.dumps({"session_id": sid, "result": report}))
+    out = {"session_id": sid, "result": report}
+    if os.environ.get("FAKE_IS_ERROR"):
+        out.update(is_error=True, subtype="error_during_execution")
+    print(json.dumps(out))
+    sys.exit(int(os.environ.get("FAKE_RC", "0")))
     """)
 
 # A stand-in review queue: serves the lines of a file, one per `next`, skipping
@@ -163,7 +180,9 @@ class TranscriptFallback(unittest.TestCase):
             {"type": "user", "timestamp": "2026-01-01T11:00:01.000Z",
              "message": {"content": "RESULT: FAILED (a prompt, not the session's own words)"}},
             {"type": "assistant", "timestamp": "2026-01-01T11:00:02.000Z",
-             "message": {"content": [{"type": "text", "text": "report\nRESULT: DONE"}]}},
+             "message": {"content": [{"type": "text", "text": "report\nITEM: x:010\nRESULT: DONE"}]}},
+            {"type": "assistant", "timestamp": "2026-01-01T11:00:02.500Z",
+             "message": {"content": [{"type": "text", "text": "Next I will write RESULT: FAILED if it breaks."}]}},
             {"type": "assistant", "timestamp": "2026-01-01T11:00:03.000Z",
              "message": {"content": [{"type": "text", "text": "Noted."}]}},
         ]
@@ -318,7 +337,7 @@ class EndToEnd(unittest.TestCase):
         self.assertFalse(os.path.exists(call["cwd"]), "worktree left behind")
         day = os.listdir(os.path.join(self.tmp, "kit", "results"))[0]
         res = rd(os.path.join(self.tmp, "kit", "results", day, "alpha.md"))
-        self.assertIn("<!-- session sess-alpha -->", res)
+        self.assertIn("<!-- session sess-alpha rc=0 result=DONE -->", res)
 
     def test_run_in_an_existing_worktree_keeps_it(self):
         wt = os.path.join(self.tmp, "wt", "pass-0101", "beta")
@@ -473,7 +492,8 @@ class EndToEnd(unittest.TestCase):
         wr(self.prompt, "Log {REVIEW_LOG}\n")
         r = self.cli("drain", env={**self.env, "FAKE_RESULT": "FAILED"})
         self.assertEqual(r.returncode, 0, r.stderr)
-        want = os.path.join(self.tmp, "kit", "review-logs", "beta-160-030.md")
+        want = cf.review_log({"kit_dir": os.path.join(self.tmp, "kit")}, "beta", "160/030")
+        self.assertTrue(os.path.basename(want).startswith("beta-160-030-"))
         self.assertEqual(self.calls()[0]["argv"][-1], f"Log {want}\n")
         self.assertTrue(os.path.isdir(os.path.dirname(want)))
         (wt,) = [os.path.join(self.tmp, "wt", d, "beta") for d in os.listdir(os.path.join(self.tmp, "wt"))]
@@ -606,6 +626,454 @@ class EndToEnd(unittest.TestCase):
         r = self.cli("resume", "beta", wt, "sess-old", "--prompt", self.prompt, "--item", "020")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertFalse(os.path.isdir(wt), "a released resume removes the worktree")
+
+
+    # ----- the 160/1450 findings, end to end -----
+
+    def worktrees(self):
+        root = os.path.join(self.tmp, "wt")
+        return [os.path.join(root, d, r) for d in os.listdir(root) for r in os.listdir(os.path.join(root, d))]
+
+    def test_a_nonzero_exit_keeps_the_worktree_and_is_not_done(self):
+        """FL1: rc=1 with a RESULT: DONE printed is an error end."""
+        r = self.cli("run", "alpha", "--prompt", self.prompt, env={**self.env, "FAKE_RC": "1"})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("rc=1 result=ERROR", r.stdout)
+        self.assertEqual(len(self.worktrees()), 1, "an error end keeps its worktree")
+
+    def test_a_cut_off_pass_keeps_its_claim_and_its_worktree(self):
+        """FL1: the drain path: an error end releases nothing."""
+        wr(os.path.join(self.tmp, "queue.txt"), "beta 010 docs/brief.md\n")
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("drain", "--max", "1", env={**self.env, "FAKE_IS_ERROR": "1"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")))
+        self.assertEqual(len(self.worktrees()), 1)
+        self.assertIn("result=ERROR", rd(os.path.join(self.tmp, "kit", "driver.log")))
+
+    def test_a_worktree_holding_work_is_never_removed(self):
+        """FL1, FL6: a clean RESULT still keeps a tree with uncommitted files or
+        unpushed commits, and says why."""
+        for flag, said in (("FAKE_DIRTY", "uncommitted"), ("FAKE_COMMIT", "on no remote branch")):
+            r = self.cli("run", "alpha", "--prompt", self.prompt, "--label", flag.lower(),
+                         env={**self.env, flag: "1"})
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn("result=DONE", r.stdout)
+            self.assertIn("KEPT worktree", r.stdout)
+            self.assertIn(said, r.stdout)
+        self.assertEqual(len(self.worktrees()), 2)
+        self.assertTrue(any(os.path.exists(os.path.join(w, "left-behind.txt")) for w in self.worktrees()))
+
+    def test_an_unclean_run_keeps_its_worktree_and_drive_runs_it_again(self):
+        """FL6: run keeps the worktree unless the RESULT is clean; drive skips
+        a job only on a clean result."""
+        jobs = os.path.join(self.tmp, "jobs.tsv")
+        wr(jobs, f"alpha\ta-job\t{self.prompt}\nbeta\tb-job\t{self.prompt}\n")
+        env = {**self.env, "FAKE_RESULT_BETA": "PARTIAL"}
+        r = self.cli("drive", jobs, "--max", "2", env=env)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual([os.path.basename(w) for w in self.worktrees()], ["beta"])
+        self.cli("drive", jobs, env=env)
+        self.assertEqual(sorted(os.path.basename(c["cwd"]) for c in self.calls()), ["alpha", "beta", "beta"])
+        log = rd(os.path.join(self.tmp, "kit", "driver.log"))
+        self.assertIn("skip a-job (a clean result exists", log)
+        self.assertNotIn("skip b-job", log)
+
+    def test_drive_keeps_one_results_day(self):
+        """FL6: a drive's children write to the drive's day, and --day resumes it."""
+        jobs = os.path.join(self.tmp, "jobs.tsv")
+        wr(jobs, f"alpha\ta-job\t{self.prompt}\n")
+        r = self.cli("drive", jobs, "--day", "2001-02-03")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertTrue(os.path.isfile(os.path.join(self.tmp, "kit", "results", "2001-02-03", "a-job.md")))
+        self.cli("drive", jobs, "--day", "2001-02-03")
+        self.assertEqual(len(self.calls()), 1)
+        self.assertEqual(self.cli("drive", jobs, "--day", "Feb 3").returncode, cf.EXIT_USAGE)
+
+    def test_a_dry_drain_leaves_the_real_drain_its_queue(self):
+        """FL2: a rehearsal writes no launched list the real drain reads."""
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\nbeta 020 docs/brief.md\n")
+        r = self.cli("drain", "--max", "1", "--dry-run")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        kit = os.path.join(self.tmp, "kit")
+        self.assertEqual([f for f in os.listdir(kit) if f.startswith("launched")], [])
+        r = self.cli("drain", "--max", "2")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(len(self.calls()), 2)
+
+    def test_a_pick_that_never_starts_comes_off_the_list_and_counts(self):
+        """FL2: an early end is not a launch; three in a row stop the drain,
+        and a drain that ran nothing does not exit 0."""
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/not-pushed.md\n")
+        r = self.cli("drain", "--max", "1")
+        self.assertEqual(r.returncode, cf.EXIT_SETUP, r.stdout + r.stderr)
+        self.assertIn("DRAIN EXIT: failures", r.stdout)
+        log = rd(os.path.join(self.tmp, "kit", "driver.log"))
+        self.assertEqual(log.count("ended before its session started"), 3)
+        (launched,) = [f for f in os.listdir(os.path.join(self.tmp, "kit")) if f.startswith("launched-")]
+        self.assertEqual(rd(os.path.join(self.tmp, "kit", launched)), "")
+        self.assertEqual(self.calls(), [])
+
+    def test_a_new_session_has_its_id_before_it_prints(self):
+        """FL3: the id is chosen up front, so a session that dies silent still has one."""
+        q = self.cfg["queue"]
+        q["take"] = [self.queue, "take", "{REPO}:{ITEM}", "{SESSION}"]
+        self.write_cfg()
+        wr(os.path.join(self.tmp, "queue.txt"), "beta 010 docs/brief.md\n")
+        r = self.cli("drain", "--max", "1", env={**self.env, "FAKE_SILENT": "1"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        argv = self.calls()[0]["argv"]
+        sid = argv[argv.index("--session-id") + 1]
+        self.assertRegex(sid, r"^[0-9a-f-]{36}$")
+        self.assertEqual(rd(os.path.join(self.tmp, "take.log")).split(), ["beta:010", sid])
+        out = "".join(rd(os.path.join(self.tmp, "kit", "logs", f)) for f in
+                      os.listdir(os.path.join(self.tmp, "kit", "logs")) if f.startswith("pass-"))
+        self.assertIn(f"session={sid}", out.split("START", 1)[1].splitlines()[0])
+        self.assertIn(f"result=ERROR session={sid}", out)
+
+    def test_check_says_when_a_permission_mode_is_set(self):
+        """FL10: a bypass is named loudly, any other widening plainly, none not at all."""
+        r = self.cli("check")
+        self.assertIn("PERMISSIONS: BYPASS", r.stdout)
+        self.cfg["claude_args"] = ["--permission-mode", "acceptEdits"]
+        self.write_cfg()
+        r = self.cli("check")
+        self.assertIn("PERMISSIONS: every session starts with --permission-mode acceptEdits", r.stdout)
+        self.assertNotIn("BYPASS", r.stdout)
+        self.cfg["claude_args"] = []
+        self.write_cfg()
+        self.assertNotIn("PERMISSIONS", self.cli("check").stdout)
+
+    def test_check_names_the_placeholders_nothing_fills(self):
+        """FL12: unset placeholders are named before a launch refuses them."""
+        wr(self.prompt, "Pass {ITEM} {BRIEF} {REVIEW_LOG} under {APPROVAL} in {WT}\n")
+        r = self.cli("check")
+        self.assertEqual(r.returncode, cf.EXIT_GUARD, r.stdout + r.stderr)
+        self.assertIn("UNSET: {APPROVAL}", r.stdout)
+        self.cfg["vars"]["APPROVAL"] = "yes"
+        self.write_cfg()
+        self.assertEqual(self.cli("check").returncode, 0)
+        task = os.path.join(self.tmp, "task.md")
+        wr(task, "Do {TASK} for {REPO}, resume {SESSION} item {ITEM}\n")
+        r = self.cli("check", "--prompt", task)
+        self.assertEqual(r.returncode, cf.EXIT_GUARD)
+        self.assertIn("UNSET: {TASK}", r.stdout)
+        self.assertIn("filled only by pass or resume: {ITEM}", r.stdout)
+        self.assertEqual(self.cli("check", "--prompt", task, "--set", "TASK=x").returncode, 0)
+
+    def test_a_refused_release_keeps_the_pass_worktree_and_exits_2(self):
+        """FL13: a pass whose release is refused keeps its worktree."""
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("pass", "beta", "010", "docs/brief.md", env={**self.env, "FAKE_QUEUE_RC_RELEASE": "1"})
+        self.assertEqual(r.returncode, cf.EXIT_CLAIM, r.stdout + r.stderr)
+        self.assertIn("release refused", r.stdout)
+        self.assertEqual(len(self.worktrees()), 1)
+
+    def test_a_fold_releases_and_puts_its_worktree_away(self):
+        """FL13: run --in WT --item ITEM is a fold: a clean end releases the
+        claim and removes the adopted worktree; an unclean one keeps both."""
+        wt = os.path.join(self.tmp, "wt", "pass-0101", "beta")
+        os.makedirs(os.path.dirname(wt))
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
+        r = self.cli("run", "beta", "--prompt", self.prompt, "--in", wt, "--item", "020",
+                     env={**self.env, "FAKE_RESULT": "FAILED"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertTrue(os.path.isdir(wt))
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")))
+        r = self.cli("run", "beta", "--prompt", self.prompt, "--in", wt, "--item", "020")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(rd(os.path.join(self.tmp, "release.log")).split(), ["beta:020"])
+        self.assertFalse(os.path.isdir(wt))
+        r = self.cli("run", "beta", "--prompt", self.prompt, "--item", "020")
+        self.assertEqual(r.returncode, cf.EXIT_USAGE, "--item without --in")
+
+    def test_review_logs_never_collide_and_a_fresh_pass_inherits_none(self):
+        """FL15: distinct pairs get distinct logs; a log left by an earlier
+        pass is moved aside before a new pass on the item starts."""
+        kit = {"kit_dir": os.path.join(self.tmp, "kit")}
+        self.assertNotEqual(cf.review_log(kit, "app-web", "010"), cf.review_log(kit, "app", "web/010"))
+        stale = cf.review_log(kit, "beta", "030")
+        os.makedirs(os.path.dirname(stale))
+        wr(stale, "an earlier reviewer's account\n")
+        wr(os.path.join(self.tmp, "queue.txt"), "beta 030 docs/brief.md\n")
+        wr(self.prompt, "Log {REVIEW_LOG}\n")
+        r = self.cli("drain")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertFalse(os.path.exists(stale))
+        (moved,) = os.listdir(os.path.join(self.tmp, "kit", "review-logs-stale"))
+        self.assertTrue(moved.endswith(os.path.basename(stale)))
+
+    def test_ranked_is_not_called_dry_or_after_the_reset(self):
+        """FL16: a rehearsal and a drain past its reset never call queue.ranked."""
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\n")
+        r = self.cli("drain", "--dry-run")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "ranked.log")))
+        self.cfg["reset_utc"] = "2000-01-01T00:00"
+        self.write_cfg()
+        r = self.cli("drain")
+        self.assertEqual(r.returncode, cf.EXIT_RESET, r.stdout + r.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "ranked.log")))
+
+    def test_bad_inputs_are_refused_with_a_reason(self):
+        """FL17: a repo given as a path, --set with no '=', a resume worktree
+        not named for its repo or missing."""
+        r = self.cli("run", "src/alpha", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, cf.EXIT_USAGE, r.stderr)
+        r = self.cli("run", "alpha", "--prompt", self.prompt, "--set", "NOEQUALS")
+        self.assertEqual(r.returncode, cf.EXIT_USAGE, r.stderr)
+        self.assertIn("expected K=V", r.stderr)
+        wt = os.path.join(self.tmp, "wt", "pass-0101", "beta")
+        os.makedirs(os.path.dirname(wt))
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
+        for repo, path in (("alpha", wt), ("beta", wt + "-missing")):
+            r = self.cli("resume", repo, path, "sess-1", "--prompt", self.prompt)
+            self.assertEqual(r.returncode, cf.EXIT_SETUP, r.stderr)
+            self.assertNotIn("Traceback", r.stderr)
+        self.assertEqual(self.calls(), [])
+
+    def test_resume_without_an_item_calls_no_queue_command(self):
+        """FL17: no --item, no release and no ended call with an empty item."""
+        self.cfg["queue"]["ended"] = [self.queue, "ended", "{REPO}:{ITEM}"]
+        self.write_cfg()
+        wt = os.path.join(self.tmp, "wt", "pass-0101", "beta")
+        os.makedirs(os.path.dirname(wt))
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
+        r = self.cli("resume", "beta", wt, "sess-1", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "ended.log")))
+        self.assertTrue(os.path.isdir(wt))
+        argv = self.calls()[0]["argv"]
+        self.assertEqual(argv[argv.index("--model") + 1], "model-pass", "a resume names its model")
+
+    def test_two_resumes_of_one_session_cannot_run_at_once(self):
+        """FL17: the second is refused (exit 2) and starts nothing."""
+        wt = os.path.join(self.tmp, "wt", "pass-0101", "beta")
+        os.makedirs(os.path.dirname(wt))
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
+        lock = os.path.join(self.tmp, "kit", "locks", "resume-sess-1.lock")
+        with cf.FileLock(lock, "held by the test"):
+            r = self.cli("resume", "beta", wt, "sess-1", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, cf.EXIT_CLAIM, r.stdout + r.stderr)
+        self.assertIn("another resume of session sess-1", r.stderr)
+        self.assertEqual(self.calls(), [])
+
+    def test_max_0_is_a_ceiling_of_0(self):
+        """FL17: --max 0 holds every start; it never falls back to the config."""
+        with mock.patch.object(cf, "drain", return_value=0) as d:
+            self.assertEqual(cf.main(["--config", self.cfgpath, "drain", "--max", "0"]), 0)
+        self.assertEqual(d.call_args[0][2], 0)
+        self.assertEqual(cf.main(["--config", self.cfgpath, "drain", "--max", "-1"]), cf.EXIT_USAGE)
+
+    def test_a_public_prompt_naming_a_joined_private_name_is_refused(self):
+        """FL23 end to end: the worktree parent <label>-<HHMM> carries the name."""
+        self.cfg["private_names"] = ["privroot"]
+        self.write_cfg()
+        r = self.cli("run", "alpha", "--prompt", self.prompt, "--label", "privroot")
+        self.assertEqual(r.returncode, cf.EXIT_GUARD, r.stdout + r.stderr)
+        self.assertIn("privroot", r.stderr)
+        self.assertEqual(self.calls(), [])
+
+    def test_a_session_past_its_time_limit_is_ended(self):
+        """FL25: a session that does not exit is ended at its limit, read as
+        TIMEOUT, and keeps its worktree."""
+        self.cfg["session_timeout_minutes"] = 0.02
+        self.write_cfg()
+        t0 = time.time()
+        r = self.cli("run", "alpha", "--prompt", self.prompt, env={**self.env, "FAKE_SLEEP": "60"})
+        self.assertLess(time.time() - t0, 45)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("TIMEOUT", r.stdout)
+        self.assertIn(f"rc={cf.TIMEOUT_RC} result=TIMEOUT", r.stdout)
+        self.assertEqual(len(self.worktrees()), 1)
+
+    def test_a_jobs_file_whose_labels_repeat_is_refused_before_anything_starts(self):
+        """210/450: the label keys the result file; a repeat is refused at load."""
+        jobs = os.path.join(self.tmp, "jobs.tsv")
+        wr(jobs, f"alpha\tsweep\t{self.prompt}\nbeta\tother\t{self.prompt}\n"
+                 f"beta\tsweep\t{self.prompt}\n")
+        r = self.cli("drive", jobs)
+        self.assertEqual(r.returncode, cf.EXIT_USAGE, r.stdout + r.stderr)
+        self.assertIn("label 'sweep' on lines 1, 3", r.stderr)
+        self.assertEqual(self.calls(), [])
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "kit", "driver.log")))
+
+
+class ResultWords(unittest.TestCase):
+    """FL14: a RESULT line is read by its known phrase or its first word."""
+    known = ("DONE", "SKIPPED", "BUDGET EXHAUSTED")
+
+    def test_plain_endings_read_as_their_first_word(self):
+        for text, want in (("RESULT: SKIPPED NEEDS LIVE WRITE", "SKIPPED"),
+                           ("RESULT: DONE WITH FINDINGS", "DONE"),
+                           ("RESULT: `DONE`", "DONE"),
+                           ("**RESULT:** DONE", "DONE"),
+                           ("**RESULT: BUDGET EXHAUSTED** at act 1", "BUDGET EXHAUSTED"),
+                           ("RESULT: <DONE|SKIPPED>", "")):
+            self.assertEqual(cf.result_word(text, self.known), want, text)
+
+    def test_the_last_result_line_is_the_verdict(self):
+        self.assertEqual(cf.result_word("RESULT: FAILED\nmore\nRESULT: DONE\n", self.known), "DONE")
+
+
+class ErrorEnds(unittest.TestCase):
+    """FL1: a nonzero exit or an error flag is never a clean end."""
+
+    def log(self, obj):
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+            f.write(json.dumps(obj))
+        self.addCleanup(os.remove, f.name)
+        return f.name
+
+    def test_a_nonzero_exit_reads_as_error_whatever_the_text(self):
+        path = self.log({"session_id": "s1", "result": "ITEM: a:1\nRESULT: DONE"})
+        self.assertEqual(cf.harvest(path, rc=1)[2], "ERROR")
+        self.assertEqual(cf.harvest(path, rc=cf.TIMEOUT_RC)[2], "TIMEOUT")
+        self.assertEqual(cf.harvest(path, rc=0)[2], "DONE")
+
+    def test_an_error_flag_reads_as_error(self):
+        for extra in ({"is_error": True}, {"subtype": "error_during_execution"}):
+            path = self.log({"session_id": "s1", "result": "RESULT: DONE", **extra})
+            self.assertEqual(cf.harvest(path)[2], "ERROR", extra)
+
+    def test_a_stop_word_survives_an_error_end(self):
+        path = self.log({"session_id": "s1", "result": "RESULT: BUDGET EXHAUSTED at act 1", "is_error": True})
+        self.assertEqual(cf.harvest(path, rc=1)[2], "BUDGET EXHAUSTED")
+
+    def test_an_error_end_never_reads_the_transcript(self):
+        tmp = tempfile.mkdtemp(prefix="ccfleet-err-")
+        self.addCleanup(subprocess.run, ["rm", "-rf", tmp])
+        d = os.path.join(tmp, "projects", "-x")
+        os.makedirs(d)
+        wr(os.path.join(d, "s9.jsonl"), json.dumps({"type": "assistant", "timestamp": "2026-01-01T11:00:00Z",
+                                                     "message": {"content": "ITEM: a:1\nRESULT: DONE"}}) + "\n")
+        path = self.log({"session_id": "s9", "result": "usage limit reached"})
+        with mock.patch.dict(os.environ, {"CLAUDE_CONFIG_DIR": tmp}):
+            self.assertEqual(cf.harvest(path, rc=0)[2], "DONE", "the control: a clean end takes the fallback")
+            self.assertEqual(cf.harvest(path, rc=1)[2], "ERROR")
+
+
+class PrivateNameForms(unittest.TestCase):
+    """FL23: only letters and digits continue a word, so the forms ccfleet
+    itself builds around a name are caught."""
+    cfg = {"private_names": ["privroot"], "repos": {"client-x": {"visibility": "private"}}}
+
+    def test_joined_forms_are_caught(self):
+        for text in ("/wts/privroot-1430/app", "/kits/privroot-kit/scratch/", "privroot_notes",
+                     "atelier--privroot", "held/atelier--client-x--brief.md", "privroot.md"):
+            self.assertTrue(cf.private_hits(self.cfg, text, "PUBLIC"), text)
+
+    def test_a_longer_word_is_not_the_name(self):
+        for text in ("privroots", "unprivroot", "privroot2", "client-xy"):
+            self.assertEqual(cf.private_hits(self.cfg, text, "PUBLIC"), [], text)
+
+
+class Locks(unittest.TestCase):
+    """FL17: the driver lock cannot be taken twice, a dead holder leaves no
+    stale lock, and an unwritable kit_dir is a refusal, not a traceback."""
+
+    def setUp(self):
+        self.kit = tempfile.mkdtemp(prefix="ccfleet-lock-")
+        self.addCleanup(subprocess.run, ["rm", "-rf", self.kit])
+
+    def test_a_second_taker_is_refused(self):
+        with cf.DriverLock(self.kit):
+            with self.assertRaises(cf.Refusal) as e:
+                with cf.DriverLock(self.kit):
+                    pass
+            self.assertEqual(e.exception.code, cf.EXIT_SETUP)
+            self.assertIn("one driver per kit_dir", str(e.exception))
+        with cf.DriverLock(self.kit):  # released on exit
+            pass
+
+    def test_a_dead_holders_pid_is_no_lock(self):
+        wr(os.path.join(self.kit, "driver.pid"), "999999")
+        with cf.DriverLock(self.kit):
+            self.assertEqual(rd(os.path.join(self.kit, "driver.pid")), str(os.getpid()))
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores file modes")
+    def test_an_unwritable_kit_dir_is_a_refusal(self):
+        locked = os.path.join(self.kit, "ro")
+        os.makedirs(locked)
+        os.chmod(locked, 0o500)
+        self.addCleanup(os.chmod, locked, 0o700)
+        with self.assertRaises(cf.Refusal) as e:
+            with cf.DriverLock(os.path.join(locked, "kit")):
+                pass
+        self.assertEqual(e.exception.code, cf.EXIT_SETUP)
+
+
+class Children(unittest.TestCase):
+    """FL17 and FL25: a dead driver's still-running children hold slots, and a
+    stopping driver reports a hung child rather than wait forever."""
+
+    def setUp(self):
+        self.kit = tempfile.mkdtemp(prefix="ccfleet-kids-")
+        self.addCleanup(subprocess.run, ["rm", "-rf", self.kit])
+        self.cfg = {"kit_dir": self.kit, "session_timeout_minutes": 1}
+
+    def test_an_earlier_drivers_live_child_holds_a_slot(self):
+        kid = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)", "ccfleet-pass"])
+        other = subprocess.Popen(["sleep", "60"])
+        for p in (kid, other):
+            self.addCleanup(p.wait)
+            self.addCleanup(p.kill)
+        wr(os.path.join(self.kit, "children.tsv"),
+           f"{kid.pid}\t1\talpha 010\n{other.pid}\t1\tnot ours\n999999\t1\tgone\n")
+        w = cf.Watch(self.cfg)
+        self.assertEqual(w.held(), 1)
+        self.assertIn("alpha 010", rd(os.path.join(self.kit, "driver.log")))
+        kid.kill()
+        kid.wait()
+        self.assertEqual(w.held(), 0)
+
+    def test_a_stopping_driver_gives_up_a_hung_child(self):
+        w = cf.Watch(self.cfg)
+        w.limit = 0
+        p = mock.Mock(pid=4242)
+        running = {p: {"label": "beta 020", "t0": time.time() - 5}}
+        self.assertEqual(w.hung(running, stopping=False), [])
+        self.assertIn(p, running, "not stopping: reported, still counted")
+        self.assertEqual(w.hung(running, stopping=True), ["beta 020"])
+        self.assertEqual(running, {})
+        self.assertEqual(rd(os.path.join(self.kit, "driver.log")).count("hung: beta 020"), 1)
+
+
+class Config(unittest.TestCase):
+    """FL17: a config that cannot be read is exit 64 with a reason."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="ccfleet-cfg-")
+        self.addCleanup(subprocess.run, ["rm", "-rf", self.tmp])
+
+    def run_check(self, text=None):
+        path = os.path.join(self.tmp, "cfg.json")
+        if text is not None:
+            wr(path, text)
+        return subprocess.run([sys.executable, TOOL, "--config", path, "check"], capture_output=True, text=True,
+                              stdin=subprocess.DEVNULL)
+
+    def test_unreadable_configs_exit_64(self):
+        good = {"kit_dir": self.tmp, "repos_root": self.tmp, "worktrees_root": self.tmp, "default_model": "m"}
+        for text, said in ((None, "cannot read"), ("{not json", "not valid JSON"), ("[]", "JSON object"),
+                           (json.dumps({**good, "reset_utc": "Monday noon"}), "reset_utc"),
+                           (json.dumps({**good, "claude_args": "--x"}), "claude_args")):
+            r = self.run_check(text)
+            self.assertEqual(r.returncode, cf.EXIT_USAGE, (text, r.stderr))
+            self.assertIn(said, r.stderr)
+            self.assertNotIn("Traceback", r.stderr)
+
+    def test_the_example_config_loads_and_bypasses_nothing(self):
+        cfg = cf.load_config(os.path.join(HERE, "ccfleet.example.json"))
+        self.assertEqual(cf.permission_args(cfg)[1], False, "FL10: the example must not model the bypass")
+
+    def test_the_example_vars_fill_the_shipped_orchestrator_prompt(self):
+        """FL12: an adopter who copies the example gets a pass prompt with
+        nothing unset."""
+        cfg = cf.load_config(os.path.join(HERE, "ccfleet.example.json"))
+        prompt = os.path.join(os.path.dirname(HERE), "skills", "review-drain", "orchestrator-prompt.md")
+        names = set(cf.PLACEHOLDER.findall(rd(prompt)))
+        self.assertEqual(sorted(names - cf.ALWAYS_FILLED - cf.PASS_FILLED - set(cfg["vars"])), [])
 
 
 class HelpAndManual(unittest.TestCase):

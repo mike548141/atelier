@@ -1,4 +1,4 @@
-.TH CCFLEET 1 "2026-11-18" "atelier instruments" "User Commands"
+.TH CCFLEET 1 "2026-11-23" "atelier instruments" "User Commands"
 .SH NAME
 ccfleet \- run headless Claude Code sessions across a fleet of repos, each
 billed to its own repo
@@ -9,6 +9,10 @@ billed to its own repo
 .RB [ \-\-by
 .IR id ]
 .B check
+.RB [ \-\-prompt
+.IR file ]...
+.RB [ \-\-set
+.IR K=V ]...
 .br
 .B ccfleet
 .RI [ common ]
@@ -27,7 +31,9 @@ billed to its own repo
 .IR K=V ]...
 .RB [ \-\-keep ]
 .RB [ \-\-in
-.IR worktree ]
+.IR worktree
+.RB [ \-\-item
+.IR item ]]
 .RB [ \-\-dry\-run ]
 .br
 .B ccfleet
@@ -37,6 +43,8 @@ billed to its own repo
 .RB [ \-\-max
 .IR n ]
 .RB [ \-\-serial\-per\-repo ]
+.RB [ \-\-day
+.IR YYYY-MM-DD ]
 .RB [ \-\-dry\-run ]
 .br
 .B ccfleet
@@ -137,6 +145,18 @@ uses
 .B pass_model
 first.
 .IP \(bu 2
+A new session is given its id before it starts
+.RB ( \-\-session\-id ) ,
+so the
+.B START
+line, the claim and the result file carry it even when the session dies
+before printing anything.
+.IP \(bu 2
+A session still running after
+.B session_timeout_minutes
+(default 480) is ended, with every process it started, and reads as
+.BR TIMEOUT .
+.IP \(bu 2
 The worktree is
 .IR <worktrees_root>/<label>-<HHMM>/<repo> ,
 with the time in UTC.
@@ -170,7 +190,16 @@ refused before any worktree is made if it contains a private name.
 The private names are the config's
 .B private_names
 plus every repo the config marks private.
-A name matches as a whole word, in any case.
+A name matches in any case wherever no letter or digit touches it on either
+side, so a hyphen, underscore, dot or slash does not hide it.
+That catches the forms ccfleet and its prompts build around a name: a
+.I <label>-<HHMM>
+worktree folder, a
+.I name-kit
+folder,
+.IR name_notes ,
+and
+.IR atelier--name .
 Visibility comes from the repo's
 .B visibility
 in the config, else from
@@ -207,6 +236,30 @@ Validate the config and print what it resolves to, as JSON, without the
 values (their names are listed).
 The output includes private names and repo notes: do not paste it anywhere
 public.
+.IP
+When
+.B claude_args
+widens what a session may do unasked, a
+.B PERMISSIONS:
+line says so, and a bypass of every permission check says
+.BR "PERMISSIONS: BYPASS" ;
+see
+.BR THREATS .
+.IP
+It then lists the placeholders of
+.B pass_prompt
+and of each
+.B \-\-prompt
+template that nothing fills: neither ccfleet, nor the config's
+.BR vars ,
+nor a
+.BR \-\-set .
+Any such name prints as
+.B UNSET
+and
+.B check
+exits 5, as the launch would.
+A name only a pass or a resume fills is listed apart, not as unset.
 .TP
 .B gate
 Print one headroom reading and whether a start may go now:
@@ -225,11 +278,27 @@ is a git checkout under
 fetches it (unless
 .BR \-\-dry\-run ),
 makes the worktree, renders the template, launches, harvests the result, and
-removes the worktree.
+removes the worktree when the end was clean.
 With a remote, the worktree is detached at the remote's default branch.
 With none, it is a new branch
 .I fleet/<label>-<HHMMSS>
 off the configured mainline, deleted again with the worktree.
+.IP
+The worktree is removed only when the
+.B RESULT
+is clean (a word in
+.BR queue.release_on ,
+default
+.B DONE
+and
+.BR SKIPPED )
+and the tree holds no unlanded work: no uncommitted or untracked file,
+no commit that is on no remote branch (with no remote, on no branch but
+its own).
+It is never removed by force.
+Any other end keeps it and prints a
+.B KEPT
+line saying why, so a cut-off session's work is never lost.
 .IP
 The session is told how to land its work.
 With a remote: pull with rebase from the default branch, then push to it
@@ -246,8 +315,22 @@ child, in file order, at most
 at once, one start per
 .B stagger_seconds
 and only while the gate has room.
-A job whose result file for today (UTC) already exists is skipped, so running
-the same file again resumes it.
+Every job's label must be its own: a jobs file whose labels repeat is
+refused before anything starts, naming the label and its lines.
+The label keys the job's result file, so a repeat would run one job and
+skip the rest.
+.IP
+One drive writes all its results under one day,
+.IR <kit_dir>/results/<day>/ ,
+today (UTC) at its start unless
+.B \-\-day
+names another.
+A job whose result file there records a clean
+.B RESULT
+is skipped; one that ended any other way runs again.
+So running the same file again on the same day resumes it, and
+.B \-\-day
+resumes a drive begun before midnight.
 .TP
 .B drain
 Keep review passes running from the adopter's own queue until the queue is
@@ -256,12 +339,23 @@ empty, the budget's reset arrives, the stop file appears, a pass ends with a
 in
 .BR queue.stop_on ,
 or three passes in a row end badly.
-Passes already running are left to finish.
+Passes already running are left to finish, but not forever: one running
+past its time limit and a quarter hour more is logged as hung and is not
+waited for.
 It prints
 .B DRAIN EXIT:
-and the reason when it ends.
-A drain that started nothing exits 4 when the queue was empty and 3 when the
-reset had come; one that started a pass exits 0.
+and the reason when it ends, naming any hung pass.
+.IP
+A reset already reached ends it before anything is called, with exit 3.
+Otherwise it calls
+.B queue.ranked
+first (a dry drain does not), then picks.
+A pick that ends before its session starts (a failed fetch, a brief not on
+the branch, a refused claim, a guard) is taken back off the launched list and
+counts as a bad end.
+A drain that started nothing exits 4 when the queue was empty, 3 when the
+reset had come, and 1 when every pick ended before its session started;
+one that started a pass exits 0.
 .TP
 .BI pass " repo item brief"
 One drain pass; the command
@@ -279,11 +373,21 @@ and, when its
 .B RESULT
 is in
 .BR queue.release_on ,
-releases the claim and removes the worktree.
-A pass that ends any other way keeps both, so it can be resumed.
+releases the claim and removes the worktree (unless it holds unlanded work;
+see
+.BR run ).
+A pass that ends any other way keeps both, so it can be resumed: an error
+end, a time limit, or a session killed with no
+.B END
+line.
+A release the queue refuses keeps the worktree and exits 2.
 Either way the
 .B queue.ended
 command, if set, is called.
+A review log an earlier pass left at this pass's path is moved to
+.I <kit_dir>/review\-logs\-stale/
+once the claim is taken, so a new reviewer never starts from an earlier
+reviewer's account.
 .TP
 .BI resume " repo worktree session"
 Finish a pass a usage limit cut off, in its own session:
@@ -295,14 +399,23 @@ which gets every value a
 .B run
 gets (see
 .BR TEMPLATES ).
+The worktree must exist and be named for
+.IR repo ,
+as for
+.BR "run \-\-in" .
+Only one resume of a session runs at a time; a second is refused with exit 2.
 When it ends with a
 .B RESULT
 in
 .B queue.release_on
 and
 .B \-\-item
-was given, the claim is released and the worktree removed.
+was given, the claim is released and the worktree removed (unless it holds
+unlanded work).
 A release the queue refuses is printed, keeps the worktree and exits 2.
+Without
+.BR \-\-item ,
+no queue command is called and the worktree is kept.
 It starts nothing else.
 .SH OPTIONS
 .SS Common
@@ -330,6 +443,13 @@ Print a one-screen digest.
 A command takes
 .B \-\-help
 for its own flags.
+.SS Of check
+.TP
+.BI \-\-prompt " file"
+Also list this template's unset placeholders; repeatable.
+.TP
+.BI \-\-set " K=V"
+A value a job will supply, so it is not listed as unset; repeatable.
 .SS Of run, drive, drain, pass
 .TP
 .B \-\-dry\-run
@@ -359,6 +479,9 @@ Overrides every other source.
 Fill
 .B {K}
 in the template; repeatable.
+A value with no
+.B =
+is refused with exit 64.
 A value written
 .BI @file: path
 takes that file's text, for a multi-line task.
@@ -373,10 +496,29 @@ Leave the worktree in place afterwards.
 Adopt an existing worktree instead of making one, to fold earlier work.
 Its basename must be the repo's name (a differently named directory would bill
 some other label), and it is kept afterwards, because it is the caller's.
+.TP
+.BI \-\-item " item"
+With
+.BR \-\-in ,
+for the fold that finishes a cut-off pass: on a clean
+.B RESULT
+release
+.IR item 's
+claim through
+.B queue.release
+(and call
+.BR queue.ended ),
+then remove the worktree unless it holds unlanded work.
+Any other end keeps both.
+A refused release exits 2.
+Without
+.B \-\-in
+it is refused with exit 64.
 .SS Of drive and drain
 .TP
 .BI \-\-max " n"
-Most sessions at once.
+Most sessions at once; 0 holds every start, and a negative number is refused
+with exit 64.
 Default: the config's
 .BR max_concurrent .
 .TP
@@ -384,6 +526,13 @@ Default: the config's
 Of
 .BR drive :
 never two jobs for one repo at once, so a repo has one writer.
+.TP
+.BI \-\-day " YYYY-MM-DD"
+Of
+.BR drive :
+the results day whose folder the drive's jobs write to and whose clean
+results it skips.
+Default: today, UTC, at the drive's start.
 .SH JOBS FILE
 A tab-separated file for
 .BR drive ,
@@ -400,7 +549,8 @@ takes that file's text.
 A line that is blank or starts with
 .B #
 is skipped.
-A line with fewer than three fields is refused with exit 64.
+A line with fewer than three fields, a repo given as a path, or a label used
+by more than one line is refused with exit 64, before anything starts.
 A trailing field with no
 .B =
 is ignored.
@@ -422,12 +572,13 @@ The session's worktree, the primary checkout, and a scratch folder,
 .B {LANDING}
 How to land work, as above.
 .TP
-.B {NOTES} {BY} {DATE}
+.B {NOTES} {BY} {DATE} {SESSION}
 The repo's notes (default
 .BR none ),
 the
 .B \-\-by
-id, and today's UTC date.
+id, today's UTC date, and the session's id (chosen before a new session
+starts; the resumed one's for a resume).
 .TP
 .B {PIN}
 The repo's atelier pin, when the template uses it and neither the config's
@@ -460,19 +611,22 @@ adds
 and
 .BR {REVIEW_LOG} ,
 the path of the reviewer's private log,
-.IR <kit_dir>/review\-logs/<repo>\-<item>.md ,
+.IR <kit_dir>/review\-logs/<repo>\-<item>\-<hash>.md ,
 outside any repo; its folder is made, the file is not.
+The short hash of the exact repo and item keeps two pairs that fold to the
+same characters apart.
 A
 .B resume
 adds
-.B {SESSION}
-and
 .BR {ITEM} ,
 and with
 .B \-\-item
 the same
 .B {REVIEW_LOG}
-the pass had, so a revived reviewer finds its log.
+the pass had, so a revived reviewer finds its log (a log kept under the
+earlier name, with no hash, is used where it exists).
+.B "ccfleet check"
+names the placeholders a template needs that nothing fills.
 A placeholder left unfilled is a refusal (exit 5), never a silent gap.
 .SH CONFIG
 JSON.
@@ -502,7 +656,15 @@ Default:
 Extra arguments for every launch, such as a permission mode.
 A headless session has no one to ask, so it works with whatever permissions
 these grant.
-Choose them on purpose.
+Choose them on purpose, the narrowest that does the work: see
+.BR THREATS .
+The example config sets none;
+.B check
+names any that widen what a session may do.
+.TP
+.B session_timeout_minutes
+How long one session may run before it is ended.
+Default 480; 0 means no limit.
 .TP
 .B nice
 The
@@ -585,12 +747,14 @@ and
 see below.
 .SH THE QUEUE INTERFACE
 The review queue is the adopter's own tool; ccfleet only calls it.
-Each of the four entries is an argument list, with a leading
+Each entry is an argument list, with a leading
 .B ~
 expanded and
 .B {NAME}
 placeholders filled before the call.
 An unknown placeholder is left as it is.
+A command that cannot start, or runs past ten minutes, counts as a failed
+call (exit 127 or 124), never a hang.
 .TP
 .B next
 Prints
@@ -624,9 +788,12 @@ Claims the pass.
 Any nonzero exit means another session holds it, and the pass is not run.
 It can use every prompt value, and
 .BR {ITEM} ,
-.B {BRIEF}
+.BR {BRIEF} ,
+.B {LOG}
 and
-.BR {LOG} .
+.B {SESSION}
+(the id the session will have), so the claim can record it before the
+session starts.
 .TP
 .B release
 Frees the claim after a pass ends with a
@@ -645,13 +812,18 @@ It can use
 .B {RESULT}
 and
 .BR {LOG} .
-A nonzero exit is printed; for
+A nonzero exit is printed, keeps the worktree, and exits 2, for a
+.BR pass ,
+a
 .B resume
-it keeps the worktree and exits 2.
+and a
+.BR "run \-\-item" .
 .TP
 .B ended
 Optional.
-Called after every pass and every resume, whatever its
+Called after every pass, resume and
+.BR "run \-\-item" ,
+whatever its
 .BR RESULT ,
 with the same values as
 .BR release ,
@@ -661,7 +833,10 @@ A nonzero exit is printed and otherwise ignored.
 .B release_on
 A list of
 .B RESULT
-words after which the claim is released and the worktree removed.
+words that make an end clean: the claim is released, the worktree removed
+(unless it holds unlanded work), and a
+.B drive
+skips the job.
 In a drain they also reset the count of bad ends.
 Default:
 .B DONE
@@ -676,23 +851,55 @@ Default:
 .BR "BUDGET EXHAUSTED" .
 .SH RESULTS
 The session's output is read as JSON, tolerating a warning line before it.
-Its result text is searched for lines like
+An end is clean only when the session exited 0 and its JSON flags no error
+.RB ( is_error ,
+or a
+.B subtype
+other than
+.BR success ).
+Any other end reads as
+.B ERROR
+.RB ( TIMEOUT
+for one ended at its time limit) whatever its text says, so a cut-off
+session is never read as done; only a
+.B queue.stop_on
+word the session printed itself is kept, since stopping is safe.
+.PP
+The result text is searched for lines like
 .B RESULT: DONE
-and the last one is the verdict: one or two capital-letter words.
+and the last one gives the verdict.
+Bold or backticks around it are ignored.
+A phrase in
+.B queue.release_on
+or
+.B queue.stop_on
+is read whole
+.RB ( "BUDGET EXHAUSTED" );
+otherwise the first capital-letter word is the verdict, so
+.B RESULT: SKIPPED NEEDS LIVE WRITE
+reads
+.BR SKIPPED .
 .B claude \-p
 prints only the last turn.
 A session whose last turn followed a background notification can print one
 with no such line, though its report was written earlier.
 Then the session's own transcript,
 .IR <config>/projects/*/<session>.jsonl ,
-is read, where
+is read, on a clean end only, where
 .I <config>
 is
 .B $CLAUDE_CONFIG_DIR
 or
-.IR ~/.claude ,
-and the newest assistant text with such a line written since the launch
-gives the verdict.
+.IR ~/.claude .
+The newest assistant text written since the launch that carries such a line
+and a line starting
+.B ITEM:
+or
+.B REPO:
+(the final-output shape) gives the verdict; a line of narration that only
+mentions a
+.B RESULT
+is never taken.
 The result file then says it was read from the transcript.
 No such line anywhere, or unreadable output, reads as
 .BR UNKNOWN .
@@ -708,7 +915,7 @@ lines (the
 carries the exit code, the verdict, the session id and the result path).
 The result text is written to
 .IR <kit_dir>/results/<date>/<label>.md ,
-with the session id in a comment on its first line.
+with the session id, exit code and verdict in a comment on its first line.
 .PP
 The
 .B drain
@@ -744,10 +951,25 @@ A folder for the session's own working files.
 .TP
 .I <kit_dir>/review\-logs/
 Each pass's private review log while it runs; the pass's own fold moves it
-into the review and deletes it, so the folder is empty after a clean drain.
+into the review and deletes it.
+After a drain the folder holds only the logs of passes whose claim is still
+held (cut off, refused release), kept for their resume.
+.TP
+.I <kit_dir>/review\-logs\-stale/
+Logs an earlier pass left behind, moved aside when a new pass of the item
+starts.
+.TP
+.I <kit_dir>/children.tsv
+The children a driver started, so a later driver counts those still running
+against its ceiling, even after the driver that started them died.
+.TP
+.I <kit_dir>/locks/
+One lock per session being resumed.
 .TP
 .I <kit_dir>/driver.pid, driver.log
-The driver lock and the driver's log, in UTC.
+The driver lock (held with
+.BR flock (2)
+while the driver lives) and the driver's log, in UTC.
 .TP
 .I <kit_dir>/launched\-reset\-<reset>.txt
 What a drain has started for the budget ending at
@@ -757,6 +979,9 @@ With no
 .BR reset_utc ,
 .I launched\-<date>.txt
 per UTC day.
+A dry drain keeps its own,
+.IR launched\-dry.txt ,
+removed when it ends, so a rehearsal never empties the real queue.
 .TP
 .I <kit_dir>/max
 The live ceiling while a driver runs; see
@@ -798,7 +1023,47 @@ a second
 or
 .B drain
 refuses while the first's process is alive.
-A stale lock left by a dead process is ignored.
+The lock dies with its process, so none is left stale.
+Children a dead driver started that still run are counted against the next
+driver's ceiling.
+.SH THREATS
+Every session runs unattended, with no one to ask, in a repo the config
+lists, with your git and
+.BR gh (1)
+credentials, and may push to the mainline.
+What can steer such a session:
+.IP \(bu 2
+The repo's own instruction files
+.RI ( CLAUDE.md ,
+skills, commands), and its
+.IR .claude/settings.json ,
+whose hooks run code at the session's start.
+Anyone who can push to the repo writes these.
+.IP \(bu 2
+Text written by people outside it: pull request and issue bodies and
+comments, commit messages, CI logs and fetched web pages that the prompt has
+the session read.
+.IP \(bu 2
+What the adopter hands it: the config's
+.B vars
+and the jobs file's fields, the queue's picks, and the brief files a pass
+runs.
+.PP
+What bounds it is only this: the permission mode and tool rules in
+.BR claude_args ;
+the credentials the user running ccfleet holds; and the private-name guard,
+which checks only the names listed.
+A worktree is not a sandbox, and the gate bounds load, not actions.
+.PP
+So: use the narrowest permission mode that does the work; never run a bypass
+mode against a repo whose instruction files, pull requests or CI output
+someone you do not trust can write; give the running user credentials
+scoped to these repos; and read each result before trusting what it says it
+did.
+.B check
+names any argument in
+.B claude_args
+that widens what a session may do.
 .SH EXAMPLES
 Check a config, then the machine's headroom:
 .PP
@@ -855,17 +1120,22 @@ brief missing from the branch (a pass), a bad
 .BR \-\-in ,
 another driver already running, or (for
 .BR drain )
-a queue
+a queue not ranked, a queue
 .B next
-that failed, which is never read as an empty queue.
+that failed, which is never read as an empty queue, or every pick ending
+before its session started.
 .B gate
 exits 1 for hold.
 .TP
 .B 2
-Claim refused: another session holds the item.
+Claim refused: another session holds the item, or another resume of the
+session is running.
 For
-.BR resume ,
-the queue refused the release.
+.BR pass ,
+.B resume
+and
+.BR "run \-\-item" ,
+the queue refused the release; the worktree is kept.
 .TP
 .B 3
 The reset time has been reached; nothing was started.
@@ -875,10 +1145,24 @@ The reset time has been reached; nothing was started.
 found the queue empty and started nothing.
 .TP
 .B 5
-Refused by the private-name guard, or a placeholder was left unfilled.
+Refused by the private-name guard, or a placeholder was left unfilled
+(for
+.BR check ,
+a template has one).
 .TP
 .B 64
-Usage: no config, a config missing a required key, a malformed jobs line, or
+Usage: no config, a config that cannot be read, is not JSON, misses a
+required key or has a malformed value
+.RB ( reset_utc ,
+.BR claude_args ,
+.BR session_timeout_minutes ),
+a malformed or repeated jobs line, a repo given as a path, a
+.B \-\-set
+with no
+.BR = ,
+a negative
+.BR \-\-max ,
+or
 .B drain
 or
 .B pass
@@ -896,6 +1180,13 @@ is not given.
 .B CCFLEET_BY
 The default for
 .BR \-\-by .
+.TP
+.B CCFLEET_RESULTS_DAY
+Set by
+.B drive
+for its children: the day folder a
+.B run
+writes its result to.
 .TP
 .B CLAUDE_CONFIG_DIR
 Where session transcripts are looked for; default

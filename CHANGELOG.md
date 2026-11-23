@@ -5,6 +5,55 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-23 — `ccfleet`: the code findings of the `160/1450` cold pass, `210/470`; repeated jobs labels, `210/450`)
+- **A cut-off pass is never read as done (FL1).** An end is clean only on
+  exit 0 with no error flag in the session's JSON; anything else reads
+  `ERROR` (`TIMEOUT` at the time limit) whatever its text says, and takes no
+  transcript fallback. The fallback takes only a report-shaped text (a
+  `RESULT:` line and an `ITEM:` or `REPO:` line), never narration. A
+  worktree is removed only after a clean verdict, never with `--force`, and
+  never while it holds uncommitted files or commits on no remote branch
+  (`run`, `pass`, `resume`; FL6). A `drive` re-runs a job whose result was not
+  clean, and keeps one results day for the whole drive (`--day` resumes one
+  begun before midnight).
+- **The launched list records starts (FL2).** A dry drain keeps its own list
+  and calls no `queue.ranked` (FL16); a pick that ends before its session
+  starts comes back off the list and counts toward the three-bad-ends stop; a
+  drain whose every pick ended that way exits 1. A reset already reached ends
+  a drain before `ranked` is called.
+- **Every new session gets its id up front** (`--session-id`), on its
+  `START` line and in `take`'s `{SESSION}` (FL3). A refused release keeps a
+  pass's worktree and exits 2; `run --in WT --item ITEM` is the fold's
+  launcher, releasing and putting the worktree away on a clean end (FL13).
+- **RESULT words** keep a known phrase whole and otherwise take the first
+  word, so `SKIPPED NEEDS LIVE WRITE` reads `SKIPPED`; bold and backticks are
+  ignored (FL14). Review logs carry a hash of the exact repo and item, and a
+  log an earlier pass left is moved to `review-logs-stale/` when a new pass
+  takes the claim (FL15).
+- **Inputs and errors (FL17):** an unreadable or malformed config, a bad
+  `reset_utc`, `--set` with no `=`, a repo given as a path and a negative
+  `--max` exit 64 with a reason; `--max 0` is a ceiling of 0; a `resume`
+  worktree must exist and be named for its repo; a resume without `--item`
+  calls no queue command; two resumes of one session cannot run at once. The
+  driver lock is an `flock`, so it cannot be taken twice or left stale, and a
+  dead driver's still-running children hold slots in the next driver.
+- **The private-name guard** treats only letters and digits as word
+  characters, so `<label>-<HHMM>`, `name-kit`, `name_notes` and
+  `atelier--name` are caught (FL23).
+- **Time limits (FL25):** `session_timeout_minutes` (default 480) ends a
+  session that does not exit; a stopping driver logs a hung child and stops
+  waiting for it. Queue commands get ten minutes.
+- **`check`** prints a `PERMISSIONS:` line whenever `claude_args` widens what
+  a session may do (`BYPASS` for a bypass), and names every placeholder of
+  `pass_prompt` and of each `--prompt` that nothing fills, exiting 5 (FL10,
+  FL12). The example config sets no permission mode and carries the drain's
+  variables. The manual gains a THREATS section: who can steer an unattended
+  session and what bounds it.
+- **A jobs file whose labels repeat is refused at load**, naming the label
+  and its lines (`210/450`); `--help`, `--doc` and the manual say so, and
+  that one driver runs per `kit_dir`. Exit codes now read the same in all
+  four surfaces (FL19).
+
 ### Removed (2026-11-23 — leakscan's two dead warn-only paths, `115/490`)
 - **The type-level and document warn-first paths are gone.** Both cut-offs
   passed on 2026-11-20 (`115/480`), so `in_type_level_grace`,
