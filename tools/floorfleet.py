@@ -200,6 +200,10 @@ import leakscan  # noqa: E402
 # tool's to keep reporting on. It is an import of the two answers that would
 # read as two different facts if they were spelled twice.
 import floor  # noqa: E402
+# The one parser for the `review-by` dates a check's ignore file carries, and the
+# words for a lapsed one. Shared with floor.py's own line (110/060 part 2) so the
+# commit-time line and this board cannot spell the same date two ways.
+import allowmarker  # noqa: E402
 
 FLOOR_PATH = ".github/workflows/floor.yml"
 CONFIG_PATH = ".atelier-floor.json"
@@ -329,6 +333,11 @@ class ChildFloor:
     # and folded into `main()`'s exit code separately — see `main`.
     boundary: str = ""
     boundary_detail: str = ""
+    # check name -> `allowmarker.deferment_summary` of its ignore file(s), for
+    # the checks that carry at least one `review-by` (110/060 part 2). Like
+    # `advisory`, only what is declared appears: a repo with no dates has an
+    # empty map and an unchanged board. Warn-only: no exit status reads it.
+    deferments: dict[str, dict] = field(default_factory=dict)
 
     @property
     def ok(self) -> bool:
@@ -1000,6 +1009,22 @@ def _flag_args(raw: object) -> dict[str, list[str]]:
     return out
 
 
+def _read_deferments(repo: Path, read) -> dict[str, dict]:
+    """check name -> deferment summary, for each check whose ignore file(s) carry
+    a `review-by` (or an unreadable one). Read through the same `read` as the
+    rest of the row, so it is the working copy or the default branch exactly as
+    the other facts are; an unreadable file reads as none, because this board
+    reports and the scanner is what names its own unreadable file."""
+    today = _today()
+    out: dict[str, dict] = {}
+    for name in sorted(allowmarker.DEFERMENT_FILES):
+        summary = allowmarker.deferment_summary_for(
+            name, lambda fn: read(repo, fn), today)
+        if summary["dated"] or summary["malformed"]:
+            out[name] = summary
+    return out
+
+
 def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
     """The `.atelier-floor.json` half of a row, shared by the child path and the
     parent path. Only how a repo's floor is WIRED differs between them; what it
@@ -1062,7 +1087,9 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
         except ValueError:
             detail += " (unreadable .atelier-floor.json)"
 
+    deferments = _read_deferments(repo, read)
     return ChildFloor(name=repo.name, path=str(repo), state=state, detail=detail,
+                      deferments=deferments,
                       hook=hook_state(repo), shim=shim_state(read, repo),
                       advisory=advisory, advisory_kind=advisory_kind,
                       disabled=disabled,
@@ -1429,6 +1456,18 @@ def render(infos: list[ChildFloor], remote: bool, status: bool = False,
                     f"         🔴 {name} disabled barred from "
                     f"{barred.isoformat()} — the floor blocks this repo "
                     "from then unless the entry is removed")
+        # 110/060 part 2: the dated deferments in a check's ignore file(s), shown
+        # as an advisory's date is. A lapsed or unreadable one is 🟡 and says
+        # how long the oldest has stood; a live one is ⚠️ with the soonest date.
+        # Warn-only: red is a later slice's, and nothing here moves an exit.
+        for name, d in sorted(i.deferments.items()):
+            problem = allowmarker.deferment_problem(d, name)
+            if problem:
+                lines.append(f"      {problem}")
+            else:
+                lines.append(
+                    f"      ⚠️  {name} deferments: {d['dated']} dated, "
+                    f"next review-by {d['next_review_by']}")
         for name, why in i.local.items():
             lines.append(f"      ➕ {name} local — {why or 'no reason declared'}")
         # Cover reductions, printed beside the removals. `scope` is what a check

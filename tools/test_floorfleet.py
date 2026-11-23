@@ -1636,6 +1636,74 @@ class SizeCapTest(unittest.TestCase):
 
 
 
+class DefermentBoardTest(unittest.TestCase):
+    """110/060 part 2: the board shows dated deferments in a check's ignore
+    file as an advisory's date is shown, 🟡 when lapsed or unreadable, and a
+    repo with none renders exactly as before. Warn-only: no exit status."""
+
+    def _child(self, ignore):
+        td = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, td, True)
+        if ignore is not None:
+            (Path(td) / ".wrapscanignore").write_text(ignore, encoding="utf-8")
+        return Path(td)
+
+    def _info(self, ignore):
+        return floorfleet._read_declarations(
+            self._child(ignore), floorfleet._read_local, "wired",
+            "calls atelier's floor @main")
+
+    def _board(self, ignore):
+        return floorfleet.render([self._info(ignore)], remote=False)
+
+    def test_no_dates_adds_nothing_to_the_row_or_the_json(self):
+        info = self._info(None)
+        self.assertEqual(info.deferments, {})
+        self.assertNotIn("deferments", floorfleet.render([info], remote=False))
+        self.assertEqual(self._info("# plain reason\n*.tmp\n").deferments, {})
+
+    def test_a_lapsed_date_is_a_yellow_line_with_its_age(self):
+        out = self._board("# why. review-by: 2020-01-01\n*.tmp\n")
+        self.assertIn("🟡 wrapscan deferments: 1 lapsed (longest ", out)
+        self.assertIn("days over", out)
+        self.assertIn("warning only", out)
+        self.assertNotIn("🔴", out)
+
+    def test_an_unreadable_date_is_a_yellow_line(self):
+        out = self._board("# why. review-by: 2026-13-45\n*.tmp\n")
+        self.assertIn("🟡 wrapscan deferments: 1 unreadable review-by", out)
+
+    def test_a_live_date_shows_the_soonest_one_like_an_advisory_until(self):
+        out = self._board("# why. review-by: 2999-12-31\n*.tmp\n")
+        self.assertIn("⚠️  wrapscan deferments: 1 dated, "
+                      "next review-by 2999-12-31", out)
+        self.assertFalse([l for l in out.splitlines()
+                          if "deferments" in l and "🟡" in l])
+
+    def test_the_json_row_carries_the_summary_and_the_exit_is_unchanged(self):
+        info = self._info("# why. review-by: 2020-01-01\n*.tmp\n")
+        self.assertEqual(info.deferments["wrapscan"]["lapsed"], 1)
+        self.assertEqual(
+            set(asdict_keys(info)["deferments"]["wrapscan"]),
+            {"dated", "lapsed", "malformed", "longest_days_over",
+             "next_review_by"})
+        # `ok` and `green` read no deferment: the row's verdict is the same as
+        # for a repo with no dates at all.
+        plain = self._info(None)
+        self.assertEqual((info.ok, info.green), (plain.ok, plain.green))
+
+    def test_the_board_reads_the_same_files_the_floor_line_does(self):
+        import allowmarker
+        self.assertEqual(
+            sorted(floorfleet.allowmarker.DEFERMENT_FILES),
+            sorted(allowmarker.DEFERMENT_FILES))
+
+
+def asdict_keys(info):
+    from dataclasses import asdict
+    return asdict(info)
+
+
 class DeclarationLineTest(unittest.TestCase):
     """115/120 step 0: one reported line, for the registry the fleet floats on."""
 

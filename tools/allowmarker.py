@@ -695,6 +695,103 @@ def deferments_dict(deferments: list[Deferment],
     return out
 
 
+# ---------------------------------------------------- deferment summary --
+#
+# What the FLOOR LINE and the FLEET BOARD read (110/060 part 2). Neither runs
+# the scanners' `--json` for this: the floor line streams a scanner's own
+# output, and the board reads a child's files off a checkout or the default
+# branch without running anything. Both read the ignore file the scanner
+# reads, through the one parser above, so the line a scanner prints, the floor
+# note and the board row cannot come to disagree about a date.
+
+# Check name -> the ignore file(s) that check reads. Pinned from both sides by
+# `test_ignore_deferments.py`: it fails when a scanner's own file name moves
+# and this map does not.
+DEFERMENT_FILES: dict[str, tuple[str, ...]] = {
+    "conflictscan": (".conflictscanignore",),
+    "datescan": (".datescanignore",),
+    "indexscan": (".indexscanignore",),
+    "leakscan": (".leakscanignore", ".leakscanbinaries"),
+    "licenscan": (".licenscanignore",),
+    "linkscan": (".linkscanignore",),
+    "pathscan": (".pathscanignore",),
+    "secretscan": (".secretscanignore",),
+    "sizescan": (".sizescanignore",),
+    "spellscan": (".spellscanignore",),
+    "stampscan": (".stampscanignore",),
+    "wrapscan": (".wrapscanignore",),
+}
+
+
+def deferment_summary(deferments: list[Deferment],
+                      today: str | datetime.date | None = None) -> dict:
+    """One check's deferments as a flat, always-complete dict, known zeros
+    kept so a `--json` consumer's field set is the same on every run:
+
+    `dated` (globs with one well-formed review-by), `lapsed`, `malformed`,
+    `longest_days_over` (the oldest lapsed date's age in days, 0 if none) and
+    `next_review_by` (the soonest date not yet lapsed, "" if none)."""
+    today_d = today or _utc_today()
+    today_s = today_d.isoformat() if isinstance(today_d, datetime.date) else today_d
+    dated = [d for d in deferments if d.review_by is not None]
+    lapsed = [d for d in dated if d.review_by < today_s]
+    live = sorted(d.review_by for d in dated if d.review_by >= today_s)
+    over = max(((datetime.date.fromisoformat(today_s)
+                 - datetime.date.fromisoformat(d.review_by)).days
+                for d in lapsed), default=0)
+    return {"dated": len(dated), "lapsed": len(lapsed),
+            "malformed": sum(1 for d in deferments if d.malformed),
+            "longest_days_over": over,
+            "next_review_by": live[0] if live else ""}
+
+
+def merge_deferment_summaries(parts: list[dict]) -> dict:
+    """Combine per-file summaries (leakscan's two files) into one."""
+    nxt = sorted(p["next_review_by"] for p in parts if p["next_review_by"])
+    return {"dated": sum(p["dated"] for p in parts),
+            "lapsed": sum(p["lapsed"] for p in parts),
+            "malformed": sum(p["malformed"] for p in parts),
+            "longest_days_over": max((p["longest_days_over"] for p in parts),
+                                     default=0),
+            "next_review_by": nxt[0] if nxt else ""}
+
+
+def deferment_problem(summary: dict, name: str = "") -> str:
+    """The 🟡 words for a summary with a lapsed or unreadable date, "" when it
+    has neither; `name` leads it on the board, where several checks share a
+    row. Warn-only (110/060 part 2): shared by the floor line and the
+    fleet board so the two spell it the same."""
+    bits: list[str] = []
+    if summary["lapsed"]:
+        n = summary["longest_days_over"]
+        age = ("today" if n < 1 else "1 day over" if n == 1
+               else f"{n} days over")
+        bits.append(f"{summary['lapsed']} lapsed (longest {age})")
+    if summary["malformed"]:
+        bits.append(f"{summary['malformed']} unreadable review-by")
+    if not bits:
+        return ""
+    lead = f"{name} deferments" if name else "deferments"
+    return f"🟡 {lead}: {', '.join(bits)} — warning only"
+
+
+def deferment_summary_for(check: str, read, today: str | None = None) -> dict:
+    """The merged summary for `check`, reading each of its ignore files with
+    `read(filename) -> text | None` (None: absent or unreadable, both read as no
+    deferments here: the scanner reports its own unreadable file). A check with
+    no ignore file in `DEFERMENT_FILES` returns the all-zero summary."""
+    today = today or _utc_today().isoformat()
+    parts = []
+    for fn in DEFERMENT_FILES.get(check, ()):
+        try:
+            text = read(fn)
+        except (OSError, UnicodeError):
+            text = None
+        parts.append(deferment_summary(
+            ignore_deferments(text, today) if text else [], today))
+    return merge_deferment_summaries(parts) if parts else deferment_summary([], today)
+
+
 # ---------------------------------------------------------------- census --
 #
 # `python3 tools/allowmarker.py --census [--root DIR]` lists every malformed

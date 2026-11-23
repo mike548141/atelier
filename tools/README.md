@@ -3172,7 +3172,7 @@ is a literal character that negates nothing, and `g/` or a bare directory name
 `g` matches everything beneath it. A glob that can never match exempts nothing,
 silently; write each glob as a path from the repo root.
 
-**A dated deferment** (`110/060`, slices 1 and 2). A glob meant to be fixed rather
+**A dated deferment** (`110/060`, slices 1 to 3). A glob meant to be fixed rather
 than accepted can carry an expiry: write `review-by: YYYY-MM-DD` in the comment
 attached to it, either the stanza above or its trailing `# reason`. A stanza's
 date covers every glob in that stanza.
@@ -3216,9 +3216,34 @@ to `render_human`, which prints nothing when it is `None`.
 scanners (and `test_wrapscan.py` over `wrapscan`), so one that loses the wiring
 fails by name.
 
-**Warn-only for now.** A lapsed or unreadable date changes no exit status.
-Children run atelier's floor at `@main`, so making it block is a separate, announced
-step. The floor line and fleet board rendering are later slices of `110/060`.
+**On the floor line and the fleet board** (part 2, 2026-11-24). Both show a
+check's dated deferments the way they show an advisory's expiry, from the same
+ignore file(s) read through the same parser (`allowmarker.DEFERMENT_FILES` maps
+each check to its file(s), and a test holds it to each scanner's own name).
+A repo with no `review-by` dates prints exactly what it did before: unlike the
+scanners' own `deferments:` line, the floor line prints nothing for a zero.
+
+```text
+  🟡 wrapscan    enforced  (🟡 deferments: 1 lapsed (longest 326 days over), 1 unreadable review-by — warning only)
+  ✅ spellscan   enforced  [2 deferment(s), next review by 2027-01-31]
+      🟡 wrapscan deferments: 1 lapsed (longest 326 days over), 1 unreadable review-by — warning only
+      ⚠️  spellscan deferments: 2 dated, next review-by 2027-01-31
+```
+
+The first two are `floor.py` lines (a lapsed or unreadable date is a 🟡 note in
+the joined note list; a live one is the bracket, like an advisory's
+`[review by ...]`); the last two are `floorfleet` rows under the repo. A ❌ or 🔴
+mark is never overridden. `floor.py --json` carries `deferments` on every
+result (`dated`, `lapsed`, `malformed`, `longest_days_over`, `next_review_by`,
+zeros kept); `floorfleet --json` carries a `deferments` map per child, with only
+the checks that declare a date, as `advisory` does. `floorfleet` reads the
+ignore files through the same reader as the rest of a row, so `--remote` makes
+up to thirteen extra reads per repo.
+
+**Warn-only for now.** A lapsed or unreadable date changes no exit status, and
+no verdict on the floor line or the board. An advisory's expired date goes red;
+a deferment's does not yet. Children run atelier's floor at `@main`, so making
+it red or blocking is a separate, announced step.
 A scanner not listed above has no ignore file of this kind; a `review-by:` in
 any other file is still only a comment.
 

@@ -3448,5 +3448,106 @@ class FloorCoverageLineTest(unittest.TestCase):
         self.assertIn(f"  coverage: {cov['checks_run']} check(s) run · "
                       f"{cov['checks_listed']} check(s) listed", text.stderr)
 
+
+class DefermentLineTest(unittest.TestCase):
+    """110/060 part 2: a lapsed or unreadable `review-by` in a check's ignore
+    file shows on the floor line as a 🟡 note, as an advisory's expiry does,
+    and moves no exit status. A repo with no dates prints what it always did."""
+
+    LAPSED = "# kept for now. review-by: 2020-01-01\n*.tmp\n"
+    LIVE = "# kept for now. review-by: 2999-12-31\n*.tmp\n"
+    BAD = "# kept for now. review-by: 2026-13-45\n*.tmp\n"
+
+    def _run(self, ignore=None, blocking=False, json_mode=False):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "docs").mkdir()
+            (root / "docs" / "a.md").write_text(
+                "<<<<<<< ours\nx\n=======\ny\n>>>>>>> theirs\n" if blocking
+                else "Plain.\n", encoding="utf-8")
+            if ignore is not None:
+                (root / ".wrapscanignore").write_text(ignore, encoding="utf-8")
+            argv = [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane",
+                    "ci", "--root", td] + (["--json"] if json_mode else [])
+            return subprocess.run(argv, capture_output=True, text=True)
+
+    @staticmethod
+    def _line(r, name="wrapscan"):
+        return next(l for l in r.stderr.splitlines()
+                    if l.strip().split()[1:2] == [name])
+
+    def test_no_dates_prints_the_line_it_always_did(self):
+        line = self._line(self._run())
+        self.assertNotIn("deferment", line)
+        self.assertTrue(line.lstrip().startswith("✅"), line)
+        self.assertEqual(line.rstrip(), "  ✅ wrapscan    enforced")
+
+    def test_a_lapsed_date_is_a_yellow_note_with_its_age(self):
+        r = self._run(self.LAPSED)
+        line = self._line(r)
+        self.assertTrue(line.lstrip().startswith("🟡"), line)
+        self.assertIn("deferments: 1 lapsed (longest ", line)
+        self.assertIn("days over", line)
+        self.assertIn("warning only", line)
+        self.assertNotIn("🔴", line)
+
+    def test_an_unreadable_date_is_a_yellow_note(self):
+        line = self._line(self._run(self.BAD))
+        self.assertTrue(line.lstrip().startswith("🟡"), line)
+        self.assertIn("1 unreadable review-by", line)
+
+    def test_a_live_date_shows_when_it_is_due_and_stays_green(self):
+        line = self._line(self._run(self.LIVE))
+        self.assertTrue(line.lstrip().startswith("✅"), line)
+        self.assertIn("[1 deferment(s), next review by 2999-12-31]", line)
+        self.assertNotIn("🟡", line)
+
+    def test_the_exit_status_is_what_it_is_with_no_dates(self):
+        for blocking in (False, True):
+            with self.subTest(blocking=blocking):
+                base = self._run(blocking=blocking).returncode
+                for ignore in (self.LAPSED, self.BAD, self.LIVE):
+                    self.assertEqual(
+                        self._run(ignore, blocking=blocking).returncode, base)
+        self.assertEqual(self._run().returncode, 0)
+        self.assertNotEqual(self._run(blocking=True).returncode, 0)
+
+    def test_a_blocked_check_keeps_its_red_mark_over_the_note(self):
+        r = self._run(self.LAPSED, blocking=True)
+        self.assertTrue(self._line(r, "conflictscan").lstrip().startswith("❌"))
+
+    def test_json_carries_known_zeros_and_the_counts(self):
+        rows = {x["name"]: x for x in json.loads(
+            self._run(self.LAPSED, json_mode=True).stdout)["results"]}
+        self.assertEqual(rows["wrapscan"]["deferments"],
+                         {"dated": 1, "lapsed": 1, "malformed": 0,
+                          "longest_days_over": rows["wrapscan"]["deferments"]
+                          ["longest_days_over"], "next_review_by": ""})
+        self.assertGreater(rows["wrapscan"]["deferments"]["longest_days_over"], 0)
+        self.assertEqual(rows["spellscan"]["deferments"], floor.DEFERMENTS_NONE)
+        for x in rows.values():  # known zeros: the field is on every result
+            self.assertEqual(set(x["deferments"]), set(floor.DEFERMENTS_NONE))
+
+    def test_render_leaves_red_and_cross_alone_and_a_local_check_reads_none(self):
+        r = floor.Result("wrapscan", "enforced", 0, ran=True, deferments={
+            "dated": 1, "lapsed": 1, "malformed": 0, "longest_days_over": 3,
+            "next_review_by": ""})
+        self.assertIn("🟡 wrapscan", floor.render([r], "ci"))
+        r.rc = 1  # blocked: the mark stays ❌
+        self.assertIn("❌ wrapscan", floor.render([r], "ci"))
+        import allowmarker
+        self.assertEqual(allowmarker.deferment_summary_for(
+            "somelocal", lambda fn: "x"), floor.DEFERMENTS_NONE)
+
+    def test_every_mapped_ignore_file_is_the_one_its_scanner_reads(self):
+        import allowmarker
+        import importlib
+        for name, files in allowmarker.DEFERMENT_FILES.items():
+            mod = importlib.import_module(name)
+            expected = (mod.IGNORE_FILE,) + (
+                (mod.BINARY_MANIFEST,) if name == "leakscan" else ())
+            self.assertEqual(files, expected, name)
+
+
 if __name__ == "__main__":
     unittest.main()

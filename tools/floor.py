@@ -2268,6 +2268,12 @@ class Config:
                 )
 
 
+# The all-zero deferment summary (`allowmarker.deferment_summary` of nothing),
+# spelled once here so a Result that never read an ignore file says the same.
+DEFERMENTS_NONE = {"dated": 0, "lapsed": 0, "malformed": 0,
+                   "longest_days_over": 0, "next_review_by": ""}
+
+
 @dataclass
 class Result:
     name: str
@@ -2329,6 +2335,13 @@ class Result:
     # floor's own `coverage:` line counts, and it is per result so a --json
     # consumer can tell which checks were the ones that ran. Always present.
     ran: bool = False
+    # The `review-by` dates written in this check's ignore file(s) (110/060 part
+    # 2), as `allowmarker.deferment_summary` reads them: dated, lapsed,
+    # malformed, longest_days_over, next_review_by. Always present with known
+    # zeros, so a --json consumer's field set stays comparable run to run. A
+    # lapsed or unreadable date renders 🟡 and moves NO exit status: red is a
+    # later slice's, and children run this floor at @main.
+    deferments: dict = field(default_factory=lambda: dict(DEFERMENTS_NONE))
 
     @property
     def failed(self) -> bool:
@@ -2643,6 +2656,22 @@ def commit_msg_hook_note(root: Path) -> str:
     return ("this clone has no commit-msg hook, so the commit-message checks "
             "did not run. Copy atelier's tools/commit-msg.sample there "
             f"({hook}) and chmod +x it")
+
+
+def _deferments_for(name: str, root: Path, today: str) -> dict:
+    """The deferment summary for check `name` over `root`'s ignore file(s). The
+    parser lives beside the scanners (`allowmarker`, stdlib only, like `report`),
+    so it is imported here at the point of use; a tools dir without it, or any
+    read trouble, reads as no deferments, because this line is a report and the
+    scanner itself says so when its own file is unreadable."""
+    try:
+        import allowmarker
+        return allowmarker.deferment_summary_for(
+            name, lambda fn: (root / fn).read_text(encoding="utf-8",
+                                                   errors="replace")
+            if (root / fn).is_file() else None, today)
+    except (ImportError, OSError, ValueError):
+        return {**DEFERMENTS_NONE}
 
 
 def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
@@ -2962,6 +2991,13 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         adv = cfg.advisory.get(scanner.name) if state == "advisory" else None
         today = _today()
         expired = bool(adv and adv.expired(today))
+        # 110/060 part 2: the review-by dates in this check's ignore file(s).
+        # Read off the file the scanner just read, by the one shared parser, so
+        # this cannot disagree with the `deferments:` line it printed. A local
+        # check has no ignore-file map, so it reads as no deferments.
+        deferments = (
+            {**DEFERMENTS_NONE} if scanner.is_local else
+            _deferments_for(scanner.name, root, today))
         results.append(Result(
             scanner.name, state, rc, local=scanner.is_local, partial=partial,
             ran=True,
@@ -2978,6 +3014,7 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             barred_from=(ADVISORY_BARRED_FROM[scanner.name].isoformat()
                          if adv and scanner.name in ADVISORY_BARRED_FROM
                          else ""),
+            deferments=deferments,
         ))
     return results
 
@@ -2989,6 +3026,11 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
 # "blocking check that also reported findings it passed on" from "check that can
 # never block", and two notes both spelled "advisory" would not let them.
 WARN_ONLY_NOTE = "warn-only wiring — reports findings, can never block this build"
+
+
+def _deferment_problem(summary: dict) -> str:
+    import allowmarker  # beside this file, as `report` is
+    return allowmarker.deferment_problem(summary)
 
 
 def render(results: list[Result], plane: str) -> str:
@@ -3048,10 +3090,23 @@ def render(results: list[Result], plane: str) -> str:
                        "blocks" if r.barred_from else "")
         if barred_note and mark != "❌":
             mark = "🔴"
+        # 110/060 part 2: a lapsed or unreadable `review-by` in this check's
+        # ignore file(s), worded as one note in the same joined list. Warn-only
+        # and 🟡 like the advisory count above: it never overrides ❌ or 🔴, and
+        # it moves no exit status. Nothing is printed for a check with none,
+        # so a repo without dates renders exactly as before.
+        deferment_note = _deferment_problem(r.deferments)
+        if deferment_note and mark not in ("❌", "🔴"):
+            mark = "🟡"
         said = [s for s in (r.reason, warn_note, r.partial, advisory_note,
-                            barred_note,
+                            deferment_note, barred_note,
                             r.date_note and f"🟡 {r.date_note}") if s]
         note = f"  ({'; '.join(said)})" if said else ""
+        # A live date is shown as an advisory's is, beside the note: when the
+        # soonest one is due, for the check whose deferments are all current.
+        if r.deferments["next_review_by"] and not deferment_note:
+            note += (f"  [{r.deferments['dated']} deferment(s), "
+                     f"next review by {r.deferments['next_review_by']}]")
         if r.state == "advisory":
             if r.review_by:
                 # How long it has stood, not just that it stood too long: the
