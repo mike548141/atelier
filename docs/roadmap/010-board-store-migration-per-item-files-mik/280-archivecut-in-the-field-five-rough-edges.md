@@ -1,4 +1,4 @@
-- [~] 🔎 **`archivecut` in the field: five rough edges from its first fleet
+- [ ] 🔎 **`archivecut` in the field: five rough edges from its first fleet
       run.** Filed 2026-11-20 by session 19378351 from the reports of the
       workers it ran in sixteen children (class only; every cut that ran
       proved byte for byte and landed with green CI). None lost data; each
@@ -52,4 +52,8 @@
       `docs/sessions/README.md` is 92 columns, the same class as item 2;
       session-log sources at the repo root are not looked for (the item named
       only the board); and item 5, the `attribscan` record-path decision.
-      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-residue)*
+      ✅ **2026-11-23, later (same run):** the `archivecut:retired` comment
+      now writes `nl=` for `final-newline=`, at most 84 columns; the old
+      spelling is still read, so repos already cut still verify. Tests in
+      `tools/test_archivecut.py`. **Still open:** root session-log sources,
+      and item 5 (the `attribscan` record-path decision).

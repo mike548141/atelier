@@ -1,4 +1,4 @@
-- [~] 🔎 **A wrapped claim does not project into the index, a `]` in a title
+- [ ] 🔎 **A wrapped claim does not project into the index, a `]` in a title
       breaks its generated link, and the §10 declaration's home is ambiguous
       between GUARDS and practice** `[tool][doctrine]` — three findings handed
       up from a private child 2026-09-26 via § *Pointing up*, out of four
@@ -124,4 +124,8 @@
       would close it. **Still open here:** that gap, and part 3, the
       question of where a non-guard §10 declaration lives (the `review:`
       line, or a dated ADR section the line points at).
-      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-residue)*
+      ✅ **2026-11-23, later (same run): the trailing-claim gap is closed.**
+      `board.py` also reads an item's last non-blank line when it is a claim
+      and nothing else, only for a `[~]` item whose first paragraph has no
+      claim; tests in `tools/test_board.py`. 🎯 **Still open:** part 3 only,
+      the question of where a non-guard §10 declaration lives.
