@@ -354,8 +354,9 @@ the list is led by what the registry contract tests do not yet pin:
    README's dates match the code on all seven at this commit. A test that every
    module-level `*_UNTIL` or `*_FROM` constant in `tools/` is named in the
    floor's state column, or carried by the registry entry, closes defect 1 and
-   keeps the README honest. First run: 2 findings (`attribscan`, `pdlistscan`
-   render as enforced while unable to block).
+   keeps the README honest. First run: 4 findings (`attribscan`,
+   `pdlistscan`, `namescan` and `quotescan` render as enforced on some plane
+   while unable to block).
 4. **The Python 3.9 floor, as syntax.** `TRM57`: the tools claim 3.9 and CI runs
    3.12 only. `ast.parse(..., feature_version=(3, 9))` over every non-test
    `tools/*.py`: 0 errors; all 21 registry selftests and `floor.py --list` pass
@@ -393,13 +394,15 @@ Not in this file's gift: the census item is not edited, and the principal alone
 grants a closed-list place.
 
 1. **The floor's "enforced" mark is not a claim a dated warning period can
-   break, and two checks break it.** The docstring says the green tick means "a
+   break, and four checks break it.** The docstring says the green tick means "a
    gate that held" and derives the state from the registry argv. `attribscan`
    (warns until 2027-02-08) and `pdlistscan` (warns until 2027-03-08) render
    `enforced` on the hook plane although a finding cannot block them. The
-   in-scanner date is invisible to `Scanner.warns_only`. `namescan` and
-   `quotescan` render warn-only on CI by the registry's `--warn` and are silent
-   about their own hardening dates. `FLR5`, `CHK16`, `CHK17`.
+   in-scanner date is invisible to `Scanner.warns_only`. On the message plane
+   `namescan` and `quotescan` render `enforced` too (read from the commit
+   hook's own output at this commit), while on CI they render warn-only only
+   because the registry's argv carries `--warn`; no plane names their
+   hardening dates. `FLR5`, `CHK16`, `CHK17`, `CHK19`, `CHK20`.
 2. **`datescan`'s registry `why` overstates the check.** "Never a drifting
    'today'" is not what it reads: a bare "today" with no date beside it passes by
    design and a test pins the pass; the declaration's purpose gap names the dated
