@@ -29,3 +29,13 @@
       commit, anyone's, read as the house's. Pushing to his repo still needs his
       access, so the trust list's loss would be authorship proof, not
       write access.
+      💬 **Answered 2026-11-23 ~19:50 UTC (session 608d8123, AskUserQuestion, after the measurement above was put to him in plain terms), his pick:** *"Accept + cloud hands back"*
+      (option text: *"Same, and cloud sessions never land changes on main
+      themselves; your own sessions land them"*, the "same" being: accept
+      the 28 as past history and do not trust the vendor key). **Now build
+      work, owed here:** record the 2026-10-17/18 range (and the unsigned
+      2026-09-16 merge) as an accepted exception that `signscan` reads, so
+      the flip does not red on history; leave `allowed_signers` as it is;
+      and say in `SIGNING.md` that a hosted session hands its work back (a
+      branch or PR) for a local session to land, never committing to
+      `main` itself. The build earns its own cold pass.
