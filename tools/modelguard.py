@@ -89,6 +89,7 @@ DATA_HEADS = {
     "alias", "unalias", "read", "local", "declare", "typeset", "readonly",
     "export", "set", "man", "basename", "dirname", "open", "code", "history",
     "shasum", "md5", "tar", "zip", "unzip", "curl", "wget", "mdfind", "true",
+    "scp", "sftp", "rsync",
     "false", ":",
 }
 # Wrappers: run the rest of the words as the command. Value-taking options
@@ -130,6 +131,11 @@ SHELL_FED = re.compile(
     r"(?:(?:sudo|env|nohup|exec|command|time|nice)\s+(?:-\S+\s+)*)*"
     r"(?:\S*/)?(?:bash|sh|zsh|dash|ksh)\b")
 MAX_DEPTH = 4
+PACKAGE_TAG = re.compile(r"(?:latest|next|beta|alpha|canary|stable|v?\d[\w.+-]*)")
+# ssh's options that take a value: the word after them is data, not the
+# destination (210/570). The first other word is the destination; the rest
+# is the remote command, read as code.
+SSH_OPTS = set("BbcDEeFIiJLlmOoPpQRSWw")
 
 
 def deny(reason):
@@ -254,8 +260,12 @@ def command_name(word, ctx):
         name = m.group(1)
         return "claude" if name in ctx.claude_vars or CLAUDE_VAR.fullmatch(name) else word
     base = os.path.basename(word)
-    if not base.startswith("@"):
-        base = base.split("@", 1)[0]  # claude@1.2, claude-code@latest
+    if not base.startswith("@") and "@" in base:
+        name, _, tag = base.partition("@")
+        # A package version or tag (claude@1.2, claude-code@latest) names the
+        # binary; anything else after `@` is a login (claude@host: 210/570).
+        if PACKAGE_TAG.fullmatch(tag):
+            base = name
     return base
 
 
@@ -367,6 +377,21 @@ def classify(words, ctx, depth, model_set=False):
         i = next(i for i, a in enumerate(args) if a in ("-c", "--call"))
         if i + 1 < len(args):
             return offending(args[i + 1], depth + 1, ctx)
+    if head in ("ssh", "autossh"):
+        # The login and host are data (`claude@host`, `-l claude`); only the
+        # remote command is code, so `ssh host claude -p` is still read.
+        i = 0
+        while i < len(args) and args[i].startswith("-") and args[i] != "--":
+            flag = args[i]
+            i += 1
+            if len(flag) == 2 and flag[1] in SSH_OPTS:
+                i += 1  # its value
+        if i < len(args) and args[i] == "--":
+            i += 1
+        rest = args[i + 1:]  # past the destination
+        if rest and depth < MAX_DEPTH:
+            return offending(" ".join(rest), depth + 1, ctx)
+        return None
     if head in WRAPPER_OPTS:
         return classify(skip_wrapper(head, args), ctx, depth, model_set)
     if head in DATA_HEADS:

@@ -1,4 +1,4 @@
-- [~] 🔥 **`modelguard` refuses plain SSH as a user named `claude`.** Handed
+- [x] 🔥 **`modelguard` refuses plain SSH as a user named `claude`.** Handed
       over mid-run 2026-11-23 ~12:09Z by a peer queue-run session in a
       private child, class only: after the `210/470` rewrite went live,
       `ssh -i <key> claude@<host> 'sh -s' < script` and `ssh -i <key> -l
@@ -13,4 +13,11 @@
       options and destination as data and only its remote command as code
       (so `ssh host claude -p …` is still refused); `scp`, `sftp` and
       `rsync` are data heads.
-      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: atelier-qr-c7a1-claims)*
+      ✅ **Done 2026-11-23** (queue run c7a1e36e, inline, within the hour
+      it was reported): as the fix above says. Tests in
+      `tools/test_modelguard.py`: six SSH/scp/rsync forms in LOOKUPS (they
+      fail on the previous hook) and two remote-`claude` forms in BYPASSES;
+      passes under the system Python 3.9 the hook is wired to. Covered by
+      the `160/1450` re-check `210/470` asks for. Lesson for that re-check:
+      the rewrite's fail-closed rule had no test drawn from the estate's
+      ordinary host commands, only from session commands.

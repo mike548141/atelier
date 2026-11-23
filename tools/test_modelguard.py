@@ -52,6 +52,9 @@ CASES = [
 # Launches with no model that an earlier parse let through (FL7, probe P12).
 # Each must be denied. Grow this table with every bypass found.
 BYPASSES = [
+    # 210/570: ssh's remote command is still read as code.
+    'ssh host claude -p x',
+    "ssh -i k host 'claude -p x'",
     'for r in a b; do claude -p "x"; done',
     'if true; then claude -p x; fi',
     'while true; do claude -p x; break; done',
@@ -97,6 +100,13 @@ BYPASSES = [
 # Commands that only look up, read or name the binary (210/500), and launches
 # that do name a model. Each must pass.
 LOOKUPS = [
+    # 210/570: a login named claude is data, not the binary.
+    "ssh -i k claude@host 'sh -s' < script",
+    "ssh -i k -l claude host 'sh -s' < script",
+    'ssh claude@host uptime',
+    'ssh -o BatchMode=yes claude@host -- ls /srv',
+    'scp f claude@host:/tmp/',
+    'rsync -a d/ claude@host:/x/',
     'command -v claude',
     'ls ~/.local/bin/claude ; command -v claude',
     'command -V claude',
