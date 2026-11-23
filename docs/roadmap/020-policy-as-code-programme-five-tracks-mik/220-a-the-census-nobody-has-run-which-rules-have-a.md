@@ -1,4 +1,4 @@
-- [~] **(a) The census nobody has run: which rules have a forcing function,
+- [ ] **(a) The census nobody has run: which rules have a forcing function,
       and which do not.** ADR 0008 made enforcement *propagate*; it never
       established what proportion of doctrine is enforced at all. No one has
       enumerated the rules and asked of each: what happens if this is broken,
@@ -140,4 +140,20 @@
         Defects filed as `115/530`. **Remaining:** `docs/decisions/`;
         `skills/`, `commands/` and the plugin manifests; the validators'
         own stated rules; `docs/PERSONAL-DATA.md` and the index rules.
-      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-census7)*
+      - 2026-11-23, slice 7 done (same run): `docs/decisions/` (README,
+        ADRs 0001–0008, twelve dated records), the six skills with their
+        bundled prompts, the four commands, both plugin manifests and the
+        menu skill, in
+        `docs/method/census/2026-11-23-1813-decisions-skills-commands-plugin.md`.
+        116 new rules (most skill text folds into earlier rows): 45
+        enforced (34 partial), 71 directive-only (15 with a breach visible
+        in the diff), none accepted. Running total over seven slices: 744
+        rules (743 distinct), 149 enforced, 582 directive-only, 13
+        accepted. Guard candidates for `020/240`, led by a CHANGELOG line
+        required with any change to `skills/`, `commands/` or the plugin
+        manifests (17 of the last 40 such commits have none). Defects
+        filed as `115/540`. **Remaining:** the validators' own stated rules
+        (the floor registry, scanner docstrings, `tools/README.md`,
+        `instruments/README.md`, the `ccfleet` man page);
+        `docs/PERSONAL-DATA.md`; atelier's `docs/roadmap/README.md` and
+        `docs/reviews/README.md`.

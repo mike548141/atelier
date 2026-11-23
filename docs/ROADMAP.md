@@ -15,7 +15,7 @@ line, so they overlap Open and Claimed.
 | Section | Open | Claimed | 🎯 Waiting | ⏳ Review |
 | :-- | --: | --: | --: | --: |
 | [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 6 | 0 | 1 | 0 |
-| [Policy-as-code programme — five tracks (Mike approved 2026-07-27)](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md) | 16 | 1 | 4 | 0 |
+| [Policy-as-code programme — five tracks (Mike approved 2026-07-27)](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md) | 17 | 0 | 4 | 0 |
 | [Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)](roadmap/030-enforcement-propagation-the-estate-rollo/README.md) | 9 | 0 | 0 | 0 |
 | ✅ [Principal-set dates: mandate vs default (Mike, 2026-08-09)](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md) | 0 | 0 | 0 | 0 |
 | [🤔 Trust-failure handling as a skill — idea to consider (Mike, 2026-08-02)](roadmap/050-trust-failure-handling-as-a-skill-idea-t/README.md) | 1 | 0 | 0 | 0 |
@@ -25,7 +25,7 @@ line, so they overlap Open and Claimed.
 | [The floor-at-head all-clear has a cancelled-run hole (found 2026-08-09)](roadmap/090-the-floor-at-head-all-clear-has-a-cancel/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [spellscan's reason class silently voided live allow-markers — CLOSED 2026-08-09](roadmap/100-spellscan-s-reason-class-silently-voided/README.md) | 0 | 0 | 0 | 0 |
 | [Estate duplication + exception audit (Mike commissioned 2026-08-09)](roadmap/110-estate-duplication-exception-audit-mike/README.md) | 7 | 0 | 1 | 0 |
-| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 19 | 1 | 3 | 0 |
+| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 20 | 1 | 3 | 0 |
 | ✅ [test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 273 | 2 | 106 | 39 |
+| **All sections** | 275 | 1 | 106 | 39 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -90,7 +90,7 @@ line, so they overlap Open and Claimed.
 - [ ] [The measurement that supports it, and its limits.](roadmap/020-policy-as-code-programme-five-tracks-mik/190-the-measurement-that-supports-it-and-its-limit.md)
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
 - [ ] 🎯 [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await…](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
-- [~] (claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-census7) [(a) The…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
+- [ ] [(a) The census nobody has run: which rules have a forcing function,…](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
 - [ ] [Generalise the finding, don't just fix this doc.](roadmap/020-policy-as-code-programme-five-tracks-mik/300-generalise-the-finding-don-t-just-fix-this-doc.md)
 - [ ] 🔎 [GUARDS.md § Adoption assumes every guard can install advisory-first,…](roadmap/020-policy-as-code-programme-five-tracks-mik/410-adoption-assumes-advisory-first.md)
@@ -170,6 +170,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🔎 [Defects the enforcement census found in slice 5.](roadmap/115-guardrail-architecture-mike-commissioned/510-census-slice-5-doctrine-defects.md)
 - [ ] 🔎 [28 commits made by hosted cloud sessions fail signscan, and…](roadmap/115-guardrail-architecture-mike-commissioned/520-hosted-session-commits-fail-signscan.md)
 - [~] 🔎 (claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-defects6) [Defects…](roadmap/115-guardrail-architecture-mike-commissioned/530-census-slice-6-doctrine-defects.md)
+- [ ] 🔎 [Defects the enforcement census found in slice 7.](roadmap/115-guardrail-architecture-mike-commissioned/540-census-slice-7-doctrine-defects.md)
 
 ## Doctrine — review-owed
 
