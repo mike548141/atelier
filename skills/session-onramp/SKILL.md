@@ -55,12 +55,15 @@ When a change touches one of these, read it first — don't re-derive it:
 - `docs/build/` — the repo-craft standard, repo-boundary guidance, templates.
 
 Companion behaviours ship alongside this skill. Enforcement: `/atelier:scan`
-(the publish-safety scanners), `/atelier:install-hook` (the pre-commit scan
+(four of the floor's scanners, run by hand; the full floor is
+`tools/floor.py`), `/atelier:install-hook` (the pre-commit scan
 gate — the mechanical enforcement the doctrine leans on hardest), the
 `review-brief` skill (the peer-review lifecycle that turns "looks right" into
-"verified"), and the `queue-run` skill (orchestrate a run that drains the
-shared queue, closing records per item). Repo-craft as behaviour: the
-`create-repo` skill (scaffold or standardise a repo to the house standard,
-stamped from your own instance profile), `/atelier:worktree` (one worktree per
-line of work), and `/atelier:fleet-pins` (which child repos are behind the
-doctrine SHA they pin).
+"verified"), the `review-drain` skill (run briefed cold review passes until an
+approved budget is used up), and the `queue-run` skill (orchestrate a run that
+drains the shared queue, closing records per item). Repo-craft as behaviour:
+the `create-repo` skill (scaffold or standardise a repo to the house standard,
+stamped from your own instance profile), the `fleet-sweep` skill (bring every
+child repo to a healthy state), `/atelier:worktree` (one worktree per line of
+work), and `/atelier:fleet-pins` (which child repos are behind the doctrine SHA
+they pin).
