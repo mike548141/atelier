@@ -1,4 +1,4 @@
-- [ ] **(a) The census nobody has run: which rules have a forcing function,
+- [~] **(a) The census nobody has run: which rules have a forcing function,
       and which do not.** ADR 0008 made enforcement *propagate*; it never
       established what proportion of doctrine is enforced at all. No one has
       enumerated the rules and asked of each: what happens if this is broken,
@@ -140,3 +140,4 @@
         Defects filed as `115/530`. **Remaining:** `docs/decisions/`;
         `skills/`, `commands/` and the plugin manifests; the validators'
         own stated rules; `docs/PERSONAL-DATA.md` and the index rules.
+      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-census7)*

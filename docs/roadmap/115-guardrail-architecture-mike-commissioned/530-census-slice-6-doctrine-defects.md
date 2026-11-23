@@ -1,4 +1,4 @@
-- [ ] 🔎 **Defects the enforcement census found in slice 6.** Found
+- [~] 🔎 **Defects the enforcement census found in slice 6.** Found
       2026-11-23 UTC by `020/220` slice 6
       (`docs/method/census/2026-11-23-1730-build-boundary-standard-templates-root-files.md`);
       reported, not fixed in passing.
@@ -26,3 +26,4 @@
       8. **Atelier declares no repo type**, so its missing
          `ARCHITECTURE.md` and `CONTRIBUTING.md` read the same as a sizing
          choice.
+      *(claimed 2026-11-23 UTC, session 608d8123, wt: atelier-qr-608d-defects6)*
