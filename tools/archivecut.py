@@ -5,7 +5,9 @@ WHY (board `010/220`, the principal's pick 2026-11-20: "Split, fall back to
 move"; and `010/270`, his pick 2026-11-20: "Retire SESSIONS.md")
 ---------------------------------------------------------------------------
 The board moved to one file per item on 2026-08-15, but its finished work
-from before the split stayed frozen in one file, `docs/ROADMAP-DONE.md`. The
+from before the split stayed frozen in one file, `docs/ROADMAP-DONE.md` (or
+`ROADMAP-DONE.md` at the repo root, where some children kept it; `docs/` wins
+when both exist, and the other is left alone). The
 session log kept a hand-appended index, `docs/SESSIONS.md`, beside its folder
 of session files, and some children a frozen `SESSIONS-ARCHIVE.md` of older
 index entries as well. On the session log the principal said *"they should
@@ -55,6 +57,11 @@ things before it writes anything, and falls back to (b) if any fails:
      link must map back to its original text exactly, so (2) holds from the
      files as committed too: `--verify` re-runs it from disk against the last
      committed copy of the source.
+
+The tool re-points a path and never re-wraps prose, and a longer path can push
+a line past `wrapscan`'s limit. Each such line, in a file `wrapscan` reads, is
+listed in the plan ("WRAP") so the worker wraps it before the first commit. A
+line already over, or in a file `.wrapscanignore` exempts, is not listed.
 
 Anything that would make the reading ambiguous fails the proof rather than
 being guessed at: a source line already shaped like the tool's link line or
@@ -110,10 +117,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import board  # noqa: E402
 import linkscan  # noqa: E402
+import wrapscan  # noqa: E402
 
-BOARD_SRC = "docs/ROADMAP-DONE.md"
+# Where the pre-split board archive may sit, most usual first (010/280 item 3):
+# a child that kept it at the repo root, not in `docs/`, read "nothing to do".
+BOARD_SRCS = ("docs/ROADMAP-DONE.md", "ROADMAP-DONE.md")
+BOARD_SRC = BOARD_SRCS[0]
 BOARD_DIR = "docs/roadmap"
-ARCHIVE_SECTION = "990-done-before-the-split"
+ARCHIVE_SECTION = board.ARCHIVE_SECTION
 SECTION_DIR = f"{BOARD_DIR}/{ARCHIVE_SECTION}"
 SECTION_README = f"{SECTION_DIR}/README.md"
 # Route (b)'s home sits one level below the section, because `board.py` reads
@@ -443,6 +454,8 @@ class Plan:
     link_files: int = 0
     link_edits: int = 0
     tree_writes: dict[str, str] = field(default_factory=dict)
+    # Lines a re-pointed link pushed past the wrap limit: (path, line, width).
+    long_lines: list[tuple[str, int, int]] = field(default_factory=list)
 
 
 def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
@@ -471,6 +484,19 @@ def _read(root: Path, path: str) -> str | None:
     return p.read_bytes().decode("utf-8")
 
 
+def board_src(root: Path) -> str:
+    """Where this repo keeps its pre-split board archive (010/280 item 3): the
+    first of `BOARD_SRCS` that is a file on disk, else (for `--verify`, after a
+    cut has removed it) the first the git history knows, else the usual home."""
+    for cand in BOARD_SRCS:
+        if (root / cand).is_file():
+            return cand
+    for cand in BOARD_SRCS:
+        if committed_source(root, cand) is not None:
+            return cand
+    return BOARD_SRC
+
+
 def _title(entry_text: str) -> str:
     state = board.item_state(entry_text)
     if state is not None:
@@ -485,6 +511,26 @@ def _title(entry_text: str) -> str:
 def _check(proof: list[str], ok: bool, label: str) -> bool:
     proof.append(f"{'PASS' if ok else 'FAIL'}  {label}")
     return ok
+
+
+def _note_long_lines(root: Path, plan: Plan, path: str, before: str,
+                     after: str) -> None:
+    """Record each line the re-pointing took past the house wrap limit
+    (010/280 item 1). The tool changes a path and never re-wraps prose, so the
+    worker has to: this names the lines, as `wrapscan` would read them, so the
+    first commit is not the first they hear of it. A line already over before
+    (or in a file `.wrapscanignore` exempts) is not reported: it was no news.
+    The line count never changes, so line numbers match."""
+    try:
+        if wrapscan._ignored(path, wrapscan.load_ignore_globs(root)):
+            return
+    except wrapscan.IgnoreFileError:
+        pass          # a broken ignore file is wrapscan's to report, not ours
+    was = {f.line for f in wrapscan.scan_text(path, before)}
+    seen = {(p, n) for p, n, _ in plan.long_lines}
+    for f in wrapscan.scan_text(path, after):
+        if f.line not in was and (path, f.line) not in seen:
+            plan.long_lines.append((path, f.line, f.length))
 
 
 def _repoint_tree(root: Path, plan: Plan, src: str, new_home: str,
@@ -526,6 +572,7 @@ def _repoint_tree(root: Path, plan: Plan, src: str, new_home: str,
         new_text, edits = rewrite_links(text, target, text_side)
         if edits:
             plan.link_files += path not in plan.tree_writes
+            _note_long_lines(root, plan, path, text, new_text)
             plan.tree_writes[path] = new_text
             plan.link_edits += len(edits)
 
@@ -574,13 +621,14 @@ def board_moved_readme(src: str, sha: str) -> str:
         "are unchanged; its links were re-pointed for the new depth.\n")
 
 
-def board_moves(names: list[str]) -> dict[str, Move]:
+def board_moves(names: list[str], src: str = BOARD_SRC) -> dict[str, Move]:
     reps = frozenset([SECTION_README] + [f"{SECTION_DIR}/{n}" for n in names])
-    out = {SECTION_README: Move(BOARD_SRC, "docs", SECTION_README,
+    old_dir = posixpath.dirname(src)
+    out = {SECTION_README: Move(src, old_dir, SECTION_README,
                                 SECTION_README, reps, REF_RE)}
     for n in names:
         f = f"{SECTION_DIR}/{n}"
-        out[f] = Move(BOARD_SRC, "docs", f, SECTION_README, reps)
+        out[f] = Move(src, old_dir, f, SECTION_README, reps)
     return out
 
 
@@ -603,9 +651,10 @@ def board_reconstruct(readme: str, items: dict[str, str]) -> str | None:
 
 
 def plan_board(root: Path) -> Plan:
-    plan = Plan("board", BOARD_SRC)
+    src = board_src(root)
+    plan = Plan("board", src)
     try:
-        text = _read(root, BOARD_SRC)
+        text = _read(root, src)
     except UnicodeDecodeError:
         text, plan.route = None, "move"
         plan.reasons.append("not UTF-8")
@@ -616,7 +665,11 @@ def plan_board(root: Path) -> Plan:
         plan.route = "blocked"
         plan.reasons.append(conflict)
         return plan
-    sha = last_commit(root, BOARD_SRC)
+    others = [c for c in BOARD_SRCS if c != src and (root / c).is_file()]
+    if others:
+        plan.reasons.append(f"{', '.join(others)} also exists and is left alone; "
+                            f"cutting {src}")
+    sha = last_commit(root, src)
     if text is not None:
         ok = _cut_board(plan, text, sha)
         plan.route = "cut" if ok else "move"
@@ -628,7 +681,7 @@ def plan_board(root: Path) -> Plan:
         home = SECTION_README
     else:
         home = SECTION_README
-    _repoint_tree(root, plan, BOARD_SRC, home, set(plan.writes), anchors)
+    _repoint_tree(root, plan, src, home, set(plan.writes), anchors)
     return plan
 
 
@@ -665,7 +718,7 @@ def _cut_board(plan: Plan, text: str, sha: str) -> bool:
               if (st := board.item_state(t)) is None or st.marker != "[x]"]
     ok &= _check(proof, not unread,
                  f"every item reads as `[x]` to board.py ({len(unread)} do not)")
-    readme = board_readme_header(BOARD_SRC, sha) + "".join(body)
+    readme = board_readme_header(plan.src, sha) + "".join(body)
 
     # (2) bytes, before any link moves
     rebuilt = board_reconstruct(readme, items)
@@ -693,7 +746,7 @@ def _cut_board(plan: Plan, text: str, sha: str) -> bool:
                  + (f" ({', '.join(crossing)})" if crossing else ""))
 
     # (3) links re-pointed for the new depth, and every one maps back
-    moves = board_moves(names)
+    moves = board_moves(names, plan.src)
     moved: dict[str, str] = {}
     n_links = 0
     raw = {SECTION_README: readme, **{f"{SECTION_DIR}/{k}": v for k, v in items.items()}}
@@ -719,19 +772,20 @@ def _move_board(root: Path, plan: Plan, sha: str) -> None:
     plan.writes = {}
     plan.move_to = FROZEN_BOARD
     try:
-        text = _read(root, BOARD_SRC) or ""
+        text = _read(root, plan.src) or ""
     except UnicodeDecodeError:
-        plan.writes[SECTION_README] = board_moved_readme(BOARD_SRC, sha)
+        plan.writes[SECTION_README] = board_moved_readme(plan.src, sha)
         return
     reps = frozenset([FROZEN_BOARD])
-    mv = Move(BOARD_SRC, "docs", FROZEN_BOARD, FROZEN_BOARD, reps)
+    mv = Move(plan.src, posixpath.dirname(plan.src), FROZEN_BOARD,
+              FROZEN_BOARD, reps)
     moved, edits = relocate(text, mv)
     back, _ = unrelocate(moved, mv)
     _check(plan.proof, back == text,
            f"route (b): {len(edits)} link paths re-pointed in the moved file, "
            "each maps back to its original")
     plan.writes[FROZEN_BOARD] = moved
-    plan.writes[SECTION_README] = board_moved_readme(BOARD_SRC, sha)
+    plan.writes[SECTION_README] = board_moved_readme(plan.src, sha)
 
 
 # ---- the session log -------------------------------------------------------
@@ -750,8 +804,16 @@ def _move_board(root: Path, plan: Plan, sha: str) -> None:
 LOG_SOURCES = (SESSIONS_SRC, SESSIONS_INDEX)   # oldest first
 SESSIONS_README = f"{SESSIONS_DIR}/README.md"
 
-LOG_LABEL = ("**From the retired session log**, word for word; only its link "
-             "paths were re-pointed for this folder:")
+# The label line is the tool's own prose, so it fits the house width (85; 010/280,
+# the 2026-11-20 note): at 101 columns it made `wrapscan` refuse the first commit
+# in about ten children. The wording that shipped first is still read (and a
+# session file carrying it still verifies), but is never written again.
+LOG_LABEL = ("**From the retired session log**, word for word; only link paths "
+             "re-pointed:")
+LEGACY_LOG_LABELS = (
+    "**From the retired session log**, word for word; only its link "
+    "paths were re-pointed for this folder:",
+)
 ENTRY_MARK = "<!-- archivecut:log-entry {src} {start}+{count} -->"
 ENTRY_MARK_RE = re.compile(r"^<!-- archivecut:log-entry (\S+) (\d+)\+(\d+) -->$")
 REGION_MARK = "<!-- archivecut:log-text {src} {start}+{count} -->"
@@ -806,8 +868,9 @@ class _NotPresent:
 NOT_PRESENT = _NotPresent()
 
 
-def _core(entries: list[tuple[str, int, int, str]]) -> str:
-    out = [LOG_LABEL + "\n", "\n"]
+def _core(entries: list[tuple[str, int, int, str]],
+          label: str = LOG_LABEL) -> str:
+    out = [label + "\n", "\n"]
     for src, start, count, text in entries:
         out.append(ENTRY_MARK.format(src=src, start=start, count=count) + "\n")
         out.append(text if text.endswith("\n") else text + "\n")
@@ -815,12 +878,13 @@ def _core(entries: list[tuple[str, int, int, str]]) -> str:
 
 
 def insert_entries(original: str | None,
-                   entries: list[tuple[str, int, int, str]]) -> str:
+                   entries: list[tuple[str, int, int, str]],
+                   label: str = LOG_LABEL) -> str:
     """A session file with retired-log entries placed in it: right after its
     first line where that is a `# ` heading (the title stays first and the
     entry reads as the file's summary), else at the top. `original` None
     means the file is new and holds the entries alone."""
-    core = _core(entries)
+    core = _core(entries, label)
     if original is None:
         return core
     lines = split_lines(original)
@@ -834,12 +898,16 @@ def strip_entries(text: str):
     NOT_PRESENT when the file holds no placed entries, or None when it holds
     something shaped like them that does not read back exactly."""
     lines = split_lines(text)
-    if len(lines) > 2 and lines[0].startswith("# ") and lines[1] == "\n" \
-            and lines[2] == LOG_LABEL + "\n":
-        head, i = lines[0], 2
-    elif lines and lines[0] == LOG_LABEL + "\n":
-        head, i = None, 0
-    else:
+    label = None
+    for cand in (LOG_LABEL, *LEGACY_LOG_LABELS):
+        if len(lines) > 2 and lines[0].startswith("# ") and lines[1] == "\n" \
+                and lines[2] == cand + "\n":
+            head, i, label = lines[0], 2, cand
+            break
+        if lines and lines[0] == cand + "\n":
+            head, i, label = None, 0, cand
+            break
+    if label is None:
         return NOT_PRESENT
     if i + 1 >= len(lines) or lines[i + 1] != "\n":
         return None
@@ -869,7 +937,7 @@ def strip_entries(text: str):
         if not rest.startswith("\n"):
             return None
         original = head + rest[1:]
-    if insert_entries(original, entries) != text:
+    if insert_entries(original, entries, label) != text:
         return None
     return original, entries
 
@@ -1150,7 +1218,7 @@ def _retire_log(root: Path, plan: Plan, texts: dict[str, str]) -> bool:
         lines = split_lines(text)
         for line in lines:
             s = line.rstrip("\n")
-            if s == LOG_LABEL or ENTRY_MARK_RE.match(s) \
+            if s in (LOG_LABEL, *LEGACY_LOG_LABELS) or ENTRY_MARK_RE.match(s) \
                     or REGION_MARK_RE.match(s) or RETIRED_RE.match(s):
                 collisions += 1
         regions: list[tuple[int, int, str]] = []
@@ -1426,26 +1494,27 @@ def verify(root: Path) -> list[str]:
     """Lines of a verdict; a line starting FAIL means a mismatch."""
     out: list[str] = []
     # board
-    src = committed_source(root, BOARD_SRC)
-    if (root / BOARD_SRC).exists():
-        out.append(f"--    {BOARD_SRC}: still in place, not cut")
+    bsrc = board_src(root)
+    src = committed_source(root, bsrc)
+    if (root / bsrc).exists():
+        out.append(f"--    {bsrc}: still in place, not cut")
     elif src is None:
-        out.append(f"--    {BOARD_SRC}: never committed here")
+        out.append(f"--    {bsrc}: never committed here")
     elif (root / FROZEN_BOARD).is_file():
-        mv = Move(BOARD_SRC, "docs", FROZEN_BOARD, FROZEN_BOARD,
+        mv = Move(bsrc, posixpath.dirname(bsrc), FROZEN_BOARD, FROZEN_BOARD,
                   frozenset([FROZEN_BOARD]))
         back = unrelocate(_read(root, FROZEN_BOARD) or "", mv)[0]
         out.append(("PASS" if back == src else "FAIL")
-                   + f"  {BOARD_SRC}: route (b), the moved file maps back to "
+                   + f"  {bsrc}: route (b), the moved file maps back to "
                    "its last committed copy")
     else:
         readme = _read(root, SECTION_README)
         if readme is None:
-            out.append(f"FAIL  {BOARD_SRC}: gone, and {SECTION_README} is missing")
+            out.append(f"FAIL  {bsrc}: gone, and {SECTION_README} is missing")
         else:
             names = [p.name for p in (root / SECTION_DIR).glob("*.md")
                      if p.name != "README.md"]
-            moves = board_moves(names)
+            moves = board_moves(names, bsrc)
             items = {n: unrelocate(_read(root, f"{SECTION_DIR}/{n}") or "",
                                    moves[f"{SECTION_DIR}/{n}"])[0] for n in names}
             body = unrelocate(readme, moves[SECTION_README])[0]
@@ -1454,7 +1523,7 @@ def verify(root: Path) -> list[str]:
                     if (m := REF_RE.match(line.rstrip("\n")))}
             ok = rebuilt == src
             out.append(("PASS" if ok else "FAIL")
-                       + f"  {BOARD_SRC}: {len(names)} item files and the section "
+                       + f"  {bsrc}: {len(names)} item files and the section "
                        "README rebuild its last committed copy byte for byte")
             spare = sorted(set(n[:-3] for n in names) - used)
             if spare:
@@ -1509,6 +1578,12 @@ def render(plan: Plan) -> str:
     if plan.route in ("cut", "move"):
         lines.append(f"  links re-pointed elsewhere in the tree: {plan.link_edits}"
                      f" in {plan.link_files} files")
+    if plan.long_lines and plan.route in ("cut", "move"):
+        lines.append(f"  WRAP  {len(plan.long_lines)} line(s) a re-pointed link "
+                     f"pushed past {wrapscan.LINE_LIMIT} columns; wrap each "
+                     "before committing (the tool never re-wraps prose):")
+        for path, n, width in sorted(plan.long_lines):
+            lines.append(f"    {path}:{n} ({width} columns)")
     return "\n".join(lines)
 
 

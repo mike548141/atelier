@@ -27,6 +27,7 @@ sys.path.insert(0, str(TOOLS_DIR))
 import archivecut  # noqa: E402
 import board  # noqa: E402
 import linkscan  # noqa: E402
+import wrapscan  # noqa: E402
 
 SECTION = Path("docs/roadmap/990-done-before-the-split")
 
@@ -543,6 +544,169 @@ class PlaceEntries(unittest.TestCase):
         self.assertEqual(f("- [2026-07-14 · cold review](x)"), ("2026-07-14", None))
         self.assertEqual(f("- 2026-07-10 · 1157→234 lines"), ("2026-07-10", None))
         self.assertEqual(f("- no date"), (None, None))
+
+
+ROOT_DONE = """\
+# demo ROADMAP — completed detail (archive)
+
+## Cycles
+- [x] **First cycle closed** — see [`docs/reviews/one.md`](docs/reviews/one.md).
+- [x] **Second cycle closed** — and [`ROADMAP-DONE.md`](ROADMAP-DONE.md) itself.
+"""
+
+
+class FieldEdges(unittest.TestCase):
+    """010/280, `archivecut` in the field: items 1 and 3, and the label line
+    of item 2's 2026-11-20 form (item 4 is `board.py`'s, in test_board)."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.tmp = Path(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    # -- item 1: report the lines a re-pointed link pushed past the limit
+
+    LONG = ("See [the archive](ROADMAP-DONE.md) for the work done earlier "
+            "and for what it was for.\n")
+
+    def test_a_line_the_repointing_lengthens_past_the_limit_is_reported(self):
+        r = make_repo(self.tmp)
+        self.assertLessEqual(len(self.LONG.rstrip("\n")), wrapscan.LINE_LIMIT)
+        r.write("docs/notes.md", "# notes\n\n" + self.LONG)
+        r.commit()
+        code, out = run(["--plan", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertRegex(out, r"WRAP  1 line\(s\) a re-pointed link pushed past 85")
+        self.assertRegex(out, r"docs/notes\.md:3 \(\d+ columns\)")
+        # after the cut the file really is over, which is what was reported
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        found = wrapscan.scan_text("docs/notes.md", r.read("docs/notes.md"))
+        self.assertEqual([3], [f.line for f in found])
+        # the tool wrote the lengthened line as it was: prose is never re-wrapped
+        self.assertIn("(roadmap/990-done-before-the-split/README.md) for the work",
+                      r.read("docs/notes.md"))
+
+    def test_a_short_line_and_a_line_already_over_are_not_reported(self):
+        r = make_repo(self.tmp)
+        already = ("This line was already over the house limit before any link "
+                   "moved, with words [a](ROADMAP-DONE.md) after it.\n")
+        r.write("docs/notes.md", "# notes\n\n" + already)
+        r.commit()
+        code, out = run(["--plan", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("WRAP", out)
+
+    def test_an_exempt_file_is_not_reported(self):
+        r = make_repo(self.tmp)
+        r.write("docs/notes.md", "# notes\n\n" + self.LONG)
+        r.write(".wrapscanignore", "docs/notes.md # fixture: exempt on purpose\n")
+        r.commit()
+        code, out = run(["--plan", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("WRAP", out)
+
+    # -- item 3: the pre-split archive at the repo root
+
+    def root_repo(self) -> Repo:
+        r = make_repo(self.tmp, done=None)
+        r.write("ROADMAP-DONE.md", ROOT_DONE)
+        r.write("docs/notes.md", "# notes\n\nSee [old](../ROADMAP-DONE.md).\n")
+        r.commit()
+        return r
+
+    def test_an_archive_at_the_repo_root_is_found_and_cut(self):
+        r = self.root_repo()
+        code, out = run(["--plan", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("board: ROADMAP-DONE.md — route: (a) cut into the store", out)
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("FAIL", out)
+        self.assertFalse((r.root / "ROADMAP-DONE.md").exists())
+        items = sorted(p.name for p in (r.root / SECTION).glob("*.md")
+                       if p.name != "README.md")
+        self.assertEqual(2, len(items))
+        self.assertIn("](../../reviews/one.md)", r.read(SECTION / items[0]))
+        # a link to the archive from elsewhere in the tree follows it
+        self.assertIn("(roadmap/990-done-before-the-split/README.md)",
+                      r.read("docs/notes.md"))
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("PASS  ROADMAP-DONE.md: 2 item files", out)
+        board_main(["--rebuild", "--root", str(r.root)])
+        ok, lout = linkscan_ok(r.root)
+        self.assertTrue(ok, lout)
+
+    def test_the_docs_archive_wins_when_both_exist_and_the_root_one_is_left(self):
+        r = make_repo(self.tmp)
+        r.write("ROADMAP-DONE.md", ROOT_DONE)
+        r.commit()
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("board: docs/ROADMAP-DONE.md — route: (a)", out)
+        self.assertIn("reason: ROADMAP-DONE.md also exists and is left alone", out)
+        self.assertTrue((r.root / "ROADMAP-DONE.md").is_file())
+        self.assertFalse((r.root / "docs/ROADMAP-DONE.md").exists())
+
+    def test_no_archive_anywhere_is_still_nothing_to_do(self):
+        r = make_repo(self.tmp, done=None)
+        code, out = run(["--plan", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("board: docs/ROADMAP-DONE.md — route: nothing to do", out)
+
+    def test_a_root_archive_that_cannot_cut_moves_whole(self):
+        r = make_repo(self.tmp, done=None)
+        r.write("ROADMAP-DONE.md", "# done\n\n- a bullet, not a checkbox\n"
+                "  see [`docs/reviews/one.md`](docs/reviews/one.md)\n")
+        r.commit()
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("route: (b) moved whole", out)
+        self.assertTrue((r.root / SECTION / "frozen/ROADMAP-DONE.md").is_file())
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("PASS  ROADMAP-DONE.md: route (b)", out)
+
+    # -- item 2 (2026-11-20 form): the label line fits the limit
+
+    def test_the_label_line_fits_the_house_limit(self):
+        self.assertLessEqual(len(archivecut.LOG_LABEL), wrapscan.LINE_LIMIT)
+        for old in archivecut.LEGACY_LOG_LABELS:
+            self.assertGreater(len(old), wrapscan.LINE_LIMIT)
+
+    def test_no_session_file_the_cut_writes_has_a_line_over_the_limit(self):
+        r = make_repo(self.tmp, done=None, sessions_archive=SESSIONS_ARCHIVE)
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        # The README's `archivecut:retired` comment is also wide (92 columns);
+        # it is outside this test and reported on 010/280, not fixed here.
+        for p in sorted((r.root / "docs/sessions").glob("2*.md")):
+            for f in wrapscan.scan_text(p.name, p.read_text(encoding="utf-8")):
+                self.fail(f"{p.name}:{f.line} is {f.length} columns")
+
+    def test_a_file_cut_under_the_old_label_still_reads_and_verifies(self):
+        r = make_repo(self.tmp, done=None, sessions_archive=SESSIONS_ARCHIVE)
+        ent = [("docs/SESSIONS.md", 3, 1, "- [x](y.md) — z\n")]
+        old = archivecut.LEGACY_LOG_LABELS[0]
+        text = archivecut.insert_entries("# T\n\nbody\n", ent, old)
+        got = archivecut.strip_entries(text)
+        self.assertEqual(("# T\n\nbody\n", ent), got)
+        # a whole cut, its label then rewritten to the shipped-first wording
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        for p in (r.root / "docs/sessions").glob("*.md"):
+            t = p.read_text(encoding="utf-8")
+            if archivecut.LOG_LABEL in t:
+                p.write_text(t.replace(archivecut.LOG_LABEL, old), encoding="utf-8")
+        r.commit()
+        code, out = run(["--verify", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("FAIL", out)
 
 
 if __name__ == "__main__":

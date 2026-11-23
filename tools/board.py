@@ -65,7 +65,10 @@ the unfinished items under each section that has any. "Unfinished" is a
 marker that is not `[x]`, or a `⏳` anywhere on the state line: the review
 queue is the count of `⏳` state lines (`roadmap/README.md`), so a `[x]` line
 still carrying `⏳` stays listed and counted rather than vanishing from the
-count, and pointerscan's miscount warning still has something to point at. A
+count, and pointerscan's miscount warning still has something to point at. The
+one exception is the archive section (`ARCHIVE_SECTION`, 010/280 item 4): a
+done item there is history, so a `⏳` it carried from the old board is neither
+listed nor counted, and the section reads zero in every column. A
 section with nothing listed takes its table row alone, marked `✅`, and no
 heading below. Item files are untouched; a finished item is one click away.
 The grace for children that still hold the full form is the LEGACY block.
@@ -172,6 +175,11 @@ INDEX = harvestscan.INDEX
 
 BOARD_DIR = "docs/roadmap"
 INDEX_REL = "docs/ROADMAP.md"
+
+# The section `archivecut` cuts a pre-split board archive into (010/280 item 4).
+# Its `[x]` items are history: they stay out of every summary count, even one
+# that still carries a `⏳` the old board wrote. `archivecut` reads this name.
+ARCHIVE_SECTION = "990-done-before-the-split"
 
 # The marker is matched as a PREFIX. This tool only WRITES it (and reads it
 # off a tool's source in `_is_this_tool`, current spelling only); the legacy
@@ -877,9 +885,14 @@ def build_index(
                     "file opens with its checkbox line (`- [ ] …`), before any "
                     "prose")
                 continue
-            if not full and not is_unfinished(state):
+            # A done item in the archive section is history (010/280 item 4):
+            # it is neither listed nor counted, whatever `⏳` it carries.
+            history = sec_name == ARCHIVE_SECTION and state.marker == "[x]"
+            if not full and (history or not is_unfinished(state)):
                 continue
             entries.append(_state_entry(state, f"roadmap/{sec_name}/{fname}"))
+            if history:
+                continue
             for i, (_, hit) in enumerate(SUMMARY_COLUMNS):
                 if hit(state):
                     counts[i] += 1

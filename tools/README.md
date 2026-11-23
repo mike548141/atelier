@@ -132,6 +132,11 @@ floor-policy question the board does not decide (board item `010/070`).
 Run with no `--root`, `board` uses the git toplevel of the current directory,
 so a run from a subdirectory finds the board.
 
+The archive section (`990-done-before-the-split`, `archivecut`'s) is history: a
+done item in it is neither listed nor counted, so a `⏳` its old board left on a
+`[x]` line does not show as review-queued (`010/280` item 4). Done items
+elsewhere that still carry a `⏳` are counted and listed as before.
+
 Each index line is projected from the item's **logical first paragraph** (board
 `010/170`): the state line plus the indented lines that continue it, up to a
 blank line, an unindented line or a line that opens a new block. A bold title
@@ -1749,6 +1754,14 @@ fenced, under comments giving its line numbers. The proof (a multiset over
 every non-blank line, every link mapping back, and a byte-for-byte rebuild of
 each log from the outputs as written) must pass or nothing is written; there
 is no fallback.
+
+The board archive is looked for at `docs/ROADMAP-DONE.md` and at the repo root
+(`ROADMAP-DONE.md`); `docs/` wins when both exist, and the other is left alone
+(`010/280`). The tool re-points a path and never re-wraps prose, so a link that
+now runs a line past the house width is listed in the plan under `WRAP`, with
+its file and line, for the worker to wrap before the first commit. The label
+line above each placed log entry fits the same width; session files written
+under the earlier, wider wording still read back and verify.
 
 Every tracked Markdown link to an archive or a retired log, both sides of
 `](`, is re-pointed (a retired log's home is the folder's README). `--plan`

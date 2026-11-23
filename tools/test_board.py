@@ -1226,6 +1226,40 @@ class SummaryAndOpenOnly(unittest.TestCase):
         self.assertIn("- ✅ ⏳ [Verdict landed", text)
         self.assertEqual("3", _summary_row(text, "Track A")[3])
 
+    def _archive_section(self, marker_line: str) -> Path:
+        arc = self.root / board.BOARD_DIR / board.ARCHIVE_SECTION
+        arc.mkdir()
+        (arc / "README.md").write_text("# Done before the split\n",
+                                       encoding="utf-8")
+        (arc / "0010-old.md").write_text(marker_line, encoding="utf-8")
+        return arc
+
+    def test_a_done_item_in_the_archive_section_counts_zero_for_review(self):
+        """010/280 item 4: an archived `[x]` line keeps the `⏳` the old board
+        wrote, and the new index counted it as review-queued. In the archive
+        section it is history: not counted, not listed, the row stays 0."""
+        self._archive_section("- [x] ⏳ **Delivered long ago** — history\n")
+        board.run_check(self.root, fix=True)
+        text = (self.root / board.INDEX_REL).read_text(encoding="utf-8")
+        self.assertEqual(["0", "0", "0", "0"],
+                         _summary_row(text, "Done before the split"))
+        self.assertEqual("2", _summary_row(text, "**All sections**")[3])
+        self.assertNotIn("Delivered long ago", text)
+        self.assertIn("| ✅ [Done before the split]", text)
+
+    def test_the_archive_rule_is_only_for_done_items_in_that_section(self):
+        arc = self._archive_section("- [x] ⏳ **Delivered long ago**\n")
+        (arc / "0020-open.md").write_text("- [ ] ⏳ **Still queued**\n",
+                                          encoding="utf-8")
+        # the same done item outside the archive section still counts
+        (self.sec / "90-done-queued.md").write_text(
+            "- [x] ⏳ **Elsewhere**\n", encoding="utf-8")
+        board.run_check(self.root, fix=True)
+        text = (self.root / board.INDEX_REL).read_text(encoding="utf-8")
+        self.assertEqual(["1", "0", "0", "1"],
+                         _summary_row(text, "Done before the split"))
+        self.assertEqual("3", _summary_row(text, "Track A")[3])
+
     def test_a_pipe_in_a_section_title_does_not_split_the_cell(self):
         sec = self.root / board.BOARD_DIR / "40-piped"
         sec.mkdir()

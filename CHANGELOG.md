@@ -5,6 +5,27 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-23 — `archivecut` and the archive section, `010/280`, `320/450`)
+- **`tools/archivecut.py` finds a repo-root `ROADMAP-DONE.md`.** It looked in
+  `docs/` only, so a child that kept its pre-split board at the root read
+  "nothing to do". It now takes `docs/ROADMAP-DONE.md` first, else the root
+  copy (cut, moved whole and `--verify` all follow), and says so when both exist.
+- **It lists each line its re-pointing lengthened past the wrap limit.** The
+  plan prints `WRAP` with file and line for every line a longer path took over
+  85 columns, as `wrapscan` reads it (a file `.wrapscanignore` exempts, or a
+  line already over, is left out). It still never re-wraps prose.
+- **The label above each placed log entry is 76 columns, not 101.** It read
+  "word for word; only its link paths were re-pointed for this folder:" and
+  `wrapscan` refused it in about ten children. Files cut under the old wording
+  still read back and verify. The README's `archivecut:retired` comment is still
+  92 columns; that is left to the board item.
+- **`board.py`: a done item in the archive section counts zero.** An archived
+  `[x]` line keeping a `⏳` from the old board showed as review-queued. In
+  `990-done-before-the-split` a `[x]` item is now neither listed nor counted;
+  done items elsewhere with a `⏳` are counted as before. Atelier's own index
+  drops its one such row (⏳ Review 38 to 37). `320/450` parts 1 and 2 (a wrapped
+  claim, a `]` in a title) were already in; their tests were re-run, none added.
+
 ### Fixed (2026-11-23 — `ccfleet`: the code findings of the `160/1450` cold pass, `210/470`; repeated jobs labels, `210/450`)
 - **A cut-off pass is never read as done (FL1).** An end is clean only on
   exit 0 with no error flag in the session's JSON; anything else reads

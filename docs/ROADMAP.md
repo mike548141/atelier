@@ -60,8 +60,8 @@ line, so they overlap Open and Claimed.
 | [Review quality is never traded for budget (Mike commissioned, 2026-10-04)](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/README.md) | 1 | 0 | 0 | 0 |
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
-| [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 1 |
-| **All sections** | 268 | 2 | 106 | 38 |
+| ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
+| **All sections** | 268 | 2 | 106 | 37 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -477,9 +477,3 @@ line, so they overlap Open and Claimed.
 *[Narrative](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md)*
 
 - [ ] 🎯 [Every slash command under /atelier:, and every collaboration tool…](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/010-one-command-prefix-and-the-homing-sweep.md)
-
-## Done before the split
-
-*[Narrative](roadmap/990-done-before-the-split/README.md)*
-
-- ✅ ⏳ [v2-plugin de-instance review — DELIVERED 2026-07-22 1221](roadmap/990-done-before-the-split/1170-v2-plugin-de-instance-review-delivered-2026-07.md)
