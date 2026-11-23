@@ -1,4 +1,4 @@
-- [~] 🔥 **Fix `ccfleet`, `fleet-sweep`, `review-drain` and `modelguard`: findings FL1–FL25 of
+- [ ] 🎯 🔥 **Fix `ccfleet`, `fleet-sweep`, `review-drain` and `modelguard`: findings FL1–FL25 of
       the `160/1450` cold pass.** The principal's answer, 2026-11-22 UTC, verbatim: *"Fix all as
       advised (Recommended)"* (the option text is quoted on `160/1450`). Apply every finding as
       the verdict counsels:
@@ -18,7 +18,6 @@
       that re-check to come back clean.
       *Who may not:* the authors barred on `160/1450` may fix (the bar is on reviewing), but the
       fixing session neither briefs nor runs the re-check.
-      *(claimed 2026-11-23 UTC, session c7a1e36e, wt: none · at: FL20 canary)*
       ✅ **Fixes landed 2026-11-23** (queue run c7a1e36e; two Opus workers,
       one on the `ccfleet` code, one on the two skills and `modelguard`,
       reconciled into one account and read by the run before landing).
@@ -35,6 +34,22 @@
       26 lookups passed), 55 `test_templates`, 12 single-source. Commits on
       `main` from the one that rewrites `modelguard` through the one that
       makes the skills say what the code does.
-      **Still owed here, in order:** the FL20 canary (running, local only,
-      Haiku sessions); then the ask for the Fable re-check of `160/1450`,
-      🎯 the principal's.
+      ✅ **FL20 canary ran 2026-11-23** (a Sonnet worker; a throwaway repo
+      with a local bare origin, a fake queue script, four Haiku sessions
+      under `acceptEdits`, nothing on GitHub). PASS on the three cases it
+      could make live: a pass cut off at `session_timeout_minutes: 1` ended
+      `rc=124 result=TIMEOUT` with its session id on START and END though it
+      printed nothing, its claim held and its worktree KEPT; `ccfleet
+      resume` of that session by id ended DONE, its commit landed on the
+      origin, the claim was released and the worktree removed; a clean DONE
+      that left an uncommitted file was KEPT ("1 uncommitted or untracked
+      path(s)"). Not testable here, as FL20 also named: a usage-capped end,
+      a resumed session messaging its subagent, a reboot or driver death
+      mid-run, and the `drain` loop itself. Two findings filed as
+      `210/560`. The canary first ran the primary checkout's copy, 17
+      commits stale, and switched to `main`'s; the primary was then
+      fast-forwarded, so the fixed `modelguard` hook is now the live one.
+      🎯 **Owed to the principal:** approval for the Fable re-check of
+      `160/1450` (rule 4: a session that wrote none of the fixes, briefed
+      fresh; not this run, which dispatched them). The estate's drain
+      switch (`450/010` row 2) waits for it to come back clean.
