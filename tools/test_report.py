@@ -684,14 +684,8 @@ class TestScannerLinePins(unittest.TestCase):
                                       ".leakscanignore · 0 rule(s) disabled · "
                                       "0 binary file(s) by .leakscanbinaries · "
                                       "0 untracked binary file(s) not gated · "
-                                      "0 type-level metadata entr(y/ies) warned, "
-                                      "not blocking, before "
-                                      f"{m.TYPE_LEVEL_UNTIL.isoformat()} · "
                                       "0 manifest line(s) with no who/when warned, "
                                       "not blocking · "
-                                      "0 document metadata finding(s) warned, "
-                                      "not blocking, before "
-                                      f"{m.DOCUMENT_UNTIL.isoformat()} · "
                                       f"0 beyond {CAP} · "
                                       "0 marker(s) naming no rule")
         self.assertEqual(m.render_human([], None, True, t).splitlines()[0],

@@ -2277,10 +2277,9 @@ import subprocess as _subprocess  # noqa: E402
 import zlib as _zlib  # noqa: E402
 import datetime as _dt  # noqa: E402
 
-# The day the G3 adoption grace ended (010/190 removed it). The gate tests pin
-# the clock here: it is before the later `TYPE_LEVEL_UNTIL` and `DOCUMENT_UNTIL`
-# dates, so the tests that read those windows keep seeing the window they were
-# written in.
+# A fixed UTC day for the tests that print or stage a who/when stub. No dated
+# window is left in leakscan's gate (010/190 and 115/490 removed them), so the
+# day changes no result; it only keeps the stubs' text stable.
 _CUTOFF = _dt.date(2026, 11, 18)
 
 
@@ -2338,12 +2337,6 @@ def _sha(data, n=16):
 
 class _TreeCase(unittest.TestCase):
     def setUp(self):
-        # Pinned to the day before the type-level cut-off (020/450), so a
-        # fixture that keeps a whole set (`exif`) stays accepted whatever day
-        # the suite runs; tests that care about the day patch it themselves.
-        pin = _on(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1))
-        pin.start()
-        self.addCleanup(pin.stop)
         self.tmp = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
         self.terms = self.tmp.parent / f"{self.tmp.name}-terms.txt"
@@ -2515,7 +2508,7 @@ class BinaryMetadata(_TreeCase):
         self.assertIn("eXIf", fs[0].excerpt)
 
     def test_a_line_keeping_the_set_accepts_it(self):
-        self._listed("i.png", _png((b"eXIf", b"MM\x00\x2a")), "exif")
+        self._listed("i.png", _png((b"eXIf", b"MM\x00\x2a")), "exif:unknown")
         self.assertEqual([], self.scan())
 
     def test_an_unlisted_metadata_image_reports_both(self):
@@ -2524,7 +2517,7 @@ class BinaryMetadata(_TreeCase):
 
     def test_png_text_metadata_is_scanned_and_markers_inside_are_ignored(self):
         data = _png((b"tEXt", b"Author\x00a.b@example.com  # leakscan:allow: hidden"))
-        self._listed("i.png", data, "png-text")
+        self._listed("i.png", data, "png-text:Author")
         fs = self.scan()
         self.assertEqual(["email"], [f.rule for f in fs])
         self.assertEqual("metadata PNG tEXt 'Author'", fs[0].where)
@@ -2535,17 +2528,17 @@ class BinaryMetadata(_TreeCase):
         fs = self.scan()
         self.assertEqual(["binary-metadata"], [f.rule for f in fs])
         self.assertTrue(fs[0].excerpt.startswith("png-text:"), fs[0].excerpt)
-        self._listed("i.png", data, "png-text")
+        self._listed("i.png", data, "png-text:Software")
         self.assertEqual([], self.scan())
 
     def test_compressed_text_chunks_are_inflated_and_scanned(self):
         z = _png((b"zTXt", b"Comment\x00\x00" + _zlib.compress(b"call a.b@example.com")))
-        self._listed("z.png", z, "png-text")
+        self._listed("z.png", z, "png-text:Comment")
         self.assertEqual(["email"], self.rules())
         itxt = (b"XML:com.adobe.xmp\x00\x01\x00\x00\x00"
                 + _zlib.compress(b"<dc:creator>a.b@example.com</dc:creator>"))
         self.put("z.png", b"plain text now\n")
-        self._listed("x.png", _png((b"iTXt", itxt)), "xmp")
+        self._listed("x.png", _png((b"iTXt", itxt)), "xmp:unknown")
         self.assertEqual(["email"], self.rules())
 
     def test_a_decompression_bomb_reads_as_opaque(self):
@@ -2574,7 +2567,7 @@ class BinaryMetadata(_TreeCase):
 
     def test_jpeg_xmp_and_comments_are_read(self):
         self._listed("x.jpg", _jpeg((0xE1, b"http://ns.adobe.com/xap/1.0/\x00<x>a.b@example.com</x>"),
-                                    (0xFE, b"plain comment")), "xmp", "jpeg-comment")
+                                    (0xFE, b"plain comment")), "xmp:unknown", "jpeg-comment")
         self.assertEqual(["email"], self.rules())
 
     def test_jpeg_without_metadata_needs_only_its_entry(self):
@@ -2587,7 +2580,7 @@ class BinaryMetadata(_TreeCase):
 
     def test_webp_xmp_is_read(self):
         self._listed("x.webp", _webp((b"VP8 ", b"\x00" * 10), (b"XMP ", b"<x>a.b@example.com</x>")),
-                     "xmp")
+                     "xmp:unknown")
         self.assertEqual(["email"], self.rules())
 
     def test_inspect_media_ignores_other_formats(self):
@@ -2735,7 +2728,6 @@ class BinaryFieldLevel(_TreeCase):
         tally = ls.Tally()
         self.assertEqual([], self.scan(tally=tally))
         self.assertEqual(1, tally.binaries_by_manifest)
-        self.assertEqual([], tally.type_level_warnings)
 
     def test_fields_may_sit_on_separate_lines_with_their_own_reasons(self):
         self.keep(self.png, "exif:Make,Model,LensModel", "gps:GPSLatitude,GPSLongitude")
@@ -2802,68 +2794,48 @@ class BinaryFieldLevel(_TreeCase):
         self.keep(_png((b"eXIf", big)))
         self.assertIn("exif:unknown", self.scan()[0].excerpt)
 
-    # -- type-level entries: accepted with a warning, then refused ----------
+    # -- type-level entries: a whole-set line no longer keeps a read set -----
 
     def type_level(self):
         self.keep(self.png, "exif")
 
-    def run_main(self, day, *extra):
+    def run_main(self, *extra):
         out, err = io.StringIO(), io.StringIO()
-        with _on(day), contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             rc = ls.main(["--root", str(self.tmp), str(self.tmp),
                           "--terms", str(self.terms), *extra])
         return rc, out.getvalue(), err.getvalue()
 
-    def test_the_type_level_cutoff_is_a_later_iso_date(self):
+    def test_the_type_level_cutoff_is_the_principals_date(self):
         self.assertIsInstance(ls.TYPE_LEVEL_UNTIL, _dt.date)
         # The principal's date (115/480); it moved from 2026-12-18.
         self.assertEqual(ls.TYPE_LEVEL_UNTIL, _dt.date(2026, 11, 20))
-        self.assertTrue(ls.in_type_level_grace(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1)))
-        self.assertFalse(ls.in_type_level_grace(ls.TYPE_LEVEL_UNTIL))
 
-    def test_a_type_level_line_still_keeps_the_set_with_a_warning(self):
+    def test_a_type_level_line_no_longer_keeps_the_set(self):
         self.type_level()
-        tally = ls.Tally()
-        self.assertEqual([], self.scan(tally=tally))
-        self.assertEqual(1, len(tally.type_level_warnings))
-        w = tally.type_level_warnings[0]
-        self.assertEqual(ls.TYPE_LEVEL_RULE, w.rule)
-        for k in ("exif:Make", "exif:Model", "gps:GPSLatitude"):
-            self.assertIn(k, w.excerpt)
-
-    def test_the_warning_names_the_fields_the_date_and_the_remedy_and_exits_0(self):
-        self.type_level()
-        rc, out, _err = self.run_main(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1))
-        self.assertEqual(0, rc, out)
-        self.assertIn("WARNING ONLY until " + ls.TYPE_LEVEL_UNTIL.isoformat(), out)
-        self.assertIn("gps:GPSLatitude", out)
-        self.assertIn("name the fields instead", out)
-        self.assertIn("1 type-level metadata entr(y/ies) warned", out)
-
-    def test_from_the_cutoff_a_type_level_line_no_longer_keeps_the_set(self):
-        self.type_level()
-        rc, out, _err = self.run_main(ls.TYPE_LEVEL_UNTIL)
+        rc, out, _err = self.run_main()
         self.assertEqual(1, rc, out)
         self.assertIn("binary-metadata", out)
         self.assertIn("no longer keeps it", out)
+        self.assertIn("since " + ls.TYPE_LEVEL_UNTIL.isoformat(), out)
         self.assertIn("gps:GPSLatitude", out)
-        self.assertNotIn("WARNING ONLY until " + ls.TYPE_LEVEL_UNTIL.isoformat(), out)
+        self.assertNotIn("WARNING ONLY until", out)
+        self.assertNotIn("type-level metadata entr", out)
 
     def test_type_level_stays_valid_for_sets_whose_fields_are_not_read(self):
         data = _png((b"iCCP", b"p\x00\x00" + _zlib.compress(b"profile")))
         self.keep(data, "icc")
-        with _on(ls.TYPE_LEVEL_UNTIL + _dt.timedelta(days=400)):
-            self.assertEqual([], self.scan())
+        self.assertEqual([], self.scan())
 
-    def test_json_carries_the_type_level_warnings(self):
+    def test_json_has_no_warn_only_blocks_for_type_level_or_documents(self):
         self.type_level()
-        rc, out, _err = self.run_main(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1), "--json")
-        self.assertEqual(0, rc)
+        rc, out, _err = self.run_main("--json")
+        self.assertEqual(1, rc)
         doc = json.loads(out)
-        self.assertEqual([], doc["findings"])
-        self.assertTrue(doc["binary_type_level"]["active"])
-        self.assertEqual(["leakscan:binary-type-level"],
-                         [w["id"] for w in doc["binary_type_level"]["warnings"]])
+        self.assertEqual(["binary-metadata"], [f["id"].split(":")[1] for f in doc["findings"]])
+        self.assertNotIn("binary_type_level", doc)
+        self.assertNotIn("binary_documents", doc)
+        self.assertIn("binary_provenance", doc)
 
     # -- the manifest grammar ----------------------------------------------
 
@@ -3177,9 +3149,9 @@ class BinaryFieldLevelOtherSets(_TreeCase):
         self.manifest(f"{d}  {rel}  # synthetic photo, reviewed\n"
                       + "".join(f"{d}:{s}  {rel}  # test needs {s}\n" for s in scopes))
 
-    def run_main(self, day, *extra):
+    def run_main(self, *extra):
         out, err = io.StringIO(), io.StringIO()
-        with _on(day), contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             rc = ls.main(["--root", str(self.tmp), str(self.tmp),
                           "--terms", str(self.terms), *extra])
         return rc, out.getvalue(), err.getvalue()
@@ -3204,7 +3176,6 @@ class BinaryFieldLevelOtherSets(_TreeCase):
         self.keep(self.jpg, "iptc:By-line,City", rel="p.jpg")
         tally = ls.Tally()
         self.assertEqual([], self.scan(tally=tally))
-        self.assertEqual([], tally.type_level_warnings)
 
     def test_iptc_an_unnamed_dataset_blocks_until_kept_by_number(self):
         data = _jpeg((0xED, _app13(_iim((2, 90, b"x"), (2, 250, b"y")))))
@@ -3337,35 +3308,9 @@ class BinaryFieldLevelOtherSets(_TreeCase):
         self.keep(_png(*chunks), rel="t.png")
         self.assertIn("png-text:unknown", self.scan()[0].excerpt)
 
-    # -- type-level lines: accepted with a warning, then refused -------------
+    # -- type-level lines: a whole-set line no longer keeps a read set --------
 
-    def test_a_type_level_line_warns_naming_the_fields_for_each_set(self):
-        for rel, data, whole, want in (
-                ("p.jpg", self.jpg, "iptc", ("iptc:By-line", "iptc:City")),
-                ("x.webp", _webp((b"VP8 ", b"\x00" * 10), (b"XMP ", self.xmp)), "xmp",
-                 ("xmp:dc:creator", "xmp:exif:GPSLatitude")),
-                ("t.png", self.png, "png-text",
-                 ("png-text:Author", "png-text:Creation%20Time"))):
-            with self.subTest(whole):
-                one = [self.tmp / rel]
-                self.keep(data, whole, rel=rel)
-                tally = ls.Tally()
-                self.assertEqual([], self.scan(tally=tally, paths=one))
-                self.assertEqual(1, len(tally.type_level_warnings))
-                w = tally.type_level_warnings[0]
-                self.assertEqual(ls.TYPE_LEVEL_RULE, w.rule)
-                for k in want:
-                    self.assertIn(k, w.excerpt)
-
-    def test_the_warning_prints_with_the_date_and_remedy_and_exits_0(self):
-        self.keep(self.jpg, "iptc", rel="p.jpg")
-        rc, out, _err = self.run_main(ls.TYPE_LEVEL_UNTIL - _dt.timedelta(days=1))
-        self.assertEqual(0, rc, out)
-        self.assertIn("WARNING ONLY until " + ls.TYPE_LEVEL_UNTIL.isoformat(), out)
-        self.assertIn("iptc:By-line", out)
-        self.assertIn("name the fields instead", out)
-
-    def test_from_the_cutoff_each_type_level_line_stops_keeping_its_set(self):
+    def test_each_type_level_line_no_longer_keeps_its_set(self):
         for rel, data, whole in (("p.jpg", self.jpg, "iptc"),
                                  ("x.webp", _webp((b"VP8 ", b"\x00" * 10),
                                                   (b"XMP ", self.xmp)), "xmp"),
@@ -3374,7 +3319,7 @@ class BinaryFieldLevelOtherSets(_TreeCase):
                 for old in self.tmp.glob("*.*"):
                     old.unlink()
                 self.keep(data, whole, rel=rel)
-                rc, out, _err = self.run_main(ls.TYPE_LEVEL_UNTIL)
+                rc, out, _err = self.run_main()
                 self.assertEqual(1, rc, out)
                 self.assertIn("no longer keeps it", out)
                 self.assertIn(f"{whole}:", out)
@@ -3382,8 +3327,7 @@ class BinaryFieldLevelOtherSets(_TreeCase):
     def test_icc_and_jpeg_comments_keep_their_type_level_lines_for_good(self):
         data = _png((b"iCCP", b"p\x00\x00" + _zlib.compress(b"profile")))
         self.keep(data, "icc", rel="i.png")
-        with _on(ls.TYPE_LEVEL_UNTIL + _dt.timedelta(days=400)):
-            self.assertEqual([], self.scan())
+        self.assertEqual([], self.scan())
 
     # -- the manifest grammar --------------------------------------------------
 
@@ -3465,7 +3409,7 @@ class BinaryFieldLevelOtherSets(_TreeCase):
         self.put("x.png", _png((b"iTXt", b"XML:com.adobe.xmp\x00\x00\x00\x00\x00" + self.xmp)))
         self.put("t.png", self.png)
         for extra in ((), ("--json",)):
-            rc, out, err = self.run_main(ls.TYPE_LEVEL_UNTIL, *extra)
+            rc, out, err = self.run_main(*extra)
             self.assertNotIn(self.SECRET, out + err)
             self.assertNotIn("41,24N", out + err)
         rc, out, err = self.listing()
@@ -3888,7 +3832,7 @@ class BinaryNamedSets(_TreeCase):
         self.put("m.png", data)
         # Both sets named under one reason: the image passes.
         self.manifest(f"{d}  m.png  # product photo, reviewed\n"
-                      f"{d}:exif,icc  m.png  # print shop needs the camera "
+                      f"{d}:exif:unknown,icc  m.png  # print shop needs the camera "
                       "profile and colour profile\n")
         self.assertEqual([], self.rules())
         # Name only one: the other still blocks, by name.
@@ -3899,7 +3843,7 @@ class BinaryNamedSets(_TreeCase):
         self.assertIn("exif", fs[0].excerpt)
 
     def test_kept_text_sets_are_still_scanned(self):
-        self.keep("t.png", _png((b"tEXt", b"Author\x00a.b@example.com")), "png-text")
+        self.keep("t.png", _png((b"tEXt", b"Author\x00a.b@example.com")), "png-text:Author")
         self.assertEqual(["email"], self.rules())
 
     def _refused(self, text, needle):
@@ -4767,15 +4711,15 @@ class PdfReader(unittest.TestCase):
 
 
 class DocumentGate(_TreeCase):
-    """The rollout: the reader's findings warn until `DOCUMENT_UNTIL` and
-    block from it; the file's own gate is untouched by it."""
+    """The reader's findings block like any other (115/390; its warn-first date
+    passed, 115/490); the file's own gate is the same one as for any binary."""
 
     DOC = _ooxml({"docProps/core.xml": _core(creator=b"kiri.example@example.org"),
                   "word/comments.xml": _COMMENTS})
 
-    def run_main(self, day, *extra):
+    def run_main(self, *extra):
         out, err = io.StringIO(), io.StringIO()
-        with _on(day), contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             rc = ls.main(["--root", str(self.tmp), str(self.tmp),
                           "--terms", str(self.terms), *extra])
         return rc, out.getvalue(), err.getvalue()
@@ -4787,50 +4731,30 @@ class DocumentGate(_TreeCase):
                       "by=agent session=test1234 on=2026-11-16\n")
         return data
 
-    def test_the_date_is_its_own_and_at_least_30_days_after_the_build(self):
-        self.assertIsInstance(ls.DOCUMENT_UNTIL, _dt.date)
-        # The principal's date (115/480), the type-level cut-off's day too; it
-        # moved from 2027-01-18.
-        self.assertEqual(ls.DOCUMENT_UNTIL, _dt.date(2026, 11, 20))
-        self.assertTrue(ls.in_document_grace(ls.DOCUMENT_UNTIL - _dt.timedelta(days=1)))
-        self.assertFalse(ls.in_document_grace(ls.DOCUMENT_UNTIL))
-
-    def test_before_the_date_the_new_findings_warn_and_exit_0_after_the_g3_grace(self):
+    def test_the_findings_block(self):
         self.listed()
-        rc, out, _err = self.run_main(ls.DOCUMENT_UNTIL - _dt.timedelta(days=1))
-        self.assertEqual(0, rc, out)
-        self.assertIn("WARNING ONLY until " + ls.DOCUMENT_UNTIL.isoformat(), out)
+        rc, out, _err = self.run_main()
+        self.assertEqual(1, rc, out)
         self.assertIn("office-props:creator", out)
         self.assertIn("office-comments", out)
-        self.assertIn("email", out)
-        self.assertIn("document metadata finding(s) warned", out)
-
-    def test_the_warnings_are_kept_out_of_the_findings(self):
-        self.listed()
-        tally = ls.Tally()
-        self.assertEqual([], self.scan(tally=tally))
-        rules = sorted({f.rule for f in tally.document_warnings})
-        self.assertEqual(["binary-metadata", "email"], rules)
-
-    def test_from_the_date_they_block(self):
-        self.listed()
-        rc, out, _err = self.run_main(ls.DOCUMENT_UNTIL)
-        self.assertEqual(1, rc, out)
         self.assertIn("binary-metadata", out)
         self.assertIn("email", out)
-        self.assertNotIn("WARNING ONLY until " + ls.DOCUMENT_UNTIL.isoformat(), out)
+        self.assertNotIn("WARNING ONLY until", out)
+        self.assertNotIn("document metadata finding", out)
 
-    def test_the_file_gate_is_not_softened_by_the_document_date(self):
+    def test_a_scan_returns_them_as_findings(self):
+        self.listed()
+        self.assertEqual(["binary-metadata", "binary-metadata", "email", "email"],
+                         self.rules())
+
+    def test_the_file_gate_is_the_same_for_a_document(self):
         self.put("plan.docx", self.DOC)
-        tally = ls.Tally()
-        with _on(_CUTOFF):
-            self.assertEqual(["binary-unlisted"], [f.rule for f in self.scan(tally=tally)])
-        self.assertTrue(tally.document_warnings)
+        self.assertEqual(["binary-metadata", "binary-metadata", "binary-unlisted",
+                          "email", "email"], self.rules())
 
-    def test_image_metadata_hits_still_block_inside_the_window(self):
+    def test_image_metadata_hits_block(self):
         self.put("a.png", _png((b"tEXt", b"Author\x00kiri.example@example.org")))
-        with _on(ls.DOCUMENT_UNTIL - _dt.timedelta(days=1)):
-            self.assertIn("email", self.rules())
+        self.assertIn("email", self.rules())
 
     def test_kept_fields_and_sets_stop_the_gate_but_not_the_text_scan(self):
         data = self.listed()
@@ -4838,8 +4762,7 @@ class DocumentGate(_TreeCase):
         self.manifest(f"{d}  plan.docx  # synthetic fixture, reviewed\n"
                       f"{d}:office-props:creator  plan.docx  # the author credit\n"
                       f"{d}:office-comments  plan.docx  # the review trail\n")
-        with _on(ls.DOCUMENT_UNTIL):
-            self.assertEqual(["email", "email"], self.rules())
+        self.assertEqual(["email", "email"], self.rules())
 
     def test_a_document_set_has_no_type_level_line(self):
         d = _sha(b"x")
@@ -4860,8 +4783,7 @@ class DocumentGate(_TreeCase):
     def test_a_pdf_is_gated_the_same_way(self):
         data = _pdf((2, TestPdfInfo.INFO))
         self.listed(data)
-        with _on(ls.DOCUMENT_UNTIL):
-            fs = self.scan()
+        fs = self.scan()
         self.assertEqual(["binary-metadata"], [f.rule for f in fs])
         self.assertIn("pdf-info:Author", fs[0].excerpt)
 
@@ -4876,17 +4798,6 @@ class DocumentGate(_TreeCase):
         self.assertEqual(sorted([f"{d}  plan.docx", f"{d}:office-props:creator  plan.docx",
                                  f"{d}:office-comments  plan.docx"]),
                          sorted(_bare(out.getvalue()).splitlines()))
-
-    def test_json_carries_the_document_warnings(self):
-        self.listed()
-        rc, out, _err = self.run_main(ls.DOCUMENT_UNTIL - _dt.timedelta(days=1), "--json")
-        self.assertEqual(0, rc)
-        doc = json.loads(out)
-        self.assertEqual([], doc["findings"])
-        self.assertTrue(doc["binary_documents"]["active"])
-        self.assertEqual(ls.DOCUMENT_UNTIL.isoformat(), doc["binary_documents"]["until"])
-        self.assertIn("leakscan:binary-metadata",
-                      [w["id"] for w in doc["binary_documents"]["warnings"]])
 
 
 TestPdfInfo = PdfReader

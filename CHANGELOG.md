@@ -5,6 +5,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Removed (2026-11-23 — leakscan's two dead warn-only paths, `115/490`)
+- **The type-level and document warn-first paths are gone.** Both cut-offs
+  passed on 2026-11-20 (`115/480`), so `in_type_level_grace`,
+  `in_document_grace`, `render_type_level`, `render_documents`, `_grace_remedy`,
+  `DOCUMENT_UNTIL`, `DOCUMENT_FORMATS` and `TYPE_LEVEL_RULE`, the two warning
+  lists on the tally, the `binary_type_level` and `binary_documents` blocks of
+  `--json`, and the two warned-count fields of the `suppressed:` line no longer
+  exist. What blocks after the date blocks exactly as before; `TYPE_LEVEL_UNTIL`
+  stays because the refusal names it. No reader of the two `--json` keys exists
+  in the estate outside atelier. One printed note changes: `--binary-entries`
+  said a replaced type-level line "is accepted with a warning until" the date;
+  it now says the line has not kept the set since then.
+
 ### Changed (2026-11-23 — `modelguard`, `fleet-sweep` and `review-drain` fixed as the cold pass counselled, `210/470`, `210/500`)
 - **`tools/modelguard.py` finds `claude` in command position.** A cold pass
   found 23 ordinary launch shapes it let through with no model (loop and `if`

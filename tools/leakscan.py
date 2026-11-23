@@ -48,10 +48,10 @@ bytes; PNG/JPEG/WebP metadata is walked, text metadata scanned, and every
 named metadata set it carries (Exif, IPTC, XMP, ICC, text chunks, comments)
 blocking until a reasoned line keeps that set. Office Open XML and PDF files
 are read the same way since 115/390 (people-naming properties, custom
-properties, comments, the PDF Info dictionary and XMP); what that reader adds
-warned until `DOCUMENT_UNTIL` (2026-11-20, the principal's date) and blocks from it. Each
-manifest line also records WHO allowed it and WHEN (`by=… session=… on=…`;
-a line without them warns).
+properties, comments, the PDF Info dictionary and XMP); what that reader adds blocks
+like the rest, since 2026-11-20 (the principal's date; its warn-first path is
+removed, `115/490`). Each manifest line also records WHO allowed it and WHEN
+(`by=… session=… on=…`; a line without them warns).
 From 2026-11-18 these G3 findings block like any other (the adoption grace
 that warned first is removed, `010/190`). See the G3 block below and the
 leakscan section of `tools/README.md`.
@@ -489,17 +489,9 @@ class Tally:
     # exist, which are silently inert (the finding they were written for still
     # reports). Counted so a typo is visible on a clean run too.
     unknown_scope_markers: int = 0
-    # 020/450: type-level entries still accepted, as warnings, before
-    # `TYPE_LEVEL_UNTIL`. Always 0 from that date on.
-    # They are kept OUT of the findings, so no caller of `scan_paths` can take
-    # one for a block; the CLI prints them.
-    type_level_warnings: list = field(default_factory=list, compare=False)
     # 160/980 GM5: manifest lines that record no who/when, as warnings that
     # never block. Kept out of the findings for the same reason.
     provenance_warnings: list = field(default_factory=list, compare=False)
-    # 115/390: what the document reader finds before `DOCUMENT_UNTIL`, as
-    # warnings that never block. Kept out of the findings for the same reason.
-    document_warnings: list = field(default_factory=list, compare=False)
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
@@ -548,12 +540,8 @@ class Tally:
                  f"{len(self.disabled_rules)} rule(s) disabled",
                  f"{self.binaries_by_manifest} binary file(s) by {BINARY_MANIFEST}",
                  f"{self.binaries_untracked} untracked binary file(s) not gated",
-                 f"{len(self.type_level_warnings)} type-level metadata entr(y/ies) "
-                 f"warned, not blocking, before {TYPE_LEVEL_UNTIL.isoformat()}",
                  f"{len(self.provenance_warnings)} manifest line(s) with no who/when "
                  "warned, not blocking",
-                 f"{len(self.document_warnings)} document metadata finding(s) "
-                 f"warned, not blocking, before {DOCUMENT_UNTIL.isoformat()}",
                  report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS),
                  f"{self.unknown_scope_markers} marker(s) naming no rule"]
         return report.suppressed_line(parts, breakdown=self.by_marker,
@@ -1176,13 +1164,13 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 #     beside them, `iptc:By-line,Credit`, `xmp:dc:creator` or
 #     `png-text:Author`. See `EXIF_TAGS`, `IPTC_DATASETS`, `xmp_fields` and
 #     `png_text_field`. A type-level line (`exif`, `iptc`, `xmp`, `png-text`)
-#     is accepted with a warning until `TYPE_LEVEL_UNTIL`. ICC profiles and JPEG
+#     no longer keeps its set (since `TYPE_LEVEL_UNTIL`). ICC profiles and JPEG
 #     comments have no fields to name and stay whole-set.
 #
 #   * DOCUMENTS (115/390): Office Open XML and PDF metadata is read too, into
 #     the sets `office-props`, `office-custom`, `office-comments`, `pdf-info`
 #     and `xmp`; see the "G3 documents" block below. What that reader adds
-#     warns until `DOCUMENT_UNTIL` and blocks from it.
+#     blocks like the rest (its warn-first date has passed, `115/490`).
 #
 # What it cannot see, stated so nobody infers cover that is not there: the
 # pixels themselves (no OCR — the entry's reason is the human attesting to
@@ -1260,79 +1248,29 @@ _ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9
 # flag, `--disable` refuses a binary rule as unknown, and leakscan's `advisory`
 # in floor.py's registry stays None.
 
-# THE TYPE-LEVEL CUT-OFF (020/450) — a second, later and narrower date.
+# THE TYPE-LEVEL CUT-OFF (020/450) — a second, later and narrower date, now past.
 #
 # `020/450` reads the FIELDS inside a metadata set (Exif and GPS tags, IPTC
 # datasets, XMP properties, PNG text keywords), so an entry can keep
 # `exif:Model,LensModel` and not the GPS block beside them. Entries written
-# before that, which keep a whole set (`exif`, `iptc`, `xmp`, `png-text`), are
-# still accepted: until this date they WARN, naming the fields the file carries
-# and asking for field-level entries. From it they stop keeping the sets whose
-# fields are read, and the set blocks as `binary-metadata`. Sets with no fields
-# to name (`icc`, `jpeg-comment`, `unknown`) keep their type-level entries
-# unchanged. Like the G3 grace was, it is one constant compared with the UTC
-# clock, with no flag, env var or config key to move it; it is later than the
-# G3 grace's end (2026-11-18) on purpose, so a child that listed its binaries by
-# type before then had a month to migrate. Delete the warning path once it passes.
-# That date (2026-12-18) was the authoring run's. The principal moved it,
-# 2026-11-20, answering an ask that gave him both cut-offs and their reach:
-# "Move both to blocking from today" (`115/480`). No child carried a whole-set
-# line that day.
+# before that, which keep a whole set (`exif`, `iptc`, `xmp`, `png-text`), were
+# accepted with a warning until this date. From it they stop keeping the sets
+# whose fields are read, and the set blocks as `binary-metadata`. Sets with no
+# fields to name (`icc`, `jpeg-comment`, `unknown`) keep their type-level
+# entries unchanged. The date was the authoring run's (2026-12-18); the
+# principal moved it, 2026-11-20, answering an ask that gave him both cut-offs
+# and their reach: "Move both to blocking from today" (`115/480`). No child
+# carried a whole-set line that day. The warning path is removed (`115/490`);
+# the constant stays because the refusal below names the date.
 TYPE_LEVEL_UNTIL = datetime.date(2026, 11, 20)
-TYPE_LEVEL_RULE = "binary-type-level"
 
-# THE DOCUMENT READER'S WARN-FIRST DATE (115/390) — a third cut-off, for new
-# findings only.
-#
-# `115/390` reads inside Office Open XML and PDF files, which until then G3
-# accepted whole by their file line. The principal's answer to options offered
-# (2026-11-16, "Build the reader") was to build it; the rollout terms were the
-# queue run's: children run atelier's floor at @main, so a reader that blocked
-# on landing would turn a child red the day it shipped. Until this date every
-# NEW finding the reader produces warns and does not fail the exit code: a
-# `binary-metadata` finding for a document set (`office-props`,
-# `office-custom`, `office-comments`, `pdf-info`, and the `xmp` and `unknown`
-# sets when a document carries them), and a text-rule hit in a document's
-# metadata. What G3 already did to these files is untouched: `binary-unlisted`,
-# `binary-changed` and `binary-stale-entry` block, as they have since the
-# G3 adoption grace ended (2026-11-18). The date is the queue run's pick, at
-# least 30 days after the build (2026-11-16), set past the type-level cut-off
-# so no child meets two new kinds of block on one day. Like the others it is
-# one constant compared with the UTC clock, with no flag, env var or config key
-# to move it. Delete the warning path, `in_document_grace` and its callers
-# once it passes. The principal moved the date from 2027-01-18 to 2026-11-20,
-# in the same answer as `TYPE_LEVEL_UNTIL`'s: "Move both to blocking from
-# today" (`115/480`), told that 48 document findings in three siblings would
-# block from it.
-DOCUMENT_UNTIL = datetime.date(2026, 11, 20)
-# The formats the warn-first date covers: `zip` is a zip the reader refused
-# before it could tell whether it is an Office file (past a cap, or broken).
-DOCUMENT_FORMATS = frozenset({"ooxml", "pdf", "zip"})
-
-
-def in_document_grace(today: datetime.date | None = None) -> bool:
-    """True strictly before `DOCUMENT_UNTIL` (UTC). Tests patch
-    `_utc_today`."""
-    return (today or _utc_today()) < DOCUMENT_UNTIL
-
-
-def in_type_level_grace(today: datetime.date | None = None) -> bool:
-    """True strictly before `TYPE_LEVEL_UNTIL` (UTC). Tests patch
-    `_utc_today`."""
-    return (today or _utc_today()) < TYPE_LEVEL_UNTIL
+# THE DOCUMENT READER (115/390) had a third, warn-first date, 2026-11-20, moved
+# by the same answer (`115/480`); it too is past and its warning path is
+# removed (`115/490`): its findings block like any other.
 
 
 def _utc_today() -> datetime.date:
     return datetime.datetime.now(datetime.timezone.utc).date()
-
-
-def _grace_remedy(rule: str) -> str:
-    if rule == "binary-stale-entry":
-        return "delete or re-path the line"
-    if rule == "binary-metadata":
-        return ("strip the set, or run `leakscan --binary-entries` and write the "
-                "need for keeping it")
-    return "run `leakscan --binary-entries`, look at the file, write a reason"
 
 
 class BinaryManifestError(ValueError):
@@ -3089,20 +3027,8 @@ def check_binary(path: Path, rel: str, entry: BinaryEntry | None,
         tally.files_opened += 1
         tally.binaries_checked += 1
 
-    # 115/390: before `DOCUMENT_UNTIL` what the document reader adds (a
-    # document's metadata sets and the text-rule hits in its metadata) is held
-    # apart as a warning, kept OUT of the findings as type-level warnings are,
-    # so no caller can take one for a block. The file's own gate
-    # (unlisted, changed, stale) is not the reader's and is untouched.
-    doc_warn = False
-
     def gate(rule: str, excerpt: str) -> None:
-        f = Finding(rel, 0, rule, "binary", "high", excerpt, "binary")
-        if doc_warn and rule == "binary-metadata":
-            if tally is not None:
-                tally.document_warnings.append(f)
-            return
-        _record(findings, tally, f)
+        _record(findings, tally, Finding(rel, 0, rule, "binary", "high", excerpt, "binary"))
 
     try:
         with open(path, "rb") as fh:
@@ -3111,16 +3037,11 @@ def check_binary(path: Path, rel: str, entry: BinaryEntry | None,
     except OSError as e:
         gate("binary-unlisted", f"unreadable ({e.__class__.__name__})")
         return findings
-    doc_warn = fmt in DOCUMENT_FORMATS and in_document_grace()
     for label, text in texts:
-        for f in scan_text(rel, text, local_terms, disabled,
-                           None if doc_warn else tally, honour_markers=False):
+        for f in scan_text(rel, text, local_terms, disabled, tally,
+                           honour_markers=False):
             f.where = f"metadata {label}"
-            if doc_warn:
-                if tally is not None:
-                    tally.document_warnings.append(f)
-            else:
-                findings.append(f)
+            findings.append(f)
     accepted = entry is not None and entry.matches(digest)
     present = metadata_sets(found)
     keys_by_set = metadata_fields(fields)
@@ -3132,17 +3053,10 @@ def check_binary(path: Path, rel: str, entry: BinaryEntry | None,
                 gate("binary-metadata", f"{name}: {'; '.join(labels)} — no line keeps it")
             continue
         if whole:                              # a type-level line (020/450)
-            if in_type_level_grace():
-                if tally is not None:
-                    tally.type_level_warnings.append(Finding(
-                        rel, 0, TYPE_LEVEL_RULE, "binary", "high",
-                        f"{name} is kept as a whole type; it carries "
-                        f"{', '.join(keys) or 'no fields'}", "binary"))
-            else:
-                gate("binary-metadata",
-                     f"{name}: a type-level line no longer keeps it since "
-                     f"{TYPE_LEVEL_UNTIL.isoformat()} — name its fields: "
-                     f"{', '.join(keys) or 'it carries none'}")
+            gate("binary-metadata",
+                 f"{name}: a type-level line no longer keeps it since "
+                 f"{TYPE_LEVEL_UNTIL.isoformat()} — name its fields: "
+                 f"{', '.join(keys) or 'it carries none'}")
             continue
         unkept = [k for k in keys if not (accepted and k in entry.sets)]
         if unkept:
@@ -3508,7 +3422,7 @@ def binary_entries(paths: list[Path], root: Path) -> tuple[list[str], list[str]]
         for name in migrating:
             notes.append(f"{rel}: the type-level line for {name} (line "
                          f"{entry.sets[name].lineno}) is replaced by the field "
-                         "lines above; it is accepted with a warning until "
+                         "lines above; it has not kept the set since "
                          f"{TYPE_LEVEL_UNTIL.isoformat()}")
     return lines, notes
 
@@ -3644,49 +3558,6 @@ def _where(f: Finding) -> str:
     return f"{f.path} (in the path name)"
 
 
-def render_type_level(warns: list[Finding]) -> list[str]:
-    """020/450: type-level entries still accepted, each naming the fields the
-    file carries and the date they stop being accepted."""
-    if not warns:
-        return []
-    cut = TYPE_LEVEL_UNTIL.isoformat()
-    lines = [f"⚠ leakscan: {len(warns)} G3 type-level metadata entr"
-             f"{'y' if len(warns) == 1 else 'ies'} — WARNING ONLY until {cut}, "
-             f"refused from {cut}:"]
-    for f in sorted(warns, key=lambda x: (x.path, x.excerpt)):
-        lines.append(report.with_id(
-            f"  {_where(f)}  [warn until {cut}] {f.rule} → {f.excerpt}"
-            f" — refused from {cut}; remedy: name the fields instead "
-            "(`leakscan --binary-entries` prints the lines)",
-            "leakscan", f.rule))
-    lines.append(f"  Before {cut}: replace each type-level line in {BINARY_MANIFEST} "
-                 "with a line naming the fields kept (`<digest>:exif:Model,LensModel`) "
-                 "under the need for those fields, strip the rest, and commit.")
-    lines.append("")
-    return lines
-
-
-def render_documents(warns: list[Finding]) -> list[str]:
-    """115/390: what the document reader found before `DOCUMENT_UNTIL`, each
-    naming the date it starts to block and its remedy."""
-    if not warns:
-        return []
-    cut = DOCUMENT_UNTIL.isoformat()
-    lines = [f"⚠ leakscan: {len(warns)} document metadata finding(s) (Office, PDF) "
-             f"— WARNING ONLY until {cut}, blocking from {cut}:"]
-    for f in sorted(warns, key=lambda x: (x.path, x.where, x.line, x.rule)):
-        remedy = (_grace_remedy(f.rule) if f.rule == "binary-metadata" else
-                  "remove the value from the document's properties")
-        lines.append(report.with_id(
-            f"  {_where(f)}  [warn until {cut}] {f.rule} → {f.excerpt}"
-            f" — blocks from {cut}; remedy: {remedy}", "leakscan", f.rule))
-    lines.append(f"  Before {cut}: clear the properties, comments and Info you have "
-                 "no need for (that changes the bytes: re-list the file), and keep "
-                 f"the rest with `leakscan --binary-entries` lines in {BINARY_MANIFEST}.")
-    lines.append("")
-    return lines
-
-
 PROVENANCE_LIST_CAP = 20
 
 
@@ -3755,7 +3626,6 @@ def render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
 
 def render_human(findings: list[Finding], warning: str | None,
                  scanned_local: bool, tally: Tally | None = None,
-                 typewarn: list[Finding] | None = None,
                  provwarn: list[Finding] | None = None) -> str:
     # 115/090: `findings` may carry report-only findings from rules that are
     # off; they are listed in their own block and never counted as blocking.
@@ -3772,17 +3642,10 @@ def render_human(findings: list[Finding], warning: str | None,
     lines: list[str] = []
     if warning:
         lines.append(f"⚠ {warning}")
-    lines.extend(render_type_level(typewarn or []))
     lines.extend(render_provenance(provwarn or []))
-    docwarn = tally.document_warnings if tally is not None else []
-    lines.extend(render_documents(docwarn))
     if not findings and not over_cap:
         cover = "structural + local" if scanned_local else "structural only"
-        lines.append(f"✓ leakscan clean ({cover})."
-                     + (f" The type-level warning(s) above are refused from "
-                        f"{TYPE_LEVEL_UNTIL.isoformat()}." if typewarn else "")
-                     + (f" The document warning(s) above block from "
-                        f"{DOCUMENT_UNTIL.isoformat()}." if docwarn else ""))
+        lines.append(f"✓ leakscan clean ({cover}).")
         if tally is not None:
             lines.append(tally.summary())
             lines.append(tally.coverage())
@@ -4065,7 +3928,6 @@ def _main(argv: list[str] | None = None) -> int:
             return rc
         findings = scan_paths(targets, root, local_terms, disabled, tally)
 
-    typewarn = tally.type_level_warnings
     provwarn = tally.provenance_warnings
     # 115/090: findings from rules that are off report without blocking. They
     # are kept out of `blocking`, which alone feeds the exit code.
@@ -4098,19 +3960,6 @@ def _main(argv: list[str] | None = None) -> int:
                 "warnings": report.finding_dicts("leakscan", provwarn,
                                                  lambda f: f.rule),
             },
-            "binary_type_level": {
-                "until": TYPE_LEVEL_UNTIL.isoformat(),
-                "active": in_type_level_grace(),
-                "warnings": report.finding_dicts("leakscan", typewarn,
-                                                 lambda f: f.rule),
-            },
-            "binary_documents": {
-                "until": DOCUMENT_UNTIL.isoformat(),
-                "active": in_document_grace(),
-                "warnings": report.finding_dicts("leakscan",
-                                                 tally.document_warnings,
-                                                 lambda f: f.rule),
-            },
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
@@ -4129,7 +3978,7 @@ def _main(argv: list[str] | None = None) -> int:
                 binaries_checked=tally.binaries_checked),
         }, indent=2))
     else:
-        print(render_human(findings, warning, scanned_local, tally, typewarn,
+        print(render_human(findings, warning, scanned_local, tally,
                            provwarn))
 
     return report.exit_code(blocking_total)
