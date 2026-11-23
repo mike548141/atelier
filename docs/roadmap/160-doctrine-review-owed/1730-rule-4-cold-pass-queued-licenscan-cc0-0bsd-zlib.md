@@ -18,3 +18,6 @@
       single-phrase CC0 signature can fire on a file that merely mentions
       CC0; that a 0BSD body can no longer pass an `--expect ISC`.
       *Approval:* none yet; owed to the principal before the pass runs.
+      💬 **Answered 2026-11-23 ~12:35 UTC (session c7a1e36e, AskUserQuestion), his pick:** *"Next drain (Recommended)"*, for this pass and
+      the widened `160/1710` and `160/1680`: they wait for his next weekly
+      drain.

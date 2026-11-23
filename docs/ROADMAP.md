@@ -335,7 +335,7 @@ line, so they overlap Open and Claimed.
 - [ ] [🛠️ ccfleet, the fleet-sweep and review-drain skills, and the modelguard…](roadmap/210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md)
 - [ ] 🎯🔥 [Fix ccfleet, fleet-sweep, review-drain and modelguard: findings…](roadmap/210-instruments-open-features/470-fix-ccfleet-and-its-two-skills-fl1-fl25.md)
 - [ ] ⏳ [A commit gate refuses a review claimed by the session that authored,…](roadmap/210-instruments-open-features/530-a-commit-gate-refuses-a-review-claim-by-its-author.md)
-- [ ] 🔎 [ccfleet's permission line cannot see what a session inherits, and a…](roadmap/210-instruments-open-features/560-ccfleet-cannot-see-inherited-permissions-and-a-kept-worktree-loses-its-claim.md)
+- [ ] [ccfleet's permission line cannot see what a session inherits, and a…](roadmap/210-instruments-open-features/560-ccfleet-cannot-see-inherited-permissions-and-a-kept-worktree-loses-its-claim.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

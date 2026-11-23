@@ -53,3 +53,10 @@
       `160/1450` (rule 4: a session that wrote none of the fixes, briefed
       fresh; not this run, which dispatched them). The estate's drain
       switch (`450/010` row 2) waits for it to come back clean.
+      💬 **Answered 2026-11-23 ~12:35 UTC (session c7a1e36e, AskUserQuestion), his pick:** *"Approve one pass (Recommended)"*, to:
+      approve one Fable re-check of the fixes (option text: *"One Fable review
+      of the ccfleet, skills and modelguard fixes, run on the laptop's weekly
+      budget by a fresh session that wrote none of them."*). An answer, not a
+      ruling. Exactly that one pass plus its Opus brief, on the next
+      `160/1450` re-check; c7a1e36e dispatched the fixes, so it neither
+      briefs nor starts it: a fresh session does.

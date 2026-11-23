@@ -1,4 +1,4 @@
-- [ ] 🔎 **`ccfleet`'s permission line cannot see what a session inherits,
+- [ ] **`ccfleet`'s permission line cannot see what a session inherits,
       and a kept worktree can outlive its claim.** Found 2026-11-23 by the
       `210/470` FL20 canary (queue run c7a1e36e), two findings:
       1. **Narrowing a headless session's permissions in the config did
@@ -24,3 +24,10 @@
       Also seen, not a defect: a headless session inherits the operator's
       PreToolUse hooks, so a canary prompt has to avoid commands those
       hooks refuse (the first canary session ended BLOCKED on one).
+      💬 **Answered 2026-11-23 ~12:35 UTC (session c7a1e36e, AskUserQuestion), his pick:** part 1, *"Config is the whole grant
+      (Recommended)"*: ccfleet launches sessions so that only its config's
+      permissions apply, not user-level allow rules, with tests and the
+      THREATS section and `check` saying so. Part 2, *"Treat as not clean
+      (Recommended)"*: a clean RESULT that leaves unlanded work is not
+      clean, so the claim stays and the pass can be resumed. Both are now
+      build work, owed here; the build earns its own cold pass.
