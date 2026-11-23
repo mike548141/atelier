@@ -118,13 +118,15 @@ applied to repo docs: a claim no stronger than its evidence — see
   names an instrument must never have.
 - **.github/workflows/floor.yml** — the *scanner* floor, for any repo that
   inherits house doctrine: the CI backstop to the pre-commit scan hook (which
-  only guards the clone it's installed in). It checks atelier out beside the repo
-  and runs its public `tools/` scanners — the current roster and what each
-  gates is `tools/README.md`'s to state, not re-enumerated here (an inline
-  list went stale three scanners running) —
-  against the tree on every push + PR — one source, no vendored copy, no drift.
-  Distinct from `ci.yml` (which gates *correctness*); this gates *publish-safety*.
-  licenscan is a publish gate, left commented until the repo settles a licence.
+  only guards the clone it's installed in). The template is a thin caller of
+  atelier's reusable `floor.yml`, which checks atelier out and runs the scanner
+  registry (`tools/floor.py`) against the tree on every push + PR — one source,
+  no vendored copy, no drift (ADR 0008). The template names no scanner: the
+  current roster and what each gates is `tools/README.md`'s to state, and a new
+  check reaches every repo on its next push with no edit here. What the repo
+  itself decides — its licence assertion, which checks run advisory or disabled
+  — lives in `.atelier-floor.json`, below. Distinct from `ci.yml` (which gates
+  *correctness*); this gates *publish-safety*.
 - **.atelier-floor.json** — what the repo decides about that floor, and the only
   place it decides it: where its records live, the licence it asserts, its
   `visibility` (`"public"` or `"private"`, checked against GitHub in CI:
@@ -267,7 +269,8 @@ applied to repo docs: a claim no stronger than its evidence — see
   carry is the options list, so that duplication is where drift lives: keep
   prose detail in **one** place (the page), and where the repo has tests, pin
   the superset relation mechanically — assert every flag `--help` prints
-  appears in the page (atelier's `instruments/` tests do). Ship pages as roff
+  appears in the page (six of atelier's nine paged instruments do: `ccapple`,
+  `ccarchive`, `ccclose`, `ccfleet`, `ccrepo`, `cctranscript`). Ship pages as roff
   under a `man/` dir and have the installer publish them to
   `~/.local/share/man/man1` — auto-found on macOS/BSD `man` and man-db Linux,
   which derive the manpath from `PATH`; a hard-set `MANPATH` environment
