@@ -42,11 +42,6 @@ session — `(claimed <date>-<HHMM>, wt: <branch>)`, optionally extended in plac
 with a resume breadcrumb (`· at: <step>` — CONCURRENCY § Surviving an
 interrupted session) — don't start a `[~]` item;
 take the next open one (`method/CONCURRENCY.md` § Claiming work) ·
-`💤 PARKED <YYYY-MM-DD>` **parked by the principal**, a line in the item's text
-(never a state): he was asked and answered not now, undecided or hold, and his
-words follow on the line. A session skips it and does not re-ask it until the
-item's file, or an item it cites, changes after the park; `ccopen` lists those,
-and the newest such line is the park (`180/220`) ·
 `⏳` **review queued** for a non-author to take — any spawner passing rule 4's
 criterion may take it, **on the principal-named review tier (currently
 Fable): tier is checked at selection, and a session that cannot honour the

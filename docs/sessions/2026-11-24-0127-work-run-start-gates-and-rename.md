@@ -83,3 +83,9 @@ to /atelier:work-run or something else"*; *"We could also consider having
   shared primary checkout while the peer had staged work there; its staged
   index picked up my counts. Moved to a worktree, its staged index rebuilt
   from its own items (`--from-index`), and the peer told.
+- 🛑 **The parked mark is withdrawn** on his answer, verbatim on `180/220`:
+  *"I don't want you marking work as "parked" at all, you will infere it
+  incorrectly as you have many timtes already in past sessions"*. No sweep;
+  the legend and `COMMUNICATION.md` no longer describe it; the reads that
+  parse it are owed a redesign without inference or removal (`180/220`).
+  Work plan joins the parallel session's command build (`450/020`).

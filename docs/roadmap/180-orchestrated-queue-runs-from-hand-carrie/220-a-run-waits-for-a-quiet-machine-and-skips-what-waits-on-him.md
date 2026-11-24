@@ -100,3 +100,23 @@
       fable review is done"*. So the owed sweep (and `180/240`, if he
       confirms) runs in a fresh session he opens, without waiting for
       `160/1780`.
+      🛑 **The parked mark is withdrawn, his answer, 2026-11-24, verbatim**
+      (to "which work should the fresh session build: the parked sweep, work
+      plan, or both?"): *"You can do the work plan, but that should be done
+      at the same time as the other /atelier work I've described in the
+      parallel session in this repo. Its just one of the commands being
+      changed. I don't want you marking work as "parked" at all, you will
+      infere it incorrectly as you have many timtes already in past
+      sessions"*. So no sweep, and no session writes `💤 PARKED`; the legend
+      and `COMMUNICATION.md` no longer describe it. Work plan moves to
+      `450/020`'s build.
+      **Owed (a fresh session, design and build, not waiting for
+      `160/1780`):** `ccopen` read 9 and `ccclose` check 16 still parse a
+      PARKED line nobody will write. Redesign without inference, or remove:
+      e.g. list waiting items whose file changed since his last recorded
+      answer (a 💬 or ⚖️ line, which records his words and is not a session's
+      reading of them), and nothing about what the answer meant. The first
+      oldest-asks round also found two of three 🎯 marks stale, so a
+      verification of the open 🎯 marks (does each still need him?) would
+      shrink the backlog before he spends time on it; it must state its
+      evidence per item, as `020/020` and `020/140` now do.
