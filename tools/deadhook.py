@@ -204,7 +204,7 @@ def status(root: Path) -> int:
     else:
         ok = False
         print(f"❌ {where}, and no executable pre-commit there: commits here are NOT scanned.\n"
-              f"   Fix: git config core.hooksPath .githooks   (or /atelier:install-hook)")
+              f"   Fix: git config core.hooksPath .githooks   (or /atelier:repo hook)")
     if not hp and (root / ".githooks" / "pre-commit").is_file():
         print("ℹ️  this tree carries a tracked .githooks/ that git is not running; "
               "`git config core.hooksPath .githooks` arms it")

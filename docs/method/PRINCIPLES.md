@@ -281,7 +281,7 @@ must carry its own evidence.
   now treated "in-repo restatements" as `docs/` only** (the second miss left
   the session-onramp skill teaching a superseded apex — ZL1, ruled
   2026-08-04): the doctrine surface (`docs/`), the **plugin surfaces**
-  (`skills/`, `commands/`), the templates (`docs/build/templates/`), and —
+  (`skills/`), the templates (`docs/build/templates/`), and —
   via the propagation lane, at each child's next pin bump — children's
   inlined floor blocks. A restatement surface not on this list is added to
   it, not swept by memory. (This is

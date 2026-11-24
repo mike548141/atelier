@@ -424,7 +424,7 @@ device cadence of the sections above, since that is correct when he is watching.
 His session-open prompt declares it in *Working with me*: ask at the start of
 the session or once all the work is done, not in the middle, and record what
 blocks only part of the work and carry on (`180/220`, 2026-11-24). So a run
-started by `/atelier:work-run` takes the parked-asks cadence, with its
+started by `/atelier:work run` takes the parked-asks cadence, with its
 run-gating asks put first (the orchestrated-run section of `CONCURRENCY.md`
 says so), and a session reads a declaration the same way wherever it appears,
 by his words and no other cue.

@@ -59,9 +59,12 @@ commit, no seal. A plan is never a seal.
    --json` where a config exists (add `--fetch` to read each repo's remote
    first). For each, what the judge needs: the item, its age, the principal's
    words on it, dates ahead, what it guards, what waits on its verdict, and
-   what each route can and cannot do for it. A review is owed when its item's
-   own text, or the principal's words on it, says one is required; one with no
-   brief goes on the unbriefed list (step 5), never into the ranking.
+   what each route can and cannot do for it. A review is **owed** when its
+   item's own text, or the principal's words on it, says one is required. A
+   bare `⏳`, REVIEW.md's triggers, or a writer's view that it deserves one do
+   not count; those go to the principal as a list, never into a brief. An owed
+   review with no brief goes on the unbriefed list (step 5), never into the
+   ranking.
 2. **Rank the briefed ones by judgement.** The principal's direction first
    (his words for the next run, if given after the command, then standing
    words on an item); then importance, urgency (a real date first), the risk

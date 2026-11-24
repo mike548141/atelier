@@ -77,7 +77,17 @@ FAKE_QUEUE = textwrap.dedent("""\
     root = {root!r}
     def fields(line):
         return tuple(line.split("\\t") if "\\t" in line else line.split())
+    if cmd in ("evidence", "owed"):
+        with open(root + "/" + cmd + ".log", "a") as f:
+            f.write(" ".join(rest) + "\\n")
+        if os.environ.get("FAKE_QUEUE_RC_" + cmd.upper()):
+            print("queue tool broke", file=sys.stderr)
+            sys.exit(int(os.environ["FAKE_QUEUE_RC_" + cmd.upper()]))
+        with open(root + "/" + cmd + ".json") as f:
+            sys.stdout.write(f.read())
+        sys.exit(0)
     if cmd == "next":
+        open(root + "/next.called", "a").close()
         if os.environ.get("FAKE_QUEUE_RC_NEXT"):
             print("queue tool broke", file=sys.stderr)
             sys.exit(int(os.environ["FAKE_QUEUE_RC_NEXT"]))
@@ -1093,6 +1103,218 @@ class EndToEnd(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "kit", "driver.log")))
 
 
+    # ---- plan: the read-only reading of the queue ----
+
+    EVIDENCE = [{"repo": "alpha", "item": "010", "brief": "docs/brief.md", "title": "Check the alpha guard",
+                 "fits": ["local", "batch"], "his_words": "first, please", "dates_ahead": ["2030-01-06"]},
+                {"repo": "beta", "item": "020", "brief": "docs/brief.md", "title": "Check the beta write path",
+                 "fits": ["local"]}]
+    OWED = [{"repo": "beta", "item": "030", "title": "Review the beta export", "why": "its item says one is owed"}]
+
+    def queue_json(self, evidence=None, owed=None):
+        wr(os.path.join(self.tmp, "evidence.json"), json.dumps(self.EVIDENCE if evidence is None else evidence))
+        wr(os.path.join(self.tmp, "owed.json"), json.dumps(self.OWED if owed is None else owed))
+
+    def plan_cfg(self, owed=True, fetch=False):
+        self.cfg["queue"]["evidence"] = [self.queue, "evidence"] + (["{FETCH}"] if fetch else [])
+        if owed:
+            self.cfg["queue"]["owed"] = [self.queue, "owed"] + (["{FETCH}"] if fetch else [])
+        self.write_cfg()
+
+    def not_called(self):
+        """The queue commands a plan must never call leave no trace."""
+        for name in ("ranked.log", "take.log", "release.log", "ended.log", "next.called"):
+            self.assertFalse(os.path.exists(os.path.join(self.tmp, name)), name)
+        kit = os.path.join(self.tmp, "kit")
+        self.assertEqual([f for f in os.listdir(kit) if f.startswith("launched")], [])
+        self.assertEqual(os.listdir(os.path.join(self.tmp, "wt")), [])
+        self.assertEqual(self.calls(), [])
+
+    def pass_log_pair(self, name, result="DONE", cost=None, ms=None, turns=None, rc=0, is_error=False):
+        """A drain pass's .out (START and END lines) and its claude -p JSON log."""
+        logs = os.path.join(self.tmp, "kit", "logs")
+        os.makedirs(logs, exist_ok=True)
+        jlog = os.path.join(logs, name + ".json")
+        body = {"session_id": "s-" + name, "result": f"REPO: x\nRESULT: {result}"}
+        for k, v in (("total_cost_usd", cost), ("duration_ms", ms), ("num_turns", turns)):
+            if v is not None:
+                body[k] = v
+        if is_error:
+            body.update(is_error=True, subtype="error_during_execution")
+        wr(jlog, json.dumps(body))
+        wr(os.path.join(logs, f"pass-{name}-000000.out"),
+           f"START 2030-01-01T00:00:00Z {name} model=m session=s-{name} wt=/x/{name} log={jlog}\n"
+           f"END 2030-01-01T00:10:00Z rc={rc} result={result} session=s-{name} out=/x\n")
+
+    def test_plan_prints_the_evidence_and_the_owed_list(self):
+        self.queue_json()
+        self.plan_cfg()
+        r = self.cli("plan")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        for want in ("Check the alpha guard", "Check the beta write path", "local, batch",
+                     "Review the beta export", "its item says one is owed", "NOT YET BRIEFED: 1",
+                     "COST HISTORY", "local: no measurement"):
+            self.assertIn(want, r.stdout)
+        self.not_called()
+
+    def test_plan_never_calls_ranked_take_next_release_or_ended(self):
+        """The marker files prove it: every other queue command leaves one."""
+        self.queue_json()
+        self.plan_cfg()
+        self.cfg["queue"]["ended"] = [self.queue, "ended", "{REPO}:{ITEM}"]
+        self.write_cfg()
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\n")
+        for extra in ([], ["--json"], ["--fetch"]):
+            self.assertEqual(self.cli("plan", *extra).returncode, 0)
+        self.not_called()
+        # and the marker works: a real drain does leave them
+        self.assertEqual(self.cli("drain", "--max", "1").returncode, 0)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "ranked.log")))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "next.called")))
+
+    def test_plan_json_shape(self):
+        self.queue_json()
+        self.plan_cfg()
+        r = self.cli("plan", "--json")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        d = json.loads(r.stdout)
+        self.assertEqual(sorted(d), ["evidence", "history", "notes", "owed"])
+        self.assertEqual(d["evidence"], self.EVIDENCE)  # passed through untouched, in the queue's order
+        self.assertEqual(d["owed"], self.OWED)
+        self.assertEqual(sorted(d["history"]["routes"]), ["batch", "local"])
+        self.assertEqual(d["history"]["routes"]["batch"], {"measured": False, "note": "no measurement"})
+        self.assertFalse(d["history"]["routes"]["local"]["measured"])
+        self.assertIsInstance(d["notes"], list)
+
+    def test_plan_owed_is_null_when_not_configured(self):
+        self.queue_json()
+        self.plan_cfg(owed=False)
+        d = json.loads(self.cli("plan", "--json").stdout)
+        self.assertIsNone(d["owed"])
+        self.assertTrue(any("queue.owed is not configured" in n for n in d["notes"]))
+        self.assertIn("not read (queue.owed is not configured)", self.cli("plan").stdout)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "owed.log")))
+
+    def test_a_failing_evidence_command_exits_1_plainly(self):
+        self.queue_json()
+        self.plan_cfg()
+        r = self.cli("plan", env={**self.env, "FAKE_QUEUE_RC_EVIDENCE": "3"})
+        self.assertEqual(r.returncode, cf.EXIT_SETUP, r.stdout + r.stderr)
+        self.assertIn("queue.evidence failed (rc=3)", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        r = self.cli("plan", env={**self.env, "FAKE_QUEUE_RC_OWED": "4"})
+        self.assertEqual(r.returncode, cf.EXIT_SETUP, r.stdout + r.stderr)
+        self.assertIn("queue.owed failed (rc=4)", r.stderr)
+
+    def test_evidence_that_is_not_the_json_it_should_be_exits_1(self):
+        self.plan_cfg()
+        for text, said in (("not json", "did not print JSON"), ('{"repo": "a"}', "JSON array of objects"),
+                           ('[{"repo": "alpha", "item": "1", "brief": "b"}]', "has no title")):
+            wr(os.path.join(self.tmp, "evidence.json"), text)
+            wr(os.path.join(self.tmp, "owed.json"), "[]")
+            r = self.cli("plan")
+            self.assertEqual(r.returncode, cf.EXIT_SETUP, (text, r.stdout, r.stderr))
+            self.assertIn(said, r.stderr)
+            self.assertNotIn("Traceback", r.stderr)
+
+    def test_plan_without_queue_evidence_is_a_usage_refusal(self):
+        r = self.cli("plan")
+        self.assertEqual(r.returncode, cf.EXIT_USAGE, r.stdout + r.stderr)
+        self.assertIn("queue.evidence", r.stderr)
+
+    def test_fetch_fills_the_placeholder_or_drops_it(self):
+        self.queue_json()
+        self.plan_cfg(fetch=True)
+        self.cli("plan")
+        self.cli("plan", "--fetch")
+        self.assertEqual(rd(os.path.join(self.tmp, "evidence.log")), "\n--fetch\n")
+        self.assertEqual(rd(os.path.join(self.tmp, "owed.log")), "\n--fetch\n")
+
+    def test_fetch_with_no_placeholder_is_said_not_silently_dropped(self):
+        self.queue_json()
+        self.plan_cfg()
+        d = json.loads(self.cli("plan", "--fetch", "--json").stdout)
+        self.assertTrue(any("nothing was fetched" in n for n in d["notes"]))
+        self.assertEqual(rd(os.path.join(self.tmp, "evidence.log")), "\n")
+
+    def test_cost_history_from_the_pass_logs(self):
+        self.queue_json()
+        self.plan_cfg()
+        self.pass_log_pair("a-1", cost=2.0, ms=60000, turns=10)
+        self.pass_log_pair("a-2", cost=4.0, ms=120000, turns=30)
+        self.pass_log_pair("a-3", cost=9.0, ms=240000, turns=50)
+        self.pass_log_pair("a-4", result="ERROR", cost=99.0, ms=1, turns=1, rc=1)       # not clean
+        self.pass_log_pair("a-5", result="DONE", cost=77.0, is_error=True)             # flagged: not clean
+        self.pass_log_pair("a-6", result="UNLANDED", cost=55.0)                         # clean text, unlanded
+        d = json.loads(self.cli("plan", "--json").stdout)
+        local = d["history"]["routes"]["local"]
+        self.assertTrue(local["measured"], local)
+        self.assertEqual((local["passes_seen"], local["clean"]), (6, 3))
+        self.assertEqual(local["cost_usd"], {"n": 3, "median": 4.0, "max": 9.0})
+        self.assertEqual(local["duration_s"], {"n": 3, "median": 120.0, "max": 240.0})
+        self.assertEqual(local["turns"], {"n": 3, "median": 30, "max": 50})
+        self.assertEqual(d["history"]["routes"]["batch"]["note"], "no measurement")
+        text = self.cli("plan").stdout
+        self.assertIn("3 clean pass(es) of 6 seen", text)
+        self.assertIn("cost: median 4.0 USD, max 9.0 USD (n=3)", text)
+        self.not_called()
+
+    def test_cost_history_says_no_measurement_with_no_logs_or_no_cost(self):
+        self.queue_json()
+        self.plan_cfg()
+        d = json.loads(self.cli("plan", "--json").stdout)
+        self.assertEqual(d["history"]["routes"]["local"]["note"], "no measurement")
+        self.pass_log_pair("b-1")  # clean, but the log carries no cost fields
+        local = json.loads(self.cli("plan", "--json").stdout)["history"]["routes"]["local"]
+        self.assertFalse(local["measured"])
+        self.assertEqual((local["passes_seen"], local["clean"]), (1, 1))
+        self.assertIn("no measurement", self.cli("plan").stdout)
+
+    def test_a_dry_drain_prints_the_plan_and_still_does_not_call_ranked(self):
+        self.queue_json()
+        self.plan_cfg()
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\n")
+        r = self.cli("drain", "--max", "1", "--dry-run")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        lines = r.stdout.splitlines()
+        plan_lines = [l for l in lines if l.startswith("DRY plan:")]
+        self.assertTrue(any("Check the alpha guard" in l for l in plan_lines), r.stdout)
+        self.assertTrue(any("Review the beta export" in l for l in plan_lines), r.stdout)
+        last_plan = max(i for i, l in enumerate(lines) if l.startswith("DRY plan:"))
+        self.assertLess(last_plan, lines.index("DRY queue.ranked not called"))
+        # the rehearsed launches print into each pass's own .out, after the reading
+        self.assertEqual(self.calls(), [])
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "ranked.log")))
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "take.log")))
+        self.assertEqual(self.calls(), [])
+
+    def test_a_dry_drain_without_evidence_says_so_and_carries_on(self):
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\n")
+        r = self.cli("drain", "--max", "1", "--dry-run")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual([l for l in r.stdout.splitlines() if l.startswith("DRY plan:")],
+                         ["DRY plan: queue.evidence is not configured; no plan reading (carrying on)"])
+        self.assertIn("DRY queue.ranked not called", r.stdout)
+
+    def test_a_dry_drain_with_failing_evidence_reports_it_and_carries_on(self):
+        self.queue_json()
+        self.plan_cfg()
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\n")
+        r = self.cli("drain", "--max", "1", "--dry-run", env={**self.env, "FAKE_QUEUE_RC_EVIDENCE": "3"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("DRY plan: FAILED", r.stdout)
+        self.assertIn("DRY queue.ranked not called", r.stdout)
+
+    def test_a_real_drain_does_not_read_the_plan(self):
+        self.queue_json()
+        self.plan_cfg()
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 010 docs/brief.md\n")
+        r = self.cli("drain", "--max", "1")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("plan:", r.stdout)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "evidence.log")))
+
+
 class ResultWords(unittest.TestCase):
     """FL14: a RESULT line is read by its known phrase or its first word."""
     known = ("DONE", "SKIPPED", "BUDGET EXHAUSTED")
@@ -1266,14 +1488,18 @@ class Config(unittest.TestCase):
     # ALWAYS_FILLED), and what its skill says is set per job or per call
     # (--set or a jobs field) rather than in the config's vars.
     SHIPPED = {
-        "review-drain/orchestrator-prompt.md": (cf.PASS_FILLED, set()),
-        "review-drain/resume-prompt.md": (cf.RESUME_FILLED, {"AGENT", "STATE"}),
-        "review-drain/fold-prompt.md": ({"ITEM", "REVIEW_LOG"}, {"BRIEF", "HELD"}),
-        "fleet-sweep/worker-prompt.md": (set(), set()),
-        "fleet-sweep/adopt-prompt.md": (set(), set()),
-        "fleet-sweep/task-prompt.md": (set(), {"TASK"}),
-        "fleet-sweep/brief-prompt.md": (set(), {"ITEM", "SUBJECT", "SOURCE", "QUOTE", "NOTE"}),
+        "review/orchestrator-prompt.md": (cf.PASS_FILLED, set()),
+        "review/resume-prompt.md": (cf.RESUME_FILLED, {"AGENT", "STATE"}),
+        "review/fold-prompt.md": ({"ITEM", "REVIEW_LOG"}, {"BRIEF", "HELD"}),
+        "fleet/worker-prompt.md": (set(), set()),
+        "fleet/adopt-prompt.md": (set(), set()),
+        "fleet/task-prompt.md": (set(), {"TASK"}),
+        "fleet/brief-prompt.md": (set(), {"ITEM", "SUBJECT", "SOURCE", "QUOTE", "NOTE"}),
     }
+    # A skill is a subject folder: a router (SKILL.md) and one file per action.
+    # The variables table of a subject's prompts lives in the action that
+    # fills them, not in the router.
+    ACTION_FILE = {"review": "run.md", "fleet": "sweep.md"}
 
     def test_the_example_vars_fill_every_shipped_prompt(self):
         """FL12: an adopter who copies the example config, and sets what each
@@ -1281,22 +1507,25 @@ class Config(unittest.TestCase):
         prompt unfilled; every per-call name is in its skill's table."""
         cfg = cf.load_config(os.path.join(HERE, "ccfleet.example.json"))
         skills = os.path.join(os.path.dirname(HERE), "skills")
-        shipped = {f"{d}/{f}" for d in ("review-drain", "fleet-sweep")
+        shipped = {f"{d}/{f}" for d in sorted(self.ACTION_FILE)
                    for f in os.listdir(os.path.join(skills, d)) if f.endswith("-prompt.md")}
         self.assertEqual(shipped, set(self.SHIPPED), "a prompt was added or removed: list it here")
         for rel, (by_command, per_call) in sorted(self.SHIPPED.items()):
             names = set(cf.PLACEHOLDER.findall(rd(os.path.join(skills, rel))))
             unset = names - cf.ALWAYS_FILLED - by_command - per_call - set(cfg["vars"])
             self.assertEqual(sorted(unset), [], rel)
-            skill = rd(os.path.join(skills, rel.split("/")[0], "SKILL.md"))
+            subject = rel.split("/")[0]
+            self.assertTrue(os.path.isfile(os.path.join(skills, subject, "SKILL.md")), f"{subject}: no router")
+            skill = rd(os.path.join(skills, subject, self.ACTION_FILE[subject]))
             for name in sorted(per_call | (names - cf.ALWAYS_FILLED - by_command)):
-                self.assertIn(f"`{name}`", skill, f"{rel}: {name} is not in its skill's variables table")
+                self.assertIn(f"`{name}`", skill,
+                              f"{rel}: {name} is not in {self.ACTION_FILE[subject]}'s variables table")
 
 
 class HelpAndManual(unittest.TestCase):
     """The two-register convention: --help is a digest that points at the man
     page, and the page covers every flag --help prints."""
-    SUBCOMMANDS = ["check", "gate", "run", "drive", "drain", "pass", "resume"]
+    SUBCOMMANDS = ["check", "gate", "run", "drive", "drain", "plan", "pass", "resume"]
 
     def help_text(self, *argv):
         r = subprocess.run([sys.executable, TOOL, *argv, "--help"], capture_output=True, text=True,

@@ -23,10 +23,10 @@ list in the rulings file; that file wins.
    worker's account.
 3. **Conformance**: every mandatory item and dated obligation in the doctrine
    delta since the repo's old pin is applied.
-4. **Every owed review has a brief.** *Owed* means the item's own text, or the
-   principal's words on it, says a review is required. A bare `⏳`, REVIEW.md's
-   triggers, or a writer's view that it deserves one do **not** count; those
-   go to the principal as a list, never into a brief.
+4. **Every owed review has a brief**: `/atelier:review plan`'s *owed, not
+   yet briefed* list is empty. The plan is the one finder of owed reviews and
+   holds the definition of *owed* ([`../review/plan.md`](../review/plan.md),
+   step 1); nothing here restates it.
 5. **The principal's queue holds no duplicates**: open decisions, questions,
    rulings and actions waiting on the principal, de-duplicated within and
    across repos, answered ones marked with the citation.
@@ -86,7 +86,7 @@ as a headless session in atelier, not as an Agent.
    disk or on the forge that the config does not list is reported to the
    principal, never touched. Exempt even when listed, and left as they are:
    an archived repo, a fork, and a repo whose owner is not in the profile's
-   `remote.account` (`create-repo`'s own check: another owner's repo is not
+   `remote.account` (`/atelier:repo create`'s own check: another owner's repo is not
    yours to standardise). Read all three from the forge (`gh repo view
    <owner>/<name> --json isArchived,isFork,owner`); a repo whose owner cannot
    be read (no remote) is listed for the principal, not adopted. A listed,
@@ -133,11 +133,12 @@ as a headless session in atelier, not as an Agent.
    worktree is named on its job's `KEPT` line in `logs/run-<label>.out`). Verify every claim that matters: `pins.py`
    for the fleet, `gh run list` at each pushed head. A worker's "green" is not
    evidence; CI is.
-   - **6a. Briefs owed** (item 4): one headless Opus brief-writer per brief
-     ([`brief-prompt.md`](brief-prompt.md)), one writer at a time per repo
-     (`drive --serial-per-repo`). Put healthy item 4's definition of *owed* in
-     every writer's prompt. The writer saves the brief's held-back sibling
-     straight to `HELD_DIR`, never in the tree (the `review-drain` skill,
+   - **6a. Briefs owed** (item 4): run `/atelier:review plan` and take its
+     *owed, not yet briefed* list as the worklist; one headless Opus
+     brief-writer per brief ([`brief-prompt.md`](brief-prompt.md)), one writer
+     at a time per repo (`drive --serial-per-repo`). Put the plan's
+     definition of *owed* in every writer's prompt. The writer saves the brief's held-back sibling
+     straight to `HELD_DIR`, never in the tree (`/atelier:review run`,
      § *Briefs are never left owed*). Never brief work this session built.
    - **6b. Asks de-duplicated** (item 5), in three phases and a check. Per
      repo, a cheap headless session extracts every open item waiting on the

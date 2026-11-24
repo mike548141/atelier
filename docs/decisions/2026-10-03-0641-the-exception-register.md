@@ -483,9 +483,9 @@ No child is touched until all five hold.
 - **Doctrine, rewritten at acceptance, not before:** `GUARDS.md` § *Who, why,
   when* (git is the witness of when; the record carries who and the kind) and
   § *Granularity* (token and unit levels); `REPO-STANDARD.md`; the scanners'
-  help text that tells a reader to add a marker; `commands/scan.md`.
+  help text that tells a reader to add a marker; `commands/scan.md`. <!-- pathscan:allow: moved 2026-11-24 in the subject-action rename (450/020); the record keeps the path it was written with -->
 - **Templates and scaffolded children.** Files that ship into a child or teach
-  the form (`commands/scan.md`, `docs/build/REPO-STANDARD.md`, the child floor
+  the form (`commands/scan.md`, `docs/build/REPO-STANDARD.md`, the child floor <!-- pathscan:allow: moved 2026-11-24 in the subject-action rename (450/020); the record keeps the path it was written with -->
   workflow template, the create-repo instance example) move to the register
   form at T1, with the seed entries of § 8.
 - **The register is scanned like any other file.** It holds digests under the

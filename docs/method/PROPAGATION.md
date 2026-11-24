@@ -108,7 +108,7 @@ that belongs behind its pointer, not that it "broke a budget"; a concern can
 only *leave* the block by being genuinely redundant with another, never by
 trimming a live safety statement. (The earlier "~15 lines" and "~50 lines"
 figures are both retired — the first was dead on arrival, the second tracked the
-measurement it claimed to be independent of.) `create-repo` stamps it on new
+measurement it claimed to be independent of.) `/atelier:repo create` stamps it on new
 repos; existing repos are retrofitted once. Everything below the block is
 repo-specific onramp.
 
@@ -365,7 +365,7 @@ block degrades the **pin's referent, not the block**: the same text with two
 substitutions, and only these (the ADR 0002 fork named in
 `docs/decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md` — the
 pin still exists; its referent becomes the plugin version). This is the
-canonical bundled-mode text: `create-repo` stamps it verbatim, filling
+canonical bundled-mode text: `/atelier:repo create` stamps it verbatim, filling
 `<plugin-path>` (the plugin's install directory, absolute) and `<VERSION>` (the
 `version` in the plugin's `.claude-plugin/plugin.json` at scaffold time) — a
 scaffold never improvises its own wording.
@@ -393,7 +393,7 @@ is tracked by plugin version because that is the pin a plugin-only adopter can
 actually check: the command runs against exactly what they have installed.
 
 **What the version signal is worth, stated (`160/520` SY6).** A skill is
-doctrine by function: `work-run` is the first thing an orchestrator executes,
+doctrine by function: `/atelier:work run` is the first thing an orchestrator executes,
 and a change to it reaches a plugin-only adopter only inside the plugin. Since
 2026-10-18 the plugin carries no `version` (each commit is its own version, the
 trade chosen on `180/040`), so the `grep '"version"'` above finds nothing to
@@ -1198,7 +1198,7 @@ decides which repetitions are defects and which are the mechanism working:
   narrowing-free: it may compress the parent, never contradict it — except
   the safety floor, whose copies are verbatim (§ *The standard child doctrine
   block*). The child
-  doctrine block, `skills/review-brief`, and the reviews-README template all
+  doctrine block, `skills/review/brief.md`, and the reviews-README template all
   carry that header for this reason.
 
 - **The failure mode of a stamped copy is drift**, and it is real rather than

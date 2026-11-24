@@ -1,8 +1,8 @@
-# create-repo instance profile — WORKED EXAMPLE with placeholder values.
+# /atelier:repo create instance profile — WORKED EXAMPLE with placeholder values.
 #
-# This is the identity `create-repo` stamps into every repo it scaffolds. It is
+# This is the identity `/atelier:repo create` stamps into every repo it scaffolds. It is
 # ADOPTER-LOCAL: copy it to ~/.atelier/instance.yaml, fill it with YOUR values,
-# and never commit it to any repo. `create-repo` fills it interactively on first
+# and never commit it to any repo. `/atelier:repo create` fills it interactively on first
 # run if it is absent — this file just documents the shape.
 #
 # The whole point of externalising these keys is that the skill itself carries no

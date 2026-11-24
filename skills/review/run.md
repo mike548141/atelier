@@ -1,9 +1,9 @@
 ---
 action: run
-description: Run briefed cold review passes across an estate on the principal-named review tier, several at once under a load gate, back to back, until an approved budget is used up — each pass billed to its own repo; or, in resume mode, finish only the passes a usage limit cut off. Use when the principal approves review-tier work to "use up the budget" or "drain the reviews", or says "resume" after a budget reset.
+description: Drain the briefed cold reviews across an estate on the principal-named review tier — several at once under a load gate, back to back, until an approved budget is used up, each pass billed to its own repo, starting from review plan; or, in resume mode, finish only the passes a usage limit cut off. Use when the principal approves review-tier work to "use up the budget" or "drain the reviews", or says "resume" after a budget reset.
 ---
 
-# Review drain
+# Review — run (a drain)
 
 The runner is `instruments/ccfleet drain` (`ccfleet --doc` for its full
 reference). The review queue itself, the principal's approvals and holds, the
@@ -52,85 +52,59 @@ approval from there, never from memory.
    anyway. A reboot does end the driver and every pass: their claims, worktrees
    and review logs survive for Mode 2, and the drain is started again.
 
-## Rank and route the whole queue first
+## Rank and route: the plan, every run
 
-Every run, before any pass starts. The principal, 2026-11-20, verbatim, in
-part: *"… it should first look at all the reviews in all the repos to
-priortise the highest priority ones based on either my direction or the
-reviews importance, urgency, and the risks it mitigates or value of work it
-unlocks. Make sure that is built into them so it happens everytime I run
-it"*.
+Every run, before any pass starts, run `/atelier:review plan`
+([`plan.md`](plan.md), beside this file). It is the one home of the method
+that finds, ranks, routes and estimates the reviews; this file restates none
+of it (the principal, 2026-11-24, verbatim: *"I would put all the logic in
+/atelier:review-plan and then have /atelier:review-drain call review-plan when
+it starts a drain"*). Then:
 
-What follows in this paragraph is this skill's paraphrase of his later words,
-not his words and not a ruling; an adopter's own principal's words, kept in
-the rulings file, govern their estate. Each review goes to the cheapest route
-that still produces a review of the same standard as a local pass: a batch
-route first where a review fits it, then a credit route, then the included
-budget, which a drain then uses up. "Cheapest" weighs the whole spend, not
-one job: a budget or credit lost at a set time is spent first when that time
-is near, and no budget is free (a subscription pays for the included ones).
+1. **Print the plan** as this drain's record of what it is about to do, with
+   no question to the principal (rule 1).
+2. **Seal it** through the adopter's queue, with the principal's words for
+   this run (or "none given"), and any change he made to the plan (a reorder,
+   a hold, a forced route) quoted in them. A plan is never a seal; the seal is
+   this run's alone.
 
 It is a gate, not a habit. ccfleet's drain refuses a config without
 `queue.ranked` and starts nothing while it exits nonzero; the adopter's queue
 makes `ranked`, `next` and `take` refuse until this run's ranking is sealed,
 so a pass started by hand (`ccfleet pass`) meets the same gate as a drain.
 `ranked` reports a seal and never makes one, and changes nothing. ccfleet
-calls it only on a real drain whose reset has not come: a `--dry-run`
-rehearsal does not call it. The ranking and routing are the adopter's,
-kept private:
+calls it only on a real drain whose reset has not come; a `--dry-run`
+rehearsal never calls it, and prints `ccfleet plan`'s reading instead.
 
-1. **Read every briefed, unrun review in every repo**, with what the judge
-   needs: the item, its age, the principal's words on it, dates ahead, what it
-   guards, what waits on its verdict, and what each route can and cannot do
-   for it.
-2. **Rank by judgement:** the principal's direction first (the words for this
-   run, then standing words on an item); then importance, urgency (a real
-   date first), the risk the review mitigates (credentials, public exposure,
-   live or irreversible paths, money) and the value of the work it unlocks; a
-   pass whose core needs a live write last; a standing repo order breaks ties
-   only.
-3. **Route each review**, among the routes the principal has opened, only
-   to a route that reaches local quality. When a budget's lapse is near, the
-   route drawing the budget that lapses soonest goes first. When no lapse is
-   near, the cheapest capable route goes first (a batch route where the review
-   fits, then a credit route, then the included budget). Cost per review
-   breaks any remaining tie (two routes drawing one budget: the cheaper). This
-   skill fixes no threshold for "near": the seal says, per budget, whether its
-   lapse counts as near and why. Each budget's lapse time is known before the
-   seal (a credit's expiry is read when the principal releases it). A review
-   needing probes or re-run lines does not fit a single-request batch route;
-   one needing tools only the local session has fits only local. **Unsure
-   means the local route**: quality is never traded for price or for a lapse.
-4. **Seal it**, with the principal's words for this run (or "none given").
-   A seal refuses while any ready review is missing, unreasoned, on a closed
-   route, on a later route than the best it fits without saying why that one
-   can't match, or while two budgets are open and either lapse time is
-   unknown. A seal lasts one run: every drain, a restarted one included, ranks
-   and seals afresh before its first pass, and no seal outlives the first lapse
-   among the budgets it routes to.
+**The seal's own rules.** A seal refuses while any ready review is missing,
+unreasoned, on a closed route, on a later route than the best it fits without
+saying why that one can't match, or while two budgets are open and either
+lapse time is unknown. A seal lasts one run: every drain, a restarted one
+included, plans and seals afresh before its first pass, and no seal outlives
+the first lapse among the budgets it routes to.
 
 Each route takes only its own reviews, in rank order. The local route takes
 its own first, then any other route's not yet started, but never from a budget
 that lapses before its own: that budget keeps its reviews. A review
-briefed after the seal runs last on the local route until it is ranked and
+briefed after the seal runs last on the local route until it is planned and
 the ranking sealed again.
 
 **Open, and the adopter's principal's to rule:** whether that spill may move a
 review the principal has tied to a route by name (a ruling that a kind of
-review must use a given route). This skill does not decide it. Until the
-principal rules, his words on a review outrank this skill's spill, as they do
+review must use a given route). This file does not decide it. Until the
+principal rules, his words on a review outrank this file's spill, as they do
 everywhere (rule 3): the seal marks such a review as not spillable, and says
 so.
 
 ## Briefs are never left owed
 
 Writing a brief is not review work, so a review that "needs a brief" is a
-defect to fix on Opus between drains (the fleet-sweep skill's
-`brief-prompt.md`), not a state to report. Only owed reviews get a brief: the
-item's own text, or the principal's words on it, says a review is required.
-Every brief has a `.deferred.md` sibling, even one that only says nothing is
-deferred, and the queue finds a brief by it. The sibling is held user-local
-from the moment it is written: in the adopter's held directory
+defect to fix on Opus between drains, not a state to report. The plan's
+**owed, not yet briefed** list is where those are found (one finder, so no
+other copy of the check lives here); `/atelier:review brief` takes its work
+from that list. Every brief has a `.deferred.md` sibling, even one that only
+says nothing is deferred, and the queue finds a brief by it. The sibling is
+held user-local from the moment it is written: in the adopter's held directory
 (`vars.HELD_DIR`), outside the repo, every worktree and any scratchpad, and
 never a reviewer's working directory (`CONCURRENCY.md` § *Orchestrated queue
 runs*), named `<repo>--<sibling basename>`. A sibling found in a tree is the
@@ -144,8 +118,8 @@ brief a pass whose subject this session built.
    `pass_model` (the orchestrator's model), `queue.ranked` (the gate above),
    and every variable the prompt needs (§ *The variables the prompts need*):
    `REVIEW_MODEL` is the one value that puts the reviewer on the review tier.
-   Then rank, route and seal the queue (section above): the drain starts
-   nothing until it is. ccfleet keeps one launched list per budget (keyed by
+   Then plan and seal the queue (section above): the drain starts nothing
+   until it is. ccfleet keeps one launched list per budget (keyed by
    `reset_utc`), and ignores a stop file older than the driver, saying so in
    its log.
 2. **Tell the live sessions once** (`ListAgents`, then `SendMessage`): quote

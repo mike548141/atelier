@@ -14,7 +14,7 @@ propagation for repos that are WIRED. It cannot tell you a repo was never wired,
 a repo whose workflow someone edited back into a copy, or a clone that has no
 hook installed. Those are absences, and an absence never raises its hand.
 
-**Scaffolding is not proof.** create-repo only covers repos it created, and sees
+**Scaffolding is not proof.** `/atelier:repo create` only covers repos it created, and sees
 nothing that drifts afterwards. Enumeration is the proof, and this is the
 enumeration: every child, what state its floor is in, and a non-zero exit if any
 is unguarded. That is the difference between believing the policy propagated and

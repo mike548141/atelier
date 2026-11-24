@@ -17,8 +17,8 @@
 #
 # WHERE THE SCANNERS LIVE. They are atelier's tools — one source; children do NOT
 # vendor a copy. In atelier itself that is $repo_root/tools. A repo scaffolded by
-# create-repo has no scanners of its own, so it points here at atelier's copy via
-# `hooks.atelierTools` (create-repo bakes this in) or the ATELIER_TOOLS env var.
+# `/atelier:repo create` has no scanners of its own, so it points here at atelier's copy via
+# `hooks.atelierTools` (`/atelier:repo create` bakes this in) or the ATELIER_TOOLS env var.
 #
 # FAIL CLOSED. A gate whose whole job is to block bad commits must NOT pass
 # silently when its scanner is missing — that defeats it exactly when it matters
@@ -51,7 +51,7 @@
 
 repo_root=$(git rev-parse --show-toplevel)
 # Resolve atelier's tools dir: env wins, then the baked git config, then in-repo
-# (atelier itself). create-repo sets `git config hooks.atelierTools <atelier>/tools`.
+# (atelier itself). `/atelier:repo create` sets `git config hooks.atelierTools <atelier>/tools`.
 tools_dir="${ATELIER_TOOLS:-$(git config --get hooks.atelierTools 2>/dev/null)}"
 tools_dir="${tools_dir:-$repo_root/tools}"
 status=0
@@ -59,7 +59,7 @@ status=0
 if [ ! -f "$tools_dir/floor.py" ]; then
     echo >&2 "pre-commit: floor.py not found under $tools_dir — BLOCKING (fail closed)."
     echo >&2 "  The scanners live in atelier's tools/. Point them out with:"
-    echo >&2 "    git config hooks.atelierTools <atelier-path>/tools   (create-repo bakes this in)"
+    echo >&2 "    git config hooks.atelierTools <atelier-path>/tools   (/atelier:repo create bakes this in)"
     echo >&2 "  or set ATELIER_TOOLS in the environment."
     exit 1
 fi

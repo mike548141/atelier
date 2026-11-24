@@ -163,7 +163,7 @@ applied to repo docs: a claim no stronger than its evidence — see
   own file as `[x]`; there is no archive file. The template ships the store
   form, one starter section and its index, so a new repo is born in
   conformance (`010/240`). A repo still on the retired one-file board is
-  converted by the health sweep (`skills/fleet-sweep`, healthy item 6), not by
+  converted by the health sweep (`skills/fleet/sweep.md`, healthy item 6), not by
   hand-editing it into shape; a frozen `ROADMAP-DONE.md` is cut into its
   store by `tools/archivecut.py`.
 - **sessions/** — the session log: one file per session,
@@ -298,7 +298,7 @@ applied to repo docs: a claim no stronger than its evidence — see
    It is not "push is recoverable", which covers only the push. If the ask did
    not clearly include a remote (standardising an existing repo, or a local
    experiment), confirm before creating one. *Publishing* (public, or a wider
-   audience) is always a floor action (`skills/create-repo` step 7 says the
+   audience) is always a floor action (`skills/repo/create.md` step 7 says the
    same).
 6. Set **delete-branch-on-merge** on the new remote (`gh repo edit
    --delete-branch-on-merge`) — the landed half of CONCURRENCY's "every branch
@@ -320,7 +320,7 @@ applied to repo docs: a claim no stronger than its evidence — see
    `docs/roadmap/` gets the store form from the template (its `README.md`, one
    starter section, then `board.py --rebuild`); a repo on the retired one-file
    board (a monolithic `ROADMAP.md`) is **not rewritten here**, and its items
-   are not re-typed. It goes to the store conversion (`skills/fleet-sweep`,
+   are not re-typed. It goes to the store conversion (`skills/fleet/sweep.md`,
    healthy item 6). A frozen `ROADMAP-DONE.md`, or a one-file session log
    (`SESSIONS.md`, `SESSIONS-ARCHIVE.md`), goes to `tools/archivecut.py`. An
    existing board's items are never overwritten by the template.
@@ -332,7 +332,7 @@ applied to repo docs: a claim no stronger than its evidence — see
 This standard is the readable, forkable **source**. The concrete machinery is
 two hops away, on purpose:
 
-- **Delivery vehicle** — the `create-repo` skill applies this standard as a
+- **Delivery vehicle** — `/atelier:repo create` applies this standard as a
   guided action. It carries the instance-local specifics a shareable doc must not
   (exemplar repo names, git identity, the `gh` account, the workspace path,
   house-convention locale, the default copyright holder). It *inherits from this

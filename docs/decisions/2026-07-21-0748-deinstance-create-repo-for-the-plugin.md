@@ -67,7 +67,7 @@ Three rulings (Mike, 2026-07-21 — "I accept your recommendations"):
    still exists, its *referent* changes.
 
 Accompanying build (same widening, design-trivial, no separate ruling): relocate
-the skill to `skills/create-repo/` in the plugin, and wrap the existing house tools
+the skill to `skills/create-repo/` in the plugin, and wrap the existing house tools <!-- pathscan:allow: moved 2026-11-24 in the subject-action rename (450/020); the record keeps the path it was written with -->
 `tools/worktree.py` and `tools/pins.py` as the `worktree` and `fleet-pins` plugin
 commands. Version bump on the plugin + marketplace manifests.
 

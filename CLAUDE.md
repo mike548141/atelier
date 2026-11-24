@@ -62,7 +62,7 @@ Read the rest of `docs/method/` on demand when a change touches it.
   half-extraction into "extracted".
 - **Ground everything.** Doctrine here is extracted from real, decided practice
   (mostly `ros`) — never invented to fill a heading. If it can't be grounded
-  yet, stub it and say so, per `create-repo`'s stub-don't-fabricate rule.
+  yet, stub it and say so, per `/atelier:repo create`'s stub-don't-fabricate rule.
 - **Report your problems with the doctrine — atelier is not exempt from its own
   rule.** If a house rule is wrong, unworkable, ambiguous, contradictory, stale,
   missing or unfindable, it goes on the board as an item with its evidence, the

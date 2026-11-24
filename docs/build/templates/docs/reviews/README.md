@@ -1,5 +1,5 @@
 <!--
-  STAMPED POINTER, NOT A SECOND SOURCE. "Stamped" means create-repo fills its
+  STAMPED POINTER, NOT A SECOND SOURCE. "Stamped" means /atelier:repo create fills its
   placeholders when it copies the file; stampscan does not compare it, so a
   child created earlier keeps the text it was given until someone re-copies it.
   The canonical review doctrine — the

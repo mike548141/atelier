@@ -228,7 +228,7 @@ class Verdicts(Base):
             self.assertNotIn("Traceback", err)
 
     def test_legacy_install_with_hooks_path_unset_is_live_not_dead(self):
-        # /atelier:install-hook writes into `git rev-parse --git-path hooks`, which
+        # /atelier:repo hook writes into `git rev-parse --git-path hooks`, which
         # is .git/hooks when core.hooksPath is unset: that copy is the live one.
         f = self.fix()
         f.git(f.main, "config", "--unset", "core.hooksPath")

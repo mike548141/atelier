@@ -3,7 +3,7 @@ action: create
 description: Scaffold a new repo (or standardise an existing one) to your house conventions — the atelier repo standard, stamped with your identity from an instance profile. Use when asked to create a repo, start a project, or standardise/tidy an existing repo. Sizes the standard to the repo type; never fabricates docs it can't ground.
 ---
 
-# create-repo — deliver the house repo standard
+# Repo — create: deliver the house repo standard
 
 This skill is the **delivery vehicle**. It does not *hold* the standard —
 **atelier** does. atelier is the source of truth for repo shape and the
@@ -233,7 +233,7 @@ git config user.email "<git_identity.email>"
    (the start time in UTC, from `date -u`; the template's
    `docs/sessions/README.md` explains the folder), commit, then create the remote and
    push. The authority for creating a *new* remote repo is **the principal's ask
-   itself** (they invoked create-repo; a repo on their own account is what they
+   itself** (they invoked `/atelier:repo create`; a repo on their own account is what they
    asked for) — not "push is recoverable", which justifies only the push. If the
    ask didn't clearly include a remote (e.g. standardise-existing, or a local
    experiment), **confirm before creating it**; and *publishing* — public or any
@@ -265,7 +265,7 @@ SHA/version. Commit; offer the push if the principal operates it as a remote.
 repo has no `docs/roadmap/`, seed the store form from the templates (as in step
 4) rather than a one-file `ROADMAP.md`. If it has a **one-file board** (a
 monolithic `ROADMAP.md` of entries), do not rewrite it or re-type its items:
-point at the store conversion, which is healthy item 6 of `skills/fleet-sweep`.
+point at the store conversion, which is healthy item 6 of `skills/fleet/sweep.md`.
 A frozen `ROADMAP-DONE.md` is cut into its store by `tools/archivecut.py`, and
 a one-file session log (`SESSIONS.md`, with any `SESSIONS-ARCHIVE.md`) is
 retired into `docs/sessions/` by the same tool's `--cut` (`010/270`); never by

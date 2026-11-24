@@ -4,7 +4,7 @@
   The block below (## Doctrine — inherited from atelier) is the STANDARD
   DOCTRINE BLOCK. Its canonical text lives in atelier's
   docs/method/PROPAGATION.md — this is a stamped copy, not a second source.
-  create-repo fills the four placeholders (<atelier-path>, <SHA>,
+  /atelier:repo create fills the four placeholders (<atelier-path>, <SHA>,
   <visibility fact>, <visibility check>) at scaffold time. In bundled
   (plugin-only) mode the heading and the Source & drift bullet are
   substituted verbatim from PROPAGATION.md § The bundled-mode variant

@@ -698,7 +698,7 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
   A staged positional is a repo-root-relative path in git's own spelling and
   case: the guard lets git say what it names and exits 2 for one git does not
   know (a typo, `Docs` for `docs`), never a clean pass over nothing.
-  - **In a repo that doesn't carry the scanners** (any create-repo child — the
+  - **In a repo that doesn't carry the scanners** (any child scaffolded by `/atelier:repo create` — the
     scanners live only here), point the hook up:
     `git config hooks.atelierTools <atelier-path>/tools` (or `ATELIER_TOOLS`
     env, which wins). The hook **fails closed**: if a scanner it's asked to run
@@ -2550,7 +2550,7 @@ worktree-safe: hooks are read from `git rev-parse --git-common-dir`, and when an
 absolute `core.hooksPath` arms another tree's copy it says so and compares this
 tree's copy byte for byte (a difference warns, never fails: commits are still
 scanned). `--warn` turns 1 into 0; `-C DIR` reads another clone; exit 2 outside
-a git work tree. `/atelier:install-hook` runs `--status` as its proof step.
+a git work tree. `/atelier:repo hook` runs `--status` as its proof step.
 
 Not a floor check, by choice. The floor's checks judge tracked content on the
 hook and CI planes; a dead hook is clone-local state that a CI checkout never

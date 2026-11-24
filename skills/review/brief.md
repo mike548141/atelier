@@ -20,6 +20,16 @@ the right to believe it. Full doctrine: `docs/method/REVIEW.md`, bundled with
 this plugin under the plugin's own install directory (and `ECONOMICS.md`
 beside it for which reviewer, and whether work earns a review at all).
 
+## Which work: named, or the plan's unbriefed list
+
+With a subject named after `/atelier:review brief` (a design, a diff, a
+branch), brief that. With none, run `/atelier:review plan` ([`plan.md`](plan.md))
+and take the work from its **owed, not yet briefed** list: the plan is the one
+finder of owed reviews (the principal, 2026-11-24, verbatim: *"Also I think
+/atelier:review brief should use /atelier:review plan to find the work that
+requires a brief to be written"*). Never brief a review of work this session
+built; leave that one on the list and say so.
+
 ## First: does the work even earn a review?
 
 **The trigger is commitment, not artefact** — ask *what will come to rest on

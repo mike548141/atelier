@@ -409,7 +409,7 @@ The brief-writer owes the reviewer the same care: it runs every re-run line
 **once, from where the brief says to run it**, before writing it down. A line
 that fails from the place it names costs the reviewer its first act (grounded in
 PF10, a 2026-10-16 brief whose test line failed from the repo root); the
-review-brief skill carries the compressed copy (`160/930`, BF5, applied
+`/atelier:review brief` carries the compressed copy (`160/930`, BF5, applied
 2026-11-09).
 The negative counterpart is `EVIDENCE.md` §19: a verdict that something
 *cannot* work, built from reading alone, is not accepted while a cheap,
@@ -786,8 +786,8 @@ to fit an allowance is the downgrade the paragraph above forbids.
   findings decided by the hand rule 3 names (*The lifecycle*, steps 3 and 4,
   and the principal's ruling of 2026-11-15 beneath them).
 
-*Micro: the brief.* The review-brief skill's § *Writing the brief* is the list
-a brief-writer works from. The requirements it compresses are these:
+*Micro: the brief.* The `/atelier:review brief` action's § *Writing the
+brief* is the list a brief-writer works from. The requirements it compresses are these:
 
 - **The subject, pointed at exactly**, with the body-free command for reading a
   landing commit and one `--also-exclude` on the sweep command for every path
@@ -810,7 +810,7 @@ a brief-writer works from. The requirements it compresses are these:
   `reviewscan` warns on a missing one and never blocks).
 
 **What the list does not settle.** One reviewer per pass is the house's
-practice, and the review-drain skill spawns one reviewer per pass, but no rule
+practice, and `/atelier:review run` spawns one reviewer per pass, but no rule
 above states it for its own sake. Shared to save budget, a reviewer is a
 downgrade by the paragraph above. Whether one reviewer per pass binds with
 budget out of the picture is for the rule-4 pass on this wording to test and

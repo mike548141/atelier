@@ -86,7 +86,7 @@ class TemplateBlockSyncTest(unittest.TestCase):
                 "regex (ST7)")
 
     def test_block_carries_exactly_the_four_placeholders(self):
-        """create-repo fills exactly these; a fifth (or a lost one) means the
+        """`/atelier:repo create` fills exactly these; a fifth (or a lost one) means the
         skill's stamp step and the block have drifted apart."""
         found = set(re.findall(r"<[a-z/ A-Z-]+>", canonical_block()))
         self.assertEqual(found, PLACEHOLDERS)
@@ -263,7 +263,7 @@ class ReusableFloorWorkflowTest(unittest.TestCase):
 
 
 REVIEWS_TEMPLATE = ROOT / "docs" / "build" / "templates" / "docs" / "reviews" / "README.md"
-REVIEW_SKILL = ROOT / "skills" / "review-brief" / "SKILL.md"
+REVIEW_SKILL = ROOT / "skills" / "review" / "brief.md"
 
 
 class WorkflowLeastPrivilegeTest(unittest.TestCase):
@@ -407,7 +407,7 @@ class ReviewsTemplateTest(unittest.TestCase):
         self.assertIn("held in this repo's ECONOMICS.md", self.flat)
 
     def test_placeholder_is_exactly_atelier_path(self):
-        """create-repo's stamp step fills <atelier-path> here (its prove-the-
+        """`/atelier:repo create`'s stamp step fills <atelier-path> here (its prove-the-
         stamp grep covers the whole tree since cold-pass F1); of the stamp
         vocabulary, exactly that one may appear. (The Format section's
         <YYYY-MM-DD>-style filename patterns are not stamp placeholders.)"""
@@ -419,7 +419,7 @@ class ReviewsTemplateTest(unittest.TestCase):
 TEMPLATES_DIR = ROOT / "docs" / "build" / "templates"
 
 # The whole-set inventory: stamp placeholders may appear in the template set
-# ONLY where create-repo's stamp step fills them. Adding a token to a new
+# ONLY where `/atelier:repo create`'s stamp step fills them. Adding a token to a new
 # file means updating the skill's fill step AND this inventory, together.
 STAMP_INVENTORY = {
     ("CLAUDE.md", "<atelier-path>"),
@@ -482,13 +482,13 @@ class TemplateSetPlaceholderInventoryTest(unittest.TestCase):
             "stamp-placeholder inventory drifted: a token appeared in a "
             "template the stamp step doesn't fill (it would make the "
             "prove-the-stamp grep permanently red — G1), or a filled "
-            "surface lost its token. Change create-repo's fill step and "
+            "surface lost its token. Change `/atelier:repo create`'s fill step and "
             "this inventory together.",
         )
 
 
 class ReviewBriefSkillTest(unittest.TestCase):
-    """skills/review-brief/SKILL.md — the plugin copy of the same doctrine.
+    """skills/review/brief.md — the plugin copy of the same doctrine.
 
     2026-07-19 cold-pass F3: the consolidation sweep missed skills/, leaving
     the old artefact-grammar trigger live on the widest propagation surface.
@@ -530,7 +530,7 @@ def canonical_lenses() -> list:
 
 class LensRosterParityTest(unittest.TestCase):
     """2026-07-21 cold-pass SL1: lens 4 landed in REVIEW.md while the
-    review-brief skill still taught three lenses — the second shipping of the
+    review brief action still taught three lenses — the second shipping of the
     F3 drift class, this time on the roster itself. The skill may compress
     the parent's prose; the lens ROSTER it may never shrink. Same rule for
     the child reviews template, which compresses the lenses into its
@@ -549,7 +549,7 @@ class LensRosterParityTest(unittest.TestCase):
         for lens in canonical_lenses():
             self.assertIn(
                 lens, skill,
-                f"skills/review-brief/SKILL.md is missing lens {lens!r} — "
+                f"skills/review/brief.md is missing lens {lens!r} — "
                 "the skill must name every lens REVIEW.md enumerates "
                 "(add one there, add it here, same commit)",
             )
@@ -574,7 +574,7 @@ class LensRosterParityTest(unittest.TestCase):
         self.assertIn("security & privacy is a must on every review", flat)
 
 
-QUEUE_RUN_SKILL = ROOT / "skills" / "work-run" / "SKILL.md"
+QUEUE_RUN_SKILL = ROOT / "skills" / "work" / "run.md"
 QUEUE_RUN_PROMPT = ROOT / "docs" / "method" / "session-open" / "session-open-prompt.md"
 CONCURRENCY = ROOT / "docs" / "method" / "CONCURRENCY.md"
 
@@ -598,8 +598,8 @@ def canonical_stop_conditions() -> list:
 
 
 class QueueRunSkillTest(unittest.TestCase):
-    """skills/work-run/SKILL.md — third stamped-copy skill, same pin as
-    review-brief (2026-07-19 F3, 2026-07-21 SL1: this drift class has
+    """skills/work/run.md — third stamped-copy skill, same pin as
+    review brief (2026-07-19 F3, 2026-07-21 SL1: this drift class has
     shipped twice; 2026-07-23 QR6 ruled the pin mandatory at birth)."""
 
     def setUp(self):
@@ -633,7 +633,7 @@ class QueueRunSkillTest(unittest.TestCase):
         for stop in canonical_stop_conditions():
             self.assertIn(
                 stop, self.flat,
-                f"skills/work-run/SKILL.md is missing stop condition "
+                f"skills/work/run.md is missing stop condition "
                 f"{stop!r} — the skill must name every stop CONCURRENCY.md "
                 "enumerates (change one, change both, same commit)",
             )

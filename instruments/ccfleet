@@ -86,6 +86,7 @@ Usage:
                                       [--in WT [--item ITEM]] [--dry-run]
   ccfleet drive JOBS [--max N] [--serial-per-repo] [--day YYYY-MM-DD] [--dry-run]
   ccfleet drain [--max N] [--dry-run]
+  ccfleet plan [--json] [--fetch]               read the queue and the cost history; starts nothing
   ccfleet pass REPO ITEM BRIEF [--dry-run]      one drain pass (drain starts these)
   ccfleet resume REPO WORKTREE SESSION --prompt FILE [--item ITEM] [--set K=V ...]
   common: --config PATH (else $CCFLEET_CONFIG)  --by ID (else $CCFLEET_BY): the
@@ -119,8 +120,8 @@ CONFIG is JSON (see instruments/ccfleet.example.json, every value fictional):
   vars            template variables for every job (the principal's words, paths)
   env             extra environment variables for every session (NAME: value)
   repos           {name: {model, notes, visibility, github}}  per-repo facts
-  queue           drain only: {next, ranked, take, release[, ended]} argv lists, and
-                  release_on / stop_on lists of RESULT words (see below)
+  queue           drain: {next, ranked, take, release[, ended]} argv lists; plan: {evidence[, owed]};
+                  and release_on / stop_on lists of RESULT words (see below)
   pass_prompt     drain only: the per-pass orchestrator prompt template
   pass_model      drain only: the orchestrator's model (the reviewer's tier is the prompt's business)
 
@@ -134,7 +135,7 @@ ccfleet only calls it. Each entry is an argv list; {REPO} {ITEM} {BRIEF} {BY}
            space. It is called with the launched list's path in {LAUNCHED}
            (one tab-separated "REPO ITEM BRIEF" per line) so it can skip them.
   ranked   exits 0 only when the whole queue, every repo's, has been ranked
-           and routed for this run (the review-drain skill's first step);
+           and routed for this run (the review run skill's first step);
            called once before the first pick, with {BY}, after the reset
            check and never by a dry drain. Any other exit starts nothing: the
            drain prints "DRAIN EXIT: not ranked" and exits 1.
@@ -147,6 +148,39 @@ ccfleet only calls it. Each entry is an argv list; {REPO} {ITEM} {BRIEF} {BY}
   ended    optional: called after every pass, resume or run --item, any
            RESULT, with {SESSION} {RESULT} {LOG} {WT} filled (to record them).
   stop_on  RESULT words that stop the drain (default BUDGET EXHAUSTED).
+  evidence plan only (and a dry drain): prints a JSON array, one object per
+           briefed, unrun review, each with at least repo, item, brief, title;
+           every other field (say briefed, his_words, dates_ahead, signals,
+           live_write, fits (the routes it suits), lane) is passed through
+           untouched. READ-ONLY: it must claim, seal and start nothing. An
+           argument written exactly {FETCH} is filled with --fetch when
+           `plan --fetch` is given and dropped otherwise, so the queue's own
+           tool is the one that fetches; with no {FETCH} in the entry, --fetch
+           fetches nothing and plan says so.
+  owed     optional, plan only: prints a JSON array of owed reviews that have
+           no brief yet: repo, item, title and optionally why. Read-only, and
+           {FETCH} works here too. Without it plan prints owed as null.
+
+THE PLAN (`ccfleet plan`). ccfleet reads and never judges: plan calls
+queue.evidence (and queue.owed), reads its own past pass logs for measured cost,
+and prints both (a table, or --json: evidence, owed, history, notes). Ranking
+and routing are an agent's judgement, by `/atelier:review plan`, and the seal is
+the adopter's queue's. plan calls none of ranked, take, next, release or ended,
+and writes no launched list, claim, worktree or session. It is the one reading
+of the queue: `/atelier:review plan` and `/atelier:review run` (at its start)
+run it, and `drain --dry-run` prints the same reading, each line prefixed
+`DRY plan:`, before its rehearsed launches (a queue with no evidence, or one
+that fails, is said and the rehearsal carries on). A failing queue command, or
+one that prints something other than the JSON above, exits 1; a config with no
+queue.evidence exits 64.
+  Cost history: from <kit_dir>/logs/pass-*.out, the output of each pass a drain
+  launched, and the `claude -p --output-format json` log each names: for a pass
+  that ended clean (RESULT in release_on, read as harvest reads it), the count,
+  median and max of total_cost_usd, duration_ms and num_turns, where the log
+  has them. Every pass ccfleet launches is a local session, so only the `local`
+  route is measured; any other route a row's `fits` names reads "no
+  measurement", as does local with no logs. A pass run by hand leaves no .out
+  and is not counted. Nothing is estimated.
 
 Template variables always filled: {REPO} {GH} {BR} {VIS} {PIN} {WT} {PRIMARY}
 {LANDING} {NOTES} {SCRATCH} {BY} {DATE} {SESSION}, plus config `vars`, plus the
@@ -163,7 +197,8 @@ A {UPPER_CASE} placeholder left unfilled is a refusal, not a silent gap.
 
 Exit codes: 0 ran (the session's own verdict is in its END line and result
 file) · 1 setup failed (or, for drain: not ranked, the queue's next failed, or
-every pick ended before its session started) · 2 claim refused (another
+every pick ended before its session started; for plan: a queue command failed
+or printed what it should not) · 2 claim refused (another
 session holds it, or another resume of that session runs) or a release refused
 (pass, resume, run --item) · 3 reset reached · 4 queue empty (a drain that
 started nothing) · 5 refused by the private-name guard or an unfilled
@@ -183,6 +218,7 @@ import os
 import re
 import shutil
 import signal
+import statistics
 import subprocess
 import sys
 import time
@@ -1398,7 +1434,9 @@ def queue_call(cfg, name, values):
     """Run one queue command. A command that cannot start or runs past
     QUEUE_TIMEOUT seconds returns a failed result, never a traceback or a hang."""
     argv = [os.path.expanduser(PLACEHOLDER.sub(lambda m: str(values.get(m.group(1), m.group(0))), a))
-            for a in cfg["queue"][name]]
+            for a in cfg["queue"][name]
+            # an argument that is only {FETCH} is dropped when the value is empty
+            if not (a == "{FETCH}" and not values.get("FETCH"))]
     try:
         return subprocess.run(argv, capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=QUEUE_TIMEOUT)
     except subprocess.TimeoutExpired:
@@ -1480,9 +1518,13 @@ def drain(cfg, common, max_n, dry):
     # Rank and route the whole queue before any pass starts, every run: a
     # drain that takes passes in whatever order the queue lists them spends
     # the budget on the wrong reviews (the principal, 2026-11-20, in the
-    # review-drain skill). The adopter's queue judges; ccfleet only refuses.
+    # review run skill). The adopter's queue judges; ccfleet only refuses.
     # A dry drain does not call it: a rehearsal must not touch the ranking.
     if dry:
+        # The one reading of the queue (plan_reading, the same function `ccfleet
+        # plan` runs): read-only, so a rehearsal still touches no ranking.
+        for line in dry_plan_lines(cfg):
+            print(line)
         say(cfg, "dry drain: queue.ranked not called")
         print("DRY queue.ranked not called")
     else:
@@ -1608,6 +1650,195 @@ def drain(cfg, common, max_n, dry):
     return 0
 
 
+# ---------- plan: the read-only reading of the queue ----------
+
+NO_MEASUREMENT = "no measurement"
+LOCAL_ROUTE = "local"
+EVIDENCE_KEYS = ("repo", "item", "brief", "title")
+OWED_KEYS = ("repo", "item", "title")
+
+
+def queue_rows(cfg, name, keys, values=None):
+    """Run a read-only queue command that prints a JSON array of objects and
+    return the rows. A command that fails, prints something that is not a JSON
+    array of objects, or leaves out a required key is a setup failure (exit 1),
+    said plainly, never a traceback and never read as an empty queue."""
+    r = queue_call(cfg, name, values or {})
+    if r.returncode:
+        raise Refusal(EXIT_SETUP, f"queue.{name} failed (rc={r.returncode}): {(r.stderr or r.stdout).strip()[:300]}")
+    try:
+        rows = json.loads(r.stdout)
+    except ValueError:
+        raise Refusal(EXIT_SETUP, f"queue.{name} did not print JSON: {r.stdout.strip()[:200]!r}")
+    if not isinstance(rows, list) or not all(isinstance(x, dict) for x in rows):
+        raise Refusal(EXIT_SETUP, f"queue.{name} must print a JSON array of objects")
+    for n, row in enumerate(rows, 1):
+        gone = [k for k in keys if k not in row]
+        if gone:
+            raise Refusal(EXIT_SETUP, f"queue.{name} row {n} has no {', '.join(gone)} "
+                                      f"(each row needs {', '.join(keys)})")
+    return rows
+
+
+def read_log_json(path):
+    """The JSON object a `claude -p --output-format json` log holds, or None
+    (read as harvest reads it: from the first brace)."""
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            s = f.read()
+        j = json.loads(s[s.index("{"):])
+    except (OSError, ValueError):
+        return None
+    return j if isinstance(j, dict) else None
+
+
+def number(v):
+    return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
+def spread(values):
+    """count, median and max of the numbers, or None when there are none."""
+    vals = sorted(v for v in values if v is not None)
+    if not vals:
+        return None
+    return {"n": len(vals), "median": round(statistics.median(vals), 4), "max": round(vals[-1], 4)}
+
+
+def pass_history(cfg):
+    """What ccfleet's own past drain passes cost, from the logs it wrote.
+
+    Source: <kit_dir>/logs/pass-*.out, one per pass a drain launched; each
+    names, on its START line, the `claude -p --output-format json` log of the
+    pass's orchestrator session, and on its END line the RESULT. A pass counts
+    only when it ended clean: the log's RESULT, read by harvest(), and the END
+    line's RESULT are both in queue.release_on (so UNLANDED, ERROR and a cut-off
+    pass are out). Cost, duration and turns are taken as the CLI reported them
+    (total_cost_usd, duration_ms, num_turns), and only where present.
+
+    Limits: a pass run by hand (`ccfleet pass`) leaves no .out and is not
+    counted; the figure is the whole orchestrator session as the CLI reports
+    it, so its reviewer subagent's share is whatever the CLI folds in; every
+    pass ccfleet launches is a local session, so only the local route is ever
+    measured."""
+    clean_words, stops = release_on(cfg), stop_on(cfg)
+    seen, costs, durs, turns = 0, [], [], []
+    for out in sorted(glob.glob(os.path.join(glob.escape(cfg["kit_dir"]), "logs", "pass-*.out"))):
+        try:
+            with open(out, encoding="utf-8", errors="replace") as f:
+                lines = f.read().splitlines()
+        except OSError:
+            continue
+        start = next((l for l in lines if l.startswith("START ")), "")
+        end = [l for l in lines if l.startswith("END ")]
+        m, lg = (END_RESULT_RX.search(end[-1]) if end else None), re.search(r" log=(.*)$", start)
+        if not (m and lg):
+            continue
+        seen += 1
+        _, _, word = harvest(lg.group(1), None, 0, known=clean_words + stops, stops=stops)
+        if m.group(1) not in clean_words or word not in clean_words:
+            continue
+        j = read_log_json(lg.group(1)) or {}
+        costs.append(number(j.get("total_cost_usd")))
+        durs.append(None if number(j.get("duration_ms")) is None else j["duration_ms"] / 1000)
+        turns.append(number(j.get("num_turns")))
+    local = {"passes_seen": seen, "clean": len(costs)}
+    stats = {"cost_usd": spread(costs), "duration_s": spread(durs), "turns": spread(turns)}
+    if not any(stats.values()):
+        return {"measured": False, "note": NO_MEASUREMENT, **local}
+    return {"measured": True, **local, **{k: (v or NO_MEASUREMENT) for k, v in stats.items()}}
+
+
+def plan_reading(cfg, fetch=False):
+    """The read-only reading of the review queue: the evidence rows, the owed
+    list and the cost history. ccfleet READS and never judges: ranking and
+    routing are the plan skill's work (`/atelier:review plan`), and the seal is
+    the adopter's queue's. This calls none of queue.ranked, take, next, release
+    or ended, and writes no launched list, claim, worktree or session. `ccfleet
+    plan`, `/atelier:review plan`, `/atelier:review run` at its start and
+    `drain --dry-run` all read the queue through this one function."""
+    q = cfg.get("queue") or {}
+    if "evidence" not in q:
+        raise Refusal(EXIT_USAGE, "plan needs queue.evidence in the config (an argv list that prints a "
+                                  "JSON array, one object per briefed, unrun review)")
+    notes = []
+    fills = {"FETCH": "--fetch" if fetch else ""}
+    if fetch and "{FETCH}" not in q["evidence"]:
+        notes.append("--fetch was given but queue.evidence has no {FETCH} placeholder: nothing was fetched")
+    evidence = queue_rows(cfg, "evidence", EVIDENCE_KEYS, fills)
+    owed = None
+    if "owed" in q:
+        owed = queue_rows(cfg, "owed", OWED_KEYS, fills)
+    else:
+        notes.append("queue.owed is not configured: the owed-but-unbriefed list is not read (owed is null)")
+    if not evidence:
+        notes.append("queue.evidence printed no rows: no briefed, unrun review is owed")
+    history = pass_history(cfg)
+    routes = {LOCAL_ROUTE: history}
+    for row in evidence:
+        for route in row.get("fits") or []:
+            routes.setdefault(str(route), {"measured": False, "note": NO_MEASUREMENT})
+    notes.append("ccfleet measures only the local route (every pass it launches is a local session); "
+                 f"any other route reads {NO_MEASUREMENT!r}")
+    return {"evidence": evidence, "owed": owed, "history": {"source": os.path.join(cfg["kit_dir"], "logs"),
+                                                              "routes": routes}, "notes": notes}
+
+
+def table(headers, rows):
+    """Plain aligned text columns; no cell is truncated."""
+    cells = [[str(c) for c in r] for r in rows]
+    width = [max(len(h), *(len(r[i]) for r in cells)) if cells else len(h) for i, h in enumerate(headers)]
+    fmt = lambda r: "  ".join(c.ljust(w) for c, w in zip(r, width)).rstrip()
+    return [fmt(headers), fmt(["-" * w for w in width])] + [fmt(r) for r in cells]
+
+
+def fmt_stat(name, st, unit=""):
+    if not isinstance(st, dict):
+        return f"{name}: {NO_MEASUREMENT}"
+    return f"{name}: median {st['median']}{unit}, max {st['max']}{unit} (n={st['n']})"
+
+
+def plan_text(data):
+    """The human reading of plan_reading()'s result, as lines."""
+    ev, owed, hist = data["evidence"], data["owed"], data["history"]
+    out = [f"EVIDENCE: {len(ev)} briefed, unrun review(s), in the queue's own order (not a ranking)"]
+    if ev:
+        out += table(["repo", "item", "title", "fits"],
+                     [[r["repo"], r["item"], r["title"], ", ".join(map(str, r.get("fits") or [])) or "-"]
+                      for r in ev])
+    out.append("")
+    if owed is None:
+        out.append("OWED, NOT YET BRIEFED: not read (queue.owed is not configured)")
+    else:
+        out.append(f"OWED, NOT YET BRIEFED: {len(owed)}")
+        if owed:
+            out += table(["repo", "item", "title", "why"],
+                         [[r["repo"], r["item"], r["title"], r.get("why") or "-"] for r in owed])
+    out += ["", f"COST HISTORY (from {hist['source']}/pass-*.out)"]
+    for route, h in sorted(hist["routes"].items()):
+        if not h.get("measured"):
+            seen = f" ({h['passes_seen']} pass(es) seen, none clean with a cost)" if h.get("passes_seen") else ""
+            out.append(f"  {route}: {NO_MEASUREMENT}{seen}")
+            continue
+        out.append(f"  {route}: {h['clean']} clean pass(es) of {h['passes_seen']} seen; "
+                   + "; ".join([fmt_stat("cost", h["cost_usd"], " USD"), fmt_stat("duration", h["duration_s"], " s"),
+                                fmt_stat("turns", h["turns"])]))
+    out += [""] + [f"NOTE: {n}" for n in data["notes"]]
+    return out
+
+
+def dry_plan_lines(cfg):
+    """What a dry drain prints of the plan, each line prefixed `DRY plan:`. A
+    queue with no evidence command, or one that fails, is said and the
+    rehearsal carries on: a rehearsal reports, it does not stop."""
+    try:
+        lines = plan_text(plan_reading(cfg))
+    except Refusal as e:
+        if e.code == EXIT_USAGE:
+            return ["DRY plan: queue.evidence is not configured; no plan reading (carrying on)"]
+        return [f"DRY plan: FAILED, no reading ({e}); carrying on"]
+    return [f"DRY plan: {l}".rstrip() for l in lines]
+
+
 def common_by(common):
     return common[common.index("--by") + 1] if "--by" in common else "unknown"
 
@@ -1654,7 +1885,7 @@ def review_log(cfg, repo, item, legacy=False):
 def set_aside_stale_log(cfg, path):
     """A fresh pass never inherits a log: one left at its path by an earlier
     pass (failed, un-claimed or withdrawn) is moved, dated, to
-    review-logs/withdrawn/ (where the review-drain skill keeps a withdrawn
+    review-logs/withdrawn/ (where the review run skill keeps a withdrawn
     pass's log), so the new reviewer is not handed an earlier reviewer's account."""
     if not os.path.exists(path):
         return
@@ -1844,7 +2075,7 @@ def main(argv=None):
                     "while the machine has headroom.",
         epilog="Every estate value (repos, tiers, queue, reset time) comes from a JSON config:\n"
                "--config PATH or $CCFLEET_CONFIG. `run`, `drive`, `drain`, `pass` and `resume`\n"
-               "start real sessions; --dry-run prints the launch instead. One driver (drive or\n"
+               "start real sessions; --dry-run prints the launch instead; `plan` only reads. One driver (drive or\n"
                "drain) per kit_dir; a jobs file's labels must not repeat.\n"
                "Exit: 0 ran, 1 setup failed (or not ranked), 2 claim or release refused,\n"
                "3 reset reached, 4 queue empty, 5 private name or unfilled placeholder, 64 usage.\n"
@@ -1877,6 +2108,9 @@ def main(argv=None):
     p = sub.add_parser("drain", help="keep review passes running from the config's queue")
     p.add_argument("--max", type=int, help="most passes at once (else config max_concurrent)")
     p.add_argument("--dry-run", action="store_true", help="print the launches, start nothing")
+    p = sub.add_parser("plan", help="read the review queue and the cost history; start nothing")
+    p.add_argument("--json", action="store_true", help="print JSON for an agent, not a table")
+    p.add_argument("--fetch", action="store_true", help="have the queue read each repo's remote first")
     p = sub.add_parser("pass", help="one drain pass (drain starts these)")
     p.add_argument("repo"); p.add_argument("item"); p.add_argument("brief")
     p.add_argument("--dry-run", action="store_true", help="print the launch, start nothing")
@@ -1933,6 +2167,10 @@ def main(argv=None):
         if a.cmd == "drain":
             with DriverLock(cfg["kit_dir"]):
                 return drain(cfg, common, max_n, a.dry_run)
+        if a.cmd == "plan":
+            data = plan_reading(cfg, fetch=a.fetch)
+            print(json.dumps(data, indent=2, ensure_ascii=False) if a.json else "\n".join(plan_text(data)))
+            return 0
         if a.cmd == "pass":
             return one_pass(cfg, a.repo, a.item, a.brief, a.by, a.dry_run)
         if a.cmd == "resume":

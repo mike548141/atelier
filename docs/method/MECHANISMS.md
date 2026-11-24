@@ -19,7 +19,7 @@ correction. It is not a decision tree anyone ruled.
 | **Guard** (policy as code) | `tools/` scanner, wired to the hook and CI floor | On every commit, unasked |
 | **Hook** | `PreToolUse`, `Stop` and kin | Intercepts a tool call or turn, unasked |
 | **Skill** | `skills/`, shipped in the plugin | By name, or reached for autonomously |
-| **Slash command** | `commands/` | Only when deliberately invoked |
+| **Slash command** | an action file under `skills/<subject>/`, run as `/atelier:<subject> <action>` | Only when deliberately invoked |
 | **Instrument** | `instruments/` (ADR 0006) | A teammate runs the CLI directly |
 | **MCP server** | `instruments/browser-fetch/` is the one in-estate example | Available to query mid-reasoning |
 
@@ -60,8 +60,9 @@ words in board section `450`): he wanted every customisation "under one /
 command so that they are easy to find as a group", because sessions had
 named skills "whatever name made sense to you at the time".
 
-- **A skill or command is born in the plugin** (`skills/` or `commands/`),
-  which names it `/atelier:<name>`. Not in `~/.claude/skills/`, not in
+- **A skill or command is born in the plugin** (`skills/`), which names it
+  `/atelier:<subject> <action>`: every command is a subject, a space and an
+  action, and a bare subject shows its menu. Not in `~/.claude/skills/`, not in
   `~/.claude/commands/`, not in a repo's `.claude/`.
 - **The one exception is the bare `/atelier` menu** (`instruments/atelier-menu`),
   which has to be user-level because no plugin skill can answer a bare

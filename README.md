@@ -51,8 +51,7 @@ we work:
 | `docs/reviews/` | peer-review briefs (work earns trust through independent review — see `method/REVIEW.md`) |
 | `tools/` | the mechanical controls that *enforce* the doctrine — e.g. `leakscan.py`, the pre-commit net catching the shape of personal/estate data before it is committed |
 | `instruments/` | tools whose only value is the Claude teammateship — observing it (its cost, `ccrepo`; its history, `cctranscript`) or extending its reach (`browser-fetch`, `ccmail`) (see `docs/decisions/0006-instruments-in-atelier.md`) |
-| `skills/` | the plugin's six skills: `session-onramp`, `review-brief`, `work-run`, `create-repo`, `fleet-sweep`, `review-drain` |
-| `commands/` | the plugin's slash commands: `scan`, `install-hook`, `worktree`, `fleet-pins` |
+| `skills/` | the plugin's six subjects (`review`, `work`, `fleet`, `worktree`, `repo`, `session`), each a router plus one file per action: sixteen actions in all |
 | `.claude-plugin/` | the plugin and marketplace manifests that make this repo installable |
 
 ### `docs/method/` — the operating model
@@ -102,38 +101,50 @@ are.
 
 What you get:
 
-- **`/atelier:scan`** — run four of the floor's scanners (secret · leak ·
-  licence · link) by hand over any repo; the full floor is `tools/floor.py`.
-  Zero-dependency stdlib Python, bundled.
-- **`/atelier:install-hook`** — install the fail-closed git pre-commit scan hook
-  into the current repo (git hooks don't travel, so it's per-clone; and the
-  hook's scanner path is pinned to the installed plugin *version*, which is
-  now the commit, so in a repo hooked from a GitHub install re-run it after
-  every plugin update — until then the hook blocks, it never waves through. A
-  local-path install loads the clone in place, so its path does not move).
-- **`session-onramp`** skill — loads the apex (honesty, adaptation) and
-  the always-confirm floor, then points at the rest of the doctrine, read on demand.
-- **`review-brief`** skill — the peer-review lifecycle that turns "looks right"
-  into "verified".
-- **`work-run`** skill — orchestrate a queue run: drain the shared queue as an
-  orchestrator, execute via workers in worktrees, close records per item so a
-  session cap loses at most the item in flight.
-  `/atelier:work-run <the run's brief>` runs the principal's prompt,
-  `docs/method/session-open/session-open-prompt.md`, word for word.
-- **`create-repo`** skill — scaffold a new repo (or standardise an existing one)
-  to the house standard, stamped from **your own** instance profile
-  (`~/.atelier/instance.yaml`, filled interactively on first run, never
-  committed) — the skill carries no identity of its own.
-- **`fleet-sweep`** skill — bring every child repo of an estate to a healthy
-  state (latest pin, floor re-copied, CI green, owed reviews briefed), each
-  repo's work run as a headless session inside that repo.
-- **`review-drain`** skill — run briefed cold review passes across an estate on
-  the principal-named review tier, several at once under a load gate, until an
-  approved budget is used up.
+Every command is **subject, space, action** (`/atelier:review brief`), and a
+bare subject (`/atelier:review`) shows that subject's menu and runs nothing.
+Six subjects, sixteen actions:
+
+- **`/atelier:review`**
+  - **`brief`** — the peer-review lifecycle that turns "looks right" into
+    "verified": write the brief and run an independent review.
+  - **`plan`** — show what the owed reviews are and what would run, changing
+    nothing.
+  - **`run`** — run briefed cold review passes across an estate on the
+    principal-named review tier, several at once under a load gate, until an
+    approved budget is used up.
+- **`/atelier:work`**
+  - **`run`** — orchestrate a queue run: drain the shared queue as an
+    orchestrator, execute via workers in worktrees, close records per item so a
+    session cap loses at most the item in flight.
+    `/atelier:work run <the run's brief>` runs the principal's prompt,
+    `docs/method/session-open/session-open-prompt.md`, word for word.
+  - **`plan`** — show what a work run would do, claiming nothing.
+- **`/atelier:fleet`**
+  - **`sweep`** — bring every child repo of an estate to a healthy state
+    (latest pin, floor re-copied, CI green, owed reviews briefed), each repo's
+    work run as a headless session inside that repo.
+  - **`pins`** — report which child repos are behind the doctrine SHA they pin
+    (wraps the bundled `tools/pins.py`).
 - **`/atelier:worktree`** — one worktree per line of work (wraps the bundled
-  `tools/worktree.py`).
-- **`/atelier:fleet-pins`** — report which child repos are behind the doctrine
-  SHA they pin (wraps the bundled `tools/pins.py`).
+  `tools/worktree.py`): **`start`**, **`list`**, **`land`**, **`remove`**.
+- **`/atelier:repo`**
+  - **`scan`** — run four of the floor's scanners (secret · leak · licence ·
+    link) by hand over any repo; the full floor is `tools/floor.py`.
+    Zero-dependency stdlib Python, bundled.
+  - **`hook`** — install the fail-closed git pre-commit scan hook into the
+    current repo (git hooks don't travel, so it's per-clone; and the hook's
+    scanner path is pinned to the installed plugin *version*, which is now the
+    commit, so in a repo hooked from a GitHub install re-run it after every
+    plugin update — until then the hook blocks, it never waves through. A
+    local-path install loads the clone in place, so its path does not move).
+  - **`create`** — scaffold a new repo (or standardise an existing one) to the
+    house standard, stamped from **your own** instance profile
+    (`~/.atelier/instance.yaml`, filled interactively on first run, never
+    committed) — the skill carries no identity of its own.
+- **`/atelier:session`**
+  - **`onramp`** — loads the apex (honesty, adaptation) and the always-confirm
+    floor, then points at the rest of the doctrine, read on demand.
 - The whole `docs/method/` + `docs/build/` doctrine, bundled as reference.
 
 Adopting it, you **become the principal**: instantiate the worked example as

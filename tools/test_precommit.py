@@ -286,7 +286,7 @@ class PreCommitHookTest(unittest.TestCase):
         self.assertIn("fail closed", r.stderr.lower())
         self.assertEqual(self._commit_count(), 0, "nothing may enter history unscanned")
 
-    # -- 2. resolution via baked git config (the create-repo path) ------------
+    # -- 2. resolution via baked git config (the `/atelier:repo create` path) ------------
 
     def test_config_resolution_blocks_planted_secret(self):
         _git(self.repo, "config", "hooks.atelierTools", str(TOOLS_DIR))

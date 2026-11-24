@@ -56,6 +56,12 @@ billed to its own repo
 .br
 .B ccfleet
 .RI [ common ]
+.B plan
+.RB [ \-\-json ]
+.RB [ \-\-fetch ]
+.br
+.B ccfleet
+.RI [ common ]
 .B pass
 .I repo item brief
 .RB [ \-\-dry\-run ]
@@ -424,6 +430,77 @@ counts as a bad end.
 A drain that started nothing exits 4 when the queue was empty, 3 when the
 reset had come, and 1 when every pick ended before its session started;
 one that started a pass exits 0.
+.IP
+A dry drain, before its rehearsed launches, prints the reading
+.B plan
+makes (the same function), each line prefixed
+.BR "DRY plan:" .
+With no
+.B queue.evidence
+it says so in one line, and a queue command that fails is said and the
+rehearsal carries on.
+It still never calls
+.BR queue.ranked .
+.TP
+.B plan
+Read the review queue and print what it holds, and what ccfleet's own past
+passes cost.
+It reads and never judges: ranking and routing are an agent's work, by
+.BR "/atelier:review plan" ,
+and the seal is the adopter's queue's.
+It calls
+.B queue.evidence
+(and
+.B queue.owed
+when set) and none of
+.BR ranked ,
+.BR take ,
+.BR next ,
+.B release
+or
+.BR ended ,
+writes no launched list, claim or worktree, and starts no session.
+It is the one reading of the queue:
+.B /atelier:review plan
+runs it,
+.B /atelier:review run
+runs it at its start, and
+.B drain \-\-dry\-run
+prints it.
+The output is a table of the evidence rows (repo, item, title, the routes it
+fits), then the owed reviews that have no brief, then the cost history.
+A queue command that fails, or prints something other than the JSON array
+described under
+.BR "THE QUEUE INTERFACE" ,
+exits 1.
+A config with no
+.B queue.evidence
+exits 64.
+.IP
+The cost history comes from
+.I <kit_dir>/logs/pass\-*.out
+and the
+.B claude \-p
+JSON log each names: for the passes a drain launched that ended clean, the
+count, median and maximum of
+.BR total_cost_usd ,
+.B duration_ms
+and
+.BR num_turns ,
+where the log has them.
+Every pass ccfleet launches is a local session, so only the
+.B local
+route is measured.
+Any other route a row's
+.B fits
+names, and
+.B local
+with no logs, read
+.BR "no measurement" ;
+nothing is estimated.
+A pass run by hand leaves no
+.I .out
+file and is not counted.
 .TP
 .BI pass " repo item brief"
 One drain pass; the command
@@ -593,6 +670,33 @@ A refused release exits 2.
 Without
 .B \-\-in
 it is refused with exit 64.
+.SS Of plan
+.TP
+.B \-\-json
+Print one JSON object for an agent:
+.BR evidence ,
+.B owed
+(null when
+.B queue.owed
+is not set),
+.B history
+and
+.BR notes ,
+instead of the table.
+.TP
+.B \-\-fetch
+Have the queue read each repo's remote first: an argument written exactly
+.B {FETCH}
+in
+.B queue.evidence
+or
+.B queue.owed
+is filled with
+.B \-\-fetch
+when this is given and dropped when it is not.
+An entry with no
+.B {FETCH}
+fetches nothing, and plan says so.
 .SS Of drive and drain
 .TP
 .BI \-\-max " n"
@@ -851,7 +955,12 @@ optionally
 .BR ended ,
 .B release_on
 and
-.BR stop_on :
+.BR stop_on ;
+for
+.BR plan ,
+.B evidence
+and optionally
+.BR owed :
 see below.
 .SH THE QUEUE INTERFACE
 The review queue is the adopter's own tool; ccfleet only calls it.
@@ -940,6 +1049,52 @@ with the same values as
 .BR release ,
 for instance to record the session, log and worktree on the claim.
 A nonzero exit is printed and otherwise ignored.
+.TP
+.B evidence
+For
+.B plan
+and a dry drain only.
+Prints a JSON array, one object per briefed, unrun review, each with at least
+.BR repo ,
+.BR item ,
+.B brief
+and
+.BR title ;
+every other field is passed through untouched (an adopter's tool may print
+.BR briefed ,
+.BR his_words ,
+.BR dates_ahead ,
+.BR signals ,
+.BR live_write ,
+.B fits
+(the routes the review suits, as a list of names) and
+.BR lane ).
+Read\-only: it must claim, seal and start nothing.
+An argument written exactly
+.B {FETCH}
+is filled with
+.B \-\-fetch
+for
+.B plan \-\-fetch
+and dropped otherwise.
+.TP
+.B owed
+Optional, for
+.B plan
+only.
+Prints a JSON array of owed reviews that have no brief yet:
+.BR repo ,
+.B item
+and
+.BR title ,
+and optionally
+.BR why .
+Read\-only;
+.B {FETCH}
+works here too.
+Without it,
+.B plan
+prints owed as null and says so.
 .TP
 .B release_on
 A list of
@@ -1096,7 +1251,7 @@ release), kept for their resume.
 .TP
 .I <kit_dir>/review\-logs/withdrawn/
 Logs an earlier pass left behind, moved here, dated, when a new pass of the
-item takes its claim (and where the review\-drain skill moves a withdrawn
+item takes its claim (and where the review run skill moves a withdrawn
 pass's log by hand).
 .TP
 .I <kit_dir>/children.tsv
@@ -1304,7 +1459,10 @@ drop its guards), another driver already running, or (for
 a queue not ranked, a queue
 .B next
 that failed, which is never read as an empty queue, or every pick ending
-before its session started.
+before its session started; and, for
+.BR plan ,
+a queue command that failed or printed something other than the JSON it
+should.
 .B gate
 exits 1 for hold.
 .TP
@@ -1344,10 +1502,13 @@ with no
 a negative
 .BR \-\-max ,
 or
-.B drain
-or
+.BR drain ,
 .B pass
-without the config they need.
+or
+.B plan
+without the config they need
+.RB ( queue.evidence
+for plan).
 .PP
 A mistake in the command line itself is caught by the argument parser first,
 which exits 2.
@@ -1403,10 +1564,13 @@ Requires Python 3.8 or later and
 .BR gh (1)
 is used only for a repo whose visibility the config does not state.
 The
-.B fleet\-sweep
+.B /atelier:fleet sweep
 and
-.B review\-drain
+.B /atelier:review run
 skills drive this tool, and
+.B /atelier:review plan
+reads the queue through
+.BR "ccfleet plan" , and
 .I tools/modelguard.py
 is a hook that blocks a launch that names no model.
 .SH SEE ALSO

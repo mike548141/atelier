@@ -5,7 +5,7 @@ grant of authority, carries his words.
 WHY (board `160/900` finding QK1's second counsel, the sixth slice of
 `320/810`; the principal, 2026-11-09: "all six, warnings at first and then move
 to blocking action"). `docs/method/session-open/session-open-prompt.md` is his
-text: the run prompt `/atelier:work-run` reads. A cold pass found that
+text: the run prompt `/atelier:work run` reads. A cold pass found that
 nothing mechanical read his say-so on a change to it, and that the commit body
 it lives in is exactly what a cold reviewer is barred from reading until phase
 2. The counsel: a floor check that every commit touching the prompt quotes him.

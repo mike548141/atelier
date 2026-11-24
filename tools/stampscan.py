@@ -28,7 +28,7 @@ the template's stamp pins `source=docs/method/PROPAGATION.md`, a path that
 exists only in atelier, so any scaffolded child that ran this scanner would
 exit 2. The child-side resolution story must also be PIN-aware (a child
 pinned at `atelier@<SHA>` may lawfully differ from atelier@main), and
-`create-repo` must learn the markers are load-bearing scaffold content.
+`/atelier:repo create` must learn the markers are load-bearing scaffold content.
 Blocking is a separate, later ruling after an advisory soak — wrapscan's
 and datescan's rollout discipline, unchanged.
 

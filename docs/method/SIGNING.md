@@ -49,7 +49,7 @@ zero-dep house ethos answer. The shape:
   git config --global gpg.ssh.allowedSignersFile <path-to-allowed_signers>
   ```
 
-  `create-repo` additionally bakes `commit.gpgsign=true` repo-locally **when
+  `/atelier:repo create` additionally bakes `commit.gpgsign=true` repo-locally **when
   the instance profile's `signing` fact says the machine signs** (default off;
   atelier-style profiles keep it on — VP2, 2026-07-22) — belt-and-braces so a
   signing machine's new repo signs even where global config has drifted.
@@ -187,7 +187,7 @@ cheap to run:
    (`git verify-commit` → good, `gh api …verification.verified` → true). The
    passphrase-protected key is loaded via `ssh-add --apple-use-keychain` so
    signing runs unattended (passphrase-in-agent, per Key handling above).
-3. **[done 2026-07-12]** `create-repo` bakes the repo-local
+3. **[done 2026-07-12]** `/atelier:repo create` bakes the repo-local
    `commit.gpgsign=true` into its git-config step (and REPO-STANDARD's new-repo
    process states the same). *(Since 2026-07-22 the bake is gated on the
    instance profile's `signing` fact — VP2; entry kept as history.)*

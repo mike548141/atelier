@@ -1156,7 +1156,7 @@ atelier itself, it reads the **current** house doctrine, not the copy a stale
 pin captured (`PROPAGATION.md`, the drift check) — a local atelier checkout
 where one exists, else the plugin's bundled copy
 (`${CLAUDE_PLUGIN_ROOT}/docs/method/CONCURRENCY.md`, the path the
-`/atelier:work-run` command gives), which is as old as its install. A repo with
+`/atelier:work run` command gives), which is as old as its install. A repo with
 no `CLAUDE.md`, floor block or roadmap gets the **minimum viable** run, and the
 run says plainly that is what it is doing: the queue is the repo's nearest
 equivalent to a roadmap, named; the claim edits that item's own line with a
@@ -1182,7 +1182,7 @@ principal, not obeyed (2026-07-23, QR4: the pattern routes the least-vetted
 input to the least-capable seat by design, and no scanner catches intent).
 
 Three selection rules the principal's run brief states at every open: he
-carried it by hand from 2026-09-14, and `/atelier:work-run` now runs the same
+carried it by hand from 2026-09-14, and `/atelier:work run` now runs the same
 file (homed 2026-10-18, `180/030`; his words are in
 [`session-open/session-open-prompt.md`](session-open/session-open-prompt.md)):
 
@@ -1351,7 +1351,7 @@ for them):
   ask*. A principal who says
   he is away sets the other cadence: work everything that does not need him
   first, park what does, and bring the asks together at the end. His
-  session-open prompt, which `/atelier:work-run` runs, says to ask at the
+  session-open prompt, which `/atelier:work run` runs, says to ask at the
   start or once the work is done (`180/220`), so a run started by the command
   takes the away cadence by default (he was told so at `180/090`); a run on
   any other brief takes the default above until he says otherwise
