@@ -20,7 +20,10 @@ a real drain print the same table at its start. Then he turned it around, verbat
 in /atelier:review-plan and then have /atelier:review-drain call
 review-plan when it starts a drain"*, and consolidate copies such as
 `ccfleet drain --dry-run` into one reusable module. Recorded in the item,
-with the four places the logic lives today, found by grep.
+with the four places the logic lives today, found by grep. Last, verbatim:
+*"We should consider renaming /atelier:review-drain to /atelier:review-run
+as well to get some consistency across the commands"*. Recommended yes, in
+the same build; sized and recorded in the item.
 
 ## What was done
 

@@ -71,5 +71,17 @@
         half (an agent reading the evidence) and the code half (route
         fit, cost history, the table) each live is the build's first
         design call, made once and written down.
+      **Rename, his words, 2026-11-24, verbatim:** *"We should consider
+      renaming /atelier:review-drain to /atelier:review-run as well to get
+      some consistency across the commands"*. Recommended to him: yes, in
+      the same build, so the pair lands together and the naming reads
+      `<subject>-plan` (look, change nothing) and `<subject>-run` (do it),
+      which `queue-run` already fits. Keep the word "drain" in the skill's
+      description so "drain the reviews" still finds it. No alias: a stub
+      under the old name would be a second copy, and a stale call failing
+      loudly is the better signal. Sized 2026-11-24 by `git grep`: 26 live
+      files here, 16 records (left as written; history is kept), and nine
+      files in two private child repos, which their own sessions sweep
+      (`fleet-sweep`), never this repo's.
       **Open, for the build session to settle with him:** the page form
       (reply table or a page in his browser).
