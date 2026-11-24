@@ -40,3 +40,17 @@
       🔒 CLAIMED 2026-11-24T21:31Z (claimed 2026-11-24-2131, wt: atelier-86-close) by queue-run
       session 0b4f93ef (`atelier-86`, Opus 5.5, principal-opened). Scope: build
       the action, its single-source test and the menu row.
+      ✅ **Built 2026-11-24 UTC (queue run 0b4f93ef, a Sonnet worker), held off
+      `main`:** commit `e917a98b` on branch `atelier-86-close` (pushed):
+      `skills/session/close.md`, the router row, description and
+      `argument-hint`, `tools/test_session_close_single_source.py` (14 tests),
+      README and CHANGELOG. Full suite green on that commit: tools 3,467 OK,
+      instruments 234 OK, node 741 pass. The prompt is unchanged.
+      🚩 **Why it is not on `main`:** the one Fable brief for `160/1450` and
+      `160/1790` (pinned `26a4fe7e`) stops its runner if anything lands under
+      `skills/` first, and only a session that wrote none of the delta may
+      refresh it; this run wrote this commit. So it lands once that pass has
+      started and pinned its head (its brief: review the work as it stands at
+      the runner's HEAD), unless the principal says land it now. To land:
+      rebase on `main`, run the full suite, push; then close this item.
+      🔓 2026-11-24 UTC: queue run 0b4f93ef releases its build claim.
