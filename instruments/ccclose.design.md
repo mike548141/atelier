@@ -155,9 +155,9 @@ and an absent input never crashes the run.
 | 13 | Scratch folder empty | the scratch folder the transcript's environment attachment records | never; anything left is ⚠️ | no transcript; no environment record |
 | 14 | Atelier pin and floor copy current | atelier's `tools/pins.py --json --child <repo>` (fetches origin in the atelier checkout) | the floor copy differs from the floor at the pin, the pin is behind **and** the floor has changed since it, or the pin is ahead, diverged or unknown (`020/470`) | not a child: atelier itself, or no pin or floor stamp in `CLAUDE.md` |
 | 15 | Launched work finished | the process table (`ps -Eww`), and the transcript's Bash calls and harness-tool calls | a live process of the session, a background command no terminal notification ended, a detached launch nothing shows finished, or a harness-started item not ended; **fails closed** | no session id and no transcript |
-| 16 | Oldest asks | the per-item board at the integration ref: `🎯` on an open item's state line, a `💤 PARKED YYYY-MM-DD` line, and the commit that added each item file (one `git log --diff-filter=A` pass) | never; informational, ✅ with the one oldest unparked ask of this repo shown (Mike, 2026-11-24: one, not three) (`NNN/NNN · age · title`) and the total waiting; ⚠️ only when the history cannot be read | no per-item board (board `180/220`) |
+| 16 | ~~Oldest asks~~ | ~~the per-item board at the integration ref...~~ | **Withdrawn 2026-11-24 (180/250):** the check, its code and its tests are removed; the number 16 is retired, not reused. The principal's ruling, verbatim: *"No more asking me old questions from the repo like you started doing tonight. Its not helpful"*. (History: it was informational, showed the one oldest unparked ask of this repo, Mike 2026-11-24 "one, not three"; built under `180/220`.) | - |
 
-Why four checks can never fail (check 15 can fail, and check 16 is informational and never fails; its schedules and its
+Why four checks can never fail (check 15 can fail; check 16 is withdrawn; its schedules and its
 unreadable-table state only warn, as set out under it):
 
 - **Reviews (9).** Whether work earns a review is a judgement (`REVIEW.md`
@@ -473,7 +473,7 @@ everything in the lastest version of the prompt in session-open-prompt.md and
 look at what would be more effectively built into ccclose rather than being in
 the prompt".)* After the checks, four listings carry what the session-open
 prompt used to ask the session to do from memory. Each is a **listing**: the
-tool lists, the session answers. They are not check numbers (the sixteen stay
+tool lists, the session answers. They are not check numbers (the fifteen stay
 fixed). Only two things reach the verdict, and neither can be a mere listing:
 a repo check that fails in another repo is ❌ like at home, and an unanswered
 question, a live peer or a warning elsewhere is ⚠️.
@@ -586,7 +586,7 @@ listings above, and the block's own JSON is `--identifiers --json`.
 
 ## 10. Output
 
-A header block of standard outputs, the sixteen check lines, the four listings
+A header block of standard outputs, the fifteen check lines, the four listings
 of §9 (every ask, the questions put to the principal, the other repos touched,
 the other live sessions), then one verdict line, for example `❌ not ready to
 close · 2 fail · 1 unknown or partial · 6 pass · 9 not applicable · 12
@@ -671,7 +671,7 @@ not spawn it. The orchestrating session queues the `⏳`.
 `ccclose --identifiers` prints the block `RECORD.md` asks every detail record and
 closing message to end with ("read fresh at close, never recalled"; asked for by
 Mike, 2026-10-18, board item `210/280`). It prints only a `## Identifiers`
-heading and seven fields in `RECORD.md`'s order, and runs none of the sixteen
+heading and seven fields in `RECORD.md`'s order, and runs none of the fifteen
 checks: it shares their reads (`gather()`: session, transcript, window, repo,
 board, `gh`, branches) but not their verdicts, so it never waits on
 `board.py --check` or a floor run. It exits `0`, since it is a record and not a

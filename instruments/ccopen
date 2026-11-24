@@ -588,7 +588,7 @@ function readWaiting(repo, ref) {
     changed: ch.known ? changed.length : null, unknown: ch.known ? ch.unknown : null, notChecked: ch.known ? ch.notChecked : null,
     changedList: changed.slice(0, JSON_CAP).map((i) => ({ id: i.id, title: i.title, parkedOn: i.park.date, words: clip(i.park.words, 120), changes: i.changes })),
   };
-  const counts = `${plural(bw.waiting, 'open ask')} waiting on the principal (🎯) · ${bw.parkedWaiting} parked · ${unparked} not parked (end-of-session round, not listed)`
+  const counts = `${plural(bw.waiting, 'open ask')} waiting on the principal (🎯) · ${bw.parkedWaiting} parked · ${unparked} not parked (not listed)`
     + (bw.parked !== bw.parkedWaiting ? ` · ${plural(bw.parked - bw.parkedWaiting, 'other open item')} parked without 🎯` : '');
   const items = capped(changed, (i) => `${i.id} · ${i.title} · parked ${i.park.date} · ${i.changes.map(changeWords).join('; ')}`, 'changed park(s)');
   if (!ch.known) {

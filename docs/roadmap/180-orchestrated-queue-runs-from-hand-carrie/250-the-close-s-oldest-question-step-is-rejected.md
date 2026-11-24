@@ -1,4 +1,4 @@
-- [~] **The close's "one oldest question" step is rejected; stale asks
+- [ ] 💡 **The close's "one oldest question" step is rejected; stale asks
       need a different plan.** Hand-up from a private child's session,
       2026-11-24, by class only (`PROPAGATION.md` § *The route*). The
       mechanism: the session-open prompt's close step 2 (*"then the one
@@ -25,4 +25,10 @@
       tonight. Its not helpful"*. So (b) is his ruling now: the step comes
       out of the prompt, the doctrine and `ccclose`. (a), a different plan
       for stale asks, stays owed; he said this week it is not his priority.
-      (claimed 2026-11-24-1023, wt: atelier-e8-no-old-questions)
+      **(b) done, 2026-11-24 (atelier-e8):** the prompt's close step puts
+      this session's questions only; `COMMUNICATION.md` § *When to ask* says
+      old asks are not put at close; `ccclose` check 16 (*Oldest asks*) is
+      withdrawn (number retired, history kept in its design doc); `ccopen`
+      and its man page no longer point at an end-of-session round. ccclose
+      160 tests, ccopen 48, both green. **Still owed: (a)**, a different plan
+      for stale asks, an idea until he says it is a priority.

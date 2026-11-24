@@ -448,15 +448,15 @@ work that I've told it in a recent past session something like I am undecided
 or not right now. So rather than doing other work in the queue it keeps
 looping on the same work and questions"*.
 
-**The backlog of asks is chipped at every session.** At its close a session
-puts its own questions first, then the one oldest question still waiting on
-him **in the repo it is working in** (`ccclose` shows it), read first to confirm
-it is still his to decide, as above; one settled by the record is recorded as
-settled and the next oldest takes its place. His words, 2026-11-24, verbatim:
-*"We need to change this down to just asking one old question, not 3. And it
-must be a question from the repo that the session is running in / working
-on"*. The reason is his, verbatim: *"its a matter of chipping away at the questions
-continuously and keeping on top of it"*.
+**A close puts only its own session's questions.** Old asks waiting on him
+are not put at a session's close. The chipping round (one oldest ask per
+close) was built and withdrawn the same day, 2026-11-24, on his words,
+verbatim: *"No more asking me old questions from the repo like you started
+doing tonight. Its not helpful"*; and, relayed from a child's close, verbatim: <!-- datescan:allow: his words, verbatim, dated 2026-11-24 in the line above; wrapscan:allow: marker-inflated line -->
+*"this idea of asking these really old questions is not working, we need a
+different plan and this week that is not my priority"*. A different plan for <!-- datescan:allow: his words, verbatim, dated 2026-11-24 in the line above; wrapscan:allow: marker-inflated line -->
+stale asks is owed and waits until he says it is a priority (board
+`180/250`).
 
 **Not decided here.** Whether the harness can notify him when a session stops
 on a question is unverified, and is worth one artefact check before anything

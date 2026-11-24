@@ -30,7 +30,7 @@ through
 .BR gh (1),
 and of the session's own transcript.
 It prints the standard outputs (the session id, its transcript, its time
-window, the repo and its head), sixteen checks in a fixed order, four listings
+window, the repo and its head), fifteen checks in a fixed order, four listings
 (every prompt the principal gave, the questions put to him, the other repos
 the session touched, the other live sessions), a one-line verdict, and the
 identifiers block.
@@ -514,36 +514,11 @@ or
 .B ssh
 is not read; and a process that has reparented under another session's id is
 not this session's.
-.TP
-.B Oldest asks
-Informational, and never a reason the close is not ready.
-It is the sixteenth check, after launched work, so the numbers above hold.
-On a per-item board, at the integration branch of the repository it is run
-in (never another repository's), it shows the one oldest open item marked
-.B \[u1F3AF]
-on their state line (waiting on the principal) that are not parked, each as
-.IR "NNN/NNN \(em age \(em title" ,
-and prints the total waiting, and how many of those are parked and left out.
-A parked item is one with a line beginning
-.B \[u1F4A4] PARKED YYYY\-MM\-DD
-(the principal was asked and said not now; see
-.BR ccopen (1)).
-An item's age is the time since the commit that added its file: a renumbered
-item reads as new.
-Zero waiting is
-.B \[u2705]
-with the zero printed; a repo with no per-item board is
-.BR \[u2796] ,
-with the reason; a board whose history cannot be read is
-.B \[u26A0]
-unknown.
-It is a prompt to the end-of-session round: put the oldest few asks to the
-principal so the backlog shrinks every session.
 .SS Asked in this session \(em answer each
 After the checks, four listings carry what the session-open prompt used to ask
 the session to do from memory.
 Each is a listing: the tool lists and the session answers.
-They are not checks, so the sixteen stay fixed.
+They are not checks, so the fifteen stay fixed.
 A failing repo check in another repo fails the close, as at home; an
 unanswered question, a live peer or a warning elsewhere is only
 \[u26A0]; none of the rest can fail.

@@ -144,9 +144,8 @@ question it lists (done, queued as an item, or not done). Then, for me:
 2. Walk me through any open decision or unanswered question, one at a
    time, in plain language: what it's for, and what each answer would
    change. I do not always read all the replies so its easy for me to miss
-   important information. First this session's questions, then the one oldest
-   question still waiting on me in this repo (`ccclose` shows it), so they
-   don't pile up. Stop when I say stop.
+   important information. This session's questions only. Stop when I say
+   stop.
 3. Confirm the decisions, evidence, learnings and questions to ask me later
    are recorded in a way that ensures future sessions will find them and
    act on them. If any of that isn't true yet, say so; don't tell me you're
