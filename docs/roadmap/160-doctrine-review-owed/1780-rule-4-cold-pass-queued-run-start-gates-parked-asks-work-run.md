@@ -15,7 +15,7 @@
       bullets on when to ask and the quiet-machine start),
       `docs/roadmap/README.md` (the `💤 PARKED` legend), `instruments/ccopen`,
       `instruments/ccclose`, their tests, design notes and man pages,
-      `skills/work-run/`, `skills/queue-run/` (the alias), and the rename's
+      `skills/work-run/` (no alias for the old name), and the rename's
       sweep: the commits citing `180/220` and `180/230`, on `main`, since
       `69dbeb3b`.
       *Intent record:*

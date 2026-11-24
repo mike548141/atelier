@@ -25,7 +25,7 @@
       | Today | Becomes |
       |---|---|
       | `review-brief`, `review-drain`, (new, 180/210) | `review brief`, `review run`, `review plan` |
-      | `queue-run` | `queue run` (a `queue plan` later if wanted) |
+      | `work-run` (renamed from `queue-run`, 180/230) | `work run` (and `work plan`, 180/240) |
       | `fleet-sweep`, `fleet-pins` | `fleet sweep`, `fleet pins` |
       | `worktree` | unchanged |
       | `scan`, `install-hook`, `create-repo`, `session-onramp` | `repo scan`, `repo hook`, `repo create`, `session onramp` |

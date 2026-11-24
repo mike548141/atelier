@@ -39,7 +39,9 @@ to /atelier:work-run or something else"*; *"We could also consider having
   items changed since parking); `ccclose` check 16, the three oldest unparked
   asks, informational. ccopen 34 → 47 tests; ccclose 165.
 - **Rename**: `skills/work-run/`, its test, and every live mention; records
-  keep the old name; an alias keeps `/atelier:queue-run` until 2026-12-24.
+  keep the old name. An alias was built, then removed before landing: a peer
+  session (`edf25bd3`) had his pick for retired command names the same day,
+  *"Nothing"* (`450/020`), so the old name simply stops existing.
 - **Idea filed**: `/atelier:work-plan` (`180/240`), not built.
 - **Cold pass queued**: `160/1780`, waits for his Fable approval.
 
@@ -56,5 +58,6 @@ to /atelier:work-run or something else"*; *"We could also consider having
 
 - A sweep marking answers he already gave as "not now" with `💤 PARKED`, so
   the read sees them (`180/220`, owed).
-- The alias's removal on or after 2026-12-24 (`180/230`).
+- `450/020` (subject, space, action) will move `work-run` to `work run`;
+  its table was told.
 - `160/1780` cold pass, waiting for Fable approval.

@@ -1,4 +1,4 @@
-- [ ] **Rename `/atelier:queue-run` to `/atelier:work-run`.** His words,
+- [x] **Rename `/atelier:queue-run` to `/atelier:work-run`.** His words,
       2026-11-24, session b95c0d98, verbatim: *"Also I think we should rename
       the command from /atelier:queue-run to /atelier:work-run or something
       else. Maybe a reference to the board. But to my mind its saying to you
@@ -13,5 +13,12 @@
       items, the census and the changelog's history. The concept keeps its
       doctrine name, *orchestrated queue run*, so `CONCURRENCY.md`'s heading
       and every link to it stand.
-      **Owed:** `skills/queue-run/SKILL.md` is an alias that points at the new
-      command so his habit does not break. Remove it on or after 2026-12-24.
+      **No alias.** One was built, then removed before landing: a peer session
+      had his pick for old command names the same day, *"Nothing"* (no
+      forwarder, no signpost; `450/020`, recorded on `180/210`), so
+      `/atelier:queue-run` simply stops existing.
+      **Meets `450/020`.** That item (an idea awaiting his confirmation)
+      moves every command to *subject, space, action*; its table's
+      `queue-run` → `queue run` row now reads `work-run` → `work run`, with
+      `work plan` for `180/240`. This rename lands first because he asked for
+      it now; the form change is that item's.
