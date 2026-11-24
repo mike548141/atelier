@@ -1,6 +1,6 @@
 ---
-name: work-run
-description: Run a work session (formerly /atelier:queue-run) — work through the planned work, mostly the board's items plus any brief typed after the command, by draining the shared roadmap queue as an orchestrator, executing items yourself or via worker sessions in worktrees, closing records per item so a session cap loses at most the item in flight. Use when the principal points a session at the queue ("progress any work you can", "drain the queue", "keep the plan busy"), or asks to run atelier's orchestrated-queue-run pattern, optionally with this run's brief after the invocation.
+action: run
+description: Run a work session — work through the planned work, mostly the board's items plus any brief typed after the command, by draining the shared roadmap queue as an orchestrator, executing items yourself or via worker sessions in worktrees, closing records per item so a session cap loses at most the item in flight. Use when the principal points a session at the queue ("progress any work you can", "drain the queue", "keep the plan busy"), or asks to run atelier's orchestrated-queue-run pattern, optionally with this run's brief after the invocation.
 ---
 
 <!--

@@ -1,5 +1,5 @@
 ---
-name: fleet-sweep
+action: sweep
 description: Bring every child repo of an atelier estate to a healthy state — latest atelier pin with the floor re-copied verbatim, CI green at the pushed head, conformance with the current doctrine, every owed review briefed, the principal's queue of asks de-duplicated, every one-file record store split, nothing left behind by past sessions — each repo's work run as a headless session inside that repo so per-repo cost tools bill the repo. Use when the principal asks for a health sweep, to "bring the repos up to healthy", to bump every pin, or for one repo by name.
 ---
 

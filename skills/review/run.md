@@ -1,5 +1,5 @@
 ---
-name: review-drain
+action: run
 description: Run briefed cold review passes across an estate on the principal-named review tier, several at once under a load gate, back to back, until an approved budget is used up — each pass billed to its own repo; or, in resume mode, finish only the passes a usage limit cut off. Use when the principal approves review-tier work to "use up the budget" or "drain the reviews", or says "resume" after a budget reset.
 ---
 

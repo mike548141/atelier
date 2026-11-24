@@ -1,5 +1,5 @@
 ---
-name: session-onramp
+action: onramp
 description: Load atelier's operating-model doctrine for this session — the apex (honesty, adaptation), the always-confirm safety floor, and how the rest is read on demand. Use at the start of work in a repo that adopts atelier, or whenever the user asks to apply the house doctrine / "the atelier way".
 ---
 

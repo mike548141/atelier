@@ -1,5 +1,5 @@
 ---
-name: create-repo
+action: create
 description: Scaffold a new repo (or standardise an existing one) to your house conventions — the atelier repo standard, stamped with your identity from an instance profile. Use when asked to create a repo, start a project, or standardise/tidy an existing repo. Sizes the standard to the repo type; never fabricates docs it can't ground.
 ---
 

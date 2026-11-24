@@ -50,7 +50,7 @@ Landed 2026-08-15 on `main` as `71b3e8f` (the removal), preceded by the claim
    (the fail-safe line, the SR2 concern list, and the inlined child floor
    block), the byte-identical stamp in
    [`docs/build/templates/CLAUDE.md`](../build/templates/CLAUDE.md), and
-   [`skills/session-onramp/SKILL.md`](../../skills/session-onramp/SKILL.md).
+   [`skills/session-onramp/SKILL.md`](../../skills/session-onramp/SKILL.md). <!-- linkscan:allow:missing-file: moved 2026-11-24 to skills/session/onramp.md (450/020, subject-action form); the record keeps the path it reviewed -->
 3. Board changes in the same commit: the ruling item
    `docs/roadmap/020-…/210-…` closed, the pointer `215-…` opened, the
    Laws-ladder raw note removed from *Open questions*, and the

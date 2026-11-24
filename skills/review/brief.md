@@ -1,5 +1,5 @@
 ---
-name: review-brief
+action: brief
 description: Write a peer-review brief and run an independent review of work before it is trusted — atelier's enforcement half. Use when work earns a review — the trigger is commitment, not artefact: a design others will build to, a decision that forecloses alternatives, or a diff that ships (structural/first-of-kind work, doctrine, a silent-failure surface, anything irreversible or public) — when the user asks to review a design/diff/branch "properly", or to draft the brief a fresh session will run cold.
 ---
 

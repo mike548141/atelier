@@ -13,6 +13,6 @@ the table except one line naming what it is:
 python3 ~/.claude/skills/atelier/menu.py
 ```
 
-If the user named a command after `/atelier` (for example `/atelier work-run`),
-show the menu, then tell them the exact command to type (`/atelier:work-run`).
+If the user named a command after `/atelier` (for example `/atelier work run`),
+show the menu, then tell them the exact command to type (`/atelier:work run`).
 Do not run that command for them: the menu only points.

@@ -1,0 +1,41 @@
+---
+name: fleet
+description: The child repos of an atelier estate. Pass the action as the first argument. sweep: bring every child repo to a healthy state (latest atelier pin with the floor re-copied, CI green, doctrine conformance, owed reviews briefed, asks de-duplicated, record stores split), each repo's work run as a headless session inside it ("health sweep", "bring the repos up to healthy", "bump every pin", or one repo by name). pins: show which children's atelier pins are stale, by how much, and the commits they would inspect. A bare /atelier:fleet shows this menu and runs nothing.
+argument-hint: "sweep | pins"
+allowed-tools: Bash(python3:*), Bash(git:*)
+---
+
+<!--
+  A SUBJECT, NOT A COMMAND: every /atelier: command is subject, space,
+  action, and a bare subject shows its menu (board 450/020; the principal,
+  2026-11-24, verbatim: "So something like /atelier:review by itself would be
+  a help screen, not run a command by default"). This file only routes: each
+  action's text lives in its own file beside it, so a use loads only its own.
+  tools/test_subject_skills.py keeps the table below, the action files and
+  the description in step.
+-->
+
+# /atelier:fleet
+
+The first word after `/atelier:fleet` picks the action. The words after it are
+that action's own arguments: wherever the action's file says `$ARGUMENTS`, it
+means those words.
+
+| Action | File | What it does |
+|---|---|---|
+| `sweep` | [`sweep.md`](sweep.md) | Bring every child repo of an atelier estate to a healthy state |
+| `pins` | [`pins.md`](pins.md) | Fleet view of child-repo atelier pins |
+
+**A known action:** read only that action's file, from this skill's base
+directory, and follow it as written. Where it says `${CLAUDE_PLUGIN_ROOT}`,
+use the plugin's root: the folder two levels above this skill's base directory.
+
+**No action, or a word not in the table:** show this subject's menu and do
+nothing else, however clear the rest of the request looks; a dropped or
+misread word must never start work. The menu is:
+
+```
+python3 "<this skill's base directory>/../../instruments/atelier-menu/menu.py" fleet
+```
+
+Show its output as it is, then stop.

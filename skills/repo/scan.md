@@ -1,4 +1,5 @@
 ---
+action: scan
 description: Run four of atelier's floor scanners (secret · leak · licence · link) by hand over this repo and report findings; the full floor is tools/floor.py.
 argument-hint: "[path] (optional; default: the whole repo)"
 allowed-tools: Bash(python3:*)
