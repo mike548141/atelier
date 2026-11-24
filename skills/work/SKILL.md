@@ -18,8 +18,8 @@ allowed-tools: Bash(python3:*), Bash(git:*)
 # /atelier:work
 
 The first word after `/atelier:work` picks the action. The words after it are
-that action's own arguments: wherever the action's file says `$ARGUMENTS`, it
-means those words.
+that action's own arguments: where the action's file names its arguments
+placeholder (a dollar sign, then ARGUMENTS), it means those words.
 
 | Action | File | What it does |
 |---|---|---|
@@ -32,8 +32,9 @@ example `drain` for `run`), not a word later in the sentence, not your reading
 of what was meant. Read no action file and run nothing until this check passes.
 
 **A known action:** read only that action's file, from this skill's base
-directory, and follow it as written. Where it says `${CLAUDE_PLUGIN_ROOT}`,
-use the plugin's root: the folder two levels above this skill's base directory.
+directory, and follow it as written. Where it names the plugin-root
+placeholder (a dollar sign and braces around CLAUDE_PLUGIN_ROOT), use the
+plugin's root: the folder two levels above this skill's base directory.
 
 **No action, or a first word not in the table:** show this subject's menu
 and do nothing else, however clear the rest of the request looks (a dropped or

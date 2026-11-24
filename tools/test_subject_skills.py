@@ -128,6 +128,17 @@ class SubjectSkills(unittest.TestCase):
             for a in action_files(d):
                 self.assertIn(f"`/atelier:{d.name} {a}`", out)
 
+    def test_router_holds_no_harness_placeholder(self):
+        """Claude Code fills the arguments and plugin-root placeholders in a
+        skill file as it loads it, so a router that wrote them literally to
+        explain them read, as loaded, "wherever the action's file says ``"
+        (found 2026-11-24 on a bare /atelier:session). Action files are read
+        with Read and keep them; the router must name them in words."""
+        for d in subjects():
+            body = (d / "SKILL.md").read_text(encoding="utf-8")
+            self.assertNotIn("$ARGUMENTS", body, d.name)
+            self.assertNotIn("${CLAUDE_PLUGIN_ROOT}", body, d.name)
+
     def test_retired_names_are_gone_from_live_surfaces(self):
         names = "|".join(re.escape(n) for n in RETIRED)
         # A user-level path (`~/.claude/skills/<name>`) is the adopter's own,

@@ -16,7 +16,9 @@
       `instruments/ccfleet`, `instruments/ccfleet.example.json`,
       `instruments/test_ccfleet.py`, `instruments/man/ccfleet.1`,
       `tools/test_subject_skills.py`, and the live-reference sweep: the
-      commits `0c67dc0f`, `bfa38582`, `10b32435`, `f354e542` on `main`.
+      commits `0c67dc0f`, `bfa38582`, `10b32435`, `f354e542` on `main`, and the
+      router-placeholder fix that follows them (subject `skills: routers name
+      the harness placeholders in words`).
       *Intent record:*
       [`../450-one-home-and-one-command-prefix-mike-commissioned/020-every-command-is-subject-then-action.md`](../450-one-home-and-one-command-prefix-mike-commissioned/020-every-command-is-subject-then-action.md),
       [`../180-orchestrated-queue-runs-from-hand-carrie/210-a-plan-mode-that-shows-the-drain-before-it-runs.md`](../180-orchestrated-queue-runs-from-hand-carrie/210-a-plan-mode-that-shows-the-drain-before-it-runs.md),
