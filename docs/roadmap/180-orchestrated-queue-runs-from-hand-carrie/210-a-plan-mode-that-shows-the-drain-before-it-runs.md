@@ -95,5 +95,14 @@
       session now, not after the `160/1450` re-check. Whether his live
       weekly drain also moves off the old user-level command before that
       re-check is a separate question, put to him at this session's close.
+      **`review brief` uses it too, his words, 2026-11-24, verbatim:**
+      *"Also I think /atelier:review brief should use /atelier:review plan
+      to find the work that requires a brief to be written"*. So the plan's
+      first step reads every *owed* review, briefed or not, and shows the
+      unbriefed ones as their own list (what each guards, why it is owed);
+      `review brief` takes its work from that list, and `review run` from
+      the briefed rows. One finder, three callers. Today the owed-but-
+      unbriefed check lives in `review-drain` § *Briefs are never left
+      owed* and `fleet-sweep`'s brief prompt: both are copies to fold in.
       **Page form, his answer 2026-11-24, verbatim:** *"a table in the
       reply"*. Nothing is open for the build to ask him.

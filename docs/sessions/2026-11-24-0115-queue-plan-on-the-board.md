@@ -56,4 +56,6 @@ forwarder holds no copy), and on old names picked *"Nothing"* over a
 forwarder or the signpost recommended. Recorded in both items. Later he restated
 his reason for the space form, thinking the first telling was lost; it had
 arrived as his typed answer in the question dialog. The restatement is
-added to `450/020` verbatim. At the close, verbatim: *"Also I want you to carry on with design and build in a fresh session, not wait until the fable review is done"*. Recorded on `180/210` and `450/010`.
+added to `450/020` verbatim. At the close, verbatim: *"Also I want you to carry on with design and build in a fresh session, not wait until the fable review is done"*. Recorded on `180/210` and `450/010`. Then, verbatim: *"Also I think /atelier:review brief should use
+/atelier:review plan to find the work that requires a brief to be
+written"*; recorded on `180/210`.
