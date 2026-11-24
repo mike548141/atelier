@@ -40,6 +40,12 @@
       last row reads. The rest of the table was shown to him in the same
       turn with no objection; the build confirms it with him in one line
       before moving anything.
+      **`work plan` is built here,** his words, 2026-11-24, verbatim (said in
+      a parallel session, recorded on 180/240): *"You can do the work plan,
+      but that should be done at the same time as the other /atelier work
+      I've described in the parallel session in this repo. Its just one of
+      the commands being changed"*. So this build takes 180/240 with
+      180/210: `work plan` and `review plan` follow the same pattern.
       **Owed by the build:** each subject's skill description must carry the
       trigger words of every action it holds (one description now does the
       work of several), and each action's text lives in its own file behind
