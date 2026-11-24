@@ -32,3 +32,8 @@
       *Approval:* none yet; owed to the principal before the pass runs.
       💬 **Answered 2026-11-24 ~02:20 UTC (session b95c0d98, AskUserQuestion), his pick:** *"Next weekly drain (Recommended)"*:
       this pass waits for his next weekly drain.
+      **Widened 2026-11-24 (session 523be3be, `180/250`):** the oldest-asks
+      round this pass covers was withdrawn on his words the same day
+      (`85da9586`: the prompt's close step, `COMMUNICATION.md` § *When to
+      ask*, `ccclose` check 16 removed, `ccopen` and its man page). Review
+      the round as it now stands: withdrawn.
