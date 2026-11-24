@@ -77,9 +77,12 @@
       the same build, so the pair lands together and the naming reads
       `<subject>-plan` (look, change nothing) and `<subject>-run` (do it),
       which `queue-run` already fits. Keep the word "drain" in the skill's
-      description so "drain the reviews" still finds it. No alias: a stub
-      under the old name would be a second copy, and a stale call failing
-      loudly is the better signal. Sized 2026-11-24 by `git grep`: 26 live
+      description so "drain the reviews" still finds it; his answer, verbatim:
+      *"yes makes sense, I'm likely to still use the word drain when I think
+      about running it"*. Old names: first written here as "no alias, a stub
+      would be a second copy", which was wrong (a forwarder holds no copy of
+      the logic). Put to him properly (forwarder, signpost recommended, or
+      nothing), his pick: *"Nothing"*. The old name simply stops existing. Sized 2026-11-24 by `git grep`: 26 live
       files here, 16 records (left as written; history is kept), and nine
       files in two private child repos, which their own sessions sweep
       (`fleet-sweep`), never this repo's.
