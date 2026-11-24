@@ -55,8 +55,9 @@ Nine reads, every run: kind of session, sync (dirty files, ahead/behind),
 live work (cclive's read of this repo, excluding this session), an interrupted
 predecessor (claims, worktrees, branches, stashes no live session explains),
 open hand-up PRs, pin currency (pins.py: it fetches the atelier checkout's
-origin), the newest three session files, machine load (busy when the 5- and
-15-minute averages are both over $CCOPEN_MAX_LOAD, default the core count), and
+origin), the newest three session files, machine load (busy while the 5- or
+15-minute average is at or over $CCOPEN_MAX_LOAD, default the core count;
+re-check every $CCOPEN_RECHECK_MIN minutes, default 30), and
 the asks waiting on the principal (🎯, which are parked, which parks changed).
 Ends with a verdict: ready to start, look first, or recover first. A command the session-open prompt runs, never a
 hook. Exit 0, or 1 when a read is a recover-first, or 2 for bad usage.
@@ -518,13 +519,19 @@ function readFiles(repo, ref) {
 
 const L_LOAD = 'Machine load';
 
-// Busy means sustained saturation: both the 5- and the 15-minute load average
-// are at or over the threshold, which defaults to the core count (a load per
-// core of 1.0 is as much runnable work as the CPUs can run). The 1-minute
-// average is shown and judges nothing: a burst is not a busy machine. Test
-// seams: $CCOPEN_LOADAVG="a,b,c" stands in for the three averages and
-// $CCOPEN_CORES for the core count; $CCOPEN_MAX_LOAD is the operator's
-// threshold, a user-facing setting and not only a seam.
+// Quiet means the easing has lasted: both the 5- and the 15-minute load
+// average are under the threshold, so a momentary dip (the 5-minute average
+// falling while the 15-minute one is still high) is still busy. The threshold
+// defaults to the core count (a load per core of 1.0 is as much runnable work
+// as the CPUs can run). The 1-minute average is shown and judges nothing: a
+// burst is not a busy machine, and a dip is not a quiet one. The re-check
+// interval defaults to 30 minutes, long enough for the 15-minute average to
+// turn over twice, so a session that waits sees a trend and not a blip
+// (Mike, 2026-11-24, board 180/220: "I want long enough that the trend has
+// clearly changed rather than a momentary dip"). Test seams:
+// $CCOPEN_LOADAVG="a,b,c" stands in for the three averages and $CCOPEN_CORES
+// for the core count; $CCOPEN_MAX_LOAD and $CCOPEN_RECHECK_MIN are the
+// operator's settings, user-facing and not only seams.
 function numbersOf(text, n) {
   const parts = String(text).split(',').map((x) => x.trim());
   const nums = parts.map(Number);
@@ -541,14 +548,20 @@ function readLoad(env = process.env) {
   const threshold = fromEnv ? maxNum : cores;
   const source = fromEnv ? '$CCOPEN_MAX_LOAD' : 'core count';
   const bad = maxEnv !== undefined && maxEnv.trim() !== '' && !fromEnv ? ` ($CCOPEN_MAX_LOAD=${clip(maxEnv, 20)} is not a positive number: ignored)` : '';
-  const busy = load5 >= threshold && load15 >= threshold;
+  const busy = load5 >= threshold || load15 >= threshold;
+  const reEnv = env.CCOPEN_RECHECK_MIN;
+  const reNum = reEnv !== undefined && reEnv.trim() !== '' ? Number(reEnv) : NaN;
+  const reFromEnv = Number.isFinite(reNum) && reNum > 0;
+  const recheckMin = reFromEnv ? reNum : 30;
+  const recheckSource = reFromEnv ? '$CCOPEN_RECHECK_MIN' : 'default';
+  const reBad = reEnv !== undefined && reEnv.trim() !== '' && !reFromEnv ? ` ($CCOPEN_RECHECK_MIN=${clip(reEnv, 20)} is not a positive number: ignored)` : '';
   const f = (x) => x.toFixed(2);
   const where = `load 1m ${f(load1)} · 5m ${f(load5)} · 15m ${f(load15)} on ${plural(cores, 'core')} (threshold ${f(threshold)}, from ${source}${bad})`;
-  const data = { load1, load5, load15, cores, threshold, threshold_source: source, busy };
+  const data = { load1, load5, load15, cores, threshold, threshold_source: source, busy, recheck_min: recheckMin, recheck_source: recheckSource };
   if (!busy) return read('load', L_LOAD, 'pass', `quiet: ${where}`, { data });
-  return read('load', L_LOAD, 'warn', `busy: ${where}: don't start; re-check hourly`, {
+  return read('load', L_LOAD, 'warn', `busy: ${where}: don't start; re-check in ${recheckMin} min (from ${recheckSource}${reBad})`, {
     flag: 'machine busy',
-    advice: ["other sessions are saturating the machine (both the 5- and 15-minute averages are over the threshold): starting now only slows them and risks software failures; check again in an hour (board 180/220)"],
+    advice: [`other sessions are working the machine hard (the 5- or 15-minute average is at or over the threshold): starting now only slows them and risks software failures; check again in ${recheckMin} minutes, and start once both averages are under it (board 180/220)`],
     data,
   });
 }

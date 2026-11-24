@@ -7,7 +7,8 @@ on what's next.
 Run `ccopen` first and act on what it reports before starting new work.
 
 If it says the machine is busy with other sessions' work, don't start yet:
-check once an hour and start when it's quiet. Ask me anything that blocks the
+check again at the interval it gives (`CCOPEN_RECHECK_MIN`, 30 minutes unless
+set) and start when it's quiet. Ask me anything that blocks the
 whole run before you wait, while I'm likely still here. If it's still busy
 after four hours, start with one worker at a time and say so.
 

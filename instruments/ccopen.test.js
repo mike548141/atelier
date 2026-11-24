@@ -695,24 +695,26 @@ test('load: a quiet machine passes and says what it measured against and where t
   const x = j.by.load;
   assert.equal(x.status, 'pass');
   assert.match(x.summary, /^quiet: load 1m 0\.50 · 5m 1\.00 · 15m 2\.00 on 8 cores \(threshold 8\.00, from core count\)$/);
-  assert.deepEqual(x.data, { load1: 0.5, load5: 1, load15: 2, cores: 8, threshold: 8, threshold_source: 'core count', busy: false });
+  assert.deepEqual(x.data, { load1: 0.5, load5: 1, load15: 2, cores: 8, threshold: 8, threshold_source: 'core count', busy: false, recheck_min: 30, recheck_source: 'default' });
 });
 
-test('load: busy needs BOTH the 5- and 15-minute averages at or over the threshold: warn, "machine busy" in the verdict, exit 0', () => {
+test('load: quiet needs BOTH the 5- and 15-minute averages under the threshold, so a dip is still busy: warn, "machine busy" in the verdict, exit 0', () => {
   const w = world();
   const root = repo(w);
   const busy = ccopen(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '20.00,12.00,13.50', CCOPEN_CORES: '12' });
   assert.equal(busy.code, 0);
-  assert.match(busy.out, /⚠️ Machine load +busy: load 1m 20\.00 · 5m 12\.00 · 15m 13\.50 on 12 cores \(threshold 12\.00, from core count\): don't start; re-check hourly/);
+  assert.match(busy.out, /⚠️ Machine load +busy: load 1m 20\.00 · 5m 12\.00 · 15m 13\.50 on 12 cores \(threshold 12\.00, from core count\): don't start; re-check in 30 min \(from default\)/);
   assert.match(busy.out, /⚠️ look first: .*machine busy/);
   const j = json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '20.00,12.00,13.50', CCOPEN_CORES: '12' });
   assert.equal(j.by.load.status, 'warn');
   assert.equal(j.by.load.data.busy, true);
   assert.ok(j.verdict.look.includes('machine busy'));
-  // A burst (1m) or a saturation that has not lasted (15m under) is not a busy machine.
+  // A 1-minute burst alone is not busy; a dip (5m under, 15m still over) is
+  // still busy, and so is a fresh climb (5m over, 15m not yet).
   assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '40,3,3', CCOPEN_CORES: '4' }).by.load.data.busy, false);
-  assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '9,9,3.99', CCOPEN_CORES: '4' }).by.load.data.busy, false);
-  assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '9,3.99,9', CCOPEN_CORES: '4' }).by.load.data.busy, false);
+  assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '9,9,3.99', CCOPEN_CORES: '4' }).by.load.data.busy, true);
+  assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '1,3.99,9', CCOPEN_CORES: '4' }).by.load.data.busy, true, 'a momentary dip is still busy');
+  assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '1,3.99,3.99', CCOPEN_CORES: '4' }).by.load.data.busy, false, 'both under: quiet');
   assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '0,4,4', CCOPEN_CORES: '4' }).by.load.data.busy, true, 'at the threshold is busy');
 });
 
@@ -732,6 +734,18 @@ test('load: $CCOPEN_MAX_LOAD overrides the core count and the line says so; junk
   assert.match(junk.by.load.summary, /\$CCOPEN_MAX_LOAD=lots is not a positive number: ignored/);
 });
 
+test('load: $CCOPEN_RECHECK_MIN sets the re-check interval and the line says so; junk is ignored and said', () => {
+  const w = world();
+  const root = repo(w);
+  const set = json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '6,6,6', CCOPEN_CORES: '4', CCOPEN_RECHECK_MIN: '20' });
+  assert.equal(set.by.load.data.recheck_min, 20);
+  assert.equal(set.by.load.data.recheck_source, '$CCOPEN_RECHECK_MIN');
+  assert.match(set.by.load.summary, /re-check in 20 min \(from \$CCOPEN_RECHECK_MIN\)$/);
+  const junk = json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '6,6,6', CCOPEN_CORES: '4', CCOPEN_RECHECK_MIN: 'soon' });
+  assert.equal(junk.by.load.data.recheck_min, 30);
+  assert.match(junk.by.load.summary, /\$CCOPEN_RECHECK_MIN=soon is not a positive number: ignored/);
+});
+
 test('load: with no seam it reads the real averages and core count, every field present', () => {
   const w = world();
   const root = repo(w);
@@ -739,7 +753,7 @@ test('load: with no seam it reads the real averages and core count, every field 
   delete env.CCOPEN_LOADAVG; delete env.CCOPEN_CORES;
   const r = spawnSync('node', [SCRIPT, '--json', '--no-fetch'], { cwd: root, env, encoding: 'utf8' });
   const d = JSON.parse(r.stdout).reads.find((x) => x.id === 'load').data;
-  assert.deepEqual(Object.keys(d).sort(), ['busy', 'cores', 'load1', 'load15', 'load5', 'threshold', 'threshold_source']);
+  assert.deepEqual(Object.keys(d).sort(), ['busy', 'cores', 'load1', 'load15', 'load5', 'recheck_min', 'recheck_source', 'threshold', 'threshold_source']);
   assert.equal(d.cores, os.cpus().length);
   assert.equal(d.threshold, d.cores);
   for (const k of ['load1', 'load5', 'load15']) assert.ok(Number.isFinite(d[k]) && d[k] >= 0, k);

@@ -1357,9 +1357,13 @@ for them):
   any other brief takes the default above until he says otherwise
   (2026-11-08, `160/900` QK7).
 - **A run waits for a quiet machine before it starts.** When `ccopen` reads
-  the machine as busy (the 5- and 15-minute load averages both at or above
-  the core count), a run started from the prompt asks its run-gating
-  questions, then waits, re-checking hourly, and starts when it is quiet; after
+  the machine as busy (the 5- or 15-minute load average at or above the core
+  count; quiet only when both are under it, so a momentary dip is still busy),
+  a run started from the prompt asks its run-gating questions, then waits,
+  re-checking at the interval `ccopen` names (`CCOPEN_RECHECK_MIN`, default
+  30 minutes, his ask of 2026-11-24, verbatim: *"I am now thinking check ever
+  20 mins or 30 mins. Either way it should be a variable so its easily
+  changeable"*), and starts when it is quiet; after
   four hours it starts with one worker at a time and says so. This gates the
   start only; it is not the in-flight pacing a review drain does. His words,
   2026-11-24, verbatim: *"My intention with this was not to constantly adjust

@@ -87,3 +87,11 @@
       open ask reads as never asked. The ages: atelier's item files were added
       by a history replay, so most asks read about 100 days and tie, broken by
       board order.
+      **Re-check interval, his words, 2026-11-24, verbatim:** *"I am now
+      thinking check ever 20 mins or 30 mins. Either way it should be a
+      variable so its easily changeable"* · *"I want long enough that the
+      trend has clearly changed rather than a momentary dip, and time for CPU
+      and memory cooling etc to take effect"*. Built the same day:
+      `CCOPEN_RECHECK_MIN`, default 30 (two turns of the 15-minute average),
+      and quiet now needs both the 5- and 15-minute averages under the
+      threshold, so a dip is still busy. Rides the `160/1780` pass.

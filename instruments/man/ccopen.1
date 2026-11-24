@@ -160,11 +160,15 @@ The 1-, 5- and 15-minute load averages against the core count, to decide
 whether to start now.
 The machine is
 .B busy
-when both the 5- and the 15-minute average are at or over the threshold, so a
-burst (the 1-minute average) is not a busy machine.
+while the 5- or the 15-minute average is at or over the threshold, and quiet
+only when both are under it, so a momentary dip is still busy and a burst
+(the 1-minute average) alone judges nothing.
 Busy is
 .BR \[u26A0] :
-don't start, re-check hourly.
+don't start, re-check in
+.B $CCOPEN_RECHECK_MIN
+minutes (default 30, long enough for the 15-minute average to turn over
+twice).
 The threshold is
 .B $CCOPEN_MAX_LOAD
 when set to a positive number, else the core count (a load per core of 1.0 is
@@ -288,6 +292,15 @@ Unset, nothing is left out and the sync and live reads say so.
 The machine-load threshold: a positive number the 5- and 15-minute load
 averages are compared against.
 Default: the core count.
+.TP
+.B CCOPEN_RECHECK_MIN
+How many minutes a session waits before it runs
+.B ccopen
+again on a busy machine: a positive number.
+Default: 30.
+Set it where the session sees it, such as the
+.B env
+block of the Claude Code settings.
 .TP
 .B CCOPEN_LOADAVG
 Test seam: three comma-separated numbers, \fI1m,5m,15m\fR, standing in for the

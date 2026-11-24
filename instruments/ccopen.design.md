@@ -120,14 +120,20 @@ with the cut counted, and known zeros are printed.
 
 8. **Machine load** (board `180/220`: a run waits for a quiet machine). The
    1-, 5- and 15-minute load averages against the core count
-   (`os.loadavg()`, `os.cpus().length`). Busy when **both** the 5- and the
-   15-minute averages are at or over the threshold, so a burst does not stop a
-   start; the threshold is `$CCOPEN_MAX_LOAD` when set, else the core count
-   (a load of 1.0 per core is as much runnable work as the CPUs can run), and
-   the line says which applied. Busy is ⚠️ `busy: ... don't start; re-check
-   hourly`, and the verdict says `machine busy`; otherwise ✅ `quiet`. The JSON
-   always carries `load1`, `load5`, `load15`, `cores`, `threshold`,
-   `threshold_source` and `busy`. Test seams `$CCOPEN_LOADAVG` (`a,b,c`) and
+   (`os.loadavg()`, `os.cpus().length`). Quiet only when **both** the 5- and
+   the 15-minute averages are under the threshold, so a momentary dip (the
+   5-minute average falling while the 15-minute one is still high) is still
+   busy, and a 1-minute burst alone judges nothing. The threshold is
+   `$CCOPEN_MAX_LOAD` when set, else the core count (a load of 1.0 per core is
+   as much runnable work as the CPUs can run), and the line says which
+   applied. Busy is ⚠️ `busy: ... don't start; re-check in N min`, where N is
+   `$CCOPEN_RECHECK_MIN`, default 30: long enough for the 15-minute average to
+   turn over twice, so a wait sees a trend and not a blip (Mike, 2026-11-24:
+   *"I want long enough that the trend has clearly changed rather than a
+   momentary dip"*). The verdict says `machine busy`; otherwise ✅ `quiet`.
+   The JSON always carries `load1`, `load5`, `load15`, `cores`, `threshold`,
+   `threshold_source`, `busy`, `recheck_min` and `recheck_source`. Test seams
+   `$CCOPEN_LOADAVG` (`a,b,c`) and
    `$CCOPEN_CORES` make it deterministic.
 9. **Waiting on the principal** (board `180/220`: skip what waits on him). On a
    per-item board, read at the integration ref: the open items with 🎯 on the

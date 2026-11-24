@@ -61,3 +61,13 @@ to /atelier:work-run or something else"*; *"We could also consider having
 - `450/020` (subject, space, action) will move `work-run` to `work run`;
   its table was told.
 - `160/1780` cold pass, waiting for Fable approval.
+
+## After the first close
+
+- **Re-check interval a variable** (his words on `180/220`): `ccopen` names
+  the wait, `CCOPEN_RECHECK_MIN`, default 30 minutes; the prompt says "check
+  again at the interval it gives". Quiet now needs both the 5- and 15-minute
+  averages under the threshold, so a momentary dip still reads busy. ccopen
+  48 tests. Same review, `160/1780`.
+- He confirmed the parallel session's form change will make it `/atelier:work
+  run` and `/atelier:work plan`; that is `450/020`'s build, not this session's.
