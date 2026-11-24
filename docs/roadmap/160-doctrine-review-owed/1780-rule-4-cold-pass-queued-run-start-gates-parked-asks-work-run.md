@@ -30,3 +30,5 @@
       the rename left no live surface naming the old command and touched no
       record.
       *Approval:* none yet; owed to the principal before the pass runs.
+      💬 **Answered 2026-11-24 ~02:20 UTC (session b95c0d98, AskUserQuestion), his pick:** *"Next weekly drain (Recommended)"*:
+      this pass waits for his next weekly drain.
