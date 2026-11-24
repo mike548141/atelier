@@ -13,7 +13,10 @@ will route to local vs Batch API vs Agent SDK etc"* · *"It could be
 atelier:queue-plan as a command"*, then mid-turn: *"Put it on the board"*,
 and after the filing: *"Sorry I quoted the wrong command name there I was
 thinking of /atelier:review-drain not queue-run"*. The item was amended to
-say so.
+say so. Then, verbatim: *"So it would be /atelier:review-plan as a new
+command. Tell me if theres a better idea or way"*. Recommended: keep the
+name, as a thin command over a new plan mode in `review-drain`, and have
+a real drain print the same table at its start. Recorded in the item.
 
 ## What was done
 
@@ -27,4 +30,4 @@ only, his edits carried as words for the next run). Nothing built.
 ## Left open
 
 `180/210` itself, including two questions for the build session to settle
-with him: the command's name, and its page form.
+with him: its page form.

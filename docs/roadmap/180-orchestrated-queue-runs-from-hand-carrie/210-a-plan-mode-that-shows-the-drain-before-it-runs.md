@@ -36,7 +36,14 @@
       5. Lives under the plugin's prefix as a command over `review-drain`
          (450/010's one-home rule). Read-only: no claims, no worktrees, no
          sessions started.
-      **Open, for the build session to settle with him, not here:** the
-      command's name (his `queue-plan` was said of `queue-run`; something
-      like `review-plan`, or a `plan` mode of `review-drain`, may now fit
-      better) and the page form (reply table or a page in his browser).
+      **Name, his words, 2026-11-24, verbatim:** *"So it would be
+      /atelier:review-plan as a new command. Tell me if theres a better idea
+      or way"*. Recommended to him the same turn, and kept here as the build
+      shape: `commands/review-plan.md` is a thin front door that runs a new
+      *Mode 0: plan* in the `review-drain` skill, so the ranking method lives
+      in one place and the command name alone makes it plain nothing will
+      run. A real drain also prints the same table at its start, as its
+      record of what it is about to do (no question to him; drains are not
+      to stop for answers).
+      **Open, for the build session to settle with him:** the page form
+      (reply table or a page in his browser).
