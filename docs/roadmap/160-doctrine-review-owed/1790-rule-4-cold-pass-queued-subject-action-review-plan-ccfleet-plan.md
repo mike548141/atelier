@@ -29,3 +29,16 @@
       No drain uses `review plan` or `review run` before it is clean (his
       words on `180/210`).
       *Approval:* none yet; owed to the principal before the pass runs.
+      💬 **Approved, 2026-11-24 ~21:30 UTC (queue run 0b4f93ef, `atelier-86`,
+      AskUserQuestion; an answer, not a ruling), his pick:** *"Fresh session,
+      this week (Recommended)"* (option text: *"Confirms the one approved Fable
+      review covers both: the fixes and the new commands. A separate session
+      runs it as soon as the brief lands, on this week's budget. Benefit: if
+      it's clean, /fable-drain can retire before Monday 30 Nov's drain. Cost:
+      one Fable review from this week's budget (roughly a large pass)."*). So
+      this pass and the `160/1450` re-check are ONE Fable pass, on the weekly
+      budget, run by a fresh session that wrote no part of the delta and not
+      the brief. Session 0b4f93ef writes the brief and does not start the pass.
+      🔒 CLAIMED 2026-11-24T21:31Z (claimed 2026-11-24-2131, wt: atelier-86-brief) by queue-run
+      session 0b4f93ef (`atelier-86`, Opus 5.5, principal-opened). Scope: write
+      the one brief over this delta and the `210/470` fixes; no pass run.

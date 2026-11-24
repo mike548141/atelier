@@ -37,3 +37,6 @@
       close section is shown to him first. Whether a cold pass is owed on the
       skill text is the builder's call under `REVIEW.md`; a Fable pass needs
       his approval.
+      🔒 CLAIMED 2026-11-24T21:31Z (claimed 2026-11-24-2131, wt: atelier-86-close) by queue-run
+      session 0b4f93ef (`atelier-86`, Opus 5.5, principal-opened). Scope: build
+      the action, its single-source test and the menu row.
