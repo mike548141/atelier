@@ -23,17 +23,24 @@ means those words.
 
 | Action | File | What it does |
 |---|---|---|
-| `plan` | [`plan.md`](plan.md) | Find every owed review across the estate, briefed or not, rank it, route it to the cheapest budget that still matches a local pass, estimate the spend, and show it as a table |
-| `run` | [`run.md`](run.md) | Run briefed cold review passes across an estate on the principal-named review tier, several at once under a load gate, back to back, until an approved budget is used up |
+| `plan` | [`plan.md`](plan.md) | Show the review queue before anything runs |
+| `run` | [`run.md`](run.md) | Drain the briefed cold reviews across an estate on the principal-named review tier |
 | `brief` | [`brief.md`](brief.md) | Write a peer-review brief and run an independent review of work before it is trusted |
+
+**Check the first word before anything else.** It must be exactly one of the
+words in the table's first column, nothing else counts: not a synonym (for
+example `drain` for `run`), not a word later in the sentence, not your reading
+of what was meant. Read no action file and run nothing until this check passes.
 
 **A known action:** read only that action's file, from this skill's base
 directory, and follow it as written. Where it says `${CLAUDE_PLUGIN_ROOT}`,
 use the plugin's root: the folder two levels above this skill's base directory.
 
-**No action, or a word not in the table:** show this subject's menu and do
-nothing else, however clear the rest of the request looks; a dropped or
-misread word must never start work. The menu is:
+**No action, or a first word not in the table:** show this subject's menu
+and do nothing else, however clear the rest of the request looks (a dropped or
+misread word must never start work, and that includes reads toward one). Then
+say which words were typed and that none of them is an action here. The menu
+is:
 
 ```
 python3 "<this skill's base directory>/../../instruments/atelier-menu/menu.py" review

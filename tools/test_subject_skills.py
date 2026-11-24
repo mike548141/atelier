@@ -117,7 +117,12 @@ class SubjectSkills(unittest.TestCase):
         for d in subjects():
             body = (d / "SKILL.md").read_text(encoding="utf-8")
             self.assertIn(f"instruments/atelier-menu/menu.py\" {d.name}", body)
-            self.assertIn("do\nnothing else", body)
+            self.assertIn("and do nothing else", body)
+            # A headless run of "/atelier:review drain the reviews now" read
+            # run.md and plan.md, taking "drain" for "run" (2026-11-24): the
+            # router must say the word is exact and gates every read.
+            self.assertIn("exactly one of the", body)
+            self.assertIn("Read no action file and run nothing until", body)
             out = subprocess.run([sys.executable, str(MENU), "--root", str(ROOT), d.name],
                                  capture_output=True, text=True, timeout=30).stdout
             for a in action_files(d):

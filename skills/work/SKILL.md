@@ -26,13 +26,20 @@ means those words.
 | `run` | [`run.md`](run.md) | Run a work session |
 | `plan` | [`plan.md`](plan.md) | Show what a work run would do |
 
+**Check the first word before anything else.** It must be exactly one of the
+words in the table's first column, nothing else counts: not a synonym (for
+example `drain` for `run`), not a word later in the sentence, not your reading
+of what was meant. Read no action file and run nothing until this check passes.
+
 **A known action:** read only that action's file, from this skill's base
 directory, and follow it as written. Where it says `${CLAUDE_PLUGIN_ROOT}`,
 use the plugin's root: the folder two levels above this skill's base directory.
 
-**No action, or a word not in the table:** show this subject's menu and do
-nothing else, however clear the rest of the request looks; a dropped or
-misread word must never start work. The menu is:
+**No action, or a first word not in the table:** show this subject's menu
+and do nothing else, however clear the rest of the request looks (a dropped or
+misread word must never start work, and that includes reads toward one). Then
+say which words were typed and that none of them is an action here. The menu
+is:
 
 ```
 python3 "<this skill's base directory>/../../instruments/atelier-menu/menu.py" work
