@@ -57,3 +57,6 @@
       whose delta (`9ba5c6b6`, `b95db160`) the brief reviews as part of
       `ccfleet` at its head.
       🔓 2026-11-24 UTC: queue run 0b4f93ef releases its brief-writing claim.
+      💬 **Answered 2026-11-24 ~23:05 UTC (queue run 0b4f93ef), his pick:**
+      *"Yes, one verdict closes both (Recommended)"*: this pass's verdict also
+      closes `160/1740` (recorded there).

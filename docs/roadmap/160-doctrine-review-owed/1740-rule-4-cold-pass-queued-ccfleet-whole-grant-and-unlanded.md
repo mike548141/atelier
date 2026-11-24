@@ -27,3 +27,12 @@
       💬 **Answered 2026-11-23 ~19:20 UTC (session 608d8123, AskUserQuestion), his pick:** *"Next drain (Recommended)"*:
       this pass and the other three of run 608d8123 (`160/1740`–`1770`)
       wait for his next weekly drain.
+      💬 **Answered 2026-11-24 ~23:05 UTC (queue run 0b4f93ef, `atelier-86`,
+      AskUserQuestion; an answer, not a ruling), his pick:** *"Yes, one verdict
+      closes both (Recommended)"*, to whether a clean result from the one Fable
+      pass briefed for `160/1450` and `160/1790`
+      (`docs/reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md`,
+      which reviews this item's delta `9ba5c6b6`, `b95db160` as part of
+      `ccfleet` at its head) also closes this item. So this pass no longer runs
+      on its own: the RK verdict closes it, clean or with findings carried
+      there.
