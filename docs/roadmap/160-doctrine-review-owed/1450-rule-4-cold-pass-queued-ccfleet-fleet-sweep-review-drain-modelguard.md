@@ -146,3 +146,7 @@
       route; the example drops the bypass permission mode; the approval rule stays an adopter
       setting, not generic doctrine; both skills stay in the plugin); then a canary on a
       throwaway repo, then he is asked about the Fable re-check. Carried by `210/470`.
+      🔁 **Re-check briefed 2026-11-24 UTC** with `160/1790`, one pass, one
+      verdict: [`docs/reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md`](../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md)
+      (queue run 0b4f93ef's brief-writer; the principal's pick and approval
+      are recorded on `160/1790`).

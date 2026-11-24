@@ -42,3 +42,18 @@
       🔒 CLAIMED 2026-11-24T21:31Z (claimed 2026-11-24-2131, wt: atelier-86-brief) by queue-run
       session 0b4f93ef (`atelier-86`, Opus 5.5, principal-opened). Scope: write
       the one brief over this delta and the `210/470` fixes; no pass run.
+      **Brief written 2026-11-24 UTC, one brief for this pass and the
+      `160/1450` re-check:**
+      [`docs/reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md`](../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md),
+      pinned at `26a4fe7e`, finding prefix `RK`. Its held-back sibling is held
+      user-local, outside the repo, every worktree and every scratchpad (the
+      runner is told where by the principal or the orchestrator, never by the
+      brief). Brief-writer: a worker (Opus 5.5) of queue run 0b4f93ef, which
+      authored, started and instructed none of the delta; it formed no finding
+      and neither starts nor runs the pass. Barred from running it: 0b4f93ef
+      and its workers, plus every session the brief names. The pass stays `⏳`
+      for a fresh Fable session, as the principal picked: run it this week.
+      Open for the principal: whether this verdict also closes `160/1740`,
+      whose delta (`9ba5c6b6`, `b95db160`) the brief reviews as part of
+      `ccfleet` at its head.
+      🔓 2026-11-24 UTC: queue run 0b4f93ef releases its brief-writing claim.
