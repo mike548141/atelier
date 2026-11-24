@@ -1,4 +1,4 @@
-- [ ] 💡 **Every `/atelier:` command takes the form *subject, space,
+- [~] 💡 **Every `/atelier:` command takes the form *subject, space,
       action*, and a bare subject shows its menu.** His ruling, 2026-11-24
       (session edf25bd3, AskUserQuestion, his own words, verbatim): *"I
       think a space and for the default it could have a menu or help screen
@@ -57,3 +57,4 @@
       their own sessions; records stay as written. Lands with or before
       180/210, which then builds `review plan` and `review run` under this
       form.
+      (claimed 2026-11-24-0938, wt: atelier-e8-subject-action)

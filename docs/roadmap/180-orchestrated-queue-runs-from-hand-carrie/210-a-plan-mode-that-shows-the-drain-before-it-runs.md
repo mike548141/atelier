@@ -1,4 +1,4 @@
-- [ ] 💡 **A plan mode, `/atelier:queue-plan`: show the principal the drain
+- [~] 💡 **A plan mode, `/atelier:queue-plan`: show the principal the drain
       before it runs, and run nothing.** Commissioned 2026-11-24 ~01:15Z, his
       words, verbatim: *"consider a plan mode for /atelier:queue-run to prep
       for a drain but not run the reviews i.e. it finds them, prioritises them,
@@ -110,3 +110,4 @@
       owed* and `fleet-sweep`'s brief prompt: both are copies to fold in.
       **Page form, his answer 2026-11-24, verbatim:** *"a table in the
       reply"*. Nothing is open for the build to ask him.
+      (claimed 2026-11-24-0938, wt: atelier-e8-subject-action)

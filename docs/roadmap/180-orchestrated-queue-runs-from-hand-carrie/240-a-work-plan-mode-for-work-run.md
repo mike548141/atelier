@@ -1,4 +1,4 @@
-- [ ] 💡 **A plan mode for `/atelier:work-run`, as `/atelier:work-plan`:
+- [~] 💡 **A plan mode for `/atelier:work-run`, as `/atelier:work-plan`:
       show the run before it runs, and run nothing.** An idea to consider,
       his words, 2026-11-24, session b95c0d98, verbatim: *"We could also
       consider having /atelier:work-plan in the same way a parallel session is
@@ -15,3 +15,4 @@
       other /atelier work I've described in the parallel session in this
       repo. Its just one of the commands being changed"*. Built there as
       `/atelier:work plan`, not here.
+      (claimed 2026-11-24-0938, wt: atelier-e8-subject-action)
