@@ -53,4 +53,7 @@ On the four single-action commands, his pick: *"Group them
 onramp`); recorded in `450/020`. He agreed the word "drain" stays in the
 description, asked what "second copy" meant (it was the wrong word: a
 forwarder holds no copy), and on old names picked *"Nothing"* over a
-forwarder or the signpost recommended. Recorded in both items.
+forwarder or the signpost recommended. Recorded in both items. Later he restated
+his reason for the space form, thinking the first telling was lost; it had
+arrived as his typed answer in the question dialog. The restatement is
+added to `450/020` verbatim.

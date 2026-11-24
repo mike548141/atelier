@@ -13,6 +13,11 @@
       The trade-off `010` named, that actions do not show in the picker, is
       the one he accepted; the bare-subject menu answers it. `010` row 2
       (retiring the user-level drain command) now lands on `review run`.
+      His reason, restated the same day, verbatim: *"The reason I say we
+      should use a space vs a - is then the bare command can show a type of
+      help screen the same way the /atelier command does today without any
+      additional text/parameters. So something like /atelier:review by
+      itself would be a help screen, not run a command by default"*.
       **What it means.** One skill per subject, the action as its first
       argument: `/atelier:review plan`, `/atelier:review run`,
       `/atelier:review brief`. A bare `/atelier:review`, or an action it
