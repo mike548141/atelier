@@ -19,7 +19,7 @@ whatever a stale pin last captured — it's the pattern this whole brief
 invokes, and its sibling docs (`ECONOMICS.md`, `RECORD.md`, `REVIEW.md`)
 cover claiming, concurrency, and close discipline in more current detail
 than anything below. Follow them rather than re-deriving your own version.
-(`/atelier:work-run` runs exactly this file, so the command and this text
+(`/atelier:work run` runs exactly this file, so the command and this text
 cannot differ.) Say which model you're on in your first report, then get on
 with it — don't ask me which tier to use, and don't stop because a more
 capable one exists. Stop if the work outruns you, or a review needs a tier
