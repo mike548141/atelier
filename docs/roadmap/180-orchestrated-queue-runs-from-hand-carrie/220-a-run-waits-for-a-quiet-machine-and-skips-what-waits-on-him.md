@@ -1,4 +1,4 @@
-- [ ] 🎯 **A run waits for a quiet machine, skips what waits on him, asks
+- [ ] **A run waits for a quiet machine, skips what waits on him, asks
       at its start or end, and chips at the asks backlog.** Commissioned
       2026-11-24 ~01:25Z, session b95c0d98, his words, verbatim: *"In the
       sessions last night I was using /atelier:queue-run and then adding a
@@ -46,7 +46,8 @@
       on the 1- and 5-minute averages). The board marks 🎯 waiting but has no
       mark for *he was asked and said not now*, so the next session cannot tell
       a parked question from a never-asked one. At filing atelier's board held
-      212 🎯 state lines; last night's triage found 43 of 102 open items waiting
+      107 open items with 🎯 on the state line (first said as 212, a miscount
+      of the index table, corrected at build); last night's triage found 43 of 102 open items waiting
       on his ruling.
       **Evidence it works by hand.** 608d8123 waited two hourly checks (load
       20–24 on 12 cores from other repos' runs), started at load 5, and its
@@ -76,3 +77,13 @@
          state line, so a parked item is skipped and not re-asked until its
          file or the item it waits on changes.
       4. **`ccclose`** lists the oldest open asks for the end-of-session round.
+      ✅ **Built 2026-11-24** by session b95c0d98: the prompt and doctrine
+      edits, the legend's PARKED line, and the reads (a Sonnet worker:
+      `ccopen` reads 8 and 9, `ccclose` check 16). First real run: load 3.75
+      on 12 cores, quiet; 107 open asks waiting, 0 parked, the three oldest
+      listed. Cold pass queued as `160/1780`.
+      **Owed:** a sweep that marks answers he already gave as "not now" or
+      "hold" with a `💤 PARKED` line, so the read sees them; until then every
+      open ask reads as never asked. The ages: atelier's item files were added
+      by a history replay, so most asks read about 100 days and tie, broken by
+      board order.

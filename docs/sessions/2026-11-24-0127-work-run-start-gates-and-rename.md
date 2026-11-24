@@ -1,0 +1,60 @@
+# 2026-11-24 01:27 UTC — A run's start gates, the parked mark, and `/atelier:work-run`
+
+**Session:** `b95c0d98` (messaging name `atelier-69`), Claude Opus 5.5,
+principal-opened in the VS Code extension. Orchestrator in worktree
+`atelier-b95c-open-gates`; one Sonnet worker in `atelier-b95c-reads` for the
+instrument reads, landed by cherry-pick. A peer session (`edf25bd3`, the
+review-drain plan mode) was live in the primary checkout throughout.
+
+## What was asked
+
+His words, verbatim: *"Consider if this should be built into the standard
+prompt in session-open-prompt or some other way."* The subject was the message
+he had added mid-run to queue run 608d8123 the night before (skip work blocked
+on him unless something changed; wait for a quiet machine, checking hourly),
+plus asking only at a session's start or end and chipping at the backlog of
+asks. Mid-turn, verbatim: *"It should also ask the questions from the current
+session"*; *"Also I think we should rename the command from /atelier:queue-run
+to /atelier:work-run or something else"*; *"We could also consider having
+/atelier:work-plan in the same way a parallel session is working on
+/atelier:review-plan vs /atelier:review-drain"*. All quoted in full on
+`180/220`, `180/230`, `180/240`.
+
+## What happened
+
+- **Recommendation: both places**, by his 2026-11-22 `ccopen` ruling: intent
+  in the prompt, measurement in code the prompt runs. His picks (answers):
+  *"All four, as drafted (Recommended)"*, *"3 oldest per session
+  (Recommended)"*, *"/atelier:work-run (Recommended)"*.
+- **Prompt** (`session-open-prompt.md`): wait for a quiet machine (hourly,
+  four hours, then one worker at a time), run-gating asks before the wait;
+  skip what waits on him unless it changed; ask at the start or once the work
+  is done; the close puts this session's questions, then the three oldest.
+- **Doctrine**: `COMMUNICATION.md` § *When to ask* (parked questions are not
+  re-asked; the backlog is chipped every session), `CONCURRENCY.md` (the
+  quiet-machine start gate), the board legend's `💤 PARKED <date>` line.
+- **Instruments** (worker): `ccopen` read 8 machine load (busy when the 5-
+  and 15-minute averages are both at or over the core count,
+  `CCOPEN_MAX_LOAD` overrides) and read 9 waiting on the principal (parked
+  items changed since parking); `ccclose` check 16, the three oldest unparked
+  asks, informational. ccopen 34 → 47 tests; ccclose 165.
+- **Rename**: `skills/work-run/`, its test, and every live mention; records
+  keep the old name; an alias keeps `/atelier:queue-run` until 2026-12-24.
+- **Idea filed**: `/atelier:work-plan` (`180/240`), not built.
+- **Cold pass queued**: `160/1780`, waits for his Fable approval.
+
+## Misses, owned
+
+- **The threshold I offered was wrong.** I said `ccfleet`'s gate (2 × cores);
+  the 2026-11-23 load of 20–24 on 12 cores sat under it, yet was the case he
+  wanted waited out. Built at the core count instead and told him.
+- **The backlog figure I gave him was wrong.** I told him 212 asks were
+  waiting; the true count is 107 (a regex over the index table counted twice).
+  Corrected on `180/220` and to him.
+
+## Left open
+
+- A sweep marking answers he already gave as "not now" with `💤 PARKED`, so
+  the read sees them (`180/220`, owed).
+- The alias's removal on or after 2026-12-24 (`180/230`).
+- `160/1780` cold pass, waiting for Fable approval.
