@@ -85,3 +85,13 @@ you started doing tonight. Its not helpful"*. <!-- datescan:allow: his words, ve
   a priority.
 - Rule-4 review of this build's doctrine and skill text: covered by the same
   re-check, which his pick named (*"Wait, review the new build"*).
+
+## After the close
+
+- A bare `/atelier:session` from the principal showed its menu as built, and
+  showed a defect: Claude Code fills the arguments and plugin-root
+  placeholders in a `SKILL.md` as it loads it, so the routers' sentences
+  explaining them loaded garbled. Fixed (`6a98df21`): the routers name them
+  in words, and a test bars the literal tokens. Exercised headless:
+  `/atelier:session onramp` routed to `onramp.md`. `160/1790` takes the
+  commit.
