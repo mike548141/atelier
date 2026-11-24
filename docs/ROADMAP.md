@@ -32,7 +32,7 @@ line, so they overlap Open and Claimed.
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
 | [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 137 | 0 | 75 | 40 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
-| ✅ [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 0 | 0 | 0 | 0 |
+| [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
 | [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
 | [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 13 | 0 | 5 | 1 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 280 | 0 | 106 | 41 |
+| **All sections** | 281 | 0 | 106 | 41 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -320,6 +320,12 @@ line, so they overlap Open and Claimed.
 *[Narrative](roadmap/170-build-layer-open-strands/README.md)*
 
 - [ ] [Code-signing standard across the fleet](roadmap/170-build-layer-open-strands/010-code-signing-standard-across-the-fleet.md)
+
+## Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)
+
+*[Narrative](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md)*
+
+- [ ] [💡 A plan mode, /atelier:queue-plan: show the principal the drain before…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/210-a-plan-mode-that-shows-the-drain-before-it-runs.md)
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
