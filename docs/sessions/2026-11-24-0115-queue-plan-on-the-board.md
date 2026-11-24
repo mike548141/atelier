@@ -16,7 +16,11 @@ thinking of /atelier:review-drain not queue-run"*. The item was amended to
 say so. Then, verbatim: *"So it would be /atelier:review-plan as a new
 command. Tell me if theres a better idea or way"*. Recommended: keep the
 name, as a thin command over a new plan mode in `review-drain`, and have
-a real drain print the same table at its start. Recorded in the item.
+a real drain print the same table at its start. Then he turned it around, verbatim (in part): *"I would put all the logic
+in /atelier:review-plan and then have /atelier:review-drain call
+review-plan when it starts a drain"*, and consolidate copies such as
+`ccfleet drain --dry-run` into one reusable module. Recorded in the item,
+with the four places the logic lives today, found by grep.
 
 ## What was done
 

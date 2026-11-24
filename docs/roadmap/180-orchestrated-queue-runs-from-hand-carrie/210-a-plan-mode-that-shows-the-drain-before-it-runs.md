@@ -38,12 +38,38 @@
          sessions started.
       **Name, his words, 2026-11-24, verbatim:** *"So it would be
       /atelier:review-plan as a new command. Tell me if theres a better idea
-      or way"*. Recommended to him the same turn, and kept here as the build
-      shape: `commands/review-plan.md` is a thin front door that runs a new
-      *Mode 0: plan* in the `review-drain` skill, so the ranking method lives
-      in one place and the command name alone makes it plain nothing will
-      run. A real drain also prints the same table at its start, as its
-      record of what it is about to do (no question to him; drains are not
-      to stop for answers).
+      or way"*. Recommended to him the same turn: a thin `review-plan`
+      command over a new plan mode inside `review-drain`. **He turned it
+      around, verbatim:** *"I agree but I would turn it around. I would put
+      all the logic in /atelier:review-plan and then have
+      /atelier:review-drain call review-plan when it starts a drain.
+      Similarly I would look at any other commands that require similar
+      logic like ccfleet drain --dry-run and consolidate the logic into one.
+      Essentially the logic is a module of code that can be re-used and not
+      repeated."* That is the build shape:
+      - **`/atelier:review-plan` owns the logic:** read every briefed review,
+        rank, route, estimate, show the table. It seals nothing and starts
+        nothing.
+      - **`review-drain` calls it** at the start of every drain, then seals
+        that plan with his words for the run and runs it. Its § *Rank and
+        route the whole queue first* shrinks to a pointer. The drain prints
+        the plan as its record of what it is about to do, with no question
+        to him (drains are not to stop for answers).
+      - **Every other copy is found and folded in.** Found 2026-11-24 by
+        grep, by class only (the adopter's copies are private): (a)
+        `review-drain` § *Rank and route*, the method in prose; (b) a
+        user-local drain skill outside the plugin with its own *Rank and
+        route* section and the concrete commands (also 450/010's one
+        command outside the prefix); (c) the adopter's private queue tool,
+        whose `evidence`, `seal` and `ranked` are the method's code half;
+        (d) `ccfleet drain --dry-run`, which calls no ranking at all
+        (`instruments/ccfleet` `drain()`, by design so a rehearsal cannot
+        touch the seal). Shape to consider for (d): a `ccfleet plan` that
+        calls the queue's plan hook read-only, used by the command, by
+        `drain` before it seals, and by `drain --dry-run`, so a rehearsal
+        shows the real plan without touching the seal. Where the judgement
+        half (an agent reading the evidence) and the code half (route
+        fit, cost history, the table) each live is the build's first
+        design call, made once and written down.
       **Open, for the build session to settle with him:** the page form
       (reply table or a page in his browser).
