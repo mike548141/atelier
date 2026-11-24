@@ -39,8 +39,10 @@
       trigger words of every action it holds (one description now does the
       work of several), and each action's text lives in its own file behind
       the skill so a use loads only its own. The `/atelier` menu lists
-      subjects and their actions. Old names get no aliases (180/210's
-      reasoning). Live references are swept here; private children's by
+      subjects and their actions. Old names simply stop existing, with
+      no forwarder and no signpost (his pick, 2026-11-24, *"Nothing"*,
+      recorded in 180/210), so the sweep of live references must be
+      complete before the rename lands. Live references are swept here; private children's by
       their own sessions; records stay as written. Lands with or before
       180/210, which then builds `review plan` and `review run` under this
       form.

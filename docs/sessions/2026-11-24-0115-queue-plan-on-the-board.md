@@ -50,4 +50,7 @@ the user-level drain command is on the board: it is, `450/010` row 2
 items now cross-link to the new target.
 On the four single-action commands, his pick: *"Group them
 (Recommended)"* (`repo scan`, `repo hook`, `repo create`, `session
-onramp`); recorded in `450/020`.
+onramp`); recorded in `450/020`. He agreed the word "drain" stays in the
+description, asked what "second copy" meant (it was the wrong word: a
+forwarder holds no copy), and on old names picked *"Nothing"* over a
+forwarder or the signpost recommended. Recorded in both items.
