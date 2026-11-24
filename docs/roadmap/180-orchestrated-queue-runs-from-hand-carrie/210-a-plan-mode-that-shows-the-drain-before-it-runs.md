@@ -99,6 +99,10 @@
       approved `160/1450` re-check waits for this build and then reviews the
       fixes and the new commands in one pass. This build does not brief or
       run it; its landing is what unblocks it.
+      His words after the close, 2026-11-24 ~06:20 UTC, verbatim: *"we fable review the new code/design/wahtever before we use it for a review drain session"*.
+      So no drain uses `review plan` or `review run` (nor any later change to
+      them) until a Fable cold pass of that code and design has come back
+      clean; building and testing them does not wait.
       **`review brief` uses it too, his words, 2026-11-24, verbatim:**
       *"Also I think /atelier:review brief should use /atelier:review plan
       to find the work that requires a brief to be written"*. So the plan's

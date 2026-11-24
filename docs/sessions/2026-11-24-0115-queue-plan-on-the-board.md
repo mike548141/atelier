@@ -73,3 +73,5 @@ one residue (`publishscan`'s own loader) queued as `210/590`. Lesson: check
 the artefact before putting an old ask to him.
 `160/070` (SE1–SE2): the verdict says nothing is owed, so it was closed
 without an ask.
+After the close, verbatim: *"we fable review the new code/design/wahtever before we use it for a review drain session"*. Recorded on `180/210` and `450/010`;
+it matches the order already recorded (build now, Fable pass, then drains).

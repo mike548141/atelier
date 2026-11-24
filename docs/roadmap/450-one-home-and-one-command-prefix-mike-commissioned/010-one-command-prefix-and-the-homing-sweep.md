@@ -146,6 +146,7 @@
         of his live drain is asked separately (see `180/210`).
         Asked at that close, his pick: *"Wait, review the new build (Recommended)"*: the re-check waits for the
         build and covers it, and the switch follows a clean result (`210/470`).
+        His words after, verbatim: *"we fable review the new code/design/wahtever before we use it for a review drain session"*.
       - Still open: row 2 (waits on `160/1450`), row 11 (waits on the
         batch conditions), row 12 (the generic half of the estate's queue
         reader as atelier's reference queue; optional, after row 2).
