@@ -89,3 +89,9 @@ to /atelier:work-run or something else"*; *"We could also consider having
   the legend and `COMMUNICATION.md` no longer describe it; the reads that
   parse it are owed a redesign without inference or removal (`180/220`).
   Work plan joins the parallel session's command build (`450/020`).
+- **Miss, owned: an ask that was not a decision.** `020/040` (a third
+  scanner verdict, "clean, N accepted") was put to him as yes/no; his own
+  model of 2026-08-09 already settles it. He answered, verbatim, *"Your
+  question does not follow doctrine rules for asking questions"*. Recorded
+  on the item as work owed, 🎯 removed; the round's sorting duty is owed on
+  `180/220`. No further ask was put.

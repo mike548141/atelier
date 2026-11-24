@@ -120,3 +120,11 @@
       verification of the open 🎯 marks (does each still need him?) would
       shrink the backlog before he spends time on it; it must state its
       evidence per item, as `020/020` and `020/140` now do.
+      **The oldest-asks round, as built, puts work that is not a decision.**
+      Its first run listed three 🎯 items: two were settled long ago and one
+      (`020/040`) was settled by his own stated model, and putting that one
+      drew, verbatim, *"Your question does not follow doctrine rules for
+      asking questions"*. Owed with the redesign above: every listed ask is
+      read and sorted by `COMMUNICATION.md`'s first rule (a record, a
+      decision, or find out first) before any reaches him, and only
+      decisions are put.

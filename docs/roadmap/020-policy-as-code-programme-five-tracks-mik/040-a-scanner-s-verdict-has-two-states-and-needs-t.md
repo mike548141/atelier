@@ -1,4 +1,4 @@
-- [ ] 🎯 **A scanner's verdict has two states and needs three — "found,
+- [ ] **A scanner's verdict has two states and needs three — "found,
       and all properly accepted" reads as "found nothing".** (Mike,
       2026-08-09, stating the model the guards are meant to follow: find
       everything · report them all · subtract the ones that are
@@ -27,3 +27,14 @@
       so it lands on its own rather than riding a C5 build. Whether the
       third state also belongs in the sibling scanners is the same
       question, one item.
+      **No decision owed: build it (2026-11-24, session b95c0d98).** Put to
+      him as a yes/no in the first oldest-asks round; he answered, verbatim,
+      *"Your question does not follow doctrine rules for asking questions"*.
+      Re-read against `COMMUNICATION.md` § *Asking for a ruling*: the first
+      rule is to establish there is a decision, and there was none. His own
+      model, stated on this item 2026-08-09 (*find everything · report them
+      all · subtract … · then give an honest final verdict*), already settles
+      it: a headline that says "clean" over excused findings is not an honest
+      verdict. So this is work owed, the fix shape above, not an ask; the 🎯
+      comes off. Today's measure: atelier's leakscan run subtracts 98
+      findings by allow-marker and 7 files by glob and still prints `clean`.
