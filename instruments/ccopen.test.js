@@ -25,7 +25,7 @@ const EMAIL = 't' + String.fromCharCode(64) + 'x.invalid';
 const SELF = 'aaaa1111-0000-4000-8000-000000000001';
 const OTHER = 'bbbb2222-0000-4000-8000-000000000002';
 const DEAD = 'dead0001-0000-4000-8000-000000000003';
-const READ_IDS = ['kind', 'sync', 'live', 'interrupted', 'handups', 'pin', 'files'];
+const READ_IDS = ['kind', 'sync', 'live', 'interrupted', 'handups', 'pin', 'files', 'load', 'waiting'];
 
 // --- the fixture world ---------------------------------------------------
 
@@ -44,6 +44,9 @@ function world() {
     CCCLOSE_GH: path.join(base, 'no-gh-here'),
     // No atelier checkout unless a test points one: the pin read must say so.
     CCCLOSE_ATELIER: path.join(base, 'no-atelier-here'),
+    // A quiet machine unless a test says otherwise: the real load average must
+    // never decide whether a fixture reads as ready (180/220).
+    CCOPEN_LOADAVG: '0.10,0.10,0.10', CCOPEN_CORES: '4',
   };
   return { base, home, env };
 }
@@ -243,13 +246,14 @@ test('kind: a repo without doctrine is a look-first that names its queue file, o
   assert.match(j.by.kind.summary, /CLAUDE\.md carries no atelier pin or floor block; .*queue = ROADMAP\.md/);
 });
 
-test('kind: not a repo is not applicable throughout, and ready (there is nothing to read)', () => {
+test('kind: not a repo is not applicable throughout (the machine load apart), and ready (there is nothing to read)', () => {
   const w = world();
   const plain = path.join(w.base, 'plain');
   fs.mkdirSync(plain);
   const j = json(w, plain);
   assert.equal(j.repo.isGit, false);
-  assert.ok(j.reads.every((x) => x.status === 'na'), j.reads.map((x) => x.status).join());
+  // The machine's load needs no repo, so that read still runs.
+  assert.ok(j.reads.every((x) => (x.id === 'load' ? x.status === 'pass' : x.status === 'na')), j.reads.map((x) => x.status).join());
   assert.equal(j.verdict.status, 'ready');
   assert.equal(j.code, 0);
   assert.equal(j.fetch.state, 'none');
@@ -664,7 +668,7 @@ test('verdict: ready, look first or recover first; recover wins, and each phrase
   assert.deepEqual(both.look, ['dirty tree']);
 });
 
-test('a ready repo prints the whole screen: header, seven reads, one verdict line, exit 0', () => {
+test('a ready repo prints the whole screen: header, nine reads, one verdict line, exit 0', () => {
   const w = world();
   const root = repo(w);
   asAtelier(w, root);
@@ -677,7 +681,215 @@ test('a ready repo prints the whole screen: header, seven reads, one verdict lin
   const out = r.out.trim().split('\n');
   assert.match(out[0], /^ccopen · session-open check · repo$/);
   assert.equal(out[out.length - 1], '✅ ready to start');
-  for (const label of ['Kind of session', 'Sync', 'Live work', 'Interrupted predecessor', 'Hand-up PRs', 'Pin currency', 'Newest session files']) {
+  for (const label of ['Kind of session', 'Sync', 'Live work', 'Interrupted predecessor', 'Hand-up PRs', 'Pin currency', 'Newest session files', 'Machine load', 'Waiting on the principal']) {
     assert.ok(out.some((l) => l.includes(label)), label);
   }
+});
+
+// --- read 8: machine load (180/220) ----------------------------------------
+
+test('load: a quiet machine passes and says what it measured against and where the threshold came from', () => {
+  const w = world();
+  const root = repo(w);
+  const j = json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '0.50,1.00,2.00', CCOPEN_CORES: '8' });
+  const x = j.by.load;
+  assert.equal(x.status, 'pass');
+  assert.match(x.summary, /^quiet: load 1m 0\.50 · 5m 1\.00 · 15m 2\.00 on 8 cores \(threshold 8\.00, from core count\)$/);
+  assert.deepEqual(x.data, { load1: 0.5, load5: 1, load15: 2, cores: 8, threshold: 8, threshold_source: 'core count', busy: false });
+});
+
+test('load: busy needs BOTH the 5- and 15-minute averages at or over the threshold: warn, "machine busy" in the verdict, exit 0', () => {
+  const w = world();
+  const root = repo(w);
+  const busy = ccopen(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '20.00,12.00,13.50', CCOPEN_CORES: '12' });
+  assert.equal(busy.code, 0);
+  assert.match(busy.out, /⚠️ Machine load +busy: load 1m 20\.00 · 5m 12\.00 · 15m 13\.50 on 12 cores \(threshold 12\.00, from core count\): don't start; re-check hourly/);
+  assert.match(busy.out, /⚠️ look first: .*machine busy/);
+  const j = json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '20.00,12.00,13.50', CCOPEN_CORES: '12' });
+  assert.equal(j.by.load.status, 'warn');
+  assert.equal(j.by.load.data.busy, true);
+  assert.ok(j.verdict.look.includes('machine busy'));
+  // A burst (1m) or a saturation that has not lasted (15m under) is not a busy machine.
+  assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '40,3,3', CCOPEN_CORES: '4' }).by.load.data.busy, false);
+  assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '9,9,3.99', CCOPEN_CORES: '4' }).by.load.data.busy, false);
+  assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '9,3.99,9', CCOPEN_CORES: '4' }).by.load.data.busy, false);
+  assert.equal(json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '0,4,4', CCOPEN_CORES: '4' }).by.load.data.busy, true, 'at the threshold is busy');
+});
+
+test('load: $CCOPEN_MAX_LOAD overrides the core count and the line says so; junk is ignored and said', () => {
+  const w = world();
+  const root = repo(w);
+  const lo = json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '3,3,3', CCOPEN_CORES: '4', CCOPEN_MAX_LOAD: '2.5' });
+  assert.equal(lo.by.load.data.busy, true);
+  assert.equal(lo.by.load.data.threshold, 2.5);
+  assert.equal(lo.by.load.data.threshold_source, '$CCOPEN_MAX_LOAD');
+  assert.match(lo.by.load.summary, /threshold 2\.50, from \$CCOPEN_MAX_LOAD/);
+  const hi = json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '6,6,6', CCOPEN_CORES: '4', CCOPEN_MAX_LOAD: '10' });
+  assert.equal(hi.by.load.data.busy, false, 'over the core count but under the operator\'s threshold');
+  const junk = json(w, root, ['--no-fetch'], { CCOPEN_LOADAVG: '6,6,6', CCOPEN_CORES: '4', CCOPEN_MAX_LOAD: 'lots' });
+  assert.equal(junk.by.load.data.threshold, 4);
+  assert.equal(junk.by.load.data.threshold_source, 'core count');
+  assert.match(junk.by.load.summary, /\$CCOPEN_MAX_LOAD=lots is not a positive number: ignored/);
+});
+
+test('load: with no seam it reads the real averages and core count, every field present', () => {
+  const w = world();
+  const root = repo(w);
+  const env = { ...w.env };
+  delete env.CCOPEN_LOADAVG; delete env.CCOPEN_CORES;
+  const r = spawnSync('node', [SCRIPT, '--json', '--no-fetch'], { cwd: root, env, encoding: 'utf8' });
+  const d = JSON.parse(r.stdout).reads.find((x) => x.id === 'load').data;
+  assert.deepEqual(Object.keys(d).sort(), ['busy', 'cores', 'load1', 'load15', 'load5', 'threshold', 'threshold_source']);
+  assert.equal(d.cores, os.cpus().length);
+  assert.equal(d.threshold, d.cores);
+  for (const k of ['load1', 'load5', 'load15']) assert.ok(Number.isFinite(d[k]) && d[k] >= 0, k);
+});
+
+// --- read 9: waiting on the principal (180/220) ------------------------------
+
+// Write item files under docs/roadmap/ (rel -> text), with a generated index,
+// commit and push: one commit per call, so a test orders changes by calling it.
+function boardAt(w, root, files, msg = 'board') {
+  if (!fs.existsSync(path.join(root, 'docs', 'ROADMAP.md'))) write(root, 'docs/ROADMAP.md', '<!-- GENERATED by tools/board.py -->\n# Board\n');
+  for (const [rel, text] of Object.entries(files)) write(root, `docs/roadmap/${rel}`, text);
+  commit(w, root, msg);
+  sh(w, root, ['push', '-q', 'origin', 'main']);
+}
+const ask = (title, extra = '') => `- [ ] 🎯 **${title}**\n      detail line\n${extra}`;
+const PARK = (date, words = 'not now, hold until the review lands') => `      💤 PARKED ${date} — ${words}\n`;
+const waiting = (j) => j.by.waiting;
+
+test('waiting: no board, and a hand-kept board, are not applicable and say why', () => {
+  const w = world();
+  const root = repo(w);
+  let x = waiting(json(w, root, ['--no-fetch']));
+  assert.equal(x.status, 'na');
+  assert.match(x.summary, /no board in this repo/);
+  assert.equal(x.data.waiting, null);
+  write(root, 'ROADMAP.md', '# hand kept\n- [ ] 🎯 something\n');
+  commit(w, root, 'hand-kept board');
+  sh(w, root, ['push', '-q', 'origin', 'main']);
+  x = waiting(json(w, root, ['--no-fetch']));
+  assert.equal(x.status, 'na');
+  assert.match(x.summary, /ROADMAP\.md is hand-kept/);
+  assert.equal(waiting(json(w, w.base, ['--no-fetch'])).status, 'na', 'not a repo');
+});
+
+test('waiting: no 🎯 prints the zeros and passes; 🎯 in a code span, on a done item or off the state line does not count', () => {
+  const w = world();
+  const root = repo(w);
+  boardAt(w, root, {
+    '010-area/010-plain.md': '- [ ] a plain item\n      detail 🎯 in the body\n',
+    '010-area/020-span.md': '- [ ] the `🎯` mark is documented here\n',
+    '010-area/030-done.md': '- [x] 🎯 done\n',
+    '010-area/040-claimed.md': '- [~] a claimed item (claimed 2026-11-20-0100)\n',
+  });
+  const x = waiting(json(w, root, ['--no-fetch']));
+  assert.equal(x.status, 'pass');
+  assert.deepEqual([x.data.open, x.data.waiting, x.data.parked, x.data.parkedWaiting, x.data.unparkedWaiting, x.data.changed], [3, 0, 0, 0, 0, 0]);
+  assert.match(x.summary, /^0 open asks waiting on the principal \(🎯\) · 0 parked · 0 not parked .* · 0 changed since parked$/);
+});
+
+test('waiting: an unparked 🎯 is counted and not listed; the read passes', () => {
+  const w = world();
+  const root = repo(w);
+  boardAt(w, root, { '010-area/010-a.md': ask('First ask'), '010-area/020-b.md': ask('Second ask') });
+  const j = json(w, root, ['--no-fetch']);
+  const x = waiting(j);
+  assert.equal(x.status, 'pass');
+  assert.equal(x.data.waiting, 2);
+  assert.equal(x.data.unparkedWaiting, 2);
+  assert.deepEqual(x.items, []);
+  assert.match(x.summary, /^2 open asks waiting on the principal \(🎯\) · 0 parked · 2 not parked/);
+  assert.ok(!j.verdict.look.some((t) => /parked|busy/.test(t)), 'unparked asks never reach the verdict');
+});
+
+test('waiting: a parked item nothing has touched since is counted as parked and passes, with the zero printed', () => {
+  const w = world();
+  const root = repo(w);
+  boardAt(w, root, { '010-area/010-a.md': ask('Parked ask', PARK('2026-11-20')), '010-area/020-b.md': ask('Open ask') });
+  boardAt(w, root, { '020-other/010-unrelated.md': '- [ ] unrelated\n' }, 'something else moves');
+  const x = waiting(json(w, root, ['--no-fetch']));
+  assert.equal(x.status, 'pass');
+  assert.deepEqual([x.data.waiting, x.data.parked, x.data.parkedWaiting, x.data.unparkedWaiting, x.data.changed], [2, 1, 1, 1, 0]);
+  assert.match(x.summary, /2 open asks .* 1 parked · 1 not parked .* 0 changed since parked/);
+});
+
+test('waiting: a parked item whose own file changed after the park is listed, warns, and the verdict says look', () => {
+  const w = world();
+  const root = repo(w);
+  boardAt(w, root, { '010-area/010-a.md': ask('Parked ask', PARK('2026-11-20')) }, 'park it');
+  boardAt(w, root, { '010-area/010-a.md': ask('Parked ask', PARK('2026-11-20')) + '      a review landed\n' }, 'the item moves');
+  const r = ccopen(w, root, ['--no-fetch']);
+  assert.match(r.out, /⚠️ Waiting on the principal +1 open ask waiting on the principal .* parked items changed since you parked them: look \(1, listed below\)/);
+  assert.match(r.out, /- 010\/010 · Parked ask · parked 2026-11-20 · its own file changed \(1 commit\)/);
+  assert.match(r.out, /⚠️ look first: .*1 parked item changed since parked/);
+  const x = waiting(json(w, root, ['--no-fetch']));
+  assert.equal(x.status, 'warn');
+  assert.equal(x.data.changed, 1);
+  assert.deepEqual(x.data.changedList.map((c) => [c.id, c.parkedOn, c.changes]), [['010/010', '2026-11-20', [{ kind: 'own', id: '010/010', commits: 1 }]]]);
+});
+
+test('waiting: a cited item changing after the park wakes it; a change BEFORE the park, and an uncited item, do not', () => {
+  const w = world();
+  const root = repo(w);
+  boardAt(w, root, {
+    '010-area/010-dep.md': '- [ ] the thing it waits on\n',
+    '010-area/020-other.md': '- [ ] an uncited item\n',
+  }, 'items');
+  boardAt(w, root, { '010-area/010-dep.md': '- [ ] the thing it waits on\n      edited before the park\n' }, 'edit before');
+  boardAt(w, root, { '010-area/030-parked.md': ask('Waits on a dep', `      Waits on \`010/010\` and \`010/999\` (not an item).\n${PARK('2026-11-20')}`) }, 'park it');
+  let x = waiting(json(w, root, ['--no-fetch']));
+  assert.equal(x.status, 'pass', 'the dep changed before the park only');
+  boardAt(w, root, { '010-area/020-other.md': '- [ ] an uncited item\n      edited\n' }, 'uncited edit');
+  assert.equal(waiting(json(w, root, ['--no-fetch'])).status, 'pass', 'an uncited item moving wakes nothing');
+  boardAt(w, root, { '010-area/010-dep.md': '- [x] the thing it waits on\n      done now\n' }, 'the dep is done');
+  const j = json(w, root, ['--no-fetch']);
+  x = waiting(j);
+  assert.equal(x.status, 'warn');
+  assert.deepEqual(x.data.changedList[0].changes, [{ kind: 'cited', id: '010/010', commits: 1 }]);
+  assert.match(ccopen(w, root, ['--no-fetch']).out, /parked 2026-11-20 · cited 010\/010 changed \(1 commit\)/);
+});
+
+test('waiting: the NEWEST PARKED line is the park; a re-park resets what counts as changed; a line in a code fence is no park', () => {
+  const w = world();
+  const root = repo(w);
+  const text = (...parks) => ask('Re-parked', parks.join(''));
+  boardAt(w, root, { '010-area/010-a.md': text(PARK('2026-11-10', 'first answer')) }, 'park 1');
+  boardAt(w, root, { '010-area/010-a.md': text(PARK('2026-11-10', 'first answer')) + '      new evidence\n' }, 'moves');
+  assert.equal(waiting(json(w, root, ['--no-fetch'])).status, 'warn');
+  boardAt(w, root, { '010-area/010-a.md': text(PARK('2026-11-10', 'first answer'), PARK('2026-11-22', 'asked again, still not now')) + '      new evidence\n' }, 'park 2');
+  const x = waiting(json(w, root, ['--no-fetch']));
+  assert.equal(x.status, 'pass', 're-parked after the change');
+  assert.equal(x.data.parked, 1);
+  boardAt(w, root, { '010-area/020-fenced.md': ask('Fenced', '      ```\n      💤 PARKED 2026-11-23 — an example in a code block\n      ```\n') }, 'a fenced example');
+  assert.equal(waiting(json(w, root, ['--no-fetch'])).data.parked, 1, 'the fenced example is not a park');
+});
+
+test('waiting: changed parks are capped at five in the text and counted whole; the JSON carries them all', () => {
+  const w = world();
+  const root = repo(w);
+  const files = {};
+  for (let i = 1; i <= 7; i++) files[`010-area/0${i}0-p.md`.replace('-p.md', `-p${i}.md`)] = ask(`Parked ${i}`, PARK('2026-11-20'));
+  boardAt(w, root, files, 'seven parks');
+  const edited = {};
+  for (const f of Object.keys(files)) edited[f] = files[f] + '      moved\n';
+  boardAt(w, root, edited, 'all seven move');
+  const r = ccopen(w, root, ['--no-fetch']);
+  assert.equal(r.out.split('\n').filter((l) => /^ +- 010\/0\d0 · Parked/.test(l)).length, 5);
+  assert.match(r.out, /… and 2 more changed park\(s\)/);
+  const x = waiting(json(w, root, ['--no-fetch']));
+  assert.equal(x.data.changed, 7);
+  assert.equal(x.data.changedList.length, 7);
+});
+
+test('waiting: it reads the pushed board, not the working tree, and changes nothing', () => {
+  const w = world();
+  const root = repo(w);
+  boardAt(w, root, { '010-area/010-a.md': ask('Pushed ask') });
+  write(root, 'docs/roadmap/010-area/020-unsaved.md', ask('An unsaved ask'));
+  const before = sh(w, root, ['status', '--porcelain']);
+  const x = waiting(json(w, root, ['--no-fetch']));
+  assert.equal(x.data.waiting, 1);
+  assert.equal(sh(w, root, ['status', '--porcelain']), before);
 });

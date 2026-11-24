@@ -7,7 +7,7 @@
  * owed" is a claim that must carry its evidence. This is that evidence, read
  * from the repo, the host and the session's own transcript rather than from the
  * session's memory, which is the thing that drifts in a long session. It prints
- * the standard outputs (session id, transcript, window), fifteen checks in a
+ * the standard outputs (session id, transcript, window), sixteen checks in a
  * fixed order, four listings (every prompt the principal gave, the questions put
  * to him, the other repos the session touched, the other live sessions), a
  * one-line verdict and the identifiers block. The design of record is
@@ -69,10 +69,11 @@ Checks worktrees, branches, pushes, PRs, the session record, the board, live
 claims, the floor at the pushed head, review pointers, workaround-shaped
 commands (a refused delete re-routed among them), the working tree, subagents,
 the scratch folder, in a repo that pins atelier the pin and floor copy (runs
-pins.py: it fetches the atelier checkout's origin), and anything else the
-session launched still running (reads the process table; fails closed). Lists
-every prompt you gave, each question put to you, the other repos touched (the
-same checks there) and the other live sessions; ends with the identifiers block.
+pins.py: it fetches the atelier checkout's origin), anything else the
+session launched still running (reads the process table; fails closed), and
+the oldest open asks waiting on you (informational). Lists every prompt you
+gave, each question put to you, the other repos touched (the same checks
+there) and the other live sessions; ends with the identifiers block.
 Read-only. Exit 0 when no check fails.  Full manual: man ccclose`;
 
 // The cap on every listed set. Counts stay whole; only the lists are cut.
@@ -1245,6 +1246,257 @@ function checkClaims(repo, w, b, sid) {
   if (mine.length) return check('claims', L, 'fail', `${mine.length} [~] claim(s) of this session's still live · ${others.length} other(s) not attributed`, mine, mine.length);
   if (!w && !sid8 && others.length) return check('claims', L, 'warn', `${others.length} live [~] claim(s); ${NO_WINDOW}`, others, others.length);
   return check('claims', L, 'pass', `none of this session's · ${others.length} other live claim(s) not attributed`);
+}
+
+// --- the asks waiting on the principal (180/220) -------------------------
+//
+// A per-item board marks an ask 🎯 on the item's state line. 180/220 adds the
+// mark for "he was asked and said not now": a line `💤 PARKED YYYY-MM-DD` in the
+// item's text, his words after it. The parsing lives here, once, and ccopen
+// requires it: ccopen's waiting-on-the-principal read and this file's
+// oldest-asks check must not disagree about what a state line, a park or a
+// citation is. Everything is read at the integration ref (the pushed board), in
+// a bounded number of git calls: a board can hold hundreds of items.
+
+// The integration ref: the remote's default branch when there is one, else the
+// local one; null when neither exists.
+function integrationRef(repo) {
+  if (repo.remoteRef) return repo.remoteRef;
+  if (repo.defaultBranch && git(repo.root, ['rev-parse', '--verify', '--quiet', `refs/heads/${repo.defaultBranch}`]).ok) {
+    return `refs/heads/${repo.defaultBranch}`;
+  }
+  return null;
+}
+
+// An item's state line is its first physical line. Open is `[ ]` or `[~]`; 🎯 on
+// the line, outside a code span, is "waiting on the principal" (the index reads
+// the glyph the same way).
+const OPEN_STATE_LINE = /^-\s+\[([ ~])\]/;
+function stateOf(line) {
+  const m = typeof line === 'string' ? line.match(OPEN_STATE_LINE) : null;
+  if (!m) return { open: false, claimed: false, waiting: false };
+  return { open: true, claimed: m[1] === '~', waiting: line.replace(/`[^`]*`/g, ' ').includes('🎯') };
+}
+// What the state line says the item is, in a few words: the checkbox, the
+// flags and the bold marks taken off.
+function gistOf(line, n = 70) {
+  return clip(String(line).replace(OPEN_STATE_LINE, '').replace(/[🎯⏳🔥🛑🔎🤔]/gu, '').replace(/\*\*/g, '').replace(/\s+/g, ' '), n);
+}
+
+// The newest `💤 PARKED YYYY-MM-DD` line in an item's text: a line that begins
+// with it after indentation, outside a code fence. Newest by its date, the later
+// line winning a tie. Returns { date, words } or null.
+const PARKED_LINE = /^[ \t]*💤 PARKED (\d{4}-\d{2}-\d{2})\b[ \t]*(.*)$/u;
+const FENCE_LINE = /^[ \t]*(?:```|~~~)/;
+function parkOf(text) {
+  let best = null, fenced = false;
+  for (const line of String(text).split('\n')) {
+    if (FENCE_LINE.test(line)) { fenced = !fenced; continue; }
+    if (fenced) continue;
+    const m = line.match(PARKED_LINE);
+    if (m && (best === null || m[1] >= best.date)) best = { date: m[1], words: m[2].trim() };
+  }
+  return best;
+}
+
+// The board items an item cites, as backticked `NNN/NNN` (section/item), in
+// order of first mention, without repeats.
+const CITED_REF = /`(\d{3})\/(\d{3,5})`/g;
+function citedRefs(text) {
+  const out = [];
+  for (const m of String(text).matchAll(CITED_REF)) {
+    const id = `${m[1]}/${m[2]}`;
+    if (!out.includes(id)) out.push(id);
+  }
+  return out;
+}
+
+// docs/roadmap/180-slug/220-slug.md -> { section: '180', num: '220', id: '180/220' }
+function itemPathRe(dir) { return new RegExp(`^${escapeRe(dir)}/(\\d+)-[^/]+/(\\d+)-[^/]+\\.md$`); }
+const itemIdOf = (re, file) => { const m = file.match(re); return m ? `${m[1]}/${m[2]}` : null; };
+
+// Blobs at a ref, in one `git cat-file --batch` call: Map path -> text.
+function catBlobs(repo, ref, files) {
+  const out = new Map();
+  if (!files.length) return out;
+  let r;
+  try {
+    r = spawnSync('git', ['--no-optional-locks', '-C', repo.root, 'cat-file', '--batch'], {
+      input: files.map((f) => `${ref}:${f}\n`).join(''), timeout: 60000, maxBuffer: 256 * 1024 * 1024, stdio: ['pipe', 'pipe', 'ignore'],
+    });
+  } catch { return null; }
+  if (r.error || r.status !== 0) return null;
+  const buf = r.stdout;
+  let at = 0;
+  for (const f of files) {
+    const nl = buf.indexOf(0x0a, at);
+    if (nl < 0) return null;
+    const head = buf.toString('utf8', at, nl);
+    const m = head.match(/^[0-9a-f]+ blob (\d+)$/);
+    if (!m) { at = nl + 1; continue; }            // "<name> missing": no text
+    const size = Number(m[1]);
+    out.set(f, buf.toString('utf8', nl + 1, nl + 1 + size));
+    at = nl + 1 + size + 1;
+  }
+  return out;
+}
+
+// Every open item on a per-item board, at `ref`, with whether it waits on the
+// principal (🎯) and its park, if any. One `git grep` for the state lines, one
+// for the parked files, one `cat-file` for those files' text.
+//   { known: true, ref, dir, open, waiting, parked, parkedWaiting, items: [...] }
+//   { known: false, why }
+// An item: { file, id, title, waiting, claimed, park: { date, words } | null }.
+function boardWaiting(repo, b, ref) {
+  if (!repo.isGit) return { known: false, why: NOT_GIT };
+  if (!b) return { known: false, why: 'no board in this repo' };
+  if (!b.generated || !b.items) return { known: false, why: `${b.index} is hand-kept: there are no per-item files to read` };
+  const at = ref || 'HEAD';
+  const dir = b.items.split(path.sep).join('/');
+  const re = itemPathRe(dir);
+  const g = git(repo.root, ['grep', '-n', '-I', '-E', '^- \\[[ ~]\\]', at, '--', dir], 120000);
+  if (!g.ok && g.code !== 1) return { known: false, why: `git grep of the board at ${at} failed` };
+  const prefix = `${at}:`;
+  const items = [];
+  for (const l of lines(g.out)) {
+    const body = l.startsWith(prefix) ? l.slice(prefix.length) : l;
+    const m = body.match(/^(.+?\.md):1:(.*)$/);
+    if (!m || !re.test(m[1])) continue;
+    const st = stateOf(m[2]);
+    if (!st.open) continue;
+    items.push({ file: m[1], id: itemIdOf(re, m[1]), title: gistOf(m[2]), waiting: st.waiting, claimed: st.claimed, park: null });
+  }
+  const p = git(repo.root, ['grep', '-l', '-I', '-F', '-e', '💤 PARKED', at, '--', dir], 120000);
+  if (!p.ok && p.code !== 1) return { known: false, why: `git grep for parked items at ${at} failed` };
+  const parkedFiles = new Set(lines(p.out).map((l) => (l.startsWith(prefix) ? l.slice(prefix.length) : l)));
+  const byFile = new Map(items.map((it) => [it.file, it]));
+  const candidates = [...parkedFiles].filter((f) => byFile.has(f));
+  const texts = catBlobs(repo, at, candidates);
+  if (texts === null) return { known: false, why: `reading the parked items at ${at} failed` };
+  for (const f of candidates) {
+    const text = texts.get(f);
+    if (text !== undefined) byFile.get(f).park = parkOf(text);
+  }
+  items.sort((x, y) => boardOrder(x.id || '', y.id || ''));
+  return {
+    known: true, ref: at, dir, items, open: items.length,
+    waiting: items.filter((i) => i.waiting).length,
+    parked: items.filter((i) => i.park).length,
+    parkedWaiting: items.filter((i) => i.waiting && i.park).length,
+  };
+}
+
+// The commits of the board's folder, newest first, each with the files it
+// touched: one `git log --name-only` pass. `since` is a commit whose parent
+// starts the range (so everything after it is read), or null for the whole log.
+function boardCommits(repo, ref, dir, since) {
+  const range = since ? [`${since}^..${ref}`] : [ref];
+  let r = git(repo.root, ['log', '--no-renames', '--name-only', '--format=COMMIT%x09%H%x09%ct', ...range, '--', dir], 120000);
+  if (!r.ok && since) r = git(repo.root, ['log', '--no-renames', '--name-only', '--format=COMMIT%x09%H%x09%ct', ref, '--', dir], 120000);
+  if (!r.ok) return null;
+  const commits = [];
+  for (const l of r.out.split('\n')) {
+    if (l.startsWith('COMMIT\t')) { const [, sha, ct] = l.split('\t'); commits.push({ sha, ct: Number(ct), files: new Set() }); }
+    else if (l && commits.length) commits[commits.length - 1].files.add(l);
+  }
+  return commits;
+}
+
+// Which parked items changed since they were parked. A park is changed when,
+// after the commit that added its newest PARKED line, a later commit touched
+// the item's own file or the file of an item it cites. Per parked item: one
+// `git log -G` (the park commit); then one `git log --name-only` pass over the
+// board's folder from the oldest park, and one `ls-tree` to place the cited ids.
+// Returns { known, why, items: [{ id, title, file, park, changes: [{ kind:
+// 'own'|'cited', id, commits }], unknown }], unknown, notChecked }.
+const PARK_CHECK_MAX = 200;
+function parkChanges(repo, ref, bw) {
+  const parked = bw.items.filter((i) => i.park);
+  const res = { known: true, why: null, items: [], unknown: 0, notChecked: 0 };
+  if (!parked.length) return res;
+  const at = ref || 'HEAD';
+  const re = itemPathRe(bw.dir);
+  const started = Date.now();
+  const checked = parked.slice(0, PARK_CHECK_MAX);
+  res.notChecked = parked.length - checked.length;
+  const found = new Map();
+  for (const it of checked) {
+    if (Date.now() - started > 90000) { res.notChecked += 1; continue; }
+    const r = git(repo.root, ['log', '-1', '-G💤 PARKED', '--format=%H%x09%ct', at, '--', it.file], 30000);
+    const [sha, ct] = r.ok ? r.out.trim().split('\t') : [];
+    if (sha) found.set(it.file, { sha, ct: Number(ct) });
+  }
+  const oldest = [...found.values()].sort((a, b) => a.ct - b.ct)[0] || null;
+  let commits = boardCommits(repo, at, bw.dir, oldest ? oldest.sha : null);
+  // Commits in one second tie on time, so the oldest by time may not be the
+  // oldest by ancestry: if any park commit fell outside the range, read it all.
+  if (commits && oldest && [...found.values()].some((f) => !commits.some((c) => c.sha === f.sha))) commits = boardCommits(repo, at, bw.dir, null);
+  const tree = git(repo.root, ['ls-tree', '-r', '--name-only', at, '--', bw.dir], 60000);
+  const fileOfId = new Map();
+  if (tree.ok) for (const f of lines(tree.out)) { const id = itemIdOf(re, f); if (id && !fileOfId.has(id)) fileOfId.set(id, f); }
+  if (commits === null || !tree.ok) {
+    return { ...res, known: false, why: 'the board\'s history could not be read' };
+  }
+  const position = new Map(commits.map((c, i) => [c.sha, i]));
+  const texts = catBlobs(repo, at, checked.map((i) => i.file));
+  for (const it of checked) {
+    const pk = found.get(it.file);
+    const row = { id: it.id, title: it.title, file: it.file, park: it.park, changes: [], unknown: false };
+    if (!pk || !position.has(pk.sha) || texts === null) { row.unknown = true; res.unknown += 1; res.items.push(row); continue; }
+    const later = commits.slice(0, position.get(pk.sha));
+    const own = later.filter((c) => c.files.has(it.file)).length;
+    if (own) row.changes.push({ kind: 'own', id: it.id, commits: own });
+    for (const id of citedRefs(texts.get(it.file) || '')) {
+      const f = fileOfId.get(id);
+      if (!f || f === it.file) continue;
+      const n = later.filter((c) => c.files.has(f)).length;
+      if (n) row.changes.push({ kind: 'cited', id, commits: n });
+    }
+    res.items.push(row);
+  }
+  return res;
+}
+
+// When each item file was added to the board: one `git log --diff-filter=A`
+// pass, the oldest add winning. Map file -> committer seconds. A rename shows
+// as a fresh add, so a renumbered item reads as new (a limit, stated in the man
+// page).
+function itemAges(repo, ref, dir) {
+  const r = git(repo.root, ['log', '--diff-filter=A', '--no-renames', '--name-only', '--format=COMMIT%x09%ct', ref || 'HEAD', '--', dir], 120000);
+  if (!r.ok) return null;
+  const re = itemPathRe(dir), ages = new Map();
+  let ct = null;
+  for (const l of r.out.split('\n')) {
+    if (l.startsWith('COMMIT\t')) ct = Number(l.split('\t')[1]);
+    else if (l && ct !== null && re.test(l)) ages.set(l, ct);
+  }
+  return ages;
+}
+function ageWords(sec, now = Date.now()) {
+  const ms = now - sec * 1000;
+  if (!Number.isFinite(ms) || ms < 0) return 'unknown age';
+  const d = Math.floor(ms / 86400000);
+  if (d >= 1) return `${d}d`;
+  return `${Math.max(0, Math.floor(ms / 3600000))}h`;
+}
+
+// Check 16: the oldest open asks. Informational: it lists what the end-of-
+// session round could put to the principal, and never fails the close (180/220).
+const OLDEST_N = 3;
+function checkOldestAsks(repo, b, now = Date.now()) {
+  const L = 'Oldest asks';
+  const bw = boardWaiting(repo, b, repo.isGit ? integrationRef(repo) : null);
+  if (!bw.known) return check('asks', L, 'na', bw.why);
+  const unparked = bw.items.filter((i) => i.waiting && !i.park);
+  const tail = `${bw.waiting} open ask(s) waiting on the principal (${bw.parkedWaiting} parked and left out, ${unparked.length} not parked)`;
+  if (!unparked.length) return check('asks', L, 'pass', `none to put: ${tail}`);
+  const ages = itemAges(repo, bw.ref, bw.dir);
+  if (ages === null) return check('asks', L, 'warn', `unknown — the board's history could not be read, so ages are unknown; ${tail}`);
+  const dated = unparked.map((i) => ({ ...i, at: ages.has(i.file) ? ages.get(i.file) : null }));
+  dated.sort((x, y) => (x.at === null) - (y.at === null) || (x.at - y.at) || boardOrder(x.id, y.id));
+  const top = dated.slice(0, OLDEST_N);
+  return check('asks', L, 'pass', `${top.length} oldest of ${tail}`,
+    top.map((i) => `${i.id} · ${i.at === null ? 'age unknown' : ageWords(i.at, now)} · ${i.title}`));
 }
 
 function hasWorkflows(repo) {
@@ -2788,7 +3040,7 @@ function renderIdentifiers(r) {
 // Four reads that used to live in the session-open prompt as sentences the
 // session answered from memory: every ask, every question put to the principal,
 // the other repos the session touched, and the other live sessions. Each is a
-// listing for the session to answer. None is a check number: the fifteen stay
+// listing for the session to answer. None is a check number: the sixteen stay
 // fixed, and only an unanswered question, a live peer or a dirty or unpushed
 // repo elsewhere reaches the verdict (a repo check that fails elsewhere fails
 // the close, as at home; the rest are at most a warning).
@@ -3068,6 +3320,7 @@ async function collect(opts, gathered) {
     checkScratch(t),
     checkPin(repo),
     checkLaunched(t, sessionId, procs),
+    checkOldestAsks(repo, b),
   ];
   const commitsIn = repo.isGit && w ? windowCommits(repo, w, ['--branches', '--remotes']) : null;
   const unpushed = repo.isGit && w && repo.remotes.length ? windowCommits(repo, w, ['--branches', '--not', '--remotes']) : null;
@@ -3248,6 +3501,7 @@ async function main() {
 
 module.exports = { launchForms, readProcs, checkLaunched, parseEtime, argvShown, parseArgs, stripWrappers, askSentences, bypassesIn, deleteRoutes, isRefusal, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
   judgeAgent, FRESH_MS, checkPin, locateAtelier, board, CLAIM_LINE,
+  integrationRef, stateOf, gistOf, parkOf, citedRefs, itemPathRe, itemIdOf, boardWaiting, parkChanges, itemAges, ageWords, checkOldestAsks,
   repoFacts, run, git, lines, clip, isDir, isFile, ghReady, ghJson, sessionLog, claudeMdText, PIN_IN_CLAUDE, FLOOR_STAMP, check, ICON, utc, worktreeAdds, ghPrCommands, commitSubjectsIn, commitCommandsIn, messageFilesIn, heredocWritesIn, render, boardOrder, CAP };
 
 if (require.main === module) main();

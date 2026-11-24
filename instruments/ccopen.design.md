@@ -3,7 +3,7 @@
 Status: **built 2026-11-22** (board `210/520`; design committed first).
 It is the twin of `ccclose` (`ccclose.design.md`, which it follows in shape:
 home, four states, read-only, stable fields, one verdict line) and scales that
-design down: seven reads instead of fifteen checks, and no transcript to
+design down: nine reads instead of sixteen checks, and no transcript to
 attribute work from, because a session that has only just opened has done
 nothing yet.
 
@@ -117,6 +117,29 @@ with the cut counted, and known zeros are printed.
 7. **Newest session files** (`CLAUDE.md` step 4). The newest three names in the
    session folder at the integration ref, so the session reads them. ➖ with no
    session folder; a repo that only keeps the retired one-file index says so.
+
+8. **Machine load** (board `180/220`: a run waits for a quiet machine). The
+   1-, 5- and 15-minute load averages against the core count
+   (`os.loadavg()`, `os.cpus().length`). Busy when **both** the 5- and the
+   15-minute averages are at or over the threshold, so a burst does not stop a
+   start; the threshold is `$CCOPEN_MAX_LOAD` when set, else the core count
+   (a load of 1.0 per core is as much runnable work as the CPUs can run), and
+   the line says which applied. Busy is ⚠️ `busy: ... don't start; re-check
+   hourly`, and the verdict says `machine busy`; otherwise ✅ `quiet`. The JSON
+   always carries `load1`, `load5`, `load15`, `cores`, `threshold`,
+   `threshold_source` and `busy`. Test seams `$CCOPEN_LOADAVG` (`a,b,c`) and
+   `$CCOPEN_CORES` make it deterministic.
+9. **Waiting on the principal** (board `180/220`: skip what waits on him). On a
+   per-item board, read at the integration ref: the open items with 🎯 on the
+   state line, how many are parked, and which parks changed. A parked item is
+   an open item with a line beginning `💤 PARKED YYYY-MM-DD` (the newest line
+   is the park); it has **changed** when, after the commit that added that
+   line, a later commit touched its own file or the file of an item it cites
+   as a backticked `NNN/NNN`. Changed parks are listed (capped, the cut
+   counted) with what changed, and the read is ⚠️; unparked 🎯 items are
+   counted and not listed (they belong to `ccclose`'s oldest-asks check, which
+   shares the parsing). ➖ with no per-item board. The parsing helpers live in
+   `ccclose` and are required, not copied.
 
 **Verdict**: `✅ ready to start`, `⚠️ look first: <each ⚠️ read, in words>`, or
 `❌ recover first: <each ❌ read, in words>` (❌ wins when both).

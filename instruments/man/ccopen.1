@@ -13,7 +13,8 @@ ccopen \- read what a session is opening onto, and whether anything is owing
 .SH DESCRIPTION
 A session that opens onto a repo is meant to sync first, look for other live
 sessions, notice an interrupted predecessor's leavings, land any hand-up pull
-requests, check its atelier pin, and read the newest session files.
+requests, check its atelier pin, read the newest session files, wait for a
+quiet machine, and skip what waits on the principal.
 Those steps are prose, in
 .IR CLAUDE.md ,
 in the session-open prompt and in the recovery sweep of
@@ -22,7 +23,7 @@ A session that narrates them from habit can skip one without anyone seeing.
 .PP
 .B ccopen
 runs them as code, from a fresh read of the repository, the host and GitHub:
-seven reads in a fixed order, then one verdict line.
+nine reads in a fixed order, then one verdict line.
 It is the twin of
 .BR ccclose (1),
 which does the same for the close, and it reuses that tool's reads and
@@ -153,6 +154,62 @@ It names files and reads none.
 A repo that keeps only the retired one-file index is
 .B \[u26A0]
 and says to read it by hand.
+.TP
+.B Machine load
+The 1-, 5- and 15-minute load averages against the core count, to decide
+whether to start now.
+The machine is
+.B busy
+when both the 5- and the 15-minute average are at or over the threshold, so a
+burst (the 1-minute average) is not a busy machine.
+Busy is
+.BR \[u26A0] :
+don't start, re-check hourly.
+The threshold is
+.B $CCOPEN_MAX_LOAD
+when set to a positive number, else the core count (a load per core of 1.0 is
+as much runnable work as the CPUs can run), and the line says which applied.
+The JSON always carries
+.IR load1 ,
+.IR load5 ,
+.IR load15 ,
+.IR cores ,
+.IR threshold ,
+.I threshold_source
+and
+.IR busy .
+In the verdict line a busy machine reads
+.BR "machine busy" .
+.TP
+.B Waiting on the principal
+On a per-item board (one file per item under
+.IR docs/roadmap/ ),
+read at the integration branch: the open items marked
+.B \[u1F3AF]
+on their state line (waiting on the principal), how many of them are parked,
+and how many are not.
+A parked item is an open item with a line beginning
+.B \[u1F4A4] PARKED YYYY\-MM\-DD
+(the principal was asked and said not now, undecided or hold; his words follow
+on that line; the newest such line is the park).
+A park has
+.B changed
+when, after the commit that added its newest line, a later commit touched the
+item's own file or the file of an item it cites as a backticked
+.IR NNN/NNN .
+Those parks are listed (up to five, the cut counted) with what changed, and
+the read is
+.B \[u26A0]
+.RI ( "parked items changed since you parked them: look" ).
+An unchanged park is skipped, not re-asked.
+Unparked
+.B \[u1F3AF]
+items are counted and not listed: they belong to the end-of-session round
+.RB ( ccclose (1)
+lists the oldest).
+Without a per-item board the read is
+.BR \[u2796] ,
+and says why.
 .SS The verdict
 The last line is one of
 .B "\[u2705] ready to start" ,
@@ -227,6 +284,18 @@ The calling session, left out of the live-work read and not charged with its
 own claims.
 Unset, nothing is left out and the sync and live reads say so.
 .TP
+.B CCOPEN_MAX_LOAD
+The machine-load threshold: a positive number the 5- and 15-minute load
+averages are compared against.
+Default: the core count.
+.TP
+.B CCOPEN_LOADAVG
+Test seam: three comma-separated numbers, \fI1m,5m,15m\fR, standing in for the
+real load averages.
+.TP
+.B CCOPEN_CORES
+Test seam: a whole number standing in for the core count.
+.TP
 .B CCCLOSE_GH
 The
 .B gh
@@ -298,6 +367,14 @@ before new work.
 It never means the residue is yours to delete: an orphan is reclaimed on the
 evidence and never on a timer, and another session's recovery is not yours to
 run.
+.PP
+The load read judges the machine, not a session: it cannot see which process
+is heavy, and a machine quiet at the start can be busy a minute later, so it
+says nothing about a run already under way.
+The parked-change read counts any later commit that touches the item's file or
+a cited item's file, so a sweep that edits many items wakes many parks, and an
+item renumbered since it was parked reads as unplaced.
+A \fB\[u1F4A4] PARKED\fR line quoted inside a code fence is not a park.
 .PP
 A cold reviewer does not run
 .BR ccopen .
