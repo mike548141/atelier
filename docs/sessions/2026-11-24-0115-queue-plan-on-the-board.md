@@ -66,3 +66,8 @@ in a private repo); asked what the `160/1450` one should review, his pick: *"Wai
 
 Oldest asks, one at a time: `160/010` (`cctranscript --search`, CS1–CS14),
 his pick *"Fix all as advised (Recommended)"*; queued as `210/580`.
+`160/060` (GA1, ten copies of the reason check), his pick *"Make it one
+module (Recommended)"*; checked after asking, it was already built
+(`allowmarker.py`, 2026-10-03) and the item never closed. Closed, with the
+one residue (`publishscan`'s own loader) queued as `210/590`. Lesson: check
+the artefact before putting an old ask to him.
