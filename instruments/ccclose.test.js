@@ -3044,7 +3044,7 @@ function asksWorld(items) {
 const askItem = (title, extra = '') => `- [ ] 🎯 **${title}**\n      detail\n${extra}`;
 const asksOf = (j) => j.by.asks;
 
-test('asks: the three oldest unparked asks, oldest first, each as id · age · title, with the totals and zeros printed', () => {
+test('asks: the one oldest unparked ask of this repo, each as id · age · title, with the totals and zeros printed', () => {
   const { w, root } = asksWorld([
     ['010-area/050-e.md', askItem('Newest ask'), 1],
     ['010-area/020-b.md', askItem('Second oldest'), 40],
@@ -3060,10 +3060,10 @@ test('asks: the three oldest unparked asks, oldest first, each as id · age · t
   const c = asksOf(j);
   assert.equal(c.label, 'Oldest asks');
   assert.equal(c.status, 'pass');
-  assert.deepEqual(c.items, ['010/010 · 60d · Oldest ask', '010/020 · 40d · Second oldest', '010/030 · 20d · Third oldest']);
-  assert.match(c.summary, /^3 oldest of 6 open ask\(s\) waiting on the principal \(1 parked and left out, 5 not parked\)$/);
+  assert.deepEqual(c.items, ['010/010 · 60d · Oldest ask']);
+  assert.match(c.summary, /^the oldest of 6 open ask\(s\) waiting on the principal \(1 parked and left out, 5 not parked\)$/);
   const text = ccclose(w, root, ['--session', 'sess-asks']).out;
-  assert.match(text, /✅ Oldest asks +3 oldest of 6 open ask\(s\)/);
+  assert.match(text, /✅ Oldest asks +the oldest of 6 open ask\(s\)/);
   assert.match(text, /- 010\/010 · 60d · Oldest ask/);
 });
 
@@ -3091,16 +3091,16 @@ test('asks: none waiting is a pass with the zero printed; all parked says so and
   assert.match(c.summary, /1 open ask\(s\) waiting on the principal \(1 parked and left out, 0 not parked\)/);
 });
 
-test('asks: fewer than three are all listed; the cap of three holds at exactly four', () => {
+test('asks: exactly one is shown, the oldest, however many wait (his words, 2026-11-24: one, not three)', () => {
   let { w, root } = asksWorld([['010-area/010-a.md', askItem('Only'), 3], ['010-area/020-b.md', askItem('Two'), 2]]);
   transcript(w, 'sess-asks-2');
   let c = asksOf(json(w, root, ['--session', 'sess-asks-2']));
-  assert.equal(c.items.length, 2);
-  assert.match(c.summary, /^2 oldest of 2 open/);
+  assert.deepEqual(c.items.map((x) => x.split(' · ')[0]), ['010/010']);
+  assert.match(c.summary, /^the oldest of 2 open/);
   ({ w, root } = asksWorld([1, 2, 3, 4].map((n) => [`010-area/0${n}0-x.md`, askItem(`Ask ${n}`), 10 * n])));
   transcript(w, 'sess-asks-3');
   c = asksOf(json(w, root, ['--session', 'sess-asks-3']));
-  assert.deepEqual(c.items.map((x) => x.split(' · ')[0]), ['010/040', '010/030', '010/020']);
+  assert.deepEqual(c.items.map((x) => x.split(' · ')[0]), ['010/040']);
 });
 
 test('asks: no board, a hand-kept board and not-a-repo are not applicable, each with its reason', () => {

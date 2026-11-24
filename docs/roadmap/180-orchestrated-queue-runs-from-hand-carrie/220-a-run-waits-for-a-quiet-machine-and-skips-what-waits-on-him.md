@@ -141,3 +141,9 @@
       remove" owed line above is void. What stays owed: the oldest-asks
       round sorts each ask (record, decision, find out first) before any
       reaches him.
+      **One old question, from this repo, his words, 2026-11-24, verbatim:**
+      *"We need to change this down to just asking one old question, not 3.
+      And it must be a question from the repo that the session is running in
+      / working on"*. Built the same day: the prompt, `COMMUNICATION.md`, and
+      `ccclose` check 16 (shows the one oldest; the board it reads is the
+      checkout's own, so another repo's asks cannot appear).

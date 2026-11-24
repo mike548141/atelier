@@ -71,7 +71,7 @@ commands (a refused delete re-routed among them), the working tree, subagents,
 the scratch folder, in a repo that pins atelier the pin and floor copy (runs
 pins.py: it fetches the atelier checkout's origin), anything else the
 session launched still running (reads the process table; fails closed), and
-the oldest open asks waiting on you (informational). Lists every prompt you
+the oldest open ask waiting on you in this repo (informational). Lists every prompt you
 gave, each question put to you, the other repos touched (the same checks
 there) and the other live sessions; ends with the identifiers block.
 Read-only. Exit 0 when no check fails.  Full manual: man ccclose`;
@@ -1482,7 +1482,12 @@ function ageWords(sec, now = Date.now()) {
 
 // Check 16: the oldest open asks. Informational: it lists what the end-of-
 // session round could put to the principal, and never fails the close (180/220).
-const OLDEST_N = 3;
+// One, from this repo only: Mike, 2026-11-24, verbatim, "We need to change this
+// down to just asking one old question, not 3. And it must be a question from
+// the repo that the session is running in / working on". The board read is the
+// checkout's own (--root), so no other repo's asks can appear. A session that
+// finds the listed ask settled records why and re-runs, and the next one shows.
+const OLDEST_N = 1;
 function checkOldestAsks(repo, b, now = Date.now()) {
   const L = 'Oldest asks';
   const bw = boardWaiting(repo, b, repo.isGit ? integrationRef(repo) : null);
@@ -1495,7 +1500,7 @@ function checkOldestAsks(repo, b, now = Date.now()) {
   const dated = unparked.map((i) => ({ ...i, at: ages.has(i.file) ? ages.get(i.file) : null }));
   dated.sort((x, y) => (x.at === null) - (y.at === null) || (x.at - y.at) || boardOrder(x.id, y.id));
   const top = dated.slice(0, OLDEST_N);
-  return check('asks', L, 'pass', `${top.length} oldest of ${tail}`,
+  return check('asks', L, 'pass', `the oldest of ${tail}`,
     top.map((i) => `${i.id} · ${i.at === null ? 'age unknown' : ageWords(i.at, now)} · ${i.title}`));
 }
 

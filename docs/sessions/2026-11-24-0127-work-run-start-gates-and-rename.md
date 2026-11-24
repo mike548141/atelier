@@ -101,3 +101,7 @@ to /atelier:work-run or something else"*; *"We could also consider having
   stays, he parks work through a session, and what he refused was sessions
   inferring parks from his past "not now" answers. Restored the same hour,
   his words quoted; the reads stand as built.
+- **One old question per session, from the repo in hand** (his words on
+  `180/220`): prompt, doctrine and `ccclose` changed from three to one.
+- **The command's name is `/atelier:work run`** (his words on `180/230`);
+  `work-run` is the interim skill until `450/020`'s build.

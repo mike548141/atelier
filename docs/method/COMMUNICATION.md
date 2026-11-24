@@ -449,11 +449,13 @@ or not right now. So rather than doing other work in the queue it keeps
 looping on the same work and questions"*.
 
 **The backlog of asks is chipped at every session.** At its close a session
-puts its own questions first, then the three oldest still waiting on him
-(`ccclose` lists them), each read first to confirm it is still his to answer,
-one at a time as above, and stops when
-he says stop. Three is his pick from options offered (an answer, 2026-11-24);
-the reason is his, verbatim: *"its a matter of chipping away at the questions
+puts its own questions first, then the one oldest question still waiting on
+him **in the repo it is working in** (`ccclose` shows it), read first to confirm
+it is still his to decide, as above; one settled by the record is recorded as
+settled and the next oldest takes its place. His words, 2026-11-24, verbatim:
+*"We need to change this down to just asking one old question, not 3. And it
+must be a question from the repo that the session is running in / working
+on"*. The reason is his, verbatim: *"its a matter of chipping away at the questions
 continuously and keeping on top of it"*.
 
 **Not decided here.** Whether the harness can notify him when a session stops
