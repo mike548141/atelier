@@ -6,11 +6,11 @@ to work, close and report. This directory keeps that prompt, and beside it the
 house's own dispatch brief, the bounds an orchestrator opens each worker with.
 
 - [`session-open-prompt.md`](session-open-prompt.md) is the prompt, and it is
-  exactly what `/atelier:queue-run <this run's brief>` runs: the skill loads
+  exactly what `/atelier:work-run <this run's brief>` runs: the skill loads
   this file and adds no rule of its own (only how to fetch it, the bundled
   path of the doctrine and where the typed text goes), so the command and the
   copy pasted by hand are one text (`180/090`;
-  `tools/test_queue_run_single_source.py` guards it). It is the principal's
+  `tools/test_work_run_single_source.py` guards it). It is the principal's
   text: an agent changes it only on his say-so, quoted in the commit.
   **Its history is its git history, and nothing else.** There is no copy of
   an old version anywhere in the tree. Every version since the first opener

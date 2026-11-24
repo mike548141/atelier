@@ -60,7 +60,7 @@ Companion behaviours ship alongside this skill. Enforcement: `/atelier:scan`
 gate — the mechanical enforcement the doctrine leans on hardest), the
 `review-brief` skill (the peer-review lifecycle that turns "looks right" into
 "verified"), the `review-drain` skill (run briefed cold review passes until an
-approved budget is used up), and the `queue-run` skill (orchestrate a run that
+approved budget is used up), and the `work-run` skill (orchestrate a run that
 drains the shared queue, closing records per item). Repo-craft as behaviour:
 the `create-repo` skill (scaffold or standardise a repo to the house standard,
 stamped from your own instance profile), the `fleet-sweep` skill (bring every

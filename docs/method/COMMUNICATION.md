@@ -421,10 +421,30 @@ be away ("I won't be here for several hours"), the parked-asks cadence above is
 the rule for the whole run: park what needs him, finish what does not, ask
 together at the end. Absent such a word the default stays the ask-through-the-
 device cadence of the sections above, since that is correct when he is watching.
-His session-open prompt already declares away in its closing paragraph (so a
-run started by `/atelier:queue-run` takes the parked-asks cadence; the
-orchestrated-run section of `CONCURRENCY.md` says so) and a session reads a
-declaration the same way wherever it appears, by his words and no other cue.
+His session-open prompt declares it in *Working with me*: ask at the start of
+the session or once all the work is done, not in the middle, and record what
+blocks only part of the work and carry on (`180/220`, 2026-11-24). So a run
+started by `/atelier:work-run` takes the parked-asks cadence, with its
+run-gating asks put first (the orchestrated-run section of `CONCURRENCY.md`
+says so), and a session reads a declaration the same way wherever it appears,
+by his words and no other cue.
+
+**An answer of "not now" parks the question, and a parked question is not
+asked again** until something changes: his answer, a review it waited on
+returning, or the item it waits on landing. The item records the park on a
+`💤 PARKED <date>` line with his words (`roadmap/README.md`), and `ccopen`
+lists each parked item that has changed since, so the next session finishes
+those and leaves the rest alone. His reason, 2026-11-24, verbatim: *"I start a
+new session and it tries to do work that I've told it in a recent past session
+something like I am undecided or not right now. So rather than doing other
+work in the queue it keeps looping on the same work and questions"*.
+
+**The backlog of asks is chipped at every session.** At its close a session
+puts its own questions first, then the three oldest still waiting on him that
+are not parked (`ccclose` lists them), one at a time as above, and stops when
+he says stop. Three is his pick from options offered (an answer, 2026-11-24);
+the reason is his, verbatim: *"its a matter of chipping away at the questions
+continuously and keeping on top of it"*.
 
 **Not decided here.** Whether the harness can notify him when a session stops
 on a question is unverified, and is worth one artefact check before anything

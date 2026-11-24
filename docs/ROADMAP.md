@@ -32,7 +32,7 @@ line, so they overlap Open and Claimed.
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
 | [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 137 | 0 | 75 | 40 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
-| [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 2 | 0 | 1 | 0 |
+| [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 4 | 0 | 1 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
 | [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
 | [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 13 | 0 | 5 | 1 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 283 | 0 | 107 | 41 |
+| **All sections** | 285 | 0 | 107 | 41 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -327,6 +327,8 @@ line, so they overlap Open and Claimed.
 
 - [ ] [💡 A plan mode, /atelier:queue-plan: show the principal the drain before…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/210-a-plan-mode-that-shows-the-drain-before-it-runs.md)
 - [ ] 🎯 [A run waits for a quiet machine, skips what waits on him, asks at its…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/220-a-run-waits-for-a-quiet-machine-and-skips-what-waits-on-him.md)
+- [ ] [Rename /atelier:queue-run to /atelier:work-run.](roadmap/180-orchestrated-queue-runs-from-hand-carrie/230-rename-queue-run-to-work-run.md)
+- [ ] [💡 A plan mode for /atelier:work-run, as /atelier:work-plan: show the…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/240-a-work-plan-mode-for-work-run.md)
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 

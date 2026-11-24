@@ -1156,7 +1156,7 @@ atelier itself, it reads the **current** house doctrine, not the copy a stale
 pin captured (`PROPAGATION.md`, the drift check) — a local atelier checkout
 where one exists, else the plugin's bundled copy
 (`${CLAUDE_PLUGIN_ROOT}/docs/method/CONCURRENCY.md`, the path the
-`/atelier:queue-run` command gives), which is as old as its install. A repo with
+`/atelier:work-run` command gives), which is as old as its install. A repo with
 no `CLAUDE.md`, floor block or roadmap gets the **minimum viable** run, and the
 run says plainly that is what it is doing: the queue is the repo's nearest
 equivalent to a roadmap, named; the claim edits that item's own line with a
@@ -1182,7 +1182,7 @@ principal, not obeyed (2026-07-23, QR4: the pattern routes the least-vetted
 input to the least-capable seat by design, and no scanner catches intent).
 
 Three selection rules the principal's run brief states at every open: he
-carried it by hand from 2026-09-14, and `/atelier:queue-run` now runs the same
+carried it by hand from 2026-09-14, and `/atelier:work-run` now runs the same
 file (homed 2026-10-18, `180/030`; his words are in
 [`session-open/session-open-prompt.md`](session-open/session-open-prompt.md)):
 
@@ -1351,11 +1351,23 @@ for them):
   ask*. A principal who says
   he is away sets the other cadence: work everything that does not need him
   first, park what does, and bring the asks together at the end. His
-  session-open prompt, which `/atelier:queue-run` runs, now says he is away
-  in its closing paragraph, so a run started by the command takes the away
-  cadence by default (he was told so at `180/090`); a run on any other brief
-  takes the default above until he says otherwise (2026-11-08, `160/900`
-  QK7).
+  session-open prompt, which `/atelier:work-run` runs, says to ask at the
+  start or once the work is done (`180/220`), so a run started by the command
+  takes the away cadence by default (he was told so at `180/090`); a run on
+  any other brief takes the default above until he says otherwise
+  (2026-11-08, `160/900` QK7).
+- **A run waits for a quiet machine before it starts.** When `ccopen` reads
+  the machine as busy (the 5- and 15-minute load averages both at or above
+  the core count), a run started from the prompt asks its run-gating
+  questions, then waits, re-checking hourly, and starts when it is quiet; after
+  four hours it starts with one worker at a time and says so. This gates the
+  start only; it is not the in-flight pacing a review drain does. His words,
+  2026-11-24, verbatim: *"My intention with this was not to constantly adjust
+  the amount of work whilst inflight like we do with the review drain, but to
+  simply not start a sessions work until the other sessions have eased off.
+  But not require me to wait around to start it manually."* The threshold is
+  the point where runnable work exceeds the CPUs, not a measured figure;
+  `CCOPEN_MAX_LOAD` overrides it (`180/220`).
 - **The closing litany is not restated here.** What a per-item close *contains* —
   the session record, the roadmap close (a harvest on a monolithic board),
   review-queued-if-owed, the push —

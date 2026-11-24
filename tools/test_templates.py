@@ -574,7 +574,7 @@ class LensRosterParityTest(unittest.TestCase):
         self.assertIn("security & privacy is a must on every review", flat)
 
 
-QUEUE_RUN_SKILL = ROOT / "skills" / "queue-run" / "SKILL.md"
+QUEUE_RUN_SKILL = ROOT / "skills" / "work-run" / "SKILL.md"
 QUEUE_RUN_PROMPT = ROOT / "docs" / "method" / "session-open" / "session-open-prompt.md"
 CONCURRENCY = ROOT / "docs" / "method" / "CONCURRENCY.md"
 
@@ -598,7 +598,7 @@ def canonical_stop_conditions() -> list:
 
 
 class QueueRunSkillTest(unittest.TestCase):
-    """skills/queue-run/SKILL.md — third stamped-copy skill, same pin as
+    """skills/work-run/SKILL.md — third stamped-copy skill, same pin as
     review-brief (2026-07-19 F3, 2026-07-21 SL1: this drift class has
     shipped twice; 2026-07-23 QR6 ruled the pin mandatory at birth)."""
 
@@ -633,7 +633,7 @@ class QueueRunSkillTest(unittest.TestCase):
         for stop in canonical_stop_conditions():
             self.assertIn(
                 stop, self.flat,
-                f"skills/queue-run/SKILL.md is missing stop condition "
+                f"skills/work-run/SKILL.md is missing stop condition "
                 f"{stop!r} — the skill must name every stop CONCURRENCY.md "
                 "enumerates (change one, change both, same commit)",
             )

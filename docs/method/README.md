@@ -122,5 +122,5 @@ Read in this order:
 - **`session-open/`** — the principal's standing session-open prompt
   (`session-open-prompt.md`), the history of how it changed, and the dispatch
   brief an orchestrator opens each worker with. The prompt is his text, and
-  `/atelier:queue-run` runs its committed copy (see its README for what that
+  `/atelier:work-run` runs its committed copy (see its README for what that
   means and who can change it).

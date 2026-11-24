@@ -6,6 +6,11 @@ on what's next.
 
 Run `ccopen` first and act on what it reports before starting new work.
 
+If it says the machine is busy with other sessions' work, don't start yet:
+check once an hour and start when it's quiet. Ask me anything that blocks the
+whole run before you wait, while I'm likely still here. If it's still busy
+after four hours, start with one worker at a time and say so.
+
 If it says this is atelier itself or a child repo, treat this as an
 **atelier orchestrated queue run**: read the *current*
 `../atelier/docs/method/CONCURRENCY.md` § *Orchestrated queue runs*, not
@@ -13,7 +18,7 @@ whatever a stale pin last captured — it's the pattern this whole brief
 invokes, and its sibling docs (`ECONOMICS.md`, `RECORD.md`, `REVIEW.md`)
 cover claiming, concurrency, and close discipline in more current detail
 than anything below. Follow them rather than re-deriving your own version.
-(`/atelier:queue-run` runs exactly this file, so the command and this text
+(`/atelier:work-run` runs exactly this file, so the command and this text
 cannot differ.) Say which model you're on in your first report, then get on
 with it — don't ask me which tier to use, and don't stop because a more
 capable one exists. Stop if the work outruns you, or a review needs a tier
@@ -48,6 +53,10 @@ format — I'll describe it however's clearest each time.
 - Anything I hand you mid-session becomes its own claimable item first —
   queue it, claim it, then work it — unless it's genuinely unrealistic to
   progress this session, in which case queue it, say why, and move on.
+- Skip anything waiting on me — a decision I haven't made, or one I've said
+  I'm undecided on or not doing right now — unless something has changed
+  since: I've answered, the review it waited on has run, or what blocked it
+  has landed. Then finish it. Don't re-ask what I've parked.
 - Leave alone anything I've told you to record as an idea without building
   it — it stays queued until I say to start it. If you can't tell from an
   item's own text whether it's idea-only, ask rather than guess.
@@ -85,12 +94,13 @@ format — I'll describe it however's clearest each time.
 
 ## Working with me
 
-- Try not to stop and ask me questions until you have done all the work. I
-won't be here to answer for several hours and I want you to get as much of
-this work done as you can
-- Ask me with AskUserQuestion when you need a decision, mid-turn or between
-  turns — don't guess when you could ask, and don't ask when you could find
-  the answer yourself.
+- Ask me questions at the start of the session, while I'm likely here, or
+  once all the work is done — not in the middle. I may be away for several
+  hours and I want you to get as much of this work done as you can. Anything
+  that blocks only part of the work: record it, carry on with the rest, and
+  ask at the end.
+- Ask me with AskUserQuestion — don't guess when you could ask, and don't ask
+  when you could find the answer yourself.
 - When I ask what's left on the board/roadmap, answer with a bullet list —
   not prose. Rank it when that's part of the ask.
 - Challenge my ideas, logic, and prompts — including my own past rulings —
@@ -133,7 +143,9 @@ question it lists (done, queued as an item, or not done). Then, for me:
 2. Walk me through any open decision or unanswered question, one at a
    time, in plain language: what it's for, and what each answer would
    change. I do not always read all the replies so its easy for me to miss
-   important information.
+   important information. First this session's questions, then the three
+   oldest still waiting on me from earlier sessions (`ccclose` lists them),
+   so they don't pile up. Stop when I say stop.
 3. Confirm the decisions, evidence, learnings and questions to ask me later
    are recorded in a way that ensures future sessions will find them and
    act on them. If any of that isn't true yet, say so; don't tell me you're

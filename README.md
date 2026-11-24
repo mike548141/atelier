@@ -51,7 +51,7 @@ we work:
 | `docs/reviews/` | peer-review briefs (work earns trust through independent review — see `method/REVIEW.md`) |
 | `tools/` | the mechanical controls that *enforce* the doctrine — e.g. `leakscan.py`, the pre-commit net catching the shape of personal/estate data before it is committed |
 | `instruments/` | tools whose only value is the Claude teammateship — observing it (its cost, `ccrepo`; its history, `cctranscript`) or extending its reach (`browser-fetch`, `ccmail`) (see `docs/decisions/0006-instruments-in-atelier.md`) |
-| `skills/` | the plugin's six skills: `session-onramp`, `review-brief`, `queue-run`, `create-repo`, `fleet-sweep`, `review-drain` |
+| `skills/` | the plugin's six skills: `session-onramp`, `review-brief`, `work-run`, `create-repo`, `fleet-sweep`, `review-drain` |
 | `commands/` | the plugin's slash commands: `scan`, `install-hook`, `worktree`, `fleet-pins` |
 | `.claude-plugin/` | the plugin and marketplace manifests that make this repo installable |
 
@@ -115,10 +115,10 @@ What you get:
   the always-confirm floor, then points at the rest of the doctrine, read on demand.
 - **`review-brief`** skill — the peer-review lifecycle that turns "looks right"
   into "verified".
-- **`queue-run`** skill — orchestrate a queue run: drain the shared queue as an
+- **`work-run`** skill — orchestrate a queue run: drain the shared queue as an
   orchestrator, execute via workers in worktrees, close records per item so a
   session cap loses at most the item in flight.
-  `/atelier:queue-run <the run's brief>` runs the principal's prompt,
+  `/atelier:work-run <the run's brief>` runs the principal's prompt,
   `docs/method/session-open/session-open-prompt.md`, word for word.
 - **`create-repo`** skill — scaffold a new repo (or standardise an existing one)
   to the house standard, stamped from **your own** instance profile

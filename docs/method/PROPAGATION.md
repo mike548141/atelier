@@ -393,7 +393,7 @@ is tracked by plugin version because that is the pin a plugin-only adopter can
 actually check: the command runs against exactly what they have installed.
 
 **What the version signal is worth, stated (`160/520` SY6).** A skill is
-doctrine by function: `queue-run` is the first thing an orchestrator executes,
+doctrine by function: `work-run` is the first thing an orchestrator executes,
 and a change to it reaches a plugin-only adopter only inside the plugin. Since
 2026-10-18 the plugin carries no `version` (each commit is its own version, the
 trade chosen on `180/040`), so the `grep '"version"'` above finds nothing to

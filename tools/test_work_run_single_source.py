@@ -1,4 +1,4 @@
-"""The /atelier:queue-run skill and the principal's hand copy are one text.
+"""The /atelier:work-run skill and the principal's hand copy are one text.
 
 Mike, 2026-10-18 (180/090): "You need to ensure the there is no drift between
 the command and the text file unless I authorise the drift." The skill loads
@@ -21,7 +21,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILL = ROOT / "skills" / "queue-run" / "SKILL.md"
+SKILL = ROOT / "skills" / "work-run" / "SKILL.md"
 PROMPT = ROOT / "docs" / "method" / "session-open" / "session-open-prompt.md"
 REF = "docs/method/session-open/session-open-prompt.md"
 DOCTRINE_REF = "docs/method/CONCURRENCY.md"

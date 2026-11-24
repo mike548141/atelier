@@ -51,15 +51,27 @@
       **Evidence it works by hand.** 608d8123 waited two hourly checks (load
       20–24 on 12 cores from other repos' runs), started at load 5, and its
       triage skipped the 🎯 items (`docs/sessions/2026-11-23-1354-*`).
-      **Recommended shape (offered to him 2026-11-24, awaiting his pick):**
+      **His answers, 2026-11-24 (picks from options offered, not rulings):**
+      *"All four, as drafted (Recommended)"* and, for the backlog, *"3 oldest
+      per session (Recommended)"*. Then, in his own words, verbatim: *"It
+      should also ask the questions from the current session"*: the close
+      round puts this session's questions first, then the three oldest.
+      **Correction at build:** the load threshold is not `ccfleet`'s gate.
+      That gate (2 × cores, 1- and 5-minute averages) decides whether a drain
+      adds one more pass; last night's 20–24 on 12 cores sat under it, yet
+      was the case he wanted to wait out. The start gate is the core count on
+      the 5- and 15-minute averages: the point where runnable work exceeds the
+      CPUs, a principle and not a measurement, overridable by
+      `CCOPEN_MAX_LOAD`.
+      **Shape built:**
       1. **The prompt** (his text, changed only on his say-so): run-gating
          questions at the start, the rest at the end; skip what waits on him
          unless something changed; wait for a quiet machine, checking hourly,
          up to four hours; at the end, put the oldest few open asks to him so
          the backlog shrinks every session.
-      2. **`ccopen`** gains a machine-load read (⏳ busy against `ccfleet`'s
-         gate, so the house keeps one number) and a waiting-on-him read: how
-         many are parked, and which changed since they were parked.
+      2. **`ccopen`** gains a machine-load read (busy at the core count, on
+         the 5- and 15-minute averages) and a waiting-on-him read: how many
+         are parked, and which changed since they were parked.
       3. **The board** gains a parked mark: his answer and date on the item's
          state line, so a parked item is skipped and not re-asked until its
          file or the item it waits on changes.
