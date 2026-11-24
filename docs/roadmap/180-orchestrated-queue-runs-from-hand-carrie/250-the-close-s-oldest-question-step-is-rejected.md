@@ -1,4 +1,4 @@
-- [ ] 🎯 **The close's "one oldest question" step is rejected; stale asks
+- [~] **The close's "one oldest question" step is rejected; stale asks
       need a different plan.** Hand-up from a private child's session,
       2026-11-24, by class only (`PROPAGATION.md` § *The route*). The
       mechanism: the session-open prompt's close step 2 (*"then the one
@@ -20,3 +20,9 @@
       session that takes this confirms them with him first. Until then a
       close does not put an old question, on his relayed words, and says so.
       Not tested beyond this one instance.
+      **His own say-so, 2026-11-24, to atelier session atelier-e8, verbatim:**
+      *"No more asking me old questions from the repo like you started doing
+      tonight. Its not helpful"*. So (b) is his ruling now: the step comes
+      out of the prompt, the doctrine and `ccclose`. (a), a different plan
+      for stale asks, stays owed; he said this week it is not his priority.
+      (claimed 2026-11-24-1023, wt: atelier-e8-no-old-questions)
