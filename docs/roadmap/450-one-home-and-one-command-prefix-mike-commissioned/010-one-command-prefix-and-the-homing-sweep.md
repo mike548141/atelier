@@ -141,6 +141,9 @@
         `180/210` folds into the plan. So row 2 retires the old command onto
         those, in the same build or after it; it still waits on a clean
         `160/1450` re-check and switches between drains, never mid-drain.
+        Later the same day, his words, verbatim: *"Also I want you to carry on with design and build in a fresh session, not wait until the fable review is done"*. So the
+        build of `review plan` and `review run` does not wait; the cutover
+        of his live drain is asked separately (see `180/210`).
       - Still open: row 2 (waits on `160/1450`), row 11 (waits on the
         batch conditions), row 12 (the generic half of the estate's queue
         reader as atelier's reference queue; optional, after row 2).

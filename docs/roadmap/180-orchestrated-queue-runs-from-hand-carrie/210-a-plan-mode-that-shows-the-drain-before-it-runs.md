@@ -90,5 +90,10 @@
       for every `/atelier:` command, so these are `/atelier:review plan` and
       `/atelier:review run`, with a bare `/atelier:review` showing a menu
       (450/020). Read the names above in that form.
+      **Build now, his words, 2026-11-24 ~03:50Z, verbatim:** *"Also I want you to carry on with design and build in a fresh session, not wait until the fable review is done"*.
+      So the design and build of this item and `450/020` start in a fresh
+      session now, not after the `160/1450` re-check. Whether his live
+      weekly drain also moves off the old user-level command before that
+      re-check is a separate question, put to him at this session's close.
       **Page form, his answer 2026-11-24, verbatim:** *"a table in the
       reply"*. Nothing is open for the build to ask him.
