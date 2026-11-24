@@ -4,7 +4,10 @@
       for a drain but not run the reviews i.e. it finds them, prioritises them,
       shows me a queue of work, estimated budget/API spend, what reviews will
       route to local vs Batch API vs Agent SDK etc"* · *"It could be
-      atelier:queue-plan as a command"* · *"Put it on the board"*.
+      atelier:queue-plan as a command"* · *"Put it on the board"*. Then,
+      verbatim: *"Sorry I quoted the wrong command name there I was thinking
+      of /atelier:review-drain not queue-run"*. So it is a plan mode for
+      `review-drain`; reviews only.
       **What exists, and the gap.** `review-drain` § *Rank and route the whole
       queue first* already reads every briefed review, ranks it, routes it and
       seals the result, but only as step 1 of a real drain: the ranking is
@@ -33,7 +36,7 @@
       5. Lives under the plugin's prefix as a command over `review-drain`
          (450/010's one-home rule). Read-only: no claims, no worktrees, no
          sessions started.
-      **Open, for the build session to settle with him, not here:** whether
-      it also lists the non-review items a `queue-run` would take (his words
-      name `queue-run` but describe reviews), and the page form (reply table
-      or a page in his browser).
+      **Open, for the build session to settle with him, not here:** the
+      command's name (his `queue-plan` was said of `queue-run`; something
+      like `review-plan`, or a `plan` mode of `review-drain`, may now fit
+      better) and the page form (reply table or a page in his browser).
