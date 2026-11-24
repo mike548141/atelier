@@ -43,4 +43,7 @@ only, his edits carried as words for the next run). Nothing built.
 
 `180/210` itself, including two questions for the build session to settle
 with him: its page form; and `450/020`, whose mapping of today's commands
-waits for his confirmation before anything moves.
+waits for his confirmation before anything moves. Asked whether retiring
+the user-level drain command is on the board: it is, `450/010` row 2
+(cleared by him 2026-11-18, waiting on a clean `160/1450` re-check); both
+items now cross-link to the new target.

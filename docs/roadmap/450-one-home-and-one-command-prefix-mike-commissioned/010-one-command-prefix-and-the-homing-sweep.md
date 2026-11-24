@@ -133,6 +133,14 @@
       - ✅ Row 13 judged, not built: one instance, tied to one repo's export
         script and naming the estate root; generalising it would invent a
         pattern, not ground one. It stays in its repo.
+      - 2026-11-24 (session edf25bd3): row 2's target moves. `180/210`
+        splits the drain into a plan step and a run step, and `450/020`
+        (his ruling, a space form for every command) names them
+        `/atelier:review plan` and `/atelier:review run`; the old drain
+        command's own *Rank and route* section is one of the copies
+        `180/210` folds into the plan. So row 2 retires the old command onto
+        those, in the same build or after it; it still waits on a clean
+        `160/1450` re-check and switches between drains, never mid-drain.
       - Still open: row 2 (waits on `160/1450`), row 11 (waits on the
         batch conditions), row 12 (the generic half of the estate's queue
         reader as atelier's reference queue; optional, after row 2).

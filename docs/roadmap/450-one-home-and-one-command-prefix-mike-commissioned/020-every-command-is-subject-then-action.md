@@ -8,6 +8,11 @@
       to him) or `/atelier:review plan`. It fits his commission above
       (*"/atelier estate-health"*), and `/atelier:worktree start|list|land|
       remove` already works this way.
+      This updates `010`'s 2026-11-18 point *Colon, not space*: the colon
+      stays (the plugin namespace), and the space now carries the action.
+      The trade-off `010` named, that actions do not show in the picker, is
+      the one he accepted; the bare-subject menu answers it. `010` row 2
+      (retiring the user-level drain command) now lands on `review run`.
       **What it means.** One skill per subject, the action as its first
       argument: `/atelier:review plan`, `/atelier:review run`,
       `/atelier:review brief`. A bare `/atelier:review`, or an action it
