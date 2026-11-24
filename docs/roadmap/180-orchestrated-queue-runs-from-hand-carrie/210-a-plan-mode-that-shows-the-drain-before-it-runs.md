@@ -83,5 +83,9 @@
       files here, 16 records (left as written; history is kept), and nine
       files in two private child repos, which their own sessions sweep
       (`fleet-sweep`), never this repo's.
+      **Superseded on form the same day:** he ruled a space, not a hyphen,
+      for every `/atelier:` command, so these are `/atelier:review plan` and
+      `/atelier:review run`, with a bare `/atelier:review` showing a menu
+      (450/020). Read the names above in that form.
       **Open, for the build session to settle with him:** the page form
       (reply table or a page in his browser).

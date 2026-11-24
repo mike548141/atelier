@@ -23,7 +23,12 @@ review-plan when it starts a drain"*, and consolidate copies such as
 with the four places the logic lives today, found by grep. Last, verbatim:
 *"We should consider renaming /atelier:review-drain to /atelier:review-run
 as well to get some consistency across the commands"*. Recommended yes, in
-the same build; sized and recorded in the item.
+the same build; sized and recorded in the item. Then he offered a space
+instead of a hyphen; asked in the device (hyphen recommended), he ruled,
+verbatim: *"I think a space and for the default it could have a menu or
+help screen a little like what /atelier does by itself. We should make all
+the atelier command like this so its consistent"*. Filed as board
+`450/020`; `180/210` points to it.
 
 ## What was done
 
@@ -37,4 +42,5 @@ only, his edits carried as words for the next run). Nothing built.
 ## Left open
 
 `180/210` itself, including two questions for the build session to settle
-with him: its page form.
+with him: its page form; and `450/020`, whose mapping of today's commands
+waits for his confirmation before anything moves.
