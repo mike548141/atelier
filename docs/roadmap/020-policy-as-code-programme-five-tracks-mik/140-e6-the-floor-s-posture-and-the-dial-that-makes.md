@@ -1,4 +1,4 @@
-- [ ] 🎯 **E6 — the floor's posture, and the dial that makes it reachable.
+- [ ] **E6 — the floor's posture, and the dial that makes it reachable.
       RULED 2026-07-28 (Mike), three parts, all his call, none built.**
 
       **What was found.** The two boundary scanners hold *opposite* postures
@@ -150,3 +150,8 @@
       `leakscan` reaches the PII half of the stated intent as
       `secretscan` reaches the credential half — is endorsed by the pass
       as real open work, not folded into it. **Ran 2026-08-03 → E7 below.**
+      **No longer waiting on him (checked 2026-11-24, session b95c0d98).**
+      Every part is ruled: E6a and E6b are built, the estate-wide view was
+      ruled 2026-08-09 and is the estate-root repo's build, and E6d's three
+      rulings and scale were ruled 2026-07-28 and 2026-08-04. What is owed is
+      building E6d, not a decision, so the 🎯 is removed.

@@ -1,4 +1,4 @@
-- [ ] 🎯 **B4 — the roadmap-deletion guard: BUILT, MEASURED, and deliberately
+- [ ] **B4 — the roadmap-deletion guard: BUILT, MEASURED, and deliberately
       NOT WIRED (2026-07-28).** `tools/harvestscan.py` exists, is tested (16
       tests) and runs clean on the live tree. It fingerprints *content* as the
       item required — never titles — and the measurement is why it stops short
@@ -36,3 +36,9 @@
       to fund the next step or leave it as a hand-run tool before deliberate
       bulk deletions, which is the one moment the 2026-07-25 failure would have
       been caught.
+      **No longer waiting on him (checked 2026-11-24, session b95c0d98).**
+      The step this asked him to fund was taken: `fe4cb650` (2026-08-04) gave
+      `harvestscan` the delete-only scope named above (`--only-bulk-deletes`,
+      50 net lines) and the floor runs it warn-only. The 🎯 was left behind;
+      it is removed so the oldest-asks round stops putting a settled question.
+      What, if anything, is still owed here is a session's to judge.

@@ -71,3 +71,15 @@ to /atelier:work-run or something else"*; *"We could also consider having
   48 tests. Same review, `160/1780`.
 - He confirmed the parallel session's form change will make it `/atelier:work
   run` and `/atelier:work plan`; that is `450/020`'s build, not this session's.
+- **The first oldest-asks round found stale asks.** Of the three oldest
+  🎯 items, two were already settled (`020/020`: `harvestscan` got the
+  delete-only scope and floor wiring on 2026-08-04; `020/140`: every part
+  ruled, only building owed). Their marks came off with the evidence, so a
+  close round must read each ask's own text before putting it. `020/040`
+  is a live ask and was put to him.
+- **He said to carry on in a fresh session** without waiting for
+  `160/1780` (his words on `180/220`).
+- **Miss, owned:** three item edits and a board rebuild were made in the
+  shared primary checkout while the peer had staged work there; its staged
+  index picked up my counts. Moved to a worktree, its staged index rebuilt
+  from its own items (`--from-index`), and the peer told.

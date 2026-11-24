@@ -95,3 +95,8 @@
       `CCOPEN_RECHECK_MIN`, default 30 (two turns of the 15-minute average),
       and quiet now needs both the 5- and 15-minute averages under the
       threshold, so a dip is still busy. Rides the `160/1780` pass.
+      **Carry on now, his words, 2026-11-24, verbatim:** *"Also I want you to
+      carry on with design and build in a fresh session, not wait until the
+      fable review is done"*. So the owed sweep (and `180/240`, if he
+      confirms) runs in a fresh session he opens, without waiting for
+      `160/1780`.
