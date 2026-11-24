@@ -28,8 +28,13 @@
       | `queue-run` | `queue run` (a `queue plan` later if wanted) |
       | `fleet-sweep`, `fleet-pins` | `fleet sweep`, `fleet pins` |
       | `worktree` | unchanged |
-      | `scan`, `install-hook`, `create-repo`, `session-onramp` | single-action commands; grouping (e.g. `repo scan`, `repo hook`, `repo create`, `session onramp`) is open |
+      | `scan`, `install-hook`, `create-repo`, `session-onramp` | `repo scan`, `repo hook`, `repo create`, `session onramp` |
 
+      **His answers, 2026-11-24 (AskUserQuestion; answers, not rulings):**
+      the four single-action commands, *"Group them (Recommended)"*, as the
+      last row reads. The rest of the table was shown to him in the same
+      turn with no objection; the build confirms it with him in one line
+      before moving anything.
       **Owed by the build:** each subject's skill description must carry the
       trigger words of every action it holds (one description now does the
       work of several), and each action's text lives in its own file behind

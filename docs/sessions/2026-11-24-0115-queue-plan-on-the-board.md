@@ -48,3 +48,6 @@ waits for his confirmation before anything moves. Asked whether retiring
 the user-level drain command is on the board: it is, `450/010` row 2
 (cleared by him 2026-11-18, waiting on a clean `160/1450` re-check); both
 items now cross-link to the new target.
+On the four single-action commands, his pick: *"Group them
+(Recommended)"* (`repo scan`, `repo hook`, `repo create`, `session
+onramp`); recorded in `450/020`.
