@@ -145,6 +145,10 @@ Six subjects, sixteen actions:
 - **`/atelier:session`**
   - **`onramp`** — loads the apex (honesty, adaptation) and the always-confirm
     floor, then points at the rest of the doctrine, read on demand.
+  - **`close`** — closes the session properly by running the *Ending the
+    session* section of the principal's session-open prompt (read from the
+    committed copy), with any extra close brief typed after it; works in any
+    repo or none.
 - The whole `docs/method/` + `docs/build/` doctrine, bundled as reference.
 
 Adopting it, you **become the principal**: instantiate the worked example as

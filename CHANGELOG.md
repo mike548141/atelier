@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-25 — `/atelier:session close`, `450/030`)
+- **`/atelier:session close` runs the principal's close from one command.** It
+  reads the *Ending the session* section of
+  `docs/method/session-open/session-open-prompt.md` from the committed copy
+  (warning on a pending edit, as `work run` does), follows it as his own brief,
+  and treats words typed after `close` as that session's extra close brief. It
+  stops loudly if the heading is gone, works in any repo or none, and restates
+  none of the section; `tools/test_session_close_single_source.py` pins that.
+  The router row, description and `argument-hint` carry the new action; the
+  prompt itself is unchanged.
+
 ### Changed (2026-11-23 — `pathscan` treats a closed board item as a record, `320/880` part 1)
 - **A board item whose state line is `- [x]` is a record to `pathscan`**, excluded
   and counted under "record file(s) excluded by default" exactly as

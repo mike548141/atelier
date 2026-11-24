@@ -1,8 +1,8 @@
 ---
 name: session
-description: Session doctrine. Pass the action as the first argument. onramp: load atelier's operating-model doctrine for this session (the apex, the always-confirm safety floor, how the rest is read on demand); use at the start of work in a repo that adopts atelier, or when asked to apply "the atelier way". A bare /atelier:session shows this menu and runs nothing.
-argument-hint: "onramp"
-allowed-tools: Bash(python3:*)
+description: Session doctrine. Pass the action as the first argument. onramp: load atelier's operating-model doctrine for this session (the apex, the always-confirm safety floor, how the rest is read on demand); use at the start of work in a repo that adopts atelier, or when asked to apply "the atelier way". close: close the session properly by running the principal's Ending the session text from his session-open prompt, with any extra close brief typed after it ("wrap up", "close the session", "end the session properly"), in any repo or none. A bare /atelier:session shows this menu and runs nothing.
+argument-hint: "onramp | close"
+allowed-tools: Bash(python3:*), Bash(git:*), Bash(ccclose:*)
 ---
 
 <!--
@@ -24,6 +24,7 @@ placeholder (a dollar sign, then ARGUMENTS), it means those words.
 | Action | File | What it does |
 |---|---|---|
 | `onramp` | [`onramp.md`](onramp.md) | Load atelier's operating-model doctrine for this session |
+| `close` | [`close.md`](close.md) | Close the session properly, from the principal's session-open prompt |
 
 **Check the first word before anything else.** It must be exactly one of the
 words in the table's first column, nothing else counts: not a synonym (for
