@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 136 | 0 | 73 | 41 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 135 | 0 | 72 | 41 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 3 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 285 | 0 | 101 | 42 |
+| **All sections** | 284 | 0 | 100 | 42 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -177,7 +177,6 @@ line, so they overlap Open and Claimed.
 
 *[Narrative](roadmap/160-doctrine-review-owed/README.md)*
 
-- [ ] 🎯 [A sixth pass the same day: the sitting's five doctrine edits,…](roadmap/160-doctrine-review-owed/070-a-sixth-pass-the-same-day-the-sitting-s-five-d.md)
 - [ ] 🎯 [Glossary ratify pass (Mike)](roadmap/160-doctrine-review-owed/120-glossary-ratify-pass-mike.md)
 - [ ] [Define complex vs complicated in the glossary](roadmap/160-doctrine-review-owed/130-define-complex-vs-complicated-in-the-glossary.md)
 - [ ] [Propagate the widened apex floor to the fleet children](roadmap/160-doctrine-review-owed/140-propagate-the-widened-apex-floor-to-the-fleet.md)

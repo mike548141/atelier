@@ -71,3 +71,5 @@ module (Recommended)"*; checked after asking, it was already built
 (`allowmarker.py`, 2026-10-03) and the item never closed. Closed, with the
 one residue (`publishscan`'s own loader) queued as `210/590`. Lesson: check
 the artefact before putting an old ask to him.
+`160/070` (SE1–SE2): the verdict says nothing is owed, so it was closed
+without an ask.
