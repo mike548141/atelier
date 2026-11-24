@@ -95,3 +95,9 @@ to /atelier:work-run or something else"*; *"We could also consider having
   question does not follow doctrine rules for asking questions"*. Recorded
   on the item as work owed, 🎯 removed; the round's sorting duty is owed on
   `180/220`. No further ask was put.
+- **Miss, owned, and the worse one:** I read his "I don't want you marking
+  work as "parked" at all" as "no parked status", and removed it from the
+  legend and doctrine. He corrected it, verbatim on `180/220`: the status
+  stays, he parks work through a session, and what he refused was sessions
+  inferring parks from his past "not now" answers. Restored the same hour,
+  his words quoted; the reads stand as built.

@@ -429,17 +429,24 @@ run-gating asks put first (the orchestrated-run section of `CONCURRENCY.md`
 says so), and a session reads a declaration the same way wherever it appears,
 by his words and no other cue.
 
-**An answer of "not now" or "undecided" is not asked again** until something
-changes: his answer, a review it waited on returning, or the item it waits on
-landing. The item records his answer in his words, as any answer is recorded (§
-*Asking for a ruling*); a session reads that record and judges, and **never
-marks an item parked or deferred itself**. His words, 2026-11-24, verbatim: *"I
-don't want you marking work as "parked" at all, you will infere it incorrectly
-as you have many timtes already in past sessions"* (a `💤 PARKED` mark built that
-day was withdrawn the same day, `180/220`). His reason, 2026-11-24, verbatim:
-*"I start a new session and it tries to do work that I've told it in a recent
-past session something like I am undecided or not right now. So rather than
-doing other work in the queue it keeps looping on the same work and questions"*.
+**Parking is his decision, never a session's reading.** He may decide that a
+piece of work is parked, and say so in a session; that session then writes a
+`💤 PARKED <date>` line on the item with his words (`roadmap/README.md`), and
+later sessions skip it and do not re-ask it until he unparks it or something
+changes (his answer, a review it waited on returning, the item it waits on
+landing); `ccopen` lists parked items that changed since. A session never
+parks an item on its own judgement, and never turns a past answer such as "not
+now" into a park: that answer stays an answer, a session still reads it before
+putting the question again, and anything unclear is put to him, not settled.
+His words, 2026-11-24, verbatim: *"I can decide some work is parked and
+therefore we need a status for parked work on the board and I will do that
+through a session. What I said no to was you scanning the boards and
+arbitarily deciding that when I said something like "not now" in the past
+means permanently parked as you are prone to doing"*. His reason for the
+whole rule, the same day, verbatim: *"I start a new session and it tries to do
+work that I've told it in a recent past session something like I am undecided
+or not right now. So rather than doing other work in the queue it keeps
+looping on the same work and questions"*.
 
 **The backlog of asks is chipped at every session.** At its close a session
 puts its own questions first, then the three oldest still waiting on him

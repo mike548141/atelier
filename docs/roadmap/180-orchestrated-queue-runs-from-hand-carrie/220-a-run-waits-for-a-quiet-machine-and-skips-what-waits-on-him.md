@@ -100,7 +100,7 @@
       fable review is done"*. So the owed sweep (and `180/240`, if he
       confirms) runs in a fresh session he opens, without waiting for
       `160/1780`.
-      🛑 **The parked mark is withdrawn, his answer, 2026-11-24, verbatim**
+      ~~The parked mark is withdrawn~~ (a misreading, corrected below). His answer, 2026-11-24, verbatim
       (to "which work should the fresh session build: the parked sweep, work
       plan, or both?"): *"You can do the work plan, but that should be done
       at the same time as the other /atelier work I've described in the
@@ -128,3 +128,16 @@
       read and sorted by `COMMUNICATION.md`'s first rule (a record, a
       decision, or find out first) before any reaches him, and only
       decisions are put.
+      🛑 **Correction, his words, 2026-11-24, verbatim:** *"You have
+      mis-interpreted me AGAIN and in a dangerous way. I can decide some work
+      is parked and therefore we need a status for parked work on the board
+      and I will do that through a session. What I said no to was you
+      scanning the boards and arbitarily deciding that when I said something
+      like "not now" in the past means permanently parked as you are prone to
+      doing"*. So the `💤 PARKED` status is restored to the legend and
+      `COMMUNICATION.md`, written only when he says to park an item, in his
+      words; no session infers a park, and no sweep of past answers runs.
+      `ccopen` read 9 and `ccclose` check 16 stand as built; the "redesign or
+      remove" owed line above is void. What stays owed: the oldest-asks
+      round sorts each ask (record, decision, find out first) before any
+      reaches him.
