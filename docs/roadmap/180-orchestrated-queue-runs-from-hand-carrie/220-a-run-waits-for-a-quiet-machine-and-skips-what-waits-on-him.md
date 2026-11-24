@@ -147,3 +147,7 @@
       / working on"*. Built the same day: the prompt, `COMMUNICATION.md`, and
       `ccclose` check 16 (shows the one oldest; the board it reads is the
       checkout's own, so another repo's asks cannot appear).
+      **And at the moment of asking:** fetch, re-read the item, and check live
+      peer sessions; the round's second run re-asked `160/010` minutes after
+      he had answered it in the parallel session, verbatim: *"I'm pretty sure
+      I just answered this in the parallel session"*.

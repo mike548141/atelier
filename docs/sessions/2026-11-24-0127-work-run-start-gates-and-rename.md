@@ -105,3 +105,12 @@ to /atelier:work-run or something else"*; *"We could also consider having
   `180/220`): prompt, doctrine and `ccclose` changed from three to one.
 - **The command's name is `/atelier:work run`** (his words on `180/230`);
   `work-run` is the interim skill until `450/020`'s build.
+- **Miss, owned: re-asked a question he had just answered elsewhere.** The
+  one old question this session put (`160/010`, the transcript-search
+  fixes) was answered minutes earlier in the parallel atelier session
+  (`f055e6f2`, now `210/580`). He replied, verbatim: *"I'm pretty sure I
+  just answered this in the parallel session"*. My close read was from
+  before that commit; I did not fetch and check the board and the live
+  peer immediately before asking, which `COMMUNICATION.md` § *Asking for a
+  ruling* requires. Owed with the round's sorting duty on `180/220`: fetch
+  and re-read the item, and check live peers, at the moment of asking.
