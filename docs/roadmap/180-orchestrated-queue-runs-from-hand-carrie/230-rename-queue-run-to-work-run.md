@@ -22,3 +22,8 @@
       `queue-run` → `queue run` row now reads `work-run` → `work run`, with
       `work plan` for `180/240`. This rename lands first because he asked for
       it now; the form change is that item's.
+      **The name is `/atelier:work run`, his words, 2026-11-24, verbatim:**
+      *"no its /atelier:work run"*. `work-run` is the interim skill until
+      `450/020`'s overhaul (one skill per subject, the action as its
+      argument) lands; that build renames it, and no record should call
+      `work-run` the final name.
