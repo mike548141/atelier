@@ -1,4 +1,4 @@
-- [~] 💡 **A plan mode, `/atelier:queue-plan`: show the principal the drain
+- [x] **A plan mode, `/atelier:queue-plan`: show the principal the drain
       before it runs, and run nothing.** Commissioned 2026-11-24 ~01:15Z, his
       words, verbatim: *"consider a plan mode for /atelier:queue-run to prep
       for a drain but not run the reviews i.e. it finds them, prioritises them,
@@ -114,4 +114,18 @@
       owed* and `fleet-sweep`'s brief prompt: both are copies to fold in.
       **Page form, his answer 2026-11-24, verbatim:** *"a table in the
       reply"*. Nothing is open for the build to ask him.
-      (claimed 2026-11-24-0938, wt: atelier-e8-subject-action)
+      **Built 2026-11-24, session atelier-e8 (`10b32435`).** Design call,
+      written in `skills/review/plan.md` § *Where each half lives*: the code
+      half reads and never judges (`ccfleet plan`: the adopter's
+      `queue.evidence`, optional `queue.owed`, and measured cost from
+      ccfleet's own clean pass logs, "no measurement" otherwise); the
+      judgement half is `plan.md` itself; the adopter's queue holds the seal.
+      `review run` plans then seals; `review brief` and `fleet sweep` take the
+      owed-not-briefed list from it; `drain --dry-run` prints `ccfleet plan`
+      and still never calls `queue.ranked`. Copies folded: `run.md` § *Rank
+      and route*, its owed-brief check, and `sweep.md`'s definition of owed.
+      The user-level drain skill's copy retires at the drain switch (handed
+      down to the estate root). **Not yet used by any drain:** his words above
+      (*"we fable review the new code/design/wahtever before we use it for a
+      review drain session"*) hold; the `160/1450` re-check via `210/470`
+      covers it, then `450/010` row 2 switches.

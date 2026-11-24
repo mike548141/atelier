@@ -66,3 +66,9 @@
       `210/470` fixes plus the new `review plan` / `review run` commands, by
       a session that wrote none of them; the drain switch (`450/010` row 2)
       follows a clean result.
+      **2026-11-24, session atelier-e8:** the new build the re-check waits for
+      has landed (`10b32435`, `f354e542`): `review plan`, `review run`,
+      `work plan`, `ccfleet plan`, and every command renamed to subject,
+      space, action. Note for the brief: the skills named in this item's
+      title now live at `skills/review/run.md` and `skills/fleet/sweep.md`.
+      atelier-e8 built them, so it neither briefs nor runs the pass.

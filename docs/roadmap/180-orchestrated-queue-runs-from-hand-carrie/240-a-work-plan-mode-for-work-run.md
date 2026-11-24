@@ -1,4 +1,4 @@
-- [~] 💡 **A plan mode for `/atelier:work-run`, as `/atelier:work-plan`:
+- [x] **A plan mode for `/atelier:work-run`, as `/atelier:work-plan`:
       show the run before it runs, and run nothing.** An idea to consider,
       his words, 2026-11-24, session b95c0d98, verbatim: *"We could also
       consider having /atelier:work-plan in the same way a parallel session is
@@ -15,4 +15,9 @@
       other /atelier work I've described in the parallel session in this
       repo. Its just one of the commands being changed"*. Built there as
       `/atelier:work plan`, not here.
-      (claimed 2026-11-24-0938, wt: atelier-e8-subject-action)
+      **Built 2026-11-24, session atelier-e8 (`0c67dc0f`):**
+      `skills/work/plan.md`, the same shape as `review plan`: it reads the
+      prompt as `work run` does, does the opening reads and triage, and stops
+      before the first act (no claim, worktree, commit, worker or question),
+      then shows a would-do / would-skip / would-ask / would-stop checklist.
+      It holds none of the run's rules; the prompt stays the one source.

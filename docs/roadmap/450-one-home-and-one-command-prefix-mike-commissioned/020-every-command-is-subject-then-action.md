@@ -1,4 +1,4 @@
-- [~] 💡 **Every `/atelier:` command takes the form *subject, space,
+- [x] **Every `/atelier:` command takes the form *subject, space,
       action*, and a bare subject shows its menu.** His ruling, 2026-11-24
       (session edf25bd3, AskUserQuestion, his own words, verbatim): *"I
       think a space and for the default it could have a menu or help screen
@@ -57,4 +57,16 @@
       their own sessions; records stay as written. Lands with or before
       180/210, which then builds `review plan` and `review run` under this
       form.
-      (claimed 2026-11-24-0938, wt: atelier-e8-subject-action)
+      **Delivered 2026-11-24, session atelier-e8 (`0c67dc0f`, `bfa38582`,
+      `10b32435`, `f354e542`).** His one-line confirmation of the table, his
+      pick: *"Go, as written (Recommended)"* (bare `/atelier:worktree` now
+      shows its menu too). Six subjects, sixteen actions; `commands/` gone;
+      the menu lists subject and action; a bare or unknown word shows the
+      subject's menu. Every live reference swept; records keep their names.
+      Exercised headless: a bare `/atelier:review` printed the menu; an
+      unknown word (*drain*) first went on to read the drain's files (reads
+      only) and was fixed the same hour (`f354e542`: the first word is exact
+      and gates every read), then re-run, menu only. Guard:
+      `tools/test_subject_skills.py`. Private repos' live references handed
+      down to their own boards (four repos, by class here); the children's
+      hook and stamped-`CLAUDE.md` copies refresh at their next pin bump.
