@@ -58,4 +58,6 @@ his reason for the space form, thinking the first telling was lost; it had
 arrived as his typed answer in the question dialog. The restatement is
 added to `450/020` verbatim. At the close, verbatim: *"Also I want you to carry on with design and build in a fresh session, not wait until the fable review is done"*. Recorded on `180/210` and `450/010`. Then, verbatim: *"Also I think /atelier:review brief should use
 /atelier:review plan to find the work that requires a brief to be
-written"*; recorded on `180/210`.
+written"*; recorded on `180/210`. At the close he asked which Fable passes he had
+already approved in this area (three: atelier `160/1450` re-check, and two
+in a private repo); asked what the `160/1450` one should review, his pick: *"Wait, review the new build (Recommended)"*. Recorded on `210/470`, `180/210`, `450/010`.

@@ -60,3 +60,9 @@
       ruling. Exactly that one pass plus its Opus brief, on the next
       `160/1450` re-check; c7a1e36e dispatched the fixes, so it neither
       briefs nor starts it: a fresh session does.
+      💬 **Answered 2026-11-24 ~04:20 UTC (session edf25bd3, AskUserQuestion), his pick:** *"Wait, review the new build (Recommended)"*
+      (option text: *"Hold the re-check until the build lands, then run it once over the fixes AND the new plan/run commands. One Fable review covers what your drain will actually use; your drain then switches straight after a clean result. Cost: /fable-drain stays in use until then (it may miss Monday 30 Nov). Widens the approved review's scope."*) An answer, not a ruling. So the approved `160/1450` re-check is
+      held until `180/210` and `450/020` land, then briefed once over the
+      `210/470` fixes plus the new `review plan` / `review run` commands, by
+      a session that wrote none of them; the drain switch (`450/010` row 2)
+      follows a clean result.

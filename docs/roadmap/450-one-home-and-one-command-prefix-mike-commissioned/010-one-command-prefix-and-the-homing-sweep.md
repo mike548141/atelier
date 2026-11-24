@@ -144,6 +144,8 @@
         Later the same day, his words, verbatim: *"Also I want you to carry on with design and build in a fresh session, not wait until the fable review is done"*. So the
         build of `review plan` and `review run` does not wait; the cutover
         of his live drain is asked separately (see `180/210`).
+        Asked at that close, his pick: *"Wait, review the new build (Recommended)"*: the re-check waits for the
+        build and covers it, and the switch follows a clean result (`210/470`).
       - Still open: row 2 (waits on `160/1450`), row 11 (waits on the
         batch conditions), row 12 (the generic half of the estate's queue
         reader as atelier's reference queue; optional, after row 2).

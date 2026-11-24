@@ -95,6 +95,10 @@
       session now, not after the `160/1450` re-check. Whether his live
       weekly drain also moves off the old user-level command before that
       re-check is a separate question, put to him at this session's close.
+      His pick at that close: *"Wait, review the new build (Recommended)"* (recorded on `210/470`): the
+      approved `160/1450` re-check waits for this build and then reviews the
+      fixes and the new commands in one pass. This build does not brief or
+      run it; its landing is what unblocks it.
       **`review brief` uses it too, his words, 2026-11-24, verbatim:**
       *"Also I think /atelier:review brief should use /atelier:review plan
       to find the work that requires a brief to be written"*. So the plan's
