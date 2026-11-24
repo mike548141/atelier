@@ -60,3 +60,8 @@
       💬 **Answered 2026-11-24 ~23:05 UTC (queue run 0b4f93ef), his pick:**
       *"Yes, one verdict closes both (Recommended)"*: this pass's verdict also
       closes `160/1740` (recorded there).
+      🔒 CLAIMED 2026-11-24T23:34Z (claimed 2026-11-24-2334, wt: atelier-56) by queue-run
+      session 9a08702f (`atelier-56`, Opus 5.5, principal-opened), which
+      authored none of the delta, the brief or `e917a98b`. Scope: widen the RK
+      brief to take in `e917a98b` once it lands, repin, add matching
+      held-back questions; no pass run.

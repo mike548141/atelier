@@ -63,3 +63,6 @@
       `e917a98b` on `main` and widens the RK brief to cover it; then a fresh
       Fable session runs the pass. He then asked for the prompt to finish the
       work, and was given both.
+      🔒 CLAIMED 2026-11-24T23:34Z (claimed 2026-11-24-2334, wt: atelier-86-close) by queue-run
+      session 9a08702f (`atelier-56`, Opus 5.5, principal-opened), which wrote
+      none of `e917a98b`. Scope: rebase it on `main`, full suite, push, close.
