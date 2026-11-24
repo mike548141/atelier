@@ -30,12 +30,12 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 138 | 0 | 75 | 41 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 137 | 0 | 74 | 41 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 3 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
 | [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
-| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 13 | 0 | 5 | 1 |
+| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 14 | 0 | 5 | 1 |
 | [Observability of the collaboration itself (2026-07-30)](roadmap/220-observability-of-the-collaboration-itsel/README.md) | 4 | 0 | 0 | 0 |
 | [File-size hygiene (new 2026-07-14)](roadmap/230-file-size-hygiene-new-2026-07-14/README.md) | 2 | 0 | 1 | 0 |
 | [North star — context follows the person, work follows anywhere](roadmap/240-north-star-context-follows-the-person-wo/README.md) | 2 | 0 | 0 | 0 |
@@ -61,7 +61,7 @@ line, so they overlap Open and Claimed.
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 285 | 0 | 103 | 42 |
+| **All sections** | 285 | 0 | 102 | 42 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -177,7 +177,6 @@ line, so they overlap Open and Claimed.
 
 *[Narrative](roadmap/160-doctrine-review-owed/README.md)*
 
-- [ ] 🎯 [The cctranscript --search cycle CLOSED 2026-08-15 (0 MAJOR); CS1–CS14…](roadmap/160-doctrine-review-owed/010-rule-4-review-queued-tier-fable-pass-type-code.md)
 - [ ] 🎯 [A seventh pass: the F1/GUARDS.md rebuild + the twelve-scanner…](roadmap/160-doctrine-review-owed/060-a-seventh-pass-the-f1-guards-md-rebuild-the-tw.md)
 - [ ] 🎯 [A sixth pass the same day: the sitting's five doctrine edits,…](roadmap/160-doctrine-review-owed/070-a-sixth-pass-the-same-day-the-sitting-s-five-d.md)
 - [ ] 🎯 [Glossary ratify pass (Mike)](roadmap/160-doctrine-review-owed/120-glossary-ratify-pass-mike.md)
@@ -354,6 +353,7 @@ line, so they overlap Open and Claimed.
 - [ ] [🛠️ ccfleet, the fleet-sweep and review-drain skills, and the modelguard…](roadmap/210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md)
 - [ ] 🎯🔥 [Fix ccfleet, fleet-sweep, review-drain and modelguard: findings…](roadmap/210-instruments-open-features/470-fix-ccfleet-and-its-two-skills-fl1-fl25.md)
 - [ ] ⏳ [A commit gate refuses a review claimed by the session that authored,…](roadmap/210-instruments-open-features/530-a-commit-gate-refuses-a-review-claim-by-its-author.md)
+- [ ] [🔧 Fix cctranscript --search: all fourteen findings CS1–CS14, as the…](roadmap/210-instruments-open-features/580-fix-cctranscript-search-cs1-cs14.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

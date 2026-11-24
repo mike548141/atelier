@@ -1,4 +1,4 @@
-- [ ] 🎯 **The `cctranscript --search` cycle CLOSED 2026-08-15 (0 MAJOR);
+- [x] **The `cctranscript --search` cycle CLOSED 2026-08-15 (0 MAJOR);
   CS1–CS14 await Mike's ruling round.** The rule-4 Fable code cold pass
   (taker: a cold session Mike opened 2026-08-15 ~1120 UTC, running the brief a
   *different* cold session wrote at 1024 UTC, under an orchestrator-held
@@ -23,3 +23,9 @@
   2026-08-09, `0eb03ed`). *Intent record:* the § *instruments/ — open
   features* narrative and
   [`instruments/cctranscript.search.design.md`](../../../instruments/cctranscript.search.design.md).
+  💬 **Answered 2026-11-24 ~04:25 UTC (session edf25bd3, AskUserQuestion),
+  his pick:** *"Fix all as advised (Recommended)"* (option text: *"One build
+  item fixes all 14 the way the reviewer advised, first checking each still
+  applies after 100 days (some may already be gone). Opus/Sonnet work, no
+  Fable. Its own cold review is queued for a later drain."*). An answer, not
+  a ruling. Carried by `210/580`; nothing here waits on him now.

@@ -61,3 +61,8 @@ added to `450/020` verbatim. At the close, verbatim: *"Also I want you to carry 
 written"*; recorded on `180/210`. At the close he asked which Fable passes he had
 already approved in this area (three: atelier `160/1450` re-check, and two
 in a private repo); asked what the `160/1450` one should review, his pick: *"Wait, review the new build (Recommended)"*. Recorded on `210/470`, `180/210`, `450/010`.
+
+## The close walk-through
+
+Oldest asks, one at a time: `160/010` (`cctranscript --search`, CS1–CS14),
+his pick *"Fix all as advised (Recommended)"*; queued as `210/580`.
