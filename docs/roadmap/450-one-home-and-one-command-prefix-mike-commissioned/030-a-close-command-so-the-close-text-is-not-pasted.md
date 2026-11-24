@@ -54,3 +54,12 @@
       the runner's HEAD), unless the principal says land it now. To land:
       rebase on `main`, run the full suite, push; then close this item.
       🔓 2026-11-24 UTC: queue run 0b4f93ef releases its build claim.
+      💬 **His reply, 2026-11-24 ~23:05 UTC (queue run 0b4f93ef, typed in place
+      of the options "After the review starts" / "Land it now"), verbatim:**
+      *"Is the review underway or can we expand its brief to cover this as
+      well?"* The pass had not started. Answered: yes, the brief can take this
+      commit in, written by a session that authored neither the delta nor this
+      commit (not 0b4f93ef). Route given to him: a fresh Opus session lands
+      `e917a98b` on `main` and widens the RK brief to cover it; then a fresh
+      Fable session runs the pass. He then asked for the prompt to finish the
+      work, and was given both.

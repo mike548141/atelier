@@ -65,3 +65,15 @@ blocking question was put first and the run waited until the load settled
 Everything in the asked focus is done or blocked (on the Fable pass, or the
 principal's answer on landing), and that answer is time-sensitive for the
 30 Nov drain. The wider queue is left for a fresh run.
+
+## After the close
+
+- `160/1740`: his pick, *"Yes, one verdict closes both (Recommended)"*: the
+  RK verdict also closes it (`8f7dfe14`).
+- `450/030`: asked whether to land the close command now or after the pass
+  starts, he asked instead, verbatim: *"Is the review underway or can we
+  expand its brief to cover this as well?"* Not underway; yes, by a session
+  that is not this one. He asked for a prompt to finish the work and was
+  given two: an Opus session lands `e917a98b` and widens the brief, then a
+  Fable session runs the pass. Recorded on `450/030`.
+
