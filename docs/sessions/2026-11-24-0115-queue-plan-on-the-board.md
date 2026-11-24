@@ -41,8 +41,9 @@ only, his edits carried as words for the next run). Nothing built.
 
 ## Left open
 
-`180/210` itself, including two questions for the build session to settle
-with him: its page form; and `450/020`, whose mapping of today's commands
+`180/210` itself, with questions for the build session to settle
+with him: none left (page form, his answer: *"a table in the reply"*); and
+`450/020`, whose mapping of today's commands
 waits for his confirmation before anything moves. Asked whether retiring
 the user-level drain command is on the board: it is, `450/010` row 2
 (cleared by him 2026-11-18, waiting on a clean `160/1450` re-check); both

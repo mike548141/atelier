@@ -87,5 +87,5 @@
       for every `/atelier:` command, so these are `/atelier:review plan` and
       `/atelier:review run`, with a bare `/atelier:review` showing a menu
       (450/020). Read the names above in that form.
-      **Open, for the build session to settle with him:** the page form
-      (reply table or a page in his browser).
+      **Page form, his answer 2026-11-24, verbatim:** *"a table in the
+      reply"*. Nothing is open for the build to ask him.
