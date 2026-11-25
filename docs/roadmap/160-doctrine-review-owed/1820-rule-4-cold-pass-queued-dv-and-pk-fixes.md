@@ -28,3 +28,11 @@
       (Opus 5.5), for brief-writing only: the brief and its held-back sibling, no pass run.
       Neither session wrote any part of the delta; 01c055e5 orchestrates the pass once the brief
       lands and forms no finding.
+      **Brief written 2026-11-25 UTC:**
+      `docs/reviews/2026-11-25-1920-dv-pk-fixes-recheck-cold.md`, pinned at `6a44b08e`,
+      finding prefix `DP`. Its held-back sibling (20 questions, 14 facts) is held
+      user-local, outside the repo, every worktree and every scratchpad; the orchestrator
+      is told where, never by the brief.
+      🔓 2026-11-25T19:46Z: session 43d5be30 releases its claim. The pass is open for one fresh
+      Fable reviewer under off-tier orchestrator 01c055e5, which forms no finding; `b04df0da`, its
+      three workers and `43d5be30` are barred from running it.
