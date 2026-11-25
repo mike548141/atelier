@@ -69,4 +69,5 @@ a repo to the house standard, stamped from your own instance profile),
 `/atelier:fleet sweep` (bring every child repo to a healthy state),
 `/atelier:worktree start|list|land|remove` (one worktree per line of work),
 and `/atelier:fleet pins` (which child repos are behind the doctrine SHA they
-pin).
+pin). And at the end, `/atelier:session close` (close the session by the
+principal's own close, from his session-open prompt).

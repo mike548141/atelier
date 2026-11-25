@@ -2,7 +2,6 @@
 action: remove
 description: Remove a worktree, guarded against unmerged work.
 argument-hint: "<branch>"
-allowed-tools: Bash(python3:*), Bash(git:*)
 ---
 
 # Worktree — remove

@@ -2,7 +2,6 @@
 action: land
 description: Push a worktree's branch and open a pull request back to main.
 argument-hint: "<branch>"
-allowed-tools: Bash(python3:*), Bash(git:*)
 ---
 
 # Worktree — land

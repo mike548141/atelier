@@ -10,6 +10,7 @@ Orchestrator's note: {NOTE}
 - Follow this repo's `CLAUDE.md` onramp (floor, commit and record conventions); where it is stricter than this brief, it wins. Run `cclive`, then `git status`, before anything else.
 - Your worktree: `{WT}` (detached at the mainline). Work only there. {LANDING} Stage explicit paths only; read `git diff --cached` in full before each commit; commit messages via `git commit -F -` heredoc ending with a `Co-Authored-By:` line naming the model you actually are. Never `--no-verify`.
 - Scratch: `{SCRATCH}`. The held-sibling directory: `{HELD_DIR}`. Those are the only two places you write outside the worktree.
+- The atelier checkout `{ATELIER}` is outside your worktree, and this brief has you read files there. That needs the grant the sweep's config gave this session. If a read or a run there is refused, do not work from memory of the file: stop that step and finish with RESULT: BLOCKED, naming the refused path.
 - 🛑 Never: start any review, review-tier work or cold pass; spawn a subagent on the review tier; write to a live system; touch secret values (read secret-bearing files masked only); rewrite history; delete from a record store; change visibility, Actions, keys, webhooks or grants.
 - Public repo ({VIS}): everything you write is published. Never name or point at a private repo, the estate root, a client, a host or a person. Write as if no private repo exists.
 - The principal's words: a pick from options or a typed reply to a question is an **answer** (💬, quoted), never a ruling.

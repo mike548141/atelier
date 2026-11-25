@@ -186,7 +186,7 @@ names any first, and this list says which to set.
 | [`worker-prompt.md`](worker-prompt.md) | `ASK` (the principal's request, verbatim); `ATELIER` (the atelier checkout); `REVIEW_APPROVAL` (what review-tier work is approved, usually none); `DIGEST` (the step-2 digest's path) |
 | [`adopt-prompt.md`](adopt-prompt.md) | `ASK`; `ATELIER`; `REVIEW_APPROVAL` |
 | [`task-prompt.md`](task-prompt.md) | `ASK`; `REVIEW_APPROVAL`; `TASK` (`@file:<path>`) |
-| [`brief-prompt.md`](brief-prompt.md) | `ASK`; `HELD_DIR` (held siblings: outside the repo, every worktree and any scratchpad); per job `ITEM`, `SUBJECT`, `SOURCE`, `QUOTE`, `NOTE` |
+| [`brief-prompt.md`](brief-prompt.md) | `ASK`; `ATELIER`; `HELD_DIR` (held siblings: outside the repo, every worktree and any scratchpad); per job `ITEM`, `SUBJECT`, `SOURCE`, `QUOTE`, `NOTE` |
 
 ## Limits paid for
 
@@ -202,6 +202,17 @@ names any first, and this list says which to set.
   that does the work, never a bypass mode by default; `ccfleet --doc` says
   who can steer such a session and what bounds it.
 - `claude -p` needs stdin from `/dev/null`; ccfleet always does it.
+- Three prompts work in the atelier checkout, outside the worker's own
+  worktree: `adopt-prompt.md` reads the `repo create` action there and runs
+  its tools, `brief-prompt.md` reads the `review brief` action, and
+  `worker-prompt.md` runs its git, `archivecut.py` and `pins.py`. Those
+  texts are long and move with the doctrine, so they are read where they
+  live, not copied into the prompts. The config is the whole grant
+  (`ccfleet --doc`), so it must allow reading the atelier checkout (a `Read`
+  rule on its absolute path, written with a leading `//`, for example
+  `Read(//path/to/atelier/**)`) and the commands those steps run. Without
+  it the session is refused at that step, and each prompt tells its worker
+  to stop there and report BLOCKED rather than work from memory.
 - A split of a record store runs only when `cclive` shows the repo idle, and
   proves line preservation by script.
 - The principal's words in a prompt are quoted, marked as an answer (💬) when

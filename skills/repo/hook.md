@@ -1,7 +1,6 @@
 ---
 action: hook
 description: Install atelier's git pre-commit scan hook into this repository (secret · leak · link, fail-closed).
-allowed-tools: Bash(git:*), Bash(cp:*), Bash(chmod:*), Bash(python3:*), Bash(cd:*)
 ---
 
 Install atelier's **git pre-commit hook** into the current repository. It blocks a

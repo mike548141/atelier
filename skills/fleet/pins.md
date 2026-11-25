@@ -2,7 +2,6 @@
 action: pins
 description: Fleet view of child-repo atelier pins — who is stale, by how much, and the commits they'd inspect.
 argument-hint: "[--child <repo>] [--log] (optional; default: all discovered children)"
-allowed-tools: Bash(python3:*), Bash(git:*)
 ---
 
 Show which child repos are behind the atelier doctrine SHA they pin, and by how

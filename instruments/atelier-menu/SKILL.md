@@ -1,7 +1,7 @@
 ---
 name: atelier
 description: Show the menu of every /atelier: command. Use when the user types a bare /atelier or /atelier:, or asks what atelier commands there are.
-allowed-tools: Bash(python3:*)
+allowed-tools: Bash(python3 ~/.claude/skills/atelier/menu.py)
 ---
 
 # The /atelier menu

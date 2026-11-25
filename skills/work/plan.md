@@ -1,8 +1,7 @@
 ---
 action: plan
-description: Show what a work run would do — its opening checks, what is buildable without the principal and in what order, what it would skip and what it would ask — and claim, change or start nothing.
+description: Show what a work run would do — its opening checks, what is buildable without the principal and in what order, what it would skip and what it would ask — and claim or start nothing, changing nothing but the remote-tracking refs `ccopen`'s fetch updates.
 argument-hint: "[the brief you would give the run, if any]"
-allowed-tools: Bash(git:*), Bash(python3:*)
 ---
 
 <!--
@@ -35,7 +34,11 @@ just one of the commands being changed"*.
    what is claimed by a live session, what is buildable now.
 3. **Stop before the first act.** No claim, no worktree, no commit, no push,
    no worker or session started, no residue recovered, no question put to the
-   principal. Where `ccopen` says to wait for a quiet machine or to recover a
+   principal. The one change the plan makes is `ccopen`'s: it fetches the
+   repo's remote (and `pins.py` fetches the atelier checkout's), which moves
+   remote-tracking refs only, never a branch, the working tree or the board.
+   Say so in the opening checks' line; `ccopen --no-fetch` skips both, and
+   then the sync read is as of the last fetch. Where `ccopen` says to wait for a quiet machine or to recover a
    predecessor first, report that as what the run would do; do not do it.
 
 ## What it shows

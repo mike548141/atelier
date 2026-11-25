@@ -1,7 +1,6 @@
 ---
 action: list
 description: Show every worktree with its hygiene flags.
-allowed-tools: Bash(python3:*), Bash(git:*)
 ---
 
 # Worktree — list

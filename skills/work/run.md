@@ -37,9 +37,10 @@ for word. The file is:
 (The same file, from this skill's base directory:
 `../../docs/method/session-open/session-open-prompt.md`.)
 
-**Read the committed copy, never the working file.** Only text that has been
-committed has met the pre-commit hook, the tests and review, so an edit in the
-working tree is not run. Do this before anything else:
+**Read the committed copy, never the working file.** Committed text has met
+the pre-commit hook and the principal's say-so to commit it; it has not
+necessarily met the tests or a review. An edit still in the working tree has
+met neither, so it is not run. Do this before anything else:
 
 1. If `${CLAUDE_PLUGIN_ROOT}` is the top of a git checkout (`git -C
    "${CLAUDE_PLUGIN_ROOT}" rev-parse --show-toplevel` prints that same

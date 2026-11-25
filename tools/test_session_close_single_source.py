@@ -14,6 +14,7 @@ action's own header bars that.
 Same shape as tools/test_work_run_single_source.py: the committed copy is
 read, never the working file, and a pending edit is warned about.
 """
+import hashlib
 import re
 import unittest
 from pathlib import Path
@@ -46,21 +47,36 @@ DELIVERY_ANCHORS = (
 norm, flatten, copied_sentences, skill_body = (
     wr.norm, wr.flatten, wr.copied_sentences, wr.skill_body)
 
+# The pinned body (test_action_body_is_pinned): set in the commit that last
+# changed close.md's body, deliberately.
+BODY_SHA256 = "a63e8df5ab854303c61460639bade3397e1cdac3949173fb090c4075701a8dc4"
+
 
 def section(text: str) -> str:
     """The prompt's Ending the session section: from its heading to the next
-    `## ` heading or the end of the file; empty if the heading is missing."""
+    `## ` heading or the end of the file; empty if the heading is missing. A
+    `## ` line inside a fenced block is the block's text, not a heading
+    (review 2026-11-24, RK19: the finder stopped there)."""
     lines = text.splitlines()
     try:
         start = lines.index(HEADING)
     except ValueError:
         return ""
     out = []
+    fence = None
     for line in lines[start + 1:]:
-        if line.startswith("## "):
+        m = re.match(r"^\s*(```|~~~)", line)
+        if m:
+            fence = None if fence == m.group(1) else (fence or m.group(1))
+        elif fence is None and line.startswith("## "):
             break
         out.append(line)
     return "\n".join(out)
+
+
+def body_digest(text: str) -> str:
+    """SHA-256 of the action body, whitespace-normalised."""
+    return hashlib.sha256(norm(skill_body(text)).encode("utf-8")).hexdigest()
 
 
 class SessionCloseSingleSource(unittest.TestCase):
@@ -73,6 +89,24 @@ class SessionCloseSingleSource(unittest.TestCase):
         text = "## A\nalpha\n## Ending the session\nbeta\ngamma\n## Z\nomega\n"
         self.assertEqual(section(text).split(), ["beta", "gamma"])
         self.assertEqual(section("## A\nalpha\n"), "")
+
+    def test_section_finder_reads_past_a_fenced_heading_line(self):
+        text = ("## Ending the session\nbeta\n```\n## not a heading\n```\n"
+                "gamma\n## Z\nomega\n")
+        self.assertEqual(section(text).split(),
+                         ["beta", "```", "##", "not", "a", "heading", "```", "gamma"])
+
+    def test_action_body_is_pinned(self):
+        """The anchors above let a new rule sit inside an anchored paragraph,
+        a fallback section, a weakened stop or a wider read pass (review
+        2026-11-24, RK19: 4 such mutations stayed green). So the body is
+        pinned whole: any change to it fails here until BODY_SHA256 is set to
+        the new digest in the same commit, which makes every change to the
+        delivery text a deliberate one a reviewer sees in the diff."""
+        self.assertEqual(body_digest(SKILL.read_text(encoding="utf-8")), BODY_SHA256,
+                         "close.md's body changed: if the change is delivery "
+                         "only and deliberate, set BODY_SHA256 to the new digest "
+                         "in the same commit; a rule belongs in the prompt")
 
     def test_action_points_at_the_prompt_and_the_section(self):
         text = SKILL.read_text(encoding="utf-8")

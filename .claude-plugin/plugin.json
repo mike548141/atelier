@@ -1,7 +1,7 @@
 {
   "name": "atelier",
   "displayName": "Atelier",
-  "description": "The operating model for working with Claude as a teammate: the apex honesty doctrine; six subjects holding sixteen actions, each run as /atelier:<subject> <action> (review: brief, plan and run; work: run and plan; fleet: sweep and pins; worktree: start, list, land and remove; repo: scan, hook and create; session: onramp), and a bare subject shows its menu — as an installable bundle. A named worked example; to adopt it you become the principal.",
+  "description": "The operating model for working with Claude as a teammate: the apex honesty doctrine; six subjects holding sixteen actions, each run as /atelier:<subject> <action> (review: brief, plan and run; work: run and plan; fleet: sweep and pins; worktree: start, list, land and remove; repo: scan, hook and create; session: onramp and close), and a bare subject shows its menu — as an installable bundle. A named worked example; to adopt it you become the principal.",
   "author": {
     "name": "Mike Clements",
     "url": "https://github.com/mike548141"

@@ -13,6 +13,15 @@ public repo: they live in the private ccfleet config (`$CCFLEET_CONFIG`: its
 (`vars.RULINGS_FILE`). Read both before starting; quote the principal's
 approval from there, never from memory.
 
+**The words typed after `/atelier:review run` are the principal's words for
+this run.** They go to the plan as its direction (step 2 of
+[`plan.md`](plan.md)) and into the seal, quoted verbatim (§ *Rank and route*
+below); with nothing typed, the seal says "none given". Words that approve
+review-tier work, or name a budget or a pacing target, are his live words:
+record them in the rulings file, verbatim and dated, before the first pass,
+then quote the approval from there as above. Typed words never stand in for
+an approval the rulings file says is needed but that they do not give.
+
 ## The shape
 
 - **Whether the review tier needs approval is the adopter's setting.**

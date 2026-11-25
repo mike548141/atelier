@@ -9,7 +9,7 @@
     {
       "name": "atelier",
       "source": "./",
-      "description": "Apex honesty doctrine; six subjects holding sixteen actions, each run as /atelier:<subject> <action> (review: brief, plan and run; work: run and plan; fleet: sweep and pins; worktree: start, list, land and remove; repo: scan, hook and create; session: onramp), and a bare subject shows its menu. A named worked example — adopt it by becoming the principal.",
+      "description": "Apex honesty doctrine; six subjects holding sixteen actions, each run as /atelier:<subject> <action> (review: brief, plan and run; work: run and plan; fleet: sweep and pins; worktree: start, list, land and remove; repo: scan, hook and create; session: onramp and close), and a bare subject shows its menu. A named worked example — adopt it by becoming the principal.",
       "author": {
         "name": "Mike Clements"
       },

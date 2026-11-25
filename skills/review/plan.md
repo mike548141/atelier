@@ -2,7 +2,6 @@
 action: plan
 description: Show the review queue before anything runs — every owed review, briefed or not, ranked, routed to the cheapest budget that still matches a local pass, with its estimated cost; runs, seals and claims nothing. review run and review brief start from it.
 argument-hint: "[the principal's words for the next run, if any]"
-allowed-tools: Bash(python3:*), Bash(git:*)
 ---
 
 # Review — plan
@@ -60,11 +59,18 @@ commit, no seal. A plan is never a seal.
    first). For each, what the judge needs: the item, its age, the principal's
    words on it, dates ahead, what it guards, what waits on its verdict, and
    what each route can and cannot do for it. A review is **owed** when its
-   item's own text, or the principal's words on it, says one is required. A
-   bare `⏳`, REVIEW.md's triggers, or a writer's view that it deserves one do
-   not count; those go to the principal as a list, never into a brief. An owed
+   item carries a review pointer (REVIEW.md rule 4: a `⏳` that names the
+   delta to review and its intent record is the queue entry, and any spawner
+   passing the criterion may take it and brief it), or when its item's own
+   text, or the principal's words on it, says one is required. A `⏳` that
+   names no delta (a wait on something other than a review), REVIEW.md's
+   triggers met by work nobody has pointed, and a writer's view that something
+   deserves a review do not make one owed: those are **review candidates**,
+   which go to the principal as a list (step 5), never into a brief. An owed
    review with no brief goes on the unbriefed list (step 5), never into the
-   ranking.
+   ranking. Where the adopter's `queue.owed` finds the owed reviews, it applies
+   this definition; a difference between the two is a defect to report, and
+   this file governs until it is fixed.
 2. **Rank the briefed ones by judgement.** The principal's direction first
    (his words for the next run, if given after the command, then standing
    words on an item); then importance, urgency (a real date first), the risk
@@ -77,7 +83,10 @@ commit, no seal. A plan is never a seal.
    the cheapest capable route goes first (a batch route where the review fits,
    then a credit route, then the included budget). Cost per review breaks any
    remaining tie. This file fixes no threshold for "near": the plan says, per
-   budget, whether its lapse counts as near and why. A review needing probes
+   budget, whether its lapse counts as near and why. "Near" is judged per run,
+   so a route shown here is a forecast for a run started now: the run that
+   drains them re-plans, and its own plan says where each review goes. A
+   review needing probes
    or re-run lines does not fit a single-request batch route; one needing
    tools only the local session has fits only local. **Unsure means the local
    route**: quality is never traded for price or for a lapse.
@@ -94,7 +103,9 @@ commit, no seal. A plan is never a seal.
    "The review" is plain words: what it checks and what it guards, never a
    bare item id. Then, per budget: the total routed to it, what it has left,
    when it lapses, and what would not fit. Then the **owed, not yet briefed**
-   list: what each guards and why it is owed.
+   list: what each guards and why it is owed. Then the **review candidates**
+   from step 1: what each is, why it might deserve a review, and that it waits
+   on the principal's word before anyone briefs it (or "none").
 
 What the principal changes in the plan (a reorder, a hold, a forced route) is
 his words for the next run. `review run` quotes them into its seal; the run

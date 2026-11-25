@@ -19,7 +19,7 @@ correction. It is not a decision tree anyone ruled.
 | **Guard** (policy as code) | `tools/` scanner, wired to the hook and CI floor | On every commit, unasked |
 | **Hook** | `PreToolUse`, `Stop` and kin | Intercepts a tool call or turn, unasked |
 | **Skill** | `skills/`, shipped in the plugin | By name, or reached for autonomously |
-| **Slash command** | an action file under `skills/<subject>/`, run as `/atelier:<subject> <action>` | Only when deliberately invoked |
+| **Slash command** | an action file under `skills/<subject>/`, run as `/atelier:<subject> <action>` | Typed, or reached through its subject's skill: the router's description carries trigger phrases, so a casual phrase can reach an action |
 | **Instrument** | `instruments/` (ADR 0006) | A teammate runs the CLI directly |
 | **MCP server** | `instruments/browser-fetch/` is the one in-estate example | Available to query mid-reasoning |
 
@@ -38,7 +38,11 @@ needs to fire, say it once, in its home, and point at it.
    it (`COMMUNICATION.md`, the reply plane that was unwired).
 2. **Does it intercept automatically, or get invoked deliberately?**
    A hook fires unasked, which is its value and its risk (wrong moment, as
-   above). A command and most skills wait to be reached for. An MCP server sits
+   above). A command and most skills wait to be reached for, but "reached
+   for" includes a model's own reach: atelier's actions sit behind subject
+   skills whose descriptions name trigger phrases, so a model can start one
+   on a casual phrase ("wrap up" can reach the session close) without anyone
+   typing the command. An MCP server sits
    available to be queried repeatedly mid-reasoning, which none of the others
    do. Pick the weakest trigger that still catches the failure.
 3. **Who needs it: one repo, or the estate?** A scanner is wired per repo by

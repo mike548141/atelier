@@ -2,7 +2,6 @@
 action: start
 description: Fork a new line of work into its own worktree.
 argument-hint: "<branch>"
-allowed-tools: Bash(python3:*), Bash(git:*)
 ---
 
 # Worktree — start

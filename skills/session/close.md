@@ -39,24 +39,36 @@ to the next heading that starts with `## `, or to the end of the file. Read that
 section only, and do nothing the rest of the prompt says: it is a queue run's
 brief, not this session's.
 
-**Read the committed copy, never the working file.** Only text that has been
-committed has met the pre-commit hook, the tests and review, so an edit in the
-working tree is not run. Do this before anything else:
+**Read the committed copy, never the working file.** Committed text has met
+the pre-commit hook and the principal's say-so to commit it; it has not
+necessarily met the tests or a review. An edit still in the working tree has
+met neither, so it is not run. Do this before anything else:
 
 1. If `${CLAUDE_PLUGIN_ROOT}` is the top of a git checkout (`git -C
    "${CLAUDE_PLUGIN_ROOT}" rev-parse --show-toplevel` prints that same
-   path), read the prompt with `git -C "${CLAUDE_PLUGIN_ROOT}" show
+   folder; a root reached through a symbolic link prints the link's target,
+   which is still the same folder), read the prompt with `git -C
+   "${CLAUDE_PLUGIN_ROOT}" show
    HEAD:docs/method/session-open/session-open-prompt.md`, and do not open the
    working file.
 2. Then run `git -C "${CLAUDE_PLUGIN_ROOT}" status --porcelain --
    docs/method/session-open/session-open-prompt.md`. If it prints anything,
    edits to the prompt are pending: say so in the first lines of your reply
    (the file, and that you ran the committed copy, not the pending edit).
-   Committing the edit, on the principal's say-so, is what makes it run; you
-   do not commit it.
+   The edit may be another session's: a pending edit in that checkout prints
+   this in every session that closes until it is committed or dropped, so
+   report it as found and leave it alone. Committing the edit, on the
+   principal's say-so, is what makes it run; you do not commit it.
 3. If the plugin is not a git checkout (an install from GitHub is a copy of
    one commit, so there is no pending edit to run), or `git show` fails, read
    the file at the path above and say which of the two applied.
+
+What the committed copy is depends on the install, and neither is a check
+that the text has landed. With the plugin installed in place (pointed at a
+checkout), `HEAD` is whatever that checkout has checked out: landed or not,
+pulled or not. With an install from the remote, it is the copy installed,
+and a later change to the principal's close reaches this session only when
+the plugin is updated, with nothing to say it has not.
 
 **If the heading is not there, stop.** Say in the first line of your reply, in
 plain words, that the prompt has no *Ending the session* section and so there
@@ -66,11 +78,14 @@ something else, would look like a close.
 
 The text the principal typed after the invocation (`$ARGUMENTS`) is this
 session's extra close brief: carry it out alongside the section, and where it
-adds to or narrows a step, say so. With nothing after it, the section runs as
-written.
+adds to a step or narrows how a step is done, say so. It never removes a step:
+where the typed words would skip one, run the step anyway and say that the
+brief asked otherwise. With nothing after it, the section runs as written.
 
 This works in any repo, because the plugin is installed for the user and the
 prompt is read from the plugin, not from the repo you are in. Run the section's
-`ccclose` from the session's own directory, as it stands. In a session with no
-repo, run it without `--root`: it reports on that directory and the session's
-own transcript, and says where there is no repository to check.
+`ccclose` from the session's own directory, as it stands. It ships with the
+plugin, at `${CLAUDE_PLUGIN_ROOT}/instruments/ccclose`; where `ccclose` is not
+on the path, run it by that path. In a session with no repo, run it without
+`--root`: it reports on that directory and the session's own transcript, and
+says where there is no repository to check.

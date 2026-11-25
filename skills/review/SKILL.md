@@ -2,7 +2,7 @@
 name: review
 description: Cold reviews of work before it is trusted. Pass the action as the first argument. plan: find every owed review across the estate, briefed or not, rank it, route it to the cheapest budget that still matches a local pass, estimate the spend, and show it as a table, running nothing ("what would a drain do", "plan the reviews"). run: drain the briefed reviews on the review tier, several at once under a load gate, until an approved budget is used up, or resume passes a usage limit cut off ("drain the reviews", "use up the budget", "resume" after a reset). brief: write a peer-review brief and run an independent review when work earns one (a design others build to, a decision that forecloses alternatives, a diff that ships; "review this properly", "draft the brief"). A bare /atelier:review shows this menu and runs nothing.
 argument-hint: "plan | run | brief"
-allowed-tools: Bash(python3:*), Bash(git:*)
+allowed-tools: Read(/${CLAUDE_PLUGIN_ROOT}/**), Bash(python3 "${CLAUDE_PLUGIN_ROOT}/instruments/atelier-menu/menu.py" review)
 ---
 
 <!--
@@ -13,6 +13,19 @@ allowed-tools: Bash(python3:*), Bash(git:*)
   action's text lives in its own file beside it, so a use loads only its own.
   tools/test_subject_skills.py keeps the table below, the action files and
   the description in step.
+
+  THE GRANT (allowed-tools) is the narrowest that lets the router work, and
+  the test pins it line for line. Reading the plugin's own files: an
+  action's text is a read of a path outside the session's directory, which a
+  session with no read grant of its own is refused (review 2026-11-24 RK1;
+  the double slash makes the path absolute). The menu, by its exact command.
+  Under session and work only, the read-only git commands that fetch the
+  principal's committed prompt, and under session the close's read-only
+  report. Nothing wider: a router's grant pre-approves its commands for
+  every action under it while it is the active skill, so any python or any
+  git here would let a run push or reset unasked (RK29). An action's own
+  file carries no allowed-tools: it is read, not loaded as a skill, so the
+  harness never applies one there.
 -->
 
 # /atelier:review
@@ -33,18 +46,25 @@ example `drain` for `run`), not a word later in the sentence, not your reading
 of what was meant. Read no action file and run nothing until this check passes.
 
 **A known action:** read only that action's file, from this skill's base
-directory, and follow it as written. Where it names the plugin-root
-placeholder (a dollar sign and braces around CLAUDE_PLUGIN_ROOT), use the
-plugin's root: the folder two levels above this skill's base directory.
+directory, and follow it as written. The plugin's root, filled in as this
+file loaded, is:
+
+`${CLAUDE_PLUGIN_ROOT}`
+
+Where the action's file names the plugin-root placeholder (a dollar sign and
+braces around CLAUDE_PLUGIN_ROOT), it means that path. This skill pre-approves
+reading the plugin's own files, so the action's file and the doctrine it points
+at load without a grant of your own.
 
 **No action, or a first word not in the table:** show this subject's menu
 and do nothing else, however clear the rest of the request looks (a dropped or
 misread word must never start work, and that includes reads toward one). Then
-say which words were typed and that none of them is an action here. The menu
-is:
+say which words were typed, and that the first of them is not an action here
+(a later word that names an action does not make it one: only the first word
+picks). The menu is:
 
 ```
-python3 "<this skill's base directory>/../../instruments/atelier-menu/menu.py" review
+python3 "${CLAUDE_PLUGIN_ROOT}/instruments/atelier-menu/menu.py" review
 ```
 
 Show its output as it is, then stop.
