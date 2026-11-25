@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 134 | 2 | 72 | 42 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 134 | 0 | 73 | 41 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 282 | 2 | 100 | 43 |
+| **All sections** | 282 | 0 | 101 | 42 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -280,7 +280,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🎯 [Rule-4 cold pass queued: quotescan, a quote of the principal on…](roadmap/160-doctrine-review-owed/1420-rule-4-cold-pass-queued-quotescan.md)
 - [ ] 🎯 [Rule-4 cold pass queued: every check states its five declaration…](roadmap/160-doctrine-review-owed/1430-rule-4-cold-pass-queued-check-declarations-step-0.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the doctrine edits that record the…](roadmap/160-doctrine-review-owed/1440-rule-4-cold-pass-queued-the-2026-11-12-answers.md)
-- [~] ⏳ (claimed 2026-11-20, wt: atelier-qr-08cd-brief1450) [Rule-4 cold pass queued:…](roadmap/160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md)
+- ✅ ⏳ [Rule-4 cold pass queued: ccfleet, the fleet-sweep and review-drain…](roadmap/160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a verdict records its method and reasoning.](roadmap/160-doctrine-review-owed/1460-rule-4-cold-pass-queued-a-verdict-records-its-method.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's Asking bullet says "same turn",…](roadmap/160-doctrine-review-owed/1470-rule-4-cold-pass-queued-floor-asking-bullet-same-turn.md)
 - [ ] ⏳ [Rule-4 cold pass queued: EVIDENCE.md §18 extended and §19–§21 added…](roadmap/160-doctrine-review-owed/1480-rule-4-cold-pass-queued-evidence-batch-18-to-21.md)
@@ -308,12 +308,12 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose check 15, launched work finished…](roadmap/160-doctrine-review-owed/1710-rule-4-cold-pass-queued-ccclose-launched-work-and-close-listings.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccopen, the session-open twin of ccclose…](roadmap/160-doctrine-review-owed/1720-rule-4-cold-pass-queued-ccopen.md)
 - [ ] ⏳ [Rule-4 cold pass queued: licenscan reads CC0-1.0, tells 0BSD from…](roadmap/160-doctrine-review-owed/1730-rule-4-cold-pass-queued-licenscan-cc0-0bsd-zlib.md)
-- [ ] ⏳ [Rule-4 cold pass queued: ccfleet launches with the config as the…](roadmap/160-doctrine-review-owed/1740-rule-4-cold-pass-queued-ccfleet-whole-grant-and-unlanded.md)
+- ✅ ⏳ [Rule-4 cold pass queued: ccfleet launches with the config as the…](roadmap/160-doctrine-review-owed/1740-rule-4-cold-pass-queued-ccfleet-whole-grant-and-unlanded.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the slice-5 census corrections, five…](roadmap/160-doctrine-review-owed/1750-rule-4-cold-pass-queued-slice-5-factual-corrections.md)
 - [ ] ⏳ [Rule-4 cold pass queued: least-privilege permissions in the CI…](roadmap/160-doctrine-review-owed/1760-rule-4-cold-pass-queued-slice-6-corrections-and-template-permissions.md)
 - [ ] ⏳ [Rule-4 cold pass queued: decision-record statuses and review lines,…](roadmap/160-doctrine-review-owed/1770-rule-4-cold-pass-queued-decision-statuses-scan-wording-skill-lists.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a run's start gates, the parked mark, the…](roadmap/160-doctrine-review-owed/1780-rule-4-cold-pass-queued-run-start-gates-parked-asks-work-run.md)
-- [~] ⏳ (claimed 2026-11-24-2131, wt: atelier-86-brief) [Rule-4 cold pass queued: every…](roadmap/160-doctrine-review-owed/1790-rule-4-cold-pass-queued-subject-action-review-plan-ccfleet-plan.md)
+- [ ] 🎯 [Rule-4 cold pass queued: every command is subject, space, action;…](roadmap/160-doctrine-review-owed/1790-rule-4-cold-pass-queued-subject-action-review-plan-ccfleet-plan.md)
 
 ## build/ layer — open strands
 

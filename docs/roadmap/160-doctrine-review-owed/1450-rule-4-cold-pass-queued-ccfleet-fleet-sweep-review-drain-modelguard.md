@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: `ccfleet`, the `fleet-sweep` and
+- [x] ⏳ **Rule-4 cold pass queued: `ccfleet`, the `fleet-sweep` and
       `review-drain` skills, and `modelguard` (`210/440`).** A first-of-kind
       instrument that starts headless sessions with a permission mode
       across every repo, two skills that reach every plugin user, and a
@@ -160,3 +160,15 @@
       fresh Fable subagent it spawns, process-only prompt recorded in the
       verdict. Since-line at `7544c943` empty. One pass, one verdict, closing
       `160/1450`, `160/1790` and `160/1740` and reviewing `450/030`.
+      ✅ **PASS RAN 2026-11-25 UTC** (one fresh Fable reviewer, in worktree `atelier-a9`, under
+      the off-tier orchestrator session 4a34637a, which formed no finding; act 1 at `60938dc9`,
+      act 2 and the folded sibling in the next commit), in
+      [`docs/reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md`](../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md), pinned at `2111e260`, FL ledger re-driven at `60938dc9`.
+      **PASS-WITH-FINDINGS — 0 MAJOR · 11 MODERATE · 14 minor · 4 notes** (`RK1`–`RK29`;
+      `RK29` formed at reconcile).
+      **Re-check:** all 25 first-pass findings re-driven; both MAJORs (`FL1`, `FL2`) fixed as
+      counselled; 21 fixed as counselled, 1 another way, 2 partly (`FL17`, `FL20`), 1 decided with
+      no change; none unfixed or regressed. Two fixes moved risk (`FL1`/`FL14` to `RK3`, `FL7` to
+      `RK9`) and the rename undercut `FL9` (`RK2`); those ride on `160/1790`.
+      🔓 2026-11-25 UTC: session 4a34637a releases its claim; the re-check is done and this
+      item closes. Every RK finding is the principal's to rule, on `160/1790`.

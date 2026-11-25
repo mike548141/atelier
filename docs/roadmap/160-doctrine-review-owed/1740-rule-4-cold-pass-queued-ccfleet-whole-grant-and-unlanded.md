@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `ccfleet` launches with the config as
+- [x] ⏳ **Rule-4 cold pass queued: `ccfleet` launches with the config as
       the whole grant, and reads a clean end that leaves unlanded work as
       UNLANDED (`210/560`).** The change narrows what an unattended session
       may do and decides when a claim is released, both silent-failure
@@ -36,3 +36,6 @@
       `ccfleet` at its head) also closes this item. So this pass no longer runs
       on its own: the RK verdict closes it, clean or with findings carried
       there.
+      ✅ **Closed 2026-11-25 UTC by the RK verdict** ([`docs/reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md`](../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md)), as the principal picked:
+      PASS-WITH-FINDINGS, 0 MAJOR; findings on this delta (`9ba5c6b6`, `b95db160`) ride on
+      `160/1790` (notably `RK12`, the whole-grant exceptions, and `RK11`).

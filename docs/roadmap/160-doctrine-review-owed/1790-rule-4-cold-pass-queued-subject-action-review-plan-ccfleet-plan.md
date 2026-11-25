@@ -1,4 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: every command is subject, space,
+- [ ] 🎯 **Rule-4 cold pass queued: every command is subject, space,
       action; `review plan`, `ccfleet plan` and `work plan` (`450/020`,
       `180/210`, `180/240`).** Every plugin user's commands moved, the
       review queue's ranking moved into one file that a drain will run from,
@@ -91,3 +91,24 @@
       fresh Fable subagent it spawns, process-only prompt recorded in the
       verdict. Since-line at `7544c943` empty. One pass, one verdict, closing
       `160/1450`, `160/1790` and `160/1740` and reviewing `450/030`.
+      ✅ **PASS RAN 2026-11-25 UTC** (one fresh Fable reviewer, in worktree `atelier-a9`, under
+      the off-tier orchestrator session 4a34637a, which formed no finding; act 1 at `60938dc9`,
+      act 2 and the folded sibling in the next commit), in
+      [`docs/reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md`](../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md), pinned at `2111e260`, FL ledger re-driven at `60938dc9`.
+      **PASS-WITH-FINDINGS — 0 MAJOR · 11 MODERATE · 14 minor · 4 notes** (`RK1`–`RK29`;
+      `RK29` formed at reconcile).
+      **Re-check:** all 25 first-pass findings re-driven; both MAJORs (`FL1`, `FL2`) fixed as
+      counselled; 21 fixed as counselled, 1 another way, 2 partly (`FL17`, `FL20`), 1 decided with
+      no change; none unfixed or regressed. Two fixes moved risk (`FL1`/`FL14` to `RK3`, `FL7` to
+      `RK9`) and the rename undercut `FL9` (`RK2`); those ride on `160/1790`.
+      **Plain lines (reviewer's):** paid work: the two first-pass loss paths are closed; three
+      narrower misreads remain (`RK3` a later `RESULT: DONE` mention wins, `RK4` a launcher killed
+      by a signal leaves its session unwatched, `RK6` a pass finished by `resume` still reads as
+      cut off). The drain: safe for the runner once `RK2` (the per-pass prompt's template path
+      does not resolve) and `RK5` (a fold after the reset is refused) are settled or accepted,
+      the real config's grant is checked (`RK12`) and one canary pass has run. The close: right
+      by its text and guard, never seen to run (`RK1`, the one live launch was refused the read of
+      its action file). `RK29`: the rename gave six former skills a standing pre-approval for every
+      `python3` and `git` command.
+      🎯 **The principal's (rule 3):** every finding, nothing applied.
+      🔓 2026-11-25 UTC: session 4a34637a releases its claim; the item stays open for his ruling.

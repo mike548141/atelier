@@ -8,7 +8,9 @@ one pass, one verdict, both items, as the principal chose. The same verdict also
 (his pick, recorded there) and is the review of
 `docs/roadmap/450-one-home-and-one-command-prefix-mike-commissioned/030-a-close-command-so-the-close-text-is-not-pasted.md`
 (Part C below).
-**Status:** BRIEF ONLY, not run. Written 2026-11-24 UTC by a brief-writer worker of queue run
+**Status:** RUN 2026-11-25 UTC: **PASS-WITH-FINDINGS, 0 MAJOR, 11 MODERATE, 14 minor, 4 notes**
+(`RK1`–`RK29`), one Fable reviewer under off-tier orchestrator `4a34637a`; act 1 at `60938dc9`,
+act 2 and the folded sibling below; the principal rules each finding on `160/1790`. Was: BRIEF ONLY. Written 2026-11-24 UTC by a brief-writer worker of queue run
 `0b4f93ef` (Opus 5.5), pinned at `26a4fe7e` (`origin/main` when written). **Widened** 2026-11-25 UTC
 by queue run `9a08702f` (`atelier-56`, Opus 5.5, principal-opened) to take in `/atelier:session
 close` (Part C), and **repinned at `5696f91a`** (`origin/main` when widened).
@@ -1497,3 +1499,511 @@ brief's bound); the close action past its refusal (bound spent); Python 3.8 (abs
 - [ ] `RK22`: the three lists and the changelog entries.
 - [ ] Act 2: the FL ledger, the sibling's questions, the commit bodies and the barred records.
 - [ ] Scratch fixtures deleted after act 2.
+
+### Reconcile (act 2, 2026-11-25 UTC)
+
+**Provenance of act 2.** Act 1 was committed unrevised and pushed as `60938dc9` by the
+orchestrator before anything below was opened; the review worktree was at that commit, clean, when
+I began (2026-11-25T03:05Z). The release message, verbatim, with one path substituted as in act 1
+(`<HELD>` stands for the user-local folder that held the sibling):
+
+````text
+Release for act 2 (record this message verbatim in your provenance, path-substituted as before).
+
+Act 1 is committed unrevised and pushed as `60938dc9` (on `origin/main`; your worktree HEAD is now that commit). You may now open, per the brief's Phase 2:
+
+- the held-back sibling: `<HELD>/atelier--2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.deferred.md` (read only; do not move or delete it, I handle that after you fold it in);
+- the first verdict, the barred records and the delta commits' message bodies, as the brief lists.
+
+On the extra launch: no further real launches. The brief's bound stands; record the live close probe as you found it. Same process rules as before: no git writes, touch only the brief file, reply in at most five lines when act 2 (the Reconcile, the FL ledger, the restated overall line and its three plain lines, and the folded sibling) is written. Delete your scratch fixtures when done.
+````
+
+**Opened in act 2, in this order:** the sibling whole (19 facts, 34 questions); the first
+verdict's findings and its own reconcile (`FL1` to `FL25`, lines 884 to 1329 of that file; its
+brief, method record and folded sibling were not read, since the ledger needs the findings and
+their evidence only); the fourteen in-scope commits' message bodies; the fix record `210/470` in
+part (its head, the principal's answers, the fixers' account and the canary's); the other barred
+items by search only, for whether any already records what act 1 found. Not opened, with grounds:
+`docs/sessions/`, `docs/method/census/` and the remaining barred items in full (no finding turns on
+them). No real launch was made in act 2. Act-1 text is unchanged.
+
+**Residual risk, named.** The FL ledger is anchored on the first verdict by design: I re-drove
+what that verdict found, at the places it found it. Act 1 is the cold half, and its findings were
+formed before any of this was read.
+
+#### The FL ledger
+
+Every row was re-driven at `60938dc9` on 2026-11-25 UTC, in scratch, with the stand-in session
+binary and synthetic queue of act 1, unless it says "text" (a finding about wording, where reading
+the changed text at HEAD is the re-drive). "Counsel" points at the first verdict's own words under
+each id.
+
+| FL | Answered by | Re-driven at HEAD | State |
+|---|---|---|---|
+| FL1 (MAJOR) cut-off read as DONE | `36e9ef0e`: `harvest`, `instruments/ccfleet` 752 to 794; `remove_worktree` 988 to 1004 | stand-in ending with the error flag set and `RESULT: DONE` text: `result=ERROR`, no `release`; exit 1 with the same text: ERROR; uncommitted file after DONE: UNLANDED, kept; `grep -n -- --force` finds only the docstring's "never"; mutants for the error flag and the shape test both killed | **Fixed as counselled.** Beyond the counsel: a stop phrase survives an error end (safe direction; a narrated one can still stop a healthy drain, which the first verdict also named). The risk has moved to the clean end's own last line: `RK3` |
+| FL2 (MAJOR) launched list records offers | `36e9ef0e`: `launched_path`, `unlaunch`, `drain` 1551 to 1562 | dry drain on the real kit directory: own list, gone at exit; a real drain whose `take` refuses: the pick came off the list three times, `DRAIN EXIT: failures`, exit 1, launched list 0 bytes | **Fixed as counselled.** Side effect: `RK25` |
+| FL3 killed pass has no session id | `36e9ef0e` (`--session-id`), `c2d4e628` (Mode 2) | pass launcher killed mid-session: id on the START line and in the `take` call; real run: the id on START equals the CLI's own | **Fixed another way** (an id given up front, not looked up), which meets it better. Residue: `RK21`, `RK4` |
+| FL4 close folds a live log | `e9916406`: `run.md` Close step 4 | text: "holds only the logs of passes whose claim is still held ... never folded, read or deleted here" | **Fixed as counselled** |
+| FL5 sweep's staleness test | `e75fe749`: `worker-prompt.md` line 18 | text: needs a clean tree, no held claim, names the kept pass worktree, forbids `--force` | **Fixed as counselled** |
+| FL6 `run` deletes cut-off work; `drive` does not retry | `36e9ef0e`, `9ba5c6b6` | ERROR, UNKNOWN and UNLANDED ends each printed KEPT; a non-clean job driven twice started twice | **Fixed as counselled.** Side effect: `RK24` |
+| FL7 `modelguard` passes 23 shapes | `b99fa4be` | 24 commands covering the 23 shapes, on the hook's interpreter: all denied; five malformed payloads exit 0 with no traceback; `Task` denied; `command -v claude` and `--model` on a continuation line pass | **Fixed as counselled.** The inverted parse's fail-closed rule is `RK9`; new misses `RK15` |
+| FL8 adopt every no-pin repo | `e75fe749`: `sweep.md` step 1, `adopt-prompt.md` | text: scope is the config's list; archived, fork and other-owner exempt; adoption has its own prompt | **Fixed as counselled** |
+| FL9 reviewer prompt drops two duties | `e9916406`: `run.md` reviewer prompt; `orchestrator-prompt.md` step 4 | text: both duties are in both places | **Fixed as counselled**, then half cut off by the rename: the fuller copy is the one `RK2` shows an orchestrator can no longer reach |
+| FL10 no threat enumeration; bypass in the example | `36e9ef0e` | manual has THREATS; the example's `claude_args` is `[]`; `check` on a config with the bypass flag prints `PERMISSIONS: BYPASS ...` | **Fixed as counselled** |
+| FL11 routing stricter than the direction | `e9916406`, now `plan.md` step 3 and `run.md` | text: lapse-first when near, cheapest capable otherwise, "Unsure means the local route", a seal lasts one run, the spill question stated as open | **Fixed as counselled** |
+| FL12 prompt variables unsaid | `e75fe749`, `e9916406`, `c2d4e628` | the two variable tables; the suite's check of every shipped prompt against the example passes; `check --prompt` on three shipped prompts | **Fixed as counselled, with gaps:** `sweep.md`'s table omits `ATELIER` for the brief prompt; `RK18` |
+| FL13 refused release still removes | `36e9ef0e` | `release` exiting 1 after a landed DONE: "release refused", KEPT, exit 2; a fold through `run --in --item` called `release` and removed the worktree | **Fixed as counselled** |
+| FL14 two-word RESULT capture | `36e9ef0e`: `result_word` | `SKIPPED NEEDS LIVE WRITE` reads SKIPPED; `DONE WITH FINDINGS` reads DONE; a backticked word reads DONE | **Fixed.** It also pinned "the last match wins", which the first verdict had only called unpinned; that rule is `RK3`'s root |
+| FL15 review log outlives its pass | `36e9ef0e`, `b95db160` | hashed names seen in every probe; the stale-log mutant killed | **Fixed as counselled**, and beyond (SHA-256) |
+| FL16 gate does not cover a hand pass | `e9916406` (wording), `36e9ef0e` (order) | text: `take` is now named; a dry drain called no `ranked`; `ccfleet pass` still starts on `take` alone | **Fixed as counselled**, and the counsel was a sentence: the substance stands as `RK7` |
+| FL17 unchecked inputs | `36e9ef0e` | bad JSON, a missing config, a repo given as a path and `--set` with no `=` each exit 64 with a reason; `resume` with a missing or misnamed worktree refuses, exit 1; the resume-lock mutant killed; a dead driver's children held slots | **Partly fixed:** every named case is; the class has one survivor, `RK16` |
+| FL18 approval rule doctrine does not hold | `b99fa4be`, `e9916406` | the hook's deny reason (`RULE` in `tools/modelguard.py`) has no approval clause; `run.md` says "the adopter's setting" | **Fixed as counselled** |
+| FL19 small disagreements | `36e9ef0e`, `e75fe749`, `e9916406` | text: "four entries" is gone, the exit-code lines agree, results are read across dated folders | **Fixed for those named.** The class is as large again: `RK23` |
+| FL20 live claims untested | the fixers' canary (their record: three cases live) | my one real run adds the session id and the default mode | **Partly discharged.** Still untested by anyone: a usage-capped end, a resumed session reaching its subagent, a reboot mid-run |
+| FL21 shipping the skills | the principal's answer, recorded on `210/470` | none needed | **Decided, no change** |
+| FL22 the principal's words in public surfaces | `e9916406` | text: `orchestrator-prompt.md` line 7 records by reference where the words carry a figure, name or estate fact; `plan.md` marks its paraphrase as one | **Fixed as counselled** |
+| FL23 private-name boundary | `36e9ef0e`: `private_hits` | called directly: the four joined forms the first verdict listed now hit; a longer word does not | **Fixed as counselled.** The guard's reach is a separate matter: `RK10` |
+| FL24 sibling held user-local | `e75fe749`, `e9916406` | text: `run.md`, `orchestrator-prompt.md` step 3, `brief-prompt.md` line 12 | **Fixed as counselled** |
+| FL25 no time limit | `36e9ef0e` | suite's time-limit test passes; the mutant that reads a timeout as a plain error was killed | **Fixed as counselled** |
+
+**In sum:** 21 fixed as counselled (several with a named side effect or gap), one fixed
+another way that meets it, two partly (`FL17`, `FL20`), one decided with no change. **None is not
+fixed and none regressed in code.** Two fixes moved risk rather than ending it: `FL1`/`FL14` to the
+last line of a clean end (`RK3`), and `FL7` to refusals of ordinary commands (`RK9`). One fix was
+later undercut by a different change: `FL9` by the rename (`RK2`). The fixers' own list of where
+they went beyond the counsel (recorded on `210/470`) matches what I found, with one difference of
+weight: they call a refused harmless command "rare"; 21 of the 60 ordinary commands I tried were
+refused.
+
+#### Against the authors' account (commit bodies and the fix record)
+
+- `36e9ef0e`'s body says "run against the pre-fix tool, every new test fails except two
+  controls". My mutation run agrees in kind: 19 of 22 broken copies were caught.
+- `9ba5c6b6`'s body says the setting sources were "checked against the real CLI (2.1.302), not
+  assumed". My one real run on the same version agrees: the session ran in the default mode.
+  The body does not weigh what the appended instruction file brings into a public repo's session
+  (`RK10`), and names the per-session files without a lifetime (`RK11`).
+- `6a98df21`'s body says outright that "Action files are read with Read and keep the
+  placeholders". So the mechanism behind `RK1` was known; nothing in any body or record I searched
+  mentions that the read can be refused. `RK1` stands. `RK20`'s placeholder point is their design,
+  stated; it stays as a minor.
+- `f354e542`'s body records the one session that took `drain` for `run` before the fix. My five
+  live launches after it are the first evidence that the fix holds.
+- `10b32435`'s body says "The copies in run.md and sweep.md are folded". Checked: neither holds
+  ranking or owed-ness rules now. It does not mention the two review prompts' pointer (`RK2`) or
+  the changelog (`RK22`).
+- `3620c908`'s body claims no more than the action's text does.
+- No body or searched record mentions the reset check on a fold (`RK5`), the result line's
+  last-match rule as a risk (`RK3`), or a launcher's death (`RK4`). All three stand.
+
+#### Against the sibling's questions
+
+| Q | Outcome |
+|---|---|
+| 1 | **Found in act 1** in part: five live launches, all correct (`A4`); no test drives a session. `Run`, `runs`, a quoted word: not tried, the launch bound was spent |
+| 2 | **Checked in act 1**: the marketplace's source is the repo root, so a cached copy ships `instruments/`; the menu ran from a `--plugin-dir` load |
+| 3 | **Found in act 1** as `RK13` |
+| 4 | Not reached in act 1. By the text, "Unsure means the local route" wins over both orders; "near" is a per-run judgement, so the routing is predictable only from the plan that run prints. Added to `RK13` as an open point, not probed |
+| 5 | **Found in act 1** as `RK8`; the notional-dollar point is the sibling's and is added there |
+| 6 | **Found in act 1** as `RK7` |
+| 7 | Seen in act 1 (exit 64 on a dry drain with no `ranked`) and not raised: one contract, said in the manual; an adopter can rehearse with `plan`. No finding |
+| 8 | Checked now: an empty launched list reads as an empty set; `plan` never reads it. Harmless |
+| 9 | Checked now, by the code: a `DRY` end resets the unclean count; "queue empty (1 started)" is a rehearsal's wording, not the fault the skill names. No finding |
+| 10 | **Found in act 1** as `RK10` and `RK11` |
+| 11 | Not examined: the hook is machine-local and private. A script run by path does not import from the working directory, so the plain risk is low; said, not probed |
+| 12 | **Found in act 1** as `RK12`; `check` prints the stronger wording ("the config is the whole grant") with the caveat two lines below |
+| 13 | Checked now, by the code: `resume` passes `--resume <id>` with a fresh settings file; a second `pass` gets a new id, so no id is reused |
+| 14 | **Found in act 1** as `RK9`. Of the sibling's own five: `time`, `env -i` and `git log --author=claude` pass, `sudo -u claude` passes, `docker run --name claude img` is refused |
+| 15 | **Found in act 1** and extended now: `ssh -l claude host 'claude -p hi'`, `ssh host -- claude -p hi` and `ssh host "cd x && claude -p hi"` are all refused, correctly |
+| 16 | **Found in act 1** by class (`RK22`); the harness's answer to an unknown command was not tried |
+| 17 | Checked by the helper: `scan` is matched only after `/atelier:` or a `skills/` or `commands/` prefix, so it needs no exemption |
+| 18 | Checked in act 2: neither file carries its own definition or ranking text; `sweep.md` points at `plan.md` step 1 |
+| 19 | Not found in act 1. The orchestrator prompt's barred check and `PROVENANCE` are the only guard, and both rest on the drain session's own account. Added to `RK7` as a second thing the adopter's queue is trusted for; not probed |
+| 20 | Not found in act 1. The drain session judges, by reading the transcript; nothing bars withdrawing a log that holds a written act 1. A real gap in `run.md` Mode 2; added to `RK6` |
+| 21 | **Found in act 1** for `work plan` (`RK27`); the same holds for `plan --fetch`, which the manual does say hands the fetch to the queue's tool |
+| 22 | **Found in act 1** as `RK22` |
+| 23 | **Not found in act 1. New at reconcile: `RK29`** |
+| 24 | **Found in act 1** as `RK20`; the action does not say which commit it ran |
+| 25 | Not found in act 1. Yes: with the in-place install every closing session reads the primary checkout's state, so another session's pending edit there prints the warning everywhere. That is the rule working as written; whether it is wanted is the principal's. Added to `RK20` |
+| 26 | **Found in act 1** (`RK19`: the test's finder stops at a fenced line; a duplicate heading takes the first) |
+| 27 | **Found in act 1** as `RK19`, by mutation |
+| 28 | Checked: the close test's own copy-check case pins the borrowed helper, and a copied line was caught |
+| 29 | **Found in act 1** as `RK20` |
+| 30 | Not reached; nothing in the text stops typed words narrowing a step away, and it says only that the session must say so. Added to `RK20`, not run |
+| 31 | Not reached; not run. The first-word check guards nothing when the model itself supplies `close`: the router's description carries the trigger phrases. Added to `RK27` |
+| 32 | Not run (`RK1`). By reading, the section stands alone but for "questions to ask me later", which the rest of the prompt defines |
+| 33 | The changelog heading's date is the local day (the commit's time is 2026-11-24 in UTC) and the menu row is a whole sentence where its neighbours are phrases: both small, added to `RK22` |
+| 34 | **Found in act 1** as `RK20`; the commit body confirms it is by design |
+
+Of 34: act 1 had found or checked 17, in whole or part; eight carry text added here (4, 5, 19,
+20, 25, 30, 31, 33); one is a new finding (23); the rest are checked now with no finding, or not
+examined with grounds (11). Act 1 raised findings no sibling question reaches: `RK2`, `RK3`, `RK4`, `RK5`,
+`RK14`, `RK16`, `RK17`, `RK18`, `RK24`. The sibling's facts agree with my re-run ledger wherever
+both ran the same line.
+
+#### Finding formed at reconcile
+
+**RK29. MODERATE (security), formed at reconcile, from question 23 and fact F18. The rename gave
+six former skills a standing pre-approval for every `python3` and `git` command.** Before
+`0c67dc0f`, `review-drain`, `review-brief`, `work-run`, `fleet-sweep`, `create-repo` and
+`session-onramp` carried no `allowed-tools` line (checked in each old `SKILL.md` at `0c67dc0f~1`);
+only the four small commands did. Now every router carries `Bash(python3:*), Bash(git:*)` (the
+`repo` router also `cp`, `chmod` and `cd`; the `session` router also `ccclose`), and a router's
+front matter covers every action under it. `python3:*` is any code; `git:*` includes a push and a
+hard reset. So a user who is normally asked before such a command is not asked while
+`/atelier:work run`, `/atelier:review run` or `/atelier:session close` is the active skill. The
+menu call in my five live launches ran with no other grant, which shows the pre-approval is
+honoured. No test pins it: the mutant that widened it to all of Bash stayed green (`RK19`). How
+long the harness holds the pre-approval after the skill loads was not probed. Criterion: lens 4,
+a grant wider than the work needs; the brief's "one config mistake reaches every repo".
+Recurrence prevention: pin each router's `allowed-tools` in `tools/test_subject_skills.py`, and
+narrow it to the menu script and the read-only git commands the actions name.
+
+#### Additions to act-1 findings (formed at reconcile; severities unchanged)
+
+- `RK6`: Mode 2's "un-claim one whose reviewer did almost nothing" has no test for what "almost
+  nothing" is, and does not bar withdrawing a log that holds a written act 1 (question 20).
+- `RK7`: whether a session that wrote briefs then drains them is also left to the adopter's queue
+  and the session's own account (question 19).
+- `RK8`: a local session's logged cost on an included plan is a notional figure, so the column can
+  mix notional and real dollars (question 5).
+- `RK9`: the fixers knew and recorded the trade-off, calling it rare.
+- `RK13`: "near" is judged per run, so a drain's routing is known only from that run's own plan
+  (question 4).
+- `RK20`: another session's pending edit in the primary checkout prints the warning in every
+  closing session (question 25); typed words may narrow a step away (question 30).
+- `RK22`: the changelog heading's local date; the `close` menu row's form (question 33).
+- `RK27`: the description's trigger phrases let a model reach the close on a casual "wrap up"
+  (question 31).
+
+#### Per-finding state after reconcile
+
+`RK1` to `RK28` stand as written in act 1, at their act-1 severities; none is raised, lowered or
+withdrawn. `RK29` is added. The live close probe stands as found: refused at the read of its
+action file, never run further, by the brief's bound.
+
+**Overall, restated: PASS-WITH-FINDINGS. 0 MAJOR, 11 MODERATE, 14 minor, 4 notes** (29 findings,
+`RK1` to `RK29`; one formed at reconcile, `RK29`, MODERATE). Both of the first pass's MAJORs,
+`FL1` and `FL2`, are fixed as counselled and re-driven.
+
+The three plain lines, restated:
+
+- **Does anything found lose or misread paid review work?** The two ways the first pass found are
+  closed. Three narrower ones remain, unchanged from act 1: a final report that mentions `RESULT:
+  DONE` after its real result line (`RK3`); a launcher killed by a signal, whose session runs on
+  unwatched and can be resumed beside itself (`RK4`); and a pass finished by `resume`, which the
+  close's own count still reads as cut off (`RK6`).
+- **Are `/atelier:review plan` and `/atelier:review run`, with `ccfleet` as it stands, safe to run
+  the paid weekly drain from?** Yes for the runner, with no MAJOR standing. Before the first paid
+  drain: settle or knowingly accept `RK2` (every pass's reviewer-prompt template is pointed at by
+  a path that does not resolve) and `RK5` (a fold after the reset is refused until the reset time
+  is moved); check the real config still grants its sessions what they need (`RK12`); and run one
+  canary pass on it. Unseen from here, by the brief's own bounds: the private queue tool that
+  holds the seal, a real usage-limit end, and a resumed session reaching its reviewer.
+- **Does `/atelier:session close` run his close and only his close?** By its text and its guard,
+  yes. It has still not been seen to run: the one live launch was refused the read of its action
+  file (`RK1`), and no further launch was allowed. On a machine with a standing read grant it
+  should load; that is an inference, not an observation.
+
+**Follow-up, added:** `RK29` joins the security findings, with its recurrence-prevention step
+above. Scratch fixtures were deleted after this was written.
+
+## Deferred sibling, folded below the verdict (reviewer, 2026-11-25)
+
+Folded verbatim from the user-local copy the orchestrator held and released after act 1 was
+committed. Nothing in it is a finding; its questions are answered in the reconcile above.
+
+# Deferred sibling — the `ccfleet` re-check (`160/1450`) and subject, space, action with `review plan` (`160/1790`)
+
+Held-back material for the brief
+`docs/reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md`, pinned at
+`26a4fe7e`, widened and repinned at `5696f91a` to take in `/atelier:session close` (Part C). Released to the reviewer only after its act 1 is committed (`REVIEW.md` rule 1). Held
+user-local, outside the repo, every worktree and every scratchpad. Folded below the verdict at
+the end of the pass, then deleted.
+
+Written 2026-11-24 UTC by the brief-writer, a worker (Opus 5.5) of queue run `0b4f93ef`, which
+authored, started and instructed no part of the delta. **Nothing here is a finding**: the facts
+are what the brief-writer ran and saw; the questions are its untested suspicions, and the
+authors' framing at F12 is theirs. A floor, never a fence: a question here that act 1 did not
+reach is not owed an answer unless the reviewer judges it worth one.
+
+**Widened 2026-11-25 UTC** by queue run `9a08702f` (`atelier-56`, Opus 5.5), which authored,
+started and instructed no part of the delta or the original brief, and only rebased and pushed
+Part C's commit unchanged. Facts F13 to F19 and questions 23 to 34 are its own, on the same terms
+as the rest: nothing here is a finding.
+
+## Facts (19)
+
+**F1. Re-run results at `26a4fe7e`, 2026-11-24 UTC**, from the places the brief names:
+`merge-base --is-ancestor 6a98df21 HEAD` exit 0; `mandoc -T lint -W style` exit 0, no output;
+`ccfleet --help` exit 0; `menu.py --selftest` exit 0; `menu.py review` exit 0 (three rows:
+brief, plan, run, and the line that a bare `/atelier:review` only shows the menu);
+`test_ccfleet` on `python3` (3.14.6): 103 tests, OK, 254.6 s, exit 0. The remaining lines'
+results are appended at the foot of this file (F1, continued).
+
+**F2. The synthetic config.** Two throwaway repos under a scratch `repos_root`, branch `main`, no
+remote: one marked public holding a one-line `docs/reviews/b.md`, one private. `kit_dir`,
+`repos_root`, `worktrees_root` all scratch; `claude_bin` `/usr/bin/false`; `claude_args` `[]`;
+`default_model` and `pass_model` a cheap model id; `reset_utc` `2030-01-06T23:00`;
+`private_names` one invented name; `gate` `{max_load: 400, min_mem_pct: 0, min_disk_gb: 1}` (the
+machine's disk is below the default floor); `pass_prompt` a two-line template using `{ITEM}`,
+`{REPO}`, `{WT}`, `{BY}`. The queue was one Python script that appended every call's arguments to
+a log; `next` printed one tab-separated pick until it appeared in the `{LAUNCHED}` file;
+`ranked` exited with `RANKED_RC` (default 1); `evidence` printed one row with `fits:
+["local","batch"]`; `owed` printed one row for the private repo; `take` and `release` exited 0.
+Copies: one without `queue.ranked` (own `kit_dir`), one without `evidence` and `owed` (own
+`kit_dir`).
+
+**F3. `plan`, `plan --json`, `drain --dry-run`.** `plan` exit 0: an EVIDENCE table "in the
+queue's own order (not a ranking)", an OWED table, COST HISTORY with `batch: no measurement` and
+`local: no measurement`, and a NOTE that ccfleet measures only the local route. `plan --json` exit
+0 with `evidence`, `owed`, `history.routes.local.{measured: false, note, passes_seen: 0, clean:
+0}`. `drain --dry-run` exit 0: the plan reading prefixed `DRY plan:`, then `DRY queue.ranked not
+called`, then `DRAIN EXIT: queue empty`. The queue's log, in order: `evidence`, `owed`,
+`evidence`, `owed`, then `next` three times; never `ranked`, `take` or `release`. `driver.log`:
+"dry drain: queue.ranked not called", "started demo-pub 100 (1/4 …)", "queue: nothing launchable
+now", the pass's `END … rc=0 result=DRY session=-`, "drain down: queue empty (1 started)". The
+dry pass's `.out` showed the `DRY argv`. After the run: `launched-dry.txt` gone; no
+`settings/` folder, no worktree, no review log written.
+
+**F4. A real drain with `ranked` exiting 1.** Printed a blank line, then `DRAIN EXIT: not
+ranked`, exit 1. The queue's log: `ranked` only. `driver.log`: "drain refused: queue not ranked
+(rc=1): " (an empty reason). Afterwards `kit_dir` held an empty
+`launched-reset-2030-01-06T2300.txt` (0 bytes) that was not there before.
+
+**F5. No `queue.ranked`.** Both `drain --dry-run` and `drain` refuse with exit 64, "drain needs
+queue.next, queue.ranked, queue.take and queue.release in the config", though a dry drain never
+calls `ranked`. `run … --dry-run` with that config and a plain template: exit 0.
+
+**F6. `run --dry-run`.** With a template that uses `{ITEM}`: exit 5, "unfilled placeholder(s) …
+{ITEM}" (only a pass or a resume fills it). With a plain template: exit 0; the `DRY argv` reads
+`nice -n 5 <claude_bin> -p --session-id <uuid> --setting-sources project,local --settings
+<kit_dir>/settings/<uuid>.json --append-system-prompt-file
+<kit_dir>/settings/<uuid>-user-instructions.md --model <id> --output-format json <prompt N chars>
+< /dev/null`. The dry run wrote neither file.
+
+**F7. Refusals.** No `queue.evidence`: `plan` exit 64, "plan needs queue.evidence in the config
+…". A template naming the private name, for the public repo: exit 5, "refused: the prompt for
+demo-pub (PUBLIC) names private name(s) …".
+
+**F8. `check` on this machine, read with the synthetic config.** `GRANT`: no user-level settings
+load; a session gets the user-level settings less their grants, with the config's `settings` on
+top. `HOOK dropped`: the one user-level `PreToolUse` hook on MCP tools that approves every tool
+call. `HOOK kept`: `modelguard` (on `Agent|Task|Bash`), a secret guard on `Bash`, and four
+`SessionStart` hooks; one of the four runs under bare `python3` without `-I`, the others under
+`/usr/bin/python3 -I`. `HOOKS`: "a kept hook runs with its full power; one whose script answers
+allow still grants (ccfleet reads only the command line)". `INSTRUCTIONS`: the user-level
+instruction file "is appended to every session's system prompt … its @-imports are not followed".
+On this machine that file holds the principal's private personal and business context, so every
+session ccfleet launches, in a public repo included, carries it in its system prompt.
+`REPO SETTINGS`: a repo's own settings files and `CLAUDE.md` still load.
+
+**F9. `ccfleet pass`** is in `--help` and the manual. In the code, only `drain` calls
+`queue.ranked` (`instruments/ccfleet` around line 1531); `pass` does not. `skills/review/run.md`
+says a hand-started pass "meets the same gate as a drain" because the adopter's queue makes
+`ranked`, `next` and `take` refuse until sealed: so for `pass` the gate is the adopter's `take`,
+not ccfleet.
+
+**F10. `CHANGELOG.md`** has no entry dated 2026-11-24, and no line naming subject, space,
+action, `review plan`, `ccfleet plan` or `work plan`; its newest entries are the 2026-11-23 fixes.
+`10b32435` does not touch it.
+
+**F11. The machine at writing.** 12 cores; load about 10 to 20 (one-minute) while other sessions
+ran; free disk 14 GB, below the gate's 20 GB default; the primary checkout at `26a4fe7e`; the hook
+wiring, the `ccfleet` link and the in-place plugin as the brief states.
+
+**F12. Authors' framing, moved here from barred board items** (theirs, not the brief-writer's; a
+floor, never a fence):
+
+- `210/570` (the SSH fix), its author's lesson for this re-check: the rewrite's fail-closed rule
+  "had no test drawn from the estate's ordinary host commands, only from session commands".
+- `210/470` (the fixes), its authors' list of where the fixes went beyond the counsel: a stop word
+  the session printed (`BUDGET EXHAUSTED`) is honoured even on an error end; a session gets its
+  id up front (`--session-id`) rather than being looked up later; a review the principal has tied
+  to a route by name does not spill until he rules; `modelguard` fails closed after an unknown
+  head, so a rare harmless command such as `docker run --name claude img` is refused.
+- `210/470`, the FL20 canary's account: PASS on three live cases (a pass cut off at a one-minute
+  timeout ended TIMEOUT with its session id, claim held, worktree kept; `ccfleet resume` of it
+  ended DONE, landed, released, removed; a clean DONE leaving an uncommitted file was kept). Not
+  testable there: a usage-capped end, a resumed session messaging its subagent, a reboot or
+  driver death mid-run, and the `drain` loop itself. It first ran a stale primary checkout's copy.
+- `160/1740` (the grant and UNLANDED change), its author's "what to test hardest": every path by
+  which a launched session can still be granted more than the config says (repo settings, a kept
+  hook whose script answers allow, managed settings, the text match that drops granting hooks);
+  that no guard hook is lost; the UNLANDED verdict against a worktree whose work is pushed on a
+  branch other than its own, and against an adopted `--in` worktree.
+- `450/020` (the command form), its author's account: exercised headless, a bare
+  `/atelier:review` printed the menu; an unknown word (`drain`) first went on to read the drain's
+  files (reads only) and was fixed the same hour by `f354e542`, then re-run, menu only. Private
+  repos' live references were handed to their own boards; children's hook and stamped `CLAUDE.md`
+  copies refresh at their next pin bump.
+- `180/210` (the plan), its author's design call: the code half reads and never judges; the
+  judgement half is `plan.md`; the adopter's queue holds the seal; the user-level drain skill's
+  copy retires at the drain switch.
+
+## Questions (34) — the brief-writers' suspicions, untested
+
+1. The router's first-word check is prose a model follows; `f354e542` exists because one session
+   did not. Does any test drive a session through a router, or only check the text? Are `Run`,
+   `run.`, `runs`, a quoted `"run"` or a leading flag treated as exact or not?
+2. The routers reach the menu by `../../instruments/atelier-menu/menu.py` from the skill's base
+   directory. Does that path hold for a plugin installed from the remote marketplace (a cached
+   copy), and does such an install ship `instruments/` at all?
+3. `plan.md` says a bare `⏳` and REVIEW.md's triggers do not make a review owed. REVIEW.md rule 4
+   makes the `⏳` pointer the queue entry for an owed doctrine pass. Does the plan's definition
+   drop rule-4 pointers whose text does not literally say a review is required (V5)?
+4. Step 3 leaves "near" to a per-run judgement, and "when no lapse is near" sends the cheapest
+   capable route first. If the included weekly budget is the one lapsing soonest but "unsure means
+   the local route" and lapse-first disagree with cost-first, which wins, and is a paid drain's
+   routing then predictable from the plan the principal saw?
+5. Cost: `ccfleet plan` measures only the local route, and a local session's `total_cost_usd` on
+   an included plan is a notional figure. Does the plan's "Est. cost" column mix notional and real
+   dollars, and does "no measurement" on every non-local route meet his ask for "estimated
+   budget/API spend"?
+6. F9: for `ccfleet pass` and `ccfleet run --item`, the "same gate" depends on the adopter's
+   `take` refusing unsealed. Is the skill's sentence a claim about ccfleet or about a conforming
+   queue, and does the example config's fictional queue, or any test, show one that does?
+7. F5: a dry drain refuses a config with no `ranked`, though it never calls it. Intended (one
+   contract), or does it stop an adopter rehearsing before the gate exists?
+8. F4: a refused real drain leaves an empty launched list keyed by the reset. Can a later real
+   drain, or `plan`, misread it?
+9. F3: a dry pass ends `result=DRY`, which is not in `release_on`. Does a dry drain count it toward
+   the three-unclean stop, and does "queue empty (1 started)" after a pick was offered meet the run
+   skill's own rule that "queue empty" having started nothing is a fault?
+10. F8: the user-level instruction file is appended to every launched session's system prompt and
+    copied per session into `<kit_dir>/settings/`. The private-name guard covers only the prompt
+    ccfleet renders. What stops that private context reaching a public repo's commits, and who
+    deletes the per-session copies?
+11. F8: a kept `SessionStart` hook runs under bare `python3` without `-I` in every launched
+    session, in every repo's worktree. Can a repo's own files shadow a module it imports?
+12. A hook "that prints an allow decision" is dropped by reading its command text; one whose
+    script answers allow is kept (`check` says so). Is "the config is the whole grant" then a
+    claim stronger than its evidence (V1), and is the stronger wording on any surface?
+13. `--session-id` up front: what happens on a re-run of the same pass with an id already in the
+    transcript store, and does `resume` pass `--resume <id>` with the same `--settings` file?
+14. `modelguard` now fails closed after a head it does not know. What ordinary commands does that
+    refuse (`time claude --model …`, `env -i claude --model …`, `sudo -u claude …`, `git log
+    --author=claude`, `docker run --name claude …`)? Is there a test corpus of real host commands?
+15. The SSH carve-out: `ssh claude@host` passes and `ssh host claude -p` is refused. What of
+    `ssh -l claude host 'claude -p'`, `ssh host -- claude`, `ssh host "cd x && claude"`?
+16. Old names, no forwarder: a child session whose stamped onramp or hook names a retired command
+    until its pin bump: what does it do on an unknown command now, and does `fleet pins` or the
+    sweep flag the stale name?
+17. `tools/test_subject_skills.py` lists `scan` among the retired names. A common word: does the
+    live-surface check need exemptions, and could one hide a real stale reference?
+18. One home (V4): do `skills/fleet/sweep.md` or `skills/fleet/brief-prompt.md` still carry their
+    own definition of owed, or ranking text, after the fold?
+19. `review brief` with no subject writes briefs for the plan's unbriefed list. A session that
+    writes several briefs may run none of them: does anything stop a brief-writing session from
+    then running a drain that picks them up?
+20. Mode 2: "un-claim one whose reviewer did almost nothing" and move its log to `withdrawn/`.
+    Who judges "almost nothing", and can a log holding a written act 1 be withdrawn by that rule?
+21. `plan --fetch` hands fetching to the adopter's tool. Is "read-only" still true when that tool
+    runs `git fetch` in every repo (it writes refs), and under a load gate or not?
+22. F10: every plugin user's commands changed on 2026-11-24 with no changelog entry. Is one owed
+    by the repo's own standard?
+
+## F1, continued (the remaining re-run lines)
+
+All 2026-11-24 UTC, at `26a4fe7e`, foreground, `nice -n 10`:
+
+- `instruments/`: `test_ccfleet` on `/usr/bin/python3` (3.9.6): 103 tests, OK, 336.7 s, exit 0.
+  `test_atelier_menu`: 4 tests, OK, exit 0.
+- `tools/`: `test_modelguard` on `python3`: 6 tests, OK, 16.9 s, exit 0; on `/usr/bin/python3`:
+  6 tests, OK, 19.3 s, exit 0. `test_subject_skills test_templates test_work_run_single_source`:
+  79 tests, OK, 3.7 s, exit 0.
+- The synthetic dry runs: as F3 to F7.
+
+## Facts F13 to F19 (the widening, Part C)
+
+**F13. The landing.** `e917a98b` rebased onto `main` (`38464b7f`) with no conflict and no content
+change, becoming `3620c908`; `git cherry` then showed the original as upstream. Full suite on
+`3620c908`, 2026-11-25 UTC, foreground, machine load 10 to 15 on 12 cores: `tools` 3,467 tests
+OK (2,313 s); `node --test instruments/*.test.js` 741 pass, 0 fail; `instruments` unittest 234
+OK. The first push to `main` was refused twice with a remote "Internal Server Error" while a push
+of the same commit to a new branch succeeded and GitHub showed its signature valid; the third
+push, a minute later, landed. Head after the `450/030` board close: `5696f91a`.
+
+**F14. Re-run at `5696f91a`, 2026-11-25 UTC.** `git log 26a4fe7e..5696f91a` on the brief's
+since-line paths lists only `3620c908`, so `ccfleet`, its tests and manual, `modelguard` and its
+tests are byte-for-byte as at `26a4fe7e`; their suites and the synthetic dry runs were not re-run
+(F1 and F3 to F7 stand). Re-run: both `merge-base` checks exit 0; `mandoc` exit 0, no output;
+`ccfleet --help` exit 0; `menu.py --selftest` exit 0; `menu.py review` exit 0, three rows as F1;
+`menu.py session` exit 0, two rows, `close` then `onramp`; `test_atelier_menu` OK, exit 0;
+`test_subject_skills test_templates test_work_run_single_source` 79 tests OK;
+`test_session_close_single_source` 14 tests OK on `python3` (3.14.6) and on `/usr/bin/python3`
+(3.9.6).
+
+**F15. `ccclose` with no repo.** Run as `node <worktree>/instruments/ccclose` with no `--root`
+from an empty scratch directory that is not a repo: exit 1; its header names the directory "not a
+git repository", finds the session and its transcript from `CLAUDE_CODE_SESSION_ID`, and marks
+the worktree, branch, commit, PR and session-record checks `➖ not a git repository`. (Run as
+`python3 instruments/ccclose` it is a `SyntaxError`: the file is a node script.)
+
+**F16. The `session` menu row** for `close` is the action file's whole front-matter description
+sentence, with its closing full stop ("Close the session properly, from the principal's
+session-open prompt (its Ending the session section), with any extra close brief typed after
+it."); every other row in the `review` and `session` menus is a short phrase with no full stop.
+
+**F17. Dates and counts in the commit.** The `CHANGELOG.md` heading reads `2026-11-25`; the
+commit's author time is 2026-11-25 11:27 +1300, which is 2026-11-24 22:27 UTC, and
+`docs/method/CONVENTIONS.md` keeps UTC at rest. `README.md` says "Six subjects, sixteen actions"
+both before and after the commit; at `5696f91a` the routers' tables hold 16 actions (fleet 2,
+repo 3, review 3, session 2, work 2, worktree 4), so before it they held 15.
+
+**F18. The router's `allowed-tools`** went from `Bash(python3:*)` to `Bash(python3:*),
+Bash(git:*), Bash(ccclose:*)`. The router's front matter is one for the whole subject, so the
+grant covers `onramp` too. `git:*` is not narrowed to `show` and `status`; `ccclose` is named by
+bare command, resolved from `PATH`.
+
+**F19. Authors' framing, moved here from barred records** (theirs, not the widener's):
+
+- `450/030`, the reasons put to the principal for the form he picked: not in `ccclose` (a
+  read-only checker a session may run several times mid-work; instructions in its output would
+  set off the wrap-up on every check; the summary, the walk-through and the record check are
+  judgement); `session`, not `work` (most sessions he closes this way were never queue runs); one
+  source (the committed section, as `work run` reads the whole file). Its build spec: find the
+  section by its heading and fail loudly if it is gone; words after `close` are the session's
+  extra close brief; works in any repo and with no repo. "Whether a cold pass is owed on the
+  skill text is the builder's call under `REVIEW.md`; a Fable pass needs his approval."
+- `0b4f93ef`'s session record: the command was held off `main` so as not to trip this brief's
+  since-line; the principal then asked for the brief to be widened instead.
+
+## Questions 23 to 34 (Part C)
+
+23. F18: does `Bash(git:*)` on the whole `session` router grant more than the close needs (a push,
+    a reset), and does `onramp` need any of it? Should the grant name `git show` and `git status`?
+24. The committed copy is read at the plugin root's `HEAD`. With the in-place install that is the
+    primary checkout, which may sit behind `origin/main`, on a branch, or mid-rebase; with a
+    cached install it is whatever commit was installed. Does the action tell the principal which
+    commit's close it ran, and is "committed" the same as "current"?
+25. The pending-edit check reads the plugin root's working tree, not the repo the session is in.
+    In a busy estate the primary checkout can be dirty with another session's edit to the prompt:
+    does every session closing anywhere then print that warning, and is that what he wants?
+26. The section runs "to the next heading that starts with `## `". A `## ` line inside a fenced
+    block, a second `## Ending the session`, or a `###` sub-heading inside it: does the finder in
+    the test match what the prose tells a model to do, and does either match the prompt's real
+    structure if he adds a section after it?
+27. `test_action_body_is_delivery_only` passes any paragraph that contains one anchor phrase
+    ("any repo", "typed after", …). Could a new rule ride in a paragraph that also mentions an
+    anchor? Is the guard as strong as its name, and as strong as the `work run` guard it copies?
+28. The test imports its helpers from `test_work_run_single_source`. Does a change to that file's
+    `copied_sentences` or `norm` silently weaken this guard, and does anything pin the helpers?
+29. Claim 35: "the plugin is installed for the user" and "run it without `--root`". F15: `ccclose`
+    exits 1 in a no-repo directory and is a node script found on `PATH`. For a plugin user who
+    installed from the marketplace, is `ccclose` on `PATH` at all, and what does the section's
+    first step then do?
+30. The extra close brief "adds to or narrows a step". Can typed words narrow a step away (for
+    example, skip the walk-through or the record check)? Is that within the single-source rule,
+    and does anything stop a headless or scripted session passing such words?
+31. The router's description now carries "wrap up", "close the session", "end the session
+    properly". Could a model invoke the close on a casual "wrap up this item" mid-sequence, and
+    does the first-word check guard anything when the model itself supplies `close`?
+32. "Do nothing the rest of the prompt says": the section's own text points back at things only
+    the rest of the prompt defines (the run, the queue's close discipline). Does a close run in a
+    session that was never a queue run read the section as the principal means it?
+33. F16 and F17: the menu row's form, the CHANGELOG's local date and the README's count. Slips the
+    floor should have caught, or within the house's tolerance?
+34. The action, like `work run`, names `${CLAUDE_PLUGIN_ROOT}` and `$ARGUMENTS` in an action file
+    the router hands to the model rather than in `SKILL.md`. Does the harness substitute either in
+    an action file, and does the router's wording make the model resolve them correctly here?
