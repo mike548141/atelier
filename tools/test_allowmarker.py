@@ -169,6 +169,9 @@ class TestMarkerGrammar(unittest.TestCase):
 # per-guard parameters are written down; each row pins the pattern the scanner
 # compiled BEFORE the extraction, as a literal.
 _REASON = r"[\w\"\'“‘]"
+# Scanners that import allowmarker for its ignore-file loader alone.
+_LOADER_ONLY = {"publishscan"}
+
 _PIN = {
     "conflictscan": {"ALLOW_RX": r"\bconflictscan:allow:[ \t]*(?P<reason>" + _REASON + ")"},
     # Scoped since 320/430: `:date-mismatch:` is the line-bound form.
@@ -210,7 +213,31 @@ class TestScannerParametersPinned(unittest.TestCase):
         importers = {p.stem for p in tools.glob("*scan.py")
                      if not p.name.startswith("test_")
                      and "import allowmarker" in p.read_text(encoding="utf-8")}
-        self.assertEqual(importers, set(_PIN))
+        # `publishscan` imports the module for its ignore-file loader only: it
+        # has no marker regex to pin (210/590), and its parameters are pinned
+        # by `test_publishscan_passes_its_strict_parameters`.
+        self.assertEqual(importers, set(_PIN) | _LOADER_ONLY)
+
+    def test_publishscan_passes_its_strict_parameters(self):
+        import publishscan
+        self.assertIs(publishscan.BadIgnoreFile, am.StrictIgnoreFileError)
+        self.assertIs(publishscan.CONTROL_CHARS_RE, am.C0_CONTROLS_RE)
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            f = root / ".publishscanignore"
+            f.write_text("# above\nfoo.md\n", encoding="utf-8")        # stanza: refused
+            with self.assertRaises(am.StrictIgnoreFileError):
+                publishscan.load_ignores(root)
+            f.write_text("a#b.md # r\n", encoding="utf-8")               # glued: refused
+            with self.assertRaises(am.StrictIgnoreFileError):
+                publishscan.load_ignores(root)
+            f.write_text("\x1b[2Ja.md # r\n", encoding="utf-8")          # stripped
+            self.assertEqual(publishscan.load_ignores(root), ["[2Ja.md"])
+            f.unlink()
+            f.mkdir()                                                    # a directory: no globs
+            self.assertEqual(publishscan.load_ignores(root), [])
+        self.assertFalse(publishscan._ignored("docs/a.md", ["docs/"]))   # no dir prefix
+        self.assertFalse(publishscan._ignored(".env", [".ENV"]))         # case-sensitive
 
     def test_scoped_parsers_keep_their_result_types(self):
         with at(DURING):    # the unparseable cases below print a stderr note (110/010)
@@ -318,6 +345,107 @@ class TestIgnoreFile(unittest.TestCase):
         self.assertIn("no stated reason", r.stderr)
         for bad in ("\u202e", "\x1b"):
             self.assertNotIn(bad, r.stderr)
+
+    # 210/590: publishscan's stricter reading, as parameters. Every default
+    # stays what the other scanners read (the tests above pin that); each
+    # strict parameter is pinned on its own so none can ride along with another.
+    STRICT = dict(same_line_reason=True, refuse_glued_hash=True,
+                  strip_controls=True, file_only=True)
+
+    def strict(self, text, name=".demoscanignore", **kw):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / name).write_bytes(text.encode("utf-8"))
+            return am.load_ignore_globs(root, name, **(kw or self.STRICT))
+
+    def test_same_line_reason_refuses_a_stanza_reason(self):
+        self.assertEqual(self.load("# why\na.md\n"), ["a.md"])      # default: binds
+        with self.assertRaises(am.StrictIgnoreFileError) as cm:
+            self.strict("# why\na.md\n")
+        self.assertEqual(
+            str(cm.exception),
+            ".demoscanignore:2: 'a.md' has no trailing '# reason' — every "
+            "exemption states its reason where a reviewer reads it")
+
+    def test_same_line_reason_accepts_a_trailing_reason_and_skips_comments(self):
+        self.assertEqual(self.strict("# note\n\na.md  # why\n   \nb/*.py # r\n"),
+                         ["a.md", "b/*.py"])
+
+    def test_same_line_reason_refuses_an_empty_reason_and_names_the_glob(self):
+        for text in ("a.md #\n", "a.md #   \n"):
+            with self.assertRaises(am.StrictIgnoreFileError) as cm:
+                self.strict(text)
+            self.assertEqual(
+                str(cm.exception),
+                ".demoscanignore:1: 'a.md' has no trailing '# reason' — every "
+                "exemption states its reason where a reviewer reads it")
+
+    def test_strict_stops_at_the_first_offending_line(self):
+        with self.assertRaises(am.StrictIgnoreFileError) as cm:
+            self.strict("ok.md # r\nfoo#bar.md # r\nbare.md\n")
+        self.assertIn(":2:", str(cm.exception))   # not line 3, and not a tally
+
+    def test_refuse_glued_hash_is_loud(self):
+        self.assertEqual(self.load("a.md#why\n"), ["a.md"])         # default: splits
+        with self.assertRaises(am.StrictIgnoreFileError) as cm:
+            self.strict("foo#bar.md # deliberate\n")
+        self.assertEqual(
+            str(cm.exception),
+            ".demoscanignore:1: put a space before '# reason' — a glob may not "
+            "contain '#', and a '#' glued to the glob would silently exempt a "
+            "different path than written")
+
+    def test_refuse_glued_hash_alone_leaves_the_stanza_grammar(self):
+        kw = dict(refuse_glued_hash=True)
+        self.assertEqual(self.strict("# why\na.md\nb.md # r\n", **kw), ["a.md", "b.md"])
+        with self.assertRaises(am.StrictIgnoreFileError):
+            self.strict("# why\na.md#x\n", **kw)
+        with self.assertRaises(am.IgnoreFileError):                 # bare: stanza error
+            self.strict("a.md\n", **kw)
+
+    def test_strip_controls_strips_before_the_glob_is_kept_or_echoed(self):
+        self.assertEqual(self.strict("\x1b[2J\x1b[Ha.md # r\n"), ["[2J[Ha.md"])
+        with self.assertRaises(am.StrictIgnoreFileError) as cm:
+            self.strict("\x1b[2Ja.md\n")
+        self.assertNotIn("\x1b", str(cm.exception))
+        self.assertIn("'[2Ja.md'", str(cm.exception))
+        # Default (off): the control byte rides along untouched.
+        self.assertEqual(self.load("# why\n\x1ba.md\n"), ["\x1ba.md"])
+
+    def test_strip_controls_splits_lines_before_stripping(self):
+        # \x1c is a line break to str.splitlines: it breaks first, then goes.
+        self.assertEqual(self.strict("a.md # r\x1cb.md # r\n"), ["a.md", "b.md"])
+
+    def test_strip_controls_reaches_the_stanza_path_too(self):
+        kw = dict(strip_controls=True)
+        self.assertEqual(self.strict("# why\n\x07a.md\n", **kw), ["a.md"])
+
+    def test_file_only_reads_a_directory_as_no_globs(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / ".demoscanignore").mkdir()
+            self.assertEqual(am.load_ignore_globs(Path(td), ".demoscanignore",
+                                                  file_only=True), [])
+            with self.assertRaises(OSError):                         # default: the read fails
+                am.load_ignore_globs(Path(td), ".demoscanignore")
+
+    def test_strict_absent_file_is_no_globs(self):
+        with tempfile.TemporaryDirectory() as td:
+            self.assertEqual(am.load_ignore_globs(Path(td), ".x", **self.STRICT), [])
+
+    def test_ignored_case_sensitive_and_no_directory_prefix(self):
+        self.assertTrue(am.ignored("docs/sub/a.md", ["docs/"]))       # defaults unchanged
+        self.assertFalse(am.ignored("docs/sub/a.md", ["docs/"], directories=False))
+        self.assertFalse(am.ignored("docs/sub/a.md", ["docs"], directories=False))
+        self.assertTrue(am.ignored("docs/sub/a.md", ["docs/*"], directories=False))
+        self.assertTrue(am.ignored(".ENV", [".ENV"], case_sensitive=True))
+        self.assertFalse(am.ignored(".env", [".ENV"], case_sensitive=True))
+        # The two parameters are independent.
+        self.assertTrue(am.ignored("docs/a.md", ["docs/"], case_sensitive=True))
+        self.assertTrue(am.ignored("a.md", ["a.md"], directories=False))
+
+    def test_c0_controls_regex_is_c0_and_del_only(self):
+        self.assertEqual(am.C0_CONTROLS_RE.sub("", "a\x00\x1f\x7fb\x80c\u202ed"),
+                         "ab\x80c\u202ed")
 
     def test_ignored_matches_glob_or_directory_prefix(self):
         self.assertTrue(am.ignored("docs/a.md", ["docs/*.md"]))

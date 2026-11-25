@@ -138,12 +138,13 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import allowmarker  # noqa: E402
 import report  # noqa: E402
 
 IGNORE_FILE = ".publishscanignore"
 # C0 controls plus DEL — stripped from everything this tool ingests, at the
 # ingest seam. See `_strip_controls`.
-CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f]")
+CONTROL_CHARS_RE = allowmarker.C0_CONTROLS_RE
 
 # (glob, why). The glob is matched against repo-relative POSIX paths.
 NEVER_PUBLISH: tuple[tuple[str, str], ...] = (
@@ -265,8 +266,10 @@ NEVER_PUBLISH: tuple[tuple[str, str], ...] = (
 )
 
 
-class BadIgnoreFile(Exception):
-    """A glob line without a trailing `# reason` — a config error, not a pass."""
+# A glob line without a trailing `# reason` (or with a `#` glued to its glob)
+# — a config error, not a pass. The class lives in `allowmarker` with the
+# loader (210/590); the name stays for this module's callers.
+BadIgnoreFile = allowmarker.StrictIgnoreFileError
 
 
 def _strip_controls(text: str) -> str:
@@ -297,48 +300,26 @@ def load_ignores(root: Path) -> list[str]:
     accepted-exposure mitigation is that a reviewer reading the tree sees why
     each exemption exists, and a comment on a neighbouring line does not bind
     to the glob it happens to sit near. A bare glob raises (exit 2 upstream).
+
+    The reading is `allowmarker.load_ignore_globs` with this scanner's strict
+    parameters (210/590): the reason on the glob's own line, a `#` glued to the
+    glob refused (PA3, ruled 2026-08-03), controls stripped at the ingest seam
+    so everything downstream, the glob matched and the glob echoed in an error,
+    is control-free (C1F3/PA4), and a directory of that name read as no file.
     """
-    f = root / IGNORE_FILE
-    if not f.is_file():
-        return []
-    out = []
-    for n, raw in enumerate(
-            f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-        # The ingest seam for this file: everything downstream — the glob that
-        # is matched, and the glob echoed back in an error — is control-free
-        # from here on (C1F3/PA4).
-        line = _strip_controls(raw).strip()
-        if not line or line.startswith("#"):
-            continue
-        idx = line.find("#")
-        if idx == -1:
-            raise BadIgnoreFile(
-                f"{IGNORE_FILE}:{n}: '{line}' has no trailing '# reason' — "
-                "every exemption states its reason where a reviewer reads it")
-        if not line[idx - 1].isspace():
-            # A '#' with no space before it would silently truncate the glob
-            # into an exemption for a DIFFERENT path than written (PA3, ruled
-            # 2026-08-03). A glob cannot contain '#'; the failure is loud.
-            raise BadIgnoreFile(
-                f"{IGNORE_FILE}:{n}: put a space before '# reason' — a glob "
-                "may not contain '#', and a '#' glued to the glob would "
-                "silently exempt a different path than written")
-        glob = line[:idx].strip()
-        reason = line[idx + 1:].strip()
-        if not reason:
-            raise BadIgnoreFile(
-                f"{IGNORE_FILE}:{n}: '{glob}' has no trailing '# reason' — "
-                "every exemption states its reason where a reviewer reads it")
-        out.append(glob)
-    return out
+    return allowmarker.load_ignore_globs(
+        root, IGNORE_FILE, same_line_reason=True, refuse_glued_hash=True,
+        strip_controls=True, file_only=True)
 
 
 def _ignored(path: str, globs: list[str]) -> bool:
-    # `fnmatchcase`, not `fnmatch`: the latter folds case on Windows and not on
-    # POSIX, so one `.publishscanignore` would mean two things on two hosts
-    # (PL7). An ignore glob stays CASE-SENSITIVE on purpose: an exemption is the
-    # narrow lever, so `.ENV  # reason` exempts `.ENV` and not `.env`.
-    return any(fnmatch.fnmatchcase(path, g) for g in globs)
+    # CASE-SENSITIVE, and no directory-prefix form: `fnmatch` folds case on
+    # Windows and not on POSIX, so one `.publishscanignore` would mean two
+    # things on two hosts (PL7). An ignore glob stays CASE-SENSITIVE on purpose:
+    # an exemption is the narrow lever, so `.ENV  # reason` exempts `.ENV` and
+    # not `.env`.
+    return allowmarker.ignored(path, globs, case_sensitive=True,
+                               directories=False)
 
 
 # Globs matched against the path's BASENAME alone. `fnmatch`'s `*` spans `/`,

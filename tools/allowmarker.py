@@ -49,6 +49,15 @@ WHAT IT FAILS CLOSED ON (160/480, the cold pass on this module; Mike
   * a reader asks the pattern for its own scope group, so the group name is
     stated once (AM8).
 
+The ignore-file loader and its glob test take the same kind of parameter
+(210/590, the GA1 finding's second half). `publishscan` read its ignore file
+with its own copy, stricter on purpose, and now calls `load_ignore_globs` with
+`same_line_reason`, `refuse_glued_hash`, `strip_controls` and `file_only`, and
+`ignored` with `case_sensitive` and `directories=False`; every one defaults to
+the reading the other scanners had, so none of them moved. Nothing of that
+copy is left behind: its one distinct error type, `StrictIgnoreFileError`,
+lives here too.
+
 The `\\s*` separator exists for the multi-line marker searches (`blockscan`'s
 region text, `stampscan`'s block head, `attribscan`'s list block, the commit
 message `namescan` and `quotescan` read); every other site reads one line.
@@ -432,6 +441,17 @@ class IgnoreFileError(ValueError):
             f"a trailing '# reason' on the line.")
 
 
+# C0 controls plus DEL: what a strict loader drops from the text it ingests
+# (`strip_controls`). The set `publishscan` has always stripped (C1F3 / PA4).
+C0_CONTROLS_RE = re.compile(r"[\x00-\x1f\x7f]")
+
+
+class StrictIgnoreFileError(ValueError):
+    """A strict-form ignore file broke its one-line grammar. Carries the whole
+    message, not entries: the strict loader stops at the FIRST offending line
+    (`load_ignore_globs(same_line_reason=..., refuse_glued_hash=...)`)."""
+
+
 def read_reasoned_parts(f: Path) -> list[tuple[int, str, str, str | None]]:
     """The grammar of `read_reasoned_lines` before its two reason places are
     merged: `(line number, entry, trailing, stanza)`. `trailing` is the text
@@ -486,8 +506,15 @@ def read_reasoned_lines(f: Path) -> list[tuple[int, str, str | None]]:
 
     Single-sourced so `.leakscanignore` and `.leakscanbinaries` (G3) cannot
     drift apart on what "reasoned" means."""
+    if not f.exists():
+        return []
+    return _reasoned_lines_from_text(
+        f.read_text(encoding="utf-8", errors="replace"))
+
+
+def _reasoned_lines_from_text(text: str) -> list[tuple[int, str, str | None]]:
     out: list[tuple[int, str, str | None]] = []
-    for n, entry, trailing, stanza in read_reasoned_parts(f):
+    for n, entry, trailing, stanza in reasoned_parts_from_text(text):
         # A stanza of bare `#` lines still counts as a reason block — the
         # presence test the ignore loader always made — so the text may be
         # empty while the entry is reasoned; None is reserved for "no reason".
@@ -501,7 +528,11 @@ def read_reasoned_lines(f: Path) -> list[tuple[int, str, str | None]]:
     return out
 
 
-def load_ignore_globs(root: Path, filename: str) -> list[str]:
+def load_ignore_globs(root: Path, filename: str, *,
+                      same_line_reason: bool = False,
+                      refuse_glued_hash: bool = False,
+                      strip_controls: bool = False,
+                      file_only: bool = False) -> list[str]:
     """Globs from `<root>/<filename>`, each of which MUST carry a stated reason.
 
     GUARDS.md rule (c): an ignore glob is the widest allowance a scanner
@@ -515,15 +546,72 @@ def load_ignore_globs(root: Path, filename: str) -> list[str]:
 
     An unreasoned glob is a CONFIG ERROR, not a warning: raised as
     `IgnoreFileError`, which callers surface as exit 2 — a broken scan is not
-    a pass. An absent file is not an error: no globs."""
-    entries = read_reasoned_lines(root / filename)
+    a pass. An absent file is not an error: no globs.
+
+    The four keyword parameters are `publishscan`'s stricter reading (210/590;
+    GA1, "Make it one module"). All default to off, so every other scanner
+    reads exactly as before:
+
+      * `same_line_reason` — the reason must sit on the glob's OWN line as a
+        trailing `# reason`; a comment block above does not bind to the glob it
+        happens to sit near. The first glob without one raises
+        `StrictIgnoreFileError`, not `IgnoreFileError`.
+      * `refuse_glued_hash` — a `#` with no whitespace before it is refused
+        (PA3, ruled 2026-08-03): a glob cannot contain `#`, and splitting there
+        would silently exempt a different path than written. Applies to any
+        line that carries a `#` after a glob, in either reason mode, and raises
+        `StrictIgnoreFileError` at the first such line.
+      * `strip_controls` — C0 controls and DEL are dropped from each line as it
+        is read (C1F3 / PA4), so a glob echoed in an error cannot repaint a
+        terminal. Lines are split first, so a control character that
+        `str.splitlines` treats as a break still breaks.
+      * `file_only` — only a regular file counts; anything else (a directory
+        of that name) reads as no globs, where the default lets the read fail.
+    """
+    f = root / filename
+    if not (f.is_file() if file_only else f.exists()):
+        return []
+    lines = f.read_text(encoding="utf-8", errors="replace").splitlines()
+    if strip_controls:
+        lines = [C0_CONTROLS_RE.sub("", ln) for ln in lines]
+    if same_line_reason or refuse_glued_hash:
+        out: list[str] = []
+        for n, raw in enumerate(lines, 1):
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            idx = line.find("#")
+            if idx == -1:
+                if same_line_reason:
+                    raise StrictIgnoreFileError(
+                        f"{filename}:{n}: '{line}' has no trailing '# reason' — "
+                        "every exemption states its reason where a reviewer "
+                        "reads it")
+                out.append(line)
+                continue
+            if refuse_glued_hash and not line[idx - 1].isspace():
+                raise StrictIgnoreFileError(
+                    f"{filename}:{n}: put a space before '# reason' — a glob "
+                    "may not contain '#', and a '#' glued to the glob would "
+                    "silently exempt a different path than written")
+            glob = line[:idx].strip()
+            reason = line[idx + 1:].strip()
+            if same_line_reason and not reason:
+                raise StrictIgnoreFileError(
+                    f"{filename}:{n}: '{glob}' has no trailing '# reason' — "
+                    "every exemption states its reason where a reviewer reads it")
+            out.append(glob)
+        if same_line_reason:
+            return out
+    entries = _reasoned_lines_from_text("\n".join(lines))
     unreasoned = [(n, g) for n, g, reason in entries if reason is None]
     if unreasoned:
         raise IgnoreFileError(filename, unreasoned)
     return [g for _, g, _ in entries]
 
 
-def ignored(rel: str, globs: list[str]) -> bool:
+def ignored(rel: str, globs: list[str], *, case_sensitive: bool = False,
+            directories: bool = True) -> bool:
     """True if repo-relative `rel` matches any glob, or sits under a glob
     treated as a directory (`g/` or `g`).
 
@@ -532,8 +620,16 @@ def ignored(rel: str, globs: list[str]) -> bool:
     `**` means the same as `*` (and `**/x` misses a top-level `x`), a leading
     `/` never matches, and `!` is a literal character that negates nothing. A
     glob that can never match exempts nothing, silently, so write each one as a
-    path from the repo root."""
-    return any(fnmatch.fnmatch(rel, g) or fnmatch.fnmatch(rel, g.rstrip("/") + "/*")
+    path from the repo root.
+
+    Two parameters carry `publishscan`'s narrower reading (210/590):
+    `case_sensitive=True` matches with `fnmatchcase`, so one ignore file means
+    the same on every host (`fnmatch` folds case on Windows only; PL7), and
+    `directories=False` drops the directory-prefix form, so only a glob that
+    matches the whole path exempts it."""
+    match = fnmatch.fnmatchcase if case_sensitive else fnmatch.fnmatch
+    return any(match(rel, g)
+               or (directories and match(rel, g.rstrip("/") + "/*"))
                for g in globs)
 
 
