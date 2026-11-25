@@ -81,6 +81,11 @@ It is a gate, not a habit. ccfleet's drain refuses a config without
 `queue.ranked` and starts nothing while it exits nonzero; the adopter's queue
 makes `ranked`, `next` and `take` refuse until this run's ranking is sealed,
 so a pass started by hand (`ccfleet pass`) meets the same gate as a drain.
+That is the queue's contract, stated in `man ccfleet` (*The seal*), and
+`instruments/fixtures/review_queue_reference.py` is a reference queue that
+keeps it, which the tests drive. Whether a session that wrote briefs may then
+drain them is left to the adopter's queue and to that session's own account
+(`PROVENANCE`).
 `ranked` reports a seal and never makes one, and changes nothing. ccfleet
 calls it only on a real drain whose reset has not come; a `--dry-run`
 rehearsal never calls it, and prints `ccfleet plan`'s reading instead.
@@ -210,8 +215,8 @@ brief a pass whose subject this session built.
   file, a pull request, a CI log). Give them the narrowest permission mode
   that does the work, never a bypass mode by default. ccfleet loads none of
   the user-level settings' grants, so the config is the whole grant but for a
-  repo's own settings files; `ccfleet --doc` says who can steer such a
-  session and what bounds it.
+  repo's own settings files; `man ccfleet` (THREATS) says who can steer
+  such a session and what bounds it.
 
 ## Mode 2: resume (after the reset, on the principal's word only)
 
@@ -262,12 +267,14 @@ that spawned it.
 ## The variables the prompts need
 
 ccfleet fills `{REPO}` `{GH}` `{BR}` `{VIS}` `{WT}` `{PRIMARY}` `{LANDING}`
-`{NOTES}` `{SCRATCH}` `{BY}` `{DATE}` `{SESSION}` on every launch; `{ITEM}`
-`{BRIEF}` `{REVIEW_LOG}` for a pass; and `{ITEM}` `{REVIEW_LOG}` for a resume
-or a fold given `--item`. The rest are the adopter's, in the config's `vars`
-or by `--set`. ccfleet refuses to launch a prompt with a placeholder left
-unfilled, so a missing one fails closed; `ccfleet check --prompt <file>`
-names any before the first try, and this list says which to set.
+`{NOTES}` `{SCRATCH}` `{BY}` `{DATE}` `{SESSION}` on every launch, and `{PIN}`
+when a prompt uses it; `{ITEM}` `{BRIEF}` `{REVIEW_LOG}` for a pass; and
+`{ITEM}` `{REVIEW_LOG}` for a resume or a fold given `--item`. The rest are
+the adopter's, in the config's `vars` or by `--set`. ccfleet refuses to
+launch a prompt with a placeholder left unfilled, so a missing one fails
+closed; `ccfleet check --prompt <file>` names any before the first try (and
+lists apart the two only a resume or a fold fills), and this list says which
+to set.
 
 | Prompt | The adopter sets |
 |---|---|

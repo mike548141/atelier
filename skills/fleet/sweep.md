@@ -204,8 +204,8 @@ names any first, and this list says which to set.
 - The workers run unattended in every listed repo, hold the user's git and
   forge credentials, and read text others can write (a repo's instruction
   file, a pull request, a CI log). Give them the narrowest permission mode
-  that does the work, never a bypass mode by default; `ccfleet --doc` says
-  who can steer such a session and what bounds it.
+  that does the work, never a bypass mode by default; `man ccfleet`
+  (THREATS) says who can steer such a session and what bounds it.
 - `claude -p` needs stdin from `/dev/null`; ccfleet always does it.
 - Three prompts work in the atelier checkout, outside the worker's own
   worktree: `adopt-prompt.md` reads the `repo create` action there and runs

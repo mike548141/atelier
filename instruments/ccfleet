@@ -23,7 +23,9 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     configured private name wherever no letter or digit touches it, so a
     <label>-<HHMM> folder, a name-kit folder, name_notes and atelier--name are
     caught. The guard is a literal match, so it catches the names you list and
-    nothing you forgot to list.
+    nothing you forgot to list. It reads the user-level instructions file each
+    launch appends too: a public or unknown repo's launch is refused when that
+    file names one (instructions_guard "warn": a line per name, and it goes on).
   * This is Python, not zsh, on purpose: zsh reads a script as it runs, so
     editing a driver script mid-run broke every running job's tail. Python
     compiles the whole file at start, so a running driver is immune; a job
@@ -77,6 +79,12 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     kept. Leaving the user source out also leaves out the user-level
     CLAUDE.md, so ccfleet appends it to the system prompt. A repo's own
     settings files still load; a launch prints a WIDENED line for each grant.
+    What still widens it (`check` names each): those repo files, a kept hook
+    whose script approves, kept keys such as enabledPlugins, env and the MCP
+    approvals, and managed settings. A config that grants nothing runs in the
+    default mode, where every call that would ask is refused; `check` says so.
+    The two per-session copies (<kit_dir>/settings/) are removed when the
+    ccfleet process that launched the session exits.
   * A clean RESULT that leaves unlanded work is not clean: it reads as
     UNLANDED, the claim stays and the worktree is kept for a resume. A DONE
     that left uncommitted work once released its claim, tying the work to no
@@ -123,17 +131,23 @@ CONFIG is JSON (see instruments/ccfleet.example.json, every value fictional):
   reset_utc       "YYYY-MM-DDTHH:MM": no new start at or after it (a budget reset);
                   a resume or a fold, which finishes a started pass, still runs
   private_names   names a public repo's prompt must never contain
+  instructions_guard  "refuse" (default) or "warn": a public or unknown repo's launch
+                  when the user-level CLAUDE.md it appends names a private name
   vars            template variables for every job (the principal's words, paths)
   env             extra environment variables for every session (NAME: value)
-  repos           {name: {model, notes, visibility, github}}  per-repo facts
+                  (a value starting ~/ in vars or env is expanded to the home folder)
+  repos           {name: {model, notes, visibility, github, branch}}  per-repo facts
+                  (branch: the mainline, read only for a repo with no remote)
   queue           drain: {next, ranked, take, release[, ended]} argv lists; plan: {evidence[, owed]};
                   and release_on / stop_on lists of RESULT words (see below)
   pass_prompt     drain only: the per-pass orchestrator prompt template
   pass_model      drain only: the orchestrator's model (the reviewer's tier is the prompt's business)
 
 THE QUEUE INTERFACE (drain). The review queue itself is the adopter's own tool;
-ccfleet only calls it. Each entry is an argv list; {REPO} {ITEM} {BRIEF} {BY}
-{WT} {LOG} are filled in before the call.
+ccfleet only calls it. Each entry is an argv list, its placeholders filled
+before the call: ranked gets {BY}; next {LAUNCHED} {BY}; evidence and owed
+{FETCH}; take every prompt value and {ITEM} {BRIEF} {LOG} {SESSION}; release
+and ended every prompt value and {ITEM} {BRIEF} {SESSION} {RESULT} {LOG}.
   Each is given QUEUE_TIMEOUT (600) seconds; one that cannot start or overruns
   counts as a failed call.
   next     prints "REPO ITEM BRIEF_RELPATH" for the next pass to run, or nothing
@@ -154,6 +168,24 @@ ccfleet only calls it. Each entry is an argv list; {REPO} {ITEM} {BRIEF} {BY}
   ended    optional: called after every pass, resume or run --item, any
            RESULT, with {SESSION} {RESULT} {LOG} {WT} filled (to record them).
   stop_on  RESULT words that stop the drain (default BUDGET EXHAUSTED).
+
+THE SEAL. ccfleet never makes or checks a seal; it calls ranked once and
+trusts its exit. What stops an unplanned paid pass is the adopter's queue, by
+this contract. A run's ranking is sealed by the queue's own seal command,
+which `/atelier:review run` calls with this run's plan, keyed by the run's
+{BY}, and which refuses while any ready review is missing from the ranking,
+unreasoned, on a closed route, on a later route than the best open one it
+fits without saying why, or while two budgets are open and either lapse
+time is unknown. ranked, next and take each exit nonzero (next printing
+nothing) until this run's ranking is sealed, so a pass started by hand
+(`ccfleet pass`, whose take carries its own --by) meets the same gate as a
+drain's. A seal lasts one run and no longer than the first
+lapse among the budgets it routes to. Whether a session that wrote a brief
+may then drain it is the adopter's queue's to refuse (the reference queue
+refuses to seal it) and otherwise rests on that session's own account (the
+pass prompt's PROVENANCE). A reference queue that keeps this contract, which
+the tests drive, ships as instruments/fixtures/review_queue_reference.py
+(every name in it fictional).
   evidence plan only (and a dry drain): prints a JSON array, one object per
            briefed, unrun review, each with at least repo, item, brief, title;
            every other field (say briefed, his_words, dates_ahead, signals,
@@ -180,13 +212,18 @@ that fails, is said and the rehearsal carries on). A failing queue command, or
 one that prints something other than the JSON above, exits 1; a config with no
 queue.evidence exits 64.
   Cost history: from <kit_dir>/logs/pass-*.out, the output of each pass a drain
-  launched, and the `claude -p --output-format json` log each names: for a pass
-  that ended clean (RESULT in release_on, read as harvest reads it), the count,
-  median and max of total_cost_usd, duration_ms and num_turns, where the log
-  has them. Every pass ccfleet launches is a local session, so only the `local`
-  route is measured; any other route a row's `fits` names reads "no
-  measurement", as does local with no logs. A pass run by hand leaves no .out
-  and is not counted. Nothing is estimated.
+  launched, the `claude -p --output-format json` log each names, and the logs of
+  any resume and fold that finished it: for each completed pass (clean in one
+  session, or finished clean by a resume or fold), the sum over its sessions of
+  total_cost_usd, duration_ms and num_turns; the count, median and max of those,
+  pooled, per repo and per model (modelUsage's costUSD: a reviewer subagent on
+  its own model is that model's share, since total_cost_usd holds subagents
+  too), with the subagents spawned and the cost basis. The CLI prices at list
+  price; on a subscription plan the figure is notional, not money spent. No
+  size is measured, so no figure is per size. Every pass ccfleet launches is a
+  local session, so only the `local` route is measured; any other route a
+  row's `fits` names reads "no measurement", as does local with no logs. A pass
+  run by hand leaves no .out and is not counted. Nothing is estimated.
 
 Template variables always filled: {REPO} {GH} {BR} {VIS} {PIN} {WT} {PRIMARY}
 {LANDING} {NOTES} {SCRATCH} {BY} {DATE} {SESSION}, plus config `vars`, plus the
@@ -212,10 +249,13 @@ started nothing) · 5 refused by the private-name guard or an unfilled
 placeholder (check: a template has one) · 64 usage (incl. an unreadable or
 malformed config, a repeated jobs label, --set with no '=', a repo given as a
 path). See `man ccfleet`, THREATS, for what can steer an unattended session.
-Runtime: Python 3.8 or later, standard library only; git on PATH; gh optional
-(visibility lookup when a repo's config does not state it).
+Runtime: Python 3.8 or later (tested on 3.9 and 3.14 only), standard library
+only; git, nice and ps on PATH, and memory_pressure on macOS (the gate's
+memory reading); gh optional (visibility lookup when a repo's config does not
+state it).
 """
 import argparse
+import atexit
 import datetime as dt
 import fcntl
 import glob
@@ -264,10 +304,32 @@ QUEUE_TIMEOUT = 600       # seconds a queue command may take before it counts as
 ALWAYS_FILLED = {"REPO", "GH", "BR", "VIS", "PIN", "WT", "PRIMARY", "LANDING", "NOTES", "SCRATCH",
                  "BY", "DATE", "SESSION"}
 PASS_FILLED = {"ITEM", "BRIEF", "REVIEW_LOG"}
+# What a resume (with --item) and a fold (run --in WT --item ITEM) add: the
+# same two. Only `pass` fills {BRIEF}, and only for pass_prompt.
 RESUME_FILLED = {"ITEM", "REVIEW_LOG"}
-# claude_args that widen what an unattended session may do without asking.
+# claude_args that widen what an unattended session may do without asking, or
+# what it can reach (MCP servers, plugins, the tool list, a permission tool).
+# The first two take no value.
 PERMISSION_FLAGS = ("--dangerously-skip-permissions", "--allow-dangerously-skip-permissions",
-                    "--permission-mode", "--allowedTools", "--allowed-tools", "--add-dir")
+                    "--permission-mode", "--allowedTools", "--allowed-tools", "--add-dir",
+                    "--mcp-config", "--plugin-dir", "--tools", "--permission-prompt-tool")
+# User-level keys a session keeps (they equip it) that still widen what it can
+# do or run; `check` names each one present. The config's `settings` can
+# override any of them.
+WIDENING_KEPT = {
+    "enabledPlugins": "each plugin brings its own hooks, skills, agents and MCP servers",
+    "env": "environment every tool call sees",
+    "skipDangerousModePermissionPrompt": "skips the bypass mode's confirmation",
+    "enableAllProjectMcpServers": "approves every MCP server a repo's .mcp.json names",
+    "enabledMcpjsonServers": "approves the named MCP servers of a repo's .mcp.json",
+    "apiKeyHelper": "runs a command of its own for credentials",
+    "awsAuthRefresh": "runs a command of its own for credentials",
+    "awsCredentialExport": "runs a command of its own for credentials",
+    "otelHeadersHelper": "runs a command of its own for telemetry headers",
+}
+# What a launch does when the user-level instructions file it appends names a
+# private name and the repo is public or of unknown visibility.
+INSTRUCTIONS_GUARD = ("refuse", "warn")
 
 
 class Refusal(Exception):
@@ -282,6 +344,13 @@ def now_utc():
 
 def expand(p):
     return os.path.abspath(os.path.expanduser(p)) if p else p
+
+
+def expand_home(v):
+    """A leading ~/ (or a bare ~) in a vars or env value is the home folder:
+    neither a prompt that quotes the path nor an environment variable would
+    expand it later."""
+    return os.path.expanduser(v) if isinstance(v, str) and (v == "~" or v.startswith("~/")) else v
 
 
 # ---------- config ----------
@@ -335,10 +404,16 @@ def load_config(path):
     gate.setdefault("min_mem_pct", 25)
     gate.setdefault("min_disk_gb", 20)
     cfg.setdefault("private_names", [])
-    cfg.setdefault("vars", {})
+    if cfg.setdefault("instructions_guard", "refuse") not in INSTRUCTIONS_GUARD:
+        raise Refusal(EXIT_USAGE, f"config {path}: instructions_guard must be one of "
+                                  f"{', '.join(INSTRUCTIONS_GUARD)}, not {cfg['instructions_guard']!r}")
+    if not isinstance(cfg.setdefault("vars", {}), dict):
+        raise Refusal(EXIT_USAGE, f"config {path}: vars must be an object of NAME: value")
     cfg.setdefault("repos", {})
     if not isinstance(cfg.setdefault("env", {}), dict):
         raise Refusal(EXIT_USAGE, f"config {path}: env must be an object of NAME: value")
+    for k in ("vars", "env"):
+        cfg[k] = {n: expand_home(v) for n, v in cfg[k].items()}
     q = cfg.get("queue") or {}
     for k, default in (("release_on", RELEASE_ON), ("stop_on", STOP_ON)):
         if not isinstance(q.get(k, default), list):
@@ -518,20 +593,40 @@ def session_settings(cfg):
     return merge_settings(user, cfg.get("settings") or {}), notes
 
 
+def user_instructions_path():
+    return os.path.join(config_dir(), "CLAUDE.md")
+
+
+def remove_session_files(paths):
+    for p in paths:
+        if p:
+            try:
+                os.remove(p)
+            except OSError:
+                pass
+
+
 def session_files(cfg, sid, write=True):
     """Write (unless not `write`) the session's settings file, and the
     user-level CLAUDE.md as an instructions file when there is one, under
     <kit_dir>/settings/. Returns their paths (the second None when there is no
-    user CLAUDE.md)."""
+    user CLAUDE.md).
+
+    They hold whatever the user-level env block and instruction file hold, so
+    they live only as long as the ccfleet process that launched the session:
+    removed when it exits, by which time its session has ended (each process
+    launches one session; a resume writes fresh ones). They are not removed
+    while it runs, since a session may read its settings file again."""
     d = os.path.join(cfg["kit_dir"], "settings")
     spath, ipath = os.path.join(d, f"{sid}.json"), os.path.join(d, f"{sid}-user-instructions.md")
-    umd = os.path.join(config_dir(), "CLAUDE.md")
+    umd = user_instructions_path()
     if not os.path.isfile(umd):
         ipath = None
     if not write:
         return spath, ipath
     settings, _ = session_settings(cfg)
     os.makedirs(d, exist_ok=True)
+    atexit.register(remove_session_files, (spath, ipath))
     fd = os.open(spath, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         json.dump(settings, f, indent=1)
@@ -708,7 +803,43 @@ def build_prompt(cfg, template_path, values, template_text=None):
     if hits:
         raise Refusal(EXIT_GUARD, f"refused: the prompt for {values.get('REPO')} ({values.get('VIS')}) names "
                                   f"private name(s) {', '.join(hits)}")
+    guard_instructions(cfg, values.get("REPO"), values.get("VIS", "UNKNOWN"))
     return text
+
+
+def instruction_hits(cfg, visibility):
+    """Private names in the user-level instructions file every launch appends
+    to the session's system prompt (session_files), for a public or
+    unknown-visibility repo. One that cannot be read has none here; reading it
+    for the launch fails loudly instead."""
+    p = user_instructions_path()
+    if visibility == "PRIVATE" or not os.path.isfile(p):
+        return []
+    try:
+        with open(p, encoding="utf-8", errors="replace") as f:
+            return private_hits(cfg, f.read(), visibility)
+    except OSError:
+        return []
+
+
+def guard_instructions(cfg, repo, visibility):
+    """The private-name guard over what else a launch hands the session: the
+    user-level instructions file. With instructions_guard "refuse" (the
+    default) a public or unknown-visibility repo's launch is refused, as a
+    prompt naming one is: a publication cannot be retracted. With "warn" it
+    goes on, and a line per name says so at launch."""
+    hits = instruction_hits(cfg, visibility)
+    if not hits:
+        return
+    p = user_instructions_path()
+    if cfg.get("instructions_guard", "refuse") == "warn":
+        for n in hits:
+            print(f"INSTRUCTIONS name private name {n}: {p} is appended to this {visibility} repo's session "
+                  f"anyway (instructions_guard warn; man ccfleet, THREATS)", flush=True)
+        return
+    raise Refusal(EXIT_GUARD, f"refused: {p}, appended to every session's system prompt, names private "
+                              f"name(s) {', '.join(hits)}, and {repo} is {visibility}; take the names out of "
+                              f"it, or set instructions_guard to warn to append it anyway (man ccfleet, THREATS)")
 
 
 # ---------- one session ----------
@@ -1901,25 +2032,67 @@ def spread(values):
     return {"n": len(vals), "median": round(statistics.median(vals), 4), "max": round(vals[-1], 4)}
 
 
-def pass_history(cfg):
-    """What ccfleet's own past drain passes cost, from the logs it wrote.
+COST_WHAT = ("per completed pass, the sum over every session it took (the drain's pass session, then any "
+             "resume and fold) of total_cost_usd as the CLI reports it, the reviewer subagent included")
+NOTIONAL = ("the CLI prices each session at its cost basis (list: the API list price); a session on a "
+            "subscription plan spent no money, so its figure is notional, not what was paid")
 
-    Source: <kit_dir>/logs/pass-*.out, one per pass a drain launched; each
-    names, on its START line, the `claude -p --output-format json` log of the
-    pass's orchestrator session, and on its END line the RESULT. A pass counts
-    only when it ended clean: the log's RESULT, read by harvest(), and the END
-    line's RESULT are both in queue.release_on (so UNLANDED, ERROR and a cut-off
-    pass are out). Cost, duration and turns are taken as the CLI reported them
-    (total_cost_usd, duration_ms, num_turns), and only where present.
 
-    Limits: a pass run by hand (`ccfleet pass`) leaves no .out and is not
-    counted; the figure is the whole orchestrator session as the CLI reports
-    it, so its reviewer subagent's share is whatever the CLI folds in; every
-    pass ccfleet launches is a local session, so only the local route is ever
-    measured."""
+def session_reading(path, cfg):
+    """What one session's JSON log says: its RESULT word (read as harvest
+    reads it), cost, duration in seconds, turns, cost per model (modelUsage's
+    costUSD, which sums to total_cost_usd, subagents included), subagents
+    spawned, and cost bases."""
     clean_words, stops = release_on(cfg), stop_on(cfg)
-    seen, costs, durs, turns = 0, [], [], []
-    for out in sorted(glob.glob(os.path.join(glob.escape(cfg["kit_dir"]), "logs", "pass-*.out"))):
+    _, _, word = harvest(path, None, 0, known=clean_words + stops, stops=stops)
+    j = read_log_json(path) or {}
+    mu = j.get("modelUsage") if isinstance(j.get("modelUsage"), dict) else {}
+    ss = j.get("subagent_stats") if isinstance(j.get("subagent_stats"), dict) else {}
+    return {"word": word, "cost": number(j.get("total_cost_usd")),
+            "dur": None if number(j.get("duration_ms")) is None else j["duration_ms"] / 1000,
+            "turns": number(j.get("num_turns")),
+            "models": {str(m): number(v.get("costUSD")) for m, v in mu.items() if isinstance(v, dict)},
+            "subagents": number(ss.get("spawned")),
+            "bases": {str(v.get("costBasis")) for v in mu.values() if isinstance(v, dict) and v.get("costBasis")}}
+
+
+def total(values):
+    """The sum, or None when any part is missing: a part-measured pass is
+    never read as a cheap one."""
+    return None if not values or any(v is None for v in values) else sum(values)
+
+
+def pass_history(cfg):
+    """What ccfleet's own past review passes cost, from the logs it wrote.
+
+    A pass is found by its <kit_dir>/logs/pass-*.out (one per pass a drain
+    launched): the START line names the pass's worktree and the `claude -p
+    --output-format json` log of its orchestrator session, the END line its
+    RESULT. A pass the drain's session did not finish is joined, as far as
+    the log names allow, by the sessions that finished it: a resume's log
+    (logs/resume-<repo>-<item>-<HHMM>.json, given to the newest pass of that
+    repo and item that started before it ended) and a fold's
+    (logs/<the pass's worktree folder>-in-<HHMMSS>.json).
+
+    A pass is completed when it ended clean in one session (the END line's
+    and the log's RESULT both in queue.release_on, so UNLANDED, ERROR and a
+    cut-off pass are not), or when the last session that finished it ended
+    clean by its log. Its cost, duration and turns are the sums over all its
+    sessions, counted only when every session reports them. The figure is
+    the orchestrator session's total_cost_usd, which holds its subagents' too
+    (modelUsage breaks it down per model, so a reviewer on its own model shows
+    as that model's share). Broken down per repo and per model; no size is
+    measured, so nothing is per size.
+
+    Limits: a pass run by hand (`ccfleet pass` outside a drain) leaves no .out,
+    and its log is not told apart from a `run` job's, so it is not counted;
+    a resume or fold run by hand is joined only by its log name; every pass
+    ccfleet launches is a local session, so only the local route is ever
+    measured."""
+    clean_words = release_on(cfg)
+    logs = os.path.join(cfg["kit_dir"], "logs")
+    passes = []
+    for out in sorted(glob.glob(os.path.join(glob.escape(logs), "pass-*.out"))):
         try:
             with open(out, encoding="utf-8", errors="replace") as f:
                 lines = f.read().splitlines()
@@ -1928,21 +2101,60 @@ def pass_history(cfg):
         start = next((l for l in lines if l.startswith("START ")), "")
         end = [l for l in lines if l.startswith("END ")]
         m, lg = (END_RESULT_RX.search(end[-1]) if end else None), re.search(r" log=(.*)$", start)
+        wt = re.search(r" wt=(.*?) log=", start)
         if not (m and lg):
             continue
-        seen += 1
-        _, _, word = harvest(lg.group(1), None, 0, known=clean_words + stops, stops=stops)
-        if m.group(1) not in clean_words or word not in clean_words:
+        label = start.split()[2] if len(start.split()) > 2 else ""
+        passes.append({"label": label, "end": m.group(1), "log": lg.group(1),
+                       "repo": os.path.basename(wt.group(1)) if wt else "?",
+                       "folder": os.path.basename(os.path.dirname(wt.group(1))) if wt else None,
+                       "at": start.split()[1], "later": []})
+    for path in glob.glob(os.path.join(glob.escape(logs), "*.json")):
+        name = os.path.basename(path)
+        r = re.fullmatch(r"resume-(.+)-\d{4}\.json", name)
+        f = re.fullmatch(r"(.+)-in-\d{6}\.json", name)
+        mtime = os.path.getmtime(path)
+        at = dt.datetime.fromtimestamp(mtime, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        if r:
+            mine = [p for p in passes if safe(p["label"]) == r.group(1) and p["at"] <= at]
+        elif f:
+            mine = [p for p in passes if p["folder"] == f.group(1)]
+        else:
             continue
-        j = read_log_json(lg.group(1)) or {}
-        costs.append(number(j.get("total_cost_usd")))
-        durs.append(None if number(j.get("duration_ms")) is None else j["duration_ms"] / 1000)
-        turns.append(number(j.get("num_turns")))
-    local = {"passes_seen": seen, "clean": len(costs)}
-    stats = {"cost_usd": spread(costs), "duration_s": spread(durs), "turns": spread(turns)}
+        if mine:
+            max(mine, key=lambda p: p["at"])["later"].append((mtime, path))
+    rows, clean_one, later_done, by_repo, by_model, subagents, bases = [], 0, 0, {}, {}, [], set()
+    for p in passes:
+        first = session_reading(p["log"], cfg)
+        sessions = [first] + [session_reading(lp, cfg) for _, lp in sorted(p["later"])]
+        if p["end"] in clean_words and first["word"] in clean_words:
+            clean_one += 1
+        elif len(sessions) > 1 and sessions[-1]["word"] in clean_words:
+            later_done += 1
+        else:
+            continue
+        cost = total([x["cost"] for x in sessions])
+        rows.append((cost, total([x["dur"] for x in sessions]), total([x["turns"] for x in sessions])))
+        by_repo.setdefault(p["repo"], []).append(cost)
+        models = {}
+        for x in sessions:
+            for mname, c in x["models"].items():
+                models[mname] = None if c is None or models.get(mname, 0) is None else models.get(mname, 0) + c
+            bases |= x["bases"]
+        for mname, c in models.items():
+            by_model.setdefault(mname, []).append(c)
+        subagents.append(total([x["subagents"] for x in sessions]))
+    local = {"passes_seen": len(passes), "clean": clean_one, "finished_later": later_done,
+             "completed": clean_one + later_done}
+    stats = {"cost_usd": spread([r[0] for r in rows]), "duration_s": spread([r[1] for r in rows]),
+             "turns": spread([r[2] for r in rows])}
     if not any(stats.values()):
         return {"measured": False, "note": NO_MEASUREMENT, **local}
-    return {"measured": True, **local, **{k: (v or NO_MEASUREMENT) for k, v in stats.items()}}
+    return {"measured": True, "what": COST_WHAT, **local, **{k: (v or NO_MEASUREMENT) for k, v in stats.items()},
+            "by_repo": {k: spread(v) or NO_MEASUREMENT for k, v in sorted(by_repo.items())},
+            "by_model": {k: spread(v) or NO_MEASUREMENT for k, v in sorted(by_model.items())},
+            "subagents_spawned": spread(subagents) or NO_MEASUREMENT,
+            "cost_basis": sorted(bases) or NO_MEASUREMENT}
 
 
 def plan_reading(cfg, fetch=False):
@@ -1976,6 +2188,10 @@ def plan_reading(cfg, fetch=False):
             routes.setdefault(str(route), {"measured": False, "note": NO_MEASUREMENT})
     notes.append("ccfleet measures only the local route (every pass it launches is a local session); "
                  f"any other route reads {NO_MEASUREMENT!r}")
+    notes.append(f"the cost history is {COST_WHAT}; it measures no review's size, so a route's figure (or "
+                 "a repo's) is the estimate for every review on it, never one for a review of a given size")
+    notes.append(f"{NOTIONAL}: a column that mixes a plan route with a paid one says which is which")
+    notes.append("not counted: a pass run by hand (no .out; its log is not told apart from a run job's)")
     return {"evidence": evidence, "owed": owed, "history": {"source": os.path.join(cfg["kit_dir"], "logs"),
                                                               "routes": routes}, "notes": notes}
 
@@ -2016,9 +2232,20 @@ def plan_text(data):
             seen = f" ({h['passes_seen']} pass(es) seen, none clean with a cost)" if h.get("passes_seen") else ""
             out.append(f"  {route}: {NO_MEASUREMENT}{seen}")
             continue
-        out.append(f"  {route}: {h['clean']} clean pass(es) of {h['passes_seen']} seen; "
+        out.append(f"  {route}: {h['clean']} clean pass(es) of {h['passes_seen']} seen, "
+                   f"{h.get('finished_later', 0)} more finished by a resume or fold; "
                    + "; ".join([fmt_stat("cost", h["cost_usd"], " USD"), fmt_stat("duration", h["duration_s"], " s"),
                                 fmt_stat("turns", h["turns"])]))
+        if h.get("what"):
+            out.append(f"    what: {h['what']}")
+        for key, head in (("by_repo", "by repo"), ("by_model", "by model (a reviewer on its own model is its share)")):
+            if h.get(key):
+                out.append(f"    {head}: " + "; ".join(fmt_stat(k, v, " USD") for k, v in h[key].items()))
+        if h.get("subagents_spawned"):
+            out.append("    " + fmt_stat("subagents spawned per pass", h["subagents_spawned"]))
+        if h.get("cost_basis"):
+            basis = h["cost_basis"]
+            out.append(f"    cost basis: {', '.join(basis) if isinstance(basis, list) else basis} ({NOTIONAL})")
     out += [""] + [f"NOTE: {n}" for n in data["notes"]]
     return out
 
@@ -2231,6 +2458,9 @@ def check_settings(cfg):
     print(f"GRANT: the config is the whole grant. No user-level settings load (--setting-sources "
           f"{SETTING_SOURCES}); a session gets {upath} less its grants, with the config's `settings` on "
           f"top. Left out: {left}. Kept: {', '.join(kept)}.")
+    for k in sorted(set(settings) & set(WIDENING_KEPT)):
+        print(f"WIDENS: {k} is kept: {WIDENING_KEPT[k]}. Override it in the config's `settings` to narrow it "
+              f"(man ccfleet, THREATS).")
     for h in notes["dropped_hooks"]:
         print(f"HOOK dropped: {h}")
     for h in notes["kept_hooks"]:
@@ -2238,10 +2468,17 @@ def check_settings(cfg):
     if notes["kept_hooks"]:
         print("HOOKS: a kept hook runs with its full power; one whose script answers allow still grants "
               "(ccfleet reads only the command line). Name it in drop_hooks to leave it out.")
-    umd = os.path.join(config_dir(), "CLAUDE.md")
+    umd = user_instructions_path()
     print(f"INSTRUCTIONS: {umd} is appended to every session's system prompt (no user source loads it); "
           f"its @-imports are not followed." if os.path.isfile(umd) else
           f"INSTRUCTIONS: no {umd}; nothing is appended.")
+    hits = instruction_hits(cfg, "UNKNOWN")
+    if hits:
+        then = ("a public or unknown-visibility repo's launch is refused (instructions_guard refuse)"
+                if cfg.get("instructions_guard", "refuse") == "refuse" else
+                "it is appended to a public or unknown-visibility repo's session anyway, with a line per name "
+                "at launch (instructions_guard warn)")
+        print(f"INSTRUCTIONS GUARD: it names private name(s) {', '.join(hits)}: {then}.")
     print("REPO SETTINGS: a repo's own .claude/settings.json and .claude/settings.local.json still load, "
           "with its CLAUDE.md; each launch prints a WIDENED line for what they grant (man ccfleet, THREATS).")
 
@@ -2261,10 +2498,20 @@ def check(cfg, prompts, sets):
               f"unchecked. Use the narrowest mode that does the work.")
     elif perms:
         print(f"PERMISSIONS: every session starts with {'; '.join(perms)} (see man ccfleet, THREATS)")
+    else:
+        print("NO GRANT: neither claude_args nor the config's settings set a permission mode or an allow "
+              "rule, so a session runs in the default mode, where nobody is there to ask: every call that "
+              "would ask (an edit, most shell commands) is refused. Grant the narrowest that does the work, "
+              "or confirm the sessions need only what the default allows (a repo's own settings aside).")
     check_settings(cfg)
     have = set(cfg["vars"]) | set(sets)
-    templates = ([(cfg["pass_prompt"], PASS_FILLED)] if cfg.get("pass_prompt") else []) + \
-                [(t, set()) for t in prompts]
+    # What fills a template depends on the command that launches it: `pass`
+    # fills {ITEM} {BRIEF} {REVIEW_LOG}, and only ever for pass_prompt; a
+    # resume (with --item) and a fold (run --in WT --item ITEM) fill {ITEM}
+    # and {REVIEW_LOG}; a plain run fills neither.
+    pass_prompt = expand(cfg["pass_prompt"]) if cfg.get("pass_prompt") else None
+    templates = ([(cfg["pass_prompt"], PASS_FILLED)] if pass_prompt else []) + \
+                [(t, PASS_FILLED if expand(t) == pass_prompt else set()) for t in prompts]
     unset_any = False
     for path, filled_here in templates:
         try:
@@ -2274,11 +2521,12 @@ def check(cfg, prompts, sets):
             unset_any = True
             continue
         names = set(PLACEHOLDER.findall(text))
-        later = sorted((names & (PASS_FILLED | RESUME_FILLED)) - filled_here - have)
+        later = sorted((names & RESUME_FILLED) - filled_here - have)
         unset = sorted(names - ALWAYS_FILLED - filled_here - have - set(later))
         line = f"PROMPT {path}: {len(names)} placeholder(s)"
         if later:
-            line += f"; filled only by pass or resume: {' '.join('{' + n + '}' for n in later)}"
+            line += (f"; filled only by resume --item or a fold (run --in WT --item ITEM): "
+                     f"{' '.join('{' + n + '}' for n in later)} (set them for any other launch)")
         if unset:
             unset_any = True
             line += (f"; UNSET: {' '.join('{' + n + '}' for n in unset)} (set them in the config's vars, "
@@ -2299,6 +2547,7 @@ def main(argv=None):
                "drain) per kit_dir; a jobs file's labels must not repeat.\n"
                "Exit: 0 ran, 1 setup failed (or not ranked), 2 claim or release refused,\n"
                "3 reset reached, 4 queue empty, 5 private name or unfilled placeholder, 64 usage.\n"
+               "Needs Python 3.8+ (tested on 3.9, 3.14), git, nice, ps; memory_pressure on macOS.\n"
                "Full manual: man ccfleet")
     ap.add_argument("--config", metavar="PATH", help="the JSON config (else $CCFLEET_CONFIG)")
     ap.add_argument("--by", metavar="ID", default=os.environ.get("CCFLEET_BY", "unknown"),

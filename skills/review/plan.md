@@ -90,10 +90,17 @@ commit, no seal. A plan is never a seal.
    or re-run lines does not fit a single-request batch route; one needing
    tools only the local session has fits only local. **Unsure means the local
    route**: quality is never traded for price or for a lapse.
-4. **Estimate each one's cost** from measured past passes on that route, for a
-   review of that size (`ccfleet plan`'s history, or the adopter's own lane
-   records), never invented. With no measurement for a route, the row says
-   "no measurement" rather than a guess.
+4. **Estimate each one's cost** from measured past passes on that route,
+   never invented: `ccfleet plan`'s history (or the adopter's own lane
+   records). It gives the median and maximum per completed pass, all its
+   sessions summed with the reviewer subagent included, pooled, per repo and
+   per model. It has no measure of a review's size, so the estimate is the
+   route's figure, or the repo's, and says which; a review you judge larger
+   than most is said so in words beside it, never priced up. The figure is
+   the CLI's list price: on a subscription plan it is notional, not money
+   spent, so a column that mixes a plan route with a paid one says which is
+   which. With no measurement for a route, the row says "no measurement"
+   rather than a guess.
 5. **Show it**, as a table in the reply (the principal's pick, 2026-11-24,
    verbatim: *"a table in the reply"*):
 

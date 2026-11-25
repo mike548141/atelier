@@ -1,4 +1,4 @@
-.TH CCFLEET 1 "2026-11-23" "atelier instruments" "User Commands"
+.TH CCFLEET 1 "2026-11-25" "atelier instruments" "User Commands"
 .SH NAME
 ccfleet \- run headless Claude Code sessions across a fleet of repos, each
 billed to its own repo
@@ -203,8 +203,12 @@ Leaving the user source out also leaves out the user-level
 so ccfleet appends that file to the system prompt
 .RB ( \-\-append\-system\-prompt\-file ),
 and the operator's standing instructions still bind.
-A repo's own settings files still load; see
+A repo's own settings files still load, and some kept keys still widen what
+a session can do; see
 .BR THREATS .
+Both copies live only as long as the
+.B ccfleet
+process that launched the session, which removes them when it exits.
 .IP \(bu 2
 A child that
 .B drive
@@ -237,6 +241,24 @@ in the config, else from
 when
 .BR gh (1)
 is installed; if neither answers, the repo is treated as public.
+.PP
+The same guard reads the user-level
+.I CLAUDE.md
+that every launch appends to the session's system prompt.
+When it names a private name and the repo is public or of unknown
+visibility, the launch is refused (exit 5) before any worktree is made,
+as a prompt naming one is: a publication cannot be retracted.
+With
+.B instructions_guard
+set to
+.B warn
+the launch goes on, and a line per name,
+.BI "INSTRUCTIONS name private name " name ,
+says so before
+.BR START .
+Refusing is the default because the guard exists to keep these names out of
+an unattended session in a public repo, and a warning in a drain's log is
+read after the session has run.
 .PP
 The guard is a literal match.
 It catches the names listed and nothing that was forgotten.
@@ -295,8 +317,25 @@ An
 line says whether a user-level
 .I CLAUDE.md
 is appended, and
+.B INSTRUCTIONS GUARD:
+which private names it holds, if any, and what a public repo's launch does
+about them.
 .B REPO SETTINGS:
-that a repo's own settings files still load.
+says that a repo's own settings files still load.
+.IP
+A
+.B WIDENS:
+line names each kept user-level key that still widens what a session can do
+or run (see
+.BR THREATS ).
+When neither
+.B claude_args
+nor the config's
+.B settings
+sets a permission mode or an allow rule, a
+.B NO GRANT:
+line says that a session runs in the default mode, where every call that
+would ask is refused, since nobody is there to ask.
 .IP
 It then lists the placeholders of
 .B pass_prompt
@@ -311,7 +350,38 @@ Any such name prints as
 and
 .B check
 exits 5, as the launch would.
-A name only a pass or a resume fills is listed apart, not as unset.
+What fills a name depends on the command that launches the template:
+.B pass
+fills
+.BR {ITEM} ,
+.B {BRIEF}
+and
+.BR {REVIEW_LOG} ,
+and only for
+.BR pass_prompt ;
+a
+.B resume
+with
+.B \-\-item
+and a fold
+.RB ( run
+.B \-\-in
+.I WT
+.B \-\-item
+.IR ITEM )
+fill
+.B {ITEM}
+and
+.BR {REVIEW_LOG} .
+So a
+.B \-\-prompt
+template's
+.B {BRIEF}
+is unset unless a value is given, and its
+.B {ITEM}
+and
+.B {REVIEW_LOG}
+are listed apart, as filled only by a resume or a fold.
 .TP
 .B gate
 Print one headroom reading and whether a start may go now:
@@ -452,8 +522,11 @@ line while its session still runs (the launcher was killed) is logged as
 such, not as cut off; see
 .BR pass .
 A drain that started nothing exits 4 when the queue was empty, 3 when the
-reset had come, and 1 when every pick ended before its session started;
-one that started a pass exits 0.
+reset had come, and 1 when every pick ended before its session started.
+One whose queue
+.B next
+failed exits 1, whatever it started.
+Any other drain that started a pass exits 0.
 .IP
 A dry drain, before its rehearsed launches, prints the reading
 .B plan
@@ -502,16 +575,41 @@ A config with no
 exits 64.
 .IP
 The cost history comes from
-.I <kit_dir>/logs/pass\-*.out
-and the
+.IR <kit_dir>/logs/pass\-*.out ,
+the
 .B claude \-p
-JSON log each names: for the passes a drain launched that ended clean, the
-count, median and maximum of
+JSON log each names, and the logs of any resume and fold that finished the
+pass: a resume's
+.IR resume\-<repo>\-<item>\-<HHMM>.json ,
+given to the newest pass of that repo and item that started before it
+ended, and a fold's
+.IR <pass's\ worktree\ folder>\-in\-<HHMMSS>.json .
+A pass counts when it was completed: clean in one session, or finished
+clean by its last resume or fold.
+Its cost, duration and turns are the sums over all its sessions of
 .BR total_cost_usd ,
 .B duration_ms
 and
 .BR num_turns ,
-where the log has them.
+counted only when every session reports them.
+The history gives their count, median and maximum, pooled, per repo, and
+per model from the log's
+.BR modelUsage ,
+with the subagents spawned and the cost basis.
+.IP
+What the figure is:
+.B total_cost_usd
+is the orchestrator session's, and holds its subagents' cost too;
+.B modelUsage
+splits it per model, so a reviewer on a model of its own shows as that
+model's share.
+The CLI prices every session at its cost basis
+.RB ( list ,
+the API list price), so a session run on a subscription plan cost no money
+and its figure is notional.
+No size is measured: a route's figure, or a repo's, is the only estimate,
+the same for every review on it.
+.IP
 Every pass ccfleet launches is a local session, so only the
 .B local
 route is measured.
@@ -524,7 +622,9 @@ with no logs, read
 nothing is estimated.
 A pass run by hand leaves no
 .I .out
-file and is not counted.
+file, and its log is not told apart from a
+.B run
+job's, so it is not counted.
 .TP
 .BI pass " repo item brief"
 One drain pass; the command
@@ -876,8 +976,9 @@ and with
 .B \-\-item
 the same
 .B {REVIEW_LOG}
-the pass had, so a revived reviewer finds its log (a log kept under the
-earlier name, with no hash, is used where it exists).
+the pass had, so a revived reviewer finds its log (where only a log kept
+under an earlier name exists, with no hash or with the earlier SHA\-1 hash,
+that one is used).
 .B "ccfleet check"
 names the placeholders a template needs that nothing fills.
 A placeholder left unfilled is a refusal (exit 5), never a silent gap.
@@ -990,10 +1091,30 @@ finish a pass that started before it, so the reset does not stop them:
 they run after it on the principal's word only.
 .TP
 .B private_names
-Names a public repo's prompt must never contain.
+Names a public repo's prompt, and the user-level
+.I CLAUDE.md
+appended to it, must never contain.
+.TP
+.B instructions_guard
+.B refuse
+or
+.BR warn :
+what a public or unknown-visibility repo's launch does when the user-level
+.I CLAUDE.md
+names a private name (see
+.BR "The private-name guard" ).
+Default:
+.BR refuse .
 .TP
 .B vars
 Template variables for every job.
+A value that starts
+.B ~/
+(or is
+.B ~
+alone) is expanded to the home folder, as in
+.BR env :
+neither a prompt that quotes the path nor a process would expand it later.
 .TP
 .B env
 Extra environment variables for every session, as
@@ -1198,6 +1319,49 @@ A list of
 words that stop the drain.
 Default:
 .BR "BUDGET EXHAUSTED" .
+.SS The seal
+ccfleet never makes or checks a seal: it calls
+.B ranked
+once and trusts its exit.
+What stops an unplanned paid pass is the adopter's queue, by this
+contract.
+.IP \(bu 2
+A run's ranking is sealed by the queue's own seal command, which
+.B /atelier:review run
+calls with the plan it made, keyed by the run's
+.BR {BY} .
+ccfleet never calls it.
+.IP \(bu 2
+The seal refuses while any ready review is missing from the ranking or has
+no reason, is on a closed route, or is on a later route than the best open
+one it fits without saying why; and while two budgets are open and either
+lapse time is unknown.
+.IP \(bu 2
+.BR ranked ,
+.B next
+and
+.B take
+each exit nonzero until this run's ranking is sealed
+.RB ( next
+printing nothing), so a pass started by hand
+.RB ( "ccfleet pass" ,
+whose
+.B take
+carries its own
+.BR {BY} )
+meets the same gate as a drain's.
+.IP \(bu 2
+A seal lasts one run, and no longer than the first lapse among the
+budgets it routes to.
+.PP
+Whether a session that wrote a brief may then drain it is left to the
+adopter's queue, which may refuse to seal it, and otherwise rests on the
+session's own account (the pass prompt's
+.BR PROVENANCE ).
+.PP
+.I instruments/fixtures/review_queue_reference.py
+keeps this contract, in the command shape of the example config, and the
+tests drive ccfleet against it; every name in it is fictional.
 .SH RESULTS
 The session's output is read as JSON, tolerating a warning line before it.
 An end is clean only when the session exited 0 and its JSON flags no error
@@ -1366,8 +1530,17 @@ against its ceiling, even after the driver that started them died.
 .I <kit_dir>/settings/
 Each session's settings file and, when there is a user-level
 .IR CLAUDE.md ,
-its copy for the system prompt; owner-only, kept for reading back what a
-session was given.
+its copy for the system prompt; owner-only.
+They hold what the user-level
+.B env
+block and instructions hold, so each pair lives only while the session
+does: the
+.B ccfleet
+process that launched it removes them when it exits.
+A resume writes a fresh pair.
+A
+.B ccfleet
+killed outright leaves its pair; delete them when no session runs.
 .TP
 .I <kit_dir>/locks/
 One lock per session being resumed.
@@ -1467,7 +1640,9 @@ and the config's
 .BR settings ;
 the deny and ask rules and hooks kept from the user-level settings; the
 credentials the user running ccfleet holds; and the private-name guard,
-which checks only the names listed.
+which checks only the names listed, in the prompt and in the user-level
+.I CLAUDE.md
+appended to it.
 A worktree is not a sandbox, and the gate bounds load, not actions.
 .PP
 The config is the whole grant except for these, which widen it:
@@ -1489,7 +1664,56 @@ ccfleet drops a hook only when its command line shows the allow; name any
 other in
 .BR drop_hooks .
 .IP \(bu 2
+Kept user-level keys that equip a session with more than the config says:
+.B enabledPlugins
+(each plugin brings its own hooks, skills, agents and MCP servers),
+.BR env ,
+.B skipDangerousModePermissionPrompt
+(skips a bypass mode's confirmation),
+.B enableAllProjectMcpServers
+and
+.B enabledMcpjsonServers
+(approve a repo's own MCP servers), and the helpers that run a command of
+their own
+.RB ( apiKeyHelper ,
+.BR awsAuthRefresh ,
+.BR awsCredentialExport ,
+.BR otelHeadersHelper ).
+.B check
+prints a
+.B WIDENS:
+line for each; the config's
+.B settings
+override any of them.
+.IP \(bu 2
+.B claude_args
+that add reach rather than a grant:
+.BR \-\-mcp\-config ,
+.BR \-\-plugin\-dir ,
+.B \-\-tools
+and
+.BR \-\-permission\-prompt\-tool .
+.B check
+names them with the permission flags.
+.IP \(bu 2
 Managed (policy) settings, which always load.
+.PP
+The user-level
+.I CLAUDE.md
+is appended to every session's system prompt, in a public repo too.
+A session can repeat what it was told, so a private name in it can reach a
+public repo's commits and pull requests; the private-name guard refuses such
+a launch unless
+.B instructions_guard
+is
+.BR warn .
+.PP
+The other way round: a config that grants nothing runs its sessions in the
+default mode, where every call that would ask is refused.
+.B check
+says so with a
+.B NO GRANT:
+line.
 .PP
 Leaving the user source out narrows a session in other ways too: user-level
 skills, agents and commands under
@@ -1595,7 +1819,9 @@ The reset time has been reached; nothing was started.
 found the queue empty and started nothing.
 .TP
 .B 5
-Refused by the private-name guard, or a placeholder was left unfilled
+Refused by the private-name guard (in the prompt, or in the user-level
+.I CLAUDE.md
+for a public or unknown-visibility repo), or a placeholder was left unfilled
 (for
 .BR check ,
 a template has one).
@@ -1605,7 +1831,8 @@ Usage: no config, a config that cannot be read, is not JSON, misses a
 required key or has a malformed value
 .RB ( reset_utc ,
 .BR claude_args ,
-.BR session_timeout_minutes ),
+.BR session_timeout_minutes ,
+.BR instructions_guard ),
 a malformed or repeated jobs line, a repo given as a path, a
 .B \-\-set
 with no
@@ -1665,7 +1892,8 @@ and
 .B resume
 all launch them; only
 .BR check ,
-.B gate
+.BR gate ,
+.B plan
 and
 .B \-\-dry\-run
 do not.
@@ -1677,8 +1905,14 @@ a load of 100.
 Never give a worker a repo's work as an Agent subagent of the orchestrator:
 that is the billing mistake this tool exists to avoid.
 .PP
-Requires Python 3.8 or later and
-.BR git (1);
+Requires Python 3.8 or later (tested on 3.9 and 3.14 only),
+.BR git (1),
+.BR nice (1)
+and
+.BR ps (1),
+and on macOS
+.BR memory_pressure (1)
+for the gate's memory reading;
 .BR gh (1)
 is used only for a repo whose visibility the config does not state.
 The

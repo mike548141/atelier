@@ -37,6 +37,13 @@ FAKE_CLAUDE = textwrap.dedent("""\
     rec = {"argv": sys.argv[1:], "cwd": os.getcwd(), "stdin": stdin, "posix_sid": os.getsid(0),
            "ceiling": os.environ.get("CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS"),
            "extra": os.environ.get("FAKE_EXTRA_ENV")}
+    # The session's settings and instructions copies, read while it runs:
+    # ccfleet removes them when its launching process exits.
+    rec["files"] = {}
+    for flag in ("--settings", "--append-system-prompt-file"):
+        if flag in sys.argv:
+            p = sys.argv[sys.argv.index(flag) + 1]
+            rec["files"][flag] = open(p).read() if os.path.exists(p) else None
     with open(os.environ["FAKE_CLAUDE_LOG"], "a") as f:
         f.write(json.dumps(rec) + "\\n")
     base = os.path.basename(os.getcwd())
@@ -748,9 +755,10 @@ class EndToEnd(unittest.TestCase):
         self.write_cfg()
         r = self.cli("run", "alpha", "--prompt", self.prompt)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        argv = self.calls()[0]["argv"]
+        call = self.calls()[0]
+        argv = call["argv"]
         self.assertEqual(argv[argv.index("--setting-sources") + 1], "project,local")
-        got = json.loads(rd(argv[argv.index("--settings") + 1]))
+        got = json.loads(call["files"]["--settings"])
         perms = got["permissions"]
         self.assertEqual(perms["allow"], ["Read"], "only the config's allow rules")
         for k in ("defaultMode", "additionalDirectories"):
@@ -761,7 +769,7 @@ class EndToEnd(unittest.TestCase):
         self.assertEqual(got["enabledPlugins"], {"house@house": True})
         self.assertEqual(got["env"], {"HOUSE": "1", "FLEET": "1"})
         self.assertEqual(got["effortLevel"], "high")
-        instructions = rd(argv[argv.index("--append-system-prompt-file") + 1])
+        instructions = call["files"]["--append-system-prompt-file"]
         self.assertIn("Never push to main on a Friday.", instructions)
         self.assertEqual(argv[argv.index("--allowedTools") + 1], "Bash(git *)")
         # The resume path launches the same way.
@@ -769,9 +777,10 @@ class EndToEnd(unittest.TestCase):
         os.makedirs(os.path.dirname(wt))
         sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
         self.cli("resume", "beta", wt, "sess-old", "--prompt", self.prompt)
-        argv = self.calls()[1]["argv"]
+        call = self.calls()[1]
+        argv = call["argv"]
         self.assertEqual(argv[argv.index("--setting-sources") + 1], "project,local")
-        self.assertEqual(json.loads(rd(argv[argv.index("--settings") + 1]))["permissions"]["allow"], ["Read"])
+        self.assertEqual(json.loads(call["files"]["--settings"])["permissions"]["allow"], ["Read"])
         self.assertIn("--append-system-prompt-file", argv)
 
     def test_no_user_settings_still_loads_no_user_source(self):
@@ -779,8 +788,7 @@ class EndToEnd(unittest.TestCase):
         self.assertIn("--setting-sources project,local --settings", r.stdout)
         self.assertNotIn("--append-system-prompt-file", r.stdout, "no user CLAUDE.md, nothing appended")
         self.cli("run", "alpha", "--prompt", self.prompt)
-        argv = self.calls()[0]["argv"]
-        self.assertEqual(json.loads(rd(argv[argv.index("--settings") + 1])), {})
+        self.assertEqual(json.loads(self.calls()[0]["files"]["--settings"]), {})
 
     def test_an_unreadable_user_settings_file_refuses_before_any_start(self):
         d = self.env["CLAUDE_CONFIG_DIR"]
@@ -941,7 +949,7 @@ class EndToEnd(unittest.TestCase):
         r = self.cli("check", "--prompt", task)
         self.assertEqual(r.returncode, cf.EXIT_GUARD)
         self.assertIn("UNSET: {TASK}", r.stdout)
-        self.assertIn("filled only by pass or resume: {ITEM}", r.stdout)
+        self.assertIn("filled only by resume --item or a fold (run --in WT --item ITEM): {ITEM}", r.stdout)
         self.assertEqual(self.cli("check", "--prompt", task, "--set", "TASK=x").returncode, 0)
 
     def test_a_refused_release_keeps_the_pass_worktree_and_exits_2(self):
@@ -1848,6 +1856,294 @@ class HelpAndManual(unittest.TestCase):
         self.assertEqual(missing, [], "flags in --help but absent from man/ccfleet.1")
         for sub in self.SUBCOMMANDS:
             self.assertRegex(page, r"\.B(R)? " + sub + r"\b", f"no entry for {sub}")
+
+
+
+class RKGrant(unittest.TestCase):
+    """210/600 part 3: the grant, contract and documentation findings of the
+    RK cold pass (RK7, RK8, RK10, RK11, RK12, RK18, RK21, RK23). It borrows
+    EndToEnd's throwaway repos, stand-in claude and helpers."""
+    setUp = EndToEnd.setUp
+    tearDown = EndToEnd.tearDown
+    write_cfg = EndToEnd.write_cfg
+    cli = EndToEnd.cli
+    calls = EndToEnd.calls
+    user_settings = EndToEnd.user_settings
+    EVIDENCE, OWED = EndToEnd.EVIDENCE, EndToEnd.OWED
+    REF = os.path.join(HERE, "fixtures", "review_queue_reference.py")
+
+    # ----- RK7: the seal's contract, and a reference queue that keeps it -----
+
+    def ref_queue(self, reviews=None, routes=None):
+        """The example config's own queue entries, pointed at the reference
+        queue, with a fictional state file."""
+        example = json.loads(rd(os.path.join(HERE, "ccfleet.example.json")))
+        self.cfg["queue"] = {k: ([sys.executable if a == "python3" else
+                                  self.REF if a == "~/private/review_queue.py" else a for a in v]
+                                 if isinstance(v, list) and k not in ("release_on", "stop_on") else v)
+                             for k, v in example["queue"].items()}
+        wr(self.prompt, "Pass {ITEM} brief {BRIEF} in {WT}\n")
+        self.write_cfg()
+        self.state = os.path.join(self.tmp, "queue-state.json")
+        wr(self.state, json.dumps({
+            "routes": routes or {"local": {"open": True, "lapses_utc": "2099-01-01T00:00"},
+                                 "batch": {"open": False, "lapses_utc": None}},
+            "reviews": reviews or [
+                {"repo": "alpha", "item": "010", "brief": "docs/brief.md", "title": "Check the alpha guard",
+                 "fits": ["local"], "briefed_by": "writer-1"},
+                {"repo": "beta", "item": "020", "brief": "docs/brief.md", "title": "Check the beta path",
+                 "fits": ["local"], "briefed_by": "writer-1"}],
+            "owed": [], "claims": {}, "done": [], "seal": None}))
+        self.env["REVIEW_QUEUE_STATE"] = self.state
+
+    def ref(self, *args, env=None):
+        return subprocess.run([sys.executable, self.REF, *args], capture_output=True, text=True,
+                              env={**self.env, **(env or {})}, stdin=subprocess.DEVNULL)
+
+    def seal(self, ranking, by="orch-1"):
+        path = os.path.join(self.tmp, "ranking.json")
+        wr(path, json.dumps(ranking))
+        return self.ref("seal", "--by", by, "--ranking", path, "--words", "none given")
+
+    GOOD = [{"repo": "alpha", "item": "010", "route": "local", "why": "guards a credential path"},
+            {"repo": "beta", "item": "020", "route": "local", "why": "unblocks a release"}]
+
+    def test_rk7_nothing_starts_until_this_runs_ranking_is_sealed(self):
+        """RK7: the example config's queue, kept by the reference queue: a
+        drain and a pass started by hand both start nothing before the seal,
+        a pass under another run's id still starts nothing after it, and the
+        sealed run drains."""
+        self.ref_queue()
+        r = self.cli("drain", "--max", "2")
+        self.assertEqual(r.returncode, cf.EXIT_SETUP, r.stdout + r.stderr)
+        self.assertIn("DRAIN EXIT: not ranked", r.stdout)
+        r = self.cli("pass", "beta", "020", "docs/brief.md")
+        self.assertEqual(r.returncode, cf.EXIT_CLAIM, r.stdout + r.stderr)
+        self.assertIn("no ranking is sealed", r.stdout)
+        self.assertEqual(self.calls(), [])
+        self.assertEqual(self.seal(self.GOOD).returncode, 0)
+        r = subprocess.run([sys.executable, TOOL, "--config", self.cfgpath, "--by", "other-run",
+                            "pass", "beta", "020", "docs/brief.md"], capture_output=True, text=True, env=self.env)
+        self.assertEqual(r.returncode, cf.EXIT_CLAIM, r.stdout + r.stderr)
+        self.assertIn("run orch-1's, not other-run's", r.stdout)
+        self.assertEqual(self.calls(), [])
+        r = self.cli("drain", "--max", "2")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(sorted(os.path.basename(c["cwd"]) for c in self.calls()), ["alpha", "beta"])
+        state = json.loads(rd(self.state))
+        self.assertEqual((state["claims"], sorted(state["done"])), ({}, ["alpha:010", "beta:020"]))
+
+    def test_rk7_the_seals_own_rules_refuse(self):
+        self.ref_queue()
+        cases = [
+            (self.GOOD[:1], "missing from the ranking"),
+            ([self.GOOD[0], {**self.GOOD[1], "why": ""}], "unreasoned"),
+            ([self.GOOD[0], {**self.GOOD[1], "route": "batch"}], "closed route"),
+        ]
+        for ranking, said in cases:
+            r = self.seal(ranking)
+            self.assertEqual(r.returncode, 1, (ranking, r.stderr))
+            self.assertIn(said, r.stderr)
+        r = self.seal(self.GOOD, by="writer-1")
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("wrote its brief", r.stderr)
+        self.assertNotEqual(self.ref("ranked", "--by", "orch-1").returncode, 0)
+        # A later route than the best open one it fits needs its reason.
+        self.ref_queue(routes={"batch": {"open": True, "lapses_utc": "2099-01-01T00:00"},
+                               "local": {"open": True, "lapses_utc": "2099-02-01T00:00"}},
+                       reviews=[{"repo": "alpha", "item": "010", "brief": "docs/brief.md", "title": "t",
+                                 "fits": ["batch", "local"], "briefed_by": "w"}])
+        later = {"repo": "alpha", "item": "010", "route": "local", "why": "first"}
+        self.assertIn("without saying why", self.seal([later]).stderr)
+        self.assertEqual(self.seal([{**later, "why_not_cheaper": "needs probes"}]).returncode, 0)
+        self.assertEqual(self.ref("ranked", "--by", "orch-1").returncode, 0)
+        # The seal lapses with the first budget it routes to.
+        self.assertIn("lapsed", self.ref("ranked", "--by", "orch-1",
+                                         env={"REVIEW_QUEUE_NOW": "2099-03-01T00:00"}).stderr)
+        # Two open budgets and an unknown lapse time.
+        self.ref_queue(routes={"batch": {"open": True, "lapses_utc": None},
+                               "local": {"open": True, "lapses_utc": "2099-02-01T00:00"}})
+        self.assertIn("lapse time is unknown", self.seal(self.GOOD).stderr)
+
+    def test_rk7_the_contract_is_stated_where_the_queue_commands_are(self):
+        doc = subprocess.run([sys.executable, TOOL, "--doc"], capture_output=True, text=True).stdout
+        page = rd(os.path.join(HERE, "man", "ccfleet.1")).replace("\\-", "-")
+        for text in (doc, " ".join(page.split())):
+            self.assertIn("until this run's ranking is sealed", " ".join(text.split()))
+            self.assertIn("review_queue_reference.py", text)
+
+    # ----- RK21: the example's take records the session id -----
+
+    def test_rk21_a_killed_pass_has_its_session_on_its_claim(self):
+        """A killed pass never reaches `ended`, so only `take` can record it."""
+        self.ref_queue()
+        del self.cfg["queue"]["ended"]
+        self.write_cfg()
+        self.assertEqual(self.seal(self.GOOD).returncode, 0)
+        r = self.cli("pass", "beta", "020", "docs/brief.md", env={**self.env, "FAKE_SILENT": "1"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        argv = self.calls()[0]["argv"]
+        sid = argv[argv.index("--session-id") + 1]
+        self.assertEqual(json.loads(rd(self.state))["claims"]["beta:020"]["session"], sid)
+
+    # ----- RK8: what the cost history is, and the passes it left out -----
+
+    def session_log(self, name, result="DONE", models=None, spawned=0, is_error=False):
+        logs = os.path.join(self.tmp, "kit", "logs")
+        os.makedirs(logs, exist_ok=True)
+        models = models or {"model-orch": 1.0}
+        body = {"session_id": "s-" + name, "result": f"REPO: x\nRESULT: {result}",
+                "total_cost_usd": sum(models.values()), "duration_ms": 60000, "num_turns": 10,
+                "modelUsage": {m: {"costUSD": c, "costBasis": "list"} for m, c in models.items()},
+                "subagent_stats": {"spawned": spawned}}
+        if is_error:
+            body.update(is_error=True, subtype="error_during_execution")
+        path = os.path.join(logs, name + ".json")
+        wr(path, json.dumps(body))
+        return path
+
+    def drain_pass(self, repo, item, result, **kw):
+        label = f"{repo}-{item}"
+        log = self.session_log(f"{label}-1200", result=result, is_error=result == "ERROR", **kw)
+        wt = os.path.join(self.tmp, "wt", f"{label}-1200", repo)
+        wr(os.path.join(self.tmp, "kit", "logs", f"pass-{label}-120000.out"),
+           f"START 2020-01-01T12:00:00Z {label} model=m session=s wt={wt} log={log}\n"
+           f"END 2020-01-01T12:10:00Z rc=0 result={result} session=s out=/x\n")
+
+    def test_rk8_history_counts_finished_passes_and_breaks_the_figure_down(self):
+        EndToEnd.queue_json(self)
+        EndToEnd.plan_cfg(self)
+        self.drain_pass("alpha", "010", "DONE", models={"model-orch": 0.5, "model-review": 1.5}, spawned=1)
+        self.drain_pass("beta", "020", "ERROR", models={"model-orch": 3.0})
+        self.session_log("resume-beta-020-1300", models={"model-orch": 1.0, "model-review": 3.0}, spawned=1)
+        self.drain_pass("alpha", "030", "ERROR", models={"model-orch": 1.0})
+        self.session_log("alpha-030-1200-in-130000", models={"model-orch": 0.5})
+        self.drain_pass("beta", "040", "ERROR")  # cut off, never finished: not counted
+        d = json.loads(self.cli("plan", "--json").stdout)
+        local = d["history"]["routes"]["local"]
+        self.assertEqual((local["passes_seen"], local["clean"], local["finished_later"], local["completed"]),
+                         (4, 1, 2, 3))
+        self.assertEqual(local["cost_usd"], {"n": 3, "median": 2.0, "max": 7.0})
+        self.assertEqual(local["by_repo"]["beta"], {"n": 1, "median": 7.0, "max": 7.0})
+        self.assertEqual(local["by_repo"]["alpha"]["n"], 2)
+        self.assertEqual(local["by_model"]["model-review"], {"n": 2, "median": 2.25, "max": 3.0})
+        self.assertEqual(local["cost_basis"], ["list"])
+        self.assertIn("reviewer subagent included", local["what"])
+        self.assertTrue(any("notional" in n for n in d["notes"]))
+        self.assertTrue(any("never one for a review of a given size" in n for n in d["notes"]))
+        text = self.cli("plan").stdout
+        self.assertIn("1 clean pass(es) of 4 seen, 2 more finished by a resume or fold", text)
+        self.assertIn("by repo: alpha: median", text)
+        self.assertIn("notional", text)
+
+    def test_rk8_the_plan_skill_promises_only_what_the_history_gives(self):
+        step = rd(os.path.join(os.path.dirname(HERE), "skills", "review", "plan.md"))
+        step = " ".join(step.split("4. **Estimate", 1)[1].split("5. **Show", 1)[0].split())
+        self.assertNotIn("for a review of that size", step)
+        for want in ("no measure of a review's size", "notional"):
+            self.assertIn(want, step)
+
+    # ----- RK10: the user-level instructions file passes the guard -----
+
+    def test_rk10_instructions_naming_a_private_name_refuse_a_public_launch(self):
+        self.user_settings({}, claude_md="House rules. The estate root is secret-root.\n")
+        for extra in ([], ["--dry-run"]):
+            r = self.cli("run", "alpha", "--prompt", self.prompt, *extra)
+            self.assertEqual(r.returncode, cf.EXIT_GUARD, r.stdout + r.stderr)
+            self.assertIn("names private name(s) secret-root", r.stderr)
+            self.assertIn("instructions_guard", r.stderr)
+        self.assertEqual(self.calls(), [])
+        self.assertEqual(os.listdir(os.path.join(self.tmp, "wt")), [])
+        self.assertIn("INSTRUCTIONS GUARD: it names private name(s) secret-root: a public or unknown-visibility "
+                      "repo's launch is refused", self.cli("check").stdout)
+        r = self.cli("run", "beta", "--prompt", self.prompt)  # a private repo: the file may name it
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.cfg["instructions_guard"] = "warn"
+        self.write_cfg()
+        r = self.cli("run", "alpha", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("INSTRUCTIONS name private name secret-root", r.stdout)
+        self.assertLess(r.stdout.index("INSTRUCTIONS name"), r.stdout.index("START"))
+        self.cfg["instructions_guard"] = "maybe"
+        self.write_cfg()
+        self.assertEqual(self.cli("check").returncode, cf.EXIT_USAGE)
+
+    # ----- RK11: the per-session copies live only as long as the session -----
+
+    def test_rk11_session_copies_are_removed_when_the_session_ends(self):
+        self.user_settings({"env": {"HOUSE": "1"}}, claude_md="rules\n")
+        r = self.cli("run", "alpha", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        wt = os.path.join(self.tmp, "wt", "pass-9", "beta")
+        os.makedirs(os.path.dirname(wt))
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
+        self.cli("resume", "beta", wt, "sess-old", "--prompt", self.prompt)
+        for call in self.calls():
+            self.assertIn("HOUSE", call["files"]["--settings"], "the session had its settings while it ran")
+            self.assertEqual(call["files"]["--append-system-prompt-file"].endswith("rules\n"), True)
+        self.assertEqual(os.listdir(os.path.join(self.tmp, "kit", "settings")), [])
+
+    # ----- RK12: what else widens the grant, and a config that grants nothing -----
+
+    def test_rk12_check_names_every_widening_and_a_config_that_grants_nothing(self):
+        for flag in ("--mcp-config", "--plugin-dir", "--tools", "--permission-prompt-tool"):
+            self.cfg["claude_args"] = [flag, "x"]
+            self.write_cfg()
+            out = self.cli("check").stdout
+            self.assertIn(f"PERMISSIONS: every session starts with {flag} x", out)
+            self.assertNotIn("NO GRANT", out)
+        self.cfg["claude_args"] = []
+        self.write_cfg()
+        self.user_settings({"enabledPlugins": {"house@house": True}, "env": {"A": "1"},
+                            "skipDangerousModePermissionPrompt": True, "effortLevel": "high"})
+        out = self.cli("check").stdout
+        self.assertIn("NO GRANT: neither claude_args nor the config's settings set a permission mode", out)
+        for k in ("enabledPlugins", "env", "skipDangerousModePermissionPrompt"):
+            self.assertIn(f"WIDENS: {k} is kept", out)
+        self.assertNotIn("WIDENS: effortLevel", out)
+        self.cfg["settings"] = {"permissions": {"allow": ["Read"]}}
+        self.write_cfg()
+        self.assertNotIn("NO GRANT", self.cli("check").stdout)
+
+    # ----- RK18: check classifies by the command that fills a name -----
+
+    def test_rk18_check_says_which_command_fills_what(self):
+        fold = os.path.join(self.tmp, "fold.md")
+        wr(fold, "Fold {ITEM} from {REVIEW_LOG} into {BRIEF}\n")
+        r = self.cli("check", "--prompt", fold)
+        self.assertEqual(r.returncode, cf.EXIT_GUARD, r.stdout)
+        line = next(l for l in r.stdout.splitlines() if l.startswith(f"PROMPT {fold}"))
+        self.assertIn("filled only by resume --item or a fold (run --in WT --item ITEM): {ITEM} {REVIEW_LOG}", line)
+        self.assertIn("UNSET: {BRIEF}", line, "no command fills {BRIEF} for a prompt other than pass_prompt")
+        self.assertEqual(self.cli("check", "--prompt", fold, "--set", "BRIEF=b").returncode, 0)
+        wr(self.prompt, "Pass {ITEM} {BRIEF} {REVIEW_LOG}\n")
+        r = self.cli("check", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout)  # it is pass_prompt: pass fills all three
+        # The shipped fold prompt, with the example's vars: BRIEF and HELD are per call.
+        cfg = json.loads(rd(os.path.join(HERE, "ccfleet.example.json")))
+        cfg.update(kit_dir=self.cfg["kit_dir"], repos_root=self.cfg["repos_root"], pass_prompt=self.prompt)
+        wr(self.cfgpath, json.dumps(cfg))
+        shipped = os.path.join(os.path.dirname(HERE), "skills", "review", "fold-prompt.md")
+        r = self.cli("check", "--prompt", shipped)
+        self.assertEqual(r.returncode, cf.EXIT_GUARD)
+        self.assertIn("UNSET: {BRIEF} {HELD}", r.stdout)
+        self.assertEqual(self.cli("check", "--prompt", shipped, "--set", "BRIEF=b", "--set", "HELD=h").returncode, 0)
+
+    # ----- RK23: a ~ path in vars or env is the home folder -----
+
+    def test_rk23_home_paths_in_vars_and_env_are_expanded(self):
+        self.cfg["vars"].update(TOOLS="~/tools", PLAIN="a ~/b", HOME_ONLY="~")
+        self.cfg["env"] = {"FAKE_EXTRA_ENV": "~/kit"}
+        self.write_cfg()
+        cfg = cf.load_config(self.cfgpath)
+        home = os.path.expanduser("~")
+        self.assertEqual((cfg["vars"]["TOOLS"], cfg["vars"]["PLAIN"], cfg["vars"]["HOME_ONLY"]),
+                         (os.path.join(home, "tools"), "a ~/b", home))
+        wr(self.prompt, "Tools at {TOOLS}\n")
+        self.assertEqual(self.cli("run", "beta", "--prompt", self.prompt).returncode, 0)
+        call = self.calls()[0]
+        self.assertEqual(call["extra"], os.path.join(home, "kit"))
+        self.assertIn(f"Tools at {home}/tools", call["argv"][-1])
 
 
 if __name__ == "__main__":
