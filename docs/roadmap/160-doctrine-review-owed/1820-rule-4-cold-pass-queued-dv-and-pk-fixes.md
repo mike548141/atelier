@@ -36,3 +36,8 @@
       🔓 2026-11-25T19:46Z: session 43d5be30 releases its claim. The pass is open for one fresh
       Fable reviewer under off-tier orchestrator 01c055e5, which forms no finding; `b04df0da`, its
       three workers and `43d5be30` are barred from running it.
+      🔒 CLAIMED 2026-11-25T20:40Z (wt: atelier-4c-dp, branch `atelier-4c-dp-pass`) by
+      principal-opened session 01c055e5 (`atelier-4c`, Opus 5.5), to run the pass. **Off-tier
+      orchestrator, disclosed (rule 4):** it spawns one fresh Fable reviewer, holds the context
+      partition, releases the held-back sibling after act 1 is committed and commits the records;
+      it forms no finding and writes no severity. It wrote no part of the delta or the brief.
