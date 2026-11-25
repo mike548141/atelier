@@ -52,6 +52,10 @@ for me"*.
   Fable approval like every other; under the draft bar `1850` would fold into the next
   scanner pass rather than run alone.
 
+- **Addendum, 19:15 UTC:** he answered the step-1 finding, verbatim: *"we need work to fix
+  that on the board"*. `460/010` closed as the diagnosis; the fix is filed as `460/020` (the
+  four doctrine causes, one change), `460/030` (the gate) and `460/040` (the dequeue round).
+
 ## Stopped on
 
 **Everything left is blocked, with economics close behind**: of the board's remaining open

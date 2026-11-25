@@ -1,4 +1,4 @@
-- [ ] **Find out why work that should not qualify is getting a Fable review
+- [x] **Find out why work that should not qualify is getting a Fable review
       ordered, then set a bar a session can check before it queues one**
       `[M][doctrine]`. Mike commissioned this, 2026-11-24. Verbatim:
 
@@ -80,3 +80,8 @@
       § *Annex*. **Steps 2–4 stay open.** Step 2 changes rule 4 itself, so the draft goes
       to him first (one ask at the run's close), then is written, its cold pass queued,
       and step 4's dequeue list follows from it.
+
+      ✅ **Closed 2026-11-25 as the diagnosis; the fix is now three items.** Mike, on the
+      step-1 answer, verbatim: *"we need work to fix that on the board"*. Steps 2–4 moved
+      out: step 2 → `460/020` (the four doctrine causes, one change, one cold pass), step 3
+      → `460/030` (the gate), step 4 → `460/040` (the dequeue round, his one ruling).
