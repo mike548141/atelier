@@ -1,4 +1,4 @@
-- [ ] ⏳ 🔥 **Rule-4 cold pass queued (due before 2026-11-30 23:00 UTC): the RK drain-path fixes, `RK2` and `RK5`, with
+- [ ] ⏳ 🔥 **Rule-4 cold pass queued (due before Monday 2026-11-30 NZ drain, which starts the evening of 2026-11-29 UTC): the RK drain-path fixes, `RK2` and `RK5`, with
       the canary's `REVIEW_MODEL` correction (`210/600` part 1).** The small Fable
       check the principal picked on `160/1790` (*"Small Fable check, then switch
       (Recommended)"*, an answer, not a ruling): one pass over the drain-path fixes
