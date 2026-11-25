@@ -1526,7 +1526,18 @@ and
 .B END
 lines (the
 .B END
-carries the exit code, the verdict, the session id and the result path).
+carries the exit code, the verdict, the session id, the models and the
+result path).
+.B models=
+lists, comma-separated, every model the session's JSON log names in
+.B modelUsage
+(a hyphen when it names none): the orchestrator's own, and a reviewer's
+that ran on another model, so a pass's record shows the tier its reviewer
+ran on beside the
+.B REVIEW_MODEL
+it was told.
+A pass whose only model is the orchestrator's spawned no reviewer on
+another tier.
 The result text is written to
 .IR <kit_dir>/results/<date>/<label>.md ,
 with the session id, exit code and verdict in a comment on its first line.

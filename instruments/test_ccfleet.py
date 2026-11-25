@@ -69,6 +69,8 @@ FAKE_CLAUDE = textwrap.dedent("""\
                                     "message": {"content": [{"type": "text", "text": text}]}}) + "\\n")
         report = "Noted: the background task finished."
     out = {"session_id": sid, "result": report}
+    if os.environ.get("FAKE_MODELS"):
+        out["modelUsage"] = {m: {"costUSD": 0.01} for m in os.environ["FAKE_MODELS"].split(",")}
     if os.environ.get("FAKE_IS_ERROR"):
         out.update(is_error=True, subtype="error_during_execution")
     print(json.dumps(out))
@@ -1483,6 +1485,20 @@ class RKLifecycle(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")))
         self.wait_for(lambda: len(self.calls()) == 1, "the session to finish its work", limit=60)
 
+    # ----- DV3 -----
+
+    def test_the_end_line_names_the_models_the_session_ran(self):
+        """DV3: the pass's END line carries the models its JSON log names in
+        modelUsage, the reviewer's among them, so the record shows the tier
+        that ran; a log that names none says "-"."""
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("pass", "beta", "010", "docs/brief.md",
+                     env={**self.env, "FAKE_MODELS": "model-pass,model-review"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=model-pass,model-review out=")
+        r = self.cli("pass", "beta", "020", "docs/brief.md")
+        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=- out=")
+
     # ----- RK6 -----
 
     def test_a_resume_writes_its_pass_result_file(self):
@@ -1497,7 +1513,7 @@ class RKLifecycle(unittest.TestCase):
         (wt,) = self.worktrees()
         r = self.cli("resume", "beta", wt, "sess-beta", "--prompt", self.prompt, "--item", "030")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertIn(f"result=DONE session=sess-beta out={res}", r.stdout)
+        self.assertIn(f"result=DONE session=sess-beta models=- out={res}", r.stdout)
         text = rd(res)
         self.assertIn("result=DONE -->", text.splitlines()[0])
         self.assertIn("superseded", text)
@@ -1864,6 +1880,15 @@ class Config(unittest.TestCase):
     def test_the_example_config_loads_and_bypasses_nothing(self):
         cfg = cf.load_config(os.path.join(HERE, "ccfleet.example.json"))
         self.assertEqual(cf.permission_args(cfg)[1], False, "FL10: the example must not model the bypass")
+
+    def test_the_example_review_model_is_a_review_tier_alias(self):
+        """DV3: REVIEW_MODEL is what the Agent tool takes, a tier alias and
+        never a full model id (which that tool refuses), and it names the
+        review tier, not the orchestrator's (pass_model's) tier."""
+        ex = json.loads(rd(os.path.join(HERE, "ccfleet.example.json")))
+        rm = ex["vars"]["REVIEW_MODEL"]
+        self.assertIn(rm, ("fable", "opus", "sonnet", "haiku"), "an alias, not a full model id")
+        self.assertNotIn(rm, ex["pass_model"], "the review tier, not the orchestrator's")
 
     # What each shipped prompt gets from ccfleet's own command (beyond
     # ALWAYS_FILLED), and what its skill says is set per job or per call

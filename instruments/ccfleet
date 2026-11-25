@@ -1142,6 +1142,17 @@ def harvest(log_path, since=None, rc=0, known=tuple(RELEASE_ON + STOP_ON), stops
     return text, sid, (word or "UNKNOWN")
 
 
+def models_used(log_path):
+    """The models a session's JSON log names in modelUsage, comma-separated,
+    or "-" when it names none: the orchestrator's own, and a reviewer's when
+    it ran on another model. The END line carries it, so a pass's record shows
+    the model its reviewer ran on, beside the REVIEW_MODEL it was told (DV3)."""
+    j = read_log_json(log_path) or {}
+    mu = j.get("modelUsage")
+    names = sorted(str(m) for m in mu) if isinstance(mu, dict) else []
+    return ",".join(re.sub(r"[\s,]", "_", n) for n in names) or "-"
+
+
 def stamp_dir(root, label):
     stamp = now_utc().strftime("%H%M")
     parent = os.path.join(root, f"{label}-{stamp}")
@@ -1636,7 +1647,8 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     else:
         out = os.path.join(results, f"{label}.md")
         write_result(out, sid, rc, result, text, keep_earlier=False)
-    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={sid} out={out}", flush=True)
+    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={sid} models={models_used(log)} "
+          f"out={out}", flush=True)
     released = True
     if post:
         released = post(values, result, sid, log) is not False
@@ -2680,8 +2692,8 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
         text, result = unlanded_verdict(wt, facts, branch_name, result, text)
     out = pass_result_path(cfg, safe(f"{repo}-{item}") if item else safe(f"resume-{repo}-{sid}"))
     write_result(out, new_sid or sid, rc, result, f"(resumed session {sid})\n{text}")
-    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={new_sid or sid} out={out}",
-          flush=True)
+    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={new_sid or sid} "
+          f"models={models_used(log)} out={out}", flush=True)
     if not item:
         print(f"no --item: no queue command called; worktree kept: {wt}", flush=True)
         return 0
