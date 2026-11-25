@@ -204,7 +204,8 @@ so ccfleet appends that file to the system prompt
 .RB ( \-\-append\-system\-prompt\-file ),
 and the operator's standing instructions still bind.
 For a private repo the file's @-imports are inlined, as Claude Code reads
-them; for a public or unknown-visibility repo they are not followed (see
+them; for a public or unknown-visibility repo they are withheld, and reading
+the files they name is denied (see
 .BR "The private-name guard" ).
 A repo's own settings files still load, and some kept keys still widen what
 a session can do; see
@@ -281,9 +282,12 @@ An import that cannot be followed (past four hops, a cycle, no such file)
 stays as its line, with a note below it.
 Only an import on a line of its own is followed (a list bullet may lead it);
 one inside a sentence stays as text, which Claude Code would follow.
-A public or unknown-visibility repo's session gets the file as it is, the
-import lines as text and no imported file, and the guard reads that same
-text.
+A public or unknown-visibility repo's session gets the file with each import
+line replaced by a note that names no path, under a header that names no
+path, and no imported file; its settings copy denies
+.B Read
+of every file the imports resolve to, nested ones too; and the guard reads
+that same text.
 So a private name the shared part holds refuses the launch, and one only an
 imported file holds does not: the imported file is where such names belong.
 .PP
@@ -1797,6 +1801,19 @@ is private rests on its
 in the config, or on
 .B gh repo view
 when the config says none: a repo wrongly marked private gets them.
+A public or unknown one's session is not told where they are, and its
+settings deny
+.B Read
+of each.
+What is left: a deny rule for
+.B Read
+does not stop a shell command
+.RB ( cat ,
+a script) from opening the file where the grant allows one, or a bypass
+mode where the harness does not hold deny rules; a session that already
+knows the path, from the repo's own files or from text it is handed, can
+still try it; and an import inside a sentence, which ccfleet does not
+follow, is neither withheld nor denied.
 .PP
 The reset is the one mechanical stop after a budget's reset, and two
 launches pass it: a

@@ -27,8 +27,11 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     launch appends too: a public or unknown repo's launch is refused when that
     file names one (instructions_guard "warn": a line per name, and it goes on).
     That file's @-imports are inlined for a private repo only; a public or
-    unknown one gets the import lines as text, which is what the guard reads,
-    so a private name kept in an imported file reaches no public session.
+    unknown one gets each import line replaced by a note that names no path,
+    which is what the guard reads, and its settings deny Read of every file
+    the imports resolve to, so a private name kept in an imported file
+    reaches no public session by what ccfleet appends, and the session is
+    not told where that file is (PK5).
   * This is Python, not zsh, on purpose: zsh reads a script as it runs, so
     editing a driver script mid-run broke every running job's tail. Python
     compiles the whole file at start, so a running driver is immune; a job
@@ -726,22 +729,59 @@ def expand_imports(text, base, hops=0, chain=(), found=None):
     return "".join(out)
 
 
+WITHHELD_IMPORT = "<!-- ccfleet: an @-import line withheld from this session -->\n"
+
+
+def withhold_imports(text):
+    """`text` with each import line (as expand_imports reads one: on a line of
+    its own, outside a fenced block) replaced by WITHHELD_IMPORT, which names
+    no path: a public session is not told where the withheld file is (PK5)."""
+    out, fence = [], None
+    for line in text.splitlines(keepends=True):
+        f = FENCE.match(line)
+        if fence:
+            if f and f.group(1)[0] == fence[0] and len(f.group(1)) >= len(fence) and not line[f.end():].strip():
+                fence = None
+            out.append(line)
+        elif f:
+            fence = f.group(1)
+            out.append(line)
+        else:
+            out.append(WITHHELD_IMPORT if IMPORT_LINE.fullmatch(line.rstrip("\r\n")) else line)
+    return "".join(out)
+
+
 def instructions_text(visibility):
     """What a session for a repo of `visibility` is handed of the user-level
     instructions file, its header aside: for a private repo, the file with its
-    imports inlined; for a public or unknown one, the file as it is, its import
-    lines left as text, so an imported file reaches no public session. Returns
-    (path, text, found), text None when there is no file. The guard reads this
-    same text, so it reads exactly what is appended."""
+    imports inlined; for a public or unknown one, the file with each import
+    line withheld (withhold_imports), so an imported file reaches no public
+    session and its path is not named. Returns (path, text, found), text None
+    when there is no file; `found` lists every import resolved, nested ones
+    too, for either visibility (a public session's settings deny Read of each,
+    import_denies). The guard reads this same text, so it reads exactly what
+    is appended."""
     umd = user_instructions_path()
     if not os.path.isfile(umd):
         return umd, None, []
     with open(umd, encoding="utf-8", errors="replace") as f:
         text = f.read()
     found = []
-    if visibility == "PRIVATE":
-        text = expand_imports(text, os.path.dirname(umd), chain=(os.path.realpath(umd),), found=found)
-    return umd, text, found
+    inlined = expand_imports(text, os.path.dirname(umd), chain=(os.path.realpath(umd),), found=found)
+    return umd, (inlined if visibility == "PRIVATE" else withhold_imports(text)), found
+
+
+def import_denies(found):
+    """A deny rule for Read of each file the user-level imports resolve to,
+    by its path and its real path ("//" begins an absolute path in a
+    permission rule): what a public or unknown repo's session must not open."""
+    rules = []
+    for _, target, _ in found:
+        for path in (target, os.path.realpath(target)):
+            rule = f"Read(/{path})"
+            if rule not in rules:
+                rules.append(rule)
+    return rules
 
 
 def session_files(cfg, sid, visibility, write=True):
@@ -768,6 +808,11 @@ def session_files(cfg, sid, visibility, write=True):
     if not write:
         return spath, ipath
     settings, _ = session_settings(cfg)
+    umd, text, found = instructions_text(visibility) if ipath else (None, None, [])
+    if visibility != "PRIVATE" and found:
+        # The imported files are withheld from this session: deny reading them
+        # too, so nothing it is told or asked can open one (PK5).
+        settings = merge_settings(settings, {"permissions": {"deny": import_denies(found)}})
     sweep_session_files(cfg)
     os.makedirs(d, exist_ok=True)
     atexit.register(remove_session_files, (spath, ipath))
@@ -775,13 +820,14 @@ def session_files(cfg, sid, visibility, write=True):
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         json.dump(settings, f, indent=1)
     if ipath:
-        umd, text, _ = instructions_text(visibility)
-        how = ("with each @-import on a line of its own inlined" if visibility == "PRIVATE" else
-               f"unchanged, its @-imports not followed (this repo is {visibility}, and an imported file is "
-               f"kept from such a repo's session)")
+        if visibility == "PRIVATE":
+            head, how = f"# The operator's user-level instructions ({umd})", \
+                "with each @-import on a line of its own inlined"
+        else:
+            head, how = "# The operator's user-level instructions", "with its @-imports withheld"
         fd = os.open(ipath, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
         with os.fdopen(fd, "w", encoding="utf-8") as f:
-            f.write(f"# The operator's user-level instructions ({umd})\n\n"
+            f.write(f"{head}\n\n"
                     f"ccfleet loads no user-level settings, so Claude Code does not load this file "
                     f"itself; it is passed here {how}, and binds as it would have.\n\n" + text)
     return spath, ipath
@@ -2750,7 +2796,8 @@ def check_settings(cfg):
             found = [("?", umd, f"cannot be read ({e.strerror})")]
         print(f"INSTRUCTIONS: {umd} is appended to every session's system prompt (no user source loads it). "
               f"A private repo's session gets it with its @-imports inlined; a public or unknown-visibility "
-              f"repo's gets it as it is, the import lines left as text and no imported file. "
+              f"repo's gets it with each import line withheld (a note that names no path), no imported "
+              f"file, and a deny rule for Read of each file listed here. "
               + (f"Imports found: {len(found)}." if found else "It imports nothing."))
         for raw, target, what in found:
             print(f"INSTRUCTIONS IMPORT: @{raw} -> {target}: {what}")

@@ -2348,19 +2348,30 @@ class RKImports(unittest.TestCase):
                           + " -->\nMore shared rules.\n", text)
             self.assertNotIn(md("", "@CLAUDE-private.md"), text)
 
-    def test_a_public_repo_gets_the_raw_line_and_passes_when_only_the_import_names_one(self):
-        self.instructions(self.SHARED, {"CLAUDE-private.md": self.PRIVATE})
+    def test_a_public_repo_gets_the_import_withheld_and_passes_when_only_the_import_names_one(self):
+        """210/610, PK5: a public repo's session gets the shared part with the
+        import line withheld by a note that names no path, a header that names
+        no path, and a deny rule for Read of the imported file."""
+        d = self.instructions(self.SHARED, {"CLAUDE-private.md": self.PRIVATE})
         r = self.cli("run", "alpha", "--prompt", self.prompt)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertNotIn("INSTRUCTIONS name", r.stdout)
         (call,) = self.calls()
         text = self.appended(call)
-        self.assertTrue(text.endswith(self.SHARED), text)
+        self.assertTrue(text.endswith(self.SHARED.replace("@CLAUDE-private.md\n", cf.WITHHELD_IMPORT)), text)
         self.assertNotIn("secret-root", text)
-        self.assertIn("its @-imports not followed (this repo is PUBLIC", text)
+        self.assertNotIn("CLAUDE-private", text, "the withheld file is not named")
+        self.assertNotIn(d, text, "no path of the operator's config folder is named")
+        self.assertIn("with its @-imports withheld", text)
+        deny = json.loads(call["files"]["--settings"])["permissions"]["deny"]
+        self.assertIn("Read(/" + os.path.join(d, "CLAUDE-private.md") + ")", deny)
+        r = self.cli("run", "beta", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("deny", json.loads(self.calls()[-1]["files"]["--settings"]).get("permissions", {}),
+                         "a private repo's session reads the file inlined: no deny")
         out = self.cli("check").stdout
         self.assertNotIn("INSTRUCTIONS GUARD", out)
-        self.assertIn("a public or unknown-visibility repo's gets it as it is, the import lines left as text", out)
+        self.assertIn("a public or unknown-visibility repo's gets it with each import line withheld", out)
         self.assertIn("INSTRUCTIONS IMPORT: @CLAUDE-private.md -> "
                       + os.path.join(self.env["CLAUDE_CONFIG_DIR"], "CLAUDE-private.md") + ": inlined", out)
 
@@ -2411,7 +2422,9 @@ class RKImports(unittest.TestCase):
         self.assertEqual([f[2] for f in found], ["inlined"])
         self.assertTrue(text.startswith(shared[:-len("@a.md\n")]), text)
         _, public, found = self.expanded(shared, {"a.md": "A body\n"}, visibility="PUBLIC")
-        self.assertEqual((public, found), (shared, []))
+        self.assertEqual(public, shared[:-len("@a.md\n")] + cf.WITHHELD_IMPORT,
+                         "only the import line is withheld; the text that is no import stays")
+        self.assertEqual([f[2] for f in found], ["inlined"], "resolved, for the deny rule")
 
     def test_a_missing_file_stays_as_its_line_with_a_note(self):
         _, text, found = self.expanded(md("Root", "@gone.md", "@sub\\ dir/x.md"), {"sub dir/x.md": "X\n"})
