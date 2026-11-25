@@ -5,7 +5,9 @@ does: a JSON payload on stdin, a deny decision (or nothing) on stdout.
 BYPASSES is the recurrence-prevention table (cold pass 160/1450, FL7): every
 launch shape found to slip past the hook goes in it, and stays. LOOKUPS is the
 other side (board 210/500): commands that only find, read or name the binary
-must never be refused, or sessions learn to route round the guard."""
+must never be refused, or sessions learn to route round the guard. NAMED is the
+same side for a `claude` that names a user, a unit, a container or a search
+term after a head the hook does not know (cold pass 160/1790, RK9)."""
 import json
 import os
 import subprocess
@@ -95,6 +97,32 @@ BYPASSES = [
     '$(which claude) -p x',
     'some-unknown-wrapper --flag claude -p x',
     '</dev/null claude -p x',
+    # 160/1790, RK15: nine shapes that passed, and their near variants.
+    'function f { claude -p hi; }; f',
+    'command claude -p update',
+    'command -p claude -p update',
+    "echo 'claude -p hi' | sudo sh",
+    "echo 'claude -p hi' | env bash",
+    "printf 'claude -p hi' | sudo -u someone bash -s",
+    'python3 -c \'import subprocess; subprocess.run(["claude", "-p", "hi"])\'',
+    'python3 -c "import os; os.system(\'claude -p hi\')"',
+    'node -e \'require("child_process").execSync("claude -p hi")\'',
+    'at now <<EOF\nclaude -p hi\nEOF',
+    "echo 'claude -p hi' | at now",
+    "git -c alias.x='!claude -p hi' x",
+    "git -c core.editor='claude -p' commit",
+    'set -- claude -p hi; "$@"',
+    'set -- claude -p hi; $1 "$2" "$3"',
+    'c=cl; ${c}aude -p hi',
+    '${c}aude -p hi',
+    # Denied before RK9 too: they pin that its narrowing of the unknown-head
+    # rule still reads a launch (each passes if the narrowing over-reaches).
+    'function f() { claude -p hi; }; f',
+    'at now <<< "claude -p hi"',
+    "su - claude -c 'claude -p hi'",
+    'somewrapper -u claude --dangerously-skip-permissions "do x"',
+    'somewrapper claude "summarise the log"',
+    "somewrapper 'claude -p hi'",
 ]
 
 # Commands that only look up, read or name the binary (210/500), and launches
@@ -133,6 +161,46 @@ LOOKUPS = [
     'sudo -u someone claude doctor',
     'git commit -m "$(cat <<\'EOF\'\nnote: claude -p x\nEOF\n)"',
     "echo '$(claude -p x)'",
+    # RK15's readers stop at a launch that names a model or starts none.
+    'python3 -c \'import subprocess; subprocess.run(["claude", "--model", "claude-haiku-5-5", "-p", "hi"])\'',
+    "git -c alias.x='!claude --version' x",
+    'set -- claude --version; "$@"',
+]
+
+# 160/1790, RK9: a `claude` naming a user, a unit, a container or a search term
+# after a head the hook does not know. Each must pass; before RK9 each was
+# refused, the parse failing closed on any `claude` with a word after it.
+NAMED = [
+    "su - claude -c 'ls'",
+    'docker exec -u claude box ls',
+    'runuser -u claude -- ls',
+    "psql -U claude -d db -c 'select 1'",
+    'mysql -u claude -p',
+    'journalctl -u claude -n 50',
+    'systemctl status claude --no-pager',
+    'tmux new -s claude -d',
+    'docker logs claude --tail 5',
+    'fd claude src',
+    'zgrep claude log.gz',
+    'python3 -m pytest -k claude tests',
+    'python3 -m pytest -k "claude and not slow" tests',
+    'ccrepo claude --json',
+    'useradd -m claude -s /bin/zsh',
+    "ssh host 'su - claude -c ls'",
+    'smbclient -U claude //host/share -c ls',
+    'docker run --name claude img',
+    'podman logs claude --since 1h',
+    'kubectl logs claude -n tools',
+    'crontab -u claude -l',
+    'pytest tests -k claude -x',
+    'cargo test claude -- --nocapture',
+    'sudo journalctl -u claude -f',
+    "docker exec -it claude sh -c 'ls /data'",
+    'ansible claude -m ping',
+    "osascript -e 'tell application \"claude\" to quit'",
+    'python3 -c \'import shutil; print(shutil.which("claude"))\'',
+    # the refusal's own advice, applied to the case still refused below
+    'kubectl -n tools logs -c main claude',
 ]
 
 
@@ -163,6 +231,21 @@ class ModelGuard(unittest.TestCase):
     def test_a_lookup_of_the_binary_passes(self):
         for cmd in LOOKUPS:
             self.check(cmd, False)
+
+    def test_a_claude_named_as_data_passes(self):
+        for cmd in NAMED:
+            self.check(cmd, False)
+
+    def test_a_refusal_says_how_to_rephrase(self):
+        # RK9: a positional `claude` followed by `-c` still reads as a launch;
+        # the refusal says how to say it when no session was meant, and the
+        # rephrased command is in NAMED.
+        r = run(json.dumps({"tool_name": "Bash", "tool_input": {
+            "command": "kubectl -n tools logs claude -c main"}}))
+        reason = json.loads(r.stdout)["hookSpecificOutput"]["permissionDecisionReason"]
+        self.assertIn("--model", reason)
+        self.assertIn("If no session was meant", reason)
+        self.assertIn("option's value", reason)
 
     def test_a_deny_is_well_formed(self):
         r = run(json.dumps({"tool_name": "Bash", "tool_input": {"command": 'claude -p "x"'}}))
