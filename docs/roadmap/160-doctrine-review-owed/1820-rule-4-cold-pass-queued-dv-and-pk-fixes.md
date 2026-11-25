@@ -23,3 +23,8 @@
       [`../../reviews/2026-11-25-0720-rk-drain-path-fixes-cold.md`](../../reviews/2026-11-25-0720-rk-drain-path-fixes-cold.md)
       and
       [`../../reviews/2026-11-25-0721-rk-part-3-fixes-ccfleet-modelguard-subject-skills-cold.md`](../../reviews/2026-11-25-0721-rk-part-3-fixes-ccfleet-modelguard-subject-skills-cold.md).
+      🔒 CLAIMED 2026-11-25T19:20Z (claimed 2026-11-25-1920, wt: brief-160-1820-1915) by headless
+      session 43d5be30 (`atelier-1d`, Opus 5.5), started by principal-opened session 01c055e5
+      (Opus 5.5), for brief-writing only: the brief and its held-back sibling, no pass run.
+      Neither session wrote any part of the delta; 01c055e5 orchestrates the pass once the brief
+      lands and forms no finding.
