@@ -26,23 +26,41 @@ The text a shell will run as code is read too: `bash -c`/`-lc` strings,
 to `at`/`batch`, a `function` body, `set -- claude ...; "$@"`, the code in
 `git -c alias.x='!...'` and `git -c core.editor=...`, and the string literals of
 `python3 -c`, `node -e`, `perl -e`, `ruby -e` and `osascript -e` (an argv list
-`["claude", "-p", ...]`, or a command string). A variable set in the same
-command text is expanded in a command word (`c=cl; ${c}aude -p x`), and a word
-whose literal part can only spell `claude` (`${c}aude`) is read as `claude`
-when a session flag or a prompt follows it.
+`["claude", "-p", ...]`, or a command string; literals that are the arguments of
+a `print(` or `console.log(` call are printed, not run, and are skipped). A
+variable set in the same command text is expanded in a command word
+(`c=cl; ${c}aude -p x`), and a word whose literal part can only spell `claude`
+(`${c}aude`) is read as `claude` when a session flag or a prompt follows it.
+Also read, as running what follows: `screen` and `systemd-run` (their own
+options skipped), `tmux new`, `new-window`, `split-window`, `run-shell` and
+`send-keys` (a value option such as `-s claude` is a name, not a command), what
+`echo` or `printf` prints into a shell through any pipeline (`echo ... | tee
+log | sh`), into `bash <(...)`, `source <(...)`, or `sh -c "$(echo ...)"`, and
+the literal command in an `awk` `system()` call or `| getline` pipe. A command
+that names `claude` and is nested past the depth limit of four is denied
+unread.
 
 After a head this file does not know (`psql`, `journalctl`, `docker logs`
 ...), a later `claude` word counts as a launch only when it looks like one: a
 session flag follows it (`-p`, `-c`, `-r`, or a long flag only `claude` takes,
 such as `--print`, `--resume`, `--permission-mode`), or a prompt does (an
-argument holding a space). Where `claude` is a short option's value
+argument holding a space). Where `claude` comes straight after a short option
 (`-u claude`, `-it claude`, `su - claude`), it names a user, a unit or a
 container, and only a long flag only `claude` takes makes it a launch. The
 cost of that, stated: an unknown wrapper given a short option just before the
-binary (`somewrapper -q claude -p x`) passes. What is still refused, and the
-refusal says how to rephrase: an unknown head with `claude` as a positional
-followed by a word like `-c` or `-p` (`kubectl logs claude -c main`); putting
-`claude` last, or as an option's value, passes.
+binary (`somewrapper -q claude -p x`) passes, and the long-flag table is a
+snapshot of one CLI version, so a launch that carries only a flag newer than
+it passes there too. What is still refused, and the refusal says how to
+rephrase: an unknown head with `claude` as a positional followed by a word like
+`-c` or `-p` (`kubectl logs claude -c main`); putting `claude` last, after a
+short option, or joined to a long option with `=` (`--name=claude`) passes.
+Accepted false positives, because the guard denies where it cannot tell a name
+from a binary: a long option's value as a separate word (`docker run --name
+claude -p 8080:80 nginx`; `somewrapper --flag claude -p x` is the same shape,
+and is a launch), a path ending in `claude` joined to a long option
+(`--dir=/opt/claude 'some text'`), a quoted argument that reads as a command
+(`somewrapper 'claude -p is a flag'`, though `say` and `logger` are data), and
+a literal argv in interpreter code outside a print call.
 
 What passes: a lookup of the binary (`command -v claude`, `which`, `type`,
 `whence`, `hash`, `ls`/`stat`/`readlink` of its path) and every other command
@@ -65,7 +83,16 @@ What this hook does not see -- it is a net, not a proof:
     is read by its literal part);
   - whether the model named is the right one (it checks that one is named);
   - `ANTHROPIC_MODEL` already exported by the parent environment;
-  - a session where the hook is not wired (it is the adopter's to switch on).
+  - a session where the hook is not wired (it is the adopter's to switch on);
+  - passes accepted because they cannot be judged from the command text (PK13):
+    a long option joined to the binary (`nodemon --exec=claude -p x`, the same
+    word as the `--name=claude` the advice gives); a command made by a program
+    other than `echo` or `printf` and run by a shell (`sh -c "$(cat f)"`); a
+    command awk builds in its own variables (`system(c " -p x")`); `sed 'e'`, as
+    in `sed '1e claude -p x'`; a tmux key binding or hook that runs the binary
+    (`tmux bind C-a run-shell claude`); a runner not named above whose own
+    options this file does not know (`dtach` and `abduco` happen to be read as
+    unknown heads and are denied).
 Each bypass found is added to the deny table in tools/test_modelguard.py, so
 the table grows with every shape this misses.
 
@@ -107,6 +134,8 @@ CLAUDE_LONG_FLAGS = {
     "--permission-prompt-tool", "--plugin-dir", "--replay-user-messages",
     "--session-id", "--setting-sources", "--strict-mcp-config",
     "--system-prompt", "--teleport", "--remote-control",
+    # PK13: in the v2.1.302 help, missing from the first cut of this table.
+    "--settings", "--effort", "--background", "--worktree", "--tmux", "--bare",
 }
 # A short option cluster, or su's bare `-`: the word after it is its value.
 SHORT_OPT = re.compile(r"-[A-Za-z]*")
@@ -141,6 +170,8 @@ DATA_HEADS = {
     "shasum", "md5", "tar", "zip", "unzip", "curl", "wget", "mdfind", "true",
     "scp", "sftp", "rsync",
     "false", ":",
+    # PK13: they print or speak their arguments and run none of them.
+    "say", "logger", "wall", "notify-send", "terminal-notifier",
 }
 # Wrappers: run the rest of the words as the command. Value-taking options
 # per wrapper, so `sudo -u name claude` reaches `claude`, not `name`.
@@ -157,7 +188,37 @@ WRAPPER_OPTS = {
     "taskset": {"-c"}, "chrt": set(), "setsid": set(), "unbuffer": set(),
     "watch": {"-n", "-d"}, "flock": {"-w", "-E"},
     "npx": {"-p", "--package"}, "bunx": {"-p", "--package"},
+    # PK13: a multiplexer's or a service runner's own options, so the word
+    # after them is the command it runs (`screen -dm claude -p x`).
+    "screen": {"-S", "-t", "-c", "-e", "-p", "-h", "-T", "-s", "-L"},
+    "systemd-run": {"-u", "--unit", "-p", "--property", "-E", "--setenv",
+                    "--description", "--slice", "--uid", "--gid", "-M",
+                    "--machine", "-H", "--host", "--working-directory",
+                    "--service-type", "--on-active", "--on-calendar",
+                    "--on-boot", "--on-startup", "--on-unit-active",
+                    "--on-unit-inactive", "--timer-property"},
 }
+# tmux subcommands whose remaining words are a command to run, or keys typed
+# into a pane (PK13). Options that take a value, so `-s claude` is a name.
+TMUX_RUNS = {"new", "new-session", "neww", "new-window", "splitw",
+             "split-window", "respawnw", "respawn-window", "respawnp",
+             "respawn-pane", "run", "run-shell", "if", "if-shell", "popup",
+             "display-popup", "pipep", "pipe-pane"}
+TMUX_KEYS = {"send", "send-keys"}
+TMUX_VALUED = {"-L", "-S", "-f", "-c", "-t", "-s", "-n", "-x", "-y", "-e",
+               "-F", "-l", "-p", "-T", "-w"}
+AWK_HEADS = {"awk", "gawk", "mawk", "nawk"}
+# A string literal in awk program text that is a command: `system("x")`,
+# `print | "x"`, `"x" | getline` (PK13).
+_AWK_STR = r"""(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)')"""
+AWK_CMD = re.compile(r"system\s*\(\s*" + _AWK_STR + r"|\|&?\s*" + _AWK_STR
+                     + r"|" + _AWK_STR + r"\s*\|&?\s*getline")
+# The calls whose string arguments are printed, not run (PK13b).
+PRINT_CALL = re.compile(
+    r"(?:print|printf|console\.(?:log|info|warn|error|debug)|puts|say|warn"
+    r"|alert)\s*\(\s*$")
+# What a process substitution leaves in its place: a path the shell reads.
+PSUB = "/dev/fd/psub"
 # Positional words a wrapper takes before the command (`timeout 60 cmd`).
 WRAPPER_POSITIONALS = {"timeout": 1, "gtimeout": 1, "taskset": 1, "chrt": 1,
                        "flock": 1}
@@ -262,7 +323,9 @@ def scan(cmd):
             out.append(" " if dq else " ; ")
             i = j + 1
             continue
-        elif c == "$" and cmd.startswith("$(", i):
+        elif (c == "$" or (c in "<>" and not dq)) and cmd.startswith("(", i + 1):
+            # `$( )`, and a process substitution `<( )` / `>( )` (PK13d).
+            psub = c != "$"
             depth, j = 0, i + 1
             while j < n:
                 if cmd[j] == "(":
@@ -273,7 +336,7 @@ def scan(cmd):
                         break
                 j += 1
             spans.append(cmd[i + 2:j])
-            out.append(" " if dq else " ; ")
+            out.append(" " + PSUB + " " if psub else " " if dq else " ; ")
             i = j + 1
             continue
         out.append(c)
@@ -309,6 +372,7 @@ class Ctx:
         self.values = values or {}  # NAME=value set in this command text
         self.exported_model = False
         self.positional = None  # `set -- ...`
+        self.sub_texts = []  # echo/printf text inside substitutions (PK13d)
 
 
 def expand(word, ctx):
@@ -417,19 +481,20 @@ def strip_command_opts(args):
 
 
 def string_literals(code):
-    """Runs of comma-joined string literals in program text, each a list."""
-    runs, cur, end = [], [], None
+    """Runs of comma-joined string literals in program text, each a (list,
+    the program text before the run's first literal)."""
+    runs, cur, end, first = [], [], None, 0
     for m in STRING_LIT.finditer(code):
         text = next(g for g in m.groups() if g is not None)
         if cur and re.fullmatch(r"\s*,\s*", code[end:m.start()]):
             cur.append(text)
         else:
             if cur:
-                runs.append(cur)
-            cur = [text]
+                runs.append((cur, code[:first]))
+            cur, first = [text], m.start()
         end = m.end()
     if cur:
-        runs.append(cur)
+        runs.append((cur, code[:first]))
     return runs
 
 
@@ -439,13 +504,15 @@ def interpreter_hit(args, ctx, depth):
     for i, a in enumerate(args[:-1]):
         if a not in CODE_FLAGS:
             continue
-        for run in string_literals(args[i + 1]):
+        for run, before in string_literals(args[i + 1]):
+            if PRINT_CALL.search(before):
+                continue  # `print('claude', 'x y')`: printed, not run (PK13b)
             if command_name(run[0], ctx) in CLAUDE_NAMES and len(run) > 1:
                 hit = launch_hit(run[0], run[1:])
                 if hit and launch_like(run[1:]):
                     return hit
             for lit in run:
-                if (" " in lit or "\t" in lit) and depth < MAX_DEPTH:
+                if " " in lit or "\t" in lit:
                     hit = offending(lit, depth + 1, ctx, loose=True)
                     if hit:
                         return hit
@@ -463,7 +530,7 @@ def git_hit(args, ctx, depth):
                 key, _, val = args[i + 1].partition("=")
                 code = val[1:] if val.startswith("!") else (
                     val if key.lower() in GIT_CMD_KEYS or key.lower().startswith("pager.") else "")
-                if code and depth < MAX_DEPTH:
+                if code:
                     hit = offending(code, depth + 1, ctx)
                     if hit:
                         return hit
@@ -493,6 +560,57 @@ def skip_wrapper(head, args):
             continue
         break
     return args[i:]
+
+
+def echo_texts(body):
+    """The text each `echo`/`printf` in `body` prints, as a list."""
+    try:
+        toks = tokens(body)
+    except ValueError:
+        return []
+    out = []
+    for seg, _sep in segments(toks):
+        words = unwrap(seg, Ctx(set()))
+        if words and command_name(words[0], Ctx(set())) in ("echo", "printf"):
+            out.append(" ".join(a for a in words[1:] if not a.startswith("-"))
+                       .replace("\\n", "\n"))
+    return out
+
+
+def read_texts(ctx, depth):
+    """A launch in what a substitution printed, when a shell runs it (PK13d)."""
+    for text in list(ctx.sub_texts):
+        hit = offending(text, depth + 1, ctx)
+        if hit:
+            return hit
+    return None
+
+
+def tmux_hit(args, ctx, depth, model_set):
+    """tmux: the words after `new`, `new-window`, `split-window`, `run-shell`
+    and the like are a command; `send-keys` types text. A value-taking option
+    (`-s claude`) names a session and is skipped. False when the subcommand is
+    not one of these, so the generic reading applies (PK13d)."""
+    i = 0
+    while i < len(args) and args[i].startswith("-"):
+        i += 2 if args[i] in TMUX_VALUED else 1
+    if i >= len(args) or (args[i] not in TMUX_RUNS and args[i] not in TMUX_KEYS):
+        return False
+    sub, rest, words, j = args[i], args[i + 1:], [], 0
+    while j < len(rest):
+        if rest[j] == "--":
+            words += rest[j + 1:]
+            break
+        if rest[j].startswith("-") and len(rest[j]) > 1:
+            j += 2 if rest[j] in TMUX_VALUED else 1
+            continue
+        words.append(rest[j])
+        j += 1
+    if not words:
+        return None
+    if sub in TMUX_KEYS or len(words) == 1:
+        return offending(" ".join(words), depth + 1, ctx)
+    return classify(words, ctx, depth, model_set)
 
 
 def classify(words, ctx, depth, model_set=False, loose=False):
@@ -540,20 +658,41 @@ def classify(words, ctx, depth, model_set=False, loose=False):
         if loose and not launch_like(args):
             return None
         return launch_hit(raw, args)
-    if head in SHELLS or head in AT_HEADS:
+    if head in SHELLS or head in AT_HEADS or head in ("source", "."):
         for i, a in enumerate(args[:-1]):
             if a == "<<<":
                 hit = offending(args[i + 1], depth + 1, ctx)
                 if hit:
                     return hit
-        if head in AT_HEADS:
+        if PSUB in args:
+            # `bash <(echo 'claude -p x')`: what the substitution prints is
+            # the script the shell runs (PK13d).
+            hit = read_texts(ctx, depth)
+            if hit:
+                return hit
+        if head in AT_HEADS or head in ("source", "."):
             return None
         ci = next((i for i, a in enumerate(args) if SHELL_C.fullmatch(a)), None)
         if ci is not None and ci + 1 < len(args):
-            return offending(args[ci + 1], depth + 1, ctx)
+            # `sh -c "$(echo claude -p x)"`: the script may be a substitution's
+            # output, which is read here by what echo or printf prints.
+            return offending(args[ci + 1], depth + 1, ctx) or read_texts(ctx, depth)
         return None
     if head == "eval":
-        return offending(" ".join(args), depth + 1, ctx)
+        return offending(" ".join(args), depth + 1, ctx) or read_texts(ctx, depth)
+    if head in AWK_HEADS:
+        for a in args:
+            for m in AWK_CMD.finditer(a):
+                lit = next((g for g in m.groups() if g is not None), "")
+                if re.search(r"claude", lit):
+                    hit = offending(lit, depth + 1, ctx)
+                    if hit:
+                        return hit
+        return None
+    if head == "tmux":
+        hit = tmux_hit(args, ctx, depth, model_set)
+        if hit is not False:
+            return hit
     if head == "command":
         # Only `command`'s leading options are its own: `command claude -p x`
         # keeps the `-p` (RK15).
@@ -598,7 +737,7 @@ def classify(words, ctx, depth, model_set=False, loose=False):
         if i < len(args) and args[i] == "--":
             i += 1
         rest = args[i + 1:]  # past the destination
-        if rest and depth < MAX_DEPTH:
+        if rest:
             return offending(" ".join(rest), depth + 1, ctx)
         return None
     if head in WRAPPER_OPTS:
@@ -617,7 +756,7 @@ def classify(words, ctx, depth, model_set=False, loose=False):
                 hit = launch_hit(a, args[i + 1:])
                 if hit:
                     return hit
-        if (" " in a or "\t" in a) and depth < MAX_DEPTH:
+        if " " in a or "\t" in a:
             hit = offending(a, depth + 1, ctx, loose=True)
             if hit:
                 return hit
@@ -639,7 +778,13 @@ def coarse(cmd):
 
 def offending(cmd, depth=0, ctx=None, loose=False):
     """Return the first `claude` session launch with no model, else None."""
-    if depth > MAX_DEPTH or not cmd:
+    if not cmd:
+        return None
+    if depth > MAX_DEPTH:
+        # Past the depth this reads, a command that names the binary is denied
+        # rather than passed unread (PK13d).
+        if re.search(r"claude", cmd):
+            return "a command naming claude, nested past the depth limit"
         return None
     cmd = cmd.replace("\\\n", " ")
     cmd = ARITH.sub(" 0 ", cmd)
@@ -655,11 +800,13 @@ def offending(cmd, depth=0, ctx=None, loose=False):
                   if ASSIGN.match(t) and "$" not in t.split("=", 1)[1]}
         ctx = Ctx({k for k, v in values.items()
                    if command_name(v, Ctx(set())) in CLAUDE_NAMES}, values)
+    for body in spans:
+        ctx.sub_texts.extend(echo_texts(body))
     for body in fed + spans:
         hit = offending(body, depth + 1, ctx)
         if hit:
             return hit
-    prev = None
+    pipe_texts = []  # echo/printf text earlier in the same pipeline (PK13d)
     for seg, sep in segments(toks):
         hit = classify(seg, ctx, depth, loose=loose)
         if hit:
@@ -667,13 +814,19 @@ def offending(cmd, depth=0, ctx=None, loose=False):
         head = command_name(seg[0], ctx)
         piped = unwrap(seg, ctx)  # `| sudo sh`, `| env bash` (RK15)
         fhead = command_name(piped[0], ctx) if piped else None
-        if sep == "|" and prev and (fhead in AT_HEADS or (
-                fhead in SHELLS and not any(not a.startswith("-") for a in piped[1:]))) \
-                and command_name(prev[0], ctx) in ("echo", "printf"):
-            text = " ".join(a for a in prev[1:] if not a.startswith("-"))
-            hit = offending(text.replace("\\n", "\n"), depth + 1, ctx)
-            if hit:
-                return hit
+        if sep not in ("|", "|&"):
+            pipe_texts = []
+        elif pipe_texts and (fhead in AT_HEADS or (
+                fhead in SHELLS and not any(not a.startswith("-") for a in piped[1:]))):
+            # `echo 'claude -p x' | tee log | sh`: any stage between is read as
+            # passing the text on.
+            for text in pipe_texts:
+                hit = offending(text, depth + 1, ctx)
+                if hit:
+                    return hit
+        if head in ("echo", "printf"):
+            pipe_texts.append(" ".join(a for a in seg[1:] if not a.startswith("-"))
+                              .replace("\\n", "\n"))
         if head in ("export", "declare", "typeset") and any(
                 a.startswith("ANTHROPIC_MODEL=") and len(a) > len("ANTHROPIC_MODEL=")
                 for a in seg[1:]):
@@ -684,7 +837,6 @@ def offending(cmd, depth=0, ctx=None, loose=False):
                 ctx.positional = a[a.index("--") + 1:]
             elif a and not a[0].startswith(("-", "+")):
                 ctx.positional = a
-        prev = seg
     return None
 
 
@@ -726,8 +878,9 @@ def main():
                  f"tier. Offending launch: `{hit}`. Add `--model <id>`. If no "
                  "session was meant (`claude` here names a user, a unit, a "
                  "container or a search term), rephrase so no session flag or "
-                 "prompt follows that word: give it as an option's value "
-                 "(`-u claude`) or put it last. " + RULE)
+                 "prompt follows that word: give it straight after a short "
+                 "option (`-u claude`), joined to a long option with `=` "
+                 "(`--name=claude`), or put it last. " + RULE)
     sys.exit(0)
 
 

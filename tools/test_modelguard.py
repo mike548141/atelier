@@ -7,14 +7,28 @@ launch shape found to slip past the hook goes in it, and stays. LOOKUPS is the
 other side (board 210/500): commands that only find, read or name the binary
 must never be refused, or sessions learn to route round the guard. NAMED is the
 same side for a `claude` that names a user, a unit, a container or a search
-term after a head the hook does not know (cold pass 160/1790, RK9)."""
+term after a head the hook does not know (cold pass 160/1790, RK9). REFUSED is
+the accepted false positives, pinned so that one fixed by loosening the guard
+is noticed (PK13, cold pass 160/1810)."""
+import contextlib
+import importlib.util
+import io
 import json
 import os
+import shlex
 import subprocess
 import sys
 import unittest
 
 HOOK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modelguard.py")
+
+
+def nested(depth, inner="claude -p x"):
+    """`inner` wrapped in `depth` layers of `bash -c`."""
+    for _ in range(depth):
+        inner = "bash -c " + shlex.quote(inner)
+    return inner
+
 
 # (expect_block, tool, input); every path and repo name is fictional.
 CASES = [
@@ -123,6 +137,39 @@ BYPASSES = [
     'somewrapper -u claude --dangerously-skip-permissions "do x"',
     'somewrapper claude "summarise the log"',
     "somewrapper 'claude -p hi'",
+    # 160/1810, PK13: shapes that passed, each now denied.
+    'screen -dm claude -p x',
+    'screen -S job -dm claude -p x',
+    'tmux new -d claude',
+    'tmux new-session -d -s w claude -p x',
+    'tmux new-window claude',
+    "tmux split-window -h 'claude -p x'",
+    "tmux send-keys 'claude -p x' Enter",
+    "bash <(echo 'claude -p x')",
+    "source <(echo 'claude -p x')",
+    ". <(printf 'claude -p x')",
+    "echo 'claude -p x' | tee /dev/null | sh",
+    "echo 'claude -p x' | sed s/a/b/ | bash",
+    'sh -c "$(echo claude -p x)"',
+    'eval "$(echo claude -p x)"',
+    "awk 'BEGIN{system(\"claude -p x\")}'",
+    "awk 'BEGIN { \"claude -p x\" | getline r }'",
+    'systemd-run --user -q claude -p x',
+    'systemd-run --user --unit=job claude -p x',
+    'systemd-run -u job claude -p x',
+    # past the depth of four, a command that names the binary is denied unread
+    nested(5),
+    nested(8),
+    # the long flags the table lacked, in the one pass the table's narrowing
+    # leaves open: after a short option, a launch carrying only these
+    'somewrapper -q claude --settings s.json x',
+    'somewrapper -q claude --effort high x',
+    'somewrapper -q claude --background x',
+    'somewrapper -q claude --worktree w x',
+    'somewrapper -q claude --tmux x',
+    'somewrapper -q claude --bare x',
+    # a printed `claude` does not excuse a later real launch
+    'python3 -c "print(\'a\'); import os; os.system(\'claude -p x\')"',
 ]
 
 # Commands that only look up, read or name the binary (210/500), and launches
@@ -201,6 +248,44 @@ NAMED = [
     'python3 -c \'import shutil; print(shutil.which("claude"))\'',
     # the refusal's own advice, applied to the case still refused below
     'kubectl -n tools logs -c main claude',
+    # PK13: the advice's other form; a long option takes `=` to join its value
+    'docker run --name=claude -p 8080:80 nginx',
+    'docker run --name=claude --rm img',
+    # PK13: a multiplexer's or service runner's session or unit name
+    'tmux new -s claude -d',
+    'tmux send-keys -t claude ls Enter',
+    'tmux attach -t claude',
+    'screen -S claude -ls',
+    'systemd-run --user --unit=claude true',
+    # PK13b: a literal printed by the interpreter's own call is data
+    'python3 -c "print(\'claude\', \'hello world\')"',
+    'node -e "console.log(\'claude\', \'hello world\')"',
+    # PK13c: heads that print or speak their arguments
+    "say 'claude -p is a flag'",
+    "logger 'claude -p was refused'",
+    # substitutions and pipelines with no launch in them
+    'diff <(sort a) <(sort b)',
+    'while read l; do echo "$l"; done < <(ls)',
+    'echo hi | tee out | sh',
+    'bash -c "echo $(echo hello)"',
+    "awk '/claude -p/ {print}' f",
+    "awk 'BEGIN{system(\"ls\")}'",
+    nested(6, "ls"),
+]
+
+# PK13: accepted false positives. Each is refused and the refusal says how to
+# rephrase; the guard denies where it cannot tell a name from a binary, and a
+# loosening that lets one of these pass is read against the deny table first.
+REFUSED = [
+    # a long option's value as a separate word reads as the binary (a launch of
+    # `somewrapper --flag claude -p x` is denied for the same shape)
+    'docker run --name claude -p 8080:80 nginx',
+    # a path ending in `claude` joined to a long option is read as the binary
+    "mytool --dir=/opt/claude 'some text'",
+    # a quoted argument that reads as a command, after an unknown head
+    "somewrapper 'claude -p is a flag'",
+    # a literal that is an argv, in interpreter code that is not a print call
+    'python3 -c "x = (\'claude\', \'hello world\')"',
 ]
 
 
@@ -236,6 +321,33 @@ class ModelGuard(unittest.TestCase):
         for cmd in NAMED:
             self.check(cmd, False)
 
+    def test_the_accepted_false_positives_are_refused(self):
+        for cmd in REFUSED:
+            self.check(cmd, True)
+
+    def test_a_refusal_names_only_forms_that_pass(self):
+        # PK13a: the advice said `claude` passes "as an option's value", and a
+        # long option's value did not. The reason now names the forms that do,
+        # and each is a command in NAMED.
+        r = run(json.dumps({"tool_name": "Bash", "tool_input": {
+            "command": "kubectl -n tools logs claude -c main"}}))
+        reason = json.loads(r.stdout)["hookSpecificOutput"]["permissionDecisionReason"]
+        self.assertIn("after a short option (`-u claude`)", reason)
+        self.assertIn("`--name=claude`", reason)
+        self.assertNotIn("as an option's value", reason)
+        for cmd in ("su - claude -c 'ls'", "docker run --name=claude -p 8080:80 nginx"):
+            self.check(cmd, False)
+
+    def test_a_nested_command_with_no_claude_in_it_passes_past_the_depth(self):
+        self.check(nested(8, "ls -l"), False)
+
+    def test_the_docstring_names_each_pass_the_table_cannot_close(self):
+        # PK13d: a pass that cannot be judged is named, not left unsaid.
+        src = open(HOOK, encoding="utf-8").read()
+        for phrase in ("--exec=claude -p x", "`sed '1e claude -p x'`",
+                       "tmux key binding", "in its own variables"):
+            self.assertIn(phrase, src)
+
     def test_a_refusal_says_how_to_rephrase(self):
         # RK9: a positional `claude` followed by `-c` still reads as a launch;
         # the refusal says how to say it when no session was meant, and the
@@ -245,13 +357,46 @@ class ModelGuard(unittest.TestCase):
         reason = json.loads(r.stdout)["hookSpecificOutput"]["permissionDecisionReason"]
         self.assertIn("--model", reason)
         self.assertIn("If no session was meant", reason)
-        self.assertIn("option's value", reason)
+        self.assertIn("short option", reason)
 
     def test_a_deny_is_well_formed(self):
         r = run(json.dumps({"tool_name": "Bash", "tool_input": {"command": 'claude -p "x"'}}))
         out = json.loads(r.stdout)["hookSpecificOutput"]
         self.assertEqual((out["hookEventName"], out["permissionDecision"]), ("PreToolUse", "deny"))
         self.assertIn("--model", out["permissionDecisionReason"])
+
+    def test_an_unparsable_command_naming_claude_is_denied_by_the_catch_all(self):
+        # G6 (PK16): `checked` turns any failure of the parse into a deny when
+        # the text names the binary. The coarse path (unbalanced quoting) is in
+        # CASES; this reaches the other, a parse that raises, by making the
+        # parser raise, since no input is known that does.
+        spec = importlib.util.spec_from_file_location("modelguard_under_test", HOOK)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        def boom(*_a, **_k):
+            raise RuntimeError("a parse that breaks")
+        mod.offending = boom
+        self.assertTrue(mod.checked("claude -p x"))
+        self.assertTrue(mod.checked("ls ~/.local/bin/claude"))
+        self.assertIsNone(mod.checked("ls -l"))
+        # and through the hook's own entry point: a deny, not a silent allow
+        old_stdin = sys.stdin
+        for command, denied in (("x; claude -p y", True), ("ls", False)):
+            sys.stdin = io.StringIO(json.dumps(
+                {"tool_name": "Bash", "tool_input": {"command": command}}))
+            out = io.StringIO()
+            try:
+                with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+                    mod.main()
+            finally:
+                sys.stdin = old_stdin
+            with self.subTest(command=command):
+                if denied:
+                    self.assertEqual(json.loads(out.getvalue())["hookSpecificOutput"]
+                                     ["permissionDecision"], "deny")
+                else:
+                    self.assertEqual(out.getvalue(), "")
 
     def test_malformed_payload_never_blocks(self):
         for payload in ("not json", "[1, 2]", '"text"',
