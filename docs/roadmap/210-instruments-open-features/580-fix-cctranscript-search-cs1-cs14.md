@@ -1,4 +1,7 @@
-- [ ] 🔧 **Fix `cctranscript --search`: all fourteen findings CS1–CS14, as
+- [~] 🔧 **Fix `cctranscript --search`: all fourteen findings CS1–CS14, as
+      🔒 CLAIMED 2026-11-25T13:25Z (claimed 2026-11-25-1325, wt: atelier-qr-f8dd-cs) by session f8dd3843
+      (`atelier-31`, Opus 5.5, principal-opened by `/atelier:work run`): the fourteen CS fixes, re-checking each against HEAD first.
+      A worker subagent builds it in the worktree; this session lands it.
       the reviewer advised.** His pick, 2026-11-24 (session edf25bd3,
       AskUserQuestion; quoted in full on `160/010`): *"Fix all as advised
       (Recommended)"*. The findings and their advice are in

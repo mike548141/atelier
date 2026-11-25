@@ -1,4 +1,7 @@
-- [ ] 🔧 **`publishscan` keeps its own ignore-file loader, outside the
+- [~] 🔧 **`publishscan` keeps its own ignore-file loader, outside the
+      🔒 CLAIMED 2026-11-25T13:25Z (claimed 2026-11-25-1325, wt: atelier-qr-f8dd-pa) by session f8dd3843
+      (`atelier-31`, Opus 5.5, principal-opened by `/atelier:work run`): folding the loader into allowmarker.
+      A worker subagent builds it in the worktree; this session lands it.
       shared `tools/allowmarker.py`.** The GA1 finding (`160/060`) was
       single-sourced on 2026-10-03 (`643cf809`), but `publishscan.py`'s
       `load_ignores` and `_ignored` were left as their own copy. They are
