@@ -44,15 +44,18 @@ met neither, so it is not run. Do this before anything else:
 
 1. If `${CLAUDE_PLUGIN_ROOT}` is the top of a git checkout (`git -C
    "${CLAUDE_PLUGIN_ROOT}" rev-parse --show-toplevel` prints that same
-   path), read the prompt with `git -C "${CLAUDE_PLUGIN_ROOT}" show
+   folder; a root reached through a symbolic link prints the link's target,
+   which is still the same folder), read the prompt with `git -C "${CLAUDE_PLUGIN_ROOT}" show
    HEAD:docs/method/session-open/session-open-prompt.md`, and do not open the
    working file.
 2. Then run `git -C "${CLAUDE_PLUGIN_ROOT}" status --porcelain --
    docs/method/session-open/session-open-prompt.md`. If it prints anything,
    edits to the prompt are pending: say so in the first lines of your opening
    report (the file, and that you ran the committed copy, not the pending
-   edit). Committing the edit, on the principal's say-so, is what makes it
-   run; you do not commit it.
+   edit). The edit may be another session's: a pending edit in that checkout
+   prints this in every session that runs until it is committed or dropped, so
+   report it as found and leave it alone. Committing the edit, on the
+   principal's say-so, is what makes it run; you do not commit it.
 3. If the plugin is not a git checkout (an install from GitHub is a copy of
    one commit, so there is no pending edit to run), or `git show` fails, read
    the file at the path above and say which of the two applied.
