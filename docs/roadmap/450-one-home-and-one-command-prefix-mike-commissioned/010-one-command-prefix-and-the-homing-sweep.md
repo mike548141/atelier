@@ -185,6 +185,8 @@
       - **D.** Only when C has no MAJOR and B is done: this row. The drain moves
         onto `/atelier:review plan` and `/atelier:review run` and the user-level
         `/fable-drain` retires, between drains, never mid-drain.
+      - ✅ **A done 2026-11-25 UTC** (session b04df0da, `atelier-f9`): `210/620` closed, all
+        32 findings applied; the re-check pointer is `160/1820`. B (shed's own) and C remain.
       If C or B misses the drain's start, D is skipped: that drain runs on
       `/fable-drain` and D waits for the gap after it. Each session's close hands
       the principal the prompt for the next step it is not barred from naming.

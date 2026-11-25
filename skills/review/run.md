@@ -97,8 +97,8 @@ calls it only on a real drain whose reset has not come; a `--dry-run`
 rehearsal never calls it, and prints `ccfleet plan`'s reading instead.
 Launches are rehearsed only by the run that holds the seal, because a
 rehearsed launch asks the queue's `next`, which refuses without it. A dry
-drain that is not sealed prints the plan's reading, rehearses no launch and
-ends as a queue error.
+drain that is not sealed prints the plan's reading, then `DRY not sealed: no
+launches rehearsed`, and exits 0; a sealed one names its rehearsed pick.
 
 **The seal's own rules.** A seal refuses while any ready review is missing,
 unreasoned, on a closed route, on a later route than the best it fits without

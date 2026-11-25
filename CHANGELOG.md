@@ -5,6 +5,51 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-25 — the `DV` and `PK` cold-pass fixes, `210/620`)
+- **Adopter actions.** Set the config's `REVIEW_MODEL` to the review tier's
+  alias, never a full model id (the spawning tool refuses one). Pass
+  `FINISH_WORDS` on each resume and fold call and never keep it in `vars`
+  (`DV2`). Your queue's `next` must offer only what the sealed ranking routes
+  to the local route, plus the stated spill: ccfleet now calls it with
+  `--route local` (`PK3`). A queue may add an optional `unseal`, called when a
+  real drain ends; the reference queue refuses `unknown` as a sealing id
+  (`PK10`).
+- **ccfleet, the reset and the worktree (`DV1`, `PK1`, `PK2`).** After the
+  reset a fold runs only for a pass that started (its result file or its
+  `START` line), never with `pass_prompt` as its template. Any launch into a
+  worktree a recorded live session runs in exits 2. A signalled launcher
+  leaves its live session's settings copies in place; the next launch sweeps
+  orphans. Copies are named `<session>.<pid>.json`.
+- **ccfleet, reading and recording (`PK4`, `DV3`, `PK12`, `PK9`).** A
+  `RESULT:` line counts only where the final-output shape puts it (above
+  `ITEM:`, or closing a block with `REPO:`); anything else reads UNKNOWN.
+  `END` lines carry `models=` from the session's log. Log names carry the date
+  and seconds, with a `.end` file beside each, and the cost history reads a
+  later session's own `END` line. A dry drain before the seal exits 0, saying
+  no launches were rehearsed.
+- **ccfleet, privacy and grants (`PK5`, `PK11`, `PK20`).** A public repo's
+  session gets the shared part of the user-level file with its import lines
+  withheld, no path named, and each imported file denied for reading. `check`
+  adds `WIDENS: sandbox`, `MANAGED:`, `KEPT, not classified` and, with `gh`,
+  `VISIBILITY MISMATCH` lines. The manual's *THREATS* names what remains.
+- **`modelguard` (`PK13`).** Denies the launches found to pass (`screen`,
+  `tmux`, `systemd-run`, process substitution, `echo` piped into a shell
+  through any stage, `awk` `system()`, nesting past depth four, six long flags
+  the table lacked); its refusal text says only what is true; printed literals
+  and notification commands no longer read as launches.
+- **The review and close skills (`DV2`–`DV10`, `PK6`–`PK10`, `PK14`, `PK18`).**
+  The orchestrator stops if the review model is refused and never forks; the
+  reviewer states the model it runs as. The reviewer's instructions have one
+  home. `run.md` says what the seal does not gate, whose id `--by` carries,
+  and that a fold's cost rests on the config. Words typed after
+  `/atelier:session close` may now skip a step, and the close names each one
+  skipped (`PK7`, the principal's pick). Words not typed by the principal are
+  never taken from a skill call's own arguments.
+- **Guards (`DV7`, `PK16`, `PK21`).** Tests pin the review prompts and the
+  sentences the passes found loose, and the mutants that survived.
+  `pointerscan` warns on a review pointer that names its delta by citation
+  alone.
+
 ### Changed (2026-11-25 — the subject skills' grants and wording, the `RK` cold pass, `210/600`)
 - **A router pre-approves only what it needs (`RK1`, `RK29`).** Each
   `skills/<subject>/SKILL.md` carried `Bash(python3:*)` and `Bash(git:*)` (the

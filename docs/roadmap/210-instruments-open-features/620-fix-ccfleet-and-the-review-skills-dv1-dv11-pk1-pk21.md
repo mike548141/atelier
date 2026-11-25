@@ -1,4 +1,4 @@
-- [ ] 🔧 **Fix `ccfleet`, the review skills, `modelguard` and the reference queue: findings
+- [x] 🔧 **Fix `ccfleet`, the review skills, `modelguard` and the reference queue: findings
       `DV1`–`DV11` of the `160/1800` cold pass and `PK1`–`PK21` of the `160/1810` cold pass, as
       each reviewer advised; the MODERATEs first.** The principal's pick, 2026-11-25 UTC (session
       14c2530d, AskUserQuestion; an answer, not a ruling), verbatim: *"Fix all as advised
@@ -43,3 +43,17 @@
       it."*). Applied in `001d9b42`.
       Note: this item's claim lines landed inside `932a0185` (another session's close commit
       on the shared checkout staged them with its own); the claim is as written above.
+      ✅ **Done 2026-11-25 UTC (session b04df0da, `atelier-f9`):** all 32 applied as counselled,
+      the MODERATEs first. `DV1`, `DV3`, `DV7` (M5), `DV11`, `PK1`–`PK5`: `422b5b5c`..`afa9aec7`
+      (Opus worker). The skill texts, `DV2`–`DV4`, `DV6`–`DV10`, `PK6`–`PK10`, `PK14`–`PK16`,
+      `PK18`: `b7a3a694`..`1c3488ad`, `db4984c1` (Sonnet worker, and this session). `PK13`,
+      G6, `PK15` (`tools/README.md`), `PK21`: `9d52835a`..`127f3fef` (Sonnet worker). The
+      ccfleet minors and notes, `DV2`, `PK9`–`PK12`, `PK14`, `PK16`, `PK17`, `PK19`, `PK20`:
+      `3c824d40`..`36ec7901` (Opus worker). The changelog (`DV5`, `PK15`) and the rest of
+      `PK15` land with this close. Two places the fix departs from the letter of the counsel,
+      for the re-check to weigh: `PK4` also accepts a `RESULT:` line that closes a block
+      holding `REPO:`, since the fleet prompts put `REPO:` first and the counsel's "directly
+      above" alone would read every sweep as UNKNOWN; `DV4` took `run.md`'s "no read of this
+      skill" route, since ccfleet fills no `{ATELIER}` for the review prompts. Full tools suite
+      on 3.14: 3,499 tests, one failure (a spellscan memory-bound test that passes alone, under
+      load); `test_ccfleet` 152 OK on 3.9 and 3.14. The re-check is queued as `160/1820`.
