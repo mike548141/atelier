@@ -28,3 +28,11 @@
       (`atelier-e7`, Opus 5.5), for brief-writing only: the brief and its held-back
       sibling, no pass run. Neither session wrote any part of the delta; 14c2530d
       orchestrates the pass once the brief lands and writes no part of it.
+      **Brief written 2026-11-25 UTC:**
+      `docs/reviews/2026-11-25-0720-rk-drain-path-fixes-cold.md`, pinned at `6ddbead2`,
+      finding prefix `DV`. Its held-back sibling (16 questions, 14 facts) is held
+      user-local, outside the repo, every worktree and every scratchpad; the orchestrator
+      is told where, never by the brief.
+      🔓 2026-11-25T07:23Z: session 4da4abc0 releases its claim. The pass is open for a fresh Fable
+      reviewer under orchestrator 14c2530d; `0ee74059`, its workers and `4da4abc0` are
+      barred from running it.
