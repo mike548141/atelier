@@ -1239,7 +1239,15 @@ share, it adds the modules that pin a shared contract (`test_allowmarker`,
 `test_report`, `test_templates`, `test_floor`) to its own run. The full suite is
 the orchestrator's, or CI's, run one at a time at the landing, which is where
 `RECORD.md`'s full-suite bar before a push to `main` is met. The dispatch brief
-carries the line. (2026-11-09, `180/200`: four workers each told to run the full
+carries the line. **A worker that writes a review brief** also owes the
+brief-writer's duty (`REVIEW.md`: it runs every re-run line once, from where the
+brief says to run it, before writing it down), and the two meet on a line that
+runs the full suite or another worker's modules. Each re-run line it runs once,
+under `nice`, one after another; a full-suite line it does not run, but names in
+its report, and the orchestrator runs it before it lands the brief, as it would
+the full suite at any landing. (2026-11-25, `320/910`: a child's run gave two
+brief-writers both rules; one obeyed each, and the orchestrator ran the missing
+lines itself.) (2026-11-09, `180/200`: four workers each told to run the full
 suite drove the load to 310 on 12 cores within minutes; told to run only their
 own modules under `nice`, the run held at 10 to 25. The cost, also measured: a
 change to a shared file's contract slipped past module-only runs twice, because

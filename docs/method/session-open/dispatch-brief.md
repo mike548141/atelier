@@ -28,7 +28,9 @@ carries bounds only, never a relaxation of standing doctrine.
   If you change a file other tools share, also run the modules that pin shared
   contracts: `tools/test_allowmarker.py`, `tools/test_report.py`,
   `tools/test_templates.py`, `tools/test_floor.py`. Never the full suite: the
-  orchestrator or CI runs it, at the landing.
+  orchestrator or CI runs it, at the landing. Writing a review brief, run
+  each of its re-run lines once the same way, except a full-suite line:
+  name that one in your report for the orchestrator to run.
 - Do not push, merge or open pull requests. Commit in your worktree and
   hand back.
 - Stop only processes you launched, by their PID or by your own worktree's
@@ -46,7 +48,7 @@ carries bounds only, never a relaxation of standing doctrine.
 | Long-check poll | § *Orchestrated queue runs*: a long check is the worker's to poll (`320/680`) |
 | Explicit staging, pathspec commit | § *The trigger*: the index is a shared surface too (`320/350`); § *Claiming work*: one worktree per worker, or forbid `git add -A` |
 | No push or merge | § *Orchestrated queue runs*: what a worker inherits is bounded (QR3) |
-| Test-run bound | § *Orchestrated queue runs*: a worker's test runs are bounded too, and the full suite is the orchestrator's (`180/200`) |
+| Test-run bound | § *Orchestrated queue runs*: a worker's test runs are bounded too, and the full suite is the orchestrator's (`180/200`); a brief-writing worker's re-run lines (`320/910`) |
 | Kill scope | § *Orchestrated queue runs*: the machine is shared too (`320/700`) |
 | No pointer; cite by path and item | § *Orchestrated queue runs*: the orchestrator writes the review pointer, at the landing (`180/190`) |
 | Terminal marker | § *Orchestrated queue runs*: teardown waits for the worker to stop |

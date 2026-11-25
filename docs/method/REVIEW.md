@@ -410,7 +410,10 @@ The brief-writer owes the reviewer the same care: it runs every re-run line
 that fails from the place it names costs the reviewer its first act (grounded in
 PF10, a 2026-10-16 brief whose test line failed from the repo root); the
 `/atelier:review brief` carries the compressed copy (`160/930`, BF5, applied
-2026-11-09).
+2026-11-09). A brief-writer dispatched as a worker under an orchestrator runs
+them under its test bound, and hands a full-suite line to the orchestrator to
+run before the brief lands (`CONCURRENCY.md` § *Orchestrated queue runs*,
+`320/910`).
 The negative counterpart is `EVIDENCE.md` §19: a verdict that something
 *cannot* work, built from reading alone, is not accepted while a cheap,
 disposable test exists (`320/570`).

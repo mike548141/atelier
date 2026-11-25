@@ -1,6 +1,4 @@
-- [~] 🔎 **Hand-up: the dispatch skeleton's test bound and the review-brief
-      🔒 CLAIMED 2026-11-25T13:27Z (claimed 2026-11-25-1327, wt: atelier-qr-f8dd-tb) by session f8dd3843
-      (`atelier-31`, Opus 5.5, principal-opened by `/atelier:work run`), inline.
+- [x] 🔎 **Hand-up: the dispatch skeleton's test bound and the review-brief
       skill's re-run duty contradict each other for a worker that writes a
       brief.** Reported 2026-11-25 by a private child's queue run (met
       2026-11-23, session 95797e59), class only.
@@ -21,3 +19,15 @@
       skeleton exempting the brief's own re-run lines (run once, under
       `nice`, one after another), or a line in the brief skill handing the
       re-run to the orchestrator.
+      ✅ **Done 2026-11-25 (session f8dd3843, `atelier-31`, queue run): the test bound
+      wins for the full suite only.** A brief-writing worker runs each of its brief's
+      re-run lines once, under `nice`, one after another; a full-suite line it names in its
+      report and the orchestrator runs before landing the brief, as at any landing. Why
+      that split: the bound exists for machine load (`180/200`, load 310), and the full
+      suite is already the orchestrator's at the landing; every other re-run line stays
+      the writer's, so a line that fails from the place it names is still caught before
+      the reviewer meets it (PF10). Written in `method/CONCURRENCY.md` § *Orchestrated
+      queue runs* (the worker test-bound paragraph), the skeleton line in
+      `method/session-open/dispatch-brief.md` and its grounding row, `method/REVIEW.md`
+      (after the brief-writer's duty) and `skills/review/brief.md` item 5. Its cold
+      pass is queued as `160/1830`.
