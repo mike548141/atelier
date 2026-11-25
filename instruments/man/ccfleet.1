@@ -203,6 +203,9 @@ Leaving the user source out also leaves out the user-level
 so ccfleet appends that file to the system prompt
 .RB ( \-\-append\-system\-prompt\-file ),
 and the operator's standing instructions still bind.
+For a private repo the file's @-imports are inlined, as Claude Code reads
+them; for a public or unknown-visibility repo they are not followed (see
+.BR "The private-name guard" ).
 A repo's own settings files still load, and some kept keys still widen what
 a session can do; see
 .BR THREATS .
@@ -260,6 +263,28 @@ Refusing is the default because the guard exists to keep these names out of
 an unattended session in a public repo, and a warning in a drain's log is
 read after the session has run.
 .PP
+The file may import others, one
+.BI @ path
+per line, such as
+.BR @~/.claude/CLAUDE\-private.md :
+a shared part safe for any session that imports a private part.
+A private repo's session gets the file with each import inlined where its
+line stands, by Claude Code's rules for memory imports: a path is relative
+to the file that imports it,
+.B ~
+is the home folder, imports nest to at most four hops, an import inside a
+code span or a fenced code block is not one, and a backslash escapes a space
+in the path.
+An import that cannot be followed (past four hops, a cycle, no such file)
+stays as its line, with a note below it.
+Only an import on a line of its own is followed (a list bullet may lead it);
+one inside a sentence stays as text, which Claude Code would follow.
+A public or unknown-visibility repo's session gets the file as it is, the
+import lines as text and no imported file, and the guard reads that same
+text.
+So a private name the shared part holds refuses the launch, and one only an
+imported file holds does not: the imported file is where such names belong.
+.PP
 The guard is a literal match.
 It catches the names listed and nothing that was forgotten.
 .SS The headroom gate
@@ -316,7 +341,9 @@ An
 .B INSTRUCTIONS:
 line says whether a user-level
 .I CLAUDE.md
-is appended, and
+is appended and what a private and a public repo's session get of it, an
+.B INSTRUCTIONS IMPORT:
+line names each import it found and whether it is inlined, and
 .B INSTRUCTIONS GUARD:
 which private names it holds, if any, and what a public repo's launch does
 about them.
@@ -1530,7 +1557,8 @@ against its ceiling, even after the driver that started them died.
 .I <kit_dir>/settings/
 Each session's settings file and, when there is a user-level
 .IR CLAUDE.md ,
-its copy for the system prompt; owner-only.
+its copy for the system prompt, its @-imports inlined for a private repo
+only; owner-only.
 They hold what the user-level
 .B env
 block and instructions hold, so each pair lives only while the session
@@ -1707,6 +1735,12 @@ a launch unless
 .B instructions_guard
 is
 .BR warn .
+The files it imports reach only a private repo's session, so whether a repo
+is private rests on its
+.B visibility
+in the config, or on
+.B gh repo view
+when the config says none: a repo wrongly marked private gets them.
 .PP
 The other way round: a config that grants nothing runs its sessions in the
 default mode, where every call that would ask is refused.
@@ -1718,9 +1752,9 @@ line.
 Leaving the user source out narrows a session in other ways too: user-level
 skills, agents and commands under
 .I ~/.claude
-are not loaded, and
+are not loaded, and the user-level
 .IR CLAUDE.md 's
-@-imports are not followed.
+@-imports are followed for a private repo only.
 Put what a session needs in a plugin (the kept
 .B enabledPlugins
 loads it) or in the repo.

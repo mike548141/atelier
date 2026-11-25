@@ -26,6 +26,9 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     nothing you forgot to list. It reads the user-level instructions file each
     launch appends too: a public or unknown repo's launch is refused when that
     file names one (instructions_guard "warn": a line per name, and it goes on).
+    That file's @-imports are inlined for a private repo only; a public or
+    unknown one gets the import lines as text, which is what the guard reads,
+    so a private name kept in an imported file reaches no public session.
   * This is Python, not zsh, on purpose: zsh reads a script as it runs, so
     editing a driver script mid-run broke every running job's tail. Python
     compiles the whole file at start, so a running driver is immune; a job
@@ -606,11 +609,96 @@ def remove_session_files(paths):
                 pass
 
 
-def session_files(cfg, sid, write=True):
+# The harness's rules for an @-import in a CLAUDE.md (Claude Code's memory
+# page, "Import additional files", code.claude.com/docs/en/memory): a path is
+# relative to the file that imports it, not the working directory; imports
+# nest to at most four hops; an import inside a code span or a fenced code
+# block is not one; the path ends at the first space a backslash does not
+# escape; a quoted path is not imported. The page says nothing of a missing
+# file or a cycle: here each is left as its line, with a note. ccfleet follows
+# only an import on a line of its own (a list bullet may lead it); one inside a
+# sentence stays as text, which the harness would follow.
+IMPORT_HOPS = 4
+IMPORT_LINE = re.compile(r"[ \t]*(?:[-*+][ \t]+)?@((?:\\ |[^\s`\"'])(?:\\ |[^\s`])*)[ \t]*")
+FENCE = re.compile(r" {0,3}(`{3,}|~{3,})")
+
+
+def expand_imports(text, base, hops=0, chain=(), found=None):
+    """`text` (a file in directory `base`) with each import line replaced by
+    the file it names, itself expanded, as the harness reads memory imports
+    (IMPORT_HOPS, IMPORT_LINE). One that cannot be followed (past the hop
+    limit, a cycle, no such file, unreadable) stays as its line with a note
+    below it. `found` collects (as written, resolved path, what was done)."""
+    found = [] if found is None else found
+    out, fence = [], None
+    for line in text.splitlines(keepends=True):
+        f = FENCE.match(line)
+        if fence:
+            if f and f.group(1)[0] == fence[0] and len(f.group(1)) >= len(fence) and not line[f.end():].strip():
+                fence = None
+            out.append(line)
+            continue
+        if f:
+            fence = f.group(1)
+            out.append(line)
+            continue
+        m = IMPORT_LINE.fullmatch(line.rstrip("\r\n"))
+        if not m:
+            out.append(line)
+            continue
+        raw = m.group(1)
+        target = os.path.normpath(os.path.join(base, os.path.expanduser(raw.replace("\\ ", " "))))
+        real = os.path.realpath(target)
+        why, body = None, None
+        if hops >= IMPORT_HOPS:
+            why = f"past the harness's limit of {IMPORT_HOPS} hops"
+        elif real in chain:
+            why = "a cycle: it is already being imported"
+        elif not os.path.isfile(target):
+            why = "no such file"
+        else:
+            try:
+                with open(target, encoding="utf-8", errors="replace") as fh:
+                    body = fh.read()
+            except OSError as e:
+                why = f"cannot be read ({e.strerror})"
+        line = line if line.endswith("\n") else line + "\n"
+        if why:
+            found.append((raw, target, f"not followed: {why}"))
+            out.append(line + f"<!-- ccfleet: @{raw} not followed: {why} ({target}) -->\n")
+            continue
+        found.append((raw, target, "inlined"))
+        inner = expand_imports(body, os.path.dirname(target), hops + 1, chain + (real,), found)
+        out.append(f"<!-- ccfleet: @{raw} inlined from {target} -->\n" + inner
+                   + ("" if inner.endswith("\n") or not inner else "\n")
+                   + f"<!-- ccfleet: end of {target} -->\n")
+    return "".join(out)
+
+
+def instructions_text(visibility):
+    """What a session for a repo of `visibility` is handed of the user-level
+    instructions file, its header aside: for a private repo, the file with its
+    imports inlined; for a public or unknown one, the file as it is, its import
+    lines left as text, so an imported file reaches no public session. Returns
+    (path, text, found), text None when there is no file. The guard reads this
+    same text, so it reads exactly what is appended."""
+    umd = user_instructions_path()
+    if not os.path.isfile(umd):
+        return umd, None, []
+    with open(umd, encoding="utf-8", errors="replace") as f:
+        text = f.read()
+    found = []
+    if visibility == "PRIVATE":
+        text = expand_imports(text, os.path.dirname(umd), chain=(os.path.realpath(umd),), found=found)
+    return umd, text, found
+
+
+def session_files(cfg, sid, visibility, write=True):
     """Write (unless not `write`) the session's settings file, and the
     user-level CLAUDE.md as an instructions file when there is one, under
     <kit_dir>/settings/. Returns their paths (the second None when there is no
-    user CLAUDE.md).
+    user CLAUDE.md). Its @-imports are inlined only when `visibility` is
+    PRIVATE (instructions_text).
 
     They hold whatever the user-level env block and instruction file hold, so
     they live only as long as the ccfleet process that launched the session:
@@ -619,8 +707,7 @@ def session_files(cfg, sid, write=True):
     while it runs, since a session may read its settings file again."""
     d = os.path.join(cfg["kit_dir"], "settings")
     spath, ipath = os.path.join(d, f"{sid}.json"), os.path.join(d, f"{sid}-user-instructions.md")
-    umd = user_instructions_path()
-    if not os.path.isfile(umd):
+    if not os.path.isfile(user_instructions_path()):
         ipath = None
     if not write:
         return spath, ipath
@@ -631,13 +718,15 @@ def session_files(cfg, sid, write=True):
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         json.dump(settings, f, indent=1)
     if ipath:
-        with open(umd, encoding="utf-8", errors="replace") as f:
-            text = f.read()
+        umd, text, _ = instructions_text(visibility)
+        how = ("with each @-import on a line of its own inlined" if visibility == "PRIVATE" else
+               f"unchanged, its @-imports not followed (this repo is {visibility}, and an imported file is "
+               f"kept from such a repo's session)")
         fd = os.open(ipath, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(f"# The operator's user-level instructions ({umd})\n\n"
-                    "ccfleet loads no user-level settings, so Claude Code does not load this file "
-                    "itself; it is passed here unchanged and binds as it would have.\n\n" + text)
+                    f"ccfleet loads no user-level settings, so Claude Code does not load this file "
+                    f"itself; it is passed here {how}, and binds as it would have.\n\n" + text)
     return spath, ipath
 
 
@@ -719,7 +808,7 @@ def git(*args, cwd=None, check=True):
     return r.stdout.strip()
 
 
-def repo_facts(cfg, repo, fetch=True):
+def repo_facts(cfg, repo, fetch=True, lookup=None):
     primary = os.path.join(cfg["repos_root"], repo)
     if not os.path.isdir(os.path.join(primary, ".git")) and not os.path.isfile(os.path.join(primary, ".git")):
         raise Refusal(EXIT_SETUP, f"not a git checkout: {primary}")
@@ -739,7 +828,7 @@ def repo_facts(cfg, repo, fetch=True):
         facts["defref"] = facts["branch"] = rc.get("branch", "main")
         facts["gh"] = rc.get("github", "(no remote)")
     vis = rc.get("visibility")
-    if not vis and remote and shutil.which("gh") and fetch:
+    if not vis and remote and shutil.which("gh") and (fetch if lookup is None else lookup):
         r = subprocess.run(["gh", "repo", "view", facts["gh"], "--json", "visibility", "-q", ".visibility"],
                            capture_output=True, text=True)
         vis = r.stdout.strip() if r.returncode == 0 else None
@@ -810,16 +899,17 @@ def build_prompt(cfg, template_path, values, template_text=None):
 def instruction_hits(cfg, visibility):
     """Private names in the user-level instructions file every launch appends
     to the session's system prompt (session_files), for a public or
-    unknown-visibility repo. One that cannot be read has none here; reading it
-    for the launch fails loudly instead."""
-    p = user_instructions_path()
-    if visibility == "PRIVATE" or not os.path.isfile(p):
+    unknown-visibility repo: in the text that is appended, which leaves its
+    @-imports unfollowed, so a name only an imported file holds is none here.
+    One that cannot be read has none here; reading it for the launch fails
+    loudly instead."""
+    if visibility == "PRIVATE":
         return []
     try:
-        with open(p, encoding="utf-8", errors="replace") as f:
-            return private_hits(cfg, f.read(), visibility)
+        _, text, _ = instructions_text(visibility)
     except OSError:
         return []
+    return private_hits(cfg, text, visibility) if text is not None else []
 
 
 def guard_instructions(cfg, repo, visibility):
@@ -1327,7 +1417,8 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     template_text = read_template(template)
     values = base_values(cfg, repo, facts, wt, by, {**extra, "SESSION": sid0}, template_text, branch_name)
     prompt = build_prompt(cfg, template, values, template_text)
-    argv = session_argv(cfg, model, prompt, session_id=sid0, files=session_files(cfg, sid0, write=False))
+    argv = session_argv(cfg, model, prompt, session_id=sid0,
+                        files=session_files(cfg, sid0, facts["visibility"], write=False))
     clean = release_on(cfg)
     if dry:
         print(f"DRY {repo} model={model} vis={facts['visibility']} wt={wt}")
@@ -1339,7 +1430,7 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
         return 0, "DRY"
     # Written before the worktree or the claim: a user settings file that
     # cannot be read refuses the launch with nothing to undo.
-    argv = session_argv(cfg, model, prompt, session_id=sid0, files=session_files(cfg, sid0))
+    argv = session_argv(cfg, model, prompt, session_id=sid0, files=session_files(cfg, sid0, facts["visibility"]))
     for d in (logs, results, scratch, os.path.dirname(wt)):
         os.makedirs(d, exist_ok=True)
     if existing:
@@ -2392,7 +2483,9 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
                                   f"Wait for it to end, or end it (kill -TERM -{live}; what it has not saved "
                                   f"is lost), then resume")
     model = cfg.get("pass_model") or cfg["repos"].get(repo, {}).get("model") or cfg["default_model"]
-    facts = repo_facts(cfg, repo, fetch=False)
+    # Its visibility is looked up as the pass's was, so the resumed session is
+    # handed the instructions (and their imports) the pass was (210/610).
+    facts = repo_facts(cfg, repo, fetch=False, lookup=True)
     # With no remote the pass's worktree is on its own branch: the landing line
     # names it, and it is deleted with the worktree (RK17).
     branch_name = None if facts["remote"] else worktree_branch(wt)
@@ -2404,7 +2497,7 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
     values = base_values(cfg, repo, facts, wt, by, {**extra, "SESSION": sid, "ITEM": item or ""},
                          template_text, branch_name)
     prompt = build_prompt(cfg, template, values, template_text)
-    files = session_files(cfg, f"resume-{sid}-{now_utc():%H%M%S}")
+    files = session_files(cfg, f"resume-{sid}-{now_utc():%H%M%S}", facts["visibility"])
     for d in ("logs", os.path.join("scratch", safe(repo))):
         os.makedirs(os.path.join(cfg["kit_dir"], d), exist_ok=True)
     # Two resumes of one session at once would write one conversation twice.
@@ -2469,9 +2562,19 @@ def check_settings(cfg):
         print("HOOKS: a kept hook runs with its full power; one whose script answers allow still grants "
               "(ccfleet reads only the command line). Name it in drop_hooks to leave it out.")
     umd = user_instructions_path()
-    print(f"INSTRUCTIONS: {umd} is appended to every session's system prompt (no user source loads it); "
-          f"its @-imports are not followed." if os.path.isfile(umd) else
-          f"INSTRUCTIONS: no {umd}; nothing is appended.")
+    if os.path.isfile(umd):
+        try:
+            _, _, found = instructions_text("PRIVATE")
+        except OSError as e:
+            found = [("?", umd, f"cannot be read ({e.strerror})")]
+        print(f"INSTRUCTIONS: {umd} is appended to every session's system prompt (no user source loads it). "
+              f"A private repo's session gets it with its @-imports inlined; a public or unknown-visibility "
+              f"repo's gets it as it is, the import lines left as text and no imported file. "
+              + (f"Imports found: {len(found)}." if found else "It imports nothing."))
+        for raw, target, what in found:
+            print(f"INSTRUCTIONS IMPORT: @{raw} -> {target}: {what}")
+    else:
+        print(f"INSTRUCTIONS: no {umd}; nothing is appended.")
     hits = instruction_hits(cfg, "UNKNOWN")
     if hits:
         then = ("a public or unknown-visibility repo's launch is refused (instructions_guard refuse)"

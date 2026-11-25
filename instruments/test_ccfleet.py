@@ -2146,5 +2146,137 @@ class RKGrant(unittest.TestCase):
         self.assertIn(f"Tools at {home}/tools", call["argv"][-1])
 
 
+
+def md(*lines):
+    """Lines of a markdown file, each ending in a newline."""
+    return "".join(l + "\n" for l in lines)
+
+
+class RKImports(unittest.TestCase):
+    """210/610: the user-level instructions file's @-imports are inlined for a
+    private repo's session only. A public or unknown one gets the import line
+    as text, and the RK10 guard reads that same text. It borrows EndToEnd's
+    throwaway repos (alpha public, beta private), stand-in claude and helpers;
+    the instructions file is a fixture under a throwaway CLAUDE_CONFIG_DIR."""
+    setUp = EndToEnd.setUp
+    tearDown = EndToEnd.tearDown
+    write_cfg = EndToEnd.write_cfg
+    cli = EndToEnd.cli
+    calls = EndToEnd.calls
+    SHARED = md("Shared rules for every repo.", "@CLAUDE-private.md", "More shared rules.")
+    PRIVATE = "Private rules: the estate root is secret-root.\n"
+
+    def instructions(self, shared, files=None):
+        d = self.env["CLAUDE_CONFIG_DIR"]
+        os.makedirs(d, exist_ok=True)
+        wr(os.path.join(d, "CLAUDE.md"), shared)
+        for rel, text in (files or {}).items():
+            os.makedirs(os.path.dirname(os.path.join(d, rel)), exist_ok=True)
+            wr(os.path.join(d, rel), text)
+        return d
+
+    @staticmethod
+    def appended(call):
+        return call["files"]["--append-system-prompt-file"]
+
+    def expanded(self, shared, files=None, visibility="PRIVATE"):
+        d = self.instructions(shared, files)
+        with mock.patch.dict(os.environ, {"CLAUDE_CONFIG_DIR": d, "HOME": self.tmp}):
+            return cf.instructions_text(visibility)
+
+    def test_a_private_repo_gets_the_import_inlined_on_run_and_resume(self):
+        self.instructions(self.SHARED, {"CLAUDE-private.md": self.PRIVATE})
+        r = self.cli("run", "beta", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        wt = os.path.join(self.tmp, "wt", "pass-9", "beta")
+        os.makedirs(os.path.dirname(wt))
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
+        r = self.cli("resume", "beta", wt, "sess-old", "--prompt", self.prompt)
+        calls = self.calls()
+        self.assertEqual(len(calls), 2, r.stdout + r.stderr)
+        for call in calls:
+            text = self.appended(call)
+            self.assertIn("Shared rules for every repo.\n<!-- ccfleet: @CLAUDE-private.md inlined from ", text)
+            self.assertIn(self.PRIVATE + "<!-- ccfleet: end of ", text)
+            self.assertIn("end of " + os.path.join(self.env["CLAUDE_CONFIG_DIR"], "CLAUDE-private.md")
+                          + " -->\nMore shared rules.\n", text)
+            self.assertNotIn(md("", "@CLAUDE-private.md"), text)
+
+    def test_a_public_repo_gets_the_raw_line_and_passes_when_only_the_import_names_one(self):
+        self.instructions(self.SHARED, {"CLAUDE-private.md": self.PRIVATE})
+        r = self.cli("run", "alpha", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("INSTRUCTIONS name", r.stdout)
+        (call,) = self.calls()
+        text = self.appended(call)
+        self.assertTrue(text.endswith(self.SHARED), text)
+        self.assertNotIn("secret-root", text)
+        self.assertIn("its @-imports not followed (this repo is PUBLIC", text)
+        out = self.cli("check").stdout
+        self.assertNotIn("INSTRUCTIONS GUARD", out)
+        self.assertIn("a public or unknown-visibility repo's gets it as it is, the import lines left as text", out)
+        self.assertIn("INSTRUCTIONS IMPORT: @CLAUDE-private.md -> "
+                      + os.path.join(self.env["CLAUDE_CONFIG_DIR"], "CLAUDE-private.md") + ": inlined", out)
+
+    def test_a_public_repo_is_refused_when_the_shared_part_names_one(self):
+        self.instructions(md("Shared rules naming secret-root.", "@CLAUDE-private.md"),
+                          {"CLAUDE-private.md": "Private rules.\n"})
+        r = self.cli("run", "alpha", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, cf.EXIT_GUARD, r.stdout + r.stderr)
+        self.assertIn("names private name(s) secret-root", r.stderr)
+        self.assertEqual(self.calls(), [])
+        out = self.cli("check").stdout
+        self.assertIn("INSTRUCTIONS GUARD: it names private name(s) secret-root", out)
+        self.assertIn("Imports found: 1.", out)
+        r = self.cli("run", "beta", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("Private rules.\n<!-- ccfleet: end of ", self.appended(self.calls()[0]))
+
+    def test_nested_imports_follow_four_hops_relative_to_the_importer(self):
+        files = {"one/a.md": md("A", "@two/b.md"), "one/two/b.md": md("B", "@../../c.md"),
+                 "c.md": md("C", "@~/home-d.md"), "e.md": "E\n"}
+        d = self.env["CLAUDE_CONFIG_DIR"]
+        wr(os.path.join(self.tmp, "home-d.md"), md("D at home", "@claude-config/e.md"))
+        _, text, found = self.expanded(md("Root", "- @one/a.md"), files)
+        for body in ("A\n", "B\n", "C\n", "D at home\n"):
+            self.assertIn(body, text)
+        self.assertEqual([f[2] for f in found][:4], ["inlined"] * 4)
+        self.assertEqual(found[1][1], os.path.join(d, "one", "two", "b.md"), "relative to the importing file")
+        self.assertEqual(found[3][1], os.path.join(self.tmp, "home-d.md"), "~ is the home folder")
+        self.assertEqual(found[4], ("claude-config/e.md", os.path.join(d, "e.md"),
+                                    "not followed: past the harness's limit of 4 hops"))
+        self.assertNotIn("E\n", text)
+        self.assertIn("@claude-config/e.md\n<!-- ccfleet: @claude-config/e.md not followed: past", text)
+
+    def test_a_cycle_is_followed_once_and_noted(self):
+        files = {"a.md": md("A", "@b.md"), "b.md": md("B", "@a.md", "@CLAUDE.md")}
+        _, text, found = self.expanded(md("Root", "@a.md"), files)
+        self.assertEqual(text.count("A\n"), 1)
+        self.assertEqual(text.count("Root\n"), 1)
+        self.assertEqual([f[2] for f in found], ["inlined", "inlined",
+                                                 "not followed: a cycle: it is already being imported",
+                                                 "not followed: a cycle: it is already being imported"])
+
+    def test_an_import_in_a_fenced_block_or_code_span_or_sentence_is_text(self):
+        shared = md("Root", "```markdown", "@a.md", "```", "~~~~", "@a.md", "```", "@a.md", "~~~~",
+                    "`@a.md`", "See @a.md for more.", '@"a.md"', "@a.md")
+        _, text, found = self.expanded(shared, {"a.md": "A body\n"})
+        self.assertEqual(text.count("A body\n"), 1, text)
+        self.assertEqual([f[2] for f in found], ["inlined"])
+        self.assertTrue(text.startswith(shared[:-len("@a.md\n")]), text)
+        _, public, found = self.expanded(shared, {"a.md": "A body\n"}, visibility="PUBLIC")
+        self.assertEqual((public, found), (shared, []))
+
+    def test_a_missing_file_stays_as_its_line_with_a_note(self):
+        _, text, found = self.expanded(md("Root", "@gone.md", "@sub\\ dir/x.md"), {"sub dir/x.md": "X\n"})
+        d = self.env["CLAUDE_CONFIG_DIR"]
+        self.assertIn(md("Root", "@gone.md") + "<!-- ccfleet: @gone.md not followed: no such file ("
+                      + os.path.join(d, "gone.md") + ") -->\n", text)
+        self.assertEqual(found[1], ("sub\\ dir/x.md", os.path.join(d, "sub dir", "x.md"), "inlined"))
+        r = self.cli("check")
+        self.assertIn("INSTRUCTIONS IMPORT: @gone.md -> " + os.path.join(d, "gone.md")
+                      + ": not followed: no such file", r.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()
