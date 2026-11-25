@@ -181,6 +181,9 @@ and ended every prompt value and {ITEM} {BRIEF} {SESSION} {RESULT} {LOG}.
            (pass, resume, run --item).
   ended    optional: called after every pass, resume or run --item, any
            RESULT, with {SESSION} {RESULT} {LOG} {WT} filled (to record them).
+  unseal   optional: called once when a real drain that passed ranked ends,
+           with {BY}, so the queue can end this run's seal (a restarted drain
+           then plans and seals afresh). A failure is logged, never fatal.
   stop_on  RESULT words that stop the drain (default BUDGET EXHAUSTED).
 
 THE SEAL. ccfleet never makes or checks a seal; it calls ranked once and
@@ -200,7 +203,12 @@ started, but never from a budget that lapses before the local one (that
 budget keeps its reviews) and never one the seal marks not spillable; a
 review briefed after the seal runs last (skills/review/run.md, the route
 rule). A seal lasts one run and no longer than the first
-lapse among the budgets it routes to. Whether a session that wrote a brief
+lapse among the budgets it routes to; where queue.unseal is set, the drain
+calls it as it ends, which is how a queue sees the run's end. The seal gates
+only the launches that call the queue: a drain's passes and `ccfleet pass`.
+It does not gate `run --prompt` with the pass prompt and --set values (no
+queue command; a fold calls only release), nor `resume`, which calls no
+queue command before it starts. Whether a session that wrote a brief
 may then drain it is the adopter's queue's to refuse (the reference queue
 refuses to seal it) and otherwise rests on that session's own account (the
 pass prompt's PROVENANCE). A reference queue that keeps this contract, which
@@ -228,7 +236,10 @@ and writes no launched list, claim, worktree or session. It is the one reading
 of the queue: `/atelier:review plan` and `/atelier:review run` (at its start)
 run it, and `drain --dry-run` prints the same reading, each line prefixed
 `DRY plan:`, before its rehearsed launches (a queue with no evidence, or one
-that fails, is said and the rehearsal carries on). A failing queue command, or
+that fails, is said and the rehearsal carries on). Launches are rehearsed only
+once this run's ranking is sealed: before it the dry drain prints "DRY not
+sealed: no launches rehearsed" and exits 0; after it, each pick as "DRY
+rehearsed launch: REPO ITEM BRIEF". A failing queue command, or
 one that prints something other than the JSON above, exits 1; a config with no
 queue.evidence exits 64.
   Cost history: from <kit_dir>/logs/pass-*.out, the output of each pass a drain
@@ -2238,6 +2249,14 @@ def drain(cfg, common, max_n, dry):
                             f.write(held + "".join("\t".join(x) + "\n" for x in sorted(refused)))
                         offer_from = skip_path
                     r = queue_call(cfg, "next", {"LAUNCHED": offer_from, "BY": common_by(common)})
+                    if r.returncode and dry:
+                        # A rehearsal reports, it does not stop: next refuses
+                        # until this run's ranking is sealed (PK9).
+                        stop = stop or "not sealed: no launches rehearsed"
+                        print(f"DRY not sealed: no launches rehearsed (queue next refused: "
+                              f"{(r.stderr or r.stdout).strip()[:300]})", flush=True)
+                        say(cfg, f"dry drain: queue next refused rc={r.returncode}; no launches rehearsed")
+                        continue
                     if r.returncode:
                         # A queue tool that fails is not an empty queue: reading it as
                         # one would end a drain with budget unspent and say all is well.
@@ -2265,6 +2284,8 @@ def drain(cfg, common, max_n, dry):
                     running[p] = {"label": label, "out": out, "t0": time.time(), "pick": tuple(pick[:3])}
                     spawned += 1
                     say(cfg, f"started {pick[0]} {pick[1]} ({len(running)}/{ceiling}, {describe(reading)})")
+                    if dry:
+                        print(f"DRY rehearsed launch: {' '.join(pick[:3])}", flush=True)
                     if not dry:
                         time.sleep(cfg["stagger_seconds"])
                     continue
@@ -2280,12 +2301,19 @@ def drain(cfg, common, max_n, dry):
                 os.remove(path)
             except OSError:
                 pass
+        if not dry and (cfg.get("queue") or {}).get("unseal"):
+            # The run's end, where the queue can see it (PK10).
+            r = queue_call(cfg, "unseal", {"BY": common_by(common)})
+            say(cfg, "queue.unseal called" if not r.returncode else
+                f"queue.unseal failed rc={r.returncode}: {(r.stderr or r.stdout).strip()[:300]}")
     why = stop or "queue empty"
     tail = f"; hung, not waited for: {', '.join(hung)}" if hung else ""
     say(cfg, f"drain down: {why} ({started} started){tail}")
     print(f"DRAIN EXIT: {why}{tail}")
     if why == "queue error":
         return EXIT_SETUP
+    if dry and why.startswith("not sealed"):
+        return 0  # a rehearsal reports what it found; it does not fail
     if started == 0 and spawned and why == "failures":
         return EXIT_SETUP  # every pick ended before its session started: nothing ran
     if started == 0 and why == "queue empty":

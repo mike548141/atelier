@@ -2446,5 +2446,52 @@ class RKImports(unittest.TestCase):
                       + ": not followed: no such file", r.stdout)
 
 
+class Wave2(unittest.TestCase):
+    """The minor findings of the two part-3 cold passes, ccfleet's part (DV2,
+    PK9, PK10, PK11, PK12, PK16, PK20), on EndToEnd's fixtures."""
+    setUp, tearDown = EndToEnd.setUp, EndToEnd.tearDown
+    write_cfg, cli, calls, worktrees = EndToEnd.write_cfg, EndToEnd.cli, EndToEnd.calls, EndToEnd.worktrees
+    user_settings = EndToEnd.user_settings
+    ref_queue, ref, seal, GOOD, REF = RKGrant.ref_queue, RKGrant.ref, RKGrant.seal, RKGrant.GOOD, RKGrant.REF
+    session_log, drain_pass = RKGrant.session_log, RKGrant.drain_pass
+    queue_json, plan_cfg = EndToEnd.queue_json, EndToEnd.plan_cfg
+    EVIDENCE, OWED = EndToEnd.EVIDENCE, EndToEnd.OWED
+
+    def new_wt(self, repo, folder="pass-9"):
+        wt = os.path.join(self.tmp, "wt", folder, repo)
+        os.makedirs(os.path.dirname(wt))
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", repo))
+        return wt
+
+    # ----- PK9: a dry drain before and after the seal -----
+
+    def test_pk9_a_dry_drain_says_not_sealed_and_names_its_rehearsed_pick(self):
+        self.ref_queue()
+        r = self.cli("drain", "--max", "1", "--dry-run")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("DRY not sealed: no launches rehearsed", r.stdout)
+        self.assertIn("DRAIN EXIT: not sealed: no launches rehearsed", r.stdout)
+        self.assertEqual(self.seal(self.GOOD).returncode, 0)
+        r = self.cli("drain", "--max", "1", "--dry-run")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("DRY rehearsed launch: alpha 010 docs/brief.md", r.stdout)
+        self.assertEqual(self.calls(), [])
+
+    # ----- PK10: no shared "unknown" seal; the seal ends with the drain -----
+
+    def test_pk10_unknown_cannot_seal_and_a_drain_ends_its_seal(self):
+        self.ref_queue()
+        r = self.seal(self.GOOD, by="unknown")
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("`unknown` is no run's id", r.stderr)
+        self.assertEqual(self.seal(self.GOOD).returncode, 0)
+        r = self.cli("drain", "--max", "2")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIsNone(json.loads(rd(self.state))["seal"], "the drain's end ended its seal")
+        self.assertIn("no ranking is sealed", self.ref("ranked", "--by", "orch-1").stderr)
+        page = " ".join(rd(os.path.join(HERE, "man", "ccfleet.1")).replace("\\-", "-").split())
+        self.assertIn("The seal does not gate", page)
+
+
 if __name__ == "__main__":
     unittest.main()

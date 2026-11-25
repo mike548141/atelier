@@ -571,6 +571,17 @@ it says so in one line, and a queue command that fails is said and the
 rehearsal carries on.
 It still never calls
 .BR queue.ranked .
+Launches are rehearsed only by the run that holds the seal, since each asks
+the queue's
+.BR next ,
+which refuses without it.
+Before the seal it prints
+.B "DRY not sealed: no launches rehearsed"
+with the queue's refusal, ends with
+.BR "DRAIN EXIT: not sealed: no launches rehearsed" ,
+and exits 0: a rehearsal reports, it does not fail.
+After it, each rehearsed pick is printed as
+.BI "DRY rehearsed launch: " "repo item brief" .
 .TP
 .B plan
 Read the review queue and print what it holds, and what ccfleet's own past
@@ -1316,6 +1327,16 @@ with the same values as
 for instance to record the session, log and worktree on the claim.
 A nonzero exit is printed and otherwise ignored.
 .TP
+.B unseal
+Optional.
+Called once with
+.B {BY}
+when a real drain that
+.B ranked
+let start ends, however it ends, so the queue can end this run's seal and
+a restarted drain plans and seals afresh.
+A failure is logged and changes nothing else.
+.TP
 .B evidence
 For
 .B plan
@@ -1429,6 +1450,29 @@ The rule is the review run skill's
 .IP \(bu 2
 A seal lasts one run, and no longer than the first lapse among the
 budgets it routes to.
+Where
+.B queue.unseal
+is set, the drain calls it as it ends, which is how the queue sees the
+run's end.
+The reference queue also refuses
+.B unknown
+(the
+.B \-\-by
+used when none is given) as a sealing id, so two sessions that pass no id
+never share a seal.
+.IP \(bu 2
+The seal does not gate every launch: only those that call the queue, a
+drain's passes and
+.BR "ccfleet pass" .
+A
+.B run
+given the pass prompt with
+.B \-\-set
+values calls no queue command (a fold calls only
+.BR release ),
+and a
+.B resume
+calls none before it starts.
 .PP
 Whether a session that wrote a brief may then drain it is left to the
 adopter's queue, which may refuse to seal it, and otherwise rests on the

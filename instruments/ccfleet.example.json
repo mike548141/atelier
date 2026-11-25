@@ -49,6 +49,7 @@
     "next": ["python3", "~/private/review_queue.py", "next", "--skip-file", "{LAUNCHED}", "--by", "{BY}",
              "--route", "local"],
     "ranked": ["python3", "~/private/review_queue.py", "ranked", "--by", "{BY}"],
+    "unseal": ["python3", "~/private/review_queue.py", "unseal", "--by", "{BY}"],
     "take": ["python3", "~/private/review_queue.py", "take", "{REPO}:{ITEM}", "--by", "{BY}", "--brief", "{BRIEF}",
              "--set", "session={SESSION}"],
     "release": ["python3", "~/private/review_queue.py", "release", "{REPO}:{ITEM}", "--by", "{BY}"],

@@ -7,8 +7,11 @@ adopter can read in one sitting what stops an unplanned paid pass.
 The contract it keeps: until this run's ranking is sealed, `ranked`, `next`
 and `take` refuse (exit 1), so a pass started by hand (`ccfleet pass`) meets
 the same gate as a drain's. A run is its --by id: the seal is keyed by it, so
-a session with another id holds no seal. ccfleet never calls `seal`; the
-`/atelier:review run` skill does, with the ranking its plan made.
+a session with another id holds no seal, and `unknown` (ccfleet's --by when
+none is given) is refused as a sealing id, so two sessions that pass no id
+never share one. ccfleet never calls `seal`; the `/atelier:review run` skill
+does, with the ranking its plan made. `unseal` ends the run's seal: ccfleet's
+drain calls it as it ends, where the config sets queue.unseal.
 
 `next` offers only what the sealed ranking routes to the route it is asked
 for (--route, default local: every pass ccfleet launches is a local session),
@@ -36,6 +39,7 @@ Commands, the shape ccfleet.example.json calls:
                               FILE: JSON array of {repo, item, route, why,
                               why_not_cheaper (when not the best route),
                               spillable (optional; false keeps it on its route)}
+  unseal --by ID              end ID's seal (nothing to end is not an error)
   ranked --by ID              exit 0 only while ID's seal holds
   next --skip-file PATH --by ID [--route NAME]
                               the next sealed review for route NAME (default
@@ -91,6 +95,8 @@ def ready(state):
 
 def seal(state, by, ranking, words):
     """The seal's own rules (skills/review/run.md, The seal's own rules)."""
+    if by == "unknown":
+        refuse("`unknown` is no run's id: seal with the run's own --by")
     routes = state.get("routes", {})
     open_routes = [n for n, r in routes.items() if r.get("open")]
     if len(open_routes) > 1 and any(lapse(routes[n]) is None for n in open_routes):
@@ -163,7 +169,8 @@ def sets(pairs):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="review_queue_reference")
-    ap.add_argument("cmd", choices=["evidence", "owed", "seal", "ranked", "next", "take", "release", "update"])
+    ap.add_argument("cmd", choices=["evidence", "owed", "seal", "unseal", "ranked", "next", "take", "release",
+                                    "update"])
     ap.add_argument("target", nargs="?")
     ap.add_argument("--by")
     ap.add_argument("--brief")
@@ -188,11 +195,14 @@ def main(argv=None):
         if a.cmd == "owed":
             print(json.dumps(state.get("owed", [])))
             return 0
-        if a.cmd in ("seal", "ranked", "next", "take", "release", "update") and not a.by:
+        if a.cmd in ("seal", "unseal", "ranked", "next", "take", "release", "update") and not a.by:
             refuse(f"{a.cmd} needs --by")
         if a.cmd == "seal":
             with open(a.ranking, encoding="utf-8") as f:
                 seal(state, a.by, json.load(f), a.words)
+        elif a.cmd == "unseal":
+            if (state.get("seal") or {}).get("by") == a.by:
+                state["seal"] = None
         elif a.cmd == "ranked":
             why = sealed_for(state, a.by)
             if why:
