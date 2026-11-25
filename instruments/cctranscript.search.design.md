@@ -12,17 +12,39 @@ build's own record carries the detail:
   preceding turns, so it cannot be computed from surviving lines alone — step 4's
   "parse only the lines that survive" and exact gate-invariant refs are mutually
   exclusive. The build chose correctness: a file that passes the gate is parsed
-  whole. **DONE condition 13 is therefore only partially met** — a selective
-  search runs at 1.22–1.32× a bare read, but a term present in every session
-  reaches 3.7×. The flaky wall-clock guard was replaced with a structural one
-  (`meta.sessionsParsed`, pinned by a test), which is the property the 1.5×
-  condition was actually protecting.
+  whole. **DONE condition 13 is not met at wall-clock; it is met structurally.**
+  The build first said a selective search ran at 1.22–1.32× a bare read, but
+  that figure rested on a bare-read floor it gave as a 2× range (2.5–4.9 s), and
+  the cold pass's re-run put a selective term at 1.9–2.0× the tool's own miss
+  run; a term present in every session reaches 3.7× or more. The flaky
+  wall-clock guard was replaced with a structural one (`meta.sessionsParsed`,
+  pinned by a test), which is the property the 1.5× condition was actually
+  protecting. (Restated 2026-11-25, `210/580`, CS4.)
 - **§10's raw-line prefilter has an unmentioned false-negative class.** The gate
   reads raw JSON, where `"`, `\`, newline and occasionally non-ASCII are
-  escaped — the live store holds 6 `ā` sequences against 6,698 raw `ā`. The
-  build gates literal terms on an alternation of every form the term can take
-  (measured free) and matches against the *decoded* text. For `--regex` the
-  limitation is real and documented in NOTES rather than papered over.
+  escaped — the live store holds 6 `\u0101` sequences against 6,698 raw `ā`.
+  The build gates literal terms on an alternation of every form the term can
+  take (measured free) and matches against the *decoded* text. For `--regex`
+  the build left the limitation in NOTES with advice to write patterns against
+  the escaped form, and that advice was wrong: a pattern with a quote, a
+  backslash, a newline class or an anchor then passed the gate and missed in
+  the probe, so it could never hit. **Fixed 2026-11-25 (`210/580`, CS1):** a
+  `--regex` is gated only when it provably cannot match what the raw text
+  hides; otherwise every swept log is parsed and `meta.gateBypassed` says so.
+  A literal term is gated on its longest whitespace-free part, because the
+  probed text also differs from the raw text at whitespace (a slash command's
+  `/name args` is built from separate elements), and its escaped form is
+  built per UTF-16 code unit, so an emoji is two escapes (CS6).
+- **No step weighed what the output exposes** (added 2026-11-25, `210/580`,
+  CS3). The design enumerated cost, eviction and correctness threats and none
+  for exposure. A search prints private transcript text: prompts, replies and,
+  under `--tools`, whole tool inputs, which can carry a command line with a
+  credential in it; `--json` adds session ids and working directories. The
+  tool's main callers are agent sessions, whose evidence rules paste a command
+  and its output into records, some of them public. The answer, now built: the
+  manual's PRIVACY section, a README sentence, a `--help` line and
+  `meta.privacy` all say the output is transcript content and that a shared
+  record reports counts and shapes only, never an excerpt, an id or a path.
 - **§7's illustrated tool row shows the render's one-line summary.** The build
   excerpts the whole tool input instead: searching one chosen field is precisely
   the quiet wrongness §5 warns against.
@@ -383,32 +405,38 @@ code should say why, or a later tidy-up will "simplify" it into the 5.9 s versio
 
 ## 11. What DONE looks like — testable conditions
 
-- [ ] `--search` with a literal term containing `.`, `*` and `[` matches those
+Ticked 2026-11-25 (`210/580`, CS4) against the build and its tests: fourteen
+met as built, one (the wall-clock bound) not, as the banner says.
+
+- [x] `--search` with a literal term containing `.`, `*` and `[` matches those
       characters literally and finds a real path in the corpus.
-- [ ] `--regex` with the same string matches as a pattern; the two disagree, and
+- [x] `--regex` with the same string matches as a pattern; the two disagree, and
       a test asserts they disagree.
-- [ ] Default matching is case-insensitive; `--case` narrows the result set on a
+- [x] Default matching is case-insensitive; `--case` narrows the result set on a
       term that differs only in case.
-- [ ] A search for a non-ASCII term with a macron matches a turn containing it.
-- [ ] A hit's printed `N.M` ref resolves to the same turn when the session is
+- [x] A search for a non-ASCII term with a macron matches a turn containing it.
+- [x] A hit's printed `N.M` ref resolves to the same turn when the session is
       reopened with **default** flags (the gate-invariance claim of §4, asserted
       not assumed).
-- [ ] A turn matching three times yields one row with a hit count of 3.
-- [ ] An 800 KB prompt containing the term yields a bounded single-line excerpt.
-- [ ] With tool layers unsearched, a term present only in tool output yields zero
+- [x] A turn matching three times yields one row with a hit count of 3.
+- [x] An 800 KB prompt containing the term yields a bounded single-line excerpt.
+- [x] With tool layers unsearched, a term present only in tool output yields zero
       hits **and** a report naming the count of sessions whose tool output holds
       it; `--tools` then finds them.
-- [ ] `--think` does not widen the search, and the man page says why.
-- [ ] An evicted mirror is skipped, counted in the summary, and read under
+- [x] `--think` does not widen the search, and the man page says why.
+- [x] An evicted mirror is skipped, counted in the summary, and read under
       `--materialise` (via `CCARCHIVE_SIMULATE_DATALESS`, the existing test seam).
-- [ ] `--since`/`--until` filter on turn timestamps, and a session spanning the
+- [x] `--since`/`--until` filter on turn timestamps, and a session spanning the
       `--until` bound returns only its in-window hits.
-- [ ] `--json` carries hits, refs and the `meta` block including skipped counts.
+- [x] `--json` carries hits, refs and the `meta` block including skipped counts.
 - [ ] A full-corpus literal search completes within the I/O floor — no more than
       ≈1.5× a bare read of the same files (the regression guard for step 4).
-- [ ] `instruments/README.md`'s `--materialise` note is rewritten **in the same
+      **Not met at wall-clock; met structurally** (see the banner): a swept
+      file that misses the gate is never parsed, pinned by the
+      `meta.sessionsParsed` test.
+- [x] `instruments/README.md`'s `--materialise` note is rewritten **in the same
       commit** as the flag lands (§8), and the vocabulary table gains the row.
-- [ ] `man/cctranscript.1` gains `--search` with `EXAMPLES` and the `NOTES` lines
+- [x] `man/cctranscript.1` gains `--search` with `EXAMPLES` and the `NOTES` lines
       on thinking, on `-n` being inert, and on the unsearched-layer report.
 
 ## 12. Raised, not solved — for the roadmap

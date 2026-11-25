@@ -5,6 +5,36 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-25 — `cctranscript --search`, the `CS` cold-pass findings, `210/580`)
+- **Children: none use it; nothing blocks.** All in `instruments/cctranscript`,
+  its manual, README row, design banner and tests.
+- **A `--regex` could never hit on a quote, a backslash, a line break or an
+  anchor (`CS1`).** The raw-log gate and the decoded-text probe read different
+  texts, and the manual's advice to write against the escaped form made it
+  worse. A pattern is now gated only when it provably cannot match what the raw
+  text hides; otherwise every swept log is parsed, the summary says so and
+  `meta.gateBypassed` is true. `^` and `$` bind per line of a turn. A literal
+  term is gated on its longest whitespace-free part, because a slash command's
+  `/name args` is not in the log as one string: `--search '/work run'` used to
+  miss a turn that reads `/work run fast`.
+- **Bad arguments exit 2 (`CS2`, `CS10`).** A trailing `--search` rendered a whole
+  transcript at exit 0; a value flag followed by another of the tool's flags
+  (`--search --json`) took the flag as its value. Both now exit 2 with the reason.
+- **The output says what it is (`CS3`).** A PRIVACY section in the manual, a
+  README sentence, a `--help` line and `meta.privacy`: the output is private
+  transcript content, and a shared record reports counts and shapes, never an
+  excerpt, a session id or a path.
+- **Smaller fixes.** `--since`/`--until` are local days whatever `--utc` says
+  (`CS5`); an emoji's escaped spelling is its surrogate pair (`CS6`); the
+  tool-only tally honours the date window (`CS7`); a log with no readable cwd
+  (unreadable, or recording none) stays in `--repo` scope (`CS11`); the manual
+  names pathological patterns (`CS12`) and that subagent logs are not searched,
+  with `meta.subagentLogsSearched` false (`CS14`). The design's DONE list is
+  ticked, and condition 13 is restated as met structurally, not at wall-clock:
+  the "1.22–1.32× a bare read" in the 2026-08-09 entry below did not reproduce
+  (`CS4`). The escaped `\u0101` is restored in that entry and the design banner
+  (`CS9`).
+
 ### Changed (2026-11-25 — the `DV` and `PK` cold-pass fixes, `210/620`)
 - **Adopter actions.** Set the config's `REVIEW_MODEL` to the review tier's
   alias, never a full model id (the spawning tool refuses one). Pass
@@ -3307,7 +3337,7 @@ mutually exclusive. Correctness won, a file passing the gate is parsed whole,
 and the honest numbers are 1.22–1.32× a bare read for a selective term against
 3.7× for one present in every session. The flaky wall-clock guard became a
 structural one. A second unmentioned defect: the raw-JSON gate could miss an
-escaped spelling of a term (6 escaped `ā` in the live store against 6,698 raw),
+escaped spelling of a term (6 escaped `\u0101` in the live store against 6,698 raw `ā`),
 so literal terms now gate on an alternation of every form the term can take and
 match against the decoded text. The build also closes the design's named
 doctrinal loose end — `instruments/README.md`'s `--materialise` note argued the

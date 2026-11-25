@@ -108,7 +108,15 @@ OPTIONS
   --width <n>      Wrap width (default: terminal, capped 100);  --color/--no-color.
   --json           Machine-readable output (never styled).  -h, --help  This help.
 
-Each turn timestamped, from the live logs or ccarchive's mirror.  man cctranscript`;
+Prints private transcript text: share counts, not excerpts.  man cctranscript`;
+
+// What a search prints is the principal's private transcript text. Agent
+// sessions are this tool's main callers, and their evidence rules put a
+// command's output into records, some of them public; so the output says what it
+// is (210/580, CS3). The same caution is in the manual's PRIVACY section and the README.
+const PRIVACY_NOTE = 'Output is private transcript content. In a shared record report counts '
+  + 'and shapes only: never an excerpt, a session id or a path. A --tools excerpt can carry a '
+  + 'whole command line, credentials included.';
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);
@@ -136,8 +144,12 @@ const archiveMode = argv.includes('--from-archive') || destArg !== null;
 // narrowed) so it is accepted in silence. --materialise is search's alone: it is
 // the first cctranscript operation that reads every file, which is exactly the
 // condition under which the flag earns its place (flags-follow-operation).
+// The mode is chosen by the FLAG, never by whether a term followed it: a
+// trailing `--search` with nothing after it used to fall through to rendering a
+// whole transcript at exit 0 (210/580, CS2). Now the flag selects search and
+// valueFlagError refuses the missing term with exit 2, as the manual says.
 const searchArg = argv.includes('--search') ? takeValue('--search') : null;
-const doSearch = searchArg !== null && searchArg !== undefined;
+const doSearch = argv.includes('--search');
 const useRegex = argv.includes('--regex');
 const caseSensitive = argv.includes('--case');
 const materialise = argv.includes('--materialise');
@@ -167,6 +179,29 @@ const OWN_BARE = new Set([
   '--utc', '--no-delta', '--color', '--no-color', '-h', '--help',
   '--regex', '--case', '--materialise',
 ]);
+// A value flag takes the next token, so a missing value or one of this tool's
+// own flags in its place is a bad argument, refused with exit 2 and the reason
+// (210/580, CS2 and CS10). Before this, `--search --json` quietly searched for
+// the text "--json", and `--search` as the last token rendered a transcript.
+// Only this tool's own flags are refused, so a term such as `-v` or `->` is
+// still a term; to search for the literal text of a flag, write it as a
+// --regex that escapes the dashes, e.g. '\-\-json'. Returns the message or null.
+function valueFlagError(args) {
+  for (let i = 0; i < args.length; i++) {
+    if (!OWN_WITH_VALUE.has(args[i])) continue;
+    const next = args[i + 1];
+    if (next === undefined) return `${args[i]} needs a value; it was the last argument.`;
+    if (OWN_WITH_VALUE.has(next) || OWN_BARE.has(next)) {
+      return `${args[i]} needs a value, but the next argument is the flag ${next}. `
+        + (args[i] === '--search'
+          ? `To search for that text, use --regex with the dashes escaped: '\\-\\-${next.replace(/^-+/, '')}'.`
+          : 'Give the value first.');
+    }
+    i++;
+  }
+  return null;
+}
+
 let positional = null;
 for (let i = 0; i < argv.length; i++) {
   if (OWN_WITH_VALUE.has(argv[i])) { i++; continue; }
@@ -1070,12 +1105,14 @@ function pickSessions() {
   // By repo (named or current).
   let pool = sessions;
   if (repoArg) {
-    // An evicted mirror has no recovered cwd, so its label is the lossy folder
-    // tail — match those on the folder name's dash-encoded suffix instead, so
-    // eviction never hides a session from --repo. Confined to evicted records:
-    // readable logs keep the exact label match.
+    // A record with no recovered cwd (an evicted mirror, an unreadable log, a
+    // log that records no cwd) has only the lossy folder tail for a label —
+    // match those on the folder name's dash-encoded suffix instead, so none of
+    // them silently drops out of --repo scope (210/580, CS11: an unreadable log
+    // used to vanish from a search's count). Records whose cwd was read keep
+    // the exact label match.
     pool = sessions.filter((s) => s.label === repoArg || s.repoDir === repoArg
-      || (s.evicted && s.repoDir && s.repoDir.endsWith('-' + encodePath(repoArg))));
+      || (!s.cwd && s.repoDir && s.repoDir.endsWith('-' + encodePath(repoArg))));
     if (!pool.length) { console.error(`No sessions for repo '${repoArg}'.`); process.exit(1); }
   } else if (!listAll) {
     const rd = currentRepoDir();
@@ -1121,27 +1158,118 @@ function escapeRegex(s) {
 // The forms a literal term can take inside a raw .jsonl line. The whole-file
 // gate reads the log's own JSON text, where a quote, a backslash or a newline
 // appears escaped, and where a non-ASCII character *may* (rarely) appear as
-// \uXXXX — 6 such sequences against 6,698 raw ones in the live store, so both
-// are real. Gating on the alternation costs nothing measurable and means the
-// gate can never hide a hit that the decoded text would show.
+// \uXXXX — 6 such `\u0101` sequences against 6,698 raw `ā` in the live store,
+// so both are real. JSON writes that escape per UTF-16 code unit, so a character
+// beyond U+FFFF (an emoji) is TWO escapes, its surrogate pair, never one
+// five-digit escape (210/580, CS6). The forms are: the term as typed, its JSON
+// string body, and that body with every non-ASCII character escaped. A term
+// whose non-ASCII characters are written partly raw and partly escaped in one
+// log line is not covered; no writer seen does that.
+function uEscapeUnits(s) {
+  let out = '';
+  for (let i = 0; i < s.length; i++) {
+    const u = s.charCodeAt(i);
+    out += u > 127 ? '\\u' + u.toString(16).padStart(4, '0') : s[i];
+  }
+  return out;
+}
 function rawForms(term) {
   const jsonInner = JSON.stringify(term).slice(1, -1);
-  const uEscaped = [...term].map((ch) => (ch.codePointAt(0) > 127
-    ? '\\u' + ch.codePointAt(0).toString(16).padStart(4, '0') : ch)).join('');
-  return [...new Set([term, jsonInner, uEscaped])];
+  return [...new Set([term, jsonInner, uEscapeUnits(term), uEscapeUnits(jsonInner)])];
+}
+
+// The part of a literal term the gate looks for: its longest run without
+// whitespace. The text a search probes is not always the log's text verbatim:
+// a slash command renders as `/name args` from separate XML elements, a tool
+// call is prefixed with its name, a tool result has its whitespace collapsed,
+// and text blocks are joined by a newline. Every one of those changes touches
+// only whitespace, so a whitespace-free piece of the term is in the raw log
+// whenever the decoded turn holds the whole term. Gating on the whole term
+// missed `/work run` in a turn that reads `/work run fast` (210/580, found
+// beside CS1).
+function gatePiece(term) {
+  const pieces = term.split(/\s+/).filter(Boolean);
+  if (!pieces.length) return term;
+  return pieces.reduce((a, b) => (b.length > a.length ? b : a));
+}
+
+// Can the raw-JSON gate be trusted for this --regex pattern? Only when every
+// match the pattern can make on a turn's decoded text must also appear, byte for
+// byte, in the raw log. That holds when the pattern can match only printable
+// ASCII other than `"` and `\` (the characters JSON writes as they are) and
+// never whitespace (which the rendering above may change), and when it has no
+// anchor, word boundary or lookaround (they look at text around the match,
+// which differs between the two). Decided conservatively, token by token: any
+// construct not known to be safe makes the answer no, and the search then
+// parses every swept log instead of gating (210/580, CS1). The cost shows in
+// `sessionsParsed`; the answer is never silently short.
+function regexGateSafe(src) {
+  const plain = (c) => c > ' ' && c <= '~' && c !== '"' && c !== '\\';
+  const sameKindRange = (a, b) => [/[0-9]/, /[a-z]/, /[A-Z]/].some((k) => k.test(a) && k.test(b) && a <= b);
+  let i = 0;
+  // One escape, inside or outside a class. Returns the literal char it stands
+  // for, 'class' for \d or \w (which match only safe characters), or null.
+  const escape = (inClass) => {
+    const c = src[i + 1];
+    i += 2;
+    if (c === undefined) return null;
+    if (c === 'd' || c === 'w') return 'class';
+    if (!inClass && /[1-9]/.test(c)) return 'class';      // a backreference repeats safe text
+    if (/[A-Za-z0-9]/.test(c)) return null;               // \s \b \n \x \u \p \D \W and the rest
+    return plain(c) ? c : null;                           // \. \( \- and the like; never \\ or \"
+  };
+  while (i < src.length) {
+    const c = src[i];
+    if (c === '\\') { if (escape(false) === null) return false; continue; }
+    if (c === '.' || c === '^' || c === '$') return false;
+    if (c === '(') {
+      if (src[i + 1] === '?') {
+        if (src[i + 2] === ':') { i += 3; continue; }
+        if (src[i + 2] === '<' && src[i + 3] !== '=' && src[i + 3] !== '!') { i += 3; continue; }
+        return false;                                     // a lookahead or lookbehind
+      }
+      i++; continue;
+    }
+    if (c === '[') {
+      i++;
+      if (src[i] === '^') return false;                   // a negated class matches a quote
+      let prev = null;
+      while (i < src.length && src[i] !== ']') {
+        let ch;
+        if (src[i] === '\\') { ch = escape(true); if (ch === null) return false; }
+        else { ch = src[i]; i++; if (!plain(ch)) return false; }
+        if (ch === '-' && prev !== null && prev !== 'class' && i < src.length && src[i] !== ']') {
+          let hi;
+          if (src[i] === '\\') { hi = escape(true); } else { hi = src[i]; i++; }
+          if (hi === null || hi === 'class' || !sameKindRange(prev, hi)) return false;
+          prev = null; continue;
+        }
+        prev = ch;
+      }
+      i++; continue;
+    }
+    if (!plain(c)) return false;                          // a quote, a space, a control or non-ASCII character
+    i++;
+  }
+  return true;
 }
 
 // Two matchers, deliberately not one. `gate` runs against a file's raw JSON and
 // is permissive by design (the escaped forms above); `probe` runs against the
 // DECODED turn text and is exact, so a turn whose text merely contains the
-// literal characters ā is never reported as a hit for a macron.
+// literal characters \u0101 is never reported as a hit for a macron. For a
+// --regex the gate is the pattern itself, used only when regexGateSafe says the
+// raw text cannot hide a match; otherwise `gate` is null and every swept log is
+// parsed. A --regex probe carries the `m` flag, so `^` and `$` bind to the
+// start and end of each line of a turn's text, as they do in grep(1).
 function buildMatchers(term) {
   const flags = caseSensitive ? '' : 'i';
   try {
-    return {
-      gate: new RegExp(useRegex ? term : rawForms(term).map(escapeRegex).join('|'), flags),
-      probe: new RegExp(useRegex ? term : escapeRegex(term), flags),
-    };
+    const probe = new RegExp(useRegex ? term : escapeRegex(term), useRegex ? flags + 'm' : flags);
+    const gate = useRegex
+      ? (regexGateSafe(term) ? new RegExp(term, flags) : null)
+      : new RegExp(rawForms(gatePiece(term)).map(escapeRegex).join('|'), flags);
+    return { gate, probe };
   } catch (e) {
     console.error(`--search pattern is not a valid regular expression: ${e.message}`);
     process.exit(2);
@@ -1203,7 +1331,10 @@ function normDate(v, flag) {
   }
   return s;
 }
-const dayNum = (iso) => dateOf(iso).replace(/-/g, '');
+// A bound is a LOCAL day, whatever --utc says: --utc changes how times print,
+// never which turns a date admits, which is ccrepo(1)'s meaning and the
+// design's (210/580, CS5). Before this, --utc moved the day boundary.
+const dayNum = (iso) => dateOf(iso, false).replace(/-/g, '');
 
 function runSearch() {
   const term = searchArg;
@@ -1216,6 +1347,8 @@ function runSearch() {
     process.exit(2);
   }
   const { gate, probe } = buildMatchers(term);
+  // Taken before the pool is built, so the time reported includes discovery
+  // (and, in archive mode, the cwd sniff of every mirror), not the sweep alone.
   const t0 = Date.now();
 
   const pool = pickSessions();
@@ -1227,7 +1360,7 @@ function runSearch() {
   const stats = {
     sessionsInScope: pool.length, sessionsSwept: 0, sessionsParsed: 0,
     sessionsMatched: 0, hits: 0, skippedEvicted: 0, skippedOutOfRange: 0,
-    unreadable: 0, toolOnlySessions: 0,
+    unreadable: 0, toolOnlySessions: 0, gateBypassed: gate === null,
   };
   const results = [];
 
@@ -1242,7 +1375,7 @@ function runSearch() {
     let text;
     try { text = readLogText(s.file); } catch { stats.unreadable++; continue; }
     stats.sessionsSwept++;
-    if (!gate.test(text)) continue;                       // the whole cost control
+    if (gate && !gate.test(text)) continue;               // the whole cost control
 
     // `sessionsParsed` is the honest measure of the cost control, and it is
     // reported rather than merely believed: a swept file that never parses is
@@ -1267,13 +1400,15 @@ function runSearch() {
         || (showTools && (t.role === 'tool' || t.role === 'result'));
       const m = scanText(probe, t.text);
       if (!m.count) continue;
+      // The date window applies to the unsearched-layer tally too: a tool hit
+      // outside it is not one --tools would find (210/580, CS7).
+      const d = dayNum(t.ts);
+      if (since && (!d || d < since)) continue;
+      if (until && (!d || d > until)) continue;
       if (!searched) {
         if (t.role === 'tool' || t.role === 'result') toolLayerHolds = true;
         continue;
       }
-      const d = dayNum(t.ts);
-      if (since && (!d || d < since)) continue;
-      if (until && (!d || d > until)) continue;
       hits.push({
         // A hit in a tool call or result has no citable ref of its own; it
         // reports the exchange it sits inside plus its layer, which is the
@@ -1320,8 +1455,12 @@ function printSearchJson(term, layers, stats, trunc, topN, shown, elapsedMs) {
       source: archiveMode ? 'archive' : 'live',
       layersSearched: layers.split('+'),
       thinkingSearched: false,           // the log holds no thinking text to search
+      subagentLogsSearched: false,       // the sweep reads session logs only (CS14)
+      // What the output is, said in the output an agent reads (210/580, CS3).
+      privacy: PRIVACY_NOTE,
       since: normDate(sinceArg, '--since'), until: normDate(untilArg, '--until'),
       timezone: useUtc ? 'UTC' : 'local',
+      boundsTimezone: 'local',           // --since/--until are local days whatever --utc says
       materialise, top: topN,
       truncatedSessions: trunc.sessions, truncatedRows: trunc.rows,
       ...stats, elapsedMs,
@@ -1374,6 +1513,9 @@ function printSearchTable(layers, stats, trunc, topN, shown, elapsedMs) {
     console.log('  ' + paint(ESC.dim, stats.toolOnlySessions
       ? `Tool output not searched: the term is in ${stats.toolOnlySessions} session${stats.toolOnlySessions === 1 ? "'s" : "s'"} tool calls or results (add --tools).`
       : 'Tool output not searched: no session holds the term there either.'));
+  }
+  if (stats.gateBypassed) {
+    console.log('  ' + paint(ESC.dim, 'Every swept log was parsed: this pattern could match text the raw-log gate cannot see (man cctranscript, NOTES).'));
   }
   if (stats.skippedEvicted) {
     console.log('  ' + paint(ESC.dim, `${stats.skippedEvicted} mirror(s) not searched (evicted); --materialise reads them.`));
@@ -1560,6 +1702,8 @@ if (require.main === module) {
     console.log(HELP);
     process.exit(0);
   }
+  const argErr = valueFlagError(argv);
+  if (argErr) { console.error(argErr); process.exit(2); }
   // --search is a mode, and it wins: --list alongside it is redundant, not
   // contradictory (search IS a list, narrowed), so it is accepted in silence.
   if (doSearch) runSearch();
@@ -1573,5 +1717,6 @@ module.exports = {
   readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord, statFlagsBatch, gunzipHead, gunzipHeadEx,
   firstUserPromptText, FIRST_PROMPT_PREFIX, HEAD_BYTES,
   subagentDir, finishedAgents, escapeRegex, rawForms, scanText, excerptAround,
+  valueFlagError, regexGateSafe,
   isHumanQueuedCommand, isNotificationQueuedCommand, classifyUserRecord, renderCommand, stripElements, HARNESS_TAGS, COMMAND_TAGS, COMMAND_WRAPPER_TAGS,
 };

@@ -758,10 +758,14 @@ function makeStore(sessions) {
   }
   return home;
 }
-function runIn(home, ...flags) {
+// TZ is pinned to UTC so a date bound means the same day on every host: since
+// 210/580 (CS5) --since/--until are local days whatever --utc says, so --utc no
+// longer pins them. runInEnv sets another zone where a test needs one.
+function runInEnv(home, env, ...flags) {
   return execFileSync('node', [SCRIPT, '--repo', 'synthetic-repo', ...flags],
-    { encoding: 'utf8', env: { ...process.env, HOME: home }, maxBuffer: 96 * 1024 * 1024 });
+    { encoding: 'utf8', env: { ...process.env, TZ: 'UTC', HOME: home, ...env }, maxBuffer: 96 * 1024 * 1024 });
 }
+const runIn = (home, ...flags) => runInEnv(home, {}, ...flags);
 const searchJson = (home, ...flags) => JSON.parse(runIn(home, '--json', ...flags));
 // Exit status + stderr for the argument-error cases.
 function failIn(home, ...flags) {
@@ -1330,7 +1334,7 @@ test('search: --think does not widen the search, because the log holds no thinki
 test('search: --since/--until filter on each turn\'s own timestamp, not the file mtime', () => {
   // A session that spans the --until bound must return only its in-window hits:
   // mtime is last-activity, so filtering candidates on it alone would drift from
-  // ccrepo(1)'s per-message meaning. --utc pins the day boundary for the test.
+  // ccrepo(1)'s per-message meaning. runIn's TZ=UTC pins the day boundary.
   const home = makeStore([[UUID(2), [
     you('reviewscan on the second', '2026-01-02T12:00:00.000Z'),
     claude('reviewscan again on the fifth', '2026-01-05T12:00:00.000Z'),
@@ -1366,7 +1370,8 @@ test('search: --json carries hits, refs and a meta block whose zeros all print',
   const home = makeStore([[UUID(1), [you('pathscan here'), claude('and pathscan there')]]]);
   const j = searchJson(home, '--search', 'pathscan');
   for (const k of ['term', 'regex', 'caseSensitive', 'source', 'layersSearched',
-    'thinkingSearched', 'since', 'until', 'timezone', 'materialise', 'top',
+    'thinkingSearched', 'subagentLogsSearched', 'privacy', 'gateBypassed',
+    'boundsTimezone', 'since', 'until', 'timezone', 'materialise', 'top',
     'truncatedSessions', 'truncatedRows', 'sessionsInScope', 'sessionsSwept',
     'sessionsParsed', 'sessionsMatched', 'hits', 'skippedEvicted',
     'skippedOutOfRange', 'unreadable', 'toolOnlySessions', 'elapsedMs']) {
@@ -1429,6 +1434,12 @@ test('search: bad arguments exit 2 with the reason, never a silent empty result'
     [['--search', 'x', '--until', '2026-1-2'], [], /--until takes a date as YYYYMMDD/],
     [['--search', 'x', '--top', '0'], [], /--top must be a positive integer/],
     [['--search', ''], [], /--search needs a term/],
+    // 210/580: a trailing --search, and a value flag followed by one of the
+    // tool's own flags, are bad arguments too (CS2, CS10).
+    [['--search'], [], /--search needs a value; it was the last argument/],
+    [['--search', '--json'], [], /--search needs a value, but the next argument is the flag --json/],
+    [['--since', '--search', 'x'], [], /--since needs a value, but the next argument is the flag --search/],
+    [['--search', 'x', '--top'], [], /--top needs a value; it was the last argument/],
   ];
   for (const [args, extra, re] of bad) {
     const { code, err } = failIn(home, ...args, ...extra);
@@ -1552,4 +1563,165 @@ test('drift guard: every flag --help prints appears in the man page (superset re
   for (const flag of flags) {
     assert.ok(pageFlat.includes(flag), `man page must document ${flag} (--help is the digest, the page the superset)`);
   }
+});
+
+// --- 210/580: the cold-pass findings CS1–CS14 -----------------------------
+// Each test below failed against the tool as it stood before 210/580.
+
+const jsonLine = (o) => JSON.stringify(o);
+// A live store whose log lines are written as given: the emoji test needs a
+// line JSON.stringify would never write (an escaped surrogate pair).
+function makeRawStore(sessions) {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-raw-'));
+  const dir = path.join(home, '.claude', 'projects', '-home-dev-synthetic-repo');
+  fs.mkdirSync(dir, { recursive: true });
+  for (const [id, lines] of sessions) fs.writeFileSync(path.join(dir, `${id}.jsonl`), lines.join('\n') + '\n');
+  return home;
+}
+
+test('search --regex: a quote, a whitespace class across a line break, and anchors all hit (CS1)', () => {
+  const home = makeStore([
+    [UUID(1), [you('he said "alpha" then\nsecond line here')]],
+    [UUID(2), [you('nothing relevant at all')]],
+  ]);
+  const hits = (pat) => searchJson(home, '--regex', '--search', pat).meta.hits;
+  assert.equal(hits('"alpha"'), 1, 'a quoted pattern hits the decoded text');
+  assert.equal(hits('then\\s+second'), 1, 'a whitespace class spans the line break');
+  assert.equal(hits('^second'), 1, '^ binds to the start of a line of the turn');
+  assert.equal(hits('here$'), 1, '$ binds to the end of the turn');
+  // The old manual's advice, written against the escaped form, does not hit:
+  // matches are judged on the text a transcript shows.
+  assert.equal(hits('then\\\\nsecond'), 0);
+  // Each of those parsed every swept log, and says so.
+  const j = searchJson(home, '--regex', '--search', '"alpha"');
+  assert.equal(j.meta.gateBypassed, true);
+  assert.equal(j.meta.sessionsParsed, 2);
+  assert.match(runIn(home, '--no-color', '--regex', '--search', '^second'), /Every swept log was parsed/);
+});
+
+test('search --regex: a pattern the gate can trust is still gated (CS1 keeps the cost control)', () => {
+  const home = makeStore([
+    [UUID(1), [you('the --materialise flag')]],
+    [UUID(2), [you('nothing relevant at all')]],
+  ]);
+  const j = searchJson(home, '--regex', '--search', 'materialis[ez]');
+  assert.equal(j.meta.gateBypassed, false);
+  assert.equal(j.meta.sessionsParsed, 1);
+  assert.equal(j.meta.hits, 1);
+  assert.doesNotMatch(runIn(home, '--no-color', '--regex', '--search', 'materialis[ez]'), /Every swept log was parsed/);
+  // The manual's way to search for the text of a flag.
+  assert.equal(searchJson(home, '--regex', '--search', '\\-\\-materialise').meta.hits, 1);
+});
+
+test('regexGateSafe: only patterns that cannot match what the raw text hides', () => {
+  for (const p of ['alpha', 'materialis[ez]', 'a\\.b', 'foo|bar', '(?:ab)+c', 'x{2,3}', '[a-z0-9_]+',
+    '\\d+-\\w+', '(a)\\1', '\\-\\-json', 'tools/floor', '(?<n>ab)']) {
+    assert.equal(cc.regexGateSafe(p), true, `${p} is safe`);
+  }
+  for (const p of ['"alpha"', 'a\\\\b', 'a\\nb', 'a\\s+b', 'a b', '^x', 'x$', '\\bx', 'a.b', '[^x]',
+    '[!-~]', '\\W', '\\x22', '\\u0101', 'Māori', '(?=x)', '(?<!x)y', '[a\\s]']) {
+    assert.equal(cc.regexGateSafe(p), false, `${p} is not safe`);
+  }
+});
+
+test('search: a literal term with a space finds a slash command and its arguments (CS1, the gate class)', () => {
+  const home = makeStore([[UUID(1), [you('<command-name>/work</command-name>\n<command-message>work</command-message>\n<command-args>run fast</command-args>')]]]);
+  const j = searchJson(home, '--search', '/work run');
+  assert.equal(j.meta.hits, 1, 'the probed text reads "/work run fast" though the log never holds it as one string');
+  assert.equal(j.sessions[0].hits[0].ref, '1');
+});
+
+test('search: --regex and a literal agree on a macron, whatever the log\'s spelling (CS1, CS6)', () => {
+  const home = makeRawStore([
+    [UUID(1), [jsonLine(you('kia ora Māori'))]],
+    [UUID(2), ['{"type":"user","timestamp":"2026-01-02T03:04:05.000Z","cwd":"/home/dev/synthetic-repo","message":{"role":"user","content":"kia ora M\\u0101ori"}}']],
+  ]);
+  assert.equal(searchJson(home, '--search', 'Māori').meta.sessionsMatched, 2);
+  assert.equal(searchJson(home, '--regex', '--search', 'M.ori').meta.sessionsMatched, 2);
+});
+
+test('search: an emoji escaped as its surrogate pair is found, as is the raw one (CS6)', () => {
+  const home = makeRawStore([
+    [UUID(1), [jsonLine(you('launch 🚀 now'))]],
+    [UUID(2), ['{"type":"user","timestamp":"2026-01-02T03:04:05.000Z","cwd":"/home/dev/synthetic-repo","message":{"role":"user","content":"launch \\ud83d\\ude80 now"}}']],
+  ]);
+  assert.equal(searchJson(home, '--search', '🚀').meta.sessionsMatched, 2);
+  assert.ok(cc.rawForms('🚀').includes('\\ud83d\\ude80'));
+  // And a term needing both escapes at once: a quote and a macron.
+  assert.ok(cc.rawForms('"ā"').includes('\\"\\u0101\\"'));
+});
+
+test('search: --since/--until are local days whatever --utc says (CS5)', () => {
+  // 23:30 UTC on 2 January is 12:30 on 3 January in Auckland.
+  const home = makeStore([[UUID(1), [you('boundscan late', '2026-01-02T23:30:00.000Z')]]]);
+  const nz = { TZ: 'Pacific/Auckland' };
+  const run = (...f) => JSON.parse(runInEnv(home, nz, '--json', '--search', 'boundscan', ...f));
+  assert.equal(run('--since', '20260103').meta.hits, 1);
+  assert.equal(run('--since', '20260103', '--utc').meta.hits, 1, '--utc must not move the bound');
+  assert.equal(run('--until', '20260102', '--utc').meta.hits, 0);
+  assert.equal(run('--utc').meta.boundsTimezone, 'local');
+});
+
+test('search: the tool-only tally honours the date window (CS7)', () => {
+  const home = makeStore([[UUID(1), [
+    you('unrelated', '2026-01-01T10:00:00.000Z'),
+    calls('Grep', { pattern: 'windowscan' }, '2026-01-01T10:00:30.000Z'),
+    you('later and still unrelated', '2026-01-03T10:00:00.000Z'),
+  ]]]);
+  assert.equal(searchJson(home, '--search', 'windowscan').meta.toolOnlySessions, 1);
+  const out = searchJson(home, '--search', 'windowscan', '--since', '20260102');
+  assert.equal(out.meta.toolOnlySessions, 0, 'a tool hit outside the window is not one --tools would find');
+  assert.equal(searchJson(home, '--search', 'windowscan', '--since', '20260102', '--tools').meta.hits, 0);
+});
+
+test('search: a log that records no cwd stays in --repo scope (CS11)', () => {
+  const home = makeStore([
+    [UUID(1), [you('cwdscan with a cwd')]],
+    [UUID(2), [claude('cwdscan in a log that records no cwd')]],
+  ]);
+  const j = searchJson(home, '--search', 'cwdscan');
+  assert.equal(j.meta.sessionsInScope, 2);
+  assert.equal(j.meta.sessionsMatched, 2);
+});
+
+test('search: an unreadable log stays in --repo scope and is counted, never silently absent (CS11)',
+  { skip: process.platform === 'win32' || (process.getuid && process.getuid() === 0) }, () => {
+    const home = makeStore([
+      [UUID(1), [you('permscan readable')]],
+      [UUID(2), [you('permscan locked')]],
+    ]);
+    const locked = path.join(home, '.claude', 'projects', '-home-dev-synthetic-repo', `${UUID(2)}.jsonl`);
+    fs.chmodSync(locked, 0o000);
+    try {
+      const j = searchJson(home, '--search', 'permscan');
+      assert.equal(j.meta.sessionsInScope, 2);
+      assert.equal(j.meta.unreadable, 1);
+      assert.equal(j.meta.hits, 1);
+    } finally { fs.chmodSync(locked, 0o600); }
+  });
+
+test('search: the output says it is private transcript content, in every surface (CS3)', () => {
+  const home = makeStore([[UUID(1), [you('privscan')]]]);
+  assert.match(searchJson(home, '--search', 'privscan').meta.privacy, /private transcript content/);
+  const page = fs.readFileSync(path.join(__dirname, 'man', 'cctranscript.1'), 'utf8');
+  assert.match(page, /^\.SH PRIVACY$/m);
+  assert.match(page, /shapes and counts/);
+  const readme = fs.readFileSync(path.join(__dirname, 'README.md'), 'utf8');
+  assert.match(readme, /Its output is private transcript content/);
+  assert.match(execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' }), /private transcript text/);
+});
+
+test('the manual names pathological patterns and the subagent boundary (CS12, CS14)', () => {
+  const page = fs.readFileSync(path.join(__dirname, 'man', 'cctranscript.1'), 'utf8').replace(/\n/g, ' ');
+  assert.match(page, /exponential time/);
+  assert.match(page, /Subagent logs are not searched/);
+  const home = makeStore([[UUID(1), [you('agentscan')]]]);
+  assert.equal(searchJson(home, '--search', 'agentscan').meta.subagentLogsSearched, false);
+});
+
+test('valueFlagError: a term that merely starts with a dash is still a term (CS10)', () => {
+  assert.equal(cc.valueFlagError(['--search', '-v']), null);
+  assert.equal(cc.valueFlagError(['--search', '->']), null);
+  assert.match(cc.valueFlagError(['--search', '--tools']), /next argument is the flag --tools/);
+  assert.match(cc.valueFlagError(['--repo']), /--repo needs a value/);
 });

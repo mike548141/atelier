@@ -443,7 +443,9 @@ alone, because search is this tool's only bulk read.
 .BI \-\-repo " name"
 Use sessions from the named repo \(em its folder basename, e.g.
 .I atelier
-\(em instead of the current directory.
+\(em instead of the current directory. A log whose working directory cannot be
+read from it (an evicted mirror, an unreadable log, or one that records none)
+is matched on the end of its folder name instead, so it is still in scope.
 .TP
 .B \-\-list
 List the sessions for the repo (id, start time, first prompt) and exit, rather
@@ -461,7 +463,13 @@ span every repo instead of the current one.
 .BI \-\-search " term"
 Search every session the scoping flags admit and print an index of the turns
 that match, instead of rendering one transcript. Literal by default;
-case-insensitive by default. All the scoping options above apply
+case-insensitive by default.
+.B \-\-search
+with no term after it, or with another of this tool's flags in the term's
+place, exits 2; to search for the text of a flag, write it as a
+.B \-\-regex
+with the dashes escaped, e.g.
+.BR '\e\-\e\-json' . All the scoping options above apply
 .RB ( \-\-repo ", " \-\-all ", " \-\-from\-archive ", " \-\-dest ),
 and a
 .I session
@@ -475,7 +483,15 @@ a list, narrowed.
 .B \-\-regex
 Treat the
 .B \-\-search
-term as a regular expression rather than a literal string.
+term as a regular expression rather than a literal string. Write it against the
+text as you read it in a transcript, never against the log's escaped JSON.
+.B ^
+and
+.B $
+match at the start and end of each line of a turn's text. A pattern that could
+match a quote, a backslash, a space, a line break or a non-ASCII character, or
+that uses an anchor, a word boundary or a lookaround, makes the search parse
+every log it sweeps; the summary says so (see NOTES).
 .TP
 .B \-\-case
 Match case-sensitively. The default folds case.
@@ -486,11 +502,16 @@ With
 include only hits on or after this local date \(em the same word, and the same
 per-message meaning, as in
 .BR ccrepo (1).
+The date is local whatever
+.B \-\-utc
+says.
 .TP
 .BI \-\-until " YYYYMMDD"
 With
 .BR \-\-search ,
-include only hits on or before this local date.
+include only hits on or before this local date, local whatever
+.B \-\-utc
+says.
 .TP
 .BI \-\-top " n"
 Keep at most
@@ -511,7 +532,11 @@ most recent session
 = latest, the default) instead of the newest.
 .TP
 .B \-\-tools
-Include tool calls and their results, each summarised to a single line.
+Include tool calls and their results. A transcript summarises each to a single
+line;
+.B \-\-search
+reads each call's whole input and whole result, and its excerpt can carry a
+whole command line, credentials included (see PRIVACY).
 .TP
 .B \-\-think
 Include Claude's thinking blocks.
@@ -520,7 +545,10 @@ Include Claude's thinking blocks.
 Everything: prompts, replies, thinking and tools.
 .TP
 .B \-\-utc
-Print timestamps in UTC. The default is your local timezone.
+Print timestamps in UTC. The default is your local timezone. It changes how
+times print, never which turns
+.BR \-\-since " and " \-\-until
+admit.
 .TP
 .B \-\-no\-delta
 Hide the elapsed-time deltas shown between messages.
@@ -554,7 +582,19 @@ instead, each holding its
 under a
 .I meta
 block naming the term, the layers searched, the sessions swept and matched, and
-every skip count \(em zeros included, so two runs compare line for line. Never
+every skip count \(em zeros included, so two runs compare line for line.
+.I meta
+also says whether the raw-log gate was bypassed
+.RI ( gateBypassed ),
+that subagent logs were not searched
+.RI ( subagentLogsSearched " false),"
+that the date bounds are local
+.RI ( boundsTimezone ),
+and what the output is
+.RI ( privacy );
+its
+.I elapsedMs
+includes building the session pool. Never
 styled; safe to pipe into
 .BR jq (1).
 .TP
@@ -665,14 +705,32 @@ Claude sessions found for the current directory, or a
 index larger than the number of sessions available.
 .PP
 .B 2
-on a bad argument:
+on a bad argument: an option that takes a value given none, or given another
+of this tool's flags in its place;
 .B \-\-search
-with no term, an invalid
+with an empty term; an invalid
 .B \-\-regex
 pattern, a
 .BR \-\-since / \-\-until
 that is not a date, or a non-positive
 .BR \-\-top .
+.SH PRIVACY
+What this tool prints is transcript content: your prompts, Claude's replies
+and, with
+.BR \-\-tools ,
+the whole input of a tool call and its result, so an excerpt can hold a
+command line with a credential in it, an address or a private path.
+.B \-\-json
+adds session ids and each session's working directory.
+Agent sessions are this tool's main callers, and a session that records its
+evidence pastes a command and its output into a record. A record others read,
+and above all one in a public repository, reports
+.B shapes and counts
+only: how many hits, in how many sessions, of which role, never an excerpt, a
+session id or a path. The
+.B \-\-json
+output carries the same caution as
+.IR meta.privacy .
 .SH NOTES
 The tool reads
 .I ~/.claude/projects/
@@ -782,18 +840,39 @@ inferred.
 A search is
 .B gated
 on each log's raw JSON text and only then decoded turn by turn, which is what
-keeps a full sweep at the cost of a bare read. One consequence is worth knowing
-for
-.BR \-\-regex :
-in the raw log a double quote, a backslash and a newline appear in their escaped
-forms, so a pattern that must match one of those should be written against the
-escaped form. A literal
-.B \-\-search
-term needs no such care \(em it is gated on every form it can take, including
-the
-rare
+keeps a full sweep at the cost of a bare read. Matches are always judged on the
+decoded text, the text a transcript shows. In the raw log a double quote, a
+backslash and a line break are escaped, a non-ASCII character is sometimes
+written as
 .BI \eu XXXX
-spelling of a non-ASCII character.
+(two of them, for a character such as an emoji), and a slash command's name
+and arguments sit in separate elements. A literal term is gated on the longest
+part of it that holds no whitespace, in every form that part can take, so the
+gate never hides a hit. A
+.B \-\-regex
+pattern is gated only when it cannot match a quote, a backslash, whitespace or
+a non-ASCII character and has no anchor, word boundary or lookaround;
+otherwise every swept log is parsed, the summary says so, and
+.I meta.gateBypassed
+is true. Such a search costs more and finds what is there.
+.PP
+A pattern that matches the empty string, such as
+.BR a* ,
+counts one hit at every position, which is harmless. A pattern with nested
+repetition, such as
+.BR (a+)+b ,
+can take exponential time on a long turn; there is no time limit, so
+interrupt it and write it another way.
+.PP
+Subagent logs are not searched. Each agent a session starts writes its own log
+under
+.IR <session-uuid> /subagents/ ,
+and the sweep reads session logs only, so text that only an agent saw is not
+found; the
+.B \-\-json
+output says so as
+.I meta.subagentLogsSearched
+false.
 .PP
 Non-ASCII terms match. The logs are read as
 .BR UTF-8 ,
