@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: outside a git work tree, `leakscan` and `secretscan`
+- [~] 🔎 **Hand-up: outside a git work tree, `leakscan` and `secretscan`
       skip pruned directories without counting them, so a publish over a
       plain tree can read green with files unread.** Reported 2026-11-23 by
       a private child's queue run (session cc48ecd8), class only. When a
@@ -28,3 +28,5 @@
       refuse on it the way it refuses on the ignore-glob count. Whether a
       non-zero count should also turn the coverage line into a warning is
       the house's call.
+      🔒 CLAIMED 2026-11-25T13:57Z (claimed 2026-11-25-1357, wt: atelier-qr-f8dd-pr) by session f8dd3843
+      (`atelier-31`, Opus 5.5, principal-opened by `/atelier:work run`); an Opus worker builds it.
