@@ -1,8 +1,9 @@
 # Cold pass — the RK part-3 fixes to `ccfleet`, `modelguard` and the subject skills (`160/1810`)
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1810-rule-4-cold-pass-queued-rk-part-3-fixes.md`
-**Status:** ACT 1 COMMITTED 2026-11-25 UTC (one Fable reviewer under off-tier orchestrator
-`14c2530d`), act 2 pending. Was: BRIEF ONLY, 2026-11-25 UTC. Written by headless session `075cdcd9` (`atelier-e0`,
+**Status:** VERDICT 2026-11-25 UTC: PASS-WITH-FINDINGS, 0 MAJOR, 5 MODERATE, 12 minor, 4 notes
+(`PK1`–`PK21`; one Fable reviewer under off-tier orchestrator `14c2530d`; acts 1 and 2 written,
+the sibling folded in below). Findings are the principal's to decide. Was: BRIEF ONLY, 2026-11-25 UTC. Written by headless session `075cdcd9` (`atelier-e0`,
 Opus 5.5), pinned at `6ddbead2` (`origin/main` when written). Not yet run.
 **Approval:** one Fable pass plus its Opus brief, by a fresh session that wrote none of the fixes.
 The principal's pick, 2026-11-25 ~05:40 UTC, recorded on `160/1810` (an answer, not a ruling),
@@ -1455,3 +1456,389 @@ The barred set is exactly the brief's; I add nothing and remove nothing.
 
 Budget the time this large pass needs; never thin it to fit.
 ````
+
+### Reconcile (act 2, 2026-11-25 UTC)
+
+**Provenance of act 2.** Act 1 was committed unrevised as `a247f7f0` by the orchestrator before
+anything below was opened; the review worktree was at that commit, clean, when I began
+(2026-11-25T09:21Z), and the brief's since-line from my act-1 pin `6d71ea91` was empty (the two
+commits between are the `160/1800` pass's verdict and its board item). The orchestrator's
+release message, verbatim, with the held folder written `<HELD>`:
+
+````text
+Release: act 1 is committed unrevised as a247f7f0 on main (your worktree is rebased onto it; the only other commits since your HEAD 6d71ea91 are 49c7c56d and f790fe27, the 160/1800 pass's verdict file and its board item, neither on a delta path). I changed only the brief's Status line, to "ACT 1 COMMITTED … act 2 pending". Start act 2 per the brief's Phase 2. The held-back sibling is at <HELD>/atelier--2026-11-25-0721-rk-part-3-fixes-ccfleet-modelguard-subject-skills-cold.deferred.md (write it as a held user-local path in the record, never the home path). The earlier verdict and the barred records are now open to you; the 160/1800 verdict (docs/reviews/2026-11-25-0720-rk-drain-path-fixes-cold.md) is a sibling pass's, open to you now too, and you may note where it overlaps yours. Fold the sibling in verbatim below your reconcile; do not delete the held copy — I delete it after checking your fold. Update the Status line to the final verdict when you finish. Same process rules (no git writes; I commit). Reply in at most five lines when act 2 is written, and delete your fixtures.
+````
+
+It carries no question about the delta and asks for no finding to be revised.
+
+**Opened in act 2, in this order:** the sibling whole (26 questions, 16 facts); the earlier
+verdict's findings (`RK1` to `RK28`), its reconcile, `RK29` and its restated lines (its brief,
+method record and folded sibling not read: the ledger needs the findings and their evidence);
+the intent records `210/600` and `210/610` whole; the seven delta commits' message bodies; this
+pass's own board item, its head; the `160/1800` verdict by its findings' headings, its restated
+overall and a search for what touches mine. Not opened, with grounds: `docs/sessions/`,
+`docs/method/census/` and the other barred items (no row of the ledger turns on them). One
+thing to disclose: to answer the sibling's question 20 I ran the installed CLI's `--help` by
+its bare name, a read of its flag list and nothing else. No real launch was made. Act-1 text
+is unchanged.
+
+**Residual risk, named.** The RK ledger is anchored on the earlier verdict by design: I re-drove
+what it found, where it found it. Act 1 is the cold half; `PK1` to `PK20` were formed before any
+of this was read.
+
+#### The RK ledger
+
+Each row re-driven at `a247f7f0` on 2026-11-25 UTC, in scratch, unless it says "text" (a finding
+about wording, where the changed text at HEAD is the re-drive) or "static" (the installed CLI's
+bundled source, where a launch was not possible). "Counsel" points at the earlier verdict's own
+words under each id.
+
+| RK | Answered by | Re-driven at HEAD | State |
+|---|---|---|---|
+| `RK1` an action's read is refused | `4a9318b7`: each router's `allowed-tools`, line 5 | live: NOT RUN (no login in a synthetic config directory; act 1's ledger). Static: CLI 2.1.302 fills the plugin root in a plugin skill's whole `allowed-tools`. The authors' own live run is in the commit body and cannot be re-run by me | **Fixed as counselled** (the counsel's first branch: `Read` in the router's grant). Seen to work by the authors, not by this pass. Residue: `PK19` |
+| `RK3` last `RESULT:` wins | `53203833`: `RESULT_RX` `ccfleet:284`, `result_word` `:954-967`, `harvest` `:1044-1047` | the earlier verdict's three reproductions: the NOTES mention reads FAILED; the one-sentence end reads UNKNOWN; a non-JSON log holding the line reads UNKNOWN | **Fixed as counselled**, to the letter ("take the first … and require the shape line"). The counsel itself moves the risk to an earlier mention: `PK4` |
+| `RK4` a signalled launcher's session runs unwatched | `53203833`: `launch` `:1143-1203`, `live_session` `:1116-1136`, `resume` `:2479-2484`, `drain` `:1967-1978` | SIGTERM and SIGHUP: session left, record kept, `resume` exit 2; a second resume beside a live one: exit 2; the drain's line, by test and mutants `M5`, `M6`, `M31` (killed) | **Fixed as counselled** for `resume` and the drain's line. Not closed for the fold (`PK2`); the fix's exit path removes the settings copies (`PK1`) |
+| `RK6` what a resume and a fold leave | `53203833` (`pass_result_path`, `write_result`), `2d8e05e3` (`run.md`, `fold-prompt.md`) | a resume and a fold each headed the pass's own result file in the world; `run.md` prints `--by <session-id>` on both commands (text); the fold's default label is `<repo>-<item>`; "almost nothing" is defined (text); the fold has a run-twice step (text) | **Fixed as counselled**, all four parts and the reconcile's addition. Residue: `PK18`; the run-twice step and the un-claim rule are pinned by no test (`PK16`) |
+| `RK7` the seal has no interface | `564a7ca4`: docstring *THE SEAL*, manual *The seal*, the reference queue, `RKGrant` tests | world: unsealed drain exit 1, hand pass exit 2, another run's id refused; the seal's refusals by test and mutants `Q1`, `Q3`–`Q6` (killed) | **Fixed as counselled** (contract stated where the queue commands are; a reference queue the tests drive). Limits: `PK3`, `PK10`; `next`'s refusal unpinned (`Q2`, `PK16`) |
+| `RK8` the cost estimate | `564a7ca4`: `pass_history` `:2156-2248`, `plan.md` step 4 | `hist.py`: resumes and folds joined and summed, per repo and per model; "for a review of that size" is gone from `plan.md` (text); notional said (text and plan output) | **Fixed as counselled**, with the reconcile's notional-figure point. The reviewer's-share question is answered by `modelUsage` on the authors' reading of old logs, "no launch"; a hand-run pass is still not counted, and said. Residue: `PK12` |
+| `RK9` ordinary commands refused | `fc922383`: `launch_like`, the unknown-head loop `modelguard.py:608-624` | the earlier verdict's sixteen refused commands and `docker run --name claude img`, on the hook's interpreter: none refused; the refusal now says how to rephrase | **Fixed as counselled.** The cost moved, as the body says, to a stated false allow; unstated residue on both sides: `PK13` |
+| `RK10` the instruction file unscanned | `564a7ca4` (`guard_instructions`), then `f4360a79` | world: refused by default (exit 5), `warn` prints a line per name; mutants `M2`, `M3` killed | **Fixed as counselled, and then beyond it** (`210/610`: the principal's answer, a shared file importing a private one). The going-beyond is sound for what is appended; `PK5`, and `M11` in `PK16` |
+| `RK11` the copies never removed | `564a7ca4`: `session_files` `:716` | removed after every normal end in the world; mutant `M4` killed | **Fixed, and regressed at one seam:** the body says "atexit, so the session has ended; never while it runs". On the `RK4` path the process exits while the session runs (`PK1`) |
+| `RK12` more exceptions than listed; silent when nothing is granted | `564a7ca4` (`WIDENING_KEPT`, `PERMISSION_FLAGS`, `NO GRANT`), `4a9318b7` (the fleet prompts) | `check` in the world prints `NO GRANT`; `WIDENS` lines by test and mutants `M22`, `M28` (killed) | **Fixed as counselled** for every key the earlier verdict named. The class is open: `PK11`. The estate-side half is `160/1800`'s |
+| `RK13` "owed" narrower than the doctrine | `4a9318b7`: `plan.md:57-73`, `:104-115` | text | **Fixed as counselled**, with the reconcile's "near" point. "This file governs" is unpinned (`R3`) |
+| `RK14` typed words have no home | `4a9318b7`: `run.md:16-23` | text | **Fixed as counselled.** It now meets the trigger-phrase route: `PK6` |
+| `RK15` nine shapes pass | `fc922383` | the nine, on the hook's interpreter: all denied; `Workflow` named as unseen (text) | **Fixed as counselled.** More shapes found: `PK13` |
+| `RK16` a traceback with no `queue` | `53203833`: `one_pass` `:2422-2427`, `resume` `:2477-2478` | `pass` with no queue: exit 64, no worktree made; `resume --item` with no `release`: exit 64 | **Fixed as counselled** |
+| `RK17` landing line names `None`; branch left | `53203833` (`worktree_branch`), `2d8e05e3` (the fleet prompts) | the two tests named for it pass; in the world's no-remote repos, every cleanly removed worktree's `fleet/` branch is gone and only kept worktrees have one | **Fixed as counselled** |
+| `RK18` `check --prompt` misfiles names | `564a7ca4`: `check` `:2610-2638` | `check --prompt` on the three review prompts: `{BRIEF}` is UNSET, `{ITEM}` and `{REVIEW_LOG}` listed apart | **Fixed as counselled** |
+| `RK19` the prose guards | `4a9318b7`: both guard tests | five of the earlier verdict's named mutations re-made: a rule added inside an anchored paragraph, the plugin root one level up, the read-only rule replaced, "every run" made optional, an action that does not exist: all killed; a widened grant killed (`R1`) | **Fixed as counselled**, by digests where anchors had failed. What the digests do not cover: `PK16` |
+| `RK20` the close's delivery text | `4a9318b7`: `close.md:42-91` | text; `ccclose` is read-only by its own help | **Fixed as counselled** for the four points. **Against the reconcile's addition:** it had noted that typed words "may narrow a step away"; the fix forbids it outright, which is a rule the earlier verdict did not ask for (`PK7`). The twin file was not swept (`PK15`) |
+| `RK21` the example's `take` records no id | `564a7ca4`: the example config | the shim's log: `take … --set session=<uuid>`; mutant `R8` killed | **Fixed as counselled** |
+| `RK22` the rename's mirrors | `4a9318b7` (manifests, onramp, the wider sweep), `9b4a8f8f` (changelog) | manifests list sixteen and count sixteen (test); the changelog's entries read against the code | **Fixed as counselled** for what it named. The same class recurs for part 3 itself: `PK15` |
+| `RK23` small disagreements | `564a7ca4` | each of the nine read at HEAD: skills point at the manual's THREATS; `plan` is among what starts nothing; a failed `next` exits 1; the example's `branch` sits on a no-remote repo; `~/` expanded (probed); per-command placeholders; two earlier log names; `{PIN}` in `run.md`; the manual's date | **Fixed for those named.** New ones: `PK8`, `PK14` |
+| `RK24` `PARTIAL` and `BLOCKED` re-run for ever | `53203833` (`SETTLED_ON`), `2d8e05e3` (`sweep.md`) | world: both settled, the clean one's worktree removed, a re-run skips both | **Fixed as counselled.** The fix meets a new source of `BLOCKED` made in the same delta: `PK14`; "a claim is never released on one" is unpinned (`M21`) |
+| `RK25` (note) refused claims; `drive` and the reset | `53203833` | by test and mutants `M18`, `M24` (killed) | **Fixed.** `run.md` still states the old behaviour: `PK8` |
+| `RK26` (note) what the suites do not pin | `53203833`: three tests | the three run and pass; `--force` re-made as a mutant: killed. The two `modelguard` mutants re-made: the parse-failure deny switched off stays green (`G6`), and so does `--resume` taken out of the session flags | **Partly fixed:** three of five. The body says so of the other two ("not in ccfleet"); nothing took them up |
+| `RK27` (note) `work plan`, the first word, `MECHANISMS.md` | `4a9318b7` | text; mutant `R11` killed, `R10` survived | **Fixed as counselled** |
+| `RK28` (note) the runtime line | `564a7ca4` | text, in the docstring, `--help` and the manual; both tested interpreters run by me | **Fixed as counselled.** `instruments/README.md` still gives the old requirements (`PK15`) |
+| `RK29` a standing yes to any python and git | `4a9318b7`: each router, line 5; `test_router_grant_is_pinned` | mutants `R1`, `R1b`, `R7` killed | **Fixed as counselled**, both halves (narrowed, and pinned). The seventh skill, the bare menu, is narrowed and unpinned (`R12`) |
+
+**In sum, of 27:** 24 fixed as counselled (most with a residue named above), one fixed and
+taken beyond the counsel on the principal's own answer (`RK10`), one fixed and regressed at a
+seam (`RK11`), one partly fixed (`RK26`). **None is not fixed.** Three fixes moved a risk
+rather than ending it: `RK3` (to `PK4`), `RK4` with `RK11` (to `PK1`, and `PK2` left open),
+`RK24` (to `PK14`). One went against the direction the earlier reconcile pointed (`RK20`,
+`PK7`). **`RK2` and `RK5` are `160/1800`'s:** I met neither as a defect; my mutant of the
+fold-after-reset exemption (`M29`) was killed.
+
+#### Against the authors' account (commit bodies and `210/600`, `210/610`)
+
+- `564a7ca4`'s body: the copies are removed "atexit, so the session has ended; never while it
+  runs". False on the signal path the sibling commit `53203833` made (`PK1`). The two workers'
+  fixes meet at that seam and neither body sees the other.
+- `53203833`'s body names what moved for `RK25`; `210/600` adds "the live-session check rests on
+  `ps` showing the session id" (my `A4`, confirmed on this machine). Neither names the fold
+  (`PK2`) or the earlier-mention reading (`PK4`).
+- `4a9318b7`'s body records three headless probes: a single-slash read rule still refused, the
+  double-slash one "let session close run end to end", a bare word showing the menu. That is
+  better evidence than the changelog's one clause suggests, and it agrees with what I read in
+  the CLI. I could not repeat it.
+- `fc922383`'s body states its trade plainly and matches the code. Its "28 NAMED rows" are data
+  uses; none is a long option's value followed by `-p` (`PK13`).
+- `564a7ca4` on `RK8`: `modelUsage` "checked against the shape of existing CLI logs, no launch".
+  So `A10` (whether a resumed session's total is its own run's) is untested by anyone.
+- `f4360a79` and `210/610`: "checked on it: the public text names no private name and does not
+  reach the imported part … a fresh session loads both". The last clause is about an ordinary
+  session, not a ccfleet one; whether the harness follows an import in an appended file is
+  claimed by neither, and `A2` stays as act 1 left it.
+- `9b4a8f8f`'s body lists what its entries cover; it was written before the three `ccfleet`
+  commits landed, which is how `PK15`'s first bullet came about.
+- `210/600` hands two things down to the estate root: its drain config's `pass_prompt` path,
+  and a choice on `instructions_guard`. Both are outside this pass and both gate a paid drain.
+
+#### Against the sibling's questions
+
+| Q | Outcome |
+|---|---|
+| 1 | Checked in act 2: the seven commits touch nothing outside the brief's path list, and no other commit after `a1cc5f2d` touches it, so the brief's scoping was right. The pointer's grammar is **new at reconcile: `PK21`** |
+| 2 | **Found in act 1** as `PK9` |
+| 3 | Seen in act 1 (the re-run ledger: the rehearsed pass is "in its own `.out`") and not raised. Added to `PK9` |
+| 4 | **Found in act 1** as `PK10` |
+| 5 | Not found in act 1. Added to `PK10` |
+| 6 | Checked in act 1 by reading: the drain re-asks `next` per pick and each pass calls `take`, so a lapse stops new picks on a queue that keeps the contract; one that checks only `ranked` does not, and nothing tests an adopter's queue (lens 1) |
+| 7 | **Checked in act 1** (`A4`): the process id and the session id on its command line; a record whose process is gone is removed when read; a reused id belonging to something else does not hold the session id, so no refusal for ever |
+| 8 | **Found in act 1** as `PK14` |
+| 9 | **Found in act 1**: `PK1`, and `M15` in `PK16`. Nothing sweeps them; the manual says to delete them by hand |
+| 10 | Checked in act 1: the earlier end is kept below in both paths (`write_result`); two resumes are locked; a fold beside a session is `PK2`; a fold beside a resume has no lock (same class) |
+| 11 | **Checked in act 1**: with a dry `.out` and a real one in `logs/`, `plan` read "1 pass(es) seen" |
+| 12 | Checked in act 1 (`hist.py`): a fold's model takes its own row in the per-model split, so "per model" is every session's model, not the reviewer's share alone; `plan.md` says "per model" and no more. No finding |
+| 13 | By reading: a pass is found only through a `pass-*.out`, so a run job's log is never counted and a hand-run pass is missed, as the note says |
+| 14 | **Act 1, `A2`:** not live; by the CLI's source, no |
+| 15 | **Act 1, `A2`:** unverified |
+| 16 | Act 1, lens 4, in part: the match ignores case (`re.I`); a name split across lines is not caught (a literal match); an unknown-visibility repo is never inlined; the settings copy's `env` and hook commands are not read |
+| 17 | Not raised. The manual gives the reason refusal is the default; under `warn` the line is in a `.out` nobody reads live. It is the adopter's stated choice. No finding |
+| 18 | **Found in act 1** as `PK17`: `..`, an absolute path and a symlink all reach outside the directory (the operator's own file, a private repo's session only); an unclosed fence swallows the rest, as Markdown does |
+| 19 | Probed in act 2: of the nine named, the eight known wrappers are caught; `systemd-run --user -q claude -p x` passes (the stated class). Added to `PK13` |
+| 20 | Probed in act 2. Added to `PK13` |
+| 21 | Probed in act 2: of the five, only `kubectl logs claude -c main` is refused, as the docstring says |
+| 22 | **Act 1, `A7`:** static, yes |
+| 23 | **Checked in act 1**: `ccclose` writes nothing. A repo cannot put another `ccclose` ahead on the path without a hook or an `env` block of its own, which is the manual's first threat already |
+| 24 | By reading: the bare-menu skill is installed by a link into the user-level skills folder in both shapes, so the path is right unless the config directory is moved; unpinned (`R12`) |
+| 25 | **Found in act 1** as `PK7` |
+| 26 | **Found in act 1** as `PK6`, from the other side: the two statements agree only if the model passes the action as the first word, and then the remaining words are its own |
+
+Of 26: act 1 had found or checked 17; four carry text added here (3, 5, 19, 20); one is a new
+finding (1); one was probed now with no finding (21); three are answered now by reading, with
+no finding (13, 17, 24).
+Act 1 raised findings no question reaches: `PK2`, `PK3`, `PK4`, `PK5`, `PK8`, `PK11`, `PK12`,
+`PK15`, `PK16`. The sibling's facts agree with my re-run ledger wherever both ran the same
+line; its world gave the local route a lapse time and mine did not, which is why only mine met
+`PK10`'s first point.
+
+#### Finding formed at reconcile
+
+**`PK21` (minor, formed at reconcile, from question 1 and `210/610`). The queue pointer named
+its delta by citation, and one change to a privacy guard landed with no pointer at all.** The
+`160/1810` pointer says "the commits citing `210/600`"; three of the seven commits on its own
+path list do not (`fc922383`, `9b4a8f8f`, `f4360a79`). The brief-writer caught it by reading
+paths. `210/610` is doctrine by function (it decides what an unattended session in a public repo
+is told), was landed by the authoring session, and its item closed with no review line; it is in
+this pass only because the brief took it in and the principal then answered that it belongs
+here. Criterion: `REVIEW.md` rule 4, landing is queuing, and *omission is the bug*.
+*Counsel:* a pointer names its delta by path and bound; `pointerscan` could warn on one that
+names it by citation alone.
+
+#### Additions to act-1 findings (formed at reconcile; severities unchanged)
+
+- `PK9`: with the seal, the dry drain's own output ends "queue empty" and names no pick; the
+  rehearsed launch is only in the pass's `.out` and the driver log (question 3).
+- `PK10`: the reference's refusal to seal a brief-writer's own brief binds only where the
+  drain's id is the writer's own; a writer is usually a worker with another id, and the id is
+  the caller's to choose (question 5). The texts say it "may refuse", which is as far as it goes.
+- `PK13`: the long-flag table is "`claude --help`, v2.1.302", and that help lists flags the
+  table lacks, among them `--settings`, `--effort`, `--background`, `--worktree`, `--tmux` and
+  `--bare`; after a short option, a launch that carries only those and a prompt passes. Nothing
+  notices the CLI's flags moving (question 20). `systemd-run --user -q claude -p x` joins the
+  passes (question 19).
+- `PK15`: the sibling pass found the same of its own three fixes (`DV5`).
+- `PK2`: the sibling pass's `DV6` is the other face of the same seam: on the reference queue a
+  fold under another id cannot release. Both say the fold's identity is not checked against
+  the pass it finishes.
+
+#### Per-finding state after reconcile
+
+`PK1` to `PK20` stand as written in act 1, at their act-1 severities; none is raised, lowered or
+withdrawn. Against the authors' account: `PK1` is contradicted by a commit body and stands on
+the probe; `PK4` is the counsel applied as given; `PK7` is the authors' own addition; `PK19`'s
+live gap is narrower than I wrote, since the authors did run it. `PK21` is added.
+
+**Overall, restated: PASS-WITH-FINDINGS. 0 MAJOR, 5 MODERATE (`PK1`–`PK5`), 12 minor
+(`PK6`–`PK16`, `PK21`), 4 notes (`PK17`–`PK20`).** 21 findings; one, `PK21`, formed at
+reconcile. Of the 27 earlier findings this delta answers, none is unfixed, one regressed at a
+seam (`RK11`, `PK1`) and one is partly fixed (`RK26`).
+
+The three plain lines, restated, unchanged in substance:
+
+1. **Lose, misread or mis-cost paid review work?** Not undisturbed. With a second event: `PK4`
+   (an earlier `RESULT:` line), `PK2` (a fold beside a live session), `PK12` (a twice-resumed
+   pass under-counted).
+2. **Safe to run the paid weekly drain from?** Yes, with no code change required first, on the
+   three operating conditions of act 1, and on the two hand-downs `210/600` names for the
+   estate's own config (its `pass_prompt` path; its `instructions_guard` choice), which this
+   pass could not open. The decision is the principal's.
+3. **Private context into a public repo's session?** Not by what ccfleet appends. Open: the
+   session is told where the private part is (`PK5`); a public repo's resume is unpinned
+   (`M11`); and the two harness behaviours stand on reading, not on a run (`A2`).
+
+Scratch fixtures were deleted after this was written. The held copy of the sibling is left for
+the orchestrator, as it asked.
+
+## Deferred sibling, folded below the verdict (reviewer, 2026-11-25)
+
+Held user-local by the orchestrator at
+`<HELD>/atelier--2026-11-25-0721-rk-part-3-fixes-ccfleet-modelguard-subject-skills-cold.deferred.md`,
+outside the repo, every worktree and any scratchpad, until act 1 was committed as `a247f7f0`;
+released to the reviewer for act 2; folded here verbatim by the reviewer, headings and all.
+
+# Held back: seeded questions and facts for the `160/1810` cold pass
+
+Sibling of `docs/reviews/2026-11-25-0721-rk-part-3-fixes-ccfleet-modelguard-subject-skills-cold.md`
+(atelier). Written by the brief-writer, headless session `075cdcd9` (`atelier-e0`, Opus 5.5), on
+2026-11-25 UTC, at pin `6ddbead2`. Held user-local, outside the repo, every worktree and every
+scratchpad. The orchestrator releases it to the reviewer only after the reviewer's act 1 is
+committed; the reviewer then folds it in below its reconcile and this file is deleted.
+
+These are the brief-writer's own seeded questions: a floor, never a fence (rule 1). They are what
+an off-tier, non-reviewing writer noticed while extracting claims; none is a finding, none carries
+a severity, and their topics say where this writer looked, not where the risk is.
+
+## Questions (26)
+
+**Scope**
+
+1. The item's pointer names its delta as "the commits citing `210/600`" after `a1cc5f2d`. Two RK
+   fixes on its own path list (`fc922383`, `modelguard`; `9b4a8f8f`, the changelog, citing `RK22`
+   in its subject) do not cite `210/600` in subject or message, and `f4360a79` (`210/610`) rewrote
+   the guard after the pointer was written, with no pass of its own. Is the pointer grammar a
+   recurring defect class (a landing that queues by citation rather than by path), and should
+   `pointerscan` or the queueing rule catch it? Was it right for this brief to take all three in?
+
+**The seal and the drain path**
+
+2. With no seal, `drain --dry-run` exits 1 with `DRAIN EXIT: queue error`, because `next` refuses
+   (fact 9). `run.md` prints the plan, then seals. Is a dry drain before the seal now useless as a
+   rehearsal, and does "queue error" read to an operator as a fault rather than "not sealed yet"?
+3. With the seal, the dry drain's stdout ends `DRAIN EXIT: queue empty` though `driver.log` says it
+   "started" one pick (fact 11). Does any skill or operator read the dry drain's stdout for what
+   would run, and does the pick line belong there?
+4. The seal is keyed by `--by`. A hand `ccfleet pass` with the drain's own `--by` meets the seal as
+   that run's (fact 10). Is a seal a control against an unplanned pass, or only against a pass from
+   a session that does not know the run's id? Who else can learn it?
+5. The reference queue refuses a seal by the session that wrote a brief (`briefed_by == by`,
+   fact 12). Brief-writers are often workers whose ids differ from the drain session's, and a
+   drain's `--by` is chosen by the caller. Does that check bind anything real, and does the manual
+   or `run.md` overstate it?
+6. `ccfleet` calls `ranked` once and trusts its exit. Does a seal that lapses mid-drain (the
+   first lapse among routes) stop new picks, given `next` and `take` re-check it per call in the
+   reference queue but an adopter's queue might check only `ranked`?
+
+**The pass lifecycle**
+
+7. A launcher sent `SIGTERM` or `SIGHUP` leaves its session running and its pid in
+   `<kit_dir>/sessions/`; a resume is refused while it runs. How is "still runs" decided: by pid
+   alone? After a reboot or pid reuse, can a resume be refused for ever, or allowed while a reused
+   pid belongs to something else?
+8. `PARTIAL` and `BLOCKED` are settled: a drive will not start the job again, and a no-claim run's
+   worktree is removed when it holds no unlanded work. A `BLOCKED` caused by a missing grant
+   (`sweep.md`'s new rule) is transient; is it now never retried, and does anything put it in front
+   of the principal?
+9. The settings copies are removed `atexit`. On `SIGKILL` of the launcher, or a reboot, they stay
+   under `<kit_dir>/settings/`. What do they hold (kept `env`, hooks, MCP approvals), with what file
+   permissions, and does anything sweep them?
+10. A resume or a fold now writes its verdict into the pass's own result file. Is the pass's
+    cut-off end kept below in every path, and can two folds, or a fold and a resume, race on it?
+
+**The cost history**
+
+11. A dry drain leaves a `pass-*.out` with `result=DRY` under `logs/` (fact 11). Does the cost
+    history skip it in every path, and does `passes_seen` count it?
+12. A pass finished by a fold on a cheaper tier is one completed pass summed over its sessions, and
+    split per model by `modelUsage`. Is the per-model split the reviewer's model share, or does a
+    fold's model take a share of "the pass", and does `plan.md`'s estimate say which?
+13. The hand-run note now reads "a pass run by hand (no .out; its log is not told apart from a run
+    job's)". Can a run job's log be counted as a pass, or a pass's log be missed?
+
+**The instructions file and the guard**
+
+14. For a public repo, the appended file carries the import line as text. Does the real harness
+    follow an `@` import inside a file given by `--append-system-prompt-file`? If it does, the
+    private part reaches every public session, and the guard reads only the line. Live-drivable
+    with a synthetic `CLAUDE_CONFIG_DIR` and a marker.
+15. Does `--setting-sources project,local` stop the harness loading the user-level `CLAUDE.md` on
+    its own, across CLI versions (the code's comment says "checked against claude 2.1.x")? If not,
+    the guard reads one copy and the session gets two.
+16. The guard matches the config's `private_names` against the appended text. Does it catch a name
+    split across lines, in another case, inside an inlined import for an unknown-visibility repo,
+    or in the kept hooks' commands and `env` the settings copy carries into a public session?
+17. `instructions_guard: warn` appends the file anyway with a line per name. Who sees that line in
+    an unattended drain, and should `warn` be refused for a public repo, as a prompt naming a
+    private name is (exit 5)?
+18. The inliner's rules ("relative to the importing file, `~` is home, four hops, none inside
+    code"): does an import path with `..` or a symlink reach outside the user-level directory, and
+    does a fenced block that never closes swallow later imports?
+
+**`modelguard`**
+
+19. Which real wrappers are "unknown heads" given a short option before `claude` and so pass
+    (`caffeinate -i`, `script -q`, `stdbuf -o0`, `ionice -c3`, `taskset`, `chrt`, `unbuffer`,
+    `flock -n`, `systemd-run --user -q`)? Each is a launch with no model that passes.
+20. `CLAUDE_LONG_FLAGS` is pinned to CLI 2.1.302. When the CLI adds a session flag, does the hook
+    fail open after an unknown head? Does any test or check notice the CLI moving?
+21. Which ordinary commands does the widened reading now refuse (`kubectl logs claude -c main` is
+    named; `docker exec -it claude bash -c "…"`, `journalctl -u claude -p err`, `ps -o pid -p …`,
+    a `git -c core.pager=` with `claude` in a pager command used for search)? Each refusal blocks
+    every session that types it.
+
+**The routers and skills**
+
+22. The grants use `${CLAUDE_PLUGIN_ROOT}` in front matter, and `Read(/${CLAUDE_PLUGIN_ROOT}/**)`
+    relies on the root being absolute so the leading slash makes `//`. Does the harness substitute
+    that placeholder in `allowed-tools` at all? If not, every router's grant names a literal string
+    and the RK1 fix does nothing. Live-drivable.
+23. `Bash(ccclose:*)` pre-approves any `ccclose` on `PATH` with any arguments, while the session
+    skill is active. Does `ccclose` have a mode that writes, and can a repo's own files put another
+    `ccclose` ahead on `PATH`?
+24. `instruments/atelier-menu/SKILL.md` grants `python3 ~/.claude/skills/atelier/menu.py`, a
+    user-level path, not the plugin's. Is that the path that skill runs from in both install shapes?
+25. `close.md` now says the typed brief "never removes a step: where the typed words would skip
+    one, run the step anyway". The typed words are the principal's. Does that override his own
+    narrowing, against the apex's *The principal's authority is absolute*?
+26. `MECHANISMS.md` now says a casual phrase can reach an action through a router's trigger words
+    ("wrap up" can reach the close). The routers say a first word not in the table shows the menu.
+    When a model reaches the skill on a phrase, what first word does it pass, and do the two
+    statements agree?
+
+## Facts (16)
+
+Read off the machine by the brief-writer on 2026-11-25 UTC, at `94f2b9a3` unless stated.
+
+1. Root lines: `merge-base --is-ancestor f4360a79 HEAD` exit 0; `mandoc -T lint -W style` exit 0, no
+   output; `ccfleet --help` exit 0; `menu.py --selftest` exit 0 ("lists subjects' actions and plain
+   skills, one subject on its own, skips junk"); `menu.py session` exit 0; `menu.py review` exit 0
+   (at `6ddbead2`); `review_queue_reference.py --help` exit 0; `modelguard.py </dev/null` exit 0, no
+   output.
+2. `test_ccfleet`: 136 tests OK on 3.14.6 (exit 0, 291 s) and on `/usr/bin/python3` 3.9.6 (exit 0,
+   293 s), load average about 8 to 17 during the runs. `test_atelier_menu`: 4 OK.
+3. `test_modelguard`: 8 test methods (table-driven), OK on both interpreters (about 15 s each).
+   `test_subject_skills`: 19 OK on both. `test_session_close_single_source`: 16 OK on both.
+4. Every `coldsweep --commit` read of the seven delta commits exited 0 (with the path set in the
+   brief; `CHANGELOG.md` matched nothing in `4a9318b7` and printed a note). The since-line at
+   `6ddbead2` was empty. The brief's sweep command exited 0 (output not read by the writer).
+5. `git log --grep=210/600 a1cc5f2d..HEAD` lists `08db83fd` (board and session record only),
+   `564a7ca4`, `2d8e05e3`, `53203833`, `4a9318b7`; not `fc922383`, `9b4a8f8f` or `f4360a79`.
+   `210/610` is closed with no review pointer; no `160/` item names `f4360a79` or `210/610`.
+6. Synthetic world: built by a script under the writer's scratchpad (deleted at the end), as the
+   brief describes; the queue shim logged each call and ran the reference queue from the worktree;
+   `REVIEW_QUEUE_NOW` 2030-01-05T10:00, route `local` open, lapsing 2030-01-06T23:00.
+7. `check` exit 0. It printed the config, then lines headed `NO GRANT` (default mode, "every call
+   that would ask" refused), `GRANT` (the config is the whole grant; `--setting-sources
+   project,local`; left out: nothing), `INSTRUCTIONS` (the scratch `CLAUDE.md` appended; a private
+   repo's session gets imports inlined, a public or unknown one gets it as it stands),
+   `INSTRUCTIONS IMPORT: @<path> -> <path>: inlined`, `REPO SETTINGS` (a repo's own settings still
+   load; each launch prints `WIDENED`), and `PROMPT …: 3 placeholder(s)`. `check --prompt` exit 0.
+8. `gate` exit 0 with the config's permissive gate; it read disk 7 G free (6 G by `df -g` later).
+9. `plan` and `plan --json` exit 0: one evidence row ("in the queue's own order (not a ranking)"),
+   one owed row, `local: no measurement`, four NOTE lines (local only; per completed pass summed
+   over sessions, reviewer subagent included, no size measured; list price, notional on a
+   subscription plan; a hand-run pass not counted). Unsealed `--by run-A drain --dry-run`: the same
+   reading prefixed `DRY plan:`, then `DRY queue.ranked not called`, `DRAIN EXIT: queue error`,
+   exit 1 (`driver.log`: `queue next failed rc=1: refused: no ranking is sealed`).
+10. Unsealed `drain` (real, `claude_bin` false): `refused: no ranking is sealed`, `DRAIN EXIT: not
+    ranked`, exit 1. Unsealed hand `pass … --by run-A`: `claim refused: refused: no ranking is
+    sealed`, exit 2; the shim logged `take` with `--set session=<uuid>`.
+11. Seal by the `briefed_by` id: refused ("wrote its brief, so it may not run it"), exit 1. Seal by
+    `run-A`: exit 0. Sealed `--by run-A drain --dry-run`: stdout the plan, `DRY queue.ranked not
+    called`, `DRAIN EXIT: queue empty`, exit 0; `driver.log`: `started pubrepo 100/010 (1/1 …)`,
+    `END … rc=0 result=DRY`, `queue: nothing launchable now`, `drain down: queue empty (1
+    started)`; it left `logs/pass-pubrepo-100-010-<HHMMSS>.out` holding the DRY lines. No
+    `launched-dry.txt` remained afterwards; `launched-reset-2030-01-06T2300.txt` existed, empty.
+12. Sealed `--by run-B drain --dry-run`: `DRAIN EXIT: queue error`, exit 1 (`driver.log`: "the
+    sealed ranking is run run-A's, not run-B's").
+13. No `queue.evidence`: `plan` exit 64 ("plan needs queue.evidence in the config …").
+14. Public repo with a prompt naming the private name: `refused: the prompt for pubrepo (PUBLIC)
+    names private name(s) …`, exit 5. Plain prompt, public and private repos, scratch `CLAUDE.md`
+    whose import holds the name: both exit 0, `DRY argv` carrying `--session-id`,
+    `--setting-sources project,local`, `--settings <kit_dir>/settings/<uuid>.json` and
+    `--append-system-prompt-file <kit_dir>/settings/…`. `<kit_dir>/settings/` was empty after each
+    process exited.
+15. With a second scratch `CLAUDE.md` naming the private name in its own text: public repo refused
+    (`… names private name(s) …, and pubrepo is PUBLIC; take the names out of it, or set
+    instructions_guard to …`), exit 5; private repo exit 0; public repo under `warn`: an
+    `INSTRUCTIONS name private name …` line, then the DRY launch, exit 0.
+16. The queue shim's call order across the whole run: `evidence, owed` ×3 (plan, plan --json, dry
+    drain), `next --skip-file <kit_dir>/launched-dry.txt --by run-A`, `ranked --by run-A`, `take
+    pubrepo:100/010 --by run-A --brief … --set session=<uuid>`, `evidence, owed`, `next` ×2 (sealed
+    dry drain), `evidence, owed`, `next --by run-B`. Machine: the user-level hook runs
+    `/usr/bin/python3 -I <primary>/tools/modelguard.py` on `Agent|Task|Bash`; the primary checkout
+    was at `efeccf16`, clean, on `main`; `~/.local/bin/ccfleet` links to the primary's copy;
+    `ccclose` is on `PATH`; CLI 2.1.302; one enabled plugin entry in the user-level settings.

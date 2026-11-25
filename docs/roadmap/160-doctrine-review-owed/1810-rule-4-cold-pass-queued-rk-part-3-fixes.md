@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the RK part-3 fixes to `ccfleet`, `modelguard`
+- [ ] 🎯 **Rule-4 cold pass queued: the RK part-3 fixes to `ccfleet`, `modelguard`
       and the subject skills (`210/600` part 3).** The fixes for `RK1`, `RK3`, `RK4`,
       `RK6`–`RK29` of the `160/1790` verdict change a tool that runs paid passes
       unattended, the hook every session's launches meet, and the grants every
@@ -53,3 +53,13 @@
       disclosed: it holds the context partition, commits the records and releases the held-back
       sibling after act 1; it forms no finding and writes no severity. It authored no part of the
       delta and no part of the brief. The reviewer is one fresh Fable subagent.
+      **Verdict 2026-11-25 UTC: PASS-WITH-FINDINGS, 0 MAJOR, 5 MODERATE, 12 minor, 4 notes**
+      (`PK1` to `PK21`), in
+      [`../../reviews/2026-11-25-0721-rk-part-3-fixes-ccfleet-modelguard-subject-skills-cold.md`](../../reviews/2026-11-25-0721-rk-part-3-fixes-ccfleet-modelguard-subject-skills-cold.md):
+      one Fable reviewer under off-tier orchestrator 14c2530d, act 1 at `a247f7f0`, reconcile and
+      folded sibling below it. It also reviews `f4360a79` (`210/610`), per his answer above. The
+      live launches were NOT RUN (a synthetic config directory has no sign-in); the reviewer
+      re-drove those claims by reading the installed CLI instead, and says so. Every finding is
+      the principal's to rule; nothing is applied. The held copy of the sibling was deleted after
+      the fold was checked.
+      🔓 2026-11-25 UTC: session 14c2530d releases its claim.
