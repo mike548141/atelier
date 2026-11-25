@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: every command is subject, space,
+- [~] ⏳ **Rule-4 cold pass queued: every command is subject, space,
       action; `review plan`, `ccfleet plan` and `work plan` (`450/020`,
       `180/210`, `180/240`).** Every plugin user's commands moved, the
       review queue's ranking moved into one file that a drain will run from,
@@ -81,3 +81,13 @@
       start the pass. Barred list gains `33d3cde8` and `9a08702f`. The pass stays
       `⏳` for a fresh Fable session.
       🔓 2026-11-25 UTC: queue run 9a08702f releases its brief-widening claim.
+      🔒 CLAIMED 2026-11-25T02:05Z (claimed 2026-11-25-0205, wt: atelier-a9) for the
+      RK Fable pass by session 4a34637a (`atelier-a9`, Opus 5.5, principal-opened,
+      fresh: it authored, started and instructed no part of the delta or the
+      brief). **Off-tier orchestrator, disclosed (rule 4):** it holds the context
+      partition, keeps the held-back sibling (by count only here) outside the
+      tree, commits the records and releases the sibling after act 1 is
+      committed; it forms no finding and writes no severity. The reviewer is a
+      fresh Fable subagent it spawns, process-only prompt recorded in the
+      verdict. Since-line at `7544c943` empty. One pass, one verdict, closing
+      `160/1450`, `160/1790` and `160/1740` and reviewing `450/030`.
