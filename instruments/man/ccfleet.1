@@ -624,12 +624,23 @@ the
 .B claude \-p
 JSON log each names, and the logs of any resume and fold that finished the
 pass: a resume's
-.IR resume\-<repo>\-<item>\-<HHMM>.json ,
+.IR resume\-<repo>\-<item>\-<YYYYMMDDTHHMMSS>.json ,
 given to the newest pass of that repo and item that started before it
 ended, and a fold's
-.IR <pass's\ worktree\ folder>\-in\-<HHMMSS>.json .
+.IR <pass's\ worktree\ folder>\-in\-<YYYYMMDDTHHMMSS>.json .
+Each name carries the date and the second, so a later launch never reopens
+an earlier log (the minute-only names an earlier ccfleet wrote are still
+read).
 A pass counts when it was completed: clean in one session, or finished
 clean by its last resume or fold.
+A later session's verdict is its own
+.B END
+line, kept beside its log as
+.IR <log>.end ,
+so a resume that read as
+.B UNLANDED
+or ended on an error does not finish the pass; a log with no such line (an
+earlier ccfleet's) is read as its JSON says, with exit 0 assumed.
 Its cost, duration and turns are the sums over all its sessions of
 .BR total_cost_usd ,
 .B duration_ms
@@ -669,6 +680,11 @@ A pass run by hand leaves no
 file, and its log is not told apart from a
 .B run
 job's, so it is not counted.
+Nor is a pass whose launcher was stopped by a signal: it printed no
+.B END
+line, so its
+.I .out
+gives no verdict, and a resume that finishes it is not counted either.
 .TP
 .BI pass " repo item brief"
 One drain pass; the command
@@ -1626,13 +1642,18 @@ resets its count of bad ends;
 anything else counts one bad end, and three in a row stop it.
 .SH FILES
 .TP
-.I <kit_dir>/logs/<label>-<HHMM>.json
+.I <kit_dir>/logs/<label>-<HHMM>-<YYYYMMDDTHHMMSS>.json
 A session's raw output; a
 .I .err
-file beside it holds its standard error.
-An adopted worktree adds
-.I \-in\-<HHMMSS>
-to the name.
+file beside it holds its standard error, and an
+.I .end
+file its
+.B END
+line.
+An adopted worktree's log has
+.I \-in\-
+before the date, and a resume's is
+.IR resume\-<repo>\-<item>\-<YYYYMMDDTHHMMSS>.json .
 .TP
 .I <kit_dir>/logs/run\-<label>.out, pass\-*.out
 What each child

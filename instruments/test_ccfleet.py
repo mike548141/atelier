@@ -2504,6 +2504,34 @@ class Wave2(unittest.TestCase):
         self.assertNotIn("not classified: sandbox", out)
         self.assertIn("MANAGED: managed (policy) settings always load and can widen the grant", out)
 
+    # ----- PK12: log names never reused; a later session's own END line -----
+
+    def test_pk12_logs_carry_date_and_seconds_and_keep_their_end_line(self):
+        r = self.cli("run", "beta", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        log = re.search(r" log=(\S+)", r.stdout).group(1)
+        self.assertRegex(os.path.basename(log), r"^beta-\d{4}-\d{8}T\d{6}\.json$")
+        self.assertIn(" result=DONE ", rd(log + ".end"))
+        wt = self.new_wt("beta")
+        r = self.cli("resume", "beta", wt, "sess-old", "--prompt", self.prompt)
+        self.assertRegex(r.stdout, r"log=\S+/resume-beta-sess-old-\d{8}T\d{6}\.json")
+
+    def test_pk12_m9b_history_counts_only_a_pass_its_later_session_finished(self):
+        """M9b and PK12(b): a resume that ended FAILED, or one whose own END
+        line read UNLANDED though its log said DONE, did not finish the pass;
+        a resume with no END line kept is read from its log, exit 0 assumed."""
+        self.queue_json()
+        self.plan_cfg()
+        self.drain_pass("beta", "050", "ERROR")
+        self.session_log("resume-beta-050-20300101T130000", result="FAILED")
+        self.drain_pass("beta", "060", "ERROR")
+        log = self.session_log("resume-beta-060-20300101T130000", result="DONE")
+        wr(log + ".end", "END 2030-01-01T13:10:00Z rc=0 result=UNLANDED session=s models=- out=/x\n")
+        self.drain_pass("beta", "070", "ERROR")
+        self.session_log("resume-beta-070-1300", result="DONE")
+        local = json.loads(self.cli("plan", "--json").stdout)["history"]["routes"]["local"]
+        self.assertEqual((local["passes_seen"], local["clean"], local["finished_later"]), (3, 0, 1))
+
     # ----- PK20: the configured visibility beside the forge's -----
 
     def test_pk20_check_warns_when_the_forge_disagrees(self):

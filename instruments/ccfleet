@@ -254,7 +254,11 @@ queue.evidence exits 64.
   size is measured, so no figure is per size. Every pass ccfleet launches is a
   local session, so only the `local` route is measured; any other route a
   row's `fits` names reads "no measurement", as does local with no logs. A pass
-  run by hand leaves no .out and is not counted. Nothing is estimated.
+  run by hand leaves no .out and is not counted, nor is one whose launcher a
+  signal stopped (no END line). A later session's verdict is its own END
+  line, kept as <log>.end; a log without one is read with exit 0 assumed.
+  Log names carry the date and second, so no later launch reopens one.
+  Nothing is estimated.
 
 Template variables always filled: {REPO} {GH} {BR} {VIS} {PIN} {WT} {PRIMARY}
 {LANDING} {NOTES} {SCRATCH} {BY} {DATE} {SESSION}, plus config `vars`, plus the
@@ -1222,6 +1226,18 @@ def models_used(log_path):
     return ",".join(re.sub(r"[\s,]", "_", n) for n in names) or "-"
 
 
+def end_line(log, line):
+    """Print a session's END line, and keep it beside its log (<log>.end), so
+    the cost history reads a resume's or a fold's own verdict, its exit code
+    and an UNLANDED included, rather than its JSON alone (PK12)."""
+    print(line, flush=True)
+    try:
+        with open(log + ".end", "w", encoding="utf-8") as f:
+            f.write(line + "\n")
+    except OSError:
+        pass
+
+
 def stamp_dir(root, label):
     stamp = now_utc().strftime("%H%M")
     parent = os.path.join(root, f"{label}-{stamp}")
@@ -1647,8 +1663,10 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     kit = cfg["kit_dir"]
     logs, results, scratch = (os.path.join(kit, "logs"), os.path.join(kit, "results", day),
                               os.path.join(kit, "scratch", safe(repo)))
+    # Date and seconds in the name: a later launch never reopens an earlier
+    # log, which the cost history reads (PK12).
     log = os.path.join(logs, os.path.basename(os.path.dirname(wt))
-                       + (f"-in-{now_utc():%H%M%S}" if existing else "") + ".json")
+                       + ("-in-" if existing else "-") + f"{now_utc():%Y%m%dT%H%M%S}.json")
     if facts["remote"]:
         branch_name = None
     elif existing:
@@ -1716,8 +1734,8 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     else:
         out = os.path.join(results, f"{label}.md")
         write_result(out, sid, rc, result, text, keep_earlier=False)
-    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={sid} models={models_used(log)} "
-          f"out={out}", flush=True)
+    end_line(log, f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={sid} "
+                  f"models={models_used(log)} out={out}")
     released = True
     if post:
         released = post(values, result, sid, log) is not False
@@ -2395,7 +2413,15 @@ def session_reading(path, cfg):
     costUSD, which sums to total_cost_usd, subagents included), subagents
     spawned, and cost bases."""
     clean_words, stops = release_on(cfg), stop_on(cfg)
-    _, _, word = harvest(path, None, 0, known=clean_words + stops, stops=stops)
+    # The session's own END line where ccfleet kept one: its verdict with its
+    # real exit code and any UNLANDED. Without one (an earlier ccfleet, or a
+    # launcher stopped before its END) the log is read with exit 0 assumed.
+    try:
+        with open(path + ".end", encoding="utf-8", errors="replace") as f:
+            m = END_RESULT_RX.search(f.read())
+    except OSError:
+        m = None
+    word = m.group(1) if m else harvest(path, None, 0, known=clean_words + stops, stops=stops)[2]
     j = read_log_json(path) or {}
     mu = j.get("modelUsage") if isinstance(j.get("modelUsage"), dict) else {}
     ss = j.get("subagent_stats") if isinstance(j.get("subagent_stats"), dict) else {}
@@ -2462,8 +2488,10 @@ def pass_history(cfg):
                        "at": start.split()[1], "later": []})
     for path in glob.glob(os.path.join(glob.escape(logs), "*.json")):
         name = os.path.basename(path)
-        r = re.fullmatch(r"resume-(.+)-\d{4}\.json", name)
-        f = re.fullmatch(r"(.+)-in-\d{6}\.json", name)
+        # Names with date and seconds now; the minute-only names an earlier
+        # ccfleet wrote are still read.
+        r = re.fullmatch(r"resume-(.+)-(?:\d{4}|\d{8}T\d{6})\.json", name)
+        f = re.fullmatch(r"(.+)-in-(?:\d{6}|\d{8}T\d{6})\.json", name)
         mtime = os.path.getmtime(path)
         at = dt.datetime.fromtimestamp(mtime, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         if r:
@@ -2765,7 +2793,7 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
     with FileLock(os.path.join(cfg["kit_dir"], "locks", f"resume-{sid}.lock"),
                   f"another resume of session {sid}", EXIT_CLAIM):
         log = os.path.join(cfg["kit_dir"], "logs",
-                           f"resume-{safe(repo + '-' + (item or sid))}-{now_utc():%H%M}.json")
+                           f"resume-{safe(repo + '-' + (item or sid))}-{now_utc():%Y%m%dT%H%M%S}.json")
         for line in repo_grants(wt):
             print(f"WIDENED by the repo's own {line} (it loads with the project; man ccfleet, THREATS)",
                   flush=True)
@@ -2778,8 +2806,8 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
         text, result = unlanded_verdict(wt, facts, branch_name, result, text)
     out = pass_result_path(cfg, safe(f"{repo}-{item}") if item else safe(f"resume-{repo}-{sid}"))
     write_result(out, new_sid or sid, rc, result, f"(resumed session {sid})\n{text}")
-    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={new_sid or sid} "
-          f"models={models_used(log)} out={out}", flush=True)
+    end_line(log, f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={new_sid or sid} "
+                  f"models={models_used(log)} out={out}")
     if not item:
         print(f"no --item: no queue command called; worktree kept: {wt}", flush=True)
         return 0
