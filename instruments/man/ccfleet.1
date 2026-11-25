@@ -514,6 +514,14 @@ one that ended any other way runs again.
 So running the same file again on the same day resumes it, and
 .B \-\-day
 resumes a drive begun before midnight.
+A settled job is not run again by the next drive, even once its cause is
+fixed (a
+.B BLOCKED
+for a missing grant, say).
+To run it again, delete its result file,
+.IR <kit_dir>/results/<day>/<label>.md ,
+or run the drive under another
+.BR \-\-day .
 .IP
 Once
 .B reset_utc
@@ -1940,6 +1948,27 @@ whose
 is
 .I <repo>\-<item>
 writes a result file a fold would take as its pass's.
+.PP
+ccfleet's inliner and Claude Code part company in a private repo's session:
+an import inside an indented code block or a block HTML comment is inlined
+(Claude Code skips both), one inside a sentence is not (Claude Code would
+follow it), and the user-level
+.I rules/
+directory is not appended at all, so such a session can lack a file the
+operator's own sessions get.
+And a config's read grant outside the worktree works in the Claude Code
+version tested by a path substitution its documentation promises only for
+Bash rules; a version that kept to the documentation would refuse a
+headless session's first such read.
+.PP
+A launcher killed between its claim and its
+.B START
+line (no signal handler is installed yet) leaves the claim, the worktree
+and both settings copies with no session.
+The session id is on the claim (the example's
+.B take
+records it), so the queue shows which claim it is; release it and remove
+the worktree by hand.
 .PP
 The other way round: a config that grants nothing runs its sessions in the
 default mode, where every call that would ask is refused.
