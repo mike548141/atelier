@@ -1,4 +1,4 @@
-- [~] 🔧 🔥 **Fix `ccfleet`, the subject skills, `modelguard` and `/atelier:session close`:
+- [x] 🔧 **Fix `ccfleet`, the subject skills, `modelguard` and `/atelier:session close`:
       findings RK1–RK29 of the `160/1790` cold pass, as the reviewer advised; the four on the
       drain's path first, before Monday 2026-11-30's drain.** The principal's picks, 2026-11-25
       UTC (session 4a34637a, AskUserQuestion; answers, not rulings, option text quoted on
@@ -46,3 +46,32 @@
       `REVIEW_MODEL`; the canary's orchestrator recovered by retrying with the alias,
       a real pass might not. The real config already uses the alias. The small
       Fable pass is queued as `160/1800`, neither briefed nor run here.
+      ✅ **Part 3, the remaining findings, landed 2026-11-25** (session 0ee74059; four
+      Opus workers in their own worktrees, merged and re-tested by the run). Every one
+      of `RK1`, `RK3`, `RK4`, `RK6`–`RK29` is applied as counselled, judgement calls
+      the reviewer's way. `modelguard` (`fc922383`): `RK9` a `claude` after an unknown
+      head counts only when a session flag or a prompt follows, and the refusal says
+      how to rephrase; `RK15` the nine shapes denied; the harness's `Workflow` route
+      documented as unguarded. Skills (`4a9318b7`, `9b4a8f8f`): `RK1` and `RK29` each
+      router grants only a read of the plugin's own files, its menu call and the
+      read-only git reads its actions name, pinned by test; a headless probe with no
+      user-level settings ran `/atelier:session close` end to end where it was refused
+      before; `RK19` the eleven named mutations now fail the tests; `RK12`'s fleet
+      prompts stop BLOCKED on a refused read rather than inlining long, changing texts;
+      `RK13`, `RK14`, `RK20`, `RK22`, `RK27` as worded. `ccfleet` lifecycle
+      (`53203833`, `2d8e05e3`): `RK3` the first line beginning `RESULT:` with a shape
+      line; `RK4` the session's process id recorded and `resume` refused while it
+      lives; `RK6`, `RK16`, `RK17`, `RK24`, `RK25`, `RK26` with tests that fail on the
+      old code. `ccfleet` grant and contract (the commit after them): `RK7` the seal's
+      contract stated and a reference queue shipped; `RK8` the history counts resumes
+      and folds and splits by repo and model, and says it measures no review size;
+      `RK10` the instruction file is guarded, a public repo's launch refused by default
+      (`instructions_guard: warn` to go on with a line per name); `RK11`, `RK12`,
+      `RK18`, `RK21`, `RK23`, `RK28`. Risks moved, named in the commits: a refused
+      claim held by a dead session is now skipped quietly; the live-session check
+      rests on `ps` showing the session id; two digest pins make the router and close
+      texts change only with their digest. The part-3 cold pass is queued as
+      `160/1810` and waits for the principal's permission for Fable work. **Owed by
+      the estate root** (hand-down, not done here): its drain config's `pass_prompt`
+      path, and a choice on `instructions_guard` before a public repo's next pass,
+      since its user-level instruction file names private names.

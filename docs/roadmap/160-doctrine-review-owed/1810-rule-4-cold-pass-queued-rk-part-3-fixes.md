@@ -1,0 +1,23 @@
+- [ ] ⏳ **Rule-4 cold pass queued: the RK part-3 fixes to `ccfleet`, `modelguard`
+      and the subject skills (`210/600` part 3).** The fixes for `RK1`, `RK3`, `RK4`,
+      `RK6`–`RK29` of the `160/1790` verdict change a tool that runs paid passes
+      unattended, the hook every session's launches meet, and the grants every
+      `/atelier:` command carries, so they earn their own pass. The authoring session
+      (0ee74059, `atelier-c3`, Opus 5.5, principal-opened by `/atelier:work run`,
+      whose four Opus workers wrote the fixes) queues this and does not take it.
+      *Tier:* Fable, the principal-named review tier, checked at selection; the pass
+      waits for his explicit permission for Fable work (the one pass he picked on
+      `160/1790` is `160/1800`, the drain path only).
+      *Pass type:* code and doctrine cold pass, per `method/REVIEW.md` rule 4, by a
+      session that wrote none of the fixes.
+      *Delta, scoped to paths:* `instruments/ccfleet`, `instruments/test_ccfleet.py`,
+      `instruments/man/ccfleet.1`, `instruments/ccfleet.example.json`,
+      `instruments/fixtures/review_queue_reference.py`, `tools/modelguard.py`,
+      `tools/test_modelguard.py`, `skills/**`, `.claude-plugin/*`, `CHANGELOG.md`,
+      `docs/method/MECHANISMS.md`, `tools/test_subject_skills.py`,
+      `tools/test_session_close_single_source.py`: the commits citing `210/600`, on
+      `main`, after `a1cc5f2d`.
+      *Intent record:*
+      [`../210-instruments-open-features/600-fix-ccfleet-subject-skills-and-modelguard-rk1-rk29.md`](../210-instruments-open-features/600-fix-ccfleet-subject-skills-and-modelguard-rk1-rk29.md);
+      the findings:
+      [`../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md`](../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md).
