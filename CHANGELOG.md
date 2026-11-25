@@ -5,7 +5,39 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
-### Added (2026-11-25 — `/atelier:session close`, `450/030`)
+### Changed (2026-11-25 — the subject skills' grants and wording, the `RK` cold pass, `210/600`)
+- **A router pre-approves only what it needs (`RK1`, `RK29`).** Each
+  `skills/<subject>/SKILL.md` carried `Bash(python3:*)` and `Bash(git:*)` (the
+  `repo` router also `cp`, `chmod`, `cd`), a standing yes to any python and
+  any git, a push or a hard reset included, while any of its actions ran. It
+  now grants reading the plugin's own files, the menu by its exact command,
+  and, under `session` and `work` only, the three read-only git commands that
+  fetch the principal's committed prompt (under `session`, also `ccclose`). The
+  read grant is the fix for an action that could not load: its text is a read
+  of a path outside the session's directory, refused in a headless session
+  with no grant of its own (seen live for `/atelier:session close`; it ran to
+  the end once the router granted the read, written with a leading `//` so the
+  path is absolute). Action files lose their `allowed-tools`: they are read,
+  not loaded as skills, so the harness never applied them. The routers now
+  state the plugin's root as filled in at load, and an unknown first word is
+  reported as the first word, not as "none of them".
+- **The texts say what they do (`RK12`, `RK13`, `RK14`, `RK20`, `RK27`).**
+  `review plan` counts a review pointer as owed, as `REVIEW.md` rule 4 does,
+  and shows its review candidates; `review run` says where the words typed
+  after it go; `session close` says what "committed" buys, what `HEAD` is for
+  each install, where `ccclose` is, and that typed words never drop a step;
+  `work plan` says `ccopen` fetches; the fleet prompts that read the atelier
+  checkout say the config must grant it and stop when it does not.
+  `MECHANISMS.md` no longer says a slash command fires only when invoked.
+- **The guards see more (`RK19`, `RK22`).** `tools/test_subject_skills.py`
+  pins each router's grant and its shared text, `plan.md`'s read-only rule,
+  `run.md`'s plan-every-run gate, and the manifests' action list;
+  `tools/test_session_close_single_source.py` pins the close's body by
+  digest and its section finder skips fenced lines. The retired-name sweep
+  also reads `.githooks/` and `.github/`, a bare old name and a new-form
+  command naming no action.
+
+### Added (2026-11-24 — `/atelier:session close`, `450/030`)
 - **`/atelier:session close` runs the principal's close from one command.** It
   reads the *Ending the session* section of
   `docs/method/session-open/session-open-prompt.md` from the committed copy
@@ -15,6 +47,52 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   none of the section; `tools/test_session_close_single_source.py` pins that.
   The router row, description and `argument-hint` carry the new action; the
   prompt itself is unchanged.
+
+### Changed (2026-11-24 — every command is subject, space, action, `450/020`)
+- **`/atelier:<subject> <action>` replaces the hyphenated names.** One skill
+  per subject (`review`, `work`, `fleet`, `worktree`, `repo`, `session`), each
+  a router, with each action's text in its own file beside it, so a use loads
+  only its own. A bare subject, or a first word that is not exactly one of its
+  actions, shows that subject's menu and runs nothing; no synonym counts, and
+  the word is checked before any read. `commands/` is gone: its four commands
+  are actions now. The old names were retired with no forwarder; live
+  references name the new form and records keep theirs.
+  `tools/test_subject_skills.py` keeps the routers, the action files, the
+  descriptions and the menus in step.
+
+### Added (2026-11-24 — `review plan`, `work plan` and `ccfleet plan`, `180/210`, `180/240`)
+- **`/atelier:review plan` shows the review queue before anything runs:**
+  every owed review, briefed or not, ranked, routed to the cheapest budget that
+  still matches a local pass, with an estimated cost, as a table. It is the
+  one home of that method: `review run` plans and then seals from it, and
+  `review brief` and `fleet sweep` take the owed-but-unbriefed list from it.
+- **`ccfleet plan` is its code half, read-only:** the adopter's
+  `queue.evidence` (and `queue.owed` where there is one) and measured cost from
+  ccfleet's own clean pass logs, "no measurement" otherwise.
+  `drain --dry-run` prints it and still never calls `queue.ranked`.
+- **`/atelier:work plan` shows what a work run would do** (its opening checks,
+  what is buildable and in what order, what it would skip and ask) and claims
+  or starts nothing.
+
+### Changed (2026-11-23 — `ccfleet`: the config is the whole grant; UNLANDED; SHA-256 log names, `210/560`, `115/500`)
+- **A launched session gets only what the config grants.** User-level settings
+  had widened whatever the config set. Every launch now passes
+  `--setting-sources project,local` and a settings file ccfleet writes: the
+  user-level settings less their allow rules, default mode and extra
+  directories, and less any hook that prints an allow decision, with the
+  config's own `settings` on top. Deny and ask rules, the other hooks, plugins
+  and env are kept; the user-level instruction file is appended. A repo's own
+  settings still load, so each launch prints a `WIDENED` line for their
+  grants, and `check` prints the grant, each hook kept or dropped, and the
+  instructions appended.
+- **A clean end that leaves work unlanded reads `UNLANDED`.** A clean result
+  whose worktree still holds uncommitted files or commits on no remote branch
+  keeps its claim and its worktree; a drive reruns the job, a drain counts a
+  bad end, and `resume` finishes the pass. `UNLANDED` may not be a
+  `release_on` word.
+- **Review-log names are hashed with SHA-256** (they were SHA-1). A pass cut
+  off before the change is still found under its earlier name, and a fresh
+  pass sets every earlier one aside.
 
 ### Changed (2026-11-23 — `pathscan` treats a closed board item as a record, `320/880` part 1)
 - **A board item whose state line is `- [x]` is a record to `pathscan`**, excluded
