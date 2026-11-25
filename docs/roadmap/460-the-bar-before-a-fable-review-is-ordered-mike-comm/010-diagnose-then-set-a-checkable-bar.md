@@ -1,4 +1,7 @@
-- [ ] **Find out why work that should not qualify is getting a Fable review
+- [~] **Find out why work that should not qualify is getting a Fable review
+      🔒 CLAIMED 2026-11-25T13:50Z (claimed 2026-11-25-1350, wt: none, read-only) by session f8dd3843
+      (`atelier-31`, Opus 5.5, principal-opened by `/atelier:work run`): step 1 only, the
+      sample and classification of atelier's queued passes; steps 2–4 stay open.
       ordered, then set a bar a session can check before it queues one**
       `[M][doctrine]`. Mike commissioned this, 2026-11-24. Verbatim:
 
