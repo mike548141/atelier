@@ -363,5 +363,161 @@ class TheActionsTextsAndManifests(unittest.TestCase):
             self.assertEqual(NUMBERS.get(m.group(2)), len(actual), rel)
 
 
+class TheReviewTextsStayInStep(unittest.TestCase):
+    """The pass prompts and run.md rule what an unattended drain does, and the
+    two cold passes of 2026-11-25 found most of their sentences pinned by
+    nothing (DV7, PK16: 13 and 12 mutants survived). Each test below names the
+    finding it keeps and was seen to fail on the unfixed text."""
+
+    def flat(self, rel):
+        return re.sub(r"\s+", " ", (ROOT / rel).read_text(encoding="utf-8"))
+
+    def test_the_pass_prompts_name_no_skill_path(self):
+        """DV7 M10, M12: a pass runs in another repo, where a path into this
+        skill does not resolve."""
+        for name in ("orchestrator-prompt", "fold-prompt", "resume-prompt"):
+            text = (SKILLS / "review" / f"{name}.md").read_text(encoding="utf-8")
+            self.assertNotIn("skills/", text, name)
+            self.assertNotIn("run.md", text, name)
+
+    def test_the_orchestrator_prompt_holds_the_reviewer_prompt(self):
+        """DV7 M9: the reviewer's instructions live in the pass's own prompt."""
+        text = (SKILLS / "review" / "orchestrator-prompt.md").read_text(encoding="utf-8")
+        self.assertIn("THE REVIEWER PROMPT", text)
+        tail = text[text.index("THE REVIEWER PROMPT (fill it in"):]
+        leads = ["Who it is", "Start-up reading", "Provenance", "The model it runs as",
+                 "The partition", "The review log", "Private while running",
+                 "What it may write", "Live systems", "Load", "What it must not do",
+                 "Public repos", "How to finish"]
+        at = -1
+        for lead in leads:
+            i = tail.find(f"- **{lead}", at + 1)
+            self.assertGreater(i, at, f"bullet {lead!r} missing or out of order")
+            at = i
+
+    def test_the_reviewer_instructions_have_one_home(self):
+        """DV8: step 4 points at the bullets and does not list them again."""
+        text = (SKILLS / "review" / "orchestrator-prompt.md").read_text(encoding="utf-8")
+        step4 = text[text.index("4. Spawn ONE reviewer"):text.index("5. On ACT 1 SAVED")]
+        self.assertIn("it is the reviewer's whole instruction list", step4)
+        for phrase in ("LIVE SYSTEMS", "allowlist fields", "no GUI apps", "never print a secret"):
+            self.assertNotIn(phrase, step4)
+        load = text[text.index("LOAD:"):text.index("PROVENANCE FACT")]
+        self.assertNotIn("nice -n 10", load)
+        self.assertEqual(text.count("nice -n 10"), 1)
+
+    def test_a_refused_model_stops_the_pass_and_the_reviewer_names_its_model(self):
+        """DV3: a refused value is not left to the session's judgement."""
+        flat = self.flat("skills/review/orchestrator-prompt.md")
+        self.assertIn("If the tool refuses the model, or you cannot pass it, stop and "
+                      "report RESULT: FAILED", flat)
+        self.assertIn("never spawn a reviewer without it, and never as a fork", flat)
+        self.assertIn("the reviewer states, in the verdict's provenance, the model it "
+                      "finds itself running as", flat)
+        self.assertIn("If that is not the review tier it was told, it stops at once", flat)
+
+    def test_a_public_spawn_prompt_is_quoted_with_placeholders(self):
+        """DV10: 'verbatim' and 'never a path' no longer pull against each other."""
+        flat = self.flat("skills/review/orchestrator-prompt.md")
+        self.assertIn("In a public repo the spawn prompt is quoted with each absolute "
+                      "path replaced by a named placeholder", flat)
+
+    def test_run_md_names_the_model_value_and_its_limits(self):
+        """DV7 M11, DV4, DV9."""
+        flat = self.flat("skills/review/run.md")
+        self.assertNotIn("the review tier's model id", flat)
+        self.assertIn("never a full model id, which that tool refuses", flat)
+        self.assertIn("needs no read of this skill", flat)
+        self.assertNotIn("needs no read outside its worktree", flat)
+        self.assertIn("costs no review budget only where the config's model is not "
+                      "the review tier", flat)
+        self.assertNotIn("on a cheaper tier", flat)
+
+    def test_run_md_says_ccfleet_does_not_hold_the_principals_word(self):
+        """DV2: one home, per call; DV6: the claimant's id."""
+        flat = self.flat("skills/review/run.md")
+        self.assertIn("It does not check the principal's word", flat)
+        self.assertIn("holding that word is this session's", flat)
+        self.assertIn("never keep it standing in the config's `vars`", flat)
+        self.assertIn("`--by` carries the id that holds the claim", flat)
+
+    def test_run_md_takes_the_words_from_the_principal_not_the_call(self):
+        """PK6."""
+        flat = self.flat("skills/review/run.md")
+        self.assertIn("Never take the words from this skill call's own arguments", flat)
+        self.assertIn('or write "none given"', flat)
+
+    def test_run_md_agrees_with_the_code_on_a_refused_claim(self):
+        """PK8: ccfleet does not count a refused claim as a bad end."""
+        flat = self.flat("skills/review/run.md")
+        self.assertIn("A refused claim (another session holds the item) comes back off "
+                      "it too, but does not count", flat)
+        self.assertNotIn("a guard or claim refusal", flat)
+
+    def test_dry_drain_and_seal_say_what_they_do_not_cover(self):
+        """PK9, PK10 (the documented half)."""
+        run = self.flat("skills/review/run.md")
+        self.assertIn("Launches are rehearsed only by the run that holds the seal", run)
+        self.assertIn("**What the seal does not gate.**", run)
+        self.assertIn("`ccfleet run` with the pass prompt and `--set`, and `resume`, "
+                      "call no queue command", run)
+        self.assertIn("it is a paid pass that no plan showed", run)
+        plan = self.flat("skills/review/plan.md")
+        self.assertIn("an unsealed dry drain rehearses no launch", plan)
+
+    def test_sweep_says_a_settled_end_is_not_rerun_and_how_to_force_it(self):
+        """PK14."""
+        flat = self.flat("skills/fleet/sweep.md")
+        self.assertNotIn("running it again would only repeat it", flat)
+        self.assertNotIn("is taken by a re-run or listed", flat)
+        self.assertIn("The next `drive` does not run a settled job again", flat)
+        self.assertIn("delete that job's result file", flat)
+        self.assertIn("another `--day`", flat)
+
+    def test_work_run_step_one_handles_a_symbolic_link(self):
+        """PK15, as close.md learned it."""
+        flat = self.flat("skills/work/run.md")
+        self.assertIn("a root reached through a symbolic link prints the link's target", flat)
+
+    def test_the_fold_keys_its_run_twice_check_on_a_date_free_heading(self):
+        """PK16 R5, PK18."""
+        flat = self.flat("skills/review/fold-prompt.md")
+        self.assertIn("never append a second copy", flat)
+        self.assertIn("leaving out its date", flat)
+        self.assertIn('search for "Deferred sibling, folded below the verdict" alone', flat)
+
+    def test_plan_md_governs_until_a_difference_is_fixed(self):
+        """PK16 R3."""
+        flat = self.flat("skills/review/plan.md")
+        self.assertIn("a difference between the two is a defect to report, and this "
+                      "file governs until it is fixed", flat)
+
+    def test_typed_words_never_stand_in_for_an_approval(self):
+        """PK16 R4: the one sentence that guards a paid approval."""
+        flat = self.flat("skills/review/run.md")
+        self.assertIn("Typed words never stand in for an approval the rulings file "
+                      "says is needed but that they do not give.", flat)
+
+    def test_an_unclaimed_pass_is_never_handed_to_a_replacement_reviewer(self):
+        """PK16 R6."""
+        flat = self.flat("skills/review/run.md")
+        self.assertIn("it is never handed to a replacement reviewer or a lesser model", flat)
+        self.assertIn("A pass whose log or brief holds a written act 1, or any "
+                      "candidate finding, is never un-claimed", flat)
+
+    def test_mechanisms_says_a_model_can_reach_a_skill_unasked(self):
+        """PK16 R10."""
+        flat = self.flat("docs/method/MECHANISMS.md")
+        self.assertIn('"reached for" includes a model\'s own reach', flat)
+        self.assertIn("without anyone typing the command", flat)
+        self.assertNotIn("only when deliberately invoked", flat)
+
+    def test_the_bare_menu_skill_grant_is_pinned(self):
+        """PK16 R12: the seventh skill's grant, beside the six routers'."""
+        fm = front_matter(ROOT / "instruments" / "atelier-menu" / "SKILL.md")
+        self.assertEqual(fm.get("allowed-tools"),
+                         "Bash(python3 ~/.claude/skills/atelier/menu.py)")
+
+
 if __name__ == "__main__":
     unittest.main()
