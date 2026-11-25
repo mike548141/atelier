@@ -15,3 +15,17 @@
       2026-11-30 drain may run before these land; none is a precondition for it. Afterwards a
       Fable re-check of the fixes is owed, queued in `160-doctrine-review-owed`, waiting on the
       principal's approval.
+      💬 **Answered 2026-11-25 ~08:30 UTC (session 0b4f93ef, `atelier-86`,
+      AskUserQuestion; an answer, not a ruling), his pick:** *"Before, plus
+      re-check"* (option text: *"Land all fixes and run their Fable re-check
+      before Monday, then switch. Benefit: Monday runs on the most robust code.
+      Cost: another Fable pass this week, and a real risk it isn't done in time,
+      so Monday falls back to /fable-drain."*). So: these fixes land AND their
+      Fable re-check comes back with no MAJOR before the drain starts
+      (2026-11-29 23:00 UTC); only then does the drain switch (`450/010` row 2,
+      after shed's `020/1040`). That approves exactly ONE Fable re-check pass
+      over this item's fixes, plus its Opus brief, by a fresh session that wrote
+      none of them; it does not lift the general Fable hold. If either misses
+      the drain's start, Monday runs on `/fable-drain` and the switch waits
+      for the gap after it. Nothing may land on the drain's paths between a
+      clean re-check and the drain.
