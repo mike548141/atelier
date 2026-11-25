@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the `DV` and `PK` fixes to `ccfleet`, the reference
+- [ ] 🎯 **Rule-4 cold pass queued: the `DV` and `PK` fixes to `ccfleet`, the reference
       queue, `modelguard`, `pointerscan` and the review and close skills (`210/620`).** The
       one Fable re-check the principal approved on `210/620`, step C of `450/010` row 2.
       The authoring session (b04df0da, `atelier-f9`, Opus 5.5, principal-opened by
@@ -41,3 +41,14 @@
       orchestrator, disclosed (rule 4):** it spawns one fresh Fable reviewer, holds the context
       partition, releases the held-back sibling after act 1 is committed and commits the records;
       it forms no finding and writes no severity. It wrote no part of the delta or the brief.
+      **Verdict 2026-11-25 UTC: PASS-WITH-FINDINGS, 0 MAJOR, 5 MODERATE, 11 minor, 5 notes**
+      (`DP1` to `DP21`), in
+      [`../../reviews/2026-11-25-1920-dv-pk-fixes-recheck-cold.md`](../../reviews/2026-11-25-1920-dv-pk-fixes-recheck-cold.md):
+      one Fable reviewer under off-tier orchestrator 01c055e5, act 1 at `785fa79e`, reconcile and
+      folded sibling below it. Of the 32 earlier findings: 30 fixed, `DV10` partly fixed (`DP16`),
+      `PK13` fixed with a regression beside it (`DP1`, `DP21`). The reviewer's counsel: the drain
+      is safe to run from these commands, once the changelog's adopter actions and the private
+      config points are made first. With no MAJOR, step C of `450/010` row 2 is met. Every
+      finding is the principal's to rule; nothing is applied. The held copy of the sibling was
+      deleted after the fold was checked byte for byte.
+      🔓 2026-11-25 UTC: session 01c055e5 releases its claim.

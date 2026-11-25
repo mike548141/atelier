@@ -1,7 +1,10 @@
 # Cold re-check — the `DV` and `PK` fixes to `ccfleet`, the reference queue, `modelguard`, `pointerscan` and the review and close skills (`160/1820`)
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1820-rule-4-cold-pass-queued-dv-and-pk-fixes.md`
-**Status:** BRIEF ONLY, 2026-11-25 UTC. Written by headless session `43d5be30` (`atelier-1d`,
+**Status:** VERDICT 2026-11-25 UTC: PASS-WITH-FINDINGS, 0 MAJOR, 5 MODERATE, 11 minor, 5 notes
+(`DP1` to `DP21`; one Fable reviewer under off-tier orchestrator `01c055e5`; act 1 committed as
+`785fa79e`, reconcile and folded sibling below it). Every finding is the principal's to rule.
+Was: BRIEF ONLY, 2026-11-25 UTC. Written by headless session `43d5be30` (`atelier-1d`,
 Opus 5.5), pinned at `6a44b08e` (`origin/main` when written). Not yet run; queued for one Fable
 reviewer under off-tier orchestrator `01c055e5`.
 **Approval:** exactly one Fable re-check pass over the `210/620` fixes, plus its Opus brief, by a
@@ -1505,3 +1508,400 @@ running when its drain ends can release; `close.md` keeps to the principal's rec
 - [ ] Before the weekly drain (2026-11-29 23:00 UTC): the adopter actions in the private config
       and queue, which this pass could not see.
 - [ ] Act 2: the fix ledger for `DV1`–`DV11` and `PK1`–`PK21`, after this text is committed.
+
+### Reconcile (act 2, 2026-11-25 UTC)
+
+Act 1 above was committed unrevised as `785fa79e` before any of this was read; my worktree's HEAD
+is that commit, its tree is clean, and `git diff HEAD~1 --stat` shows the one file, 856 lines
+added. No act-1 text is changed below.
+
+**The orchestrator's release message, verbatim**, the held copy's absolute path written as the
+placeholder `<HELD>` (a user-local folder outside the repo, every worktree and every scratchpad):
+
+> Release for act 2: act 1 is committed unrevised as 785fa79e and pushed to origin/main. The
+> commit hook passed: datescan raised nothing on the quoted prompt, and the only red was
+> pathscan's advisory, already there, in docs/build/README.md. Your worktree HEAD is now
+> 785fa79e. The held-back sibling is at
+> `<HELD>/atelier--2026-11-25-1920-dv-pk-fixes-recheck-cold.deferred.md` (read it there; do not
+> copy it into the tree, and I fold it in after you finish). You may now open it, the two earlier
+> verdicts, the barred records and the delta commits' bodies, and do act 2 exactly as the brief's
+> Process says: append `### Reconcile` beneath your verdict, never revising act-1 text. Same
+> process rules as before (no git writes, primary checkout untouched, load-gated heavy steps;
+> load is about 4 now). Reply in at most five lines when done, with the overall line restated,
+> MAJOR count first, and any new DP ids.
+
+It is one paragraph as sent, wrapped here. It asks nothing about the delta and steers no finding.
+
+**Read for act 2, in this order:** the held-back sibling, whole (20 questions, 14 facts); the
+`DV` verdict's findings (`DV1`–`DV10`) and its reconcile whole (`DV11` is there); the `PK`
+verdict's findings (`PK1`–`PK20`) and its reconcile from *Against the authors' account* to its
+end (`PK21` is there); the intent record `210/620` whole; the 23 delta commits' message bodies;
+the *Ending the session* section of the session-open prompt (for sibling question 16). Not read:
+the rest of the two verdict files (their briefs, method records and folded siblings), the other
+barred board items, `docs/sessions/`: nothing in the ledger turned on them.
+
+**Residual risk, named.** The fix ledger below is anchored on the two earlier verdicts by design:
+I read each finding and then looked for its answer. Act 1 is the cold half, and it stands as
+written.
+
+#### The fix ledger
+
+"Re-driven" names a command or probe run at `785fa79e` on 2026-11-25 UTC; `mut2.py` applies one
+named mutation to a scratch clone and runs the test the fix added (20 mutants, all 20 killed).
+The states are the brief's.
+
+| Finding | Counsel (pointer) | What answers it | How I re-drove it | State |
+|---|---|---|---|---|
+| `DV1` | `DV` verdict, *Findings*, `DV1`, counsel: key the exemption on the pass's result file or `START` line; refuse `pass_prompt`; say it in *THREATS* | `acfd0d59`; `instruments/ccfleet` `pass_started`, `run_one`; the manual's *THREATS* | Its own reproduction: reset passed, fold shape, item 777 never taken, a review-tier model named: `RESET reached … no pass on privrepo:777 started`, exit 3 (it exited 0 and started a session before). A fold with `pass_prompt`: exit 64 | **Fixed as counselled.** Residue: `DP13`; and the threat the manual now names is real (a plain `run` labelled `privrepo-777` before the reset, then the same fold after it: `START … model=model-review`, exit 0) |
+| `DV2` | `DV2`, counsel: say `ccfleet` checks no word; one home, per call | `3c824d40`, `b7a3a694`; the example config; the manual at `reset_utc`; `run.md` Mode 2 and *Close* step 3 | `check --prompt` on the shipped fold prompt: `UNSET: {BRIEF} {FINISH_WORDS} {HELD}`; a dry fold without it: exit 5; the example's `vars` hold no such key | **Fixed as counselled** |
+| `DV3` | `DV3`, counsel: three changes (the prompt stops on a refused model and bars a fork; the reviewer states its model; `models=` on the `END` line) | `b7a3a694` (`orchestrator-prompt.md` step 4 and the model bullet), `4ae0f05e` | All three are there and pinned; `END … models=model-orch,model-review` in the world; mutants "END line without models" and "example a full id" killed | **Fixed as counselled.** `check` still accepts any value (not counselled). Residue: `DP15` |
+| `DV4` | `DV4`, counsel: the fleet prompts' `{ATELIER}` sentence, or have `run.md` say "no read of this skill" | `b7a3a694`, `run.md` *The reviewer prompt* | `grep`: "needs no read of this skill" present, "no read outside its worktree" gone (pinned) | **Fixed as counselled**, by the second of the counsel's two routes. The authors call it a departure; it is not one. That route corrects the claim and leaves the behaviour the finding saw (a reviewer in a repo whose doctrine sits outside the worktree may be handed "the worktree's `REVIEW.md` or none"), which the counsel allowed |
+| `DV5` | `DV5`, counsel: one changelog entry with the adopter's action in bold | `77fc8f42`, `CHANGELOG.md` | Read: the entry leads with **Adopter actions** | **Fixed**, with one clause that is not so (`DP7`) |
+| `DV6` | `DV6`, counsel: say whose id `--by` carries | `b7a3a694`, `run.md:283` | Its own reproduction on the reference queue: a pass taken by `run-D`; the fold under `run-E` ends `DONE`, then `release refused … not held by run-E`, exit 2, worktree kept; under `run-D`, exit 0 | **Fixed as counselled** (the wording route; the behaviour is the contract's) |
+| `DV7` | `DV7`, counsel: three assertions and a fourth | `1c3488ad`, `acfd0d59`, `4ae0f05e` | Mutants M5, M8, M9, M10, M11 re-made: each killed | **Fixed as counselled** |
+| `DV8` | `DV8` (note) | `b7a3a694`: step 4 points at the bullets; the load and live-systems rules moved into them | Read; pinned by `test_the_reviewer_instructions_have_one_home` | **Fixed** |
+| `DV9` | `DV9` (note) | `b7a3a694`, `run.md` Mode 2 | Read; pinned | **Fixed** |
+| `DV10` | `DV10` (note) | `b7a3a694`, the Provenance bullet | Read; pinned | **Partly fixed**: the spawn prompt only (`DP16`) |
+| `DV11` | `DV` reconcile, `DV11` (note) | `acfd0d59`, *THREATS*: "In a bypass permission mode an unattended session can itself run ccfleet in either shape after the reset" | Read | **Fixed** (stated) |
+| `PK1` | `PK` verdict, `PK1`, recurrence prevention: tie removal to the session's end; sweep at the next start; assert both copies while the session lives | `e6a27480`, `afa9aec7` | Its own reproduction under SIGTERM, SIGHUP and SIGKILL: both copies present while the session ran, after an unrelated launch's sweep too, gone after its end and one more launch | **Fixed as counselled.** The sweep's hold on live records is pinned by no test (`DP5`, M1) |
+| `PK2` | `PK2`, counsel: record the worktree and refuse any launch into it | `e6a27480` | Its own reproduction: fold beside the live session, exit 2, nothing released, worktree kept | **Fixed as counselled** |
+| `PK3` | `PK3`, counsel: say it in the contract, make the reference do it, a two-route test | `7db38b4b` | A review sealed to an earlier-lapsing route is not offered to `local` (`q1.py`, Q4); mutant "next ignores the route" killed | **Fixed as counselled.** Residue: `DP7` (who passes the route), `DP8` (`take`) |
+| `PK4` | `PK4`, counsel: read the line directly above the shape line, anything else `UNKNOWN` | `422b5b5c` | Its two probe texts are the delta's own tests, which pass; mutant "first line wins" killed | **Fixed another way**: the authors added a second shape for the fleet prompts. The departure was needed (the counsel alone would read every sweep as `UNKNOWN`, since those prompts put `REPO:` first) and it meets the finding. It went further than the need: "last line, no blank line in the block" is what makes `DP2`, and the pairing of two shapes is what makes `DP6` |
+| `PK5` | `PK5`, recurrence prevention: a deny rule per import target, neutralise the line, name the residual | `a8d5e35b` | The world: note in place of the line, header without a path, `Read(//…)` deny; a private repo unchanged | **Fixed as counselled.** What the same session can still reach: `DP3`, `DP4`, `DP18` |
+| `PK6` | `PK6`, counsel: quote his message or "none given", never the call's arguments | `b7a3a694` (`run.md`), `001d9b42` (`close.md`) | Read; pinned | **Fixed as counselled** in the two files the finding named; the class is wider (`DP12`) |
+| `PK7` | `PK7`: put it to him | `001d9b42`; his recorded answer on `210/620`, "Obey, but say so" | Mutant "run the step anyway" killed; the sentence read against his answer and against the close section it runs, which names no step as beyond his word | **Fixed as he answered.** The sentence does what the option text says and no more |
+| `PK8` | `PK8` | `b7a3a694`, `run.md` Mode 1 step 3 | Mutant killed | **Fixed** |
+| `PK9` | `PK9`, counsel, second option; the reconcile's addition (name the pick) | `be934126` | The world: unsealed exit 0 "not sealed"; sealed, "DRY rehearsed launch" naming the pick | **Fixed as counselled** |
+| `PK10` | `PK10`, counsel: refuse `unknown`; an optional `unseal`; say what the seal does not gate | `be934126`, `b7a3a694` | `seal --by unknown` exit 1; a drain's end leaves no seal and a second drain exits 1; the manual and `run.md` say it; mutant killed | **Fixed as counselled.** Point (d) (a review outside the sealed order is offered and taken) is unchanged and now said in `run.md`; see `DP8`, `DP17` |
+| `PK11` | `PK11`, recurrence prevention: an unknown kept key is "kept, not classified" | `d07c0682` | A user-level `sandbox` block and an unknown key: `WIDENS: sandbox`, `KEPT, not classified: someFutureKey`, `MANAGED:` | **Fixed as counselled.** The `NO GRANT` line beside them still says every asking call is refused |
+| `PK12` | `PK12`, counsel: date-and-second names; read a later session's own `END` | `389b9424` | Log names in the world; mutant "history ignores `.end`" killed | **Fixed as counselled.** Its point (d), what a resumed session's total holds, is still tested by no one (live, NOT RUN) |
+| `PK13` | `PK13` and its reconcile additions | `5d3265e2`, `127f3fef` | Seven of its named launches, old hook beside new: each pass → deny; `print('claude', …)`, `console.log` and `say` now pass; the two accepted refusals still refuse; the six flags | **Fixed as counselled for every shape it named; regressed beside them**: `DP1`, `DP21`; new false denies `DP9`; the table `DP10` |
+| `PK14` | `PK14` | `be31d53b`, `f58cc435` | A drive: `BLOCKED`, skipped on the next drive, run again once its result file is deleted | **Fixed** |
+| `PK15` | `PK15`, four mirror sites | `77fc8f42`, `127f3fef`, `7a2ec7e9` | Each site read at HEAD; a linked root prints its target | **Fixed** |
+| `PK16` | `PK16`, counsel: tests for M11, M15, M21, Q2; pin R4, R6 | `36ec7901`, `1c3488ad`, `5d3265e2` | M11, M15, M21, Q2, R4, R5, R6 and G6 re-made: each killed | **Fixed as counselled** |
+| `PK17` | `PK17` (note) | `f58cc435`, *THREATS* | Read | **Fixed** (stated; behaviour unchanged) |
+| `PK18` | `PK18` (note) | `b7a3a694`, `fold-prompt.md` step 0 | Mutant killed | **Fixed**; the fix moved the risk (`DP14`) |
+| `PK19` | `PK19` (note) | `f58cc435`, *THREATS* | Read | **Fixed** (stated) |
+| `PK20` | `PK20` (note) | `d07c0682`, `f58cc435` | The delta's stubbed-`gh` test passes; in the world, with no forge name known, `check` prints no visibility line at all | **Fixed** (the check half; the residual stated) |
+| `PK21` | `PK` reconcile, `PK21`, counsel: `pointerscan` warns on citation alone | `9d52835a`; this delta's own pointer names a range | It fires on three real pointers in the tree | **Fixed as counselled**; `DP19` |
+
+Of 32: 30 fixed (27 as counselled or as stated, one as the principal answered, one another way
+that meets the finding, one with a wrong clause), one partly fixed (`DV10`), one fixed and
+regressed beside it (`PK13`), none unfixed. The authors' "all 32 applied as counselled" holds
+but for `DV10` and `PK13`.
+
+#### Against the authors' account
+
+- **The two departures they name.** `PK4`: judged in the ledger; needed, and wider than needed.
+  `DV4`: not a departure.
+- **Their test claim** ("3,499 tests, one failure … under load; `test_ccfleet` 152 OK"). My
+  whole-suite run at `9e6712b4`: 3,539 tests, `OK`, with the load low. The count has grown with
+  later commits; no failure reproduced.
+- **`1c3488ad`'s body**: "Each was run against the unfixed text or a mutant and failed." For the
+  seven I re-made, yes. They are sentence pins: they fail when the words go, not when a sentence's
+  meaning is turned with its words kept (sibling question 20). That is the nature of a prose
+  pin; I add it to `DP5`.
+- **`e6a27480`'s body**: the sweep takes copies "that no live session record holds". True of the
+  code; no test would notice it stop (`DP5`).
+- **`5d3265e2`'s body** lists the new denies and does not see that the tmux reading passes what
+  the old hook denied (`DP1`).
+- **The commit bodies of `77fc8f42` and `db4984c1`** carry the route claim of `DP7` ("next
+  --route local").
+
+#### My act-1 findings against the sibling's questions
+
+| Finding | Sibling question | After reconcile |
+|---|---|---|
+| `DP1` | none reaches it | Stands, MODERATE |
+| `DP2` | 7, from the other side | Stands, MODERATE |
+| `DP3` | 8, in part | Stands, MODERATE, with an addition |
+| `DP4` | 11 asks it; fact 13 saw it | Stands, MODERATE, with an addition |
+| `DP5` | 20 | Stands, MODERATE, with an addition |
+| `DP6` | 6, 7 | Stands, minor, with an addition |
+| `DP7` | 1 asks it directly | Stands, minor. Found cold; the same suspicion |
+| `DP8` | none | Stands, minor |
+| `DP9` | 13 | Stands, minor |
+| `DP10` | 14 | Stands, minor |
+| `DP11`, `DP12` | 16, in part | Stand, minor |
+| `DP13` | 2 | Stands, minor |
+| `DP14`–`DP16` | 19 reaches `DP15` | Stand, minor |
+| `DP17` | 18 | Stands, note, with an addition |
+| `DP18` | 9, 10 | Stands, note, with an addition |
+| `DP19` | 15 | Stands, note |
+| `DP20` | none | Stands, note |
+
+**Questions act 1 answered without a finding.** 2 and 3: a sealed dry drain's `pass-*.out`
+holds no `START` line (checked again on the world's file: none), so neither `pass_started` nor
+the cost history reads it as a pass; the `run --label` route is real and the manual says so. 4:
+a reused pid keeps a copy and deletes none, and both copies are 0600; the manual does not say a
+kept copy can outlive its session this way. A session whose record was never written falls in
+a window of two statements, between the launch and the record. 5: I found no other way into an
+existing worktree; `pass` and `drive` make a fresh stamped folder. 8: by the harness's
+documentation the rule matches the requested path or the path it resolves to, and is applied to
+Grep, Glob and the file commands the harness recognises in Bash; a script is not stopped, as the
+manual says. 16: the skip rule agrees with `run.md` (skipping a close step grants no approval),
+with the close section, which names no step as beyond his word, and with its test. 17: every
+value the reviewer needs reaches it through the orchestrator prompt.
+
+**Question act 1 did not reach: 12.** Probed now; it is `DP21`.
+
+**The sibling's facts** agree with my re-runs line for line but for run times and for the whole
+`tools` suite, which the brief-writer could not finish and I could. Fact 13 I could not have
+seen: it is a live observation, and it goes to `DP4`.
+
+#### Additions to act-1 findings (formed at reconcile; severities unchanged)
+
+- `DP3`: the `DV` verdict's reconcile records the authors' statement that the estate's own
+  sessions run in a bypass permission mode. I have not seen that config. If it is so, the read of
+  the settings folder needs no grant at all, and the deny rule added for `PK5` covers the
+  original file while its inlined copy sits unprotected beside every running private pass. The
+  principal knows his config and can weigh it; I do not raise the severity on a file I may not
+  open.
+- `DP4`: the sibling's fact 13 is the live half I marked NOT RUN. The brief-writer's own session,
+  started by `ccfleet run` into this public repo from the operator's real config, was handed the
+  import line withheld, as designed, and "the harness's per-project memory index, which names
+  private repos and estate facts". That is the brief-writer's observation, not mine; it matches
+  the documentation.
+- `DP5`: the skills' fixes have wording pins only, which is all prose can have; what a pin
+  cannot see is a sentence turned with its words kept.
+- `DP6`: "stopping is the safe direction" is not safe for a budget that lapses unspent; a quoted
+  stop word that halts a drain costs the rest of that budget (question 6).
+- `DP17`: a driver ended by a signal leaves its seal, so a drain restarted under the same `--by`
+  runs on the earlier ranking until the seal lapses, against `run.md`'s "a restarted one
+  included, plans and seals afresh" (question 18).
+- `DP18`: `check` prints "inlined" for an import beside a public repo, where that repo's session
+  gets it withheld; the sentence above the line says so, the line itself does not (question 9).
+
+#### Finding formed at reconcile
+
+**`DP21` (note, formed at reconcile, from sibling question 12). The hook's print-call skip keys
+on the call's name, so a call of that name that runs its argument now passes.** `PRINT_CALL`
+skips a string literal whose preceding text ends in `print(`, `puts(`, `say(`, `warn(` and the
+like. Probe (`mg_probe4.py`, old hook beside new):
+`python3 -c "import os; os.warn = os.system; os.warn('claude -p x')"` and
+`node -e "const say = require('child_process').execSync; say('claude -p x')"` were each denied
+by the old hook and pass the new one. Ruby and Perl backtick literals inside `puts(` and
+`print(` are still denied. Both passing shapes are contrived, which is why this is a note; it is
+the same class as `DP1`, a denial the hook had and lost to this round's loosening.
+
+#### Overall, restated
+
+**PASS-WITH-FINDINGS — 0 MAJOR · 5 MODERATE (`DP1`–`DP5`) · 11 minor (`DP6`–`DP16`) ·
+5 notes (`DP17`–`DP21`).** 21 findings; one, `DP21`, formed at reconcile. No act-1 finding is
+raised, lowered or withdrawn. Of the 32 earlier findings, none is unfixed, one is partly fixed
+(`DV10`) and one is fixed with a regression beside it (`PK13`).
+
+The three plain lines, restated, unchanged in substance:
+
+- **Lose, misread or mis-cost paid review work?** No loss and no mis-costing found. A drifted
+  final output reads `UNKNOWN` (`DP2`); a drifted one beside a quoted pair reads as the quote
+  (`DP6`).
+- **Safe to run the paid weekly drain from?** Yes: 0 MAJOR, and every earlier MODERATE is fixed
+  at HEAD. First make the changelog's adopter actions in the private config and queue, and the
+  three private-config points the `DV` verdict's reconcile names (the pass prompt's path, the
+  review tier's alias, no standing finish word), none of which this pass could open. Read the
+  first pass's `END` line before trusting the pace. The decision is the principal's.
+- **Private context into a public repo's session?** Not by what `ccfleet` appends. Open, and
+  older than the delta: the settings folder (`DP3`) and auto memory (`DP4`, now seen live by the
+  brief-writer).
+
+Scratch fixtures (the synthetic world, the scratch clone, the old copies of the hook and of
+`ccfleet`) were deleted after this was written; the probe scripts and their outputs stay in my
+scratch directory. The held copy of the sibling is left for the orchestrator.
+
+---
+
+## Deferred sibling, folded below the verdict (orchestrator, 2026-11-25)
+
+Held out of the tree by the brief-writer and the orchestrator, at a held user-local path, until
+act 1 was committed (`785fa79e`); released to the reviewer for act 2 by the message quoted in
+the reconcile; folded here verbatim by the orchestrator, `01c055e5`, which formed no finding.
+
+# Held-back sibling — `2026-11-25-1920-dv-pk-fixes-recheck-cold.md` (`160/1820`)
+
+Written by the brief-writer, headless session `43d5be30` (`atelier-1d`, Opus 5.5), 2026-11-25 UTC.
+Held outside the repo, every worktree and every scratchpad. Released to the reviewer by the
+orchestrator only after act 1 is committed (`REVIEW.md` rule 1). It holds the brief-writer's own
+seeded questions, the authors' account it met on the intent record, and the results of the
+brief's re-run lines and of its synthetic world. These are claims to weigh, not findings: the
+brief-writer forms no finding and writes no severity.
+
+## Questions (20)
+
+1. The changelog says "ccfleet now calls it with `--route local`". In the code, `ccfleet` calls the
+   queue's `next` exactly as the config's `queue.next` template says; `--route local` is in the
+   example config, not added by `ccfleet`. Is the changelog's claim true of the tool, or only of
+   the example? What does an adopter whose `next` template omits `--route` get, with the
+   reference queue (default `local`) and with a queue of their own? Does any surface tell an
+   adopter they must add it?
+2. `pass_started` treats a pass as started when `results/*/<repo>-<item>.md` exists under
+   `kit_dir`, or a `START` line for that label is in `logs/pass-*.out`. Can a caller make that
+   true without a pass having started, for example `run REPO --label <repo>-<item>` of some
+   other job, or a `drive` jobs file using that label, or a sealed `drain --dry-run` (which the
+   brief-writer saw leave a `logs/pass-*.out` file)? If so, is the reset exemption a control or a
+   convention, and is that stated?
+3. Does a sealed dry drain's `pass-*.out` carry a `START` line, and if so does the cost history
+   (`pass_history`) or `pass_started` read it as a real pass?
+4. The copies' sweep keeps a copy while its launcher's pid is alive. A launcher pid reused by an
+   unrelated process keeps a copy (holding the user-level env block and instruction text) on
+   disk indefinitely. Is that bounded, said, and owner-only? Conversely, can the sweep remove a
+   copy a live session still reads: a session whose record was never written (the launcher died
+   between `Popen` and the record write), or a record an older `ccfleet` wrote with three fields
+   and no copies?
+5. `refuse_live_worktree` is called for `run --in` and for `resume`. Is there any other way into an
+   existing worktree (a `pass` or a `drive` job whose worktree path collides, a `drain` pick for an
+   item whose earlier pass's session still runs under another launcher)?
+6. `result_word` honours a stop word found on *any* RESULT line when no shaped verdict stands.
+   Can text a reviewed repo puts into a session's final output (a quoted `RESULT: BUDGET
+   EXHAUSTED` in NOTES) stop a paid drain? Is "stopping is the safe direction" true for a drain
+   whose budget then goes unspent before it lapses?
+7. The `PK4` fix reads a RESULT line that closes a block holding `REPO:` as a verdict (the fleet
+   prompts' shape), beyond the counsel's "directly above". Can a final output that quotes a
+   block from a reviewed repo or a log, ending in `RESULT: DONE` after a `REPO:` line, satisfy
+   that test while the session's own verdict says otherwise?
+8. A `Read(//<path>)` deny rule stops the Read tool. Does anything stop `cat`, `grep` or a
+   script under a granted Bash rule, or the Glob/Grep tools, from opening the withheld file? Is
+   "each imported file denied for reading" an overclaim for any config that grants Bash? Does
+   2.1.302 match deny rules by the path given, by real path, or both, and through a symbolic
+   link?
+9. `ccfleet check` printed `INSTRUCTIONS IMPORT: @private.md -> <path>: inlined` with a public
+   and a private repo configured. Does "inlined" mislead an operator about what a public session
+   gets?
+10. `withhold_imports` and `expand_imports` must agree on what an import line is. Is there an
+    `@path` form the harness follows that `expand_imports` (and so `withhold_imports`) does not
+    treat as an import, so its text reaches a public session unwithheld (a path only, but a path
+    the fix says is never named)?
+11. The import withholding covers what `ccfleet` appends. The harness also hands a session its
+    per-project memory index (the brief's machine-local list). Is the delta's privacy claim
+    scoped honestly to what `ccfleet` appends, and does any surface tell an adopter about the
+    channels it does not control?
+12. `modelguard` skips a string literal whose preceding program text ends in a call named
+    `print`, `printf`, `console.log`, `puts`, `say`, `warn` or `alert`. Does an alias or a
+    function of one of those names that runs its argument (for example
+    `os.warn = os.system; os.warn("…")`, or a user function `say(cmd)` that execs) now pass a
+    launch the earlier version denied?
+13. The new depth rule denies any command naming `claude` past four levels. Does that refuse
+    ordinary commands sessions run (a deeply nested `git -c alias` or `bash -c` that merely
+    mentions the word), and is the cost stated?
+14. Do the six long flags added to the table match `claude --help` for 2.1.302 exactly, and does
+    `--help` list any other flag only `claude` takes that the table still lacks?
+15. `pointerscan`'s bound test passes any pointer with two distinct hex runs of seven or more
+    characters that contain a digit. Can a pointer pass with two hashes that bound nothing (an
+    intent record's commit and a brief's pin)? And it fires only on the phrase "commits citing":
+    does it miss "the commits that cite", "commits referencing", or "the `X` commits"?
+16. The `PK7` change lets the principal's typed words skip a close step. Does that agree with
+    `run.md` ("Typed words never stand in for an approval the rulings file says is needed"), with
+    the session-open prompt's own close text, and with `test_session_close_single_source.py`? Is
+    the option text's "as the rest of the house rules say" true?
+17. The `DV4` fix took `run.md`'s "no read of this skill" route rather than having the prompt read
+    the skill. Does every value the reviewer needs now reach it through the orchestrator prompt
+    alone, and does `run.md` still say anything that only a reader of `run.md` would know?
+18. `queue.unseal` is called after the drain's loop. Is it reached on every way a real drain ends
+    (the stop file, the reset, a queue error, the unclean-stop count, a signal to the driver, an
+    exception)? A seal left in place lasts until its lapse: does a restarted drain with the same
+    `--by` then run on a ranking sealed for the earlier run?
+19. `models=` on the `END` line comes from the log's `modelUsage`, which sums the session and its
+    subagents. Does it show the reviewer's model distinctly enough to meet `DV3`'s purpose (a
+    pass whose reviewer ran off-tier is visible in the record)? What does it print for a session
+    whose launcher was signalled (no JSON yet)?
+20. Several new tests in `test_subject_skills.py` pin sentences of the skills. Would each fail on a
+    revert of its fix's *meaning* with the words kept, or only on a change of words? Which fixes
+    have only a wording pin and no behaviour test?
+
+## Facts (14)
+
+1. **The authors' account, from the intent record `210/620` (session `b04df0da`'s done note),
+   verbatim in part:** "Two places the fix departs from the letter of the counsel, for the
+   re-check to weigh: `PK4` also accepts a `RESULT:` line that closes a block holding `REPO:`,
+   since the fleet prompts put `REPO:` first and the counsel's "directly above" alone would read
+   every sweep as UNKNOWN; `DV4` took `run.md`'s "no read of this skill" route, since ccfleet
+   fills no `{ATELIER}` for the review prompts."
+2. **The authors' test claim, same note, verbatim:** "Full tools suite on 3.14: 3,499 tests, one
+   failure (a spellscan memory-bound test that passes alone, under load); `test_ccfleet` 152 OK on
+   3.9 and 3.14."
+3. **The authors' mapping of fixes to commits, same note, verbatim:** "`DV1`, `DV3`, `DV7` (M5),
+   `DV11`, `PK1`–`PK5`: `422b5b5c`..`afa9aec7` (Opus worker). The skill texts, `DV2`–`DV4`,
+   `DV6`–`DV10`, `PK6`–`PK10`, `PK14`–`PK16`, `PK18`: `b7a3a694`..`1c3488ad`, `db4984c1` (Sonnet
+   worker, and this session). `PK13`, G6, `PK15` (`tools/README.md`), `PK21`:
+   `9d52835a`..`127f3fef` (Sonnet worker). The ccfleet minors and notes, `DV2`, `PK9`–`PK12`,
+   `PK14`, `PK16`, `PK17`, `PK19`, `PK20`: `3c824d40`..`36ec7901` (Opus worker). The changelog
+   (`DV5`, `PK15`) and the rest of `PK15` land with this close." Note that this commit order is
+   by worker, not by time: `9d52835a`..`127f3fef` interleaves with the skills commits in time.
+4. **The re-run lines, as the brief-writer ran them** at `2068884e`, 2026-11-25 from about 19:20
+   UTC, from the places the brief names: `merge-base --is-ancestor 77fc8f42 HEAD` exit 0;
+   `mandoc -T lint -W style` exit 0, no output; `ccfleet --help` exit 0; the reference queue's
+   `--help` exit 0; `modelguard </dev/null` exit 0; `pointerscan --selftest` "ok (0 failure(s))"
+   exit 0; `coldsweep --selftest` "selftest OK" exit 0. The unit-test lines and the whole-suite
+   line: see fact 14.
+5. **`pointerscan --root . .` at `2068884e`:** exit 0 (advisory), "22 finding(s) … (6 grammar · 0
+   cycle state · 16 queue state)", 919 roadmap files, 1,203 items. Three of the six grammar
+   findings are the new "names its delta's commits by citation alone" text, on items `160/1750`,
+   `160/1760` and `160/1770`; the `160/1820` pointer itself is not flagged.
+6. **The pushed floor.** The `ci.yml` run (named `floor`) on `77fc8f42` completed `cancelled`
+   (cancel-in-progress, superseded within two minutes). The first green run whose tree holds the
+   delta is on `a033f023` (2026-11-25 13:28 UTC), `success`; `77fc8f42` is its ancestor. That
+   workflow runs `python3 -m unittest discover -s tools` and `-s instruments` on Python 3.12.
+7. **The brief-writer's synthetic world** (in its own scratchpad, deleted after): two repos with
+   no remote, one public and one private; a scratch `CLAUDE_CONFIG_DIR` whose `CLAUDE.md` read
+   `# shared instructions`, a blank line, `@private.md`, a blank line, `plain shared line`, and a
+   `private.md` holding one invented private name; `instructions_guard` `refuse`; the reference
+   queue on a one-review state; `claude_bin` a stand-in shell script that recorded argv, copied
+   the `--settings` and `--append-system-prompt-file` files, and printed a JSON result with the
+   session id, `"REPO: x\nRESULT: DONE"` and a `modelUsage` of one invented model name.
+8. **What `check` printed in that world:** exit 0; a `NO GRANT` line; a `GRANT` line ("Left out:
+   nothing"); a `MANAGED:` line; an `INSTRUCTIONS:` line saying a public repo's session gets
+   "each import line withheld (a note that names no path), no imported file, and a deny rule for
+   Read of each file listed here. Imports found: 1."; then `INSTRUCTIONS IMPORT: @private.md ->
+   <path>: inlined`; no `VISIBILITY` line at all (neither repo has a `github` value or a GitHub
+   `origin`, so `check_visibility` skipped both silently); no `KEPT, not classified` line (the
+   scratch settings were empty).
+9. **The dry drains in that world:** unsealed, exit 0, "DRY not sealed: no launches rehearsed
+   (queue next refused: refused: no ranking is sealed)", then "DRAIN EXIT: not sealed: no
+   launches rehearsed". After `seal --by run-A` (exit 0): the same command as `run-A` printed
+   "DRY rehearsed launch: pubrepo 100/010 docs/reviews/brief.md" and "DRAIN EXIT: queue empty",
+   exit 0, and left `logs/pass-pubrepo-100-010-<HHMMSS>.out` under `kit_dir`. As `run-B`: exit
+   0, "not sealed … the sealed ranking is run run-A's, not run-B's". `seal --by unknown`: exit 1,
+   "refused: `unknown` is no run's id".
+10. **What the stand-in was handed** by `run <public repo>` (real launch of the stand-in, exit 0,
+    `END … rc=0 result=DONE … models=stub-model-a`): an instructions file headed `# The
+    operator's user-level instructions` with no path, the sentence "it is passed here with its
+    @-imports withheld", the shared text, and the import line replaced by `<!-- ccfleet: an
+    @-import line withheld from this session -->`; the private name absent; a settings file
+    whose `permissions` were `{'deny': ['Read(//<scratch path>/cfg/private.md)']}` (a double
+    slash, then the absolute path). By `run <private repo>`: the header names the file's path,
+    the import is inlined between `<!-- ccfleet: @private.md inlined from <path> -->` and `<!--
+    ccfleet: end of <path> -->`, the private name present, and no `permissions` key. Copy names
+    were `<session>.<launcher pid>.json` and `<session>.<launcher pid>-user-instructions.md`;
+    neither copy remained in `kit_dir/settings/` after the launcher exited.
+11. **What the runs left in `kit_dir`:** `children.tsv`, `driver.pid`, `driver.log`; for each run
+    `logs/<repo>-<HHMM>-<YYYYMMDDTHHMMSS>.json`, a `.json.err` and a `.json.end` holding the `END`
+    line; `results/<day>/<repo>.md`; the dry drain's `pass-*.out`. No `sessions/` record remained.
+12. **The `dry-run` of `run <public repo>`** printed the argv it would launch: `nice -n 5
+    <stand-in> -p --session-id <id> --setting-sources project,local --settings <copy>.json
+    --append-system-prompt-file <copy>-user-instructions.md --model <model> --output-format json
+    <prompt> < /dev/null`, and an `END … result=DRY` line naming a log under `logs/` with the new
+    date-and-seconds name.
+13. **A live observation outside the synthetic world.** The brief-writer's own session was
+    launched by `ccfleet run` into this public repo from the operator's real config. Its system
+    prompt carried the user-level instructions under the header "The operator's user-level
+    instructions" with no path, the sentence "ccfleet loads no user-level settings, so Claude Code
+    does not load this file itself; it is passed here with its @-imports withheld, and binds as
+    it would have", and a `<!-- ccfleet: an @-import line withheld from this session -->` line
+    where the import had been. The same session also received the harness's per-project memory
+    index, which names private repos and estate facts; `ccfleet` did not hand it that, and the
+    brief-writer did not test what else the session could read.
+14. **The unit-test and whole-suite lines**, run by the brief-writer at `2068884e`, 2026-11-25
+    UTC, under `nice -n 15`, one at a time, from the places the brief names: from `instruments/`,
+    `test_ccfleet` on 3.14 "Ran 152 tests in 471.494s / OK" exit 0, and on `/usr/bin/python3`
+    (3.9) "Ran 152 tests in 341.761s / OK" exit 0. From `tools/`, each on 3.14 then 3.9:
+    `test_modelguard` 13 tests OK and 13 OK; `test_pointerscan` 61 OK and 61 OK;
+    `test_subject_skills` 37 OK and 37 OK; `test_session_close_single_source` 17 OK and 17 OK;
+    all exit 0. The script ended at 19:34:24 UTC. **The whole `tools` suite did not finish:**
+    started 19:34:35 UTC with the 15-minute load about 10.4 on 12 cores, it was stopped by the
+    brief-writer's one-hour background limit, with the load having climbed to 58 (one-minute) /
+    28 (five-minute) from other sessions. It printed no result (`-q` reports failures only at the
+    end), so it proves nothing either way. It was not restarted, because at 20:34 UTC the
+    15-minute load was 17, over the brief's own gate for that line. The pushed floor for this
+    delta is the `ci.yml` run on `a033f023` (fact 6), which ran the whole `tools` and
+    `instruments` suites on 3.12, `success`. The authors' full-suite claim (fact 2) is therefore
+    re-run by no one but that CI run so far.
