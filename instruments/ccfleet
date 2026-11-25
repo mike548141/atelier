@@ -190,7 +190,13 @@ fits without saying why, or while two budgets are open and either lapse
 time is unknown. ranked, next and take each exit nonzero (next printing
 nothing) until this run's ranking is sealed, so a pass started by hand
 (`ccfleet pass`, whose take carries its own --by) meets the same gate as a
-drain's. A seal lasts one run and no longer than the first
+drain's. next offers only what the sealed ranking routes to the local route
+(every pass ccfleet launches is a local session; the example passes --route
+local), in rank order, then the stated spill: another route's review not yet
+started, but never from a budget that lapses before the local one (that
+budget keeps its reviews) and never one the seal marks not spillable; a
+review briefed after the seal runs last (skills/review/run.md, the route
+rule). A seal lasts one run and no longer than the first
 lapse among the budgets it routes to. Whether a session that wrote a brief
 may then drain it is the adopter's queue's to refuse (the reference queue
 refuses to seal it) and otherwise rests on that session's own account (the

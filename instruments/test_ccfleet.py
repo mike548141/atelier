@@ -2066,12 +2066,57 @@ class RKGrant(unittest.TestCase):
                                "local": {"open": True, "lapses_utc": "2099-02-01T00:00"}})
         self.assertIn("lapse time is unknown", self.seal(self.GOOD).stderr)
 
+    def test_pk3_next_offers_only_the_local_route_and_the_stated_spill(self):
+        """PK3: a review sealed to another route is not the local route's to
+        run, unless that budget lapses no sooner than the local one (the
+        spill), and never one sealed as not spillable."""
+        reviews = [{"repo": "alpha", "item": "010", "brief": "docs/brief.md", "title": "t", "fits": ["credit", "local"],
+                    "briefed_by": "w"},
+                   {"repo": "beta", "item": "020", "brief": "docs/brief.md", "title": "t", "fits": ["local"],
+                    "briefed_by": "w"}]
+        ranking = [{"repo": "alpha", "item": "010", "route": "credit", "why": "first"},
+                   {"repo": "beta", "item": "020", "route": "local", "why": "second"}]
+        skip = os.path.join(self.tmp, "launched.txt")
+
+        def picks(routes, rk=ranking):
+            self.ref_queue(reviews=reviews, routes=routes)
+            self.assertEqual(self.seal(rk).returncode, 0)
+            wr(skip, "")
+            out = []
+            for _ in range(3):
+                r = self.ref("next", "--skip-file", skip, "--by", "orch-1", "--route", "local")
+                self.assertEqual(r.returncode, 0, r.stderr)
+                if not r.stdout.strip():
+                    break
+                out.append(r.stdout.split("\t")[0])
+                wr(skip, r.stdout, mode="a")
+            return out
+
+        early = {"credit": {"open": True, "lapses_utc": "2099-01-01T00:00"},
+                 "local": {"open": True, "lapses_utc": "2099-02-01T00:00"}}
+        late = {"credit": {"open": True, "lapses_utc": "2099-03-01T00:00"},
+                "local": {"open": True, "lapses_utc": "2099-02-01T00:00"}}
+        self.assertEqual(picks(early), ["beta"], "the credit budget lapses first: it keeps its review")
+        self.assertEqual(picks(late), ["beta", "alpha"], "local's own first, then the spill")
+        self.assertEqual(picks(late, [{**ranking[0], "spillable": False}, ranking[1]]), ["beta"],
+                         "a review sealed as not spillable stays on its route")
+        # ccfleet's drain over it runs the local route's review only.
+        self.ref_queue(reviews=reviews, routes=early)
+        self.assertEqual(self.seal(ranking).returncode, 0)
+        r = self.cli("drain", "--max", "1")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual([os.path.basename(c["cwd"]) for c in self.calls()], ["beta"])
+
     def test_rk7_the_contract_is_stated_where_the_queue_commands_are(self):
         doc = subprocess.run([sys.executable, TOOL, "--doc"], capture_output=True, text=True).stdout
         page = rd(os.path.join(HERE, "man", "ccfleet.1")).replace("\\-", "-")
         for text in (doc, " ".join(page.split())):
             self.assertIn("until this run's ranking is sealed", " ".join(text.split()))
             self.assertIn("review_queue_reference.py", text)
+            self.assertIn("next offers only what the sealed ranking routes to the local route",
+                          " ".join(text.split()).replace("`", ""))
+        example = json.loads(rd(os.path.join(HERE, "ccfleet.example.json")))
+        self.assertEqual(example["queue"]["next"][-2:], ["--route", "local"], "PK3: next names its route")
 
     # ----- RK21: the example's take records the session id -----
 

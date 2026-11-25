@@ -10,6 +10,15 @@ the same gate as a drain's. A run is its --by id: the seal is keyed by it, so
 a session with another id holds no seal. ccfleet never calls `seal`; the
 `/atelier:review run` skill does, with the ranking its plan made.
 
+`next` offers only what the sealed ranking routes to the route it is asked
+for (--route, default local: every pass ccfleet launches is a local session),
+in rank order, then the stated spill (skills/review/run.md, the route rule):
+another route's review not yet started, but never from a budget that lapses
+before the asking route's own, since that budget keeps its reviews, and
+never one the seal marks not spillable (`"spillable": false` in its ranking
+entry). Where either lapse time is unknown, nothing spills. A review briefed
+after the seal runs last, on the local route only.
+
 State is one JSON file, named by $REVIEW_QUEUE_STATE:
   routes   {name: {"open": bool, "lapses_utc": "YYYY-MM-DDTHH:MM" or null}}
   reviews  [{repo, item, brief, title, fits (route names, cheapest first),
@@ -25,10 +34,12 @@ Commands, the shape ccfleet.example.json calls:
   owed [--fetch]              JSON array of the owed, unbriefed ones (read-only)
   seal --by ID --ranking FILE [--words TEXT]
                               FILE: JSON array of {repo, item, route, why,
-                              why_not_cheaper (when not the best route)}
+                              why_not_cheaper (when not the best route),
+                              spillable (optional; false keeps it on its route)}
   ranked --by ID              exit 0 only while ID's seal holds
-  next --skip-file PATH --by ID
-                              the next sealed review not in PATH, tab-separated
+  next --skip-file PATH --by ID [--route NAME]
+                              the next sealed review for route NAME (default
+                              local) not in PATH, tab-separated
   take REPO:ITEM --by ID --brief PATH [--set K=V ...]
   release REPO:ITEM --by ID
   update REPO:ITEM --by ID --set K=V ...
@@ -104,10 +115,19 @@ def seal(state, by, ranking, words):
     lapses = [lapse(routes[e["route"]]) for e in ranking if lapse(routes.get(e["route"]))]
     state["seal"] = {"by": by, "words": words, "at": now().strftime("%Y-%m-%dT%H:%M"),
                      "order": [[e["repo"], e["item"], e["route"]] for e in ranking],
+                     "keep": [[e["repo"], e["item"]] for e in ranking if e.get("spillable") is False],
                      "expires": min(lapses).strftime("%Y-%m-%dT%H:%M") if lapses else None}
 
 
-def next_pick(state, by, skip_file):
+def may_spill(routes, own, other):
+    """Whether route `own` may take a review sealed to route `other`: only
+    when both lapse times are known and `other`'s is not before `own`'s (a
+    budget that lapses first keeps its reviews)."""
+    mine, theirs = lapse(routes.get(own)), lapse(routes.get(other))
+    return mine is not None and theirs is not None and theirs >= mine
+
+
+def next_pick(state, by, skip_file, route="local"):
     why = sealed_for(state, by)
     if why:
         refuse(why)
@@ -117,9 +137,16 @@ def next_pick(state, by, skip_file):
     except OSError:
         skip = set()
     rows = {(r["repo"], r["item"]): r for r in ready(state)}
-    order = [(repo, item) for repo, item, _ in state["seal"]["order"]]
-    # A review briefed after the seal runs last, until it is planned and sealed.
-    order += [k for k in rows if k not in order]
+    routes = state.get("routes", {})
+    keep = {tuple(k) for k in state["seal"].get("keep", [])}
+    sealed = [((repo, item), r) for repo, item, r in state["seal"]["order"]]
+    # The route's own reviews in rank order, then the spill, in rank order.
+    order = [k for k, r in sealed if r == route]
+    order += [k for k, r in sealed if r != route and k not in keep and may_spill(routes, route, r)]
+    # A review briefed after the seal runs last on the local route, until it
+    # is planned and sealed.
+    if route == "local":
+        order += [k for k in rows if k not in {k for k, _ in sealed}]
     for k in order:
         if k in rows and k not in skip:
             print("\t".join([k[0], k[1], rows[k]["brief"]]))
@@ -143,6 +170,7 @@ def main(argv=None):
     ap.add_argument("--ranking")
     ap.add_argument("--words", default="none given")
     ap.add_argument("--skip-file")
+    ap.add_argument("--route", default="local")
     ap.add_argument("--set", action="append", dest="sets")
     ap.add_argument("--fetch", action="store_true")
     a = ap.parse_args(argv)
@@ -171,7 +199,7 @@ def main(argv=None):
                 refuse(why)
             return 0
         elif a.cmd == "next":
-            next_pick(state, a.by, a.skip_file)
+            next_pick(state, a.by, a.skip_file, a.route)
             return 0
         else:
             k = a.target or ""

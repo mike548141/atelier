@@ -46,7 +46,8 @@
   "pass_model": "claude-opus-5-5",
   "_queue": "Your own queue tool; ccfleet only calls it. It must keep the seal contract (man ccfleet, THE QUEUE INTERFACE): ranked, next and take refuse until this run's ranking is sealed, by a seal command ccfleet never calls. instruments/fixtures/review_queue_reference.py keeps it, with this exact command shape.",
   "queue": {
-    "next": ["python3", "~/private/review_queue.py", "next", "--skip-file", "{LAUNCHED}", "--by", "{BY}"],
+    "next": ["python3", "~/private/review_queue.py", "next", "--skip-file", "{LAUNCHED}", "--by", "{BY}",
+             "--route", "local"],
     "ranked": ["python3", "~/private/review_queue.py", "ranked", "--by", "{BY}"],
     "take": ["python3", "~/private/review_queue.py", "take", "{REPO}:{ITEM}", "--by", "{BY}", "--brief", "{BRIEF}",
              "--set", "session={SESSION}"],

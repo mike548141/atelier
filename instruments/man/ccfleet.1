@@ -1240,6 +1240,8 @@ tab-separated
 a line), so the queue can skip them, and
 .B {BY}
 is the orchestrator id.
+It offers only the local route's reviews and the stated spill; see
+.BR "The seal" .
 A pick already on that list is taken as nothing launchable, so a queue that
 ignores the list cannot start one pass over and over.
 .TP
@@ -1401,6 +1403,17 @@ whose
 carries its own
 .BR {BY} )
 meets the same gate as a drain's.
+.IP \(bu 2
+.B next
+offers only what the sealed ranking routes to the local route, since every
+pass ccfleet launches is a local session (the example config passes
+.BR "\-\-route local" ),
+in rank order, then the stated spill: another route's review not yet
+started, but never from a budget that lapses before the local one, which
+keeps its reviews, and never one the seal marks not spillable.
+A review briefed after the seal runs last.
+The rule is the review run skill's
+.RI ( skills/review/run.md ).
 .IP \(bu 2
 A seal lasts one run, and no longer than the first lapse among the
 budgets it routes to.
