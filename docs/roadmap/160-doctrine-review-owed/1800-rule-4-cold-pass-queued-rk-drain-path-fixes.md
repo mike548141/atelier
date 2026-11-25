@@ -23,3 +23,8 @@
       the findings:
       [`../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md`](../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md)
       (`RK2`, `RK5`, `RK12`).
+      🔒 CLAIMED 2026-11-25T07:05Z (claimed 2026-11-25-0705, wt: brief-160-1800-0704) by headless
+      session 4da4abc0 (Opus 5.5), started by principal-opened session 14c2530d
+      (`atelier-e7`, Opus 5.5), for brief-writing only: the brief and its held-back
+      sibling, no pass run. Neither session wrote any part of the delta; 14c2530d
+      orchestrates the pass once the brief lands and writes no part of it.
