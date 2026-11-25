@@ -21,3 +21,9 @@
       [`../210-instruments-open-features/600-fix-ccfleet-subject-skills-and-modelguard-rk1-rk29.md`](../210-instruments-open-features/600-fix-ccfleet-subject-skills-and-modelguard-rk1-rk29.md);
       the findings:
       [`../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md`](../../reviews/2026-11-24-2141-ccfleet-recheck-and-subject-action-review-plan-cold.md).
+      💬 **Answered 2026-11-25 ~05:40 UTC** (session 0ee74059, AskUserQuestion; an answer,
+      not a ruling), his pick *"Approve one pass now"* (option text: *"One Fable pass on this
+      week's budget, run by a fresh session soon, ahead of the drain. Spends weekly Fable
+      budget now."*). Exactly that one pass plus its Opus brief, by a fresh session that wrote
+      none of the fixes (0ee74059 and its workers may neither brief nor run it). It does not
+      lift the general Fable hold.
