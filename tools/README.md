@@ -1823,7 +1823,11 @@ Three detectors on one parse of `ROADMAP.md`'s queued-review pointers:
   pass it is queuing, against the ceiling `ROADMAP.md` and `REVIEW.md` both
   state. Fires on a question inside a pointer, plus a short list of
   reviewer-direction forms. Pass type and tier are **lawful** fields: they route
-  the review; they say nothing about the delta's merits.
+  the review; they say nothing about the delta's merits. It also fires on a
+  pointer that names its delta's commits by citation alone ("the commits citing
+  `X`", with no commit range and fewer than two written-out hashes), because a
+  commit that touches the paths and does not cite the item is then missed
+  (`PK21`); one start hash does not count as a bound.
 - **cycle state** — an item asserting a review is owed while carrying the verdict
   of the review that ran, with the state it is *actually* in named (reviewed,
   ruled, applied) rather than only the contradiction.
@@ -2387,9 +2391,16 @@ that command), because a start that names no model silently inherits a tier, the
 choice ECONOMICS.md says is made on purpose. It finds `claude` in command
 position past keywords, wrappers (`timeout`, `sudo -u`, `npx`, `find -exec` …)
 and the text a shell runs as code (`bash -c`, `eval`, `$( )`, a heredoc fed to a
-shell), and fails closed after a head it does not know. A lookup of the binary
-(`command -v claude`, `which`, `type`, `ls` of its path), management subcommands
-and heredoc bodies that are data pass.
+shell, `<( )`, what `echo` prints through a pipeline into a shell), and it also
+reads `tmux`, `screen`, `systemd-run` and an `awk` `system()` call. After a head
+it does not know, a later `claude` counts as a launch only when a session flag
+or a prompt follows it, and it denies where it cannot tell a name from the
+binary: `claude` straight after a short option (`-u claude`), joined to a long
+option with `=` (`--name=claude`), or last, passes; `--name claude -p 8080:80`
+and a path such as `--dir=/opt/claude` are refused, and the refusal says how to
+rephrase. A command that names `claude` and is nested past four levels is denied
+unread. A lookup of the binary (`command -v claude`, `which`, `type`, `ls` of its
+path), management subcommands and heredoc bodies that are data pass.
 
 It is a net, not a proof. It reads only the command text a session hands to
 Bash, so a launch from inside a script or program is invisible to it
