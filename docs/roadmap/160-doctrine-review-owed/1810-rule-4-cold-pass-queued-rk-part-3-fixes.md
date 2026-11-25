@@ -27,3 +27,7 @@
       budget now."*). Exactly that one pass plus its Opus brief, by a fresh session that wrote
       none of the fixes (0ee74059 and its workers may neither brief nor run it). It does not
       lift the general Fable hold.
+      🔒 CLAIMED 2026-11-25T07:06Z (claimed 2026-11-25-0706, wt: brief-160-1810-0704) by
+      headless session 075cdcd9 (`atelier-e0`, Opus 5.5), started by principal-opened
+      session 14c2530d (`atelier-e7`, Opus 5.5). Scope: write the brief and its held-back
+      sibling only; no pass run, no reviewer started or instructed.
