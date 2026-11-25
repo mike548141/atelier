@@ -86,3 +86,9 @@ principal's answer on landing), and that answer is time-sensitive for the
   session for the prompts to finish: a build session for `210/600`, a
   brief-writer and a Fable session for the small drain-path pass, then the
   drain switch (`450/010` row 2) before the 2026-11-29 23:00 UTC reset.
+- The DV (`160/1800`) and PK (`160/1810`) passes ran (`14c2530d`), both
+  PASS-WITH-FINDINGS with 0 MAJOR; fixes queued as `210/620`. Asked here
+  when those fixes land relative to the 2026-11-29 23:00 UTC drain, his
+  pick: *"Before, plus re-check"* (`2d936146`). The principal was given the
+  four remaining prompts: build `210/620`, shed `020/1040`, the one Fable
+  re-check, then the switch.
