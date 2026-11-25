@@ -41,3 +41,15 @@
       orchestrator is told where. The brief-writer formed no finding and does not start the
       pass, which stays `⏳` for one fresh Fable reviewer on the approval above.
       🔓 2026-11-25 UTC: session 075cdcd9 releases its brief-writing claim.
+      💬 **Answered 2026-11-25 ~07:30 UTC** (session 14c2530d, AskUserQuestion; an answer, not a
+      ruling), asked whether the unreviewed `f4360a79` (`210/610`) joins this pass, his pick
+      *"Add it to the part-3 pass (Recommended)"* (option text: *"The part-3 review (the other
+      approved pass, not yet started) widens to cover this change too. Benefit: reviewed before
+      Monday, and that pass already covers ccfleet. Cost: that one Fable pass gets a bit bigger
+      (about 300 changed lines). Still one pass."*). The brief already takes it in, so no
+      widening was needed: still one pass.
+      🔒 CLAIMED 2026-11-25T07:43Z (claimed 2026-11-25-0743, wt: atelier-e7-pk) by principal-opened session
+      14c2530d (`atelier-e7`, Opus 5.5) for the one Fable pass. Off-tier orchestrator,
+      disclosed: it holds the context partition, commits the records and releases the held-back
+      sibling after act 1; it forms no finding and writes no severity. It authored no part of the
+      delta and no part of the brief. The reviewer is one fresh Fable subagent.
