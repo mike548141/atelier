@@ -35,7 +35,7 @@ line, so they overlap Open and Claimed.
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
 | [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
-| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 15 | 0 | 5 | 1 |
+| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 15 | 1 | 5 | 1 |
 | [Observability of the collaboration itself (2026-07-30)](roadmap/220-observability-of-the-collaboration-itsel/README.md) | 4 | 0 | 0 | 0 |
 | [File-size hygiene (new 2026-07-14)](roadmap/230-file-size-hygiene-new-2026-07-14/README.md) | 2 | 0 | 1 | 0 |
 | [North star — context follows the person, work follows anywhere](roadmap/240-north-star-context-follows-the-person-wo/README.md) | 2 | 0 | 0 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 283 | 0 | 100 | 44 |
+| **All sections** | 283 | 1 | 100 | 44 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -355,6 +355,7 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [A commit gate refuses a review claimed by the session that authored,…](roadmap/210-instruments-open-features/530-a-commit-gate-refuses-a-review-claim-by-its-author.md)
 - [ ] [🔧 Fix cctranscript --search: all fourteen findings CS1–CS14, as the…](roadmap/210-instruments-open-features/580-fix-cctranscript-search-cs1-cs14.md)
 - [ ] [🔧 publishscan keeps its own ignore-file loader, outside the shared…](roadmap/210-instruments-open-features/590-publishscan-keeps-its-own-ignore-loader.md)
+- [~] (claimed 2026-11-25-0518, wt: atelier-c3-import) [🔧 ccfleet hands a public repo's…](roadmap/210-instruments-open-features/610-ccfleet-follows-the-private-import-for-private-repos-only.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
