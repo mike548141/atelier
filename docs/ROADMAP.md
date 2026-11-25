@@ -313,7 +313,7 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [Rule-4 cold pass queued: least-privilege permissions in the CI…](roadmap/160-doctrine-review-owed/1760-rule-4-cold-pass-queued-slice-6-corrections-and-template-permissions.md)
 - [ ] ⏳ [Rule-4 cold pass queued: decision-record statuses and review lines,…](roadmap/160-doctrine-review-owed/1770-rule-4-cold-pass-queued-decision-statuses-scan-wording-skill-lists.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a run's start gates, the parked mark, the…](roadmap/160-doctrine-review-owed/1780-rule-4-cold-pass-queued-run-start-gates-parked-asks-work-run.md)
-- [ ] ⏳ [Rule-4 cold pass queued: the RK drain-path fixes, RK2 and RK5, with…](roadmap/160-doctrine-review-owed/1800-rule-4-cold-pass-queued-rk-drain-path-fixes.md)
+- [ ] 🔥⏳ [Rule-4 cold pass queued (due before 2026-11-30 23:00 UTC): the RK…](roadmap/160-doctrine-review-owed/1800-rule-4-cold-pass-queued-rk-drain-path-fixes.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the RK part-3 fixes to ccfleet, modelguard…](roadmap/160-doctrine-review-owed/1810-rule-4-cold-pass-queued-rk-part-3-fixes.md)
 
 ## build/ layer — open strands
