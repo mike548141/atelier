@@ -1144,6 +1144,14 @@ any other fold after the reset is refused with exit 3.
 Whether to run either after the reset is the calling session's to decide:
 the principal's word is its to hold, and ccfleet checks none (see
 .BR THREATS ).
+The shipped resume and fold prompts take that word as
+.BR {FINISH_WORDS} ,
+which is given per call
+.RB ( "\-\-set FINISH_WORDS=" ...)
+and never kept in
+.BR vars :
+a kept value would fill every later prompt as if it had been said again.
+A launch that leaves it unfilled is refused, and that is its one trace.
 .TP
 .B private_names
 Names a public repo's prompt, and the user-level

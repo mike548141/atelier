@@ -21,6 +21,7 @@
   "_instructions_guard": "refuse (the default): a public or unknown-visibility repo's launch is refused when the user-level CLAUDE.md every session gets names a private name; warn: append it anyway, with a line per name.",
   "instructions_guard": "refuse",
   "env": {"EXAMPLE_TOOL_HOME": "~/tools"},
+  "_vars": "Template values for every job. The principal's word to finish cut-off passes (FINISH_WORDS) is never kept here: each resume and fold passes it per call (--set FINISH_WORDS=...), from his words for that reset, and ccfleet does not check it.",
   "vars": {
     "ASK": "\"Bring every repo up to a healthy state.\" (the principal's words, quoted verbatim from your own record)",
     "RULINGS_FILE": "~/private/rulings.md",
@@ -31,8 +32,7 @@
     "HOLDS": "none",
     "PROVENANCE": "This drain session wrote no brief and started no writer of any pass it runs.",
     "REVIEW_MODEL": "fable",
-    "HELD_DIR": "~/private/review-siblings",
-    "FINISH_WORDS": "\"Finish what was started, start nothing new.\" (the principal's word to finish cut-off passes, verbatim; not the drain's approval)"
+    "HELD_DIR": "~/private/review-siblings"
   },
   "repos": {
     "example-app": {"model": "claude-sonnet-5-5", "visibility": "private",

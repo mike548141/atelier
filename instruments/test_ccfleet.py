@@ -1881,6 +1881,13 @@ class Config(unittest.TestCase):
         cfg = cf.load_config(os.path.join(HERE, "ccfleet.example.json"))
         self.assertEqual(cf.permission_args(cfg)[1], False, "FL10: the example must not model the bypass")
 
+    def test_the_example_keeps_no_standing_finish_word(self):
+        """DV2: the principal's word to finish started work is given per call;
+        a value kept in vars would fill every later resume and fold prompt as
+        if he had said it again."""
+        ex = json.loads(rd(os.path.join(HERE, "ccfleet.example.json")))
+        self.assertNotIn("FINISH_WORDS", ex["vars"])
+
     def test_the_example_review_model_is_a_review_tier_alias(self):
         """DV3: REVIEW_MODEL is what the Agent tool takes, a tier alias and
         never a full model id (which that tool refuses), and it names the
@@ -1895,8 +1902,8 @@ class Config(unittest.TestCase):
     # (--set or a jobs field) rather than in the config's vars.
     SHIPPED = {
         "review/orchestrator-prompt.md": (cf.PASS_FILLED, set()),
-        "review/resume-prompt.md": (cf.RESUME_FILLED, {"AGENT", "STATE"}),
-        "review/fold-prompt.md": ({"ITEM", "REVIEW_LOG"}, {"BRIEF", "HELD"}),
+        "review/resume-prompt.md": (cf.RESUME_FILLED, {"AGENT", "STATE", "FINISH_WORDS"}),
+        "review/fold-prompt.md": ({"ITEM", "REVIEW_LOG"}, {"BRIEF", "HELD", "FINISH_WORDS"}),
         "fleet/worker-prompt.md": (set(), set()),
         "fleet/adopt-prompt.md": (set(), set()),
         "fleet/task-prompt.md": (set(), {"TASK"}),
@@ -2265,15 +2272,17 @@ class RKGrant(unittest.TestCase):
         wr(self.prompt, "Pass {ITEM} {BRIEF} {REVIEW_LOG}\n")
         r = self.cli("check", "--prompt", self.prompt)
         self.assertEqual(r.returncode, 0, r.stdout)  # it is pass_prompt: pass fills all three
-        # The shipped fold prompt, with the example's vars: BRIEF and HELD are per call.
+        # The shipped fold prompt, with the example's vars: BRIEF, HELD and
+        # FINISH_WORDS are per call (DV2: the finish word is never standing).
         cfg = json.loads(rd(os.path.join(HERE, "ccfleet.example.json")))
         cfg.update(kit_dir=self.cfg["kit_dir"], repos_root=self.cfg["repos_root"], pass_prompt=self.prompt)
         wr(self.cfgpath, json.dumps(cfg))
         shipped = os.path.join(os.path.dirname(HERE), "skills", "review", "fold-prompt.md")
         r = self.cli("check", "--prompt", shipped)
         self.assertEqual(r.returncode, cf.EXIT_GUARD)
-        self.assertIn("UNSET: {BRIEF} {HELD}", r.stdout)
-        self.assertEqual(self.cli("check", "--prompt", shipped, "--set", "BRIEF=b", "--set", "HELD=h").returncode, 0)
+        self.assertIn("UNSET: {BRIEF} {FINISH_WORDS} {HELD}", r.stdout)
+        self.assertEqual(self.cli("check", "--prompt", shipped, "--set", "BRIEF=b", "--set", "HELD=h",
+                                  "--set", "FINISH_WORDS=w").returncode, 0)
 
     # ----- RK23: a ~ path in vars or env is the home folder -----
 
