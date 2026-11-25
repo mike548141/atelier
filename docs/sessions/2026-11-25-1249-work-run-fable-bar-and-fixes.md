@@ -3,7 +3,7 @@
 **Session:** `f8dd3843` (messaging name `atelier-31`), Claude Opus 5.5, principal-opened by
 `/atelier:work run` with no brief typed after it, so the run took the prompt's default order.
 Orchestrator; two build workers (one Opus, one Sonnet) and one read-only Opus worker, each in
-its own worktree or read-only. *(In progress: this file is completed at the close.)*
+its own worktree or read-only.
 
 ## Opening
 
@@ -14,6 +14,50 @@ claim this run wanted. Mid-wait, a relay from another session (`shed-73`) carrie
 principal's words, verbatim: *"Tell all open claude sessions I am going to sleep so no questions
 until I wake up, so work on everything you can sensibly until then rather than get stuck waiting
 for me"*.
+
+## What was done
+
+- **Hand-up PR #142 landed as-is** (`320/910`, `320/920`, from a private child; no number
+  collision), the first act on finding it.
+- **`320/910`, inline:** a brief-writing worker runs each of its brief's re-run lines once
+  under `nice`; a full-suite line it names for the orchestrator, which runs it before landing
+  the brief. In `CONCURRENCY.md`, the dispatch skeleton, `REVIEW.md` and the brief skill.
+  Cold pass queued as `160/1830`.
+- **`210/580`, an Opus worker:** all fourteen `cctranscript --search` findings settled
+  (twelve fixed, CS8 never present, CS13 answered by its pass); 126 tests. Pass `160/1840`.
+- **`210/590`, a Sonnet worker:** `publishscan`'s ignore loader folded into `allowmarker` as
+  parameters, refusals byte for byte. Pass `160/1850`.
+- **`460/010` step 1, a read-only Opus worker:** the queued Fable passes classified; the
+  answer and the annex below. Steps 2–4 open; the draft bar goes to him first.
+- **`320/900`, an Opus worker:** the plain-tree walk counts what it prunes; `secretscan` and
+  `leakscan` print it and warn. Pass `160/1860`; the git-mode twin filed as `115/560`.
+- **`320/920`:** read, made `🎯` with a recommendation.
+- Full suites before each push: 3,526 then 3,539 Python tests OK, 754 JS tests OK. The hook
+  scanners were probed under the primary checkout's Python 3.9 after the fast-forward.
+
+## Learned
+
+- A rebase of the landing branch while its suite ran in the same worktree voided that run;
+  the suite was stopped and re-run. Run the suite in a tree nothing else touches.
+- A worker stamped a `CHANGELOG.md` heading with the local date; corrected to UTC at landing.
+- A worker named the wrong home for a stale figure (`210/080`); it was the frozen archive,
+  a record kept as written. Checked before writing it down.
+
+## Left open, for him
+
+- `460/010` step 2: the draft bar changes rule 4 itself, so it is put to him before it is
+  written (the annex holds it).
+- `320/920`: where a queued brief's held sibling lives (recommendation on the item).
+- Four new cold passes queued this run (`160/1830`, `1840`, `1850`, `1860`) wait for his
+  Fable approval like every other; under the draft bar `1850` would fold into the next
+  scanner pass rather than run alone.
+
+## Stopped on
+
+**Everything left is blocked, with economics close behind**: of the board's remaining open
+items not waiting on him, the ones read this run were either unruled choices (`115/210`,
+`320/010` classes B and C, `320/770`'s reach, `010/130`), idea-only, or dated after this run
+(`010/250`, `010/290`, on 2026-12-04).
 
 ## Annex — `460/010` step 1: the sample of queued passes
 
