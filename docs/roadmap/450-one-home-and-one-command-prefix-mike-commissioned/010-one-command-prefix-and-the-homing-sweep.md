@@ -187,6 +187,10 @@
         `/fable-drain` retires, between drains, never mid-drain.
       - ✅ **A done 2026-11-25 UTC** (session b04df0da, `atelier-f9`): `210/620` closed, all
         32 findings applied; the re-check pointer is `160/1820`. B (shed's own) and C remain.
+      - ✅ **C done 2026-11-25 UTC** (session 01c055e5, `atelier-4c`): `160/1820` came back
+        PASS-WITH-FINDINGS with **0 MAJOR** (5 MODERATE, 11 minor, 5 notes, `DP1`–`DP21`), so C's
+        condition for D is met. D still waits on B (shed's `020/1040`). The `DP` findings are the
+        principal's to rule; none is a precondition for D unless he says so.
       If C or B misses the drain's start, D is skipped: that drain runs on
       `/fable-drain` and D waits for the gap after it. Each session's close hands
       the principal the prompt for the next step it is not barred from naming.
