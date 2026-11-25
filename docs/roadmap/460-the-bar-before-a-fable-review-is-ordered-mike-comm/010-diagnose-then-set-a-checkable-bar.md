@@ -1,7 +1,4 @@
-- [~] **Find out why work that should not qualify is getting a Fable review
-      🔒 CLAIMED 2026-11-25T13:50Z (claimed 2026-11-25-1350, wt: none, read-only) by session f8dd3843
-      (`atelier-31`, Opus 5.5, principal-opened by `/atelier:work run`): step 1 only, the
-      sample and classification of atelier's queued passes; steps 2–4 stay open.
+- [ ] **Find out why work that should not qualify is getting a Fable review
       ordered, then set a bar a session can check before it queues one**
       `[M][doctrine]`. Mike commissioned this, 2026-11-24. Verbatim:
 
@@ -60,3 +57,26 @@
       gate, where step 3 would live.
       **Review:** the doctrine change in step 2 is self-authored doctrine, so
       it earns a cold pass under rule 4 when written, queued by its author.
+      ✅ **Step 1 done 2026-11-25 (session f8dd3843, `atelier-31`, queue run; a read-only
+      Opus worker sampled, this session checked).** All 42 `⏳` passes in `160` (40 open, 2
+      closed), classified against today's text: **35 meet it** (3 only by the letter: 1470,
+      1750, 1760, corrections that count as "doctrine text" because it has no minimum size),
+      **4 fail it** (985, 987, 991, 992: loud-failing fixes to reviewed, tested tools, all
+      one run's batch of 2026-11-03), **3 the text cannot decide** (1530, 1550, 1730).
+      Grounds stated on 29, none on 13; all 4 fails gave *reach* ("every child runs it"),
+      which is not one of the text's triggers. He ordered 3 himself (989, 1600, 1820).
+      Beside them, `160` holds 70 `🎯` and 18 `🛑` pointers, about 130 owed passes in all.
+      **Answer to his question: both, mostly weak doctrine.** The text has no materiality
+      floor for "doctrine text"; rule 3 (any validator, gate, template or skill is doctrine
+      by function) with rule 4 (self-authored doctrine always earns a cold spawn) overrides
+      the self-verifying exemption for every tool, so a session following the text queues;
+      one pointer per landing means passes scale with commits, not risk (`ccclose` 8,
+      `ccfleet` 4, `board.py` 4, `floor.py` 3; one run queued 14 in a day); nothing says when
+      a re-check chain stops; declining needs written grounds and queuing needs none.
+      The per-pass table, the patterns and a draft bar (three questions at queue time, a
+      never-on-its-own list, one open pass per subject, rule 3 deciding who rules, not
+      whether a pass is owed) are in
+      [`../../sessions/2026-11-25-1249-work-run-fable-bar-and-fixes.md`](../../sessions/2026-11-25-1249-work-run-fable-bar-and-fixes.md),
+      § *Annex*. **Steps 2–4 stay open.** Step 2 changes rule 4 itself, so the draft goes
+      to him first (one ask at the run's close), then is written, its cold pass queued,
+      and step 4's dequeue list follows from it.
