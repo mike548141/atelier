@@ -1,4 +1,6 @@
-- [ ] 🔎 **Hand-up: the dispatch skeleton's test bound and the review-brief
+- [~] 🔎 **Hand-up: the dispatch skeleton's test bound and the review-brief
+      🔒 CLAIMED 2026-11-25T13:27Z (claimed 2026-11-25-1327, wt: atelier-qr-f8dd-tb) by session f8dd3843
+      (`atelier-31`, Opus 5.5, principal-opened by `/atelier:work run`), inline.
       skill's re-run duty contradict each other for a worker that writes a
       brief.** Reported 2026-11-25 by a private child's queue run (met
       2026-11-23, session 95797e59), class only.
