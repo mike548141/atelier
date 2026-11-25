@@ -1,4 +1,4 @@
-- [ ] 🔧 🔥 **Fix `ccfleet`, the subject skills, `modelguard` and `/atelier:session close`:
+- [~] 🔧 🔥 **Fix `ccfleet`, the subject skills, `modelguard` and `/atelier:session close`:
       findings RK1–RK29 of the `160/1790` cold pass, as the reviewer advised; the four on the
       drain's path first, before Monday 2026-11-30's drain.** The principal's picks, 2026-11-25
       UTC (session 4a34637a, AskUserQuestion; answers, not rulings, option text quoted on
@@ -15,3 +15,8 @@
       before Monday's drain uses the new commands (his pick; it does not lift the general Fable
       hold beyond that one pass); (3) the remaining findings. The build session queues the
       small pass's pointer in its landing commit and neither briefs nor runs it.
+      🔒 CLAIMED 2026-11-25T03:56Z (claimed 2026-11-25-0356, wt: atelier-c3) by session
+      0ee74059 (`atelier-c3`, Opus 5.5, principal-opened by `/atelier:work run`): part (1)
+      first, the drain-path fixes `RK2` and `RK5`, `RK12`'s read-only check and one canary,
+      landing before 2026-11-29 23:00 UTC; then part (3). It neither briefs nor runs the small
+      Fable pass; it queues that pass's pointer in the drain-path landing commit.
