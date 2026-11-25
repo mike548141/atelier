@@ -1,8 +1,10 @@
 # Cold pass — the RK drain-path fixes (`RK2`, `RK5`) and the `REVIEW_MODEL` correction (`210/600` part 1)
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1800-rule-4-cold-pass-queued-rk-drain-path-fixes.md`
-**Status:** ACT 1 COMMITTED 2026-11-25 UTC (one Fable reviewer under off-tier orchestrator
-`14c2530d`), act 2 pending. Was: BRIEF ONLY. Written 2026-11-25 UTC by headless session `4da4abc0` (Opus 5.5), pinned
+**Status:** VERDICT 2026-11-25 UTC: PASS-WITH-FINDINGS, 0 MAJOR, 2 MODERATE, 5 minor, 4 notes
+(`DV1` to `DV11`; one Fable reviewer under off-tier orchestrator `14c2530d`; act 1 committed
+as `49c7c56d`, reconcile and folded sibling below it). Every finding is the principal's to rule.
+Was: BRIEF ONLY. Written 2026-11-25 UTC by headless session `4da4abc0` (Opus 5.5), pinned
 at `6ddbead2` (`origin/main` when written). Due before the principal's weekly drain, which starts
 the evening of 2026-11-29 UTC and is the first to run on these commands.
 **Approval:** one small Fable pass on the weekly budget current on 2026-11-25, by a fresh
@@ -1251,3 +1253,272 @@ under `nice -n 15`.
 
 *Act 1 ends here. Written before the held-back sibling, the earlier verdict or any barred
 record was opened.*
+
+### Reconcile (act 2, 2026-11-25 UTC)
+
+Act 1 above was committed unrevised as `49c7c56d` before any of this was read (checked: the
+committed text from the divider down is byte-identical to my scratch copy of act 1). The
+orchestrator's release message, verbatim, with the home path written as it asked:
+
+````text
+Release: act 1 is committed unrevised as 49c7c56d on main (your worktree is rebased onto it; the
+only other commits since your HEAD a71dd7c5 are 0bdcbfe2, the 160/1810 brief, and 6d71ea91, a
+board claim — neither touches a delta path). I changed only the brief's Status line, to "ACT 1
+COMMITTED … act 2 pending". Start act 2 per the brief's Phase 2. The held-back sibling is at
+<a held user-local path>/atelier--2026-11-25-0720-rk-drain-path-fixes-cold.deferred.md (write it
+as a held user-local path in the record, never the home path). The earlier verdict and the
+barred records are now open to you. Fold the sibling in verbatim below your reconcile; do not
+delete the held copy — I delete it after checking your fold. Update the Status line to the final
+verdict when you finish. Same process rules as before (no git writes; I commit). Reply in at
+most five lines when act 2 is written, and delete your fixtures.
+````
+
+It is one paragraph as sent, wrapped here; no word is changed but the path. It asks nothing
+about the delta and steers no finding.
+
+**Read for act 2, in this order:** the held-back sibling, whole; the earlier verdict's `RK2`,
+`RK5` and `RK12` findings, its reconcile additions, its restated lines and its outline (not the
+whole of its 2,009 lines: the rest is other findings' text, outside this pass); the delta
+commit's message body; `210/600` whole; `160/1800` whole; `160/1790` lines 100 to 124; the
+authors' session record by a search for the trial pass and the model value. The later commits'
+bodies I did not read: nothing in the ledger turned on them.
+
+**Residual risk, named.** The RK ledger below is anchored on the earlier verdict by design: I
+read each finding and then looked for its answer. Act 1 is the cold half, and it stands as
+written.
+
+#### The RK ledger
+
+| Finding | What the earlier verdict said (pointer) | What answers it at HEAD `49c7c56d` | How I re-drove it | State |
+|---|---|---|---|---|
+| `RK2` | Earlier verdict, *Findings*, `RK2`: the orchestrator and fold prompts pointed at `skills/review/run.md`, absent from another repo's worktree; marked NOT RUN live. No counsel line; it noted the fleet prompts' `{ATELIER}` route | `orchestrator-prompt.md:17`, `:23`, `:37-79`; `fold-prompt.md:7`; `run.md:285-290` | `grep -nE 'run\.md\|skills/review/'` over the three prompts: exit 1; a wider net, `/atelier:\|docs/method\|skills/`: 0 hits in each; the three prompts rendered (check 18); **run live**, which the earlier pass could not: the orchestrator read nothing in the atelier checkout and filled the reviewer prompt from its own (check 22) | **Fixed another way** than the `{ATELIER}` route, and the way meets the finding: the template no longer needs a path at all. Residue: `DV4` (`REVIEW.md` is still a read outside the worktree), `DV7` (no test holds the fix in place) |
+| `RK5` | Earlier verdict, *Findings*, `RK5`: after the reset the fold was refused (exit 3) and the resume ran; Mode 2 did not say what to change; the manual's "No session starts" contradicted `resume`. No counsel line | `instruments/ccfleet:1386-1390` and `134-135`; the manual's lines 1105-1118; `run.md:246-251` | Its own reproduction, re-run: the new test on the code of `a1cc5f2d~1` fails (`3 != 0`, "RESET reached; not starting beta"), and on `a1cc5f2d`'s code passes; at HEAD the fold exits 0 and releases, the resume exits 0 (check 12). The commit body's "the new test fails on the old code" holds | **Fixed**, each of its three points: the code, the manual's sentence, Mode 2's instruction. The fix moved risk: `DV1` (the exemption is a shape) and `DV2` (the word is unchecked) |
+| `RK12` | Earlier verdict, *Findings*, `RK12`, and its follow-up line: before the first paid drain, check that the real config still grants its sessions what they need | Nothing in this delta. The code half (`check`'s `NO GRANT` and `WIDENS` lines) is a later commit's, in `160/1810`'s scope | What this repo can show: `check` on a config that grants nothing prints a `NO GRANT` line, and on one in the bypass mode prints `PERMISSIONS: BYPASS …` (both run on synthetic configs, act 2). The check of the real config I cannot run | **Outside this repo.** The record (`210/600`) claims a read-only `check` of the real config found its sessions in the bypass permission mode, "so the config grants what they need (the reverse of `RK12`'s risk)". V1: that is the authors' reading of a file I may not open; nothing here corroborates or contradicts it. See `DV11` for what the answer means |
+| `REVIEW_MODEL` | No earlier finding. The record says the trial pass found it: the spawning tool refused a full model id, and "the canary's orchestrator recovered by retrying with the alias, a real pass might not" | `run.md:281`; `instruments/ccfleet.example.json:33` | The tool refuses a full id on this harness (check 21); the alias is passed and accepted live (check 22) | **Fixed as to the value.** What happens on a wrong value is unchanged (`DV3`). The record's "the real config already uses the alias" is outside this repo |
+
+**What the record's account of the trial pass can and cannot show (V1).** It can show that one
+orchestrator on the cheapest model, on a copy of the real config with a stand-in repo and queue,
+ran the whole cycle and read nothing outside its worktree; my own launch saw the same. It cannot
+show a review-tier reviewer being spawned (both sessions were on the cheapest model, as mine
+were), a pass in a real child repo with its doctrine outside the worktree (`DV4`), a real
+queue's `release` (`DV6`), or the real config itself. Its trial is not re-runnable from here.
+
+#### My act-1 findings against the sibling's questions and the authors' account
+
+| Finding | Sibling question | Authors' account | After reconcile |
+|---|---|---|---|
+| `DV1` | 1 and 2 ask it directly | Not mentioned in the body or the record | Stands, MODERATE. Found cold; the question is the same suspicion. `DV11` adds weight |
+| `DV2` | 3 | The body and the code comment say "on the principal's word" as fact | Stands, minor |
+| `DV3` | 12, 13 | The record: the trial's orchestrator, refused a full id, **retried with the alias** on its own | Stands, MODERATE, with an addition (below) |
+| `DV4` | 8, 9 | The record and the body claim "reads no file outside its worktree" / "carries its whole template" | Stands, minor. The record repeats the overclaim |
+| `DV5` | 15, in part | The body does not mention the changelog | Stands, minor |
+| `DV6` | none reaches it | Not mentioned | Stands, minor |
+| `DV7` | 7 and 14, in part | "the new test fails on the old code": true, re-driven | Stands, minor |
+| `DV8` | none | Not mentioned | Stands, note |
+| `DV9` | 6 | Not mentioned | Stands, note. The sibling's fact 13 reached it by reading; check 15 is the probe |
+| `DV10` | none | Not mentioned | Stands, note |
+
+**Sibling questions act 1 answered without a finding.** 4: `pass`, `drain` and `drive` still
+stop at the reset, and no later commit gave them a way through (check 12; the ledger). 10: the
+moved block is identical, and a sweep found no pointer elsewhere to `run.md`'s old section. 11:
+the block's only brace text is `{REVIEW_LOG}`, which is filled, and the live reviewer wrote to
+that path.
+
+**Sibling questions act 1 did not reach.** 5: `resume`'s reset rule is the *absence* of a check,
+so it has no home in code; it is stated once per surface (`--doc`, the manual, `run.md`) and
+pinned by no test (`DV7`, M5). I add that to `DV7`; no new finding. 14: the example sets the
+reviewer's alias to the same tier as its `pass_model`, so an adopter who copies it gets a
+reviewer no more capable than its orchestrator; a fictional value, and a poor teaching one. I
+add that to `DV3`; no new finding. 16: `DV11`. The second half of 13, whether a guard that
+denies a model-less `Agent` call is in force inside a `ccfleet` session: by `ccfleet`'s own
+account it keeps user-level guard hooks, so a wired one stays in force; whether one is wired is
+the adopter's setting, and I do not report this machine's.
+
+**The sibling's 14 facts** agree with my re-runs, line for line, but for run times (my 3.9 suite
+took 680 s under load, its 297 s). Its fact 4 is worth carrying: the delta's "help line" is the
+`--doc` reference text; `--help` itself says nothing of the reset rule. The record and the
+commit body both call it the help line. Wording only; not raised.
+
+#### Additions to act-1 findings (formed at reconcile; severities unchanged)
+
+- `DV3`: the record supplies the observation my one launch could not: an orchestrator whose
+  model value was refused chose for itself what to do next, and that time chose well. The
+  authors' own words are "a real pass might not". That is the finding in their mouth; the fix
+  changed the value and left the choice where it was. Also: the example's `opus` (question 14).
+- `DV7`: `resume`'s half of the reset rule has no home in code (question 5).
+
+#### Finding formed at reconcile
+
+**`DV11` (note, formed at reconcile, from question 16 and the record).** The record answers
+`RK12`'s check with "its sessions run in the bypass permission mode, so the config grants what
+they need (the reverse of `RK12`'s risk)", and calls the mode the estate's choice. That answers
+the half of `RK12` that asked whether sessions can still work. It is the inverse of the half
+that asked what widens a grant: in that mode nothing is asked, so every exception `RK12` listed
+is moot because everything is allowed. `ccfleet check` says as much in its own `BYPASS` line,
+and `run.md` says "never a bypass mode by default". It bears on this delta in one place: an
+unattended session in that mode can itself run `ccfleet` in the fold shape after the reset,
+with no one asked (`DV1`). I do not raise `DV1`'s severity on a config I have not seen; the
+principal knows his config and can weigh it. Nothing here is a finding against the estate's
+choice, which is his.
+
+#### What the record adds for the drain itself
+
+The record says the real config's `pass_prompt` still named a retired path, "so every pass
+would be refused at launch", queued in the estate's own board and not fixed from this repo. That
+is outside this pass and outside this repo, and it belongs in front of the principal beside the
+two checks act 1 named: three things to confirm in the private config before the drain, its
+`pass_prompt`, its `REVIEW_MODEL`, and whether it keeps `FINISH_WORDS` standing.
+
+#### Overall, restated
+
+**PASS-WITH-FINDINGS. 0 MAJOR, 2 MODERATE (`DV1`, `DV3`), 5 minor (`DV2`, `DV4`, `DV5`, `DV6`,
+`DV7`), 4 notes (`DV8`, `DV9`, `DV10`, `DV11`).** Eleven findings; one, `DV11`, formed at
+reconcile. No act-1 finding is raised, lowered or withdrawn.
+
+- **Does anything found lose, misread or mis-tier paid review work?** As act 1 said: not on the
+  documented commands. A wrong `REVIEW_MODEL` is left to the orchestrator's own judgement and
+  the review would not show the model that ran (`DV3`); a fold-shaped launch starts anything
+  after the reset (`DV1`).
+- **May the drain run on these three fixes as they stand?** My counsel is yes, at `49c7c56d`,
+  with nothing in this repo to change first, once the three private-config points above are
+  confirmed, and with the first pass's log read for its reviewer's model. `RK2` and `RK5`, the
+  two the earlier verdict asked to be settled before a paid drain, are settled. The decision is
+  the principal's.
+
+Scratch fixtures were deleted after this was written. The held copy of the sibling is left for
+the orchestrator, as it asked.
+
+---
+
+## Deferred sibling, folded below the verdict (reviewer, 2026-11-25)
+
+Held out of the tree by the brief-writer and the orchestrator, at a held user-local path, until
+act 1 was committed (`49c7c56d`); released to the reviewer for act 2 by the message quoted in
+the reconcile; folded here verbatim by the reviewer, at the orchestrator's instruction.
+
+# Held-back sibling — `docs/reviews/2026-11-25-0720-rk-drain-path-fixes-cold.md`
+
+Held user-local by the brief-writer (headless session `4da4abc0`, Opus 5.5, started by
+`14c2530d`), outside the repo, every worktree and every scratchpad. Released to the reviewer only
+after its act 1 is committed (`REVIEW.md` rules 1 and 2). Written 2026-11-25 UTC at `6ddbead2`.
+
+These are the brief-writer's seeded questions and the results of its re-run lines. They are a
+floor, never a fence: the reviewer's own act 1 stands whether or not it reached any of them, and
+each question here is the brief-writer's suspicion, not a finding. By count: 16 questions, 14
+facts.
+
+## Questions (16)
+
+1. **The fold test keys on the call's shape, not on what runs.** After the reset, does `run --in
+   WT --item ITEM` with any prompt (the orchestrator prompt included) start new paid work in an
+   existing worktree that the reset was meant to stop? Is anything behind the argv test: a check
+   of the prompt, of the review log, of a held claim?
+2. Does a fold after the reset require that the pass was really started before the reset (a
+   claim, a `START` line, a result file)? If nothing checks it, "finishes a started pass" is a
+   claim the code does not enforce (V1).
+3. The manual says a resume and a fold run after the reset "on the principal's word only", and
+   `run_one`'s comment says Mode 2 runs both "on the principal's word". Does `ccfleet` check for
+   that word anywhere (`FINISH_WORDS` set, a flag), or is it prose only? If prose, is the
+   manual's sentence an overclaim?
+4. `pass` (its `run_one` call passes no `existing`), `drain` and `drive` should still refuse
+   after the reset. Confirm by probe, and check that no later commit gave any of them a path
+   through the new condition.
+5. `resume`: the comment says a fold is let through "as `resume` does". Where is `resume`'s
+   reset rule, and is it stated in one home (V4) or once per surface?
+6. Which model does a fold launch on? `run.md` says the fold "costs no review budget": is that
+   true of the model it actually runs on (`--model`, the repo's model, `default_model`), and who
+   chooses it?
+7. The new test runs the fold against the stand-in binary: does it prove the fold *finishes*
+   (release after a clean `RESULT`) or only that it launched and released? Is there a test that a
+   `resume` after the reset still runs, since the doc line names both?
+8. The reviewer prompt, now in the orchestrator prompt, tells the reviewer to read the brief
+   "with REVIEW.md for the verdict shape". In a child repo's worktree, is there a `REVIEW.md` to
+   read? If not, where does the reviewer get the verdict shape, and does that bring back a read
+   outside the worktree?
+9. Does any of the three prompts still name a path or command that resolves only inside atelier's
+   own checkout (a `/atelier:` action, `skills/…`, `docs/method/…`), or invite a headless session
+   to load the plugin's skill files from the plugin root, which is outside the worktree? The
+   brief-writer's grep for `run\.md|skills/review/` found nothing: is that grep the right net?
+10. Claim 8 says the bullets were moved, not rewritten. Diff the removed `run.md` block against
+    the added one. Were any pointers to `run.md` § *The reviewer prompt* (in `REVIEW.md`,
+    `CONCURRENCY.md`, `skills/review/brief.md`, other skills, the manual) left reaching a section
+    that now holds only a pointer (V3, V5)?
+11. `ccfleet` fills `{X}` placeholders over the whole orchestrator prompt, and that now includes
+    THE REVIEWER PROMPT block. Does the block carry brace text not meant as a placeholder, or a
+    filled value (`{REVIEW_LOG}`) the orchestrator must pass on unchanged? Does a fold or a
+    resume need a variable the drain does not set?
+12. An alias names a tier, and the harness maps it to whatever model that tier means at the time.
+    Do the claim line and the verdict's provenance, which name `{REVIEW_MODEL}`, still record
+    which model actually reviewed? Is that enough for rule 4's "tier checked at selection"?
+13. What happens when `REVIEW_MODEL` is wrong (a full id, a typo, empty)? The brief-writer saw
+    nothing in `ccfleet` that checks it. Does the orchestrator stop, retry with another value, or
+    spawn with no model and so inherit its own, off-tier, model? Is a guard that denies an
+    `Agent` call with no `model` in force inside a `ccfleet` session, given what `ccfleet check`
+    says a session keeps and drops?
+14. The example config sets `REVIEW_MODEL` to `opus` while the house review tier is Fable. A
+    fictional example, but one an adopter copies. Is it the right teaching value, and does any
+    test pin the four-alias rule?
+15. Mirror sites for the alias rule (V3): `run.md`'s variables table states it; do `run.md`
+    § *Mode 1* step 1, the orchestrator prompt, the manual, `instruments/README.md` and
+    `CHANGELOG.md` agree?
+16. `RK12` (phase 2). The record's account is a read-only check of a private config, concluding
+    that its sessions run in a bypass permission mode and so "grant what they need". Under the
+    security lens: is "the grant is enough" the risk the finding named, or its inverse? And what
+    can this repo's code (`ccfleet check`'s grant report, its `WIDENS` lines) show a principal
+    before a drain starts?
+
+## Facts (14)
+
+How the brief-writer built its synthetic config: two throwaway repos with no remote under a
+scratch `repos_root`, one public and one private, each with one empty commit on `main`; `kit_dir`
+and `worktrees_root` in scratch; `claude_bin` `/usr/bin/false`; `default_model` and `pass_model`
+both the cheapest model's full id; one invented private name; `reset_utc` `2000-01-01T00:00`;
+`vars` `APPROVAL`, `HOLDS`, `PROVENANCE`, `REVIEW_MODEL` (`haiku`), `HELD_DIR`, `FINISH_WORDS`;
+`pass_prompt` at the worktree's orchestrator prompt. A copy added a `queue` whose `next`,
+`ranked`, `take` and `release` ran a scratch script that appended its argv to a log and exited
+0. One scratch worktree of the private repo was made, detached at `main`, its basename the repo's
+name. Every run below used the private repo.
+
+1. `git merge-base --is-ancestor a1cc5f2d HEAD` at `6ddbead2`: exit 0.
+2. `python3 tools/coldsweep.py --root . --commit a1cc5f2d --path skills --path instruments`:
+   exit 0; seven files, 97 lines added, 52 removed; three board files left out by default; no
+   message body printed.
+3. `mandoc -T lint -W style instruments/man/ccfleet.1`: no output, exit 0.
+4. `python3 instruments/ccfleet --doc | grep -n -A1 '^  reset_utc'`: lines 133 and 134, the
+   reset line and "a resume or a fold, which finishes a started pass, still runs". `--help` (the
+   argparse usage) has no `reset_utc` line: the item's "help line" is this `--doc` reference text
+   (the module docstring's config section, source lines 134 and 135).
+5. `grep -nE 'run\.md|skills/review/'` over the orchestrator, fold and resume prompts: no match,
+   exit 1.
+6. The named test, from `instruments/`: 1 test OK, exit 0, on Python 3.14.6 (4.1 s) and on
+   `/usr/bin/python3` 3.9.6 (3.4 s).
+7. `test_ccfleet` whole, from `instruments/`: 136 tests OK, exit 0, 287 s on 3.14.6; 136 OK,
+   exit 0, 297 s on 3.9.6. Load averages 8.0 and 5.7 at the two starts, 12 cores.
+8. `test_subject_skills`, from `tools/`: 19 tests OK, exit 0.
+9. The mutation (the condition put back to `if reset_reached(cfg):` in a scratch copy, the test
+   run from the copy's directory): the named test FAILED (failures=1), exit 1.
+10. `check --prompt`: the orchestrator prompt exit 0, "13 placeholder(s)"; the fold prompt exit
+    5, 10 placeholders, `{ITEM}` and `{REVIEW_LOG}` "filled only by resume --item or a fold",
+    `{BRIEF}` and `{HELD}` unset; the resume prompt exit 5, 5 placeholders, `{REVIEW_LOG}` filled
+    only by a resume or a fold, `{AGENT}` and `{STATE}` unset. The exit-5 values are the per-call
+    ones `run.md`'s table says are set per call, which this config did not set.
+11. After the reset: a plain `run … --dry-run` exited 3 with "RESET reached; not starting
+    demo-priv"; `run … --in <wt> --dry-run` with no `--item` exited 3 with the same line.
+12. The fold `run … --prompt skills/review/fold-prompt.md --in <wt> --item 020 --set BRIEF=…
+    --set HELD=… --dry-run`: on the config with no queue, exit 64, "ccfleet: --item needs
+    queue.release in the config" (a usage refusal that comes after the reset check passed it);
+    on the config with the stand-in queue, exit 0, no "RESET reached", `DRY` lines including "DRY
+    worktree add from main" for an adopted worktree, and the argv `nice -n 5 /usr/bin/false -p
+    --session-id <uuid> --setting-sources project,local --settings <kit>/settings/<uuid>.json
+    --append-system-prompt-file <kit>/settings/<uuid>-user-instructions.md --model <cheapest>
+    --output-format json <prompt 5171 chars> < /dev/null`. The stand-in queue's log was empty: a
+    dry run called no queue command.
+13. Which model the fold took is not shown by that run: `default_model` and `pass_model` were the
+    same value. By reading only (not a probe), `run_one` at HEAD resolves a `run` without
+    `--model` to a `MODEL` set value, else the repo's model, else `default_model`.
+14. Machine and board, read off at `6ddbead2`: the primary checkout clean at `efeccf16`, which
+    holds `a1cc5f2d`; `ccfleet` on `PATH` a link to the primary checkout's copy; the
+    brief-writer's own harness lists the `Agent` tool's `model` parameter as an enum of `sonnet`,
+    `opus`, `haiku` and `fable`; `orchestrator-prompt.md` unchanged since `a1cc5f2d`, the other
+    six delta paths changed by later commits; `210/610` (`f4360a79`) carries no review line, and
+    no item under `docs/roadmap/160-doctrine-review-owed/` names it.

@@ -1,4 +1,4 @@
-- [ ] ⏳ 🔥 **Rule-4 cold pass queued (due before Monday 2026-11-30 NZ drain, which starts the evening of 2026-11-29 UTC): the RK drain-path fixes, `RK2` and `RK5`, with
+- [ ] 🎯 **Rule-4 cold pass queued (due before Monday 2026-11-30 NZ drain, which starts the evening of 2026-11-29 UTC): the RK drain-path fixes, `RK2` and `RK5`, with
       the canary's `REVIEW_MODEL` correction (`210/600` part 1).** The small Fable
       check the principal picked on `160/1790` (*"Small Fable check, then switch
       (Recommended)"*, an answer, not a ruling): one pass over the drain-path fixes
@@ -41,3 +41,11 @@
       disclosed: it holds the context partition, commits the records and releases the held-back
       sibling after act 1; it forms no finding and writes no severity. It authored no part of the
       delta and no part of the brief. The reviewer is one fresh Fable subagent.
+      **Verdict 2026-11-25 UTC: PASS-WITH-FINDINGS, 0 MAJOR, 2 MODERATE, 5 minor, 4 notes**
+      (`DV1` to `DV11`), in
+      [`../../reviews/2026-11-25-0720-rk-drain-path-fixes-cold.md`](../../reviews/2026-11-25-0720-rk-drain-path-fixes-cold.md):
+      one Fable reviewer under off-tier orchestrator 14c2530d, act 1 at `49c7c56d`, reconcile and
+      folded sibling below it. The reviewer's counsel is that the drain may run on the three fixes.
+      Every finding is the principal's to rule; nothing is applied. The held copy of the sibling
+      was deleted after the fold was checked byte for byte.
+      🔓 2026-11-25 UTC: session 14c2530d releases its claim.

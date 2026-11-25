@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 135 | 0 | 72 | 43 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 135 | 0 | 73 | 42 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 283 | 0 | 100 | 44 |
+| **All sections** | 283 | 0 | 101 | 43 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -313,7 +313,7 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [Rule-4 cold pass queued: least-privilege permissions in the CI…](roadmap/160-doctrine-review-owed/1760-rule-4-cold-pass-queued-slice-6-corrections-and-template-permissions.md)
 - [ ] ⏳ [Rule-4 cold pass queued: decision-record statuses and review lines,…](roadmap/160-doctrine-review-owed/1770-rule-4-cold-pass-queued-decision-statuses-scan-wording-skill-lists.md)
 - [ ] ⏳ [Rule-4 cold pass queued: a run's start gates, the parked mark, the…](roadmap/160-doctrine-review-owed/1780-rule-4-cold-pass-queued-run-start-gates-parked-asks-work-run.md)
-- [ ] 🔥⏳ [Rule-4 cold pass queued (due before Monday 2026-11-30 NZ drain, which…](roadmap/160-doctrine-review-owed/1800-rule-4-cold-pass-queued-rk-drain-path-fixes.md)
+- [ ] 🎯 [Rule-4 cold pass queued (due before Monday 2026-11-30 NZ drain, which…](roadmap/160-doctrine-review-owed/1800-rule-4-cold-pass-queued-rk-drain-path-fixes.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the RK part-3 fixes to ccfleet, modelguard…](roadmap/160-doctrine-review-owed/1810-rule-4-cold-pass-queued-rk-part-3-fixes.md)
 
 ## build/ layer — open strands
