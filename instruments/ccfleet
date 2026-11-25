@@ -74,7 +74,9 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
   * Children start in their own session, so closing the driver's terminal
     does not end the sessions it started. A SIGTERM or SIGHUP to a launcher
     leaves its session running (it may hold unsaved work) and its process id
-    recorded in <kit_dir>/sessions/; a resume is refused while it runs (RK4).
+    recorded in <kit_dir>/sessions/, with its worktree and its settings
+    copies; a resume, and any launch into that worktree (a fold), is refused
+    while it runs (RK4, PK2), and its copies stay until it ends (PK1).
   * The config is the whole grant. A headless session would load the
     operator's user-level settings, whose allow rules widened a config that
     narrowed the tool list (a config without python3 ran python3). Every
@@ -90,7 +92,9 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     approvals, and managed settings. A config that grants nothing runs in the
     default mode, where every call that would ask is refused; `check` says so.
     The two per-session copies (<kit_dir>/settings/) are removed when the
-    ccfleet process that launched the session exits.
+    ccfleet process that launched the session exits, unless a signal left
+    the session running: then the next launch sweeps them once no live
+    session record holds them (PK1).
   * A clean RESULT that leaves unlanded work is not clean: it reads as
     UNLANDED, the claim stays and the worktree is kept for a resume. A DONE
     that left uncommitted work once released its claim, tying the work to no
@@ -249,7 +253,8 @@ file) · 1 setup failed (or, for drain: not ranked, the queue's next failed, or
 every pick ended before its session started; for plan: a queue command failed
 or printed what it should not) · 2 claim refused (another
 session holds it, another resume of that session runs, or the session to
-resume still runs) or a release refused
+resume, or one recorded in the worktree to launch into, still runs) or a
+release refused
 (pass, resume, run --item) · 3 reset reached · 4 queue empty (a drain that
 started nothing) · 5 refused by the private-name guard or an unfilled
 placeholder (check: a template has one) · 64 usage (incl. an unreadable or
@@ -603,13 +608,48 @@ def user_instructions_path():
     return os.path.join(config_dir(), "CLAUDE.md")
 
 
+# Set when a signal stops a launcher whose session runs on: its settings
+# copies are that session's, so the launcher's exit leaves them (PK1).
+LEFT_RUNNING = []
+# A per-session copy's name: <session>.<launcher pid>.json, or
+# <session>.<launcher pid>-user-instructions.md.
+COPY_RX = re.compile(r"(.+)\.(\d+)(?:\.json|-user-instructions\.md)")
+
+
 def remove_session_files(paths):
+    if LEFT_RUNNING:
+        return  # the session still runs and may read them again; the next launch sweeps them
     for p in paths:
         if p:
             try:
                 os.remove(p)
             except OSError:
                 pass
+
+
+def sweep_session_files(cfg):
+    """Remove the per-session copies nobody holds any more: those whose
+    launcher (the pid in the name) is gone and that no live session record
+    lists (a launcher stopped by a signal leaves them to its session, PK1).
+    A copy of another name (an older layout) is left for the operator."""
+    d = os.path.join(cfg["kit_dir"], "settings")
+    try:
+        names = os.listdir(d)
+    except OSError:
+        return
+    held = {os.path.realpath(c) for _, rec in live_records(cfg) for c in rec["copies"]}
+    for name in names:
+        m = COPY_RX.fullmatch(name)
+        if not m:
+            continue
+        path = os.path.join(d, name)
+        pid = int(m.group(2))
+        if pid == os.getpid() or alive(pid) or os.path.realpath(path) in held:
+            continue
+        try:
+            os.remove(path)
+        except OSError:
+            pass
 
 
 # The harness's rules for an @-import in a CLAUDE.md (Claude Code's memory
@@ -704,17 +744,23 @@ def session_files(cfg, sid, visibility, write=True):
     PRIVATE (instructions_text).
 
     They hold whatever the user-level env block and instruction file hold, so
-    they live only as long as the ccfleet process that launched the session:
-    removed when it exits, by which time its session has ended (each process
+    they live only as long as their session: removed when the ccfleet process
+    that launched it exits, by which time its session has ended (each process
     launches one session; a resume writes fresh ones). They are not removed
-    while it runs, since a session may read its settings file again."""
+    while the session runs, since it may read its settings file again: a
+    launcher a signal stops leaves them, its process record lists them, and
+    the next launch sweeps them once that session has ended (PK1). Each name
+    carries the launcher's process id, so a sweep never takes the copies of a
+    launch that has not yet recorded its session."""
     d = os.path.join(cfg["kit_dir"], "settings")
-    spath, ipath = os.path.join(d, f"{sid}.json"), os.path.join(d, f"{sid}-user-instructions.md")
+    me = os.getpid()
+    spath, ipath = os.path.join(d, f"{sid}.{me}.json"), os.path.join(d, f"{sid}.{me}-user-instructions.md")
     if not os.path.isfile(user_instructions_path()):
         ipath = None
     if not write:
         return spath, ipath
     settings, _ = session_settings(cfg)
+    sweep_session_files(cfg)
     os.makedirs(d, exist_ok=True)
     atexit.register(remove_session_files, (spath, ipath))
     fd = os.open(spath, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
@@ -1154,6 +1200,16 @@ def session_pid_path(cfg, sid):
     return os.path.join(cfg["kit_dir"], "sessions", f"{safe(sid)}.pid")
 
 
+def read_session_record(path):
+    """A process record: the session's pid, its launcher's pid, when, the
+    worktree it runs in and its settings copies (tab-separated; a record an
+    earlier ccfleet wrote has only the first three)."""
+    with open(path) as f:
+        fields = f.read().rstrip("\n").split("\t")
+    return {"pid": int(fields[0]), "wt": fields[3] if len(fields) > 3 else "",
+            "copies": [c for c in fields[4:] if c]}
+
+
 def live_session(cfg, sid):
     """The process id of session `sid` when a launcher recorded it and it still
     runs (a process by that id whose command line names the session), else
@@ -1162,8 +1218,7 @@ def live_session(cfg, sid):
         return None
     path = session_pid_path(cfg, sid)
     try:
-        with open(path) as f:
-            pid = int(f.read().split()[0])
+        pid = read_session_record(path)["pid"]
     except (OSError, ValueError, IndexError):
         return None
     if alive(pid):
@@ -1175,6 +1230,32 @@ def live_session(cfg, sid):
     except OSError:
         pass
     return None
+
+
+def live_records(cfg):
+    """(session id, record) for each recorded session that still runs."""
+    out = []
+    for path in sorted(glob.glob(os.path.join(glob.escape(cfg["kit_dir"]), "sessions", "*.pid"))):
+        sid = os.path.basename(path)[:-len(".pid")]
+        if live_session(cfg, sid):
+            try:
+                out.append((sid, read_session_record(path)))
+            except (OSError, ValueError, IndexError):
+                pass
+    return out
+
+
+def refuse_live_worktree(cfg, wt):
+    """Refuse a launch into a worktree a recorded session still runs in: a
+    second session there would take the worktree from under the first (a
+    fold whose pass's launcher was stopped looks like a cut-off pass, PK2)."""
+    real = os.path.realpath(wt)
+    for sid, rec in live_records(cfg):
+        if rec["wt"] and os.path.realpath(rec["wt"]) == real:
+            raise Refusal(EXIT_CLAIM, f"session {sid} still runs in {wt} (pid {rec['pid']}): its launcher "
+                                      f"died or still watches it, and a launch beside it would take the "
+                                      f"worktree from under it. Wait for it to end, or end it (kill -TERM "
+                                      f"-{rec['pid']}; what it has not saved is lost), then launch")
 
 
 class LauncherSignal(BaseException):
@@ -1205,9 +1286,14 @@ def launch(cfg, argv, cwd, log, sid=None):
         p = subprocess.Popen(argv, cwd=cwd, stdin=subprocess.DEVNULL, stdout=out, stderr=err,
                              env=session_env(cfg), start_new_session=True)
         if pid_path:
+            # The worktree and the settings copies too: a launch into the
+            # worktree is refused, and the copies kept, while it runs (PK1, PK2).
+            copies = [argv[argv.index(f) + 1] for f in ("--settings", "--append-system-prompt-file")
+                      if f in argv[:-1]]
             os.makedirs(os.path.dirname(pid_path), exist_ok=True)
             with open(pid_path, "w") as f:
-                f.write(f"{p.pid}\t{os.getpid()}\t{now_utc():%Y-%m-%dT%H:%M:%SZ}\n")
+                f.write("\t".join([str(p.pid), str(os.getpid()), f"{now_utc():%Y-%m-%dT%H:%M:%SZ}",
+                                   os.path.abspath(cwd), *copies]) + "\n")
         before = {}
         for sig in (signal.SIGTERM, signal.SIGHUP):
             try:
@@ -1224,6 +1310,7 @@ def launch(cfg, argv, cwd, log, sid=None):
             return TIMEOUT_RC
         except LauncherSignal as e:
             ended = False
+            LEFT_RUNNING.append(sid or p.pid)  # its settings copies stay with it (PK1)
             try:
                 print(f"LAUNCHER STOPPED {now_utc():%Y-%m-%dT%H:%M:%SZ} by signal {e.args[0]}: the session "
                       f"(pid {p.pid}{', session ' + sid if sid else ''}) is left running, unwatched; its "
@@ -1442,6 +1529,8 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
         # The basename is the billing key: a session in a differently named
         # directory would bill some other label.
         raise Refusal(EXIT_SETUP, f"--in must be an existing worktree whose basename is {repo}: {wt}")
+    if existing:
+        refuse_live_worktree(cfg, wt)
     keep = keep or (bool(existing) and not remove_adopted)  # an adopted worktree is the caller's
     kit = cfg["kit_dir"]
     logs, results, scratch = (os.path.join(kit, "logs"), os.path.join(kit, "results", day),
@@ -2523,6 +2612,7 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
                                   f"watches it, and a resume beside it would take its worktree from under it. "
                                   f"Wait for it to end, or end it (kill -TERM -{live}; what it has not saved "
                                   f"is lost), then resume")
+    refuse_live_worktree(cfg, wt)
     model = cfg.get("pass_model") or cfg["repos"].get(repo, {}).get("model") or cfg["default_model"]
     # Its visibility is looked up as the pass's was, so the resumed session is
     # handed the instructions (and their imports) the pass was (210/610).

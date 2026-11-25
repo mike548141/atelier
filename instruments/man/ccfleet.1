@@ -209,9 +209,11 @@ them; for a public or unknown-visibility repo they are not followed (see
 A repo's own settings files still load, and some kept keys still widen what
 a session can do; see
 .BR THREATS .
-Both copies live only as long as the
+Both copies live only as long as the session: the
 .B ccfleet
-process that launched the session, which removes them when it exits.
+process that launched it removes them when it exits, unless a signal
+stopped it while the session runs on; then the session's process record
+lists them, and the next launch sweeps them once that session has ended.
 .IP \(bu 2
 A child that
 .B drive
@@ -702,9 +704,10 @@ prints
 keeps the claim and the worktree, and exits 128 plus the signal.
 The session's process id stays in
 .I <kit_dir>/sessions/
-while it runs, so a
-.B resume
-waits for it and a
+while it runs, with its worktree and its settings copies, so a
+.BR resume ,
+and any launch into that worktree (a fold), is refused with exit 2 until it
+ends, its copies stay, and a
 .B drain
 names it.
 A ^C ends the session with its launcher.
@@ -1563,22 +1566,26 @@ Each session's settings file and, when there is a user-level
 .IR CLAUDE.md ,
 its copy for the system prompt, its @-imports inlined for a private repo
 only; owner-only.
+Each name carries the launching
+.BR ccfleet 's
+process id.
 They hold what the user-level
 .B env
 block and instructions hold, so each pair lives only while the session
 does: the
 .B ccfleet
 process that launched it removes them when it exits.
+A launcher stopped by SIGTERM or SIGHUP leaves them to its running session,
+and any later launch removes a pair whose launcher is gone and that no live
+session's process record lists.
 A resume writes a fresh pair.
-A
-.B ccfleet
-killed outright leaves its pair; delete them when no session runs.
 .TP
 .I <kit_dir>/locks/
 One lock per session being resumed.
 .TP
 .I <kit_dir>/sessions/<session>.pid
-The process id of a session while it may run, written by its launcher and
+The process id of a session while it may run, with its launcher's, the
+worktree it runs in and its settings copies, written by its launcher and
 removed when the launcher sees it end.
 One left by a killed launcher stays while the session runs; one whose
 process is gone is removed when next read.
@@ -1841,7 +1848,8 @@ exits 1 for hold.
 .TP
 .B 2
 Claim refused: another session holds the item, or another resume of the
-session is running, or the session to resume still runs.
+session is running, or the session to resume, or one recorded in the
+worktree to launch into, still runs.
 For
 .BR pass ,
 .B resume

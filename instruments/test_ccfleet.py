@@ -1398,23 +1398,43 @@ class RKLifecycle(unittest.TestCase):
         """RK4: SIGTERM to a pass leaves its session running and recorded; a
         resume of that session is refused while it runs, and taken after."""
         wr(self.prompt, "Pass {ITEM}\n")
+        fold = os.path.join(self.tmp, "fold.md")
+        wr(fold, "Fold {ITEM} with {REVIEW_LOG}\n")
+        conf = os.path.join(self.tmp, "claude-config")
+        os.makedirs(conf, exist_ok=True)
+        wr(os.path.join(conf, "CLAUDE.md"), "rules\n")
         kit = {"kit_dir": os.path.join(self.tmp, "kit")}
+        sdir = os.path.join(self.tmp, "kit", "settings")
         p, out, sid = self.start_pass({**self.env, "FAKE_SLEEP": "8"})
         self.wait_for(lambda: cf.live_session(kit, sid), "the session's process record")
         p.send_signal(subprocess.signal.SIGTERM)
         self.assertEqual(p.wait(timeout=30), 128 + subprocess.signal.SIGTERM)
         self.assertIn("LAUNCHER STOPPED", rd(out))
         self.assertTrue(cf.live_session(kit, sid), "the session runs on")
+        # PK1: the session's two copies outlive its stopped launcher.
+        mine = sorted(n for n in os.listdir(sdir) if n.startswith(sid + "."))
+        self.assertEqual([n.endswith(".json") for n in mine], [True, False], mine)
+        self.assertTrue(mine[1].endswith("-user-instructions.md"), mine)
+        self.assertTrue(cf.live_session(kit, sid), "checked while the session still ran")
         (wt,) = self.worktrees()
         r = self.cli("resume", "beta", wt, sid, "--prompt", self.prompt, "--item", "010")
         self.assertEqual(r.returncode, cf.EXIT_CLAIM, r.stdout + r.stderr)
         self.assertIn(f"session {sid} still runs", r.stderr)
+        # PK2: a fold into the worktree a live session runs in is refused too.
+        r = self.cli("run", "beta", "--prompt", fold, "--in", wt, "--item", "010")
+        self.assertEqual(r.returncode, cf.EXIT_CLAIM, r.stdout + r.stderr)
+        self.assertIn(f"session {sid} still runs in", r.stderr)
+        self.assertTrue(os.path.isdir(wt))
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")))
         self.assertEqual(len(self.calls()), 0 if not os.path.exists(os.path.join(self.tmp, "claude.log"))
-                         else 1, "the resume started nothing")
+                         else 1, "neither the resume nor the fold started anything")
+        self.assertTrue(all(os.path.exists(os.path.join(sdir, n)) for n in mine), "copies kept while it runs")
         self.wait_for(lambda: not cf.live_session(kit, sid), "the session to end", limit=60)
         r = self.cli("resume", "beta", wt, sid, "--prompt", self.prompt, "--item", "010")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertEqual(rd(os.path.join(self.tmp, "release.log")).split(), ["beta:010"])
+        # PK1: the next launch swept the ended session's copies; its own went at its exit.
+        self.assertEqual(os.listdir(sdir), [])
 
     def test_a_drain_names_a_session_its_dead_launcher_left_running(self):
         """RK4: the drain's cut-off line says the session still runs."""
