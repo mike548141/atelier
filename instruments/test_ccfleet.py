@@ -1623,18 +1623,46 @@ class ResultWords(unittest.TestCase):
     known = ("DONE", "SKIPPED", "BUDGET EXHAUSTED")
 
     def test_plain_endings_read_as_their_first_word(self):
-        for text, want in (("RESULT: SKIPPED NEEDS LIVE WRITE", "SKIPPED"),
+        for line, want in (("RESULT: SKIPPED NEEDS LIVE WRITE", "SKIPPED"),
                            ("RESULT: DONE WITH FINDINGS", "DONE"),
                            ("RESULT: `DONE`", "DONE"),
                            ("**RESULT:** DONE", "DONE"),
                            ("**RESULT: BUDGET EXHAUSTED** at act 1", "BUDGET EXHAUSTED"),
                            ("RESULT: <DONE|SKIPPED>", "")):
+            text = line + "\nITEM: a:b"  # the review prompts' shape: RESULT, then ITEM
             self.assertEqual(cf.result_word(text, self.known), want, text)
 
-    def test_the_first_result_line_is_the_verdict(self):
-        """RK3: the prompts allow a RESULT line in the final output only, so the
-        first one that begins a line is the verdict; a later one is not."""
-        self.assertEqual(cf.result_word("RESULT: FAILED\nmore\nRESULT: DONE\n", self.known), "FAILED")
+    def test_only_the_final_output_shape_gives_the_verdict(self):
+        """PK4: the verdict is the RESULT line directly above the ITEM: or
+        REPO: line (the review prompts), or the last line of a block that
+        holds one (the fleet prompts: REPO first, RESULT last). An earlier
+        mention, a line out of that shape, or two shaped verdicts that
+        disagree read as nothing (UNKNOWN)."""
+        rw = lambda t: cf.result_word(t, self.known)
+        # The two probes the review found: each read the earlier mention.
+        self.assertEqual(rw("The pass could not land.\nRESULT: DONE is not what this is.\n\n"
+                            "RESULT: FAILED\nITEM: r:i"), "FAILED")
+        self.assertEqual(rw("- RESULT: SKIPPED was considered\n\nRESULT: FAILED\nITEM: r:i"), "FAILED")
+        self.assertEqual(rw("RESULT: FAILED\nITEM: a:b\nVERDICT: n/a\nNOTES: never RESULT: DONE"), "FAILED")
+        self.assertEqual(rw("did the work\nREPO: x\nCOMMITS: none\nRESULT: DONE"), "DONE", "the fleet shape")
+        self.assertEqual(rw("RESULT: FAILED\nmore\nRESULT: DONE\n"), "", "no shape line: no verdict")
+        self.assertEqual(rw("REPO: x\n\nRESULT: DONE"), "", "a blank line parts RESULT from its block")
+        self.assertEqual(rw("RESULT: FAILED\nITEM: a\nNOTES: x\nRESULT: DONE was not reached"), "",
+                         "two shaped verdicts that disagree are no verdict")
+        # A stop word is kept wherever it stands: stopping is the safe direction.
+        self.assertEqual(cf.result_word("note\nRESULT: BUDGET EXHAUSTED at act 1", self.known,
+                                        stops=("BUDGET EXHAUSTED",)), "BUDGET EXHAUSTED")
+        self.assertEqual(cf.result_word("note\nRESULT: BUDGET EXHAUSTED at act 1", self.known), "")
+
+    def test_an_earlier_mention_never_settles_a_pass(self):
+        """PK4, end to end: on a clean JSON end the two probes read FAILED,
+        never the DONE or SKIPPED an earlier line mentions."""
+        for text in ("The pass could not land.\nRESULT: DONE is not what this is.\n\nRESULT: FAILED\nITEM: r:i",
+                     "- RESULT: SKIPPED was considered\n\nRESULT: FAILED\nITEM: r:i"):
+            with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+                f.write(json.dumps({"session_id": "", "result": text}))
+            self.addCleanup(os.remove, f.name)
+            self.assertEqual(cf.harvest(f.name)[2], "FAILED", text)
 
 
 class ErrorEnds(unittest.TestCase):

@@ -56,8 +56,11 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     written; the harvest then reads the session's own transcript, on a clean
     end only, taking the newest text that has a RESULT line and an ITEM: or
     REPO: line (the final-output shape), never a line of narration. The
-    verdict is the first line BEGINNING RESULT:, beside that shape line on the
-    last turn too; a mention inside NOTES once read DONE (RK3).
+    verdict is the RESULT line that stands in that shape: directly above the
+    ITEM: or REPO: line (the review prompts), or the last line of a block that
+    holds one (the fleet prompts); any other RESULT line is no verdict. A
+    mention inside NOTES once read DONE (RK3), and an earlier mention could
+    (PK4).
   * A `touch <kit_dir>/stop` ends launching cleanly; running jobs finish. A
     stop file older than the driver is ignored (and logged): last week's file
     once ended a new run before it started anything.
@@ -951,20 +954,57 @@ def message_text(msg):
     return ""
 
 
-def result_word(text, known=()):
-    """The verdict of the first line in `text` that begins with RESULT:, or ""
-    when there is none. The prompts allow such a line in the final output only,
-    so a later mention ("NOTES: ... RESULT: DONE") never overrides it (RK3).
-    A known phrase (e.g. BUDGET EXHAUSTED) is kept whole; otherwise the first
-    capital-letter word is the verdict."""
-    found = RESULT_RX.findall(text or "")
-    if not found:
-        return ""
-    words = found[0].split()
+def shaped_results(text):
+    """The captured words of each RESULT line in `text` that stands in the
+    final-output shape the prompts fix: directly above an ITEM: or REPO: line
+    (the review prompts: RESULT, then ITEM), or the text's last non-blank line
+    closing a block, with no blank line in it, that holds an ITEM: or REPO:
+    line (the fleet prompts: REPO first, RESULT last). Any other RESULT line,
+    an earlier mention included, is not one (PK4)."""
+    lines = (text or "").splitlines()
+    filled = [i for i, line in enumerate(lines) if line.strip()]
+    last = filled[-1] if filled else -1
+    out = []
+    for i, line in enumerate(lines):
+        m = RESULT_RX.match(line)
+        if not m:
+            continue
+        if i + 1 < len(lines) and SHAPE_RX.match(lines[i + 1]):
+            out.append(m.group(1))
+        elif i == last:
+            j = i - 1
+            while j >= 0 and lines[j].strip():
+                if SHAPE_RX.match(lines[j]):
+                    out.append(m.group(1))
+                    break
+                j -= 1
+    return out
+
+
+def verdict_phrase(captured, known=()):
+    """A known phrase (e.g. BUDGET EXHAUSTED) kept whole, else the first
+    capital-letter word."""
+    words = captured.split()
     for phrase in sorted((k.split() for k in known), key=len, reverse=True):
         if phrase and words[:len(phrase)] == phrase:
             return " ".join(phrase)
     return words[0]
+
+
+def result_word(text, known=(), stops=()):
+    """The verdict of `text`, or "" when there is none: the RESULT line in the
+    final-output shape (shaped_results), so neither a later mention ("NOTES:
+    ... RESULT: DONE", RK3) nor an earlier one ("RESULT: DONE is not what this
+    is", PK4) is read. Two shaped verdicts that disagree are none. A word in
+    `stops` on any RESULT line is kept when no shaped verdict stands, since
+    stopping is the safe direction."""
+    shaped = {verdict_phrase(w, known) for w in shaped_results(text)}
+    if len(shaped) == 1:
+        return shaped.pop()
+    for w in sorted(shaped) + [verdict_phrase(w, known) for w in RESULT_RX.findall(text or "")]:
+        if w in stops:
+            return w
+    return ""
 
 
 def transcript_result(sid, since=None):
@@ -994,7 +1034,7 @@ def transcript_result(sid, since=None):
             if since and ts and ts < since:
                 continue
             text = message_text(e.get("message"))
-            if RESULT_RX.search(text) and SHAPE_RX.search(text) and (ts, n) >= best[:2]:
+            if shaped_results(text) and (ts, n) >= best[:2]:
                 best = (ts, n, text)
     return best[2]
 
@@ -1033,7 +1073,7 @@ def harvest(log_path, since=None, rc=0, known=tuple(RELEASE_ON + STOP_ON), stops
     except (ValueError, AttributeError):
         j, text, sid = None, s[-4000:], ""
     flagged = bool(j and (j.get("is_error") or j.get("subtype") not in (None, "success")))
-    word = result_word(text, known)
+    word = result_word(text, known, stops)
     if rc != 0 or flagged:
         why = f"rc={rc}" + (f", subtype={j.get('subtype')}" if j and j.get("subtype") else "") + \
               (", is_error" if j and j.get("is_error") else "")
@@ -1041,15 +1081,16 @@ def harvest(log_path, since=None, rc=0, known=tuple(RELEASE_ON + STOP_ON), stops
         if word and word in stops:
             verdict = word
         return f"(an error end, {why}: never read as clean)\n{text}", sid, verdict
-    if word and word not in stops and (j is None or not SHAPE_RX.search(text)):
-        # Not the final output: unreadable output, or a RESULT with no ITEM:
-        # or REPO: line beside it. Only the transcript can still give one.
+    if word and word not in stops and j is None:
+        # Not the final output: unreadable output (result_word already reads
+        # only a RESULT line in the final-output shape). Only the transcript
+        # can still give one.
         word = ""
     if not word and sid:
         t = transcript_result(sid, since)
         if t:
             text = "(read from the session transcript: the last turn printed no RESULT line)\n" + t
-            word = result_word(t, known)
+            word = result_word(t, known, stops)
     return text, sid, (word or "UNKNOWN")
 
 

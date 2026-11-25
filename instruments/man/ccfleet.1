@@ -1405,18 +1405,27 @@ session is never read as done; only a
 .B queue.stop_on
 word the session printed itself is kept, since stopping is safe.
 .PP
-The first line of the result text that begins with
+The verdict is the line of the result text that begins with
 .B RESULT:
 (as in
 .BR "RESULT: DONE" )
-gives the verdict; a later one, or a mention inside another line, does not.
-On a clean end it counts only beside a line starting
+and stands in the final-output shape the prompts fix: directly above a line
+starting
 .B ITEM:
 or
 .B REPO:
-(the final-output shape), but for a
+(the review prompts), or the text's last line, closing a block with no blank
+line in it that holds such a line (the fleet prompts, which put
+.B REPO:
+first).
+Any other line that begins
+.BR RESULT: ,
+an earlier or a later mention, gives no verdict, and two shaped verdicts
+that disagree give none; either reads as
+.BR UNKNOWN .
+A
 .B queue.stop_on
-word.
+word on any such line is kept when no shaped verdict stands.
 Bold or backticks around it are ignored.
 A phrase in
 .B queue.release_on
@@ -1440,13 +1449,8 @@ is
 .B $CLAUDE_CONFIG_DIR
 or
 .IR ~/.claude .
-The newest assistant text written since the launch that carries such a line
-and a line starting
-.B ITEM:
-or
-.B REPO:
-(the final-output shape) gives the verdict; a line of narration that only
-mentions a
+The newest assistant text written since the launch that carries a verdict
+in that shape gives it; a line of narration that only mentions a
 .B RESULT
 is never taken.
 The result file then says it was read from the transcript.
