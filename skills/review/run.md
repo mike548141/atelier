@@ -112,6 +112,8 @@ its own first, then any other route's not yet started, but never from a budget
 that lapses before its own: that budget keeps its reviews. A review
 briefed after the seal runs last on the local route until it is planned and
 the ranking sealed again: it is a paid pass that no plan showed.
+ccfleet calls the queue's `next` with `--route local`, and the queue offers
+only what the sealed ranking routes there, then that spill.
 
 **What the seal does not gate.** It binds `drain` and `ccfleet pass`, which
 call the queue. `ccfleet run` with the pass prompt and `--set`, and `resume`,
@@ -269,7 +271,9 @@ costs no review budget only where the config's model is not the review tier:
 read it before you run one. Leave `reset_utc` as the drain set
 it: it stops new passes only, and ccfleet runs a `resume` and a fold (`run
 --in ... --item ...`) after it, since both finish a pass started before it.
-Nothing new starts. No claims: nothing to resume; say so.
+A fold passes the reset only for a pass ccfleet saw start (its result file, or
+a `START` line for `<repo>-<item>`); its template is never `pass_prompt`, and
+it is refused while a session still runs in the worktree. Nothing new starts. No claims: nothing to resume; say so.
 
 **Two things ccfleet does not do for you.** It does not check the principal's
 word: a resume and a fold run after the reset on his word only, and holding

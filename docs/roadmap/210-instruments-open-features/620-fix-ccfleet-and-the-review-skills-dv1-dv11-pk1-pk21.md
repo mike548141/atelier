@@ -33,3 +33,13 @@
       session b04df0da (`atelier-f9`, Opus 5.5), the build session of step A on `450/010` row 2.
       It orchestrates worker subagents in worktrees and lands their fixes; it neither briefs nor
       runs the Fable re-check (step C), and queues only its pointer.
+      💬 **Answered 2026-11-25 ~11:30 UTC (session b04df0da, `atelier-f9`,
+      AskUserQuestion; an answer, not a ruling)**, on `PK7`, whose counsel was only to put it
+      to him: asked whether words typed after `/atelier:session close` that would skip a step
+      are obeyed, his pick: *"Obey, but say so (Recommended)"* (option text: *"Your typed
+      words can skip a step; the close names which step was skipped and that you asked.
+      Benefit: your word wins, as the rest of the house rules say. Risk: a dropped or mistyped
+      word could skip the record check, but the close says so in plain sight, so you'd see
+      it."*). Applied in `001d9b42`.
+      Note: this item's claim lines landed inside `932a0185` (another session's close commit
+      on the shared checkout staged them with its own); the claim is as written above.
