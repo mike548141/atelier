@@ -31,3 +31,13 @@
       headless session 075cdcd9 (`atelier-e0`, Opus 5.5), started by principal-opened
       session 14c2530d (`atelier-e7`, Opus 5.5). Scope: write the brief and its held-back
       sibling only; no pass run, no reviewer started or instructed.
+      **Briefed 2026-11-25 UTC (session 075cdcd9, `atelier-e0`, Opus 5.5, started by
+      14c2530d):** `docs/reviews/2026-11-25-0721-rk-part-3-fixes-ccfleet-modelguard-subject-skills-cold.md`,
+      pinned at `6ddbead2`, finding prefix `PK`. It takes in every commit after `a1cc5f2d` on
+      this item's paths, not only those citing `210/600`: `fc922383` (`modelguard`) and
+      `9b4a8f8f` (the changelog) cite neither, and `f4360a79` (`210/610`, closed with no pass of
+      its own) rewrote the instructions-file guard after this pointer was written; `a1cc5f2d`
+      is read for context, under `160/1800`. The held-back sibling is user-local; the
+      orchestrator is told where. The brief-writer formed no finding and does not start the
+      pass, which stays `⏳` for one fresh Fable reviewer on the approval above.
+      🔓 2026-11-25 UTC: session 075cdcd9 releases its brief-writing claim.
