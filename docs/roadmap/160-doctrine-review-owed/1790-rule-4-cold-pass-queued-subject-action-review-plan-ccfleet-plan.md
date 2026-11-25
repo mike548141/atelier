@@ -1,4 +1,4 @@
-- [ ] 🎯 **Rule-4 cold pass queued: every command is subject, space,
+- [x] 🎯 **Rule-4 cold pass queued: every command is subject, space,
       action; `review plan`, `ccfleet plan` and `work plan` (`450/020`,
       `180/210`, `180/240`).** Every plugin user's commands moved, the
       review queue's ranking moved into one file that a drain will run from,
@@ -112,3 +112,13 @@
       `python3` and `git` command.
       🎯 **The principal's (rule 3):** every finding, nothing applied.
       🔓 2026-11-25 UTC: session 4a34637a releases its claim; the item stays open for his ruling.
+      💬 **The principal's answers, 2026-11-25 UTC (session 4a34637a, AskUserQuestion; answers,
+      not rulings):** on the 29 findings, *"Fix all as advised (Recommended)"* (option text: *"A
+      build session fixes all 29 the way the reviewer suggested, the 4 on the drain's path first.
+      Benefit: one decision from you and no backlog. Risk: a few are judgement calls (whether the
+      seal's contract lives in atelier, what the cost column means), which you'd be taking the
+      reviewer's way."*); on Monday's drain, *"Small Fable check, then switch (Recommended)"*
+      (option text: *"After the 4 drain-path fixes and the trial pass, one small Fable review of
+      just those fixes, run by a fresh session before Monday. Benefit: keeps your review-before-use
+      rule, and Monday runs on the new commands. Cost: one small Fable pass this week."*).
+      Carried by `210/600`; this pass is done and the item closes.
