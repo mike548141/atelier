@@ -1442,8 +1442,8 @@ class RKLifecycle(unittest.TestCase):
         self.assertTrue(cf.live_session(kit, sid), "the session runs on")
         # PK1: the session's two copies outlive its stopped launcher.
         mine = sorted(n for n in os.listdir(sdir) if n.startswith(sid + "."))
-        self.assertEqual([n.endswith(".json") for n in mine], [True, False], mine)
-        self.assertTrue(mine[1].endswith("-user-instructions.md"), mine)
+        self.assertEqual(sorted(n.endswith(".json") for n in mine), [False, True], mine)
+        self.assertTrue(any(n.endswith("-user-instructions.md") for n in mine), mine)
         self.assertTrue(cf.live_session(kit, sid), "checked while the session still ran")
         (wt,) = self.worktrees()
         r = self.cli("resume", "beta", wt, sid, "--prompt", self.prompt, "--item", "010")
