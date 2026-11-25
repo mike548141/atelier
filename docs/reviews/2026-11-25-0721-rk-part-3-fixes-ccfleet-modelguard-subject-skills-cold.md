@@ -1,7 +1,8 @@
 # Cold pass — the RK part-3 fixes to `ccfleet`, `modelguard` and the subject skills (`160/1810`)
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1810-rule-4-cold-pass-queued-rk-part-3-fixes.md`
-**Status:** BRIEF ONLY, 2026-11-25 UTC. Written by headless session `075cdcd9` (`atelier-e0`,
+**Status:** ACT 1 COMMITTED 2026-11-25 UTC (one Fable reviewer under off-tier orchestrator
+`14c2530d`), act 2 pending. Was: BRIEF ONLY, 2026-11-25 UTC. Written by headless session `075cdcd9` (`atelier-e0`,
 Opus 5.5), pinned at `6ddbead2` (`origin/main` when written). Not yet run.
 **Approval:** one Fable pass plus its Opus brief, by a fresh session that wrote none of the fixes.
 The principal's pick, 2026-11-25 ~05:40 UTC, recorded on `160/1810` (an answer, not a ruling),
@@ -643,3 +644,814 @@ lines: whether anything you found loses, misreads or mis-costs paid review work;
 the principal's paid weekly drain from, and if not, what must change first; and whether anything in
 the delta can put private context into a public repo's session. Name `160/1810` in your scope line,
 and `210/600` and `210/610` as the items the delta answers to.
+
+---
+
+# Verdict, act 1 (cold): the RK part-3 fixes (`160/1810`)
+
+**Reviewer:** a fresh Fable session (model `claude-fable-5-2`, the principal-named review tier,
+checked at selection), started for this pass alone. **Day:** 2026-11-25 UTC (started 07:59Z).
+**Scope:** board `160/1810`; the delta answers to `210/600` and `210/610`. Seven commits
+(`fc922383`, `4a9318b7`, `9b4a8f8f`, `53203833`, `2d8e05e3`, `564a7ca4`, `f4360a79`), with
+`a1cc5f2d` read for context, reviewed as the tree stands at **`6d71ea91`** (my pinned HEAD, which
+was `origin/main`). **Review worktree:** `<WT>` (branch `atelier-e7-pk-pass`), read-only to me but
+for this file. **Scratch:** `<SCRATCH>`.
+
+**Overall: PASS-WITH-FINDINGS. 0 MAJOR, 5 MODERATE, 11 minor, 4 notes** (`PK1`–`PK20`).
+
+## Provenance (rule 4, V7)
+
+- **Spawned by** session `14c2530d` (`atelier-e7`, Opus 5.5), principal-opened, as an off-tier
+  orchestrator: it holds the context partition and commits the records, and by its own account
+  forms no finding and writes no severity. It authored no part of the delta and no part of the
+  brief (headless session `075cdcd9` wrote the brief). Its spawn prompt is recorded verbatim at
+  the end of this act (*Spawn prompt, verbatim*), with the three path substitutions it named. It
+  made no barred-set choice of its own: "The barred set is exactly the brief's; I add nothing and
+  remove nothing." The release message does not exist yet; it goes into act 2.
+- **Not started or instructed by** the authors (`0ee74059` and its workers) or the brief-writer.
+  No author session contacted me. No contact from any session but the orchestrator's spawn.
+- **Tier:** Fable, stated by my harness ("You are powered by the model named Fable 5.2"). I
+  started no subagent; every reading, probe and judgement here is mine.
+- **What I read, in order:** the spawn prompt; this brief whole; `docs/method/REVIEW.md` whole;
+  the eight commits body-free (`coldsweep --commit`, each exit 0); `instruments/ccfleet` whole at
+  HEAD; the reference queue and the example config whole; `skills/review/` (router, `run.md`,
+  `plan.md`, the three prompts) whole; `skills/session/` router and `close.md` whole; the other
+  routers, the fleet prompts and `sweep.md` as the diffs and their surrounding sections;
+  `tools/modelguard.py` whole; the tests' relevant cases; the manual's changed sections and its
+  THREATS; `CHANGELOG.md`'s new entries; `MECHANISMS.md`'s two changed passages; the two
+  `README.md` entries that mirror `modelguard` and `ccfleet`; `00-APEX.md`'s section on the
+  principal's authority; the *Ending the session* section of the session-open prompt (to see
+  what `close.md` delivers, not to judge its wording).
+- **Start-up reading:** I skipped the session-log step (rule 2). I read no session record, no
+  prior verdict, no item under `docs/roadmap/160-doctrine-review-owed/`, no delta commit's message
+  body, none of the brief's listed barred items, and I did not look for the held-back sibling.
+  No `--include-barred` sweep was run.
+- **Exposure to disclose.** (1) My harness loaded, unasked, the repo's instruction file, the
+  user-level instruction file with what it imports, and a memory index, before I read a line of
+  the brief. They hold private context this verdict does not carry. One entry there records the
+  principal's approval of this one pass (the same words the brief's head quotes); nothing I met
+  there gives an account of the delta or of the earlier verdict's findings. I did not open the
+  private part myself. (2) The harness also showed the five newest commit subjects (claims on
+  `160/1800` and `160/1810`), which name which sessions hold which pass and nothing evaluative.
+  (3) The delta's own comments, tests and `CHANGELOG.md` cite `RK` numbers with a clause each
+  (for example "RK4" beside the launcher-signal code); that is the delta, read as such, and I
+  opened nothing to learn what the earlier verdict said of them.
+- **Limits on this record.** The harness moved three long foreground commands to the background
+  on its own after 180 s (the two `test_ccfleet` runs and one timing run); I waited for each and
+  read its exit code. One static search of the CLI binary was stopped by me as too heavy and
+  re-done with a cheaper method. The two full suites started at a one-minute load of 17.9 and
+  5.5. Load was above the 24 threshold when one timing run of a subset of the tests started (37,
+  at 08:23Z) and while the world's light commands ran (55, at 08:10Z). No wall-clock test
+  failed, on any run.
+
+## Method
+
+1. **Floor first.** `git merge-base --is-ancestor f4360a79 HEAD` (exit 0); the brief's since-line
+   at `6d71ea91` (empty); each commit body-free. Then every line of the re-run list (ledger
+   below).
+2. **Read the delta whole at HEAD**, naming my own load-bearing assumptions before the brief's
+   claims list was used as a checklist (lens 1).
+3. **A synthetic world** in `<SCRATCH>/w`, as the brief specifies, every name invented: two
+   repos with no remote, two scratch `CLAUDE_CONFIG_DIR`s, a shim in front of the reference
+   queue that logs each call, `claude_bin` `/usr/bin/false`; then a stand-in binary of my own
+   (`<SCRATCH>/bin/fakeclaude`) that sleeps, records whether its settings and instructions files
+   exist at its start and its end, and prints a JSON result, to drive the lifecycle by signal.
+4. **Probes by script**, each kept in `<SCRATCH>/probes/` with its output beside it: the import
+   inliner (22 shapes), the cost history (7 synthetic pass histories), the reference queue
+   (routes, a late brief, seal lifetime), the verdict reader (10 final outputs), `modelguard`
+   (84 launch shapes and 102 benign commands, on both interpreters, and 12 long adversarial
+   inputs timed), `check` with a user-level `sandbox` block.
+5. **Mutation** of scratch copies of `ccfleet`, the reference queue, `modelguard`, the routers,
+   the action files, the manual, the example config and `MECHANISMS.md` (55 mutants), each run
+   against the tests that should catch it (lens 3).
+6. **Live behaviour:** one real launch tried within the brief's bounds; it could not log in
+   (ledger below), so the live claims were re-driven statically instead, from the installed
+   CLI's own bundled source and the public documentation, and are marked for what they are.
+7. **Left out, and why:** any real config, rulings file, queue tool or real `CLAUDE_CONFIG_DIR`
+   (the brief's non-goals); `a1cc5f2d`'s own fixes (`160/1800`'s); the wording of the
+   session-open prompt; `/security-review` (discharged under V6). Private children: none read.
+
+## Load-bearing assumptions (lens 1, named before the brief's claims were used)
+
+Each is mine; each says what the delta rests on, the probe, and its state.
+
+- **A1. A session's verdict can be read from a line it prints.** The whole release-and-remove
+  decision rests on one `RESULT:` line and on the model keeping the prompt's rule about where
+  such lines go. Probe: `<SCRATCH>/probes/harv.py`. **Damaged** (`PK4`): the fix for a later
+  mention reads an earlier one.
+- **A2. The harness does not follow an `@` import in a file given by
+  `--append-system-prompt-file`, and loads no user-level `CLAUDE.md` when the `user` setting
+  source is left out.** The import split's privacy claim rests on both. Live: NOT RUN (no login,
+  see the live ledger). Static, first half: in the installed CLI (2.1.302) the option's file is
+  read and decoded as plain text and joined to the prompt, with no import step in that path.
+  Second half: unverified by me; it is the authors' "checked against claude 2.1.x" comment
+  (`instruments/ccfleet:503`). **Confirmed in part, by reading, not by running.**
+- **A3. A launcher's death is the only way a session outlives its bookkeeping.** `launch()`
+  keeps the session alive on SIGTERM and SIGHUP and records its process id. Probe: stand-in
+  session, SIGTERM to the launcher. **Damaged** (`PK1`, `PK2`): the session lives on, but its
+  settings copies are removed under it, and only `resume` checks the record.
+- **A4. `ps` shows a running session's id on its command line.** `live_session` needs it.
+  Probe: a count over this machine's running `claude` processes (7 found, all 7 with their
+  arguments shown; none quoted). **Confirmed** for this machine and CLI version; not pinned by
+  any test against the real binary.
+- **A5. The adopter's queue is a sound home for the control that stops an unplanned paid
+  pass.** ccfleet trusts an exit code. Probe: the reference queue through the shim, sealed and
+  unsealed, by two run ids. **Holds for `drain` and `pass`; narrower than it reads** (`PK3`,
+  `PK10`): `run` and `resume` meet no gate, the reference offers reviews the seal never ranked,
+  and it ignores the route a review was sealed to.
+- **A6. Visibility decides what a session may be told, and the config knows the visibility.**
+  A repo marked private that is public gets the private imports; the manual says so. Probe:
+  none beyond reading `repo_facts` (the config's word wins over the forge's).
+  **Stated, not defended** (`PK20`).
+- **A7. A router's `allowed-tools` is applied by the harness as written, with the plugin root
+  filled in, in both install shapes.** Live: NOT RUN. Static: the installed CLI passes a plugin
+  skill's whole `allowed-tools` string through its plugin-root substitution before parsing it,
+  so the `Read(/${CLAUDE_PLUGIN_ROOT}/**)` rule is filled in too. The public documentation
+  promises that substitution only for Bash rules. **Confirmed by reading for 2.1.302; resting on
+  behaviour the documentation does not promise** (`PK19`).
+- **A8. A deny-list parser of shell text converges.** Probe: 186 commands. **Holds as a net,
+  with a cost on both sides** (`PK13`): 12 launches of the shapes tried pass, and 28 ordinary
+  commands of the shapes tried are refused, most of them in the class the docstring states.
+- **A9. The words after a command are the principal's.** `run.md` and `close.md` treat them so.
+  `MECHANISMS.md`, in the same delta, says a model can reach an action from a casual phrase.
+  **Damaged** (`PK6`).
+- **A10. Summing `total_cost_usd` over a pass's sessions gives the pass's cost.** True only if
+  a resumed session reports its own run and not the conversation's running total. Live: NOT RUN.
+  **Unverified** (`PK12`).
+
+## Per-lens answers
+
+**Lens 1, approach.** The pass lifecycle is now recoverable at every point I could drive: a
+pass cut off by a signal, a cap or a kill keeps its claim, worktree and review log, its session
+id is on its `START` line and its claim, and `resume` refuses while the session runs. The
+approach is sound; two of its seams are not closed (`PK1`, `PK2`). Putting the seal in the
+adopter's queue is defensible for a tool that must stay generic, and the reference queue makes
+the contract readable in one sitting, as claimed. What an adopter who writes their own queue
+gets is a prose contract and a fixture, with no conformance check: nothing in `ccfleet check`
+tries `ranked`, `next` or `take` with an unsealed id and expects a refusal. The seal is also a
+gate on two commands, not on paid launches: `ccfleet run` given the pass prompt, and `resume`,
+call no queue command (by design for `resume`; unstated for `run`). The hook is a net and says
+so; its widening this round traded one stated false allow for the removal of a broad false
+deny, which I judge the right direction, with residue on both sides (`PK13`). Splitting the
+instruction file by visibility is the right fix for what ccfleet itself appends; it does not
+bound what the session can open, and the text it appends names the file it withholds (`PK5`).
+The router grant is a real control in the CLI version read (`A7`). Does each fix close its
+class? Three move the risk rather than close it: the verdict reader (`PK4`), the launcher
+signal (`PK1`), the settled verdicts (`PK14`).
+
+**Lens 2, correctness.** Of the brief's 31 claims: 18 re-driven and holding as written; 10
+holding with a limit found (1, 2, 3, 5, 10, 14, 15, 18, 25, 29); 3 overclaimed (4: `check` does
+not name each; 12: the reference does not keep the route rules `run.md` states beside the
+seal's; 31: the changelog covers the skills only). Each is in the claims ledger below, with how
+it was re-driven.
+
+**Lens 3, completeness.** The surfaces disagree in three places (`PK8`, `PK9`, `PK14`); four
+mirror sites were not swept (`PK15`); of 55 mutants the tests killed 42, and the 13 survivors
+are listed under `PK16`.
+
+**Lens 4, security and privacy.** No path found by which ccfleet itself appends an imported
+file to a public or unknown-visibility repo's session: mutants that inline for every
+visibility, that make the appended copy differ from what the guard reads, that silence the
+guard, and that turn `refuse` into `warn` are all killed by the tests, and the world's runs show
+the public copy carrying the import line as text only. What remains: the session can be told
+where the private part is and may open it (`PK5`); a `resume` of a public repo's pass is not
+pinned by any test to get the public copy (`PK16`); a launcher stopped by a signal strips its
+live session of the settings copy that carries the kept deny rules and guard hooks (`PK1`);
+`check` does not name a kept `sandbox` block that auto-allows shell commands (`PK11`). The
+router grants pre-approve nothing that writes: plugin reads, one exact menu command, three exact
+read-only git commands, and `ccclose`, which I read as read-only but for the fetch it says it
+makes. Code altitude, by hand against ASVS V5 (validation), V12 (files) and V14 (configuration):
+repo names, labels, items and session ids are validated or made safe before they reach a path
+(`check_repo_name`, `safe`, the session-id pattern); every queue and git call is an argv list
+with no shell; the settings copies are created owner-only (read at `:717` and `:725`, and seen as
+mode 600 in the world, though no test pins it: `PK16`); the
+import inliner reads any path a user-level file names, which is the operator's own file and a
+private repo's session only. Not defended, and the operator's to know: a queue's `BRIEF` field
+is joined to the worktree path unchecked (`one_pass`, `check_file`), so a queue that printed an
+absolute path would have it accepted; the prompt travels on the command line, readable by other
+local users in `ps`; the guard reads the prompt and the instruction file, not the settings copy
+(a private name in a kept `env` value or hook command line is not looked for).
+
+**The paid-drain path, on its own line.** Nothing I found breaks a drain that runs
+undisturbed: seal refused → nothing starts; sealed → the pass is claimed with its session id,
+launched, read, released only on a clean end with nothing unlanded, and kept whole on any other
+end. The defects on this path need a second event: a signal to a launcher (`PK1`), a fold or an
+un-claim decision taken while a session still runs (`PK2`), a final output that breaks the
+prompt's own rule (`PK4`). Whether the estate's real queue keeps the seal and the route rules is
+outside what this pass may open (`PK3`).
+
+## The standing checklist
+
+- **V1 (no claim stronger than its evidence):** run on every claim; overclaims at `PK1` (claim
+  5), `PK3` (12), `PK5` (15), `PK11` (4), `PK12` (14), `PK15` (31).
+- **V2 (re-run recorded proofs):** every re-run line run (ledger). Two "seen live" proofs in the
+  delta could not be re-run and are marked so: the changelog's "seen live for
+  `/atelier:session close`" and the test docstring's "a live probe showed the harness needs" the
+  double slash (`PK19`).
+- **V3 (a changed rule swept to its mirrors):** `PK15` (four sites), `PK8`.
+- **V4 (one fact, one home):** the seal's rules live in five places (the docstring, the manual,
+  `run.md`, the reference queue's docstring and code, the example config's comment). The four
+  refusals agree across all five. The reference adds two the texts do not list as seal rules (a
+  route the review does not fit; a brief this run's session wrote, which the texts mention
+  apart). `run.md` alone holds the route-take and spill rules, and nothing implements them
+  (`PK3`). The queue placeholders agree across the docstring, the manual and the code.
+- **V5 (no internal contradiction; cross-references reach their rule):** contradictions at
+  `PK8` and `PK14`. Cross-references checked for the rule reached: `run.md` → `man ccfleet`,
+  *The seal* (reaches the four-bullet contract); the docstring → `run.md`, *The seal's own
+  rules* (reaches that paragraph); `plan.md` → `REVIEW.md` rule 4 (reaches "queue the review
+  pointer … naming the delta and the intent record"); `close.md` → the prompt's
+  `## Ending the session` (present); `sweep.md` → `run.md` § *Briefs are never left owed*
+  (present, holds the held-directory rule); the manual's THREATS → `check`'s `WIDENS:` lines
+  (reached, and incomplete: `PK11`).
+- **V6 (security and privacy, with `/security-review` where it can reach):** lens 4 above.
+  `/security-review` is discharged with grounds: it reads the running session's pending diff,
+  this delta is landed, my worktree is clean, and my session's working directory is not one I
+  can aim; a run would scan nothing or the wrong tree. The code-altitude read was done by hand.
+- **V7 (spawn provenance):** stated in the brief and repeated above.
+
+## Findings
+
+Every finding is the principal's to decide (rule 3). Counsel is labelled and kept beneath.
+
+### PK1 (MODERATE, security) — a signalled launcher removes its live session's settings copies
+
+*Claim tested:* claim 5, and `session_files`' own docstring: "They are not removed while it
+runs, since a session may read its settings file again" (`instruments/ccfleet:703-707`); the
+manual's FILES: "each pair lives only while the session does".
+*Evidence:* `launch()` turns SIGTERM or SIGHUP into `SystemExit` and leaves the session running
+(`:1184-1192`); `session_files` registered the removal with `atexit` (`:716`), which runs on that
+exit. Probe, twice: a stand-in session logging whether its `--settings` and
+`--append-system-prompt-file` paths exist. `start … settings=yes instr=yes`; SIGTERM to the
+launcher (exit 143, `LAUNCHER STOPPED … is left running`); `<kit_dir>/settings/` empty while the
+session still slept; `end … settings=no instr=no`.
+*Why it matters:* that file is the session's whole user-level remainder: the kept deny and ask
+rules and guard hooks, and the config's own grant. What a real session does when its `--settings`
+file vanishes is NOT RUN (no live launch was possible). If it re-reads, it loses its grant (it
+stalls) and its guards (it is unguarded where a permission flag in `claude_args` still stands).
+*Criterion:* V1; lens 4. No test covers it: the signalled-launcher test never looks at the
+copies.
+*Severity:* MODERATE. *Recurrence prevention:* tie the copies' removal to the session's end, not
+the launcher's: skip the removal on the signal path and sweep copies with no live session record
+at the next start; and assert, in the signalled-launcher test, that both copies exist while
+`live_session` is true.
+
+### PK2 (MODERATE) — a fold is not refused while the pass's session still runs
+
+*Claim tested:* claim 2 ("a resume is refused while it runs") against the lifecycle it protects.
+*Evidence:* only `resume` calls `live_session` (`:2479`); `run --in WT --item ITEM` has no such
+check. Probe, through the reference queue: a sealed pass claimed and started (a stand-in session
+sleeping in its worktree), its launcher stopped by SIGTERM. `resume` of it: refused, exit 2, as
+claimed. `run --in <that worktree> --item <its item>`: `START`, a second session in the same
+worktree, `END … result=DONE`, exit 0; the queue's state then showed the claim released and the
+item done, and the worktree was gone, while the first session's process record was still there
+and its own end came ten seconds later, into a directory that no longer existed.
+*Why it matters:* `run.md` tells the drain session to take the fold "before a resume" for a pass
+whose act 2 is written. A session whose launcher was stopped looks, from the result files, like
+a cut-off pass. The unlanded-work check still guards uncommitted files; it does not guard a
+reviewer that is mid-thought with a clean tree.
+*Severity:* MODERATE. *Counsel:* record the worktree in the process record and refuse any launch
+into a worktree a recorded live session runs in; or give the fold the session id and check it.
+
+### PK3 (MODERATE) — the reference queue's `next` ignores the route a review was sealed to
+
+*Claim tested:* claim 12 (the reference "keeps this contract"), `run.md`: "Each route takes only
+its own reviews, in rank order. The local route takes its own first, then any other route's not
+yet started, but never from a budget that lapses before its own: that budget keeps its reviews."
+*Evidence:* `next_pick` walks the sealed order and prints the first review not skipped, whatever
+its route (`review_queue_reference.py:113-129`). Probe: two open routes, `credit` lapsing before
+`local`; a review sealed to `credit`, another to `local`. `next` printed the `credit` review
+first. ccfleet's drain runs every pick as a local session ("Every pass ccfleet launches is a
+local session"), so the review planned for the credit budget is spent from the local one, from a
+budget that lapses later: the exact case `run.md` forbids. The docstring's and the manual's
+contract text, and the example config's `next` argv, carry no route at all.
+*Why it matters:* the plan shows the principal a route and a cost per review; a queue built from
+the reference spends otherwise. For the estate's own queue this is a non-goal I could not open,
+so the verdict's drain line is conditional on it.
+*Severity:* MODERATE. *Counsel:* say in the contract that `next` offers only what the sealed
+ranking routes to the local route (plus the stated spill), make the reference do it, and pin it
+with a two-route test.
+
+### PK4 (MODERATE) — the first line beginning `RESULT:` wins, so an earlier mention is read
+
+*Claim tested:* claim 1.
+*Evidence:* `result_word` takes `found[0]` (`:960-967`); the shape line is required somewhere in
+the text, not beside the `RESULT:` line. Probe, on a clean JSON end:
+"The pass could not land. / RESULT: DONE is not what this is. / (blank) / RESULT: FAILED /
+ITEM: r:i" reads **DONE**; "- RESULT: SKIPPED was considered / (blank) / RESULT: FAILED /
+ITEM: r:i" reads **SKIPPED**. Both words release the claim and, on a clean tree, remove the
+worktree. The mirrored case the fix answered (a mention after the real line) now reads right.
+*Why it matters:* the control is the prompt's rule ("Write a line beginning `RESULT:` … nowhere
+else"), and the docstring records that a model once broke the mirror of it. A FAILED pass read
+as DONE is settled in the queue with its work undone: the brief's first worst failure.
+*Severity:* MODERATE (the trigger needs a broken prompt rule; the consequence is the worst
+class). *Counsel:* read the `RESULT:` line that stands directly above the `ITEM:` or `REPO:`
+line, the shape the prompts fix, and read anything else as UNKNOWN.
+
+### PK5 (MODERATE, privacy) — a public session is told where the withheld file is
+
+*Claim tested:* claim 15: "a private name kept in an imported file reaches no public session."
+*Evidence:* the copy appended for a public repo, captured from the world: its header names the
+user-level file's absolute path, says its imports are "not followed (this repo is PUBLIC, and an
+imported file is kept from such a repo's session)", and the body ends with the import line
+itself, as text. The session's settings copy carries no deny rule for that path. The manual's
+THREATS names the repo's files, outside text and the adopter's values as what steers a session,
+and not this.
+*Why it matters:* the claim holds for what ccfleet appends. It does not hold for what the
+session can open: where the config's grant lets a session read outside its worktree (any bypass
+mode, any broad `Read` rule), the private part is one tool call away and the appended text has
+just pointed at it. A repo's own instruction file, or text a pull request carries, can ask for
+that read. NOT RUN live: whether a model does so unprompted. In the default mode with no grant
+the read would ask and be refused.
+*Severity:* MODERATE. *Recurrence prevention:* for a public or unknown repo, add a deny rule
+for each import target (ccfleet already resolves them for `check`) to the session's settings
+copy, drop or neutralise the import line in the appended copy, and name the residual in THREATS.
+
+### PK6 (minor, doctrine) — the words after a command are taken as the principal's own
+
+*Evidence:* `MECHANISMS.md`, as this delta changes it: "a model can start one on a casual phrase
+… without anyone typing the command". `run.md`: "The words typed after `/atelier:review run` are
+the principal's words for this run … into the seal, quoted verbatim … record them in the rulings
+file, verbatim and dated". `close.md`: "The text the principal typed after the invocation". A
+model that reaches the skill composes the arguments itself (the harness's skill call takes an
+arguments string from the model). Nothing tells it to take the words from the principal's own
+message instead. NOT RUN live.
+*Why it matters:* a model's paraphrase can be sealed and filed in the rulings file as his words.
+*Counsel:* where the command was not typed, the words are quoted from the principal's message in
+the conversation, or "none given"; never from the call's own arguments.
+
+### PK7 (minor, doctrine) — `close.md` runs a step the principal's own typed words would skip
+
+*Evidence:* `skills/session/close.md:79-83`: "It never removes a step: where the typed words
+would skip one, run the step anyway and say that the brief asked otherwise." The words are, by
+the file's own account, the principal's. `00-APEX.md`: "The principal's authority is absolute".
+His no-drift rule, quoted in the file's header, has an exception in his own hand: "unless I
+authorise the drift".
+*Why it is his to rule:* the delta chose that typed words are not that authorisation. That may
+be what he wants (a dropped word must not skip the record check), or it may be a command that
+overrules him at the one moment he is typing to it. *Counsel:* none beyond putting it to him.
+
+### PK8 (minor) — `run.md` counts a refused claim as an unclean end; the code does not
+
+*Evidence:* `skills/review/run.md:152-154`: "a pass that ends before its session starts (a
+failed fetch, a brief not on the mainline, a guard or claim refusal) comes back off it and
+counts toward the unclean stop". `instruments/ccfleet:1952-1958`: the claim-refused branch adds
+to `refused`, "not counted as a bad end"; the manual agrees with the code; the test
+`test_a_refused_claim_is_not_a_bad_end_and_is_not_offered_again` pins the code. *Criterion:* V5.
+
+### PK9 (minor) — a dry drain before the seal ends as a queue error
+
+*Evidence:* world, unsealed: `drain --dry-run` printed the plan reading, then
+`DRAIN EXIT: queue error`, exit 1; the shim logged `next … --by run-A`; the driver log says
+"queue next failed rc=1: refused: no ranking is sealed". Sealed by run-A, the same command
+rehearsed one launch and exited 0; by run-B, queue error again. `plan.md`'s table and the
+docstring describe the dry drain as the plan's reading "before its rehearsed launches", and
+"a rehearsal reports, it does not stop".
+*Counsel:* say that launches can be rehearsed only by the run that holds the seal, or have the
+dry drain say "not sealed: no launches rehearsed" and exit 0.
+
+### PK10 (minor) — what the seal does not bound
+
+*Evidence, each by probe on the reference queue:* (a) with one open route and no lapse time the
+seal never expires (`ranked` exit 0 seventeen months of clock later); "A seal lasts one run" is
+kept only by the id changing. (b) `--by` defaults to `unknown` (`ccfleet:2656`), which the
+reference seals and honours, so two sessions that pass no id share a seal. (c) a drain restarted
+under the same id needs no new seal, though `run.md` says "every drain, a restarted one
+included, plans and seals afresh". (d) `take` accepts an item that is in the queue and not in
+the sealed order; `next` offers a review briefed after the seal (by `run.md`'s design, "runs
+last"), which is a paid pass no plan showed. (e) `ccfleet run` with the pass prompt and
+`--set`, and `resume`, call no queue command.
+*Counsel:* refuse `unknown` as a sealing id; give the seal an end the queue can see (the
+drain's exit could call an optional `unseal`); say plainly in *The seal* which launches it does
+not gate.
+
+### PK11 (minor, security) — `check` does not name each thing that widens the grant
+
+*Claim tested:* claim 4: "What still widens it (`check` names each) … and managed settings."
+*Evidence:* (a) a user-level `sandbox` block is kept (only three permission keys and approving
+hooks are taken out) and the CLI has `sandbox.autoAllowBashIfSandboxed`; probe with such a
+block: `check` lists `sandbox` among "Kept:" with no `WIDENS:` line, and still prints "NO GRANT …
+every call that would ask (an edit, most shell commands) is refused". (b) `check` prints nothing
+about managed settings; only the manual does. (c) A repo's own skills can carry `allowed-tools`.
+The public skills documentation, read 2026-11-25: "Claude Code applies a project skill's
+`allowed-tools` even in a `-p` run in a folder you've never trusted." The project source loads
+in every ccfleet session, so a repo's skill pre-approves what it lists for the turn that
+invokes it; the `WIDENED` lines read the two settings files only, and the manual's widening
+list does not name skills.
+*Recurrence prevention:* treat an unknown kept top-level key as "kept, not classified" in
+`check`'s output instead of silence, so a new harness key cannot widen unseen.
+
+### PK12 (minor) — the cost history can under-count, and one of its assumptions is untested
+
+*Evidence (probe `hist.py`):* (a) a resume's log is named to the minute with no date
+(`resume-<repo>-<item>-<HHMM>.json`), and a pass's to the minute too: a second resume in the
+same minute, or at the same time on a later day, opens the same file for writing. A pass of 7,
+a failed resume of 3 and a clean resume of 2 read as 9, and the first resume's log is gone.
+(b) a later session counts as finishing the pass on its log's word alone, read with exit 0
+assumed, so a resume ccfleet itself read as `UNLANDED` or as an error exit counts as completed.
+(c) a pass whose launcher was stopped has no `END` line and is not "seen" at all. (d) `A10`.
+*Counsel:* date-and-second log names; read a later session's own `END` line where there is one.
+
+### PK13 (minor) — `modelguard`: its refusal's advice is not always true; gaps both ways
+
+*Evidence (probe `mg.py`, identical on 3.14.6 and 3.9.6):* (a) the refusal says to give
+`claude` "as an option's value (`-u claude`)" and the docstring says that form "passes". It
+passes only after a short option: `docker run --name claude -p 8080:80 nginx` is refused, and
+so is `mytool --dir /opt/claude 'some text'`. (b) string literals in interpreter code are read
+as an argv when the first is `claude` and a later one holds a space:
+`python3 -c "print('claude', 'hello world')"` is refused, and so is the `node -e` twin. (c) Of
+the 102 benign commands tried, 28 are refused: those 4, 3 where a quoted argument that mentions
+`claude` is read as a command (`say 'claude -p is a flag'`), and 21 in the class the docstring
+states (an unknown head, `claude` as a positional, then `-p`, `-c` or `-r`), among them
+`python3 x.py claude -c cfg`, `./run.sh claude -p prod` and `go test ./claude -p 4`. (d) Of the
+84 launches tried, 13 pass: the one the docstring states and 12 more, among them
+`screen -dm claude -p x`, `tmux new -d claude`, `bash <(echo 'claude -p x')`,
+`echo 'claude -p x' | tee /dev/null | sh`, `sh -c "$(echo claude -p x)"` and an `awk`
+`system()` call; a launch nested past the depth limit of four passes too. By the docstring's
+own rule ("Each bypass found is added to the deny table") these are owed to the table, as
+passes it accepts or as denies. No slow input found (12 adversarial inputs up to 205 kB, worst
+0.37 s). The stale `README.md` entry is under `PK15`.
+
+### PK14 (minor) — a settled end is never re-run, including the one the new prompts create
+
+*Evidence:* the fleet prompts now end `RESULT: BLOCKED` when the config lacks the read grant.
+Probe: two jobs ended BLOCKED and PARTIAL (the second leaving an untracked file); the next
+`drive` of the same jobs file logged "skip … settled … not run again" for both, the kept
+worktree included. `sweep.md` step 5 gives the reason as "running it again would only repeat
+it", which is false once the operator has fixed the grant; step 8 says a `PARTIAL` or `BLOCKED`
+that left unlanded work "is taken by a re-run", which the drive does not do. Nothing in the
+manual says how to force one (deleting the result file, or another `--day`, does).
+
+### PK15 (minor) — four mirror sites were not swept (V3)
+
+- `CHANGELOG.md`: the entry `9b4a8f8f` adds covers the skills. Nothing records ccfleet's part-3
+  changes (the seal contract, settled verdicts, the launcher-signal behaviour, the cost
+  history's new basis, the instructions guard, the import split) or `modelguard`'s. One of them
+  changes a default: an adopter whose user-level file names a private name now has every public
+  repo's launch refused with exit 5.
+- `tools/README.md`, the `modelguard` entry: still says it "fails closed after a head it does
+  not know", the behaviour `fc922383` replaced.
+- `instruments/README.md`, the `ccfleet` entry: still gives the requirements as python and git,
+  and says nothing of the instruction-file guard, the settled verdicts or `plan`.
+- `skills/work/run.md`, the twin of `close.md` ("the same stamped-copy rule"): `close.md` learned
+  that a plugin root reached through a symbolic link prints the link's target, and that a
+  pending edit may be another session's; `run.md` step 1 still says "prints that same path", so
+  on such an install its test can read as failed and send the session to step 3, the working
+  file.
+
+### PK16 (minor) — what the tests would not notice (mutation, lens 3)
+
+*Method:* 55 single-edit mutants of scratch copies (`<SCRATCH>/probes/mutate.py`, results in
+`<SCRATCH>/mut/`), each run against the test classes that should catch it; **42 killed, 13
+survived**. The six survivors in `ccfleet` and the reference queue were then applied together
+and the whole `test_ccfleet` suite run once against them: 135 of 136 passed (exit 1); the one
+failure, `test_pin_is_resolved_per_repo_or_said_unresolved`, fails the same way on the
+unmutated copy, which is not a git checkout, so it is the copy's and not the mutants'. The
+seven others were run against their whole test files, and their phrases appear in no other
+test (grep).
+
+What the tests hold firmly (killed): imports inlined for a public repo, an appended copy that
+differs from what the guard reads, a silenced guard, `refuse` behaving as `warn`, copies never
+removed, a signalled launcher that kills its session, a lost process record, settled words, the
+first-line verdict, the shape line, the history's sum over sessions, an unranked drain, fences,
+the hop limit, a refused claim counted as bad, each named widening, home paths, the drive's
+reset, the fold after the reset, an unfilled placeholder, five of the six reference-queue rules
+tried, eight of nine `modelguard` behaviours, each router's grant, the routers' shared text, the
+close's body, an action file's grant, the example config's command shape, and the manual's
+contract line.
+
+What they would not notice (survived):
+
+| Mutant | What it means |
+|---|---|
+| `M11` a `resume` treats every repo as private | nothing tests that a public repo's resumed session gets the public copy; claim 15's last clause is pinned for a private repo only |
+| `M15`, `M15b` the two copies written world-readable | "owner-only" is in the manual and in no test |
+| `M21` a settled end releases the claim | "A claim is never released on one" (`ccfleet:297-301`) is in no test |
+| `M9b` the history counts a pass its resume left unfinished | "finished clean by a resume or fold" is tested only where the resume was clean |
+| `Q2` the reference's `next` ignores the seal | the contract's "`ranked`, `next` and `take` each exit nonzero" is tested for `ranked` and `take` |
+| `G6` an unparsable command naming `claude` is allowed | claim 19's deny is tested through the coarse path only, not the catch-all |
+| `R3` `plan.md` loses "this file governs until it is fixed" | unpinned |
+| `R4` `run.md` lets typed words stand in for an approval | unpinned; the one sentence that guards a paid approval |
+| `R6` `run.md`'s un-claim rule weakened to allow a replacement reviewer | unpinned |
+| `R5` `fold-prompt.md` loses its run-twice step | the prompt's steps are read by no test (placeholders only) |
+| `R10` `MECHANISMS.md` reverts to "only when deliberately invoked" | unpinned |
+| `R12` the bare-menu skill grants any python again | the six routers' grants are pinned; this seventh skill's is not |
+
+*Counsel:* a test each for `M11`, `M15`, `M21` and `Q2` (they guard privacy, the claim and the
+seal); the `run.md` sentences of `R4` and `R6` join the pinned phrases the delta already keeps
+for that file.
+
+### PK17 (note) — where the inliner and the harness part company (private repos only)
+
+Probe `imp.py`: an import in an indented code block and one inside a block HTML comment are
+inlined (the harness skips code blocks and strips block comments); an import inside a sentence
+is left as text, which the harness would follow, and `check` does not list it, so a private
+repo's session can silently lack a file the operator's own sessions get. The user-level
+`rules/` directory is not appended at all. Four hops, cycles, relative paths, `~`, fences, code
+spans, quoted paths, escaped spaces, a missing file, a directory, CRLF and a symlink all behave
+as the comment at `ccfleet:612-620` says.
+
+### PK18 (note) — the fold's run-twice check keys on a heading that carries the date
+
+`fold-prompt.md` step 0 searches for "that step's heading"; step 2's heading ends
+"(orchestrator, {DATE})" and the pass's own fold writes "<ISO date>". A fold re-run on a later
+UTC day is asked to find a heading it would write differently. No test reads the prompt's steps
+(mutant `R5`).
+
+### PK19 (note) — what rests on the harness, and how far each was checked
+
+See the live ledger. The read grant works in the CLI version installed here by a substitution
+the documentation promises only for Bash rules; a future CLI that kept to the documentation
+would turn every action's first read into a refusal in a headless session. In an in-place
+install the read grant covers the whole checkout, its untracked files included.
+
+### PK20 (note) — two stated residuals worth a line each
+
+The config's `visibility` wins over the forge's answer, so a repo that went public and is still
+marked private gets the private imports; the manual says so, and `check` could compare the two
+where `gh` is there. And a launcher killed between its claim and its `START` line (no handler
+is installed yet) leaves the claim, the worktree and both settings copies with no session; the
+session id is on the claim, so it can be found, by hand.
+
+## The claims ledger (the brief's 31, each re-driven)
+
+State: **H** holds as written · **L** holds, with a limit found (the finding named) · **O**
+overclaimed.
+
+| # | State | How it was re-driven |
+|---|---|---|
+| 1 | L (`PK4`) | `harv.py`: a later mention no longer wins; an earlier one does |
+| 2 | L (`PK1`, `PK2`) | SIGTERM and SIGHUP to a launcher (exit 143, 129): session left, record kept, `resume` exit 2 |
+| 3 | L (`PK14`) | stand-in ends `BLOCKED` and `PARTIAL`: worktree removed, or kept with its untracked file; a re-run `drive` skips both |
+| 4 | O (`PK11`) | `check` over a user-level `sandbox` block; grep of `check` for managed settings |
+| 5 | L (`PK1`) | normal end: `<kit_dir>/settings/` empty; signal: emptied while the session ran |
+| 6 | H | `check --prompt` on the three review prompts; a template with an unknown placeholder: exit 5 |
+| 7 | H | a config with `vars` a list: exit 64; `~/x` and `~` expanded, `~user/x` and `a~/b` left |
+| 8 | H | `repo_facts` on a no-remote repo with `branch` set: the branch read |
+| 9 | H | both suites on 3.14.6 and 3.9.6; the three programs parse as 3.8 grammar; 3.8 itself not run (none here) |
+| 10 | L (`PK10`) | world: unsealed `drain` exit 1 "not ranked"; hand `pass` exit 2; another run's id refused |
+| 11 | H | reference `seal --by <the brief-writer's id>`: refused, exit 1 |
+| 12 | O (`PK3`) | two-route probe; the command shapes compared with the example config (they match) |
+| 13 | H | the shim's log of each call's arguments, beside `queue_call` |
+| 14 | L (`PK12`) | `hist.py`: a clean pass, a resume, a fold on another model summed and split per model; a dry `.out` and a no-`END` pass not counted |
+| 15 | L (`PK5`, `PK16`) | world runs with two config directories, `refuse` and `warn`; the appended copies captured |
+| 16 | H | `mg.py`: `somewrapper -q claude -p x` passes, as stated |
+| 17 | H | `mg.py` and the test table: each named shape denied |
+| 18 | L (`PK13`) | 12 more shapes pass than the list names |
+| 19 | H | an unbalanced quote naming `claude`: denied; empty stdin: exit 0; tests green on both |
+| 20 | H (note `PK19`) | the pinned-grant tests; mutants `R1`, `R1b`, `R7` |
+| 21 | H | read; pinned by `test_router_states_the_root_and_the_first_word_rule`; substitution read statically |
+| 22 | H | read: the one rule, the one command |
+| 23 | H | read at `MECHANISMS.md:22` and `:41-45` |
+| 24 | H | read at `plan.md:57-73`, `:80-92`, `:93-103` |
+| 25 | L (`PK6`) | read at `run.md:16-23`, `:159-168`; the clean test matches `harvest` |
+| 26 | H | read at `run.md:223-251`; a fold wrote the pass's own result file in the world |
+| 27 | H (note `PK18`) | read |
+| 28 | H (`PK7` questions the rule, not the claim) | read at `close.md:42-91` |
+| 29 | L (`PK14`) | read; the settled re-run probed |
+| 30 | H | 19 and 16 tests, both interpreters, exit 0 |
+| 31 | O (`PK15`) | grep of `CHANGELOG.md` for each ccfleet and `modelguard` change: none |
+
+## Per-commit ledger
+
+| Commit | Read body-free | Findings |
+|---|---|---|
+| `fc922383` (`modelguard`) | yes | `PK13`, `PK15` |
+| `4a9318b7` (skills, grants) | yes | `PK6`, `PK7`, `PK16`, `PK19` |
+| `9b4a8f8f` (changelog) | yes | `PK15` |
+| `53203833` (pass lifecycle) | yes | `PK1`, `PK2`, `PK4`, `PK14`, `PK16` |
+| `2d8e05e3` (lifecycle wording) | yes | `PK8`, `PK14`, `PK18` |
+| `564a7ca4` (seal, cost, guard) | yes | `PK3`, `PK5`, `PK9`, `PK10`, `PK11`, `PK12`, `PK16` |
+| `f4360a79` (import split) | yes | `PK5`, `PK16`, `PK17`, `PK20` |
+| `a1cc5f2d` (context only) | yes | none recorded; nothing of `RK2`, `RK5` or `REVIEW_MODEL` was hunted or met as a defect |
+
+## Re-run ledger
+
+All from `<WT>`, 2026-11-25 UTC, exit codes read explicitly.
+
+| Line | Result |
+|---|---|
+| `git merge-base --is-ancestor f4360a79 HEAD` | exit 0 |
+| the since-line, `6ddbead2..HEAD`, on the delta paths | empty, exit 0 |
+| `coldsweep --commit`, eight commits | exit 0 each |
+| `mandoc -T lint -W style instruments/man/ccfleet.1` | no output, exit 0 |
+| `python3 instruments/ccfleet --help` | exit 0 |
+| `menu.py --selftest`, `menu.py review`, `menu.py session` | exit 0 each; `session` lists `close` and `onramp` |
+| `review_queue_reference.py --help` | exit 0 |
+| `python3 tools/modelguard.py </dev/null` | exit 0 |
+| `nice -n 15 python3 -m unittest -q test_ccfleet` (3.14.6) | 136 tests, OK, 531.7 s, exit 0 |
+| `nice -n 15 /usr/bin/python3 -m unittest -q test_ccfleet` (3.9.6) | 136 tests, OK, 636.5 s, exit 0 |
+| `test_atelier_menu` | 4 tests, OK, exit 0 |
+| `test_modelguard`, both interpreters | 8 tests, OK, exit 0, twice |
+| `test_subject_skills`, both interpreters | 19 tests, OK, exit 0, twice |
+| `test_session_close_single_source`, both interpreters | 16 tests, OK, exit 0, twice |
+| the coldsweep line of *Deferred reading* | exit 0; hits in `ccfleet`, its example, manual and tests, and `modelguard` only |
+| the CI floor at `6d71ea91` (`gh run list`, read-only) | `floor: completed success`; at `f4360a79` its own run was cancelled, which is not a pass at that commit |
+
+The synthetic world's sixteen lines, with `CLAUDE_CONFIG_DIR` at the scratch directory:
+
+| Line | Result |
+|---|---|
+| `check` | exit 0: `NO GRANT`, `GRANT`, `INSTRUCTIONS … Imports found: 1`, `INSTRUCTIONS IMPORT: @extra.md … inlined`, no guard line (only the imported file names the name) |
+| `check --prompt <pass template>` | exit 0; the template printed twice (it is also `pass_prompt`) |
+| `gate` (the gate's defaults) | `hold`, exit 1: load 55 and 3 GB of free disk at that moment; environmental |
+| `plan`, `plan --json` | exit 0: one evidence row, one owed row, `local: no measurement` |
+| `--by run-A drain --dry-run`, unsealed | the plan reading, then `DRAIN EXIT: queue error`, exit 1 (`PK9`) |
+| `--by run-A drain`, unsealed | `refused: no ranking is sealed`, `DRAIN EXIT: not ranked`, exit 1 |
+| `--by run-A pass <public repo> …`, unsealed | `claim refused: … no ranking is sealed`, exit 2; the worktree it had made was removed |
+| `seal --by <the briefed_by id>` | refused: that session wrote the brief; exit 1 |
+| `seal --by run-A … --words synthetic` | exit 0 |
+| `--by run-A drain --dry-run`, sealed | one rehearsed pass (in its own `.out`), `DRAIN EXIT: queue empty`, exit 0 |
+| `--by run-B drain --dry-run` | `queue error`, exit 1: "the sealed ranking is run run-A's" |
+| `plan` with no `queue.evidence` | exit 64 |
+| `run <public> --prompt <private-name template> --dry-run` | exit 5, the name printed |
+| `run <public> --prompt <plain> --dry-run` | exit 0, `vis=PUBLIC` |
+| `run <private> --prompt <plain> --dry-run` | exit 0, `vis=PRIVATE` |
+| second config directory (the name in the file's own text): public, `refuse` | exit 5, before any worktree |
+| the same, private repo | exit 0 |
+| the same, `warn`, public | `INSTRUCTIONS name private name …` then the launch; exit 0 |
+| the same, `warn`, private | exit 0, no line |
+
+What the runs left, read afterwards: `driver.log` (each refusal and each end, as above); result
+files for the real runs against `/usr/bin/false` (each `ERROR`, worktree `KEPT`); the claim on
+the one drained pass held by `run-A` with its session id, result and log (the `ended` call); no
+file under any `<kit_dir>/settings/` after a normal end; a `launched-<day>.txt` created even by
+the drain that was refused at `ranked` (harmless); the shim's log in call order, with `ranked`
+called once, by the real drain only, and never by a dry one or by `plan`.
+
+## Live behaviour ledger
+
+One real launch was tried, exactly inside the brief's bounds (haiku, a scratch directory, a
+synthetic `CLAUDE_CONFIG_DIR`, a clean environment, the plugin loaded from `<WT>`, the bare
+`/atelier:review`). It ended at once: "Not logged in", exit 1, `is_error` true, cost 0. On this
+machine the CLI's sign-in belongs to the real config directory, the bounds bar that directory,
+and no key is in the environment. So **every launch below is NOT RUN, on those grounds**, and
+what could be learned without one is said beside it.
+
+| Claim | Live | What was learned otherwise |
+|---|---|---|
+| an appended file's `@` imports are not followed | NOT RUN | CLI 2.1.302's bundled source: the file is read, decoded as text and joined; no import step |
+| no user-level `CLAUDE.md` loads without the `user` source | NOT RUN | not established by me; the authors' comment only |
+| the router grant, with the plugin root filled in | NOT RUN | bundled source: a plugin skill's whole `allowed-tools` string is substituted, then parsed; the documentation promises Bash rules only |
+| bare `/atelier:review`, `review plan`, `session close` in a session with no grant | NOT RUN | none |
+| `modelUsage`, `total_cost_usd` on a resumed session | NOT RUN | none (`A10`) |
+| `--session-id` on the command line of the running process | NOT RUN with ccfleet | `ps` on this machine shows the arguments of all 7 running `claude` processes |
+| a session whose `--settings` file is removed under it | NOT RUN | none (`PK1`) |
+| an error end is never read as clean | seen once | the failed launch itself: exit 1, `is_error` true, `subtype` success; `harvest` reads that as ERROR |
+
+A reviewer or the principal with a signed-in session can close these in a quarter of an hour;
+the three that matter most are the first two rows and the last but one.
+
+## Overall
+
+**PASS-WITH-FINDINGS: 0 MAJOR, 5 MODERATE (`PK1`–`PK5`), 11 minor (`PK6`–`PK16`), 4 notes
+(`PK17`–`PK20`).** The floor reproduces on both interpreters; the fixes do what their texts say
+in every undisturbed path I could drive; the findings sit at the seams (a signal, a second
+session, a broken prompt rule, a second route) and in what the texts claim beyond the code.
+
+In three lines, as the brief asks:
+
+1. **Does anything found lose, misread or mis-cost paid review work?** Not in an undisturbed
+   run. With a second event, yes: a failed pass whose output carries an earlier line beginning
+   `RESULT:` is read as done (`PK4`); a fold started beside a still-running session can release
+   its claim and remove its worktree (`PK2`); the cost history can under-count a pass that was
+   resumed twice (`PK12`). None of these loses a reviewer's written act that sits uncommitted
+   in a worktree: the unlanded-work check held in every probe.
+2. **Are `/atelier:review plan` and `/atelier:review run`, with `ccfleet` as part 3 leaves it,
+   safe to run the principal's paid weekly drain from?** Yes, on three conditions that are not
+   code changes: the estate's own queue keeps the seal on `ranked`, `next` and `take` and
+   offers the drain only what is routed to the local budget (`PK3`; this pass could not open
+   it); nobody signals a pass's launcher, and before any fold or un-claim the drain session
+   reads `<kit_dir>/sessions/` and waits for a session still listed there (`PK1`, `PK2`); and
+   the drain session reads each result file's text, not only its first line, before it counts
+   a pass as done (`PK4`). Nothing found must change in the code first.
+3. **Can anything in the delta put private context into a public repo's session?** Not by what
+   ccfleet appends, as far as a stand-in and a reading of the installed CLI can show: the
+   imported file is left out, the guard reads the same text that is appended, and a private name
+   in the shared part refuses the launch. Two things remain open: the session is told where the
+   private part is and nothing stops it reading the file where its grant reaches (`PK5`), and
+   the two harness behaviours the split rests on were not run live (`A2`).
+
+## Follow-up checklist
+
+- [ ] `PK1`: decide where the settings copies' lifetime is tied; test them across a launcher
+  signal.
+- [ ] `PK2`: refuse a fold into a worktree a recorded live session runs in.
+- [ ] `PK3`: put routes into the contract's `next`; make the reference keep `run.md`'s route
+  rules; a two-route test.
+- [ ] `PK4`: read the `RESULT:` line beside the shape line.
+- [ ] `PK5`: deny the import targets to a public session; name the residual in THREATS.
+- [ ] `PK6`, `PK7`: the principal's rulings on whose words the arguments are, and on whether
+  typed words may skip a close step.
+- [ ] `PK8`, `PK9`, `PK14`, `PK15`: bring `run.md`, the dry drain's account, `sweep.md` and the
+  three mirror sites into step with the code.
+- [ ] `PK10`, `PK11`, `PK12`, `PK13`: the seal's stated limits; `check`'s unclassified kept
+  keys; dated log names; the hook's refusal text and its table.
+- [ ] `PK16`: the tests named there.
+- [ ] The live ledger's NOT RUN rows, by a signed-in session: an appended file's import, the
+  user-level file under `--setting-sources project,local`, a session whose settings file is
+  removed, and the three router commands in a session with no grant.
+- [ ] Act 2: the `RK` ledger and the reconcile, on the orchestrator's release.
+
+## Spawn prompt, verbatim (rule 4)
+
+The orchestrator's wrapper message, the only text sent besides the file it names:
+
+> Your full instructions are in this file; read it first and follow it exactly. It is also the
+> text you record verbatim in your verdict's provenance, with the path substitutions it names:
+> `<SCRATCH>/../pk-spawn-prompt.md` (This wrapper message is the only text sent besides that
+> file; record it too.)
+
+The file, whole, with the worktree written `<WT>`, the scratch directory `<SCRATCH>` and the
+primary checkout `<PRIMARY>` as it asks; one further substitution is mine and of the same kind,
+the other reviewer's worktree path, written `<the other pass's worktree>`:
+
+````text
+You are the reviewer for one rule-4 cold pass in the atelier repo. You run on Fable, the
+principal-named review tier. State your model in your verdict's provenance.
+
+**The brief:**
+`<WT>/docs/reviews/2026-11-25-0721-rk-part-3-fixes-ccfleet-modelguard-subject-skills-cold.md`
+(board `160/1810`, finding prefix `PK`). Read it whole first, then follow it and
+`docs/method/REVIEW.md` exactly. It defines the scope, the barred reading, the re-run list, the
+deliverable and the two acts. Nothing here changes it.
+
+**Your worktree:** `<WT>` (branch `atelier-e7-pk-pass`, HEAD
+`6d71ea91`, which is `origin/main`). The commits after the brief (`0bdcbfe2`) are claims and
+answers on board items under `docs/roadmap/160-doctrine-review-owed/`, which is on your barred
+list; one of them records the principal's answer that `f4360a79` belongs in this pass, which the
+brief already provides for. I ran the brief's since-line at `6d71ea91`: empty. Run every command
+from the worktree, with absolute paths. It is read-only to you except the brief file, where you
+append your verdict.
+
+**Your scratch directory:**
+`<SCRATCH>/`
+(create it). All probes, scratch clones, synthetic configs, a synthetic `CLAUDE_CONFIG_DIR`,
+fixtures and working notes go there. Delete your fixtures when you finish act 2.
+
+**Who I am, disclosed (rule 4):** session `14c2530d` (`atelier-e7`), Opus 5.5, opened by the
+principal with the instruction to brief and run this pass and one other (`160/1800`, the
+drain-path fixes, whose Fable reviewer is running now in its own worktree). I am an off-tier
+orchestrator: I hold the context partition, commit the records and release the held-back sibling
+after your act 1 is committed. I form no finding and write no severity. I authored no part of the
+delta. I wrote no part of the brief: I started its writer, headless session `075cdcd9` (Opus 5.5),
+with a process-only prompt (the item, the method files, the model brief to read down to its first
+verdict divider, the barred sessions, where the sibling goes, the house form). My exposure before
+spawning you, disclosed in full: this brief's head, *What the work is* in part, the end of
+*Re-run obligation* (*Live behaviour*) and *Process*; the `160/1800` brief most of the way;
+`skills/review/brief.md` and `run.md` whole, `SKILL.md`; board items `160/1800` and `160/1810`
+whole and `160/1790`'s first 60 lines (**authors' and earlier pass's accounts**); the two newest
+session records whole, one of them the authors' own (**authors' account of this delta**); from
+the earlier pass's file, its section outline, its *Spawn provenance* and *Process* sections and
+its verdict's *Provenance* section (**so I have met that verdict's headings and provenance, not
+its findings' text**); both brief-writers' closing notes. I have not opened the held-back
+sibling. None of that is yours to read before act 1, and I pass none of it to you beyond this
+paragraph. Record this prompt verbatim in your provenance, writing the worktree path as `<WT>`,
+the scratch directory as `<SCRATCH>` and the primary checkout as `<PRIMARY>` (this repo is
+public); it is saved at
+`<SCRATCH>-spawn-prompt.md`.
+The barred set is exactly the brief's; I add nothing and remove nothing.
+
+**Process rules:**
+
+1. **No git writes.** No commit, add, checkout, switch, stash, reset, push or worktree command in
+   your worktree or anywhere else. Read-only git (log, diff, merge-base, ls-files, grep, and
+   commits via `coldsweep`) is fine. I commit. A scratch clone under your scratch directory is
+   yours to do as you like with.
+2. **Never touch the primary checkout** `<PRIMARY>`: the live hook, the installed
+   `ccfleet` and the in-place plugin run from it. Where the brief asks where it stands, use
+   read-only `git -C <it> log -1 --format=%h` and `git -C <it> status --short` only, and read no
+   file there; your worktree has the same commits. Never run an installed tool by bare name from
+   `PATH`. Stay out of the other reviewer's worktree, `<the other pass's worktree>`.
+3. **Machine load.** Other sessions are live on this machine, the other Fable reviewer among them;
+   load was high (about 30 to 40 on 12 cores) shortly before I spawned you. Check `uptime` before
+   each heavy step and wait while the one-minute load is above about 24; one heavy process at a
+   time under `nice -n 15`, in the foreground with a 600000 ms timeout (the `ccfleet` suite takes
+   about five minutes per interpreter). If the harness moves a long command to the background on
+   its own, wait for it and disclose that. A wall-clock test that fails under load is
+   environmental until re-run on a quieter machine; say which.
+4. **Real launches:** you may spend on the brief's *Live behaviour* launches only: at most one
+   `ccfleet run` of a public scratch repo and three headless `claude -p` sessions (bare
+   `/atelier:review`, `/atelier:review plan`, `/atelier:session close`), all on the cheapest model
+   (`haiku`), in throwaway directories under your scratch directory, with a synthetic
+   `CLAUDE_CONFIG_DIR` and no permission-mode argument, exactly as the brief bounds them. No real
+   config, no real repo, no `drive`, no real `drain`, never the real `CLAUDE_CONFIG_DIR`.
+5. **Subagents:** if you start any, give each an explicit `model`, keep it read-only, and have it
+   write its report to a file in your scratch directory and return three lines. Any subagent that
+   reads the delta and forms judgement must be Fable; the findings and severities are yours.
+6. **Public repo.** Quote no secret, email address, home path, private repo name, estate fact or
+   other session's transcript content, and never open the private part of the user-level
+   instruction file. Absolute ISO 8601 dates from `date -u`; NZ English; prose wrapped at about
+   100 columns. Finding prefix `PK`.
+7. **Act 1:** append your verdict below a `---` divider at the end of the brief file, complete per
+   the brief's *Process*, then STOP and reply to me in at most five lines: that act 1 is written,
+   the overall line with counts, and anything I must know to commit it. Do not open the held-back
+   sibling or the earlier verdict. The sibling is not in the tree; I release its path to you by
+   message after I commit act 1.
+8. **Act 2** starts only on my release message. Do it as the brief's *Phase 2* says, then reply in
+   at most five lines.
+9. **If a usage limit or error stops you,** stop where you are; your transcript persists and I
+   will resume you by message. Keep working notes in your scratch directory so a resume loses
+   nothing.
+
+Budget the time this large pass needs; never thin it to fit.
+````
