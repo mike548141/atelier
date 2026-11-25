@@ -1,7 +1,4 @@
-- [~] 🔧 **Fix `cctranscript --search`: all fourteen findings CS1–CS14, as
-      🔒 CLAIMED 2026-11-25T13:25Z (claimed 2026-11-25-1325, wt: atelier-qr-f8dd-cs) by session f8dd3843
-      (`atelier-31`, Opus 5.5, principal-opened by `/atelier:work run`): the fourteen CS fixes, re-checking each against HEAD first.
-      A worker subagent builds it in the worktree; this session lands it.
+- [x] 🔧 **Fix `cctranscript --search`: all fourteen findings CS1–CS14, as
       the reviewer advised.** His pick, 2026-11-24 (session edf25bd3,
       AskUserQuestion; quoted in full on `160/010`): *"Fix all as advised
       (Recommended)"*. The findings and their advice are in
@@ -20,3 +17,18 @@
       *Tier:* build tier (Opus or Sonnet); no review tier. *After:* a rule-4
       cold pass queued as a `160/` item, run in a later drain on his
       approval.
+      ✅ **Done 2026-11-25 (session f8dd3843, `atelier-31`, queue run; an Opus worker built
+      it).** Re-checked first: CS8 was never present (the timer has started before the
+      pool is built since the landing commit `0eb03ed`; a comment and a man-page note now
+      say `elapsedMs` includes pool building); half of CS11 was gone (the `--list` crash,
+      `c11c5371`, `160/680`). Fixed: CS1 (a `--regex` is gated on the raw log only when a
+      token check proves the raw text cannot hide a match, otherwise every swept log is
+      parsed and `meta.gateBypassed` says so; `^`/`$` bind per line), and beside it a
+      literal term with a space missing a slash command (now gated on its longest
+      whitespace-free part); CS2 and CS10 (exit 2 with the reason); CS3 (a PRIVACY section,
+      README sentence, `--help` line, `meta.privacy`, a threat step in the design); CS4,
+      CS5, CS6, CS7, the other half of CS11, CS9, CS12, CS14. CS13 is answered by the cold
+      pass queued as `160/1840`. Tests: 126 in `instruments/cctranscript.test.js` (113
+      before), 15 of them failing against the old tool. The same collapsed figure also sits in
+      the frozen archive (`990-done-before-the-split/README.md`); that is a record, kept as
+      written.
