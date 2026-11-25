@@ -6,7 +6,7 @@ LANDING: {LANDING}
 
 HOLDS: {HOLDS}. A brief or item that says it "needs the principal's prior approval" is NOT a reason to skip: the approval above is that approval. Record it on the item when you claim it: in a private repo, quote the principal; in a public one ({VIS} here), quote the words only if they carry no figure, name or estate fact, and otherwise write "approved by the principal for this drain (the words are in the drain's private record)".
 
-LOAD: several passes run at once on this machine. Tell the reviewer, and follow it yourself: run any test suite under `nice -n 10`, one suite at a time, single process (no parallel runners), and prefer the targeted tests a finding needs over the whole suite.
+LOAD: several passes run at once on this machine. Follow the Load bullet of THE REVIEWER PROMPT yourself, as well as telling the reviewer.
 
 PROVENANCE FACT: {PROVENANCE}. Never state otherwise; anything you say about who did what must come from a record you read.
 
@@ -20,7 +20,7 @@ Steps:
 1. Barred check. If the brief bars session {BY} or you, or a run constraint cannot be met (it needs the principal present for a load-bearing check; or "a fresh session, not the one that ran X" where {BY} ran X), stop and report RESULT: SKIPPED with the reason in NOTES. A supervised check that cannot happen now is marked NOT RUN in the reviewer prompt, not waited on. A single check that needs a live WRITE is likewise NOT RUN; if the core of the review cannot be done without one, do not start the reviewer: report RESULT: SKIPPED, NOTES "NEEDS LIVE WRITE".
 2. Claim the board item on the mainline: `[ ]`/`⏳` -> `[~]`, claim line stamped from `date -u` in the same command, naming the orchestrator (this headless session, an off-tier orchestrator that holds the partition and forms no finding) and the reviewer's tier ({REVIEW_MODEL}). Rebuild the board per this repo's CLAUDE.md. Stage explicit paths only, read `git diff --cached`, commit with output to a log file, check the exit code, land.
 3. Partition: the brief's held-back sibling (`<brief basename without .md>.deferred.md`) is held user-local from the moment its writer saved it, at `{HELD_DIR}/{REPO}--<sibling basename>`: outside the repo, every worktree and any scratchpad, never a reviewer's working directory, and outside any temp directory a reboot wipes. Check it is there; never read its contents. If it is instead in the worktree (the older form), copy it there and `rm` it from the worktree (do not commit the removal yet). Only a brief whose sibling is found in neither place and that says it defers nothing skips act 2; say so in the claim. A brief that names a sibling you cannot find: stop and report RESULT: FAILED, NOTES saying where you looked.
-4. Spawn ONE reviewer: the Agent tool, `model: "{REVIEW_MODEL}"`, foreground. Fill in THE REVIEWER PROMPT below: item, worktree `{WT}`, brief path; skip this repo's session-log step at start-up, whatever its read order says (REVIEW.md rule 2: the log is barred to a cold reviewer); provenance (the review tier, checked at selection; spawned by you, started by {BY}; name the brief's barred sessions; runs under the approval above), and put in the verdict's provenance what you tell it, verbatim or as an attached file: this spawn prompt, the barred-set choice and, later, the release message (REVIEW.md rule 4); the partition warning; the review log at `{REVIEW_LOG}` (new for this pass; keep it as it works, checks and evidence only: each check and its result with the exact command or file and line, each candidate finding with its evidence and the criterion that decides it, each point checked and not raised; no secrets or live captures); write only that log and the brief file; no commit or push; LIVE SYSTEMS: read-only reads as the review needs them, where a verb of unsure effect counts as a write, no live writes of any kind (a check that needs one is NOT RUN with the reason), allowlist fields before printing because provider reads can carry credentials, and leave no captures in scratch; never print a secret; no GUI apps; end act 1 with verdict, tally, path, "ACT 1 SAVED".
+4. Spawn ONE reviewer: the Agent tool, `model: "{REVIEW_MODEL}"`, foreground. If the tool refuses the model, or you cannot pass it, stop and report RESULT: FAILED with the refusal in NOTES: never spawn a reviewer without it, and never as a fork (a fork runs on your own model). Fill in THE REVIEWER PROMPT below: it is the reviewer's whole instruction list, and these are the values it needs: the item, the worktree `{WT}`, the brief path; the provenance (the review tier `{REVIEW_MODEL}`, checked at selection; spawned by you, started by {BY}; the brief's barred sessions; the approval above); and the review log at `{REVIEW_LOG}`. If the reviewer reports that it is not running on the review tier, stop and report RESULT: FAILED, and do not let it carry on.
 5. On ACT 1 SAVED: commit act 1 (the brief file only, `git commit -- <brief>`, log file, exit code). If a gate blocks it, SendMessage the reviewer to fix its own text, then retry. Mark verbatim quotes allowed; never edit a quote.
 6. Release act 2: SendMessage the reviewer's agent id with the held copy's absolute path, telling it act 2 may now read that one file and that this release message goes into its provenance verbatim. Wait for "ACT 2 SAVED".
 7. Fold: the sibling's text verbatim below the verdict under "Deferred sibling, folded below the verdict (orchestrator, <ISO date>)" with a one-paragraph preface; if the sibling was in the tree, `git rm` it; fix the brief's link or pointer to it; append the review log verbatim at the end under "Review log (reviewer, verbatim; private while the pass ran, opened at the fold)" (form-only fixes a gate needs, said under the heading), then delete `{REVIEW_LOG}`; a pass with no log says so there; fix a stale Status line (form only). Flip the item `[~] ⏳` -> `[ ] 🎯` with: PASS RAN, verdict, tally, the standing MAJOR in one line, the findings that are the principal's to rule (REVIEW.md rule 3), routing. Rebuild the board. Commit (explicit paths, the whole staged index read first, log file, exit code), fetch and rebase onto the mainline, land. Cite commit hashes only after the rebase.
@@ -48,7 +48,12 @@ THE REVIEWER PROMPT (fill it in; every bullet goes to the reviewer, in your own 
   the verdict's provenance what the orchestrator told it: the spawn prompt,
   the barred-set choice, the release message and any resume message,
   verbatim or as an attached file (REVIEW.md rule 4), so a reader can check
-  that the orchestrator formed no finding.
+  that the orchestrator formed no finding. In a public repo the spawn prompt
+  is quoted with each absolute path replaced by a named placeholder
+  (`<WORKTREE>`, `<REVIEW_LOG>`), and the verdict says it was done.
+- **The model it runs as**: the reviewer states, in the verdict's provenance,
+  the model it finds itself running as. If that is not the review tier it was
+  told, it stops at once, reviews nothing and says so to the orchestrator.
 - **The partition**: the sibling was removed on purpose; never look for it in
   git history, other checkouts, scratchpads or temp directories.
 - **The review log**: a review earns trust only if its method can be checked,
@@ -71,10 +76,20 @@ THE REVIEWER PROMPT (fill it in; every bullet goes to the reviewer, in your own 
 - **What it may write**: the review log, and otherwise only the brief file —
   act 1 below a `---` divider, an updated Status line, the file's own column
   width, absolute dates.
-- **What it must not do**: commit or push; leave live captures in scratch; open
-  GUI apps; print a secret; write to a live system.
+- **Live systems**: read-only reads as the review needs them. A verb of
+  unsure effect counts as a write. No live write of any kind: a check that
+  needs one is NOT RUN, with the reason. Allowlist fields before printing,
+  because provider reads can carry credentials, and leave no captures in
+  scratch.
+- **Load**: several passes run at once on this machine. Run any test suite
+  under `nice -n 10`, one suite at a time, single process (no parallel
+  runners), and prefer the targeted tests a finding needs over the whole
+  suite.
+- **What it must not do**: commit or push; open GUI apps; print a secret;
+  write to a live system.
 - **Public repos**: refer to orchestrators by session id only; never a
-  private repo's name or path, or an estate fact.
+  private repo's name or path, or an estate fact, and no home path (see
+  Provenance for the spawn prompt).
 - **How to finish**: verdict, tally, path, "ACT 1 SAVED"; act 2 ends "ACT 2
   SAVED".
 

@@ -22,6 +22,12 @@ record them in the rulings file, verbatim and dated, before the first pass,
 then quote the approval from there as above. Typed words never stand in for
 an approval the rulings file says is needed but that they do not give.
 
+Where he did not type the command (a model reached this skill on a casual
+phrase), there are no typed words. Quote his own message in the conversation
+instead, or write "none given". Never take the words from this skill call's
+own arguments: a model composes those, and a paraphrase would be sealed and
+filed as his.
+
 ## The shape
 
 - **Whether the review tier needs approval is the adopter's setting.**
@@ -89,6 +95,10 @@ drain them is left to the adopter's queue and to that session's own account
 `ranked` reports a seal and never makes one, and changes nothing. ccfleet
 calls it only on a real drain whose reset has not come; a `--dry-run`
 rehearsal never calls it, and prints `ccfleet plan`'s reading instead.
+Launches are rehearsed only by the run that holds the seal, because a
+rehearsed launch asks the queue's `next`, which refuses without it. A dry
+drain that is not sealed prints the plan's reading, rehearses no launch and
+ends as a queue error.
 
 **The seal's own rules.** A seal refuses while any ready review is missing,
 unreasoned, on a closed route, on a later route than the best it fits without
@@ -101,7 +111,12 @@ Each route takes only its own reviews, in rank order. The local route takes
 its own first, then any other route's not yet started, but never from a budget
 that lapses before its own: that budget keeps its reviews. A review
 briefed after the seal runs last on the local route until it is planned and
-the ranking sealed again.
+the ranking sealed again: it is a paid pass that no plan showed.
+
+**What the seal does not gate.** It binds `drain` and `ccfleet pass`, which
+call the queue. `ccfleet run` with the pass prompt and `--set`, and `resume`,
+call no queue command, so neither meets it: a session that starts a review by
+either way is bound by this file, not by the queue.
 
 **Open, and the adopter's principal's to rule:** whether that spill may move a
 review the principal has tied to a route by name (a ruling that a kind of
@@ -150,10 +165,12 @@ brief a pass whose subject this session built.
    outside). The ceiling is live: to pace the drain against the budget, edit
    the number in `<kit_dir>/max` rather than stopping it.
    The launched list holds passes that *started*: a pass that ends before its
-   session starts (a failed fetch, a brief not on the mainline, a guard or
-   claim refusal) comes back off it and counts toward the unclean stop, and a
-   `--dry-run` keeps its own list, removed when it ends, so a rehearsal on the
-   real `kit_dir` cannot empty the real queue. A drain that says "queue empty" having started
+   session starts (a failed fetch, a brief not on the mainline, a guard
+   refusal) comes back off it and counts toward the unclean stop. A refused
+   claim (another session holds the item) comes back off it too, but does not
+   count, and is kept out of `next` for the rest of the drain. A `--dry-run`
+   keeps its own list, removed when it ends, so a rehearsal on the real
+   `kit_dir` cannot empty the real queue. A drain that says "queue empty" having started
    nothing, while the queue's `next` still offers a pass, is a fault to
    report, never an empty queue.
 4. **Read each result**, in every `<kit_dir>/results/<date>/` folder the
@@ -198,7 +215,7 @@ brief a pass whose subject this session built.
 - When the limit hits, a pass whose act 2 is already written needs only a
   fold, which is not review work ([`fold-prompt.md`](fold-prompt.md), run by
   `ccfleet --by <session-id> run REPO --in <the pass's worktree> --item ITEM
-  --prompt fold-prompt.md` on a cheaper tier, with a `--set` for each variable
+  --prompt fold-prompt.md` on the repo's configured model (§ Mode 2), with a `--set` for each variable
   § *The variables the prompts need* lists for it). `--item` gives the fold
   `{ITEM}` and the pass's own `{REVIEW_LOG}`, and writes the fold's result
   into the pass's own result file (label `<repo>-<item>` unless `--label`),
@@ -244,11 +261,25 @@ killed by a signal leaves its session running, recorded under
 `<kit_dir>/sessions/`): wait for it to end. If the reviewer cannot be
 reached, the pass reports FAILED; it is never handed to a replacement
 reviewer or a lesser model, and the claim, worktree and log stay for the principal's word. A pass whose act 2 is
-already written needs only the fold (§ *Lessons paid for*), which costs no
-review budget: take it before a resume. Leave `reset_utc` as the drain set
+already written needs only the fold (§ *Lessons paid for*): take it before a
+resume. The fold's prompt bars a review-tier model and any subagent, but the
+model it runs on is the config's for that repo (else `default_model`), not
+anything the command names, and a resume runs on `pass_model`. So the fold
+costs no review budget only where the config's model is not the review tier:
+read it before you run one. Leave `reset_utc` as the drain set
 it: it stops new passes only, and ccfleet runs a `resume` and a fold (`run
 --in ... --item ...`) after it, since both finish a pass started before it.
 Nothing new starts. No claims: nothing to resume; say so.
+
+**Two things ccfleet does not do for you.** It does not check the principal's
+word: a resume and a fold run after the reset on his word only, and holding
+that word is this session's. Its one trace is that a launch with `FINISH_WORDS`
+unfilled is refused. So give `FINISH_WORDS` on each call, from his words for
+this reset, and never keep it standing in the config's `vars`: a kept value
+fills every later prompt as if he had said it again. And `--by` carries the id
+that holds the claim (the drain session that took it), for a fold or a resume
+as for the pass; a queue that keeps claims by session refuses a release from
+any other id, and the claim stays held.
 
 **Finding the session and the reviewer.** ccfleet gives each new session its
 id before it starts (`--session-id`), so a pass's id is on its `START` line
@@ -279,21 +310,23 @@ to set.
 | Prompt | The adopter sets |
 |---|---|
 | [`orchestrator-prompt.md`](orchestrator-prompt.md) | `APPROVAL` (what the drain runs under, in the principal's words); `HOLDS` (passes held out, in the principal's words, or "none"); `PROVENANCE` (what this session did and did not do: which briefs it wrote, which writers it started); `REVIEW_MODEL` (the review tier as the Agent tool names it: `fable`, `opus`, `sonnet` or `haiku`, never a full model id, which that tool refuses; the one value that puts the reviewer on the review tier); `HELD_DIR` (the held-sibling directory, § *Briefs are never left owed*) |
-| [`resume-prompt.md`](resume-prompt.md) | `FINISH_WORDS` (the principal's word to finish started work, verbatim: not the drain's approval); per call `AGENT` and `STATE` |
-| [`fold-prompt.md`](fold-prompt.md) | `FINISH_WORDS`; per call `BRIEF` and `HELD` (the held copy's path); `--item` fills `ITEM` and `REVIEW_LOG` |
+| [`resume-prompt.md`](resume-prompt.md) | `FINISH_WORDS` (the principal's word to finish started work, verbatim: not the drain's approval; given per call, never standing in `vars`); per call `AGENT` and `STATE` |
+| [`fold-prompt.md`](fold-prompt.md) | `FINISH_WORDS` (per call, as above); per call `BRIEF` and `HELD` (the held copy's path); `--item` fills `ITEM` and `REVIEW_LOG` |
 
 ## The reviewer prompt (the orchestrator fills it in)
 
 Its one home is the end of [`orchestrator-prompt.md`](orchestrator-prompt.md),
 under *THE REVIEWER PROMPT*, so every pass carries it in its own prompt and
-needs no read outside its worktree (a pass runs in another repo, where a path
-into this skill does not resolve). This file does not restate it.
+needs no read of this skill (a pass runs in another repo, where a path into
+this skill does not resolve). It still reads the repo's own `REVIEW.md` and
+brief, which may sit outside the worktree. This file does not restate it.
 
 ## Close
 
 1. A session record in each repo touched; public repos stay public-safe.
 2. The estate root's session record names every pass, session id and commit.
-3. Remove the drain's one-off entries from the config (`vars.HOLDS`, extras).
+3. Remove the drain's one-off entries from the config (`vars.HOLDS`, extras,
+   and `FINISH_WORDS` if it was kept there).
 4. `<kit_dir>/review-logs/` (its `withdrawn/` folder aside) holds only the
    logs of passes whose claim is still held: they wait for Mode 2, and are
    never folded, read or deleted here. Any other log left there is a pass

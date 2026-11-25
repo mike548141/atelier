@@ -32,7 +32,7 @@ owed reviews; a second copy is a defect to fold back in here.
 |---|---|
 | `/atelier:review run` | the briefed rows, in rank order; it seals them with the principal's words for its run, then drains |
 | `/atelier:review brief` (no subject named) | the owed-but-unbriefed list; it writes those briefs |
-| `ccfleet drain --dry-run` | `ccfleet plan`'s reading, printed before the rehearsed launches |
+| `ccfleet drain --dry-run` | `ccfleet plan`'s reading, printed before the rehearsed launches (rehearsed only by the run that holds the seal: an unsealed dry drain rehearses no launch) |
 
 **Where each half lives** (the build's design call, made once, 2026-11-24):
 
