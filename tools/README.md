@@ -3063,6 +3063,21 @@ What the walk guarantees, and what it does not (cold pass `160/600`):
   differs from its staged copy is read in the worktree version. The boundary
   guards avoid this with `--staged`.
 - **A nested clone's own ignored files are read** (GW9), deliberately.
+- **What the `os.walk` fallback prunes is counted, not read** (`320/900`). A
+  caller passes `pruned=filewalk.PruneCount()` and the fallback adds the
+  regular files under each skip-named directory it steps over (`.git`
+  directories, linked worktrees and symlinked directories excepted). Opt-in,
+  because counting lists the pruned subtree. `secretscan` and `leakscan` print
+  it as the last part of their `suppressed:` line, `N file(s) under a pruned
+  directory`, zero included, and in `--json` as
+  `suppressed.files_under_pruned_directory`. A non-zero count also ends the
+  `coverage:` line with `⚠️ N file(s) under a pruned directory were not read`:
+  a caller that publishes a plain tree would otherwise read green with files
+  unread. It is a warning only; the exit code is unchanged, so a caller that
+  must refuse reads the count. In git mode nothing is counted, and the part
+  reads `file(s) under a pruned directory not counted (git walk)`, never a
+  zero nobody measured. The other scanners on this walk can take the same
+  counter; none does yet.
 
 The per-scanner ignore files (`.leakscanignore` and its siblings) may still
 carry globs for nested worktrees that git mode already drops; they are harmless.

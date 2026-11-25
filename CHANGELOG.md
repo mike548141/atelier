@@ -5,6 +5,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-25 — files under a pruned directory are counted, `320/900`)
+- **`secretscan` and `leakscan` say what a plain-tree walk stepped over.**
+  Outside a git work tree the shared walk prunes skip-named directories
+  (`.vscode`, `node_modules` and the rest) unread. It now counts the regular
+  files under them, and both scanners append `N file(s) under a pruned
+  directory` to their `suppressed:` line, zero included, with
+  `suppressed.files_under_pruned_directory` in `--json`. A non-zero count also
+  ends the `coverage:` line with a warning. Exit codes are unchanged.
+- **Adopter action.** A step that publishes a plain tree should refuse on a
+  non-zero count, as it refuses on the ignore-glob count. In git mode the part
+  reads `not counted (git walk)` and the JSON value is `null`.
+
 ### Fixed (2026-11-25 — `cctranscript --search`, the `CS` cold-pass findings, `210/580`)
 - **Children: none use it; nothing blocks.** All in `instruments/cctranscript`,
   its manual, README row, design banner and tests.

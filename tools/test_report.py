@@ -444,6 +444,29 @@ class TestReportLines(unittest.TestCase):
                           "scanned_nothing": True},
                          report.coverage_dict(0, 0, unit_key="items_checked"))
 
+    def test_pruned_files_are_a_tally_part_and_a_coverage_warning(self):
+        """320/900: files the os.walk fallback left unread under a pruned
+        directory print as a stable tally part, zero included, and a non-zero
+        count turns the coverage line into a warning (never an exit code)."""
+        self.assertEqual(report.pruned_part(0), "0 file(s) under a pruned directory")
+        self.assertEqual(report.pruned_part(3), "3 file(s) under a pruned directory")
+        self.assertEqual(report.pruned_part(None),
+                         "file(s) under a pruned directory not counted (git walk)")
+        self.assertEqual(report.coverage_line(3, 120, pruned=0),
+                         "  coverage: 3 file(s) opened \u00b7 120 line(s) read")
+        self.assertEqual(report.coverage_line(3, 120, pruned=None),
+                         "  coverage: 3 file(s) opened \u00b7 120 line(s) read")
+        warned = report.coverage_line(3, 120, pruned=2)
+        self.assertEqual(warned,
+                         "  coverage: 3 file(s) opened \u00b7 120 line(s) read"
+                         " \u2014 \u26a0\ufe0f 2 file(s) under a pruned directory"
+                         " were not read, so this result does not cover them.")
+        both = report.coverage_line(0, 0, pruned=1)
+        self.assertIn("scanned nothing", both)
+        self.assertIn("1 file(s) under a pruned directory were not read", both)
+        self.assertNotIn("clean", warned + both)
+        self.assertNotIn("\n", both)
+
     def test_coverage_line_names_its_subject_and_a_legitimate_out_of_scope(self):
         """115/130: a scanner whose subject is not files names its own words,
         and one with nothing to check says so with no alarm (GUARDS.md)."""
@@ -663,7 +686,8 @@ class TestScannerLinePins(unittest.TestCase):
                          "  suppressed: 0 by allow-marker · 0 file(s) by .secretscanignore"
                          " · 1 rule(s) disabled · 0 public-key fingerprint(s) · 0 by "
                          "public-key line · 0 by published-url token · "
-                         f"0 beyond {CAP} · 0 marker(s) naming no rule"
+                         f"0 beyond {CAP} · 0 marker(s) naming no rule · "
+                         "0 file(s) under a pruned directory"
                          "\n    disabled: assigned")
         t.note_marker("r")
         self.assertIn("\n    allow-marker breakdown: r×1\n    disabled: assigned",
@@ -690,7 +714,8 @@ class TestScannerLinePins(unittest.TestCase):
                                       "0 manifest line(s) with no who/when warned, "
                                       "not blocking · "
                                       f"0 beyond {CAP} · "
-                                      "0 marker(s) naming no rule")
+                                      "0 marker(s) naming no rule · "
+                                      "0 file(s) under a pruned directory")
         self.assertEqual(m.render_human([], None, True, t).splitlines()[0],
                          "✓ leakscan clean (structural + local).")
         t.findings_over_cap = 3

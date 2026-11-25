@@ -606,10 +606,22 @@ def suppressed_line(parts: Sequence[str], *,
     return line
 
 
+def pruned_part(files: "int | None") -> str:
+    """The tally part counting files the `os.walk` fallback stepped over under a
+    skip-named directory (320/900; `filewalk.PruneCount`). Printed at zero, so
+    two runs compare. `None` means the count was not taken (the walk ran
+    through git, which prunes differently), and says so rather than print a
+    zero nobody measured."""
+    if files is None:
+        return "file(s) under a pruned directory not counted (git walk)"
+    return f"{files} file(s) under a pruned directory"
+
+
 def coverage_line(files: int, units: int, *, unit: str = "line(s) read",
                   noun: str = "file(s) opened", files_what: str = "files",
                   units_what: str | None = None,
-                  not_in_scope: str | None = None) -> str:
+                  not_in_scope: str | None = None,
+                  pruned: "int | None" = None) -> str:
     """The rule-(b) sibling for COVERAGE (`115/130`): one stable line saying
     what the scan actually looked at, so a clean result and a scan of nothing
     stop reading the same.
@@ -631,6 +643,11 @@ def coverage_line(files: int, units: int, *, unit: str = "line(s) read",
     ends `\u2014 not in scope here: <why>` with no warning glyph and no "covers
     nothing" alarm, because the guard did not fail to look, it has nothing to
     check. GUARDS.md: say so rather than look clean.
+    `pruned` (320/900) is the count of files left unread under a pruned
+    directory (`pruned_part`). Non-zero, the line also ends `\u2014 \u26a0\ufe0f
+    N file(s) under a pruned directory were not read`: a caller that publishes
+    the tree would otherwise read green with files unread. Zero or None (not
+    counted) adds nothing; the tally line carries the count either way.
     Informational only: it never touches an exit status."""
     line = f"  coverage: {files} {noun} \u00b7 {units} {unit}"
     if not_in_scope is not None:
@@ -640,6 +657,10 @@ def coverage_line(files: int, units: int, *, unit: str = "line(s) read",
             units_what or unit.split()[0].replace("(s)", "s"))
         line += (f" \u2014 \u26a0\ufe0f scanned nothing: no {what} were "
                  f"evaluated, so this result covers nothing.")
+    if pruned:
+        line += (f" \u2014 \u26a0\ufe0f {pruned} file(s) under a pruned "
+                 f"directory were not read, so this result does not cover "
+                 f"them.")
     return line
 
 

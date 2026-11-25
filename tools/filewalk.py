@@ -107,6 +107,28 @@ What the walk guarantees, and what it does not (GW4, GW5, GW8, GW10):
     HEAD) - the walk says so once on stderr and `LAST_MODE` is
     `os.walk:git-failed`, because the wide fallback reads the ignored files
     again and the result would otherwise change with the machine (GW2).
+
+Pruned files are counted, not silently dropped (320/900). In the `os.walk`
+fallback a skip-named directory (`.vscode`, `.idea`, `node_modules`...) is
+never descended into, so whatever it holds is never read - and before this,
+nothing said so: a scan over a plain (non-git) tree with a secret only under
+`.vscode/` read exactly as green as a scan over a tree with no `.vscode/` at
+all. A caller passes a `PruneCount` as `walk_files(..., pruned=)` and the
+fallback adds to it the regular files under each directory it prunes by skip
+name. They are counted, never opened: the count lists directory entries and
+reads no content, but it does list them, so it costs a directory walk of the
+pruned subtree. That is why it is opt-in per caller rather than always on.
+Not counted:
+  * `.git` directories, at any depth - repository metadata, not content, and
+    never yielded in git mode either; counting a nested clone's object store
+    would make every tree holding one warn.
+  * directories pruned as a linked worktree / initialised submodule (a `.git`
+    FILE, 020/160): they are another checkout, not a skip-named directory.
+  * the git-mode walk. It prunes nothing the way `os.walk` does (its skip
+    names act on the paths git lists), so the count is not measured there and
+    the `PruneCount` records that a git walk ran (`git_walks`); a caller then
+    says "not counted", never a zero it did not measure. Git mode's yielded
+    set is unchanged by this.
 """
 
 from __future__ import annotations
@@ -124,6 +146,75 @@ from typing import Iterable, Iterator
 LAST_MODE: str | None = None
 
 _WARNED: set[str] = set()
+
+
+class PruneCount:
+    """What the `os.walk` fallback stepped over without reading (320/900).
+
+    `files`: regular files under a directory pruned by skip name, summed over
+    every `walk_files` call given this object (a scanner walks several roots
+    into one tally). `dirs`: the skip-named directories pruned. `git_walks`:
+    how many of those calls took the git path, where nothing is counted - so a
+    renderer can tell a measured zero from an unmeasured one."""
+
+    __slots__ = ("files", "dirs", "git_walks")
+
+    def __init__(self) -> None:
+        self.files = 0
+        self.dirs = 0
+        self.git_walks = 0
+
+    # Value semantics, so a tally holding one compares and copies (asdict) by
+    # its counts, as its plain int fields do.
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PruneCount):
+            return NotImplemented
+        return ((self.files, self.dirs, self.git_walks)
+                == (other.files, other.dirs, other.git_walks))
+
+    __hash__ = None  # mutable
+
+    def __repr__(self) -> str:
+        return (f"PruneCount(files={self.files}, dirs={self.dirs}, "
+                f"git_walks={self.git_walks})")
+
+    @property
+    def measured(self) -> bool:
+        """False when a walk ran through git and the fallback counted
+        nothing: the zero would then not be a measured one. A run that mixes
+        both and did prune something reports what the fallback counted, a
+        floor."""
+        return self.git_walks == 0 or self.files > 0 or self.dirs > 0
+
+    def as_json(self) -> "int | None":
+        """The `--json` value: the count, or None when it was not measured."""
+        return self.files if self.measured else None
+
+
+def _count_pruned(top: str) -> int:
+    """Regular files under `top`, by directory listing alone (no file is
+    opened). Does not follow directory symlinks (as `os.walk` does not) and
+    does not descend into `.git` directories. A leaf symlink to a file counts,
+    as the walk would have yielded it. An unreadable directory counts as
+    what could be listed: the count is a floor, never an inflation."""
+    n = 0
+    stack = [top]
+    while stack:
+        d = stack.pop()
+        try:
+            with os.scandir(d) as it:
+                for e in it:
+                    try:
+                        if e.is_dir(follow_symlinks=False):
+                            if e.name != ".git":
+                                stack.append(e.path)
+                        elif e.is_file():
+                            n += 1
+                    except OSError:
+                        continue
+        except OSError:
+            continue
+    return n
 _GIT_ENV_DROP = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_PREFIX")
 
 
@@ -264,7 +355,8 @@ def _git_walk(base: Path, skip: "frozenset | set",
 
 
 def walk_files(base: Path, skip_dir_names: Iterable[str],
-               read_tracked_under_skip: bool = False) -> Iterator[Path]:
+               read_tracked_under_skip: bool = False,
+               pruned: "PruneCount | None" = None) -> Iterator[Path]:
     """Every regular file under `base`, streamed one at a time.
 
     Inside a git work tree: tracked plus untracked-not-ignored files via a
@@ -280,21 +372,32 @@ def walk_files(base: Path, skip_dir_names: Iterable[str],
     file even when it sits under a skip-named directory; the skip names then
     apply to untracked entries and nested walks only. For the boundary
     guards. Ignored in the `os.walk` fallback, which has no notion of
-    tracked."""
+    tracked.
+
+    `pruned` (320/900): a `PruneCount` the `os.walk` fallback adds to, one
+    count per regular file under a directory it prunes by skip name (see the
+    module docstring for what is and is not counted). In git mode it is only
+    marked as a git walk. Omitted, nothing is counted and nothing extra is
+    listed."""
     global LAST_MODE
     skip = skip_dir_names if isinstance(skip_dir_names, (set, frozenset)) else set(skip_dir_names)
     why = _git_unusable(Path(base))
     if why:
         LAST_MODE = "os.walk:" + why
-        yield from _os_walk(base, skip)
+        yield from _os_walk(base, skip, pruned)
         return
     LAST_MODE = "git"
+    if pruned is not None:
+        pruned.git_walks += 1
     yield from _git_walk(Path(base), skip, read_tracked_under_skip)
 
 
-def _os_walk(base: Path, skip: "frozenset | set") -> Iterator[Path]:
+def _os_walk(base: Path, skip: "frozenset | set",
+             pruned: "PruneCount | None" = None) -> Iterator[Path]:
     """The original walk: `os.walk`, pruning `skip` from `dirnames` in place
-    so it never DESCENDS into them at any depth."""
+    so it never DESCENDS into them at any depth. With `pruned`, each
+    skip-named directory pruned (other than `.git`) has its regular files
+    counted onto it, unread (320/900)."""
     for dirpath, dirnames, filenames in os.walk(base):
         # 020/160 (E9): a git worktree LINKED into this tree has a `.git`
         # FILE (`gitdir: <path>`), not a directory, so a name-only skip set
@@ -306,6 +409,14 @@ def _os_walk(base: Path, skip: "frozenset | set") -> Iterator[Path]:
         # submodule link creates one), and pruning here is the same
         # name/type check the skip-set already makes, not a content
         # decision.
+        if pruned is not None:
+            for d in dirnames:
+                full = os.path.join(dirpath, d)
+                # A symlinked directory is never descended into whatever its
+                # name, so pruning it hides nothing the walk would have read.
+                if d in skip and d != ".git" and not os.path.islink(full):
+                    pruned.dirs += 1
+                    pruned.files += _count_pruned(full)
         dirnames[:] = [
             d for d in dirnames
             if d not in skip

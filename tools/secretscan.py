@@ -223,6 +223,10 @@ class Tally:
     # clean result as a run over everything.
     files_opened: int = 0
     lines_read: int = 0
+    # 320/900: files the `os.walk` fallback left unread under a skip-named
+    # directory (`filewalk.PruneCount`), counted, never opened. Not measured
+    # when the walk ran through git; the tally then says "not counted".
+    pruned: filewalk.PruneCount = field(default_factory=filewalk.PruneCount)
     # 110/060 - the `review-by` dates `.secretscanignore`'s globs declare
     # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
     # WARNS and never blocks.
@@ -230,7 +234,8 @@ class Tally:
     _materialized: int = field(default=0, repr=False, compare=False)
 
     def coverage(self) -> str:
-        return report.coverage_line(self.files_opened, self.lines_read)
+        return report.coverage_line(self.files_opened, self.lines_read,
+                                    pruned=self.pruned.files)
 
     def deferment_report(self) -> str:
         return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
@@ -293,7 +298,8 @@ class Tally:
                  f"{self.url_tokens} by published-url token",
                  report.cap_part(self.blocking_over_cap + self.advisory_over_cap,
                                  MAX_MATERIALIZED_FINDINGS),
-                 f"{self.unknown_scope_markers} marker(s) naming no rule"]
+                 f"{self.unknown_scope_markers} marker(s) naming no rule",
+                 report.pruned_part(self.pruned.as_json())]
         return report.suppressed_line(parts, breakdown=self.by_marker,
                                       disabled=self.disabled_rules)
 
@@ -1299,7 +1305,7 @@ def _ignored(rel: str, globs: list[str]) -> bool:
     return allowmarker.ignored(rel, globs)
 
 
-def _walk_files(base: Path):
+def _walk_files(base: Path, pruned: "filewalk.PruneCount | None" = None):
     """Every regular file under `base`, streamed one at a time. Single-sourced
     (115/080 part 1) in `tools/filewalk.py`, which every one of the eleven
     scanners that used to define this independently now imports instead —
@@ -1307,16 +1313,17 @@ def _walk_files(base: Path):
     history, and the 020/160 (E9) linked-worktree skip. `SKIP_DIR_NAMES` is
     this scanner's own per-guard parameter, passed in rather than shared."""
     return filewalk.walk_files(base, SKIP_DIR_NAMES,
-                               read_tracked_under_skip=True)
+                               read_tracked_under_skip=True, pruned=pruned)
 
 
-def _classify_files(paths: list[Path], root: Path, globs: list[str]):
+def _classify_files(paths: list[Path], root: Path, globs: list[str],
+                    pruned: "filewalk.PruneCount | None" = None):
     """Yield `(path, root-relative path, ignored)` for every file under `paths`.
     `ignored` is True when a `.secretscanignore` glob names it. The one place
     that decision is made, so the skip and the exempt-file check (115/380) can
     never disagree about which files are exempt."""
     for base in paths:
-        candidates = [base] if base.is_file() else _walk_files(base)
+        candidates = [base] if base.is_file() else _walk_files(base, pruned)
         for p in candidates:
             # Resolve BOTH sides so rel is root-relative no matter the caller's
             # CWD (2026-07-11 review N3): floor.yml runs `--root repo repo` from
@@ -1332,7 +1339,8 @@ def _classify_files(paths: list[Path], root: Path, globs: list[str]):
 
 def iter_files(paths: list[Path], root: Path, globs: list[str],
                tally: Tally | None = None):
-    for p, rel, ignored in _classify_files(paths, root, globs):
+    for p, rel, ignored in _classify_files(
+            paths, root, globs, tally.pruned if tally is not None else None):
         if ignored:
             if tally is not None:
                 tally.files_by_glob += 1
@@ -1814,7 +1822,8 @@ def scan_paths(paths: list[Path], root: Path,
                tally: Tally | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    for p, rel, ignored in _classify_files(paths, root, globs):
+    for p, rel, ignored in _classify_files(
+            paths, root, globs, tally.pruned if tally is not None else None):
         if ignored:
             # Skipped by every rule EXCEPT the one narrow check (115/380).
             if tally is not None:
@@ -2102,6 +2111,7 @@ def _main(argv: list[str] | None = None) -> int:
                     {"path": p, "line": n} for p, n in tally.fingerprint_at],
                 "by_public_key_line": tally.public_key_spans,
                 "by_published_url_token": tally.url_tokens,
+                "files_under_pruned_directory": tally.pruned.as_json(),
                 "beyond_finding_cap": {
                     "cap": MAX_MATERIALIZED_FINDINGS,
                     "blocking": tally.blocking_over_cap,

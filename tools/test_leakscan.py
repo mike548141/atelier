@@ -4834,5 +4834,50 @@ class DocumentBoundedMemory(BoundedMemory):
             f"{_sha(docx)}  b.docx  # synthetic fixture  by=agent session=test1234 on=2026-11-16\n")
 
 
+class TestPrunedDirectoryCount(unittest.TestCase):
+    """320/900: outside a git work tree the walk prunes skip-named
+    directories; the files it steps over are counted on the tally, in
+    `--json`, and as a coverage warning, never as a change of exit code."""
+
+    KEY = ("-----BEGIN " + "OPENSSH PRIVATE KEY-----\n"
+           "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\n"
+           "-----END " + "OPENSSH PRIVATE KEY-----\n")
+
+    def _tree(self, *subdirs):
+        d = Path(tempfile.mkdtemp()).resolve()
+        self.addCleanup(shutil.rmtree, d, True)
+        for sub in subdirs:
+            (d / sub).mkdir()
+            (d / sub / "notes.txt").write_text(self.KEY)
+        return d
+
+    def _main(self, *argv):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(io.StringIO()):
+            rc = ls.main(list(argv))
+        return rc, buf.getvalue()
+
+    def test_a_pruned_file_is_counted_and_warned(self):
+        d = self._tree(".vscode", "ctl")
+        rc, out = self._main("--root", str(d), str(d))
+        self.assertEqual(rc, 1, out)
+        self.assertIn(" · 1 file(s) under a pruned directory", out)
+        self.assertIn("1 file(s) under a pruned directory were not read", out)
+        rc, out = self._main("--root", str(d), "--json", str(d))
+        self.assertEqual(json.loads(out)["suppressed"]["files_under_pruned_directory"], 1)
+
+    def test_the_warning_never_changes_the_exit_code(self):
+        d = self._tree(".vscode")
+        rc, out = self._main("--root", str(d), str(d))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("1 file(s) under a pruned directory were not read", out)
+
+    def test_a_tree_with_nothing_pruned_prints_the_zero(self):
+        d = self._tree("ctl")
+        rc, out = self._main("--root", str(d), str(d))
+        self.assertIn(" · 0 file(s) under a pruned directory", out)
+        self.assertNotIn("were not read", out)
+
+
 if __name__ == "__main__":
     unittest.main()

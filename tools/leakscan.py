@@ -525,6 +525,10 @@ class Tally:
     files_opened: int = 0
     lines_read: int = 0
     binaries_checked: int = 0
+    # 320/900: files the `os.walk` fallback left unread under a skip-named
+    # directory (`filewalk.PruneCount`), counted, never opened. Not measured
+    # when the walk ran through git; the tally then says "not counted".
+    pruned: filewalk.PruneCount = field(default_factory=filewalk.PruneCount)
     # 110/060 - the `review-by` dates `.leakscanignore`'s globs declare, and
     # those on `.leakscanbinaries` lines (a binary accepted for now), read by
     # `allowmarker.read_ignore_deferments`. A lapsed or unreadable date WARNS
@@ -540,7 +544,8 @@ class Tally:
     def coverage(self) -> str:
         return report.coverage_line(
             self.files_opened, self.lines_read + self.binaries_checked,
-            unit="line(s)/binary file(s) checked", units_what="lines")
+            unit="line(s)/binary file(s) checked", units_what="lines",
+            pruned=self.pruned.files)
 
     def summary(self) -> str:
         """One stable line, zeros printed. The field set never varies between
@@ -554,7 +559,8 @@ class Tally:
                  f"{len(self.provenance_warnings)} manifest line(s) with no who/when "
                  "warned, not blocking",
                  report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS),
-                 f"{self.unknown_scope_markers} marker(s) naming no rule"]
+                 f"{self.unknown_scope_markers} marker(s) naming no rule",
+                 report.pruned_part(self.pruned.as_json())]
         return report.suppressed_line(parts, breakdown=self.by_marker,
                                       disabled=self.disabled_rules)
 
@@ -3125,7 +3131,7 @@ def tracked_files(root: Path) -> set[str] | None:
     return {p for p in r.stdout.decode("utf-8", errors="surrogateescape").split("\0") if p}
 
 
-def _walk_files(base: Path):
+def _walk_files(base: Path, pruned: "filewalk.PruneCount | None" = None):
     """Every regular file under `base`, streamed one at a time. Single-sourced
     (115/080 part 1) in `tools/filewalk.py` — see that module's docstring
     for the mechanism and the 020/160 (E9) linked-worktree skip (measured in
@@ -3134,14 +3140,15 @@ def _walk_files(base: Path):
     fix). `SKIP_DIR_NAMES` is this scanner's own per-guard parameter, passed
     in rather than shared."""
     return filewalk.walk_files(base, SKIP_DIR_NAMES,
-                               read_tracked_under_skip=True)
+                               read_tracked_under_skip=True, pruned=pruned)
 
 
 def iter_files(paths: list[Path], root: Path, globs: list[str],
                tally: Tally | None = None):
     """Every file the ignore globs leave, as `(path, repo-relative path)`; the
     ones they skip are counted on `tally`."""
-    for p, rel, ignored in iter_files_marked(paths, root, globs):
+    for p, rel, ignored in iter_files_marked(
+            paths, root, globs, tally.pruned if tally is not None else None):
         if ignored:
             if tally is not None:
                 tally.files_by_glob += 1
@@ -3149,13 +3156,14 @@ def iter_files(paths: list[Path], root: Path, globs: list[str],
         yield p, rel
 
 
-def iter_files_marked(paths: list[Path], root: Path, globs: list[str]):
+def iter_files_marked(paths: list[Path], root: Path, globs: list[str],
+                      pruned: "filewalk.PruneCount | None" = None):
     """As `iter_files` but ALSO the files the ignore globs skip, as
     `(path, repo-relative path, ignored)`. G3 runs before the ignore file for a
     binary (160/980 GM9), so the caller must see the ignored ones to gate
     them, and decide itself what a skip counts as."""
     for base in paths:
-        candidates = [base] if base.is_file() else _walk_files(base)
+        candidates = [base] if base.is_file() else _walk_files(base, pruned)
         for p in candidates:
             # Resolve BOTH sides so rel is root-relative no matter the caller's
             # CWD (2026-07-11 review N3): floor.yml runs `--root repo repo` from
@@ -3291,7 +3299,8 @@ def scan_paths(paths: list[Path], root: Path,
     by_digest = _digest_index(manifest)
     findings: list[Finding] = []
     gated: set[str] = set()
-    for p, rel, ignored in iter_files_marked(paths, root, globs):
+    for p, rel, ignored in iter_files_marked(
+            paths, root, globs, tally.pruned if tally is not None else None):
         if ignored:
             # G3 runs BEFORE the ignore file for a binary (160/980 GM9): a
             # glob is path-wide and blind to content, so it cannot be the
@@ -3987,6 +3996,7 @@ def _main(argv: list[str] | None = None) -> int:
                 "disabled_rules": list(tally.disabled_rules),
                 "binaries_by_manifest": tally.binaries_by_manifest,
                 "binaries_untracked_not_gated": tally.binaries_untracked,
+                "files_under_pruned_directory": tally.pruned.as_json(),
             },
             "deferments": (
                 allowmarker.deferments_dict(tally.deferments, IGNORE_FILE)
