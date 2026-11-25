@@ -1,4 +1,4 @@
-- [~] 🔎 **Hand-up: outside a git work tree, `leakscan` and `secretscan`
+- [x] 🔎 **Hand-up: outside a git work tree, `leakscan` and `secretscan`
       skip pruned directories without counting them, so a publish over a
       plain tree can read green with files unread.** Reported 2026-11-23 by
       a private child's queue run (session cc48ecd8), class only. When a
@@ -28,5 +28,18 @@
       refuse on it the way it refuses on the ignore-glob count. Whether a
       non-zero count should also turn the coverage line into a warning is
       the house's call.
-      🔒 CLAIMED 2026-11-25T13:57Z (claimed 2026-11-25-1357, wt: atelier-qr-f8dd-pr) by session f8dd3843
-      (`atelier-31`, Opus 5.5, principal-opened by `/atelier:work run`); an Opus worker builds it.
+      ✅ **Done 2026-11-25 (session f8dd3843, `atelier-31`, queue run; an Opus worker built
+      it, this session read it before landing).** Reproduced first on a plain tree (synthetic
+      key and a documentation-range address under `.vscode/` and `ctl/`): both scanners exit 1,
+      name only `ctl/notes.txt`, report 2 files opened of 4, every tally 0. Now the shared walk
+      (`tools/filewalk.py`) counts, without opening, the regular files under each skip-named
+      directory it prunes, opt-in per caller (`walk_files(..., pruned=PruneCount())`); `.git`
+      directories, linked worktrees and symlinked directories are not counted, and git mode's
+      yielded set is unchanged. `secretscan` and `leakscan` end their `suppressed:` line with
+      `N file(s) under a pruned directory`, zero printed, `null` with "not counted (git
+      walk)" where it was not measured, and `suppressed.files_under_pruned_directory` in
+      `--json`. **The house's call, made:** a non-zero count turns the `coverage:` line into a
+      warning and never changes the exit code; a caller that publishes the tree refuses on the
+      count, as on the ignore-glob count (the `CHANGELOG.md` adopter action). Other scanners on
+      the same walk can take the count without re-implementing it; not wired. The same class in
+      git mode is filed as `115/560`. Its cold pass is queued as `160/1860`.
