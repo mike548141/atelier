@@ -2,17 +2,17 @@
 """pointerscan — a queued-review pointer says only what it may, and only what is
 still true.
 
-THREE FAILURES, ONE PARSE
--------------------------
+FOUR FAILURES, ONE PARSE
+------------------------
 `ROADMAP.md`'s own preamble states the pointer's ceiling: **refs only** — name
 the delta and the intent record, carry no evaluative account, because the
 account belongs in the session record where the reviewer's deferral discipline
 governs when it is read. `REVIEW.md` rule 4 states the same ceiling at the point
 a pointer is written.
 
-Three things go wrong with a pointer, and one parse answers all of them:
+Four things go wrong with a pointer, and one parse answers all of them:
 
-  1. GRAMMAR — *what may it say*. A pointer that seeds the reviewer's first
+  1. GRAMMAR — *what may it say, and what must it name by path and bound*. A pointer that seeds the reviewer's first
      question steers the pass it is queuing. Recorded three times; the third
      instance was written hours after its author read the finding recording the
      first two, in the same file. Three instances of a trivial failure is a
@@ -35,6 +35,17 @@ Three things go wrong with a pointer, and one parse answers all of them:
      either already stale or carried a further pass queued inside the landed
      item, a shape the legend now rules out; the second fires on the one
      re-review and nothing else.
+  4. DELTA BOUND — *does the pointer name its commits by something a commit
+     cannot omit* (PK21, the cold pass on `160/1810`, 2026-11-25). A pointer
+     that said "the commits citing `210/600`" missed three of the seven
+     commits on its own path list, because a commit that touches the paths
+     need not cite the item. A pointer names its delta by path and bound. A
+     bound that is only a citation is flagged, under the `grammar` detector
+     (the grammar of what a pointer names), unless a commit range
+     (`a1b2c3d..e4f5a6b`) or two or more commit hashes are written out beside
+     it. One start hash is not enough: the citation still selects, and the
+     start only trims. Advisory like the rest; `grammar` is reused rather than
+     a fourth kind added, so the kinds other tools pin stay three.
 
 WHY NOT `reviewscan`
 --------------------
@@ -422,6 +433,30 @@ def is_pointer(marker: str, body: str) -> bool:
     return any(_CLAIM.search(run) for run in _EMPH.findall(text))
 
 
+# A delta chosen by the commits' own citation of an item ("the four commits
+# citing `115/510`"): a commit that touches the delta's paths and does not cite
+# the item is not in it (PK21).
+_CITED_DELTA = re.compile(r"\bcommits?\s+citing\b", re.I)
+# A commit hash: seven or more hex digits with at least one digit, so an
+# English word spelled in hex ("defaced") is not one.
+_HASH = re.compile(r"\b(?=[0-9a-f]*\d)[0-9a-f]{7,40}\b")
+_HASH_RANGE = re.compile(r"\b(?=[0-9a-f]*\d)[0-9a-f]{7,40}\.\.\.?"
+                         r"(?=[0-9a-f]*\d)[0-9a-f]{7,40}\b")
+
+
+def delta_by_citation(body: str) -> bool:
+    """Does the pointer name its delta's commits by citation alone (PK21)?
+
+    True when the prose says "commits citing" something and writes out neither
+    a commit range nor two or more distinct commit hashes. Hashes are read from
+    the raw body, backticks included: they are normally written as code."""
+    if not _CITED_DELTA.search(strip_code(body)):
+        return False
+    if _HASH_RANGE.search(body):
+        return False
+    return len(set(_HASH.findall(body))) < 2
+
+
 def grammar_findings(body: str) -> list[str]:
     """Reviewer-steering content inside a pointer. Pass type and tier are lawful
     (FG6, see the docstring) and are not matched by anything here."""
@@ -433,6 +468,11 @@ def grammar_findings(body: str) -> list[str]:
     for pattern, reason in _STEER:
         if pattern.search(text):
             out.append(reason)
+    if delta_by_citation(body):
+        out.append("names its delta's commits by citation alone — a commit "
+                   "that touches the paths and does not cite the item is "
+                   "missed; name the delta by path and a bound (a commit "
+                   "range, or the hashes)")
     return out
 
 
@@ -762,6 +802,13 @@ _SPEC_PROSE = (
     "      rejected? The first question the work must answer, not assume.\n")
 
 
+# PK21: the shape of the `160/1810` pointer, synthetic values.
+_SPEC_CITED_DELTA = (
+    f"- {QUEUED} **Rule-4 cold pass queued: the widget fixes.** Tier: the review\n"
+    "      tier. *Delta, scoped to paths:* `tools/widget.py`, `docs/widget.md`:\n"
+    "      the commits citing `210/600`, on `main`, after `a1cc5f2d`.\n")
+
+
 def _selftest() -> int:
     fails: list[str] = []
 
@@ -797,6 +844,11 @@ def _selftest() -> int:
     check("instance 3 cleaned is silent", dets(_SPEC_INSTANCE_3_CLEAN), [])
     check("pass type is lawful (FG6)", dets(_SPEC_PASS_TYPE), [])
     check("prose item is silent", dets(_SPEC_PROSE), [])
+    check("a delta named by citation alone is flagged (PK21)",
+          dets(_SPEC_CITED_DELTA), ["grammar"])
+    check("the same delta with a commit range is silent",
+          dets(_SPEC_CITED_DELTA.replace(
+              "`210/600`", "`210/600`, `a1cc5f2d..9b4a8f8f`")), [])
 
     # --- detector 2: cycle state ---------------------------------------------
     check("stale residue flagged", dets(_SPEC_RESIDUE), ["cycle"])
@@ -905,6 +957,10 @@ def main(argv: list[str] | None = None) -> int:
         print("  the reviewer's deferral discipline governs when it is read; in "
               "the pointer it")
         print("  steers the pass before a brief exists to defer it.")
+        print("  A delta is named by path and a bound (a commit range or the "
+              "hashes); \"the")
+        print("  commits citing X\" alone misses a commit that touches the "
+              "paths and does not cite X.")
     if cycle:
         print("  CYCLE STATE. The item asserts a review is owed and carries the "
               "verdict of the")

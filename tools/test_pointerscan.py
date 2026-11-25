@@ -158,6 +158,62 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(dets(text), [])
 
 
+class DeltaBoundTest(unittest.TestCase):
+    """PK21 (cold pass on `160/1810`): "the commits citing X" missed three of
+    the seven commits on that pointer's own path list. A pointer names its delta
+    by path and a bound; a citation alone is advisory-flagged under grammar.
+    Every value here is synthetic."""
+
+    CITED = (f"- {Q} **Rule-4 cold pass queued: the widget fixes.** Tier: the\n"
+             "      review tier. *Delta, scoped to paths:* `tools/widget.py`,\n"
+             "      `docs/widget.md`: the commits citing `210/600`, on `main`,\n"
+             "      after `a1cc5f2d`.\n")
+
+    def reasons(self, text):
+        return [r for r in reasons(text, "grammar") if "citation" in r]
+
+    def test_a_delta_named_by_citation_alone_is_flagged(self):
+        self.assertEqual(dets(self.CITED), ["grammar"])
+        self.assertEqual(len(self.reasons(self.CITED)), 1)
+
+    def test_one_start_hash_is_not_a_bound(self):
+        """The citation still selects; the start hash only trims."""
+        self.assertEqual(len(self.reasons(self.CITED)), 1)
+
+    def test_a_commit_range_is_a_bound(self):
+        text = self.CITED.replace("after `a1cc5f2d`", "`a1cc5f2d..9b4a8f8f`")
+        self.assertEqual(self.reasons(text), [])
+        three = self.CITED.replace("after `a1cc5f2d`",
+                                   "`a1cc5f2d...9b4a8f8f`")
+        self.assertEqual(self.reasons(three), [])
+
+    def test_two_named_hashes_are_a_bound(self):
+        text = self.CITED.replace("after `a1cc5f2d`",
+                                  "`a1cc5f2d`, `9b4a8f8f`")
+        self.assertEqual(self.reasons(text), [])
+
+    def test_a_word_spelled_in_hex_is_not_a_hash(self):
+        text = self.CITED.replace("after `a1cc5f2d`",
+                                  "after defaced and effaced")
+        self.assertEqual(len(self.reasons(text)), 1)
+
+    def test_a_delta_with_no_citation_phrase_is_silent(self):
+        text = (f"- {Q} **Rule-4 cold pass queued: the widget fixes.** Tier:\n"
+                "      the review tier. *Delta:* `tools/widget.py` after\n"
+                "      `a1cc5f2d`. Intent record: the session entry.\n")
+        self.assertEqual(dets(text), [])
+
+    def test_the_phrase_in_a_code_span_is_a_mention(self):
+        text = (f"- {Q} **Rule-4 cold pass queued: the scanner.** Delta: the\n"
+                "      scan of the phrase `commits citing` in `tools/x.py`.\n")
+        self.assertEqual(self.reasons(text), [])
+
+    def test_a_scoped_marker_exempts_it(self):
+        text = self.CITED.replace(
+            "Tier:", "pointerscan:allow:grammar: synthetic. Tier:")
+        self.assertEqual(self.reasons(text), [])
+
+
 class CycleStateTest(unittest.TestCase):
     """Detector 2 — whether the pointer is still true."""
 
