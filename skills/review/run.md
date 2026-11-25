@@ -154,9 +154,10 @@ brief a pass whose subject this session built.
 4. **Read each result**, in every `<kit_dir>/results/<date>/` folder the
    drain ran across (a drain can cross UTC midnight: each pass writes the
    folder of the day it started). A pass ended clean only when its session
-   exited 0, ended on no error, and its verdict is `DONE` or `SKIPPED` (from
-   its last turn, or, when that has no `RESULT:` line, from the last report
-   in its transcript that also carries its `ITEM:` line); only then has
+   exited 0, ended on no error, and its verdict is `DONE` or `SKIPPED` (the
+   first line beginning `RESULT:` in its last turn, read only beside the
+   final output's `ITEM:` line, or, when that turn has none, from the last
+   report in its transcript that also carries its `ITEM:` line); only then has
    ccfleet released its claim and removed its worktree. A worktree ccfleet
    keeps is named on the pass's `KEPT` line, with the reason. Any other end (a nonzero
    exit, an error, a usage limit, no report) keeps the claim, the worktree and
@@ -191,10 +192,13 @@ brief a pass whose subject this session built.
   queue's `next` must skip an item already claimed, or the slot is wasted.
 - When the limit hits, a pass whose act 2 is already written needs only a
   fold, which is not review work ([`fold-prompt.md`](fold-prompt.md), run by
-  `ccfleet run REPO --in <the pass's worktree> --item ITEM --prompt
-  fold-prompt.md` on a cheaper tier, with a `--set` for each variable
+  `ccfleet --by <session-id> run REPO --in <the pass's worktree> --item ITEM
+  --prompt fold-prompt.md` on a cheaper tier, with a `--set` for each variable
   § *The variables the prompts need* lists for it). `--item` gives the fold
-  `{ITEM}` and the pass's own `{REVIEW_LOG}`, and on a clean `RESULT` ccfleet
+  `{ITEM}` and the pass's own `{REVIEW_LOG}`, and writes the fold's result
+  into the pass's own result file (label `<repo>-<item>` unless `--label`),
+  its verdict on the first line and the pass's cut-off end kept below, so two
+  folds in one repo never share a file. On a clean `RESULT` ccfleet
   releases the claim and removes the worktree; any other end keeps both, and
   so does a clean `RESULT` that leaves unlanded work (it reads `UNLANDED`). The held copy (`HELD`) is the drain
   session's to delete, once it has read the fold's result as `DONE`.
@@ -212,19 +216,29 @@ brief a pass whose subject this session built.
 ## Mode 2: resume (after the reset, on the principal's word only)
 
 For each pass still claimed: read its reviewer's transcript first. Un-claim one
-whose reviewer did almost nothing (restarting it is new work); move its review
-log out of `<kit_dir>/review-logs/` into a dated `review-logs/withdrawn/`
-file, kept, never handed to the item's next reviewer (rule 2 bars an earlier
+whose reviewer did almost nothing (restarting it is new work). "Almost
+nothing" means all of these: its transcript has no `ACT 1 SAVED`, the brief
+file holds no act 1 (in the worktree, staged or committed), and its review log
+holds no candidate finding, only the opening reads. A pass whose log or brief
+holds a written act 1, or any candidate finding, is never un-claimed and its
+log never withdrawn: it is resumed, or folded. For one that is un-claimed,
+move its review log out of `<kit_dir>/review-logs/` into a dated
+`review-logs/withdrawn/` file, kept, never handed to the item's next reviewer (rule 2 bars an earlier
 reviewer's account), and appended to the brief at that next pass's fold under
 its own heading. ccfleet does the same move itself when a new pass of the
-item takes its claim and finds a log at its path. Resume the rest with `ccfleet resume REPO WORKTREE SESSION
+item takes its claim and finds a log at its path. Resume the rest with
+`ccfleet --by <session-id> resume REPO WORKTREE SESSION
 --prompt resume-prompt.md --item ITEM --set AGENT=<reviewer id> --set
 STATE='<where it stopped>' --set FINISH_WORDS='<the principal's word to
 finish, verbatim>'` ([`resume-prompt.md`](resume-prompt.md)): the orchestrator
 continues its own reviewer (which reads its own review log first), folds,
-lands and reports. If the reviewer cannot be reached, the pass reports FAILED;
-it is never handed to a replacement reviewer or a lesser model, and the claim,
-worktree and log stay for the principal's word. A pass whose act 2 is
+lands and reports. The resume writes its verdict into the pass's own result
+file, as the fold does, so the close counts the pass as the resume ended it.
+ccfleet refuses a resume while the pass's session still runs (a launcher
+killed by a signal leaves its session running, recorded under
+`<kit_dir>/sessions/`): wait for it to end. If the reviewer cannot be
+reached, the pass reports FAILED; it is never handed to a replacement
+reviewer or a lesser model, and the claim, worktree and log stay for the principal's word. A pass whose act 2 is
 already written needs only the fold (§ *Lessons paid for*), which costs no
 review budget: take it before a resume. Leave `reset_utc` as the drain set
 it: it stops new passes only, and ccfleet runs a `resume` and a fold (`run

@@ -122,9 +122,13 @@ as a headless session in atelier, not as an Agent.
    `drive` or `drain` on the same `kit_dir` is refused while one runs; give a
    second, separate sweep its own `kit_dir`. One drive writes every result
    under one day's folder, the day it started (UTC). A re-run skips a job
-   only when its result there is a clean end; a job cut off (a nonzero exit,
-   an error, no RESULT line, a time limit) keeps its worktree and its work,
-   and runs again. A re-run after UTC midnight of a drive begun the day
+   whose result there is a clean end, or a settled one (`PARTIAL`, `BLOCKED`:
+   the worker finished and its report says what is left, so running it again
+   would only repeat it; such a job's worktree is removed unless it holds
+   unlanded work). A job cut off (a nonzero exit, an error, no RESULT line,
+   a time limit, a clean word that left unlanded work) keeps its worktree
+   and its work, and runs again. The drive stops starting jobs at the
+   config's `reset_utc`, as a drain does. A re-run after UTC midnight of a drive begun the day
    before passes `--day <that day>`, or every job runs again. A job whose
    worktree holds uncommitted work is never force-removed: the re-run or the
    principal's list takes it.
@@ -169,8 +173,9 @@ as a headless session in atelier, not as an Agent.
    evidence up front: what it is, where it came from, what each answer does.
 8. **Close**: the orchestrator's session record names every worker session id
    and commit; no job worktree is left behind unaccounted: a kept one (a job
-   cut off, uncommitted work) is taken by a re-run or listed for the
-   principal with its evidence.
+   cut off, uncommitted work, a `PARTIAL` or `BLOCKED` that left unlanded
+   work) is taken by a re-run or listed for the principal with its evidence;
+   a settled job is not re-run, so what its report left goes on that list.
 
 ## The variables the prompts need
 
