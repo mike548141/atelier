@@ -649,3 +649,859 @@ whether `/atelier:review plan` and `/atelier:review run`, with `ccfleet` as the 
 safe to run the principal's paid weekly drain from, and if not, what must change first; and
 whether anything in the delta can put private context into a public repo's session. Name
 `160/1820` in your scope line, and `210/620` as the item the delta answers to.
+
+---
+
+## Verdict, act 1 (cold): the `DV` and `PK` fixes, `160/1820`
+
+**MAJOR: 0.** PASS-WITH-FINDINGS: 0 MAJOR · 5 MODERATE · 11 minor · 4 notes (`DP1`–`DP20`).
+Written 2026-11-25 UTC, before the held-back sibling, either earlier verdict or any barred record
+was opened. Act 2 (the fix ledger for `DV1`–`DV11` and `PK1`–`PK21`) is not in this text.
+
+**Scope.** Board `160/1820`; the delta answers to `210/620`. Every commit on `main` after
+`932a0185` up to and including `77fc8f42` (23 commits) on the brief's path list, judged as it
+stands at my HEAD, pinned at `9e6712b4`. `git merge-base --is-ancestor 77fc8f42 HEAD` exits 0. The
+brief's later-commit check (`git log --oneline 6a44b08e..HEAD -- <the delta paths>`) printed
+nothing, so the delta has not moved since the brief's pin; the two commits after `6a44b08e` touch
+this brief and the `160/1820` item only.
+
+### Provenance (rule 4, V7)
+
+- **How I was spawned.** As a subagent of session `01c055e5` (`atelier-4c`, Opus 5.5), which
+  describes itself as an off-tier orchestrator opened by the principal for this one pass. I was
+  started for this pass alone, with the prompt below and nothing else. No author session and no
+  brief-writer contacted me. Contact after the spawn: none before this text was written.
+- **My tier and the model I find myself running as.** The harness tells me I am powered by the
+  model named Fable 5.2, model id `claude-fable-5-2`. That is the review tier the brief names. I
+  started no subagent; every reading, probe, finding and severity here is mine.
+- **The orchestrator's arrangement, weighed (V7).** Its spawn prompt is process only: paths, the
+  no-git-writes rule, load, the stand-in world, the two acts, the reply shape. It asks no question
+  about the delta, points at no risk and asks for no finding. It discloses its own exposure
+  (the intent record `210/620` whole, counts and one-line counsel of the earlier verdicts,
+  fragments of three earlier findings) and says it passes none of it on; nothing in the prompt
+  carries any of it. The barred set it chose is exactly the brief's. I see no breach of rule 4's
+  two conditions. One limit, stated: a reader can check the prompt, not what the orchestrator
+  knows; its exposure is wider than a cold orchestrator's would be, and it is disclosed.
+- **The spawn prompt, verbatim** (it reached me as a file plus a one-paragraph wrapper; absolute
+  paths are written as the named placeholders `<WT>`, `<SCRATCH>` and `<PRIMARY>`, as the prompt
+  itself asks for a public repo; nothing else is changed).
+
+  The wrapper message:
+
+  > Your full instructions are in this file; read it first and follow it exactly. It is also the
+  > text you record verbatim in your verdict's provenance, with the absolute paths written as
+  > `<WT>`, `<SCRATCH>` and `<PRIMARY>`, as it explains: `<SCRATCH>/dp-spawn-prompt.md` . The
+  > placeholders in that file stand for: `<WT>` = `<WT>` · `<SCRATCH>` = `<SCRATCH>` ·
+  > `<PRIMARY>` = `<PRIMARY>`. (This wrapper message is the only text sent besides that file;
+  > record it too, with those three paths written as their placeholders.)
+
+  The file:
+
+~~~~text
+You are the reviewer for one rule-4 cold pass in the atelier repo. You run on Fable, the
+principal-named review tier. State the model you find yourself running as in your verdict's
+provenance.
+
+**The brief:** `<WT>/docs/reviews/2026-11-25-1920-dv-pk-fixes-recheck-cold.md` (board
+`160/1820`, finding prefix `DP`). Read it whole first, then follow it and
+`docs/method/REVIEW.md` exactly. It defines the scope, the barred reading, the re-run list, the
+live-behaviour bounds, the deliverable and the two acts. Nothing here changes it.
+
+**Your worktree:** `<WT>` (branch `atelier-4c-dp-pass`, HEAD `9e6712b4`, which is `origin/main`
+as I spawn you). The only commit after the brief's landing (`8a591e0a`) is my claim, which adds
+five lines to the `160/1820` board item, on your barred list. `git merge-base --is-ancestor
+77fc8f42 HEAD` exits 0 there. Run every command from the worktree, with absolute paths. It is
+read-only to you except the brief file, where you append your verdict.
+
+**Your scratch directory:** `<SCRATCH>/dp/` (create it). All probes, scratch clones, synthetic
+configs, stand-in binaries, fixtures and working notes go there. Delete your fixtures when you
+finish act 2.
+
+**Who I am, disclosed (rule 4):** session `01c055e5` (`atelier-4c`), Opus 5.5, opened by the
+principal to brief and run this one pass. I am an off-tier orchestrator: I hold the context
+partition, commit the records and release the held-back sibling after your act 1 is committed.
+I form no finding and write no severity. I authored no part of the delta and no part of the
+brief: I started its writer, headless session `43d5be30` (Opus 5.5), with a process-only prompt
+plus five notes for it to verify (the brief's *Spawn provenance* lists them). My exposure before
+spawning you, disclosed in full: items `160/1820` and `210/620` whole (**`210/620` carries the
+authors' account of every fix, two departures from the counsel and a test result**); the route
+paragraph of item `450/010` (row 2's steps A to D); the record of the session that ran the `DV`
+and `PK` passes (**it gives each verdict's counts and one-line counsel, not the findings'
+text**); from the `DV` pass's file, its heading outline, the spawn prompt in its verdict's
+provenance, and a handful of lines a heading search printed (**fragments of three findings'
+text, about the spawn prompt's absolute paths and the model a session reports**); this brief's
+header, *Spawn provenance*, *House rules* and *Process* sections, and its heading outline; the
+brief-writer's commit message. I have not opened the held-back sibling, the authors' session
+record, or any delta commit's body. None of that is yours to read before act 1, and I pass none
+of it to you beyond this paragraph. The barred set is exactly the brief's; I add nothing and
+remove nothing.
+
+**Process rules:**
+
+1. **No git writes.** No commit, add, checkout, switch, stash, reset, push or worktree command in
+   `<WT>` or anywhere else. Read-only git (log, diff, merge-base, ls-files, grep, and commits via
+   `tools/coldsweep.py`) is fine. I commit. A scratch clone under your scratch directory is yours.
+2. **Never touch the primary checkout** `<PRIMARY>`: the live hook, the linked `ccfleet` and the
+   in-place plugin run from it. Where the brief asks where it stands, use read-only `git -C
+   "<PRIMARY>" log -1 --format=%h` and `git -C "<PRIMARY>" status --short` only, and read no file
+   there; your worktree has the same commits. Never run an installed tool by bare name from
+   `PATH`.
+3. **Machine load.** Other sessions are live on this machine (the load has swung from about 10 to
+   about 58 on 12 cores this evening). Check `uptime` before each heavy step; run one heavy
+   process at a time under `nice -n 15`, in the foreground with a 600000 ms timeout (the `ccfleet`
+   suite takes several minutes per interpreter). If the harness moves a long command to the
+   background, wait for it and disclose that.
+4. **No real launches.** The brief decides that no live launch reaches a model; keep to its
+   stand-in world. No real config, no real repo, no `drive`, no real `drain`, no `claude` call.
+5. **Subagents:** if you start any, give each an explicit `model`, keep it read-only, and have it
+   write its report to a file in your scratch directory and return three lines. Any subagent that
+   reads the delta and forms judgement must be Fable; the findings and severities are yours.
+6. **Public repo.** Quote no secret, email address, home path, private repo name, estate fact or
+   other session's transcript content. When you put this prompt in your provenance, write the
+   absolute paths as `<WT>`, `<SCRATCH>` and `<PRIMARY>`, as they are here. Absolute ISO 8601
+   dates from `date -u`; NZ English; prose wrapped at about 100 columns. Finding prefix `DP`.
+7. **Act 1:** append your verdict below a `---` divider at the end of the brief file, complete per
+   the brief's *Process*, then STOP and reply to me in at most five lines: that act 1 is written,
+   the overall line with counts (MAJOR first), and anything I must know to commit it. Do not open
+   the held-back sibling or either earlier verdict. The sibling is not in the tree; I release its
+   path to you by message after I commit act 1.
+8. **Act 2** starts only on my release message. Do it as the brief's *Process* says, then reply in
+   at most five lines.
+9. **If a usage limit or error stops you,** stop where you are; your transcript persists and I
+   will resume you by message. Keep working notes in your scratch directory so a resume loses
+   nothing.
+
+Record this file verbatim in your provenance; it is saved at `<SCRATCH>/dp-spawn-prompt.md`.
+Budget the time this pass needs; never thin it to fit.
+~~~~
+
+- **Barred-set choice.** The brief's, unchanged (the spawn prompt says so). **Release message:**
+  none yet; act 2 has not begun.
+- **What I read.** The brief whole; `docs/method/REVIEW.md` whole; `instruments/ccfleet` whole at
+  HEAD (3,099 lines); `instruments/fixtures/review_queue_reference.py` and
+  `instruments/ccfleet.example.json` whole; each of the 23 commits body-free through
+  `tools/coldsweep.py --commit <sha> --path instruments --path tools --path skills --path
+  CHANGELOG.md` (ledger below); `skills/review/run.md`, `skills/review/orchestrator-prompt.md` and
+  `skills/session/close.md` whole at HEAD; the final-output blocks of the four fleet prompts and
+  the tails of `fold-prompt.md` and `resume-prompt.md`; `tools/modelguard.py` lines 1–300 and
+  372–480 plus its whole delta; the manual's *THREATS* section rendered; two public documentation
+  pages of the harness (permissions, memory).
+- **What I did not read.** `docs/sessions/`, every prior verdict, every `160` item beyond its
+  title, the board items the brief bars, the delta commits' message bodies, `docs/method/census/`.
+  I skipped the session-log step of the repo's read order.
+- **Exposure to disclose.**
+  1. The harness loaded, before the brief, the user-level instruction files, this repo's
+     `CLAUDE.md` and a per-project memory index. They hold private context this verdict does not
+     carry, and one-line titles of earlier review work in this repo. None gives an account of the
+     delta or of a `DV` or `PK` finding. The harness's status snapshot showed five recent commit
+     subjects, one of them a board commit about review doctrine; a title, no account.
+  2. One read-only process listing (`ps`), run to learn whether the installed CLI keeps its
+     arguments visible, printed other sessions' command lines. I read no transcript and quote
+     none of it. What I took from it is one fact, used under assumption A2 below.
+  3. `pointerscan`'s full-tree output went to a scratch file; I printed its counts and the path
+     prefixes of three `160` items (titles only).
+  4. The harness moved seven commands to the background after 180 seconds: five long runs (both
+     `ccfleet` suites, one mutant batch, the combined-mutant suite, the whole `tools` suite) and
+     two waits of my own. I waited for each and ran no second heavy process beside it; light
+     probes ran meanwhile.
+  5. One of my own Bash calls was refused by a live hook of this machine (a secret-path guard
+     that read a search pattern as a file name). I re-ran it without the pattern. No finding.
+  6. `--include-barred` was never used.
+
+### The floor, reproduced
+
+Every line of the brief's re-run list was run from the place it names; the ledger is at the end.
+All exit 0: the manual lints clean at style level; both `ccfleet` suites pass (152 tests, Python
+3.14.6 and 3.9.6); the four `tools` suites pass on both interpreters; the pushed floor is green on
+`a033f023`, whose tree holds the delta (the run on `77fc8f42` itself was cancelled, as the brief
+says). The synthetic world behaved as the delta claims on every line of the brief's list.
+
+### Lens 1 — approach and assumptions
+
+My load-bearing assumptions, named before I read a line of the delta (my working notes carry the
+time, 2026-11-25T20:35Z), each with what the probes did to it:
+
+| | Assumption the work rests on | State | Probe |
+|---|---|---|---|
+| A1 | The last turn's text can carry a verdict; position tells a real verdict from quoted text | **damaged** | `DP2`, `DP6`: 26 final outputs through `harvest`, old reader beside new |
+| A2 | A launcher's pid and the session record say reliably that a session is live | confirmed, one caveat | SIGTERM, SIGHUP, SIGKILL probes; the installed CLI's arguments are visible to `ps` on this machine, so the record's check has something to match. By reading only: where `ps` cannot be run the record is removed as dead (it fails open) |
+| A3 | Files under `kit_dir` say honestly that a pass started | **damaged** | `DP13` |
+| A4 | Withholding import lines plus a `Read` deny keeps imported private text from a public session | **damaged** | `DP3`, `DP4`, `DP18` |
+| A5 | The queue keeps the route; a seal stands before every review-tier launch | holds for `ccfleet`'s side; **damaged** for the reference queue's `take` | `DP7`, `DP8` |
+| A6 | A deny-list hook over shell shapes converges | **damaged** | `DP1`, `DP9`, `DP10`: this round removed denials the hook had |
+| A7 | `models=` from the log is what the reviewer ran on | not testable without a launch; the record has no reader | `DP15`; live half NOT RUN |
+| A8 | Date-and-second log names are unique and pair with their `.end` | confirmed for `.json` logs | world listing; `DP20` for the `.out` files |
+| A9 | The stand-in in the tests stands for the real CLI | holds for what `ccfleet` hands a session; not for what the harness then does | live ledger |
+| A10 | Prompt wording is the control for tier and fork | unchanged by the delta: wording plus a self-report | `DP15` |
+| A11 | The principal's typed words can be told from a skill call's arguments | plausible; fixed in two skills of at least four | `DP12` |
+
+The brief's own lens-1 questions:
+
+- **Class or instance?** The worktree and settings-copy fix is aimed at the class and holds for
+  every signal and every launch shape I drove. The verdict reader, the reset exemption, the
+  import withholding, the hook's additions, the long-flag table, the typed-words guard and the
+  pointer check are each aimed at the shape that was reproduced: `DP2`, `DP13`, `DP3`/`DP4`/`DP18`,
+  `DP1`/`DP9`, `DP10`, `DP12`, `DP19`.
+- **Is the last turn's text a sound basis for releasing a paid claim?** Sound enough, because a
+  release also needs exit 0, no error flag, a word in `release_on` and a worktree with nothing
+  unlanded, and because nearly every misreading falls to `UNKNOWN`, which releases nothing. One
+  shape reads the other way (`DP6`).
+- **Is the reset exemption a control or a convention?** A convention, and the manual says so
+  (*THREATS*: a plain `run` with the right label writes the file the fold looks for). It stops the
+  accident, not a session that means to. It also refuses one honest case (`DP13`).
+- **Is withholding plus a `Read` deny the right fix?** It is right as far as it reaches. It
+  reaches the appended text and one tool. Two other channels to the same private text stay open
+  and unnamed (`DP3`, `DP4`).
+- **Is the widening deny-list converging?** No, on this round's evidence: the tmux reading turned
+  seven launches the hook denied into passes, and the round added false denies (`DP1`, `DP9`).
+- **Does each fix close its class or move the risk?** Moved: the verdict fix moved the risk from
+  an earlier mention to format drift (`DP2`) and to a quoted pair (`DP6`); the hook fix moved it
+  into the option parsing it added (`DP1`).
+
+### Lens 2 — correctness and quality
+
+Confirmed by probe, as claimed (claim numbers are the brief's):
+
+- **1, 2** the exact review shape and the exact fleet shape read correctly; an earlier mention
+  no longer settles a pass; two shaped verdicts that disagree read `UNKNOWN`; a stop word is kept.
+- **3, 4** SIGTERM, SIGHUP and SIGKILL to a launcher each leave the session running with its
+  record, its worktree and both copies; a fold and a resume into that worktree exit 2; another
+  launch's sweep leaves the copies while the session lives and takes them once it has ended; a
+  session killed outright reads `ERROR` and its copies go with the launcher.
+- **5** after the reset a fold runs for a pass with a result file or a drain `START` line, exits 3
+  for an item with neither, and exits 64 when its template is `pass_prompt`.
+- **6** a public repo's session is handed the shared text with the import line replaced by a note
+  naming no path, under a header naming no path, and a deny rule for the imported file; a private
+  repo's gets it inlined, with no deny. Both copies are mode 0600.
+- **7** `check` printed `MANAGED:` and the import line; `WIDENS: sandbox`, `KEPT, not classified`
+  and `VISIBILITY MISMATCH` are covered by the delta's own tests, which pass.
+- **8** the reference queue's `next` keeps to the route it is asked for, with the stated spill.
+- **9, 10** an unsealed dry drain exits 0 and says no launch was rehearsed; a sealed one names its
+  pick; another run's id is refused; `unknown` cannot seal; a real drain's end calls `unseal`, and
+  a second drain then exits 1 as not ranked.
+- **11** the example keeps no `FINISH_WORDS`; the shipped fold prompt is refused without it.
+- **12, 13** `.json` logs carry date and second, each with a `.end`; the cost history counted the
+  one clean pass and not the pass whose launcher was signalled; `END` lines carry `models=`.
+- **14, 16** the shapes the docstrings name are denied or flagged as written.
+- **17–22** the skill and prompt sentences are there as claimed.
+
+Not as claimed: `DP1`, `DP2`, `DP5`, `DP7`, `DP9`, `DP10`, `DP13`, `DP17`, `DP20`. Nothing in the
+delta is a stub presented as done.
+
+### Lens 3 — completeness and harvest
+
+- **Mirror sites (V3).** Two older sentences the delta should have reached still state the rule
+  it replaced (`DP11`). The typed-words guard reached two skills (`DP12`). `REVIEW.md` rule 4 still
+  says "verbatim" where the prompt now says placeholders (`DP16`). The fleet prompts were not told
+  the shape the reader now demands (`DP2`).
+- **One home (V4).** The seal and the route rule appear in the manual, the `ccfleet` docstring,
+  the reference queue and `run.md`; each of the first three points at `run.md` as the home, which
+  is the right shape. `run.md` and the changelog then say something of `ccfleet` that is not so
+  (`DP7`).
+- **Tests that stay green on a broken delta.** Seven of the mutants I wrote survive the whole
+  `ccfleet` suite together (`DP5`).
+- **What the fixes should have touched and did not.** `skills/work/run.md` and `plan.md` for the
+  typed-words guard; the four fleet prompts for the shape; `REVIEW.md` for the placeholder rule;
+  *THREATS* for auto memory and the settings folder.
+
+### Lens 4 — security and privacy
+
+Design altitude, threats named for the class (an unattended session with the user's credentials,
+steerable by text others write; a reader of that session's own words; a hook in front of every
+tool call):
+
+- *What a public repo's session can still reach of the user-level files.* The appended text is
+  clean of the imported file and of its path where the import stands alone on a line. Left open:
+  the settings folder beside its own copy (`DP3`), the harness's auto memory (`DP4`), an import
+  line of five other shapes (`DP18`), and the residuals the manual already names (a shell command,
+  a known path, an import inside a sentence).
+- *What the sweep may delete.* Only files in `<kit_dir>/settings/` whose name matches
+  `<session>.<pid>.json` or `-user-instructions.md`, whose launcher pid is dead and which no live
+  record lists. It cannot be steered outside that folder by a file name. A reused pid keeps a
+  file; it never deletes a live one. Sound.
+- *What hostile text can make the verdict reader do.* It can turn a real verdict into `UNKNOWN`,
+  halt a drain with a quoted stop word, or, with a drifted real verdict, be read as the verdict
+  (`DP6`). Each needs the session to copy a line-initial `RESULT:` line into its final output,
+  which the prompts forbid.
+- *A hostile repo's settings and instruction files.* Unchanged by the delta; *THREATS* names them.
+
+Code altitude, checked against OWASP ASVS 4.0 chapters V1 (trust boundaries), V4 (access
+control), V5 (validation and injection), V7 (logging), V8 (data protection) and V12 (files), by
+reading and by `grep`:
+
+- *Injection.* `grep -n "shell=True\|os\.system\|os\.popen\|eval(\|exec(\|pickle"` over the four
+  code files prints nothing. Queue output, config values, import paths and the forge's answer
+  reach `subprocess` only as argv lists. A model name is stripped of spaces and commas before it
+  is printed on an `END` line, so it cannot forge a field.
+- *Paths.* `check_repo_name` and `safe()` stand in front of every label and repo used in a path;
+  a session id is matched against `[A-Za-z0-9_-]+` before it reaches a glob or a lock name.
+- *Permission rules.* The deny rule is built from a path the operator's own file names. A path
+  holding a glob character would widen or break the rule; not probed, since the operator writes
+  the path.
+- *Data at rest.* The two copies are 0600. The folders `settings/`, `sessions/` and `logs/` are
+  0755 and logs and results 0644; older behaviour, recorded, not hunted.
+
+**`/security-review` (V6): discharged by grounds.** It reads the session's pending diff. My
+worktree is clean and must stay so (the brief is the only file I may touch, and the scanner must
+never run over a dirty brief), so it has nothing to read; a scratch clone holding the diff would
+still be scanned from this session's own tree, not the clone. The landed delta is covered by the
+catalogue check and the probes above instead.
+
+### The paid-drain path, on its own line
+
+**`/atelier:review plan` and `/atelier:review run`, with `ccfleet` as the fixes leave it: I found
+nothing that loses a paid pass, runs one twice, or lets one start without the seal.** A drain of
+two stand-in passes ran, sealed, claimed, released, unsealed and costed as the manual says, with a
+signal to one launcher on the way. The risks I leave on this path are: a pass whose final output
+puts a blank line between its `RESULT:` and `ITEM:` lines now reads `UNKNOWN` and counts toward
+the three-bad-ends stop (`DP2`); the route rule is the queue's alone, and two texts say `ccfleet`
+passes the route when only the example config does (`DP7`); and the adopter actions in the
+changelog must be made in a config and a queue I was not allowed to see.
+
+### The standing checklist
+
+- **V1 — no claim stronger than its evidence.** Findings `DP1`, `DP5`, `DP7`, `DP9`, `DP10`,
+  `DP17`, `DP20`.
+- **V2 — recorded proofs re-run.** Every line of the re-run list, both interpreters; the pushed
+  floor read. The skills test class says each of its tests "was seen to fail on the unfixed
+  text"; they are literal sentence pins, which fail when the sentence goes, and I did not re-drive
+  each. For `ccfleet`'s tests I ran the converse (mutants), and seven survive (`DP5`).
+- **V3 — a changed rule is swept to its mirrors.** `DP2`, `DP11`, `DP12`, `DP16`.
+- **V4 — one fact, one home.** Holds for the seal and route rule (pointers to `run.md`) and for
+  the reviewer prompt (one home, pinned by a test). `DP7` is a wrong copy, not a second home.
+- **V5 — no internal contradiction.** `DP7` (`run.md` against the docstring and manual), `DP11`,
+  `DP16`. Cross-references checked for the rule they reach: the manual's "see *The seal*" reaches
+  the route rule; `run.md`'s pointer to `man ccfleet` (*The seal*) reaches the contract;
+  `close.md`'s pointer reaches the *Ending the session* heading (pinned by its test).
+- **V6 — security and privacy.** Lens 4 above; the scanner discharged by grounds.
+- **V7 — spawn provenance.** In the brief and repeated above, with the prompt verbatim.
+
+### Per-commit ledger
+
+Each commit was read body-free with `coldsweep --commit`; every run printed its confirmation line
+and exit 0. For six `ccfleet` commits I first read the code at HEAD and the commit's manual and
+test hunks, then the commit's code hunks.
+
+| Commit | Subject (short) | Body-free | Findings |
+|---|---|---|---|
+| `9d52835a` | pointerscan: delta named by citation alone | yes | `DP19` |
+| `5d3265e2` | modelguard: the launches found, the refusal text | yes | `DP1`, `DP9`, `DP10` |
+| `127f3fef` | tools README: modelguard and pointerscan entries | yes | `DP9` |
+| `b7a3a694` | skills: the review texts' findings | yes | `DP14`, `DP15`, `DP16` |
+| `001d9b42` | skills: typed close words may skip a step | yes | `DP12` |
+| `7a2ec7e9` | skills: work run step 1, a linked plugin root | yes | `DP12` |
+| `be31d53b` | skills: fleet sweep, a settled end | yes | none |
+| `1c3488ad` | tools: pin the review prompts and `run.md` | yes | none |
+| `db4984c1` | skills: how a fold passes the reset; the route | yes | `DP7`, `DP11` |
+| `422b5b5c` | ccfleet: `RESULT` only in the final-output shape | yes | `DP2`, `DP6`, `DP11` |
+| `e6a27480` | ccfleet: a live session's copies and worktree | yes | `DP3`, `DP5`, `DP11` |
+| `acfd0d59` | ccfleet: a fold passes the reset for a started pass | yes | `DP13` |
+| `4ae0f05e` | ccfleet: models on the `END` line | yes | `DP15` |
+| `7db38b4b` | ccfleet: the reference queue's `next` and the route | yes | `DP7`, `DP8` |
+| `a8d5e35b` | ccfleet: withhold the import lines and deny them | yes | `DP3`, `DP4`, `DP18` |
+| `afa9aec7` | ccfleet: test the two copies by suffix | yes | none |
+| `3c824d40` | ccfleet: the finish word per call | yes | none |
+| `be934126` | ccfleet: an honest dry drain; `unseal` | yes | `DP17` |
+| `d07c0682` | ccfleet: `check` names kept keys and visibility | yes | none |
+| `389b9424` | ccfleet: log names; a later session's own end | yes | `DP20` |
+| `f58cc435` | ccfleet: manual residuals | yes | none |
+| `36ec7901` | ccfleet: pin five mutants | yes | `DP5` |
+| `77fc8f42` | the landing: changelog, README, `run.md` | yes (board hunks left out by `--path`) | `DP7` |
+
+Later commits on the delta's paths: none since the brief's pin. The three the brief lists
+(`f239dc3b`, `e8c7d631`, `6e11c551`) change, undo or contradict no delta line that I found.
+
+## Findings
+
+Every finding is the principal's to decide (rule 3). Counsel is labelled and sits beneath its
+finding. "Old" below means the hook or reader as it stood at `932a0185`, extracted to my scratch
+directory with `git cat-file -p` and driven by the same probe.
+
+### DP1 — MODERATE — the hook's tmux reading passes launches it denied before the fix
+
+`tools/modelguard.py` `tmux_hit` (added by `5d3265e2`) keeps skipping words that look like tmux
+options after the command it found has begun. `-c`, `-p`, `-t`, `-e` and `-s` are in its
+value-taking set, so the command's own `-c 'script'` or `-p x` is thrown away with its value.
+
+Probe (`mg_probe2.py`, each command through the hook's own entry as a `PreToolUse` payload, old
+hook beside new, same result on 3.14 and 3.9):
+
+| Command | old | new |
+|---|---|---|
+| `tmux new -d sh -c 'claude -p x'` | deny | **pass** |
+| `tmux new -d bash -c 'claude -p x'` | deny | **pass** |
+| `tmux new-window sh -c 'claude -p x'` | deny | **pass** |
+| `tmux split-window -h bash -lc 'claude -p x'` | deny | **pass** |
+| `tmux new -ds w claude -p x` | deny | **pass** |
+| `tmux if-shell true 'claude -p x'` | deny | **pass** |
+| `tmux new -d script -q /dev/null claude -p x` | deny | **pass** |
+| `tmux new -d claude -p x` | pass | deny |
+
+The last row is the shape the fix was written for, and it works. The seven above it are a launch
+with no model that the hook refused before this delta and passes now: the brief's "a launch with
+no model that `modelguard` now passes". The docstring and changelog say tmux launches are denied;
+the deny table pins only the shapes that happen to work. Criterion: the hook's own rule (a
+session start with no model is denied) and V1. Not MAJOR: `ccfleet` names the model itself, so
+the drain does not lean on this hook, and the docstring calls it a net.
+
+*Counsel:* stop reading tmux's options once the first command word is found (everything after it
+is the command's), and treat any `claude` word after a tmux run or send subcommand as a launch
+unless a model is named. Add the seven rows to the deny table.
+
+### DP2 — MODERATE — ordinary final outputs now read as no verdict; the prompts were not told
+
+`shaped_results` (`422b5b5c`) takes a fleet verdict only when the `RESULT:` line is the last
+non-blank line of the text and its block, up to a `REPO:` line, holds no blank line. It takes a
+review verdict only when `RESULT:` sits directly above `ITEM:`.
+
+Probe (`rw_probe.py`, 26 final outputs through `harvest` on a clean JSON end):
+
+| Final output | old | new |
+|---|---|---|
+| fleet block inside a code fence | DONE | **UNKNOWN** |
+| fleet block, one blank line before `RESULT:` | DONE | **UNKNOWN** |
+| fleet block, blank lines between fields | DONE | **UNKNOWN** |
+| fleet block, a closing sentence after `RESULT:` | DONE | **UNKNOWN** |
+| fleet block, a multi-line field with a blank line | PARTIAL | **UNKNOWN** |
+| review shape, a blank line between `RESULT:` and `ITEM:` | DONE | **UNKNOWN** |
+| exact shapes, bold keys, CRLF, trailing spaces, a reason on the line | same | same |
+
+End to end in the synthetic world, a fenced fleet report and one with a blank line before its
+last line each ended `result=UNKNOWN` with `KEPT worktree … RESULT UNKNOWN is not clean`.
+
+The four fleet prompts introduce their block as "Final message (plain text, this shape, under N
+lines)". None says the block must hold no blank line, must not be fenced, or must end the
+message; several of its fields are "one line each" lists, where a blank line is the natural
+separator. The delta tightened the reader and left the prompts as they were, and its own test
+pins the blank-line case as intended. The cost falls in the safe direction: nothing is released.
+But a finished fleet job is kept and run again by the next `drive`, and on the paid path a review
+pass that drifts by one blank line reads `UNKNOWN`, keeps its claim and worktree for a resume, and
+counts as a bad end, three of which in a row stop a drain with budget unspent. How often a model
+drifts this way I could not measure (no launch; the estate's results are a non-goal). Criterion:
+lens 1 (class or instance), V3, and the brief's "misread".
+
+*Counsel:* either say the constraint in every prompt whose output is read (no blank line in the
+block, nothing after it, no fence), or loosen the reader where loosening is safe: ignore a closing
+fence, and allow blank lines between `RESULT:` and the shape line when no other `RESULT:` line
+stands. Count an out-of-shape `RESULT:` apart from a missing one in the drain's log, so three in
+a row are not read as a spent budget.
+
+### DP3 — MODERATE — a public session's settings folder holds what the fix withholds from it
+
+`<kit_dir>/settings/` holds every running session's two copies. A private repo's copy holds the
+imported file inlined. A public repo's own settings copy holds the deny rule, which spells the
+withheld file's absolute path. Every session is told `{SCRATCH}`, which is
+`<kit_dir>/scratch/<repo>/`, so the folder is two steps from a path it was handed; its session id
+is `{SESSION}`.
+
+Probe (synthetic world, a private-repo session held open by the stand-in while a public-repo
+session ran):
+
+```
+--- settings dir while the private session runs:
+-rw------- <sid>.22895-user-instructions.md
+-rw------- <sid>.22895.json
+--- files there naming the invented private name:
+<S>/world/kit/settings/<sid>.22895-user-instructions.md
+--- the public session's deny rules:
+Read(/<S>/world/cc/CLAUDE-extra.md)
+covers kit_dir/settings: False
+```
+
+The files are owner-only, and every session runs as the owner. Whether a public session can read
+them rests on its grant: the harness's documentation says a read outside the working directory
+needs approval, so a config that grants nothing refuses it. A review pass is not such a config:
+its reviewer writes `{REVIEW_LOG}` under `<kit_dir>/review-logs/` and reads the held copy in act
+2, so a drain's sessions hold a grant outside the worktree, and a drain runs public and private
+repos side by side. The delta lengthens the copies' life (they now outlive a signalled
+launcher until the next launch). *THREATS* says the public session "is not told where they are";
+its own settings file tells it. Criterion: claim 6, lens 4, V1. The live half (the harness
+enforcing or not enforcing a read of that folder) is NOT RUN.
+
+*Counsel:* add `Read` deny rules for `<kit_dir>/settings/` (and `sessions/`) to every session's
+settings, public and private, since no session needs to read either; and say in *THREATS* that
+the folder exists beside every session.
+
+### DP4 — MODERATE — auto memory is a second channel into a public session, unguarded, unnamed
+
+The harness's memory documentation (fetched 2026-11-25) says each project has a memory directory
+under the config directory, that "all worktrees and subdirectories within the same repo share one
+auto memory directory", and that the first 200 lines or 25 KB of its `MEMORY.md` are loaded into
+every session with auto memory on. It is switched by a setting (`autoMemoryEnabled`) or an
+environment variable, neither of which `--setting-sources project,local` touches.
+
+So a session `ccfleet` starts in a worktree of a public repo is handed that repo's memory index,
+written by the operator's own earlier sessions, which may name anything those sessions knew.
+`grep -n -i "auto memory\|MEMORY.md" instruments/ccfleet instruments/man/ccfleet.1` prints
+nothing: `ccfleet` neither switches it off for a public repo nor runs the private-name guard over
+it, and *THREATS*, which the changelog says "names what remains", does not name it. The brief
+records that sessions on this machine are handed such an index. This channel is older than the
+delta and is no wider than what an interactive session in the same repo gets; it is a finding
+here because the fix's claim is about what a public session is handed, and the guard's promise
+("a private name … reaches no public session by what ccfleet appends") reads wider than it is to
+anyone who does not know the second channel exists. Live half NOT RUN (no launch).
+
+*Counsel:* for a public or unknown repo, set auto memory off in the session's settings copy or
+its environment, or read the index with the private-name guard and refuse or warn as
+`instructions_guard` says; name it in *THREATS* either way.
+
+### DP5 — MODERATE — seven broken versions of the fixes pass the whole suite
+
+Claim 23 and the changelog say the tests pin the fixes "and the mutants that survived". I applied
+seven one-line mutations together to a scratch clone at my HEAD and ran the whole `ccfleet` suite
+on Python 3.9: `Ran 152 tests in 224.593s`, `OK`. Each also survived its own targeted run first.
+Of fifteen mutants run, the suite killed six (the stop-word reading, the withholding, the deny
+rule's presence, the kept copies after a signal, the worktree refusal on a fold, the pid in a
+copy's name), which is the delta's tests working.
+
+| | Mutation | What a regression there would do |
+|---|---|---|
+| M1 | the sweep ignores live session records | the next launch deletes a running session's settings copy |
+| M4 | `pass_started` ignores `START` lines | a fold of a cut-off drain pass is refused after the reset |
+| M8 | the deny rule is written for the path only, not its real path | a config folder reached through a link is denied by one name only |
+| M9 | `resume` no longer checks the worktree | a resume of another session id starts beside a live session |
+| M10 | a dry drain calls `unseal` too | a rehearsal ends the real run's seal |
+| M11 | a review briefed after the seal is offered on every route | an unplanned pass on a route other than local |
+| M13 | a fleet `RESULT:` line need not be the last line | a verdict is read from the middle of a block |
+
+M1 is the fix's central hold: the test that covers it launches nothing between the signal and the
+session's end, so the sweep never runs while a record is live (my probe did run one, and the
+copies stayed). Two further survivors are equivalent or unreachable and are not counted.
+Criterion: lens 3,
+V1, and the brief's "a guard that … stays green on a bad one".
+
+*Counsel:* one test per row; for M1, start an unrelated launch while the signalled session still
+runs and assert its copies remain.
+
+### DP6 — minor — a quoted, well-shaped pair outranks the session's own drifted verdict
+
+With the session's own verdict out of shape and a shaped pair quoted later in the same text, the
+reader takes the quote. Probe: a final output whose own lines are a `RESULT: FAILED` line, a
+blank line and its `ITEM: r:i` line, then a NOTES line and an indented quote of a `RESULT: DONE`
+line above an `ITEM: r:i` line, read FAILED on the old reader and **DONE** on the new. This is
+the one misreading I found in the unsafe direction: a `DONE` releases the claim and removes a
+clean worktree. It needs two things at once (the drift of `DP2`, and a line-initial quote the
+prompts forbid), so it is minor. A second
+shape: after a shaped `DONE`, a last line that begins `RESULT: BUDGET EXHAUSTED` (a quote in the
+notes, say) is read as a second shaped verdict and halts the drain (old reader: `DONE`).
+
+*Counsel:* let a clean word stand only when no other `RESULT:` line in the text names a word that
+is not clean.
+
+### DP7 — minor — two texts say `ccfleet` passes the route; only the example config does
+
+`skills/review/run.md:115` ("ccfleet calls the queue's `next` with `--route local`") and
+`CHANGELOG.md:55` ("ccfleet now calls it with `--route local`"). `grep -n -- "--route"
+instruments/ccfleet` finds the words in the docstring alone, which says, correctly, that "the
+example passes" it; the call is `queue_call(cfg, "next", {"LAUNCHED": …, "BY": …})`. An adopter
+who reads the changelog's action and changes nothing gets no route argument. The reference queue
+defaults to `local`, so the fixture is safe; an adopter's own queue is not bound to. `run.md` is
+what a drain session reads to learn what protects it. Criterion: V1, V5.
+
+*Counsel:* say "the config's `queue.next` passes the route (the example does)" in both places, and
+have `check` say when `queue.next` names no route.
+
+### DP8 — minor — the reference queue's `take` keeps neither the route nor the writer rule
+
+Probe (`q1.py`, the reference queue alone):
+
+- The sealing run writes a brief after it sealed: `next` offers it and `take` by that same run
+  exits 0. The rule that a session may not drain a brief it wrote is checked only when sealing.
+- A review briefed after the seal whose `fits` does not list `local` is offered on `local`.
+- A review sealed to another route that does not fit `local` spills to `local`.
+- `take` of a review sealed to another route, as a hand-run `ccfleet pass` would call it, exits 0,
+  though that budget lapses first and so "keeps its reviews".
+
+The docstring says a pass started by hand "meets the same gate as a drain's"; it meets the seal,
+not the route. The after-seal rule is stated openly in `run.md` ("a paid pass that no plan
+showed"); whether that is wanted is the principal's. Criterion: claim 8, lens 1, the brief's "an
+unplanned paid pass".
+
+*Counsel:* have `take` apply the checks `seal` and `next` apply (the route, `fits`, `briefed_by`).
+
+### DP9 — minor — ordinary commands the hook now refuses, and its advice is untrue for two heads
+
+New false denies, each a pass on the old hook (`mg_probe.py`): `screen -r claude`,
+`screen -x claude`, `screen -d -r claude`, `screen -dmS claude vim notes.txt`,
+`tmux new -ds claude`, `tmux new -As claude` (a session named for the tool);
+`msg=$(echo 'run claude -p later'); bash -c 'ls'` (text echoed inside any substitution is replayed
+when any later shell runs a `-c` string); `echo "$(echo claude --version)"; sh -c 'ls'` (dashed
+words are dropped from the echoed text, leaving a bare `claude`); and any command nested past
+depth four that holds the letters `claude` anywhere, such as five nested `$( )` around a path
+under the config directory or under the harness's own scratch root, whose name holds those
+letters on this machine. The refusal and `tools/README.md` say `claude` "straight after a short
+option" passes; after `screen` or `tmux` it does not. Each is rare. Criterion: the brief's "an
+ordinary command it now refuses", V1.
+
+*Counsel:* match the binary as a word, not a substring, past the depth limit; keep `-r`, `-x` and
+clustered `-…s` as name-taking for `screen` and `tmux`.
+
+### DP10 — minor — the long-flag table is still not the snapshot it says it is
+
+The comment reads "`claude --help`, v2.1.302: long flags no common tool shares". The installed CLI
+reports 2.1.302. Its help holds claude-only long flags the table lacks after the six were added:
+`--tools`, `--safe-mode`, `--restricted`, `--cloud`, `--permission-prompts` and others, and
+`--append-system-prompt-file` (named in the help as `--append-system-prompt[-file]`). Probe:
+`somewrapper -q claude --tools Bash x`, and the same with `--safe-mode`, `--restricted`, `--cloud`,
+`--permission-prompts` and `--append-system-prompt-file`, each pass;
+`somewrapper -q claude --settings s.json x` is denied. The fix added the six instances named; the
+class is "every flag in that help". Every flag in the table is in the help, and every flag
+`ccfleet` passes exists in the binary.
+
+*Counsel:* a test that reads a saved copy of the help and fails when a long flag is in neither the
+table nor a stated list of shared flags.
+
+### DP11 — minor — two older sentences still state what the delta replaced
+
+- `skills/review/run.md:182` (Mode 1, step 4): a pass's verdict is "the first line beginning"
+  with the result key "in its last turn". The reader now takes the line in the shape, and an
+  earlier first line gives nothing. Written by `2d8e05e3`, before the delta.
+- `instruments/man/ccfleet.1:191`: the settings file is `<kit_dir>/settings/<session>.json`. It
+  is `<session>.<pid>.json`; the manual's own *FILES* entry says the name carries the pid.
+
+Criterion: V3, V5.
+
+### DP12 — minor — the typed-words guard reached two skills, not the others that take them
+
+`run.md` (review) and `close.md` now say that where a model reached the skill, there are no typed
+words and nothing is taken from the call's own arguments. `grep -rn "skill call's own arguments"
+skills` finds those two only. `skills/work/run.md:68` ("The text the principal typed after the
+invocation is that prompt's *This run* section") and `skills/work/plan.md:29` carry no such
+guard, and `skills/work/run.md` is a delta file, edited for another point. A work run reached on
+a casual phrase would take a model-composed brief as his. Criterion: lens 1 (class, not
+instance), V3.
+
+On `close.md` itself: the sentence the delta wrote keeps to the principal's recorded answer
+("Obey, but say so"): skip, and name each step skipped and that the typed words asked. It is
+pinned by text and by the body's digest. I found no house rule on his typed words that it breaks.
+
+### DP13 — minor — the reset exemption refuses a pass that did start, and says it never started
+
+`pass_started` looks for a result file or a drain's `START` line. A pass run by hand
+(`ccfleet pass`, which the manual treats as a normal way in) whose launcher is then stopped has
+neither: its `START` went to the terminal and no result file is written without an `END`. Probe
+(`life1.sh`): such a pass, with its claim held and its session's log and record on disk, then a
+fold after the reset:
+
+```
+RESET reached; not starting privrepo-010: no pass on privrepo:010 started (no result file or
+START line for privrepo-010 under kit_dir), so this fold would be new work
+exit=3
+```
+
+A resume passes the reset and writes the result file, after which the same fold runs (shown in
+the same probe), so nothing is lost; the message is false and `run.md` says to take the fold
+before a resume. The check is also unbounded in time: a result file from any earlier pass on the
+same item satisfies it. Criterion: claim 5, V1.
+
+*Counsel:* count the session's own log (`<label>-<HHMM>-<stamp>.json`, written at launch) and its
+session record as evidence of a start.
+
+### DP14 — minor — the fold's run-twice check matches the heading's words anywhere in the brief
+
+`fold-prompt.md` step 0 now says to search the brief for the words of step 2's heading, without
+its date, and, "if it is there", to treat the sibling as already folded. A brief or a verdict
+that quotes those words, as any review of the review skills will, satisfies the search before any
+fold has run. The fold then appends no sibling, can still end `DONE`, and the drain session
+deletes the held copy on a `DONE`. This verdict avoids writing the phrase for that reason; it is
+at `skills/review/fold-prompt.md` line 9. Criterion: claim 20, lens 1.
+
+*Counsel:* match it as a heading line (at a line's start, after `#` marks), not as a phrase.
+
+### DP15 — minor — `models=` is written and nothing is told to read it
+
+The `END` line now carries `models=`. No step of `run.md` (step 4, Mode 2 or *Close*) tells the
+drain session to read it or to compare it with the review tier, and `ccfleet` does not. The
+docstring says the record shows the reviewer's model "beside the `REVIEW_MODEL` it was told";
+the `END` line and the result file hold no `REVIEW_MODEL`. The manual's rule ("a pass whose only
+model is the orchestrator's spawned no reviewer on another tier") has no reader either, and what
+else a real log lists in `modelUsage` (a small housekeeping model, say) is NOT RUN. The tier
+check that binds is still a prompt sentence and the reviewer's own statement. Criterion: claim 13.
+
+*Counsel:* have `run.md` step 4 read `models=` on each `END` line and flag a pass that names no
+model of the review tier.
+
+### DP16 — minor — the placeholder rule covers the spawn prompt only; `REVIEW.md` lacks it
+
+The orchestrator prompt now has a public repo's verdict quote the spawn prompt with absolute paths
+as placeholders. Step 6 still has the release message carry "the held copy's absolute path" and go
+into the provenance "verbatim", and the same bullet lists "any resume message"; the public-repo
+bullet says "no home path". The held directory is user-local, so the contradiction the fix
+removed for one message stands for the other two. `docs/method/REVIEW.md` rule 4, the canonical
+home, still says "verbatim or as an attached file" with no public-repo exception. Criterion: V3,
+V5, claim 17.
+
+### DP17 — note — two small overclaims about a drain's end
+
+The manual says `unseal` is called when a real drain ends "however it ends". It sits in a
+`finally`, so a driver ended by SIGTERM or SIGKILL does not call it (the seal then simply holds
+until it lapses, which is harmless). And a dry drain reads every failure of the queue's `next` as
+"not sealed" and exits 0, so a broken queue rehearses as merely unsealed; the refusal text is
+printed beside it.
+
+### DP18 — note — five import-line shapes are neither withheld nor denied
+
+`withhold_imports` takes a bare line and a `-`, `*` or `+` bullet. A numbered item
+(`1. @file`), a block quote, a heading, a task-list item and an import followed by any other text
+on its line stay as text that names the path, with no deny rule (probe: 13 line shapes). *THREATS*
+names only "an import inside a sentence"; `check` lists none of them, and in the world it said
+"Imports found: 1" beside a file that held two.
+
+### DP19 — note — the pointer check keys on one phrase, and any two hashes silence it
+
+`delta_by_citation` fires on "commit(s) citing" only ("commits that cite", "commits naming" pass),
+and is silenced by two hex strings anywhere in the pointer, bound or not. Advisory by design; it
+fired on three real pointers in the tree, so it works where the phrase is used.
+
+### DP20 — note — the `.out` files the cost history and the reset check read carry no date
+
+The docstring says "Log names carry the date and second, so no later launch reopens one". That is
+true of the `.json` logs. A drain's `pass-<repo>-<item>-<HHMMSS>.out` carries the time of day
+only and is opened for writing; a pass of the same item at the same second of another day would
+reopen it. The odds are about one in 86,400 per repeat.
+
+### Older lines, recorded and not hunted
+
+- A second session's `seal` silently replaces a live run's seal in the reference queue; the first
+  run's next `next` then fails and its drain ends as a queue error.
+- `kit_dir` folders are 0755 and logs, results and review logs 0644.
+
+## Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR · 5 MODERATE (`DP1`–`DP5`) · 11 minor (`DP6`–`DP16`) ·
+4 notes (`DP17`–`DP20`).**
+
+- **Does anything found lose, misread or mis-cost paid review work?** Nothing loses a pass or
+  mis-costs one. Two things can misread one: a drifted final output reads `UNKNOWN` (`DP2`, safe,
+  but it keeps a finished pass's claim and counts toward the stop), and a drifted verdict beside a
+  quoted pair reads as the quote (`DP6`, unsafe, and it needs two unlikely things at once).
+- **Are `/atelier:review plan` and `/atelier:review run`, with `ccfleet` as the fixes leave it,
+  safe to run the principal's paid weekly drain from?** Yes: no MAJOR. Before the first pass,
+  make the changelog's adopter actions in the private config and queue (the review tier's alias,
+  `FINISH_WORDS` per call, the route on `queue.next`, since `ccfleet` does not add it), and read
+  the first pass's `END` line for `result=UNKNOWN` before trusting the pace.
+- **Can anything in the delta put private context into a public repo's session?** The delta adds
+  no new channel and closes one. Two older channels stay open beside it and unnamed: the settings
+  folder a session can reach from the scratch path it is handed (`DP3`), and the harness's auto
+  memory (`DP4`); and five import-line shapes still name the path (`DP18`).
+
+## Re-run ledger
+
+All from `<WT>` at `9e6712b4`, 2026-11-25 UTC, between 20:33Z and 21:28Z. Heavy steps ran under
+`nice -n 15`, one at a time; the load average fell from about 19 to about 3 over the pass.
+
+| Line | Result |
+|---|---|
+| `git merge-base --is-ancestor 77fc8f42 HEAD` | exit 0 |
+| `mandoc -T lint -W style instruments/man/ccfleet.1` | exit 0, no output |
+| `python3 instruments/ccfleet --help` | exit 0 |
+| `python3 instruments/fixtures/review_queue_reference.py --help` | exit 0 |
+| `python3 tools/modelguard.py </dev/null` | exit 0, no output |
+| `python3 tools/pointerscan.py --selftest` | exit 0, `ok (0 failure(s))` |
+| `python3 tools/pointerscan.py --root . .` | exit 0; 22 advisory findings (6 grammar, 16 queue state), 3 of them the new citation warning |
+| `python3 tools/coldsweep.py --selftest` | exit 0, `selftest OK` |
+| `test_ccfleet`, Python 3.14.6 (from `instruments/`) | exit 0, `Ran 152 tests in 566.548s`, `OK` (moved to the background by the harness) |
+| `test_ccfleet`, `/usr/bin/python3` 3.9.6 | exit 0, `Ran 152 tests in 269.864s`, `OK` (moved to the background) |
+| `test_modelguard`, 3.14 and 3.9 (from `tools/`) | exit 0 and 0, 13 tests each |
+| `test_pointerscan`, 3.14 and 3.9 | exit 0 and 0, 61 tests each |
+| `test_subject_skills`, 3.14 and 3.9 | exit 0 and 0, 37 tests each |
+| `test_session_close_single_source`, 3.14 and 3.9 | exit 0 and 0, 17 tests each |
+| the whole `tools` suite, once (`unittest discover -q`, 15-minute load 7.1 on 12 cores) | exit 0, `Ran 3539 tests in 995.962s`, `OK` (moved to the background) |
+| `gh run list … --commit 77fc8f42…` | `floor`: cancelled |
+| `gh run list … --commit a033f023…` | `floor`: success |
+| `git merge-base --is-ancestor 77fc8f42 a033f023` | exit 0 |
+| the brief's `coldsweep` sweep, as written | exit 0, 22 hits over 778 files, all in delta files |
+| world: `check` | exit 0 |
+| world: `plan` | exit 0, one evidence row, `local: no measurement` |
+| world: `--by run-A drain --dry-run`, unsealed | exit 0, `DRY not sealed: no launches rehearsed` |
+| world: `seal --by run-A` | exit 0 |
+| world: `--by run-A drain --dry-run`, sealed | exit 0, `DRY rehearsed launch:` naming `privrepo 010` and its dummy brief |
+| world: `--by run-B drain --dry-run` | exit 0, not sealed: "the sealed ranking is run run-A's, not run-B's" |
+| world: `seal --by unknown` | exit 1, refused |
+| world: `run <public> --dry-run` | exit 0, `END … result=DRY` |
+| world: `run <public>` | exit 0, `result=DONE … models=model-orch,model-review` |
+| world: `run <private>` | exit 0, `result=DONE` |
+
+The world's `kit_dir` afterwards held `driver.log`, `logs/` with a `.json`, `.err` and `.end` per
+session and one dry `pass-*.out`, `results/<date>/`, an empty `settings/` and no `sessions/`
+record. Further probes built on it, each a file in my scratch directory with its output:
+`life1.sh` (SIGTERM to a hand-run pass; fold, resume, sweep, reset), `life2.sh` (a two-pass drain
+with a signal), `life3.sh` (SIGHUP, SIGKILL, a killed session), `q1.py` (the reference queue),
+`rw_probe.py` (the reader, old beside new), `mg_probe.py`, `mg_probe2.py`, `mg_probe3.py` (the
+hook, old beside new, both interpreters), `mutate.py` with `mutrun.sh` (mutants on a scratch
+clone), and a 13-line probe of `withhold_imports`.
+
+## Live-behaviour ledger
+
+No launch of the real CLI reached a model, as the brief decides. Read-only checks made instead:
+
+| Claim resting on real behaviour | What I did | Live half |
+|---|---|---|
+| every flag `ccfleet` passes exists in 2.1.302 | `claude --version` (2.1.302); `claude --help` to a scratch file; `strings` on the binary for `--append-system-prompt-file` (12 hits; the help names it as `--append-system-prompt[-file]`) | read, not run |
+| the six long flags the hook added exist; none is missing | each of the six is in the help; the table still lacks others (`DP10`) | read |
+| the harness follows no `@` import in an appended file | not established: I did not find a decisive string in the binary and stopped; the tests rest on the stand-in | **NOT RUN**: a synthetic config directory has no sign-in, and a real one would load the operator's private file and spend budget beyond this pass's approval |
+| a `Read(//path)` deny rule, by path or real path | the permissions page: `//path` is an absolute path from the root; a deny rule applies "when either the requested path or the file it resolves to matches"; it is applied, best effort, to Grep and Glob and to file commands the harness recognises in Bash | **NOT RUN**, same grounds |
+| a read outside the working directory needs approval | the same page's table (read-only tools: no approval "within the working directory and additional directories") | **NOT RUN**, same grounds |
+| auto memory reaches a worktree's session | the memory page, quoted in `DP4` | **NOT RUN**, same grounds |
+| `modelUsage` names a subagent's model | the stand-in only | **NOT RUN**, same grounds |
+| a session outlives a signalled launcher | the stand-in (a child in its own process session), under SIGTERM, SIGHUP and SIGKILL | **NOT RUN** for the real CLI, same grounds |
+| the CLI's arguments stay visible to `ps` | one read-only `ps` of running sessions on this machine: they are | read |
+
+## Method record
+
+What I examined, in order, and why:
+
+1. The spawn prompt, the brief whole, `REVIEW.md` whole. Tree check and the later-commit check.
+2. My own assumptions A1–A11, written to my notes before any delta line.
+3. `instruments/ccfleet` whole at HEAD, then the reference queue and the example config, noting
+   candidate defects to probe; then each commit body-free in the order the brief lists them.
+4. The floor: the light re-run lines, then the two `ccfleet` suites, then the four `tools` suites.
+5. The hook: 80 commands through its entry on both interpreters, the same set through the old
+   hook, then a tmux and screen set and a long-flag set.
+6. The synthetic world, built by `mkworld.py` (two throwaway repos, a scratch config directory
+   whose instruction file imports a second file naming one invented private name, a stand-in CLI
+   that records what it is handed and never runs a model, the reference queue from my worktree);
+   the brief's ten commands; then the lifecycle, queue, reader and withholding probes.
+7. Mutants on a scratch clone: fifteen run in targeted test classes (six killed, nine survived),
+   two of the nine set aside as equivalent or unreachable, the other seven run together through
+   the whole suite.
+8. The harness's two documentation pages, the CLI's help, the manual's *THREATS* rendered.
+9. Sweeps for mirror sites with `grep` over `skills`, the manual and the changelog, and the
+   brief's `coldsweep` line.
+
+What I left out, and why: the whole of `tools/modelguard.py` between lines 300 and 372 and past
+480 was read only where the delta touched it (the older parser is not the delta); the binary was
+not searched further for import handling (stopped as inconclusive); `/security-review` was
+discharged by grounds; the estate's own config, queue and results are non-goals; the three later
+commits' own content belongs to their passes. Non-findings checked and not raised: the sweep
+cannot leave its folder or delete a live launch's copies; a pid reused by another process keeps a
+copy and deletes none; a resumed session's record replaces its pass's; the cost history reads old
+and new log names; a model name cannot forge an `END` field; the dry drain touches no real
+launched list and calls no `ranked` or `unseal`; `release` works after `unseal`, so a pass still
+running when its drain ends can release; `close.md` keeps to the principal's recorded answer.
+
+## Follow-up checklist
+
+- [ ] `DP1`: stop `tmux_hit` reading options past the command; seven rows to the deny table.
+- [ ] `DP2`: state the shape in each prompt whose output is read, or loosen the reader where safe;
+      count an out-of-shape verdict apart in the drain's log.
+- [ ] `DP3`: deny reads of `<kit_dir>/settings/` and `sessions/` in every session; name the folder
+      in *THREATS*.
+- [ ] `DP4`: auto memory off, or guarded, for a public or unknown repo; name it in *THREATS*.
+- [ ] `DP5`: a test for each of M1, M4, M8, M9, M10, M11, M13.
+- [ ] `DP6`: a clean word stands only when no other `RESULT:` line names an unclean one.
+- [ ] `DP7`: correct `run.md:115` and the changelog; `check` names a `queue.next` with no route.
+- [ ] `DP8`: the reference queue's `take` applies the route, `fits` and brief-writer checks.
+- [ ] `DP9`, `DP10`: word match past the depth limit; name-taking options for `screen` and
+      `tmux`; a help-derived test for the long-flag table.
+- [ ] `DP11`: `run.md:182` and the manual's line 191.
+- [ ] `DP12`: the typed-words guard in `skills/work/run.md` and `plan.md`, and any other skill
+      that takes typed words.
+- [ ] `DP13`: count the session's own log or record as a start; correct the message.
+- [ ] `DP14`: match the fold's heading as a heading line.
+- [ ] `DP15`: a step in `run.md` that reads `models=`.
+- [ ] `DP16`: the release and resume messages in a public repo; `REVIEW.md` rule 4.
+- [ ] `DP17`–`DP20`: wording, at the principal's pleasure.
+- [ ] Before the weekly drain (2026-11-29 23:00 UTC): the adopter actions in the private config
+      and queue, which this pass could not see.
+- [ ] Act 2: the fix ledger for `DV1`–`DV11` and `PK1`–`PK21`, after this text is committed.
