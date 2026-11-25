@@ -65,3 +65,19 @@
       authored none of the delta, the brief or `e917a98b`. Scope: widen the RK
       brief to take in `e917a98b` once it lands, repin, add matching
       held-back questions; no pass run.
+      **Brief widened 2026-11-25 UTC (queue run 9a08702f), on the principal's
+      route recorded on `450/030`:** the RK brief now also covers
+      `/atelier:session close` as Part C (`3620c908`, landed from `e917a98b`
+      unchanged): `skills/session/close.md`, the session router's row,
+      description, `argument-hint` and `allowed-tools`, and
+      `tools/test_session_close_single_source.py`, with seven claims, the
+      close in the lenses, two re-run lines and three headless probes. Repinned
+      at `5696f91a`; its since-line, now also over the two single-source tests,
+      was empty there. `450/030` joins the barred list and the coldsweep
+      excludes, and the scope line names `160/1740` and `450/030` too. The
+      held-back sibling gained 7 facts and 12 questions (now 19 and 34), user-local
+      as before. Widener: 9a08702f, which authored, started and instructed no
+      part of the delta or the original brief; it formed no finding and does not
+      start the pass. Barred list gains `33d3cde8` and `9a08702f`. The pass stays
+      `⏳` for a fresh Fable session.
+      🔓 2026-11-25 UTC: queue run 9a08702f releases its brief-widening claim.

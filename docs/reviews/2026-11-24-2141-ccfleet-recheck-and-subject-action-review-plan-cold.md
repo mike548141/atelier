@@ -1,11 +1,17 @@
-# Cold pass — the `ccfleet` re-check (`160/1450`) and subject, space, action with `review plan`, `ccfleet plan` and `work plan` (`160/1790`)
+# Cold pass — the `ccfleet` re-check (`160/1450`) and subject, space, action with `review plan`, `ccfleet plan` and `work plan` (`160/1790`), with `/atelier:session close` (`450/030`)
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1450-rule-4-cold-pass-queued-ccfleet-fleet-sweep-review-drain-modelguard.md`
 (the re-check of its FAIL) and
 `docs/roadmap/160-doctrine-review-owed/1790-rule-4-cold-pass-queued-subject-action-review-plan-ccfleet-plan.md`:
-one pass, one verdict, both items, as the principal chose.
+one pass, one verdict, both items, as the principal chose. The same verdict also closes
+`docs/roadmap/160-doctrine-review-owed/1740-rule-4-cold-pass-queued-ccfleet-whole-grant-and-unlanded.md`
+(his pick, recorded there) and is the review of
+`docs/roadmap/450-one-home-and-one-command-prefix-mike-commissioned/030-a-close-command-so-the-close-text-is-not-pasted.md`
+(Part C below).
 **Status:** BRIEF ONLY, not run. Written 2026-11-24 UTC by a brief-writer worker of queue run
-`0b4f93ef` (Opus 5.5), pinned at `26a4fe7e` (`origin/main` when written).
+`0b4f93ef` (Opus 5.5), pinned at `26a4fe7e` (`origin/main` when written). **Widened** 2026-11-25 UTC
+by queue run `9a08702f` (`atelier-56`, Opus 5.5, principal-opened) to take in `/atelier:session
+close` (Part C), and **repinned at `5696f91a`** (`origin/main` when widened).
 **Approval:** one Fable pass, on the laptop's weekly budget, by a fresh session. The principal's
 pick, 2026-11-24 ~21:30 UTC, recorded on `160/1790` (an answer, not a ruling), verbatim:
 *"Fresh session, this week (Recommended)"*; the option text he picked: *"Confirms the one approved
@@ -14,7 +20,11 @@ the brief lands, on this week's budget. Benefit: if it's clean, /fable-drain can
 Monday 30 Nov's drain. Cost: one Fable review from this week's budget (roughly a large pass)."*
 It stands on two earlier picks recorded on `210/470`: *"Approve one pass (Recommended)"*
 (2026-11-23, the re-check) and *"Wait, review the new build (Recommended)"* (2026-11-24, one pass
-over the fixes and the new commands together). Run only once the delta has stopped moving:
+over the fixes and the new commands together). The widening is his route: asked whether to land
+the close command now or after the pass started, he asked instead, verbatim, *"Is the review
+underway or can we expand its brief to cover this as well?"* (2026-11-24 ~23:05 UTC, recorded on
+`450/030`); it had not started, so the brief takes the command in and the one pass covers it. Run
+only once the delta has stopped moving:
 re-check the since-line under *What the work is* before you start, and stop if it is not empty.
 
 **Pass type:** a re-check and a cold pass in one, per `docs/method/REVIEW.md` rule 4: code,
@@ -23,11 +33,12 @@ calls are doctrine by function (rule 3); the instrument that runs them is review
 one commitment.
 **Tier:** Fable, the principal-named review tier, checked at selection by whoever takes the pass.
 A session that cannot run on it stops (rule 4).
-**Size of this pass:** very large. Thirteen commits in scope, three more read for context. At
+**Size of this pass:** very large. Fourteen commits in scope, three more read for context. At
 `26a4fe7e`: `instruments/ccfleet` 2,186 lines of standard-library Python, its tests 1,557 lines
 (103 tests, about four minutes each run), a 1,582-line manual page, `tools/modelguard.py` 510
 lines with a 191-line test, about 2,000 lines of skill text over six subjects, the menu script
-(184 lines) and two guard tests, and the live-reference sweep across the doctrine. Budget the
+(184 lines) and two guard tests, and the live-reference sweep across the doctrine; Part C adds a
+76-line action, its router row and a 158-line guard test. Budget the
 time; never thin the pass to fit it (`REVIEW.md`, *Budget decides how many reviews run and when,
 never how a review is run*).
 
@@ -43,7 +54,9 @@ worktree of every repo an estate lists, with the user's credentials, and decides
 output whether a paid review's claim is released and its worktree removed. `review plan` is now
 the one place that decides which paid reviews run, in what order and on which budget; `review run`
 seals that and drains it; `review brief` and `fleet sweep` take their work from it. Every
-`/atelier:` command every plugin user types was renamed, with no forwarder. `modelguard` sits in
+`/atelier:` command every plugin user types was renamed, with no forwarder. `/atelier:session
+close` runs the principal's own close text in any session, in any repo or none, from one word.
+`modelguard` sits in
 front of every `Agent` and `Bash` call where it is wired. The worst failures:
 
 - **Paid review work lost, silently redone, or misread.** A pass cut off by a usage cap, a crash,
@@ -64,6 +77,9 @@ front of every `Agent` and `Bash` call where it is wired. The worst failures:
   every session that runs it.
 - **A skill that stamps a wrong rule** into every adopter's sessions: the widest blast radius in
   the operating model (rule 4).
+- **A close that is not the principal's close.** A command that runs a stale, uncommitted or
+  partial copy of his text, drifts from it, or reads as a proper close when it ran something
+  else, in sessions he then shuts on its word.
 
 ## Spawn provenance
 
@@ -83,6 +99,10 @@ front of every `Agent` and `Bash` call where it is wired. The worst failures:
     sweep: session `523be3be` (`atelier-e8`) and its workers (`0c67dc0f`, `bfa38582`,
     `10b32435`, `f354e542`, `6a98df21`).
   - The `/atelier` menu the subject menus build on: session `f50448ca`.
+  - `/atelier:session close` (Part C): queue run `0b4f93ef` (`atelier-86`) and its Sonnet worker
+    (`e917a98b`); the item's build spec and his pick were recorded by session `33d3cde8`. Session
+    `9a08702f` rebased the commit onto `main` with no content change (it became `3620c908`) and
+    pushed it; it authored no line of it.
 - **Who wrote earlier briefs and ran the first pass:** queue run `08cd3b95` and its workers wrote
   the first brief; session `5106cf48` orchestrated the first pass, and its Fable reviewer formed
   the first verdict.
@@ -91,15 +111,24 @@ front of every `Agent` and `Bash` call where it is wired. The worst failures:
   instructed any part of the delta. **Off-tier for review, disclosed: the brief-writer forms no
   finding and writes no severity**, and stops after writing. It ran no review and used no Fable
   model. Queue run `0b4f93ef` will not start the pass.
+- **Who widened this brief:** queue run `9a08702f` (`atelier-56`, Opus 5.5, principal-opened,
+  started 2026-11-24 UTC, widened 2026-11-25 UTC), inline, no worker. It authored, started and instructed no part of the delta or
+  of the original brief; it rebased and pushed Part C's commit unchanged and ran the full suite on
+  it. **Off-tier for review, disclosed: it forms no finding and writes no severity**, ran no
+  review, used no Fable model, and will not start the pass.
 - **Barred from running or orchestrating this pass:** `0b4f93ef` and every worker it started
   (whoever writes a brief does not run it); `559edaec`, `58027096`, `78ca9153`, `84b7932e`,
   `64f984ac`, `19378351`, `08cd3b95`, `5106cf48`, `c7a1e36e`, `608d8123`, `b95c0d98`,
-  `edf25bd3`, `523be3be`, `f50448ca`, and everything each of them started or instructed.
+  `edf25bd3`, `523be3be`, `f50448ca`, `33d3cde8`, `9a08702f`, and everything each of them started
+  or instructed.
 - **Contact, disclosed (rule 4).** The brief-writer's only instruction came from its orchestrator
   `0b4f93ef`: the two items, the approval, the delta commits named on `160/1790`, the old-to-new
   skill paths, the principal's purpose (the drain switch, so judge whether `review plan` and
   `review run` are safe to run a paid drain from), the barred sessions, the house form, and to
-  pick a new finding prefix. No author session contacted the brief-writer.
+  pick a new finding prefix. No author session contacted the brief-writer. The widening's only
+  instruction was the principal's own run brief to `9a08702f`: land `e917a98b`, widen this brief to
+  take in the close action, its router row and its test, repin it, add matching held-back
+  questions, record it on `160/1790`, and not run the pass. No author session contacted it.
 - **Who reviews:** a fresh Fable session started for this pass alone, by a session that passes rule
   4's criterion. An orchestrator may hold the context partition and commit the records off-tier,
   only if it forms no finding, writes no severity, and is disclosed in the claim, the pointer and
@@ -118,6 +147,13 @@ front of every `Agent` and `Bash` call where it is wired. The worst failures:
   message body. Its harness also loaded user-level and repo instruction files and a memory index,
   which hold private context this brief does not carry. Everything evaluative it formed is in the
   held-back sibling.
+- ⚠️ **Widener's exposure, disclosed:** its launch prompt; items `450/030` and `160/1790` whole
+  (**author's accounts**), the newest session record (`0b4f93ef`'s, **author's account**), this
+  brief and its held-back sibling whole; Part C's commit with its message body (read before
+  widening, to land it), `skills/session/close.md`, the router diff, the test's head and test
+  names, the `README.md` and `CHANGELOG.md` hunks; the full suite's results on the landed commit;
+  the re-run lines below. Its harness loaded the same user-level and repo instruction files and a
+  memory index. Everything evaluative it formed is in the held-back sibling.
 
 ## The acceptance test
 
@@ -135,6 +171,12 @@ changelog) and against the doctrine it must keep:
   important than cost. If we run out of budget then we will resume the work when the budget
   replenishes"*. A drain that cannot resume what a spent budget cut off fails that sentence. The
   old names: his pick *"Nothing"* (no forwarder, no signpost), as the delta's own test records.
+  The close command: his rule against drift, as `skills/session/close.md` quotes it verbatim
+  (*"You need to ensure the there is no drift between the command and the text file unless I
+  authorise the drift"*), and his reason for asking, 2026-11-24, verbatim: *"I regularly copy and
+  paste the ending session text into sessions when I want them to wrap it up properly. Often these
+  are sessions that I did not start with a /atelier:work run command"*. Judge the action against
+  the section it claims to run, word for word.
 - **The rules the drain enforces on others.** `REVIEW.md` rule 1 (the deferred split and the
   context partition), rule 2 (barred reading), rule 4 (spawn criterion, tier at selection, the
   off-tier orchestrator's two conditions), *The lifecycle* (method record); `CONCURRENCY.md`
@@ -181,6 +223,11 @@ and its prompts):
 - **`f354e542`** — `skills: a subject's first word must match an action exactly` (2026-11-24)
 - **`6a98df21`** — `skills: routers name the harness placeholders in words` (2026-11-24)
 
+**Part C, the close command (`450/030`, reviewed under `160/1790`):**
+
+- **`3620c908`** — `skills: /atelier:session close runs the prompt's close (450/030)` (2026-11-24;
+  the same change as `e917a98b`, rebased onto `main` unchanged)
+
 **Read for context only** (on the paths, with their own queued passes): `dae1786d` and
 `ee6f384f` (the `queue-run` to `work-run` rename and its retired alias, `160/1780`), and
 `7a8a2305` (the plugin manifest's skill lists, `160/1770`). They are in scope only as far as the
@@ -188,8 +235,8 @@ code and skills at HEAD carry them; their own subjects (the session-open prompt'
 the parked mark, decision-record statuses) are those passes'.
 
 `160/1740` is the queued pass for `9ba5c6b6` and `b95db160`. Those commits change the code the
-drain runs, so this pass reviews them as part of `ccfleet` at HEAD; whether this verdict also
-closes `160/1740` is not this brief's call (it says so as an open question to the principal).
+drain runs, so this pass reviews them as part of `ccfleet` at HEAD; the principal has since
+picked that this verdict also closes `160/1740` (recorded there).
 
 Every other commit on these paths since `f767033a` touches only another tool's row in
 `tools/README.md` or `instruments/README.md` (`ccclose`, `ccopen`, `idhook`, `leakscan`,
@@ -205,6 +252,12 @@ Delta paths, read at HEAD and commit by commit:
 - `instruments/atelier-menu/` and `instruments/test_atelier_menu.py`
 - `tools/modelguard.py`, `tools/test_modelguard.py`, `tools/test_subject_skills.py`,
   `tools/README.md` (§ *`modelguard.py`* and the lines `10b32435` changed)
+- Part C: `skills/session/close.md`, the `close` row, description, `argument-hint` and
+  `allowed-tools` in `skills/session/SKILL.md`, `tools/test_session_close_single_source.py` (and
+  the helpers it imports from `tools/test_work_run_single_source.py`), the `close` lines in
+  `README.md`, and the *Ending the session* section of
+  `docs/method/session-open/session-open-prompt.md` as the text the action runs (judged for
+  whether the action runs it faithfully, not for its wording)
 - `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`
 - the live-reference sweep in `10b32435` and `bfa38582`: every line it changed in `CLAUDE.md`,
   `README.md`, `.githooks/pre-commit`, `tools/pre-commit.sample`, `docs/method/`, `docs/build/`,
@@ -212,19 +265,21 @@ Delta paths, read at HEAD and commit by commit:
   `quotescan`, `stampscan`, `test_deadhook`, `test_precommit`, `test_templates`,
   `test_work_run_single_source`); judged for whether each reference now names what exists, not
   for the doctrine around it
-- `CHANGELOG.md`: the entries that name any of the above since 2026-11-22
+- `CHANGELOG.md`: the entries that name any of the above since 2026-11-22, the `450/030` entry
+  included
 
 First confirm the tree holds the whole delta, then read each commit body-free:
 
 ```
-git merge-base --is-ancestor 6a98df21 HEAD; echo "exit=$?"
+git merge-base --is-ancestor 3620c908 HEAD; echo "exit=$?"
 python3 tools/coldsweep.py --root . --commit 36e9ef0e --path instruments --path skills \
   --path tools --path .claude-plugin --path CHANGELOG.md
 ```
 
-Repeat the `--commit` line for each of the other twelve commits in Parts A and B, and the three
-read for context. For `10b32435` and `bfa38582` add `--path docs/method --path docs/build
---path docs/decisions --path CLAUDE.md --path README.md --path .githooks`. Plain `git show` is
+Repeat the `--commit` line for each of the other thirteen commits in Parts A, B and C, and the
+three read for context. For `10b32435` and `bfa38582` add `--path docs/method --path docs/build
+--path docs/decisions --path CLAUDE.md --path README.md --path .githooks`; for `3620c908` add
+`--path README.md`. Plain `git show` is
 barred: it prints the message body before the diff, and reading is atomic (rule 1). Several of
 these commits also touch board items and session records; those are barred until phase 2, so
 always pass `--path`.
@@ -232,17 +287,19 @@ always pass `--path`.
 Then check what has landed on the delta paths since this brief was pinned:
 
 ```
-git log --oneline 26a4fe7e..HEAD -- instruments/ccfleet instruments/ccfleet.example.json \
+git log --oneline 5696f91a..HEAD -- instruments/ccfleet instruments/ccfleet.example.json \
   instruments/test_ccfleet.py instruments/man/ccfleet.1 instruments/README.md \
   instruments/atelier-menu instruments/test_atelier_menu.py skills tools/modelguard.py \
   tools/test_modelguard.py tools/test_subject_skills.py tools/README.md .claude-plugin \
+  tools/test_session_close_single_source.py tools/test_work_run_single_source.py \
   docs/method/session-open/session-open-prompt.md
 ```
 
-It was empty at `26a4fe7e`. A commit that only touches another tool's row in one of the two
-READMEs does not count (read its diff body-free to tell). Any other commit means the delta moved:
-stop and hand back for the brief to be updated. Otherwise review the work as it stands at your
-HEAD, and pin that SHA in your verdict's scope.
+It was empty at `5696f91a`, the head this brief was repinned at (first pinned at `26a4fe7e`).
+A commit that only touches another tool's row in one of the two READMEs does not count (read
+its diff body-free to tell). Any other commit means the delta moved: stop and hand back for the
+brief to be updated. Otherwise review the work as it stands at your HEAD, and pin that SHA in
+your verdict's scope.
 
 **Machine-local surfaces no other review will catch** (read-only; report them in public-safe
 terms, never a home path or a private name):
@@ -262,6 +319,10 @@ terms, never a home path or a private name):
   content from it.
 - Free disk sat below the gate's default floor (20 GB) when this brief was written, so `gate` may
   answer "hold" on this machine for reasons unrelated to the code.
+- The in-place install also means `/atelier:session close` reads the prompt from the primary
+  checkout's `HEAD` and checks that checkout's working tree for a pending edit, whichever repo
+  the session runs in. The section names `ccclose`, which here is a link on `PATH`; the router's
+  `allowed-tools` names it by bare name.
 
 ## The claims the delta makes
 
@@ -366,6 +427,27 @@ scope. Name your own load-bearing assumptions first (lens 1); these are a floor,
 30. `menu.py` lists every subject and action; `menu.py SUBJECT` prints one subject's menu; its
     selftest proves a fixture plugin and stays quiet on junk.
 
+**`/atelier:session close` (`3620c908`, Part C)**
+
+31. The action "holds no rule of its own": it reads the prompt's *Ending the session* section,
+    from its heading "to the next heading that starts with `## `, or to the end of the file", and
+    follows it "as his own brief, word for word", doing "nothing the rest of the prompt says".
+32. It reads the committed copy, never the working file (`git show HEAD:` when the plugin root is
+    a checkout), warns in its first lines when an edit to the prompt is pending, and says which
+    of the two reads applied when the plugin is not a checkout.
+33. "If the heading is not there, stop": it says so in its first line and closes nothing from
+    memory, another section or any other text.
+34. Words typed after `close` are "this session's extra close brief", carried out alongside the
+    section; where they add to or narrow a step, it says so.
+35. It "works in any repo, because the plugin is installed for the user and the prompt is read
+    from the plugin", and in a session with no repo `ccclose` runs without `--root` and "reports
+    on that directory and the session's own transcript".
+36. `tools/test_session_close_single_source.py` (14 tests) "fails if the action stops pointing at
+    the file and the section heading, starts copying the section's lines, or grows an instruction
+    the delivery job does not need"; by its own docstring it "cannot catch a paraphrase".
+37. The router lists `close`, its description carries the close's trigger words, its
+    `argument-hint` reads `onramp | close`, and the prompt itself is unchanged by the commit.
+
 ## Scope
 
 The widest the work admits: intent, decisions, assumptions, design, docs, code, test code and live
@@ -386,6 +468,9 @@ and a non-goal that fences off the risk is a finding.
   tools whose README rows changed. They have their own passes.
 - Private children's own sweeps of their live references; they are their sessions' work. The
   claim that children's copies refresh at their next pin bump is in scope, judged by class.
+- The wording of the session-open prompt, the *Ending the session* section included: it is the
+  principal's own text. Whether `close` runs that section faithfully, completely and only it is
+  in scope; so is `ccclose`'s behaviour only as far as claim 35 relies on it.
 
 ## The four lenses
 
@@ -397,7 +482,9 @@ and a non-goal that fences off the risk is a finding.
    for the spend the principal asked to see? Is "no forwarder" for the old names sound for every
    plugin user and for children whose hooks and stamped onramps still name them until a pin bump?
    And the re-check's own question: is the first pass's counsel, as applied, the right fix, or
-   did a fix move the risk somewhere the counsel did not look?
+   did a fix move the risk somewhere the counsel did not look? For the close: is "read the
+   committed copy at the plugin root's `HEAD`" the principal's current close in every install
+   shape, and is a test that pins pointers and forbids copied lines enough to hold "no drift"?
 2. **Correctness & quality.** Re-drive the claims above against the code and the skills, by probe,
    not by reading. Trace what survives, and where, when a pass is interrupted at each point of its
    life: before the claim, after the claim and before `START`, mid-session (a usage cap; a
@@ -408,8 +495,10 @@ and a non-goal that fences off the risk is a finding.
    `review plan`, the seal, `ccfleet drain` and the close, as an adopter with only this repo
    would, and say where it can start a paid pass without a plan or a seal. Drive each router with
    a bare subject, every action, a near-miss word and a word later in the sentence, in a headless
-   session on the cheapest model if you can spend on it (below). Record each overclaim against
-   the text that makes it, including any claim no test pins.
+   session on the cheapest model if you can spend on it (below). Drive the close the same way:
+   the section finder against a prompt whose heading is gone, moved, duplicated or followed by a
+   fenced `## ` line; a pending edit; a plugin root that is not a checkout; a session with no
+   repo. Record each overclaim against the text that makes it, including any claim no test pins.
 3. **Completeness / harvest.** Every surface that states the queue contract, the plan's
    interface, the exit codes, the template variables, the stop conditions, the command names or
    the drain's rules agrees (docstring, `--help`, manual, READMEs, skills, routers, prompts, menu,
@@ -435,7 +524,10 @@ Run the standing checklist V1–V7 unasked (`REVIEW.md` § *The standing checkli
 ## Re-run obligation
 
 Re-run, do not read. The brief-writer ran each line below once, on 2026-11-24 UTC, at
-`26a4fe7e`, from the places named; its results are held in the sibling. Read exit codes
+`26a4fe7e`, from the places named. At `5696f91a` the widener re-ran every line except the two
+`test_ccfleet` runs, the two `test_modelguard` runs and the synthetic dry runs (no file those
+cover changed between the two pins: only Part C did), plus the lines Part C added. Both sets of
+results are held in the sibling. Read exit codes
 explicitly. Check `uptime` first; one heavy process at a time, under `nice -n 10`, foreground
 with a long timeout (the `ccfleet` suite takes about four minutes per interpreter).
 
@@ -447,6 +539,7 @@ mandoc -T lint -W style instruments/man/ccfleet.1; echo "exit=$?"
 python3 instruments/ccfleet --help; echo "exit=$?"
 python3 instruments/atelier-menu/menu.py --selftest; echo "exit=$?"
 python3 instruments/atelier-menu/menu.py review; echo "exit=$?"
+python3 instruments/atelier-menu/menu.py session; echo "exit=$?"
 ```
 
 From `instruments/` (the tests load their subjects by path; run `ccfleet`'s on both
@@ -464,6 +557,8 @@ From `tools/` (the second line is the interpreter the user-level hook runs under
 nice -n 10 python3 -m unittest -q test_modelguard; echo "exit=$?"
 nice -n 10 /usr/bin/python3 -m unittest -q test_modelguard; echo "exit=$?"
 nice -n 10 python3 -m unittest -q test_subject_skills test_templates test_work_run_single_source; echo "exit=$?"
+nice -n 10 python3 -m unittest -q test_session_close_single_source; echo "exit=$?"
+nice -n 10 /usr/bin/python3 -m unittest -q test_session_close_single_source; echo "exit=$?"
 ```
 
 **A dry run on a synthetic config**, in your scratchpad only. Make two throwaway git repos with no
@@ -508,7 +603,10 @@ a few real launches, and only if the session running you may spend on them, all 
 model, in a throwaway repo under your scratchpad, with no permission-mode argument: one `ccfleet
 run` whose prompt only prints a `RESULT:` line; and headless `claude -p` sessions started in a
 scratch directory with the plugin loaded from your worktree, sending a bare `/atelier:review`,
-`/atelier:review drain` and one other near-miss, each told to report what it read and ran.
+`/atelier:review drain` and one other near-miss, each told to report what it read and ran; and,
+in a scratch directory that is not a repo, a bare `/atelier:session`, `/atelier:session closing`
+and `/atelier:session close`, each told to report what it read and ran and to make no write
+outside that directory.
 Otherwise mark them NOT RUN with grounds. Never run `ccfleet` against a real repo, never `drive`
 or `drain` for real, and never with a real config. The brief-writer ran none of these launches.
 
@@ -554,6 +652,7 @@ prior verdict in `docs/reviews/` (the first pass's above included), every item u
 - `docs/roadmap/210-instruments-open-features/570-modelguard-refuses-ssh-as-the-claude-user.md`
 - `docs/roadmap/450-one-home-and-one-command-prefix-mike-commissioned/010-one-command-prefix-and-the-homing-sweep.md`
 - `docs/roadmap/450-one-home-and-one-command-prefix-mike-commissioned/020-every-command-is-subject-then-action.md`
+- `docs/roadmap/450-one-home-and-one-command-prefix-mike-commissioned/030-a-close-command-so-the-close-text-is-not-pasted.md`
 - `docs/roadmap/180-orchestrated-queue-runs-from-hand-carrie/210-a-plan-mode-that-shows-the-drain-before-it-runs.md`
 - `docs/roadmap/180-orchestrated-queue-runs-from-hand-carrie/240-a-work-plan-mode-for-work-run.md`
 - `docs/roadmap/115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md`
@@ -563,7 +662,7 @@ All of these carry an author's account of the work, and two carry the first verd
 
 **This brief's held-back sibling is not in the tree.** Whoever orchestrates the pass holds it
 outside the repo and every worktree, and releases it to you only after your act 1 is committed;
-by count it holds 22 questions and 12 facts. Never look for it in git history, other checkouts,
+by count it holds 34 questions and 19 facts. Never look for it in git history, other checkouts,
 scratchpads or temporary directories. Run by hand with no orchestrator, you open it yourself, as a
 deliberate second act, after act 1 is committed, and disclose when.
 
@@ -582,12 +681,13 @@ python3 tools/coldsweep.py --root <your-worktree> \
   --also-exclude docs/roadmap/210-instruments-open-features/570-modelguard-refuses-ssh-as-the-claude-user.md \
   --also-exclude docs/roadmap/450-one-home-and-one-command-prefix-mike-commissioned/010-one-command-prefix-and-the-homing-sweep.md \
   --also-exclude docs/roadmap/450-one-home-and-one-command-prefix-mike-commissioned/020-every-command-is-subject-then-action.md \
+  --also-exclude docs/roadmap/450-one-home-and-one-command-prefix-mike-commissioned/030-a-close-command-so-the-close-text-is-not-pasted.md \
   --also-exclude docs/roadmap/180-orchestrated-queue-runs-from-hand-carrie/210-a-plan-mode-that-shows-the-drain-before-it-runs.md \
   --also-exclude docs/roadmap/180-orchestrated-queue-runs-from-hand-carrie/240-a-work-plan-mode-for-work-run.md \
   --also-exclude docs/roadmap/115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md \
   --also-exclude docs/roadmap/115-guardrail-architecture-mike-commissioned/500-census-slice-4-doctrine-defects.md \
   --also-exclude docs/method/census \
-  "ccfleet|modelguard|review plan|review run|subject"
+  "ccfleet|modelguard|review plan|review run|subject|session close"
 ```
 
 `--include-barred` only with disclosure in the verdict.
@@ -626,7 +726,9 @@ Never revise act-1 text. Then fold the sibling in below the reconcile.
 
 Every finding is the principal's to decide (rule 3): record all, apply nothing. Counsel per
 finding is welcome, labelled as counsel and kept beneath it. Under the overall verdict, say
-plainly in two lines: whether anything you found loses or misreads paid review work; and whether
+plainly in three lines: whether anything you found loses or misreads paid review work; whether
 `/atelier:review plan` and `/atelier:review run`, with `ccfleet` as it stands, are safe to run
-the principal's paid weekly drain from, and if not, what must change first. Name both items,
-`160/1450` and `160/1790`, in your scope line, so both can close on this verdict.
+the principal's paid weekly drain from, and if not, what must change first; and whether
+`/atelier:session close` runs his close and only his close. Name `160/1450`, `160/1790` and
+`160/1740` in your scope line, so all three can close on this verdict, and `450/030` as the item
+Part C answers to.
