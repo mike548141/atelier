@@ -77,3 +77,12 @@ principal's answer on landing), and that answer is time-sensitive for the
   given two: an Opus session lands `e917a98b` and widens the brief, then a
   Fable session runs the pass. Recorded on `450/030`.
 
+- Session 1 (`9a08702f`, `atelier-56`) landed the close command
+  (`3620c908`) and widened the brief (repinned `5696f91a`); checked here
+  before the principal opened the Fable session: since-line empty, floor
+  green, no other live atelier session.
+- The RK pass ran (`4a34637a`): PASS-WITH-FINDINGS, 0 MAJOR, 11 MODERATE,
+  14 minor, 4 notes; carried by `210/600` on his picks there. He asked this
+  session for the prompts to finish: a build session for `210/600`, a
+  brief-writer and a Fable session for the small drain-path pass, then the
+  drain switch (`450/010` row 2) before the 2026-11-29 23:00 UTC reset.
