@@ -1,4 +1,4 @@
-- [ ] 🎯 **Rule-4 cold pass queued: the RK part-3 fixes to `ccfleet`, `modelguard`
+- [x] 🎯 **Rule-4 cold pass queued: the RK part-3 fixes to `ccfleet`, `modelguard`
       and the subject skills (`210/600` part 3).** The fixes for `RK1`, `RK3`, `RK4`,
       `RK6`–`RK29` of the `160/1790` verdict change a tool that runs paid passes
       unattended, the hook every session's launches meet, and the grants every
@@ -63,3 +63,6 @@
       the principal's to rule; nothing is applied. The held copy of the sibling was deleted after
       the fold was checked.
       🔓 2026-11-25 UTC: session 14c2530d releases its claim.
+      💬 **Answered 2026-11-25 UTC** (session 14c2530d, AskUserQuestion; an answer, not a
+      ruling), on both verdicts' findings together: *"Fix all as advised (Recommended)"*. The
+      fixes are queued as `210/620`.

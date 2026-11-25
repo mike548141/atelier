@@ -40,3 +40,9 @@ Asked whether the unreviewed `f4360a79` (`210/610`) joins a pass: *"Add it to th
   `pass_prompt` still names the retired skill path.
 - Machine: the load reached about 100 on 12 cores and free disk fell to about 6 GB mid-session,
   then recovered to about 64 GB; the second reviewer was held until the load fell below 20.
+
+## After the verdicts: his answer on the findings
+
+Asked once about all of them, his pick (an answer, not a ruling): *"Fix all as advised
+(Recommended)"*. Queued as `210/620`, the MODERATEs first; both items closed on it. A Fable
+re-check of the fixes is owed after the build and waits for his approval.
