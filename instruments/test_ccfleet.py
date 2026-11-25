@@ -826,7 +826,7 @@ class EndToEnd(unittest.TestCase):
         a job only on a clean result."""
         jobs = os.path.join(self.tmp, "jobs.tsv")
         wr(jobs, f"alpha\ta-job\t{self.prompt}\nbeta\tb-job\t{self.prompt}\n")
-        env = {**self.env, "FAKE_RESULT_BETA": "PARTIAL"}
+        env = {**self.env, "FAKE_RESULT_BETA": "FAILED"}
         r = self.cli("drive", jobs, "--max", "2", env=env)
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual([os.path.basename(w) for w in self.worktrees()], ["beta"])
@@ -1335,6 +1335,281 @@ class EndToEnd(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "evidence.log")))
 
 
+class RKLifecycle(unittest.TestCase):
+    """The pass-lifecycle findings of the 210/600 cold pass (RK3, RK4, RK6,
+    RK16, RK17, RK24, RK25, RK26), end to end on EndToEnd's fixtures."""
+
+    setUp, tearDown = EndToEnd.setUp, EndToEnd.tearDown
+    write_cfg, cli, calls, worktrees = EndToEnd.write_cfg, EndToEnd.cli, EndToEnd.calls, EndToEnd.worktrees
+
+    def day_dir(self):
+        (day,) = os.listdir(os.path.join(self.tmp, "kit", "results"))
+        return os.path.join(self.tmp, "kit", "results", day)
+
+    def json_log(self, obj):
+        path = os.path.join(self.tmp, f"log-{len(os.listdir(self.tmp))}.json")
+        wr(path, obj if isinstance(obj, str) else json.dumps(obj))
+        return path
+
+    def wait_for(self, check, what, limit=60):
+        t0 = time.time()
+        while not check():
+            if time.time() - t0 > limit:
+                self.fail(f"timed out waiting for {what}")
+            time.sleep(0.1)
+
+    # ----- RK3 -----
+
+    def test_a_result_mentioned_after_the_real_one_is_not_the_verdict(self):
+        """RK3: the first line beginning RESULT: is the verdict; the primary
+        path needs the shape line too; output that is not JSON is UNKNOWN."""
+        probe = "RESULT: FAILED\nITEM: a:b\nVERDICT: n/a\nNOTES: the fold never reached RESULT: DONE"
+        self.assertEqual(cf.result_word(probe, ("DONE",)), "FAILED")
+        self.assertEqual(cf.harvest(self.json_log({"session_id": "", "result": probe}))[2], "FAILED")
+        for text in ("I could not finish act 2. The prompt said to end with RESULT: DONE once landed, "
+                     "but nothing landed.",
+                     "I could not finish.\nRESULT: DONE once landed, it said"):
+            self.assertEqual(cf.harvest(self.json_log({"session_id": "", "result": text}))[2], "UNKNOWN", text)
+        self.assertEqual(cf.harvest(self.json_log("not json at all\nITEM: a:b\nRESULT: DONE\n"))[2], "UNKNOWN")
+        self.assertEqual(cf.harvest(self.json_log({"session_id": "", "result": "ITEM: a:b\nRESULT: DONE"}))[2],
+                         "DONE", "the control: the final-output shape reads DONE")
+
+    # ----- RK4 -----
+
+    def start_pass(self, env):
+        out = os.path.join(self.tmp, "pass.out")
+        with open(out, "w") as f:
+            p = subprocess.Popen([sys.executable, TOOL, "--config", self.cfgpath, "--by", "orch-1", "pass", "beta",
+                                  "010", "docs/brief.md"], stdout=f, stderr=subprocess.STDOUT, env=env)
+        self.addCleanup(lambda: p.poll() is None and p.kill())
+        self.wait_for(lambda: "START " in rd(out), "the pass's START line")
+        sid = re.search(r" session=(\S+)", rd(out)).group(1)
+        return p, out, sid
+
+    def test_a_signalled_launcher_leaves_its_session_recorded_and_resume_waits(self):
+        """RK4: SIGTERM to a pass leaves its session running and recorded; a
+        resume of that session is refused while it runs, and taken after."""
+        wr(self.prompt, "Pass {ITEM}\n")
+        kit = {"kit_dir": os.path.join(self.tmp, "kit")}
+        p, out, sid = self.start_pass({**self.env, "FAKE_SLEEP": "8"})
+        self.wait_for(lambda: cf.live_session(kit, sid), "the session's process record")
+        p.send_signal(subprocess.signal.SIGTERM)
+        self.assertEqual(p.wait(timeout=30), 128 + subprocess.signal.SIGTERM)
+        self.assertIn("LAUNCHER STOPPED", rd(out))
+        self.assertTrue(cf.live_session(kit, sid), "the session runs on")
+        (wt,) = self.worktrees()
+        r = self.cli("resume", "beta", wt, sid, "--prompt", self.prompt, "--item", "010")
+        self.assertEqual(r.returncode, cf.EXIT_CLAIM, r.stdout + r.stderr)
+        self.assertIn(f"session {sid} still runs", r.stderr)
+        self.assertEqual(len(self.calls()), 0 if not os.path.exists(os.path.join(self.tmp, "claude.log"))
+                         else 1, "the resume started nothing")
+        self.wait_for(lambda: not cf.live_session(kit, sid), "the session to end", limit=60)
+        r = self.cli("resume", "beta", wt, sid, "--prompt", self.prompt, "--item", "010")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(rd(os.path.join(self.tmp, "release.log")).split(), ["beta:010"])
+
+    def test_a_drain_names_a_session_its_dead_launcher_left_running(self):
+        """RK4: the drain's cut-off line says the session still runs."""
+        wr(os.path.join(self.tmp, "queue.txt"), "beta 010 docs/brief.md\n")
+        wr(self.prompt, "Pass {ITEM}\n")
+        kids = os.path.join(self.tmp, "kit", "children.tsv")
+        d = subprocess.Popen([sys.executable, TOOL, "--config", self.cfgpath, "--by", "orch-1", "drain", "--max",
+                              "1"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+                             env={**self.env, "FAKE_SLEEP": "8"})
+        self.addCleanup(lambda: d.poll() is None and d.kill())
+        self.wait_for(lambda: os.path.exists(kids) and rd(kids).strip(), "the pass to start")
+        pid = int(rd(kids).split()[0])
+        self.wait_for(lambda: os.listdir(os.path.join(self.tmp, "kit", "sessions")) if os.path.isdir(
+            os.path.join(self.tmp, "kit", "sessions")) else False, "the session's process record")
+        os.kill(pid, subprocess.signal.SIGTERM)
+        out, _ = d.communicate(timeout=60)
+        log = rd(os.path.join(self.tmp, "kit", "driver.log"))
+        self.assertIn("still runs, unwatched", log, out)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")))
+        self.wait_for(lambda: len(self.calls()) == 1, "the session to finish its work", limit=60)
+
+    # ----- RK6 -----
+
+    def test_a_resume_writes_its_pass_result_file(self):
+        """RK6a: the pass's result file is headed by the resume's verdict, the
+        cut-off end kept below it."""
+        wr(os.path.join(self.tmp, "queue.txt"), "beta 030 docs/brief.md\n")
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("drain", env={**self.env, "FAKE_RESULT": "FAILED"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        res = os.path.join(self.day_dir(), "beta-030.md")
+        self.assertIn("result=FAILED -->", rd(res).splitlines()[0])
+        (wt,) = self.worktrees()
+        r = self.cli("resume", "beta", wt, "sess-beta", "--prompt", self.prompt, "--item", "030")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn(f"result=DONE session=sess-beta out={res}", r.stdout)
+        text = rd(res)
+        self.assertIn("result=DONE -->", text.splitlines()[0])
+        self.assertIn("superseded", text)
+        self.assertIn("result=FAILED -->", text, "the cut-off end is kept")
+        self.assertEqual(os.listdir(self.day_dir()), ["beta-030.md"])
+
+    def test_two_folds_in_one_repo_keep_their_own_result_files(self):
+        """RK6c: a fold's default label is its repo and item."""
+        wts = []
+        for n in (1, 2):
+            wt = os.path.join(self.tmp, "wt", f"pass-{n}", "beta")
+            os.makedirs(os.path.dirname(wt))
+            sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main",
+               cwd=os.path.join(self.tmp, "src", "beta"))
+            wts.append(wt)
+        r1 = self.cli("run", "beta", "--prompt", self.prompt, "--in", wts[0], "--item", "010",
+                      env={**self.env, "FAKE_RESULT": "FAILED"})
+        r2 = self.cli("run", "beta", "--prompt", self.prompt, "--in", wts[1], "--item", "020")
+        self.assertEqual((r1.returncode, r2.returncode), (0, 0), r1.stderr + r2.stderr)
+        self.assertEqual(sorted(os.listdir(self.day_dir())), ["beta-010.md", "beta-020.md"])
+        self.assertIn("result=FAILED", rd(os.path.join(self.day_dir(), "beta-010.md")).splitlines()[0])
+        self.assertIn("result=DONE", rd(os.path.join(self.day_dir(), "beta-020.md")).splitlines()[0])
+
+    # ----- RK16 -----
+
+    def test_a_config_lacking_the_queue_commands_is_refused_before_anything(self):
+        """RK16: pass with no queue, and resume --item with no release: exit
+        64, no traceback, no worktree, no session."""
+        queue = self.cfg.pop("queue")
+        self.write_cfg()
+        r = self.cli("pass", "beta", "010", "docs/brief.md")
+        self.assertEqual(r.returncode, cf.EXIT_USAGE, r.stdout + r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertIn("queue.take", r.stderr)
+        self.assertEqual(os.listdir(os.path.join(self.tmp, "wt")), [])
+        wt = os.path.join(self.tmp, "wt", "pass-0101", "beta")
+        os.makedirs(os.path.dirname(wt))
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
+        self.cfg["queue"] = {k: v for k, v in queue.items() if k != "release"}
+        self.write_cfg()
+        r = self.cli("resume", "beta", wt, "sess-1", "--prompt", self.prompt, "--item", "010")
+        self.assertEqual(r.returncode, cf.EXIT_USAGE, r.stdout + r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertIn("queue.release", r.stderr)
+        self.assertEqual(self.calls(), [])
+
+    # ----- RK17 -----
+
+    def test_with_no_remote_a_resume_and_a_fold_land_the_real_branch(self):
+        """RK17: the landing line names the worktree's branch, never None, and
+        a fold that puts the worktree away deletes its branch too."""
+        prim = os.path.join(self.tmp, "src", "gamma")
+        sh("git", "init", "-q", "-b", "main", prim)
+        sh("git", *GIT_ID, "commit", "-q", "--allow-empty", "-m", "init", cwd=prim)
+        self.repos.append("gamma")
+        self.cfg["repos"]["gamma"] = {"visibility": "private"}
+        self.write_cfg()
+        wr(self.prompt, "Land: {LANDING}\n")
+        r = self.cli("run", "gamma", "--prompt", self.prompt, env={**self.env, "FAKE_RESULT": "FAILED"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        (wt,) = self.worktrees()
+        branch = sh("git", "symbolic-ref", "--short", "HEAD", cwd=wt).strip()
+        self.assertTrue(branch.startswith("fleet/"), branch)
+        r = self.cli("resume", "gamma", wt, "sess-1", "--prompt", self.prompt, "--item", "010",
+                     env={**self.env, "FAKE_RESULT": "FAILED"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn(f"merge --ff-only {branch}", self.calls()[-1]["argv"][-1])
+        self.assertNotIn("None", self.calls()[-1]["argv"][-1])
+        r = self.cli("run", "gamma", "--prompt", self.prompt, "--in", wt, "--item", "010")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn(f"merge --ff-only {branch}", self.calls()[-1]["argv"][-1])
+        self.assertFalse(os.path.isdir(wt))
+        self.assertNotIn(branch, sh("git", "branch", "--list", "fleet/*", cwd=prim))
+
+    def test_a_detached_worktree_with_no_remote_is_never_told_none(self):
+        """RK17: a detached worktree in a repo with no remote gets a landing
+        line that names no branch."""
+        facts = {"remote": False, "branch": "main", "primary": "/src/x"}
+        text = cf.landing_text(facts, "/wt/x", None)
+        self.assertNotIn("None", text)
+        self.assertIn("merge --ff-only", text)
+
+    # ----- RK24 -----
+
+    def test_partial_and_blocked_are_settled_and_never_rerun(self):
+        """RK24: a job ending PARTIAL or BLOCKED with nothing unlanded gives up
+        its worktree, and a re-run of the drive does not start it again."""
+        jobs = os.path.join(self.tmp, "jobs.tsv")
+        wr(jobs, f"alpha\ta-job\t{self.prompt}\nbeta\tb-job\t{self.prompt}\n")
+        env = {**self.env, "FAKE_RESULT_ALPHA": "PARTIAL", "FAKE_RESULT_BETA": "BLOCKED"}
+        for _ in range(2):
+            r = self.cli("drive", jobs, "--max", "2", env=env)
+            self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(sorted(os.path.basename(c["cwd"]) for c in self.calls()), ["alpha", "beta"])
+        self.assertEqual(self.worktrees(), [])
+        log = rd(os.path.join(self.tmp, "kit", "driver.log"))
+        self.assertIn("skip a-job (it ended PARTIAL", log)
+        self.assertIn("skip b-job (it ended BLOCKED", log)
+
+    # ----- RK25 -----
+
+    def test_a_refused_claim_is_not_a_bad_end_and_is_not_offered_again(self):
+        """RK25: three refusals of one claim used to end the drain as
+        failures; now it is skipped for the drain and the rest runs."""
+        refusing = os.path.join(self.tmp, "queue-refusing")
+        wr(refusing, f"#!{sys.executable}\nimport os, sys\n"
+                     f"if sys.argv[1] == 'take' and sys.argv[2] == 'alpha:001':\n"
+                     f"    open({self.tmp!r} + '/refused.log', 'a').write(sys.argv[2] + '\\n')\n"
+                     f"    sys.exit(2)\n"
+                     f"os.execv({self.queue!r}, [{self.queue!r}] + sys.argv[1:])\n")
+        os.chmod(refusing, 0o755)
+        for k in self.cfg["queue"]:
+            self.cfg["queue"][k][0] = refusing
+        self.write_cfg()
+        wr(os.path.join(self.tmp, "queue.txt"), "alpha 001 docs/brief.md\nbeta 002 docs/brief.md\n")
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("drain", "--max", "1")
+        self.assertIn("DRAIN EXIT: queue empty", r.stdout, rd(os.path.join(self.tmp, "kit", "driver.log")))
+        self.assertEqual(rd(os.path.join(self.tmp, "refused.log")).split(), ["alpha:001"])
+        self.assertEqual(rd(os.path.join(self.tmp, "release.log")).split(), ["beta:002"])
+        self.assertFalse([f for f in os.listdir(os.path.join(self.tmp, "kit")) if f.endswith(".skip")])
+
+    def test_drive_starts_nothing_once_the_reset_is_reached(self):
+        """RK25: drive reads reset_utc itself, as drain does."""
+        self.cfg["reset_utc"] = "2000-01-01T00:00"
+        self.write_cfg()
+        jobs = os.path.join(self.tmp, "jobs.tsv")
+        wr(jobs, f"alpha\ta-job\t{self.prompt}\n")
+        r = self.cli("drive", jobs)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("reset reached: 1 jobs not started", rd(os.path.join(self.tmp, "kit", "driver.log")))
+        self.assertFalse([f for f in os.listdir(os.path.join(self.tmp, "kit", "logs")) if f.startswith("run-")])
+
+    # ----- RK26 -----
+
+    def test_a_worktree_is_never_removed_by_force(self):
+        """RK26: with the removal-time check off, git's own refusal of a dirty
+        worktree is the guard, which --force would switch off."""
+        wt = os.path.join(self.tmp, "wt", "x-0101", "alpha")
+        os.makedirs(os.path.dirname(wt))
+        prim = os.path.join(self.tmp, "src", "alpha")
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=prim)
+        wr(os.path.join(wt, "docs", "brief.md"), "an unsaved act\n")
+        with mock.patch.object(cf, "unlanded_work", return_value=""):
+            self.assertFalse(cf.remove_worktree({"primary": prim, "remote": True}, wt))
+        self.assertEqual(rd(os.path.join(wt, "docs", "brief.md")), "an unsaved act\n")
+
+    def test_a_session_runs_in_its_own_process_session(self):
+        """RK26: a session is not in its launcher's process session."""
+        r = self.cli("run", "alpha", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        (call,) = self.calls()
+        self.assertNotEqual(call["posix_sid"], os.getsid(0))
+
+    def test_a_pass_launcher_is_detached_from_its_driver(self):
+        """RK26: closing the driver's terminal does not end the passes it
+        started: each pass launcher has a process session of its own."""
+        wr(self.claude, FAKE_CLAUDE.replace("@PY@", sys.executable).replace(
+            '"posix_sid": os.getsid(0),', '"posix_sid": os.getsid(0), "parent_sid": os.getsid(os.getppid()),'))
+        wr(os.path.join(self.tmp, "queue.txt"), "beta 020 docs/brief.md\n")
+        r = self.cli("drain", "--max", "1")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        (call,) = self.calls()
+        self.assertNotEqual(call["parent_sid"], os.getsid(0), "the pass launcher shares the driver's session")
+        self.assertNotEqual(call["posix_sid"], call["parent_sid"])
+
+
 class ResultWords(unittest.TestCase):
     """FL14: a RESULT line is read by its known phrase or its first word."""
     known = ("DONE", "SKIPPED", "BUDGET EXHAUSTED")
@@ -1348,8 +1623,10 @@ class ResultWords(unittest.TestCase):
                            ("RESULT: <DONE|SKIPPED>", "")):
             self.assertEqual(cf.result_word(text, self.known), want, text)
 
-    def test_the_last_result_line_is_the_verdict(self):
-        self.assertEqual(cf.result_word("RESULT: FAILED\nmore\nRESULT: DONE\n", self.known), "DONE")
+    def test_the_first_result_line_is_the_verdict(self):
+        """RK3: the prompts allow a RESULT line in the final output only, so the
+        first one that begins a line is the verdict; a later one is not."""
+        self.assertEqual(cf.result_word("RESULT: FAILED\nmore\nRESULT: DONE\n", self.known), "FAILED")
 
 
 class ErrorEnds(unittest.TestCase):

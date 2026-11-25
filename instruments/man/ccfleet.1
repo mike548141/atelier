@@ -401,10 +401,22 @@ today (UTC) at its start unless
 names another.
 A job whose result file there records a clean
 .B RESULT
-is skipped; one that ended any other way runs again.
+is skipped, and so is one that ended
+.B PARTIAL
+or
+.B BLOCKED
+(settled: see
+.BR RESULTS );
+one that ended any other way runs again.
 So running the same file again on the same day resumes it, and
 .B \-\-day
 resumes a drive begun before midnight.
+.IP
+Once
+.B reset_utc
+is reached a drive starts no further job, as a
+.B drain
+does; jobs already running finish.
 .TP
 .B drain
 Keep review passes running from the adopter's own queue until the queue is
@@ -425,8 +437,20 @@ Otherwise it calls
 .B queue.ranked
 first (a dry drain does not), then picks.
 A pick that ends before its session starts (a failed fetch, a brief not on
-the branch, a refused claim, a guard) is taken back off the launched list and
-counts as a bad end.
+the branch, a guard) is taken back off the launched list and counts as a bad
+end.
+A pick whose claim the queue refuses is taken back off it too, but is not a
+bad end, and it is kept out of
+.B next
+for the rest of the drain: the queue is handed the launched list plus those
+picks, in a file beside it ending
+.IR .skip ,
+removed when the drain ends.
+A pass whose launcher ended with no
+.B END
+line while its session still runs (the launcher was killed) is logged as
+such, not as cut off; see
+.BR pass .
 A drain that started nothing exits 4 when the queue was empty, 3 when the
 reset had come, and 1 when every pick ended before its session started;
 one that started a pass exits 0.
@@ -507,8 +531,12 @@ One drain pass; the command
 .B drain
 starts for each pick.
 It needs
-.B pass_prompt
-in the config.
+.BR pass_prompt ,
+.B queue.take
+and
+.B queue.release
+in the config; without them it is refused with exit 64 before any worktree
+is made.
 It makes the worktree, checks that the brief file exists in it (so the brief
 has been pushed), claims the item through the queue's
 .B take
@@ -536,6 +564,23 @@ A review log an earlier pass left at this pass's path is moved to
 .I <kit_dir>/review\-logs/withdrawn/
 once the claim is taken, so a new reviewer never starts from an earlier
 reviewer's account.
+.IP
+A SIGTERM or SIGHUP to a pass, a
+.B run
+or a
+.B resume
+leaves its session running, since its worktree may hold unsaved work: it
+prints
+.BR "LAUNCHER STOPPED" ,
+keeps the claim and the worktree, and exits 128 plus the signal.
+The session's process id stays in
+.I <kit_dir>/sessions/
+while it runs, so a
+.B resume
+waits for it and a
+.B drain
+names it.
+A ^C ends the session with its launcher.
 .TP
 .BI resume " repo worktree session"
 Finish a pass a usage limit cut off, in its own session:
@@ -552,6 +597,13 @@ The worktree must exist and be named for
 as for
 .BR "run \-\-in" .
 Only one resume of a session runs at a time; a second is refused with exit 2.
+So is a resume while the session itself still runs, its launcher killed by
+a signal: wait for it to end.
+With
+.B \-\-item
+it needs
+.BR queue.release ,
+else it is refused with exit 64 before the session starts.
 When it ends with a
 .B RESULT
 in
@@ -567,6 +619,17 @@ Without
 .BR \-\-item ,
 no queue command is called and the worktree is kept.
 It starts nothing else.
+.IP
+Its verdict heads the pass's own result file, the newest
+.I results/<day>/<repo>\-<item>.md
+(today's when there is none;
+.I resume\-<repo>\-<session>.md
+without
+.BR \-\-item ),
+with the earlier end kept below it, so a count from the result files reads
+the pass as the resume ended it.
+In a repo with no remote, the landing line names the worktree's own branch,
+which is deleted with the worktree.
 .SH OPTIONS
 .SS Common
 .TP
@@ -619,7 +682,11 @@ Required.
 .BI \-\-label " name"
 Names the worktree's parent folder, the log and the result file.
 Characters outside letters, digits, dot, underscore and hyphen become hyphens.
-Default: the repo.
+Default: the repo; for a fold
+.RB ( \-\-in
+with
+.BR \-\-item ),
+.IR <repo>\-<item> .
 .TP
 .BI \-\-model " id"
 The model for this launch.
@@ -666,6 +733,9 @@ and the pass's own
 .BR {REVIEW_LOG} ,
 as for a
 .BR resume .
+Its result is written as a resume's is: into the pass's own result file,
+headed by the fold's verdict, the earlier end kept below, so two folds in
+one repo never share a file.
 A refused release exits 2.
 Without
 .B \-\-in
@@ -1144,9 +1214,18 @@ session is never read as done; only a
 .B queue.stop_on
 word the session printed itself is kept, since stopping is safe.
 .PP
-The result text is searched for lines like
-.B RESULT: DONE
-and the last one gives the verdict.
+The first line of the result text that begins with
+.B RESULT:
+(as in
+.BR "RESULT: DONE" )
+gives the verdict; a later one, or a mention inside another line, does not.
+On a clean end it counts only beside a line starting
+.B ITEM:
+or
+.B REPO:
+(the final-output shape), but for a
+.B queue.stop_on
+word.
 Bold or backticks around it are ignored.
 A phrase in
 .B queue.release_on
@@ -1181,7 +1260,21 @@ mentions a
 is never taken.
 The result file then says it was read from the transcript.
 No such line anywhere, or unreadable output, reads as
-.BR UNKNOWN .
+.BR UNKNOWN ;
+output that is not the JSON log reads so even when it holds such a line,
+but for a
+.B queue.stop_on
+word.
+.PP
+.B PARTIAL
+and
+.BR BLOCKED ,
+the fleet prompts' own verdicts, are settled: not clean, so no claim is
+released, but a
+.B run
+with no claim removes its worktree when it holds no unlanded work, and a
+.B drive
+does not start the job again.
 .PP
 A clean verdict (a word in
 .BR queue.release_on )
@@ -1218,6 +1311,8 @@ carries the exit code, the verdict, the session id and the result path).
 The result text is written to
 .IR <kit_dir>/results/<date>/<label>.md ,
 with the session id, exit code and verdict in a comment on its first line.
+A resume and a fold write their pass's file instead; see
+.BR resume .
 .PP
 The
 .B drain
@@ -1276,6 +1371,12 @@ session was given.
 .TP
 .I <kit_dir>/locks/
 One lock per session being resumed.
+.TP
+.I <kit_dir>/sessions/<session>.pid
+The process id of a session while it may run, written by its launcher and
+removed when the launcher sees it end.
+One left by a killed launcher stays while the session runs; one whose
+process is gone is removed when next read.
 .TP
 .I <kit_dir>/driver.pid, driver.log
 The driver lock (held with
@@ -1478,7 +1579,7 @@ exits 1 for hold.
 .TP
 .B 2
 Claim refused: another session holds the item, or another resume of the
-session is running.
+session is running, or the session to resume still runs.
 For
 .BR pass ,
 .B resume
@@ -1513,12 +1614,19 @@ a negative
 .BR \-\-max ,
 or
 .BR drain ,
-.B pass
-or
+.BR pass ,
 .B plan
+or
+.B resume \-\-item
 without the config they need
 .RB ( queue.evidence
-for plan).
+for plan,
+.B queue.take
+and
+.B queue.release
+for pass,
+.B queue.release
+for resume).
 .PP
 A mistake in the command line itself is caught by the argument parser first,
 which exits 2.

@@ -50,7 +50,9 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     a background notification printed no RESULT line though its report was
     written; the harvest then reads the session's own transcript, on a clean
     end only, taking the newest text that has a RESULT line and an ITEM: or
-    REPO: line (the final-output shape), never a line of narration.
+    REPO: line (the final-output shape), never a line of narration. The
+    verdict is the first line BEGINNING RESULT:, beside that shape line on the
+    last turn too; a mention inside NOTES once read DONE (RK3).
   * A `touch <kit_dir>/stop` ends launching cleanly; running jobs finish. A
     stop file older than the driver is ignored (and logged): last week's file
     once ended a new run before it started anything.
@@ -62,7 +64,9 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     rehearsal never makes the real drain read a full queue as empty. A pick
     that ends before its session starts is taken back off the list.
   * Children start in their own session, so closing the driver's terminal
-    does not end the sessions it started.
+    does not end the sessions it started. A SIGTERM or SIGHUP to a launcher
+    leaves its session running (it may hold unsaved work) and its process id
+    recorded in <kit_dir>/sessions/; a resume is refused while it runs (RK4).
   * The config is the whole grant. A headless session would load the
     operator's user-level settings, whose allow rules widened a config that
     narrowed the tool list (a config without python3 ran python3). Every
@@ -98,8 +102,9 @@ model; a value written @file:PATH takes that file's text, for a multi-line
 task). '#' lines and blank lines are skipped. Every label must be its own: a
 file whose labels repeat is refused before anything starts, since the label
 keys the result file. A job whose result file for the drive's day records a
-clean RESULT is skipped, so re-running a drive resumes it (--day names the
-day of a drive begun before midnight).
+clean RESULT, or a settled PARTIAL or BLOCKED, is skipped, so re-running a
+drive resumes it (--day names the day of a drive begun before midnight). A
+drive starts nothing once reset_utc is reached.
 
 CONFIG is JSON (see instruments/ccfleet.example.json, every value fictional):
   kit_dir         logs/, results/<date>/, scratch/<repo>/, the stop file   (required)
@@ -200,7 +205,8 @@ Exit codes: 0 ran (the session's own verdict is in its END line and result
 file) · 1 setup failed (or, for drain: not ranked, the queue's next failed, or
 every pick ended before its session started; for plan: a queue command failed
 or printed what it should not) · 2 claim refused (another
-session holds it, or another resume of that session runs) or a release refused
+session holds it, another resume of that session runs, or the session to
+resume still runs) or a release refused
 (pass, resume, run --item) · 3 reset reached · 4 queue empty (a drain that
 started nothing) · 5 refused by the private-name guard or an unfilled
 placeholder (check: a template has one) · 64 usage (incl. an unreadable or
@@ -227,11 +233,12 @@ import uuid
 
 EXIT_SETUP, EXIT_CLAIM, EXIT_RESET, EXIT_EMPTY, EXIT_GUARD, EXIT_USAGE = 1, 2, 3, 4, 5, 64
 PLACEHOLDER = re.compile(r"\{([A-Z][A-Z0-9_]*)\}")
-# A RESULT line: markdown bold or backticks around the word are tolerated, and
+# A RESULT line: one that BEGINS with RESULT: (a mention inside a NOTES line is
+# not one, RK3). Markdown bold or backticks around the word are tolerated, and
 # every capital-letter word in a row is captured; result_word() then keeps a
 # known phrase (BUDGET EXHAUSTED) or the first word, so "SKIPPED NEEDS LIVE
 # WRITE" reads SKIPPED and "DONE WITH FINDINGS" reads DONE.
-RESULT_RX = re.compile(r"RESULT:[\s*`]*([A-Z]+(?:[ \t]+[A-Z]+)*)")
+RESULT_RX = re.compile(r"^[ \t>*`-]*RESULT[*`]*:[ \t*`]*([A-Z]+(?:[ \t]+[A-Z]+)*)", re.M)
 # The final-output shape's identity line: the transcript fallback takes only a
 # text that carries one, so a line of planning narration is never a verdict.
 SHAPE_RX = re.compile(r"^\s*\**(?:ITEM|REPO):", re.M)
@@ -244,6 +251,12 @@ RELEASE_ON = ["DONE", "SKIPPED"]
 # which no release_on may hold: the claim stays and the pass can be resumed.
 UNLANDED = "UNLANDED"
 STOP_ON = ["BUDGET EXHAUSTED"]
+# A job's own verdicts that end it for good though they are not clean (the
+# fleet prompts' PARTIAL and BLOCKED): the worker finished and its report says
+# what is left. A `run` with no claim removes its worktree when it holds no
+# unlanded work, and a drive does not start it again (RK24). A claim is never
+# released on one.
+SETTLED_ON = ["PARTIAL", "BLOCKED"]
 TIMEOUT_RC = 124          # the exit code a session killed at its time limit is given
 QUEUE_TIMEOUT = 600       # seconds a queue command may take before it counts as failed
 # Values ccfleet fills in every prompt, and those only a pass or a resume adds
@@ -639,7 +652,20 @@ def repo_facts(cfg, repo, fetch=True):
     return facts
 
 
+def worktree_branch(wt):
+    """The branch a worktree is on, or None when its HEAD is detached."""
+    r = subprocess.run(["git", "symbolic-ref", "-q", "--short", "HEAD"], cwd=wt, capture_output=True, text=True)
+    return (r.stdout.strip() or None) if r.returncode == 0 else None
+
+
 def landing_text(facts, wt, branch_name=None):
+    if not facts["remote"] and not branch_name:
+        b = facts["branch"]
+        return (f"This repo has NO remote; local {b} is the mainline and your worktree's HEAD is detached. "
+                f"Instead of pull/push: `git -C '{wt}' rebase {b}`, then land with `git -C '{facts['primary']}' "
+                f"merge --ff-only <the commit `git -C '{wt}' rev-parse HEAD` prints>` against the primary "
+                f"checkout (only while it is on {b}; if the merge refuses over uncommitted changes there, "
+                f"wait and retry, never stash or absorb them). Never `git push`.")
     if facts["remote"]:
         b = facts["branch"]
         return (f"Land each commit with `git -C '{wt}' pull --rebase origin {b}` then "
@@ -705,13 +731,15 @@ def message_text(msg):
 
 
 def result_word(text, known=()):
-    """The verdict of the last RESULT: line in `text`, or "" when there is none.
+    """The verdict of the first line in `text` that begins with RESULT:, or ""
+    when there is none. The prompts allow such a line in the final output only,
+    so a later mention ("NOTES: ... RESULT: DONE") never overrides it (RK3).
     A known phrase (e.g. BUDGET EXHAUSTED) is kept whole; otherwise the first
     capital-letter word is the verdict."""
     found = RESULT_RX.findall(text or "")
     if not found:
         return ""
-    words = found[-1].split()
+    words = found[0].split()
     for phrase in sorted((k.split() for k in known), key=len, reverse=True):
         if phrase and words[:len(phrase)] == phrase:
             return " ".join(phrase)
@@ -761,6 +789,11 @@ def harvest(log_path, since=None, rc=0, known=tuple(RELEASE_ON + STOP_ON), stops
     session itself), which is kept, since stopping is the safe direction.
     `known` lists the multi-word verdicts read whole.
 
+    On a clean end a verdict counts only beside the final output's shape line
+    (ITEM: or REPO:), as in the transcript fallback; a `stops` word is the one
+    exception. Output that is not the JSON log reads UNKNOWN, but for a
+    `stops` word (RK3: a stray "RESULT: DONE" in a log's tail read DONE).
+
     `claude -p` prints only the last turn. A session whose last turn came after
     a background notification (a subagent finishing) can print a line with no
     RESULT in it while its real report sits earlier; then, on a clean end
@@ -787,6 +820,10 @@ def harvest(log_path, since=None, rc=0, known=tuple(RELEASE_ON + STOP_ON), stops
         if word and word in stops:
             verdict = word
         return f"(an error end, {why}: never read as clean)\n{text}", sid, verdict
+    if word and word not in stops and (j is None or not SHAPE_RX.search(text)):
+        # Not the final output: unreadable output, or a RESULT with no ITEM:
+        # or REPO: line beside it. Only the transcript can still give one.
+        word = ""
     if not word and sid:
         t = transcript_result(sid, since)
         if t:
@@ -851,17 +888,71 @@ def kill_group(p, grace=30):
             continue
 
 
-def launch(cfg, argv, cwd, log):
+def session_pid_path(cfg, sid):
+    return os.path.join(cfg["kit_dir"], "sessions", f"{safe(sid)}.pid")
+
+
+def live_session(cfg, sid):
+    """The process id of session `sid` when a launcher recorded it and it still
+    runs (a process by that id whose command line names the session), else
+    None. A record whose process is gone is removed."""
+    if not sid:
+        return None
+    path = session_pid_path(cfg, sid)
+    try:
+        with open(path) as f:
+            pid = int(f.read().split()[0])
+    except (OSError, ValueError, IndexError):
+        return None
+    if alive(pid):
+        r = subprocess.run(["ps", "-ww", "-o", "command=", "-p", str(pid)], capture_output=True, text=True)
+        if sid in r.stdout:
+            return pid
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+    return None
+
+
+class LauncherSignal(BaseException):
+    """SIGTERM or SIGHUP to a launcher watching a session."""
+
+
+def launch(cfg, argv, cwd, log, sid=None):
     """Run one session to its end and return its exit code. A session still
     running at session_timeout_minutes (0: no limit) is ended, with its whole
     process group, and returns TIMEOUT_RC: a session that never exits would
-    otherwise hold its slot, and the driver and its lock, past the reset."""
+    otherwise hold its slot, and the driver and its lock, past the reset.
+
+    The session runs in its own process session, so it outlives a launcher
+    that dies (RK4). Its process id is recorded at
+    <kit_dir>/sessions/<sid>.pid for as long as it may run: `resume` refuses
+    while it lives, and a drain names it. A SIGTERM or SIGHUP to the launcher
+    leaves the session running (its worktree may hold unsaved work), says so
+    and exits 128+signal; a ^C ends the session with it, as before."""
     limit = cfg.get("session_timeout_minutes") or 0
+    pid_path = session_pid_path(cfg, sid) if sid else None
+
+    def on_signal(signum, _frame):
+        raise LauncherSignal(signum)
+
     # stdin from /dev/null, always: see the module docstring. Its own process
     # group, so a time limit ends everything it started.
     with open(log, "w") as out, open(log + ".err", "w") as err:
         p = subprocess.Popen(argv, cwd=cwd, stdin=subprocess.DEVNULL, stdout=out, stderr=err,
                              env=session_env(cfg), start_new_session=True)
+        if pid_path:
+            os.makedirs(os.path.dirname(pid_path), exist_ok=True)
+            with open(pid_path, "w") as f:
+                f.write(f"{p.pid}\t{os.getpid()}\t{now_utc():%Y-%m-%dT%H:%M:%SZ}\n")
+        before = {}
+        for sig in (signal.SIGTERM, signal.SIGHUP):
+            try:
+                before[sig] = signal.signal(sig, on_signal)
+            except (ValueError, OSError):  # not the main thread
+                pass
+        ended = True
         try:
             return p.wait(timeout=limit * 60 if limit else None)
         except subprocess.TimeoutExpired:
@@ -869,9 +960,26 @@ def launch(cfg, argv, cwd, log):
                   f"session_timeout_minutes={limit}; ending it", flush=True)
             kill_group(p)
             return TIMEOUT_RC
+        except LauncherSignal as e:
+            ended = False
+            try:
+                print(f"LAUNCHER STOPPED {now_utc():%Y-%m-%dT%H:%M:%SZ} by signal {e.args[0]}: the session "
+                      f"(pid {p.pid}{', session ' + sid if sid else ''}) is left running, unwatched; its "
+                      f"claim and worktree stay, and a resume is refused while it runs", flush=True)
+            except OSError:
+                pass  # a closed terminal
+            raise SystemExit(128 + int(e.args[0]))
         except BaseException:
             kill_group(p, grace=5)  # a ^C to ccfleet ends its session too
             raise
+        finally:
+            for sig, h in before.items():
+                signal.signal(sig, signal.SIG_DFL if h is None else h)
+            if pid_path and ended and p.poll() is not None:
+                try:
+                    os.remove(pid_path)
+                except OSError:
+                    pass
 
 
 def iso_now():
@@ -1017,6 +1125,33 @@ def results_day():
 RESULT_HEAD_RX = re.compile(r"^<!-- session (\S*) rc=(\S+) result=(.*?) -->")
 
 
+def pass_result_path(cfg, label, day=None):
+    """The result file of the pass with this label: the newest day's that
+    exists, else the one for `day` (default results_day()). A resume and a
+    fold write here, so the pass has one file and its last end heads it."""
+    found = sorted(glob.glob(os.path.join(glob.escape(cfg["kit_dir"]), "results", "*",
+                                          glob.escape(label) + ".md")))
+    return found[-1] if found else os.path.join(cfg["kit_dir"], "results", day or results_day(), label + ".md")
+
+
+def write_result(path, sid, rc, result, text, keep_earlier=True):
+    """Write a result file: the session id, exit code and RESULT on its first
+    line, then the text. An earlier end already in the file is kept below,
+    marked superseded (a resume or a fold of a pass that was cut off)."""
+    earlier = ""
+    if keep_earlier:
+        try:
+            with open(path, encoding="utf-8", errors="replace") as f:
+                earlier = f.read()
+        except OSError:
+            pass
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(f"<!-- session {sid} rc={rc} result={result} -->\n{text}\n")
+        if earlier:
+            f.write(f"\n<!-- an earlier end of this label, superseded by the one above -->\n{earlier}")
+
+
 def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown",
             dry=False, keep=False, pre=None, post=None, check_file=None, existing=None,
             remove_adopted=False):
@@ -1051,7 +1186,12 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
                               os.path.join(kit, "scratch", safe(repo)))
     log = os.path.join(logs, os.path.basename(os.path.dirname(wt))
                        + (f"-in-{now_utc():%H%M%S}" if existing else "") + ".json")
-    branch_name = None if (facts["remote"] or existing) else f"fleet/{label}-{now_utc().strftime('%H%M%S')}"
+    if facts["remote"]:
+        branch_name = None
+    elif existing:
+        branch_name = worktree_branch(wt)  # a fold or an adopted tree: its own branch (RK17)
+    else:
+        branch_name = f"fleet/{label}-{now_utc().strftime('%H%M%S')}"
     sid0 = str(uuid.uuid4())
     template_text = read_template(template)
     values = base_values(cfg, repo, facts, wt, by, {**extra, "SESSION": sid0}, template_text, branch_name)
@@ -1096,7 +1236,7 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     print(f"START {now_utc():%Y-%m-%dT%H:%M:%SZ} {label} model={model} session={sid0} wt={wt} log={log}",
           flush=True)
     since = iso_now()
-    rc = launch(cfg, argv, wt, log)
+    rc = launch(cfg, argv, wt, log, sid=sid0)
     text, sid, result = harvest(log, since, rc, known=clean + stop_on(cfg), stops=stop_on(cfg))
     sid = sid or sid0
     if result in clean and (remove_adopted or not existing):
@@ -1104,16 +1244,22 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
         # is not clean. The claim stays and the pass can be resumed; only an
         # adopted worktree with no item (the caller's own) is not judged.
         text, result = unlanded_verdict(wt, facts, branch_name, result, text)
-    out = os.path.join(results, f"{label}.md")
-    with open(out, "w", encoding="utf-8") as f:
-        f.write(f"<!-- session {sid} rc={rc} result={result} -->\n{text}\n")
+    if existing and remove_adopted:
+        # A fold writes its pass's own result file, the earlier end kept below
+        # (RK6): the close counts the pass once, as the fold ended it.
+        out = pass_result_path(cfg, label, day)
+        write_result(out, sid, rc, result, text)
+    else:
+        out = os.path.join(results, f"{label}.md")
+        write_result(out, sid, rc, result, text, keep_earlier=False)
     print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={sid} out={out}", flush=True)
     released = True
     if post:
         released = post(values, result, sid, log) is not False
+    settled = result in SETTLED_ON and post is None
     if keep:
         pass
-    elif result in clean and released:
+    elif (result in clean or settled) and released:
         remove_worktree(facts, wt, branch_name)
     else:
         why = "the release was refused" if not released else f"RESULT {result} is not clean"
@@ -1328,15 +1474,27 @@ class Pacing:
             pass
 
 
-def clean_result(cfg, path):
-    """True when a result file exists and its first line records a clean
-    RESULT (queue.release_on). An unclean or unreadable one is not done."""
+def result_head(path):
+    """The RESULT word on a result file's first line, or "" (none, unreadable)."""
     try:
         with open(path, encoding="utf-8", errors="replace") as f:
             m = RESULT_HEAD_RX.match(f.readline())
     except OSError:
-        return False
-    return bool(m and m.group(3) in release_on(cfg))
+        return ""
+    return m.group(3) if m else ""
+
+
+def clean_result(cfg, path):
+    """True when a result file exists and its first line records a clean
+    RESULT (queue.release_on). An unclean or unreadable one is not done."""
+    return result_head(path) in release_on(cfg)
+
+
+def finished_result(cfg, path):
+    """The RESULT word when the file records an end a drive does not run
+    again (clean, or settled: SETTLED_ON), else ""."""
+    word = result_head(path)
+    return word if word and (word in release_on(cfg) or word in SETTLED_ON) else ""
 
 
 class Watch:
@@ -1401,12 +1559,21 @@ def drive(cfg, jobs, common, max_n, serial_per_repo, dry, day=None):
             if queue and pace.stop():
                 say(cfg, f"stop file: {len(queue)} jobs not started")
                 queue = []
+            if queue and reset_reached(cfg):
+                # As drain: the reset stops new starts; running jobs finish (RK25).
+                say(cfg, f"reset reached: {len(queue)} jobs not started")
+                queue = []
             hung += watch.hung(running, stopping=not queue)
             busy = {j["repo"] for j in running.values()}
             nxt = next((j for j in queue if not (serial_per_repo and j["repo"] in busy)), None)
-            if nxt and clean_result(cfg, os.path.join(kit, "results", day, nxt["label"] + ".md")):
+            word = nxt and finished_result(cfg, os.path.join(kit, "results", day, nxt["label"] + ".md"))
+            if word:
                 queue.remove(nxt)
-                say(cfg, f"skip {nxt['label']} (a clean result exists for {day})")
+                if word in SETTLED_ON:
+                    say(cfg, f"skip {nxt['label']} (it ended {word} on {day}: settled, its report says "
+                             f"what is left; not run again)")
+                else:
+                    say(cfg, f"skip {nxt['label']} (a clean result exists for {day})")
                 continue
             ceiling = pace.max()
             if nxt and len(running) + watch.held() < ceiling:
@@ -1520,6 +1687,9 @@ def drain(cfg, common, max_n, dry):
     open(launched, "w" if dry else "a").close()
     clean, halt = release_on(cfg), stop_on(cfg)
     running, bad, stop, empty, last_hold, started, spawned, hung = {}, 0, None, False, 0, 0, 0, []
+    # Picks whose claim was refused: kept out of `next` for this drain by
+    # handing the queue the launched list plus these, in a file of their own.
+    refused, skip_path = set(), launched + ".skip"
     # Rank and route the whole queue before any pass starts, every run: a
     # drain that takes passes in whatever order the queue lists them spends
     # the budget on the wrong reviews (the principal, 2026-11-20, in the
@@ -1557,9 +1727,16 @@ def drain(cfg, common, max_n, dry):
                     stop = stop or "reset"
                     if not began:
                         unlaunch(launched, info["pick"])
+                elif not m and not began and p.returncode == EXIT_CLAIM:
+                    # Its claim was refused (another session holds the item):
+                    # not a bad end, and not offered again in this drain (RK25).
+                    unlaunch(launched, info["pick"])
+                    refused.add(info["pick"])
+                    say(cfg, f"{pick}: claim refused; taken back off the launched list and kept out of "
+                             f"next for the rest of this drain (not counted as a bad end)")
                 elif not m and not began:
                     # It never started a session (a failed fetch, a brief not on
-                    # the branch, a refused claim, a guard): it is not launched.
+                    # the branch, a guard): it is not launched.
                     unlaunch(launched, info["pick"])
                     say(cfg, f"{pick} ended before its session started rc={p.returncode}; "
                              f"taken back off the launched list")
@@ -1567,8 +1744,16 @@ def drain(cfg, common, max_n, dry):
                     stop = stop or ("failures" if bad >= 3 else None)
                 elif not m:
                     started += 1
-                    say(cfg, f"{pick} ended with no END line rc={p.returncode}: its session was cut off; "
-                             f"claim and worktree kept")
+                    sm = re.search(r" session=(\S+)", next((l for l in lines if l.startswith("START ")), ""))
+                    live = live_session(cfg, sm.group(1)) if sm else None
+                    if live:
+                        # Its launcher died but its session did not (RK4).
+                        say(cfg, f"{pick} ended with no END line rc={p.returncode}: its launcher stopped but "
+                                 f"its session {sm.group(1)} (pid {live}) still runs, unwatched; claim and "
+                                 f"worktree kept, and a resume is refused while it runs")
+                    else:
+                        say(cfg, f"{pick} ended with no END line rc={p.returncode}: its session was cut off; "
+                                 f"claim and worktree kept")
                     bad += 1
                     stop = stop or ("failures" if bad >= 3 else None)
                 else:
@@ -1597,7 +1782,14 @@ def drain(cfg, common, max_n, dry):
             if len(running) + watch.held() < ceiling:
                 reading = read_headroom(cfg)
                 if gate_ok(cfg["gate"], reading) or dry:
-                    r = queue_call(cfg, "next", {"LAUNCHED": launched, "BY": common_by(common)})
+                    offer_from = launched
+                    if refused:
+                        with open(launched, encoding="utf-8") as f:
+                            held = f.read()
+                        with open(skip_path, "w", encoding="utf-8") as f:
+                            f.write(held + "".join("\t".join(x) + "\n" for x in sorted(refused)))
+                        offer_from = skip_path
+                    r = queue_call(cfg, "next", {"LAUNCHED": offer_from, "BY": common_by(common)})
                     if r.returncode:
                         # A queue tool that fails is not an empty queue: reading it as
                         # one would end a drain with budget unspent and say all is well.
@@ -1610,7 +1802,7 @@ def drain(cfg, common, max_n, dry):
                         empty = True
                         say(cfg, "queue: nothing launchable now")
                         continue
-                    if tuple(pick[:3]) in read_launched(launched):
+                    if tuple(pick[:3]) in read_launched(launched) | refused:
                         # A queue that ignores {LAUNCHED} would start one pass over and over.
                         empty = True
                         say(cfg, f"queue offered {' '.join(pick[:2])} again, already launched; "
@@ -1635,9 +1827,9 @@ def drain(cfg, common, max_n, dry):
     finally:
         pace.close()
         watch.close()
-        if dry:
+        for path in ([launched] if dry else []) + [skip_path]:
             try:
-                os.remove(launched)
+                os.remove(path)
             except OSError:
                 pass
     why = stop or "queue empty"
@@ -1909,6 +2101,12 @@ def one_pass(cfg, repo, item, brief, by, dry):
     check_repo_name(repo)
     if not item.strip():
         raise Refusal(EXIT_USAGE, "pass needs an item")
+    missing = [k for k in ("take", "release") if k not in (cfg.get("queue") or {})]
+    if missing and not dry:
+        # Refused before the worktree or the session (RK16): a pass with no
+        # take cannot claim, and one with no release cannot finish.
+        raise Refusal(EXIT_USAGE, "pass needs " + " and ".join(f"queue.{k}" for k in missing)
+                      + " in the config")
     label = safe(f"{repo}-{item}")
     log_path = review_log(cfg, repo, item)
 
@@ -1945,22 +2143,39 @@ def pass_log(cfg, repo, item):
 
 
 def resume(cfg, repo, wt, sid, template, item, extra, by):
-    """Finish one pass a usage limit cut off: resume its own session, start nothing new."""
+    """Finish one pass a usage limit cut off: resume its own session, start nothing new.
+
+    Refused, before anything runs, when the session still runs (its launcher
+    died: RK4) and, with --item, when the config has no queue.release (RK16).
+    Its verdict is written to the pass's own result file, the earlier end
+    kept below it, so a count from the result files reads the pass as the
+    resume ended it (RK6)."""
     check_repo_name(repo)
     if os.path.basename(wt) != repo or not os.path.isdir(wt):
         # The basename is the billing key, as for run --in.
         raise Refusal(EXIT_SETUP, f"the worktree must exist and its basename must be {repo}: {wt}")
     if not re.fullmatch(r"[A-Za-z0-9_-]+", sid or ""):
         raise Refusal(EXIT_USAGE, f"not a session id: {sid!r}")
+    if item and "release" not in (cfg.get("queue") or {}):
+        raise Refusal(EXIT_USAGE, "resume --item needs queue.release in the config")
+    live = live_session(cfg, sid)
+    if live:
+        raise Refusal(EXIT_CLAIM, f"session {sid} still runs (pid {live}): its launcher died or still "
+                                  f"watches it, and a resume beside it would take its worktree from under it. "
+                                  f"Wait for it to end, or end it (kill -TERM -{live}; what it has not saved "
+                                  f"is lost), then resume")
     model = cfg.get("pass_model") or cfg["repos"].get(repo, {}).get("model") or cfg["default_model"]
     facts = repo_facts(cfg, repo, fetch=False)
+    # With no remote the pass's worktree is on its own branch: the landing line
+    # names it, and it is deleted with the worktree (RK17).
+    branch_name = None if facts["remote"] else worktree_branch(wt)
     extra = {k: read_at_file(v) for k, v in extra.items()}
     if item:
         extra.setdefault("REVIEW_LOG", pass_log(cfg, repo, item))
         os.makedirs(os.path.dirname(extra["REVIEW_LOG"]), exist_ok=True)
     template_text = read_template(template)
     values = base_values(cfg, repo, facts, wt, by, {**extra, "SESSION": sid, "ITEM": item or ""},
-                         template_text)
+                         template_text, branch_name)
     prompt = build_prompt(cfg, template, values, template_text)
     files = session_files(cfg, f"resume-{sid}-{now_utc():%H%M%S}")
     for d in ("logs", os.path.join("scratch", safe(repo))):
@@ -1973,26 +2188,26 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
         for line in repo_grants(wt):
             print(f"WIDENED by the repo's own {line} (it loads with the project; man ccfleet, THREATS)",
                   flush=True)
-        print(f"START {now_utc():%Y-%m-%dT%H:%M:%SZ} resume {repo} {item or ''} of {sid}", flush=True)
+        print(f"START {now_utc():%Y-%m-%dT%H:%M:%SZ} resume {repo} {item or ''} of {sid} log={log}", flush=True)
         since = iso_now()
-        rc = launch(cfg, session_argv(cfg, model, prompt, resume=sid, files=files), wt, log)
+        rc = launch(cfg, session_argv(cfg, model, prompt, resume=sid, files=files), wt, log, sid=sid)
     known = release_on(cfg) + stop_on(cfg)
-    _, new_sid, result = harvest(log, since, rc, known=known, stops=stop_on(cfg))
+    text, new_sid, result = harvest(log, since, rc, known=known, stops=stop_on(cfg))
     if result in release_on(cfg):
-        _, result = unlanded_verdict(wt, facts, None, result, "")
-    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={new_sid or sid} out={log}",
+        text, result = unlanded_verdict(wt, facts, branch_name, result, text)
+    out = pass_result_path(cfg, safe(f"{repo}-{item}") if item else safe(f"resume-{repo}-{sid}"))
+    write_result(out, new_sid or sid, rc, result, f"(resumed session {sid})\n{text}")
+    print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={new_sid or sid} out={out}",
           flush=True)
     if not item:
         print(f"no --item: no queue command called; worktree kept: {wt}", flush=True)
-        return 0
-    if not cfg.get("queue"):
         return 0
     released = ended_hooks(cfg, values, result, new_sid or sid, log, item, "")
     if not released:
         print(f"the claim on {repo}:{item} is still held; worktree kept: {wt}", flush=True)
         return EXIT_CLAIM
     if result in release_on(cfg):
-        remove_worktree(facts, wt)
+        remove_worktree(facts, wt, branch_name)
     return 0
 
 
@@ -2159,7 +2374,10 @@ def main(argv=None):
                 check_repo_name(a.repo)
                 sets.setdefault("ITEM", a.item)
                 sets.setdefault("REVIEW_LOG", pass_log(cfg, a.repo, a.item))
-            return run_one(cfg, a.repo, a.prompt, label=a.label, model=a.model, extra=sets, by=a.by,
+            # A fold's result is its pass's own file (label <repo>-<item>), so
+            # two folds in one repo never write one file (RK6).
+            label = a.label or (safe(f"{a.repo}-{a.item}") if a.item else None)
+            return run_one(cfg, a.repo, a.prompt, label=label, model=a.model, extra=sets, by=a.by,
                            dry=a.dry_run, keep=a.keep, existing=a.existing, post=post,
                            remove_adopted=bool(a.item))[0]
         if a.cmd == "drive":
