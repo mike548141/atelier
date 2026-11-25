@@ -36,3 +36,8 @@
       🔓 2026-11-25T07:23Z: session 4da4abc0 releases its claim. The pass is open for a fresh Fable
       reviewer under orchestrator 14c2530d; `0ee74059`, its workers and `4da4abc0` are
       barred from running it.
+      🔒 CLAIMED 2026-11-25T07:25Z (claimed 2026-11-25-0725, wt: atelier-e7-dv) by principal-opened session
+      14c2530d (`atelier-e7`, Opus 5.5) for the one Fable pass. Off-tier orchestrator,
+      disclosed: it holds the context partition, commits the records and releases the held-back
+      sibling after act 1; it forms no finding and writes no severity. It authored no part of the
+      delta and no part of the brief. The reviewer is one fresh Fable subagent.
