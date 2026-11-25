@@ -167,3 +167,25 @@
       session log, board, cold pass), and drop floor copies; plus
       `~/.claude/{skills,hooks,settings.json}` and `~/.claude.json`'s MCP
       servers.
+      **Row 2, the route to the switch, as of 2026-11-25 ~08:45 UTC** (queue run
+      0b4f93ef, `atelier-86`, from the principal's picks on `160/1790`, `210/600`
+      and `210/620`). Each step is its own session; independence decides who may
+      take which. Deadline for all of it: the drain's start, 2026-11-29 23:00 UTC.
+      - **A.** `210/620`: a build session applies `DV1`–`DV11` and `PK1`–`PK21`,
+        MODERATEs first, and queues the re-check pointer in `160` in its landing
+        commit. It neither briefs nor runs the re-check.
+      - **B.** shed `020/1040` (shed's own session, alongside A): above all its
+        drain config's `pass_prompt` moves to
+        `skills/review/orchestrator-prompt.md`, since the retired
+        `skills/review-drain/` path makes every pass refused at launch; and the
+        session id joins its claim step.
+      - **C.** After A lands: the one Fable re-check the principal approved on
+        `210/620`, briefed by a session that wrote none of the fixes and run by
+        one fresh Fable reviewer.
+      - **D.** Only when C has no MAJOR and B is done: this row. The drain moves
+        onto `/atelier:review plan` and `/atelier:review run` and the user-level
+        `/fable-drain` retires, between drains, never mid-drain.
+      If C or B misses the drain's start, D is skipped: that drain runs on
+      `/fable-drain` and D waits for the gap after it. Each session's close hands
+      the principal the prompt for the next step it is not barred from naming.
+
