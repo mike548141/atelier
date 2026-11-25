@@ -2492,6 +2492,34 @@ class Wave2(unittest.TestCase):
         page = " ".join(rd(os.path.join(HERE, "man", "ccfleet.1")).replace("\\-", "-").split())
         self.assertIn("The seal does not gate", page)
 
+    # ----- PK11: what check names of the kept settings -----
+
+    def test_pk11_check_names_the_sandbox_managed_settings_and_unknown_keys(self):
+        self.user_settings({"sandbox": {"enabled": True, "autoAllowBashIfSandboxed": True},
+                            "someFutureKey": 1, "effortLevel": "high"})
+        out = self.cli("check").stdout
+        self.assertIn("WIDENS: sandbox is kept", out)
+        self.assertIn("KEPT, not classified: someFutureKey", out)
+        self.assertNotIn("not classified: effortLevel", out)
+        self.assertNotIn("not classified: sandbox", out)
+        self.assertIn("MANAGED: managed (policy) settings always load and can widen the grant", out)
+
+    # ----- PK20: the configured visibility beside the forge's -----
+
+    def test_pk20_check_warns_when_the_forge_disagrees(self):
+        bin_dir = os.path.join(self.tmp, "bin")
+        os.makedirs(bin_dir)
+        gh = os.path.join(bin_dir, "gh")
+        wr(gh, "#!/bin/sh\ncase \"$3\" in example-owner/alpha) echo PRIVATE;; example-owner/beta) echo PRIVATE;; "
+               "*) exit 1;; esac\n")
+        os.chmod(gh, 0o755)
+        self.cfg["repos"]["alpha"]["github"] = "example-owner/alpha"
+        self.cfg["repos"]["beta"]["github"] = "example-owner/beta"
+        self.write_cfg()
+        out = self.cli("check", env={**self.env, "PATH": bin_dir + os.pathsep + self.env["PATH"]}).stdout
+        self.assertIn("VISIBILITY MISMATCH: alpha is PUBLIC in the config and PRIVATE on the forge", out)
+        self.assertNotIn("MISMATCH: beta", out)
+
 
 if __name__ == "__main__":
     unittest.main()

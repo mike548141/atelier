@@ -359,7 +359,13 @@ WIDENING_KEPT = {
     "awsAuthRefresh": "runs a command of its own for credentials",
     "awsCredentialExport": "runs a command of its own for credentials",
     "otelHeadersHelper": "runs a command of its own for telemetry headers",
+    "sandbox": "with autoAllowBashIfSandboxed, a Bash command the sandbox runs is approved without asking",
 }
+# Kept user-level keys known to equip a session without widening what it may
+# do. Any other kept key is named "kept, not classified" by `check`, so a key a
+# newer harness adds never widens the grant unseen (PK11).
+NARROW_KEPT = {"permissions", "hooks", "model", "effortLevel", "statusLine", "outputStyle",
+               "includeCoAuthoredBy", "cleanupPeriodDays", "alwaysThinkingEnabled", "spinnerTipsEnabled"}
 # What a launch does when the user-level instructions file it appends names a
 # private name and the repo is public or of unknown visibility.
 INSTRUCTIONS_GUARD = ("refuse", "warn")
@@ -2809,6 +2815,12 @@ def check_settings(cfg):
     for k in sorted(set(settings) & set(WIDENING_KEPT)):
         print(f"WIDENS: {k} is kept: {WIDENING_KEPT[k]}. Override it in the config's `settings` to narrow it "
               f"(man ccfleet, THREATS).")
+    user = read_settings(upath, required=False) or {}
+    for k in sorted(set(user) - set(WIDENING_KEPT) - NARROW_KEPT):
+        print(f"KEPT, not classified: {k}. ccfleet does not know whether it widens what a session may do; "
+              f"override it in the config's `settings` if it might (man ccfleet, THREATS).")
+    print("MANAGED: managed (policy) settings always load and can widen the grant; ccfleet does not read "
+          "them (man ccfleet, THREATS).")
     for h in notes["dropped_hooks"]:
         print(f"HOOK dropped: {h}")
     for h in notes["kept_hooks"]:
@@ -2842,6 +2854,47 @@ def check_settings(cfg):
           "with its CLAUDE.md; each launch prints a WIDENED line for what they grant (man ccfleet, THREATS).")
 
 
+def forge_slug(cfg, repo):
+    """The repo's OWNER/NAME on the forge: its `github`, else its primary
+    checkout's origin when that is a github.com remote; None otherwise."""
+    rc = cfg["repos"].get(repo, {})
+    if rc.get("github"):
+        return rc["github"]
+    primary = os.path.join(cfg["repos_root"], repo)
+    if not os.path.isdir(primary):
+        return None
+    remote = git("remote", "get-url", "origin", cwd=primary, check=False)
+    m = re.search(r"github\.com[:/](.+?)(?:\.git)?$", remote or "")
+    return m.group(1) if m else None
+
+
+def check_visibility(cfg):
+    """Where gh is on the path, each repo whose config states its visibility
+    is compared with the forge's answer: the config's wins at launch, so a repo
+    made public and still marked private would get the private imports
+    (PK20). A mismatch is a warning line; a repo the forge does not answer
+    for is said."""
+    if not shutil.which("gh"):
+        print("VISIBILITY: gh is not on the path; the configured visibility is not compared with the forge")
+        return
+    for repo in sorted(cfg["repos"]):
+        stated = str(cfg["repos"][repo].get("visibility") or "").upper()
+        slug = forge_slug(cfg, repo) if stated else None
+        if not slug:
+            continue
+        try:
+            r = subprocess.run(["gh", "repo", "view", slug, "--json", "visibility", "-q", ".visibility"],
+                               capture_output=True, text=True, timeout=60, stdin=subprocess.DEVNULL)
+            forge = r.stdout.strip().upper() if r.returncode == 0 else ""
+        except (OSError, subprocess.TimeoutExpired):
+            forge = ""
+        if not forge:
+            print(f"VISIBILITY: {repo}: the forge did not answer for {slug}; the config's {stated} stands")
+        elif forge != stated:
+            print(f"VISIBILITY MISMATCH: {repo} is {stated} in the config and {forge} on the forge ({slug}); "
+                  f"the config's wins at launch, so fix it (man ccfleet, THREATS)")
+
+
 def check(cfg, prompts, sets):
     """Print what the config resolves to, any permission widening, and the
     placeholders in the pass prompt (and each --prompt) that nothing fills.
@@ -2863,6 +2916,7 @@ def check(cfg, prompts, sets):
               "would ask (an edit, most shell commands) is refused. Grant the narrowest that does the work, "
               "or confirm the sessions need only what the default allows (a repo's own settings aside).")
     check_settings(cfg)
+    check_visibility(cfg)
     have = set(cfg["vars"]) | set(sets)
     # What fills a template depends on the command that launches it: `pass`
     # fills {ITEM} {BRIEF} {REVIEW_LOG}, and only ever for pass_prompt; a

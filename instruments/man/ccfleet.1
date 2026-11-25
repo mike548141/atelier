@@ -1836,7 +1836,34 @@ and
 .B check
 names them with the permission flags.
 .IP \(bu 2
-Managed (policy) settings, which always load.
+A repo's own skills: a skill's
+.B allowed\-tools
+pre-approves what it lists for the turn that invokes it, in a
+.B \-p
+run too, and the project source loads in every session.
+No
+.B WIDENED
+line reads them.
+.IP \(bu 2
+Managed (policy) settings, which always load; ccfleet does not read them,
+and
+.B check
+says so with a
+.B MANAGED:
+line.
+.IP \(bu 2
+A kept user-level
+.B sandbox
+block: with
+.BR autoAllowBashIfSandboxed ,
+a Bash command the sandbox runs is approved without asking.
+.B check
+prints a
+.B WIDENS:
+line for it, and a
+.B "KEPT, not classified:"
+line for any other kept key it does not know, so a key a newer Claude Code
+adds never widens the grant unseen.
 .PP
 The user-level
 .I CLAUDE.md
@@ -1857,6 +1884,15 @@ A public or unknown one's session is not told where they are, and its
 settings deny
 .B Read
 of each.
+Where the config's
+.B visibility
+and the forge disagree,
+.B check
+prints a
+.B "VISIBILITY MISMATCH:"
+line, where
+.BR gh (1)
+is on the path and the repo's forge name is known.
 What is left: a deny rule for
 .B Read
 does not stop a shell command
