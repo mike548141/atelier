@@ -92,3 +92,8 @@ principal's answer on landing), and that answer is time-sensitive for the
   pick: *"Before, plus re-check"* (`2d936146`). The principal was given the
   four remaining prompts: build `210/620`, shed `020/1040`, the one Fable
   re-check, then the switch.
+- The route to the drain switch (steps A to D) is written on `450/010` row 2
+  (`2d4eaeb1`) so it survives this session; a peer (`14c2530d`) confirmed
+  shed's drain config still names the retired prompt path, which step B
+  fixes. The principal was given two prompts to open next: A (atelier, build
+  `210/620`) and B (shed `020/1040`); each later close hands on the next.

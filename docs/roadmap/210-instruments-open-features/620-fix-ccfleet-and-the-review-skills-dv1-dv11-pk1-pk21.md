@@ -29,3 +29,7 @@
       the drain's start, Monday runs on `/fable-drain` and the switch waits
       for the gap after it. Nothing may land on the drain's paths between a
       clean re-check and the drain.
+      🔒 CLAIMED 2026-11-25T11:25Z (claimed 2026-11-25-1125, wt: atelier-f9-*) by principal-opened
+      session b04df0da (`atelier-f9`, Opus 5.5), the build session of step A on `450/010` row 2.
+      It orchestrates worker subagents in worktrees and lands their fixes; it neither briefs nor
+      runs the Fable re-check (step C), and queues only its pointer.
