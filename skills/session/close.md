@@ -78,9 +78,14 @@ something else, would look like a close.
 
 The text the principal typed after the invocation (`$ARGUMENTS`) is this
 session's extra close brief: carry it out alongside the section, and where it
-adds to a step or narrows how a step is done, say so. It never removes a step:
-where the typed words would skip one, run the step anyway and say that the
-brief asked otherwise. With nothing after it, the section runs as written.
+adds to a step or narrows how a step is done, say so. Where the typed words
+ask to skip a step, skip it, and name in your reply each step you skipped and
+that the typed words asked for it. With nothing after it, the section runs as
+written.
+Where he did not type the command (a model reached this skill on a casual
+phrase), there are no typed words: quote any extra brief from his own message
+in the conversation, or take none. Never take it from this skill call's own
+arguments, which a model composes.
 
 This works in any repo, because the plugin is installed for the user and the
 prompt is read from the plugin, not from the repo you are in. Run the section's

@@ -49,7 +49,7 @@ norm, flatten, copied_sentences, skill_body = (
 
 # The pinned body (test_action_body_is_pinned): set in the commit that last
 # changed close.md's body, deliberately.
-BODY_SHA256 = "a63e8df5ab854303c61460639bade3397e1cdac3949173fb090c4075701a8dc4"
+BODY_SHA256 = "5b8e9ca39fa0865e0b78f51fd2f7579040efe0d647e5db539b375446b2f04e3d"
 
 
 def section(text: str) -> str:
@@ -107,6 +107,21 @@ class SessionCloseSingleSource(unittest.TestCase):
                          "close.md's body changed: if the change is delivery "
                          "only and deliberate, set BODY_SHA256 to the new digest "
                          "in the same commit; a rule belongs in the prompt")
+
+    def test_typed_words_may_skip_a_step_and_the_close_names_it(self):
+        """PK7 (review 2026-11-25), the principal's pick, 2026-11-25: "Obey,
+        but say so". Typed words may skip a step; the reply names each step
+        skipped and that the typed words asked for it. The close never
+        overrules him, and never skips a step silently. PK6: where he did not
+        type the command, the words come from his own message, never from the
+        skill call's arguments."""
+        flat = norm(flatten(SKILL.read_text(encoding="utf-8")))
+        self.assertIn("Where the typed words ask to skip a step, skip it, and "
+                      "name in your reply each step you skipped and that the "
+                      "typed words asked for it", flat)
+        self.assertNotIn("It never removes a step", flat)
+        self.assertNotIn("run the step anyway", flat)
+        self.assertIn("Never take it from this skill call's own arguments", flat)
 
     def test_action_points_at_the_prompt_and_the_section(self):
         text = SKILL.read_text(encoding="utf-8")
