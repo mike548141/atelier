@@ -1,4 +1,4 @@
-- [ ] **`/atelier:session close`: one command runs the session-open
+- [x] **`/atelier:session close`: one command runs the session-open
       prompt's close, so the principal stops pasting it.** The principal,
       2026-11-24 (session 33d3cde8), verbatim: *"The reason I have the
       session-open-prompt.md file open in vscode all the time is I regularly
@@ -66,3 +66,9 @@
       🔒 CLAIMED 2026-11-24T23:34Z (claimed 2026-11-24-2334, wt: atelier-86-close) by queue-run
       session 9a08702f (`atelier-56`, Opus 5.5, principal-opened), which wrote
       none of `e917a98b`. Scope: rebase it on `main`, full suite, push, close.
+      ✅ **Landed 2026-11-25 UTC (queue run 9a08702f):** `e917a98b` rebased onto
+      `main` unchanged as `3620c908` and pushed; full suite green on it first
+      (tools 3,467 OK, instruments 234 OK, node 741 pass). The remote branch
+      `atelier-86-close` is deleted (`git cherry` shows it upstream). Its cold
+      pass rides the RK brief, widened by the same run under `160/1790` (Part
+      C). 🔓 2026-11-25 UTC: queue run 9a08702f releases its landing claim.
