@@ -907,7 +907,17 @@ defaults are twice the core count, 25 and 20.
 .B reset_utc
 .B YYYY\-MM\-DDTHH:MM
 in UTC.
-No session starts at or after it; this is a budget's reset time.
+No new session starts at or after it; this is a budget's reset time.
+A
+.B resume
+and a fold
+.RB ( run
+.B \-\-in
+.I WT
+.B \-\-item
+.IR ITEM )
+finish a pass that started before it, so the reset does not stop them:
+they run after it on the principal's word only.
 .TP
 .B private_names
 Names a public repo's prompt must never contain.

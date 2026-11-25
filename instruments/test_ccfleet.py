@@ -973,6 +973,26 @@ class EndToEnd(unittest.TestCase):
         r = self.cli("run", "beta", "--prompt", self.prompt, "--item", "020")
         self.assertEqual(r.returncode, cf.EXIT_USAGE, "--item without --in")
 
+    def test_a_fold_runs_after_the_reset_and_new_work_does_not(self):
+        """RK5: the reset stops new work only. A fold finishes a started pass,
+        as resume does, so it runs after reset_utc; a plain run, and a run
+        --in without --item, are still refused."""
+        self.cfg["reset_utc"] = "2000-01-01T00:00"
+        self.write_cfg()
+        wt = os.path.join(self.tmp, "wt", "pass-0101", "beta")
+        os.makedirs(os.path.dirname(wt))
+        sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
+        r = self.cli("run", "beta", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, cf.EXIT_RESET, "a new run after the reset")
+        r = self.cli("run", "beta", "--prompt", self.prompt, "--in", wt)
+        self.assertEqual(r.returncode, cf.EXIT_RESET, "an adopted worktree with no item is not a fold")
+        self.assertEqual(self.calls(), [])
+        r = self.cli("run", "beta", "--prompt", self.prompt, "--in", wt, "--item", "020")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("RESET reached", r.stdout)
+        self.assertEqual(len(self.calls()), 1, "the fold started its session")
+        self.assertEqual(rd(os.path.join(self.tmp, "release.log")).split(), ["beta:020"])
+
     def test_review_logs_never_collide_and_a_fresh_pass_inherits_none(self):
         """FL15: distinct pairs get distinct logs; a log left by an earlier
         pass is moved aside before a new pass on the item starts."""

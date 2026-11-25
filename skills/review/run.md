@@ -215,8 +215,12 @@ finish, verbatim>'` ([`resume-prompt.md`](resume-prompt.md)): the orchestrator
 continues its own reviewer (which reads its own review log first), folds,
 lands and reports. If the reviewer cannot be reached, the pass reports FAILED;
 it is never handed to a replacement reviewer or a lesser model, and the claim,
-worktree and log stay for the principal's word. Nothing new starts. No claims:
-nothing to resume; say so.
+worktree and log stay for the principal's word. A pass whose act 2 is
+already written needs only the fold (§ *Lessons paid for*), which costs no
+review budget: take it before a resume. Leave `reset_utc` as the drain set
+it: it stops new passes only, and ccfleet runs a `resume` and a fold (`run
+--in ... --item ...`) after it, since both finish a pass started before it.
+Nothing new starts. No claims: nothing to resume; say so.
 
 **Finding the session and the reviewer.** ccfleet gives each new session its
 id before it starts (`--session-id`), so a pass's id is on its `START` line
@@ -244,54 +248,16 @@ names any before the first try, and this list says which to set.
 
 | Prompt | The adopter sets |
 |---|---|
-| [`orchestrator-prompt.md`](orchestrator-prompt.md) | `APPROVAL` (what the drain runs under, in the principal's words); `HOLDS` (passes held out, in the principal's words, or "none"); `PROVENANCE` (what this session did and did not do: which briefs it wrote, which writers it started); `REVIEW_MODEL` (the review tier's model id: the one value that puts the reviewer on the review tier); `HELD_DIR` (the held-sibling directory, § *Briefs are never left owed*) |
+| [`orchestrator-prompt.md`](orchestrator-prompt.md) | `APPROVAL` (what the drain runs under, in the principal's words); `HOLDS` (passes held out, in the principal's words, or "none"); `PROVENANCE` (what this session did and did not do: which briefs it wrote, which writers it started); `REVIEW_MODEL` (the review tier as the Agent tool names it: `fable`, `opus`, `sonnet` or `haiku`, never a full model id, which that tool refuses; the one value that puts the reviewer on the review tier); `HELD_DIR` (the held-sibling directory, § *Briefs are never left owed*) |
 | [`resume-prompt.md`](resume-prompt.md) | `FINISH_WORDS` (the principal's word to finish started work, verbatim: not the drain's approval); per call `AGENT` and `STATE` |
 | [`fold-prompt.md`](fold-prompt.md) | `FINISH_WORDS`; per call `BRIEF` and `HELD` (the held copy's path); `--item` fills `ITEM` and `REVIEW_LOG` |
 
 ## The reviewer prompt (the orchestrator fills it in)
 
-- **Who it is**: the item, the worktree (absolute paths, `git -C`, never
-  `cd`), the brief path; read the brief in full first and follow it, with
-  REVIEW.md for the verdict shape.
-- **Start-up reading**: skip the repo's session-log step, whatever the repo's
-  read order says: the log is on the barred list (REVIEW.md rule 2), and the
-  prompt and the brief both say so.
-- **Provenance**: the review tier, checked at selection; spawned by the
-  per-pass orchestrator (named by session id), which holds the partition,
-  forms no finding and writes no severity; the barred sessions it was not
-  started or instructed by; the approval it runs under. The reviewer puts in
-  the verdict's provenance what the orchestrator told it: the spawn prompt,
-  the barred-set choice, the release message and any resume message,
-  verbatim or as an attached file (REVIEW.md rule 4), so a reader can check
-  that the orchestrator formed no finding.
-- **The partition**: the sibling was removed on purpose; never look for it in
-  git history, other checkouts, scratchpads or temp directories.
-- **The review log**: a review earns trust only if its method can be checked,
-  so the reviewer keeps a running log at `{REVIEW_LOG}` (ccfleet sets one path
-  per pass, outside the repo, so it survives a reboot): each check and its
-  result, with the exact command or file and line; each candidate finding with
-  its evidence and the criterion that decides it; each point checked and not
-  raised. Enough for a third party to re-run the method and reach the same
-  verdict. No secrets or live captures in it. Keep the wording to checks and
-  evidence: a wider wording was refused by a model safeguard, and the
-  orchestrators stopped at their first message. A fresh pass starts with no
-  log: a file already at its path is an earlier pass's, never handed to a
-  fresh reviewer (the orchestrator stops and reports it).
-- **Private while running, open once done**: until act 2 is saved, no other
-  session reads, edits or comments on the log or steers the review, except on
-  the principal's order or to stop harm. At the fold the orchestrator appends
-  it verbatim to the review under *Review log (reviewer, verbatim; private
-  while the pass ran, opened at the fold)* and deletes the file. A revived
-  reviewer reads its own log first.
-- **What it may write**: the review log, and otherwise only the brief file —
-  act 1 below a `---` divider, an updated Status line, the file's own column
-  width, absolute dates.
-- **What it must not do**: commit or push; leave live captures in scratch; open
-  GUI apps; print a secret; write to a live system.
-- **Public repos**: refer to orchestrators by session id only; never a
-  private repo's name or path, or an estate fact.
-- **How to finish**: verdict, tally, path, "ACT 1 SAVED"; act 2 ends "ACT 2
-  SAVED".
+Its one home is the end of [`orchestrator-prompt.md`](orchestrator-prompt.md),
+under *THE REVIEWER PROMPT*, so every pass carries it in its own prompt and
+needs no read outside its worktree (a pass runs in another repo, where a path
+into this skill does not resolve). This file does not restate it.
 
 ## Close
 

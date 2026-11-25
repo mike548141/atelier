@@ -20,3 +20,29 @@
       first, the drain-path fixes `RK2` and `RK5`, `RK12`'s read-only check and one canary,
       landing before 2026-11-29 23:00 UTC; then part (3). It neither briefs nor runs the small
       Fable pass; it queues that pass's pointer in the drain-path landing commit.
+      ✅ **Part 1, the drain path, landed 2026-11-25** (session 0ee74059). `RK2`: the
+      reviewer-prompt template moved from `run.md` into `orchestrator-prompt.md` (its
+      one home, under *THE REVIEWER PROMPT*), so a pass in another repo reads no file
+      outside its worktree; `fold-prompt.md` points at nothing outside its steps.
+      `RK5`: `ccfleet` refuses new work at `reset_utc` but runs a fold (`run --in
+      --item`) as it runs a `resume`; manual, help line and Mode 2 say so; a new test
+      fails on the old code. **`RK12`, the real drain config, read-only** (`ccfleet
+      check`, both review prompts): its sessions run in the bypass permission mode, so
+      the config grants what they need (the reverse of `RK12`'s risk; the mode is the
+      estate's choice, and `check` names it); its `pass_prompt` still names the
+      retired `skills/review-drain/` path, so every pass would be refused at launch:
+      already queued in the estate root's own board, not fixed from here (work lands
+      in the repo it changes); its `take` records no session id (`RK21`, part 3).
+      **Canary**, one pass: a copy of the real config with its grant fields kept
+      verbatim and its repo, queue, models and reset replaced (a throwaway repo with
+      a local origin, a stand-in queue, the cheapest model for both orchestrator and
+      reviewer, so no review-tier spend and no real claim). `result=DONE`, claim
+      taken with the session id, released, `ended` called, worktree removed; the
+      orchestrator read no file outside its worktree and filled the reviewer prompt
+      from its own (`RK2` holds live); act 1, fold and review log landed on the
+      origin. It found one more drain-path defect, fixed in the same commit: the
+      Agent tool takes a tier alias (`fable`, `opus`, `sonnet`, `haiku`) and refuses
+      a full model id, which the example config and `run.md` gave for
+      `REVIEW_MODEL`; the canary's orchestrator recovered by retrying with the alias,
+      a real pass might not. The real config already uses the alias. The small
+      Fable pass is queued as `160/1800`, neither briefed nor run here.

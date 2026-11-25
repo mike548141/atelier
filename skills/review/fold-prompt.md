@@ -4,7 +4,7 @@ You are finishing the non-review remainder of a cold review pass that a review d
 
 So: you run NO review-tier model and spawn NO subagent. You form no finding, write no severity and change no reviewer text. You do only orchestrator work: commit, fold, flip the board item, rebuild the board, land. Drain session {BY} started you; it wrote neither the brief nor the subject.
 
-The pass: `{REPO}:{ITEM}`, brief `{BRIEF}`, in the worktree `{WT}`; the held sibling's copy is at `{HELD}`. Procedure reference: the atelier `/atelier:review run` action (`skills/review/run.md`) and its `orchestrator-prompt.md`, step 7. Read this repo's CLAUDE.md for its board tool and gates. Read the brief in full before folding.
+The pass: `{REPO}:{ITEM}`, brief `{BRIEF}`, in the worktree `{WT}`; the held sibling's copy is at `{HELD}`. Everything the fold needs is in the steps below: read no file outside this worktree but the held copy and the review log. Read this repo's CLAUDE.md for its board tool and gates. Read the brief in full before folding.
 
 1. The reviewer's act 1 and act 2 text is already in the brief file (act 2 may be uncommitted). Do not edit the reviewer's prose except for form-only gate fixes (wrap, date or spelling markers on verbatim quotes), and say what you changed in the fold preface.
 2. Append the held sibling's text VERBATIM below the final verdict under the heading "Deferred sibling, folded below the verdict (orchestrator, {DATE})", with a one-paragraph preface: held out of the tree by the orchestrator until act 1 was committed; released to the reviewer for act 2; folded here by a fold-only session after the drain's orchestrator hit the usage limit, with no review-tier run. Read the held copy only to copy it.

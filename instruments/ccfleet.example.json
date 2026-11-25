@@ -28,7 +28,7 @@
     "APPROVAL": "\"Run the briefed reviews until the budget is used.\" (the principal's words, verbatim, for this drain only)",
     "HOLDS": "none",
     "PROVENANCE": "This drain session wrote no brief and started no writer of any pass it runs.",
-    "REVIEW_MODEL": "claude-opus-5-5",
+    "REVIEW_MODEL": "opus",
     "HELD_DIR": "~/private/review-siblings",
     "FINISH_WORDS": "\"Finish what was started, start nothing new.\" (the principal's word to finish cut-off passes, verbatim; not the drain's approval)"
   },
