@@ -39,11 +39,12 @@ FAKE_CLAUDE = textwrap.dedent("""\
            "extra": os.environ.get("FAKE_EXTRA_ENV")}
     # The session's settings and instructions copies, read while it runs:
     # ccfleet removes them when its launching process exits.
-    rec["files"] = {}
+    rec["files"], rec["modes"] = {}, {}
     for flag in ("--settings", "--append-system-prompt-file"):
         if flag in sys.argv:
             p = sys.argv[sys.argv.index(flag) + 1]
             rec["files"][flag] = open(p).read() if os.path.exists(p) else None
+            rec["modes"][flag] = os.stat(p).st_mode & 0o777 if os.path.exists(p) else None
     with open(os.environ["FAKE_CLAUDE_LOG"], "a") as f:
         f.write(json.dumps(rec) + "\\n")
     base = os.path.basename(os.getcwd())
@@ -2531,6 +2532,53 @@ class Wave2(unittest.TestCase):
         self.session_log("resume-beta-070-1300", result="DONE")
         local = json.loads(self.cli("plan", "--json").stdout)["history"]["routes"]["local"]
         self.assertEqual((local["passes_seen"], local["clean"], local["finished_later"]), (3, 0, 1))
+
+    # ----- PK16: what the tests did not notice -----
+
+    def test_m11_a_public_repos_resume_gets_the_public_copy(self):
+        d = self.env["CLAUDE_CONFIG_DIR"]
+        os.makedirs(d, exist_ok=True)
+        wr(os.path.join(d, "CLAUDE.md"), md("Shared rules.", "@CLAUDE-private.md"))
+        wr(os.path.join(d, "CLAUDE-private.md"), "Private rules naming secret-root.\n")
+        wt = self.new_wt("alpha")
+        r = self.cli("resume", "alpha", wt, "sess-old", "--prompt", self.prompt)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        (call,) = self.calls()
+        text = call["files"]["--append-system-prompt-file"]
+        self.assertTrue(text.endswith("Shared rules.\n" + cf.WITHHELD_IMPORT), text)
+        self.assertNotIn("secret-root", text)
+        self.assertIn("Read(/" + os.path.join(d, "CLAUDE-private.md") + ")",
+                      json.loads(call["files"]["--settings"])["permissions"]["deny"])
+
+    def test_m15_both_session_copies_are_owner_only(self):
+        self.user_settings({"env": {"HOUSE": "1"}}, claude_md="rules\n")
+        self.assertEqual(self.cli("run", "beta", "--prompt", self.prompt).returncode, 0)
+        wt = self.new_wt("beta")
+        self.assertEqual(self.cli("resume", "beta", wt, "sess-old", "--prompt", self.prompt).returncode, 0)
+        for call in self.calls():
+            self.assertEqual(call["modes"], {"--settings": 0o600, "--append-system-prompt-file": 0o600})
+
+    def test_m21_a_settled_end_never_releases_the_claim(self):
+        wr(self.prompt, "Pass {ITEM}\n")
+        for n, word in enumerate(cf.SETTLED_ON):
+            r = self.cli("pass", "beta", f"0{n}", "docs/brief.md", env={**self.env, "FAKE_RESULT": word})
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn(f"result={word}", r.stdout)
+        wt = self.worktrees()[0]
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "05",
+                     env={**self.env, "FAKE_RESULT": "PARTIAL"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")), "no claim released")
+        self.assertEqual(len(self.worktrees()), 2, "each pass's worktree is kept for its resume")
+
+    def test_q2_the_references_next_refuses_without_the_seal(self):
+        self.ref_queue()
+        skip = os.path.join(self.tmp, "launched.txt")
+        wr(skip, "")
+        r = self.ref("next", "--skip-file", skip, "--by", "orch-1", "--route", "local")
+        self.assertEqual(r.returncode, 1)
+        self.assertEqual(r.stdout, "")
+        self.assertIn("no ranking is sealed", r.stderr)
 
     # ----- PK20: the configured visibility beside the forge's -----
 
