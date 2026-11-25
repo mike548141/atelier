@@ -304,6 +304,9 @@ class EndToEnd(unittest.TestCase):
             os.chmod(p, 0o755)
         self.prompt = os.path.join(t, "prompt.md")
         wr(self.prompt, "Work on {REPO} ({VIS}) in {WT}. {ASK} {LANDING}\n")
+        # A fold's own template: a fold never runs pass_prompt (DV1).
+        self.fold = os.path.join(t, "fold.md")
+        wr(self.fold, "Fold {ITEM} of {REPO} in {WT}. {LANDING}\n")
         self.cfg = {
             "kit_dir": os.path.join(t, "kit"), "repos_root": os.path.join(t, "src"),
             "worktrees_root": os.path.join(t, "wt"), "default_model": "model-default",
@@ -966,39 +969,63 @@ class EndToEnd(unittest.TestCase):
         wt = os.path.join(self.tmp, "wt", "pass-0101", "beta")
         os.makedirs(os.path.dirname(wt))
         sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
-        r = self.cli("run", "beta", "--prompt", self.prompt, "--in", wt, "--item", "020",
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "020",
                      env={**self.env, "FAKE_RESULT": "FAILED"})
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertTrue(os.path.isdir(wt))
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")))
-        wr(self.prompt, "Fold {ITEM} with {REVIEW_LOG}\n")
-        r = self.cli("run", "beta", "--prompt", self.prompt, "--in", wt, "--item", "020")
+        wr(self.fold, "Fold {ITEM} with {REVIEW_LOG}\n")
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "020")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         want = cf.review_log({"kit_dir": os.path.join(self.tmp, "kit")}, "beta", "020")
         self.assertEqual(self.calls()[-1]["argv"][-1], f"Fold 020 with {want}\n", "a fold gets the pass's log")
         self.assertEqual(rd(os.path.join(self.tmp, "release.log")).split(), ["beta:020"])
         self.assertFalse(os.path.isdir(wt))
-        r = self.cli("run", "beta", "--prompt", self.prompt, "--item", "020")
+        r = self.cli("run", "beta", "--prompt", self.fold, "--item", "020")
         self.assertEqual(r.returncode, cf.EXIT_USAGE, "--item without --in")
 
     def test_a_fold_runs_after_the_reset_and_new_work_does_not(self):
-        """RK5: the reset stops new work only. A fold finishes a started pass,
-        as resume does, so it runs after reset_utc; a plain run, and a run
-        --in without --item, are still refused."""
+        """RK5, DV1: the reset stops new work only. A fold finishes a started
+        pass, as resume does, so it runs after reset_utc; a plain run, a run
+        --in without --item, and a fold of an item no pass ever started are
+        still refused, and a fold never runs pass_prompt."""
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("pass", "beta", "020", "docs/brief.md", env={**self.env, "FAKE_RESULT": "FAILED"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        (wt,) = self.worktrees()
         self.cfg["reset_utc"] = "2000-01-01T00:00"
         self.write_cfg()
+        before = len(self.calls())
+        r = self.cli("run", "beta", "--prompt", self.fold)
+        self.assertEqual(r.returncode, cf.EXIT_RESET, "a new run after the reset")
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt)
+        self.assertEqual(r.returncode, cf.EXIT_RESET, "an adopted worktree with no item is not a fold")
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "777")
+        self.assertEqual(r.returncode, cf.EXIT_RESET, "no pass on beta:777 ever started: the fold shape alone "
+                                                      "does not pass the reset")
+        self.assertIn("no pass on beta:777 started", r.stdout)
+        r = self.cli("run", "beta", "--prompt", self.prompt, "--in", wt, "--item", "020")
+        self.assertEqual(r.returncode, cf.EXIT_USAGE, "a fold that runs pass_prompt starts a new pass")
+        self.assertIn("pass_prompt", r.stderr)
+        self.assertEqual(len(self.calls()), before)
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "020")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("RESET reached", r.stdout)
+        self.assertEqual(len(self.calls()), before + 1, "the fold started its session")
+        self.assertEqual(rd(os.path.join(self.tmp, "release.log")).split(), ["beta:020"])
+
+    def test_a_resume_runs_after_the_reset(self):
+        """DV7 M5: the reset's other half. A resume finishes a started pass, so
+        reset_utc does not stop it."""
         wt = os.path.join(self.tmp, "wt", "pass-0101", "beta")
         os.makedirs(os.path.dirname(wt))
         sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main", cwd=os.path.join(self.tmp, "src", "beta"))
-        r = self.cli("run", "beta", "--prompt", self.prompt)
-        self.assertEqual(r.returncode, cf.EXIT_RESET, "a new run after the reset")
-        r = self.cli("run", "beta", "--prompt", self.prompt, "--in", wt)
-        self.assertEqual(r.returncode, cf.EXIT_RESET, "an adopted worktree with no item is not a fold")
-        self.assertEqual(self.calls(), [])
-        r = self.cli("run", "beta", "--prompt", self.prompt, "--in", wt, "--item", "020")
+        self.cfg["reset_utc"] = "2000-01-01T00:00"
+        self.write_cfg()
+        r = self.cli("resume", "beta", wt, "sess-old", "--prompt", self.fold, "--item", "020")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertNotIn("RESET reached", r.stdout)
-        self.assertEqual(len(self.calls()), 1, "the fold started its session")
+        self.assertNotIn("RESET", r.stdout)
+        self.assertEqual(len(self.calls()), 1, "the resume ran its session")
         self.assertEqual(rd(os.path.join(self.tmp, "release.log")).split(), ["beta:020"])
 
     def test_review_logs_never_collide_and_a_fresh_pass_inherits_none(self):
@@ -1486,9 +1513,9 @@ class RKLifecycle(unittest.TestCase):
             sh("git", "worktree", "add", "-q", "--detach", wt, "origin/main",
                cwd=os.path.join(self.tmp, "src", "beta"))
             wts.append(wt)
-        r1 = self.cli("run", "beta", "--prompt", self.prompt, "--in", wts[0], "--item", "010",
+        r1 = self.cli("run", "beta", "--prompt", self.fold, "--in", wts[0], "--item", "010",
                       env={**self.env, "FAKE_RESULT": "FAILED"})
-        r2 = self.cli("run", "beta", "--prompt", self.prompt, "--in", wts[1], "--item", "020")
+        r2 = self.cli("run", "beta", "--prompt", self.fold, "--in", wts[1], "--item", "020")
         self.assertEqual((r1.returncode, r2.returncode), (0, 0), r1.stderr + r2.stderr)
         self.assertEqual(sorted(os.listdir(self.day_dir())), ["beta-010.md", "beta-020.md"])
         self.assertIn("result=FAILED", rd(os.path.join(self.day_dir(), "beta-010.md")).splitlines()[0])
@@ -1529,6 +1556,7 @@ class RKLifecycle(unittest.TestCase):
         self.cfg["repos"]["gamma"] = {"visibility": "private"}
         self.write_cfg()
         wr(self.prompt, "Land: {LANDING}\n")
+        wr(self.fold, "Land: {LANDING}\n")
         r = self.cli("run", "gamma", "--prompt", self.prompt, env={**self.env, "FAKE_RESULT": "FAILED"})
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         (wt,) = self.worktrees()
@@ -1539,7 +1567,7 @@ class RKLifecycle(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn(f"merge --ff-only {branch}", self.calls()[-1]["argv"][-1])
         self.assertNotIn("None", self.calls()[-1]["argv"][-1])
-        r = self.cli("run", "gamma", "--prompt", self.prompt, "--in", wt, "--item", "010")
+        r = self.cli("run", "gamma", "--prompt", self.fold, "--in", wt, "--item", "010")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn(f"merge --ff-only {branch}", self.calls()[-1]["argv"][-1])
         self.assertFalse(os.path.isdir(wt))

@@ -139,7 +139,8 @@ CONFIG is JSON (see instruments/ccfleet.example.json, every value fictional):
   nice            default 5;  max_concurrent  default 4;  stagger_seconds  default 90;  poll_seconds 30
   gate            {max_load (default 2 x cores), min_mem_pct 25, min_disk_gb 20}
   reset_utc       "YYYY-MM-DDTHH:MM": no new start at or after it (a budget reset);
-                  a resume or a fold, which finishes a started pass, still runs
+                  a resume, and a fold of a pass that started (its result file
+                  or a drain's START line for <repo>-<item>), still run
   private_names   names a public repo's prompt must never contain
   instructions_guard  "refuse" (default) or "warn": a public or unknown repo's launch
                   when the user-level CLAUDE.md it appends names a private name
@@ -259,7 +260,8 @@ release refused
 started nothing) · 5 refused by the private-name guard or an unfilled
 placeholder (check: a template has one) · 64 usage (incl. an unreadable or
 malformed config, a repeated jobs label, --set with no '=', a repo given as a
-path). See `man ccfleet`, THREATS, for what can steer an unattended session.
+path, a fold whose template is pass_prompt). See `man ccfleet`, THREATS, for
+what can steer an unattended session.
 Runtime: Python 3.8 or later (tested on 3.9 and 3.14 only), standard library
 only; git, nice and ps on PATH, and memory_pressure on macOS (the gate's
 memory reading); gh optional (visibility lookup when a repo's config does not
@@ -1501,9 +1503,27 @@ def write_result(path, sid, rc, result, text, keep_earlier=True):
             f.write(f"\n<!-- an earlier end of this label, superseded by the one above -->\n{earlier}")
 
 
+def pass_started(cfg, label):
+    """Whether a pass with this label (<repo>-<item>) ever started, by what
+    ccfleet itself wrote under kit_dir: the pass's result file, or a START line
+    for the label in a drain's logs/pass-*.out. A fold passes the reset only
+    on this (DV1): the fold shape alone is the caller's own flags."""
+    kit = glob.escape(cfg["kit_dir"])
+    if glob.glob(os.path.join(kit, "results", "*", glob.escape(label) + ".md")):
+        return True
+    for out in glob.glob(os.path.join(kit, "logs", "pass-*.out")):
+        try:
+            with open(out, encoding="utf-8", errors="replace") as f:
+                if any(l.startswith("START ") and l.split()[2:3] == [label] for l in f):
+                    return True
+        except OSError:
+            continue
+    return False
+
+
 def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown",
             dry=False, keep=False, pre=None, post=None, check_file=None, existing=None,
-            remove_adopted=False):
+            remove_adopted=False, item=None):
     """Make the worktree, render, launch, harvest, clean up. Returns (exit, RESULT word).
 
     The worktree is removed only when the RESULT is clean (queue.release_on),
@@ -1511,13 +1531,25 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     unlanded work; otherwise it is kept and said. An adopted worktree (--in)
     is the caller's and is kept, unless `remove_adopted` (run --in --item: a
     fold, whose launcher puts the worktree away). A refused release exits 2."""
+    # A fold finishes a pass; one that runs the pass prompt starts a new one,
+    # with a review-tier reviewer, under the fold's exemption (DV1).
+    if remove_adopted and cfg.get("pass_prompt") and \
+            os.path.realpath(expand(template)) == os.path.realpath(expand(cfg["pass_prompt"])):
+        raise Refusal(EXIT_USAGE, "a fold (run --in WT --item ITEM) never runs pass_prompt: that is a new "
+                                  "pass; give the fold its own template")
     # The reset stops NEW work only. A fold (run --in WT --item ITEM) finishes a
     # pass that started before the reset, as `resume` does, so it is not
-    # refused here: Mode 2 runs both after the reset, on the principal's word
-    # (RK5: the cheap fold was refused while the review-tier resume ran).
-    if reset_reached(cfg) and not (existing and remove_adopted):
-        print(f"RESET reached; not starting {label or repo}")
-        return EXIT_RESET, "RESET"
+    # refused here (RK5: the cheap fold was refused while the review-tier
+    # resume ran). Only a pass ccfleet saw start counts (DV1): the fold's shape
+    # is the caller's own flags. Whether to run it is the caller's alone;
+    # ccfleet checks no word of the principal's.
+    if reset_reached(cfg):
+        fold_of = safe(f"{repo}-{item}") if (existing and remove_adopted and item) else None
+        if not (fold_of and pass_started(cfg, fold_of)):
+            why = (f": no pass on {repo}:{item} started (no result file or START line for {fold_of} under "
+                   f"kit_dir), so this fold would be new work" if fold_of else "")
+            print(f"RESET reached; not starting {label or repo}{why}")
+            return EXIT_RESET, "RESET"
     check_repo_name(repo)
     extra = {k: read_at_file(v) for k, v in (extra or {}).items()}
     model = model or extra.pop("MODEL", None) or cfg["repos"].get(repo, {}).get("model") or cfg["default_model"]
@@ -2862,7 +2894,7 @@ def main(argv=None):
             label = a.label or (safe(f"{a.repo}-{a.item}") if a.item else None)
             return run_one(cfg, a.repo, a.prompt, label=label, model=a.model, extra=sets, by=a.by,
                            dry=a.dry_run, keep=a.keep, existing=a.existing, post=post,
-                           remove_adopted=bool(a.item))[0]
+                           remove_adopted=bool(a.item), item=a.item)[0]
         if a.cmd == "drive":
             if a.day and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", a.day):
                 raise Refusal(EXIT_USAGE, f"--day must be YYYY-MM-DD, not {a.day!r}")

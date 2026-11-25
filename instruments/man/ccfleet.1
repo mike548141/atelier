@@ -869,7 +869,16 @@ one repo never share a file.
 A refused release exits 2.
 Without
 .B \-\-in
-it is refused with exit 64.
+it is refused with exit 64, and so is a fold whose template is
+.BR pass_prompt ,
+which would start a new pass.
+After
+.B reset_utc
+it runs only for a pass that started (see
+.BR CONFIG ,
+.BR reset_utc ).
+A fold into a worktree a recorded session still runs in is refused with
+exit 2.
 .SS Of plan
 .TP
 .B \-\-json
@@ -1117,8 +1126,20 @@ and a fold
 .I WT
 .B \-\-item
 .IR ITEM )
-finish a pass that started before it, so the reset does not stop them:
-they run after it on the principal's word only.
+finish a pass that started before it, so the reset does not stop them.
+A fold passes it only for a pass ccfleet saw start: the pass's result file
+under
+.IR <kit_dir>/results/ ,
+or a
+.B START
+line for the label
+.I <repo>\-<item>
+in a drain's
+.IR <kit_dir>/logs/pass\-*.out ;
+any other fold after the reset is refused with exit 3.
+Whether to run either after the reset is the calling session's to decide:
+the principal's word is its to hold, and ccfleet checks none (see
+.BR THREATS ).
 .TP
 .B private_names
 Names a public repo's prompt, and the user-level
@@ -1753,6 +1774,23 @@ in the config, or on
 .B gh repo view
 when the config says none: a repo wrongly marked private gets them.
 .PP
+The reset is the one mechanical stop after a budget's reset, and two
+launches pass it: a
+.B resume
+of any session, and a fold of a pass ccfleet saw start.
+Nothing but the calling session decides to run either; ccfleet checks no
+word of the principal's.
+In a bypass permission mode an unattended session can itself run
+.B ccfleet
+in either shape after the reset, with no one asked.
+And a plain
+.B run
+whose
+.B \-\-label
+is
+.I <repo>\-<item>
+writes a result file a fold would take as its pass's.
+.PP
 The other way round: a config that grants nothing runs its sessions in the
 default mode, where every call that would ask is refused.
 .B check
@@ -1885,6 +1923,8 @@ with no
 .BR = ,
 a negative
 .BR \-\-max ,
+a fold whose template is
+.BR pass_prompt ,
 or
 .BR drain ,
 .BR pass ,
