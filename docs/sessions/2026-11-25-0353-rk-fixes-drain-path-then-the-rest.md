@@ -55,3 +55,15 @@ advised. The drain-path part must land before 2026-11-29 23:00 UTC."*
 - `160/1810`: the part-3 pass, waiting on his permission for Fable work.
 - Hand-down to the estate root (its own board already holds the path fix): the drain config's
   `pass_prompt`, and the `instructions_guard` choice.
+
+## After the close: his answers, and `210/610`
+
+- `RK10`, his pick *"Keep refusing as per your recommend option but what do we do to fix this?"*,
+  then, to a separate public-safe file, *"Build it now as recommended but would it be better to
+  have two instructions files? one with just hte private info in it and the other with everything
+  else so that there cant be drift rather than needing a drift checker?"* (answers, not rulings).
+  Done his way: the user-level file is now a shared part that imports a private part, and
+  `ccfleet` follows the import for private repos only (`210/610`, `f4360a79`). Public-repo passes
+  are no longer refused, and need no config change.
+- `160/1810`: his pick *"Approve one pass now"*: one Fable pass by a fresh session, recorded on
+  the item. With `160/1800`, both wait for a fresh session he opens; 0ee74059 may run neither.
