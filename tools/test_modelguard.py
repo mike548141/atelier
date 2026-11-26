@@ -15,12 +15,14 @@ import importlib.util
 import io
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
 import unittest
 
 HOOK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modelguard.py")
+FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
 
 def nested(depth, inner="claude -p x"):
@@ -170,6 +172,47 @@ BYPASSES = [
     'somewrapper -q claude --bare x',
     # a printed `claude` does not excuse a later real launch
     'python3 -c "print(\'a\'); import os; os.system(\'claude -p x\')"',
+    # 160/1820, DP1: tmux's options end where its command begins; each of these
+    # was denied before PK13, passed after it, and is denied again.
+    "tmux new -d sh -c 'claude -p x'",
+    "tmux new -d bash -c 'claude -p x'",
+    "tmux new-window sh -c 'claude -p x'",
+    "tmux split-window -h bash -lc 'claude -p x'",
+    'tmux new -ds w claude -p x',
+    "tmux if-shell true 'claude -p x'",
+    'tmux new -d script -q /dev/null claude -p x',
+    # and the shape PK13 was written for, with near variants
+    'tmux new -d claude -p x',
+    'tmux new -dsw claude -p x',
+    "tmux if-shell 'claude -p x' 'display ok'",
+    "tmux run-shell 'claude -p x'",
+    'tmux new -d -- claude -p x',
+    # DP9: a substitution's printed text is read where a shell runs it
+    'screen -dmS w claude -p x',
+    'eval $(echo claude -p x)',
+    'sh -c "cd /tmp && $(echo claude -p x)"',
+    "echo -n 'claude -p x' | sh",
+    'echo "$(echo claude -p x)" | sh',
+    # DP9: past the depth limit, the binary named as a word, a path or a value
+    nested(6, "~/.local/bin/claude -p x"),
+    nested(6, "C=claude; $C -p x"),
+    # DP10: the claude-only long flags the table lacked (the full help is
+    # checked against the table in test_every_long_flag_in_the_help_is_placed)
+    'somewrapper -q claude --tools Bash x',
+    'somewrapper -q claude --safe-mode x',
+    'somewrapper -q claude --restricted x',
+    'somewrapper -q claude --cloud x',
+    'somewrapper -q claude --permission-prompts none x',
+    'somewrapper -q claude --append-system-prompt-file f x',
+    # DP21: a print-named call that is not the language's own print runs its
+    # argument: an attribute of another object, or a name the script rebinds
+    'python3 -c "import os; os.warn = os.system; os.warn(\'claude -p x\')"',
+    'node -e "const say = require(\'child_process\').execSync; say(\'claude -p x\')"',
+    'node -e "const { execSync: say } = require(\'child_process\'); say(\'claude -p x\')"',
+    'python3 -c "from os import system as say; say(\'claude -p x\')"',
+    'python3 -c "import os; print = os.system; print(\'claude -p x\')"',
+    'python3 -c "import os\ndef say(c): os.system(c)\nsay(\'claude -p x\')"',
+    'node -e "console.log = require(\'child_process\').execSync; console.log(\'claude -p x\')"',
 ]
 
 # Commands that only look up, read or name the binary (210/500), and launches
@@ -271,6 +314,31 @@ NAMED = [
     "awk '/claude -p/ {print}' f",
     "awk 'BEGIN{system(\"ls\")}'",
     nested(6, "ls"),
+    # DP1: a launch inside tmux that names a model, or a `claude` given as a
+    # short option's value in the command tmux runs
+    'tmux new -d claude -p --model claude-haiku-5-5 x',
+    "tmux new -d sh -c 'claude --model claude-haiku-5-5 -p x'",
+    'tmux new -d sudo -u claude ls',
+    # DP9: a session named for the tool, given to a name option of screen or
+    # tmux, alone or ending a cluster of short options
+    'screen -r claude',
+    'screen -x claude',
+    'screen -d -r claude',
+    'screen -dmS claude vim notes.txt',
+    'tmux new -ds claude',
+    'tmux new -As claude',
+    # DP9: text a substitution printed is replayed only where a shell runs it
+    "msg=$(echo 'run claude -p later'); bash -c 'ls'",
+    'echo "$(echo claude --version)"; sh -c \'ls\'',
+    "x=$(echo 'claude -p x'); bash <(ls)",
+    # DP9: past the depth limit, the letters in a path are not the binary
+    nested(6, "ls ~/.claude/settings.json"),
+    nested(6, "ls /tmp/claude-0/x"),
+    # DP21: the language's own print, its name never rebound
+    'python3 -c "print(\'claude -p x\')"',
+    'python3 -c "print(\'claude -p x\'); print(\'claude -p y\')"',
+    'node -e "console.log(\'claude -p x\')"',
+    'perl -e "say(\'claude -p x\')"',
 ]
 
 # PK13: accepted false positives. Each is refused and the refusal says how to
@@ -286,6 +354,10 @@ REFUSED = [
     "somewrapper 'claude -p is a flag'",
     # a literal that is an argv, in interpreter code that is not a print call
     'python3 -c "x = (\'claude\', \'hello world\')"',
+    # DP9: `screen -d` and `-D` take an optional name, read as the command
+    'screen -d claude',
+    # DP9: past the depth limit, a path to the binary that is only read
+    nested(6, "ls ~/.local/bin/claude"),
 ]
 
 
@@ -337,6 +409,14 @@ class ModelGuard(unittest.TestCase):
         self.assertNotIn("as an option's value", reason)
         for cmd in ("su - claude -c 'ls'", "docker run --name=claude -p 8080:80 nginx"):
             self.check(cmd, False)
+        # DP9: after `screen` or `tmux` a short option's value or a last word
+        # can be the command they run, and the reason says so; its two named
+        # forms pass and the forms it warns of are denied.
+        self.assertIn("After `screen` or `tmux` only a name option's value is a name", reason)
+        for cmd in ("screen -S claude -ls", "tmux new -s claude -d"):
+            self.check(cmd, False)
+        for cmd in ("screen -dm claude", "tmux new -d claude"):
+            self.check(cmd, True)
 
     def test_a_nested_command_with_no_claude_in_it_passes_past_the_depth(self):
         self.check(nested(8, "ls -l"), False)
@@ -358,6 +438,30 @@ class ModelGuard(unittest.TestCase):
         self.assertIn("--model", reason)
         self.assertIn("If no session was meant", reason)
         self.assertIn("short option", reason)
+
+    def test_every_long_flag_in_the_help_is_placed(self):
+        # DP10: the table says it is the `claude --help` snapshot. The help is
+        # saved whole beside these tests, named for its version; every long
+        # flag in it (a `[-file]` form written out) is in the table or in the
+        # stated list of flags other tools share, and nothing else is in either.
+        spec = importlib.util.spec_from_file_location("modelguard_flags", HOOK)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        saved = [f for f in os.listdir(FIXTURES) if f.startswith("claude-help-")]
+        self.assertEqual(len(saved), 1, saved)
+        version = saved[0][len("claude-help-"):-len(".txt")]
+        src = open(HOOK, encoding="utf-8").read()
+        self.assertIn("`claude --help`, v%s, saved whole as tools/fixtures/%s"
+                      % (version, saved[0]), src)
+        text = open(os.path.join(FIXTURES, saved[0]), encoding="utf-8").read()
+        flags = set()
+        for flag, more in re.findall(r"(--[A-Za-z][\w-]*)(\[-[\w-]+\])?", text):
+            flags.add(flag)
+            if more:
+                flags.add(flag + more[1:-1])
+        self.assertEqual(flags - mod.CLAUDE_LONG_FLAGS - mod.SHARED_LONG_FLAGS, set())
+        self.assertEqual((mod.CLAUDE_LONG_FLAGS | mod.SHARED_LONG_FLAGS) - flags, set())
+        self.assertEqual(mod.CLAUDE_LONG_FLAGS & mod.SHARED_LONG_FLAGS, set())
 
     def test_a_deny_is_well_formed(self):
         r = run(json.dumps({"tool_name": "Bash", "tool_input": {"command": 'claude -p "x"'}}))
