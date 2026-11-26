@@ -200,6 +200,14 @@
         their review, if any, is his to time once they are done. 🚩 Fixes landing on the drain's
         paths before the drain would run unreviewed in it: `210/630` says to land them before
         D's first-use dry run or after the drain, never during it.
+      - **The step D prompt, as handed to the principal 2026-11-25 (session 01c055e5)**, to run
+        after `210/630` lands. The `210/630` session's close hands it to him, adapted to
+        whatever has changed (his ask, 2026-11-26, verbatim: *"instrust the parallel session to
+        give me the prompt once its finished (or an adapted version of the prompt if things
+        change - essentially whatever needs to happen next)"*):
+        ```
+        /atelier:work run Step D of board 450/010 row 2, between drains and before the drain starts 2026-11-29 23:00 UTC, never mid-drain: move the weekly drain onto /atelier:review plan and /atelier:review run, and retire the user-level /fable-drain. Step B (shed 020/1040) and step C (160/1820: PASS-WITH-FINDINGS, 0 MAJOR) are both done, and my ruling recorded on 450/010 says this code is ready for the drain. Check that 210/630's fixes have landed first; if they haven't, go ahead on the reviewed code and leave them until after the drain. Make the adopter actions in the changelog and the private-config points that the 160/1800 and 160/1820 verdicts name, in the estate root's drain config and queue (work that belongs in the estate root goes to its own session if the doctrine says so). Then do the first-use check from shed 020/1050: a dry run, the reset time checked against the weekly meter, and ccfleet check clean. If D can't finish before the drain starts, Monday runs on /fable-drain. At close, give me the exact prompt for the next step from that row.
+        ```
       If C or B misses the drain's start, D is skipped: that drain runs on
       `/fable-drain` and D waits for the gap after it. Each session's close hands
       the principal the prompt for the next step it is not barred from naming.
