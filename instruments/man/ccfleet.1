@@ -608,9 +608,12 @@ Before the seal it prints
 with the queue's refusal, ends with
 .BR "DRAIN EXIT: not sealed: no launches rehearsed" ,
 and exits 0: a rehearsal reports, it does not fail.
-A queue that cannot be run (exit 126 or 127), runs past its time limit, is
-killed by a signal, or fails after the rehearsal was offered a pick is a
-queue error, not an unsealed run: it ends with
+Only the contract's refusal code, exit 3, reads as unsealed.
+Any other failure of
+.B next
+(exit 1 included, a crash, a command that cannot be run, one past its time
+limit or killed by a signal), or a 3 after the rehearsal was offered a pick,
+is a queue error, not an unsealed run: it ends with
 .B "DRAIN EXIT: queue error"
 and exit 1.
 After it, each rehearsed pick is printed as
@@ -1489,7 +1492,7 @@ lapse time is unknown.
 .B next
 and
 .B take
-each exit nonzero until this run's ranking is sealed
+each exit 3 until this run's ranking is sealed
 .RB ( next
 printing nothing), so a pass started by hand
 .RB ( "ccfleet pass" ,

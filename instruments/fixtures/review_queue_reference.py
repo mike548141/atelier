@@ -5,7 +5,8 @@ fictional. It is small on purpose: the tests drive ccfleet against it, and an
 adopter can read in one sitting what stops an unplanned paid pass.
 
 The contract it keeps: until this run's ranking is sealed, `ranked`, `next`
-and `take` refuse (exit 1). After it, `take` makes the checks `next` makes
+and `take` refuse with exit 3, the contract's "not sealed" code, which a dry
+drain reads as unsealed rather than broken; every other refusal exits 1. After it, `take` makes the checks `next` makes
 (the route, default local; what the review fits; who wrote its brief), so a
 pass started by hand (`ccfleet pass`) can take only what a drain's `next`
 would offer on that route, in any order. A run is its --by id: the seal is
@@ -77,9 +78,12 @@ def key(repo, item):
     return f"{repo}:{item}"
 
 
-def refuse(msg):
+NOT_SEALED = 3  # the contract's "refused: no seal held" exit code (man ccfleet)
+
+
+def refuse(msg, code=1):
     print(f"refused: {msg}", file=sys.stderr)
-    sys.exit(1)
+    sys.exit(code)
 
 
 def sealed_for(state, by):
@@ -165,7 +169,7 @@ def offered(state, by, route):
 def next_pick(state, by, skip_file, route="local"):
     why = sealed_for(state, by)
     if why:
-        refuse(why)
+        refuse(why, NOT_SEALED)
     try:
         with open(skip_file, encoding="utf-8") as f:
             skip = {tuple(l.rstrip("\n").split("\t")[:2]) for l in f if l.strip()}
@@ -225,7 +229,7 @@ def main(argv=None):
         elif a.cmd == "ranked":
             why = sealed_for(state, a.by)
             if why:
-                refuse(why)
+                refuse(why, NOT_SEALED)
             return 0
         elif a.cmd == "next":
             next_pick(state, a.by, a.skip_file, a.route)
@@ -236,7 +240,7 @@ def main(argv=None):
             if a.cmd == "take":
                 why = sealed_for(state, a.by)
                 if why:
-                    refuse(why)
+                    refuse(why, NOT_SEALED)
                 if k in claims or k in state.get("done", []):
                     refuse(f"{k} is held or done")
                 if not any(key(r["repo"], r["item"]) == k for r in state.get("reviews", [])):

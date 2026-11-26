@@ -96,7 +96,8 @@ drain them is left to the adopter's queue and to that session's own account
 calls it only on a real drain whose reset has not come; a `--dry-run`
 rehearsal never calls it, and prints `ccfleet plan`'s reading instead.
 Launches are rehearsed only by the run that holds the seal, because a
-rehearsed launch asks the queue's `next`, which refuses without it. A dry
+rehearsed launch asks the queue's `next`, which refuses without it, with
+exit 3 (any other failure is a queue error, exit 1). A dry
 drain that is not sealed prints the plan's reading, then `DRY not sealed: no
 launches rehearsed`, and exits 0; a sealed one names its rehearsed pick.
 

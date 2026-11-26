@@ -2592,7 +2592,7 @@ class Wave2(unittest.TestCase):
         skip = os.path.join(self.tmp, "launched.txt")
         wr(skip, "")
         r = self.ref("next", "--skip-file", skip, "--by", "orch-1", "--route", "local")
-        self.assertEqual(r.returncode, 1)
+        self.assertEqual(r.returncode, cf.QUEUE_NOT_SEALED_RC, "the contract's not-sealed code (210/640)")
         self.assertEqual(r.stdout, "")
         self.assertIn("no ranking is sealed", r.stderr)
 
@@ -2852,7 +2852,10 @@ class DPFixes(unittest.TestCase):
 
     def test_dp17_a_dry_drain_with_a_broken_queue_is_a_queue_error(self):
         self.fill_queue(1)
-        for rc, code, says in (("1", 0, "DRAIN EXIT: not sealed"), ("127", cf.EXIT_SETUP, "DRAIN EXIT: queue error"),
+        # 210/640: only the contract's refusal code reads as unsealed; exit 1 is a failure.
+        for rc, code, says in (("3", 0, "DRAIN EXIT: not sealed"), ("1", cf.EXIT_SETUP, "DRAIN EXIT: queue error"),
+                               ("2", cf.EXIT_SETUP, "DRAIN EXIT: queue error"),
+                               ("127", cf.EXIT_SETUP, "DRAIN EXIT: queue error"),
                                (str(cf.TIMEOUT_RC), cf.EXIT_SETUP, "DRAIN EXIT: queue error")):
             r = self.cli("drain", "--max", "1", "--dry-run", env={**self.env, "FAKE_QUEUE_RC_NEXT": rc})
             self.assertEqual(r.returncode, code, rc + r.stdout + r.stderr)

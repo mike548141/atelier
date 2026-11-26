@@ -250,9 +250,9 @@ run it, and `drain --dry-run` prints the same reading, each line prefixed
 that fails, is said and the rehearsal carries on). Launches are rehearsed only
 once this run's ranking is sealed: before it the dry drain prints "DRY not
 sealed: no launches rehearsed" and exits 0; after it, each pick as "DRY
-rehearsed launch: REPO ITEM BRIEF". A next that cannot run (126, 127), runs
-past its time limit, is killed or fails after a pick is a queue error, exit
-1, not "not sealed". A failing queue command, or
+rehearsed launch: REPO ITEM BRIEF". The queue's "not sealed"
+refusal is its own exit code, 3; any other failure of next, or a 3 after a
+pick, is a queue error, exit 1. A failing queue command, or
 one that prints something other than the JSON above, exits 1; a config with no
 queue.evidence exits 64.
   Cost history: from <kit_dir>/logs/pass-*.out, the output of each pass a drain
@@ -351,6 +351,7 @@ STOP_ON = ["BUDGET EXHAUSTED"]
 # unlanded work, and a drive does not start it again (RK24). A claim is never
 # released on one.
 SETTLED_ON = ["PARTIAL", "BLOCKED"]
+QUEUE_NOT_SEALED_RC = 3  # the queue contract's code for "refused: no seal held" (210/640)
 TIMEOUT_RC = 124          # the exit code a session killed at its time limit is given
 QUEUE_TIMEOUT = 600       # seconds a queue command may take before it counts as failed
 # Values ccfleet fills in every prompt, and those only a pass or a resume adds
@@ -2358,12 +2359,13 @@ END_RESULT_RX = re.compile(r" result=(.*?) session=")
 
 def queue_broke(r, rehearsed=0):
     """Whether a failed `next` in a dry drain is a broken queue rather than the
-    refusal the seal contract requires before the seal (DP17): it could not
-    start or be run (126, 127), ran past QUEUE_TIMEOUT, was killed by a
-    signal, or failed after this rehearsal had already been offered a pick
-    (the seal held then). Any other nonzero exit is read as that refusal, and
-    its text is printed beside it."""
-    return r.returncode in (126, 127, TIMEOUT_RC) or r.returncode < 0 or rehearsed > 0
+    refusal the seal contract requires before the seal (DP17, 210/640). The
+    contract gives that refusal its own exit code, QUEUE_NOT_SEALED_RC, so
+    every other nonzero exit is a queue error: a crash, a bad argument, a
+    command that could not run (126, 127), one past QUEUE_TIMEOUT or killed by
+    a signal. The refusal code too is a queue error once this rehearsal has
+    been offered a pick, since the seal held then."""
+    return r.returncode != QUEUE_NOT_SEALED_RC or rehearsed > 0
 
 
 def drain(cfg, common, max_n, dry):
@@ -2527,6 +2529,10 @@ def drain(cfg, common, max_n, dry):
                         # A queue tool that fails is not an empty queue: reading it as
                         # one would end a drain with budget unspent and say all is well.
                         stop = stop or "queue error"
+                        if dry and not spawned:
+                            say(cfg, f"dry drain: a queue refusing before its seal exits "
+                                     f"{QUEUE_NOT_SEALED_RC}; this one exited {r.returncode}, read as a "
+                                     f"queue error (man ccfleet, THE QUEUE INTERFACE)")
                         say(cfg, f"queue next failed rc={r.returncode}: "
                                  f"{(r.stderr or r.stdout).strip()[:300]}")
                         continue

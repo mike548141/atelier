@@ -5,6 +5,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-26 — a queue's "not sealed" refusal has its own exit code, `210/640`)
+- **Adopter action.** Your queue's `ranked`, `next` and `take` must refuse with
+  **exit 3** while this run holds no seal (the reference queue does). A dry
+  drain now reads only exit 3 from `next` as "not sealed" (exit 0); any other
+  failure, exit 1 included, is a queue error and exits 1, so a broken queue no
+  longer rehearses as merely unsealed. A real drain is unchanged: any failure
+  of `next` stops it as a queue error.
+
 ### Fixed (2026-11-26 — the `DP` re-check findings, `210/630`)
 - **Adopter actions.** A fold after the reset now passes only on evidence from
   its own worktree (the session log named for it, a session record or `START`

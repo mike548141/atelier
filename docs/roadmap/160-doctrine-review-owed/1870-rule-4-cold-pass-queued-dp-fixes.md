@@ -21,9 +21,11 @@
       `tools/test_modelguard.py`, `tools/fixtures/claude-help-2.1.302.txt`, `tools/README.md`,
       `tools/pointerscan.py`, `tools/test_pointerscan.py`, `tools/test_subject_skills.py`,
       `tools/test_work_run_single_source.py`, `skills/**`, `docs/method/REVIEW.md`,
-      `CHANGELOG.md`: every commit on `main` after `c0f6501b` up to and including the commit
-      that lands this pointer.
-      *Intent record:*
+      `CHANGELOG.md`, and for `210/640` also `skills/review/run.md` and `docs/roadmap/210-*/640-*`:
+      every commit on `main` after `c0f6501b` up to and including the commit that closes
+      `210/640`.
+      *Intent records:*
+      [`../210-instruments-open-features/640-a-dry-drain-tells-a-queue-refusal-from-a-failure.md`](../210-instruments-open-features/640-a-dry-drain-tells-a-queue-refusal-from-a-failure.md),
       [`../210-instruments-open-features/630-fix-ccfleet-modelguard-and-the-review-skills-dp1-dp21.md`](../210-instruments-open-features/630-fix-ccfleet-modelguard-and-the-review-skills-dp1-dp21.md);
       the findings:
       [`../../reviews/2026-11-25-1920-dv-pk-fixes-recheck-cold.md`](../../reviews/2026-11-25-1920-dv-pk-fixes-recheck-cold.md).
