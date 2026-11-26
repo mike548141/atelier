@@ -207,6 +207,21 @@ For a private repo the file's @-imports are inlined, as Claude Code reads
 them; for a public or unknown-visibility repo they are withheld, and reading
 the files they name is denied (see
 .BR "The private-name guard" ).
+Every session's copy also denies
+.B Read
+of
+.I <kit_dir>/settings/
+and
+.IR <kit_dir>/sessions/ ,
+which hold every running session's copies and process records; and a
+public or unknown-visibility repo's copy switches the repo's auto memory off
+.RB ( autoMemoryEnabled
+false, and
+.B CLAUDE_CODE_DISABLE_AUTO_MEMORY=1
+in its
+.B env
+block), so the memory index the operator's own sessions wrote is not loaded
+into it.
 A repo's own settings files still load, and some kept keys still widen what
 a session can do; see
 .BR THREATS .
@@ -280,11 +295,14 @@ code span or a fenced code block is not one, and a backslash escapes a space
 in the path.
 An import that cannot be followed (past four hops, a cycle, no such file)
 stays as its line, with a note below it.
-Only an import on a line of its own is followed (a list bullet may lead it);
-one inside a sentence stays as text, which Claude Code would follow.
+Only an import on a line of its own is followed; a block quote marker, a
+heading's hashes, a list bullet or number and a task box may lead it.
+One inside a line of other text stays as text, which Claude Code would
+follow.
 A public or unknown-visibility repo's session gets the file with each import
-line replaced by a note that names no path, under a header that names no
-path, and no imported file; its settings copy denies
+line replaced by a note that names no path, each import inside a line of
+text replaced by a word that names none, under a header that names no path,
+and no imported file; its settings copy denies
 .B Read
 of every file the imports resolve to, nested ones too; and the guard reads
 that same text.
@@ -349,7 +367,9 @@ line says whether a user-level
 .I CLAUDE.md
 is appended and what a private and a public repo's session get of it, an
 .B INSTRUCTIONS IMPORT:
-line names each import it found and whether it is inlined, and
+line names each import it found, on a line of its own or inside one, what a
+private repo's session gets of it (inlined, left as text, or not followed
+and why) and that a public one's gets it withheld and denied, and
 .B INSTRUCTIONS GUARD:
 which private names it holds, if any, and what a public repo's launch does
 about them.
@@ -1709,6 +1729,10 @@ A launcher stopped by SIGTERM or SIGHUP leaves them to its running session,
 and any later launch removes a pair whose launcher is gone and that no live
 session's process record lists.
 A resume writes a fresh pair.
+Every session's settings deny
+.B Read
+of this folder (see
+.BR THREATS ).
 .TP
 .I <kit_dir>/locks/
 One lock per session being resumed.
@@ -1719,6 +1743,9 @@ worktree it runs in and its settings copies, written by its launcher and
 removed when the launcher sees it end.
 One left by a killed launcher stays while the session runs; one whose
 process is gone is removed when next read.
+Every session's settings deny
+.B Read
+of this folder.
 .TP
 .I <kit_dir>/driver.pid, driver.log
 The driver lock (held with
@@ -1909,8 +1936,8 @@ is private rests on its
 in the config, or on
 .B gh repo view
 when the config says none: a repo wrongly marked private gets them.
-A public or unknown one's session is not told where they are, and its
-settings deny
+A public or unknown one's session is not told where they are by what is
+appended, and its settings deny
 .B Read
 of each.
 Where the config's
@@ -1922,15 +1949,54 @@ prints a
 line, where
 .BR gh (1)
 is on the path and the repo's forge name is known.
+.PP
+The session can still find them another way.
+.I <kit_dir>/settings/
+holds every running session's two copies: a private repo's with its
+imports inlined, and a public repo's settings, whose deny rules spell each
+withheld file's path.
+.I <kit_dir>/sessions/
+holds each running session's process record.
+Both folders sit beside every session, two steps from the
+.I {SCRATCH}
+folder it is told, and a review pass's grant reaches outside its worktree.
+The copies are owner-only, and every session runs as the owner, so what
+keeps a session out is its permission rules alone: every session's
+settings deny
+.B Read
+of both folders, by their path and their real path.
+In a bypass permission mode those deny rules are the only guard, since
+nothing is asked; Claude Code's documentation says deny rules hold in every
+mode, bypass included.
+.PP
 What is left: a deny rule for
 .B Read
-does not stop a shell command
+binds Claude Code's own file tools and the shell commands it recognises
 .RB ( cat ,
-a script) from opening the file where the grant allows one, or a bypass
-mode where the harness does not hold deny rules; a session that already
-knows the path, from the repo's own files or from text it is handed, can
-still try it; and an import inside a sentence, which ccfleet does not
-follow, is neither withheld nor denied.
+.BR head ,
+.BR sed ),
+by its documentation on a best-effort basis; a script or a command it cannot
+read
+.RB ( "python3 \-c" )
+can still open the file where the grant allows one.
+A session that already knows a path, from the repo's own files or from text
+it is handed, can still try it.
+None of this is tested here against a live session.
+.PP
+Auto memory is a second channel into a session.
+Claude Code loads the first 200 lines (or 25 KB) of the project's
+.I MEMORY.md
+into every session with auto memory on, from one folder shared by all the
+repository's worktrees, whatever
+.B \-\-setting\-sources
+says; the operator's own earlier sessions wrote it, so it may name anything
+they knew.
+A public or unknown-visibility repo's settings copy switches it off, by the
+setting and by the environment variable, since the documentation does not
+say the setting is read from
+.BR \-\-settings ;
+a private repo's session loads it as an interactive session would.
+The private-name guard does not read it.
 .PP
 The reset is the one mechanical stop after a budget's reset, and two
 launches pass it: a
@@ -1951,8 +2017,8 @@ writes a result file a fold would take as its pass's.
 .PP
 ccfleet's inliner and Claude Code part company in a private repo's session:
 an import inside an indented code block or a block HTML comment is inlined
-(Claude Code skips both), one inside a sentence is not (Claude Code would
-follow it), and the user-level
+(Claude Code skips both), one inside a line of other text is not (Claude
+Code would follow it), and the user-level
 .I rules/
 directory is not appended at all, so such a session can lack a file the
 operator's own sessions get.
