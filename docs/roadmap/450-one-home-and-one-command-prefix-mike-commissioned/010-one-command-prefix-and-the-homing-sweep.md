@@ -249,6 +249,10 @@
       free disk to above 20 GB, lower the floor to 12 GB for this drain, or decide on Monday), his
       typed answer, verbatim: *"Ask me again from tomorrow evening"*. So ask again from the evening
       of Fri 2026-11-27 NZDT (about 05:00 UTC that day), before the drain starts.
+      ✅ **Settled by the measurement, 2026-11-26T11:50Z** (session a2aeebc8, at its second close):
+      the drain config's gate now reads 87 GB free against the 20 GB floor, so it opens with no
+      change and there is nothing to ask. If the drain session finds the gate holding on disk,
+      it puts the question to him then.
       If C or B misses the drain's start, D is skipped: that drain runs on
       `/fable-drain` and D waits for the gap after it. Each session's close hands
       the principal the prompt for the next step it is not barred from naming.
