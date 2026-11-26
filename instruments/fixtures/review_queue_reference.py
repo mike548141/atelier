@@ -5,11 +5,13 @@ fictional. It is small on purpose: the tests drive ccfleet against it, and an
 adopter can read in one sitting what stops an unplanned paid pass.
 
 The contract it keeps: until this run's ranking is sealed, `ranked`, `next`
-and `take` refuse (exit 1), so a pass started by hand (`ccfleet pass`) meets
-the same gate as a drain's. A run is its --by id: the seal is keyed by it, so
-a session with another id holds no seal, and `unknown` (ccfleet's --by when
-none is given) is refused as a sealing id, so two sessions that pass no id
-never share one. ccfleet never calls `seal`; the `/atelier:review run` skill
+and `take` refuse (exit 1). After it, `take` makes the checks `next` makes
+(the route, default local; what the review fits; who wrote its brief), so a
+pass started by hand (`ccfleet pass`) can take only what a drain's `next`
+would offer on that route, in any order. A run is its --by id: the seal is
+keyed by it, so a session with another id holds no seal, and `unknown`
+(ccfleet's --by when none is given) is refused as a sealing id, so two
+sessions that pass no id never share one. ccfleet never calls `seal`; the `/atelier:review run` skill
 does, with the ranking its plan made. `unseal` ends the run's seal: ccfleet's
 drain calls it as it ends, where the config sets queue.unseal.
 
@@ -20,7 +22,9 @@ another route's review not yet started, but never from a budget that lapses
 before the asking route's own, since that budget keeps its reviews, and
 never one the seal marks not spillable (`"spillable": false` in its ranking
 entry). Where either lapse time is unknown, nothing spills. A review briefed
-after the seal runs last, on the local route only.
+after the seal runs last, on the local route only. On every route, a review
+is offered only where its `fits` lists that route, and never to the run that
+wrote its brief (`briefed_by` is the asking --by).
 
 State is one JSON file, named by $REVIEW_QUEUE_STATE:
   routes   {name: {"open": bool, "lapses_utc": "YYYY-MM-DDTHH:MM" or null}}
@@ -44,7 +48,9 @@ Commands, the shape ccfleet.example.json calls:
   next --skip-file PATH --by ID [--route NAME]
                               the next sealed review for route NAME (default
                               local) not in PATH, tab-separated
-  take REPO:ITEM --by ID --brief PATH [--set K=V ...]
+  take REPO:ITEM --by ID --brief PATH [--route NAME] [--set K=V ...]
+                              claim it, only where `next` would offer it on
+                              route NAME (default local)
   release REPO:ITEM --by ID
   update REPO:ITEM --by ID --set K=V ...
 """
@@ -133,6 +139,29 @@ def may_spill(routes, own, other):
     return mine is not None and theirs is not None and theirs >= mine
 
 
+def fits(review):
+    return review.get("fits") or ["local"]
+
+
+def offered(state, by, route):
+    """The reviews route `route` may run now, in the order it takes them:
+    its own sealed reviews in rank order, then the spill (another route's,
+    never from a budget that lapses first, never one sealed as not
+    spillable), then a review briefed after the seal, on the local route
+    only. Each must fit the route (`fits`), and none was briefed by `by`,
+    the run asking: a session may not drain a brief it wrote (DP8)."""
+    rows = {(r["repo"], r["item"]): r for r in ready(state)}
+    routes = state.get("routes", {})
+    keep = {tuple(k) for k in state["seal"].get("keep", [])}
+    sealed = [((repo, item), r) for repo, item, r in state["seal"]["order"]]
+    order = [k for k, r in sealed if r == route]
+    order += [k for k, r in sealed if r != route and k not in keep and may_spill(routes, route, r)]
+    if route == "local":
+        order += [k for k in rows if k not in {k for k, _ in sealed}]
+    return [k for k in order
+            if k in rows and route in fits(rows[k]) and rows[k].get("briefed_by") != by]
+
+
 def next_pick(state, by, skip_file, route="local"):
     why = sealed_for(state, by)
     if why:
@@ -143,18 +172,8 @@ def next_pick(state, by, skip_file, route="local"):
     except OSError:
         skip = set()
     rows = {(r["repo"], r["item"]): r for r in ready(state)}
-    routes = state.get("routes", {})
-    keep = {tuple(k) for k in state["seal"].get("keep", [])}
-    sealed = [((repo, item), r) for repo, item, r in state["seal"]["order"]]
-    # The route's own reviews in rank order, then the spill, in rank order.
-    order = [k for k, r in sealed if r == route]
-    order += [k for k, r in sealed if r != route and k not in keep and may_spill(routes, route, r)]
-    # A review briefed after the seal runs last on the local route, until it
-    # is planned and sealed.
-    if route == "local":
-        order += [k for k in rows if k not in {k for k, _ in sealed}]
-    for k in order:
-        if k in rows and k not in skip:
+    for k in offered(state, by, route):
+        if k not in skip:
             print("\t".join([k[0], k[1], rows[k]["brief"]]))
             return
 
@@ -222,6 +241,13 @@ def main(argv=None):
                     refuse(f"{k} is held or done")
                 if not any(key(r["repo"], r["item"]) == k for r in state.get("reviews", [])):
                     refuse(f"{k} is not in the queue")
+                # The checks `next` makes, so a hand-run pass meets them too
+                # (DP8): the route (default local, as every pass ccfleet
+                # launches is), what the review fits, and who wrote its brief.
+                if not any(key(*o) == k for o in offered(state, a.by, a.route)):
+                    refuse(f"{k} is not route {a.route}'s to run now: sealed to another route that keeps it, "
+                           f"briefed after the seal for another route, not fitting {a.route}, or briefed "
+                           f"by this session ({a.by})")
                 claims[k] = {"by": a.by, "brief": a.brief, **sets(a.sets)}
             elif a.cmd == "update":
                 # ccfleet's `ended` runs after a release too: what it records
