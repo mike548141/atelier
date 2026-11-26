@@ -25,3 +25,11 @@
       the drain is read as set aside by this ruling for these fixes alone. 🚩 So the fixes can
       reach the drain unreviewed: land them before step D's first-use dry run, or after the
       drain, never during it, and say which.
+      🔒 CLAIMED 2026-11-26T02:05Z (wt: `atelier-cd-dp-*`, one per worker) by principal-opened
+      session 5e236e34 (`atelier-cd`, Opus 5.5), to build all of `DP1`–`DP21`, MODERATEs first,
+      and land them before step D of `450/010` row 2. Workers each in their own worktree: `mg`
+      (`tools/modelguard.py`: `DP1`, `DP9`, `DP10`, `DP21`), `cf` (`instruments/ccfleet` and its
+      manual: `DP2`–`DP6`, `DP13`, `DP17`, `DP18`, `DP20`, the `check` half of `DP7`, the manual
+      half of `DP11`), `sk` (the reference queue's `take`, the skills, `REVIEW.md`,
+      `pointerscan`: `DP7`, `DP8`, `DP11`, `DP12`, `DP14`–`DP16`, `DP19`, the prompts' half of
+      `DP2`). No Fable work: this session briefs and runs no review of these fixes.
