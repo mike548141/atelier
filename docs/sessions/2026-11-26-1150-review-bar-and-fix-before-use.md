@@ -60,3 +60,7 @@ session's work); this session's own load was one commit.
 ## At the close
 
 `160/1880`, when it runs: his pick *"Monday's drain (Recommended)"*, recorded on the item.
+- His clarification, typed mid-turn at the close, verbatim in `460/060`: every required review is
+  in the next drain's queue by default; sooner only on his word. The session had asked him when
+  `160/1880` should run, an ask his default makes unnecessary. Written into `REVIEW.md`
+  (`460/060`), folded into `160/1880`.

@@ -1,4 +1,4 @@
-- [ ] **Write his default into the review rules: every required review is in the next
+- [x] **Write his default into the review rules: every required review is in the next
       drain's queue unless he says otherwise** `[S][doctrine]`. Mike, 2026-11-26 ~23:40 UTC,
       typed mid-turn in session 4ccec293 (`atelier-56`) at its close, after it had asked him
       when `160/1880` should run, verbatim:
@@ -15,3 +15,6 @@
       **Review:** folds into `160/1880` (open, no brief, same file).
       🔒 CLAIMED 2026-11-26T23:43Z (claimed 2026-11-26-2343, wt: atelier-460-060) by session
       4ccec293 (`atelier-56`, Opus 5.5), principal-opened by `/atelier:work run`.
+      ✅ **Landed 2026-11-26.** `REVIEW.md` § *When to review — inline or batched* opens with
+      *An owed review waits for the next drain, by default*, quoting him; a session asks only to
+      propose running a pass sooner. `160/1880`'s delta widened to this commit.

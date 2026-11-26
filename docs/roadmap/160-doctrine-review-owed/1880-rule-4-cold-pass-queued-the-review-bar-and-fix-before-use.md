@@ -13,8 +13,9 @@
       *Delta, scoped to paths:* `docs/method/REVIEW.md`, `docs/method/ECONOMICS.md`,
       `docs/method/CONCURRENCY.md`, `docs/method/session-open/dispatch-brief.md`,
       `skills/review/brief.md`, `CHANGELOG.md`: every commit on `main` after `b459dd7e` up to
-      and including the commit that closes `460/050` (his widened list of risks fixed
-      before use, folded in as one open pass per subject).
+      and including the commit that closes `460/060` (folding in `460/050`, his widened
+      list of risks fixed before use, and `460/060`, his default that every owed review
+      waits for the next drain; one open pass per subject).
       *Intent record:*
       [`../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md`](../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md).
       💬 **When it runs, his pick 2026-11-26 ~22:00 UTC (session 4ccec293, `atelier-56`,

@@ -879,6 +879,25 @@ in scope**: "scoped" bounds the *subject* handed to the reviewer, and within
 that subject the scope mandate above governs everything examined. It is still
 spend — so it lives inside `ECONOMICS.md`'s marginal-cost self-check.
 
+**An owed review waits for the next drain, by default.** The principal's words,
+2026-11-26, verbatim:
+
+> I want to calrify that all reviews go into the queue for the next drain by
+> default - that drain being the one which I run when I get to the end of the
+> calude budget time period.
+> Some reviews I may approve to run sooner than that but all reviews that are
+> required are in the drain queue by default unless I specify otherwise
+
+So a pass the bar says is owed (*Whether work earns a review at all*) is in the
+queue for the drain he runs at the end of the budget period from the moment its
+pointer lands, with no approval asked. A session does not ask him when an owed
+pass should run. It asks only to propose running one sooner, saying why (a
+deadline, or work that should not be used before the pass), and the pass runs
+early only on his word. A pass the bar does not owe is not queued on its own
+initiative; offering him one is the exception the bar names. Grounding: the
+session that wrote the bar asked him when its own pass should run, and this
+was his answer.
+
 **Budget decides how many reviews run and when, never how a review is run**
 (the principal's commission, 2026-10-04, `430/010`: the wording and the
 definition below; the guards in code and the resume record are not built).

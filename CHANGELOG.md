@@ -20,6 +20,9 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   is possible (`460/050`).
   A re-check of fixes is owed only after a pass with a MAJOR, and the chain stops at the
   first pass with none.
+- **When an owed review runs** (`460/060`): in the next drain at the end of the budget
+  period, by default, with no approval asked; a pass runs sooner only on the principal's
+  word.
 
 ### Changed (2026-11-26 — a queue's "not sealed" refusal has its own exit code, `210/640`)
 - **Adopter action.** Your queue's `ranked`, `next` and `take` must refuse with
