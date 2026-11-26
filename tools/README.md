@@ -2398,8 +2398,11 @@ or a prompt follows it, and it denies where it cannot tell a name from the
 binary: `claude` straight after a short option (`-u claude`), joined to a long
 option with `=` (`--name=claude`), or last, passes; `--name claude -p 8080:80`
 and a path such as `--dir=/opt/claude` are refused, and the refusal says how to
-rephrase. A command that names `claude` and is nested past four levels is denied
-unread. A lookup of the binary (`command -v claude`, `which`, `type`, `ls` of its
+rephrase. After `screen` or `tmux` that advice narrows: only a name option's
+value is a name (`screen -S claude`, `screen -r claude`, `tmux new -s claude`),
+and a `claude` anywhere else in the command they run is that command. A command
+nested past four levels is denied unread when a word in it is the binary, not
+when the letters sit inside a path such as `~/.claude/`. A lookup of the binary (`command -v claude`, `which`, `type`, `ls` of its
 path), management subcommands and heredoc bodies that are data pass.
 
 It is a net, not a proof. It reads only the command text a session hands to
