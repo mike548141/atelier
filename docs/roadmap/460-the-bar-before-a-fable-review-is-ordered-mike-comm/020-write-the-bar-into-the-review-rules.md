@@ -41,3 +41,6 @@
       test: one cold pass, queued by its author at landing, run on Fable when he approves.
       **Feeds:** `460/030` (the gate checks what this writes), `460/040` (the dequeue round
       applies it).
+      🔒 CLAIMED 2026-11-26T11:53Z (claimed 2026-11-26-1153, wt: atelier-460-020) by session
+      4ccec293 (`atelier-56`, Opus 5.5), principal-opened by `/atelier:work run` with this item as
+      its brief.
