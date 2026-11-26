@@ -18,6 +18,8 @@ Repo-specific notes from the orchestrator: {NOTES}
 Then: CI green at your pushed head (watch the runs, report conclusions with URLs; a green local suite is not evidence), and this repo's session file for the work (`docs/sessions/<date>-<HHMM>-<slug>.md`, start time in UTC).
 
 ## Final message (plain text, under 30 lines)
+End your final message with the block below, as plain text: no code fence around it, no blank line inside it, nothing after its `RESULT:` line.
+
 REPO: {REPO}
 DONE: <what changed, one line each>
 COMMITS: <sha subject> per landed commit

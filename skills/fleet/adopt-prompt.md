@@ -21,6 +21,8 @@ Repo-specific notes from the orchestrator: {NOTES}
 5. **Session record.** Close with this repo's session file for the work (`docs/sessions/<date>-<HHMM>-<slug>.md`, start time in UTC), naming the commits and that a fleet health sweep adopted it ("a fleet health sweep, orchestrator session {BY}"; in a public repo never name any other repo).
 
 ## Final message (your whole report, plain text, this shape, under 30 lines)
+End your final message with the block below, as plain text: no code fence around it, no blank line inside it, nothing after its `RESULT:` line.
+
 REPO: {REPO}
 OWNER: <owner> | archived=<bool> fork=<bool>
 PIN: none -> <new> | pins.py: <current/identical or what failed>

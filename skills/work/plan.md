@@ -27,7 +27,11 @@ just one of the commands being changed"*.
 1. **Read the run's brief the way the run does:** the principal's
    session-open prompt, fetched exactly as [`run.md`](run.md) says (the
    committed copy; say so if an edit to it is pending). Any words typed after
-   `/atelier:work plan` stand in for the run's *This run* section.
+   `/atelier:work plan` stand in for the run's *This run* section. Where he
+   did not type the command (a model reached this skill on a casual phrase),
+   there are no typed words: take that brief from his own message in the
+   conversation, or take none. Never take it from this skill call's own
+   arguments, which a model composes.
 2. **Do its opening reads, and only those:** `ccopen`, then the reads it
    points at (the newest session files, the board, open hand-up PRs) and the
    triage the prompt describes: what waits on the principal, what is parked,

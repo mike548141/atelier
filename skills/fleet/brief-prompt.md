@@ -22,6 +22,8 @@ Orchestrator's note: {NOTE}
 4. Point the item at the brief (its review line: brief written, path, waiting on approval), rebuild the board index if the repo has `docs/roadmap/` (`board.py --rebuild`), run the floor checks (the pre-commit hook does), commit, land, and watch CI at the pushed head (`gh run list -R {GH} -c <sha>`). Close with this repo's session file for the work (`docs/sessions/<date>-<HHMM>-<slug>.md`, start time in UTC, or the repo's own form if its CLAUDE.md says otherwise) naming the brief, the commit and "a fleet health sweep, orchestrator session {BY}" (in a public repo, name no other repo).
 
 ## Final message (plain text, under 20 lines)
+End your final message with the block below, as plain text: no code fence around it, no blank line inside it, nothing after its `RESULT:` line.
+
 REPO: {REPO}
 ITEM: {ITEM}
 BRIEF: <path> + <held sibling path> | SKIPPED (<a|b|c>: <why>, item re-labelled in <sha>)

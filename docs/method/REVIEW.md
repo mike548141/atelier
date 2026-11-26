@@ -265,11 +265,15 @@ governing who may spawn it:
    The first condition is checkable only if what the orchestrator told the
    reviewer is in the record, so the **reviewer** puts it in the verdict's
    provenance: the spawn prompt, the barred-set choice and the release message,
-   verbatim or as an attached file. Orchestrator direction is process only:
-   paths, tools, the barred set, the deliverable's shape, release timing. It
-   never contains a question about the delta, a pointer to where the risk
-   lives, or a request to revise a finding (the cold pass on the 2026-08-17
-   ruling round, RR2; applied at the reader, 2026-11-09, `160/910`).
+   verbatim or as an attached file. In a public repo the spawn prompt, the
+   release message and any resume message are quoted with each absolute path
+   replaced by a named placeholder (`<WORKTREE>`, `<REVIEW_LOG>`,
+   `<HELD_COPY>`), and the verdict says it was done. Orchestrator direction is
+   process only: paths, tools, the barred set, the deliverable's shape,
+   release timing. It never contains a question about the delta, a pointer to
+   where the risk lives, or a request to revise a finding (the cold pass on
+   the 2026-08-17 ruling round, RR2; applied at the reader, 2026-11-09,
+   `160/910`).
    Grounding: a 2026-08-17 run put two passes on Fable reviewers under an Opus
    orchestrator, disclosed it that way, and asked; the ruling accepted the
    passes and directed that the rule be written so the next session reads it

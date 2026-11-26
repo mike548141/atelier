@@ -380,6 +380,23 @@ class TheReviewTextsStayInStep(unittest.TestCase):
             self.assertNotIn("skills/", text, name)
             self.assertNotIn("run.md", text, name)
 
+    def test_every_prompt_ccfleet_reads_states_the_readers_constraints(self):
+        """DP2: the reader takes a result only in its shape; the prompts said
+        "this shape" and nothing about fences, blank lines or what follows."""
+        fleet = ("task-prompt", "adopt-prompt", "brief-prompt", "worker-prompt")
+        for name in fleet:
+            flat = self.flat(f"skills/fleet/{name}.md")
+            self.assertIn("End your final message with the block below, as plain "
+                          "text: no code fence around it, no blank line inside it, "
+                          "nothing after its `RESULT:` line.", flat, name)
+        for name in ("orchestrator-prompt", "fold-prompt", "resume-prompt"):
+            flat = self.flat(f"skills/review/{name}.md")
+            self.assertRegex(flat, r"as plain text: no code fence around them, no "
+                             r"blank line among them, and the `?RESULT:?`? line "
+                             r"directly above the `?ITEM:?`? line", name)
+        shipped = {p.name for p in (SKILLS / "fleet").glob("*-prompt.md")}
+        self.assertEqual(shipped, {f"{n}.md" for n in fleet})
+
     def test_the_orchestrator_prompt_holds_the_reviewer_prompt(self):
         """DV7 M9: the reviewer's instructions live in the pass's own prompt."""
         text = (SKILLS / "review" / "orchestrator-prompt.md").read_text(encoding="utf-8")
@@ -416,11 +433,25 @@ class TheReviewTextsStayInStep(unittest.TestCase):
                       "finds itself running as", flat)
         self.assertIn("If that is not the review tier it was told, it stops at once", flat)
 
+    PLACEHOLDER_RULE = ("In a public repo the spawn prompt, the release message and "
+                        "any resume message are quoted with each absolute path "
+                        "replaced by a named placeholder (`<WORKTREE>`, "
+                        "`<REVIEW_LOG>`, `<HELD_COPY>`), and the verdict says it "
+                        "was done.")
+
     def test_a_public_spawn_prompt_is_quoted_with_placeholders(self):
-        """DV10: 'verbatim' and 'never a path' no longer pull against each other."""
+        """DV10: 'verbatim' and 'never a path' no longer pull against each other.
+        DP16: for every message the reviewer quotes, not the spawn prompt only,
+        and in REVIEW.md rule 4, the canonical home, in the same words."""
         flat = self.flat("skills/review/orchestrator-prompt.md")
-        self.assertIn("In a public repo the spawn prompt is quoted with each absolute "
-                      "path replaced by a named placeholder", flat)
+        self.assertIn(self.PLACEHOLDER_RULE, flat)
+        step6 = flat[flat.index("6. Release act 2"):flat.index("7. Fold")]
+        self.assertIn("in a public repo, with each absolute path replaced by a "
+                      "named placeholder", step6)
+        resume = self.flat("skills/review/resume-prompt.md")
+        self.assertIn("in a public repo, with each absolute path replaced by a "
+                      "named placeholder", resume)
+        self.assertIn(self.PLACEHOLDER_RULE, self.flat("docs/method/REVIEW.md"))
 
     def test_run_md_names_the_model_value_and_its_limits(self):
         """DV7 M11, DV4, DV9."""
@@ -432,6 +463,34 @@ class TheReviewTextsStayInStep(unittest.TestCase):
         self.assertIn("costs no review budget only where the config's model is not "
                       "the review tier", flat)
         self.assertNotIn("on a cheaper tier", flat)
+
+    def test_run_md_says_the_config_passes_the_route(self):
+        """DP7: ccfleet calls `next` with no route; the config's command does."""
+        flat = self.flat("skills/review/run.md")
+        self.assertNotIn("ccfleet calls the queue's `next` with `--route local`", flat)
+        self.assertIn("The config's `queue.next` passes the route", flat)
+
+    def test_run_md_reads_the_verdict_where_the_reader_takes_it(self):
+        """DP11: the reader takes the RESULT line in the shape, not the first."""
+        flat = self.flat("skills/review/run.md")
+        self.assertNotIn("first line beginning `RESULT:` in its last turn", flat)
+        self.assertIn("the `RESULT:` line directly above the final output's "
+                      "`ITEM:` line", flat)
+        self.assertIn("a `RESULT:` line anywhere else, an earlier one included, "
+                      "gives no verdict", flat)
+
+    def test_run_md_reads_models_on_each_end_line(self):
+        """DP15: `models=` was written and nothing was told to read it."""
+        flat = self.flat("skills/review/run.md")
+        step4 = flat[flat.index("4. **Read each result**"):flat.index("### Lessons paid for")]
+        self.assertIn("read `models=` on its `END` line", step4)
+        self.assertIn("names no model of the review tier this drain set", step4)
+        self.assertIn("off-tier", step4)
+        self.assertIn("put it to the principal", step4)
+        mode2 = flat[flat.index("## Mode 2"):flat.index("## The variables")]
+        self.assertIn("`models=`", mode2)
+        close = flat[flat.index("## Close"):]
+        self.assertIn("`models=`", close)
 
     def test_run_md_says_ccfleet_does_not_hold_the_principals_word(self):
         """DV2: one home, per call; DV6: the claimant's id."""
@@ -446,6 +505,19 @@ class TheReviewTextsStayInStep(unittest.TestCase):
         flat = self.flat("skills/review/run.md")
         self.assertIn("Never take the words from this skill call's own arguments", flat)
         self.assertIn('or write "none given"', flat)
+
+    def test_every_skill_that_takes_typed_words_guards_them(self):
+        """DP12: the guard reached review run and session close only; a work
+        run or plan reached on a casual phrase took a model-composed brief as
+        the principal's."""
+        for rel in ("skills/review/run.md", "skills/session/close.md",
+                    "skills/work/run.md", "skills/work/plan.md",
+                    "skills/review/plan.md"):
+            flat = self.flat(rel)
+            self.assertIn("Where he did not type the command (a model reached this "
+                          "skill on a casual phrase), there are no typed words", flat, rel)
+            self.assertRegex(flat, r"Never take (it|the words) from this skill "
+                             r"call's own arguments", rel)
 
     def test_run_md_agrees_with_the_code_on_a_refused_claim(self):
         """PK8: ccfleet does not count a refused claim as a bad end."""
@@ -484,7 +556,17 @@ class TheReviewTextsStayInStep(unittest.TestCase):
         flat = self.flat("skills/review/fold-prompt.md")
         self.assertIn("never append a second copy", flat)
         self.assertIn("leaving out its date", flat)
-        self.assertIn('search for "Deferred sibling, folded below the verdict" alone', flat)
+        self.assertNotIn('search for "Deferred sibling, folded below the verdict" alone', flat)
+
+    def test_the_fold_matches_its_heading_as_a_heading_line(self):
+        """DP14: the phrase anywhere, a brief or verdict quoting it included,
+        read as an earlier fold, so the sibling was never appended."""
+        flat = self.flat("skills/review/fold-prompt.md")
+        step0 = flat[flat.index("0. A fold can itself"):flat.index("1. The reviewer's")]
+        self.assertIn("as a heading line: a line that starts with `#` marks", step0)
+        self.assertIn("The same words anywhere else, quoted in the brief or in "
+                      "a verdict, are not a fold", step0)
+        self.assertIn("Deferred sibling, folded below the verdict", step0)
 
     def test_plan_md_governs_until_a_difference_is_fixed(self):
         """PK16 R3."""
