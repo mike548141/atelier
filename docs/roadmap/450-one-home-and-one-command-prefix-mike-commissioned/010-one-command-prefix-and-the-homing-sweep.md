@@ -147,7 +147,7 @@
         Asked at that close, his pick: *"Wait, review the new build (Recommended)"*: the re-check waits for the
         build and covers it, and the switch follows a clean result (`210/470`).
         His words after, verbatim: *"we fable review the new code/design/wahtever before we use it for a review drain session"*.
-      - Still open: row 2 (waits on `160/1450`), row 11 (waits on the
+      - Still open: row 2 (done 2026-11-26, step D below), row 11 (waits on the
         batch conditions), row 12 (the generic half of the estate's queue
         reader as atelier's reference queue; optional, after row 2).
       - **Child follow-ups**, for each child's own session or the next
@@ -219,6 +219,32 @@
       (`atelier-51`, Opus 5.5), for step D only**: the adopter actions and private-config points
       (the estate root's share by a session working there), the first-use check, the switch and
       `/fable-drain`'s retirement. No Fable work here; `160/1870` runs in its own session.
+      ✅ **D done 2026-11-26 UTC** (session a2aeebc8, `atelier-51`, Opus 5.5; no Fable work).
+      - **The estate root's share**, by a headless Opus session started inside it (its `020/1070`,
+        RESULT DONE, its CI green): its queue now refuses `ranked`, `next` and `take` with exit 3
+        while unsealed (`210/640`), `take` applies `next`'s checks and takes `--route` (`DP8`),
+        `seal` refuses `unknown` (`PK10`), an `unseal` ends a run's seal; its base config passes
+        `--route local` on `next` and `take` (`PK3`/`DP7`), keeps the review tier's alias and no
+        standing `FINISH_WORDS` (`DV2`), and its `pass_prompt` stays the review skill's (step B);
+        its rulings file gained the estate's drain section, carrying the old command's rules
+        verbatim. The old kit still runs, as the fallback. Its own cold pass is queued there,
+        unbriefed, for the principal to time. The new `END` fields (`review_model=`,
+        `result_line=`) are read by `/atelier:review run`, not by a config: no estate change.
+      - **First-use check** (on `b3e17296`'s code, the estate root's generator writing to a
+        scratch copy, no approval in it): the generator's reset, Mon 2026-11-30 12:00 NZDT =
+        2026-11-29T23:00 UTC, matches the weekly meter's "Resets Monday 12:00 PM"; `ccfleet check
+        --prompt` exit 0 with no `QUEUE ROUTE` line (the base printed one before); `ccfleet plan`
+        exit 0, 15 briefed reviews; `ccfleet drain --dry-run` exit 0, its `next` refused with exit 3
+        and read as "not sealed: no launches rehearsed".
+      - **Switched:** the user-level `/fable-drain` link is removed (its kit stays in the estate
+        root, relinkable in one command if `160/1870` sends Monday back to it); the user-level
+        instructions now name `/atelier:review plan` and `run`; `prefixhook` reports no command
+        outside `/atelier:`.
+      - 🚩 **For the drain session:** the gate's disk floor was not met at the check (11 GB free
+        against 20); the drain holds every start until it is, so free disk or set the floor
+        (the generator's `--min-disk`) at the drain's start. If `160/1870` finds a MAJOR whose
+        fixes land before the drain, the first-use check is repeated on them.
+      🔓 2026-11-26T05:20Z: session a2aeebc8 releases its claim on step D.
       If C or B misses the drain's start, D is skipped: that drain runs on
       `/fable-drain` and D waits for the gap after it. Each session's close hands
       the principal the prompt for the next step it is not barred from naming.
