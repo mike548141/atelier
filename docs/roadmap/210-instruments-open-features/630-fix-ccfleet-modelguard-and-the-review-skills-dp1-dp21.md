@@ -1,4 +1,4 @@
-- [ ] 🔧 **Fix `ccfleet`, `modelguard`, the reference queue and the review skills: findings
+- [x] 🔧 **Fix `ccfleet`, `modelguard`, the reference queue and the review skills: findings
       `DP1`–`DP21` of the `160/1820` re-check, as the reviewer counselled; the MODERATEs first.**
       The findings:
       [`docs/reviews/2026-11-25-1920-dv-pk-fixes-recheck-cold.md`](../../reviews/2026-11-25-1920-dv-pk-fixes-recheck-cold.md)
@@ -25,7 +25,7 @@
       the drain is read as set aside by this ruling for these fixes alone. 🚩 So the fixes can
       reach the drain unreviewed: land them before step D's first-use dry run, or after the
       drain, never during it, and say which.
-      🔒 CLAIMED 2026-11-26T02:05Z (wt: `atelier-cd-dp-*`, one per worker) by principal-opened
+      🔒 CLAIMED 2026-11-26T01:57Z (time corrected from `date -u` at close; the claim commit wrote 02:05Z) (wt: `atelier-cd-dp-*`, one per worker) by principal-opened
       session 5e236e34 (`atelier-cd`, Opus 5.5), to build all of `DP1`–`DP21`, MODERATEs first,
       and land them before step D of `450/010` row 2. Workers each in their own worktree: `mg`
       (`tools/modelguard.py`: `DP1`, `DP9`, `DP10`, `DP21`), `cf` (`instruments/ccfleet` and its
@@ -33,3 +33,30 @@
       half of `DP11`), `sk` (the reference queue's `take`, the skills, `REVIEW.md`,
       `pointerscan`: `DP7`, `DP8`, `DP11`, `DP12`, `DP14`–`DP16`, `DP19`, the prompts' half of
       `DP2`). No Fable work: this session briefs and runs no review of these fixes.
+      ✅ **Done 2026-11-26 UTC** (session 5e236e34, `atelier-cd`): all 21 applied, MODERATEs
+      first, by four Opus workers, merged in one integration branch. Workers: `mg`
+      (`a72a84f8`, `2e1a6b87`), `cfa` (`b296f17e`, `54621c8b`, `acea648e`), `cfb` (`3244ca7f`,
+      `b9d094a1`), `sk` (`9fc276f9`..`73edeb34`); each fix's test was seen failing on the
+      unfixed code or a hand-applied mutant first. The merge joined the two `ccfleet` workers:
+      four old pins moved to `DP3`/`DP4`'s contract, resume's `END` line given the same fields
+      as a pass's, *THREATS* bounded to `DP13`'s rule. Whole suite at the landing head: tools
+      3,551 OK, instruments 307 OK, node 754 pass; `blockscan` clean. Departures from the
+      counsel, for any re-check to weigh:
+      - `DP1`: the first half of the counsel only. tmux options stop at the command word, and
+        all seven rows are denied again; "any `claude` word after tmux is a launch" was not
+        built, since it would deny `tmux new -d docker logs claude` and `tmux send-keys 'cd
+        claude' Enter`, which both hooks passed. The bare-word pass is named in the docstring.
+      - `DP2`: a closing sentence after `RESULT:` still reads UNKNOWN, on purpose: it looks
+        the same as a quoted template block followed by prose. The prompts now forbid it.
+      - `DP4`: both the setting and the environment variable, since the documentation does
+        not say whether `--settings` honours the key; not tried in a live session.
+      - `DP13`: the time bound is the worktree's age, since `ccfleet` never sees the claim's.
+      - `DP15`: `review_model=` is on the `END` line and in `<log>.end`, not in the result
+        file, whose header parser a new field would break.
+      - `DP17`: a dry drain still reads an ordinary exit 1 from `next` as "not sealed"; a
+        crash, a timeout or exit 126/127 now ends as a queue error. Telling a refusal from a
+        failure needs a refusal code in the queue contract.
+      - `DP18`: a private session keeps an import inside a sentence as text, where Claude Code
+        would load the file (named in *THREATS*).
+      The review pointer is `160/1870`, queued at the landing commit and waiting on his
+      decision; no Fable work started.
