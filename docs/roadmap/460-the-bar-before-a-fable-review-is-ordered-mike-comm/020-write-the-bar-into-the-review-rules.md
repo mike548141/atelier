@@ -28,6 +28,10 @@
       rule on: a MAJOR or a reproduced failure; the rest recorded until use shows them, as his
       `210/660` answer did) and when fixes earn a re-check. His words decide it, not this text.
 
+      💬 **When it starts, his answer 2026-11-26 (session a2aeebc8, AskUserQuestion; an answer,
+      not a ruling), typed, verbatim:** *"In a fresh session"*. So a fresh session builds it; the
+      closing session handed him its prompt.
+
       **Where it lands:** `docs/method/REVIEW.md` (§ *Whether work earns a review at all*,
       rules 3 and 4, § *Review the design*'s review line), the compressed copies in
       `skills/review/brief.md` and the dispatch skeleton, and the `CONCURRENCY.md` landing

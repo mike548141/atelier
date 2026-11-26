@@ -52,3 +52,15 @@ on /fable-drain. At close, give me the exact prompt for the next step from that 
 - From the estate root's report: no meter-paced taper or heat gate in `ccfleet` (by hand
   through `<kit_dir>/max`, as its rulings say), and which words fill `FINISH_WORDS` for a resume
   before the reset is not settled.
+
+## His answers at the close (2026-11-26 ~10:35 UTC, AskUserQuestion; answers, not rulings)
+
+- The `160/1870` brief: *"This session starts it now (Recommended)"*. Written by headless
+  brief-writer `664efda7` (`65dbf3b0`); listed in the estate queue's `extra` so the drain sees it.
+- The estate root's own queue-change review: *"In Monday's drain"*. Recorded there; its brief
+  is for a session this one neither is nor starts (this session launched the build).
+- Resume words before the reset: *"Reuse the drain's approval (Recommended)"*. Recorded in the
+  estate's drain rulings.
+- `460/020`: *"In a fresh session"*.
+- Found while doing the first: the estate queue lists a brief only by a sibling inside the repo,
+  so a brief with a held sibling needs a hand-made `extra` entry. Queued in the estate root.

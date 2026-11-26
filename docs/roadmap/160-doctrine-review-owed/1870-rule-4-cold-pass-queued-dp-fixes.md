@@ -54,3 +54,8 @@
       Barred from running it: 5e236e34, its four workers, and 664efda7.
       🔓 2026-11-26T11:13Z: session 664efda7 releases its claim. The pass is open for one fresh Fable
       reviewer in the drain, under an orchestrator that forms no finding.
+      💬 **Who writes the brief, his pick 2026-11-26 (session a2aeebc8, AskUserQuestion):**
+      *"This session starts it now (Recommended)"*. a2aeebc8 started one headless Opus
+      brief-writer (session `664efda7`), which wrote the brief and committed it (above). The
+      estate's queue finds a brief only by an in-repo sibling, so a2aeebc8 listed this brief in
+      the queue's user-local `extra` list; the queue now shows it READY for the drain.
