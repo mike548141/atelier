@@ -433,11 +433,25 @@ class TheReviewTextsStayInStep(unittest.TestCase):
                       "finds itself running as", flat)
         self.assertIn("If that is not the review tier it was told, it stops at once", flat)
 
+    PLACEHOLDER_RULE = ("In a public repo the spawn prompt, the release message and "
+                        "any resume message are quoted with each absolute path "
+                        "replaced by a named placeholder (`<WORKTREE>`, "
+                        "`<REVIEW_LOG>`, `<HELD_COPY>`), and the verdict says it "
+                        "was done.")
+
     def test_a_public_spawn_prompt_is_quoted_with_placeholders(self):
-        """DV10: 'verbatim' and 'never a path' no longer pull against each other."""
+        """DV10: 'verbatim' and 'never a path' no longer pull against each other.
+        DP16: for every message the reviewer quotes, not the spawn prompt only,
+        and in REVIEW.md rule 4, the canonical home, in the same words."""
         flat = self.flat("skills/review/orchestrator-prompt.md")
-        self.assertIn("In a public repo the spawn prompt is quoted with each absolute "
-                      "path replaced by a named placeholder", flat)
+        self.assertIn(self.PLACEHOLDER_RULE, flat)
+        step6 = flat[flat.index("6. Release act 2"):flat.index("7. Fold")]
+        self.assertIn("in a public repo, with each absolute path replaced by a "
+                      "named placeholder", step6)
+        resume = self.flat("skills/review/resume-prompt.md")
+        self.assertIn("in a public repo, with each absolute path replaced by a "
+                      "named placeholder", resume)
+        self.assertIn(self.PLACEHOLDER_RULE, self.flat("docs/method/REVIEW.md"))
 
     def test_run_md_names_the_model_value_and_its_limits(self):
         """DV7 M11, DV4, DV9."""

@@ -22,7 +22,7 @@ Steps:
 3. Partition: the brief's held-back sibling (`<brief basename without .md>.deferred.md`) is held user-local from the moment its writer saved it, at `{HELD_DIR}/{REPO}--<sibling basename>`: outside the repo, every worktree and any scratchpad, never a reviewer's working directory, and outside any temp directory a reboot wipes. Check it is there; never read its contents. If it is instead in the worktree (the older form), copy it there and `rm` it from the worktree (do not commit the removal yet). Only a brief whose sibling is found in neither place and that says it defers nothing skips act 2; say so in the claim. A brief that names a sibling you cannot find: stop and report RESULT: FAILED, NOTES saying where you looked.
 4. Spawn ONE reviewer: the Agent tool, `model: "{REVIEW_MODEL}"`, foreground. If the tool refuses the model, or you cannot pass it, stop and report RESULT: FAILED with the refusal in NOTES: never spawn a reviewer without it, and never as a fork (a fork runs on your own model). Fill in THE REVIEWER PROMPT below: it is the reviewer's whole instruction list, and these are the values it needs: the item, the worktree `{WT}`, the brief path; the provenance (the review tier `{REVIEW_MODEL}`, checked at selection; spawned by you, started by {BY}; the brief's barred sessions; the approval above); and the review log at `{REVIEW_LOG}`. If the reviewer reports that it is not running on the review tier, stop and report RESULT: FAILED, and do not let it carry on.
 5. On ACT 1 SAVED: commit act 1 (the brief file only, `git commit -- <brief>`, log file, exit code). If a gate blocks it, SendMessage the reviewer to fix its own text, then retry. Mark verbatim quotes allowed; never edit a quote.
-6. Release act 2: SendMessage the reviewer's agent id with the held copy's absolute path, telling it act 2 may now read that one file and that this release message goes into its provenance verbatim. Wait for "ACT 2 SAVED".
+6. Release act 2: SendMessage the reviewer's agent id with the held copy's absolute path, telling it act 2 may now read that one file and that this release message goes into its provenance verbatim (in a public repo, with each absolute path replaced by a named placeholder, as THE REVIEWER PROMPT's Provenance bullet says). Wait for "ACT 2 SAVED".
 7. Fold: the sibling's text verbatim below the verdict under "Deferred sibling, folded below the verdict (orchestrator, <ISO date>)" with a one-paragraph preface; if the sibling was in the tree, `git rm` it; fix the brief's link or pointer to it; append the review log verbatim at the end under "Review log (reviewer, verbatim; private while the pass ran, opened at the fold)" (form-only fixes a gate needs, said under the heading), then delete `{REVIEW_LOG}`; a pass with no log says so there; fix a stale Status line (form only). Flip the item `[~] ⏳` -> `[ ] 🎯` with: PASS RAN, verdict, tally, the standing MAJOR in one line, the findings that are the principal's to rule (REVIEW.md rule 3), routing. Rebuild the board. Commit (explicit paths, the whole staged index read first, log file, exit code), fetch and rebase onto the mainline, land. Cite commit hashes only after the rebase.
 8. Clear any scratch captures. Do NOT remove the worktree (the launcher does).
 
@@ -48,9 +48,10 @@ THE REVIEWER PROMPT (fill it in; every bullet goes to the reviewer, in your own 
   the verdict's provenance what the orchestrator told it: the spawn prompt,
   the barred-set choice, the release message and any resume message,
   verbatim or as an attached file (REVIEW.md rule 4), so a reader can check
-  that the orchestrator formed no finding. In a public repo the spawn prompt
-  is quoted with each absolute path replaced by a named placeholder
-  (`<WORKTREE>`, `<REVIEW_LOG>`), and the verdict says it was done.
+  that the orchestrator formed no finding. In a public repo the spawn prompt,
+  the release message and any resume message are quoted with each absolute
+  path replaced by a named placeholder (`<WORKTREE>`, `<REVIEW_LOG>`,
+  `<HELD_COPY>`), and the verdict says it was done.
 - **The model it runs as**: the reviewer states, in the verdict's provenance,
   the model it finds itself running as. If that is not the review tier it was
   told, it stops at once, reviews nothing and says so to the orchestrator.
@@ -89,7 +90,7 @@ THE REVIEWER PROMPT (fill it in; every bullet goes to the reviewer, in your own 
   write to a live system.
 - **Public repos**: refer to orchestrators by session id only; never a
   private repo's name or path, or an estate fact, and no home path (see
-  Provenance for the spawn prompt).
+  Provenance for the messages it quotes).
 - **How to finish**: verdict, tally, path, "ACT 1 SAVED"; act 2 ends "ACT 2
   SAVED".
 
