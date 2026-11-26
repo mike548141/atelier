@@ -242,8 +242,8 @@
         outside `/atelier:`.
       - 🚩 **For the drain session:** the gate's disk floor was not met at the check (11 GB free
         against 20); the drain holds every start until it is, so free disk or set the floor
-        (the generator's `--min-disk`) at the drain's start. If `160/1870` finds a MAJOR whose
-        fixes land before the drain, the first-use check is repeated on them.
+        (the generator's `--min-disk`) at the drain's start. `160/1870` runs inside the drain
+        (his answer, quoted there); it does not gate it.
       🔓 2026-11-26T05:20Z: session a2aeebc8 releases its claim on step D.
       🎯 **Owed ask, the disk floor:** put to him at the close (session a2aeebc8, AskUserQuestion:
       free disk to above 20 GB, lower the floor to 12 GB for this drain, or decide on Monday), his

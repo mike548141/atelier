@@ -12,6 +12,17 @@
       by a fresh session that wrote none of the fixes, before 2026-11-29 23:00 UTC; it does not
       lift the general Fable hold. 5e236e34 and its four workers neither brief nor run it. It
       also covers `210/640` (the `DP17` leftover), which lands first.
+      💬 **When it runs, his answer 2026-11-26 ~08:45 UTC (session a2aeebc8, `atelier-51`,
+      AskUserQuestion).** First his words, verbatim, correcting that session's close, which had
+      called this review a step before the drain: *"I have already ruled that we are not waiting
+      for this review to complete before we use the code at the next drain. However I have also
+      approved a review, but I worry that we are stuck in a loop of review - fix --review -- fix
+      without proof of actual failures i.e. risks rather than issues"*. Asked when it runs and when
+      a finding is fixed from now on, his typed answer, verbatim: *"run it as part of the drain"*.
+      So this pass runs in the 2026-11-29 drain, among its other passes; it gates nothing. Its brief
+      is owed before the drain, by a session that wrote none of the fixes. His concern about fixing
+      risks before an actual failure is recorded here; the rule for when a finding is fixed was
+      not answered, so the verdict's findings go to him as before.
       *Tier:* Fable, the principal-named review tier, checked at selection.
       *Pass type:* code and doctrine re-check, per `method/REVIEW.md` rule 4: each of
       `DP1`–`DP21` against its fix, and what the fixes changed besides.

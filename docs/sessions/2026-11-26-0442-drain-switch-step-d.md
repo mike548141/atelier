@@ -41,7 +41,10 @@ on /fable-drain. At close, give me the exact prompt for the next step from that 
 
 ## Left open, for the principal
 
-- `160/1870`, approved, still to brief and run in its own session before the drain.
+- `160/1870`: not a gate on the drain (his ruling on `450/010`; this session's close wrongly
+  called it one, and he corrected it). His answer after: *"run it as part of the drain"*. Its brief
+  is owed before the drain. His worry about a review-fix loop on risks rather than actual failures
+  is quoted on `160/1870`; the rule for when a finding is fixed was not answered.
 - The disk floor: 11 GB free at the check against the drain gate's 20 GB. Asked at the close, his
   typed answer, verbatim: *"Ask me again from tomorrow evening"*: ask again from the evening of
   Fri 2026-11-27 NZDT, before the drain (owed on `450/010` row 2).
