@@ -210,7 +210,11 @@
         ```
       - ✅ **`210/630` landed 2026-11-26 UTC** (session 5e236e34, `atelier-cd`): all of
         `DP1`–`DP21` are on `main`, before step D's first-use dry run, so that dry run exercises
-        the fixed code. Their review is `160/1870`, waiting on the principal's decision.
+        the fixed code. Their review is `160/1870`, approved by him to run before the drain, and
+        his answer on the leftovers added `210/640` (`b3e17296`, inside that review). The step D
+        prompt adapted to this, as handed to him, is in
+        `docs/sessions/2026-11-26-0156-dp-fixes.md` § *The adapted prompts handed to him*; it
+        supersedes the one below.
       If C or B misses the drain's start, D is skipped: that drain runs on
       `/fable-drain` and D waits for the gap after it. Each session's close hands
       the principal the prompt for the next step it is not barred from naming.
