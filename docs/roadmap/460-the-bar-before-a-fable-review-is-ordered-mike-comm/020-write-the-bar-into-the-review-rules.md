@@ -1,4 +1,4 @@
-- [ ] **Fix the four doctrine causes `460/010` step 1 found: write the bar into the
+- [x] **Fix the four doctrine causes `460/010` step 1 found: write the bar into the
       review rules** `[M][doctrine]`. Mike, 2026-11-25, on the step-1 answer ("mostly weak
       doctrine, not sessions ignoring it"), verbatim:
 
@@ -44,3 +44,33 @@
       🔒 CLAIMED 2026-11-26T11:53Z (claimed 2026-11-26-1153, wt: atelier-460-020) by session
       4ccec293 (`atelier-56`, Opus 5.5), principal-opened by `/atelier:work run` with this item as
       its brief.
+      ✅ **Landed 2026-11-26 (session 4ccec293, `atelier-56`).** `REVIEW.md` § *Whether work
+      earns a review at all* now carries the bar (three questions in the intent record, no
+      answer to the third means no pass), the never-on-its-own list, rule 3 as who rules
+      rather than whether, one open pass per subject (with two exceptions: a briefed pass,
+      or one he approved on its own terms or ordered), and his order outranking the test.
+      A new section, *When a finding is fixed before use, and when fixes earn a re-check*,
+      quotes his three sentences above and the 2026-07-13 stop. Rules 3 and 4, lifecycle
+      step 4, the stop paragraph and the review line point at both. Compressed copies
+      follow in `ECONOMICS.md`, `skills/review/brief.md`, `CONCURRENCY.md`'s landing step
+      and the dispatch skeleton.
+      **His "Haven't I ruled on this in the past":** partly. On 2026-07-13 he ruled that a
+      review cycle closes at the first pass with no MAJOR, and that a MAJOR count not
+      falling means stop and ask him. It was written for applying findings to doctrine
+      only, so the drain code's chain never met it: under it, that chain closes at the
+      `RK` pass (0 MAJOR, 2026-11-25), and three passes ran after it with a fourth queued.
+      Nothing said when a finding is fixed before use; the new section does, from his
+      2026-11-26 words.
+      **Beyond his words, for him to confirm (asked at this session's close):** carrying the
+      2026-07-13 stop from doctrine to code; and fixing two kinds of risk before use without
+      evidence (a first occurrence that is itself irreversible, and a silent failure, whose
+      evidence is a probe). The text marks the second as the repo's reading.
+      **Review grounds (the bar, answered for this change):**
+      1. *Commitment:* every session's decision whether to queue a cold pass, and whether a
+         finding is fixed before use; rule 4 itself.
+      2. *Worst failure:* the bar lets a change whose failure is silent or irreversible go
+         unreviewed, or the fix rule leaves a real defect in use as a "risk".
+      3. *Why the floor misses it:* no test reads what doctrine means; a bar set too loose
+         fails silent, since unreviewed work looks the same as reviewed work.
+      **Review:** queued as `160/1880` in the landing commit, a pass of its own as he
+      ordered; it runs on Fable only when he approves.

@@ -370,13 +370,19 @@ proportionality test the same way built work does.)
 - **Earns the full ceremony** (an independent, fresh-context review before the
   work is trusted): first-of-kind or structural tooling; anything with a
   **silent-failure mode** — a gate that can report green while not actually
-  checking; **doctrine text**, because a wrong rule propagates everywhere it is
-  inherited; and irreversible or public-facing actions.
+  checking; **doctrine text that adds or changes a rule**, because a wrong rule
+  propagates everywhere it is inherited; and irreversible or public-facing
+  actions.
 - **Self-verifying — the mechanical floor *is* the review**: work whose tests
   and dogfooding exercise it end-to-end over *already-reviewed* machinery. Wiring
   an already-reviewed tool into a gate, a refactor its suite fully covers, a
   records-only edit — these do not each earn a brief→verdict cycle. Demanding one
   is the overhead, not the safety.
+
+Which side a change falls on is `REVIEW.md`'s bar, asked before a pass is
+queued: what will rest on it, its worst failure, and why the tests, the floor
+and normal use would not surface that failure. No answer to the last, no pass
+(`REVIEW.md` § *Whether work earns a review at all*).
 
 **Risk sets whether a review is owed and of what kind; budget never shrinks one
 that is owed.** The proportion above is a judgement about the cost of being

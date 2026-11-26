@@ -37,7 +37,10 @@ carries bounds only, never a relaxation of standing doctrine.
   cwd. Never kill by name pattern (`pkill -f`): it reaches other sessions.
 - Write no review pointer: the orchestrator writes it when it lands your
   work. Where your item or report names your change, cite it by path and
-  by the item it closes, never by branch name or commit hash.
+  by the item it closes, never by branch name or commit hash. In your
+  report, answer the review bar's three questions for your change (what will
+  rest on it, its worst failure, why the tests, the floor and normal use would
+  not surface that failure), so the orchestrator can write its review line.
 - End your final reply with the line: WORKER DONE: <branch>@<final sha>
 ```
 
@@ -50,7 +53,7 @@ carries bounds only, never a relaxation of standing doctrine.
 | No push or merge | § *Orchestrated queue runs*: what a worker inherits is bounded (QR3) |
 | Test-run bound | § *Orchestrated queue runs*: a worker's test runs are bounded too, and the full suite is the orchestrator's (`180/200`); a brief-writing worker's re-run lines (`320/910`) |
 | Kill scope | § *Orchestrated queue runs*: the machine is shared too (`320/700`) |
-| No pointer; cite by path and item | § *Orchestrated queue runs*: the orchestrator writes the review pointer, at the landing (`180/190`) |
+| No pointer; cite by path and item; answer the bar | § *Orchestrated queue runs*: the orchestrator writes the review pointer, at the landing (`180/190`), after asking `REVIEW.md`'s bar (`460/020`) |
 | Terminal marker | § *Orchestrated queue runs*: teardown waits for the worker to stop |
 
 What the block leaves to each dispatch: the item and its evidence, the

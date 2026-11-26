@@ -16,3 +16,10 @@
       **Review:** a gate that blocks, so it earns its own pass under the new bar's question
       (3): a gate that reads green while not checking fails silent. Fold it into
       `460/020`'s pass if that is still unrun when this lands.
+      **Unblocked 2026-11-26:** `460/020` landed (`REVIEW.md` § *Whether work earns a review
+      at all*). One design fact for the gate: the three answers live in the **intent
+      record** the pointer names, not in the pointer, because rule 4 keeps a pointer refs
+      only and `pointerscan` already flags evaluative text in one. So step 1 checks the
+      intent record the pointer links. "One open pass per subject" has two exceptions the
+      gate must allow: the open pass is briefed, or the principal approved it on its own
+      terms or ordered a pass of its own (the pointer names the open sibling).

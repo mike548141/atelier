@@ -1133,7 +1133,13 @@ by path and by the item the work closes ("the commit that closes
 `NNN/NNN`"), which no rebase or teardown can move; a hash it cites must
 already be the one on `main`. (2026-11-03, `180/190`: four of five worker
 pointers in one run named a deleted branch or a pre-rebase hash, and were
-corrected by hand the same hour.)
+corrected by hand the same hour.) Before it writes one, the orchestrator asks
+`REVIEW.md`'s bar of the landed work from the worker's report: the three
+answers go in the intent record the pointer names; with no answer to the third
+it writes `review: not warranted — <grounds>` there instead; and where the
+subject already has an open pass with no brief, it widens that pointer rather
+than opening a second (`REVIEW.md` § *Whether work earns a review at all*,
+`460/020`).
 
 **Tier at open — state it, don't ask.** An orchestrating session **names the
 tier it is on in its opening report and proceeds** (`ECONOMICS.md` — the

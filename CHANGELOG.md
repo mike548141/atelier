@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-26 — the bar before a review pass is queued, and when a finding is fixed before use, `460/020`)
+- **Adopter action.** Before queuing a cold pass, answer three questions in the work's
+  intent record: what will rest on it, its worst failure, and why the tests, the floor and
+  normal use would not surface that failure. No answer to the last, no pass: write
+  `review: not warranted — <grounds>`. Corrections that add no rule, syncs to a reviewed
+  source and loud-failing fixes to reviewed, tested tools never earn a pass of their own;
+  a later change to a subject with an unbriefed open pass widens that pointer
+  (`REVIEW.md` § *Whether work earns a review at all*).
+- **When a finding is fixed before use** (`REVIEW.md`, new section). An issue, its failure
+  shown happening, is fixed before the work is next used; a risk becomes a low-priority
+  board item until evidenced, except an irreversible first occurrence or a silent failure.
+  A re-check of fixes is owed only after a pass with a MAJOR, and the chain stops at the
+  first pass with none.
+
 ### Changed (2026-11-26 — a queue's "not sealed" refusal has its own exit code, `210/640`)
 - **Adopter action.** Your queue's `ranked`, `next` and `take` must refuse with
   **exit 3** while this run holds no seal (the reference queue does). A dry

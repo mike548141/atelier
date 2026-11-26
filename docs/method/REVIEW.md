@@ -196,7 +196,9 @@ governing who may spawn it:
    authority — and the challenge is raised to him, by re-briefing and asking
    again. Where a finding already has an answer or ruling on the board, the
    ask names it, so he rules with the earlier word in front of him and not as
-   if the finding were new (AR8). Where the approval is an **always-confirm
+   if the finding were new (AR8). This definition decides who rules on a
+   finding, never whether a pass is owed: that is the bar in *Whether work
+   earns a review at all* below. Where the approval is an **always-confirm
    floor stop** rather than a governance ruling, the order is fixed:
    re-brief *before* the irreversible action, never after (`00-APEX.md`,
    the principal's ruling 2026-08-17).
@@ -209,14 +211,18 @@ governing who may spawn it:
    category the deferral discipline of rules 1–2 is necessary but not
    sufficient: its residual risk is the author's own compliance, and a wrong
    rule propagates to every repo and every future session that inherits it —
-   the widest blast radius in the operating model. So the spawn test is a
+   the widest blast radius in the operating model. Whether a change earns a
+   pass at all is the bar in *Whether work earns a review at all* below; this
+   rule says who spawns the pass once it does. So the spawn test is a
    single criterion: **the review comes from a session the author neither
    started nor instructed.** The principal, a scheduled batch, and a neutral
    working session are *examples that must each pass that test*, not a list
    of exemptions — an author-written brief, queued by the author into a
    batch the author scheduled, fails it whatever the batch is called. The
-   author's handoff when such work is finished: queue the review pointer
-   (ROADMAP `⏳`, naming the delta and the intent record — a ceiling as well
+   author's handoff when such work is finished: answer the bar's three
+   questions in the intent record, then queue the review pointer, or widen
+   the subject's open one (ROADMAP `⏳`, naming the delta and the intent
+   record — a ceiling as well
    as a floor: refs only, no evaluative account, which belongs in the intent
    record where the reviewer's deferral discipline governs when it is read;
    the author runs `pointerscan` on the pointer it writes, since its
@@ -495,8 +501,10 @@ artefact**, not a throwaway chat:
    builder/owner may disagree with a finding, but the disagreement and its
    grounds are recorded in the verdict file, never resolved by silently dropping
    it (the same rule the layer-override discipline applies to doctrine
-   conflicts). **The one carve-out:** findings on doctrine the *author itself*
-   wrote (doctrine by function — rule 3 above) are decided by the
+   conflicts). Each finding is also named an **issue** or a **risk**, which
+   decides whether it is fixed before the work is next used (*When a finding is
+   fixed before use* below). **The one carve-out:** findings on doctrine the
+   *author itself* wrote (doctrine by function — rule 3 above) are decided by the
    principal, not the author; the author may record its counsel per finding,
    labelled as such, and applies nothing until the principal decides. Where such
    a finding is a parent/child doctrine conflict, this and `PROPAGATION.md`'s
@@ -557,7 +565,9 @@ returns — the principal's ruling, 2026-07-13): it **closes when a pass returns
 no MAJOR finding** — what remains is decided into the backlog, and that
 application does not spawn another full ceremony. The escape valve if it *isn't*
 converging: when the MAJOR count is not falling from pass to pass, do not keep
-cranking — stop and ask the principal for direction.
+cranking — stop and ask the principal for direction. The same stop binds the
+fixes of any pass, code included (*When a finding is fixed before use, and when
+fixes earn a re-check* below).
 
 **A pass that is not accepted is withdrawn, never deleted** (the principal's
 ruling, 2026-07-26, promoted to doctrine 2026-08-05). The general case covers a
@@ -626,13 +636,124 @@ defect this replaced).
 
 Match the gate to the cost of being wrong (`ECONOMICS.md` — "match the
 ceremony to the risk"): first-of-kind or structural work, a silent-failure mode,
-doctrine text, and irreversible or public actions earn the independent
-fresh-context review; work whose tests and dogfooding exercise it end-to-end over
-*already-reviewed* machinery is **self-verifying** — there the mechanical floor
-*is* the review, and a brief→verdict cycle is overhead, not safety. Under-review a
-risky commitment and the defect ships; over-review a safe one and the ceremony
-crowds out the work. Same "layers, not alternatives" split as *What review is not*
-below, applied one level up — to the decision to review at all.
+doctrine text that adds or changes a rule, and irreversible or public actions
+earn the independent fresh-context review; work whose tests and dogfooding
+exercise it end-to-end over *already-reviewed* machinery is **self-verifying** —
+there the mechanical floor *is* the review, and a brief→verdict cycle is
+overhead, not safety. Under-review a risky commitment and the defect ships;
+over-review a safe one and the ceremony crowds out the work. Same "layers, not
+alternatives" split as *What review is not* below, applied one level up — to
+the decision to review at all.
+
+**The bar, checked before a pass is queued.** The principal commissioned it on
+2026-11-24, in his words: *"We need to set a clearer bar or definition that work
+must meet before a fable review is ordered, I am seeing work that simply should
+not qualify and I dont know if that is a weak doctrine or sessions ignoring the
+doctrine"*. The list above names kinds of work; it never said how a session
+tells, as it lands a change, whether its own change is one. So before it queues
+a pass, the author answers three questions in the work's intent record (the
+pointer stays refs only, rule 4, and names that record):
+
+1. **Commitment:** what will rest on this once it is trusted — a rule others
+   follow, a gate that blocks, a privacy or permission boundary, an
+   irreversible action.
+2. **Worst failure:** the single worst way it can be wrong.
+3. **Why the floor misses it:** why the tests, the floor and normal use would
+   not surface that failure — it fails silent, it reads untrusted input, it
+   narrows a grant or a detection, it changes what binds. "Every child runs
+   it" is reach, not an answer: reach spreads a loud failure to more places,
+   where the floor still catches it.
+
+**No answer to the third, no pass.** The record carries `review: not warranted
+— <grounds>` instead, naming what catches the failure. Queuing now needs written
+grounds, as declining always did (*Review the design* below), so neither is the
+path of least resistance.
+
+**Never a pass of its own,** whatever file it touches: a wording or factual
+correction that adds or changes no rule; a sync of a copy to a source already
+reviewed or queued; a fix whose failure is loud (a sort, a format, an output
+shape, a tightening that reds on misuse) to an already-reviewed tool its tests
+cover. Each carries `not warranted`, or joins the subject's open pass where one
+is unrun.
+
+**Rule 3 decides who rules on findings, not whether a pass is owed.** Rule 3
+calls a validator, a gate, a template or a skill doctrine by function so that its
+author cannot rule on a challenge to it. Read as a trigger, it made every tool
+change a rule-4 pass and left the self-verifying exemption nothing to exempt.
+Whether a pass is owed is this section's test; rule 4 says who spawns the pass
+once it is.
+
+**One open pass per subject.** Where a tool, an instrument or a method file
+already has a queued pass with no brief yet, a later change to it widens that
+pointer's delta (paths and bound) in the landing commit instead of opening a
+second pointer, so a pass reviews the subject as it stands, not each commit to
+it. Two exceptions open a new pointer, which names the open one: the open pass
+is briefed (a brief pins its delta), or the principal has approved it on terms
+of its own or orders a pass of its own for the new change.
+
+**The principal's order outranks the test.** A pass he orders is owed whatever
+the answers; the item records his words as its grounds. A session may offer him
+a pass the test does not owe, and says so when it does.
+
+Grounding: `460/010` step 1 (2026-11-25) sorted the 42 passes then queued in
+atelier's `160` section against the text as it stood. 35 met it, three of them
+only because a correction counted as "doctrine text"; 4 failed it; for 3 the
+text could not say. 13 gave no grounds; all four that failed gave reach; one
+instrument had 8 passes, one per landing, and one run queued 14 in a day. The
+cause was mostly the text, not sessions ignoring it.
+
+## When a finding is fixed before use, and when fixes earn a re-check
+
+The principal's words on 2026-11-26, of a chain of passes on the same drain
+code: *"I worry that we are stuck in a loop of review - fix --review -- fix
+without proof of actual failures i.e. risks rather than issues"*; and of that
+chain's latest pass, *"I have already ruled that we are not waiting for this
+review to complete before we use the code at the next drain"*. Of a leftover
+finding the same day, his answer: *"Put it on the board to work on as a low
+priority until it is evidenced as an issue"*. Earlier, on 2026-07-13, he ruled
+the stop that *Applying decisions to doctrine* above records (in the session's
+words, not his): the cycle closes when a pass returns no MAJOR, and when the
+MAJOR count stops falling from pass to pass, stop and ask him. That stop was
+written for applying findings to doctrine only. This section carries his words
+to every fix, code included; where it reaches past them it says so.
+
+**An issue is fixed before the work is next used; a risk waits for evidence.**
+A finding is an **issue** when its failure is shown happening: a command, a
+test that reds, or a live instance, produced by the reviewer or by whoever
+weighs the finding. Otherwise it is a **risk**.
+
+- An issue is fixed, and the fix proven (lifecycle step 5), before the work is
+  next used.
+- A risk becomes a board item at low priority that names the evidence which
+  would raise it, and the work is used meanwhile (the `210/660` item is the
+  worked shape). It is fixed when that evidence arrives.
+- Two kinds of risk are fixed before use all the same, because waiting for
+  evidence would mean waiting for the harm. This is the repo's reading, beyond
+  his words, for him to confirm or overturn. A risk whose first occurrence is
+  itself irreversible: a publication, a leaked secret, money spent, data
+  deleted, anything the always-confirm floor stops. And a silent failure, which
+  normal use never shows: its evidence is a probe built to show it, and a probe
+  that shows it makes it an issue.
+
+Severity alone does not decide it: a MAJOR with no proof is a risk like any
+other, unless it is one of those two kinds. The decision (lifecycle step 4)
+names each finding's class beside its tag. Where rule 3 puts the decision with
+the principal, the ask names each finding's class and recommends from this rule,
+and he decides.
+
+**A re-check of fixes is owed only when the pass being fixed returned a
+MAJOR.** The fixes of a pass with no MAJOR close by lifecycle step 5, each fix
+exercised, with no further pass. Where a re-check is owed, it is one pass,
+scoped to the fixes, on the subject's one open pointer. The chain stops at the
+first pass that returns no MAJOR; if the MAJOR count is not falling from one
+pass to the next, stop and ask the principal. A re-check gates no use unless he
+says it does.
+
+Grounding: the drain code's chain (`ccfleet`, `modelguard` and the review
+skills). Its first pass, on 2026-11-20, failed with 2 MAJOR (`FL`). The re-check
+of those fixes returned 0 MAJOR (`RK`), which under this rule closes the chain.
+Three more passes ran on fixes after it (`DV`, `PK` and their re-check `DP`, 0
+MAJOR each) and a fourth was queued (`160/1870`).
 
 ## Review the design, not only the build — the earliest review is the cheapest
 
@@ -697,9 +818,10 @@ considered it. So the remedy is to make the decline an act:
 
 > Where a repo records design or direction durably (a roadmap section, an ADR,
 > a doctrine change), **each such record carries a review line** — a queued
-> pointer, or an explicit `review: not warranted — <grounds>`. **Omission is
-> the bug.** A reviewer, or the principal, can then disagree with a stated
-> judgement; neither can disagree with a blank.
+> pointer whose intent record answers the bar's three questions (*Whether work
+> earns a review at all*), or an explicit `review: not warranted — <grounds>`.
+> **Omission is the bug.** A reviewer, or the principal, can then disagree with
+> a stated judgement; neither can disagree with a blank.
 
 Calibration still applies — this widens *what* is reviewable and *when*, never
 the ceremony. Most design records will honestly carry "not warranted", and that

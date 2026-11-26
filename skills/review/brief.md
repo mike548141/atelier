@@ -38,9 +38,16 @@ plan, or a patch. Ceremony is *spend* — apply it in proportion to the cost of
 being wrong, not uniformly. **Earns the full ceremony:** a design others will
 build to or a decision that forecloses alternatives, first-of-kind or
 structural work, a silent-failure surface (a check whose green exit is read as
-"safe"), doctrine text, anything irreversible or public. **Self-verifying**
-(tests + dogfooding over already-reviewed machinery): most routine, mechanical
-changes. If it doesn't earn one, say so and stop — don't manufacture ceremony.
+"safe"), doctrine text that adds or changes a rule, anything irreversible or
+public. **Self-verifying** (tests + dogfooding over already-reviewed
+machinery): most routine, mechanical changes. **The bar:** the intent record
+answers what will rest on the work, its worst failure, and why the tests, the
+floor and normal use would not surface that failure; with no answer to the
+last, no pass is owed. Never a pass of its own: a correction that adds no rule,
+a sync to a reviewed source, a loud-failing fix to a reviewed, tested tool.
+"Doctrine by function" (rule 3) decides who rules on findings, not whether a
+pass is owed. If it doesn't earn one, say so and stop — don't manufacture
+ceremony (REVIEW.md § *Whether work earns a review at all*).
 That proportion decides whether a review is owed and of what kind, never how
 much of one runs: once owed, no budget thins it.
 

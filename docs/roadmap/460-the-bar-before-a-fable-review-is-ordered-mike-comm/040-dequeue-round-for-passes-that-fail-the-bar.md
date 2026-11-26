@@ -9,3 +9,6 @@
       **Then:** one plain-language ask to him with the judged list, in one go
       (one question, not one per pass). Nothing is dequeued on a session's own reading.
       **Blocked on:** `460/020` landing.
+      **Unblocked 2026-11-26:** `460/020` landed. The round also applies the new fix and
+      re-check rule: a queued re-check of fixes whose pass returned no MAJOR (the drain
+      code's chain after `RK`, `160/1870` among them) is a candidate to judge.
