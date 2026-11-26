@@ -450,6 +450,34 @@ class TheReviewTextsStayInStep(unittest.TestCase):
                       "the review tier", flat)
         self.assertNotIn("on a cheaper tier", flat)
 
+    def test_run_md_says_the_config_passes_the_route(self):
+        """DP7: ccfleet calls `next` with no route; the config's command does."""
+        flat = self.flat("skills/review/run.md")
+        self.assertNotIn("ccfleet calls the queue's `next` with `--route local`", flat)
+        self.assertIn("The config's `queue.next` passes the route", flat)
+
+    def test_run_md_reads_the_verdict_where_the_reader_takes_it(self):
+        """DP11: the reader takes the RESULT line in the shape, not the first."""
+        flat = self.flat("skills/review/run.md")
+        self.assertNotIn("first line beginning `RESULT:` in its last turn", flat)
+        self.assertIn("the `RESULT:` line directly above the final output's "
+                      "`ITEM:` line", flat)
+        self.assertIn("a `RESULT:` line anywhere else, an earlier one included, "
+                      "gives no verdict", flat)
+
+    def test_run_md_reads_models_on_each_end_line(self):
+        """DP15: `models=` was written and nothing was told to read it."""
+        flat = self.flat("skills/review/run.md")
+        step4 = flat[flat.index("4. **Read each result**"):flat.index("### Lessons paid for")]
+        self.assertIn("read `models=` on its `END` line", step4)
+        self.assertIn("names no model of the review tier this drain set", step4)
+        self.assertIn("off-tier", step4)
+        self.assertIn("put it to the principal", step4)
+        mode2 = flat[flat.index("## Mode 2"):flat.index("## The variables")]
+        self.assertIn("`models=`", mode2)
+        close = flat[flat.index("## Close"):]
+        self.assertIn("`models=`", close)
+
     def test_run_md_says_ccfleet_does_not_hold_the_principals_word(self):
         """DV2: one home, per call; DV6: the claimant's id."""
         flat = self.flat("skills/review/run.md")

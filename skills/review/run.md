@@ -112,8 +112,10 @@ its own first, then any other route's not yet started, but never from a budget
 that lapses before its own: that budget keeps its reviews. A review
 briefed after the seal runs last on the local route until it is planned and
 the ranking sealed again: it is a paid pass that no plan showed.
-ccfleet calls the queue's `next` with `--route local`, and the queue offers
-only what the sealed ranking routes there, then that spill.
+The config's `queue.next` passes the route (the example config's passes
+`--route local`; ccfleet adds none of its own, and `ccfleet check` warns when
+`queue.next` names no route), and the queue offers only what the sealed
+ranking routes there, then that spill.
 
 **What the seal does not gate.** It binds `drain` and `ccfleet pass`, which
 call the queue. `ccfleet run` with the pass prompt and `--set`, and `resume`,
@@ -179,14 +181,23 @@ brief a pass whose subject this session built.
    drain ran across (a drain can cross UTC midnight: each pass writes the
    folder of the day it started). A pass ended clean only when its session
    exited 0, ended on no error, and its verdict is `DONE` or `SKIPPED` (the
-   first line beginning `RESULT:` in its last turn, read only beside the
-   final output's `ITEM:` line, or, when that turn has none, from the last
-   report in its transcript that also carries its `ITEM:` line); only then has
-   ccfleet released its claim and removed its worktree. A worktree ccfleet
+   `RESULT:` line directly above the final output's `ITEM:` line, in its last
+   turn or, when that turn has none, in the last report in its transcript
+   that carries that shape; a `RESULT:` line anywhere else, an earlier one
+   included, gives no verdict); only then has ccfleet released its claim and
+   removed its worktree. A worktree ccfleet
    keeps is named on the pass's `KEPT` line, with the reason. Any other end (a nonzero
    exit, an error, a usage limit, no report) keeps the claim, the worktree and
    the review log, for Mode 2. A worktree holding uncommitted work is never
    force-removed, by ccfleet or by hand: it holds a reviewer's unsaved act.
+   Then, for each pass, read `models=` on its `END` line (in the drain's
+   output, and in the `.end` file beside the pass's log in `<kit_dir>/logs/`):
+   it lists every model the session's log names, a hyphen for none. A pass
+   that names no model of the review tier this drain set (the tier
+   `REVIEW_MODEL` names) ran no reviewer on that tier, whatever its verdict
+   says: mark it off-tier, do not trust its verdict, and put it to the
+   principal. Another model beside the review tier's (the orchestrator's own,
+   say) is not a fault.
 
 ### Lessons paid for
 
@@ -258,6 +269,11 @@ finish, verbatim>'` ([`resume-prompt.md`](resume-prompt.md)): the orchestrator
 continues its own reviewer (which reads its own review log first), folds,
 lands and reports. The resume writes its verdict into the pass's own result
 file, as the fold does, so the close counts the pass as the resume ended it.
+Read a resume's `models=` as step 4 reads a pass's, with one difference: a
+resume whose reviewer had already saved act 2 had no review work left, so
+naming no review-tier model is not off-tier there; one that messaged its
+reviewer and names none is. A fold runs no reviewer, so its `models=` is not
+read against the tier.
 ccfleet refuses a resume while the pass's session still runs (a launcher
 killed by a signal leaves its session running, recorded under
 `<kit_dir>/sessions/`): wait for it to end. If the reviewer cannot be
@@ -340,7 +356,8 @@ brief, which may sit outside the worktree. This file does not restate it.
 5. Count the verdicts from the rows: the result files (every
    `<kit_dir>/results/<date>/` folder the drain ran across) and the launched
    list, never from memory. A close once reported totals from memory and was
-   wrong twice.
+   wrong twice. A pass that step 4 found off-tier by its `models=` is
+   reported as off-tier, never counted as a trusted verdict.
 6. Report per repo, outcome first: the verdicts; the principal's rulings owed,
    MAJORs first; what is left ready; when the budget ran out, or that it
    did not, said plainly.
