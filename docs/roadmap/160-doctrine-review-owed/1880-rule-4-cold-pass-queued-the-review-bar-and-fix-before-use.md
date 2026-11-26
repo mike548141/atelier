@@ -17,3 +17,9 @@
       before use, folded in as one open pass per subject).
       *Intent record:*
       [`../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md`](../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md).
+      💬 **When it runs, his pick 2026-11-26 ~22:00 UTC (session 4ccec293, `atelier-56`,
+      AskUserQuestion; an answer, not a ruling):** *"Monday's drain (Recommended)"* (option
+      text: *"Runs in the weekly drain that starts Mon 30 Nov, using budget that would
+      otherwise lapse."*). So it runs in the drain that starts 2026-11-29 23:00 UTC, by a
+      session that wrote none of it; it gates nothing. Barred from briefing or running it:
+      4ccec293.

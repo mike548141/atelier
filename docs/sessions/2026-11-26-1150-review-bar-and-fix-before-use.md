@@ -56,3 +56,7 @@ named, harm to others, and a demonstration required wherever one is possible. Se
 reach alone were counselled against. Queued and claimed as `460/050` (`cc69cdf6`), written into
 `REVIEW.md`, folded into `160/1880`. Machine load was ~145 on 12 cores at the time (another
 session's work); this session's own load was one commit.
+
+## At the close
+
+`160/1880`, when it runs: his pick *"Monday's drain (Recommended)"*, recorded on the item.
