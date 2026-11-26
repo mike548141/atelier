@@ -63,7 +63,11 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     ITEM: or REPO: line (the review prompts), or the last line of a block that
     holds one (the fleet prompts); any other RESULT line is no verdict. A
     mention inside NOTES once read DONE (RK3), and an earlier mention could
-    (PK4).
+    (PK4). A closing code fence is not a last line, and with one RESULT line
+    in the text, blank lines may stand inside the shape (DP2); a clean word
+    stands only when no other RESULT line names an unclean one (DP6). The
+    END line's result_line= says in-shape, out-of-shape or none, and a drain
+    counts an out-of-shape end apart, never as a bad end.
   * A `touch <kit_dir>/stop` ends launching cleanly; running jobs finish. A
     stop file older than the driver is ignored (and logged): last week's file
     once ended a new run before it started anything.
@@ -319,6 +323,9 @@ RESULT_RX = re.compile(r"^[ \t>*`-]*RESULT[*`]*:[ \t*`]*([A-Z]+(?:[ \t]+[A-Z]+)*
 # The final-output shape's identity line: the transcript fallback takes only a
 # text that carries one, so a line of planning narration is never a verdict.
 SHAPE_RX = re.compile(r"^\s*\**(?:ITEM|REPO):", re.M)
+# A line that is only a code fence: a report fenced whole still ends on its
+# RESULT line (DP2).
+FENCE_RX = re.compile(r"^\s*(?:```+|~~~+)[\w+.-]*\s*$")
 PIN_RX = re.compile(r"atelier@([0-9a-f]{7,40})\b", re.I)
 # Without this, `claude -p` kills a background subagent about ten minutes after
 # the orchestrator's last turn: a reviewer still working on act 2 dies mid-act.
@@ -1077,24 +1084,38 @@ def message_text(msg):
 
 def shaped_results(text):
     """The captured words of each RESULT line in `text` that stands in the
-    final-output shape the prompts fix: directly above an ITEM: or REPO: line
-    (the review prompts: RESULT, then ITEM), or the text's last non-blank line
-    closing a block, with no blank line in it, that holds an ITEM: or REPO:
-    line (the fleet prompts: REPO first, RESULT last). Any other RESULT line,
-    an earlier mention included, is not one (PK4)."""
+    final-output shape the prompts fix. Two shapes:
+
+    - the review prompts (RESULT, then ITEM): directly above an ITEM: or
+      REPO: line;
+    - the fleet prompts (REPO first, RESULT last): the text's last line,
+      closing a block, with no blank line in it, that holds an ITEM: or
+      REPO: line.
+
+    A line that is only a code fence (```) is not counted as the last line,
+    so a report fenced whole still ends on its RESULT. When the text holds
+    no other RESULT line, blank lines may part the RESULT line from its
+    ITEM: line, and the fleet block may hold blank lines (a list spaced out,
+    a field on several lines), since with one RESULT line in the text there
+    is nothing it could be mistaken for (DP2). Any other RESULT line, an
+    earlier mention or one followed by more text, is not one (PK4): a
+    verdict is never read from the middle of a block."""
     lines = (text or "").splitlines()
-    filled = [i for i, line in enumerate(lines) if line.strip()]
+    marked = [i for i, line in enumerate(lines) if RESULT_RX.match(line)]
+    alone = len(marked) == 1
+    filled = [i for i, line in enumerate(lines) if line.strip() and not FENCE_RX.match(line)]
     last = filled[-1] if filled else -1
     out = []
-    for i, line in enumerate(lines):
-        m = RESULT_RX.match(line)
-        if not m:
-            continue
-        if i + 1 < len(lines) and SHAPE_RX.match(lines[i + 1]):
+    for i in marked:
+        m = RESULT_RX.match(lines[i])
+        j = i + 1
+        while alone and j < len(lines) and not lines[j].strip():
+            j += 1
+        if j < len(lines) and SHAPE_RX.match(lines[j]):
             out.append(m.group(1))
         elif i == last:
             j = i - 1
-            while j >= 0 and lines[j].strip():
+            while j >= 0 and (alone or lines[j].strip()):
                 if SHAPE_RX.match(lines[j]):
                     out.append(m.group(1))
                     break
@@ -1112,20 +1133,43 @@ def verdict_phrase(captured, known=()):
     return words[0]
 
 
-def result_word(text, known=(), stops=()):
+def result_word(text, known=(), stops=(), clean=None):
     """The verdict of `text`, or "" when there is none: the RESULT line in the
     final-output shape (shaped_results), so neither a later mention ("NOTES:
     ... RESULT: DONE", RK3) nor an earlier one ("RESULT: DONE is not what this
-    is", PK4) is read. Two shaped verdicts that disagree are none. A word in
-    `stops` on any RESULT line is kept when no shaped verdict stands, since
-    stopping is the safe direction."""
+    is", PK4) is read. Two shaped verdicts that disagree are none.
+
+    A clean word (`clean`: by default the words of `known` not in `stops`)
+    stands only when no other RESULT line in the text names a word that is
+    not clean (DP6): a quoted, well-shaped DONE never outranks the session's
+    own FAILED that drifted out of the shape, and a quoted stop word after a
+    shaped DONE gives no verdict rather than halting a drain. A word in
+    `stops` on a RESULT line out of the shape is kept only when no shaped
+    verdict stands at all: a session cut off by its budget may not manage
+    the shape, and stopping then spares the passes that would fail after it."""
+    clean = set(known) - set(stops) if clean is None else set(clean)
+    every = [verdict_phrase(w, known) for w in RESULT_RX.findall(text or "")]
     shaped = {verdict_phrase(w, known) for w in shaped_results(text)}
     if len(shaped) == 1:
-        return shaped.pop()
-    for w in sorted(shaped) + [verdict_phrase(w, known) for w in RESULT_RX.findall(text or "")]:
-        if w in stops:
-            return w
+        word = shaped.pop()
+        if word not in clean or all(w in clean for w in every):
+            return word
+        return ""
+    if not shaped:
+        for w in every:
+            if w in stops:
+                return w
     return ""
+
+
+def result_line(text, known=(), stops=()):
+    """How the text's RESULT lines read: "in-shape" (one gave the verdict),
+    "out-of-shape" (a line begins RESULT: but none gave one), or "none" (no
+    line begins RESULT:). The END line carries it, so a drain tells a session
+    that wrote its verdict out of the shape from one that wrote none (DP2)."""
+    if not RESULT_RX.search(text or ""):
+        return "none"
+    return "in-shape" if result_word(text, known, stops) else "out-of-shape"
 
 
 def transcript_result(sid, since=None):
@@ -1219,11 +1263,22 @@ def models_used(log_path):
     """The models a session's JSON log names in modelUsage, comma-separated,
     or "-" when it names none: the orchestrator's own, and a reviewer's when
     it ran on another model. The END line carries it, so a pass's record shows
-    the model its reviewer ran on, beside the REVIEW_MODEL it was told (DV3)."""
+    the model its reviewer ran on (DV3), beside the REVIEW_MODEL it was told
+    (review_model=, told_review_model; DP15)."""
     j = read_log_json(log_path) or {}
     mu = j.get("modelUsage")
     names = sorted(str(m) for m in mu) if isinstance(mu, dict) else []
     return ",".join(re.sub(r"[\s,]", "_", n) for n in names) or "-"
+
+
+def told_review_model(values, template_text):
+    """The REVIEW_MODEL the session was told, for its END line: the value
+    its prompt was filled with when the prompt names {REVIEW_MODEL}, else
+    "-" (the prompt told it no review model). Spaces become underscores so
+    the line keeps one field per word (DP15)."""
+    if "{REVIEW_MODEL}" not in (template_text or "") or not str(values.get("REVIEW_MODEL", "")).strip():
+        return "-"
+    return re.sub(r"\s", "_", str(values["REVIEW_MODEL"]).strip())
 
 
 def end_line(log, line):
@@ -1686,7 +1741,8 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
         print("DRY argv: " + " ".join(argv[:-1]) + f" <prompt {len(prompt)} chars> < /dev/null")
         # The same END line a real run prints, so a dry drain reads its passes
         # as ended rather than "ended early".
-        print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc=0 result=DRY session=- out={log}", flush=True)
+        print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc=0 result=DRY session=- models=- "
+              f"review_model={told_review_model(values, template_text)} result_line=- out={log}", flush=True)
         return 0, "DRY"
     # Written before the worktree or the claim: a user settings file that
     # cannot be read refuses the launch with nothing to undo.
@@ -1734,8 +1790,10 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     else:
         out = os.path.join(results, f"{label}.md")
         write_result(out, sid, rc, result, text, keep_earlier=False)
+    shape = result_line(text, clean + stop_on(cfg), stop_on(cfg))
     end_line(log, f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={sid} "
-                  f"models={models_used(log)} out={out}")
+                  f"models={models_used(log)} review_model={told_review_model(values, template_text)} "
+                  f"result_line={shape} out={out}")
     released = True
     if post:
         released = post(values, result, sid, log) is not False
@@ -2170,6 +2228,7 @@ def drain(cfg, common, max_n, dry):
     open(launched, "w" if dry else "a").close()
     clean, halt = release_on(cfg), stop_on(cfg)
     running, bad, stop, empty, last_hold, started, spawned, hung = {}, 0, None, False, 0, 0, 0, []
+    drifted = 0  # passes whose verdict stood out of the shape (DP2)
     # Picks whose claim was refused: kept out of `next` for this drain by
     # handing the queue the launched list plus these, in a file of their own.
     refused, skip_path = set(), launched + ".skip"
@@ -2246,6 +2305,15 @@ def drain(cfg, common, max_n, dry):
                         stop = stop or f"result {m.group(1)}"
                     elif m.group(1) in clean or m.group(1) == "DRY":
                         bad = 0
+                    elif m.group(1) == "UNKNOWN" and " result_line=out-of-shape " in end[-1]:
+                        # The session ran to its end and wrote a verdict, out
+                        # of the shape: a drifted report, not a spent budget,
+                        # so it is counted apart and not as a bad end (DP2).
+                        # Its claim and worktree stay for a resume.
+                        drifted += 1
+                        say(cfg, f"{pick}: its RESULT line stood out of the final-output shape; read UNKNOWN, "
+                                 f"claim and worktree kept for a resume; not counted as a bad end "
+                                 f"({drifted} so far)")
                     else:
                         bad += 1
                         stop = stop or ("failures" if bad >= 3 else None)
@@ -2332,7 +2400,7 @@ def drain(cfg, common, max_n, dry):
                 f"queue.unseal failed rc={r.returncode}: {(r.stderr or r.stdout).strip()[:300]}")
     why = stop or "queue empty"
     tail = f"; hung, not waited for: {', '.join(hung)}" if hung else ""
-    say(cfg, f"drain down: {why} ({started} started){tail}")
+    say(cfg, f"drain down: {why} ({started} started, {drifted} ended with a RESULT out of shape){tail}")
     print(f"DRAIN EXIT: {why}{tail}")
     if why == "queue error":
         return EXIT_SETUP

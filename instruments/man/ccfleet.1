@@ -1535,14 +1535,31 @@ or
 line in it that holds such a line (the fleet prompts, which put
 .B REPO:
 first).
+A line that is only a code fence is not counted as the last line, so a
+report fenced whole still ends on its verdict.
+When the text holds no other line that begins
+.BR RESULT: ,
+blank lines may stand between that line and its
+.B ITEM:
+line, and inside the fleet block.
 Any other line that begins
 .BR RESULT: ,
-an earlier or a later mention, gives no verdict, and two shaped verdicts
-that disagree give none; either reads as
+an earlier mention or one followed by more text, gives no verdict, and two
+shaped verdicts that disagree give none; either reads as
 .BR UNKNOWN .
+A clean verdict (in
+.BR queue.release_on )
+stands only when no other line that begins
+.B RESULT:
+names a word that is not clean, so a quoted, well-shaped
+.B DONE
+never outranks the session's own
+.B FAILED
+out of the shape.
 A
 .B queue.stop_on
-word on any such line is kept when no shaped verdict stands.
+word on such a line is kept only when no shaped verdict stands, so a
+quoted stop word after a shaped verdict does not halt a drain.
 Bold or backticks around it are ignored.
 A phrase in
 .B queue.release_on
@@ -1619,16 +1636,28 @@ and
 .B END
 lines (the
 .B END
-carries the exit code, the verdict, the session id, the models and the
-result path).
+carries the exit code, the verdict, the session id, the models, the review
+model, how the verdict was read and the result path).
 .B models=
 lists, comma-separated, every model the session's JSON log names in
 .B modelUsage
 (a hyphen when it names none): the orchestrator's own, and a reviewer's
 that ran on another model, so a pass's record shows the tier its reviewer
-ran on beside the
+ran on beside
+.BR review_model= ,
+the
 .B REVIEW_MODEL
-it was told.
+its prompt was filled with (a hyphen when the prompt names none).
+.B result_line=
+is
+.B in\-shape
+when a
+.B RESULT:
+line gave the verdict,
+.B out\-of\-shape
+when such lines stood but none gave one, and
+.B none
+when there was none.
 A pass whose only model is the orchestrator's spawned no reviewer on
 another tier.
 The result text is written to
@@ -1647,7 +1676,16 @@ A verdict in
 stops it; one in
 .B queue.release_on
 resets its count of bad ends;
+an
+.B UNKNOWN
+whose
+.B END
+says
+.B result_line=out\-of\-shape
+is logged and counted apart, not as a bad end (the session ran to its end
+and wrote a verdict; its claim and worktree stay for a resume);
 anything else counts one bad end, and three in a row stop it.
+The drain's last log line says how many ended out of shape.
 .SH FILES
 .TP
 .I <kit_dir>/logs/<label>-<HHMM>-<YYYYMMDDTHHMMSS>.json

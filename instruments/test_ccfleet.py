@@ -7,6 +7,7 @@ import importlib.util
 import json
 import os
 import re
+import signal
 import subprocess
 import sys
 import tempfile
@@ -27,9 +28,10 @@ _loader.exec_module(cf)
 # `--output-format json` prints. With FAKE_TRANSCRIPT set, it writes its real
 # report (with the RESULT line) to a transcript under $CLAUDE_CONFIG_DIR and
 # prints a last turn with none, as a session woken by a background
-# notification does. FAKE_RC, FAKE_IS_ERROR, FAKE_SILENT (exit 1, print
-# nothing), FAKE_SLEEP, FAKE_DIRTY (an untracked file), FAKE_COMMIT (an
-# unpushed commit) and FAKE_RESULT_<REPO> shape the cut-off cases.
+# notification does. FAKE_REPORT replaces the whole final output. FAKE_RC,
+# FAKE_IS_ERROR, FAKE_SILENT (exit 1, print nothing), FAKE_SLEEP, FAKE_DIRTY
+# (an untracked file), FAKE_COMMIT (an unpushed commit) and
+# FAKE_RESULT_<REPO> shape the cut-off cases.
 FAKE_CLAUDE = textwrap.dedent("""\
     #!@PY@
     import datetime, json, os, subprocess, sys, time
@@ -60,6 +62,7 @@ FAKE_CLAUDE = textwrap.dedent("""\
         sys.exit(1)
     result = os.environ.get("FAKE_RESULT_" + base.upper(), os.environ.get("FAKE_RESULT", "DONE"))
     report = "did the work\\nREPO: " + base + "\\nRESULT: " + result
+    report = os.environ.get("FAKE_REPORT", report)  # a whole final output, shaped or not
     if os.environ.get("FAKE_TRANSCRIPT"):
         d = os.path.join(os.environ["CLAUDE_CONFIG_DIR"], "projects", "-enc-" + sid)
         os.makedirs(d, exist_ok=True)
@@ -1496,9 +1499,11 @@ class RKLifecycle(unittest.TestCase):
         r = self.cli("pass", "beta", "010", "docs/brief.md",
                      env={**self.env, "FAKE_MODELS": "model-pass,model-review"})
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=model-pass,model-review out=")
+        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=model-pass,model-review "
+                                   r"review_model=- result_line=in-shape out=")
         r = self.cli("pass", "beta", "020", "docs/brief.md")
-        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=- out=")
+        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=- review_model=- "
+                                   r"result_line=in-shape out=")
 
     # ----- RK6 -----
 
@@ -1711,10 +1716,13 @@ class ResultWords(unittest.TestCase):
         self.assertEqual(rw("RESULT: FAILED\nITEM: a:b\nVERDICT: n/a\nNOTES: never RESULT: DONE"), "FAILED")
         self.assertEqual(rw("did the work\nREPO: x\nCOMMITS: none\nRESULT: DONE"), "DONE", "the fleet shape")
         self.assertEqual(rw("RESULT: FAILED\nmore\nRESULT: DONE\n"), "", "no shape line: no verdict")
-        self.assertEqual(rw("REPO: x\n\nRESULT: DONE"), "", "a blank line parts RESULT from its block")
+        # With another RESULT line in the text, a blank line still parts
+        # RESULT from its block (DP2 loosens this only for a lone one).
+        self.assertEqual(rw("- RESULT: SKIPPED was considered\n\nREPO: x\n\nRESULT: DONE"), "",
+                         "a blank line parts RESULT from its block")
         self.assertEqual(rw("RESULT: FAILED\nITEM: a\nNOTES: x\nRESULT: DONE was not reached"), "",
                          "two shaped verdicts that disagree are no verdict")
-        # A stop word is kept wherever it stands: stopping is the safe direction.
+        # A stop word is kept wherever it stands when no shaped verdict does.
         self.assertEqual(cf.result_word("note\nRESULT: BUDGET EXHAUSTED at act 1", self.known,
                                         stops=("BUDGET EXHAUSTED",)), "BUDGET EXHAUSTED")
         self.assertEqual(cf.result_word("note\nRESULT: BUDGET EXHAUSTED at act 1", self.known), "")
@@ -2595,6 +2603,102 @@ class Wave2(unittest.TestCase):
         out = self.cli("check", env={**self.env, "PATH": bin_dir + os.pathsep + self.env["PATH"]}).stdout
         self.assertIn("VISIBILITY MISMATCH: alpha is PUBLIC in the config and PRIVATE on the forge", out)
         self.assertNotIn("MISMATCH: beta", out)
+
+
+class DPReader(unittest.TestCase):
+    """210/630, the cold re-check's reader findings (DP2, DP6, and DP5's
+    M13): which final outputs give a verdict, read through result_word and
+    end to end through harvest on a clean JSON end."""
+    known = ("DONE", "SKIPPED", "BUDGET EXHAUSTED")
+    stops = ("BUDGET EXHAUSTED",)
+
+    # Every row of the review's probe table (DP2): the text, what the reader
+    # before this fix read (the PK4 reader), and what it reads now. Each
+    # "old" was seen by running the row against that reader.
+    FLEET = "did the work\nREPO: x\nCOMMITS: none\nCI: green\n"
+    PROBE = (
+        ("a fleet block inside a code fence", "Here it is:\n```\n" + FLEET + "RESULT: DONE\n```\n", "", "DONE"),
+        ("a fleet block in a tagged fence", "```text\n" + FLEET + "RESULT: DONE\n```", "", "DONE"),
+        ("a fleet block, a blank line before RESULT", FLEET + "\nRESULT: DONE", "", "DONE"),
+        ("a fleet block, blank lines between fields",
+         "REPO: x\n\nDONE: one\n\nCOMMITS: none\n\nRESULT: DONE\n", "", "DONE"),
+        ("a fleet block, a closing sentence after RESULT (kept out: a quoted block then prose reads the "
+         "same)", FLEET + "RESULT: DONE\n\nLet me know if you need more.", "", ""),
+        ("a fleet block, a multi-line field with a blank line",
+         "REPO: x\nOWED:\n- one\n\n- two\nRESULT: PARTIAL", "", "PARTIAL"),
+        ("the review shape, a blank line between RESULT and ITEM",
+         "RESULT: DONE\n\nITEM: r:i\nVERDICT: PASS\nNOTES: none", "", "DONE"),
+        ("the exact fleet shape", FLEET + "RESULT: DONE", "DONE", "DONE"),
+        ("the exact review shape", "RESULT: DONE\nITEM: r:i\nVERDICT: PASS", "DONE", "DONE"),
+        ("bold keys", "**REPO:** x\n**COMMITS:** none\n**RESULT:** DONE", "DONE", "DONE"),
+        ("CRLF", "REPO: x\r\nCOMMITS: none\r\nRESULT: DONE\r\n", "DONE", "DONE"),
+        ("trailing spaces", "REPO: x   \nRESULT: DONE   \n  \n", "DONE", "DONE"),
+        ("a reason on the line", "RESULT: SKIPPED NEEDS LIVE WRITE\nITEM: r:i", "SKIPPED", "SKIPPED"),
+    )
+
+    def rw(self, text):
+        return cf.result_word(text, self.known, self.stops)
+
+    def harvested(self, text):
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+            f.write(json.dumps({"session_id": "", "result": text}))
+        self.addCleanup(os.remove, f.name)
+        return cf.harvest(f.name, known=self.known, stops=self.stops)[2]
+
+    def test_dp2_every_row_of_the_probe_table(self):
+        for what, text, _old, new in self.PROBE:
+            self.assertEqual(self.rw(text), new, what)
+            self.assertEqual(self.harvested(text), new or "UNKNOWN", what)
+
+    def test_dp2_the_loosening_needs_the_one_result_line(self):
+        """The blank lines are allowed only with no other RESULT line in the
+        text, and a verdict is never read from a quote or the middle of a
+        block (PK4)."""
+        self.assertEqual(self.rw("- RESULT: SKIPPED was considered\n\nRESULT: DONE\n\nITEM: r:i"), "")
+        self.assertEqual(self.rw("- RESULT: SKIPPED was considered\n" + self.FLEET + "\nRESULT: DONE"), "")
+        self.assertEqual(self.rw("RESULT: DONE\n\nthen some words\nITEM: r:i"), "",
+                         "only blank lines may part RESULT from ITEM")
+        self.assertEqual(self.rw("I could not finish.\n\nRESULT: DONE once landed, it said"), "",
+                         "a lone last line with no ITEM or REPO line anywhere is no report")
+        self.assertEqual(self.rw("```\n" + self.FLEET + "RESULT: DONE\n```\nI did not finish."), "",
+                         "a fenced block followed by prose is a quote")
+
+    def test_m13_a_fleet_verdict_is_never_read_from_the_middle_of_a_block(self):
+        """DP5 M13: the fleet RESULT line must be the text's last line (a
+        closing fence aside). Mutant: drop that test, and these read DONE."""
+        for text in (self.FLEET + "RESULT: DONE\nOWED: none",
+                     self.FLEET + "RESULT: DONE\n\nOWED: none",
+                     "REPO: x\nRESULT: DONE\nBLOCKERS/INCIDENTS: the push was refused"):
+            self.assertEqual(self.rw(text), "", text)
+            self.assertEqual(self.harvested(text), "UNKNOWN", text)
+
+    def test_dp6_a_clean_word_stands_only_when_no_other_result_line_is_unclean(self):
+        """DP6, both shapes: a quoted, well-shaped DONE pair after the
+        session's own FAILED out of the shape (it read DONE), and a quoted
+        stop word after a shaped DONE (it halted the drain). Neither is
+        read now; each is UNKNOWN, which keeps the claim and does not halt."""
+        quoted_pair = ("RESULT: FAILED\n\nITEM: r:i\nNOTES: the brief's example said\n"
+                       "    RESULT: DONE\n    ITEM: r:i\n")
+        self.assertEqual(self.rw(quoted_pair), "")
+        self.assertEqual(self.harvested(quoted_pair), "UNKNOWN")
+        quoted_stop = ("RESULT: DONE\nITEM: r:i\nVERDICT: PASS\nNOTES: the reviewer's log said\n"
+                       "RESULT: BUDGET EXHAUSTED at act 1, then carried on")
+        self.assertEqual(self.rw(quoted_stop), "")
+        self.assertEqual(self.harvested(quoted_stop), "UNKNOWN")
+        # The controls: an unclean shaped word stands beside a clean mention;
+        # a clean one stands beside other clean ones; a stop word with no
+        # shaped verdict at all is still kept.
+        self.assertEqual(self.rw("RESULT: FAILED\nITEM: r:i\nNOTES:\nRESULT: DONE was not reached"), "")
+        self.assertEqual(self.rw("- RESULT: DONE was the aim\n\nRESULT: FAILED\nITEM: r:i"), "FAILED")
+        self.assertEqual(self.rw("- RESULT: SKIPPED was considered\n\nRESULT: DONE\nITEM: r:i"), "DONE")
+        self.assertEqual(self.rw("RESULT: BUDGET EXHAUSTED\nITEM: r:i\nNOTES: RESULT: DONE"), "BUDGET EXHAUSTED")
+        self.assertEqual(self.rw("stopped\nRESULT: BUDGET EXHAUSTED at act 1"), "BUDGET EXHAUSTED")
+
+    def test_dp2_result_line_tells_out_of_shape_from_missing(self):
+        rl = lambda t: cf.result_line(t, self.known, self.stops)
+        self.assertEqual(rl(self.FLEET + "RESULT: DONE"), "in-shape")
+        self.assertEqual(rl(self.FLEET + "RESULT: DONE\n\nThanks."), "out-of-shape")
+        self.assertEqual(rl("I could not finish."), "none")
 
 
 if __name__ == "__main__":
