@@ -715,7 +715,8 @@ the stop that *Applying decisions to doctrine* above records (in the session's
 words, not his): the cycle closes when a pass returns no MAJOR, and when the
 MAJOR count stops falling from pass to pass, stop and ask him. That stop was
 written for applying findings to doctrine only. This section carries his words
-to every fix, code included; where it reaches past them it says so.
+to every fix, code included; asked whether the stop should bind code fixes too,
+his pick on 2026-11-26 was *"Apply to code too (Recommended)"*.
 
 **An issue is fixed before the work is next used; a risk waits for evidence.**
 A finding is an **issue** when its failure is shown happening: a command, a
@@ -728,8 +729,10 @@ weighs the finding. Otherwise it is a **risk**.
   would raise it, and the work is used meanwhile (the `210/660` item is the
   worked shape). It is fixed when that evidence arrives.
 - Two kinds of risk are fixed before use all the same, because waiting for
-  evidence would mean waiting for the harm. This is the repo's reading, beyond
-  his words, for him to confirm or overturn. A risk whose first occurrence is
+  evidence would mean waiting for the harm. This went beyond his words, so it
+  was put to him; his pick on 2026-11-26 was *"Keep both (Recommended)"* (an
+  answer to the repo's options, not his own wording). A risk whose first
+  occurrence is
   itself irreversible: a publication, a leaked secret, money spent, data
   deleted, anything the always-confirm floor stops. And a silent failure, which
   normal use never shows: its evidence is a probe built to show it, and a probe

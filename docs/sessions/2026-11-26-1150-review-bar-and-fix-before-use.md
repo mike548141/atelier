@@ -42,7 +42,7 @@ Doctrine, so its own Fable review is queued for my approval, not run."*
 
 ## Left open, for the principal
 
-- Two readings beyond his words, asked at the close: carrying the 2026-07-13 stop from doctrine
-  to code fixes, and fixing the two kinds of risk (irreversible first occurrence, silent failure)
-  before use without evidence.
+- Two readings beyond his words, asked at the close and answered (answers, not rulings): the
+  two kinds of risk fixed before use, *"Keep both (Recommended)"*; the 2026-07-13 stop binding
+  code fixes, *"Apply to code too (Recommended)"*. Written into `REVIEW.md`; `160/1880` widened.
 - `160/1880`'s Fable pass: his to approve.

@@ -13,6 +13,6 @@
       *Delta, scoped to paths:* `docs/method/REVIEW.md`, `docs/method/ECONOMICS.md`,
       `docs/method/CONCURRENCY.md`, `docs/method/session-open/dispatch-brief.md`,
       `skills/review/brief.md`, `CHANGELOG.md`: every commit on `main` after `b459dd7e` up to
-      and including the commit that lands this pointer.
+      and including the commit that records his close answers on `460/020`.
       *Intent record:*
       [`../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md`](../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md).

@@ -74,3 +74,8 @@
          fails silent, since unreviewed work looks the same as reviewed work.
       **Review:** queued as `160/1880` in the landing commit, a pass of its own as he
       ordered; it runs on Fable only when he approves.
+      💬 **His answers at the close, 2026-11-26 ~12:30 UTC (session 4ccec293, AskUserQuestion;
+      answers to the session's options, not rulings):** the two kinds of risk fixed before
+      use without evidence: *"Keep both (Recommended)"*; the 2026-07-13 stop binding code
+      fixes too: *"Apply to code too (Recommended)"*. Written into `REVIEW.md` the same day;
+      `160/1880`'s delta widened to cover that commit.
