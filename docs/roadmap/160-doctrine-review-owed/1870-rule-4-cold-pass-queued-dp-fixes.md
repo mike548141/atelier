@@ -44,3 +44,13 @@
       session 664efda7 (`atelier-fc`, Opus 5.5), started by principal-opened session a2aeebc8
       (`atelier-51`, Opus 5.5) at the principal's pick, for brief-writing only: the brief and its
       held-back sibling, no pass run. Neither session wrote any part of the delta.
+      **Brief written 2026-11-26 UTC:**
+      [`../../reviews/2026-11-26-1037-dp-fixes-recheck-cold.md`](../../reviews/2026-11-26-1037-dp-fixes-recheck-cold.md),
+      pinned at `40f96c01`, finding prefix `DQ`; the delta resolves to `c0f6501b..b3e17296` on the
+      paths above (`b3e17296` closes `210/640`). Its held-back sibling (20 questions, 12 facts) is
+      held user-local, outside the repo, every worktree and every scratchpad; the orchestrator is
+      told where, never by the brief. Approved (above) and queued for the weekly drain that starts
+      2026-11-29 23:00 UTC, where it runs among the drain's other passes and gates nothing.
+      Barred from running it: 5e236e34, its four workers, and 664efda7.
+      🔓 2026-11-26T11:13Z: session 664efda7 releases its claim. The pass is open for one fresh Fable
+      reviewer in the drain, under an orchestrator that forms no finding.
