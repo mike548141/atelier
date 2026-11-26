@@ -2850,6 +2850,28 @@ class DPFixes(unittest.TestCase):
             self.assertEqual(r.returncode, code, rc + r.stdout + r.stderr)
             self.assertIn(says, r.stdout, rc)
 
+    # ----- DP7: check says when queue.next names no route -----
+
+    def test_dp7_check_says_when_queue_next_names_no_route(self):
+        self.assertIn("QUEUE ROUTE: queue.next names no route", self.cli("check").stdout)
+        self.ref_queue()  # the example's queue.next passes --route local
+        self.assertNotIn("QUEUE ROUTE", self.cli("check").stdout)
+
+    # ----- DP20: a drain's .out carries the date, and is still read -----
+
+    def test_dp20_a_drains_out_file_carries_the_date_and_the_history_reads_it(self):
+        self.fill_queue(1)
+        self.queue_json()
+        self.plan_cfg()
+        r = self.cli("drain", "--max", "1")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        names = [n for n in os.listdir(os.path.join(self.tmp, "kit", "logs")) if n.startswith("pass-")]
+        self.assertEqual(len(names), 1)
+        self.assertRegex(names[0], r"^pass-beta-001-\d{8}T\d{6}\.out$")
+        local = json.loads(self.cli("plan", "--json").stdout)["history"]["routes"]["local"]
+        self.assertEqual(local["passes_seen"], 1)
+
+
 def glob_all(root):
     return [os.path.join(d, f) for d, _, fs in os.walk(root) for f in fs]
 

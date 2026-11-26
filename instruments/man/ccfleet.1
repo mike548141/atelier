@@ -188,7 +188,7 @@ Every launch passes
 so no user-level settings file loads, and
 .B \-\-settings
 with
-.IR <kit_dir>/settings/<session>.json ,
+.IR <kit_dir>/settings/<session>.<pid>.json ,
 a file ccfleet writes: the user-level settings less their allow rules,
 default mode, extra directories and any hook that approves tool calls, with
 the config's
@@ -1481,8 +1481,16 @@ meets the same gate as a drain's.
 .IP \(bu 2
 .B next
 offers only what the sealed ranking routes to the local route, since every
-pass ccfleet launches is a local session (the example config passes
-.BR "\-\-route local" ),
+pass ccfleet launches is a local session (ccfleet passes no route itself:
+the config's
+.B queue.next
+does, as the example's
+.BR "\-\-route local" ,
+and
+.B check
+says
+.B QUEUE ROUTE
+when it names none),
 in rank order, then the stated spill: another route's review not yet
 started, but never from a budget that lapses before the local one, which
 keeps its reviews, and never one the seal marks not spillable.
@@ -1723,6 +1731,9 @@ before the date, and a resume's is
 What each child
 .B ccfleet
 printed, for a drive or a drain.
+A drain's is
+.IR pass\-<repo>\-<item>\-<YYYYMMDDTHHMMSS>.out ;
+an earlier ccfleet's carried the time of day only, and is still read.
 .TP
 .I <kit_dir>/results/<date>/
 One result file per label, per UTC day.
