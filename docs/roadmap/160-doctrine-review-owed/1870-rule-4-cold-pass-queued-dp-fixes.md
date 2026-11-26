@@ -3,9 +3,15 @@
       (`210/630`).** The authoring session (5e236e34, `atelier-cd`, Opus 5.5, principal-opened
       by `/atelier:work run`, whose four workers wrote the fixes) queues this and neither
       briefs nor takes it.
-      🎯 **Not approved: waits on the principal's decision.** His ruling on `210/630`: whether
-      a review of these fixes runs before the drain or waits until the next one is his to
-      decide once they are done. No Fable time is approved for it.
+      ✅ **Approved 2026-11-26 ~03:20 UTC (session 5e236e34, `atelier-cd`, AskUserQuestion), his
+      pick verbatim:** *"Before the drain (Recommended)"* (option text: *"One Fable review this
+      week, by a fresh session, before Monday 12:00 NZDT. Benefit: keeps your 24 Nov rule that
+      new drain code is reviewed before a drain uses it; these fixes change how a paid review's
+      verdict is read. Risk: spends weekly Fable budget now, and if it finds a major problem,
+      Monday falls back to the old /fable-drain."*). Exactly this one pass plus its Opus brief,
+      by a fresh session that wrote none of the fixes, before 2026-11-29 23:00 UTC; it does not
+      lift the general Fable hold. 5e236e34 and its four workers neither brief nor run it. It
+      also covers `210/640` (the `DP17` leftover), which lands first.
       *Tier:* Fable, the principal-named review tier, checked at selection.
       *Pass type:* code and doctrine re-check, per `method/REVIEW.md` rule 4: each of
       `DP1`–`DP21` against its fix, and what the fixes changed besides.

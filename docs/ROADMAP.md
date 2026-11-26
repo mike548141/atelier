@@ -35,7 +35,7 @@ line, so they overlap Open and Claimed.
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
 | [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
-| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 13 | 0 | 5 | 1 |
+| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 14 | 1 | 5 | 1 |
 | [Observability of the collaboration itself (2026-07-30)](roadmap/220-observability-of-the-collaboration-itsel/README.md) | 4 | 0 | 0 | 0 |
 | [File-size hygiene (new 2026-07-14)](roadmap/230-file-size-hygiene-new-2026-07-14/README.md) | 2 | 0 | 1 | 0 |
 | [North star — context follows the person, work follows anywhere](roadmap/240-north-star-context-follows-the-person-wo/README.md) | 2 | 0 | 0 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 3 | 0 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 288 | 0 | 102 | 47 |
+| **All sections** | 289 | 1 | 102 | 47 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -358,6 +358,8 @@ line, so they overlap Open and Claimed.
 - [ ] [🛠️ ccfleet, the fleet-sweep and review-drain skills, and the modelguard…](roadmap/210-instruments-open-features/440-ccfleet-per-repo-billed-headless-sessions-and-two-skills.md)
 - [ ] 🎯🔥 [Fix ccfleet, fleet-sweep, review-drain and modelguard: findings…](roadmap/210-instruments-open-features/470-fix-ccfleet-and-its-two-skills-fl1-fl25.md)
 - [ ] ⏳ [A commit gate refuses a review claimed by the session that authored,…](roadmap/210-instruments-open-features/530-a-commit-gate-refuses-a-review-claim-by-its-author.md)
+- [~] [🔧 A dry drain tells the queue refusing before its seal from the queue…](roadmap/210-instruments-open-features/640-a-dry-drain-tells-a-queue-refusal-from-a-failure.md)
+- [ ] [🔧 Look for a measurably safer way for modelguard to catch a model-less…](roadmap/210-instruments-open-features/650-a-measurably-safer-tmux-rule-for-modelguard.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
