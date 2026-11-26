@@ -215,6 +215,10 @@
         prompt adapted to this, as handed to him, is in
         `docs/sessions/2026-11-26-0156-dp-fixes.md` § *The adapted prompts handed to him*; it
         supersedes the one below.
+      🔒 **CLAIMED 2026-11-26T04:44Z (wt: atelier-51-step-d) by principal-opened session a2aeebc8
+      (`atelier-51`, Opus 5.5), for step D only**: the adopter actions and private-config points
+      (the estate root's share by a session working there), the first-use check, the switch and
+      `/fable-drain`'s retirement. No Fable work here; `160/1870` runs in its own session.
       If C or B misses the drain's start, D is skipped: that drain runs on
       `/fable-drain` and D waits for the gap after it. Each session's close hands
       the principal the prompt for the next step it is not barred from naming.
