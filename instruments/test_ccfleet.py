@@ -2701,5 +2701,158 @@ class DPReader(unittest.TestCase):
         self.assertEqual(rl("I could not finish."), "none")
 
 
+class DPFixes(unittest.TestCase):
+    """210/630, the cold re-check's ccfleet findings beyond the reader (DP2's
+    drain count, DP5's M4 and M10, DP7, DP13, DP15, DP17, DP20), on
+    EndToEnd's fixtures."""
+    setUp, tearDown = EndToEnd.setUp, EndToEnd.tearDown
+    write_cfg, cli, calls, worktrees = EndToEnd.write_cfg, EndToEnd.cli, EndToEnd.calls, EndToEnd.worktrees
+    ref_queue, ref, seal, GOOD, REF = RKGrant.ref_queue, RKGrant.ref, RKGrant.seal, RKGrant.GOOD, RKGrant.REF
+    queue_json, plan_cfg, new_wt = EndToEnd.queue_json, EndToEnd.plan_cfg, Wave2.new_wt
+    EVIDENCE, OWED = EndToEnd.EVIDENCE, EndToEnd.OWED
+    wait_for = RKLifecycle.wait_for
+
+    def fill_queue(self, n):
+        wr(os.path.join(self.tmp, "queue.txt"), "".join(f"beta {i:03d} docs/brief.md\n" for i in range(1, n + 1)))
+        wr(self.prompt, "Pass {ITEM}\n")
+
+    # ----- DP2: an out-of-shape verdict is not a bad end -----
+
+    def test_dp2_out_of_shape_ends_are_counted_apart_and_do_not_stop_the_drain(self):
+        self.fill_queue(4)
+        report = "REPO: beta\nCOMMITS: none\nRESULT: DONE\n\nThat is everything."
+        r = self.cli("drain", "--max", "1", env={**self.env, "FAKE_REPORT": report})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("DRAIN EXIT: queue empty", r.stdout, "four drifted ends are not three failures")
+        self.assertEqual(len(self.calls()), 4)
+        log = rd(os.path.join(self.tmp, "kit", "driver.log"))
+        self.assertEqual(log.count("result=UNKNOWN"), 4)
+        self.assertEqual(log.count("result_line=out-of-shape"), 4)
+        self.assertIn("(4 started, 4 ended with a RESULT out of shape)", log)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")), "no claim released")
+
+    def test_dp2_a_missing_result_is_still_a_bad_end(self):
+        self.fill_queue(4)
+        r = self.cli("drain", "--max", "1", env={**self.env, "FAKE_REPORT": "I stopped here."})
+        self.assertIn("DRAIN EXIT: failures", r.stdout)
+        self.assertEqual(len(self.calls()), 3)
+        log = rd(os.path.join(self.tmp, "kit", "driver.log"))
+        self.assertEqual(log.count("result_line=none"), 3)
+        self.assertIn("(3 started, 0 ended with a RESULT out of shape)", log)
+
+    # ----- DP15: the END line names the review model the session was told -----
+
+    def test_dp15_the_end_line_carries_the_told_review_model(self):
+        self.cfg["vars"]["REVIEW_MODEL"] = "model-review"
+        self.write_cfg()
+        wr(self.prompt, "Pass {ITEM}; spawn the reviewer on {REVIEW_MODEL}\n")
+        r = self.cli("pass", "beta", "010", "docs/brief.md", env={**self.env, "FAKE_MODELS": "model-pass"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=model-pass "
+                                   r"review_model=model-review result_line=in-shape out=")
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("pass", "beta", "020", "docs/brief.md")
+        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=- review_model=- "
+                                   r"result_line=in-shape out=", "a prompt that names no review model")
+
+    # ----- DP13 and DP5 M4: what counts as a started pass -----
+
+    def test_dp13_a_hand_run_pass_cut_off_before_its_end_is_folded_after_the_reset(self):
+        """A `ccfleet pass` run by hand whose launcher stopped before its END
+        has no result file and its START went to the terminal; its session
+        log, written at launch and named for its worktree, is the start."""
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("pass", "beta", "010", "docs/brief.md", env={**self.env, "FAKE_RESULT": "FAILED"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        (wt,) = self.worktrees()
+        for res in glob_all(os.path.join(self.tmp, "kit", "results")):
+            os.remove(res)  # as if its launcher stopped before the END
+        self.cfg["reset_utc"] = "2000-01-01T00:00"
+        self.write_cfg()
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "010")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("RESET reached", r.stdout)
+
+    def test_dp13_an_earlier_passs_result_file_does_not_start_a_new_worktree(self):
+        """The evidence is tied to the fold's worktree: an earlier pass's
+        result file on the same item, older than this worktree, is not it."""
+        res = os.path.join(self.tmp, "kit", "results", "2020-01-01", "beta-030.md")
+        os.makedirs(os.path.dirname(res))
+        wr(res, "<!-- session s rc=0 result=FAILED -->\nan earlier pass\n")
+        os.utime(res, (946684800, 946684800))
+        wt = self.new_wt("beta", folder="beta-030-0101")
+        self.cfg["reset_utc"] = "2000-01-01T00:00"
+        self.write_cfg()
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "030")
+        self.assertEqual(r.returncode, cf.EXIT_RESET, r.stdout + r.stderr)
+        self.assertIn(f"no pass on beta:030 started in {wt}", r.stdout)
+        self.assertEqual(self.calls(), [])
+        os.utime(res, None)  # the control: written after the worktree was made
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "030")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_m4_a_start_line_or_record_naming_the_worktree_is_a_start(self):
+        """DP5 M4: pass_started reads a drain's START lines (and, DP13, the
+        session records) for this worktree. Mutant: ignore START lines, and
+        the first assertion fails."""
+        kit = os.path.join(self.tmp, "kit")
+        cfg = {"kit_dir": kit}
+        wt = os.path.join(self.tmp, "wt", "elsewhere", "beta")
+        other = os.path.join(self.tmp, "wt", "another", "beta")
+        os.makedirs(os.path.join(kit, "logs"))
+        self.assertFalse(cf.pass_started(cfg, "beta-020", wt))
+        wr(os.path.join(kit, "logs", "pass-beta-020-20300101T120000.out"),
+           f"START 2030-01-01T12:00:00Z beta-020 model=m session=s wt={wt} log=/nowhere.json\n")
+        self.assertTrue(cf.pass_started(cfg, "beta-020", wt))
+        self.assertFalse(cf.pass_started(cfg, "beta-020", other), "a START in another worktree")
+        self.assertFalse(cf.pass_started(cfg, "beta-021", wt), "a START of another label")
+        os.makedirs(os.path.join(kit, "sessions"))
+        wr(os.path.join(kit, "sessions", "s2.pid"), f"99999999\t1\t2030-01-01T12:00:00Z\t{other}\n")
+        self.assertTrue(cf.pass_started(cfg, "beta-020", other), "a session record naming the worktree")
+
+    # ----- DP5 M10 and DP17: the drain's end and its seal -----
+
+    def test_m10_a_dry_drain_never_ends_the_seal(self):
+        """DP5 M10: a rehearsal leaves the real run's seal. Mutant: call
+        unseal on a dry drain too, and the seal is gone."""
+        self.ref_queue()
+        self.assertEqual(self.seal(self.GOOD).returncode, 0)
+        r = self.cli("drain", "--max", "1", "--dry-run")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("DRY rehearsed launch", r.stdout)
+        self.assertIsNotNone(json.loads(rd(self.state))["seal"])
+
+    def test_dp17_a_sigterm_to_the_driver_still_ends_its_seal(self):
+        self.ref_queue()
+        self.assertEqual(self.seal(self.GOOD).returncode, 0)
+        out = os.path.join(self.tmp, "drain.out")
+        with open(out, "w") as f:
+            p = subprocess.Popen([sys.executable, TOOL, "--config", self.cfgpath, "--by", "orch-1", "drain",
+                                  "--max", "1"], stdout=f, stderr=subprocess.STDOUT,
+                                 env={**self.env, "FAKE_SLEEP": "3"})
+        self.addCleanup(lambda: p.poll() is None and p.kill())
+        self.wait_for(lambda: self.calls(), "the first pass's session")
+        p.terminate()
+        self.assertEqual(p.wait(timeout=60), 128 + signal.SIGTERM)
+        self.assertIn("DRAIN EXIT: signal 15", rd(out))
+        self.assertIsNone(json.loads(rd(self.state))["seal"], "the driver's end ended its seal")
+        logs = os.path.join(self.tmp, "kit", "logs")
+        self.wait_for(lambda: any("END " in rd(os.path.join(logs, n)) for n in os.listdir(logs)
+                                  if n.startswith("pass-")), "the detached pass's end")
+        self.wait_for(lambda: not self.worktrees(), "the detached pass to put its worktree away")
+        time.sleep(1)  # its launcher's last lines, before tearDown removes the folder
+
+    def test_dp17_a_dry_drain_with_a_broken_queue_is_a_queue_error(self):
+        self.fill_queue(1)
+        for rc, code, says in (("1", 0, "DRAIN EXIT: not sealed"), ("127", cf.EXIT_SETUP, "DRAIN EXIT: queue error"),
+                               (str(cf.TIMEOUT_RC), cf.EXIT_SETUP, "DRAIN EXIT: queue error")):
+            r = self.cli("drain", "--max", "1", "--dry-run", env={**self.env, "FAKE_QUEUE_RC_NEXT": rc})
+            self.assertEqual(r.returncode, code, rc + r.stdout + r.stderr)
+            self.assertIn(says, r.stdout, rc)
+
+def glob_all(root):
+    return [os.path.join(d, f) for d, _, fs in os.walk(root) for f in fs]
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -187,7 +187,10 @@ and ended every prompt value and {ITEM} {BRIEF} {SESSION} {RESULT} {LOG}.
            RESULT, with {SESSION} {RESULT} {LOG} {WT} filled (to record them).
   unseal   optional: called once when a real drain that passed ranked ends,
            with {BY}, so the queue can end this run's seal (a restarted drain
-           then plans and seals afresh). A failure is logged, never fatal.
+           then plans and seals afresh): on its own, on a ^C, or on a SIGTERM
+           or SIGHUP. A SIGKILL skips it; the seal then holds until it lapses,
+           and a restart under the same --by runs on that earlier ranking. A
+           failure is logged, never fatal.
   stop_on  RESULT words that stop the drain (default BUDGET EXHAUSTED).
 
 THE SEAL. ccfleet never makes or checks a seal; it calls ranked once and
@@ -243,7 +246,9 @@ run it, and `drain --dry-run` prints the same reading, each line prefixed
 that fails, is said and the rehearsal carries on). Launches are rehearsed only
 once this run's ranking is sealed: before it the dry drain prints "DRY not
 sealed: no launches rehearsed" and exits 0; after it, each pick as "DRY
-rehearsed launch: REPO ITEM BRIEF". A failing queue command, or
+rehearsed launch: REPO ITEM BRIEF". A next that cannot run (126, 127), runs
+past its time limit, is killed or fails after a pick is a queue error, exit
+1, not "not sealed". A failing queue command, or
 one that prints something other than the JSON above, exits 1; a config with no
 queue.evidence exits 64.
   Cost history: from <kit_dir>/logs/pass-*.out, the output of each pass a drain
@@ -1654,22 +1659,58 @@ def write_result(path, sid, rc, result, text, keep_earlier=True):
             f.write(f"\n<!-- an earlier end of this label, superseded by the one above -->\n{earlier}")
 
 
-def pass_started(cfg, label):
-    """Whether a pass with this label (<repo>-<item>) ever started, by what
-    ccfleet itself wrote under kit_dir: the pass's result file, or a START line
-    for the label in a drain's logs/pass-*.out. A fold passes the reset only
-    on this (DV1): the fold shape alone is the caller's own flags."""
-    kit = glob.escape(cfg["kit_dir"])
-    if glob.glob(os.path.join(kit, "results", "*", glob.escape(label) + ".md")):
-        return True
-    for out in glob.glob(os.path.join(kit, "logs", "pass-*.out")):
+def pass_started(cfg, label, wt):
+    """Whether a pass with this label (<repo>-<item>) started in worktree
+    `wt`, by what ccfleet itself wrote under kit_dir (DV1, DP13). Any of:
+
+    - the session log the pass's launch wrote into logs/, named for the
+      worktree's folder (<label>-<HHMM>-<stamp>.json; a fold's own "-in-"
+      log does not count), written as its session started, so a pass run
+      by hand whose launcher was then stopped (no result file, its START
+      line on the terminal) counts;
+    - a session record (sessions/<id>.pid) naming this worktree;
+    - a START line for the label naming this worktree in a drain's
+      logs/pass-*.out;
+    - the pass's result file, written after this worktree was made.
+
+    Each is tied to this worktree, so a pass on the same item in an earlier
+    worktree, however long ago, does not count. A fold passes the reset only
+    on this: the fold shape alone is the caller's own flags."""
+    kit = cfg["kit_dir"]
+    real = os.path.realpath(wt)
+    folder = os.path.basename(os.path.dirname(real))
+    if re.fullmatch(re.escape(label) + r"-\d{4}(?:\d{2})?", folder):
+        # <folder>.json is the name an earlier ccfleet gave it.
+        own = re.compile(re.escape(folder) + r"(?:-\d{8}T\d{6})?\.json")
+        try:
+            names = os.listdir(os.path.join(kit, "logs"))
+        except OSError:
+            names = []
+        if any(own.fullmatch(n) for n in names):
+            return True
+    for path in glob.glob(os.path.join(glob.escape(kit), "sessions", "*.pid")):
+        try:
+            rec = read_session_record(path)
+        except (OSError, ValueError, IndexError):
+            continue
+        if rec["wt"] and os.path.realpath(rec["wt"]) == real:
+            return True
+    for out in glob.glob(os.path.join(glob.escape(kit), "logs", "pass-*.out")):
         try:
             with open(out, encoding="utf-8", errors="replace") as f:
-                if any(l.startswith("START ") and l.split()[2:3] == [label] for l in f):
-                    return True
+                for line in f:
+                    w = re.search(r" wt=(.*?) log=", line)
+                    if line.startswith("START ") and line.split()[2:3] == [label] and w \
+                            and os.path.realpath(w.group(1)) == real:
+                        return True
         except OSError:
             continue
-    return False
+    try:
+        made = os.stat(os.path.dirname(real)).st_mtime
+    except OSError:
+        return False
+    return any(os.path.getmtime(r) >= made
+               for r in glob.glob(os.path.join(glob.escape(kit), "results", "*", glob.escape(label) + ".md")))
 
 
 def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown",
@@ -1696,9 +1737,10 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     # ccfleet checks no word of the principal's.
     if reset_reached(cfg):
         fold_of = safe(f"{repo}-{item}") if (existing and remove_adopted and item) else None
-        if not (fold_of and pass_started(cfg, fold_of)):
-            why = (f": no pass on {repo}:{item} started (no result file or START line for {fold_of} under "
-                   f"kit_dir), so this fold would be new work" if fold_of else "")
+        if not (fold_of and pass_started(cfg, fold_of, expand(existing))):
+            why = (f": no pass on {repo}:{item} started in {expand(existing)} (kit_dir holds no session log, "
+                   f"session record, START line or result file of one there), so this fold would be new "
+                   f"work" if fold_of else "")
             print(f"RESET reached; not starting {label or repo}{why}")
             return EXIT_RESET, "RESET"
     check_repo_name(repo)
@@ -2208,6 +2250,16 @@ def unlaunch(path, pick):
 END_RESULT_RX = re.compile(r" result=(.*?) session=")
 
 
+def queue_broke(r, rehearsed=0):
+    """Whether a failed `next` in a dry drain is a broken queue rather than the
+    refusal the seal contract requires before the seal (DP17): it could not
+    start or be run (126, 127), ran past QUEUE_TIMEOUT, was killed by a
+    signal, or failed after this rehearsal had already been offered a pick
+    (the seal held then). Any other nonzero exit is read as that refusal, and
+    its text is printed beside it."""
+    return r.returncode in (126, 127, TIMEOUT_RC) or r.returncode < 0 or rehearsed > 0
+
+
 def drain(cfg, common, max_n, dry):
     """Keep up to max_n review passes running from the adopter's queue until it is
     empty, the reset arrives, the stop file appears, or the budget runs out.
@@ -2254,6 +2306,22 @@ def drain(cfg, common, max_n, dry):
             return EXIT_SETUP
     pace, watch = Pacing(cfg, max_n), Watch(cfg)
     say(cfg, f"drain up: max {max_n}, gate {cfg['gate']}, launched list {launched}")
+
+    def on_signal(signum, _frame):
+        say(cfg, f"drain stopped by signal {signum}; passes running are left to run")
+        print(f"DRAIN EXIT: signal {signum}", flush=True)
+        raise SystemExit(128 + signum)
+
+    # A SIGTERM or SIGHUP ends the driver through its `finally`, so the queue
+    # still hears the run end (queue.unseal) and its lists are cleared; only a
+    # SIGKILL skips it (DP17). Its passes are detached and run on.
+    before = {}
+    for sig in (signal.SIGTERM, signal.SIGHUP):
+        try:
+            if signal.getsignal(sig) is not signal.SIG_IGN:  # nohup's choice stands
+                before[sig] = signal.signal(sig, on_signal)
+        except (ValueError, OSError):  # not the main thread
+            pass
     try:
         while True:
             for p in [p for p in running if p.poll() is not None]:
@@ -2341,7 +2409,7 @@ def drain(cfg, common, max_n, dry):
                             f.write(held + "".join("\t".join(x) + "\n" for x in sorted(refused)))
                         offer_from = skip_path
                     r = queue_call(cfg, "next", {"LAUNCHED": offer_from, "BY": common_by(common)})
-                    if r.returncode and dry:
+                    if r.returncode and dry and not queue_broke(r, spawned):
                         # A rehearsal reports, it does not stop: next refuses
                         # until this run's ranking is sealed (PK9).
                         stop = stop or "not sealed: no launches rehearsed"
@@ -2386,6 +2454,8 @@ def drain(cfg, common, max_n, dry):
                     last_hold = time.time()
             time.sleep(0.2 if dry else cfg["poll_seconds"])
     finally:
+        for sig, h in before.items():
+            signal.signal(sig, signal.SIG_DFL if h is None else h)
         pace.close()
         watch.close()
         for path in ([launched] if dry else []) + [skip_path]:
