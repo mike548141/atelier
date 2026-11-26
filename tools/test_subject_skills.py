@@ -529,7 +529,17 @@ class TheReviewTextsStayInStep(unittest.TestCase):
         flat = self.flat("skills/review/fold-prompt.md")
         self.assertIn("never append a second copy", flat)
         self.assertIn("leaving out its date", flat)
-        self.assertIn('search for "Deferred sibling, folded below the verdict" alone', flat)
+        self.assertNotIn('search for "Deferred sibling, folded below the verdict" alone', flat)
+
+    def test_the_fold_matches_its_heading_as_a_heading_line(self):
+        """DP14: the phrase anywhere, a brief or verdict quoting it included,
+        read as an earlier fold, so the sibling was never appended."""
+        flat = self.flat("skills/review/fold-prompt.md")
+        step0 = flat[flat.index("0. A fold can itself"):flat.index("1. The reviewer's")]
+        self.assertIn("as a heading line: a line that starts with `#` marks", step0)
+        self.assertIn("The same words anywhere else, quoted in the brief or in "
+                      "a verdict, are not a fold", step0)
+        self.assertIn("Deferred sibling, folded below the verdict", step0)
 
     def test_plan_md_governs_until_a_difference_is_fixed(self):
         """PK16 R3."""
