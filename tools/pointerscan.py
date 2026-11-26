@@ -40,12 +40,15 @@ Four things go wrong with a pointer, and one parse answers all of them:
      that said "the commits citing `210/600`" missed three of the seven
      commits on its own path list, because a commit that touches the paths
      need not cite the item. A pointer names its delta by path and bound. A
-     bound that is only a citation is flagged, under the `grammar` detector
-     (the grammar of what a pointer names), unless a commit range
-     (`a1b2c3d..e4f5a6b`) or two or more commit hashes are written out beside
-     it. One start hash is not enough: the citation still selects, and the
-     start only trims. Advisory like the rest; `grammar` is reused rather than
-     a fourth kind added, so the kinds other tools pin stay three.
+     bound that is only a citation ("commits citing", "commits that cite",
+     "commits naming" and the rest of that family) is flagged, under the
+     `grammar` detector (the grammar of what a pointer names), unless a commit
+     range (`a1b2c3d..e4f5a6b`) is written out, or a list of two or more
+     commit hashes in the sentence that names the delta. One start hash is not
+     enough: the citation still selects, and the start only trims; and hashes
+     that bind nothing (a pinned verdict, session ids) do not count (DP19).
+     Advisory like the rest; `grammar` is reused rather than a fourth kind
+     added, so the kinds other tools pin stay three.
 
 WHY NOT `reviewscan`
 --------------------
@@ -435,26 +438,49 @@ def is_pointer(marker: str, body: str) -> bool:
 
 # A delta chosen by the commits' own citation of an item ("the four commits
 # citing `115/510`"): a commit that touches the delta's paths and does not cite
-# the item is not in it (PK21).
-_CITED_DELTA = re.compile(r"\bcommits?\s+citing\b", re.I)
+# the item is not in it (PK21). The citing family, not one phrase (DP19):
+# "commits citing", "commits that cite", "commits naming", "commits which
+# reference", "commits mentioning". A bare present-tense verb ("commits name
+# their files") says what commits do and selects none, so it is not matched.
+_CITED_DELTA = re.compile(
+    r"\bcommits?\s+(?:(?:that|which)\s+(?:cite|name|reference|mention)s?"
+    r"|citing|naming|referencing|mentioning)\b", re.I)
 # A commit hash: seven or more hex digits with at least one digit, so an
 # English word spelled in hex ("defaced") is not one.
-_HASH = re.compile(r"\b(?=[0-9a-f]*\d)[0-9a-f]{7,40}\b")
-_HASH_RANGE = re.compile(r"\b(?=[0-9a-f]*\d)[0-9a-f]{7,40}\.\.\.?"
-                         r"(?=[0-9a-f]*\d)[0-9a-f]{7,40}\b")
+_HEX = r"(?=[0-9a-f]*\d)[0-9a-f]{7,40}"
+_HASH = re.compile(r"\b" + _HEX + r"\b")
+_HASH_RANGE = re.compile(r"\b" + _HEX + r"\.\.\.?" + _HEX + r"\b")
+# Two or more hashes written as one list: only commas, "and", "+" or "&"
+# between them, backticks allowed.
+_HASH_LIST = re.compile(
+    r"`?\b" + _HEX + r"\b`?(?:\s*(?:,\s*(?:and\s+)?|and\s+|[+&]\s*)`?\b"
+    + _HEX + r"\b`?)+")
+_SENTENCE_END = re.compile(r"(?<=[.;])\s+")
 
 
 def delta_by_citation(body: str) -> bool:
     """Does the pointer name its delta's commits by citation alone (PK21)?
 
-    True when the prose says "commits citing" something and writes out neither
-    a commit range nor two or more distinct commit hashes. Hashes are read from
-    the raw body, backticks included: they are normally written as code."""
+    True when the prose names commits by what they cite ("commits citing",
+    "commits that cite", "commits naming" and the like) and binds no delta in
+    hashes: neither a commit range (`a..b`) anywhere, nor a list of two or more
+    hashes in a sentence that names the delta or carries the citation. Hashes
+    elsewhere (a start hash, a pinned verdict, session ids) bind nothing, so
+    they do not silence it (DP19). Hashes are read from the raw body,
+    backticks included: they are normally written as code."""
     if not _CITED_DELTA.search(strip_code(body)):
         return False
     if _HASH_RANGE.search(body):
         return False
-    return len(set(_HASH.findall(body))) < 2
+    for sentence in _SENTENCE_END.split(body):
+        names_delta = ("delta" in sentence.lower()
+                       or _CITED_DELTA.search(strip_code(sentence)))
+        if not names_delta:
+            continue
+        for run in _HASH_LIST.finditer(sentence):
+            if len(set(_HASH.findall(run.group(0)))) >= 2:
+                return False
+    return True
 
 
 def grammar_findings(body: str) -> list[str]:
@@ -472,7 +498,7 @@ def grammar_findings(body: str) -> list[str]:
         out.append("names its delta's commits by citation alone — a commit "
                    "that touches the paths and does not cite the item is "
                    "missed; name the delta by path and a bound (a commit "
-                   "range, or the hashes)")
+                   "range, or the hashes listed as the delta)")
     return out
 
 
@@ -957,10 +983,11 @@ def main(argv: list[str] | None = None) -> int:
         print("  the reviewer's deferral discipline governs when it is read; in "
               "the pointer it")
         print("  steers the pass before a brief exists to defer it.")
-        print("  A delta is named by path and a bound (a commit range or the "
-              "hashes); \"the")
-        print("  commits citing X\" alone misses a commit that touches the "
-              "paths and does not cite X.")
+        print("  A delta is named by path and a bound (a commit range, or the "
+              "hashes listed as")
+        print("  the delta); \"the commits citing X\" alone misses a commit "
+              "that touches the paths")
+        print("  and does not cite X.")
     if cycle:
         print("  CYCLE STATE. The item asserts a review is owed and carries the "
               "verdict of the")

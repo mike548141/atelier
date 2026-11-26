@@ -192,6 +192,36 @@ class DeltaBoundTest(unittest.TestCase):
                                   "`a1cc5f2d`, `9b4a8f8f`")
         self.assertEqual(self.reasons(text), [])
 
+    def test_the_citing_family_is_flagged(self):
+        """DP19: "commits citing" alone was matched; the same selector in
+        other words passed."""
+        for phrase in ("commits that cite", "commits which cite",
+                       "commits naming", "commits that name",
+                       "commits referencing", "commits that mention",
+                       "commit citing"):
+            text = self.CITED.replace("commits citing", phrase)
+            self.assertEqual(len(self.reasons(text)), 1, phrase)
+
+    def test_a_bare_verb_about_commits_is_not_a_selector(self):
+        """"commits name their files" says what commits do; it picks none."""
+        text = (f"- {Q} **Rule-4 cold pass queued: the scanner, commits name\n"
+                "      their files.** *Delta:* `tools/x.py` after `a1cc5f2d`.\n")
+        self.assertEqual(self.reasons(text), [])
+
+    def test_two_hashes_not_bound_as_the_delta_do_not_silence_it(self):
+        """DP19: any two hashes anywhere silenced the flag, a start hash and a
+        pinned verdict, or two session ids, included."""
+        pinned = self.CITED + "      Briefed, pinned at `6ddbead2`.\n"
+        self.assertEqual(len(self.reasons(pinned)), 1)
+        sessions = self.CITED + ("      Barred: sessions `0ee74059`, "
+                                 "`14c2530d`.\n")
+        self.assertEqual(len(self.reasons(sessions)), 1)
+
+    def test_a_hash_list_named_as_the_delta_is_a_bound(self):
+        text = self.CITED + ("      The delta is `a1cc5f2d`, `9b4a8f8f` and\n"
+                             "      `c0ffee12`.\n")
+        self.assertEqual(self.reasons(text), [])
+
     def test_a_word_spelled_in_hex_is_not_a_hash(self):
         text = self.CITED.replace("after `a1cc5f2d`",
                                   "after defaced and effaced")
