@@ -40,3 +40,7 @@
       [`../210-instruments-open-features/630-fix-ccfleet-modelguard-and-the-review-skills-dp1-dp21.md`](../210-instruments-open-features/630-fix-ccfleet-modelguard-and-the-review-skills-dp1-dp21.md);
       the findings:
       [`../../reviews/2026-11-25-1920-dv-pk-fixes-recheck-cold.md`](../../reviews/2026-11-25-1920-dv-pk-fixes-recheck-cold.md).
+      🔒 CLAIMED 2026-11-26T10:37Z (claimed 2026-11-26-1037, wt: brief-160-1870-1037) by headless
+      session 664efda7 (`atelier-fc`, Opus 5.5), started by principal-opened session a2aeebc8
+      (`atelier-51`, Opus 5.5) at the principal's pick, for brief-writing only: the brief and its
+      held-back sibling, no pass run. Neither session wrote any part of the delta.
