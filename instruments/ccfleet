@@ -65,7 +65,11 @@ THE LESSONS IT CARRIES (each one paid for in a real run):
     ITEM: or REPO: line (the review prompts), or the last line of a block that
     holds one (the fleet prompts); any other RESULT line is no verdict. A
     mention inside NOTES once read DONE (RK3), and an earlier mention could
-    (PK4).
+    (PK4). A closing code fence is not a last line, and with one RESULT line
+    in the text, blank lines may stand inside the shape (DP2); a clean word
+    stands only when no other RESULT line names an unclean one (DP6). The
+    END line's result_line= says in-shape, out-of-shape or none, and a drain
+    counts an out-of-shape end apart, never as a bad end.
   * A `touch <kit_dir>/stop` ends launching cleanly; running jobs finish. A
     stop file older than the driver is ignored (and logged): last week's file
     once ended a new run before it started anything.
@@ -186,7 +190,10 @@ and ended every prompt value and {ITEM} {BRIEF} {SESSION} {RESULT} {LOG}.
            RESULT, with {SESSION} {RESULT} {LOG} {WT} filled (to record them).
   unseal   optional: called once when a real drain that passed ranked ends,
            with {BY}, so the queue can end this run's seal (a restarted drain
-           then plans and seals afresh). A failure is logged, never fatal.
+           then plans and seals afresh): on its own, on a ^C, or on a SIGTERM
+           or SIGHUP. A SIGKILL skips it; the seal then holds until it lapses,
+           and a restart under the same --by runs on that earlier ranking. A
+           failure is logged, never fatal.
   stop_on  RESULT words that stop the drain (default BUDGET EXHAUSTED).
 
 THE SEAL. ccfleet never makes or checks a seal; it calls ranked once and
@@ -200,12 +207,13 @@ time is unknown. ranked, next and take each exit nonzero (next printing
 nothing) until this run's ranking is sealed, so a pass started by hand
 (`ccfleet pass`, whose take carries its own --by) meets the same gate as a
 drain's. next offers only what the sealed ranking routes to the local route
-(every pass ccfleet launches is a local session; the example passes --route
-local), in rank order, then the stated spill: another route's review not yet
-started, but never from a budget that lapses before the local one (that
-budget keeps its reviews) and never one the seal marks not spillable; a
-review briefed after the seal runs last (skills/review/run.md, the route
-rule). A seal lasts one run and no longer than the first
+(every pass ccfleet launches is a local session; ccfleet passes no route
+itself: the config's queue.next does, as the example's --route local, and
+`check` says QUEUE ROUTE when it names none), in rank order, then the
+stated spill: another route's review not yet started, but never from a budget
+that lapses before the local one (that budget keeps its reviews) and never one
+the seal marks not spillable; a review briefed after the seal runs last
+(skills/review/run.md, the route rule). A seal lasts one run and no longer than the first
 lapse among the budgets it routes to; where queue.unseal is set, the drain
 calls it as it ends, which is how a queue sees the run's end. The seal gates
 only the launches that call the queue: a drain's passes and `ccfleet pass`.
@@ -242,7 +250,9 @@ run it, and `drain --dry-run` prints the same reading, each line prefixed
 that fails, is said and the rehearsal carries on). Launches are rehearsed only
 once this run's ranking is sealed: before it the dry drain prints "DRY not
 sealed: no launches rehearsed" and exits 0; after it, each pick as "DRY
-rehearsed launch: REPO ITEM BRIEF". A failing queue command, or
+rehearsed launch: REPO ITEM BRIEF". A next that cannot run (126, 127), runs
+past its time limit, is killed or fails after a pick is a queue error, exit
+1, not "not sealed". A failing queue command, or
 one that prints something other than the JSON above, exits 1; a config with no
 queue.evidence exits 64.
   Cost history: from <kit_dir>/logs/pass-*.out, the output of each pass a drain
@@ -260,7 +270,8 @@ queue.evidence exits 64.
   run by hand leaves no .out and is not counted, nor is one whose launcher a
   signal stopped (no END line). A later session's verdict is its own END
   line, kept as <log>.end; a log without one is read with exit 0 assumed.
-  Log names carry the date and second, so no later launch reopens one.
+  Log names, a drain's pass-*.out included, carry the date and second, so
+  no later launch reopens one.
   Nothing is estimated.
 
 Template variables always filled: {REPO} {GH} {BR} {VIS} {PIN} {WT} {PRIMARY}
@@ -322,6 +333,9 @@ RESULT_RX = re.compile(r"^[ \t>*`-]*RESULT[*`]*:[ \t*`]*([A-Z]+(?:[ \t]+[A-Z]+)*
 # The final-output shape's identity line: the transcript fallback takes only a
 # text that carries one, so a line of planning narration is never a verdict.
 SHAPE_RX = re.compile(r"^\s*\**(?:ITEM|REPO):", re.M)
+# A line that is only a code fence: a report fenced whole still ends on its
+# RESULT line (DP2).
+FENCE_RX = re.compile(r"^\s*(?:```+|~~~+)[\w+.-]*\s*$")
 PIN_RX = re.compile(r"atelier@([0-9a-f]{7,40})\b", re.I)
 # Without this, `claude -p` kills a background subagent about ten minutes after
 # the orchestrator's last turn: a reviewer still working on act 2 dies mid-act.
@@ -1181,24 +1195,38 @@ def message_text(msg):
 
 def shaped_results(text):
     """The captured words of each RESULT line in `text` that stands in the
-    final-output shape the prompts fix: directly above an ITEM: or REPO: line
-    (the review prompts: RESULT, then ITEM), or the text's last non-blank line
-    closing a block, with no blank line in it, that holds an ITEM: or REPO:
-    line (the fleet prompts: REPO first, RESULT last). Any other RESULT line,
-    an earlier mention included, is not one (PK4)."""
+    final-output shape the prompts fix. Two shapes:
+
+    - the review prompts (RESULT, then ITEM): directly above an ITEM: or
+      REPO: line;
+    - the fleet prompts (REPO first, RESULT last): the text's last line,
+      closing a block, with no blank line in it, that holds an ITEM: or
+      REPO: line.
+
+    A line that is only a code fence (```) is not counted as the last line,
+    so a report fenced whole still ends on its RESULT. When the text holds
+    no other RESULT line, blank lines may part the RESULT line from its
+    ITEM: line, and the fleet block may hold blank lines (a list spaced out,
+    a field on several lines), since with one RESULT line in the text there
+    is nothing it could be mistaken for (DP2). Any other RESULT line, an
+    earlier mention or one followed by more text, is not one (PK4): a
+    verdict is never read from the middle of a block."""
     lines = (text or "").splitlines()
-    filled = [i for i, line in enumerate(lines) if line.strip()]
+    marked = [i for i, line in enumerate(lines) if RESULT_RX.match(line)]
+    alone = len(marked) == 1
+    filled = [i for i, line in enumerate(lines) if line.strip() and not FENCE_RX.match(line)]
     last = filled[-1] if filled else -1
     out = []
-    for i, line in enumerate(lines):
-        m = RESULT_RX.match(line)
-        if not m:
-            continue
-        if i + 1 < len(lines) and SHAPE_RX.match(lines[i + 1]):
+    for i in marked:
+        m = RESULT_RX.match(lines[i])
+        j = i + 1
+        while alone and j < len(lines) and not lines[j].strip():
+            j += 1
+        if j < len(lines) and SHAPE_RX.match(lines[j]):
             out.append(m.group(1))
         elif i == last:
             j = i - 1
-            while j >= 0 and lines[j].strip():
+            while j >= 0 and (alone or lines[j].strip()):
                 if SHAPE_RX.match(lines[j]):
                     out.append(m.group(1))
                     break
@@ -1216,20 +1244,43 @@ def verdict_phrase(captured, known=()):
     return words[0]
 
 
-def result_word(text, known=(), stops=()):
+def result_word(text, known=(), stops=(), clean=None):
     """The verdict of `text`, or "" when there is none: the RESULT line in the
     final-output shape (shaped_results), so neither a later mention ("NOTES:
     ... RESULT: DONE", RK3) nor an earlier one ("RESULT: DONE is not what this
-    is", PK4) is read. Two shaped verdicts that disagree are none. A word in
-    `stops` on any RESULT line is kept when no shaped verdict stands, since
-    stopping is the safe direction."""
+    is", PK4) is read. Two shaped verdicts that disagree are none.
+
+    A clean word (`clean`: by default the words of `known` not in `stops`)
+    stands only when no other RESULT line in the text names a word that is
+    not clean (DP6): a quoted, well-shaped DONE never outranks the session's
+    own FAILED that drifted out of the shape, and a quoted stop word after a
+    shaped DONE gives no verdict rather than halting a drain. A word in
+    `stops` on a RESULT line out of the shape is kept only when no shaped
+    verdict stands at all: a session cut off by its budget may not manage
+    the shape, and stopping then spares the passes that would fail after it."""
+    clean = set(known) - set(stops) if clean is None else set(clean)
+    every = [verdict_phrase(w, known) for w in RESULT_RX.findall(text or "")]
     shaped = {verdict_phrase(w, known) for w in shaped_results(text)}
     if len(shaped) == 1:
-        return shaped.pop()
-    for w in sorted(shaped) + [verdict_phrase(w, known) for w in RESULT_RX.findall(text or "")]:
-        if w in stops:
-            return w
+        word = shaped.pop()
+        if word not in clean or all(w in clean for w in every):
+            return word
+        return ""
+    if not shaped:
+        for w in every:
+            if w in stops:
+                return w
     return ""
+
+
+def result_line(text, known=(), stops=()):
+    """How the text's RESULT lines read: "in-shape" (one gave the verdict),
+    "out-of-shape" (a line begins RESULT: but none gave one), or "none" (no
+    line begins RESULT:). The END line carries it, so a drain tells a session
+    that wrote its verdict out of the shape from one that wrote none (DP2)."""
+    if not RESULT_RX.search(text or ""):
+        return "none"
+    return "in-shape" if result_word(text, known, stops) else "out-of-shape"
 
 
 def transcript_result(sid, since=None):
@@ -1323,11 +1374,22 @@ def models_used(log_path):
     """The models a session's JSON log names in modelUsage, comma-separated,
     or "-" when it names none: the orchestrator's own, and a reviewer's when
     it ran on another model. The END line carries it, so a pass's record shows
-    the model its reviewer ran on, beside the REVIEW_MODEL it was told (DV3)."""
+    the model its reviewer ran on (DV3), beside the REVIEW_MODEL it was told
+    (review_model=, told_review_model; DP15)."""
     j = read_log_json(log_path) or {}
     mu = j.get("modelUsage")
     names = sorted(str(m) for m in mu) if isinstance(mu, dict) else []
     return ",".join(re.sub(r"[\s,]", "_", n) for n in names) or "-"
+
+
+def told_review_model(values, template_text):
+    """The REVIEW_MODEL the session was told, for its END line: the value
+    its prompt was filled with when the prompt names {REVIEW_MODEL}, else
+    "-" (the prompt told it no review model). Spaces become underscores so
+    the line keeps one field per word (DP15)."""
+    if "{REVIEW_MODEL}" not in (template_text or "") or not str(values.get("REVIEW_MODEL", "")).strip():
+        return "-"
+    return re.sub(r"\s", "_", str(values["REVIEW_MODEL"]).strip())
 
 
 def end_line(log, line):
@@ -1703,22 +1765,58 @@ def write_result(path, sid, rc, result, text, keep_earlier=True):
             f.write(f"\n<!-- an earlier end of this label, superseded by the one above -->\n{earlier}")
 
 
-def pass_started(cfg, label):
-    """Whether a pass with this label (<repo>-<item>) ever started, by what
-    ccfleet itself wrote under kit_dir: the pass's result file, or a START line
-    for the label in a drain's logs/pass-*.out. A fold passes the reset only
-    on this (DV1): the fold shape alone is the caller's own flags."""
-    kit = glob.escape(cfg["kit_dir"])
-    if glob.glob(os.path.join(kit, "results", "*", glob.escape(label) + ".md")):
-        return True
-    for out in glob.glob(os.path.join(kit, "logs", "pass-*.out")):
+def pass_started(cfg, label, wt):
+    """Whether a pass with this label (<repo>-<item>) started in worktree
+    `wt`, by what ccfleet itself wrote under kit_dir (DV1, DP13). Any of:
+
+    - the session log the pass's launch wrote into logs/, named for the
+      worktree's folder (<label>-<HHMM>-<stamp>.json; a fold's own "-in-"
+      log does not count), written as its session started, so a pass run
+      by hand whose launcher was then stopped (no result file, its START
+      line on the terminal) counts;
+    - a session record (sessions/<id>.pid) naming this worktree;
+    - a START line for the label naming this worktree in a drain's
+      logs/pass-*.out;
+    - the pass's result file, written after this worktree was made.
+
+    Each is tied to this worktree, so a pass on the same item in an earlier
+    worktree, however long ago, does not count. A fold passes the reset only
+    on this: the fold shape alone is the caller's own flags."""
+    kit = cfg["kit_dir"]
+    real = os.path.realpath(wt)
+    folder = os.path.basename(os.path.dirname(real))
+    if re.fullmatch(re.escape(label) + r"-\d{4}(?:\d{2})?", folder):
+        # <folder>.json is the name an earlier ccfleet gave it.
+        own = re.compile(re.escape(folder) + r"(?:-\d{8}T\d{6})?\.json")
+        try:
+            names = os.listdir(os.path.join(kit, "logs"))
+        except OSError:
+            names = []
+        if any(own.fullmatch(n) for n in names):
+            return True
+    for path in glob.glob(os.path.join(glob.escape(kit), "sessions", "*.pid")):
+        try:
+            rec = read_session_record(path)
+        except (OSError, ValueError, IndexError):
+            continue
+        if rec["wt"] and os.path.realpath(rec["wt"]) == real:
+            return True
+    for out in glob.glob(os.path.join(glob.escape(kit), "logs", "pass-*.out")):
         try:
             with open(out, encoding="utf-8", errors="replace") as f:
-                if any(l.startswith("START ") and l.split()[2:3] == [label] for l in f):
-                    return True
+                for line in f:
+                    w = re.search(r" wt=(.*?) log=", line)
+                    if line.startswith("START ") and line.split()[2:3] == [label] and w \
+                            and os.path.realpath(w.group(1)) == real:
+                        return True
         except OSError:
             continue
-    return False
+    try:
+        made = os.stat(os.path.dirname(real)).st_mtime
+    except OSError:
+        return False
+    return any(os.path.getmtime(r) >= made
+               for r in glob.glob(os.path.join(glob.escape(kit), "results", "*", glob.escape(label) + ".md")))
 
 
 def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown",
@@ -1745,9 +1843,10 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     # ccfleet checks no word of the principal's.
     if reset_reached(cfg):
         fold_of = safe(f"{repo}-{item}") if (existing and remove_adopted and item) else None
-        if not (fold_of and pass_started(cfg, fold_of)):
-            why = (f": no pass on {repo}:{item} started (no result file or START line for {fold_of} under "
-                   f"kit_dir), so this fold would be new work" if fold_of else "")
+        if not (fold_of and pass_started(cfg, fold_of, expand(existing))):
+            why = (f": no pass on {repo}:{item} started in {expand(existing)} (kit_dir holds no session log, "
+                   f"session record, START line or result file of one there), so this fold would be new "
+                   f"work" if fold_of else "")
             print(f"RESET reached; not starting {label or repo}{why}")
             return EXIT_RESET, "RESET"
     check_repo_name(repo)
@@ -1790,7 +1889,8 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
         print("DRY argv: " + " ".join(argv[:-1]) + f" <prompt {len(prompt)} chars> < /dev/null")
         # The same END line a real run prints, so a dry drain reads its passes
         # as ended rather than "ended early".
-        print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc=0 result=DRY session=- out={log}", flush=True)
+        print(f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc=0 result=DRY session=- models=- "
+              f"review_model={told_review_model(values, template_text)} result_line=- out={log}", flush=True)
         return 0, "DRY"
     # Written before the worktree or the claim: a user settings file that
     # cannot be read refuses the launch with nothing to undo.
@@ -1838,8 +1938,10 @@ def run_one(cfg, repo, template, label=None, model=None, extra=None, by="unknown
     else:
         out = os.path.join(results, f"{label}.md")
         write_result(out, sid, rc, result, text, keep_earlier=False)
+    shape = result_line(text, clean + stop_on(cfg), stop_on(cfg))
     end_line(log, f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={sid} "
-                  f"models={models_used(log)} out={out}")
+                  f"models={models_used(log)} review_model={told_review_model(values, template_text)} "
+                  f"result_line={shape} out={out}")
     released = True
     if post:
         released = post(values, result, sid, log) is not False
@@ -2254,6 +2356,16 @@ def unlaunch(path, pick):
 END_RESULT_RX = re.compile(r" result=(.*?) session=")
 
 
+def queue_broke(r, rehearsed=0):
+    """Whether a failed `next` in a dry drain is a broken queue rather than the
+    refusal the seal contract requires before the seal (DP17): it could not
+    start or be run (126, 127), ran past QUEUE_TIMEOUT, was killed by a
+    signal, or failed after this rehearsal had already been offered a pick
+    (the seal held then). Any other nonzero exit is read as that refusal, and
+    its text is printed beside it."""
+    return r.returncode in (126, 127, TIMEOUT_RC) or r.returncode < 0 or rehearsed > 0
+
+
 def drain(cfg, common, max_n, dry):
     """Keep up to max_n review passes running from the adopter's queue until it is
     empty, the reset arrives, the stop file appears, or the budget runs out.
@@ -2274,6 +2386,7 @@ def drain(cfg, common, max_n, dry):
     open(launched, "w" if dry else "a").close()
     clean, halt = release_on(cfg), stop_on(cfg)
     running, bad, stop, empty, last_hold, started, spawned, hung = {}, 0, None, False, 0, 0, 0, []
+    drifted = 0  # passes whose verdict stood out of the shape (DP2)
     # Picks whose claim was refused: kept out of `next` for this drain by
     # handing the queue the launched list plus these, in a file of their own.
     refused, skip_path = set(), launched + ".skip"
@@ -2299,6 +2412,22 @@ def drain(cfg, common, max_n, dry):
             return EXIT_SETUP
     pace, watch = Pacing(cfg, max_n), Watch(cfg)
     say(cfg, f"drain up: max {max_n}, gate {cfg['gate']}, launched list {launched}")
+
+    def on_signal(signum, _frame):
+        say(cfg, f"drain stopped by signal {signum}; passes running are left to run")
+        print(f"DRAIN EXIT: signal {signum}", flush=True)
+        raise SystemExit(128 + signum)
+
+    # A SIGTERM or SIGHUP ends the driver through its `finally`, so the queue
+    # still hears the run end (queue.unseal) and its lists are cleared; only a
+    # SIGKILL skips it (DP17). Its passes are detached and run on.
+    before = {}
+    for sig in (signal.SIGTERM, signal.SIGHUP):
+        try:
+            if signal.getsignal(sig) is not signal.SIG_IGN:  # nohup's choice stands
+                before[sig] = signal.signal(sig, on_signal)
+        except (ValueError, OSError):  # not the main thread
+            pass
     try:
         while True:
             for p in [p for p in running if p.poll() is not None]:
@@ -2350,6 +2479,15 @@ def drain(cfg, common, max_n, dry):
                         stop = stop or f"result {m.group(1)}"
                     elif m.group(1) in clean or m.group(1) == "DRY":
                         bad = 0
+                    elif m.group(1) == "UNKNOWN" and " result_line=out-of-shape " in end[-1]:
+                        # The session ran to its end and wrote a verdict, out
+                        # of the shape: a drifted report, not a spent budget,
+                        # so it is counted apart and not as a bad end (DP2).
+                        # Its claim and worktree stay for a resume.
+                        drifted += 1
+                        say(cfg, f"{pick}: its RESULT line stood out of the final-output shape; read UNKNOWN, "
+                                 f"claim and worktree kept for a resume; not counted as a bad end "
+                                 f"({drifted} so far)")
                     else:
                         bad += 1
                         stop = stop or ("failures" if bad >= 3 else None)
@@ -2377,7 +2515,7 @@ def drain(cfg, common, max_n, dry):
                             f.write(held + "".join("\t".join(x) + "\n" for x in sorted(refused)))
                         offer_from = skip_path
                     r = queue_call(cfg, "next", {"LAUNCHED": offer_from, "BY": common_by(common)})
-                    if r.returncode and dry:
+                    if r.returncode and dry and not queue_broke(r, spawned):
                         # A rehearsal reports, it does not stop: next refuses
                         # until this run's ranking is sealed (PK9).
                         stop = stop or "not sealed: no launches rehearsed"
@@ -2405,7 +2543,12 @@ def drain(cfg, common, max_n, dry):
                         continue
                     with open(launched, "a") as f:
                         f.write("\t".join(pick[:3]) + "\n")
-                    out = os.path.join(kit, "logs", f"pass-{safe(pick[0] + '-' + pick[1])}-{now_utc():%H%M%S}.out")
+                    # Date and second, as the .json logs: a pass of the same
+                    # item at the same time of day on another day never
+                    # reopens this one (DP20). Readers glob pass-*.out, so the
+                    # time-only names an earlier ccfleet wrote are still read.
+                    out = os.path.join(kit, "logs", f"pass-{safe(pick[0] + '-' + pick[1])}-"
+                                                    f"{now_utc():%Y%m%dT%H%M%S}.out")
                     rest = ["pass", *pick[:3]] + (["--dry-run"] if dry else [])
                     label = " ".join(pick[:2])
                     p = spawn(cfg, self_argv(common, *rest), out, label)
@@ -2422,6 +2565,8 @@ def drain(cfg, common, max_n, dry):
                     last_hold = time.time()
             time.sleep(0.2 if dry else cfg["poll_seconds"])
     finally:
+        for sig, h in before.items():
+            signal.signal(sig, signal.SIG_DFL if h is None else h)
         pace.close()
         watch.close()
         for path in ([launched] if dry else []) + [skip_path]:
@@ -2436,7 +2581,7 @@ def drain(cfg, common, max_n, dry):
                 f"queue.unseal failed rc={r.returncode}: {(r.stderr or r.stdout).strip()[:300]}")
     why = stop or "queue empty"
     tail = f"; hung, not waited for: {', '.join(hung)}" if hung else ""
-    say(cfg, f"drain down: {why} ({started} started){tail}")
+    say(cfg, f"drain down: {why} ({started} started, {drifted} ended with a RESULT out of shape){tail}")
     print(f"DRAIN EXIT: {why}{tail}")
     if why == "queue error":
         return EXIT_SETUP
@@ -2910,8 +3055,10 @@ def resume(cfg, repo, wt, sid, template, item, extra, by):
         text, result = unlanded_verdict(wt, facts, branch_name, result, text)
     out = pass_result_path(cfg, safe(f"{repo}-{item}") if item else safe(f"resume-{repo}-{sid}"))
     write_result(out, new_sid or sid, rc, result, f"(resumed session {sid})\n{text}")
+    shape = result_line(text, known, stop_on(cfg))
     end_line(log, f"END {now_utc():%Y-%m-%dT%H:%M:%SZ} rc={rc} result={result} session={new_sid or sid} "
-                  f"models={models_used(log)} out={out}")
+                  f"models={models_used(log)} review_model={told_review_model(values, template_text)} "
+                  f"result_line={shape} out={out}")
     if not item:
         print(f"no --item: no queue command called; worktree kept: {wt}", flush=True)
         return 0
@@ -3030,6 +3177,18 @@ def check_visibility(cfg):
                   f"the config's wins at launch, so fix it (man ccfleet, THREATS)")
 
 
+def check_queue_route(cfg):
+    """Say when the config's queue.next names no route (DP7). ccfleet passes
+    none itself: the route a drain takes is whatever queue.next's own
+    arguments say (the example passes --route local), else the queue's own
+    default."""
+    nxt = (cfg.get("queue") or {}).get("next")
+    if nxt and not any("route" in str(a).lower() for a in nxt):
+        print("QUEUE ROUTE: queue.next names no route. ccfleet passes none itself, so which route a drain "
+              "takes is your queue's own default; every pass ccfleet starts is a local session. Pass it "
+              "in queue.next (the example: --route local).")
+
+
 def check(cfg, prompts, sets):
     """Print what the config resolves to, any permission widening, and the
     placeholders in the pass prompt (and each --prompt) that nothing fills.
@@ -3052,6 +3211,7 @@ def check(cfg, prompts, sets):
               "or confirm the sessions need only what the default allows (a repo's own settings aside).")
     check_settings(cfg)
     check_visibility(cfg)
+    check_queue_route(cfg)
     have = set(cfg["vars"]) | set(sets)
     # What fills a template depends on the command that launches it: `pass`
     # fills {ITEM} {BRIEF} {REVIEW_LOG}, and only ever for pass_prompt; a

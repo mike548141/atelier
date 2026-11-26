@@ -188,7 +188,7 @@ Every launch passes
 so no user-level settings file loads, and
 .B \-\-settings
 with
-.IR <kit_dir>/settings/<session>.json ,
+.IR <kit_dir>/settings/<session>.<pid>.json ,
 a file ccfleet writes: the user-level settings less their allow rules,
 default mode, extra directories and any hook that approves tool calls, with
 the config's
@@ -608,6 +608,11 @@ Before the seal it prints
 with the queue's refusal, ends with
 .BR "DRAIN EXIT: not sealed: no launches rehearsed" ,
 and exits 0: a rehearsal reports, it does not fail.
+A queue that cannot be run (exit 126 or 127), runs past its time limit, is
+killed by a signal, or fails after the rehearsal was offered a pick is a
+queue error, not an unsealed run: it ends with
+.B "DRAIN EXIT: queue error"
+and exit 1.
 After it, each rehearsed pick is printed as
 .BI "DRY rehearsed launch: " "repo item brief" .
 .TP
@@ -1186,16 +1191,22 @@ and a fold
 .B \-\-item
 .IR ITEM )
 finish a pass that started before it, so the reset does not stop them.
-A fold passes it only for a pass ccfleet saw start: the pass's result file
-under
-.IR <kit_dir>/results/ ,
-or a
+A fold passes it only for a pass ccfleet saw start in the fold's own
+worktree: the session log the pass's launch wrote, named for that
+worktree's folder
+.RI ( <kit_dir>/logs/<repo>\-<item>\-<HHMM>\-<YYYYMMDDTHHMMSS>.json ,
+written as its session starts, so a pass run by hand whose launcher was
+stopped counts), a session record naming the worktree, a
 .B START
 line for the label
 .I <repo>\-<item>
-in a drain's
-.IR <kit_dir>/logs/pass\-*.out ;
-any other fold after the reset is refused with exit 3.
+naming it in a drain's
+.IR <kit_dir>/logs/pass\-*.out ,
+or the pass's result file under
+.IR <kit_dir>/results/ ,
+written after the worktree was made.
+A pass on the same item in another worktree does not count.
+Any other fold after the reset is refused with exit 3.
 Whether to run either after the reset is the calling session's to decide:
 the principal's word is its to hold, and ccfleet checks none (see
 .BR THREATS ).
@@ -1377,8 +1388,15 @@ Called once with
 .B {BY}
 when a real drain that
 .B ranked
-let start ends, however it ends, so the queue can end this run's seal and
-a restarted drain plans and seals afresh.
+let start ends: when it ends by itself, on a ^C, or on a SIGTERM or SIGHUP
+to the driver (its passes are detached and run on), so the queue can end
+this run's seal and a restarted drain plans and seals afresh.
+A SIGKILL ends the driver before it can call it: the seal then holds until
+it lapses, and a drain restarted under the same
+.B \-\-by
+runs on that earlier ranking, so restart under a new
+.BR \-\-by ,
+or call the queue's own unseal first.
 A failure is logged and changes nothing else.
 .TP
 .B evidence
@@ -1483,8 +1501,16 @@ meets the same gate as a drain's.
 .IP \(bu 2
 .B next
 offers only what the sealed ranking routes to the local route, since every
-pass ccfleet launches is a local session (the example config passes
-.BR "\-\-route local" ),
+pass ccfleet launches is a local session (ccfleet passes no route itself:
+the config's
+.B queue.next
+does, as the example's
+.BR "\-\-route local" ,
+and
+.B check
+says
+.B QUEUE ROUTE
+when it names none),
 in rank order, then the stated spill: another route's review not yet
 started, but never from a budget that lapses before the local one, which
 keeps its reviews, and never one the seal marks not spillable.
@@ -1555,14 +1581,31 @@ or
 line in it that holds such a line (the fleet prompts, which put
 .B REPO:
 first).
+A line that is only a code fence is not counted as the last line, so a
+report fenced whole still ends on its verdict.
+When the text holds no other line that begins
+.BR RESULT: ,
+blank lines may stand between that line and its
+.B ITEM:
+line, and inside the fleet block.
 Any other line that begins
 .BR RESULT: ,
-an earlier or a later mention, gives no verdict, and two shaped verdicts
-that disagree give none; either reads as
+an earlier mention or one followed by more text, gives no verdict, and two
+shaped verdicts that disagree give none; either reads as
 .BR UNKNOWN .
+A clean verdict (in
+.BR queue.release_on )
+stands only when no other line that begins
+.B RESULT:
+names a word that is not clean, so a quoted, well-shaped
+.B DONE
+never outranks the session's own
+.B FAILED
+out of the shape.
 A
 .B queue.stop_on
-word on any such line is kept when no shaped verdict stands.
+word on such a line is kept only when no shaped verdict stands, so a
+quoted stop word after a shaped verdict does not halt a drain.
 Bold or backticks around it are ignored.
 A phrase in
 .B queue.release_on
@@ -1639,16 +1682,28 @@ and
 .B END
 lines (the
 .B END
-carries the exit code, the verdict, the session id, the models and the
-result path).
+carries the exit code, the verdict, the session id, the models, the review
+model, how the verdict was read and the result path).
 .B models=
 lists, comma-separated, every model the session's JSON log names in
 .B modelUsage
 (a hyphen when it names none): the orchestrator's own, and a reviewer's
 that ran on another model, so a pass's record shows the tier its reviewer
-ran on beside the
+ran on beside
+.BR review_model= ,
+the
 .B REVIEW_MODEL
-it was told.
+its prompt was filled with (a hyphen when the prompt names none).
+.B result_line=
+is
+.B in\-shape
+when a
+.B RESULT:
+line gave the verdict,
+.B out\-of\-shape
+when such lines stood but none gave one, and
+.B none
+when there was none.
 A pass whose only model is the orchestrator's spawned no reviewer on
 another tier.
 The result text is written to
@@ -1667,7 +1722,16 @@ A verdict in
 stops it; one in
 .B queue.release_on
 resets its count of bad ends;
+an
+.B UNKNOWN
+whose
+.B END
+says
+.B result_line=out\-of\-shape
+is logged and counted apart, not as a bad end (the session ran to its end
+and wrote a verdict; its claim and worktree stay for a resume);
 anything else counts one bad end, and three in a row stop it.
+The drain's last log line says how many ended out of shape.
 .SH FILES
 .TP
 .I <kit_dir>/logs/<label>-<HHMM>-<YYYYMMDDTHHMMSS>.json
@@ -1687,6 +1751,9 @@ before the date, and a resume's is
 What each child
 .B ccfleet
 printed, for a drive or a drain.
+A drain's is
+.IR pass\-<repo>\-<item>\-<YYYYMMDDTHHMMSS>.out ;
+an earlier ccfleet's carried the time of day only, and is still read.
 .TP
 .I <kit_dir>/results/<date>/
 One result file per label, per UTC day.
@@ -2013,7 +2080,8 @@ whose
 .B \-\-label
 is
 .I <repo>\-<item>
-writes a result file a fold would take as its pass's.
+writes a result file a fold would take as its pass's
+when it is written after the pass's worktree was made.
 .PP
 ccfleet's inliner and Claude Code part company in a private repo's session:
 an import inside an indented code block or a block HTML comment is inlined

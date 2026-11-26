@@ -7,6 +7,7 @@ import importlib.util
 import json
 import os
 import re
+import signal
 import subprocess
 import sys
 import tempfile
@@ -27,9 +28,10 @@ _loader.exec_module(cf)
 # `--output-format json` prints. With FAKE_TRANSCRIPT set, it writes its real
 # report (with the RESULT line) to a transcript under $CLAUDE_CONFIG_DIR and
 # prints a last turn with none, as a session woken by a background
-# notification does. FAKE_RC, FAKE_IS_ERROR, FAKE_SILENT (exit 1, print
-# nothing), FAKE_SLEEP, FAKE_DIRTY (an untracked file), FAKE_COMMIT (an
-# unpushed commit) and FAKE_RESULT_<REPO> shape the cut-off cases.
+# notification does. FAKE_REPORT replaces the whole final output. FAKE_RC,
+# FAKE_IS_ERROR, FAKE_SILENT (exit 1, print nothing), FAKE_SLEEP, FAKE_DIRTY
+# (an untracked file), FAKE_COMMIT (an unpushed commit) and
+# FAKE_RESULT_<REPO> shape the cut-off cases.
 FAKE_CLAUDE = textwrap.dedent("""\
     #!@PY@
     import datetime, json, os, subprocess, sys, time
@@ -60,6 +62,7 @@ FAKE_CLAUDE = textwrap.dedent("""\
         sys.exit(1)
     result = os.environ.get("FAKE_RESULT_" + base.upper(), os.environ.get("FAKE_RESULT", "DONE"))
     report = "did the work\\nREPO: " + base + "\\nRESULT: " + result
+    report = os.environ.get("FAKE_REPORT", report)  # a whole final output, shaped or not
     if os.environ.get("FAKE_TRANSCRIPT"):
         d = os.path.join(os.environ["CLAUDE_CONFIG_DIR"], "projects", "-enc-" + sid)
         os.makedirs(d, exist_ok=True)
@@ -769,11 +772,13 @@ class EndToEnd(unittest.TestCase):
         self.assertEqual(perms["allow"], ["Read"], "only the config's allow rules")
         for k in ("defaultMode", "additionalDirectories"):
             self.assertNotIn(k, perms)
-        self.assertEqual((perms["deny"], perms["ask"]), (["Bash(rm -rf /)"], ["Bash(git push:*)"]))
+        self.assertEqual((perms["deny"], perms["ask"]),
+                         (["Bash(rm -rf /)"] + cf.kit_denies(cf.load_config(self.cfgpath)), ["Bash(git push:*)"]))
         cmds = [h["command"] for g in got["hooks"]["PreToolUse"] for h in g["hooks"]]
         self.assertEqual(cmds, ["python3 /guards/secretguard.py"], "guard kept; approving and dropped hooks out")
         self.assertEqual(got["enabledPlugins"], {"house@house": True})
-        self.assertEqual(got["env"], {"HOUSE": "1", "FLEET": "1"})
+        self.assertEqual(got["env"], {"HOUSE": "1", "FLEET": "1", "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1"},
+                         "alpha is public: its auto memory is off (DP4)")
         self.assertEqual(got["effortLevel"], "high")
         instructions = call["files"]["--append-system-prompt-file"]
         self.assertIn("Never push to main on a Friday.", instructions)
@@ -794,7 +799,9 @@ class EndToEnd(unittest.TestCase):
         self.assertIn("--setting-sources project,local --settings", r.stdout)
         self.assertNotIn("--append-system-prompt-file", r.stdout, "no user CLAUDE.md, nothing appended")
         self.cli("run", "alpha", "--prompt", self.prompt)
-        self.assertEqual(json.loads(self.calls()[0]["files"]["--settings"]), {})
+        self.assertEqual(json.loads(self.calls()[0]["files"]["--settings"]),
+                         cf.merge_settings({"permissions": {"deny": cf.kit_denies(cf.load_config(self.cfgpath))}},
+                                           cf.NO_AUTO_MEMORY), "nothing of the user's; DP3's denies, DP4's switch")
 
     def test_an_unreadable_user_settings_file_refuses_before_any_start(self):
         d = self.env["CLAUDE_CONFIG_DIR"]
@@ -1496,9 +1503,11 @@ class RKLifecycle(unittest.TestCase):
         r = self.cli("pass", "beta", "010", "docs/brief.md",
                      env={**self.env, "FAKE_MODELS": "model-pass,model-review"})
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=model-pass,model-review out=")
+        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=model-pass,model-review "
+                                   r"review_model=- result_line=in-shape out=")
         r = self.cli("pass", "beta", "020", "docs/brief.md")
-        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=- out=")
+        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=- review_model=- "
+                                   r"result_line=in-shape out=")
 
     # ----- RK6 -----
 
@@ -1514,7 +1523,9 @@ class RKLifecycle(unittest.TestCase):
         (wt,) = self.worktrees()
         r = self.cli("resume", "beta", wt, "sess-beta", "--prompt", self.prompt, "--item", "030")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertIn(f"result=DONE session=sess-beta models=- out={res}", r.stdout)
+        # A resume's END line carries the same fields as a pass's (DP15, DP2).
+        self.assertIn(f"result=DONE session=sess-beta models=- review_model=- result_line=in-shape out={res}",
+                      r.stdout)
         text = rd(res)
         self.assertIn("result=DONE -->", text.splitlines()[0])
         self.assertIn("superseded", text)
@@ -1711,10 +1722,13 @@ class ResultWords(unittest.TestCase):
         self.assertEqual(rw("RESULT: FAILED\nITEM: a:b\nVERDICT: n/a\nNOTES: never RESULT: DONE"), "FAILED")
         self.assertEqual(rw("did the work\nREPO: x\nCOMMITS: none\nRESULT: DONE"), "DONE", "the fleet shape")
         self.assertEqual(rw("RESULT: FAILED\nmore\nRESULT: DONE\n"), "", "no shape line: no verdict")
-        self.assertEqual(rw("REPO: x\n\nRESULT: DONE"), "", "a blank line parts RESULT from its block")
+        # With another RESULT line in the text, a blank line still parts
+        # RESULT from its block (DP2 loosens this only for a lone one).
+        self.assertEqual(rw("- RESULT: SKIPPED was considered\n\nREPO: x\n\nRESULT: DONE"), "",
+                         "a blank line parts RESULT from its block")
         self.assertEqual(rw("RESULT: FAILED\nITEM: a\nNOTES: x\nRESULT: DONE was not reached"), "",
                          "two shaped verdicts that disagree are no verdict")
-        # A stop word is kept wherever it stands: stopping is the safe direction.
+        # A stop word is kept wherever it stands when no shaped verdict does.
         self.assertEqual(cf.result_word("note\nRESULT: BUDGET EXHAUSTED at act 1", self.known,
                                         stops=("BUDGET EXHAUSTED",)), "BUDGET EXHAUSTED")
         self.assertEqual(cf.result_word("note\nRESULT: BUDGET EXHAUSTED at act 1", self.known), "")
@@ -2377,7 +2391,8 @@ class RKImports(unittest.TestCase):
         self.assertIn("Read(/" + os.path.join(d, "CLAUDE-private.md") + ")", deny)
         r = self.cli("run", "beta", "--prompt", self.prompt)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertNotIn("deny", json.loads(self.calls()[-1]["files"]["--settings"]).get("permissions", {}),
+        self.assertEqual(json.loads(self.calls()[-1]["files"]["--settings"])["permissions"]["deny"],
+                         cf.kit_denies(cf.load_config(self.cfgpath)),
                          "a private repo's session reads the file inlined: no deny")
         out = self.cli("check").stdout
         self.assertNotIn("INSTRUCTIONS GUARD", out)
@@ -2432,7 +2447,8 @@ class RKImports(unittest.TestCase):
         self.assertEqual([f[2] for f in found], ["inlined"])
         self.assertTrue(text.startswith(shared[:-len("@a.md\n")]), text)
         _, public, found = self.expanded(shared, {"a.md": "A body\n"}, visibility="PUBLIC")
-        self.assertEqual(public, shared[:-len("@a.md\n")] + cf.WITHHELD_IMPORT,
+        self.assertEqual(public, shared.replace("See @a.md", "See " + cf.WITHHELD_TOKEN)[:-len("@a.md\n")]
+                         + cf.WITHHELD_IMPORT,
                          "only the import line is withheld; the text that is no import stays")
         self.assertEqual([f[2] for f in found], ["inlined"], "resolved, for the deny rule")
 
@@ -2595,6 +2611,277 @@ class Wave2(unittest.TestCase):
         out = self.cli("check", env={**self.env, "PATH": bin_dir + os.pathsep + self.env["PATH"]}).stdout
         self.assertIn("VISIBILITY MISMATCH: alpha is PUBLIC in the config and PRIVATE on the forge", out)
         self.assertNotIn("MISMATCH: beta", out)
+
+
+class DPReader(unittest.TestCase):
+    """210/630, the cold re-check's reader findings (DP2, DP6, and DP5's
+    M13): which final outputs give a verdict, read through result_word and
+    end to end through harvest on a clean JSON end."""
+    known = ("DONE", "SKIPPED", "BUDGET EXHAUSTED")
+    stops = ("BUDGET EXHAUSTED",)
+
+    # Every row of the review's probe table (DP2): the text, what the reader
+    # before this fix read (the PK4 reader), and what it reads now. Each
+    # "old" was seen by running the row against that reader.
+    FLEET = "did the work\nREPO: x\nCOMMITS: none\nCI: green\n"
+    PROBE = (
+        ("a fleet block inside a code fence", "Here it is:\n```\n" + FLEET + "RESULT: DONE\n```\n", "", "DONE"),
+        ("a fleet block in a tagged fence", "```text\n" + FLEET + "RESULT: DONE\n```", "", "DONE"),
+        ("a fleet block, a blank line before RESULT", FLEET + "\nRESULT: DONE", "", "DONE"),
+        ("a fleet block, blank lines between fields",
+         "REPO: x\n\nDONE: one\n\nCOMMITS: none\n\nRESULT: DONE\n", "", "DONE"),
+        ("a fleet block, a closing sentence after RESULT (kept out: a quoted block then prose reads the "
+         "same)", FLEET + "RESULT: DONE\n\nLet me know if you need more.", "", ""),
+        ("a fleet block, a multi-line field with a blank line",
+         "REPO: x\nOWED:\n- one\n\n- two\nRESULT: PARTIAL", "", "PARTIAL"),
+        ("the review shape, a blank line between RESULT and ITEM",
+         "RESULT: DONE\n\nITEM: r:i\nVERDICT: PASS\nNOTES: none", "", "DONE"),
+        ("the exact fleet shape", FLEET + "RESULT: DONE", "DONE", "DONE"),
+        ("the exact review shape", "RESULT: DONE\nITEM: r:i\nVERDICT: PASS", "DONE", "DONE"),
+        ("bold keys", "**REPO:** x\n**COMMITS:** none\n**RESULT:** DONE", "DONE", "DONE"),
+        ("CRLF", "REPO: x\r\nCOMMITS: none\r\nRESULT: DONE\r\n", "DONE", "DONE"),
+        ("trailing spaces", "REPO: x   \nRESULT: DONE   \n  \n", "DONE", "DONE"),
+        ("a reason on the line", "RESULT: SKIPPED NEEDS LIVE WRITE\nITEM: r:i", "SKIPPED", "SKIPPED"),
+    )
+
+    def rw(self, text):
+        return cf.result_word(text, self.known, self.stops)
+
+    def harvested(self, text):
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+            f.write(json.dumps({"session_id": "", "result": text}))
+        self.addCleanup(os.remove, f.name)
+        return cf.harvest(f.name, known=self.known, stops=self.stops)[2]
+
+    def test_dp2_every_row_of_the_probe_table(self):
+        for what, text, _old, new in self.PROBE:
+            self.assertEqual(self.rw(text), new, what)
+            self.assertEqual(self.harvested(text), new or "UNKNOWN", what)
+
+    def test_dp2_the_loosening_needs_the_one_result_line(self):
+        """The blank lines are allowed only with no other RESULT line in the
+        text, and a verdict is never read from a quote or the middle of a
+        block (PK4)."""
+        self.assertEqual(self.rw("- RESULT: SKIPPED was considered\n\nRESULT: DONE\n\nITEM: r:i"), "")
+        self.assertEqual(self.rw("- RESULT: SKIPPED was considered\n" + self.FLEET + "\nRESULT: DONE"), "")
+        self.assertEqual(self.rw("RESULT: DONE\n\nthen some words\nITEM: r:i"), "",
+                         "only blank lines may part RESULT from ITEM")
+        self.assertEqual(self.rw("I could not finish.\n\nRESULT: DONE once landed, it said"), "",
+                         "a lone last line with no ITEM or REPO line anywhere is no report")
+        self.assertEqual(self.rw("```\n" + self.FLEET + "RESULT: DONE\n```\nI did not finish."), "",
+                         "a fenced block followed by prose is a quote")
+
+    def test_m13_a_fleet_verdict_is_never_read_from_the_middle_of_a_block(self):
+        """DP5 M13: the fleet RESULT line must be the text's last line (a
+        closing fence aside). Mutant: drop that test, and these read DONE."""
+        for text in (self.FLEET + "RESULT: DONE\nOWED: none",
+                     self.FLEET + "RESULT: DONE\n\nOWED: none",
+                     "REPO: x\nRESULT: DONE\nBLOCKERS/INCIDENTS: the push was refused"):
+            self.assertEqual(self.rw(text), "", text)
+            self.assertEqual(self.harvested(text), "UNKNOWN", text)
+
+    def test_dp6_a_clean_word_stands_only_when_no_other_result_line_is_unclean(self):
+        """DP6, both shapes: a quoted, well-shaped DONE pair after the
+        session's own FAILED out of the shape (it read DONE), and a quoted
+        stop word after a shaped DONE (it halted the drain). Neither is
+        read now; each is UNKNOWN, which keeps the claim and does not halt."""
+        quoted_pair = ("RESULT: FAILED\n\nITEM: r:i\nNOTES: the brief's example said\n"
+                       "    RESULT: DONE\n    ITEM: r:i\n")
+        self.assertEqual(self.rw(quoted_pair), "")
+        self.assertEqual(self.harvested(quoted_pair), "UNKNOWN")
+        quoted_stop = ("RESULT: DONE\nITEM: r:i\nVERDICT: PASS\nNOTES: the reviewer's log said\n"
+                       "RESULT: BUDGET EXHAUSTED at act 1, then carried on")
+        self.assertEqual(self.rw(quoted_stop), "")
+        self.assertEqual(self.harvested(quoted_stop), "UNKNOWN")
+        # The controls: an unclean shaped word stands beside a clean mention;
+        # a clean one stands beside other clean ones; a stop word with no
+        # shaped verdict at all is still kept.
+        self.assertEqual(self.rw("RESULT: FAILED\nITEM: r:i\nNOTES:\nRESULT: DONE was not reached"), "")
+        self.assertEqual(self.rw("- RESULT: DONE was the aim\n\nRESULT: FAILED\nITEM: r:i"), "FAILED")
+        self.assertEqual(self.rw("- RESULT: SKIPPED was considered\n\nRESULT: DONE\nITEM: r:i"), "DONE")
+        self.assertEqual(self.rw("RESULT: BUDGET EXHAUSTED\nITEM: r:i\nNOTES: RESULT: DONE"), "BUDGET EXHAUSTED")
+        self.assertEqual(self.rw("stopped\nRESULT: BUDGET EXHAUSTED at act 1"), "BUDGET EXHAUSTED")
+
+    def test_dp2_result_line_tells_out_of_shape_from_missing(self):
+        rl = lambda t: cf.result_line(t, self.known, self.stops)
+        self.assertEqual(rl(self.FLEET + "RESULT: DONE"), "in-shape")
+        self.assertEqual(rl(self.FLEET + "RESULT: DONE\n\nThanks."), "out-of-shape")
+        self.assertEqual(rl("I could not finish."), "none")
+
+
+class DPFixes(unittest.TestCase):
+    """210/630, the cold re-check's ccfleet findings beyond the reader (DP2's
+    drain count, DP5's M4 and M10, DP7, DP13, DP15, DP17, DP20), on
+    EndToEnd's fixtures."""
+    setUp, tearDown = EndToEnd.setUp, EndToEnd.tearDown
+    write_cfg, cli, calls, worktrees = EndToEnd.write_cfg, EndToEnd.cli, EndToEnd.calls, EndToEnd.worktrees
+    ref_queue, ref, seal, GOOD, REF = RKGrant.ref_queue, RKGrant.ref, RKGrant.seal, RKGrant.GOOD, RKGrant.REF
+    queue_json, plan_cfg, new_wt = EndToEnd.queue_json, EndToEnd.plan_cfg, Wave2.new_wt
+    EVIDENCE, OWED = EndToEnd.EVIDENCE, EndToEnd.OWED
+    wait_for = RKLifecycle.wait_for
+
+    def fill_queue(self, n):
+        wr(os.path.join(self.tmp, "queue.txt"), "".join(f"beta {i:03d} docs/brief.md\n" for i in range(1, n + 1)))
+        wr(self.prompt, "Pass {ITEM}\n")
+
+    # ----- DP2: an out-of-shape verdict is not a bad end -----
+
+    def test_dp2_out_of_shape_ends_are_counted_apart_and_do_not_stop_the_drain(self):
+        self.fill_queue(4)
+        report = "REPO: beta\nCOMMITS: none\nRESULT: DONE\n\nThat is everything."
+        r = self.cli("drain", "--max", "1", env={**self.env, "FAKE_REPORT": report})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("DRAIN EXIT: queue empty", r.stdout, "four drifted ends are not three failures")
+        self.assertEqual(len(self.calls()), 4)
+        log = rd(os.path.join(self.tmp, "kit", "driver.log"))
+        self.assertEqual(log.count("result=UNKNOWN"), 4)
+        self.assertEqual(log.count("result_line=out-of-shape"), 4)
+        self.assertIn("(4 started, 4 ended with a RESULT out of shape)", log)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "release.log")), "no claim released")
+
+    def test_dp2_a_missing_result_is_still_a_bad_end(self):
+        self.fill_queue(4)
+        r = self.cli("drain", "--max", "1", env={**self.env, "FAKE_REPORT": "I stopped here."})
+        self.assertIn("DRAIN EXIT: failures", r.stdout)
+        self.assertEqual(len(self.calls()), 3)
+        log = rd(os.path.join(self.tmp, "kit", "driver.log"))
+        self.assertEqual(log.count("result_line=none"), 3)
+        self.assertIn("(3 started, 0 ended with a RESULT out of shape)", log)
+
+    # ----- DP15: the END line names the review model the session was told -----
+
+    def test_dp15_the_end_line_carries_the_told_review_model(self):
+        self.cfg["vars"]["REVIEW_MODEL"] = "model-review"
+        self.write_cfg()
+        wr(self.prompt, "Pass {ITEM}; spawn the reviewer on {REVIEW_MODEL}\n")
+        r = self.cli("pass", "beta", "010", "docs/brief.md", env={**self.env, "FAKE_MODELS": "model-pass"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=model-pass "
+                                   r"review_model=model-review result_line=in-shape out=")
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("pass", "beta", "020", "docs/brief.md")
+        self.assertRegex(r.stdout, r"\nEND \S+ rc=0 result=DONE session=\S+ models=- review_model=- "
+                                   r"result_line=in-shape out=", "a prompt that names no review model")
+
+    # ----- DP13 and DP5 M4: what counts as a started pass -----
+
+    def test_dp13_a_hand_run_pass_cut_off_before_its_end_is_folded_after_the_reset(self):
+        """A `ccfleet pass` run by hand whose launcher stopped before its END
+        has no result file and its START went to the terminal; its session
+        log, written at launch and named for its worktree, is the start."""
+        wr(self.prompt, "Pass {ITEM}\n")
+        r = self.cli("pass", "beta", "010", "docs/brief.md", env={**self.env, "FAKE_RESULT": "FAILED"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        (wt,) = self.worktrees()
+        for res in glob_all(os.path.join(self.tmp, "kit", "results")):
+            os.remove(res)  # as if its launcher stopped before the END
+        self.cfg["reset_utc"] = "2000-01-01T00:00"
+        self.write_cfg()
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "010")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("RESET reached", r.stdout)
+
+    def test_dp13_an_earlier_passs_result_file_does_not_start_a_new_worktree(self):
+        """The evidence is tied to the fold's worktree: an earlier pass's
+        result file on the same item, older than this worktree, is not it."""
+        res = os.path.join(self.tmp, "kit", "results", "2020-01-01", "beta-030.md")
+        os.makedirs(os.path.dirname(res))
+        wr(res, "<!-- session s rc=0 result=FAILED -->\nan earlier pass\n")
+        os.utime(res, (946684800, 946684800))
+        wt = self.new_wt("beta", folder="beta-030-0101")
+        self.cfg["reset_utc"] = "2000-01-01T00:00"
+        self.write_cfg()
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "030")
+        self.assertEqual(r.returncode, cf.EXIT_RESET, r.stdout + r.stderr)
+        self.assertIn(f"no pass on beta:030 started in {wt}", r.stdout)
+        self.assertEqual(self.calls(), [])
+        os.utime(res, None)  # the control: written after the worktree was made
+        r = self.cli("run", "beta", "--prompt", self.fold, "--in", wt, "--item", "030")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_m4_a_start_line_or_record_naming_the_worktree_is_a_start(self):
+        """DP5 M4: pass_started reads a drain's START lines (and, DP13, the
+        session records) for this worktree. Mutant: ignore START lines, and
+        the first assertion fails."""
+        kit = os.path.join(self.tmp, "kit")
+        cfg = {"kit_dir": kit}
+        wt = os.path.join(self.tmp, "wt", "elsewhere", "beta")
+        other = os.path.join(self.tmp, "wt", "another", "beta")
+        os.makedirs(os.path.join(kit, "logs"))
+        self.assertFalse(cf.pass_started(cfg, "beta-020", wt))
+        wr(os.path.join(kit, "logs", "pass-beta-020-20300101T120000.out"),
+           f"START 2030-01-01T12:00:00Z beta-020 model=m session=s wt={wt} log=/nowhere.json\n")
+        self.assertTrue(cf.pass_started(cfg, "beta-020", wt))
+        self.assertFalse(cf.pass_started(cfg, "beta-020", other), "a START in another worktree")
+        self.assertFalse(cf.pass_started(cfg, "beta-021", wt), "a START of another label")
+        os.makedirs(os.path.join(kit, "sessions"))
+        wr(os.path.join(kit, "sessions", "s2.pid"), f"99999999\t1\t2030-01-01T12:00:00Z\t{other}\n")
+        self.assertTrue(cf.pass_started(cfg, "beta-020", other), "a session record naming the worktree")
+
+    # ----- DP5 M10 and DP17: the drain's end and its seal -----
+
+    def test_m10_a_dry_drain_never_ends_the_seal(self):
+        """DP5 M10: a rehearsal leaves the real run's seal. Mutant: call
+        unseal on a dry drain too, and the seal is gone."""
+        self.ref_queue()
+        self.assertEqual(self.seal(self.GOOD).returncode, 0)
+        r = self.cli("drain", "--max", "1", "--dry-run")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("DRY rehearsed launch", r.stdout)
+        self.assertIsNotNone(json.loads(rd(self.state))["seal"])
+
+    def test_dp17_a_sigterm_to_the_driver_still_ends_its_seal(self):
+        self.ref_queue()
+        self.assertEqual(self.seal(self.GOOD).returncode, 0)
+        out = os.path.join(self.tmp, "drain.out")
+        with open(out, "w") as f:
+            p = subprocess.Popen([sys.executable, TOOL, "--config", self.cfgpath, "--by", "orch-1", "drain",
+                                  "--max", "1"], stdout=f, stderr=subprocess.STDOUT,
+                                 env={**self.env, "FAKE_SLEEP": "3"})
+        self.addCleanup(lambda: p.poll() is None and p.kill())
+        self.wait_for(lambda: self.calls(), "the first pass's session")
+        p.terminate()
+        self.assertEqual(p.wait(timeout=60), 128 + signal.SIGTERM)
+        self.assertIn("DRAIN EXIT: signal 15", rd(out))
+        self.assertIsNone(json.loads(rd(self.state))["seal"], "the driver's end ended its seal")
+        logs = os.path.join(self.tmp, "kit", "logs")
+        self.wait_for(lambda: any("END " in rd(os.path.join(logs, n)) for n in os.listdir(logs)
+                                  if n.startswith("pass-")), "the detached pass's end")
+        self.wait_for(lambda: not self.worktrees(), "the detached pass to put its worktree away")
+        time.sleep(1)  # its launcher's last lines, before tearDown removes the folder
+
+    def test_dp17_a_dry_drain_with_a_broken_queue_is_a_queue_error(self):
+        self.fill_queue(1)
+        for rc, code, says in (("1", 0, "DRAIN EXIT: not sealed"), ("127", cf.EXIT_SETUP, "DRAIN EXIT: queue error"),
+                               (str(cf.TIMEOUT_RC), cf.EXIT_SETUP, "DRAIN EXIT: queue error")):
+            r = self.cli("drain", "--max", "1", "--dry-run", env={**self.env, "FAKE_QUEUE_RC_NEXT": rc})
+            self.assertEqual(r.returncode, code, rc + r.stdout + r.stderr)
+            self.assertIn(says, r.stdout, rc)
+
+    # ----- DP7: check says when queue.next names no route -----
+
+    def test_dp7_check_says_when_queue_next_names_no_route(self):
+        self.assertIn("QUEUE ROUTE: queue.next names no route", self.cli("check").stdout)
+        self.ref_queue()  # the example's queue.next passes --route local
+        self.assertNotIn("QUEUE ROUTE", self.cli("check").stdout)
+
+    # ----- DP20: a drain's .out carries the date, and is still read -----
+
+    def test_dp20_a_drains_out_file_carries_the_date_and_the_history_reads_it(self):
+        self.fill_queue(1)
+        self.queue_json()
+        self.plan_cfg()
+        r = self.cli("drain", "--max", "1")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        names = [n for n in os.listdir(os.path.join(self.tmp, "kit", "logs")) if n.startswith("pass-")]
+        self.assertEqual(len(names), 1)
+        self.assertRegex(names[0], r"^pass-beta-001-\d{8}T\d{6}\.out$")
+        local = json.loads(self.cli("plan", "--json").stdout)["history"]["routes"]["local"]
+        self.assertEqual(local["passes_seen"], 1)
+
+
+def glob_all(root):
+    return [os.path.join(d, f) for d, _, fs in os.walk(root) for f in fs]
 
 
 if __name__ == "__main__":
