@@ -53,3 +53,15 @@ that row."*
   `210/620` forbids between a clean re-check and the drain; so the natural time is after it.
 - Step D of `450/010` row 2: the switch onto `/atelier:review plan` and `/atelier:review run`,
   between drains, never mid-drain, before 2026-11-29 23:00 UTC.
+
+## His answer and ruling at the close
+
+- Asked when to fix the `DP` findings, his pick (an answer): *"Fix all now, before Monday"*.
+- Asked whether to approve one more Fable re-check of those fixes, his ruling, verbatim: *"Given
+  the low severity of the findings I am ruling that * This code is ready to use for the drain so
+  we can continue to switch over to it * That we will fix the findings we know about * If those
+  fixes cause work that then requires another review we can decide if that review is run in the
+  interim or waits until the next drain, but I wont decide that until we have completed the
+  fixes"*. Queued the fixes as `210/630` and recorded the ruling there and on `450/010`
+  (`2f64d49a`). No re-check is approved. Order handed to him: the `210/630` fix session first,
+  then step D, so D's first-use dry run exercises the fixed code; both before the drain.
