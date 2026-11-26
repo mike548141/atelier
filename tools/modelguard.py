@@ -135,9 +135,11 @@ SUBCOMMANDS = {
 NO_SESSION_FLAGS = {"-h", "--help", "-v", "--version"}
 SESSION_FLAGS = {"-p", "--print", "-c", "--continue", "-r", "--resume", "--bg"}
 SHORT_SESSION_FLAGS = {"-p", "-c", "-r"}
-# `claude --help`, v2.1.302: long flags no common tool shares. After a head
-# this file does not know, one of these after a `claude` word marks a launch
-# even where `claude` is a short option's value (RK9).
+# `claude --help`, v2.1.302, saved whole as tools/fixtures/claude-help-2.1.302.txt:
+# its long flags no common tool shares. After a head this file does not know,
+# one of these after a `claude` word marks a launch even where `claude` is a
+# short option's value (RK9). Every long flag in that help is here or in
+# SHARED_LONG_FLAGS, and a test reads the saved help to hold it so (DP10).
 CLAUDE_LONG_FLAGS = {
     "--print", "--continue", "--resume", "--bg", "--add-dir", "--agent",
     "--agents", "--allow-dangerously-skip-permissions", "--allowed-tools",
@@ -151,6 +153,22 @@ CLAUDE_LONG_FLAGS = {
     "--system-prompt", "--teleport", "--remote-control",
     # PK13: in the v2.1.302 help, missing from the first cut of this table.
     "--settings", "--effort", "--background", "--worktree", "--tmux", "--bare",
+    # DP10: the rest of the v2.1.302 help, `[-file]` forms written out.
+    "--append-system-prompt-file", "--autocompact", "--ax-screen-reader",
+    "--betas", "--cloud", "--disable-slash-commands",
+    "--exclude-dynamic-system-prompt-sections", "--forward-subagent-text",
+    "--include-hook-events", "--permission-prompts", "--plugin-url",
+    "--prompt-suggestions", "--remote-control-session-name-prefix",
+    "--restricted", "--safe-mode", "--system-prompt-file",
+    "--system-prompt-snapshot", "--tools",
+}
+# Long flags in that help that other tools take too, so one after a `claude`
+# that is a short option's value does not make it a launch (`--model` is read
+# on its own; `--all` is a subcommand's).
+SHARED_LONG_FLAGS = {
+    "--help", "--version", "--verbose", "--debug", "--debug-file", "--name",
+    "--file", "--model", "--environment", "--brief", "--desktop", "--ide",
+    "--chrome", "--no-chrome", "--all",
 }
 # A short option cluster, or su's bare `-`: the word after it is its value.
 SHORT_OPT = re.compile(r"-[A-Za-z]*")

@@ -15,12 +15,14 @@ import importlib.util
 import io
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
 import unittest
 
 HOOK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modelguard.py")
+FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
 
 def nested(depth, inner="claude -p x"):
@@ -194,6 +196,14 @@ BYPASSES = [
     # DP9: past the depth limit, the binary named as a word, a path or a value
     nested(6, "~/.local/bin/claude -p x"),
     nested(6, "C=claude; $C -p x"),
+    # DP10: the claude-only long flags the table lacked (the full help is
+    # checked against the table in test_every_long_flag_in_the_help_is_placed)
+    'somewrapper -q claude --tools Bash x',
+    'somewrapper -q claude --safe-mode x',
+    'somewrapper -q claude --restricted x',
+    'somewrapper -q claude --cloud x',
+    'somewrapper -q claude --permission-prompts none x',
+    'somewrapper -q claude --append-system-prompt-file f x',
     # DP21: a print-named call that is not the language's own print runs its
     # argument: an attribute of another object, or a name the script rebinds
     'python3 -c "import os; os.warn = os.system; os.warn(\'claude -p x\')"',
@@ -428,6 +438,30 @@ class ModelGuard(unittest.TestCase):
         self.assertIn("--model", reason)
         self.assertIn("If no session was meant", reason)
         self.assertIn("short option", reason)
+
+    def test_every_long_flag_in_the_help_is_placed(self):
+        # DP10: the table says it is the `claude --help` snapshot. The help is
+        # saved whole beside these tests, named for its version; every long
+        # flag in it (a `[-file]` form written out) is in the table or in the
+        # stated list of flags other tools share, and nothing else is in either.
+        spec = importlib.util.spec_from_file_location("modelguard_flags", HOOK)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        saved = [f for f in os.listdir(FIXTURES) if f.startswith("claude-help-")]
+        self.assertEqual(len(saved), 1, saved)
+        version = saved[0][len("claude-help-"):-len(".txt")]
+        src = open(HOOK, encoding="utf-8").read()
+        self.assertIn("`claude --help`, v%s, saved whole as tools/fixtures/%s"
+                      % (version, saved[0]), src)
+        text = open(os.path.join(FIXTURES, saved[0]), encoding="utf-8").read()
+        flags = set()
+        for flag, more in re.findall(r"(--[A-Za-z][\w-]*)(\[-[\w-]+\])?", text):
+            flags.add(flag)
+            if more:
+                flags.add(flag + more[1:-1])
+        self.assertEqual(flags - mod.CLAUDE_LONG_FLAGS - mod.SHARED_LONG_FLAGS, set())
+        self.assertEqual((mod.CLAUDE_LONG_FLAGS | mod.SHARED_LONG_FLAGS) - flags, set())
+        self.assertEqual(mod.CLAUDE_LONG_FLAGS & mod.SHARED_LONG_FLAGS, set())
 
     def test_a_deny_is_well_formed(self):
         r = run(json.dumps({"tool_name": "Bash", "tool_input": {"command": 'claude -p "x"'}}))
