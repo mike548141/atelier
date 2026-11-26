@@ -191,6 +191,15 @@
         PASS-WITH-FINDINGS with **0 MAJOR** (5 MODERATE, 11 minor, 5 notes, `DP1`–`DP21`), so C's
         condition for D is met. D still waits on B (shed's `020/1040`). The `DP` findings are the
         principal's to rule; none is a precondition for D unless he says so.
+      - ⚖️ **His ruling 2026-11-25 ~21:45 UTC (session 01c055e5), verbatim:** *"Given the low
+        severity of the findings I am ruling that * This code is ready to use for the drain so we
+        can continue to switch over to it * That we will fix the findings we know about * If those
+        fixes cause work that then requires another review we can decide if that review is run in
+        the interim or waits until the next drain, but I wont decide that until we have completed
+        the fixes"*. So D is open and goes ahead; the `DP` fixes are `210/630`, built now, and
+        their review, if any, is his to time once they are done. 🚩 Fixes landing on the drain's
+        paths before the drain would run unreviewed in it: `210/630` says to land them before
+        D's first-use dry run or after the drain, never during it.
       If C or B misses the drain's start, D is skipped: that drain runs on
       `/fable-drain` and D waits for the gap after it. Each session's close hands
       the principal the prompt for the next step it is not barred from naming.

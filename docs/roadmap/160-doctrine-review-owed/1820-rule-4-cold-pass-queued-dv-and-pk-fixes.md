@@ -52,3 +52,7 @@
       finding is the principal's to rule; nothing is applied. The held copy of the sibling was
       deleted after the fold was checked byte for byte.
       🔓 2026-11-25 UTC: session 01c055e5 releases its claim.
+      💬 **Answered 2026-11-25 ~21:45 UTC (session 01c055e5, AskUserQuestion)**, his pick on when
+      to fix the findings: *"Fix all now, before Monday"*; then his ruling, verbatim, quoted in
+      full on `210/630`: *"This code is ready to use for the drain so we can continue to switch
+      over to it"*. Queued as `210/630`; step D of `450/010` row 2 goes ahead on this code.
