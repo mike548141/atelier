@@ -380,6 +380,23 @@ class TheReviewTextsStayInStep(unittest.TestCase):
             self.assertNotIn("skills/", text, name)
             self.assertNotIn("run.md", text, name)
 
+    def test_every_prompt_ccfleet_reads_states_the_readers_constraints(self):
+        """DP2: the reader takes a result only in its shape; the prompts said
+        "this shape" and nothing about fences, blank lines or what follows."""
+        fleet = ("task-prompt", "adopt-prompt", "brief-prompt", "worker-prompt")
+        for name in fleet:
+            flat = self.flat(f"skills/fleet/{name}.md")
+            self.assertIn("End your final message with the block below, as plain "
+                          "text: no code fence around it, no blank line inside it, "
+                          "nothing after its `RESULT:` line.", flat, name)
+        for name in ("orchestrator-prompt", "fold-prompt", "resume-prompt"):
+            flat = self.flat(f"skills/review/{name}.md")
+            self.assertRegex(flat, r"as plain text: no code fence around them, no "
+                             r"blank line among them, and the `?RESULT:?`? line "
+                             r"directly above the `?ITEM:?`? line", name)
+        shipped = {p.name for p in (SKILLS / "fleet").glob("*-prompt.md")}
+        self.assertEqual(shipped, {f"{n}.md" for n in fleet})
+
     def test_the_orchestrator_prompt_holds_the_reviewer_prompt(self):
         """DV7 M9: the reviewer's instructions live in the pass's own prompt."""
         text = (SKILLS / "review" / "orchestrator-prompt.md").read_text(encoding="utf-8")

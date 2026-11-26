@@ -93,7 +93,7 @@ THE REVIEWER PROMPT (fill it in; every bullet goes to the reviewer, in your own 
 - **How to finish**: verdict, tally, path, "ACT 1 SAVED"; act 2 ends "ACT 2
   SAVED".
 
-Final output (last lines, exactly this shape; the RESULT line holds one of the four results alone, and any reason goes in NOTES):
+Final output (last lines, exactly this shape; the RESULT line holds one of the four results alone, and any reason goes in NOTES). These lines end your output, as plain text: no code fence around them, no blank line among them, and the RESULT line directly above the ITEM line:
 RESULT: <DONE|SKIPPED|BUDGET EXHAUSTED|FAILED>
 ITEM: {REPO}:{ITEM}
 VERDICT: <verdict + tally, or n/a>

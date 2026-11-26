@@ -7,4 +7,4 @@ Then carry on from your original steps: commit act 1 if it is not committed, rel
 
 LANDING: {LANDING}
 
-If the limit hits again, stop at once, leave the claim and the worktree as they are, and report RESULT: BUDGET EXHAUSTED. Write a line beginning `RESULT:` or `ITEM:` only in the final output, nowhere earlier. Finish with the final output in your original prompt's exact shape: RESULT, ITEM, VERDICT, RULINGS OWED, COMMITS, NOTES.
+If the limit hits again, stop at once, leave the claim and the worktree as they are, and report RESULT: BUDGET EXHAUSTED. Write a line beginning `RESULT:` or `ITEM:` only in the final output, nowhere earlier. Finish with the final output in your original prompt's exact shape: RESULT, ITEM, VERDICT, RULINGS OWED, COMMITS, NOTES. These lines end your output, as plain text: no code fence around them, no blank line among them, and the RESULT line directly above the ITEM line.

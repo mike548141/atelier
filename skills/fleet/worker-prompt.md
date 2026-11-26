@@ -27,6 +27,8 @@ Repo-specific notes from the orchestrator: {NOTES}
 6. **Health suggestions:** anything else that would make this repo healthier and needs the principal's say, each with a one-line recommendation. Do not act on them.
 
 ## Final message (your whole report, plain text, this shape, under 40 lines)
+End your final message with the block below, as plain text: no code fence around it, no blank line inside it, nothing after its `RESULT:` line.
+
 REPO: {REPO}
 PIN: <old> -> <new> | pins.py: <current/identical or what failed>
 CONFORMANCE: <what changed, one line each>
