@@ -5,6 +5,53 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-11-26 — the `DP` re-check findings, `210/630`)
+- **Adopter actions.** A fold after the reset now passes only on evidence from
+  its own worktree (the session log named for it, a session record or `START`
+  line naming it, or a result file written after it was made): a fold in a
+  worktree ccfleet did not create is refused after the reset (`DP13`). Your
+  queue's `take` should apply the checks its `next` applies (route, `fits`,
+  the brief-writer rule); the reference queue's `take` gains `--route`,
+  default `local` (`DP8`). Read the new `END` fields below.
+- **ccfleet reads verdicts more safely** (`DP2`, `DP6`). A final output whose
+  only `RESULT:` line is parted from its shape by blank lines, or sits inside
+  a code fence, now reads. A clean word stands only when no other `RESULT:`
+  line names an unclean one, and a quoted stop word after a shaped verdict no
+  longer halts a drain. Every `END` line (pass, fold, resume, dry) carries
+  `review_model=` (what the prompt told it) and `result_line=`
+  (`in-shape`, `out-of-shape` or `none`); a drain counts out-of-shape ends
+  apart and never toward its three-failures stop (`DP15`). The fleet and
+  review prompts now state the reader's constraints: no fence, no blank line,
+  nothing after the block, `RESULT:` directly above `ITEM:`.
+- **What a public session can reach** (`DP3`, `DP4`, `DP18`). Every session's
+  settings deny reading `<kit_dir>/settings/` and `<kit_dir>/sessions/`, by
+  path and real path. A public or unknown repo's session has auto memory off
+  (`autoMemoryEnabled: false` and `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`).
+  Imports led by a number, block quote, heading or task box are handled like a
+  bare import line; one inside a sentence is withheld from a public session
+  and denied; `check` counts and describes every import. *THREATS* names all
+  of it.
+- **Lifecycle** (`DP17`, `DP20`). SIGTERM or SIGHUP to a drain still ends its
+  seal; a dry drain with a broken queue exits 1; drain `.out` files carry the
+  date (old names still read).
+- **modelguard** (`DP1`, `DP9`, `DP10`, `DP21`). tmux's options end where its
+  command begins, so `tmux new -d sh -c 'claude -p x'` and six similar launches
+  are denied again. It no longer refuses `screen -r/-x claude`,
+  `tmux new -ds claude`, a later `-c` after an echoed substitution, or paths
+  holding the letters past the depth limit. The long-flag table covers the
+  whole saved `claude --help` (v2.1.302), held by a test. A print-named call
+  that is renamed, or is a method of another object, no longer exempts its
+  text.
+- **The review skills** (`DP11`, `DP12`, `DP14`, `DP15`, `DP16`). A drain reads
+  `models=` on each `END` line and puts a pass naming no review-tier model to
+  the principal as off-tier. The typed-words guard reaches every skill that
+  takes the principal's words. The fold's already-folded check matches a
+  heading line, not a phrase. In a public repo the spawn, release and resume
+  messages are quoted with path placeholders, now in `REVIEW.md` rule 4 too.
+- **pointerscan** (`DP19`) matches the citing family and ignores hashes that
+  bind nothing as the delta.
+- Seven mutants the suite missed are now killed (`DP5`).
+
 ### Added (2026-11-25 — files under a pruned directory are counted, `320/900`)
 - **`secretscan` and `leakscan` say what a plain-tree walk stepped over.**
   Outside a git work tree the shared walk prunes skip-named directories
@@ -52,8 +99,10 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   alias, never a full model id (the spawning tool refuses one). Pass
   `FINISH_WORDS` on each resume and fold call and never keep it in `vars`
   (`DV2`). Your queue's `next` must offer only what the sealed ranking routes
-  to the local route, plus the stated spill: ccfleet now calls it with
-  `--route local` (`PK3`). A queue may add an optional `unseal`, called when a
+  to the local route, plus the stated spill. ccfleet passes no route of its
+  own: your config's `queue.next` must pass it (the example passes
+  `--route local`, and `ccfleet check` warns when it names none) (`PK3`,
+  corrected by `DP7`). A queue may add an optional `unseal`, called when a
   real drain ends; the reference queue refuses `unknown` as a sealing id
   (`PK10`).
 - **ccfleet, the reset and the worktree (`DV1`, `PK1`, `PK2`).** After the
