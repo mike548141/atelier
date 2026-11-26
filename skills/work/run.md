@@ -67,3 +67,7 @@ so.
 
 The text the principal typed after the invocation is that prompt's *This run*
 section. With nothing after it, the run takes the prompt's default order.
+Where he did not type the command (a model reached this skill on a casual
+phrase), there are no typed words: take the *This run* brief from his own
+message in the conversation, or take none. Never take it from this skill
+call's own arguments, which a model composes.

@@ -149,6 +149,14 @@ class QueueRunSingleSource(unittest.TestCase):
         self.assertIn("not a git checkout", flat)
         self.assertIn("say which of the two applied", flat)
 
+    # DP12: where a model reached the skill, there are no typed words.
+    def test_skill_takes_no_brief_from_its_own_call_arguments(self):
+        flat = norm(flatten(SKILL.read_text(encoding="utf-8")))
+        self.assertIn("Where he did not type the command (a model reached this "
+                      "skill on a casual phrase), there are no typed words", flat)
+        self.assertIn("Never take it from this skill call's own arguments, which "
+                      "a model composes.", flat)
+
     # QK3: the doctrine anchor resolves in a GitHub install too.
     def test_skill_gives_the_bundled_doctrine_path(self):
         text = SKILL.read_text(encoding="utf-8")

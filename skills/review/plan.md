@@ -76,7 +76,11 @@ commit, no seal. A plan is never a seal.
    words on an item); then importance, urgency (a real date first), the risk
    the review mitigates (credentials, public exposure, live or irreversible
    paths, money) and the value of the work it unlocks; a pass whose core needs
-   a live write last; a standing repo order breaks ties only.
+   a live write last; a standing repo order breaks ties only. Where he did
+   not type the command (a model reached this skill on a casual phrase), there
+   are no typed words: take his direction from his own message in the
+   conversation, or take none. Never take it from this skill call's own
+   arguments, which a model composes.
 3. **Route each one**, among the routes the principal has opened, only to a
    route that reaches local quality. When a budget's lapse is near, the route
    drawing the budget that lapses soonest goes first. When no lapse is near,
