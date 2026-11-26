@@ -42,7 +42,9 @@ on /fable-drain. At close, give me the exact prompt for the next step from that 
 ## Left open, for the principal
 
 - `160/1870`, approved, still to brief and run in its own session before the drain.
-- The disk floor: 11 GB free at the check against the drain gate's 20 GB.
+- The disk floor: 11 GB free at the check against the drain gate's 20 GB. Asked at the close, his
+  typed answer, verbatim: *"Ask me again from tomorrow evening"*: ask again from the evening of
+  Fri 2026-11-27 NZDT, before the drain (owed on `450/010` row 2).
 - The estate root's queue-change cold pass, queued there, unbriefed: his to time.
 - From the estate root's report: no meter-paced taper or heat gate in `ccfleet` (by hand
   through `<kit_dir>/max`, as its rulings say), and which words fill `FINISH_WORDS` for a resume

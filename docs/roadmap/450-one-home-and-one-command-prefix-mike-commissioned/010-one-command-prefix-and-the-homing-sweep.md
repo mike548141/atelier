@@ -245,6 +245,10 @@
         (the generator's `--min-disk`) at the drain's start. If `160/1870` finds a MAJOR whose
         fixes land before the drain, the first-use check is repeated on them.
       🔓 2026-11-26T05:20Z: session a2aeebc8 releases its claim on step D.
+      🎯 **Owed ask, the disk floor:** put to him at the close (session a2aeebc8, AskUserQuestion:
+      free disk to above 20 GB, lower the floor to 12 GB for this drain, or decide on Monday), his
+      typed answer, verbatim: *"Ask me again from tomorrow evening"*. So ask again from the evening
+      of Fri 2026-11-27 NZDT (about 05:00 UTC that day), before the drain starts.
       If C or B misses the drain's start, D is skipped: that drain runs on
       `/fable-drain` and D waits for the gap after it. Each session's close hands
       the principal the prompt for the next step it is not barred from naming.
