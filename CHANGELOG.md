@@ -15,7 +15,9 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   (`REVIEW.md` § *Whether work earns a review at all*).
 - **When a finding is fixed before use** (`REVIEW.md`, new section). An issue, its failure
   shown happening, is fixed before the work is next used; a risk becomes a low-priority
-  board item until evidenced, except an irreversible first occurrence or a silent failure.
+  board item until evidenced, except a risk that is irreversible, silent, grows with use,
+  is a security hole, or lands on someone else, each shown by a demonstration where one
+  is possible (`460/050`).
   A re-check of fixes is owed only after a pass with a MAJOR, and the chain stops at the
   first pass with none.
 

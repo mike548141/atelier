@@ -1,4 +1,4 @@
-- [ ] **Widen the kinds of risk fixed before use without evidence, and require a
+- [x] **Widen the kinds of risk fixed before use without evidence, and require a
       demonstration wherever one is possible** `[S][doctrine]`. Mike, 2026-11-26, after
       `460/020` landed, verbatim: *"I am interested if there are other exceptions we should
       add to the list of "irreversible harm and silent failures are always fixed before use""*.
@@ -13,3 +13,7 @@
       to this item's landing commit.
       🔒 CLAIMED 2026-11-26T21:15Z (claimed 2026-11-26-2115, wt: atelier-460-050) by session
       4ccec293 (`atelier-56`, Opus 5.5), principal-opened by `/atelier:work run`.
+      ✅ **Landed 2026-11-26.** `REVIEW.md` now lists five kinds of risk fixed before use
+      (irreversible, silent, grows with use, a security hole, harm to others), each shown by
+      a demonstration where one is possible, with shown reasoning only where the
+      demonstration would itself cause the harm. `160/1880`'s delta widened to this commit.

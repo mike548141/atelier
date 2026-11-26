@@ -728,18 +728,35 @@ weighs the finding. Otherwise it is a **risk**.
 - A risk becomes a board item at low priority that names the evidence which
   would raise it, and the work is used meanwhile (the `210/660` item is the
   worked shape). It is fixed when that evidence arrives.
-- Two kinds of risk are fixed before use all the same, because waiting for
-  evidence would mean waiting for the harm. This went beyond his words, so it
-  was put to him; his pick on 2026-11-26 was *"Keep both (Recommended)"* (an
-  answer to the repo's options, not his own wording). A risk whose first
-  occurrence is
-  itself irreversible: a publication, a leaked secret, money spent, data
-  deleted, anything the always-confirm floor stops. And a silent failure, which
-  normal use never shows: its evidence is a probe built to show it, and a probe
-  that shows it makes it an issue.
+- Some risks are fixed before use all the same, because waiting for evidence
+  would mean waiting for the harm. These went beyond his words, so they were
+  put to him as options, and the list is his picks of 2026-11-26 (answers, not
+  his own wording): *"Keep both (Recommended)"* for the first two, then *"Harm
+  that grows with use (Rec.)"*, *"Security holes, named (Rec.)"* and *"Harm to
+  others (Rec.)"* (`460/050`).
+  - **Irreversible:** a first occurrence that is itself the harm — a
+    publication, a leaked secret, money spent, data deleted, anything the
+    always-confirm floor stops.
+  - **Silent:** a failure normal use never shows, such as a check that reads
+    green while not checking.
+  - **Grows with use:** harm that can be undone, but at a cost that rises each
+    time the work runs — records written in a wrong shape, a rule or template
+    copied into every child repo, an interface others start to build on.
+  - **A security hole:** a wider grant than intended, a way round a login or a
+    check. An attacker would supply the evidence first, so "no breach yet" is
+    not the absence of proof.
+  - **Harm to others:** where being wrong lands on someone outside the
+    principal and his agents — a client's document, another person's data.
+
+  Each still needs a demonstration wherever one is possible: a test or a
+  constructed case that shows the failure happening, which makes it an issue
+  (his pick, *"Yes, where possible (Rec.)"*). Where the demonstration would
+  itself cause the harm, a real leak for one, reasoning shown in the decision
+  stands in. Without either, it is a risk like any other, so "it could be one
+  of these" never becomes a reason to fix everything before use.
 
 Severity alone does not decide it: a MAJOR with no proof is a risk like any
-other, unless it is one of those two kinds. The decision (lifecycle step 4)
+other, unless it is one of those kinds. The decision (lifecycle step 4)
 names each finding's class beside its tag. Where rule 3 puts the decision with
 the principal, the ask names each finding's class and recommends from this rule,
 and he decides.

@@ -46,3 +46,13 @@ Doctrine, so its own Fable review is queued for my approval, not run."*
   two kinds of risk fixed before use, *"Keep both (Recommended)"*; the 2026-07-13 stop binding
   code fixes, *"Apply to code too (Recommended)"*. Written into `REVIEW.md`; `160/1880` widened.
 - `160/1880`'s Fable pass: his to approve.
+
+## Addendum, 2026-11-26 ~21:10 UTC: more kinds of risk fixed before use (`460/050`)
+
+His question, verbatim: *"I am interested if there are other exceptions we should add to the list
+of "irreversible harm and silent failures are always fixed before use""*. Five candidates put to
+him with counsel; his picks (answers, not rulings): harm that grows with use, security holes
+named, harm to others, and a demonstration required wherever one is possible. Severity alone and
+reach alone were counselled against. Queued and claimed as `460/050` (`cc69cdf6`), written into
+`REVIEW.md`, folded into `160/1880`. Machine load was ~145 on 12 cores at the time (another
+session's work); this session's own load was one commit.
