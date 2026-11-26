@@ -16,6 +16,18 @@
       | Rule 3 + rule 4 override the self-verifying exemption for every tool | "self-verifying" weighed by no live pointer; 985, 987, 991, 992 | **Rule 3 decides who rules on findings, not whether a pass is owed.** A loud-failing fix to a reviewed tool its tests cover (a sort, a format, an output shape, a tightening that reds on misuse) is exempt. "Every child runs it" is reach, not grounds |
       | Passes scale with commits, not risk; re-check chains never stop | `ccclose` 8 passes, `ccfleet` 4, `board.py` 4; one run queued 14 in a day; 1450 → 1790 → 1820 | **One open pass per subject:** a change to a subject with an unrun `⏳` widens that pointer's delta instead of opening a new one. Say when a re-check is owed and when the chain stops |
 
+      **Added 2026-11-26 (session a2aeebc8, `atelier-51`): the same loop, from the fix side.**
+      His words, verbatim, on the drain code's chain (`160/1450` → `1800` → `1820` → `1870`):
+      *"I worry that we are stuck in a loop of review - fix --review -- fix without proof of actual
+      failures i.e. risks rather than issues"*. Asked when a finding should be fixed before the code
+      is used again, his typed answer, verbatim: *"Haven't I ruled on this in the past - I thought it
+      was written into the doctrine"*. It is not: `REVIEW.md` says when work earns a review and that
+      findings on doctrine are his to decide (rule 3), but nothing says when a finding is fixed
+      before use or when a re-check of fixes is owed; this item's fourth row is the nearest, and is
+      unbuilt. So this item also says when a finding is fixed before use (a proposal for him to
+      rule on: a MAJOR or a reproduced failure; the rest recorded until use shows them, as his
+      `210/660` answer did) and when fixes earn a re-check. His words decide it, not this text.
+
       **Where it lands:** `docs/method/REVIEW.md` (§ *Whether work earns a review at all*,
       rules 3 and 4, § *Review the design*'s review line), the compressed copies in
       `skills/review/brief.md` and the dispatch skeleton, and the `CONCURRENCY.md` landing
