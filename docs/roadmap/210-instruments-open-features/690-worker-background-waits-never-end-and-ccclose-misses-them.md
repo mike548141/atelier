@@ -55,4 +55,4 @@
       Why the floor misses it: it fails silent (a clean line reads the same as a blind spot),
       the tests use synthetic fixtures of a record shape the harness may change, and a
       still-running shell is indistinguishable from a legitimate one by the log alone.
-      Cold pass owed (the orchestrator queues the pointer).
+      Cold pass owed: queued as `160/1910`.

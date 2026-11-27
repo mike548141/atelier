@@ -30,7 +30,7 @@ line, so they overlap Open and Claimed.
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 127 | 0 | 73 | 34 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 128 | 0 | 73 | 35 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 273 | 2 | 102 | 35 |
+| **All sections** | 274 | 2 | 102 | 36 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -305,6 +305,7 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [Rule-4 cold pass queued: the bar before a pass is queued, and when a…](roadmap/160-doctrine-review-owed/1880-rule-4-cold-pass-queued-the-review-bar-and-fix-before-use.md)
 - [ ] ⏳ [Rule-4 cold pass queued: signscan accepts named commits by full id,…](roadmap/160-doctrine-review-owed/1890-rule-4-cold-pass-queued-signscan-accepted-exceptions.md)
 - [ ] ⏳ [Rule-4 cold pass queued: stampscan reads a child's stamp at the…](roadmap/160-doctrine-review-owed/1900-rule-4-cold-pass-queued-stampscan-reads-the-childs-pin.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccclose counts a subagent's background…](roadmap/160-doctrine-review-owed/1910-rule-4-cold-pass-queued-ccclose-reads-subagent-shells.md)
 
 ## build/ layer — open strands
 
