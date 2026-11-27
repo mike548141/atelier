@@ -53,7 +53,7 @@ line, so they overlap Open and Claimed.
 | ✅ [🔀 Concurrency doctrine stops at the repo edge — Mike-commissioned, 2026-08-23](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [🎭 The report can lie while the work is fine — 2026-08-23](roadmap/370-the-report-can-lie-while-the-work-is-fine/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [🔇 Silence read as an answer — 2026-08-24](roadmap/380-silence-read-as-an-answer/README.md) | 0 | 0 | 0 | 0 |
-| [Repo relationships beyond the parent/child tree (Mike commissioned, 2026-09-12)](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/README.md) | 1 | 0 | 1 | 0 |
+| [Repo relationships beyond the parent/child tree (Mike commissioned, 2026-09-12)](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/README.md) | 2 | 0 | 1 | 0 |
 | ✅ [Choosing among implementation mechanisms (Mike commissioned, 2026-09-16)](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [Sessions without a repo (Mike commissioned, 2026-09-29)](roadmap/410-sessions-without-a-repo-mike-commissioned/README.md) | 0 | 0 | 0 | 0 |
 | [When to ask — keeping work flowing (Mike commissioned, 2026-10-01)](roadmap/420-when-to-ask-mike-commissioned/README.md) | 2 | 0 | 2 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 278 | 0 | 103 | 36 |
+| **All sections** | 279 | 0 | 103 | 36 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -465,6 +465,7 @@ line, so they overlap Open and Claimed.
 
 *[Narrative](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/README.md)*
 
+- [ ] [No doctrine models a repo-to-repo relationship other than…](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/010-consumer-and-subject-cluster-relationships-have-no-model.md)
 - [ ] 🎯 [shed and client-data repos rely on an "always confirm" floor rule,…](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/020-shed-and-client-data-repos-rely-on-a-confirm-rule-not-a-control.md)
 
 ## When to ask — keeping work flowing (Mike commissioned, 2026-10-01)

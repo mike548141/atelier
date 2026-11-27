@@ -1,4 +1,4 @@
-- [x] 🎯 **No doctrine models a repo-to-repo relationship other than
+- [ ] **No doctrine models a repo-to-repo relationship other than
       doctrine-parent/child.**
   - [ ] 🔑 **Consumer-of-asset.** `REACH.md` § *The credential boundary*
         already distinguishes a "provisioning registry" and "per-consumer
@@ -33,3 +33,14 @@
   - [x] ✅ **DONE 2026-11-09 — APPLIED** by queue run 722ac2e2 (a Sonnet
         worker, read by the orchestrator before landing): one generic line in `PROPAGATION.md`. Cold pass
         queued as `160/1160`.
+  - [ ] 🔁 **REOPENED 2026-11-27 on the principal's pick**, put by a private child's
+        filing session in the question device (options and recommendation were that
+        session's), verbatim: *"Reopen 390/010"*. The option he picked read: *"atelier
+        models repo groups by subject in general (membership, primary, credential users,
+        dependencies), with record location as one part. One coherent model, but about
+        2–3× the design work and a bigger cold review, so it lands later. It reverses an
+        answer you approved on 2026-11-09."* He picked it over the recommended narrow
+        option (record location only). The 2026-11-09 answer above is superseded, kept as
+        history; the one generic `PROPAGATION.md` line stays until the model replaces it.
+        The record-location part is `320/960`; same root as `320/660`. Owed: a design,
+        then its cold pass. Applied by session a2097e54 (`atelier-b2`) on landing `320/960`.
