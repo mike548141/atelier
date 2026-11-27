@@ -1,4 +1,4 @@
-- [ ] **Judge every queued pass against the new bar and bring him one dequeue list**
+- [~] **Judge every queued pass against the new bar and bring him one dequeue list**
       `[S][ruling]`. Mike, 2026-11-25, verbatim: *"we need work to fix that on the board"*.
       Step 4 of `460/010`, split out.
       Once `460/020` lands, apply it to every owed pass in `160/` (step 1 counted about
@@ -12,3 +12,6 @@
       **Unblocked 2026-11-26:** `460/020` landed. The round also applies the new fix and
       re-check rule: a queued re-check of fixes whose pass returned no MAJOR (the drain
       code's chain after `RK`, `160/1870` among them) is a candidate to judge.
+      🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-0001, wt: atelier-qr-4ce0-dequeue)

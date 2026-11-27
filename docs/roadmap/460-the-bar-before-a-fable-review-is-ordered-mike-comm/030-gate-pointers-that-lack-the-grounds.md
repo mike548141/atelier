@@ -1,4 +1,4 @@
-- [ ] **Enforce the bar where a machine can: refuse a review pointer that lacks the
+- [~] **Enforce the bar where a machine can: refuse a review pointer that lacks the
       queue-time grounds** `[M][tool]`. Mike, 2026-11-25, verbatim: *"we need work to fix
       that on the board"*. Step 3 of `460/010`, split out.
       Step 1 found nothing checks a pointer's grounds today, so the bar in `460/020` would
@@ -23,3 +23,6 @@
       intent record the pointer links. "One open pass per subject" has two exceptions the
       gate must allow: the open pass is briefed, or the principal approved it on its own
       terms or ordered a pass of its own (the pointer names the open sibling).
+      🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-0001, wt: atelier-qr-4ce0-bargate)
