@@ -1815,9 +1815,10 @@ Exit codes: `0` always for findings — **warn-only, never blocking**, because i
 similarity threshold is honestly ungrounded and a check that cannot ground its
 constant may not red a build · `2` usage/config error.
 
-## `pointerscan.py` — the queued-review pointer, refs-only and true (advisory only)
+## `pointerscan.py` — the queued-review pointer, refs-only and true (advisory by default)
 
-Three detectors on one parse of `ROADMAP.md`'s queued-review pointers:
+Three detectors on one parse of `ROADMAP.md`'s queued-review pointers, and the
+review-bar gate for a new one (below):
 
 - **grammar** — a pointer that seeds the reviewer's first question steers the
   pass it is queuing, against the ceiling `ROADMAP.md` and `REVIEW.md` both
@@ -1841,6 +1842,25 @@ in the module docstring on the four recorded specimens, and it is the load-beari
 part: the marker glyph alone misses the specimen that was still live when this
 shipped. `harvestscan` imports that decision rather than keeping a second copy.
 
+**The review-bar gate (`460/030`).** A pointer that is *new* against a base revision
+(`--base`, default `HEAD`; an item the base did not hold as a pointer, or any open
+item newly added to a `160-` review-owed section) is flagged when the intent record
+it links (the links after its `Intent record` label; a link into `reviews/` is a
+verdict, not a record) carries neither the review bar's three answers nor a
+`review: not warranted — <grounds>` line. The answers are three labelled lines,
+`Commitment:`, `Worst failure:` and `Why the floor misses it:`, each with at least
+four words (`REVIEW.md` § *Whether work earns a review at all*); it checks an
+answer is there, never that it is good. It also flags a second pass on a subject
+that already has an open, unbriefed pointer (delta paths overlap), naming the
+pointer to widen, unless the new pointer names it. Existing pointers are never
+failed. These are `grammar` findings marked `[bar]`, so `pointerscan:allow:grammar:
+<reason>` exempts one (a pass the principal ordered carries his words there).
+The run always prints a `bar check:` line saying what it read against, or
+`NOT RUN` and why. `--staged` reads the index (every detector, the commit that
+is about to be); `--block` makes only a bar finding exit `1` (exit `2` when the
+gate could not run). The floor registry runs this tool with neither, so at the
+hook the gate **reports and blocks nothing** until that line is changed.
+
 It lints **no field into existence** anywhere — the 2026-07-18-0820 record
 rejected a lint demanding a review line under every roadmap heading, and
 `reviewscan` honours that refusal. This forbids content in one narrow,
@@ -1849,12 +1869,14 @@ self-identifying item type instead, which is a different rung.
 ```sh
 python3 tools/pointerscan.py --root . docs   # explicit — the floor's invocation
 python3 tools/pointerscan.py --json          # machine-readable
+python3 tools/pointerscan.py --staged --block docs   # the commit gate, not yet wired
 python3 tools/pointerscan.py --selftest      # prove the rules on the specimens
 ```
 
 Exit codes: `0` always for findings — **warn-only**; a pointer is fixable in the
-commit that writes it, which is the one moment the fix costs nothing · `2`
-usage/config error. Escape hatch: `pointerscan:allow: <reason>` anywhere in the
+commit that writes it, which is the one moment the fix costs nothing · `1` only
+under `--block`, for a bar finding · `2` usage/config error (and, under `--block`
+or `--staged`, no git base or index to read). Escape hatch: `pointerscan:allow: <reason>` anywhere in the
 item, or on a board file's first line for the whole file. Scoped to one detector,
 `pointerscan:allow:<detector>: <reason>` (`grammar`, `cycle` or `state`) exempts
 that detector only (`115/080`); a scope naming none of them exempts everything,

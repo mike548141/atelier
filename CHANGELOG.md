@@ -5,6 +5,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-27 — `pointerscan` checks the review bar on a new pointer, `460/030`)
+- **Adopter action.** Write the bar's three answers as labelled lines in the intent
+  record a new pointer links (`Commitment:`, `Worst failure:`, `Why the floor misses
+  it:`), or `review: not warranted — <grounds>` there. `pointerscan` now flags a pointer
+  new against `HEAD` whose linked record has neither, and a second open pass on a subject
+  that already has an unbriefed one (it names the pointer to widen). It reports only: the
+  floor still runs the tool warn-only, so nothing blocks until its registry line adds
+  `--staged --block`. Existing pointers are not failed.
+
 ### Added (2026-11-27 — the floor compares the two visibility declarations, `115/420`)
 - `floor.py`'s CI plane prints a `visibility-declared` line comparing the root
   `CLAUDE.md`'s `**Visibility:**` declaration with `.atelier-floor.json`'s `visibility`.

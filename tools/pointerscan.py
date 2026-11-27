@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """pointerscan — a queued-review pointer says only what it may, and only what is
-still true.
+still true, and a NEW one is queued on grounds.
 
 FOUR FAILURES, ONE PARSE
 ------------------------
@@ -61,6 +61,13 @@ under any heading. It reads a narrow, self-identifying item class and reports
 content that class is already forbidden to carry. A check that requires a field
 everywhere fires on every author; a check that forbids a phrase in one item type
 fires only on the failure.
+
+The bar gate below (460/030) does ask something of the pointer class: the
+intent record of a NEW queued pass must carry the review bar's answers. That is
+still not a demand under every heading. It fires only on the item class that is
+queuing a pass, only on what the commit adds, and a principal-ordered pass or a
+reasoned `review: not warranted` stands in. Whether that is the same rung the
+0820 record refused is the cold pass's question, not settled by this comment.
 
 Why not fold it into `sizescan` either: sizescan's unit is a file's weight and
 its harvest integrity. A child declaring `sizescan` advisory would silently
@@ -164,8 +171,64 @@ verdict it never links is invisible here. That is the price of refusing the
 title key, and it is the cheaper error — a missed warning, not a false one on
 every healthy edit.
 
-ADVISORY, ALWAYS
-----------------
+THE BAR GATE: A NEW PASS IS QUEUED ON GROUNDS (460/030)
+--------------------------------------------------------
+The review bar (`REVIEW.md` § *Whether work earns a review at all*) says a
+session answers three questions in the work's intent record before it queues a
+pass, or writes `review: not warranted — <grounds>` there instead, and that a
+subject with an unrun, unbriefed pass has that pointer widened rather than a
+second one opened. Nothing checked either, so the bar was one more judgement a
+session could skip. This is the check, and it reads only what is NEW, so no
+existing pointer is failed retroactively (460/040 handles those).
+
+  * WHAT IS NEW. An item is read as new when it queues a pass (a pointer, or
+    any non-`[x]` item in a `160-` review-owed section) and the base revision
+    (`--base`, default HEAD) did not hold it as a pointer. A file the base lacks
+    is all new; a renamed file is compared with its old path; a pointer whose
+    title was reworded while it stayed the file's only pointer is the same
+    pointer. Candidates come from the diff against the base, so an unchanged
+    pointer is never read.
+  * THE THREE ANSWERS, AS THE GATE READS THEM. The pointer stays refs only
+    (rule 4), so the answers are in the intent record it links. The gate follows
+    the markdown links after the pointer's `Intent record` label (a link into
+    `reviews/` is a verdict, not a record), and in a linked record looks for
+    three LABELLED lines, each at the start of a line (a list bullet and
+    emphasis are allowed): `Commitment:`, `Worst failure:` and `Why the floor
+    misses it:`, each followed by at least four words (an answer may wrap onto
+    the lines beneath it; a `<placeholder>` counts as nothing; a fenced example
+    is not read), OR a line `review: not warranted — <grounds>` with at least
+    three words of grounds. A record that carries either passes; this checks
+    that an answer EXISTS in a record the pointer names, never that it is a good
+    one, and never that it is about THIS work rather than another pass sharing
+    the record. A pass the principal ordered is owed whatever the answers, so
+    it carries his words in an allow-marker (`pointerscan:allow:grammar:
+    <reason>`), which is greppable.
+  * A SECOND POINTER. A new pointer whose delta paths (the backticked paths
+    after its `Delta` label, less the cross-cutting CHANGELOG and README
+    files) overlap those of an open, unbriefed pointer (the queued glyph, no
+    `brief written`, no landed verdict) is flagged (overlap: the same path, or
+    one inside the other; a bare top-level directory such as `tools` holds too
+    many subjects to count), naming the pointer to
+    widen, unless the new pointer names the open one by its board ref (the two
+    exceptions: the open pass is briefed, or the principal ordered this one on
+    its own terms). Subject is read as shared delta paths because that is what
+    can be read; a subject the paths do not show is not caught.
+  * SAME KIND, NOT A NEW KIND. These findings are `grammar` findings (PK21's
+    precedent: the kinds other tools pin stay three), marked `bar`, so a
+    `pointerscan:allow:grammar:` marker exempts them and the printed ID is
+    `pointerscan:grammar`.
+  * PLANES. By default the new check reads the working tree against the base,
+    like the rest of this tool, and only reports. `--staged` reads the INDEX
+    instead (the commit that is about to happen: every detector, not just this
+    one, so a sibling session's unstaged draft is nobody's business), and
+    `--block` makes a bar finding exit 1 (it is the only finding that ever
+    does). The floor's registry runs this tool warn-only with neither flag, so
+    until that line is changed the check reports at the commit hook and blocks
+    nothing; a check that cannot find a base says `NOT RUN` in its output (and
+    exits 2 under `--block`) rather than reading as a pass.
+
+ADVISORY, ALWAYS (but the bar gate under `--block`)
+----------------------------------------------------
 Findings exit 0. Every detector reads judgement-adjacent text and the honest
 posture is to warn at the one moment the fix is free: a pointer is fixable in
 the commit that writes it. A line carrying `pointerscan:allow: <reason>`
@@ -178,12 +241,16 @@ includes every file it exempts (PG2). The reviewer offered document-or-drop;
 documented, because a file-level scope has been in use since AM4.
 
 Exit codes:
-  0  scanned (clean or with findings — this never blocks)
-  2  environment error (a path that does not exist)
+  0  scanned (clean or with findings — this never blocks, but see --block)
+  1  only under --block: a new pointer fails the bar gate
+  2  environment error (a path that does not exist; under --block or --staged,
+     no git base or index to read)
 
 Usage:
   pointerscan --root . docs        scan the roadmaps under docs/
   pointerscan --root . .           scan the whole tree for roadmap files
+  pointerscan --staged --block ... the commit gate: index plane, bar gate blocks
+  pointerscan --base REV ...       what counts as new is what REV lacks
   pointerscan --json               machine-readable
   pointerscan --selftest           prove the rules on the recorded specimens
 """
@@ -192,7 +259,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import posixpath
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -349,6 +418,9 @@ class Finding:
     detector: str      # "grammar" | "cycle"
     reason: str
     excerpt: str
+    # True for a finding of the bar gate (a NEW pass queued without grounds, or
+    # a second open pass on one subject): the only findings `--block` fails on.
+    bar: bool = False
 
 
 @dataclass(frozen=True)
@@ -690,18 +762,138 @@ def roadmaps(paths: list[str], root: Path) -> list[Path]:
     return unique
 
 
+class GitError(Exception):
+    """git could not give this tool what it needs (no work tree, no such base,
+    no index). Carried to `main`, which exits 2: a scan that cannot read its
+    plane must not read as a pass."""
+
+
+def _git(root: Path, *args: str, check: bool = True) -> bytes:
+    """`git -C root <args>`, stdout bytes. Inherits the environment on purpose:
+    a hook runs with `GIT_INDEX_FILE` set, and the index read must come from
+    the same index the commit is made from."""
+    try:
+        r = subprocess.run(["git", "-C", str(root), *args],
+                           capture_output=True)
+    except OSError as e:
+        raise GitError(f"git cannot run: {e}") from e
+    if check and r.returncode != 0:
+        raise GitError(f"git {' '.join(args[:2])} failed: "
+                       f"{r.stderr.decode('utf-8', 'replace').strip()[:200]}")
+    return r.stdout if r.returncode == 0 else b""
+
+
+def _blob(root: Path, spec: str) -> str | None:
+    """One blob by git object spec (`:0:path` the index, `REV:path` a revision);
+    None when it does not exist there."""
+    try:
+        r = subprocess.run(["git", "-C", str(root), "cat-file", "blob", spec],
+                           capture_output=True)
+    except OSError as e:
+        raise GitError(f"git cannot run: {e}") from e
+    if r.returncode != 0:
+        return None
+    return r.stdout.decode("utf-8", "replace")
+
+
+def _blobs(root: Path, specs: list[str]) -> dict[str, str | None]:
+    """Many blobs through ONE `git cat-file --batch` (a board holds hundreds of
+    files, and a process per file is minutes); None for a spec that is not
+    there."""
+    if not specs:
+        return {}
+    try:
+        r = subprocess.run(["git", "-C", str(root), "cat-file", "--batch"],
+                           input="".join(s + "\n" for s in specs).encode(),
+                           capture_output=True)
+    except OSError as e:
+        raise GitError(f"git cannot run: {e}") from e
+    if r.returncode != 0:
+        raise GitError("git cat-file --batch failed: "
+                       + r.stderr.decode("utf-8", "replace").strip()[:200])
+    out: dict[str, str | None] = {}
+    data, pos = r.stdout, 0
+    for spec in specs:
+        eol = data.index(b"\n", pos)
+        head = data[pos:eol].split()
+        pos = eol + 1
+        if len(head) == 3 and head[1] == b"blob":
+            size = int(head[2])
+            out[spec] = data[pos:pos + size].decode("utf-8", "replace")
+            pos += size + 1
+        else:
+            out[spec] = None            # "<spec> missing"
+    return out
+
+
+def _is_roadmap_rel(rel: str) -> bool:
+    """The roadmap-file test `roadmaps()` applies, for a repo-relative path."""
+    p = Path(rel)
+    if not rel.endswith(".md") or any(x in SKIP_DIRS for x in p.parts[:-1]):
+        return False
+    return p.name in ROADMAP_NAMES or _in_board_dir(p)
+
+
+def _scope_specs(paths: list[str], root: Path) -> list[str]:
+    """The scan paths as repo-relative git pathspecs (an absolute path under
+    the root is made relative; one outside it names nothing here)."""
+    out: list[str] = []
+    for raw in paths:
+        p = Path(raw)
+        if p.is_absolute():
+            try:
+                p = p.resolve().relative_to(root.resolve())
+            except ValueError:
+                continue
+        out.append(posixpath.normpath(p.as_posix()))
+    return out
+
+
+def _check_work_tree(root: Path) -> None:
+    top = _git(root, "rev-parse", "--show-toplevel").decode().strip()
+    if Path(top).resolve() != root.resolve():
+        raise GitError("the root is not the top of a git work tree")
+
+
+def _iter_texts(paths: list[str], root: Path, staged: bool):
+    """(repo-relative path, text) for every roadmap file in scope: from the
+    working tree, or with `staged` from the INDEX (what the commit will hold).
+    Files that cannot be read are skipped, as they always were."""
+    if not staged:
+        for p in roadmaps(paths, root):
+            try:
+                text = p.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            try:
+                rel = p.resolve().relative_to(root.resolve()).as_posix()
+            except ValueError:
+                rel = p.as_posix()
+            yield rel, text
+        return
+    _check_work_tree(root)
+    listed = _git(root, "ls-files", "-z", "--", *(_scope_specs(paths, root)
+                                                  or ["."]))
+    rels = sorted(r for r in (x.decode("utf-8", "replace")
+                              for x in listed.split(b"\0") if x)
+                  if _is_roadmap_rel(r))
+    blobs = _blobs(root, [f":0:{r}" for r in rels])
+    for rel in rels:
+        text = blobs[f":0:{rel}"]
+        if text is not None:
+            yield rel, text
+
+
 def scan(paths: list[str], root: Path,
          suppressed: list[int] | None = None,
-         cov: dict | None = None) -> list[Finding]:
+         cov: dict | None = None,
+         staged: bool = False) -> list[Finding]:
     """`cov`, when given, is filled with what the scan looked at (115/130):
     `files` = roadmap files read, `items` = the items evaluated in them. A side
-    channel, so the return value callers compare keeps its shape."""
+    channel, so the return value callers compare keeps its shape. `staged`
+    reads the index copies instead of the working tree's (the hook plane)."""
     out: list[Finding] = []
-    for p in roadmaps(paths, root):
-        try:
-            text = p.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
+    for rel, text in _iter_texts(paths, root, staged):
         if cov is not None:
             cov["files"] = cov.get("files", 0) + 1
         if text.startswith(GENERATED_MARKS):
@@ -712,12 +904,405 @@ def scan(paths: list[str], root: Path,
                 suppressed.append(1)
             if allowmarker.is_blanket(file_scope, FINDING_KINDS):
                 continue
-        try:
-            rel = p.resolve().relative_to(root.resolve()).as_posix()
-        except ValueError:
-            rel = p.as_posix()
         out.extend(scan_text(text, rel, suppressed, file_scope, cov))
     return out
+
+
+# --- the bar gate (460/030) ---------------------------------------------------
+# See the module docstring, THE BAR GATE. Everything here reads only what is NEW
+# against a base revision.
+
+# The three answers the review bar asks of the work's intent record, as the
+# labels the gate reads (`REVIEW.md` § Whether work earns a review at all).
+BAR_ANSWERS = (("commitment", "Commitment"),
+               ("worst failure", "Worst failure"),
+               ("why the floor misses it", "Why the floor misses it"))
+BAR_MIN_WORDS = 4        # an answer shorter than this is a placeholder
+NOT_WARRANTED_MIN_WORDS = 3
+
+# Section directories whose every new item queues a pass (atelier's `160`).
+_REVIEW_OWED_DIR = re.compile(r"(?:^|/)160-[^/]+/[^/]+\.md$")
+# Cross-cutting files a change to almost anything also touches: sharing one of
+# these is not sharing a subject.
+_SHARED_SURFACES = frozenset({
+    "CHANGELOG.md", "README.md", "tools/README.md", "instruments/README.md",
+    "docs/ROADMAP.md", "docs/README.md"})
+
+_LEAD = r"^\s*(?:(?:[-+>]|\d+[.)])\s+)*"       # list bullets before a label
+_LABEL_RX = {key: re.compile(_LEAD + label + r"\s*:\s*(.*)$", re.I)
+             for key, label in BAR_ANSWERS}
+_NOT_WARRANTED_RX = re.compile(
+    _LEAD + r"review\s*:\s*not\s+warranted\s*(?:—|–|--?)\s*(.*)$", re.I)
+_BLOCK_STOP = re.compile(r"^\s*(?:[-+>#|]|\d+[.)]\s)")
+_PLACEHOLDER = re.compile(r"<[^>\n]*>")
+_WORD = re.compile(r"[A-Za-z0-9][\w'’-]*")
+_INTENT_LABEL = re.compile(r"intent\s+records?", re.I)
+_NEXT_LABEL = re.compile(r"\*\*[^*\n]{1,120}\*\*|\*[A-Za-z][^*\n]{0,60}:\*")
+_LINK = re.compile(r"\]\(\s*<?([^)\s>#]+)(?:#[^)\s]*)?>?(?:\s+\"[^\"]*\")?\s*\)")
+_DELTA_LABEL = re.compile(r"\bdelta\b", re.I)
+_BRIEFED = re.compile(r"\bbrief\s+written\b", re.I)
+_REF_PATH = re.compile(r"roadmap/(\d+)-[^/]+/(\d+)-[^/]+\.md$")
+
+
+def _record_lines(text: str) -> list[str]:
+    """A record's lines with fenced regions dropped (a quoted example is not an
+    answer) and emphasis marks removed, so `**Commitment:**` reads as
+    `Commitment:`. Backticks stay: a label in a code span is a mention."""
+    out: list[str] = []
+    in_fence = False
+    for line in text.splitlines():
+        if _FENCE.match(line):
+            in_fence = not in_fence
+            continue
+        if not in_fence:
+            out.append(re.sub(r"[*_]", "", line))
+    return out
+
+
+def _words(text: str) -> int:
+    return len(_WORD.findall(_PLACEHOLDER.sub(" ", text)))
+
+
+def _labelled(lines: list[str], rx: "re.Pattern[str]", minimum: int) -> bool:
+    """Does any line carry the label with at least `minimum` words after it,
+    counting the lines that wrap beneath it?"""
+    for i, line in enumerate(lines):
+        m = rx.match(line)
+        if not m:
+            continue
+        parts = [m.group(1)]
+        for nxt in lines[i + 1:]:
+            if (not nxt.strip() or _BLOCK_STOP.match(nxt)
+                    or _NOT_WARRANTED_RX.match(nxt)
+                    or any(r.match(nxt) for r in _LABEL_RX.values())):
+                break
+            parts.append(nxt.strip())
+        if _words(" ".join(parts)) >= minimum:
+            return True
+    return False
+
+
+def record_gaps(text: str) -> list[str]:
+    """What a record lacks of the bar: [] when it carries all three answers or
+    a `review: not warranted` line with grounds; else the answers it lacks."""
+    lines = _record_lines(text)
+    if _labelled(lines, _NOT_WARRANTED_RX, NOT_WARRANTED_MIN_WORDS):
+        return []
+    return [label for key, label in BAR_ANSWERS
+            if not _labelled(lines, _LABEL_RX[key], BAR_MIN_WORDS)]
+
+
+def intent_links(body: str, rel: str) -> list[str]:
+    """Repo-relative paths of the markdown records a pointer names as its
+    intent record: the links after each `Intent record` label, up to the next
+    label. A verdict (a link into `reviews/`), a URL and a non-`.md` target are
+    not records."""
+    text = strip_code(body)
+    out: list[str] = []
+    for lab in _INTENT_LABEL.finditer(text):
+        tail = text[lab.end():]
+        nxt = _NEXT_LABEL.search(tail)
+        region = tail[:nxt.start()] if nxt else tail
+        for target in _LINK.findall(region):
+            if "://" in target or not target.endswith(".md"):
+                continue
+            path = posixpath.normpath(
+                posixpath.join(posixpath.dirname(rel), target))
+            if (path.startswith("..") or path.startswith("/")
+                    or "/reviews/" in "/" + path):
+                continue
+            if path not in out:
+                out.append(path)
+    return out
+
+
+def _norm_path(tok: str) -> str | None:
+    """A backticked token as a comparable repo path, or None if it is not one."""
+    tok = tok.strip()
+    if not tok or " " in tok or "://" in tok or tok.startswith("<"):
+        return None
+    if re.fullmatch(r"\d+/\d+", tok) or ".." in tok:
+        return None
+    if "/" not in tok and not re.search(r"\.[A-Za-z0-9]{1,5}$", tok):
+        return None
+    if tok.startswith("./"):
+        tok = tok[2:]
+    tok = re.sub(r"(?:/\*\*?|/)$", "", tok).rstrip("*")
+    tok = tok.rstrip("/")
+    if not tok or tok in _SHARED_SURFACES:
+        return None
+    if tok.startswith(("docs/roadmap", "docs/reviews", "docs/sessions")):
+        return None
+    return tok
+
+
+def delta_paths(body: str) -> list[str]:
+    """The paths a pointer's delta names: backticked, from its `Delta` label to
+    its `Intent record` label (or the end)."""
+    m = _DELTA_LABEL.search(body)
+    if not m:
+        return []
+    raw = body[m.start():]
+    stop = _INTENT_LABEL.search(raw)
+    if stop:
+        raw = raw[:stop.start()]
+    out: list[str] = []
+    for tok in re.findall(r"`([^`\n]+)`", raw):
+        p = _norm_path(tok)
+        if p and p not in out:
+            out.append(p)
+    return out
+
+
+def _paths_overlap(a: str, b: str) -> bool:
+    """Do two delta paths name one subject? The same path, or one inside the
+    other. A bare top-level directory (`tools`, `skills`) holds every subject
+    in it, so it is too broad to make two passes one subject."""
+    if a == b:
+        return True
+    inner, outer = (a, b) if a.startswith(b + "/") else (b, a)
+    return inner.startswith(outer + "/") and "/" in outer
+
+
+def board_ref(rel: str) -> str | None:
+    """`160/1880` for `docs/roadmap/160-…/1880-….md`, or None."""
+    m = _REF_PATH.search(rel)
+    return f"{m.group(1)}/{m.group(2)}" if m else None
+
+
+def _item_key(body: str) -> str:
+    runs = _EMPH.findall(strip_code(body))
+    return " ".join((runs[0] if runs else body[:80]).lower().split())
+
+
+def _queues(item: "Item", fresh_owed: bool) -> bool:
+    """Does this item queue a pass? A pointer does; so does any open item newly
+    added to a review-owed section."""
+    if is_pointer(item.marker, item.body):
+        return True
+    return fresh_owed and item.marker.strip().lower() != "[x]"
+
+
+def new_items(cur: list["Item"], base: list["Item"] | None,
+              fresh_owed: bool) -> list["Item"]:
+    """The items of a file that queue a pass and that the base did not hold as a
+    pointer. `base` None means the file is new."""
+    queuing = [i for i in cur if _queues(i, fresh_owed and base is None)]
+    if base is None:
+        return queuing
+    base_ptrs = [i for i in base if is_pointer(i.marker, i.body)]
+    keys = {_item_key(i.body) for i in base_ptrs}
+    cur_ptrs = [i for i in cur if is_pointer(i.marker, i.body)]
+    out = []
+    for it in queuing:
+        if is_pointer(it.marker, it.body):
+            if _item_key(it.body) in keys:
+                continue
+            if len(base_ptrs) == 1 and len(cur_ptrs) == 1:
+                continue          # reworded, still the file's one pointer
+        out.append(it)
+    return out
+
+
+def open_unbriefed(item: "Item") -> bool:
+    """An open pass with no brief yet: the queued glyph still on, no verdict
+    landed, no brief written."""
+    if item.marker.strip().lower() == "[x]" or not is_pointer(item.marker,
+                                                              item.body):
+        return False
+    if not queued_state(item.marker, item.body):
+        return False
+    text = strip_code(item.body)
+    return not _LANDED.search(text) and not _BRIEFED.search(text)
+
+
+@dataclass
+class BarRun:
+    """What the bar gate did: it states whether it looked, so a run that could
+    not read a base never reads as a pass."""
+    ran: bool = False
+    note: str = ""
+    new_pointers: int = 0
+    base: str = ""
+    plane: str = ""
+    findings: list = None
+
+    def __post_init__(self):
+        if self.findings is None:
+            self.findings = []
+
+    def line(self) -> str:
+        if not self.ran:
+            return f"  bar check: NOT RUN — {self.note}"
+        return (f"  bar check: {self.new_pointers} new queued pass(es) read "
+                f"against {self.base} ({self.plane} plane)")
+
+
+def _changed_files(root: Path, base: str, staged: bool) -> dict[str, str | None]:
+    """Added or modified files (a rename maps to the path it came from) between
+    the base and the plane: {path: old path or None}."""
+    args = ["diff", "--name-status", "-z", "--find-renames",
+            "--diff-filter=AMR"]
+    if staged:
+        args.append("--cached")
+    raw = _git(root, *args, base, "--").split(b"\0")
+    changed: dict[str, str | None] = {}
+    i = 0
+    while i < len(raw) and raw[i]:
+        status = raw[i].decode("utf-8", "replace")
+        if status.startswith("R"):
+            old, new = (raw[i + 1].decode("utf-8", "replace"),
+                        raw[i + 2].decode("utf-8", "replace"))
+            changed[new] = old
+            i += 3
+        else:
+            changed[raw[i + 1].decode("utf-8", "replace")] = None
+            i += 2
+    if not staged:
+        for x in _git(root, "ls-files", "-z", "--others",
+                      "--exclude-standard").split(b"\0"):
+            if x:
+                changed.setdefault(x.decode("utf-8", "replace"), None)
+    return changed
+
+
+def bar_scan(paths: list[str], root: Path, *, base: str = "HEAD",
+             staged: bool = False,
+             suppressed: list[int] | None = None) -> BarRun:
+    """The bar gate over what is new against `base` (module docstring)."""
+    run = BarRun(base=base, plane="index" if staged else "working-tree")
+    if not base:
+        run.note = "no base revision given"
+        return run
+    try:
+        _check_work_tree(root)
+        if subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "--verify", "--quiet",
+                 base + "^{commit}"], capture_output=True).returncode != 0:
+            run.note = f"base `{base}` is not a commit here"
+            return run
+        changed = _changed_files(root, base, staged)
+        texts = dict(_iter_texts(paths, root, staged))
+        read = ((lambda rel: _blob(root, f":0:{rel}")) if staged else
+                (lambda rel: _read_worktree(root, rel)))
+        cand: list[tuple[str, "Item"]] = []
+        for rel, text in sorted(texts.items()):
+            if (rel not in changed or text.startswith(GENERATED_MARKS)
+                    or Path(rel).name == "README.md"):
+                continue            # a section's README is not a board item
+            old = changed[rel] or rel
+            base_text = _blob(root, f"{base}:{old}")
+            base_items = parse_items(base_text) if base_text is not None else None
+            fresh = base_text is None and bool(_REVIEW_OWED_DIR.search(rel))
+            for it in new_items(parse_items(text), base_items, fresh):
+                cand.append((rel, it))
+        run.ran = True
+        run.new_pointers = len(cand)
+        if not cand:
+            return run
+        siblings = _open_siblings(texts)
+        new_keys = {(rel, it.line) for rel, it in cand}
+        for rel, it in cand:
+            reasons = _bar_reasons(rel, it, read, siblings, new_keys)
+            file_scope = parse_allow(texts[rel].split("\n")[0])
+            scope = parse_allow(it.body)
+            excerpt = " ".join(it.body.split())[:120]
+            for reason in reasons:
+                if (allowmarker.covers(scope, "grammar", FINDING_KINDS)
+                        or allowmarker.covers(file_scope, "grammar",
+                                              FINDING_KINDS)):
+                    if suppressed is not None:
+                        suppressed.append(1)
+                    continue
+                run.findings.append(
+                    Finding(rel, it.line, "grammar", reason, excerpt, True))
+    except GitError as e:
+        run.ran = False
+        run.note = str(e)
+    return run
+
+
+def _read_worktree(root: Path, rel: str) -> str | None:
+    try:
+        return (root / rel).read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+
+
+def _open_siblings(texts: dict[str, str]) -> list[tuple[str, "Item", list[str]]]:
+    """Every open, unbriefed pointer in the plane that names delta paths."""
+    out = []
+    for rel, text in texts.items():
+        if text.startswith(GENERATED_MARKS) or Path(rel).name == "README.md":
+            continue
+        for it in parse_items(text):
+            if open_unbriefed(it):
+                paths = delta_paths(it.body)
+                if paths:
+                    out.append((rel, it, paths))
+    return out
+
+
+def _bar_reasons(rel: str, it: "Item", read, siblings, new_keys) -> list[str]:
+    reasons: list[str] = []
+    links = intent_links(it.body, rel)
+    if not links:
+        reasons.append(
+            "queues a pass but names no intent record by a markdown link "
+            "after an `Intent record` label — the review bar's three answers "
+            "(REVIEW.md, Whether work earns a review at all) live in that "
+            "record, so there is nowhere to read them")
+    else:
+        gaps: list[list[str]] = []
+        missing: list[str] = []
+        for path in links:
+            text = read(path)
+            if text is None:
+                missing.append(path)
+                continue
+            g = record_gaps(text)
+            if not g:
+                gaps = []
+                missing = []
+                break
+            gaps.append(g)
+        else:
+            if gaps:
+                best = min(gaps, key=len)
+                reasons.append(
+                    "its intent record carries neither the review bar's three "
+                    "answers nor `review: not warranted — <grounds>` "
+                    f"(no labelled answer for: {', '.join(best)}); write each "
+                    "as a line `Commitment:`, `Worst failure:` and `Why the "
+                    "floor misses it:` in the record, or the not-warranted "
+                    "line (a pass the principal ordered carries his words in "
+                    "a `pointerscan:allow:grammar:` marker)")
+            elif missing:
+                reasons.append(
+                    "the intent record it names was not found: "
+                    + ", ".join(missing))
+    mine = delta_paths(it.body)
+    if mine:
+        for srel, sit, spaths in siblings:
+            if srel == rel:
+                continue
+            if (srel, sit.line) in new_keys and (srel, sit.line) > (rel, it.line):
+                continue            # two new together: the later one is flagged
+            shared = [a for a in mine for b in spaths if _paths_overlap(a, b)]
+            if not shared:
+                continue
+            ref = board_ref(srel)
+            if (ref and re.search(r"(?<![\w/])" + re.escape(ref) + r"(?![\w/])",
+                                  it.body)) or Path(srel).name in it.body:
+                continue            # names the open sibling: an exception
+            reasons.append(
+                f"opens a second pass on a subject that already has an open, "
+                f"unbriefed one (`{ref or srel}`, sharing `{shared[0]}`): widen "
+                f"that pointer's delta instead; or name it here if it is "
+                f"briefed or the principal ordered this pass on its own terms "
+                f"(REVIEW.md, One open pass per subject)")
+            break
+    return reasons
 
 
 # --- the recorded specimens, as the selftest's fixtures ----------------------
@@ -900,6 +1485,30 @@ def _selftest() -> int:
     check("a further pass citing prior verdicts is not landed",
           [f.detector for f in scan_text(_SPEC_FURTHER_PASS)], [])
 
+    # --- the bar gate (460/030): the reading of a record, git-free ----------
+    answers = ("- **Commitment:** a gate that blocks every widget commit\n"
+               "- **Worst failure:** it reads green while checking nothing\n"
+               "- **Why the floor misses it:** the tests only run known cases\n")
+    check("a record with the three answers has no gaps",
+          record_gaps(answers), [])
+    check("a record with none lacks all three",
+          len(record_gaps("# nothing asked here\n")), 3)
+    check("one answer removed is the one named",
+          record_gaps(answers.replace("Worst failure", "Other")),
+          ["Worst failure"])
+    check("a not-warranted line with grounds stands in",
+          record_gaps("review: not warranted — a wording fix only\n"), [])
+    check("a placeholder answer is no answer",
+          record_gaps(answers.replace("a gate that blocks every widget commit",
+                                      "<what rests on it>")), ["Commitment"])
+    check("a link into reviews/ is not an intent record",
+          intent_links("**x.** *Intent record:* [v](../../reviews/v.md)",
+                       "docs/roadmap/160-a/010-b.md"), [])
+    check("an intent record link resolves from the pointer's directory",
+          intent_links("**x.** *Intent record:* [s](../../sessions/s.md)",
+                       "docs/roadmap/160-a/010-b.md"),
+          ["docs/sessions/s.md"])
+
     # --- hatch ---------------------------------------------------------------
     check("allow marker exempts",
           dets(_SPEC_INSTANCE_3.replace("Delta:",
@@ -925,6 +1534,17 @@ def main(argv: list[str] | None = None) -> int:
                     help="files or trees to scan (roadmaps within them)")
     ap.add_argument("--root", default=".", help="repo root")
     ap.add_argument("--json", action="store_true", help="machine-readable")
+    ap.add_argument("--staged", action="store_true",
+                    help="read the INDEX copy of every roadmap file (the "
+                         "commit about to be made), not the working tree; "
+                         "needs a git work tree at --root")
+    ap.add_argument("--base", default="HEAD",
+                    help="the revision the bar gate compares against: what it "
+                         "lacks is new (default HEAD)")
+    ap.add_argument("--block", action="store_true",
+                    help="exit 1 when a new pointer fails the bar gate (the "
+                         "only finding that ever blocks); exit 2 when the "
+                         "gate could not run")
     ap.add_argument("--selftest", action="store_true")
     args = ap.parse_args(argv)
 
@@ -944,15 +1564,29 @@ def main(argv: list[str] | None = None) -> int:
 
     _suppressed: list[int] = []
     cov: dict = {"files": 0, "items": 0}
-    findings = scan(paths, root, _suppressed, cov)
+    try:
+        findings = scan(paths, root, _suppressed, cov, staged=args.staged)
+    except GitError as e:
+        return report.broken("pointerscan", f"--staged cannot read the "
+                                            f"index: {e}")
+    bar = bar_scan(paths, root, base=args.base, staged=args.staged,
+                   suppressed=_suppressed)
+    findings = findings + bar.findings
+    blocking = [f for f in findings if f.bar]
+    rc = 0
+    if args.block:
+        rc = 2 if not bar.ran else (1 if blocking else 0)
 
     if args.json:
         print(json.dumps({"findings": report.finding_dicts(
             "pointerscan", findings, lambda f: f.detector),
             "coverage": report.coverage_dict(
-                cov["files"], cov["items"], unit_key="items_checked")},
+                cov["files"], cov["items"], unit_key="items_checked"),
+            "bar": {"ran": bar.ran, "note": bar.note, "base": bar.base,
+                    "plane": bar.plane, "new_pointers": bar.new_pointers,
+                    "blocking": args.block}},
             indent=2))
-        return 0
+        return rc
 
     if not findings:
         print("✓ pointerscan clean — every queued-review pointer is "
@@ -961,17 +1595,23 @@ def main(argv: list[str] | None = None) -> int:
         print(report.coverage_line(cov["files"], cov["items"],
                                    unit="item(s) checked",
                                    noun="roadmap file(s) opened"))
-        return 0
+        print(bar.line())
+        if args.block and not bar.ran:
+            print("  --block: the bar gate did not run, so this is not a "
+                  "pass.", file=sys.stderr)
+        return rc
 
-    grammar = [f for f in findings if f.detector == "grammar"]
+    grammar = [f for f in findings if f.detector == "grammar" and not f.bar]
     cycle = [f for f in findings if f.detector == "cycle"]
     state = [f for f in findings if f.detector == "state"]
+    barf = [f for f in findings if f.bar]
     print(f"⚠ pointerscan: {len(findings)} finding(s) in queued-review "
           f"pointers ({len(grammar)} grammar · {len(cycle)} cycle state · "
-          f"{len(state)} queue state).")
+          f"{len(state)} queue state · {len(barf)} review bar).")
     print()
     for f in findings:
-        print(report.with_id(f"  {f.path}:{f.line}  [{f.detector}] {f.reason}",
+        tag = "bar" if f.bar else f.detector
+        print(report.with_id(f"  {f.path}:{f.line}  [{tag}] {f.reason}",
                              "pointerscan", f.detector))
         print(f"      {f.excerpt}")
     print()
@@ -1002,17 +1642,38 @@ def main(argv: list[str] | None = None) -> int:
         print("  (board legend, 130/020). The commit that lands a verdict takes "
               "it off; a review")
         print("  still to run wears it, or the count misses it.")
+    if barf:
+        print("  REVIEW BAR. A new queued pass is queued on grounds: the intent "
+              "record the")
+        print("  pointer names carries lines `Commitment:`, `Worst failure:` "
+              "and `Why the floor")
+        print("  misses it:` (REVIEW.md, Whether work earns a review at all), "
+              "or `review: not")
+        print("  warranted — <grounds>`; and a subject with an open, unbriefed "
+              "pass has that")
+        print("  pointer widened, not a second one opened.")
     print()
-    print("  ADVISORY ONLY — this never fails a build. A pointer is fixable "
-          "in the commit")
-    print("  that writes it, which is the one moment the fix costs nothing. "
-          "Genuinely fine?")
-    print(f"  Put `{ALLOW_MARKER} <reason>` in the item.")
+    if args.block:
+        print("  BLOCKING (--block): a new pointer that fails the review bar "
+              "fails the commit;")
+        print("  every other finding above stays advisory.")
+    else:
+        print("  ADVISORY ONLY — this never fails a build. A pointer is "
+              "fixable in the commit")
+        print("  that writes it, which is the one moment the fix costs "
+              "nothing. Genuinely fine?")
+    print(f"  Put `{ALLOW_MARKER} <reason>` in the item"
+          + (" (`pointerscan:allow:grammar:` for a bar finding)."
+             if barf else "."))
     # 115/130: the findings path says what it covered too, not only a clean run.
     print(report.coverage_line(cov["files"], cov["items"],
                                unit="item(s) checked",
                                noun="roadmap file(s) opened"))
-    return 0
+    print(bar.line())
+    if args.block and not bar.ran:
+        print("  --block: the bar gate did not run, so this is not a pass.",
+              file=sys.stderr)
+    return rc
 
 
 if __name__ == "__main__":

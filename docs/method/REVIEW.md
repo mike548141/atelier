@@ -664,6 +664,13 @@ pointer stays refs only, rule 4, and names that record):
    it" is reach, not an answer: reach spreads a loud failure to more places,
    where the floor still catches it.
 
+Each answer goes on a line of its own in the record, labelled `Commitment:`,
+`Worst failure:` and `Why the floor misses it:` (a list bullet and bold are
+fine; an answer may wrap), because that is the shape `pointerscan` reads: a
+new pointer whose linked record has no such line, or no `review: not warranted`
+line, is flagged. The gate checks that an answer is there, not that it is a
+good one.
+
 **No answer to the third, no pass.** The record carries `review: not warranted
 — <grounds>` instead, naming what catches the failure. Queuing now needs written
 grounds, as declining always did (*Review the design* below), so neither is the

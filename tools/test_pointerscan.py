@@ -685,3 +685,467 @@ class BoundedMemory(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# --- the bar gate (460/030) --------------------------------------------------
+# A gate that reads green while it checks nothing is the worst failure here, so
+# every "passes" leg below has a "flagged" twin built from the same fixture with
+# one thing taken away.
+
+GOOD_RECORD = (
+    "# A session record\n\n"
+    "- **Commitment:** a gate that blocks every commit touching widget rules\n"
+    "- **Worst failure:** the gate reads green while it checks nothing at all\n"
+    "- **Why the floor misses it:** the tests only run the cases the author "
+    "imagined\n")
+
+BOARD = "docs/roadmap/160-doctrine-review-owed"
+
+
+def pointer(rec="../../sessions/rec.md", delta="`tools/widget.py`",
+            title="the widget", extra="", marker=None):
+    marker = Q if marker is None else marker
+    return (f"- [ ] {marker} **Rule-4 cold pass queued: {title}.** The authoring "
+            "session queues this and does not take it.\n"
+            "      *Tier:* Fable, the principal-named review tier.\n"
+            f"      *Delta, scoped to paths:* {delta}: the commit that closes "
+            "`999/001`.\n"
+            f"      *Intent record:*\n      [`rec`]({rec}).\n{extra}")
+
+
+class _Repo:
+    """A throwaway git repo with one base commit."""
+
+    def __init__(self):
+        self.root = Path(tempfile.mkdtemp()).resolve()
+        self.env = {"GIT_CONFIG_GLOBAL": "/dev/null",
+                    "GIT_CONFIG_SYSTEM": "/dev/null",
+                    "PATH": "/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin",
+                    "HOME": str(self.root)}
+        self.git("init", "-q", "-b", "main")
+        self.write("README.md", "base\n")
+        self.commit()
+
+    def git(self, *args):
+        return subprocess.run(
+            ["git", "-C", str(self.root), "-c", "user.name=t",
+             "-c", "user.email=tester", "-c", "commit.gpgsign=false",
+             *args], check=True, capture_output=True, env=self.env)
+
+    def write(self, rel, text):
+        p = self.root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding="utf-8")
+
+    def commit(self):
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", "c")
+
+    def stage(self, *rels):
+        self.git("add", "--", *rels)
+
+    def cleanup(self):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+
+class BarGateBase(unittest.TestCase):
+    def setUp(self):
+        self.repo = _Repo()
+        self.addCleanup(self.repo.cleanup)
+        # An unrelated existing pointer, committed with NO answers anywhere:
+        # existing pointers are never failed retroactively.
+        self.repo.write("docs/sessions/old.md", "# an old record\n")
+        self.repo.write(f"{BOARD}/001-old.md",
+                        pointer("../../sessions/old.md",
+                                delta="`tools/legacy.py`", title="legacy"))
+        self.repo.commit()
+
+    def run_bar(self, staged=False, **kw):
+        return pointerscan.bar_scan(["docs"], self.repo.root, staged=staged,
+                                    **kw)
+
+    def add(self, name="010-new.md", rec_text=GOOD_RECORD, **ptr):
+        if rec_text is not None:
+            self.repo.write("docs/sessions/rec.md", rec_text)
+        self.repo.write(f"{BOARD}/{name}", pointer(**ptr))
+        return f"{BOARD}/{name}"
+
+    def reasons(self, run):
+        return [f.reason for f in run.findings]
+
+
+class BarAnswersTest(BarGateBase):
+    def test_a_new_pointer_whose_record_has_the_answers_passes(self):
+        self.add()
+        run = self.run_bar()
+        self.assertTrue(run.ran, run.note)
+        self.assertEqual(run.new_pointers, 1)
+        self.assertEqual(run.findings, [])
+
+    def test_the_same_pointer_with_the_answers_removed_is_flagged(self):
+        self.add(rec_text="# A session record\n\nNothing was asked here.\n")
+        run = self.run_bar()
+        self.assertEqual(len(run.findings), 1)
+        f = run.findings[0]
+        self.assertTrue(f.bar)
+        self.assertEqual(f.detector, "grammar")
+        self.assertIn("Commitment", f.reason)
+        self.assertIn("Why the floor misses it", f.reason)
+
+    def test_one_missing_answer_is_named(self):
+        text = GOOD_RECORD.replace("Worst failure", "Something else")
+        self.add(rec_text=text)
+        (f,) = self.run_bar().findings
+        self.assertIn("for: Worst failure", f.reason)
+        self.assertNotIn("Commitment,", f.reason)
+
+    def test_not_warranted_with_grounds_passes(self):
+        self.add(rec_text="review: not warranted — a wording correction that "
+                          "adds no rule\n")
+        self.assertEqual(self.run_bar().findings, [])
+
+    def test_not_warranted_with_no_grounds_is_flagged(self):
+        self.add(rec_text="review: not warranted —\n")
+        self.assertEqual(len(self.run_bar().findings), 1)
+
+    def test_a_placeholder_is_not_an_answer(self):
+        text = GOOD_RECORD.replace(
+            "a gate that blocks every commit touching widget rules",
+            "<what rests on it>")
+        self.add(rec_text=text)
+        (f,) = self.run_bar().findings
+        self.assertIn("Commitment", f.reason)
+
+    def test_a_very_short_answer_is_not_an_answer(self):
+        self.add(rec_text=GOOD_RECORD.replace(
+            "the tests only run the cases the author imagined", "none"))
+        (f,) = self.run_bar().findings
+        self.assertIn("Why the floor misses it", f.reason)
+
+    def test_an_answer_may_wrap_onto_the_next_line(self):
+        text = GOOD_RECORD.replace(
+            "- **Commitment:** a gate that blocks every commit touching widget "
+            "rules", "- **Commitment:** a gate\n  that blocks every commit\n")
+        self.add(rec_text=text)
+        self.assertEqual(self.run_bar().findings, [])
+
+    def test_a_fenced_example_is_not_an_answer(self):
+        self.add(rec_text="```\n" + GOOD_RECORD + "```\n")
+        self.assertEqual(len(self.run_bar().findings), 1)
+
+    def test_a_label_in_a_code_span_is_a_mention_not_an_answer(self):
+        text = GOOD_RECORD.replace("- **Commitment:**", "- `Commitment:`")
+        self.add(rec_text=text)
+        (f,) = self.run_bar().findings
+        self.assertIn("Commitment", f.reason)
+
+    def test_a_plain_unbulleted_label_line_counts(self):
+        self.add(rec_text="Commitment: a rule others will follow for years\n"
+                          "Worst failure: the rule is wrong and nobody sees it\n"
+                          "Why the floor misses it: it fails silent in use\n")
+        self.assertEqual(self.run_bar().findings, [])
+
+    def test_a_pointer_naming_no_intent_record_is_flagged(self):
+        self.repo.write(f"{BOARD}/010-new.md",
+                        pointer().replace("*Intent record:*", "*Record:*"))
+        (f,) = self.run_bar().findings
+        self.assertIn("names no intent record", f.reason)
+
+    def test_an_intent_record_that_does_not_exist_is_flagged(self):
+        self.add(rec_text=None, rec="../../sessions/nope.md")
+        (f,) = self.run_bar().findings
+        self.assertIn("not found", f.reason)
+
+    def test_a_link_into_reviews_is_a_verdict_not_a_record(self):
+        self.repo.write("docs/reviews/v.md", GOOD_RECORD)
+        self.add(rec_text=None, rec="../../reviews/v.md")
+        (f,) = self.run_bar().findings
+        self.assertIn("names no intent record", f.reason)
+
+    def test_any_one_named_record_with_the_answers_is_enough(self):
+        self.repo.write("docs/sessions/rec.md", GOOD_RECORD)
+        self.repo.write(f"{BOARD}/010-new.md", pointer().replace(
+            "[`rec`](../../sessions/rec.md)",
+            "[`a`](../../sessions/other.md), [`b`](../../sessions/rec.md)"))
+        self.repo.write("docs/sessions/other.md", "# nothing\n")
+        self.assertEqual(self.run_bar().findings, [])
+
+
+class BarNewnessTest(BarGateBase):
+    def test_an_existing_pointer_without_answers_is_not_failed(self):
+        run = self.run_bar()
+        self.assertTrue(run.ran)
+        self.assertEqual((run.new_pointers, run.findings), (0, []))
+
+    def test_editing_an_existing_pointer_does_not_make_it_new(self):
+        p = self.repo.root / BOARD / "001-old.md"
+        p.write_text(p.read_text() + "      🔒 CLAIMED by a session.\n")
+        run = self.run_bar()
+        self.assertEqual((run.new_pointers, run.findings), (0, []))
+
+    def test_rewording_the_only_pointer_does_not_make_it_new(self):
+        p = self.repo.root / BOARD / "001-old.md"
+        p.write_text(p.read_text().replace("legacy", "an older name"))
+        self.assertEqual(self.run_bar().new_pointers, 0)
+
+    def test_a_renamed_pointer_is_compared_with_its_old_path(self):
+        self.repo.git("mv", f"{BOARD}/001-old.md", f"{BOARD}/002-old.md")
+        self.assertEqual(self.run_bar(staged=True).new_pointers, 0)
+
+    def test_an_item_that_becomes_a_pointer_is_new(self):
+        self.repo.write("docs/roadmap/450-x/010-plain.md",
+                        "- [ ] **Plain work.** Nothing queued.\n")
+        self.repo.commit()
+        self.repo.write("docs/roadmap/450-x/010-plain.md",
+                        pointer(rec="../../sessions/missing.md"))
+        run = self.run_bar()
+        self.assertEqual(run.new_pointers, 1)
+        self.assertEqual(len(run.findings), 1)
+
+    def test_a_new_item_in_a_review_owed_section_queues_a_pass(self):
+        self.repo.write(f"{BOARD}/010-plain.md",
+                        "- [ ] **A cold pass of the thing.** No glyph here.\n")
+        run = self.run_bar()
+        self.assertEqual(run.new_pointers, 1)
+        self.assertEqual(len(run.findings), 1)
+
+    def test_a_completed_item_in_a_review_owed_section_is_not_a_pass(self):
+        self.repo.write(f"{BOARD}/010-done.md",
+                        "- [x] **A pass that ran.** Verdict landed.\n")
+        self.assertEqual(self.run_bar().new_pointers, 0)
+
+    def test_a_new_plain_item_elsewhere_is_not_a_pass(self):
+        self.repo.write("docs/roadmap/450-x/010-plain.md",
+                        "- [ ] **Plain work.** Nothing queued.\n")
+        self.assertEqual(self.run_bar().new_pointers, 0)
+
+    def test_the_allow_marker_exempts_a_bar_finding_and_is_counted(self):
+        self.add(rec_text=None, extra="      <!-- pointerscan"
+                 ":allow:grammar: the principal ordered this pass, his words "
+                 "quoted in the item -->\n")
+        tally = []
+        run = self.run_bar(suppressed=tally)
+        self.assertEqual(run.findings, [])
+        self.assertEqual(len(tally), 1)
+
+    def test_an_allow_scoped_to_another_detector_does_not_exempt_it(self):
+        self.add(rec_text=None, extra="      <!-- pointerscan"
+                 ":allow:cycle: not about the bar -->\n")
+        self.assertEqual(len(self.run_bar().findings), 1)
+
+
+class BarSecondPointerTest(BarGateBase):
+    def setUp(self):
+        super().setUp()
+        self.repo.write("docs/sessions/rec.md", GOOD_RECORD)
+        self.repo.write(f"{BOARD}/020-open.md",
+                        pointer(delta="`tools/widget.py`, `tools/widget.md`",
+                                title="the open one"))
+        self.repo.commit()
+
+    def test_a_second_pass_on_the_same_path_is_flagged_naming_the_open_one(self):
+        self.repo.write(f"{BOARD}/030-second.md", pointer(title="second"))
+        run = self.run_bar()
+        (f,) = run.findings
+        self.assertIn("`160/020`", f.reason)
+        self.assertIn("widen", f.reason)
+        self.assertIn("tools/widget.py", f.reason)
+
+    def test_a_directory_prefix_is_the_same_subject(self):
+        self.repo.write(f"{BOARD}/021-deep.md",
+                        pointer(delta="`tools/area/widget.py`", title="deep"))
+        self.repo.commit()
+        self.repo.write(f"{BOARD}/030-second.md",
+                        pointer(delta="`tools/area/`", title="second"))
+        (f,) = self.run_bar().findings
+        self.assertIn("`160/021`", f.reason)
+
+    def test_naming_the_open_pointer_is_the_exception(self):
+        self.repo.write(
+            f"{BOARD}/030-second.md",
+            pointer(title="second", extra="      The open pass on this subject "
+                    "is `160/020`; the principal ordered this one.\n"))
+        self.assertEqual(self.run_bar().findings, [])
+
+    def test_a_briefed_open_pass_is_not_widened(self):
+        p = self.repo.root / BOARD / "020-open.md"
+        p.write_text(p.read_text() + "      **Brief written 2026-11-27 UTC.**\n")
+        self.repo.write(f"{BOARD}/030-second.md", pointer(title="second"))
+        self.assertEqual(self.run_bar().findings, [])
+
+    def test_a_landed_open_pass_is_not_widened(self):
+        p = self.repo.root / BOARD / "020-open.md"
+        p.write_text(p.read_text() + "      **The pass RAN 2026-11-20 and the "
+                     "cycle CLOSES.**\n")
+        self.repo.write(f"{BOARD}/030-second.md", pointer(title="second"))
+        self.assertEqual(self.run_bar().findings, [])
+
+    def test_a_bare_top_level_directory_is_too_broad_to_be_a_subject(self):
+        self.repo.write(f"{BOARD}/030-second.md",
+                        pointer(delta="`tools`", title="second"))
+        self.assertEqual(self.run_bar().findings, [])
+
+    def test_a_section_readme_is_not_a_board_item(self):
+        self.repo.write(f"{BOARD}/README.md", pointer(title="readme"))
+        self.assertEqual(self.run_bar().new_pointers, 0)
+
+    def test_a_different_subject_is_not_flagged(self):
+        self.repo.write(f"{BOARD}/030-second.md",
+                        pointer(delta="`tools/other.py`", title="second"))
+        self.assertEqual(self.run_bar().findings, [])
+
+    def test_sharing_only_the_changelog_is_not_a_subject(self):
+        self.repo.write(f"{BOARD}/020-open.md", pointer(
+            delta="`tools/widget.py`, `CHANGELOG.md`", title="the open one"))
+        self.repo.commit()
+        self.repo.write(f"{BOARD}/030-second.md", pointer(
+            delta="`tools/other.py`, `CHANGELOG.md`", title="second"))
+        self.assertEqual(self.run_bar().findings, [])
+
+    def test_two_new_pointers_on_one_subject_flag_the_later_one_only(self):
+        self.repo.write(f"{BOARD}/040-a.md", pointer(
+            delta="`tools/brand_new.py`", title="a"))
+        self.repo.write(f"{BOARD}/050-b.md", pointer(
+            delta="`tools/brand_new.py`", title="b"))
+        run = self.run_bar()
+        self.assertEqual([f.path for f in run.findings], [f"{BOARD}/050-b.md"])
+
+
+class BarPlaneTest(BarGateBase):
+    def test_staged_reads_the_index_record_not_the_working_tree_one(self):
+        """The commit is what is staged: a record fixed only on disk does not
+        rescue a staged pointer, and a record broken only on disk does not
+        sink it."""
+        rel = self.add(rec_text="# nothing here\n")
+        self.repo.stage(rel, "docs/sessions/rec.md")
+        self.repo.write("docs/sessions/rec.md", GOOD_RECORD)   # unstaged fix
+        self.assertEqual(len(self.run_bar(staged=True).findings), 1)
+        self.assertEqual(self.run_bar(staged=False).findings, [])
+
+    def test_staged_ignores_an_unstaged_draft_pointer(self):
+        self.add(rec_text="# nothing here\n")                  # never staged
+        staged = self.run_bar(staged=True)
+        self.assertEqual((staged.new_pointers, staged.findings), (0, []))
+        self.assertEqual(len(self.run_bar(staged=False).findings), 1)
+
+    def test_staged_pointer_with_answers_in_the_index_passes(self):
+        rel = self.add()
+        self.repo.stage(rel, "docs/sessions/rec.md")
+        run = self.run_bar(staged=True)
+        self.assertEqual((run.new_pointers, run.findings), (1, []))
+
+    def test_an_unreadable_base_says_not_run(self):
+        run = pointerscan.bar_scan(["docs"], self.repo.root, base="no-such-ref")
+        self.assertFalse(run.ran)
+        self.assertIn("not a commit", run.note)
+        self.assertIn("NOT RUN", run.line())
+
+    def test_a_tree_that_is_not_a_repo_says_not_run(self):
+        with tempfile.TemporaryDirectory() as td:
+            run = pointerscan.bar_scan(["."], Path(td))
+            self.assertFalse(run.ran)
+
+    def test_a_root_below_the_repo_top_says_not_run(self):
+        sub = self.repo.root / "docs"
+        run = pointerscan.bar_scan(["."], sub)
+        self.assertFalse(run.ran)
+
+
+class BarInvocationTest(BarGateBase):
+    def _run(self, *args):
+        return subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "pointerscan.py"),
+             "--root", str(self.repo.root), *args],
+            capture_output=True, text=True)
+
+    def test_a_bar_finding_alone_does_not_fail_without_block(self):
+        self.add(rec_text="# nothing\n")
+        r = self._run("docs")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("[bar]", r.stdout)
+        self.assertIn("REVIEW BAR", r.stdout)
+        self.assertIn("1 review bar", r.stdout)
+        self.assertIn("bar check: 1 new queued pass(es)", r.stdout)
+
+    def test_block_fails_a_new_pointer_that_lacks_the_answers(self):
+        self.add(rec_text="# nothing\n")
+        r = self._run("--block", "docs")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("BLOCKING", r.stdout)
+
+    def test_block_passes_a_new_pointer_that_has_them(self):
+        self.add()
+        r = self._run("--block", "docs")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_block_never_fails_on_an_older_kind_of_finding(self):
+        """Only the bar blocks: a refs-only breach elsewhere stays advisory."""
+        self.repo.write("docs/roadmap/450-x/010-q.md",
+                        f"- {Q} **Review queued.** Is that right?\n")
+        self.repo.commit()
+        r = self._run("--block", "docs")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("[grammar]", r.stdout)
+
+    def test_block_with_no_base_is_a_failure_to_run_not_a_pass(self):
+        r = self._run("--block", "--base", "no-such-ref", "docs")
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("NOT RUN", r.stdout)
+
+    def test_without_block_a_missing_base_is_loud_and_exits_zero(self):
+        r = self._run("--base", "no-such-ref", "docs")
+        self.assertEqual(r.returncode, 0)
+        self.assertIn("NOT RUN", r.stdout)
+
+    def test_staged_block_end_to_end(self):
+        rel = self.add(rec_text="# nothing\n")
+        self.repo.stage(rel, "docs/sessions/rec.md")
+        self.assertEqual(self._run("--staged", "--block", "docs").returncode, 1)
+        self.repo.write("docs/sessions/rec.md", GOOD_RECORD)
+        self.repo.stage("docs/sessions/rec.md")
+        self.assertEqual(self._run("--staged", "--block", "docs").returncode, 0)
+
+    def test_staged_outside_a_work_tree_is_an_error(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "ROADMAP.md").write_text("- [ ] **x.** y\n")
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "pointerscan.py"),
+                 "--root", td, "--staged", "."], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+
+    def test_json_carries_the_bar_status_and_the_finding(self):
+        import json
+        self.add(rec_text="# nothing\n")
+        r = self._run("--json", "docs")
+        out = json.loads(r.stdout)
+        self.assertEqual(out["bar"]["new_pointers"], 1)
+        self.assertTrue(out["bar"]["ran"])
+        self.assertTrue(out["findings"][0]["bar"])
+        self.assertEqual(out["findings"][0]["id"], "pointerscan:grammar")
+
+
+class BarPartsTest(unittest.TestCase):
+    def test_record_gaps_is_empty_only_for_all_three_or_not_warranted(self):
+        self.assertEqual(pointerscan.record_gaps(GOOD_RECORD), [])
+        self.assertEqual(len(pointerscan.record_gaps("nothing")), 3)
+
+    def test_intent_links_resolve_relative_to_the_pointer(self):
+        rel = f"{BOARD}/010-x.md"
+        self.assertEqual(
+            pointerscan.intent_links(pointer(), rel),
+            ["docs/sessions/rec.md"])
+
+    def test_intent_links_refuse_a_path_escaping_the_repo(self):
+        self.assertEqual(pointerscan.intent_links(
+            pointer(rec="../../../../../etc/passwd.md"), f"{BOARD}/010-x.md"),
+            [])
+
+    def test_delta_paths_read_only_the_delta_region(self):
+        body = ("**x.** *Delta:* `tools/a.py`, `docs/b/`, `210/630`, "
+                "`CHANGELOG.md`. *Intent record:* [`c`](c.md) `tools/z.py`")
+        self.assertEqual(pointerscan.delta_paths(body), ["tools/a.py", "docs/b"])
+
+    def test_the_board_ref_is_read_from_the_path(self):
+        self.assertEqual(
+            pointerscan.board_ref("docs/roadmap/160-x/1880-y.md"), "160/1880")
+        self.assertIsNone(pointerscan.board_ref("docs/ROADMAP.md"))

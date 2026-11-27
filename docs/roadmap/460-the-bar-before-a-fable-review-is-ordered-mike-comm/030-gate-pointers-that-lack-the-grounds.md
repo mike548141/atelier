@@ -23,6 +23,20 @@
       intent record the pointer links. "One open pass per subject" has two exceptions the
       gate must allow: the open pass is briefed, or the principal approved it on its own
       terms or ordered a pass of its own (the pointer names the open sibling).
+      **Built 2026-11-27 (worker, `qr-4ce0-bargate`):** step 1 in `tools/pointerscan.py`,
+      reporting. A pointer new against a base revision (`--base`, default `HEAD`) is flagged
+      when the intent record it links has neither three lines labelled `Commitment:`,
+      `Worst failure:` and `Why the floor misses it:` nor `review: not warranted —
+      <grounds>`; so is a second open pass whose delta paths overlap an unbriefed one's,
+      unless it names that pointer. It reads the index under `--staged` and blocks only
+      under `--block`; the floor's registry line runs the tool warn-only with neither, so
+      **the gate reports at the hook and refuses nothing until that line adds `--staged
+      --block`** (a posture change for the tool as a whole, left to the orchestrator).
+      The shape is written into `REVIEW.md` § *Whether work earns a review at all*.
+      Step 2 is not built here: `queue.ranked` is the adopter's own command, and the
+      reference queue (`instruments/fixtures/review_queue_reference.py`) reads a JSON state
+      file, not pointers, so ranking a no-grounds pass last belongs in the repo that holds
+      the real queue reader. Step 3 holds: existing pointers are never failed.
       🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
       `/atelier:work run`.
       (claimed 2026-11-27-0001, wt: atelier-qr-4ce0-bargate)
