@@ -12,6 +12,30 @@
       **Unblocked 2026-11-26:** `460/020` landed. The round also applies the new fix and
       re-check rule: a queued re-check of fixes whose pass returned no MAJOR (the drain
       code's chain after `RK`, `160/1870` among them) is a candidate to judge.
+      **Round run 2026-11-27 (session 4ce066ba, `atelier-c1`; an Opus worker judged, the
+      orchestrator spot-checked and corrected).** Of 140 open `160/` items, **45 are passes
+      still owed**; 91 already ran and wait on his rulings on findings, not on a pass; 4 are
+      not passes (120, 130, 140, 160). Of the 45:
+      - **Fails the bar (8):** 985, 987, 992 (briefed; loud fixes or output shape to tested
+        tools, reach-only grounds); 1470 (a copy-sync to text 1440 already reviewed); 1530
+        and 1550 (tightenings that red on misuse, census found 0 affected); 1750 (factual
+        corrections and an output line); 1840 (re-check of fixes from a pass whose worst was
+        MODERATE; weaker, since it also asks for a first look at a design never reviewed).
+      - **Folds (6):** 1560 into 1710, 1580 into 1500, 1630 into 1490, 1650 into 1540, 1700
+        into 1680, 1830 into 1880 (same subject, each pair unbriefed).
+      - **Can't tell (2):** 991 (briefed; the record gives reach only), 1760 (the bar's text
+        decides it both ways, filed as `460/070`).
+      - **Keeps (29),** among them 1460 and 1880 on his own orders, and 1870, which fails the
+        re-check rule by name but carries his typed *"run it as part of the drain"*.
+      **A correction to the worker's brief:** it was told a briefed pass is no dequeue
+      candidate. That was the orchestrator's error, not doctrine: a brief costs Opus and the
+      pass costs Fable, and this item names briefed passes (985, 987, 991, 992) as first
+      candidates. Briefed passes are judged like any other.
+      **Also found:** 1610 and 1620 credit "drain priority: low" to him with no words of his;
+      1320 plans a re-check after a 0-MAJOR pass that the new rule no longer owes; dequeuing
+      1470, 1530, 1550 or 1750 takes back a pick of his (*"API credit if parity"*,
+      2026-11-17, or *"Next drain (Recommended)"*, 2026-11-23), so the ask says so.
+      **Next:** the one ask, at this session's close. Nothing is dequeued before his answer.
       🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
       `/atelier:work run`.
       (claimed 2026-11-27-0001, wt: atelier-qr-4ce0-dequeue)
