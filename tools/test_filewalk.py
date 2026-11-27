@@ -423,7 +423,6 @@ class TestPruneCount(unittest.TestCase):
         self.assertEqual(self._walk(pc), ["ctl/notes.txt"])
         self.assertEqual(filewalk.LAST_MODE, "os.walk:not-in-git-tree")
         self.assertEqual((pc.files, pc.dirs, pc.git_walks), (4, 3, 0))
-        self.assertTrue(pc.measured)
         self.assertEqual(pc.as_json(), 4)
 
     def test_a_clean_tree_is_a_measured_zero(self):
@@ -463,23 +462,114 @@ class TestPruneCount(unittest.TestCase):
 
 
 class TestPruneCountGitMode(GitTreeCase):
-    def test_git_mode_is_marked_unmeasured_and_yields_the_same_set(self):
+    """115/560: in git mode the skip names drop an untracked, not-ignored file
+    under a skip-named directory from git's listing. It is counted now (it read
+    "not counted (git walk)" before), and what is yielded is unchanged."""
+
+    SKIP = {".git", ".vscode", "node_modules"}
+
+    def _both(self):
+        """(yielded without a counter, yielded with one, the counter)."""
+        plain = sorted(str(p.relative_to(self.tmp)) for p in
+                       filewalk.walk_files(self.tmp, self.SKIP,
+                                           read_tracked_under_skip=True))
+        pc = filewalk.PruneCount()
+        counted = sorted(str(p.relative_to(self.tmp)) for p in
+                         filewalk.walk_files(self.tmp, self.SKIP,
+                                             read_tracked_under_skip=True, pruned=pc))
+        self.assertEqual(filewalk.LAST_MODE, "git")
+        return plain, counted, pc
+
+    def test_untracked_files_under_a_skip_name_are_counted_not_yielded(self):
         self.put("a.txt")
         self.put(".vscode/tracked.json")
         self.put(".vscode/untracked.json")
+        self.put(".vscode/deep/more.json")
+        self.put("sub/node_modules/pkg/x.js")
         git(self.tmp, "add", "a.txt", ".vscode/tracked.json")
-        skip = {".git", ".vscode"}
-        plain = sorted(str(p.relative_to(self.tmp)) for p in
-                       filewalk.walk_files(self.tmp, skip, read_tracked_under_skip=True))
-        pc = filewalk.PruneCount()
-        counted = sorted(str(p.relative_to(self.tmp)) for p in
-                         filewalk.walk_files(self.tmp, skip,
-                                             read_tracked_under_skip=True, pruned=pc))
-        self.assertEqual(filewalk.LAST_MODE, "git")
+        plain, counted, pc = self._both()
+        # the scanned set: the tracked one is read, the untracked ones are not
         self.assertEqual(plain, counted)
-        self.assertEqual((pc.files, pc.dirs, pc.git_walks), (0, 0, 1))
-        self.assertFalse(pc.measured)
-        self.assertIsNone(pc.as_json())
+        self.assertEqual(counted, [".vscode/tracked.json", "a.txt"])
+        self.assertEqual((pc.files, pc.dirs, pc.git_walks), (3, 2, 1))
+        self.assertEqual(pc.as_json(), 3)
+
+    def test_the_count_matches_the_plain_tree_walk_of_the_same_files(self):
+        for rel in ("ctl/n.txt", ".vscode/n.txt", "node_modules/a/b.js",
+                    "sub/.vscode/c.json"):
+            self.put(rel)
+        _, _, git_pc = self._both()
+        plain = Path(tempfile.mkdtemp()).resolve()
+        self.addCleanup(shutil.rmtree, plain, True)
+        for rel in ("ctl/n.txt", ".vscode/n.txt", "node_modules/a/b.js",
+                    "sub/.vscode/c.json"):
+            (plain / rel).parent.mkdir(parents=True, exist_ok=True)
+            (plain / rel).write_text("x\n")
+        os_pc = filewalk.PruneCount()
+        list(filewalk.walk_files(plain, self.SKIP, pruned=os_pc))
+        self.assertEqual(filewalk.LAST_MODE, "os.walk:not-in-git-tree")
+        self.assertEqual((git_pc.files, git_pc.dirs), (os_pc.files, os_pc.dirs))
+        self.assertEqual(git_pc.files, 3)
+
+    def test_ignored_files_and_a_clean_tree_count_zero(self):
+        self.put(".gitignore", ".vscode/\n")
+        self.put(".vscode/ignored.json")   # git never lists it, and it cannot be committed
+        self.put("a.txt")
+        _, counted, pc = self._both()
+        self.assertEqual(counted, [".gitignore", "a.txt"])
+        self.assertEqual((pc.files, pc.dirs), (0, 0))
+        self.assertEqual(pc.as_json(), 0)
+
+    def test_a_symlinked_parent_and_a_linked_worktree_are_not_counted(self):
+        self.put("a.txt")
+        (self.tmp / "elsewhere").mkdir()
+        (self.tmp / "elsewhere/x.txt").write_text("x")
+        os.symlink(self.tmp / "elsewhere", self.tmp / ".vscode")
+        self.put("wt/.git", "gitdir: x\n")
+        self.put("wt/.vscode/f.json")
+        _, _, pc = self._both()
+        self.assertEqual((pc.files, pc.dirs), (0, 0))
+
+    def test_a_nested_clone_under_a_skip_name_is_counted(self):
+        self.put("a.txt")
+        nested = self.tmp / "node_modules" / "clone"
+        nested.mkdir(parents=True)
+        git(nested, "init", "-q")
+        (nested / "f.txt").write_text("x")
+        (nested / "g.txt").write_text("x")
+        plain, counted, pc = self._both()
+        self.assertEqual(plain, counted)
+        self.assertEqual(counted, ["a.txt"])
+        self.assertEqual((pc.files, pc.dirs), (2, 1))
+
+    def test_a_nested_clones_own_skip_dirs_are_counted_too(self):
+        nested = self.tmp / "clone"
+        nested.mkdir()
+        git(nested, "init", "-q")
+        (nested / "f.txt").write_text("x")
+        (nested / ".vscode").mkdir()
+        (nested / ".vscode" / "s.json").write_text("x")
+        plain, counted, pc = self._both()
+        self.assertEqual(plain, counted)
+        self.assertEqual(counted, ["clone/f.txt"])
+        self.assertEqual((pc.files, pc.dirs), (1, 1))
+
+    def test_without_a_counter_nothing_is_statted_or_changed(self):
+        self.put("a.txt")
+        self.put(".vscode/x.json")
+        with mock.patch.object(filewalk, "_count_pruned",
+                               side_effect=AssertionError("counted")):
+            self.assertEqual(walk(self.tmp, self.SKIP), ["a.txt"])
+
+    def test_the_count_sums_over_several_git_walks(self):
+        self.put("one/.vscode/a")
+        self.put("two/.vscode/b")
+        self.put("two/.vscode/c")
+        pc = filewalk.PruneCount()
+        list(filewalk.walk_files(self.tmp / "one", self.SKIP, pruned=pc))
+        list(filewalk.walk_files(self.tmp / "two", self.SKIP, pruned=pc))
+        self.assertEqual((pc.files, pc.git_walks), (3, 2))
+
 
 if __name__ == "__main__":
     unittest.main()

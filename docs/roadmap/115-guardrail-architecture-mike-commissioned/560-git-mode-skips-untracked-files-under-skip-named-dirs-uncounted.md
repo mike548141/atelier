@@ -9,6 +9,13 @@
       in a throwaway git repo, then decide whether git mode counts those paths (cheap: git has
       already listed them) or reads them; the pre-commit plane reads staged files, so say which
       planes it reaches. *Tier:* build tier.
+      **Built (session 4ce066ba queue run).** Reproduced first in a
+      throwaway git repo: an untracked file in `.vscode/` and the same bytes in `ctl/`; all
+      three scanners named only `ctl/`, and the tally read "not counted (git walk)"
+      (`conflictscan` printed no pruned part at all). Fixed the cheap way: `filewalk`'s git
+      walk now counts the listed paths the skip names drop (`tools/filewalk.py`), the files
+      read are unchanged, and `conflictscan` takes the counter. The staged plane never walks,
+      so skip names do not apply to it. Cold pass: not yet queued.
       🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
       `/atelier:work run`.
       (claimed 2026-11-27-0045, wt: atelier-qr-4ce0-gitskip)

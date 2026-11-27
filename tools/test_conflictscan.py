@@ -1077,5 +1077,63 @@ class CoverageLine(unittest.TestCase):
                          json.loads(out)["coverage"])
 
 
+class PrunedDirectoryCount(unittest.TestCase):
+    """115/560 (the plain-tree class is 320/900): files the walk steps over
+    under a skip-named directory are counted on the tally, in `--json` and as
+    a coverage warning, never as a change of exit code. Git mode is the case
+    that was silent: an untracked, not-ignored file under `.vscode/`."""
+
+    CONFLICT = "<<<<<<< HEAD\nx\n=======\ny\n>>>>>>> other\n"
+
+    def _tree(self, *subdirs, git=True):
+        d = Path(tempfile.mkdtemp()).resolve()
+        self.addCleanup(shutil.rmtree, d, True)
+        if git:
+            subprocess.run(["git", "init", "-q"], cwd=d, check=True,
+                           capture_output=True)
+        for sub in subdirs:
+            (d / sub).mkdir()
+            (d / sub / "c.txt").write_text(self.CONFLICT)
+        return d
+
+    def _main(self, *argv):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(io.StringIO()):
+            rc = cs.main(list(argv))
+        return rc, buf.getvalue()
+
+    def test_git_mode_counts_an_untracked_file_under_a_skip_name(self):
+        d = self._tree(".vscode", "ctl")
+        rc, out = self._main("--root", str(d), str(d))
+        self.assertEqual(rc, 1, out)
+        self.assertIn(" · 1 file(s) under a pruned directory", out)
+        self.assertIn("1 file(s) under a pruned directory were not read", out)
+        self.assertIn("ctl/c.txt:", out)
+        self.assertNotIn(".vscode/c.txt:", out)   # the scanned set is unchanged
+        rc, out = self._main("--root", str(d), "--json", str(d))
+        self.assertEqual(json.loads(out)["suppressed"]["files_under_pruned_directory"], 1)
+
+    def test_plain_tree_counts_too(self):
+        d = self._tree(".vscode", "ctl", git=False)
+        rc, out = self._main("--root", str(d), str(d))
+        self.assertIn(" · 1 file(s) under a pruned directory", out)
+
+    def test_a_tracked_file_under_a_skip_name_is_read_not_counted(self):
+        d = self._tree(".vscode")
+        subprocess.run(["git", "add", ".vscode/c.txt"], cwd=d, check=True,
+                       capture_output=True)
+        rc, out = self._main("--root", str(d), str(d))
+        self.assertEqual(rc, 1, out)
+        self.assertIn(".vscode/c.txt:", out)
+        self.assertIn(" · 0 file(s) under a pruned directory", out)
+        self.assertNotIn("were not read", out)
+
+    def test_the_warning_never_changes_the_exit_code(self):
+        d = self._tree(".vscode")
+        rc, out = self._main("--root", str(d), str(d))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("1 file(s) under a pruned directory were not read", out)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -228,6 +228,10 @@ class Tally:
     # same clean result as a run over the tree.
     files_opened: int = 0
     lines_read: int = 0
+    # 115/560: files the walk left unread under a skip-named directory
+    # (`filewalk.PruneCount`), counted, never opened - in git mode (an
+    # untracked, not-ignored file under `.vscode/`) as in the plain-tree walk.
+    pruned: filewalk.PruneCount = field(default_factory=filewalk.PruneCount)
     # 110/060 - the `review-by` dates `.conflictscanignore`'s globs declare
     # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
     # WARNS and never blocks.
@@ -239,7 +243,8 @@ class Tally:
         return sum(self.by_marker.values())
 
     def coverage(self) -> str:
-        return report.coverage_line(self.files_opened, self.lines_read)
+        return report.coverage_line(self.files_opened, self.lines_read,
+                                    pruned=self.pruned.files)
 
     def deferment_report(self) -> str:
         return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
@@ -267,7 +272,8 @@ class Tally:
             [f"{self.marker_total} by allow-marker",
              f"{self.files_by_glob} file(s) by .conflictscanignore",
              report.cap_part(self.findings_over_cap + self.advisory_over_cap,
-                             MAX_MATERIALIZED_FINDINGS)],
+                             MAX_MATERIALIZED_FINDINGS),
+             report.pruned_part(self.pruned.files)],
             breakdown=self.by_marker)
 
 
@@ -487,20 +493,21 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
-def _walk_files(base: Path):
+def _walk_files(base: Path, pruned: "filewalk.PruneCount | None" = None):
     """Every regular file under `base`, streamed one at a time. Single-sourced
     (115/080 part 1) in `tools/filewalk.py` — see that module's docstring
     for the mechanism and the 020/160 (E9) linked-worktree skip.
     `SKIP_DIR_NAMES` is this scanner's own per-guard parameter, passed in
     rather than shared."""
     return filewalk.walk_files(base, SKIP_DIR_NAMES,
-                               read_tracked_under_skip=True)
+                               read_tracked_under_skip=True, pruned=pruned)
 
 
 def iter_files(paths: list[Path], root: Path, globs: list[str],
               tally: "Tally | None" = None):
     for base in paths:
-        candidates = [base] if base.is_file() else _walk_files(base)
+        candidates = ([base] if base.is_file() else
+                      _walk_files(base, tally.pruned if tally is not None else None))
         for p in candidates:
             rel = _rel(p, root)
             if _ignored(rel, globs):
@@ -801,6 +808,7 @@ def _main(argv: list[str] | None = None) -> int:
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
+                "files_under_pruned_directory": tally.pruned.as_json(),
             },
             "deferments": allowmarker.deferments_dict(tally.deferments),
             "coverage": report.coverage_dict(tally.files_opened,

@@ -124,11 +124,21 @@ Not counted:
     would make every tree holding one warn.
   * directories pruned as a linked worktree / initialised submodule (a `.git`
     FILE, 020/160): they are another checkout, not a skip-named directory.
-  * the git-mode walk. It prunes nothing the way `os.walk` does (its skip
-    names act on the paths git lists), so the count is not measured there and
-    the `PruneCount` records that a git walk ran (`git_walks`); a caller then
-    says "not counted", never a zero it did not measure. Git mode's yielded
-    set is unchanged by this.
+  * anything git does not list: a gitignored file can never be committed, so it
+    is neither read nor counted (a skip name removes nothing a commit could
+    carry there).
+Git mode counts too (115/560). Inside a work tree the skip names act on the
+paths git lists (`ls-files --others --exclude-standard`), so an untracked,
+not-ignored file under a skip-named directory that no ignore rule covers was
+dropped unread, and the count said "not counted (git walk)". The walk now
+counts those listed paths the skip names dropped, by the same rule as the
+fallback: a regular file once, a skip-named directory once at its shallowest
+component, a nested clone under a skip name as its regular files; a symlinked
+parent or a linked worktree is still not a skip-named directory. Counted from
+git's own listing plus a stat, never opened, so it adds a stat per dropped path
+and nothing when no counter is passed. The set of files yielded is unchanged.
+The staged (pre-commit) plane never calls this walk: it reads a staged diff, to
+which skip names do not apply, so a staged file under `.vscode/` is read.
 """
 
 from __future__ import annotations
@@ -154,8 +164,9 @@ class PruneCount:
     `files`: regular files under a directory pruned by skip name, summed over
     every `walk_files` call given this object (a scanner walks several roots
     into one tally). `dirs`: the skip-named directories pruned. `git_walks`:
-    how many of those calls took the git path, where nothing is counted - so a
-    renderer can tell a measured zero from an unmeasured one."""
+    how many of those calls took the git path (informational: git mode counts
+    what the skip names drop from git's listing too, 115/560, so a zero is
+    always a measured one)."""
 
     __slots__ = ("files", "dirs", "git_walks")
 
@@ -178,17 +189,9 @@ class PruneCount:
         return (f"PruneCount(files={self.files}, dirs={self.dirs}, "
                 f"git_walks={self.git_walks})")
 
-    @property
-    def measured(self) -> bool:
-        """False when a walk ran through git and the fallback counted
-        nothing: the zero would then not be a measured one. A run that mixes
-        both and did prune something reports what the fallback counted, a
-        floor."""
-        return self.git_walks == 0 or self.files > 0 or self.dirs > 0
-
-    def as_json(self) -> "int | None":
-        """The `--json` value: the count, or None when it was not measured."""
-        return self.files if self.measured else None
+    def as_json(self) -> int:
+        """The `--json` value: the count of files left unread."""
+        return self.files
 
 
 def _count_pruned(top: str) -> int:
@@ -294,7 +297,8 @@ def _stream_nul(proc: subprocess.Popen) -> Iterator[bytes]:
 
 
 def _git_walk(base: Path, skip: "frozenset | set",
-              tracked_ignores_skip: bool = False) -> Iterator[Path]:
+              tracked_ignores_skip: bool = False,
+              pruned: "PruneCount | None" = None) -> Iterator[Path]:
     err = tempfile.TemporaryFile()
     # `-t` tags every record: `H ` for a tracked path, `? ` for an untracked
     # one (GW1 needs to tell them apart).
@@ -319,6 +323,28 @@ def _git_walk(base: Path, skip: "frozenset | set",
             ok_dirs[key] = hit
         return hit
 
+    pruned_roots: set[str] = set()
+
+    def note_pruned(rel: str, is_dir_entry: bool) -> None:
+        """115/560: count a path git LISTED that the skip names dropped, the
+        way the `os.walk` fallback counts what it prunes (320/900): a regular
+        file once, a nested-clone entry as the regular files under it, and
+        each skip-named directory once, at its shallowest skip-named
+        component. Counted from git's own listing and a stat, never opened."""
+        parts = rel.split("/")
+        for i, part in enumerate(parts[:-1] if not is_dir_entry else parts):
+            if part in skip and part != ".git":
+                root = "/".join(parts[:i + 1])
+                if root not in pruned_roots:
+                    pruned_roots.add(root)
+                    pruned.dirs += 1
+                break
+        p = base / rel
+        if is_dir_entry or (not p.is_symlink() and p.is_dir()):
+            pruned.files += _count_pruned(str(p))
+        elif p.is_file():
+            pruned.files += 1
+
     finished = False
     try:
         last = None
@@ -331,13 +357,23 @@ def _git_walk(base: Path, skip: "frozenset | set",
             is_dir_entry = rel.endswith("/")
             rel = rel.rstrip("/")
             honour = not (tracked and tracked_ignores_skip)
-            if not dir_ok(rel.rpartition("/")[0], honour):
+            parent = rel.rpartition("/")[0]
+            if not dir_ok(parent, honour):
+                # Dropped. Counted only when the skip names alone dropped it:
+                # a symlinked parent or a linked worktree is not a skip-named
+                # directory (the `os.walk` fallback does not count those).
+                if pruned is not None and honour and dir_ok(parent, False):
+                    note_pruned(rel, is_dir_entry)
                 continue
             p = base / rel
             if is_dir_entry or (not p.is_symlink() and p.is_dir()):
                 # nested clone / submodule: git does not list its files.
-                if rel.rpartition("/")[2] not in skip and not (p / ".git").is_file():
-                    yield from _os_walk(p, skip)
+                if rel.rpartition("/")[2] in skip:
+                    if pruned is not None and not (p / ".git").is_file() \
+                            and rel.rpartition("/")[2] != ".git":
+                        note_pruned(rel, True)
+                elif not (p / ".git").is_file():
+                    yield from _os_walk(p, skip, pruned)
                 continue
             if p.is_file():  # drops files deleted from the tree but still cached
                 yield p
@@ -376,9 +412,9 @@ def walk_files(base: Path, skip_dir_names: Iterable[str],
 
     `pruned` (320/900): a `PruneCount` the `os.walk` fallback adds to, one
     count per regular file under a directory it prunes by skip name (see the
-    module docstring for what is and is not counted). In git mode it is only
-    marked as a git walk. Omitted, nothing is counted and nothing extra is
-    listed."""
+    module docstring for what is and is not counted). In git mode (115/560) it
+    counts the paths git listed that the skip names dropped. Omitted, nothing is
+    counted and nothing extra is listed or statted."""
     global LAST_MODE
     skip = skip_dir_names if isinstance(skip_dir_names, (set, frozenset)) else set(skip_dir_names)
     why = _git_unusable(Path(base))
@@ -389,7 +425,7 @@ def walk_files(base: Path, skip_dir_names: Iterable[str],
     LAST_MODE = "git"
     if pruned is not None:
         pruned.git_walks += 1
-    yield from _git_walk(Path(base), skip, read_tracked_under_skip)
+    yield from _git_walk(Path(base), skip, read_tracked_under_skip, pruned)
 
 
 def _os_walk(base: Path, skip: "frozenset | set",

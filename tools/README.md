@@ -3111,17 +3111,20 @@ What the walk guarantees, and what it does not (cold pass `160/600`):
   caller passes `pruned=filewalk.PruneCount()` and the fallback adds the
   regular files under each skip-named directory it steps over (`.git`
   directories, linked worktrees and symlinked directories excepted). Opt-in,
-  because counting lists the pruned subtree. `secretscan` and `leakscan` print
+  because counting lists the pruned subtree. `secretscan`, `leakscan` and `conflictscan` print
   it as the last part of their `suppressed:` line, `N file(s) under a pruned
   directory`, zero included, and in `--json` as
   `suppressed.files_under_pruned_directory`. A non-zero count also ends the
   `coverage:` line with `⚠️ N file(s) under a pruned directory were not read`:
   a caller that publishes a plain tree would otherwise read green with files
   unread. It is a warning only; the exit code is unchanged, so a caller that
-  must refuse reads the count. In git mode nothing is counted, and the part
-  reads `file(s) under a pruned directory not counted (git walk)`, never a
-  zero nobody measured. The other scanners on this walk can take the same
-  counter; none does yet.
+  must refuse reads the count. **Git mode counts too** (`115/560`): an untracked,
+  not-ignored file under a skip-named directory (say `.vscode/`) that git lists
+  but the skip names drop is counted from git's own listing, never opened, by
+  the same rule; gitignored files are not listed, so are not counted. The
+  set of files read is unchanged. The staged (pre-commit) plane never walks, so
+  skip names do not apply to it. `conflictscan` takes the same counter. The
+  other scanners on this walk can too; none does yet.
 
 The per-scanner ignore files (`.leakscanignore` and its siblings) may still
 carry globs for nested worktrees that git mode already drops; they are harmless.

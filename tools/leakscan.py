@@ -526,8 +526,8 @@ class Tally:
     lines_read: int = 0
     binaries_checked: int = 0
     # 320/900: files the `os.walk` fallback left unread under a skip-named
-    # directory (`filewalk.PruneCount`), counted, never opened. Not measured
-    # when the walk ran through git; the tally then says "not counted".
+    # directory (`filewalk.PruneCount`), counted, never opened; in git mode the
+    # untracked, not-ignored ones git listed (115/560).
     pruned: filewalk.PruneCount = field(default_factory=filewalk.PruneCount)
     # 110/060 - the `review-by` dates `.leakscanignore`'s globs declare, and
     # those on `.leakscanbinaries` lines (a binary accepted for now), read by

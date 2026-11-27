@@ -224,8 +224,8 @@ class Tally:
     files_opened: int = 0
     lines_read: int = 0
     # 320/900: files the `os.walk` fallback left unread under a skip-named
-    # directory (`filewalk.PruneCount`), counted, never opened. Not measured
-    # when the walk ran through git; the tally then says "not counted".
+    # directory (`filewalk.PruneCount`), counted, never opened; in git mode the
+    # untracked, not-ignored ones git listed (115/560).
     pruned: filewalk.PruneCount = field(default_factory=filewalk.PruneCount)
     # 110/060 - the `review-by` dates `.secretscanignore`'s globs declare
     # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date

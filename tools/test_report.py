@@ -450,8 +450,6 @@ class TestReportLines(unittest.TestCase):
         count turns the coverage line into a warning (never an exit code)."""
         self.assertEqual(report.pruned_part(0), "0 file(s) under a pruned directory")
         self.assertEqual(report.pruned_part(3), "3 file(s) under a pruned directory")
-        self.assertEqual(report.pruned_part(None),
-                         "file(s) under a pruned directory not counted (git walk)")
         self.assertEqual(report.coverage_line(3, 120, pruned=0),
                          "  coverage: 3 file(s) opened \u00b7 120 line(s) read")
         self.assertEqual(report.coverage_line(3, 120, pruned=None),
@@ -569,7 +567,8 @@ class TestScannerLinePins(unittest.TestCase):
         import conflictscan as m
         t = m.Tally()
         self.assertEqual(t.summary(), "  suppressed: 0 by allow-marker · 0 file(s) by "
-                                      f".conflictscanignore · 0 beyond {CAP}")
+                                      f".conflictscanignore · 0 beyond {CAP} · "
+                                      "0 file(s) under a pruned directory")
         self.assertEqual(m.render_human([], t).splitlines()[0],
                          "✓ conflictscan clean — no conflict markers found.")
         t.findings_over_cap = 3

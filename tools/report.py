@@ -606,14 +606,10 @@ def suppressed_line(parts: Sequence[str], *,
     return line
 
 
-def pruned_part(files: "int | None") -> str:
-    """The tally part counting files the `os.walk` fallback stepped over under a
-    skip-named directory (320/900; `filewalk.PruneCount`). Printed at zero, so
-    two runs compare. `None` means the count was not taken (the walk ran
-    through git, which prunes differently), and says so rather than print a
-    zero nobody measured."""
-    if files is None:
-        return "file(s) under a pruned directory not counted (git walk)"
+def pruned_part(files: int) -> str:
+    """The tally part counting files a walk stepped over under a skip-named
+    directory (320/900, and in git mode 115/560; `filewalk.PruneCount`).
+    Printed at zero, so two runs compare."""
     return f"{files} file(s) under a pruned directory"
 
 
@@ -646,8 +642,8 @@ def coverage_line(files: int, units: int, *, unit: str = "line(s) read",
     `pruned` (320/900) is the count of files left unread under a pruned
     directory (`pruned_part`). Non-zero, the line also ends `\u2014 \u26a0\ufe0f
     N file(s) under a pruned directory were not read`: a caller that publishes
-    the tree would otherwise read green with files unread. Zero or None (not
-    counted) adds nothing; the tally line carries the count either way.
+    the tree would otherwise read green with files unread. Zero (or None, no
+    count taken) adds nothing; the tally line carries the count either way.
     Informational only: it never touches an exit status."""
     line = f"  coverage: {files} {noun} \u00b7 {units} {unit}"
     if not_in_scope is not None:

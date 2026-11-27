@@ -3110,6 +3110,43 @@ class TestPrunedDirectoryCount(unittest.TestCase):
         self.assertIn(" · 0 file(s) under a pruned directory", out)
         self.assertNotIn("were not read", out)
 
+    def _git_tree(self, *subdirs):
+        """`_tree`, as an initialised git repo with nothing added: every file
+        is untracked and not ignored (115/560)."""
+        d = self._tree(*subdirs)
+        subprocess.run(["git", "init", "-q"], cwd=d, check=True, capture_output=True)
+        return d
+
+    def test_git_mode_counts_an_untracked_file_under_a_skip_name(self):
+        """115/560: git mode used to print "not counted (git walk)" and drop
+        the file unread; it now counts it, warns, and still does not read it."""
+        d = self._git_tree(".vscode", "ctl")
+        rc, out = self._main("--root", str(d), str(d))
+        self.assertEqual(rc, 1, out)
+        self.assertIn(" · 1 file(s) under a pruned directory", out)
+        self.assertIn("1 file(s) under a pruned directory were not read", out)
+        self.assertNotIn("not counted", out)
+        self.assertNotIn(".vscode/notes.txt:", out)   # still not read
+        self.assertIn("ctl/notes.txt:", out)
+        rc, out = self._main("--root", str(d), "--json", str(d))
+        self.assertEqual(json.loads(out)["suppressed"]["files_under_pruned_directory"], 1)
+
+    def test_git_mode_a_tracked_file_under_a_skip_name_is_read_not_counted(self):
+        d = self._git_tree(".vscode")
+        subprocess.run(["git", "add", ".vscode/notes.txt"], cwd=d, check=True,
+                       capture_output=True)
+        rc, out = self._main("--root", str(d), str(d))
+        self.assertEqual(rc, 1, out)
+        self.assertIn(".vscode/notes.txt:", out)
+        self.assertIn(" · 0 file(s) under a pruned directory", out)
+        self.assertNotIn("were not read", out)
+
+    def test_git_mode_the_warning_never_changes_the_exit_code(self):
+        d = self._git_tree(".vscode")
+        rc, out = self._main("--root", str(d), str(d))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("1 file(s) under a pruned directory were not read", out)
+
 
 if __name__ == "__main__":
     unittest.main()

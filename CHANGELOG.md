@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-27 — git mode counts the files a skip name drops, `115/560`)
+- **`secretscan`, `leakscan` and the newly wired `conflictscan` count what the skip names
+  drop in git mode.** An untracked, not-ignored file under a skip-named directory
+  (`.vscode/`, `node_modules/`...) is not read, as before, but is now counted from git's own
+  listing: the `suppressed:` line ends `N file(s) under a pruned directory` (zero printed),
+  `--json` carries `suppressed.files_under_pruned_directory`, and a non-zero count ends the
+  `coverage:` line with the warning the plain-tree walk already gave. Exit codes and the set
+  of files read are unchanged. Tracked files under those names are still read, and ignored
+  files are not listed, so not counted. The staged (pre-commit) plane never walks, so skip
+  names do not reach it. `conflictscan` had no count at all, in either walk; it has one now.
+- **Adopter action.** The `not counted (git walk)` text and the `null` JSON value are gone:
+  the value is always an integer. A step that publishes a working tree and refuses on a
+  non-zero count now sees it in a git checkout too, which is where its untracked files are.
+
 ### Added (2026-11-27 — `pointerscan` checks the review bar on a new pointer, `460/030`)
 - **Adopter action.** Write the bar's three answers as labelled lines in the intent
   record a new pointer links (`Commitment:`, `Worst failure:`, `Why the floor misses
