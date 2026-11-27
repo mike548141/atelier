@@ -1,4 +1,7 @@
-- [ ] **A scanner's verdict has two states and needs three — "found,
+- [~] **A scanner's verdict has two states and needs three — "found,
+      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
+      `/atelier:work run` (leakscan slice first).
+      (claimed 2026-11-27-1050, wt: atelier-qr-9c5f-thirdstate)
       and all properly accepted" reads as "found nothing".** (Mike,
       2026-08-09, stating the model the guards are meant to follow: find
       everything · report them all · subtract the ones that are

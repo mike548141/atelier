@@ -1,4 +1,7 @@
-- [ ] 🔎 **Defects the enforcement census found in slice 7.** Found
+- [~] 🔎 **Defects the enforcement census found in slice 7.** Found
+      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-1050, wt: atelier-qr-9c5f-slice7)
       2026-11-23 UTC by `020/220` slice 7
       (`docs/method/census/2026-11-23-1813-decisions-skills-commands-plugin.md`);
       reported, not fixed in passing. The orchestrator (queue run

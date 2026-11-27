@@ -15,7 +15,7 @@ line, so they overlap Open and Claimed.
 | Section | Open | Claimed | 🎯 Waiting | ⏳ Review |
 | :-- | --: | --: | --: | --: |
 | [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 6 | 0 | 1 | 0 |
-| [Policy-as-code programme — five tracks (Mike approved 2026-07-27)](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md) | 17 | 0 | 1 | 0 |
+| [Policy-as-code programme — five tracks (Mike approved 2026-07-27)](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md) | 15 | 2 | 1 | 0 |
 | [Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)](roadmap/030-enforcement-propagation-the-estate-rollo/README.md) | 9 | 0 | 0 | 0 |
 | ✅ [Principal-set dates: mandate vs default (Mike, 2026-08-09)](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md) | 0 | 0 | 0 | 0 |
 | [🤔 Trust-failure handling as a skill — idea to consider (Mike, 2026-08-02)](roadmap/050-trust-failure-handling-as-a-skill-idea-t/README.md) | 1 | 0 | 0 | 0 |
@@ -25,7 +25,7 @@ line, so they overlap Open and Claimed.
 | [The floor-at-head all-clear has a cancelled-run hole (found 2026-08-09)](roadmap/090-the-floor-at-head-all-clear-has-a-cancel/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [spellscan's reason class silently voided live allow-markers — CLOSED 2026-08-09](roadmap/100-spellscan-s-reason-class-silently-voided/README.md) | 0 | 0 | 0 | 0 |
 | [Estate duplication + exception audit (Mike commissioned 2026-08-09)](roadmap/110-estate-duplication-exception-audit-mike/README.md) | 7 | 0 | 1 | 0 |
-| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 20 | 0 | 3 | 0 |
+| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 19 | 1 | 3 | 0 |
 | ✅ [test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 275 | 0 | 102 | 34 |
+| **All sections** | 272 | 3 | 102 | 34 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -81,10 +81,10 @@ line, so they overlap Open and Claimed.
 
 - [ ] [The five red floors themselves are now open work.](roadmap/020-policy-as-code-programme-five-tracks-mik/010-the-five-red-floors-themselves-are-now-open-wo.md)
 - [ ] [B4 — the roadmap-deletion guard: BUILT, MEASURED, and deliberately…](roadmap/020-policy-as-code-programme-five-tracks-mik/020-b4-the-roadmap-deletion-guard-built-measured-a.md)
-- [ ] [A scanner's verdict has two states and needs three — "found, and all…](roadmap/020-policy-as-code-programme-five-tracks-mik/040-a-scanner-s-verdict-has-two-states-and-needs-t.md)
+- [~] (claimed 2026-11-27, wt: atelier-qr-9c5f-thirdstate) [A scanner's verdict has two…](roadmap/020-policy-as-code-programme-five-tracks-mik/040-a-scanner-s-verdict-has-two-states-and-needs-t.md)
 - [ ] [C2 — retire the remainder.](roadmap/020-policy-as-code-programme-five-tracks-mik/080-c2-retire-the-remainder.md)
 - [ ] [C4 — make the local bypass visible.](roadmap/020-policy-as-code-programme-five-tracks-mik/100-c4-make-the-local-bypass-visible.md)
-- [ ] [D2 residue — stampscan registry wiring stays barred on ST3.](roadmap/020-policy-as-code-programme-five-tracks-mik/110-d2-residue-stampscan-registry-wiring-stays-bar.md)
+- [~] (claimed 2026-11-27, wt: atelier-qr-9c5f-stampsource) [D2 residue — stampscan registry…](roadmap/020-policy-as-code-programme-five-tracks-mik/110-d2-residue-stampscan-registry-wiring-stays-bar.md)
 - [ ] [D4 — the repo-local seam has no adopters.](roadmap/020-policy-as-code-programme-five-tracks-mik/130-d4-the-repo-local-seam-has-no-adopters.md)
 - [ ] [E6 — the floor's posture, and the dial that makes it reachable. RULED…](roadmap/020-policy-as-code-programme-five-tracks-mik/140-e6-the-floor-s-posture-and-the-dial-that-makes.md)
 - [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
@@ -169,7 +169,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🔎 [Five defects the enforcement census found in slice 4.](roadmap/115-guardrail-architecture-mike-commissioned/500-census-slice-4-doctrine-defects.md)
 - [ ] 🔎 [Defects the enforcement census found in slice 5.](roadmap/115-guardrail-architecture-mike-commissioned/510-census-slice-5-doctrine-defects.md)
 - [ ] 🔎 [Defects the enforcement census found in slice 6.](roadmap/115-guardrail-architecture-mike-commissioned/530-census-slice-6-doctrine-defects.md)
-- [ ] 🔎 [Defects the enforcement census found in slice 7.](roadmap/115-guardrail-architecture-mike-commissioned/540-census-slice-7-doctrine-defects.md)
+- [~] 🔎 (claimed 2026-11-27, wt: atelier-qr-9c5f-slice7) [Defects the enforcement census…](roadmap/115-guardrail-architecture-mike-commissioned/540-census-slice-7-doctrine-defects.md)
 - [ ] 🔎 [Defects the enforcement census found in slice 8, in the validators'…](roadmap/115-guardrail-architecture-mike-commissioned/550-census-slice-8-validator-defects.md)
 
 ## Doctrine — review-owed
