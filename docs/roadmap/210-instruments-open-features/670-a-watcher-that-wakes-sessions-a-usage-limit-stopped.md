@@ -1,7 +1,7 @@
 - [ ] 🔧 **Make a watcher, run outside every Claude session, that finds the sessions a
       usage-limit stop left idle and, once the budget is back, tells each to resume its
       planned work.** A child built a working prototype in the estate root on 2026-11-27 (shed
-      `fleet/limit-watch/`: `limit-watch.py`, its README and a LaunchAgent plist; installed,
+      `fleet/limit-watch/`: `limit-watch.py` and its README; first installed as a LaunchAgent,
       tested, then unloaded on the principal's pick). Bring it home as an atelier instrument,
       generic and public, beside `ccfleet`; the prototype's private wording stays in the root.
 
@@ -16,8 +16,8 @@
       resume sessions as a fable review drains the budget just before 12pm and then you pick up
       and finish the in-progress reviews after the budget resets at 12pm NZT"*.
 
-      **What the prototype does (measured 2026-11-27).** Plain Python on a 10-minute launchd
-      timer, so it runs while every session is blocked. (1) A top-level transcript whose last
+      **What the prototype does (measured 2026-11-27).** Plain Python, first on a 10-minute launchd
+      timer (now a sleeping loop), so it runs while every session is blocked. (1) A top-level transcript whose last
       message is the API error `rate_limit` is a stopped session (found 10 real stops from
       November, all headless passes). (2) None stopped: exit, nothing spent. (3) One tool-less
       Haiku `claude -p` probe, no transcript kept; refused means wait. (4) Budget back: one
@@ -34,8 +34,17 @@
       interactive session. So the new piece is the watch and the wake; resuming a headless
       pass stays `ccfleet resume`'s, and stays on his word.
 
+      🛑 **No startup, login, background or cron item — ever** (his words the same day,
+      verbatim, after macOS reported the prototype's LaunchAgent as a new background item:
+      *"I DO NOT WANT YOU DOING THINGS LIKE THAT you need a better way - for example you could
+      use native sleep/wait commands in python, zsh, bash or whatever rather than messing up
+      my macOS environment by installing geenric scripts as startup/login items"*). The
+      prototype was unloaded and is now one ordinary process that sleeps between checks,
+      started and stopped by hand. The instrument is built that way, and a guard that refuses
+      a session installing a launchd, login or cron item is owed beside it, since a rule in
+      memory has not held.
+
       **Owed.** Decide its home under the one-home, one-prefix rule (`450/*`): a `ccfleet`
       subcommand or its own `cc*` instrument; tests and a man page like the others; the
-      relay's message wording generic and configurable; install and remove commands, because a
-      LaunchAgent is a background job the principal approves case by case; a cold review
-      before anything installs it again.
+      relay's message wording generic and configurable; start and stop commands for the
+      sleeping process; a cold review before it is used again.
