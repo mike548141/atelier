@@ -36,7 +36,14 @@ of 118 board items the day before (its plan's triage), minus what it had built o
   the six with no ignore file, and the floor line and fleet board.
 - **`115/550`** (Sonnet worker): items 2 to 8 fixed as text (the code and tests were right),
   `docs/reviews/README.md` added. Item 1 waits on the principal.
-- Full suite on the integration branch before landing: see the close below.
+- **Two hand-ups landed at the close** (PRs 144 and 145, both from private children,
+  read for names first: none): `320/960`, a primary repo holding satellites' records, with
+  the principal's pick to reopen `390/010`, applied here (`390/010` is open again, the
+  2026-11-09 answer kept as history); and `320/970`, the pattern kill that took the editor
+  down and the crash failures read as refusals. Both are queued, not built.
+- Full suite on the integration branch before landing: 3686 tools tests OK, 760
+  instruments tests pass. A second run was not needed after the rebase, which brought in
+  two board-only commits.
 
 ## Found
 
