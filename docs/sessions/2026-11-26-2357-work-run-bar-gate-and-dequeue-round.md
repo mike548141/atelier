@@ -53,3 +53,20 @@ checkout only for claims and fast-forward pulls. No Fable model and no review-ti
 **Economics.** Four items landed; every other open item this run read in full waits on the
 principal (an answer, a date, or evidence), and finding the next buildable one costs reading
 many items each time. A fresh session with the `460/040` answer in hand does that cheaper.
+
+## At the close: his answers
+
+Put as one device call of three questions (answers, not rulings; verbatim on `460/040`):
+the list, *"Drop 8, merge 6 (Recommended)"*; `160/1870`, typed, *"Release it as per your
+recommended option - but to clarify we now have a better definition than just "are there any
+major findings""*; four briefed design passes in a private child, typed, *"Run them at the next
+drain (presumably Monday). Reviews of designs unblock the work to create and test the
+feature"*. Applied by an Opus worker and landed: 8 closed as not warranted (three briefs and
+1870's marked retired), 6 folded into their partners, 1870 released. The drain queue no longer
+lists any of them. His correction of the re-check framing is `460/080`, for a fresh session.
+`460/040` closed.
+
+**Loose ends outside this repo, for the estate root's next session:** the drain config's
+`extra` list still carries the entry for 1870's brief (harmless: the item is closed, so the
+queue no longer lists it READY), and 1870's held-back sibling still sits in the user-local held
+folder. Both can go; this session did not edit the estate root, where another session was live.
