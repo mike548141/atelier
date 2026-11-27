@@ -15,7 +15,12 @@
       `skills/review/brief.md`, `CHANGELOG.md`: every commit on `main` after `b459dd7e` up to
       and including the commit that closes `460/060` (folding in `460/050`, his widened
       list of risks fixed before use, and `460/060`, his default that every owed review
-      waits for the next drain; one open pass per subject).
+      waits for the next drain; one open pass per subject). Widened 2026-11-27 by
+      `460/030` step 1, which its item folds here: `tools/pointerscan.py`,
+      `tools/test_pointerscan.py`, `tools/README.md` and the same `REVIEW.md` and
+      `CHANGELOG.md`, every commit after `3693786f` up to and including the commit that
+      lands `460/030` step 1. Intent record for that part:
+      [`../460-the-bar-before-a-fable-review-is-ordered-mike-comm/030-gate-pointers-that-lack-the-grounds.md`](../460-the-bar-before-a-fable-review-is-ordered-mike-comm/030-gate-pointers-that-lack-the-grounds.md).
       *Intent record:*
       [`../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md`](../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md).
       💬 **When it runs, his pick 2026-11-26 ~22:00 UTC (session 4ccec293, `atelier-56`,

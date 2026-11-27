@@ -1,4 +1,4 @@
-- [~] **Enforce the bar where a machine can: refuse a review pointer that lacks the
+- [ ] **Enforce the bar where a machine can: refuse a review pointer that lacks the
       queue-time grounds** `[M][tool]`. Mike, 2026-11-25, verbatim: *"we need work to fix
       that on the board"*. Step 3 of `460/010`, split out.
       Step 1 found nothing checks a pointer's grounds today, so the bar in `460/020` would
@@ -37,6 +37,17 @@
       reference queue (`instruments/fixtures/review_queue_reference.py`) reads a JSON state
       file, not pointers, so ranking a no-grounds pass last belongs in the repo that holds
       the real queue reader. Step 3 holds: existing pointers are never failed.
-      🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
-      `/atelier:work run`.
-      (claimed 2026-11-27-0001, wt: atelier-qr-4ce0-bargate)
+      **Landed 2026-11-27 (session 4ce066ba, `atelier-c1`), step 1 only, reporting.** The
+      orchestrator read the change and left the registry line warn-only on purpose: a gate
+      that blocks in every child should not block before its own cold pass has run, and
+      `160/1880`, unrun and unbriefed, is widened to take it (the item said to fold it
+      there). **Still owed here:** (a) once that pass returns no MAJOR, add `--staged
+      --block` to the registry line, change `warn_only`, and update the floor tests; (b)
+      step 2, in the repo that holds the real queue reader: rank a pass queued without
+      grounds last, marked, reading the same labelled lines.
+      - Commitment: a gate every new review pointer in every child is judged by, and
+        that will refuse commits once wired to block.
+      - Worst failure: it reads green while not checking, so an ungrounded pass is
+        queued and spends Fable budget with the check saying all is well.
+      - Why the floor misses it: it judges text about judgement, its tests drive only
+        the cases its author imagined, and at warn-only nobody reads a wrong result.
