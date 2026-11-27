@@ -11,5 +11,9 @@
       *Delta, scoped to paths:* `tools/filewalk.py`, `tools/report.py`, `tools/secretscan.py`,
       `tools/leakscan.py`, their tests, `tools/README.md`, `CHANGELOG.md`: every commit on
       `main` after `ddba7cde` up to and including the commit that lands this pointer.
+      Widened 2026-11-27 by `115/560` (git mode counts what the skip names drop, one open
+      pass per subject): the same paths plus `tools/conflictscan.py` and its test, up to
+      and including the commit that closes `115/560`. Intent record for that part:
+      [`../115-guardrail-architecture-mike-commissioned/560-git-mode-skips-untracked-files-under-skip-named-dirs-uncounted.md`](../115-guardrail-architecture-mike-commissioned/560-git-mode-skips-untracked-files-under-skip-named-dirs-uncounted.md).
       *Intent record:*
       [`../320-child-filed-findings-via-pointing-up/900-hand-up-scanner-walk-prunes-directories-uncounted.md`](../320-child-filed-findings-via-pointing-up/900-hand-up-scanner-walk-prunes-directories-uncounted.md).

@@ -1,4 +1,4 @@
-- [~] 🔎 **In git mode, `secretscan`, `leakscan` and `conflictscan` skip untracked,
+- [x] 🔎 **In git mode, `secretscan`, `leakscan` and `conflictscan` skip untracked,
       not-ignored files under skip-named directories, and nothing counts them.** Found
       2026-11-25 by the worker that built `320/900` (session f8dd3843's queue run), not yet
       reproduced by a second session. `320/900` made the plain-tree (`os.walk`) fallback count
@@ -16,6 +16,14 @@
       walk now counts the listed paths the skip names drop (`tools/filewalk.py`), the files
       read are unchanged, and `conflictscan` takes the counter. The staged plane never walks,
       so skip names do not apply to it. Cold pass: not yet queued.
-      🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
-      `/atelier:work run`.
-      (claimed 2026-11-27-0045, wt: atelier-qr-4ce0-gitskip)
+      ✅ **Closed 2026-11-27 (session 4ce066ba, `atelier-c1`).** Reproduced in a throwaway
+      repo before the fix (two planted files under `.vscode/` dropped unread, the tally
+      "not counted (git walk)"); after it, the same repo reports both as pruned, with the
+      coverage warning. Its review folds into `160/1860`, the open, unbriefed pass on the
+      same walk, whose delta is widened in the landing commit.
+      - Commitment: the pruned count and coverage line a reader, or a publish step that
+        refuses on a non-zero count, trusts to tell "all read" from "some skipped".
+      - Worst failure: the count is silently too low on a path shape nobody tested, so
+        files never read are reported as covered.
+      - Why the floor misses it: CI checkouts hold no untracked files, so the floor only
+        ever sees a zero, and a wrong zero looks the same as a right one.
