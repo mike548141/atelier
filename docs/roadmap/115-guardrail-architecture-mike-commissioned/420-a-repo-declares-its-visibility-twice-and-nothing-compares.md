@@ -1,4 +1,4 @@
-- [ ] 🔎 **A repo declares its visibility in two places, `CLAUDE.md` and
+- [~] 🔎 **A repo declares its visibility in two places, `CLAUDE.md` and
       `.atelier-floor.json`, and nothing compares them.** Found 2026-11-16 UTC
       by the `020/220` census, slice 2
       (`docs/method/census/2026-11-16-1204-apex-autonomy-guards-propagation.md`).
@@ -8,3 +8,6 @@
       one. **Owed:** decide which is canonical and either derive the other or
       add the comparison (a `floor.py` check that fails soft, as the
       visibility check does). Not fixed in passing.
+      🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-0005, wt: atelier-qr-4ce0-visibility)
