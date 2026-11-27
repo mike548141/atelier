@@ -32,6 +32,17 @@
         line of work inside a session, so the fit is arguable both ways.
       - 13 tracked lines name `/atelier:worktree` by itself.
 
+      💬 **His answers, 2026-11-27 ~23:35 UTC (same session, AskUserQuestion,
+      typed in place of the options), verbatim:** on `/a:`, *"Its work for
+      the baord not now"*; on worktree, *"/atelier:work tree <branch> makes
+      more sense to me. I dont see why we need a "start" in there as well.
+      But this is work on the board for later"*. So both are later work;
+      his leaning for worktree is `work tree <branch>`, with no `start`.
+      Owed by that build: how `list`, `land` and `remove` read under it,
+      how a branch name is told from an action word (a branch called
+      `list`), and the second action level in the menu and tests; put the
+      shape to him in one line before moving anything.
+
       **To do when he rules:** confirm the prefix and the worktree home with
       him in one line, then rename in one landing (plugin name, skills,
       tests, menu, every live reference), full suite green before it lands.
