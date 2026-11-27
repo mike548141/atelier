@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: three doctrine corrections —
+- [x] **Rule-4 cold pass queued: three doctrine corrections —
       `PROPAGATION.md` on what the parent runs alone (`115/440`) and on a
       called gate being only as fresh as the parent's working tree
       (`320/040`), and `EVIDENCE.md` §17's corrected no-guard premise
@@ -21,3 +21,11 @@
       *Intent records:* the three items named above.
       No brief yet: a brief-writer this run did not start writes it. **Drain
       priority: not set by the principal; this run suggests low.**
+      **Folded into `160/1540` 2026-11-27 ~01:55 UTC (board `460/040`; session 4ce066ba,
+      `atelier-c1`, AskUserQuestion; an answer to options Claude wrote, not a ruling)** (one
+      open pass per subject, `method/REVIEW.md` § *Whether work earns a review at all*). His
+      pick, verbatim: *"Drop 8, merge 6 (Recommended)"* (option text: *"31 reviews stay in
+      Monday's drain. Takes back your earlier picks on 4 of them. Saves roughly 8 Fable passes
+      of budget; the 6 merged ones still get reviewed, just together."*). This pass's paths,
+      bound and intent record now sit in `160/1540`'s delta; it is reviewed there, not on its
+      own.

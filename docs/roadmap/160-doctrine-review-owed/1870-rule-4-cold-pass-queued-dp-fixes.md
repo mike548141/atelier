@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the `DP` fixes to `ccfleet`, the reference queue,
+- [x] **Rule-4 cold pass queued: the `DP` fixes to `ccfleet`, the reference queue,
       `modelguard`, `pointerscan`, `REVIEW.md` and the review, work and fleet skills
       (`210/630`).** The authoring session (5e236e34, `atelier-cd`, Opus 5.5, principal-opened
       by `/atelier:work run`, whose four workers wrote the fixes) queues this and neither
@@ -59,3 +59,12 @@
       brief-writer (session `664efda7`), which wrote the brief and committed it (above). The
       estate's queue finds a brief only by an in-repo sibling, so a2aeebc8 listed this brief in
       the queue's user-local `extra` list; the queue now shows it READY for the drain.
+      **Released 2026-11-27 ~01:55 UTC, not run (board `460/040`; session 4ce066ba,
+      `atelier-c1`, AskUserQuestion; an answer, not a ruling).** Asked whether this re-check
+      stays in the drain, he typed in place of the options, verbatim: *"Release it as per your
+      recommended option - but to clarify we now have a better definition than just "are there
+      any major findings""*. The recommended option was *"Release it (Recommended)"*. So this
+      pass leaves the drain, in place of his earlier *"run it as part of the drain"*; his
+      clarification is kept here as he typed it. The brief stays as record, marked retired:
+      `docs/reviews/2026-11-26-1037-dp-fixes-recheck-cold.md`.
+      review: not run — released by the principal 2026-11-27

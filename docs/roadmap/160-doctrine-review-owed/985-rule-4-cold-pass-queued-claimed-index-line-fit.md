@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the claimed index line fitted to
+- [x] **Rule-4 cold pass queued: the claimed index line fitted to
       wrapscan, and brackets neutralised in titles (`320/730`, `320/450`
       §2).** `board.py` is a guard every child runs, and its index is what a
       queue run reads to choose work. So the authoring session (a
@@ -18,3 +18,14 @@
       `.deferred.md` sibling. Pass size: small. Review NOT run: this pass
       waits for a criterion-passing cold Fable session and the principal's
       explicit permission for Fable work. Neither named session may run it.
+      **Dequeued 2026-11-27 ~01:55 UTC (board `460/040`; session 4ce066ba, `atelier-c1`,
+      AskUserQuestion; an answer to options Claude wrote, not a ruling), not run.** His pick,
+      verbatim: *"Drop 8, merge 6 (Recommended)"* (option text: *"31 reviews stay in Monday's
+      drain. Takes back your earlier picks on 4 of them. Saves roughly 8 Fable passes of
+      budget; the 6 merged ones still get reviewed, just together."*). Under the bar in
+      `method/REVIEW.md` § *Whether work earns a review at all*, this is a loud fix to a
+      reviewed, tested tool: a claim line that misfits the index reds `wrapscan` and the
+      `board` check, which `tools/test_board.py` covers; the recorded grounds give reach
+      (every child runs it), which the bar does not count. The brief stays as record, marked
+      retired: `docs/reviews/2026-11-09-0207-claimed-index-line-fit-cold.md`.
+      review: not warranted — a loud fix to `board.py`, a reviewed tool its tests cover

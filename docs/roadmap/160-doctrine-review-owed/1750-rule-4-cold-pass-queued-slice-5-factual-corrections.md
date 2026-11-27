@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the slice-5 census corrections, five
+- [x] **Rule-4 cold pass queued: the slice-5 census corrections, five
       doctrine statements and `signscan`'s coverage line (`115/510` items
       1, 3–6).** Doctrine text changed, one change restates the signing
       plane's status, and a guard's output changed shape, so it earns its
@@ -25,3 +25,13 @@
       💬 **Answered 2026-11-23 ~19:20 UTC (session 608d8123, AskUserQuestion), his pick:** *"Next drain (Recommended)"*:
       this pass and the other three of run 608d8123 (`160/1740`–`1770`)
       wait for his next weekly drain.
+      **Dequeued 2026-11-27 ~01:55 UTC (board `460/040`; session 4ce066ba, `atelier-c1`,
+      AskUserQuestion; an answer to options Claude wrote, not a ruling), not run.** His pick,
+      verbatim: *"Drop 8, merge 6 (Recommended)"* (option text: *"31 reviews stay in Monday's
+      drain. Takes back your earlier picks on 4 of them. Saves roughly 8 Fable passes of
+      budget; the 6 merged ones still get reviewed, just together."*). Under the bar in
+      `method/REVIEW.md` § *Whether work earns a review at all*, this is factual corrections
+      that add or change no rule, and one output line on `signscan`, a reviewed tool its tests
+      cover. This takes back his earlier pick on this pass, *"Next drain (Recommended)"*
+      (2026-11-23 ~19:20 UTC, recorded above); the option text he chose on 2026-11-27 says so.
+      review: not warranted — factual corrections and an output line its tests cover

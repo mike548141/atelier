@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: the session log's one-file index retired
+- [x] **Rule-4 cold pass queued: the session log's one-file index retired
       into `docs/sessions/`, the tool that does it, and atelier's own run.**
       Written by a worker of session 19378351 (Opus 5.5, 2026-11-20 UTC),
       which queues this and does not take it or brief it. **Needs a brief.**
@@ -29,3 +29,11 @@
       earlier route still verify after the index goes; and can any child go
       red the day this lands (the `ccclose` grace, and the record lists in
       `pathscan`, `coldsweep` and `sizescan`).
+      **Folded into `160/1680` 2026-11-27 ~01:55 UTC (board `460/040`; session 4ce066ba,
+      `atelier-c1`, AskUserQuestion; an answer to options Claude wrote, not a ruling)** (one
+      open pass per subject, `method/REVIEW.md` § *Whether work earns a review at all*). His
+      pick, verbatim: *"Drop 8, merge 6 (Recommended)"* (option text: *"31 reviews stay in
+      Monday's drain. Takes back your earlier picks on 4 of them. Saves roughly 8 Fable passes
+      of budget; the 6 merged ones still get reviewed, just together."*). This pass's paths,
+      bound and intent record now sit in `160/1680`'s delta; it is reviewed there, not on its
+      own.

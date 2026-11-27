@@ -1,6 +1,9 @@
 # Cold re-check — the `DP` fixes to `ccfleet`, the reference queue, `modelguard`, `pointerscan`, `REVIEW.md` and the review, work and fleet skills (`160/1870`)
 
 **Board:** `docs/roadmap/160-doctrine-review-owed/1870-rule-4-cold-pass-queued-dp-fixes.md`
+**Status:** RETIRED 2026-11-27, not run — released by the principal (board 460/040; his
+typed answer "Release it as per your recommended option - but to clarify we now have a
+better definition than just "are there any major findings"", recorded on `160/1870`)
 **Status:** BRIEF ONLY, 2026-11-26 UTC. Approved, queued for the weekly drain that starts
 2026-11-29 23:00 UTC, where it runs among the drain's other passes and gates nothing. Written by
 headless session `664efda7` (`atelier-fc`, Opus 5.5), pinned at `40f96c01` (`origin/main` when

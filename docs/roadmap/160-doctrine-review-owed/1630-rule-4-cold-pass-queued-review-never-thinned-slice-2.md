@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: a review is never thinned to fit a budget,
+- [x] **Rule-4 cold pass queued: a review is never thinned to fit a budget,
       slice 2 (`430/010`): the whole review process defined at both scales,
       the pass and the brief, and the matching lines in `ECONOMICS.md`, the
       child template and the review-brief skill.** The authoring session
@@ -27,3 +27,11 @@
       (budget-driven sharing only).
       *Intent record:*
       [`../430-review-quality-is-never-traded-for-budget-mike-commissioned/010-reinforce-the-rule-in-doctrine-and-guard-it-in-code.md`](../430-review-quality-is-never-traded-for-budget-mike-commissioned/010-reinforce-the-rule-in-doctrine-and-guard-it-in-code.md).
+      **Folded into `160/1490` 2026-11-27 ~01:55 UTC (board `460/040`; session 4ce066ba,
+      `atelier-c1`, AskUserQuestion; an answer to options Claude wrote, not a ruling)** (one
+      open pass per subject, `method/REVIEW.md` § *Whether work earns a review at all*). His
+      pick, verbatim: *"Drop 8, merge 6 (Recommended)"* (option text: *"31 reviews stay in
+      Monday's drain. Takes back your earlier picks on 4 of them. Saves roughly 8 Fable passes
+      of budget; the 6 merged ones still get reviewed, just together."*). This pass's paths,
+      bound and intent record now sit in `160/1490`'s delta; it is reviewed there, not on its
+      own.

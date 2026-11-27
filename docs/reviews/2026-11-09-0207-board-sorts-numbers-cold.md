@@ -4,6 +4,8 @@
 function, rule 3).
 **Tier:** Fable 5.1, the principal-named review tier, checked at selection by whoever takes the
 pass. A session that cannot run on it stops (rule 4).
+**Status:** RETIRED 2026-11-27, not run — dequeued under the review bar (board 460/040;
+his pick "Drop 8, merge 6 (Recommended)")
 **Status:** BRIEF ONLY, not run. Written 2026-11-09 UTC by session `d4a0fcf3`, a headless Opus 5.5
 brief-writer. The pass is held for the principal's explicit approval of Fable work; this brief is
 not that approval.

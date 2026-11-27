@@ -9,6 +9,13 @@
       *Pass type:* doctrine cold pass, per `method/REVIEW.md` rule 4.
       *Delta, scoped to paths:* `docs/method/PRINCIPLES.md`: the commit that
       closes `340/010`, on `main`.
+      Widened 2026-11-27 by folding `160/1580` here (board `460/040`, one open pass per
+      subject; his pick *"Drop 8, merge 6 (Recommended)"*): `docs/method/PRINCIPLES.md`
+      (new §11; §10's cross-reference) and `docs/method/README.md` (its index line): the
+      commit that closes `160/150` (`de1049b3`), on `main`. Intent record for that part:
+      [`150-elevate-the-first-principles-doctrine-to-ateli.md`](150-elevate-the-first-principles-doctrine-to-ateli.md).
+      The folded item's own notes stay in `160/1580`. It carried the same approval as
+      this one (*"API credit if parity"*, 2026-11-17), so the terms below hold unchanged.
       *What to test hardest:* both are the principal's commissions of
       2026-08-22 worded by an agent; the §1 threshold ("longer than a session,
       or data whose loss is not recoverable elsewhere") was "plausibly" in the

@@ -13,6 +13,16 @@
       `skills/create-repo/SKILL.md`, `tools/README.md`, `tools/test_estate.py`,
       `CHANGELOG.md`, and `docs/method/RECORD.md` § *The session log*: the
       commit that closes `320/180`, on `main`.
+      Widened 2026-11-27 by folding `160/1650` here (board `460/040`, one open pass per
+      subject; his pick *"Drop 8, merge 6 (Recommended)"*): `docs/method/PROPAGATION.md`
+      (§ *Enforcement propagates too*, three new paragraphs) and `docs/method/EVIDENCE.md`
+      (§17): the commit that closes `115/440`, `320/040` and `115/410` (`e1534c27`), on
+      `main`. Intent records for that part:
+      [`../115-guardrail-architecture-mike-commissioned/440-parent-only-checks-versus-the-parent-child-parity-rule.md`](../115-guardrail-architecture-mike-commissioned/440-parent-only-checks-versus-the-parent-child-parity-rule.md),
+      [`../320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md`](../320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md),
+      [`../115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md`](../115-guardrail-architecture-mike-commissioned/410-evidence-17-says-nothing-inspects-shell-commands-modelguard-does.md).
+      The folded item's own notes stay in `160/1650`. It carried no approval of its own,
+      so the *Approval* below binds the whole pass unchanged.
       *What to test hardest:* the command now depends on `hooks.atelierTools`
       (or `$ATELIER_TOOLS`) being set, measured absolute in all 22 children on
       2026-11-16; with it unset git fails loud on `/`, which must never read as

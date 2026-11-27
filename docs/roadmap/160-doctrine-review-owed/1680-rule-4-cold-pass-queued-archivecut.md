@@ -23,6 +23,20 @@
       their tests); widened 2026-11-23 again by the commit that has
       `archivecut` find a session log at the repo root (`010/280`;
       `tools/archivecut.py`, its tests, `tools/README.md`).
+      Widened 2026-11-27 by folding `160/1700` here (board `460/040`, one open pass per
+      subject; his pick *"Drop 8, merge 6 (Recommended)"*): the tool, guards and doctrine
+      commit `b68cf410` (`tools/archivecut.py` and `tools/test_archivecut.py`;
+      `instruments/ccclose`, its test, design doc and man page; `tools/pathscan.py`,
+      `tools/coldsweep.py`, `tools/sizescan.py`, `tools/wrapscan.py`;
+      `docs/method/RECORD.md` § *The session log*, `docs/method/CONCURRENCY.md`,
+      `docs/method/REVIEW.md`, `CLAUDE.md`, `docs/build/REPO-STANDARD.md`, the repo
+      template, `skills/create-repo`, `skills/fleet-sweep`), and the run `e5f9f245` (the
+      removal of `docs/SESSIONS.md`, 302 session files written, `docs/sessions/README.md`).
+      Intent records for that part:
+      [`../010-board-store-migration-per-item-files-mik/270-session-index-rotation-names-a-retired-archive.md`](../010-board-store-migration-per-item-files-mik/270-session-index-rotation-names-a-retired-archive.md),
+      and for the grace removal
+      [`../010-board-store-migration-per-item-files-mik/290-remove-the-retired-session-index-grace-after.md`](../010-board-store-migration-per-item-files-mik/290-remove-the-retired-session-index-grace-after.md).
+      The folded item's own notes, its suggested prefix among them, stay in `160/1700`.
       *Suggested finding prefix:* `XC` (no collision in `docs/reviews` or the
       board at queuing).
       *What to test hardest:* can a cut pass its proof and still lose or

@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: every scanner's `--selftest` prints only
+- [x] **Rule-4 cold pass queued: every scanner's `--selftest` prints only
       its verdict (`320/690`).** The change reaches every child's next CI run
       (the reusable workflow's selftest step runs each scanner's `--selftest`),
       so the authoring session (a principal-opened Opus 5.5 queue run, session
@@ -19,3 +19,14 @@
       `.deferred.md` sibling. Pass size: small. Review NOT run: this pass
       waits for a criterion-passing cold Fable session and the principal's
       explicit permission for Fable work. Neither named session may run it.
+      **Dequeued 2026-11-27 ~01:55 UTC (board `460/040`; session 4ce066ba, `atelier-c1`,
+      AskUserQuestion; an answer to options Claude wrote, not a ruling), not run.** His pick,
+      verbatim: *"Drop 8, merge 6 (Recommended)"* (option text: *"31 reviews stay in Monday's
+      drain. Takes back your earlier picks on 4 of them. Saves roughly 8 Fable passes of
+      budget; the 6 merged ones still get reviewed, just together."*). Under the bar in
+      `method/REVIEW.md` § *Whether work earns a review at all*, this is an output shape on
+      reviewed, tested tools: what each scanner's `--selftest` prints, covered by
+      `tools/test_selftest_quiet.py`; the recorded grounds give reach (every child's CI runs
+      it), which the bar does not count. The brief stays as record, marked retired:
+      `docs/reviews/2026-11-09-0207-quiet-selftests-cold.md`.
+      review: not warranted — an output-shape change to reviewed scanners that their tests cover

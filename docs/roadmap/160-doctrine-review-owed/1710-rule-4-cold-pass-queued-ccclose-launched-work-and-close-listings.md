@@ -17,6 +17,15 @@
       accepts later evidence that a detached launch ended), on `main`; and
       `tools/idhook.py`, `tools/test_idhook.py`, `tools/README.md`: the
       commits that close `210/490`.
+      Widened 2026-11-27 by folding `160/1560` here (board `460/040`, one open pass per
+      subject; his pick *"Drop 8, merge 6 (Recommended)"*): `instruments/ccclose`,
+      `instruments/ccclose.test.js`, `instruments/man/ccclose.1`,
+      `instruments/ccclose.design.md`, `instruments/README.md`: the commit that lands the
+      `ccclose` half of `020/470` (`74a0ceaf`); and `tools/floorhook.py`,
+      `tools/test_floorhook.py`, `tools/README.md`: the later commit that closes `020/470`.
+      Intent record for that part:
+      [`../020-policy-as-code-programme-five-tracks-mik/470-a-hook-that-fails-noisy-when-a-child-floor-copy-is-stale.md`](../020-policy-as-code-programme-five-tracks-mik/470-a-hook-that-fails-noisy-when-a-child-floor-copy-is-stale.md).
+      The folded item's own notes stay in `160/1560`.
       *What to test hardest:* the principal's ruling quoted on `210/460`, that
       anything the session launched is a blocker: which states fail and which
       only warn (an unreadable process table, a schedule); the harness and

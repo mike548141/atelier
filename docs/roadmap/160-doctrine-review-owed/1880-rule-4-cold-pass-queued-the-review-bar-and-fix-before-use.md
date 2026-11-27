@@ -21,6 +21,14 @@
       `CHANGELOG.md`, every commit after `3693786f` up to and including the commit that
       lands `460/030` step 1. Intent record for that part:
       [`../460-the-bar-before-a-fable-review-is-ordered-mike-comm/030-gate-pointers-that-lack-the-grounds.md`](../460-the-bar-before-a-fable-review-is-ordered-mike-comm/030-gate-pointers-that-lack-the-grounds.md).
+      Widened 2026-11-27 by folding `160/1830` here (board `460/040`, one open pass per
+      subject; his pick *"Drop 8, merge 6 (Recommended)"*), so the two now run as one
+      pass: `docs/method/CONCURRENCY.md`, `docs/method/REVIEW.md`,
+      `docs/method/session-open/dispatch-brief.md`, `skills/review/brief.md`: also commit
+      `f239dc3b`, the commit that lands `160/1830`'s pointer, on `main`. Intent record for
+      that part:
+      [`../320-child-filed-findings-via-pointing-up/910-hand-up-dispatch-skeleton-test-bound-vs-brief-writer-re-run-lines.md`](../320-child-filed-findings-via-pointing-up/910-hand-up-dispatch-skeleton-test-bound-vs-brief-writer-re-run-lines.md).
+      The folded item's own notes stay in `160/1830`.
       *Intent record:*
       [`../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md`](../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md).
       💬 **When it runs, his pick 2026-11-26 ~22:00 UTC (session 4ccec293, `atelier-56`,
