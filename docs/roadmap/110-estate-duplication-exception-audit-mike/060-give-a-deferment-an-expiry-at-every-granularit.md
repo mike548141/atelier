@@ -1,4 +1,7 @@
-- [ ] **Give a deferment an expiry at every granularity, not just `advisory`.**
+- [~] **Give a deferment an expiry at every granularity, not just `advisory`.**
+      🔒 Claimed by session a2097e54 (`atelier-b2`, Opus 5.5), principal-opened by
+      `/atelier:work run` (part 4, line-marker granularity, warn-only).
+      (claimed 2026-11-27-1226, wt: atelier-qr-a209-linemarker)
       Raised by the ruling above. Today `review-by` is a floor-config field, so
       the only declarable deferment is a whole check. The two cases just dated
       are path-level, and a line marker has the same hole — `<guard>:allow:` is

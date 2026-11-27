@@ -24,8 +24,8 @@ line, so they overlap Open and Claimed.
 | [PRINCIPLES §9 — the time dimension, and what it now obliges (Mike, 2026-08-08)](roadmap/080-principles-9-the-time-dimension-and-what/README.md) | 1 | 0 | 0 | 0 |
 | [The floor-at-head all-clear has a cancelled-run hole (found 2026-08-09)](roadmap/090-the-floor-at-head-all-clear-has-a-cancel/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [spellscan's reason class silently voided live allow-markers — CLOSED 2026-08-09](roadmap/100-spellscan-s-reason-class-silently-voided/README.md) | 0 | 0 | 0 | 0 |
-| [Estate duplication + exception audit (Mike commissioned 2026-08-09)](roadmap/110-estate-duplication-exception-audit-mike/README.md) | 7 | 0 | 1 | 0 |
-| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 21 | 0 | 3 | 0 |
+| [Estate duplication + exception audit (Mike commissioned 2026-08-09)](roadmap/110-estate-duplication-exception-audit-mike/README.md) | 6 | 1 | 1 | 0 |
+| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 20 | 1 | 3 | 0 |
 | ✅ [test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
@@ -35,7 +35,7 @@ line, so they overlap Open and Claimed.
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
 | [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
-| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 18 | 0 | 5 | 1 |
+| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 16 | 2 | 5 | 1 |
 | [Observability of the collaboration itself (2026-07-30)](roadmap/220-observability-of-the-collaboration-itsel/README.md) | 4 | 0 | 0 | 0 |
 | [File-size hygiene (new 2026-07-14)](roadmap/230-file-size-hygiene-new-2026-07-14/README.md) | 2 | 0 | 1 | 0 |
 | [North star — context follows the person, work follows anywhere](roadmap/240-north-star-context-follows-the-person-wo/README.md) | 2 | 0 | 0 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 276 | 0 | 102 | 35 |
+| **All sections** | 272 | 4 | 102 | 35 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -141,7 +141,7 @@ line, so they overlap Open and Claimed.
 - [ ] [Eight children carry a floor block that predates four doctrine…](roadmap/110-estate-duplication-exception-audit-mike/030-eight-children-carry-a-floor-block-that-predat.md)
 - [ ] [shed narrows the floor legitimately and undeclarably.](roadmap/110-estate-duplication-exception-audit-mike/040-shed-narrows-the-floor-legitimately-and-undecl.md)
 - [ ] [The economics-doc duplication — the audit's headline, and Mike's…](roadmap/110-estate-duplication-exception-audit-mike/050-the-economics-doc-duplication-the-audit-s-head.md)
-- [ ] [Give a deferment an expiry at every granularity, not just advisory.](roadmap/110-estate-duplication-exception-audit-mike/060-give-a-deferment-an-expiry-at-every-granularit.md)
+- [~] (claimed 2026-11-27, wt: atelier-qr-a209-linemarker) [Give a deferment an expiry…](roadmap/110-estate-duplication-exception-audit-mike/060-give-a-deferment-an-expiry-at-every-granularit.md)
 - [ ] [Make the estate's floor state answer "passing", not just "wired".](roadmap/110-estate-duplication-exception-audit-mike/080-make-the-estate-s-floor-state-answer-passing-n.md)
 - [ ] [Triage the four red floors.](roadmap/110-estate-duplication-exception-audit-mike/090-triage-the-four-red-floors.md)
 - [ ] 🎯 [The exception audit above checked reason-presence and effectiveness —…](roadmap/110-estate-duplication-exception-audit-mike/100-two-granularities-the-2026-08-09-audit-never-asked-about.md)
@@ -169,7 +169,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🔎 [Defects the enforcement census found in slice 5.](roadmap/115-guardrail-architecture-mike-commissioned/510-census-slice-5-doctrine-defects.md)
 - [ ] 🔎 [Defects the enforcement census found in slice 6.](roadmap/115-guardrail-architecture-mike-commissioned/530-census-slice-6-doctrine-defects.md)
 - [ ] 🔎 [Defects the enforcement census found in slice 7.](roadmap/115-guardrail-architecture-mike-commissioned/540-census-slice-7-doctrine-defects.md)
-- [ ] 🔎 [Defects the enforcement census found in slice 8, in the validators'…](roadmap/115-guardrail-architecture-mike-commissioned/550-census-slice-8-validator-defects.md)
+- [~] 🔎 (claimed 2026-11-27, wt: atelier-qr-a209-census8) [Defects the enforcement census…](roadmap/115-guardrail-architecture-mike-commissioned/550-census-slice-8-validator-defects.md)
 - [ ] 🔎 [PROPAGATION.md and the root README.md say the plugin's scanner path…](roadmap/115-guardrail-architecture-mike-commissioned/570-plugin-scanner-path-pinned-to-a-version-that-no-longer-exists.md)
 
 ## Doctrine — review-owed
@@ -346,8 +346,8 @@ line, so they overlap Open and Claimed.
 - [ ] [🔧 Look for a measurably safer way for modelguard to catch a model-less…](roadmap/210-instruments-open-features/650-a-measurably-safer-tmux-rule-for-modelguard.md)
 - [ ] [🔧 ccfleet loads a file a private repo's instructions name mid-sentence…](roadmap/210-instruments-open-features/660-ccfleet-loads-a-mid-sentence-import-in-a-private-repo.md)
 - [ ] [🔧 Make a watcher, run outside every Claude session, that finds the…](roadmap/210-instruments-open-features/670-a-watcher-that-wakes-sessions-a-usage-limit-stopped.md)
-- [ ] 🔎 [ccopen's hand-up read is narrower than the doctrine it reports on: it…](roadmap/210-instruments-open-features/680-ccopen-misses-a-hand-up-on-a-non-report-branch.md)
-- [ ] 🔎 [Workers leave background wait loops that can never end, and ccclose…](roadmap/210-instruments-open-features/690-worker-background-waits-never-end-and-ccclose-misses-them.md)
+- [~] 🔎 (claimed 2026-11-27, wt: atelier-qr-a209-handup) [ccopen's hand-up read is narrower…](roadmap/210-instruments-open-features/680-ccopen-misses-a-hand-up-on-a-non-report-branch.md)
+- [~] 🔎 (claimed 2026-11-27, wt: atelier-qr-a209-waits) [Workers leave background wait…](roadmap/210-instruments-open-features/690-worker-background-waits-never-end-and-ccclose-misses-them.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

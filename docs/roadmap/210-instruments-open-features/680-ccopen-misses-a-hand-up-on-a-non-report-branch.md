@@ -1,4 +1,7 @@
-- [ ] 🔎 **`ccopen`'s hand-up read is narrower than the doctrine it reports on: it counts
+- [~] 🔎 **`ccopen`'s hand-up read is narrower than the doctrine it reports on: it counts
+      🔒 Claimed by session a2097e54 (`atelier-b2`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-1226, wt: atelier-qr-a209-handup)
       a PR as a hand-up only by its head ref, so a child's filing on any other branch
       reads as "other open"** `[S][tool]`. Found 2026-11-27 by session 9c5fa72c
       (`atelier-fa`). `PROPAGATION.md` § *Report without harming the parent* names a

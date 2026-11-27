@@ -1,4 +1,7 @@
-- [ ] 🔎 **Workers leave background wait loops that can never end, and `ccclose` does not
+- [~] 🔎 **Workers leave background wait loops that can never end, and `ccclose` does not
+      🔒 Claimed by session a2097e54 (`atelier-b2`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-1226, wt: atelier-qr-a209-waits)
       see a subagent's background shells** `[S][tool+doctrine]`. Handed to atelier
       2026-11-27 by a child queue run (class only), measured there the same day: its
       worker subagents left 21 background shells running, the oldest 5 h 10 min, until
