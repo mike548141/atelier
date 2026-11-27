@@ -44,7 +44,9 @@ machinery): most routine, mechanical changes. **The bar:** the intent record
 answers what will rest on the work, its worst failure, and why the tests, the
 floor and normal use would not surface that failure; with no answer to the
 last, no pass is owed. Never a pass of its own: a correction that adds no rule,
-a sync to a reviewed source, a loud-failing fix to a reviewed, tested tool.
+a sync to a reviewed source, a loud-failing fix to a reviewed, tested tool (a
+narrowing counts only when it reds both ways it can be wrong: too tight, and
+not holding).
 "Doctrine by function" (rule 3) decides who rules on findings, not whether a
 pass is owed. If it doesn't earn one, say so and stop — don't manufacture
 ceremony (REVIEW.md § *Whether work earns a review at all*).

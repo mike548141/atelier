@@ -555,8 +555,8 @@ pointer for a non-author to take — in the application commit itself, per
 rule 4's landing = queuing. For that review, rule 4's criterion tests
 the *delta's* author — the applier — at minimum, and prior authors in the
 chain where practical. The terminal application — one applying the rulings of
-a pass that returned no MAJOR — closes without a queued pointer, per the
-close rule below. An application review
+a pass that closes the cycle under the close rule below — closes without a
+queued pointer. An application review
 cannot fully honour rule 2 — the delta it reviews carries the prior verdicts'
 decision stamps — so its sequence is: review the edited doctrine at HEAD and
 commit findings *first*, open the verdict-file hunks after; the residual
@@ -566,8 +566,10 @@ no MAJOR finding** — what remains is decided into the backlog, and that
 application does not spawn another full ceremony. The escape valve if it *isn't*
 converging: when the MAJOR count is not falling from pass to pass, do not keep
 cranking — stop and ask the principal for direction. The same stop binds the
-fixes of any pass, code included (*When a finding is fixed before use, and when
-fixes earn a re-check* below).
+fixes of any pass, code included, and counts only the MAJORs that a finding's
+class fixes before use, so a pass whose MAJORs are all plain risks closes the
+cycle too (*When a finding is fixed before use, and when fixes earn a re-check*
+below).
 
 **A pass that is not accepted is withdrawn, never deleted** (the principal's
 ruling, 2026-07-26, promoted to doctrine 2026-08-05). The general case covers a
@@ -660,7 +662,8 @@ pointer stays refs only, rule 4, and names that record):
 2. **Worst failure:** the single worst way it can be wrong.
 3. **Why the floor misses it:** why the tests, the floor and normal use would
    not surface that failure — it fails silent, it reads untrusted input, it
-   narrows a grant or a detection, it changes what binds. "Every child runs
+   narrows a grant or a detection in a way no test reds on (judged both ways
+   it can be wrong, below), it changes what binds. "Every child runs
    it" is reach, not an answer: reach spreads a loud failure to more places,
    where the floor still catches it.
 
@@ -682,6 +685,40 @@ reviewed or queued; a fix whose failure is loud (a sort, a format, an output
 shape, a tightening that reds on misuse) to an already-reviewed tool its tests
 cover. Each carries `not warranted`, or joins the subject's open pass where one
 is unrun.
+
+**A narrowing is judged both ways it can be wrong.** A change that narrows a
+grant, a detection or what a guard accepts fits both lists above: question 3
+names "it narrows a grant or a detection", and the never list names "a
+tightening that reds on misuse". Its kind does not decide which list it is on;
+its failures do. The author names both ways it can be wrong, in the worst
+failure answer, and asks of each whether a test, the floor or normal use reds
+on it:
+
+- **Too tight:** it refuses what it should allow — a job lacks a permission it
+  needs, a guard refuses a valid case. Loud when a test or the floor takes that
+  path, or normal use does at its next run (a CI job that runs on every push);
+  silent when only a rarely taken path shows it (a job that runs only at
+  release, a branch no test reaches).
+- **Not holding:** it allows what it claims to stop — a grant still wider than
+  intended, a case the guard should now refuse that still passes, or, for a
+  narrowed detection, a true case it used to catch and now misses. Loud only
+  when a test reds on that case. Otherwise silent: the work still passes but no
+  longer checks what it says it does, and a wider grant than intended is a
+  security hole (*When a finding is fixed before use, and when fixes earn a
+  re-check* below). A test that only finds the narrowed form in place does not
+  red on it where the narrowing can be undone elsewhere while the form stays.
+
+Both loud: the never list's, with no pass of its own. Either silent: that is
+the answer to question 3, and a pass is owed, or the change joins the subject's
+open pass. Grounding: `460/040`'s dequeue round (2026-11-27) could not decide
+`160/1760`, least-privilege tokens in the CI templates, from the two lists
+(`460/070`). Under this test the too-tight way is loud (a child's CI runs on
+every pull request) and the not-holding way is silent (the test pins the
+workflow-level block, and a job's own `permissions:` can widen it), so the pass
+stays owed.
+The house already tests a tightening this way: `tools/test_leakscan.py` pins a
+narrowed rule in both directions, "because a tightening is the one kind of
+change that can quietly become a hole".
 
 **Rule 3 decides who rules on findings, not whether a pass is owed.** Rule 3
 calls a validator, a gate, a template or a skill doctrine by function so that its
@@ -768,19 +805,36 @@ names each finding's class beside its tag. Where rule 3 puts the decision with
 the principal, the ask names each finding's class and recommends from this rule,
 and he decides.
 
-**A re-check of fixes is owed only when the pass being fixed returned a
-MAJOR.** The fixes of a pass with no MAJOR close by lifecycle step 5, each fix
-exercised, with no further pass. Where a re-check is owed, it is one pass,
-scoped to the fixes, on the subject's one open pointer. The chain stops at the
-first pass that returns no MAJOR; if the MAJOR count is not falling from one
-pass to the next, stop and ask the principal. A re-check gates no use unless he
-says it does.
+**A re-check of fixes is owed only when the pass being fixed returned a MAJOR
+that this section fixes before use:** an issue, or one of the five kinds of
+risk above, as the decision on that pass classes it (lifecycle step 4). The
+principal's words on 2026-11-27, releasing a re-check that had been put to him
+in terms of MAJORs alone: *"Release it as per your recommended option - but to
+clarify we now have a better definition than just "are there any major
+findings""*. So a MAJOR is no longer enough on its own: a pass whose MAJORs are
+all plain risks earns no re-check, whatever is fixed. The fixes of a pass with
+no such MAJOR close by lifecycle step 5, each fix exercised, with no further
+pass. Where a re-check is owed, it is one pass, scoped to the fixes, on the
+subject's one open pointer. The chain stops at the first pass that returns no
+such MAJOR; if their count is not falling from one pass to the next, stop and
+ask the principal. That is the 2026-07-13 stop, kept for code as he picked,
+with this section's classes deciding which MAJORs count. A re-check gates no
+use unless he says it does.
+
+Keeping MAJOR beside the class, rather than letting any fixed issue earn a
+re-check whatever its severity, is the repo's reading of his words, not his
+own: it keeps both his 2026-07-13 stop and his release of that re-check true
+(the grounding below). It is put to him to confirm (`460/080`).
 
 Grounding: the drain code's chain (`ccfleet`, `modelguard` and the review
 skills). Its first pass, on 2026-11-20, failed with 2 MAJOR (`FL`). The re-check
 of those fixes returned 0 MAJOR (`RK`), which under this rule closes the chain.
 Three more passes ran on fixes after it (`DV`, `PK` and their re-check `DP`, 0
-MAJOR each) and a fourth was queued (`160/1870`).
+MAJOR each) and a fourth was queued (`160/1870`). He released that fourth on
+2026-11-27 (`460/040`). `DP` had returned issues, shown by probe (`DP1`, a
+guard passing launches it denied before the fix), but no MAJOR, so under this
+reading no re-check was owed; had any fixed issue earned one, it would have
+been.
 
 ## Review the design, not only the build — the earliest review is the cheapest
 

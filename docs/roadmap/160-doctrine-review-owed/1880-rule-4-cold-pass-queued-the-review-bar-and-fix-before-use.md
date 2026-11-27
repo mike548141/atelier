@@ -29,6 +29,12 @@
       that part:
       [`../320-child-filed-findings-via-pointing-up/910-hand-up-dispatch-skeleton-test-bound-vs-brief-writer-re-run-lines.md`](../320-child-filed-findings-via-pointing-up/910-hand-up-dispatch-skeleton-test-bound-vs-brief-writer-re-run-lines.md).
       The folded item's own notes stay in `160/1830`.
+      Widened 2026-11-27 by `460/070` (a narrowing judged both ways it can be wrong) and
+      `460/080` (a re-check keyed off a finding's class), whose items fold here:
+      `docs/method/REVIEW.md`, `skills/review/brief.md`, `CHANGELOG.md`: also the commit that
+      closes `460/070` and `460/080`, on `main`. Intent records for that part:
+      [`../460-the-bar-before-a-fable-review-is-ordered-mike-comm/070-narrows-a-grant-vs-a-tightening-that-reds.md`](../460-the-bar-before-a-fable-review-is-ordered-mike-comm/070-narrows-a-grant-vs-a-tightening-that-reds.md),
+      [`../460-the-bar-before-a-fable-review-is-ordered-mike-comm/080-a-re-check-keys-off-the-issue-and-risk-definition.md`](../460-the-bar-before-a-fable-review-is-ordered-mike-comm/080-a-re-check-keys-off-the-issue-and-risk-definition.md).
       *Intent record:*
       [`../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md`](../460-the-bar-before-a-fable-review-is-ordered-mike-comm/020-write-the-bar-into-the-review-rules.md).
       💬 **When it runs, his pick 2026-11-26 ~22:00 UTC (session 4ccec293, `atelier-56`,

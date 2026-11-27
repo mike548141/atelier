@@ -5,6 +5,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-27 — a narrowing is judged both ways, and a re-check keys off a finding's class, `460/070`, `460/080`)
+- **Adopter action.** A change that narrows a grant, a detection or what a guard accepts
+  names both ways it can be wrong: too tight (it refuses what it should allow) and not
+  holding (it allows what it claims to stop). Only when a test, the floor or normal use
+  reds on both is it a loud fix with no pass of its own; either way silent answers the
+  bar's third question (`REVIEW.md` § *Whether work earns a review at all*).
+- **When fixes earn a re-check.** Owed only when the pass being fixed returned a MAJOR that
+  is an issue or one of the five kinds of risk fixed before use; a pass whose MAJORs are
+  all plain risks closes the chain, as one with no MAJOR always did. This replaces the
+  2026-11-26 line that keyed the re-check off any MAJOR (`REVIEW.md` § *When a finding is
+  fixed before use, and when fixes earn a re-check*).
+
 ### Changed (2026-11-27 — the child floor template names no date still to come, `115/530`)
 - **`workflows/floor.yml` states the sizescan bar undated.** It said the check "may not be
   declared advisory or disabled from 2026-12-09. Until then it still can", which every
