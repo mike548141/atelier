@@ -25,12 +25,12 @@ line, so they overlap Open and Claimed.
 | [The floor-at-head all-clear has a cancelled-run hole (found 2026-08-09)](roadmap/090-the-floor-at-head-all-clear-has-a-cancel/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [spellscan's reason class silently voided live allow-markers — CLOSED 2026-08-09](roadmap/100-spellscan-s-reason-class-silently-voided/README.md) | 0 | 0 | 0 | 0 |
 | [Estate duplication + exception audit (Mike commissioned 2026-08-09)](roadmap/110-estate-duplication-exception-audit-mike/README.md) | 7 | 0 | 1 | 0 |
-| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 20 | 0 | 3 | 0 |
+| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 21 | 0 | 3 | 0 |
 | ✅ [test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)](roadmap/150-the-residue-ruling-round-runs-in-a-fresh/README.md) | 0 | 0 | 0 | 0 |
-| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 126 | 0 | 73 | 33 |
+| [Doctrine — review-owed](roadmap/160-doctrine-review-owed/README.md) | 127 | 0 | 73 | 34 |
 | [build/ layer — open strands](roadmap/170-build-layer-open-strands/README.md) | 1 | 0 | 0 | 0 |
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 273 | 1 | 102 | 34 |
+| **All sections** | 275 | 1 | 102 | 35 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -170,6 +170,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🔎 [Defects the enforcement census found in slice 6.](roadmap/115-guardrail-architecture-mike-commissioned/530-census-slice-6-doctrine-defects.md)
 - [ ] 🔎 [Defects the enforcement census found in slice 7.](roadmap/115-guardrail-architecture-mike-commissioned/540-census-slice-7-doctrine-defects.md)
 - [ ] 🔎 [Defects the enforcement census found in slice 8, in the validators'…](roadmap/115-guardrail-architecture-mike-commissioned/550-census-slice-8-validator-defects.md)
+- [ ] 🔎 [PROPAGATION.md and the root README.md say the plugin's scanner path…](roadmap/115-guardrail-architecture-mike-commissioned/570-plugin-scanner-path-pinned-to-a-version-that-no-longer-exists.md)
 
 ## Doctrine — review-owed
 
@@ -303,6 +304,7 @@ line, so they overlap Open and Claimed.
 - [ ] ⏳ [Rule-4 cold pass queued: the plain-tree walk counts what it prunes,…](roadmap/160-doctrine-review-owed/1860-rule-4-cold-pass-queued-pruned-directory-count.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the bar before a pass is queued, and when a…](roadmap/160-doctrine-review-owed/1880-rule-4-cold-pass-queued-the-review-bar-and-fix-before-use.md)
 - [ ] ⏳ [Rule-4 cold pass queued: signscan accepts named commits by full id,…](roadmap/160-doctrine-review-owed/1890-rule-4-cold-pass-queued-signscan-accepted-exceptions.md)
+- [ ] ⏳ [Rule-4 cold pass queued: stampscan reads a child's stamp at the…](roadmap/160-doctrine-review-owed/1900-rule-4-cold-pass-queued-stampscan-reads-the-childs-pin.md)
 
 ## build/ layer — open strands
 
