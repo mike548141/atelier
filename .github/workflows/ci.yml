@@ -180,23 +180,9 @@ jobs:
       - name: scanner floor (registry-driven)
         run: python3 tools/floor.py --plane ci --root .
 
-      # stampscan (S4, 2026-07-22 invariant-candidates review): where a child
-      # repo or a template INLINES a floor/pull-quote of canonical doctrine, the
-      # copy must equal its parent — or legitimately narrow it, declared — never
-      # silently drop or contradict an item. REVIEWED (2026-07-26 cold pass,
-      # PASS-WITH-FINDINGS), WIRED ADVISORY-ONLY, HERE AND NOWHERE ELSE. Its
-      # review barred wiring until three preconditions landed, and they have:
-      # the parser strips fenced blocks and inline-code spans before
-      # marker-hunting (ST1 — a doc that merely *documented* the syntax used to
-      # exit 2, and --warn never downgrades a config error), .stampscanignore
-      # ships the house net (ST1), and narrowing-to-nothing is drift (ST2, ruled
-      # 2026-08-04). Deliberately NOT in tools/floor.py's registry: that reaches
-      # every child (ADR 0008) and ST3 is open — the template's source= pins a
-      # path that exists only in atelier, and child-side resolution must be
-      # pin-aware. Do not drop --warn until a separate ruling after an advisory
-      # soak (the wrapscan/datescan precedent).
-      - name: stampscan (inlined-floor drift — advisory, atelier-only)
-        run: python3 tools/stampscan.py --warn --root . .
+      # stampscan runs from the registry line above since 2026-11-27 (020/110),
+      # warn-only on the ci plane, here and in every child: its source= now
+      # resolves in a child at that child's own atelier pin (ST3's bar).
 
       # blockscan (board 320/300, ruled 2026-09-19 "Build the check"): a
       # ruling that changes a mapped method-doc section (tools/
@@ -208,12 +194,12 @@ jobs:
       # CONCURRENCY.md, ECONOMICS.md, RECORD.md, PROPAGATION.md, and the
       # scaffold template) exists only in atelier, so a registry line would
       # exit 2 — a fail-safe config error, never downgraded by --warn — on
-      # every child's hook and CI from the moment it merged (the same ST3
-      # class stampscan's own comment above states). Two runs, not one:
-      # --check alone verifies the map's own integrity (every mapped heading
-      # and bullet anchor still resolves) but does NO co-change check at
-      # all — that needs two states to compare, and a CI checkout's index is
-      # identical to HEAD, so reading it as "staged" would be vacuous.
+      # every child's hook and CI from the moment it merged (the class ST3
+      # named for stampscan, before 020/110 made its source= pin-aware).
+      # Two runs, not one: --check alone verifies the map's own integrity
+      # (every mapped heading and bullet anchor still resolves) but does NO
+      # co-change check at all — that needs two states to compare, and a CI
+      # checkout's index is identical to HEAD, so reading it as "staged" would be vacuous.
       # --against HEAD^ asks the co-change question between the commit that
       # just landed and its parent (harvestscan's own convention for the
       # same plane gap). Neither run reaches this repo's own pre-commit

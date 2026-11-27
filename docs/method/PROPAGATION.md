@@ -293,8 +293,10 @@ lines); undeclared, a drop reds. Four boundaries on that:
   to the principal first, as for a record store (`320/410`, the house's
   choice, 2026-11-16). The declaration above stays for any other stamped
   region; as of 2026-11-09 the floor is the only one. **What reaches a child's
-  copy:** nothing in the child's own CI, since `stampscan` cannot resolve a
-  child's `source=` (ST3); `tools/pins.py` compares each child's copy with the
+  copy:** since 2026-11-27, `stampscan` in the child's own CI, warn-only
+  (`020/110`): it reads a child's `source=` from atelier at that child's pin
+  and fills the placeholders back, so it reports a copy that differs and blocks
+  nothing; and `tools/pins.py`, which compares each child's copy with the
   floor *as it stood at that child's pin*
   (verbatim at its pin, not at today's text) and reports the ones that differ.
   That is report-only until 2026-12-09 and fails the fleet check from then
@@ -1019,12 +1021,14 @@ whether the check's subject exists in a child at all:
   sections and scaffold template it maps, and every path its map names exists
   only in atelier, so a registry line would exit 2 in every child. Nothing a
   child holds is left unchecked, so there is no drift to hide.
-- **Parent-only for now, which is the defect one level up, named.**
+- **Parent-only until 2026-11-27, which was the defect one level up, named.**
   `stampscan` compares a child's or the template's inlined copy of the floor
-  against its parent source, and it is wired advisory in atelier's CI alone
-  until child-side resolution is pin-aware (`ST3`, open). Children hold the
-  copies it exists to check and nothing checks them, so this is a gap held
-  open on purpose, not a design. It closes when the check reaches the registry.
+  against its parent source, and it ran advisory in atelier's CI alone until
+  child-side resolution was pin-aware (`ST3`). Children hold the copies it
+  exists to check, so that was a gap held open on purpose. It closed when the
+  check reached the registry (`020/110`): a warn-only line on the CI plane,
+  reading a child's source from atelier at the child's own pin. Blocking is a
+  later ruling.
 - **Not parent-only at all.** Commit-signature verification runs in every
   child too, through `floor.yml`. The two differ in the trust root only:
   atelier verifies against its own `allowed_signers` because it is the root, a

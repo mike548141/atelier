@@ -1065,6 +1065,59 @@ SCANNERS: tuple[Scanner, ...] = (
         ),
     ),
     Scanner(
+        "stampscan",
+        # 020/110 — the registry promotion ST3 barred (2026-07-26 cold pass).
+        # Until this line stampscan ran as a bespoke `--warn` step in atelier's
+        # own ci.yml and reached no child, because a child's stamp names
+        # `source=docs/method/PROPAGATION.md`, which exists only in atelier:
+        # all 25 stamped children measured on 2026-11-27 exited 2. The scanner
+        # now reads such a source from the atelier checkout AT THE CHILD'S OWN
+        # PIN (the review's sharpening: pin-aware, never atelier@main), with the
+        # child's placeholder fills put back; the same 25 then read
+        # `identical`, and every child exited 0.
+        #
+        # CI PLANE ONLY (`CI_ONLY`). A stamped floor sits in CLAUDE.md at the
+        # repo root, so the scope is the whole tree, and that walk took up to
+        # 14 s on the largest children measured: too slow for every commit
+        # during a soak. The
+        # reusable workflow already checks atelier out with full history (for
+        # signscan's pin), so every pin resolves there; a hook-plane line is
+        # one more template, later.
+        #
+        # `--warn` is in the template: drift and an unverified stamp (no pin, a
+        # pin the checkout lacks) are reported and never block. A config error
+        # (a stamp pointing nowhere, malformed markers) still exits 2, as on
+        # every warn-only check (`Result.failed`). THE FLIP TO BLOCKING IS A
+        # SEPARATE RULING after an advisory soak, the wrapscan/datescan
+        # precedent; it is this one argument (plus `--require-floor-stamp`
+        # if he wants an unstamped floor to fail too).
+        hook=None,
+        ci=["--warn", "--root", "{root}", "{scope}"],
+        advisory=["--warn", "--root", "{root}", "{scope}"],
+        why="an inlined copy still equals its canonical parent, read at the "
+            "repo's own atelier pin",
+        declares=Declares(
+            rule=("docs/method/PROPAGATION.md § One statement, stamped copies "
+                  "— never three originals",),
+            grounding=(Grounding(
+                "board 320/160",
+                "tools/test_stampscan.py::ChildPinResolution."
+                "test_stale_pin_compares_against_the_pin_not_head"),),
+            purpose_gap="the rule wants every copy to say what its original "
+                        "says; the check compares only blocks that carry stamp "
+                        "markers, so an unstamped copy is invisible to it",
+            window=Window(
+                hook="not run on this plane",
+                ci="every Markdown file in the CI checkout, each stamp against "
+                   "its source in the tree or, for a child, in atelier at the "
+                   "child's pin",
+                licensing_context="a declared narrow= on a non-floor region, "
+                                  "or an allow-marker on one",
+                fits="outside-warn-only"),
+            posture=_POSTURE_UNDECLARED,
+        ),
+    ),
+    Scanner(
         "indexscan",
         # 200/010, option C as ruled: one generic check that a hand-maintained
         # index names every entry of the directory it maps (the UNLISTED
@@ -1347,6 +1400,12 @@ BY_NAME = {s.name: s for s in SCANNERS}
 # no CI form by design. Named, not inferred from a None, so a dropped `ci=` on
 # any other entry still fails the selftest.
 HOOK_ONLY = frozenset({"sweepscan"})
+# The mirror: a check named here has no hook form, by design and on the record.
+# stampscan walks the whole tree (a stamped floor sits in CLAUDE.md at the root)
+# and took up to 14 s on the largest children measured on 2026-11-27, against 5
+# to 6 s for linkscan's whole-tree walk on the same repos: CI only for its
+# advisory soak (020/110). Named for the same reason HOOK_ONLY is.
+CI_ONLY = frozenset({"stampscan"})
 # The checks that declare a `msg` template. Named so a test notices if a new
 # entry starts reading messages without saying so.
 MSG_CHECKS = frozenset({"namescan", "quotescan"})
@@ -3539,7 +3598,7 @@ def _selftest() -> int:
     # Every registered scanner runs on both planes unless deliberately absent.
     for s in SCANNERS:
         check(f"{s.name} has a hook form",
-              s.hook is not None or s.msg is not None)
+              s.hook is not None or s.msg is not None or s.name in CI_ONLY)
         check(f"{s.name} has a ci form",
               s.ci is not None or s.name in HOOK_ONLY)
     check("no existing registry entry reads a message by accident",
@@ -3661,7 +3720,7 @@ def _selftest() -> int:
           ci_states["tripwire"] == "skipped")
     check("a local check does not disturb the fleet floor",
           hook_states["secretscan"] == "enforced"
-          and len(hook_states) == sum(s.hook is not None for s in SCANNERS) + 1)
+          and len(hook_states) == sum(s.msg is None for s in SCANNERS) + 1)
     check("local scope is read from the declaration",
           subtrees(root, Config(local=(Scanner("x", [], [], [], "w", run="c.py",
                                                scope_paths=("src",)),)), "x") == ["src"])

@@ -158,6 +158,14 @@ git config user.email "<git_identity.email>"
    - `<visibility fact>` → e.g. "PRIVATE (a push is not publication; making it
      public is a floor action)". The block's canonical text is atelier's
      PROPAGATION.md — the template carries a stamped copy; don't paraphrase it.
+   - **Keep the two marker lines around the block** (`stamp:begin
+     source=docs/method/PROPAGATION.md region=floor` and `stamp:end`, HTML
+     comments, so invisible when rendered). They are load-bearing scaffold
+     content, not template furniture: they are how the floor's `stampscan`
+     finds this copy and checks it against the floor at this repo's pin, with
+     the placeholder fills above put back. Strip them and the copy is never
+     checked; leave the `source=` path as written, since it names atelier's
+     file, read at the pin, not one in this repo.
    Also fill `<atelier-path>` in **every other stamped file that carries it**
    (same value): CONTRIBUTING's once-per-clone hook lines and
    `docs/reviews/README.md`'s pointer lines today — but grep for the placeholder
@@ -181,6 +189,9 @@ git config user.email "<git_identity.email>"
    export ATELIER_TOOLS="$(cd "$SRC/tools" && pwd)"
    A="${ATELIER_TOOLS:-$(git config hooks.atelierTools)}/..";
    git -C "$A" fetch -q && git -C "$A" log --oneline <stamped-SHA>..origin/main
+   # live mode, the copy itself; expect exit 0 and `[identical]` (it reads the
+   # floor at the stamped pin, so a dropped marker or a reworded line shows here):
+   python3 "$ATELIER_TOOLS/stampscan.py" --require-floor-stamp --root . CLAUDE.md
    # bundled mode; expect exactly the stamped <VERSION>:
    grep '"version"' "$SRC/.claude-plugin/plugin.json"
    ```

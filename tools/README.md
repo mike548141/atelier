@@ -2321,7 +2321,7 @@ personal data the list never pinned (a given name carries no string to find)
 and cannot judge whether an entry's reason is good, only whether a place is
 named.
 
-## `stampscan.py` — an inlined copy still equals its canonical parent (advisory)
+## `stampscan.py` — an inlined copy still equals its canonical parent (warn-only)
 
 Where a child repo or a template **inlines** a floor or a pull-quote of canonical
 doctrine, the copy must equal its parent — or *legitimately narrow* it, declared
@@ -2349,7 +2349,7 @@ rendered Markdown hides raw HTML comments, so genuine documentation uses a code
 span anyway, and `.stampscanignore` nets the stores that quote probe material raw.
 
 ```sh
-python3 tools/stampscan.py --warn --root . .   # the advisory CI invocation
+python3 tools/stampscan.py --warn --root . .   # what the floor's ci plane runs
 python3 tools/stampscan.py --root . docs       # docs only, gating
 python3 tools/stampscan.py --json              # machine-readable
 python3 tools/stampscan.py --require-stamps --root . .   # fail if nothing was verified
@@ -2376,8 +2376,9 @@ config errors (`2`) are reported as before. Both switches are off by default,
 so the advisory invocation is unchanged, and nothing wired passes either of
 them yet.
 
-Exit codes: `0` clean, or `--warn` with drift findings only · `1` drift, without
-`--warn` · `2` usage/config error — a malformed stamp, an unresolvable source or
+Exit codes: `0` clean, or `--warn` with drift or `unverified` findings only ·
+`1` drift, without `--warn` · `2` an `unverified` stamp without `--warn`, or a
+usage/config error — a malformed stamp, an unresolvable source or
 region, or a `source=` resolving **outside** `--root` (traversal and absolute
 paths both escaped before; a crafted stamp could aim the scanner at any file on
 the machine and get a line of it echoed in the drift hint). A config error is
@@ -2393,16 +2394,33 @@ scanned for stamps of its own (it stays usable as a canonical `source=`
 target); it is the one lane left that can skip a file that carries a floor
 stamp.
 
-**Wired advisory in atelier's own `ci.yml` only** — deliberately *not* in the
-`floor.py` registry, which would reach every child at once (ADR 0008). The
-template ships a stamp pinned at `source=docs/method/PROPAGATION.md`, a path that
-exists only here, so a scaffolded child running it would exit 2; the child-side
-resolution story also has to be **pin-aware**, since a child pinned at
-`atelier@<SHA>` may lawfully differ from atelier@main. That is ST3, still open.
-What reaches a child's copy meanwhile is `pins`' floor-copy report (above): it
-runs `stampscan`'s comparison against the floor at each child's own pin, from
-atelier, report-only until 2026-12-09 and blocking after (`160/340`), for a copy
-that differs and, from the same date, one with no stamp.
+**In a child, the source is read at the child's own pin** (`020/110`, closing
+the 2026-07-26 cold pass's ST3). A child's stamp names
+`source=docs/method/PROPAGATION.md`, which exists only in atelier, so until
+this every stamped child exited 2. Now, when `source=` is not in the scanned
+tree, the tree is a git repository and it is not atelier itself, the scanner
+reads the source from the atelier checkout with `git show <pin>:<source>`, the
+pin being the first `atelier@<sha>` in the child's `CLAUDE.md`, and puts the
+child's placeholder fills back first (`pins`' own `fill_placeholders`). So a
+child pinned in the past and verbatim to that pin is clean, and a copy of
+today's text under an old pin is drift. The atelier checkout is the one the
+scanner ships in, or `--atelier <path>`; it must hold the pin (the reusable
+workflow checks atelier out with full history). A question this run cannot
+answer — no pin, a pin the checkout lacks, a pin from before the region was
+marked — is `unverified`: listed by name, never counted as clean, exit `2`
+without `--warn` and `0` with it, and never enough for either cover switch. A
+source absent from the child *and* from atelier at a pin it holds still points
+nowhere, which stays a config error. Measured 2026-11-27 over the estate's
+children: all 25 stamped floors read `identical` at their pins, where every one
+had exited 2.
+
+**Wired warn-only in the `floor.py` registry, ci plane only** (`CI_ONLY`): it
+reaches every child's CI (ADR 0008), and the bespoke step in atelier's
+`ci.yml` is gone. Not on the hook plane, because the stamped floor sits in
+`CLAUDE.md` at the root, so it walks the whole tree, which took up to 14 s on
+the largest children. Blocking is a later ruling after the soak. `pins`'
+floor-copy report (above) runs the same comparison across the fleet from
+atelier, report-only until 2026-12-09 and blocking after (`160/340`).
 
 ## `memprobe.py` — measuring a guard's real peak memory from outside it
 

@@ -5,6 +5,26 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-27 — `stampscan` reads a child's stamp at the child's pin, and reaches every child, `020/110`)
+- **A child's stamped floor is now checked in the child.** Its stamp names
+  `source=docs/method/PROPAGATION.md`, which exists only in atelier, so `stampscan` exited 2
+  in every stamped child (ST3). It now reads that source from the atelier checkout at the
+  child's own pin (`git show <pin>:<source>`, the pin being the first `atelier@<sha>` in the
+  child's `CLAUDE.md`), with the child's placeholder fills put back, and compares. A stale
+  but faithful copy is clean; today's text under an old pin is drift. A question the run
+  cannot answer (no pin, a pin the checkout lacks, a pin from before the region) is a new
+  `unverified` finding: never clean, exit 2 without `--warn`, 0 with it, and never enough
+  for `--require-stamps` or `--require-floor-stamp`. New `--atelier <path>`; inside atelier
+  and in a plain directory nothing changes.
+- **Wired warn-only in the floor registry, ci plane only** (`CI_ONLY`, beside `HOOK_ONLY`);
+  atelier's bespoke `ci.yml` step is gone. Measured over the estate's children: all 25
+  stamped floors read `identical` at their pins, and every child exits 0. Blocking is a
+  later ruling.
+- **Adopter action.** None for a child: its next CI run lists `stampscan` as warn-only and
+  blocks on nothing but a config error (a stamp pointing nowhere, broken markers).
+  `/atelier:repo create` now keeps the stamp markers as load-bearing and proves the copy
+  with `stampscan --require-floor-stamp --root . CLAUDE.md`.
+
 ### Changed (2026-11-27 — `/atelier:repo hook` installs the tracked form, and the fleet prompts share one never-list, `115/540`)
 - **`/atelier:repo hook` copies the three hooks into `.githooks/` and sets `core.hooksPath`,**
   as ADR 0008 decision 4 and `/atelier:repo create` step 6 say. It had copied the samples

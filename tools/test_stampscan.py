@@ -1331,5 +1331,167 @@ class LinkedWorktreeSkipped(unittest.TestCase):
         self.assertNotIn("weird/real.txt", found)
 
 
+def _git(cwd, *args):
+    import subprocess
+    return subprocess.run(
+        ["git", "-c", "user.email=t@example.com", "-c", "user.name=Test",  # leakscan:allow: fictional test fixture
+         "-c", "commit.gpgsign=false", *args],
+        cwd=str(cwd), check=True, capture_output=True, text=True).stdout.strip()
+
+
+class ChildPinResolution(unittest.TestCase):
+    """020/110 (ST3): a CHILD's stamp names a source that exists only in
+    atelier. The scanner reads it from the atelier checkout at the child's own
+    pin, fills the child's placeholders back in, and compares. Every fixture
+    here is synthetic: a two-commit fake atelier and a fake child, both real
+    git repositories, so the pin really is a commit and HEAD really moved."""
+
+    FLOOR_V1 = ["## Doctrine (pinned `atelier@<SHA>`)", "- one", "- two"]
+    FLOOR_V2 = ["## Doctrine (pinned `atelier@<SHA>`)", "- one", "- two",
+                "- three, added after the pin"]
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self.atelier = self.tmp / "atelier"
+        self.atelier.mkdir()
+        _git(self.atelier, "init", "-q")
+        _write(self.atelier, ss.FLOOR_SOURCE, _parent_text(self.FLOOR_V1))
+        _git(self.atelier, "add", "-A")
+        _git(self.atelier, "commit", "-q", "-m", "v1")
+        self.old = _git(self.atelier, "rev-parse", "--short", "HEAD")
+        _write(self.atelier, ss.FLOOR_SOURCE, _parent_text(self.FLOOR_V2))
+        _git(self.atelier, "commit", "-q", "-am", "v2")
+        self.head = _git(self.atelier, "rev-parse", "--short", "HEAD")
+        self.child = self.tmp / "child"
+        self.child.mkdir()
+        _git(self.child, "init", "-q")
+
+    def _claude(self, floor_lines, pin, source=ss.FLOOR_SOURCE):
+        filled = [ln.replace("<SHA>", pin) for ln in floor_lines]
+        _write(self.child, "CLAUDE.md",
+               f"# Child, pinned atelier@{pin}\n\n"
+               + _child_text(filled, source=source) + "\nLocal.\n")
+
+    def _run(self, *argv):
+        import contextlib
+        import io
+        import json
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ss._main(["--root", str(self.child), "--atelier",
+                           str(self.atelier), "--json", *argv, str(self.child)])
+        return rc, json.loads(out.getvalue())
+
+    def _kinds(self, doc):
+        return [f["kind"] for f in doc["findings"]]
+
+    def test_current_pin_and_faithful_copy_is_identical(self):
+        self._claude(self.FLOOR_V2, self.head)
+        rc, doc = self._run()
+        self.assertEqual((0, ["identical"]), (rc, self._kinds(doc)))
+        self.assertTrue(doc["findings"][0]["floor"])
+        self.assertIn(f"at the pin {self.head}", doc["findings"][0]["detail"])
+
+    def test_stale_pin_compares_against_the_pin_not_head(self):
+        """The case the review sharpened ST3 with: a child pinned in the past
+        is lawfully verbatim to what it pinned. Against HEAD it would read as
+        drift; against its own pin it is clean."""
+        self._claude(self.FLOOR_V1, self.old)
+        rc, doc = self._run()
+        self.assertEqual((0, ["identical"]), (rc, self._kinds(doc)))
+
+    def test_stale_pin_with_heads_text_is_drift(self):
+        """The converse: a copy of HEAD's text under an old pin differs from
+        the floor at the pin it names, so the pin, not HEAD, is the reference."""
+        self._claude(self.FLOOR_V2, self.old)
+        rc, doc = self._run()
+        self.assertEqual((1, ["drift"]), (rc, self._kinds(doc)))
+
+    def test_unfilled_placeholder_is_drift(self):
+        _write(self.child, "CLAUDE.md",
+               f"pin atelier@{self.head}\n\n"
+               + _child_text(self.FLOOR_V2, source=ss.FLOOR_SOURCE))
+        rc, doc = self._run()
+        self.assertEqual((1, ["drift"]), (rc, self._kinds(doc)))
+
+    def test_child_with_no_pin_is_unverified_not_clean(self):
+        _write(self.child, "CLAUDE.md",
+               _child_text([ln.replace("<SHA>", "x") for ln in self.FLOOR_V2],
+                           source=ss.FLOOR_SOURCE))
+        rc, doc = self._run()
+        self.assertEqual((2, ["unverified"]), (rc, self._kinds(doc)))
+        self.assertIn("no `atelier@<sha>` pin", doc["findings"][0]["detail"])
+        self.assertFalse(doc["clean"])
+        self.assertEqual(1, doc["unverified"])
+
+    def test_unverified_is_reported_not_blocking_under_warn(self):
+        _write(self.child, "CLAUDE.md", _child_text(["x"], source=ss.FLOOR_SOURCE))
+        rc, doc = self._run("--warn")
+        self.assertEqual((0, ["unverified"]), (rc, self._kinds(doc)))
+        self.assertFalse(doc["clean"])
+
+    def test_unverified_never_satisfies_the_cover_switch(self):
+        _write(self.child, "CLAUDE.md", _child_text(["x"], source=ss.FLOOR_SOURCE))
+        rc, doc = self._run("--warn", "--require-floor-stamp")
+        self.assertEqual(2, rc)
+        self.assertEqual("no-stamped-block", doc["require_stamps_unmet"])
+
+    def test_pin_the_checkout_does_not_hold_is_unverified(self):
+        self._claude(self.FLOOR_V2, "deadbeefdeadbeef")
+        rc, doc = self._run()
+        self.assertEqual((2, ["unverified"]), (rc, self._kinds(doc)))
+        self.assertIn("is not in the atelier checkout", doc["findings"][0]["detail"])
+
+    def test_pin_from_before_the_region_is_unverified(self):
+        _write(self.atelier, "docs/OTHER.md", "no region here\n")
+        _git(self.atelier, "add", "-A")
+        _git(self.atelier, "commit", "-q", "-m", "other")
+        pin = _git(self.atelier, "rev-parse", "--short", "HEAD")
+        self._claude(["a"], pin, source="docs/OTHER.md")
+        rc, doc = self._run("--warn")
+        self.assertEqual((0, ["unverified"]), (rc, self._kinds(doc)))
+        self.assertIn("bump the pin", doc["findings"][0]["detail"])
+
+    def test_source_absent_at_a_held_pin_stays_a_config_error(self):
+        """A stamp pointing nowhere, in either repository, is the config error
+        it always was, and `--warn` does not downgrade it."""
+        self._claude(["a"], self.head, source="docs/NOPE.md")
+        rc, doc = self._run("--warn")
+        self.assertEqual((2, ["missing-source"]), (rc, self._kinds(doc)))
+
+    def test_escaping_source_is_still_refused(self):
+        self._claude(["a"], self.head, source="../atelier/" + ss.FLOOR_SOURCE)
+        rc, doc = self._run("--warn")
+        self.assertEqual((2, ["unconfined-source"]), (rc, self._kinds(doc)))
+
+    def test_inside_atelier_a_missing_source_is_not_looked_up_at_a_pin(self):
+        """Atelier's own tree (or a worktree of it) has no pin to read: a
+        source missing there is a typo, and stays a config error."""
+        _write(self.atelier, "CLAUDE.md", f"atelier@{self.head}\n\n"
+               + _child_text(["a"], source="docs/NOPE.md"))
+        import contextlib
+        import io
+        with contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()):
+            rc = ss._main(["--warn", "--root", str(self.atelier), "--atelier",
+                           str(self.atelier), str(self.atelier)])
+        self.assertEqual(2, rc)
+
+    def test_a_plain_directory_keeps_the_old_reading(self):
+        plain = self.tmp / "plain"
+        _write(plain, "CLAUDE.md", f"atelier@{self.head}\n\n"
+               + _child_text(self.FLOOR_V2))
+        found = ss.scan_paths([plain], plain, atelier=self.atelier)
+        self.assertEqual(["missing-source"], [f.kind for f in found])
+
+    def test_human_output_never_says_clean_over_an_unverified_stamp(self):
+        _write(self.child, "CLAUDE.md", _child_text(["x"], source=ss.FLOOR_SOURCE))
+        found = ss.scan_paths([self.child], self.child, atelier=self.atelier)
+        text = ss.render_human(found)
+        self.assertIn("could not be verified", text)
+        self.assertNotIn("stampscan clean", text)
+
+
 if __name__ == "__main__":
     unittest.main()

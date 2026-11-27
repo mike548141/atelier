@@ -76,7 +76,7 @@ class RegistryTest(unittest.TestCase):
         """A check that ran in CI but not the hook (or vice versa) would be a
         second, silent policy split — the bug this file exists to prevent."""
         for s in floor.SCANNERS:
-            if s.name not in floor.MSG_CHECKS:
+            if s.name not in floor.MSG_CHECKS | floor.CI_ONLY:
                 self.assertIsNotNone(s.hook, f"{s.name} has no hook form")
             if s.name not in floor.HOOK_ONLY:
                 self.assertIsNotNone(s.ci, f"{s.name} has no CI form")
@@ -85,6 +85,14 @@ class RegistryTest(unittest.TestCase):
         """A check that has no CI form must say so on that plane."""
         self.assertEqual(floor.HOOK_ONLY, frozenset({"sweepscan"}))
         self.assertEqual(_states("ci", floor.Config())["sweepscan"], "skipped")
+
+    def test_a_ci_only_check_lists_as_skipped_on_the_hook_never_absent(self):
+        """The mirror (020/110): stampscan has no hook form, on the record,
+        and says so on that plane rather than vanishing from it."""
+        self.assertEqual(floor.CI_ONLY, frozenset({"stampscan"}))
+        self.assertIsNone(floor.BY_NAME["stampscan"].hook)
+        self.assertEqual(_states("hook", floor.Config())["stampscan"], "skipped")
+        self.assertEqual(_states("ci", floor.Config())["stampscan"], "warn-only")
         self.assertEqual(_states("hook", floor.Config())["sweepscan"],
                          "warn-only")
 

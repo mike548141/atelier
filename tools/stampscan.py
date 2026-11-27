@@ -12,25 +12,26 @@ C3` (nothing kept the stamped block equal to PROPAGATION's canonical text),
 `foundation Q2` (a pull-quote listed 4 of 6 floor items) — three real findings
 a human reviewer had to catch by eye, each time.
 
-REVIEWED, WIRED ADVISORY IN ATELIER ONLY. The first-of-kind cold pass ran
-2026-07-26 (`docs/reviews/2026-07-26-2215-stampscan-s4-cold.md`,
-PASS-WITH-FINDINGS: 3 MAJOR, 3 MINOR, 1 NIT) and the principal ruled its
-counsel built on 2026-08-04. This file carries the three stated wiring
-preconditions — ST1 (code-context-blind marker recognition, fixed below),
-ST1's `.stampscanignore` companion at the repo root, and ST2 (narrowing to
-nothing is drift) — which is exactly what the reviewer's step 1 asks for:
-`--warn` in atelier's OWN `ci.yml` as a hand step, like pathscan's.
-
-It is deliberately NOT in the `floor.py` registry, NOT in the reusable
-`floor.yml`, and NOT in the pre-commit hook. Registry wiring reaches every
-child (ADR 0008 — enforcement propagates by call), and ST3 is still open:
-the template's stamp pins `source=docs/method/PROPAGATION.md`, a path that
-exists only in atelier, so any scaffolded child that ran this scanner would
-exit 2. The child-side resolution story must also be PIN-aware (a child
-pinned at `atelier@<SHA>` may lawfully differ from atelier@main), and
-`/atelier:repo create` must learn the markers are load-bearing scaffold content.
-Blocking is a separate, later ruling after an advisory soak — wrapscan's
-and datescan's rollout discipline, unchanged.
+REVIEWED, WIRED WARN-ONLY IN THE REGISTRY, CI PLANE ONLY (020/110). The
+first-of-kind cold pass ran 2026-07-26
+(`docs/reviews/2026-07-26-2215-stampscan-s4-cold.md`, PASS-WITH-FINDINGS: 3
+MAJOR, 3 MINOR, 1 NIT) and the principal ruled its counsel built on
+2026-08-04. ST1 (code-context-blind marker recognition, fixed below), ST1's
+`.stampscanignore` companion and ST2 (narrowing to nothing is drift) were the
+reviewer's step 1: `--warn` in atelier's own `ci.yml`, which ran from
+2026-08-05. ST3 barred the registry, which reaches every child (ADR 0008):
+the template's stamp names `source=docs/method/PROPAGATION.md`, a path that
+exists only in atelier, so every stamped child exited 2, and the review's
+sharpening asked for the resolution to be PIN-aware (a child pinned at
+`atelier@<SHA>` may lawfully differ from atelier@main). THE CHILD'S PIN,
+above `default_atelier` below, is that resolution, and `/atelier:repo create`
+now says the markers are load-bearing. So the check is a registry line with
+`--warn` on the ci plane, and the bespoke `ci.yml` step is gone. Not on the
+hook plane: it walks the whole tree (a stamped floor sits in CLAUDE.md at the
+root, outside `docs/`), which took up to 14 s on the largest children measured,
+against 5 to 6 s for linkscan's whole-tree walk on the same repos. Blocking
+is a separate, later ruling after an advisory soak — wrapscan's and datescan's
+rollout discipline, unchanged.
 
 THE NEW MECHANISM — a stamp/region marker pair:
 
@@ -256,11 +257,15 @@ STATED RESIDUAL, HONESTLY (do not round this to "solved"):
     default, matching every sibling scanner's default scope.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero, UNLESS --warn
-for DRIFT findings specifically; a CONFIG ERROR always exits 2, --warn or
-not, matching the sibling scanners' "a broken scan is not a pass"):
+for DRIFT and UNVERIFIED findings specifically; a CONFIG ERROR always exits 2,
+--warn or not, matching the sibling scanners' "a broken scan is not a pass"):
   0  clean (every stamp identical, legitimately narrow, or explicitly
-     allow-marked); or --warn was given and only drift findings exist
+     allow-marked); or --warn was given and only drift or unverified
+     findings exist
   1  drift finding(s) present, and --warn was NOT given
+  2  (without --warn) a child's stamp could not be read at its pin
+     (`unverified`: no pin, a pin the checkout does not hold, a pin from
+     before the region was marked) — no answer, never a pass
   2  usage / config error — malformed stamp, unresolvable source or region,
      a source resolving outside --root, bad CLI arguments, or a cover
      switch's demand unmet (`--require-stamps`: no stamped block was
@@ -421,7 +426,7 @@ class Finding:
     line: int
     kind: str    # "identical" | "narrow" | "skipped" | "drift"
                  # | "missing-source" | "unconfined-source"
-                 # | "missing-region" | "malformed"
+                 # | "missing-region" | "malformed" | "unverified"
     source: str | None
     region: str | None
     detail: str
@@ -945,6 +950,144 @@ def resolve_source(root: Path, source: str) -> tuple[Path | None, str | None]:
     return candidate, None
 
 
+# --------------------------------------------- the child's pin (020/110) --
+#
+# A CHILD's stamp names a source in its PARENT (`source=docs/method/
+# PROPAGATION.md` exists only in atelier), so `resolve_source` above cannot
+# find it under the child's `--root`, and every stamped child exited 2
+# (2026-07-26 cold pass ST3, sharpened: the resolution must be PIN-aware,
+# because a child at `atelier@<SHA>` may lawfully differ from atelier@main).
+# This is that resolution, and nothing wider:
+#
+#   * It applies only when `source=` is NOT in the scanned tree, the tree is a
+#     git repository, and that repository is not the atelier checkout itself
+#     (same git common dir, so an atelier worktree counts as atelier). Inside
+#     atelier, and in a plain directory, a missing source stays the config
+#     error it always was.
+#   * The canonical text is read from the atelier checkout AT THE CHILD'S OWN
+#     PIN, `git show <pin>:<source>`, the pin being the first `atelier@<sha>`
+#     in the child's CLAUDE.md (`pins.read_pin`, one reading of the pin for
+#     the estate). Never atelier's HEAD: a stale but faithful copy is clean
+#     here, and `pins` already reports its staleness as `behind`.
+#   * The placeholders a child must fill (`<SHA>`, `<atelier-path>`, the
+#     visibility pair) are read out of the child's own lines and put back into
+#     the reference first (`pins.fill_placeholders`, 320/160 obstacle 2), so a
+#     compliant copy compares identical and anything else is drift.
+#   * The source path is confined exactly as before (ST4): it must sit inside
+#     `--root` when resolved there, and git reads it from the pin's tree only.
+#
+# When the question cannot be answered — no pin, a pin this checkout does not
+# hold, no atelier checkout, a pin from before the region was marked — the
+# block is `unverified`: reported by name, never counted as clean, exit 2
+# unless `--warn`, and never verified for the cover switches. That is a gap in
+# what this run could read, not a defect in the stamp, which is why `--warn`
+# reports it rather than blocking (the registry wires this scanner warn-only;
+# a blocking flip is the principal's later ruling). A source that is absent
+# from the child AND from atelier at a pin it does hold points nowhere: that
+# stays `missing-source`, a config error.
+#
+# Memory: the blob is read whole, as `pins` reads it. It is atelier's own
+# history at a commit the child named, not content the scanned tree supplies.
+
+UNVERIFIED = "unverified"
+
+
+def default_atelier() -> Path:
+    """The atelier checkout this scanner ships in: its `tools/` parent. In a
+    child's CI that is the checkout the reusable workflow fetches with full
+    history; on a child's machine, the one `hooks.atelierTools` points at."""
+    return Path(__file__).resolve().parent.parent
+
+
+def _git_out(repo: Path, *args: str) -> "str | None":
+    """stdout of `git -C repo <args>`, or None on any failure."""
+    import subprocess
+    try:
+        out = subprocess.run(["git", "-C", str(repo), *args],
+                             capture_output=True, text=True, check=False,
+                             timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return out.stdout if out.returncode == 0 else None
+
+
+def _common_dir(path: Path) -> "Path | None":
+    out = _git_out(path, "rev-parse", "--path-format=absolute",
+                   "--git-common-dir")
+    return Path(out.strip()).resolve() if out and out.strip() else None
+
+
+@dataclass
+class PinContext:
+    """Where a child's out-of-tree `source=` is read from. `pin` is None, or
+    `reason` set, when the question cannot be answered on this run."""
+    atelier: Path
+    pin: str | None
+    reason: str | None = None
+
+
+def pin_context(root: Path, atelier: "Path | None") -> "PinContext | None":
+    """The pin-aware resolution for this run, or None when it does not apply
+    (no atelier named, the tree is not a git repository, or it is the atelier
+    repository itself)."""
+    if atelier is None:
+        return None
+    root_dir = _common_dir(root)
+    if root_dir is None:
+        return None
+    atelier_dir = _common_dir(atelier)
+    if atelier_dir is None:
+        return PinContext(atelier, None,
+                          f"{atelier} is not a git checkout of atelier, so "
+                          "there is no history to read a pin from")
+    if atelier_dir == root_dir:
+        return None
+    import pins  # deferred: pins imports this module for its comparison
+    pin = pins.read_pin(root / "CLAUDE.md")
+    if pin is None:
+        return PinContext(atelier, None,
+                          "CLAUDE.md carries no `atelier@<sha>` pin, so there "
+                          "is no atelier commit to read the source at (a "
+                          "bundled-mode child pins a plugin version, which has "
+                          "no history)")
+    if _git_out(atelier, "cat-file", "-e", f"{pin}^{{commit}}") is None:
+        return PinContext(atelier, pin,
+                          f"the pin {pin} is not in the atelier checkout at "
+                          f"{atelier} (fetch it; in CI, check atelier out with "
+                          "full history)")
+    return PinContext(atelier, pin)
+
+
+def _confined_rel(root: Path, source: str) -> "str | None":
+    """`source` as a path relative to `root`, normalised, or None if it
+    escapes (`resolve_source` has already refused that case)."""
+    root = root.resolve()
+    try:
+        return (root / source).resolve().relative_to(root).as_posix()
+    except ValueError:
+        return None
+
+
+def resolve_at_pin(ctx: PinContext, rel: str,
+                   region: str) -> "tuple[str, list[str] | None, str]":
+    """(kind, canonical, detail) for one out-of-tree source at the child's pin.
+    kind is "ok" (canonical holds the region), `UNVERIFIED`, or
+    "missing-source" (absent from atelier at a pin this checkout holds)."""
+    if ctx.reason is not None:
+        return UNVERIFIED, None, ctx.reason
+    text = _git_out(ctx.atelier, "show", f"{ctx.pin}:{rel}")
+    if text is None:
+        return ("missing-source", None,
+                f"canonical source does not resolve: {rel} is neither in this "
+                f"tree nor in atelier at the pin {ctx.pin}")
+    canonical = extract_region(text, region)
+    if canonical is None:
+        return (UNVERIFIED, None,
+                f"atelier at the pin {ctx.pin} has no '{region}' region in "
+                f"{rel} (a pin from before the region was marked: bump the pin)")
+    return "ok", canonical, ""
+
+
 def _walk_files(base: Path):
     """Every regular file under `base`, streamed one at a time. Single-sourced
     (115/080 part 1) in `tools/filewalk.py` — see that module's docstring
@@ -971,8 +1114,17 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str],
 def scan_paths(paths: list[Path], root: Path,
                skipped: list[int] | None = None,
                truncated: list[int] | None = None,
-               cov: dict | None = None) -> list[Finding]:
+               cov: dict | None = None,
+               atelier: Path | None = None) -> list[Finding]:
+    """Every finding for the stamped blocks under `paths`. `atelier` turns on
+    the child-side resolution at the child's pin (see THE CHILD'S PIN above
+    `default_atelier`); None, the default for a direct caller, keeps a source
+    missing from `root` a config error."""
     globs = load_ignore_globs(root)
+    # Built on first need: a run that never meets an out-of-tree source never
+    # asks git anything.
+    pin_ctx: list = []
+    pinned_cache: dict[tuple[str, str], tuple[str, list[str] | None, str]] = {}
     findings: list[Finding] = []
     # Keyed by (source, region), not by source alone: this holds only the
     # EXTRACTED REGION (typically a small floor block), never a whole
@@ -1006,6 +1158,18 @@ def scan_paths(paths: list[Path], root: Path,
                 continue
             else:
                 source_path, source_error = resolve_source(root, block.source)
+                if source_error == "missing-source" and atelier is not None:
+                    if not pin_ctx:
+                        pin_ctx.append(pin_context(root, atelier))
+                    rel = _confined_rel(root, block.source)
+                    if pin_ctx[0] is not None and rel is not None:
+                        key = (rel, block.region)
+                        if key not in pinned_cache:
+                            pinned_cache[key] = resolve_at_pin(
+                                pin_ctx[0], rel, block.region)
+                        findings.append(_evaluate_pinned(
+                            block, rel, pin_ctx[0], *pinned_cache[key]))
+                        continue
                 if source_path is None:
                     source_error_cache[block.source] = source_error
                     if source_error == "unconfined-source":
@@ -1039,12 +1203,30 @@ def scan_paths(paths: list[Path], root: Path,
     return findings
 
 
+def _evaluate_pinned(block: StampBlock, rel: str, ctx: PinContext,
+                     kind: str, canonical: "list[str] | None",
+                     detail: str) -> Finding:
+    """One out-of-tree stamp, judged against its source at the child's pin."""
+    floor = rel == FLOOR_SOURCE and block.region == FLOOR_REGION
+    if kind != "ok":
+        return Finding(block.path, block.line, kind, block.source,
+                       block.region, detail, floor=floor)
+    import pins  # deferred: pins imports this module for its comparison
+    found = evaluate_block(block, pins.fill_placeholders(canonical, block.payload),
+                           floor)
+    found.detail += f" (read from atelier at the pin {ctx.pin})"
+    return found
+
+
 # -------------------------------------------------------------- reporting --
 
 _CONFIG_ERROR_KINDS = {"missing-source", "unconfined-source",
                        "missing-region", "malformed"}
 _DRIFT_KINDS = {"drift"}
 _CLEAN_KINDS = {"identical", "narrow", "skipped"}
+# 020/110: a child's stamp whose source could not be read at its pin. Not a
+# config error (the stamp may be right), not clean (nothing was compared).
+_UNVERIFIED_KINDS = {UNVERIFIED}
 
 
 def _suppression_line(findings: list[Finding], files_by_glob: int,
@@ -1085,6 +1267,7 @@ def render_human(findings: list[Finding], files_by_glob: int = 0,
                  deferments: "list | None" = None) -> str:
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     drifts = [f for f in findings if f.kind in _DRIFT_KINDS]
+    unverified = [f for f in findings if f.kind in _UNVERIFIED_KINDS]
     notes = [f for f in findings if f.kind in _CLEAN_KINDS]
 
     if not findings:
@@ -1104,7 +1287,15 @@ def render_human(findings: list[Finding], files_by_glob: int = 0,
             lines.append(
                 f"  {f.path}:{f.line}  source={f.source} region={f.region}  "
                 f"{f.detail}")
-    if not errors and not drifts:
+    if unverified:
+        lines.append(f"⚠ stampscan: {len(unverified)} stamped block(s) could "
+                     "not be verified at the child's pin — no answer, not a "
+                     "pass.")
+        for f in sorted(unverified, key=lambda x: (x.path, x.line)):
+            lines.append(
+                f"  {f.path}:{f.line}  source={f.source} region={f.region}  "
+                f"{f.detail}")
+    if not errors and not drifts and not unverified:
         lines.append(f"✓ stampscan clean — {len(notes)} stamped block(s) verified.")
     if notes:
         # De-duplicated kinds (ST6c): the summary names WHICH dispositions
@@ -1177,6 +1368,12 @@ def _main(argv: list[str] | None = None) -> int:
                          "unrelated stamp elsewhere must not stand in for "
                          "it. Implies the --require-stamps demand. Blocks "
                          "skipped by allow-marker do not count.")
+    ap.add_argument("--atelier", default=None,
+                    help="the atelier checkout a CHILD's out-of-tree source= "
+                         "is read from, at the pin in the child's CLAUDE.md "
+                         "(default: the checkout this scanner ships in). It "
+                         "must hold the pin: in CI, full history. Unused "
+                         "inside atelier itself.")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
@@ -1210,7 +1407,10 @@ def _main(argv: list[str] | None = None) -> int:
     _truncated: list[int] = []
     cov: dict = {"files": 0, "lines": 0}
     try:
-        findings = scan_paths(targets, root, _skipped, _truncated, cov)
+        atelier = (Path(args.atelier).expanduser().resolve() if args.atelier
+                   else default_atelier())
+        findings = scan_paths(targets, root, _skipped, _truncated, cov,
+                              atelier=atelier)
     except OSError as e:
         print(f"stampscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
@@ -1218,6 +1418,7 @@ def _main(argv: list[str] | None = None) -> int:
     deferments = allowmarker.read_ignore_deferments(root, IGNORE_FILE)
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     drifts = [f for f in findings if f.kind in _DRIFT_KINDS]
+    unverified = [f for f in findings if f.kind in _UNVERIFIED_KINDS]
 
     # Cover switches. Verified = compared against a canonical region
     # (identical, narrow or drift); an allow-skipped block is not cover.
@@ -1234,7 +1435,8 @@ def _main(argv: list[str] | None = None) -> int:
                   "verified (found 0 stamp:begin/stamp:end pairs compared "
                   "against a canonical region; "
                   f"{skipped_n} skipped "
-                  f"by allow-marker, {len(_skipped)} file(s) by "
+                  f"by allow-marker, {len(unverified)} unverified at the "
+                  f"pin, {len(_skipped)} file(s) by "
                   ".stampscanignore). An unstamped floor block carries no "
                   "marker for the scanner to check - refusing to report "
                   "nothing-checked as a pass.", file=sys.stderr)
@@ -1255,8 +1457,10 @@ def _main(argv: list[str] | None = None) -> int:
 
     if args.json:
         print(json.dumps({
-            "clean": not errors and not drifts and unmet is None,
+            "clean": (not errors and not drifts and not unverified
+                      and unmet is None),
             "warn": args.warn,
+            "unverified": len(unverified),
             "require_stamps_unmet": unmet,
             "findings": [asdict(f) for f in findings],
             "suppressed": {
@@ -1271,11 +1475,14 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, len(_skipped), len(_truncated), cov,
                            deferments))
-        if drifts and args.warn and not errors:
-            print("\n  (--warn: advisory only — drift not blocking this build.)")
+        if (drifts or unverified) and args.warn and not errors:
+            print("\n  (--warn: advisory only — drift and unverified stamps "
+                  "not blocking this build.)")
 
     if errors or unmet is not None:
         return 2  # fail-safe: NEVER downgraded by --warn
+    if unverified and not args.warn:
+        return 2  # no answer is never a pass; --warn reports it (020/110)
     if drifts:
         return 0 if args.warn else 1
     return 0
