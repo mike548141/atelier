@@ -9,6 +9,7 @@ rewire) proves this class of second-copy drift happens. These tests are the
 diff, run on every suite run.
 """
 
+import datetime
 import re
 import shutil
 import subprocess
@@ -457,6 +458,48 @@ class TemplateSetNamesNoModelTest(unittest.TestCase):
                 if self.MODEL_RX.search(line):
                     hits.append(f"{path.relative_to(TEMPLATES_DIR)}:{n}")
         self.assertEqual([], hits, "a template names a model; use a seat name")
+
+
+class TemplateSetCarriesNoFutureDateTest(unittest.TestCase):
+    """115/530 item 7 — a template is copied into a child once, and nothing
+    re-stamps the copy. So a clause that names a date still to come (a bar that
+    starts on day X, a grace that ends on it) is true at the copy and false in
+    every child from that day, with no owner for the edit. The child floor
+    template said sizescan "may not be declared advisory or disabled from
+    2026-12-09. Until then it still can". The date belongs in atelier's code
+    and doctrine, which update in one place; a template states the rule and
+    points there.
+
+    The check is: no ISO date in the template set is later than today (UTC).
+    It never turns red on its own as the clock moves, because a date that is
+    past today stays past. What it cannot see is a dated clause whose date has
+    already arrived; history dates (an ADR's, a review's) are fine and pass."""
+
+    DATE_RX = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
+
+    def test_no_template_names_a_date_still_to_come(self):
+        today = datetime.datetime.now(datetime.timezone.utc).date()
+        hits = []
+        for path in sorted(TEMPLATES_DIR.rglob("*")):
+            if not path.is_file():
+                continue
+            try:
+                text = path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                continue
+            for n, line in enumerate(text.splitlines(), 1):
+                for m in self.DATE_RX.finditer(line):
+                    try:
+                        day = datetime.date(*map(int, m.groups()))
+                    except ValueError:
+                        continue
+                    if day > today:
+                        hits.append(f"{path.relative_to(TEMPLATES_DIR)}:{n} "
+                                    f"{m.group(0)}")
+        self.assertEqual(
+            [], hits,
+            "a template names a date still to come; children's copies go "
+            "stale on it. State the rule and point at atelier for the date")
 
 
 class TemplateSetPlaceholderInventoryTest(unittest.TestCase):

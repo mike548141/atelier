@@ -49,9 +49,10 @@ name: floor
 # a defect. Work through it, or declare the hygiene checks advisory in
 # `.atelier-floor.json` while you do, which keeps the finding visible instead of
 # silencing it. One exception: sizescan, which enforces the board's design (a
-# short main board, each item's detail in its own file), may not be declared
-# advisory or disabled from 2026-12-09. Until then it still can, and its line
-# says so.
+# short main board, each item's detail in its own file), is barred from being
+# declared advisory or disabled. The date the bar starts lives in atelier
+# (tools/floor.py, explained in docs/method/GUARDS.md), not in this copy; until
+# it starts, sizescan's own line in the floor's output names that date.
 #
 # FALSE POSITIVE in this repo's own tree (a deliberate fake-secret test fixture, a
 # committed build-output dir full of generated markdown)? Two hatches, both

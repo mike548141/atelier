@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-27 — the child floor template names no date still to come, `115/530`)
+- **`workflows/floor.yml` states the sizescan bar undated.** It said the check "may not be
+  declared advisory or disabled from 2026-12-09. Until then it still can", which every
+  child's copy would carry as a live statement after the date, with nothing to re-stamp it.
+  It now says the bar exists and that its start date lives in atelier (`tools/floor.py`,
+  `docs/method/GUARDS.md`). The bar, its date and its behaviour are unchanged; the comment
+  is not read by any check. A new test fails any template that names a date later than
+  today (UTC).
+- **Adopter action.** None required. A repo seeded since 2026-11-09 may re-copy the
+  template's header comment to drop the dated sentence.
+
 ### Changed (2026-11-27 — git mode counts the files a skip name drops, `115/560`)
 - **`secretscan`, `leakscan` and the newly wired `conflictscan` count what the skip names
   drop in git mode.** An untracked, not-ignored file under a skip-named directory

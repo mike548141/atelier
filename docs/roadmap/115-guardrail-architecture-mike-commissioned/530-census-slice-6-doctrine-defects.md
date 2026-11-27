@@ -1,7 +1,4 @@
-- [~] 🔎 **Defects the enforcement census found in slice 6.** Found
-      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
-      `/atelier:work run` (item 7 only).
-      (claimed 2026-11-27-0915, wt: atelier-qr-9c5f-templateclause)
+- [ ] 🔎 **Defects the enforcement census found in slice 6.** Found
       2026-11-23 UTC by `020/220` slice 6
       (`docs/method/census/2026-11-23-1730-build-boundary-standard-templates-root-files.md`);
       reported, not fixed in passing.
@@ -50,3 +47,24 @@
       bundle), and it still reads true with the plugin's files in the
       repo; put to the principal twice, the question did not make sense to
       him, which is the run's failure to frame it, not his.
+      ✅ **Item 7 fixed 2026-11-27 UTC** (queue run 9c5fa72c, an Opus 5.5
+      worker). The child `floor.yml` template now states the sizescan bar
+      undated and says the start date lives in atelier (`tools/floor.py`,
+      explained in `docs/method/GUARDS.md`), with the floor's own line
+      naming it until it starts: true before and after the date, so no
+      copy needs a re-stamp for it. The bar, its date and its behaviour are
+      unchanged. `TemplateSetCarriesNoFutureDateTest` in
+      `tools/test_templates.py` stops the class coming back: no ISO date in
+      the template set may be later than today (UTC), so it never reds on
+      its own as the clock moves; it failed on the old text and passes on
+      the new. Children seeded since `be217b1a` (2026-11-09) still hold the
+      old comment, which is a comment only (the bar runs from atelier's
+      registry); a copy changes only when its file is re-copied, and no
+      sweep step re-copies `.github/workflows/floor.yml` today. No child
+      was edited.
+      review: not warranted — a wording correction that adds or changes no
+      rule (the bar is `GRD21`, already reviewed under `160/790` and
+      `160/340`), plus a tightening test that reds loudly on misuse; its
+      only quiet miss, a dated clause whose date has already come, leaves
+      the set exactly as it was before the test.
+      **Still open:** 8 (atelier's repo type), a choice for the principal.
