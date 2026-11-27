@@ -1,4 +1,4 @@
-- [~] **Judge every queued pass against the new bar and bring him one dequeue list**
+- [x] **Judge every queued pass against the new bar and bring him one dequeue list**
       `[S][ruling]`. Mike, 2026-11-25, verbatim: *"we need work to fix that on the board"*.
       Step 4 of `460/010`, split out.
       Once `460/020` lands, apply it to every owed pass in `160/` (step 1 counted about
@@ -36,6 +36,16 @@
       1470, 1530, 1550 or 1750 takes back a pick of his (*"API credit if parity"*,
       2026-11-17, or *"Next drain (Recommended)"*, 2026-11-23), so the ask says so.
       **Next:** the one ask, at this session's close. Nothing is dequeued before his answer.
-      🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
-      `/atelier:work run`.
-      (claimed 2026-11-27-0001, wt: atelier-qr-4ce0-dequeue)
+      💬 **His answers, 2026-11-27 ~01:55 UTC (session 4ce066ba, AskUserQuestion; answers,
+      not rulings):** the list, *"Drop 8, merge 6 (Recommended)"* (option text: *"31 reviews
+      stay in Monday's drain. Takes back your earlier picks on 4 of them."*); `160/1870`,
+      typed, verbatim: *"Release it as per your recommended option - but to clarify we now
+      have a better definition than just "are there any major findings""* (his correction
+      of the framing is `460/080`); four briefed design passes in a private child for
+      features not yet being built, typed, verbatim: *"Run them at the next drain
+      (presumably Monday). Reviews of designs unblock the work to create and test the
+      feature"*, so they stay queued as they are.
+      ✅ **Closed 2026-11-27:** the 8 dropped, the 6 folded and `160/1870` released in the
+      commit that applies his answers to `160/`. The unbriefed passes in other repos'
+      boards were not judged in this round; only the drain's briefed queue was.
+      review: not warranted — board bookkeeping applying his own picks; no rule changed.
