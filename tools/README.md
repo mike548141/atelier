@@ -3374,7 +3374,49 @@ no verdict on the floor line or the board. An advisory's expired date goes red;
 a deferment's does not yet. Children run atelier's floor at `@main`, so making
 it red or blocking is a separate, announced step.
 A scanner not listed above has no ignore file of this kind; a `review-by:` in
-any other file is still only a comment.
+any other file is still only a comment, unless it sits in a line marker's
+reason (below).
+
+**On a line marker** (part 4, 2026-11-27). A `<guard>:allow:` marker is pure
+acceptance, so one written for a thing meant to be fixed can carry the same
+expiry: write `review-by: YYYY-MM-DD` in the marker's reason.
+
+```text
+| a wide table row | ... | <!-- wrapscan:allow: imported table, rewrap it. review-by: 2027-01-31 -->
+```
+
+`allowmarker.marker_review_by(rx, text)` reads it with the glob form's token
+rules (one date, or it is reported unreadable; a trailing full stop or comma is
+punctuation). The reason runs from its first character to the end of that line,
+cut at the next `<word>:allow` marker head (a second marker on the line keeps
+its own reason) and at a `-->` or `*/` closer. A `review-by:` inside an inline
+code span is a mention, as the marker itself would be. **The marker grammar
+does not change:** the date is read only from a marker its scanner has already
+counted, after the scanner has decided what it exempts, so a reason that
+already held the words `review-by:` exempts exactly what it did; the most it
+gains is a 🟡 line.
+
+**Eight scanners read it** (`wrapscan`, `datescan`, `linkscan`, `pathscan`,
+`spellscan`, `secretscan`, `leakscan`, `conflictscan`), each calling
+`allowmarker.record_marker_deferment` where its reader counts a marker, once
+per file and line, and passing the result to the same `deferment_report` and
+`deferments_dict` as its ignore-file dates. One `deferments:` count line covers
+both; a marker's 🟡 line names its file, line and marker word, and its `--json`
+entry carries `file`, `line` and `marker` where a glob's carries `glob`:
+
+```text
+  deferments: 1 deferment(s) with review-by · 1 lapsed · 0 malformed
+    🟡 docs/a.md:12 wrapscan:allow review-by 2026-01-31 LAPSED (300 days over)
+```
+
+Warn-only, as the glob form: no exit status changes. A scanner reports the
+dated markers on the lines it reads, so a hook run over a staged diff reports
+those in what it reads, not the whole tree's. The floor line and the fleet
+board do not show marker dates yet: they read ignore files without running a
+scanner, and a marker can be anywhere in the tree. `indexscan` (its marker
+reads an entry name before the reason), `licenscan`, `sizescan`, `stampscan`
+and the scanners with no ignore file (`blockscan`, `attribscan`, `quotescan`,
+`namescan`, `pointerscan`, `reviewscan`) do not read a marker's date yet.
 
 ## Tests
 

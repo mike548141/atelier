@@ -236,6 +236,10 @@ class Tally:
     # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
     # WARNS and never blocks.
     deferments: list = field(default_factory=list)
+    # 110/060 part 4 - the `review-by` dates a counted line marker's reason
+    # declares (`allowmarker.record_marker_deferment`); warn-only, like the
+    # glob form, and reported on the same `deferments:` line.
+    marker_deferments: list = field(default_factory=list)
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
@@ -247,7 +251,8 @@ class Tally:
                                     pruned=self.pruned.files)
 
     def deferment_report(self) -> str:
-        return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
+        return allowmarker.deferment_report(
+            IGNORE_FILE, self.deferments + self.marker_deferments)
 
     def take_finding_slot(self, blocks: bool = True) -> bool:
         """True if a finding may still be fully materialized (built and
@@ -449,6 +454,8 @@ def scan_lines(path: str, numbered_lines: "list[tuple[int, str]]",
         if parse_allow(raw):
             if tally is not None:
                 tally.note_marker(finding.kind)
+                allowmarker.record_marker_deferment(
+                    tally.marker_deferments, ALLOW_RX, raw, path, lineno)
             continue
         _record(findings, tally, finding)
     return findings
@@ -614,6 +621,13 @@ def _scan_file(path: Path, rel: str, tally: "Tally | None") -> list[Finding]:
             allow_hit = parse_allow(window)
         elif not allow_hit and parse_allow(window):
             allow_hit = True
+        if allow_hit and current_finding is not None and tally is not None:
+            # On an over-long line read in windows, the first window whose
+            # marker reason holds a `review-by:` is the one recorded, so a date
+            # cut by a window edge can read as unreadable. A report only: it
+            # never changes a result.
+            allowmarker.record_marker_deferment(
+                tally.marker_deferments, ALLOW_RX, window, rel, lineno)
         if is_final:
             if current_finding is not None:
                 if allow_hit:
@@ -810,7 +824,8 @@ def _main(argv: list[str] | None = None) -> int:
                 "files_by_ignore_glob": tally.files_by_glob,
                 "files_under_pruned_directory": tally.pruned.as_json(),
             },
-            "deferments": allowmarker.deferments_dict(tally.deferments),
+            "deferments": allowmarker.deferments_dict(
+                tally.deferments + tally.marker_deferments),
             "coverage": report.coverage_dict(tally.files_opened,
                                              tally.lines_read),
         }, indent=2))

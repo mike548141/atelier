@@ -535,11 +535,16 @@ class Tally:
     # and never blocks.
     deferments: list = field(default_factory=list)
     binary_deferments: list = field(default_factory=list)
+    # 110/060 part 4 - the `review-by` dates a counted line marker's reason
+    # declares (`allowmarker.record_marker_deferment`); warn-only, like the
+    # glob form, and counted on the same one `deferments:` line.
+    marker_deferments: list = field(default_factory=list)
 
     def deferment_report(self) -> str:
         return allowmarker.deferment_report_multi(
             [(IGNORE_FILE, self.deferments),
-             (BINARY_MANIFEST, self.binary_deferments)])
+             (BINARY_MANIFEST, self.binary_deferments),
+             ("", self.marker_deferments)])
 
     @property
     def accepted_total(self) -> int:
@@ -1032,6 +1037,9 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
         # without it cannot carry a marker (110/130, lever 4).
         allow_scope = (parse_allow(line)
                        if honour_markers and ALLOW_MARKER in line else None)
+        if allow_scope is not None and tally is not None:
+            allowmarker.record_marker_deferment(
+                tally.marker_deferments, ALLOW_RX, line, path, lineno)
         if (allow_scope and tally is not None
                 and allowmarker.names_no_rule(allow_scope, _MARKER_RULE_NAMES)):
             tally.note_unknown_scope()
@@ -4037,7 +4045,8 @@ def _main(argv: list[str] | None = None) -> int:
             "deferments": (
                 allowmarker.deferments_dict(tally.deferments, IGNORE_FILE)
                 + allowmarker.deferments_dict(tally.binary_deferments,
-                                              BINARY_MANIFEST)),
+                                              BINARY_MANIFEST)
+                + allowmarker.deferments_dict(tally.marker_deferments)),
             "coverage": dict(
                 report.coverage_dict(
                     tally.files_opened,

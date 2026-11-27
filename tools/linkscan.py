@@ -126,10 +126,15 @@ class Tally:
     # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
     # WARNS and never blocks.
     deferments: list = field(default_factory=list)
+    # 110/060 part 4 - the `review-by` dates a counted line marker's reason
+    # declares (`allowmarker.record_marker_deferment`); warn-only, like the
+    # glob form, and reported on the same `deferments:` line.
+    marker_deferments: list = field(default_factory=list)
     _materialized: int = field(default=0, repr=False, compare=False)
 
     def deferment_report(self) -> str:
-        return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
+        return allowmarker.deferment_report(
+            IGNORE_FILE, self.deferments + self.marker_deferments)
 
     def coverage(self) -> str:
         return report.coverage_line(self.files_opened, self.links_checked,
@@ -527,8 +532,8 @@ def _iter_links_from_lines(lines, allow_by_line: dict[int, str] | None = None,
     belongs."""
     for lineno, line in lines:
         scope = parse_allow(line)
-        if on_marker is not None and scope:
-            on_marker(scope)
+        if on_marker is not None and scope is not None:
+            on_marker(scope, lineno, line)
         if scope is not None and allow_by_line is not None:
             if prune_allow and len(allow_by_line) >= _ALLOW_PRUNE_AT:
                 for k in [k for k in allow_by_line if k < lineno]:
@@ -846,8 +851,13 @@ def check_file(md_file: Path, root: Path,
             return
         findings.append(f)
 
-    def on_marker(scope: str) -> None:
-        if tally is not None and allowmarker.names_no_rule(scope, FINDING_KINDS):
+    def on_marker(scope: str, lineno: int, line: str) -> None:
+        # Called for every counted marker, the unscoped form included.
+        if tally is None:
+            return
+        allowmarker.record_marker_deferment(
+            tally.marker_deferments, ALLOW_RX, line, rel, lineno)
+        if scope and allowmarker.names_no_rule(scope, FINDING_KINDS):
             tally.note_unknown_scope()
 
     for lineno, dest in iter_links_from_path(md_file, allow_by_line,
@@ -1040,7 +1050,8 @@ def _main(argv: list[str] | None = None) -> int:
                 "markers_naming_no_rule": tally.unknown_scope_markers,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
-            "deferments": allowmarker.deferments_dict(tally.deferments),
+            "deferments": allowmarker.deferments_dict(
+                tally.deferments + tally.marker_deferments),
             "coverage": report.coverage_dict(
                 tally.files_opened, tally.links_checked,
                 unit_key="links_checked"),

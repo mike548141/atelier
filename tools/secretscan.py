@@ -231,6 +231,10 @@ class Tally:
     # (`allowmarker.read_ignore_deferments`). A lapsed or unreadable date
     # WARNS and never blocks.
     deferments: list = field(default_factory=list)
+    # 110/060 part 4 - the `review-by` dates a counted line marker's reason
+    # declares (`allowmarker.record_marker_deferment`); warn-only, like the
+    # glob form, and reported on the same `deferments:` line.
+    marker_deferments: list = field(default_factory=list)
     _materialized: int = field(default=0, repr=False, compare=False)
 
     def coverage(self) -> str:
@@ -238,7 +242,8 @@ class Tally:
                                     pruned=self.pruned.files)
 
     def deferment_report(self) -> str:
-        return allowmarker.deferment_report(IGNORE_FILE, self.deferments)
+        return allowmarker.deferment_report(
+            IGNORE_FILE, self.deferments + self.marker_deferments)
 
     @property
     def marker_total(self) -> int:
@@ -1125,6 +1130,9 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
         scope = parse_allow(line) if ALLOW_MARKER in line else None
         if scope is not None:
             allow_by_line[lineno] = scope
+            if tally is not None:
+                allowmarker.record_marker_deferment(
+                    tally.marker_deferments, ALLOW_RX, line, path, lineno)
             if (tally is not None and scope
                     and allowmarker.names_no_rule(scope, ALL_RULES)):
                 tally.note_unknown_scope()
@@ -2118,7 +2126,8 @@ def _main(argv: list[str] | None = None) -> int:
                     "advisory": tally.advisory_over_cap,
                 },
             },
-            "deferments": allowmarker.deferments_dict(tally.deferments),
+            "deferments": allowmarker.deferments_dict(
+                tally.deferments + tally.marker_deferments),
             "coverage": report.coverage_dict(tally.files_opened,
                                              tally.lines_read),
         }, indent=2))

@@ -13,6 +13,10 @@ by name:
   - `--json` carries `deferments`;
   - an unreasoned glob still refuses first (exit 2).
 
+`LineMarkerAdopters` runs the line-marker form (part 4, a `review-by` in a
+`<guard>:allow:` marker's reason) over the eight scanners that read it, and
+`MarkerReviewByReader` pins the shared reader.
+
 Run: `python3 -m unittest discover -s tools -p test_ignore_deferments.py`.
 """
 
@@ -28,6 +32,7 @@ from pathlib import Path
 TOOLS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS_DIR))
 
+import allowmarker  # noqa: E402
 import conflictscan  # noqa: E402
 import datescan  # noqa: E402
 import indexscan  # noqa: E402
@@ -39,6 +44,7 @@ import secretscan  # noqa: E402
 import sizescan  # noqa: E402
 import spellscan  # noqa: E402
 import stampscan  # noqa: E402
+import wrapscan  # noqa: E402
 
 # The ignore file's lines. Line numbers matter: the assertions below name them.
 #   2  lapsed (stanza above the glob)    4  future (trailing reason)
@@ -308,6 +314,228 @@ class LeakscanBinaries(unittest.TestCase):
             encoding="utf-8")
         rc_plain, _ = self._run()
         self.assertEqual(rc_plain, rc_dated)
+
+
+# ------------------------------------------------ line markers (part 4) --
+#
+# `review-by: YYYY-MM-DD` in a line marker's reason. Each fixture line carries a
+# finding its scanner would block on, exempted by a marker whose reason is the
+# argument. The marker word is joined from pieces (`name + ":allow"`) so this
+# file's own lines carry no marker for the floor to read.
+
+def _marker(name, reason, comment=True):
+    m = name + ":allow: " + reason
+    return f"<!-- {m} -->" if comment else m
+
+
+def _marked_wrap(reason):
+    return "docs/a.md", "x " * 70 + _marker("wrapscan", reason) + "\n"
+
+
+def _marked_date(reason):
+    return "docs/a.md", "We did it yesterday. " + _marker("datescan", reason) + "\n"
+
+
+def _marked_link(reason):
+    return "docs/a.md", "See [x](missing.md). " + _marker("linkscan", reason) + "\n"
+
+
+def _marked_path(reason):
+    return "docs/a.md", ("See `docs/nope/missing.md`. "
+                         + _marker("pathscan", reason) + "\n")
+
+
+def _marked_spell(reason):
+    return "docs/a.md", "The color of it. " + _marker("spellscan", reason) + "\n"
+
+
+def _marked_secret(reason):
+    token = "ghp_" + "a1B2c3D4e5F6" + "g7H8i9J0k1L2" + "m3N4o5P6q7R8"
+    return "c.txt", f'key = "{token}"  # ' + _marker("secretscan", reason, False) + "\n"
+
+
+def _marked_leak(reason):
+    addr = "someone.real" + "@" + "gmail" + ".com"
+    return "c.txt", f"contact: {addr}  " + _marker("leakscan", reason, False) + "\n"
+
+
+def _marked_conflict(reason):
+    return "docs/a.md", "<<<<<<< HEAD " + _marker("conflictscan", reason, False) + "\n"
+
+
+def _dirty_wrap(root):
+    _write(root, "docs/bad.md", "y " * 70 + "\n")
+
+
+MARKER_SPECS = [
+    _spec("wrapscan", wrapscan, ".wrapscanignore", _dirty_wrap),
+    _spec("datescan", datescan, ".datescanignore", _dirty_date),
+    _spec("linkscan", linkscan, ".linkscanignore", _dirty_link),
+    _spec("pathscan", pathscan, ".pathscanignore", _dirty_path),
+    _spec("spellscan", spellscan, ".spellscanignore", _dirty_spell),
+    _spec("secretscan", secretscan, ".secretscanignore", _dirty_secret),
+    _spec("leakscan", leakscan, ".leakscanignore", _dirty_leak, argv=_argv_leak),
+    _spec("conflictscan", conflictscan, ".conflictscanignore", _dirty_conflict),
+]
+_MARKED = {"wrapscan": _marked_wrap, "datescan": _marked_date,
+           "linkscan": _marked_link, "pathscan": _marked_path,
+           "spellscan": _marked_spell, "secretscan": _marked_secret,
+           "leakscan": _marked_leak, "conflictscan": _marked_conflict}
+
+
+class LineMarkerAdopters(unittest.TestCase):
+    """The eight scanners that read `review-by` in a line marker's reason
+    (110/060 part 4): reported on the same `deferments:` line and in the same
+    `--json` field, warn-only, and never a change to what the marker exempts."""
+
+    _tree = Adopters._tree
+    _run = Adopters._run
+
+    def _marked(self, spec, root, reason):
+        rel, text = _MARKED[spec["name"]](reason)
+        _write(root, rel, text)
+        return rel
+
+    def test_a_lapsed_marker_date_is_reported(self):
+        for spec in MARKER_SPECS:
+            with self.subTest(spec["name"]):
+                root = self._tree(spec)
+                rel = self._marked(spec, root, "kept for now, review-by: 2020-01-01")
+                rc, out = self._run(spec, root)
+                self.assertEqual(0, rc, out)
+                self.assertIn("  deferments: 1 deferment(s) with review-by · "
+                              "1 lapsed · 0 malformed", out)
+                self.assertIn(f"🟡 {rel}:1 {spec['name']}:allow review-by "
+                              "2020-01-01 LAPSED", out)
+
+    def test_an_unreadable_marker_date_is_reported(self):
+        for spec in MARKER_SPECS:
+            with self.subTest(spec["name"]):
+                root = self._tree(spec)
+                rel = self._marked(spec, root, "kept for now, review-by: soon")
+                rc, out = self._run(spec, root)
+                self.assertEqual(0, rc, out)
+                self.assertIn("0 lapsed · 1 malformed", out)
+                self.assertIn(f"🟡 {rel}:1 {spec['name']}:allow review-by "
+                              "unreadable: 'soon'", out)
+
+    def test_a_future_or_absent_date_is_quiet(self):
+        for spec in MARKER_SPECS:
+            with self.subTest(spec["name"]):
+                root = self._tree(spec)
+                rel = self._marked(spec, root, "kept for now, review-by: 2999-12-31")
+                rc, out = self._run(spec, root)
+                self.assertIn("  deferments: 1 deferment(s) with review-by · "
+                              "0 lapsed · 0 malformed", out)
+                self.assertNotIn(f"🟡 {rel}", out)
+                self._marked(spec, root, "kept for now")
+                rc, out = self._run(spec, root)
+                self.assertIn("  deferments: 0 deferment(s) with review-by · "
+                              "0 lapsed · 0 malformed", out)
+
+    def test_warn_only_and_the_exemption_is_unchanged(self):
+        # The same tree with the marker's reason dated (lapsed, unreadable)
+        # and undated: identical exit status and identical `suppressed:` line,
+        # on a tree the scanner passes and on one it blocks.
+        for spec in MARKER_SPECS:
+            for dirty in (False, True):
+                with self.subTest(spec["name"], dirty=dirty):
+                    root = self._tree(spec, dirty=dirty)
+                    runs = []
+                    for reason in ("kept for now",
+                                   "kept for now, review-by: 2020-01-01",
+                                   "kept for now, review-by: soon"):
+                        self._marked(spec, root, reason)
+                        rc, out = self._run(spec, root)
+                        supp = [ln for ln in out.splitlines()
+                                if ln.startswith("  suppressed:")]
+                        runs.append((rc, supp))
+                    self.assertEqual(1 if dirty else 0, runs[0][0], runs)
+                    self.assertEqual(runs[0], runs[1])
+                    self.assertEqual(runs[0], runs[2])
+
+    def test_json_carries_the_marker_deferment(self):
+        for spec in MARKER_SPECS:
+            with self.subTest(spec["name"]):
+                root = self._tree(spec)
+                rel = self._marked(spec, root, "kept for now, review-by: 2020-01-01")
+                rc, out = self._run(spec, root, "--json")
+                self.assertEqual(0, rc, out)
+                self.assertEqual(
+                    [{"file": rel, "line": 1, "marker": spec["name"] + ":allow",
+                      "review_by": "2020-01-01", "lapsed": True, "malformed": []}],
+                    json.loads(out)["deferments"])
+
+    def test_glob_and_marker_deferments_share_one_count_line(self):
+        for spec in MARKER_SPECS:
+            with self.subTest(spec["name"]):
+                root = self._tree(spec)
+                self._marked(spec, root, "kept for now, review-by: 2020-01-01")
+                (root / spec["ignore"]).write_text(DATED, encoding="utf-8")
+                rc, out = self._run(spec, root)
+                self.assertEqual(0, rc, out)
+                self.assertEqual(1, out.count("  deferments:"))
+                self.assertIn("  deferments: 3 deferment(s) with review-by · "
+                              "2 lapsed · 1 malformed", out)
+
+
+class MarkerReviewByReader(unittest.TestCase):
+    """`allowmarker.marker_review_by`: the reason a counted marker carries,
+    read by the glob reader's own token rules."""
+
+    am = allowmarker
+    W = allowmarker.marker_rx("wrap" + "scan:allow")
+    L = allowmarker.marker_rx("leak" + "scan:allow", scope="list", group="rule")
+    B = allowmarker.marker_rx("block" + "scan:allow", sep=allowmarker.SEP_ANY_SPACE,
+                              named_reason=False)
+
+    def read(self, rx, text):
+        return self.am.marker_review_by(rx, text)
+
+    def test_reads_the_date_up_to_a_comment_closer(self):
+        w = "wrap" + "scan:allow: "
+        self.assertEqual(("2027-01-31", ()),
+                         self.read(self.W, f"x <!-- {w}why review-by: 2027-01-31 -->"))
+        self.assertEqual(("2027-01-31", ()),
+                         self.read(self.W, f"x <!-- {w}why review-by: 2027-01-31-->"))
+
+    def test_no_date_and_no_counted_marker_read_as_none(self):
+        w = "wrap" + "scan:allow:"
+        self.assertIsNone(self.read(self.W, f"x <!-- {w} why -->"))
+        # A marker with no reason counts for nothing, so its line's date is not its own.
+        self.assertIsNone(self.read(self.W, f"x <!-- {w} --> review-by: 2020-01-01"))
+
+    def test_a_date_in_a_code_span_is_a_mention(self):
+        w = "wrap" + "scan:allow: "
+        self.assertIsNone(self.read(self.W, f"x <!-- {w}why `review-by: 2020-01-01` -->"))
+
+    def test_a_second_marker_keeps_its_own_reason(self):
+        line = ("a " + "leak" + "scan:allow:email: fixture review-by: 2020-01-01; "
+                + "secret" + "scan:allow: x review-by: 2030-01-01")
+        self.assertEqual(("2020-01-01", ()), self.read(self.L, line))
+
+    def test_two_dates_or_a_bad_one_are_malformed(self):
+        w = "wrap" + "scan:allow: "
+        self.assertEqual((None, ("2020-01-01", "2021-01-01")), self.read(
+            self.W, f"<!-- {w}x review-by: 2020-01-01 review-by: 2021-01-01 -->"))
+        self.assertEqual((None, ("2026-02-30",)), self.read(
+            self.W, f"<!-- {w}x review-by: 2026-02-30 -->"))
+
+    def test_a_reason_on_the_next_line_is_read_there(self):
+        b = "block" + "scan:allow:"
+        self.assertEqual(("2020-05-05", ()), self.read(
+            self.B, f"<!-- {b}\n  moving review-by: 2020-05-05 -->"))
+
+    def test_record_keeps_one_entry_per_file_line(self):
+        w = "wrap" + "scan:allow: "
+        into = []
+        text = f"<!-- {w}x review-by: 2020-01-01 -->"
+        for _ in range(3):
+            self.am.record_marker_deferment(into, self.W, text, "d/a.md", 4,
+                                            "2026-01-01")
+        self.assertEqual(1, len(into))
+        self.assertEqual(("d/a.md", 4, True), (into[0].path, into[0].line,
+                                               into[0].lapsed))
 
 
 if __name__ == "__main__":

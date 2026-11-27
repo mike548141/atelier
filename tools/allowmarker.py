@@ -660,6 +660,10 @@ class Deferment(NamedTuple):
     `review_by` is strictly before the date the caller judged against, the
     same comparison as a floor advisory's (`floor.Advisory.expired`).
 
+    A LINE MARKER's deferment (part 4) is the same tuple with `path` set to
+    the file the marker sits in, `line` its line there and `glob` the marker
+    word (`wrapscan:allow`); an ignore-file glob's `path` is "".
+
     A NamedTuple, not a dataclass: other repos load this module by file
     path without registering it in `sys.modules`, and `dataclasses` looks
     the class's module up there while it builds the class (`115/470`)."""
@@ -668,6 +672,7 @@ class Deferment(NamedTuple):
     review_by: str | None
     lapsed: bool = False
     malformed: tuple[str, ...] = ()
+    path: str = ""
 
 
 def _read_review_by(comment: str) -> tuple[str | None, tuple[str, ...]]:
@@ -724,6 +729,84 @@ def read_ignore_deferments(root: Path, filename: str,
                              today if today is not None else _utc_today())
 
 
+# ------------------------------------------------- review-by on a marker --
+#
+# 110/060 part 4: a LINE MARKER can carry the same expiry. `<guard>:allow:` is
+# pure acceptance by construction, so a marker written for something meant to
+# be fixed had no date. An optional `review-by: YYYY-MM-DD` in the marker's
+# REASON now dates it, read by the token reader above (`_read_review_by`), so
+# a marker's date and a glob's cannot be read two ways.
+#
+# The marker grammar is unchanged: whether a marker counts, and what it
+# exempts, is decided by the marker's own reader before this runs, and this
+# reader only ever looks at a marker that already counted. So a reason that
+# already held the words `review-by:` keeps exactly the meaning it had; the
+# most it can gain is a 🟡 report line, never a changed exemption or exit.
+#
+# The reason is the text from its first character to the end of that line,
+# cut at the next `<word>:allow` marker head (a second marker on the line has
+# its own reason) and at an HTML or C comment closer (`-->`, `*/`), so
+# `<!-- wrapscan:allow: why review-by: 2027-01-31-->` reads the date. Code
+# spans are blanked first, as the marker reader does (AM3): a `review-by:`
+# inside backticks is a mention, not a date.
+_NEXT_MARKER_RX = re.compile(r"\b[A-Za-z][\w-]*:allow(?=[:\s]|$)")
+_COMMENT_CLOSE_RX = re.compile(r"-->|\*/")
+
+
+def _counted_match(rx: "re.Pattern[str]", text: str):
+    """The marker match the scanners' readers count on `text`, or None: the
+    scoped readers' `_read` (malformed and scope-without-reason rules
+    included), else `present`'s plain search over the blanked text."""
+    if rx in _SCOPED:
+        got = _read(rx, text, None)
+        return got[0] if got is not None else None
+    return rx.search(blank_code_spans(text))
+
+
+def marker_review_by(rx: "re.Pattern[str]", text: str
+                     ) -> tuple[str | None, tuple[str, ...]] | None:
+    """`(review_by, malformed)` declared in the reason of the marker `rx`
+    counts on `text`, as `_read_review_by` reads a glob's comment; None when
+    no marker counts or its reason has no `review-by:` at all."""
+    if "review-by:" not in text:
+        return None             # cheap exit: most marked lines carry no date
+    m = _counted_match(rx, text)
+    if m is None:
+        return None
+    blanked = blank_code_spans(text)    # same length, so `m`'s offsets hold
+    start = m.end() - 1                 # every pattern ends on the reason's 1st char
+    end = blanked.find("\n", start)
+    reason = blanked[start:end if end != -1 else len(blanked)]
+    for cut in (_NEXT_MARKER_RX, _COMMENT_CLOSE_RX):
+        hit = cut.search(reason)
+        if hit is not None:
+            reason = reason[:hit.start()]
+    by, bad = _read_review_by(reason)
+    if by is None and not bad:
+        return None
+    return by, bad
+
+
+def record_marker_deferment(into: list, rx: "re.Pattern[str]", text: str,
+                            path: str, line: int,
+                            today: str | datetime.date | None = None) -> None:
+    """Append to `into` the `Deferment` a counted line marker's `review-by`
+    declares (110/060 part 4), once per (path, line). A scanner calls this
+    where its reader has just counted a marker, with the file and line it is
+    reading, and reports `into` beside its ignore-file deferments. Changes no
+    result: warn-only, like the glob form."""
+    got = marker_review_by(rx, text)
+    if got is None:
+        return
+    if any(d.path == path and d.line == line for d in into):
+        return
+    by, bad = got
+    today_d = today or _utc_today()
+    today_s = today_d.isoformat() if isinstance(today_d, datetime.date) else today_d
+    into.append(Deferment(line, _MARKER_OF.get(rx, "allow-marker"), by,
+                          by is not None and by < today_s, bad, path))
+
+
 def deferment_lines(filename: str, deferments: list[Deferment],
                     today: str | datetime.date | None = None) -> list[str]:
     """The warn-only report for a scanner's human output: one stable count line,
@@ -744,16 +827,22 @@ def deferment_lines(filename: str, deferments: list[Deferment],
            f"{len(lapsed)} lapsed · {len(bad)} malformed"]
     today_d = today or _utc_today()
     today_s = today_d.isoformat() if isinstance(today_d, datetime.date) else today_d
+    def where(d: Deferment) -> str:
+        # A glob names its ignore file and quotes the glob; a line marker
+        # (part 4) names the file it sits in and the marker word.
+        if d.path:
+            return f"{_printable(d.path)}:{d.line} {_printable(d.glob)}"
+        return f"{filename}:{d.line} '{_printable(d.glob)}'"
+
     for d in lapsed:
         days = (datetime.date.fromisoformat(today_s)
                 - datetime.date.fromisoformat(d.review_by)).days
         # Worded as the floor line words an expired advisory (`floor._days_over`).
         over = "1 day over" if days == 1 else f"{days} days over"
-        out.append(f"    🟡 {filename}:{d.line} '{_printable(d.glob)}' review-by "
-                   f"{d.review_by} LAPSED ({over})")
+        out.append(f"    🟡 {where(d)} review-by {d.review_by} LAPSED ({over})")
     for d in bad:
         shown = ", ".join(f"'{_printable(t)}'" for t in d.malformed)
-        out.append(f"    🟡 {filename}:{d.line} '{_printable(d.glob)}' review-by "
+        out.append(f"    🟡 {where(d)} review-by "
                    f"unreadable: {shown} (write one YYYY-MM-DD date)")
     return out
 
@@ -782,12 +871,22 @@ def deferments_dict(deferments: list[Deferment],
     """The JSON surface: one object per glob that declares a review-by, read
     well or not, so a later slice (the floor line, the fleet board) reads the
     same facts the human line prints. A scanner with several dated files names
-    the file in each object (`filename`); one with a single file need not."""
-    out = [{"line": d.line, "glob": d.glob, "review_by": d.review_by,
-            "lapsed": d.lapsed, "malformed": list(d.malformed)}
-           for d in deferments if d.review_by is not None or d.malformed]
-    if filename is not None:
-        out = [{"file": filename, **o} for o in out]
+    the file in each object (`filename`); one with a single file need not. A
+    line marker's object (part 4) always names its `file` and carries
+    `marker` (the marker word) where a glob's carries `glob`."""
+    out = []
+    for d in deferments:
+        if d.review_by is None and not d.malformed:
+            continue
+        if d.path:
+            # A line marker (part 4): its own file, and `marker` for `glob`.
+            out.append({"file": d.path, "line": d.line, "marker": d.glob,
+                        "review_by": d.review_by, "lapsed": d.lapsed,
+                        "malformed": list(d.malformed)})
+            continue
+        o = {"line": d.line, "glob": d.glob, "review_by": d.review_by,
+             "lapsed": d.lapsed, "malformed": list(d.malformed)}
+        out.append({"file": filename, **o} if filename is not None else o)
     return out
 
 
