@@ -3016,6 +3016,111 @@ class VisibilityDeclarationTest(unittest.TestCase):
 
 
 
+class VisibilityDeclaredTest(unittest.TestCase):
+    """115/420: the CLAUDE.md visibility line against `.atelier-floor.json`.
+    Soft always; green only when both sides were read and agree."""
+
+    def _run(self, claude_text, declared="private"):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            if claude_text is not None:
+                (root / "CLAUDE.md").write_text(claude_text, encoding="utf-8")
+            return floor.check_visibility_declarations(
+                root, floor.Config(visibility=declared))
+
+    def test_agreement_is_green_and_names_the_value(self):
+        for text, decl in (
+                ("**Visibility:** PRIVATE - client repo\n", "private"),
+                ("**Repo visibility:** **PUBLIC** since 2026\n", "public"),
+                ("**This repo's visibility:** public on GitHub.\n", "public"),
+                ("x\n**Visibility:** PERMANENTLY PRIVATE\n", "private"),
+                ("**visibility:** private for good\n", "private")):
+            with self.subTest(text=text):
+                r = self._run(text, decl)
+                self.assertTrue(r.reason and not r.partial, r)
+                self.assertEqual(r.rc, 0)
+                self.assertIn(decl, r.reason)
+
+    def test_atelier_own_shape_label_and_value_inside_one_bold(self):
+        r = self._run("**Repo facts:** `o/r` · **Visibility: PUBLIC**\n"
+                      "More.\n", "public")
+        self.assertTrue(r.reason and not r.partial, r)
+
+    def test_disagreement_warns_never_fails_and_says_which_is_which(self):
+        for text, decl, says in (("**Visibility:** PUBLIC\n", "private", "public"),
+                                 ("**Visibility:** PRIVATE\n", "public", "private")):
+            r = self._run(text, decl)
+            self.assertFalse(r.failed)
+            self.assertEqual(r.rc, 0)
+            self.assertFalse(r.reason)
+            self.assertIn(f"CLAUDE.md says {says}", r.partial)
+            self.assertIn(f".atelier-floor.json says {decl}", r.partial)
+            self.assertIn("🟡", floor.render([r], "ci"))
+
+    def test_now_but_was_takes_the_first_word(self):
+        text = "**Visibility:** PRIVATE now, but the repo was PUBLIC (see P0)\n"
+        self.assertEqual(self._run(text, "private").reason[:9], "CLAUDE.md")
+        r = self._run(text, "public")
+        self.assertIn("CLAUDE.md says private", r.partial)
+
+    def test_never_reads_green_when_it_did_not_compare(self):
+        cases = {
+            "no CLAUDE.md": None,
+            "no declaration": "# Title\nA repo that is private, they say.\n",
+            "label with no word": "**Visibility:** to be decided later today\n",
+            "word far from the label": ("**Visibility:** one two three four "
+                                        "five six seven eight PUBLIC\n"),
+            "negated": "**Visibility:** not public\n",
+            "public-facing": "**Visibility:** public-facing docs only\n",
+            "placeholder": "**Visibility:** <visibility fact>\n",
+            "word after a blank line": "**Visibility:**\n\nPRIVATE\n",
+            "word in the next list item": "**Visibility:** TBD\n- PRIVATE\n",
+            "first declaration unreadable, second fine":
+                "**Visibility:** TBD\n**Visibility:** PRIVATE\n",
+        }
+        for label, text in cases.items():
+            with self.subTest(case=label):
+                r = self._run(text)
+                self.assertFalse(r.failed)
+                self.assertEqual(r.rc, 0)
+                self.assertFalse(r.reason, "must not read as agreement")
+                self.assertIn("not compared", r.partial)
+
+    def test_a_config_with_no_visibility_is_not_compared(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "CLAUDE.md").write_text("**Visibility:** PRIVATE\n",
+                                                encoding="utf-8")
+            r = floor.check_visibility_declarations(Path(td), floor.Config())
+            self.assertFalse(r.reason)
+            self.assertIn("not compared", r.partial)
+
+    def test_the_result_echoes_none_of_the_repos_text(self):
+        r = self._run("**Visibility:** SENTINEL-WORD-XYZ PUBLIC and more\n")
+        self.assertNotIn("SENTINEL", r.partial + r.reason)
+
+    def test_ci_plane_runs_it_without_actions(self):
+        env = {k: v for k, v in os.environ.items()
+               if k not in ("GITHUB_ACTIONS", "GITHUB_REPOSITORY")}
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / "CLAUDE.md").write_text("**Visibility:** PUBLIC\n",
+                                                encoding="utf-8")
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps({"visibility": "private"}), encoding="utf-8")
+            def names(plane):
+                r = subprocess.run(
+                    [sys.executable, str(TOOLS_DIR / "floor.py"), "--plane",
+                     plane, "--root", td, "--json"], capture_output=True,
+                    text=True, env=env)
+                self.assertEqual(r.returncode, 0, r.stderr[-600:])
+                return {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            ci = names("ci")
+            self.assertIn("visibility-declared", ci)
+            self.assertIn("CLAUDE.md says public",
+                          ci["visibility-declared"]["partial"])
+            self.assertNotIn("visibility", ci)  # GitHub's line is Actions-only
+
+
 class DeclarationRegistryTest(unittest.TestCase):
     """115/120 step 0: every registry entry states all five fields, and what
     a machine can say about each of them is true. Reported only, so these pin
@@ -3439,7 +3544,8 @@ class FloorCoverageLineTest(unittest.TestCase):
         # main() appends `visibility` inside Actions and `commit-msg` on the
         # hook plane; neither is a check the plan listed, so neither counts.
         listed = [r for r in data["results"]
-                  if r["name"] not in ("visibility", "commit-msg")]
+                  if r["name"] not in ("visibility", "commit-msg",
+                                       "visibility-declared")]
         self.assertEqual(cov["checks_listed"], len(listed))
         self.assertGreater(cov["checks_run"], 0)
         self.assertFalse(cov["scanned_nothing"])

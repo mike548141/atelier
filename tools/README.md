@@ -2827,6 +2827,25 @@ result. Informational only: no exit status moves. Floor does not add up the
 scanners' own lines: their units differ, and reading them back would mean
 capturing output it streams live.
 
+## `floor.py`'s `visibility-declared` line — the two declarations, compared (`115/420`)
+
+A repo says what it is twice: `"visibility"` in `.atelier-floor.json`, which CI
+checks against GitHub (`260/050`), and the `**Visibility:**` line of its
+`CLAUDE.md`, which a session reads first and nothing checked. On the CI plane
+floor now compares the two. It reads the first `**...visibility:**` label in the
+root `CLAUDE.md` and takes the first `public` or `private` word within a few
+words after it (`**Visibility:** PRIVATE`, `**Repo visibility:** **PUBLIC**`,
+`**Visibility: PUBLIC**`, "PRIVATE now, but the repo was PUBLIC" all read as the
+first word). It needs no network, so it runs wherever the CI plane does, not only
+inside Actions, and it is **soft**: green only when both sides were read and
+agree; a disagreement, a missing `CLAUDE.md`, a line it cannot read with
+confidence ("not public", "public-facing", no word near the label), and a
+config with no `visibility` all show 🟡 as "not compared", never as agreement,
+and none changes the exit status. It echoes none of the repo's own text. Which
+of the two is canonical is not decided here: it is the principal's, still open
+on `115/420`, and a blocker built before that is ruled would pick one. It is not
+on the hook plane, which would add a row to every commit.
+
 ## `floor.py --declarations` — every check states five things (`115/120`)
 
 Each registry entry carries a `Declares` beside its `why`: the **rule** it serves,

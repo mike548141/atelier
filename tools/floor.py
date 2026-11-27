@@ -158,6 +158,11 @@ goes red the day the key exists. It detects and alerts; it cannot stop a flip.
 What a public declaration tightens (advisory hatches, licenscan, publishscan)
 is not built yet. The daily external check is `390/020`'s, not built here.
 
+A repo also states its visibility in `CLAUDE.md`, which a session reads first.
+The CI plane compares that line with the declared `visibility` (`visibility-
+declared`, 115/420): soft, no network, never an exit status. A line it cannot
+read is reported as not compared, never as agreement.
+
 `floorfleet.py` reads those declarations across the estate and shows them, so
 "this repo is not enforcing X" is a visible board state rather than an absence
 nobody can see. **A guard that is off and known is a decision; a guard that is
@@ -2605,6 +2610,86 @@ def check_visibility(cfg: Config, actual: str | None) -> Result:
         "is exposed; correct `visibility` in .atelier-floor.json"))
 
 
+# The visibility a repo's CLAUDE.md declares (115/420). A session reads the
+# CLAUDE.md line first and `.atelier-floor.json` is the one CI checks against
+# GitHub, so a disagreement leaves the session trusting an unchecked line. The
+# label is bold prose (`**Visibility:** PRIVATE`, `**Repo visibility:** **PUBLIC**`,
+# `**Visibility: PUBLIC**`) and the value is the first public/private word
+# within a few words of it. The parse is deliberately narrow: a line it cannot
+# read with confidence is "unreadable", never a guess, because a comparison
+# that reads green while not comparing is the worst failure this check has.
+_CLAUDE_VIS_LABEL_RE = re.compile(
+    r"\*\*[^*\n]{0,40}?visibility[ \t]*:", re.IGNORECASE)
+_CLAUDE_VIS_WORD_RE = re.compile(r"\b(public|private)\b(-\w)?", re.IGNORECASE)
+_CLAUDE_VIS_WINDOW = 80    # characters after the label the value may sit in
+_CLAUDE_VIS_MAX_WORDS = 6  # words that may come between the label and it
+_CLAUDE_VIS_MAX_BYTES = 1_000_000
+
+
+def claude_md_visibility(root: Path) -> tuple[str | None, str]:
+    """(value, why) for the repo's root CLAUDE.md. `value` is "public" or
+    "private" when the first visibility declaration reads cleanly, else None
+    and `why` is one of "no-file", "no-declaration", "unreadable". Only the
+    FIRST declaration is read, so a later line cannot rescue an unreadable
+    first one. Never echoes repo text."""
+    path = root / "CLAUDE.md"
+    try:
+        if not path.is_file():
+            return None, "no-file"
+        text = path.read_bytes()[:_CLAUDE_VIS_MAX_BYTES].decode(
+            "utf-8", errors="replace")
+    except OSError:
+        return None, "unreadable"
+    m = _CLAUDE_VIS_LABEL_RE.search(text)
+    if not m:
+        return None, "no-declaration"
+    tail = text[m.end():m.end() + _CLAUDE_VIS_WINDOW]
+    # The value sits on the label's own line or its wrapped continuation: never
+    # past a blank line, a new block (heading, list item, table row) or a second
+    # label, so the first declaration cannot borrow a later one's word.
+    tail = re.split(r"\n[ \t]*(?:\n|[#>|*+-]|\d+[.)] )", tail, maxsplit=1)[0]
+    nxt = _CLAUDE_VIS_LABEL_RE.search(tail)
+    if nxt:
+        tail = tail[:nxt.start()]
+    w = _CLAUDE_VIS_WORD_RE.search(tail)
+    if not w or w.group(2):  # nothing near the label, or "public-facing"
+        return None, "unreadable"
+    before = tail[:w.start()]
+    if len(re.findall(r"[A-Za-z0-9]+", before)) > _CLAUDE_VIS_MAX_WORDS:
+        return None, "unreadable"
+    if re.search(r"\b(not|non|never|un|no longer)[\s-]*$", before, re.IGNORECASE):
+        return None, "unreadable"  # "not public" is not "private"
+    return w.group(1).lower(), ""
+
+
+def check_visibility_declarations(root: Path, cfg: Config) -> Result:
+    """The two declarations against each other (115/420). Needs no network, so
+    it runs on the CI plane wherever it runs, not only inside Actions. Soft
+    throughout: a disagreement, a missing file and an unreadable line are all
+    🟡 and rc 0, because which of the two is canonical is the principal's open
+    question and a blocker built before that is ruled would pick one. It is
+    green only when both sides were read and say the same thing."""
+    name = "visibility-declared"
+    if cfg.visibility is None:
+        return Result(name, "enforced", 0, partial=(
+            "not compared: no `visibility` in .atelier-floor.json"))
+    value, why = claude_md_visibility(root)
+    if value is None:
+        what = {"no-file": "there is no CLAUDE.md at the root",
+                "no-declaration": "CLAUDE.md has no `**Visibility:**` line",
+                }.get(why, "CLAUDE.md's visibility line could not be read "
+                           "as public or private")
+        return Result(name, "enforced", 0, partial=(
+            f"not compared: {what}; .atelier-floor.json says {cfg.visibility}"))
+    if value == cfg.visibility:
+        return Result(name, "enforced", 0, reason=(
+            f"CLAUDE.md and .atelier-floor.json both say {value}"))
+    return Result(name, "enforced", 0, partial=(
+        f"CLAUDE.md says {value} but .atelier-floor.json says "
+        f"{cfg.visibility}: one is wrong, and a session reads CLAUDE.md "
+        "first; correct whichever is stale"))
+
+
 def moved_later(root: Path, cfg: Config) -> dict[str, str]:
     """Advisories whose `review-by` this tree moves LATER than HEAD had it, on
     a date that is a mandate or unlabelled (160/450, DK2). A mandate's date may
@@ -3774,6 +3859,10 @@ def main(argv: list[str] | None = None) -> int:
         note = commit_msg_hook_note(root)
         if note:
             results.append(Result("commit-msg", "skipped", 0, reason=note))
+    if args.plane == "ci":
+        # No network, so unlike the line below it runs wherever the CI plane
+        # does. The CI plane only: a hook line would add a row to every commit.
+        results.append(check_visibility_declarations(root, cfg))
     if ci:
         # Inside Actions only: a local run has no GitHub context to ask, and
         # the hook plane never touches the network.

@@ -642,7 +642,9 @@ model owns that rule.
 **Not in scope:** the *mechanism* — declaring visibility, cross-checking it
 against the platform, and treating a stale declaration as a finding. That is
 **P3**'s build. The rule lives here; the plumbing lives there; neither builds a
-second original of the other.
+second original of the other. One narrow piece of the plumbing is built: floor
+compares a repo's two own declarations (config and `CLAUDE.md`), softly
+(`tools/floor.py`, `115/420`); which one is canonical is still open.
 
 ## Side-stepping — the family that governs nothing
 
