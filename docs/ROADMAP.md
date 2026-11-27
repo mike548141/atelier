@@ -35,7 +35,7 @@ line, so they overlap Open and Claimed.
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
 | [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
-| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 17 | 0 | 5 | 1 |
+| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 18 | 0 | 5 | 1 |
 | [Observability of the collaboration itself (2026-07-30)](roadmap/220-observability-of-the-collaboration-itsel/README.md) | 4 | 0 | 0 | 0 |
 | [File-size hygiene (new 2026-07-14)](roadmap/230-file-size-hygiene-new-2026-07-14/README.md) | 2 | 0 | 1 | 0 |
 | [North star — context follows the person, work follows anywhere](roadmap/240-north-star-context-follows-the-person-wo/README.md) | 2 | 0 | 0 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 2 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 271 | 6 | 102 | 33 |
+| **All sections** | 272 | 6 | 102 | 33 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -346,6 +346,7 @@ line, so they overlap Open and Claimed.
 - [ ] [🔧 ccfleet loads a file a private repo's instructions name mid-sentence…](roadmap/210-instruments-open-features/660-ccfleet-loads-a-mid-sentence-import-in-a-private-repo.md)
 - [ ] [🔧 Make a watcher, run outside every Claude session, that finds the…](roadmap/210-instruments-open-features/670-a-watcher-that-wakes-sessions-a-usage-limit-stopped.md)
 - [ ] 🔎 [ccopen's hand-up read is narrower than the doctrine it reports on: it…](roadmap/210-instruments-open-features/680-ccopen-misses-a-hand-up-on-a-non-report-branch.md)
+- [ ] 🔎 [Workers leave background wait loops that can never end, and ccclose…](roadmap/210-instruments-open-features/690-worker-background-waits-never-end-and-ccclose-misses-them.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
