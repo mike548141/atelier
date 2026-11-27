@@ -2477,6 +2477,78 @@ test('check 15 leg 2: a background command blocks until a terminal notification,
   assert.equal(lw(j).legs.background.length, 6);
 });
 
+// A subagent's own log, with the records its Bash calls leave (210/690). The
+// notification for a subagent's shell reaches the agent's log, the parent's, or both.
+const subLog = (w, sid, id, recs) => {
+  const dir = path.join(w.home, '.claude', 'projects', 'proj', sid, 'subagents');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, `agent-${id}.jsonl`), recs.map((r) => JSON.stringify({ timestamp: at(-15), ...r })).join('\n') + '\n');
+};
+
+test('check 15 leg 2 reads a subagent\'s own background shells: a wait loop that never ends blocks the close (210/690)', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-sb1', [
+    // Ended only in the parent's log (the common case in the live store).
+    viaQueue('sb-parent', 'completed'),
+  ]);
+  subLog(w, 'sess-sb1', 'aaaa1111bbbb', [
+    ...bgRun('s1', 'until ! pgrep -f "make test"; do sleep 4; done', 'sb-loop'),
+    ...bgRun('s2', 'make test', 'sb-parent'),
+    ...bgRun('s3', 'make lint', 'sb-own'),
+    viaAttachment('sb-own', 'completed'),
+    ...bgRun('s4', 'sleep 9999', 'sb-stopped'),
+    useOf('s5', 'TaskStop', { task_id: 'sb-stopped' }), resultOf('s5', 'Successfully stopped task: sb-stopped', { task_id: 'sb-stopped' }),
+    // A launch whose call failed started nothing.
+    useOf('s6', 'Bash', { command: 'make never', run_in_background: true }), resultOf('s6', 'bad', { stdout: 'bad' }, true),
+    // A foreground call is not a background shell.
+    useOf('s7', 'Bash', { command: 'make quick' }), resultOf('s7', 'ok', { stdout: 'ok' }),
+  ]);
+  const j = json(w, root, ['--session', 'sess-sb1']);
+  assert.equal(lw(j).status, 'fail');
+  assert.equal(lw(j).counts.background, 1);
+  assert.equal(lw(j).counts.ended, 3);
+  const bad = lw(j).items.filter((x) => x.startsWith('❌'));
+  assert.equal(bad.length, 1);
+  assert.match(bad[0], /background command: .*subagent aaaa1111: until ! pgrep -f "make test"; do sleep 4; done — task sb-loop: no terminal notification/);
+  assert.match(bad[0], /stop it with TaskStop/);
+  assert.equal(lw(j).legs.background.length, 4);
+});
+
+test('check 15 leg 2: a subagent shell that its agent log and the parent both show ended passes, and the agent need not be running', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-sb2');
+  subLog(w, 'sess-sb2', 'cccc2222dddd', [...bgRun('s1', 'make a', 'ta'), viaUser('ta', 'failed'), ...bgRun('s2', 'make b', 'tb'), viaQueue('tb', 'killed')]);
+  const j = json(w, root, ['--session', 'sess-sb2']);
+  assert.equal(lw(j).status, 'pass');
+  assert.equal(lw(j).counts.background, 0);
+  assert.equal(lw(j).counts.ended, 2);
+});
+
+test('check 15 leg 2: a subagent log that cannot be read is named, never read as clean; a session with no subagents is unchanged', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-sb3');
+  const dir = path.join(w.home, '.claude', 'projects', 'proj', 'sess-sb3', 'subagents');
+  fs.mkdirSync(path.join(dir, 'agent-eeee3333.jsonl'), { recursive: true });   // a directory where a log should be
+  const j = json(w, root, ['--session', 'sess-sb3']);
+  assert.equal(lw(j).status, 'warn');
+  assert.match(lw(j).summary, /unknown: 1 subagent log\(s\) could not be read/);
+  const k = (transcript(w, 'sess-sb4'), json(w, root, ['--session', 'sess-sb4']));
+  assert.equal(lw(k).status, 'pass');
+});
+
+test('--identifiers carries a subagent\'s unended shell as a background command line', () => {
+  const w = world();
+  const root = repo(w);
+  transcript(w, 'sess-sb5');
+  subLog(w, 'sess-sb5', 'ffff4444aaaa', bgRun('s1', 'make x', 'sbid'));
+  const out = idRun(w, root, 'sess-sb5').out;
+  assert.match(out, /  - other launched work: 0 live process\(es\) · 1 background command\(s\) not ended/);
+  assert.match(out, /    - ❌ background command: .* subagent ffff4444: make x — task sbid/);
+});
+
 test('check 15 leg 3: a command that lets go of work blocks, named by its command, unless shown finished', () => {
   const w = world();
   const root = repo(w);

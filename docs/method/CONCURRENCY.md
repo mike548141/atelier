@@ -1103,6 +1103,27 @@ minutes against a 600 s cap, and two of five workers briefed to run it in the
 foreground stopped "waiting for the gate" until told to read their own output.
 The cap's figure is the tool's in that session, not a constant.)
 
+**A wait the worker writes must be able to end.** A worker that polls writes a
+loop of its own, and a loop that cannot end keeps running after the worker has
+stopped, with nobody left to notice. Three rules, each one a way a wait never
+ends:
+- *Never poll with `pgrep -f` on a pattern the loop itself contains.* `-f`
+  matches full command lines, and the loop's own shell command line contains
+  its pattern, so the loop always finds itself. Bracket one character
+  (`pgrep -f '[m]ake test'`, which no longer matches its own text), or wait on
+  the PID (`kill -0 <pid>`, or `wait <pid>` where the shell started it).
+- *Never wait on a marker the watched command does not itself print.* A loop
+  on `grep -q '^done' <file>` waits forever if the command writes no such
+  line. Wait on a line the command's own output ends with (the exit-code line
+  above), or on its PID.
+- *Give every wait a timeout*, so a wait that is wrong still ends and says so.
+The dispatch prompt carries these three beside the long-check poll. (2026-11-27,
+`210/690`: a child's queue run found 21 background shells its workers had left
+running after they finished, the oldest 5 h 10 min, until the principal saw them
+in the agent map: 16 were `pgrep -f` loops matching themselves, 5 waited on a
+marker the command never wrote. `ccclose`'s *Launched work finished* check now
+reads a subagent's own background shells too.)
+
 **A run's worktree names carry its session's short id**, in the form
 `<repo>-qr-<id>-<slug>` with the id's first four characters
 (`atelier-qr-4c65-board`), so a claim's `wt:`, a brief or a commit body that
@@ -1114,7 +1135,8 @@ run's commit as its own run's and refused the brief under rule 4.)
 dispatch prompt carries the same bounds: the worktree and absolute paths, the
 scratch directory, the long-check poll, explicit staging and the pathspec
 commit, no push or merge, the kill scope (*the machine is shared*, below), the
-test-run bound and the terminal marker. They are kept as one copyable skeleton,
+test-run bound, the wait rules and the terminal marker. They are kept as one
+copyable skeleton,
 [`session-open/dispatch-brief.md`](session-open/dispatch-brief.md), each line
 pointing at the rule here that grounds it, and a dispatch starts from it.
 (2026-11-03, `180/120`: of the first real run's five dispatches, four named no

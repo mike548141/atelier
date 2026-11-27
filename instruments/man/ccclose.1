@@ -408,6 +408,13 @@ no successful
 .B TaskStop
 and no terminal status in its result.
 A call that errored started nothing and is not listed.
+The same is read from each subagent's own log
+.RB ( subagents/agent-<id>.jsonl ),
+counted with the background commands and listed as
+.BI "subagent " id: ,
+an end counting from either that log or the session's own.
+A subagent log that cannot be read makes the line \[u26A0] unknown.
+Only this leg is read from a subagent's log.
 .IP "3. Launch forms."
 A shell command that starts work and lets go of it:
 a control-operator

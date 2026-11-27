@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-27 — `ccclose` reads a subagent's background shells, and workers' waits must be able to end, `210/690`)
+- **`ccclose`'s *Launched work finished* check now reads each subagent's own log**
+  (`<session>/subagents/agent-<id>.jsonl`) for `run_in_background` shells, which the
+  parent's log never held: a child's queue run left 21 running after its workers finished
+  (the oldest 5 h 10 min) while the check said 0. An end counts from the agent's log or the
+  session's own (21 of 140 stored launches are ended only in the parent's). They join the
+  `background` count, so no field is added; an unreadable agent log makes the line unknown.
+  Only the background leg is read from an agent's log.
+- **`CONCURRENCY.md` § *Orchestrated queue runs* and the dispatch brief gain the wait rules:**
+  never `pgrep -f` on a pattern the loop itself contains (bracket a character, or wait on the
+  PID), never wait on a line the watched command does not print, give every wait a timeout.
+- **Adopter action.** None; the new dispatch-brief line is picked up the next time a run
+  copies the skeleton.
+
 ### Changed (2026-11-27 — `stampscan` reads a child's stamp at the child's pin, and reaches every child, `020/110`)
 - **A child's stamped floor is now checked in the child.** Its stamp names
   `source=docs/method/PROPAGATION.md`, which exists only in atelier, so `stampscan` exited 2

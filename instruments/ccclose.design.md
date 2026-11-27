@@ -312,6 +312,28 @@ Four legs, each fail-closed:
    is provably gone"* is read as "provably ended by the transcript": the shell
    wrapper is an Apple binary, so the process table cannot prove a background
    command gone by environment, and no pid is recorded for it.
+
+   **A subagent's own background shells (210/690).** *(Added 2026-11-27.)* A
+   worker's `run_in_background` Bash calls are in its own log, `<session>/
+   subagents/agent-<id>.jsonl`, in the same record shapes as the parent's, and
+   the parent's reads never saw them: a child's queue run had 21 of them left
+   running by finished workers (the oldest 5 h 10 min) while this check
+   reported 0. They are read from each agent log and judged by the same rule.
+   Where the end is recorded needs both logs: a census of 2026-11-27 over 140
+   such launches found every one ended or stopped, once the agent's log and the
+   parent's `<task-notification>`s were read together, and 21 of them only in
+   the parent's (the notice for a shell reaches the parent's queue, which an
+   agent's own log may not hold). So a subagent's shell is ended by a terminal
+   notification in either log, or a successful `TaskStop`/`KillShell` in
+   either. They count in the same `background` count and print as
+   `subagent <first 8 of its id>: <command>`; no new count, so the field set
+   holds. A log that cannot be read is named in the summary and makes the line
+   ⚠️ unknown, never a pass. **Limits, stated:** only the background leg is
+   read from a subagent's log. A detached `&`, `nohup` or `setsid` a subagent
+   ran is left to leg 1 (its environment carries the session's id when the
+   binary is not an Apple one) and is not judged from its log; and a shell
+   still running is shown as "no terminal notification", which cannot tell a
+   loop that never ends from a command still legitimately working.
 3. **Launch forms in the commands.** The command is read with its quoted text,
    comments and heredoc bodies blanked (a word in a string, a `grep` pattern or
    a comment is no launch), and `sh -c '…'` / `bash -c "…"` text is read too.

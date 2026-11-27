@@ -918,6 +918,7 @@ async function readTranscript(file) {
     }
   }
   t.models = [...t.models];
+  await readSubagentShells(file, t);
   return t;
 }
 
@@ -2188,6 +2189,60 @@ function noteLaunchResult(t, id, b, o) {
   e.result = { isError: !!b.is_error, text: resultText(b, o).slice(0, 4000), tur: compactTur(o && o.toolUseResult), seq };
 }
 
+// --- background shells a subagent started (210/690) ---------------------------
+//
+// A subagent's own Bash calls are in its own log, <project>/<session-id>/
+// subagents/agent-<id>.jsonl, in the same record shapes as the parent's: the
+// tool_use with run_in_background, the result "Command running in background
+// with ID: <id>", and a TaskStop or KillShell. Its end is in two places: the
+// agent's own log (a queued_command attachment) and the parent's (a
+// queue-operation enqueue); a census of 2026-11-27 over 140 such launches found
+// 21 whose end is in the parent's log and not the agent's, and none in neither,
+// so a launch is judged by the two together (the parent's notes are t.notes). Only
+// the background leg is read here: a detached `&` or nohup in a subagent's
+// command is left to leg 1's process read.
+//
+// Cheap on purpose: a line is parsed only if it can carry a launch, a stop, a
+// notification, or a result while a launch awaits one.
+async function readSubagentShells(file, t) {
+  t.subShells = [];
+  t.subUnreadable = 0;
+  const dir = path.join(path.dirname(file), path.basename(file, '.jsonl'), 'subagents');
+  let names = [];
+  try { names = isDir(dir) ? fs.readdirSync(dir).filter((n) => /^agent-.+\.jsonl$/.test(n)).sort() : []; } catch { t.subUnreadable++; return; }
+  for (const n of names) {
+    const m = { launched: [], launchById: new Map(), stopOps: [], stopById: new Map(), seq: 0, shell: [], shellById: new Map() };
+    const notes = new Map();
+    try {
+      const rl = readline.createInterface({ input: fs.createReadStream(path.join(dir, n)), crlfDelay: Infinity });
+      for await (const ln of rl) {
+        const wantUse = ln.includes('run_in_background') || ln.includes('TaskStop') || ln.includes('KillShell');
+        const wantNote = ln.includes('<task-notification>');
+        const wantResult = (m.launchById.size || m.stopById.size) && ln.includes('tool_result');
+        if (!wantUse && !wantNote && !wantResult) continue;
+        let o; try { o = JSON.parse(ln); } catch { continue; }
+        const ms = o.timestamp ? Date.parse(o.timestamp) : NaN;
+        if (wantNote) {
+          for (const x of taskNotifications(notificationText(o))) notes.set(x.id, { status: x.status, ts: Number.isFinite(ms) ? ms : null });
+        }
+        const content = o.message && Array.isArray(o.message.content) ? o.message.content : [];
+        for (const b of content) {
+          if (!b) continue;
+          if (o.type === 'assistant' && b.type === 'tool_use') {
+            const bg = b.name === 'Bash' && b.input && b.input.run_in_background === true;
+            if (bg || b.name === 'TaskStop' || b.name === 'KillShell') noteLaunch(m, b, ms, o.cwd);
+          } else if (o.type === 'user' && b.type === 'tool_result' && b.tool_use_id
+            && (m.launchById.has(b.tool_use_id) || m.stopById.has(b.tool_use_id))) {
+            noteLaunchResult(m, b.tool_use_id, b, o);
+          }
+        }
+      }
+    } catch { t.subUnreadable++; continue; }
+    const launched = m.launched.filter((e) => e.leg === 'background');
+    if (launched.length) t.subShells.push({ agent: n.replace(/^agent-/, '').replace(/\.jsonl$/, ''), launched, notes, stopOps: m.stopOps });
+  }
+}
+
 // --- shell reads that can show a launch ended (210/540, 210/550) -------------
 //
 // Kept for the commands that can: ps, kill, pgrep, and the readers (cat, tail,
@@ -2436,10 +2491,26 @@ function checkLaunched(t, sid, procs, now = Date.now(), env = process.env) {
         text: `${when} · ${clip(e.command, CMD_SHOWN)} — ${j.why}` });
     }
   }
+  // Background shells a subagent started (210/690): its own log, and the end
+  // as either log records it. They count with the background commands.
+  for (const sub of (t && t.subShells) || []) {
+    const notes = new Map(sub.notes);
+    for (const [id, x] of t.notes) notes.set(id, x);
+    const view = { notes, stopOps: [...t.stopOps, ...sub.stopOps] };
+    for (const e of sub.launched) {
+      const j = judgeLaunched(e, view, procs || { ok: false }, now, null);
+      if (j.state === 'never-started') continue;
+      const when = e.ts === null ? 'unknown time' : `${utc(e.ts)} UTC`;
+      if (j.status === 'fail') counts.background++; else counts.ended++;
+      items.push({ leg: 'background', status: j.status, state: j.state, agent: sub.agent, ts: e.ts ? new Date(e.ts).toISOString() : null, tool: null,
+        text: `${when} · subagent ${sub.agent.slice(0, 8)}: ${clip(e.command, CMD_SHOWN)} — ${j.why}${j.status === 'fail' ? '; stop it with TaskStop, or by its pid' : ''}` });
+    }
+  }
   const order = { fail: 0, warn: 1, pass: 2 };
   items.sort((a, b) => order[a.status] - order[b.status]);
   const blocking = counts.processes + counts.background + counts.launches + counts.harness;
-  const unreadable = psWhy !== null || !t;
+  const subBad = t && t.subUnreadable ? t.subUnreadable : 0;
+  const unreadable = psWhy !== null || !t || subBad > 0;
   const status = blocking ? 'fail' : (counts.scheduled || unreadable) ? 'warn' : 'pass';
   const parts = [`${counts.processes} live process(es)`, `${counts.background} background command(s) not ended`,
     `${counts.launches} detached launch(es) not shown finished`, `${counts.harness} harness-started item(s) not ended`,
@@ -2447,6 +2518,7 @@ function checkLaunched(t, sid, procs, now = Date.now(), env = process.env) {
   let summary = parts.join(' · ');
   if (psWhy !== null) summary += ` · unknown: process table not read (${psWhy}), so a live process cannot be ruled out`;
   if (!t) summary += ' · unknown: no transcript, so background, launched and harness-started work was not read';
+  if (subBad) summary += ` · unknown: ${subBad} subagent log(s) could not be read, so a background command one started cannot be ruled out`;
   const lines = items.map((x) => `${ICON[x.status]} ${LEG_TAG[x.leg]}: ${x.text}`);
   const total = lines.length;
   const legs = {

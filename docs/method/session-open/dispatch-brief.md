@@ -22,6 +22,10 @@ carries bounds only, never a relaxation of standing doctrine.
   output to a file in your scratch directory and append an exit-code line
   (exit=<code>). If the command is moved to the background, poll that file
   yourself; the completion notice will not reach you.
+- Waits must be able to end. Never poll with `pgrep -f` on a pattern your
+  own loop contains (bracket one character, `[m]ake`, or wait on the PID);
+  never wait for a line the watched command does not itself print; give
+  every wait a timeout. Leave no background process running when you finish.
 - Stage explicit paths only, never `git add -A`, and commit by pathspec
   (`git commit -- <paths>`).
 - Run only the test modules for what you changed, under `nice`, one after another.
@@ -49,6 +53,7 @@ carries bounds only, never a relaxation of standing doctrine.
 | Worktree, its name, absolute paths | § *The substrate*; § *Orchestrated queue runs*: worktree names carry the session's short id (`180/160`); absolute on the cwd hazard, in the scratch rule |
 | Scratch directory | § *Orchestrated queue runs*: the worktree is the isolation, the scratch space is not |
 | Long-check poll | § *Orchestrated queue runs*: a long check is the worker's to poll (`320/680`) |
+| Waits that can end | § *Orchestrated queue runs*: a wait the worker writes must be able to end (`210/690`) |
 | Explicit staging, pathspec commit | § *The trigger*: the index is a shared surface too (`320/350`); § *Claiming work*: one worktree per worker, or forbid `git add -A` |
 | No push or merge | § *Orchestrated queue runs*: what a worker inherits is bounded (QR3) |
 | Test-run bound | § *Orchestrated queue runs*: a worker's test runs are bounded too, and the full suite is the orchestrator's (`180/200`); a brief-writing worker's re-run lines (`320/910`) |

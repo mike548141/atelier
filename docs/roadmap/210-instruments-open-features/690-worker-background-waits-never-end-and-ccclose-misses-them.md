@@ -1,4 +1,4 @@
-- [~] 🔎 **Workers leave background wait loops that can never end, and `ccclose` does not
+- [x] 🔎 **Workers leave background wait loops that can never end, and `ccclose` does not
       🔒 Claimed by session a2097e54 (`atelier-b2`, Opus 5.5), principal-opened by
       `/atelier:work run`.
       (claimed 2026-11-27-1226, wt: atelier-qr-a209-waits)
@@ -25,3 +25,34 @@
          session's, and reports any still running.
       **Not fixed in passing:** filed under `CLAUDE.md`'s rule that a defect is reported
       first.
+      **Done 2026-11-27** (session a2097e54, built by its Sonnet worker, branch
+      `qr-a209-waits`): both halves.
+      1. Doctrine: `CONCURRENCY.md` § *Orchestrated queue runs* gains *A wait the worker
+         writes must be able to end* beside the long-check poll (three rules: no `pgrep -f`
+         on a pattern the loop contains, no waiting on a line the command does not print,
+         a timeout on every wait), grounded in the measurement above (class only); the
+         dispatch skeleton `session-open/dispatch-brief.md` gains the bound and its
+         grounding row. No heading renamed.
+      2. Tool: `ccclose` check 15 leg 2 reads each `subagents/agent-<id>.jsonl` for
+         `run_in_background` Bash calls and judges them by the same rule (`readSubagentShells`,
+         `checkLaunched`). Grounded by a census of the stored logs: 140 subagent background
+         launches, and once the agent's log and the parent's `<task-notification>`s are read
+         together every one is ended or stopped, 21 of them only in the parent's log, so an
+         end counts from either. They fold into the `background` count (no new field), print
+         as `subagent <id8>: <command>`, and an unreadable agent log makes the line unknown.
+         4 new tests (the loop that never ends blocks; ended in either log passes; unreadable
+         log warns; `--identifiers` carries it); man page, design doc (§ check 15 leg 2) and
+         CHANGELOG updated.
+      **Gap, stated:** only the background leg is read from a subagent's log; a detached
+      `&` or `nohup` a subagent ran is left to leg 1's process read (which cannot see Apple
+      platform binaries). A shell still running reads "no terminal notification", which cannot
+      tell a loop that never ends from a command legitimately still working.
+      Commitment: a doctrine rule workers' dispatches carry, and a close check sessions trust
+      to say nothing they launched is still running.
+      Worst failure: the check reads a subagent's shell as ended, or reads nothing, and a
+      session declares "ready to close" over a loop that runs for hours (the very failure
+      measured), or a rule that steers workers to a wait form that still never ends.
+      Why the floor misses it: it fails silent (a clean line reads the same as a blind spot),
+      the tests use synthetic fixtures of a record shape the harness may change, and a
+      still-running shell is indistinguishable from a legitimate one by the log alone.
+      Cold pass owed (the orchestrator queues the pointer).
