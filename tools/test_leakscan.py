@@ -384,12 +384,43 @@ class Suppression(unittest.TestCase):
     def test_summary_names_the_disabled_rules(self):
         self.assertIn("ipv4", ls.Tally(disabled_rules=("ipv4",)).summary())
 
-    def test_render_reports_suppression_on_a_clean_run(self):
+    def test_render_reports_suppression_on_an_all_accepted_run(self):
+        # 020/040: a run that excused something is not headlined "clean".
         tally = ls.Tally()
         tally.note_marker("email")
         out = ls.render_human([], None, True, tally)
-        self.assertIn("clean", out)
+        self.assertNotIn("leakscan clean", out)
+        self.assertEqual(
+            "✓ leakscan all accepted — nothing live; excused, not absent: "
+            "1 by allow-marker (structural + local).", out.splitlines()[0])
         self.assertIn("1 by allow-marker", out)
+
+    def test_the_headline_names_every_mechanism_that_excused_something(self):
+        tally = ls.Tally(files_by_glob=7, binaries_by_manifest=2)
+        tally.note_marker("email")
+        head = ls.render_human([], None, False, tally).splitlines()[0]
+        self.assertIn("1 by allow-marker, 7 file(s) by .leakscanignore, "
+                      "2 binary file(s) by .leakscanbinaries "
+                      "(structural only)", head)
+
+    def test_nothing_excused_keeps_the_clean_headline(self):
+        out = ls.render_human([], None, True, ls.Tally())
+        self.assertEqual("✓ leakscan clean (structural + local).",
+                         out.splitlines()[0])
+
+    def test_disabled_rules_and_coverage_gaps_do_not_make_a_run_accepted(self):
+        tally = ls.Tally(disabled_rules=("ipv4",), binaries_untracked=3)
+        tally.pruned.files = 4
+        self.assertEqual(0, tally.accepted_total)
+        self.assertIn("leakscan clean", ls.render_human([], None, True, tally))
+
+    def test_a_live_finding_outranks_accepted(self):
+        tally = ls.Tally()
+        tally.note_marker("email")
+        f = ls.Finding("f.txt", 1, "email", "structural", "high", "x@y")
+        out = ls.render_human([f], None, True, tally)
+        self.assertIn("✗ leakscan: 1 finding(s)", out.splitlines()[0])
+        self.assertNotIn("all accepted", out)
 
 
 class LoadTerms(unittest.TestCase):
@@ -4323,6 +4354,60 @@ class CoverageLine(_CliCase):
                           "scanned_nothing": False,
                           "lines_read": 2, "binaries_checked": 0},
                          out["coverage"])
+
+
+class ThreeStateVerdict(_CliCase):
+    """020/040: clean, all accepted and blocked are three states; the exit code
+    keeps two. `clean` in --json keeps its meaning beside the new `verdict`."""
+
+    MARKED = "a.b@example.org  # leakscan:allow:email: documented example"
+
+    def test_nothing_found_is_clean(self):
+        rc, out = self.run_cli("plain words")
+        self.assertEqual(0, rc)
+        self.assertIn("✓ leakscan clean", out)
+        rc, doc = self.run_json("plain words")
+        self.assertEqual((0, "clean", 0, True),
+                         (rc, doc["verdict"], doc["accepted"], doc["clean"]))
+
+    def test_everything_excused_is_all_accepted_and_still_exits_0(self):
+        rc, out = self.run_cli(self.MARKED)
+        self.assertEqual(0, rc)
+        self.assertIn("✓ leakscan all accepted", out)
+        self.assertNotIn("leakscan clean", out)
+        self.assertIn("1 by allow-marker", out.splitlines()[0])
+        rc, doc = self.run_json(self.MARKED)
+        self.assertEqual(0, rc)
+        self.assertEqual("accepted", doc["verdict"])
+        self.assertEqual(1, doc["accepted"])
+        # `clean` keeps its meaning (nothing blocks) for existing consumers.
+        self.assertTrue(doc["clean"])
+        self.assertFalse(doc["blocked"])
+        self.assertEqual(1, doc["suppressed"]["by_allow_marker"])
+
+    def test_a_live_finding_is_blocked_and_exits_1(self):
+        rc, out = self.run_cli("a.b@example.org")
+        self.assertEqual(1, rc)
+        self.assertIn("✗ leakscan: 1 finding(s)", out)
+        rc, doc = self.run_json("a.b@example.org")
+        self.assertEqual((1, "blocked", False), (rc, doc["verdict"], doc["clean"]))
+
+    def test_one_live_finding_among_excused_ones_is_blocked(self):
+        text = self.MARKED + "\nc.d@example.org"
+        rc, doc = self.run_json(text)
+        self.assertEqual((1, "blocked", 1), (rc, doc["verdict"], doc["accepted"]))
+
+    def test_an_ignored_file_makes_the_run_accepted(self):
+        (self.tmp / ".leakscanignore").write_text("# a reasoned fixture exemption\nf.txt\n")
+        rc, out = self.run_cli("a.b@example.org")
+        self.assertEqual(0, rc)
+        self.assertIn("1 file(s) by .leakscanignore", out.splitlines()[0])
+        rc, doc = self.run_json("a.b@example.org")
+        self.assertEqual(("accepted", 1), (doc["verdict"], doc["accepted"]))
+
+    def test_a_disabled_rule_alone_stays_clean(self):
+        rc, doc = self.run_json("gateway 172.16.31.7 here", "--disable", "ipv4")
+        self.assertEqual((0, "clean", 0), (rc, doc["verdict"], doc["accepted"]))
 
 
 class DisabledClassReports(_CliCase):

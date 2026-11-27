@@ -41,3 +41,35 @@
       verdict. So this is work owed, the fix shape above, not an ask; the 🎯
       comes off. Today's measure: atelier's leakscan run subtracts 98
       findings by allow-marker and 7 files by glob and still prints `clean`.
+      **Leakscan slice built (2026-11-27-1052, session 9c5fa72c worker).** Three
+      verdicts, two exit codes. `report.verdict(blocking, accepted)` and
+      `report.accepted_head(name, detail)` are the shared home; leakscan's
+      `render_human` prints `✓ leakscan all accepted — nothing live; excused, not
+      absent: <n> by allow-marker, <m> file(s) by .leakscanignore, …` when nothing
+      blocks and `Tally.accepted_total` (markers + ignored files + manifest
+      binaries) is above zero, and the old `✓ leakscan clean` only when nothing was
+      excused. `--json` gains `"verdict"` (`clean` | `accepted` | `blocked`) and
+      `"accepted"` (the count) beside `clean`, which keeps its meaning. Rules turned
+      off (advisory) and coverage gaps (untracked, pruned) do not make a run
+      accepted: they already have their own lines. Exit codes untouched. Tests:
+      `test_leakscan.ThreeStateVerdict` plus the Tally render cases, and
+      `test_report.test_the_three_state_verdict`; documented in `tools/README.md`
+      § *Three verdicts, two exit codes*. No other scanner's output changed.
+      Review: not warranted — an output-shape change to an already-reviewed tool
+      its tests cover; a live finding classifies `blocked` before `accepted` is
+      considered (pinned), the findings list and exit code run on the old path, and
+      the worst case is a wrong headline word over a tally line that already
+      carries the counts, which a test reds on.
+      **Remains (not built):** the other scanners adopt `report.verdict` and
+      `accepted_head`, one at a time, each its own small change. Recommended order,
+      by how many suppressions each carries in practice and how many children run
+      it: `secretscan` (same marker-and-glob shape, the credential gate, so the
+      most to hide), `pathscan`, `datescan`, `linkscan`, `spellscan`, `sizescan`,
+      `licenscan`, then the rest that print a `suppressed:` line (`conflictscan`,
+      `wrapscan`, `indexscan`, `pointerscan`, `publishscan`, `reviewscan`,
+      `stampscan`, `blockscan`). Also owed: leakscan's `--messages` JSON still has
+      only `clean` (it excuses nothing: markers do not apply to commit messages, so
+      it can only be clean or findings); and `GUARDS.md` § *Fail noisy, then
+      subtract* should state the three-state verdict once a second scanner has
+      adopted it, so the doctrine describes what two guards do, not one. Item stays
+      `[~]` until the siblings are done.

@@ -417,6 +417,17 @@ class TestReportLines(unittest.TestCase):
                                               tail=" — blocked.\n"),
                          "✗ d: 1 thing(s) — blocked.\n")
 
+    def test_the_three_state_verdict(self):
+        # 020/040: exit 0 for clean and accepted, apart in words; 1 for blocked.
+        self.assertEqual("clean", report.verdict(0, 0))
+        self.assertEqual("accepted", report.verdict(0, 3))
+        self.assertEqual("blocked", report.verdict(2, 0))
+        self.assertEqual("blocked", report.verdict(True, 9))
+        self.assertEqual("✓ d all accepted \u2014 nothing live; excused, not "
+                         "absent: 2 by marker.",
+                         report.accepted_head("d", "2 by marker"))
+        self.assertNotIn("clean", report.accepted_head("d", "2 by marker"))
+
     def test_cap_part_and_over_cap_line(self):
         self.assertEqual(report.cap_part(0, 7),
                          "0 beyond the 7-finding cap (counted, not listed)")

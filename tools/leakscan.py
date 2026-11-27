@@ -65,7 +65,7 @@ the exit code. Nothing that blocks today stops blocking; `test_leakscan.
 BlockingSetPinned` holds that. Design: `leakscan.off-rules.design.md`.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero):
-  0  clean, or report-only findings only
+  0  clean, all accepted, or report-only findings only
   1  blocking findings (blocks the commit)
   2  usage / config error (a broken scan is NOT a pass)
 
@@ -540,6 +540,26 @@ class Tally:
         return allowmarker.deferment_report_multi(
             [(IGNORE_FILE, self.deferments),
              (BINARY_MANIFEST, self.binary_deferments)])
+
+    @property
+    def accepted_total(self) -> int:
+        """What the scan found or met and then excused, by a mechanism the repo
+        wrote down: allow-markers, ignore globs, and manifest-accepted binaries.
+        Not rules turned off (their hits report as advisory) and not coverage
+        gaps (untracked or pruned files): those are said on their own lines.
+        Feeds the verdict only, never the exit code."""
+        return self.marker_total + self.files_by_glob + self.binaries_by_manifest
+
+    def accepted_detail(self) -> str:
+        parts = []
+        if self.marker_total:
+            parts.append(f"{self.marker_total} by allow-marker")
+        if self.files_by_glob:
+            parts.append(f"{self.files_by_glob} file(s) by {IGNORE_FILE}")
+        if self.binaries_by_manifest:
+            parts.append(f"{self.binaries_by_manifest} binary file(s) by "
+                         f"{BINARY_MANIFEST}")
+        return ", ".join(parts)
 
     def coverage(self) -> str:
         return report.coverage_line(
@@ -3671,7 +3691,13 @@ def render_human(findings: list[Finding], warning: str | None,
     lines.extend(render_provenance(provwarn or []))
     if not findings and not over_cap:
         cover = "structural + local" if scanned_local else "structural only"
-        lines.append(f"✓ leakscan clean ({cover}).")
+        if tally is not None and tally.accepted_total:
+            # 020/040: exit 0 either way, but "found and every one excused" is
+            # not "found nothing", so it does not print the same headline.
+            lines.append(report.accepted_head(
+                "leakscan", f"{tally.accepted_detail()} ({cover})"))
+        else:
+            lines.append(f"✓ leakscan clean ({cover}).")
         if tally is not None:
             lines.append(tally.summary())
             lines.append(tally.deferment_report())
@@ -3975,6 +4001,13 @@ def _main(argv: list[str] | None = None) -> int:
             # on exactly what it did.
             "clean": not blocking_total,
             "blocked": bool(blocking_total),
+            # 020/040: the three-state verdict beside `clean` (which keeps its
+            # meaning: nothing blocks). "clean" = nothing found or excused;
+            # "accepted" = something was found and every one excused, none live
+            # (`accepted_total`, read off `suppressed`); "blocked" = a live
+            # finding. Exit code is unchanged: 0, 0, 1.
+            "verdict": report.verdict(blocking_total, tally.accepted_total),
+            "accepted": tally.accepted_total,
             "counts": {"blocking": blocking_total, "advisory": advisory_total},
             "scanned_local_terms": scanned_local,
             "warning": warning,

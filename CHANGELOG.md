@@ -5,6 +5,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-27 — `leakscan` says "all accepted" apart from "clean", `020/040`)
+- **A third verdict.** When nothing blocks but the scan excused something (allow-markers,
+  `.leakscanignore` globs, `.leakscanbinaries` entries), the headline reads `✓ leakscan all
+  accepted — nothing live; excused, not absent: …` instead of `✓ leakscan clean`. `--json`
+  gains `"verdict"` (`clean`, `accepted` or `blocked`) and `"accepted"` (the count) beside
+  `clean`, which keeps its meaning (nothing blocks). Exit codes are unchanged: 0, 0, 1.
+  The helpers `report.verdict` and `report.accepted_head` are shared for the other scanners;
+  none has adopted them yet.
+- **Adopter action.** None for the exit code or `clean`. A step that matches the human line
+  `leakscan clean` on a repo that excuses findings should match `leakscan all accepted` too,
+  or read `verdict` from `--json`.
+
 ### Added (2026-11-27 — `signscan` accepts named commits by full id, `115/520`)
 - **`signscan --accepted <file>`.** A commit whose signature fails and can never be
   re-signed can be listed by its full commit id under a stated reason; it is reported and

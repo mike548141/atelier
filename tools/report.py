@@ -544,6 +544,35 @@ def clean_head(name: str, detail: str) -> str:
     return f"✓ {name} clean — {detail}"
 
 
+# The three-state verdict (020/040, Mike 2026-08-09: find everything, report
+# them all, subtract the well-reasoned and recorded, then an honest verdict).
+# "clean" and "accepted" both exit 0; they are opposite states of the world and
+# must not read alike: nothing was found, or things were found and every one
+# was excused. Exit codes never read this: `exit_code` takes blocking alone.
+VERDICT_CLEAN = "clean"
+VERDICT_ACCEPTED = "accepted"
+VERDICT_BLOCKED = "blocked"
+
+
+def verdict(blocking: "int | bool", accepted: int) -> str:
+    """`blocked` if anything blocks, else `accepted` if the scan subtracted
+    anything it found (an allow-marker, an ignore glob, a manifest entry), else
+    `clean`. `accepted` is a count of what the scanner excused; a scanner with
+    no such mechanism passes 0 and can only be clean or blocked."""
+    if blocking:
+        return VERDICT_BLOCKED
+    return VERDICT_ACCEPTED if accepted else VERDICT_CLEAN
+
+
+def accepted_head(name: str, detail: str) -> str:
+    """`✓ <name> all accepted — nothing live; excused, not absent: <detail>.`
+    The headline for the verdict `accepted`: exit 0, but not the line a scan
+    that found nothing prints. `detail` is the scanner's own count of what it
+    excused and by which mechanism."""
+    return (f"✓ {name} all accepted \u2014 nothing live; excused, not absent: "
+            f"{detail}.")
+
+
 def findings_head(name: str, count: int, noun: str = "finding(s)",
                   tail: str = ".") -> str:
     """`✗ <name>: <count> <noun><tail>` — the tail carries each guard's own

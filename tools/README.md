@@ -290,6 +290,28 @@ python3 tools/leakscan.py --selftest      # prove the engine on this box
 Exit codes follow the shared contract (`report.py`, below): `0` includes report-only
 findings, and `1` blocks the commit.
 
+### Three verdicts, two exit codes (020/040)
+
+A scan that found nothing and a scan that found things and excused every one both
+exit `0`, and they are opposite states, so the headline says which:
+
+| Verdict | Human headline | Exit |
+|---|---|---|
+| `clean` | `✓ leakscan clean (structural + local).` | 0 |
+| `accepted` | `✓ leakscan all accepted — nothing live; excused, not absent: 35 by allow-marker, 7 file(s) by .leakscanignore (…).` | 0 |
+| `blocked` | `✗ leakscan: N finding(s) — commit blocked.` | 1 |
+
+`--json` carries `"verdict"` (those three strings) and `"accepted"` (the count behind
+it: allow-markers, ignored files and manifest binaries, summed) beside `clean`, which
+keeps its meaning: `true` when nothing blocks, so `clean: true` with `verdict:
+"accepted"` is a pass that excused something. A consumer that wants the honest
+reading gates on `verdict`; one that gates on `clean` or the exit code sees no change.
+`accepted` counts what a repo wrote down to excuse (markers, `.leakscanignore` globs,
+`.leakscanbinaries` entries). Rules turned off report as advisory, and files a walk
+did not open say so on the coverage line; neither makes a run `accepted`. The wording
+and the `verdict()` helper live in `report.py` (`accepted_head`, `verdict`) for the
+other scanners to adopt; none has yet.
+
 ### Rules that are off report, and never block (115/090)
 
 A rule that is off still runs. Its hits are listed in a `🟡 REPORT-ONLY
