@@ -349,6 +349,39 @@ class TheActionsTextsAndManifests(unittest.TestCase):
         self.assertIn("The words typed after `/atelier:review run` are the "
                       "principal's words for this run.", flat)
 
+    def test_repo_hook_installs_the_tracked_form(self):
+        """115/540 item 1: ADR 0008 decision 4 ("The hook is tracked":
+        `.githooks/` plus `core.hooksPath`) and `repo create` step 6 say the same;
+        `repo hook` copied the samples into git's own hooks directory, the
+        untracked form the decision ended, and so left a dead hook behind
+        wherever `core.hooksPath` was later set."""
+        text = (SKILLS / "repo" / "hook.md").read_text(encoding="utf-8")
+        flat = re.sub(r"\s+", " ", text)
+        self.assertIn("git config core.hooksPath .githooks", text)
+        self.assertIn('"${CLAUDE_PLUGIN_ROOT}/.githooks/pre-commit"', text)
+        for hook in ("pre-commit", "pre-merge-commit", "commit-msg"):
+            self.assertIn(f'.githooks/{hook}', text, hook)
+        self.assertNotIn("tools/pre-commit.sample", text)
+        self.assertNotIn("--git-path hooks)/", text)
+        self.assertIn("commit `.githooks/`", flat)
+        # The tracked copies are the ones create's step 6 copies, so they exist.
+        for hook in ("pre-commit", "pre-merge-commit", "commit-msg"):
+            self.assertTrue((ROOT / ".githooks" / hook).is_file(), hook)
+
+    def test_the_never_list_is_one_text_in_every_fleet_prompt(self):
+        """115/540 item 5: the worker's and task's list was the full one; the
+        adopt prompt dropped the record-store examples and the brief prompt
+        dropped five clauses. The stricter list is the one text, in all four."""
+        tail = ("write to any live system; touch secrets or credential values "
+                "(never print a file's secret contents; read masked); rewrite git "
+                "history; delete or bulk-remove anything from a record store "
+                "(board, session logs, ADRs, reviews); change repo visibility, "
+                "Actions enablement, branch protection, deploy keys, webhooks or "
+                "app grants; spend money; install tools.")
+        for name in ("worker", "adopt", "task", "brief"):
+            text = (SKILLS / "fleet" / f"{name}-prompt.md").read_text(encoding="utf-8")
+            self.assertIn(tail, re.sub(r"[ \t]*\n[ \t]*", " ", text), name)
+
     def test_manifests_list_every_action_and_count_them(self):
         actual = {(d.name, a) for d in subjects() for a in action_files(d)}
         for rel, path in ((".claude-plugin/marketplace.json", ("plugins", 0, "description")),

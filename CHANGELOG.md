@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-27 — `/atelier:repo hook` installs the tracked form, and the fleet prompts share one never-list, `115/540`)
+- **`/atelier:repo hook` copies the three hooks into `.githooks/` and sets `core.hooksPath`,**
+  as ADR 0008 decision 4 and `/atelier:repo create` step 6 say. It had copied the samples
+  into git's own hooks directory, the untracked form that ended: one machine only, and a dead
+  copy once `core.hooksPath` is set. It now tells the user to commit `.githooks/`.
+- **The four fleet prompts carry one never-list,** the stricter one (record-store examples,
+  branch protection, deploy keys, webhooks, spend money, install tools); a test pins it.
+- **Adopter action.** In a repo hooked by the old command, run `/atelier:repo hook` again,
+  commit `.githooks/`, and delete the old `.git/hooks/pre-commit`, `pre-merge-commit` and
+  `commit-msg`; `tools/deadhook.py --status` names any left behind.
+
 ### Added (2026-11-27 — `leakscan` says "all accepted" apart from "clean", `020/040`)
 - **A third verdict.** When nothing blocks but the scan excused something (allow-markers,
   `.leakscanignore` globs, `.leakscanbinaries` entries), the headline reads `✓ leakscan all

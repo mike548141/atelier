@@ -1,7 +1,4 @@
-- [~] 🔎 **Defects the enforcement census found in slice 7.** Found
-      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
-      `/atelier:work run`.
-      (claimed 2026-11-27-1050, wt: atelier-qr-9c5f-slice7)
+- [ ] 🔎 **Defects the enforcement census found in slice 7.** Found
       2026-11-23 UTC by `020/220` slice 7
       (`docs/method/census/2026-11-23-1813-decisions-skills-commands-plugin.md`);
       reported, not fixed in passing. The orchestrator (queue run
@@ -39,3 +36,44 @@
       the census rows. Cold pass queued as `160/1770`. **Still open:** 1
       (install-hook untracked against ADR 0008), 2 (the manifest has no
       `version` for `create-repo`'s proof), 6, and the never-list wording.
+
+      **Round 2, 2026-11-27 UTC** (queue run 9c5fa72c, a Sonnet worker, read by
+      the run before landing). Each numbered defect was checked against the tree.
+      **1 fixed:** `/atelier:repo hook` now installs the tracked form, as ADR
+      0008 decision 4 and `repo create` step 6 say: it copies `.githooks/`'s
+      three hooks into the repo, sets `core.hooksPath .githooks`, tells the user
+      to commit `.githooks/`, and says why `.git/hooks/` is the wrong home. It
+      had copied the `tools/*.sample` files into git's own hooks directory.
+      Reproduced first by `test_subject_skills.py`
+      `test_repo_hook_installs_the_tracked_form`, which failed; it passes now.
+      The root README's `hook` bullet and `tools/README.md`'s wiring bullet
+      said the untracked form and now say the tracked one. **6 already fixed**
+      by `10b32435` (the review plan holds the one definition of *owed*, a `⏳`
+      pointer that names a delta included; `fleet/sweep.md` item 4 defers to it
+      and restates nothing; no "bare ⏳ does not count" text is left). **5, the
+      rest, fixed:** the reviewer prompt's two homes were already one
+      (`test_the_reviewer_instructions_have_one_home`, DV8); the never-list is
+      now one text in the four fleet prompts (the stricter list wins, as the
+      layer-override rule says: the adopt prompt gained the record-store
+      examples, the brief prompt gained five clauses), the sweep's *Limits paid
+      for* line names the full set, and
+      `test_the_never_list_is_one_text_in_every_fleet_prompt` pins it (it failed
+      first on adopt and brief). The review-only first clause of the brief
+      prompt stays its own.
+      **Left for the principal: 2** (`create-repo`'s bundled-mode proof and
+      `<VERSION>`). The manifest has no `version` on his 2026-10-18 pick
+      ("Track every commit"), and `PROPAGATION.md` says putting one back is his
+      call. The other way, changing the canonical bundled-mode text so the pin's
+      referent is something else (the installed commit, or the `CHANGELOG.md`
+      head), rewrites text stamped into every bundled child and rests on how
+      Claude Code names an install directory for a plugin with no `version`,
+      which this tree cannot show (the one local cache entry predates the
+      change). So which side moves is his; the question and a recommendation are
+      in the run's report. Items 3 and 4 and the rest of 5 stand as before.
+      review: not warranted — item 1 syncs a command's text to a decision already
+      accepted (ADR 0008 decision 4) and to the step `repo create` already
+      carries; its failure is loud (the step's own proof runs `deadhook.py
+      --status`, which exits 1 when commits would go unscanned, and a test pins
+      the tracked form); item 5 syncs three copies of a list to the fuller text
+      already in force in the worker and task prompts, a tightening whose failure
+      (a worker stops and reports) is loud and whose parity a test now reds on.

@@ -133,7 +133,8 @@ Six subjects, sixteen actions:
     link) by hand over any repo; the full floor is `tools/floor.py`.
     Zero-dependency stdlib Python, bundled.
   - **`hook`** — install the fail-closed git pre-commit scan hook into the
-    current repo (git hooks don't travel, so it's per-clone; and the hook's
+    current repo, as tracked `.githooks/` files (git transports no config, so
+    `core.hooksPath` is set once per clone; and the hook's
     scanner path is pinned to the installed plugin *version*, which is now the
     commit, so in a repo hooked from a GitHub install re-run it after every
     plugin update — until then the hook blocks, it never waves through. A

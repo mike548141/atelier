@@ -204,8 +204,10 @@ names any first, and this list says which to set.
   one that contains a configured private name; the list is only as good as its
   curation, so the worker prompt says it too.
 - Workers never run review-tier work or cold passes, never write to live
-  systems, never touch secrets, history, visibility, Actions switches, or
-  bulk-remove from a record store. Each is a stop-and-report.
+  systems, never touch secrets, history, visibility, Actions switches, branch
+  protection, deploy keys, webhooks or app grants, never bulk-remove from a
+  record store, never spend money or install tools. Each is a stop-and-report.
+  The prompts carry the list in full, and one text (`test_subject_skills.py`).
 - The workers run unattended in every listed repo, hold the user's git and
   forge credentials, and read text others can write (a repo's instruction
   file, a pull request, a CI log). Give them the narrowest permission mode

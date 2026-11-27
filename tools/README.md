@@ -702,7 +702,9 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
 ### Wiring it in
 
 - **Pre-commit hook** — copy `tools/pre-commit.sample` to
-  `.git/hooks/pre-commit` (`chmod +x`). It names no scanner (ADR 0008): it hands
+  `.githooks/pre-commit` (`chmod +x`) and run `git config core.hooksPath
+  .githooks` once per clone (ADR 0008: the tracked form; `.git/hooks/` is
+  untracked and `deadhook.py` flags a copy left there). It names no scanner (ADR 0008): it hands
   the commit to `floor.py`, which runs the registry's checks (`secretscan` and
   `leakscan` over the staged diff, `linkscan` over the **whole tree**, and the
   rest) and aborts the commit on any finding. This is the primary control.
