@@ -1,4 +1,4 @@
-- [ ] 🔎 **In git mode, `secretscan`, `leakscan` and `conflictscan` skip untracked,
+- [~] 🔎 **In git mode, `secretscan`, `leakscan` and `conflictscan` skip untracked,
       not-ignored files under skip-named directories, and nothing counts them.** Found
       2026-11-25 by the worker that built `320/900` (session f8dd3843's queue run), not yet
       reproduced by a second session. `320/900` made the plain-tree (`os.walk`) fallback count
@@ -9,3 +9,6 @@
       in a throwaway git repo, then decide whether git mode counts those paths (cheap: git has
       already listed them) or reads them; the pre-commit plane reads staged files, so say which
       planes it reaches. *Tier:* build tier.
+      🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-0045, wt: atelier-qr-4ce0-gitskip)
