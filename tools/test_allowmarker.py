@@ -170,7 +170,10 @@ class TestMarkerGrammar(unittest.TestCase):
 # compiled BEFORE the extraction, as a literal.
 _REASON = r"[\w\"\'“‘]"
 # Scanners that import allowmarker for its ignore-file loader alone.
-_LOADER_ONLY = {"publishscan"}
+# `signscan` reads its accepted-exception list (115/520) with
+# `read_reasoned_lines` and has no allow-marker of its own; its list's
+# grammar is pinned by test_signscan's accepted-list cases.
+_LOADER_ONLY = {"publishscan", "signscan"}
 
 _PIN = {
     "conflictscan": {"ALLOW_RX": r"\bconflictscan:allow:[ \t]*(?P<reason>" + _REASON + ")"},
