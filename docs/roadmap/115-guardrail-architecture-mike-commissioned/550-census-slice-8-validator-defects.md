@@ -1,7 +1,4 @@
-- [~] 🔎 **Defects the enforcement census found in slice 8, in the
-      🔒 Claimed by session a2097e54 (`atelier-b2`, Opus 5.5), principal-opened by
-      `/atelier:work run`.
-      (claimed 2026-11-27-1226, wt: atelier-qr-a209-census8)
+- [ ] 🔎 **Defects the enforcement census found in slice 8, in the
       validators' own stated contracts.** Found 2026-11-23 UTC by
       `020/220` slice 8
       (`docs/method/census/2026-11-23-1836-validators-personal-data-roadmap-summary.md`);
@@ -97,3 +94,5 @@
       and tests already do. Item 1, when built, changes what binds on the
       board and will answer `Commitment:` / `Worst failure:` / `Why the floor
       misses it:` then.
+      *Claim released 2026-11-27 at the close of session a2097e54 (`atelier-b2`): items 2 to 8
+      are landed; item 1 waits on the principal's answer to the question above.*

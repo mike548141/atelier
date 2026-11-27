@@ -1,7 +1,4 @@
-- [~] **Give a deferment an expiry at every granularity, not just `advisory`.**
-      🔒 Claimed by session a2097e54 (`atelier-b2`, Opus 5.5), principal-opened by
-      `/atelier:work run` (part 4, line-marker granularity, warn-only).
-      (claimed 2026-11-27-1226, wt: atelier-qr-a209-linemarker)
+- [ ] **Give a deferment an expiry at every granularity, not just `advisory`.**
       Raised by the ruling above. Today `review-by` is a floor-config field, so
       the only declarable deferment is a whole check. The two cases just dated
       are path-level, and a line marker has the same hole — `<guard>:allow:` is
@@ -97,3 +94,5 @@
       slice is additive and warn-only, so it folds into the cold pass
       already owed at (3); that pass reads the line-marker syntax with the
       rest, since (3) is where a lapsed marker date would start to block.
+      *Claim released 2026-11-27 at the close of session a2097e54 (`atelier-b2`): slice 4 (line
+      markers) is landed; parts (3) and the rest of (4), as listed above, are open for any session.*
