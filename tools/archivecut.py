@@ -535,6 +535,39 @@ def _note_long_lines(root: Path, plan: Plan, path: str, before: str,
             plan.long_lines.append((path, f.line, f.length))
 
 
+def _lengthened_lines(before: str, after: str) -> set[str]:
+    """The lines of `after` that a re-pointing took past the wrap limit: over
+    in `after`, not over at the same place in `before` (the line count never
+    changes). Fenced code is skipped, as `wrapscan` skips it."""
+    was = {f.line for f in wrapscan.scan_text("x.md", before)}
+    lines = after.split("\n")
+    return {lines[f.line - 1] for f in wrapscan.scan_text("x.md", after)
+            if f.line not in was}
+
+
+def _note_placed_long_lines(root: Path, plan: Plan,
+                            lengthened: dict[str, set[str]]) -> None:
+    """The session files the retirement writes: an entry placed in one gains
+    `../` per link (010/280 item 1's residue), so a line can pass the limit
+    there too. Report the lines in the files as written that were lengthened
+    that way; a line already over in the source, or in an exempt file, is not
+    news."""
+    try:
+        globs = wrapscan.load_ignore_globs(root)
+    except wrapscan.IgnoreFileError:
+        globs = []        # a broken ignore file is wrapscan's to report
+    seen = {(p, n) for p, n, _ in plan.long_lines}
+    for name, texts in sorted(lengthened.items()):
+        path = f"{SESSIONS_DIR}/{name}"
+        if not texts or wrapscan._ignored(path, globs):
+            continue
+        text = plan.writes[path]
+        lines = text.split("\n")
+        for f in wrapscan.scan_text(path, text):
+            if lines[f.line - 1] in texts and (path, f.line) not in seen:
+                plan.long_lines.append((path, f.line, f.length))
+
+
 def _repoint_tree(root: Path, plan: Plan, src: str, new_home: str,
                   skip: set[str], anchors: set[str]) -> None:
     """Re-point every tracked Markdown link to `src` at `new_home`, in place in
@@ -1359,6 +1392,7 @@ def _retire_log(root: Path, plan: Plan, texts: dict[str, str]) -> bool:
     # (2) links re-pointed one level down, each mapping back exactly
     errors: list[str] = []
     writes: dict[str, str] = {}
+    lengthened: dict[str, set[str]] = {}
     n_links = 0
     unmapped = 0
     for name, ents in per_file.items():
@@ -1372,6 +1406,8 @@ def _retire_log(root: Path, plan: Plan, texts: dict[str, str]) -> bool:
             if rewrite_links(moved, lambda d: _entry_back(d, base))[0] != body:
                 unmapped += 1
             moved_ents.append((src, start, count, moved))
+            lengthened.setdefault(name, set()).update(
+                _lengthened_lines(body, moved))
         original = None if name in created \
             else _read(root, f"{SESSIONS_DIR}/{name}")
         writes[f"{SESSIONS_DIR}/{name}"] = insert_entries(original, moved_ents)
@@ -1408,6 +1444,7 @@ def _retire_log(root: Path, plan: Plan, texts: dict[str, str]) -> bool:
                  f"unchanged but for the placed entries ({len(changed)} are not)")
     if ok:
         plan.writes = writes
+        _note_placed_long_lines(root, plan, lengthened)
     return ok
 
 

@@ -609,6 +609,56 @@ class FieldEdges(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertNotIn("WRAP", out)
 
+    # -- item 1, residue: the session files the retirement places entries in
+
+    @staticmethod
+    def _padded_entry(width: int) -> str:
+        """A log entry whose first line is `width` columns before its link is
+        re-pointed one level down (which adds three: `../`). At 85 it fits the
+        limit as written and is 88 once placed."""
+        head = "- **2026-01-02 (first)**: see [adr](decisions/0001.md) and "
+        # short words, not one long token: wrapscan lets a lone token through
+        pad = ("ab " * 60)[:width - len(head)].rstrip() \
+            .ljust(width - len(head), "b")
+        line = head + pad
+        assert len(line) == width
+        return line + "\n"
+
+    def test_a_placed_session_entry_lengthened_past_the_limit_is_reported(self):
+        r = make_repo(self.tmp, done=None, extra={
+            "docs/SESSIONS.md": SESSIONS + "\n" + self._padded_entry(85)})
+        code, out = run(["--plan", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        self.assertRegex(out, r"WRAP  1 line\(s\) a re-pointed link pushed past 85")
+        self.assertRegex(
+            out, r"docs/sessions/2026-01-02-01-first-see[^:\s]*\.md:\d+ "
+                 r"\(88 columns\)")
+        # the line it names is the line wrapscan reads in the written file
+        code, out = run(["--cut", "--root", str(r.root)])
+        self.assertEqual(code, 0, out)
+        made = next((r.root / "docs/sessions").glob("2026-01-02-01-*.md"))
+        found = wrapscan.scan_text(made.name, made.read_text(encoding="utf-8"))
+        self.assertEqual([88], [f.length for f in found])
+
+    def test_session_entries_not_lengthened_or_exempt_are_not_reported(self):
+        # 82 columns stays inside 85 after the three added; 90 was already over
+        for width in (82, 90):
+            with self.subTest(width=width):
+                with tempfile.TemporaryDirectory() as d:
+                    r = make_repo(Path(d), done=None, extra={
+                        "docs/SESSIONS.md":
+                            SESSIONS + "\n" + self._padded_entry(width)})
+                    code, out = run(["--plan", "--root", str(r.root)])
+                    self.assertEqual(code, 0, out)
+                    self.assertNotIn("WRAP", out)
+        with tempfile.TemporaryDirectory() as d:
+            r = make_repo(Path(d), done=None, extra={
+                "docs/SESSIONS.md": SESSIONS + "\n" + self._padded_entry(85),
+                ".wrapscanignore": "docs/sessions/** # fixture: exempt\n"})
+            code, out = run(["--plan", "--root", str(r.root)])
+            self.assertEqual(code, 0, out)
+            self.assertNotIn("WRAP", out)
+
     # -- item 3: the pre-split archive at the repo root
 
     def root_repo(self) -> Repo:

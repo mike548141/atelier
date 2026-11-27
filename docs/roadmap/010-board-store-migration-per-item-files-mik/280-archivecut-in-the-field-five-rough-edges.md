@@ -1,7 +1,4 @@
-- [~] 🔎 **`archivecut` in the field: five rough edges from its first fleet
-      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
-      `/atelier:work run`.
-      (claimed 2026-11-27-0915, wt: atelier-qr-9c5f-smallfixes)
+- [ ] 🔎 **`archivecut` in the field: five rough edges from its first fleet
       run.** Filed 2026-11-20 by session 19378351 from the reports of the
       workers it ran in sixteen children (class only; every cut that ran
       proved byte for byte and landed with green CI). None lost data; each
@@ -73,3 +70,21 @@
       not the placed session files. **Still open:** item 5 (the
       `attribscan` record-path decision, the principal's), and that width
       gap.
+      ✅ **2026-11-27 (queue run 9c5fa72c, a Sonnet worker): the width gap is
+      closed, so items 1–4 are done in every form the item named.** The `WRAP`
+      report now also reads the session files the retirement writes: a placed
+      entry gains `../` per link, and a line that passes the limit that way
+      is listed with its file, line and width (not a line already over in the
+      source, not an exempt file). Prose is still never re-wrapped. Test
+      written first and seen red, then green (`FieldEdges`, two tests, in
+      `tools/test_archivecut.py`; 48 pass). Checked against the five edges:
+      1 (re-pointed tree files, and now placed session files), 2 (label and
+      comment lines fit; the index line is gone), 3 (board and session-log
+      sources at the root), and 4 (`ARCHIVE_SECTION` in `board.py`) were
+      already fixed above; none is open. Review: not warranted for this
+      change on its own; a report-only line in the plan, and the failure it
+      guards is loud (`wrapscan` refuses the first commit). Its paths already
+      sit inside `160/1680`'s delta, so the pass reads it if it runs.
+      **Still open: item 5 only,** the `attribscan` record-path decision. It
+      is the principal's call and no worker takes it; the claim is released
+      so the item shows as waiting on him, not as in flight.
