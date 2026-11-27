@@ -70,3 +70,13 @@ lists any of them. His correction of the re-check framing is `460/080`, for a fr
 `extra` list still carries the entry for 1870's brief (harmless: the item is closed, so the
 queue no longer lists it READY), and 1870's held-back sibling still sits in the user-local held
 folder. Both can go; this session did not edit the estate root, where another session was live.
+
+## Addendum 2026-11-28: resumed after a machine crash, and checked
+
+The principal asked the session to resume after a crash and check its work. Nothing was in
+flight: every commit of the session is on `origin/main`, the floor is green on a later head,
+no worktree, branch, stash or claim of the session remains, and every item it closed or
+dropped is still closed (`460/070` and `460/080` were since built by another session). The
+drain queue lists none of the dropped passes. One correction to the loose ends above: the
+released pass's held-back sibling stays as record, as for the other retired briefs; only the
+drain config's `extra` entry is owed, now queued in the estate root's own board.
