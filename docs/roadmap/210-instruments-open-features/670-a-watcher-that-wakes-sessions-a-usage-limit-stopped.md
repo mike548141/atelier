@@ -44,6 +44,39 @@
       a session installing a launchd, login or cron item is owed beside it, since a rule in
       memory has not held.
 
+      💬 **His answer on the guard, 2026-11-27 (AskUserQuestion, a child queue run; an answer,
+      not a ruling), verbatim:** *"queue it build later. But it seems very wasteful to run it
+      before every command, how many other things are slowing down work by checking every
+      command before we run it? / We need to think of a better guard than that because that is
+      wasteful lazy design practices, for example perhaps it is a guard that runs at the end of
+      the session (like the existing hooks or session close command) to check the session didnt
+      do anything stupid (not allowed) like thiis."* And on the prototype: *"So I specified I
+      wanted time based and you did event based"*. So the guard is queued, and its design
+      starts from a close-time or end-of-session check (beside `ccclose`), not a hook on every
+      command.
+
+      🔎 **Measured for his question, 2026-11-27:** the two user-level `PreToolUse` guards on
+      `Bash` took about 0.58 s (`modelguard`) and 0.90 s (`secretguard`) a call, timed over 5
+      calls each with interpreter start included; the session that measured it made 218 `Bash`
+      calls, so roughly 2 to 5 minutes of a 4-hour session, depending on whether the harness
+      runs the two in parallel (not checked). A third such guard would add the same again.
+
+      🔎 **And on resources, for his follow-up (verbatim: *"not just do they slow things down
+      but do they waste resources like memory, CPU cycles etc"*), measured 2026-11-27** with
+      `/usr/bin/time -l`, 3 runs each, one `Bash` payload: `modelguard` about 0.45 s CPU
+      (user and system), 17 MB peak memory, 830M instructions a call; `secretguard` about
+      0.5 s CPU, 16 MB, 810M; a bare `python3 -I -c pass` about 0.26 s CPU, 12 MB, 390M. So
+      about half the CPU and two-thirds of the memory is interpreter start, paid on every
+      command: the two guards cost about 1 s CPU and 33 MB transient per `Bash` call (one
+      session's 218 calls, about 3.5 CPU-minutes, subagents' calls not counted), on a
+      12-core, 16 GB machine.
+
+      🔎 **On the prototype's trigger (stated so the record is exact, not to argue the
+      point):** its plist carried `StartInterval 600` as well as `RunAtLoad`, and
+      `launchctl print` showed 18 runs in its first three hours, so it was firing every 10
+      minutes while he was logged in. What was wrong was the mechanism: a LaunchAgent is a
+      login and background item macOS registers and warns about, which his rule forbids.
+
       **Owed.** Decide its home under the one-home, one-prefix rule (`450/*`): a `ccfleet`
       subcommand or its own `cc*` instrument; tests and a man page like the others; the
       relay's message wording generic and configurable; start and stop commands for the
