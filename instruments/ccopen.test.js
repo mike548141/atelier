@@ -134,7 +134,7 @@ esac
   return stub;
 }
 const githubRemote = (w, root) => sh(w, root, ['remote', 'set-url', 'origin', 'https://github.com/example/demo.git']);
-const pr = (number, title, head) => ({ number, title, headRefName: head, createdAt: new Date(NOW).toISOString(), url: `https://example.invalid/pull/${number}` });
+const pr = (number, title, head, body) => ({ number, title, headRefName: head, ...(body === undefined ? {} : { body }), createdAt: new Date(NOW).toISOString(), url: `https://example.invalid/pull/${number}` });
 
 function ccopen(w, cwd, args = [], envExtra = {}) {
   const r = spawnSync('node', [SCRIPT, ...args], { cwd, env: { ...w.env, ...envExtra }, encoding: 'utf8' });
@@ -530,6 +530,49 @@ test('handups: in atelier itself a hand-up PR (head ref or title) is recover-fir
   assert.match(j.by.handups.items[0], /^#2 Finding from a child \(report-abc\)/);
   assert.match(j.verdict.text, /^❌ recover first: .*3 hand-up PRs to land/);
   assert.equal(j.code, 1);
+});
+
+test('handups: a filing on a hyphen `handup-` head, or an ordinary title with the hand-up said in the body, is read as one (210/680)', () => {
+  const w = world();
+  const root = repo(w);
+  asAtelier(w, root);
+  githubRemote(w, root);
+  const gh = ghStub(w, { prs: [
+    pr(1, 'board 210/670: a watch instrument', 'handup-limit-watch-instrument'),
+    pr(2, 'board 320/900: a rule is ambiguous', 'misc-branch', 'This is a filed finding from a private child, not parent work.\n\nMore text.'),
+    pr(3, 'A feature', 'feat-x', 'Lands the hand-up PRs the last session left.'),
+    pr(4, 'Another feature', 'feat-y'),
+  ] });
+  const j = json(w, root, ['--no-fetch'], { CCCLOSE_GH: gh });
+  assert.equal(j.by.handups.status, 'fail');
+  assert.equal(j.by.handups.data.handups, 2);
+  assert.equal(j.by.handups.data.otherOpen, 2);
+  assert.deepEqual(j.by.handups.data.list.map((p) => [p.number, p.by]), [[1, 'head'], [2, 'body']]);
+  assert.match(j.by.handups.items.join('\n'), /#2 board 320\/900.*read as a hand-up by its body/);
+  // a body that only mentions a hand-up past its first line, or in passing, is not one
+  assert.deepEqual(j.by.handups.data.other.map((p) => p.number), [3, 4]);
+});
+
+test('handups: every other open PR is listed by number and title, and the list is there when none is a hand-up', () => {
+  const w = world();
+  const root = repo(w);
+  githubRemote(w, root);
+  const prs = [];
+  for (let i = 1; i <= 7; i++) prs.push(pr(i, `Plain change ${i}`, `feat-${i}`));
+  let j = json(w, root, ['--no-fetch'], { CCCLOSE_GH: ghStub(w, { prs }) });
+  assert.equal(j.by.handups.status, 'pass');
+  assert.match(j.by.handups.summary, /^0 hand-up PRs open · 7 other open/);
+  assert.equal(j.by.handups.data.other.length, 7);
+  assert.deepEqual(j.by.handups.data.list, []);
+  assert.match(j.by.handups.items[0], /^other open: #1 Plain change 1 \(feat-1\)/);
+  assert.equal(j.by.handups.items.filter((s) => /^other open: #/.test(s)).length, 5);
+  assert.ok(j.by.handups.items.includes('… and 2 more other open PR(s)'));
+  // the field set is stable: the zero case carries the same keys as the hit case
+  j = json(w, root, ['--no-fetch'], { CCCLOSE_GH: ghStub(w, { prs: [] }) });
+  assert.deepEqual(Object.keys(j.by.handups.data).sort(), ['handups', 'list', 'other', 'otherOpen']);
+  assert.equal(j.by.handups.data.otherOpen, 0);
+  assert.deepEqual(j.by.handups.data.other, []);
+  assert.deepEqual(j.by.handups.items, []);
 });
 
 test('handups: elsewhere a hand-up-shaped PR only warns; none is a pass with the zero printed', () => {

@@ -101,9 +101,10 @@ in atelier and is read on demand — never wholesale.
   problem by its class only: atelier is public and a push cannot be retracted,
   so a private repo never names itself or its contents (hosts, clients,
   secrets) on the branch, PR title, commit subject, PR body or item. Filing
-  without harming the parent: name the branch for the report, say it is a
-  hand-up in the first line, open the PR before you stop, and touch nothing but
-  your own item. (`PROPAGATION.md` § *Pointing up*.)
+  without harming the parent: name the branch `report-` plus a subject and
+  the time as HHMM (no repo token, never `handup-`), say it is a hand-up in the
+  first line, open the PR before you stop, and touch nothing but your own item.
+  (`PROPAGATION.md` § *Pointing up*.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `A="${ATELIER_TOOLS:-$(git config hooks.atelierTools)}/..";
   git -C "$A" fetch -q && git -C "$A" log --oneline <SHA>..origin/main` — the

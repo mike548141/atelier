@@ -215,9 +215,10 @@ in atelier and is read on demand — never wholesale.
   problem by its class only: atelier is public and a push cannot be retracted,
   so a private repo never names itself or its contents (hosts, clients,
   secrets) on the branch, PR title, commit subject, PR body or item. Filing
-  without harming the parent: name the branch for the report, say it is a
-  hand-up in the first line, open the PR before you stop, and touch nothing but
-  your own item. (`PROPAGATION.md` § *Pointing up*.)
+  without harming the parent: name the branch `report-` plus a subject and
+  the time as HHMM (no repo token, never `handup-`), say it is a hand-up in the
+  first line, open the PR before you stop, and touch nothing but your own item.
+  (`PROPAGATION.md` § *Pointing up*.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `A="${ATELIER_TOOLS:-$(git config hooks.atelierTools)}/..";
   git -C "$A" fetch -q && git -C "$A" log --oneline <SHA>..origin/main` — the
@@ -771,7 +772,10 @@ So four rules, each answering one of those:
 - **Name the branch for the report, not for the parent's work** — and name it
   `report-<subject>-<HHMM>`, with **no repo token**. The `report-` prefix is
   what reads as a hand-up in a branch list; a name shaped like the parent's own
-  worktree branches reads as competition. The form used to be
+  worktree branches reads as competition. Use that spelling and no other: a
+  filing on `handup-…` was missed by the open-time read (`210/680`), which now
+  also reads a hand-up by its title and the first line of its PR body, as a net
+  and not a licence. The form used to be
   `report-<reporting-repo>-<subject>`, and it was **wrong on a public parent**:
   a branch name is published on push, so it disclosed the very thing § *The
   route* rule 2 forbids a private child to disclose. Rule 2 wins (the

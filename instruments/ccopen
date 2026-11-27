@@ -300,7 +300,7 @@ function readPrs(repo) {
   if (!repo.github) return { why: 'no GitHub remote', na: true };
   const gh = cc.ghReady(repo);
   if (gh.reason) return { why: gh.reason };
-  const prs = cc.ghJson(gh, repo, ['pr', 'list', '--state', 'open', '--limit', '100', '--json', 'number,title,headRefName,createdAt,url']);
+  const prs = cc.ghJson(gh, repo, ['pr', 'list', '--state', 'open', '--limit', '100', '--json', 'number,title,headRefName,body,createdAt,url']);
   if (!Array.isArray(prs)) return { why: 'gh pr list failed' };
   return { prs };
 }
@@ -443,19 +443,45 @@ function readInterrupted(repo, live, ref, prs, self8) {
 // --- read 5: hand-up PRs -------------------------------------------------
 
 const L_HANDUP = 'Hand-up PRs';
-const HANDUP_HEAD = /^(?:report-|handup\/)/;
+// The doctrine's form is `report-<subject>-<HHMM>` (PROPAGATION.md § Report
+// without harming the parent); `handup` is read as the same family, hyphen or
+// slash, because a child filed on `handup-…` (210/680) and a tool that matches
+// only the doctrine's spelling misses a filing the doctrine says to land.
+const HANDUP_HEAD = /^(?:report|handup)[-/]/;
 const HANDUP_TITLE = /hand-?up/i;
+// The doctrine has the filer say, in the first line of the PR body, that this is
+// a filed finding. Only that line is read, and only for the statement at its
+// start: a body that mentions a hand-up in passing ("Lands the hand-up PRs",
+// as atelier's own PRs do) is not a hand-up.
+const HANDUP_BODY = /^\W*(?:this (?:pr )?is (?:a |an )?)?(?:hand-?up|filed finding|a private child)/i;
+
+// How a PR reads as a hand-up: 'head', 'title', 'body' or null.
+function handupBy(p) {
+  if (HANDUP_HEAD.test(p.headRefName || '')) return 'head';
+  if (HANDUP_TITLE.test(p.title || '')) return 'title';
+  const first = String(p.body || '').split('\n').find((l) => l.trim()) || '';
+  return HANDUP_BODY.test(first) ? 'body' : null;
+}
 
 function readHandups(repo, kind, prs) {
-  const empty = { handups: null, otherOpen: null, list: [] };
+  const empty = { handups: null, otherOpen: null, list: [], other: [] };
   if (prs.na) return read('handups', L_HANDUP, 'na', prs.why, { data: empty });
   if (!prs.prs) return read('handups', L_HANDUP, 'warn', `unknown — ${prs.why}`, { flag: 'hand-up PRs unknown (gh)', data: empty });
-  const hand = prs.prs.filter((p) => HANDUP_HEAD.test(p.headRefName || '') || HANDUP_TITLE.test(p.title || ''));
-  const other = prs.prs.length - hand.length;
-  const summary = `${plural(hand.length, 'hand-up PR')} open · ${other} other open`;
-  const data = { handups: hand.length, otherOpen: other, list: hand.slice(0, JSON_CAP).map((p) => ({ number: p.number, title: p.title, head: p.headRefName, url: p.url })) };
-  if (!hand.length) return read('handups', L_HANDUP, 'pass', summary, { data });
-  const items = capped(hand, (p) => `#${p.number} ${clip(p.title, 70)} (${clip(p.headRefName, 40)})`, 'hand-up PR(s)');
+  const tagged = prs.prs.map((p) => ({ p, by: handupBy(p) }));
+  const hand = tagged.filter((t) => t.by);
+  const rest = tagged.filter((t) => !t.by).map((t) => t.p);
+  const summary = `${plural(hand.length, 'hand-up PR')} open · ${rest.length} other open`;
+  const row = (p, by) => ({ number: p.number, title: p.title, head: p.headRefName, url: p.url, ...(by ? { by } : {}) });
+  const data = {
+    handups: hand.length, otherOpen: rest.length,
+    list: hand.slice(0, JSON_CAP).map((t) => row(t.p, t.by)),
+    other: rest.slice(0, JSON_CAP).map((p) => row(p)),
+  };
+  // The other open PRs are listed, not only counted: a filing the three tests
+  // above miss is then in front of the reader, who can judge it.
+  const otherItems = capped(rest, (p) => `other open: #${p.number} ${clip(p.title, 70)} (${clip(p.headRefName, 40)})`, 'other open PR(s)');
+  if (!hand.length) return read('handups', L_HANDUP, 'pass', summary, { items: otherItems, data });
+  const items = capped(hand, (t) => `#${t.p.number} ${clip(t.p.title, 70)} (${clip(t.p.headRefName, 40)})${t.by === 'head' ? '' : ` · read as a hand-up by its ${t.by}`}`, 'hand-up PR(s)').concat(otherItems);
   if (kind === 'atelier') {
     return read('handups', L_HANDUP, 'fail', summary, {
       flag: `${plural(hand.length, 'hand-up PR')} to land`, items,
@@ -699,6 +725,6 @@ async function main() {
   process.exit(r.verdict.status === 'recover' ? 1 : 0);
 }
 
-module.exports = { parseArgs, collect, render, verdictOf, readKind, readSync, readHandups, readFiles, readLoad, readWaiting, integrationRef, HANDUP_HEAD, HANDUP_TITLE };
+module.exports = { parseArgs, collect, render, verdictOf, readKind, readSync, readHandups, readFiles, readLoad, readWaiting, integrationRef, HANDUP_HEAD, HANDUP_TITLE, HANDUP_BODY, handupBy };
 
 if (require.main === module) main();

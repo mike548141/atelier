@@ -113,12 +113,21 @@ session folder is printed as context and drives no state: in a repo with
 parallel sessions it is nonzero most of the time.
 .TP
 .B Hand-up PRs
-Open pull requests whose head ref starts
-.I report\-
-or
-.IR handup/ ,
-or whose title says hand-up (needs a GitHub remote and a working
+Open pull requests read as a hand-up by their head ref, their title or the
+first line of their body (needs a GitHub remote and a working
 .BR gh (1)).
+A head ref starts
+.I report\-
+(the doctrine's form,
+.IR report\-<subject>\-<HHMM> ),
+or
+.I handup\-
+or
+.IR handup/ ;
+a title says hand-up; a body's first line begins hand-up, filed finding or a
+private child.
+The three tests are a net, so the other open pull requests are listed by
+number and title as well as counted, for the reader to judge.
 In atelier itself, any is
 .BR \[u274C] :
 a child's filed finding has no owner until atelier lands it.

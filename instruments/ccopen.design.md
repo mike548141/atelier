@@ -104,11 +104,25 @@ with the cut counted, and known zeros are printed.
    cannot read silence; the tell's number (commits after the newest session
    file's commit) is printed as context and drives no state, since in a repo
    with parallel sessions it is nonzero most of the time.
-5. **Hand-up PRs** (`CLAUDE.md` step 6). `gh pr list --state open`: a head ref
-   `report-` or `handup/`, or *hand-up* in the title. In atelier itself any is ❌
+5. **Hand-up PRs** (`CLAUDE.md` step 6). `gh pr list --state open`: a PR reads
+   as a hand-up by its head ref, its title or the first line of its body, the
+   three places `PROPAGATION.md` § *Report without harming the parent* has a
+   filer say so. Head: `report-` (the doctrine's form,
+   `report-<subject>-<HHMM>`), and `handup-` or `handup/` read as the same
+   family, since a child filed on `handup-…` (`210/680`) and a read that knew
+   only `report-` called it "other open". Title: *hand-up*. Body: *hand-up*,
+   *filed finding* or *a private child* at the start of its first non-blank
+   line (after an optional "This is a"); a body that mentions a hand-up further
+   down or in passing ("Lands the hand-up PRs") is not one. Every
+   other open PR is **listed** (number, title, head; the first five, the rest
+   counted) as well as counted, so a filing none of the three tests catches is
+   in front of the reader, who judges it. The three tests are a net, not a
+   proof. In atelier itself any is ❌
    (landing one is the first act of the session that finds it); in another repo
    it is ⚠️, since landing is atelier's. `gh` missing or not authenticated is ⚠️
-   unknown; no GitHub remote is ➖. The count of other open PRs is printed.
+   unknown; no GitHub remote is ➖. The count of other open PRs is printed, and
+   `--json` carries them as `data.other`, beside `data.list` (the hand-ups, each
+   with the place it was read by); both are present, empty when none.
 6. **Pin currency** (*If a peer or parent repo has moved on*). `ccclose`'s
    check 14, unchanged: `tools/pins.py --json --child <repo>`. A pin behind with
    the floor unchanged is ⚠️ (read the delta, then decide); a floor that moved,
