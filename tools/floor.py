@@ -3059,8 +3059,23 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         # TAA2, ruled JOIN THE NOTES 2026-07-28).
         notes: list[str] = []
         if scanner.full_cover_flag and scanner.full_cover_flag not in argv:
-            notes.append(f"cover not guaranteed — the {plane} plane does not "
-                         f"pass {scanner.full_cover_flag}")
+            if plane == "ci":
+                # 260/060 (rpi F9): on this plane that is the design, not a
+                # defect. The term list is machine-local and a runner never
+                # holds it, so the ci plane never passes the flag; the full
+                # cover is the hook plane's. Said as a known state, still 🟡
+                # (identical output for materially different cover is the
+                # claim, EP3), still the invocation and not a cover level
+                # (TA4: a machine that holds a list gets more than this).
+                notes.append(
+                    f"structural-only by design on the ci plane — it never "
+                    f"passes {scanner.full_cover_flag} (the term list is "
+                    "machine-local, so a runner holds none); full cover is "
+                    "the hook plane's")
+            else:
+                # Any other plane omitting the flag is a gap, not a design.
+                notes.append(f"cover not guaranteed — the {plane} plane does "
+                             f"not pass {scanner.full_cover_flag}")
         # Scope drift on a SOFTENABLE check (TA3). The blocking guard above
         # covers only checks with no advisory form; a softenable one whose
         # scope has partly stopped resolving just quietly ran on less, with no

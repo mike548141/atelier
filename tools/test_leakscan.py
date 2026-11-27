@@ -646,6 +646,19 @@ class RequireTerms(unittest.TestCase):
         self.assertNotIn("structural + local", out)
         self.assertIn("holds no terms", out)
 
+    def test_the_absent_list_warning_says_a_ci_runner_expects_it(self):
+        """260/060 (rpi F9): the warning every child's CI run prints must not
+        read as a defect there. It still says STRUCTURAL only and still tells
+        a machine how to get the full cover; it adds that a runner holds no
+        list by design and that the hook plane carries the full cover."""
+        terms, warning = ls.load_local_terms(None)
+        self.assertEqual([], terms)
+        self.assertIn("STRUCTURAL patterns only", warning)
+        self.assertIn("CI runner", warning)
+        self.assertIn("by design", warning)
+        self.assertIn("--require-terms", warning)
+        self.assertIn("ATELIER_LEAKSCAN_TERMS", warning)
+
     def test_a_populated_term_list_still_claims_local_cover(self):
         import tempfile
         with tempfile.TemporaryDirectory() as td:

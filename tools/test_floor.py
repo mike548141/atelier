@@ -1236,9 +1236,51 @@ class InvocationTest(unittest.TestCase):
             r = self._run("--plane", "ci", "--root", td, "--json")
             results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
             note = results["leakscan"]["partial"]
-            self.assertIn("does not pass --require-terms", note)
+            self.assertIn("never passes --require-terms", note)
             # The claim it must no longer make: that cover WAS partial.
             self.assertNotIn("partial cover", note)
+
+    def test_structural_only_on_the_ci_plane_reads_as_by_design_not_a_defect(self):
+        """260/060 (rpi F9): every child's ci run printed 'cover not
+        guaranteed', which reads as a defect; the ci plane holds no term list
+        by design. It names the design there, keeps the 🟡 and the exit code,
+        and still calls the same omission on any other plane a gap."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / floor.CONFIG_NAME).write_text("{}", encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td, "--json")
+            self.assertEqual(r.returncode, 0, r.stderr)
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            note = results["leakscan"]["partial"]
+            self.assertIn("by design", note)
+            self.assertIn("hook plane", note)
+            self.assertNotIn("cover not guaranteed", note)
+            human = self._run("--plane", "ci", "--root", td)
+            self.assertEqual(human.returncode, 0, human.stderr)
+            both = human.stdout + human.stderr
+            line = [x for x in both.splitlines()
+                    if x.lstrip().startswith("🟡 leakscan")]
+            self.assertEqual(1, len(line), both[-600:])
+            self.assertIn("by design", line[0])
+
+    def test_the_flag_missing_on_another_plane_is_still_a_gap(self):
+        """The by-design wording is the ci plane's alone: the hook plane
+        omitting --require-terms (a child's config, a registry edit) would be
+        the very defect the flag exists to end, and must still say so."""
+        import dataclasses
+        from unittest import mock
+
+        bare = dataclasses.replace(floor.BY_NAME["leakscan"],
+                                   hook=["--root", "{root}", "{scope}"])
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "a.md").write_text("fine\n", encoding="utf-8")
+            with mock.patch.object(floor, "SCANNERS", (bare,)), \
+                    mock.patch.object(floor, "BY_NAME", {"leakscan": bare}):
+                results = floor.run("hook", root, TOOLS_DIR, floor.Config(),
+                                    ci=False)
+        self.assertEqual(["leakscan"], [x.name for x in results])
+        self.assertIn("cover not guaranteed", results[0].partial)
+        self.assertNotIn("by design", results[0].partial)
 
     def test_a_softenable_check_still_skips_a_missing_tree(self):
         """The other half of the guard, and the reason it is not blanket: the

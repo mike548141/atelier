@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-11-27 — structural-only on the ci plane reads as by design, `260/060`)
+- **The floor's ci line for `leakscan` no longer reads as a defect.** It said `cover not
+  guaranteed — the ci plane does not pass --require-terms` in every child's run; it now says
+  `structural-only by design on the ci plane` and names the reason (the term list is
+  machine-local, a runner holds none) and where the full cover is (the hook plane). The 🟡
+  stays and no exit code moves. The same omission on any other plane keeps the old wording,
+  because there it is a gap. `leakscan`'s own warning when it finds no list adds that this is
+  expected on a CI runner. Wording only: the ci template still omits `--require-terms`.
+- **Adopter action.** None. A step that matched the old `cover not guaranteed` text on the
+  ci plane should match `by design` instead.
+
 ### Changed (2026-11-27 — a narrowing is judged both ways, and a re-check keys off a finding's class, `460/070`, `460/080`)
 - **Adopter action.** A change that narrows a grant, a detection or what a guard accepts
   names both ways it can be wrong: too tight (it refuses what it should allow) and not

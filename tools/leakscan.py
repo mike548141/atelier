@@ -859,7 +859,10 @@ def load_local_terms(path: Path | None) -> tuple[list[tuple[str, "re.Pattern[str
     if path is None:
         return [], (
             "no local term list found — scanned STRUCTURAL patterns only. "
-            f"Set $ATELIER_LEAKSCAN_TERMS or create {DEFAULT_LOCAL_TERMS} for full cover.")
+            "Expected on a CI runner, which holds no list by design (the hook "
+            "plane runs with --require-terms and carries the full cover). On a "
+            f"machine, set $ATELIER_LEAKSCAN_TERMS or create {DEFAULT_LOCAL_TERMS} "
+            "for full cover.")
     terms: list[tuple[str, "re.Pattern[str]"]] = []
     for raw in path.read_text(encoding="utf-8", errors="replace").splitlines():
         line = raw.strip()

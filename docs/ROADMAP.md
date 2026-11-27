@@ -40,7 +40,7 @@ line, so they overlap Open and Claimed.
 | [File-size hygiene (new 2026-07-14)](roadmap/230-file-size-hygiene-new-2026-07-14/README.md) | 2 | 0 | 1 | 0 |
 | [North star — context follows the person, work follows anywhere](roadmap/240-north-star-context-follows-the-person-wo/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Session archive — decided 2026-07-23](roadmap/250-session-archive-decided-2026-07-23/README.md) | 0 | 0 | 0 | 0 |
-| [Sharing — public since 2026-07-10 (ADR 0005)](roadmap/260-sharing-public-since-2026-07-10-adr-0005/README.md) | 4 | 1 | 0 | 0 |
+| [Sharing — public since 2026-07-10 (ADR 0005)](roadmap/260-sharing-public-since-2026-07-10-adr-0005/README.md) | 4 | 0 | 0 | 0 |
 | [Open questions](roadmap/270-open-questions/README.md) | 3 | 0 | 0 | 0 |
 | [Cross-session channel — coordination git cannot carry (Mike commissioned 2026-08-17)](roadmap/280-cross-session-channel-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
 | [Ruling round 2026-08-17 — the cold-run findings (Mike)](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/README.md) | 2 | 0 | 2 | 0 |
@@ -62,7 +62,7 @@ line, so they overlap Open and Claimed.
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 274 | 1 | 102 | 33 |
+| **All sections** | 274 | 0 | 102 | 33 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -377,7 +377,6 @@ line, so they overlap Open and Claimed.
 - [ ] [One real peer adoption](roadmap/260-sharing-public-since-2026-07-10-adr-0005/010-one-real-peer-adoption.md)
 - [ ] [Practice/instance restructure](roadmap/260-sharing-public-since-2026-07-10-adr-0005/020-practice-instance-restructure.md)
 - [ ] [Exercise the interactive fill + bundled-mode scaffold end-to-end](roadmap/260-sharing-public-since-2026-07-10-adr-0005/030-exercise-the-interactive-fill-bundled-mode-sca.md)
-- [~] (claimed 2026-11-27, wt: atelier-qr-9c5f-smallfixes) [P4 — rpi F9, routed upward:…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/060-p4-rpi-f9-routed-upward-the-ci-plane-calls-lea.md)
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
 
 ## Open questions
