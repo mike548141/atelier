@@ -5,7 +5,7 @@
       tested, then unloaded on the principal's pick). Bring it home as an atelier instrument,
       generic and public, beside `ccfleet`; the prototype's private wording stays in the root.
 
-      **His words, 2026-11-27 (a child queue run, `epl-estate-17`), verbatim:** *"can you set
+      **His words, 2026-11-27 (a child queue run), verbatim:** *"can you set
       some kind of timer/watcher or something outside of the claude session that can check if
       the claude sessions have paused because they ran out of budget in about 3% remaining, and
       tell all the claude sessions what happended and to resume their work as planned"* ·
