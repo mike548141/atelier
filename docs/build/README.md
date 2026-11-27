@@ -27,11 +27,11 @@ it — a second copy drifts.
   per-item `roadmap/` store with its generated ROADMAP index, the `sessions/`
   folder,
   ECONOMICS, decisions/, reviews/), the three CI workflows (`ci-python.yml`,
-  `ci-static.yml`, `floor.yml`), and
-  `tools/check_links.py`. One source, shared by `/atelier:repo create` and the
-  published methodology — moved here from the skill's private copy 2026-07-10 and
-  scrubbed of instance residue (a hardcoded holder, a project name, a stale
-  pointer naming a private child as canonical).
+  `ci-static.yml`, `floor.yml`), and the link checker they call,
+  `templates/tools/check_links.py`. One source, shared by `/atelier:repo create`
+  and the published methodology — moved here from the skill's private copy
+  2026-07-10 and scrubbed of instance residue (a hardcoded holder, a project
+  name, a stale pointer naming a private child as canonical).
 
 ## Still owed (ROADMAP)
 
