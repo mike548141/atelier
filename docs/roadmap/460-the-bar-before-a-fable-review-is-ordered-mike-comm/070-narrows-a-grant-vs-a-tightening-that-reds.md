@@ -1,4 +1,7 @@
-- [ ] 🔎 **The bar decides a least-privilege change both ways: "it narrows a grant" owes
+- [~] 🔎 **The bar decides a least-privilege change both ways: "it narrows a grant" owes
+      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-0915, wt: atelier-qr-9c5f-reviewbar)
       a pass, "a tightening that reds on misuse" never does** `[S][doctrine]`. Found
       2026-11-27 by the `460/040` dequeue round (session 4ce066ba), judging `160/1760`.
       `REVIEW.md` § *Whether work earns a review at all* lists, under question 3, "it

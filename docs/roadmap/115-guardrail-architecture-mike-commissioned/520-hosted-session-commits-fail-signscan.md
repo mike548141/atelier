@@ -1,4 +1,7 @@
-- [ ] 🔎 **28 commits made by hosted cloud sessions fail `signscan`, and
+- [~] 🔎 **28 commits made by hosted cloud sessions fail `signscan`, and
+      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-0915, wt: atelier-qr-9c5f-signscan)
       `SIGNING.md` says nothing about them.** Found 2026-11-23 UTC by
       `020/220` slice 5; re-run by queue run 608d8123 the same hour:
       `signscan --allowed-signers allowed_signers --boundary 450b10d --warn`

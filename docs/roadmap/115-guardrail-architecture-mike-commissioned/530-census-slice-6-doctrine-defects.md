@@ -1,4 +1,7 @@
-- [ ] 🔎 **Defects the enforcement census found in slice 6.** Found
+- [~] 🔎 **Defects the enforcement census found in slice 6.** Found
+      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
+      `/atelier:work run` (item 7 only).
+      (claimed 2026-11-27-0915, wt: atelier-qr-9c5f-templateclause)
       2026-11-23 UTC by `020/220` slice 6
       (`docs/method/census/2026-11-23-1730-build-boundary-standard-templates-root-files.md`);
       reported, not fixed in passing.

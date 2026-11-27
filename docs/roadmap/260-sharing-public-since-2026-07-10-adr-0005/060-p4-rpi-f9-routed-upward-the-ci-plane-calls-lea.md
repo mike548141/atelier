@@ -1,4 +1,7 @@
-- [ ] **P4 — `rpi` F9, routed upward: the ci plane calls `leakscan` without
+- [~] **P4 — `rpi` F9, routed upward: the ci plane calls `leakscan` without
+      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-0915, wt: atelier-qr-9c5f-smallfixes)
       `--require-terms`.** Every child's CI run therefore self-reports "cover not
       guaranteed". The fix belongs in atelier's registry, not any child — it
       pairs with Track D's registry work; the design question is whether CI can

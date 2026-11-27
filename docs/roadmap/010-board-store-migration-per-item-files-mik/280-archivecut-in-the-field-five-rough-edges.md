@@ -1,4 +1,7 @@
-- [ ] 🔎 **`archivecut` in the field: five rough edges from its first fleet
+- [~] 🔎 **`archivecut` in the field: five rough edges from its first fleet
+      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-0915, wt: atelier-qr-9c5f-smallfixes)
       run.** Filed 2026-11-20 by session 19378351 from the reports of the
       workers it ran in sixteen children (class only; every cut that ran
       proved byte for byte and landed with green CI). None lost data; each

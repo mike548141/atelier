@@ -14,7 +14,7 @@ line, so they overlap Open and Claimed.
 
 | Section | Open | Claimed | 🎯 Waiting | ⏳ Review |
 | :-- | --: | --: | --: | --: |
-| [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 6 | 0 | 1 | 0 |
+| [Board store migration — per-item files (Mike ruled 2026-08-15)](roadmap/010-board-store-migration-per-item-files-mik/README.md) | 5 | 1 | 1 | 0 |
 | [Policy-as-code programme — five tracks (Mike approved 2026-07-27)](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md) | 17 | 0 | 1 | 0 |
 | [Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)](roadmap/030-enforcement-propagation-the-estate-rollo/README.md) | 9 | 0 | 0 | 0 |
 | ✅ [Principal-set dates: mandate vs default (Mike, 2026-08-09)](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md) | 0 | 0 | 0 | 0 |
@@ -25,7 +25,7 @@ line, so they overlap Open and Claimed.
 | [The floor-at-head all-clear has a cancelled-run hole (found 2026-08-09)](roadmap/090-the-floor-at-head-all-clear-has-a-cancel/README.md) | 1 | 0 | 0 | 0 |
 | ✅ [spellscan's reason class silently voided live allow-markers — CLOSED 2026-08-09](roadmap/100-spellscan-s-reason-class-silently-voided/README.md) | 0 | 0 | 0 | 0 |
 | [Estate duplication + exception audit (Mike commissioned 2026-08-09)](roadmap/110-estate-duplication-exception-audit-mike/README.md) | 7 | 0 | 1 | 0 |
-| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 21 | 0 | 3 | 0 |
+| [Guardrails for atelier and its children (Mike commissioned 2026-08-15)](roadmap/115-guardrail-architecture-mike-commissioned/README.md) | 19 | 2 | 3 | 0 |
 | ✅ [test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md) | 0 | 0 | 0 | 0 |
@@ -35,18 +35,18 @@ line, so they overlap Open and Claimed.
 | [Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)](roadmap/190-security-doctrine-vs-public-good-practic/README.md) | 0 | 0 | 0 | 0 |
 | [Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md) | 2 | 0 | 0 | 0 |
-| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 16 | 0 | 5 | 1 |
+| [instruments/ — open features](roadmap/210-instruments-open-features/README.md) | 17 | 0 | 5 | 1 |
 | [Observability of the collaboration itself (2026-07-30)](roadmap/220-observability-of-the-collaboration-itsel/README.md) | 4 | 0 | 0 | 0 |
 | [File-size hygiene (new 2026-07-14)](roadmap/230-file-size-hygiene-new-2026-07-14/README.md) | 2 | 0 | 1 | 0 |
 | [North star — context follows the person, work follows anywhere](roadmap/240-north-star-context-follows-the-person-wo/README.md) | 2 | 0 | 0 | 0 |
 | ✅ [Session archive — decided 2026-07-23](roadmap/250-session-archive-decided-2026-07-23/README.md) | 0 | 0 | 0 | 0 |
-| [Sharing — public since 2026-07-10 (ADR 0005)](roadmap/260-sharing-public-since-2026-07-10-adr-0005/README.md) | 5 | 0 | 0 | 0 |
+| [Sharing — public since 2026-07-10 (ADR 0005)](roadmap/260-sharing-public-since-2026-07-10-adr-0005/README.md) | 4 | 1 | 0 | 0 |
 | [Open questions](roadmap/270-open-questions/README.md) | 3 | 0 | 0 | 0 |
 | [Cross-session channel — coordination git cannot carry (Mike commissioned 2026-08-17)](roadmap/280-cross-session-channel-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
 | [Ruling round 2026-08-17 — the cold-run findings (Mike)](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/README.md) | 2 | 0 | 2 | 0 |
 | [Posture — strength is what you are free to do (Mike commissioned 2026-08-17)](roadmap/300-posture-recover-cheaply-mike-commissioned/README.md) | 2 | 0 | 1 | 0 |
 | [Pointing up — the child-to-parent route (Mike commissioned 2026-08-18)](roadmap/310-pointing-up-the-child-to-parent-route/README.md) | 5 | 0 | 2 | 0 |
-| [Findings filed from a child via § *Pointing up* (2026-08-18)](roadmap/320-child-filed-findings-via-pointing-up/README.md) | 28 | 0 | 5 | 0 |
+| [Findings filed from a child via § *Pointing up* (2026-08-18)](roadmap/320-child-filed-findings-via-pointing-up/README.md) | 29 | 0 | 5 | 0 |
 | ✅ [🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md) | 0 | 0 | 0 | 0 |
 | ✅ [⏳ Long-running operations need a way back — Mike-commissioned, 2026-08-22](roadmap/340-long-running-operations-need-a-way-back-mike-comm/README.md) | 0 | 0 | 0 | 0 |
 | [🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23](roadmap/350-verification-must-be-exact-not-probable-mike-comm/README.md) | 1 | 0 | 1 | 0 |
@@ -60,9 +60,9 @@ line, so they overlap Open and Claimed.
 | [Review quality is never traded for budget (Mike commissioned, 2026-10-04)](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/README.md) | 1 | 0 | 0 | 0 |
 | [Economics: effective first, then efficient — budgets and real spend counted (Mike commissioned, 2026-11-12)](roadmap/440-economics-effective-then-efficient-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
 | [One home and one command prefix for the collaboration's tooling (Mike commissioned, 2026-11-18)](roadmap/450-one-home-and-one-command-prefix-mike-commissioned/README.md) | 1 | 0 | 1 | 0 |
-| [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 3 | 0 | 0 | 0 |
+| [The bar work must clear before a Fable review is ordered (Mike commissioned, 2026-11-24)](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md) | 1 | 2 | 0 | 0 |
 | ✅ [Done before the split](roadmap/990-done-before-the-split/README.md) | 0 | 0 | 0 | 0 |
-| **All sections** | 275 | 0 | 102 | 33 |
+| **All sections** | 271 | 6 | 102 | 33 |
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -72,7 +72,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🎯 [A child has used &#91;~&#93; for partially delivered where the house means…](roadmap/010-board-store-migration-per-item-files-mik/100-ros-carries-38-items-using-a-different-tilde.md)
 - [ ] 🔎 [A claim on a long-titled item fails the wrapscan floor — on the…](roadmap/010-board-store-migration-per-item-files-mik/130-a-claim-fragment-on-a-long-title-fails-wrapscan.md)
 - [ ] [Remove the full-form index grace once 2026-12-04 has passed.](roadmap/010-board-store-migration-per-item-files-mik/250-remove-the-full-form-index-grace-after-its-date.md)
-- [ ] 🔎 [archivecut in the field: five rough edges from its first fleet run.](roadmap/010-board-store-migration-per-item-files-mik/280-archivecut-in-the-field-five-rough-edges.md)
+- [~] 🔎 (claimed 2026-11-27, wt: atelier-qr-9c5f-smallfix…) [archivecut in the field:…](roadmap/010-board-store-migration-per-item-files-mik/280-archivecut-in-the-field-five-rough-edges.md)
 - [ ] [Remove the retired-session-index grace once 2026-12-04 has passed.](roadmap/010-board-store-migration-per-item-files-mik/290-remove-the-retired-session-index-grace-after.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
@@ -168,8 +168,8 @@ line, so they overlap Open and Claimed.
 - [ ] 🔎 [Three doctrine defects the enforcement census found in slice 3.](roadmap/115-guardrail-architecture-mike-commissioned/450-census-slice-3-doctrine-defects.md)
 - [ ] 🔎 [Five defects the enforcement census found in slice 4.](roadmap/115-guardrail-architecture-mike-commissioned/500-census-slice-4-doctrine-defects.md)
 - [ ] 🔎 [Defects the enforcement census found in slice 5.](roadmap/115-guardrail-architecture-mike-commissioned/510-census-slice-5-doctrine-defects.md)
-- [ ] 🔎 [28 commits made by hosted cloud sessions fail signscan, and…](roadmap/115-guardrail-architecture-mike-commissioned/520-hosted-session-commits-fail-signscan.md)
-- [ ] 🔎 [Defects the enforcement census found in slice 6.](roadmap/115-guardrail-architecture-mike-commissioned/530-census-slice-6-doctrine-defects.md)
+- [~] 🔎 (claimed 2026-11-27, wt: atelier-qr-9c5f-signscan) [28 commits made by hosted…](roadmap/115-guardrail-architecture-mike-commissioned/520-hosted-session-commits-fail-signscan.md)
+- [~] 🔎 (claimed 2026-11-27, wt: atelier-qr-9c5f-template…) [Defects the enforcement census…](roadmap/115-guardrail-architecture-mike-commissioned/530-census-slice-6-doctrine-defects.md)
 - [ ] 🔎 [Defects the enforcement census found in slice 7.](roadmap/115-guardrail-architecture-mike-commissioned/540-census-slice-7-doctrine-defects.md)
 - [ ] 🔎 [Defects the enforcement census found in slice 8, in the validators'…](roadmap/115-guardrail-architecture-mike-commissioned/550-census-slice-8-validator-defects.md)
 
@@ -345,6 +345,7 @@ line, so they overlap Open and Claimed.
 - [ ] [🔧 Look for a measurably safer way for modelguard to catch a model-less…](roadmap/210-instruments-open-features/650-a-measurably-safer-tmux-rule-for-modelguard.md)
 - [ ] [🔧 ccfleet loads a file a private repo's instructions name mid-sentence…](roadmap/210-instruments-open-features/660-ccfleet-loads-a-mid-sentence-import-in-a-private-repo.md)
 - [ ] [🔧 Make a watcher, run outside every Claude session, that finds the…](roadmap/210-instruments-open-features/670-a-watcher-that-wakes-sessions-a-usage-limit-stopped.md)
+- [ ] 🔎 [ccopen's hand-up read is narrower than the doctrine it reports on: it…](roadmap/210-instruments-open-features/680-ccopen-misses-a-hand-up-on-a-non-report-branch.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
@@ -376,7 +377,7 @@ line, so they overlap Open and Claimed.
 - [ ] [One real peer adoption](roadmap/260-sharing-public-since-2026-07-10-adr-0005/010-one-real-peer-adoption.md)
 - [ ] [Practice/instance restructure](roadmap/260-sharing-public-since-2026-07-10-adr-0005/020-practice-instance-restructure.md)
 - [ ] [Exercise the interactive fill + bundled-mode scaffold end-to-end](roadmap/260-sharing-public-since-2026-07-10-adr-0005/030-exercise-the-interactive-fill-bundled-mode-sca.md)
-- [ ] [P4 — rpi F9, routed upward: the ci plane calls leakscan without…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/060-p4-rpi-f9-routed-upward-the-ci-plane-calls-lea.md)
+- [~] (claimed 2026-11-27, wt: atelier-qr-9c5f-smallfixes) [P4 — rpi F9, routed upward:…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/060-p4-rpi-f9-routed-upward-the-ci-plane-calls-lea.md)
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window…](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
 
 ## Open questions
@@ -450,6 +451,7 @@ line, so they overlap Open and Claimed.
 - [ ] 🔎 [Build the six checks he chose, warnings first, then blocking, each…](roadmap/320-child-filed-findings-via-pointing-up/810-build-six-checks-warn-first-staggered.md)
 - [ ] 🔎 [Hand-up: pathscan cannot tell a historical record from a live page,…](roadmap/320-child-filed-findings-via-pointing-up/880-hand-up-pathscan-cannot-tell-a-historical-record-from-a-live-page.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - [ ] 🎯 [Hand-up: where a queued brief's held sibling lives is read two ways,…](roadmap/320-child-filed-findings-via-pointing-up/920-hand-up-held-sibling-placement-vs-held-material-outside-the-repo.md)
+- [ ] 🔎 [A hand-up from a private child carried the filer's messaging name,…](roadmap/320-child-filed-findings-via-pointing-up/950-a-hand-up-named-its-private-filer.md)
 
 ## 🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23
 
@@ -493,5 +495,5 @@ line, so they overlap Open and Claimed.
 *[Narrative](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/README.md)*
 
 - [ ] [Enforce the bar where a machine can: refuse a review pointer that…](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/030-gate-pointers-that-lack-the-grounds.md)
-- [ ] 🔎 [The bar decides a least-privilege change both ways: "it narrows a…](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/070-narrows-a-grant-vs-a-tightening-that-reds.md)
-- [ ] [A re-check of fixes is owed on what the fixed findings were, not only…](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/080-a-re-check-keys-off-the-issue-and-risk-definition.md)
+- [~] 🔎 (claimed 2026-11-27, wt: atelier-qr-9c5f-reviewbar) [The bar decides a least-privilege…](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/070-narrows-a-grant-vs-a-tightening-that-reds.md)
+- [~] (claimed 2026-11-27, wt: atelier-qr-9c5f-reviewbar) [A re-check of fixes is owed…](roadmap/460-the-bar-before-a-fable-review-is-ordered-mike-comm/080-a-re-check-keys-off-the-issue-and-risk-definition.md)

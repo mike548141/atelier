@@ -1,4 +1,7 @@
-- [ ] **A re-check of fixes is owed on what the fixed findings were, not only on whether
+- [~] **A re-check of fixes is owed on what the fixed findings were, not only on whether
+      🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-27-0915, wt: atelier-qr-9c5f-reviewbar)
       one was a MAJOR** `[S][doctrine]`. The principal's typed words, 2026-11-27 ~01:55 UTC
       (session 4ce066ba, `atelier-c1`, AskUserQuestion, in place of the options), on
       releasing `160/1870`, verbatim: *"Release it as per your recommended option - but to
