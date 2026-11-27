@@ -37,8 +37,18 @@
       - `390/010` (answered 2026-11-09): atelier does not model subject-cluster
         relationships; one generic line points at the estate root's registry. 🤔 This
         filing **revisits that answer** for one relationship, *where a repo's record
-        lives*, on the principal's word above. It is his call whether that reopens
-        `390/010` or stays a separate, narrower item.
+        lives*, on the principal's word above.
+      - ✅ **The principal's pick, 2026-11-27 ~22:44 UTC** (question device, the
+        filing session; options and recommendation were the session's), verbatim:
+        *"Reopen 390/010"*. The option he picked read: *"atelier models repo
+        groups by subject in general (membership, primary, credential users,
+        dependencies), with record location as one part. One coherent model, but
+        about 2–3× the design work and a bigger cold review, so it lands later. It
+        reverses an answer you approved on 2026-11-09."* He picked it over the
+        recommended narrow option (record location only, `390/010` standing).
+        So this item is one part of a reopened `390/010`. Applying the reopen
+        there (its state line and its section) is atelier's own session's work:
+        a hand-up touches only its own item.
     - **What the house would need** (candidates, none chosen):
       - One declared setting in a satellite naming its primary (and which records
         live there), read by every check above, so a satellite with no board is
