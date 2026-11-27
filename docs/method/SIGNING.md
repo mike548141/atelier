@@ -146,6 +146,50 @@ boundary is simply its first signed commit; verification gates from there
 forward. Pre-boundary unsigned history is stated plainly and left alone —
 retro-signing would trade the whole propagation mechanism for a badge.
 
+## Commits made by hosted sessions — accepted once, handed back from now on
+
+A hosted (cloud) agent session commits under the vendor's own committer
+identity and signs with the vendor's key, not the house key. Found 2026-11-23
+(board `115/520`): 28 such commits on atelier's `main`, dated 2026-10-17 and
+2026-10-18, fail the machine plane ("No principal matched"), and one unsigned
+merge of 2026-09-16 (`0a949b4b`) fails beside them. Under warn-first they are
+warnings; the flip would turn them red, and history is never re-signed (see
+the adoption boundary above).
+
+**The vendor key is not trusted, deliberately.** It is one published key that
+signs every customer's hosted-session commits (the same fingerprint was found
+on three unrelated owners' public repos), held for a shared vendor identity
+rather than the principal. Adding it to `allowed_signers` would make *anyone's*
+hosted-session commit read as the house's. So `allowed_signers` is unchanged.
+
+**The principal's ruling** (2026-11-23, put to him with that measurement), his
+pick: *"Accept + cloud hands back"*, whose option text read *"Same, and cloud
+sessions never land changes on main themselves; your own sessions land them"*
+(the "same" being: accept the 28 as past history and do not trust the vendor
+key). Two rules follow:
+
+- **The past is an accepted exception, by name.** `.signscanaccept` at the repo
+  root lists each of the 29 commits by its **full** object id, under a stated
+  reason. `signscan --accepted <file>` reads it: a listed commit that fails is
+  reported and counted as *accepted*, apart from good and bad, and does not
+  block; any commit not listed, including a new one by the same identity,
+  still fails. There are no ranges and no committer-wide entries (a full id
+  hashes the commit's committer, time, tree and parents, so it binds one commit
+  and nothing else; an abbreviation is refused). A malformed list (an unreasoned
+  entry, a short id, a second field, a duplicate) exits 2 even under `--warn`.
+  The list cannot excuse its own newest commit, since a commit cannot contain
+  its own id, so it only grows through a commit that verifies on one of the
+  two planes. atelier's `ci.yml` passes it at the tested commit, as it passes
+  the trust list.
+- **From now on, a hosted session hands its work back.** It pushes a branch or
+  opens a PR and stops; it never commits to `main` itself. A local session,
+  whose machine holds the house key, lands the change by committing it under
+  its own signature (a cherry-pick or squash it signs), or through a GitHub
+  squash, which the server plane verifies. A merge that keeps the hosted
+  session's own commits would carry their failing signatures into `main`, so
+  it is not a landing. No new entry is added to `.signscanaccept` for work made
+  after the ruling.
+
 ## Key handling — where SECRETS' boundary falls
 
 The signing key is **identity-layer, person-level**: per SECRETS' scope

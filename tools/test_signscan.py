@@ -6,6 +6,9 @@ the latter uses UNSIGNED commits and a forced web-flow committer, so it needs no
 key material and runs anywhere git does.
 """
 
+import contextlib
+import io
+import json
 import os
 import subprocess
 import sys
@@ -154,7 +157,7 @@ class CoverageLine(unittest.TestCase):
         out, code = ss.render_human(rep, warn=False)
         self.assertEqual(code, 0)
         self.assertIn("  coverage: 2 commit(s) examined \u00b7 1 signature(s) "
-                      "checked (1 good \u00b7 0 bad)", out)
+                      "checked (1 good \u00b7 0 bad \u00b7 0 accepted)", out)
         self.assertNotIn("scanned nothing", out)
 
     def test_a_failing_range_prints_it_too(self):
@@ -162,13 +165,13 @@ class CoverageLine(unittest.TestCase):
                                     warn=False)
         self.assertEqual(code, 1)
         self.assertIn("coverage: 1 commit(s) examined \u00b7 1 signature(s) "
-                      "checked (0 good \u00b7 1 bad)", out)
+                      "checked (0 good \u00b7 1 bad \u00b7 0 accepted)", out)
 
     def test_an_empty_range_says_scanned_nothing_and_still_passes(self):
         out, code = ss.render_human(self._report([]), warn=False)
         self.assertEqual(code, 0)
         self.assertIn("coverage: 0 commit(s) examined \u00b7 0 signature(s) "
-                      "checked (0 good \u00b7 0 bad)", out)
+                      "checked (0 good \u00b7 0 bad \u00b7 0 accepted)", out)
         self.assertIn("scanned nothing: no commits were evaluated", out)
 
     def test_only_server_commits_verify_nothing_here_and_say_so(self):
@@ -181,7 +184,8 @@ class CoverageLine(unittest.TestCase):
         rep = self._report([("github", "deferred"), ("machine", "good")])
         self.assertEqual({"files_opened": 2, "signatures_verified": 1,
                           "scanned_nothing": False, "signatures_checked": 1,
-                          "signatures_good": 1, "signatures_bad": 0},
+                          "signatures_good": 1, "signatures_bad": 0,
+                          "signatures_accepted": 0},
                          ss.coverage_dict(rep))
 
     def test_a_bad_signature_is_checked_not_verified(self):
@@ -191,12 +195,120 @@ class CoverageLine(unittest.TestCase):
                             ("github", "deferred")])
         out, _ = ss.render_human(rep, warn=True)
         self.assertNotIn("signature(s) verified", out)
-        self.assertIn("2 signature(s) checked (1 good \u00b7 1 bad)", out)
+        self.assertIn("2 signature(s) checked (1 good \u00b7 1 bad "
+                      "\u00b7 0 accepted)", out)
         d = ss.coverage_dict(rep)
         self.assertEqual((2, 1, 1), (d["signatures_checked"],
                                      d["signatures_good"],
                                      d["signatures_bad"]))
         self.assertEqual(2, d["signatures_verified"])
+
+
+class AcceptedExceptions(unittest.TestCase):
+    """115/520: history that can never be re-signed is accepted by exact full
+    commit id, each entry reasoned. The list is narrow by construction: a new
+    unsigned commit by the same committer still fails, and a malformed list
+    is an environment error (exit 2), never a warning."""
+
+    def setUp(self):
+        self.repo = TempRepo()
+        self.old = self.repo.commit("old unsigned")
+        self.new = self.repo.commit("new unsigned")  # same committer identity
+        self.trust = Planes._allowed(self)
+        self.addCleanup(os.unlink, self.trust)
+
+    def _list(self, text):
+        fd, path = tempfile.mkstemp()
+        os.write(fd, text.encode())
+        os.close(fd)
+        self.addCleanup(os.unlink, path)
+        return path
+
+    def _main(self, *extra):
+        out = io.StringIO()
+        err = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = ss.main(["--repo", self.repo.dir,
+                            "--allowed-signers", self.trust, *extra])
+        return code, out.getvalue(), err.getvalue()
+
+    def test_a_listed_commit_is_accepted_and_does_not_block(self):
+        acc = self._list(f"# accepted history, reason stated here\n{self.old}\n")
+        rep = ss.scan(self.repo.dir, self.trust, None, self.old,
+                      ss.WEB_FLOW_EMAIL, acc)
+        self.assertEqual("accepted", rep["results"][0]["status"])
+        self.assertEqual("machine", rep["results"][0]["plane"])
+        code, out, _ = self._main("--rev", self.old, "--accepted", acc)
+        self.assertEqual(0, code)  # blocking mode, no --warn
+        self.assertIn("0 good, 0 bad, 1 accepted", out)
+        self.assertIn("(0 good \u00b7 0 bad \u00b7 1 accepted)", out)
+
+    def test_a_trailing_reason_is_a_reason_too(self):
+        acc = self._list(f"{self.old}  # accepted: the reason on its line\n")
+        rep = ss.scan(self.repo.dir, self.trust, None, self.old,
+                      ss.WEB_FLOW_EMAIL, acc)
+        self.assertEqual("accepted", rep["results"][0]["status"])
+
+    def test_an_unlisted_commit_by_the_same_identity_still_fails(self):
+        acc = self._list(f"# only the old one\n{self.old}\n")
+        self.assertEqual(ss.committer_email(self.repo.dir, self.old),
+                         ss.committer_email(self.repo.dir, self.new))
+        rep = ss.scan(self.repo.dir, self.trust, None, None,
+                      ss.WEB_FLOW_EMAIL, acc)
+        by = {r["sha"]: r["status"] for r in rep["results"]}
+        self.assertEqual({self.old: "accepted", self.new: "bad"}, by)
+        code, out, _ = self._main("--accepted", acc)
+        self.assertEqual(1, code)
+        self.assertIn("0 good, 1 bad, 1 accepted", out)
+        d = ss.coverage_dict(rep)
+        self.assertEqual((2, 0, 1, 1), (d["signatures_checked"],
+                                        d["signatures_good"],
+                                        d["signatures_bad"],
+                                        d["signatures_accepted"]))
+
+    def test_json_exit_ignores_accepted_but_not_bad(self):
+        acc = self._list(f"# both\n{self.old}\n{self.new}\n")
+        code, out, _ = self._main("--accepted", acc, "--json")
+        self.assertEqual(0, code)
+        self.assertEqual(2, json.loads(out)["coverage"]["signatures_accepted"])
+
+    def test_malformed_lists_red_loudly_even_under_warn(self):
+        short = self.old[:12]
+        cases = {
+            "unreasoned": f"{self.old}\n",
+            "abbreviated id": f"# reason\n{short}\n",
+            "uppercase id": f"# reason\n{self.old.upper()}\n",
+            "second field": f"# reason\n{self.old} someone@example.test\n",
+            "a range": f"# reason\n{self.old}..{self.new}\n",
+            "duplicate": f"# reason\n{self.old}\n{self.old}\n",
+        }
+        for name, text in cases.items():
+            with self.subTest(name):
+                acc = self._list(text)
+                with self.assertRaises(ss.SignscanError):
+                    ss.load_accepted(acc)
+                code, _, err = self._main("--warn", "--accepted", acc)
+                self.assertEqual(2, code)
+                self.assertIn("malformed accepted-exception file", err)
+
+    def test_a_named_but_missing_list_is_an_environment_error(self):
+        code, _, err = self._main("--warn", "--accepted", "/no/such/accepted")
+        self.assertEqual(2, code)
+        self.assertIn("accepted-exception file not found", err)
+
+    def test_a_listed_commit_that_verifies_is_just_good(self):
+        rep = {"repo": ".", "allowed_signers": "x",
+               "results": [{"sha": "a" * 40, "plane": "machine",
+                            "status": "good", "detail": ""}]}
+        out, code = ss.render_human(rep, warn=False)
+        self.assertEqual(0, code)
+        self.assertIn("1 good, 0 bad, 0 accepted", out)
+
+    def test_the_repo_list_is_well_formed(self):
+        """atelier's own list parses: every entry is a full id with a reason."""
+        root = TOOLS_DIR.parent / ".signscanaccept"
+        entries = ss.load_accepted(str(root))
+        self.assertEqual(29, len(entries))
 
 
 class BoundedMemory(unittest.TestCase):

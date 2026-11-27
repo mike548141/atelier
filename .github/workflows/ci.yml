@@ -233,10 +233,15 @@ jobs:
       # at the tested commit (no pin resolution — children resolve at their pin,
       # atelier is the pin). WARN-FIRST while the fleet settles; to block, drop
       # `--warn` and turn the gh-plane warning into an error + exit 1.
+      # `.signscanaccept` names, by full commit id, the history that fails and
+      # can never be re-signed (hosted-session commits, one unsigned merge;
+      # SIGNING.md § Commits made by hosted sessions). Read at the tested
+      # commit like the trust list; a malformed list exits 2 even under --warn.
       - name: Verify commit signatures — machine-key plane (warn-first)
         run: |
           python3 tools/signscan.py \
-            --allowed-signers allowed_signers --boundary "$SIGN_BOUNDARY" --warn
+            --allowed-signers allowed_signers --accepted .signscanaccept \
+            --boundary "$SIGN_BOUNDARY" --warn
 
       - name: Verify commit signatures — GitHub-server plane (warn-first)
         env:

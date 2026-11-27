@@ -1,0 +1,48 @@
+# Commits whose failed signature is ACCEPTED history (signscan --accepted;
+# SIGNING.md § Commits made by hosted sessions). One FULL commit id per line,
+# each under a stated reason; no ranges, no committer-wide entries, no
+# abbreviations. A malformed entry fails the scan (exit 2), even under --warn.
+# Keep this list SHORT: every entry is a commit the machine plane cannot vouch
+# for. No new entry for work made after 2026-11-23: a hosted session hands its
+# work back for a local session to land, signed.
+
+# The 28 commits of the hosted (cloud) agent run of 2026-10-17 and 2026-10-18
+# UTC, committer `Claude`: signed with the vendor's shared signing key, which
+# is not in allowed_signers ("No principal matched") and is deliberately not
+# trusted, since one key signs every customer's hosted-session commits. Board
+# 115/520; accepted as past history by the principal's ruling of 2026-11-23,
+# his pick "Accept + cloud hands back". Measured 2026-11-27 UTC: exactly these
+# 28 plus the merge below were signscan's bad set over 450b10d..HEAD.
+911827f2c9fa5308453e5229fa28b4ccb0987629
+994176fa60f7ba7a665d527fdf51d194df4e2982
+74a7053fc50b57e7999d49a7c96ad017c818e73d
+52600dbfef970406098d6d490b78c72327ff7fc0
+d00cafcfed2bdf7462eb9ed5dbccf2e282c27659
+fe72b22ccb2a430574e0fcb89d49c4ed5096b4f0
+c4c3c17eeefcbff92a4888cc0e0476ca2340d581
+0dd1bfda0edfb49f63997cf7543a71995a4290d8
+7bbb5c258c3d19a0f5403266f77da54329708425
+5f3e3b871f57a8e9ee709179dc610d7c38080144
+bef19b970192ee501264b8eed9d14785fd2ddbe8
+0db8afe9012b223720816d6b47bbddbd15a9cba2
+c9d8a0d6f4c1868eaa4864b97dd5a23d94e37fd0
+f470d3e83d9d5f643dbcafcf1b3b0ae406b0736c
+51679e62ea17dd09e64dfbf31227405265070619
+5de15d6533d12c25ed8bf659719f07afd2a5f917
+af079fef14990898f6e9d814e5dcd1eeb4d8a65d
+87cb7c61430427ed635567de286478a631c179a6
+ec20c7d0d2279ccaf3825729b2b6ef2761994eb3
+662b40fb0f20465349a43c71dcbb7ce88c87f29c
+13ceaa4ecfbcc294f4ff3e51b8ad1e242854bf46
+ad920ce8f8de710c1538b51f870575bdc79e5e37
+5af1076fa5896ab55d96c6790b61c57eacfa2b06
+96e9a58d17450ba887f00d54e29c2bbedd29fe09
+b9d995e41e3d46640df9f70bf05db3f16f18f664
+be19ed944f75505c170b44f38c159abce2ffa3bc
+1d4f97c570c869d8da25d8eab0dbe77c08b8c5d0
+9e9260b006529c1f252f576fa26ae453e55e3e06
+
+# The merge of 2026-09-16 that folded the session-open prompt's history in from
+# its staging repo, committed unsigned. Same board item and ruling: accepted as
+# past history, since main is never rewritten to sign it.
+0a949b4b4a360054a56e6db064612600958293b6

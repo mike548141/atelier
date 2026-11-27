@@ -38,11 +38,34 @@ this guard: peak RSS grew under 1 MB scanning atelier's own full history
 10x-larger commit range alike (`test_signscan.py::BoundedMemory`) — already
 bounded, so no code changed here, only the pinning test.
 
+ACCEPTED EXCEPTIONS (115/520): a commit that fails verification and can never
+be re-signed (history is append-only) can be ACCEPTED by name, through a file
+the caller passes with --accepted, exactly as it passes the trust list. One
+entry per line: a FULL commit object id (40 or 64 lowercase hex; an
+abbreviation is refused, since a short prefix can be brute-forced onto a new
+commit), each under a stated reason (the house reason grammar,
+allowmarker.read_reasoned_lines: a comment stanza above, or a trailing
+`# reason`). There are no ranges and no committer-wide entries: the object id
+hashes the commit's committer line, time, tree and parents, so a full id binds
+the one commit and nothing else, and a new commit by the same identity still
+fails. A malformed file (an unreasoned entry, a short or non-hex id, a second
+field, a duplicate) is an ENVIRONMENT error, exit 2 even under --warn: a broken
+exception list is never a warned one. An accepted commit is reported, counted
+apart from good and bad, and never blocks. A listed commit that verifies is
+simply good.
+
+Why a repo's own list is not a self-attestation hole: a commit cannot contain
+its own id, so the commit that adds an entry is itself outside the list and
+must pass on its own plane (machine key, or GitHub's server signature); the
+newest commit can never be excused. The list therefore grows only through a
+commit that verifies, which is the trust the scan already rests on.
+
 Zero third-party deps: stdlib + git + ssh-keygen, already present wherever git
 signs. `gh` is only for the separate GitHub-server plane, never invoked here.
 
     signscan --allowed-signers <path> --boundary <sha>   # verify <sha>..HEAD
     signscan --allowed-signers <path> --rev <sha>        # verify one commit
+    signscan --allowed-signers <path> --accepted <file> --boundary <sha>
     signscan --selftest                                  # prove the engine
 """
 
@@ -51,6 +74,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -58,6 +82,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import report as _report  # noqa: E402  (`report` is a local name below)
+import allowmarker  # noqa: E402
 
 # GitHub's web-flow committer address — the marker that a commit is server-minted
 # (merge/squash) and belongs to the gh-api plane, not the local one. Not personal
@@ -67,6 +92,46 @@ WEB_FLOW_EMAIL = "noreply@github.com"  # leakscan:allow: GitHub's public web-flo
 
 class SignscanError(Exception):
     """Environment failure — could not truthfully compute, so we don't pretend."""
+
+
+# A full git object id: SHA-1 (40) or SHA-256 (64), lowercase hex as git prints
+# it. Nothing shorter: an abbreviated id names whatever commit matches it,
+# including one made after the entry was written.
+_FULL_OID_RE = re.compile(r"^(?:[0-9a-f]{40}|[0-9a-f]{64})$")
+
+
+def load_accepted(path: str) -> dict[str, dict]:
+    """The accepted-exception list at `path`, as {object id: {line, reason}}.
+
+    Every defect is a SignscanError naming the file and line, so the caller
+    exits 2: an absent file (the caller named it, so its absence is a broken
+    setup, not "no exceptions"), an entry with no reason, an entry that is not
+    exactly one full object id, and an id listed twice."""
+    if not os.path.isfile(path):
+        raise SignscanError(f"accepted-exception file not found: {path}")
+    entries = allowmarker.read_reasoned_lines(Path(path))
+    out: dict[str, dict] = {}
+    problems = []
+    for n, entry, reason in entries:
+        fields = entry.split()
+        if reason is None:
+            problems.append(f"{path}:{n}: '{entry}' has no reason (a comment "
+                            "stanza above it, or a trailing '# reason')")
+        elif len(fields) != 1:
+            problems.append(f"{path}:{n}: '{entry}' must be exactly one full "
+                            "commit id, nothing else (no ranges, no identities)")
+        elif not _FULL_OID_RE.match(fields[0]):
+            problems.append(f"{path}:{n}: '{fields[0]}' is not a full commit id "
+                            "(40 or 64 lowercase hex; abbreviations are refused)")
+        elif fields[0] in out:
+            problems.append(f"{path}:{n}: '{fields[0]}' is already listed at "
+                            f"line {out[fields[0]]['line']}")
+        else:
+            out[fields[0]] = {"line": n, "reason": reason}
+    if problems:
+        raise SignscanError("malformed accepted-exception file:\n  "
+                            + "\n  ".join(problems))
+    return out
 
 
 def _git(repo: str, *args: str) -> subprocess.CompletedProcess:
@@ -119,10 +184,14 @@ def verify_machine_commit(repo: str, sha: str, allowed_signers: str) -> tuple[bo
 
 
 def scan(repo: str, allowed_signers: str, boundary: str | None,
-         rev: str | None, web_flow_email: str) -> dict:
+         rev: str | None, web_flow_email: str,
+         accepted: str | None = None) -> dict:
     if not os.path.isfile(allowed_signers):
         raise SignscanError(f"allowed_signers not found: {allowed_signers}")
     allowed_abs = os.path.abspath(allowed_signers)
+    # Loaded before any commit is verified, so a malformed list fails the run
+    # whatever the range holds.
+    excused = load_accepted(accepted) if accepted else {}
     results = []
     for sha in commit_range(repo, boundary, rev):
         email = committer_email(repo, sha)
@@ -131,9 +200,19 @@ def scan(repo: str, allowed_signers: str, boundary: str | None,
                             "detail": "server-minted; verify via gh api"})
             continue
         ok, detail = verify_machine_commit(repo, sha, allowed_abs)
+        if not ok and sha in excused:
+            e = excused[sha]
+            results.append({"sha": sha, "plane": "machine", "status": "accepted",
+                            "detail": f"accepted exception (line {e['line']}); "
+                                      f"verification said: {detail}"})
+            continue
         results.append({"sha": sha, "plane": "machine",
                         "status": "good" if ok else "bad", "detail": detail})
-    return {"repo": repo, "allowed_signers": allowed_abs, "results": results}
+    rep = {"repo": repo, "allowed_signers": allowed_abs, "results": results}
+    if accepted:
+        rep["accepted"] = {"file": os.path.abspath(accepted),
+                           "entries": len(excused)}
+    return rep
 
 
 # --- selftest fixture -------------------------------------------------------
@@ -201,12 +280,15 @@ def _selftest() -> int:
     return 0 if ok else 1
 
 
-def _counts(report: dict) -> tuple[int, int, int]:
-    """(checked, good, bad) over the machine plane: a signature is checked
-    when git was asked to verify it, good only when it passed."""
+def _counts(report: dict) -> tuple[int, int, int, int]:
+    """(checked, good, bad, accepted) over the machine plane: a signature is
+    checked when git was asked to verify it, good only when it passed, and
+    accepted when it failed but its commit is on the accepted-exception list
+    (115/520) — counted apart, so an excused failure never reads as good."""
     machine = [r for r in report["results"] if r["plane"] == "machine"]
     bad = sum(1 for r in machine if r["status"] == "bad")
-    return len(machine), len(machine) - bad, bad
+    acc = sum(1 for r in machine if r["status"] == "accepted")
+    return len(machine), len(machine) - bad - acc, bad, acc
 
 
 def coverage_line(report: dict) -> str:
@@ -215,10 +297,11 @@ def coverage_line(report: dict) -> str:
     server-minted commits, which are deferred) cannot read like a pass.
     115/510 item 3: the unit says "checked" and splits good from bad, since
     a failed signature is checked but not verified."""
-    checked, good, bad = _counts(report)
+    checked, good, bad, acc = _counts(report)
     return _report.coverage_line(
         len(report["results"]), checked,
-        unit=f"signature(s) checked ({good} good \u00b7 {bad} bad)",
+        unit=(f"signature(s) checked ({good} good \u00b7 {bad} bad "
+              f"\u00b7 {acc} accepted)"),
         noun="commit(s) examined", files_what="commits",
         units_what="signatures")
 
@@ -227,11 +310,11 @@ def coverage_dict(report: dict) -> dict:
     """The `--json` twin. `signatures_verified` keeps its old key and value
     for readers of the earlier shape (it counts signatures checked, bad ones
     included: 115/510 item 3); the honest counts are added beside it."""
-    checked, good, bad = _counts(report)
+    checked, good, bad, acc = _counts(report)
     d = _report.coverage_dict(
         len(report["results"]), checked, unit_key="signatures_verified")
     d.update(signatures_checked=checked, signatures_good=good,
-             signatures_bad=bad)
+             signatures_bad=bad, signatures_accepted=acc)
     return d
 
 
@@ -240,14 +323,21 @@ def render_human(report: dict, warn: bool) -> tuple[str, int]:
     machine = [r for r in results if r["plane"] == "machine"]
     deferred = [r for r in results if r["plane"] == "github"]
     bad = [r for r in machine if r["status"] == "bad"]
+    acc = [r for r in machine if r["status"] == "accepted"]
     lines = []
     for r in bad:
         lines.append(f"  ✗ {r['sha'][:12]}  {r['detail']}")
+    for r in acc:
+        lines.append(f"  = {r['sha'][:12]}  {r['detail']}")
     for r in deferred:
         lines.append(f"  ~ {r['sha'][:12]}  github-server commit → verify via gh api plane")
-    good_n = len(machine) - len(bad)
-    head = (f"signscan: {good_n} good, {len(bad)} bad, {len(deferred)} deferred "
-            f"(github plane) over {len(results)} commit(s)")
+    good_n = len(machine) - len(bad) - len(acc)
+    head = (f"signscan: {good_n} good, {len(bad)} bad, {len(acc)} accepted, "
+            f"{len(deferred)} deferred (github plane) over {len(results)} commit(s)")
+    if "accepted" in report:
+        a = report["accepted"]
+        lines.append(f"  accepted-exception list: {a['entries']} entr(ies) in "
+                     f"{a['file']}, {len(acc)} excused a failure in this range")
     body = "\n".join(lines)
     if bad:
         verb = "WARN (not blocking)" if warn else "FAIL"
@@ -267,6 +357,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--boundary",
                     help="adoption boundary SHA (exclusive): verify <boundary>..HEAD")
     ap.add_argument("--rev", help="verify a single commit instead of a range")
+    ap.add_argument("--accepted",
+                    help="accepted-exception list: full commit ids, each "
+                         "reasoned, whose failed signature is accepted history "
+                         "(SIGNING.md); resolved by the caller like the trust list")
     ap.add_argument("--repo", default=".", help="repo directory (default: .)")
     ap.add_argument("--warn", action="store_true",
                     help="report bad signatures but exit 0 (warn-first rollout)")
@@ -284,7 +378,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         report = scan(args.repo, args.allowed_signers, args.boundary,
-                      args.rev, args.web_flow_email)
+                      args.rev, args.web_flow_email, args.accepted)
     except SignscanError as e:
         print(f"signscan: environment error — {e}", file=sys.stderr)
         return 2

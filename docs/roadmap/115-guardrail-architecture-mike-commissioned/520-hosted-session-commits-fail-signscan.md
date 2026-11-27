@@ -1,4 +1,4 @@
-- [~] 🔎 **28 commits made by hosted cloud sessions fail `signscan`, and
+- [x] 🔎 **28 commits made by hosted cloud sessions fail `signscan`, and
       🔒 Claimed by session 9c5fa72c (`atelier-fa`, Opus 5.5), principal-opened by
       `/atelier:work run`.
       (claimed 2026-11-27-0915, wt: atelier-qr-9c5f-signscan)
@@ -42,3 +42,28 @@
       and say in `SIGNING.md` that a hosted session hands its work back (a
       branch or PR) for a local session to land, never committing to
       `main` itself. The build earns its own cold pass.
+      ✅ **Done 2026-11-27 (session 9c5fa72c queue run, `atelier-fa`).** Built
+      as ruled. `signscan --accepted <file>` reads a list of accepted
+      commits: one full commit id per line under a stated reason (the house
+      reason grammar), no ranges, no committer-wide entries, abbreviations
+      refused; a listed commit that fails is reported and counted as
+      *accepted*, apart from good and bad, and never blocks; an unlisted
+      commit, including a new one by the same committer, still fails; a
+      malformed list exits 2 even under `--warn`. `.signscanaccept` lists the
+      29 by full id; `ci.yml` passes it beside the trust list (still
+      `--warn`); `allowed_signers` untouched. `SIGNING.md` gains § *Commits
+      made by hosted sessions* with the ruling in his words and the
+      hand-back rule. Measured over `450b10d..HEAD` from the worktree:
+      before, 2826 good, 29 bad, 72 deferred (the 28 plus `0a949b4b`, matching
+      the count above); after, in blocking mode with the list, 2826 good,
+      0 bad, 29 accepted, 72 deferred, exit 0. The flip itself is not made
+      here. Cold pass owed.
+      - Commitment: an exception list a security guard reads, that excuses
+        exactly the named commits and nothing else, and that fails loudly
+        when it is malformed, so the flip to blocking can rest on it.
+      - Worst failure: the list excuses more than it names (a prefix, a
+        parse quirk, or a later commit treated as listed), so an unsigned or
+        foreign-signed commit lands on `main` and reads as accepted history.
+      - Why the floor misses it: under warn-first no run can fail on
+        signatures at all, and the tests use throwaway unsigned repos, so a
+        widening shows only as a smaller bad count that nobody compares.
