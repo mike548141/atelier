@@ -1,4 +1,4 @@
-- [~] 🔎 **A repo declares its visibility in two places, `CLAUDE.md` and
+- [x] 🔎 **A repo declares its visibility in two places, `CLAUDE.md` and
       `.atelier-floor.json`, and nothing compares them.** Found 2026-11-16 UTC
       by the `020/220` census, slice 2
       (`docs/method/census/2026-11-16-1204-apex-autonomy-guards-propagation.md`).
@@ -22,6 +22,10 @@
       **Still open, the principal's:** which declaration is canonical, and so
       whether the other should be derived rather than compared, and whether a
       disagreement should ever block.
-      🔒 Claimed by session 4ce066ba (`atelier-c1`, Opus 5.5), principal-opened by
-      `/atelier:work run`.
-      (claimed 2026-11-27-0005, wt: atelier-qr-4ce0-visibility)
+      ✅ **Closed 2026-11-27 (session 4ce066ba, `atelier-c1`):** the owed work was
+      "derive the other or add the comparison"; the comparison landed. Which file is
+      canonical is left for the principal to raise if he wants a derivation instead;
+      it is not owed work.
+      review: not warranted — a soft line that never moves an exit status; its worst
+      failure, a false agree, leaves a repo where it stood before the line existed,
+      and `tools/test_floor.py` pins every shape measured across the estate.
