@@ -96,3 +96,10 @@
       misses it:` then.
       *Claim released 2026-11-27 at the close of session a2097e54 (`atelier-b2`): items 2 to 8
       are landed; item 1 waits on the principal's answer to the question above.*
+      **His answer to item 1, 2026-11-27 ~23:55 UTC** (question device, session
+      a2097e54 `atelier-b2`; the options and recommendation were the session's; an
+      answer, not a ruling), his pick verbatim: *"Add the label (Recommended)"*. The
+      option read: the board shows each as "warns until <date>", the date read from the
+      guard itself so it cannot drift; a small build plus a test; every child's board
+      output changes; one cold review owed. **Item 1 is now buildable** by any session.
+
