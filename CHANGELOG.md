@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-11-27 — `signscan` accepts named commits by full id, `115/520`)
+- **`signscan --accepted <file>`.** A commit whose signature fails and can never be
+  re-signed can be listed by its full commit id under a stated reason; it is reported and
+  counted as accepted, apart from good and bad, and never blocks. Short ids, ranges and
+  identities are refused, and a malformed or missing list exits 2 even under `--warn`.
+  atelier lists its 29 (the 2026-10-17/18 hosted-session run and one unsigned merge) in
+  `.signscanaccept`; `SIGNING.md` § *Commits made by hosted sessions* says how a hosted
+  session hands its work back for a local session to land, signed.
+- **Adopter action.** None. A child's floor passes no list.
+
 ### Changed (2026-11-27 — structural-only on the ci plane reads as by design, `260/060`)
 - **The floor's ci line for `leakscan` no longer reads as a defect.** It said `cover not
   guaranteed — the ci plane does not pass --require-terms` in every child's run; it now says
